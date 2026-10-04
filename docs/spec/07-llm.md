@@ -26,14 +26,12 @@ default route.
 
 | Task | Input | Output |
 |---|---|---|
-| `check_answer` | exercise, expected/rubric, answer, lesson rules | verdict, corrections[], short explanation in native language |
-| `write_check` | task, rubric, text | corrected text, corrections[], rubric scores |
+| `check_answer` | exercise, reference/rubric, answer, lesson rules | verdict, corrections[], short explanation in native language; with rubric criteria also criterion scores and a corrected text |
 | `scene_turn` | scene, allowed vocab/rules, history, learner turn | reply (target language), goal progress, corrections[] |
-| `explain` | question in native language + lesson context | explanation, examples |
-| `chat_turn` | free chat with the learner's context (progress, recent mistakes) | message |
+| `chat_turn` | free chat with the learner's context (progress, recent mistakes; the current exercise when asked from a lesson) | message |
 | `translate_mt` | text, languages | translation, marked as machine translation |
 
-`respond`, `translate` → `check_answer`; `write` → `write_check`; `scene` → `scene_turn`.
+`respond` → `check_answer`; `scene` → `scene_turn`; "ask about this exercise" → `chat_turn`.
 
 - Outputs are JSON validated with zod: invalid → one repair retry → graceful "couldn't check, here is
   the reference answer". Requests have per-task timeouts; a model that is still loading is shown as such.

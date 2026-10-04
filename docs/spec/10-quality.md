@@ -29,7 +29,7 @@ table in the same PR with the reason.
 | Concern | Choice |
 |---|---|
 | Runtime, package manager, tests | Bun (workspaces, `bun test`); Node compatibility kept for the server |
-| HTTP server | Hono; typed web client via Hono RPC (`hono/client`) — no code generation |
+| HTTP server | Hono; typed web client via Hono RPC (`hono/client`, type-only import of the server's `AppType`) — no code generation |
 | Validation / types | zod; JSON Schema via `zod-to-json-schema` |
 | Database | SQLite via `bun:sqlite`, Drizzle ORM + drizzle-kit migrations, WAL |
 | IDs | ULID (`ulid`) |
@@ -53,10 +53,10 @@ table in the same PR with the reason.
 
 | Level | What |
 |---|---|
-| Unit (`bun test`) | checkers per type (table-driven), normalisation, FSRS wrapper, normalisers, LLM output parsing |
+| Unit (`bun test`) | checkers per type (table-driven), normalisation, FSRS wrapper, replay, normalisers, LLM output parsing |
 | Contract / snapshot | providers on **synthetic** fixtures; enrichment validates and resolves keys |
 | Integration | server API against a temp data root; jobs; media Range |
-| Migration | upgrade fixture DBs from every released schema version; rebuild derived tables |
+| Migration | upgrade fixture DBs from every released schema version |
 | E2E (Playwright) | "first run → install fixture course → complete lesson 1 → review cards", desktop and phone viewport |
 | LLM golden | `prompts test` per route, run manually before changing defaults or prompts |
 | Manual | owner demo at the end of each stage on Mac and iPhone |

@@ -1,7 +1,7 @@
 # packages/server
 
-HTTP API, storage, jobs, sidecar supervision. Spec: `docs/spec/05-data-model.md`, `docs/spec/06-server.md`.
-May depend on: schema, engine, course-kit, courses/*, llm, speech, anki-export.
+HTTP API, storage, jobs, sidecars, speech. Spec: `docs/spec/05-data-model.md`, `docs/spec/06-server.md`,
+`docs/spec/08-speech.md`. May depend on: schema, engine, course-kit, courses/*, llm, anki-export.
 
 ## Layout (target)
 
@@ -14,11 +14,12 @@ src/
     profile/         # Drizzle schema + migrations for profile.sqlite
     backup.ts        # copy-before-migrate, retention
   routes/            # one file per API area (auth, catalog, lessons, runs, review, notebook, cards, exams, llm, speech, settings, server, media, jobs)
-  services/          # business flows composing engine/llm/speech with storage
-  jobs/              # import, model download, rebuild; progress via SSE
+  services/          # business flows composing engine/llm/speech with storage; in-memory derived stats per profile
+  jobs/              # import, model download; progress via SSE
   sidecars/          # whisper-server, TTS, later llama-server supervisors (spawn, health, restart)
   security/          # profiles, PIN, device tokens, secrets encryption, Host check, CSP
-  library/           # resolve blob refs, Range responses, manifest access
+  speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
+  media/             # Range responses for library blobs (read via course-kit) and profile files
 ```
 
 ## Rules
@@ -28,3 +29,5 @@ src/
 - Any change to a Drizzle schema → new migration + migration test with fixture DBs (`test/fixtures/db/`).
 - Secrets are write-only through the API and never logged.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
+- Speech: always pass an explicit language; never pass the reference text to the recogniser.
+- Exports a programmatic API used by `apps/cli` (serve, import, verify, export, enrich check).

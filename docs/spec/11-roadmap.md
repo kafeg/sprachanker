@@ -28,8 +28,8 @@ they are built after the MVP (stages 10–12). Do not build post-MVP features ea
 
 ### 0 — Skeleton
 Specs: 10, root CLAUDE.md.
-- Bun workspaces with the MVP modules (`schema`, `course-kit`, `engine`, `server`, `llm`, `speech`,
-  `ui-kit`, `apps/web`, `apps/cli`, `courses/_fixture`); strict TS; Biome; dependency-cruiser with the
+- Bun workspaces with the MVP modules (`schema`, `course-kit`, `engine`, `server`, `llm`, `apps/web`,
+  `apps/cli`, `courses/_fixture`); strict TS; Biome; dependency-cruiser with the
   violation test; `bun test`; Playwright; GitHub Actions; PR template; CLAUDE.md path checker; i18n
   scaffold (en/ru/de).
 - Spike: `bun build --compile` produces one `sprachanker` binary that serves the built web app and
@@ -63,8 +63,8 @@ Specs: 05, 06.
 - Data root, both databases, migrations with backups, runs/events with the lifecycle rules,
   profiles/PIN/devices, owner setup link, lesson and run API, media with Range, jobs with SSE, security
   basics.
-- **Accept**: integration and migration tests; a run survives restart; rebuild reproduces derived
-  tables; after a take-over the old device is told so and its late events are still stored; Host check,
+- **Accept**: integration and migration tests; a run survives restart and continues on a second device
+  with events from both stored; statistics recomputed from events match after restart; Host check,
   CSRF header and PIN rate limit covered by tests.
 
 ### 5 — Lesson UI
@@ -94,25 +94,24 @@ Specs: 08, 06.
 
 ### 8 — LLM
 Specs: 07.
-- Gateway, providers, per-profile routes, tasks (`check_answer`, `write_check`, `scene_turn`,
-  `explain`, `chat_turn`, `translate_mt`), types `respond`, `translate`, `write`, `scene`, handoff,
-  golden tests.
+- Gateway, providers, per-profile routes, tasks (`check_answer`, `scene_turn`, `chat_turn`,
+  `translate_mt`), types `respond` and `scene`, handoff, golden tests.
 - **Accept**: golden results recorded for at least one local and one cloud model; defaults chosen from
-  them; a scene runs end to end with corrections in the error log.
+  them; a fixture scene runs end to end with corrections in the error log.
 
 ### 9a — Enrichment and rule-based features
 Specs: 02, 04, 07.
 - `enrich check`, rules registry content for A1, A1 enrichment chapter by chapter (rule tags,
   contrastive notes, speaking, scenes) authored with Claude Code from the local library; A1 writing and
-  speaking tasks of the Goethe A1 kind covered by `write`, `respond` and scenes.
+  speaking tasks of the Goethe A1 kind covered by `respond` and scenes.
 - Mistakes by rule, rule mastery, weak spots on Today, "Practise this", can-do list.
 - **Accept**: A1 units 0–2 enriched and reviewed by the owner; `enrich check` clean; a practice set from
   du/Sie mistakes (seeded or real) runs end to end.
 
 ### 9b — Exams
 Specs: 02, 03, 06, 09.
-- Exam player and Exams screen; Nicos Weg final test; `bamf-lid` (pools, state filter, timer, practice
-  of wrong answers, machine-translated questions).
+- Exam player and Exams screen; `bamf-lid` (pools, state filter, timer, practice of wrong answers,
+  machine-translated questions).
 - **Accept**: a LiD timed exam with Berlin questions works end to end; results in the Notebook.
 - **MVP acceptance**: the owner and his wife use the MVP for at least one week of real study on phones
   and Mac; their findings decide the order of post-MVP work.

@@ -21,9 +21,10 @@ interface Provider {
 }
 ```
 
-`course-kit` supplies `FetchIO` (polite HTTP client: robots.txt, ≤1 req/s per host, retries with
-backoff, resumable downloads, identifiable User-Agent), the blob store, writing files and the manifest,
-the HTML sanitiser, and the generic `verify`. The exact interface is fixed in stage 2.
+`course-kit` owns the library format (read and write, `LibraryView`) and supplies `FetchIO` (polite HTTP
+client: robots.txt, ≤1 req/s per host, retries with backoff, resumable downloads, identifiable
+User-Agent), the blob store, writing files and the manifest, the HTML sanitiser, fingerprints and
+`contentVersion`, and the generic `verify`. The exact interface is fixed in stage 2.
 
 ## Importer behaviour (all providers)
 
@@ -45,8 +46,8 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   video variants and PDFs are fetched is decided in stage 2. Hosts refusing cloud IPs are reported.
 - **Normalise** (*provisional until stage 1*): DW exercises (inquiries → alternatives with `isCorrect`,
   `inputType`, `clozeType`, media) map to our types; unknown combinations → `unknown` + report. The
-  first exercise page is the episode. Self-rated speaking → `speech_selfrate`. The final test → exam of
-  the course. Vocabulary "die Frau, die Frauen" → gender/plural + lexeme key.
+  first exercise page is the episode. Self-rated speaking → `speech_selfrate`. The final test → a lesson
+  (confirmed in stage 1). Vocabulary "die Frau, die Frauen" → gender/plural + lexeme key.
 - **Stage 1 reconnaissance**: sample A1 `ru-de` thoroughly plus one lesson each of A1 `en-de`, A2, B1
   and one Deutsch im Blick chapter (schema check only); catalogue all exercise and page kinds; decide
   how learner-language and target-language strings are told apart and how lexeme POS is derived;

@@ -20,7 +20,7 @@ client's. Answers of closed exercises are visible to the client — acceptable f
 
 ## Checking
 
-Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (ui-kit) and tests.
+Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (`apps/web`) and tests.
 
 ```ts
 type Outcome = {
@@ -29,7 +29,7 @@ type Outcome = {
   diff?: TokenDiff[];     // text and speech
   ruleIds: string[];      // canonical ruleIds + enrichment
   lexemes: string[];
-  needsLlm?: boolean;     // respond / translate / write: deterministic part done, LLM verdict pending
+  needsLlm?: boolean;     // respond: deterministic part done, LLM verdict pending
 };
 ```
 
@@ -44,18 +44,19 @@ type Outcome = {
   token capitalised in the reference and not sentence-initial is compared case-sensitively). Speech is
   always compared case-insensitively. Language rules live in `engine/src/text/<lang>.ts`.
 - `respond`: rubric groups are checked deterministically first, then the LLM verdict (07). Without an
-  LLM, `respond` is scored from the rubric only, and `translate`/`write` are `unscored` with the
-  reference shown.
+  LLM it is scored from the rubric's required groups if it has them, otherwise `unscored`; the
+  reference is shown either way.
 - `unknown` is never rendered; the page shows "not supported yet".
 
 ## Learner model
 
-Derived from events (05); rebuildable.
+Pure functions over events and cards (`replay`); the server caches the results in memory (05).
 
 - **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM
   corrections (07).
 - **Rule mastery**: accuracy over recent attempts per rule (formula fixed in stage 9a).
 - **Lexeme state**: seen, practised, FSRS stability; "in long-term memory" when stability ≥ 21 days.
+- **Lesson progress and item history**: status `new | in_progress | done`, best score, attempts.
 - **Can-do**: a course goal is achieved when its linked lessons are completed.
 
 ## Spaced repetition
@@ -82,4 +83,5 @@ task `scene_turn` (07).
 - **Anki** (`packages/anki-export`, stage 10): `.apkg` export per deck with media (no scheduling) and
   import into stored decks, linking notes to existing lexemes.
 - **Word images** (stage 10): candidates from ARASAAC (CC BY-NC-SA), OpenMoji (CC BY-SA) and course
-  images, fetched at runtime into the profile's media with licence and attribution, never bundled.
+  images, fetched at runtime into the profile's media with licence and attribution, never bundled;
+  per-word learner data (chosen image, note, own translation) is stored then.

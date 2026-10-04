@@ -8,8 +8,8 @@ Depends on nothing (zod only). Every other module imports types from here.
 ```
 src/
   lang.ts            # Lang, edition ids
-  catalog.ts         # CatalogEntry, Kind, licence
-  keys.ts            # lesson/exercise/item/vocab key builders + parsers, fingerprint helpers
+  catalog.ts         # CatalogEntry, kind, licence
+  keys.ts            # key builders + parsers (fingerprints and contentVersion live in course-kit)
   canonical.ts       # course index, lesson, pages, vocab, media refs (blob:sha256:…)
   exam.ts            # exam, sections, pools, pass rules
   locale.ts          # localised course/lesson/exam texts per edition (same key paths as canonical)
@@ -17,8 +17,7 @@ src/
   rules.ts           # grammar rules registry
   enrichment.ts      # enrichment, scenes
   manifest.ts        # course.json
-  learner.ts         # runs, event payloads per event type, cards, lexeme_user, settings
-  api/               # request/response schemas shared by server and web
+  learner.ts         # runs, event payloads per event type, cards, settings
 json-schema/        # generated JSON Schemas, committed (CI checks drift)
 scripts/gen-json-schema.ts
 ```
@@ -26,8 +25,8 @@ scripts/gen-json-schema.ts
 ## Rules
 
 - Types are zod schemas; TS types are inferred (`z.infer`). No hand-written duplicate interfaces.
-- Adding an exercise type: add `exercise/<type>.ts` here, then checker in engine and renderer in ui-kit
-  (root rule 2).
+- Adding an exercise type: add `exercise/<type>.ts` here, then checker in engine and renderer in
+  `apps/web` (root rule 2).
 - Changing a stored format: bump its version constant; add a migration (server) or re-normaliser path.
 - Keys are built only through `keys.ts` helpers — never by string concatenation elsewhere.
 - No runtime logic beyond parsing/validation helpers.

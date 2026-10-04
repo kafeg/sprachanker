@@ -6,7 +6,7 @@
 <app-data>/                      # OS-specific: ~/Library/Application Support/SprachAnker, %APPDATA%\…, ~/.local/share/…
 ├── config.json                  # data root path, port, network settings
 ├── models/                      # whisper models, voices, GGUF models
-├── cache/                       # TTS cache
+├── cache/                       # TTS and machine-translation cache
 └── logs/
 
 <data-root>/                     # user-chosen; default <app-data>/data
@@ -18,7 +18,7 @@
     └── media/                   # learner-added files
 ```
 
-- One SQLite file per profile: simple backup, move and deletion of a person's data.
+- One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
 - The library never contains learner data; profiles never contain course content.
 - The data root is created only on first start; if a configured root is missing later (e.g. an
   unmounted disk), the server refuses to start with a clear message.
@@ -31,32 +31,24 @@
 
 ## `profile.sqlite`
 
-All ids are ULIDs; all content references use keys from 02.
-
-**Settings**
-- `settings(key, value_json)` — languages, theme, SRS limits and retention, speech preferences, time
-  zone, federal state, …
-- `course_prefs(course_key, edition, added_at)` — edition used per course.
-- `secrets(provider_id, value_encrypted)` — the profile's API keys; never returned by the API; not
-  exported.
-- `llm_routes(task, provider_id, model, params_json)` — each profile chooses its own models (07).
-
-**Event log (source of truth for learning activity)**
+All ids are ULIDs; all content references use keys from 02. Seven tables:
 
 ```sql
+settings(key TEXT PRIMARY KEY, value_json TEXT)          -- languages, theme, SRS limits, retention,
+                                                         -- speech preferences, time zone, federal state…
+secrets(provider_id TEXT PRIMARY KEY, value_encrypted)   -- the profile's API keys; never returned by the API
+llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- each profile picks its own models (07)
+
 runs(
   id TEXT PRIMARY KEY,
   kind TEXT NOT NULL,             -- lesson | exam | review | practice | scene | chat
   context_key TEXT,               -- lesson/exam/scene key; null for review, practice, chat
   course_key TEXT, edition TEXT, content_version TEXT,   -- null when not tied to one course
   app_version TEXT NOT NULL,      -- includes our enrichment version
-  parent_run_id TEXT,             -- e.g. practice run created from a Notebook selection
   plan_json TEXT,                 -- fixed at start for review, practice and exam runs; null for lessons
   status TEXT NOT NULL,           -- active | finished | abandoned
   end_reason TEXT,                -- completed | timeout | content_updated | user
-  active_device_id TEXT,          -- device currently driving the run
   started_at INTEGER NOT NULL, finished_at INTEGER,
-  position_json TEXT,             -- last page for resume
   result_json TEXT
 );
 events(
@@ -68,26 +60,6 @@ events(
   item_key TEXT, card_id TEXT,
   payload_json TEXT NOT NULL      -- per-type shape, validated by schema
 );
-```
-
-| Event type | Payload (required fields) |
-|---|---|
-| `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (built by the server, incl. learner-language texts), `displayOrder` |
-| `answered` | `answer` (02), `outcome` (04, computed by the server), `attempt`, `ms` |
-| `llm_verdict` | `forEventId`, `verdict`, `corrections[]` (07), `model`, `latencyMs` |
-| `speech` | `lang`, `recording` (file name), `asrText`, `asrModel`, `latencyMs`, `reference?`, `diff?` |
-| `llm_turn` | `role`, `segments[{lang,text}]`, `corrections[]`, `goalsMet[]?`, `model?`, `speechEventId?` |
-| `card_review` | `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
-
-- Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
-  its name and the UI shows "deleted".
-- Mutable run fields: `status`, `end_reason`, `active_device_id`, `finished_at`, `position_json`,
-  `result_json`.
-- Snapshots make old runs readable after content changes or course removal.
-
-**Cards**
-
-```sql
 cards(
   id TEXT PRIMARY KEY,
   kind TEXT NOT NULL,             -- lexeme | sentence | custom
@@ -100,21 +72,33 @@ cards(
   suspended INTEGER DEFAULT 0,
   created_at INTEGER NOT NULL
 );
-card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))   -- derivable from card_review events
-lexeme_user(lexeme_key PRIMARY KEY, note, translation_override, updated_at)
+card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 ```
 
-Lexeme cards render from the library (vocab entry + locale translation) plus `lexeme_user`. Stored decks
-and word images come in stage 10.
+## Events
 
-**Derived tables (rebuildable from events and cards)**
-- `lesson_progress(context_key, best_score, last_run_id, completed_at, status)` — `new | in_progress | done`
-- `item_stats(item_key, attempts, correct, last_result, last_at)`
-- `rule_stats(rule_id, day, attempts, correct)`; `lexeme_stats(lexeme_key, seen, practised, last_at)`
-- `mistakes(event_id, run_id, item_key, rule_ids_json, lexemes_json, source)`
-- `can_do(goal_key, achieved_at, evidence_run_id)`
+| Event type | Payload (required fields) |
+|---|---|
+| `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (attached by the server, incl. learner-language texts), `displayOrder` |
+| `answered` | `answer` (02; spoken answers carry `speech{recording, asrText, model, latencyMs}`), `outcome` (04, computed by the server), `attempt`, `ms` |
+| `llm_verdict` | `forEventId`, `verdict`, `corrections[]` (07), `model`, `latencyMs` |
+| `llm_turn` | `role`, `segments[{lang,text}]`, `corrections[]`, `goalsMet[]?`, `model?`, `speech?` |
+| `card_review` | `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
 
-`rebuild` drops derived tables and replays events.
+- Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
+  its name and the UI shows "deleted".
+- Snapshots make old runs readable after content changes or course removal.
+- `card_state` is written in the same transaction as each `card_review` event and can be recomputed
+  from those events.
+
+## Derived state
+
+Statistics (lesson progress and best scores, item history, mistakes, rule and lexeme stats, can-do) are
+**pure engine functions over events and cards** (04). The server computes them per profile and caches
+them in memory, updating on append. There are no derived tables; one is added only when a measured
+query is too slow, and then it must be rebuildable from events.
+
+Resume = the last `page_shown` of the active run.
 
 ## Migrations
 
@@ -124,24 +108,22 @@ and word images come in stage 10.
 - The server refuses to open a DB that has migrations it does not know (downgrade protection).
 - Each migration has a test that upgrades fixture DBs of every released version (10).
 
-## Export and import
+## Export, import, backup
 
-- **Profile export**: versioned JSON + recordings and media in a zip, independent of the SQLite schema
-  (settings without secrets, runs, events, cards, card state, lexeme data). Import into a fresh profile;
-  derived tables are rebuilt.
-- **Library**: copy series folders (02).
+- **Profile export** = zip of the profile folder (`profile.sqlite` via `VACUUM INTO`, recordings,
+  media) without secrets. **Import** unpacks it as a new profile; migrations bring it up to date.
+- The same export is the backup of a person's data. The library is re-downloadable and copied per
+  series (02).
 
-## Concurrency and lifecycle
+## Lifecycle
 
 - One server process owns all DB files (WAL mode); devices are clients.
-- **One active run per (profile, context)**; one active review run per profile. Opening it on another
-  device offers "continue here", which moves `active_device_id`. Events from any device are always
-  stored (idempotent by id), so nothing sent late is lost; the response tells a device that is no longer
-  active, and its UI shows "continued on another device" and stops input.
+- One active run per (profile, context) and one active review run per profile. Any device of the
+  profile may continue it; events from all devices are stored (idempotent by id).
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached. Score = mean
   first-attempt score of scored items (04).
 - **Content updated** while a run is active: the run ends `abandoned/content_updated`; finished runs stay
   readable via snapshots.
-- **Course removed**: runs and Notebook stay readable via snapshots; lexeme cards keep working from
+- **Course removed**: runs stay readable via snapshots; lexeme cards keep working from
   `display_cache_json`.
 - **Study days** use the profile's time zone.

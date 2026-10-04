@@ -47,7 +47,7 @@ moved, or restored by copying.
 | Exercise | `<lesson>/ex-<NN>` (source order); ours: `<lesson>/x-<NN>` | `dw.nicos-weg/a1/00-01/ex-03` |
 | Item | `<exercise>#<n>` (1-based) | `dw.nicos-weg/a1/00-01/ex-03#2` |
 | Option | id inside an item: `a`, `b`, `c`… in canonical order | option `b` |
-| Exam | `<course>/exam-<slug>` | `dw.nicos-weg/a1/exam-final` |
+| Exam | `<course>/exam-<slug>` | `bamf.lid/lid/exam-test` |
 | Exam item | `<exam>/q-<id>`, id unique within the exam | `bamf.lid/lid/exam-test/q-001`, `…/q-be-01` |
 | Goal | `<lesson>/goal-<n>` or `<course>/goal-<slug>` (ours) | `dw.nicos-weg/a1/00-01/goal-1` |
 | Vocab occurrence | `<lesson>/v-<lemma-slug>` | `dw.nicos-weg/a1/00-01/v-frau` |
@@ -57,7 +57,8 @@ moved, or restored by copying.
 
 - `lemma-slug`: NFC, lowercase, spaces → `-`, punctuation removed, umlauts and ß kept. `pos` and
   `gender` values and how they are derived from sources are fixed in stage 1.
-- Keys are built and parsed only by `packages/schema/src/keys.ts`.
+- Keys are built and parsed only by `packages/schema/src/keys.ts`; fingerprints and `contentVersion`
+  are computed by `packages/course-kit`.
 - **Keys must not shift when the source changes order.** Providers keep a **key map** in the repository
   (`courses/<provider>/provider/keymap.json`: our keys ↔ source ids per edition — ids only). Known ids
   keep their keys; new source items get new keys; removed keys are never re-used. Source ids are
@@ -89,7 +90,7 @@ moved, or restored by copying.
 // canonical/<course>/course.json
 { "format": 1, "key": "dw.nicos-weg/a1",
   "units": [ { "key": "dw.nicos-weg/a1/u00", "order": 0, "lessons": ["dw.nicos-weg/a1/00-01"] } ],
-  "exams": [ "dw.nicos-weg/a1/exam-final" ],
+  "exams": [],
   "goals": [ { "key": "dw.nicos-weg/a1/00-01/goal-1", "lessons": ["dw.nicos-weg/a1/00-01"] } ] }
 
 // canonical/<course>/lessons/00-01.json
@@ -112,15 +113,14 @@ moved, or restored by copying.
   "pass": { "minPoints": 17 } }
 ```
 
-Fixed-order exams use `draw` = pool size.
-
 ## Exercise types
 
 > **Provisional until stage 1.** Stage 1 reconnaissance confirms or revises this table before any
 > checker or renderer is written.
 
 All types share `key`, `type`, `fingerprint`, `items[]`, optional `media`, `newWords`, `ruleIds`.
-Answers are compared by **ids**, never by display position; display order may be shuffled.
+Answers are compared by **ids**, never by display position; display order may be shuffled. Open
+answers (translation, short writing, answering a prompt, spoken or written) are all `respond`.
 
 | Type | Item fields (canonical) | Stored answer | Correct when |
 |---|---|---|---|
@@ -132,19 +132,17 @@ Answers are compared by **ids**, never by display position; display order may be
 | `gap_choice` | `segments[text \| {gapId}]`, `gaps{gapId:{options}}`, `answer{gapId:optionId}` | `{gapId:optionId}` | all gaps equal |
 | `gap_text` | `segments`, `answer{gapId:{accepted[text]}}` | `{gapId:text}` | normalised text ∈ accepted |
 | `dictation` | `audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
-| `speech_repeat` | `text`, `audio?` | `{asrText, recording}` | word diff = 0 |
+| `speech_repeat` | `text`, `audio?` | `{speech}` | word diff = 0 |
 | `speech_selfrate` | `text?`, `audio?` (source form; upgraded, 04) | `{rating}` | not scored |
-| `respond` | `prompt`/`audio`, `rubric{required[{id,anyOf[text]}]}`, `reference[text]` | `{text}` | rubric + LLM verdict |
-| `translate` | `reference[text]`; source text in locale | `{text}` | LLM verdict |
-| `write` | `rubric{criteria[{id}]}`, `reference?` | `{text}` | LLM rubric scores |
+| `respond` | `prompt?` (target language; or in locale), `audio?`, `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric + LLM verdict |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path | — | not rendered |
 
 ## Locale files
 
-Learner-language strings (titles, instructions, info boxes, translations, category labels, source text
-of `translate`) live at the same key path as in canonical files. Tab bodies (grammar, culture, script)
-are locale HTML and may mix languages.
+Learner-language strings (titles, instructions, info boxes, translations, category labels, prompts in
+the learner's language) live at the same key path as in canonical files. Tab bodies (grammar, culture,
+script) are locale HTML and may mix languages.
 
 ```jsonc
 // locale/<edition>/<course>/lessons/00-01.json

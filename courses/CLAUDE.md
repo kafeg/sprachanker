@@ -6,7 +6,7 @@ Research about sources: `docs/research/`.
 ## Layout (target)
 
 ```
-packages/course-kit/   # polite fetcher, blob store, manifest, verify, HTML sanitiser, progress
+packages/course-kit/   # library format (LibraryView), polite fetcher, blob store, manifest, fingerprints, verify, HTML sanitiser
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)

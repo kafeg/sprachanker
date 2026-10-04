@@ -8,6 +8,8 @@ Types live in `packages/schema`. Names below are the canonical names in code.
 - A learner has a **native language** (language of explanations) and studies a **target language**.
   A course edition is described by `source → target`, e.g. `ru → de`; `de → de` is a monolingual edition.
 - UI language (`en`, `ru`, `de`) is independent from both.
+- A profile studies the edition whose source is its native language, else the course's only edition
+  (choosing per course comes with multiple editions, stage 11).
 
 ## Catalog
 
@@ -34,7 +36,8 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
 - **GrammarRule**: stable id (`de.greeting.du-sie`), title and explanation per learner language. One
   registry in the repository (02).
 - **Goal (can-do)**: keyed statement of what the learner can do, linked to lessons.
-- **Exam**: sections drawing items from pools, time limit, pass mark (02).
+- **Exam**: sections drawing items from pools, time limit, pass mark (02). Used where a source has real
+  exam rules (Leben in Deutschland); a course's final test without them is just a lesson.
 - **Enrichment**: our additions attached to lesson/exercise keys: contrastive notes, rule tags, extra
   exercises, scenes (02, 04).
 
@@ -58,5 +61,5 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
 - Installed content changes only through an update, which creates a new `contentVersion`. Runs carry
   snapshots, so old runs stay readable after content changes or removal.
 - Events are never updated or deleted (except by deleting the whole profile).
-- Derived tables can be dropped and rebuilt from events at any time.
+- Statistics are derived from events by pure functions (04, 05); nothing derived is a source of truth.
 - Nothing in the domain assumes German or Russian.

@@ -37,7 +37,7 @@ SprachAnker is a self-hosted learning app that:
    practice set from selected mistakes.
 5. **Free chat**: ask about grammar in the native language, chat in the target language, discuss recent
    mistakes.
-6. **Prepare an exam**: Nicos Weg final tests and "Leben in Deutschland".
+6. **Prepare for tests**: the "Leben in Deutschland" exam and the Nicos Weg final tests.
 7. **Set up**: run the server, pick languages, install a course, connect a model, open on the phone.
 
 ## Principles

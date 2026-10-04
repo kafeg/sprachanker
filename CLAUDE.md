@@ -13,17 +13,15 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | Path | Responsibility | Spec | Local guide |
 |---|---|---|---|
 | `packages/schema` | Domain types and file formats (zod → JSON Schema). Depends on nothing. | 01, 02 | `packages/schema/CLAUDE.md` |
-| `packages/course-kit` | Shared importer machinery: polite fetcher, blob store, manifest, verify. | 02, 03 | `courses/CLAUDE.md` |
+| `packages/course-kit` | Library format (read/write), polite fetcher, blob store, manifest, fingerprints, verify. | 02, 03 | `courses/CLAUDE.md` |
 | `courses/<provider>` | One folder per content source: provider (importer + normaliser), enrichment, tests. `courses/_shared/rules` — grammar rules registry. | 02, 03 | `courses/CLAUDE.md` |
 | `packages/engine` | Pure logic: lesson composition, exercise checking, learner model, FSRS. No I/O. | 04 | `packages/engine/CLAUDE.md` |
-| `packages/server` | HTTP API, SQLite, media, profiles, process supervision, jobs. | 05, 06 | `packages/server/CLAUDE.md` |
+| `packages/server` | HTTP API, SQLite, media, profiles, jobs, sidecar supervision, speech (STT/TTS clients). | 05, 06, 08 | `packages/server/CLAUDE.md` |
 | `packages/llm` | LLM gateway, providers, task routing, prompts, golden tests. | 07 | `packages/llm/CLAUDE.md` |
-| `packages/speech` | STT/TTS adapters (whisper-server, Piper, cloud). | 08 | `packages/speech/CLAUDE.md` |
-| `packages/ui-kit` | UI components and exercise renderers. | 09 | `apps/web/CLAUDE.md` |
 | `packages/anki-export` | `.apkg` import/export (created in stage 10). | 04 | `packages/engine/CLAUDE.md` |
-| `apps/web` | React UI: desktop window and phone PWA. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
+| `apps/web` | React UI: desktop window and phone PWA, components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell: window, tray, starts the server sidecar, updates. | 06 | `apps/desktop/CLAUDE.md` |
-| `apps/cli` | The `sprachanker` binary: `serve` (starts the server) + import, verify, export, authoring tools. Compiled with `bun build --compile`; the desktop app bundles it. | 03, 06 | `courses/CLAUDE.md` |
+| `apps/cli` | The `sprachanker` binary: `serve` (starts the server) + import, verify, export, enrichment check. Compiled with `bun build --compile`; the desktop app bundles it. | 03, 06 | `courses/CLAUDE.md` |
 | `native` | Builds of whisper.cpp, llama.cpp, Piper for each platform. | 08, 07 | `native/CLAUDE.md` |
 | `e2e` | Playwright end-to-end tests. | 10 | — |
 | `docs/spec` | Specification. `docs/research` — facts gathered about sources. | — | — |
@@ -31,10 +29,11 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 ## Dependency rules (enforced by dependency-cruiser in CI)
 
 - `schema` → nothing. `engine` → `schema` only. `course-kit` → `schema`.
-- `courses/*` → `schema`, `course-kit` only. Never `server`, `engine`, `ui-kit`.
-- `llm`, `speech` → `schema`. They never import `server`.
-- `server` → `schema`, `engine`, `course-kit`, `courses/*`, `llm`, `speech`, `anki-export`.
-- `ui-kit` → `schema`, `engine` (for client-side checking). `apps/web` → `ui-kit`, `schema`, `engine`, API client.
+- `courses/*` → `schema`, `course-kit` only. Never `server`, `engine`.
+- `llm` → `schema`. It never imports `server`.
+- `server` → `schema`, `engine`, `course-kit`, `courses/*`, `llm`, `anki-export`.
+- `apps/web` → `schema`, `engine` (client-side checking), and a **type-only** import of the server's
+  `AppType` for the Hono RPC client.
 - `apps/desktop` knows only the `sprachanker` binary and its CLI flags. `apps/cli` → `server` (and through it everything else).
 - Nothing imports from `apps/*`. No cycles.
 
@@ -69,7 +68,7 @@ alternatives without updating that table.
 1. Spec first. If the code needs to diverge from the spec, update the spec in the same PR and say why.
    The spec fixes only decisions that are expensive to change; the rest is decided in the stage plan
    and written into the spec when built (`docs/spec/README.md`).
-2. A new exercise type = schema + checker (engine) + renderer (ui-kit) + tests. Never only one of them.
+2. A new exercise type = schema + checker (engine) + renderer (`apps/web`) + tests. Never only one of them.
 3. Schema changes that touch stored data require a migration (05) and a migration test.
 4. Never commit third-party course content (texts, media, raw snapshots), not even in fixtures.
    Test fixtures are synthetic. Repo contains importers, manifests of URLs, and our own enrichment only.

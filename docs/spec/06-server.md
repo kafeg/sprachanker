@@ -10,7 +10,7 @@ One Bun process started by `sprachanker serve`. The `sprachanker` binary is buil
 - serves library media with HTTP Range support;
 - runs jobs (course import, model downloads) with progress via Server-Sent Events;
 - supervises sidecar processes (`whisper-server`, TTS, later `llama-server`);
-- talks to LLM and speech providers through `packages/llm` and `packages/speech`.
+- talks to LLM providers through `packages/llm` and to speech sidecars through its speech module (08).
 
 Hono + zod; Drizzle on `bun:sqlite`. Bun-specific APIs stay behind an adapter so a Node fallback stays
 possible. Headless (`--data <root>`) and desktop modes have the same features.
@@ -23,7 +23,7 @@ fixed in the stage that builds them.
 - `auth`: list profiles (names), create profile, login (profile + PIN) → device token, logout.
 - `catalog`: entries, installed state, install / update / remove (owner) → job.
 - `lessons/:key` → composed lesson for the current profile.
-- `runs`: start, append events (batched, idempotent), finish, abandon, take over, resume.
+- `runs`: start, append events (batched, idempotent), finish, abandon, resume.
 - `exams`, `review`, `practice`: start runs with a fixed `plan_json`; the server enforces exam time limits.
 - `notebook`, `cards`, `stats`; `llm` (check, scene turn, chat turn via SSE); `speech` (transcribe,
   synthesise); `settings` (profile) and `server/*` (owner); `media/*`; `jobs/:id/events`.
@@ -70,7 +70,7 @@ are decided in stage 12.
 ## CLI (`apps/cli`)
 
 `serve` · `owner-link` · `import <provider> [--courses] [--editions] [--refresh]` · `verify [<series>]` ·
-`normalise <series>` · `export-profile` / `import-profile` · `rebuild <profile>` · `enrich check` ·
+`normalise <series>` · `export-profile` / `import-profile` · `enrich check` ·
 `prompts test --route <provider:model>` (07).
 
 ## Failure handling
