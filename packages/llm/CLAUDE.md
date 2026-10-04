@@ -7,10 +7,9 @@ Depends on `packages/schema` only. Never imports server code; storage of convers
 
 ```
 src/
-  providers/       # openai-compatible base; adapters: anthropic; presets: lmstudio, ollama, openrouter, llama-builtin, remote
+  providers/       # openai-compatible base; adapters: anthropic; presets: lmstudio, ollama, openrouter, openai, remote
   tasks/           # one folder per task: prompt template, input/output zod schemas, repair logic
   router.ts        # route + fallback resolution
-  tools/           # chat tool definitions (schemas only; execution provided by caller)
   handoff.ts       # build Claude/ChatGPT handoff prompts and URLs
 golden/
   <task>/*.yaml    # cases: input + expected properties

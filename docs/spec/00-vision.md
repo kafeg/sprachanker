@@ -4,75 +4,63 @@
 
 Good free language courses exist (Deutsche Welle "Nicos Weg", open textbooks), but they are weak exactly
 where a self-learner struggles most: speaking and writing practice with feedback, long-term vocabulary
-retention, and explanations in the learner's own language that point at the differences from it.
-Commercial apps fill some gaps but lock data and content behind subscriptions. LLMs can give feedback
-but, used alone, invent curricula and hallucinate rules.
+retention, and explanations in the learner's own language. Commercial apps lock data and content behind
+subscriptions. LLMs give feedback but, used alone, invent curricula and hallucinate rules.
 
 ## Product
 
 SprachAnker is a self-hosted learning app that:
 
 1. **Installs real courses** into a local library through importers (downloaded by the user, for the user).
-2. **Presents them in one consistent UI**, on desktop and on phones, without jumping to third-party sites.
-3. **Adds what courses lack**: speech recognition checks instead of self-rating, spaced-repetition cards
-   for every word met, an error log by grammar rule, contrastive notes in the learner's language,
-   LLM-driven scenes and free-text checking scoped to what the learner already knows.
-4. **Records everything** the learner did (answers, recordings, conversations) so progress, regressions and
-   weak spots can be seen and practised later.
-5. **Uses any model the user chooses**: local (LM Studio, Ollama, built-in llama.cpp) or cloud by API key.
+2. **Presents them in one consistent UI**, on desktop and on phones.
+3. **Adds what courses lack**: checked speaking instead of self-rating, spaced-repetition cards for every
+   word met, an error log by grammar rule, contrastive notes in the learner's language, LLM scenes and
+   free-text checking scoped to what the learner already knows.
+4. **Records everything** the learner did, so progress, regressions and weak spots can be seen and
+   practised later.
+5. **Uses any model the user chooses**: local (LM Studio, Ollama, later built-in llama.cpp) or cloud.
 
 ## Users and setting
 
-- Primary: a Russian-speaking adult in Germany learning German from A1, and the same person refreshing
-  English. Second user in the same household with her own profile. Both use iPhones; development and the
-  first server run on a MacBook Pro (M2 Pro, 32 GB). A separate machine with an RTX 3080 Ti (16 GB) may
-  serve as a remote LLM box.
+- Primary: a Russian-speaking adult in Germany learning German from A1. A second user in the same
+  household with her own profile. Both use iPhones; the server runs on a MacBook Pro (M2 Pro, 32 GB).
+  Another machine (RTX 3080 Ti) may serve as a remote LLM box.
 - Secondary (once public): anyone who can run a desktop app and wants a private tutor with real courses.
 
 ## Core scenarios
 
-1. **Learn a lesson** on desktop or phone: watch the episode, do the exercises, speak with checking,
-   get new cards, see a summary. Resume exactly where left off on any device.
-2. **Daily review**: due cards plus items from weak rules, 10–15 minutes, phone-friendly.
-3. **Speak**: short scenes with an LLM partner restricted to known vocabulary; push-to-talk in either
-   language; corrections recorded.
-4. **Look back**: open the Notebook, see every attempt of a lesson, replay recordings, compare runs,
-   and press "Practise this" to get a mini-lesson from selected mistakes.
-5. **Free chat**: ask about grammar in Russian, chat in German, or review the week's mistakes with an LLM
-   that can read the learner's progress.
-6. **Prepare an exam**: Nicos Weg final tests and "Leben in Deutschland" (Goethe A1 practice sets later).
-7. **Set up**: install the desktop app, pick languages, install courses, connect a model, test the
-   microphone, open the app on the phone.
-8. **Run as a home server**: e.g. on a Mac mini; use it from laptops and phones.
+1. **Learn a lesson** on desktop or phone: episode, exercises, checked speaking, new cards, summary.
+   Resume where left off on any device.
+2. **Daily review**: due cards, 10–15 minutes, phone-friendly; practice of weak spots.
+3. **Speak**: short LLM scenes restricted to known material; push-to-talk; corrections recorded.
+4. **Look back**: the Notebook shows every attempt, recordings and mistakes; "Practise this" builds a
+   practice set from selected mistakes.
+5. **Free chat**: ask about grammar in the native language, chat in the target language, discuss recent
+   mistakes.
+6. **Prepare an exam**: Nicos Weg final tests and "Leben in Deutschland".
+7. **Set up**: run the server, pick languages, install a course, connect a model, open on the phone.
 
 ## Principles
 
 - **Local-first, private.** All data stays on the user's machine. No telemetry.
 - **Real courses first, LLM second.** The curriculum comes from courses; the LLM checks, explains and
-  converses inside that curriculum.
-- **Deterministic where possible.** Closed exercises are checked by code. LLM only for open answers.
+  converses inside it.
+- **Deterministic where possible.** Closed exercises are checked by code; LLM only for open answers.
 - **Everything is replayable.** Append-only event log; statistics are derived and rebuildable.
 - **Language-pair agnostic.** German/Russian is the first pair, not an assumption.
-- **Simple over clever, coherent over quick.** Fewer moving parts and entities; reuse what exists; every
-  change fits the architecture instead of working around it (engineering principles in the root CLAUDE.md).
+- **Simple over clever, coherent over quick** (engineering principles in the root CLAUDE.md).
 
 ## Scope
 
-**MVP** (stages 0–9b, see 11): server run as `sprachanker serve`, browser and phone PWA (online),
-profiles, library and importer for **Nicos Weg A1 `ru-de`**, Leben in Deutschland, lesson player,
-Notebook, SRS cards and review, speech checks, LLM scenes/checks/chat via external providers, our A1
-enrichment, UI in English with Russian and German.
+**MVP** (stages 0–9b, see 11): `sprachanker serve` with browser and phone PWA (online), profiles,
+library and importer for **Nicos Weg A1 `ru-de`**, Leben in Deutschland, lesson player, Notebook, SRS,
+speech checks, LLM via external providers, our A1 enrichment, UI in English, Russian and German.
 
 **After MVP** (stages 10–12): `.apkg` import/export and word images; other editions and levels of Nicos
 Weg, Deutsch im Blick, Starter English; the desktop app (Tauri) with onboarding wizard and built-in
-llama.cpp runtime, Windows/Linux builds.
+llama.cpp; Windows/Linux builds.
 
-Later: offline downloads to phones, push notifications, Goethe A1 practice sets, badges, built-in local
-CA for LAN HTTPS, Qwen3-TTS and cloud speech, more image sources, reader for books and texts (Project Gutenberg,
-Wikisource, Klexikon, Standard Ebooks), more DW courses (ABC, Deutschtrainer, Harry, Jojo…), built-in
-MLX runtime, Docker image for NAS/VPS, project website on GitHub Pages (`kafeg.github.io/sprachanker`;
-domain candidate `sprachanker.app` — `.com`/`.de` belong to an unrelated speech-therapy practice), native
-mobile builds via Tauri.
+Later: see 11, stage 13.
 
 ## Non-goals
 
@@ -84,26 +72,25 @@ mobile builds via Tauri.
 
 ## Constraints
 
-- iOS is the strictest target (the owner's household uses iPhones): microphone access in a PWA requires
-  a secure context (HTTPS). See 06.
+- iOS is the strictest target: microphone access in a PWA requires a secure context (HTTPS). See 06.
 - Course content stays out of the repo and out of builds; it is downloaded on demand into the library.
-- Must run on macOS (Apple Silicon) first; Windows and Linux supported by design and CI builds.
+- macOS (Apple Silicon) first; Windows and Linux supported by design.
 
 ## Legal position (informational, not legal advice)
 
-- Content of closed-licence sources (e.g. DW) is downloaded by the user, for personal use, from pages the
-  source publishes freely. German law permits private copies (§53 UrhG). No access control or DRM is
-  circumvented. The repository contains code and lists of public URLs, never the content.
+- Content of closed-licence sources (e.g. DW) is downloaded by the user, for personal use. No access
+  control or DRM is circumvented. The repository contains code and lists of public URLs, never content.
 - The app MUST NOT use third-party logos or brands as its own and MUST NOT redistribute closed content.
-- Importers MUST crawl politely: respect robots.txt, ≤1 request/second, identifiable User-Agent, resume
-  instead of re-downloading.
-- Open-licence sources (CC BY, CC BY-SA, CC BY-NC-SA) are shown with attribution and licence in the UI.
-- Official works such as the BAMF "Leben in Deutschland" catalogue are imported from the official PDF.
+- Importers MUST crawl politely: respect robots.txt, ≤1 request/second per host, identifiable User-Agent,
+  resume instead of re-downloading.
+- Open-licence sources are shown with attribution and licence in the UI.
+- The BAMF "Leben in Deutschland" catalogue is imported from the official PDF.
 
 ## Success criteria
 
 - The owner and his wife study German with it several times a week, on phones and laptop.
 - A full Nicos Weg A1 lesson can be done without leaving the app, with speech checked and cards created.
-- A new user installs, sets up a course and a model, and finishes lesson 1 in under 30 minutes.
-- Adding a new course source requires only a new provider folder (03), no changes to engine or UI
-  beyond new exercise types if any.
+- A new user installs, sets up a course and a model, and finishes lesson 1 in under 30 minutes, not
+  counting the course download.
+- Adding a new course source requires only a new provider folder (03), no engine or UI changes beyond
+  new exercise types if any.

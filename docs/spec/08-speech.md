@@ -3,49 +3,31 @@
 `packages/speech` exposes two functions to the server:
 
 ```ts
-transcribe(audio: Wav16kMono, lang: Lang, opts?): Promise<{ text; segments; model; latencyMs }>
+transcribe(audio: Wav16kMono, lang: Lang): Promise<{ text; segments; model; latencyMs }>
 synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promise<AudioRef>
 ```
 
 ## Recognition (STT)
 
-- Default: **whisper.cpp `whisper-server`** sidecar with **large-v3-turbo** (quantised), Metal on macOS,
-  CUDA on Windows/Linux NVIDIA, CPU fallback. Kept warm while the app is in use.
-- **Language is explicit.** The UI has two push-to-talk buttons — native language and target language
-  (e.g. 🎤 RU / 🎤 DE) — so mixed-language speech is never auto-detected. The chosen language is sent with
-  the audio.
-- Alternatives: smaller whisper models for weak machines. Cloud STT is "later".
-- **Client capture**: the browser records with MediaRecorder (iOS produces mp4/aac, Chrome webm/opus),
-  decodes with WebAudio and uploads **16 kHz mono WAV**, so the server needs no ffmpeg. The original
-  compressed recording is uploaded as well and stored in `recordings/` (05) for replay.
-- Recordings are kept (default: forever; local data).
+- **whisper.cpp `whisper-server`** sidecar with **large-v3-turbo** (quantised); Metal on macOS.
+- **Language is explicit**: push-to-talk buttons per language (e.g. 🎤 DE / 🎤 RU); in exercises only the
+  target-language button is shown. Auto-detection is never used.
+- **Client capture**: MediaRecorder; the browser decodes with WebAudio and uploads 16 kHz mono WAV (no
+  ffmpeg on the server) together with the original compressed recording, which is stored in
+  `recordings/` for replay.
+- The reference text is never passed to the recogniser (it biases results).
 
 ## Checking speech
 
-- `speech_repeat`: compare ASR text with the reference using the engine's normalised word diff (04);
-  show hits/misses; outcome `correct | partial | wrong`.
-- Known limitation: ASR models "autocorrect" learner errors toward correct language. Mitigations: use the
-  reference only for diffing (never as an ASR prompt), report "heard: …" literally, and treat speech
-  results as practice feedback, not pronunciation grading.
-- `respond` and `scene`: ASR text goes to the LLM task; the transcript is shown and editable before
-  sending.
-- Acceptance target on the owner's machine (stage 7): median transcription latency ≤ 1.5 s for 3–5 s
-  utterances; measured with the owner's own German and Russian phrases.
+- `speech_repeat`: engine word diff (04) between ASR text and reference; show hits and misses.
+- ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
+  not pronunciation grading.
+- `respond` and scenes: the transcript is shown and editable before it goes to the LLM.
+- Target (stage 7): median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Synthesis (TTS)
 
-- Course audio comes from the course (episode, vocabulary audio) whenever available.
-- TTS is used for LLM replies, our own exercises, and words without audio.
-- Default: **Piper** sidecar with one German voice (e.g. Thorsten) and one Russian voice; voices
-  downloaded per language. Mixed-language text is synthesised per language segment (07) and
-  concatenated.
-- Later: Qwen3-TTS (one voice for both languages), cloud TTS.
-- Synthesised audio is cached by `(voice, text)` hash in `<app-data>/cache`.
-
-## Native builds (`native/`)
-
-- `native/whisper`: CMake build of whisper.cpp (`whisper-server`), Metal / CUDA / CPU variants.
-- `native/piper`: Piper binary + voice download manifest.
-- `native/llama` (after MVP): CMake build of llama.cpp (`llama-server`) for the built-in LLM runtime (07).
-- CI produces per-platform binaries that the desktop bundle includes; model files are downloaded at
-  runtime (06), never bundled.
+- Course audio is used whenever available; TTS for LLM replies, our own exercises, words without audio.
+- Default engine: **Piper** with one German and one Russian voice, downloaded per language; mixed text
+  synthesised per language segment. Cached by `(voice, text)` hash in `<app-data>/cache`.
+- Later: Qwen3-TTS, cloud speech.

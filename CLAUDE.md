@@ -67,6 +67,8 @@ alternatives without updating that table.
 ## Rules
 
 1. Spec first. If the code needs to diverge from the spec, update the spec in the same PR and say why.
+   The spec fixes only decisions that are expensive to change; the rest is decided in the stage plan
+   and written into the spec when built (`docs/spec/README.md`).
 2. A new exercise type = schema + checker (engine) + renderer (ui-kit) + tests. Never only one of them.
 3. Schema changes that touch stored data require a migration (05) and a migration test.
 4. Never commit third-party course content (texts, media, raw snapshots), not even in fixtures.
@@ -91,6 +93,5 @@ alternatives without updating that table.
 
 ## Current stage
 
-See `docs/spec/11-roadmap.md`. A new project starts with the **Kickoff spec review** described there, then
-stage 0. Respect the **MVP boundary** defined there — do not build post-MVP features early. Work on one
-stage at a time; stop at its acceptance criteria and report.
+See `docs/spec/11-roadmap.md`. Respect the **MVP boundary** defined there — do not build post-MVP features
+early. Work on one stage at a time; stop at its acceptance criteria and report.

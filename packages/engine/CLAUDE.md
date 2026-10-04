@@ -10,7 +10,7 @@ src/
   compose/        # canonical + locale + enrichment → ComposedLesson; stale detection
   check/          # one checker per exercise type: check(item, answer) → Outcome (+ diff, rule ids)
   text/           # normalisation and word diff used by checkers and speech
-  learner/        # mistakes, rule mastery, lexeme state, can-do, adaptivity
+  learner/        # mistakes, rule mastery, lexeme state, can-do
   srs/            # ts-fsrs wrapper, card creation rules, review session builder, practice sets
   replay/         # derive stats from an event stream (used by server rebuild)
 ```

@@ -3,7 +3,7 @@
 Content providers and our enrichment. Spec: `docs/spec/03-providers.md`, `docs/spec/02-course-format.md`.
 Research about sources: `docs/research/`.
 
-## Layout
+## Layout (target)
 
 ```
 packages/course-kit/   # polite fetcher, blob store, manifest, verify, HTML sanitiser, progress

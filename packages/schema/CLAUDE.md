@@ -15,9 +15,9 @@ src/
   locale.ts          # localised course/lesson/exam texts per edition (same key paths as canonical)
   exercise/          # one file per exercise type: item fields, stored answer, Outcome
   rules.ts           # grammar rules registry
-  enrichment.ts      # enrichment, scenes, missions
+  enrichment.ts      # enrichment, scenes
   manifest.ts        # course.json
-  learner.ts         # runs, event payloads per event type, cards, decks, lexeme_user, settings
+  learner.ts         # runs, event payloads per event type, cards, lexeme_user, settings
   api/               # request/response schemas shared by server and web
 json-schema/        # generated JSON Schemas, committed (CI checks drift)
 scripts/gen-json-schema.ts

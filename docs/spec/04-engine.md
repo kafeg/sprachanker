@@ -1,123 +1,85 @@
 # 04 — Engine
 
-`packages/engine` is pure TypeScript: no network, no filesystem, no clock (time is passed in). It runs
-on the server and, where useful, in the browser (instant feedback for closed exercises). The server
-re-checks answers with the same code when events are appended; the stored outcome is the server's.
-Answers of closed exercises are therefore visible to the client — acceptable for self-study (no
-anti-cheating).
+`packages/engine` is pure TypeScript: no network, no filesystem, no clock (time and randomness are
+parameters). It runs on the server and in the browser (instant feedback for closed exercises). The
+server re-checks every answer with the same code; the stored outcome is the server's, never the
+client's. Answers of closed exercises are visible to the client — acceptable for self-study.
 
 ## Lesson composition
 
 `compose(canonical, locale, enrichment, profile) → ComposedLesson`
 
-1. Take canonical pages and attach locale texts for the profile's edition.
-2. Upgrade self-rated speaking by default: every `speech_selfrate` item that has a target-language
-   reference text becomes `speech_repeat` (checked by ASR); items without a fixed text ("answer as
-   prompted") become `respond`. Enrichment may override this per exercise (`upgrade`, 02).
-3. Apply enrichment: rule tags, contrastive notes for the profile's native language, inserted extra
-   exercises, scenes, missions. Skip entries whose fingerprint does not match (stale) and report them.
-4. Produce the lesson flow:
+1. Take canonical pages and attach locale texts of the profile's edition.
+2. Upgrade self-rated speaking: a `speech_selfrate` item with a reference text becomes `speech_repeat`;
+   one without becomes `respond`. Enrichment may override this (`upgrade`, 02).
+3. Apply enrichment: rule tags, contrastive notes for the native language, extra exercises, scenes.
+   Skip stale entries (fingerprint mismatch) and report them.
+4. Lesson flow: overview (synopsis, goals, video) → source pages → our pages (note, speaking, scene) →
+   summary (score, mistakes by rule, new cards). Tabs (grammar, vocabulary, culture, script) are
+   available at any time.
 
-```
-overview (synopsis, goals, video)
-→ source pages (exercises in order; new words and info boxes inline)
-→ our pages (contrastive note, checked speaking, scene if enriched)
-→ summary (score, mistakes by rule, new cards, can-do progress, handoff)
-tabs available at any time: grammar · vocabulary · culture · script
-```
+## Checking
 
-Lesson completion, scoring and statuses are defined in 05 ("Concurrency and lifecycle").
-
-Every N lessons (a unit), enrichment MAY define a **unit review**: reading text, scene, short writing
-task, and a mastery check across the unit's rules; ≥80% marks the unit mastered, otherwise targeted
-practice is offered.
-
-## Exercise types and checking
-
-The registry of types, their stored item fields and answer shapes is defined in 02 ("Exercise item
-shapes and matching"). Each type has a zod schema (schema), a checker (engine), a renderer (ui-kit) and
-tests. A video page is not a type: any page may carry `media.video`, followed by items of normal types.
-
-`check(item, answer, ctx) → Outcome`:
+Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (ui-kit) and tests.
 
 ```ts
 type Outcome = {
   result: "correct" | "partial" | "wrong" | "unscored";
-  score: number;                  // 0..1
-  diff?: TokenDiff[];             // for text and speech
-  ruleIds: string[];              // from canonical ruleIds + enrichment
-  lexemes: string[];              // lexeme keys involved (from newWords / vocab)
-  needsLlm?: boolean;             // respond / translate / write: deterministic part done, LLM verdict pending
+  score: number;          // 0..1; partial = share of matched ids or words
+  diff?: TokenDiff[];     // text and speech
+  ruleIds: string[];      // canonical ruleIds + enrichment
+  lexemes: string[];
+  needsLlm?: boolean;     // respond / translate / write: deterministic part done, LLM verdict pending
 };
 ```
 
-- Matching is by ids (options, parts, entries, gaps), never by display position or text.
-- `partial` is used only where defined: multi-select with some correct ids, `order` with a correct
-  prefix, speech/dictation with ≥ 80% of words matched; otherwise results are binary.
-- **Text normalisation** (gap_text, dictation, speech, rubric matching): NFC; unify quotes/apostrophes
-  and dashes; collapse whitespace; strip final punctuation; case-insensitive **except** where the target
-  language marks case as meaningful (German: nouns and formal `Sie/Ihnen/Ihr` are compared
-  case-sensitively). Language rules live in `engine/src/text/<lang>.ts`.
-- `respond`: rubric `required` groups are checked deterministically first (each group: any variant
-  present after normalisation); then the LLM verdict (07) if an LLM is configured. Without an LLM: rubric
-  result + reference answer shown, outcome `partial`/`correct` from the rubric only.
-- `speech_selfrate` → upgraded at compose time (see above); if no reference text exists and no LLM is
-  configured it stays self-rated and `unscored`.
-- `unknown` is never rendered; the page shows "not supported yet" and the importer report links to it.
+- Matching is by ids, never by display position or text.
+- `partial` only for multi-select, `order` with a correct prefix, and dictation/speech with ≥ 80% of
+  words matched; otherwise results are binary.
+- **Attempts**: the learner may retry an item; every attempt is recorded, but only the **first attempt**
+  counts for the lesson score and statistics. Items may be skipped: skipped items are excluded from the
+  score and listed as skipped in the summary.
+- **Text normalisation**: NFC; unify quotes, apostrophes and dashes; collapse whitespace; strip final
+  punctuation; case-insensitive except where the target language makes case meaningful (German: a
+  token capitalised in the reference and not sentence-initial is compared case-sensitively). Speech is
+  always compared case-insensitively. Language rules live in `engine/src/text/<lang>.ts`.
+- `respond`: rubric groups are checked deterministically first, then the LLM verdict (07). Without an
+  LLM, `respond` is scored from the rubric only, and `translate`/`write` are `unscored` with the
+  reference shown.
+- `unknown` is never rendered; the page shows "not supported yet".
 
 ## Learner model
 
 Derived from events (05); rebuildable.
 
-- **Mistakes** with rule ids and lexemes, from closed exercises (via enrichment rule tags), speech diffs,
-  and LLM corrections (structured, 07).
-- **Rule mastery**: rolling accuracy per rule with recency weighting; history kept for charts.
+- **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM
+  corrections (07).
+- **Rule mastery**: accuracy over recent attempts per rule (formula fixed in stage 9a).
 - **Lexeme state**: seen, practised, FSRS stability; "in long-term memory" when stability ≥ 21 days.
-- **Adaptivity**: two mistakes on the same rule within a lesson insert up to 3 extra items for that rule
-  (from enrichment or generated variants of closed items) and schedule the rule into upcoming reviews.
-- **Can-do**: course goals ticked when their lessons and linked scenes are completed.
+- **Can-do**: a course goal is achieved when its linked lessons are completed.
 
 ## Spaced repetition
 
-- Algorithm: FSRS via `ts-fsrs`, default parameters; per-profile desired retention (default 0.9);
-  parameter optimisation from review history is "later".
-- **Cards** are created from: new words of a completed page (automatically; one card per lexeme — meeting
-  the word again in another course reuses it), words the learner adds, phrases listed in enrichment
-  (`cards.phrases`), sentences from mistakes ("fix this sentence"), imported decks.
-  Card faces: target→native, native→target (production), listening (audio→meaning); enabled per deck.
-- Card content: word with article colour, plural/forms, translation, example from the lesson where it was
-  met (with link), audio (source audio or TTS), image (below).
-- **Decks**: virtual `lesson:<key>`, `course:<key>`, `mine`; stored imported and custom decks (05). A card
-  can appear in several decks; scheduling is per card face, independent of decks.
-- **Review session**: due cards + overdue weak-rule items + small number of new cards; capped by a daily
-  limit; 10–15 minutes target.
-- **Practice set ("Practise this")**: from a selection in the Notebook (e.g. all `du/Sie` mistakes this
-  week) build a run with the original items again, variants, and an optional scene on the topic.
+- FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (profile setting).
+- **Cards** come from new words of a completed page (one card per lexeme; meeting it again reuses it),
+  words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
+  The learner can mark a card "already known" (suspended).
+- **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
+  Enabled per card; the profile sets the default (recognition + production).
+- **Review session** = due cards plus a limited number of new cards (profile limits; beginner-friendly
+  defaults fixed in stage 6, e.g. 10 new cards a day). At most one face of a card per day.
+- **Practice set ("Practise this")**: a run with the original items selected in the Notebook (e.g. all
+  du/Sie mistakes this week).
 
-## Anki interoperability (`packages/anki-export`)
+## Scenes
 
-- **Export** `.apkg` per deck (lesson, course, mine) including media; scheduling is not exported in v1.
-- **Import** `.apkg`: notes become cards in a new deck; fields mapped by a dialog (front/back/audio/image);
-  entries matching an existing lexeme key (02) are linked instead of duplicated.
+A scene (enrichment YAML): setting, roles, learner goals (checklist), allowed vocabulary and rules
+(completed lessons + listed extras), max turns, register (`du`/`Sie`), success criteria. Run by the LLM
+task `scene_turn` (07).
 
-## Images for words
+## After MVP
 
-Ordered sources, each result stored with licence and attribution:
-
-1. **ARASAAC** pictograms (CC BY-NC-SA; search API with German, Russian, English keywords; nouns, verbs,
-   adjectives, emotions).
-2. **OpenMoji** (CC BY-SA 4.0) for concrete concepts.
-3. Images from installed course content (personal use).
-
-Later: Noto Emoji, Twemoji, Mulberry Symbols, photos via Wikidata/Wikimedia Commons and Openverse.
-
-"Pick image" offers candidates from these sources; a batch suggestion runs once after a course install;
-the learner can replace or remove any image. Images are fetched at runtime into the profile's media and
-never bundled with the app.
-
-## Missions and scenes (definitions)
-
-- **Scene**: setting, roles, learner goals (checklist), allowed vocabulary/rules (from completed lessons
-  + listed extras), max turns, register (`du`/`Sie`), success criteria. Defined in enrichment YAML.
-- **Mission**: a real-life task (e.g. "say hello to a neighbour in the morning"), linked to a lesson,
-  marked done by the learner, optionally with a short report (text or recording) checked by the LLM.
+- **Anki** (`packages/anki-export`, stage 10): `.apkg` export per deck with media (no scheduling) and
+  import into stored decks, linking notes to existing lexemes.
+- **Word images** (stage 10): candidates from ARASAAC (CC BY-NC-SA), OpenMoji (CC BY-SA) and course
+  images, fetched at runtime into the profile's media with licence and attribution, never bundled.

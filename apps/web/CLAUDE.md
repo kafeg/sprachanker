@@ -7,11 +7,11 @@ React UI for the desktop window and phone PWA. Spec: `docs/spec/09-ui.md`.
 
 ```
 apps/web/src/
-  routes/          # TanStack Router: today, catalog, course, lesson, review, speak, chat, notebook, words, exams, settings, models, server, onboarding
+  routes/          # TanStack Router: today, catalog, course, lesson, review, speak, chat, notebook, words, exams, settings, server, first-run
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   audio/           # recorder → 16 kHz WAV, playback, PTT
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
-  pwa/             # manifest, icons, minimal service worker (app shell only)
+  pwa/             # manifest, icons; IndexedDB outbox for unsent events
 packages/ui-kit/src/
   tokens/          # colours (gender hues reserved), type, spacing, light/dark
   components/      # shadcn/ui-based components
