@@ -83,6 +83,7 @@ module.exports = {
     builtInModules: { add: ["bun", "bun:test", "bun:sqlite", "bun:ffi", "bun:jsc"] },
     enhancedResolveOptions: {
       extensions: [".ts", ".tsx", ".js", ".mjs", ".cjs", ".json"],
+      exportsFields: ["exports"],
       conditionNames: ["import", "require", "node", "default"],
     },
   },
