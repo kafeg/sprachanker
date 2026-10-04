@@ -6,19 +6,21 @@
     "packages/*",
     "apps/web",
     "apps/cli",
-    "courses/_fixture"
+    "courses/_fixture",
+    "e2e"
   ],
   "scripts": {
     "check": "bun run typecheck && bun run lint && bun run boundaries && bun test",
     "typecheck": "bun run --filter '*' typecheck && tsc -p .",
     "lint": "biome check .",
     "format": "biome check --write .",
-    "boundaries": "bun --bun depcruise packages apps courses scripts",
+    "boundaries": "bun --bun depcruise packages apps courses scripts e2e",
     "test": "bun test",
     "cli": "bun apps/cli/src/main.ts",
     "dev": "bun run --filter @sprachanker/cli --filter @sprachanker/web dev",
     "build:web": "bun run --filter @sprachanker/web build",
-    "build:cli": "bun run build:web && bun apps/cli/scripts/build.ts"
+    "build:cli": "bun run build:web && bun apps/cli/scripts/build.ts",
+    "e2e": "bun run build:cli && bun run --filter @sprachanker/e2e e2e"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
