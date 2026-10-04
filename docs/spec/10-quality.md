@@ -18,7 +18,7 @@
 | Fixture library | `courses/_fixture` (invented course, every exercise type) normalises, validates and passes `verify` |
 | Provider contracts | synthetic fixtures normalise into valid, deterministic output |
 | Exercise registry | a type without checker, renderer and fixture item |
-| i18n | en/ru/de catalogs have different keys |
+| i18n | en/ru/de catalogs have different keys or a message is not valid ICU |
 | CLAUDE.md paths | a backticked repository path in a CLAUDE.md does not exist (see Documentation) |
 
 ## Fixed technical choices
@@ -47,7 +47,8 @@ table in the same PR with the reason.
 | Media | native `<video>`/`<audio>`; MediaRecorder + WebAudio resampling to 16 kHz |
 | Desktop | Tauri 2 |
 | Native engines | whisper.cpp (`whisper-server`), Piper, llama.cpp (`llama-server`) — pinned versions |
-| Lint / boundaries / e2e | Biome / dependency-cruiser / Playwright |
+| Type checking | TypeScript, current major (`tsc --noEmit` per workspace); tooling must not pin it to an older one |
+| Lint / boundaries / e2e | Biome / dependency-cruiser with the swc parser (no dependency on the TypeScript compiler API) / Playwright |
 
 ## Tests
 
@@ -65,8 +66,10 @@ Third-party content never appears in fixtures.
 
 ## CI
 
-GitHub Actions on every PR: install → typecheck → Biome → dependency-cruiser → tests → web build → e2e
-(Chromium + WebKit). `bun run check` runs the same locally (except e2e).
+GitHub Actions on every push to `main` and every PR: install → typecheck → Biome →
+dependency-cruiser → tests → web build → binary build → e2e against the binary (Chromium + WebKit,
+desktop + phone). `bun run check` runs the same locally except the builds and e2e (`bun run e2e`).
+Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/` and run in `bun test`.
 
 ## Documentation rules
 

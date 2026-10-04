@@ -21,12 +21,15 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `packages/anki-export` | `.apkg` import/export (created in stage 10). | 04 | `packages/engine/CLAUDE.md` |
 | `apps/web` | React UI: desktop window and phone PWA, components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell: window, tray, starts the server sidecar, updates. | 06 | `apps/desktop/CLAUDE.md` |
-| `apps/cli` | The `sprachanker` binary: `serve` (starts the server) + import, verify, export, enrichment check. Compiled with `bun build --compile`; the desktop app bundles it. | 03, 06 | `courses/CLAUDE.md` |
+| `apps/cli` | The `sprachanker` binary: `serve` (starts the server) + import, verify, export, enrichment check. Compiled with the web build embedded; the desktop app bundles it. | 03, 06 | `apps/cli/CLAUDE.md` |
 | `native` | Builds of whisper.cpp, llama.cpp, Piper for each platform. | 08, 07 | `native/CLAUDE.md` |
-| `e2e` | Playwright end-to-end tests. | 10 | — |
+| `e2e` | Playwright end-to-end tests against the compiled binary. | 10 | — |
+| `scripts` | Repository checks run by `bun test`: boundary rules test, CLAUDE.md paths. | 10 | — |
 | `docs/spec` | Specification. `docs/research` — facts gathered about sources. | — | — |
 
 ## Dependency rules (enforced by dependency-cruiser in CI)
+
+Encoded in `.dependency-cruiser.cjs`; `scripts/boundaries.test.ts` proves them on deliberate violations.
 
 - `schema` → nothing. `engine` → `schema` only. `course-kit` → `schema`.
 - `courses/*` → `schema`, `course-kit` only. Never `server`, `engine`.
@@ -85,10 +88,13 @@ alternatives without updating that table.
 - CI checks that repository paths mentioned in CLAUDE.md files exist; "Layout (target)" blocks and paths
   marked "created in stage N" are exempt until then (10).
 
-## Commands (target state after stage 0)
+## Commands
 
-- `bun install` · `bun run check` (typecheck + lint + boundaries + tests) · `bun run dev` (server + web)
-- `bun run e2e` · `bun run cli -- <command>` · `bun run build:desktop`
+- `bun install` · `bun run check` (typecheck + lint + boundaries + tests) · `bun run format`
+- `bun run dev` — server on 127.0.0.1:4580 + Vite (proxies `/api`); open the URL Vite prints
+- `bun run build:cli` — web build + binary (`dist/sprachanker` in `apps/cli`) · `bun run e2e` (builds it first)
+- `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
+- `bun run build:desktop` (created in stage 12)
 
 ## Current stage
 

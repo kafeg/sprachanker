@@ -7,7 +7,10 @@ HTTP API, storage, jobs, sidecars, speech. Spec: `docs/spec/05-data-model.md`, `
 
 ```
 src/
-  index.ts           # createServer(config): data root, Hono app, sidecars — started by `apps/cli` (`sprachanker serve`)
+  index.ts           # startServer(config): data root, Hono app, sidecars — called by `apps/cli` (`sprachanker serve`)
+  app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
+  web.ts             # serving the built web app: SPA fallback, cache headers
+  runtime/           # Bun-specific adapters: listen, web assets from a directory or embedded files
   config/            # app-data paths, config.json
   db/
     server/          # Drizzle schema + migrations for server.sqlite
@@ -20,6 +23,7 @@ src/
   security/          # profiles, PIN, device tokens, secrets encryption, Host check, CSP
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
   media/             # Range responses for library blobs (read via course-kit) and profile files
+test/                # bun test; integration tests call createApp().request()
 ```
 
 ## Rules
@@ -29,5 +33,7 @@ src/
 - Any change to a Drizzle schema → new migration + migration test with fixture DBs (`test/fixtures/db/`).
 - Secrets are write-only through the API and never logged.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
+- `src/app.ts` and everything it imports stay free of Bun/Node APIs: the web client type-checks
+  that graph without Bun types.
 - Speech: always pass an explicit language; never pass the reference text to the recogniser.
 - Exports a programmatic API used by `apps/cli` (serve, import, verify, export, enrich check).

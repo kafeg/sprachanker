@@ -20,6 +20,11 @@ possible. Headless (`--data <root>`) and desktop modes have the same features.
 JSON under `/api`, typed with schemas from `packages/schema`; streaming via SSE. Exact endpoints are
 fixed in the stage that builds them.
 
+- `GET /api/health` → `{ "status": "ok" }` (desktop shell and tests wait for it). Unknown `/api/*`
+  paths return a JSON 404, never the web app.
+- Every other path serves the web build: existing files as they are (`/assets/*` hashed and
+  `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).
+
 - `auth`: list profiles (names), create profile, login (profile + PIN) → device token, logout.
 - `catalog`: entries, installed state, install / update / remove (owner) → job.
 - `lessons/:key` → composed lesson for the current profile.
@@ -42,8 +47,8 @@ fixed in the stage that builds them.
 
 ## Network and HTTPS
 
-- Default: listen on `127.0.0.1` on a fixed port (stored in config; a changed address is a new origin
-  for the phone).
+- Default: listen on `127.0.0.1:4580` (`--host`, `--port`; later stored in config; a changed address is a
+  new origin for the phone).
 - Phone access options:
   1. **Tailscale** (recommended): `tailscale serve` publishes the local server over HTTPS at
      `https://<machine>.<tailnet>.ts.net`; the server can stay localhost-only.
@@ -72,6 +77,15 @@ are decided in stage 12.
 `serve` · `owner-link` · `import <provider> [--courses] [--editions] [--refresh]` · `verify [<series>]` ·
 `normalise <series>` · `export-profile` / `import-profile` · `enrich check` ·
 `prompts test --route <provider:model>` (07).
+
+**Binary build.** `bun run build:cli` builds the web app, generates an entry that imports every web
+file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary. Embedded
+files live under `/$bunfs/root/` and are found through the import values (URL path → embedded path),
+so the binary works from any folder; e2e runs it from a temp folder. Files that must keep their names
+and folder (Drizzle migrations with `meta/_journal.json`) are embedded with
+`naming.asset: "[dir]/[name].[ext]"`; `readdir`/`readFile` work inside `/$bunfs`, so the Drizzle
+migrator can read the folder as is (verified in the stage 0 spike). YAML imports are parsed at build
+time.
 
 ## Failure handling
 
