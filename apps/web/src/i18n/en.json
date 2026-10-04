@@ -1,0 +1,11 @@
+{
+  "app": { "name": "SprachAnker" },
+  "hello": {
+    "title": "Hello!",
+    "text": "Your language courses, on your own computer and phone."
+  },
+  "server": {
+    "status": "Server: {status, select, ok {connected} error {not reachable} other {checking…}}"
+  },
+  "language": { "label": "Interface language" }
+}

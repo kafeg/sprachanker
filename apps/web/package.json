@@ -4,6 +4,24 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc -p ."
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc -p . && tsc -p test"
+  },
+  "dependencies": {
+    "hono": "4.13.13",
+    "i18next": "26.4.2",
+    "i18next-icu": "2.4.4",
+    "intl-messageformat": "11.2.15",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "react-i18next": "17.0.15"
+  },
+  "devDependencies": {
+    "@sprachanker/server": "workspace:*",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "vite": "8.3.2"
   }
 }

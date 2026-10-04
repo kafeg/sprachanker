@@ -15,7 +15,9 @@
     "format": "biome check --write .",
     "boundaries": "bun --bun depcruise packages apps courses scripts",
     "test": "bun test",
-    "cli": "bun apps/cli/src/main.ts"
+    "cli": "bun apps/cli/src/main.ts",
+    "dev": "bun run --filter @sprachanker/cli --filter @sprachanker/web dev",
+    "build:web": "bun run --filter @sprachanker/web build"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

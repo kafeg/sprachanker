@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p .",
+    "dev": "bun --watch src/main.ts serve"
   },
   "dependencies": {
     "@sprachanker/server": "workspace:*"

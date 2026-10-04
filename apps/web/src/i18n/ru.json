@@ -1,0 +1,11 @@
+{
+  "app": { "name": "SprachAnker" },
+  "hello": {
+    "title": "Привет!",
+    "text": "Ваши языковые курсы — на вашем компьютере и телефоне."
+  },
+  "server": {
+    "status": "Сервер: {status, select, ok {подключён} error {недоступен} other {проверяем…}}"
+  },
+  "language": { "label": "Язык интерфейса" }
+}

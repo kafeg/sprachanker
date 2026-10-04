@@ -1,0 +1,11 @@
+{
+  "app": { "name": "SprachAnker" },
+  "hello": {
+    "title": "Hallo!",
+    "text": "Deine Sprachkurse – auf deinem eigenen Computer und Handy."
+  },
+  "server": {
+    "status": "Server: {status, select, ok {verbunden} error {nicht erreichbar} other {wird geprüft…}}"
+  },
+  "language": { "label": "Sprache der Oberfläche" }
+}
