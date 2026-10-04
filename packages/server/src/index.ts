@@ -2,7 +2,7 @@ import { createApp, type WebAssets } from "./app.ts";
 import { type Listening, listen } from "./runtime/bun.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
-export { directoryAssets, type Listening } from "./runtime/bun.ts";
+export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
 
 export interface ServerConfig {
   hostname: string;

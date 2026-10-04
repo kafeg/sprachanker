@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createApp } from "../src/app.ts";
-import { directoryAssets } from "../src/runtime/bun.ts";
+import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
 
 const files: Record<string, Blob> = {
   "/index.html": new Blob(["<!doctype html>"], { type: "text/html" }),
@@ -55,4 +55,13 @@ test("directory assets never leave their directory", async () => {
   expect(await (await assets("/index.html"))?.text()).toBe("<!doctype html>");
   expect(await assets("/../secret.txt")).toBeUndefined();
   expect(await assets("/")).toBeUndefined();
+});
+
+test("file assets serve only listed paths", async () => {
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-web-"));
+  const index = join(root, "index-1a2b.html");
+  writeFileSync(index, "<!doctype html>");
+  const assets = fileAssets({ "/index.html": index });
+  expect(await (await assets("/index.html"))?.text()).toBe("<!doctype html>");
+  expect(await assets("/index-1a2b.html")).toBeUndefined();
 });

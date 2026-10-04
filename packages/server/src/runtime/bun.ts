@@ -27,3 +27,11 @@ export function directoryAssets(dir: string): WebAssets {
     return Bun.file(full);
   };
 }
+
+/** Web assets from a URL path → file path map (files embedded in the compiled binary). */
+export function fileAssets(files: Record<string, string>): WebAssets {
+  return async (path) => {
+    const file = files[path];
+    return file === undefined ? undefined : Bun.file(file);
+  };
+}

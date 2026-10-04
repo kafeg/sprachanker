@@ -17,7 +17,8 @@
     "test": "bun test",
     "cli": "bun apps/cli/src/main.ts",
     "dev": "bun run --filter @sprachanker/cli --filter @sprachanker/web dev",
-    "build:web": "bun run --filter @sprachanker/web build"
+    "build:web": "bun run --filter @sprachanker/web build",
+    "build:cli": "bun run build:web && bun apps/cli/scripts/build.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
