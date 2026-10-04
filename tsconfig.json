@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": { "types": ["bun"], "allowJs": true },
+  "include": ["scripts", ".dependency-cruiser.cjs"],
+  "exclude": ["scripts/fixtures"]
+}
