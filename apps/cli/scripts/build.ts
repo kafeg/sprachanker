@@ -1,6 +1,6 @@
 // Compiles the `sprachanker` binary with the built web app embedded (spec 06).
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
-import { existsSync } from "node:fs";
+import { existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { Glob } from "bun";
 
@@ -32,7 +32,15 @@ const source = [
 ].join("\n");
 await Bun.write(entry, source);
 
+// Bun 1.4 leaves a copy of the runtime (.<hash>-00000000.bun-build) in the working directory on
+// every compile: build from the output folder and remove it there.
+const workingDir = process.cwd();
+process.chdir(outDir);
 const result = await Bun.build({ entrypoints: [entry], compile: { outfile }, minify: true });
+for (const leftover of new Glob(".*.bun-build").scanSync({ cwd: outDir, dot: true })) {
+  rmSync(join(outDir, leftover));
+}
+process.chdir(workingDir);
 if (!result.success) {
   for (const log of result.logs) console.error(log);
   process.exit(1);
