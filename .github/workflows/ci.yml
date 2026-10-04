@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2 # version from packageManager in package.json
+      - run: bun install --frozen-lockfile
+      - name: Typecheck, lint, boundaries, tests
+        run: bun run check
+      - name: Install Playwright browsers
+        working-directory: e2e
+        run: bunx playwright install --with-deps chromium webkit
+      - name: Build web and binary, run e2e
+        run: bun run e2e
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: e2e/test-results/
+          if-no-files-found: ignore
