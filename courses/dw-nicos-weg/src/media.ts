@@ -137,8 +137,8 @@ async function download(fetcher: PoliteFetcher, ref: MediaRef) {
   }
 }
 
-/** Requests in flight per host; starts stay ≤ 1 per second (the fetcher's interval). */
-const WORKERS_PER_HOST = 3;
+/** Requests in flight per host. */
+const WORKERS_PER_HOST = 8;
 
 /** Downloads media missing from the index; failed URLs are retried next run. */
 export async function fetchMedia(

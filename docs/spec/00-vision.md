@@ -81,7 +81,7 @@ Later: see 11, stage 13.
 - Content of closed-licence sources (e.g. DW) is downloaded by the user, for personal use. No access
   control or DRM is circumvented. The repository contains code and lists of public URLs, never content.
 - The app MUST NOT use third-party logos or brands as its own and MUST NOT redistribute closed content.
-- Importers MUST crawl politely: respect robots.txt, ≤1 request/second per host, identifiable User-Agent,
+- Importers respect robots.txt, use an identifiable User-Agent, stop on 403/429 and
   resume instead of re-downloading.
 - Open-licence sources are shown with attribution and licence in the UI.
 - The BAMF "Leben in Deutschland" catalogue is imported from the official PDF.

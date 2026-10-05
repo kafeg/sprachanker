@@ -6,7 +6,7 @@ Research about sources: `docs/research/`.
 ## Layout (target)
 
 ```
-packages/course-kit/   # library format (LibraryView), polite fetcher, media store, manifest, fingerprints, verify, HTML sanitiser
+packages/course-kit/   # library format (LibraryView), fetcher, media store, manifest, fingerprints, verify, HTML sanitiser
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
@@ -25,6 +25,6 @@ courses/
   require re-downloading.
 - Unknown source structures become `unknown` + report entries, never silent drops.
 - Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.
-- Crawling: respect robots.txt, ≤1 req/s per host, identifiable User-Agent, stop on 403/429.
+- Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit.
 - New provider = new folder implementing the provider contract + contract tests; no engine/UI changes
   unless a new exercise type is needed (root rule 2).

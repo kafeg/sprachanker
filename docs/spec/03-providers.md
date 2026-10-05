@@ -21,9 +21,9 @@ interface Provider {
 }
 ```
 
-`course-kit` owns the library format (read and write, `LibraryView`) and supplies `FetchIO` (polite HTTP
-client: robots.txt, ≤1 request per second per host, retries with backoff, resumable downloads,
-identifiable User-Agent), the media store, writing files and the manifest, the HTML sanitiser, fingerprints and
+`course-kit` owns the library format (read and write, `LibraryView`) and supplies `FetchIO` (HTTP
+client: robots.txt, retries with backoff, resumable downloads, identifiable User-Agent, stop on
+403/429; no fixed rate limit, providers choose their concurrency), the media store, writing files and the manifest, the HTML sanitiser, fingerprints and
 `contentVersion`, and the generic `verify`. The exact interface is fixed in stage 2.
 
 ## Importer behaviour (all providers)
@@ -78,5 +78,5 @@ questions. Question translations into the learner's language by LLM, marked as m
 
 - No third-party content in the repository, including fixtures and tests.
 - No brand assets of the source used as SprachAnker branding; the source is shown only as attribution.
-- Polite crawling as above; stop and report on 403/429.
+- Crawling as above; stop and report on 403/429.
 - Licence and attribution recorded in the manifest and displayed in the UI.

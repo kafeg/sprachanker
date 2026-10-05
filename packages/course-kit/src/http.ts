@@ -1,5 +1,5 @@
-// Polite HTTP client for importers (03): ≤ 1 request per interval per host, robots.txt, retries with
-// backoff, identifiable User-Agent, stop on 403/429.
+// HTTP client for importers (03): robots.txt, retries with backoff, identifiable User-Agent, stop on
+// 403/429, optional minimum interval between request starts per host (none by default).
 import { isAllowed, parseRobots, type RobotsRules } from "./robots.ts";
 
 export class HostRefusedError extends Error {
@@ -22,7 +22,7 @@ export class FetchFailedError extends Error {
 
 export interface PoliteFetcherOptions {
   userAgent: string;
-  /** Minimum time between the starts of two requests to the same host. */
+  /** Minimum time between the starts of two requests to the same host; 0 (default) = no limit. */
   intervalMs?: number;
   retries?: number;
   /** Hosts whose robots.txt is checked; others (media CDNs) are only rate-limited. */
@@ -36,7 +36,7 @@ export interface PoliteFetcher {
 }
 
 export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetcher {
-  const interval = options.intervalMs ?? 1000;
+  const interval = options.intervalMs ?? 0;
   const retries = options.retries ?? 3;
   const doFetch = options.fetch ?? fetch;
   const sleep = options.sleep ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
