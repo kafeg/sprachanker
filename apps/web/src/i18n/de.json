@@ -244,5 +244,18 @@
     "strengths": "Gut gelungen",
     "topics": "Daran arbeiten",
     "next": "Nächste Schritte"
+  },
+  "scene": {
+    "title": "Szene",
+    "intro": "Übe die Lektion in einem kurzen Rollenspiel: dein Gegenüber spricht Deutsch, korrigiert dich und hakt deine Ziele ab.",
+    "start": "Szene starten",
+    "preparing": "Wird vorbereitet…",
+    "continue": "Weiter: {title}",
+    "showLast": "Letzte Szene zeigen",
+    "partner": "Dein Gegenüber: {partner}",
+    "translate": "Übersetzung",
+    "placeholder": "Dein Satz auf Deutsch…",
+    "done": "Alle Ziele erreicht – super!",
+    "new": "Neue Szene"
   }
 }

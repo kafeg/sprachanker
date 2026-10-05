@@ -7,6 +7,7 @@ import { streamText } from "hono/streaming";
 import { z } from "zod";
 import { type Llm, LlmSetupError } from "../services/llm.ts";
 import type { Practice } from "../services/practice.ts";
+import type { Scenes } from "../services/scene.ts";
 import type { Tutor } from "../services/tutor.ts";
 import { Edition, Series, zod } from "../validate.ts";
 
@@ -27,6 +28,14 @@ const ReviewBody = z.object({
   lessonKey: LessonKey,
   edition: Edition,
   language: Language,
+});
+
+const SceneLine = z.object({
+  series: Series,
+  lessonKey: LessonKey,
+  edition: Edition,
+  language: Language,
+  text: z.string().trim().min(1).max(1000),
 });
 
 const WritingBody = z.object({
@@ -92,7 +101,7 @@ async function jsonOrFailure<T>(c: Context, run: () => Promise<T>) {
   }
 }
 
-export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice) {
+export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice, scenes: Scenes) {
   return (
     new Hono()
       .get("/", (c) => c.json(llm.state()))
@@ -172,6 +181,23 @@ export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice) {
           }
         },
       )
+      // Scenes: a role-play on the lesson's topic.
+      .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json({ scene: scenes.state(c.req.valid("query").lessonKey) }),
+      )
+      .post("/scene/start", zod("json", ReviewBody), (c) =>
+        jsonOrFailure(c, () => scenes.start(c.req.valid("json"), c.req.raw.signal)),
+      )
+      .post("/scene/turn", zod("json", SceneLine), (c) =>
+        jsonOrFailure(c, () => scenes.turn(c.req.valid("json"), c.req.raw.signal)),
+      )
+      .post("/scene/prompt", zod("json", SceneLine.extend({ text: z.string().max(1000) })), (c) =>
+        jsonOrFailure(c, () => scenes.prompt(c.req.valid("json"))),
+      )
+      .post("/scene/end", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
+        scenes.end(c.req.valid("json").lessonKey);
+        return c.json({ ok: true as const });
+      })
       // Session review of a lesson's latest run.
       .get("/review", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json(practice.review.state(c.req.valid("query").lessonKey)),

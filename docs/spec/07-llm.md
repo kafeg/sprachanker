@@ -43,7 +43,8 @@ default route.
 | Task | Input | Output |
 |---|---|---|
 | `check_answer` | exercise, reference/rubric, answer, lesson rules | verdict, corrections[], short explanation in native language; with rubric criteria also criterion scores and a corrected text |
-| `scene_turn` | scene, allowed vocab/rules, history, learner turn | reply (target language), goal progress, corrections[] |
+| `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
+| `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 | `chat_turn` | free chat with the learner's context (progress, recent mistakes; the current exercise when asked from a lesson) | message |
 | `translate_mt` | text, languages | translation, marked as machine translation |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
@@ -92,7 +93,10 @@ offered again when newer answers exist.
   character budget sized for small local models. "Review my mistakes" on the lesson summary opens the
   tutor with that request.
 
-- Scenes and chats are runs with `llm_turn` events: messages, model, corrections, recordings.
+- Scenes and chats are runs with `llm_turn` events: messages, model, corrections, recordings. A scene's
+  setup is its run's plan; it is drafted from the lesson's goals (no authored scenes yet). The app keeps
+  the model honest: corrections must quote the learner's new line, met goals only accumulate, all met
+  ends the scene.
 - After a scene: mistakes by rule, new words (one tap → card), link to "Practise this".
 - **Handoff**: build a prompt with lesson context, known vocabulary and recent mistakes; copy it or open
   `https://claude.ai/new?q=…` / `https://chatgpt.com/?q=…`, with a visible preview first.

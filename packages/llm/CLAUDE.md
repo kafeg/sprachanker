@@ -20,6 +20,7 @@ src/
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
     review-session.ts  # review_session: a lesson run's results → strengths, topics, next steps
+    scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

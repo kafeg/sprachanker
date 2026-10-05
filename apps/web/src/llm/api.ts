@@ -147,7 +147,8 @@ export type PromptRequest =
   | { explain: ExplainRequest }
   | { tutor: TutorPromptRequest }
   | { writing: WritingRequest }
-  | { review: ReviewRequest };
+  | { review: ReviewRequest }
+  | { scene: SceneLineRequest };
 
 /** The exact request a task would send now (nothing is sent). */
 export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
@@ -157,7 +158,9 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
       ? api.llm.tutor.prompt.$post({ json: kind.tutor })
       : "writing" in kind
         ? api.llm.writing.prompt.$post({ json: kind.writing })
-        : api.llm.review.prompt.$post({ json: kind.review });
+        : "review" in kind
+          ? api.llm.review.prompt.$post({ json: kind.review })
+          : api.llm.scene.prompt.$post({ json: kind.scene });
   return json(response as never) as Promise<PromptPreview>;
 }
 
@@ -223,5 +226,31 @@ export function useCreateReview() {
       >,
     onSuccess: (_, request) =>
       client.invalidateQueries({ queryKey: ["review", request.lessonKey] }),
+  });
+}
+
+export type SceneLineRequest = Parameters<typeof api.llm.scene.turn.$post>[0]["json"];
+export type SceneState = NonNullable<Awaited<ReturnType<typeof fetchScene>>["scene"]>;
+const fetchScene = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: { lessonKey } }));
+
+/** The lesson's latest scene (active or finished). */
+export const useScene = (lessonKey: LessonKey) =>
+  useQuery({ queryKey: ["scene", lessonKey], queryFn: () => fetchScene(lessonKey) });
+
+export function useSceneAction(lessonKey: LessonKey) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (action: { start: ReviewRequest } | { turn: SceneLineRequest } | { end: true }) =>
+      json(
+        ("start" in action
+          ? api.llm.scene.start.$post({ json: action.start })
+          : "turn" in action
+            ? api.llm.scene.turn.$post({ json: action.turn })
+            : api.llm.scene.end.$post({ json: { lessonKey } })) as never,
+      ) as Promise<SceneState | { ok: true }>,
+    onSuccess: (result) =>
+      "setup" in result
+        ? client.setQueryData(["scene", lessonKey], { scene: result })
+        : client.invalidateQueries({ queryKey: ["scene", lessonKey] }),
   });
 }

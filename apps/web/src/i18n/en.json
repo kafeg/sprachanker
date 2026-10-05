@@ -244,5 +244,18 @@
     "strengths": "Went well",
     "topics": "To work on",
     "next": "Next steps"
+  },
+  "scene": {
+    "title": "Scene",
+    "intro": "Practise the lesson in a short role-play: the partner speaks German, corrects you and ticks off your goals.",
+    "start": "Start a scene",
+    "preparing": "Preparing…",
+    "continue": "Continue: {title}",
+    "showLast": "Show the last scene",
+    "partner": "Your partner: {partner}",
+    "translate": "Translation",
+    "placeholder": "Your line in German…",
+    "done": "All goals reached — well done!",
+    "new": "New scene"
   }
 }

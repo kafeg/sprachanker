@@ -66,7 +66,7 @@ export const EventInput = z.discriminatedUnion("type", [
 ]);
 export type EventInput = z.infer<typeof EventInput>;
 
-/** One message of a tutor chat (05, "Events"); scenes will add segments and corrections. */
+/** One message of a tutor chat or a scene (05, "Events"). */
 export const LlmTurnPayload = z.object({
   role: z.enum(["user", "assistant"]),
   text: z.string(),
@@ -74,6 +74,14 @@ export const LlmTurnPayload = z.object({
   model: z.string().optional(),
   /** The exercise on screen when the learner wrote. */
   exerciseKey: ExerciseKey.optional(),
+  /** Scenes: the partner's line in the learner's language. */
+  translation: z.string().optional(),
+  /** Scenes: errors in the learner's line. */
+  corrections: z
+    .array(z.object({ wrong: z.string(), right: z.string(), explanation: z.string() }))
+    .optional(),
+  /** Scenes: indices of the scene's goals reached so far. */
+  goalsMet: z.array(z.number().int().nonnegative()).optional(),
 });
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 

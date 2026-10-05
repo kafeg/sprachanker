@@ -15,6 +15,7 @@ import { createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
 import { createRuns, RunError } from "./services/runs.ts";
+import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
 import { createTutor } from "./services/tutor.ts";
 import { Edition, Series, zod } from "./validate.ts";
@@ -69,6 +70,13 @@ export function createApp(config: AppConfig) {
     llm,
     lessons,
     mistakes,
+    now,
+    appVersion: config.appVersion,
+  });
+  const scenes = createScenes({
+    db: config.profile,
+    llm,
+    lessons,
     now,
     appVersion: config.appVersion,
   });
@@ -158,7 +166,7 @@ export function createApp(config: AppConfig) {
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
     .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
-    .route("/llm", llmRoutes(llm, tutor, practice))
+    .route("/llm", llmRoutes(llm, tutor, practice, scenes))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
