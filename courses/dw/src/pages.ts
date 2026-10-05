@@ -1,8 +1,6 @@
 // Fetch phase, pages: course page, lesson pages, download pages and exercise pages → raw JSON (03).
-import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { type PoliteFetcher, runPool } from "@sprachanker/course-kit";
+import { type PoliteFetcher, runPool, storedPage } from "@sprachanker/course-kit";
 import { type ApolloState, exerciseIds, extractState, lessonIds } from "./apollo.ts";
 import { type DwCourse, SITE } from "./catalog.ts";
 
@@ -20,10 +18,12 @@ async function page(
   file: string,
   refresh = false,
 ): Promise<ApolloState> {
-  if (!refresh && existsSync(file)) return JSON.parse(await readFile(file, "utf8"));
-  const state = extractState(await fetcher.text(`${SITE}${path}`));
-  await writeFile(file, JSON.stringify(state));
-  return state;
+  const stored = await storedPage(
+    file,
+    async () => JSON.stringify(extractState(await fetcher.text(`${SITE}${path}`))),
+    refresh,
+  );
+  return JSON.parse(stored);
 }
 
 export async function fetchPages(
@@ -34,7 +34,6 @@ export async function fetchPages(
   refresh = false,
 ): Promise<void> {
   const dir = rawDir(seriesDir, c);
-  await mkdir(dir, { recursive: true });
   // Slugs in DW URLs are ignored by the server, so `x` stands in for them.
   const course = await page(
     fetcher,

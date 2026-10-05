@@ -1,7 +1,6 @@
 // What the normaliser needs besides the page states: where downloaded media live.
 
-import type { MediaIndex } from "@sprachanker/course-kit";
-import { sanitizeCourseHtml } from "@sprachanker/course-kit";
+import { type MediaIndex, mediaPath, sanitizeCourseHtml } from "@sprachanker/course-kit";
 import type { Media, MediaPath } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import { IMAGE_FORMAT, videoFiles } from "../media.ts";
@@ -15,10 +14,7 @@ export interface Context {
 
 export function createContext(index: MediaIndex): Context {
   return {
-    media(url) {
-      const entry = url ? index[url] : undefined;
-      return entry && "path" in entry ? (entry.path as MediaPath) : undefined;
-    },
+    media: (url) => mediaPath(index, url),
   };
 }
 

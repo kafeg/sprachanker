@@ -37,3 +37,10 @@ export const Media = z
   })
   .meta({ id: "Media" });
 export type Media = z.infer<typeof Media>;
+
+/** Validation issues as one line for logs and errors: "vocab.0.key: Invalid string; …". */
+export const issuesText = (error: z.ZodError, max = 3) =>
+  error.issues
+    .slice(0, max)
+    .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
+    .join("; ");

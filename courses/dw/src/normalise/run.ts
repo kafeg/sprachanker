@@ -1,8 +1,8 @@
 // Normalisation of one downloaded course edition: raw pages → canonical/ and locale/ files (offline).
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { type MediaIndex, prettyJson } from "@sprachanker/course-kit";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
+import { type MediaIndex, type NormaliseResult, writeLibraryFiles } from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -21,12 +21,6 @@ import { createContext, html } from "./context.ts";
 import { courseFiles, courseLessons } from "./course.ts";
 import { normaliseLesson } from "./lesson.ts";
 
-export interface NormaliseResult {
-  lessons: number;
-  unknown: number;
-  problems: number;
-}
-
 export async function normaliseCourse(
   seriesDir: string,
   dw: DwCourse,
@@ -39,10 +33,6 @@ export async function normaliseCourse(
   const primary = COURSES.find((c) => c.series === dw.series && c.course === dw.course) === dw;
   const read = async (file: string): Promise<ApolloState> =>
     JSON.parse(await readFile(join(seriesDir, rawDir, file), "utf8"));
-  const write = async (path: string, value: unknown) => {
-    await mkdir(dirname(join(seriesDir, path)), { recursive: true });
-    await writeFile(join(seriesDir, path), prettyJson(value));
-  };
 
   const ctx = createContext(
     JSON.parse(await readFile(join(seriesDir, "media.json"), "utf8")) as MediaIndex,
@@ -76,25 +66,26 @@ export async function normaliseCourse(
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
     const { name } = parseLessonKey(entry.key);
-    const files = [
-      ...(primary
-        ? [[Lesson, out.lesson, `canonical/${dw.course}/lessons/${name}.json`] as const]
-        : []),
-      [LocaleLesson, out.locale, `locale/${dw.edition}/${dw.course}/lessons/${name}.json`] as const,
-    ];
-    for (const [schema, value, path] of files) {
-      const result = schema.safeParse(value);
-      if (!result.success) {
-        problems++;
-        log(
-          `${path}: ${result.error.issues
-            .slice(0, 3)
-            .map((x) => `${x.path.join(".")} ${x.message}`)
-            .join("; ")}`,
-        );
-      }
-      await write(path, value);
-    }
+    problems += await writeLibraryFiles(
+      seriesDir,
+      [
+        ...(primary
+          ? [
+              {
+                schema: Lesson,
+                value: out.lesson,
+                path: `canonical/${dw.course}/lessons/${name}.json`,
+              },
+            ]
+          : []),
+        {
+          schema: LocaleLesson,
+          value: out.locale,
+          path: `locale/${dw.edition}/${dw.course}/lessons/${name}.json`,
+        },
+      ],
+      log,
+    );
     unknownTotal += out.lesson.unmapped.length;
     lessonsDone++;
   }
@@ -109,24 +100,26 @@ export async function normaliseCourse(
       goals,
       html(ctx, courseEntity?.description),
     );
-    for (const [schema, value, path] of [
-      ...(primary
-        ? [[CourseIndex, files.index, `canonical/${dw.course}/course.json`] as const]
-        : []),
-      [LocaleCourse, files.locale, `locale/${dw.edition}/${dw.course}/course.json`] as const,
-    ]) {
-      const result = schema.safeParse(value);
-      if (!result.success) {
-        problems++;
-        log(
-          `${path}: ${result.error.issues
-            .slice(0, 3)
-            .map((x) => `${x.path.join(".")} ${x.message}`)
-            .join("; ")}`,
-        );
-      }
-      await write(path, value);
-    }
+    problems += await writeLibraryFiles(
+      seriesDir,
+      [
+        ...(primary
+          ? [
+              {
+                schema: CourseIndex,
+                value: files.index,
+                path: `canonical/${dw.course}/course.json`,
+              },
+            ]
+          : []),
+        {
+          schema: LocaleCourse,
+          value: files.locale,
+          path: `locale/${dw.edition}/${dw.course}/course.json`,
+        },
+      ],
+      log,
+    );
   }
   log(
     `${dw.course} ${dw.edition}: ${lessonsDone} lessons normalised${unknownTotal ? `, ${unknownTotal} unknown exercises` : ""}${problems ? `, ${problems} files failed validation` : ""}`,

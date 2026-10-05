@@ -1,7 +1,7 @@
 // Normalisation (offline, deterministic): parsed chapters + media.json → canonical/ and locale/ files.
 // Chapters become units; each vocabulary section a lesson with its words (German → English) and its
 // recording. The site has no interactive exercises (they are in the textbook PDF, kept as a download).
-import type { MediaIndex } from "@sprachanker/course-kit";
+import { type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -13,7 +13,6 @@ import {
   lemmaSlug,
   lessonKey,
   lexemeKey,
-  type MediaPath,
   type PartOfSpeech,
   parseLessonKey,
   seriesKey,
@@ -31,13 +30,6 @@ export interface Chapter {
   /** Textbook PDF, relative to the site. */
   pdf?: string;
   sections: VocabSection[];
-}
-
-export interface LibraryFile {
-  /** Path inside the series folder. */
-  path: string;
-  schema: typeof Lesson | typeof LocaleLesson | typeof CourseIndex | typeof LocaleCourse;
-  value: unknown;
 }
 
 const ARTICLES: Record<string, Gender> = { der: "m", die: "f", das: "n" };
@@ -87,10 +79,7 @@ export function headword(de: string): Headword {
 export const chapterPdfUrl = (pdf: string) => new URL(pdf, SITE).href;
 
 export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFile[] {
-  const media = (url: string | undefined): MediaPath | undefined => {
-    const entry = url ? index[url] : undefined;
-    return entry && "path" in entry ? (entry.path as MediaPath) : undefined;
-  };
+  const media = (url: string | undefined) => mediaPath(index, url);
   const course = courseKey(seriesKey("coerll", "dib"), COURSE);
   const files: LibraryFile[] = [];
   const units: CourseIndex["units"] = [];

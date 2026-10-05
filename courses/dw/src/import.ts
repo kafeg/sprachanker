@@ -5,26 +5,14 @@ import {
   createPoliteFetcher,
   failedMedia,
   fetchMedia,
+  type ImportOptions,
+  type ImportReport,
+  type NormaliseResult,
 } from "@sprachanker/course-kit";
 import { COURSES, type DwSeries, seriesId, USER_AGENT } from "./catalog.ts";
 import { collectMedia, download, mediaName } from "./media.ts";
-import { type NormaliseResult, normaliseCourse } from "./normalise/run.ts";
+import { normaliseCourse } from "./normalise/run.ts";
 import { fetchPages } from "./pages.ts";
-
-export interface ImportOptions {
-  /** Library folder of the data root. */
-  libraryRoot: string;
-  courses?: string[];
-  editions?: string[];
-  /** Fetch pages again to pick up changes at the source; media already stored are kept. */
-  refresh?: boolean;
-  log: (line: string) => void;
-}
-
-export interface ImportReport {
-  failedMedia: string[];
-  normalised: Record<string, NormaliseResult>;
-}
 
 export async function importDw(series: DwSeries, options: ImportOptions): Promise<ImportReport> {
   const seriesDir = join(options.libraryRoot, seriesId(series));
@@ -53,9 +41,8 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
     download: (ref) => download(fetcher, ref),
   });
   const normalised: Record<string, NormaliseResult> = {};
-  // The primary edition writes the canonical files; it runs first for each course.
-  for (const course of ofSeries.filter((c) => selected.some((s) => s.course === c.course))) {
-    if (!selected.includes(course)) continue;
+  // Catalog order: a course's primary edition, which writes the canonical files, comes first.
+  for (const course of selected) {
     normalised[`${course.course} ${course.edition}`] = await normaliseCourse(seriesDir, course, {
       log: options.log,
     });

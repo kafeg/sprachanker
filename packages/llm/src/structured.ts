@@ -1,5 +1,6 @@
 // Structured task outputs (07): JSON requested with a schema, parsed and validated with zod; an invalid
 // reply gets one repair attempt with the problems listed, then the task fails with `invalid_output`.
+import { issuesText } from "@sprachanker/schema";
 import { z } from "zod";
 import { type ChatMessage, type LlmClient, LlmError, type TaskRequest } from "./client.ts";
 
@@ -43,10 +44,7 @@ export async function runStructured<T>(
     try {
       const result = task.schema.safeParse(parseJson(reply));
       if (result.success) return result.data;
-      problem = result.error.issues
-        .slice(0, 5)
-        .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
-        .join("; ");
+      problem = issuesText(result.error, 5);
     } catch {
       problem = "the reply was not valid JSON";
     }

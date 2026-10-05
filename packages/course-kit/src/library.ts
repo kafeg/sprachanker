@@ -6,6 +6,7 @@ import { join, normalize, sep } from "node:path";
 import {
   CourseIndex,
   type EditionId,
+  issuesText,
   Lesson,
   type LessonKey,
   LocaleCourse,
@@ -42,10 +43,7 @@ const dirs = (path: string) =>
 
 async function read<S extends z.ZodType>(schema: S, file: string): Promise<z.infer<S>> {
   const result = schema.safeParse(JSON.parse(await readFile(file, "utf8")));
-  if (!result.success)
-    throw new Error(
-      `${file}: ${result.error.issues[0]?.path.join(".")} ${result.error.issues[0]?.message}`,
-    );
+  if (!result.success) throw new Error(`${file}: ${issuesText(result.error, 1)}`);
   return result.data;
 }
 

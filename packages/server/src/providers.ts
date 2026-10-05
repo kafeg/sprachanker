@@ -1,7 +1,8 @@
 // Content providers the server can import (03). The CLI and (later) the import job use this.
 import { join } from "node:path";
 import { importDib } from "@sprachanker/coerll-dib";
-import { type ImportReport, importDw } from "@sprachanker/dw";
+import type { ImportReport } from "@sprachanker/course-kit";
+import { importDw } from "@sprachanker/dw";
 
 export interface ImportRequest {
   dataRoot: string;

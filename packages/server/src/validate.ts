@@ -1,4 +1,5 @@
 // Request validation shared by the route modules.
+import { issuesText } from "@sprachanker/schema";
 import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
 import { z } from "zod";
@@ -11,8 +12,7 @@ export const zod = <T extends "query" | "json" | "param", S extends z.ZodType>(
   validator(target, (value) => {
     const result = schema.safeParse(value);
     if (!result.success) {
-      const issue = result.error.issues[0];
-      throw new HTTPException(400, { message: `${issue?.path.join(".")}: ${issue?.message}` });
+      throw new HTTPException(400, { message: issuesText(result.error, 1) });
     }
     return result.data as z.infer<S>;
   });

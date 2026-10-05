@@ -3,6 +3,7 @@
 // tried again on the next run; one failing file never stops the import.
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
+import type { MediaPath } from "@sprachanker/schema";
 import { FetchFailedError, HostRefusedError, type PoliteFetcher } from "./http.ts";
 import type { MediaStore } from "./media-store.ts";
 
@@ -84,6 +85,12 @@ export async function fetchMedia<R extends MediaRef>(options: {
   );
   await save();
   return index;
+}
+
+/** The stored file of a fetched URL, or undefined when it was not fetched (or failed). */
+export function mediaPath(index: MediaIndex, url: string | undefined): MediaPath | undefined {
+  const entry = url ? index[url] : undefined;
+  return entry && "path" in entry ? (entry.path as MediaPath) : undefined;
 }
 
 /** URLs that could not be fetched, with the reason, for the import report. */
