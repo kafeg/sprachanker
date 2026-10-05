@@ -117,7 +117,9 @@ export function LmStudioSection({ state }: { state: LlmState }) {
           <ul className="space-y-2">
             {missing.map((s) => {
               const d = s.download;
-              const busy = d?.status === "downloading" || d?.status === "paused";
+              // "completed" until LM Studio lists the model: still not to be downloaded again.
+              const busy =
+                d?.status === "downloading" || d?.status === "paused" || d?.status === "completed";
               return (
                 <li key={s.key} className="rounded-xl border p-3">
                   <div className="flex flex-wrap items-center gap-x-3 gap-y-1">

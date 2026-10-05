@@ -2,7 +2,7 @@
 // examples within the material the learner has met so far.
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, ChatRequest, LlmClient, TaskRequest } from "../client.ts";
-import { clip, htmlToText, languageName } from "../text.ts";
+import { clip, htmlToText, languageName, recentTurns } from "../text.ts";
 import { describeItem, mistakeLine, type TutorMistake } from "./describe.ts";
 import { TUTOR_TOOLS, TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tutor-tools.ts";
 
@@ -143,15 +143,7 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
     .filter(Boolean)
     .join("\n");
 
-  // The most recent turns that fit the budget.
-  const history: ChatMessage[] = [];
-  let size = 0;
-  for (let i = input.history.length - 1; i >= 0; i--) {
-    const turn = input.history[i] as ChatTurnInput["history"][number];
-    if (size + turn.text.length > B.history) break;
-    history.unshift({ role: turn.role, content: turn.text });
-    size += turn.text.length;
-  }
+  const history: ChatMessage[] = recentTurns(input.history, B.history);
   // Some chat templates require the conversation to start with a user turn.
   while (history[0]?.role === "assistant") history.shift();
 

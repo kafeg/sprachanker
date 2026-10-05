@@ -40,3 +40,19 @@ export const languageName = (code: string) =>
 
 /** Rough token count: about 4 characters per token for German, English and Russian text. */
 export const estimateTokens = (text: string) => Math.ceil(text.length / 4);
+
+/** The most recent conversation turns that fit `budget` characters, oldest first, as chat messages. */
+export function recentTurns(
+  history: Array<{ role: "user" | "assistant"; text: string }>,
+  budget: number,
+): Array<{ role: "user" | "assistant"; content: string }> {
+  const out: Array<{ role: "user" | "assistant"; content: string }> = [];
+  let size = 0;
+  for (let i = history.length - 1; i >= 0; i--) {
+    const turn = history[i] as (typeof history)[number];
+    if (size + turn.text.length > budget) break;
+    out.unshift({ role: turn.role, content: turn.text });
+    size += turn.text.length;
+  }
+  return out;
+}

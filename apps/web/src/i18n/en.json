@@ -139,7 +139,9 @@
       "llm_timeout": "The model took too long to answer.",
       "llm_bad_response": "The server returned an error.",
       "other": "Something went wrong: {message}",
-      "llm_lmstudio_missing": "LM Studio is not installed on this computer."
+      "llm_lmstudio_missing": "LM Studio is not installed on this computer.",
+      "llm_lmstudio_remote": "LM Studio runs on another computer: start its server there.",
+      "llm_invalid_output": "The model could not give a usable answer. Try again, or choose a larger model in Settings → AI assistant."
     }
   },
   "tutor": {

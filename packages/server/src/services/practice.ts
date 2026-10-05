@@ -20,11 +20,11 @@ import {
   parseLessonKey,
 } from "@sprachanker/schema";
 import { and, desc, eq } from "drizzle-orm";
-import { monotonicFactory } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
+import type { LlmRuns } from "./llm-runs.ts";
 import type { Mistakes } from "./mistakes.ts";
 
 export interface WritingRequest {
@@ -57,42 +57,13 @@ export interface WritingAttempt {
 
 export function createPractice(deps: {
   db: ProfileDb;
+  runs: LlmRuns;
   llm: Llm;
   lessons: LessonContexts;
   mistakes: Mistakes;
   now: () => number;
-  appVersion: string;
 }) {
   const { db, now } = deps;
-  const id = monotonicFactory();
-
-  /** The lesson's practice run, created on first use. */
-  function runOf(lessonKey: LessonKey, edition: string) {
-    const active = db
-      .select()
-      .from(runs)
-      .where(
-        and(eq(runs.kind, "practice"), eq(runs.contextKey, lessonKey), eq(runs.status, "active")),
-      )
-      .get();
-    return (
-      active ??
-      db
-        .insert(runs)
-        .values({
-          id: id(now()),
-          kind: "practice",
-          contextKey: lessonKey,
-          courseKey: parseLessonKey(lessonKey).course,
-          edition,
-          appVersion: deps.appVersion,
-          status: "active",
-          startedAt: now(),
-        })
-        .returning()
-        .get()
-    );
-  }
 
   /** Verdicts of a task for the lesson, newest first. */
   function verdicts(lessonKey: string, task: LlmVerdictPayload["task"]) {
@@ -113,18 +84,11 @@ export function createPractice(deps: {
       .filter((v) => v.task === task);
   }
 
-  /** Stores a verdict in the lesson's practice run. */
-  function store(lessonKey: LessonKey, edition: string, payload: LlmVerdictPayload, ts: number) {
-    db.insert(events)
-      .values({
-        id: id(ts),
-        runId: runOf(lessonKey, edition).id,
-        ts,
-        type: "llm_verdict",
-        payloadJson: JSON.stringify(payload),
-      })
-      .run();
-  }
+  /** Stores a verdict in the lesson's practice run; returns its time. */
+  const store = (lessonKey: LessonKey, edition: string, payload: LlmVerdictPayload) =>
+    deps.runs.add(deps.runs.activeOrStart("practice", lessonKey, edition).id, "llm_verdict", [
+      payload,
+    ]);
 
   /** First attempts of the lesson's latest run: item → result, and when the last answer came. */
   function latestSession(lessonKey: string) {
@@ -206,13 +170,13 @@ export function createPractice(deps: {
         const input = await reviewInput(request);
         const started = now();
         const result = await runStructured(client, model, reviewSessionTask(input), signal);
-        const ts = now();
-        store(
-          request.lessonKey,
-          request.edition,
-          { task: "review", input: "", result, model, latencyMs: Math.max(0, ts - started) },
-          ts,
-        );
+        const ts = store(request.lessonKey, request.edition, {
+          task: "review",
+          input: "",
+          result,
+          model,
+          latencyMs: Math.max(0, now() - started),
+        });
         return { ts, result, model };
       },
 
@@ -250,19 +214,13 @@ export function createPractice(deps: {
           await runStructured(client, model, checkWritingTask(input), signal),
           request.text,
         );
-        const ts = now();
-        store(
-          request.lessonKey,
-          request.edition,
-          {
-            task: "writing",
-            input: request.text,
-            result,
-            model,
-            latencyMs: Math.max(0, ts - started),
-          },
-          ts,
-        );
+        const ts = store(request.lessonKey, request.edition, {
+          task: "writing",
+          input: request.text,
+          result,
+          model,
+          latencyMs: Math.max(0, now() - started),
+        });
         return { ts, text: request.text, result, model };
       },
 

@@ -135,51 +135,27 @@ export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice, scenes: Sc
           return c.json(llm.state());
         },
       )
-      .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) => {
-        try {
-          return c.json(await llm.models(c.req.valid("query").provider, c.req.raw.signal));
-        } catch (error) {
-          const { status, ...body } = failure(error);
-          return c.json(body, status);
-        }
-      })
+      .get("/models", zod("query", z.object({ provider: ProviderId })), (c) =>
+        jsonOrFailure(c, () => llm.models(c.req.valid("query").provider, c.req.raw.signal)),
+      )
       .post("/explain", zod("json", ExplainBody), (c) =>
         streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
       )
       // Prompt viewer: the exact request a task would send now (nothing is sent).
-      .post("/explain/prompt", zod("json", ExplainBody), async (c) => {
-        try {
-          return c.json(await llm.explainPrompt(c.req.valid("json")));
-        } catch (error) {
-          const { status, ...body } = failure(error);
-          return c.json(body, status);
-        }
-      })
+      .post("/explain/prompt", zod("json", ExplainBody), (c) =>
+        jsonOrFailure(c, () => llm.explainPrompt(c.req.valid("json"))),
+      )
       .get("/prompts", zod("query", z.object({ language: Language, target: Language })), (c) => {
         const { language, target } = c.req.valid("query");
         return c.json(llm.prompts(language, target));
       })
       // LM Studio: what it has and runs; start its server, download suggested models into it.
       .get("/lmstudio", async (c) => c.json(await llm.lmStudioStatus()))
-      .post("/lmstudio/start", async (c) => {
-        try {
-          return c.json(await llm.lmStudioStart());
-        } catch (error) {
-          const { status, ...body } = failure(error);
-          return c.json(body, status);
-        }
-      })
+      .post("/lmstudio/start", (c) => jsonOrFailure(c, () => llm.lmStudioStart()))
       .post(
         "/lmstudio/download",
         zod("json", z.object({ model: z.enum(LMSTUDIO_RECOMMENDED.map((m) => m.key)) })),
-        async (c) => {
-          try {
-            return c.json(await llm.lmStudioDownload(c.req.valid("json").model));
-          } catch (error) {
-            const { status, ...body } = failure(error);
-            return c.json(body, status);
-          }
-        },
+        (c) => jsonOrFailure(c, () => llm.lmStudioDownload(c.req.valid("json").model)),
       )
       // Scenes: a role-play on the lesson's topic.
       .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
@@ -239,14 +215,7 @@ export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice, scenes: Sc
       .post(
         "/tutor/prompt",
         zod("json", TutorBody.extend({ message: z.string().max(4000) })),
-        async (c) => {
-          try {
-            return c.json(await tutor.prompt(c.req.valid("json")));
-          } catch (error) {
-            const { status, ...body } = failure(error);
-            return c.json(body, status);
-          }
-        },
+        (c) => jsonOrFailure(c, () => tutor.prompt(c.req.valid("json"))),
       )
       .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
         tutor.reset(c.req.valid("json").lessonKey);

@@ -31,7 +31,8 @@ Later (target): `tasks/<task>/` with zod output schemas and repair logic for JSO
 
 ## Rules
 
-- JSON task outputs are validated with zod; invalid → one repair attempt → fallback → graceful degradation.
+- JSON task outputs are validated with zod; invalid → one repair attempt → `invalid_output`, which the
+  UI shows as "the model could not answer usefully, try again or a larger model" (nothing is stored).
 - Prompts live next to their task; course text and learner input are delimited data in the prompt.
 - Each task exposes `<task>Request(input)` (what is sent), `<task>Rules()` (its system prompt) and its
   context budgets; the real call and the prompt viewer use the same functions.

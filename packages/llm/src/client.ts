@@ -119,6 +119,7 @@ export interface Endpoint {
 const MODELS_TIMEOUT_MS = 10_000;
 /** Tool rounds per answer; the last round has no tools, so the model must answer. */
 const MAX_TOOL_ROUNDS = 4;
+const ANSWER_NOW = "Answer the learner now with the information you have; no more tools.";
 /** Local servers may load the model on the first request (JIT), which takes a while. */
 const CHAT_TIMEOUT_MS = 180_000;
 
@@ -219,7 +220,8 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
           let tools = !!request.tools?.length && !!request.runTool;
           // A few rounds: the model may call tools, read their results, then answer.
           for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
-            const opened = await openWithFallbacks(messages, tools && round < MAX_TOOL_ROUNDS - 1);
+            const last = round === MAX_TOOL_ROUNDS - 1;
+            const opened = await openWithFallbacks(messages, tools && !last);
             tools = opened.tools;
             const calls: ToolCall[] = [];
             let text = "";
@@ -229,7 +231,16 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
                 yield event.text;
               } else if (event.toolCalls) calls.push(...event.toolCalls);
             }
-            if (!calls.length || !request.runTool) return;
+            if (text.trim() && (!calls.length || last)) return;
+            if (!calls.length || !request.runTool || last) {
+              if (round > 0 && !last) {
+                // Tool results came back but no answer: ask for it once more, without tools.
+                messages = [...messages, { role: "user", content: ANSWER_NOW }];
+                round = MAX_TOOL_ROUNDS - 2;
+                continue;
+              }
+              return;
+            }
             const results: ChatMessage[] = [];
             for (const c of calls) {
               let args: unknown = {};
@@ -245,6 +256,10 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
               ...messages,
               { role: "assistant", content: text, tool_calls: calls },
               ...results,
+              // The next round is the last one, without tools: say so, or some models stay silent.
+              ...(round === MAX_TOOL_ROUNDS - 2
+                ? [{ role: "user" as const, content: ANSWER_NOW }]
+                : []),
             ];
           }
         })(),

@@ -12,6 +12,7 @@ import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { createLlm, type LmStudioHost } from "./services/llm.ts";
+import { createLlmRuns } from "./services/llm-runs.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
 import { createRuns, RunError } from "./services/runs.ts";
@@ -55,34 +56,6 @@ export function createApp(config: AppConfig) {
     fetch: config.fetch ?? fetch,
     lmStudio: config.lmStudio,
   });
-  const mistakes = createMistakes(config.profile);
-  const lessons = createLessonContext(content);
-  const tutor = createTutor({
-    db: config.profile,
-    content,
-    llm,
-    mistakes,
-    lessons,
-    // Runs are created below; progress is read only when the model asks for it.
-    tools: createTutorTools({ content, lessons, mistakes, progress: () => runs.progress() }),
-    now,
-    appVersion: config.appVersion,
-  });
-  const practice = createPractice({
-    db: config.profile,
-    llm,
-    lessons,
-    mistakes,
-    now,
-    appVersion: config.appVersion,
-  });
-  const scenes = createScenes({
-    db: config.profile,
-    llm,
-    lessons,
-    now,
-    appVersion: config.appVersion,
-  });
   const runs = createRuns({
     db: config.profile,
     content,
@@ -90,6 +63,25 @@ export function createApp(config: AppConfig) {
     appVersion: config.appVersion,
     targetLang: () => "de",
   });
+  const mistakes = createMistakes(config.profile);
+  const lessons = createLessonContext(content);
+  const llmRuns = createLlmRuns({ db: config.profile, now, appVersion: config.appVersion });
+  const tutor = createTutor({
+    runs: llmRuns,
+    llm,
+    mistakes,
+    lessons,
+    tools: createTutorTools({ content, lessons, mistakes, progress: () => runs.progress() }),
+  });
+  const practice = createPractice({
+    db: config.profile,
+    runs: llmRuns,
+    llm,
+    lessons,
+    mistakes,
+    now,
+  });
+  const scenes = createScenes({ runs: llmRuns, llm, lessons });
 
   const api = new Hono()
     .use("*", async (c, next) => {

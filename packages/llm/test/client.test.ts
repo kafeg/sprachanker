@@ -204,3 +204,27 @@ test("tools: calls are assembled from the stream, run, and answered in a second 
     { role: "tool", tool_call_id: "c1", content: '[{"lesson":"0.2"}]' },
   ]);
 });
+
+test("tools: a model that keeps calling tools is told to answer and does", async () => {
+  const bodies: Array<{ messages: ChatMessage[]; tools?: unknown[] }> = [];
+  const call = (n: number) =>
+    `data: ${JSON.stringify({ choices: [{ delta: { tool_calls: [{ index: 0, id: `c${n}`, function: { name: "get_progress", arguments: "{}" } }] } }] })}\n\ndata: [DONE]\n\n`;
+  const fetchFn = (async (_: string, init: RequestInit) => {
+    const body = JSON.parse(init.body as string);
+    bodies.push(body);
+    return sse([body.tools ? call(bodies.length) : `${delta("Fertig.")}data: [DONE]\n\n`]);
+  }) as unknown as typeof fetch;
+  const client = openAiCompatible({ baseUrl: "http://h" }, fetchFn);
+  const text = await collect(
+    client.chat({
+      model: "m",
+      messages: [{ role: "user", content: "?" }],
+      tools: [{ name: "get_progress", description: "d", parameters: { type: "object" } }],
+      runTool: async () => ({ done: 1 }),
+    }),
+  );
+  expect(text).toBe("Fertig.");
+  expect(bodies).toHaveLength(4);
+  expect(bodies[3]?.tools).toBeUndefined();
+  expect(bodies[3]?.messages.at(-1)?.content).toContain("Answer the learner now");
+});

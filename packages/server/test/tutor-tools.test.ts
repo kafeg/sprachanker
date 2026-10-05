@@ -64,8 +64,14 @@ test("tutor tools: progress, lessons by number or title, mistakes", async () => 
   const fetch = (async (url: string, init: RequestInit) => {
     if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
     const body = JSON.parse(init.body as string);
-    const last = body.messages.at(-1);
-    if (last.role === "tool") results.push(JSON.parse(last.content));
+    // Each request carries all tool results so far; keep those of the latest one.
+    results.splice(
+      0,
+      results.length,
+      ...body.messages
+        .filter((m: { role: string }) => m.role === "tool")
+        .map((m: { content: string }) => JSON.parse(m.content)),
+    );
     const next = asked[round++];
     const event = next
       ? {

@@ -1,18 +1,9 @@
 // The lesson tutor: one chat per lesson, stored as a `chat` run with `llm_turn` events (05, 07).
 import { type ChatTurnInput, chatTurn, chatTurnRequest, estimateTokens } from "@sprachanker/llm";
-import {
-  type LessonKey,
-  LlmTurnPayload,
-  parseEditionId,
-  parseLessonKey,
-} from "@sprachanker/schema";
-import { and, asc, eq } from "drizzle-orm";
-import { monotonicFactory } from "ulid";
-import type { ProfileDb } from "../db/profile/db.ts";
-import { events, runs } from "../db/profile/schema.ts";
-import type { Content } from "./content.ts";
+import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
+import type { LlmRuns } from "./llm-runs.ts";
 import type { Mistakes } from "./mistakes.ts";
 import type { TutorTools } from "./tutor-tools.ts";
 
@@ -39,52 +30,21 @@ export interface ContextUsage {
 }
 
 export function createTutor(deps: {
-  db: ProfileDb;
-  content: Content;
+  runs: LlmRuns;
   llm: Llm;
   mistakes: Mistakes;
   lessons: LessonContexts;
   tools: TutorTools;
-  now: () => number;
-  appVersion: string;
 }) {
-  const { db, content, now } = deps;
-  const id = monotonicFactory();
-
-  const activeRun = (lessonKey: string) =>
-    db
-      .select()
-      .from(runs)
-      .where(and(eq(runs.kind, "chat"), eq(runs.contextKey, lessonKey), eq(runs.status, "active")))
-      .get();
-
-  const turns = (runId: string): LlmTurnPayload[] =>
-    db
-      .select()
-      .from(events)
-      .where(and(eq(events.runId, runId), eq(events.type, "llm_turn")))
-      .orderBy(asc(events.ts), asc(events.id))
-      .all()
-      .map((e) => LlmTurnPayload.parse(JSON.parse(e.payloadJson)));
-
-  const addTurns = (runId: string, list: LlmTurnPayload[]) =>
-    db.transaction((tx) => {
-      for (const payload of list) {
-        tx.insert(events)
-          .values({
-            id: id(now()),
-            runId,
-            ts: now(),
-            type: "llm_turn",
-            payloadJson: JSON.stringify(payload),
-          })
-          .run();
-      }
-    });
+  const { runs } = deps;
+  const activeRun = (lessonKey: string) => runs.active("chat", lessonKey);
+  const turns = (runId: string) => runs.turns(runId);
 
   /** What the tutor knows: the lesson context plus the learner's mistakes. */
   async function context(series: string, lessonKey: LessonKey, edition: string) {
     const ctx = await deps.lessons.get(series, lessonKey, edition);
+    // One pass over the answers, split into this lesson's mistakes and the others'.
+    const all = deps.mistakes.list();
     return {
       lesson: ctx.lesson,
       locale: ctx.locale,
@@ -97,12 +57,12 @@ export function createTutor(deps: {
           lesson: await deps.lessons.mistakes(
             series,
             edition,
-            deps.mistakes.list({ lesson: lessonKey, limit: 15 }),
+            all.filter((m) => m.lessonKey === lessonKey).slice(0, 15),
           ),
           earlier: await deps.lessons.mistakes(
             series,
             edition,
-            deps.mistakes.list({ except: lessonKey, limit: 10 }),
+            all.filter((m) => m.lessonKey !== lessonKey).slice(0, 10),
             ctx.titles,
           ),
         },
@@ -141,7 +101,10 @@ export function createTutor(deps: {
       const { input } = await turnInput(request, history);
       const task = chatTurnRequest(input);
       return {
-        tokens: estimateTokens(task.messages.map((m) => m.content).join("")),
+        // Tool definitions go with every request, so they count too.
+        tokens: estimateTokens(
+          task.messages.map((m) => m.content).join("") + JSON.stringify(task.tools ?? []),
+        ),
         window: deps.llm.contextWindow(),
         reply: task.maxTokens ?? 0,
         // system + kept history + the new message
@@ -166,22 +129,7 @@ export function createTutor(deps: {
     /** Sends a message; the reply is streamed. Both turns are stored once the reply has text. */
     async send(request: TutorRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
       const { client, model } = await deps.llm.model();
-      const run =
-        activeRun(request.lessonKey) ??
-        db
-          .insert(runs)
-          .values({
-            id: id(now()),
-            kind: "chat",
-            contextKey: request.lessonKey,
-            courseKey: parseLessonKey(request.lessonKey).course,
-            edition: request.edition,
-            appVersion: deps.appVersion,
-            status: "active",
-            startedAt: now(),
-          })
-          .returning()
-          .get();
+      const run = runs.activeOrStart("chat", request.lessonKey, request.edition);
       const { input, exercise } = await turnInput(request, turns(run.id));
       // The tools the model calls are recorded with its reply.
       const used: Array<{ name: string; args: unknown }> = [];
@@ -201,7 +149,7 @@ export function createTutor(deps: {
         } finally {
           // Also keeps a reply cut short by the learner; nothing is stored if the model never answered.
           if (text.trim()) {
-            addTurns(run.id, [
+            runs.add(run.id, "llm_turn", [
               { role: "user", text: request.message, exerciseKey: exercise?.key },
               { role: "assistant", text: text.trim(), model, ...(used.length && { tools: used }) },
             ]);
@@ -213,11 +161,7 @@ export function createTutor(deps: {
     /** Ends the lesson's chat; the next message starts a new one. */
     reset(lessonKey: string) {
       const run = activeRun(lessonKey);
-      if (!run) return;
-      db.update(runs)
-        .set({ status: "finished", endReason: "user", finishedAt: now() })
-        .where(eq(runs.id, run.id))
-        .run();
+      if (run) runs.finish(run.id, "user");
     },
   };
 }

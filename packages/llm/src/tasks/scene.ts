@@ -5,7 +5,7 @@ import type { Lang } from "@sprachanker/schema";
 import { z } from "zod";
 import type { ChatMessage, TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { clip, languageName } from "../text.ts";
+import { clip, languageName, recentTurns } from "../text.ts";
 
 export interface SceneLesson {
   title: string;
@@ -135,15 +135,8 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
     words(input.lesson, input.knownVocab),
     "</scene>",
   ].join("\n");
-  // The most recent lines that fit; the first partner line stays (it opens the scene).
-  const history: ChatMessage[] = [];
-  let size = 0;
-  for (let i = input.history.length - 1; i >= 0; i--) {
-    const turn = input.history[i] as SceneTurnInput["history"][number];
-    if (size + turn.text.length > SCENE_BUDGETS.history) break;
-    history.unshift({ role: turn.role, content: turn.text });
-    size += turn.text.length;
-  }
+  // The most recent lines that fit; the opening line is put back when it no longer fits.
+  const history: ChatMessage[] = recentTurns(input.history, SCENE_BUDGETS.history);
   return {
     messages: [
       { role: "system", content: `${sceneTurnRules(input.language, input.target)}\n\n${scene}` },

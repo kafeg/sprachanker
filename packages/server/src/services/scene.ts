@@ -10,13 +10,10 @@ import {
   sceneTurnTask,
   structuredRequest,
 } from "@sprachanker/llm";
-import { type LessonKey, LlmTurnPayload, parseLessonKey } from "@sprachanker/schema";
-import { and, asc, desc, eq } from "drizzle-orm";
-import { monotonicFactory } from "ulid";
-import type { ProfileDb } from "../db/profile/db.ts";
-import { events, runs } from "../db/profile/schema.ts";
+import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
 import type { LessonContexts } from "./lesson-context.ts";
 import { type Llm, LlmSetupError, type PromptPreview } from "./llm.ts";
+import type { LlmRuns } from "./llm-runs.ts";
 
 export interface SceneRequest {
   series: string;
@@ -32,57 +29,16 @@ export interface SceneState {
   done: boolean;
 }
 
-export function createScenes(deps: {
-  db: ProfileDb;
-  llm: Llm;
-  lessons: LessonContexts;
-  now: () => number;
-  appVersion: string;
-}) {
-  const { db, now } = deps;
-  const id = monotonicFactory();
-
-  const latestRun = (lessonKey: string) =>
-    db
-      .select()
-      .from(runs)
-      .where(and(eq(runs.kind, "scene"), eq(runs.contextKey, lessonKey)))
-      .orderBy(desc(runs.startedAt))
-      .get();
-
-  const turns = (runId: string) =>
-    db
-      .select()
-      .from(events)
-      .where(and(eq(events.runId, runId), eq(events.type, "llm_turn")))
-      .orderBy(asc(events.ts), asc(events.id))
-      .all()
-      .map((e) => LlmTurnPayload.parse(JSON.parse(e.payloadJson)));
-
-  function addTurns(runId: string, list: LlmTurnPayload[]) {
-    db.transaction((tx) => {
-      for (const payload of list) {
-        const ts = now();
-        tx.insert(events)
-          .values({ id: id(ts), runId, ts, type: "llm_turn", payloadJson: JSON.stringify(payload) })
-          .run();
-      }
-    });
-  }
+export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonContexts }) {
+  const { runs } = deps;
+  const latestRun = (lessonKey: string) => runs.latest("scene", lessonKey);
 
   function stateOf(run: { id: string; planJson: string | null; status: string }): SceneState {
     const setup = SceneSetupSchema.parse(JSON.parse(run.planJson ?? "{}"));
-    const list = turns(run.id);
+    const list = runs.turns(run.id);
     const goalsMet = list.at(-1)?.goalsMet ?? [];
     return { setup, turns: list, goalsMet, done: run.status !== "active" };
   }
-
-  const finish = (runId: string, endReason: "completed" | "user") =>
-    db
-      .update(runs)
-      .set({ status: "finished", endReason, finishedAt: now() })
-      .where(eq(runs.id, runId))
-      .run();
 
   async function turnInput(request: SceneRequest, message: string) {
     const run = latestRun(request.lessonKey);
@@ -124,23 +80,11 @@ export function createScenes(deps: {
         signal,
       );
       const previous = latestRun(request.lessonKey);
-      if (previous?.status === "active") finish(previous.id, "user");
-      const run = db
-        .insert(runs)
-        .values({
-          id: id(now()),
-          kind: "scene",
-          contextKey: request.lessonKey,
-          courseKey: parseLessonKey(request.lessonKey).course,
-          edition: request.edition,
-          appVersion: deps.appVersion,
-          planJson: JSON.stringify(setup),
-          status: "active",
-          startedAt: now(),
-        })
-        .returning()
-        .get();
-      addTurns(run.id, [{ role: "assistant", text: setup.opening, model, goalsMet: [] }]);
+      if (previous?.status === "active") runs.finish(previous.id, "user");
+      const run = runs.start("scene", request.lessonKey, request.edition, setup);
+      runs.add(run.id, "llm_turn", [
+        { role: "assistant", text: setup.opening, model, goalsMet: [] },
+      ]);
       return stateOf(run);
     },
 
@@ -154,7 +98,7 @@ export function createScenes(deps: {
         state.setup.goals.length,
         state.goalsMet,
       );
-      addTurns(run.id, [
+      runs.add(run.id, "llm_turn", [
         { role: "user", text: request.text, corrections: turn.corrections },
         {
           role: "assistant",
@@ -164,13 +108,13 @@ export function createScenes(deps: {
           model,
         },
       ]);
-      if (turn.done) finish(run.id, "completed");
+      if (turn.done) runs.finish(run.id, "completed");
       return stateOf(latestRun(request.lessonKey) ?? run);
     },
 
     end(lessonKey: string) {
       const run = latestRun(lessonKey);
-      if (run?.status === "active") finish(run.id, "user");
+      if (run?.status === "active") runs.finish(run.id, "user");
     },
 
     async prompt(request: SceneRequest & { text: string }): Promise<PromptPreview> {

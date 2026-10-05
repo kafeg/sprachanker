@@ -27,8 +27,8 @@ interface Answered {
 
 export function createMistakes(db: ProfileDb) {
   return {
-    /** Mistakes in lessons, newest first: of one lesson, or of all lessons but one. */
-    list(filter: { lesson?: string; except?: string; limit?: number } = {}): Mistake[] {
+    /** Mistakes in lessons, newest first: of all lessons or of one. */
+    list(filter: { lesson?: string; limit?: number } = {}): Mistake[] {
       const rows = db
         .select({ itemKey: events.itemKey, ts: events.ts, payload: events.payloadJson })
         .from(events)
@@ -41,7 +41,6 @@ export function createMistakes(db: ProfileDb) {
         if (!row.itemKey) continue;
         const lesson = lessonOf(parseItemKey(row.itemKey as ItemKey).exercise);
         if (filter.lesson && lesson !== filter.lesson) continue;
-        if (filter.except && lesson === filter.except) continue;
         const answered = JSON.parse(row.payload) as Answered;
         const entry = byItem.get(row.itemKey) ?? {};
         // Rows come newest first: the first row seen is the latest answer, and the first attempt of the

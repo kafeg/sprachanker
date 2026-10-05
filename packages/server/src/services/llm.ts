@@ -117,6 +117,8 @@ export function createLlm(deps: {
   const { db, settings, box, content } = deps;
   /** Downloads started from the app: model key → LM Studio job id. */
   const downloads = new Map<string, string>();
+  /** LM Studio loads in progress, by model key. */
+  const loading = new Map<string, Promise<void>>();
   const endpoints = () => settings.get<Partial<Record<ProviderId, string>>>(ENDPOINTS) ?? {};
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
   const hasKey = (id: ProviderId) =>
@@ -141,8 +143,18 @@ export function createLlm(deps: {
     if (!url) throw new LlmSetupError("llm_no_endpoint");
     const key = await apiKey(id);
     if (preset.key === "required" && !key) throw new LlmSetupError("llm_no_key");
-    // LM Studio would load a model on its own with a small default window: load it ourselves.
-    if (id === "lmstudio" && model) await (await studio()).ensureLoaded(model);
+    // LM Studio would load a model on its own with a small default window: load it ourselves, one
+    // load per model at a time (two tasks at once must not load two copies).
+    if (id === "lmstudio" && model) {
+      // Registered before any await, so a second task finds it.
+      const pending = loading.get(model) ?? studio().then((api) => api.ensureLoaded(model));
+      loading.set(model, pending);
+      try {
+        await pending;
+      } finally {
+        if (loading.get(model) === pending) loading.delete(model);
+      }
+    }
     return {
       client: openAiCompatible(
         { baseUrl: url, apiKey: key, noReasoning: preset.noReasoning },
@@ -247,6 +259,8 @@ export function createLlm(deps: {
     /** Starts LM Studio's server when LM Studio is installed on this machine. */
     async lmStudioStart(): Promise<LmStudioStatus> {
       if (!deps.lmStudio?.installed()) throw new LlmSetupError("llm_lmstudio_missing");
+      // The LM Studio here serves only a local endpoint; a remote one has to be started there.
+      if (!LOCAL_URL.test(baseUrl("lmstudio"))) throw new LlmSetupError("llm_lmstudio_remote");
       await deps.lmStudio.startServer();
       return this.lmStudioStatus();
     },

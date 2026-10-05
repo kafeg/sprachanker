@@ -338,6 +338,24 @@ describe("LM Studio", () => {
     ]);
   });
 
+  test("two tasks at once load the model once; a remote endpoint is not started here", async () => {
+    const studio = lmStudio();
+    const { send } = await setup({ fetch: studio.fetch, lmStudio: host().host });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "google/gemma-4-12b" });
+    await Promise.all([
+      send("POST", "/api/llm/explain", EXPLAIN).then((r) => r.text()),
+      send("POST", "/api/llm/explain", EXPLAIN).then((r) => r.text()),
+    ]);
+    expect(studio.calls.filter((c) => c.startsWith("POST /api/v1/models/load"))).toHaveLength(1);
+
+    await send("PUT", "/api/llm/providers/lmstudio", { baseUrl: "http://192.168.1.5:1234/v1" });
+    const res = await send("POST", "/api/llm/lmstudio/start", {});
+    expect([res.status, ((await res.json()) as { error: string }).error]).toEqual([
+      409,
+      "llm_lmstudio_remote",
+    ]);
+  });
+
   test("a route to the removed built-in runtime reads as off", async () => {
     const { app, getJson, send } = await setup();
     await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "x" });

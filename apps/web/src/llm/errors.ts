@@ -11,6 +11,8 @@ const KNOWN = new Set([
   "llm_timeout",
   "llm_bad_response",
   "llm_lmstudio_missing",
+  "llm_lmstudio_remote",
+  "llm_invalid_output",
 ]);
 
 export function errorText(t: TFunction, error: unknown, provider?: string): string {

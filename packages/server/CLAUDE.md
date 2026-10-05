@@ -20,7 +20,8 @@ src/
     backup.ts        # copy-before-migrate, retention
   validate.ts        # request validation helper and shared param schemas
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
-  services/          # content, runs, settings, mistakes (derived from lesson runs), lesson-context (what LLM
+  services/          # content, runs, settings, llm-runs (chat/scene/practice runs and their LLM events),
+                     # mistakes (derived from lesson runs), lesson-context (what LLM
                      # tasks know of a lesson), llm (providers, LM Studio, explanations, prompt previews),
                      # tutor (lesson chats as `chat` runs), practice (writing checks, session reviews in
                      # `practice` runs), scene (role-plays as `scene` runs), tutor-tools (the tutor's
