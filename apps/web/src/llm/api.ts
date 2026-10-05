@@ -95,6 +95,7 @@ export function useResetTutor(lessonKey: LessonKey) {
 }
 
 export type LocalStatus = Awaited<ReturnType<typeof fetchLocal>>;
+export type EngineId = LocalStatus["engines"][number]["id"];
 const fetchLocal = () => json(api.llm.local.$get());
 
 /** The built-in model: catalog and download state; polled while something is in progress. */
@@ -106,7 +107,9 @@ export const useLocalModels = (enabled: boolean) =>
     refetchInterval: (query) => {
       const data = query.state.data;
       const busy =
-        data?.models.some((m) => m.state === "downloading") || data?.running?.state === "starting";
+        data?.models.some((m) => m.state === "downloading") ||
+        data?.engines.some((e) => e.state === "downloading" || e.state === "setup") ||
+        data?.running?.state === "starting";
       return busy ? 1000 : 10_000;
     },
   });
@@ -120,6 +123,14 @@ export function useLocalAction() {
           ? api.llm.local[":id"].$delete({ param: { id } })
           : api.llm.local[":id"][action].$post({ param: { id } }),
       ),
+    onSuccess: (status) => client.setQueryData(["llm-local"], status),
+  });
+}
+
+export function useSetLocalEngine() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (engine: EngineId) => json(api.llm.local.engine.$put({ json: { engine } })),
     onSuccess: (status) => client.setQueryData(["llm-local"], status),
   });
 }

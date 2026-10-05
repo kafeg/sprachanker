@@ -25,12 +25,20 @@ The provider "test" checks reachability, lists models, measures latency and veri
 
 ## Built-in model
 
-- Catalog (`packages/llm/src/local-models.ts`): GGUF files on Hugging Face pinned by size and sha256,
-  licences allowing local use without sign-in (Gemma 4 QAT builds today). The recommended model is the
-  largest that leaves half of the machine's memory free.
+- Engines (06): llama.cpp (GGUF, every platform) is the default; MLX (mlx-lm, Apple Silicon with
+  macOS 14+) can be chosen in the settings. Measured on an M2 Pro (Oct 2026, lesson prompt, reasoning
+  off): Gemma 4 E4B 42 vs 28 tok/s, 12B 19.6 vs 19.0 tok/s (llama.cpp vs MLX); llama.cpp also starts
+  faster and is ~30 MB against ~350 MB. The route's model is the
+  catalog id; each engine serves the model in its own format.
+- Catalog (`packages/llm/src/local-models.ts`): each model as GGUF (llama.cpp) and MLX, files on
+  Hugging Face pinned by size and sha256, licences allowing local use without sign-in (Gemma 4 today;
+  the MLX builds are the `lmstudio-community` ones). The recommended model is the largest that leaves
+  half of the machine's memory free.
 - Downloads are resumable (`<file>.part`), verified before use, paused and resumed from the settings;
-  files live in `<data-root>/models/llm`. The first download also fetches the engine (06).
-- llama-server starts with an 8k context and reasoning off; the route's model is the catalog id.
+  files live in `<data-root>/models/llm` (GGUF files flat, an MLX build per folder). A file LM Studio
+  already has (`~/.lmstudio/models/<repo>/<file>`, same size) is cloned and verified instead of
+  downloaded. The first model also installs its engine.
+- Servers start with reasoning off (llama.cpp: 8k context; mlx-lm: `enable_thinking: false`).
 
 ## Tasks
 

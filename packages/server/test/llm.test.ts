@@ -218,39 +218,60 @@ describe("built-in model", () => {
       sizeBytes: 1,
       ramGb: 6.5,
       recommended: true,
+      inLmStudio: false,
       state: ready ? ("ready" as const) : ("absent" as const),
       received: 0,
     };
     const llm: LocalLlm = {
-      status: () => ({
+      recommendedEngine: () => "mlx",
+      status: (engine) => ({
         available: true,
-        engine: { build: "b1", state: "ready", received: 1, size: 1 },
+        engine,
+        engines: (["mlx", "llama"] as const).map((id) => ({
+          id,
+          version: "1",
+          available: true,
+          recommended: id === "mlx",
+          downloadSize: 1,
+          installSize: 1,
+          state: "ready" as const,
+          received: 1,
+        })),
         memoryGb: 16,
         models: [model],
         running: null,
       }),
-      download: (id) => void calls.push(`download ${id}`),
-      cancel: (id) => void calls.push(`cancel ${id}`),
-      remove: async (id) => void calls.push(`remove ${id}`),
-      endpoint: async (id) => {
-        calls.push(`endpoint ${id}`);
+      download: (id, engine) => void calls.push(`download ${id} ${engine}`),
+      cancel: (id, engine) => void calls.push(`cancel ${id} ${engine}`),
+      remove: async (id, engine) => void calls.push(`remove ${id} ${engine}`),
+      endpoint: async (id, engine) => {
+        calls.push(`endpoint ${id} ${engine}`);
         if (fail) throw new Error("failed to load model");
-        return "http://127.0.0.1:9999/v1";
+        return { baseUrl: "http://127.0.0.1:9999/v1", model: "default_model" };
       },
       stop: async () => {},
     };
     return { llm, calls };
   }
 
-  test("catalog and download controls", async () => {
+  test("catalog, engine choice and download controls", async () => {
     const { llm, calls } = local(false);
-    const { getJson, send } = await setup({ localLlm: llm });
-    expect((await getJson("/api/llm/local")).models[0].id).toBe("gemma-4-e4b");
+    const { getJson, send, sendJson } = await setup({ localLlm: llm });
+    const status = await getJson("/api/llm/local");
+    expect([status.engine, status.models[0].id]).toEqual(["mlx", "gemma-4-e4b"]);
     await send("POST", "/api/llm/local/gemma-4-e4b/download", {});
+    expect((await sendJson("PUT", "/api/llm/local/engine", { engine: "llama" })).engine).toBe(
+      "llama",
+    );
     await send("POST", "/api/llm/local/gemma-4-e4b/cancel", {});
     await send("DELETE", "/api/llm/local/gemma-4-e4b", {});
     expect((await send("POST", "/api/llm/local/nope/download", {})).status).toBe(400);
-    expect(calls).toEqual(["download gemma-4-e4b", "cancel gemma-4-e4b", "remove gemma-4-e4b"]);
+    expect((await send("PUT", "/api/llm/local/engine", { engine: "x" })).status).toBe(400);
+    expect(calls).toEqual([
+      "download gemma-4-e4b mlx",
+      "cancel gemma-4-e4b llama",
+      "remove gemma-4-e4b llama",
+    ]);
   });
 
   test("models are the downloaded ones; lesson help goes to the started llama-server", async () => {
@@ -263,8 +284,10 @@ describe("built-in model", () => {
     await send("PUT", "/api/llm/route", { provider: "builtin", model: "gemma-4-e4b" });
     const res = await send("POST", "/api/llm/explain", EXPLAIN);
     expect(await res.text()).toBe("Weil »Frau« weiblich ist.");
-    expect(calls).toEqual(["endpoint gemma-4-e4b"]);
+    expect(calls).toEqual(["endpoint gemma-4-e4b mlx"]);
     expect(fake.calls[0]?.url).toBe("http://127.0.0.1:9999/v1/chat/completions");
+    // The engine's name for the model, not the catalog id.
+    expect((fake.calls[0]?.body as { model?: string } | undefined)?.model).toBe("default_model");
   });
 
   test("a model not downloaded, or an engine that does not start, gives clear errors", async () => {

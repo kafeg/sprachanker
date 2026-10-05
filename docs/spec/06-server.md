@@ -62,11 +62,12 @@ fixed in the stage that builds them.
 
 - `whisper-server` (whisper.cpp) started on demand, kept warm while in use; models in `<data-root>/models`.
 - TTS engine (08), started on demand.
-- `llama-server` (built-in LLM runtime, 07): the pinned official llama.cpp release for the platform is
-  downloaded with the first model into `<data-root>/engines/` and unpacked with the system `tar`;
-  one process at a time, started on the first request, replaced when another model is chosen,
-  stopped after 20 minutes without use and with the server. A start failure is shown with
-  llama-server's error line; the next request tries again.
+- Built-in LLM runtime (07): two engines, installed on first use into `<data-root>/engines/` —
+  llama.cpp (pinned official release, unpacked with the system `tar`) and, on Apple Silicon with
+  macOS 14+, mlx-lm (a private Python 3.12 environment set up by a pinned `uv` from a hashed lock;
+  served offline). One model server at a time, started on the first request, replaced when another
+  model or engine is chosen, stopped after 20 minutes without use and with the server. A start
+  failure is shown with the engine's error line; the next request tries again.
 - Crash → restart with backoff (3 tries) → marked failed; dependent features show a clear message.
 - How binaries are obtained (own builds in `native/` or prebuilt) is decided in the stage 7 plan.
 

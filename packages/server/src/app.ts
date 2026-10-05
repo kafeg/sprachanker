@@ -143,7 +143,7 @@ export function createApp(config: AppConfig) {
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
     .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
-    .route("/llm", llmRoutes(llm, tutor, config.localLlm))
+    .route("/llm", llmRoutes(llm, tutor))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);

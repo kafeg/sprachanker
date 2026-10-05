@@ -2,20 +2,24 @@
 import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { Choice } from "@/ui/choice.tsx";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { cn } from "@/ui/utils.ts";
 import {
+  type EngineId,
   type LlmState,
   type LocalStatus,
   useLocalAction,
   useLocalModels,
+  useSetLocalEngine,
   useSetRoute,
 } from "./api.ts";
 
 const gb = (bytes: number) => (bytes / 1e9).toFixed(1);
 const mb = (bytes: number) => Math.round(bytes / 1e6);
+const ENGINE_NAMES = { mlx: "MLX", llama: "llama.cpp" } as const;
 
 function Running({ status, state }: { status: LocalStatus; state: LlmState }) {
   const { t } = useTranslation();
@@ -48,7 +52,10 @@ export function LocalModels({ state }: { state: LlmState }) {
   const local = useLocalModels(true);
   const action = useLocalAction();
   const setRoute = useSetRoute();
+  const setEngine = useSetLocalEngine();
   const status = local.data;
+  const engines = status?.engines.filter((e) => e.available) ?? [];
+  const engine = status?.engines.find((e) => e.id === status.engine);
   const ready = status?.models.filter((m) => m.state === "ready") ?? [];
   const chosen = ready.some((m) => m.id === state.model);
 
@@ -70,22 +77,51 @@ export function LocalModels({ state }: { state: LlmState }) {
         {t("local.intro", { memory: status.memoryGb })}
       </p>
       <Running status={status} state={state} />
-      {status.engine.state === "downloading" && (
-        <div className="space-y-1">
-          <Progress value={(status.engine.received / status.engine.size) * 100} className="h-1.5" />
+      {engines.length > 1 && (
+        <div className="space-y-1.5">
+          <p className="font-medium">{t("local.engineLabel")}</p>
+          <Choice
+            value={status.engine ?? undefined}
+            options={engines.map((e): [string, string] => [
+              e.id,
+              e.recommended
+                ? t("local.recommendedEngine", { name: ENGINE_NAMES[e.id] })
+                : ENGINE_NAMES[e.id],
+            ])}
+            onChange={(id) => setEngine.mutate(id as EngineId)}
+          />
           <p className="text-sm text-muted-foreground">
-            {t("local.engine", {
-              build: status.engine.build,
-              done: mb(status.engine.received),
-              total: mb(status.engine.size),
-            })}
+            {t(`local.engineHint.${status.engine ?? "llama"}`)}
           </p>
         </div>
       )}
-      {status.engine.state === "failed" && (
-        <p className="text-sm text-wrong">
-          {t("local.engineFailed", { error: status.engine.error })}
-        </p>
+      {engine && engine.state !== "ready" && (
+        <div className="space-y-1">
+          {engine.state === "downloading" && (
+            <Progress value={(engine.received / engine.downloadSize) * 100} className="h-1.5" />
+          )}
+          <p
+            className={cn(
+              "text-sm",
+              engine.state === "failed" ? "text-wrong" : "text-muted-foreground",
+            )}
+          >
+            {engine.state === "failed"
+              ? t("local.engineFailed", { name: ENGINE_NAMES[engine.id], error: engine.error })
+              : engine.state === "setup"
+                ? t("local.engineSetup", { name: ENGINE_NAMES[engine.id] })
+                : engine.state === "downloading"
+                  ? t("local.engine", {
+                      name: ENGINE_NAMES[engine.id],
+                      done: mb(engine.received),
+                      total: mb(engine.downloadSize),
+                    })
+                  : t("local.engineAbsent", {
+                      name: ENGINE_NAMES[engine.id],
+                      size: mb(engine.installSize),
+                    })}
+          </p>
+        </div>
       )}
       <ul className="space-y-3">
         {status.models.map((m) => {
@@ -104,6 +140,9 @@ export function LocalModels({ state }: { state: LlmState }) {
                   {t("local.size", { size: gb(m.sizeBytes), ram: m.ramGb })}
                 </span>
               </div>
+              {m.inLmStudio && m.state !== "ready" && (
+                <p className="mt-1 text-sm text-muted-foreground">{t("local.inLmStudio")}</p>
+              )}
               {(m.state === "downloading" || m.state === "paused" || m.state === "failed") && (
                 <div className="mt-2 space-y-1">
                   <Progress value={progress} className="h-2" />

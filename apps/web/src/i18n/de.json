@@ -162,8 +162,8 @@
     }
   },
   "local": {
-    "intro": "Läuft auf diesem Computer, keine anderen Programme nötig. Die Engine (llama.cpp) und ein Modell werden einmal in den Datenordner heruntergeladen (Arbeitsspeicher hier: {memory} GB); größere Modelle erklären besser, antworten aber langsamer.",
-    "unavailable": "Für diesen Computer gibt es keine offizielle llama.cpp-Version. Nutze LM Studio oder OpenRouter.",
+    "intro": "Läuft auf diesem Computer, keine anderen Programme nötig. Engine und Modell werden einmal in den Datenordner heruntergeladen (Arbeitsspeicher hier: {memory} GB); größere Modelle erklären besser, antworten aber langsamer.",
+    "unavailable": "Auf diesem Computer läuft keine eingebaute Engine. Nutze LM Studio oder OpenRouter.",
     "recommended": "Empfohlen",
     "inUse": "In Verwendung",
     "size": "{size} GB · braucht etwa {ram} GB Arbeitsspeicher",
@@ -177,7 +177,16 @@
     "starting": "Das Modell startet…",
     "running": "Das Modell läuft.",
     "failed": "Das Modell ist nicht gestartet: {error}",
-    "engine": "llama.cpp-Engine ({build}): {done} von {total} MB",
-    "engineFailed": "Die llama.cpp-Engine konnte nicht heruntergeladen werden: {error}. Drück noch einmal auf Herunterladen."
+    "engine": "{name}: {done} von {total} MB",
+    "engineFailed": "{name} konnte nicht installiert werden: {error}. Drück noch einmal auf Herunterladen.",
+    "engineLabel": "Engine",
+    "recommendedEngine": "{name} (empfohlen)",
+    "engineHint": {
+      "mlx": "Apples Engine für Apple Silicon. Braucht eine eigene Python-Umgebung (etwa 350 MB), die einmal geladen wird.",
+      "llama": "llama.cpp: läuft auf jedem Computer, startet schnell, klein (etwa 30 MB). In unseren Messungen nicht langsamer als MLX."
+    },
+    "engineSetup": "{name}: wird installiert…",
+    "engineAbsent": "{name} wird mit dem ersten Modell heruntergeladen (etwa {size} MB).",
+    "inLmStudio": "LM Studio hat dieses Modell schon: es wird kopiert, nicht heruntergeladen."
   }
 }

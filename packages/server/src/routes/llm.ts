@@ -47,17 +47,10 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
   });
 }
 
-export function llmRoutes(llm: Llm, tutor: Tutor, local?: LocalLlm) {
+export function llmRoutes(llm: Llm, tutor: Tutor) {
   const ModelId = z.object({
     id: z.string().refine((id) => LOCAL_MODELS.some((m) => m.id === id), "unknown model"),
   });
-  const noLocal = {
-    available: false,
-    engine: { build: "", state: "absent", received: 0, size: 0 },
-    memoryGb: 0,
-    models: [],
-    running: null,
-  };
   return (
     new Hono()
       .get("/", (c) => c.json(llm.state()))
@@ -115,20 +108,20 @@ export function llmRoutes(llm: Llm, tutor: Tutor, local?: LocalLlm) {
         ),
         (c) => streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
       )
-      // Built-in model: catalog with download state; downloads run in the background.
-      .get("/local", (c) => c.json(local?.status() ?? (noLocal as LocalLlmStatus)))
-      .post("/local/:id/download", zod("param", ModelId), (c) => {
-        local?.download(c.req.valid("param").id);
-        return c.json(local?.status() ?? (noLocal as LocalLlmStatus));
-      })
-      .post("/local/:id/cancel", zod("param", ModelId), (c) => {
-        local?.cancel(c.req.valid("param").id);
-        return c.json(local?.status() ?? (noLocal as LocalLlmStatus));
-      })
-      .delete("/local/:id", zod("param", ModelId), async (c) => {
-        await local?.remove(c.req.valid("param").id);
-        return c.json(local?.status() ?? (noLocal as LocalLlmStatus));
-      })
+      // Built-in model: engines, catalog with download state; downloads run in the background.
+      .get("/local", (c) => c.json(llm.localStatus()))
+      .put("/local/engine", zod("json", z.object({ engine: z.enum(["llama", "mlx"]) })), (c) =>
+        c.json(llm.setLocalEngine(c.req.valid("json").engine)),
+      )
+      .post("/local/:id/download", zod("param", ModelId), async (c) =>
+        c.json(await llm.localModel(c.req.valid("param").id, "download")),
+      )
+      .post("/local/:id/cancel", zod("param", ModelId), async (c) =>
+        c.json(await llm.localModel(c.req.valid("param").id, "cancel")),
+      )
+      .delete("/local/:id", zod("param", ModelId), async (c) =>
+        c.json(await llm.localModel(c.req.valid("param").id, "remove")),
+      )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
       )

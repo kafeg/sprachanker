@@ -13,9 +13,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { LocalModel } from "@sprachanker/llm";
 import { DownloadError, download, partFile, partSize } from "../src/jobs/download.ts";
-import type { EngineAsset } from "../src/sidecars/llama-release.ts";
-import { createLlamaServer } from "../src/sidecars/llama-server.ts";
-import { createLocalLlm, installEngine } from "../src/sidecars/local-llm.ts";
+import type { Engine } from "../src/sidecars/engines/engine.ts";
+import { llamaEngine } from "../src/sidecars/engines/llama.ts";
+import { mlxEngine, mlxSupported } from "../src/sidecars/engines/mlx.ts";
+import { createLocalLlm } from "../src/sidecars/local-llm.ts";
+import { createModelServer } from "../src/sidecars/model-server.ts";
 
 const tmp = () => mkdtempSync(join(tmpdir(), "sprachanker-llm-"));
 const FAKE = [process.execPath, join(import.meta.dir, "fixtures/fake-llama-server.ts")];
@@ -92,132 +94,252 @@ describe("download", () => {
   });
 });
 
-describe("llama-server supervisor", () => {
-  test("starts on demand, reuses the process, switches models, restarts after a crash", async () => {
-    const llama = createLlamaServer({ binary: "unused", cwd: tmp(), command: FAKE });
-    const url = await llama.endpoint("a", "/models/a.gguf");
-    expect(url).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/v1$/);
-    expect(llama.state()).toEqual({ model: "a", state: "ready" });
-    expect(await llama.endpoint("a", "/models/a.gguf")).toBe(url);
+const launch = (path: string, alias: string) => (port: number) => ({
+  argv: [...FAKE, "-m", path, "--port", String(port), "--alias", alias],
+  cwd: tmpdir(),
+  requestModel: alias,
+});
 
-    const other = await llama.endpoint("b", "/models/b.gguf");
-    expect(other).not.toBe(url);
-    expect(await fetch(`${url.replace("/v1", "")}/health`).catch(() => "gone")).toBe("gone");
+describe("model server", () => {
+  test("starts on demand, reuses the process, switches models, restarts after a stop", async () => {
+    const server = createModelServer();
+    const a = await server.endpoint("llama:a", "a", launch("/models/a.gguf", "a"));
+    expect(a.baseUrl).toMatch(/^http:\/\/127\.0\.0\.1:\d+\/v1$/);
+    expect(a.model).toBe("a");
+    expect(server.state()).toEqual({ model: "a", state: "ready" });
+    expect(await server.endpoint("llama:a", "a", launch("/models/a.gguf", "a"))).toEqual(a);
 
-    await llama.stop();
-    expect(llama.state()).toBeNull();
-    expect(await llama.endpoint("b", "/models/b.gguf")).toMatch(/^http/);
-    await llama.stop();
+    const b = await server.endpoint("mlx:a", "a", launch("/models/a", "default_model"));
+    expect(b.baseUrl).not.toBe(a.baseUrl);
+    expect(b.model).toBe("default_model");
+    expect(await fetch(`${a.baseUrl.replace("/v1", "")}/health`).catch(() => "gone")).toBe("gone");
+
+    await server.stop();
+    expect(server.state()).toBeNull();
+    expect((await server.endpoint("mlx:a", "a", launch("/models/a", "x"))).baseUrl).toMatch(
+      /^http/,
+    );
+    await server.stop();
   });
 
-  test("a model that fails to load reports llama-server's error", async () => {
-    const llama = createLlamaServer({ binary: "unused", cwd: tmp(), command: FAKE });
-    await expect(llama.endpoint("x", "/models/broken.gguf")).rejects.toThrow(
+  test("a model that fails to load reports the server's error", async () => {
+    const server = createModelServer();
+    await expect(server.endpoint("x", "x", launch("/models/broken.gguf", "x"))).rejects.toThrow(
       "failed to load model",
     );
-    expect(llama.state()).toMatchObject({ model: "x", state: "failed" });
+    expect(server.state()).toMatchObject({ model: "x", state: "failed" });
   });
 });
 
-describe("built-in runtime", () => {
-  const model: LocalModel = {
-    id: "tiny",
-    title: "Tiny",
-    repo: "test/tiny",
-    file: "tiny.gguf",
-    sizeBytes: bytes.length,
-    sha256: sha,
-    ramGb: 1,
-  };
-
-  /** A release archive like ggml-org's: build/bin/llama-server plus a library symlink. */
-  function engineArchive() {
+describe("engines", () => {
+  test("llama.cpp: the release is downloaded, unpacked with its symlinks, installed once", async () => {
     const root = tmp();
     mkdirSync(join(root, "build/bin"), { recursive: true });
     writeFileSync(join(root, "build/bin/llama-server"), "#!/bin/sh\n");
     writeFileSync(join(root, "build/bin/libllama.0.6.0.dylib"), "lib");
     symlinkSync("libllama.0.6.0.dylib", join(root, "build/bin/libllama.0.dylib"));
-    const file = join(tmp(), "llama-b1-bin-test.tar.gz");
-    expect(Bun.spawnSync(["tar", "-czf", file, "-C", root, "build"]).exitCode).toBe(0);
-    const data = new Uint8Array(readFileSync(file));
-    const asset: EngineAsset = {
-      build: "b1",
-      platform: "test-x64",
-      url: "https://example.test/llama-b1-bin-test.tar.gz",
-      file: "llama-b1-bin-test.tar.gz",
+    const archive = join(tmp(), "llama.tar.gz");
+    expect(Bun.spawnSync(["tar", "-czf", archive, "-C", root, "build"]).exitCode).toBe(0);
+    const data = new Uint8Array(readFileSync(archive));
+    let requests = 0;
+    const engines = tmp();
+    const engine = llamaEngine(engines, {
+      url: "https://example.test/llama.tar.gz",
+      file: "llama.tar.gz",
       size: data.length,
       sha256: createHash("sha256").update(data).digest("hex"),
+    });
+    expect(engine.installed()).toBe(false);
+    const phases: string[] = [];
+    await engine.install({
+      fetch: (async () => {
+        requests++;
+        return new Response(data);
+      }) as unknown as typeof fetch,
+      signal: new AbortController().signal,
+      onProgress: (p) => phases.push(p.phase),
+    });
+    expect(engine.installed()).toBe(true);
+    expect(requests).toBe(1);
+    expect(phases.at(-1)).toBe("setup");
+    const { argv, cwd, requestModel } = engine.serve("/m.gguf", 1234, "gemma");
+    expect(argv[0]).toEndWith("build/bin/llama-server");
+    expect(argv).toContain("--reasoning");
+    expect(readlinkSync(join(cwd, "libllama.0.dylib"))).toBe("libllama.0.6.0.dylib");
+    expect(requestModel).toBe("gemma");
+  });
+
+  test("mlx-lm: Apple Silicon with macOS 14+ only; served offline as default_model", () => {
+    expect(mlxSupported("darwin", "arm64", "24.3.0")).toBe(true);
+    expect(mlxSupported("darwin", "arm64", "22.6.0")).toBe(false);
+    expect(mlxSupported("darwin", "x64", "24.3.0")).toBe(false);
+    expect(mlxSupported("linux", "arm64", "6.1.0")).toBe(false);
+    const launched = mlxEngine(tmp(), true).serve("/models/gemma", 4321, "gemma");
+    expect(launched.argv.slice(1, 4)).toEqual(["-m", "mlx_lm", "server"]);
+    expect(launched.argv).toContain('{"enable_thinking":false}');
+    expect(launched.env?.HF_HUB_OFFLINE).toBe("1");
+    expect(launched.requestModel).toBe("default_model");
+  });
+});
+
+describe("built-in runtime", () => {
+  const ggufFile = { path: "tiny.gguf", size: bytes.length, sha256: sha };
+  const model: LocalModel = {
+    id: "tiny",
+    title: "Tiny",
+    ramGb: 1,
+    gguf: { repo: "test/tiny-gguf", files: [ggufFile] },
+    mlx: {
+      repo: "test/tiny-mlx",
+      files: [
+        { path: "config.json", size: 2, sha256: createHash("sha256").update("{}").digest("hex") },
+        { path: "model.safetensors", size: bytes.length, sha256: sha },
+      ],
+    },
+  };
+
+  /** An engine that installs instantly and serves through the fake server. */
+  function fakeEngine(id: "llama" | "mlx", available = true): Engine & { installs: number } {
+    let installed = false;
+    const engine = {
+      id,
+      format: id === "mlx" ? ("mlx" as const) : ("gguf" as const),
+      version: "1",
+      installSize: 1,
+      downloadSize: 1,
+      available,
+      installs: 0,
+      installed: () => installed,
+      async install() {
+        engine.installs++;
+        installed = true;
+      },
+      serve: (path: string, port: number, alias: string) =>
+        launch(path, id === "mlx" ? "default_model" : alias)(port),
     };
-    let requests = 0;
-    const fetchFn = (async () => {
-      requests++;
-      return new Response(data);
-    }) as unknown as typeof globalThis.fetch;
-    return { asset, fetch: fetchFn, requests: () => requests };
+    return engine;
   }
 
-  test("the engine is downloaded, unpacked with its symlinks, and installed once", async () => {
-    const { asset, fetch: fetchFn, requests } = engineArchive();
-    const dir = tmp();
-    const binary = await installEngine(asset, dir, fetchFn);
-    expect(binary).toBe(join(dir, "llama.cpp-b1-test-x64/build/bin/llama-server"));
-    expect(readlinkSync(join(binary, "../libllama.0.dylib"))).toBe("libllama.0.6.0.dylib");
-    expect(existsSync(join(dir, asset.file))).toBe(false);
-    expect(await installEngine(asset, dir, fetchFn)).toBe(binary);
-    expect(requests()).toBe(1);
-  });
+  /** Hub stand-in: config.json and the model bytes, counting requests. */
+  function hub() {
+    const urls: string[] = [];
+    const files = server();
+    const fetchFn = ((url: string, init?: RequestInit) => {
+      urls.push(url);
+      return url.endsWith("config.json")
+        ? Promise.resolve(new Response("{}"))
+        : files.fetch(url, init);
+    }) as unknown as typeof globalThis.fetch;
+    return { fetch: fetchFn, urls };
+  }
 
-  test("download → ready → running → removed", async () => {
-    const archive = engineArchive();
-    const hub = server();
+  const settle = async (local: ReturnType<typeof createLocalLlm>, engine: "llama" | "mlx") => {
+    while (local.status(engine).models[0]?.state === "downloading") await Bun.sleep(5);
+  };
+
+  test("engines: the first available one is recommended; models follow the engine's format", () => {
     const local = createLocalLlm({
-      engine: archive.asset,
       modelsDir: tmp(),
       enginesDir: tmp(),
-      // The engine archive and the model come from different hosts.
-      fetch: ((url: string, init?: RequestInit) =>
-        url === archive.asset.url
-          ? archive.fetch(url, init)
-          : hub.fetch(url, init)) as unknown as typeof globalThis.fetch,
+      fetch: hub().fetch,
       memoryGb: 8,
-      command: FAKE,
+      engines: [fakeEngine("mlx", false), fakeEngine("llama")],
       models: [model],
     });
-    expect(local.status().models[0]?.state).toBe("absent");
-    expect(local.status().engine.state).toBe("absent");
-    local.download("tiny");
-    while (
-      local.status().models[0]?.state === "downloading" ||
-      local.status().engine.state === "downloading"
-    )
-      await Bun.sleep(5);
-    expect(local.status().models[0]).toMatchObject({ state: "ready", received: bytes.length });
-    expect(local.status().engine.state).toBe("ready");
-
-    const url = await local.endpoint("tiny");
-    expect(local.status().running).toEqual({ model: "tiny", state: "ready" });
-    const reply = await fetch(`${url}/chat/completions`, { method: "POST", body: "{}" });
-    expect(await reply.text()).toContain("hello from tiny");
-
-    await local.remove("tiny");
-    expect(local.status().models[0]?.state).toBe("absent");
-    expect(local.status().running).toBeNull();
+    expect(local.recommendedEngine()).toBe("llama");
+    expect(local.status("llama").models[0]?.sizeBytes).toBe(bytes.length);
+    expect(local.status("mlx")).toMatchObject({ engine: null, models: [] });
   });
 
-  test("a cancelled download is paused and can be resumed", async () => {
+  test("download → ready → running → removed (MLX build: a folder of files)", async () => {
+    const h = hub();
+    const mlx = fakeEngine("mlx");
+    const modelsDir = tmp();
+    const local = createLocalLlm({
+      modelsDir,
+      enginesDir: tmp(),
+      fetch: h.fetch,
+      memoryGb: 8,
+      engines: [mlx, fakeEngine("llama")],
+      models: [model],
+      lmStudioDir: tmp(),
+    });
+    expect(local.status("mlx").models[0]?.state).toBe("absent");
+    local.download("tiny", "mlx");
+    await settle(local, "mlx");
+    expect(local.status("mlx").models[0]).toMatchObject({
+      state: "ready",
+      received: bytes.length + 2,
+    });
+    expect(existsSync(join(modelsDir, "tiny-mlx", "model.safetensors"))).toBe(true);
+    expect(h.urls).toEqual([
+      "https://huggingface.co/test/tiny-mlx/resolve/main/config.json",
+      "https://huggingface.co/test/tiny-mlx/resolve/main/model.safetensors",
+    ]);
+    expect(mlx.installs).toBe(1);
+    // The other engine's format is not downloaded.
+    expect(local.status("llama").models[0]?.state).toBe("absent");
+
+    const endpoint = await local.endpoint("tiny", "mlx");
+    expect(endpoint.model).toBe("default_model");
+    expect(local.status("mlx").running).toEqual({ model: "tiny", state: "ready" });
+
+    await local.remove("tiny", "mlx");
+    expect(local.status("mlx").models[0]?.state).toBe("absent");
+    expect(existsSync(join(modelsDir, "tiny-mlx"))).toBe(false);
+    expect(local.status("mlx").running).toBeNull();
+  });
+
+  test("a build LM Studio already has is copied, not downloaded; a mismatching copy is not used", async () => {
+    const lmStudio = tmp();
+    mkdirSync(join(lmStudio, "test/tiny-mlx"), { recursive: true });
+    writeFileSync(join(lmStudio, "test/tiny-mlx/config.json"), "{}");
+    writeFileSync(join(lmStudio, "test/tiny-mlx/model.safetensors"), bytes);
+    const h = hub();
+    const local = createLocalLlm({
+      modelsDir: tmp(),
+      enginesDir: tmp(),
+      fetch: h.fetch,
+      memoryGb: 8,
+      engines: [fakeEngine("mlx")],
+      models: [model],
+      lmStudioDir: lmStudio,
+    });
+    expect(local.status("mlx").models[0]?.inLmStudio).toBe(true);
+    local.download("tiny", "mlx");
+    await settle(local, "mlx");
+    expect(local.status("mlx").models[0]?.state).toBe("ready");
+    expect(h.urls).toEqual([]);
+
+    // Same size, other bytes: verified, rejected, downloaded instead.
+    writeFileSync(join(lmStudio, "test/tiny-mlx/config.json"), "[]");
+    const h2 = hub();
+    const other = createLocalLlm({
+      modelsDir: tmp(),
+      enginesDir: tmp(),
+      fetch: h2.fetch,
+      memoryGb: 8,
+      engines: [fakeEngine("mlx")],
+      models: [model],
+      lmStudioDir: lmStudio,
+    });
+    other.download("tiny", "mlx");
+    await settle(other, "mlx");
+    expect(other.status("mlx").models[0]?.state).toBe("ready");
+    expect(h2.urls).toEqual(["https://huggingface.co/test/tiny-mlx/resolve/main/config.json"]);
+  });
+
+  test("a cancelled download is paused and shows what is on disk", async () => {
     const modelsDir = tmp();
     writeFileSync(partFile(join(modelsDir, "tiny.gguf")), bytes.slice(0, 500));
     const local = createLocalLlm({
-      engine: null,
       modelsDir,
       enginesDir: tmp(),
-      fetch: server().fetch,
+      fetch: hub().fetch,
       memoryGb: 8,
+      engines: [fakeEngine("llama")],
       models: [model],
     });
-    expect(local.status()).toMatchObject({
-      available: false,
-      models: [{ state: "paused", received: 500 }],
-    });
+    expect(local.status("llama").models[0]).toMatchObject({ state: "paused", received: 500 });
   });
 });

@@ -19,6 +19,17 @@ import type { Settings } from "./settings.ts";
 /** Settings key with custom endpoints by provider id. */
 const ENDPOINTS = "llm.endpoints";
 const DEFAULT_ROUTE = "default";
+/** Settings key with the built-in runtime's engine. */
+const LOCAL_ENGINE = "llm.localEngine";
+
+const NO_LOCAL: LocalLlmStatus = {
+  available: false,
+  engine: null,
+  engines: [],
+  memoryGb: 0,
+  models: [],
+  running: null,
+};
 
 export class LlmSetupError extends Error {}
 
@@ -27,29 +38,53 @@ export type RunState =
   | { model: string; state: "starting" | "ready" }
   | { model: string; state: "failed"; error: string };
 
+export interface ProviderState {
+  id: ProviderId;
+  baseUrl: string;
+  defaultUrl: string;
+  key: "required" | "optional" | "none";
+  hasKey: boolean;
+  editableUrl: boolean;
+}
+
+export type EngineId = "llama" | "mlx";
+
 export interface LocalModelStatus {
   id: string;
   title: string;
+  /** Size of the model in the selected engine's format. */
   sizeBytes: number;
   ramGb: number;
   recommended: boolean;
+  /** LM Studio has this exact build: it is copied instead of downloaded. */
+  inLmStudio: boolean;
   /** paused: a part file waits to be resumed. */
   state: "absent" | "downloading" | "paused" | "failed" | "ready";
   received: number;
   error?: string;
 }
 
-export interface LocalLlmStatus {
-  /** False on platforms without an official llama.cpp build. */
+export interface EngineStatus {
+  id: EngineId;
+  version: string;
+  /** Whether this machine can run it. */
   available: boolean;
-  /** llama.cpp itself: downloaded with the first model. */
-  engine: {
-    build: string;
-    state: "absent" | "downloading" | "failed" | "ready";
-    received: number;
-    size: number;
-    error?: string;
-  };
+  /** The best available engine for this machine. */
+  recommended: boolean;
+  downloadSize: number;
+  installSize: number;
+  /** setup: unpacking or installing packages after the download. */
+  state: "absent" | "downloading" | "setup" | "failed" | "ready";
+  received: number;
+  error?: string;
+}
+
+export interface LocalLlmStatus {
+  /** False when no engine runs on this machine. */
+  available: boolean;
+  /** The engine in use; models are listed in its format. */
+  engine: EngineId | null;
+  engines: EngineStatus[];
   memoryGb: number;
   models: LocalModelStatus[];
   running: RunState | null;
@@ -58,22 +93,14 @@ export interface LocalLlmStatus {
 /** The built-in runtime (src/sidecars/local-llm.ts); kept behind this interface so that app.ts stays
  *  free of process and file APIs. */
 export interface LocalLlm {
-  status(): LocalLlmStatus;
-  download(id: string): void;
-  cancel(id: string): void;
-  remove(id: string): Promise<void>;
-  /** Base URL of a llama-server running the model, started if needed. */
-  endpoint(id: string): Promise<string>;
+  recommendedEngine(): EngineId | null;
+  status(engine: EngineId | null): LocalLlmStatus;
+  download(id: string, engine: EngineId): void;
+  cancel(id: string, engine: EngineId): void;
+  remove(id: string, engine: EngineId): Promise<void>;
+  /** A server running the model, started if needed, and the model name requests must carry. */
+  endpoint(id: string, engine: EngineId): Promise<{ baseUrl: string; model: string }>;
   stop(): Promise<void>;
-}
-
-export interface ProviderState {
-  id: ProviderId;
-  baseUrl: string;
-  defaultUrl: string;
-  key: "required" | "optional" | "none";
-  hasKey: boolean;
-  editableUrl: boolean;
 }
 
 export interface LlmState {
@@ -107,14 +134,34 @@ export function createLlm(deps: {
     !!db.select().from(secrets).where(eq(secrets.providerId, id)).get();
   const baseUrl = (id: ProviderId) => endpoints()[id] ?? PROVIDERS[id].baseUrl;
 
-  async function client(id: ProviderId, model?: string | null): Promise<LlmClient> {
+  /** The built-in runtime's engine: the stored choice if it runs here, else the best for this machine. */
+  function localEngine(): EngineId | null {
+    const stored = settings.get<EngineId>(LOCAL_ENGINE);
+    const available =
+      local
+        ?.status(null)
+        .engines.filter((e) => e.available)
+        .map((e) => e.id) ?? [];
+    return stored && available.includes(stored) ? stored : (local?.recommendedEngine() ?? null);
+  }
+
+  /** A client for the provider and the model name to send (the built-in engines name it their way). */
+  async function client(
+    id: ProviderId,
+    model?: string | null,
+  ): Promise<{ client: LlmClient; model: string }> {
     if (id === "builtin") {
-      if (!local?.status().available) throw new LlmSetupError("llm_builtin_unavailable");
+      const engine = localEngine();
+      if (!local || !engine) throw new LlmSetupError("llm_builtin_unavailable");
       if (!model) throw new LlmSetupError("llm_not_configured");
-      if (local.status().models.find((m) => m.id === model)?.state !== "ready")
+      if (local.status(engine).models.find((m) => m.id === model)?.state !== "ready")
         throw new LlmSetupError("llm_model_missing");
       try {
-        return openAiCompatible({ baseUrl: await local.endpoint(model) }, deps.fetch);
+        const endpoint = await local.endpoint(model, engine);
+        return {
+          client: openAiCompatible({ baseUrl: endpoint.baseUrl }, deps.fetch),
+          model: endpoint.model,
+        };
       } catch (error) {
         throw new LlmError("engine_failed", error instanceof Error ? error.message : String(error));
       }
@@ -125,7 +172,13 @@ export function createLlm(deps: {
     const row = db.select().from(secrets).where(eq(secrets.providerId, id)).get();
     const apiKey = row ? await box.open(row.valueEncrypted) : undefined;
     if (preset.key === "required" && !apiKey) throw new LlmSetupError("llm_no_key");
-    return openAiCompatible({ baseUrl: url, apiKey, noReasoning: preset.noReasoning }, deps.fetch);
+    return {
+      client: openAiCompatible(
+        { baseUrl: url, apiKey, noReasoning: preset.noReasoning },
+        deps.fetch,
+      ),
+      model: model ?? "",
+    };
   }
 
   return {
@@ -175,18 +228,40 @@ export function createLlm(deps: {
     async models(id: ProviderId, signal?: AbortSignal) {
       if (id === "builtin") {
         // Downloaded models; the process starts only when a lesson asks something.
-        const ready = local?.status().models.filter((m) => m.state === "ready") ?? [];
+        const ready = local?.status(localEngine()).models.filter((m) => m.state === "ready") ?? [];
         return { models: ready.map((m) => ({ id: m.id, name: m.title })), ms: 0 };
       }
       const started = performance.now();
-      const models = await (await client(id)).models(signal);
+      const models = await (await client(id)).client.models(signal);
       return { models, ms: Math.round(performance.now() - started) };
     },
     /** Client and model of the default route; throws when the LLM is not set up. */
     async model(): Promise<{ client: LlmClient; model: string }> {
       const r = route();
       if (!r?.model) throw new LlmSetupError("llm_not_configured");
-      return { client: await client(r.providerId as ProviderId, r.model), model: r.model };
+      return client(r.providerId as ProviderId, r.model);
+    },
+    /** The built-in runtime as the settings show it: engines and models of the engine in use. */
+    localStatus(): LocalLlmStatus {
+      return local?.status(localEngine()) ?? NO_LOCAL;
+    },
+    /** Download, pause or delete a model of the engine in use. */
+    async localModel(
+      id: string,
+      action: "download" | "cancel" | "remove",
+    ): Promise<LocalLlmStatus> {
+      const engine = localEngine();
+      if (local && engine) {
+        if (action === "download") local.download(id, engine);
+        else if (action === "cancel") local.cancel(id, engine);
+        else await local.remove(id, engine);
+      }
+      return this.localStatus();
+    },
+    /** Switches the built-in engine; the route keeps its model id, now served by the other engine. */
+    setLocalEngine(engine: EngineId): LocalLlmStatus {
+      settings.set(LOCAL_ENGINE, engine);
+      return this.localStatus();
     },
     /** Explanation of a wrong answer, streamed. */
     async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
