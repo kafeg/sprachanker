@@ -7,6 +7,13 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
+  },
+  "dependencies": {
+    "@sprachanker/course-kit": "workspace:*",
+    "@sprachanker/schema": "workspace:*"
+  },
+  "devDependencies": {
+    "yaml": "2.9.1"
   }
 }

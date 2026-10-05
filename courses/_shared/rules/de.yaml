@@ -1,0 +1,34 @@
+# Grammar rules registry for German (spec 02). The only place rules are defined.
+# Content is authored in stage 9a; these entries are what the fixture course needs.
+
+- id: de.greeting.du-sie
+  title:
+    en: Informal and formal address
+    ru: «Ты» и «Вы»
+    de: Duzen und Siezen
+  explanation:
+    en: Use *du* with friends, family and children, *Sie* with adults you do not know well.
+    ru: >-
+      *du* — с друзьями, семьёй и детьми, *Sie* — со взрослыми, которых вы знаете плохо.
+      В отличие от русского «Вы», *Sie* всегда пишется с большой буквы.
+  examples: ["Wie geht es dir?", "Wie geht es Ihnen?"]
+
+- id: de.noun.gender
+  title:
+    en: Noun gender and articles
+    ru: Род существительных и артикли
+    de: Genus und Artikel
+  explanation:
+    en: Every noun has a gender shown by its article (der, die, das); learn nouns with the article.
+    ru: Род немецкого существительного часто не совпадает с русским; учите слово вместе с артиклем.
+  examples: ["der Kaffee", "die Tasse", "das Wasser"]
+
+- id: de.verb.present-regular
+  title:
+    en: Present tense of regular verbs
+    ru: Настоящее время правильных глаголов
+    de: Präsens regelmäßiger Verben
+  explanation:
+    en: The stem takes the endings -e, -st, -t, -en, -t, -en.
+    ru: К основе глагола добавляются окончания -e, -st, -t, -en, -t, -en.
+  examples: ["ich trinke", "du trinkst", "er trinkt"]
