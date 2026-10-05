@@ -113,7 +113,7 @@ export function WritingTask({
   const check = useCheckWriting();
   const [text, setText] = useState("");
   if (!llm.data?.model || !state.data) return null;
-  const { goals, words, attempts } = state.data;
+  const { topic, words, attempts } = state.data;
   const latest = check.data ?? attempts[0];
   const request = { series, lessonKey, edition, text: text.trim(), language: i18n.language };
 
@@ -124,7 +124,7 @@ export function WritingTask({
         <h2 className="text-xl font-bold">{t("writing.title")}</h2>
         {label && <span className="text-sm text-muted-foreground">· {label}</span>}
       </div>
-      <p>{t("writing.task", { goals: goals.join("; ") || "—" })}</p>
+      <p>{t("writing.task", { topic: topic.join("; ") })}</p>
       {words.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {words.slice(0, 14).map((w) => (

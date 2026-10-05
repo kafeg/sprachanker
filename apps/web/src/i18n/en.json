@@ -33,7 +33,7 @@
   "lesson": {
     "unitLesson": "Unit {unit} · lesson {lesson}",
     "goals": "In this lesson you will learn to:",
-    "counts": "{exercises, plural, one {# exercise} other {# exercises}} · {words, plural, one {# new word} other {# new words}}",
+    "counts": "{exercises, plural, =0 {} one {# exercise · } other {# exercises · }}{words, plural, one {# new word} other {# new words}}",
     "start": "Start lesson",
     "resume": "Continue lesson",
     "overview": "Overview",
@@ -227,7 +227,7 @@
   },
   "writing": {
     "title": "Write it yourself",
-    "task": "Write 3–5 sentences in German on the lesson's topic: {goals}. Use the new words.",
+    "task": "Write 3–5 sentences in German on the lesson's topic: {topic}. Use the new words.",
     "placeholder": "Your text in German…",
     "check": "Check",
     "checking": "Checking…",

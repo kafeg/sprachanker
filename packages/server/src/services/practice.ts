@@ -10,6 +10,7 @@ import {
   structuredRequest,
   type WritingCheck,
   type WritingInput,
+  writingTopic,
 } from "@sprachanker/llm";
 import {
   type ExerciseKey,
@@ -186,11 +187,11 @@ export function createPractice(deps: {
     },
 
     writing: {
-      /** The task (the lesson's goals and words) and earlier attempts, newest first. */
+      /** The task (the lesson's topic and words) and earlier attempts, newest first. */
       async state(series: string, lessonKey: LessonKey, edition: string) {
         const ctx = await deps.lessons.get(series, lessonKey, edition);
         return {
-          goals: ctx.info.goals,
+          topic: writingTopic(ctx.info),
           words: ctx.info.vocab.map((v) => v.target),
           attempts: verdicts(lessonKey, "writing")
             .slice(0, 10)

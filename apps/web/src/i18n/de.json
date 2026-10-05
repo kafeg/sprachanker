@@ -33,7 +33,7 @@
   "lesson": {
     "unitLesson": "Einheit {unit} · Lektion {lesson}",
     "goals": "In dieser Lektion lernst du:",
-    "counts": "{exercises, plural, one {# Übung} other {# Übungen}} · {words, plural, one {# neues Wort} other {# neue Wörter}}",
+    "counts": "{exercises, plural, =0 {} one {# Übung · } other {# Übungen · }}{words, plural, one {# neues Wort} other {# neue Wörter}}",
     "start": "Lektion starten",
     "resume": "Lektion fortsetzen",
     "overview": "Überblick",
@@ -227,7 +227,7 @@
   },
   "writing": {
     "title": "Schreib selbst",
-    "task": "Schreib 3–5 Sätze auf Deutsch zum Thema der Lektion: {goals}. Benutze die neuen Wörter.",
+    "task": "Schreib 3–5 Sätze auf Deutsch zum Thema der Lektion: {topic}. Benutze die neuen Wörter.",
     "placeholder": "Dein Text auf Deutsch…",
     "check": "Prüfen",
     "checking": "Wird geprüft…",

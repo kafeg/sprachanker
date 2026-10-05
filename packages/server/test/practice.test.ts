@@ -47,7 +47,7 @@ test("writing: the task from the lesson, a checked attempt stored, the prompt wi
 
   const query = `series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`;
   const before = await getJson(`/api/llm/writing?${query}`);
-  expect(before.goals.length).toBeGreaterThan(0);
+  expect(before.topic.length).toBeGreaterThan(0);
   expect(before.words).toContain("der Kaffee, die Kaffees");
   expect(before.attempts).toEqual([]);
 

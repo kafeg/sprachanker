@@ -22,7 +22,7 @@ import { CourseHtml } from "@/ui/course-html.tsx";
 import { MediaBlock } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
-import { Reference, type ReferenceTab, VocabularyList } from "./reference.tsx";
+import { Reference, type ReferenceTab, referenceTabs, VocabularyList } from "./reference.tsx";
 import { type ExerciseResult, useRun } from "./use-run.ts";
 import { EpisodeVideo } from "./video.tsx";
 
@@ -80,6 +80,7 @@ function Plan({
   openReference(tab: ReferenceTab): void;
 }) {
   const { t } = useTranslation();
+  const tabs = referenceTabs(lesson, locale);
   const row = (target: Step, dot: React.ReactNode, label: string) => (
     <button
       type="button"
@@ -108,21 +109,23 @@ function Plan({
         ),
       )}
       {row("summary", <StepDot label={<Star className="size-3" />} />, t("lesson.summary"))}
-      <div className="mt-4 border-t pt-3">
-        <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          {t("lesson.reference")}
-        </p>
-        {(["vocabulary", "grammar", "culture", "script", "downloads"] as const).map((tab) => (
-          <button
-            type="button"
-            key={tab}
-            onClick={() => openReference(tab)}
-            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] text-muted-foreground hover:bg-accent hover:text-foreground"
-          >
-            <BookOpenText className="size-4" /> {t(`ref.${tab}`)}
-          </button>
-        ))}
-      </div>
+      {!!tabs.length && (
+        <div className="mt-4 border-t pt-3">
+          <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            {t("lesson.reference")}
+          </p>
+          {tabs.map((tab) => (
+            <button
+              type="button"
+              key={tab}
+              onClick={() => openReference(tab)}
+              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <BookOpenText className="size-4" /> {t(`ref.${tab}`)}
+            </button>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }
@@ -151,17 +154,19 @@ export function LessonPlayer({
   const [tutorAsk, setTutorAsk] = useState<TutorAsk>();
   const url = (p: string) => mediaUrl(series, p);
 
-  // Resume on the page the run was left on.
+  // Resume on the page the run was left on, if the lesson still has it.
+  const pages = data.data?.lesson.pages.length;
   useEffect(() => {
-    if (run.resumePage !== undefined && run.resumePage >= 0) setStep(run.resumePage);
-  }, [run.resumePage]);
+    const page = run.resumePage;
+    if (pages !== undefined && page !== undefined && page >= 0 && page < pages) setStep(page);
+  }, [run.resumePage, pages]);
 
   if (data.isPending || !edition || run.resumePage === undefined)
     return run.error ? <ErrorState error={run.error} /> : <Loading />;
   if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
   const { lesson, locale } = data.data as { lesson: Lesson; locale: LocaleLesson | null };
   const total = lesson.pages.length;
-  const resume = run.resumePage;
+  const resume = run.resumePage < total ? run.resumePage : -1;
 
   const go = (next: Step) => {
     setPlanOpen(false);
@@ -178,6 +183,7 @@ export function LessonPlayer({
   ).length;
   const numbers = lessonNumbers(lesson.key);
   const unitTitle = map.data?.locale?.units[lesson.unit]?.title;
+  const firstTab = referenceTabs(lesson, locale)[0];
 
   const plan = (
     <Plan
@@ -204,7 +210,7 @@ export function LessonPlayer({
           {locale?.title}
         </h2>
         <p className="mb-3 px-2 text-sm text-muted-foreground">
-          {t("lesson.exercisesDone", { done, total })}
+          {total > 0 && t("lesson.exercisesDone", { done, total })}
         </p>
         {plan}
       </aside>
@@ -220,10 +226,16 @@ export function LessonPlayer({
             >
               <ListOrdered className="size-5" />
             </Button>
-            <Progress value={(done / Math.max(1, total)) * 100} className="h-2 flex-1" />
-            <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
-              {done}/{total}
-            </span>
+            {total > 0 ? (
+              <>
+                <Progress value={(done / total) * 100} className="h-2 flex-1" />
+                <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
+                  {done}/{total}
+                </span>
+              </>
+            ) : (
+              <span className="flex-1" />
+            )}
             <LessonTutor
               ask={tutorAsk}
               series={series}
@@ -231,10 +243,12 @@ export function LessonPlayer({
               edition={edition}
               exerciseKey={typeof step === "number" ? lesson.pages[step]?.exercise.key : undefined}
             />
-            <Button variant="outline" size="sm" onClick={() => setReference("vocabulary")}>
-              <BookOpenText className="size-4" />{" "}
-              <span className="hidden sm:inline">{t("lesson.reference")}</span>
-            </Button>
+            {firstTab && (
+              <Button variant="outline" size="sm" onClick={() => setReference(firstTab)}>
+                <BookOpenText className="size-4" />{" "}
+                <span className="hidden sm:inline">{t("lesson.reference")}</span>
+              </Button>
+            )}
           </div>
         </header>
         <div className="mx-auto max-w-3xl px-4 py-6">
@@ -278,7 +292,11 @@ export function LessonPlayer({
                 <span className="text-muted-foreground">
                   {t("lesson.counts", { exercises: total, words: lesson.vocab.length })}
                 </span>
-                <Button size="lg" className="text-base" onClick={() => go(resume > 0 ? resume : 0)}>
+                <Button
+                  size="lg"
+                  className="text-base"
+                  onClick={() => go(total === 0 ? "summary" : resume > 0 ? resume : 0)}
+                >
                   {resume > 0 ? t("lesson.resume") : t("lesson.start")}
                 </Button>
               </div>
@@ -321,53 +339,57 @@ export function LessonPlayer({
               <h1 lang="de" className="text-4xl font-bold">
                 {locale?.title}
               </h1>
-              <div className="flex items-end gap-4">
-                <span className="font-heading text-6xl font-bold">
-                  {result ? `${Math.round(result.score * 100)}%` : "—"}
-                </span>
-                {result && (
-                  <span className="pb-2 text-muted-foreground">
-                    {t("lesson.score", {
-                      correct: Math.round(result.score * result.scored),
-                      scored: result.scored,
-                    })}
+              {total > 0 && (
+                <div className="flex items-end gap-4">
+                  <span className="font-heading text-6xl font-bold">
+                    {result ? `${Math.round(result.score * 100)}%` : "—"}
                   </span>
-                )}
-              </div>
+                  {result && (
+                    <span className="pb-2 text-muted-foreground">
+                      {t("lesson.score", {
+                        correct: Math.round(result.score * result.scored),
+                        scored: result.scored,
+                      })}
+                    </span>
+                  )}
+                </div>
+              )}
               {Object.values(run.results).some((r) =>
                 Object.values(r.first).some((o) => o.result === "wrong" || o.result === "partial"),
               ) && <ReviewMistakesButton onAsk={setTutorAsk} />}
               <SessionReview series={series} lessonKey={lesson.key} edition={edition} />
               <WritingTask series={series} lessonKey={lesson.key} edition={edition} />
               <SceneCard series={series} lessonKey={lesson.key} edition={edition} />
-              <ul className="divide-y rounded-2xl border bg-card">
-                {lesson.pages.map(({ exercise }, i) => {
-                  const r = run.results[exercise.key];
-                  const s = status(exercise, r);
-                  const outcomes = Object.values(r?.first ?? {});
-                  return (
-                    <li key={exercise.key}>
-                      <button
-                        type="button"
-                        onClick={() => go(i)}
-                        className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-accent"
-                      >
-                        <StepDot state={s} label={i + 1} />
-                        <span className="flex-1">{locale?.exercises[exercise.key]?.title}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {r?.skipped
-                            ? t("lesson.skipped")
-                            : !s
-                              ? t("lesson.notDone")
-                              : outcomes.length && isScored(exercise.type)
-                                ? `${outcomes.filter((o) => o.result === "correct").length}/${outcomes.length}`
-                                : ""}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+              {total > 0 && (
+                <ul className="divide-y rounded-2xl border bg-card">
+                  {lesson.pages.map(({ exercise }, i) => {
+                    const r = run.results[exercise.key];
+                    const s = status(exercise, r);
+                    const outcomes = Object.values(r?.first ?? {});
+                    return (
+                      <li key={exercise.key}>
+                        <button
+                          type="button"
+                          onClick={() => go(i)}
+                          className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-accent"
+                        >
+                          <StepDot state={s} label={i + 1} />
+                          <span className="flex-1">{locale?.exercises[exercise.key]?.title}</span>
+                          <span className="text-sm text-muted-foreground">
+                            {r?.skipped
+                              ? t("lesson.skipped")
+                              : !s
+                                ? t("lesson.notDone")
+                                : outcomes.length && isScored(exercise.type)
+                                  ? `${outcomes.filter((o) => o.result === "correct").length}/${outcomes.length}`
+                                  : ""}
+                          </span>
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
               <div>
                 <h2 className="text-2xl font-bold">{t("lesson.newWords")}</h2>
                 <p className="mb-2 text-sm text-muted-foreground">{t("lesson.newWordsHint")}</p>

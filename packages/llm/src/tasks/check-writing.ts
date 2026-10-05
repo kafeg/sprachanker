@@ -40,9 +40,13 @@ export type WritingCheck = z.infer<typeof WritingCheck>;
 
 export const CHECK_WRITING_BUDGETS = { grammar: 3000, lessonVocab: 1200, text: 2000 } as const;
 
+/** What the text is about: the lesson's goals, or its title when the course states none. */
+export const writingTopic = (lesson: { title: string; goals: string[] }) =>
+  lesson.goals.length ? lesson.goals : [lesson.title];
+
 /** The writing task as the model reads it (the learner sees the same in their language). */
-export const writingTaskText = (goals: string[]) =>
-  `Write 3–5 sentences in the target language on this lesson's topic${goals.length ? ` (${goals.join("; ")})` : ""}. Use words of this lesson.`;
+const writingTaskText = (topic: string[]) =>
+  `Write 3–5 sentences in the target language on this lesson's topic (${topic.join("; ")}). Use words of this lesson.`;
 
 export function checkWritingRules(language: Lang, target: Lang): string {
   const l = languageName(language);
@@ -68,7 +72,7 @@ export function checkWritingRequest(input: WritingInput): TaskRequest {
   const context = [
     "<lesson>",
     `Lesson: ${lesson.title}`,
-    `Task: ${writingTaskText(lesson.goals)}`,
+    `Task: ${writingTaskText(writingTopic(lesson))}`,
     lesson.vocab.length
       ? `Words of this lesson: ${clip(
           lesson.vocab

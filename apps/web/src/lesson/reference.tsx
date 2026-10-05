@@ -68,6 +68,18 @@ function Pages({ pages }: { pages: Array<{ title: string; bodyHtml: string }> })
 
 export type ReferenceTab = "vocabulary" | "grammar" | "culture" | "script" | "downloads";
 
+/** The reference tabs that have something in this lesson, in display order. */
+export function referenceTabs(lesson: Lesson, locale: LocaleLesson | null): ReferenceTab[] {
+  const has: Record<ReferenceTab, boolean> = {
+    vocabulary: lesson.vocab.length > 0,
+    grammar: !!locale?.tabs.grammar.length,
+    culture: !!locale?.tabs.culture.length,
+    script: !!locale?.tabs.script,
+    downloads: !!locale?.downloads.length,
+  };
+  return (Object.keys(has) as ReferenceTab[]).filter((tab) => has[tab]);
+}
+
 export function Reference({
   lesson,
   locale,
@@ -86,7 +98,7 @@ export function Reference({
   return (
     <Tabs value={tab} onValueChange={(v) => onTab(v as ReferenceTab)}>
       <TabsList className="flex h-auto w-full flex-wrap justify-start">
-        {(["vocabulary", "grammar", "culture", "script", "downloads"] as const).map((k) => (
+        {referenceTabs(lesson, locale).map((k) => (
           <TabsTrigger key={k} value={k}>
             {t(`ref.${k}`)}
           </TabsTrigger>
