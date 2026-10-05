@@ -39,28 +39,34 @@ export function mediaName(ref: MediaRef): string {
 
 const DOWNLOADS = "https://tvdownloaddw-a.akamaihd.net/downloads/";
 const HLS = /^https:\/\/hlsvod\.dw\.com\/i\/(.+?)_,(.+?),\.mp4\.csmil\/master\.m3u8$/;
-/** Small variant used for every video: SD of the podcast encodes, else 640×360 of the AVC ones. */
-const SMALL = ["PODCAST_SD", "AVC_640x360"];
+/** Encodes per size: DW's podcast encodes (sd, hd) or, for re-edited videos, AVC ones. */
+const VARIANTS = {
+  sd: { file: "PODCAST_SD", avc: "AVC_640x360", stream: "sd" },
+  hd: { file: "PODCAST_HD", avc: "AVC_1280x720", stream: "hd" },
+} as const;
 
 /**
- * Direct MP4 of an episode or clip in its small variant, or undefined when the video has
- * burned-in subtitles (the separate subtitle track is fetched instead) or no known source.
- * Download pages list the files (`videoResourceLinks`); lesson pages only give an HLS stream
- * whose variants name the same files.
+ * Direct MP4s of an episode or clip in SD (640×360) and HD (1280×720); none when the video has
+ * burned-in subtitles (the separate subtitle track is fetched instead). Download pages list the
+ * files (`videoResourceLinks`); lesson pages only give an HLS stream whose variants name the same files.
  */
-export function videoMp4(video: Record<string, unknown>): string | undefined {
-  if (String(video.name ?? "").includes("Untertitel")) return undefined;
+export function videoFiles(video: Record<string, unknown>): { sd?: string; hd?: string } {
+  if (String(video.name ?? "").includes("Untertitel")) return {};
   const files = (video.videoResourceLinks ?? []) as Array<{ url: string; techFormat: string }>;
-  for (const format of SMALL) {
-    const file = files.find((f) => f.techFormat === format);
-    if (file) return DOWNLOADS + file.url;
-  }
   const m = HLS.exec(String(video.hlsVideoSrc ?? ""));
-  if (!m) return undefined;
-  const variants = (m[2] as string).split(",");
-  if (variants.includes("sd")) return `${DOWNLOADS}${m[1]}_sd.mp4`;
-  if (variants.includes("AVC_640x360")) return `${DOWNLOADS}${m[1]}_AVC_640x360.mp4`;
-  return undefined;
+  const streams = m ? (m[2] as string).split(",") : [];
+  const pick = (size: keyof typeof VARIANTS): string | undefined => {
+    const v = VARIANTS[size];
+    const file =
+      files.find((f) => f.techFormat === v.file) ?? files.find((f) => f.techFormat === v.avc);
+    if (file) return DOWNLOADS + file.url;
+    if (streams.includes(v.stream)) return `${DOWNLOADS}${m?.[1]}_${v.stream}.mp4`;
+    if (streams.includes(v.avc)) return `${DOWNLOADS}${m?.[1]}_${v.avc}.mp4`;
+    return undefined;
+  };
+  const sd = pick("sd");
+  const hd = pick("hd");
+  return { ...(sd ? { sd } : {}), ...(hd ? { hd } : {}) };
 }
 
 /** Media referenced by one page state. */
@@ -76,9 +82,9 @@ export function mediaRefs(state: ApolloState): MediaRef[] {
     });
   }
   for (const video of entitiesOf(state, "Video")) {
-    const mp4 = videoMp4(video);
-    if (!mp4) continue;
-    refs.push({ url: mp4, kind: "video" });
+    const { sd, hd } = videoFiles(video);
+    if (!sd && !hd) continue;
+    for (const url of [sd, hd]) if (url) refs.push({ url, kind: "video" });
     for (const sub of (video.subtitles ?? []) as Array<{ subtitleUrl?: string }>) {
       if (sub.subtitleUrl) refs.push({ url: sub.subtitleUrl, kind: "subtitles" });
     }
