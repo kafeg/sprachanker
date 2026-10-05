@@ -14,6 +14,8 @@ export interface DwCourse {
 
 export const COURSES: DwCourse[] = [
   { course: "a1", edition: "ru-de", lang: "ru", sourceId: 45476888 },
+  { course: "a1", edition: "en-de", lang: "en", sourceId: 36519789 },
   { course: "a2", edition: "ru-de", lang: "ru", sourceId: 45476921 },
+  { course: "a2", edition: "en-de", lang: "en", sourceId: 36519797 },
   { course: "b1", edition: "de-de", lang: "de", sourceId: 36519718 },
 ];

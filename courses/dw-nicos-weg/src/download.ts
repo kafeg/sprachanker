@@ -1,5 +1,6 @@
 // Downloads Nicos Weg (pages + media) into <data>/library/dw.nicos-weg; resumable.
-// Usage: bun run --filter @sprachanker/dw-nicos-weg download -- [--data <root>] [--courses a1,a2,b1] [--pages-only]
+// Usage: bun run --filter @sprachanker/dw-nicos-weg download -- [--data <root>] [--courses a1,a2,b1]
+//        [--editions ru-de,en-de,de-de] [--pages-only]
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
@@ -11,7 +12,8 @@ import { fetchPages } from "./pages.ts";
 const { values } = parseArgs({
   options: {
     data: { type: "string", default: join(homedir(), "SprachAnker") },
-    courses: { type: "string", default: COURSES.map((c) => c.course).join(",") },
+    courses: { type: "string", default: "a1,a2,b1" },
+    editions: { type: "string", default: "ru-de,en-de,de-de" },
     "pages-only": { type: "boolean", default: false },
   },
 });
@@ -19,7 +21,11 @@ const seriesDir = join(values.data, "library", SERIES);
 const log = (line: string) => console.log(`${new Date().toTimeString().slice(0, 8)} ${line}`);
 const fetcher = createPoliteFetcher({ userAgent: USER_AGENT, robotsHosts: ["learngerman.dw.com"] });
 
-for (const course of COURSES.filter((c) => values.courses.split(",").includes(c.course))) {
+const selected = COURSES.filter(
+  (c) =>
+    values.courses.split(",").includes(c.course) && values.editions.split(",").includes(c.edition),
+);
+for (const course of selected) {
   await fetchPages(fetcher, seriesDir, course, log);
 }
 if (!values["pages-only"]) {
