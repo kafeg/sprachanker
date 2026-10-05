@@ -25,16 +25,15 @@ const opts = (fetchFn: typeof fetch) => ({
 
 test("retries server errors, then succeeds", async () => {
   const { calls, fetchFn } = fake({ "https://b.test/x": [500, 503, 200] });
-  const res = await createPoliteFetcher(opts(fetchFn)).get("https://b.test/x");
-  expect(res.status).toBe(200);
+  expect(await createPoliteFetcher(opts(fetchFn)).text("https://b.test/x")).toBe("ok");
   expect(calls).toEqual(["https://b.test/x", "https://b.test/x", "https://b.test/x"]);
 });
 
 test("respects robots.txt on listed hosts", async () => {
   const { fetchFn } = fake({});
   const fetcher = createPoliteFetcher(opts(fetchFn));
-  await expect(fetcher.get("https://a.test/secret/1")).rejects.toBeInstanceOf(FetchFailedError);
-  expect((await fetcher.get("https://a.test/open")).status).toBe(200);
+  await expect(fetcher.text("https://a.test/secret/1")).rejects.toBeInstanceOf(FetchFailedError);
+  expect(await fetcher.text("https://a.test/open")).toBe("ok");
 });
 
 test("403 stops the host for good, 404 fails one URL", async () => {
@@ -43,9 +42,9 @@ test("403 stops the host for good, 404 fails one URL", async () => {
     "https://b.test/missing": [404],
   });
   const fetcher = createPoliteFetcher(opts(fetchFn));
-  await expect(fetcher.get("https://b.test/missing")).rejects.toBeInstanceOf(FetchFailedError);
-  await expect(fetcher.get("https://b.test/forbidden")).rejects.toBeInstanceOf(HostRefusedError);
-  await expect(fetcher.get("https://b.test/other")).rejects.toBeInstanceOf(HostRefusedError);
+  await expect(fetcher.text("https://b.test/missing")).rejects.toBeInstanceOf(FetchFailedError);
+  await expect(fetcher.text("https://b.test/forbidden")).rejects.toBeInstanceOf(HostRefusedError);
+  await expect(fetcher.text("https://b.test/other")).rejects.toBeInstanceOf(HostRefusedError);
   expect(calls).not.toContain("https://b.test/other");
 });
 
@@ -58,8 +57,33 @@ test("starts are spaced by the interval while slow requests overlap", async () =
   }) as unknown as typeof fetch;
   const fetcher = createPoliteFetcher({ userAgent: "test", intervalMs: 50, fetch: slow });
   const t0 = Date.now();
-  await Promise.all([1, 2, 3].map((n) => fetcher.get(`https://c.test/${n}`)));
+  await Promise.all([1, 2, 3].map((n) => fetcher.text(`https://c.test/${n}`)));
   const gaps = starts.slice(1).map((s, i) => s - (starts[i] as number));
   expect(gaps.every((g) => g >= 45)).toBe(true);
   expect(Date.now() - t0).toBeLessThan(3 * 150);
+});
+
+test("a connection lost while reading the body is retried; for good it fails the URL", async () => {
+  let calls = 0;
+  const broken = (n: number) =>
+    (async () => {
+      calls++;
+      if (calls <= n)
+        return new Response(
+          new ReadableStream({
+            start(c) {
+              c.error(new Error("ECONNRESET"));
+            },
+          }),
+        );
+      return new Response(new Uint8Array([1, 2, 3]), { headers: { "content-type": "image/png" } });
+    }) as unknown as typeof fetch;
+  const once = createPoliteFetcher(opts(broken(1)));
+  expect(await once.bytes("https://b.test/img")).toEqual({
+    bytes: new Uint8Array([1, 2, 3]),
+    contentType: "image/png",
+  });
+  calls = 0;
+  const always = createPoliteFetcher(opts(broken(99)));
+  await expect(always.bytes("https://b.test/img")).rejects.toBeInstanceOf(FetchFailedError);
 });

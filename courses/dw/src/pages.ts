@@ -21,7 +21,7 @@ async function page(
   refresh = false,
 ): Promise<ApolloState> {
   if (!refresh && existsSync(file)) return JSON.parse(await readFile(file, "utf8"));
-  const state = extractState(await (await fetcher.get(`${SITE}${path}`)).text());
+  const state = extractState(await fetcher.text(`${SITE}${path}`));
   await writeFile(file, JSON.stringify(state));
   return state;
 }

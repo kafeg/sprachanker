@@ -25,7 +25,7 @@ export async function remuxStream(
   fetcher: PoliteFetcher,
   source: StreamSource,
 ): Promise<Uint8Array> {
-  const master = await (await fetcher.get(source.master)).text();
+  const master = await fetcher.text(source.master);
   const variant = variantUrl(master, source.resolution);
   if (!variant) throw new FetchFailedError(source.master, "network");
   const dir = await mkdtemp(join(tmpdir(), "sprachanker-hls-"));

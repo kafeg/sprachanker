@@ -32,7 +32,9 @@ export interface PoliteFetcherOptions {
 }
 
 export interface PoliteFetcher {
-  get(url: string): Promise<Response>;
+  /** The whole body; a connection lost while reading it is retried like a failed request. */
+  bytes(url: string): Promise<{ bytes: Uint8Array; contentType: string }>;
+  text(url: string): Promise<string>;
 }
 
 export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetcher {
@@ -74,27 +76,44 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
     return rules;
   }
 
+  /** A request with retries; `read` turns the response into the result and is retried with it. */
+  async function request<T>(href: string, read: (res: Response) => Promise<T>): Promise<T> {
+    const url = new URL(href);
+    const status = refused.get(url.host);
+    if (status) throw new HostRefusedError(url.host, status);
+    if (!isAllowed(await rulesFor(url), decodeURIComponent(url.pathname) + url.search)) {
+      throw new FetchFailedError(href, "robots");
+    }
+    for (let attempt = 0; ; attempt++) {
+      const res = await onHost(url.host, () => doFetch(url, { headers })).catch(() => null);
+      if (res?.ok) {
+        try {
+          return await read(res);
+        } catch {
+          // The connection broke while reading the body: like a network failure.
+          if (attempt >= retries) throw new FetchFailedError(href, "network");
+          await sleep(2000 * 2 ** attempt);
+          continue;
+        }
+      }
+      if (res && (res.status === 403 || res.status === 429)) {
+        refused.set(url.host, res.status);
+        throw new HostRefusedError(url.host, res.status);
+      }
+      const retryable = !res || res.status >= 500;
+      if (!retryable || attempt >= retries) {
+        throw new FetchFailedError(href, res ? res.status : "network");
+      }
+      await sleep(2000 * 2 ** attempt);
+    }
+  }
+
   return {
-    async get(href) {
-      const url = new URL(href);
-      const status = refused.get(url.host);
-      if (status) throw new HostRefusedError(url.host, status);
-      if (!isAllowed(await rulesFor(url), decodeURIComponent(url.pathname) + url.search)) {
-        throw new FetchFailedError(href, "robots");
-      }
-      for (let attempt = 0; ; attempt++) {
-        const res = await onHost(url.host, () => doFetch(url, { headers })).catch(() => null);
-        if (res?.ok) return res;
-        if (res && (res.status === 403 || res.status === 429)) {
-          refused.set(url.host, res.status);
-          throw new HostRefusedError(url.host, res.status);
-        }
-        const retryable = !res || res.status >= 500;
-        if (!retryable || attempt >= retries) {
-          throw new FetchFailedError(href, res ? res.status : "network");
-        }
-        await sleep(2000 * 2 ** attempt);
-      }
-    },
+    bytes: (href) =>
+      request(href, async (res) => ({
+        bytes: new Uint8Array(await res.arrayBuffer()),
+        contentType: res.headers.get("content-type") ?? "",
+      })),
+    text: (href) => request(href, (res) => res.text()),
   };
 }

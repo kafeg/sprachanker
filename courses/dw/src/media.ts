@@ -126,11 +126,8 @@ export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
 /** The file at `ref.url`, or for a video whose direct file is missing, its remuxed HLS stream. */
 async function download(fetcher: PoliteFetcher, ref: MediaRef) {
   try {
-    const res = await fetcher.get(ref.url);
-    return {
-      bytes: new Uint8Array(await res.arrayBuffer()),
-      mime: res.headers.get("content-type") ?? "",
-    };
+    const { bytes, contentType } = await fetcher.bytes(ref.url);
+    return { bytes, mime: contentType };
   } catch (error) {
     if (!(error instanceof FetchFailedError && error.status === 404 && ref.stream)) throw error;
     return { bytes: await remuxStream(fetcher, ref.stream), mime: "video/mp4" };
@@ -172,8 +169,11 @@ export async function fetchMedia(
           queue.length = 0;
           return;
         }
-        if (!(error instanceof FetchFailedError)) throw error;
-        index[ref.url] = { kind: ref.kind, error: String(error.status) };
+        // One file never stops the import: it is reported and tried again on the next run.
+        index[ref.url] = {
+          kind: ref.kind,
+          error: error instanceof FetchFailedError ? String(error.status) : String(error),
+        };
       }
       if (++done % 50 === 0) {
         log(`media: ${done}/${todo.length} (${host})`);
