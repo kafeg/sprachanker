@@ -140,5 +140,21 @@
       "llm_bad_response": "Der Server hat einen Fehler gemeldet.",
       "other": "Etwas ist schiefgelaufen: {message}"
     }
+  },
+  "tutor": {
+    "title": "Tutor",
+    "intro": "Frag nach dieser Lektion: Grammatik, Wörter, die Übung auf dem Bildschirm – oder übe einen kurzen Dialog. Die Antworten bleiben beim bisher Gelernten.",
+    "needsSetup": "Der Tutor braucht ein KI-Modell.",
+    "openSettings": "KI-Assistent einrichten",
+    "placeholder": "Stell eine Frage…",
+    "send": "Senden",
+    "stop": "Stopp",
+    "newChat": "Neues Gespräch",
+    "suggest": {
+      "grammar": "Erklär mir die Grammatik dieser Lektion",
+      "examples": "Gib mir mehr Beispiele mit den neuen Wörtern",
+      "dialogue": "Lass uns einen kurzen Dialog üben",
+      "exercise": "Gib mir einen Tipp zu dieser Übung"
+    }
   }
 }

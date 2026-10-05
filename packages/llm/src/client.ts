@@ -131,6 +131,9 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
   };
 }
 
+/** Control tokens some local models leak into the text (Gemma: "<audio|>", others: "<|im_end|>"). */
+const SPECIAL_TOKEN = /<\|?[a-z_]+\|>/g;
+
 /** Text deltas of an OpenAI-style server-sent event stream. */
 async function* streamChat(open: () => Promise<Response>): AsyncIterable<string> {
   const res = await open();
@@ -150,7 +153,8 @@ async function* streamChat(open: () => Promise<Response>): AsyncIterable<string>
         if (data === "[DONE]") return;
         const chunk = parseChunk(data);
         if (chunk.error) throw new LlmError("bad_response", chunk.error);
-        if (chunk.text) yield chunk.text;
+        const text = chunk.text?.replace(SPECIAL_TOKEN, "");
+        if (text) yield text;
       }
     }
   } finally {

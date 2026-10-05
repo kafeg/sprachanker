@@ -55,6 +55,12 @@ default route.
 
 ## Conversations
 
+- **Lesson tutor** (`chat_turn` from the lesson player): one chat per lesson, a `chat` run with
+  `llm_turn` events; a question and its reply are stored together once the reply has text, so a failed
+  call leaves no unanswered turn. Context: the lesson (title, goals, words with translations, grammar
+  pages), headwords and titles of earlier lessons, the exercise on screen (with answers — the tutor gives
+  hints first), the most recent turns within a character budget sized for small local models.
+
 - Scenes and chats are runs with `llm_turn` events: messages, model, corrections, recordings.
 - After a scene: mistakes by rule, new words (one tap → card), link to "Practise this".
 - **Handoff**: build a prompt with lesson context, known vocabulary and recent mistakes; copy it or open

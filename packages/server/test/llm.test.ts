@@ -131,3 +131,74 @@ test("secret box: round trip; another key or damaged data opens to nothing", asy
   expect(await secretBox(new Uint8Array(32).fill(2)).open(sealed)).toBeUndefined();
   expect(await box.open("garbage")).toBeUndefined();
 });
+
+describe("lesson tutor", () => {
+  const TUTOR = {
+    series: FIXTURE_SERIES,
+    lessonKey: "sprachanker.fixture/demo/00-02",
+    edition: "ru-de",
+    message: "Дай пример",
+    language: "ru",
+  };
+  const prompt = (call: { body?: unknown } | undefined) =>
+    (call?.body as { messages: Array<{ role: string; content: string }> } | undefined)?.messages ??
+    [];
+
+  test("a chat per lesson: replies are streamed and stored with the question", async () => {
+    const fake = provider();
+    const { send, sendJson, getJson } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const first = await send("POST", "/api/llm/tutor", TUTOR);
+    expect(await first.text()).toBe("Weil »Frau« weiblich ist.");
+    const system = prompt(fake.calls[0])[0]?.content ?? "";
+    // The second lesson knows the first one: its title and words.
+    expect(system).toContain("Earlier lessons: ");
+    expect(system).toContain("der Kaffee");
+
+    await (await send("POST", "/api/llm/tutor", { ...TUTOR, message: "Ещё" })).text();
+    expect(prompt(fake.calls[1]).map((m) => m.role)).toEqual([
+      "system",
+      "user",
+      "assistant",
+      "user",
+    ]);
+
+    const { turns } = await getJson(`/api/llm/tutor?lessonKey=${TUTOR.lessonKey}`);
+    expect(turns.map((t: { role: string; text: string }) => [t.role, t.text])).toEqual([
+      ["user", "Дай пример"],
+      ["assistant", "Weil »Frau« weiblich ist."],
+      ["user", "Ещё"],
+      ["assistant", "Weil »Frau« weiblich ist."],
+    ]);
+    expect(turns[1].model).toBe("qwen3-8b");
+
+    expect(await sendJson("POST", "/api/llm/tutor/reset", { lessonKey: TUTOR.lessonKey })).toEqual({
+      ok: true,
+    });
+    expect((await getJson(`/api/llm/tutor?lessonKey=${TUTOR.lessonKey}`)).turns).toEqual([]);
+    // Chats do not count as lesson progress.
+    const courses = await getJson("/api/courses");
+    expect(courses[0].done).toBe(0);
+  });
+
+  test("the exercise on screen is part of the context", async () => {
+    const fake = provider();
+    const { send } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
+    await (
+      await send("POST", "/api/llm/tutor", {
+        ...TUTOR,
+        lessonKey: "sprachanker.fixture/demo/00-01",
+        exerciseKey: EXPLAIN.exerciseKey,
+      })
+    ).text();
+    expect(prompt(fake.calls[0])[0]?.content).toContain("Answer: Guten Tag, [Frau] Weber.");
+  });
+
+  test("nothing is stored when the model is not reachable", async () => {
+    const { send, getJson } = await setup({ fetch: provider({ down: true }).fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
+    expect((await send("POST", "/api/llm/tutor", TUTOR)).status).toBe(502);
+    expect((await getJson(`/api/llm/tutor?lessonKey=${TUTOR.lessonKey}`)).turns).toEqual([]);
+  });
+});

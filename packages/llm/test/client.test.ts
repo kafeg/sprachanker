@@ -51,7 +51,7 @@ describe("openAiCompatible", () => {
   });
 
   test("streams deltas split across network chunks and stops at [DONE]", async () => {
-    const body = `${delta("Hal")}${delta("lo ")}data: [DONE]\n\n${delta("ignored")}`;
+    const body = `${delta("Hal")}${delta("<audio|>lo<|im_end|> ")}data: [DONE]\n\n${delta("ignored")}`;
     const { fn, calls } = fakeFetch(() =>
       sse([body.slice(0, 20), body.slice(20, 50), body.slice(50)]),
     );

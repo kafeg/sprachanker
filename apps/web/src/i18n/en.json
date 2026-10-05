@@ -140,5 +140,21 @@
       "llm_bad_response": "The server returned an error.",
       "other": "Something went wrong: {message}"
     }
+  },
+  "tutor": {
+    "title": "Tutor",
+    "intro": "Ask about this lesson: grammar, words, the exercise on screen — or practise a short dialogue. Answers stay within what you have learnt so far.",
+    "needsSetup": "The tutor needs an AI model.",
+    "openSettings": "Set up the AI assistant",
+    "placeholder": "Ask a question…",
+    "send": "Send",
+    "stop": "Stop",
+    "newChat": "New chat",
+    "suggest": {
+      "grammar": "Explain the grammar of this lesson",
+      "examples": "Give me more examples with the new words",
+      "dialogue": "Let's practise a short dialogue",
+      "exercise": "Give me a hint for this exercise"
+    }
   }
 }

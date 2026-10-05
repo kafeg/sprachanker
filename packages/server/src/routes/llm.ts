@@ -1,12 +1,15 @@
-// /api/llm: provider setup, connection test and lesson help. Mounted by app.ts; removing this module
+// /api/llm: provider setup, connection test, mistake explanations and the lesson tutor. Mounted by app.ts; removing this module
 // and that mount removes the LLM features from the API.
 import { LlmError, ProviderId } from "@sprachanker/llm";
 import { LessonKey } from "@sprachanker/schema";
-import { Hono } from "hono";
+import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
 import { type Llm, LlmSetupError } from "../services/llm.ts";
+import type { Tutor } from "../services/tutor.ts";
 import { Edition, Series, zod } from "../validate.ts";
+
+const Language = z.string().regex(/^[a-z]{2,3}$/);
 
 const Url = z
   .string()
@@ -21,7 +24,30 @@ function failure(error: unknown) {
   throw error;
 }
 
-export function llmRoutes(llm: Llm) {
+/**
+ * Streams model text. Waits for the first chunk, so that setup and connection errors still get a
+ * JSON response; a learner closing the request stops the generation (the signal reaches the provider).
+ */
+async function streamReply(c: Context, start: () => Promise<AsyncIterable<string>>) {
+  let chunks: AsyncIterator<string>;
+  let first: IteratorResult<string>;
+  try {
+    chunks = (await start())[Symbol.asyncIterator]();
+    first = await chunks.next();
+  } catch (error) {
+    const { status, ...body } = failure(error);
+    return c.json(body, status);
+  }
+  return streamText(c, async (stream) => {
+    try {
+      for (let next = first; !next.done; next = await chunks.next()) await stream.write(next.value);
+    } finally {
+      await chunks.return?.();
+    }
+  });
+}
+
+export function llmRoutes(llm: Llm, tutor: Tutor) {
   return new Hono()
     .get("/", (c) => c.json(llm.state()))
     .put(
@@ -70,27 +96,31 @@ export function llmRoutes(llm: Llm) {
           exerciseKey: z.string().max(300),
           index: z.number().int().nonnegative(),
           answer: z.unknown().optional(),
-          language: z.string().regex(/^[a-z]{2,3}$/),
+          language: Language,
         }),
       ),
-      async (c) => {
-        // Wait for the first chunk so that setup and connection errors still get a JSON response.
-        let chunks: AsyncIterator<string>;
-        let first: IteratorResult<string>;
-        try {
-          chunks = (await llm.explain(c.req.valid("json"), c.req.raw.signal))[
-            Symbol.asyncIterator
-          ]();
-          first = await chunks.next();
-        } catch (error) {
-          const { status, ...body } = failure(error);
-          return c.json(body, status);
-        }
-        return streamText(c, async (stream) => {
-          for (let next = first; !next.done; next = await chunks.next()) {
-            await stream.write(next.value);
-          }
-        });
-      },
-    );
+      (c) => streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
+    )
+    .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+      c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
+    )
+    .post(
+      "/tutor",
+      zod(
+        "json",
+        z.object({
+          series: Series,
+          lessonKey: LessonKey,
+          edition: Edition,
+          exerciseKey: z.string().max(300).optional(),
+          message: z.string().trim().min(1).max(4000),
+          language: Language,
+        }),
+      ),
+      (c) => streamReply(c, () => tutor.send(c.req.valid("json"), c.req.raw.signal)),
+    )
+    .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
+      tutor.reset(c.req.valid("json").lessonKey);
+      return c.json({ ok: true as const });
+    });
 }

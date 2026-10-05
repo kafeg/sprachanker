@@ -9,6 +9,7 @@ import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { isScored } from "@/exercises/index.tsx";
 import { ExplainMistake } from "@/llm/explain.tsx";
+import { LessonTutor } from "@/llm/tutor.tsx";
 import { lessonNumbers } from "@/routes/courses.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -218,6 +219,12 @@ export function LessonPlayer({
             <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
               {done}/{total}
             </span>
+            <LessonTutor
+              series={series}
+              lessonKey={lesson.key}
+              edition={edition}
+              exerciseKey={typeof step === "number" ? lesson.pages[step]?.exercise.key : undefined}
+            />
             <Button variant="outline" size="sm" onClick={() => setReference("vocabulary")}>
               <BookOpenText className="size-4" />{" "}
               <span className="hidden sm:inline">{t("lesson.reference")}</span>

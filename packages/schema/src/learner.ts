@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { Exercise } from "./exercise/index.ts";
 import { Outcome } from "./exercise/outcome.ts";
-import { ItemKey, LessonKey } from "./keys.ts";
+import { ExerciseKey, ItemKey, LessonKey } from "./keys.ts";
 import { EditionId } from "./lang.ts";
 import { LocaleExercise } from "./locale.ts";
 
@@ -65,6 +65,17 @@ export const EventInput = z.discriminatedUnion("type", [
   z.object({ id: Ulid, type: z.literal("answered"), itemKey: ItemKey, payload: AnsweredInput }),
 ]);
 export type EventInput = z.infer<typeof EventInput>;
+
+/** One message of a tutor chat (05, "Events"); scenes will add segments and corrections. */
+export const LlmTurnPayload = z.object({
+  role: z.enum(["user", "assistant"]),
+  text: z.string(),
+  /** The model that wrote an assistant turn. */
+  model: z.string().optional(),
+  /** The exercise on screen when the learner wrote. */
+  exerciseKey: ExerciseKey.optional(),
+});
+export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
 export const StoredEvent = z.object({
   id: Ulid,

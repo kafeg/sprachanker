@@ -10,11 +10,12 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 src/
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat(); errors as LlmError codes
   providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
-  thinking.ts      # strips inline <think>…</think> from streamed text
+  thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
     describe.ts        # an exercise item as text: task, correct answer, learner answer
     explain-mistake.ts # explain_mistake: prompt + call
+    chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, history)
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

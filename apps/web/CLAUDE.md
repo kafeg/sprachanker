@@ -12,7 +12,7 @@ apps/web/src/
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
-  llm/             # AI assistant: settings section, "Why is this wrong?" (streamed); plugged in via two props
+  llm/             # AI assistant: settings section, "Why is this wrong?", lesson tutor panel (streamed)
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell, media
   word/            # gender colouring
@@ -36,4 +36,4 @@ notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<ver
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px.
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
-  folder can be removed with its two mount points.
+  folder can be removed with its mount points (settings page, lesson player header and `explain` prop).

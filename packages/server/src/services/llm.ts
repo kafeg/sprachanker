@@ -119,11 +119,15 @@ export function createLlm(deps: {
       const models = await (await client(id)).models(signal);
       return { models, ms: Math.round(performance.now() - started) };
     },
-    /** Explanation of a wrong answer, streamed. */
-    async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
+    /** Client and model of the default route; throws when the LLM is not set up. */
+    async model(): Promise<{ client: LlmClient; model: string }> {
       const r = route();
       if (!r?.model) throw new LlmSetupError("llm_not_configured");
-      const llm = await client(r.providerId as ProviderId);
+      return { client: await client(r.providerId as ProviderId), model: r.model };
+    },
+    /** Explanation of a wrong answer, streamed. */
+    async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
+      const { client: llm, model } = await this.model();
       const [lesson, locale] = await Promise.all([
         content.lesson(request.series, request.lessonKey),
         content.localeLesson(request.series, request.lessonKey, request.edition),
@@ -132,7 +136,7 @@ export function createLlm(deps: {
       if (!exercise?.items[request.index]) throw new LlmSetupError("no_such_item");
       return explainMistake(
         llm,
-        r.model,
+        model,
         {
           exercise,
           locale: locale?.exercises[exercise.key],

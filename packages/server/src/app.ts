@@ -13,6 +13,7 @@ import { createContent } from "./services/content.ts";
 import { createLlm } from "./services/llm.ts";
 import { createRuns, RunError } from "./services/runs.ts";
 import { createSettings } from "./services/settings.ts";
+import { createTutor } from "./services/tutor.ts";
 import { Edition, Series, zod } from "./validate.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
@@ -45,6 +46,13 @@ export function createApp(config: AppConfig) {
     box: secretBox(config.secretKey),
     content,
     fetch: config.fetch ?? fetch,
+  });
+  const tutor = createTutor({
+    db: config.profile,
+    content,
+    llm,
+    now,
+    appVersion: config.appVersion,
   });
   const runs = createRuns({
     db: config.profile,
@@ -132,7 +140,7 @@ export function createApp(config: AppConfig) {
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
     .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
-    .route("/llm", llmRoutes(llm))
+    .route("/llm", llmRoutes(llm, tutor))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
