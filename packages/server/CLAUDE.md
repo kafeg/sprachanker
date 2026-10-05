@@ -20,7 +20,8 @@ src/
     backup.ts        # copy-before-migrate, retention
   validate.ts        # request validation helper and shared param schemas
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
-  services/          # content, runs, settings, llm (provider setup + explanations), tutor (lesson chats as `chat` runs)
+  services/          # content, runs, settings, mistakes (derived from lesson runs), llm (providers, LM Studio,
+                     # explanations, prompt previews), tutor (lesson chats as `chat` runs)
   jobs/              # import, model download; progress via SSE
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys); later profiles, PIN, device tokens, Host check, CSP

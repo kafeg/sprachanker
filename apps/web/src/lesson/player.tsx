@@ -9,7 +9,7 @@ import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { isScored } from "@/exercises/index.tsx";
 import { ExplainMistake } from "@/llm/explain.tsx";
-import { LessonTutor } from "@/llm/tutor.tsx";
+import { LessonTutor, ReviewMistakesButton, type TutorAsk } from "@/llm/tutor.tsx";
 import { lessonNumbers } from "@/routes/courses.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -144,6 +144,7 @@ export function LessonPlayer({
   const [reference, setReference] = useState<ReferenceTab>();
   const [planOpen, setPlanOpen] = useState(false);
   const [result, setResult] = useState<LessonResult | null>();
+  const [tutorAsk, setTutorAsk] = useState<TutorAsk>();
   const url = (p: string) => mediaUrl(series, p);
 
   // Resume on the page the run was left on.
@@ -220,6 +221,7 @@ export function LessonPlayer({
               {done}/{total}
             </span>
             <LessonTutor
+              ask={tutorAsk}
               series={series}
               lessonKey={lesson.key}
               edition={edition}
@@ -321,6 +323,9 @@ export function LessonPlayer({
                   </span>
                 )}
               </div>
+              {Object.values(run.results).some((r) =>
+                Object.values(r.first).some((o) => o.result === "wrong" || o.result === "partial"),
+              ) && <ReviewMistakesButton onAsk={setTutorAsk} />}
               <ul className="divide-y rounded-2xl border bg-card">
                 {lesson.pages.map(({ exercise }, i) => {
                   const r = run.results[exercise.key];

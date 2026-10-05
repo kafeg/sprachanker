@@ -82,7 +82,10 @@ default route.
   `llm_turn` events; a question and its reply are stored together once the reply has text, so a failed
   call leaves no unanswered turn. Context: the lesson (title, goals, words with translations, grammar
   pages), headwords and titles of earlier lessons, the exercise on screen (with answers — the tutor gives
-  hints first), the most recent turns within a character budget sized for small local models.
+  hints first), the learner's mistakes (items whose latest first attempt was wrong or partial: this
+  lesson's, then the latest of earlier lessons, fixed ones marked), the most recent turns within a
+  character budget sized for small local models. "Review my mistakes" on the lesson summary opens the
+  tutor with that request.
 
 - Scenes and chats are runs with `llm_turn` events: messages, model, corrections, recordings.
 - After a scene: mistakes by rule, new words (one tap → card), link to "Practise this".

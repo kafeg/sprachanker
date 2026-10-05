@@ -11,6 +11,7 @@ import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
 import { createLlm, type LmStudioHost } from "./services/llm.ts";
+import { createMistakes } from "./services/mistakes.ts";
 import { createRuns, RunError } from "./services/runs.ts";
 import { createSettings } from "./services/settings.ts";
 import { createTutor } from "./services/tutor.ts";
@@ -54,6 +55,7 @@ export function createApp(config: AppConfig) {
     db: config.profile,
     content,
     llm,
+    mistakes: createMistakes(config.profile),
     now,
     appVersion: config.appVersion,
   });

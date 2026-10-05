@@ -1,5 +1,11 @@
 // The lesson tutor: one chat per lesson, stored as a `chat` run with `llm_turn` events (05, 07).
-import { type ChatTurnInput, chatTurn, chatTurnRequest, estimateTokens } from "@sprachanker/llm";
+import {
+  type ChatTurnInput,
+  chatTurn,
+  chatTurnRequest,
+  estimateTokens,
+  type TutorMistake,
+} from "@sprachanker/llm";
 import {
   type LessonKey,
   LlmTurnPayload,
@@ -12,6 +18,7 @@ import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
 import type { Content } from "./content.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
+import type { Mistake, Mistakes } from "./mistakes.ts";
 
 export interface TutorRequest {
   series: string;
@@ -39,6 +46,7 @@ export function createTutor(deps: {
   db: ProfileDb;
   content: Content;
   llm: Llm;
+  mistakes: Mistakes;
   now: () => number;
   appVersion: string;
 }) {
@@ -105,8 +113,49 @@ export function createTutor(deps: {
         },
         knownVocab: [...new Set(earlierVocab.flat())],
         earlierLessons: earlier.map((k) => map.titles[k] ?? k),
+        mistakes: {
+          lesson: await tutorMistakes(
+            series,
+            edition,
+            deps.mistakes.list({ lesson: lessonKey, limit: 15 }),
+          ),
+          earlier: await tutorMistakes(
+            series,
+            edition,
+            deps.mistakes.list({ except: lessonKey, limit: 10 }),
+            map.titles,
+          ),
+        },
       } satisfies Partial<ChatTurnInput>,
     };
+  }
+
+  /** Mistakes with their exercises as the edition shows them; items no longer in the course are skipped. */
+  async function tutorMistakes(
+    series: string,
+    edition: string,
+    list: Mistake[],
+    titles?: Record<string, string>,
+  ): Promise<TutorMistake[]> {
+    const out: TutorMistake[] = [];
+    for (const m of list) {
+      const key = m.lessonKey as LessonKey;
+      const [lesson, locale] = await Promise.all([
+        content.lesson(series, key).catch(() => undefined),
+        content.localeLesson(series, key, edition),
+      ]);
+      const exercise = lesson?.pages.find((p) => p.exercise.key === m.exerciseKey)?.exercise;
+      if (!exercise?.items[m.index]) continue;
+      out.push({
+        lesson: titles ? (titles[m.lessonKey] ?? m.lessonKey) : undefined,
+        exercise,
+        locale: locale?.exercises[exercise.key],
+        index: m.index,
+        answer: m.answer,
+        fixed: m.fixed,
+      });
+    }
+    return out;
   }
 
   /** What chat_turn gets for a message: the lesson context, the exercise on screen, the history. */

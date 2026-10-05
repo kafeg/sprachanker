@@ -161,7 +161,9 @@
     "contextSize": "Anfrage ≈ {used} Tokens",
     "remembers": "erinnert sich an {kept} von {total} Nachrichten",
     "contextFull": "Der Kontext ist fast voll: die ersten Nachrichten erreichen das Modell nicht mehr. Für ein neues Thema ein neues Gespräch beginnen.",
-    "contextHint": "Größe der nächsten Anfrage: Lektionskontext, Gespräch und deine Nachricht, plus Platz für die Antwort."
+    "contextHint": "Größe der nächsten Anfrage: Lektionskontext, Gespräch und deine Nachricht, plus Platz für die Antwort.",
+    "reviewMistakes": "Meine Fehler mit dem Tutor durchgehen",
+    "reviewMistakesMessage": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
   },
   "lmstudio": {
     "running": "LM Studio läuft.",
@@ -206,7 +208,8 @@
       "earlierLessons": "Titel früherer Lektionen",
       "grammar": "die Grammatik-Notizen der Lektion",
       "exercise": "die Übung auf dem Bildschirm mit Lösungen (der Tutor gibt zuerst Tipps)",
-      "history": "die letzten Nachrichten des Gesprächs"
+      "history": "die letzten Nachrichten des Gesprächs",
+      "mistakes": "deine Fehler: in dieser Lektion, dann die letzten aus früheren Lektionen (korrigierte markiert)"
     },
     "upTo": "bis {chars} Zeichen",
     "debug": "„Prompt“-Knöpfe zeigen",

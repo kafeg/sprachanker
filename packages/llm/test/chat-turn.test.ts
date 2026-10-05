@@ -77,3 +77,21 @@ test("known vocabulary keeps the most recent words when it is too long", () => {
   expect(system?.content).not.toContain("wort0;");
   expect(system?.content).toContain("Words from earlier lessons: … ");
 });
+
+test("mistakes: this lesson's first, then earlier ones, each with the correct and the learner's answer", () => {
+  const [system] = chatTurnMessages(
+    input({
+      mistakes: {
+        lesson: [{ exercise, index: 0, answer: { g1: "a" }, fixed: true }],
+        earlier: [{ lesson: "Hallo!", exercise, index: 0, answer: undefined, fixed: false }],
+      },
+    }),
+  );
+  expect(system?.content).toContain("Learner's mistakes (newest first):\nIn this lesson:");
+  expect(system?.content).toContain(
+    "correct: Guten Tag, [Frau] Weber.; learner: Guten Tag, [Herr] Weber. (fixed later)",
+  );
+  expect(system?.content).toContain("In earlier lessons:\n- [Hallo!] Prompt: Herr oder Frau?");
+  expect(system?.content).toContain("learner: (no answer)");
+  expect(system?.content).toContain("review mistakes");
+});

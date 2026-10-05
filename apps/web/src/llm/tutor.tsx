@@ -16,6 +16,12 @@ import { RichText } from "./rich-text.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language">;
 
+/** A message to send on opening (from outside, e.g. the lesson summary); `id` makes each ask new. */
+export interface TutorAsk {
+  text: string;
+  id: number;
+}
+
 function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
   return (
     <div
@@ -29,7 +35,7 @@ function Bubble({ from, children }: { from: "user" | "assistant"; children: Reac
   );
 }
 
-function Chat(context: Context) {
+function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const history = useTutorHistory(context.lessonKey);
@@ -46,6 +52,16 @@ function Chat(context: Context) {
   useEffect(() => {
     end.current?.scrollIntoView({ block: "end" });
   }, [turns.length, pending?.reply]);
+
+  // An ask from outside is sent once, as soon as the chat is ready.
+  const sendLatest = useRef<(text: string) => void>(undefined);
+  const asked = useRef<number>(undefined);
+  const ready = !!history.data && !!llm.data?.model;
+  useEffect(() => {
+    if (!ask || !ready || asked.current === ask.id) return;
+    asked.current = ask.id;
+    sendLatest.current?.(ask.text);
+  }, [ask, ready]);
 
   if (!llm.data?.model)
     return (
@@ -81,6 +97,8 @@ function Chat(context: Context) {
         setPending(undefined);
       });
   };
+
+  sendLatest.current = send;
 
   const suggestions = [
     t("tutor.suggest.grammar"),
@@ -198,9 +216,12 @@ function Chat(context: Context) {
   );
 }
 
-export function LessonTutor(context: Context) {
+export function LessonTutor({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (ask) setOpen(true);
+  }, [ask]);
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
@@ -212,9 +233,24 @@ export function LessonTutor(context: Context) {
           <SheetHeader className="pb-2">
             <SheetTitle>{t("tutor.title")}</SheetTitle>
           </SheetHeader>
-          {open && <Chat {...context} />}
+          {open && <Chat {...context} ask={ask} />}
         </SheetContent>
       </Sheet>
     </>
+  );
+}
+
+/** "Review my mistakes" for the lesson summary; nothing when the assistant is off. */
+export function ReviewMistakesButton({ onAsk }: { onAsk(ask: TutorAsk): void }) {
+  const { t } = useTranslation();
+  if (!useLlm().data?.model) return null;
+  return (
+    <Button
+      variant="outline"
+      size="lg"
+      onClick={() => onAsk({ text: t("tutor.reviewMistakesMessage"), id: Date.now() })}
+    >
+      <MessageCircle className="size-4" /> {t("tutor.reviewMistakes")}
+    </Button>
   );
 }
