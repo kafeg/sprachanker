@@ -342,10 +342,8 @@ describe("LM Studio", () => {
     const studio = lmStudio();
     const { send } = await setup({ fetch: studio.fetch, lmStudio: host().host });
     await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "google/gemma-4-12b" });
-    await Promise.all([
-      send("POST", "/api/llm/explain", EXPLAIN).then((r) => r.text()),
-      send("POST", "/api/llm/explain", EXPLAIN).then((r) => r.text()),
-    ]);
+    const explain = async () => (await send("POST", "/api/llm/explain", EXPLAIN)).text();
+    await Promise.all([explain(), explain()]);
     expect(studio.calls.filter((c) => c.startsWith("POST /api/v1/models/load"))).toHaveLength(1);
 
     await send("PUT", "/api/llm/providers/lmstudio", { baseUrl: "http://192.168.1.5:1234/v1" });
