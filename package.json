@@ -8,7 +8,7 @@
     "apps/web",
     "apps/cli",
     "courses/_fixture",
-    "courses/dw-nicos-weg",
+    "courses/dw",
     "e2e"
   ],
   "scripts": {

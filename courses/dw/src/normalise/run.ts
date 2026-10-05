@@ -35,7 +35,7 @@ export async function normaliseCourse(
   const rawDir = `raw/${dw.edition}/${dw.course}`;
   // Canonical files come from the course's first edition; other editions only add their locale files
   // (aligning editions is stage 11).
-  const primary = COURSES.find((c) => c.course === dw.course) === dw;
+  const primary = COURSES.find((c) => c.series === dw.series && c.course === dw.course) === dw;
   const read = async (file: string): Promise<ApolloState> =>
     JSON.parse(await readFile(join(seriesDir, rawDir, file), "utf8"));
   const write = async (path: string, value: unknown) => {
@@ -46,7 +46,7 @@ export async function normaliseCourse(
   const ctx = createContext(
     JSON.parse(await readFile(join(seriesDir, "media.json"), "utf8")) as MediaIndex,
   );
-  const course = courseKey(seriesKey("dw", "nicos-weg"), dw.course);
+  const course = courseKey(seriesKey("dw", dw.series), dw.course);
   const wanted = options.lessons;
   const courseState = await read("course.json");
   const all = courseLessons(course, courseState);

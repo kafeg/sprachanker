@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@sprachanker/course-kit": "workspace:*",
-    "@sprachanker/dw-nicos-weg": "workspace:*",
+    "@sprachanker/dw": "workspace:*",
     "@sprachanker/engine": "workspace:*",
     "@sprachanker/llm": "workspace:*",
     "@sprachanker/schema": "workspace:*",

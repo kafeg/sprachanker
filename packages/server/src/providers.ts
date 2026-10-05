@@ -1,6 +1,6 @@
 // Content providers the server can import (03). The CLI and (later) the import job use this.
 import { join } from "node:path";
-import { type ImportReport, importNicosWeg } from "@sprachanker/dw-nicos-weg";
+import { type ImportReport, importDw } from "@sprachanker/dw";
 
 export interface ImportRequest {
   dataRoot: string;
@@ -14,7 +14,8 @@ const PROVIDERS: Record<
   string,
   (options: ImportRequest & { libraryRoot: string }) => Promise<ImportReport>
 > = {
-  "dw-nicos-weg": importNicosWeg,
+  "dw-nicos-weg": (o) => importDw("nicos-weg", o),
+  "dw-deutschtrainer": (o) => importDw("deutschtrainer", o),
 };
 
 export const providerIds = () => Object.keys(PROVIDERS);

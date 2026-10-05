@@ -67,8 +67,8 @@
         "yaml": "2.9.1",
       },
     },
-    "courses/dw-nicos-weg": {
-      "name": "@sprachanker/dw-nicos-weg",
+    "courses/dw": {
+      "name": "@sprachanker/dw",
       "version": "0.0.0",
       "dependencies": {
         "@sprachanker/course-kit": "workspace:*",
@@ -127,7 +127,7 @@
       "version": "0.0.0",
       "dependencies": {
         "@sprachanker/course-kit": "workspace:*",
-        "@sprachanker/dw-nicos-weg": "workspace:*",
+        "@sprachanker/dw": "workspace:*",
         "@sprachanker/engine": "workspace:*",
         "@sprachanker/llm": "workspace:*",
         "@sprachanker/schema": "workspace:*",
@@ -411,7 +411,7 @@
 
     "@sprachanker/course-kit": ["@sprachanker/course-kit@workspace:packages/course-kit"],
 
-    "@sprachanker/dw-nicos-weg": ["@sprachanker/dw-nicos-weg@workspace:courses/dw-nicos-weg"],
+    "@sprachanker/dw": ["@sprachanker/dw@workspace:courses/dw"],
 
     "@sprachanker/e2e": ["@sprachanker/e2e@workspace:e2e"],
 

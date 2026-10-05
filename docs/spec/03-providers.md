@@ -35,7 +35,15 @@ client: robots.txt, retries with backoff, resumable downloads, identifiable User
 - **No partial installs visible.** A course becomes visible after normalise + verify succeed.
 - One import per series at a time (lock file in the series folder).
 
-## 1. DW — Nicos Weg (`dw-nicos-weg` → `dw.nicos-weg`)
+## 1. DW Learn German (`courses/dw`)
+
+One provider for the DW platform: every DW course has the same page model (course → lessons →
+exercise pages, `window.__APOLLO_STATE__`), so one fetcher and normaliser serve all of them. Each DW
+course is its own series: `dw-nicos-weg` → `dw.nicos-weg`, `dw-deutschtrainer` → `dw.deutschtrainer`
+(100 short A1–A2 lessons on words and phrases by topic, course `a1-a2`, edition `ru-de`; also in
+uk, pl, tr, ar, not en).
+
+### Nicos Weg (`dw-nicos-weg` → `dw.nicos-weg`)
 
 Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 

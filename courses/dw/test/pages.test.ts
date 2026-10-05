@@ -7,7 +7,13 @@ import { createPoliteFetcher } from "@sprachanker/course-kit";
 import type { DwCourse } from "../src/catalog.ts";
 import { fetchPages } from "../src/pages.ts";
 
-const course: DwCourse = { course: "a1", edition: "ru-de", lang: "ru", sourceId: 1 };
+const course: DwCourse = {
+  series: "nicos-weg",
+  course: "a1",
+  edition: "ru-de",
+  lang: "ru",
+  sourceId: 1,
+};
 const html = (state: object) =>
   `<script>window.__APOLLO_STATE__ = ${JSON.stringify(state)};</script>`;
 const PAGES: Record<string, object> = {
