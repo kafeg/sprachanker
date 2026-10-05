@@ -1,8 +1,11 @@
 // Course order → keys: units are the course's lesson groups in order; the final test (no group)
 // becomes its own unit after the last one (03).
 import {
+  type CourseIndex,
   type CourseKey,
+  type GoalKey,
   type LessonKey,
+  type LocaleCourse,
   lessonKey,
   type UnitKey,
   unitKey,
@@ -47,4 +50,48 @@ export function courseLessons(course: CourseKey, state: ApolloState): CourseLess
     });
   }
   return out;
+}
+
+/** Course index and locale course file from the lessons and the goal texts they produced. */
+export function courseFiles(
+  course: CourseKey,
+  edition: LocaleCourse["edition"],
+  state: ApolloState,
+  lessons: CourseLesson[],
+  lessonTitles: Map<LessonKey, string>,
+  goals: Map<LessonKey, Record<GoalKey, string>>,
+  descriptionHtml: string | undefined,
+): { index: CourseIndex; locale: LocaleCourse } {
+  const entity = entitiesOf(state, "Course")[0] ?? {};
+  const units = new Map<UnitKey, { lessons: LessonKey[]; title: string }>();
+  for (const lesson of lessons) {
+    const unit = units.get(lesson.unit) ?? {
+      lessons: [],
+      title: lesson.unitTitle || (lessonTitles.get(lesson.key) ?? ""),
+    };
+    unit.lessons.push(lesson.key);
+    units.set(lesson.unit, unit);
+  }
+  const goalEntries = [...goals].flatMap(([lesson, texts]) =>
+    Object.entries(texts).map(([key, text]) => ({ key: key as GoalKey, lesson, text })),
+  );
+  return {
+    index: {
+      format: 1,
+      key: course,
+      units: [...units].map(([key, unit], order) => ({ key, order, lessons: unit.lessons })),
+      exams: [],
+      goals: goalEntries.map((g) => ({ key: g.key, lessons: [g.lesson] })),
+    },
+    locale: {
+      format: 1,
+      edition,
+      course,
+      sourceId: String(entity.id ?? ""),
+      title: `${String(entity.name ?? "")} ${course.split("/").pop()?.toUpperCase()}`.trim(),
+      ...(descriptionHtml ? { descriptionHtml } : {}),
+      units: Object.fromEntries([...units].map(([key, unit]) => [key, { title: unit.title }])),
+      goals: Object.fromEntries(goalEntries.map((g) => [g.key, { text: g.text }])),
+    },
+  };
 }

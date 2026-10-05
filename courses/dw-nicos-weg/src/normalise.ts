@@ -6,12 +6,21 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 import { prettyJson } from "@sprachanker/course-kit";
-import { courseKey, Lesson, LocaleLesson, seriesKey } from "@sprachanker/schema";
+import {
+  CourseIndex,
+  courseKey,
+  type GoalKey,
+  Lesson,
+  type LessonKey,
+  LocaleCourse,
+  LocaleLesson,
+  seriesKey,
+} from "@sprachanker/schema";
 import { type ApolloState, exerciseIds } from "./apollo.ts";
 import { COURSES, SERIES } from "./catalog.ts";
 import type { MediaIndex } from "./media.ts";
-import { createContext } from "./normalise/context.ts";
-import { courseLessons } from "./normalise/course.ts";
+import { createContext, html } from "./normalise/context.ts";
+import { courseFiles, courseLessons } from "./normalise/course.ts";
 import { normaliseLesson } from "./normalise/lesson.ts";
 
 const { values } = parseArgs({
@@ -41,7 +50,10 @@ const ctx = createContext(
 );
 const course = courseKey(seriesKey("dw", "nicos-weg"), dw.course);
 const wanted = values.lessons?.split(",").map(Number);
-const all = courseLessons(course, await read("course.json"));
+const courseState = await read("course.json");
+const all = courseLessons(course, courseState);
+const titles = new Map<LessonKey, string>();
+const goals = new Map<LessonKey, Record<GoalKey, string>>();
 let problems = 0;
 for (const [i, entry] of all.entries()) {
   if (wanted && !wanted.includes(i + 1)) continue;
@@ -60,6 +72,8 @@ for (const [i, entry] of all.entries()) {
     downloads,
     exercises,
   });
+  titles.set(entry.key, out.locale.title);
+  goals.set(entry.key, out.goals);
   const name = entry.key.split("/").pop();
   const files = [
     ...(primary
@@ -84,5 +98,33 @@ for (const [i, entry] of all.entries()) {
   console.log(
     `${entry.key}: ${out.lesson.pages.length} exercises, ${out.lesson.vocab.length} words${unknown ? `, ${unknown} unknown` : ""}`,
   );
+}
+if (!wanted) {
+  const courseEntity = Object.entries(courseState).find(([k]) => k.startsWith("Course:"))?.[1];
+  const files = courseFiles(
+    course,
+    dw.edition,
+    courseState,
+    all,
+    titles,
+    goals,
+    html(ctx, courseEntity?.description),
+  );
+  for (const [schema, value, path] of [
+    ...(primary ? [[CourseIndex, files.index, `canonical/${dw.course}/course.json`] as const] : []),
+    [LocaleCourse, files.locale, `locale/${dw.edition}/${dw.course}/course.json`] as const,
+  ]) {
+    const result = schema.safeParse(value);
+    if (!result.success) {
+      problems++;
+      console.error(
+        `${path}: ${result.error.issues
+          .slice(0, 3)
+          .map((x) => `${x.path.join(".")} ${x.message}`)
+          .join("; ")}`,
+      );
+    }
+    await write(path, value);
+  }
 }
 console.log(problems ? `${problems} files failed validation` : "all files valid");
