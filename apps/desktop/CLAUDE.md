@@ -11,7 +11,7 @@ src-tauri/
   src/main.rs          # run `sprachanker serve`, wait for /health, open window, tray, quit handling
   binaries/            # build outputs copied here by scripts (not committed)
 scripts/
-  bundle-sidecars.ts   # compile apps/cli with `bun build --compile`, copy native builds with target suffixes
+  bundle-sidecars.ts   # run `bun run build:cli` (the only binary build), copy it and native builds with target suffixes
 ```
 
 ## Rules

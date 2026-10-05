@@ -68,7 +68,7 @@ alternatives without updating that table.
 
 ## Rules
 
-1. Spec first. If the code needs to diverge from the spec, update the spec in the same PR and say why.
+1. Spec first. If the code needs to diverge from the spec, update the spec in the same commit and say why.
    The spec fixes only decisions that are expensive to change; the rest is decided in the stage plan
    and written into the spec when built (`docs/spec/README.md`).
 2. A new exercise type = schema + checker (engine) + renderer (`apps/web`) + tests. Never only one of them.
@@ -77,13 +77,13 @@ alternatives without updating that table.
    Test fixtures are synthetic. Repo contains importers, manifests of URLs, and our own enrichment only.
 5. User data never leaves the machine except calls to providers the user configured.
 6. UI strings go through i18n (en, ru, de). No hard-coded user-facing text.
-7. Small PRs. Each PR: tests, `bun run check` green, docs updated if structure changed.
+7. Small commits straight to `main`. Each: tests, `bun run check` green, docs updated if structure changed.
 
 ## CLAUDE.md hygiene
 
 - Describe the current state only. No logs, no history, no "we did X".
 - Keep each file ≤ 150 lines. Link to the spec instead of repeating it.
-- When you change structure or contracts of an area, update its CLAUDE.md in the same PR.
+- When you change structure or contracts of an area, update its CLAUDE.md in the same commit.
 - At the end of every roadmap stage: sweep all CLAUDE.md files, delete stale lines.
 - CI checks that repository paths mentioned in CLAUDE.md files exist; "Layout (target)" blocks and paths
   marked "created in stage N" are exempt until then (10).

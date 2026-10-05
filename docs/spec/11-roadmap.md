@@ -8,7 +8,7 @@ run, a demo, and a review. The next stage starts only after acceptance.
 1. **Plan** (before code): goals, modules touched, files, what is reused, risks, how acceptance is
    checked, and the details this spec leaves open for the stage (README "Level of detail"). If the stage
    looks larger than about three sessions, split it in the plan. The owner approves.
-2. **Implement** in small PRs, each with tests and `bun run check` green.
+2. **Implement** in small commits to `main`, each with tests and `bun run check` green.
 3. **Demo**: commands to run, what to look at, on Mac and (from stage 5) iPhone.
 4. **Review checklist**: engineering principles (root CLAUDE.md) · boundaries · tests · spec and
    CLAUDE.md current · no third-party content · i18n keys complete.
@@ -30,7 +30,7 @@ they are built after the MVP (stages 10–12). Do not build post-MVP features ea
 Specs: 10, root CLAUDE.md.
 - Bun workspaces with the MVP modules (`schema`, `course-kit`, `engine`, `server`, `llm`, `apps/web`,
   `apps/cli`, `courses/_fixture`); strict TS; Biome; dependency-cruiser with the
-  violation test; `bun test`; Playwright; GitHub Actions; PR template; CLAUDE.md path checker; i18n
+  violation test; `bun test`; Playwright; GitHub Actions; CLAUDE.md path checker; i18n
   scaffold (en/ru/de).
 - Spike: `bun build --compile` produces one `sprachanker` binary that serves the built web app and
   embedded assets (migrations, YAML) when run from another folder.

@@ -24,13 +24,13 @@
 ## Fixed technical choices
 
 Decided up front so implementations do not vary between sessions. Changing one requires updating this
-table in the same PR with the reason.
+table in the same commit with the reason.
 
 | Concern | Choice |
 |---|---|
 | Runtime, package manager, tests | Bun (workspaces, `bun test`); Node compatibility kept for the server |
 | HTTP server | Hono; typed web client via Hono RPC (`hono/client`, type-only import of the server's `AppType`) — no code generation |
-| Validation / types | zod; JSON Schema via `zod-to-json-schema` |
+| Validation / types | zod 4; JSON Schema via its built-in `z.toJSONSchema` (`zod-to-json-schema` is deprecated) |
 | Database | SQLite via `bun:sqlite`, Drizzle ORM + drizzle-kit migrations, WAL |
 | IDs | ULID (`ulid`) |
 | SRS | `ts-fsrs` |
@@ -74,7 +74,7 @@ Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/
 ## Documentation rules
 
 - `docs/spec/*` — what and why, at the level of detail described in `docs/spec/README.md`. Updated in
-  the same PR as behaviour changes.
+  the same commit as behaviour changes.
 - `CLAUDE.md` files — how to work in an area. Root file holds the module map and dependency rules;
   module files link to their spec and never repeat it. Max ≈150 lines each. No changelogs or progress
   logs; git history is the history.
@@ -84,11 +84,12 @@ Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/
 - End of each stage: sweep all CLAUDE.md and spec files; remove stale statements.
 - `docs/research/*` — facts about external sources; re-verified when importers change.
 
-## Pull requests
+## Commits
 
-- Small and focused; the title names the module(s).
-- Description: what problem, which modules, why this place, what was reused, what was deliberately not
-  built.
+Work goes straight to `main` in small commits; CI runs on every push.
+
+- Small and focused; the subject names the module(s).
+- Body: what problem, which modules, why this place, what was reused, what was deliberately not built.
 - Checklist: tests · `bun run check` green · spec/CLAUDE.md updated if structure or contracts changed ·
   no third-party content · strings in i18n catalogs · migration + test if stored data changed.
 - Review questions: Is anything built that the stage does not need? Could an existing entity cover a
