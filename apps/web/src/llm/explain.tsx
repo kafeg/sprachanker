@@ -1,12 +1,12 @@
 // "Why is this wrong?" under a wrong answer: asks the configured model and streams its explanation.
 import { Link } from "@tanstack/react-router";
 import { LoaderCircle, Sparkles } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { type ExplainRequest, streamExplain, useLlm } from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
-import { errorText } from "./errors.ts";
+import { ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { RichText } from "./rich-text.tsx";
 
@@ -17,8 +17,7 @@ export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
   const [text, setText] = useState<string>();
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
-  const abort = useRef<AbortController>(undefined);
-  useEffect(() => () => abort.current?.abort(), []);
+  const request = useAbortable();
 
   if (!llm.data) return null;
   if (!llm.data.model)
@@ -29,9 +28,7 @@ export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
     );
 
   const ask = () => {
-    abort.current?.abort();
-    const controller = new AbortController();
-    abort.current = controller;
+    const controller = request.start();
     setBusy(true);
     setError(undefined);
     setText("");
@@ -40,7 +37,7 @@ export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
         if (!controller.signal.aborted) setError(e);
       })
       .finally(() => {
-        if (abort.current === controller) setBusy(false);
+        if (request.isCurrent(controller)) setBusy(false);
       });
   };
 
@@ -69,14 +66,12 @@ export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
           ) : (
             busy && <p className="text-muted-foreground">{t("llm.thinking")}</p>
           )}
-          {!!error && (
-            <p className="mt-1 text-sm text-wrong">
-              {errorText(t, error, llm.data.provider ?? undefined)}{" "}
-              <button type="button" className="underline" onClick={ask}>
-                {t("common.retry")}
-              </button>
-            </p>
-          )}
+          <ErrorLine error={error} provider={llm.data.provider ?? undefined}>
+            {" "}
+            <button type="button" className="underline" onClick={ask}>
+              {t("common.retry")}
+            </button>
+          </ErrorLine>
         </div>
       )}
     </div>

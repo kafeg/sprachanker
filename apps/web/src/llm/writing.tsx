@@ -11,7 +11,7 @@ import { Textarea } from "@/ui/components/textarea.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
 import { modelName, useAssistantLabel } from "./assistant-label.tsx";
-import { errorText } from "./errors.ts";
+import { Corrections, ErrorLine, PracticeCard } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 type Check = WritingAttempt["result"];
@@ -58,19 +58,7 @@ function Result({ attempt }: { attempt: WritingAttempt }) {
       </div>
       <p>{r.feedback}</p>
       {r.corrections.length > 0 && <CorrectedText text={attempt.text} corrected={r.corrected} />}
-      {r.corrections.length > 0 && (
-        <ul className="space-y-1.5">
-          {r.corrections.map((c) => (
-            <li key={`${c.wrong}→${c.right}`} className="text-sm">
-              <span lang="de">
-                <s className="text-wrong">{c.wrong}</s> →{" "}
-                <strong className="text-correct">{c.right}</strong>
-              </span>
-              <span className="text-muted-foreground"> — {c.explanation}</span>
-            </li>
-          ))}
-        </ul>
-      )}
+      <Corrections corrections={r.corrections} />
       <dl className="grid gap-1.5 text-sm sm:grid-cols-3">
         {(["task", "communication", "accuracy"] as const).map((k) => (
           <div key={k} className="rounded-lg bg-muted px-3 py-2">
@@ -118,12 +106,7 @@ export function WritingTask({
   const request = { series, lessonKey, edition, text: text.trim(), language: i18n.language };
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <PenLine className="size-5" />
-        <h2 className="text-xl font-bold">{t("writing.title")}</h2>
-        {label && <span className="text-sm text-muted-foreground">· {label}</span>}
-      </div>
+    <PracticeCard icon={PenLine} title={t("writing.title")} label={label}>
       <p>{t("writing.task", { topic: topic.join("; ") })}</p>
       {words.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
@@ -152,7 +135,7 @@ export function WritingTask({
         </Button>
         <PromptButton request={() => ({ writing: { ...request, text: request.text || "…" } })} />
       </div>
-      {check.isError && <p className="text-sm text-wrong">{errorText(t, check.error)}</p>}
+      <ErrorLine error={check.error} />
       {latest && (
         <div className="space-y-2 border-t pt-4">
           {!check.data && (
@@ -183,6 +166,6 @@ export function WritingTask({
           </ul>
         </details>
       )}
-    </section>
+    </PracticeCard>
   );
 }

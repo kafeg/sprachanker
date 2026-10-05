@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { useCreateReview, useLlm, useReview } from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
-import { errorText } from "./errors.ts";
+import { ErrorLine, PracticeCard } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 export function SessionReview({
@@ -29,15 +29,12 @@ export function SessionReview({
   const ask = () => create.mutate(request);
 
   return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <ClipboardList className="size-5" />
-        <h2 className="text-xl font-bold">{t("review.title")}</h2>
-        {label && <span className="text-sm text-muted-foreground">· {label}</span>}
-        <span className="ml-auto">
-          <PromptButton request={{ review: request }} />
-        </span>
-      </div>
+    <PracticeCard
+      icon={ClipboardList}
+      title={t("review.title")}
+      label={label}
+      action={<PromptButton request={{ review: request }} />}
+    >
       {!review || (state.data.stale && !create.data) ? (
         <div className="space-y-2">
           {state.data.stale && <p className="text-sm text-muted-foreground">{t("review.stale")}</p>}
@@ -107,7 +104,7 @@ export function SessionReview({
           </Button>
         </div>
       )}
-      {create.isError && <p className="text-sm text-wrong">{errorText(t, create.error)}</p>}
-    </section>
+      <ErrorLine error={create.error} />
+    </PracticeCard>
   );
 }

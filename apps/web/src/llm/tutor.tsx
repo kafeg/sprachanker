@@ -1,16 +1,14 @@
 // The lesson tutor: a header button and a side panel with the chat of this lesson.
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, RotateCcw, Search, Send, Square } from "lucide-react";
+import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
-import { Textarea } from "@/ui/components/textarea.tsx";
 import { cn } from "@/ui/utils.ts";
 import { streamTutor, type TutorRequest, useLlm, useResetTutor, useTutorHistory } from "./api.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
 import { ContextMeter } from "./context-meter.tsx";
-import { errorText } from "./errors.ts";
+import { ChatComposer, ChatSheet, ErrorLine, useAbortable, useScrollToEnd } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { RichText } from "./rich-text.tsx";
 
@@ -63,15 +61,9 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const [input, setInput] = useState("");
   const [pending, setPending] = useState<{ question: string; reply: string }>();
   const [error, setError] = useState<unknown>();
-  const abort = useRef<AbortController>(undefined);
-  const end = useRef<HTMLDivElement>(null);
-  useEffect(() => () => abort.current?.abort(), []);
+  const request = useAbortable();
   const turns = history.data?.turns ?? [];
-  // Braces matter: scrollIntoView may return a promise, which React would take for a cleanup.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on new text
-  useEffect(() => {
-    end.current?.scrollIntoView({ block: "end" });
-  }, [turns.length, pending?.reply]);
+  const end = useScrollToEnd(`${turns.length}:${pending?.reply}`);
 
   // An ask from outside is sent once, as soon as the chat is ready.
   const sendLatest = useRef<(text: string) => void>(undefined);
@@ -96,8 +88,7 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const send = (text: string) => {
     const question = text.trim();
     if (!question || pending) return;
-    const controller = new AbortController();
-    abort.current = controller;
+    const controller = request.start();
     setInput("");
     setError(undefined);
     setPending({ question, reply: "" });
@@ -191,50 +182,16 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
             </Bubble>
           </>
         )}
-        {!!error && (
-          <p className="text-sm text-wrong">
-            {errorText(t, error, llm.data.provider ?? undefined)}
-          </p>
-        )}
+        <ErrorLine error={error} provider={llm.data.provider ?? undefined} />
         <div ref={end} />
       </div>
-      <form
-        className="flex items-end gap-2 border-t p-3"
-        onSubmit={(e) => {
-          e.preventDefault();
-          send(input);
-        }}
-      >
-        <Textarea
-          className="max-h-40 min-h-11 resize-none text-base"
-          rows={1}
-          placeholder={t("tutor.placeholder")}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-              e.preventDefault();
-              send(input);
-            }
-          }}
-        />
-        {pending ? (
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            className="size-11"
-            aria-label={t("tutor.stop")}
-            onClick={() => abort.current?.abort()}
-          >
-            <Square className="size-4" />
-          </Button>
-        ) : (
-          <Button type="submit" size="icon" className="size-11" aria-label={t("tutor.send")}>
-            <Send className="size-4" />
-          </Button>
-        )}
-      </form>
+      <ChatComposer
+        value={input}
+        onChange={setInput}
+        onSend={() => send(input)}
+        onStop={pending ? request.stop : undefined}
+        placeholder={t("tutor.placeholder")}
+      />
     </>
   );
 }
@@ -256,14 +213,9 @@ export function LessonTutor({ ask, ...context }: Context & { ask?: TutorAsk }) {
         <MessageCircle className="size-4" />{" "}
         <span className="hidden sm:inline">{t("tutor.title")}</span>
       </Button>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full gap-0 sm:max-w-lg">
-          <SheetHeader className="pb-2">
-            <SheetTitle>{t("tutor.title")}</SheetTitle>
-          </SheetHeader>
-          {open && <Chat {...context} ask={ask} />}
-        </SheetContent>
-      </Sheet>
+      <ChatSheet open={open} onOpenChange={setOpen} title={t("tutor.title")}>
+        {open && <Chat {...context} ask={ask} />}
+      </ChatSheet>
     </>
   );
 }

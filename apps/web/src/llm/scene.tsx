@@ -1,16 +1,21 @@
 // Scenes on the lesson summary: a role-play on the lesson's topic. The partner speaks the target
 // language (translation on demand), corrects the learner's lines and ticks off the scene's goals.
 import type { LessonKey } from "@sprachanker/schema";
-import { Circle, CircleCheck, Drama, Languages, LoaderCircle, Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { Circle, CircleCheck, Drama, Languages, LoaderCircle } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
-import { Textarea } from "@/ui/components/textarea.tsx";
 import { cn } from "@/ui/utils.ts";
 import { type SceneState, useLlm, useScene, useSceneAction } from "./api.ts";
-import { AssistantLabel } from "./assistant-label.tsx";
-import { errorText } from "./errors.ts";
+import { AssistantLabel, useAssistantLabel } from "./assistant-label.tsx";
+import {
+  ChatComposer,
+  ChatSheet,
+  Corrections,
+  ErrorLine,
+  PracticeCard,
+  useScrollToEnd,
+} from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 type Ids = { series: string; lessonKey: LessonKey; edition: string };
@@ -46,13 +51,7 @@ function LearnerLine({ turn }: { turn: Turn }) {
       <p lang="de" className="rounded-2xl bg-primary px-4 py-2.5 text-lg text-primary-foreground">
         {turn.text}
       </p>
-      {turn.corrections?.map((c) => (
-        <p key={c.wrong} className="text-right text-sm">
-          <s className="text-wrong">{c.wrong}</s> →{" "}
-          <strong className="text-correct">{c.right}</strong>
-          <span className="block text-muted-foreground">{c.explanation}</span>
-        </p>
-      ))}
+      <Corrections corrections={turn.corrections ?? []} className="text-right" />
     </div>
   );
 }
@@ -61,12 +60,7 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
   const { t, i18n } = useTranslation();
   const action = useSceneAction(ids.lessonKey);
   const [text, setText] = useState("");
-  const end = useRef<HTMLDivElement>(null);
-  // Braces matter: scrollIntoView may return a promise, which React would take for a cleanup.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on new lines
-  useEffect(() => {
-    end.current?.scrollIntoView({ block: "end" });
-  }, [scene.turns.length, action.isPending]);
+  const end = useScrollToEnd(`${scene.turns.length}:${action.isPending}`);
   const line = { ...ids, language: i18n.language, text: text.trim() };
   const send = () => {
     if (!line.text || action.isPending) return;
@@ -118,7 +112,7 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
           </>
         )}
         {scene.done && <p className="font-semibold text-correct">{t("scene.done")}</p>}
-        {action.isError && <p className="text-sm text-wrong">{errorText(t, action.error)}</p>}
+        <ErrorLine error={action.error} />
         <div ref={end} />
       </div>
       {scene.done ? (
@@ -134,31 +128,13 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
           </Button>
         </div>
       ) : (
-        <form
-          className="flex items-end gap-2 border-t p-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            send();
-          }}
-        >
-          <Textarea
-            lang="de"
-            className="max-h-32 min-h-11 resize-none text-base"
-            rows={1}
-            placeholder={t("scene.placeholder")}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                e.preventDefault();
-                send();
-              }
-            }}
-          />
-          <Button type="submit" size="icon" className="size-11" aria-label={t("tutor.send")}>
-            <Send className="size-4" />
-          </Button>
-        </form>
+        <ChatComposer
+          lang="de"
+          value={text}
+          onChange={setText}
+          onSend={send}
+          placeholder={t("scene.placeholder")}
+        />
       )}
     </>
   );
@@ -169,6 +145,7 @@ export function SceneCard(ids: Ids) {
   const llm = useLlm();
   const scene = useScene(ids.lessonKey);
   const action = useSceneAction(ids.lessonKey);
+  const label = useAssistantLabel();
   const [open, setOpen] = useState(false);
   if (!llm.data?.model || !scene.data) return null;
   const current = scene.data.scene;
@@ -178,11 +155,7 @@ export function SceneCard(ids: Ids) {
       { onSuccess: () => setOpen(true) },
     );
   return (
-    <section className="space-y-3 rounded-2xl border bg-card p-4 sm:p-5">
-      <div className="flex items-center gap-2">
-        <Drama className="size-5" />
-        <h2 className="text-xl font-bold">{t("scene.title")}</h2>
-      </div>
+    <PracticeCard icon={Drama} title={t("scene.title")} label={label}>
       <p>{t("scene.intro")}</p>
       <div className="flex flex-wrap gap-2">
         {current && !current.done && (
@@ -205,15 +178,14 @@ export function SceneCard(ids: Ids) {
           </Button>
         )}
       </div>
-      {action.isError && <p className="text-sm text-wrong">{errorText(t, action.error)}</p>}
-      <Sheet open={open && !!current} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full gap-0 sm:max-w-lg">
-          <SheetHeader className="pb-2">
-            <SheetTitle>{current?.setup.title ?? t("scene.title")}</SheetTitle>
-          </SheetHeader>
-          {current && <SceneView ids={ids} scene={current} />}
-        </SheetContent>
-      </Sheet>
-    </section>
+      <ErrorLine error={action.error} />
+      <ChatSheet
+        open={open && !!current}
+        onOpenChange={setOpen}
+        title={current?.setup.title ?? t("scene.title")}
+      >
+        {current && <SceneView ids={ids} scene={current} />}
+      </ChatSheet>
+    </PracticeCard>
   );
 }
