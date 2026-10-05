@@ -11,3 +11,4 @@ export const OrderItem = ItemBase.extend({
 });
 export const OrderAnswer = z.object({ sequence: z.array(OptionId) });
 export const OrderExercise = exerciseOf("order", OrderItem);
+export type OrderAnswer = z.infer<typeof OrderAnswer>;

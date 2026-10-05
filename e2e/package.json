@@ -4,11 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "e2e": "playwright test",
+    "e2e": "bun fixture-data.ts && playwright test",
     "typecheck": "tsc -p ."
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",
+    "@sprachanker/course-fixture": "workspace:*",
     "@types/node": "26.6.4"
   }
 }

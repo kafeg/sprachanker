@@ -1,11 +1,104 @@
 {
-  "app": { "name": "SprachAnker" },
-  "hello": {
-    "title": "Привет!",
-    "text": "Ваши языковые курсы — на вашем компьютере и телефоне."
+  "app": {
+    "name": "SprachAnker"
   },
-  "server": {
-    "status": "Сервер: {status, select, ok {подключён} error {недоступен} other {проверяем…}}"
+  "nav": {
+    "courses": "Курсы",
+    "settings": "Настройки"
   },
-  "language": { "label": "Язык интерфейса" }
+  "common": {
+    "loading": "Загрузка…",
+    "error": "Что-то пошло не так: {message}",
+    "retry": "Повторить"
+  },
+  "courses": {
+    "title": "Мои курсы",
+    "empty": "Курсы ещё не установлены.",
+    "emptyHint": "Установите курс в терминале: {command}",
+    "lessons": "{count, plural, one {# урок} few {# урока} many {# уроков} other {# урока}}",
+    "progress": "Пройдено {done} из {total}",
+    "start": "Начать",
+    "continueLesson": "Продолжить: {title}",
+    "nextLesson": "Дальше: {title}",
+    "allLessons": "Все уроки"
+  },
+  "course": {
+    "unit": "Юнит {number}",
+    "status": {
+      "new": "Не начат",
+      "in_progress": "В процессе",
+      "done": "Пройден · {score}%"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Юнит {unit} · урок {lesson}",
+    "goals": "В этом уроке ты научишься:",
+    "counts": "{exercises, plural, one {# упражнение} few {# упражнения} many {# упражнений} other {# упражнения}} · {words, plural, one {# новое слово} few {# новых слова} many {# новых слов} other {# новых слова}}",
+    "start": "Начать урок",
+    "resume": "Продолжить урок",
+    "overview": "Обзор",
+    "exerciseOf": "Упражнение {n} из {total}",
+    "check": "Проверить",
+    "next": "Дальше",
+    "toSummary": "К итогу",
+    "skip": "Пропустить",
+    "retry": "Ещё раз",
+    "previous": "Назад",
+    "correct": "Верно",
+    "partial": "Частично верно",
+    "wrong": "Не совсем",
+    "answerWas": "Правильно: {answer}",
+    "summary": "Итог",
+    "score": "Верно с первой попытки: {correct} из {scored}",
+    "exercisesDone": "Пройдено упражнений: {done} из {total}",
+    "skipped": "пропущено",
+    "notDone": "не пройдено",
+    "newWords": "Новые слова урока",
+    "newWordsHint": "Они станут карточками для повторения.",
+    "backToCourse": "К курсу",
+    "nextLesson": "Следующий урок",
+    "reference": "Справка",
+    "plan": "План урока"
+  },
+  "ref": {
+    "vocabulary": "Словарь",
+    "grammar": "Грамматика",
+    "culture": "Страноведение",
+    "script": "Скрипт",
+    "downloads": "PDF",
+    "none": "В этом уроке нет."
+  },
+  "video": {
+    "hd": "HD"
+  },
+  "ex": {
+    "chooseSeveral": "Можно выбрать несколько.",
+    "orderHint": "Нажимай части по порядку; нажми в строке, чтобы убрать.",
+    "reset": "Сбросить",
+    "dictationPlaceholder": "Напиши, что слышишь",
+    "selfrate": "Послушай, повтори вслух и оцени себя:",
+    "selfrateFree": "Ответь вслух. Устные ответы будут проверяться, когда подключим распознавание речи.",
+    "rate": {
+      "good": "Хорошо",
+      "fair": "Так себе",
+      "poor": "Ещё раз"
+    },
+    "unknown": "Этот тип упражнения пока не поддерживается.",
+    "picture": "картинка {n}",
+    "correctHighlighted": "правильный ответ выделен"
+  },
+  "word": {
+    "plural": "мн. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Язык интерфейса",
+    "themeLabel": "Тема",
+    "theme": {
+      "system": "Как в системе",
+      "light": "Светлая",
+      "dark": "Тёмная"
+    },
+    "editions": "Редакции курсов",
+    "editionsHint": "На каком языке показывать пояснения и переводы."
+  }
 }

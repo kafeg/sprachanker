@@ -89,8 +89,16 @@ export function createRuns({ db, content, now, appVersion, targetLang }: RunsOpt
           and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey), eq(runs.status, "active")),
         )
         .get();
+      // A run belongs to one edition; switching editions ends the old one (it stays readable).
+      if (active && active.edition !== edition) {
+        db.update(runs)
+          .set({ status: "abandoned", endReason: "user", finishedAt: now() })
+          .where(eq(runs.id, active.id))
+          .run();
+      }
+      const current = active && active.edition === edition ? active : undefined;
       const row =
-        active ??
+        current ??
         db
           .insert(runs)
           .values({

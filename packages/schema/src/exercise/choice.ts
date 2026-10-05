@@ -15,3 +15,5 @@ export const MultiChoiceItem = ItemBase.extend({
 });
 export const MultiChoiceAnswer = z.object({ optionIds: z.array(OptionId) });
 export const MultiChoiceExercise = exerciseOf("multi_choice", MultiChoiceItem);
+export type SingleChoiceAnswer = z.infer<typeof SingleChoiceAnswer>;
+export type MultiChoiceAnswer = z.infer<typeof MultiChoiceAnswer>;

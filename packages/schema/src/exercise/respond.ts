@@ -19,3 +19,4 @@ export const RespondItem = ItemBase.extend({
 });
 export const RespondAnswer = z.object({ text: z.string(), speech: SpokenAnswer.optional() });
 export const RespondExercise = exerciseOf("respond", RespondItem);
+export type RespondAnswer = z.infer<typeof RespondAnswer>;

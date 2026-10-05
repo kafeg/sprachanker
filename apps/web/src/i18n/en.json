@@ -1,11 +1,104 @@
 {
-  "app": { "name": "SprachAnker" },
-  "hello": {
-    "title": "Hello!",
-    "text": "Your language courses, on your own computer and phone."
+  "app": {
+    "name": "SprachAnker"
   },
-  "server": {
-    "status": "Server: {status, select, ok {connected} error {not reachable} other {checking…}}"
+  "nav": {
+    "courses": "Courses",
+    "settings": "Settings"
   },
-  "language": { "label": "Interface language" }
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong: {message}",
+    "retry": "Try again"
+  },
+  "courses": {
+    "title": "My courses",
+    "empty": "No course is installed yet.",
+    "emptyHint": "Install one from the terminal: {command}",
+    "lessons": "{count, plural, one {# lesson} other {# lessons}}",
+    "progress": "{done} of {total} done",
+    "start": "Start",
+    "continueLesson": "Continue: {title}",
+    "nextLesson": "Next: {title}",
+    "allLessons": "All lessons"
+  },
+  "course": {
+    "unit": "Unit {number}",
+    "status": {
+      "new": "Not started",
+      "in_progress": "In progress",
+      "done": "Done · {score}%"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Unit {unit} · lesson {lesson}",
+    "goals": "In this lesson you will learn to:",
+    "counts": "{exercises, plural, one {# exercise} other {# exercises}} · {words, plural, one {# new word} other {# new words}}",
+    "start": "Start lesson",
+    "resume": "Continue lesson",
+    "overview": "Overview",
+    "exerciseOf": "Exercise {n} of {total}",
+    "check": "Check",
+    "next": "Next",
+    "toSummary": "To the summary",
+    "skip": "Skip",
+    "retry": "Try again",
+    "previous": "Back",
+    "correct": "Correct",
+    "partial": "Partly correct",
+    "wrong": "Not quite",
+    "answerWas": "Answer: {answer}",
+    "summary": "Summary",
+    "score": "Correct at first try: {correct} of {scored}",
+    "exercisesDone": "{done} of {total} exercises done",
+    "skipped": "skipped",
+    "notDone": "not done",
+    "newWords": "New words of this lesson",
+    "newWordsHint": "They will become review cards.",
+    "backToCourse": "Back to the course",
+    "nextLesson": "Next lesson",
+    "reference": "Reference",
+    "plan": "Lesson plan"
+  },
+  "ref": {
+    "vocabulary": "Vocabulary",
+    "grammar": "Grammar",
+    "culture": "Culture",
+    "script": "Script",
+    "downloads": "PDF",
+    "none": "Nothing in this lesson."
+  },
+  "video": {
+    "hd": "HD"
+  },
+  "ex": {
+    "chooseSeveral": "Several answers can be right.",
+    "orderHint": "Tap the parts in order; tap in the line to take one back.",
+    "reset": "Reset",
+    "dictationPlaceholder": "Write what you hear",
+    "selfrate": "Listen, say it aloud, then rate yourself:",
+    "selfrateFree": "Answer aloud. Spoken answers will be checked once speech recognition is set up.",
+    "rate": {
+      "good": "Good",
+      "fair": "So-so",
+      "poor": "Again"
+    },
+    "unknown": "This exercise type is not supported yet.",
+    "picture": "picture {n}",
+    "correctHighlighted": "see the highlighted answer"
+  },
+  "word": {
+    "plural": "pl. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Interface language",
+    "themeLabel": "Theme",
+    "theme": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    },
+    "editions": "Course editions",
+    "editionsHint": "The language explanations and translations are shown in."
+  }
 }

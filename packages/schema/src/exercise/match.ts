@@ -11,3 +11,4 @@ export const MatchItem = ItemBase.extend({
 });
 export const MatchAnswer = z.object({ pairs: z.array(Pair) });
 export const MatchExercise = exerciseOf("match", MatchItem);
+export type MatchAnswer = z.infer<typeof MatchAnswer>;

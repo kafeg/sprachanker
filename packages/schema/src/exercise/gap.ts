@@ -18,3 +18,5 @@ export const GapTextItem = ItemBase.extend({
 });
 export const GapTextAnswer = z.record(GapId, z.string());
 export const GapTextExercise = exerciseOf("gap_text", GapTextItem);
+export type GapChoiceAnswer = z.infer<typeof GapChoiceAnswer>;
+export type GapTextAnswer = z.infer<typeof GapTextAnswer>;

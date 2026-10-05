@@ -15,7 +15,8 @@ export interface CourseSummary {
   key: string;
   editions: string[];
   titles: Record<string, string>;
-  lessons: number;
+  /** Lesson keys in course order. */
+  lessons: string[];
 }
 
 export interface CourseMap {
@@ -51,8 +52,8 @@ export function createContent(library: LibraryView) {
             const locale = await library.localeCourse(series, course, edition);
             if (locale) titles[edition] = locale.title;
           }
-          const count = index.units.reduce((n, u) => n + u.lessons.length, 0);
-          return { series, course, key: index.key, editions, titles, lessons: count };
+          const lessons = index.units.flatMap((u) => u.lessons);
+          return { series, course, key: index.key, editions, titles, lessons };
         }),
       );
     },

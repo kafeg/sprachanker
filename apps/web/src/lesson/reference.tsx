@@ -1,0 +1,131 @@
+// Lesson reference: vocabulary, grammar, culture, script, PDFs (lesson tabs, 09).
+import type { Lesson, LocaleLesson } from "@sprachanker/schema";
+import { FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
+import { CourseHtml } from "@/ui/course-html.tsx";
+import { AudioButton } from "@/ui/media.tsx";
+import { GenderWord } from "@/word/word.tsx";
+
+export function VocabularyList({
+  lesson,
+  locale,
+  url,
+}: {
+  lesson: Lesson;
+  locale: LocaleLesson | null;
+  url(p: string): string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <ul className="divide-y">
+      {lesson.vocab.map((v) => (
+        <li key={v.key} className="flex items-center gap-3 py-2.5">
+          {v.audio ? (
+            <AudioButton src={url(v.audio)} label={v.target} className="size-10" />
+          ) : (
+            <span className="size-10 shrink-0" />
+          )}
+          <div className="min-w-0 flex-1">
+            <GenderWord text={v.target} gender={v.gender} className="text-lg" />
+            {(v.forms || v.note) && (
+              <div className="text-sm text-muted-foreground">
+                {[v.forms, v.note].filter(Boolean).join(" · ")}
+              </div>
+            )}
+            {!v.gender && v.plural && (
+              <div className="text-sm text-muted-foreground">
+                {t("word.plural", { plural: v.plural })}
+              </div>
+            )}
+          </div>
+          <div className="max-w-[45%] text-right text-[15px]">
+            {locale?.vocab[v.key]?.translation}
+          </div>
+          {v.image && (
+            <img src={url(v.image)} alt="" className="hidden h-12 w-auto rounded-md sm:block" />
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Pages({ pages }: { pages: Array<{ title: string; bodyHtml: string }> }) {
+  const { t } = useTranslation();
+  if (!pages.length) return <p className="text-muted-foreground">{t("ref.none")}</p>;
+  return (
+    <div className="space-y-6">
+      {pages.map((p) => (
+        <article key={p.title + p.bodyHtml.length}>
+          {p.title && <h3 className="mb-2 text-xl font-bold">{p.title}</h3>}
+          <CourseHtml className="" html={p.bodyHtml} />
+        </article>
+      ))}
+    </div>
+  );
+}
+
+export type ReferenceTab = "vocabulary" | "grammar" | "culture" | "script" | "downloads";
+
+export function Reference({
+  lesson,
+  locale,
+  url,
+  tab,
+  onTab,
+}: {
+  lesson: Lesson;
+  locale: LocaleLesson | null;
+  url(p: string): string;
+  tab: ReferenceTab;
+  onTab(tab: ReferenceTab): void;
+}) {
+  const { t } = useTranslation();
+  const tabs = locale?.tabs ?? { grammar: [], culture: [] };
+  return (
+    <Tabs value={tab} onValueChange={(v) => onTab(v as ReferenceTab)}>
+      <TabsList className="flex h-auto w-full flex-wrap justify-start">
+        {(["vocabulary", "grammar", "culture", "script", "downloads"] as const).map((k) => (
+          <TabsTrigger key={k} value={k}>
+            {t(`ref.${k}`)}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+      <div className="mt-4">
+        <TabsContent value="vocabulary">
+          <VocabularyList lesson={lesson} locale={locale} url={url} />
+        </TabsContent>
+        <TabsContent value="grammar">
+          <Pages pages={tabs.grammar} />
+        </TabsContent>
+        <TabsContent value="culture">
+          <Pages pages={tabs.culture} />
+        </TabsContent>
+        <TabsContent value="script">
+          <Pages pages={tabs.script ? [tabs.script] : []} />
+        </TabsContent>
+        <TabsContent value="downloads">
+          {locale?.downloads.length ? (
+            <ul className="space-y-2">
+              {locale.downloads.map((d) => (
+                <li key={d.path}>
+                  <a
+                    href={url(d.path)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-2 underline-offset-4 hover:underline"
+                  >
+                    <FileText className="size-4" /> {d.title}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted-foreground">{t("ref.none")}</p>
+          )}
+        </TabsContent>
+      </div>
+    </Tabs>
+  );
+}

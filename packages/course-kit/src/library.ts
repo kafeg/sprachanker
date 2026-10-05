@@ -59,21 +59,24 @@ export function openLibrary(root: string): LibraryView {
   return {
     root,
     courses() {
-      return dirs(root).flatMap((series) =>
-        dirs(join(seriesDir(series), "canonical"))
-          .filter((course) =>
-            existsSync(join(seriesDir(series), "canonical", course, "course.json")),
-          )
-          .map((course) => ({
-            series,
-            course,
-            editions: dirs(join(seriesDir(series), "locale"))
-              .filter((e) =>
-                existsSync(join(seriesDir(series), "locale", e, course, "course.json")),
-              )
-              .sort() as EditionId[],
-          })),
-      );
+      return dirs(root)
+        .sort()
+        .flatMap((series) =>
+          dirs(join(seriesDir(series), "canonical"))
+            .sort()
+            .filter((course) =>
+              existsSync(join(seriesDir(series), "canonical", course, "course.json")),
+            )
+            .map((course) => ({
+              series,
+              course,
+              editions: dirs(join(seriesDir(series), "locale"))
+                .filter((e) =>
+                  existsSync(join(seriesDir(series), "locale", e, course, "course.json")),
+                )
+                .sort() as EditionId[],
+            })),
+        );
     },
     courseIndex: (series, course) =>
       read(CourseIndex, join(seriesDir(series), "canonical", course, "course.json")),

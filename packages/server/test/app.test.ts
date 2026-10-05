@@ -58,7 +58,7 @@ describe("web app", () => {
 
 describe("courses and lessons", () => {
   test("installed courses, the course map and a lesson", async () => {
-    const { get, getJson } = await setup();
+    const { getJson } = await setup();
     const courses = await getJson("/api/courses");
     expect(courses).toEqual([
       {
@@ -68,6 +68,9 @@ describe("courses and lessons", () => {
         editions: ["en-de", "ru-de"],
         titles: { "en-de": "Demo course", "ru-de": "Демо-курс" },
         lessons: 2,
+        done: 0,
+        next: "sprachanker.fixture/demo/00-01",
+        nextStarted: false,
       },
     ]);
     const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
@@ -81,7 +84,7 @@ describe("courses and lessons", () => {
   });
 
   test("bad queries are rejected", async () => {
-    const { get, getJson } = await setup();
+    const { get } = await setup();
     expect((await get(`/api/lesson?series=x&key=nope&edition=ru-de`)).status).toBe(400);
   });
 });
@@ -98,7 +101,7 @@ describe("runs", () => {
   });
 
   test("start, answer (outcomes by the server, idempotent), resume, finish, progress", async () => {
-    const { get, send, getJson, sendJson } = await setup();
+    const { send, getJson, sendJson } = await setup();
     const started = await sendJson("POST", "/api/runs", {
       series: FIXTURE_SERIES,
       lessonKey: LESSON,
@@ -158,6 +161,28 @@ describe("runs", () => {
     expect((await send("POST", `/api/runs/${runId}/events`, { events: [] })).status).toBe(409);
   });
 
+  test("opening the lesson in another edition ends the active run and starts a new one", async () => {
+    const { sendJson } = await setup();
+    const ru = await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    });
+    const en = await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "en-de",
+    });
+    expect(en.run.id).not.toBe(ru.run.id);
+    expect(en.run.edition).toBe("en-de");
+    const again = await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "en-de",
+    });
+    expect(again.run.id).toBe(en.run.id);
+  });
+
   test("an item from another lesson is refused", async () => {
     const { send, sendJson } = await setup();
     const { run } = await sendJson("POST", "/api/runs", {
@@ -177,13 +202,13 @@ describe("runs", () => {
 
 describe("settings and media", () => {
   test("settings round-trip", async () => {
-    const { get, send, getJson, sendJson } = await setup();
+    const { send, getJson } = await setup();
     await send("PUT", "/api/settings", { key: "uiLanguage", value: "ru" });
     expect(await getJson("/api/settings")).toEqual({ uiLanguage: "ru" });
   });
 
   test("media with ranges; nothing outside the media folder", async () => {
-    const { get, getJson } = await setup();
+    const { get } = await setup();
     const path = `/library/${FIXTURE_SERIES}/media/audio/kaffee.mp3`;
     const full = await get(path);
     expect(full.status).toBe(200);

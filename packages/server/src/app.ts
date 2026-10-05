@@ -3,6 +3,7 @@
 import type { LibraryView } from "@sprachanker/course-kit";
 import { LessonKey } from "@sprachanker/schema";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { validator } from "hono/validator";
 import { z } from "zod";
 import type { ProfileDb } from "./db/profile/db.ts";
@@ -27,12 +28,15 @@ export interface AppConfig {
 /** Mutating requests must carry this header (CSRF protection, 06). */
 export const CLIENT_HEADER = "x-sprachanker";
 
-const zod = <S extends z.ZodType>(target: "query" | "json", schema: S) =>
-  validator(target, (value, c) => {
+/** Validates a request part; invalid input ends in a 400 from onError (keeps response types clean). */
+const zod = <T extends "query" | "json", S extends z.ZodType>(target: T, schema: S) =>
+  validator(target, (value) => {
     const result = schema.safeParse(value);
-    return result.success
-      ? (result.data as z.infer<S>)
-      : c.json({ error: "bad_request", issues: result.error.issues }, 400);
+    if (!result.success) {
+      const issue = result.error.issues[0];
+      throw new HTTPException(400, { message: `${issue?.path.join(".")}: ${issue?.message}` });
+    }
+    return result.data as z.infer<S>;
   });
 
 const Series = z.string().regex(/^[a-z0-9-]+\.[a-z0-9-]+$/);
@@ -62,7 +66,24 @@ export function createApp(config: AppConfig) {
       await next();
     })
     .get("/health", (c) => c.json({ status: "ok" as const }))
-    .get("/courses", async (c) => c.json(await content.courses()))
+    .get("/courses", async (c) => {
+      const progress = runs.progress();
+      return c.json(
+        (await content.courses()).map(({ lessons, ...course }) => {
+          const done = lessons.filter((k) => progress[k]?.status === "done").length;
+          // Continue the most recent active lesson, else the first lesson not done yet.
+          const active = lessons.find((k) => progress[k]?.status === "in_progress");
+          const next = active ?? lessons.find((k) => progress[k]?.status !== "done") ?? lessons[0];
+          return {
+            ...course,
+            lessons: lessons.length,
+            done,
+            next: next ?? null,
+            nextStarted: !!active,
+          };
+        }),
+      );
+    })
     .get(
       "/course",
       zod("query", z.object({ series: Series, course: z.string(), edition: Edition })),
@@ -113,6 +134,7 @@ export function createApp(config: AppConfig) {
     .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
+      if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
       if (error instanceof z.ZodError)
         return c.json({ error: "bad_request", issues: error.issues }, 400);
       throw error;

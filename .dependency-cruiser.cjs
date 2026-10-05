@@ -81,6 +81,8 @@ module.exports = {
     // the TypeScript compiler API or pin the TypeScript version.
     parser: "swc",
     builtInModules: { add: ["bun", "bun:test", "bun:sqlite", "bun:ffi", "bun:jsc"] },
+    // Only for apps/web's `@/…` import alias (vite.config.ts, tsconfig.json).
+    webpackConfig: { fileName: ".dependency-cruiser.aliases.cjs" },
     enhancedResolveOptions: {
       extensions: [".ts", ".tsx", ".js", ".mjs", ".cjs", ".json"],
       exportsFields: ["exports"],

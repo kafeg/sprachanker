@@ -21,3 +21,6 @@ export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem
 export const SpeechSelfrateItem = ItemBase.extend({ text: z.string().min(1).optional() });
 export const SpeechSelfrateAnswer = z.object({ rating: z.enum(["good", "fair", "poor"]) });
 export const SpeechSelfrateExercise = exerciseOf("speech_selfrate", SpeechSelfrateItem);
+export type DictationAnswer = z.infer<typeof DictationAnswer>;
+export type SpeechRepeatAnswer = z.infer<typeof SpeechRepeatAnswer>;
+export type SpeechSelfrateAnswer = z.infer<typeof SpeechSelfrateAnswer>;

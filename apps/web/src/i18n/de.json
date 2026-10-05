@@ -1,11 +1,104 @@
 {
-  "app": { "name": "SprachAnker" },
-  "hello": {
-    "title": "Hallo!",
-    "text": "Deine Sprachkurse – auf deinem eigenen Computer und Handy."
+  "app": {
+    "name": "SprachAnker"
   },
-  "server": {
-    "status": "Server: {status, select, ok {verbunden} error {nicht erreichbar} other {wird geprüft…}}"
+  "nav": {
+    "courses": "Kurse",
+    "settings": "Einstellungen"
   },
-  "language": { "label": "Sprache der Oberfläche" }
+  "common": {
+    "loading": "Wird geladen…",
+    "error": "Etwas ist schiefgelaufen: {message}",
+    "retry": "Erneut versuchen"
+  },
+  "courses": {
+    "title": "Meine Kurse",
+    "empty": "Noch kein Kurs installiert.",
+    "emptyHint": "Installiere einen Kurs im Terminal: {command}",
+    "lessons": "{count, plural, one {# Lektion} other {# Lektionen}}",
+    "progress": "{done} von {total} erledigt",
+    "start": "Starten",
+    "continueLesson": "Weiter: {title}",
+    "nextLesson": "Weiter mit: {title}",
+    "allLessons": "Alle Lektionen"
+  },
+  "course": {
+    "unit": "Einheit {number}",
+    "status": {
+      "new": "Nicht begonnen",
+      "in_progress": "Begonnen",
+      "done": "Erledigt · {score} %"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Einheit {unit} · Lektion {lesson}",
+    "goals": "In dieser Lektion lernst du:",
+    "counts": "{exercises, plural, one {# Übung} other {# Übungen}} · {words, plural, one {# neues Wort} other {# neue Wörter}}",
+    "start": "Lektion starten",
+    "resume": "Lektion fortsetzen",
+    "overview": "Überblick",
+    "exerciseOf": "Übung {n} von {total}",
+    "check": "Prüfen",
+    "next": "Weiter",
+    "toSummary": "Zur Zusammenfassung",
+    "skip": "Überspringen",
+    "retry": "Noch einmal",
+    "previous": "Zurück",
+    "correct": "Richtig",
+    "partial": "Teilweise richtig",
+    "wrong": "Nicht ganz",
+    "answerWas": "Lösung: {answer}",
+    "summary": "Zusammenfassung",
+    "score": "Beim ersten Versuch richtig: {correct} von {scored}",
+    "exercisesDone": "{done} von {total} Übungen erledigt",
+    "skipped": "übersprungen",
+    "notDone": "nicht erledigt",
+    "newWords": "Neue Wörter dieser Lektion",
+    "newWordsHint": "Sie werden zu Lernkarten.",
+    "backToCourse": "Zurück zum Kurs",
+    "nextLesson": "Nächste Lektion",
+    "reference": "Nachschlagen",
+    "plan": "Ablauf"
+  },
+  "ref": {
+    "vocabulary": "Wortschatz",
+    "grammar": "Grammatik",
+    "culture": "Landeskunde",
+    "script": "Skript",
+    "downloads": "PDF",
+    "none": "In dieser Lektion nicht vorhanden."
+  },
+  "video": {
+    "hd": "HD"
+  },
+  "ex": {
+    "chooseSeveral": "Mehrere Antworten können richtig sein.",
+    "orderHint": "Tippe die Teile der Reihe nach an; tippe in der Zeile, um eines zurückzunehmen.",
+    "reset": "Zurücksetzen",
+    "dictationPlaceholder": "Schreib, was du hörst",
+    "selfrate": "Hör zu, sprich nach und bewerte dich:",
+    "selfrateFree": "Antworte laut. Gesprochene Antworten werden geprüft, sobald die Spracherkennung eingerichtet ist.",
+    "rate": {
+      "good": "Gut",
+      "fair": "Geht so",
+      "poor": "Nochmal"
+    },
+    "unknown": "Dieser Übungstyp wird noch nicht unterstützt.",
+    "picture": "Bild {n}",
+    "correctHighlighted": "die richtige Antwort ist markiert"
+  },
+  "word": {
+    "plural": "Pl. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Sprache der Oberfläche",
+    "themeLabel": "Design",
+    "theme": {
+      "system": "System",
+      "light": "Hell",
+      "dark": "Dunkel"
+    },
+    "editions": "Kursausgaben",
+    "editionsHint": "In welcher Sprache Erklärungen und Übersetzungen erscheinen."
+  }
 }

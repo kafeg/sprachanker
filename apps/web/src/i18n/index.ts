@@ -8,13 +8,19 @@ import ru from "./ru.json";
 export const UI_LANGUAGES = ["en", "ru", "de"] as const;
 export type UiLanguage = (typeof UI_LANGUAGES)[number];
 
-const isUiLanguage = (code: string): code is UiLanguage =>
-  (UI_LANGUAGES as readonly string[]).includes(code);
+export const isUiLanguage = (code: unknown): code is UiLanguage =>
+  (UI_LANGUAGES as readonly unknown[]).includes(code);
 
 /** First supported language from the browser preferences; English otherwise. */
-function preferredLanguage(): UiLanguage {
+export function browserLanguage(): UiLanguage {
   const codes = navigator.languages.map((tag) => tag.split("-")[0] ?? "");
   return codes.find(isUiLanguage) ?? "en";
+}
+
+/** A language's own name ("Deutsch", "Русский"), from Intl rather than a catalog. */
+export function nativeName(code: string): string {
+  const name = new Intl.DisplayNames([code], { type: "language" }).of(code) ?? code;
+  return name.charAt(0).toLocaleUpperCase(code) + name.slice(1);
 }
 
 i18n.on("languageChanged", (language) => {
@@ -26,8 +32,10 @@ await i18n
   .use(initReactI18next)
   .init({
     resources: { en: { translation: en }, ru: { translation: ru }, de: { translation: de } },
-    lng: preferredLanguage(),
+    lng: browserLanguage(),
     fallbackLng: "en",
     supportedLngs: UI_LANGUAGES,
     interpolation: { escapeValue: false },
   });
+
+export default i18n;
