@@ -15,13 +15,22 @@ everything is an OpenAI-compatible chat endpoint plus adapters where needed.
 | Remote box | any OpenAI-compatible URL on the LAN/tailnet |
 | OpenRouter, OpenAI | API key |
 | Anthropic | API key; Messages API adapter |
-| Built-in llama.cpp | after MVP (06) |
+| Built-in llama.cpp | `llama-server` run by the server (06); models from the catalog below |
 
-Built today: LM Studio, OpenRouter and "other server" (any OpenAI-compatible URL, optional key); the
+Built today: built-in, LM Studio, OpenRouter and "other server" (any OpenAI-compatible URL, optional key); the
 profile's default route is `llm_routes.task = 'default'`, endpoints live in the setting `llm.endpoints`,
 keys in `secrets` (05, 06).
 
 The provider "test" checks reachability, lists models, measures latency and verifies structured output.
+
+## Built-in model
+
+- Catalog (`packages/llm/src/local-models.ts`): GGUF files on Hugging Face pinned by size and sha256,
+  licences allowing local use without sign-in (Gemma 4 QAT builds today). The recommended model is the
+  largest that leaves half of the machine's memory free.
+- Downloads are resumable (`<file>.part`), verified before use, paused and resumed from the settings;
+  files live in `<data-root>/models/llm`. The first download also fetches the engine (06).
+- llama-server starts with an 8k context and reasoning off; the route's model is the catalog id.
 
 ## Tasks
 

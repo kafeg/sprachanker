@@ -1,7 +1,7 @@
 // Provider presets (07, "Providers"). All of them speak the OpenAI-compatible chat API.
 import { z } from "zod";
 
-export const ProviderId = z.enum(["lmstudio", "openrouter", "custom"]);
+export const ProviderId = z.enum(["builtin", "lmstudio", "openrouter", "custom"]);
 export type ProviderId = z.infer<typeof ProviderId>;
 
 export interface ProviderPreset {
@@ -17,6 +17,8 @@ export interface ProviderPreset {
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
+  // llama.cpp run by the server itself; its endpoint is known only once it runs (no URL, no key).
+  builtin: { id: "builtin", baseUrl: "", key: "none", editableUrl: false },
   lmstudio: {
     id: "lmstudio",
     baseUrl: "http://localhost:1234/v1",

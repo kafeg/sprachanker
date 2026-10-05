@@ -14,6 +14,7 @@ import {
   useSetRoute,
 } from "./api.ts";
 import { errorText } from "./errors.ts";
+import { LocalModels } from "./local-models.tsx";
 
 type Provider = LlmState["providers"][number];
 
@@ -210,9 +211,15 @@ export function LlmSettings() {
           {provider.id === "lmstudio" && (
             <p className="text-sm text-muted-foreground">{t("llm.lmstudioHint")}</p>
           )}
-          {provider.editableUrl && <EndpointField provider={provider} />}
-          {provider.key !== "none" && <KeyField provider={provider} />}
-          <ModelField state={state} provider={provider} />
+          {provider.id === "builtin" ? (
+            <LocalModels state={state} />
+          ) : (
+            <>
+              {provider.editableUrl && <EndpointField provider={provider} />}
+              {provider.key !== "none" && <KeyField provider={provider} />}
+              <ModelField state={state} provider={provider} />
+            </>
+          )}
         </div>
       )}
     </section>

@@ -9,7 +9,8 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 ```
 src/
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat(); errors as LlmError codes
-  providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
+  providers.ts     # presets: builtin, lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
+  local-models.ts  # catalog of GGUF models for the built-in runtime (pinned size + sha256)
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/

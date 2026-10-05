@@ -10,7 +10,7 @@ import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
-import { createLlm } from "./services/llm.ts";
+import { createLlm, type LocalLlm } from "./services/llm.ts";
 import { createRuns, RunError } from "./services/runs.ts";
 import { createSettings } from "./services/settings.ts";
 import { createTutor } from "./services/tutor.ts";
@@ -30,6 +30,8 @@ export interface AppConfig {
   secretKey: Uint8Array;
   /** Outgoing requests to LLM providers (replaced in tests). */
   fetch?: typeof fetch;
+  /** The built-in LLM runtime, when this build carries one. */
+  localLlm?: LocalLlm;
   now?: () => number;
 }
 
@@ -46,6 +48,7 @@ export function createApp(config: AppConfig) {
     box: secretBox(config.secretKey),
     content,
     fetch: config.fetch ?? fetch,
+    local: config.localLlm,
   });
   const tutor = createTutor({
     db: config.profile,
@@ -140,7 +143,7 @@ export function createApp(config: AppConfig) {
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
     .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
-    .route("/llm", llmRoutes(llm, tutor))
+    .route("/llm", llmRoutes(llm, tutor, config.localLlm))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);

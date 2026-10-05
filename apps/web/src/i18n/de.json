@@ -108,7 +108,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
-      "custom": "Anderer Server"
+      "custom": "Anderer Server",
+      "builtin": "Eingebautes Modell"
     },
     "lmstudioHint": "In LM Studio ein Modell herunterladen (z. B. Gemma 4 12B) und den lokalen Server starten: Developer → Status: Running.",
     "endpoint": "Serveradresse",
@@ -138,7 +139,10 @@
       "llm_model_not_found": "Das Modell wurde auf dem Server nicht gefunden.",
       "llm_timeout": "Das Modell braucht zu lange.",
       "llm_bad_response": "Der Server hat einen Fehler gemeldet.",
-      "other": "Etwas ist schiefgelaufen: {message}"
+      "other": "Etwas ist schiefgelaufen: {message}",
+      "llm_builtin_unavailable": "Für diesen Computer gibt es keine eingebaute Engine.",
+      "llm_model_missing": "Das gewählte Modell ist noch nicht heruntergeladen – siehe Einstellungen → KI-Assistent.",
+      "llm_engine_failed": "Das eingebaute Modell ist nicht gestartet."
     }
   },
   "tutor": {
@@ -156,5 +160,24 @@
       "dialogue": "Lass uns einen kurzen Dialog üben",
       "exercise": "Gib mir einen Tipp zu dieser Übung"
     }
+  },
+  "local": {
+    "intro": "Läuft auf diesem Computer, keine anderen Programme nötig. Die Engine (llama.cpp) und ein Modell werden einmal in den Datenordner heruntergeladen (Arbeitsspeicher hier: {memory} GB); größere Modelle erklären besser, antworten aber langsamer.",
+    "unavailable": "Für diesen Computer gibt es keine offizielle llama.cpp-Version. Nutze LM Studio oder OpenRouter.",
+    "recommended": "Empfohlen",
+    "inUse": "In Verwendung",
+    "size": "{size} GB · braucht etwa {ram} GB Arbeitsspeicher",
+    "progress": "{done} von {total} GB",
+    "downloadFailed": "Der Download ist fehlgeschlagen. Versuch es noch einmal – er macht dort weiter, wo er aufgehört hat.",
+    "download": "Herunterladen",
+    "pause": "Pause",
+    "resume": "Fortsetzen",
+    "use": "Verwenden",
+    "remove": "Löschen",
+    "starting": "Das Modell startet…",
+    "running": "Das Modell läuft.",
+    "failed": "Das Modell ist nicht gestartet: {error}",
+    "engine": "llama.cpp-Engine ({build}): {done} von {total} MB",
+    "engineFailed": "Die llama.cpp-Engine konnte nicht heruntergeladen werden: {error}. Drück noch einmal auf Herunterladen."
   }
 }

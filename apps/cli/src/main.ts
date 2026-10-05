@@ -59,6 +59,10 @@ function serve(args: string[], webAssets: WebAssets): void {
     appVersion: pkg.version,
   });
   console.log(`SprachAnker is running at ${server.url} (data: ${dataRoot})`);
+  // Stop the built-in model's process with the server.
+  for (const signal of ["SIGINT", "SIGTERM"] as const) {
+    process.once(signal, () => void server.stop().finally(() => process.exit(0)));
+  }
 }
 
 async function importCommand(args: string[]): Promise<void> {

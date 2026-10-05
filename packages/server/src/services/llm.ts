@@ -3,6 +3,7 @@
 import {
   explainMistake,
   type LlmClient,
+  LlmError,
   openAiCompatible,
   PROVIDERS,
   type ProviderId,
@@ -20,6 +21,51 @@ const ENDPOINTS = "llm.endpoints";
 const DEFAULT_ROUTE = "default";
 
 export class LlmSetupError extends Error {}
+
+/** The llama-server process of the built-in model. */
+export type RunState =
+  | { model: string; state: "starting" | "ready" }
+  | { model: string; state: "failed"; error: string };
+
+export interface LocalModelStatus {
+  id: string;
+  title: string;
+  sizeBytes: number;
+  ramGb: number;
+  recommended: boolean;
+  /** paused: a part file waits to be resumed. */
+  state: "absent" | "downloading" | "paused" | "failed" | "ready";
+  received: number;
+  error?: string;
+}
+
+export interface LocalLlmStatus {
+  /** False on platforms without an official llama.cpp build. */
+  available: boolean;
+  /** llama.cpp itself: downloaded with the first model. */
+  engine: {
+    build: string;
+    state: "absent" | "downloading" | "failed" | "ready";
+    received: number;
+    size: number;
+    error?: string;
+  };
+  memoryGb: number;
+  models: LocalModelStatus[];
+  running: RunState | null;
+}
+
+/** The built-in runtime (src/sidecars/local-llm.ts); kept behind this interface so that app.ts stays
+ *  free of process and file APIs. */
+export interface LocalLlm {
+  status(): LocalLlmStatus;
+  download(id: string): void;
+  cancel(id: string): void;
+  remove(id: string): Promise<void>;
+  /** Base URL of a llama-server running the model, started if needed. */
+  endpoint(id: string): Promise<string>;
+  stop(): Promise<void>;
+}
 
 export interface ProviderState {
   id: ProviderId;
@@ -52,15 +98,27 @@ export function createLlm(deps: {
   box: SecretBox;
   content: Content;
   fetch: typeof fetch;
+  local?: LocalLlm;
 }) {
-  const { db, settings, box, content } = deps;
+  const { db, settings, box, content, local } = deps;
   const endpoints = () => settings.get<Partial<Record<ProviderId, string>>>(ENDPOINTS) ?? {};
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
   const hasKey = (id: ProviderId) =>
     !!db.select().from(secrets).where(eq(secrets.providerId, id)).get();
   const baseUrl = (id: ProviderId) => endpoints()[id] ?? PROVIDERS[id].baseUrl;
 
-  async function client(id: ProviderId): Promise<LlmClient> {
+  async function client(id: ProviderId, model?: string | null): Promise<LlmClient> {
+    if (id === "builtin") {
+      if (!local?.status().available) throw new LlmSetupError("llm_builtin_unavailable");
+      if (!model) throw new LlmSetupError("llm_not_configured");
+      if (local.status().models.find((m) => m.id === model)?.state !== "ready")
+        throw new LlmSetupError("llm_model_missing");
+      try {
+        return openAiCompatible({ baseUrl: await local.endpoint(model) }, deps.fetch);
+      } catch (error) {
+        throw new LlmError("engine_failed", error instanceof Error ? error.message : String(error));
+      }
+    }
     const preset = PROVIDERS[id];
     const url = baseUrl(id);
     if (!url) throw new LlmSetupError("llm_no_endpoint");
@@ -115,6 +173,11 @@ export function createLlm(deps: {
     },
     /** Models of a provider with the round-trip time, as a connection test. */
     async models(id: ProviderId, signal?: AbortSignal) {
+      if (id === "builtin") {
+        // Downloaded models; the process starts only when a lesson asks something.
+        const ready = local?.status().models.filter((m) => m.state === "ready") ?? [];
+        return { models: ready.map((m) => ({ id: m.id, name: m.title })), ms: 0 };
+      }
       const started = performance.now();
       const models = await (await client(id)).models(signal);
       return { models, ms: Math.round(performance.now() - started) };
@@ -123,7 +186,7 @@ export function createLlm(deps: {
     async model(): Promise<{ client: LlmClient; model: string }> {
       const r = route();
       if (!r?.model) throw new LlmSetupError("llm_not_configured");
-      return { client: await client(r.providerId as ProviderId), model: r.model };
+      return { client: await client(r.providerId as ProviderId, r.model), model: r.model };
     },
     /** Explanation of a wrong answer, streamed. */
     async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {

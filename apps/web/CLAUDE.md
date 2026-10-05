@@ -12,7 +12,7 @@ apps/web/src/
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
-  llm/             # AI assistant: settings section, "Why is this wrong?", lesson tutor panel (streamed)
+  llm/             # AI assistant: settings (providers, built-in models), "Why is this wrong?", tutor panel
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell, media
   word/            # gender colouring

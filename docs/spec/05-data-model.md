@@ -5,12 +5,13 @@
 ```
 <app-data>/                      # OS-specific: ~/Library/Application Support/SprachAnker, %APPDATA%\…, ~/.local/share/…
 ├── config.json                  # data root path, port, network settings
-├── models/                      # whisper models, voices, GGUF models
 ├── cache/                       # TTS and machine-translation cache
 └── logs/
 
 <data-root>/                     # user-chosen; default <app-data>/data
 ├── library/                     # installed courses (02)
+├── models/                      # downloaded models: llm/ (GGUF), later whisper models and voices
+├── engines/                     # downloaded native engines: llama.cpp-<build>-<os>-<arch>/
 ├── server.sqlite                # profiles, devices, jobs
 └── profiles/<profile-id>/
     ├── profile.sqlite           # all learner data of this profile
@@ -20,6 +21,9 @@
 
 - One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
 - The library never contains learner data; profiles never contain course content.
+- Large downloads (courses, models, engines) live in the data root, on the disk the user chose; engine
+  folders carry the platform, so one data root can serve several machines. Keys and caches stay in
+  app-data.
 - The data root is created only on first start; if a configured root is missing later (e.g. an
   unmounted disk), the server refuses to start with a clear message.
 

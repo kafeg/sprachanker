@@ -1,11 +1,11 @@
 // /api/llm: provider setup, connection test, mistake explanations and the lesson tutor. Mounted by app.ts; removing this module
 // and that mount removes the LLM features from the API.
-import { LlmError, ProviderId } from "@sprachanker/llm";
+import { LlmError, LOCAL_MODELS, ProviderId } from "@sprachanker/llm";
 import { LessonKey } from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
-import { type Llm, LlmSetupError } from "../services/llm.ts";
+import { type Llm, LlmSetupError, type LocalLlm, type LocalLlmStatus } from "../services/llm.ts";
 import type { Tutor } from "../services/tutor.ts";
 import { Edition, Series, zod } from "../validate.ts";
 
@@ -47,80 +47,109 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
   });
 }
 
-export function llmRoutes(llm: Llm, tutor: Tutor) {
-  return new Hono()
-    .get("/", (c) => c.json(llm.state()))
-    .put(
-      "/route",
-      zod(
-        "json",
-        z.object({ provider: ProviderId.nullable(), model: z.string().min(1).max(300).nullable() }),
-      ),
-      (c) => {
-        const { provider, model } = c.req.valid("json");
-        llm.setRoute(provider, model);
-        return c.json(llm.state());
-      },
-    )
-    .put(
-      "/providers/:id",
-      zod("param", z.object({ id: ProviderId })),
-      zod(
-        "json",
-        z.object({
-          baseUrl: Url.nullable().optional(),
-          apiKey: z.string().trim().min(1).max(500).nullable().optional(),
-        }),
-      ),
-      async (c) => {
-        await llm.setProvider(c.req.valid("param").id, c.req.valid("json"));
-        return c.json(llm.state());
-      },
-    )
-    .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) => {
-      try {
-        return c.json(await llm.models(c.req.valid("query").provider, c.req.raw.signal));
-      } catch (error) {
-        const { status, ...body } = failure(error);
-        return c.json(body, status);
-      }
-    })
-    .post(
-      "/explain",
-      zod(
-        "json",
-        z.object({
-          series: Series,
-          lessonKey: LessonKey,
-          edition: Edition,
-          exerciseKey: z.string().max(300),
-          index: z.number().int().nonnegative(),
-          answer: z.unknown().optional(),
-          language: Language,
-        }),
-      ),
-      (c) => streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
-    )
-    .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-      c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
-    )
-    .post(
-      "/tutor",
-      zod(
-        "json",
-        z.object({
-          series: Series,
-          lessonKey: LessonKey,
-          edition: Edition,
-          exerciseKey: z.string().max(300).optional(),
-          message: z.string().trim().min(1).max(4000),
-          language: Language,
-        }),
-      ),
-      (c) => streamReply(c, () => tutor.send(c.req.valid("json"), c.req.raw.signal)),
-    )
-    .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
-      tutor.reset(c.req.valid("json").lessonKey);
-      return c.json({ ok: true as const });
-    });
+export function llmRoutes(llm: Llm, tutor: Tutor, local?: LocalLlm) {
+  const ModelId = z.object({
+    id: z.string().refine((id) => LOCAL_MODELS.some((m) => m.id === id), "unknown model"),
+  });
+  const noLocal = {
+    available: false,
+    engine: { build: "", state: "absent", received: 0, size: 0 },
+    memoryGb: 0,
+    models: [],
+    running: null,
+  };
+  return (
+    new Hono()
+      .get("/", (c) => c.json(llm.state()))
+      .put(
+        "/route",
+        zod(
+          "json",
+          z.object({
+            provider: ProviderId.nullable(),
+            model: z.string().min(1).max(300).nullable(),
+          }),
+        ),
+        (c) => {
+          const { provider, model } = c.req.valid("json");
+          llm.setRoute(provider, model);
+          return c.json(llm.state());
+        },
+      )
+      .put(
+        "/providers/:id",
+        zod("param", z.object({ id: ProviderId })),
+        zod(
+          "json",
+          z.object({
+            baseUrl: Url.nullable().optional(),
+            apiKey: z.string().trim().min(1).max(500).nullable().optional(),
+          }),
+        ),
+        async (c) => {
+          await llm.setProvider(c.req.valid("param").id, c.req.valid("json"));
+          return c.json(llm.state());
+        },
+      )
+      .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) => {
+        try {
+          return c.json(await llm.models(c.req.valid("query").provider, c.req.raw.signal));
+        } catch (error) {
+          const { status, ...body } = failure(error);
+          return c.json(body, status);
+        }
+      })
+      .post(
+        "/explain",
+        zod(
+          "json",
+          z.object({
+            series: Series,
+            lessonKey: LessonKey,
+            edition: Edition,
+            exerciseKey: z.string().max(300),
+            index: z.number().int().nonnegative(),
+            answer: z.unknown().optional(),
+            language: Language,
+          }),
+        ),
+        (c) => streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
+      )
+      // Built-in model: catalog with download state; downloads run in the background.
+      .get("/local", (c) => c.json(local?.status() ?? (noLocal as LocalLlmStatus)))
+      .post("/local/:id/download", zod("param", ModelId), (c) => {
+        local?.download(c.req.valid("param").id);
+        return c.json(local?.status() ?? (noLocal as LocalLlmStatus));
+      })
+      .post("/local/:id/cancel", zod("param", ModelId), (c) => {
+        local?.cancel(c.req.valid("param").id);
+        return c.json(local?.status() ?? (noLocal as LocalLlmStatus));
+      })
+      .delete("/local/:id", zod("param", ModelId), async (c) => {
+        await local?.remove(c.req.valid("param").id);
+        return c.json(local?.status() ?? (noLocal as LocalLlmStatus));
+      })
+      .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
+      )
+      .post(
+        "/tutor",
+        zod(
+          "json",
+          z.object({
+            series: Series,
+            lessonKey: LessonKey,
+            edition: Edition,
+            exerciseKey: z.string().max(300).optional(),
+            message: z.string().trim().min(1).max(4000),
+            language: Language,
+          }),
+        ),
+        (c) => streamReply(c, () => tutor.send(c.req.valid("json"), c.req.raw.signal)),
+      )
+      .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
+        tutor.reset(c.req.valid("json").lessonKey);
+        return c.json({ ok: true as const });
+      })
+  );
 }

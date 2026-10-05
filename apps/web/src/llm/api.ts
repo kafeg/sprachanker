@@ -93,3 +93,33 @@ export function useResetTutor(lessonKey: LessonKey) {
     onSuccess: () => client.setQueryData(["tutor", lessonKey], { turns: [] }),
   });
 }
+
+export type LocalStatus = Awaited<ReturnType<typeof fetchLocal>>;
+const fetchLocal = () => json(api.llm.local.$get());
+
+/** The built-in model: catalog and download state; polled while something is in progress. */
+export const useLocalModels = (enabled: boolean) =>
+  useQuery({
+    queryKey: ["llm-local"],
+    enabled,
+    queryFn: fetchLocal,
+    refetchInterval: (query) => {
+      const data = query.state.data;
+      const busy =
+        data?.models.some((m) => m.state === "downloading") || data?.running?.state === "starting";
+      return busy ? 1000 : 10_000;
+    },
+  });
+
+export function useLocalAction() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, action }: { id: string; action: "download" | "cancel" | "remove" }) =>
+      json(
+        action === "remove"
+          ? api.llm.local[":id"].$delete({ param: { id } })
+          : api.llm.local[":id"][action].$post({ param: { id } }),
+      ),
+    onSuccess: (status) => client.setQueryData(["llm-local"], status),
+  });
+}

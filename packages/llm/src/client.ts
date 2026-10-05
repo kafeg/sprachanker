@@ -34,7 +34,9 @@ export type LlmErrorCode =
   | "unauthorized"
   | "model_not_found"
   | "timeout"
-  | "bad_response";
+  | "bad_response"
+  /** The built-in runtime did not start. */
+  | "engine_failed";
 
 export class LlmError extends Error {
   constructor(

@@ -21,8 +21,9 @@ src/
   validate.ts        # request validation helper and shared param schemas
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
   services/          # content, runs, settings, llm (provider setup + explanations), tutor (lesson chats as `chat` runs)
-  jobs/              # import, model download; progress via SSE
-  sidecars/          # whisper-server, TTS, later llama-server supervisors (spawn, health, restart)
+  jobs/              # download.ts: resumable sha256-verified downloads (models, engines); progress is polled
+  sidecars/          # llama-release (pinned engine), llama-server (supervisor), local-llm (built-in model);
+                     # later whisper-server and TTS
   security/          # secrets.ts (AES-GCM sealing of API keys); later profiles, PIN, device tokens, Host check, CSP
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
   media/             # Range responses for library media (read via course-kit) and profile files
@@ -37,6 +38,8 @@ test/                # bun test; integration tests call createApp().request()
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
   (outside the data root), read by `src/runtime/`.
 - Outgoing requests to LLM providers go through the injected `fetch` (`AppConfig.fetch`); tests fake it.
+- Process and file work of the built-in model stays in `src/sidecars/`; app.ts sees it only as the
+  `LocalLlm` interface (services/llm.ts). Tests run `test/fixtures/fake-llama-server.ts` instead.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
 - `src/app.ts` and everything it imports stay free of Bun/Node APIs: the web client type-checks
   that graph without Bun types.
