@@ -1,8 +1,10 @@
 // What the normaliser needs besides the page states: where downloaded media live.
+
+import type { MediaIndex } from "@sprachanker/course-kit";
 import { sanitizeCourseHtml } from "@sprachanker/course-kit";
 import type { Media, MediaPath } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
-import { IMAGE_FORMAT, type MediaIndex, videoFiles } from "../media.ts";
+import { IMAGE_FORMAT, videoFiles } from "../media.ts";
 
 export type Entity = Record<string, unknown>;
 

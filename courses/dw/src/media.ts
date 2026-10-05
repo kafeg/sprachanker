@@ -1,12 +1,11 @@
 // Fetch phase, media: every media URL referenced by the raw pages → media/<kind>/<name> + media.json (03).
-import { existsSync } from "node:fs";
-import { readdir, readFile, writeFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   FetchFailedError,
-  HostRefusedError,
-  type MediaStore,
+  type MediaKind,
   type PoliteFetcher,
+  type MediaRef as StoredRef,
 } from "@sprachanker/course-kit";
 import { type ApolloState, entitiesOf } from "./apollo.ts";
 import { remuxStream, type StreamSource } from "./stream.ts";
@@ -14,22 +13,15 @@ import { remuxStream, type StreamSource } from "./stream.ts";
 /** Image size used for every DW image (`static.dw.com/image/<id>_<format>`): 940×529. */
 export const IMAGE_FORMAT = "6";
 
-export type MediaKind = "audio" | "image" | "video" | "subtitles" | "pdf";
 export interface MediaRef {
   url: string;
   kind: MediaKind;
   /** Videos: the HLS variant with the same content, used when the direct file is missing. */
   stream?: StreamSource;
 }
-/** Source URL → stored file (path, sha256 and size for integrity checks) or the last error. */
-export type MediaIndex = Record<
-  string,
-  | { kind: MediaKind; path: string; sha256: string; size: number; mime: string }
-  | { kind: MediaKind; error: string }
->;
 
 /** File name of a medium: the source's own name; images and subtitles by their DW id. */
-export function mediaName(ref: MediaRef): string {
+export function mediaName(ref: Pick<MediaRef, "url" | "kind">): string {
   const last = new URL(ref.url).pathname.split("/").pop() ?? "";
   const name =
     ref.kind === "image"
@@ -124,7 +116,7 @@ export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
 }
 
 /** The file at `ref.url`, or for a video whose direct file is missing, its remuxed HLS stream. */
-async function download(fetcher: PoliteFetcher, ref: MediaRef) {
+export async function download(fetcher: PoliteFetcher, ref: MediaRef & StoredRef) {
   try {
     const { bytes, contentType } = await fetcher.bytes(ref.url);
     return { bytes, mime: contentType };
@@ -132,61 +124,4 @@ async function download(fetcher: PoliteFetcher, ref: MediaRef) {
     if (!(error instanceof FetchFailedError && error.status === 404 && ref.stream)) throw error;
     return { bytes: await remuxStream(fetcher, ref.stream), mime: "video/mp4" };
   }
-}
-
-/** Requests in flight per host. */
-const WORKERS_PER_HOST = 8;
-
-/** Downloads media missing from the index; failed URLs are retried next run. */
-export async function fetchMedia(
-  fetcher: PoliteFetcher,
-  store: MediaStore,
-  indexFile: string,
-  refs: MediaRef[],
-  log: (line: string) => void,
-): Promise<MediaIndex> {
-  const index: MediaIndex = existsSync(indexFile)
-    ? JSON.parse(await readFile(indexFile, "utf8"))
-    : {};
-  const todo = refs.filter((ref) => !index[ref.url] || "error" in (index[ref.url] as object));
-  const byHost = Map.groupBy(todo, (ref) => new URL(ref.url).host);
-  let done = 0;
-  let saving = Promise.resolve();
-  const save = () => {
-    saving = saving.then(() => writeFile(indexFile, JSON.stringify(index, null, 1)));
-    return saving;
-  };
-  log(`media: ${todo.length} to fetch of ${refs.length} (${[...byHost.keys()].join(", ")})`);
-  const worker = async (host: string, queue: MediaRef[]) => {
-    for (let ref = queue.shift(); ref; ref = queue.shift()) {
-      try {
-        const { bytes, mime } = await download(fetcher, ref);
-        const stored = await store.put(`${ref.kind}/${mediaName(ref)}`, bytes);
-        index[ref.url] = { kind: ref.kind, ...stored, mime };
-      } catch (error) {
-        if (error instanceof HostRefusedError) {
-          log(`media: ${error.message}`);
-          queue.length = 0;
-          return;
-        }
-        // One file never stops the import: it is reported and tried again on the next run.
-        index[ref.url] = {
-          kind: ref.kind,
-          error: error instanceof FetchFailedError ? String(error.status) : String(error),
-        };
-      }
-      if (++done % 50 === 0) {
-        log(`media: ${done}/${todo.length} (${host})`);
-        await save();
-      }
-    }
-  };
-  await Promise.all(
-    [...byHost].flatMap(([host, hostRefs]) => {
-      const queue = [...hostRefs];
-      return Array.from({ length: WORKERS_PER_HOST }, () => worker(host, queue));
-    }),
-  );
-  await save();
-  return index;
 }

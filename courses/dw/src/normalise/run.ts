@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { prettyJson } from "@sprachanker/course-kit";
+import { type MediaIndex, prettyJson } from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -15,7 +15,7 @@ import {
 } from "@sprachanker/schema";
 import { type ApolloState, exerciseIds } from "../apollo.ts";
 import { COURSES, type DwCourse } from "../catalog.ts";
-import type { MediaIndex } from "../media.ts";
+
 import { createContext, html } from "./context.ts";
 import { courseFiles, courseLessons } from "./course.ts";
 import { normaliseLesson } from "./lesson.ts";

@@ -1,8 +1,13 @@
 // `sprachanker import dw-<series>`: fetch pages and media (idempotent), then normalise (03).
 import { join } from "node:path";
-import { createMediaStore, createPoliteFetcher } from "@sprachanker/course-kit";
+import {
+  createMediaStore,
+  createPoliteFetcher,
+  failedMedia,
+  fetchMedia,
+} from "@sprachanker/course-kit";
 import { COURSES, type DwSeries, seriesId, USER_AGENT } from "./catalog.ts";
-import { collectMedia, fetchMedia } from "./media.ts";
+import { collectMedia, download, mediaName } from "./media.ts";
 import { type NormaliseResult, normaliseCourse } from "./normalise/run.ts";
 import { fetchPages } from "./pages.ts";
 
@@ -35,17 +40,18 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
   });
   for (const course of selected)
     await fetchPages(fetcher, seriesDir, course, options.log, options.refresh);
-  const refs = await collectMedia(join(seriesDir, "raw"));
-  const index = await fetchMedia(
+  const refs = (await collectMedia(join(seriesDir, "raw"))).map((r) => ({
+    ...r,
+    name: mediaName(r),
+  }));
+  const index = await fetchMedia({
     fetcher,
-    createMediaStore(seriesDir),
-    join(seriesDir, "media.json"),
+    store: createMediaStore(seriesDir),
+    indexFile: join(seriesDir, "media.json"),
     refs,
-    options.log,
-  );
-  const failedMedia = Object.entries(index).flatMap(([url, e]) =>
-    "error" in e ? [`${url}: ${e.error}`] : [],
-  );
+    log: options.log,
+    download: (ref) => download(fetcher, ref),
+  });
   const normalised: Record<string, NormaliseResult> = {};
   // The primary edition writes the canonical files; it runs first for each course.
   for (const course of ofSeries.filter((c) => selected.some((s) => s.course === c.course))) {
@@ -54,5 +60,5 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
       log: options.log,
     });
   }
-  return { failedMedia, normalised };
+  return { failedMedia: failedMedia(index), normalised };
 }
