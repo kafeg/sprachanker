@@ -137,7 +137,10 @@ async function download(fetcher: PoliteFetcher, ref: MediaRef) {
   }
 }
 
-/** Downloads media missing from the index (one worker per host); failed URLs are retried next run. */
+/** Requests in flight per host; starts stay ≤ 1 per second (the fetcher's interval). */
+const WORKERS_PER_HOST = 3;
+
+/** Downloads media missing from the index; failed URLs are retried next run. */
 export async function fetchMedia(
   fetcher: PoliteFetcher,
   store: MediaStore,
@@ -157,26 +160,31 @@ export async function fetchMedia(
     return saving;
   };
   log(`media: ${todo.length} to fetch of ${refs.length} (${[...byHost.keys()].join(", ")})`);
-  await Promise.all(
-    [...byHost].map(async ([host, hostRefs]) => {
-      for (const ref of hostRefs) {
-        try {
-          const { bytes, mime } = await download(fetcher, ref);
-          const stored = await store.put(`${ref.kind}/${mediaName(ref)}`, bytes);
-          index[ref.url] = { kind: ref.kind, ...stored, mime };
-        } catch (error) {
-          if (error instanceof HostRefusedError) {
-            log(`media: ${error.message}`);
-            break;
-          }
-          if (!(error instanceof FetchFailedError)) throw error;
-          index[ref.url] = { kind: ref.kind, error: String(error.status) };
+  const worker = async (host: string, queue: MediaRef[]) => {
+    for (let ref = queue.shift(); ref; ref = queue.shift()) {
+      try {
+        const { bytes, mime } = await download(fetcher, ref);
+        const stored = await store.put(`${ref.kind}/${mediaName(ref)}`, bytes);
+        index[ref.url] = { kind: ref.kind, ...stored, mime };
+      } catch (error) {
+        if (error instanceof HostRefusedError) {
+          log(`media: ${error.message}`);
+          queue.length = 0;
+          return;
         }
-        if (++done % 50 === 0) {
-          log(`media: ${done}/${todo.length} (${host})`);
-          await save();
-        }
+        if (!(error instanceof FetchFailedError)) throw error;
+        index[ref.url] = { kind: ref.kind, error: String(error.status) };
       }
+      if (++done % 50 === 0) {
+        log(`media: ${done}/${todo.length} (${host})`);
+        await save();
+      }
+    }
+  };
+  await Promise.all(
+    [...byHost].flatMap(([host, hostRefs]) => {
+      const queue = [...hostRefs];
+      return Array.from({ length: WORKERS_PER_HOST }, () => worker(host, queue));
     }),
   );
   await save();

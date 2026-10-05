@@ -48,3 +48,18 @@ test("403 stops the host for good, 404 fails one URL", async () => {
   await expect(fetcher.get("https://b.test/other")).rejects.toBeInstanceOf(HostRefusedError);
   expect(calls).not.toContain("https://b.test/other");
 });
+
+test("starts are spaced by the interval while slow requests overlap", async () => {
+  const starts: number[] = [];
+  const slow = (async () => {
+    starts.push(Date.now());
+    await Bun.sleep(150);
+    return new Response("ok");
+  }) as unknown as typeof fetch;
+  const fetcher = createPoliteFetcher({ userAgent: "test", intervalMs: 50, fetch: slow });
+  const t0 = Date.now();
+  await Promise.all([1, 2, 3].map((n) => fetcher.get(`https://c.test/${n}`)));
+  const gaps = starts.slice(1).map((s, i) => s - (starts[i] as number));
+  expect(gaps.every((g) => g >= 45)).toBe(true);
+  expect(Date.now() - t0).toBeLessThan(3 * 150);
+});

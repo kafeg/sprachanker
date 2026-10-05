@@ -45,19 +45,18 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
   const refused = new Map<string, number>();
   const robots = new Map<string, Promise<RobotsRules>>();
 
-  /** Runs `task` after the previous request to the same host, at least `interval` later. */
+  /**
+   * Starts `task` at least `interval` after the previous start on the same host. Requests may
+   * overlap (a slow response does not delay the next start), so callers can run several at once.
+   */
   function onHost<T>(host: string, task: () => Promise<T>): Promise<T> {
-    const run = (queues.get(host) ?? Promise.resolve()).then(async () => {
+    const slot = (queues.get(host) ?? Promise.resolve()).then(async () => {
       const wait = (last.get(host) ?? 0) + interval - Date.now();
       if (wait > 0) await sleep(wait);
       last.set(host, Date.now());
-      return task();
     });
-    queues.set(
-      host,
-      run.catch(() => {}),
-    );
-    return run;
+    queues.set(host, slot);
+    return slot.then(task);
   }
 
   const headers = { "User-Agent": options.userAgent };
