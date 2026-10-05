@@ -1,7 +1,7 @@
 // Synthetic page states shaped like DW's; no real content.
 import { expect, test } from "bun:test";
 import { exerciseIds, extractState, lessonIds } from "../src/apollo.ts";
-import { mediaName, mediaRefs, sdMp4 } from "../src/media.ts";
+import { mediaName, mediaRefs, videoMp4 } from "../src/media.ts";
 
 const state = {
   "Course:1": {
@@ -29,6 +29,7 @@ const state = {
     subtitles: [{ subtitleUrl: "https://www.dw.com/media/subtitles/77" }],
   },
   "Video:8": {
+    name: "Episode 1 (mit Untertiteln)",
     hlsVideoSrc:
       "https://hlsvod.dw.com/i/flv/course/E1_ut_,AVC_480x270,AVC_640x360,.mp4.csmil/master.m3u8",
   },
@@ -49,11 +50,26 @@ test("lessons in course order, exercises in lesson order", () => {
   expect(exerciseIds(state as never, 20)).toEqual([201, 202]);
 });
 
-test("direct SD MP4 only for plain sd/hd videos", () => {
-  expect(sdMp4(state["Video:7"].hlsVideoSrc)).toBe(
-    "https://tvdownloaddw-a.akamaihd.net/downloads/Events/mp4/course/E1_sd.mp4",
-  );
-  expect(sdMp4(state["Video:8"].hlsVideoSrc)).toBeUndefined();
+test("small direct MP4 per video; none for burned-in subtitles", () => {
+  const D = "https://tvdownloaddw-a.akamaihd.net/downloads/";
+  expect(videoMp4(state["Video:7"])).toBe(`${D}Events/mp4/course/E1_sd.mp4`);
+  expect(
+    videoMp4({ name: "Episode 1 (mit Untertiteln)", hlsVideoSrc: state["Video:7"].hlsVideoSrc }),
+  ).toBeUndefined();
+  expect(
+    videoMp4({
+      hlsVideoSrc:
+        "https://hlsvod.dw.com/i/flv/course/E2_neu_,AVC_480x270,AVC_640x360,.mp4.csmil/master.m3u8",
+    }),
+  ).toBe(`${D}flv/course/E2_neu_AVC_640x360.mp4`);
+  expect(
+    videoMp4({
+      videoResourceLinks: [
+        { url: "flv/course/E2_hd.mp4", techFormat: "PODCAST_HD" },
+        { url: "flv/course/E2_sd.mp4", techFormat: "PODCAST_SD" },
+      ],
+    }),
+  ).toBe(`${D}flv/course/E2_sd.mp4`);
 });
 
 test("media of a page", () => {
