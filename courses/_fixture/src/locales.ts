@@ -12,6 +12,7 @@ import {
   vocabKey,
 } from "@sprachanker/schema";
 import { CAFE, COURSE, EXAM, examItems, SPEAKING, UNIT } from "./course.ts";
+import { pdf } from "./media.ts";
 
 type Text = { ru: string; en: string };
 type Lang = keyof Text;
@@ -201,6 +202,12 @@ export function localeLessons(lang: Lang): LocaleLesson[] {
         ],
         script: { title: "Skript", bodyHtml: "<p>Lena: Einen Kaffee, bitte.</p>" },
       },
+      downloads: [
+        {
+          title: { ru: "Скрипт и словарь (PDF)", en: "Script and vocabulary (PDF)" }[lang],
+          path: pdf(`cafe-script-${lang}`),
+        },
+      ],
     },
     {
       format: 1,
@@ -211,6 +218,7 @@ export function localeLessons(lang: Lang): LocaleLesson[] {
       exercises: localeExercises(SPEAKING, SPEAKING_EXERCISES, lang, base + 200),
       vocab: vocabOf(SPEAKING, lang),
       tabs: { grammar: [], culture: [] },
+      downloads: [],
     },
   ];
 }

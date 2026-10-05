@@ -13,3 +13,4 @@ function medium(kind: string, name: string, mime: string): MediaPath {
 export const video = (name: string) => medium("video", `${name}.mp4`, "video/mp4");
 export const image = (name: string) => medium("image", `${name}.jpg`, "image/jpeg");
 export const audio = (name: string) => medium("audio", `${name}.mp3`, "audio/mpeg");
+export const pdf = (name: string) => medium("pdf", `${name}.pdf`, "application/pdf");

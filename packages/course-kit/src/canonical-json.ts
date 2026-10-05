@@ -15,3 +15,8 @@ export function canonicalJson(value: unknown): string {
   // JSON.stringify of strings, finite numbers, booleans and null matches RFC 8785.
   return JSON.stringify(value);
 }
+
+/** Library files: sorted keys, two-space indentation, trailing newline (02, "Conventions"). */
+export function prettyJson(value: unknown): string {
+  return `${JSON.stringify(JSON.parse(canonicalJson(value)), null, 2)}\n`;
+}

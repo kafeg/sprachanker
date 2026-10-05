@@ -10,6 +10,10 @@
     "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
   },
   "dependencies": {
-    "@sprachanker/schema": "workspace:*"
+    "@sprachanker/schema": "workspace:*",
+    "sanitize-html": "2.18.0"
+  },
+  "devDependencies": {
+    "@types/sanitize-html": "2.16.2"
   }
 }

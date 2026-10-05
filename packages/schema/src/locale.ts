@@ -1,6 +1,6 @@
 // Learner-language texts of one edition, at the same key paths as the canonical files (02).
 import { z } from "zod";
-import { format } from "./common.ts";
+import { format, MediaPath } from "./common.ts";
 import { GapId, OptionId } from "./exercise/index.ts";
 import {
   CourseKey,
@@ -43,6 +43,8 @@ export const LocaleExercise = z.object({
   textHtml: z.string().optional(),
   items: z.record(ItemRef, LocaleItem),
 });
+export type LocaleExercise = z.infer<typeof LocaleExercise>;
+export type LocaleItem = z.infer<typeof LocaleItem>;
 
 /** Grammar, culture or script page of a lesson; may mix languages. */
 export const Tab = z.object({
@@ -79,6 +81,8 @@ export const LocaleLesson = z.object({
     culture: z.array(Tab),
     script: Tab.optional(),
   }),
+  /** Printable material of this edition (script with vocabulary, worksheets). */
+  downloads: z.array(z.object({ title: z.string().min(1), path: MediaPath })),
 });
 export type LocaleLesson = z.infer<typeof LocaleLesson>;
 

@@ -189,6 +189,25 @@
         "grammar",
         "culture"
       ]
+    },
+    "downloads": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "$ref": "#/$defs/MediaPath"
+          }
+        },
+        "required": [
+          "title",
+          "path"
+        ]
+      }
     }
   },
   "required": [
@@ -199,7 +218,8 @@
     "title",
     "exercises",
     "vocab",
-    "tabs"
+    "tabs",
+    "downloads"
   ],
   "$defs": {
     "LessonKey": {
@@ -219,6 +239,18 @@
       "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/v-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+(?:-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+)*(?:\\.(?:[2-9]|[1-9]\\d+))?)$",
       "title": "VocabKey",
       "description": "<lesson>/v-<lemma-slug>[.<n>]; .<n> (n ≥ 2) tells apart entries with the same lemma in a lesson"
+    },
+    "MediaPath": {
+      "type": "string",
+      "allOf": [
+        {
+          "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.\\.?(?:\\/|$))[^\\\\]+$"
+        },
+        {
+          "pattern": "^media\\/[^/]+\\/.+$"
+        }
+      ],
+      "title": "MediaPath"
     }
   }
 }
