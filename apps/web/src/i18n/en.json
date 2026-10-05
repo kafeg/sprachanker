@@ -103,15 +103,14 @@
   },
   "llm": {
     "title": "AI assistant",
-    "intro": "Explains mistakes in lessons. Works with a model on this computer (LM Studio) or in the cloud (OpenRouter). Lesson content and your answers go only to the provider you choose.",
+    "intro": "Explains mistakes and tutors in lessons. Works with a model on this computer (LM Studio) or in the cloud (OpenRouter). Lesson content and your answers go only to the provider you choose.",
     "off": "Off",
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
-      "custom": "Other server",
-      "builtin": "Built-in model"
+      "custom": "Other server"
     },
-    "lmstudioHint": "In LM Studio: download a model (for example Gemma 4 12B), then turn on the local server under Developer → Status: Running.",
+    "lmstudioHint": "LM Studio runs the model on this computer. SprachAnker starts its server, loads the chosen model and can download suggested models into it.",
     "endpoint": "Server address",
     "endpointInvalid": "Enter an address like http://localhost:1234/v1",
     "apiKey": "API key",
@@ -140,9 +139,7 @@
       "llm_timeout": "The model took too long to answer.",
       "llm_bad_response": "The server returned an error.",
       "other": "Something went wrong: {message}",
-      "llm_builtin_unavailable": "There is no built-in engine for this computer.",
-      "llm_model_missing": "The chosen model is not downloaded yet — see Settings → AI assistant.",
-      "llm_engine_failed": "The built-in model did not start."
+      "llm_lmstudio_missing": "LM Studio is not installed on this computer."
     }
   },
   "tutor": {
@@ -161,32 +158,23 @@
       "exercise": "Give me a hint for this exercise"
     }
   },
-  "local": {
-    "intro": "Runs on this computer, no other apps needed. The engine and a model are downloaded once into the data folder ({memory} GB of memory here); larger models explain better but answer slower.",
-    "unavailable": "No built-in engine runs on this computer. Use LM Studio or OpenRouter instead.",
-    "recommended": "Recommended",
-    "inUse": "In use",
-    "size": "{size} GB · needs about {ram} GB of memory",
-    "progress": "{done} of {total} GB",
-    "downloadFailed": "The download failed. Try again — it continues where it stopped.",
-    "download": "Download",
-    "pause": "Pause",
-    "resume": "Continue",
+  "lmstudio": {
+    "running": "LM Studio is running.",
+    "notRunning": "LM Studio's server is not running.",
+    "notInstalled": "LM Studio is not installed on this computer. Get it at lmstudio.ai, then come back here.",
+    "needsToken": "LM Studio asks for an API token: enter it above (LM Studio → Developer → Server settings).",
+    "start": "Start LM Studio",
+    "models": "Models in LM Studio",
+    "noModels": "LM Studio has no models yet. Download one below.",
+    "loaded": "in memory",
     "use": "Use",
-    "remove": "Delete",
-    "starting": "Starting the model…",
-    "running": "The model is running.",
-    "failed": "The model did not start: {error}",
-    "engine": "{name}: {done} of {total} MB",
-    "engineFailed": "{name} could not be installed: {error}. Press Download again to retry.",
-    "engineLabel": "Engine",
-    "recommendedEngine": "{name} (recommended)",
-    "engineHint": {
-      "mlx": "Apple's engine for Apple Silicon. Needs its own Python environment (about 350 MB), downloaded once.",
-      "llama": "llama.cpp: works on every computer, starts fast, small (about 30 MB). As fast as MLX or faster in our measurements."
-    },
-    "engineSetup": "{name}: installing…",
-    "engineAbsent": "{name} is downloaded with the first model (about {size} MB).",
-    "inLmStudio": "LM Studio already has this model: it is copied, not downloaded."
+    "inUse": "In use",
+    "suggested": "Suggested models",
+    "suggestedHint": "LM Studio downloads the best build for this computer ({memory} GB of memory) and keeps it.",
+    "recommended": "Recommended",
+    "size": "about {size} GB · needs about {ram} GB of memory",
+    "progress": "{done} of {total} GB",
+    "download": "Download in LM Studio",
+    "gb": "GB"
   }
 }

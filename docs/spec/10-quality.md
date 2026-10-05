@@ -46,7 +46,7 @@ table in the same commit with the reason.
 | Charts | Recharts |
 | Media | native `<video>`/`<audio>`; MediaRecorder + WebAudio resampling to 16 kHz |
 | Desktop | Tauri 2 |
-| Native engines | whisper.cpp (`whisper-server`), Piper, llama.cpp (`llama-server`) — pinned versions |
+| Native engines | whisper.cpp (`whisper-server`), Piper — pinned versions; LLMs run in LM Studio (07) |
 | Type checking | TypeScript, current major (`tsc --noEmit` per workspace); tooling must not pin it to an older one |
 | Lint / boundaries / e2e | Biome / dependency-cruiser with the swc parser (no dependency on the TypeScript compiler API) / Playwright |
 

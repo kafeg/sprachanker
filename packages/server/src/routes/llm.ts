@@ -1,11 +1,11 @@
-// /api/llm: provider setup, connection test, mistake explanations and the lesson tutor. Mounted by app.ts; removing this module
-// and that mount removes the LLM features from the API.
-import { LlmError, LOCAL_MODELS, ProviderId } from "@sprachanker/llm";
+// /api/llm: provider setup, LM Studio, connection test, mistake explanations and the lesson tutor.
+// Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
+import { LlmError, LMSTUDIO_RECOMMENDED, ProviderId } from "@sprachanker/llm";
 import { LessonKey } from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
-import { type Llm, LlmSetupError, type LocalLlm, type LocalLlmStatus } from "../services/llm.ts";
+import { type Llm, LlmSetupError } from "../services/llm.ts";
 import type { Tutor } from "../services/tutor.ts";
 import { Edition, Series, zod } from "../validate.ts";
 
@@ -48,9 +48,6 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
 }
 
 export function llmRoutes(llm: Llm, tutor: Tutor) {
-  const ModelId = z.object({
-    id: z.string().refine((id) => LOCAL_MODELS.some((m) => m.id === id), "unknown model"),
-  });
   return (
     new Hono()
       .get("/", (c) => c.json(llm.state()))
@@ -108,19 +105,27 @@ export function llmRoutes(llm: Llm, tutor: Tutor) {
         ),
         (c) => streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
       )
-      // Built-in model: engines, catalog with download state; downloads run in the background.
-      .get("/local", (c) => c.json(llm.localStatus()))
-      .put("/local/engine", zod("json", z.object({ engine: z.enum(["llama", "mlx"]) })), (c) =>
-        c.json(llm.setLocalEngine(c.req.valid("json").engine)),
-      )
-      .post("/local/:id/download", zod("param", ModelId), async (c) =>
-        c.json(await llm.localModel(c.req.valid("param").id, "download")),
-      )
-      .post("/local/:id/cancel", zod("param", ModelId), async (c) =>
-        c.json(await llm.localModel(c.req.valid("param").id, "cancel")),
-      )
-      .delete("/local/:id", zod("param", ModelId), async (c) =>
-        c.json(await llm.localModel(c.req.valid("param").id, "remove")),
+      // LM Studio: what it has and runs; start its server, download suggested models into it.
+      .get("/lmstudio", async (c) => c.json(await llm.lmStudioStatus()))
+      .post("/lmstudio/start", async (c) => {
+        try {
+          return c.json(await llm.lmStudioStart());
+        } catch (error) {
+          const { status, ...body } = failure(error);
+          return c.json(body, status);
+        }
+      })
+      .post(
+        "/lmstudio/download",
+        zod("json", z.object({ model: z.enum(LMSTUDIO_RECOMMENDED.map((m) => m.key)) })),
+        async (c) => {
+          try {
+            return c.json(await llm.lmStudioDownload(c.req.valid("json").model));
+          } catch (error) {
+            const { status, ...body } = failure(error);
+            return c.json(body, status);
+          }
+        },
       )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),

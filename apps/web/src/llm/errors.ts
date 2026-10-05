@@ -10,9 +10,7 @@ const KNOWN = new Set([
   "llm_model_not_found",
   "llm_timeout",
   "llm_bad_response",
-  "llm_builtin_unavailable",
-  "llm_model_missing",
-  "llm_engine_failed",
+  "llm_lmstudio_missing",
 ]);
 
 export function errorText(t: TFunction, error: unknown, provider?: string): string {

@@ -10,35 +10,30 @@ everything is an OpenAI-compatible chat endpoint plus adapters where needed.
 
 | Provider | Notes |
 |---|---|
-| LM Studio | local, `http://localhost:1234/v1` |
+| LM Studio | local, `http://localhost:1234/v1`; integrated through its own API (below) |
 | Ollama | local, `http://localhost:11434/v1` |
 | Remote box | any OpenAI-compatible URL on the LAN/tailnet |
 | OpenRouter, OpenAI | API key |
 | Anthropic | API key; Messages API adapter |
-| Built-in llama.cpp | `llama-server` run by the server (06); models from the catalog below |
 
-Built today: built-in, LM Studio, OpenRouter and "other server" (any OpenAI-compatible URL, optional key); the
+Built today: LM Studio, OpenRouter and "other server" (any OpenAI-compatible URL, optional key); the
 profile's default route is `llm_routes.task = 'default'`, endpoints live in the setting `llm.endpoints`,
 keys in `secrets` (05, 06).
 
 The provider "test" checks reachability, lists models, measures latency and verifies structured output.
 
-## Built-in model
+## LM Studio
 
-- Engines (06): llama.cpp (GGUF, every platform) is the default; MLX (mlx-lm, Apple Silicon with
-  macOS 14+) can be chosen in the settings. Measured on an M2 Pro (Oct 2026, lesson prompt, reasoning
-  off): Gemma 4 E4B 42 vs 28 tok/s, 12B 19.6 vs 19.0 tok/s (llama.cpp vs MLX); llama.cpp also starts
-  faster and is ~30 MB against ~350 MB. The route's model is the
-  catalog id; each engine serves the model in its own format.
-- Catalog (`packages/llm/src/local-models.ts`): each model as GGUF (llama.cpp) and MLX, files on
-  Hugging Face pinned by size and sha256, licences allowing local use without sign-in (Gemma 4 today;
-  the MLX builds are the `lmstudio-community` ones). The recommended model is the largest that leaves
-  half of the machine's memory free.
-- Downloads are resumable (`<file>.part`), verified before use, paused and resumed from the settings;
-  files live in `<data-root>/models/llm` (GGUF files flat, an MLX build per folder). A file LM Studio
-  already has (`~/.lmstudio/models/<repo>/<file>`, same size) is cloned and verified instead of
-  downloaded. The first model also installs its engine.
-- Servers start with reasoning off (llama.cpp: 8k context; mlx-lm: `enable_thinking: false`).
+The local model runs in LM Studio; the app stores no models or engines. Through LM Studio's REST API
+(`/api/v1`) the settings show whether it runs (and start it with `lms server start` when it is installed
+on the same machine), list its models, set the model in use and ask LM Studio to download suggested
+models (`packages/llm/src/lmstudio.ts`: Gemma 4 by catalog key, the suggested one the largest that
+leaves half of the memory free). Before a task the chosen model is loaded with an 8k context (LM Studio's
+own JIT load uses a smaller window). An API token is sent when LM Studio requires one.
+
+A built-in runtime (llama.cpp and mlx-lm downloaded by the app) existed briefly in Oct 2026 and was
+removed in favour of LM Studio, which already picks the engine, stores models and manages memory. On
+the same weights llama.cpp and MLX were equally fast (M2 Pro, Gemma 4 12B: 19.6 vs 19.0 tok/s).
 
 ## Tasks
 

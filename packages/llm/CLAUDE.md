@@ -9,8 +9,8 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 ```
 src/
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat(); errors as LlmError codes
-  providers.ts     # presets: builtin, lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
-  local-models.ts  # catalog for the built-in runtime: each model as GGUF and MLX (pinned size + sha256)
+  providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
+  lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/

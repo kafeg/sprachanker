@@ -34,9 +34,7 @@ export type LlmErrorCode =
   | "unauthorized"
   | "model_not_found"
   | "timeout"
-  | "bad_response"
-  /** The built-in runtime did not start. */
-  | "engine_failed";
+  | "bad_response";
 
 export class LlmError extends Error {
   constructor(
@@ -58,16 +56,25 @@ const MODELS_TIMEOUT_MS = 10_000;
 /** Local servers may load the model on the first request (JIT), which takes a while. */
 const CHAT_TIMEOUT_MS = 180_000;
 
-export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fetch): LlmClient {
-  const base = endpoint.baseUrl.replace(/\/+$/, "");
+/**
+ * Requests to one HTTP endpoint with the shared error mapping (unreachable, timeout, unauthorized…).
+ * Used by the OpenAI-compatible client and by provider-specific APIs (LM Studio).
+ */
+export function endpointCaller(baseUrl: string, apiKey: string | undefined, fetchFn: typeof fetch) {
+  const base = baseUrl.replace(/\/+$/, "");
   const headers: Record<string, string> = {
     "content-type": "application/json",
     // OpenRouter shows the app name in its activity log; other servers ignore it.
     "x-title": "SprachAnker",
   };
-  if (endpoint.apiKey) headers.authorization = `Bearer ${endpoint.apiKey}`;
+  if (apiKey) headers.authorization = `Bearer ${apiKey}`;
 
-  async function call(path: string, init: RequestInit, timeoutMs: number, signal?: AbortSignal) {
+  return async function call(
+    path: string,
+    init: RequestInit,
+    timeoutMs: number,
+    signal?: AbortSignal,
+  ): Promise<Response> {
     const timeout = AbortSignal.timeout(timeoutMs);
     let res: Response;
     try {
@@ -87,7 +94,11 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
     if (res.status === 401 || res.status === 403) throw new LlmError("unauthorized", message);
     if (res.status === 404) throw new LlmError("model_not_found", message);
     throw new LlmError("bad_response", message);
-  }
+  };
+}
+
+export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fetch): LlmClient {
+  const call = endpointCaller(endpoint.baseUrl, endpoint.apiKey, fetchFn);
 
   return {
     async models(signal) {

@@ -1,12 +1,17 @@
-// LLM setup of the profile (provider endpoints, keys, the default route) and the lesson tasks that use
-// it (07). Everything model-specific lives in @sprachanker/llm.
+// LLM setup of the profile (provider endpoints, keys, the default route), LM Studio integration and the
+// lesson tasks that use the route (07). Everything model-specific lives in @sprachanker/llm.
 import {
   explainMistake,
   type LlmClient,
   LlmError,
+  LMSTUDIO_RECOMMENDED,
+  type LmStudioDownload,
+  type LmStudioModel,
+  lmStudioApi,
   openAiCompatible,
   PROVIDERS,
   type ProviderId,
+  recommendedLmStudioModel,
 } from "@sprachanker/llm";
 import { type LessonKey, parseEditionId } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
@@ -19,24 +24,8 @@ import type { Settings } from "./settings.ts";
 /** Settings key with custom endpoints by provider id. */
 const ENDPOINTS = "llm.endpoints";
 const DEFAULT_ROUTE = "default";
-/** Settings key with the built-in runtime's engine. */
-const LOCAL_ENGINE = "llm.localEngine";
-
-const NO_LOCAL: LocalLlmStatus = {
-  available: false,
-  engine: null,
-  engines: [],
-  memoryGb: 0,
-  models: [],
-  running: null,
-};
 
 export class LlmSetupError extends Error {}
-
-/** The llama-server process of the built-in model. */
-export type RunState =
-  | { model: string; state: "starting" | "ready" }
-  | { model: string; state: "failed"; error: string };
 
 export interface ProviderState {
   id: ProviderId;
@@ -47,60 +36,33 @@ export interface ProviderState {
   editableUrl: boolean;
 }
 
-export type EngineId = "llama" | "mlx";
-
-export interface LocalModelStatus {
-  id: string;
-  title: string;
-  /** Size of the model in the selected engine's format. */
-  sizeBytes: number;
-  ramGb: number;
-  recommended: boolean;
-  /** LM Studio has this exact build: it is copied instead of downloaded. */
-  inLmStudio: boolean;
-  /** paused: a part file waits to be resumed. */
-  state: "absent" | "downloading" | "paused" | "failed" | "ready";
-  received: number;
-  error?: string;
-}
-
-export interface EngineStatus {
-  id: EngineId;
-  version: string;
-  /** Whether this machine can run it. */
-  available: boolean;
-  /** The best available engine for this machine. */
-  recommended: boolean;
-  downloadSize: number;
-  installSize: number;
-  /** setup: unpacking or installing packages after the download. */
-  state: "absent" | "downloading" | "setup" | "failed" | "ready";
-  received: number;
-  error?: string;
-}
-
-export interface LocalLlmStatus {
-  /** False when no engine runs on this machine. */
-  available: boolean;
-  /** The engine in use; models are listed in its format. */
-  engine: EngineId | null;
-  engines: EngineStatus[];
+/** What the server can do with an LM Studio on its own machine (src/runtime/lmstudio.ts). */
+export interface LmStudioHost {
+  /** LM Studio is installed here (its `lms` command exists). */
+  installed(): boolean;
+  /** Starts LM Studio's server (`lms server start`). */
+  startServer(): Promise<void>;
   memoryGb: number;
-  models: LocalModelStatus[];
-  running: RunState | null;
 }
 
-/** The built-in runtime (src/sidecars/local-llm.ts); kept behind this interface so that app.ts stays
- *  free of process and file APIs. */
-export interface LocalLlm {
-  recommendedEngine(): EngineId | null;
-  status(engine: EngineId | null): LocalLlmStatus;
-  download(id: string, engine: EngineId): void;
-  cancel(id: string, engine: EngineId): void;
-  remove(id: string, engine: EngineId): Promise<void>;
-  /** A server running the model, started if needed, and the model name requests must carry. */
-  endpoint(id: string, engine: EngineId): Promise<{ baseUrl: string; model: string }>;
-  stop(): Promise<void>;
+export interface LmStudioStatus {
+  installed: boolean;
+  /** The configured endpoint is on this machine, so the app can start its server. */
+  local: boolean;
+  running: boolean;
+  /** Why LM Studio did not answer (an llm_* code), when running is false. */
+  error?: string;
+  memoryGb: number;
+  models: LmStudioModel[];
+  suggestions: Array<{
+    key: (typeof LMSTUDIO_RECOMMENDED)[number]["key"];
+    title: string;
+    sizeGb: number;
+    ramGb: number;
+    recommended: boolean;
+    downloaded: boolean;
+    download?: LmStudioDownload;
+  }>;
 }
 
 export interface LlmState {
@@ -119,62 +81,48 @@ export interface ExplainRequest {
   language: string;
 }
 
+const LOCAL_URL = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])[:/]/;
+
 export function createLlm(deps: {
   db: ProfileDb;
   settings: Settings;
   box: SecretBox;
   content: Content;
   fetch: typeof fetch;
-  local?: LocalLlm;
+  lmStudio?: LmStudioHost;
 }) {
-  const { db, settings, box, content, local } = deps;
+  const { db, settings, box, content } = deps;
+  /** Downloads started from the app: model key → LM Studio job id. */
+  const downloads = new Map<string, string>();
   const endpoints = () => settings.get<Partial<Record<ProviderId, string>>>(ENDPOINTS) ?? {};
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
   const hasKey = (id: ProviderId) =>
     !!db.select().from(secrets).where(eq(secrets.providerId, id)).get();
   const baseUrl = (id: ProviderId) => endpoints()[id] ?? PROVIDERS[id].baseUrl;
+  const apiKey = async (id: ProviderId) => {
+    const row = db.select().from(secrets).where(eq(secrets.providerId, id)).get();
+    return row ? await box.open(row.valueEncrypted) : undefined;
+  };
+  const studio = async () =>
+    lmStudioApi({ baseUrl: baseUrl("lmstudio"), apiKey: await apiKey("lmstudio") }, deps.fetch);
+  /** A stored route may name a provider that no longer exists (the removed built-in runtime). */
+  const known = (id: string | undefined): id is ProviderId => !!id && id in PROVIDERS;
 
-  /** The built-in runtime's engine: the stored choice if it runs here, else the best for this machine. */
-  function localEngine(): EngineId | null {
-    const stored = settings.get<EngineId>(LOCAL_ENGINE);
-    const available =
-      local
-        ?.status(null)
-        .engines.filter((e) => e.available)
-        .map((e) => e.id) ?? [];
-    return stored && available.includes(stored) ? stored : (local?.recommendedEngine() ?? null);
-  }
-
-  /** A client for the provider and the model name to send (the built-in engines name it their way). */
+  /** A client for the provider, and the model name to send. */
   async function client(
     id: ProviderId,
     model?: string | null,
   ): Promise<{ client: LlmClient; model: string }> {
-    if (id === "builtin") {
-      const engine = localEngine();
-      if (!local || !engine) throw new LlmSetupError("llm_builtin_unavailable");
-      if (!model) throw new LlmSetupError("llm_not_configured");
-      if (local.status(engine).models.find((m) => m.id === model)?.state !== "ready")
-        throw new LlmSetupError("llm_model_missing");
-      try {
-        const endpoint = await local.endpoint(model, engine);
-        return {
-          client: openAiCompatible({ baseUrl: endpoint.baseUrl }, deps.fetch),
-          model: endpoint.model,
-        };
-      } catch (error) {
-        throw new LlmError("engine_failed", error instanceof Error ? error.message : String(error));
-      }
-    }
     const preset = PROVIDERS[id];
     const url = baseUrl(id);
     if (!url) throw new LlmSetupError("llm_no_endpoint");
-    const row = db.select().from(secrets).where(eq(secrets.providerId, id)).get();
-    const apiKey = row ? await box.open(row.valueEncrypted) : undefined;
-    if (preset.key === "required" && !apiKey) throw new LlmSetupError("llm_no_key");
+    const key = await apiKey(id);
+    if (preset.key === "required" && !key) throw new LlmSetupError("llm_no_key");
+    // LM Studio would load a model on its own with a small default window: load it ourselves.
+    if (id === "lmstudio" && model) await (await studio()).ensureLoaded(model);
     return {
       client: openAiCompatible(
-        { baseUrl: url, apiKey, noReasoning: preset.noReasoning },
+        { baseUrl: url, apiKey: key, noReasoning: preset.noReasoning },
         deps.fetch,
       ),
       model: model ?? "",
@@ -184,9 +132,10 @@ export function createLlm(deps: {
   return {
     state(): LlmState {
       const r = route();
+      const provider = known(r?.providerId) ? (r?.providerId as ProviderId) : null;
       return {
-        provider: (r?.providerId as ProviderId | undefined) ?? null,
-        model: r?.model ?? null,
+        provider,
+        model: provider ? (r?.model ?? null) : null,
         providers: Object.values(PROVIDERS).map((p) => ({
           id: p.id,
           baseUrl: baseUrl(p.id),
@@ -226,11 +175,6 @@ export function createLlm(deps: {
     },
     /** Models of a provider with the round-trip time, as a connection test. */
     async models(id: ProviderId, signal?: AbortSignal) {
-      if (id === "builtin") {
-        // Downloaded models; the process starts only when a lesson asks something.
-        const ready = local?.status(localEngine()).models.filter((m) => m.state === "ready") ?? [];
-        return { models: ready.map((m) => ({ id: m.id, name: m.title })), ms: 0 };
-      }
       const started = performance.now();
       const models = await (await client(id)).client.models(signal);
       return { models, ms: Math.round(performance.now() - started) };
@@ -238,30 +182,50 @@ export function createLlm(deps: {
     /** Client and model of the default route; throws when the LLM is not set up. */
     async model(): Promise<{ client: LlmClient; model: string }> {
       const r = route();
-      if (!r?.model) throw new LlmSetupError("llm_not_configured");
-      return client(r.providerId as ProviderId, r.model);
+      if (!r?.model || !known(r.providerId)) throw new LlmSetupError("llm_not_configured");
+      return client(r.providerId, r.model);
     },
-    /** The built-in runtime as the settings show it: engines and models of the engine in use. */
-    localStatus(): LocalLlmStatus {
-      return local?.status(localEngine()) ?? NO_LOCAL;
-    },
-    /** Download, pause or delete a model of the engine in use. */
-    async localModel(
-      id: string,
-      action: "download" | "cancel" | "remove",
-    ): Promise<LocalLlmStatus> {
-      const engine = localEngine();
-      if (local && engine) {
-        if (action === "download") local.download(id, engine);
-        else if (action === "cancel") local.cancel(id, engine);
-        else await local.remove(id, engine);
+    /** LM Studio as the settings show it: installed, running, its models, suggested downloads. */
+    async lmStudioStatus(): Promise<LmStudioStatus> {
+      const base = {
+        installed: deps.lmStudio?.installed() ?? false,
+        local: LOCAL_URL.test(baseUrl("lmstudio")),
+        memoryGb: deps.lmStudio?.memoryGb ?? 0,
+      };
+      const api = await studio();
+      let models: LmStudioModel[];
+      try {
+        models = await api.models();
+      } catch (error) {
+        const code = error instanceof LlmError ? `llm_${error.code}` : "llm_unreachable";
+        return { ...base, running: false, error: code, models: [], suggestions: [] };
       }
-      return this.localStatus();
+      const recommended = recommendedLmStudioModel(base.memoryGb);
+      const suggestions = await Promise.all(
+        LMSTUDIO_RECOMMENDED.map(async (m) => {
+          const downloaded = models.some((x) => x.key === m.key);
+          const job = downloads.get(m.key);
+          let download: LmStudioDownload | undefined;
+          if (job && !downloaded) {
+            download = await api.downloadStatus(job).catch(() => undefined);
+            if (!download || download.status === "failed") downloads.delete(m.key);
+          } else downloads.delete(m.key);
+          return { ...m, recommended: m.key === recommended, downloaded, download };
+        }),
+      );
+      return { ...base, running: true, models, suggestions };
     },
-    /** Switches the built-in engine; the route keeps its model id, now served by the other engine. */
-    setLocalEngine(engine: EngineId): LocalLlmStatus {
-      settings.set(LOCAL_ENGINE, engine);
-      return this.localStatus();
+    /** Asks LM Studio to download a suggested model; progress shows in lmStudioStatus. */
+    async lmStudioDownload(key: string): Promise<LmStudioStatus> {
+      const job = await (await studio()).download(key);
+      if (job.jobId) downloads.set(key, job.jobId);
+      return this.lmStudioStatus();
+    },
+    /** Starts LM Studio's server when LM Studio is installed on this machine. */
+    async lmStudioStart(): Promise<LmStudioStatus> {
+      if (!deps.lmStudio?.installed()) throw new LlmSetupError("llm_lmstudio_missing");
+      await deps.lmStudio.startServer();
+      return this.lmStudioStatus();
     },
     /** Explanation of a wrong answer, streamed. */
     async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {

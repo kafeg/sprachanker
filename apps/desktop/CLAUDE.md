@@ -17,5 +17,5 @@ scripts/
 ## Rules
 
 - Keep Rust minimal: process start/stop, window, tray, updater. Everything else via the local API.
-- Sidecar supervision (whisper, piper, llama) is the server's job so headless mode has the same features.
+- Sidecar supervision (whisper, piper) is the server's job so headless mode has the same features.
 - Never bundle model files or course content.

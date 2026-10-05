@@ -94,43 +94,32 @@ export function useResetTutor(lessonKey: LessonKey) {
   });
 }
 
-export type LocalStatus = Awaited<ReturnType<typeof fetchLocal>>;
-export type EngineId = LocalStatus["engines"][number]["id"];
-const fetchLocal = () => json(api.llm.local.$get());
+export type LmStudioStatus = Awaited<ReturnType<typeof fetchLmStudio>>;
+const fetchLmStudio = () => json(api.llm.lmstudio.$get());
 
-/** The built-in model: catalog and download state; polled while something is in progress. */
-export const useLocalModels = (enabled: boolean) =>
+/** LM Studio's state; polled faster while it downloads something. */
+export const useLmStudio = () =>
   useQuery({
-    queryKey: ["llm-local"],
-    enabled,
-    queryFn: fetchLocal,
-    refetchInterval: (query) => {
-      const data = query.state.data;
-      const busy =
-        data?.models.some((m) => m.state === "downloading") ||
-        data?.engines.some((e) => e.state === "downloading" || e.state === "setup") ||
-        data?.running?.state === "starting";
-      return busy ? 1000 : 10_000;
-    },
+    queryKey: ["lmstudio"],
+    queryFn: fetchLmStudio,
+    refetchInterval: (query) =>
+      query.state.data?.suggestions.some((m) => m.download?.status === "downloading")
+        ? 2000
+        : 10_000,
   });
 
-export function useLocalAction() {
+export type SuggestedModel = LmStudioStatus["suggestions"][number]["key"];
+
+export function useLmStudioAction() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, action }: { id: string; action: "download" | "cancel" | "remove" }) =>
-      json(
-        action === "remove"
-          ? api.llm.local[":id"].$delete({ param: { id } })
-          : api.llm.local[":id"][action].$post({ param: { id } }),
+    // Error responses (409/502) become an ApiError in json(); success is the new status.
+    mutationFn: (action: { start: true } | { download: SuggestedModel }) =>
+      json<LmStudioStatus>(
+        ("start" in action
+          ? api.llm.lmstudio.start.$post()
+          : api.llm.lmstudio.download.$post({ json: { model: action.download } })) as never,
       ),
-    onSuccess: (status) => client.setQueryData(["llm-local"], status),
-  });
-}
-
-export function useSetLocalEngine() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (engine: EngineId) => json(api.llm.local.engine.$put({ json: { engine } })),
-    onSuccess: (status) => client.setQueryData(["llm-local"], status),
+    onSuccess: (status) => client.setQueryData(["lmstudio"], status),
   });
 }

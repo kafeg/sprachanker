@@ -129,8 +129,8 @@ Nicos Weg `en-de` with edition alignment, `coerll-dib`, `sa-starter-en`.
 **Accept**: adding `en-de` to an installed A1 downloads only texts and keeps progress; one Deutsch im
 Blick chapter playable in an English profile; Starter English lesson 1 playable in a Russian profile.
 
-### 12 — Desktop app and built-in LLM runtime
-Tauri shell, first-run wizard, Models screen with `llama-server`, network options with QR, signed
+### 12 — Desktop app
+Tauri shell, first-run wizard (incl. LM Studio setup), network options with QR, signed
 bundles for macOS then Windows and Linux, auto-update.
 **Accept**: fresh machine → install → onboarding → lesson 1 in < 30 minutes (without course download);
 headless `serve` works on a second machine.
@@ -139,5 +139,5 @@ headless `serve` works on a second machine.
 Missions, unit reviews, in-lesson adaptivity, chat tools, session reviews, Goethe A1 practice sets with
 LLM-scored writing/speaking, FSRS for Leben in Deutschland, badges, built-in local CA for LAN HTTPS,
 Qwen3-TTS and cloud speech, offline downloads and push notifications, reader for books and texts, more
-DW courses, `.apkg` with scheduling, FSRS parameter optimisation, built-in MLX runtime, Docker image,
+DW courses, `.apkg` with scheduling, FSRS parameter optimisation, Docker image,
 project website (`kafeg.github.io/sprachanker`), native mobile via Tauri.

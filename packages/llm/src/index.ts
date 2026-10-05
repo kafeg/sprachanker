@@ -1,5 +1,5 @@
 export * from "./client.ts";
-export * from "./local-models.ts";
+export * from "./lmstudio.ts";
 export * from "./providers.ts";
 export * from "./tasks/chat-turn.ts";
 export * from "./tasks/describe.ts";

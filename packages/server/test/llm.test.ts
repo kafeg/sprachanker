@@ -3,16 +3,26 @@ import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { secretBox } from "../src/security/secrets.ts";
-import type { LocalLlm } from "../src/services/llm.ts";
 import { setup } from "./setup.ts";
 
-/** A fake provider: answers /models and streams a fixed reply from /chat/completions. */
+/**
+ * A fake provider: answers /models and streams a fixed reply from /chat/completions. As LM Studio it
+ * also reports the test models as loaded (its native API is not recorded in `calls`).
+ */
 function provider(options: { down?: boolean } = {}) {
   const calls: Array<{ url: string; headers: Record<string, string>; body?: unknown }> = [];
   const fetch = (async (url: string, init: RequestInit) => {
+    if (options.down) throw new TypeError("connection refused");
+    if (url === "http://localhost:1234/api/v1/models")
+      return Response.json({
+        models: ["qwen3-8b", "m"].map((key) => ({
+          type: "llm",
+          key,
+          loaded_instances: [{ id: key, config: { context_length: 8192 } }],
+        })),
+      });
     const headers = init.headers as Record<string, string>;
     calls.push({ url, headers, body: init.body ? JSON.parse(init.body as string) : undefined });
-    if (options.down) throw new TypeError("connection refused");
     if (url.endsWith("/models")) return Response.json({ data: [{ id: "qwen3-8b" }] });
     const sse = ["<think>hmm</think>Weil ", "»Frau« weiblich ist."]
       .map((content) => `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`)
@@ -41,7 +51,6 @@ describe("llm setup", () => {
     const state = await getJson("/api/llm");
     expect(state.provider).toBeNull();
     expect(state.providers.map((p: { id: string; baseUrl: string }) => [p.id, p.baseUrl])).toEqual([
-      ["builtin", ""],
       ["lmstudio", "http://localhost:1234/v1"],
       ["openrouter", "https://openrouter.ai/api/v1"],
       ["custom", ""],
@@ -208,110 +217,122 @@ describe("lesson tutor", () => {
   });
 });
 
-describe("built-in model", () => {
-  /** A LocalLlm stand-in: one downloaded model whose llama-server answers at a fixed URL. */
-  function local(ready: boolean, fail = false) {
+describe("LM Studio", () => {
+  /** LM Studio stand-in: native API (models, load, download) and the OpenAI-compatible chat. */
+  function lmStudio(options: { has?: string[]; loaded?: number } = {}) {
     const calls: string[] = [];
-    const model = {
-      id: "gemma-4-e4b",
-      title: "Gemma 4 E4B",
-      sizeBytes: 1,
-      ramGb: 6.5,
-      recommended: true,
-      inLmStudio: false,
-      state: ready ? ("ready" as const) : ("absent" as const),
-      received: 0,
-    };
-    const llm: LocalLlm = {
-      recommendedEngine: () => "mlx",
-      status: (engine) => ({
-        available: true,
-        engine,
-        engines: (["mlx", "llama"] as const).map((id) => ({
-          id,
-          version: "1",
-          available: true,
-          recommended: id === "mlx",
-          downloadSize: 1,
-          installSize: 1,
-          state: "ready" as const,
-          received: 1,
-        })),
-        memoryGb: 16,
-        models: [model],
-        running: null,
-      }),
-      download: (id, engine) => void calls.push(`download ${id} ${engine}`),
-      cancel: (id, engine) => void calls.push(`cancel ${id} ${engine}`),
-      remove: async (id, engine) => void calls.push(`remove ${id} ${engine}`),
-      endpoint: async (id, engine) => {
-        calls.push(`endpoint ${id} ${engine}`);
-        if (fail) throw new Error("failed to load model");
-        return { baseUrl: "http://127.0.0.1:9999/v1", model: "default_model" };
-      },
-      stop: async () => {},
-    };
-    return { llm, calls };
+    let downloaded = 0;
+    const fetch = (async (url: string, init?: RequestInit) => {
+      const path = new URL(url).pathname;
+      calls.push(`${init?.method ?? "GET"} ${path}${init?.body ? ` ${init.body}` : ""}`);
+      if (path === "/api/v1/models")
+        return Response.json({
+          models: (options.has ?? ["google/gemma-4-12b"]).map((key) => ({
+            type: "llm",
+            key,
+            display_name: key,
+            size_bytes: 1,
+            format: "mlx",
+            loaded_instances: options.loaded
+              ? [{ id: key, config: { context_length: options.loaded } }]
+              : [],
+          })),
+        });
+      if (path === "/api/v1/models/download")
+        return Response.json({ job_id: "job_1", status: "downloading", total_size_bytes: 100 });
+      if (path === "/api/v1/models/download/status/job_1") {
+        downloaded += 40;
+        return Response.json({
+          job_id: "job_1",
+          status: "downloading",
+          total_size_bytes: 100,
+          downloaded_bytes: downloaded,
+        });
+      }
+      if (path.startsWith("/api/v1/models/")) return Response.json({ status: "loaded" });
+      const content = "Weil »Frau« weiblich ist.";
+      return new Response(
+        `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\ndata: [DONE]\n\n`,
+      );
+    }) as unknown as typeof globalThis.fetch;
+    return { fetch, calls };
   }
+  const host = (installed = true) => {
+    const started: string[] = [];
+    return {
+      started,
+      host: {
+        installed: () => installed,
+        memoryGb: 32,
+        startServer: async () => void started.push("lms server start"),
+      },
+    };
+  };
 
-  test("catalog, engine choice and download controls", async () => {
-    const { llm, calls } = local(false);
-    const { getJson, send, sendJson } = await setup({ localLlm: llm });
-    const status = await getJson("/api/llm/local");
-    expect([status.engine, status.models[0].id]).toEqual(["mlx", "gemma-4-e4b"]);
-    await send("POST", "/api/llm/local/gemma-4-e4b/download", {});
-    expect((await sendJson("PUT", "/api/llm/local/engine", { engine: "llama" })).engine).toBe(
-      "llama",
-    );
-    await send("POST", "/api/llm/local/gemma-4-e4b/cancel", {});
-    await send("DELETE", "/api/llm/local/gemma-4-e4b", {});
-    expect((await send("POST", "/api/llm/local/nope/download", {})).status).toBe(400);
-    expect((await send("PUT", "/api/llm/local/engine", { engine: "x" })).status).toBe(400);
-    expect(calls).toEqual([
-      "download gemma-4-e4b mlx",
-      "cancel gemma-4-e4b llama",
-      "remove gemma-4-e4b llama",
-    ]);
+  test("status: its models and suggested downloads with progress", async () => {
+    const studio = lmStudio();
+    const { getJson, sendJson } = await setup({ fetch: studio.fetch, lmStudio: host().host });
+    const status = await getJson("/api/llm/lmstudio");
+    expect(status).toMatchObject({ installed: true, local: true, running: true, memoryGb: 32 });
+    expect(status.models.map((m: { key: string }) => m.key)).toEqual(["google/gemma-4-12b"]);
+    const twelve = status.suggestions.find((m: { key: string }) => m.key === "google/gemma-4-12b");
+    expect(twelve).toMatchObject({ downloaded: true, recommended: true });
+
+    const after = await sendJson("POST", "/api/llm/lmstudio/download", {
+      model: "google/gemma-4-e4b",
+    });
+    const e4b = after.suggestions.find((m: { key: string }) => m.key === "google/gemma-4-e4b");
+    expect(e4b.download).toMatchObject({
+      status: "downloading",
+      totalBytes: 100,
+      downloadedBytes: 40,
+    });
+    expect(studio.calls).toContain('POST /api/v1/models/download {"model":"google/gemma-4-e4b"}');
   });
 
-  test("models are the downloaded ones; lesson help goes to the started llama-server", async () => {
-    const fake = provider();
-    const { llm, calls } = local(true);
-    const { send, getJson } = await setup({ fetch: fake.fetch, localLlm: llm });
-    expect((await getJson("/api/llm/models?provider=builtin")).models).toEqual([
-      { id: "gemma-4-e4b", name: "Gemma 4 E4B" },
-    ]);
-    await send("PUT", "/api/llm/route", { provider: "builtin", model: "gemma-4-e4b" });
-    const res = await send("POST", "/api/llm/explain", EXPLAIN);
-    expect(await res.text()).toBe("Weil »Frau« weiblich ist.");
-    expect(calls).toEqual(["endpoint gemma-4-e4b mlx"]);
-    expect(fake.calls[0]?.url).toBe("http://127.0.0.1:9999/v1/chat/completions");
-    // The engine's name for the model, not the catalog id.
-    expect((fake.calls[0]?.body as { model?: string } | undefined)?.model).toBe("default_model");
-  });
+  test("not running: the reason, and a start through lms when it is installed", async () => {
+    const { host: h, started } = host();
+    const down = (() => Promise.reject(new TypeError("refused"))) as unknown as typeof fetch;
+    const { getJson, send } = await setup({ fetch: down, lmStudio: h });
+    expect(await getJson("/api/llm/lmstudio")).toMatchObject({
+      running: false,
+      error: "llm_unreachable",
+      installed: true,
+    });
+    await send("POST", "/api/llm/lmstudio/start", {});
+    expect(started).toEqual(["lms server start"]);
 
-  test("a model not downloaded, or an engine that does not start, gives clear errors", async () => {
-    const missing = await setup({ fetch: provider().fetch, localLlm: local(false).llm });
-    await missing.send("PUT", "/api/llm/route", { provider: "builtin", model: "gemma-4-e4b" });
-    const a = await missing.send("POST", "/api/llm/explain", EXPLAIN);
-    expect([a.status, ((await a.json()) as { error: string }).error]).toEqual([
+    const missing = await setup({ fetch: down, lmStudio: host(false).host });
+    const res = await missing.send("POST", "/api/llm/lmstudio/start", {});
+    expect([res.status, ((await res.json()) as { error: string }).error]).toEqual([
       409,
-      "llm_model_missing",
+      "llm_lmstudio_missing",
     ]);
+  });
 
-    const broken = await setup({ fetch: provider().fetch, localLlm: local(true, true).llm });
-    await broken.send("PUT", "/api/llm/route", { provider: "builtin", model: "gemma-4-e4b" });
-    const b = await broken.send("POST", "/api/llm/explain", EXPLAIN);
-    expect([b.status, ((await b.json()) as { error: string }).error]).toEqual([
-      502,
-      "llm_engine_failed",
+  test("lesson help loads the chosen model with the tutor's context first", async () => {
+    const studio = lmStudio({ loaded: 4096 });
+    const { send } = await setup({ fetch: studio.fetch, lmStudio: host().host });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "google/gemma-4-12b" });
+    expect(await (await send("POST", "/api/llm/explain", EXPLAIN)).text()).toBe(
+      "Weil »Frau« weiblich ist.",
+    );
+    expect(studio.calls.slice(0, 4)).toEqual([
+      "GET /api/v1/models",
+      'POST /api/v1/models/unload {"instance_id":"google/gemma-4-12b"}',
+      'POST /api/v1/models/load {"model":"google/gemma-4-12b","context_length":8192}',
+      expect.stringMatching(/^POST \/v1\/chat\/completions /),
     ]);
+  });
 
-    const none = await setup({ fetch: provider().fetch });
-    await none.send("PUT", "/api/llm/route", { provider: "builtin", model: "gemma-4-e4b" });
-    expect(
-      ((await (await none.send("POST", "/api/llm/explain", EXPLAIN)).json()) as { error: string })
-        .error,
-    ).toBe("llm_builtin_unavailable");
+  test("a route to the removed built-in runtime reads as off", async () => {
+    const { app, getJson, send } = await setup();
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "x" });
+    // Simulate a profile written by the earlier version.
+    expect((await send("PUT", "/api/llm/route", { provider: "builtin", model: "x" })).status).toBe(
+      400,
+    );
+    expect(app).toBeDefined();
+    expect((await getJson("/api/llm")).provider).toBe("lmstudio");
   });
 });

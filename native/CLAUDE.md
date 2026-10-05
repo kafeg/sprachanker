@@ -1,6 +1,6 @@
 # native/
 
-Platform builds of C/C++ engines used as sidecars. Specs: `docs/spec/08-speech.md`, `docs/spec/07-llm.md`.
+Platform builds of C/C++ engines used as sidecars. Spec: `docs/spec/08-speech.md`.
 
 ## Layout (target)
 
@@ -15,7 +15,4 @@ scripts/   # build-all.ts: builds for current platform, writes binaries with tar
 - Pin exact upstream versions; record them in each folder's `VERSION` file.
 - Builds are reproducible from scripts; CI builds per platform on tags.
 - Model and voice files are downloaded at runtime by the server, never committed or bundled.
-- The built-in LLM engines need no build here: the server downloads the pinned official llama.cpp
-  release and sets up mlx-lm with a pinned `uv` (`packages/server/src/sidecars/engines/`). Own builds
-  come here only if a backend is missing.
 - The server talks to these binaries only over their HTTP/stdio interfaces.
