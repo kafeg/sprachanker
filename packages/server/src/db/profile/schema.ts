@@ -42,3 +42,17 @@ export const events = sqliteTable(
   },
   (t) => [index("events_run").on(t.runId, t.ts)],
 );
+
+/** The profile's API keys, AES-256-GCM sealed; never returned by the API (06, "Secrets"). */
+export const secrets = sqliteTable("secrets", {
+  providerId: text("provider_id").primaryKey(),
+  valueEncrypted: text("value_encrypted").notNull(),
+});
+
+/** Provider and model per LLM task; `default` serves tasks without their own route (07). */
+export const llmRoutes = sqliteTable("llm_routes", {
+  task: text("task").primaryKey(),
+  providerId: text("provider_id").notNull(),
+  model: text("model"),
+  paramsJson: text("params_json").notNull(),
+});

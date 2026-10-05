@@ -100,5 +100,45 @@
     },
     "editions": "Course editions",
     "editionsHint": "The language explanations and translations are shown in."
+  },
+  "llm": {
+    "title": "AI assistant",
+    "intro": "Explains mistakes in lessons. Works with a model on this computer (LM Studio) or in the cloud (OpenRouter). Lesson content and your answers go only to the provider you choose.",
+    "off": "Off",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "custom": "Other server"
+    },
+    "lmstudioHint": "In LM Studio: download a model (for example Gemma 4 12B), then turn on the local server under Developer → Status: Running.",
+    "endpoint": "Server address",
+    "endpointInvalid": "Enter an address like http://localhost:1234/v1",
+    "apiKey": "API key",
+    "openrouterKeyHint": "Create a key at openrouter.ai/keys. It is stored encrypted on this computer and never shown again.",
+    "keyHint": "Only if the server needs one. It is stored encrypted and never shown again.",
+    "keySaved": "Saved — enter a new one to replace it",
+    "save": "Save",
+    "removeKey": "Remove",
+    "check": "Check connection",
+    "checking": "Connecting…",
+    "connected": "Connected · {count, plural, =0 {no models} one {# model} other {# models}} · {ms} ms",
+    "model": "Model",
+    "modelHint": "Pick from the list or type the model name.",
+    "setUpHint": "Want an explanation? Set up the AI assistant",
+    "why": "Why is this wrong?",
+    "explanation": "Explanation",
+    "thinking": "Thinking…",
+    "error": {
+      "llm_not_configured": "Choose a model in Settings → AI assistant.",
+      "llm_no_endpoint": "Enter the server address.",
+      "llm_no_key": "Enter the API key.",
+      "llm_unreachable": "The server does not answer. Check the address.",
+      "lmstudioDown": "LM Studio does not answer. Is its local server running?",
+      "llm_unauthorized": "The API key was not accepted.",
+      "llm_model_not_found": "The model was not found on the server.",
+      "llm_timeout": "The model took too long to answer.",
+      "llm_bad_response": "The server returned an error.",
+      "other": "Something went wrong: {message}"
+    }
   }
 }

@@ -100,5 +100,45 @@
     },
     "editions": "Kursausgaben",
     "editionsHint": "In welcher Sprache Erklärungen und Übersetzungen erscheinen."
+  },
+  "llm": {
+    "title": "KI-Assistent",
+    "intro": "Erklärt Fehler in den Lektionen. Funktioniert mit einem Modell auf diesem Computer (LM Studio) oder in der Cloud (OpenRouter). Lektionsinhalte und deine Antworten gehen nur an den gewählten Anbieter.",
+    "off": "Aus",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "custom": "Anderer Server"
+    },
+    "lmstudioHint": "In LM Studio ein Modell herunterladen (z. B. Gemma 4 12B) und den lokalen Server starten: Developer → Status: Running.",
+    "endpoint": "Serveradresse",
+    "endpointInvalid": "Gib eine Adresse wie http://localhost:1234/v1 ein",
+    "apiKey": "API-Schlüssel",
+    "openrouterKeyHint": "Einen Schlüssel erstellst du auf openrouter.ai/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
+    "keyHint": "Nur wenn der Server einen braucht. Er wird verschlüsselt gespeichert und nie wieder angezeigt.",
+    "keySaved": "Gespeichert – zum Ersetzen einen neuen eingeben",
+    "save": "Speichern",
+    "removeKey": "Entfernen",
+    "check": "Verbindung prüfen",
+    "checking": "Verbinde…",
+    "connected": "Verbunden · {count, plural, =0 {keine Modelle} one {# Modell} other {# Modelle}} · {ms} ms",
+    "model": "Modell",
+    "modelHint": "Aus der Liste wählen oder den Modellnamen eingeben.",
+    "setUpHint": "Erklärung gewünscht? KI-Assistent einrichten",
+    "why": "Warum ist das falsch?",
+    "explanation": "Erklärung",
+    "thinking": "Denke nach…",
+    "error": {
+      "llm_not_configured": "Wähle ein Modell unter Einstellungen → KI-Assistent.",
+      "llm_no_endpoint": "Gib die Serveradresse ein.",
+      "llm_no_key": "Gib den API-Schlüssel ein.",
+      "llm_unreachable": "Der Server antwortet nicht. Prüfe die Adresse.",
+      "lmstudioDown": "LM Studio antwortet nicht. Läuft der lokale Server?",
+      "llm_unauthorized": "Der API-Schlüssel wurde nicht akzeptiert.",
+      "llm_model_not_found": "Das Modell wurde auf dem Server nicht gefunden.",
+      "llm_timeout": "Das Modell braucht zu lange.",
+      "llm_bad_response": "Der Server hat einen Fehler gemeldet.",
+      "other": "Etwas ist schiefgelaufen: {message}"
+    }
   }
 }

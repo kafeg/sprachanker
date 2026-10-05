@@ -7,6 +7,13 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
+  },
+  "dependencies": {
+    "@sprachanker/schema": "workspace:*",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@sprachanker/course-fixture": "workspace:*"
   }
 }

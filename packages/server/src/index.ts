@@ -1,7 +1,8 @@
 import { join } from "node:path";
 import { openLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
-import { type Listening, listen, mediaBlob, openProfileDb } from "./runtime/bun.ts";
+import { appDataDir } from "./config.ts";
+import { type Listening, listen, mediaBlob, openProfileDb, secretKey } from "./runtime/bun.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
 export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
@@ -24,6 +25,8 @@ export function startServer(config: ServerConfig): Listening {
     profile: openProfileDb(join(config.dataRoot, "profiles", "local", "profile.sqlite")),
     mediaBlob,
     appVersion: config.appVersion,
+    // Outside the data root, so a copied data folder does not carry usable API keys.
+    secretKey: secretKey(join(appDataDir(), "secret.key")),
   });
   return listen(app.fetch, config);
 }

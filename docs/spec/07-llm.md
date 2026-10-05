@@ -17,6 +17,10 @@ everything is an OpenAI-compatible chat endpoint plus adapters where needed.
 | Anthropic | API key; Messages API adapter |
 | Built-in llama.cpp | after MVP (06) |
 
+Built today: LM Studio, OpenRouter and "other server" (any OpenAI-compatible URL, optional key); the
+profile's default route is `llm_routes.task = 'default'`, endpoints live in the setting `llm.endpoints`,
+keys in `secrets` (05, 06).
+
 The provider "test" checks reachability, lists models, measures latency and verifies structured output.
 
 ## Tasks
@@ -30,8 +34,15 @@ default route.
 | `scene_turn` | scene, allowed vocab/rules, history, learner turn | reply (target language), goal progress, corrections[] |
 | `chat_turn` | free chat with the learner's context (progress, recent mistakes; the current exercise when asked from a lesson) | message |
 | `translate_mt` | text, languages | translation, marked as machine translation |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages | short explanation in the native language (streamed text) |
 
-`respond` → `check_answer`; `scene` → `scene_turn`; "ask about this exercise" → `chat_turn`.
+`respond` → `check_answer`; `scene` → `scene_turn`; "ask about this exercise" → `chat_turn`;
+"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`.
+
+- Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
+  phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
+  `reasoning: { enabled: false }`); a model that always reasons rejects that and is asked again without.
+  Inline `<think>…</think>` output is stripped.
 
 - Outputs are JSON validated with zod: invalid → one repair retry → graceful "couldn't check, here is
   the reference answer". Requests have per-task timeouts; a model that is still loading is shown as such.

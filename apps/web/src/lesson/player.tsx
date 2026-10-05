@@ -8,6 +8,7 @@ import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { isScored } from "@/exercises/index.tsx";
+import { ExplainMistake } from "@/llm/explain.tsx";
 import { lessonNumbers } from "@/routes/courses.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -280,6 +281,16 @@ export function LessonPlayer({
               }}
               onBack={() => go(step > 0 ? step - 1 : "overview")}
               onNext={() => go(step + 1 < total ? step + 1 : "summary")}
+              explain={(index, answer) => (
+                <ExplainMistake
+                  series={series}
+                  lessonKey={lesson.key}
+                  edition={edition}
+                  exerciseKey={lesson.pages[step]?.exercise.key ?? ""}
+                  index={index}
+                  answer={answer}
+                />
+              )}
             />
           )}
           {step === "summary" && (

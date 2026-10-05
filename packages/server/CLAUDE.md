@@ -18,11 +18,12 @@ src/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
     backup.ts        # copy-before-migrate, retention
-  routes/            # (target) one file per API area once app.ts grows; today the routes live in app.ts
-  services/          # business flows composing engine/llm/speech with storage; in-memory derived stats per profile
+  validate.ts        # request validation helper and shared param schemas
+  routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
+  services/          # content, runs, settings, llm (provider setup + lesson tasks); compose engine/llm with storage
   jobs/              # import, model download; progress via SSE
   sidecars/          # whisper-server, TTS, later llama-server supervisors (spawn, health, restart)
-  security/          # profiles, PIN, device tokens, secrets encryption, Host check, CSP
+  security/          # secrets.ts (AES-GCM sealing of API keys); later profiles, PIN, device tokens, Host check, CSP
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
   media/             # Range responses for library media (read via course-kit) and profile files
 test/                # bun test; integration tests call createApp().request()
@@ -33,7 +34,9 @@ test/                # bun test; integration tests call createApp().request()
 - Routes are thin: validate with schema, call a service, return schema-typed result.
 - Events are append-only; never UPDATE or DELETE `events` (only deleting a whole profile removes them).
 - Any change to a Drizzle schema → new migration + migration test with fixture DBs (`test/fixtures/db/`).
-- Secrets are write-only through the API and never logged.
+- Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
+  (outside the data root), read by `src/runtime/`.
+- Outgoing requests to LLM providers go through the injected `fetch` (`AppConfig.fetch`); tests fake it.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
 - `src/app.ts` and everything it imports stay free of Bun/Node APIs: the web client type-checks
   that graph without Bun types.

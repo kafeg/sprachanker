@@ -49,6 +49,8 @@ export interface StepProps {
   onSkip(): void;
   onBack(): void;
   onNext(): void;
+  /** Extra help under a wrong item (the LLM explanation), if available. */
+  explain?(index: number, answer: unknown): React.ReactNode;
 }
 
 export function ExerciseStep({
@@ -61,6 +63,7 @@ export function ExerciseStep({
   onSkip,
   onBack,
   onNext,
+  explain,
 }: StepProps) {
   const { t } = useTranslation();
   const [answers, setAnswers] = useState<Record<number, unknown>>({});
@@ -204,6 +207,9 @@ export function ExerciseStep({
               {outcome && outcome.result !== "unscored" && (
                 <Feedback outcome={outcome} answer={correctAnswer(exercise, i)} />
               )}
+              {outcome &&
+                (outcome.result === "wrong" || outcome.result === "partial") &&
+                explain?.(i, answers[i])}
             </li>
           );
         })}

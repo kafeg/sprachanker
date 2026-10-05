@@ -4,13 +4,16 @@ import type { LibraryView } from "@sprachanker/course-kit";
 import { LessonKey } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import { validator } from "hono/validator";
 import { z } from "zod";
 import type { ProfileDb } from "./db/profile/db.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
+import { llmRoutes } from "./routes/llm.ts";
+import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
+import { createLlm } from "./services/llm.ts";
 import { createRuns, RunError } from "./services/runs.ts";
 import { createSettings } from "./services/settings.ts";
+import { Edition, Series, zod } from "./validate.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
 export type { WebAssets } from "./web.ts";
@@ -22,30 +25,27 @@ export interface AppConfig {
   /** Reads a library media file (runtime adapter). */
   mediaBlob(file: string): MediaBlob;
   appVersion: string;
+  /** 32-byte key that seals the profile's API keys (06, "Secrets"). */
+  secretKey: Uint8Array;
+  /** Outgoing requests to LLM providers (replaced in tests). */
+  fetch?: typeof fetch;
   now?: () => number;
 }
 
 /** Mutating requests must carry this header (CSRF protection, 06). */
 export const CLIENT_HEADER = "x-sprachanker";
 
-/** Validates a request part; invalid input ends in a 400 from onError (keeps response types clean). */
-const zod = <T extends "query" | "json", S extends z.ZodType>(target: T, schema: S) =>
-  validator(target, (value) => {
-    const result = schema.safeParse(value);
-    if (!result.success) {
-      const issue = result.error.issues[0];
-      throw new HTTPException(400, { message: `${issue?.path.join(".")}: ${issue?.message}` });
-    }
-    return result.data as z.infer<S>;
-  });
-
-const Series = z.string().regex(/^[a-z0-9-]+\.[a-z0-9-]+$/);
-const Edition = z.string().regex(/^[a-z]{2,3}-[a-z]{2,3}$/);
-
 export function createApp(config: AppConfig) {
   const now = config.now ?? Date.now;
   const content = createContent(config.library);
   const settings = createSettings(config.profile);
+  const llm = createLlm({
+    db: config.profile,
+    settings,
+    box: secretBox(config.secretKey),
+    content,
+    fetch: config.fetch ?? fetch,
+  });
   const runs = createRuns({
     db: config.profile,
     content,
@@ -132,6 +132,7 @@ export function createApp(config: AppConfig) {
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
     .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
+    .route("/llm", llmRoutes(llm))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);

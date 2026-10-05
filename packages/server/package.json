@@ -15,6 +15,7 @@
     "@sprachanker/course-kit": "workspace:*",
     "@sprachanker/dw-nicos-weg": "workspace:*",
     "@sprachanker/engine": "workspace:*",
+    "@sprachanker/llm": "workspace:*",
     "@sprachanker/schema": "workspace:*",
     "drizzle-orm": "0.45.3",
     "hono": "4.13.13",

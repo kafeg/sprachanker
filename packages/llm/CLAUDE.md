@@ -1,25 +1,29 @@
 # packages/llm
 
 LLM gateway: providers, task routing, prompts, structured outputs, golden tests. Spec: `docs/spec/07-llm.md`.
-Depends on `packages/schema` only. Never imports server code; storage of conversations is the server's job.
+Depends on `packages/schema` only. Never imports server code; storage of settings, keys and conversations
+is the server's job. Web-standard APIs only (fetch, streams), no runtime-specific code.
 
-## Layout (target)
+## Layout
 
 ```
 src/
-  providers/       # openai-compatible base; adapters: anthropic; presets: lmstudio, ollama, openrouter, openai, remote
-  tasks/           # one folder per task: prompt template, input/output zod schemas, repair logic
-  router.ts        # route + fallback resolution
-  handoff.ts       # build Claude/ChatGPT handoff prompts and URLs
-golden/
-  <task>/*.yaml    # cases: input + expected properties
-  RESULTS.md       # latest results table per model (only log-style file allowed)
+  client.ts        # OpenAI-compatible endpoint: models(), streamed chat(); errors as LlmError codes
+  providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
+  thinking.ts      # strips inline <think>…</think> from streamed text
+  text.ts          # course HTML → plain text for prompts
+  tasks/
+    describe.ts        # an exercise item as text: task, correct answer, learner answer
+    explain-mistake.ts # explain_mistake: prompt + call
+test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
+
+Later (target): `tasks/<task>/` with zod output schemas and repair logic for JSON tasks, `router.ts`
+(per-task routes, fallback), `handoff.ts`, an Anthropic adapter, `golden/<task>/*.yaml` + `RESULTS.md`.
 
 ## Rules
 
-- Every task output is validated with zod; invalid → one repair attempt → fallback → graceful degradation.
-- Prompts live next to their task; changing a prompt requires running `prompts test` on the default route
-  and updating RESULTS.md.
-- Explanations in the learner's native language; target-language text segmented by language for TTS.
-- No vendor SDK leaks outside `providers/`.
+- JSON task outputs are validated with zod; invalid → one repair attempt → fallback → graceful degradation.
+- Prompts live next to their task; course text and learner input are delimited data in the prompt.
+- Explanations in the learner's native language; target-language text stays in the target language.
+- No vendor SDK leaks outside the provider code.

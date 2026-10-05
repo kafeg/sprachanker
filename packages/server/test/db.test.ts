@@ -43,7 +43,14 @@ const tables = (file: string) =>
 test("a new profile database gets every table; reopening changes nothing", () => {
   const file = fresh();
   openProfileDb(file, 1);
-  expect(tables(file)).toEqual(["_migrations", "events", "runs", "settings"]);
+  expect(tables(file)).toEqual([
+    "_migrations",
+    "events",
+    "llm_routes",
+    "runs",
+    "secrets",
+    "settings",
+  ]);
   openProfileDb(file, 2);
   expect(readdirSync(join(file, "..")).some((f) => f.includes(".bak-"))).toBe(false);
 });

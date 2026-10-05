@@ -1,6 +1,6 @@
 // Bun-specific adapters. Everything else in the server stays runtime-agnostic (Node fallback).
 import { Database } from "bun:sqlite";
-import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { migrate } from "../db/migrate.ts";
@@ -75,3 +75,16 @@ export function openProfileDb(file: string, now = Date.now()): ProfileDb {
 
 /** A library media file as a Blob (type from the extension). */
 export const mediaBlob = (file: string): MediaBlob => Bun.file(file);
+
+/** The key that seals secrets: read from `file`, created (owner-only) on first use. */
+export function secretKey(file: string): Uint8Array {
+  if (statSync(file, { throwIfNoEntry: false })?.isFile()) {
+    const key = new Uint8Array(readFileSync(file));
+    if (key.length === 32) return key;
+    throw new Error(`${file}: expected a 32-byte key`);
+  }
+  mkdirSync(dirname(file), { recursive: true });
+  const key = crypto.getRandomValues(new Uint8Array(32));
+  writeFileSync(file, key, { mode: 0o600, flag: "wx" });
+  return key;
+}
