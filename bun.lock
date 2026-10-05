@@ -80,6 +80,9 @@
     "packages/engine": {
       "name": "@sprachanker/engine",
       "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/schema": "workspace:*",
+      },
     },
     "packages/llm": {
       "name": "@sprachanker/llm",

@@ -7,6 +7,7 @@ export const TokenDiff = z.object({
   expected: z.string().optional(),
   actual: z.string().optional(),
 });
+export type TokenDiff = z.infer<typeof TokenDiff>;
 
 export const Outcome = z.object({
   result: z.enum(["correct", "partial", "wrong", "unscored"]),
