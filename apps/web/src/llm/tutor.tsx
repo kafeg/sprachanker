@@ -8,7 +8,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sh
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { cn } from "@/ui/utils.ts";
 import { streamTutor, type TutorRequest, useLlm, useResetTutor, useTutorHistory } from "./api.ts";
+import { AssistantLabel } from "./assistant-label.tsx";
+import { ContextMeter } from "./context-meter.tsx";
 import { errorText } from "./errors.ts";
+import { PromptButton } from "./prompt-view.tsx";
 import { RichText } from "./rich-text.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language">;
@@ -88,7 +91,24 @@ function Chat(context: Context) {
 
   return (
     <>
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-4" aria-live="polite">
+      <div className="flex min-h-11 items-center gap-1 border-b px-4 pb-2">
+        <AssistantLabel className="mr-auto" />
+        <PromptButton
+          request={() => ({
+            tutor: { ...context, message: input.trim(), language: i18n.language },
+          })}
+        />
+        {turns.length > 0 && !pending && (
+          <Button variant="ghost" size="sm" onClick={() => reset.mutate()}>
+            <RotateCcw className="size-4" /> {t("tutor.newChat")}
+          </Button>
+        )}
+      </div>
+      <ContextMeter
+        request={{ ...context, message: "", language: i18n.language }}
+        turns={turns.length}
+      />
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
         {turns.length === 0 && !pending && (
           <div className="space-y-3 pt-2">
             <p className="text-muted-foreground">{t("tutor.intro")}</p>
@@ -174,16 +194,6 @@ function Chat(context: Context) {
           </Button>
         )}
       </form>
-      {turns.length > 0 && !pending && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="absolute top-3 right-12"
-          onClick={() => reset.mutate()}
-        >
-          <RotateCcw className="size-4" /> {t("tutor.newChat")}
-        </Button>
-      )}
     </>
   );
 }
@@ -199,7 +209,7 @@ export function LessonTutor(context: Context) {
       </Button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full gap-0 sm:max-w-lg">
-          <SheetHeader>
+          <SheetHeader className="pb-2">
             <SheetTitle>{t("tutor.title")}</SheetTitle>
           </SheetHeader>
           {open && <Chat {...context} />}

@@ -2,6 +2,7 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { usePreferences } from "@/app/preferences.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
+import { AssistantLabel } from "@/llm/assistant-label.tsx";
 import { AppShell } from "@/ui/app-shell.tsx";
 import { CoursePage } from "./course.tsx";
 import { CoursesPage } from "./courses.tsx";
@@ -13,7 +14,11 @@ const root = createRootRoute({
     return <Outlet />;
   },
 });
-const shell = createRoute({ getParentRoute: () => root, id: "shell", component: AppShell });
+const shell = createRoute({
+  getParentRoute: () => root,
+  id: "shell",
+  component: () => <AppShell footer={<AssistantLabel />} />,
+});
 const courses = createRoute({ getParentRoute: () => shell, path: "/", component: CoursesPage });
 const course = createRoute({ getParentRoute: () => shell, path: "/course/$series/$course" });
 course.update({

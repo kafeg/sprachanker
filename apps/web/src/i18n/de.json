@@ -156,7 +156,12 @@
       "examples": "Gib mir mehr Beispiele mit den neuen Wörtern",
       "dialogue": "Lass uns einen kurzen Dialog üben",
       "exercise": "Gib mir einen Tipp zu dieser Übung"
-    }
+    },
+    "context": "Kontext ≈ {used} von {window} Tokens",
+    "contextSize": "Anfrage ≈ {used} Tokens",
+    "remembers": "erinnert sich an {kept} von {total} Nachrichten",
+    "contextFull": "Der Kontext ist fast voll: die ersten Nachrichten erreichen das Modell nicht mehr. Für ein neues Thema ein neues Gespräch beginnen.",
+    "contextHint": "Größe der nächsten Anfrage: Lektionskontext, Gespräch und deine Nachricht, plus Platz für die Antwort."
   },
   "lmstudio": {
     "running": "LM Studio läuft.",
@@ -176,5 +181,35 @@
     "progress": "{done} von {total} GB",
     "download": "In LM Studio herunterladen",
     "gb": "GB"
+  },
+  "prompt": {
+    "button": "Prompt",
+    "title": "Prompt",
+    "endpoint": "Adresse",
+    "size": "Größe",
+    "sizeValue": "{chars} Zeichen ≈ {tokens} Tokens",
+    "copy": "Anfrage als JSON kopieren",
+    "infoTitle": "Was das Modell bekommt",
+    "infoIntro": "Jede Anfrage enthält feste Regeln (den System-Prompt) und Kursdaten der aktuellen Lektion. Lange Teile werden auf die Grenzen unten gekürzt, damit auch kleine lokale Modelle mitkommen.",
+    "task": {
+      "explain": "„Warum ist das falsch?“",
+      "tutor": "Tutor"
+    },
+    "contextIntro": "Aus der Lektion kommt dazu:",
+    "systemIntro": "System-Prompt:",
+    "part": {
+      "item": "der Übungspunkt: Aufgabe, Optionen oder Lücken, die richtige und deine Antwort",
+      "notes": "die Grammatik-Notizen der Lektion",
+      "lesson": "Titel und Ziele der Lektion",
+      "lessonVocab": "die Wörter der Lektion mit Übersetzung",
+      "knownVocab": "Wörter früherer Lektionen (die neuesten zuerst)",
+      "earlierLessons": "Titel früherer Lektionen",
+      "grammar": "die Grammatik-Notizen der Lektion",
+      "exercise": "die Übung auf dem Bildschirm mit Lösungen (der Tutor gibt zuerst Tipps)",
+      "history": "die letzten Nachrichten des Gesprächs"
+    },
+    "upTo": "bis {chars} Zeichen",
+    "debug": "„Prompt“-Knöpfe zeigen",
+    "debugHint": "Bei Erklärungen und im Tutor: die genaue Anfrage mit allen Nachrichten, zum Debuggen."
   }
 }

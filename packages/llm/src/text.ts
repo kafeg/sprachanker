@@ -33,3 +33,10 @@ export function clip(text: string, max: number): string {
   const cut = text.lastIndexOf("\n", max);
   return `${text.slice(0, cut > max / 2 ? cut : max)}\n…`;
 }
+
+/** English name of a language code for prompts: "ru" → "Russian". */
+export const languageName = (code: string) =>
+  new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? code;
+
+/** Rough token count: about 4 characters per token for German, English and Russian text. */
+export const estimateTokens = (text: string) => Math.ceil(text.length / 4);

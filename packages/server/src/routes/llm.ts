@@ -11,6 +11,25 @@ import { Edition, Series, zod } from "../validate.ts";
 
 const Language = z.string().regex(/^[a-z]{2,3}$/);
 
+const ExplainBody = z.object({
+  series: Series,
+  lessonKey: LessonKey,
+  edition: Edition,
+  exerciseKey: z.string().max(300),
+  index: z.number().int().nonnegative(),
+  answer: z.unknown().optional(),
+  language: Language,
+});
+
+const TutorBody = z.object({
+  series: Series,
+  lessonKey: LessonKey,
+  edition: Edition,
+  exerciseKey: z.string().max(300).optional(),
+  message: z.string().trim().min(1).max(4000),
+  language: Language,
+});
+
 const Url = z
   .string()
   .max(500)
@@ -89,22 +108,22 @@ export function llmRoutes(llm: Llm, tutor: Tutor) {
           return c.json(body, status);
         }
       })
-      .post(
-        "/explain",
-        zod(
-          "json",
-          z.object({
-            series: Series,
-            lessonKey: LessonKey,
-            edition: Edition,
-            exerciseKey: z.string().max(300),
-            index: z.number().int().nonnegative(),
-            answer: z.unknown().optional(),
-            language: Language,
-          }),
-        ),
-        (c) => streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
+      .post("/explain", zod("json", ExplainBody), (c) =>
+        streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
       )
+      // Prompt viewer: the exact request a task would send now (nothing is sent).
+      .post("/explain/prompt", zod("json", ExplainBody), async (c) => {
+        try {
+          return c.json(await llm.explainPrompt(c.req.valid("json")));
+        } catch (error) {
+          const { status, ...body } = failure(error);
+          return c.json(body, status);
+        }
+      })
+      .get("/prompts", zod("query", z.object({ language: Language, target: Language })), (c) => {
+        const { language, target } = c.req.valid("query");
+        return c.json(llm.prompts(language, target));
+      })
       // LM Studio: what it has and runs; start its server, download suggested models into it.
       .get("/lmstudio", async (c) => c.json(await llm.lmStudioStatus()))
       .post("/lmstudio/start", async (c) => {
@@ -130,20 +149,25 @@ export function llmRoutes(llm: Llm, tutor: Tutor) {
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
       )
+      .post("/tutor", zod("json", TutorBody), (c) =>
+        streamReply(c, () => tutor.send(c.req.valid("json"), c.req.raw.signal)),
+      )
       .post(
-        "/tutor",
-        zod(
-          "json",
-          z.object({
-            series: Series,
-            lessonKey: LessonKey,
-            edition: Edition,
-            exerciseKey: z.string().max(300).optional(),
-            message: z.string().trim().min(1).max(4000),
-            language: Language,
-          }),
-        ),
-        (c) => streamReply(c, () => tutor.send(c.req.valid("json"), c.req.raw.signal)),
+        "/tutor/context",
+        zod("json", TutorBody.extend({ message: z.string().max(4000) })),
+        async (c) => c.json(await tutor.usage(c.req.valid("json"))),
+      )
+      .post(
+        "/tutor/prompt",
+        zod("json", TutorBody.extend({ message: z.string().max(4000) })),
+        async (c) => {
+          try {
+            return c.json(await tutor.prompt(c.req.valid("json")));
+          } catch (error) {
+            const { status, ...body } = failure(error);
+            return c.json(body, status);
+          }
+        },
       )
       .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
         tutor.reset(c.req.valid("json").lessonKey);

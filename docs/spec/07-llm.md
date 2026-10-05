@@ -65,6 +65,17 @@ default route.
   (`[{lang,text}]`) for TTS. Course text and learner input are delimited data, never instructions.
 - `translate_mt` results are cached by input hash.
 
+## Transparency and debugging
+
+- The UI names the assistant wherever it answers (tutor, explanations, sidebar): provider · model.
+- Settings → "What the model gets": each task's system prompt and the context parts it adds, with
+  their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`).
+- A "Prompt" button (switched on in the settings) shows the exact request of an explanation or of the
+  next tutor message — endpoint, fields, every message with its size — built by the same function as
+  the real call (`explainMistakeRequest`, `chatTurnRequest`, `chatBody`); nothing is sent.
+- The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
+  and how many turns still fit; when the earliest no longer fit it suggests a new chat.
+
 ## Conversations
 
 - **Lesson tutor** (`chat_turn` from the lesson player): one chat per lesson, a `chat` run with

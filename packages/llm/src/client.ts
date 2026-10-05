@@ -22,6 +22,27 @@ export interface ChatRequest {
   signal?: AbortSignal;
 }
 
+/** What a task asks for, before a provider and model are attached. */
+export type TaskRequest = Omit<ChatRequest, "model" | "signal">;
+
+/**
+ * The JSON body of a chat request exactly as it is posted — also shown in the prompt viewer (07,
+ * "Debugging"). `noReasoning` are the provider's fields that turn reasoning off.
+ */
+export function chatBody(
+  request: Omit<ChatRequest, "signal">,
+  noReasoning?: Record<string, unknown>,
+) {
+  return {
+    model: request.model,
+    messages: request.messages,
+    temperature: request.temperature ?? 0.3,
+    max_tokens: request.maxTokens,
+    stream: true,
+    ...(request.reasoning === false ? noReasoning : undefined),
+  };
+}
+
 export interface LlmClient {
   /** Chat models the endpoint offers (embedding models are left out). */
   models(signal?: AbortSignal): Promise<ModelInfo[]>;
@@ -113,29 +134,25 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
         .map((m) => (typeof m.name === "string" ? { id: m.id, name: m.name } : { id: m.id }));
     },
     chat(request) {
-      const body = {
-        model: request.model,
-        messages: request.messages,
-        temperature: request.temperature ?? 0.3,
-        max_tokens: request.maxTokens,
-        stream: true,
-      };
-      const open = (extra: Record<string, unknown> = {}) =>
+      const open = (withSwitch: boolean) =>
         call(
           "/chat/completions",
-          { method: "POST", body: JSON.stringify({ ...body, ...extra }) },
+          {
+            method: "POST",
+            body: JSON.stringify(chatBody(request, withSwitch ? endpoint.noReasoning : undefined)),
+          },
           CHAT_TIMEOUT_MS,
           request.signal,
         );
-      const extra = request.reasoning === false ? endpoint.noReasoning : undefined;
+      const extra = request.reasoning === false && !!endpoint.noReasoning;
       return stripThinking(
         streamChat(async () => {
-          if (!extra) return open();
+          if (!extra) return open(false);
           try {
-            return await open(extra);
+            return await open(true);
           } catch (error) {
             // Models that always reason reject the switch: ask again without it.
-            if (error instanceof LlmError && error.code === "bad_response") return open();
+            if (error instanceof LlmError && error.code === "bad_response") return open(false);
             throw error;
           }
         }),

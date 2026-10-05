@@ -1,9 +1,17 @@
 // LLM setup of the profile (provider endpoints, keys, the default route), LM Studio integration and the
 // lesson tasks that use the route (07). Everything model-specific lives in @sprachanker/llm.
 import {
+  CHAT_TURN_BUDGETS,
+  chatBody,
+  chatTurnRules,
+  EXPLAIN_MISTAKE_BUDGETS,
+  type ExplainMistakeInput,
   explainMistake,
+  explainMistakeRequest,
+  explainMistakeRules,
   type LlmClient,
   LlmError,
+  LMSTUDIO_CONTEXT,
   LMSTUDIO_RECOMMENDED,
   type LmStudioDownload,
   type LmStudioModel,
@@ -12,6 +20,7 @@ import {
   PROVIDERS,
   type ProviderId,
   recommendedLmStudioModel,
+  type TaskRequest,
 } from "@sprachanker/llm";
 import { type LessonKey, parseEditionId } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
@@ -63,6 +72,20 @@ export interface LmStudioStatus {
     downloaded: boolean;
     download?: LmStudioDownload;
   }>;
+}
+
+/** A request as it would be sent: for the prompt viewer (07, "Debugging"). */
+export interface PromptPreview {
+  provider: ProviderId;
+  model: string;
+  url: string;
+  body: ReturnType<typeof chatBody>;
+}
+
+/** The standing system prompt of a task and how much of each context part it gets, in characters. */
+export interface TaskPrompt {
+  system: string;
+  budgets: Record<string, number>;
 }
 
 export interface LlmState {
@@ -227,29 +250,56 @@ export function createLlm(deps: {
       await deps.lmStudio.startServer();
       return this.lmStudioStatus();
     },
-    /** Explanation of a wrong answer, streamed. */
-    async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
-      const { client: llm, model } = await this.model();
+    /** The request of the default route for a task, without sending it. */
+    preview(task: TaskRequest): PromptPreview {
+      const r = route();
+      if (!r?.model || !known(r.providerId)) throw new LlmSetupError("llm_not_configured");
+      return {
+        provider: r.providerId,
+        model: r.model,
+        url: `${baseUrl(r.providerId).replace(/\/+$/, "")}/chat/completions`,
+        body: chatBody({ ...task, model: r.model }, PROVIDERS[r.providerId].noReasoning),
+      };
+    },
+    /** The model's context window when the app knows it (LM Studio: loaded by us with this size). */
+    contextWindow(): number | null {
+      return route()?.providerId === "lmstudio" ? LMSTUDIO_CONTEXT : null;
+    },
+    /** System prompts of the tasks, as the settings explain them. */
+    prompts(language: string, target: string): Record<"explain" | "tutor", TaskPrompt> {
+      return {
+        explain: {
+          system: explainMistakeRules(language, target),
+          budgets: EXPLAIN_MISTAKE_BUDGETS,
+        },
+        tutor: { system: chatTurnRules(language, target), budgets: CHAT_TURN_BUDGETS },
+      };
+    },
+    /** What explain_mistake gets for one item: the item, the answers and the lesson's grammar. */
+    async explainInput(request: ExplainRequest): Promise<ExplainMistakeInput> {
       const [lesson, locale] = await Promise.all([
         content.lesson(request.series, request.lessonKey),
         content.localeLesson(request.series, request.lessonKey, request.edition),
       ]);
       const exercise = lesson.pages.find((p) => p.exercise.key === request.exerciseKey)?.exercise;
       if (!exercise?.items[request.index]) throw new LlmSetupError("no_such_item");
-      return explainMistake(
-        llm,
-        model,
-        {
-          exercise,
-          locale: locale?.exercises[exercise.key],
-          index: request.index,
-          answer: request.answer,
-          grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
-          language: request.language,
-          target: parseEditionId(request.edition).target,
-        },
-        signal,
-      );
+      return {
+        exercise,
+        locale: locale?.exercises[exercise.key],
+        index: request.index,
+        answer: request.answer,
+        grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
+        language: request.language,
+        target: parseEditionId(request.edition).target,
+      };
+    },
+    /** Explanation of a wrong answer, streamed. */
+    async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
+      const { client: llm, model } = await this.model();
+      return explainMistake(llm, model, await this.explainInput(request), signal);
+    },
+    async explainPrompt(request: ExplainRequest): Promise<PromptPreview> {
+      return this.preview(explainMistakeRequest(await this.explainInput(request)));
     },
   };
 }

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type ChatRequest, LlmError, openAiCompatible } from "../src/client.ts";
+import { type ChatRequest, chatBody, LlmError, openAiCompatible } from "../src/client.ts";
 import { stripThinking } from "../src/thinking.ts";
 
 /** A fake OpenAI-compatible server: records requests and answers with the given response. */
@@ -130,5 +130,23 @@ describe("reasoning switch", () => {
     );
     expect(await collect(client.chat(request))).toBe("ok");
     expect(calls).toHaveLength(2);
+  });
+});
+
+test("chatBody: the posted JSON, with the provider's reasoning switch only when asked", () => {
+  const request = {
+    model: "m",
+    messages: [{ role: "user" as const, content: "hi" }],
+    maxTokens: 9,
+  };
+  expect(chatBody(request, { reasoning_effort: "none" })).toEqual({
+    model: "m",
+    messages: [{ role: "user", content: "hi" }],
+    temperature: 0.3,
+    max_tokens: 9,
+    stream: true,
+  });
+  expect(chatBody({ ...request, reasoning: false }, { reasoning_effort: "none" })).toMatchObject({
+    reasoning_effort: "none",
   });
 });

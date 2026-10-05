@@ -123,3 +123,51 @@ export function useLmStudioAction() {
     onSuccess: (status) => client.setQueryData(["lmstudio"], status),
   });
 }
+
+/** Settings key: show "Prompt" buttons next to AI answers. */
+export const DEBUG_PROMPTS = "llm.debugPrompts";
+
+export type PromptPreview = Awaited<ReturnType<typeof fetchExplainPrompt>>;
+const fetchExplainPrompt = (request: ExplainRequest) =>
+  json(api.llm.explain.prompt.$post({ json: request }) as never) as Promise<{
+    provider: string;
+    model: string;
+    url: string;
+    body: {
+      model: string;
+      messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
+      [field: string]: unknown;
+    };
+  }>;
+
+export type TutorPromptRequest = Omit<TutorRequest, "message"> & { message: string };
+
+/** The exact request a task would send now (nothing is sent). */
+export const fetchPrompt = (
+  kind: { explain: ExplainRequest } | { tutor: TutorPromptRequest },
+): Promise<PromptPreview> =>
+  "explain" in kind
+    ? fetchExplainPrompt(kind.explain)
+    : (json(api.llm.tutor.prompt.$post({ json: kind.tutor }) as never) as Promise<PromptPreview>);
+
+/** The tasks' system prompts and context budgets, for the settings. */
+export const useTaskPrompts = (language: string, target: string) =>
+  useQuery({
+    queryKey: ["llm-prompts", language, target],
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: () => json(api.llm.prompts.$get({ query: { language, target } })),
+  });
+
+/** How full the tutor's next request is (refreshed after each turn). */
+export const useTutorContext = (request: TutorPromptRequest, turns: number) =>
+  useQuery({
+    queryKey: ["tutor-context", request.lessonKey, request.exerciseKey, request.language, turns],
+    queryFn: () =>
+      json(api.llm.tutor.context.$post({ json: request }) as never) as Promise<{
+        tokens: number;
+        window: number | null;
+        reply: number;
+        kept: number;
+        total: number;
+      }>,
+  });

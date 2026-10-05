@@ -27,5 +27,7 @@ Later (target): `tasks/<task>/` with zod output schemas and repair logic for JSO
 
 - JSON task outputs are validated with zod; invalid → one repair attempt → fallback → graceful degradation.
 - Prompts live next to their task; course text and learner input are delimited data in the prompt.
+- Each task exposes `<task>Request(input)` (what is sent), `<task>Rules()` (its system prompt) and its
+  context budgets; the real call and the prompt viewer use the same functions.
 - Explanations in the learner's native language; target-language text stays in the target language.
 - No vendor SDK leaks outside the provider code.

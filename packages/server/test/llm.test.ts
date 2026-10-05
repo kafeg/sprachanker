@@ -195,6 +195,19 @@ describe("lesson tutor", () => {
     expect(courses[0].done).toBe(0);
   });
 
+  test("context usage: size of the next request, the window, turns that still fit", async () => {
+    const fake = provider();
+    const { send, sendJson } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const empty = await sendJson("POST", "/api/llm/tutor/context", { ...TUTOR, message: "" });
+    expect(empty).toMatchObject({ window: 8192, reply: 1500, kept: 0, total: 0 });
+    expect(empty.tokens).toBeGreaterThan(100);
+    await (await send("POST", "/api/llm/tutor", TUTOR)).text();
+    const after = await sendJson("POST", "/api/llm/tutor/context", { ...TUTOR, message: "" });
+    expect([after.kept, after.total]).toEqual([2, 2]);
+    expect(after.tokens).toBeGreaterThan(empty.tokens);
+  });
+
   test("the exercise on screen is part of the context", async () => {
     const fake = provider();
     const { send } = await setup({ fetch: fake.fetch });
@@ -334,5 +347,52 @@ describe("LM Studio", () => {
     );
     expect(app).toBeDefined();
     expect((await getJson("/api/llm")).provider).toBe("lmstudio");
+  });
+});
+
+describe("prompt viewer", () => {
+  test("task prompts for the settings: system rules and context budgets", async () => {
+    const { getJson } = await setup();
+    const prompts = await getJson("/api/llm/prompts?language=ru&target=de");
+    expect(prompts.explain.system).toContain("Explain in Russian");
+    expect(prompts.tutor.system).toContain("friendly German tutor");
+    expect(prompts.tutor.budgets.grammar).toBe(3500);
+    expect(prompts.explain.budgets.notes).toBe(6000);
+  });
+
+  test("the exact request of an explanation and of a tutor message; nothing is sent", async () => {
+    const fake = provider();
+    const { send, sendJson, getJson } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const explain = await sendJson("POST", "/api/llm/explain/prompt", EXPLAIN);
+    expect(explain).toMatchObject({
+      provider: "lmstudio",
+      model: "qwen3-8b",
+      url: "http://localhost:1234/v1/chat/completions",
+      body: { model: "qwen3-8b", stream: true, max_tokens: 1200, reasoning_effort: "none" },
+    });
+    expect(explain.body.messages[1].content).toContain(
+      "Learner's answer: Guten Tag, [Herr] Weber.",
+    );
+
+    const tutor = await sendJson("POST", "/api/llm/tutor/prompt", {
+      series: FIXTURE_SERIES,
+      lessonKey: "sprachanker.fixture/demo/00-02",
+      edition: "ru-de",
+      message: "",
+      language: "ru",
+    });
+    expect(tutor.body.messages[0].content).toContain("<course>");
+    expect(tutor.body.messages.at(-1)).toEqual({ role: "user", content: "" });
+    expect(fake.calls).toEqual([]);
+    expect(
+      (await getJson("/api/llm/tutor?lessonKey=sprachanker.fixture/demo/00-02")).turns,
+    ).toEqual([]);
+  });
+
+  test("without a configured model the viewer says so", async () => {
+    const { send } = await setup();
+    const res = await send("POST", "/api/llm/explain/prompt", EXPLAIN);
+    expect(res.status).toBe(409);
   });
 });

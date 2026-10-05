@@ -15,6 +15,7 @@ import {
 } from "./api.ts";
 import { errorText } from "./errors.ts";
 import { LmStudioSection } from "./lmstudio-section.tsx";
+import { PromptsInfo } from "./prompts-info.tsx";
 
 type Provider = LlmState["providers"][number];
 
@@ -220,6 +221,7 @@ export function LlmSettings() {
           )}
         </div>
       )}
+      {provider && <PromptsInfo />}
     </section>
   );
 }
