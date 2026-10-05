@@ -9,6 +9,7 @@ import {
   type PoliteFetcher,
 } from "@sprachanker/course-kit";
 import { type ApolloState, entitiesOf } from "./apollo.ts";
+import { remuxStream, type StreamSource } from "./stream.ts";
 
 /** Image size used for every DW image (`static.dw.com/image/<id>_<format>`): 940×529. */
 export const IMAGE_FORMAT = "6";
@@ -17,6 +18,8 @@ export type MediaKind = "audio" | "image" | "video" | "subtitles" | "pdf";
 export interface MediaRef {
   url: string;
   kind: MediaKind;
+  /** Videos: the HLS variant with the same content, used when the direct file is missing. */
+  stream?: StreamSource;
 }
 /** Source URL → stored file (path, sha256 and size for integrity checks) or the last error. */
 export type MediaIndex = Record<
@@ -41,8 +44,8 @@ const DOWNLOADS = "https://tvdownloaddw-a.akamaihd.net/downloads/";
 const HLS = /^https:\/\/hlsvod\.dw\.com\/i\/(.+?)_,(.+?),\.mp4\.csmil\/master\.m3u8$/;
 /** Encodes per size: DW's podcast encodes (sd, hd) or, for re-edited videos, AVC ones. */
 const VARIANTS = {
-  sd: { file: "PODCAST_SD", avc: "AVC_640x360", stream: "sd" },
-  hd: { file: "PODCAST_HD", avc: "AVC_1280x720", stream: "hd" },
+  sd: { file: "PODCAST_SD", avc: "AVC_640x360", stream: "sd", resolution: "640x360" },
+  hd: { file: "PODCAST_HD", avc: "AVC_1280x720", stream: "hd", resolution: "1280x720" },
 } as const;
 
 /**
@@ -82,9 +85,17 @@ export function mediaRefs(state: ApolloState): MediaRef[] {
     });
   }
   for (const video of entitiesOf(state, "Video")) {
-    const { sd, hd } = videoFiles(video);
-    if (!sd && !hd) continue;
-    for (const url of [sd, hd]) if (url) refs.push({ url, kind: "video" });
+    const files = videoFiles(video);
+    if (!files.sd && !files.hd) continue;
+    const master = String(video.hlsVideoSrc ?? "");
+    for (const size of ["sd", "hd"] as const) {
+      const url = files[size];
+      if (!url) continue;
+      const stream = HLS.test(master)
+        ? { master, resolution: VARIANTS[size].resolution }
+        : undefined;
+      refs.push({ url, kind: "video", ...(stream ? { stream } : {}) });
+    }
     for (const sub of (video.subtitles ?? []) as Array<{ subtitleUrl?: string }>) {
       if (sub.subtitleUrl) refs.push({ url: sub.subtitleUrl, kind: "subtitles" });
     }
@@ -107,9 +118,23 @@ export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
   for (const file of await readdir(rawRoot, { recursive: true })) {
     if (!file.endsWith(".json")) continue;
     const state = JSON.parse(await readFile(join(rawRoot, file), "utf8")) as ApolloState;
-    for (const ref of mediaRefs(state)) byUrl.set(ref.url, ref);
+    for (const ref of mediaRefs(state)) byUrl.set(ref.url, { ...byUrl.get(ref.url), ...ref });
   }
   return [...byUrl.values()].sort((a, b) => a.url.localeCompare(b.url));
+}
+
+/** The file at `ref.url`, or for a video whose direct file is missing, its remuxed HLS stream. */
+async function download(fetcher: PoliteFetcher, ref: MediaRef) {
+  try {
+    const res = await fetcher.get(ref.url);
+    return {
+      bytes: new Uint8Array(await res.arrayBuffer()),
+      mime: res.headers.get("content-type") ?? "",
+    };
+  } catch (error) {
+    if (!(error instanceof FetchFailedError && error.status === 404 && ref.stream)) throw error;
+    return { bytes: await remuxStream(fetcher, ref.stream), mime: "video/mp4" };
+  }
 }
 
 /** Downloads media missing from the index (one worker per host); failed URLs are retried next run. */
@@ -136,14 +161,9 @@ export async function fetchMedia(
     [...byHost].map(async ([host, hostRefs]) => {
       for (const ref of hostRefs) {
         try {
-          const res = await fetcher.get(ref.url);
-          const bytes = new Uint8Array(await res.arrayBuffer());
+          const { bytes, mime } = await download(fetcher, ref);
           const stored = await store.put(`${ref.kind}/${mediaName(ref)}`, bytes);
-          index[ref.url] = {
-            kind: ref.kind,
-            ...stored,
-            mime: res.headers.get("content-type") ?? "",
-          };
+          index[ref.url] = { kind: ref.kind, ...stored, mime };
         } catch (error) {
           if (error instanceof HostRefusedError) {
             log(`media: ${error.message}`);

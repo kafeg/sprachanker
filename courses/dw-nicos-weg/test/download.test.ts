@@ -2,6 +2,7 @@
 import { expect, test } from "bun:test";
 import { exerciseIds, extractState, lessonIds } from "../src/apollo.ts";
 import { mediaName, mediaRefs, videoFiles } from "../src/media.ts";
+import { variantUrl } from "../src/stream.ts";
 
 const state = {
   "Course:1": {
@@ -83,10 +84,12 @@ test("media of a page", () => {
     {
       url: "https://tvdownloaddw-a.akamaihd.net/downloads/Events/mp4/course/E1_sd.mp4",
       kind: "video",
+      stream: { master: state["Video:7"].hlsVideoSrc, resolution: "640x360" },
     },
     {
       url: "https://tvdownloaddw-a.akamaihd.net/downloads/Events/mp4/course/E1_hd.mp4",
       kind: "video",
+      stream: { master: state["Video:7"].hlsVideoSrc, resolution: "1280x720" },
     },
     { url: "https://www.dw.com/media/subtitles/77", kind: "subtitles" },
     { url: "https://static.dw.com/downloads/30/course-script.pdf", kind: "pdf" },
@@ -102,4 +105,16 @@ test("readable file names", () => {
     "77.vtt",
     "course-script.pdf",
   ]);
+});
+
+test("picks the variant playlist by resolution", () => {
+  const master = [
+    "#EXTM3U",
+    "#EXT-X-STREAM-INF:BANDWIDTH=775920,RESOLUTION=640x360",
+    "https://cdn.test/v/index-f1.m3u8",
+    "#EXT-X-STREAM-INF:BANDWIDTH=2226992,RESOLUTION=1280x720",
+    "https://cdn.test/v/index-f2.m3u8",
+  ].join("\n");
+  expect(variantUrl(master, "1280x720")).toBe("https://cdn.test/v/index-f2.m3u8");
+  expect(variantUrl(master, "1920x1080")).toBeUndefined();
 });
