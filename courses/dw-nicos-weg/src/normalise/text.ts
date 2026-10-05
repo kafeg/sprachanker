@@ -43,14 +43,17 @@ export function decodeEntities(text: string): string {
 
 /** Text without tags and entities, whitespace collapsed, NFC. */
 export function plainText(html: unknown): string {
-  return decodeEntities(
-    String(html ?? "")
-      .replace(/<br\s*\/?>/gi, " ")
-      .replace(/<[^>]+>/g, " "),
-  )
-    .replace(/[\s ]+/g, " ")
-    .trim()
-    .normalize("NFC");
+  return (
+    decodeEntities(String(html ?? "").replace(/<[^>]+>/g, " "))
+      .replace(/[\s ]+/g, " ")
+      // Tags around words ("<span>bitte</span>.") leave a space before punctuation; adjacent tags
+      // ("<span>Appetit</span><span>auf</span>") must still separate words, so tags become spaces first. Spaced
+      // ellipses ("Ja ... und") are the source's own.
+      .replace(/ (?=[.,!?;:)\]])(?!\.\.)/g, "")
+      .replace(/([([]) /g, "$1")
+      .trim()
+      .normalize("NFC")
+  );
 }
 
 /** Text keeping line breaks of `<br>` and paragraphs (dialogues in cloze texts). */

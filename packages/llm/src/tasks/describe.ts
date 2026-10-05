@@ -62,9 +62,9 @@ export function describeItem(
           ? parse(SingleChoiceAnswer)?.optionId
           : parse(MultiChoiceAnswer)?.optionIds;
       return {
-        task: task([`Options: ${it.options.map(label).join(" / ")}`]),
-        correct: text(it.answer.optionIds).join(", "),
-        learner: given === undefined ? undefined : text([given].flat()).join(", "),
+        task: task([`Options: ${quoted(it.options.map(label))}`]),
+        correct: quoted(text(it.answer.optionIds)),
+        learner: given === undefined ? undefined : quoted(text([given].flat())),
       };
     }
     case "match": {
@@ -136,6 +136,9 @@ export function describeItem(
       return { task: task([]), correct: "(not available)" };
   }
 }
+
+/** Option texts may be whole sentences with their own punctuation: quote each. */
+const quoted = (texts: string[]) => texts.map((t) => `"${t}"`).join(", ");
 
 function fill(segments: Segment[], value: (gap: string) => string | undefined): string {
   return segments

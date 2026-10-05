@@ -15,7 +15,7 @@ const exercise = (n: number): [Exercise, LocaleExercise | undefined] => {
 
 describe("describeItem", () => {
   test.each([
-    [1, 0, { optionId: "b" }, "Im Café.", "Im Park."],
+    [1, 0, { optionId: "b" }, '"Im Café."', '"Im Park."'],
     [
       3,
       0,

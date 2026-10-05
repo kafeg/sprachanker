@@ -47,7 +47,9 @@ export function correctAnswer(exercise: Exercise, index: number): string | undef
     case "multi_choice": {
       const it = item as ItemOf<"single_choice">;
       const texts = it.answer.optionIds.map((id) => it.options.find((o) => o.id === id)?.text);
-      return texts.every(Boolean) ? texts.join(", ") : undefined;
+      if (!texts.every(Boolean)) return undefined;
+      // Whole sentences ("Yara ist Nicos Tante.") are not joined with commas.
+      return texts.join(texts.some((t) => /[.!?]$/.test(t ?? "")) ? " · " : ", ");
     }
     case "order": {
       const it = item as ItemOf<"order">;
