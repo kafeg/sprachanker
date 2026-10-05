@@ -7,7 +7,8 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
+    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json",
+    "gen": "bun scripts/gen-json-schema.ts"
   },
   "dependencies": {
     "zod": "4.6.5"

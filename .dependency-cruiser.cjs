@@ -68,9 +68,9 @@ module.exports = {
     onlyMayImport("cli-imports-server-only", "^apps/cli/", ["apps/cli", "packages/server"]),
     {
       name: "pure-modules-no-io",
-      comment: "schema and engine run in the browser too: no Node/Bun built-ins.",
+      comment: "schema and engine run in the browser too: no Node/Bun built-ins in their sources.",
       severity: "error",
-      from: { path: "^packages/(schema|engine)/", pathNot: "\\.test\\.tsx?$" },
+      from: { path: "^packages/(schema|engine)/src/", pathNot: "\\.test\\.tsx?$" },
       to: { dependencyTypes: ["core"] },
     },
   ],
