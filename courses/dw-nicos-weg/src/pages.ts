@@ -2,9 +2,12 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { PoliteFetcher } from "@sprachanker/course-kit";
+import { type PoliteFetcher, runPool } from "@sprachanker/course-kit";
 import { type ApolloState, exerciseIds, extractState, lessonIds } from "./apollo.ts";
 import { type DwCourse, SITE } from "./catalog.ts";
+
+/** Pages fetched at the same time. */
+const CONCURRENCY = 8;
 
 /** `raw/<edition>/<course>/` of a series folder. */
 export const rawDir = (seriesDir: string, c: DwCourse) =>
@@ -29,12 +32,20 @@ export async function fetchPages(
   // Slugs in DW URLs are ignored by the server, so `x` stands in for them.
   const course = await page(fetcher, `/${c.lang}/x/c-${c.sourceId}`, join(dir, "course.json"));
   const lessons = lessonIds(course);
-  for (const [n, id] of lessons.entries()) {
+  const exercises: Array<{ lesson: number; exercise: number }> = [];
+  await runPool(lessons, CONCURRENCY, async (id) => {
     const lesson = await page(fetcher, `/${c.lang}/x/l-${id}`, join(dir, `l-${id}.json`));
     await page(fetcher, `/${c.lang}/x/l-${id}/le`, join(dir, `le-${id}.json`));
-    for (const exercise of exerciseIds(lesson, id)) {
-      await page(fetcher, `/${c.lang}/x/l-${id}/e-${exercise}`, join(dir, `e-${exercise}.json`));
-    }
-    log(`${c.course} ${c.edition}: lesson ${n + 1}/${lessons.length} pages done`);
-  }
+    for (const exercise of exerciseIds(lesson, id)) exercises.push({ lesson: id, exercise });
+  });
+  log(
+    `${c.course} ${c.edition}: ${lessons.length} lessons; fetching ${exercises.length} exercise pages`,
+  );
+  let done = 0;
+  await runPool(exercises, CONCURRENCY, async ({ lesson, exercise }) => {
+    await page(fetcher, `/${c.lang}/x/l-${lesson}/e-${exercise}`, join(dir, `e-${exercise}.json`));
+    if (++done % 200 === 0)
+      log(`${c.course} ${c.edition}: ${done}/${exercises.length} exercise pages`);
+  });
+  log(`${c.course} ${c.edition}: pages done`);
 }
