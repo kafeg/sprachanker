@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "@sprachanker/schema": "workspace:*",
-    "sanitize-html": "2.18.0"
+    "sanitize-html": "2.18.0",
+    "zod": "4.6.5"
   },
   "devDependencies": {
-    "@types/sanitize-html": "2.16.2"
+    "@types/sanitize-html": "2.16.2",
+    "@sprachanker/course-fixture": "workspace:*"
   }
 }

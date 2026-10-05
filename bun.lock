@@ -72,8 +72,10 @@
       "dependencies": {
         "@sprachanker/schema": "workspace:*",
         "sanitize-html": "2.18.0",
+        "zod": "4.6.5",
       },
       "devDependencies": {
+        "@sprachanker/course-fixture": "workspace:*",
         "@types/sanitize-html": "2.16.2",
       },
     },
