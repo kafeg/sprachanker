@@ -7,6 +7,9 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
+  },
+  "dependencies": {
+    "zod": "4.6.5"
   }
 }
