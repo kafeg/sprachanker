@@ -19,6 +19,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { MediaBlock } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { Reference, type ReferenceTab, VocabularyList } from "./reference.tsx";
@@ -265,6 +266,13 @@ export function LessonPlayer({
                 lesson.media.image && (
                   <img src={url(lesson.media.image)} alt="" className="w-full rounded-2xl" />
                 )
+              )}
+              {lesson.media.audio && (
+                <MediaBlock
+                  media={{ audio: lesson.media.audio }}
+                  url={url}
+                  audioLabel={locale?.title ?? lesson.key}
+                />
               )}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
                 <span className="text-muted-foreground">

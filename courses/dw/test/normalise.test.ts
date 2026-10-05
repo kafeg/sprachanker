@@ -1,8 +1,9 @@
 // Synthetic page states shaped like DW's; no real content.
 import { expect, test } from "bun:test";
-import { Exercise, exerciseKey, lessonKey } from "@sprachanker/schema";
+import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
+import { normaliseLesson } from "../src/normalise/lesson.ts";
 import { plainLines, plainText } from "../src/normalise/text.ts";
 import { parseHeadword } from "../src/normalise/vocab.ts";
 
@@ -140,4 +141,29 @@ test("an unseen mechanic becomes unknown with a reason", () => {
   );
   expect(exercise.type).toBe("unknown");
   expect(unmapped).toBe("inquiry type PUZZLE");
+});
+
+test("a lesson's own recording becomes media.audio (Deutschtrainer)", () => {
+  const lesson = lessonKey("dw.deutschtrainer/a1-a2" as never, 0, 1);
+  const out = normaliseLesson(ctx, {
+    key: lesson,
+    unit: unitKey("dw.deutschtrainer/a1-a2" as never, 0),
+    order: 0,
+    sourceId: 5,
+    edition: "ru-de",
+    rawDir: "raw/ru-de/a1-a2",
+    lesson: {
+      "Lesson:5": {
+        id: 5,
+        name: "Знакомство",
+        audios: [{ __ref: "Audio:7" }],
+        videos: [],
+        contentLinks: [],
+      },
+      "Audio:7": { mp3Src: "https://audio.test/q1.mp3" },
+    },
+    downloads: {},
+    exercises: new Map(),
+  });
+  expect(out.lesson.media).toEqual({ audio: "media/audio/q1.mp3" });
 });

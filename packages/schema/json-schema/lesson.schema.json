@@ -39,6 +39,9 @@
         },
         "image": {
           "$ref": "#/$defs/MediaPath"
+        },
+        "audio": {
+          "$ref": "#/$defs/MediaPath"
         }
       }
     },

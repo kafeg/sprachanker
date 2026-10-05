@@ -66,6 +66,8 @@ export const Lesson = z.object({
       })
       .optional(),
     image: MediaPath.optional(),
+    /** Lesson-level recording (Deutschtrainer: the lesson's words and phrases read aloud). */
+    audio: MediaPath.optional(),
   }),
   goals: z.array(GoalKey),
   pages: z.array(z.object({ exercise: Exercise })),

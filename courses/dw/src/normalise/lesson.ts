@@ -69,6 +69,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
     ?.subtitleUrl;
   const subtitles = ctx.media(subtitleUrl);
   const image = imagePath(ctx, state, L.mainContentImage);
+  const audio = ctx.media(refs(state, L.audios)[0]?.mp3Src as string | undefined);
 
   const goalTexts = listItems(L.learningTargetDescription);
   const goals = goalTexts.map((_, i) => lessonGoalKey(src.key, i + 1));
@@ -151,6 +152,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
             }
           : {}),
         ...(image ? { image } : {}),
+        ...(audio ? { audio } : {}),
       },
       goals,
       pages: exercises.map((e) => ({ exercise: e.exercise })),

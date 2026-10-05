@@ -282,7 +282,7 @@ export const speakingLesson: Lesson = {
   key: SPEAKING,
   unit: UNIT,
   order: 2,
-  media: {},
+  media: { audio: audio("guten-morgen") },
   goals: [lessonGoalKey(SPEAKING, 1)],
   pages: [
     exercise(SPEAKING, 1, {

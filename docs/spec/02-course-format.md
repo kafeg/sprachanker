@@ -120,6 +120,9 @@ moved, or restored by copying.
   "thresholds": [ { "id": "course-test", "minPoints": 15 }, { "id": "naturalisation", "minPoints": 17 } ] }
 ```
 
+Lesson `media`: `video` (`sd`, `hd`, `subtitled`, `subtitles`), `image`, and `audio` — a lesson-level
+recording (Deutschtrainer reads the lesson's words and phrases aloud); all optional.
+
 ## Exercise types
 
 Confirmed by the stage 1 reconnaissance (`docs/research/dw-nicos-weg.md` maps every DW mechanic).
