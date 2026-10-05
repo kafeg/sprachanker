@@ -5,13 +5,11 @@ import type { Lang } from "@sprachanker/schema";
 import { z } from "zod";
 import type { ChatMessage, TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { clip, languageName, recentTurns } from "../text.ts";
+import { languageName, recentTurns } from "../text.ts";
+import { goalsLine, knownWordsLine, type LessonInfo, lessonWordsLine } from "./lesson.ts";
 
-export interface SceneLesson {
-  title: string;
-  goals: string[];
-  vocab: Array<{ target: string; translation?: string }>;
-}
+/** Scenes need the lesson's topic and words, not its grammar. */
+export type SceneLesson = Omit<LessonInfo, "grammarHtml">;
 
 export const SceneSetup = z.object({
   /** Short title in the learner's language. */
@@ -47,15 +45,8 @@ export const SCENE_BUDGETS = { lessonVocab: 1500, knownVocab: 1500, history: 400
 
 const words = (lesson: SceneLesson, knownVocab: string[]) =>
   [
-    `Words of this lesson: ${clip(
-      lesson.vocab
-        .map((v) => (v.translation ? `${v.target} (${v.translation})` : v.target))
-        .join("; "),
-      SCENE_BUDGETS.lessonVocab,
-    )}`,
-    knownVocab.length
-      ? `Words from earlier lessons: ${clip(knownVocab.slice(-300).join("; "), SCENE_BUDGETS.knownVocab)}`
-      : undefined,
+    lessonWordsLine(lesson, SCENE_BUDGETS.lessonVocab),
+    knownWordsLine(knownVocab, SCENE_BUDGETS.knownVocab),
   ]
     .filter(Boolean)
     .join("\n");
@@ -78,7 +69,7 @@ export function sceneSetupTask(input: {
   const data = [
     "<lesson>",
     `Lesson: ${input.lesson.title}`,
-    input.lesson.goals.length ? `Goals: ${input.lesson.goals.join("; ")}` : undefined,
+    goalsLine(input.lesson),
     words(input.lesson, input.knownVocab),
     "</lesson>",
   ]

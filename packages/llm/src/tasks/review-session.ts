@@ -4,18 +4,14 @@ import type { Lang } from "@sprachanker/schema";
 import { z } from "zod";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { clip, htmlToText, languageName } from "../text.ts";
+import { clip, fitting, languageName } from "../text.ts";
 import { mistakeLine, type TutorMistake } from "./describe.ts";
+import { goalsLine, grammarNotes, type LessonInfo } from "./lesson.ts";
 
 export interface ReviewInput {
   language: Lang;
   target: Lang;
-  lesson: {
-    title: string;
-    goals: string[];
-    vocab: Array<{ target: string; translation?: string }>;
-    grammarHtml: string[];
-  };
+  lesson: LessonInfo;
   /** First attempts of scored items in the session. */
   scored: number;
   correct: number;
@@ -42,7 +38,11 @@ export const SessionReview = z.object({
 });
 export type SessionReview = z.infer<typeof SessionReview>;
 
-export const REVIEW_SESSION_BUDGETS = { grammar: 2500, mistakes: 3000, lessonVocab: 1000 } as const;
+export const REVIEW_SESSION_BUDGETS = {
+  grammar: 2500,
+  sessionMistakes: 3000,
+  lessonVocab: 1000,
+} as const;
 
 export function reviewSessionRules(language: Lang, target: Lang): string {
   const l = languageName(language);
@@ -62,28 +62,19 @@ export function reviewSessionRules(language: Lang, target: Lang): string {
 
 export function reviewSessionRequest(input: ReviewInput): TaskRequest {
   const B = REVIEW_SESSION_BUDGETS;
-  const mistakes: string[] = [];
-  let size = 0;
-  for (const m of input.mistakes) {
-    const line = mistakeLine(m);
-    if (size + line.length > B.mistakes) break;
-    mistakes.push(line);
-    size += line.length;
-  }
+  const mistakes = fitting(input.mistakes.map(mistakeLine), B.sessionMistakes);
   const { lesson } = input;
   const data = [
     "<session>",
     `Lesson: ${lesson.title}`,
-    lesson.goals.length ? `Goals: ${lesson.goals.join("; ")}` : undefined,
+    goalsLine(lesson),
     `Right at the first attempt: ${input.correct} of ${input.scored} items.`,
     input.clean.length ? `Exercises without mistakes: ${input.clean.join("; ")}` : undefined,
     mistakes.length ? `Mistakes:\n${mistakes.join("\n")}` : "Mistakes: none.",
     lesson.vocab.length
       ? `Words of the lesson: ${clip(lesson.vocab.map((v) => v.target).join("; "), B.lessonVocab)}`
       : undefined,
-    lesson.grammarHtml.length
-      ? `Grammar notes:\n${clip(lesson.grammarHtml.map(htmlToText).join("\n\n"), B.grammar)}`
-      : undefined,
+    lesson.grammarHtml.length ? `Grammar notes:\n${grammarNotes(lesson, B.grammar)}` : undefined,
     "</session>",
     `Remember: write in ${languageName(input.language)}, examples in ${languageName(input.target)}.`,
   ]

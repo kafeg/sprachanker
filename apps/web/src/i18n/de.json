@@ -141,7 +141,9 @@
       "other": "Etwas ist schiefgelaufen: {message}",
       "llm_lmstudio_missing": "LM Studio ist auf diesem Computer nicht installiert.",
       "llm_lmstudio_remote": "LM Studio läuft auf einem anderen Computer – starte den Server dort.",
-      "llm_invalid_output": "Das Modell konnte keine brauchbare Antwort geben. Versuch es noch einmal oder wähle unter Einstellungen → KI-Assistent ein größeres Modell."
+      "llm_invalid_output": "Das Modell konnte keine brauchbare Antwort geben. Versuch es noch einmal oder wähle unter Einstellungen → KI-Assistent ein größeres Modell.",
+      "no_active_scene": "Diese Szene ist schon zu Ende. Starte eine neue.",
+      "no_such_item": "Die Übung hat sich geändert. Lade die Lektion neu."
     }
   },
   "tutor": {
@@ -204,7 +206,10 @@
     "infoIntro": "Jede Anfrage enthält feste Regeln (den System-Prompt) und Kursdaten der aktuellen Lektion. Lange Teile werden auf die Grenzen unten gekürzt, damit auch kleine lokale Modelle mitkommen.",
     "task": {
       "explain": "„Warum ist das falsch?“",
-      "tutor": "Tutor"
+      "tutor": "Tutor",
+      "writing": "„Schreib selbst“",
+      "review": "Rückblick",
+      "scene": "Szene"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "systemIntro": "System-Prompt:",
@@ -219,7 +224,9 @@
       "exercise": "die Übung auf dem Bildschirm mit Lösungen (der Tutor gibt zuerst Tipps)",
       "history": "die letzten Nachrichten des Gesprächs",
       "mistakes": "deine Fehler: in dieser Lektion, dann die letzten aus früheren Lektionen (korrigierte markiert)",
-      "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt"
+      "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt",
+      "text": "dein Text",
+      "sessionMistakes": "deine Fehler in dieser Lektion und die Übungen ohne Fehler"
     },
     "upTo": "bis {chars} Zeichen",
     "debug": "„Prompt“-Knöpfe zeigen",

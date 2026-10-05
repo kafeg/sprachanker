@@ -1,4 +1,5 @@
 // "My courses": installed courses with progress and the lesson to continue.
+import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -7,19 +8,13 @@ import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 
-/** `…/00-03` → unit and lesson numbers. */
-export const lessonNumbers = (key: string) => {
-  const [unit = "0", lesson = "0"] = (key.split("/").pop() ?? "").split("-");
-  return { unit: Number(unit), lesson: Number(lesson) };
-};
-
 type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
 
 function CourseCard({ course }: { course: CourseRow }) {
   const { t } = useTranslation();
   const edition = useEdition(course.series, course.course, course.editions);
   const title = (edition && course.titles[edition]) || course.key;
-  const next = course.next ? lessonNumbers(course.next) : undefined;
+  const next = course.next ? parseLessonKey(course.next) : undefined;
   return (
     <div className="flex flex-col rounded-2xl border bg-card p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
@@ -47,7 +42,7 @@ function CourseCard({ course }: { course: CourseRow }) {
             params={{
               series: course.series,
               course: course.course,
-              lesson: course.next.split("/").pop() ?? "",
+              lesson: parseLessonKey(course.next).name,
             }}
             className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground hover:bg-primary/90"
           >

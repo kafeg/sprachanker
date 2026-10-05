@@ -1,6 +1,6 @@
 // The lesson tutor: one chat per lesson, stored as a `chat` run with `llm_turn` events (05, 07).
 import { type ChatTurnInput, chatTurn, chatTurnRequest, estimateTokens } from "@sprachanker/llm";
-import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
+import { findExercise, type LessonKey, type LlmTurnPayload } from "@sprachanker/schema";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
@@ -77,7 +77,7 @@ export function createTutor(deps: {
       request.lessonKey,
       request.edition,
     );
-    const exercise = lesson.pages.find((p) => p.exercise.key === request.exerciseKey)?.exercise;
+    const exercise = request.exerciseKey ? findExercise(lesson, request.exerciseKey) : undefined;
     return {
       exercise,
       input: {

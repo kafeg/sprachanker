@@ -97,7 +97,13 @@ describe("validation rejects malformed keys", () => {
 
 describe("parsers", () => {
   test("lesson", () => {
-    expect(parseLessonKey(lesson)).toEqual({ course, unit: 0, lesson: 1 });
+    expect(parseLessonKey(lesson)).toEqual({
+      course,
+      courseId: "a1",
+      name: "00-01",
+      unit: 0,
+      lesson: 1,
+    });
   });
   test("exercise → lesson, item → exercise", () => {
     expect(lessonOf(exercise)).toBe(lesson);

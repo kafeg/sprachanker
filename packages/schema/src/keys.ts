@@ -116,15 +116,28 @@ export const ruleId = (lang: Lang, area: string, slug: string) =>
 export const sceneKey = (series: SeriesKey, slug: string) =>
   SceneKey.parse(`${series}/scene-${slug}`);
 
-/** The course of a lesson, and its unit and lesson numbers. */
-export function parseLessonKey(key: LessonKey): {
+/**
+ * The parts of a lesson key: `dw.nicos-weg/a1/02-03` → course `dw.nicos-weg/a1`, its id `a1`, the
+ * lesson's name `02-03` (its file name and URL segment), unit 2 and lesson 3.
+ */
+export function parseLessonKey(key: LessonKey | string): {
   course: CourseKey;
+  courseId: string;
+  name: string;
   unit: number;
   lesson: number;
 } {
   const slash = key.lastIndexOf("/");
-  const [unit = "", lesson = ""] = key.slice(slash + 1).split("-");
-  return { course: key.slice(0, slash) as CourseKey, unit: Number(unit), lesson: Number(lesson) };
+  const course = key.slice(0, slash) as CourseKey;
+  const name = key.slice(slash + 1);
+  const [unit = "", lesson = ""] = name.split("-");
+  return {
+    course,
+    courseId: course.slice(course.lastIndexOf("/") + 1),
+    name,
+    unit: Number(unit),
+    lesson: Number(lesson),
+  };
 }
 
 /** The lesson an exercise belongs to. */

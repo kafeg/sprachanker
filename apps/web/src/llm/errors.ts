@@ -13,6 +13,8 @@ const KNOWN = new Set([
   "llm_lmstudio_missing",
   "llm_lmstudio_remote",
   "llm_invalid_output",
+  "no_active_scene",
+  "no_such_item",
 ]);
 
 export function errorText(t: TFunction, error: unknown, provider?: string): string {

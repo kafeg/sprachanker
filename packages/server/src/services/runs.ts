@@ -3,11 +3,13 @@
 import { checkItem, lessonProgress, lessonResult, resumePage } from "@sprachanker/engine";
 import {
   EventInput,
+  findExercise,
   type ItemKey,
   type LessonKey,
   LessonResult,
   type Outcome,
   parseItemKey,
+  parseLessonKey,
   type Run,
   type StoredEvent,
 } from "@sprachanker/schema";
@@ -105,7 +107,7 @@ export function createRuns({ db, content, now, appVersion, targetLang }: RunsOpt
             id: ulid(now()),
             kind: "lesson",
             contextKey: lessonKey,
-            courseKey: lessonKey.split("/").slice(0, 2).join("/"),
+            courseKey: parseLessonKey(lessonKey).course,
             edition,
             appVersion,
             status: "active",
@@ -150,7 +152,7 @@ export function createRuns({ db, content, now, appVersion, targetLang }: RunsOpt
         let payload: unknown = e.payload;
         if (e.type === "answered") {
           const { exercise: exKey, n } = parseItemKey(e.itemKey as ItemKey);
-          const exercise = lesson.pages.find((p) => p.exercise.key === exKey)?.exercise;
+          const exercise = findExercise(lesson, exKey);
           if (!exercise) throw new RunError(`item ${e.itemKey} is not in ${lesson.key}`);
           const outcome = checkItem(exercise, n - 1, e.payload.answer, targetLang(series));
           outcomes[e.id] = outcome;

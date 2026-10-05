@@ -11,6 +11,7 @@ import {
   type LessonKey,
   LocaleCourse,
   LocaleLesson,
+  parseLessonKey,
   seriesKey,
 } from "@sprachanker/schema";
 import { type ApolloState, exerciseIds } from "../apollo.ts";
@@ -74,7 +75,7 @@ export async function normaliseCourse(
     });
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
-    const name = entry.key.split("/").pop();
+    const { name } = parseLessonKey(entry.key);
     const files = [
       ...(primary
         ? [[Lesson, out.lesson, `canonical/${dw.course}/lessons/${name}.json`] as const]

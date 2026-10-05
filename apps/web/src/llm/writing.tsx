@@ -10,7 +10,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
-import { useAssistantLabel } from "./assistant-label.tsx";
+import { modelName, useAssistantLabel } from "./assistant-label.tsx";
 import { errorText } from "./errors.ts";
 import { PromptButton } from "./prompt-view.tsx";
 
@@ -54,7 +54,7 @@ function Result({ attempt }: { attempt: WritingAttempt }) {
         >
           {t(`writing.verdict.${r.verdict}`)}
         </span>
-        <span className="text-sm text-muted-foreground">{attempt.model.split("/").pop()}</span>
+        <span className="text-sm text-muted-foreground">{modelName(attempt.model)}</span>
       </div>
       <p>{r.feedback}</p>
       {r.corrections.length > 0 && <CorrectedText text={attempt.text} corrected={r.corrected} />}

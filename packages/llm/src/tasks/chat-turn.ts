@@ -2,21 +2,22 @@
 // examples within the material the learner has met so far.
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, ChatRequest, LlmClient, TaskRequest } from "../client.ts";
-import { clip, htmlToText, languageName, recentTurns } from "../text.ts";
+import { clip, fitting, languageName, newest, recentTurns } from "../text.ts";
 import { describeItem, mistakeLine, type TutorMistake } from "./describe.ts";
+import {
+  goalsLine,
+  grammarNotes,
+  knownWordsLine,
+  type LessonInfo,
+  lessonWordsLine,
+} from "./lesson.ts";
 import { TUTOR_TOOLS, TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tutor-tools.ts";
 
 export interface ChatTurnInput {
   /** Explanation language: the learner's interface language. */
   language: Lang;
   target: Lang;
-  lesson: {
-    title: string;
-    goals: string[];
-    grammarHtml: string[];
-    /** Words of this lesson: headword and translation. */
-    vocab: Array<{ target: string; translation?: string }>;
-  };
+  lesson: LessonInfo;
   /** Headwords of earlier lessons, oldest first. */
   knownVocab: string[];
   /** Titles of earlier lessons, oldest first. */
@@ -47,36 +48,14 @@ const B = CHAT_TURN_BUDGETS;
 /** Mistakes as short lines within their budget: this lesson's first, then earlier lessons'. */
 function mistakeLines(mistakes: ChatTurnInput["mistakes"]): string | undefined {
   if (!mistakes) return undefined;
-  const lines: string[] = [];
-  let size = 0;
-  for (const [title, list] of [
-    ["In this lesson:", mistakes.lesson],
-    ["In earlier lessons:", mistakes.earlier],
-  ] as const) {
-    if (!list.length) continue;
-    const block: string[] = [title];
-    for (const m of list) {
-      const text = mistakeLine(m);
-      if (size + text.length > B.mistakes) break;
-      block.push(text);
-      size += text.length;
-    }
-    if (block.length > 1) lines.push(...block);
-  }
+  const lesson = fitting(mistakes.lesson.map(mistakeLine), B.mistakes);
+  const used = lesson.reduce((n, line) => n + line.length, 0);
+  const earlier = fitting(mistakes.earlier.map(mistakeLine), B.mistakes - used);
+  const lines = [
+    ...(lesson.length ? ["In this lesson:", ...lesson] : []),
+    ...(earlier.length ? ["In earlier lessons:", ...earlier] : []),
+  ];
   return lines.length ? lines.join("\n") : undefined;
-}
-
-/** Keeps the end of a list (the most recent entries) within `max` characters. */
-function tail(items: string[], max: number, separator: string): string {
-  const out: string[] = [];
-  let size = 0;
-  for (let i = items.length - 1; i >= 0; i--) {
-    const item = items[i] as string;
-    if (size + item.length + separator.length > max) break;
-    out.unshift(item);
-    size += item.length + separator.length;
-  }
-  return (out.length < items.length ? "… " : "") + out.join(separator);
 }
 
 /** The tutor's standing rules: the system prompt before the course context. */
@@ -118,23 +97,14 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
   const context = [
     "<course>",
     `Current lesson: ${lesson.title}`,
-    lesson.goals.length ? `Goals: ${lesson.goals.join("; ")}` : undefined,
+    goalsLine(lesson),
     input.earlierLessons.length
-      ? `Earlier lessons: ${tail(input.earlierLessons, B.earlierLessons, "; ")}`
+      ? `Earlier lessons: ${newest(input.earlierLessons, B.earlierLessons, "; ")}`
       : "This is the first lesson.",
-    lesson.vocab.length
-      ? `Words of this lesson: ${clip(
-          lesson.vocab
-            .map((v) => (v.translation ? `${v.target} (${v.translation})` : v.target))
-            .join("; "),
-          B.lessonVocab,
-        )}`
-      : undefined,
-    input.knownVocab.length
-      ? `Words from earlier lessons: ${tail(input.knownVocab, B.knownVocab, "; ")}`
-      : undefined,
+    lessonWordsLine(lesson, B.lessonVocab),
+    knownWordsLine(input.knownVocab, B.knownVocab),
     lesson.grammarHtml.length
-      ? `Grammar notes of this lesson:\n${clip(lesson.grammarHtml.map(htmlToText).join("\n\n"), B.grammar)}`
+      ? `Grammar notes of this lesson:\n${grammarNotes(lesson, B.grammar)}`
       : undefined,
     exercise ? `Exercise on screen:\n${exercise}` : undefined,
     mistakes ? `Learner's mistakes (newest first):\n${mistakes}` : undefined,

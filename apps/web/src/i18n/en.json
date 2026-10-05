@@ -141,7 +141,9 @@
       "other": "Something went wrong: {message}",
       "llm_lmstudio_missing": "LM Studio is not installed on this computer.",
       "llm_lmstudio_remote": "LM Studio runs on another computer: start its server there.",
-      "llm_invalid_output": "The model could not give a usable answer. Try again, or choose a larger model in Settings → AI assistant."
+      "llm_invalid_output": "The model could not give a usable answer. Try again, or choose a larger model in Settings → AI assistant.",
+      "no_active_scene": "This scene has ended. Start a new one.",
+      "no_such_item": "This exercise has changed. Reload the lesson."
     }
   },
   "tutor": {
@@ -204,7 +206,10 @@
     "infoIntro": "Every request sends standing rules (the system prompt) and course data of the current lesson. Long parts are cut to the limits below so that small local models keep up.",
     "task": {
       "explain": "“Why is this wrong?”",
-      "tutor": "Tutor"
+      "tutor": "Tutor",
+      "writing": "“Write it yourself”",
+      "review": "Session review",
+      "scene": "Scene"
     },
     "contextIntro": "Added from the lesson:",
     "systemIntro": "System prompt:",
@@ -219,7 +224,9 @@
       "exercise": "the exercise on screen with its answers (the tutor gives hints first)",
       "history": "the latest messages of the conversation",
       "mistakes": "your mistakes: in this lesson, then the latest of earlier lessons (fixed ones marked)",
-      "tools": "on request (tools): your progress, mistakes in any lesson, where a word is taught, what a lesson covers"
+      "tools": "on request (tools): your progress, mistakes in any lesson, where a word is taught, what a lesson covers",
+      "text": "your text",
+      "sessionMistakes": "your mistakes in this session and the exercises done without one"
     },
     "upTo": "up to {chars} characters",
     "debug": "Show “Prompt” buttons",

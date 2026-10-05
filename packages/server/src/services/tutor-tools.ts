@@ -1,7 +1,7 @@
 // The tutor's tools on the server side (07, "Tools"): the learner's progress, mistakes, the course's
 // words and lessons, looked up when the model asks. Lessons are "unit.lesson" as the app shows them.
 import type { LessonProgress } from "@sprachanker/engine";
-import { clip, htmlToText, mistakeLine } from "@sprachanker/llm";
+import { grammarNotes, lessonWords, mistakeLine } from "@sprachanker/llm";
 import { type LessonKey, parseLessonKey } from "@sprachanker/schema";
 import type { Content } from "./content.ts";
 import type { LessonContexts } from "./lesson-context.ts";
@@ -31,7 +31,7 @@ export function createTutorTools(deps: {
   return {
     /** The tool runner for a tutor chat in this lesson's course and edition. */
     runner(series: string, lessonKey: LessonKey, edition: string) {
-      const course = parseLessonKey(lessonKey).course.split("/").pop() ?? "";
+      const course = parseLessonKey(lessonKey).courseId;
       const map = content.courseMap(series, course, edition);
       const order = async () => (await map).index.units.flatMap((u) => u.lessons);
       const title = async (key: string) => `${number(key)} ${(await map).titles[key] ?? ""}`.trim();
@@ -112,13 +112,8 @@ export function createTutorTools(deps: {
           return {
             lesson: await title(key),
             goals: ctx.info.goals,
-            words: clip(
-              ctx.info.vocab
-                .map((v) => (v.translation ? `${v.target} (${v.translation})` : v.target))
-                .join("; "),
-              1500,
-            ),
-            grammar: clip(ctx.info.grammarHtml.map(htmlToText).join("\n\n"), 1500),
+            words: lessonWords(ctx.info, 1500),
+            grammar: grammarNotes(ctx.info, 1500),
           };
         },
       };

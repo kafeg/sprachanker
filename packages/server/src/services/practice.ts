@@ -18,7 +18,6 @@ import {
   type LessonKey,
   LlmVerdictPayload,
   parseItemKey,
-  parseLessonKey,
 } from "@sprachanker/schema";
 import { and, desc, eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";

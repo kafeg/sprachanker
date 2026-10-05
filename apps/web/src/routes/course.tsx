@@ -1,4 +1,5 @@
 // Course map: units and lessons with their status (09).
+import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, CircleDot } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -7,7 +8,6 @@ import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { cn } from "@/ui/utils.ts";
-import { lessonNumbers } from "./courses.tsx";
 
 export function CoursePage({ series, course }: { series: string; course: string }) {
   const { t } = useTranslation();
@@ -35,12 +35,12 @@ export function CoursePage({ series, course }: { series: string; course: string 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {unit.lessons.map((key) => {
                   const p = progress[key];
-                  const { lesson } = lessonNumbers(key);
+                  const { lesson, name } = parseLessonKey(key);
                   return (
                     <Link
                       key={key}
                       to="/lesson/$series/$course/$lesson"
-                      params={{ series, course, lesson: key.split("/").pop() ?? "" }}
+                      params={{ series, course, lesson: name }}
                       className={cn(
                         "group flex min-h-24 flex-col justify-between rounded-xl border bg-card p-4 transition hover:-translate-y-0.5 hover:shadow-md",
                         p?.status === "done" && "border-correct/40",

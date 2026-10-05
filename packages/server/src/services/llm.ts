@@ -2,8 +2,10 @@
 // lesson tasks that use the route (07). Everything model-specific lives in @sprachanker/llm.
 import {
   CHAT_TURN_BUDGETS,
+  CHECK_WRITING_BUDGETS,
   chatBody,
   chatTurnRules,
+  checkWritingRules,
   EXPLAIN_MISTAKE_BUDGETS,
   type ExplainMistakeInput,
   explainMistake,
@@ -19,10 +21,14 @@ import {
   openAiCompatible,
   PROVIDERS,
   type ProviderId,
+  REVIEW_SESSION_BUDGETS,
   recommendedLmStudioModel,
+  reviewSessionRules,
+  SCENE_BUDGETS,
+  sceneTurnRules,
   type TaskRequest,
 } from "@sprachanker/llm";
-import { type LessonKey, parseEditionId } from "@sprachanker/schema";
+import { findExercise, type Lang, type LessonKey, parseEditionId } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { llmRoutes, secrets } from "../db/profile/schema.ts";
@@ -83,6 +89,10 @@ export interface PromptPreview {
 }
 
 /** The standing system prompt of a task and how much of each context part it gets, in characters. */
+/** The tasks the settings explain, in the order they are shown. */
+export const PROMPT_TASKS = ["explain", "tutor", "writing", "review", "scene"] as const;
+export type PromptTask = (typeof PROMPT_TASKS)[number];
+
 export interface TaskPrompt {
   system: string;
   budgets: Record<string, number>;
@@ -280,13 +290,16 @@ export function createLlm(deps: {
       return route()?.providerId === "lmstudio" ? LMSTUDIO_CONTEXT : null;
     },
     /** System prompts of the tasks, as the settings explain them. */
-    prompts(language: string, target: string): Record<"explain" | "tutor", TaskPrompt> {
+    prompts(language: Lang, target: Lang): Record<PromptTask, TaskPrompt> {
       return {
         explain: {
           system: explainMistakeRules(language, target),
           budgets: EXPLAIN_MISTAKE_BUDGETS,
         },
         tutor: { system: chatTurnRules(language, target), budgets: CHAT_TURN_BUDGETS },
+        writing: { system: checkWritingRules(language, target), budgets: CHECK_WRITING_BUDGETS },
+        review: { system: reviewSessionRules(language, target), budgets: REVIEW_SESSION_BUDGETS },
+        scene: { system: sceneTurnRules(language, target), budgets: SCENE_BUDGETS },
       };
     },
     /** What explain_mistake gets for one item: the item, the answers and the lesson's grammar. */
@@ -295,7 +308,7 @@ export function createLlm(deps: {
         content.lesson(request.series, request.lessonKey),
         content.localeLesson(request.series, request.lessonKey, request.edition),
       ]);
-      const exercise = lesson.pages.find((p) => p.exercise.key === request.exerciseKey)?.exercise;
+      const exercise = findExercise(lesson, request.exerciseKey);
       if (!exercise?.items[request.index]) throw new LlmSetupError("no_such_item");
       return {
         exercise,

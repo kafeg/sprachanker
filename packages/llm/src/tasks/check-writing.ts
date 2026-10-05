@@ -4,18 +4,13 @@ import type { Lang } from "@sprachanker/schema";
 import { z } from "zod";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { clip, htmlToText, languageName } from "../text.ts";
+import { clip, languageName } from "../text.ts";
+import { grammarNotes, type LessonInfo, lessonWordsLine } from "./lesson.ts";
 
 export interface WritingInput {
   language: Lang;
   target: Lang;
-  lesson: {
-    title: string;
-    /** In the learner's language, as the course states them. */
-    goals: string[];
-    vocab: Array<{ target: string; translation?: string }>;
-    grammarHtml: string[];
-  };
+  lesson: LessonInfo;
   text: string;
 }
 
@@ -73,17 +68,8 @@ export function checkWritingRequest(input: WritingInput): TaskRequest {
     "<lesson>",
     `Lesson: ${lesson.title}`,
     `Task: ${writingTaskText(writingTopic(lesson))}`,
-    lesson.vocab.length
-      ? `Words of this lesson: ${clip(
-          lesson.vocab
-            .map((v) => (v.translation ? `${v.target} (${v.translation})` : v.target))
-            .join("; "),
-          B.lessonVocab,
-        )}`
-      : undefined,
-    lesson.grammarHtml.length
-      ? `Grammar notes:\n${clip(lesson.grammarHtml.map(htmlToText).join("\n\n"), B.grammar)}`
-      : undefined,
+    lessonWordsLine(lesson, B.lessonVocab),
+    lesson.grammarHtml.length ? `Grammar notes:\n${grammarNotes(lesson, B.grammar)}` : undefined,
     "</lesson>",
     "<text>",
     clip(input.text.trim(), B.text),

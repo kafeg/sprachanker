@@ -1,7 +1,8 @@
 // What the LLM tasks know about a lesson (07): the lesson in the learner's edition, earlier lessons as
 // words and titles, and mistakes with their exercises. Shared by the tutor, writing, review and scenes.
-import type { TutorMistake } from "@sprachanker/llm";
+import type { LessonInfo, TutorMistake } from "@sprachanker/llm";
 import {
+  findExercise,
   type Lang,
   type Lesson,
   type LessonKey,
@@ -17,13 +18,7 @@ export interface LessonContext {
   locale?: LocaleLesson;
   target: Lang;
   /** The `lesson` part of the tasks' inputs. */
-  info: {
-    title: string;
-    /** In the learner's language, as the course states them. */
-    goals: string[];
-    grammarHtml: string[];
-    vocab: Array<{ target: string; translation?: string }>;
-  };
+  info: LessonInfo;
   /** Headwords and titles of the lessons before this one, in course order. */
   knownVocab: string[];
   earlierLessons: string[];
@@ -34,7 +29,7 @@ export interface LessonContext {
 export function createLessonContext(content: Content) {
   return {
     async get(series: string, lessonKey: LessonKey, edition: string): Promise<LessonContext> {
-      const course = parseLessonKey(lessonKey).course.split("/").pop() ?? "";
+      const course = parseLessonKey(lessonKey).courseId;
       const [map, lesson, locale] = await Promise.all([
         content.courseMap(series, course, edition),
         content.lesson(series, lessonKey),
@@ -79,7 +74,7 @@ export function createLessonContext(content: Content) {
           content.lesson(series, key).catch(() => undefined),
           content.localeLesson(series, key, edition),
         ]);
-        const exercise = lesson?.pages.find((p) => p.exercise.key === m.exerciseKey)?.exercise;
+        const exercise = lesson && findExercise(lesson, m.exerciseKey);
         if (!exercise?.items[m.index]) continue;
         out.push({
           lesson: titles ? (titles[m.lessonKey] ?? m.lessonKey) : undefined,

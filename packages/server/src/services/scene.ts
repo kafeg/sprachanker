@@ -42,7 +42,7 @@ export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonCon
 
   async function turnInput(request: SceneRequest, message: string) {
     const run = latestRun(request.lessonKey);
-    if (!run || run.status !== "active") throw new LlmSetupError("no_active_scene");
+    if (run?.status !== "active") throw new LlmSetupError("no_active_scene");
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
     const state = stateOf(run);
     const input: SceneTurnInput = {

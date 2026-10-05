@@ -11,6 +11,7 @@ import {
   LocaleCourse,
   LocaleLesson,
   type MediaPath,
+  parseLessonKey,
 } from "@sprachanker/schema";
 import type { z } from "zod";
 
@@ -48,12 +49,6 @@ async function read<S extends z.ZodType>(schema: S, file: string): Promise<z.inf
   return result.data;
 }
 
-/** `dw.nicos-weg/a1/00-01` → its course id and file name. */
-function lessonPath(key: LessonKey) {
-  const [, course = "", name = ""] = key.split("/");
-  return { course, name };
-}
-
 export function openLibrary(root: string): LibraryView {
   const seriesDir = (series: string) => join(root, series);
   return {
@@ -85,12 +80,15 @@ export function openLibrary(root: string): LibraryView {
       return existsSync(file) ? read(LocaleCourse, file) : undefined;
     },
     lesson(series, key) {
-      const { course, name } = lessonPath(key);
-      return read(Lesson, join(seriesDir(series), "canonical", course, "lessons", `${name}.json`));
+      const { courseId, name } = parseLessonKey(key);
+      return read(
+        Lesson,
+        join(seriesDir(series), "canonical", courseId, "lessons", `${name}.json`),
+      );
     },
     async localeLesson(series, key, edition) {
-      const { course, name } = lessonPath(key);
-      const file = join(seriesDir(series), "locale", edition, course, "lessons", `${name}.json`);
+      const { courseId, name } = parseLessonKey(key);
+      const file = join(seriesDir(series), "locale", edition, courseId, "lessons", `${name}.json`);
       return existsSync(file) ? read(LocaleLesson, file) : undefined;
     },
     mediaFile(series, path) {

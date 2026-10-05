@@ -1,5 +1,11 @@
 // Lesson player (09): overview → exercises one by one → summary; plan and reference at hand.
-import type { Exercise, Lesson, LessonResult, LocaleLesson } from "@sprachanker/schema";
+import {
+  type Exercise,
+  type Lesson,
+  type LessonResult,
+  type LocaleLesson,
+  parseLessonKey,
+} from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpenText, Check, ListOrdered, Play, Star, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -13,7 +19,6 @@ import { SessionReview } from "@/llm/review.tsx";
 import { SceneCard } from "@/llm/scene.tsx";
 import { LessonTutor, ReviewMistakesButton, type TutorAsk } from "@/llm/tutor.tsx";
 import { WritingTask } from "@/llm/writing.tsx";
-import { lessonNumbers } from "@/routes/courses.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
@@ -181,7 +186,7 @@ export function LessonPlayer({
   const done = lesson.pages.filter(({ exercise }) =>
     status(exercise, run.results[exercise.key]),
   ).length;
-  const numbers = lessonNumbers(lesson.key);
+  const numbers = parseLessonKey(lesson.key);
   const unitTitle = map.data?.locale?.units[lesson.unit]?.title;
   const firstTab = referenceTabs(lesson, locale)[0];
 
@@ -411,7 +416,7 @@ export function LessonPlayer({
                 {nextLesson && (
                   <Link
                     to="/lesson/$series/$course/$lesson"
-                    params={{ series, course, lesson: nextLesson.split("/").pop() ?? "" }}
+                    params={{ series, course, lesson: parseLessonKey(nextLesson).name }}
                     className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground hover:bg-primary/90"
                   >
                     {t("lesson.nextLesson")} →

@@ -75,3 +75,7 @@ export const Lesson = z.object({
   unmapped: z.array(Unmapped),
 });
 export type Lesson = z.infer<typeof Lesson>;
+
+/** The lesson's exercise with this key, if the lesson (still) has it. */
+export const findExercise = (lesson: Lesson, key: string) =>
+  lesson.pages.find((p) => p.exercise.key === key)?.exercise;

@@ -1,5 +1,10 @@
 import { expect, test } from "bun:test";
-import { cleanSceneTurn, type SceneTurn, sceneTurnRequest } from "../src/tasks/scene.ts";
+import {
+  cleanSceneTurn,
+  type SceneTurn,
+  sceneSetupTask,
+  sceneTurnRequest,
+} from "../src/tasks/scene.ts";
 
 const turn = (extra: Partial<SceneTurn>): SceneTurn => ({
   reply: "Woher kommst du?",
@@ -52,4 +57,17 @@ test("sceneTurnRequest: user first, the opening kept, the new line marked", () =
   expect(fresh.messages.map((m) => m.role)).toEqual(["system", "user", "assistant", "user"]);
   expect(fresh.messages.at(-1)?.content).toBe("<line>Ich heiße Vitaly.</line>");
   expect(fresh.messages[0]?.content).toContain("0. a; 1. b");
+});
+
+test("sceneSetupTask: of many earlier words the most recent are kept", () => {
+  const knownVocab = Array.from({ length: 2000 }, (_, i) => `wort${i}`);
+  const task = sceneSetupTask({
+    language: "ru",
+    target: "de",
+    lesson: { title: "Im Café", goals: [], vocab: [] },
+    knownVocab,
+  });
+  const data = String(task.request.messages[1]?.content);
+  expect(data).toContain("wort1999");
+  expect(data).not.toContain("wort0;");
 });

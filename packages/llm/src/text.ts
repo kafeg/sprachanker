@@ -41,6 +41,31 @@ export const languageName = (code: string) =>
 /** Rough token count: about 4 characters per token for German, English and Russian text. */
 export const estimateTokens = (text: string) => Math.ceil(text.length / 4);
 
+/** Keeps the end of a list (the most recent entries) within `max` characters; "… " marks a cut. */
+export function newest(items: string[], max: number, separator: string): string {
+  const out: string[] = [];
+  let size = 0;
+  for (let i = items.length - 1; i >= 0; i--) {
+    const item = items[i] as string;
+    if (size + item.length + separator.length > max) break;
+    out.unshift(item);
+    size += item.length + separator.length;
+  }
+  return (out.length < items.length ? "… " : "") + out.join(separator);
+}
+
+/** The first lines, in order, that fit `max` characters together. */
+export function fitting(lines: string[], max: number): string[] {
+  const out: string[] = [];
+  let size = 0;
+  for (const line of lines) {
+    if (size + line.length > max) break;
+    out.push(line);
+    size += line.length;
+  }
+  return out;
+}
+
 /** The most recent conversation turns that fit `budget` characters, oldest first, as chat messages. */
 export function recentTurns(
   history: Array<{ role: "user" | "assistant"; text: string }>,

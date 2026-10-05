@@ -15,6 +15,7 @@ import {
   lexemeKey,
   type MediaPath,
   type PartOfSpeech,
+  parseLessonKey,
   seriesKey,
   unitKey,
   type VocabEntry,
@@ -124,7 +125,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
         translations[entry.key] = { translation: row.en };
       }
       const audio = media(section.audio);
-      const name = key.split("/").pop();
+      const { name } = parseLessonKey(key);
       files.push({
         path: `canonical/${COURSE}/lessons/${name}.json`,
         schema: Lesson,
