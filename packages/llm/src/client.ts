@@ -19,6 +19,8 @@ export interface ChatRequest {
   maxTokens?: number;
   /** false: answer without reasoning first (fast replies), where the provider allows it. */
   reasoning?: boolean;
+  /** Ask for JSON matching this schema (structured output); used with complete(). */
+  jsonSchema?: { name: string; schema: Record<string, unknown> };
   signal?: AbortSignal;
 }
 
@@ -38,7 +40,18 @@ export function chatBody(
     messages: request.messages,
     temperature: request.temperature ?? 0.3,
     max_tokens: request.maxTokens,
-    stream: true,
+    // Structured answers are read whole; text is streamed.
+    stream: !request.jsonSchema,
+    ...(request.jsonSchema && {
+      response_format: {
+        type: "json_schema",
+        json_schema: {
+          name: request.jsonSchema.name,
+          strict: true,
+          schema: request.jsonSchema.schema,
+        },
+      },
+    }),
     ...(request.reasoning === false ? noReasoning : undefined),
   };
 }
@@ -48,6 +61,8 @@ export interface LlmClient {
   models(signal?: AbortSignal): Promise<ModelInfo[]>;
   /** Streams the reply text; reasoning ("thinking") output is dropped. */
   chat(request: ChatRequest): AsyncIterable<string>;
+  /** The whole reply at once (structured output); reasoning output is dropped. */
+  complete(request: ChatRequest): Promise<string>;
 }
 
 export type LlmErrorCode =
@@ -55,7 +70,9 @@ export type LlmErrorCode =
   | "unauthorized"
   | "model_not_found"
   | "timeout"
-  | "bad_response";
+  | "bad_response"
+  /** A structured reply stayed invalid after the repair attempt. */
+  | "invalid_output";
 
 export class LlmError extends Error {
   constructor(
@@ -157,6 +174,44 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
           }
         }),
       );
+    },
+    async complete(request) {
+      // Fallbacks: without the reasoning switch, then without the schema (the prompt still asks for
+      // JSON), for servers that reject either.
+      const attempts = [
+        { switchOff: true, schema: true },
+        { switchOff: false, schema: true },
+        { switchOff: false, schema: false },
+      ].filter((a) => (a.switchOff ? request.reasoning === false && !!endpoint.noReasoning : true));
+      let last: unknown;
+      for (const a of attempts) {
+        if (!a.schema && !request.jsonSchema) break;
+        const body = chatBody(
+          { ...request, jsonSchema: a.schema ? request.jsonSchema : undefined },
+          a.switchOff ? endpoint.noReasoning : undefined,
+        );
+        try {
+          const res = await call(
+            "/chat/completions",
+            { method: "POST", body: JSON.stringify({ ...body, stream: false }) },
+            CHAT_TIMEOUT_MS,
+            request.signal,
+          );
+          const json = (await res.json().catch(() => null)) as {
+            choices?: Array<{ message?: { content?: unknown } }>;
+          } | null;
+          const content = json?.choices?.[0]?.message?.content;
+          if (typeof content !== "string") throw new LlmError("bad_response", "no reply");
+          return content
+            .replace(/<think>[\s\S]*?<\/think>/g, "")
+            .replace(SPECIAL_TOKEN, "")
+            .trim();
+        } catch (error) {
+          last = error;
+          if (!(error instanceof LlmError && error.code === "bad_response")) throw error;
+        }
+      }
+      throw last;
     },
   };
 }

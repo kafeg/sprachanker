@@ -1,0 +1,63 @@
+// Structured task outputs (07): JSON requested with a schema, parsed and validated with zod; an invalid
+// reply gets one repair attempt with the problems listed, then the task fails with `invalid_output`.
+import { z } from "zod";
+import { type ChatMessage, type LlmClient, LlmError, type TaskRequest } from "./client.ts";
+
+export interface StructuredTask<T> {
+  request: TaskRequest;
+  /** Schema name sent to the provider. */
+  name: string;
+  schema: z.ZodType<T>;
+}
+
+/** The JSON Schema of a zod schema, as providers take it. */
+export function jsonSchemaOf(schema: z.ZodType): Record<string, unknown> {
+  const { $schema: _, ...rest } = z.toJSONSchema(schema) as Record<string, unknown>;
+  return rest;
+}
+
+/** JSON from a reply that may wrap it in a Markdown fence or add a sentence around it. */
+function parseJson(text: string): unknown {
+  const fenced = /```(?:json)?\s*([\s\S]*?)```/.exec(text)?.[1];
+  const candidate = fenced ?? text.slice(text.indexOf("{"), text.lastIndexOf("}") + 1);
+  return JSON.parse(candidate);
+}
+
+/** The task's request with its schema attached (also what the prompt viewer shows). */
+export const structuredRequest = <T>(task: StructuredTask<T>): TaskRequest => ({
+  ...task.request,
+  jsonSchema: { name: task.name, schema: jsonSchemaOf(task.schema) },
+});
+
+export async function runStructured<T>(
+  client: LlmClient,
+  model: string,
+  task: StructuredTask<T>,
+  signal?: AbortSignal,
+): Promise<T> {
+  const request = structuredRequest(task);
+  let messages: ChatMessage[] = request.messages;
+  let problem = "";
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const reply = await client.complete({ ...request, messages, model, signal });
+    try {
+      const result = task.schema.safeParse(parseJson(reply));
+      if (result.success) return result.data;
+      problem = result.error.issues
+        .slice(0, 5)
+        .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
+        .join("; ");
+    } catch {
+      problem = "the reply was not valid JSON";
+    }
+    messages = [
+      ...request.messages,
+      { role: "assistant", content: reply },
+      {
+        role: "user",
+        content: `Your reply did not match the required JSON format (${problem}). Reply again with only the JSON object.`,
+      },
+    ];
+  }
+  throw new LlmError("invalid_output", problem);
+}
