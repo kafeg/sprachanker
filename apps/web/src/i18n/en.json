@@ -234,5 +234,15 @@
       "communication": "Message",
       "accuracy": "Accuracy"
     }
+  },
+  "review": {
+    "title": "Session review",
+    "make": "Review this session",
+    "making": "Reviewing…",
+    "refresh": "Review again",
+    "stale": "You answered more since the last review.",
+    "strengths": "Went well",
+    "topics": "To work on",
+    "next": "Next steps"
   }
 }

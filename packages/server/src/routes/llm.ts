@@ -22,6 +22,13 @@ const ExplainBody = z.object({
   language: Language,
 });
 
+const ReviewBody = z.object({
+  series: Series,
+  lessonKey: LessonKey,
+  edition: Edition,
+  language: Language,
+});
+
 const WritingBody = z.object({
   series: Series,
   lessonKey: LessonKey,
@@ -164,6 +171,16 @@ export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice) {
             return c.json(body, status);
           }
         },
+      )
+      // Session review of a lesson's latest run.
+      .get("/review", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json(practice.review.state(c.req.valid("query").lessonKey)),
+      )
+      .post("/review", zod("json", ReviewBody), (c) =>
+        jsonOrFailure(c, () => practice.review.create(c.req.valid("json"), c.req.raw.signal)),
+      )
+      .post("/review/prompt", zod("json", ReviewBody), (c) =>
+        jsonOrFailure(c, () => practice.review.prompt(c.req.valid("json"))),
       )
       // Writing task of a lesson: the task and attempts; a check stores its verdict.
       .get(

@@ -15,10 +15,11 @@ src/
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
-    describe.ts        # an exercise item as text: task, correct answer, learner answer
+    describe.ts        # an exercise item as text (task, correct, learner answer); a mistake as two lines
     explain-mistake.ts # explain_mistake: prompt + call
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
+    review-session.ts  # review_session: a lesson run's results → strengths, topics, next steps
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

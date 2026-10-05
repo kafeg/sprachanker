@@ -142,17 +142,24 @@ const fetchExplainPrompt = (request: ExplainRequest) =>
 
 export type TutorPromptRequest = Omit<TutorRequest, "message"> & { message: string };
 
+/** Which task's request the prompt viewer shows, with its input. */
+export type PromptRequest =
+  | { explain: ExplainRequest }
+  | { tutor: TutorPromptRequest }
+  | { writing: WritingRequest }
+  | { review: ReviewRequest };
+
 /** The exact request a task would send now (nothing is sent). */
-export const fetchPrompt = (
-  kind: { explain: ExplainRequest } | { tutor: TutorPromptRequest } | { writing: WritingRequest },
-): Promise<PromptPreview> =>
-  "explain" in kind
-    ? fetchExplainPrompt(kind.explain)
-    : (json(
-        ("tutor" in kind
-          ? api.llm.tutor.prompt.$post({ json: kind.tutor })
-          : api.llm.writing.prompt.$post({ json: kind.writing })) as never,
-      ) as Promise<PromptPreview>);
+export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
+  if ("explain" in kind) return fetchExplainPrompt(kind.explain);
+  const response =
+    "tutor" in kind
+      ? api.llm.tutor.prompt.$post({ json: kind.tutor })
+      : "writing" in kind
+        ? api.llm.writing.prompt.$post({ json: kind.writing })
+        : api.llm.review.prompt.$post({ json: kind.review });
+  return json(response as never) as Promise<PromptPreview>;
+}
 
 /** The tasks' system prompts and context budgets, for the settings. */
 export const useTaskPrompts = (language: string, target: string) =>
@@ -196,5 +203,25 @@ export function useCheckWriting() {
       json(api.llm.writing.$post({ json: request }) as never) as Promise<WritingAttempt>,
     onSuccess: (_, request) =>
       client.invalidateQueries({ queryKey: ["writing", request.lessonKey, request.edition] }),
+  });
+}
+
+export type ReviewRequest = Parameters<typeof api.llm.review.$post>[0]["json"];
+export type ReviewState = Awaited<ReturnType<typeof fetchReview>>;
+const fetchReview = (lessonKey: LessonKey) => json(api.llm.review.$get({ query: { lessonKey } }));
+
+/** The latest session review of a lesson. */
+export const useReview = (lessonKey: LessonKey) =>
+  useQuery({ queryKey: ["review", lessonKey], queryFn: () => fetchReview(lessonKey) });
+
+export function useCreateReview() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: ReviewRequest) =>
+      json(api.llm.review.$post({ json: request }) as never) as Promise<
+        NonNullable<ReviewState["review"]>
+      >,
+    onSuccess: (_, request) =>
+      client.invalidateQueries({ queryKey: ["review", request.lessonKey] }),
   });
 }

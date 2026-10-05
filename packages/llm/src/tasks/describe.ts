@@ -146,3 +146,25 @@ function fill(segments: Segment[], value: (gap: string) => string | undefined): 
     .join("")
     .trim();
 }
+
+/** A mistake the learner made: an item, the answer given, and whether a later attempt was right. */
+export interface TutorMistake {
+  /** Lesson title (for mistakes in other lessons). */
+  lesson?: string;
+  exercise: Exercise;
+  locale?: LocaleExercise;
+  index: number;
+  answer: unknown;
+  /** A later attempt was correct. */
+  fixed: boolean;
+}
+
+/** A mistake in two short lines: the item's prompt, then the correct and the learner's answer. */
+export function mistakeLine(m: TutorMistake): string {
+  const d = describeItem(m.exercise, m.locale, m.index, m.answer);
+  const prompt = d.task.split("\n").find((l) => /^(Prompt|Fill|Put|Match|Listen)/.test(l)) ?? "";
+  return [
+    `- ${m.lesson ? `[${m.lesson}] ` : ""}${prompt}`.trimEnd(),
+    `  correct: ${d.correct}; learner: ${d.learner ?? "(no answer)"}${m.fixed ? " (fixed later)" : ""}`,
+  ].join("\n");
+}

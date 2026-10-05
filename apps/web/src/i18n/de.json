@@ -234,5 +234,15 @@
       "communication": "Mitteilung",
       "accuracy": "Richtigkeit"
     }
+  },
+  "review": {
+    "title": "Rückblick",
+    "make": "Rückblick erstellen",
+    "making": "Wird erstellt…",
+    "refresh": "Neu erstellen",
+    "stale": "Seit dem letzten Rückblick hast du weitere Aufgaben beantwortet.",
+    "strengths": "Gut gelungen",
+    "topics": "Daran arbeiten",
+    "next": "Nächste Schritte"
   }
 }

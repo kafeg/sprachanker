@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { ulid } from "ulid";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
@@ -80,4 +81,59 @@ test("writing: a model that never returns valid JSON is reported, nothing stored
     `/api/llm/writing?series=${FIXTURE_SERIES}&lessonKey=${LESSON}&edition=ru-de`,
   );
   expect(state.attempts).toEqual([]);
+});
+
+test("review: built from the latest lesson run, stored, stale after new answers", async () => {
+  const REVIEW = {
+    summary: "Gut.",
+    strengths: ["Begrüßung"],
+    topics: [{ topic: "Herr/Frau", explanation: "…", examples: ["Guten Tag, Frau Weber."] }],
+    next: ["Übung 6 wiederholen"],
+  };
+  const m = model(REVIEW);
+  const { send, sendJson, getJson } = await setup({ fetch: m.fetch });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  expect(await getJson(`/api/llm/review?lessonKey=${LESSON}`)).toEqual({
+    possible: false,
+    review: null,
+    stale: false,
+  });
+
+  const run = (
+    await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    })
+  ).run.id;
+  const answer = (item: string, value: unknown) =>
+    sendJson("POST", `/api/runs/${run}/events`, {
+      events: [
+        {
+          id: ulid(),
+          type: "answered",
+          itemKey: item,
+          payload: { answer: value, attempt: 1, ms: 1 },
+        },
+      ],
+    });
+  await answer(`${LESSON}/ex-06#1`, { g1: "a" });
+  await answer(`${LESSON}/ex-01#1`, { optionId: "a" });
+  await answer(`${LESSON}/ex-01#2`, { optionId: "b" });
+
+  const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de", language: "ru" };
+  const prompt = await sendJson("POST", "/api/llm/review/prompt", body);
+  const data = prompt.body.messages[1].content as string;
+  expect(data).toContain("Right at the first attempt: 2 of 3 items.");
+  expect(data).toMatch(/Exercises without mistakes: .+/);
+  expect(data).toContain("learner: Guten Tag, [Herr] Weber.");
+
+  const review = await sendJson("POST", "/api/llm/review", body);
+  expect(review.result.topics[0].topic).toBe("Herr/Frau");
+  const state = await getJson(`/api/llm/review?lessonKey=${LESSON}`);
+  expect([state.possible, state.review.result.summary, state.stale]).toEqual([true, "Gut.", false]);
+
+  await answer(`${LESSON}/ex-07#1`, { g1: "a", g2: "b" });
+  expect((await getJson(`/api/llm/review?lessonKey=${LESSON}`)).stale).toBe(true);
 });

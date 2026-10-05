@@ -6,4 +6,5 @@ export * from "./tasks/chat-turn.ts";
 export * from "./tasks/check-writing.ts";
 export * from "./tasks/describe.ts";
 export * from "./tasks/explain-mistake.ts";
+export * from "./tasks/review-session.ts";
 export { estimateTokens, htmlToText, languageName } from "./text.ts";

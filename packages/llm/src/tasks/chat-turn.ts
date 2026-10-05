@@ -3,19 +3,7 @@
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { clip, htmlToText, languageName } from "../text.ts";
-import { describeItem } from "./describe.ts";
-
-/** One mistake as the tutor sees it: the item, the correct answer and what the learner gave. */
-export interface TutorMistake {
-  /** Lesson title (for earlier lessons). */
-  lesson?: string;
-  exercise: Exercise;
-  locale?: LocaleExercise;
-  index: number;
-  answer: unknown;
-  /** A later attempt was correct. */
-  fixed: boolean;
-}
+import { describeItem, mistakeLine, type TutorMistake } from "./describe.ts";
 
 export interface ChatTurnInput {
   /** Explanation language: the learner's interface language. */
@@ -58,17 +46,6 @@ const B = CHAT_TURN_BUDGETS;
 /** Mistakes as short lines within their budget: this lesson's first, then earlier lessons'. */
 function mistakeLines(mistakes: ChatTurnInput["mistakes"]): string | undefined {
   if (!mistakes) return undefined;
-  const line = (m: TutorMistake) => {
-    const d = describeItem(m.exercise, m.locale, m.index, m.answer);
-    const prompt =
-      d.task
-        .split("\n")
-        .find((l) => l.startsWith("Prompt") || l.startsWith("Fill") || l.startsWith("Put")) ?? "";
-    return [
-      `- ${m.lesson ? `[${m.lesson}] ` : ""}${prompt}`.trimEnd(),
-      `  correct: ${d.correct}; learner: ${d.learner ?? "(no answer)"}${m.fixed ? " (fixed later)" : ""}`,
-    ].join("\n");
-  };
   const lines: string[] = [];
   let size = 0;
   for (const [title, list] of [
@@ -78,7 +55,7 @@ function mistakeLines(mistakes: ChatTurnInput["mistakes"]): string | undefined {
     if (!list.length) continue;
     const block: string[] = [title];
     for (const m of list) {
-      const text = line(m);
+      const text = mistakeLine(m);
       if (size + text.length > B.mistakes) break;
       block.push(text);
       size += text.length;

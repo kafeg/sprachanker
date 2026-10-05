@@ -6,7 +6,7 @@ import { useSettings } from "@/api/hooks.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
-import { DEBUG_PROMPTS, fetchPrompt, type PromptPreview } from "./api.ts";
+import { DEBUG_PROMPTS, fetchPrompt, type PromptPreview, type PromptRequest } from "./api.ts";
 import { errorText } from "./errors.ts";
 
 /** Rough token count (about 4 characters per token for these languages). */
@@ -62,11 +62,7 @@ function Preview({ preview }: { preview: PromptPreview }) {
 }
 
 /** "Prompt" button, shown when debugging prompts is on in the settings. */
-export function PromptButton({
-  request,
-}: {
-  request: Parameters<typeof fetchPrompt>[0] | (() => Parameters<typeof fetchPrompt>[0]);
-}) {
+export function PromptButton({ request }: { request: PromptRequest | (() => PromptRequest) }) {
   const { t } = useTranslation();
   const debug = useDebugPrompts();
   const [open, setOpen] = useState(false);

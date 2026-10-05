@@ -68,6 +68,7 @@ export function createApp(config: AppConfig) {
     db: config.profile,
     llm,
     lessons,
+    mistakes,
     now,
     appVersion: config.appVersion,
   });
