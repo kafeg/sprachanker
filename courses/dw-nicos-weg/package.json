@@ -1,0 +1,17 @@
+{
+  "name": "@sprachanker/dw-nicos-weg",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "download": "bun src/download.ts",
+    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
+  },
+  "dependencies": {
+    "@sprachanker/course-kit": "workspace:*",
+    "@sprachanker/schema": "workspace:*"
+  }
+}
