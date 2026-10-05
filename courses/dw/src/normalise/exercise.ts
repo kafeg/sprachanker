@@ -1,5 +1,10 @@
 // One DW exercise page → an exercise of our types + its learner-language texts (research, "Exercises").
-import { type ExerciseDraft, withFingerprint } from "@sprachanker/course-kit";
+import {
+  type ExerciseDraft,
+  plainLines,
+  plainText,
+  withFingerprint,
+} from "@sprachanker/course-kit";
 import {
   type Exercise,
   type ExerciseKey,
@@ -19,7 +24,7 @@ import {
   refs,
   videoPaths,
 } from "./context.ts";
-import { isUiLabel, plainLines, plainText } from "./text.ts";
+import { isUiLabel } from "./text.ts";
 
 class Unmapped extends Error {}
 

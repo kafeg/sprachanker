@@ -1,4 +1,5 @@
 // A DW lesson (lesson page, download page, exercise pages) → canonical lesson + locale lesson.
+import { plainText } from "@sprachanker/course-kit";
 import {
   exerciseKey,
   type GoalKey,
@@ -24,7 +25,6 @@ import {
   videoPaths,
 } from "./context.ts";
 import { normaliseExercise } from "./exercise.ts";
-import { plainText } from "./text.ts";
 import { parseHeadword } from "./vocab.ts";
 
 export interface LessonSource {

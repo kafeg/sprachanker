@@ -7,7 +7,7 @@ Research about sources: `docs/research/`.
 
 ```
 packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching, manifest,
-                       # fingerprints, verify, HTML sanitiser
+                       # fingerprints, verify, HTML sanitiser, plain text of HTML
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)

@@ -247,7 +247,12 @@ export function LessonTutor({ ask, ...context }: Context & { ask?: TutorAsk }) {
   }, [ask]);
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+      <Button
+        variant="outline"
+        size="sm"
+        aria-label={t("tutor.title")}
+        onClick={() => setOpen(true)}
+      >
         <MessageCircle className="size-4" />{" "}
         <span className="hidden sm:inline">{t("tutor.title")}</span>
       </Button>

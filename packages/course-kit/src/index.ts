@@ -7,3 +7,4 @@ export * from "./media-index.ts";
 export * from "./media-store.ts";
 export * from "./pool.ts";
 export * from "./robots.ts";
+export * from "./text.ts";

@@ -58,7 +58,7 @@ table in the same commit with the reason.
 | Contract / snapshot | providers on **synthetic** fixtures; enrichment validates and resolves keys |
 | Integration | server API against a temp data root; jobs; media Range |
 | Migration | upgrade fixture DBs from every released schema version |
-| E2E (Playwright) | "first run → install fixture course → complete lesson 1 → review cards", desktop and phone viewport |
+| E2E (Playwright) | "first run → install fixture course → complete lesson 1 → review cards", desktop and phone viewport; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model |
 | LLM golden | `prompts test` per route, run manually before changing defaults or prompts |
 | Manual | owner demo at the end of each stage on Mac and iPhone |
 

@@ -244,7 +244,12 @@ export function LessonPlayer({
               exerciseKey={typeof step === "number" ? lesson.pages[step]?.exercise.key : undefined}
             />
             {firstTab && (
-              <Button variant="outline" size="sm" onClick={() => setReference(firstTab)}>
+              <Button
+                variant="outline"
+                size="sm"
+                aria-label={t("lesson.reference")}
+                onClick={() => setReference(firstTab)}
+              >
                 <BookOpenText className="size-4" />{" "}
                 <span className="hidden sm:inline">{t("lesson.reference")}</span>
               </Button>

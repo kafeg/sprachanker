@@ -4,7 +4,6 @@ import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
 import { normaliseLesson } from "../src/normalise/lesson.ts";
-import { plainLines, plainText } from "../src/normalise/text.ts";
 import { parseHeadword } from "../src/normalise/vocab.ts";
 
 test.each([
@@ -42,18 +41,6 @@ test.each([
   ],
 ])("%s", (name, sub, expected) => {
   expect(parseHeadword(name, sub)).toEqual(expected as never);
-});
-
-test("plain text and lines", () => {
-  expect(plainText("<p>Guten&nbsp;Tag,&#160;Herr&rsquo;s </p>")).toBe("Guten Tag, Herr’s");
-  expect(
-    plainText(
-      `<p>Ins <span>Zentrum</span> , <b>bitte</b>.</p><p>( Ja )<span>Appetit</span><span>auf</span> ... und</p>`,
-    ),
-  ).toBe("Ins Zentrum, bitte. (Ja) Appetit auf ... und");
-  expect(plainLines("<p>A: #p#.<br />B: Danke!</p><p>C: Gut.</p>")).toBe(
-    "A: #p#.\nB: Danke!\nC: Gut.",
-  );
 });
 
 const ctx = createContext({
