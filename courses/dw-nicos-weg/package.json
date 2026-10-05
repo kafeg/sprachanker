@@ -7,7 +7,6 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "download": "bun src/download.ts",
     "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
   },
   "dependencies": {

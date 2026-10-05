@@ -14,7 +14,7 @@
     },
     "apps/cli": {
       "name": "@sprachanker/cli",
-      "version": "0.0.0",
+      "version": "0.1.0",
       "dependencies": {
         "@sprachanker/server": "workspace:*",
       },
@@ -102,13 +102,16 @@
       "version": "0.0.0",
       "dependencies": {
         "@sprachanker/course-kit": "workspace:*",
+        "@sprachanker/dw-nicos-weg": "workspace:*",
         "@sprachanker/engine": "workspace:*",
         "@sprachanker/schema": "workspace:*",
         "drizzle-orm": "0.45.3",
         "hono": "4.13.13",
         "ulid": "3.0.2",
+        "zod": "4.6.5",
       },
       "devDependencies": {
+        "@sprachanker/course-fixture": "workspace:*",
         "drizzle-kit": "0.31.11",
       },
     },

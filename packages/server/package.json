@@ -13,13 +13,16 @@
   },
   "dependencies": {
     "@sprachanker/course-kit": "workspace:*",
+    "@sprachanker/dw-nicos-weg": "workspace:*",
     "@sprachanker/engine": "workspace:*",
     "@sprachanker/schema": "workspace:*",
     "drizzle-orm": "0.45.3",
     "hono": "4.13.13",
-    "ulid": "3.0.2"
+    "ulid": "3.0.2",
+    "zod": "4.6.5"
   },
   "devDependencies": {
-    "drizzle-kit": "0.31.11"
+    "drizzle-kit": "0.31.11",
+    "@sprachanker/course-fixture": "workspace:*"
   }
 }

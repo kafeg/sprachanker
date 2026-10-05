@@ -10,7 +10,7 @@ packages/course-kit/   # library format (LibraryView), fetcher, media store, man
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
-  dw-nicos-weg/        # provider/ enrichment/ fixtures/ tests/
+  dw-nicos-weg/        # src/: catalog, pages, media, stream (HLS fallback), normalise/, import.ts; test/
   coerll-dib/          # after MVP
   sa-starter-en/       # after MVP: our authored course + open-data importer
   bamf-lid/            # exam: Leben in Deutschland

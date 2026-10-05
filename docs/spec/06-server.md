@@ -74,9 +74,13 @@ are decided in stage 12.
 
 ## CLI (`apps/cli`)
 
-`serve` · `owner-link` · `import <provider> [--courses] [--editions] [--refresh]` · `verify [<series>]` ·
+`serve [--data]` · `owner-link` · `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [<series>]` ·
 `normalise <series>` · `export-profile` / `import-profile` · `enrich check` ·
 `prompts test --route <provider:model>` (07).
+
+The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is
+idempotent: stored pages and media are not fetched again (`--refresh` re-reads pages), then every
+selected edition is normalised.
 
 **Binary build.** `bun run build:cli` builds the web app, generates an entry that imports every web
 file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary. Embedded

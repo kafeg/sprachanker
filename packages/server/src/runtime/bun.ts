@@ -7,6 +7,7 @@ import { migrate } from "../db/migrate.ts";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { migrations } from "../db/profile/migrations/index.ts";
 import * as schema from "../db/profile/schema.ts";
+import type { MediaBlob } from "../media.ts";
 import type { WebAssets } from "../web.ts";
 
 export interface Listening {
@@ -71,3 +72,6 @@ export function openProfileDb(file: string, now = Date.now()): ProfileDb {
   );
   return drizzle(sqlite, { schema });
 }
+
+/** A library media file as a Blob (type from the extension). */
+export const mediaBlob = (file: string): MediaBlob => Bun.file(file);

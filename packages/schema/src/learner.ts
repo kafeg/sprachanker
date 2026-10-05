@@ -43,14 +43,16 @@ export const PageShownPayload = z.object({
   snapshot: PageSnapshot.optional(),
 });
 
-export const AnsweredPayload = z.object({
+/** An answer as the client sends it; an `outcome` sent by the client is dropped. */
+export const AnsweredInput = z.object({
   answer: z.unknown(),
-  /** Computed by the server; a client value is ignored. */
-  outcome: Outcome.optional(),
   /** 1 for the first attempt; only the first counts for scores (04). */
   attempt: z.number().int().positive(),
   ms: z.number().int().nonnegative(),
 });
+
+/** An answer as stored: with the outcome computed by the server. */
+export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 
 /** An event as the client sends it. */
 export const EventInput = z.discriminatedUnion("type", [
@@ -60,7 +62,7 @@ export const EventInput = z.discriminatedUnion("type", [
     itemKey: z.null().optional(),
     payload: PageShownPayload,
   }),
-  z.object({ id: Ulid, type: z.literal("answered"), itemKey: ItemKey, payload: AnsweredPayload }),
+  z.object({ id: Ulid, type: z.literal("answered"), itemKey: ItemKey, payload: AnsweredInput }),
 ]);
 export type EventInput = z.infer<typeof EventInput>;
 

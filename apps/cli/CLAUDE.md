@@ -6,7 +6,7 @@ The `sprachanker` binary. Spec: `docs/spec/06-server.md` (CLI, binary build). De
 ## Layout
 
 ```
-src/main.ts         # argument parsing and commands; main(argv, embedded?) — also runs from sources
+src/main.ts         # serve, import; main(argv, embedded?) — also runs from sources
 scripts/build.ts    # bun run build:cli: embeds the web build, compiles dist/sprachanker
 ```
 
