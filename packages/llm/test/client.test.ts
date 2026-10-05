@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { type ChatRequest, chatBody, LlmError, openAiCompatible } from "../src/client.ts";
+import {
+  type ChatMessage,
+  type ChatRequest,
+  chatBody,
+  LlmError,
+  openAiCompatible,
+} from "../src/client.ts";
 import { stripThinking } from "../src/thinking.ts";
 
 /** A fake OpenAI-compatible server: records requests and answers with the given response. */
@@ -149,4 +155,52 @@ test("chatBody: the posted JSON, with the provider's reasoning switch only when 
   expect(chatBody({ ...request, reasoning: false }, { reasoning_effort: "none" })).toMatchObject({
     reasoning_effort: "none",
   });
+});
+
+test("tools: calls are assembled from the stream, run, and answered in a second round", async () => {
+  const bodies: Array<{ messages: ChatMessage[]; tools?: unknown[] }> = [];
+  const toolDelta = (part: unknown) =>
+    `data: ${JSON.stringify({ choices: [{ delta: { tool_calls: [part] } }] })}\n\n`;
+  const fetchFn = (async (_: string, init: RequestInit) => {
+    const body = JSON.parse(init.body as string);
+    bodies.push(body);
+    if (bodies.length === 1)
+      return sse([
+        toolDelta({ index: 0, id: "c1", function: { name: "find_word", arguments: "" } }),
+        toolDelta({ index: 0, function: { arguments: '{"word":' } }),
+        toolDelta({ index: 0, function: { arguments: '"Taxi"}' } }),
+        "data: [DONE]\n\n",
+      ]);
+    return sse([delta("Lektion 0.2"), "data: [DONE]\n\n"]);
+  }) as unknown as typeof fetch;
+  const ran: unknown[] = [];
+  const client = openAiCompatible({ baseUrl: "http://h" }, fetchFn);
+  const text = await collect(
+    client.chat({
+      model: "m",
+      messages: [{ role: "user", content: "Wo war Taxi?" }],
+      tools: [{ name: "find_word", description: "d", parameters: { type: "object" } }],
+      runTool: async (name, args) => {
+        ran.push([name, args]);
+        return [{ lesson: "0.2" }];
+      },
+    }),
+  );
+  expect(text).toBe("Lektion 0.2");
+  expect(ran).toEqual([["find_word", { word: "Taxi" }]]);
+  expect(bodies[0]?.tools).toHaveLength(1);
+  expect(bodies[1]?.messages.slice(-2)).toEqual([
+    {
+      role: "assistant",
+      content: "",
+      tool_calls: [
+        {
+          id: "c1",
+          type: "function",
+          function: { name: "find_word", arguments: '{"word":"Taxi"}' },
+        },
+      ],
+    },
+    { role: "tool", tool_call_id: "c1", content: '[{"lesson":"0.2"}]' },
+  ]);
 });

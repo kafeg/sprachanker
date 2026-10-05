@@ -163,7 +163,14 @@
     "contextFull": "Der Kontext ist fast voll: die ersten Nachrichten erreichen das Modell nicht mehr. Für ein neues Thema ein neues Gespräch beginnen.",
     "contextHint": "Größe der nächsten Anfrage: Lektionskontext, Gespräch und deine Nachricht, plus Platz für die Antwort.",
     "reviewMistakes": "Meine Fehler mit dem Tutor durchgehen",
-    "reviewMistakesMessage": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
+    "reviewMistakesMessage": "Geh bitte meine Fehler in dieser Lektion mit mir durch.",
+    "toolsUsed": "Nachgesehen: {tools}",
+    "tool": {
+      "find_word": "das Wort „{word}“",
+      "get_progress": "deinen Fortschritt",
+      "get_mistakes": "deine Fehler",
+      "get_lesson": "Lektion {lesson}"
+    }
   },
   "lmstudio": {
     "running": "LM Studio läuft.",
@@ -209,7 +216,8 @@
       "grammar": "die Grammatik-Notizen der Lektion",
       "exercise": "die Übung auf dem Bildschirm mit Lösungen (der Tutor gibt zuerst Tipps)",
       "history": "die letzten Nachrichten des Gesprächs",
-      "mistakes": "deine Fehler: in dieser Lektion, dann die letzten aus früheren Lektionen (korrigierte markiert)"
+      "mistakes": "deine Fehler: in dieser Lektion, dann die letzten aus früheren Lektionen (korrigierte markiert)",
+      "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt"
     },
     "upTo": "bis {chars} Zeichen",
     "debug": "„Prompt“-Knöpfe zeigen",

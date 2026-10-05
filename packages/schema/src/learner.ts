@@ -82,6 +82,8 @@ export const LlmTurnPayload = z.object({
     .optional(),
   /** Scenes: indices of the scene's goals reached so far. */
   goalsMet: z.array(z.number().int().nonnegative()).optional(),
+  /** Tutor: the tools the model called for this reply. */
+  tools: z.array(z.object({ name: z.string(), args: z.unknown() })).optional(),
 });
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 

@@ -8,4 +8,5 @@ export * from "./tasks/describe.ts";
 export * from "./tasks/explain-mistake.ts";
 export * from "./tasks/review-session.ts";
 export * from "./tasks/scene.ts";
-export { estimateTokens, htmlToText, languageName } from "./text.ts";
+export * from "./tasks/tutor-tools.ts";
+export { clip, estimateTokens, htmlToText, languageName } from "./text.ts";

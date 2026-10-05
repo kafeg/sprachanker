@@ -14,6 +14,7 @@ import type { Content } from "./content.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { Mistakes } from "./mistakes.ts";
+import type { TutorTools } from "./tutor-tools.ts";
 
 export interface TutorRequest {
   series: string;
@@ -43,6 +44,7 @@ export function createTutor(deps: {
   llm: Llm;
   mistakes: Mistakes;
   lessons: LessonContexts;
+  tools: TutorTools;
   now: () => number;
   appVersion: string;
 }) {
@@ -181,7 +183,14 @@ export function createTutor(deps: {
           .returning()
           .get();
       const { input, exercise } = await turnInput(request, turns(run.id));
-      const reply = chatTurn(client, model, input, signal);
+      // The tools the model calls are recorded with its reply.
+      const used: Array<{ name: string; args: unknown }> = [];
+      const tool = deps.tools.runner(request.series, request.lessonKey, request.edition);
+      const runTool = (name: string, args: unknown) => {
+        used.push({ name, args });
+        return tool(name, args);
+      };
+      const reply = chatTurn(client, model, input, runTool, signal);
       return (async function* () {
         let text = "";
         try {
@@ -194,7 +203,7 @@ export function createTutor(deps: {
           if (text.trim()) {
             addTurns(run.id, [
               { role: "user", text: request.message, exerciseKey: exercise?.key },
-              { role: "assistant", text: text.trim(), model },
+              { role: "assistant", text: text.trim(), model, ...(used.length && { tools: used }) },
             ]);
           }
         }

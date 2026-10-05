@@ -112,7 +112,15 @@ controls. `sprachanker prompts test --route <provider:model>` prints found-error
 claims, invalid-JSON rate, median latency; the latest table per model goes to
 `packages/llm/golden/RESULTS.md` (the only log-style file allowed).
 
+## Tools
+
+The tutor may call tools while answering (OpenAI function calling, streamed; up to three tool rounds,
+then it must answer): `get_progress`, `get_mistakes` (all lessons or one), `find_word` (where a word is
+taught, with its translation), `get_lesson` (goals, words, grammar). Lessons are named "unit.lesson" as
+the app shows them. The server runs them on the learner's data; the reply records which tools it used
+and the UI shows them. Servers rejecting tools are asked again without. A reminder at the end of the
+system message makes small models call tools instead of promising to look later.
+
 ## Later
 
-Chat tools (function calling over progress, mistakes, cards), `session_review`, `exam_score` for Goethe
-A1 writing/speaking, cloud usage counters.
+`exam_score` for Goethe A1 speaking (with speech recognition), tools over cards, cloud usage counters.

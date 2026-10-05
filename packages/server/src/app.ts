@@ -18,6 +18,7 @@ import { createRuns, RunError } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
 import { createTutor } from "./services/tutor.ts";
+import { createTutorTools } from "./services/tutor-tools.ts";
 import { Edition, Series, zod } from "./validate.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
@@ -62,6 +63,8 @@ export function createApp(config: AppConfig) {
     llm,
     mistakes,
     lessons,
+    // Runs are created below; progress is read only when the model asks for it.
+    tools: createTutorTools({ content, lessons, mistakes, progress: () => runs.progress() }),
     now,
     appVersion: config.appVersion,
   });

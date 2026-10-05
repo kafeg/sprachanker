@@ -8,7 +8,8 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 
 ```
 src/
-  client.ts        # OpenAI-compatible endpoint: models(), streamed chat(); errors as LlmError codes
+  client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
+                   # errors as LlmError codes
   providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   structured.ts    # JSON outputs: schema in the request, zod validation, one repair attempt
@@ -21,6 +22,7 @@ src/
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
     review-session.ts  # review_session: a lesson run's results → strengths, topics, next steps
     scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
+    tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

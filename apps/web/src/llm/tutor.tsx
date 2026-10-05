@@ -1,6 +1,6 @@
 // The lesson tutor: a header button and a side panel with the chat of this lesson.
 import { Link } from "@tanstack/react-router";
-import { MessageCircle, RotateCcw, Send, Square } from "lucide-react";
+import { MessageCircle, RotateCcw, Search, Send, Square } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
@@ -32,6 +32,26 @@ function Bubble({ from, children }: { from: "user" | "assistant"; children: Reac
     >
       {children}
     </div>
+  );
+}
+
+/** What the model looked up for a reply (its tool calls), in plain words. */
+function ToolsUsed({ tools }: { tools: Array<{ name: string; args?: unknown }> }) {
+  const { t } = useTranslation();
+  const text = tools
+    .map(({ name, args }) => {
+      const a = (args ?? {}) as Record<string, string>;
+      return t(`tutor.tool.${name}`, {
+        word: a.word ?? "",
+        lesson: a.lesson ?? "",
+        defaultValue: name,
+      });
+    })
+    .join(", ");
+  return (
+    <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
+      <Search className="size-3" /> {t("tutor.toolsUsed", { tools: text })}
+    </p>
   );
 }
 
@@ -150,7 +170,10 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
             {turn.role === "user" ? (
               <p className="whitespace-pre-wrap">{turn.text}</p>
             ) : (
-              <RichText text={turn.text} />
+              <>
+                <RichText text={turn.text} />
+                {turn.tools?.length ? <ToolsUsed tools={turn.tools} /> : null}
+              </>
             )}
           </Bubble>
         ))}

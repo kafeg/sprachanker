@@ -23,7 +23,8 @@ src/
   services/          # content, runs, settings, mistakes (derived from lesson runs), lesson-context (what LLM
                      # tasks know of a lesson), llm (providers, LM Studio, explanations, prompt previews),
                      # tutor (lesson chats as `chat` runs), practice (writing checks, session reviews in
-                     # `practice` runs), scene (role-plays as `scene` runs)
+                     # `practice` runs), scene (role-plays as `scene` runs), tutor-tools (the tutor's
+                     # tools on the learner's data)
   jobs/              # import, model download; progress via SSE
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys); later profiles, PIN, device tokens, Host check, CSP
