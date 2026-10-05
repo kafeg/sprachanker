@@ -1,7 +1,7 @@
 // Synthetic page states shaped like DW's; no real content.
 import { expect, test } from "bun:test";
 import { exerciseIds, extractState, lessonIds } from "../src/apollo.ts";
-import { mediaRefs, sdMp4 } from "../src/media.ts";
+import { mediaName, mediaRefs, sdMp4 } from "../src/media.ts";
 
 const state = {
   "Course:1": {
@@ -66,5 +66,15 @@ test("media of a page", () => {
     },
     { url: "https://www.dw.com/media/subtitles/77", kind: "subtitles" },
     { url: "https://static.dw.com/downloads/30/course-script.pdf", kind: "pdf" },
+  ]);
+});
+
+test("readable file names", () => {
+  expect(mediaRefs(state as never).map(mediaName)).toEqual([
+    "word.mp3",
+    "555.jpg",
+    "E1_sd.mp4",
+    "77.vtt",
+    "course-script.pdf",
   ]);
 });

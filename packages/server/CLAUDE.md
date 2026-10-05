@@ -22,7 +22,7 @@ src/
   sidecars/          # whisper-server, TTS, later llama-server supervisors (spawn, health, restart)
   security/          # profiles, PIN, device tokens, secrets encryption, Host check, CSP
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
-  media/             # Range responses for library blobs (read via course-kit) and profile files
+  media/             # Range responses for library media (read via course-kit) and profile files
 test/                # bun test; integration tests call createApp().request()
 ```
 

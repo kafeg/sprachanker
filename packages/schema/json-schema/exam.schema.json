@@ -181,20 +181,27 @@
       "type": "object",
       "properties": {
         "image": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         },
         "audio": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         },
         "video": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         }
       }
     },
-    "BlobRef": {
+    "MediaPath": {
       "type": "string",
-      "pattern": "^blob:sha256:[0-9a-f]{64}$",
-      "title": "BlobRef"
+      "allOf": [
+        {
+          "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.\\.?(?:\\/|$))[^\\\\]+$"
+        },
+        {
+          "pattern": "^media\\/[^/]+\\/.+$"
+        }
+      ],
+      "title": "MediaPath"
     },
     "Option": {
       "type": "object",

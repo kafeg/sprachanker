@@ -118,7 +118,7 @@ attacks, not a determined attacker on the LAN.
 - **Secrets**: AES-256-GCM with a key file (`0600`) in app-data; write-only through the API; never logged.
 - **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled; CSP
   without inline scripts.
-- **Media routes** take blob hashes and file ids, never paths; recordings are served only to their profile.
+- **Media routes** take a series and a manifest-listed media path (anything else is refused) or a file id; recordings are served only to their profile.
 - **Downloads** (models, binaries): HTTPS, sha256 pinned, verified before use.
 - **LLM**: course text and learner input are passed as delimited data; output is validated against
   schemas and never executed.

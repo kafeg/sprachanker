@@ -1,6 +1,6 @@
 // Language-independent course files: course index and lessons (02, "Canonical files").
 import { z } from "zod";
-import { BlobRef, format, LibraryPath } from "./common.ts";
+import { format, LibraryPath, MediaPath } from "./common.ts";
 import { Exercise } from "./exercise/index.ts";
 import {
   CourseKey,
@@ -40,8 +40,8 @@ export const VocabEntry = z.object({
   forms: z.string().optional(),
   /** Target-language usage note: "hier nur Singular". */
   note: z.string().optional(),
-  audio: BlobRef.optional(),
-  image: BlobRef.optional(),
+  audio: MediaPath.optional(),
+  image: MediaPath.optional(),
 });
 export type VocabEntry = z.infer<typeof VocabEntry>;
 
@@ -57,15 +57,15 @@ export const Lesson = z.object({
   media: z.object({
     video: z
       .object({
-        sd: BlobRef.optional(),
-        hd: BlobRef.optional(),
+        sd: MediaPath.optional(),
+        hd: MediaPath.optional(),
         /** Variant with subtitles burned in. */
-        subtitled: BlobRef.optional(),
+        subtitled: MediaPath.optional(),
         /** Target-language subtitle track (WebVTT). */
-        subtitles: BlobRef.optional(),
+        subtitles: MediaPath.optional(),
       })
       .optional(),
-    image: BlobRef.optional(),
+    image: MediaPath.optional(),
   }),
   goals: z.array(GoalKey),
   pages: z.array(z.object({ exercise: Exercise })),

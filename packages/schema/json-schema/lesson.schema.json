@@ -24,21 +24,21 @@
           "type": "object",
           "properties": {
             "sd": {
-              "$ref": "#/$defs/BlobRef"
+              "$ref": "#/$defs/MediaPath"
             },
             "hd": {
-              "$ref": "#/$defs/BlobRef"
+              "$ref": "#/$defs/MediaPath"
             },
             "subtitled": {
-              "$ref": "#/$defs/BlobRef"
+              "$ref": "#/$defs/MediaPath"
             },
             "subtitles": {
-              "$ref": "#/$defs/BlobRef"
+              "$ref": "#/$defs/MediaPath"
             }
           }
         },
         "image": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         }
       }
     },
@@ -133,10 +133,10 @@
             "type": "string"
           },
           "audio": {
-            "$ref": "#/$defs/BlobRef"
+            "$ref": "#/$defs/MediaPath"
           },
           "image": {
-            "$ref": "#/$defs/BlobRef"
+            "$ref": "#/$defs/MediaPath"
           }
         },
         "required": [
@@ -192,10 +192,17 @@
       "title": "UnitKey",
       "description": "<course>/u<NN>"
     },
-    "BlobRef": {
+    "MediaPath": {
       "type": "string",
-      "pattern": "^blob:sha256:[0-9a-f]{64}$",
-      "title": "BlobRef"
+      "allOf": [
+        {
+          "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.\\.?(?:\\/|$))[^\\\\]+$"
+        },
+        {
+          "pattern": "^media\\/[^/]+\\/.+$"
+        }
+      ],
+      "title": "MediaPath"
     },
     "GoalKey": {
       "type": "string",
@@ -302,13 +309,13 @@
       "type": "object",
       "properties": {
         "image": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         },
         "audio": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         },
         "video": {
-          "$ref": "#/$defs/BlobRef"
+          "$ref": "#/$defs/MediaPath"
         }
       }
     },
@@ -909,7 +916,7 @@
                 "type": "object",
                 "properties": {
                   "audio": {
-                    "$ref": "#/$defs/BlobRef"
+                    "$ref": "#/$defs/MediaPath"
                   }
                 },
                 "required": [

@@ -16,21 +16,21 @@ courses/<provider-id>/
 interface Provider {
   id: string;                                         // "dw-nicos-weg"
   catalog(): CatalogEntry[];                          // static declaration, no network
-  fetch(sel: Selection, io: FetchIO, progress: Progress): Promise<FetchReport>;  // writes raw/ + blobs/
+  fetch(sel: Selection, io: FetchIO, progress: Progress): Promise<FetchReport>;  // writes raw/ + media/
   normalise(raw: RawView): { files: Map<string, unknown>; report: NormaliseReport };  // offline
 }
 ```
 
 `course-kit` owns the library format (read and write, `LibraryView`) and supplies `FetchIO` (polite HTTP
-client: robots.txt, ≤1 req/s per host, retries with backoff, resumable downloads, identifiable
-User-Agent), the blob store, writing files and the manifest, the HTML sanitiser, fingerprints and
+client: robots.txt, ≤1 request per second per host, retries with backoff, resumable downloads,
+identifiable User-Agent), the media store, writing files and the manifest, the HTML sanitiser, fingerprints and
 `contentVersion`, and the generic `verify`. The exact interface is fixed in stage 2.
 
 ## Importer behaviour (all providers)
 
 - **On demand only**, from the UI or CLI (`sprachanker import <provider> --courses a1 --editions ru-de`).
 - **Idempotent and resumable.** With raw data present, a re-run makes no requests unless `--refresh`.
-- **Separate phases.** `fetch` writes raw + blobs; `normalise` builds canonical + locale offline.
+- **Separate phases.** `fetch` writes raw + media; `normalise` builds canonical + locale offline.
 - **Reports** unknown exercise types, unmapped fields, edition mismatches, changes since the last fetch.
 - **No partial installs visible.** A course becomes visible after normalise + verify succeed.
 - One import per series at a time (lock file in the series folder).

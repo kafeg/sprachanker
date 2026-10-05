@@ -23,7 +23,7 @@ import {
   type VocabEntry,
   vocabKey,
 } from "@sprachanker/schema";
-import { audio, image, video } from "./blobs.ts";
+import { audio, image, video } from "./media.ts";
 
 export const SERIES = seriesKey("sprachanker", "fixture");
 export const COURSE = courseKey(SERIES, "demo");

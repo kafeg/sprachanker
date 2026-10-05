@@ -5,13 +5,6 @@ import { Lang } from "./lang.ts";
 /** Lowercase hex sha256. */
 export const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 
-/** Reference to a content-addressed blob in the library: `blob:sha256:<hash>`. */
-export const BlobRef = z
-  .string()
-  .regex(/^blob:sha256:[0-9a-f]{64}$/)
-  .meta({ id: "BlobRef", title: "BlobRef" });
-export type BlobRef = z.infer<typeof BlobRef>;
-
 /** ISO 8601 UTC timestamp, as written in files. */
 export const Timestamp = z.iso.datetime();
 
@@ -21,6 +14,13 @@ export const LibraryPath = z
   .regex(/^(?!\/)(?!.*(?:^|\/)\.\.?(?:\/|$))[^\\]+$/)
   .meta({ title: "LibraryPath" });
 
+/** A media file of the series folder: `media/<kind>/<name>`, e.g. `media/video/A1_E0_L1_F1_sd.mp4`. */
+export const MediaPath = LibraryPath.regex(/^media\/[^/]+\/.+$/).meta({
+  id: "MediaPath",
+  title: "MediaPath",
+});
+export type MediaPath = z.infer<typeof MediaPath>;
+
 /** Text per learner language, e.g. `{ en: "…", ru: "…" }`. */
 export const LocalizedText = z.record(Lang, z.string());
 export type LocalizedText = z.infer<typeof LocalizedText>;
@@ -28,12 +28,12 @@ export type LocalizedText = z.infer<typeof LocalizedText>;
 /** The integer `format` every stored file carries; bumped on breaking changes (02). */
 export const format = <const V extends number>(version: V) => z.literal(version);
 
-/** Media attached to a lesson, exercise, item or option; all blobs. */
+/** Media attached to a lesson, exercise, item or option. */
 export const Media = z
   .object({
-    image: BlobRef.optional(),
-    audio: BlobRef.optional(),
-    video: BlobRef.optional(),
+    image: MediaPath.optional(),
+    audio: MediaPath.optional(),
+    video: MediaPath.optional(),
   })
   .meta({ id: "Media" });
 export type Media = z.infer<typeof Media>;

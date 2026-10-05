@@ -3,7 +3,7 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
-import { createBlobStore, createPoliteFetcher } from "@sprachanker/course-kit";
+import { createMediaStore, createPoliteFetcher } from "@sprachanker/course-kit";
 import { COURSES, SERIES, USER_AGENT } from "./catalog.ts";
 import { collectMedia, fetchMedia } from "./media.ts";
 import { fetchPages } from "./pages.ts";
@@ -26,7 +26,7 @@ if (!values["pages-only"]) {
   const refs = await collectMedia(join(seriesDir, "raw"));
   const index = await fetchMedia(
     fetcher,
-    createBlobStore(seriesDir),
+    createMediaStore(seriesDir),
     join(seriesDir, "media.json"),
     refs,
     log,

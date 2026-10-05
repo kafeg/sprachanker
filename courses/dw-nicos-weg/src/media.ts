@@ -1,11 +1,11 @@
-// Fetch phase, media: every media URL referenced by the raw pages → blobs + media.json index (03).
+// Fetch phase, media: every media URL referenced by the raw pages → media/<kind>/<name> + media.json (03).
 import { existsSync } from "node:fs";
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
-  type BlobStore,
   FetchFailedError,
   HostRefusedError,
+  type MediaStore,
   type PoliteFetcher,
 } from "@sprachanker/course-kit";
 import { type ApolloState, entitiesOf } from "./apollo.ts";
@@ -18,11 +18,24 @@ export interface MediaRef {
   url: string;
   kind: MediaKind;
 }
+/** Source URL → stored file (path, sha256 and size for integrity checks) or the last error. */
 export type MediaIndex = Record<
   string,
-  | { kind: MediaKind; sha256: string; size: number; mime: string }
+  | { kind: MediaKind; path: string; sha256: string; size: number; mime: string }
   | { kind: MediaKind; error: string }
 >;
+
+/** File name of a medium: the source's own name; images and subtitles by their DW id. */
+export function mediaName(ref: MediaRef): string {
+  const last = new URL(ref.url).pathname.split("/").pop() ?? "";
+  const name =
+    ref.kind === "image"
+      ? last.replace(new RegExp(`_${IMAGE_FORMAT}(\\.\\w+)$`), "$1")
+      : ref.kind === "subtitles"
+        ? `${last}.vtt`
+        : last;
+  return name.replace(/[^\w.-]/g, "_");
+}
 
 const HLS_SD_HD = /^https:\/\/hlsvod\.dw\.com\/i\/(.+?)_,sd,hd,\.mp4\.csmil\/master\.m3u8$/;
 
@@ -78,7 +91,7 @@ export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
 /** Downloads media missing from the index (one worker per host); failed URLs are retried next run. */
 export async function fetchMedia(
   fetcher: PoliteFetcher,
-  blobs: BlobStore,
+  store: MediaStore,
   indexFile: string,
   refs: MediaRef[],
   log: (line: string) => void,
@@ -100,11 +113,11 @@ export async function fetchMedia(
       for (const ref of hostRefs) {
         try {
           const res = await fetcher.get(ref.url);
-          const { sha256, size } = await blobs.put(new Uint8Array(await res.arrayBuffer()));
+          const bytes = new Uint8Array(await res.arrayBuffer());
+          const stored = await store.put(`${ref.kind}/${mediaName(ref)}`, bytes);
           index[ref.url] = {
             kind: ref.kind,
-            sha256,
-            size,
+            ...stored,
             mime: res.headers.get("content-type") ?? "",
           };
         } catch (error) {

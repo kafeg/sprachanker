@@ -28,7 +28,7 @@ describe("manifest", () => {
     ],
     files: {
       "canonical/a1/lessons/00-01.json": { sha256: hash, size: 12345 },
-      [`blobs/sha256/ab/ab/${hash}`]: { sha256: hash, size: 7340032, mime: "video/mp4" },
+      "media/video/E1_sd.mp4": { sha256: hash, size: 7340032, mime: "video/mp4" },
     },
   };
 

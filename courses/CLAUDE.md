@@ -6,7 +6,7 @@ Research about sources: `docs/research/`.
 ## Layout (target)
 
 ```
-packages/course-kit/   # library format (LibraryView), polite fetcher, blob store, manifest, fingerprints, verify, HTML sanitiser
+packages/course-kit/   # library format (LibraryView), polite fetcher, media store, manifest, fingerprints, verify, HTML sanitiser
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
@@ -21,7 +21,7 @@ courses/
 - Providers depend only on `schema` and `course-kit` and MUST satisfy the normalisation contract (spec 02).
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
   Fixtures are hand-written and only shaped like the source.
-- `fetch` writes raw + blobs; `normalise` is offline and deterministic. Fixing a normaliser must not
+- `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
   require re-downloading.
 - Unknown source structures become `unknown` + report entries, never silent drops.
 - Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.

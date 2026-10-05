@@ -2,8 +2,8 @@
 import { courseIndex, exams, lessons } from "./course.ts";
 import { EDITIONS, localeCourse, localeExam, localeLessons } from "./locales.ts";
 
-export { FIXTURE_BLOBS } from "./blobs.ts";
 export { COURSE, SERIES } from "./course.ts";
+export { FIXTURE_MEDIA } from "./media.ts";
 
 export const fixture = {
   courseIndex,

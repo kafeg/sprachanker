@@ -13,9 +13,9 @@ files, rules registry, enrichment, and the normalisation contract every provider
 | Generated ids (learner data) | ULID |
 | Edition id | `<source>-<target>` (`ru-de`, `en-de`, `de-de`) |
 | Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
-| Blob references | `blob:sha256:<hash>`; MIME and size live in the manifest |
+| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME live in the manifest |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
-| HTML | only in fields named `*Html`, sanitised to an allow-list: p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a blob, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
+| HTML | only in fields named `*Html`, sanitised to an allow-list: p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
 | Format versions | integer `format` in every file type; bumped on breaking change; additive optional fields do not bump it |
 
 ## Library layout
@@ -28,7 +28,7 @@ moved, or restored by copying.
 <data-root>/library/
 └── dw.nicos-weg/                               # series id
     ├── course.json                             # manifest
-    ├── blobs/sha256/ab/cd/abcd…                # binaries, content-addressed
+    ├── media/<kind>/<name>                     # video, audio, image, subtitles, pdf under source names
     ├── raw/<edition>/<course>/…                # extracted source data as fetched (provider-specific)
     ├── canonical/<course>/course.json          # course index
     ├── canonical/<course>/lessons/<NN>-<NN>.json
@@ -83,7 +83,7 @@ moved, or restored by copying.
   "courses": [ { "id": "a1", "kind": "course", "level": "A1", "target": "de",
                  "editions": [ { "id": "ru-de", "source": "ru", "fetchedAt": "…", "contentVersion": "c1f0…" } ] } ],
   "files": { "canonical/a1/lessons/00-01.json": { "sha256": "…", "size": 12345 },
-             "blobs/sha256/ab/cd/abcd…": { "sha256": "abcd…", "size": 7340032, "mime": "video/mp4",
+             "media/video/A1_E0_L1_F1_sd.mp4": { "sha256": "abcd…", "size": 7340032, "mime": "video/mp4",
                                            "sourceUrl": "https://…", "durationSec": 81 } } }
 ```
 
@@ -101,14 +101,14 @@ moved, or restored by copying.
 
 // canonical/<course>/lessons/00-01.json
 { "format": 1, "key": "dw.nicos-weg/a1/00-01", "unit": "dw.nicos-weg/a1/u00", "order": 1,
-  "media": { "video": { "sd": "blob:sha256:…", "subtitles": "blob:sha256:…" } }, "goals": ["dw.nicos-weg/a1/00-01/goal-1"],
+  "media": { "video": { "sd": "media/video/…_sd.mp4", "subtitles": "media/subtitles/….vtt" } }, "goals": ["dw.nicos-weg/a1/00-01/goal-1"],
   "pages": [ { "exercise": { "key": "…/00-01/ex-03", "type": "single_choice", "fingerprint": "…",
       "newWords": ["…/00-01/v-guten-tag"], "ruleIds": [],
-      "items": [ { "key": "…/ex-03#1", "media": { "image": "blob:sha256:…" },
+      "items": [ { "key": "…/ex-03#1", "media": { "image": "media/image/….jpg" },
                    "options": [ { "id": "a", "text": "Hi!" }, { "id": "b", "text": "Guten Tag." } ],
                    "answer": { "optionIds": ["b"] } } ] } } ],
   "vocab": [ { "key": "…/00-01/v-frau", "lexeme": "lex:de:frau:noun:f", "target": "die Frau, die Frauen",
-               "gender": "f", "plural": "die Frauen", "audio": "blob:sha256:…" } ],
+               "gender": "f", "plural": "die Frauen", "audio": "media/audio/….mp3" } ],
   "unmapped": [ { "path": "raw/ru-de/a1/00-01/ex-07.json", "reason": "unknown inputType X" } ] }
 
 // canonical/<course>/exams/<slug>.json
@@ -214,7 +214,7 @@ Stale entries are skipped at compose time and listed by `enrich check`.
 Every provider MUST produce, per course and edition: a manifest, a course index, lessons/exams with
 keys from the key map, exercises with a type from the registry (or `unknown`) and a fingerprint, vocab
 entries with lexeme keys, locale files with every learner-language string the types require (and a
-translation per vocab entry when source ≠ target), and media as blobs listed in the manifest.
+translation per vocab entry when source ≠ target), and media files listed in the manifest.
 
 - Never drop source content silently: unmappable parts go to `unmapped` with a raw path and reason.
 - Deterministic: same raw + same provider version → byte-identical output.
@@ -225,5 +225,5 @@ translation per vocab entry when source ≠ target), and media as blobs listed i
 - The server validates canonical/locale files when a course is loaded; an invalid edition is marked
   broken with a report (no partial use).
 - **verify** checks sha256 and size of every manifest file (missing, corrupt, extra) and referential
-  integrity (keys, blob refs, rule ids, locale coverage). Restore = copy the series folder + `verify`.
+  integrity (keys, media paths, rule ids, locale coverage). Restore = copy the series folder + `verify`.
 - The server refuses newer formats and re-normalises older ones from `raw/` (offline).
