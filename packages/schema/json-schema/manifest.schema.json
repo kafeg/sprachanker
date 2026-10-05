@@ -7,10 +7,7 @@
       "const": 1
     },
     "series": {
-      "type": "string",
-      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*)$",
-      "title": "SeriesKey",
-      "description": "<publisher>.<series>"
+      "$ref": "#/$defs/SeriesKey"
     },
     "provider": {
       "type": "string",
@@ -167,5 +164,13 @@
     "licence",
     "courses",
     "files"
-  ]
+  ],
+  "$defs": {
+    "SeriesKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "SeriesKey",
+      "description": "<publisher>.<series>"
+    }
+  }
 }

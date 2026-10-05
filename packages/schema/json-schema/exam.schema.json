@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "key": {
+      "$ref": "#/$defs/ExamKey"
+    },
+    "timeLimitSec": {
+      "type": "integer",
+      "exclusiveMinimum": 0,
+      "maximum": 9007199254740991
+    },
+    "sections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/ExamSectionKey"
+          },
+          "pool": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/ExamItemKey"
+            }
+          },
+          "draw": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "filter": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "setting": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "setting"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "pool",
+          "draw",
+          "filter"
+        ]
+      }
+    },
+    "items": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/ExamItemKey"
+          },
+          "media": {
+            "$ref": "#/$defs/Media"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "options": {
+            "minItems": 2,
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Option"
+            }
+          },
+          "answer": {
+            "type": "object",
+            "properties": {
+              "optionIds": {
+                "minItems": 1,
+                "maxItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z]{1,2}$"
+                }
+              }
+            },
+            "required": [
+              "optionIds"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "const": "single_choice"
+          },
+          "tags": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "required": [
+          "key",
+          "options",
+          "answer",
+          "type",
+          "tags"
+        ]
+      }
+    },
+    "thresholds": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "minPoints": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "minPoints"
+        ]
+      }
+    }
+  },
+  "required": [
+    "format",
+    "key",
+    "timeLimitSec",
+    "sections",
+    "items",
+    "thresholds"
+  ],
+  "$defs": {
+    "ExamKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamKey",
+      "description": "<course>/exam-<slug>"
+    },
+    "ExamSectionKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*\\/s-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamSectionKey",
+      "description": "<exam>/s-<slug>"
+    },
+    "ExamItemKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*\\/q-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamItemKey",
+      "description": "<exam>/q-<id>"
+    },
+    "Media": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "$ref": "#/$defs/BlobRef"
+        },
+        "audio": {
+          "$ref": "#/$defs/BlobRef"
+        },
+        "video": {
+          "$ref": "#/$defs/BlobRef"
+        }
+      }
+    },
+    "BlobRef": {
+      "type": "string",
+      "pattern": "^blob:sha256:[0-9a-f]{64}$",
+      "title": "BlobRef"
+    },
+    "Option": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]{1,2}$"
+        },
+        "text": {
+          "type": "string"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    }
+  }
+}

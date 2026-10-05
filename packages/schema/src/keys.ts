@@ -27,7 +27,7 @@ function key<const B extends string>(brand: B, pattern: string, description: str
   return z
     .string()
     .regex(new RegExp(`^(?:${pattern})$`, "u"))
-    .meta({ title: brand, description })
+    .meta({ id: brand, title: brand, description })
     .brand<B>();
 }
 

@@ -9,7 +9,7 @@ export const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 export const BlobRef = z
   .string()
   .regex(/^blob:sha256:[0-9a-f]{64}$/)
-  .meta({ title: "BlobRef" });
+  .meta({ id: "BlobRef", title: "BlobRef" });
 export type BlobRef = z.infer<typeof BlobRef>;
 
 /** ISO 8601 UTC timestamp, as written in files. */
@@ -27,3 +27,13 @@ export type LocalizedText = z.infer<typeof LocalizedText>;
 
 /** The integer `format` every stored file carries; bumped on breaking changes (02). */
 export const format = <const V extends number>(version: V) => z.literal(version);
+
+/** Media attached to a lesson, exercise, item or option; all blobs. */
+export const Media = z
+  .object({
+    image: BlobRef.optional(),
+    audio: BlobRef.optional(),
+    video: BlobRef.optional(),
+  })
+  .meta({ id: "Media" });
+export type Media = z.infer<typeof Media>;

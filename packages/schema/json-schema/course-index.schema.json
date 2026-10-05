@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "key": {
+      "$ref": "#/$defs/CourseKey"
+    },
+    "units": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/UnitKey"
+          },
+          "order": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/LessonKey"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "order",
+          "lessons"
+        ]
+      }
+    },
+    "exams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ExamKey"
+      }
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/GoalKey"
+          },
+          "lessons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/LessonKey"
+            }
+          }
+        },
+        "required": [
+          "key",
+          "lessons"
+        ]
+      }
+    }
+  },
+  "required": [
+    "format",
+    "key",
+    "units",
+    "exams",
+    "goals"
+  ],
+  "$defs": {
+    "CourseKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "CourseKey",
+      "description": "<series>/<course>"
+    },
+    "UnitKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/u\\d{2,})$",
+      "title": "UnitKey",
+      "description": "<course>/u<NN>"
+    },
+    "LessonKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,})$",
+      "title": "LessonKey",
+      "description": "<course>/<unit NN>-<lesson NN>"
+    },
+    "ExamKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamKey",
+      "description": "<course>/exam-<slug>"
+    },
+    "GoalKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/goal-[1-9]\\d*|[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/goal-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "GoalKey",
+      "description": "<lesson>/goal-<n> or <course>/goal-<slug>"
+    }
+  }
+}

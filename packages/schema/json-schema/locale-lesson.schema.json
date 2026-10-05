@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "edition": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}-[a-z]{2,3}$",
+      "description": "Edition id <source>-<target>"
+    },
+    "lesson": {
+      "$ref": "#/$defs/LessonKey"
+    },
+    "sourceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "synopsisHtml": {
+      "type": "string"
+    },
+    "exercises": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/ExerciseKey"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "sourceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string"
+          },
+          "instructionHtml": {
+            "type": "string"
+          },
+          "textHtml": {
+            "type": "string"
+          },
+          "items": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^#[1-9]\\d*$"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "prompt": {
+                  "type": "string"
+                },
+                "hintHtml": {
+                  "type": "string"
+                },
+                "options": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "pattern": "^[a-z]{1,2}$"
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "alt": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string"
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                },
+                "gaps": {
+                  "type": "object",
+                  "propertyNames": {
+                    "type": "string",
+                    "pattern": "^g[1-9]\\d*$"
+                  },
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "sourceId",
+          "items"
+        ]
+      }
+    },
+    "vocab": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/VocabKey"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "translation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "translation"
+        ]
+      }
+    },
+    "tabs": {
+      "type": "object",
+      "properties": {
+        "grammar": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string"
+              },
+              "bodyHtml": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "bodyHtml"
+            ]
+          }
+        },
+        "culture": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string"
+              },
+              "bodyHtml": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "bodyHtml"
+            ]
+          }
+        },
+        "script": {
+          "type": "object",
+          "properties": {
+            "sourceId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "title": {
+              "type": "string"
+            },
+            "bodyHtml": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "bodyHtml"
+          ]
+        }
+      },
+      "required": [
+        "grammar",
+        "culture"
+      ]
+    }
+  },
+  "required": [
+    "format",
+    "edition",
+    "lesson",
+    "sourceId",
+    "title",
+    "exercises",
+    "vocab",
+    "tabs"
+  ],
+  "$defs": {
+    "LessonKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,})$",
+      "title": "LessonKey",
+      "description": "<course>/<unit NN>-<lesson NN>"
+    },
+    "ExerciseKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/(?:ex|x)-\\d{2,})$",
+      "title": "ExerciseKey",
+      "description": "<lesson>/ex-<NN> (source order) or <lesson>/x-<NN> (ours)"
+    },
+    "VocabKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/v-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+(?:-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+)*(?:\\.(?:[2-9]|[1-9]\\d+))?)$",
+      "title": "VocabKey",
+      "description": "<lesson>/v-<lemma-slug>[.<n>]; .<n> (n ≥ 2) tells apart entries with the same lemma in a lesson"
+    }
+  }
+}

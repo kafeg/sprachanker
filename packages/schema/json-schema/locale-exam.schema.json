@@ -1,0 +1,131 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "edition": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}-[a-z]{2,3}$",
+      "description": "Edition id <source>-<target>"
+    },
+    "exam": {
+      "$ref": "#/$defs/ExamKey"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sections": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/ExamSectionKey"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      }
+    },
+    "thresholds": {
+      "type": "object",
+      "propertyNames": {
+        "type": "string"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      }
+    },
+    "items": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/ExamItemKey"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "prompt": {
+            "type": "string"
+          },
+          "hintHtml": {
+            "type": "string"
+          },
+          "options": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-z]{1,2}$"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "alt": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "gaps": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^g[1-9]\\d*$"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "format",
+    "edition",
+    "exam",
+    "title",
+    "sections",
+    "thresholds",
+    "items"
+  ],
+  "$defs": {
+    "ExamKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamKey",
+      "description": "<course>/exam-<slug>"
+    },
+    "ExamSectionKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*\\/s-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamSectionKey",
+      "description": "<exam>/s-<slug>"
+    },
+    "ExamItemKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*\\/q-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamItemKey",
+      "description": "<exam>/q-<id>"
+    }
+  }
+}

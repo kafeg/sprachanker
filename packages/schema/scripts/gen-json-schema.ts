@@ -2,12 +2,29 @@
 // Usage: bun run --filter @sprachanker/schema gen   (the drift test fails until you do)
 import { join } from "node:path";
 import { z } from "zod";
-import { Manifest, RulesRegistry } from "../src/index.ts";
+import {
+  CourseIndex,
+  Enrichment,
+  Exam,
+  Lesson,
+  LocaleCourse,
+  LocaleExam,
+  LocaleLesson,
+  Manifest,
+  RulesRegistry,
+} from "../src/index.ts";
 
 /** File name → schema of every stored file format. */
 const FORMATS: Record<string, z.ZodType> = {
   "manifest.schema.json": Manifest,
+  "course-index.schema.json": CourseIndex,
+  "lesson.schema.json": Lesson,
+  "exam.schema.json": Exam,
+  "locale-course.schema.json": LocaleCourse,
+  "locale-lesson.schema.json": LocaleLesson,
+  "locale-exam.schema.json": LocaleExam,
   "rules-registry.schema.json": RulesRegistry,
+  "enrichment.schema.json": Enrichment,
 };
 
 export const JSON_SCHEMA_DIR = join(import.meta.dir, "../json-schema");

@@ -5,10 +5,7 @@
     "type": "object",
     "properties": {
       "id": {
-        "type": "string",
-        "pattern": "^(?:[a-z]{2,3}\\.[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*)$",
-        "title": "RuleId",
-        "description": "<lang>.<area>.<slug>"
+        "$ref": "#/$defs/RuleId"
       },
       "title": {
         "type": "object",
@@ -46,5 +43,13 @@
       "explanation",
       "examples"
     ]
+  },
+  "$defs": {
+    "RuleId": {
+      "type": "string",
+      "pattern": "^(?:[a-z]{2,3}\\.[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "RuleId",
+      "description": "<lang>.<area>.<slug>"
+    }
   }
 }

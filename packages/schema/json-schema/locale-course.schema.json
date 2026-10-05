@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "edition": {
+      "type": "string",
+      "pattern": "^[a-z]{2,3}-[a-z]{2,3}$",
+      "description": "Edition id <source>-<target>"
+    },
+    "course": {
+      "$ref": "#/$defs/CourseKey"
+    },
+    "sourceId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "descriptionHtml": {
+      "type": "string"
+    },
+    "units": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/UnitKey"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ]
+      }
+    },
+    "goals": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/GoalKey"
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "text"
+        ]
+      }
+    }
+  },
+  "required": [
+    "format",
+    "edition",
+    "course",
+    "sourceId",
+    "title",
+    "units",
+    "goals"
+  ],
+  "$defs": {
+    "CourseKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "CourseKey",
+      "description": "<series>/<course>"
+    },
+    "UnitKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/u\\d{2,})$",
+      "title": "UnitKey",
+      "description": "<course>/u<NN>"
+    },
+    "GoalKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/goal-[1-9]\\d*|[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/goal-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "GoalKey",
+      "description": "<lesson>/goal-<n> or <course>/goal-<slug>"
+    }
+  }
+}

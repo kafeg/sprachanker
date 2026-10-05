@@ -54,6 +54,9 @@
     "packages/course-kit": {
       "name": "@sprachanker/course-kit",
       "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/schema": "workspace:*",
+      },
     },
     "packages/engine": {
       "name": "@sprachanker/engine",

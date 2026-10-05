@@ -1,0 +1,1384 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "key": {
+      "$ref": "#/$defs/LessonKey"
+    },
+    "unit": {
+      "$ref": "#/$defs/UnitKey"
+    },
+    "order": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "media": {
+      "type": "object",
+      "properties": {
+        "video": {
+          "type": "object",
+          "properties": {
+            "sd": {
+              "$ref": "#/$defs/BlobRef"
+            },
+            "hd": {
+              "$ref": "#/$defs/BlobRef"
+            },
+            "subtitled": {
+              "$ref": "#/$defs/BlobRef"
+            }
+          }
+        },
+        "image": {
+          "$ref": "#/$defs/BlobRef"
+        }
+      }
+    },
+    "goals": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/GoalKey"
+      }
+    },
+    "pages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "exercise": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/single_choice_exercise"
+              },
+              {
+                "$ref": "#/$defs/multi_choice_exercise"
+              },
+              {
+                "$ref": "#/$defs/match_exercise"
+              },
+              {
+                "$ref": "#/$defs/order_exercise"
+              },
+              {
+                "$ref": "#/$defs/gap_choice_exercise"
+              },
+              {
+                "$ref": "#/$defs/gap_text_exercise"
+              },
+              {
+                "$ref": "#/$defs/dictation_exercise"
+              },
+              {
+                "$ref": "#/$defs/speech_repeat_exercise"
+              },
+              {
+                "$ref": "#/$defs/speech_selfrate_exercise"
+              },
+              {
+                "$ref": "#/$defs/respond_exercise"
+              },
+              {
+                "$ref": "#/$defs/scene_exercise"
+              },
+              {
+                "$ref": "#/$defs/unknown_exercise"
+              }
+            ]
+          }
+        },
+        "required": [
+          "exercise"
+        ]
+      }
+    },
+    "vocab": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "$ref": "#/$defs/VocabKey"
+          },
+          "lexeme": {
+            "$ref": "#/$defs/LexemeKey"
+          },
+          "target": {
+            "type": "string",
+            "minLength": 1
+          },
+          "gender": {
+            "type": "string",
+            "enum": [
+              "m",
+              "f",
+              "n",
+              "pl"
+            ]
+          },
+          "plural": {
+            "type": "string"
+          },
+          "forms": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "audio": {
+            "$ref": "#/$defs/BlobRef"
+          },
+          "image": {
+            "$ref": "#/$defs/BlobRef"
+          }
+        },
+        "required": [
+          "key",
+          "lexeme",
+          "target"
+        ]
+      }
+    },
+    "unmapped": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string",
+            "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.\\.?(?:\\/|$))[^\\\\]+$",
+            "title": "LibraryPath"
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "path",
+          "reason"
+        ]
+      }
+    }
+  },
+  "required": [
+    "format",
+    "key",
+    "unit",
+    "order",
+    "media",
+    "goals",
+    "pages",
+    "vocab",
+    "unmapped"
+  ],
+  "$defs": {
+    "LessonKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,})$",
+      "title": "LessonKey",
+      "description": "<course>/<unit NN>-<lesson NN>"
+    },
+    "UnitKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/u\\d{2,})$",
+      "title": "UnitKey",
+      "description": "<course>/u<NN>"
+    },
+    "BlobRef": {
+      "type": "string",
+      "pattern": "^blob:sha256:[0-9a-f]{64}$",
+      "title": "BlobRef"
+    },
+    "GoalKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/goal-[1-9]\\d*|[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/goal-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "GoalKey",
+      "description": "<lesson>/goal-<n> or <course>/goal-<slug>"
+    },
+    "single_choice_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "single_choice"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "options": {
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Option"
+                }
+              },
+              "answer": {
+                "type": "object",
+                "properties": {
+                  "optionIds": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z]{1,2}$"
+                    }
+                  }
+                },
+                "required": [
+                  "optionIds"
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "options",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "ExerciseKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/(?:ex|x)-\\d{2,})$",
+      "title": "ExerciseKey",
+      "description": "<lesson>/ex-<NN> (source order) or <lesson>/x-<NN> (ours)"
+    },
+    "Media": {
+      "type": "object",
+      "properties": {
+        "image": {
+          "$ref": "#/$defs/BlobRef"
+        },
+        "audio": {
+          "$ref": "#/$defs/BlobRef"
+        },
+        "video": {
+          "$ref": "#/$defs/BlobRef"
+        }
+      }
+    },
+    "VocabKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/v-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+(?:-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+)*(?:\\.(?:[2-9]|[1-9]\\d+))?)$",
+      "title": "VocabKey",
+      "description": "<lesson>/v-<lemma-slug>[.<n>]; .<n> (n ≥ 2) tells apart entries with the same lemma in a lesson"
+    },
+    "RuleId": {
+      "type": "string",
+      "pattern": "^(?:[a-z]{2,3}\\.[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "RuleId",
+      "description": "<lang>.<area>.<slug>"
+    },
+    "ItemKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/\\d{2,}-\\d{2,}\\/(?:ex|x)-\\d{2,}#[1-9]\\d*)$",
+      "title": "ItemKey",
+      "description": "<exercise>#<n>, 1-based"
+    },
+    "Option": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]{1,2}$"
+        },
+        "text": {
+          "type": "string"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        }
+      },
+      "required": [
+        "id"
+      ]
+    },
+    "multi_choice_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "multi_choice"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "options": {
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Option"
+                }
+              },
+              "answer": {
+                "type": "object",
+                "properties": {
+                  "optionIds": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z]{1,2}$"
+                    }
+                  }
+                },
+                "required": [
+                  "optionIds"
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "options",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "match_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "match"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "left": {
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Option"
+                }
+              },
+              "right": {
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/Option"
+                }
+              },
+              "answer": {
+                "type": "object",
+                "properties": {
+                  "pairs": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "array",
+                      "prefixItems": [
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z]{1,2}$"
+                        },
+                        {
+                          "type": "string",
+                          "pattern": "^[a-z]{1,2}$"
+                        }
+                      ],
+                      "items": false,
+                      "minItems": 2,
+                      "maxItems": 2
+                    }
+                  }
+                },
+                "required": [
+                  "pairs"
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "left",
+              "right",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "order_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "order"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "parts": {
+                "minItems": 2,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z]{1,2}$"
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "text"
+                  ]
+                }
+              },
+              "join": {
+                "type": "string",
+                "enum": [
+                  "space",
+                  "none"
+                ]
+              },
+              "answer": {
+                "type": "object",
+                "properties": {
+                  "sequence": {
+                    "minItems": 2,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z]{1,2}$"
+                    }
+                  }
+                },
+                "required": [
+                  "sequence"
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "parts",
+              "join",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "gap_choice_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "gap_choice"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "segments": {
+                "$ref": "#/$defs/Segments"
+              },
+              "gaps": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^g[1-9]\\d*$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "options": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/$defs/Option"
+                      }
+                    }
+                  },
+                  "required": [
+                    "options"
+                  ]
+                }
+              },
+              "display": {
+                "type": "string",
+                "enum": [
+                  "dropdown",
+                  "bank"
+                ]
+              },
+              "answer": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^g[1-9]\\d*$"
+                },
+                "additionalProperties": {
+                  "type": "string",
+                  "pattern": "^[a-z]{1,2}$"
+                }
+              }
+            },
+            "required": [
+              "key",
+              "segments",
+              "gaps",
+              "display",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "Segments": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "gap": {
+                "type": "string",
+                "pattern": "^g[1-9]\\d*$"
+              }
+            },
+            "required": [
+              "gap"
+            ]
+          }
+        ]
+      }
+    },
+    "gap_text_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "gap_text"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "segments": {
+                "$ref": "#/$defs/Segments"
+              },
+              "answer": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^g[1-9]\\d*$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "accepted": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      }
+                    }
+                  },
+                  "required": [
+                    "accepted"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "key",
+              "segments",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "dictation_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "dictation"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "type": "object",
+                "properties": {
+                  "audio": {
+                    "$ref": "#/$defs/BlobRef"
+                  }
+                },
+                "required": [
+                  "audio"
+                ]
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "answer": {
+                "type": "object",
+                "properties": {
+                  "accepted": {
+                    "minItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                },
+                "required": [
+                  "accepted"
+                ]
+              }
+            },
+            "required": [
+              "key",
+              "media",
+              "answer"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "speech_repeat_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "speech_repeat"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "key",
+              "text"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "speech_selfrate_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "speech_selfrate"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "key"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "respond_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "respond"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "input": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "speech"
+                ]
+              },
+              "rubric": {
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "anyOf": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "anyOf"
+                      ]
+                    }
+                  },
+                  "criteria": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    }
+                  }
+                },
+                "required": [
+                  "required",
+                  "criteria"
+                ]
+              },
+              "reference": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "required": [
+              "key",
+              "input",
+              "reference"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "scene_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "scene"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "scene": {
+                "$ref": "#/$defs/SceneKey"
+              }
+            },
+            "required": [
+              "key",
+              "scene"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "SceneKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/scene-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "SceneKey",
+      "description": "<series>/scene-<slug>"
+    },
+    "unknown_exercise": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/ExerciseKey"
+        },
+        "type": {
+          "type": "string",
+          "const": "unknown"
+        },
+        "fingerprint": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "media": {
+          "$ref": "#/$defs/Media"
+        },
+        "text": {
+          "type": "string"
+        },
+        "newWords": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VocabKey"
+          }
+        },
+        "ruleIds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RuleId"
+          }
+        },
+        "items": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "raw": {
+                "type": "string",
+                "pattern": "^(?!\\/)(?!.*(?:^|\\/)\\.\\.?(?:\\/|$))[^\\\\]+$",
+                "title": "LibraryPath"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "key",
+              "raw",
+              "reason"
+            ]
+          }
+        }
+      },
+      "required": [
+        "key",
+        "type",
+        "fingerprint",
+        "newWords",
+        "ruleIds",
+        "items"
+      ]
+    },
+    "LexemeKey": {
+      "type": "string",
+      "pattern": "^(?:lex:[a-z]{2,3}:[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+(?:-[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+)*:(?:noun|verb|adj|phrase|word)(?::(?:m|f|n|pl))?)$",
+      "title": "LexemeKey",
+      "description": "lex:<lang>:<lemma-slug>:<pos>[:<gender>]"
+    }
+  }
+}
