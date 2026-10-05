@@ -22,6 +22,7 @@ const state = {
     ],
   },
   "Knowledge:5": {
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: DW's literal URL template placeholder.
     text: '<img data-url="https://static.dw.com/image/555_${formatId}.jpg">',
     audios: [{ mp3Src: "https://audio.test/word.mp3" }],
   },

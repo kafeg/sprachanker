@@ -1,6 +1,12 @@
 // Bun-specific adapters. Everything else in the server stays runtime-agnostic (Node fallback).
-import { statSync } from "node:fs";
-import { resolve, sep } from "node:path";
+import { Database } from "bun:sqlite";
+import { mkdirSync, readdirSync, rmSync, statSync } from "node:fs";
+import { basename, dirname, join, resolve, sep } from "node:path";
+import { drizzle } from "drizzle-orm/bun-sqlite";
+import { migrate } from "../db/migrate.ts";
+import type { ProfileDb } from "../db/profile/db.ts";
+import { migrations } from "../db/profile/migrations/index.ts";
+import * as schema from "../db/profile/schema.ts";
 import type { WebAssets } from "../web.ts";
 
 export interface Listening {
@@ -34,4 +40,34 @@ export function fileAssets(files: Record<string, string>): WebAssets {
     const file = files[path];
     return file === undefined ? undefined : Bun.file(file);
   };
+}
+
+/** Opens (creating if needed) a profile database in WAL mode and applies pending migrations. */
+export function openProfileDb(file: string, now = Date.now()): ProfileDb {
+  mkdirSync(dirname(file), { recursive: true });
+  const sqlite = new Database(file, { create: true, strict: true });
+  sqlite.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+  migrate(
+    {
+      exec: (sql) => sqlite.exec(sql),
+      tags: () =>
+        sqlite
+          .query<{ tag: string }, []>("SELECT tag FROM _migrations")
+          .all()
+          .map((r) => r.tag),
+      backup: (target) => sqlite.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`),
+      transaction: (fn) => sqlite.transaction(fn)(),
+    },
+    migrations,
+    {
+      file,
+      now,
+      listBackups: () =>
+        readdirSync(dirname(file))
+          .filter((f) => f.startsWith(`${basename(file)}.bak-`))
+          .map((f) => join(dirname(file), f)),
+      remove: (f) => rmSync(f),
+    },
+  );
+  return drizzle(sqlite, { schema });
 }

@@ -8,9 +8,18 @@
     "./app": "./src/app.ts"
   },
   "scripts": {
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p .",
+    "db:generate": "drizzle-kit generate && bun scripts/migrations-index.ts"
   },
   "dependencies": {
-    "hono": "4.13.13"
+    "@sprachanker/course-kit": "workspace:*",
+    "@sprachanker/engine": "workspace:*",
+    "@sprachanker/schema": "workspace:*",
+    "drizzle-orm": "0.45.3",
+    "hono": "4.13.13",
+    "ulid": "3.0.2"
+  },
+  "devDependencies": {
+    "drizzle-kit": "0.31.11"
   }
 }

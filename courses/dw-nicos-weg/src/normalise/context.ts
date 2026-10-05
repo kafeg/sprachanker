@@ -30,6 +30,7 @@ export const refs = (state: ApolloState, values: unknown): Entity[] =>
   ((values ?? []) as unknown[]).map((v) => deref(state, v)).filter((v): v is Entity => !!v);
 
 /** `static.dw.com/image/<id>_${formatId}.<ext>` → the downloaded size. */
+// biome-ignore lint/suspicious/noTemplateCurlyInString: DW's literal URL template placeholder.
 const imageUrl = (template: string) => template.replace("${formatId}", IMAGE_FORMAT);
 
 export function imagePath(ctx: Context, state: ApolloState, image: unknown): MediaPath | undefined {
