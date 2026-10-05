@@ -2,6 +2,10 @@
 // 403/429, optional minimum interval between request starts per host (none by default).
 import { isAllowed, parseRobots, type RobotsRules } from "./robots.ts";
 
+/** How every importer introduces itself (03: identifiable User-Agent). */
+export const IMPORTER_USER_AGENT =
+  "SprachAnker/0.1 (personal-use course importer; +https://github.com/kafeg/sprachanker)";
+
 export class HostRefusedError extends Error {
   constructor(
     readonly host: string,

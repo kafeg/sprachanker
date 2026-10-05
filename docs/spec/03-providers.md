@@ -73,10 +73,24 @@ questions (30 general + 3 for the learner's state), 60 minutes; 15 correct passe
 needed for naturalisation — both shown. Modes: browse, my state, timed exam, practise wrongly answered
 questions. Question translations into the learner's language by LLM, marked as machine translation.
 
+## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
+
+2nd edition (2017), **CC BY 4.0** only (the 2013 edition is CC BY-NC-ND and MUST NOT be used); the
+attribution is the course description. Facts: `docs/research/coerll-dib.md`. Tests that the schema is
+not DW-shaped.
+
+- **Fetch**: `toc.php?k=1..10` and `voc.php?k=1..10` stored as HTML under `raw/en-de/dib/`; media: the
+  recording of each vocabulary section and the chapter's textbook PDF.
+- **Normalise**: a chapter is a unit (title from the chapter page), a vocabulary section a lesson
+  (`<chapter>-<section>`) with its words, its recording as `media.audio` and no pages — the site has no
+  interactive exercises; they are in the textbook PDF, a download of the chapter's first lesson.
+  Headwords as the book writes them ("der Apfel (Äpfel)", "(no plural)", "(plural only)") give
+  gender and plural; verbs and phrases by shape.
+- **Not imported yet**: the interviews (several videos per topic with parallel de/en transcripts) —
+  they need lessons with more than one video and transcript pages (02); web quests; pronunciation.
+
 ## Later
 
-- **COERLL — Deutsch im Blick** (`coerll-dib`): 2nd edition (2017), **CC BY 4.0** only (the 2013
-  edition is CC BY-NC-ND and MUST NOT be used). Edition `en-de`. Tests that the schema is not DW-shaped.
 - **SprachAnker Starter English** (`sa-starter-en` → `sprachanker.starter-en`): small ru → en course
   authored by us, with open data fetched at runtime (Tatoeba, Wiktionary via kaikki.org) and per-item
   attribution.

@@ -9,6 +9,7 @@
     "apps/cli",
     "courses/_fixture",
     "courses/dw",
+    "courses/coerll-dib",
     "e2e"
   ],
   "scripts": {

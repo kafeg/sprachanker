@@ -1,5 +1,6 @@
 // Content providers the server can import (03). The CLI and (later) the import job use this.
 import { join } from "node:path";
+import { importDib } from "@sprachanker/coerll-dib";
 import { type ImportReport, importDw } from "@sprachanker/dw";
 
 export interface ImportRequest {
@@ -16,6 +17,7 @@ const PROVIDERS: Record<
 > = {
   "dw-nicos-weg": (o) => importDw("nicos-weg", o),
   "dw-deutschtrainer": (o) => importDw("deutschtrainer", o),
+  "coerll-dib": importDib,
 };
 
 export const providerIds = () => Object.keys(PROVIDERS);

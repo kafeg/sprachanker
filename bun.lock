@@ -67,6 +67,14 @@
         "yaml": "2.9.1",
       },
     },
+    "courses/coerll-dib": {
+      "name": "@sprachanker/coerll-dib",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/course-kit": "workspace:*",
+        "@sprachanker/schema": "workspace:*",
+      },
+    },
     "courses/dw": {
       "name": "@sprachanker/dw",
       "version": "0.0.0",
@@ -126,6 +134,7 @@
       "name": "@sprachanker/server",
       "version": "0.0.0",
       "dependencies": {
+        "@sprachanker/coerll-dib": "workspace:*",
         "@sprachanker/course-kit": "workspace:*",
         "@sprachanker/dw": "workspace:*",
         "@sprachanker/engine": "workspace:*",
@@ -406,6 +415,8 @@
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.1", "", {}, "sha512-2j9bGt5Jh8hj+vPtgzPtl72j0yRxHAyumoo6TNfAjsLB04UtpSvPbPcDcBMxz7n+9CYB0c1GxQFxYRg2jimqGw=="],
 
     "@sprachanker/cli": ["@sprachanker/cli@workspace:apps/cli"],
+
+    "@sprachanker/coerll-dib": ["@sprachanker/coerll-dib@workspace:courses/coerll-dib"],
 
     "@sprachanker/course-fixture": ["@sprachanker/course-fixture@workspace:courses/_fixture"],
 

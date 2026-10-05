@@ -125,7 +125,8 @@ Specs: 02, 03, 06, 09.
 **Accept**: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
 
 ### 11 — Second sources and editions
-Nicos Weg `en-de` with edition alignment, `coerll-dib`, `sa-starter-en`.
+Nicos Weg `en-de` with edition alignment, `coerll-dib` interviews (its vocabulary is imported already),
+`sa-starter-en`.
 **Accept**: adding `en-de` to an installed A1 downloads only texts and keeps progress; one Deutsch im
 Blick chapter playable in an English profile; Starter English lesson 1 playable in a Russian profile.
 

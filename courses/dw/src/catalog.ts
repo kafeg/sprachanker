@@ -1,8 +1,7 @@
 // DW Learn German courses (03, research): one provider for the platform, a series per DW course. Source
 // ids are the DW course page ids per edition.
 export const SITE = "https://learngerman.dw.com";
-export const USER_AGENT =
-  "SprachAnker/0.1 (personal-use course importer; +https://github.com/kafeg/sprachanker)";
+export { IMPORTER_USER_AGENT as USER_AGENT } from "@sprachanker/course-kit";
 
 export type DwSeries = "nicos-weg" | "deutschtrainer";
 

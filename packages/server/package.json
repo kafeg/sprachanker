@@ -12,6 +12,7 @@
     "db:generate": "drizzle-kit generate && bun scripts/migrations-index.ts"
   },
   "dependencies": {
+    "@sprachanker/coerll-dib": "workspace:*",
     "@sprachanker/course-kit": "workspace:*",
     "@sprachanker/dw": "workspace:*",
     "@sprachanker/engine": "workspace:*",

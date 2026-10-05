@@ -13,7 +13,8 @@ courses/
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
   dw/                  # DW Learn German (series dw.nicos-weg, dw.deutschtrainer; CLI ids dw-<series>):
                        # src/: catalog, pages, media, stream (HLS fallback), normalise/, import.ts; test/
-  coerll-dib/          # after MVP
+  coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
+                       # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
   sa-starter-en/       # after MVP: our authored course + open-data importer
   bamf-lid/            # exam: Leben in Deutschland
 ```
