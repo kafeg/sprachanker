@@ -83,7 +83,7 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 |---|---|
 | `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (attached by the server, incl. learner-language texts), `displayOrder` |
 | `answered` | `answer` (02; spoken answers carry `speech{recording, asrText, model, latencyMs}`), `outcome` (04, computed by the server), `attempt`, `ms` |
-| `llm_verdict` | `forEventId`, `verdict`, `corrections[]` (07), `model`, `latencyMs` |
+| `llm_verdict` | `task` (`writing` \| `review`), `input` (the learner's text), `result` (the task's structured output, 07), `model`, `latencyMs`; in `practice` runs of the lesson |
 | `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen); scenes add `segments[{lang,text}]`, `corrections[]`, `goalsMet[]?`, `speech?` |
 | `card_review` | `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
 

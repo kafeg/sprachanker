@@ -11,12 +11,14 @@ src/
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat(); errors as LlmError codes
   providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
+  structured.ts    # JSON outputs: schema in the request, zod validation, one repair attempt
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
     describe.ts        # an exercise item as text: task, correct answer, learner answer
     explain-mistake.ts # explain_mistake: prompt + call
-    chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, history)
+    chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
+    check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

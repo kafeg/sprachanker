@@ -144,11 +144,15 @@ export type TutorPromptRequest = Omit<TutorRequest, "message"> & { message: stri
 
 /** The exact request a task would send now (nothing is sent). */
 export const fetchPrompt = (
-  kind: { explain: ExplainRequest } | { tutor: TutorPromptRequest },
+  kind: { explain: ExplainRequest } | { tutor: TutorPromptRequest } | { writing: WritingRequest },
 ): Promise<PromptPreview> =>
   "explain" in kind
     ? fetchExplainPrompt(kind.explain)
-    : (json(api.llm.tutor.prompt.$post({ json: kind.tutor }) as never) as Promise<PromptPreview>);
+    : (json(
+        ("tutor" in kind
+          ? api.llm.tutor.prompt.$post({ json: kind.tutor })
+          : api.llm.writing.prompt.$post({ json: kind.writing })) as never,
+      ) as Promise<PromptPreview>);
 
 /** The tasks' system prompts and context budgets, for the settings. */
 export const useTaskPrompts = (language: string, target: string) =>
@@ -171,3 +175,26 @@ export const useTutorContext = (request: TutorPromptRequest, turns: number) =>
         total: number;
       }>,
   });
+
+export type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];
+export type WritingState = Awaited<ReturnType<typeof fetchWriting>>;
+export type WritingAttempt = WritingState["attempts"][number];
+const fetchWriting = (series: string, lessonKey: string, edition: string) =>
+  json(api.llm.writing.$get({ query: { series, lessonKey, edition } }));
+
+/** The lesson's writing task and earlier attempts. */
+export const useWriting = (series: string, lessonKey: string, edition: string) =>
+  useQuery({
+    queryKey: ["writing", lessonKey, edition],
+    queryFn: () => fetchWriting(series, lessonKey, edition),
+  });
+
+export function useCheckWriting() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: WritingRequest) =>
+      json(api.llm.writing.$post({ json: request }) as never) as Promise<WritingAttempt>,
+    onSuccess: (_, request) =>
+      client.invalidateQueries({ queryKey: ["writing", request.lessonKey, request.edition] }),
+  });
+}

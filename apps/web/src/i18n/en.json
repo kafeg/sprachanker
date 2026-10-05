@@ -214,5 +214,25 @@
     "upTo": "up to {chars} characters",
     "debug": "Show “Prompt” buttons",
     "debugHint": "Next to explanations and in the tutor: the exact request with all messages, for debugging."
+  },
+  "writing": {
+    "title": "Write it yourself",
+    "task": "Write 3–5 sentences in German on the lesson's topic: {goals}. Use the new words.",
+    "placeholder": "Your text in German…",
+    "check": "Check",
+    "checking": "Checking…",
+    "lastAttempt": "Your last attempt:",
+    "history": "{count, plural, one {# attempt} other {# attempts}}",
+    "verdict": {
+      "good": "Correct",
+      "minor_errors": "Small mistakes",
+      "major_errors": "Mistakes",
+      "off_task": "Off the task"
+    },
+    "criteria": {
+      "task": "Task",
+      "communication": "Message",
+      "accuracy": "Accuracy"
+    }
   }
 }

@@ -77,6 +77,18 @@ export const LlmTurnPayload = z.object({
 });
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
+/** An LLM check or review in a `practice` run (05, "Events"): what was checked and the result. */
+export const LlmVerdictPayload = z.object({
+  task: z.enum(["writing", "review"]),
+  /** The learner's text (writing); empty for a review. */
+  input: z.string(),
+  /** The task's structured output (07). */
+  result: z.unknown(),
+  model: z.string(),
+  latencyMs: z.number().int().nonnegative(),
+});
+export type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
+
 export const StoredEvent = z.object({
   id: Ulid,
   runId: Ulid,

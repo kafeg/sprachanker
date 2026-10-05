@@ -214,5 +214,25 @@
     "upTo": "bis {chars} Zeichen",
     "debug": "„Prompt“-Knöpfe zeigen",
     "debugHint": "Bei Erklärungen und im Tutor: die genaue Anfrage mit allen Nachrichten, zum Debuggen."
+  },
+  "writing": {
+    "title": "Schreib selbst",
+    "task": "Schreib 3–5 Sätze auf Deutsch zum Thema der Lektion: {goals}. Benutze die neuen Wörter.",
+    "placeholder": "Dein Text auf Deutsch…",
+    "check": "Prüfen",
+    "checking": "Wird geprüft…",
+    "lastAttempt": "Dein letzter Versuch:",
+    "history": "{count, plural, one {# Versuch} other {# Versuche}}",
+    "verdict": {
+      "good": "Richtig",
+      "minor_errors": "Kleine Fehler",
+      "major_errors": "Fehler",
+      "off_task": "Nicht zur Aufgabe"
+    },
+    "criteria": {
+      "task": "Aufgabe",
+      "communication": "Mitteilung",
+      "accuracy": "Richtigkeit"
+    }
   }
 }

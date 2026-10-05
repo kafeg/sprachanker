@@ -10,6 +10,7 @@ import { useEdition } from "@/app/preferences.ts";
 import { isScored } from "@/exercises/index.tsx";
 import { ExplainMistake } from "@/llm/explain.tsx";
 import { LessonTutor, ReviewMistakesButton, type TutorAsk } from "@/llm/tutor.tsx";
+import { WritingTask } from "@/llm/writing.tsx";
 import { lessonNumbers } from "@/routes/courses.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -326,6 +327,7 @@ export function LessonPlayer({
               {Object.values(run.results).some((r) =>
                 Object.values(r.first).some((o) => o.result === "wrong" || o.result === "partial"),
               ) && <ReviewMistakesButton onAsk={setTutorAsk} />}
+              <WritingTask series={series} lessonKey={lesson.key} edition={edition} />
               <ul className="divide-y rounded-2xl border bg-card">
                 {lesson.pages.map(({ exercise }, i) => {
                   const r = run.results[exercise.key];

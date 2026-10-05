@@ -6,6 +6,7 @@ import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
 import { type Llm, LlmSetupError } from "../services/llm.ts";
+import type { Practice } from "../services/practice.ts";
 import type { Tutor } from "../services/tutor.ts";
 import { Edition, Series, zod } from "../validate.ts";
 
@@ -18,6 +19,14 @@ const ExplainBody = z.object({
   exerciseKey: z.string().max(300),
   index: z.number().int().nonnegative(),
   answer: z.unknown().optional(),
+  language: Language,
+});
+
+const WritingBody = z.object({
+  series: Series,
+  lessonKey: LessonKey,
+  edition: Edition,
+  text: z.string().trim().min(1).max(4000),
   language: Language,
 });
 
@@ -66,7 +75,17 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
   });
 }
 
-export function llmRoutes(llm: Llm, tutor: Tutor) {
+/** Runs a call and turns setup and provider failures into their JSON responses. */
+async function jsonOrFailure<T>(c: Context, run: () => Promise<T>) {
+  try {
+    return c.json(await run());
+  } catch (error) {
+    const { status, ...body } = failure(error);
+    return c.json(body, status);
+  }
+}
+
+export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice) {
   return (
     new Hono()
       .get("/", (c) => c.json(llm.state()))
@@ -145,6 +164,23 @@ export function llmRoutes(llm: Llm, tutor: Tutor) {
             return c.json(body, status);
           }
         },
+      )
+      // Writing task of a lesson: the task and attempts; a check stores its verdict.
+      .get(
+        "/writing",
+        zod("query", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
+        async (c) => {
+          const { series, lessonKey, edition } = c.req.valid("query");
+          return c.json(await practice.writing.state(series, lessonKey, edition));
+        },
+      )
+      .post("/writing", zod("json", WritingBody), (c) =>
+        jsonOrFailure(c, () => practice.writing.check(c.req.valid("json"), c.req.raw.signal)),
+      )
+      .post(
+        "/writing/prompt",
+        zod("json", WritingBody.extend({ text: z.string().max(4000) })),
+        (c) => jsonOrFailure(c, () => practice.writing.prompt(c.req.valid("json"))),
       )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),

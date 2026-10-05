@@ -46,10 +46,13 @@ default route.
 | `scene_turn` | scene, allowed vocab/rules, history, learner turn | reply (target language), goal progress, corrections[] |
 | `chat_turn` | free chat with the learner's context (progress, recent mistakes; the current exercise when asked from a lesson) | message |
 | `translate_mt` | text, languages | translation, marked as machine translation |
+| `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages | short explanation in the native language (streamed text) |
 
 `respond` → `check_answer`; `scene` → `scene_turn`; "ask about this exercise" → `chat_turn`;
-"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`.
+"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; "Write it yourself" on the
+lesson summary (3–5 sentences on the lesson's goals) → `check_writing`, each attempt an `llm_verdict` in
+the lesson's `practice` run.
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter

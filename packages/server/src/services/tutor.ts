@@ -1,11 +1,5 @@
 // The lesson tutor: one chat per lesson, stored as a `chat` run with `llm_turn` events (05, 07).
-import {
-  type ChatTurnInput,
-  chatTurn,
-  chatTurnRequest,
-  estimateTokens,
-  type TutorMistake,
-} from "@sprachanker/llm";
+import { type ChatTurnInput, chatTurn, chatTurnRequest, estimateTokens } from "@sprachanker/llm";
 import {
   type LessonKey,
   LlmTurnPayload,
@@ -17,8 +11,9 @@ import { monotonicFactory } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
 import type { Content } from "./content.ts";
+import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { Mistake, Mistakes } from "./mistakes.ts";
+import type { Mistakes } from "./mistakes.ts";
 
 export interface TutorRequest {
   series: string;
@@ -47,6 +42,7 @@ export function createTutor(deps: {
   content: Content;
   llm: Llm;
   mistakes: Mistakes;
+  lessons: LessonContexts;
   now: () => number;
   appVersion: string;
 }) {
@@ -84,78 +80,32 @@ export function createTutor(deps: {
       }
     });
 
-  /** What the tutor knows about the course: this lesson in full, earlier lessons as words and titles. */
+  /** What the tutor knows: the lesson context plus the learner's mistakes. */
   async function context(series: string, lessonKey: LessonKey, edition: string) {
-    const course = parseLessonKey(lessonKey).course.split("/").pop() ?? "";
-    const [map, lesson, locale] = await Promise.all([
-      content.courseMap(series, course, edition),
-      content.lesson(series, lessonKey),
-      content.localeLesson(series, lessonKey, edition),
-    ]);
-    const order = map.index.units.flatMap((u) => u.lessons);
-    const earlier = order.slice(0, Math.max(0, order.indexOf(lessonKey)));
-    const earlierVocab = await Promise.all(
-      earlier.map(async (k) => (await content.lesson(series, k)).vocab.map((v) => v.target)),
-    );
+    const ctx = await deps.lessons.get(series, lessonKey, edition);
     return {
-      lesson,
-      locale,
+      lesson: ctx.lesson,
+      locale: ctx.locale,
       input: {
-        target: parseEditionId(edition).target,
-        lesson: {
-          title: locale?.title ?? lessonKey,
-          goals: lesson.goals.flatMap((g) => map.locale?.goals[g]?.text ?? []),
-          grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
-          vocab: lesson.vocab.map((v) => ({
-            target: v.target,
-            translation: locale?.vocab[v.key]?.translation,
-          })),
-        },
-        knownVocab: [...new Set(earlierVocab.flat())],
-        earlierLessons: earlier.map((k) => map.titles[k] ?? k),
+        target: ctx.target,
+        lesson: ctx.info,
+        knownVocab: ctx.knownVocab,
+        earlierLessons: ctx.earlierLessons,
         mistakes: {
-          lesson: await tutorMistakes(
+          lesson: await deps.lessons.mistakes(
             series,
             edition,
             deps.mistakes.list({ lesson: lessonKey, limit: 15 }),
           ),
-          earlier: await tutorMistakes(
+          earlier: await deps.lessons.mistakes(
             series,
             edition,
             deps.mistakes.list({ except: lessonKey, limit: 10 }),
-            map.titles,
+            ctx.titles,
           ),
         },
       } satisfies Partial<ChatTurnInput>,
     };
-  }
-
-  /** Mistakes with their exercises as the edition shows them; items no longer in the course are skipped. */
-  async function tutorMistakes(
-    series: string,
-    edition: string,
-    list: Mistake[],
-    titles?: Record<string, string>,
-  ): Promise<TutorMistake[]> {
-    const out: TutorMistake[] = [];
-    for (const m of list) {
-      const key = m.lessonKey as LessonKey;
-      const [lesson, locale] = await Promise.all([
-        content.lesson(series, key).catch(() => undefined),
-        content.localeLesson(series, key, edition),
-      ]);
-      const exercise = lesson?.pages.find((p) => p.exercise.key === m.exerciseKey)?.exercise;
-      if (!exercise?.items[m.index]) continue;
-      out.push({
-        lesson: titles ? (titles[m.lessonKey] ?? m.lessonKey) : undefined,
-        exercise,
-        locale: locale?.exercises[exercise.key],
-        index: m.index,
-        answer: m.answer,
-        fixed: m.fixed,
-      });
-    }
-    return out;
   }
 
   /** What chat_turn gets for a message: the lesson context, the exercise on screen, the history. */
