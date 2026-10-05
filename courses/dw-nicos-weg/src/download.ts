@@ -16,7 +16,7 @@ const { values } = parseArgs({
   },
 });
 const seriesDir = join(values.data, "library", SERIES);
-const log = (line: string) => console.log(`${new Date().toISOString().slice(11, 19)} ${line}`);
+const log = (line: string) => console.log(`${new Date().toTimeString().slice(0, 8)} ${line}`);
 const fetcher = createPoliteFetcher({ userAgent: USER_AGENT, robotsHosts: ["learngerman.dw.com"] });
 
 for (const course of COURSES.filter((c) => values.courses.split(",").includes(c.course))) {

@@ -22,7 +22,7 @@ export class FetchFailedError extends Error {
 
 export interface PoliteFetcherOptions {
   userAgent: string;
-  /** Minimum time between two requests to the same host. */
+  /** Minimum time between the starts of two requests to the same host. */
   intervalMs?: number;
   retries?: number;
   /** Hosts whose robots.txt is checked; others (media CDNs) are only rate-limited. */
@@ -50,11 +50,8 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
     const run = (queues.get(host) ?? Promise.resolve()).then(async () => {
       const wait = (last.get(host) ?? 0) + interval - Date.now();
       if (wait > 0) await sleep(wait);
-      try {
-        return await task();
-      } finally {
-        last.set(host, Date.now());
-      }
+      last.set(host, Date.now());
+      return task();
     });
     queues.set(
       host,
