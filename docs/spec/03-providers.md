@@ -40,20 +40,23 @@ User-Agent), the blob store, writing files and the manifest, the HTML sanitiser,
 Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 
 - Courses `a1`, `a2` (editions `ru-de`, `en-de`), `b1` (`de-de`). **MVP: `a1` `ru-de` only.**
-- **Fetch**: course page → lesson list and unit headings; each lesson page and its exercise, grammar,
-  culture, vocabulary, script pages → extracted embedded state JSON (`window.__APOLLO_STATE__`) stored in
-  `raw/`, not full HTML; media (episode video, exercise images and audio, vocabulary audio). Which
+- **Fetch**: the course page (lesson order, unit groups), each lesson page (overview, vocabulary,
+  grammar, culture, script, videos) and one page per exercise; URLs are built from ids. The embedded
+  state JSON (`window.__APOLLO_STATE__`) is stored in `raw/`, not full HTML. A1 = 1 + 77 + 1071
+  pages. Media: episode video and subtitle track, exercise images and audio, vocabulary audio. Which
   video variants and PDFs are fetched is decided in stage 2. Hosts refusing cloud IPs are reported.
-- **Normalise** (*provisional until stage 1*): DW exercises (inquiries → alternatives with `isCorrect`,
-  `inputType`, `clozeType`, media) map to our types; unknown combinations → `unknown` + report. The
-  first exercise page is the episode. Self-rated speaking → `speech_selfrate`. The final test → a lesson
-  (confirmed in stage 1). Vocabulary "die Frau, die Frauen" → gender/plural + lexeme key.
-- **Stage 1 reconnaissance**: sample A1 `ru-de` thoroughly plus one lesson each of A1 `en-de`, A2, B1
-  and one Deutsch im Blick chapter (schema check only); catalogue all exercise and page kinds; decide
-  how learner-language and target-language strings are told apart and how lexeme POS is derived;
-  record findings in `docs/research/dw-nicos-weg.md`.
+- **Normalise**: the mechanics table in `docs/research/dw-nicos-weg.md` maps every DW mechanic to a
+  type (02); an unseen combination → `unknown` + report. Units are the course's lesson groups in
+  order (`u00`…); the final test is a lesson in its own unit after the last one (A1: `19-01`).
+  Learner-language fields are fixed per mechanic and field (research, "Which strings are learner
+  language"); the "Play audio" label is dropped; image options keep only the image. Vocabulary
+  headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
+  studieren") stays in the headword and not in the lemma.
 - **Edition alignment** (after MVP): editions have different source ids; lessons and exercises align by
-  order, confirmed by fingerprints; mismatches are reported, never merged silently.
+  order; options are matched by text because their order and punctuation can differ between editions;
+  mismatches are reported, never merged silently.
+- **B1** (after MVP) has a German glossary (`GLOSSARY`, definitions instead of translations) that
+  needs its own vocabulary parser.
 
 ## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`)
 

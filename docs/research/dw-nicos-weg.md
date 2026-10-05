@@ -1,6 +1,20 @@
 # Research — DW Nicos Weg
 
-Facts observed on learngerman.dw.com (October 2026). Re-verify during stage 1; update this file.
+Facts observed on learngerman.dw.com. First survey October 2026; the stage 1 reconnaissance
+(5 October 2026) read every page of A1 `ru` (77 lessons, 1071 exercises) plus samples of A1 `en`, A2 `ru`
+and B1 `de`. Raw data stayed outside the repository. Re-verify when the importer changes.
+
+## Terms and robots.txt
+
+- `robots.txt` disallows for all agents only `/*/*/l-*/ler`, `/*/*/l-*/sum`, `/*/*/placement-*`,
+  `/*/*/final-*` and user/search pages. Lesson (`l-`), exercise (`e-`), grammar (`gr-`) and culture
+  (`rs-`) pages are allowed. The final test is a normal lesson (`l-…`), not a `final-*` page.
+- It blocks named AI crawlers entirely (among them `GPTBot`, `CCBot`, `ClaudeBot`, `anthropic-ai`,
+  `Claude-Web`, `Google-Extended`, `PerplexityBot`).
+- A comment states that content is for personal, non-commercial use and that tools or processes that
+  data-mine or scrape it by automated means are prohibited without DW's prior written permission.
+  The owner decided (5 October 2026) that the importer downloads on the user's explicit request, for
+  that user's personal use, politely and without redistribution (00, "Legal position").
 
 ## Courses and editions
 
@@ -12,63 +26,122 @@ Facts observed on learngerman.dw.com (October 2026). Re-verify during stage 1; u
 | A2 | ru | `/ru/nicos-weg/c-45476921` | 77 |
 | B1 | de | `/de/nicos-weg/c-36519718` | 77 (German interface only; no en/ru) |
 
-- 77 = 76 episodes + final test (e.g. `/ru/итоговый-тест-a1/l-46680726`).
-- Editions have different ids for the same lesson: "Hallo!" = `l-37250531` (en), `l-46381195` (ru).
-  Exercise ids differ too. Slugs are localised (ru slugs in Cyrillic, URL-encoded).
-- Russian edition: published late 2018, lessons last updated mid-2019. English edition: lessons updated
-  until 2020–2022. Sampled lessons (A1 1, 38, 75; A2 1, 38, 75) have equal exercise counts and vocabulary
-  sizes across editions; lesson A1 1 has the same 12 exercises in the same order with the same types.
-- Overview pages: `/en/beginners/s-62078399`, `/ru/начинающие/s-62628136`, `/de/fortgeschrittene/s-62079033`.
+- 77 = 76 lessons + final test. A1: units 0–18 with 4 lessons each, then the final test.
+- Editions have different ids for the same lesson ("Hallo!" = `l-37250531` en, `l-46381195` ru);
+  exercise ids differ too. URL slugs are localised but **ignored by the server**: `/ru/x/l-<id>` and
+  `/ru/x/l-<id>/e-<id>` return the same pages, so URLs can be built from ids.
+- Russian edition published late 2018, lessons last updated mid-2019; English edition updated until
+  2020–2022.
 
-## Lesson page kinds (A1 lesson 1, en)
+## Pages and embedded data
 
-| Path | Content |
-|---|---|
-| `/en/hallo/l-37250531` | overview: synopsis, goals, video, list of exercise pages |
-| `/en/<slug>/l-37250531/e-<id>` | exercise page (12 for lesson 1; first is the episode with questions) |
-| `/en/<slug>/l-37250531/gr-<id>` | grammar ("Informal and formal (1)") |
-| `/en/hallo/l-37250531/lv` | vocabulary (30 entries: word, article/plural, note, translation) |
-| `/en/<slug>/l-37250531/rs-<id>` | culture ("Greetings in German") |
-| `/en/hallo/l-37250531/lm` | script (audio course part + episode dialogue) |
-| `/en/hallo/l-37250531/le` | downloads (PDFs, MP4 links) |
+Every page embeds an Apollo cache as `window.__APOLLO_STATE__ = {…}` (≈110–120 KB per page). Plain HTTP
+and extraction is enough. Pages needed per lesson: the **lesson page** (overview, vocabulary, grammar,
+culture and script texts, videos) and **one page per exercise** (exercise data is not on the lesson
+page). A1 `ru` = 1 course page + 77 lesson pages + 1071 exercise pages.
 
-## Embedded data
+- **Course** (`Course:<id>`): `contentLinks({"targetTypes":"LESSON"})` lists lessons in course order;
+  each `ContentLink` has `groupName` = unit title in the learner's language ("1 Знакомство"; the
+  first unit has no number, the final test an empty name). Unit number = order of the groups.
+- **Lesson** (`Lesson:<id>`): `name` (German title, same in all editions), `description` (synopsis
+  HTML), `learningTargetHeadline`, `learningTargetDescription` (goals as an HTML list), `manuscript`
+  (script HTML with vocabulary placeholders), `knowledges` (vocabulary, grammar, culture),
+  `videos`, `mainContentImageLink` (image with a learner-language description), `overviewParts`.
+- `overviewParts` = ordered parts with `lessonPart`: `EXERCISE` (8–20 per lesson), `GRAMMAR` (0–2),
+  `REGIONAL_STUDIES` (1–2), `VOCABULARY_GLOSSARY`, `MANUSCRIPT`, `DOWNLOAD`.
+- **Knowledge** (`knowledgeType`): `VOCABULARY` (see below), grammar and culture entries with `name`
+  and `text` (HTML with embedded images `static.dw.com/image/<id>_${formatId}.jpg`).
+- **Video**: two per lesson — plain (`hlsVideoSrc` HLS master with `sd`/`hd`, a separate German
+  subtitle track `https://www.dw.com/media/subtitles/<id>`, `duration` in seconds) and a variant with
+  burned-in subtitles. Direct MP4s exist on `tvdownloaddw-a.akamaihd.net` (first survey).
+- **Audio**: items link `Audio.mp3Src` on `radiodownloaddw-a.akamaihd.net` (2769 of 2845 A1 items
+  have audio). Vocabulary entries have their own MP3.
+- **Image**: `staticUrl` template `https://static.dw.com/image/<id>_${formatId}.<ext>`; `name` is an
+  internal asset name (not alt text). Format ids are fixed in stage 2.
 
-Every page embeds an Apollo cache as `window.__APOLLO_STATE__ = {…}` in a `<script>` (≈80–100 KB). No
-client-side rendering is needed to get data; plain HTTP + extraction works.
+## Exercises
 
-Observed `__typename`s: `Lesson`, `Exercise`, `Inquiry`, `Alternative`, `Knowledge`, `Image`, `Video`,
-`Navigation`, `Course`, `Article`, `ContentLink`.
+`Exercise`: `name` (title), `description` (instruction HTML), `inputType` (stimulus: `NONE` 477,
+`TEXT` 280, `VIDEO` 158, `IMAGE` 131, `AUDIO` 25), `inputText` (HTML info box, mostly "New words: …"
+in mixed languages), `images`/`audios`/`videos`, `inquiries`. Each **inquiry** is one item (1–8 per
+exercise, 2845 in A1) with `inquiryType`, `inquiryText`, `inquiryDescription` (hint: "Info", "Tip",
+"Careful"), `text` (cloze text), audio, `subInquiries` and/or `alternatives` (`alternativeText`,
+`isCorrect`, `images`, `order`).
 
-- `Lesson`: `name`, `description`, `teaser`, `manuscript` (HTML), `knowledges`, `contentLinks`,
-  `firstPublicationDate`, `lastPublicationDate`, `dkLearningLevel`.
-- `Exercise`: `name`, `description` (instruction HTML), `inputType`, `inputText`, `inquiries`, `images`,
-  `audios`, `videos`, `knowledges`, `lastPublicationDate`.
-  Observed `inputType`: `VIDEO`, `NONE`, `TEXT`, `IMAGE`.
-- `Inquiry`: `order`, `inquiryText`, `inquiryDescription`, `images`, `alternatives`, `clozeType`.
-- `Alternative`: `alternativeText`, `isCorrect`, `images`.
-- `Knowledge`: `knowledgeType` (`VOCABULARY`, …), `shortTitle` (word), `text` (translation HTML),
-  `subTitle`, `name`.
-- `Image`: `staticUrl` template `https://static.dw.com/image/<id>_${formatId}.jpg` — format ids to be
-  determined from page `<img>` srcsets.
+All A1 exercises fall into these mechanics (count of exercises; one exercise mixes two `SORTING` kinds):
 
-## Exercise kinds seen in lesson 1 (en)
+| Mechanic | Count | Our type |
+|---|---|---|
+| `ASSOCIATION` `SINGLE` (text or image options) | 252 | `single_choice` |
+| `ASSOCIATION` `MULTIPLE` | 127 | `multi_choice` |
+| `ASSOCIATION` `DIRECT` (sub-inquiries, each with its one correct partner; text or image) | 60 | `match` |
+| `REPEAT` (listen, repeat, rate yourself; sub-inquiry text or a learner-language task) | 180 | `speech_selfrate` |
+| `CLOZE` `CHOOSE` (gaps filled from a shared word bank, each word once) | 153 | `gap_choice` (`bank`) |
+| `CLOZE` `PULLDOWN` (options per gap) | 60 | `gap_choice` (`dropdown`) |
+| `CLOZE` `WRITING` | 132 | `gap_text` |
+| `SORTING` `NORMAL` / none (words, punctuation as separate parts) | 87 | `order` (`space`) |
+| `SORTING` `MERGE` (letters into a word) | 10 | `order` (`none`) |
+| `SORTING` with images | 3 | `order` (image parts) |
+| `DICTATION` | 7 | `dictation` |
 
-video + comprehension · listen and pick lines heard (multi) · photo → greeting (single) · listen → which
-question (single) · listen and repeat + self-rating · emoji/picture → fitting answers (multi) · read
-example, listen, order dialogue lines · choose Herr/Frau (gap) · time → greeting (single) · match
-text to picture · respond to prompt + self-rating. Pages introduce "New words" and show "Info" boxes.
+- Cloze texts mark gaps with `#p#`, `#ps#`, `#pm#`, `#pl#` (width hints); layout `CONTINUOUS_TEXT`
+  (gaps in the inquiry `text`) or `SINGLE_SENTENCE` (one gap per sub-inquiry `inquiryText`).
+- Options with identical content occur (repeated letters in `MERGE`, "isst" twice in a conjugation
+  match): any of them is correct in that position.
+- Image options carry an asset name as `alternativeText`; it is not content and is dropped.
+- No `classify`-like mechanic and no free-text answers exist in A1.
+- The final test (`Итоговый тест A1`, 20 exercises) uses the same mechanics and has no time limit or
+  pass mark: it is a lesson.
 
-## Media and downloads
+## Which strings are learner language
 
-- Videos: `https://tvdownloaddw-a.akamaihd.net/downloads/Events/mp4/nicosweg/A1_E0_L1_F1_{sd,hd}.mp4`
-  (≈7 MB SD, 22 MB HD for episode 1); subtitled versions under `…/dwtv_video/flv/nicosweg/de/…`.
-- PDFs on `static.dw.com/downloads/<id>/…`: script + vocabulary (per edition language), teacher guide
-  ("Lehrerhandreichung und Übungen", 4 pages: before/during/after viewing + extra activities + 3
-  exercises), grammar overview (level), workbook A1–B1.
+Compared field by field between A1 `ru` and `en` (lessons 1–5, 49 exercise pairs):
+
+- Same in both editions (German, canonical): lesson `name`, cloze texts and options, sorting parts,
+  dictation texts, association options and most sub-inquiry texts.
+- Different (learner language, locale): lesson `description`, `learningTargetDescription`, exercise
+  `name`, `description`, `inputText` (mixed), every `inquiryDescription`, `groupName`.
+- `inquiryText` is usually German but is sometimes the UI label "Прослушать аудио" / "Play audio"; that
+  label is not content and is dropped. `REPEAT` sub-inquiries sometimes hold a learner-language task
+  ("Say hello and …") instead of German text.
+- Hence the normaliser decides per mechanic and field, not by language detection.
+- Editions differ in details: option order, small punctuation ("Guten Morgen" vs "Guten Morgen."),
+  and partly the vocabulary lists. Aligning editions (stage 11) must match options by text and
+  cannot rely on identical fingerprints.
+
+## Vocabulary
+
+`Knowledge` with `knowledgeType: VOCABULARY`: `name` (headword), `subTitle` (German grammar note or
+forms), `text` (translation HTML), `audios[].mp3Src`, optional image. A1 has 1865 entries (1707 lemmas).
+
+| Headword shape | Entries | Part of speech |
+|---|---|---|
+| article + noun, plural ("die Frau, die Frauen") | 762 | noun + gender |
+| article + noun, no plural ("die Musik" + "nur Singular") | 93 | noun + gender |
+| "die Eltern (Plural)" | 9 | noun, plural only |
+| `subTitle` with three verb forms ("studiert, studierte, hat studiert") | 289 | verb |
+| `subTitle` with comparison ("besser, am besten") | 147 | adj |
+| sentence or 3+ words ("Es geht mir gut.") | 182 | phrase |
+| one or two words without grammar info ("auch", "sehr gut", "(das) Deutsch") | 383 | word (or noun when an optional article is given) |
+
+- Verbs carry valency in parentheses: "(etwas) studieren", "(jemandem) helfen".
+- Only 7 lemmas occur both as `word` and as another part of speech, and all are distinct words
+  ("Frau" as a title vs "die Frau", "morgen" vs "der Morgen", "weg" vs "der Weg").
+- Seven lessons list the same lemma twice ("der/die Bekannte", "fett"/"das Fett", "ihr(e)" ×3).
+
+## A2 and B1 samples
+
+- A2 `ru` lesson 1 and B1 `de` lesson 1 use only the mechanics above.
+- B1 (German-only edition) has no `VOCABULARY` entries: its glossary is `knowledgeType: GLOSSARY` with
+  German definitions instead of translations and headwords like "Arbeitsmarkt, -märkte (m.)",
+  "Agentur für Arbeit (f., nur Singular)" — a different parser (after MVP).
+
+## Downloads and media sizes
+
+- PDFs on `static.dw.com/downloads/<id>/…`: script + vocabulary (per edition language), teacher guide,
+  grammar overview, workbook A1–B1.
 - `static.dw.com` returned HTTP 403 to requests from cloud IP ranges; from a home connection it works.
-- Rough size: A1–B1 videos ≈ 1.6 GB in SD plus ≈ 2.7 GB for subtitled SD (≈12 MB per episode); media are
-  shared between editions.
+- Rough size: A1–B1 videos ≈ 1.6 GB in SD plus ≈ 2.7 GB for subtitled SD (≈12 MB per episode).
 
 ## Legal page
 

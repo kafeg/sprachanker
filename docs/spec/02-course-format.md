@@ -15,7 +15,7 @@ files, rules registry, enrichment, and the normalisation contract every provider
 | Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
 | Blob references | `blob:sha256:<hash>`; MIME and size live in the manifest |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
-| HTML | only in fields named `*Html`, sanitised to an allow-list (provisional until stage 1: p, br, b, strong, i, em, ul, ol, li, table, thead, tbody, tr, th, td) |
+| HTML | only in fields named `*Html`, sanitised to an allow-list: p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a blob, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
 | Format versions | integer `format` in every file type; bumped on breaking change; additive optional fields do not bump it |
 
 ## Library layout
@@ -48,15 +48,21 @@ moved, or restored by copying.
 | Item | `<exercise>#<n>` (1-based) | `dw.nicos-weg/a1/00-01/ex-03#2` |
 | Option | id inside an item: `a`, `b`, `c`… in canonical order | option `b` |
 | Exam | `<course>/exam-<slug>` | `bamf.lid/lid/exam-test` |
+| Exam section | `<exam>/s-<slug>` | `bamf.lid/lid/exam-test/s-state` |
 | Exam item | `<exam>/q-<id>`, id unique within the exam | `bamf.lid/lid/exam-test/q-001`, `…/q-be-01` |
 | Goal | `<lesson>/goal-<n>` or `<course>/goal-<slug>` (ours) | `dw.nicos-weg/a1/00-01/goal-1` |
-| Vocab occurrence | `<lesson>/v-<lemma-slug>` | `dw.nicos-weg/a1/00-01/v-frau` |
+| Vocab occurrence | `<lesson>/v-<lemma-slug>[.<n>]` | `dw.nicos-weg/a1/00-01/v-frau`, `…/v-frau.2` |
 | Lexeme | `lex:<lang>:<lemma-slug>:<pos>[:<gender>]` | `lex:de:frau:noun:f` |
 | Rule | `<lang>.<area>.<slug>` | `de.greeting.du-sie` |
 | Scene | `<series>/scene-<slug>` | `dw.nicos-weg/scene-neighbour-morning` |
 
-- `lemma-slug`: NFC, lowercase, spaces → `-`, punctuation removed, umlauts and ß kept. `pos` and
-  `gender` values and how they are derived from sources are fixed in stage 1.
+- `lemma-slug`: NFC, lowercase, spaces → `-`, punctuation removed, letters of any script kept
+  (umlauts, ß, Cyrillic). A lesson can list the same lemma twice (DW: "Frau" as a title and "die Frau");
+  the second and later get `.2`, `.3` in source order.
+- `pos` ∈ `noun`, `verb`, `adj`, `phrase`, `word`; `gender` ∈ `m`, `f`, `n`, `pl` (plural-only noun),
+  nouns only. Providers derive them from what the source states, never by guessing: an article makes a
+  noun, verb forms a verb, comparison forms an adjective, a sentence or 3+ words a phrase; anything
+  else is `word`. Different values give different lexemes ("Frau" as a title ≠ "die Frau").
 - Keys are built and parsed only by `packages/schema/src/keys.ts`; fingerprints and `contentVersion`
   are computed by `packages/course-kit`.
 - **Keys must not shift when the source changes order.** Providers keep a **key map** in the repository
@@ -95,48 +101,52 @@ moved, or restored by copying.
 
 // canonical/<course>/lessons/00-01.json
 { "format": 1, "key": "dw.nicos-weg/a1/00-01", "unit": "dw.nicos-weg/a1/u00", "order": 1,
-  "media": { "video": { "sd": "blob:sha256:…", "subtitled": "blob:sha256:…" } }, "goals": ["dw.nicos-weg/a1/00-01/goal-1"],
+  "media": { "video": { "sd": "blob:sha256:…", "subtitles": "blob:sha256:…" } }, "goals": ["dw.nicos-weg/a1/00-01/goal-1"],
   "pages": [ { "exercise": { "key": "…/00-01/ex-03", "type": "single_choice", "fingerprint": "…",
       "newWords": ["…/00-01/v-guten-tag"], "ruleIds": [],
       "items": [ { "key": "…/ex-03#1", "media": { "image": "blob:sha256:…" },
                    "options": [ { "id": "a", "text": "Hi!" }, { "id": "b", "text": "Guten Tag." } ],
                    "answer": { "optionIds": ["b"] } } ] } } ],
-  "vocab": [ { "key": "…/00-01/v-frau", "lexeme": "lex:de:frau:noun:f", "target": "Frau",
-               "gender": "f", "plural": "Frauen", "audio": "blob:sha256:…" } ],
+  "vocab": [ { "key": "…/00-01/v-frau", "lexeme": "lex:de:frau:noun:f", "target": "die Frau, die Frauen",
+               "gender": "f", "plural": "die Frauen", "audio": "blob:sha256:…" } ],
   "unmapped": [ { "path": "raw/ru-de/a1/00-01/ex-07.json", "reason": "unknown inputType X" } ] }
 
 // canonical/<course>/exams/<slug>.json
 { "format": 1, "key": "bamf.lid/lid/exam-test", "timeLimitSec": 3600,
   "sections": [ { "key": "…/s-general", "pool": ["…/q-001"], "draw": 30, "filter": null },
                 { "key": "…/s-state", "pool": ["…/q-be-01"], "draw": 3, "filter": { "setting": "federalState" } } ],
-  "items": [ { "key": "…/q-001", "type": "single_choice", "tags": { "federalState": null } } ],
-  "pass": { "minPoints": 17 } }
+  "items": [ { "key": "…/q-001", "type": "single_choice", "tags": { "federalState": null },
+               "prompt": "…", "options": [ … ], "answer": { "optionIds": ["c"] } } ],
+  "thresholds": [ { "id": "course-test", "minPoints": 15 }, { "id": "naturalisation", "minPoints": 17 } ] }
 ```
 
 ## Exercise types
 
-> **Provisional until stage 1.** Stage 1 reconnaissance confirms or revises this table before any
-> checker or renderer is written.
-
-All types share `key`, `type`, `fingerprint`, `items[]`, optional `media`, `newWords`, `ruleIds`.
-Answers are compared by **ids**, never by display position; display order may be shuffled. Open
-answers (translation, short writing, answering a prompt, spoken or written) are all `respond`.
+Confirmed by the stage 1 reconnaissance (`docs/research/dw-nicos-weg.md` maps every DW mechanic).
+All types share `key`, `type`, `fingerprint`, `items[]`, optional `media` (stimulus) and `text`
+(target-language stimulus), `newWords`, `ruleIds`. Items have `key`, optional `media` and `prompt`
+(target language; a learner-language prompt lives in the locale file). Answers are compared by
+**ids**, never by display position; display order may be shuffled. Options with identical content
+are interchangeable (repeated letters in a word, the same form twice in a match). Open answers
+(translation, short writing, answering a prompt, spoken or written) are all `respond`.
 
 | Type | Item fields (canonical) | Stored answer | Correct when |
 |---|---|---|---|
-| `single_choice` | `options[{id,text,media?}]`, `answer.optionIds[1]` | `{optionId}` | id equal |
+| `single_choice` | `options[{id,text?,media?}]`, `answer.optionIds[1]` | `{optionId}` | id equal |
 | `multi_choice` | same, `answer.optionIds[n]` | `{optionIds[]}` | sets equal |
-| `match` | `left[]`, `right[]`, `answer.pairs[[l,r]]` | `{pairs}` | pair sets equal |
-| `order` | `parts[]`, `answer.sequence[id]` | `{sequence}` | sequences equal |
-| `classify` | `categories[{id}]`, `entries[]`, `answer.map{entry:category}` | `{map}` | maps equal |
-| `gap_choice` | `segments[text \| {gapId}]`, `gaps{gapId:{options}}`, `answer{gapId:optionId}` | `{gapId:optionId}` | all gaps equal |
+| `match` | `left[]`, `right[]` (options), `answer.pairs[[l,r]]` | `{pairs}` | pair sets equal |
+| `order` | `parts[]` (options: words, letters or pictures), `join` (`space`\|`none`), `answer.sequence[id]` | `{sequence}` | sequences equal |
+| `gap_choice` | `segments[text \| {gap}]`, `gaps{gapId:{options}}`, `display` (`dropdown`\|`bank`), `answer{gapId:optionId}` | `{gapId:optionId}` | all gaps equal |
 | `gap_text` | `segments`, `answer{gapId:{accepted[text]}}` | `{gapId:text}` | normalised text ∈ accepted |
-| `dictation` | `audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
-| `speech_repeat` | `text`, `audio?` | `{speech}` | word diff = 0 |
-| `speech_selfrate` | `text?`, `audio?` (source form; upgraded, 04) | `{rating}` | not scored |
-| `respond` | `prompt?` (target language; or in locale), `audio?`, `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric + LLM verdict |
+| `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
+| `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
+| `speech_selfrate` | `text?`, `media.audio?` (source form; upgraded, 04) | `{rating}` | not scored |
+| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric + LLM verdict |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
-| `unknown` | `raw` path | — | not rendered |
+| `unknown` | `raw` path, `reason` | — | not rendered |
+
+Option ids are `a`, `b`, … and gap ids `g1`, `g2`, … in canonical order. A categorisation type (`classify`)
+was planned but no source has it; it is added with the first source that needs it.
 
 ## Locale files
 
@@ -148,10 +158,16 @@ script) are locale HTML and may mix languages.
 // locale/<edition>/<course>/lessons/00-01.json
 { "format": 1, "edition": "ru-de", "lesson": "dw.nicos-weg/a1/00-01", "sourceId": "46381195",
   "title": "Hallo!", "synopsis": "…",
-  "exercises": { "dw.nicos-weg/a1/00-01/ex-03": { "sourceId": "46381693", "instructionHtml": "…", "items": {} } },
-  "vocab": { "dw.nicos-weg/a1/00-01/v-frau": { "translation": "госпожа" } },
-  "tabs": { "grammar": { "title": "…", "bodyHtml": "…" } } }
+  "exercises": { "dw.nicos-weg/a1/00-01/ex-03": { "sourceId": "46381693", "title": "…", "instructionHtml": "…",
+                  "items": { "#1": { "hintHtml": "<p>Справка: …</p>" } } } },
+  "vocab": { "dw.nicos-weg/a1/00-01/v-frau": { "translation": "женщина" } },
+  "tabs": { "grammar": [ { "title": "…", "bodyHtml": "…" } ], "culture": [ … ], "script": { … } } }
 ```
+
+Items are referenced as `#<n>` within their exercise; an item may carry `prompt`, `hintHtml`, option
+texts (`options{id:text}`), image descriptions (`alt`) and gap labels. Which source fields are learner
+language is decided by the provider per mechanic and field (DW: by comparing editions), not by
+language detection. UI labels of the source ("Play audio") are not content and are dropped.
 
 The locale course file holds the course title, unit titles and goal texts in the same way.
 

@@ -56,7 +56,14 @@ export const Lesson = z.object({
   order: z.number().int().nonnegative(),
   media: z.object({
     video: z
-      .object({ sd: BlobRef.optional(), hd: BlobRef.optional(), subtitled: BlobRef.optional() })
+      .object({
+        sd: BlobRef.optional(),
+        hd: BlobRef.optional(),
+        /** Variant with subtitles burned in. */
+        subtitled: BlobRef.optional(),
+        /** Target-language subtitle track (WebVTT). */
+        subtitles: BlobRef.optional(),
+      })
       .optional(),
     image: BlobRef.optional(),
   }),

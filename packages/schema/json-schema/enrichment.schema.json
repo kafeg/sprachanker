@@ -567,21 +567,7 @@
                 "minItems": 2,
                 "type": "array",
                 "items": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "string",
-                      "pattern": "^[a-z]{1,2}$"
-                    },
-                    "text": {
-                      "type": "string",
-                      "minLength": 1
-                    }
-                  },
-                  "required": [
-                    "id",
-                    "text"
-                  ]
+                  "$ref": "#/$defs/Option"
                 }
               },
               "join": {

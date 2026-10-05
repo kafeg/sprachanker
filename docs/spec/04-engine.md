@@ -33,7 +33,9 @@ type Outcome = {
 };
 ```
 
-- Matching is by ids, never by display position or text.
+- Matching is by ids, never by display position. Exception: options with identical content are
+  interchangeable (`order` with repeated letters, `match` with the same form twice, a word bank with
+  duplicates), so ids with equal content compare equal.
 - `partial` only for multi-select, `order` with a correct prefix, and dictation/speech with ≥ 80% of
   words matched; otherwise results are binary.
 - **Attempts**: the learner may retry an item; every attempt is recorded, but only the **first attempt**
