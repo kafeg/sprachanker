@@ -12,7 +12,7 @@ export const isUiLanguage = (code: unknown): code is UiLanguage =>
   (UI_LANGUAGES as readonly unknown[]).includes(code);
 
 /** First supported language from the browser preferences; English otherwise. */
-export function browserLanguage(): UiLanguage {
+function browserLanguage(): UiLanguage {
   const codes = navigator.languages.map((tag) => tag.split("-")[0] ?? "");
   return codes.find(isUiLanguage) ?? "en";
 }

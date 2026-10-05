@@ -53,6 +53,7 @@ export const AnsweredInput = z.object({
 
 /** An answer as stored: with the outcome computed by the server. */
 export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
+export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
 /** An event as the client sends it. */
 export const EventInput = z.discriminatedUnion("type", [

@@ -7,12 +7,14 @@ import {
   reviewSessionTask,
   runStructured,
   type SessionReview,
+  type StructuredTask,
   structuredRequest,
   type WritingCheck,
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
 import {
+  type AnsweredPayload,
   type ExerciseKey,
   type ItemKey,
   type LessonKey,
@@ -90,6 +92,26 @@ export function createPractice(deps: {
       payload,
     ]);
 
+  /** Runs a structured task with the configured model and stores the result as a verdict. */
+  async function judge<T>(
+    request: { lessonKey: LessonKey; edition: string },
+    verdict: { task: "review" | "writing"; input: string },
+    task: StructuredTask<T>,
+    clean: (result: T) => T,
+    signal?: AbortSignal,
+  ): Promise<{ ts: number; result: T; model: string }> {
+    const { client, model } = await deps.llm.model();
+    const started = now();
+    const result = clean(await runStructured(client, model, task, signal));
+    const ts = store(request.lessonKey, request.edition, {
+      ...verdict,
+      result,
+      model,
+      latencyMs: Math.max(0, now() - started),
+    });
+    return { ts, result, model };
+  }
+
   /** First attempts of the lesson's latest run: item → result, and when the last answer came. */
   function latestSession(lessonKey: string) {
     const run = db
@@ -107,7 +129,7 @@ export function createPractice(deps: {
         .where(and(eq(events.runId, run.id), eq(events.type, "answered")))
         .all()) {
         lastTs = Math.max(lastTs, e.ts);
-        const p = JSON.parse(e.payloadJson) as { attempt: number; outcome: { result: string } };
+        const p = JSON.parse(e.payloadJson) as Pick<AnsweredPayload, "attempt" | "outcome">;
         if (p.attempt === 1 && e.itemKey) first.set(e.itemKey, p.outcome.result);
       }
     }
@@ -166,18 +188,8 @@ export function createPractice(deps: {
       },
 
       async create(request: ReviewRequest, signal?: AbortSignal): Promise<StoredReview> {
-        const { client, model } = await deps.llm.model();
-        const input = await reviewInput(request);
-        const started = now();
-        const result = await runStructured(client, model, reviewSessionTask(input), signal);
-        const ts = store(request.lessonKey, request.edition, {
-          task: "review",
-          input: "",
-          result,
-          model,
-          latencyMs: Math.max(0, now() - started),
-        });
-        return { ts, result, model };
+        const task = reviewSessionTask(await reviewInput(request));
+        return judge(request, { task: "review", input: "" }, task, (r) => r, signal);
       },
 
       async prompt(request: ReviewRequest): Promise<PromptPreview> {
@@ -207,21 +219,10 @@ export function createPractice(deps: {
 
       /** Checks a text with the configured model and stores the verdict. */
       async check(request: WritingRequest, signal?: AbortSignal): Promise<WritingAttempt> {
-        const { client, model } = await deps.llm.model();
-        const input = await writingInput(request);
-        const started = now();
-        const result = cleanWritingCheck(
-          await runStructured(client, model, checkWritingTask(input), signal),
-          request.text,
-        );
-        const ts = store(request.lessonKey, request.edition, {
-          task: "writing",
-          input: request.text,
-          result,
-          model,
-          latencyMs: Math.max(0, now() - started),
-        });
-        return { ts, text: request.text, result, model };
+        const task = checkWritingTask(await writingInput(request));
+        const verdict = { task: "writing" as const, input: request.text };
+        const clean = (r: WritingCheck) => cleanWritingCheck(r, request.text);
+        return { ...(await judge(request, verdict, task, clean, signal)), text: request.text };
       },
 
       async prompt(request: WritingRequest): Promise<PromptPreview> {

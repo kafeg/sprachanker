@@ -29,7 +29,7 @@ export function caseMatters(lang: string, words: string[], index: number): boole
   return !starts && /^\p{Lu}/u.test(word);
 }
 
-export function sameWord(
+function sameWord(
   lang: string,
   reference: string[],
   index: number,

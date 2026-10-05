@@ -1,6 +1,6 @@
 // The learner's mistakes, derived from lesson runs (05, "Derived state"): items whose latest first
 // attempt was wrong or partly right, newest first, with whether a later attempt got them right.
-import { type ItemKey, lessonOf, parseItemKey } from "@sprachanker/schema";
+import { type AnsweredPayload, type ItemKey, lessonOf, parseItemKey } from "@sprachanker/schema";
 import { and, desc, eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
@@ -19,11 +19,7 @@ export interface Mistake {
   ts: number;
 }
 
-interface Answered {
-  answer: unknown;
-  attempt: number;
-  outcome: { result: string };
-}
+type Answered = Pick<AnsweredPayload, "answer" | "attempt" | "outcome">;
 
 export function createMistakes(db: ProfileDb) {
   return {

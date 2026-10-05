@@ -13,46 +13,29 @@ import { Edition, Series, zod } from "../validate.ts";
 
 const Language = z.string().regex(/^[a-z]{2,3}$/);
 
-const ExplainBody = z.object({
+/** Every LLM request is about a lesson, answered in the learner's language. */
+const LessonRequest = z.object({
   series: Series,
   lessonKey: LessonKey,
   edition: Edition,
+  language: Language,
+});
+
+const ExplainBody = LessonRequest.extend({
   exerciseKey: z.string().max(300),
   index: z.number().int().nonnegative(),
   answer: z.unknown().optional(),
-  language: Language,
 });
 
-const ReviewBody = z.object({
-  series: Series,
-  lessonKey: LessonKey,
-  edition: Edition,
-  language: Language,
-});
+const ReviewBody = LessonRequest;
 
-const SceneLine = z.object({
-  series: Series,
-  lessonKey: LessonKey,
-  edition: Edition,
-  language: Language,
-  text: z.string().trim().min(1).max(1000),
-});
+const SceneLine = LessonRequest.extend({ text: z.string().trim().min(1).max(1000) });
 
-const WritingBody = z.object({
-  series: Series,
-  lessonKey: LessonKey,
-  edition: Edition,
-  text: z.string().trim().min(1).max(4000),
-  language: Language,
-});
+const WritingBody = LessonRequest.extend({ text: z.string().trim().min(1).max(4000) });
 
-const TutorBody = z.object({
-  series: Series,
-  lessonKey: LessonKey,
-  edition: Edition,
+const TutorBody = LessonRequest.extend({
   exerciseKey: z.string().max(300).optional(),
   message: z.string().trim().min(1).max(4000),
-  language: Language,
 });
 
 const Url = z
