@@ -122,6 +122,20 @@ Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russi
   translation); grammar and usage notes and the homework → grammar pages; the MP3 → `media.audio`. There
   are no exercises: the homework has no answers anywhere. Units of 10 lessons.
 
+## 6. VOA «Let's Learn English» (`voa-lets-learn-english` → `voa.lets-learn-english`, edition `en-en`)
+
+VOA Learning English, public domain: Level 1 (52 lessons) and Level 2 (30 lessons and 5 reviews) as
+courses `level-1`, `level-2`. Facts: `docs/research/voa-lets-learn-english.md`.
+
+- **Fetch**: landing pages, lesson articles, document pages and quiz pages as HTML; renditions from the
+  pages' `data-sources`: main video `sd` 360p and `hd` 720p, practice and quiz clips `sd` only, the 64 kbps
+  conversation MP3, lesson-plan PDFs. About 9.3 GB in all (720p main videos are 60%).
+- **Normalise**: the landing pages' groups are units; main video → `media.video`, conversation →
+  `media.audio`, transcript → `tabs.script`, its bold words → vocab (no definitions: those are only in the
+  PDFs); Speaking Practice and Pronunciation videos → `speech_selfrate` with the video as exercise media;
+  the listening quiz → `single_choice` with each question's clip. Quiz answers come by GET: even `page`
+  values of `/Quiz/Start` show the result view with the correct option marked — nothing is POSTed.
+
 ## Later
 
 - **SprachAnker Starter English** (`sa-starter-en` → `sprachanker.starter-en`): small ru → en course

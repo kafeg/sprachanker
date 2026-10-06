@@ -20,6 +20,8 @@ courses/
                        # selfrate, gap/respond exercises from the tooltip answer keys; src/dom.ts parser
   voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
                        # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
+  voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
+                       # bold words, quiz answers from the result pages (GET), speaking videos as selfrate
   sa-starter-en/       # after MVP: our authored course + open-data importer
   bamf-lid/            # exam: Leben in Deutschland
 ```
