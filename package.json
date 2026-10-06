@@ -10,6 +10,9 @@
     "courses/_fixture",
     "courses/dw",
     "courses/coerll-dib",
+    "courses/lingust-english",
+    "courses/voa-english-usa",
+    "courses/voa-lets-learn-english",
     "e2e"
   ],
   "scripts": {

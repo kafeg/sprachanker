@@ -3,6 +3,9 @@ import { join } from "node:path";
 import { importDib } from "@sprachanker/coerll-dib";
 import type { ImportReport } from "@sprachanker/course-kit";
 import { importDw } from "@sprachanker/dw";
+import { importLingust } from "@sprachanker/lingust-english";
+import { importEnglishUsa } from "@sprachanker/voa-english-usa";
+import { importLetsLearnEnglish } from "@sprachanker/voa-lets-learn-english";
 
 export interface ImportRequest {
   dataRoot: string;
@@ -19,6 +22,9 @@ const PROVIDERS: Record<
   "dw-nicos-weg": (o) => importDw("nicos-weg", o),
   "dw-deutschtrainer": (o) => importDw("deutschtrainer", o),
   "coerll-dib": importDib,
+  "lingust-english": importLingust,
+  "voa-english-usa": importEnglishUsa,
+  "voa-lets-learn-english": importLetsLearnEnglish,
 };
 
 export const providerIds = () => Object.keys(PROVIDERS);

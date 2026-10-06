@@ -83,6 +83,30 @@
         "@sprachanker/schema": "workspace:*",
       },
     },
+    "courses/lingust-english": {
+      "name": "@sprachanker/lingust-english",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/course-kit": "workspace:*",
+        "@sprachanker/schema": "workspace:*",
+      },
+    },
+    "courses/voa-english-usa": {
+      "name": "@sprachanker/voa-english-usa",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/course-kit": "workspace:*",
+        "@sprachanker/schema": "workspace:*",
+      },
+    },
+    "courses/voa-lets-learn-english": {
+      "name": "@sprachanker/voa-lets-learn-english",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/course-kit": "workspace:*",
+        "@sprachanker/schema": "workspace:*",
+      },
+    },
     "e2e": {
       "name": "@sprachanker/e2e",
       "version": "0.0.0",
@@ -138,8 +162,11 @@
         "@sprachanker/course-kit": "workspace:*",
         "@sprachanker/dw": "workspace:*",
         "@sprachanker/engine": "workspace:*",
+        "@sprachanker/lingust-english": "workspace:*",
         "@sprachanker/llm": "workspace:*",
         "@sprachanker/schema": "workspace:*",
+        "@sprachanker/voa-english-usa": "workspace:*",
+        "@sprachanker/voa-lets-learn-english": "workspace:*",
         "drizzle-orm": "0.45.3",
         "hono": "4.13.13",
         "ulid": "3.0.2",
@@ -428,11 +455,17 @@
 
     "@sprachanker/engine": ["@sprachanker/engine@workspace:packages/engine"],
 
+    "@sprachanker/lingust-english": ["@sprachanker/lingust-english@workspace:courses/lingust-english"],
+
     "@sprachanker/llm": ["@sprachanker/llm@workspace:packages/llm"],
 
     "@sprachanker/schema": ["@sprachanker/schema@workspace:packages/schema"],
 
     "@sprachanker/server": ["@sprachanker/server@workspace:packages/server"],
+
+    "@sprachanker/voa-english-usa": ["@sprachanker/voa-english-usa@workspace:courses/voa-english-usa"],
+
+    "@sprachanker/voa-lets-learn-english": ["@sprachanker/voa-lets-learn-english@workspace:courses/voa-lets-learn-english"],
 
     "@sprachanker/web": ["@sprachanker/web@workspace:apps/web"],
 

@@ -1,0 +1,16 @@
+{
+  "name": "@sprachanker/voa-english-usa",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"
+  },
+  "dependencies": {
+    "@sprachanker/course-kit": "workspace:*",
+    "@sprachanker/schema": "workspace:*"
+  }
+}
