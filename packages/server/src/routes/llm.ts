@@ -5,6 +5,7 @@ import { LessonKey } from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
+import type { Explain } from "../services/explain.ts";
 import { type Llm, LlmSetupError } from "../services/llm.ts";
 import type { Practice } from "../services/practice.ts";
 import type { Scenes } from "../services/scene.ts";
@@ -84,7 +85,13 @@ async function jsonOrFailure<T>(c: Context, run: () => Promise<T>) {
   }
 }
 
-export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice, scenes: Scenes) {
+export function llmRoutes(
+  llm: Llm,
+  explain: Explain,
+  tutor: Tutor,
+  practice: Practice,
+  scenes: Scenes,
+) {
   return (
     new Hono()
       .get("/", (c) => c.json(llm.state()))
@@ -122,11 +129,11 @@ export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice, scenes: Sc
         jsonOrFailure(c, () => llm.models(c.req.valid("query").provider, c.req.raw.signal)),
       )
       .post("/explain", zod("json", ExplainBody), (c) =>
-        streamReply(c, () => llm.explain(c.req.valid("json"), c.req.raw.signal)),
+        streamReply(c, () => explain.stream(c.req.valid("json"), c.req.raw.signal)),
       )
       // Prompt viewer: the exact request a task would send now (nothing is sent).
       .post("/explain/prompt", zod("json", ExplainBody), (c) =>
-        jsonOrFailure(c, () => llm.explainPrompt(c.req.valid("json"))),
+        jsonOrFailure(c, () => explain.prompt(c.req.valid("json"))),
       )
       .get("/prompts", zod("query", z.object({ language: Language, target: Language })), (c) => {
         const { language, target } = c.req.valid("query");

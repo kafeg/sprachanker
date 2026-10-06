@@ -23,7 +23,8 @@ src/
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
   services/          # content, runs, settings, llm-runs (chat/scene/practice runs and their LLM events),
                      # mistakes (derived from lesson runs), lesson-context (what LLM
-                     # tasks know of a lesson), llm (providers, LM Studio, explanations, prompt previews),
+                     # tasks know of a lesson), llm (providers, LM Studio, prompt previews), explain ("Why is
+                     # this wrong?"),
                      # tutor (lesson chats as `chat` runs), practice (writing checks, session reviews in
                      # `practice` runs), scene (role-plays as `scene` runs), tutor-tools (the tutor's
                      # tools on the learner's data), sync (re-importing a course as a background job)
@@ -37,7 +38,8 @@ test/                # bun test; integration tests call createApp().request()
 
 ## Rules
 
-- Routes are thin: validate with schema, call a service, return schema-typed result.
+- Routes are thin: validate the request, call a service, return its typed result (the web client
+  gets the types through `AppType`).
 - Events are append-only; never UPDATE or DELETE `events` (only deleting a whole profile removes them).
 - Any change to a Drizzle schema → new migration + migration test with fixture DBs (`test/fixtures/db/`).
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`

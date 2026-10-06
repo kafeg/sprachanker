@@ -12,6 +12,7 @@ import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
+import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createLlmRuns } from "./services/llm-runs.ts";
@@ -68,7 +69,6 @@ export function createApp(config: AppConfig) {
     db: config.profile,
     settings,
     box: secretBox(config.secretKey),
-    content,
     fetch: config.fetch ?? fetch,
     lmStudio: config.lmStudio,
     cli: config.cli,
@@ -99,6 +99,7 @@ export function createApp(config: AppConfig) {
     now,
   });
   const scenes = createScenes({ runs: llmRuns, llm, lessons });
+  const explain = createExplain({ llm, content });
 
   const api = new Hono()
     .use("*", async (c, next) => {
@@ -199,7 +200,7 @@ export function createApp(config: AppConfig) {
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
     .post("/runs/:id/finish", async (c) => c.json(await runs.finish(c.req.param("id"))))
-    .route("/llm", llmRoutes(llm, tutor, practice, scenes))
+    .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);

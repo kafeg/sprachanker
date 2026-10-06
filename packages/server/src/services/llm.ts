@@ -11,9 +11,6 @@ import {
   cliClient,
   cliCommand,
   EXPLAIN_MISTAKE_BUDGETS,
-  type ExplainMistakeInput,
-  explainMistake,
-  explainMistakeRequest,
   explainMistakeRules,
   type LlmClient,
   LlmError,
@@ -32,12 +29,11 @@ import {
   sceneTurnRules,
   type TaskRequest,
 } from "@sprachanker/llm";
-import { findExercise, type Lang, type LessonKey, parseEditionId } from "@sprachanker/schema";
+import type { Lang } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { llmRoutes, secrets } from "../db/profile/schema.ts";
 import type { SecretBox } from "../security/secrets.ts";
-import type { Content } from "./content.ts";
 import type { Settings } from "./settings.ts";
 
 /** Settings key with custom endpoints by provider id. */
@@ -100,11 +96,11 @@ export interface PromptPreview {
   body: ReturnType<typeof chatBody>;
 }
 
-/** The standing system prompt of a task and how much of each context part it gets, in characters. */
 /** The tasks the settings explain, in the order they are shown. */
-export const PROMPT_TASKS = ["explain", "tutor", "writing", "review", "scene"] as const;
+const PROMPT_TASKS = ["explain", "tutor", "writing", "review", "scene"] as const;
 export type PromptTask = (typeof PROMPT_TASKS)[number];
 
+/** The standing system prompt of a task and how much of each context part it gets, in characters. */
 export interface TaskPrompt {
   system: string;
   budgets: Record<string, number>;
@@ -116,28 +112,17 @@ export interface LlmState {
   providers: ProviderState[];
 }
 
-export interface ExplainRequest {
-  series: string;
-  lessonKey: LessonKey;
-  edition: string;
-  exerciseKey: string;
-  index: number;
-  answer?: unknown;
-  language: string;
-}
-
 const LOCAL_URL = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])[:/]/;
 
 export function createLlm(deps: {
   db: ProfileDb;
   settings: Settings;
   box: SecretBox;
-  content: Content;
   fetch: typeof fetch;
   lmStudio?: LmStudioHost;
   cli?: CliHost;
 }) {
-  const { db, settings, box, content } = deps;
+  const { db, settings, box } = deps;
   /** Downloads started from the app: model key → LM Studio job id. */
   const downloads = new Map<string, string>();
   /** LM Studio loads in progress, by model key. */
@@ -321,32 +306,6 @@ export function createLlm(deps: {
         review: { system: reviewSessionRules(language, target), budgets: REVIEW_SESSION_BUDGETS },
         scene: { system: sceneTurnRules(language, target), budgets: SCENE_BUDGETS },
       };
-    },
-    /** What explain_mistake gets for one item: the item, the answers and the lesson's grammar. */
-    async explainInput(request: ExplainRequest): Promise<ExplainMistakeInput> {
-      const [lesson, locale] = await Promise.all([
-        content.lesson(request.series, request.lessonKey),
-        content.localeLesson(request.series, request.lessonKey, request.edition),
-      ]);
-      const exercise = findExercise(lesson, request.exerciseKey);
-      if (!exercise?.items[request.index]) throw new LlmSetupError("no_such_item");
-      return {
-        exercise,
-        locale: locale?.exercises[exercise.key],
-        index: request.index,
-        answer: request.answer,
-        grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
-        language: request.language,
-        target: parseEditionId(request.edition).target,
-      };
-    },
-    /** Explanation of a wrong answer, streamed. */
-    async explain(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
-      const { client: llm, model } = await this.model();
-      return explainMistake(llm, model, await this.explainInput(request), signal);
-    },
-    async explainPrompt(request: ExplainRequest): Promise<PromptPreview> {
-      return this.preview(explainMistakeRequest(await this.explainInput(request)));
     },
   };
 }
