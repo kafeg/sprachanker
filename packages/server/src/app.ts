@@ -86,10 +86,11 @@ export function createApp(config: AppConfig) {
     llm,
     mistakes,
     lessons,
-    tools: createTutorTools({ content, lessons, mistakes, progress: () => runs.progress() }),
+    tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
   });
   const practice = createPractice({
     db: config.profile,
+    session: runs.shownEvents,
     runs: llmRuns,
     llm,
     lessons,
@@ -111,7 +112,7 @@ export function createApp(config: AppConfig) {
     })
     .get("/health", (c) => c.json({ status: "ok" as const }))
     .get("/courses", async (c) => {
-      const progress = runs.progress();
+      const progress = await runs.progress();
       return c.json(
         (await content.courses()).map(({ lessons, ...course }) => ({
           ...course,
@@ -169,9 +170,9 @@ export function createApp(config: AppConfig) {
     .get(
       "/runs/lesson",
       zod("query", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
-      (c) => {
+      async (c) => {
         const { series, lessonKey, edition } = c.req.valid("query");
-        return c.json({ state: runs.lessonState(series, lessonKey, edition) });
+        return c.json({ state: await runs.lessonState(series, lessonKey, edition) });
       },
     )
     .post(

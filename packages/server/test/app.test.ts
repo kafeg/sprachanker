@@ -3,7 +3,9 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { eq } from "drizzle-orm";
 import { ulid } from "ulid";
+import { runs } from "../src/db/profile/schema.ts";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
 import { setup } from "./setup.ts";
 
@@ -190,6 +192,29 @@ describe("runs", () => {
       run: { status: "finished", worked: total, total, score: 0.5 },
     });
     expect((await send("POST", `/api/runs/${runId}/events`, { events: [] })).status).toBe(409);
+  });
+
+  test("a run finished with exercises left (before completion was enforced) does not count", async () => {
+    const { profile, getJson, sendJson } = await setup();
+    const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
+    const { run } = await sendJson("POST", "/api/runs", body);
+    const skipped = { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-01#1`, payload: {} };
+    await sendJson("POST", `/api/runs/${run.id}/events`, { events: [skipped] });
+    // As the old player stored it: finished on opening the summary, with most exercises untouched.
+    profile
+      .update(runs)
+      .set({
+        status: "finished",
+        endReason: "completed",
+        resultJson: '{"score":0,"scored":0,"answered":0}',
+      })
+      .where(eq(runs.id, run.id))
+      .run();
+    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" });
+    expect((await getJson(`/api/runs/lesson?${q}`)).state).toBeNull();
+    const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
+    expect(map.lessons[LESSON]).toBeUndefined();
+    expect((await getJson("/api/courses"))[0].done).toBe(0);
   });
 
   test("opening the lesson in another edition ends the active run and starts a new one", async () => {

@@ -158,8 +158,8 @@ export function llmRoutes(llm: Llm, tutor: Tutor, practice: Practice, scenes: Sc
         return c.json({ ok: true as const });
       })
       // Session review of a lesson's latest run.
-      .get("/review", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-        c.json(practice.review.state(c.req.valid("query").lessonKey)),
+      .get("/review", zod("query", z.object({ lessonKey: LessonKey })), async (c) =>
+        c.json(await practice.review.state(c.req.valid("query").lessonKey)),
       )
       .post("/review", zod("json", ReviewBody), (c) =>
         jsonOrFailure(c, () => practice.review.create(c.req.valid("json"), c.req.raw.signal)),

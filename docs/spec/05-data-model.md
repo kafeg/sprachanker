@@ -138,13 +138,14 @@ only once it has an `answered` or `item_skipped` event.
   `abandoned/user` and begins a new one.
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached with every
   exercise worked (answered or skipped); the server refuses to finish a run with exercises left
-  (`run_incomplete`), and the summary then lists what is left. Score = mean first-attempt score of scored
+  (`run_incomplete`), and the summary then lists what is left. A finished run that did not work every
+  exercise (stored before this was enforced) is no completion: it is neither shown nor counted. Score = mean first-attempt score of scored
   items (04).
 - **Progress** (engine `lessonProgress`, the single reading used by the course list, the course map and
   the lesson): a lesson is done once a run of it was completed; it is in progress while an active run has
   answers or skips (also when it is done again); the lesson to go on with is the one worked on most
   recently, else the first not done. A lesson card on the course map shows the run the lesson opens
-  (`shownLessonRun`: active run, else latest finished) as the player reads it — exercises worked of all,
+  (active run, else latest completed) as the player reads it — exercises worked of all,
   and the score of a finished run.
 - Switching a course's edition ends its active lesson run `abandoned/user`.
 - Planned (with `contentVersion`, 02): **content updated** while a run is active ends the run

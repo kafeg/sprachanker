@@ -72,23 +72,6 @@ export const runEvents = (db: ProfileDb, runId: string) =>
     .all()
     .map(toEvent);
 
-/**
- * The run a lesson shows — in the player, on the course map and in the session review: its active run
- * (in `edition`, when given), else its latest finished run.
- */
-export function shownLessonRun(db: ProfileDb, lessonKey: string, edition?: string) {
-  const lessonRuns = db
-    .select()
-    .from(runs)
-    .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
-    .orderBy(desc(runs.startedAt), desc(runs.id))
-    .all();
-  return (
-    lessonRuns.find((r) => r.status === "active" && (!edition || r.edition === edition)) ??
-    lessonRuns.find((r) => r.status === "finished")
-  );
-}
-
 /** A lesson on the course map: whether it counts as done, and the run it opens as the lesson shows it. */
 export interface LessonState {
   done: boolean;
@@ -131,9 +114,43 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   };
   const seriesOf = (row: RunRow) => (row.courseKey ?? "").split("/")[0] ?? "";
 
-  /** Lesson progress of every lesson with runs. An active run counts as "in progress" only once
-   *  something was answered or skipped in it (opening a lesson, or starting it over, is not progress). */
-  const progress = () => {
+  /**
+   * A finished run counts as completed only when every exercise of the lesson was answered or skipped
+   * in it. Runs finished before that was enforced (by merely opening the summary) are no completions:
+   * they are not shown and not counted. Finished runs never change, so the answer is kept.
+   */
+  const complete = new Map<string, boolean>();
+  const completed = async (row: RunRow) => {
+    if (row.status !== "finished") return false;
+    if (!complete.has(row.id)) {
+      const lesson = await content.lesson(seriesOf(row), row.contextKey as LessonKey);
+      complete.set(row.id, lessonCoverage(lesson, exerciseResults(runEvents(db, row.id))).complete);
+    }
+    return complete.get(row.id) as boolean;
+  };
+
+  /**
+   * The run a lesson shows — in the player, on the course map and in the session review: its active
+   * run (in `edition`, when given), else its latest completed run.
+   */
+  const shownRun = async (lessonKey: string, edition?: string) => {
+    const lessonRuns = db
+      .select()
+      .from(runs)
+      .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
+      .orderBy(desc(runs.startedAt), desc(runs.id))
+      .all();
+    const active = lessonRuns.find(
+      (r) => r.status === "active" && (!edition || r.edition === edition),
+    );
+    if (active) return active;
+    for (const r of lessonRuns) if (await completed(r)) return r;
+    return undefined;
+  };
+
+  /** Lesson progress of every lesson with runs, over active and completed runs. An active run counts
+   *  as "in progress" only once something was answered or skipped in it. */
+  const progress = async () => {
     const activity = new Map(
       db
         .select({ runId: events.runId, at: max(events.ts) })
@@ -143,28 +160,32 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
         .all()
         .map((e) => [e.runId, e.at ?? 0]),
     );
-    const all = db.select().from(runs).where(eq(runs.kind, "lesson")).all();
-    return Object.fromEntries(lessonProgress(all.map(toRun), activity));
+    const counted: Run[] = [];
+    for (const row of db.select().from(runs).where(eq(runs.kind, "lesson")).all())
+      if (row.status === "active" || (await completed(row))) counted.push(toRun(row));
+    return Object.fromEntries(lessonProgress(counted, activity));
   };
 
   return {
     progress,
 
-    /**
-     * What the lesson shows on opening, without starting anything: its active run in this edition, else
-     * its latest finished run (read-only), else null.
-     */
+    /** Events of the run the lesson shows (for the session review). */
+    async shownEvents(lessonKey: string) {
+      const row = await shownRun(lessonKey);
+      return row ? runEvents(db, row.id) : [];
+    },
+
     /** Each lesson's state for the course map, read like the player reads it. */
     async lessonStates(
       series: string,
       lessons: LessonKey[],
       edition: string,
     ): Promise<Record<string, LessonState>> {
-      const byLesson = progress();
+      const byLesson = await progress();
       const out: Record<string, LessonState> = {};
       for (const key of lessons) {
-        const row = shownLessonRun(db, key, edition);
-        if (!row || row.status === "abandoned") continue;
+        const row = await shownRun(key, edition);
+        if (!row) continue;
         const lesson = await content.lesson(series, key);
         const coverage = lessonCoverage(lesson, exerciseResults(runEvents(db, row.id)));
         const result = toRun(row).result;
@@ -181,8 +202,12 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       return out;
     },
 
-    lessonState(series: string, lessonKey: LessonKey, edition: string) {
-      const row = shownLessonRun(db, lessonKey, edition);
+    /**
+     * What the lesson shows on opening, without starting anything: its active run in this edition, else
+     * its latest completed run (read-only), else null.
+     */
+    async lessonState(series: string, lessonKey: LessonKey, edition: string) {
+      const row = await shownRun(lessonKey, edition);
       if (!row?.courseKey?.startsWith(`${series}/`)) return null;
       const list = runEvents(db, row.id);
       return { run: toRun(row), events: list, resumePage: resumePage(list) };

@@ -25,10 +25,11 @@ export async function setup(
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
   await writeFixtureLibrary(join(root, "library"));
   let clock = 1_000;
+  const profile = openProfileDb(join(root, "profiles/local/profile.sqlite"));
   const app = createApp({
     webAssets: async (path) => files[path],
     library: openLibrary(join(root, "library")),
-    profile: openProfileDb(join(root, "profiles/local/profile.sqlite")),
+    profile,
     mediaBlob,
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
@@ -50,5 +51,5 @@ export async function setup(
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
   const sendJson = async (method: string, path: string, body: unknown): Promise<any> =>
     (await send(method, path, body)).json();
-  return { app, root, get, send, getJson, sendJson };
+  return { app, root, profile, get, send, getJson, sendJson };
 }

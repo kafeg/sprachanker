@@ -24,7 +24,7 @@ export function createTutorTools(deps: {
   content: Content;
   lessons: LessonContexts;
   mistakes: Mistakes;
-  progress: () => Record<string, LessonProgress>;
+  progress: () => Promise<Record<string, LessonProgress>>;
 }) {
   const { content } = deps;
 
@@ -51,7 +51,7 @@ export function createTutorTools(deps: {
 
       const tools: Record<string, (args: Record<string, unknown>) => Promise<unknown>> = {
         async get_progress() {
-          const progress = deps.progress();
+          const progress = await deps.progress();
           const keys = await order();
           const done = await Promise.all(
             keys

@@ -20,6 +20,7 @@ import {
   type LessonKey,
   LlmVerdictPayload,
   parseItemKey,
+  type StoredEvent,
 } from "@sprachanker/schema";
 import { and, desc, eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -28,7 +29,6 @@ import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
 import type { Mistakes } from "./mistakes.ts";
-import { runEvents, shownLessonRun } from "./runs.ts";
 
 export interface WritingRequest {
   series: string;
@@ -60,6 +60,8 @@ export interface WritingAttempt {
 
 export function createPractice(deps: {
   db: ProfileDb;
+  /** Events of the run the lesson shows (the runs service). */
+  session: (lessonKey: string) => Promise<StoredEvent[]>;
   runs: LlmRuns;
   llm: Llm;
   lessons: LessonContexts;
@@ -115,9 +117,8 @@ export function createPractice(deps: {
 
   /** First attempts in the run the lesson shows (as the player reads it): item → result, and when
    *  the last answer came. */
-  function latestSession(lessonKey: string) {
-    const run = shownLessonRun(db, lessonKey);
-    const list = run ? runEvents(db, run.id) : [];
+  async function latestSession(lessonKey: string) {
+    const list = await deps.session(lessonKey);
     const first = new Map<string, string>();
     for (const r of Object.values(exerciseResults(list)))
       for (const [item, outcome] of Object.entries(r.first)) first.set(item, outcome.result);
@@ -127,7 +128,7 @@ export function createPractice(deps: {
 
   async function reviewInput(request: ReviewRequest): Promise<ReviewInput> {
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
-    const { first } = latestSession(request.lessonKey);
+    const { first } = await latestSession(request.lessonKey);
     const scored = [...first].filter(([, r]) => r !== "unscored");
     const byExercise = new Map<ExerciseKey, string[]>();
     for (const [item, result] of scored) {
@@ -160,9 +161,9 @@ export function createPractice(deps: {
   return {
     review: {
       /** The latest review; `stale` when answers came after it; `possible` when there are answers. */
-      state(lessonKey: LessonKey) {
+      async state(lessonKey: LessonKey) {
         const latest = verdicts(lessonKey, "review")[0];
-        const { lastTs, first } = latestSession(lessonKey);
+        const { lastTs, first } = await latestSession(lessonKey);
         return {
           possible: first.size > 0,
           review: latest
