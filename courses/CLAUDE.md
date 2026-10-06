@@ -18,6 +18,8 @@ courses/
                        # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
   lingust-english/      # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings as
                        # selfrate, gap/respond exercises from the tooltip answer keys; src/dom.ts parser
+  voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
+                       # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
   sa-starter-en/       # after MVP: our authored course + open-data importer
   bamf-lid/            # exam: Leben in Deutschland
 ```

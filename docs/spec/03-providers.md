@@ -109,6 +109,19 @@ Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russi
   `reference`); retell/read-aloud → `speech_selfrate`; translations into Russian, word grids, check boxes →
   `unknown` (they need a learner-language reference or multi-answer gaps).
 
+## 5. VOA «Так говорят в Америке» (`voa-english-usa` → `voa.english-usa`, edition `ru-en`)
+
+Голос Америки, 2001–2002: 104 lessons plus two review lessons; VOA staff material is public domain
+(credit «Голос Америки»). Facts: `docs/research/voa-english-usa.md`.
+
+- **Fetch**: the site has no index; the article paths of the lessons and the folders of their MP3s are a
+  URL manifest in `src/catalog.ts` (found once through the sitemap). Articles as HTML, MP3s via
+  `fetchMedia` (av.voanews.com).
+- **Normalise**: «Цель» → the lesson goal; «Содержание» → synopsis; the dialogue → `tabs.script`; words and
+  phrases → vocab (part of speech from the source's headings, else by shape; examples in `note` and the
+  translation); grammar and usage notes and the homework → grammar pages; the MP3 → `media.audio`. There
+  are no exercises: the homework has no answers anywhere. Units of 10 lessons.
+
 ## Later
 
 - **SprachAnker Starter English** (`sa-starter-en` → `sprachanker.starter-en`): small ru → en course

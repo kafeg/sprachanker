@@ -1,0 +1,256 @@
+// Normalisation (offline, deterministic): parsed lesson articles + media.json → canonical/ and locale/
+// files. Units of ten lessons by number (52а, 104а join the unit of 52, 104); per lesson the episode
+// recording, the goal («Цель»), the synopsis («Содержание»), the dialogue as the script page, the word
+// list as vocabulary (English canonical, Russian in the locale), homework and notes as pages. The source
+// has no checkable exercises: its homework (translate, answer questions) has no answers anywhere.
+import { type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
+import {
+  CourseIndex,
+  courseKey,
+  Lesson,
+  type LessonKey,
+  LocaleCourse,
+  LocaleLesson,
+  lemmaSlug,
+  lessonGoalKey,
+  lessonKey,
+  lexemeKey,
+  type PartOfSpeech,
+  parseLessonKey,
+  seriesKey,
+  unitKey,
+  type VocabEntry,
+  vocabKey,
+} from "@sprachanker/schema";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, UNIT_SIZE } from "./catalog.ts";
+import type { DialogueLine, ParsedLesson, WordRow } from "./parse.ts";
+
+export interface SourceLesson {
+  /** Lesson number as the source writes it ("12", "52а"). */
+  label: string;
+  /** Article id (the lesson's source id). */
+  id: string;
+  /** Raw page inside the series folder, for unmapped entries. */
+  raw: string;
+  /** Undefined when the article has no body. */
+  parsed: ParsedLesson | undefined;
+  audioUrl?: string;
+  /** Why the article's text is not used (a known defect of the source). */
+  textDefect?: string;
+}
+
+export interface Headword {
+  lemma: string;
+  pos: PartOfSpeech;
+  plural?: string;
+  forms?: string;
+}
+
+const PHRASE_HEADING = /phrase|greeting|idiom|question|expression|introduction/i;
+
+/** Part of speech the word-list heading states ("Nouns (food)", "Verbs (used as nouns)"). */
+function headingPos(category: string): PartOfSpeech | undefined {
+  const used = /used as (?:an? )?(noun|adjective)/i.exec(category)?.[1]?.toLowerCase();
+  if (used) return used === "noun" ? "noun" : "adj";
+  if (/^nouns?\b/i.test(category)) return "noun";
+  if (/^verbs?\b/i.test(category)) return "verb";
+  if (/^adjectives?\b/i.test(category)) return "adj";
+  return undefined;
+}
+
+/** "horse/horses", "child/children", "photographer/s": a plural, not a second word ("waiter/waitress"). */
+function pluralOf(lemma: string, other: string): string | undefined {
+  if (/^e?s$/.test(other)) return lemma + other;
+  if (other === lemma) return other;
+  return !other.includes(" ") && other.startsWith(lemma.slice(0, 3)) && /(?:[^s]s|en)$/.test(other)
+    ? other
+    : undefined;
+}
+
+/**
+ * Lemma and part of speech of an English headword as the lesson lists it. The heading gives the part
+ * of speech (Nouns, Verbs, Adjectives); otherwise by shape: "to …" is a verb, a sentence or several
+ * words a phrase. Alternatives after "/" are forms ("to buy/bought", "sad/sadder/saddest") or the
+ * plural ("horse/horses"). Parentheses are mostly glosses ("hot (spicy)", "to run (manage)") and stay
+ * only in the headword.
+ */
+export function headword(en: string, category: string): Headword {
+  const stated = headingPos(category);
+  const bare = en.replace(/\s*\([^)]*\)\s*/g, " ").trim() || en.replace(/[()]/g, "").trim();
+  if (!stated && (PHRASE_HEADING.test(category) || /[.!?]$/.test(bare))) {
+    return { lemma: bare, pos: "phrase" };
+  }
+  // Alternatives: "dad, daddy", "box, bag, can" — the first is the lemma.
+  const [first = bare, ...others] = bare.split(/\s*\/\s*/);
+  let lemma = first.split(/\s*[,;]\s*/)[0]?.trim() || first;
+  const pos: PartOfSpeech =
+    stated ?? (/^to\s/i.test(lemma) ? "verb" : lemma.includes(" ") ? "phrase" : "word");
+  if (pos === "verb") lemma = lemma.replace(/^to\s+/i, "");
+  const forms = pos === "noun" ? "" : others.map((o) => o.replace(/^to\s+/i, "")).join(", ");
+  const plural =
+    pos === "noun" && others.length === 1 ? pluralOf(lemma, others[0] ?? "") : undefined;
+  return { lemma, pos, ...(plural ? { plural } : {}), ...(forms ? { forms } : {}) };
+}
+
+const escapeHtml = (text: string) =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+/** The dialogue as course HTML: one paragraph per line, the speaker in bold. */
+export function scriptHtml(lines: DialogueLine[]): string {
+  return lines
+    .map((l) =>
+      l.heading
+        ? `<p><b>${escapeHtml(l.text)}</b></p>`
+        : `<p>${l.speaker ? `<b>${escapeHtml(l.speaker)}:</b> ` : ""}${escapeHtml(l.text)}</p>`,
+    )
+    .join("");
+}
+
+/** Lesson number without the review suffix: "52а" → 52. */
+const lessonNumber = (label: string) => Number.parseInt(label, 10);
+
+function vocabulary(key: LessonKey, words: WordRow[]) {
+  const seen = new Map<string, number>();
+  const vocab: VocabEntry[] = [];
+  const translations: LocaleLesson["vocab"] = {};
+  const skipped: string[] = [];
+  for (const row of words) {
+    const h = headword(row.en, row.category);
+    const slug = lemmaSlug(h.lemma);
+    if (!slug) {
+      skipped.push(row.en);
+      continue;
+    }
+    const n = (seen.get(slug) ?? 0) + 1;
+    seen.set(slug, n);
+    const entry: VocabEntry = {
+      key: vocabKey(key, h.lemma, n),
+      lexeme: lexemeKey("en", h.lemma, h.pos),
+      target: row.en,
+      ...(h.plural ? { plural: h.plural } : {}),
+      ...(h.forms ? { forms: h.forms } : {}),
+      ...(row.exampleEn ? { note: row.exampleEn } : {}),
+    };
+    vocab.push(entry);
+    translations[entry.key] = {
+      translation: row.exampleRu ? `${row.ru} (${row.exampleRu})` : row.ru,
+    };
+  }
+  return { vocab, translations, skipped };
+}
+
+export interface Normalised {
+  files: LibraryFile[];
+  lessons: number;
+  unmapped: number;
+}
+
+export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex): Normalised {
+  const course = courseKey(seriesKey(SERIES.publisher, SERIES.series), COURSE);
+  const files: LibraryFile[] = [];
+  const byUnit = Map.groupBy(lessons, (l) => Math.ceil(lessonNumber(l.label) / UNIT_SIZE));
+  const units: CourseIndex["units"] = [];
+  const unitTitles: LocaleCourse["units"] = {};
+  const goals: CourseIndex["goals"] = [];
+  const goalTexts: LocaleCourse["goals"] = {};
+  let order = 0;
+  let unmapped = 0;
+  for (const [u, members] of [...byUnit].sort(([a], [b]) => a - b)) {
+    const unit = unitKey(course, u);
+    const keys: LessonKey[] = [];
+    unitTitles[unit] = { title: `Уроки ${members[0]?.label}–${members.at(-1)?.label}` };
+    for (const [i, source] of members.entries()) {
+      const key = lessonKey(course, u, i + 1);
+      keys.push(key);
+      const parsed = source.textDefect ? undefined : source.parsed;
+      const lessonUnmapped: Lesson["unmapped"] = [];
+      if (!parsed) {
+        lessonUnmapped.push({
+          path: source.raw,
+          reason: source.textDefect ?? "the article has no lesson body",
+        });
+      }
+      for (const line of parsed?.stray ?? []) {
+        lessonUnmapped.push({
+          path: source.raw,
+          reason: `text outside the lesson's parts: ${line}`,
+        });
+      }
+      const { vocab, translations, skipped } = vocabulary(key, parsed?.words ?? []);
+      for (const word of skipped) {
+        lessonUnmapped.push({ path: source.raw, reason: `word without a headword: ${word}` });
+      }
+      unmapped += lessonUnmapped.length;
+      const goal = parsed?.goal ? lessonGoalKey(key, 1) : undefined;
+      if (goal && parsed) {
+        goals.push({ key: goal, lessons: [key] });
+        goalTexts[goal] = { text: parsed.goal };
+      }
+      const audio = mediaPath(index, source.audioUrl);
+      const { name } = parseLessonKey(key);
+      files.push({
+        path: `canonical/${COURSE}/lessons/${name}.json`,
+        schema: Lesson,
+        value: {
+          format: 1,
+          key,
+          unit,
+          order: order++,
+          media: audio ? { audio } : {},
+          goals: goal ? [goal] : [],
+          pages: [],
+          vocab,
+          unmapped: lessonUnmapped,
+        } satisfies Lesson,
+      });
+      const tab = (kinds: string[]) =>
+        (parsed?.pages ?? [])
+          .filter((p) => kinds.includes(p.kind))
+          .map((p) => ({ title: p.title, bodyHtml: p.html }));
+      files.push({
+        path: `locale/${EDITION}/${COURSE}/lessons/${name}.json`,
+        schema: LocaleLesson,
+        value: {
+          format: 1,
+          edition: EDITION,
+          lesson: key,
+          sourceId: source.id,
+          title: parsed?.title || `Урок английского языка №${source.label}`,
+          ...(parsed?.synopsis ? { synopsisHtml: `<p>${escapeHtml(parsed.synopsis)}</p>` } : {}),
+          exercises: {},
+          vocab: translations,
+          tabs: {
+            // Homework has no answers to check, so it is a page next to the grammar notes.
+            grammar: tab(["grammar", "homework"]),
+            culture: tab(["culture"]),
+            ...(parsed?.dialogue.length
+              ? { script: { title: "Conversation", bodyHtml: scriptHtml(parsed.dialogue) } }
+              : {}),
+          },
+          downloads: [],
+        } satisfies LocaleLesson,
+      });
+    }
+    units.push({ key: unit, order: u, lessons: keys });
+  }
+  files.push({
+    path: `canonical/${COURSE}/course.json`,
+    schema: CourseIndex,
+    value: { format: 1, key: course, units, exams: [], goals } satisfies CourseIndex,
+  });
+  files.push({
+    path: `locale/${EDITION}/${COURSE}/course.json`,
+    schema: LocaleCourse,
+    value: {
+      format: 1,
+      edition: EDITION,
+      course,
+      sourceId: COURSE,
+      title: "Так говорят в Америке (English USA)",
+      descriptionHtml: ATTRIBUTION_HTML,
+      units: unitTitles,
+      goals: goalTexts,
+    } satisfies LocaleCourse,
+  });
+  return { files, lessons: order, unmapped };
+}
