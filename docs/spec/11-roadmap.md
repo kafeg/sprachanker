@@ -159,8 +159,9 @@ Nicos Weg `en-de` with edition alignment, `coerll-dib` interviews, `sa-starter-e
 **Accept**: adding `en-de` to an installed A1 downloads only texts and keeps progress; one Deutsch im
 Blick chapter playable in an English profile; Starter English lesson 1 playable in a Russian profile.
 **Status: partial** (built early). Built: Nicos Weg A2, B1 (without its glossary) and the `en-de`
-editions (locale files by source order), Deutschtrainer, Deutsch im Blick vocabulary. Missing: edition
-alignment, B1 glossary, Deutsch im Blick interviews, Starter English.
+editions aligned onto the canonical lessons by content, Deutschtrainer, Deutsch im Blick vocabulary. Missing:
+exercises found only in a non-primary edition (reported, not shown), B1 glossary, Deutsch im Blick
+interviews, Starter English.
 
 ### 12 — Desktop app
 Tauri shell, first-run wizard (incl. LM Studio setup), network options with QR, signed

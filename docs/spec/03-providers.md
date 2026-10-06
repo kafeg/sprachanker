@@ -63,10 +63,13 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   language"); the "Play audio" label is dropped; image options keep only the image. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma.
-- Further editions write only their locale files, keyed by source order. Planned (**edition
-  alignment**, after MVP): editions have different source ids; lessons and exercises align by order;
-  options are matched by text because their order and punctuation can differ between editions;
-  mismatches are reported, never merged silently.
+- Further editions write only their locale files, **aligned** onto the canonical lessons
+  (`packages/course-kit/src/align.ts`): an edition is normalised in memory, its exercises are paired
+  with the canonical ones by content with option ids replaced by option content (identical content in
+  order, then the rest of a run by position when lengths and types agree — an edited exercise), options
+  are re-keyed by text or picture, words by headword. What has no counterpart is reported by the import
+  and not used, never attached to another exercise. Nicos Weg A1 en-de: 2 exercises only in that
+  edition, 29 edited; A2: 0 and 33.
 - Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
   own vocabulary parser; until then B1 lessons have no vocabulary.
 
