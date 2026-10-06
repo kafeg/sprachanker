@@ -34,34 +34,39 @@
     "status": {
       "new": "Nicht begonnen",
       "in_progress": "Begonnen",
-      "done": "Erledigt · {score} %"
+      "done": "Erledigt · {score} %",
+      "next": "Als Nächstes"
     },
-    "about": "Über den Kurs",
-    "source": "Quelle",
     "licence": {
       "cc-by-4.0": "CC BY 4.0",
       "public-domain": "gemeinfrei",
       "free-access": "frei zugänglich (keine offene Lizenz)"
     },
-    "checking": "Prüfe die Kursdateien…",
-    "counts": "{units} Einheiten · {lessons} Lektionen · {exercises} Übungen ({items} Aufgaben) · {words} Wörter",
-    "media": {
-      "audio": "Audio",
-      "video": "Video",
-      "image": "Bilder",
+    "stats": {
+      "lessons": "{count, plural, one {Lektion} other {Lektionen}}",
+      "exercises": "{count, plural, one {Übung} other {Übungen}}",
+      "words": "{count, plural, one {Wort} other {Wörter}}",
+      "audio": "{count, plural, one {Aufnahme} other {Aufnahmen}}",
+      "video": "{count, plural, one {Video} other {Videos}}",
+      "image": "{count, plural, one {Bild} other {Bilder}}",
       "pdf": "PDF",
-      "subtitles": "Untertitel"
+      "subtitles": "{count, plural, one {Untertiteldatei} other {Untertiteldateien}}",
+      "size": "auf der Festplatte"
     },
+    "checking": "Prüfe die Kursdateien…",
     "missing": "{count} fehlen",
     "problems": "{count, plural, one {# Problem} other {# Probleme}} gefunden",
     "intact": "Alle Dateien sind da und stimmig.",
     "checkAgain": "Erneut prüfen",
-    "sync": "Mit der Quelle abgleichen",
+    "sync": "Abgleichen",
     "syncing": "Abgleich läuft…",
     "syncHint": "Der Abgleich lädt Fehlendes nach (vorhandene Seiten und Medien bleiben) und normalisiert den Kurs neu; dein Fortschritt bleibt.",
     "syncRunning": "Abgleich läuft…",
     "syncDone": "Fertig. {failed, plural, =0 {Alle Medien sind da.} one {# Datei konnte nicht geladen werden.} other {# Dateien konnten nicht geladen werden.}}",
-    "syncFailed": "Abgleich fehlgeschlagen: {error}"
+    "syncFailed": "Abgleich fehlgeschlagen: {error}",
+    "complete": "Vollständig geladen",
+    "next": "weiter: {where} – {title}",
+    "syncStart": "Mit der Quelle abgleichen"
   },
   "lesson": {
     "unitLesson": "Einheit {unit} · Lektion {lesson}",

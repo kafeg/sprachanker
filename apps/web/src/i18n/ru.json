@@ -34,34 +34,39 @@
     "status": {
       "new": "Не начат",
       "in_progress": "В процессе",
-      "done": "Пройден · {score}%"
+      "done": "Пройден · {score}%",
+      "next": "Следующий"
     },
-    "about": "О курсе",
-    "source": "Источник",
     "licence": {
       "cc-by-4.0": "CC BY 4.0",
       "public-domain": "общественное достояние",
       "free-access": "бесплатный доступ (без открытой лицензии)"
     },
-    "checking": "Проверяю файлы курса…",
-    "counts": "{units} юнитов · {lessons} уроков · {exercises} упражнений ({items} заданий) · {words} слов",
-    "media": {
-      "audio": "Аудио",
-      "video": "Видео",
-      "image": "Картинки",
+    "stats": {
+      "lessons": "{count, plural, one {урок} few {урока} many {уроков} other {урока}}",
+      "exercises": "{count, plural, one {упражнение} few {упражнения} many {упражнений} other {упражнения}}",
+      "words": "{count, plural, one {слово} few {слова} many {слов} other {слова}}",
+      "audio": "{count, plural, one {запись} few {записи} many {записей} other {записи}}",
+      "video": "видео",
+      "image": "{count, plural, one {картинка} few {картинки} many {картинок} other {картинки}}",
       "pdf": "PDF",
-      "subtitles": "Субтитры"
+      "subtitles": "{count, plural, one {файл субтитров} few {файла субтитров} many {файлов субтитров} other {файла субтитров}}",
+      "size": "на диске"
     },
+    "checking": "Проверяю файлы курса…",
     "missing": "не хватает {count}",
     "problems": "{count, plural, one {Найдена # проблема} few {Найдено # проблемы} many {Найдено # проблем} other {Найдено # проблемы}}",
     "intact": "Все файлы на месте и согласованы.",
     "checkAgain": "Проверить снова",
-    "sync": "Синхронизировать с источником",
+    "sync": "Синхронизировать",
     "syncing": "Синхронизация…",
     "syncHint": "Синхронизация докачивает недостающее (уже скачанные страницы и медиа не перекачиваются) и заново нормализует курс; прогресс сохраняется.",
     "syncRunning": "Идёт синхронизация…",
     "syncDone": "Готово. {failed, plural, =0 {Все медиа на месте.} one {# файл не удалось скачать.} few {# файла не удалось скачать.} many {# файлов не удалось скачать.} other {# файла не удалось скачать.}}",
-    "syncFailed": "Синхронизация не удалась: {error}"
+    "syncFailed": "Синхронизация не удалась: {error}",
+    "complete": "Всё скачано",
+    "next": "дальше: {where} — {title}",
+    "syncStart": "Синхронизировать с источником"
   },
   "lesson": {
     "unitLesson": "Юнит {unit} · урок {lesson}",

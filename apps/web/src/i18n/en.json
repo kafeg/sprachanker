@@ -34,34 +34,39 @@
     "status": {
       "new": "Not started",
       "in_progress": "In progress",
-      "done": "Done · {score}%"
+      "done": "Done · {score}%",
+      "next": "Up next"
     },
-    "about": "About the course",
-    "source": "Source",
     "licence": {
       "cc-by-4.0": "CC BY 4.0",
       "public-domain": "public domain",
       "free-access": "free access (no open licence)"
     },
-    "checking": "Checking the course files…",
-    "counts": "{units} units · {lessons} lessons · {exercises} exercises ({items} items) · {words} words",
-    "media": {
-      "audio": "Audio",
-      "video": "Video",
-      "image": "Pictures",
+    "stats": {
+      "lessons": "{count, plural, one {lesson} other {lessons}}",
+      "exercises": "{count, plural, one {exercise} other {exercises}}",
+      "words": "{count, plural, one {word} other {words}}",
+      "audio": "{count, plural, one {recording} other {recordings}}",
+      "video": "{count, plural, one {video} other {videos}}",
+      "image": "{count, plural, one {picture} other {pictures}}",
       "pdf": "PDF",
-      "subtitles": "Subtitles"
+      "subtitles": "{count, plural, one {subtitle file} other {subtitle files}}",
+      "size": "on disk"
     },
+    "checking": "Checking the course files…",
     "missing": "{count} missing",
     "problems": "{count, plural, one {# problem} other {# problems}} found",
     "intact": "All files are in place and consistent.",
     "checkAgain": "Check again",
-    "sync": "Sync with the source",
+    "sync": "Sync",
     "syncing": "Syncing…",
     "syncHint": "Sync downloads what is missing (pages and media already stored are kept) and normalises the course again; your progress stays.",
     "syncRunning": "Syncing…",
     "syncDone": "Synced. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
-    "syncFailed": "Sync failed: {error}"
+    "syncFailed": "Sync failed: {error}",
+    "complete": "All downloaded",
+    "next": "next: {where} — {title}",
+    "syncStart": "Sync with the source"
   },
   "lesson": {
     "unitLesson": "Unit {unit} · lesson {lesson}",

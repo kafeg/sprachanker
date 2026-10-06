@@ -1,12 +1,23 @@
-// "About the course" on the course map (09): where it comes from and on what terms, what it holds
-// (lessons, exercises, media) and whether all of it is on disk, and syncing it with its source.
-import type { CourseSource } from "@sprachanker/schema";
+// The head of the course map (09): progress and the way back into the course, where the course comes
+// from and on what terms, what it holds (lessons, exercises, words, media) and whether all of it is on
+// disk, and syncing it with its source.
+import { type CourseSource, parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { useQueryClient } from "@tanstack/react-query";
-import { CircleCheck, CircleX, ExternalLink, LoaderCircle, RefreshCw } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowRight,
+  CircleCheck,
+  CircleX,
+  ExternalLink,
+  LoaderCircle,
+  RefreshCw,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseSync, useStartSync } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { CourseHtml } from "@/ui/course-html.tsx";
+import { cn } from "@/ui/utils.ts";
 
 /** "Deutsche Welle · learngerman.dw.com · free access" with a link to the source. */
 export function SourceLine({ source }: { source: CourseSource }) {
@@ -28,25 +39,92 @@ export function SourceLine({ source }: { source: CourseSource }) {
   );
 }
 
-const size = (bytes: number, locale: string) =>
-  new Intl.NumberFormat(locale, {
+const size = (bytes: number, locale: string) => {
+  const giga = bytes >= 1e9;
+  return new Intl.NumberFormat(locale, {
     style: "unit",
-    unit: bytes > 2 ** 30 ? "gigabyte" : "megabyte",
+    unit: giga ? "gigabyte" : "megabyte",
     maximumFractionDigits: 1,
-  }).format(bytes / (bytes > 2 ** 30 ? 2 ** 30 : 2 ** 20));
+  }).format(bytes / (giga ? 1e9 : 1e6));
+};
 
-export function CourseInfo({
-  series,
-  course,
-  source,
+/** Media tiles in this order; kinds not listed come last. */
+const KINDS = ["video", "audio", "image", "subtitles", "pdf"];
+const kindRank = (kind: string) => {
+  const i = KINDS.indexOf(kind);
+  return i < 0 ? KINDS.length : i;
+};
+
+const chip = "inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 text-xs";
+
+function ProgressRing({ value }: { value: number }) {
+  const r = 30;
+  const length = 2 * Math.PI * r;
+  return (
+    <svg
+      viewBox="0 0 76 76"
+      className="size-16 shrink-0 sm:size-20"
+      role="img"
+      aria-label={`${value}%`}
+    >
+      <circle cx="38" cy="38" r={r} fill="none" strokeWidth="8" className="stroke-primary/20" />
+      <circle
+        cx="38"
+        cy="38"
+        r={r}
+        fill="none"
+        strokeWidth="8"
+        strokeLinecap="round"
+        strokeDasharray={`${(value / 100) * length} ${length}`}
+        transform="rotate(-90 38 38)"
+        className="stroke-primary"
+      />
+      <text x="38" y="43" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">
+        {value}%
+      </text>
+    </svg>
+  );
+}
+
+function Tile({
+  value,
+  label,
+  missing,
 }: {
+  value: string | number;
+  label: string;
+  missing?: number;
+}) {
+  const { t } = useTranslation();
+  return (
+    <div className="rounded-xl border px-3 py-2">
+      <div className="whitespace-nowrap text-xl font-semibold tabular-nums">{value}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+      {!!missing && (
+        <div className="text-xs text-wrong">{t("course.missing", { count: missing })}</div>
+      )}
+    </div>
+  );
+}
+
+export type CourseHeroProps = {
   series: string;
   course: string;
+  title: string;
+  edition: string;
+  descriptionHtml?: string;
   source: CourseSource | null;
-}) {
+  done: number;
+  lessons: number;
+  /** The lesson to go on with, its title, and whether it was started. */
+  next?: { key: string; title: string; started: boolean };
+};
+
+export function CourseHero(props: CourseHeroProps) {
+  const { series, course, title, edition, descriptionHtml, source, done, lessons, next } = props;
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const check = useCourseCheck(series, course, open);
+  const check = useCourseCheck(series, course, true);
   const sync = useCourseSync(series, course);
   const start = useStartSync(series, course);
   const client = useQueryClient();
@@ -60,109 +138,188 @@ export function CourseInfo({
     void client.invalidateQueries({ queryKey: ["course", series, course] });
     void client.invalidateQueries({ queryKey: ["courses"] });
   }, [finishedAt, client, series, course]);
+  useEffect(() => {
+    if (running) setOpen(true);
+  }, [running]);
 
+  const names = new Intl.DisplayNames([i18n.language], { type: "language" });
+  const pair = parseEditionId(edition);
   const r = check.data;
   const exercises = r ? Object.values(r.exercises).reduce((a, b) => a + b, 0) : 0;
+  const percent = Math.round((done / Math.max(1, lessons)) * 100);
+  const nextKey = next && parseLessonKey(next.key);
+
   return (
-    <details
-      className="mb-6 rounded-2xl border bg-card p-4 sm:p-5"
-      onToggle={(e) => setOpen(e.currentTarget.open)}
-    >
-      <summary className="cursor-pointer font-semibold">{t("course.about")}</summary>
-      <div className="mt-3 space-y-4 text-sm">
-        {source && (
-          <p>
-            <span className="text-muted-foreground">{t("course.source")}: </span>
-            <SourceLine source={source} />
-          </p>
-        )}
-        {check.isPending && open ? (
-          <p className="flex items-center gap-1.5 text-muted-foreground">
-            <LoaderCircle className="size-4 animate-spin" /> {t("course.checking")}
-          </p>
-        ) : r ? (
-          <div className="space-y-2">
-            <p>
-              {t("course.counts", {
-                units: r.units,
-                lessons: r.lessons,
-                exercises,
-                items: r.items,
-                words: r.vocab,
-              })}
-            </p>
-            <ul className="flex flex-wrap gap-x-4 gap-y-1">
-              {Object.entries(r.media.byKind).map(([kind, n]) => (
-                <li key={kind}>
-                  {t(`course.media.${kind}`, { defaultValue: kind })}: {n.present}
-                  {n.missing > 0 && (
-                    <span className="text-wrong">
-                      {" "}
-                      ({t("course.missing", { count: n.missing })})
-                    </span>
-                  )}
-                </li>
-              ))}
-              <li className="text-muted-foreground">{size(r.media.bytes, i18n.language)}</li>
-            </ul>
-            <p className="flex items-center gap-1.5">
-              {r.problems.length ? (
+    <section className="mb-8 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
+      <div className="flex flex-wrap items-center gap-4 sm:gap-5">
+        <div className="flex min-w-0 flex-1 basis-80 items-center gap-4 sm:gap-5">
+          <ProgressRing value={percent} />
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold sm:text-4xl">{title}</h1>
+            <div className="my-2 flex flex-wrap gap-1.5">
+              <span className={chip}>
+                {t("courses.languages", { from: names.of(pair.source), to: names.of(pair.target) })}
+              </span>
+              {source && (
                 <>
-                  <CircleX className="size-4 text-wrong" />
-                  {t("course.problems", { count: r.problems.length })}
+                  <a
+                    href={source.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className={cn(chip, "hover:bg-accent")}
+                  >
+                    {source.publisher} <ExternalLink className="size-3" />
+                  </a>
+                  <span className={chip}>{t(`course.licence.${source.licence}`)}</span>
                 </>
-              ) : (
+              )}
+              <button
+                type="button"
+                onClick={() => setOpen((o) => !o)}
+                aria-expanded={open}
+                className={cn(
+                  chip,
+                  "hover:bg-accent",
+                  r && !r.problems.length && "border-correct/50 text-correct",
+                  r?.problems.length && "border-wrong/50 text-wrong",
+                )}
+              >
+                {!r ? (
+                  <>
+                    <LoaderCircle className="size-3 animate-spin" /> {t("course.checking")}
+                  </>
+                ) : r.problems.length ? (
+                  <>
+                    <CircleX className="size-3" />{" "}
+                    {t("course.problems", { count: r.problems.length })}
+                  </>
+                ) : (
+                  <>
+                    <CircleCheck className="size-3" /> {t("course.complete")}
+                  </>
+                )}
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {t("courses.progress", { done, total: lessons })}
+              {next && nextKey && (
                 <>
-                  <CircleCheck className="size-4 text-correct" /> {t("course.intact")}
+                  {" "}
+                  ·{" "}
+                  {t("course.next", { where: t("lesson.unitLesson", nextKey), title: next.title })}
                 </>
               )}
             </p>
-            {r.problems.length > 0 && (
-              <ul className="list-disc space-y-0.5 pl-5 text-muted-foreground">
-                {r.problems.slice(0, 10).map((p) => (
-                  <li key={p} className="break-all">
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
-        ) : null}
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => void check.refetch()}
-            disabled={check.isFetching}
-          >
-            {t("course.checkAgain")}
-          </Button>
-          {sync.data?.available && (
-            <Button onClick={() => start.mutate()} disabled={running || start.isPending}>
-              {running ? (
-                <LoaderCircle className="size-4 animate-spin" />
-              ) : (
-                <RefreshCw className="size-4" />
-              )}
-              {running ? t("course.syncing") : t("course.sync")}
-            </Button>
-          )}
         </div>
-        <p className="text-muted-foreground">{t("course.syncHint")}</p>
-        {job && (
-          <div className="space-y-1">
-            <p className="font-medium">
-              {job.status === "running"
-                ? t("course.syncRunning")
-                : job.status === "done"
-                  ? t("course.syncDone", { failed: job.report?.failedMedia.length ?? 0 })
-                  : t("course.syncFailed", { error: job.error ?? "" })}
-            </p>
-            <pre className="max-h-48 overflow-auto rounded-lg bg-muted p-2 text-xs leading-relaxed">
-              {job.log.slice(-15).join("\n")}
-            </pre>
-          </div>
+        {next && nextKey && (
+          <Link
+            to="/lesson/$series/$course/$lesson"
+            params={{ series, course, lesson: nextKey.name }}
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            {next.started || done > 0 ? t("lesson.resume") : t("courses.start")}
+            <ArrowRight className="size-4" />
+          </Link>
         )}
       </div>
-    </details>
+
+      {r && (
+        <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
+          <Tile value={r.lessons} label={t("course.stats.lessons", { count: r.lessons })} />
+          <Tile value={exercises} label={t("course.stats.exercises", { count: exercises })} />
+          <Tile value={r.vocab} label={t("course.stats.words", { count: r.vocab })} />
+          {Object.entries(r.media.byKind)
+            .sort(([a], [b]) => kindRank(a) - kindRank(b))
+            .map(([kind, n]) => (
+              <Tile
+                key={kind}
+                value={n.present}
+                label={t(`course.stats.${kind}`, { count: n.present, defaultValue: kind })}
+                missing={n.missing}
+              />
+            ))}
+          <Tile value={size(r.media.bytes, i18n.language)} label={t("course.stats.size")} />
+          {sync.data?.available && (
+            <button
+              type="button"
+              onClick={() => setOpen((o) => !o)}
+              aria-expanded={open}
+              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-dashed px-3 text-sm text-muted-foreground hover:bg-accent"
+            >
+              <RefreshCw className={cn("size-4", running && "animate-spin")} />
+              {running ? t("course.syncing") : t("course.sync")}
+            </button>
+          )}
+        </div>
+      )}
+
+      {open && (
+        <div className="mt-4 space-y-3 rounded-xl bg-muted/60 p-4 text-sm">
+          {r && (
+            <p className="flex items-center gap-1.5">
+              {r.problems.length ? (
+                <CircleX className="size-4 text-wrong" />
+              ) : (
+                <CircleCheck className="size-4 text-correct" />
+              )}
+              {r.problems.length
+                ? t("course.problems", { count: r.problems.length })
+                : t("course.intact")}
+            </p>
+          )}
+          {!!r?.problems.length && (
+            <ul className="list-disc space-y-0.5 pl-5 text-muted-foreground">
+              {r.problems.slice(0, 10).map((p) => (
+                <li key={p} className="break-all">
+                  {p}
+                </li>
+              ))}
+            </ul>
+          )}
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={() => void check.refetch()}
+              disabled={check.isFetching}
+            >
+              {t("course.checkAgain")}
+            </Button>
+            {sync.data?.available && (
+              <Button onClick={() => start.mutate()} disabled={running || start.isPending}>
+                {running ? (
+                  <LoaderCircle className="size-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="size-4" />
+                )}
+                {running ? t("course.syncing") : t("course.syncStart")}
+              </Button>
+            )}
+          </div>
+          {sync.data?.available && <p className="text-muted-foreground">{t("course.syncHint")}</p>}
+          {job && (
+            <div className="space-y-1">
+              <p className="font-medium">
+                {job.status === "running"
+                  ? t("course.syncRunning")
+                  : job.status === "done"
+                    ? t("course.syncDone", { failed: job.report?.failedMedia.length ?? 0 })
+                    : t("course.syncFailed", { error: job.error ?? "" })}
+              </p>
+              <pre className="max-h-48 overflow-auto rounded-lg bg-background p-2 text-xs leading-relaxed">
+                {job.log.slice(-15).join("\n")}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+
+      {descriptionHtml && (
+        <CourseHtml
+          className="mt-5 border-t pt-4 text-sm text-muted-foreground"
+          html={descriptionHtml}
+        />
+      )}
+    </section>
   );
 }
