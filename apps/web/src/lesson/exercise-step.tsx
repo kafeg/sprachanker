@@ -76,6 +76,8 @@ export interface StepProps {
   locale?: LocaleExercise;
   index: number;
   total: number;
+  /** The summary comes next (the main button says so). */
+  last?: boolean;
   url(p: string): string;
   /** What the run already has for this exercise: shown again when it is reopened. */
   stored?: ExerciseResult;
@@ -98,6 +100,7 @@ export function ExerciseStep({
   locale,
   index,
   total,
+  last = index + 1 === total,
   url,
   stored,
   readOnly = false,
@@ -125,7 +128,6 @@ export function ExerciseStep({
     return scored && restored.length ? Object.fromEntries(restored) : undefined;
   });
   const shownAt = useRef(Date.now());
-  const last = index + 1 === total;
   const [explaining, setExplaining] = useState<Set<number>>(new Set());
 
   // Recordings that must be played before checking: the exercise's own and each item's. Reopening an

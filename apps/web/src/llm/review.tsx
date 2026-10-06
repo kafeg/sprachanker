@@ -1,5 +1,5 @@
-// "Session review" on the lesson summary: the model's review of the latest run — strengths, topics to
-// work on (with examples), next steps. Stored; offered again when there are newer answers.
+// "Session review", a practice step of the lesson: the model's review of the run the lesson shows —
+// strengths, topics to work on (with examples), next steps. Stored; offered again after newer answers.
 import type { LessonKey } from "@sprachanker/schema";
 import { CircleCheck, ClipboardList, LoaderCircle, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -14,10 +14,13 @@ export function SessionReview({
   series,
   lessonKey,
   edition,
+  onDone,
 }: {
   series: string;
   lessonKey: LessonKey;
   edition: string;
+  /** A review was made. */
+  onDone?(): void;
 }) {
   const lang = useTargetLang();
   const { t, i18n } = useTranslation();
@@ -25,10 +28,11 @@ export function SessionReview({
   const label = useAssistantLabel();
   const state = useReview(lessonKey);
   const create = useCreateReview();
-  if (!llm.data?.model || !state.data?.possible) return null;
+  if (!llm.data?.model || !state.data) return null;
+  if (!state.data.possible) return <p>{t("review.notYet")}</p>;
   const review = create.data ?? state.data.review;
   const request = { series, lessonKey, edition, language: i18n.language };
-  const ask = () => create.mutate(request);
+  const ask = () => create.mutate(request, { onSuccess: () => onDone?.() });
 
   return (
     <PracticeCard

@@ -55,6 +55,20 @@ export const AnsweredInput = z.object({
 export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
+/**
+ * A step of the lesson plan besides its exercises (04, "Lesson composition"): the words, a grammar or
+ * culture page by its index, and the AI practice. Exercises are recorded by their answers.
+ */
+export const StepId = z
+  .string()
+  .regex(/^(words|grammar:\d+|culture:\d+|writing|scene|review)$/)
+  .meta({ id: "StepId" });
+export type StepId = z.infer<typeof StepId>;
+
+/** A step done (read, its cards made, the practice done) or skipped. */
+export const StepDonePayload = z.object({ step: StepId, skipped: z.boolean().optional() });
+export type StepDonePayload = z.infer<typeof StepDonePayload>;
+
 /** An event as the client sends it. */
 export const EventInput = z.discriminatedUnion("type", [
   z.object({
@@ -70,6 +84,12 @@ export const EventInput = z.discriminatedUnion("type", [
     type: z.literal("item_skipped"),
     itemKey: ItemKey,
     payload: z.object({}).optional(),
+  }),
+  z.object({
+    id: Ulid,
+    type: z.literal("step_done"),
+    itemKey: z.null().optional(),
+    payload: StepDonePayload,
   }),
 ]);
 export type EventInput = z.infer<typeof EventInput>;
@@ -169,6 +189,7 @@ export const StoredEvent = z.object({
     "page_shown",
     "answered",
     "item_skipped",
+    "step_done",
     "llm_verdict",
     "llm_turn",
     "card_review",

@@ -4,8 +4,15 @@
 // same state. The run's state is the engine's reading of its events — the stored ones plus those just
 // recorded here — the same reading the server uses for progress. Outcomes are computed locally for
 // instant feedback with the same engine the server uses; the server stores its own (04).
-import { type ExerciseResult, exerciseResults } from "@sprachanker/engine";
-import type { LessonKey, LessonResult, Outcome, Run, StoredEvent } from "@sprachanker/schema";
+import { type ExerciseResult, exerciseResults, stepsDone } from "@sprachanker/engine";
+import type {
+  LessonKey,
+  LessonResult,
+  Outcome,
+  Run,
+  StepId,
+  StoredEvent,
+} from "@sprachanker/schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ulid } from "ulid";
@@ -18,7 +25,7 @@ export type RunMode = "loading" | "none" | "active" | "finished";
 
 type Pending = {
   id: string;
-  type: "page_shown" | "answered" | "item_skipped";
+  type: "page_shown" | "answered" | "item_skipped" | "step_done";
   itemKey?: string;
   payload: unknown;
 };
@@ -41,6 +48,8 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const sending = useRef<Promise<void> | null>(null);
   const runId = run?.status === "active" ? run.id : undefined;
   const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
+  /** Steps besides exercises done or skipped in the run (words, reading, AI practice). */
+  const done = useMemo(() => stepsDone(events), [events]);
   /** How many answers an item has in the run: the number of its latest attempt. */
   const attempts = (itemKey: string) =>
     events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
@@ -189,6 +198,12 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     },
     pageShown: (pageIndex: number) =>
       record([{ id: ulid(), type: "page_shown", payload: { pageIndex } }]),
+    done,
+    /** Records a step besides the exercises as done, or skipped. */
+    stepDone: (step: StepId, skipped = false) =>
+      record([
+        { id: ulid(), type: "step_done", payload: { step, ...(skipped && { skipped: true }) } },
+      ]),
     /** Records an exercise: given answers (with local outcomes) and the items left without one. */
     answer(
       answers: Array<{ itemKey: string; answer: unknown; outcome: Outcome }>,

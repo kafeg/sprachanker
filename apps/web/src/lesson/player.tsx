@@ -1,20 +1,22 @@
-// Lesson player (09): overview → exercises one by one → summary; plan and reference at hand. This file
-// holds the run's flow (resume, start, record pages, complete); the pages are overview, exercise-step
-// and summary, the plan is plan.tsx; optional features come in as slots.
-import { exerciseState, lessonCoverage } from "@sprachanker/engine";
+// Lesson player (09): the lesson's plan as steps — overview, words, grammar, exercises, culture, AI
+// practice, summary — with the plan and reference at hand. This file holds the run's flow (resume,
+// start, record steps, complete); the pages are overview, words-step, steps (reading), exercise-step and
+// summary, the plan is plan.tsx; optional features come in as slots.
+import { type LessonStep, lessonSteps, planCoverage, stepId } from "@sprachanker/engine";
 import {
   type Lesson,
   type LessonResult,
   type LocaleLesson,
   parseEditionId,
   parseLessonKey,
+  type StepId,
 } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpenText, ListOrdered, RotateCcw } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
+import { useCourseMap, useCourses, useLesson, useMakeCards } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -26,11 +28,13 @@ import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { LessonOverview } from "./overview.tsx";
-import { Plan, type Step } from "./plan.tsx";
+import { Plan, stepTitle } from "./plan.tsx";
 import { Reference, type ReferenceTab, referenceTabs } from "./reference.tsx";
 import type { LessonSlots } from "./slots.ts";
+import { ReadingStep, StepBar } from "./steps.tsx";
 import { LessonSummary } from "./summary.tsx";
 import { useRun } from "./use-run.ts";
+import { WordsStep } from "./words-step.tsx";
 
 export function LessonPlayer({
   series,
@@ -51,40 +55,61 @@ export function LessonPlayer({
   const data = useLesson(series, key, edition);
   const map = useCourseMap(series, course, edition);
   const run = useRun(series, key, edition);
-  const [step, setStep] = useState<Step>("overview");
+  const makeCards = useMakeCards();
+  const [current, setCurrent] = useState("overview");
   const [reference, setReference] = useState<ReferenceTab>();
   const [planOpen, setPlanOpen] = useState(false);
   const [finished, setFinished] = useState<LessonResult | null>();
   const url = (p: string) => mediaUrl(series, p);
+  // The AI practice offered (none while no assistant is set up); `slots` is fixed for the player.
+  const practice = slots.practice?.useKinds() ?? [];
 
-  // Resume an active run on the page it was left on, if the lesson still has it.
-  const pages = data.data?.lesson.pages.length;
+  const lessonData = data.data?.lesson as Lesson | undefined;
+  const localeData = data.data?.locale as LocaleLesson | null | undefined;
+  const steps = lessonData ? lessonSteps(lessonData, localeData, practice) : [];
+  const ids = steps.map(stepId);
+  const coverage = lessonData ? planCoverage(steps, lessonData, run.results, run.done) : undefined;
+
+  // Resume an active run where it was left: the exercise last shown if it is not done, else the first
+  // step still to do.
   const active = run.mode === "active";
+  const pages = lessonData?.pages.length;
+  const firstLeft = coverage?.firstLeft;
+  const resumeId =
+    active && pages !== undefined && run.resumePage >= 0 && run.resumePage < pages
+      ? (() => {
+          const page = `exercise:${run.resumePage}`;
+          const exercise = lessonData?.pages[run.resumePage]?.exercise;
+          const worked = exercise && run.results[exercise.key];
+          return worked && firstLeft !== undefined ? (ids[firstLeft] ?? page) : page;
+        })()
+      : undefined;
+  // Once per run loaded (not while the learner works through it).
+  const runLoaded = active ? run.run?.id : undefined;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: resumeId is read when a run loads only
   useEffect(() => {
-    const page = run.resumePage;
-    if (active && pages !== undefined && page >= 0 && page < pages) setStep(page);
-  }, [active, run.resumePage, pages]);
+    if (resumeId) setCurrent(resumeId);
+  }, [runLoaded, pages]);
 
-  // Reaching the summary with every exercise worked completes an active run (05, "Lifecycle").
+  // Reaching the summary with every step done or skipped completes an active run (05, "Lifecycle").
   const { finish } = run;
-  const lessonData = data.data?.lesson;
-  const complete = !!lessonData && lessonCoverage(lessonData, run.results).complete;
+  const complete = !!coverage?.complete;
   useEffect(() => {
-    if (step === "summary" && active && complete)
+    if (current === "summary" && active && complete)
       finish()
         .then(setFinished)
         .catch(() => undefined);
-  }, [step, active, complete, finish]);
+  }, [current, active, complete, finish]);
 
-  const shown = data.data?.lesson;
+  const shownStep = steps[ids.indexOf(current)];
   useWindowPlace(
-    !shown
+    !lessonData || !shownStep
       ? undefined
-      : step === "summary"
-        ? t("windowTitle.summary")
-        : typeof step === "number"
-          ? t("windowTitle.exercise", { n: step + 1, total: shown.pages.length })
-          : t("windowTitle.lesson", parseLessonKey(shown.key)),
+      : shownStep.kind === "exercise"
+        ? t("windowTitle.exercise", { n: shownStep.index + 1, total: lessonData.pages.length })
+        : shownStep.kind === "overview"
+          ? t("windowTitle.lesson", parseLessonKey(lessonData.key))
+          : t(`windowTitle.${shownStep.kind}`),
   );
 
   if (data.isPending || !edition || run.mode === "loading")
@@ -92,51 +117,68 @@ export function LessonPlayer({
   if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
   const { lesson, locale } = data.data as { lesson: Lesson; locale: LocaleLesson | null };
   const total = lesson.pages.length;
-  const resume = active && run.resumePage < total ? run.resumePage : -1;
+  const at = Math.max(0, ids.indexOf(current));
+  const step = steps[at] as LessonStep;
   // The score shown: of the run just finished, or of the latest finished run.
   const result = finished ?? (run.mode === "finished" ? run.run?.result : undefined);
   const context = { series, lessonKey: lesson.key, edition };
 
-  const show = (next: Step) => {
+  const show = (id: string) => {
     setPlanOpen(false);
-    setStep(next);
+    setCurrent(id);
     window.scrollTo({ top: 0 });
   };
-  /** Moves to a step. In an active run pages are recorded; opening a page of a lesson never started
-   *  starts it; a finished run is only looked at. */
-  const go = (next: Step) => {
-    show(next);
-    if (typeof next !== "number") return;
-    if (active) run.pageShown(next);
-    else if (run.mode === "none") void run.start().then(() => run.pageShown(next));
+  /** What opening a step records: an exercise page shown, a grammar or culture page read. */
+  const record = (target: LessonStep) => {
+    if (target.kind === "exercise") run.pageShown(target.index);
+    if ((target.kind === "grammar" || target.kind === "culture") && !run.done.has(stepId(target)))
+      run.stepDone(stepId(target) as StepId);
   };
-  /** Starts the lesson (anew when `restart`) and opens its first page. */
+  /** Moves to a step. In an active run it is recorded; opening a step of a lesson never started
+   *  starts it; a finished run is only looked at. */
+  const go = (id: string) => {
+    show(id);
+    const target = steps[ids.indexOf(id)];
+    if (!target || target.kind === "overview" || target.kind === "summary") return;
+    if (active) record(target);
+    else if (run.mode === "none") void run.start().then(() => record(target));
+  };
+  const next = () => go(ids[at + 1] ?? "summary");
+  const back = () => go(ids[at - 1] ?? "overview");
+  /** Records a step besides the exercises as done or skipped (in an active run). */
+  const mark = (id: string, skipped = false) => {
+    if (active && run.done.get(id as StepId) !== (skipped ? "skipped" : "done"))
+      run.stepDone(id as StepId, skipped);
+  };
+  /** Starts the lesson (anew when `restart`) and opens its first step after the overview. */
   const begin = async (restart: boolean) => {
     await run.start(restart);
     setFinished(undefined);
-    show(0);
-    run.pageShown(0);
+    const first = steps[1];
+    if (!first) return;
+    show(stepId(first));
+    record(first);
   };
 
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
-  const done = lessonCoverage(lesson, run.results).worked;
-  const skipped = lesson.pages.filter(
-    ({ exercise }) => exerciseState(exercise, run.results[exercise.key]) === "skipped",
-  ).length;
+  const worked = coverage?.worked ?? 0;
+  const todo = coverage?.total ?? 0;
   // Answers that were wrong or partly right at the first attempt (skips are not mistakes to talk over).
   const hasMistakes = Object.values(run.results).some((r) =>
     Object.values(r.first).some((o) => o.result === "wrong" || o.result === "partial"),
   );
   const firstTab = referenceTabs(lesson, locale)[0];
-  const exercise = typeof step === "number" ? lesson.pages[step]?.exercise : undefined;
+  const exercise = step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
 
   const plan = (
     <Plan
       lesson={lesson}
       locale={locale}
-      step={step}
+      steps={steps}
+      current={current}
       results={run.results}
+      done={run.done}
       go={go}
       openReference={(tab) => setReference(tab)}
     />
@@ -161,15 +203,9 @@ export function LessonPlayer({
       <Button
         size="lg"
         className="text-base"
-        onClick={() =>
-          total === 0
-            ? void run.start().then(() => show("summary"))
-            : active
-              ? go(resume > 0 ? resume : 0)
-              : void begin(false)
-        }
+        onClick={() => (active ? go(resumeId ?? ids[1] ?? "summary") : void begin(false))}
       >
-        {resume > 0 ? t("lesson.resume") : t("lesson.start")}
+        {active && worked > 0 ? t("lesson.resume") : t("lesson.start")}
       </Button>
     );
 
@@ -188,7 +224,7 @@ export function LessonPlayer({
             </Link>
             <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
             <p className="mb-3 px-2 text-sm text-muted-foreground">
-              {total > 0 && t("lesson.exercisesDone", { done: done - skipped, total, skipped })}
+              {todo > 0 && t("lesson.stepsDone", { done: worked, total: todo })}
             </p>
             {plan}
           </aside>
@@ -204,11 +240,11 @@ export function LessonPlayer({
                 >
                   <ListOrdered className="size-5" />
                 </Button>
-                {total > 0 ? (
+                {todo > 0 ? (
                   <>
-                    <Progress value={(done / total) * 100} className="h-2 flex-1" />
+                    <Progress value={(worked / todo) * 100} className="h-2 flex-1" />
                     <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
-                      {done}/{total}
+                      {worked}/{todo}
                     </span>
                   </>
                 ) : (
@@ -229,7 +265,7 @@ export function LessonPlayer({
               </div>
             </header>
             <div className="mx-auto max-w-3xl px-4 py-6">
-              {step === "overview" && (
+              {step.kind === "overview" && (
                 <LessonOverview
                   lesson={lesson}
                   locale={locale}
@@ -264,19 +300,55 @@ export function LessonPlayer({
                   }
                 />
               )}
-              {typeof step === "number" && exercise && (
+              {step.kind === "words" && (
+                <WordsStep
+                  key={run.run?.id}
+                  series={series}
+                  lesson={lesson}
+                  locale={locale}
+                  url={url}
+                  done={run.done.get("words") === "done"}
+                  saving={makeCards.isPending}
+                  onDone={(known) =>
+                    makeCards.mutate(
+                      { ...context, known },
+                      {
+                        onSuccess: () => {
+                          mark("words");
+                          next();
+                        },
+                      },
+                    )
+                  }
+                  onSkip={() => {
+                    mark("words", true);
+                    next();
+                  }}
+                  onBack={back}
+                />
+              )}
+              {(step.kind === "grammar" || step.kind === "culture") && (
+                <ReadingStep
+                  section={t(`lesson.step.${step.kind}`)}
+                  page={locale?.tabs[step.kind][step.index] ?? { title: "", bodyHtml: "" }}
+                >
+                  <StepBar onBack={back} onNext={next} />
+                </ReadingStep>
+              )}
+              {step.kind === "exercise" && exercise && (
                 <ExerciseStep
-                  key={`${run.run?.id}-${step}`}
+                  key={`${run.run?.id}-${step.index}`}
                   stored={run.results[exercise.key]}
                   readOnly={run.mode === "finished"}
                   exercise={exercise}
                   locale={locale?.exercises[exercise.key]}
-                  index={step}
+                  index={step.index}
                   total={total}
+                  last={ids[at + 1] === "summary"}
                   url={url}
                   onAnswered={run.answer}
-                  onBack={() => go(step > 0 ? step - 1 : "overview")}
-                  onNext={() => go(step + 1 < total ? step + 1 : "summary")}
+                  onBack={back}
+                  onNext={next}
                   explain={
                     slots.explain &&
                     ((index, answer) =>
@@ -292,18 +364,47 @@ export function LessonPlayer({
                   }
                 />
               )}
-              {step === "summary" && (
+              {(step.kind === "writing" || step.kind === "scene" || step.kind === "review") && (
+                <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
+                  <div>
+                    <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                      {t("lesson.section.practice")}
+                    </p>
+                    <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
+                      {stepTitle(step, lesson, locale, t)}
+                    </h1>
+                  </div>
+                  {slots.practice?.step(step.kind, {
+                    ...context,
+                    hasMistakes,
+                    onDone: () => mark(step.kind),
+                  })}
+                  <StepBar
+                    onBack={back}
+                    onNext={next}
+                    onSkip={
+                      run.done.get(step.kind) === "done"
+                        ? undefined
+                        : () => {
+                            mark(step.kind, true);
+                            next();
+                          }
+                    }
+                  />
+                </article>
+              )}
+              {step.kind === "summary" && (
                 <LessonSummary
                   series={series}
                   course={course}
                   lesson={lesson}
                   locale={locale}
-                  url={url}
+                  steps={steps}
                   results={run.results}
+                  done={run.done}
                   result={result}
                   mode={run.mode}
                   nextLesson={nextLesson}
-                  extra={slots.summary?.({ ...context, hasMistakes })}
                   go={go}
                   redo={() => void begin(true)}
                 />

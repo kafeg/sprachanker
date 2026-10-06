@@ -1,13 +1,31 @@
-// The lesson plan (09): overview, the exercises with their state in the run, summary, and the
-// reference tabs. Shown beside the lesson on wide screens and in a sheet on phones.
-import { type ExerciseResult, type ExerciseState, exerciseState } from "@sprachanker/engine";
-import type { Lesson, LocaleLesson } from "@sprachanker/schema";
-import { BookOpenText, Check, Play, SkipForward, Star, X } from "lucide-react";
+// The lesson plan (09): its steps in order — overview, words, grammar, exercises, culture, AI practice,
+// summary — each with its state in the run, under the labels of their sections; then the reference
+// tabs. Shown beside the lesson on wide screens and in a sheet on phones.
+import {
+  type ExerciseResult,
+  type ExerciseState,
+  type LessonStep,
+  stepId,
+  stepState,
+} from "@sprachanker/engine";
+import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
+import {
+  BookOpen,
+  BookOpenText,
+  Check,
+  ClipboardList,
+  Drama,
+  Globe,
+  Layers,
+  PenLine,
+  Play,
+  SkipForward,
+  Star,
+  X,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/ui/utils.ts";
 import { type ReferenceTab, referenceTabs } from "./reference.tsx";
-
-export type Step = "overview" | number | "summary";
 
 /** An exercise's mark in the plan and the summary: right (green ✓), with mistakes (red ✕), answered
  *  without a score (grey ✓), skipped (dashed ⏭), the current one (yellow ring), else its number. */
@@ -15,7 +33,8 @@ export function StepDot({
   state,
   label,
 }: {
-  state?: ExerciseState | "current";
+  /** An exercise's state, a step besides exercises done ("read"), or the current exercise. */
+  state?: ExerciseState | "read" | "current";
   label: React.ReactNode;
 }) {
   const { t } = useTranslation();
@@ -29,10 +48,11 @@ export function StepDot({
         state === "wrong" && "border-wrong bg-wrong text-white",
         state === "done" && "border-muted-foreground/60 bg-muted text-muted-foreground",
         state === "skipped" && "border-dashed border-muted-foreground/60 text-muted-foreground",
+        state === "read" && "border-correct text-correct",
         state === "current" && "border-primary",
       )}
     >
-      {state === "correct" || state === "done" ? (
+      {state === "correct" || state === "done" || state === "read" ? (
         <Check className="size-3.5" />
       ) : state === "wrong" ? (
         <X className="size-3.5" />
@@ -46,53 +66,120 @@ export function StepDot({
   );
 }
 
+/** A step's title in the plan. */
+export function stepTitle(
+  step: LessonStep,
+  lesson: Lesson,
+  locale: LocaleLesson | null,
+  t: (key: string, values?: Record<string, unknown>) => string,
+): string {
+  switch (step.kind) {
+    case "exercise": {
+      const exercise = lesson.pages[step.index]?.exercise;
+      return (
+        (exercise && locale?.exercises[exercise.key]?.title) ??
+        t("lesson.exerciseN", { n: step.index + 1 })
+      );
+    }
+    case "grammar":
+    case "culture":
+      return locale?.tabs[step.kind][step.index]?.title ?? t(`lesson.step.${step.kind}`);
+    case "words":
+      return t("lesson.step.wordsCount", { count: lesson.vocab.length });
+    default:
+      return t(`lesson.step.${step.kind}`);
+  }
+}
+
+const ICON: Partial<Record<LessonStep["kind"], React.ComponentType<{ className?: string }>>> = {
+  overview: Play,
+  words: Layers,
+  grammar: BookOpen,
+  culture: Globe,
+  writing: PenLine,
+  scene: Drama,
+  review: ClipboardList,
+  summary: Star,
+};
+
+/** The section a step starts, if it is the first of its kind: grammar, exercises, culture, practice. */
+const SECTION: Partial<Record<LessonStep["kind"], string>> = {
+  grammar: "lesson.section.grammar",
+  exercise: "lesson.section.exercises",
+  culture: "lesson.section.culture",
+  writing: "lesson.section.practice",
+  scene: "lesson.section.practice",
+  review: "lesson.section.practice",
+};
+
 export function Plan({
   lesson,
   locale,
-  step,
+  steps,
+  current,
   results,
+  done,
   go,
   openReference,
 }: {
   lesson: Lesson;
   locale: LocaleLesson | null;
-  step: Step;
+  steps: LessonStep[];
+  /** Id of the step on screen. */
+  current: string;
   results: Record<string, ExerciseResult>;
-  go(step: Step): void;
+  done: Map<StepId, "done" | "skipped">;
+  go(id: string): void;
   openReference(tab: ReferenceTab): void;
 }) {
   const { t } = useTranslation();
   const tabs = referenceTabs(lesson, locale);
-  const row = (target: Step, dot: React.ReactNode, label: string) => (
-    <button
-      type="button"
-      key={String(target)}
-      onClick={() => go(target)}
-      className={cn(
-        "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent",
-        step === target && "bg-accent font-semibold",
-      )}
-    >
-      {dot}
-      <span className="leading-snug">{label}</span>
-    </button>
-  );
+  let section: string | undefined;
   return (
     <nav className="space-y-0.5">
-      {row("overview", <StepDot label={<Play className="size-3" />} />, t("lesson.overview"))}
-      {lesson.pages.map(({ exercise }, i) =>
-        row(
-          i,
-          <StepDot
-            state={
-              exerciseState(exercise, results[exercise.key]) ?? (step === i ? "current" : undefined)
-            }
-            label={i + 1}
-          />,
-          locale?.exercises[exercise.key]?.title ?? exercise.key,
-        ),
-      )}
-      {row("summary", <StepDot label={<Star className="size-3" />} />, t("lesson.summary"))}
+      {steps.map((step) => {
+        const id = stepId(step);
+        const state = stepState(step, lesson, results, done);
+        const Icon = ICON[step.kind];
+        const label = SECTION[step.kind];
+        const header = label && label !== section ? label : undefined;
+        section = label ?? (step.kind === "summary" ? undefined : section);
+        return (
+          <div key={id}>
+            {header && (
+              <p className="px-2 pt-3 pb-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t(header)}
+              </p>
+            )}
+            <button
+              type="button"
+              onClick={() => go(id)}
+              aria-current={current === id ? "step" : undefined}
+              className={cn(
+                "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent",
+                current === id && "bg-accent font-semibold",
+              )}
+            >
+              <StepDot
+                state={
+                  state === "done" && step.kind !== "exercise"
+                    ? "read"
+                    : (state ??
+                      (current === id && step.kind === "exercise" ? "current" : undefined))
+                }
+                label={
+                  step.kind === "exercise" ? (
+                    step.index + 1
+                  ) : Icon ? (
+                    <Icon className="size-3" />
+                  ) : null
+                }
+              />
+              <span className="leading-snug">{stepTitle(step, lesson, locale, t)}</span>
+            </button>
+          </div>
+        );
+      })}
       {!!tabs.length && (
         <div className="mt-4 border-t pt-3">
           <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">

@@ -7,7 +7,10 @@ import {
   lessonDone,
   lessonProgress,
   lessonResult,
+  lessonSteps,
+  planCoverage,
   resumePage,
+  stepsDone,
 } from "@sprachanker/engine";
 import {
   type CourseKey,
@@ -315,7 +318,7 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
           if (!findExercise(lesson, exKey))
             throw new RunError(`item ${e.itemKey} is not in ${lesson.key}`);
           payload = {};
-        } else {
+        } else if (e.type === "page_shown") {
           const exercise = lesson.pages[e.payload.pageIndex]?.exercise;
           if (exercise) {
             payload = {
@@ -338,17 +341,23 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       return outcomes;
     },
 
-    /** Completes the run once every exercise of the lesson was answered or skipped; the score is the
-     *  mean of first attempts. A run with exercises left is refused (409 `run_incomplete`). */
+    /**
+     * Completes the run once every step of the lesson's plan is done or skipped — its exercises answered
+     * or skipped, its words, grammar and culture steps recorded (the AI practice, offered only with an
+     * assistant, is left to the player) — the score is the mean of first attempts. A run with steps
+     * left is refused (409 `run_incomplete`).
+     */
     async finish(runId: string): Promise<Run> {
       const row = getRun(runId);
       if (row.status !== "active") return toRun(row);
       const list = runEvents(db, runId);
-      const lesson = await content.lesson(
-        seriesOf(row.contextKey as LessonKey),
-        row.contextKey as LessonKey,
-      );
-      if (!lessonCoverage(lesson, exerciseResults(list)).complete)
+      const series = seriesOf(row.contextKey as LessonKey);
+      const lesson = await content.lesson(series, row.contextKey as LessonKey);
+      const locale = row.edition
+        ? await content.localeLesson(series, lesson.key, row.edition)
+        : undefined;
+      const steps = lessonSteps(lesson, locale);
+      if (!planCoverage(steps, lesson, exerciseResults(list), stepsDone(list)).complete)
         throw new RunError("run_incomplete", 409);
       const result = lessonResult(lesson, list);
       return toRun(

@@ -83,11 +83,8 @@
     "wrong": "Not quite",
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}",
-    "exercisesDone": "{done, number} of {total, number} exercises done{skipped, plural, =0 {} other { · # skipped}}",
     "skipped": "skipped",
     "notDone": "not done",
-    "newWords": "New words of this lesson",
-    "newWordsHint": "They will become review cards.",
     "backToCourse": "Back to the course",
     "nextLesson": "Next lesson",
     "reference": "Reference",
@@ -97,19 +94,41 @@
     "redo": "Start over",
     "done": "Done",
     "doneScore": "Done · {score, number, percent} right",
-    "left": "{count, plural, one {# exercise is} other {# exercises are}} left. The lesson counts as done once every exercise is answered or skipped.",
-    "toExercise": "Go to exercise {n}",
     "state": {
       "correct": "right",
       "wrong": "with mistakes",
       "done": "answered",
-      "skipped": "skipped"
+      "skipped": "skipped",
+      "read": "done"
     },
     "correctAnswer": "Correct answer:",
     "answerAll": "Answer every item · {done, number} of {total, number}",
     "listenFirst": "Play the recording first",
     "listenItem": "Play the recording of item {n}",
-    "answerAgain": "Answer again"
+    "answerAgain": "Answer again",
+    "exerciseN": "Exercise {n}",
+    "stepsDone": "{done} of {total} steps done",
+    "stepsLeft": "{count, plural, one {# step is} other {# steps are}} still to do.",
+    "toStep": "Go to: {title}",
+    "videoText": "Text of the video",
+    "audioText": "Text of the recording",
+    "step": {
+      "overview": "Overview",
+      "words": "Words of the lesson",
+      "wordsCount": "Words of the lesson · {count}",
+      "grammar": "Grammar",
+      "culture": "Culture",
+      "writing": "Write it yourself",
+      "scene": "Scene",
+      "review": "Session review",
+      "summary": "Summary"
+    },
+    "section": {
+      "grammar": "Grammar",
+      "exercises": "Exercises",
+      "culture": "Culture",
+      "practice": "Practice with AI"
+    }
   },
   "ref": {
     "vocabulary": "Vocabulary",
@@ -361,7 +380,9 @@
     "stale": "You answered more since the last review.",
     "strengths": "Went well",
     "topics": "To work on",
-    "next": "Next steps"
+    "next": "Next steps",
+    "intro": "The model goes through this run: which exercises were done, skipped or not started, where the mistakes are and the rule behind them, and what to do next.",
+    "notYet": "Answer at least one exercise first: the review is about your answers."
   },
   "scene": {
     "title": "Scene",
@@ -431,6 +452,23 @@
     "exercise": "Ex {n}/{total}",
     "summary": "Summary",
     "download": "↓ {percent, number, percent}",
-    "downloading": "↓ …"
+    "downloading": "↓ …",
+    "words": "Words",
+    "grammar": "Grammar",
+    "culture": "Culture",
+    "writing": "Writing",
+    "scene": "Scene",
+    "review": "Review"
+  },
+  "words": {
+    "position": "{n} of {total}",
+    "tapToShow": "Tap to see the translation",
+    "previous": "Previous word",
+    "known": "Already known",
+    "summary": "{review, plural, one {# word goes} other {# words go}} to Review; {known, plural, =0 {none known yet} one {# you know already} other {# you know already}}.",
+    "again": "Go through the cards again",
+    "toEnd": "To the list",
+    "saving": "Saving…",
+    "done": "Done"
   }
 }

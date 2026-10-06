@@ -9,8 +9,9 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 apps/web/src/
   routes/          # router.tsx (code-based TanStack Router), courses (my courses, all courses), course map
                    # with its head in course-info (progress, source, stats, integrity, sync), settings
-  lesson/          # lesson player: player (run flow), use-run (run + events), plan, overview, exercise step,
-                   # summary, reference, video; slots.ts: what optional features add (header, explain, summary)
+  lesson/          # lesson player: player (run flow over the plan's steps), use-run (run + events), plan,
+                   # overview, words-step, steps (reading pages, the step bar), exercise step, summary,
+                   # reference, video; slots.ts: what optional features add (header, explain, practice)
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition

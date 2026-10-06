@@ -1,6 +1,6 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check.
 import { expect, test } from "@playwright/test";
-import { answerPicture, DEMO_LESSON, freshLessonRun, put } from "./api.ts";
+import { answerPicture, DEMO_LESSON, freshLessonRun, goToStep, openStep, put } from "./api.ts";
 import { FAKE_LLM_PORT, FAKE_TEXT } from "./fake-llm.ts";
 
 test.beforeEach(async ({ request }) => {
@@ -11,9 +11,8 @@ test.beforeEach(async ({ request }) => {
   await freshLessonRun(request);
 });
 
-test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
-  await page.goto(`/lesson/${DEMO_LESSON}`);
-  await page.getByRole("button", { name: "Start lesson" }).click();
+test("explain a mistake, ask the tutor, check a text", async ({ page, request }) => {
+  await openStep(page, "Lena at the café");
 
   // The picture answered wrong: its explanation streams from the model.
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
@@ -29,6 +28,7 @@ test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
     if (r.method() === "POST" && r.url().endsWith("/api/llm/explain")) asked++;
   });
   await page.reload();
+  await goToStep(page, "Lena at the café");
   await page.getByRole("button", { name: "Why is this wrong?" }).first().click();
   await expect(page.getByText(FAKE_TEXT).first()).toBeVisible();
   expect(asked).toBe(0);
@@ -40,20 +40,28 @@ test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
   await expect(page.getByRole("dialog").getByText(FAKE_TEXT).last()).toBeVisible();
   await page.keyboard.press("Escape");
 
+  // With an assistant the plan has the AI practice steps.
+  await goToStep(page, "Write it yourself");
   const writing = page.getByPlaceholder("Your text…");
-  const skip = page.getByRole("button", { name: "Skip", exact: true });
-  const next = page.getByRole("button", { name: /^(Next|To the summary)$/ });
-  for (let i = 0; i < 12; i++) {
-    await writing.or(skip).or(next).first().waitFor();
-    if (await writing.isVisible()) break;
-    await ((await skip.isVisible()) ? skip : next).click();
-  }
   await writing.fill("Ich heisse Lena.");
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText("FAKE: a good start.")).toBeVisible();
   await expect(page.getByText("FAKE: ß after a long vowel.")).toBeVisible();
+  // A checked text marks the writing step done in the run (the event goes out from a queue).
+  const steps = async () => {
+    const res = await request.get(
+      `/api/runs/lesson?series=sprachanker.fixture&lessonKey=${DEMO_LESSON}`,
+    );
+    const { state } = await res.json();
+    return state.events
+      .filter((e: { type: string }) => e.type === "step_done")
+      .map((e: { payload: { step: string } }) => e.payload.step);
+  };
+  await expect.poll(steps).toContain("writing");
 
-  // "Review my mistakes" opens a new chat: the earlier question is not in it.
+  // The session review step offers "Review my mistakes", which opens a new chat without the earlier
+  // question.
+  await goToStep(page, "Session review");
   await page.getByRole("button", { name: "Review my mistakes with the tutor" }).click();
   const chat = page.getByRole("dialog");
   await expect(chat.getByText("Please go through my mistakes in this lesson.")).toBeVisible();

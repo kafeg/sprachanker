@@ -1,4 +1,4 @@
-// "Write it yourself" on the lesson summary: a short text on the lesson's topic, checked by the model
+// "Write it yourself", a practice step of the lesson: a short text on the lesson's topic, checked by the model
 // (verdict, corrected text, corrections, Goethe A1 writing criteria). Attempts are kept.
 import { wordDiff } from "@sprachanker/engine";
 import type { LessonKey } from "@sprachanker/schema";
@@ -91,10 +91,13 @@ export function WritingTask({
   series,
   lessonKey,
   edition,
+  onDone,
 }: {
   series: string;
   lessonKey: LessonKey;
   edition: string;
+  /** A text was checked. */
+  onDone?(): void;
 }) {
   const lang = useRequiredTargetLang();
   const { t, i18n } = useTranslation();
@@ -136,7 +139,7 @@ export function WritingTask({
         <Button
           size="lg"
           disabled={!request.text || check.isPending}
-          onClick={() => check.mutate(request)}
+          onClick={() => check.mutate(request, { onSuccess: () => onDone?.() })}
         >
           {check.isPending && <LoaderCircle className="size-4 animate-spin" />}
           {check.isPending ? t("writing.checking") : t("writing.check")}

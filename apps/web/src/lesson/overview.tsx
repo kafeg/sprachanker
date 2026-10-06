@@ -1,5 +1,6 @@
 // The lesson's first page (09): where it sits in the course, its synopsis and goals, the episode video
-// or picture and recording, and the way in (start, resume, or the result of a finished run).
+// or picture and recording with its transcript, and the way in (start, resume, or the result of a
+// finished run).
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
@@ -59,6 +60,15 @@ export function LessonOverview({
           label={locale?.title ?? lesson.key}
           title={t("lesson.audio")}
         />
+      )}
+      {/* The recording's transcript under it (the script page of the lesson). */}
+      {locale?.tabs.script && (lesson.media.video || lesson.media.audio) && (
+        <details className="rounded-2xl border bg-card px-5 py-3">
+          <summary className="cursor-pointer font-semibold">
+            {lesson.media.video ? t("lesson.videoText") : t("lesson.audioText")}
+          </summary>
+          <CourseHtml className="mt-3" html={locale.tabs.script.bodyHtml} />
+        </details>
       )}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <span className="text-muted-foreground">

@@ -11,7 +11,7 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { errorText } from "./errors.ts";
 
-/** A card on the lesson summary: icon, title, the assistant's label and an action on the right. */
+/** A card of a practice step: icon, title, the assistant's label and an action on the right. */
 export function PracticeCard({
   icon: Icon,
   title,

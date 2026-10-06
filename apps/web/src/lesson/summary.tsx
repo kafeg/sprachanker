@@ -1,25 +1,30 @@
-// The lesson summary (09): the run's score, what is left while it is open, each exercise with its
-// state, the new words, and the way on. Optional features add their part under the score.
-import { type ExerciseResult, exerciseState, lessonCoverage } from "@sprachanker/engine";
-import type { Lesson, LessonResult, LocaleLesson } from "@sprachanker/schema";
+// The lesson summary (09): the run's score, what is left while it is open, every step of the plan with
+// its state (exercises with their right answers), and the way on.
+import {
+  type ExerciseResult,
+  type LessonStep,
+  planCoverage,
+  stepId,
+  stepState,
+} from "@sprachanker/engine";
+import type { Lesson, LessonResult, LocaleLesson, StepId } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { type Step, StepDot } from "./plan.tsx";
-import { VocabularyList } from "./reference.tsx";
+import { StepDot, stepTitle } from "./plan.tsx";
 
 export function LessonSummary({
   series,
   course,
   lesson,
   locale,
-  url,
+  steps,
   results,
+  done,
   result,
   mode,
   nextLesson,
-  extra,
   go,
   redo,
 }: {
@@ -27,32 +32,31 @@ export function LessonSummary({
   course: string;
   lesson: Lesson;
   locale: LocaleLesson | null;
-  url(path: string): string;
+  steps: LessonStep[];
   results: Record<string, ExerciseResult>;
+  done: Map<StepId, "done" | "skipped">;
   /** Score of the run shown, once it is finished. */
   result: LessonResult | null | undefined;
   /** The run shown: still open (what is left is listed), finished (can be done again), or none. */
   mode: "none" | "active" | "finished";
   nextLesson?: string;
-  /** What optional features add under the score. */
-  extra?: React.ReactNode;
-  go(step: Step): void;
+  go(id: string): void;
   redo(): void;
 }) {
   const { t, i18n } = useTranslation();
-  const total = lesson.pages.length;
-  const coverage = lessonCoverage(lesson, results);
+  const coverage = planCoverage(steps, lesson, results, done);
   // Items right at the first attempt (the score itself also weighs partial answers).
   const firstCorrect = Object.values(results)
     .flatMap((r) => Object.values(r.first))
     .filter((o) => o.result === "correct").length;
+  const todo = steps.filter((s) => s.kind !== "overview" && s.kind !== "summary");
   return (
     <section className="space-y-6">
       <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
         {t("lesson.summary")}
       </p>
       <h1 className="text-4xl font-bold">{locale?.title}</h1>
-      {total > 0 && (
+      {lesson.pages.length > 0 && (
         <div className="flex items-end gap-4">
           <span className="font-heading text-6xl font-bold">
             {result
@@ -68,9 +72,14 @@ export function LessonSummary({
       )}
       {mode === "active" && coverage.firstLeft !== undefined && (
         <div className="space-y-3 rounded-2xl bg-accent px-5 py-4">
-          <p>{t("lesson.left", { count: total - coverage.worked })}</p>
-          <Button size="lg" onClick={() => go(coverage.firstLeft as number)}>
-            {t("lesson.toExercise", { n: coverage.firstLeft + 1 })}
+          <p>{t("lesson.stepsLeft", { count: coverage.total - coverage.worked })}</p>
+          <Button
+            size="lg"
+            onClick={() => go(stepId(steps[coverage.firstLeft as number] as LessonStep))}
+          >
+            {t("lesson.toStep", {
+              title: stepTitle(steps[coverage.firstLeft] as LessonStep, lesson, locale, t),
+            })}
           </Button>
         </div>
       )}
@@ -79,29 +88,33 @@ export function LessonSummary({
           {t("lesson.redo")}
         </Button>
       )}
-      {extra}
-      {total > 0 && (
+      {todo.length > 0 && (
         <ul className="divide-y rounded-2xl border bg-card">
-          {lesson.pages.map(({ exercise }, i) => {
-            const r = results[exercise.key];
-            const state = exerciseState(exercise, r);
+          {todo.map((step) => {
+            const state = stepState(step, lesson, results, done);
+            const exercise =
+              step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
+            const r = exercise && results[exercise.key];
             const scored = Object.values(r?.first ?? {}).filter((o) => o.result !== "unscored");
             return (
-              <li key={exercise.key}>
+              <li key={stepId(step)}>
                 <button
                   type="button"
-                  onClick={() => go(i)}
+                  onClick={() => go(stepId(step))}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-accent"
                 >
-                  <StepDot state={state} label={i + 1} />
-                  <span className="flex-1">{locale?.exercises[exercise.key]?.title}</span>
+                  <StepDot
+                    state={state === "done" && step.kind !== "exercise" ? "read" : state}
+                    label={step.kind === "exercise" ? step.index + 1 : "·"}
+                  />
+                  <span className="flex-1">{stepTitle(step, lesson, locale, t)}</span>
                   <span className="text-sm text-muted-foreground">
                     {!state
                       ? t("lesson.notDone")
-                      : scored.length
-                        ? `${scored.filter((o) => o.result === "correct").length}/${scored.length}`
-                        : r && !Object.keys(r.last).length
-                          ? t("lesson.skipped")
+                      : state === "skipped"
+                        ? t("lesson.skipped")
+                        : scored.length
+                          ? `${scored.filter((o) => o.result === "correct").length}/${scored.length}`
                           : ""}
                   </span>
                 </button>
@@ -110,11 +123,6 @@ export function LessonSummary({
           })}
         </ul>
       )}
-      <div>
-        <h2 className="text-2xl font-bold">{t("lesson.newWords")}</h2>
-        <p className="mb-2 text-sm text-muted-foreground">{t("lesson.newWordsHint")}</p>
-        <VocabularyList lesson={lesson} locale={locale} url={url} />
-      </div>
       <div className="flex flex-wrap gap-2">
         <Link
           to="/course/$series/$course"

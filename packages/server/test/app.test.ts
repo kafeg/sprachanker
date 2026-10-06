@@ -32,6 +32,16 @@ async function skipRest({ getJson, sendJson }: Api, runId: string, worked: strin
   await sendJson("POST", `/api/runs/${runId}/events`, { events });
 }
 
+/** Records the lesson's reading steps (words, grammar, culture of the fixture lesson) as done. */
+async function readSteps({ sendJson }: Api, runId: string) {
+  const events = ["words", "grammar:0", "culture:0"].map((step) => ({
+    id: ulid(),
+    type: "step_done",
+    payload: { step },
+  }));
+  await sendJson("POST", `/api/runs/${runId}/events`, { events });
+}
+
 describe("web app", () => {
   test("health, index, hashed assets, client routes, unknown api", async () => {
     const { get, getJson } = await setup();
@@ -113,6 +123,9 @@ describe("runs", () => {
     // A run with exercises left is not complete.
     expect((await send("POST", `/api/runs/${run.id}/finish`, {})).status).toBe(409);
     await skipRest(api, run.id);
+    // The exercises are worked; the words, grammar and culture steps are still to do.
+    expect((await send("POST", `/api/runs/${run.id}/finish`, {})).status).toBe(409);
+    await readSteps(api, run.id);
     await sendJson("POST", `/api/runs/${run.id}/finish`, {});
     const done = (await getJson(`/api/runs/lesson?${q}`)).state;
     expect([done.run.id, done.run.status]).toEqual([run.id, "finished"]);
@@ -185,6 +198,7 @@ describe("runs", () => {
     expect(resumed.events[0].payload.snapshot.exercise.key).toBe(`${LESSON}/ex-01`);
 
     await skipRest(api, runId, [`${LESSON}/ex-01`]);
+    await readSteps(api, runId);
     const finished = await sendJson("POST", `/api/runs/${runId}/finish`, {});
     expect(finished.status).toBe("finished");
     // One of two answered right; the 7 checked items skipped count 0.
@@ -294,6 +308,9 @@ describe("runs", () => {
       payload: { answer: { text: "x" }, attempt: 1, ms: 1 },
     };
     expect((await send("POST", `/api/runs/${run.id}/events`, { events: [odd] })).status).toBe(400);
+    // A step the plan has no kind of is refused.
+    const step = { id: ulid(), type: "step_done", payload: { step: "homework" } };
+    expect((await send("POST", `/api/runs/${run.id}/events`, { events: [step] })).status).toBe(400);
   });
 });
 

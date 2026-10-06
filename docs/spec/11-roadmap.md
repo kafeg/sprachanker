@@ -148,8 +148,11 @@ Specs: 04, 05, 09.
   without an assistant too.
 - **Status: in progress.** Built: cards and their FSRS state (migration `0002_cards`), scheduling and
   the review queue in the engine (`srs/`), cards from a lesson's words, ratings and the learner's words
-  on the server (`/api/cards`). Next: the lesson plan as steps with the "Words" step, the Review
-  screen, My words, the Notebook, attempts under the card, the tutor's chat history.
+  on the server (`/api/cards`); the lesson plan as steps (engine `compose/steps.ts`, `step_done`
+  events, completion over the steps) with the "Words" step (cards one at a time), grammar and culture
+  pages, the AI practice as steps and the video's text under it. Next: the Review screen, My words,
+  the history of AI practice in its steps, the Notebook, attempts under the card, the tutor's chat
+  history.
 
 ### 7 — Speech
 Specs: 08, 06.

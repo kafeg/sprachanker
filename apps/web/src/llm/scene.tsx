@@ -1,4 +1,4 @@
-// Scenes on the lesson summary: a role-play on the lesson's topic. The partner speaks the target
+// Scenes, a practice step of the lesson: a role-play on the lesson's topic. The partner speaks the target
 // language (translation on demand), corrects the learner's lines and ticks off the scene's goals.
 import type { LessonKey } from "@sprachanker/schema";
 import { Circle, CircleCheck, Drama, Languages, LoaderCircle } from "lucide-react";
@@ -144,7 +144,8 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
   );
 }
 
-export function SceneCard(ids: Ids) {
+/** The scene of the lesson; `onDone` once one was started. */
+export function SceneCard({ onDone, ...ids }: Ids & { onDone?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const scene = useScene(ids.lessonKey);
@@ -156,7 +157,12 @@ export function SceneCard(ids: Ids) {
   const start = () =>
     action.mutate(
       { start: { ...ids, language: i18n.language } },
-      { onSuccess: () => setOpen(true) },
+      {
+        onSuccess: () => {
+          setOpen(true);
+          onDone?.();
+        },
+      },
     );
   return (
     <PracticeCard icon={Drama} title={t("scene.title")} label={label}>

@@ -89,6 +89,7 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 | `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
 | `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, an unrated self-rating); excluded from the score |
+| `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `review`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
 | `llm_verdict` | `task` (`writing` \| `review` \| `explain`), `input` (the learner's text; empty otherwise), `result` (the task's structured output, 07; an explanation's text), `model`, `latencyMs`; writing and review in `practice` runs of the lesson, a review with `runId` (the lesson run it reviews); an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains) |
 | `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
 | `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day) |
@@ -143,9 +144,13 @@ only once it has an `answered` or `item_skipped` event.
   overview. A run starts with "Start" (or with opening a page); "Start over" ends the active run
   `abandoned/user` and begins a new one.
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached with every
-  exercise worked (answered or skipped); the server refuses to finish a run with exercises left
-  (`run_incomplete`), and the summary then lists what is left. A finished run that did not work every
-  exercise (stored before this was enforced) is no completion: it is neither shown nor counted. Score = mean first-attempt score of scored
+  step of its plan done or skipped (04): exercises answered or skipped, the words, grammar and culture
+  steps recorded (`step_done`), and the AI practice when an assistant offers it. The server refuses to
+  finish a run with exercises or reading steps left (`run_incomplete`; the AI practice depends on the
+  assistant and is left to the player), and the summary then lists what is left. Reading a finished run
+  back, completion counts its exercises only, so runs completed before the steps existed stay
+  completed. A finished run that did not work every exercise (stored before this was enforced) is no
+  completion: it is neither shown nor counted. Score = mean first-attempt score of scored
   items (04).
 - **Progress** (engine `lessonProgress`, the single reading used by the course list, the course map and
   the lesson): a lesson is done once a run of it was completed; it is in progress while an active run has

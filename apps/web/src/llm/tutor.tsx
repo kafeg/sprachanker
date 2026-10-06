@@ -105,6 +105,22 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
       (reply) => setPending({ question, reply }),
       controller.signal,
     )
+      .then((reply) => {
+        // The pair as the server stored it, shown at once in place of the pending one (no frame
+        // with both); the stored turns follow.
+        const ts = Date.now();
+        client.setQueryData(
+          ["tutor", context.lessonKey],
+          (old: { turns: unknown[] } | undefined) => ({
+            turns: [
+              ...(old?.turns ?? []),
+              { role: "user", text: question, exerciseKey: context.exerciseKey, ts },
+              { role: "assistant", text: reply.trim(), ts },
+            ],
+          }),
+        );
+        setPending(undefined);
+      })
       .catch((e: unknown) => {
         // A stopped reply is kept by the server; a failed question goes back into the input.
         if (controller.signal.aborted) return;

@@ -83,11 +83,8 @@
     "wrong": "Nicht ganz",
     "summary": "Zusammenfassung",
     "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}",
-    "exercisesDone": "{done, number} von {total, number} Übungen erledigt{skipped, plural, =0 {} other { · # übersprungen}}",
     "skipped": "übersprungen",
     "notDone": "nicht erledigt",
-    "newWords": "Neue Wörter dieser Lektion",
-    "newWordsHint": "Daraus werden Lernkarten zum Wiederholen.",
     "backToCourse": "Zurück zum Kurs",
     "nextLesson": "Nächste Lektion",
     "reference": "Nachschlagen",
@@ -97,19 +94,41 @@
     "redo": "Neu beginnen",
     "done": "Erledigt",
     "doneScore": "Erledigt · {score, number, percent} richtig",
-    "left": "{count, plural, one {# Übung ist} other {# Übungen sind}} noch offen. Die Lektion gilt als erledigt, wenn jede Übung beantwortet oder übersprungen ist.",
-    "toExercise": "Zu Übung {n}",
     "state": {
       "correct": "richtig",
       "wrong": "mit Fehlern",
       "done": "beantwortet",
-      "skipped": "übersprungen"
+      "skipped": "übersprungen",
+      "read": "erledigt"
     },
     "correctAnswer": "Lösung:",
     "answerAll": "Beantworte alle Aufgaben · {done, number} von {total, number}",
     "listenFirst": "Hör dir zuerst die Aufnahme an",
     "listenItem": "Hör dir die Aufnahme von Aufgabe {n} an",
-    "answerAgain": "Neu beantworten"
+    "answerAgain": "Neu beantworten",
+    "exerciseN": "Übung {n}",
+    "stepsDone": "{done} von {total} Schritten erledigt",
+    "stepsLeft": "{count, plural, one {# Schritt fehlt} other {# Schritte fehlen}} noch.",
+    "toStep": "Weiter zu: {title}",
+    "videoText": "Text des Videos",
+    "audioText": "Text der Aufnahme",
+    "step": {
+      "overview": "Überblick",
+      "words": "Wörter der Lektion",
+      "wordsCount": "Wörter der Lektion · {count}",
+      "grammar": "Grammatik",
+      "culture": "Landeskunde",
+      "writing": "Schreib selbst",
+      "scene": "Szene",
+      "review": "Auswertung",
+      "summary": "Fazit"
+    },
+    "section": {
+      "grammar": "Grammatik",
+      "exercises": "Übungen",
+      "culture": "Landeskunde",
+      "practice": "Üben mit KI"
+    }
   },
   "ref": {
     "vocabulary": "Wortschatz",
@@ -361,7 +380,9 @@
     "stale": "Seit dem letzten Rückblick hast du weitere Aufgaben beantwortet.",
     "strengths": "Gut gelungen",
     "topics": "Noch zu üben",
-    "next": "Nächste Schritte"
+    "next": "Nächste Schritte",
+    "intro": "Das Modell sieht sich diesen Durchgang an: welche Übungen erledigt, übersprungen oder nicht begonnen sind, wo Fehler sind und welche Regel dahintersteht, und was als Nächstes kommt.",
+    "notYet": "Beantworte zuerst mindestens eine Übung: Die Auswertung geht von deinen Antworten aus."
   },
   "scene": {
     "title": "Szene",
@@ -431,6 +452,23 @@
     "exercise": "Üb {n}/{total}",
     "summary": "Fazit",
     "download": "↓ {percent, number, percent}",
-    "downloading": "↓ …"
+    "downloading": "↓ …",
+    "words": "Wörter",
+    "grammar": "Grammatik",
+    "culture": "Kultur",
+    "writing": "Schreiben",
+    "scene": "Szene",
+    "review": "Auswertung"
+  },
+  "words": {
+    "position": "{n} von {total}",
+    "tapToShow": "Tippe, um die Übersetzung zu sehen",
+    "previous": "Voriges Wort",
+    "known": "Kenne ich schon",
+    "summary": "{review, plural, one {# Wort kommt} other {# Wörter kommen}} in die Wiederholung; {known, plural, =0 {noch keins bekannt} one {# kennst du schon} other {# kennst du schon}}.",
+    "again": "Karten noch einmal durchgehen",
+    "toEnd": "Zur Liste",
+    "saving": "Speichere…",
+    "done": "Fertig"
   }
 }

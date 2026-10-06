@@ -1,5 +1,5 @@
 // TanStack Query hooks over the API.
-import type { LessonKey } from "@sprachanker/schema";
+import type { LessonKey, LexemeKey } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api, json } from "./client.ts";
@@ -134,5 +134,30 @@ export function useResetProgress() {
       json(api.progress.reset.$post({ json: target })),
     // Progress shows in many places (course list and map, tutor, reviews): read everything again.
     onSuccess: () => void client.invalidateQueries(),
+  });
+}
+
+/** The lesson's words that have cards, by lexeme (made in this or an earlier lesson). */
+export const useLessonCards = (series: string, lessonKey: LessonKey) =>
+  useQuery({
+    queryKey: ["lesson-cards", lessonKey],
+    queryFn: () => json(api.cards.lesson.$get({ query: { series, lessonKey } })),
+  });
+
+/** Makes cards of the lesson's words; the ones marked known are set aside. */
+export function useMakeCards() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: {
+      series: string;
+      lessonKey: LessonKey;
+      edition: string;
+      known: LexemeKey[];
+    }) => json(api.cards.lesson.$post({ json: request })),
+    onSuccess: (_, request) => {
+      void client.invalidateQueries({ queryKey: ["lesson-cards", request.lessonKey] });
+      void client.invalidateQueries({ queryKey: ["review"] });
+      void client.invalidateQueries({ queryKey: ["words"] });
+    },
   });
 }

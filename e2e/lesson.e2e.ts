@@ -1,9 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { answerPicture, freshLessonRun, goToStep, openStep } from "./api.ts";
+import { answerPicture, DEMO_LESSON, freshLessonRun, goToStep, openStep } from "./api.ts";
 
 test.beforeEach(({ request }) => freshLessonRun(request));
 
-test("open the course, do an exercise, resume, finish with a summary", async ({ page }) => {
+test("open the course, go through the words, the grammar and an exercise, resume, finish", async ({
+  page,
+}) => {
   await page.goto("/catalog");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("All courses");
   await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
@@ -17,6 +19,15 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
   await expect(page.getByText("order a drink")).toBeVisible();
   await page.getByRole("button", { name: "Start lesson" }).click();
 
+  // The lesson's words one card at a time, then the grammar page, then the exercises.
+  await expect(page.getByText("1 of 4")).toBeVisible();
+  for (let i = 0; i < 4; i++)
+    await page.getByRole("button", { name: "Next", exact: true }).first().click();
+  // (How many are known depends on what other tests left in the shared profile.)
+  await expect(page.getByText(/words? goe?s? to Review/)).toBeVisible();
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Articles" })).toBeVisible();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByText("Exercise 1 of 8")).toBeVisible();
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
   // Check waits until every item is answered, and says so.
@@ -44,9 +55,11 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
     if (await score.isVisible()) break;
     await ((await skip.isVisible()) ? skip : next).click();
   }
-  // One right; the wrong picture and the skipped checked items count as wrong.
+  // One right; the wrong picture and the skipped checked items count as wrong. Every step is listed.
   await expect(page.getByText("Correct on the first try: 1 of 9")).toBeVisible();
-  await expect(page.getByRole("heading", { name: "New words of this lesson" })).toBeVisible();
+  await expect(
+    page.locator("section").getByRole("button", { name: /Cafés in Germany/ }),
+  ).toBeVisible();
 });
 
 test.describe("with a German browser", () => {
@@ -82,8 +95,7 @@ test("a free answer is checked and shows the model answers", async ({ page, requ
 
 test("answers and skips are kept: reopening shows them", async ({ page, request }) => {
   await freshLessonRun(request);
-  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
-  await page.getByRole("button", { name: "Start lesson" }).click();
+  await openStep(page, "Lena at the café");
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
   await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
@@ -107,31 +119,29 @@ test("the summary before the end lists what is left and does not complete the le
   request,
 }) => {
   await freshLessonRun(request);
-  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
-  await page.getByRole("button", { name: "Start lesson" }).click();
+  await openStep(page, "Lena at the café");
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
   await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  const plan = page.getByRole("button", { name: "Lesson plan" });
-  if (await plan.isVisible()) await plan.click();
-  await page.getByRole("button", { name: "Summary", exact: true }).click();
-  await expect(page.getByText(/7 exercises are left/)).toBeVisible();
+  await goToStep(page, "Summary");
+  // The words, the grammar, seven exercises, the culture page (and AI practice, when the shared profile
+  // has an assistant) are left.
+  await expect(page.getByText(/^\d+ steps are still to do\.$/)).toBeVisible();
   await expect(page.getByText(/Correct on the first try/)).toBeHidden();
-  await page.getByRole("button", { name: "Go to exercise 2" }).click();
-  await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
-  // Still the same run: after a reload the lesson resumes instead of showing a finished run.
+  await page.getByRole("button", { name: "Go to: Words of the lesson · 4" }).click();
+  await expect(page.getByText("1 of 4")).toBeVisible();
+  // Still the same run: after a reload the lesson resumes at the first step left.
   await page.reload();
-  await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
+  await expect(page.getByText("1 of 4")).toBeVisible();
 });
 
 test("resetting a lesson asks first and leaves it not started", async ({ page, request }) => {
   await freshLessonRun(request);
-  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
-  await page.getByRole("button", { name: "Start lesson" }).click();
+  await openStep(page, "Lena at the café");
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
   await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await goToStep(page, "Overview");
   await page.getByRole("button", { name: "Reset lesson progress" }).click();
   const dialog = page.getByRole("alertdialog");
   await expect(dialog).toContainText("cannot be undone");
@@ -172,4 +182,26 @@ test("the window title says where you are", async ({ page }) => {
   await expect(page).toHaveTitle("SprachAnker · Ex 5/8");
   await goToStep(page, "Summary");
   await expect(page).toHaveTitle("SprachAnker · Summary");
+});
+
+test("words: the cards go to Review, a word marked known is set aside", async ({
+  page,
+  request,
+}) => {
+  await openStep(page, "Words of the lesson · 4");
+  await page.getByText("Tap to see the translation").click();
+  await expect(page.getByText("coffee")).toBeVisible();
+  await page.getByRole("button", { name: "To the list" }).click();
+  // Cards persist in the shared profile: make sure the coffee is marked known, whatever an earlier run left.
+  const kaffee = page.getByRole("listitem").filter({ hasText: "der Kaffee" }).getByRole("button");
+  if ((await kaffee.getAttribute("aria-pressed")) !== "true") await kaffee.click();
+  await expect(page.getByText("3 words go to Review; 1 you know already.")).toBeVisible();
+  await page.getByRole("button", { name: "Done", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Articles" })).toBeVisible();
+  const res = await request.get(
+    `/api/cards/lesson?series=sprachanker.fixture&lessonKey=${DEMO_LESSON}`,
+  );
+  const { words } = await res.json();
+  expect(words["lex:de:kaffee:noun:m"].suspended).toBe(true);
+  expect(words["lex:de:tasse:noun:f"].suspended).toBe(false);
 });
