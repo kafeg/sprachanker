@@ -100,7 +100,8 @@
     "picture": "picture {n}",
     "correctHighlighted": "see the highlighted answer",
     "respondPlaceholder": "Your answer…",
-    "reference": "{count, plural, one {Model answer} other {Model answers}}"
+    "reference": "{count, plural, one {Model answer} other {Model answers}}",
+    "selfrateListen": "Listen to the recording and repeat after the speaker."
   },
   "word": {
     "plural": "pl. {plural}"

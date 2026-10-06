@@ -100,7 +100,8 @@
     "picture": "Bild {n}",
     "correctHighlighted": "die richtige Antwort ist markiert",
     "respondPlaceholder": "Deine Antwort…",
-    "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}"
+    "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}",
+    "selfrateListen": "Hör dir die Aufnahme an und sprich nach."
   },
   "word": {
     "plural": "Pl. {plural}"

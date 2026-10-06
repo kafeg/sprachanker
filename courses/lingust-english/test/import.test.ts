@@ -317,3 +317,23 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
     ["burn", "burnt / burned, burnt / burned", undefined],
   ]);
 });
+
+test("a recording without its own lines gets none, not an example further down", () => {
+  const html = page(`
+<h2 class="tac">Алфавит</h2>
+<p class="eg3">В алфавите 26 букв.</p>
+<div class="cplayer cplayer--center" data-src="/media/sound/eng/course/lesson1/abc.mp3"></div>
+<div class="row tac"><div class="col-6"><p>А а (эй) /eɪ/</p></div><div class="col-6"><p>В b (би:) /bi:/</p></div></div>
+<p class="eg3">Слово car: сначала британский, затем американский вариант:</p>
+<div class="row"><div class="col-12 col-md-6"><div class="cplayer" data-src="/media/sound/eng/course/lesson1/car1.mp3"></div></div><div class="col-12 col-md-6"><div class="cplayer" data-src="/media/sound/eng/course/lesson1/car2.mp3"></div></div></div>
+<p class="eg3">Дальше по тексту — диалог.</p>
+<div class="row"><div class="col-12 col-sm-6"><div>My name is Tom.</div></div><div class="col-12 col-sm-6"><div>Меня зовут Том.</div></div></div>
+`);
+  const p = parseLesson(html, BASE);
+  const snippets = p.sections.flatMap((s) => s.snippets);
+  expect(snippets.map((s) => [s.audio?.split("/").pop(), s.lines.length])).toEqual([
+    ["abc.mp3", 0],
+    ["car1.mp3", 0],
+    ["car2.mp3", 0],
+  ]);
+});

@@ -53,7 +53,9 @@ export function SpeechSelfrate({ item, answer, onAnswer }: RendererProps<"speech
           {item.text}
         </p>
       ) : (
-        <p className="text-muted-foreground">{t("ex.selfrateFree")}</p>
+        <p className="text-muted-foreground">
+          {item.media?.audio || item.media?.video ? t("ex.selfrateListen") : t("ex.selfrateFree")}
+        </p>
       )}
       <p className="text-sm text-muted-foreground">{t("ex.selfrate")}</p>
       <div className="flex flex-wrap gap-2">

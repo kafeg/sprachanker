@@ -186,13 +186,20 @@ function exampleLines(el: El): Line[] | undefined {
 type Place = Array<{ els: El[]; i: number }>;
 
 /**
- * Text of a player: the next example block, else (a table read after it is shown) the previous;
- * a player alone in a column looks around its row.
+ * Text of a player: the next example block, else (a table read after it is shown) the previous, up to
+ * the next heading or recording outside an example block. A player alone in its container (a column)
+ * looks around that container. Players grouped in a container with no text of its own (the same word in
+ * two accents) belong to what was shown before them, so above it they only look back. A recording
+ * without its own lines (the whole alphabet) thus gets none rather than an example further down.
  */
 function snippetLines(place: Place): Line[] {
-  const stop = (el: El) => isPlayer(el) || isHeading(el);
-  for (const { els, i } of [...place].reverse()) {
-    for (let j = i + 1; j < els.length && !stop(els[j] as El); j++) {
+  const holdsPlayer = (el: El) => isPlayer(el) || !!find(el, isPlayer);
+  const stop = (el: El) => isPlayer(el) || isHeading(el) || (holdsPlayer(el) && !exampleLines(el));
+  const blank = (el: El) => !holdsPlayer(el) && textOf(el) === "";
+  let grouped = false;
+  for (let level = place.length - 1; level >= 0; level--) {
+    const { els, i } = place[level] as Place[number];
+    for (let j = i + 1; !grouped && j < els.length && !stop(els[j] as El); j++) {
       const found = exampleLines(els[j] as El);
       if (!found) continue;
       // A parallel text: consecutive rows.
@@ -204,6 +211,11 @@ function snippetLines(place: Place): Line[] {
       const found = exampleLines(els[j] as El);
       if (found) return found;
     }
+    const others = els.filter((e, j) => j !== i && !blank(e));
+    const parent = level > 0 ? place[level - 1] : undefined;
+    const container = parent?.els[parent.i];
+    if (others.length && others.every(holdsPlayer) && container && textOf(container) === "")
+      grouped = true;
   }
   return [];
 }

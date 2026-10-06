@@ -100,7 +100,8 @@
     "picture": "картинка {n}",
     "correctHighlighted": "правильный ответ выделен",
     "respondPlaceholder": "Ваш ответ…",
-    "reference": "{count, plural, one {Образец ответа} few {Образцы ответа} many {Образцы ответа} other {Образцы ответа}}"
+    "reference": "{count, plural, one {Образец ответа} few {Образцы ответа} many {Образцы ответа} other {Образцы ответа}}",
+    "selfrateListen": "Прослушайте запись и повторите за диктором."
   },
   "word": {
     "plural": "мн. {plural}"
