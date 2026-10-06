@@ -255,6 +255,14 @@ test("new words: bold in the transcript, split tags joined, sub-headings skipped
   ).toEqual(["to go", "go"]);
 });
 
+test("inflected duplicates go when the base form is a new word too", () => {
+  expect(
+    boldWords(
+      "<p>A <b>watch</b>, <b>watching</b>, <b>dance</b>, <b>danced</b>, <b>stop</b>, <b>stopped</b>, <b>city</b>, <b>cities</b>, <b>news</b>, <b>pay in cash</b>, <b>pay in cashes</b>.</p>",
+    ),
+  ).toEqual(["watch", "dance", "stop", "city", "news", "pay in cash", "pay in cashes"]);
+});
+
 test.each([
   ["apples", { lemma: "apples", pos: "word" }],
   ["to buy", { lemma: "to buy", pos: "verb" }],
@@ -345,7 +353,8 @@ test("normalisation: valid files, keys, exercises with answers, vocabulary, tabs
   });
   const [speech, quiz] = lesson.pages.map((p) => p.exercise);
   expect(speech?.type).toBe("speech_selfrate");
-  expect(speech?.media).toEqual({ video: "media/video/speak.mp4" });
+  expect(speech?.media).toBeUndefined();
+  expect(speech?.items[0]?.media).toEqual({ video: "media/video/speak.mp4" });
   expect(quiz?.type).toBe("single_choice");
   expect(quiz?.key as string).toBe("voa.lets-learn-english/level-2/01-01/ex-02");
   if (quiz?.type !== "single_choice") throw new Error("quiz type");

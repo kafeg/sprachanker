@@ -122,7 +122,32 @@ export function boldWords(html: string): string[] {
       words.push(word);
     }
   }
-  return words;
+  return words.filter((w) => !inflectionOf(w, words));
+}
+
+/**
+ * Whether `word` is a regular inflection of another bold word of the lesson ("parks" with "park",
+ * "watching" with "watch", "danced" with "dance"): the base form stays, the duplicate goes.
+ */
+export function inflectionOf(word: string, words: string[]): boolean {
+  const w = word.toLowerCase();
+  return words.some((other) => {
+    const b = other.toLowerCase();
+    if (b === w || /\s/.test(b)) return false;
+    const stem = b.endsWith("e") ? b.slice(0, -1) : b;
+    const doubled = b + b.at(-1);
+    return [
+      `${b}s`,
+      `${b}es`,
+      `${b}d`,
+      `${b}ed`,
+      `${b}ing`,
+      `${stem}ing`,
+      `${doubled}ed`,
+      `${doubled}ing`,
+      ...(b.endsWith("y") ? [`${b.slice(0, -1)}ies`, `${b.slice(0, -1)}ied`] : []),
+    ].includes(w);
+  });
 }
 
 // --- lesson plan (what each section becomes) ------------------------------------------------------
@@ -369,10 +394,10 @@ function normaliseExercise(
       exercise: withFingerprint({
         key,
         type: "speech_selfrate",
-        media: { video },
         newWords: [],
         ruleIds: [],
-        items: [{ key: itemKey(key, 1) }],
+        // The video is the item's stimulus: an item with media and no text is "listen and repeat".
+        items: [{ key: itemKey(key, 1), media: { video } }],
       }),
       locale,
       unknown: false,
