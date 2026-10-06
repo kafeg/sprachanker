@@ -130,7 +130,7 @@ export function createApp(config: AppConfig) {
         const { series, course, edition } = c.req.valid("query");
         const map = await content.courseMap(series, course, edition);
         const lessons = map.index.units.flatMap((u) => u.lessons) as LessonKey[];
-        return c.json({ ...map, lessons: await runs.lessonStates(series, lessons, edition) });
+        return c.json({ ...map, lessons: await runs.lessonStates(series, lessons) });
       },
     )
     // A course's integrity and counts, and syncing it with its source (re-import).
@@ -171,10 +171,10 @@ export function createApp(config: AppConfig) {
     )
     .get(
       "/runs/lesson",
-      zod("query", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
+      zod("query", z.object({ series: Series, lessonKey: LessonKey })),
       async (c) => {
-        const { series, lessonKey, edition } = c.req.valid("query");
-        return c.json({ state: await runs.lessonState(series, lessonKey, edition) });
+        const { series, lessonKey } = c.req.valid("query");
+        return c.json({ state: await runs.lessonState(series, lessonKey) });
       },
     )
     .post(

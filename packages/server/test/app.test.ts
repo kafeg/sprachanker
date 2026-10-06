@@ -92,7 +92,7 @@ describe("runs", () => {
   test("opening a lesson starts nothing; skips are stored; a finished run is shown; restart", async () => {
     const api = await setup();
     const { getJson, sendJson, send } = api;
-    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" });
+    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON });
     expect((await getJson(`/api/runs/lesson?${q}`)).state).toBeNull();
     expect((await getJson("/api/courses"))[0].nextStarted).toBe(false);
 
@@ -211,7 +211,7 @@ describe("runs", () => {
       })
       .where(eq(runs.id, run.id))
       .run();
-    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" });
+    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON });
     expect((await getJson(`/api/runs/lesson?${q}`)).state).toBeNull();
     const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
     expect(map.lessons[LESSON]).toBeUndefined();

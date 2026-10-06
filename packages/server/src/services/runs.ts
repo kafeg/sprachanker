@@ -116,18 +116,16 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
 
   /**
    * The run a lesson shows — in the player, on the course map and in the session review: its active
-   * run (in `edition`, when given), else its latest completed run.
+   * run (a lesson has one, in whichever edition it was started), else its latest completed run.
    */
-  const shownRun = async (lessonKey: string, edition?: string) => {
+  const shownRun = async (lessonKey: string) => {
     const lessonRuns = db
       .select()
       .from(runs)
       .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
       .orderBy(desc(runs.startedAt), desc(runs.id))
       .all();
-    const active = lessonRuns.find(
-      (r) => r.status === "active" && (!edition || r.edition === edition),
-    );
+    const active = lessonRuns.find((r) => r.status === "active");
     if (active) return active;
     for (const r of lessonRuns) if (await completed(r)) return r;
     return undefined;
@@ -161,15 +159,11 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
     },
 
     /** Each lesson's state for the course map, read like the player reads it. */
-    async lessonStates(
-      series: string,
-      lessons: LessonKey[],
-      edition: string,
-    ): Promise<Record<string, LessonState>> {
+    async lessonStates(series: string, lessons: LessonKey[]): Promise<Record<string, LessonState>> {
       const byLesson = await progress();
       const out: Record<string, LessonState> = {};
       for (const key of lessons) {
-        const row = await shownRun(key, edition);
+        const row = await shownRun(key);
         if (!row) continue;
         const lesson = await content.lesson(series, key);
         const coverage = lessonCoverage(lesson, exerciseResults(runEvents(db, row.id)));
@@ -188,11 +182,11 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
     },
 
     /**
-     * What the lesson shows on opening, without starting anything: its active run in this edition, else
+     * What the lesson shows on opening, without starting anything: its active run, else
      * its latest completed run (read-only), else null.
      */
-    async lessonState(series: string, lessonKey: LessonKey, edition: string) {
-      const row = await shownRun(lessonKey, edition);
+    async lessonState(series: string, lessonKey: LessonKey) {
+      const row = await shownRun(lessonKey);
       if (!row?.courseKey?.startsWith(`${series}/`)) return null;
       const list = runEvents(db, row.id);
       return { run: toRun(row), events: list, resumePage: resumePage(list) };

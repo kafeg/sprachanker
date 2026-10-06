@@ -132,7 +132,7 @@ only once it has an `answered` or `item_skipped` event.
 - One server process owns all DB files (WAL mode); devices are clients.
 - One active run per (profile, context) and one active review run per profile. Any device of the
   profile may continue it; events from all devices are stored (idempotent by id).
-- **Opening a lesson starts nothing**: it shows the active run in its edition (resumed on its last page,
+- **Opening a lesson starts nothing**: it shows its active run (in whichever edition it was started) (resumed on its last page,
   every exercise with its latest answers and outcomes), else the latest finished run read-only, else the
   overview. A run starts with "Start" (or with opening a page); "Start over" ends the active run
   `abandoned/user` and begins a new one.
