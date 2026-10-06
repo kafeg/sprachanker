@@ -1,5 +1,5 @@
 // Installed course content for the API: course list, course map, lessons (cached; files are immutable
-// until an import or update replaces them).
+// until an import or sync replaces them — a sync calls `forget` for its course).
 import type { LibraryView } from "@sprachanker/course-kit";
 import type {
   CourseIndex,
@@ -46,6 +46,12 @@ export function createContent(library: LibraryView) {
   return {
     lesson,
     localeLesson,
+    /** Drops the cached lessons of a course whose files were replaced. */
+    forget(series: string, course: string) {
+      const prefix = `${series}|${series}/${course}/`;
+      for (const cache of [lessons, locales])
+        for (const id of cache.keys()) if (id.startsWith(prefix)) cache.delete(id);
+    },
     async courses(): Promise<CourseSummary[]> {
       return Promise.all(
         library.courses().map(async ({ series, course, editions }) => {

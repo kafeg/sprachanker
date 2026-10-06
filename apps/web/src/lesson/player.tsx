@@ -199,6 +199,10 @@ export function LessonPlayer({
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
   const coverage = lessonCoverage(lesson, run.results);
+  // Items right at the first attempt in the run shown (the score itself also weighs partial answers).
+  const firstCorrect = Object.values(run.results)
+    .flatMap((r) => Object.values(r.first))
+    .filter((o) => o.result === "correct").length;
   const done = coverage.worked;
   const numbers = parseLessonKey(lesson.key);
   const unitTitle = map.data?.locale?.units[lesson.unit]?.title;
@@ -319,7 +323,7 @@ export function LessonPlayer({
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-medium">
                         {result && result.scored > 0
-                          ? t("lesson.doneScore", { score: Math.round(result.score * 100) })
+                          ? t("lesson.doneScore", { score: result.score })
                           : t("lesson.done")}
                       </span>
                       <Button size="lg" variant="outline" onClick={() => show("summary")}>
@@ -390,7 +394,7 @@ export function LessonPlayer({
                     {result && (
                       <span className="pb-2 text-muted-foreground">
                         {t("lesson.score", {
-                          correct: Math.round(result.score * result.scored),
+                          correct: firstCorrect,
                           scored: result.scored,
                         })}
                       </span>

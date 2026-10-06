@@ -25,7 +25,12 @@ export interface SyncJob {
 
 const LOG_LINES = 200;
 
-export function createSync(deps: { run?: SyncCourse; now: () => number }) {
+export function createSync(deps: {
+  run?: SyncCourse;
+  now: () => number;
+  /** Called when a job ends (done or failed): the course's files may have changed. */
+  onEnd?: (series: string, course: string) => void;
+}) {
   const jobs = new Map<string, SyncJob>();
   const keyOf = (series: string, course: string) => `${series}/${course}`;
 
@@ -66,6 +71,7 @@ export function createSync(deps: { run?: SyncCourse; now: () => number }) {
         })
         .finally(() => {
           job.finishedAt = deps.now();
+          deps.onEnd?.(series, course);
         });
       return job;
     },

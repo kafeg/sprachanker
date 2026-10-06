@@ -9,7 +9,7 @@ import type { LessonKey, LessonResult, Outcome, Run, StoredEvent } from "@sprach
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ulid } from "ulid";
-import { api, json } from "@/api/client.ts";
+import { ApiError, api, json } from "@/api/client.ts";
 
 export type { ExerciseResult } from "@sprachanker/engine";
 
@@ -36,8 +36,9 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const [resumePage, setResumePage] = useState(-1);
   const [events, setEvents] = useState<StoredEvent[]>([]);
   const [error, setError] = useState<unknown>();
+  const [reload, setReload] = useState(0);
   const queue = useRef<Pending[]>([]);
-  const sending = useRef(false);
+  const sending = useRef<Promise<void> | null>(null);
   const runId = run?.status === "active" ? run.id : undefined;
   const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
 
@@ -48,6 +49,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     setMode(!state ? "none" : state.run.status === "active" ? "active" : "finished");
   }, []);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `reload` re-reads the run on purpose
   useEffect(() => {
     if (!edition) return;
     let cancelled = false;
@@ -58,27 +60,55 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     return () => {
       cancelled = true;
     };
-  }, [series, lessonKey, edition, load]);
+  }, [series, lessonKey, edition, load, reload]);
 
-  const flush = useCallback(async () => {
-    if (!runId || sending.current || !queue.current.length) return;
-    sending.current = true;
-    const batch = queue.current.slice(0, 50);
-    try {
-      await json(api.runs[":id"].events.$post({ param: { id: runId }, json: { events: batch } }));
-      queue.current = queue.current.slice(batch.length);
-    } catch {
-      setTimeout(() => void flush(), 3000);
-    } finally {
-      sending.current = false;
-    }
-    if (queue.current.length) void flush();
+  /** Sends queued events in order; resolves once the queue is empty (events queued meanwhile
+   *  included). Network failures are retried; events the server refuses (4xx) are dropped, since
+   *  sending them again cannot succeed, and the run is read again from the server. */
+  const flush = useCallback((): Promise<void> => {
+    if (!runId) return Promise.resolve();
+    if (sending.current) return sending.current;
+    const send = async () => {
+      while (queue.current.length) {
+        const batch = queue.current.slice(0, 50);
+        try {
+          await json(
+            api.runs[":id"].events.$post({ param: { id: runId }, json: { events: batch } }),
+          );
+          queue.current = queue.current.slice(batch.length);
+        } catch (e) {
+          if (e instanceof ApiError && e.status && e.status < 500) {
+            queue.current = queue.current.slice(batch.length);
+            setReload((n) => n + 1);
+          } else await new Promise((resolve) => setTimeout(resolve, 3000));
+        }
+      }
+    };
+    sending.current = send().finally(() => {
+      sending.current = null;
+    });
+    return sending.current;
   }, [runId]);
 
   // Events queued while the run was being started go out as soon as it exists.
   useEffect(() => {
     void flush();
   }, [flush]);
+
+  // Leaving or reloading the page: what is still queued goes out with `keepalive`, which outlives the
+  // page (events are idempotent by id, so one also in flight is stored once).
+  useEffect(() => {
+    if (!runId) return;
+    const onHide = () => {
+      if (!queue.current.length) return;
+      void api.runs[":id"].events.$post(
+        { param: { id: runId }, json: { events: queue.current.slice(0, 50) } },
+        { init: { keepalive: true } },
+      );
+    };
+    window.addEventListener("pagehide", onHide);
+    return () => window.removeEventListener("pagehide", onHide);
+  }, [runId]);
 
   /** Queues events for the server and applies them here at once, answers with their local outcome. */
   const record = useCallback(
@@ -110,11 +140,17 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     void client.invalidateQueries({ queryKey: ["course"] });
   }, [client]);
 
-  /** Completes the active run (every exercise worked) and returns its result. */
+  /** Completes the active run (every exercise worked) once all its events are stored, and returns
+   *  its result. If the server finds exercises left, the run is read again from it. */
   const finish = useCallback(async (): Promise<LessonResult | null> => {
     await flush();
     if (!runId) return null;
-    const finished = (await json(api.runs[":id"].finish.$post({ param: { id: runId } }))) as Run;
+    const finished = (await json(api.runs[":id"].finish.$post({ param: { id: runId } })).catch(
+      (e) => {
+        setReload((n) => n + 1);
+        throw e;
+      },
+    )) as Run;
     setRun(finished);
     setMode("finished");
     refreshProgress();

@@ -57,16 +57,14 @@ const kindRank = (kind: string) => {
 
 const chip = "inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 text-xs";
 
+/** Share of lessons done, 0..1, as a ring with the percentage inside. */
 function ProgressRing({ value }: { value: number }) {
+  const { i18n } = useTranslation();
+  const text = new Intl.NumberFormat(i18n.language, { style: "percent" }).format(value);
   const r = 30;
   const length = 2 * Math.PI * r;
   return (
-    <svg
-      viewBox="0 0 76 76"
-      className="size-16 shrink-0 sm:size-20"
-      role="img"
-      aria-label={`${value}%`}
-    >
+    <svg viewBox="0 0 76 76" className="size-16 shrink-0 sm:size-20" role="img" aria-label={text}>
       <circle cx="38" cy="38" r={r} fill="none" strokeWidth="8" className="stroke-primary/20" />
       <circle
         cx="38"
@@ -75,12 +73,12 @@ function ProgressRing({ value }: { value: number }) {
         fill="none"
         strokeWidth="8"
         strokeLinecap="round"
-        strokeDasharray={`${(value / 100) * length} ${length}`}
+        strokeDasharray={`${value * length} ${length}`}
         transform="rotate(-90 38 38)"
         className="stroke-primary"
       />
       <text x="38" y="43" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">
-        {value}%
+        {text}
       </text>
     </svg>
   );
@@ -136,6 +134,7 @@ export function CourseHero(props: CourseHeroProps) {
     if (!finishedAt) return;
     void client.invalidateQueries({ queryKey: ["course-check", series, course] });
     void client.invalidateQueries({ queryKey: ["course", series, course] });
+    void client.invalidateQueries({ queryKey: ["lesson", series] });
     void client.invalidateQueries({ queryKey: ["courses"] });
   }, [finishedAt, client, series, course]);
   useEffect(() => {
@@ -146,14 +145,14 @@ export function CourseHero(props: CourseHeroProps) {
   const pair = parseEditionId(edition);
   const r = check.data;
   const exercises = r ? Object.values(r.exercises).reduce((a, b) => a + b, 0) : 0;
-  const percent = Math.round((done / Math.max(1, lessons)) * 100);
+  const share = done / Math.max(1, lessons);
   const nextKey = next && parseLessonKey(next.key);
 
   return (
     <section className="mb-8 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-center gap-4 sm:gap-5">
         <div className="flex min-w-0 flex-1 basis-80 items-center gap-4 sm:gap-5">
-          <ProgressRing value={percent} />
+          <ProgressRing value={share} />
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold sm:text-4xl">{title}</h1>
             <div className="my-2 flex flex-wrap gap-1.5">

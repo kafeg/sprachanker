@@ -102,7 +102,7 @@
     "itemAudio": "Audio for item {n}",
     "redo": "Start over",
     "done": "Done",
-    "doneScore": "Done · {score}% right",
+    "doneScore": "Done · {score, number, percent} right",
     "left": "{count, plural, one {# exercise is} other {# exercises are}} left. The lesson counts as done once every exercise is answered or skipped.",
     "toExercise": "Go to exercise {n}"
   },

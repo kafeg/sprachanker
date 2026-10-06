@@ -1,5 +1,6 @@
 // LLM practice around a lesson (07): the writing task and, later, the session review. Each check is an
 // `llm_verdict` event in the lesson's `practice` run (05), so attempts stay in the learner's history.
+import { exerciseResults } from "@sprachanker/engine";
 import {
   checkWritingTask,
   cleanWritingCheck,
@@ -14,7 +15,6 @@ import {
   writingTopic,
 } from "@sprachanker/llm";
 import {
-  type AnsweredPayload,
   type ExerciseKey,
   type ItemKey,
   type LessonKey,
@@ -28,6 +28,7 @@ import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
 import type { Mistakes } from "./mistakes.ts";
+import { runEvents, shownLessonRun } from "./runs.ts";
 
 export interface WritingRequest {
   series: string;
@@ -112,27 +113,15 @@ export function createPractice(deps: {
     return { ts, result, model };
   }
 
-  /** First attempts of the lesson's latest run: item → result, and when the last answer came. */
+  /** First attempts in the run the lesson shows (as the player reads it): item → result, and when
+   *  the last answer came. */
   function latestSession(lessonKey: string) {
-    const run = db
-      .select()
-      .from(runs)
-      .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
-      .orderBy(desc(runs.startedAt))
-      .get();
+    const run = shownLessonRun(db, lessonKey);
+    const list = run ? runEvents(db, run.id) : [];
     const first = new Map<string, string>();
-    let lastTs = 0;
-    if (run) {
-      for (const e of db
-        .select()
-        .from(events)
-        .where(and(eq(events.runId, run.id), eq(events.type, "answered")))
-        .all()) {
-        lastTs = Math.max(lastTs, e.ts);
-        const p = JSON.parse(e.payloadJson) as Pick<AnsweredPayload, "attempt" | "outcome">;
-        if (p.attempt === 1 && e.itemKey) first.set(e.itemKey, p.outcome.result);
-      }
-    }
+    for (const r of Object.values(exerciseResults(list)))
+      for (const [item, outcome] of Object.entries(r.first)) first.set(item, outcome.result);
+    const lastTs = Math.max(0, ...list.filter((e) => e.type === "answered").map((e) => e.ts));
     return { first, lastTs };
   }
 

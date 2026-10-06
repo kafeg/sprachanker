@@ -58,7 +58,11 @@ export function createApp(config: AppConfig) {
   const now = config.now ?? Date.now;
   const content = createContent(config.library);
   const settings = createSettings(config.profile);
-  const sync = createSync({ run: config.syncCourse, now });
+  const sync = createSync({
+    run: config.syncCourse,
+    now,
+    onEnd: (series, course) => content.forget(series, course),
+  });
   const llm = createLlm({
     db: config.profile,
     settings,

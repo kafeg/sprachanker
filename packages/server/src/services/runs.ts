@@ -62,6 +62,30 @@ const toEvent = (e: EventRow): StoredEvent => ({
   payload: JSON.parse(e.payloadJson),
 });
 
+/** Events of a run in the order they were stored. */
+export const runEvents = (db: ProfileDb, runId: string) =>
+  db
+    .select()
+    .from(events)
+    .where(eq(events.runId, runId))
+    .orderBy(asc(events.ts), asc(events.id))
+    .all()
+    .map(toEvent);
+
+/** The run a lesson shows: its active run (in `edition`, when given), else its latest finished run. */
+export function shownLessonRun(db: ProfileDb, lessonKey: string, edition?: string) {
+  const lessonRuns = db
+    .select()
+    .from(runs)
+    .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
+    .orderBy(desc(runs.startedAt), desc(runs.id))
+    .all();
+  return (
+    lessonRuns.find((r) => r.status === "active" && (!edition || r.edition === edition)) ??
+    lessonRuns.find((r) => r.status === "finished")
+  );
+}
+
 export interface RunsOptions {
   db: ProfileDb;
   content: Content;
@@ -84,14 +108,6 @@ export function courseProgress(lessons: string[], progress: Record<string, Lesso
 }
 
 export function createRuns({ db, content, now, appVersion }: RunsOptions) {
-  const runEvents = (runId: string) =>
-    db
-      .select()
-      .from(events)
-      .where(eq(events.runId, runId))
-      .orderBy(asc(events.ts), asc(events.id))
-      .all()
-      .map(toEvent);
   const getRun = (id: string) => {
     const row = db.select().from(runs).where(eq(runs.id, id)).get();
     if (!row) throw new RunError(`no run ${id}`, 404);
@@ -121,17 +137,9 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
      * its latest finished run (read-only), else null.
      */
     lessonState(series: string, lessonKey: LessonKey, edition: string) {
-      const lessonRuns = db
-        .select()
-        .from(runs)
-        .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
-        .orderBy(desc(runs.startedAt), desc(runs.id))
-        .all();
-      const row =
-        lessonRuns.find((r) => r.status === "active" && r.edition === edition) ??
-        lessonRuns.find((r) => r.status === "finished");
+      const row = shownLessonRun(db, lessonKey, edition);
       if (!row?.courseKey?.startsWith(`${series}/`)) return null;
-      const list = runEvents(row.id);
+      const list = runEvents(db, row.id);
       return { run: toRun(row), events: list, resumePage: resumePage(list) };
     },
 
@@ -171,7 +179,7 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
           .get();
       if (!row.courseKey?.startsWith(`${series}/`))
         throw new RunError("lesson is not in this series");
-      const list = runEvents(row.id);
+      const list = runEvents(db, row.id);
       return { run: toRun(row), events: list, resumePage: resumePage(list) };
     },
 
@@ -246,7 +254,7 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
     async finish(runId: string): Promise<Run> {
       const row = getRun(runId);
       if (row.status !== "active") return toRun(row);
-      const list = runEvents(runId);
+      const list = runEvents(db, runId);
       const lesson = await content.lesson(seriesOf(row), row.contextKey as LessonKey);
       if (!lessonCoverage(lesson, exerciseResults(list)).complete)
         throw new RunError("run_incomplete", 409);

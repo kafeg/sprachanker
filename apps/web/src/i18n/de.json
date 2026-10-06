@@ -102,7 +102,7 @@
     "itemAudio": "Audio zu Aufgabe {n}",
     "redo": "Neu beginnen",
     "done": "Erledigt",
-    "doneScore": "Erledigt · {score} % richtig",
+    "doneScore": "Erledigt · {score, number, percent} richtig",
     "left": "{count, plural, one {# Übung ist} other {# Übungen sind}} noch offen. Die Lektion gilt als erledigt, wenn jede Übung beantwortet oder übersprungen ist.",
     "toExercise": "Zu Übung {n}"
   },
