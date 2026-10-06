@@ -5,12 +5,6 @@ import { cn } from "@/ui/utils.ts";
 import { OptionContent, useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
-/** Ordered parts as text: words with spaces (punctuation attached), letters without. */
-export function joinParts(parts: Option[], ids: string[], join: "space" | "none") {
-  const words = ids.map((id) => parts.find((p) => p.id === id)?.text ?? "");
-  return join === "none" ? words.join("") : words.join(" ").replace(/ ([.,!?;:])/g, "$1");
-}
-
 export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"order">) {
   const { t } = useTranslation();
   const pool = useShuffled(item.parts, item.key);

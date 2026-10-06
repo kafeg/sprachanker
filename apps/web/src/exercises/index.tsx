@@ -1,10 +1,10 @@
 // Exercise renderers by type (root rule 2: every type has a renderer). No API calls here.
-import type { Exercise } from "@sprachanker/schema";
+import { type Exercise, joinParts } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { MultiChoice, SingleChoice } from "./choice.tsx";
 import { GapChoice, GapText } from "./gaps.tsx";
 import { Match } from "./match.tsx";
-import { joinParts, Order } from "./order.tsx";
+import { Order } from "./order.tsx";
 import { Respond } from "./respond.tsx";
 import { Dictation, SpeechSelfrate } from "./speech.tsx";
 import type { Answers, ItemOf, RendererProps } from "./types.ts";
@@ -58,7 +58,10 @@ export function correctAnswer(exercise: Exercise, index: number): string | undef
       const it = item as ItemOf<"order">;
       return it.parts.some((p) => p.media)
         ? undefined
-        : joinParts(it.parts, it.answer.sequence, it.join);
+        : joinParts(
+            it.answer.sequence.map((id) => it.parts.find((p) => p.id === id)?.text ?? ""),
+            it.join,
+          );
     }
     case "dictation":
       return (item as ItemOf<"dictation">).answer.accepted[0];

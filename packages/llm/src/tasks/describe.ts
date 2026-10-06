@@ -5,6 +5,7 @@ import {
   type Exercise,
   GapChoiceAnswer,
   GapTextAnswer,
+  joinParts,
   type LocaleExercise,
   MatchAnswer,
   MultiChoiceAnswer,
@@ -87,10 +88,11 @@ export function describeItem(
     }
     case "order": {
       const it = item as ItemOf<"order">;
-      const joined = (ids: string[]) => {
-        const parts = ids.map((id) => it.parts.find((p) => p.id === id)).map((p) => p && label(p));
-        return it.join === "none" ? parts.join("") : parts.join(" ").replace(/ ([.,!?;:])/g, "$1");
-      };
+      const joined = (ids: string[]) =>
+        joinParts(
+          ids.map((id) => it.parts.find((p) => p.id === id)).map((p) => p && label(p)),
+          it.join,
+        );
       const given = parse(OrderAnswer);
       return {
         task: task([`Put these parts in the right order: ${it.parts.map(label).join(" / ")}`]),

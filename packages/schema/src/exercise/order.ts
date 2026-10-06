@@ -12,3 +12,7 @@ export const OrderItem = ItemBase.extend({
 export const OrderAnswer = z.object({ sequence: z.array(OptionId) });
 export const OrderExercise = exerciseOf("order", OrderItem);
 export type OrderAnswer = z.infer<typeof OrderAnswer>;
+
+/** Ordered parts as text: words with spaces (punctuation attached), letters (`join: "none"`) without. */
+export const joinParts = (texts: Array<string | undefined>, join: "space" | "none") =>
+  join === "none" ? texts.join("") : texts.join(" ").replace(/ ([.,!?;:])/g, "$1");

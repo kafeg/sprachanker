@@ -14,7 +14,7 @@ export interface LessonInfo {
 }
 
 /** "der Kaffee (coffee)". */
-export const wordWithTranslation = (v: LessonInfo["vocab"][number]) =>
+const wordWithTranslation = (v: LessonInfo["vocab"][number]) =>
   v.translation ? `${v.target} (${v.translation})` : v.target;
 
 export const goalsLine = (lesson: Pick<LessonInfo, "goals">) =>

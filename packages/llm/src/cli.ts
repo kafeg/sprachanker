@@ -18,7 +18,7 @@ export interface CliRun {
 export type CliRunner = (run: CliRun) => AsyncIterable<string>;
 
 /** Shown for "Check connection": the CLIs take model aliases or full names. */
-export const CLI_MODELS: Record<CliKind, Array<{ id: string; name: string }>> = {
+const CLI_MODELS: Record<CliKind, Array<{ id: string; name: string }>> = {
   claude: [
     { id: "sonnet", name: "Claude Sonnet (latest)" },
     { id: "opus", name: "Claude Opus (latest)" },

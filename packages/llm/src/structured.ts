@@ -12,7 +12,7 @@ export interface StructuredTask<T> {
 }
 
 /** The JSON Schema of a zod schema, as providers take it. */
-export function jsonSchemaOf(schema: z.ZodType): Record<string, unknown> {
+function jsonSchemaOf(schema: z.ZodType): Record<string, unknown> {
   const { $schema: _, ...rest } = z.toJSONSchema(schema) as Record<string, unknown>;
   return rest;
 }
