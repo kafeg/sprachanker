@@ -3,7 +3,8 @@ import type { LessonResult, Outcome, Run, StoredEvent } from "@sprachanker/schem
 
 export interface LessonProgress {
   status: "new" | "in_progress" | "done";
-  /** Best score of finished runs, 0..1. */
+  /** Best score of finished runs that scored any item, 0..1; absent when none did (e.g. a lesson of
+   *  words only). */
   bestScore?: number;
   activeRunId?: string;
   finishedRuns: number;
@@ -44,8 +45,7 @@ export function lessonProgress(runs: Run[]): Map<string, LessonProgress> {
     if (run.status === "finished") {
       p.finishedRuns++;
       p.status = "done";
-      const score = run.result?.score;
-      if (score !== undefined) p.bestScore = Math.max(p.bestScore ?? 0, score);
+      if (run.result?.scored) p.bestScore = Math.max(p.bestScore ?? 0, run.result.score);
     } else if (run.status === "active") {
       p.activeRunId = run.id;
       if (p.status === "new") p.status = "in_progress";

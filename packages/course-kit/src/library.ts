@@ -8,10 +8,8 @@ import {
   type EditionId,
   issuesText,
   Lesson,
-  type LessonKey,
   LocaleCourse,
   LocaleLesson,
-  type MediaPath,
   parseLessonKey,
 } from "@sprachanker/schema";
 import type { z } from "zod";

@@ -33,8 +33,9 @@
     "status": {
       "new": "Не начат",
       "in_progress": "В процессе",
-      "done": "Пройден · {score}%",
-      "next": "Следующий"
+      "done": "Пройден · {score, number, percent}",
+      "next": "Следующий",
+      "finished": "Пройден"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",

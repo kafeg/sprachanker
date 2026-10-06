@@ -38,6 +38,7 @@ test("lesson status and best score over runs", () => {
     run("2", "x/a1/00-01", "finished", 2, 0.9),
     run("3", "x/a1/00-01", "active", 3),
     run("4", "x/a1/00-02", "active", 4),
+    { ...run("5", "x/a1/00-04", "finished", 5, 0), result: { score: 0, scored: 0, answered: 0 } },
   ]);
   expect(progress.get("x/a1/00-01")).toEqual({
     status: "done",
@@ -51,4 +52,6 @@ test("lesson status and best score over runs", () => {
     finishedRuns: 0,
   });
   expect(progress.get("x/a1/00-03")).toBeUndefined();
+  // A lesson with nothing to score (words only) is done without a score.
+  expect(progress.get("x/a1/00-04")).toEqual({ status: "done", finishedRuns: 1 });
 });

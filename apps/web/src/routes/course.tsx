@@ -48,7 +48,9 @@ function LessonCard({
         {status === "done" ? (
           <span className="flex items-center gap-1 text-correct">
             <CheckCircle2 className="size-3.5" />
-            {t("course.status.done", { score: Math.round((progress?.bestScore ?? 0) * 100) })}
+            {progress?.bestScore === undefined
+              ? t("course.status.finished")
+              : t("course.status.done", { score: progress.bestScore })}
           </span>
         ) : status === "in_progress" ? (
           <span className="flex items-center gap-1 font-medium">

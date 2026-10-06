@@ -33,8 +33,9 @@
     "status": {
       "new": "Nicht begonnen",
       "in_progress": "Begonnen",
-      "done": "Erledigt · {score} %",
-      "next": "Als Nächstes"
+      "done": "Erledigt · {score, number, percent}",
+      "next": "Als Nächstes",
+      "finished": "Erledigt"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",

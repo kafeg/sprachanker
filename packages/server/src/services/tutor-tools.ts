@@ -58,7 +58,10 @@ export function createTutorTools(deps: {
               .filter((k) => progress[k]?.status === "done")
               .map(async (k) => ({
                 lesson: await title(k),
-                bestScore: Math.round((progress[k]?.bestScore ?? 0) * 100),
+                bestScore:
+                  progress[k]?.bestScore === undefined
+                    ? null
+                    : Math.round(progress[k].bestScore * 100),
               })),
           );
           const inProgress = await Promise.all(
