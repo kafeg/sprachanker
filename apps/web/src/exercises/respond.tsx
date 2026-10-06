@@ -1,8 +1,10 @@
 // respond: a free answer (a translation, a sentence of one's own). Without a rubric it is not scored:
 // after checking, the model answer(s) of the course are shown to compare with. A translation into the
 // learner's language (`answerIn: "learner"`) has its model answers in the locale item.
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
+import { SpecialLetters } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 export function Respond({ item, locale, answer, onAnswer, outcome }: RendererProps<"respond">) {
@@ -11,8 +13,9 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
   const learner = item.answerIn === "learner";
   const lang = learner ? i18n.language : target;
   const reference = [...item.reference, ...(locale?.reference ?? [])];
+  const scope = useRef<HTMLDivElement>(null);
   return (
-    <div className="space-y-3">
+    <div ref={scope} className="space-y-3">
       <textarea
         rows={2}
         lang={lang}
@@ -22,6 +25,7 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
         onChange={(e) => onAnswer({ text: e.target.value })}
         className="w-full rounded-xl border-2 border-input bg-card p-3 text-xl"
       />
+      {!outcome && !learner && <SpecialLetters scope={scope} />}
       {outcome && reference.length > 0 && (
         <div className="rounded-xl bg-muted px-4 py-3">
           <p className="text-sm font-medium text-muted-foreground">

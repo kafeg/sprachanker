@@ -1,10 +1,10 @@
 import { correctOptions, type Option, type Outcome } from "@sprachanker/schema";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
-import { PickSelect, useShuffled } from "./shared.tsx";
+import { PickSelect, SpecialLetters, useShuffled } from "./shared.tsx";
 import type { ItemOf, RendererProps } from "./types.ts";
 
 type Segments = ItemOf<"gap_text">["segments"];
@@ -180,36 +180,41 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
 export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_text">) {
   const { t } = useTranslation();
   const values = answer ?? {};
+  const scope = useRef<HTMLDivElement>(null);
   return (
-    <Text
-      segments={item.segments}
-      gap={(gap) => {
-        const accepted = item.answer[gap]?.accepted ?? [];
-        const ok = outcome?.result === "correct";
-        return (
-          <>
-            <input
-              value={values[gap] ?? ""}
-              disabled={!!outcome}
-              aria-label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
-              autoCapitalize="off"
-              autoComplete="off"
-              spellCheck={false}
-              onChange={(e) => onAnswer({ ...values, [gap]: e.target.value })}
-              style={{ width: `${Math.max(6, (accepted[0]?.length ?? 6) + 2)}ch` }}
-              className={cn(
-                "h-11 rounded-lg border-2 bg-card px-2 text-lg",
-                fieldMark(outcome, ok),
+    <div ref={scope} className="space-y-2">
+      <Text
+        segments={item.segments}
+        gap={(gap) => {
+          const accepted = item.answer[gap]?.accepted ?? [];
+          const ok = outcome?.result === "correct";
+          return (
+            <>
+              <input
+                value={values[gap] ?? ""}
+                disabled={!!outcome}
+                aria-label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
+                autoCapitalize="off"
+                autoComplete="off"
+                spellCheck={false}
+                onChange={(e) => onAnswer({ ...values, [gap]: e.target.value })}
+                // Grows with what is typed: its width gives nothing of the answer away.
+                style={{ width: `${Math.max(6, (values[gap]?.length ?? 0) + 2)}ch` }}
+                className={cn(
+                  "h-11 rounded-lg border-2 bg-card px-2 text-lg",
+                  fieldMark(outcome, ok),
+                )}
+              />
+              {outcome && !ok && (
+                <span className="ml-1 text-base text-wrong">
+                  {accepted.map((a) => a || "—").join(" / ")}
+                </span>
               )}
-            />
-            {outcome && !ok && (
-              <span className="ml-1 text-base text-wrong">
-                {accepted.map((a) => a || "—").join(" / ")}
-              </span>
-            )}
-          </>
-        );
-      }}
-    />
+            </>
+          );
+        }}
+      />
+      {!outcome && <SpecialLetters scope={scope} />}
+    </div>
   );
 }

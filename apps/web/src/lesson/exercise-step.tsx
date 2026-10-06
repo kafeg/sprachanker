@@ -150,6 +150,15 @@ export function ExerciseStep({
       !heard.has(key) && (key === "exercise" || open.includes(Number(key.slice("item-".length)))),
   );
   const missing = open.filter((i) => !answerComplete(exercise, i, answers[i])).length;
+  /** An item's recordings (its own and the exercise's) have been played. */
+  const itemHeard = (i: number) =>
+    [`item-${i}`, "exercise"].every((key) => !recordings.includes(key) || heard.has(key));
+  // The item the number keys choose in: the one last touched, else the first still to answer.
+  const [touched, setTouched] = useState<number>();
+  const activeItem =
+    touched !== undefined && open.includes(touched)
+      ? touched
+      : (open.find((i) => !answerComplete(exercise, i, answers[i])) ?? open[0]);
   const canCheck = checking && !missing && !unheard;
   const waiting = !checking
     ? undefined
@@ -239,16 +248,28 @@ export function ExerciseStep({
   };
   const primary = checking ? check : next;
 
+  const article = useRef<HTMLElement>(null);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (
-        e.key !== "Enter" ||
-        target.tagName === "TEXTAREA" ||
-        target.tagName === "BUTTON" ||
-        target.tagName === "SELECT"
-      )
-        return;
+      if (e.key !== "Enter" || e.isComposing || target.tagName === "BUTTON") return;
+      if (target.tagName === "SELECT" || target.closest("[role=listbox], [role=dialog]")) return;
+      // In a text field Enter goes to the next field of the exercise, from the last one it checks;
+      // Shift+Enter keeps a new line in a text area.
+      if (target.matches("input, textarea")) {
+        // Fields outside the exercise keep their own Enter.
+        if (!article.current?.contains(target)) return;
+        if (e.shiftKey && target.tagName === "TEXTAREA") return;
+        const fields = [
+          ...(article.current?.querySelectorAll<HTMLElement>(
+            "input:not(:disabled):not([type=checkbox]):not([type=radio]), textarea:not(:disabled)",
+          ) ?? []),
+        ];
+        const next = fields[fields.indexOf(target) + 1];
+        e.preventDefault();
+        if (next) return next.focus();
+        return primary();
+      }
       e.preventDefault();
       primary();
     };
@@ -258,7 +279,7 @@ export function ExerciseStep({
 
   return (
     // At least a screen tall, so the action bar sits at the bottom even under a short exercise.
-    <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
+    <article ref={article} className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
       <div>
         <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           {t("lesson.exerciseOf", { n: index + 1, total })}
@@ -292,8 +313,24 @@ export function ExerciseStep({
           return (
             // Rail (status) · card · controls: the card keeps its size when checked; only an
             // explanation asked for adds a panel under it.
-            <li key={item.key} className="grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2">
-              <div className="h-full">{marked && <ItemRail outcome={outcome} />}</div>
+            <li
+              key={item.key}
+              className="grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2"
+              onPointerDown={() => setTouched(i)}
+              onFocus={() => setTouched(i)}
+            >
+              <div className="h-full">
+                {marked ? (
+                  <ItemRail outcome={outcome} />
+                ) : (
+                  // Its number, so a long exercise shows where you are.
+                  exercise.items.length > 1 && (
+                    <span className="block pt-4 text-center text-sm tabular-nums text-muted-foreground">
+                      {i + 1}
+                    </span>
+                  )
+                )}
+              </div>
               <div className="rounded-2xl border bg-card p-4 sm:p-5">
                 {item.media?.audio && (
                   <AudioPlayer
@@ -331,9 +368,15 @@ export function ExerciseStep({
                   item={item as never}
                   locale={loc}
                   answer={answers[i] as never}
-                  onAnswer={(a: unknown) => setAnswers((prev) => ({ ...prev, [i]: a }))}
+                  onAnswer={(a: unknown) => {
+                    setAnswers((prev) => ({ ...prev, [i]: a }));
+                    // One choice answers the item: the number keys go on to the next one.
+                    setTouched(exercise.type === "single_choice" ? undefined : i);
+                  }}
                   outcome={outcome}
                   url={url}
+                  active={i === activeItem && !readOnly}
+                  heard={readOnly || itemHeard(i)}
                 />
                 {answer && (
                   <p className="mt-3 text-sm">

@@ -153,7 +153,10 @@
       "away": "{item} — über keinem Platz.",
       "end": "{item} — abgelegt auf „{place}“.",
       "cancel": "{item} — zurückgelegt."
-    }
+    },
+    "chosen": "{count, plural, one {# gewählt} other {# gewählt}}",
+    "specialLetters": "Buchstaben zum Tippen",
+    "selfrateAfterListening": "Hör dir zuerst die Aufnahme an, dann bewerte dich."
   },
   "word": {
     "plural": "Pl. {plural}"

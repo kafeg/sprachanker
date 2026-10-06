@@ -153,7 +153,10 @@
       "away": "{item} — не над местом для ответа.",
       "end": "{item} — положено в «{place}».",
       "cancel": "{item} — возвращено на место."
-    }
+    },
+    "chosen": "{count, plural, one {выбран #} few {выбрано #} many {выбрано #} other {выбрано #}}",
+    "specialLetters": "Буквы для ввода",
+    "selfrateAfterListening": "Сначала прослушайте запись, потом оцените себя."
   },
   "word": {
     "plural": "мн. {plural}"

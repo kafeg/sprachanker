@@ -1,6 +1,7 @@
 import type { Option } from "@sprachanker/schema";
 import { Check, X } from "lucide-react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Select,
   SelectContent,
@@ -30,12 +31,33 @@ export function useShuffled<T>(items: T[], seed: string): T[] {
 
 export type Mark = "correct" | "wrong" | undefined;
 
-export function OptionContent({ option, url }: { option: Option; url(path: string): string }) {
+export function OptionContent({
+  option,
+  url,
+  fill = false,
+}: {
+  option: Option;
+  url(path: string): string;
+  /** A picture fills the option's width (options laid out as a grid of pictures). */
+  fill?: boolean;
+}) {
   const lang = useTargetLang();
   if (option.media?.image)
-    return <img src={url(option.media.image)} alt="" className="h-28 w-auto rounded-lg sm:h-32" />;
+    return (
+      <img
+        src={url(option.media.image)}
+        alt=""
+        className={cn(
+          "rounded-lg",
+          fill ? "aspect-[4/3] w-full object-contain" : "h-28 w-auto sm:h-32",
+        )}
+      />
+    );
   return <span lang={lang}>{option.text}</span>;
 }
+
+/** Options that are all pictures are laid out as a grid of equal tiles. */
+export const allPictures = (options: Option[]) => options.every((o) => o.media?.image);
 
 export function OptionButton({
   option,
@@ -44,6 +66,9 @@ export function OptionButton({
   mark,
   disabled,
   onClick,
+  multi = false,
+  number,
+  fill = false,
 }: {
   option: Option;
   url(path: string): string;
@@ -51,6 +76,11 @@ export function OptionButton({
   mark: Mark;
   disabled: boolean;
   onClick(): void;
+  /** Several can be chosen: a square box shows the choice. */
+  multi?: boolean;
+  /** The number key that chooses it, shown where there is a keyboard. */
+  number?: number;
+  fill?: boolean;
 }) {
   return (
     <button
@@ -60,16 +90,119 @@ export function OptionButton({
       onClick={onClick}
       className={cn(
         "relative flex min-h-12 items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition",
+        fill && "flex-col items-stretch px-2",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",
         mark === "correct" && "border-correct bg-correct-soft",
         mark === "wrong" && "border-wrong bg-wrong-soft",
       )}
     >
-      <OptionContent option={option} url={url} />
+      {multi && (
+        <span
+          aria-hidden
+          className={cn(
+            "grid size-5 shrink-0 place-items-center rounded-[5px] border-2",
+            selected ? "border-primary bg-primary text-primary-foreground" : "border-input",
+            fill && "absolute top-2 left-2 bg-card",
+          )}
+        >
+          {selected && <Check className="size-3.5" strokeWidth={3} />}
+        </span>
+      )}
+      <OptionContent option={option} url={url} fill={fill} />
+      {number !== undefined && !disabled && (
+        <kbd
+          aria-hidden
+          className={cn(
+            "ml-auto hidden rounded border px-1.5 font-mono text-xs text-muted-foreground [@media(pointer:fine)]:inline",
+            fill && "absolute top-2 right-2 bg-card",
+          )}
+        >
+          {number}
+        </kbd>
+      )}
       {mark === "correct" && <Check className="size-5 shrink-0 text-correct" aria-hidden />}
       {mark === "wrong" && <X className="size-5 shrink-0 text-wrong" aria-hidden />}
     </button>
+  );
+}
+
+/**
+ * Number keys 1–9 choose an option of the active item (desktop). Ignored while typing in a field and
+ * with a modifier held.
+ */
+export function useNumberKeys(enabled: boolean, count: number, choose: (index: number) => void) {
+  useEffect(() => {
+    if (!enabled) return;
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      // Not while typing, with a modifier, or behind an open panel (reference, tutor).
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      if (target.closest("input, textarea, select, [role=dialog]")) return;
+      if (document.querySelector("[role=dialog]")) return;
+      const n = Number(e.key);
+      if (!Number.isInteger(n) || n < 1 || n > Math.min(count, 9)) return;
+      e.preventDefault();
+      choose(n - 1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+}
+
+/** The capital of a letter; ß has its own (ẞ), not "SS". */
+const capital = (letter: string, lang: string) =>
+  letter === "ß" ? "ẞ" : letter.toLocaleUpperCase(lang);
+
+/** Letters a keyboard may lack, per language being learnt (a Shift-click types the capital). */
+const SPECIAL: Record<string, string[]> = { de: ["ä", "ö", "ü", "ß"] };
+
+/**
+ * A row of the language's special letters under text fields: a tap types the letter where the cursor
+ * is in the field last focused inside `scope` (or its first field).
+ */
+export function SpecialLetters({ scope }: { scope: React.RefObject<HTMLElement | null> }) {
+  const { t } = useTranslation();
+  const lang = useTargetLang();
+  const letters = lang ? SPECIAL[lang] : undefined;
+  if (!lang || !letters) return null;
+  const type = (letter: string) => {
+    const root = scope.current;
+    if (!root) return;
+    const focused = document.activeElement;
+    const field = (
+      focused instanceof HTMLElement && root.contains(focused) && focused.matches("input, textarea")
+        ? focused
+        : root.querySelector("input:not(:disabled), textarea:not(:disabled)")
+    ) as HTMLInputElement | HTMLTextAreaElement | null;
+    if (!field) return;
+    const start = field.selectionStart ?? field.value.length;
+    const end = field.selectionEnd ?? start;
+    const value = field.value.slice(0, start) + letter + field.value.slice(end);
+    // Through the native setter, so React sees the change as typing.
+    const proto = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement : HTMLInputElement;
+    Object.getOwnPropertyDescriptor(proto.prototype, "value")?.set?.call(field, value);
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+    field.focus();
+    field.setSelectionRange(start + letter.length, start + letter.length);
+  };
+  return (
+    <fieldset className="flex flex-wrap gap-1.5">
+      <legend className="sr-only">{t("ex.specialLetters")}</legend>
+      {letters.map((letter) => (
+        <button
+          type="button"
+          key={letter}
+          lang={lang}
+          // Keeps the cursor in the field.
+          onMouseDown={(e) => e.preventDefault()}
+          onClick={(e) => type(e.shiftKey ? capital(letter, lang) : letter)}
+          className="min-h-11 min-w-11 rounded-lg border bg-card px-2 text-lg hover:border-primary/60"
+        >
+          {letter}
+        </button>
+      ))}
+    </fieldset>
   );
 }
 

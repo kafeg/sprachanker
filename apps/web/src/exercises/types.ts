@@ -36,4 +36,8 @@ export interface RendererProps<T extends keyof Answers> {
   /** Set after checking: renderers show the correct answer and lock input. */
   outcome?: Outcome;
   url(path: string): string;
+  /** The item the number keys (1–9) choose in; it shows the numbers where there is a keyboard. */
+  active?: boolean;
+  /** The recordings the item is about have been played (self-rating waits for it). */
+  heard?: boolean;
 }

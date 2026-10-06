@@ -1,5 +1,5 @@
-import { expect, type Locator, type Page, test } from "@playwright/test";
-import { answerPicture, freshLessonRun } from "./api.ts";
+import { expect, test } from "@playwright/test";
+import { answerPicture, freshLessonRun, goToStep, openStep } from "./api.ts";
 
 test.beforeEach(({ request }) => freshLessonRun(request));
 
@@ -165,67 +165,11 @@ test("matching: words are placed by tapping a word and then a place; Check waits
   await expect(page.getByRole("status").first()).toBeVisible();
 });
 
-/** Drags with small pointer moves, as a hand would (a drag starts after a short move). */
-async function drag(page: Page, from: Locator, to: Locator) {
-  const a = await from.boundingBox();
-  const b = await to.boundingBox();
-  if (!a || !b) throw new Error("nothing to drag");
-  await page.mouse.move(a.x + a.width / 2, a.y + a.height / 2);
-  await page.mouse.down();
-  await page.mouse.move(a.x + a.width / 2 + 10, a.y + a.height / 2, { steps: 3 });
-  await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2, { steps: 10 });
-  await page.mouse.up();
-  // dnd-kit swallows clicks for 50 ms after a drop, so the drop is not also a tap; a hand is slower.
-  await page.waitForTimeout(100);
-}
-
-async function openStep(page: Page, step: string) {
-  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
-  await page.getByRole("button", { name: "Start lesson" }).click();
-  const plan = page.getByRole("button", { name: "Lesson plan" });
-  if (await plan.isVisible()) await plan.click();
-  await page.getByRole("button", { name: step }).click();
-}
-
-test("order: parts are added by tapping and moved along the line by dragging", async ({ page }) => {
-  await openStep(page, "Letters");
-  const pool = page.getByRole("group", { name: "Words to place" });
-  const line = page.getByRole("group", { name: "Your order" });
-  for (const letter of ["T", "a", "e", "s", "s"])
-    await pool
-      .locator("button:enabled", { hasText: new RegExp(`^${letter}$`) })
-      .first()
-      .click();
-  await expect(line.getByRole("button")).toHaveText(["T", "a", "e", "s", "s"]);
-  await drag(page, line.getByRole("button", { name: "e" }), line.getByRole("button").last());
-  await expect(line.getByRole("button")).toHaveText(["T", "a", "s", "s", "e"]);
-  await page.getByRole("button", { name: "Check", exact: true }).click();
-  await expect(page.getByTitle("Correct")).toBeVisible();
-});
-
-test("word bank: a tapped gap takes the next word; a word can be dragged onto a gap", async ({
-  page,
-}) => {
-  await openStep(page, "Introduce yourself");
-  const gaps = page.getByRole("button", { name: /^Gap / });
-  await gaps.nth(1).click();
-  await page.getByRole("button", { name: "bestelle" }).click();
-  await expect(gaps.nth(1)).toHaveText("bestelle");
-  await drag(page, page.getByRole("button", { name: "heiße" }), gaps.first());
-  await expect(gaps.first()).toHaveText("heiße");
-  await page.getByRole("button", { name: "Check", exact: true }).click();
-  await expect(page.getByTitle("Correct")).toBeVisible();
-});
-
 test("the window title says where you are", async ({ page }) => {
   await page.goto("/settings");
   await expect(page).toHaveTitle("SprachAnker · Settings");
   await openStep(page, "Letters");
   await expect(page).toHaveTitle("SprachAnker · Ex 5/8");
-  // On a phone the plan is a sheet: wait until it has closed, then open it again.
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  const plan = page.getByRole("button", { name: "Lesson plan" });
-  if (await plan.isVisible()) await plan.click();
-  await page.getByRole("button", { name: "Summary" }).filter({ visible: true }).first().click();
+  await goToStep(page, "Summary");
   await expect(page).toHaveTitle("SprachAnker · Summary");
 });

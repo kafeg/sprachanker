@@ -267,8 +267,8 @@ export const cafeLesson: Lesson = {
       items: [
         {
           media: { audio: audio("ein-kaffee-bitte") },
-          segments: ["Einen ", { gap: "g1" }, ", bitte."],
-          answer: { g1: { accepted: ["Kaffee"] } },
+          segments: ["Einen ", { gap: "g1" }, ", bitte. Mit ", { gap: "g2" }, "?"],
+          answer: { g1: { accepted: ["Kaffee"] }, g2: { accepted: ["Milch", "Zucker"] } },
         },
       ],
     }),
