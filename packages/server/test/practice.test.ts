@@ -1,4 +1,6 @@
+import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
+import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
 import { setup } from "./setup.ts";
@@ -91,7 +93,7 @@ test("review: built from the latest lesson run, stored, stale after new answers"
     next: ["Übung 6 wiederholen"],
   };
   const m = model(REVIEW);
-  const { send, sendJson, getJson } = await setup({ fetch: m.fetch });
+  const { send, sendJson, getJson, root } = await setup({ fetch: m.fetch });
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   expect(await getJson(`/api/llm/review?lessonKey=${LESSON}`)).toEqual({
@@ -142,6 +144,15 @@ test("review: built from the latest lesson run, stored, stale after new answers"
   expect(review.result.topics[0].topic).toBe("Herr/Frau");
   const state = await getJson(`/api/llm/review?lessonKey=${LESSON}`);
   expect([state.possible, state.review.result.summary, state.stale]).toEqual([true, "Gut.", false]);
+  // A review stored before reviews named their run was made by earlier rules: it is offered again.
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  sqlite.exec(
+    "UPDATE events SET payload_json = json_remove(payload_json, '$.runId') WHERE type = 'llm_verdict'",
+  );
+  expect((await getJson(`/api/llm/review?lessonKey=${LESSON}`)).stale).toBe(true);
+  sqlite.exec(
+    `UPDATE events SET payload_json = json_set(payload_json, '$.runId', '${run}') WHERE type = 'llm_verdict'`,
+  );
 
   await answer(`${LESSON}/ex-07#1`, { g1: "a", g2: "b" });
   expect((await getJson(`/api/llm/review?lessonKey=${LESSON}`)).stale).toBe(true);

@@ -5,7 +5,8 @@
   "nav": {
     "settings": "Einstellungen",
     "myCourses": "Meine Kurse",
-    "allCourses": "Alle Kurse"
+    "allCourses": "Alle Kurse",
+    "review": "Wiederholen"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -470,5 +471,23 @@
     "toEnd": "Zur Liste",
     "saving": "Speichere…",
     "done": "Fertig"
+  },
+  "cardReview": {
+    "progress": "{n} von {total}",
+    "newToday": "neu heute {n} von {limit}",
+    "tapToShow": "Tippe, um die Antwort zu sehen",
+    "show": "Antwort zeigen",
+    "forgot": "Vergessen",
+    "remembered": "Gewusst",
+    "fromLesson": "Lektion {unit}.{lesson}",
+    "allDone": "{count, plural, one {# Karte} other {# Karten}} wiederholt — das war's für jetzt.",
+    "nothingDue": "Gerade nichts zu wiederholen",
+    "comeBack": "Neue Karten kommen aus den Wörtern der Lektionen; wiederholte kommen zurück, wenn sie fällig sind.",
+    "due": "{count, plural, one {# Karte} other {# Karten}} zu wiederholen",
+    "face": {
+      "recognition": "was bedeutet das?",
+      "production": "sag es in der Sprache, die du lernst",
+      "listening": "was hörst du?"
+    }
   }
 }

@@ -18,6 +18,8 @@ async function send(
 
 export const put = (request: APIRequestContext, path: string, data: unknown) =>
   send(request, "put", path, data);
+export const post = (request: APIRequestContext, path: string, data: unknown) =>
+  send(request, "post", path, data);
 
 /** Starts the lesson anew (an empty active run), so it opens on its overview with nothing done. */
 export async function freshLessonRun(request: APIRequestContext, lessonKey = DEMO_LESSON) {

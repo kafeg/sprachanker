@@ -56,8 +56,8 @@ and shown again from there ("Explain again" asks anew; the newest is shown); "as
 and the lesson tutor → `chat_turn`; "Write it yourself" on the lesson summary (3–5 sentences on the
 lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson's `practice` run;
 "Session review" on the summary → `review_session`, stored the same way with the lesson run it
-reviews (`runId`; older reviews belong to the lesson run started last before them), shown with that run
-and offered again when newer answers exist. The review says plainly when exercises were skipped or not
+reviews (`runId`; older reviews belong to the lesson run started last before them and count as stale,
+made by earlier rules), shown with that run and offered again when newer answers exist. The review says plainly when exercises were skipped or not
 started and praises only what the results show; the scene card on the summary → `scene_setup`, then `scene_turn` per line.
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning

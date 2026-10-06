@@ -201,7 +201,9 @@ export function createPractice(deps: {
                 model: latest.model,
               } satisfies StoredReview)
             : null,
-          stale: !!latest && lastTs > latest.ts,
+          // Newer answers, or a review from before reviews named their run (made by the earlier, less
+          // honest rules): offered again.
+          stale: !!latest && (lastTs > latest.ts || !latest.runId),
         };
       },
 

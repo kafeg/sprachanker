@@ -1,8 +1,8 @@
 // App layout: sidebar on desktop, bottom tab bar on phones (09, "Layouts").
 import { Link, Outlet } from "@tanstack/react-router";
-import { BookOpen, Library, Settings } from "lucide-react";
+import { BookOpen, Layers, Library, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
+import { useDownloads, useDownloadsWatch, useReviewQueue } from "@/api/hooks.ts";
 import { AboutLine } from "./about.tsx";
 import { cn } from "./utils.ts";
 import { useWindowBusy, useWindowPlace } from "./window-title.ts";
@@ -10,6 +10,7 @@ import { useWindowBusy, useWindowPlace } from "./window-title.ts";
 const NAV = [
   { to: "/", key: "nav.myCourses", icon: BookOpen },
   { to: "/catalog", key: "nav.allCourses", icon: Library },
+  { to: "/review", key: "nav.review", icon: Layers },
   { to: "/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
@@ -17,6 +18,8 @@ export function AppShell() {
   const { t } = useTranslation();
   // Courses downloading in the background keep every screen current, and show in the window title.
   useDownloadsWatch();
+  // Cards to review now, on the Review entry.
+  const due = useReviewQueue().data?.items.length ?? 0;
   const running = useDownloads().data?.jobs.find((j) => j.status === "running");
   const media = running?.progress?.phase === "media" ? running.progress.media : undefined;
   useWindowBusy(
@@ -42,6 +45,7 @@ export function AppShell() {
             activeProps={{ className: "bg-accent text-foreground" }}
           >
             <Icon className="size-5" /> {t(key)}
+            {to === "/review" && due > 0 && <DueBadge count={due} />}
           </Link>
         ))}
         <div className="mt-auto px-3">
@@ -62,11 +66,31 @@ export function AppShell() {
             )}
             activeProps={{ className: "text-foreground font-semibold" }}
           >
-            <Icon className="size-5" /> {t(key)}
+            <span className="relative">
+              <Icon className="size-5" />
+              {to === "/review" && due > 0 && <DueBadge count={due} corner />}
+            </span>
+            {t(key)}
           </Link>
         ))}
       </nav>
     </div>
+  );
+}
+
+/** How many cards are waiting, on the Review entry (in the corner of its icon on a phone). */
+function DueBadge({ count, corner = false }: { count: number; corner?: boolean }) {
+  const { t } = useTranslation();
+  return (
+    <span
+      title={t("cardReview.due", { count })}
+      className={cn(
+        "rounded-full bg-primary px-1.5 text-xs font-semibold tabular-nums text-primary-foreground",
+        corner ? "absolute -top-1.5 -right-3" : "ml-auto",
+      )}
+    >
+      {count}
+    </span>
   );
 }
 

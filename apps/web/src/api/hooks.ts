@@ -1,5 +1,5 @@
 // TanStack Query hooks over the API.
-import type { LessonKey, LexemeKey } from "@sprachanker/schema";
+import type { CardFace, CardRating, LessonKey, LexemeKey } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api, json } from "./client.ts";
@@ -158,6 +158,40 @@ export function useMakeCards() {
       void client.invalidateQueries({ queryKey: ["lesson-cards", request.lessonKey] });
       void client.invalidateQueries({ queryKey: ["review"] });
       void client.invalidateQueries({ queryKey: ["words"] });
+    },
+  });
+}
+
+/** What to review now: faces in order with what each card shows and its due time per rating. */
+export const useReviewQueue = () =>
+  useQuery({ queryKey: ["review"], queryFn: () => json(api.cards.review.$get()) });
+
+/** Rates a face; the queue and the learner's words are read again. */
+export function useRateCard() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ cardId, ...body }: { cardId: string; face: CardFace; rating: CardRating }) =>
+      json(api.cards[":id"].review.$post({ param: { id: cardId }, json: body })),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["review"] });
+      void client.invalidateQueries({ queryKey: ["words"] });
+    },
+  });
+}
+
+/** The learner's words with their state. */
+export const useWords = () =>
+  useQuery({ queryKey: ["words"], queryFn: () => json(api.cards.$get()) });
+
+/** "Already known" on or off for a card. */
+export function useSetKnown() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ cardId, known }: { cardId: string; known: boolean }) =>
+      json(api.cards[":id"].$put({ param: { id: cardId }, json: { suspended: known } })),
+    onSuccess: () => {
+      for (const key of ["words", "review", "lesson-cards"])
+        void client.invalidateQueries({ queryKey: [key] });
     },
   });
 }

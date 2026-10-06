@@ -85,7 +85,8 @@ The rest is planned:
 ## Spaced repetition (stage 6)
 
 Built: scheduling and the review queue (`packages/engine/src/srs/`), cards from a lesson's words and
-ratings on the server (`services/cards.ts`). The screens come next.
+ratings on the server (`services/cards.ts`), the Review screen with two ratings — "Forgot" (again) and
+"Remembered" (good); FSRS works with these two, and there is no setting for four.
 
 - FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (profile setting `srs.retention`).
 - The review queue: due faces first (most overdue first), then new faces in the order the cards were

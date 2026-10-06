@@ -7,6 +7,7 @@ import { AppShell } from "@/ui/app-shell.tsx";
 import { PlaybackRate } from "@/ui/media.tsx";
 import { CoursePage } from "./course.tsx";
 import { CatalogPage, MyCoursesPage } from "./courses.tsx";
+import { ReviewPage } from "./review.tsx";
 import { SettingsPage } from "./settings.tsx";
 
 const root = createRootRoute({
@@ -37,6 +38,7 @@ course.update({
     return <CoursePage series={params.series} course={params.course} />;
   },
 });
+const review = createRoute({ getParentRoute: () => shell, path: "/review", component: ReviewPage });
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",
@@ -57,7 +59,10 @@ lesson.update({
 });
 
 export const router = createRouter({
-  routeTree: root.addChildren([shell.addChildren([courses, catalog, course, settings]), lesson]),
+  routeTree: root.addChildren([
+    shell.addChildren([courses, catalog, course, review, settings]),
+    lesson,
+  ]),
   defaultPreload: "intent",
 });
 

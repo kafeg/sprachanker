@@ -5,7 +5,8 @@
   "nav": {
     "settings": "Settings",
     "myCourses": "My courses",
-    "allCourses": "All courses"
+    "allCourses": "All courses",
+    "review": "Review"
   },
   "common": {
     "loading": "Loading…",
@@ -470,5 +471,23 @@
     "toEnd": "To the list",
     "saving": "Saving…",
     "done": "Done"
+  },
+  "cardReview": {
+    "progress": "{n} of {total}",
+    "newToday": "new today {n} of {limit}",
+    "tapToShow": "Tap to see the answer",
+    "show": "Show the answer",
+    "forgot": "Forgot",
+    "remembered": "Remembered",
+    "fromLesson": "lesson {unit}.{lesson}",
+    "allDone": "{count, plural, one {# card} other {# cards}} reviewed — that's all for now.",
+    "nothingDue": "Nothing to review now",
+    "comeBack": "New cards come from the lessons' words; reviewed ones come back when they are due.",
+    "due": "{count, plural, one {# card} other {# cards}} to review",
+    "face": {
+      "recognition": "what does it mean?",
+      "production": "say it in the language you learn",
+      "listening": "what do you hear?"
+    }
   }
 }
