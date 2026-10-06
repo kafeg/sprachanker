@@ -2,12 +2,14 @@
 // completing an interrupted or incomplete one, or syncing with the source are the same idempotent
 // import. One download at a time, the rest queued; the screens poll for progress. The runtime passes
 // the installer (providers use Node APIs); downloads it marked unfinished on disk resume at start.
+
 import type {
   CourseOffer,
   ImportProgress,
   ImportReport,
   ProgressSink,
 } from "@sprachanker/course-kit";
+import { courseKey, type SeriesKey } from "@sprachanker/schema";
 
 export interface CourseInstaller {
   /** Every course the providers offer, with the series folder it goes to. */
@@ -18,8 +20,9 @@ export interface CourseInstaller {
     course: string,
     hooks: { log: (line: string) => void; progress: ProgressSink },
   ): Promise<ImportReport>;
-  /** Downloads that did not end, or ended with `failed` media files missing. */
-  unfinished(): Promise<Array<{ series: string; course: string; failed?: number }>>;
+  /** Downloads that did not end (interrupted, or stopped with an `error`), or ended with `failed`
+   *  media files of the course missing. */
+  unfinished(): Promise<Array<{ series: string; course: string; failed?: number; error?: string }>>;
   /** The data folder and the bytes each series takes on disk. */
   storage(): Promise<{ dataRoot: string; series: Array<{ series: string; bytes: number }> }>;
 }
@@ -48,7 +51,11 @@ export interface DownloadJob {
 }
 
 const LOG_LINES = 200;
-const keyOf = (series: string, course: string) => `${series}/${course}`;
+/** Log lines a job carries in the list the screens poll. */
+const LISTED_LOG_LINES = 15;
+const keyOf = (series: string, course: string): string => courseKey(series as SeriesKey, course);
+
+export class DownloadError extends Error {}
 
 export function createDownloads(deps: {
   installer?: CourseInstaller;
@@ -96,7 +103,9 @@ export function createDownloads(deps: {
 
   /** Queues a download of the course unless one is queued or running; returns its job. */
   function start(series: string, course: string): DownloadJob {
-    if (!deps.installer) throw new Error("downloads_unavailable");
+    if (!deps.installer) throw new DownloadError("downloads_unavailable");
+    if (!deps.installer.offers().some((o) => o.series === series && o.course === course))
+      throw new DownloadError("not_offered");
     const key = keyOf(series, course);
     const known = jobs.get(key);
     if (known && (known.status === "queued" || known.status === "running")) return known;
@@ -118,8 +127,11 @@ export function createDownloads(deps: {
     available: !!deps.installer,
     start,
 
-    /** Every job of this server's life, newest first. */
-    list: () => [...jobs.values()].sort((a, b) => b.queuedAt - a.queuedAt),
+    /** Every job of this server's life, newest first, with the end of its log. */
+    list: () =>
+      [...jobs.values()]
+        .sort((a, b) => b.queuedAt - a.queuedAt)
+        .map((job) => ({ ...job, log: job.log.slice(-LISTED_LOG_LINES) })),
 
     /**
      * Every offered course with its state: `available` (not downloaded), `queued`, `downloading`,
@@ -147,10 +159,16 @@ export function createDownloads(deps: {
       });
     },
 
-    /** Queues again the downloads a restart interrupted (incomplete ones wait for the learner). */
+    /** Queues again the downloads a restart interrupted; those that ended with files missing or
+     *  stopped with an error wait for the learner. */
     async resume() {
       for (const u of (await deps.installer?.unfinished()) ?? [])
-        if (u.failed === undefined) start(u.series, u.course);
+        if (u.failed === undefined && u.error === undefined)
+          try {
+            start(u.series, u.course);
+          } catch {
+            // A course no longer offered: nothing to resume.
+          }
     },
 
     storage: () => deps.installer?.storage() ?? Promise.resolve(null),

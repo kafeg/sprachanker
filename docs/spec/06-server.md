@@ -11,8 +11,9 @@ One Bun process started by `sprachanker serve`. The `sprachanker` binary is buil
 - talks to LLM providers through `packages/llm`.
 
 Course downloads run as background jobs (one at a time, queued; progress polled by the screens, no
-SSE). A download is marked in its series folder while it runs (`.downloads/<course>.json`, kept when
-media failed), so a restart resumes an interrupted one. Planned: `server.sqlite` (profiles, devices);
+SSE). A download is marked in its series folder while it runs (`.downloads/<course>.json`), kept with the
+number of the course's media still missing or with the error it stopped on; a restart resumes only an
+interrupted one, the others wait for "Continue downloading". Planned: `server.sqlite` (profiles, devices);
 model downloads as jobs; supervising sidecars (`whisper-server`, TTS) and talking to them through a
 speech module (08).
 

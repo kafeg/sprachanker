@@ -81,25 +81,28 @@ export function useCourseDownload(series: string, course: string) {
 }
 
 /**
- * Keeps the screens current while courses download (mounted once, in the app shell): a course
- * appears as soon as its pages are normalised, and its files change when a download ends.
+ * Keeps the screens current while courses download (mounted once, in the app shell). Lists are read
+ * again when a download changes phase — a course appears once its pages are normalised — and a
+ * course's files, map and lessons when its download ends; not on every poll.
  */
 export function useDownloadsWatch() {
   const client = useQueryClient();
-  const { data } = useDownloads();
-  const ended = data?.jobs.filter((j) => j.finishedAt).length ?? 0;
-  const busy = active(data);
+  const jobs = useDownloads().data?.jobs ?? [];
+  const phases = jobs.map((j) => `${j.id}:${j.status}:${j.progress?.phase ?? ""}`).join("|");
+  const ended = jobs
+    .filter((j) => j.finishedAt)
+    .map((j) => j.id)
+    .join("|");
   useEffect(() => {
-    if (!busy && !ended) return;
+    if (!phases) return;
     void client.invalidateQueries({ queryKey: ["courses"] });
     void client.invalidateQueries({ queryKey: ["catalog"] });
-    if (!busy) {
-      void client.invalidateQueries({ queryKey: ["course"] });
-      void client.invalidateQueries({ queryKey: ["course-check"] });
-      void client.invalidateQueries({ queryKey: ["lesson"] });
-      void client.invalidateQueries({ queryKey: ["storage"] });
-    }
-  }, [busy, ended, client]);
+  }, [phases, client]);
+  useEffect(() => {
+    if (!ended) return;
+    for (const key of ["course", "course-check", "lesson", "storage"])
+      void client.invalidateQueries({ queryKey: [key] });
+  }, [ended, client]);
 }
 
 /** Every course the providers offer, with its state (available, downloading, incomplete, ready). */

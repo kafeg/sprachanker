@@ -362,11 +362,15 @@ describe("course check and downloads", () => {
         await new Promise<void>((resolve) => release.push(resolve));
         return { failedMedia: course === "two" ? ["a.mp3: 404"] : [], normalised: {} };
       },
-      // "three" was left mid-download by an earlier run: it resumes on its own.
-      unfinished: async () => [{ series: "x.demo", course: "three" }],
+      // "three" was left mid-download by an earlier run: it resumes on its own; "two" stopped with an
+      // error and waits for the learner.
+      unfinished: async () => [
+        { series: "x.demo", course: "three" },
+        { series: "x.demo", course: "two", error: "host refused" },
+      ],
       storage: async () => ({ dataRoot: "/data", series: [{ series: "x.demo", bytes: 42 }] }),
     };
-    const { getJson, sendJson } = await setup({ installer });
+    const { getJson, send, sendJson } = await setup({ installer });
     await Bun.sleep(1);
     const states = async () =>
       Object.fromEntries(
@@ -375,7 +379,11 @@ describe("course check and downloads", () => {
           e.state,
         ]),
       );
-    expect(await states()).toEqual({ one: "available", two: "available", three: "downloading" });
+    expect(await states()).toEqual({ one: "available", two: "incomplete", three: "downloading" });
+    // Only offered courses can be downloaded.
+    expect(
+      (await send("POST", "/api/downloads", { series: "x.demo", course: "nope" })).status,
+    ).toBe(404);
 
     const one = await sendJson("POST", "/api/downloads", { series: "x.demo", course: "one" });
     expect(one.status).toBe("queued");

@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { courseInstaller } from "../src/providers.ts";
+import { courseInstaller, importCourse } from "../src/providers.ts";
 
 test("download markers on disk: interrupted and incomplete downloads, space per series", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-installer-"));
@@ -23,4 +23,15 @@ test("download markers on disk: interrupted and incomplete downloads, space per 
   const offers = installer.offers();
   expect(offers.map((o) => `${o.series}/${o.course}`)).toContain("coerll.dib/dib");
   expect(offers.every((o) => o.approxBytes > 0 && o.title && o.source.url)).toBe(true);
+});
+
+test("one import per series at a time, also across processes", async () => {
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-lock-"));
+  const lock = join(root, "library", "coerll.dib", ".import-lock");
+  mkdirSync(lock, { recursive: true });
+  // The parent of this test process is alive: its lock is respected.
+  writeFileSync(join(lock, "pid"), String(process.ppid));
+  await expect(importCourse("coerll-dib", { dataRoot: root, log: () => {} })).rejects.toThrow(
+    /being imported by another process/,
+  );
 });

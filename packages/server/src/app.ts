@@ -12,7 +12,7 @@ import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
-import { type CourseInstaller, createDownloads } from "./services/downloads.ts";
+import { type CourseInstaller, createDownloads, DownloadError } from "./services/downloads.ts";
 import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
@@ -66,7 +66,7 @@ export function createApp(config: AppConfig) {
     onEnd: (series, course) => content.forget(series, course),
   });
   // Downloads a restart interrupted go on.
-  void downloads.resume();
+  downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const llm = createLlm({
     db: config.profile,
     settings,
@@ -161,8 +161,13 @@ export function createApp(config: AppConfig) {
     .get("/downloads", (c) => c.json({ available: downloads.available, jobs: downloads.list() }))
     .post("/downloads", zod("json", CourseRef), (c) => {
       const { series, course } = c.req.valid("json");
-      if (!downloads.available) throw new HTTPException(409, { message: "downloads_unavailable" });
-      return c.json(downloads.start(series, course));
+      try {
+        return c.json(downloads.start(series, course));
+      } catch (error) {
+        if (!(error instanceof DownloadError)) throw error;
+        const status = error.message === "not_offered" ? 404 : 409;
+        throw new HTTPException(status, { message: error.message });
+      }
     })
     .get("/storage", async (c) => c.json(await downloads.storage()))
     .get(

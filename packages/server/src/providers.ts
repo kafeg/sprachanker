@@ -5,7 +5,12 @@ import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { SERIES as DIB, OFFERS as DIB_OFFERS, importDib } from "@sprachanker/coerll-dib";
-import type { CourseOffer, ImportReport, ProgressSink } from "@sprachanker/course-kit";
+import {
+  type CourseOffer,
+  type ImportReport,
+  openLibrary,
+  type ProgressSink,
+} from "@sprachanker/course-kit";
 import { offers as dwOffers, importDw, seriesId } from "@sprachanker/dw";
 import {
   importLingust,
@@ -59,16 +64,52 @@ const PROVIDERS: Record<string, { series: string; offers: CourseOffer[]; run: Ru
 
 export const providerIds = () => Object.keys(PROVIDERS);
 
-export function importCourse(provider: string, request: ImportRequest): Promise<ImportReport> {
+/**
+ * Runs a provider into `<dataRoot>/library`. One import per series at a time, across processes (the
+ * CLI and a server's download job share media.json): a lock folder with the owner's pid; a lock whose
+ * process is gone is taken over.
+ */
+export async function importCourse(
+  provider: string,
+  request: ImportRequest,
+): Promise<ImportReport> {
   const entry = PROVIDERS[provider];
   if (!entry) throw new Error(`unknown provider ${provider}; known: ${providerIds().join(", ")}`);
-  return entry.run({ ...request, libraryRoot: join(request.dataRoot, "library") });
+  const libraryRoot = join(request.dataRoot, "library");
+  const lock = join(libraryRoot, entry.series, ".import-lock");
+  await mkdir(join(libraryRoot, entry.series), { recursive: true });
+  try {
+    await mkdir(lock);
+  } catch {
+    const owner = Number(await readFile(join(lock, "pid"), "utf8").catch(() => "0"));
+    if (owner && owner !== process.pid && alive(owner))
+      throw new Error(`${entry.series} is being imported by another process (pid ${owner})`);
+  }
+  await writeFile(join(lock, "pid"), String(process.pid));
+  try {
+    return await entry.run({ ...request, libraryRoot });
+  } finally {
+    await rm(lock, { recursive: true, force: true });
+  }
 }
 
-/** A download marker: written when it starts; `failed` once it ended with media missing. */
+const alive = (pid: number) => {
+  try {
+    process.kill(pid, 0);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * A download marker: written when it starts; `failed` once it ended with media of the course missing;
+ * `error` when it stopped with an error (then it waits for the learner instead of resuming).
+ */
 interface Marker {
   startedAt: number;
   failed?: number;
+  error?: string;
 }
 
 /** Downloads through the providers into `<dataRoot>/library` (the server's CourseInstaller). */
@@ -86,12 +127,19 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
       const marker = markerFile(series, course);
       await mkdir(join(library, series, ".downloads"), { recursive: true });
       await writeFile(marker, JSON.stringify({ startedAt: now() } satisfies Marker));
-      const report = await importCourse(provider, { dataRoot, courses: [course], log, progress });
-      if (report.failedMedia.length)
-        await writeFile(
-          marker,
-          JSON.stringify({ startedAt: now(), failed: report.failedMedia.length } satisfies Marker),
-        );
+      const startedAt = now();
+      const mark = (m: Marker) => writeFile(marker, JSON.stringify(m));
+      await mark({ startedAt });
+      let report: ImportReport;
+      try {
+        report = await importCourse(provider, { dataRoot, courses: [course], log, progress });
+      } catch (error) {
+        await mark({ startedAt, error: error instanceof Error ? error.message : String(error) });
+        throw error;
+      }
+      // Media of this course still missing (the series' media index also holds other courses').
+      const missing = (await openLibrary(library).check(series, course)).media.missing;
+      if (missing) await mark({ startedAt, failed: missing });
       else await rm(marker, { force: true });
       return report;
     },
@@ -102,8 +150,16 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
         const dir = join(library, series, ".downloads");
         if (!existsSync(dir)) continue;
         for (const file of (await readdir(dir)).filter((f) => f.endsWith(".json"))) {
-          const marker = JSON.parse(await readFile(join(dir, file), "utf8")) as Marker;
-          out.push({ series, course: file.slice(0, -5), failed: marker.failed });
+          // A marker cut short (the process stopped while writing it) reads as an interrupted download.
+          const marker = await readFile(join(dir, file), "utf8")
+            .then((text) => JSON.parse(text) as Marker)
+            .catch((): Marker => ({ startedAt: 0 }));
+          out.push({
+            series,
+            course: file.slice(0, -5),
+            failed: marker.failed,
+            ...(marker.error ? { error: marker.error } : {}),
+          });
         }
       }
       return out;

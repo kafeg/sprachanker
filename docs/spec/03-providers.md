@@ -40,7 +40,10 @@ library reader, and the helpers normalisers share: a lesson's vocabulary entries
   lessons open without media); fetch the media into `media/`; normalise again with them. Normalising is
   offline and deterministic.
 - **Reports** unknown exercises (`unmapped`), files that failed validation, media that failed.
-- One download at a time (the job queue); a course is visible once its first normalise wrote it.
+- One download at a time (the job queue) and one import per series across processes (a lock folder
+  with the owner's pid, taken over when that process is gone), so the CLI and the server never write
+  one `media.json` together. A course is visible once its first normalise wrote it; exercises made only
+  of media show as not supported until the media are in.
 
 ## 1. DW Learn German (`courses/dw`)
 
