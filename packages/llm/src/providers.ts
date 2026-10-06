@@ -1,7 +1,9 @@
-// Provider presets (07, "Providers"). All of them speak the OpenAI-compatible chat API.
+// Provider presets (07, "Providers"): servers speaking the OpenAI-compatible chat API, and command-line
+// agents run with the user's own subscription (cli.ts).
 import { z } from "zod";
+import type { CliKind } from "./cli.ts";
 
-export const ProviderId = z.enum(["lmstudio", "openrouter", "custom"]);
+export const ProviderId = z.enum(["lmstudio", "openrouter", "custom", "claude-code", "codex"]);
 export type ProviderId = z.infer<typeof ProviderId>;
 
 export interface ProviderPreset {
@@ -14,6 +16,8 @@ export interface ProviderPreset {
   editableUrl: boolean;
   /** Request fields that turn a model's reasoning off, in this provider's dialect. */
   noReasoning?: Record<string, unknown>;
+  /** Run through this command-line agent instead of an HTTP endpoint. */
+  cli?: CliKind;
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
@@ -33,4 +37,6 @@ export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
     noReasoning: { reasoning: { enabled: false } },
   },
   custom: { id: "custom", baseUrl: "", key: "optional", editableUrl: true },
+  "claude-code": { id: "claude-code", baseUrl: "", key: "none", editableUrl: false, cli: "claude" },
+  codex: { id: "codex", baseUrl: "", key: "none", editableUrl: false, cli: "codex" },
 };

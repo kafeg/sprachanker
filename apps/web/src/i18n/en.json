@@ -110,7 +110,9 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
-      "custom": "Other server"
+      "custom": "Other server",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
     },
     "lmstudioHint": "LM Studio runs the model on this computer. SprachAnker starts its server, loads the chosen model and can download suggested models into it.",
     "endpoint": "Server address",
@@ -145,7 +147,16 @@
       "llm_lmstudio_remote": "LM Studio runs on another computer: start its server there.",
       "llm_invalid_output": "The model could not give a usable answer. Try again, or choose a larger model in Settings → AI assistant.",
       "no_active_scene": "This scene has ended. Start a new one.",
-      "no_such_item": "This exercise has changed. Reload the lesson."
+      "no_such_item": "This exercise has changed. Reload the lesson.",
+      "llm_cli_missing": "The command-line assistant is not installed on this computer."
+    },
+    "cliHint": {
+      "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
+      "codex": "Runs the Codex CLI installed on this computer (`codex exec`) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running `claude`.",
+      "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with `codex login`."
     }
   },
   "tutor": {

@@ -2,7 +2,9 @@ import { Database } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import type { CliRun } from "@sprachanker/llm";
 import { secretBox } from "../src/security/secrets.ts";
+import type { CliHost } from "../src/services/llm.ts";
 import { setup } from "./setup.ts";
 
 /**
@@ -54,6 +56,8 @@ describe("llm setup", () => {
       ["lmstudio", "http://localhost:1234/v1"],
       ["openrouter", "https://openrouter.ai/api/v1"],
       ["custom", ""],
+      ["claude-code", ""],
+      ["codex", ""],
     ]);
   });
 
@@ -410,5 +414,53 @@ describe("prompt viewer", () => {
     const { send } = await setup();
     const res = await send("POST", "/api/llm/explain/prompt", EXPLAIN);
     expect(res.status).toBe(409);
+  });
+});
+
+describe("command-line assistants", () => {
+  /** A fake `claude`: answers every run with the same streamed text. */
+  function claude(installed = true) {
+    const runs: CliRun[] = [];
+    const host: CliHost = {
+      installed: () => installed,
+      run: () => (run) => {
+        runs.push(run);
+        return (async function* () {
+          yield JSON.stringify({
+            type: "stream_event",
+            event: {
+              type: "content_block_delta",
+              delta: { type: "text_delta", text: "Weil »Frau« weiblich ist." },
+            },
+          });
+          yield JSON.stringify({ type: "result", subtype: "success", is_error: false });
+        })();
+      },
+    };
+    return { host, runs };
+  }
+
+  test("Claude Code answers through the command; the settings show it installed", async () => {
+    const fake = claude();
+    const { send, getJson } = await setup({ fetch: provider().fetch, cli: fake.host });
+    await send("PUT", "/api/llm/route", { provider: "claude-code", model: "sonnet" });
+    const state = await getJson("/api/llm");
+    expect(state.providers.find((p: { id: string }) => p.id === "claude-code")).toMatchObject({
+      installed: true,
+      key: "none",
+    });
+    const res = await send("POST", "/api/llm/explain", EXPLAIN);
+    expect(await res.text()).toBe("Weil »Frau« weiblich ist.");
+    expect(fake.runs[0]?.files?.["system.txt"]).toContain("teacher");
+    expect((await getJson("/api/llm/models?provider=claude-code")).models.length).toBeGreaterThan(
+      0,
+    );
+  });
+
+  test("a command that is not installed is a setup error", async () => {
+    const { send, get } = await setup({ fetch: provider().fetch, cli: claude(false).host });
+    await send("PUT", "/api/llm/route", { provider: "claude-code", model: "sonnet" });
+    const res = await get("/api/llm/models?provider=claude-code");
+    expect(((await res.json()) as { error: string }).error).toBe("llm_cli_missing");
   });
 });

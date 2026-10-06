@@ -3,9 +3,13 @@
 import {
   CHAT_TURN_BUDGETS,
   CHECK_WRITING_BUDGETS,
+  type CliKind,
+  type CliRunner,
   chatBody,
   chatTurnRules,
   checkWritingRules,
+  cliClient,
+  cliCommand,
   EXPLAIN_MISTAKE_BUDGETS,
   type ExplainMistakeInput,
   explainMistake,
@@ -49,6 +53,8 @@ export interface ProviderState {
   key: "required" | "optional" | "none";
   hasKey: boolean;
   editableUrl: boolean;
+  /** Command-line providers: whether the command is installed here. */
+  installed?: boolean;
 }
 
 /** What the server can do with an LM Studio on its own machine (src/runtime/lmstudio.ts). */
@@ -58,6 +64,12 @@ export interface LmStudioHost {
   /** Starts LM Studio's server (`lms server start`). */
   startServer(): Promise<void>;
   memoryGb: number;
+}
+
+/** Command-line agents on this machine (src/runtime/cli.ts). */
+export interface CliHost {
+  installed(kind: CliKind): boolean;
+  run(kind: CliKind): CliRunner;
 }
 
 export interface LmStudioStatus {
@@ -123,6 +135,7 @@ export function createLlm(deps: {
   content: Content;
   fetch: typeof fetch;
   lmStudio?: LmStudioHost;
+  cli?: CliHost;
 }) {
   const { db, settings, box, content } = deps;
   /** Downloads started from the app: model key → LM Studio job id. */
@@ -149,6 +162,10 @@ export function createLlm(deps: {
     model?: string | null,
   ): Promise<{ client: LlmClient; model: string }> {
     const preset = PROVIDERS[id];
+    if (preset.cli) {
+      if (!deps.cli?.installed(preset.cli)) throw new LlmSetupError("llm_cli_missing");
+      return { client: cliClient(preset.cli, deps.cli.run(preset.cli)), model: model ?? "" };
+    }
     const url = baseUrl(id);
     if (!url) throw new LlmSetupError("llm_no_endpoint");
     const key = await apiKey(id);
@@ -188,6 +205,7 @@ export function createLlm(deps: {
           key: p.key,
           hasKey: hasKey(p.id),
           editableUrl: p.editableUrl,
+          ...(p.cli ? { installed: deps.cli?.installed(p.cli) ?? false } : {}),
         })),
       };
     },
@@ -281,7 +299,9 @@ export function createLlm(deps: {
       return {
         provider: r.providerId,
         model: r.model,
-        url: `${baseUrl(r.providerId).replace(/\/+$/, "")}/chat/completions`,
+        url: PROVIDERS[r.providerId].cli
+          ? cliCommand(PROVIDERS[r.providerId].cli as CliKind, r.model)
+          : `${baseUrl(r.providerId).replace(/\/+$/, "")}/chat/completions`,
         body: chatBody({ ...task, model: r.model }, PROVIDERS[r.providerId].noReasoning),
       };
     },

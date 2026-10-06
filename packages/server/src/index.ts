@@ -3,6 +3,7 @@ import { openLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
 import { type Listening, listen, mediaBlob, openProfileDb, secretKey } from "./runtime/bun.ts";
+import { cliHost } from "./runtime/cli.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
@@ -29,6 +30,7 @@ export function startServer(config: ServerConfig): Listening {
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),
     lmStudio: lmStudioHost(),
+    cli: cliHost(),
   });
   return listen(app.fetch, config);
 }

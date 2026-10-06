@@ -212,6 +212,15 @@ export function LlmSettings() {
           {provider.id === "lmstudio" && (
             <p className="text-sm text-muted-foreground">{t("llm.lmstudioHint")}</p>
           )}
+          {provider.installed !== undefined && (
+            <p className="text-sm text-muted-foreground">{t(`llm.cliHint.${provider.id}`)}</p>
+          )}
+          {provider.installed === false && (
+            <p className="flex items-start gap-1.5 text-sm">
+              <CircleX className="mt-0.5 size-4 shrink-0 text-wrong" />
+              {t(`llm.cliMissing.${provider.id}`)}
+            </p>
+          )}
           {provider.editableUrl && <EndpointField provider={provider} />}
           {provider.key !== "none" && <KeyField provider={provider} />}
           {provider.id === "lmstudio" ? (

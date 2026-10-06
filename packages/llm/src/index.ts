@@ -1,3 +1,4 @@
+export * from "./cli.ts";
 export * from "./client.ts";
 export * from "./lmstudio.ts";
 export * from "./providers.ts";

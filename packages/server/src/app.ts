@@ -11,7 +11,7 @@ import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
-import { createLlm, type LmStudioHost } from "./services/llm.ts";
+import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createLlmRuns } from "./services/llm-runs.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
@@ -38,6 +38,7 @@ export interface AppConfig {
   fetch?: typeof fetch;
   /** LM Studio on this machine: detect it, start its server. */
   lmStudio?: LmStudioHost;
+  cli?: CliHost;
   now?: () => number;
 }
 
@@ -55,6 +56,7 @@ export function createApp(config: AppConfig) {
     content,
     fetch: config.fetch ?? fetch,
     lmStudio: config.lmStudio,
+    cli: config.cli,
   });
   const runs = createRuns({
     db: config.profile,
