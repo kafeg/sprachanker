@@ -58,7 +58,9 @@
     "backToCourse": "Back to the course",
     "nextLesson": "Next lesson",
     "reference": "Reference",
-    "plan": "Lesson plan"
+    "plan": "Lesson plan",
+    "audio": "Listen to the lesson",
+    "itemAudio": "Audio for item {n}"
   },
   "ref": {
     "vocabulary": "Vocabulary",
@@ -274,5 +276,13 @@
     "placeholder": "Your line in German…",
     "done": "All goals reached — well done!",
     "new": "New scene"
+  },
+  "player": {
+    "play": "Play: {what}",
+    "pause": "Pause",
+    "back": "Back 5 seconds",
+    "speed": "Playback speed {rate}×",
+    "position": "Position",
+    "unavailable": "The audio could not be loaded."
   }
 }

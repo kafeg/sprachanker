@@ -58,7 +58,9 @@
     "backToCourse": "Zurück zum Kurs",
     "nextLesson": "Nächste Lektion",
     "reference": "Nachschlagen",
-    "plan": "Ablauf"
+    "plan": "Ablauf",
+    "audio": "Lektion anhören",
+    "itemAudio": "Audio zu Aufgabe {n}"
   },
   "ref": {
     "vocabulary": "Wortschatz",
@@ -274,5 +276,13 @@
     "placeholder": "Dein Satz auf Deutsch…",
     "done": "Alle Ziele erreicht – super!",
     "new": "Neue Szene"
+  },
+  "player": {
+    "play": "Abspielen: {what}",
+    "pause": "Pause",
+    "back": "5 Sekunden zurück",
+    "speed": "Geschwindigkeit {rate}×",
+    "position": "Position",
+    "unavailable": "Das Audio konnte nicht geladen werden."
   }
 }

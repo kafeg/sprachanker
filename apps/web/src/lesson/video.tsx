@@ -1,6 +1,7 @@
 // Episode video with an HD switch and the German subtitle track (09).
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { claimPlayback } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 
 export function EpisodeVideo({
@@ -38,6 +39,7 @@ export function EpisodeVideo({
         key={src}
         controls
         preload="metadata"
+        onPlay={(e) => claimPlayback(e.currentTarget)}
         className="aspect-video w-full rounded-2xl bg-black"
         src={url(src)}
       >

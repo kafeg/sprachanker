@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { correctAnswer, ExerciseItem, isScored } from "@/exercises/index.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
-import { MediaBlock } from "@/ui/media.tsx";
+import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 
 function Feedback({ outcome, answer }: { outcome: Outcome; answer?: string }) {
@@ -165,25 +165,24 @@ export function ExerciseStep({
           const outcome = outcomes?.[i];
           return (
             <li key={item.key} className="rounded-2xl border bg-card p-4 sm:p-5">
-              <div className="mb-3 flex items-start gap-3">
-                {item.media?.audio && (
-                  <MediaBlock
-                    media={{ audio: item.media.audio }}
-                    url={url}
-                    audioLabel={item.prompt ?? ""}
-                  />
+              {item.media?.audio && (
+                <AudioPlayer
+                  compact
+                  src={url(item.media.audio)}
+                  label={item.prompt ?? t("lesson.itemAudio", { n: i + 1 })}
+                  className="mb-3"
+                />
+              )}
+              <div className="mb-3">
+                {item.prompt && (
+                  <p lang="de" className="text-lg font-semibold">
+                    {item.prompt}
+                  </p>
                 )}
-                <div className="min-w-0 flex-1 pt-1">
-                  {item.prompt && (
-                    <p lang="de" className="text-lg font-semibold">
-                      {item.prompt}
-                    </p>
-                  )}
-                  {loc?.prompt && <p className="text-lg font-semibold">{loc.prompt}</p>}
-                  {loc?.hintHtml && (
-                    <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
-                  )}
-                </div>
+                {loc?.prompt && <p className="text-lg font-semibold">{loc.prompt}</p>}
+                {loc?.hintHtml && (
+                  <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
+                )}
               </div>
               {item.media && ("image" in item.media || "video" in item.media) && (
                 <MediaBlock

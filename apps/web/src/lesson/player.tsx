@@ -24,7 +24,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
-import { MediaBlock } from "@/ui/media.tsx";
+import { AudioPlayer } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { Reference, type ReferenceTab, referenceTabs, VocabularyList } from "./reference.tsx";
@@ -292,10 +292,10 @@ export function LessonPlayer({
                 )
               )}
               {lesson.media.audio && (
-                <MediaBlock
-                  media={{ audio: lesson.media.audio }}
-                  url={url}
-                  audioLabel={locale?.title ?? lesson.key}
+                <AudioPlayer
+                  src={url(lesson.media.audio)}
+                  label={locale?.title ?? lesson.key}
+                  title={t("lesson.audio")}
                 />
               )}
               <div className="flex flex-wrap items-center justify-between gap-3 pt-2">

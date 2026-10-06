@@ -1,9 +1,10 @@
 // Routes (TanStack Router, code-based): app pages inside the shell, the lesson player full screen.
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
-import { usePreferences } from "@/app/preferences.ts";
+import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { AssistantLabel } from "@/llm/assistant-label.tsx";
 import { AppShell } from "@/ui/app-shell.tsx";
+import { PlaybackRate } from "@/ui/media.tsx";
 import { CoursePage } from "./course.tsx";
 import { CoursesPage } from "./courses.tsx";
 import { SettingsPage } from "./settings.tsx";
@@ -11,7 +12,11 @@ import { SettingsPage } from "./settings.tsx";
 const root = createRootRoute({
   component: function Root() {
     usePreferences();
-    return <Outlet />;
+    return (
+      <PlaybackRate value={usePlaybackRate()}>
+        <Outlet />
+      </PlaybackRate>
+    );
   },
 });
 const shell = createRoute({

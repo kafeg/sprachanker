@@ -1,7 +1,7 @@
-// Profile preferences applied in the UI: interface language, theme, course edition.
-import { useEffect } from "react";
+// Profile preferences applied in the UI: interface language, theme, course edition, playback speed.
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/api/hooks.ts";
+import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import { isUiLanguage } from "@/i18n/index.ts";
 
 export type Theme = "system" | "light" | "dark";
@@ -29,6 +29,19 @@ export function usePreferences() {
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   }, [theme]);
+}
+
+/** The profile's playback speed for course audio, for `PlaybackRate` (ui/media.tsx). */
+export function usePlaybackRate() {
+  const { data } = useSettings();
+  const set = useSetSetting();
+  const stored = data?.audioRate;
+  const rate = typeof stored === "number" ? stored : 1;
+  const { mutate } = set;
+  return useMemo(
+    () => ({ rate, setRate: (value: number) => mutate({ key: "audioRate", value }) }),
+    [rate, mutate],
+  );
 }
 
 export const editionSetting = (series: string, course: string) => `edition:${series}/${course}`;

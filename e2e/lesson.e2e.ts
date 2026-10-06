@@ -22,6 +22,9 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
   await expect(page.getByRole("status").nth(1)).toContainText("Not quite");
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
+  // The item's audio has a player; the fixture's audio is not real sound, so it says so.
+  const player = page.getByRole("group", { name: "Was bestellt Tom?" });
+  await expect(player).toContainText("The audio could not be loaded.");
 
   // Leaving and coming back resumes the run on the same page.
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
