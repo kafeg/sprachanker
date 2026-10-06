@@ -4,18 +4,19 @@
 
 ```
 <app-data>/                      # OS-specific: ~/Library/Application Support/SprachAnker, %APPDATA%\…, ~/.local/share/…
-├── config.json                  # data root path, port, network settings
-├── cache/                       # TTS and machine-translation cache
-└── logs/
+├── secret.key                   # seals the profiles' API keys (06, Security)
+├── config.json                  # planned: data root path, port, network settings
+├── cache/                       # planned: TTS cache (08)
+└── logs/                        # planned
 
-<data-root>/                     # user-chosen; default <app-data>/data
+<data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
-├── models/                      # downloaded speech models and voices (08)
-├── server.sqlite                # profiles, devices, jobs
-└── profiles/<profile-id>/
+├── models/                      # planned: downloaded speech models and voices (08)
+├── server.sqlite                # planned: profiles, devices, jobs
+└── profiles/<profile-id>/       # today one profile, `local`
     ├── profile.sqlite           # all learner data of this profile
-    ├── recordings/              # learner audio as captured, referenced from events
-    └── media/                   # learner-added files
+    ├── recordings/              # planned: learner audio as captured, referenced from events
+    └── media/                   # planned: learner-added files
 ```
 
 - One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
@@ -25,7 +26,7 @@
 - The data root is created only on first start; if a configured root is missing later (e.g. an
   unmounted disk), the server refuses to start with a clear message.
 
-## `server.sqlite`
+## `server.sqlite` (planned, with profiles)
 
 - `profiles(id, display_name, pin_hash?, is_owner, created_at)`
 - `devices(id, profile_id, token_hash, name, user_agent, created_at, last_seen_at)`
@@ -33,21 +34,24 @@
 
 ## `profile.sqlite`
 
-All ids are ULIDs; all content references use keys from 02. Seven tables:
+All ids are ULIDs; all content references use keys from 02. Built: `settings`, `secrets`, `llm_routes`,
+`runs`, `events` (`packages/server/src/db/profile/schema.ts`); `cards` and `card_state` come with
+stage 6.
 
 ```sql
 settings(key TEXT PRIMARY KEY, value_json TEXT)          -- languages, theme, SRS limits, retention,
                                                          -- speech preferences, time zone, federal state…
 secrets(provider_id TEXT PRIMARY KEY, value_encrypted)   -- the profile's API keys; never returned by the API
-llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- each profile picks its own models (07)
+llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- the profile's model (07); only
+                                                         -- task 'default' is used (per-task routes: Later)
 
 runs(
   id TEXT PRIMARY KEY,
   kind TEXT NOT NULL,             -- lesson | exam | review | practice | scene | chat
-  context_key TEXT,               -- lesson/exam/scene key; null for review, practice, chat
+  context_key TEXT,               -- lesson key for lesson, chat, practice and scene runs; exam key; null for review
   course_key TEXT, edition TEXT, content_version TEXT,   -- null when not tied to one course
   app_version TEXT NOT NULL,      -- includes our enrichment version
-  plan_json TEXT,                 -- fixed at start for review, practice and exam runs; null for lessons
+  plan_json TEXT,                 -- a scene's setup; fixed at start for review and exam runs; null otherwise
   status TEXT NOT NULL,           -- active | finished | abandoned
   end_reason TEXT,                -- completed | timeout | content_updated | user
   started_at INTEGER NOT NULL, finished_at INTEGER,
@@ -81,11 +85,13 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 
 | Event type | Payload (required fields) |
 |---|---|
-| `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (attached by the server, incl. learner-language texts), `displayOrder` |
-| `answered` | `answer` (02; spoken answers carry `speech{recording, asrText, model, latencyMs}`), `outcome` (04, computed by the server), `attempt`, `ms` |
-| `llm_verdict` | `task` (`writing` \| `review`), `input` (the learner's text), `result` (the task's structured output, 07), `model`, `latencyMs`; in `practice` runs of the lesson |
-| `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen); scenes add `segments[{lang,text}]`, `corrections[]`, `goalsMet[]?`, `speech?` |
-| `card_review` | `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
+| `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
+| `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
+| `llm_verdict` | `task` (`writing` \| `review`), `input` (the learner's text; empty for a review), `result` (the task's structured output, 07), `model`, `latencyMs`; in `practice` runs of the lesson |
+| `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
+| `card_review` | planned (stage 6): `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
+
+Payload schemas: `packages/schema/src/learner.ts`.
 
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
   its name and the UI shows "deleted".
@@ -96,21 +102,23 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 ## Derived state
 
 Statistics (lesson progress and best scores, item history, mistakes, rule and lexeme stats, can-do) are
-**pure engine functions over events and cards** (04). The server computes them per profile and caches
-them in memory, updating on append. There are no derived tables; one is added only when a measured
+**pure engine functions over events and cards** (04). The server computes them per profile when asked
+(an in-memory cache is added when needed). There are no derived tables; one is added only when a measured
 query is too slow, and then it must be rebuildable from events.
 
 Resume = the last `page_shown` of the active run.
 
 ## Migrations
 
-- Drizzle migrations, forward-only, separate sets for `server.sqlite` and `profile.sqlite`.
-- Before migrating, the file is copied to `<file>.bak-<timestamp>`; the last 5 are kept. A failed
-  migration restores the copy and the server refuses to start with an explanation.
+- Drizzle migrations, forward-only, one set per database (`profile.sqlite` today;
+  `server.sqlite` when it is added).
+- Before migrating, the file is copied to `<file>.bak-<timestamp>`; the last 5 are kept. Each
+  migration runs in a transaction; a failed one is rolled back and the server refuses to start with an
+  explanation.
 - The server refuses to open a DB that has migrations it does not know (downgrade protection).
 - Each migration has a test that upgrades fixture DBs of every released version (10).
 
-## Export, import, backup
+## Export, import, backup (planned)
 
 - **Profile export** = zip of the profile folder (`profile.sqlite` via `VACUUM INTO`, recordings,
   media) without secrets. **Import** unpacks it as a new profile; migrations bring it up to date.
@@ -124,8 +132,9 @@ Resume = the last `page_shown` of the active run.
   profile may continue it; events from all devices are stored (idempotent by id).
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached. Score = mean
   first-attempt score of scored items (04).
-- **Content updated** while a run is active: the run ends `abandoned/content_updated`; finished runs stay
-  readable via snapshots.
+- Switching a course's edition ends its active lesson run `abandoned/user`.
+- Planned (with `contentVersion`, 02): **content updated** while a run is active ends the run
+  `abandoned/content_updated`; finished runs stay readable via snapshots.
 - **Course removed**: runs stay readable via snapshots; lexeme cards keep working from
   `display_cache_json`.
 - **Study days** use the profile's time zone.

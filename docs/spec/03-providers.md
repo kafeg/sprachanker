@@ -1,39 +1,37 @@
 # 03 — Providers (importers)
 
-A provider turns an external source into library content (02). Each provider is a folder in `courses/`:
-
-```
-courses/<provider-id>/
-├── provider/        # catalog entries, fetcher, normaliser, keymap.json
-├── enrichment/      # our layer (YAML/Markdown), keyed by stable keys
-├── fixtures/        # SYNTHETIC test inputs only — never real third-party content
-└── tests/
-```
+A provider turns an external source into library content (02). Each provider is a workspace package in
+`courses/<provider>/` with `src/` (course list, fetch, normalise) and `test/` (on SYNTHETIC inputs only —
+never real third-party content). Our enrichment will live next to it (02, planned).
 
 ## Provider contract
 
-```ts
-interface Provider {
-  id: string;                                         // "dw-nicos-weg"
-  catalog(): CatalogEntry[];                          // static declaration, no network
-  fetch(sel: Selection, io: FetchIO, progress: Progress): Promise<FetchReport>;  // writes raw/ + media/
-  normalise(raw: RawView): { files: Map<string, unknown>; report: NormaliseReport };  // offline
-}
-```
+`packages/course-kit/src/provider.ts` is the contract every provider follows:
 
-`course-kit` owns the library format (read and write, `LibraryView`) and supplies `FetchIO` (HTTP
-client: robots.txt, retries with backoff, resumable downloads, identifiable User-Agent, stop on
-403/429; no fixed rate limit, providers choose their concurrency), the media store, writing files and the manifest, the HTML sanitiser, fingerprints and
-`contentVersion`, and the generic `verify`. The exact interface is fixed in stage 2.
+- An import function takes `ImportOptions` (library folder, optional `courses` / `editions` filters,
+  `refresh`, `log`) and returns an `ImportReport`: failed media and, per "<course> <edition>", a
+  `NormaliseResult` (lessons, unknown exercises, files that failed validation).
+- Normalised files are `LibraryFile`s (path, schema, value) written by `writeLibraryFiles`, which
+  validates each one; raw pages are fetched once through `storedPage`.
+- `packages/server/src/providers.ts` maps CLI provider ids to import functions (`dw-nicos-weg`,
+  `dw-deutschtrainer`, `coerll-dib`); `importCourse` runs one into `<data-root>/library`.
+
+`course-kit` also supplies the polite HTTP client (`http.ts`: robots.txt, retries with backoff,
+identifiable User-Agent, stop on 403/429; no fixed rate limit, providers choose their concurrency),
+the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fingerprints and the
+library reader.
 
 ## Importer behaviour (all providers)
 
-- **On demand only**, from the UI or CLI (`sprachanker import <provider> --courses a1 --editions ru-de`).
-- **Idempotent and resumable.** With raw data present, a re-run makes no requests unless `--refresh`.
-- **Separate phases.** `fetch` writes raw + media; `normalise` builds canonical + locale offline.
-- **Reports** unknown exercise types, unmapped fields, edition mismatches, changes since the last fetch.
-- **No partial installs visible.** A course becomes visible after normalise + verify succeed.
-- One import per series at a time (lock file in the series folder).
+- **On demand only**, from the CLI (`sprachanker import <provider> --courses a1 --editions ru-de`);
+  from the UI later (install job, 06).
+- **Idempotent and resumable.** Stored raw pages are not fetched again unless `--refresh`; stored media
+  are skipped, failed media are tried again on the next run.
+- **Two phases in one command.** Fetch writes `raw/` + `media/`; normalise then builds canonical +
+  locale files offline from them.
+- **Reports** unknown exercises (`unmapped`), files that failed validation, media that failed.
+- Planned: no partial installs visible (a course appears only after normalise + verify), one import
+  per series at a time (lock file).
 
 ## 1. DW Learn German (`courses/dw`)
 
@@ -47,12 +45,17 @@ uk, pl, tr, ar, not en).
 
 Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 
-- Courses `a1`, `a2` (editions `ru-de`, `en-de`), `b1` (`de-de`). **MVP: `a1` `ru-de` only.**
-- **Fetch**: the course page (lesson order, unit groups), each lesson page (overview, vocabulary,
-  grammar, culture, script, videos) and one page per exercise; URLs are built from ids. The embedded
-  state JSON (`window.__APOLLO_STATE__`) is stored in `raw/`, not full HTML. A1 = 1 + 77 + 1071
-  pages. Media: episode video and subtitle track, exercise images and audio, vocabulary audio. Which
-  video variants and PDFs are fetched is decided in stage 2. Hosts refusing cloud IPs are reported.
+- Courses and source ids: `courses/dw/src/catalog.ts` — `a1`, `a2` (editions `ru-de`, `en-de`), `b1`
+  (`de-de`). The first edition of a course writes its canonical files.
+- **Fetch** (`courses/dw/src/pages.ts`): the course page (lesson order, unit groups), per lesson its
+  page (overview, vocabulary, grammar, culture, script, videos) and its download page (`…/le`), and one
+  page per exercise; URLs are built from ids. The embedded state JSON (`window.__APOLLO_STATE__`) is
+  stored in `raw/<edition>/<course>/` (`course.json`, `l-<id>.json`, `le-<id>.json`, `e-<id>.json`),
+  not full HTML.
+- **Media** (`courses/dw/src/media.ts`): every MP3 the pages link (items, vocabulary, lessons); images
+  in format 6 (940×529); episode videos as direct MP4s in SD and HD (from the download page, else
+  remuxed from the HLS stream), not the variant with burned-in subtitles; the German subtitle track;
+  the lesson PDFs. Hosts refusing requests are reported.
 - **Normalise**: the mechanics table in `docs/research/dw-nicos-weg.md` maps every DW mechanic to a
   type (02); an unseen combination → `unknown` + report. Units are the course's lesson groups in
   order (`u00`…); the final test is a lesson in its own unit after the last one (A1: `19-01`).
@@ -60,24 +63,26 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   language"); the "Play audio" label is dropped; image options keep only the image. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma.
-- **Edition alignment** (after MVP): editions have different source ids; lessons and exercises align by
-  order; options are matched by text because their order and punctuation can differ between editions;
+- Further editions write only their locale files, keyed by source order. Planned (**edition
+  alignment**, after MVP): editions have different source ids; lessons and exercises align by order;
+  options are matched by text because their order and punctuation can differ between editions;
   mismatches are reported, never merged silently.
-- **B1** (after MVP) has a German glossary (`GLOSSARY`, definitions instead of translations) that
-  needs its own vocabulary parser.
+- Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
+  own vocabulary parser; until then B1 lessons have no vocabulary.
 
-## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`)
+## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`; planned, stage 9b)
 
 Official BAMF question catalogue (PDF): 300 general questions + 10 per federal state. A test has 33
 questions (30 general + 3 for the learner's state), 60 minutes; 15 correct passes the course test, 17 are
 needed for naturalisation — both shown. Modes: browse, my state, timed exam, practise wrongly answered
-questions. Question translations into the learner's language by LLM, marked as machine translation.
+questions. Questions are shown in German; translations into the learner's language wait for machine
+translation (07, Later).
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 
 2nd edition (2017), **CC BY 4.0** only (the 2013 edition is CC BY-NC-ND and MUST NOT be used); the
-attribution is the course description. Facts: `docs/research/coerll-dib.md`. Tests that the schema is
-not DW-shaped.
+attribution is the course description. Facts: `docs/research/coerll-dib.md`. Shows that the schema is
+not DW-shaped: an `en-de` edition with English learner strings and no exercises.
 
 - **Fetch**: `toc.php?k=1..10` and `voc.php?k=1..10` stored as HTML under `raw/en-de/dib/`; media: the
   recording of each vocabulary section and the chapter's textbook PDF.
@@ -86,7 +91,7 @@ not DW-shaped.
   interactive exercises; they are in the textbook PDF, a download of the chapter's first lesson.
   Headwords as the book writes them ("der Apfel (Äpfel)", "(no plural)", "(plural only)") give
   gender and plural; verbs and phrases by shape.
-- **Not imported yet**: the interviews (several videos per topic with parallel de/en transcripts) —
+- Planned (after MVP): the interviews (several videos per topic with parallel de/en transcripts) —
   they need lessons with more than one video and transcript pages (02); web quests; pronunciation.
 
 ## Later
@@ -101,4 +106,5 @@ not DW-shaped.
 - No third-party content in the repository, including fixtures and tests.
 - No brand assets of the source used as SprachAnker branding; the source is shown only as attribution.
 - Crawling as above; stop and report on 403/429.
-- Licence and attribution recorded in the manifest and displayed in the UI.
+- Licence and attribution recorded in the manifest and displayed in the UI (planned with the manifest,
+  02; Deutsch im Blick already carries its CC BY attribution in the course description).

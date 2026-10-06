@@ -21,7 +21,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `packages/anki-export` | `.apkg` import/export (created in stage 10). | 04 | `packages/engine/CLAUDE.md` |
 | `apps/web` | React UI: desktop window and phone PWA, components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell: window, tray, starts the server sidecar, updates. | 06 | `apps/desktop/CLAUDE.md` |
-| `apps/cli` | The `sprachanker` binary: `serve` (starts the server) + import, verify, export, enrichment check. Compiled with the web build embedded; the desktop app bundles it. | 03, 06 | `apps/cli/CLAUDE.md` |
+| `apps/cli` | The `sprachanker` binary: `serve` (starts the server) and `import` (verify, export, enrichment check planned). Compiled with the web build embedded; the desktop app bundles it. | 03, 06 | `apps/cli/CLAUDE.md` |
 | `native` | Builds of whisper.cpp and Piper for each platform. | 08 | `native/CLAUDE.md` |
 | `e2e` | Playwright end-to-end tests against the compiled binary. | 10 | — |
 | `scripts` | Repository checks run by `bun test`: boundary rules test, CLAUDE.md paths. | 10 | — |

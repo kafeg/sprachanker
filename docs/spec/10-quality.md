@@ -14,10 +14,10 @@
 | Check | What fails CI |
 |---|---|
 | Schema drift | generated JSON Schemas differ from the committed ones in `packages/schema/json-schema/` |
-| Enrichment and rules | invalid files, malformed keys, duplicate rule ids, a `ruleIds` value not in the registry |
-| Fixture library | `courses/_fixture` (invented course, every exercise type) normalises, validates and passes `verify` |
+| Rules registry | an invalid registry file, duplicate rule ids, a fixture `ruleIds` value not in the registry (enrichment checks come with enrichment, 02) |
+| Fixture library | `courses/_fixture` (invented course, two editions) has an exercise of every type, validates against the schemas, and its fingerprints match the content |
 | Provider contracts | synthetic fixtures normalise into valid, deterministic output |
-| Exercise registry | a type without checker, renderer and fixture item |
+| Exercise registry | a type missing from the fixture course |
 | i18n | en/ru/de catalogs have different keys or a message is not valid ICU |
 | CLAUDE.md paths | a backticked repository path in a CLAUDE.md does not exist (see Documentation) |
 
@@ -54,12 +54,11 @@ table in the same commit with the reason.
 
 | Level | What |
 |---|---|
-| Unit (`bun test`) | checkers per type (table-driven), normalisation, FSRS wrapper, replay, normalisers, LLM output parsing |
-| Contract / snapshot | providers on **synthetic** fixtures; enrichment validates and resolves keys |
-| Integration | server API against a temp data root; jobs; media Range |
-| Migration | upgrade fixture DBs from every released schema version |
-| E2E (Playwright) | "first run → install fixture course → complete lesson 1 → review cards", desktop and phone viewport; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model |
-| LLM golden | `prompts test` per route, run manually before changing defaults or prompts |
+| Unit (`bun test`) | checkers per type (table-driven), text normalisation, progress functions, normalisers, LLM tasks with fake endpoints (prompts, output parsing, repair) |
+| Contract / snapshot | providers on **synthetic** fixtures |
+| Integration | server API against a temp data root (`createApp().request()`); media Range |
+| Migration | migrations with backup, downgrade refusal and rollback; upgrades of fixture DBs from every released schema version |
+| E2E (Playwright) | the fixture course: open the course, do exercises, resume, finish with a summary; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model; desktop and phone viewport |
 | Manual | owner demo at the end of each stage on Mac and iPhone |
 
 Third-party content never appears in fixtures.

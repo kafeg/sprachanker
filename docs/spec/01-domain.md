@@ -8,8 +8,8 @@ Types live in `packages/schema`. Names below are the canonical names in code.
 - A learner has a **native language** (language of explanations) and studies a **target language**.
   A course edition is described by `source → target`, e.g. `ru → de`; `de → de` is a monolingual edition.
 - UI language (`en`, `ru`, `de`) is independent from both.
-- A profile studies the edition whose source is its native language, else the course's only edition
-  (choosing per course comes with multiple editions, stage 11).
+- A profile studies the edition chosen for the course in its settings, else the one whose source is its
+  UI language, else the course's first edition.
 
 ## Catalog
 
@@ -19,9 +19,11 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
    └─ Edition  e.g. "ru-de"           (localisation of a course for a source language)
 ```
 
-- A **provider** (03) is the importer that produces a series (`dw-nicos-weg` → `dw.nicos-weg`).
+- A **provider** (03) is the importer that produces series. `courses/dw` produces `dw.nicos-weg` and
+  `dw.deutschtrainer` (CLI ids `dw-<series>`); `courses/coerll-dib` produces `coerll.dib`.
 - **CatalogEntry**: course key, series, `kind` (`course` | `exam`), `level?` (CEFR), `target`,
-  editions, licence, attribution, homepage, approximate size. Declared statically by providers;
+  editions, licence, attribution, homepage, approximate size. Planned (schema only): declared statically
+  by providers for the install screen; today the CLI imports from each provider's own course list and
   installed state comes from the library.
 
 ## Course content

@@ -1,84 +1,84 @@
 # 07 — LLM
 
-`packages/llm` is a gateway: providers, task routing, prompts, structured outputs, evaluation. The rest
-of the app calls tasks, never vendor APIs.
+`packages/llm` is a gateway: providers, prompts, structured outputs, tasks. The rest of the app calls
+tasks, never vendor APIs.
 
 ## Providers
 
-Configured **per profile**: each learner picks their own providers and models (05). Internally
-everything is an OpenAI-compatible chat endpoint plus adapters where needed.
+Configured **per profile**: each learner picks their own provider and model (05). HTTP providers speak
+the OpenAI-compatible chat API (`packages/llm/src/client.ts`); command-line providers run an agent
+installed on the machine with the user's own subscription (`packages/llm/src/cli.ts`, started by
+`packages/server/src/runtime/cli.ts`). Presets live in `packages/llm/src/providers.ts`.
 
-| Provider | Notes |
-|---|---|
-| LM Studio | local, `http://localhost:1234/v1`; integrated through its own API (below) |
-| Ollama | local, `http://localhost:11434/v1` |
-| Remote box | any OpenAI-compatible URL on the LAN/tailnet |
-| OpenRouter, OpenAI | API key |
-| Anthropic | API key; Messages API adapter |
+| Provider | Endpoint | API key | Notes |
+|---|---|---|---|
+| `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | local models; integrated through LM Studio's own API (below) |
+| `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models |
+| `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | |
+| `claude-code` | `claude -p` on the server's machine | none (Claude subscription, signed in once with `claude`) | models by alias (`sonnet`, `opus`, `haiku`) |
+| `codex` | `codex exec` on the server's machine | none (ChatGPT subscription, `codex login`) | read-only sandbox |
 
-Built today: LM Studio, OpenRouter and "other server" (any OpenAI-compatible URL, optional key); the
-profile's default route is `llm_routes.task = 'default'`, endpoints live in the setting `llm.endpoints`,
-keys in `secrets` (05, 06).
+Command-line providers run each request in a fresh empty folder with our system prompt and without the
+agent's own tools, MCP servers, settings or saved session: only the lesson context goes out. Structured
+outputs use `--json-schema` / `--output-schema`; the tutor answers there without its tools. Each request
+starts the command (a few seconds).
 
-The provider "test" checks reachability, lists models, measures latency and verifies structured output.
+The profile has one route — provider and model — stored as `llm_routes.task = 'default'`; endpoints
+live in the setting `llm.endpoints`, keys in `secrets` (05, 06). The settings page sets them; its
+"test" lists the provider's models and measures the round trip.
 
 ## LM Studio
 
-The local model runs in LM Studio; the app stores no models or engines. Through LM Studio's REST API
-(`/api/v1`) the settings show whether it runs (and start it with `lms server start` when it is installed
-on the same machine), list its models, set the model in use and ask LM Studio to download suggested
-models (`packages/llm/src/lmstudio.ts`: Gemma 4 by catalog key, the suggested one the largest that
-leaves half of the memory free). Before a task the chosen model is loaded with an 8k context (LM Studio's
-own JIT load uses a smaller window). An API token is sent when LM Studio requires one.
-
-A built-in runtime (llama.cpp and mlx-lm downloaded by the app) existed briefly in Oct 2026 and was
-removed in favour of LM Studio, which already picks the engine, stores models and manages memory. On
-the same weights llama.cpp and MLX were equally fast (M2 Pro, Gemma 4 12B: 19.6 vs 19.0 tok/s).
+Local models run in LM Studio; the app has no LLM runtime of its own and stores no models or engines.
+Through LM Studio's native REST API (`/api/v1`, `packages/llm/src/lmstudio.ts`) the settings show
+whether it runs (and start it with `lms server start` when it is installed on the same machine), list
+its models, set the model in use and ask LM Studio to download suggested models (Gemma 4 by catalog
+key; the suggested one is the largest that leaves half of the memory free). Before a task the chosen
+model is loaded with an 8k context (LM Studio's own JIT load uses a smaller window). An API token is
+sent when LM Studio requires one.
 
 ## Tasks
 
-Each task has its own route (provider + model + params) per profile; unset tasks use the profile's
-default route.
+All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
 
 | Task | Input | Output |
 |---|---|---|
-| `check_answer` | exercise, reference/rubric, answer, lesson rules | verdict, corrections[], short explanation in native language; with rubric criteria also criterion scores and a corrected text |
-| `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
-| `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
-| `chat_turn` | free chat with the learner's context (progress, recent mistakes; the current exercise when asked from a lesson) | message |
-| `translate_mt` | text, languages | translation, marked as machine translation |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages | short explanation in the native language (streamed text) |
+| `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history; tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
 | `review_session` | the lesson, the latest run's first attempts (right of scored, clean exercises), its mistakes | JSON: summary, strengths[], topics[] (topic, explanation, examples), next[] |
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages | short explanation in the native language (streamed text) |
+| `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
+| `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 
-`respond` → `check_answer`; `scene` → `scene_turn`; "ask about this exercise" → `chat_turn`;
-"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; "Write it yourself" on the
-lesson summary (3–5 sentences on the lesson's goals) → `check_writing`, each attempt an `llm_verdict` in
-the lesson's `practice` run; "Session review" on the summary → `review_session`, stored the same way and
-offered again when newer answers exist.
+"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; "ask about this exercise"
+and the lesson tutor → `chat_turn`; "Write it yourself" on the lesson summary (3–5 sentences on the
+lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson's `practice` run;
+"Session review" on the summary → `review_session`, stored the same way and offered again when newer
+answers exist; the scene card on the summary → `scene_setup`, then `scene_turn` per line.
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
   `reasoning: { enabled: false }`); a model that always reasons rejects that and is asked again without.
   Inline `<think>…</think>` output is stripped.
-
-- Outputs are JSON validated with zod: invalid → one repair retry → graceful "couldn't check, here is
-  the reference answer". Requests have per-task timeouts; a model that is still loading is shown as such.
-- Corrections: `{ wrong, right, ruleId?, explanation }`. `ruleId` must come from the list of allowed
-  registry ids given in the prompt; unknown ids are dropped. Verdicts are stored as `llm_verdict` events.
+- **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
+  sent with the request; the reply is validated with zod; an invalid reply gets one repair attempt with
+  the problems listed, then the task fails with `invalid_output` and nothing is stored. Requests have
+  timeouts.
+- Corrections are `{ wrong, right, explanation }`; they carry no rule id (rule ids come with the rules
+  registry and enrichment, 9a).
 - Prompts: the learner's level and known vocabulary are context; target-language replies stay within
-  known material; explanations are in the native language; mixed text is segmented by language
-  (`[{lang,text}]`) for TTS. Course text and learner input are delimited data, never instructions.
-- `translate_mt` results are cached by input hash.
+  known material; explanations are in the native language. Course text and learner input are
+  delimited data, never instructions.
 
 ## Transparency and debugging
 
-- The UI names the assistant wherever it answers (tutor, explanations, sidebar): provider · model.
+- The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model.
 - Settings → "What the model gets": each task's system prompt and the context parts it adds, with
-  their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`).
-- A "Prompt" button (switched on in the settings) shows the exact request of an explanation or of the
-  next tutor message — endpoint, fields, every message with its size — built by the same function as
-  the real call (`explainMistakeRequest`, `chatTurnRequest`, `chatBody`); nothing is sent.
+  their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`, `CHECK_WRITING_BUDGETS`,
+  `REVIEW_SESSION_BUDGETS`, `SCENE_BUDGETS`).
+- A "Prompt" button (switched on in the settings) shows the exact request of a task — endpoint,
+  fields, every message with its size — built by the same function as the real call (`<task>Request`,
+  `chatBody`); nothing is sent.
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
   and how many turns still fit; when the earliest no longer fit it suggests a new chat.
 
@@ -92,25 +92,9 @@ offered again when newer answers exist.
   lesson's, then the latest of earlier lessons, fixed ones marked), the most recent turns within a
   character budget sized for small local models. "Review my mistakes" on the lesson summary opens the
   tutor with that request.
-
-- Scenes and chats are runs with `llm_turn` events: messages, model, corrections, recordings. A scene's
-  setup is its run's plan; it is drafted from the lesson's goals (no authored scenes yet). The app keeps
-  the model honest: corrections must quote the learner's new line, met goals only accumulate, all met
-  ends the scene.
-- After a scene: mistakes by rule, new words (one tap → card), link to "Practise this".
-- **Handoff**: build a prompt with lesson context, known vocabulary and recent mistakes; copy it or open
-  `https://claude.ai/new?q=…` / `https://chatgpt.com/?q=…`, with a visible preview first.
-
-## Model choice and evaluation
-
-Defaults are chosen by golden tests, not assumption; candidate models are re-checked at stage 8.
-
-`packages/llm/golden/` holds cases per task: input + expected properties (errors that must be found,
-claims that must not be made, explanation language, JSON validity) — A1 German by Russian speakers
-(`Ihnen` capitalisation, du/Sie mixing, "Ich bin gut", verb-second, articles), with correct answers as
-controls. `sprachanker prompts test --route <provider:model>` prints found-error precision/recall, false
-claims, invalid-JSON rate, median latency; the latest table per model goes to
-`packages/llm/golden/RESULTS.md` (the only log-style file allowed).
+- **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted
+  from the lesson's goals and words (no authored scenes yet). The app keeps the model honest:
+  corrections must quote the learner's new line, met goals only accumulate, all met ends the scene.
 
 ## Tools
 
@@ -123,4 +107,14 @@ system message makes small models call tools instead of promising to look later.
 
 ## Later
 
-`exam_score` for Goethe A1 speaking (with speech recognition), tools over cards, cloud usage counters.
+- `check_answer`: LLM verdict for `respond` items (rubric, corrections, explanation, criterion scores).
+- `translate_mt`: machine translation (e.g. Leben in Deutschland questions), marked as such and cached
+  by input hash.
+- Per-task routes (a provider and model per task, falling back to the default route).
+- Handoff: a prompt with lesson context, known vocabulary and recent mistakes to copy or open in
+  another assistant, with a visible preview first.
+- Golden tests: cases per task with expected properties (errors that must be found, claims that must
+  not be made, explanation language, JSON validity) to choose default models and check prompt changes.
+- After a scene: mistakes by rule, new words (one tap → card), link to "Practise this".
+- `exam_score` for Goethe A1 speaking (with speech recognition), tools over cards, cloud usage counters,
+  mixed text segmented by language (`[{lang,text}]`) for TTS.

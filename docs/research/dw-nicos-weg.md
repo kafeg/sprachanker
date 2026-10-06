@@ -1,8 +1,8 @@
 # Research — DW Nicos Weg
 
-Facts observed on learngerman.dw.com. First survey October 2026; the stage 1 reconnaissance
-(5 October 2026) read every page of A1 `ru` (77 lessons, 1071 exercises) plus samples of A1 `en`, A2 `ru`
-and B1 `de`. Raw data stayed outside the repository. Re-verify when the importer changes.
+Facts observed on learngerman.dw.com (October 2026): every page of A1 `ru` (77 lessons, 1071
+exercises) plus samples of A1 `en`, A2 `ru` and B1 `de`. Raw data stays outside the repository.
+Re-verify when the importer changes.
 
 ## Terms and robots.txt
 
@@ -13,8 +13,8 @@ and B1 `de`. Raw data stayed outside the repository. Re-verify when the importer
   `Claude-Web`, `Google-Extended`, `PerplexityBot`).
 - A comment states that content is for personal, non-commercial use and that tools or processes that
   data-mine or scrape it by automated means are prohibited without DW's prior written permission.
-  The owner decided (5 October 2026) that the importer downloads on the user's explicit request, for
-  that user's personal use, politely and without redistribution (00, "Legal position").
+  The importer therefore downloads only on the user's explicit request, for that user's personal use,
+  politely and without redistribution (00, "Legal position").
 
 ## Courses and editions
 
@@ -53,11 +53,13 @@ page). A1 `ru` = 1 course page + 77 lesson pages + 1071 exercise pages.
   and `text` (HTML with embedded images `static.dw.com/image/<id>_${formatId}.jpg`).
 - **Video**: two per lesson — plain (`hlsVideoSrc` HLS master with `sd`/`hd`, a separate German
   subtitle track `https://www.dw.com/media/subtitles/<id>`, `duration` in seconds) and a variant with
-  burned-in subtitles. Direct MP4s exist on `tvdownloaddw-a.akamaihd.net` (first survey).
+  burned-in subtitles. Direct MP4s are on `tvdownloaddw-a.akamaihd.net/downloads/`: the lesson's download
+  page (`l-<id>/le`) lists them in `videoResourceLinks` with `techFormat` `PODCAST_SD` / `PODCAST_HD`
+  (re-edited videos: `AVC_640x360` / `AVC_1280x720`); the HLS variants name the same files.
 - **Audio**: items link `Audio.mp3Src` on `radiodownloaddw-a.akamaihd.net` (2769 of 2845 A1 items
   have audio). Vocabulary entries have their own MP3.
 - **Image**: `staticUrl` template `https://static.dw.com/image/<id>_${formatId}.<ext>`; `name` is an
-  internal asset name (not alt text). Format ids are fixed in stage 2.
+  internal asset name (not alt text). The importer uses format id 6 (940×529).
 
 ## Exercises
 
@@ -141,7 +143,7 @@ forms), `text` (translation HTML), `audios[].mp3Src`, optional image. A1 has 186
 - PDFs on `static.dw.com/downloads/<id>/…`: script + vocabulary (per edition language), teacher guide,
   grammar overview, workbook A1–B1.
 - `static.dw.com` returned HTTP 403 to requests from cloud IP ranges; from a home connection it works.
-- Rough size: A1–B1 videos ≈ 1.6 GB in SD plus ≈ 2.7 GB for subtitled SD (≈12 MB per episode).
+- Rough size: A1–B1 videos ≈ 1.6 GB in SD.
 
 ## Legal page
 

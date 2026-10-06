@@ -25,9 +25,3 @@ Facts observed on `coerll.utexas.edu/dib/` (5–6 October 2026). The provider im
   "die Nudeln (plural only ?)", alternatives with " / ", phrases ("Notizen machen"), verbs bare.
 - Exercises are **only in the textbook PDF** (`pdfs/k_<nn>.pdf`, full book on the UT repository and
   LibreTexts); there are no machine-readable interactive exercises on the site.
-
-## Consequence for the schema
-
-A DiB edition maps to vocabulary entries, videos with transcripts and HTML tabs; exercises would be our
-own (enrichment or an authored course), not imported. This exercises the schema's language
-independence (`en-de` edition, English learner strings) but not its exercise types.

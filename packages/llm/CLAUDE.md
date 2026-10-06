@@ -1,6 +1,6 @@
 # packages/llm
 
-LLM gateway: providers, task routing, prompts, structured outputs, golden tests. Spec: `docs/spec/07-llm.md`.
+LLM gateway: providers, prompts, structured outputs, tasks. Spec: `docs/spec/07-llm.md`.
 Depends on `packages/schema` only. Never imports server code; storage of settings, keys and conversations
 is the server's job. Web-standard APIs only (fetch, streams), no runtime-specific code.
 
@@ -8,9 +8,11 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 
 ```
 src/
+  cli.ts           # command-line providers (claude -p, codex exec): command lines, prompt, output parsing;
+                   # the process itself is started by a CliRunner the server passes in
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
                    # errors as LlmError codes
-  providers.ts     # presets: lmstudio, openrouter, custom (endpoint, key need, reasoning-off fields)
+  providers.ts     # presets: lmstudio, openrouter, custom, claude-code, codex (endpoint, key, CLI kind)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   structured.ts    # JSON outputs: schema in the request, zod validation, one repair attempt
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
@@ -27,8 +29,7 @@ src/
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 
-Later (target): `tasks/<task>/` with zod output schemas and repair logic for JSON tasks, `router.ts`
-(per-task routes, fallback), `handoff.ts`, an Anthropic adapter, `golden/<task>/*.yaml` + `RESULTS.md`.
+Later (07, "Later"): per-task routes, golden tests.
 
 ## Rules
 

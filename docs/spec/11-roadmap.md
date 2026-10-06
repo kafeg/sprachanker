@@ -24,7 +24,14 @@ speech checks, LLM via external providers, our A1 enrichment — running as `spr
 browser/PWA access. Formats keep multiple editions, other sources and the desktop shell possible, but
 they are built after the MVP (stages 10–12). Do not build post-MVP features early.
 
+Exceptions made at the owner's request: imports beyond Nicos Weg A1 `ru-de` (A2, the `en-de`
+editions, B1, Deutschtrainer, Deutsch im Blick vocabulary) and the LLM practice features (stage 8)
+were built early, before stages 3–7 were finished.
+
 ## Stages
+
+Each stage carries a status: **built**, **partial** (with what is missing) or **not started**, as of the
+current code.
 
 ### 0 — Skeleton
 Specs: 10, root CLAUDE.md.
@@ -36,6 +43,7 @@ Specs: 10, root CLAUDE.md.
   embedded assets (migrations, YAML) when run from another folder.
 - **Accept**: CI green; the violation test proves the rules; `sprachanker serve` (compiled) and
   `bun run dev` serve a hello page in three languages.
+- **Status: built.**
 
 ### 1 — Reconnaissance and schema
 Specs: 01, 02, 03, research.
@@ -44,19 +52,25 @@ Specs: 01, 02, 03, research.
   exercise types incl. `unknown`, keys), JSON Schema generation, fixture course `courses/_fixture`.
 - **Accept**: the owner reviews research notes and schema; the provisional parts of 02/03 are confirmed
   or corrected.
+- **Status: built.**
 
 ### 2 — Importer for Nicos Weg
 Specs: 02, 03.
-- `course-kit` + `dw-nicos-weg` provider + key map + CLI `import`, `verify`, `normalise`.
+- `course-kit` + provider `courses/dw` (`dw-nicos-weg`) + key map + CLI `import`, `verify`, `normalise`.
 - **Accept**: snapshot tests on synthetic fixtures; the owner imports A1 `ru-de` at home; key map
   created; a second run makes no requests; the report lists unknown types; archive → delete → restore →
   `verify` passes.
+- **Status: partial.** Built: `course-kit`, `courses/dw`, CLI `import` (idempotent, reports unknown
+  exercises and failed media). Missing: key map, manifest, `verify`, `normalise` command.
 
 ### 3 — Engine core
 Specs: 04.
 - Compose (canonical + locale, selfrate upgrade), German text normalisation, checkers for all closed
   types, FSRS wrapper and card creation rules.
 - **Accept**: table-driven tests per type; every imported A1 lesson composes or reports `unknown` types.
+- **Status: partial.** Built: checkers for all closed types plus `dictation`, `speech_repeat` and the
+  rubric part of `respond`; German text normalisation and word diff; lesson progress. Missing:
+  compose (selfrate upgrade), FSRS wrapper, card creation rules.
 
 ### 4 — Server and storage
 Specs: 05, 06.
@@ -66,6 +80,10 @@ Specs: 05, 06.
 - **Accept**: integration and migration tests; a run survives restart and continues on a second device
   with events from both stored; statistics recomputed from events match after restart; Host check,
   CSRF header and PIN rate limit covered by tests.
+- **Status: partial.** Built: data root, `profile.sqlite` with migrations, backups and downgrade
+  protection, runs/events with server-side outcomes, lesson and run API, media with Range, CSRF
+  header, sealed API keys. Missing: `server.sqlite`, profiles/PIN/devices, owner setup link, jobs with
+  SSE, Host check.
 
 ### 5 — Lesson UI
 Specs: 09, 06.
@@ -77,6 +95,10 @@ Specs: 09, 06.
 - Phone access via `tailscale serve`.
 - **Accept**: Playwright "complete lesson 1" (desktop and phone viewport); the owner completes three
   lessons on Mac and iPhone, including a resume on the other device.
+- **Status: partial.** Built: course list, course map, lesson player with the closed renderers, video
+  and audio player, reference tabs, summary, resume, edition per course, i18n en/ru/de, light/dark;
+  Playwright lesson test on desktop and phone. Missing: first run via the owner setup link, course
+  install from the UI, profiles in the PWA, word sheet, PWA manifest.
 
 ### 6 — Cards, review, Notebook
 Specs: 04, 05, 09.
@@ -84,6 +106,7 @@ Specs: 04, 05, 09.
   snapshots, item history), lesson redo with comparison, study days.
 - **Accept**: after lesson 1 its words are due in Review; reviews update due dates per face; the
   Notebook shows two runs of lesson 1 side by side.
+- **Status: not started.**
 
 ### 7 — Speech
 Specs: 08, 06.
@@ -91,13 +114,17 @@ Specs: 08, 06.
   push-to-talk, TTS.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
+- **Status: not started.**
 
 ### 8 — LLM
 Specs: 07.
-- Gateway, providers, per-profile routes, tasks (`check_answer`, `scene_turn`, `chat_turn`,
-  `translate_mt`), types `respond` and `scene`, handoff, golden tests.
-- **Accept**: golden results recorded for at least one local and one cloud model; defaults chosen from
-  them; a fixture scene runs end to end with corrections in the error log.
+- Gateway, providers (LM Studio, OpenRouter, any OpenAI-compatible server) with one model per profile,
+  structured outputs, prompt viewer; tasks `explain_mistake`, `chat_turn` (lesson tutor with tools),
+  `check_writing`, `review_session`, `scene_setup` + `scene_turn` (07).
+- **Accept**: the AI screens pass e2e against the fake OpenAI-compatible server; the owner uses them
+  with a local (LM Studio) and a cloud model.
+- **Status: built** (early, at the owner's request). `check_answer` for `respond`, `translate_mt`,
+  per-task routes, handoff and golden tests moved to Later (13).
 
 ### 9a — Enrichment and rule-based features
 Specs: 02, 04, 07.
@@ -107,12 +134,14 @@ Specs: 02, 04, 07.
 - Mistakes by rule, rule mastery, weak spots on Today, "Practise this", can-do list.
 - **Accept**: A1 units 0–2 enriched and reviewed by the owner; `enrich check` clean; a practice set from
   du/Sie mistakes (seeded or real) runs end to end.
+- **Status: not started** (a starter rules registry exists; mistakes are listed per item, not yet by
+  rule).
 
 ### 9b — Exams
 Specs: 02, 03, 06, 09.
-- Exam player and Exams screen; `bamf-lid` (pools, state filter, timer, practice of wrong answers,
-  machine-translated questions).
+- Exam player and Exams screen; `bamf-lid` (pools, state filter, timer, practice of wrong answers).
 - **Accept**: a LiD timed exam with Berlin questions works end to end; results in the Notebook.
+- **Status: not started.**
 - **MVP acceptance**: the owner and his wife use the MVP for at least one week of real study on phones
   and Mac; their findings decide the order of post-MVP work.
 
@@ -123,22 +152,27 @@ Specs: 02, 03, 06, 09.
 ### 10 — Decks and word images
 `packages/anki-export` (`.apkg` export and import, stored decks), word images (04).
 **Accept**: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
+**Status: not started.**
 
 ### 11 — Second sources and editions
-Nicos Weg `en-de` with edition alignment, `coerll-dib` interviews (its vocabulary is imported already),
-`sa-starter-en`.
+Nicos Weg `en-de` with edition alignment, `coerll-dib` interviews, `sa-starter-en`.
 **Accept**: adding `en-de` to an installed A1 downloads only texts and keeps progress; one Deutsch im
 Blick chapter playable in an English profile; Starter English lesson 1 playable in a Russian profile.
+**Status: partial** (built early). Built: Nicos Weg A2, B1 (without its glossary) and the `en-de`
+editions (locale files by source order), Deutschtrainer, Deutsch im Blick vocabulary. Missing: edition
+alignment, B1 glossary, Deutsch im Blick interviews, Starter English.
 
 ### 12 — Desktop app
 Tauri shell, first-run wizard (incl. LM Studio setup), network options with QR, signed
 bundles for macOS then Windows and Linux, auto-update.
 **Accept**: fresh machine → install → onboarding → lesson 1 in < 30 minutes (without course download);
 headless `serve` works on a second machine.
+**Status: not started.**
 
 ### 13 — Later
-Missions, unit reviews, in-lesson adaptivity, chat tools, session reviews, Goethe A1 practice sets with
-LLM-scored writing/speaking, FSRS for Leben in Deutschland, badges, built-in local CA for LAN HTTPS,
-Qwen3-TTS and cloud speech, offline downloads and push notifications, reader for books and texts, more
+Missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`), machine
+translation (`translate_mt`), per-task LLM routes, handoff to other assistants, LLM golden tests,
+Goethe A1 practice sets with LLM-scored writing/speaking, FSRS for Leben in Deutschland, badges,
+built-in local CA for LAN HTTPS, Qwen3-TTS and cloud speech, offline downloads and push notifications, reader for books and texts, more
 DW courses, `.apkg` with scheduling, FSRS parameter optimisation, Docker image,
 project website (`kafeg.github.io/sprachanker`), native mobile via Tauri.

@@ -1,6 +1,8 @@
 # 08 — Speech
 
-The server's speech module (`packages/server/src/speech/`) talks to the sidecars through two functions:
+Planned (stage 7); nothing of this is built yet. The answer schema already has a spoken answer
+(`speech{recording, transcript}`, 05). The server's speech module will talk to the sidecars through two
+functions:
 
 ```ts
 transcribe(audio: Wav16kMono, lang: Lang): Promise<{ text; segments; model; latencyMs }>

@@ -5,7 +5,10 @@ parameters). It runs on the server and in the browser (instant feedback for clos
 server re-checks every answer with the same code; the stored outcome is the server's, never the
 client's. Answers of closed exercises are visible to the client — acceptable for self-study.
 
-## Lesson composition
+## Lesson composition (planned)
+
+Today the server returns a lesson's canonical and locale files as they are (`GET /api/lesson`) and the
+player combines them; `speech_selfrate` items are shown for self-rating and not scored. Planned:
 
 `compose(canonical, locale, enrichment, profile) → ComposedLesson`
 
@@ -21,6 +24,9 @@ client's. Answers of closed exercises are visible to the client — acceptable f
 ## Checking
 
 Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (`apps/web`) and tests.
+Checkers (`packages/engine/src/check/index.ts`) exist for every scored type; renderers exist for the
+closed types, `dictation` and `speech_selfrate` — `speech_repeat`, `respond` and `scene` get theirs with
+speech (stage 7) and their LLM checks.
 
 ```ts
 type Outcome = {
@@ -44,24 +50,28 @@ type Outcome = {
 - **Text normalisation**: NFC; unify quotes, apostrophes and dashes; collapse whitespace; strip final
   punctuation; case-insensitive except where the target language makes case meaningful (German: a
   token capitalised in the reference and not sentence-initial is compared case-sensitively). Speech is
-  always compared case-insensitively. Language rules live in `engine/src/text/<lang>.ts`.
-- `respond`: rubric groups are checked deterministically first, then the LLM verdict (07). Without an
-  LLM it is scored from the rubric's required groups if it has them, otherwise `unscored`; the
-  reference is shown either way.
+  always compared case-insensitively. Normalisation and the per-language case rule live in
+  `packages/engine/src/text/normalise.ts`, the word diff in `packages/engine/src/text/diff.ts`.
+- `respond`: scored from the rubric's required groups if it has them, otherwise `unscored`; the outcome
+  carries `needsLlm` and the reference is shown either way. Planned: an LLM verdict on top (07, Later).
 - `unknown` is never rendered; the page shows "not supported yet".
 
 ## Learner model
 
-Pure functions over events and cards (`replay`); the server caches the results in memory (05).
+Pure functions over events and cards (05). Built: lesson result (mean first-attempt score), resume
+page and lesson progress (`packages/engine/src/learner/progress.ts`); mistakes (items whose latest
+first attempt was wrong or partial) are derived by the server (`packages/server/src/services/mistakes.ts`).
+The rest is planned:
 
 - **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM
   corrections (07).
 - **Rule mastery**: accuracy over recent attempts per rule (formula fixed in stage 9a).
 - **Lexeme state**: seen, practised, FSRS stability; "in long-term memory" when stability ≥ 21 days.
-- **Lesson progress and item history**: status `new | in_progress | done`, best score, attempts.
+- **Item history**: attempts per item (lesson progress — status `new | in_progress | done`, best
+  score — is built).
 - **Can-do**: a course goal is achieved when its linked lessons are completed.
 
-## Spaced repetition
+## Spaced repetition (planned, stage 6)
 
 - FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (profile setting).
 - **Cards** come from new words of a completed page (one card per lexeme; meeting it again reuses it),
@@ -76,9 +86,9 @@ Pure functions over events and cards (`replay`); the server caches the results i
 
 ## Scenes
 
-A scene (enrichment YAML): setting, roles, learner goals (checklist), allowed vocabulary and rules
-(completed lessons + listed extras), max turns, register (`du`/`Sie`), success criteria. Run by the LLM
-task `scene_turn` (07).
+`scene_setup` drafts a scene from the lesson's goals and words (title, situation, partner, 1–3 goals,
+opening line); `scene_turn` runs it (`packages/llm/src/tasks/scene.ts`, 07). Planned: authored scenes in
+enrichment (setting, roles, goals, allowed vocabulary and rules, register, success criteria).
 
 ## After MVP
 

@@ -18,7 +18,7 @@ SprachAnker is a self-hosted learning app that:
    free-text checking scoped to what the learner already knows.
 4. **Records everything** the learner did, so progress, regressions and weak spots can be seen and
    practised later.
-5. **Uses any model the user chooses**: local (LM Studio, Ollama) or cloud.
+5. **Uses any model the user chooses**: local via LM Studio, or OpenRouter / any OpenAI-compatible server.
 
 ## Users and setting
 
@@ -55,9 +55,10 @@ SprachAnker is a self-hosted learning app that:
 **MVP** (stages 0–9b, see 11): `sprachanker serve` with browser and phone PWA (online), profiles,
 library and importer for **Nicos Weg A1 `ru-de`**, Leben in Deutschland, lesson player, Notebook, SRS,
 speech checks, LLM via external providers, our A1 enrichment, UI in English, Russian and German.
+Some post-MVP imports and the LLM practice features were built early at the owner's request (11).
 
-**After MVP** (stages 10–12): `.apkg` import/export and word images; other editions and levels of Nicos
-Weg, Deutsch im Blick, Starter English; the desktop app (Tauri) with onboarding wizard
+**After MVP** (stages 10–12): `.apkg` import/export and word images; Nicos Weg edition alignment,
+Deutsch im Blick interviews, Starter English; the desktop app (Tauri) with onboarding wizard
 (incl. LM Studio setup); Windows/Linux builds.
 
 Later: see 11, stage 13.

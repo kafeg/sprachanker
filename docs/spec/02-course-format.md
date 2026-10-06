@@ -1,7 +1,7 @@
 # 02 — Course format and library
 
-This file defines the **stored content formats**: library layout, manifest, keys, canonical and locale
-files, rules registry, enrichment, and the normalisation contract every provider follows. zod schemas in
+This file defines the **stored content formats**: library layout, media index, keys, canonical and
+locale files, rules registry, enrichment, and the normalisation contract every provider follows. zod schemas in
 `packages/schema` implement it; JSON Schemas are generated from them (10).
 
 ## Conventions
@@ -13,7 +13,7 @@ files, rules registry, enrichment, and the normalisation contract every provider
 | Generated ids (learner data) | ULID |
 | Edition id | `<source>-<target>` (`ru-de`, `en-de`, `de-de`) |
 | Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
-| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME live in the manifest |
+| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
 | HTML | only in fields named `*Html`, sanitised to an allow-list: p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
 | Format versions | integer `format` in every file type; bumped on breaking change; additive optional fields do not bump it |
@@ -27,7 +27,7 @@ moved, or restored by copying.
 ```
 <data-root>/library/
 └── dw.nicos-weg/                               # series id
-    ├── course.json                             # manifest
+    ├── media.json                              # media index: source URL → path, sha256, size, MIME (or last error)
     ├── media/<kind>/<name>                     # video, audio, image, subtitles, pdf under source names
     ├── raw/<edition>/<course>/…                # extracted source data as fetched (provider-specific)
     ├── canonical/<course>/course.json          # course index
@@ -63,32 +63,26 @@ moved, or restored by copying.
   nouns only. Providers derive them from what the source states, never by guessing: an article makes a
   noun, verb forms a verb, comparison forms an adjective, a sentence or 3+ words a phrase; anything
   else is `word`. Different values give different lexemes ("Frau" as a title ≠ "die Frau").
-- Keys are built and parsed only by `packages/schema/src/keys.ts`; fingerprints and `contentVersion`
-  are computed by `packages/course-kit`.
-- **Keys must not shift when the source changes order.** Providers keep a **key map** in the repository
-  (`courses/<provider>/provider/keymap.json`: our keys ↔ source ids per edition — ids only). Known ids
-  keep their keys; new source items get new keys; removed keys are never re-used. Source ids are
-  stored in locale files (`sourceId`), so adding an edition never changes canonical files.
+- Keys are built and parsed only by `packages/schema/src/keys.ts`; fingerprints are computed by
+  `packages/course-kit/src/fingerprint.ts`.
+- Keys follow the source order (units and lessons in course order, exercises in lesson order). Source
+  ids are stored in locale files (`sourceId`), so adding an edition never changes canonical files.
+  Planned: a key map per provider (our keys ↔ source ids), so keys do not shift when the source
+  changes order; removed keys are never re-used.
 - **Fingerprint** of an exercise = sha256(JCS of its canonical object without `fingerprint`); identical
   across editions of the same content.
-- **contentVersion** of an edition = sha256 over the sorted `path:sha256` list of the course's canonical
-  files and that edition's locale files.
+- Planned: **contentVersion** of an edition = sha256 over the sorted `path:sha256` list of the course's
+  canonical files and that edition's locale files.
 
-## Manifest `course.json`
+## Manifest (planned)
 
-```jsonc
-{ "format": 1, "series": "dw.nicos-weg", "provider": "dw-nicos-weg", "providerVersion": "0.3.0",
-  "title": "Nicos Weg",
-  "licence": { "id": "proprietary-personal-use", "attribution": "Deutsche Welle", "url": "https://…" },
-  "courses": [ { "id": "a1", "kind": "course", "level": "A1", "target": "de",
-                 "editions": [ { "id": "ru-de", "source": "ru", "fetchedAt": "…", "contentVersion": "c1f0…" } ] } ],
-  "files": { "canonical/a1/lessons/00-01.json": { "sha256": "…", "size": 12345 },
-             "media/video/A1_E0_L1_F1_sd.mp4": { "sha256": "abcd…", "size": 7340032, "mime": "video/mp4",
-                                           "sourceUrl": "https://…", "durationSec": 81 } } }
-```
+A series manifest `course.json` (schema: `packages/schema/src/manifest.ts`): provider and version,
+licence, courses (`kind` ∈ `course exam`, level, target) with editions (`fetchedAt`, `contentVersion`)
+and every file with sha256 and size, written last after normalise and verify. Not written yet: today
+`media.json` records the media and the library is read from the canonical and locale folders.
 
-`kind` ∈ `course exam`. Exams of a course are listed in its course index; a stand-alone exam
-(`bamf.lid`) is a course of kind `exam`. The manifest is written last, after normalise and verify.
+Exams of a course are listed in its course index; a stand-alone exam (`bamf.lid`) is a course of kind
+`exam`.
 
 ## Canonical files (language-independent)
 
@@ -125,8 +119,7 @@ recording (Deutschtrainer reads the lesson's words and phrases aloud); all optio
 
 ## Exercise types
 
-Confirmed by the stage 1 reconnaissance (`docs/research/dw-nicos-weg.md` maps every DW mechanic).
-All types share `key`, `type`, `fingerprint`, `items[]`, optional `media` (stimulus) and `text`
+`docs/research/dw-nicos-weg.md` maps every DW mechanic to a type. All types share `key`, `type`, `fingerprint`, `items[]`, optional `media` (stimulus) and `text`
 (target-language stimulus), `newWords`, `ruleIds`. Items have `key`, optional `media` and `prompt`
 (target language; a learner-language prompt lives in the locale file). Answers are compared by
 **ids**, never by display position; display order may be shuffled. Options with identical content
@@ -144,12 +137,12 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
 | `speech_selfrate` | `text?`, `media.audio?` (source form; upgraded, 04) | `{rating}` | not scored |
-| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric + LLM verdict |
+| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric (LLM verdict: Later, 07) |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 
-Option ids are `a`, `b`, … and gap ids `g1`, `g2`, … in canonical order. A categorisation type (`classify`)
-was planned but no source has it; it is added with the first source that needs it.
+Option ids are `a`, `b`, … and gap ids `g1`, `g2`, … in canonical order. No source has a categorisation
+mechanic; a `classify` type is added with the first source that needs it.
 
 ## Locale files
 
@@ -187,8 +180,9 @@ The locale course file holds the course title, unit titles and goal texts in the
 
 Every `ruleIds` value anywhere MUST exist in the registry.
 
-## Enrichment (ours, in the repository)
+## Enrichment (ours, in the repository; planned, stage 9a)
 
+Not built yet; the format is fixed by `packages/schema/src/enrichment.ts`.
 `courses/<provider>/enrichment/<course>/<NN>-<NN>.yaml` (+ `scenes/`). Keys and fingerprints only —
 never copies of third-party text.
 
@@ -214,10 +208,11 @@ Stale entries are skipped at compose time and listed by `enrich check`.
 
 ## Normalisation contract (all providers)
 
-Every provider MUST produce, per course and edition: a manifest, a course index, lessons/exams with
-keys from the key map, exercises with a type from the registry (or `unknown`) and a fingerprint, vocab
-entries with lexeme keys, locale files with every learner-language string the types require (and a
-translation per vocab entry when source ≠ target), and media files listed in the manifest.
+Every provider MUST produce, per course and edition: a course index, lessons/exams with keys (above),
+exercises with a type from the registry (or `unknown`) and a fingerprint, vocab entries with lexeme
+keys, locale files with every learner-language string the types require (and a translation per vocab
+entry when source ≠ target), and media files recorded in `media.json`. Files are validated against
+their schemas as they are written (`writeLibraryFiles`); failures are reported.
 
 - Never drop source content silently: unmappable parts go to `unmapped` with a raw path and reason.
 - Deterministic: same raw + same provider version → byte-identical output.
@@ -225,8 +220,9 @@ translation per vocab entry when source ≠ target), and media files listed in t
 
 ## Validation and versions
 
-- The server validates canonical/locale files when a course is loaded; an invalid edition is marked
-  broken with a report (no partial use).
-- **verify** checks sha256 and size of every manifest file (missing, corrupt, extra) and referential
-  integrity (keys, media paths, rule ids, locale coverage). Restore = copy the series folder + `verify`.
-- The server refuses newer formats and re-normalises older ones from `raw/` (offline).
+- The library validates canonical and locale files when they are read (`packages/course-kit/src/library.ts`);
+  an invalid file is an error, never partially used. A file with an unknown `format` fails validation.
+- Restore = copy the series folder.
+- Planned: **verify** (sha256 and size of every manifest file — missing, corrupt, extra — and
+  referential integrity: keys, media paths, rule ids, locale coverage); re-normalising older formats
+  from `raw/` offline.

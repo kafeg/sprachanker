@@ -12,7 +12,8 @@ src/
   providers.ts       # content providers the server can import
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
-  runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key; lmstudio.ts (detect, `lms server start`)
+  runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key; lmstudio.ts (detect, `lms server start`);
+                     # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
   config/            # app-data paths, config.json
   db/
     server/          # Drizzle schema + migrations for server.sqlite
@@ -42,10 +43,10 @@ test/                # bun test; integration tests call createApp().request()
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
   (outside the data root), read by `src/runtime/`.
 - Outgoing requests to LLM providers go through the injected `fetch` (`AppConfig.fetch`); tests fake it.
-- LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm.ts); app.ts
+- Command-line LLM agents run through the `CliHost` interface (services/llm.ts); LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm.ts); app.ts
   never spawns processes itself.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
 - `src/app.ts` and everything it imports stay free of Bun/Node APIs: the web client type-checks
   that graph without Bun types.
 - Speech: always pass an explicit language; never pass the reference text to the recogniser.
-- Exports a programmatic API used by `apps/cli` (serve, import, verify, export, enrich check).
+- Exports a programmatic API used by `apps/cli` (serve, import).

@@ -6,34 +6,43 @@ One Bun process started by `sprachanker serve`. The `sprachanker` binary is buil
 `bun build --compile`; the desktop app (stage 12) bundles the same binary. The server:
 
 - serves the web app (static build of `apps/web`) and the JSON API;
-- owns `server.sqlite` and all `profile.sqlite` files (05);
+- owns the `profile.sqlite` files (05; today one profile, `local`);
 - serves library media with HTTP Range support;
-- runs jobs (course import, model downloads) with progress via Server-Sent Events;
-- supervises sidecar processes (`whisper-server`, TTS);
-- talks to LLM providers through `packages/llm` and to speech sidecars through its speech module (08).
+- talks to LLM providers through `packages/llm`.
+
+Planned: `server.sqlite` (profiles, devices, jobs); jobs (course import, model downloads) with progress
+via Server-Sent Events; supervising sidecars (`whisper-server`, TTS) and talking to them through a
+speech module (08).
 
 Hono + zod; Drizzle on `bun:sqlite`. Bun-specific APIs stay behind an adapter so a Node fallback stays
 possible. Headless (`--data <root>`) and desktop modes have the same features.
 
-## API outline
+## API
 
-JSON under `/api`, typed with schemas from `packages/schema`; streaming via SSE. Exact endpoints are
-fixed in the stage that builds them.
+JSON under `/api`, validated with zod and typed for the web client through Hono RPC (`AppType`). Routes:
+`packages/server/src/app.ts` and `packages/server/src/routes/llm.ts` (`/api/llm`). Exact endpoints of
+later areas are fixed in the stage that builds them.
 
 - `GET /api/health` → `{ "status": "ok" }` (desktop shell and tests wait for it). Unknown `/api/*`
   paths return a JSON 404, never the web app.
+- Content: `GET /api/courses` (installed courses with progress and the lesson to continue),
+  `GET /api/course` (course map), `GET /api/lesson` (canonical + locale lesson).
+- Settings: `GET` / `PUT /api/settings` (one key at a time).
+- Lesson runs: `POST /api/runs` (start or resume), `POST /api/runs/:id/events` (batched, idempotent;
+  outcomes computed by the server), `POST /api/runs/:id/finish`.
+- `/api/llm`: state, route and provider settings, models; LM Studio status, start and downloads;
+  `explain`, `tutor` (streamed text), `writing`, `review`, `scene` (JSON); each task also has a
+  `…/prompt` route that returns the exact request without sending it (07).
+- `GET /library/:series/*` (outside `/api`): library media with Range support.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).
 
-- `auth`: list profiles (names), create profile, login (profile + PIN) → device token, logout.
-- `catalog`: entries, installed state, install / update / remove (owner) → job.
-- `lessons/:key` → composed lesson for the current profile.
-- `runs`: start, append events (batched, idempotent), finish, abandon, resume.
-- `exams`, `review`, `practice`: start runs with a fixed `plan_json`; the server enforces exam time limits.
-- `notebook`, `cards`, `stats`; `llm` (check, scene turn, chat turn via SSE); `speech` (transcribe,
-  synthesise); `settings` (profile) and `server/*` (owner); `media/*`; `jobs/:id/events`.
+Planned areas: auth (profiles, PIN, device tokens), catalog install / update / remove (owner) → job,
+exams, review, practice sets, notebook, cards, stats, speech, `server/*` (owner), `jobs/:id/events`.
 
-## Profiles and access
+## Profiles and access (planned, stage 4)
+
+Today the server has one local profile and no login. Planned:
 
 - Profiles are separation, not security. Optional 4–8 digit PIN, rate-limited attempts.
 - **Owner** = the first profile, created through the owner setup link (Security). Owner-only: library,
@@ -55,17 +64,20 @@ fixed in the stage that builds them.
   2. **Own domain / VPN** with a valid certificate or reverse proxy.
   3. **Plain HTTP on LAN**: works, but no secure context — no microphone; the UI says so and disables
      speech.
-- PWA: installable (manifest, icons). Offline use is out of scope; the UI shows "server unreachable".
-  Unsent events are kept in the client's IndexedDB and retried with the same ids.
+- Planned PWA: installable (manifest, icons). Offline use is out of scope; the UI shows "server
+  unreachable". Unsent events are kept in the client's IndexedDB and retried with the same ids.
 
 ## Sidecars and models
+
+Planned (stage 7), except LM Studio:
 
 - `whisper-server` (whisper.cpp) started on demand, kept warm while in use; models in `<data-root>/models`.
 - TTS engine (08), started on demand.
 - No LLM runtime of its own: local models run in LM Studio (07); the server only starts LM Studio's
   server (`lms server start`) on request when LM Studio is installed on the same machine.
 - Crash → restart with backoff (3 tries) → marked failed; dependent features show a clear message.
-- How binaries are obtained (own builds in `native/` or prebuilt) is decided in the stage 7 plan.
+- How the speech binaries are obtained (own builds in `native/` or prebuilt) is decided in the stage 7
+  plan.
 
 ## Desktop shell (`apps/desktop`, Tauri 2, stage 12)
 
@@ -75,9 +87,9 @@ are decided in stage 12.
 
 ## CLI (`apps/cli`)
 
-`serve [--data]` · `owner-link` · `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [<series>]` ·
-`normalise <series>` · `export-profile` / `import-profile` · `enrich check` ·
-`prompts test --route <provider:model>` (07).
+Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port]` ·
+`import <provider> [--data] [--courses] [--editions] [--refresh]`. Planned: `owner-link`,
+`verify [<series>]`, `normalise <series>`, `export-profile` / `import-profile`, `enrich check`.
 
 The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is
 idempotent: stored pages and media are not fetched again (`--refresh` re-reads pages), then every
@@ -86,29 +98,27 @@ selected edition is normalised.
 **Binary build.** `bun run build:cli` builds the web app, generates an entry that imports every web
 file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary. Embedded
 files live under `/$bunfs/root/` and are found through the import values (URL path → embedded path),
-so the binary works from any folder; e2e runs it from a temp folder. Files that must keep their names
-and folder (Drizzle migrations with `meta/_journal.json`) are embedded with
-`naming.asset: "[dir]/[name].[ext]"`; `readdir`/`readFile` work inside `/$bunfs`, so the Drizzle
-migrator can read the folder as is (verified in the stage 0 spike). YAML imports are parsed at build
-time.
+so the binary works from any folder; e2e runs it from a temp folder. Migrations are bundled as text
+imports (`packages/server/src/db/profile/migrations/index.ts`, generated by
+`packages/server/scripts/migrations-index.ts`) and applied by the server's own migrator
+(`packages/server/src/db/migrate.ts`). YAML imports are parsed at build time.
 
 ## Failure handling
 
 | Situation | Behaviour |
 |---|---|
-| Import interrupted / network error | job `failed` with report; next run resumes; nothing visible until normalise + verify pass |
+| Import interrupted / network error | the import reports it; the next run resumes (stored pages and media are kept) |
 | Source returns 403/429 | stop that host, report |
-| Disk full | job fails before writing the manifest; temporary files removed on next start |
-| Corrupt library file | edition marked broken by `verify`; offer re-normalise or re-fetch |
-| Sidecar crash | see Sidecars |
-| LLM unreachable / invalid output | the answer is stored; graceful degradation (07); the verdict can be retried |
-| DB migration fails | restore the pre-migration copy; refuse to start with an explanation |
-| Phone loses connection | events stay in the IndexedDB outbox and are retried; UI shows "offline — reconnecting" |
+| Corrupt library file | the file fails validation when read; the screen shows the error (planned: `verify`, re-normalise or re-fetch) |
+| LLM unreachable / invalid output | nothing is stored; the UI says what failed and offers a retry (07) |
+| DB migration fails | rolled back; refuse to start with an explanation |
+| Planned: disk full, sidecar crash, phone loses connection | job fails before writing the manifest; see Sidecars; events stay in the IndexedDB outbox and are retried |
 
 ## Security
 
 Threat model: a home network or tailnet with trusted people; avoid accidental exposure and common web
-attacks, not a determined attacker on the LAN.
+attacks, not a determined attacker on the LAN. Built: the CSRF header, sealed secrets, sanitised course
+HTML, Markdown without raw HTML, media path checks. The rest is planned with profiles (stage 4).
 
 - **Owner bootstrap**: when no owner exists, or on `sprachanker owner-link`, the server creates a
   one-time secret (15 minutes) and prints `http://127.0.0.1:<port>/owner/<secret>`. Opening it creates
@@ -120,15 +130,18 @@ attacks, not a determined attacker on the LAN.
   header `X-SprachAnker: 1`.
 - **Tokens and PINs**: device tokens 256-bit random, stored hashed, revocable; PINs hashed with argon2id,
   attempts rate-limited.
-- **Secrets**: AES-256-GCM with a key file (`0600`) in app-data; write-only through the API; never logged.
+- **Secrets**: AES-256-GCM with a key file (`0600`, `<app-data>/secret.key`); write-only through the API;
+  never logged.
 - **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled; CSP
   without inline scripts.
-- **Media routes** take a series and a manifest-listed media path (anything else is refused) or a file id; recordings are served only to their profile.
+- **Media routes** take a series and a path inside that series' `media/` folder; anything else
+  (another folder, `..`, a missing file) is refused (`mediaFile` in `packages/course-kit/src/library.ts`).
+  Planned: recordings served only to their profile.
 - **Downloads** (models, binaries): HTTPS, sha256 pinned, verified before use.
 - **LLM**: course text and learner input are passed as delimited data; output is validated against
   schemas and never executed.
 
 ## Logging
 
-Structured logs to `<app-data>/logs`, rotated. No telemetry. Errors in the UI come with an action
+No telemetry. Planned: structured logs to `<app-data>/logs`, rotated. Errors in the UI come with an action
 ("retry", "open settings"), never raw stack traces.

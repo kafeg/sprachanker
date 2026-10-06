@@ -5,17 +5,18 @@
 | [00-vision.md](00-vision.md) | Goals, users, scenarios, scope, non-goals, legal position |
 | [01-domain.md](01-domain.md) | Domain model: catalog, course, lesson, exercise, card, profile, run, event |
 | [02-course-format.md](02-course-format.md) | Library layout, manifest, keys, canonical/locale/enrichment formats |
-| [03-providers.md](03-providers.md) | Importers: DW Nicos Weg, Leben in Deutschland; later sources |
+| [03-providers.md](03-providers.md) | Importers: DW (Nicos Weg, Deutschtrainer), COERLL Deutsch im Blick; Leben in Deutschland planned |
 | [04-engine.md](04-engine.md) | Lesson composition, exercise checking, learner model, SRS |
 | [05-data-model.md](05-data-model.md) | Data root, SQLite schemas, event log, migrations, export |
 | [06-server.md](06-server.md) | Server API, profiles, network and HTTPS, sidecars, CLI, security |
-| [07-llm.md](07-llm.md) | LLM providers, tasks, conversations, evaluation |
+| [07-llm.md](07-llm.md) | LLM providers, tasks, conversations, tools |
 | [08-speech.md](08-speech.md) | Speech recognition and synthesis |
 | [09-ui.md](09-ui.md) | Screens, layouts, design system, i18n |
 | [10-quality.md](10-quality.md) | Architecture enforcement, fixed technical choices, testing, CI, docs |
-| [11-roadmap.md](11-roadmap.md) | Stages, MVP boundary, how to run a stage |
+| [11-roadmap.md](11-roadmap.md) | Stages and their status, MVP boundary, how to run a stage |
 
-Supporting research: [../research/dw-nicos-weg.md](../research/dw-nicos-weg.md).
+Supporting research: [../research/dw-nicos-weg.md](../research/dw-nicos-weg.md),
+[../research/coerll-dib.md](../research/coerll-dib.md).
 
 **Level of detail.** The spec fixes decisions that are expensive to change later: keys, stored formats,
 the event log, module boundaries, security basics. Everything else (exact endpoints, UI details, limits,
