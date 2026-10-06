@@ -4,7 +4,7 @@
 // | пример]) or as `<br>`-separated lines with tabs or a single space between English and Russian.
 // The parser first flattens the body into lines (table rows keep their cells), then walks them with the
 // section labels as a state machine.
-import { plainText, sanitizeCourseHtml } from "@sprachanker/course-kit";
+import { escapeHtml, plainText, sanitizeCourseHtml } from "@sprachanker/course-kit";
 
 export interface DialogueLine {
   speaker?: string;
@@ -73,9 +73,6 @@ const WORD_HEADING =
 /** The usual first homework task, for the few lessons whose homework has no label. */
 const HOMEWORK_START = /^1\.\s*Прочитайте/;
 const HOMEWORK_TITLE = "Homework - Домашнее задание";
-
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** The article body (`<div class="wsw">`), or undefined when the page has none. */
 export function articleBody(html: string): string | undefined {

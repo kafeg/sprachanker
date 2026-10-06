@@ -3,7 +3,7 @@
 // recording, the goal («Цель»), the synopsis («Содержание»), the dialogue as the script page, the word
 // list as vocabulary (English canonical, Russian in the locale), homework and notes as pages (homework
 // in its own tab). The source has no checkable exercises: its homework has no answers anywhere.
-import { type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
+import { escapeHtml, type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -91,9 +91,6 @@ export function headword(en: string, category: string): Headword {
     pos === "noun" && others.length === 1 ? pluralOf(lemma, others[0] ?? "") : undefined;
   return { lemma, pos, ...(plural ? { plural } : {}), ...(forms ? { forms } : {}) };
 }
-
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 /** The dialogue as course HTML: one paragraph per line, the speaker in bold. */
 export function scriptHtml(lines: DialogueLine[]): string {

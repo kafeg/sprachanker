@@ -53,3 +53,7 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
     .replace(/<p>\s*<\/p>/g, "")
     .trim();
 }
+
+/** Plain text as HTML text content: `&`, `<` and `>` escaped (quotes stay: not for attributes). */
+export const escapeHtml = (text: string) =>
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

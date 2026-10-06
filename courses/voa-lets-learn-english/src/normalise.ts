@@ -5,12 +5,14 @@
 // lesson plans and certificates as downloads.
 import {
   type ExerciseDraft,
+  escapeHtml,
   type LibraryFile,
   type MediaIndex,
   type MediaRef,
   mediaPath,
   plainText,
   sanitizeCourseHtml,
+  urlFileName,
   withFingerprint,
 } from "@sprachanker/course-kit";
 import {
@@ -28,6 +30,7 @@ import {
   lemmaSlug,
   lessonKey,
   lexemeKey,
+  optionId,
   type PartOfSpeech,
   parseLessonKey,
   unitKey,
@@ -282,14 +285,12 @@ export function planLesson(lesson: FetchedLesson): LessonPlan {
   return plan;
 }
 
-const fileName = (url: string) =>
-  decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "media");
-
 /** Every media file a course needs: lesson videos and audio, practice videos, quiz clips, PDFs. */
 export function mediaRefs(course: FetchedCourse): MediaRef[] {
   const refs: MediaRef[] = [];
   const add = (url: string | undefined, kind: MediaRef["kind"]) => {
-    if (url && !refs.some((r) => r.url === url)) refs.push({ url, kind, name: fileName(url) });
+    if (url && !refs.some((r) => r.url === url))
+      refs.push({ url, kind, name: urlFileName(url, { decode: true }) });
   };
   for (const lesson of course.lessons) {
     const plan = planLesson(lesson);
@@ -349,11 +350,6 @@ export function groupUnits<L extends { source: LandingLesson }>(
 }
 
 // --- files ----------------------------------------------------------------------------------------
-
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
-const optionId = (i: number) => String.fromCharCode(97 + i);
 
 interface Normalised {
   exercise: Exercise;

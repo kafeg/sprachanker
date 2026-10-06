@@ -11,13 +11,12 @@ import {
   type ImportReport,
   type MediaRef,
   storedPage,
+  urlFileName,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import { BONUS, COURSE, EDITION, HOST, MEDIA_REFERER, SERIES, SITE } from "./catalog.ts";
 import { type LessonSource, normaliseLingust, type UnitSource } from "./normalise.ts";
 import { parseIndex, parseLesson, parseVerbTable } from "./parse.ts";
-
-const fileName = (url: string) => new URL(url).pathname.split("/").pop() ?? "";
 
 /** The site's recordings answer only requests coming from its pages (hotlink protection). */
 const withReferer: typeof fetch = Object.assign(
@@ -57,7 +56,7 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
   const units: UnitSource[] = [];
   const refs = new Map<string, MediaRef>();
   const audio = (url: string | undefined) => {
-    if (url) refs.set(url, { url, kind: "audio", name: fileName(url) });
+    if (url) refs.set(url, { url, kind: "audio", name: urlFileName(url) });
   };
   for (const stage of stages) {
     const lessons: LessonSource[] = [];

@@ -1,6 +1,6 @@
 // The site's server-rendered pages → data: landing pages (lesson lists), lesson articles (players, transcript,
 // quiz and document embeds), document pages (the PDF) and quiz pages (questions, options, the answer).
-import { plainText } from "@sprachanker/course-kit";
+import { decodeEntities, plainText } from "@sprachanker/course-kit";
 import { SITE } from "./catalog.ts";
 
 export interface Rendition {
@@ -86,18 +86,7 @@ export interface QuizQuestion {
   options: QuizOption[];
 }
 
-const ENTITIES: Record<string, string> = { amp: "&", quot: '"', lt: "<", gt: ">", apos: "'" };
-
-/** Attribute value with entities decoded (URLs, JSON). */
-export function decodeAttr(value: string): string {
-  return value.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, name: string) => {
-    if (/^#x/i.test(name)) return String.fromCodePoint(Number.parseInt(name.slice(2), 16));
-    if (name.startsWith("#")) return String.fromCodePoint(Number(name.slice(1)));
-    return ENTITIES[name] ?? m;
-  });
-}
-
-const absolute = (href: string) => new URL(decodeAttr(href), SITE).href;
+const absolute = (href: string) => new URL(decodeEntities(href), SITE).href;
 
 /** Media URL without the download flag the "Direct link" menu adds. */
 export function mediaUrl(href: string): string {
@@ -159,7 +148,10 @@ export function parsePlayer(block: string): Player | undefined {
   const sources = /data-sources="([^"]+)"/.exec(tag[0])?.[1];
   if (sources) {
     try {
-      for (const s of JSON.parse(decodeAttr(sources)) as { Src?: string; DataInfo?: string }[]) {
+      for (const s of JSON.parse(decodeEntities(sources)) as {
+        Src?: string;
+        DataInfo?: string;
+      }[]) {
         if (s.Src && s.DataInfo) add(rendition(s.Src, s.DataInfo));
       }
     } catch {
@@ -171,7 +163,7 @@ export function parsePlayer(block: string): Player | undefined {
   }
   const src = /\ssrc="([^"]+)"/.exec(tag[0])?.[1];
   const info = /data-info="([^"]+)"/.exec(tag[0])?.[1];
-  if (src && info) add(rendition(src, decodeAttr(info)));
+  if (src && info) add(rendition(src, decodeEntities(info)));
   const title = /data-title="([^"]*)"/.exec(block)?.[1] ?? /\stitle="([^"]*)"/.exec(tag[0])?.[1];
   const id = /data-media-id="(\d+)"/.exec(block)?.[1];
   return { kind, ...(id ? { id } : {}), title: plainText(title), renditions: found };
@@ -222,7 +214,7 @@ function parseSection(heading: string, html: string): Section {
 export function parseLesson(html: string): LessonPage {
   const title = plainText(/<h1[^>]*>([\s\S]*?)<\/h1>/.exec(html)?.[1]);
   const summary = plainText(
-    decodeAttr(/<meta name="description" content="([^"]*)"/.exec(html)?.[1] ?? ""),
+    decodeEntities(/<meta name="description" content="([^"]*)"/.exec(html)?.[1] ?? ""),
   );
   const start = html.indexOf('<div class="wsw">');
   const before = start < 0 ? html : html.slice(0, start);

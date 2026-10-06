@@ -8,7 +8,8 @@ Depends on nothing (zod only). Every other module imports types from here.
 ```
 src/
   lang.ts            # Lang, edition ids
-  keys.ts            # key schemas (branded), builders, parsers, lemma slugs, part of speech, gender
+  keys.ts            # key schemas (branded), builders, parsers, lemma slugs, part of speech, gender,
+                     # choice option ids
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
   catalog.ts         # CatalogEntry, kind, licence
   manifest.ts        # course.json

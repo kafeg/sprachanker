@@ -6,8 +6,9 @@ Research about sources: `docs/research/`.
 ## Layout (target)
 
 ```
-packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching, manifest,
-                       # fingerprints, verify, HTML sanitiser, plain text of HTML; provider.ts: the
+packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching (media file
+                       # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
+                       # text of HTML and entity decoding; provider.ts: the
                        # provider contract (import options/report, writeLibraryFiles, storedPage);
                        # verify.ts: a course's integrity and counts (LibraryView.check)
 courses/
@@ -38,6 +39,8 @@ courses/
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
   require re-downloading.
 - Unknown source structures become `unknown` + report entries, never silent drops.
+- Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
+  provider never keeps its own copy.
 - Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.
 - Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:
   a `Referer` of the source's own page for its media when it refuses hotlinks (Lingust).

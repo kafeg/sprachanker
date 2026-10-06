@@ -16,6 +16,7 @@ import {
   lessonKey,
   lessonOf,
   lexemeKey,
+  optionId,
   parseItemKey,
   parseLessonKey,
   parseLexemeKey,
@@ -121,5 +122,8 @@ describe("parsers", () => {
       lemma: "auch",
       pos: "word",
     });
+  });
+  test("option ids", () => {
+    expect([0, 1, 25, 26, 27].map(optionId)).toEqual(["a", "b", "z", "aa", "ab"]);
   });
 });

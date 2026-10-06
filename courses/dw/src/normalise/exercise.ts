@@ -12,6 +12,7 @@ import {
   type LocaleExercise,
   type LocaleItem,
   type Option,
+  optionId,
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import {
@@ -28,8 +29,6 @@ import { isUiLabel } from "./text.ts";
 
 class Unmapped extends Error {}
 
-const ids = "abcdefghijklmnopqrstuvwxyz".split("");
-const optionId = (i: number) => (i < 26 ? ids[i] : `a${ids[i - 26]}`) as string;
 const GAP = /#p[a-z]*#/g;
 
 type Item = Record<string, unknown>;

@@ -116,6 +116,10 @@ export const ruleId = (lang: Lang, area: string, slug: string) =>
 export const sceneKey = (series: SeriesKey, slug: string) =>
   SceneKey.parse(`${series}/scene-${slug}`);
 
+const LETTERS = "abcdefghijklmnopqrstuvwxyz";
+/** Id of a choice option by its 0-based position: `a`…`z`, then `aa`…`az` (`OptionId`). */
+export const optionId = (i: number) => (i < 26 ? LETTERS[i] : `a${LETTERS[i - 26]}`) as string;
+
 /**
  * The parts of a lesson key: `dw.nicos-weg/a1/02-03` → course `dw.nicos-weg/a1`, its id `a1`, the
  * lesson's name `02-03` (its file name and URL segment), unit 2 and lesson 3.

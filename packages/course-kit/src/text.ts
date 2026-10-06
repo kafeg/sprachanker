@@ -32,7 +32,8 @@ const NAMED: Record<string, string> = {
   ccedil: "ç",
 };
 
-function decodeEntities(text: string): string {
+/** Character references (`&#x27;`, `&#39;`) and the common named entities decoded; others kept. */
+export function decodeEntities(text: string): string {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, name: string) => {
     if (name.startsWith("#x") || name.startsWith("#X"))
       return String.fromCodePoint(Number.parseInt(name.slice(2), 16));

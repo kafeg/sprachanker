@@ -2,6 +2,7 @@
 // Stages of the index are units; each lesson keeps its explanation as grammar pages, its examples
 // with recordings as listen-and-repeat exercises, its vocabulary and its exercises (exercise.ts).
 import {
+  escapeHtml,
   type LibraryFile,
   type MediaIndex,
   mediaPath,
@@ -67,9 +68,6 @@ export function partOfSpeech(head: string, marks: string[], forms: string[]): Pa
   if (/^to\s/i.test(head)) return "verb";
   return /\s/.test(head.trim()) ? "phrase" : "word";
 }
-
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const LISTEN = "<p>Прослушайте и повторите вслух.</p>";
 const READ = "<p>Повторите вслух (прослушайте запись, где она есть).</p>";
