@@ -2,6 +2,7 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { BookOpen, Library, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { AboutLine } from "./about.tsx";
 import { cn } from "./utils.ts";
 
 const NAV = [
@@ -10,8 +11,7 @@ const NAV = [
   { to: "/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
-/** `footer`: shown at the bottom of the desktop sidebar (the router puts the AI assistant there). */
-export function AppShell({ footer }: { footer?: React.ReactNode }) {
+export function AppShell() {
   const { t } = useTranslation();
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
@@ -31,7 +31,9 @@ export function AppShell({ footer }: { footer?: React.ReactNode }) {
             <Icon className="size-5" /> {t(key)}
           </Link>
         ))}
-        {footer && <div className="mt-auto px-2">{footer}</div>}
+        <div className="mt-auto px-3">
+          <AboutLine />
+        </div>
       </aside>
       <main className="min-w-0 pb-20 lg:pb-0">
         <Outlet />

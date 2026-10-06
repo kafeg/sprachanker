@@ -181,7 +181,7 @@
     "checking": "Connecting…",
     "connected": "Connected · {count, plural, =0 {no models} one {# model} other {# models}} · {ms} ms",
     "model": "Model",
-    "modelHint": "Pick from the list or type the model name.",
+    "modelHint": "Pick one of the provider's models, or choose “Another model” to type its name.",
     "setUpHint": "Want an explanation? Set up the AI assistant",
     "why": "Why is this wrong?",
     "explanation": "Explanation",
@@ -211,7 +211,11 @@
     "cliMissing": {
       "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running `claude`.",
       "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with `codex login`."
-    }
+    },
+    "modelTypeHint": "Type the model name.",
+    "pickModel": "Choose a model",
+    "otherModel": "Another model…",
+    "modelName": "Model name"
   },
   "tutor": {
     "title": "Tutor",
@@ -226,7 +230,11 @@
       "grammar": "Explain the grammar of this lesson",
       "examples": "Give me more examples with the new words",
       "dialogue": "Let's practise a short dialogue",
-      "exercise": "Give me a hint for this exercise"
+      "exercise": "Give me a hint for this exercise",
+      "wordsQuiz": "Quiz me on the new words of this lesson",
+      "wordsMemory": "Help me remember the new words",
+      "grammarDrill": "Give me a short exercise on this lesson's grammar",
+      "script": "Go through the lesson text phrase by phrase"
     },
     "context": "Context ≈ {used} of {window} tokens",
     "contextSize": "Request ≈ {used} tokens",
@@ -349,5 +357,12 @@
     "speed": "Playback speed {rate}×",
     "position": "Position",
     "unavailable": "The audio could not be loaded."
+  },
+  "about": {
+    "title": "About SprachAnker",
+    "intro": "A self-hosted, local-first language tutor: real courses in one player, progress and speech on your own computer, any AI model you connect. Free and open source.",
+    "version": "Version",
+    "licence": "Licence: MIT",
+    "source": "Source code on GitHub"
   }
 }

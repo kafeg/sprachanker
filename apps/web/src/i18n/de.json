@@ -181,7 +181,7 @@
     "checking": "Verbindung wird hergestellt…",
     "connected": "Verbunden · {count, plural, =0 {keine Modelle} one {# Modell} other {# Modelle}} · {ms, number} ms",
     "model": "Modell",
-    "modelHint": "Wähle aus der Liste oder gib den Modellnamen ein.",
+    "modelHint": "Wähle ein Modell des Anbieters oder „Anderes Modell“, um den Namen einzugeben.",
     "setUpHint": "Erklärung gewünscht? KI-Assistent einrichten",
     "why": "Warum ist das falsch?",
     "explanation": "Erklärung",
@@ -211,7 +211,11 @@
     "cliMissing": {
       "claude-code": "Claude Code ist hier nicht installiert. Installiere es von claude.com/claude-code und melde dich einmal mit `claude` an.",
       "codex": "Die Codex-CLI ist hier nicht installiert. Installiere sie (npm i -g @openai/codex) und melde dich einmal mit `codex login` an."
-    }
+    },
+    "modelTypeHint": "Gib den Modellnamen ein.",
+    "pickModel": "Modell wählen",
+    "otherModel": "Anderes Modell…",
+    "modelName": "Modellname"
   },
   "tutor": {
     "title": "Tutor",
@@ -226,7 +230,11 @@
       "grammar": "Erklär mir die Grammatik dieser Lektion",
       "examples": "Gib mir mehr Beispiele mit den neuen Wörtern",
       "dialogue": "Lass uns einen kurzen Dialog üben",
-      "exercise": "Gib mir einen Tipp zu dieser Übung"
+      "exercise": "Gib mir einen Tipp zu dieser Übung",
+      "wordsQuiz": "Frag mich die neuen Wörter der Lektion ab",
+      "wordsMemory": "Hilf mir, die neuen Wörter zu behalten",
+      "grammarDrill": "Gib mir eine kurze Übung zur Grammatik der Lektion",
+      "script": "Geh den Lektionstext Satz für Satz mit mir durch"
     },
     "context": "Kontext ≈ {used} von {window} Tokens",
     "contextSize": "Anfrage ≈ {used} Tokens",
@@ -349,5 +357,12 @@
     "speed": "Geschwindigkeit {rate}×",
     "position": "Position",
     "unavailable": "Das Audio konnte nicht geladen werden."
+  },
+  "about": {
+    "title": "Über SprachAnker",
+    "intro": "Ein Sprachtrainer, der bei dir läuft: echte Kurse in einem Player, Fortschritt und Sprache auf deinem eigenen Computer, jedes KI-Modell, das du anbindest. Kostenlos und quelloffen.",
+    "version": "Version",
+    "licence": "Lizenz: MIT",
+    "source": "Quellcode auf GitHub"
   }
 }

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useLesson } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { cn } from "@/ui/utils.ts";
 import { streamTutor, type TutorRequest, useLlm, useResetTutor, useTutorHistory } from "./api.ts";
@@ -57,6 +58,7 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const history = useTutorHistory(context.lessonKey);
+  const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
   const reset = useResetTutor(context.lessonKey);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState<{ question: string; reply: string }>();
@@ -111,11 +113,18 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
 
   sendLatest.current = send;
 
+  // Ways into the lesson, offered where the lesson has the material for them.
+  const words = !!lesson?.lesson.vocab.length;
+  const grammar = !!lesson?.locale?.tabs.grammar.length;
+  const script = !!lesson?.locale?.tabs.script;
   const suggestions = [
-    t("tutor.suggest.grammar"),
-    t("tutor.suggest.examples"),
-    t("tutor.suggest.dialogue"),
     ...(context.exerciseKey ? [t("tutor.suggest.exercise")] : []),
+    ...(words
+      ? [t("tutor.suggest.wordsQuiz"), t("tutor.suggest.wordsMemory"), t("tutor.suggest.examples")]
+      : []),
+    ...(grammar ? [t("tutor.suggest.grammar"), t("tutor.suggest.grammarDrill")] : []),
+    ...(script ? [t("tutor.suggest.script")] : []),
+    t("tutor.suggest.dialogue"),
   ];
 
   return (
@@ -141,12 +150,12 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
         {turns.length === 0 && !pending && (
           <div className="space-y-3 pt-2">
             <p className="text-muted-foreground">{t("tutor.intro")}</p>
-            <div className="flex flex-col items-start gap-2">
+            <div className="flex flex-wrap gap-2">
               {suggestions.map((s) => (
                 <Button
                   key={s}
                   variant="outline"
-                  className="h-auto min-h-11 whitespace-normal text-left"
+                  className="h-auto min-h-11 whitespace-normal rounded-full text-left"
                   onClick={() => send(s)}
                 >
                   {s}

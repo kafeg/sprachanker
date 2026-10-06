@@ -1,7 +1,7 @@
 import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/ui/utils.ts";
-import { OptionContent, useShuffled } from "./shared.tsx";
+import { OptionContent, PickSelect, useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"match">) {
@@ -45,24 +45,19 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
               <OptionContent option={l} url={url} />
             </span>
             <span aria-hidden>→</span>
-            <select
-              value={chosen.get(l.id) ?? ""}
-              aria-label={t("ex.matchFor", { n: i + 1 })}
+            <PickSelect
+              value={chosen.get(l.id)}
+              options={right.map((r) => ({ id: r.id, text: label(r.id) }))}
+              placeholder="—"
+              label={t("ex.matchFor", { n: i + 1 })}
               disabled={!!outcome}
-              onChange={(e) => set(l.id, e.target.value)}
+              onChange={(id) => set(l.id, id)}
               className={cn(
-                "h-11 min-w-40 rounded-lg border-2 bg-card px-3 text-lg",
+                "min-w-40",
                 ok === true && "border-correct",
                 ok === false && "border-wrong",
               )}
-            >
-              <option value="">—</option>
-              {right.map((r) => (
-                <option key={r.id} value={r.id}>
-                  {label(r.id)}
-                </option>
-              ))}
-            </select>
+            />
             {ok === true && <Check className="size-5 text-correct" aria-hidden />}
             {ok === false && (
               <span className="flex items-center gap-1 text-wrong">

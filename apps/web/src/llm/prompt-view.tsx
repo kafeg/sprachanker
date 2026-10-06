@@ -79,8 +79,15 @@ export function PromptButton({ request }: { request: PromptRequest | (() => Prom
   };
   return (
     <>
-      <Button variant="ghost" size="sm" onClick={show}>
-        <Braces className="size-4" /> {t("prompt.button")}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={show}
+        aria-label={t("prompt.button")}
+        title={t("prompt.button")}
+        className="size-8 text-muted-foreground/60 hover:text-foreground"
+      >
+        <Braces className="size-4" />
       </Button>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-2xl">

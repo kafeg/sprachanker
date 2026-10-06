@@ -2,7 +2,7 @@ import { correctOptions, type Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { useShuffled } from "./shared.tsx";
+import { PickSelect, useShuffled } from "./shared.tsx";
 import type { ItemOf, RendererProps } from "./types.ts";
 
 type Segments = ItemOf<"gap_text">["segments"];
@@ -101,23 +101,15 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
       segments={item.segments}
       gap={(gap) => (
         <>
-          <select
-            value={values[gap] ?? ""}
-            aria-label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
+          <PickSelect
+            value={values[gap]}
+            options={(item.gaps[gap]?.options ?? []).map((o) => ({ id: o.id, text: o.text ?? "" }))}
+            placeholder="…"
+            label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
             disabled={!!outcome}
-            onChange={(e) => set(gap, e.target.value)}
-            className={cn(
-              "h-11 rounded-lg border-2 bg-card px-2 text-lg",
-              fieldMark(outcome, ok(gap)),
-            )}
-          >
-            <option value="">…</option>
-            {(item.gaps[gap]?.options ?? []).map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.text}
-              </option>
-            ))}
-          </select>
+            onChange={(id) => set(gap, id)}
+            className={cn("inline-flex min-w-20 align-middle", fieldMark(outcome, ok(gap)))}
+          />
           {outcome && !ok(gap) && (
             <span className="ml-1 text-base text-wrong">{rightText(gap)}</span>
           )}

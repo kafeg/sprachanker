@@ -34,7 +34,7 @@ async function skipRest({ getJson, sendJson }: Api, runId: string, worked: strin
 describe("web app", () => {
   test("health, index, hashed assets, client routes, unknown api", async () => {
     const { get, getJson } = await setup();
-    expect(await getJson("/api/health")).toEqual({ status: "ok" });
+    expect(await getJson("/api/health")).toEqual({ status: "ok", version: "test" });
     const index = await get("/");
     expect(index.headers.get("cache-control")).toBe("no-cache");
     expect((await get("/assets/app-1a2b.js")).headers.get("cache-control")).toContain("immutable");

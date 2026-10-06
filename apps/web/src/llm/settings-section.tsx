@@ -1,10 +1,18 @@
 // Settings → AI assistant: provider, endpoint, API key, model, connection check.
 import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/components/select.tsx";
 import {
   type LlmState,
   type ProviderId,
@@ -107,9 +115,10 @@ function KeyField({ provider }: { provider: Provider }) {
   );
 }
 
+const OTHER = "__other__";
+
 function ModelField({ state, provider }: { state: LlmState; provider: Provider }) {
   const { t } = useTranslation();
-  const listId = useId();
   const setRoute = useSetRoute();
   const models = useModels(provider.id);
   const [value, setValue] = useState(state.model ?? "");
@@ -125,6 +134,10 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
     if (m !== (state.model ?? "")) setRoute.mutate({ provider: provider.id, model: m || null });
   };
   const list = models.data?.models ?? [];
+  const [other, setOther] = useState(false);
+  // Typing a name: chosen as "another model", or the saved model is not in the provider's list.
+  const typing =
+    other || (!!state.model && !!list.length && !list.some((m) => m.id === state.model));
   // A local server with exactly one model: take it.
   useEffect(() => {
     const only = list.length === 1 ? list[0]?.id : undefined;
@@ -156,28 +169,45 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
           ) : null}
         </span>
       </div>
-      <Field label={t("llm.model")} hint={t("llm.modelHint")}>
-        <Input
-          className="h-11"
-          list={listId}
-          spellCheck={false}
-          placeholder={list[0]?.id ?? "qwen3-8b"}
-          value={value}
-          onChange={(e) => {
-            setValue(e.target.value);
-            // Picking from the list saves at once; typing saves on blur.
-            if (list.some((m) => m.id === e.target.value)) save(e.target.value);
-          }}
-          onBlur={() => save(value)}
-          onKeyDown={(e) => e.key === "Enter" && save(value)}
-        />
-        <datalist id={listId}>
-          {list.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.name}
-            </option>
-          ))}
-        </datalist>
+      <Field
+        label={t("llm.model")}
+        hint={list.length ? t("llm.modelHint") : t("llm.modelTypeHint")}
+      >
+        {/* The provider's models in a list; a model it does not list (or none listed) is typed. */}
+        {!!list.length && (
+          <Select
+            value={typing ? OTHER : (state.model ?? "")}
+            onValueChange={(id) => {
+              setOther(id === OTHER);
+              if (id !== OTHER) save(id);
+            }}
+          >
+            <SelectTrigger className="h-11 w-full max-w-md bg-card" aria-label={t("llm.model")}>
+              <SelectValue placeholder={t("llm.pickModel")} />
+            </SelectTrigger>
+            <SelectContent>
+              {list.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.name}
+                </SelectItem>
+              ))}
+              <SelectSeparator />
+              <SelectItem value={OTHER}>{t("llm.otherModel")}</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        {(typing || !list.length) && (
+          <Input
+            className="mt-2 h-11 max-w-md"
+            spellCheck={false}
+            placeholder="qwen3-8b"
+            aria-label={t("llm.modelName")}
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            onBlur={() => save(value)}
+            onKeyDown={(e) => e.key === "Enter" && save(value)}
+          />
+        )}
       </Field>
     </div>
   );

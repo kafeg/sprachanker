@@ -2,7 +2,6 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
-import { AssistantLabel } from "@/llm/assistant-label.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AppShell } from "@/ui/app-shell.tsx";
 import { PlaybackRate } from "@/ui/media.tsx";
@@ -23,7 +22,7 @@ const root = createRootRoute({
 const shell = createRoute({
   getParentRoute: () => root,
   id: "shell",
-  component: () => <AppShell footer={<AssistantLabel />} />,
+  component: AppShell,
 });
 const courses = createRoute({ getParentRoute: () => shell, path: "/", component: MyCoursesPage });
 const catalog = createRoute({

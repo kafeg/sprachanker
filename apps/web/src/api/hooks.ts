@@ -2,6 +2,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, json } from "./client.ts";
 
+/** The server's version (and that it answers). */
+export const useAppInfo = () =>
+  useQuery({
+    queryKey: ["health"],
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: () => json(api.health.$get()),
+  });
+
 export const useCourses = () =>
   useQuery({ queryKey: ["courses"], queryFn: () => json(api.courses.$get()) });
 

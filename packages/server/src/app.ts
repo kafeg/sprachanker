@@ -112,7 +112,7 @@ export function createApp(config: AppConfig) {
       }
       await next();
     })
-    .get("/health", (c) => c.json({ status: "ok" as const }))
+    .get("/health", (c) => c.json({ status: "ok" as const, version: config.appVersion }))
     .get("/courses", async (c) => {
       const progress = await runs.progress();
       return c.json(
