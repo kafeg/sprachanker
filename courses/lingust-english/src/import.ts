@@ -16,7 +16,9 @@ import {
 } from "@sprachanker/course-kit";
 import { BONUS, COURSE, EDITION, HOST, MEDIA_REFERER, SERIES, SITE } from "./catalog.ts";
 import { type LessonSource, normaliseLingust, type UnitSource } from "./normalise.ts";
-import { parseIndex, parseLesson, parseVerbTable } from "./parse.ts";
+import { parseIndex } from "./parse/course-index.ts";
+import { parseLesson } from "./parse/lesson.ts";
+import { parseVerbTable } from "./parse/verbs.ts";
 
 /** The site's recordings answer only requests coming from its pages (hotlink protection). */
 const withReferer: typeof fetch = Object.assign(

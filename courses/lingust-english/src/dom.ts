@@ -116,7 +116,7 @@ export function innerHtml(node: El, bare = false): string {
   return node.children.map((c) => outerHtml(c, bare)).join("");
 }
 
-export function outerHtml(node: Node, bare = false): string {
+function outerHtml(node: Node, bare = false): string {
   if (node.type === "text") return node.text;
   const attrs = bare
     ? ""

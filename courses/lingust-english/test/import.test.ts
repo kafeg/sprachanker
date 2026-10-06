@@ -12,7 +12,9 @@ import {
 } from "@sprachanker/schema";
 import { gapKey, variants } from "../src/exercise.ts";
 import { normaliseLingust, partOfSpeech, type UnitSource } from "../src/normalise.ts";
-import { parseIndex, parseLesson, parseVerbTable } from "../src/parse.ts";
+import { parseIndex } from "../src/parse/course-index.ts";
+import { parseLesson } from "../src/parse/lesson.ts";
+import { parseVerbTable } from "../src/parse/verbs.ts";
 import { englishLine, withoutRussianRemarks } from "../src/text.ts";
 
 const BASE = "https://lingust.ru/english/english-lessons/lesson3";

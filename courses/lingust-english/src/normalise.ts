@@ -28,7 +28,10 @@ import {
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE, TITLE } from "./catalog.ts";
 import { type El, parseHtml } from "./dom.ts";
 import { Homework, mapExercise, speechExercise, Unmapped } from "./exercise.ts";
-import type { IndexLesson, LessonPage, VerbRow, VocabRow } from "./parse.ts";
+import type { IndexLesson } from "./parse/course-index.ts";
+import type { LessonPage } from "./parse/lesson.ts";
+import type { VerbRow } from "./parse/verbs.ts";
+import type { VocabRow } from "./parse/vocab.ts";
 import { renderSection } from "./render.ts";
 import { ipaOf, withoutIpa } from "./text.ts";
 

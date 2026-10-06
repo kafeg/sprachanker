@@ -18,7 +18,8 @@ import {
   type MediaPath,
   optionId,
 } from "@sprachanker/schema";
-import type { KeyEntry, Line, Seg, Snippet, SourceExercise, Unit } from "./parse.ts";
+import type { KeyEntry, Seg, SourceExercise, Unit } from "./parse/exercise.ts";
+import type { Line, Snippet } from "./parse/snippets.ts";
 import {
   flatText,
   hasCyrillic,
@@ -90,7 +91,7 @@ export function gapKey(entry: KeyEntry, gaps: number): { answers: string[]; tran
 }
 
 /** English lines of a key entry (the model answer) and the Russian ones (a translation). */
-export function englishKey(entry: KeyEntry): { reference?: string; russian: string[] } {
+function englishKey(entry: KeyEntry): { reference?: string; russian: string[] } {
   const en: string[] = [];
   const ru: string[] = [];
   for (const line of entry.map((l) => plainText(l)).filter(Boolean)) {
