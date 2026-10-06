@@ -3,6 +3,7 @@ import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import type { CliRun } from "@sprachanker/llm";
+import { ulid } from "ulid";
 import { secretBox } from "../src/security/secrets.ts";
 import type { CliHost } from "../src/services/llm.ts";
 import { setup } from "./setup.ts";
@@ -11,7 +12,7 @@ import { setup } from "./setup.ts";
  * A fake provider: answers /models and streams a fixed reply from /chat/completions. As LM Studio it
  * also reports the test models as loaded (its native API is not recorded in `calls`).
  */
-function provider(options: { down?: boolean } = {}) {
+function provider(options: { down?: boolean; slow?: boolean } = {}) {
   const calls: Array<{ url: string; headers: Record<string, string>; body?: unknown }> = [];
   const fetch = (async (url: string, init: RequestInit) => {
     if (options.down) throw new TypeError("connection refused");
@@ -26,10 +27,22 @@ function provider(options: { down?: boolean } = {}) {
     const headers = init.headers as Record<string, string>;
     calls.push({ url, headers, body: init.body ? JSON.parse(init.body as string) : undefined });
     if (url.endsWith("/models")) return Response.json({ data: [{ id: "qwen3-8b" }] });
-    const sse = ["<think>hmm</think>Weil ", "»Frau« weiblich ist."]
-      .map((content) => `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`)
-      .join("");
-    return new Response(`${sse}data: [DONE]\n\n`);
+    const events = ["<think>hmm</think>Weil ", "»Frau« weiblich ist."].map(
+      (content) => `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`,
+    );
+    if (!options.slow) return new Response(`${events.join("")}data: [DONE]\n\n`);
+    // Slow: the first part now, the rest a little later.
+    const encoder = new TextEncoder();
+    return new Response(
+      new ReadableStream({
+        async start(controller) {
+          controller.enqueue(encoder.encode(events[0]));
+          await Bun.sleep(100);
+          controller.enqueue(encoder.encode(`${events[1]}data: [DONE]\n\n`));
+          controller.close();
+        },
+      }),
+    );
   }) as unknown as typeof globalThis.fetch;
   return { fetch, calls };
 }
@@ -133,6 +146,71 @@ describe("explain a mistake", () => {
     expect(body.messages[1]?.content).toContain("Learner's answer: Guten Tag, [Herr] Weber.");
   });
 
+  test("a finished explanation is kept with its run and attempt; shown again, removed with progress", async () => {
+    const { send, sendJson, getJson } = await setup({ fetch: provider().fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const start = (lessonKey: string) =>
+      sendJson("POST", "/api/runs", { series: FIXTURE_SERIES, lessonKey, edition: "ru-de" });
+    const run = (await start(EXPLAIN.lessonKey)).run.id;
+    const list = async () =>
+      (await getJson(`/api/llm/explanations?lessonKey=${EXPLAIN.lessonKey}&runId=${run}`))
+        .explanations;
+
+    await (await send("POST", "/api/llm/explain", { ...EXPLAIN, runId: run, attempt: 1 })).text();
+    await (await send("POST", "/api/llm/explain", { ...EXPLAIN, runId: run, attempt: 2 })).text();
+    // Without a run nothing is kept (e.g. a prompt preview elsewhere).
+    await (await send("POST", "/api/llm/explain", EXPLAIN)).text();
+    const kept = await list();
+    expect(kept).toMatchObject([
+      {
+        itemKey: `${EXPLAIN.exerciseKey}#1`,
+        attempt: 1,
+        text: "Weil »Frau« weiblich ist.",
+        model: "qwen3-8b",
+      },
+      { itemKey: `${EXPLAIN.exerciseKey}#1`, attempt: 2 },
+    ]);
+
+    // Kept explanations are no progress: the lesson is not started on the course map.
+    const map = await getJson(`/api/course?series=${FIXTURE_SERIES}&course=demo&edition=ru-de`);
+    expect(map.lessons[EXPLAIN.lessonKey]).toMatchObject({ done: false, run: { worked: 0 } });
+
+    // A run of another lesson is refused.
+    const other = (await start("sprachanker.fixture/demo/00-02")).run.id;
+    const res = await send("POST", "/api/llm/explain", { ...EXPLAIN, runId: other, attempt: 1 });
+    expect([res.status, ((await res.json()) as { error: string }).error]).toEqual([
+      409,
+      "no_such_run",
+    ]);
+
+    // Resetting the lesson's progress removes its explanations with its runs.
+    await send("POST", "/api/progress/reset", {
+      series: FIXTURE_SERIES,
+      course: "demo",
+      lesson: EXPLAIN.lessonKey,
+    });
+    expect(await list()).toEqual([]);
+  });
+
+  test("an explanation cut short by the learner is not kept", async () => {
+    const { send, sendJson, getJson } = await setup({ fetch: provider({ slow: true }).fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const run = (
+      await sendJson("POST", "/api/runs", {
+        series: FIXTURE_SERIES,
+        lessonKey: EXPLAIN.lessonKey,
+        edition: "ru-de",
+      })
+    ).run.id;
+    const res = await send("POST", "/api/llm/explain", { ...EXPLAIN, runId: run, attempt: 1 });
+    const reader = (res.body as ReadableStream<Uint8Array>).getReader();
+    expect(new TextDecoder().decode((await reader.read()).value)).toBe("Weil ");
+    await reader.cancel();
+    await Bun.sleep(250);
+    const kept = await getJson(`/api/llm/explanations?lessonKey=${EXPLAIN.lessonKey}&runId=${run}`);
+    expect(kept.explanations).toEqual([]);
+  });
+
   test("an unknown exercise item is refused", async () => {
     const { send } = await setup({ fetch: provider().fetch });
     await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
@@ -224,6 +302,103 @@ describe("lesson tutor", () => {
       })
     ).text();
     expect(prompt(fake.calls[0])[0]?.content).toContain("Answer: Guten Tag, [Frau] Weber.");
+  });
+
+  test("chats: a new chat keeps the old one in the history; turns carry time and exercise; delete", async () => {
+    const fake = provider();
+    const { send, get, getJson } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
+    const lessonKey = "sprachanker.fixture/demo/00-01";
+    const ask = async (extra: Record<string, unknown>) =>
+      (await send("POST", "/api/llm/tutor", { ...TUTOR, lessonKey, ...extra })).text();
+    await ask({ exerciseKey: `${lessonKey}/ex-06` });
+    await ask({ exerciseKey: `${lessonKey}/ex-07`, message: "Ещё" });
+    // The model is told where the exercise on screen changed.
+    const second = prompt(fake.calls[1]);
+    expect(second[0]?.content).toContain("Exercise on screen:\nExercise 7 · Представься");
+    expect(second[1]?.content).toBe("[On screen: Exercise 6 · Herr или Frau?]\nДай пример");
+    expect(second.at(-1)?.content).toBe("[On screen: Exercise 7 · Представься]\nЕщё");
+
+    await ask({ message: "Новый", newChat: true });
+    expect(prompt(fake.calls[2]).map((m) => m.role)).toEqual(["system", "user"]);
+
+    const { chats } = await getJson(`/api/llm/tutor/chats?lessonKey=${lessonKey}`);
+    expect(chats).toMatchObject([
+      { current: true, title: "Новый", turns: 2, exerciseKeys: [] },
+      {
+        current: false,
+        title: "Дай пример",
+        turns: 4,
+        exerciseKeys: [`${lessonKey}/ex-06`, `${lessonKey}/ex-07`],
+      },
+    ]);
+    const old = chats[1].id;
+    const { turns } = await getJson(`/api/llm/tutor/chats/${old}?lessonKey=${lessonKey}`);
+    expect(turns[0]).toMatchObject({ role: "user", exerciseKey: `${lessonKey}/ex-06` });
+    expect(turns[0].ts).toBeNumber();
+    expect((await getJson(`/api/llm/tutor?lessonKey=${lessonKey}`)).turns[0].text).toBe("Новый");
+
+    // Deleting needs the chat's own lesson; the chat is gone afterwards.
+    const other = await send(
+      "DELETE",
+      `/api/llm/tutor/chats/${old}?lessonKey=sprachanker.fixture/demo/00-02`,
+      {},
+    );
+    expect(other.status).toBe(404);
+    expect(
+      (await send("DELETE", `/api/llm/tutor/chats/${old}?lessonKey=${lessonKey}`, {})).status,
+    ).toBe(200);
+    expect((await getJson(`/api/llm/tutor/chats?lessonKey=${lessonKey}`)).chats).toHaveLength(1);
+    expect((await get(`/api/llm/tutor/chats/${old}?lessonKey=${lessonKey}`)).status).toBe(404);
+  });
+
+  test("this lesson's mistakes are those of the run the lesson shows", async () => {
+    const { send, sendJson } = await setup({ fetch: provider().fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
+    const lessonKey = "sprachanker.fixture/demo/00-01";
+    const start = (restart: boolean) =>
+      sendJson("POST", "/api/runs", {
+        series: FIXTURE_SERIES,
+        lessonKey,
+        edition: "ru-de",
+        restart,
+      });
+    const run = (await start(false)).run.id;
+    await sendJson("POST", `/api/runs/${run}/events`, {
+      events: [
+        {
+          id: ulid(),
+          type: "answered",
+          itemKey: `${lessonKey}/ex-06#1`,
+          payload: { answer: { g1: "a" }, attempt: 1, ms: 1 },
+        },
+      ],
+    });
+    const system = async () =>
+      (await sendJson("POST", "/api/llm/tutor/prompt", { ...TUTOR, lessonKey, message: "?" })).body
+        .messages[0].content as string;
+    expect(await system()).toContain("In this lesson:\n- [Herr или Frau? · item 1]");
+    await start(true);
+    expect(await system()).not.toContain("Learner's mistakes");
+  });
+
+  test("a new chat that fails leaves the current chat as it was", async () => {
+    const state = { down: false };
+    const { send, getJson } = await setup({ fetch: provider(state).fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
+    await (await send("POST", "/api/llm/tutor", TUTOR)).text();
+    // The provider goes away: a "new chat" message fails and the chat stays current.
+    state.down = true;
+    const failing = await send("POST", "/api/llm/tutor", {
+      ...TUTOR,
+      message: "Новый",
+      newChat: true,
+    });
+    expect(failing.status).toBe(502);
+    const { turns } = await getJson(`/api/llm/tutor?lessonKey=${TUTOR.lessonKey}`);
+    expect(turns[0].text).toBe("Дай пример");
+    const { chats } = await getJson(`/api/llm/tutor/chats?lessonKey=${TUTOR.lessonKey}`);
+    expect(chats).toMatchObject([{ current: true, title: "Дай пример" }]);
   });
 
   test("nothing is stored when the model is not reachable", async () => {

@@ -121,12 +121,21 @@ test("review: built from the latest lesson run, stored, stale after new answers"
   await answer(`${LESSON}/ex-06#1`, { g1: "a" });
   await answer(`${LESSON}/ex-01#1`, { optionId: "a" });
   await answer(`${LESSON}/ex-01#2`, { optionId: "b" });
+  // A scored item skipped: the exercise reads as skipped, not as one with mistakes.
+  await sendJson("POST", `/api/runs/${run}/events`, {
+    events: [{ id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-08#1`, payload: {} }],
+  });
 
   const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de", language: "ru" };
   const prompt = await sendJson("POST", "/api/llm/review/prompt", body);
   const data = prompt.body.messages[1].content as string;
-  expect(data).toContain("Right at the first attempt: 2 of 3 items.");
-  expect(data).toMatch(/Exercises without mistakes: .+/);
+  // Every exercise with its state, so an unfinished lesson is not reviewed as a whole one.
+  expect(data).toContain("Exercises worked: 2 of 8.");
+  expect(data).toContain("2. Заказ Тома: not started");
+  expect(data).toContain("6. Herr или Frau?: with mistakes");
+  expect(data).toContain("8. Заказ: skipped (items left without an answer)");
+  expect(data).toContain("Scored items right at the first attempt: 2 of 3.");
+  expect(data).toContain("- [Herr или Frau? · item 1]");
   expect(data).toContain("learner: Guten Tag, [Herr] Weber.");
 
   const review = await sendJson("POST", "/api/llm/review", body);
@@ -136,4 +145,34 @@ test("review: built from the latest lesson run, stored, stale after new answers"
 
   await answer(`${LESSON}/ex-07#1`, { g1: "a", g2: "b" });
   expect((await getJson(`/api/llm/review?lessonKey=${LESSON}`)).stale).toBe(true);
+
+  // The lesson done again: the review stays with the run it reviewed; the new run's review is built
+  // from the new run only (the earlier mistake is not in it).
+  const again = (
+    await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+      restart: true,
+    })
+  ).run.id;
+  expect(await getJson(`/api/llm/review?lessonKey=${LESSON}`)).toEqual({
+    possible: false,
+    review: null,
+    stale: false,
+  });
+  await sendJson("POST", `/api/runs/${again}/events`, {
+    events: [
+      {
+        id: ulid(),
+        type: "answered",
+        itemKey: `${LESSON}/ex-01#1`,
+        payload: { answer: { optionId: "a" }, attempt: 1, ms: 1 },
+      },
+    ],
+  });
+  const fresh = await sendJson("POST", "/api/llm/review/prompt", body);
+  expect(fresh.body.messages[1].content).toContain("Mistakes: none.");
+  expect(fresh.body.messages[1].content).toContain("6. Herr или Frau?: not started");
+  expect(fresh.body.messages[1].content).toContain("Exercises worked: 1 of 8.");
 });

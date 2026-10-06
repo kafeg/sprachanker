@@ -72,6 +72,15 @@ export const streamExplain = async (
   signal: AbortSignal,
 ) => readStream(await api.llm.explain.$post({ json: request }, { init: { signal } }), onText);
 
+/** Explanations kept in a lesson run (05): the newest one of an item's attempt is shown. */
+export const useExplanations = (lessonKey: LessonKey, runId: string | undefined) =>
+  useQuery({
+    queryKey: ["explanations", runId],
+    queryFn: () =>
+      json(api.llm.explanations.$get({ query: { lessonKey, runId: runId as string } })),
+    enabled: !!runId,
+  });
+
 export type TutorRequest = Parameters<typeof api.llm.tutor.$post>[0]["json"];
 
 export const useTutorHistory = (lessonKey: string) =>

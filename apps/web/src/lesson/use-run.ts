@@ -41,6 +41,9 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const sending = useRef<Promise<void> | null>(null);
   const runId = run?.status === "active" ? run.id : undefined;
   const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
+  /** How many answers an item has in the run: the number of its latest attempt. */
+  const attempts = (itemKey: string) =>
+    events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
 
   const load = useCallback((state: Loaded | null) => {
     setEvents(state?.events ?? []);
@@ -171,6 +174,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     run,
     resumePage,
     results,
+    attempts,
     error,
     /** Starts the lesson (or resumes its active run); `restart` begins it anew. */
     async start(restart = false) {
@@ -191,8 +195,6 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
       skipped: string[],
       ms: number,
     ) {
-      const attempts = (itemKey: string) =>
-        events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
       const given = answers.map(({ itemKey, answer, outcome }) => ({
         event: {
           id: ulid(),

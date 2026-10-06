@@ -49,7 +49,7 @@ test("a scene: setup, turns with corrections and goals, done when all goals are 
   expect(await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).toEqual({ scene: null });
   const started = await sendJson("POST", "/api/llm/scene/start", base);
   expect(started.turns).toEqual([
-    { role: "assistant", text: SETUP.opening, model: "m", goalsMet: [] },
+    { role: "assistant", text: SETUP.opening, model: "m", goalsMet: [], ts: expect.any(Number) },
   ]);
 
   const first = await sendJson("POST", "/api/llm/scene/turn", { ...base, text: "Gutten Tag!" });

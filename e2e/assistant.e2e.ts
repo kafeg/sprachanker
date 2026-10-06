@@ -21,6 +21,17 @@ test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await page.getByRole("button", { name: "Why is this wrong?" }).first().click();
   await expect(page.getByText(FAKE_TEXT).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Explain again" })).toBeVisible();
+
+  // The explanation is kept with the answer: after a reload it is shown without asking the model.
+  let asked = 0;
+  page.on("request", (r) => {
+    if (r.method() === "POST" && r.url().endsWith("/api/llm/explain")) asked++;
+  });
+  await page.reload();
+  await page.getByRole("button", { name: "Why is this wrong?" }).first().click();
+  await expect(page.getByText(FAKE_TEXT).first()).toBeVisible();
+  expect(asked).toBe(0);
 
   await page.getByRole("button", { name: "Tutor" }).click();
   await page.getByPlaceholder("Ask a question…").fill("Was heißt das?");
@@ -41,4 +52,11 @@ test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText("FAKE: a good start.")).toBeVisible();
   await expect(page.getByText("FAKE: ß after a long vowel.")).toBeVisible();
+
+  // "Review my mistakes" opens a new chat: the earlier question is not in it.
+  await page.getByRole("button", { name: "Review my mistakes with the tutor" }).click();
+  const chat = page.getByRole("dialog");
+  await expect(chat.getByText("Please go through my mistakes in this lesson.")).toBeVisible();
+  await expect(chat.getByText(FAKE_TEXT).last()).toBeVisible();
+  await expect(chat.getByText("Was heißt das?")).toBeHidden();
 });

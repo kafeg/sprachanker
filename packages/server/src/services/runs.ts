@@ -156,10 +156,20 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   return {
     progress,
 
-    /** Events of the run the lesson shows (for the session review). */
-    async shownEvents(lessonKey: string) {
+    /** One of the lesson's runs, if `runId` is one (explanations are kept in lesson runs). */
+    lessonRun(lessonKey: string, runId: string): Run | undefined {
+      const row = db
+        .select()
+        .from(runs)
+        .where(and(eq(runs.id, runId), eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
+        .get();
+      return row && toRun(row);
+    },
+
+    /** The run the lesson shows, with its events (for the session review and the tutor). */
+    async shown(lessonKey: string): Promise<{ run: Run; events: StoredEvent[] } | undefined> {
       const row = await shownRun(lessonKey);
-      return row ? runEvents(db, row.id) : [];
+      return row && { run: toRun(row), events: runEvents(db, row.id) };
     },
 
     /** Each lesson's state for the course map, read like the player reads it. */

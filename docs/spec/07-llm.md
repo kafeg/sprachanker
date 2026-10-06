@@ -44,17 +44,21 @@ All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
 | Task | Input | Output |
 |---|---|---|
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages | short explanation in the native language (streamed text) |
-| `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history; tools (below) | message (streamed text) |
+| `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
-| `review_session` | the lesson, the latest run's first attempts (right of scored, clean exercises), its mistakes | JSON: summary, strengths[], topics[] (topic, explanation, examples), next[] |
+| `review_session` | the lesson; the run the lesson shows: every exercise with its state (right, with mistakes, done unscored, skipped, not started), first attempts right of scored, its mistakes | JSON: summary, strengths[], topics[] (topic, explanation, examples), next[] |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 
-"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; "ask about this exercise"
+"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
+kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with the attempt it explains,
+and shown again from there ("Explain again" asks anew; the newest is shown); "ask about this exercise"
 and the lesson tutor → `chat_turn`; "Write it yourself" on the lesson summary (3–5 sentences on the
 lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson's `practice` run;
-"Session review" on the summary → `review_session`, stored the same way and offered again when newer
-answers exist; the scene card on the summary → `scene_setup`, then `scene_turn` per line.
+"Session review" on the summary → `review_session`, stored the same way with the lesson run it
+reviews (`runId`; older reviews belong to the lesson run started last before them), shown with that run
+and offered again when newer answers exist. The review says plainly when exercises were skipped or not
+started and praises only what the results show; the scene card on the summary → `scene_setup`, then `scene_turn` per line.
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
@@ -88,14 +92,18 @@ answers exist; the scene card on the summary → `scene_setup`, then `scene_turn
 
 ## Conversations
 
-- **Lesson tutor** (`chat_turn` from the lesson player): one chat per lesson, a `chat` run with
+- **Lesson tutor** (`chat_turn` from the lesson player): one current chat per lesson, a `chat` run with
   `llm_turn` events; a question and its reply are stored together once the reply has text, so a failed
-  call leaves no unanswered turn. Context: the lesson (title, goals, words with translations, grammar
-  pages), headwords and titles of earlier lessons, the exercise on screen (with answers — the tutor gives
-  hints first), the learner's mistakes (items whose latest first attempt was wrong or partial: this
-  lesson's, then the latest of earlier lessons, fixed ones marked), the most recent turns within a
-  character budget sized for small local models. "Review my mistakes" on the lesson summary opens the
-  tutor with that request.
+  call leaves no unanswered turn. "New chat" ends the current one; ended chats stay in the lesson's chat
+  history (each with its time, first message and the exercises it was about) until the learner deletes
+  one. Context: the lesson (title, goals, words with translations, grammar pages), headwords and titles
+  of earlier lessons, the exercise on screen (named, its instruction once, items with answers — the
+  tutor gives hints first), the learner's mistakes (this lesson's: those of the run the lesson shows;
+  then the latest of earlier lessons; each named by exercise and item, fixed ones marked), the most
+  recent turns within a character budget sized for small local models. Each learner turn records the
+  exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·
+  Title]` where that changed, so earlier turns about other exercises are not read as about the current
+  one. "Review my mistakes" on the lesson summary opens a new chat with that request.
 - **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted
   from the lesson's goals and words (no authored scenes yet). The app keeps the model honest:
   corrections must quote the learner's new line, met goals only accumulate, all met ends the scene.

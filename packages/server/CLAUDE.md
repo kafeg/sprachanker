@@ -24,8 +24,8 @@ src/
   services/          # content, runs, settings, llm-runs (chat/scene/practice runs and their LLM events),
                      # mistakes (derived from lesson runs), lesson-context (what LLM
                      # tasks know of a lesson), llm (providers, LM Studio, prompt previews), explain ("Why is
-                     # this wrong?"),
-                     # tutor (lesson chats as `chat` runs), practice (writing checks, session reviews in
+                     # this wrong?", kept per attempt in the lesson run), tutor (lesson chats as `chat`
+                     # runs, the chat history), practice (writing checks, session reviews of a lesson run in
                      # `practice` runs), scene (role-plays as `scene` runs), tutor-tools (the tutor's
                      # tools on the learner's data), downloads (course downloads: queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

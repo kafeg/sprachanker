@@ -86,6 +86,7 @@ export function createApp(config: AppConfig) {
   const llmRuns = createLlmRuns({ db: config.profile, now, appVersion: config.appVersion });
   const tutor = createTutor({
     runs: llmRuns,
+    session: runs.shown,
     llm,
     mistakes,
     lessons,
@@ -93,15 +94,21 @@ export function createApp(config: AppConfig) {
   });
   const practice = createPractice({
     db: config.profile,
-    session: runs.shownEvents,
+    session: runs.shown,
     runs: llmRuns,
     llm,
     lessons,
-    mistakes,
     now,
   });
   const scenes = createScenes({ runs: llmRuns, llm, lessons });
-  const explain = createExplain({ llm, content });
+  const explain = createExplain({
+    llm,
+    content,
+    lessonRun: runs.lessonRun,
+    runs: llmRuns,
+    db: config.profile,
+    now,
+  });
 
   const api = new Hono()
     .use("*", async (c, next) => {

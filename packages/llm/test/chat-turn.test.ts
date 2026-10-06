@@ -23,7 +23,9 @@ const input = (extra: Partial<ChatTurnInput> = {}): ChatTurnInput => ({
 });
 
 test("system message: rules, course context as data, exercise with answers", () => {
-  const [system, user] = chatTurnMessages(input({ exercise: { exercise } }));
+  const [system, user] = chatTurnMessages(
+    input({ exercise: { exercise, label: "Exercise 6 · Herr oder Frau?" } }),
+  );
   expect(system?.role).toBe("system");
   expect(system?.content).toContain("Explain in Russian");
   for (const part of [
@@ -34,7 +36,7 @@ test("system message: rules, course context as data, exercise with answers", () 
     "Words of this lesson: der Kaffee (кофе); gern",
     "Words from earlier lessons: hallo; tschüss",
     "Grammar notes of this lesson:\nVerb an Position 2",
-    "Exercise on screen:\nItem 1:",
+    "Exercise on screen:\nExercise 6 · Herr oder Frau?\n\nItem 1:",
     "Answer: Guten Tag, [Frau] Weber.",
   ]) {
     expect(system?.content).toContain(part);
@@ -82,7 +84,15 @@ test("mistakes: this lesson's first, then earlier ones, each with the correct an
   const [system] = chatTurnMessages(
     input({
       mistakes: {
-        lesson: [{ exercise, index: 0, answer: { g1: "a" }, fixed: true }],
+        lesson: [
+          {
+            exercise,
+            locale: { sourceId: "s", title: "Herr oder Frau?", items: {} },
+            index: 0,
+            answer: { g1: "a" },
+            fixed: true,
+          },
+        ],
         earlier: [{ lesson: "Hallo!", exercise, index: 0, answer: undefined, fixed: false }],
       },
     }),
@@ -91,7 +101,55 @@ test("mistakes: this lesson's first, then earlier ones, each with the correct an
   expect(system?.content).toContain(
     "correct: Guten Tag, [Frau] Weber.; learner: Guten Tag, [Herr] Weber. (fixed later)",
   );
-  expect(system?.content).toContain("In earlier lessons:\n- [Hallo!] Prompt: Herr oder Frau?");
+  // Each names where it was: lesson (other lessons), exercise title, item.
+  expect(system?.content).toContain(
+    "In this lesson:\n- [Herr oder Frau? · item 1] Prompt: Herr oder Frau? · Fill the gaps: Guten Tag, [___] Weber.",
+  );
+  expect(system?.content).toContain(
+    "In earlier lessons:\n- [Hallo! · item 1] Prompt: Herr oder Frau?",
+  );
   expect(system?.content).toContain("learner: (no answer)");
   expect(system?.content).toContain("review mistakes");
+});
+
+test("history: the learner's turns say where the exercise on screen changed", () => {
+  const history = [
+    { role: "user" as const, text: "q1", exercise: "Exercise 2 · A" },
+    { role: "assistant" as const, text: "a1" },
+    { role: "user" as const, text: "q2", exercise: "Exercise 2 · A" },
+    { role: "assistant" as const, text: "a2" },
+    { role: "user" as const, text: "q3", exercise: null },
+    { role: "assistant" as const, text: "a3" },
+  ];
+  const messages = chatTurnMessages(
+    input({ history, message: "q4", exercise: { exercise, label: "Exercise 6 · B" } }),
+  );
+  expect(messages.slice(1).map((m) => m.content)).toEqual([
+    "[On screen: Exercise 2 · A]\nq1",
+    "a1",
+    "q2",
+    "a2",
+    "[On screen: no exercise]\nq3",
+    "a3",
+    "[On screen: Exercise 6 · B]\nq4",
+  ]);
+  // Begun off the exercises: no marker until an exercise comes up.
+  const off = chatTurnMessages(
+    input({
+      history: [
+        { role: "user", text: "q1", exercise: null },
+        { role: "assistant", text: "a1" },
+      ],
+      message: "q2",
+      exercise: { exercise, label: "Exercise 6 · B" },
+    }),
+  );
+  expect(off.slice(1).map((m) => m.content)).toEqual([
+    "q1",
+    "a1",
+    "[On screen: Exercise 6 · B]\nq2",
+  ]);
+  // The first message of a chat needs no marker: the exercise on screen is in the context.
+  const [, first] = chatTurnMessages(input({ exercise: { exercise, label: "Exercise 6 · B" } }));
+  expect(first?.content).toBe("Объясни грамматику");
 });

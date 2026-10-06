@@ -232,7 +232,8 @@
     "pickModel": "Выберите модель",
     "otherModel": "Другая модель…",
     "modelName": "Название модели",
-    "providerLabel": "Провайдер"
+    "providerLabel": "Провайдер",
+    "explainAgain": "Объяснить заново"
   },
   "tutor": {
     "title": "Репетитор",

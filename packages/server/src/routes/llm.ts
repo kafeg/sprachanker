@@ -1,7 +1,7 @@
 // /api/llm: provider setup, LM Studio, connection test, mistake explanations and the lesson tutor.
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
 import { LlmError, LMSTUDIO_RECOMMENDED, ProviderId } from "@sprachanker/llm";
-import { LessonKey } from "@sprachanker/schema";
+import { LessonKey, Ulid } from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
@@ -26,6 +26,9 @@ const ExplainBody = LessonRequest.extend({
   exerciseKey: z.string().max(300),
   index: z.number().int().nonnegative(),
   answer: z.unknown().optional(),
+  /** The lesson run and the attempt explained: the explanation is kept there. */
+  runId: Ulid.optional(),
+  attempt: z.number().int().positive().optional(),
 });
 
 const ReviewBody = LessonRequest;
@@ -37,7 +40,11 @@ const WritingBody = LessonRequest.extend({ text: z.string().trim().min(1).max(40
 const TutorBody = LessonRequest.extend({
   exerciseKey: z.string().max(300).optional(),
   message: z.string().trim().min(1).max(4000),
+  /** Ends the current chat first: the message opens a new one. */
+  newChat: z.boolean().optional(),
 });
+
+const ChatParam = z.object({ id: Ulid });
 
 const Url = z
   .string()
@@ -68,7 +75,10 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
   }
   return streamText(c, async (stream) => {
     try {
-      for (let next = first; !next.done; next = await chunks.next()) await stream.write(next.value);
+      // Writes to a stream the learner closed do not fail: stop reading the model instead, so the
+      // task sees the reply cut short (an explanation is then not kept).
+      for (let next = first; !next.done && !stream.aborted; next = await chunks.next())
+        await stream.write(next.value);
     } finally {
       await chunks.return?.();
     }
@@ -131,6 +141,10 @@ export function llmRoutes(
       .post("/explain", zod("json", ExplainBody), (c) =>
         streamReply(c, () => explain.stream(c.req.valid("json"), c.req.raw.signal)),
       )
+      .get("/explanations", zod("query", z.object({ lessonKey: LessonKey, runId: Ulid })), (c) => {
+        const { lessonKey, runId } = c.req.valid("query");
+        return c.json({ explanations: explain.list(lessonKey, runId) });
+      })
       // Prompt viewer: the exact request a task would send now (nothing is sent).
       .post("/explain/prompt", zod("json", ExplainBody), (c) =>
         jsonOrFailure(c, () => explain.prompt(c.req.valid("json"))),
@@ -221,5 +235,26 @@ export function llmRoutes(
         tutor.reset(c.req.valid("json").lessonKey);
         return c.json({ ok: true as const });
       })
+      .get("/tutor/chats", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json({ chats: tutor.chats(c.req.valid("query").lessonKey) }),
+      )
+      .get(
+        "/tutor/chats/:id",
+        zod("param", ChatParam),
+        zod("query", z.object({ lessonKey: LessonKey })),
+        (c) => {
+          const turns = tutor.chat(c.req.valid("query").lessonKey, c.req.valid("param").id);
+          return turns ? c.json({ turns }) : c.json({ error: "no_such_chat" }, 404);
+        },
+      )
+      .delete(
+        "/tutor/chats/:id",
+        zod("param", ChatParam),
+        zod("query", z.object({ lessonKey: LessonKey })),
+        (c) =>
+          tutor.remove(c.req.valid("query").lessonKey, c.req.valid("param").id)
+            ? c.json({ ok: true as const })
+            : c.json({ error: "no_such_chat" }, 404),
+      )
   );
 }

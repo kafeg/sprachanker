@@ -3,7 +3,7 @@
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, ChatRequest, LlmClient, TaskRequest } from "../client.ts";
 import { clip, fitting, languageName, newest, recentTurns } from "../text.ts";
-import { describeItem, mistakeLine, type TutorMistake } from "./describe.ts";
+import { describeItem, exerciseHeader, mistakeLine, type TutorMistake } from "./describe.ts";
 import {
   goalsLine,
   grammarNotes,
@@ -25,11 +25,12 @@ export interface ChatTurnInput {
   knownVocab: string[];
   /** Titles of earlier lessons, oldest first. */
   earlierLessons: string[];
-  /** The exercise on screen, if the learner is on one. */
-  exercise?: { exercise: Exercise; locale?: LocaleExercise };
+  /** The exercise on screen, if the learner is on one; `label` names it ("Exercise 3 · Title"). */
+  exercise?: { exercise: Exercise; locale?: LocaleExercise; label: string };
   /** The learner's mistakes, newest first: in this lesson and in earlier ones. */
   mistakes?: { lesson: TutorMistake[]; earlier: TutorMistake[] };
-  history: Array<{ role: "user" | "assistant"; text: string }>;
+  /** Earlier turns; the learner's say which exercise was on screen (`null`: none). */
+  history: Array<{ role: "user" | "assistant"; text: string; exercise?: string | null }>;
   message: string;
 }
 
@@ -72,6 +73,7 @@ export function chatTurnRules(language: Lang, target: Lang): string {
     "- Be brief: at most about 150 words unless the learner asks for more. Short paragraphs or lists; **bold** for key forms; no tables.",
     `- When the learner wants to practise, run a short dialogue in simple ${t}, one line at a time; after each of their replies, first point out mistakes briefly, then continue.`,
     "- About the exercise on screen: give hints first; give the answer only when the learner asks for it directly.",
+    "- A learner's message may start with [On screen: …]: the exercise they were on from then on. Earlier messages may be about other exercises; the one in <course> is the one on screen now.",
     "- The learner's recent mistakes are listed in <course>. Connect explanations to them when it helps; when asked to review mistakes, go through them one at a time, the most instructive first, and check understanding with a short new example.",
     "- Do not invent grammar rules; when the lesson notes cover a topic, use their terms.",
     TUTOR_TOOLS_RULE,
@@ -85,12 +87,13 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
   const shown = input.exercise;
   const exercise = shown
     ? clip(
-        shown.exercise.items
-          .map((_, i) => {
-            const d = describeItem(shown.exercise, shown.locale, i, undefined);
+        [
+          [shown.label, ...exerciseHeader(shown.exercise, shown.locale)].join("\n"),
+          ...shown.exercise.items.map((_, i) => {
+            const d = describeItem(shown.exercise, shown.locale, i, undefined, { header: false });
             return `Item ${i + 1}:\n${d.task}\nAnswer: ${d.correct}`;
-          })
-          .join("\n\n"),
+          }),
+        ].join("\n\n"),
         B.exercise,
       )
     : undefined;
@@ -116,7 +119,23 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
     .filter(Boolean)
     .join("\n");
 
-  const history: ChatMessage[] = recentTurns(input.history, B.history);
+  // The turns that fit, the learner's marked where the exercise on screen changed (and on the first
+  // one kept, so the model is never left guessing).
+  const kept = recentTurns(input.history, B.history);
+  const history: ChatMessage[] = [];
+  let screen: string | null | undefined;
+  const marked = (text: string, exercise: string | null | undefined) => {
+    if (exercise === undefined || exercise === screen) return text;
+    // A chat begun off the exercises needs no marker until an exercise comes up.
+    const first = screen === undefined;
+    screen = exercise;
+    return first && exercise === null ? text : `[On screen: ${exercise ?? "no exercise"}]\n${text}`;
+  };
+  for (const turn of kept)
+    history.push({
+      role: turn.role,
+      content: turn.role === "user" ? marked(turn.text, turn.exercise) : turn.text,
+    });
   // Some chat templates require the conversation to start with a user turn.
   while (history[0]?.role === "assistant") history.shift();
 
@@ -124,7 +143,10 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
     // Small models follow the last lines best: the tool reminder closes the system message.
     { role: "system", content: `${system}\n\n${context}\n\n${TUTOR_TOOLS_REMINDER}` },
     ...history,
-    { role: "user", content: input.message },
+    {
+      role: "user",
+      content: input.history.length ? marked(input.message, shown?.label ?? null) : input.message,
+    },
   ];
 }
 

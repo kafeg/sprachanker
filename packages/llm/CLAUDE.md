@@ -19,7 +19,8 @@ src/
   text.ts          # course HTML → plain text for prompts
   tasks/
     lesson.ts          # LessonInfo (what tasks know of a lesson) and its prompt lines: goals, words, grammar
-    describe.ts        # an exercise item as text (task, correct, learner answer); a mistake as two lines
+    describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
+                       # learner answer); a mistake as two lines naming lesson, exercise and item
     explain-mistake.ts # explain_mistake: prompt + call
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict

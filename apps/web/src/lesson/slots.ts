@@ -15,9 +15,15 @@ export interface LessonSlots {
   frame?(children: ReactNode): ReactNode;
   /** In the header, next to the reference: the exercise on screen, if any. */
   header?(context: LessonSlotContext & { exerciseKey?: string }): ReactNode;
-  /** Under a wrong item: help with that mistake. */
+  /** Under a wrong item: help with that mistake — the run and the attempt it is about, if recorded. */
   explain?(
-    context: LessonSlotContext & { exerciseKey: string; index: number; answer: unknown },
+    context: LessonSlotContext & {
+      exerciseKey: string;
+      index: number;
+      answer: unknown;
+      runId?: string;
+      attempt?: number;
+    },
   ): ReactNode;
   /** On the summary, under the score. */
   summary?(context: LessonSlotContext & { hasMistakes: boolean }): ReactNode;

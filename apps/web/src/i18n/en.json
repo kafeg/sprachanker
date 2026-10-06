@@ -232,7 +232,8 @@
     "pickModel": "Choose a model",
     "otherModel": "Another model…",
     "modelName": "Model name",
-    "providerLabel": "Provider"
+    "providerLabel": "Provider",
+    "explainAgain": "Explain again"
   },
   "tutor": {
     "title": "Tutor",

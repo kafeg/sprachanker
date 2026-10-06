@@ -267,7 +267,15 @@ export function LessonPlayer({
                   explain={
                     slots.explain &&
                     ((index, answer) =>
-                      slots.explain?.({ ...context, exerciseKey: exercise.key, index, answer }))
+                      slots.explain?.({
+                        ...context,
+                        exerciseKey: exercise.key,
+                        index,
+                        answer,
+                        // Kept with the run and the attempt it explains (the latest answer).
+                        runId: run.run?.id,
+                        attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
+                      }))
                   }
                 />
               )}

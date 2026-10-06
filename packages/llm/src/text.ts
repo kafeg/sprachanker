@@ -66,18 +66,15 @@ export function fitting(lines: string[], max: number): string[] {
   return out;
 }
 
-/** The most recent conversation turns that fit `budget` characters, oldest first, as chat messages. */
-export function recentTurns(
-  history: Array<{ role: "user" | "assistant"; text: string }>,
-  budget: number,
-): Array<{ role: "user" | "assistant"; content: string }> {
-  const out: Array<{ role: "user" | "assistant"; content: string }> = [];
+/** The most recent conversation turns that fit `budget` characters of text, oldest first. */
+export function recentTurns<T extends { text: string }>(history: T[], budget: number): T[] {
   let size = 0;
-  for (let i = history.length - 1; i >= 0; i--) {
-    const turn = history[i] as (typeof history)[number];
-    if (size + turn.text.length > budget) break;
-    out.unshift({ role: turn.role, content: turn.text });
-    size += turn.text.length;
+  let start = history.length;
+  while (start > 0) {
+    const length = (history[start - 1] as T).text.length;
+    if (size + length > budget) break;
+    size += length;
+    start--;
   }
-  return out;
+  return history.slice(start);
 }

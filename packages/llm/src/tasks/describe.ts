@@ -14,7 +14,7 @@ import {
   SingleChoiceAnswer,
 } from "@sprachanker/schema";
 import type { z } from "zod";
-import { htmlToText } from "../text.ts";
+import { clip, htmlToText } from "../text.ts";
 
 export interface ItemDescription {
   task: string;
@@ -26,11 +26,22 @@ export interface ItemDescription {
 type ItemOf<T extends Exercise["type"]> = Extract<Exercise, { type: T }>["items"][number];
 type Segment = string | { gap: string };
 
+/** What applies to every item of an exercise: its instruction and text. */
+export function exerciseHeader(exercise: Exercise, locale: LocaleExercise | undefined): string[] {
+  return [
+    locale?.instructionHtml && `Instruction: ${htmlToText(locale.instructionHtml)}`,
+    exercise.text && `Text: ${exercise.text}`,
+    locale?.textHtml && `Text (learner's language): ${htmlToText(locale.textHtml)}`,
+  ].filter((l): l is string => !!l);
+}
+
+/** One item; `header: false` leaves out the exercise's instruction and text (given once instead). */
 export function describeItem(
   exercise: Exercise,
   locale: LocaleExercise | undefined,
   index: number,
   answer: unknown,
+  { header = true }: { header?: boolean } = {},
 ): ItemDescription {
   const item = exercise.items[index];
   if (!item) throw new Error(`no item ${index} in ${exercise.key}`);
@@ -43,9 +54,7 @@ export function describeItem(
   };
 
   const lines = [
-    locale?.instructionHtml && `Instruction: ${htmlToText(locale.instructionHtml)}`,
-    exercise.text && `Text: ${exercise.text}`,
-    locale?.textHtml && `Text (learner's language): ${htmlToText(locale.textHtml)}`,
+    ...(header ? exerciseHeader(exercise, locale) : []),
     item.prompt && `Prompt: ${item.prompt}`,
     loc?.prompt && `Prompt (learner's language): ${loc.prompt}`,
     loc?.hintHtml && `Hint: ${htmlToText(loc.hintHtml)}`,
@@ -168,12 +177,13 @@ export interface TutorMistake {
   fixed: boolean;
 }
 
-/** A mistake in two short lines: the item's prompt, then the correct and the learner's answer. */
+/** A mistake in two short lines: where (lesson, exercise, item) and the item's task, then the correct
+ *  and the learner's answer. */
 export function mistakeLine(m: TutorMistake): string {
-  const d = describeItem(m.exercise, m.locale, m.index, m.answer);
-  const prompt = d.task.split("\n").find((l) => /^(Prompt|Fill|Put|Match|Listen)/.test(l)) ?? "";
+  const d = describeItem(m.exercise, m.locale, m.index, m.answer, { header: false });
+  const where = [m.lesson, m.locale?.title, `item ${m.index + 1}`].filter(Boolean);
   return [
-    `- ${m.lesson ? `[${m.lesson}] ` : ""}${prompt}`.trimEnd(),
+    `- [${where.join(" · ")}] ${clip(d.task.replaceAll("\n", " · "), 200)}`.trimEnd(),
     `  correct: ${d.correct}; learner: ${d.learner ?? "(no answer)"}${m.fixed ? " (fixed later)" : ""}`,
   ].join("\n");
 }

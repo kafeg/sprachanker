@@ -1,12 +1,14 @@
-// LLM practice around a lesson (07): the writing task and, later, the session review. Each check is an
-// `llm_verdict` event in the lesson's `practice` run (05), so attempts stay in the learner's history.
-import { exerciseResults } from "@sprachanker/engine";
+// LLM practice around a lesson (07): the writing task and the session review. Each check is an
+// `llm_verdict` event in the lesson's `practice` run (05), so attempts stay in the learner's history; a
+// review names the lesson run it reviews and is shown with that run.
+import { exerciseResults, exerciseState, mistakesOf } from "@sprachanker/engine";
 import {
   checkWritingTask,
   cleanWritingCheck,
   type ReviewInput,
   reviewSessionTask,
   runStructured,
+  type SessionExerciseState,
   type SessionReview,
   type StructuredTask,
   structuredRequest,
@@ -14,21 +16,13 @@ import {
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
-import {
-  type ExerciseKey,
-  type ItemKey,
-  type LessonKey,
-  LlmVerdictPayload,
-  parseItemKey,
-  type StoredEvent,
-} from "@sprachanker/schema";
+import { type LessonKey, LlmVerdictPayload, type Run, type StoredEvent } from "@sprachanker/schema";
 import { and, desc, eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import type { Llm, PromptPreview } from "./llm.ts";
+import { type Llm, LlmSetupError, type PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
-import type { Mistakes } from "./mistakes.ts";
 
 export interface WritingRequest {
   series: string;
@@ -60,12 +54,11 @@ export interface WritingAttempt {
 
 export function createPractice(deps: {
   db: ProfileDb;
-  /** Events of the run the lesson shows (the runs service). */
-  session: (lessonKey: string) => Promise<StoredEvent[]>;
+  /** The run the lesson shows, with its events (the runs service). */
+  session: (lessonKey: string) => Promise<{ run: Run; events: StoredEvent[] } | undefined>;
   runs: LlmRuns;
   llm: Llm;
   lessons: LessonContexts;
-  mistakes: Mistakes;
   now: () => number;
 }) {
   const { db, now } = deps;
@@ -98,7 +91,7 @@ export function createPractice(deps: {
   /** Runs a structured task with the configured model and stores the result as a verdict. */
   async function judge<T>(
     request: { lessonKey: LessonKey; edition: string },
-    verdict: { task: "review" | "writing"; input: string },
+    verdict: { task: "review" | "writing"; input: string; runId?: string },
     task: StructuredTask<T>,
     clean: (result: T) => T,
     signal?: AbortSignal,
@@ -115,41 +108,65 @@ export function createPractice(deps: {
     return { ts, result, model };
   }
 
-  /** First attempts in the run the lesson shows (as the player reads it): item → result, and when
-   *  the last answer came. */
-  async function latestSession(lessonKey: string) {
-    const list = await deps.session(lessonKey);
+  /** The lesson run each review is about: the one it names; a review stored before reviews named
+   *  their run belongs to the latest lesson run started before it. */
+  function reviewedRuns(lessonKey: string, reviews: Array<{ ts: number; runId?: string }>) {
+    const lessonRuns = db
+      .select({ id: runs.id, startedAt: runs.startedAt })
+      .from(runs)
+      .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
+      .orderBy(desc(runs.startedAt), desc(runs.id))
+      .all();
+    return reviews.map((r) => r.runId ?? lessonRuns.find((run) => run.startedAt <= r.ts)?.id);
+  }
+
+  /** The session read by the engine: results per exercise, first attempts (item → result), and
+   *  when the last answer came. */
+  function firstAttempts(list: StoredEvent[]) {
+    const results = exerciseResults(list);
     const first = new Map<string, string>();
-    for (const r of Object.values(exerciseResults(list)))
+    for (const r of Object.values(results))
       for (const [item, outcome] of Object.entries(r.first)) first.set(item, outcome.result);
     const lastTs = Math.max(0, ...list.filter((e) => e.type === "answered").map((e) => e.ts));
-    return { first, lastTs };
+    return { results, first, lastTs };
   }
+
+  const STATE: Record<string, SessionExerciseState> = {
+    correct: "correct",
+    wrong: "mistakes",
+    done: "done",
+    skipped: "skipped",
+  };
 
   async function reviewInput(request: ReviewRequest): Promise<ReviewInput> {
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
-    const { first } = await latestSession(request.lessonKey);
+    const events = (await deps.session(request.lessonKey))?.events ?? [];
+    const { results, first } = firstAttempts(events);
     const scored = [...first].filter(([, r]) => r !== "unscored");
-    const byExercise = new Map<ExerciseKey, string[]>();
-    for (const [item, result] of scored) {
-      const exercise = parseItemKey(item as ItemKey).exercise;
-      byExercise.set(exercise, [...(byExercise.get(exercise) ?? []), result]);
-    }
-    const clean = [...byExercise]
-      .filter(([, results]) => results.every((r) => r === "correct"))
-      .map(([key]) => ctx.locale?.exercises[key]?.title ?? key);
     return {
       language: request.language,
       target: ctx.target,
       rules: deps.llm.rulesFor("review", request.language, ctx.target),
       lesson: ctx.info,
+      exercises: ctx.lesson.pages.map(({ exercise }, i) => {
+        const r = results[exercise.key];
+        const state = exerciseState(exercise, r);
+        // Wrong without a wrong answer: scored items were skipped (the engine scores them 0).
+        const answeredWrong = Object.values(r?.first ?? {}).some(
+          (o) => o.result === "wrong" || o.result === "partial",
+        );
+        return {
+          title: ctx.locale?.exercises[exercise.key]?.title ?? `Exercise ${i + 1}`,
+          state:
+            state === "wrong" && !answeredWrong ? "skipped" : (STATE[state ?? ""] ?? "not_started"),
+        };
+      }),
       scored: scored.length,
       correct: scored.filter(([, r]) => r === "correct").length,
-      clean,
       mistakes: await deps.lessons.mistakes(
         request.series,
         request.edition,
-        deps.mistakes.list({ lesson: request.lessonKey, limit: 20 }),
+        mistakesOf([{ events }]).slice(0, 20),
       ),
     };
   }
@@ -167,10 +184,14 @@ export function createPractice(deps: {
 
   return {
     review: {
-      /** The latest review; `stale` when answers came after it; `possible` when there are answers. */
+      /** The latest review of the run the lesson shows; `stale` when answers came after it;
+       *  `possible` when the run has answers. */
       async state(lessonKey: LessonKey) {
-        const latest = verdicts(lessonKey, "review")[0];
-        const { lastTs, first } = await latestSession(lessonKey);
+        const session = await deps.session(lessonKey);
+        const reviews = verdicts(lessonKey, "review");
+        const reviewed = reviewedRuns(lessonKey, reviews);
+        const latest = session && reviews.find((_, i) => reviewed[i] === session.run.id);
+        const { lastTs, first } = firstAttempts(session?.events ?? []);
         return {
           possible: first.size > 0,
           review: latest
@@ -185,8 +206,11 @@ export function createPractice(deps: {
       },
 
       async create(request: ReviewRequest, signal?: AbortSignal): Promise<StoredReview> {
+        const session = await deps.session(request.lessonKey);
+        if (!session) throw new LlmSetupError("no_session");
         const task = reviewSessionTask(await reviewInput(request));
-        return judge(request, { task: "review", input: "" }, task, (r) => r, signal);
+        const verdict = { task: "review" as const, input: "", runId: session.run.id };
+        return judge(request, verdict, task, (r) => r, signal);
       },
 
       async prompt(request: ReviewRequest): Promise<PromptPreview> {

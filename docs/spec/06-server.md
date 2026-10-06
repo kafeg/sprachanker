@@ -43,6 +43,9 @@ later areas are fixed in the stage that builds them.
   `explain`, `tutor` (streamed text), `writing`, `review`, `scene` (JSON); each task also has a
   `…/prompt` route that returns the exact request without sending it (07); `prompts` lists the system
   prompts and `PUT prompts/:task` sets or clears the learner's own one.
+  `explanations?runId=` lists the explanations kept in a lesson run; `tutor/chats` lists the lesson's
+  chats, `tutor/chats/:id` reads one and `DELETE` removes it; a tutor message with `newChat` opens a new chat
+  (the current one ends once the reply has come; a failed call changes nothing).
 - `GET /library/:series/*` (outside `/api`): library media with Range support.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).

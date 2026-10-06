@@ -88,7 +88,7 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 | `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
 | `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, an unrated self-rating); excluded from the score |
-| `llm_verdict` | `task` (`writing` \| `review`), `input` (the learner's text; empty for a review), `result` (the task's structured output, 07), `model`, `latencyMs`; in `practice` runs of the lesson |
+| `llm_verdict` | `task` (`writing` \| `review` \| `explain`), `input` (the learner's text; empty otherwise), `result` (the task's structured output, 07; an explanation's text), `model`, `latencyMs`; writing and review in `practice` runs of the lesson, a review with `runId` (the lesson run it reviews); an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains) |
 | `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
 | `card_review` | planned (stage 6): `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
 
@@ -96,10 +96,11 @@ Payload schemas: `packages/schema/src/learner.ts`.
 
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
   its name and the UI shows "deleted".
-- **Resetting progress** is the one exception, on the learner's confirmed request: for a course (it then
-  leaves "My courses") or one lesson, every run of it — lesson runs, tutor chats, writing checks and
-  reviews, scenes — is deleted with its events. The course stays installed. (Cards, when they come,
-  are a separate decision.)
+- **Resetting progress** is the exception, on the learner's confirmed request: for a course (it then
+  leaves "My courses") or one lesson, every run of it — lesson runs with their kept explanations, tutor
+  chats, writing checks and reviews, scenes — is deleted with its events. The course stays installed.
+  (Cards, when they come, are a separate decision.) Deleting one tutor chat from the lesson's chat
+  history, also confirmed, deletes that `chat` run with its events.
 - Snapshots make old runs readable after content changes or course removal.
 - `card_state` is written in the same transaction as each `card_review` event and can be recomputed
   from those events.

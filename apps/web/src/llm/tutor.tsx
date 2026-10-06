@@ -1,4 +1,5 @@
 // The lesson tutor: a header button and a side panel with the chat of this lesson.
+import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -13,12 +14,14 @@ import { ChatComposer, ChatSheet, ErrorLine, useAbortable, useScrollToEnd } from
 import { PromptButton } from "./prompt-view.tsx";
 import { RichText } from "./rich-text.tsx";
 
-type Context = Omit<TutorRequest, "message" | "language">;
+type Context = Omit<TutorRequest, "message" | "language" | "newChat">;
 
 /** A message to send on opening (from outside, e.g. the lesson summary); `id` makes each ask new. */
 export interface TutorAsk {
   text: string;
   id: number;
+  /** Opens a new chat for it (the current one stays in the history). */
+  newChat?: boolean;
 }
 
 function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
@@ -56,6 +59,7 @@ function ToolsUsed({ tools }: { tools: Array<{ name: string; args?: unknown }> }
 
 function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const { t, i18n } = useTranslation();
+  const client = useQueryClient();
   const llm = useLlm();
   const history = useTutorHistory(context.lessonKey);
   const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
@@ -68,13 +72,13 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const end = useScrollToEnd(`${turns.length}:${pending?.reply}`);
 
   // An ask from outside is sent once, as soon as the chat is ready.
-  const sendLatest = useRef<(text: string) => void>(undefined);
+  const sendLatest = useRef<(text: string, newChat?: boolean) => void>(undefined);
   const asked = useRef<number>(undefined);
   const ready = !!history.data && !!llm.data?.model;
   useEffect(() => {
     if (!ask || !ready || asked.current === ask.id) return;
     asked.current = ask.id;
-    sendLatest.current?.(ask.text);
+    sendLatest.current?.(ask.text, ask.newChat);
   }, [ask, ready]);
 
   if (!llm.data?.model)
@@ -87,15 +91,17 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
       </div>
     );
 
-  const send = (text: string) => {
+  const send = (text: string, newChat = false) => {
     const question = text.trim();
     if (!question || pending) return;
     const controller = request.start();
     setInput("");
     setError(undefined);
+    // A new chat: the current one leaves the screen at once (the server ends it with this message).
+    if (newChat) client.setQueryData(["tutor", context.lessonKey], { turns: [] });
     setPending({ question, reply: "" });
     streamTutor(
-      { ...context, message: question, language: i18n.language },
+      { ...context, message: question, language: i18n.language, newChat },
       (reply) => setPending({ question, reply }),
       controller.signal,
     )
@@ -237,7 +243,9 @@ export function ReviewMistakesButton({ onAsk }: { onAsk(ask: TutorAsk): void }) 
     <Button
       variant="outline"
       size="lg"
-      onClick={() => onAsk({ text: t("tutor.reviewMistakesMessage"), id: Date.now() })}
+      onClick={() =>
+        onAsk({ text: t("tutor.reviewMistakesMessage"), id: Date.now(), newChat: true })
+      }
     >
       <MessageCircle className="size-4" /> {t("tutor.reviewMistakes")}
     </Button>

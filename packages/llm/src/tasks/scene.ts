@@ -130,7 +130,10 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
     "</scene>",
   ].join("\n");
   // The most recent lines that fit; the opening line is put back when it no longer fits.
-  const history: ChatMessage[] = recentTurns(input.history, SCENE_BUDGETS.history);
+  const history: ChatMessage[] = recentTurns(input.history, SCENE_BUDGETS.history).map((t) => ({
+    role: t.role,
+    content: t.text,
+  }));
   return {
     messages: [
       {
