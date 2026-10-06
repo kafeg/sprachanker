@@ -1,7 +1,9 @@
-import { correctOptions, type Outcome } from "@sprachanker/schema";
+import { correctOptions, type Option, type Outcome } from "@sprachanker/schema";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { Chip, DragBoard, Slot } from "./dnd.tsx";
 import { PickSelect, useShuffled } from "./shared.tsx";
 import type { ItemOf, RendererProps } from "./types.ts";
 
@@ -32,9 +34,99 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): React.Re
 const fieldMark = (outcome: Outcome | undefined, ok: boolean) =>
   outcome ? (ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft") : "border-input";
 
-export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"gap_choice">) {
+const WORD = "bank:word:";
+const GAP = "bank:gap:";
+
+/**
+ * The words above the text fill its gaps: one gap is active (the first empty one, or the one tapped)
+ * and a tapped word goes there; a word can also be dragged onto any gap. A tap on a filled gap takes
+ * its word back and makes that gap active.
+ */
+function WordBank({
+  item,
+  values,
+  onAnswer,
+  outcome,
+  bank,
+  textOf,
+  ok,
+  rightText,
+}: Pick<RendererProps<"gap_choice">, "item" | "onAnswer" | "outcome"> & {
+  values: Record<string, string>;
+  bank: Option[];
+  textOf(gap: string, id?: string): string | undefined;
+  ok(gap: string): boolean;
+  rightText(gap: string): string;
+}) {
   const { t } = useTranslation();
   const lang = useTargetLang();
+  const gaps = Object.keys(item.gaps);
+  const [chosen, setChosen] = useState<string>();
+  const active = outcome
+    ? undefined
+    : chosen && !values[chosen]
+      ? chosen
+      : gaps.find((g) => !values[g]);
+  const used = new Set(Object.values(values));
+  const place = (gap: string, word: string) => {
+    // A word sits in one gap at a time.
+    const rest = Object.fromEntries(Object.entries(values).filter(([, w]) => w !== word));
+    onAnswer({ ...rest, [gap]: word });
+    setChosen(undefined);
+  };
+  return (
+    <DragBoard onDrop={(word, gap) => place(gap.slice(GAP.length), word.slice(WORD.length))}>
+      <div className="space-y-4">
+        <fieldset className="flex flex-wrap gap-2">
+          <legend className="sr-only">{t("ex.chips")}</legend>
+          {bank.map((o) => (
+            <Chip
+              key={o.id}
+              id={`${WORD}${o.id}`}
+              label={o.text}
+              disabled={used.has(o.id) || !!outcome}
+              className={cn(used.has(o.id) && "opacity-30")}
+              onTap={() => active && place(active, o.id)}
+            >
+              <span lang={lang}>{o.text}</span>
+            </Chip>
+          ))}
+        </fieldset>
+        <Text
+          segments={item.segments}
+          gap={(gap) => (
+            <>
+              <Slot
+                id={`${GAP}${gap}`}
+                label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
+                filled={!!values[gap]}
+                active={gap === active}
+                mark={outcome ? (ok(gap) ? "correct" : "wrong") : undefined}
+                disabled={!!outcome}
+                onTap={() => {
+                  const { [gap]: _, ...rest } = values;
+                  if (values[gap]) onAnswer(rest);
+                  setChosen(gap);
+                }}
+                className="inline-flex min-w-24 align-baseline"
+              >
+                <span lang={lang}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>
+              </Slot>
+              {outcome && !ok(gap) && (
+                <span lang={lang} className="ml-2 text-base text-wrong">
+                  → {rightText(gap)}
+                </span>
+              )}
+            </>
+          )}
+        />
+      </div>
+    </DragBoard>
+  );
+}
+
+export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"gap_choice">) {
+  const { t } = useTranslation();
   const values = answer ?? {};
   const set = (gap: string, id: string) => onAnswer({ ...values, [gap]: id });
   const textOf = (gap: string, id?: string) =>
@@ -48,53 +140,19 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
       .join(" / ");
   const bank = useShuffled(Object.values(item.gaps)[0]?.options ?? [], item.key);
 
-  if (item.display === "bank") {
-    const used = new Set(Object.values(values));
-    const next = Object.keys(item.gaps).find((g) => !values[g]);
+  if (item.display === "bank")
     return (
-      <div className="space-y-4">
-        <div className="flex flex-wrap gap-2">
-          {bank.map((o) => (
-            <button
-              type="button"
-              key={o.id}
-              disabled={used.has(o.id) || !!outcome || !next}
-              onClick={() => next && set(next, o.id)}
-              className={cn(
-                "rounded-full border-2 bg-card px-4 py-1.5 text-lg",
-                used.has(o.id) && "opacity-30",
-              )}
-            >
-              <span lang={lang}>{o.text}</span>
-            </button>
-          ))}
-        </div>
-        <Text
-          segments={item.segments}
-          gap={(gap) => (
-            <button
-              type="button"
-              disabled={!!outcome}
-              onClick={() => {
-                const { [gap]: _, ...rest } = values;
-                onAnswer(rest);
-              }}
-              className={cn(
-                "inline-flex h-11 min-w-24 items-center justify-center rounded-lg border-2 border-dashed px-3 text-lg",
-                values[gap] && "border-solid",
-                fieldMark(outcome, ok(gap)),
-              )}
-            >
-              {textOf(gap, values[gap]) ?? " "}
-              {outcome && !ok(gap) && (
-                <span className="ml-2 text-base text-wrong">→ {rightText(gap)}</span>
-              )}
-            </button>
-          )}
-        />
-      </div>
+      <WordBank
+        item={item}
+        values={values}
+        onAnswer={onAnswer}
+        outcome={outcome}
+        bank={bank}
+        textOf={textOf}
+        ok={ok}
+        rightText={rightText}
+      />
     );
-  }
 
   return (
     <Text

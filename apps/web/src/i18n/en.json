@@ -126,7 +126,7 @@
   },
   "ex": {
     "chooseSeveral": "Several answers can be right.",
-    "orderHint": "Tap the parts in order; tap in the line to take one back.",
+    "orderHint": "Tap or drag the parts into the line in order; drag one within the line to move it, tap it to take it back.",
     "reset": "Reset",
     "dictationPlaceholder": "Write what you hear",
     "selfrate": "Listen, say it aloud, then rate yourself:",
@@ -143,7 +143,17 @@
     "gap": "Gap {n}",
     "matchFor": "Match for item {n}",
     "dropHere": "drop or tap here",
-    "chips": "Words to place"
+    "chips": "Words to place",
+    "orderLine": "Your order",
+    "dnd": {
+      "item": "the card",
+      "instructions": "To pick up a card, press Space or Enter. Move it with the arrow keys, then press Space or Enter to drop it, or Escape to put it back.",
+      "start": "Picked up: {item}.",
+      "over": "{item} — over “{place}”.",
+      "away": "{item} — not over a place.",
+      "end": "{item} — dropped on “{place}”.",
+      "cancel": "{item} — put back."
+    }
   },
   "word": {
     "plural": "pl. {plural}"

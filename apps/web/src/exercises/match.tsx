@@ -93,6 +93,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
                 <Chip
                   key={c.id}
                   id={c.id}
+                  label={c.text}
                   selected={picked === c.id}
                   onTap={() => setPicked(picked === c.id ? undefined : c.id)}
                 >

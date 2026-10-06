@@ -126,7 +126,7 @@
   },
   "ex": {
     "chooseSeveral": "Mehrere Antworten können richtig sein.",
-    "orderHint": "Tippe die Teile der Reihe nach an; tippe auf einen Teil in der Zeile, um ihn zurückzunehmen.",
+    "orderHint": "Tippe oder zieh die Teile der Reihe nach in die Zeile; zieh einen Teil in der Zeile, um ihn zu verschieben, tippe ihn an, um ihn zurückzunehmen.",
     "reset": "Zurücksetzen",
     "dictationPlaceholder": "Schreib, was du hörst",
     "selfrate": "Hör zu, sprich nach und bewerte dich selbst:",
@@ -143,7 +143,17 @@
     "gap": "Lücke {n}",
     "matchFor": "Platz für Paar {n}",
     "dropHere": "hierher ziehen oder tippen",
-    "chips": "Wörter zum Zuordnen"
+    "chips": "Wörter zum Zuordnen",
+    "orderLine": "Deine Reihenfolge",
+    "dnd": {
+      "item": "die Karte",
+      "instructions": "Drück Leertaste oder Enter, um eine Karte aufzunehmen. Beweg sie mit den Pfeiltasten und drück dann Leertaste oder Enter zum Ablegen oder Escape zum Zurücklegen.",
+      "start": "Aufgenommen: {item}.",
+      "over": "{item} — über „{place}“.",
+      "away": "{item} — über keinem Platz.",
+      "end": "{item} — abgelegt auf „{place}“.",
+      "cancel": "{item} — zurückgelegt."
+    }
   },
   "word": {
     "plural": "Pl. {plural}"
