@@ -1,10 +1,12 @@
 // Checking an answer to one item (04, "Checking"). Matching is by ids; options with identical
 // content (same text or same picture) are interchangeable.
 import {
+  correctOptions,
   DictationAnswer,
   type Exercise,
   GapChoiceAnswer,
   GapTextAnswer,
+  isEmptyGap,
   MatchAnswer,
   MultiChoiceAnswer,
   type Option,
@@ -112,15 +114,18 @@ export function checkItem(
       const it = item as ItemOf<"gap_choice">;
       const got = GapChoiceAnswer.parse(answer);
       const ok = Object.entries(it.answer).every(([gap, want]) =>
-        sameOption(it.gaps[gap]?.options ?? [], got[gap], want),
+        correctOptions(want).some((w) => sameOption(it.gaps[gap]?.options ?? [], got[gap], w)),
       );
       return { ...base, ...binary(ok) };
     }
     case "gap_text": {
       const it = item as ItemOf<"gap_text">;
       const got = GapTextAnswer.parse(answer);
+      // "" is accepted where nothing belongs; then an empty or dash answer is right.
       const ok = Object.entries(it.answer).every(([gap, { accepted }]) =>
-        accepted.some((a) => sameText(lang, a, got[gap] ?? "")),
+        accepted.some((a) =>
+          a === "" ? isEmptyGap(got[gap] ?? "") : sameText(lang, a, got[gap] ?? ""),
+        ),
       );
       return { ...base, ...binary(ok) };
     }

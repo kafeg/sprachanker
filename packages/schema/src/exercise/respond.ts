@@ -15,7 +15,11 @@ export const RespondItem = ItemBase.extend({
       criteria: z.array(z.object({ id: RubricId })),
     })
     .optional(),
-  reference: z.array(z.string().min(1)).min(1),
+  /** Model answers in the target language; a translation into the learner's language has its model
+   *  answers in the locale item (`reference`) instead. */
+  reference: z.array(z.string().min(1)),
+  /** The language the answer is written in: the target (default) or the learner's (a translation). */
+  answerIn: z.enum(["target", "learner"]).optional(),
 });
 export const RespondAnswer = z.object({ text: z.string(), speech: SpokenAnswer.optional() });
 export const RespondExercise = exerciseOf("respond", RespondItem);

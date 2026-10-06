@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioButton } from "@/ui/media.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 
 export function VocabularyList({
@@ -17,6 +18,7 @@ export function VocabularyList({
   url(p: string): string;
 }) {
   const { t } = useTranslation();
+  const lang = useTargetLang();
   return (
     <ul className="divide-y">
       {lesson.vocab.map((v) => (
@@ -33,6 +35,19 @@ export function VocabularyList({
                 {[v.forms, v.note].filter(Boolean).join(" · ")}
               </div>
             )}
+            {v.examples?.map((example, i) => (
+              <div key={example} className="text-sm">
+                <span lang={lang} className="italic">
+                  {example}
+                </span>
+                {locale?.vocab[v.key]?.examples?.[i] && (
+                  <span className="text-muted-foreground">
+                    {" "}
+                    — {locale.vocab[v.key]?.examples?.[i]}
+                  </span>
+                )}
+              </div>
+            ))}
             {!v.gender && v.plural && (
               <div className="text-sm text-muted-foreground">
                 {t("word.plural", { plural: v.plural })}
@@ -66,7 +81,13 @@ function Pages({ pages }: { pages: Array<{ title: string; bodyHtml: string }> })
   );
 }
 
-export type ReferenceTab = "vocabulary" | "grammar" | "culture" | "script" | "downloads";
+export type ReferenceTab =
+  | "vocabulary"
+  | "grammar"
+  | "culture"
+  | "script"
+  | "homework"
+  | "downloads";
 
 /** The reference tabs that have something in this lesson, in display order. */
 export function referenceTabs(lesson: Lesson, locale: LocaleLesson | null): ReferenceTab[] {
@@ -75,6 +96,7 @@ export function referenceTabs(lesson: Lesson, locale: LocaleLesson | null): Refe
     grammar: !!locale?.tabs.grammar.length,
     culture: !!locale?.tabs.culture.length,
     script: !!locale?.tabs.script,
+    homework: !!locale?.tabs.homework?.length,
     downloads: !!locale?.downloads.length,
   };
   return (Object.keys(has) as ReferenceTab[]).filter((tab) => has[tab]);
@@ -116,6 +138,9 @@ export function Reference({
         </TabsContent>
         <TabsContent value="script">
           <Pages pages={tabs.script ? [tabs.script] : []} />
+        </TabsContent>
+        <TabsContent value="homework">
+          <Pages pages={tabs.homework ?? []} />
         </TabsContent>
         <TabsContent value="downloads">
           {locale?.downloads.length ? (

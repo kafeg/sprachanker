@@ -33,6 +33,8 @@ export const LocaleItem = z.object({
   /** Image descriptions for accessibility, by option id or `item`. */
   alt: z.record(z.string(), z.string()).optional(),
   gaps: z.record(GapId, z.string()).optional(),
+  /** `respond` answered in the learner's language: its model answers. */
+  reference: z.array(z.string().min(1)).optional(),
 });
 
 export const LocaleExercise = z.object({
@@ -75,11 +77,20 @@ export const LocaleLesson = z.object({
   title: z.string().min(1),
   synopsisHtml: z.string().optional(),
   exercises: z.record(ExerciseKey, LocaleExercise),
-  vocab: z.record(VocabKey, z.object({ translation: z.string().min(1) })),
+  vocab: z.record(
+    VocabKey,
+    z.object({
+      translation: z.string().min(1),
+      /** Translations of the entry's `examples`, in the same order. */
+      examples: z.array(z.string()).optional(),
+    }),
+  ),
   tabs: z.object({
     grammar: z.array(Tab),
     culture: z.array(Tab),
     script: Tab.optional(),
+    /** Tasks to do outside the app (homework of the source) that have no answers to check. */
+    homework: z.array(Tab).optional(),
   }),
   /** Printable material of this edition (script with vocabulary, worksheets). */
   downloads: z.array(z.object({ title: z.string().min(1), path: MediaPath })),

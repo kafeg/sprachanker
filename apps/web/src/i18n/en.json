@@ -79,7 +79,8 @@
     "culture": "Culture",
     "script": "Script",
     "downloads": "PDF",
-    "none": "Nothing in this lesson."
+    "none": "Nothing in this lesson.",
+    "homework": "Tasks"
   },
   "video": {
     "hd": "HD"

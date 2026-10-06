@@ -175,6 +175,38 @@ describe("gap_text", () => {
   ])("%j", (answer, out) => expect(result(e, answer)).toEqual(out));
 });
 
+describe("gap_choice with several right options", () => {
+  const options = [
+    { id: "a", text: "a" },
+    { id: "b", text: "the" },
+    { id: "c", text: "an" },
+  ];
+  const e = ex("gap_choice", {
+    segments: ["I saw ", { gap: "g1" }, " cat."],
+    gaps: { g1: { options } },
+    display: "dropdown",
+    answer: { g1: ["a", "b"] },
+  });
+  test.each<[unknown, [string, number]]>([
+    [{ g1: "a" }, ["correct", 1]],
+    [{ g1: "b" }, ["correct", 1]],
+    [{ g1: "c" }, ["wrong", 0]],
+  ])("%j", (answer, out) => expect(result(e, answer)).toEqual(out));
+});
+
+describe("gap_text where nothing belongs", () => {
+  const e = ex("gap_text", {
+    segments: ["I like ", { gap: "g1" }, " music."],
+    answer: { g1: { accepted: [""] } },
+  });
+  test.each<[unknown, [string, number]]>([
+    [{ g1: "" }, ["correct", 1]],
+    [{ g1: " – " }, ["correct", 1]],
+    [{ g1: "-" }, ["correct", 1]],
+    [{ g1: "the" }, ["wrong", 0]],
+  ])("%j", (answer, out) => expect(result(e, answer)).toEqual(out));
+});
+
 describe("dictation", () => {
   const e = ex("dictation", {
     media: { audio: "media/audio/x.mp3" },

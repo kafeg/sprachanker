@@ -7,14 +7,24 @@ export const GapChoiceItem = ItemBase.extend({
   gaps: z.record(GapId, z.object({ options: z.array(Option).min(1) })),
   /** `bank`: one shared word bank, each word used once; `dropdown`: options per gap. */
   display: z.enum(["dropdown", "bank"]),
-  answer: z.record(GapId, OptionId),
+  /** The correct option of each gap, or several when any of them is right. */
+  answer: z.record(GapId, z.union([OptionId, z.array(OptionId).min(1)])),
 });
 export const GapChoiceAnswer = z.record(GapId, OptionId);
+
+/** The correct options of a gap as a list (an answer names one or several). */
+export const correctOptions = (want: OptionId | OptionId[] | undefined): OptionId[] =>
+  want === undefined ? [] : Array.isArray(want) ? want : [want];
+
+/** Whether a gap_text answer leaves a gap empty: blank, or a dash for "nothing here". */
+export const isEmptyGap = (text: string) => /^[\s\-–—]*$/.test(text);
 export const GapChoiceExercise = exerciseOf("gap_choice", GapChoiceItem);
 
 export const GapTextItem = ItemBase.extend({
   segments: Segments,
-  answer: z.record(GapId, z.object({ accepted: z.array(z.string().min(1)).min(1) })),
+  /** Accepted texts per gap; "" means nothing belongs there (no article), and an empty or dash
+   *  answer is then right. */
+  answer: z.record(GapId, z.object({ accepted: z.array(z.string()).min(1) })),
 });
 export const GapTextAnswer = z.record(GapId, z.string());
 export const GapTextExercise = exerciseOf("gap_text", GapTextItem);

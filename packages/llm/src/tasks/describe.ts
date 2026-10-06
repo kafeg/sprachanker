@@ -1,5 +1,6 @@
 // One exercise item as plain text for prompts: the task, the correct answer and the learner's answer.
 import {
+  correctOptions,
   DictationAnswer,
   type Exercise,
   GapChoiceAnswer,
@@ -111,7 +112,11 @@ export function describeItem(
             .map(([gap, g]) => `${gap}: ${g.options.map(label).join(" / ")}`)
             .join("; ")}`,
         ]),
-        correct: fill(it.segments, (gap) => option(gap, it.answer[gap])),
+        correct: fill(it.segments, (gap) =>
+          correctOptions(it.answer[gap])
+            .map((id) => option(gap, id))
+            .join(" | "),
+        ),
         learner: given && fill(it.segments, (gap) => option(gap, given[gap])),
       };
     }
@@ -120,7 +125,9 @@ export function describeItem(
       const given = parse(GapTextAnswer);
       return {
         task: task([`Fill the gaps: ${fill(it.segments, () => "___")}`]),
-        correct: fill(it.segments, (gap) => it.answer[gap]?.accepted.join(" | ")),
+        correct: fill(it.segments, (gap) =>
+          it.answer[gap]?.accepted.map((a) => a || "(nothing)").join(" | "),
+        ),
         learner: given && fill(it.segments, (gap) => given[gap]?.trim() || undefined),
       };
     }

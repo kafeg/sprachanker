@@ -135,6 +135,13 @@
           "note": {
             "type": "string"
           },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
           "audio": {
             "$ref": "#/$defs/MediaPath"
           },
@@ -736,8 +743,20 @@
                   "pattern": "^g[1-9]\\d*$"
                 },
                 "additionalProperties": {
-                  "type": "string",
-                  "pattern": "^[a-z]{1,2}$"
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[a-z]{1,2}$"
+                    },
+                    {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "pattern": "^[a-z]{1,2}$"
+                      }
+                    }
+                  ]
                 }
               }
             },
@@ -846,8 +865,7 @@
                       "minItems": 1,
                       "type": "array",
                       "items": {
-                        "type": "string",
-                        "minLength": 1
+                        "type": "string"
                       }
                     }
                   },
@@ -1201,12 +1219,18 @@
                 ]
               },
               "reference": {
-                "minItems": 1,
                 "type": "array",
                 "items": {
                   "type": "string",
                   "minLength": 1
                 }
+              },
+              "answerIn": {
+                "type": "string",
+                "enum": [
+                  "target",
+                  "learner"
+                ]
               }
             },
             "required": [

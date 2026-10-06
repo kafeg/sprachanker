@@ -4,7 +4,13 @@
 // course; `problems` must be empty, `notes` are worth a look (e.g. exercises without locale texts).
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
-import type { Exercise, Lesson, LessonKey, LocaleLesson } from "@sprachanker/schema";
+import {
+  correctOptions,
+  type Exercise,
+  type Lesson,
+  type LessonKey,
+  type LocaleLesson,
+} from "@sprachanker/schema";
 import { fingerprint } from "./fingerprint.ts";
 import type { LibraryView } from "./library.ts";
 
@@ -85,8 +91,8 @@ function answerProblems(exercise: Exercise): string[] {
           if (!gaps.includes(g)) out.push(`${at}: answer for missing gap ${g}`);
         if (exercise.type === "gap_choice") {
           const gc = item as Extract<Exercise, { type: "gap_choice" }>["items"][number];
-          for (const [g, id] of Object.entries(gc.answer))
-            missing([id], gc.gaps[g]?.options ?? [], `option for ${g}`);
+          for (const [g, want] of Object.entries(gc.answer))
+            missing(correctOptions(want), gc.gaps[g]?.options ?? [], `option for ${g}`);
         }
         break;
       }

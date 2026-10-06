@@ -132,12 +132,12 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `multi_choice` | same, `answer.optionIds[n]` | `{optionIds[]}` | sets equal |
 | `match` | `left[]`, `right[]` (options), `answer.pairs[[l,r]]` | `{pairs}` | pair sets equal |
 | `order` | `parts[]` (options: words, letters or pictures), `join` (`space`\|`none`), `answer.sequence[id]` | `{sequence}` | sequences equal |
-| `gap_choice` | `segments[text \| {gap}]`, `gaps{gapId:{options}}`, `display` (`dropdown`\|`bank`), `answer{gapId:optionId}` | `{gapId:optionId}` | all gaps equal |
-| `gap_text` | `segments`, `answer{gapId:{accepted[text]}}` | `{gapId:text}` | normalised text ∈ accepted |
+| `gap_choice` | `segments[text \| {gap}]`, `gaps{gapId:{options}}`, `display` (`dropdown`\|`bank`), `answer{gapId:optionId \| optionId[]}` (several when any is right) | `{gapId:optionId}` | every gap one of its right options |
+| `gap_text` | `segments`, `answer{gapId:{accepted[text]}}`; `""` = nothing belongs there (no article) | `{gapId:text}` | normalised text ∈ accepted; an empty or dash answer matches `""` |
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
 | `speech_selfrate` | `text?`, `media.audio?` (source form; upgraded, 04) | `{rating}` | not scored |
-| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric (LLM verdict: Later, 07); without a rubric unscored, the model answers shown |
+| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (LLM verdict: Later, 07); without a rubric unscored, the model answers shown |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 
@@ -148,7 +148,7 @@ mechanic; a `classify` type is added with the first source that needs it.
 
 Learner-language strings (titles, instructions, info boxes, translations, category labels, prompts in
 the learner's language) live at the same key path as in canonical files. Tab bodies (grammar, culture,
-script) are locale HTML and may mix languages.
+script, homework — tasks of the source without answers to check) are locale HTML and may mix languages.
 
 ```jsonc
 // locale/<edition>/<course>/lessons/00-01.json
@@ -156,12 +156,14 @@ script) are locale HTML and may mix languages.
   "title": "Hallo!", "synopsis": "…",
   "exercises": { "dw.nicos-weg/a1/00-01/ex-03": { "sourceId": "46381693", "title": "…", "instructionHtml": "…",
                   "items": { "#1": { "hintHtml": "<p>Справка: …</p>" } } } },
-  "vocab": { "dw.nicos-weg/a1/00-01/v-frau": { "translation": "женщина" } },
+  "vocab": { "dw.nicos-weg/a1/00-01/v-frau": { "translation": "женщина", "examples": ["…"] } },
   "tabs": { "grammar": [ { "title": "…", "bodyHtml": "…" } ], "culture": [ … ], "script": { … } } }
 ```
 
 Items are referenced as `#<n>` within their exercise; an item may carry `prompt`, `hintHtml`, option
-texts (`options{id:text}`), image descriptions (`alt`) and gap labels. Which source fields are learner
+texts (`options{id:text}`), image descriptions (`alt`), gap labels and learner-language model answers
+(`reference`). A vocab entry's `examples` (canonical, target language) have their translations in the
+locale entry's `examples`, in the same order. Which source fields are learner
 language is decided by the provider per mechanic and field (DW: by comparing editions), not by
 language detection. UI labels of the source ("Play audio") are not content and are dropped.
 

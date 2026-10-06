@@ -89,6 +89,13 @@
                   "additionalProperties": {
                     "type": "string"
                   }
+                },
+                "reference": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
                 }
               }
             }
@@ -111,6 +118,12 @@
           "translation": {
             "type": "string",
             "minLength": 1
+          },
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -183,6 +196,28 @@
             "title",
             "bodyHtml"
           ]
+        },
+        "homework": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "sourceId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "title": {
+                "type": "string"
+              },
+              "bodyHtml": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "title",
+              "bodyHtml"
+            ]
+          }
         }
       },
       "required": [

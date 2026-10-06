@@ -94,6 +94,13 @@
             "additionalProperties": {
               "type": "string"
             }
+          },
+          "reference": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         }
       }

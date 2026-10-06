@@ -1,4 +1,4 @@
-import type { Outcome } from "@sprachanker/schema";
+import { correctOptions, type Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -34,8 +34,13 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
   const set = (gap: string, id: string) => onAnswer({ ...values, [gap]: id });
   const textOf = (gap: string, id?: string) =>
     item.gaps[gap]?.options.find((o) => o.id === id)?.text;
+  const right = (gap: string) => correctOptions(item.answer[gap]);
   const ok = (gap: string) =>
-    !!values[gap] && textOf(gap, values[gap]) === textOf(gap, item.answer[gap]);
+    !!values[gap] && right(gap).some((id) => textOf(gap, values[gap]) === textOf(gap, id));
+  const rightText = (gap: string) =>
+    right(gap)
+      .map((id) => textOf(gap, id))
+      .join(" / ");
   const bank = useShuffled(Object.values(item.gaps)[0]?.options ?? [], item.key);
 
   if (item.display === "bank") {
@@ -77,7 +82,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
             >
               {textOf(gap, values[gap]) ?? " "}
               {outcome && !ok(gap) && (
-                <span className="ml-2 text-base text-wrong">→ {textOf(gap, item.answer[gap])}</span>
+                <span className="ml-2 text-base text-wrong">→ {rightText(gap)}</span>
               )}
             </button>
           )}
@@ -108,7 +113,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
             ))}
           </select>
           {outcome && !ok(gap) && (
-            <span className="ml-1 text-base text-wrong">{textOf(gap, item.answer[gap])}</span>
+            <span className="ml-1 text-base text-wrong">{rightText(gap)}</span>
           )}
         </>
       )}
@@ -142,7 +147,9 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
               )}
             />
             {outcome && !ok && (
-              <span className="ml-1 text-base text-wrong">{accepted.join(" / ")}</span>
+              <span className="ml-1 text-base text-wrong">
+                {accepted.map((a) => a || "—").join(" / ")}
+              </span>
             )}
           </>
         );

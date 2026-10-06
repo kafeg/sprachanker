@@ -35,6 +35,7 @@ courses/
   require re-downloading.
 - Unknown source structures become `unknown` + report entries, never silent drops.
 - Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.
-- Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit.
+- Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:
+  a `Referer` of the source's own page for its media when it refuses hotlinks (Lingust).
 - New provider = new folder implementing the provider contract + contract tests; no engine/UI changes
   unless a new exercise type is needed (root rule 2).
