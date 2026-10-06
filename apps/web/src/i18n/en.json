@@ -81,7 +81,6 @@
     "correct": "Correct",
     "partial": "Partly correct",
     "wrong": "Not quite",
-    "answerWas": "Correct answer: {answer}",
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}",
     "exercisesDone": "{done, number} of {total, number} exercises done{skipped, plural, =0 {} other { · # skipped}}",
@@ -105,7 +104,8 @@
       "wrong": "with mistakes",
       "done": "answered",
       "skipped": "skipped"
-    }
+    },
+    "correctAnswer": "Correct answer:"
   },
   "ref": {
     "vocabulary": "Vocabulary",
@@ -134,7 +134,6 @@
     },
     "unknown": "This exercise type is not supported yet.",
     "picture": "Picture {n}",
-    "correctHighlighted": "see the highlighted answer",
     "respondPlaceholder": "Your answer…",
     "reference": "{count, plural, one {Model answer} other {Model answers}}",
     "selfrateListen": "Listen to the recording and repeat after the speaker.",

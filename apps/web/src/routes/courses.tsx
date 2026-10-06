@@ -88,25 +88,30 @@ function CourseCard({
       <Progress value={share * 100} className="h-1 rounded-none" />
       <div className="flex flex-1 flex-col p-4">
         <DownloadState series={course.series} course={course.course} />
-        <h2 className="text-xl font-bold leading-tight">{title}</h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">
-          {t("courses.lessons", { count: course.lessons })}
+        {/* Long titles, sources and lesson names are cut to keep cards even; hover shows them whole. */}
+        <h2 className="line-clamp-2 text-xl font-bold leading-tight" title={title}>
+          {title}
+        </h2>
+        <p className="mt-0.5 flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
+          <span className="shrink-0">{t("courses.lessons", { count: course.lessons })}</span>
           {course.source && (
             <>
-              {" · "}
+              <span className="shrink-0">·</span>
               <a
                 href={course.source.url}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-0.5 underline-offset-4 hover:underline"
+                title={course.source.publisher}
+                className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline"
               >
-                {course.source.publisher} <ExternalLink className="size-3" />
+                <span className="truncate">{course.source.publisher}</span>
+                <ExternalLink className="size-3 shrink-0" />
               </a>
             </>
           )}
         </p>
         {next && course.nextTitle && (
-          <p className="mt-3 text-sm">
+          <p className="mt-3 line-clamp-2 text-sm" title={course.nextTitle}>
             <span className="text-muted-foreground">{t("courses.next")}: </span>
             {course.nextTitle}
             {course.nextRun?.status === "active" && (
@@ -184,17 +189,22 @@ function OfferCard({ offer }: { offer: CatalogEntry }) {
         <span className="ml-auto text-sm text-muted-foreground">{t("download.notDownloaded")}</span>
       </div>
       <div className="flex flex-1 flex-col p-4">
-        <h2 className="text-xl font-bold leading-tight">{offer.title}</h2>
-        <p className="mt-0.5 text-sm text-muted-foreground">
+        <h2 className="line-clamp-2 text-xl font-bold leading-tight" title={offer.title}>
+          {offer.title}
+        </h2>
+        <p className="mt-0.5 flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
           <a
             href={offer.source.url}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-0.5 underline-offset-4 hover:underline"
+            title={offer.source.publisher}
+            className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline"
           >
-            {offer.source.publisher} <ExternalLink className="size-3" />
+            <span className="truncate">{offer.source.publisher}</span>
+            <ExternalLink className="size-3 shrink-0" />
           </a>
-          {" · "}
+        </p>
+        <p className="truncate text-sm text-muted-foreground">
           {t(`course.licence.${offer.source.licence}`)}
         </p>
         <div className="mt-auto pt-4">

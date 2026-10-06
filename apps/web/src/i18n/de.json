@@ -81,7 +81,6 @@
     "correct": "Richtig",
     "partial": "Teilweise richtig",
     "wrong": "Nicht ganz",
-    "answerWas": "Lösung: {answer}",
     "summary": "Zusammenfassung",
     "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}",
     "exercisesDone": "{done, number} von {total, number} Übungen erledigt{skipped, plural, =0 {} other { · # übersprungen}}",
@@ -105,7 +104,8 @@
       "wrong": "mit Fehlern",
       "done": "beantwortet",
       "skipped": "übersprungen"
-    }
+    },
+    "correctAnswer": "Lösung:"
   },
   "ref": {
     "vocabulary": "Wortschatz",
@@ -134,7 +134,6 @@
     },
     "unknown": "Dieser Übungstyp wird noch nicht unterstützt.",
     "picture": "Bild {n}",
-    "correctHighlighted": "die richtige Antwort ist markiert",
     "respondPlaceholder": "Deine Antwort…",
     "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}",
     "selfrateListen": "Hör dir die Aufnahme an und sprich nach.",

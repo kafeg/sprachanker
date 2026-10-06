@@ -42,18 +42,13 @@ export function ExerciseItem({
  *  its model answer, though without a rubric it is not scored). */
 export const isScored = (type: Exercise["type"]) => type in RENDERERS && type !== "speech_selfrate";
 
-/** The correct answer as text, for the feedback line. */
+/**
+ * The correct answer as text, under a wrong item, where the renderer does not show it itself (choices,
+ * gaps and pairs mark the right option in place).
+ */
 export function correctAnswer(exercise: Exercise, index: number): string | undefined {
   const item = exercise.items[index];
   switch (exercise.type) {
-    case "single_choice":
-    case "multi_choice": {
-      const it = item as ItemOf<"single_choice">;
-      const texts = it.answer.optionIds.map((id) => it.options.find((o) => o.id === id)?.text);
-      if (!texts.every(Boolean)) return undefined;
-      // Whole sentences ("Yara ist Nicos Tante.") are not joined with commas.
-      return texts.join(texts.some((t) => /[.!?]$/.test(t ?? "")) ? " · " : ", ");
-    }
     case "order": {
       const it = item as ItemOf<"order">;
       return it.parts.some((p) => p.media)

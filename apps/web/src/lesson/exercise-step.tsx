@@ -12,29 +12,25 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { ExerciseResult } from "./use-run.ts";
 
-function Feedback({ outcome, answer }: { outcome: Outcome; answer?: string }) {
+/** A checked item's mark in its card's corner: ✓ right, ✕ wrong or partly right (not a button). */
+function ItemMark({ outcome }: { outcome: Outcome }) {
   const { t } = useTranslation();
   const ok = outcome.result === "correct";
+  const label = t(
+    ok ? "lesson.correct" : outcome.result === "partial" ? "lesson.partial" : "lesson.wrong",
+  );
   return (
-    <div
+    <span
       role="status"
+      title={label}
       className={cn(
-        "mt-3 flex items-start gap-2 rounded-xl px-3 py-2 font-medium",
-        ok ? "bg-correct-soft text-correct" : "bg-wrong-soft text-wrong",
+        "absolute top-3 right-3 grid size-6 place-items-center rounded-full text-white",
+        ok ? "bg-correct" : "bg-wrong",
       )}
     >
-      {ok ? <Check className="mt-0.5 size-5 shrink-0" /> : <X className="mt-0.5 size-5 shrink-0" />}
-      <span>
-        {t(
-          ok ? "lesson.correct" : outcome.result === "partial" ? "lesson.partial" : "lesson.wrong",
-        )}
-        {!ok && (
-          <span className="ml-2 font-normal text-foreground">
-            {answer ? t("lesson.answerWas", { answer }) : t("ex.correctHighlighted")}
-          </span>
-        )}
-      </span>
-    </div>
+      {ok ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+      <span className="sr-only">{label}</span>
+    </span>
   );
 }
 
@@ -170,7 +166,8 @@ export function ExerciseStep({
   });
 
   return (
-    <article className="space-y-4">
+    // At least a screen tall, so the action bar sits at the bottom even under a short exercise.
+    <article className="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 lg:min-h-[calc(100dvh-8rem)]">
       <div>
         <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           {t("lesson.exerciseOf", { n: index + 1, total })}
@@ -193,12 +190,23 @@ export function ExerciseStep({
       {locale?.textHtml && (
         <CourseHtml className="rounded-xl bg-muted px-4 py-2" html={locale.textHtml} />
       )}
-      <ol className="space-y-6">
+      <ol className="space-y-6 pb-2">
         {exercise.items.map((item, i) => {
           const loc = locale?.items[`#${i + 1}`];
           const outcome = outcomes?.[i];
+          const marked = outcome && outcome.result !== "unscored";
+          const right = outcome?.result === "correct";
+          const answer = marked && !right ? correctAnswer(exercise, i) : undefined;
           return (
-            <li key={item.key} className="rounded-2xl border bg-card p-4 sm:p-5">
+            <li
+              key={item.key}
+              className={cn(
+                "relative rounded-2xl border bg-card p-4 sm:p-5",
+                marked && "rounded-l-md border-l-4 pr-12",
+                marked && (right ? "border-l-correct" : "border-l-wrong"),
+              )}
+            >
+              {marked && <ItemMark outcome={outcome} />}
               {item.media?.audio && (
                 <AudioPlayer
                   compact
@@ -237,8 +245,13 @@ export function ExerciseStep({
                 outcome={outcome}
                 url={url}
               />
-              {outcome && outcome.result !== "unscored" && (
-                <Feedback outcome={outcome} answer={correctAnswer(exercise, i)} />
+              {answer && (
+                <p className="mt-3 text-sm">
+                  <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>
+                  <span lang={lang} className="font-medium">
+                    {answer}
+                  </span>
+                </p>
               )}
               {outcome &&
                 (outcome.result === "wrong" || outcome.result === "partial") &&
@@ -247,7 +260,9 @@ export function ExerciseStep({
           );
         })}
       </ol>
-      <div className="sticky bottom-16 z-10 -mx-4 flex flex-wrap items-center gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur lg:bottom-0 lg:mx-0 lg:rounded-2xl lg:border">
+      {/* The action bar: at the bottom of the screen, its buttons always in the same places — the main one
+          (Check, then Next) on the right with a fixed width, under the finger or cursor. */}
+      <div className="sticky bottom-16 z-10 -mx-4 mt-auto flex items-center gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur lg:bottom-0">
         <Button variant="ghost" size="lg" onClick={onBack}>
           {t("lesson.previous")}
         </Button>
@@ -262,7 +277,7 @@ export function ExerciseStep({
               {t("lesson.skip")}
             </Button>
           )}
-          <Button size="lg" className="min-w-36 text-base" onClick={primary}>
+          <Button size="lg" className="w-40 text-base" onClick={primary}>
             {scored && !outcomes && !readOnly
               ? t("lesson.check")
               : last

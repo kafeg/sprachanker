@@ -81,7 +81,6 @@
     "correct": "Верно",
     "partial": "Частично верно",
     "wrong": "Не совсем",
-    "answerWas": "Правильный ответ: {answer}",
     "summary": "Итог",
     "score": "Верно с первой попытки: {correct, number} из {scored, number}",
     "exercisesDone": "Сделано {done, number} из {total, number}{skipped, plural, =0 {} other { · пропущено #}}",
@@ -105,7 +104,8 @@
       "wrong": "с ошибками",
       "done": "выполнено",
       "skipped": "пропущено"
-    }
+    },
+    "correctAnswer": "Правильный ответ:"
   },
   "ref": {
     "vocabulary": "Словарь",
@@ -134,7 +134,6 @@
     },
     "unknown": "Этот тип упражнения пока не поддерживается.",
     "picture": "Картинка {n}",
-    "correctHighlighted": "правильный ответ выделен",
     "respondPlaceholder": "Ваш ответ…",
     "reference": "{count, plural, one {Пример ответа} other {Примеры ответов}}",
     "selfrateListen": "Прослушайте запись и повторите за диктором.",
