@@ -1,6 +1,6 @@
 // Setting up server state for e2e tests. Projects share one profile, so each test starts from a known
 // state instead of whatever an earlier (possibly failed) test left.
-import { type APIRequestContext, expect } from "@playwright/test";
+import { type APIRequestContext, expect, type Page } from "@playwright/test";
 
 export const DEMO_LESSON = "sprachanker.fixture/demo/00-01";
 
@@ -23,4 +23,9 @@ export const put = (request: APIRequestContext, path: string, data: unknown) =>
 export async function freshLessonRun(request: APIRequestContext, lessonKey = DEMO_LESSON) {
   const series = lessonKey.split("/")[0];
   await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de", restart: true });
+}
+
+/** The picture question of the first exercise: Tom instead of Lena (wrong on purpose). */
+export async function answerPicture(page: Page) {
+  await page.locator("ol > li").nth(1).getByRole("button").nth(1).click();
 }

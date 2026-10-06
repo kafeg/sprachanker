@@ -1,6 +1,6 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check.
 import { expect, test } from "@playwright/test";
-import { DEMO_LESSON, freshLessonRun, put } from "./api.ts";
+import { answerPicture, DEMO_LESSON, freshLessonRun, put } from "./api.ts";
 import { FAKE_LLM_PORT, FAKE_TEXT } from "./fake-llm.ts";
 
 test.beforeEach(async ({ request }) => {
@@ -15,8 +15,9 @@ test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
   await page.goto(`/lesson/${DEMO_LESSON}`);
   await page.getByRole("button", { name: "Start lesson" }).click();
 
-  // One item answered, the other left: that one is wrong, and its explanation streams from the model.
+  // The picture answered wrong: its explanation streams from the model.
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await page.getByRole("button", { name: "Why is this wrong?" }).first().click();
   await expect(page.getByText(FAKE_TEXT).first()).toBeVisible();

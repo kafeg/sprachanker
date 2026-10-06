@@ -39,6 +39,7 @@ export function AudioPlayer({
   title,
   compact = false,
   className,
+  onHeard,
 }: {
   src: string;
   /** What is played, for screen readers. */
@@ -47,6 +48,8 @@ export function AudioPlayer({
   title?: string;
   compact?: boolean;
   className?: string;
+  /** Called once it has been played, or when it cannot be (a file that does not load blocks nothing). */
+  onHeard?: () => void;
 }) {
   const { t } = useTranslation();
   const { rate, setRate } = useContext(PlaybackRate);
@@ -176,10 +179,14 @@ export function AudioPlayer({
         onPlay={(e) => {
           claimPlayback(e.currentTarget);
           setPaused(false);
+          onHeard?.();
         }}
         onPause={() => setPaused(true)}
         onEnded={() => setPaused(true)}
-        onError={() => setFailed(true)}
+        onError={() => {
+          setFailed(true);
+          onHeard?.();
+        }}
       />
       {button}
       {compact ? (
@@ -263,11 +270,14 @@ export function MediaBlock({
   url,
   audioLabel,
   compact = false,
+  onHeard,
 }: {
   media?: Media;
   url: (path: string) => string;
   audioLabel: string;
   compact?: boolean;
+  /** Called once its audio or video has been played (or cannot be). */
+  onHeard?: () => void;
 }) {
   if (!media) return null;
   return (
@@ -278,12 +288,23 @@ export function MediaBlock({
           controls
           preload="metadata"
           src={url(media.video)}
-          onPlay={(e) => claimPlayback(e.currentTarget)}
+          onPlay={(e) => {
+            claimPlayback(e.currentTarget);
+            onHeard?.();
+          }}
+          onError={onHeard}
           className="w-full max-w-2xl rounded-xl bg-black"
         />
       )}
       {media.image && <img src={url(media.image)} alt="" className="max-h-72 w-auto rounded-xl" />}
-      {media.audio && <AudioPlayer src={url(media.audio)} label={audioLabel} compact={compact} />}
+      {media.audio && (
+        <AudioPlayer
+          src={url(media.audio)}
+          label={audioLabel}
+          compact={compact}
+          onHeard={onHeard}
+        />
+      )}
     </div>
   );
 }

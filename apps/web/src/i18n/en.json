@@ -105,7 +105,11 @@
       "done": "answered",
       "skipped": "skipped"
     },
-    "correctAnswer": "Correct answer:"
+    "correctAnswer": "Correct answer:",
+    "answerAll": "Answer every item · {done, number} of {total, number}",
+    "listenFirst": "Play the recording first",
+    "listenItem": "Play the recording of item {n}",
+    "answerAgain": "Answer again"
   },
   "ref": {
     "vocabulary": "Vocabulary",

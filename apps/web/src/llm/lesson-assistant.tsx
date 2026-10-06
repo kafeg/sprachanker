@@ -36,6 +36,6 @@ function SummaryParts({ hasMistakes, ...context }: LessonSlotContext & { hasMist
 export const lessonAssistant: LessonSlots = {
   frame: (children) => <AskScope>{children}</AskScope>,
   header: (context) => <Tutor {...context} />,
-  explain: (context) => <ExplainMistake {...context} />,
+  explain: (context) => <ExplainMistake autoStart {...context} />,
   summary: (context) => <SummaryParts {...context} />,
 };

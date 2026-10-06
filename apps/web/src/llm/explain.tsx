@@ -1,7 +1,7 @@
 // "Why is this wrong?" under a wrong answer: asks the configured model and streams its explanation.
 import { Link } from "@tanstack/react-router";
 import { LoaderCircle, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { type ExplainRequest, streamExplain, useLlm } from "./api.ts";
@@ -10,7 +10,11 @@ import { ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { RichText } from "./rich-text.tsx";
 
-export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
+/** "Why is this wrong?" for one item. `autoStart`: asked when shown (the exercise has its own button). */
+export function ExplainMistake({
+  autoStart = false,
+  ...props
+}: Omit<ExplainRequest, "language"> & { autoStart?: boolean }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const label = useAssistantLabel();
@@ -18,14 +22,8 @@ export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
   const [error, setError] = useState<unknown>();
   const [busy, setBusy] = useState(false);
   const request = useAbortable();
-
-  if (!llm.data) return null;
-  if (!llm.data.model)
-    return (
-      <Link to="/settings" className="mt-2 inline-block text-sm text-muted-foreground underline">
-        {t("llm.setUpHint")}
-      </Link>
-    );
+  const asked = useRef(false);
+  const ready = !!llm.data?.model;
 
   const ask = () => {
     const controller = request.start();
@@ -40,6 +38,21 @@ export function ExplainMistake(props: Omit<ExplainRequest, "language">) {
         if (request.isCurrent(controller)) setBusy(false);
       });
   };
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: asked once, when shown and ready
+  useEffect(() => {
+    if (!autoStart || !ready || asked.current) return;
+    asked.current = true;
+    ask();
+  }, [autoStart, ready]);
+
+  if (!llm.data) return null;
+  if (!ready)
+    return (
+      <Link to="/settings" className="mt-2 inline-block text-sm text-muted-foreground underline">
+        {t("llm.setUpHint")}
+      </Link>
+    );
 
   const promptRequest = { explain: { ...props, language: i18n.language } };
   return (

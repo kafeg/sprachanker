@@ -1,36 +1,73 @@
 // One exercise on its own screen: answer, check (instant, same engine as the server), feedback, next.
+// "Check" opens once every item is answered and every recording has been played; checked items are
+// marked on a rail left of their card, with their own controls (why wrong, answer again) on the right.
 import { checkItem } from "@sprachanker/engine";
 import type { Exercise, LocaleExercise, Outcome } from "@sprachanker/schema";
-import { Check, X } from "lucide-react";
+import { Check, RotateCcw, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { correctAnswer, ExerciseItem, isScored } from "@/exercises/index.tsx";
+import { answerComplete, correctAnswer, ExerciseItem, isScored } from "@/exercises/index.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { ExerciseResult } from "./use-run.ts";
 
-/** A checked item's mark in its card's corner: ✓ right, ✕ wrong or partly right (not a button). */
-function ItemMark({ outcome }: { outcome: Outcome }) {
+/** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
+function ItemRail({ outcome }: { outcome: Outcome }) {
   const { t } = useTranslation();
   const ok = outcome.result === "correct";
   const label = t(
     ok ? "lesson.correct" : outcome.result === "partial" ? "lesson.partial" : "lesson.wrong",
   );
   return (
-    <span
-      role="status"
-      title={label}
-      className={cn(
-        "absolute top-3 right-3 grid size-6 place-items-center rounded-full text-white",
-        ok ? "bg-correct" : "bg-wrong",
-      )}
-    >
-      {ok ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-      <span className="sr-only">{label}</span>
-    </span>
+    <div className="flex h-full flex-col items-center gap-1.5 pt-3">
+      <span
+        role="status"
+        title={label}
+        className={cn(
+          "grid size-6 place-items-center rounded-full text-white",
+          ok ? "bg-correct" : "bg-wrong",
+        )}
+      >
+        {ok ? <Check className="size-3.5" /> : <X className="size-3.5" />}
+        <span className="sr-only">{label}</span>
+      </span>
+      <span className={cn("w-1 flex-1 rounded-full", ok ? "bg-correct" : "bg-wrong")} />
+    </div>
+  );
+}
+
+/** An item's control: an icon button with its name shown on hover and focus. */
+function ItemControl({
+  label,
+  onClick,
+  pressed,
+  children,
+}: {
+  label: string;
+  onClick(): void;
+  pressed?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          aria-label={label}
+          aria-pressed={pressed}
+          onClick={onClick}
+          className={cn("size-9 text-muted-foreground", pressed && "bg-accent text-foreground")}
+        >
+          {children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="left">{label}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -52,7 +89,7 @@ export interface StepProps {
   ): void;
   onBack(): void;
   onNext(): void;
-  /** Extra help under a wrong item (the LLM explanation), if available. */
+  /** Help with a wrong item (the LLM explanation), if available: shown under it when asked for. */
   explain?(index: number, answer: unknown): React.ReactNode;
 }
 
@@ -89,29 +126,82 @@ export function ExerciseStep({
   });
   const shownAt = useRef(Date.now());
   const last = index + 1 === total;
+  const [explaining, setExplaining] = useState<Set<number>>(new Set());
+
+  // Recordings that must be played before checking: the exercise's own and each item's. Reopening an
+  // exercise answered before, or a finished run, asks for nothing.
+  const recordings = [
+    ...(exercise.media?.audio || exercise.media?.video ? ["exercise"] : []),
+    ...exercise.items.flatMap((item, i) =>
+      item.media && ("audio" in item.media || "video" in item.media) ? [`item-${i}`] : [],
+    ),
+  ];
+  const [heard, setHeard] = useState<Set<string>>(() =>
+    readOnly || Object.keys(stored?.last ?? {}).length ? new Set(recordings) : new Set(),
+  );
+  const hear = (key: string) => setHeard((prev) => (prev.has(key) ? prev : new Set(prev).add(key)));
+
+  // Checking applies to the items not checked yet (all of them, or one answered again).
+  const open = exercise.items.flatMap((_, i) => (outcomes?.[i] ? [] : [i]));
+  const checking = scored && !readOnly && open.length > 0;
+  const answered = exercise.items.filter((_, i) => answerComplete(exercise, i, answers[i])).length;
+  const unheard = recordings.find(
+    (key) =>
+      !heard.has(key) && (key === "exercise" || open.includes(Number(key.slice("item-".length)))),
+  );
+  const missing = open.filter((i) => !answerComplete(exercise, i, answers[i])).length;
+  const canCheck = checking && !missing && !unheard;
+  const waiting = !checking
+    ? undefined
+    : missing
+      ? t("lesson.answerAll", { done: answered, total: exercise.items.length })
+      : unheard === "exercise"
+        ? t("lesson.listenFirst")
+        : unheard
+          ? t("lesson.listenItem", { n: Number(unheard.slice("item-".length)) + 1 })
+          : undefined;
 
   const check = () => {
-    // Unanswered items show as wrong (with the right answer) but are recorded as skipped (04).
+    if (!canCheck) return;
+    // Typed gaps may be left empty; an item with no answer at all is recorded as skipped (04).
     const unanswered: Outcome = {
       result: "wrong",
       score: 0,
       ruleIds: exercise.ruleIds,
       lexemes: [],
     };
-    const results = exercise.items.map((item, i) => {
+    const results = open.map((i) => {
       const answer = answers[i];
       return {
-        itemKey: item.key,
+        i,
+        itemKey: exercise.items[i]?.key as string,
         answer,
         outcome: answer === undefined ? unanswered : checkItem(exercise, i, answer, lang),
       };
     });
-    setOutcomes(Object.fromEntries(results.map((r, i) => [i, r.outcome])));
+    setOutcomes((prev) => ({
+      ...prev,
+      ...Object.fromEntries(results.map((r) => [r.i, r.outcome])),
+    }));
     onAnswered(
       results.filter((r) => r.answer !== undefined),
       results.filter((r) => r.answer === undefined).map((r) => r.itemKey),
       Date.now() - shownAt.current,
     );
+  };
+  /** Answers one checked item again: its answer and mark are cleared; Check comes back for it. */
+  const answerAgain = (i: number) => {
+    setAnswers(({ [i]: _, ...rest }) => rest);
+    setOutcomes((prev) => {
+      const { [i]: _, ...rest } = prev ?? {};
+      return Object.keys(rest).length ? rest : undefined;
+    });
+    setExplaining((prev) => {
+      const next = new Set(prev);
+      next.delete(i);
+      return next;
+    });
+    shownAt.current = Date.now();
   };
   const next = () => {
     // Unscored exercises are recorded on leaving: the ratings given, the rest as skipped.
@@ -144,9 +234,10 @@ export function ExerciseStep({
   const retry = () => {
     setAnswers({});
     setOutcomes(undefined);
+    setExplaining(new Set());
     shownAt.current = Date.now();
   };
-  const primary = scored && !outcomes && !readOnly ? check : next;
+  const primary = checking ? check : next;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -167,7 +258,7 @@ export function ExerciseStep({
 
   return (
     // At least a screen tall, so the action bar sits at the bottom even under a short exercise.
-    <article className="flex min-h-[calc(100dvh-12rem)] flex-col gap-4 lg:min-h-[calc(100dvh-8rem)]">
+    <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
       <div>
         <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           {t("lesson.exerciseOf", { n: index + 1, total })}
@@ -181,6 +272,7 @@ export function ExerciseStep({
         media={exercise.media}
         url={url}
         audioLabel={t("lesson.exerciseOf", { n: index + 1, total })}
+        onHeard={() => hear("exercise")}
       />
       {exercise.text && (
         <p lang={lang} className="text-lg">
@@ -198,91 +290,119 @@ export function ExerciseStep({
           const right = outcome?.result === "correct";
           const answer = marked && !right ? correctAnswer(exercise, i) : undefined;
           return (
-            <li
-              key={item.key}
-              className={cn(
-                "relative rounded-2xl border bg-card p-4 sm:p-5",
-                marked && "rounded-l-md border-l-4 pr-12",
-                marked && (right ? "border-l-correct" : "border-l-wrong"),
-              )}
-            >
-              {marked && <ItemMark outcome={outcome} />}
-              {item.media?.audio && (
-                <AudioPlayer
-                  compact
-                  src={url(item.media.audio)}
-                  label={item.prompt ?? t("lesson.itemAudio", { n: i + 1 })}
-                  className="mb-3"
+            // Rail (status) · card · controls: the card keeps its size when checked; only an
+            // explanation asked for adds a panel under it.
+            <li key={item.key} className="grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2">
+              <div className="h-full">{marked && <ItemRail outcome={outcome} />}</div>
+              <div className="rounded-2xl border bg-card p-4 sm:p-5">
+                {item.media?.audio && (
+                  <AudioPlayer
+                    compact
+                    src={url(item.media.audio)}
+                    label={item.prompt ?? t("lesson.itemAudio", { n: i + 1 })}
+                    className="mb-3"
+                    onHeard={() => hear(`item-${i}`)}
+                  />
+                )}
+                <div className="mb-3">
+                  {item.prompt && (
+                    <p lang={lang} className="text-lg font-semibold">
+                      {item.prompt}
+                    </p>
+                  )}
+                  {loc?.prompt && <p className="text-lg font-semibold">{loc.prompt}</p>}
+                  {loc?.hintHtml && (
+                    <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
+                  )}
+                </div>
+                {item.media && ("image" in item.media || "video" in item.media) && (
+                  <MediaBlock
+                    media={{
+                      image: "image" in item.media ? item.media.image : undefined,
+                      video: "video" in item.media ? item.media.video : undefined,
+                    }}
+                    url={url}
+                    audioLabel=""
+                    onHeard={() => hear(`item-${i}`)}
+                  />
+                )}
+                <ExerciseItem
+                  type={exercise.type}
+                  item={item as never}
+                  locale={loc}
+                  answer={answers[i] as never}
+                  onAnswer={(a: unknown) => setAnswers((prev) => ({ ...prev, [i]: a }))}
+                  outcome={outcome}
+                  url={url}
                 />
-              )}
-              <div className="mb-3">
-                {item.prompt && (
-                  <p lang={lang} className="text-lg font-semibold">
-                    {item.prompt}
+                {answer && (
+                  <p className="mt-3 text-sm">
+                    <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>
+                    <span lang={lang} className="font-medium">
+                      {answer}
+                    </span>
                   </p>
                 )}
-                {loc?.prompt && <p className="text-lg font-semibold">{loc.prompt}</p>}
-                {loc?.hintHtml && (
-                  <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
+              </div>
+              <div className="flex flex-col gap-1.5 pt-2">
+                {marked && !right && explain && (
+                  <ItemControl
+                    label={t("llm.why")}
+                    pressed={explaining.has(i)}
+                    onClick={() =>
+                      setExplaining((prev) => {
+                        const next = new Set(prev);
+                        next.has(i) ? next.delete(i) : next.add(i);
+                        return next;
+                      })
+                    }
+                  >
+                    <Sparkles className="size-4" />
+                  </ItemControl>
+                )}
+                {marked && !readOnly && (
+                  <ItemControl label={t("lesson.answerAgain")} onClick={() => answerAgain(i)}>
+                    <RotateCcw className="size-4" />
+                  </ItemControl>
                 )}
               </div>
-              {item.media && ("image" in item.media || "video" in item.media) && (
-                <MediaBlock
-                  media={{
-                    image: "image" in item.media ? item.media.image : undefined,
-                    video: "video" in item.media ? item.media.video : undefined,
-                  }}
-                  url={url}
-                  audioLabel=""
-                />
+              {explaining.has(i) && explain && (
+                <div className="col-start-2">{explain(i, answers[i])}</div>
               )}
-              <ExerciseItem
-                type={exercise.type}
-                item={item as never}
-                locale={loc}
-                answer={answers[i] as never}
-                onAnswer={(a: unknown) => setAnswers((prev) => ({ ...prev, [i]: a }))}
-                outcome={outcome}
-                url={url}
-              />
-              {answer && (
-                <p className="mt-3 text-sm">
-                  <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>
-                  <span lang={lang} className="font-medium">
-                    {answer}
-                  </span>
-                </p>
-              )}
-              {outcome &&
-                (outcome.result === "wrong" || outcome.result === "partial") &&
-                explain?.(i, answers[i])}
             </li>
           );
         })}
       </ol>
       {/* The action bar: at the bottom of the screen, its buttons always in the same places — the main one
           (Check, then Next) on the right with a fixed width, under the finger or cursor. */}
-      <div className="sticky bottom-16 z-10 -mx-4 mt-auto flex items-center gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur lg:bottom-0">
+      <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
         <Button variant="ghost" size="lg" onClick={onBack}>
           {t("lesson.previous")}
         </Button>
-        <div className="ml-auto flex gap-2">
+        {/* What Check is waiting for. */}
+        {waiting && (
+          <p className="order-first w-full text-center text-xs text-muted-foreground sm:order-none sm:ml-auto sm:w-auto sm:text-right sm:text-sm">
+            {waiting}
+          </p>
+        )}
+        <div className={cn("flex gap-2", waiting ? "ml-auto sm:ml-0" : "ml-auto")}>
           {outcomes && !readOnly && (
             <Button variant="outline" size="lg" onClick={retry}>
               {t("lesson.retry")}
             </Button>
           )}
-          {scored && !outcomes && !readOnly && (
+          {checking && !outcomes && (
             <Button variant="ghost" size="lg" onClick={skip}>
               {t("lesson.skip")}
             </Button>
           )}
-          <Button size="lg" className="w-40 text-base" onClick={primary}>
-            {scored && !outcomes && !readOnly
-              ? t("lesson.check")
-              : last
-                ? t("lesson.toSummary")
-                : t("lesson.next")}
+          <Button
+            size="lg"
+            className="w-32 text-base sm:w-40"
+            onClick={primary}
+            disabled={checking && !canCheck}
+          >
+            {checking ? t("lesson.check") : last ? t("lesson.toSummary") : t("lesson.next")}
           </Button>
         </div>
       </div>

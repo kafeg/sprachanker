@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { freshLessonRun } from "./api.ts";
+import { answerPicture, freshLessonRun } from "./api.ts";
 
 test.beforeEach(({ request }) => freshLessonRun(request));
 
@@ -19,6 +19,10 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
 
   await expect(page.getByText("Exercise 1 of 8")).toBeVisible();
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  // Check waits until every item is answered, and says so.
+  await expect(page.getByRole("button", { name: "Check", exact: true })).toBeDisabled();
+  await expect(page.getByText("Answer every item · 1 of 2")).toBeVisible();
+  await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByRole("status").first()).toContainText("Correct");
   await expect(page.getByRole("status").nth(1)).toContainText("Not quite");
@@ -40,7 +44,7 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
     if (await score.isVisible()) break;
     await ((await skip.isVisible()) ? skip : next).click();
   }
-  // One right; the unanswered picture question and the skipped checked items count as wrong.
+  // One right; the wrong picture and the skipped checked items count as wrong.
   await expect(page.getByText("Correct on the first try: 1 of 9")).toBeVisible();
   await expect(page.getByRole("heading", { name: "New words of this lesson" })).toBeVisible();
 });
@@ -81,6 +85,7 @@ test("answers and skips are kept: reopening shows them", async ({ page, request 
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
   await page.getByRole("button", { name: "Start lesson" }).click();
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
@@ -105,6 +110,7 @@ test("the summary before the end lists what is left and does not complete the le
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
   await page.getByRole("button", { name: "Start lesson" }).click();
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   const plan = page.getByRole("button", { name: "Lesson plan" });
   if (await plan.isVisible()) await plan.click();
@@ -123,6 +129,7 @@ test("resetting a lesson asks first and leaves it not started", async ({ page, r
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
   await page.getByRole("button", { name: "Start lesson" }).click();
   await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await answerPicture(page);
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await page.getByRole("button", { name: "Reset lesson progress" }).click();

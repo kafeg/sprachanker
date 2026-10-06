@@ -64,3 +64,38 @@ export function correctAnswer(exercise: Exercise, index: number): string | undef
       return undefined;
   }
 }
+
+const gapsOf = (segments: Array<string | { gap: string }>) =>
+  segments.flatMap((s) => (typeof s === "string" ? [] : [s.gap]));
+
+/**
+ * Whether an item's answer is complete enough to check: every option, pair, part or gap chosen; text
+ * typed. Typed gaps need one gap filled, since a gap may rightly stay empty ("no article").
+ */
+export function answerComplete(exercise: Exercise, index: number, answer: unknown): boolean {
+  if (answer === undefined) return false;
+  const item = exercise.items[index];
+  switch (exercise.type) {
+    case "single_choice":
+      return !!(answer as Answers["single_choice"]).optionId;
+    case "multi_choice":
+      return (answer as Answers["multi_choice"]).optionIds.length > 0;
+    case "match":
+      return (answer as Answers["match"]).pairs.length === (item as ItemOf<"match">).left.length;
+    case "order":
+      return (
+        (answer as Answers["order"]).sequence.length === (item as ItemOf<"order">).parts.length
+      );
+    case "gap_choice":
+      return gapsOf((item as ItemOf<"gap_choice">).segments).every(
+        (g) => !!(answer as Answers["gap_choice"])[g],
+      );
+    case "gap_text":
+      return Object.values(answer as Answers["gap_text"]).some((v) => v.trim() !== "");
+    case "dictation":
+    case "respond":
+      return (answer as { text: string }).text.trim() !== "";
+    default:
+      return true;
+  }
+}

@@ -105,7 +105,11 @@
       "done": "выполнено",
       "skipped": "пропущено"
     },
-    "correctAnswer": "Правильный ответ:"
+    "correctAnswer": "Правильный ответ:",
+    "answerAll": "Ответьте на все задания · {done, number} из {total, number}",
+    "listenFirst": "Сначала прослушайте запись",
+    "listenItem": "Прослушайте запись в задании {n}",
+    "answerAgain": "Ответить заново"
   },
   "ref": {
     "vocabulary": "Словарь",
