@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { courseProgress } from "../src/services/runs.ts";
+import { courseProgress } from "../src/index.ts";
 
 const lessons = ["c/00-01", "c/00-02", "c/00-03", "c/00-04"];
 

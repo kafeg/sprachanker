@@ -3,7 +3,6 @@
 import {
   checkItem,
   exerciseResults,
-  type LessonProgress,
   lessonCoverage,
   lessonDone,
   lessonProgress,
@@ -90,20 +89,6 @@ export interface RunsOptions {
   content: Content;
   now: () => number;
   appVersion: string;
-}
-
-/** Lessons done in a course and the lesson to go on with: the one worked on most recently, else the
- *  first not done yet. */
-export function courseProgress(lessons: string[], progress: Record<string, LessonProgress>) {
-  const active = lessons
-    .filter((k) => progress[k]?.activeAt !== undefined)
-    .sort((a, b) => (progress[b]?.activeAt ?? 0) - (progress[a]?.activeAt ?? 0))[0];
-  const next = active ?? lessons.find((k) => !lessonDone(progress[k])) ?? lessons[0];
-  return {
-    done: lessons.filter((k) => lessonDone(progress[k])).length,
-    next: next ?? null,
-    nextStarted: !!active,
-  };
 }
 
 export function createRuns({ db, content, now, appVersion }: RunsOptions) {

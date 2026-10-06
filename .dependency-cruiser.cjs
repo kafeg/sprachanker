@@ -68,9 +68,21 @@ module.exports = {
     onlyMayImport("cli-imports-server-only", "^apps/cli/", ["apps/cli", "packages/server"]),
     {
       name: "pure-modules-no-io",
-      comment: "schema and engine run in the browser too: no Node/Bun built-ins in their sources.",
+      comment:
+        "schema and engine run in the browser too, llm uses web-standard APIs only: no Node/Bun built-ins in their sources.",
       severity: "error",
-      from: { path: "^packages/(schema|engine)/src/", pathNot: "\\.test\\.tsx?$" },
+      from: { path: "^packages/(schema|engine|llm)/src/", pathNot: "\\.test\\.tsx?$" },
+      to: { dependencyTypes: ["core"] },
+    },
+    {
+      name: "server-io-in-runtime-only",
+      comment:
+        "app.ts and everything it imports stay runtime-agnostic (the web type-checks that graph): Node/Bun APIs only in src/runtime/ and the entry files that wire it (index, config, providers).",
+      severity: "error",
+      from: {
+        path: "^packages/server/src/",
+        pathNot: "^packages/server/src/(runtime/|index\\.ts$|config\\.ts$|providers\\.ts$)",
+      },
       to: { dependencyTypes: ["core"] },
     },
   ],

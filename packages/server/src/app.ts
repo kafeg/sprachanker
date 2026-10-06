@@ -2,6 +2,7 @@
 // must stay free of Bun/Node APIs; those live in src/runtime/.
 
 import type { LibraryView } from "@sprachanker/course-kit";
+import { courseProgress } from "@sprachanker/engine";
 import { LessonKey } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
@@ -16,7 +17,7 @@ import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createLlmRuns } from "./services/llm-runs.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
-import { courseProgress, createRuns, RunError } from "./services/runs.ts";
+import { createRuns, RunError } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
 import { createSync, type SyncCourse } from "./services/sync.ts";
