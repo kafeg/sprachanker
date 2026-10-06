@@ -17,9 +17,11 @@ apps/web/src/
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell, media
   word/            # gender colouring
+apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
+apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```
 
-Later (target): `audio/` (recorder, PTT), `pwa/` (manifest, IndexedDB outbox), more routes (today, review,
+Later (target): `audio/` (recorder, PTT), `pwa/` (service worker, IndexedDB outbox), more routes (today, review,
 notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 (components.json points to `@/ui`).
 

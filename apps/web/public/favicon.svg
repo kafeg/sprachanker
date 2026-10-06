@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img">
+  <title>SprachAnker</title>
+  <rect width="64" height="64" rx="15" fill="#F9CC21"/>
+  <g id="mark">
+    <path d="M17 11h30a8 8 0 0 1 8 8v20a8 8 0 0 1-8 8H27l-10 8v-8a8 8 0 0 1-8-8V19a8 8 0 0 1 8-8z" fill="#181B1F"/>
+    <g fill="none" stroke="#F9CC21" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="18.5" r="3"/>
+      <path d="M32 21.5v18M26 26h12M22.5 33c1 4.5 4.6 6.5 9.5 6.5s8.5-2 9.5-6.5M20.5 35.5l2-2.8 2.6 2.2M43.5 35.5l-2-2.8-2.6 2.2"/>
+    </g>
+  </g>
+</svg>

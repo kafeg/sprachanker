@@ -16,9 +16,7 @@ export function AppShell({ footer }: { footer?: React.ReactNode }) {
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col gap-1 border-r bg-sidebar p-4 lg:flex">
         <Link to="/" className="mb-6 flex items-center gap-2 px-2">
-          <span className="grid size-9 place-items-center rounded-xl bg-primary font-heading text-lg font-bold text-primary-foreground">
-            S
-          </span>
+          <img src="/favicon.svg" alt="" className="size-9" />
           <span className="font-heading text-xl font-bold">{t("app.name")}</span>
         </Link>
         {NAV.map(({ to, key, icon: Icon }) => (
