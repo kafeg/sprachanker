@@ -49,7 +49,7 @@ export function SpeechSelfrate({ item, answer, onAnswer }: RendererProps<"speech
   return (
     <div className="space-y-3">
       {item.text ? (
-        <p lang={lang} className="font-heading text-2xl font-semibold">
+        <p lang={lang} className="whitespace-pre-line font-heading text-2xl font-semibold">
           {item.text}
         </p>
       ) : (

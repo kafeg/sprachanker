@@ -94,6 +94,21 @@ not DW-shaped: an `en-de` edition with English learner strings and no exercises.
 - Planned (after MVP): the interviews (several videos per topic with parallel de/en transcripts) —
   they need lessons with more than one video and transcript pages (02); web quests; pronunciation.
 
+## 4. Lingust «Правильный английский» (`lingust-english` → `lingust.english`, edition `ru-en`)
+
+Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russian explanations. Facts:
+`docs/research/lingust-english.md`.
+
+- **Fetch**: the index, `lesson1…52` and `irregular-verbs` as HTML; recordings via `fetchMedia`. The site
+  serves MP3s only with a `Referer` of its lesson pages (hotlink protection); the importer sends it for
+  `/media/` requests. `/images/` is disallowed by robots and not fetched; locked (paid) players are skipped.
+- **Normalise**: the index's stages are units (plus a bonus unit with the irregular-verbs table); lesson
+  text before «Словарь» → grammar pages; each section's example recordings with their lines →
+  `speech_selfrate`; the first full-width recording → `media.audio`; «Словарь» → vocab (IPA in `note`);
+  exercises with the tooltip answer keys → `gap_text` / `gap_choice` / `respond` (model answers as
+  `reference`); retell/read-aloud → `speech_selfrate`; translations into Russian, word grids, check boxes →
+  `unknown` (they need a learner-language reference or multi-answer gaps).
+
 ## Later
 
 - **SprachAnker Starter English** (`sa-starter-en` → `sprachanker.starter-en`): small ru → en course

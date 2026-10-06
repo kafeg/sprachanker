@@ -16,6 +16,8 @@ courses/
                        # src/: catalog, pages, media, stream (HLS fallback), normalise/, import.ts; test/
   coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
                        # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
+  lingust-english/      # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings as
+                       # selfrate, gap/respond exercises from the tooltip answer keys; src/dom.ts parser
   sa-starter-en/       # after MVP: our authored course + open-data importer
   bamf-lid/            # exam: Leben in Deutschland
 ```

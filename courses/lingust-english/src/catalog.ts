@@ -1,0 +1,20 @@
+// Lingust «Правильный английский» (lingust.ru): a free ru → en course of 52 lessons in three stages,
+// plus bonus materials. Closed licence: personal use, with attribution.
+export const SITE = "https://lingust.ru/english/english-lessons";
+export const HOST = "lingust.ru";
+export const PUBLISHER = "lingust";
+export const SERIES_NAME = "english";
+export const SERIES = `${PUBLISHER}.${SERIES_NAME}`;
+export const COURSE = "english";
+export const EDITION = "ru-en";
+export const TITLE = "Правильный английский";
+
+/** Bonus pages imported as lessons of a last unit; the rest of the bonus block is not course content. */
+export const BONUS = ["irregular-verbs"];
+
+export const ATTRIBUTION_HTML =
+  "<p>Lingust — «Правильный английский», free online course (lingust.ru), © Lingust. " +
+  "Imported for personal study.</p>";
+
+/** The site serves its recordings only to its own pages (hotlink protection). */
+export const MEDIA_REFERER = `${SITE}`;
