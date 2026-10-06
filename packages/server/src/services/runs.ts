@@ -10,6 +10,7 @@ import {
   resumePage,
 } from "@sprachanker/engine";
 import {
+  type CourseKey,
   EventInput,
   findExercise,
   type ItemKey,
@@ -23,7 +24,7 @@ import {
   type StoredEvent,
   seriesOf,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, inArray, max } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, max } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
@@ -193,6 +194,31 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       if (!row?.courseKey?.startsWith(`${series}/`)) return null;
       const list = runEvents(db, row.id);
       return { run: toRun(row), events: list, resumePage: resumePage(list) };
+    },
+
+    /**
+     * Resets the learner's progress in a course, or in one of its lessons: every run of it — lesson
+     * runs, tutor chats, writing checks and reviews, scenes — and their events are deleted. The only
+     * deletion of events besides removing a profile; the screen asks for confirmation (05).
+     */
+    reset(course: CourseKey, lesson?: LessonKey): { runs: number; events: number } {
+      const ids = db
+        .select({ id: runs.id })
+        .from(runs)
+        .where(lesson ? eq(runs.contextKey, lesson) : eq(runs.courseKey, course))
+        .all()
+        .map((r) => r.id);
+      if (!ids.length) return { runs: 0, events: 0 };
+      const counted = db
+        .select({ n: count() })
+        .from(events)
+        .where(inArray(events.runId, ids))
+        .get();
+      db.transaction((tx) => {
+        tx.delete(events).where(inArray(events.runId, ids)).run();
+        tx.delete(runs).where(inArray(runs.id, ids)).run();
+      });
+      return { runs: ids.length, events: counted?.n ?? 0 };
     },
 
     /** The active run of the lesson, or a new one; `restart` ends the active one first. */

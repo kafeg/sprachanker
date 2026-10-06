@@ -3,11 +3,12 @@
 // speakers of one language (its edition); another pair of the same source course is a course of its own.
 import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCourses, useSetSetting, useSettings } from "@/api/hooks.ts";
 import { editionSetting, useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import {
   Select,
@@ -16,6 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
+import { ResetProgress } from "@/ui/reset-progress.tsx";
+import { cn } from "@/ui/utils.ts";
 import { SourceLine } from "./course-info.tsx";
 
 type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
@@ -36,7 +39,16 @@ function usePairName() {
   };
 }
 
-function CourseCard({ course, edition }: { course: CourseRow; edition: string }) {
+function CourseCard({
+  course,
+  edition,
+  removable,
+}: {
+  course: CourseRow;
+  edition: string;
+  /** In "My courses": the course can be removed from there (its progress is reset). */
+  removable?: boolean;
+}) {
   const { t } = useTranslation();
   const pair = usePairName();
   const set = useSetSetting();
@@ -49,8 +61,24 @@ function CourseCard({ course, edition }: { course: CourseRow; edition: string })
       set.mutate({ key: editionSetting(course.series, course.course), value: edition });
   };
   return (
-    <div className="flex flex-col rounded-2xl border bg-card p-5 shadow-sm">
-      <h2 className="text-2xl font-bold">{title}</h2>
+    <div className="relative flex flex-col rounded-2xl border bg-card p-5 shadow-sm">
+      {removable && (
+        <ResetProgress series={course.series} course={course.course} title={title}>
+          {(open) => (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={open}
+              aria-label={t("progress.removeCourse")}
+              title={t("progress.removeCourse")}
+              className="absolute top-3 right-3 text-muted-foreground"
+            >
+              <X className="size-4" />
+            </Button>
+          )}
+        </ResetProgress>
+      )}
+      <h2 className={cn("text-2xl font-bold", removable && "pr-10")}>{title}</h2>
       <p className="text-sm text-muted-foreground">
         {pair(edition)} · {t("courses.lessons", { count: course.lessons })}
       </p>
@@ -94,7 +122,7 @@ function CourseCard({ course, edition }: { course: CourseRow; edition: string })
 /** A started course in the edition in use. */
 function MyCourseCard({ course }: { course: CourseRow }) {
   const edition = useEdition(course.series, course.course, course.editions);
-  return edition ? <CourseCard course={course} edition={edition} /> : null;
+  return edition ? <CourseCard course={course} edition={edition} removable /> : null;
 }
 
 function useCourseList() {

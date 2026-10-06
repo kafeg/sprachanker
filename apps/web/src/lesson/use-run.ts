@@ -216,6 +216,11 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
       );
     },
     finish,
+    /** Reads the run again from the server (e.g. after the lesson's progress was reset). */
+    reload() {
+      queue.current = [];
+      setReload((n) => n + 1);
+    },
   };
 }
 export type RunState = ReturnType<typeof useRun>;

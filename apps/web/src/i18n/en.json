@@ -11,7 +11,8 @@
     "loading": "Loading…",
     "error": "Something went wrong: {message}",
     "retry": "Try again",
-    "close": "Close"
+    "close": "Close",
+    "cancel": "Cancel"
   },
   "courses": {
     "empty": "No course is installed yet.",
@@ -364,5 +365,15 @@
     "version": "Version",
     "licence": "Licence: MIT",
     "source": "Source code on GitHub"
+  },
+  "progress": {
+    "resetCourse": "Reset course progress",
+    "removeCourse": "Remove from my courses",
+    "resetLesson": "Reset lesson progress",
+    "courseTitle": "Reset your progress in “{title}”?",
+    "courseBody": "All answers and lesson runs of this course are deleted, with the tutor chats, writing checks, reviews and scenes about it. The course leaves “My courses” but stays installed. This cannot be undone.",
+    "lessonTitle": "Reset your progress in “{title}”?",
+    "lessonBody": "All answers and runs of this lesson are deleted, with its tutor chat, writing checks, reviews and scenes. This cannot be undone.",
+    "confirm": "Reset"
   }
 }

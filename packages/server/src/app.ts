@@ -3,7 +3,7 @@
 
 import type { LibraryView } from "@sprachanker/course-kit";
 import { courseProgress } from "@sprachanker/engine";
-import { LessonKey } from "@sprachanker/schema";
+import { courseKey, LessonKey, type SeriesKey } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
@@ -198,6 +198,18 @@ export function createApp(config: AppConfig) {
       zod("json", z.object({ events: z.array(z.unknown()).max(200) })),
       async (c) =>
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
+    )
+    // Resetting progress: a whole course (it leaves "My courses") or one of its lessons.
+    .post(
+      "/progress/reset",
+      zod("json", CourseRef.extend({ lesson: LessonKey.optional() })),
+      (c) => {
+        const { series, course, lesson } = c.req.valid("json");
+        const key = courseKey(series as SeriesKey, course);
+        if (lesson && !lesson.startsWith(`${key}/`))
+          throw new HTTPException(400, { message: "lesson is not in this course" });
+        return c.json(runs.reset(key, lesson));
+      },
     )
     .post("/runs/:id/finish", async (c) => c.json(await runs.finish(c.req.param("id"))))
     .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))

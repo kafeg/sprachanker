@@ -218,6 +218,43 @@ describe("runs", () => {
     expect((await getJson("/api/courses"))[0].done).toBe(0);
   });
 
+  test("resetting progress: one lesson, then the whole course", async () => {
+    const { getJson, sendJson, send } = await setup();
+    const SECOND = "sprachanker.fixture/demo/00-02";
+    for (const lessonKey of [LESSON, SECOND]) {
+      const { run } = await sendJson("POST", "/api/runs", {
+        series: FIXTURE_SERIES,
+        lessonKey,
+        edition: "ru-de",
+      });
+      const item = (
+        await getJson(
+          `/api/lesson?${new URLSearchParams({ series: FIXTURE_SERIES, key: lessonKey, edition: "ru-de" })}`,
+        )
+      ).lesson.pages[0].exercise.items[0].key;
+      await sendJson("POST", `/api/runs/${run.id}/events`, {
+        events: [{ id: ulid(), type: "item_skipped", itemKey: item, payload: {} }],
+      });
+    }
+    const map = async () =>
+      Object.keys((await getJson(`/api/course?${new URLSearchParams(COURSE)}`)).lessons);
+    expect(await map()).toEqual([LESSON, SECOND]);
+
+    const course = { series: FIXTURE_SERIES, course: "demo" };
+    expect(await sendJson("POST", "/api/progress/reset", { ...course, lesson: LESSON })).toEqual({
+      runs: 1,
+      events: 1,
+    });
+    expect(await map()).toEqual([SECOND]);
+    // A lesson of another course is refused.
+    const other = { series: FIXTURE_SERIES, course: "other", lesson: SECOND };
+    expect((await send("POST", "/api/progress/reset", other)).status).toBe(400);
+
+    expect(await sendJson("POST", "/api/progress/reset", course)).toEqual({ runs: 1, events: 1 });
+    expect(await map()).toEqual([]);
+    expect((await getJson("/api/courses"))[0]).toMatchObject({ done: 0, nextStarted: false });
+  });
+
   test("opening the lesson in another edition ends the active run and starts a new one", async () => {
     const { sendJson } = await setup();
     const ru = await sendJson("POST", "/api/runs", {

@@ -11,7 +11,8 @@
     "loading": "Wird geladen…",
     "error": "Etwas ist schiefgelaufen: {message}",
     "retry": "Erneut versuchen",
-    "close": "Schließen"
+    "close": "Schließen",
+    "cancel": "Abbrechen"
   },
   "courses": {
     "empty": "Noch kein Kurs installiert.",
@@ -364,5 +365,15 @@
     "version": "Version",
     "licence": "Lizenz: MIT",
     "source": "Quellcode auf GitHub"
+  },
+  "progress": {
+    "resetCourse": "Kursfortschritt zurücksetzen",
+    "removeCourse": "Aus meinen Kursen entfernen",
+    "resetLesson": "Lektionsfortschritt zurücksetzen",
+    "courseTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
+    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen, Rückblicke und Szenen dazu. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
+    "lessonTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
+    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen, Rückblicke und Szenen. Das lässt sich nicht rückgängig machen.",
+    "confirm": "Zurücksetzen"
   }
 }

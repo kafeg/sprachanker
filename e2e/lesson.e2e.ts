@@ -115,3 +115,21 @@ test("the summary before the end lists what is left and does not complete the le
   await page.reload();
   await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
 });
+
+test("resetting a lesson asks first and leaves it not started", async ({ page, request }) => {
+  await freshLessonRun(request);
+  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
+  await page.getByRole("button", { name: "Start lesson" }).click();
+  await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("button", { name: "Reset lesson progress" }).click();
+  const dialog = page.getByRole("alertdialog");
+  await expect(dialog).toContainText("cannot be undone");
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(dialog).toBeHidden();
+  await page.getByRole("button", { name: "Reset lesson progress" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Reset" }).click();
+  await expect(page.getByRole("button", { name: "Start lesson" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Reset lesson progress" })).toBeHidden();
+});

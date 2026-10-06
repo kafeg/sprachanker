@@ -1,4 +1,5 @@
 // TanStack Query hooks over the API.
+import type { LessonKey } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, json } from "./client.ts";
 
@@ -69,5 +70,16 @@ export function useStartSync(series: string, course: string) {
   return useMutation({
     mutationFn: () => json(api.course.sync.$post({ json: { series, course } })),
     onSuccess: (state) => client.setQueryData(["course-sync", series, course], state),
+  });
+}
+
+/** Resets the progress of a course, or of one of its lessons (the screens confirm first). */
+export function useResetProgress() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (target: { series: string; course: string; lesson?: LessonKey }) =>
+      json(api.progress.reset.$post({ json: target })),
+    // Progress shows in many places (course list and map, tutor, reviews): read everything again.
+    onSuccess: () => void client.invalidateQueries(),
   });
 }

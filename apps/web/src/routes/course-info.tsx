@@ -11,12 +11,14 @@ import {
   ExternalLink,
   LoaderCircle,
   RefreshCw,
+  RotateCcw,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseSync, useStartSync } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { cn } from "@/ui/utils.ts";
 
 /** "Deutsche Welle · learngerman.dw.com · free access" with a link to the source. */
@@ -239,6 +241,12 @@ export function CourseHero(props: CourseHeroProps) {
               />
             ))}
           <Tile value={size(r.media.bytes, i18n.language)} label={t("course.stats.size")} />
+        </div>
+      )}
+
+      {/* What can be done with the course itself: sync it with its source, reset its progress. */}
+      {(sync.data?.available || done > 0 || next?.started) && (
+        <div className="mt-3 flex flex-wrap gap-2">
           {sync.data?.available && (
             <button
               type="button"
@@ -249,6 +257,19 @@ export function CourseHero(props: CourseHeroProps) {
               <RefreshCw className={cn("size-4", running && "animate-spin")} />
               {running ? t("course.syncing") : t("course.sync")}
             </button>
+          )}
+          {(done > 0 || next?.started) && (
+            <ResetProgress series={series} course={course} title={title}>
+              {(open) => (
+                <button
+                  type="button"
+                  onClick={open}
+                  className="flex min-h-11 items-center gap-1.5 rounded-xl border border-dashed px-3 text-sm text-muted-foreground hover:bg-accent hover:text-wrong"
+                >
+                  <RotateCcw className="size-4" /> {t("progress.resetCourse")}
+                </button>
+              )}
+            </ResetProgress>
           )}
         </div>
       )}

@@ -40,7 +40,8 @@ test/                # bun test; integration tests call createApp().request()
 
 - Routes are thin: validate the request, call a service, return its typed result (the web client
   gets the types through `AppType`).
-- Events are append-only; never UPDATE or DELETE `events` (only deleting a whole profile removes them).
+- Events are append-only; never UPDATE or DELETE `events`. Only two things remove them: deleting a
+  profile, and resetting the progress of a course or lesson on the learner's confirmed request (`runs.reset`).
 - Any change to a Drizzle schema → new migration + migration test with fixture DBs (`test/fixtures/db/`).
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
   (outside the data root), read by `src/runtime/`.

@@ -14,6 +14,7 @@ export function LessonOverview({
   goals,
   url,
   actions,
+  more,
 }: {
   lesson: Lesson;
   locale: LocaleLesson | null;
@@ -23,6 +24,8 @@ export function LessonOverview({
   url(path: string): string;
   /** Start, resume or the finished run's result with its buttons. */
   actions: React.ReactNode;
+  /** Quieter actions under them (resetting the lesson). */
+  more?: React.ReactNode;
 }) {
   const { t } = useTranslation();
   return (
@@ -63,6 +66,7 @@ export function LessonOverview({
         </span>
         {actions}
       </div>
+      {more && <div className="flex justify-end">{more}</div>}
     </section>
   );
 }

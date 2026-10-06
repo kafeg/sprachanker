@@ -9,7 +9,7 @@ import {
   parseEditionId,
 } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, BookOpenText, ListOrdered } from "lucide-react";
+import { ArrowLeft, BookOpenText, ListOrdered, RotateCcw } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -19,6 +19,7 @@ import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
+import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { LessonOverview } from "./overview.tsx";
@@ -221,6 +222,31 @@ export function LessonPlayer({
                 goals={map.data?.locale?.goals ?? {}}
                 url={url}
                 actions={actions}
+                more={
+                  run.mode !== "none" && (
+                    <ResetProgress
+                      series={series}
+                      course={course}
+                      lesson={lesson.key}
+                      title={locale?.title ?? lesson.key}
+                      onDone={() => {
+                        setFinished(undefined);
+                        run.reload();
+                      }}
+                    >
+                      {(open) => (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={open}
+                          className="text-muted-foreground"
+                        >
+                          <RotateCcw className="size-4" /> {t("progress.resetLesson")}
+                        </Button>
+                      )}
+                    </ResetProgress>
+                  )
+                }
               />
             )}
             {typeof step === "number" && exercise && (

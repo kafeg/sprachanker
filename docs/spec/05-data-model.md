@@ -96,6 +96,10 @@ Payload schemas: `packages/schema/src/learner.ts`.
 
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
   its name and the UI shows "deleted".
+- **Resetting progress** is the one exception, on the learner's confirmed request: for a course (it then
+  leaves "My courses") or one lesson, every run of it — lesson runs, tutor chats, writing checks and
+  reviews, scenes — is deleted with its events. The course stays installed. (Cards, when they come,
+  are a separate decision.)
 - Snapshots make old runs readable after content changes or course removal.
 - `card_state` is written in the same transaction as each `card_review` event and can be recomputed
   from those events.
