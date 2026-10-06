@@ -87,7 +87,8 @@ export interface VocabRow {
 /** One answer-key entry ("3. <strong>hear</strong>: Когда я…"), lines as HTML. */
 export type KeyEntry = string[];
 
-export type Seg = string | { input: true } | { options: string[] };
+/** Text, a text gap, a drop-down gap, or a check box for a comma (`comma`: options "," and "–"). */
+export type Seg = string | { input: true } | { options: string[]; comma?: true };
 
 /** One question of an exercise: a list item (or its part a/b) with its key entry. */
 export interface Unit {
@@ -115,8 +116,12 @@ export interface SourceExercise {
   /** Question/answer rows ("Question: … Answer: …"). */
   qa: Array<{ q: string; a: string }>;
   textarea: boolean;
-  /** Answer fields outside lists (grids of words). */
-  gridFields: number;
+  /** Rows of a grid of words: the given word and its answer fields. */
+  grid: Array<{ prompt: string; fields: number }>;
+  /** Every key line of the exercise in page order, numbers removed (keys of grids). */
+  keyLines: string[];
+  /** Answers given in tooltips on the task's own words ("1856" → "eighteen fifty-six"). */
+  inline: Array<{ prompt: string; answers: string[] }>;
   /** Key text without item numbers (keys of a whole text). */
   freeKey: string[];
   players: Snippet[];
@@ -328,8 +333,10 @@ function itemUnits(li: El, n: number): Unit[] {
     }
     if (node.tag === "input") {
       const readonly = "readonly" in node.attrs;
-      if (node.attrs.type === "checkbox") checkbox = true;
-      else if (hasClass(node, "form-control")) {
+      if (node.attrs.type === "checkbox") {
+        checkbox = true;
+        segs.push({ options: [",", "–"], comma: true });
+      } else if (hasClass(node, "form-control")) {
         fields++;
         if (readonly) example = true;
         flush();
@@ -379,7 +386,9 @@ function parseExercise(label: string, head: El, els: El[], base: string): Source
     paragraphs: [],
     qa: [],
     textarea: false,
-    gridFields: 0,
+    grid: [],
+    keyLines: [],
+    inline: [],
     freeKey: [],
     players: [],
     epilogue: [],
@@ -403,6 +412,14 @@ function parseExercise(label: string, head: El, els: El[], base: string): Source
   };
   for (const [i, el] of els.entries()) {
     const tips = tooltips(el);
+    for (const tip of tips.filter(isKey))
+      for (const line of (tip.attrs["data-tooltips-content"] ?? "").split(/<br\s*\/?>|\n/i)) {
+        const text = line
+          .replace(/&emsp;/g, " ")
+          .replace(/^\s*\d+\.\s*/, "")
+          .trim();
+        if (text) ex.keyLines.push(text);
+      }
     if (el.tag === "ol" || el.tag === "form") {
       closeList();
       const lis = findAll(el, (e) => e.tag === "li");
@@ -423,10 +440,23 @@ function parseExercise(label: string, head: El, els: El[], base: string): Source
       if (!list.length) ex.freeKey.push(...free);
       keyed = true;
     }
+    const fields = findAll(el, (e) => e.tag === "input" && hasClass(e, "form-control")).length;
+    if (hasClass(el, "row") && fields) {
+      const cells = el.children.filter(isEl).filter((c) => !find(c, (e) => e.tag === "input"));
+      ex.grid.push({ prompt: cells.map(textOf).join(" ").trim(), fields });
+      continue;
+    }
     if (keyed && !list.length && !tips.some(isKey)) continue;
     if (find(el, (e) => e.tag === "textarea")) ex.textarea = true;
-    const fields = findAll(el, (e) => e.tag === "input" && hasClass(e, "form-control")).length;
-    if (hasClass(el, "row") && fields) ex.gridFields += fields;
+    if (el.tag === "p" && !hasClass(el, "tar"))
+      for (const tip of tips.filter((t) => !isKey(t) && !isHint(t)))
+        ex.inline.push({
+          prompt: textOf(tip),
+          answers: (tip.attrs["data-tooltips-content"] ?? "")
+            .split(/<br\s*\/?>|\n/i)
+            .map((l) => plainText(l))
+            .filter(Boolean),
+        });
     const label2 = find(el, (e) => e.tag === "em" && /^(Question|Answer):$/.test(textOf(e)));
     if (label2 && hasClass(el, "row")) {
       const value = textOf(el).replace(/^(Question|Answer):\s*/, "");

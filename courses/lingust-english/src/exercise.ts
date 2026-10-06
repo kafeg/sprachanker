@@ -1,19 +1,30 @@
 // A source exercise → one of our types (02). Mechanics, by the answer fields of the page:
 //   gaps in English sentences (inputs)      → gap_text   (answers: the key's bold part; "/" = variants)
-//   gaps as drop-down lists (selects)       → gap_choice (dropdown)
+//   gaps as drop-down lists (selects)       → gap_choice (dropdown; check boxes for commas: "," / "–")
 //   Russian sentence + answer field         → respond    (reference: the key's English sentence)
 //   English sentence to transform/question  → respond    (prompt in canonical, reference from the key)
+//   English sentence to translate           → respond    (answerIn "learner", model in the locale)
 //   Question/Answer rows                    → respond    (reference: the answers shown)
-//   text answer field with a whole-text key → respond    (one item; stimulus audio if any)
+//   grid of words with answer fields        → respond    (one item per row, its key line in order)
+//   text answer field with a key            → respond    (one item, or one per word with its own answer)
 //   players / reading or speaking tasks     → speech_selfrate
-// Translations into Russian, check boxes, word grids and tasks without a key → unknown + report.
+// Tasks with no answers at all → Homework (a reference tab); anything else unmappable → unknown.
 import type { ExerciseDraft } from "@sprachanker/course-kit";
 import { plainText } from "@sprachanker/course-kit";
 import { type ExerciseKey, itemKey, type LocaleItem, type MediaPath } from "@sprachanker/schema";
 import type { KeyEntry, Line, Seg, Snippet, SourceExercise, Unit } from "./parse.ts";
-import { hasCyrillic, isRussian, latinLetters, withoutIpa, withoutRussianRemarks } from "./text.ts";
+import {
+  flatText,
+  hasCyrillic,
+  isRussian,
+  latinLetters,
+  withoutIpa,
+  withoutRussianRemarks,
+} from "./text.ts";
 
 export class Unmapped extends Error {}
+/** A task without answers to check ("write a letter"): the lesson's homework, not an exercise. */
+export class Homework extends Error {}
 
 export interface Mapped {
   draft: Omit<ExerciseDraft, "key" | "newWords" | "ruleIds">;
@@ -32,14 +43,16 @@ const para = (text: string) => `<p>${escapeHtml(text)}</p>`;
 export function variants(answer: string): string[] {
   const out = new Set<string>();
   for (const v of answer.split("/").map((s) => s.trim())) {
-    if (!v) continue;
+    // "–": nothing belongs there (no article).
+    if (/^[-–—]$/.test(v)) out.add("");
+    if (!v || /^[-–—]$/.test(v)) continue;
     out.add(v);
     if (/\(.*\)/.test(v)) {
       out.add(v.replace(/\s*\([^)]*\)\s*/g, " ").trim());
       out.add(v.replace(/[()]/g, "").trim());
     }
   }
-  return [...out].filter(Boolean);
+  return [...out];
 }
 
 /** "<strong>comes, does, is</strong>: Ник …" → answers per gap and the translation. */
@@ -48,7 +61,8 @@ export function gapKey(entry: KeyEntry, gaps: number): { answers: string[]; tran
   // The answers are in bold, before the colon that starts the translation; remarks between bold
   // parts ("(можно: more happy)") are not answers.
   const bold =
-    /^[\s\S]*?(?:<\/strong>\s*:|:\s*<\/strong>)/.exec(first) ?? /^[\s\S]*<\/strong>/.exec(first);
+    /^[\s\S]*?(?:<\/strong>\s*(?:\([+\-–]\)\s*)?:|:\s*<\/strong>)/.exec(first) ??
+    /^[\s\S]*<\/strong>/.exec(first);
   if (!bold) throw new Unmapped("key entry without the bold answers");
   const whole = [...bold[0].matchAll(/<strong>([\s\S]*?)<\/strong>/g)]
     .map((m) =>
@@ -159,7 +173,6 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
     return { draft: { ...draft, items } as Mapped["draft"], items: locale, skipped };
   };
 
-  if (units.some((u) => u.checkbox)) throw new Unmapped("check boxes (commas) next to the gaps");
   if (units.length) {
     const withGaps = units.filter((u) => gapsOf(u).length);
     if (withGaps.length && withGaps.length !== units.length)
@@ -174,30 +187,38 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
         try {
           if (!u.key) throw new Unmapped("no key entry");
           const gaps = gapsOf(u);
-          const { answers, translation } = gapKey(u.key, gaps.length);
+          const commas = gaps.filter((g) => "comma" in g).length;
+          const { answers, translation } = gapKey(u.key, gaps.length - commas);
+          // "(+)": the clause is set off by commas, "(-)": it is not.
+          const sign = /\((\+|-|–)\)/.exec(u.key[0] ?? "")?.[1];
+          if (commas && !sign) throw new Unmapped("no comma mark in the key");
           const hint = hasCyrillic(translation) ? { hintHtml: para(translation) } : {};
           const segs = segments(u);
           if (selects) {
             const gapDefs: Record<string, { options: Array<{ id: string; text: string }> }> = {};
-            const answer: Record<string, string> = {};
+            const answer: Record<string, string | string[]> = {};
+            let a = 0;
             gaps.forEach((g, i) => {
-              const opts = [...(g as { options: string[] }).options, ...(none ? ["–"] : [])];
+              const comma = "comma" in g;
+              const opts = comma
+                ? (g as { options: string[] }).options
+                : [...(g as { options: string[] }).options, ...(none ? ["–"] : [])];
               const options = opts.map((text, j) => ({ id: String.fromCharCode(97 + j), text }));
-              const right = options.filter((o) =>
-                variants(answers[i] ?? "").some((v) => v.toLowerCase() === o.text.toLowerCase()),
-              );
-              if (right.length !== 1)
-                throw new Unmapped(`drop-down answer "${answers[i]}" is not one of its options`);
+              const want = comma ? (sign === "+" ? "," : "–") : (answers[a++] ?? "");
+              const accepted = comma ? [want] : variants(want).map((v) => v || "–");
+              const right = options
+                .filter((o) => accepted.some((v) => v.toLowerCase() === o.text.toLowerCase()))
+                .map((o) => o.id);
+              if (!right.length)
+                throw new Unmapped(`drop-down answer "${want}" is not one of its options`);
               gapDefs[`g${i + 1}`] = { options };
-              answer[`g${i + 1}`] = (right[0] as { id: string }).id;
+              answer[`g${i + 1}`] = right.length === 1 ? (right[0] as string) : right;
             });
             add({ segments: segs, gaps: gapDefs, display: "dropdown", answer }, hint);
           } else {
             const answer = Object.fromEntries(
               answers.map((a, i) => [`g${i + 1}`, { accepted: variants(a) }]),
             );
-            if (Object.values(answer).some((a) => !a.accepted.length))
-              throw new Unmapped("empty answer in the key");
             add({ segments: segs, answer }, hint);
           }
         } catch (error) {
@@ -208,7 +229,6 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
       return done(selects ? { type: "gap_choice" } : { type: "gap_text" });
     }
     // Answer fields only: translate or rewrite the sentence (or the hint's sentence).
-    let russianKeys = 0;
     for (const u of units) {
       const text = segText(u.segs) || u.hint || "";
       if (!u.key) {
@@ -216,25 +236,20 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
         continue;
       }
       const { reference, russian } = englishKey(u.key);
-      if (!reference) {
-        russianKeys++;
-        skipped.push(`item ${u.n}: the model answer is Russian`);
-        continue;
-      }
       const loc: LocaleItem = {};
-      const item: Record<string, unknown> = { input: "text", reference: [reference] };
+      // A translation into Russian: the model answer is in the learner's language.
+      const item: Record<string, unknown> = reference
+        ? { input: "text", reference: [reference] }
+        : { input: "text", reference: [], answerIn: "learner" };
+      if (!reference) loc.reference = [plainText(u.key.join(" "))];
       if (isRussian(text)) loc.prompt = text;
       else if (text) {
         item.prompt = withoutIpa(withoutRussianRemarks(text));
         if (u.intro) loc.prompt = u.intro;
       }
-      if (russian.length && !isRussian(text)) loc.hintHtml = para(russian.join(" "));
+      if (reference && russian.length && !isRussian(text)) loc.hintHtml = para(russian.join(" "));
       add(item, loc);
     }
-    if (!items.length && russianKeys)
-      throw new Unmapped(
-        "translation into Russian: the model answers are in the learner's language",
-      );
     return done({ type: "respond" });
   }
 
@@ -246,27 +261,76 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
     return done({ type: "respond", ...(audio ? { media: { audio } } : {}) });
   }
 
-  if (ex.gridFields) throw new Unmapped("a grid of words with answer fields");
+  if (ex.grid.length) {
+    if (!ex.keyLines.length) throw new Homework("a grid of words without a key");
+    // A word with a field per part of speech ("name n" / "v") is one row of the key.
+    const grid =
+      ex.grid.length === ex.keyLines.length
+        ? ex.grid
+        : ex.grid.reduce<Array<{ prompt: string; fields: number }>>((rows, row) => {
+            const last = rows.at(-1);
+            if (last && /^(n|v|a|adj|adv)$/.test(row.prompt)) {
+              last.prompt += ` / ${row.prompt}`;
+              last.fields += row.fields;
+            } else rows.push({ ...row });
+            return rows;
+          }, []);
+    if (ex.keyLines.length !== grid.length)
+      throw new Unmapped(`a grid of ${ex.grid.length} rows with ${ex.keyLines.length} key lines`);
+    grid.forEach((row, i) => {
+      const line = ex.keyLines[i] ?? "";
+      const prompt = row.prompt.replace(/\s+/g, " ");
+      const head = /^\s*<strong>([^<]*)<\/strong>/.exec(line);
+      const text = flatText(line);
+      const cut = text.search(/[А-Яа-яЁё]/);
+      const en = withoutIpa(cut < 0 ? text : text.slice(0, cut))
+        .replace(/\s*\d\)\s*$/, "")
+        .replace(/[\s,;:–(-]+$/, "");
+      // Only meanings (or the word itself in bold, then its meanings): write them in Russian.
+      if (!latinLetters(en) || (head && prompt.startsWith(plainText(head[1])))) {
+        const meaning = plainText(head ? line.slice(head[0].length) : line).replace(/,\s*$/, "");
+        add(
+          { prompt, input: "text", reference: [], answerIn: "learner" },
+          { reference: [meaning] },
+        );
+        return;
+      }
+      const ru = cut < 0 ? "" : text.slice(cut).replace(/[\s,;]+$/, "");
+      add({ prompt, input: "text", reference: [en] }, ru ? { hintHtml: para(ru) } : {});
+    });
+    return done({ type: "respond" });
+  }
 
   if (ex.textarea) {
+    const audio = media(ex.players[0]?.audio);
+    const stimulus = audio ? { media: { audio } } : {};
     const key = ex.freeKey.map((l) => plainText(l)).join(" ");
-    if (!key) throw new Unmapped("open answer without a model answer");
-    // Years or times written in figures ("1856, 200 н.э.") are not a translation.
-    if (isRussian(key) && latinLetters(key) + (key.match(/\d/g)?.length ?? 0) < key.length / 4)
-      throw new Unmapped("translation into Russian: the model answer is in the learner's language");
+    if (!key && ex.inline.length) {
+      // Each word of the task carries its answer ("1856" → "eighteen fifty-six").
+      for (const { prompt, answers } of ex.inline)
+        if (prompt && answers.length) add({ prompt, input: "text", reference: answers }, {});
+      return done({ type: "respond", ...stimulus });
+    }
+    if (!key) throw new Homework("open answer without a model answer");
     const texts = ex.paragraphs.map((p) => plainText(p)).filter(Boolean);
     const english = texts.filter((t) => !isRussian(t));
     const russian = texts.filter(isRussian);
-    const audio = media(ex.players[0]?.audio);
+    // Years or times written in figures ("1856, 200 н.э.") are not a translation.
+    const learner =
+      isRussian(key) && latinLetters(key) + (key.match(/\d/g)?.length ?? 0) < key.length / 4;
     add(
       {
         input: "text",
-        reference: [withoutRussianRemarks(key)],
+        reference: learner ? [] : [withoutRussianRemarks(key)],
+        ...(learner ? { answerIn: "learner" } : {}),
         ...(english.length ? { prompt: english.join("\n") } : {}),
       },
-      russian.length ? { prompt: russian.join("\n") } : {},
+      {
+        ...(russian.length ? { prompt: russian.join("\n") } : {}),
+        ...(learner ? { reference: [key] } : {}),
+      },
     );
-    return done({ type: "respond", ...(audio ? { media: { audio } } : {}) });
+    return done({ type: "respond", ...stimulus });
   }
 
   const speech = speechItems(key, ex.players, media);
@@ -283,5 +347,5 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
     add(text ? { text } : {}, {});
     return done({ type: "speech_selfrate" });
   }
-  throw new Unmapped("task without answer fields");
+  throw new Homework("task without answer fields");
 }

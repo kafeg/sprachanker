@@ -233,7 +233,7 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
     },
   ];
   const { files, lessons, unknown } = normaliseLingust(units, index);
-  expect([lessons, unknown]).toEqual([2, 1]);
+  expect([lessons, unknown]).toEqual([2, 0]);
   for (const f of files) expect(f.schema.safeParse(f.value).error).toBeUndefined();
   const get = (path: string) => files.find((f) => f.path === path)?.value;
   // Branded key types compared with plain strings.
@@ -253,13 +253,22 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
     "speech_selfrate", // examples of the "Грамматика" section
     "gap_text",
     "respond",
-    "unknown", // translation into Russian
+    "respond", // translation into Russian
     "gap_choice",
     "speech_selfrate", // retell aloud
     "respond", // years from the recording
     "speech_selfrate", // the closing phrase
   ]);
-  const [examples, gaps, translate, , choice, , years] = lesson.pages.map((p) => p.exercise);
+  const [examples, gaps, translate, intoRussian, choice, , years] = lesson.pages.map(
+    (p) => p.exercise,
+  );
+  expect(plain(intoRussian?.items[0])).toEqual({
+    key: "lingust.english/english/01-01/ex-04#1",
+    input: "text",
+    prompt: "I run.",
+    reference: [],
+    answerIn: "learner",
+  });
   expect(examples?.items.map((i) => ("text" in i ? i.text : undefined))).toEqual([
     "I run fast.\nWe run home.",
     "Monday\nFriday",
@@ -310,6 +319,10 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   ).toEqual({
     hintHtml: "<p>Она бегает быстро и опаздывает.</p>",
   });
+  expect(
+    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-04"]
+      ?.items["#1"],
+  ).toEqual({ reference: ["Я бегаю."] });
 
   const verbs = get("canonical/english/lessons/02-01.json") as Lesson;
   expect(verbs.vocab.map((v) => [v.target, v.forms, v.note])).toEqual([
@@ -335,5 +348,59 @@ test("a recording without its own lines gets none, not an example further down",
     ["abc.mp3", 0],
     ["car1.mp3", 0],
     ["car2.mp3", 0],
+  ]);
+});
+
+test("comma check boxes, several right options, no-article gaps, word grids, homework", () => {
+  const html = page(`
+<p><strong>Упражнение 1</strong>. Вставьте артикль.</p>
+<ol><li>I like <input name="w" type="text"> tea. <input class="form-control" type="text"></li></ol>
+<p class="tar"><span data-tooltips data-tooltips-content="1. <strong>–</strong>: Я люблю чай." data-tooltips-title="Упражнение 1"><img class="key" src="/images/key.png"></span></p>
+<p><strong>Упражнение 2</strong>. Выберите слово и отметьте запятые.</p>
+<form><ol><li>The cat<input type="checkbox"> <select><option></option><option>that</option><option>who</option><option>which</option></select> sleeps<input type="checkbox"> is mine. <input class="form-control" type="text"></li></ol></form>
+<p class="tar"><span data-tooltips data-tooltips-content="1. <strong>that/which</strong> (-): Кошка, которая спит, моя." data-tooltips-title="Упражнение 2"><img class="key" src="/images/key.png"></span></p>
+<p><strong>Упражнение 3</strong>. Образуйте существительные и переведите.</p>
+<div class="row"><div class="col-4"> sing </div><div class="col-4"><input class="form-control" type="text"></div><div class="col-4"><input class="form-control" type="text"></div></div>
+<div class="row"><div class="col-4"> unsure </div><div class="col-4"><input class="form-control" type="text"></div></div>
+<p class="tar"><span data-tooltips data-tooltips-content="singer – певец<br> неуверенный" data-tooltips-title="Упражнение 3"><img class="key" src="/images/key.png"></span></p>
+<p><strong>Упражнение 4</strong>. Напишите письмо другу.</p>
+<p><textarea class="form-control"></textarea></p>
+`);
+  const units: UnitSource[] = [
+    {
+      title: "Этап",
+      lessons: [
+        {
+          kind: "lesson",
+          info: { slug: "lesson3", title: "Пробный", desc: "", level: "A1" },
+          page: parseLesson(html, BASE),
+        },
+      ],
+    },
+  ];
+  const { files, unknown } = normaliseLingust(units, {});
+  expect(unknown).toBe(0);
+  for (const f of files) expect(f.schema.safeParse(f.value).error).toBeUndefined();
+  const lesson = files.find((f) => f.path === "canonical/english/lessons/01-01.json")
+    ?.value as Lesson;
+  const [article, commas, grid] = lesson.pages.map((p) => JSON.parse(JSON.stringify(p.exercise)));
+  expect(lesson.pages).toHaveLength(3);
+  expect(article.items[0].answer).toEqual({ g1: { accepted: [""] } });
+  expect(commas.type).toBe("gap_choice");
+  expect(commas.items[0].answer).toEqual({ g1: "b", g2: ["a", "c"], g3: "b" });
+  expect(commas.items[0].gaps.g1.options).toEqual([
+    { id: "a", text: "," },
+    { id: "b", text: "–" },
+  ]);
+  expect(
+    grid.items.map((i: Record<string, unknown>) => [i.prompt, i.reference, i.answerIn]),
+  ).toEqual([
+    ["sing", ["singer"], undefined],
+    ["unsure", [], "learner"],
+  ]);
+  const locale = files.find((f) => f.path === "locale/ru-en/english/lessons/01-01.json")
+    ?.value as LocaleLesson;
+  expect(locale.tabs.homework?.map((t) => [t.title, t.bodyHtml])).toEqual([
+    ["Упражнение 4", "<p>Напишите письмо другу.</p>"],
   ]);
 });

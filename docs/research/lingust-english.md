@@ -27,5 +27,5 @@ Facts observed on `lingust.ru` (October 2026); the importer is `courses/lingust-
 
 ## Counts (import of October 2026)
 
-4 units, 53 lessons, 176 grammar pages, 2416 words; exercises: speech_selfrate 134, respond 78, gap_text 16,
-gap_choice 3, unknown 30; 215 MP3s (53 MB).
+4 units, 53 lessons, 176 grammar pages, 2416 words; exercises: speech_selfrate 134, gap_text 16,
+gap_choice 4, respond 105, no unknown; 215 MP3s (53 MB).

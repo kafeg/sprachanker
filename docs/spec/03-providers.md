@@ -106,8 +106,10 @@ Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russi
   text before «Словарь» → grammar pages; each section's example recordings with their lines →
   `speech_selfrate`; the first full-width recording → `media.audio`; «Словарь» → vocab (IPA in `note`);
   exercises with the tooltip answer keys → `gap_text` / `gap_choice` / `respond` (model answers as
-  `reference`); retell/read-aloud → `speech_selfrate`; translations into Russian, word grids, check boxes →
-  `unknown` (they need a learner-language reference or multi-answer gaps).
+  `reference`, `answerIn: "learner"` with locale model answers for translations into Russian; "no
+  article" gaps accept ""; comma check boxes → `gap_choice`, several right options where the key allows);
+  word grids → one `respond` per row; retell/read-aloud → `speech_selfrate`; tasks without answers →
+  `tabs.homework`.
 
 ## 5. VOA «Так говорят в Америке» (`voa-english-usa` → `voa.english-usa`, edition `ru-en`)
 

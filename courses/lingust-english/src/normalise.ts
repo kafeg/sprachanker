@@ -29,7 +29,7 @@ import {
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, PUBLISHER, SERIES_NAME, TITLE } from "./catalog.ts";
 import { type El, parseHtml } from "./dom.ts";
-import { mapExercise, speechExercise, Unmapped } from "./exercise.ts";
+import { Homework, mapExercise, speechExercise, Unmapped } from "./exercise.ts";
 import type { IndexLesson, LessonPage, VerbRow, VocabRow } from "./parse.ts";
 import { renderSection } from "./render.ts";
 import { ipaOf, withoutIpa } from "./text.ts";
@@ -126,6 +126,7 @@ function buildLesson(
   const nextKey = () => exerciseKey(key, pages.length + 1);
 
   let grammar: LocaleLesson["tabs"]["grammar"] = [];
+  const homework: LocaleLesson["tabs"]["grammar"] = [];
   let vocab: VocabEntry[] = [];
   let translations: LocaleLesson["vocab"] = {};
   let audio: string | undefined;
@@ -180,6 +181,14 @@ function buildLesson(
         for (const s of mapped.skipped)
           unmapped.push({ path: raw, reason: `${k} (${ex.label}) ${s}` });
       } catch (error) {
+        if (error instanceof Homework) {
+          // Nothing to check: the task stays readable as the lesson's homework.
+          const bodyHtml = renderSection(
+            [ex.instructionHtml, ...ex.paragraphs].map((html) => paragraph(html)),
+          );
+          homework.push({ sourceId: loc.sourceId, title: ex.label, bodyHtml });
+          continue;
+        }
         if (!(error instanceof Unmapped)) throw error;
         unknown++;
         push(
@@ -220,7 +229,7 @@ function buildLesson(
       ...(synopsisHtml ? { synopsisHtml } : {}),
       exercises,
       vocab: translations,
-      tabs: { grammar, culture: [] },
+      tabs: { grammar, culture: [], ...(homework.length ? { homework } : {}) },
       downloads: [],
     },
     unknown,
