@@ -19,14 +19,17 @@ run, a demo, and a review. The next stage starts only after acceptance.
 
 ## MVP boundary
 
-**MVP = stages 0–9b**: Nicos Weg **A1 `ru-de`**, Leben in Deutschland, lesson player, Notebook, cards,
-speech checks, LLM via external providers, our A1 enrichment — running as `sprachanker serve` with
-browser/PWA access. Formats keep multiple editions, other sources and the desktop shell possible, but
-they are built after the MVP (stages 10–12). Do not build post-MVP features early.
+**MVP = what two people need for a week of real study**: courses installed from the interface, the
+lesson player, cards and review, two profiles on Mac and phones, speech checks, Leben in Deutschland,
+LLM via external providers — running as `sprachanker serve` with browser/PWA access. Our enrichment
+(9a) moved after the MVP (2026-10-06): what to enrich is decided by that week of use. The desktop shell
+and decks stay after the MVP (10, 12). Do not build post-MVP features early.
 
-Exceptions made at the owner's request: imports beyond Nicos Weg A1 `ru-de` (A2, the `en-de`
-editions, B1, Deutschtrainer, Deutsch im Blick vocabulary) and the LLM practice features (stage 8)
-were built early, before stages 3–7 were finished.
+Built early at the owner's request: courses beyond Nicos Weg A1 `ru-de` (stage 11: eleven courses in
+three language pairs) and the LLM features (stage 8).
+
+**Order of the remaining MVP work** (agreed 2026-10-06): 5c courses from the interface → 6 cards,
+review, Notebook → profiles (rest of 4) → 7 speech → 9b exams → MVP acceptance.
 
 ## Stages
 
@@ -82,8 +85,8 @@ Specs: 05, 06.
   CSRF header and PIN rate limit covered by tests.
 - **Status: partial.** Built: data root, `profile.sqlite` with migrations, backups and downgrade
   protection, runs/events with server-side outcomes, lesson and run API, media with Range, CSRF
-  header, sealed API keys. Missing: `server.sqlite`, profiles/PIN/devices, owner setup link, jobs with
-  SSE, Host check.
+  header, sealed API keys, course sync as a background job (polled), resetting the progress of a course
+  or lesson. Missing: `server.sqlite`, profiles/PIN/devices, owner setup link, Host check.
 
 ### 5 — Lesson UI
 Specs: 09, 06.
@@ -96,9 +99,29 @@ Specs: 09, 06.
 - **Accept**: Playwright "complete lesson 1" (desktop and phone viewport); the owner completes three
   lessons on Mac and iPhone, including a resume on the other device.
 - **Status: partial.** Built: course list, course map, lesson player with the closed renderers, video
-  and audio player, reference tabs, summary, resume, edition per course, i18n en/ru/de, light/dark;
-  Playwright lesson test on desktop and phone. Missing: first run via the owner setup link, course
-  install from the UI, profiles in the PWA, word sheet, PWA manifest.
+  and audio player, reference tabs, summary, resume, i18n en/ru/de, light/dark, PWA manifest and icons;
+  My courses / All courses with language flags, course page (stats, integrity, sync, reset), exercise
+  marks and lesson completion rules; Playwright tests on desktop and phone. Missing: first run via the
+  owner setup link, profiles in the PWA, word sheet; installing courses moved to 5c.
+
+### 5c — Courses from the interface
+Specs: 03, 06, 09.
+Scenario: someone installs the app, starts it, opens "All courses", presses "Download" and studies
+the first lessons a few minutes later while the media keep coming.
+- Every course a provider offers is listed — installed or not — from the providers' own catalogs
+  (built into the app; nothing is hosted by us: content comes from the source sites to the learner's
+  machine, politely, as in 03), with its language pair, source, licence and approximate size.
+- Course states on cards and the course page: not downloaded (size) · downloading (pages, files,
+  bytes, %) · incomplete (files missing) · ready. "Download" / "Continue downloading" / "Sync".
+- Download as a background job: one at a time in a queue, progress reported by the importers,
+  resumed after a restart (imports are idempotent). The course becomes playable once its pages are
+  normalised (a first normalise without media), then normalised again when the media are in.
+- Settings → Storage: the data folder (chosen at start: `--data`, `SPRACHANKER_DATA`, default
+  app-data) and the space each course takes. Changing the folder is the desktop app's job (12).
+- **Accept**: from an empty data root, Deutsch im Blick is downloaded from the UI, its first lesson
+  opens before the media finish, a server restart mid-download resumes it; e2e against a fake
+  provider; progress and states visible on desktop and phone.
+- **Status: not started.**
 
 ### 6 — Cards, review, Notebook
 Specs: 04, 05, 09.
@@ -126,7 +149,7 @@ Specs: 07.
 - **Status: built** (early, at the owner's request). `check_answer` for `respond`, `translate_mt`,
   per-task routes, handoff and golden tests moved to Later (13).
 
-### 9a — Enrichment and rule-based features
+### 9a — Enrichment and rule-based features (after the MVP)
 Specs: 02, 04, 07.
 - `enrich check`, rules registry content for A1, A1 enrichment chapter by chapter (rule tags,
   contrastive notes, speaking, scenes) authored with Claude Code from the local library; A1 writing and
