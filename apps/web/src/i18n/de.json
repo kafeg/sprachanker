@@ -137,12 +137,13 @@
       "poor": "Nochmal"
     },
     "unknown": "Dieser Übungstyp wird noch nicht unterstützt.",
-    "picture": "Bild {n}",
     "respondPlaceholder": "Deine Antwort…",
     "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}",
     "selfrateListen": "Hör dir die Aufnahme an und sprich nach.",
     "gap": "Lücke {n}",
-    "matchFor": "Zuordnung zu Punkt {n}"
+    "matchFor": "Platz für Paar {n}",
+    "dropHere": "hierher ziehen oder tippen",
+    "chips": "Wörter zum Zuordnen"
   },
   "word": {
     "plural": "Pl. {plural}"

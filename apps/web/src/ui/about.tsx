@@ -36,7 +36,6 @@ export function AboutSection() {
 
 /** The sidebar's last line: version and a link to the source. */
 export function AboutLine() {
-  const { t } = useTranslation();
   const version = useAppInfo().data?.version;
   return (
     <p className="flex items-center gap-2 text-xs text-muted-foreground">

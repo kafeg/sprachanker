@@ -1,72 +1,137 @@
-import { Check, X } from "lucide-react";
+// match: pair the entries of two sides. One side gives slots, the other chips placed into them by drag
+// or tap (dnd.tsx). Pictures make the slots (each picture with a slot under it, the words as chips);
+// otherwise the left entries are rows with a slot and the right ones the chips. Answers are always
+// pairs [left, right].
+import type { Option } from "@sprachanker/schema";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { OptionContent, PickSelect, useShuffled } from "./shared.tsx";
+import { Chip, DragBoard, Slot } from "./dnd.tsx";
+import { useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
+
+const hasImage = (options: Option[]) => options.some((o) => o.media?.image);
 
 export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"match">) {
   const { t } = useTranslation();
-  const right = useShuffled(item.right, item.key);
-  const pictures = right.some((r) => r.media?.image);
-  const label = (id: string) => {
-    const r = right.find((x) => x.id === id);
-    return r?.text ?? t("ex.picture", { n: right.indexOf(r as never) + 1 });
+  const lang = useTargetLang();
+  const [picked, setPicked] = useState<string>();
+  // Pictures on the right become the slots; the words on the left the chips.
+  const flip = hasImage(item.right) && !hasImage(item.left);
+  const shuffledRight = useShuffled(item.right, item.key);
+  const shuffledLeft = useShuffled(item.left, `${item.key}:left`);
+  const slots = flip ? shuffledRight : item.left;
+  const chips = flip ? shuffledLeft : shuffledRight;
+  const toSlot = (pair: [string, string]) => (flip ? [pair[1], pair[0]] : pair) as [string, string];
+  const placed = new Map((answer?.pairs ?? []).map((p) => toSlot(p)));
+  const wanted = new Map(item.answer.pairs.map((p) => toSlot(p)));
+  const used = new Set(placed.values());
+  const textOf = (id: string | undefined) => chips.find((c) => c.id === id)?.text;
+  // Options with the same text are interchangeable (04).
+  const right = (slot: string) => {
+    const a = placed.get(slot);
+    const b = wanted.get(slot);
+    return a === b || (!!textOf(a) && textOf(a) === textOf(b));
   };
-  const chosen = new Map<string, string>(answer?.pairs ?? []);
-  const want = new Map<string, string>(item.answer.pairs);
-  const set = (left: string, value: string) => {
-    const next = new Map(chosen);
-    value ? next.set(left, value) : next.delete(left);
-    onAnswer({ pairs: [...next] });
+
+  const commit = (next: Map<string, string>) =>
+    onAnswer({
+      pairs: [...next].map(([slot, chip]) => (flip ? [chip, slot] : [slot, chip])) as Array<
+        [string, string]
+      >,
+    });
+  const place = (chip: string, slot: string) => {
+    const next = new Map([...placed].filter(([, c]) => c !== chip));
+    next.set(slot, chip);
+    commit(next);
+    setPicked(undefined);
   };
-  const sameText = (a?: string, b?: string) => {
-    const x = item.right.find((r) => r.id === a)?.text;
-    return a === b || (!!x && x === item.right.find((r) => r.id === b)?.text);
+  const tapSlot = (slot: string) => {
+    if (picked) return place(picked, slot);
+    if (!placed.has(slot)) return;
+    const next = new Map(placed);
+    next.delete(slot);
+    commit(next);
   };
+
+  const chipView = (o: Option) =>
+    o.media?.image ? (
+      <img src={url(o.media.image)} alt="" className="h-16 w-auto rounded-lg" />
+    ) : (
+      <span lang={lang}>{o.text}</span>
+    );
+  const slotContent = (slot: string) => {
+    const chip = chips.find((c) => c.id === placed.get(slot));
+    return chip ? chipView(chip) : <span className="text-base">{t("ex.dropHere")}</span>;
+  };
+  const correction = (slot: string) =>
+    outcome && !right(slot) ? (
+      <span lang={lang} className="text-sm text-wrong">
+        → {textOf(wanted.get(slot))}
+      </span>
+    ) : null;
+  const slotProps = (slot: Option, n: number) => ({
+    id: slot.id,
+    label: t("ex.matchFor", { n }),
+    filled: placed.has(slot.id),
+    active: !!picked,
+    mark: outcome ? (right(slot.id) ? ("correct" as const) : ("wrong" as const)) : undefined,
+    disabled: !!outcome,
+    onTap: () => tapSlot(slot.id),
+  });
+
   return (
-    <div className="space-y-3">
-      {pictures && (
-        <div className="flex flex-wrap gap-3">
-          {right.map((r, i) => (
-            <figure key={r.id} className="rounded-xl border bg-card p-2">
-              <OptionContent option={r} url={url} />
-              <figcaption className="mt-1 text-center text-sm text-muted-foreground">
-                {t("ex.picture", { n: i + 1 })}
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      )}
-      {item.left.map((l, i) => {
-        const ok = outcome ? sameText(chosen.get(l.id), want.get(l.id)) : undefined;
-        return (
-          <div key={l.id} className="flex flex-wrap items-center gap-3">
-            <span className="min-w-40 text-lg font-semibold">
-              <OptionContent option={l} url={url} />
-            </span>
-            <span aria-hidden>→</span>
-            <PickSelect
-              value={chosen.get(l.id)}
-              options={right.map((r) => ({ id: r.id, text: label(r.id) }))}
-              placeholder="—"
-              label={t("ex.matchFor", { n: i + 1 })}
-              disabled={!!outcome}
-              onChange={(id) => set(l.id, id)}
-              className={cn(
-                "min-w-40",
-                ok === true && "border-correct",
-                ok === false && "border-wrong",
-              )}
-            />
-            {ok === true && <Check className="size-5 text-correct" aria-hidden />}
-            {ok === false && (
-              <span className="flex items-center gap-1 text-wrong">
-                <X className="size-5" aria-hidden /> {label(want.get(l.id) ?? "")}
-              </span>
-            )}
+    <DragBoard onDrop={place}>
+      <div className="space-y-4">
+        {!outcome && (
+          <fieldset className="flex min-h-11 flex-wrap gap-2">
+            <legend className="sr-only">{t("ex.chips")}</legend>
+            {chips
+              .filter((c) => !used.has(c.id))
+              .map((c) => (
+                <Chip
+                  key={c.id}
+                  id={c.id}
+                  selected={picked === c.id}
+                  onTap={() => setPicked(picked === c.id ? undefined : c.id)}
+                >
+                  {chipView(c)}
+                </Chip>
+              ))}
+          </fieldset>
+        )}
+        {flip ? (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {slots.map((s, i) => (
+              <div key={s.id} className="space-y-1.5">
+                {s.media?.image && (
+                  <img src={url(s.media.image)} alt="" className="w-full rounded-xl object-cover" />
+                )}
+                <Slot {...slotProps(s, i + 1)} className="w-full">
+                  {slotContent(s.id)}
+                </Slot>
+                {correction(s.id)}
+              </div>
+            ))}
           </div>
-        );
-      })}
-    </div>
+        ) : (
+          <div className="space-y-2">
+            {slots.map((s, i) => (
+              <div key={s.id} className="flex flex-wrap items-center gap-3">
+                <span lang={lang} className="min-w-32 text-lg font-semibold">
+                  {chipView(s)}
+                </span>
+                <span aria-hidden>→</span>
+                <Slot {...slotProps(s, i + 1)} className={cn("min-w-40")}>
+                  {slotContent(s.id)}
+                </Slot>
+                {correction(s.id)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </DragBoard>
   );
 }

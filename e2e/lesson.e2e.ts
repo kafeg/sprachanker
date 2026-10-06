@@ -142,3 +142,25 @@ test("resetting a lesson asks first and leaves it not started", async ({ page, r
   await expect(page.getByRole("button", { name: "Start lesson" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Reset lesson progress" })).toBeHidden();
 });
+
+test("matching: words are placed by tapping a word and then a place; Check waits for all", async ({
+  page,
+  request,
+}) => {
+  await freshLessonRun(request);
+  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
+  await page.getByRole("button", { name: "Start lesson" }).click();
+  const plan = page.getByRole("button", { name: "Lesson plan" });
+  if (await plan.isVisible()) await plan.click();
+  await page.getByRole("button", { name: "What is it?" }).click();
+  const check = page.getByRole("button", { name: "Check", exact: true });
+  const slots = page.getByRole("button", { name: /^Match for item/ });
+  await page.getByRole("button", { name: "die Tasse" }).click();
+  await slots.first().click();
+  await expect(slots.first()).toContainText("die Tasse");
+  await expect(check).toBeDisabled();
+  await page.getByRole("button", { name: "der Kuchen" }).click();
+  await slots.nth(1).click();
+  await check.click();
+  await expect(page.getByRole("status").first()).toBeVisible();
+});

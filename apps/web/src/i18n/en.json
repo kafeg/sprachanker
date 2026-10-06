@@ -137,12 +137,13 @@
       "poor": "Again"
     },
     "unknown": "This exercise type is not supported yet.",
-    "picture": "Picture {n}",
     "respondPlaceholder": "Your answer…",
     "reference": "{count, plural, one {Model answer} other {Model answers}}",
     "selfrateListen": "Listen to the recording and repeat after the speaker.",
     "gap": "Gap {n}",
-    "matchFor": "Match for item {n}"
+    "matchFor": "Match for item {n}",
+    "dropHere": "drop or tap here",
+    "chips": "Words to place"
   },
   "word": {
     "plural": "pl. {plural}"
