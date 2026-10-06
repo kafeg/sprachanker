@@ -1,6 +1,6 @@
 // The lesson tutor: one current chat per lesson, stored as a `chat` run with `llm_turn` events (05, 07).
 // A new chat ends the current one, which stays readable in the lesson's chat history until deleted.
-import { mistakesOf } from "@sprachanker/engine";
+import { exerciseResults, mistakesOf } from "@sprachanker/engine";
 import { type ChatTurnInput, chatTurn, chatTurnRequest, estimateTokens } from "@sprachanker/llm";
 import {
   findExercise,
@@ -86,10 +86,12 @@ export function createTutor(deps: {
     const ctx = await deps.lessons.get(series, lessonKey, edition);
     const session = await deps.session(lessonKey);
     const here = session ? mistakesOf([{ events: session.events }]) : [];
+    const results = exerciseResults(session?.events ?? []);
     const others = deps.mistakes.list().filter((m) => m.lessonKey !== lessonKey);
     return {
       lesson: ctx.lesson,
       locale: ctx.locale,
+      results,
       input: {
         target: ctx.target,
         lesson: ctx.info,
@@ -105,7 +107,7 @@ export function createTutor(deps: {
 
   /** What chat_turn gets for a message: the lesson context, the exercise on screen, the history. */
   async function turnInput(request: TutorRequest, history: LlmTurnPayload[]) {
-    const { lesson, locale, input } = await context(
+    const { lesson, locale, results, input } = await context(
       request.series,
       request.lessonKey,
       request.edition,
@@ -122,6 +124,11 @@ export function createTutor(deps: {
           exercise,
           locale: locale?.exercises[exercise.key],
           label: label(exercise.key) || exercise.key,
+          // What the learner has answered there so far (checked answers of the run the lesson shows).
+          answers: exercise.items.map((item) => {
+            const last = results[exercise.key]?.last[item.key];
+            return last?.outcome && { answer: last.answer, result: last.outcome.result };
+          }),
         },
         // The learner's turns say which exercise was on screen (none: not on an exercise).
         history: history.map((t) =>

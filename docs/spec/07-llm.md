@@ -43,7 +43,7 @@ All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
 
 | Task | Input | Output |
 |---|---|---|
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages | short explanation in the native language (streamed text) |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the native language (streamed text) |
 | `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
 | `review_session` | the lesson; the run the lesson shows: every exercise with its state (right, with mistakes, done unscored, skipped, not started), first attempts right of scored, its mistakes | JSON: summary, strengths[], topics[] (topic, explanation, examples), next[] |
@@ -97,8 +97,8 @@ started and praises only what the results show; the scene card on the summary �
   call leaves no unanswered turn. "New chat" ends the current one; ended chats stay in the lesson's chat
   history (each with its time, first message and the exercises it was about) until the learner deletes
   one. Context: the lesson (title, goals, words with translations, grammar pages), headwords and titles
-  of earlier lessons, the exercise on screen (named, its instruction once, items with answers — the
-  tutor gives hints first), the learner's mistakes (this lesson's: those of the run the lesson shows;
+  of earlier lessons, the exercise on screen (named, its instruction once, items with answers and the
+  learner's checked answers — the tutor gives hints first), the learner's mistakes (this lesson's: those of the run the lesson shows;
   then the latest of earlier lessons; each named by exercise and item, fixed ones marked), the most
   recent turns within a character budget sized for small local models. Each learner turn records the
   exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·

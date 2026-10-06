@@ -25,8 +25,16 @@ export interface ChatTurnInput {
   knownVocab: string[];
   /** Titles of earlier lessons, oldest first. */
   earlierLessons: string[];
-  /** The exercise on screen, if the learner is on one; `label` names it ("Exercise 3 · Title"). */
-  exercise?: { exercise: Exercise; locale?: LocaleExercise; label: string };
+  /**
+   * The exercise on screen, if the learner is on one; `label` names it ("Exercise 3 · Title");
+   * `answers` by item index: the learner's latest checked answer and its result.
+   */
+  exercise?: {
+    exercise: Exercise;
+    locale?: LocaleExercise;
+    label: string;
+    answers?: Array<{ answer: unknown; result: string } | undefined>;
+  };
   /** The learner's mistakes, newest first: in this lesson and in earlier ones. */
   mistakes?: { lesson: TutorMistake[]; earlier: TutorMistake[] };
   /** Earlier turns; the learner's say which exercise was on screen (`null`: none). */
@@ -90,8 +98,15 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
         [
           [shown.label, ...exerciseHeader(shown.exercise, shown.locale)].join("\n"),
           ...shown.exercise.items.map((_, i) => {
-            const d = describeItem(shown.exercise, shown.locale, i, undefined, { header: false });
-            return `Item ${i + 1}:\n${d.task}\nAnswer: ${d.correct}`;
+            const given = shown.answers?.[i];
+            const d = describeItem(shown.exercise, shown.locale, i, given?.answer, {
+              header: false,
+            });
+            const learner =
+              given && `Learner's answer: ${d.learner ?? "(no answer)"} (${given.result})`;
+            return [`Item ${i + 1}:`, d.task, `Answer: ${d.correct}`, learner]
+              .filter(Boolean)
+              .join("\n");
           }),
         ].join("\n\n"),
         B.exercise,

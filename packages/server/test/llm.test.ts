@@ -211,6 +211,21 @@ describe("explain a mistake", () => {
     expect(kept.explanations).toEqual([]);
   });
 
+  test("an item about a recording is explained with the lesson's transcript", async () => {
+    const { send, sendJson } = await setup({ fetch: provider().fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
+    const user = async (exerciseKey: string, answer: unknown) =>
+      (
+        await sendJson("POST", "/api/llm/explain/prompt", {
+          ...EXPLAIN,
+          exerciseKey,
+          answer,
+        })
+      ).body.messages[1].content as string;
+    expect(await user(`${EXPLAIN.lessonKey}/ex-01`, { optionId: "b" })).toContain("<transcript>");
+    expect(await user(EXPLAIN.exerciseKey, EXPLAIN.answer)).not.toContain("<transcript>");
+  });
+
   test("an unknown exercise item is refused", async () => {
     const { send } = await setup({ fetch: provider().fetch });
     await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
@@ -378,6 +393,16 @@ describe("lesson tutor", () => {
       (await sendJson("POST", "/api/llm/tutor/prompt", { ...TUTOR, lessonKey, message: "?" })).body
         .messages[0].content as string;
     expect(await system()).toContain("In this lesson:\n- [Herr или Frau? · item 1]");
+    // On that exercise the tutor sees the learner's checked answer.
+    const onScreen = (
+      await sendJson("POST", "/api/llm/tutor/prompt", {
+        ...TUTOR,
+        lessonKey,
+        exerciseKey: `${lessonKey}/ex-06`,
+        message: "?",
+      })
+    ).body.messages[0].content as string;
+    expect(onScreen).toContain("Learner's answer: Guten Tag, [Herr] Weber. (wrong)");
     await start(true);
     expect(await system()).not.toContain("Learner's mistakes");
   });

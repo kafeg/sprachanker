@@ -313,12 +313,14 @@
       "knownVocab": "words of earlier lessons (the most recent first)",
       "earlierLessons": "titles of earlier lessons",
       "grammar": "the lesson's grammar notes",
-      "exercise": "the exercise on screen with its answers (the tutor gives hints first)",
-      "history": "the latest messages of the conversation",
-      "mistakes": "your mistakes: in this lesson, then the latest of earlier lessons (fixed ones marked)",
+      "exercise": "the exercise on screen with its answers and your checked answers (the tutor gives hints first)",
+      "history": "the latest messages of the conversation, each of yours marked with the exercise you wrote it on",
+      "mistakes": "your mistakes: in this lesson those of the current run, then the latest of earlier lessons (fixed ones marked)",
       "tools": "on request (tools): your progress, mistakes in any lesson, where a word is taught, what a lesson covers",
       "text": "your text",
-      "sessionMistakes": "your mistakes in this session and the exercises done without one"
+      "sessionMistakes": "your mistakes in this run, each with its exercise",
+      "script": "the lesson's transcript, when the item is about its audio or video",
+      "exercises": "every exercise of the lesson with its state in this run (right, with mistakes, skipped, not started)"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",

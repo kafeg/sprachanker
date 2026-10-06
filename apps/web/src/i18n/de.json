@@ -313,12 +313,14 @@
       "knownVocab": "Wörter früherer Lektionen (die neuesten zuerst)",
       "earlierLessons": "Titel früherer Lektionen",
       "grammar": "die Grammatiknotizen der Lektion",
-      "exercise": "die Übung auf dem Bildschirm mit Lösungen (der Tutor gibt zuerst Tipps)",
-      "history": "die letzten Nachrichten des Gesprächs",
-      "mistakes": "deine Fehler: in dieser Lektion, dann die letzten aus früheren Lektionen (korrigierte markiert)",
+      "exercise": "die Übung auf dem Bildschirm mit Lösungen und deinen geprüften Antworten (der Tutor gibt zuerst Tipps)",
+      "history": "die letzten Nachrichten des Gesprächs; deine mit der Übung markiert, auf der du sie geschrieben hast",
+      "mistakes": "deine Fehler: in dieser Lektion die des aktuellen Durchgangs, dann die letzten aus früheren Lektionen (korrigierte markiert)",
       "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt",
       "text": "dein Text",
-      "sessionMistakes": "deine Fehler in dieser Sitzung und die Übungen ohne Fehler"
+      "sessionMistakes": "deine Fehler in diesem Durchgang, jeweils mit ihrer Übung",
+      "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft",
+      "exercises": "alle Übungen der Lektion mit ihrem Stand in diesem Durchgang (richtig, mit Fehlern, übersprungen, nicht begonnen)"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",

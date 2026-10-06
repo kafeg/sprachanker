@@ -58,6 +58,10 @@ export function createExplain(deps: {
     const item = exercise?.items[request.index];
     if (!exercise || !item) throw new LlmSetupError("no_such_item");
     const target = parseEditionId(request.edition).target;
+    // Understanding of a recording is explained from its transcript, not guessed.
+    const recording = [exercise.media, item.media].some(
+      (m) => !!m?.audio || !!(m && "video" in m && m.video),
+    );
     return {
       itemKey: item.key,
       input: {
@@ -66,6 +70,7 @@ export function createExplain(deps: {
         index: request.index,
         answer: request.answer,
         grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
+        scriptHtml: recording ? locale?.tabs.script?.bodyHtml : undefined,
         language: request.language,
         target,
         rules: llm.rulesFor("explain", request.language, target),

@@ -12,7 +12,7 @@ import { useDebugPrompts } from "./prompt-view.tsx";
 
 /** What each task adds from the lesson, in prompt order; a part with a budget shows its limit. */
 const PARTS = {
-  explain: ["item", "notes"],
+  explain: ["item", "script", "notes"],
   tutor: [
     "lesson",
     "earlierLessons",
@@ -25,7 +25,7 @@ const PARTS = {
     "tools",
   ],
   writing: ["lesson", "lessonVocab", "grammar", "text"],
-  review: ["lesson", "sessionMistakes", "lessonVocab", "grammar"],
+  review: ["lesson", "exercises", "sessionMistakes", "lessonVocab", "grammar"],
   scene: ["lesson", "lessonVocab", "knownVocab", "history"],
 } as const;
 
