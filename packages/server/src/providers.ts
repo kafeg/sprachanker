@@ -2,7 +2,7 @@
 // download job (06). Downloads are marked on disk (`<series>/.downloads/<course>.json`) while they run,
 // and kept marked when media failed, so the state survives a restart: an interrupted download resumes.
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rm, stat, statfs, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { SERIES as DIB, OFFERS as DIB_OFFERS, importDib } from "@sprachanker/coerll-dib";
 import {
@@ -126,9 +126,8 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
       if (!provider) throw new Error(`no provider writes ${series}`);
       const marker = markerFile(series, course);
       await mkdir(join(library, series, ".downloads"), { recursive: true });
-      await writeFile(marker, JSON.stringify({ startedAt: now() } satisfies Marker));
       const startedAt = now();
-      const mark = (m: Marker) => writeFile(marker, JSON.stringify(m));
+      const mark = (m: Marker) => writeFile(marker, JSON.stringify(m satisfies Marker));
       await mark({ startedAt });
       let report: ImportReport;
       try {
@@ -169,7 +168,8 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
       const series: Array<{ series: string; bytes: number }> = [];
       for (const name of existsSync(library) ? await readdir(library) : [])
         series.push({ series: name, bytes: await folderBytes(join(library, name)) });
-      return { dataRoot, series };
+      const disk = await statfs(dataRoot).catch(() => undefined);
+      return { dataRoot, series, free: disk ? disk.bavail * disk.bsize : null };
     },
   };
 }

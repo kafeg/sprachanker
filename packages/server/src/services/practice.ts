@@ -141,6 +141,7 @@ export function createPractice(deps: {
     return {
       language: request.language,
       target: ctx.target,
+      rules: deps.llm.rulesFor("review", request.language, ctx.target),
       lesson: ctx.info,
       scored: scored.length,
       correct: scored.filter(([, r]) => r === "correct").length,
@@ -155,7 +156,13 @@ export function createPractice(deps: {
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
-    return { language: request.language, target: ctx.target, lesson: ctx.info, text: request.text };
+    return {
+      language: request.language,
+      target: ctx.target,
+      rules: deps.llm.rulesFor("writing", request.language, ctx.target),
+      lesson: ctx.info,
+      text: request.text,
+    };
   }
 
   return {

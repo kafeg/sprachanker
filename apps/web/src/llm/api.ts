@@ -164,8 +164,8 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   return json(response as never) as Promise<PromptPreview>;
 }
 
-/** The tasks' system prompts and context budgets, for the settings. */
-/** The task prompts for a target language (none while no course is installed). */
+/** The tasks' system prompts (standing or the learner's own) and context budgets, for the settings;
+ *  none while no course is installed. */
 export const useTaskPrompts = (language: string, target: string | undefined) =>
   useQuery({
     queryKey: ["llm-prompts", language, target],
@@ -173,6 +173,17 @@ export const useTaskPrompts = (language: string, target: string | undefined) =>
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.llm.prompts.$get({ query: { language, target: target as string } })),
   });
+
+/** Saves the learner's own system prompt of a task ({language}, {target}); null restores the standing one. */
+export function useSetPrompt() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ task, template }: { task: PromptTaskId; template: string | null }) =>
+      json(api.llm.prompts[":task"].$put({ param: { task }, json: { template } })),
+    onSuccess: () => void client.invalidateQueries({ queryKey: ["llm-prompts"] }),
+  });
+}
+export type PromptTaskId = "explain" | "tutor" | "writing" | "review" | "scene";
 
 /** How full the tutor's next request is (refreshed after each turn). */
 export const useTutorContext = (request: TutorPromptRequest, turns: number) =>

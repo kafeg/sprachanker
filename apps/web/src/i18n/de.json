@@ -155,6 +155,12 @@
       "system": "System",
       "light": "Hell",
       "dark": "Dunkel"
+    },
+    "tabs": {
+      "general": "Allgemein",
+      "ai": "KI-Assistent",
+      "prompts": "Prompts",
+      "about": "Über"
     }
   },
   "llm": {
@@ -215,7 +221,8 @@
     "modelTypeHint": "Gib den Modellnamen ein.",
     "pickModel": "Modell wählen",
     "otherModel": "Anderes Modell…",
-    "modelName": "Modellname"
+    "modelName": "Modellname",
+    "providerLabel": "Anbieter"
   },
   "tutor": {
     "title": "Tutor",
@@ -277,7 +284,6 @@
     "size": "Größe",
     "sizeValue": "{chars, number} Zeichen ≈ {tokens, plural, one {# Token} other {# Tokens}}",
     "copy": "Anfrage als JSON kopieren",
-    "infoTitle": "Was das Modell bekommt",
     "infoIntro": "Jede Anfrage enthält feste Regeln (den System-Prompt) und Kursdaten der aktuellen Lektion. Lange Teile werden auf die unten genannten Grenzen gekürzt, damit auch kleine lokale Modelle mitkommen.",
     "task": {
       "explain": "„Warum ist das falsch?“",
@@ -305,7 +311,11 @@
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
-    "debugHint": "Bei Erklärungen und im Tutor: die genaue Anfrage mit allen Nachrichten, zum Debuggen."
+    "debugHint": "Bei Erklärungen und im Tutor: die genaue Anfrage mit allen Nachrichten, zum Debuggen.",
+    "custom": "geändert",
+    "placeholders": "'{language}' wird durch die Sprache der Antworten ersetzt, '{target}' durch die Sprache, die du lernst.",
+    "save": "Speichern",
+    "restore": "Standard-Prompt wiederherstellen"
   },
   "writing": {
     "title": "Schreib selbst",
@@ -395,6 +405,8 @@
   "storage": {
     "title": "Speicher",
     "intro": "Kurse, Medien und dein Fortschritt liegen in diesem Ordner auf dem Computer, auf dem SprachAnker läuft. Er wird beim Start des Servers festgelegt (--data oder SPRACHANKER_DATA); in der Desktop-App lässt er sich ändern.",
-    "total": "Gesamt"
+    "total": "Gesamt",
+    "used": "Kurse belegen {size}",
+    "free": "{size} frei auf dem Datenträger"
   }
 }

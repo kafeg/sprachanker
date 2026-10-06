@@ -368,7 +368,11 @@ describe("course check and downloads", () => {
         { series: "x.demo", course: "three" },
         { series: "x.demo", course: "two", error: "host refused" },
       ],
-      storage: async () => ({ dataRoot: "/data", series: [{ series: "x.demo", bytes: 42 }] }),
+      storage: async () => ({
+        dataRoot: "/data",
+        series: [{ series: "x.demo", bytes: 42 }],
+        free: 1000,
+      }),
     };
     const { getJson, send, sendJson } = await setup({ installer });
     await Bun.sleep(1);
@@ -406,6 +410,7 @@ describe("course check and downloads", () => {
     expect(await getJson("/api/storage")).toEqual({
       dataRoot: "/data",
       series: [{ series: "x.demo", bytes: 42 }],
+      free: 1000,
     });
   });
 

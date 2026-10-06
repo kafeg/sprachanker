@@ -48,6 +48,7 @@ export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonCon
     const input: SceneTurnInput = {
       language: request.language,
       target: ctx.target,
+      rules: deps.llm.rulesFor("scene", request.language, ctx.target),
       lesson: ctx.info,
       knownVocab: ctx.knownVocab,
       setup: state.setup,

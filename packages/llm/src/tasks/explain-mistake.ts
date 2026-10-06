@@ -6,6 +6,9 @@ import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo } from "./lesson.ts";
 
 export interface ExplainMistakeInput {
+  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
+  rules?: string;
+
   exercise: Exercise;
   locale?: LocaleExercise;
   index: number;
@@ -42,7 +45,7 @@ export function explainMistakeRules(language: Lang, target: Lang): string {
 export function explainMistakeMessages(input: ExplainMistakeInput): ChatMessage[] {
   const item = describeItem(input.exercise, input.locale, input.index, input.answer);
   const notes = grammarNotes(input, EXPLAIN_MISTAKE_BUDGETS.notes);
-  const system = explainMistakeRules(input.language, input.target);
+  const system = input.rules ?? explainMistakeRules(input.language, input.target);
   const user = [
     "<exercise>",
     item.task,

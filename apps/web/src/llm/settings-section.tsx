@@ -2,7 +2,6 @@
 import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import {
@@ -23,7 +22,6 @@ import {
 } from "./api.ts";
 import { errorText } from "./errors.ts";
 import { LmStudioSection } from "./lmstudio-section.tsx";
-import { PromptsInfo } from "./prompts-info.tsx";
 
 type Provider = LlmState["providers"][number];
 
@@ -224,19 +222,32 @@ export function LlmSettings() {
     <section className="space-y-2">
       <h2 className="text-xl font-bold">{t("llm.title")}</h2>
       <p className="text-sm text-muted-foreground">{t("llm.intro")}</p>
-      <Choice
-        value={state.provider ?? "off"}
-        options={[
-          ["off", t("llm.off")],
-          ...state.providers.map((p): [string, string] => [p.id, t(`llm.provider.${p.id}`)]),
-        ]}
-        onChange={(v) =>
-          setRoute.mutate({
-            provider: v === "off" ? null : (v as ProviderId),
-            model: v === state.provider ? state.model : null,
-          })
-        }
-      />
+      <Field label={t("llm.providerLabel")}>
+        <Select
+          value={state.provider ?? "off"}
+          onValueChange={(v) =>
+            setRoute.mutate({
+              provider: v === "off" ? null : (v as ProviderId),
+              model: v === state.provider ? state.model : null,
+            })
+          }
+        >
+          <SelectTrigger
+            className="h-11 w-full max-w-md bg-card"
+            aria-label={t("llm.providerLabel")}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="off">{t("llm.off")}</SelectItem>
+            {state.providers.map((p) => (
+              <SelectItem key={p.id} value={p.id}>
+                {t(`llm.provider.${p.id}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
       {provider && (
         <div className="mt-3 space-y-5 rounded-2xl border bg-card p-4 sm:p-5">
           {provider.id === "lmstudio" && (
@@ -260,7 +271,6 @@ export function LlmSettings() {
           )}
         </div>
       )}
-      {provider && <PromptsInfo />}
     </section>
   );
 }

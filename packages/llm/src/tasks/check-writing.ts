@@ -8,6 +8,9 @@ import { clip, languageName } from "../text.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine } from "./lesson.ts";
 
 export interface WritingInput {
+  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
+  rules?: string;
+
   language: Lang;
   target: Lang;
   lesson: LessonInfo;
@@ -86,7 +89,7 @@ export function checkWritingRequest(input: WritingInput): TaskRequest {
     .join("\n");
   return {
     messages: [
-      { role: "system", content: checkWritingRules(input.language, input.target) },
+      { role: "system", content: input.rules ?? checkWritingRules(input.language, input.target) },
       { role: "user", content: context },
     ],
     temperature: 0.2,

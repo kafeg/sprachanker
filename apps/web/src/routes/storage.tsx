@@ -24,6 +24,31 @@ export function StorageSection() {
       <p className="break-all rounded-lg bg-muted px-3 py-2 font-mono text-sm">
         {storage.dataRoot}
       </p>
+      {total > 0 && (
+        <div className="space-y-1.5">
+          {/* The space of each source on the disk's used-and-free scale. */}
+          <div className="flex h-2.5 overflow-hidden rounded-full bg-muted">
+            {storage.series
+              .toSorted((a, b) => b.bytes - a.bytes)
+              .map((s, i) => (
+                <span
+                  key={s.series}
+                  title={`${nameOf(s.series)} · ${bytes(s.bytes)}`}
+                  style={{ width: `${(s.bytes / (total + (storage.free ?? 0))) * 100}%` }}
+                  className={
+                    ["bg-primary", "bg-primary/70", "bg-primary/45", "bg-primary/30"][
+                      Math.min(i, 3)
+                    ]
+                  }
+                />
+              ))}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {t("storage.used", { size: bytes(total) })}
+            {storage.free !== null && ` · ${t("storage.free", { size: bytes(storage.free) })}`}
+          </p>
+        </div>
+      )}
       {storage.series.length > 0 && (
         <ul className="divide-y rounded-xl border text-sm">
           {storage.series

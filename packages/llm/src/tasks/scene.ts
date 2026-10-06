@@ -91,6 +91,9 @@ export function sceneSetupTask(input: {
 }
 
 export interface SceneTurnInput {
+  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
+  rules?: string;
+
   language: Lang;
   target: Lang;
   lesson: SceneLesson;
@@ -130,7 +133,10 @@ export function sceneTurnRequest(input: SceneTurnInput): TaskRequest {
   const history: ChatMessage[] = recentTurns(input.history, SCENE_BUDGETS.history);
   return {
     messages: [
-      { role: "system", content: `${sceneTurnRules(input.language, input.target)}\n\n${scene}` },
+      {
+        role: "system",
+        content: `${input.rules ?? sceneTurnRules(input.language, input.target)}\n\n${scene}`,
+      },
       // Chat templates want a user turn first: the scene starts with "(the scene begins)".
       { role: "user", content: "(the scene begins)" },
       ...(history[0]?.role === "user"

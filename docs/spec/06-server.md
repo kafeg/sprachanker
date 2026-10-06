@@ -34,14 +34,15 @@ later areas are fixed in the stage that builds them.
 - Courses on disk: `GET /api/catalog` (every course the providers offer, with its state: available,
   queued, downloading, incomplete, ready), `GET` / `POST /api/downloads` (the jobs with progress and
   log; queue a download — first download, completing one and syncing with the source are the same
-  idempotent import), `GET /api/storage` (the data folder and the space per series).
+  idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
 - Progress: `POST /api/progress/reset` (a course or one lesson, 05).
 - Settings: `GET` / `PUT /api/settings` (one key at a time).
 - Lesson runs: `POST /api/runs` (start or resume), `POST /api/runs/:id/events` (batched, idempotent;
   outcomes computed by the server), `POST /api/runs/:id/finish`.
 - `/api/llm`: state, route and provider settings, models; LM Studio status, start and downloads;
   `explain`, `tutor` (streamed text), `writing`, `review`, `scene` (JSON); each task also has a
-  `…/prompt` route that returns the exact request without sending it (07).
+  `…/prompt` route that returns the exact request without sending it (07); `prompts` lists the system
+  prompts and `PUT prompts/:task` sets or clears the learner's own one.
 - `GET /library/:series/*` (outside `/api`): library media with Range support.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).

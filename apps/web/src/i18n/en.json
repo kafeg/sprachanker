@@ -155,6 +155,12 @@
       "system": "System",
       "light": "Light",
       "dark": "Dark"
+    },
+    "tabs": {
+      "general": "General",
+      "ai": "AI assistant",
+      "prompts": "Prompts",
+      "about": "About"
     }
   },
   "llm": {
@@ -215,7 +221,8 @@
     "modelTypeHint": "Type the model name.",
     "pickModel": "Choose a model",
     "otherModel": "Another model…",
-    "modelName": "Model name"
+    "modelName": "Model name",
+    "providerLabel": "Provider"
   },
   "tutor": {
     "title": "Tutor",
@@ -277,7 +284,6 @@
     "size": "Size",
     "sizeValue": "{chars, plural, one {# character} other {# characters}} ≈ {tokens, plural, one {# token} other {# tokens}}",
     "copy": "Copy request as JSON",
-    "infoTitle": "What the model gets",
     "infoIntro": "Every request sends standing rules (the system prompt) and course data of the current lesson. Long parts are cut to the limits below so that small local models keep up.",
     "task": {
       "explain": "“Why is this wrong?”",
@@ -305,7 +311,11 @@
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
-    "debugHint": "Next to explanations and in the tutor: the exact request with all messages, for debugging."
+    "debugHint": "Next to explanations and in the tutor: the exact request with all messages, for debugging.",
+    "custom": "changed",
+    "placeholders": "'{language}' is replaced by the language of the answers, '{target}' by the language you learn.",
+    "save": "Save",
+    "restore": "Restore the standard prompt"
   },
   "writing": {
     "title": "Write it yourself",
@@ -395,6 +405,8 @@
   "storage": {
     "title": "Storage",
     "intro": "Courses, media and your progress live in this folder on the computer running SprachAnker. It is chosen when the server starts (--data, or SPRACHANKER_DATA); the desktop app will let you change it.",
-    "total": "Total"
+    "total": "Total",
+    "used": "Courses take {size}",
+    "free": "{size} free on the disk"
   }
 }

@@ -73,10 +73,14 @@ answers exist; the scene card on the summary → `scene_setup`, then `scene_turn
 ## Transparency and debugging
 
 - The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model.
-- Settings → "What the model gets": each task's system prompt and the context parts it adds, with
+- Settings → Prompts: each task's system prompt and the context parts it adds, with
   their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`, `CHECK_WRITING_BUDGETS`,
   `REVIEW_SESSION_BUDGETS`, `SCENE_BUDGETS`).
-- A "Prompt" button (switched on in the settings) shows the exact request of a task — endpoint,
+- The learner can replace a task's system prompt with their own (Settings → Prompts, "Restore" brings
+  the standing one back). It is a template in the profile setting `llm.prompts` (task → text);
+  `{language}` and `{target}` are filled in with the names of the answer language and the language
+  being learnt. The context parts and the delimiting of course text and learner input stay ours.
+- A "{}" button (switched on in Settings → Prompts) shows the exact request of a task — endpoint,
   fields, every message with its size — built by the same function as the real call (`<task>Request`,
   `chatBody`); nothing is sent.
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)

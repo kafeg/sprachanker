@@ -6,7 +6,7 @@ import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
 import type { Explain } from "../services/explain.ts";
-import { type Llm, LlmSetupError } from "../services/llm.ts";
+import { type Llm, LlmSetupError, PROMPT_TASKS } from "../services/llm.ts";
 import type { Practice } from "../services/practice.ts";
 import type { Scenes } from "../services/scene.ts";
 import type { Tutor } from "../services/tutor.ts";
@@ -139,6 +139,16 @@ export function llmRoutes(
         const { language, target } = c.req.valid("query");
         return c.json(llm.prompts(language, target));
       })
+      // The learner's own system prompt of a task ({language}, {target} filled in); null: standing rules.
+      .put(
+        "/prompts/:task",
+        zod("param", z.object({ task: z.enum(PROMPT_TASKS) })),
+        zod("json", z.object({ template: z.string().max(20_000).nullable() })),
+        (c) => {
+          llm.setPrompt(c.req.valid("param").task, c.req.valid("json").template);
+          return c.json({ ok: true as const });
+        },
+      )
       // LM Studio: what it has and runs; start its server, download suggested models into it.
       .get("/lmstudio", async (c) => c.json(await llm.lmStudioStatus()))
       .post("/lmstudio/start", (c) => jsonOrFailure(c, () => llm.lmStudioStart()))

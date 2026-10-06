@@ -34,6 +34,7 @@ export function createExplain(deps: { llm: Llm; content: Content }) {
       grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
       language: request.language,
       target: parseEditionId(request.edition).target,
+      rules: llm.rulesFor("explain", request.language, parseEditionId(request.edition).target),
     };
   }
 

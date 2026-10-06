@@ -23,8 +23,12 @@ export interface CourseInstaller {
   /** Downloads that did not end (interrupted, or stopped with an `error`), or ended with `failed`
    *  media files of the course missing. */
   unfinished(): Promise<Array<{ series: string; course: string; failed?: number; error?: string }>>;
-  /** The data folder and the bytes each series takes on disk. */
-  storage(): Promise<{ dataRoot: string; series: Array<{ series: string; bytes: number }> }>;
+  /** The data folder, the bytes each series takes and the bytes still free on its disk. */
+  storage(): Promise<{
+    dataRoot: string;
+    series: Array<{ series: string; bytes: number }>;
+    free: number | null;
+  }>;
 }
 
 export interface DownloadProgress {

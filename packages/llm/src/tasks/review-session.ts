@@ -9,6 +9,9 @@ import { mistakeLine, type TutorMistake } from "./describe.ts";
 import { goalsLine, grammarNotes, type LessonInfo } from "./lesson.ts";
 
 export interface ReviewInput {
+  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
+  rules?: string;
+
   language: Lang;
   target: Lang;
   lesson: LessonInfo;
@@ -82,7 +85,7 @@ export function reviewSessionRequest(input: ReviewInput): TaskRequest {
     .join("\n");
   return {
     messages: [
-      { role: "system", content: reviewSessionRules(input.language, input.target) },
+      { role: "system", content: input.rules ?? reviewSessionRules(input.language, input.target) },
       { role: "user", content: data },
     ],
     temperature: 0.3,

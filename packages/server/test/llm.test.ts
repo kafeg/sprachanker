@@ -378,6 +378,30 @@ describe("prompt viewer", () => {
     expect(prompts.tutor.system).toContain("friendly German tutor");
     expect(prompts.tutor.budgets.grammar).toBe(3500);
     expect(prompts.explain.budgets.notes).toBe(6000);
+    // The text to edit has the languages as placeholders.
+    expect(prompts.explain.template).toContain("Explain in {language}");
+    expect(prompts.explain.custom).toBe(false);
+  });
+
+  test("own system prompts: saved per task, languages filled in, used, reset", async () => {
+    const fake = provider();
+    const { send, sendJson, getJson } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const own = "Explain in {language} like a friend; the learner studies {target}.";
+    expect((await send("PUT", "/api/llm/prompts/explain", { template: own })).status).toBe(200);
+    const prompts = await getJson("/api/llm/prompts?language=ru&target=de");
+    expect(prompts.explain).toMatchObject({
+      template: own,
+      custom: true,
+      system: "Explain in Russian like a friend; the learner studies German.",
+    });
+    const explain = await sendJson("POST", "/api/llm/explain/prompt", EXPLAIN);
+    expect(explain.body.messages[0].content).toBe(
+      "Explain in Russian like a friend; the learner studies German.",
+    );
+    await send("PUT", "/api/llm/prompts/explain", { template: null });
+    expect((await getJson("/api/llm/prompts?language=ru&target=de")).explain.custom).toBe(false);
+    expect((await send("PUT", "/api/llm/prompts/nope", { template: "x" })).status).toBe(400);
   });
 
   test("the exact request of an explanation and of a tutor message; nothing is sent", async () => {

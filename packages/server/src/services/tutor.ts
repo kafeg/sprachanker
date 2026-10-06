@@ -83,6 +83,7 @@ export function createTutor(deps: {
       input: {
         ...input,
         language: request.language,
+        rules: deps.llm.rulesFor("tutor", request.language, input.target),
         exercise: exercise && { exercise, locale: locale?.exercises[exercise.key] },
         history: history.map((t) => ({ role: t.role, text: t.text })),
         message: request.message,

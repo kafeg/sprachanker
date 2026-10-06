@@ -18,6 +18,7 @@ import {
   LMSTUDIO_RECOMMENDED,
   type LmStudioDownload,
   type LmStudioModel,
+  languageName,
   lmStudioApi,
   openAiCompatible,
   PROVIDERS,
@@ -97,12 +98,42 @@ export interface PromptPreview {
 }
 
 /** The tasks the settings explain, in the order they are shown. */
-const PROMPT_TASKS = ["explain", "tutor", "writing", "review", "scene"] as const;
+export const PROMPT_TASKS = ["explain", "tutor", "writing", "review", "scene"] as const;
 export type PromptTask = (typeof PROMPT_TASKS)[number];
 
-/** The standing system prompt of a task and how much of each context part it gets, in characters. */
+/** Each task's standing rules (its system prompt) for an answer language and a learnt language. */
+const RULES: Record<PromptTask, (language: Lang, target: Lang) => string> = {
+  explain: explainMistakeRules,
+  tutor: chatTurnRules,
+  writing: checkWritingRules,
+  review: reviewSessionRules,
+  scene: sceneTurnRules,
+};
+const BUDGETS: Record<PromptTask, Record<string, number>> = {
+  explain: EXPLAIN_MISTAKE_BUDGETS,
+  tutor: CHAT_TURN_BUDGETS,
+  writing: CHECK_WRITING_BUDGETS,
+  review: REVIEW_SESSION_BUDGETS,
+  scene: SCENE_BUDGETS,
+};
+/** The learner's own system prompts, by task: templates with {language} and {target}. */
+const PROMPTS = "llm.prompts";
+
+/** Placeholders a prompt template may hold: the answer language and the language learnt. */
+const fill = (template: string, language: Lang, target: Lang) =>
+  template
+    .replaceAll("{language}", languageName(language))
+    .replaceAll("{target}", languageName(target));
+
+/** A task's system prompt as the settings show and edit it. */
 export interface TaskPrompt {
+  /** As sent for these languages. */
   system: string;
+  /** The text to edit: the learner's own, or the standing rules with the languages as placeholders. */
+  template: string;
+  /** The learner's own prompt is in use. */
+  custom: boolean;
+  /** Characters of each context part it gets. */
   budgets: Record<string, number>;
 }
 
@@ -128,6 +159,7 @@ export function createLlm(deps: {
   /** LM Studio loads in progress, by model key. */
   const loading = new Map<string, Promise<void>>();
   const endpoints = () => settings.get<Partial<Record<ProviderId, string>>>(ENDPOINTS) ?? {};
+  const customPrompts = () => settings.get<Partial<Record<PromptTask, string>>>(PROMPTS) ?? {};
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
   const hasKey = (id: ProviderId) =>
     !!db.select().from(secrets).where(eq(secrets.providerId, id)).get();
@@ -294,18 +326,39 @@ export function createLlm(deps: {
     contextWindow(): number | null {
       return route()?.providerId === "lmstudio" ? LMSTUDIO_CONTEXT : null;
     },
-    /** System prompts of the tasks, as the settings explain them. */
+    /** System prompts of the tasks, as the settings show and edit them. */
     prompts(language: Lang, target: Lang): Record<PromptTask, TaskPrompt> {
-      return {
-        explain: {
-          system: explainMistakeRules(language, target),
-          budgets: EXPLAIN_MISTAKE_BUDGETS,
-        },
-        tutor: { system: chatTurnRules(language, target), budgets: CHAT_TURN_BUDGETS },
-        writing: { system: checkWritingRules(language, target), budgets: CHECK_WRITING_BUDGETS },
-        review: { system: reviewSessionRules(language, target), budgets: REVIEW_SESSION_BUDGETS },
-        scene: { system: sceneTurnRules(language, target), budgets: SCENE_BUDGETS },
-      };
+      const own = customPrompts();
+      return Object.fromEntries(
+        PROMPT_TASKS.map((task) => {
+          const custom = own[task];
+          const standing = RULES[task](language, target);
+          const template =
+            custom ??
+            standing
+              .replaceAll(languageName(target), "{target}")
+              .replaceAll(languageName(language), "{language}");
+          return [
+            task,
+            {
+              system: custom ? fill(custom, language, target) : standing,
+              template,
+              custom: !!custom,
+              budgets: BUDGETS[task],
+            },
+          ];
+        }),
+      ) as Record<PromptTask, TaskPrompt>;
+    },
+    /** The learner's own system prompt of a task, filled in; undefined: the standing rules apply. */
+    rulesFor(task: PromptTask, language: Lang, target: Lang): string | undefined {
+      const custom = customPrompts()[task];
+      return custom ? fill(custom, language, target) : undefined;
+    },
+    /** Saves the learner's own prompt of a task; null goes back to the standing rules. */
+    setPrompt(task: PromptTask, template: string | null) {
+      const { [task]: _, ...rest } = customPrompts();
+      settings.set(PROMPTS, template?.trim() ? { ...rest, [task]: template } : rest);
     },
   };
 }
