@@ -1,0 +1,95 @@
+// Language flags (09): a language is shown by the flag we chose for it — a language is not a
+// country, so this table is ours (English → the British flag). A language without one shows its code.
+// Flags come from country-flag-icons, one module per flag, so only these are bundled.
+
+import { parseEditionId } from "@sprachanker/schema";
+import DE from "country-flag-icons/react/3x2/DE";
+import ES from "country-flag-icons/react/3x2/ES";
+import FR from "country-flag-icons/react/3x2/FR";
+import GB from "country-flag-icons/react/3x2/GB";
+import IT from "country-flag-icons/react/3x2/IT";
+import PL from "country-flag-icons/react/3x2/PL";
+import RU from "country-flag-icons/react/3x2/RU";
+import TR from "country-flag-icons/react/3x2/TR";
+import UA from "country-flag-icons/react/3x2/UA";
+import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { cn } from "./utils.ts";
+
+const FLAGS: Record<string, typeof DE> = {
+  de: DE,
+  en: GB,
+  es: ES,
+  fr: FR,
+  it: IT,
+  pl: PL,
+  ru: RU,
+  tr: TR,
+  uk: UA,
+};
+
+/** "ru-de" → "русский → немецкий" in the interface language. */
+export function usePairName() {
+  const { t, i18n } = useTranslation();
+  const names = new Intl.DisplayNames([i18n.language], { type: "language" });
+  return (edition: string) => {
+    const { source, target } = parseEditionId(edition);
+    return t("courses.languages", { from: names.of(source), to: names.of(target) });
+  };
+}
+
+/** One language's flag (decorative: the caller names the language). */
+const SIZES = { sm: "h-4 w-6", md: "h-5 w-7.5" } as const;
+
+export function LanguageFlag({
+  lang,
+  size = "sm",
+  className,
+}: {
+  lang: string;
+  size?: keyof typeof SIZES;
+  className?: string;
+}) {
+  const Flag = FLAGS[lang];
+  const box = cn(
+    "inline-block shrink-0 rounded-[3px] ring-1 ring-black/10",
+    SIZES[size],
+    className,
+  );
+  return Flag ? (
+    <Flag className={box} aria-hidden="true" />
+  ) : (
+    <span
+      className={cn(box, "grid place-items-center bg-muted text-[10px] font-semibold uppercase")}
+      aria-hidden="true"
+    >
+      {lang}
+    </span>
+  );
+}
+
+/** The flags of a language pair, "mine → the one learnt"; named for screen readers and on hover. */
+export function PairFlags({
+  edition,
+  size,
+  className,
+}: {
+  edition: string;
+  size?: keyof typeof SIZES;
+  className?: string;
+}) {
+  const name = usePairName()(edition);
+  const { source, target } = parseEditionId(edition);
+  return (
+    <span
+      role="img"
+      aria-label={name}
+      title={name}
+      className={cn("inline-flex items-center gap-1.5", className)}
+    >
+      <LanguageFlag lang={source} size={size} />
+      <ArrowRight className="size-3.5 opacity-60" aria-hidden="true" />
+      <LanguageFlag lang={target} size={size} />
+    </span>
+  );
+}

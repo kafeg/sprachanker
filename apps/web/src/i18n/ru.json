@@ -27,7 +27,10 @@
     "noneMatch": "Нет курсов для этих языков.",
     "course": "Курс",
     "pair": "Языки",
-    "toCatalog": "Выбрать курс"
+    "toCatalog": "Выбрать курс",
+    "next": "Дальше",
+    "nextWorked": "сделано {worked, number} из {total, number}",
+    "doneShort": "{done, number} / {total, number}"
   },
   "course": {
     "unit": "Раздел {number}",

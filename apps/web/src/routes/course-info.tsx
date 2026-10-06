@@ -1,7 +1,7 @@
 // The head of the course map (09): progress and the way back into the course, where the course comes
 // from and on what terms, what it holds (lessons, exercises, words, media) and whether all of it is on
 // disk, and syncing it with its source.
-import { type CourseSource, parseEditionId, parseLessonKey } from "@sprachanker/schema";
+import { type CourseSource, parseLessonKey } from "@sprachanker/schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseSync, useStartSync } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { PairFlags } from "@/ui/flags.tsx";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { cn } from "@/ui/utils.ts";
 
@@ -143,8 +144,6 @@ export function CourseHero(props: CourseHeroProps) {
     if (running) setOpen(true);
   }, [running]);
 
-  const names = new Intl.DisplayNames([i18n.language], { type: "language" });
-  const pair = parseEditionId(edition);
   const r = check.data;
   const exercises = r ? Object.values(r.exercises).reduce((a, b) => a + b, 0) : 0;
   const share = done / Math.max(1, lessons);
@@ -159,7 +158,7 @@ export function CourseHero(props: CourseHeroProps) {
             <h1 className="text-2xl font-bold sm:text-4xl">{title}</h1>
             <div className="my-2 flex flex-wrap gap-1.5">
               <span className={chip}>
-                {t("courses.languages", { from: names.of(pair.source), to: names.of(pair.target) })}
+                <PairFlags edition={edition} />
               </span>
               {source && (
                 <>

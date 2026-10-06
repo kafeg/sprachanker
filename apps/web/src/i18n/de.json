@@ -27,7 +27,10 @@
     "noneMatch": "Keine Kurse für diese Sprachen.",
     "course": "Kurs",
     "pair": "Sprachen",
-    "toCatalog": "Kurs auswählen"
+    "toCatalog": "Kurs auswählen",
+    "next": "Weiter",
+    "nextWorked": "{worked, number} von {total, number} erledigt",
+    "doneShort": "{done, number} / {total, number}"
   },
   "course": {
     "unit": "Einheit {number}",

@@ -41,6 +41,7 @@ table in the same commit with the reason.
 | Logging | `pino` |
 | Crypto | WebCrypto AES-256-GCM; argon2id via `Bun.password` behind a runtime adapter |
 | Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide, Motion; fonts bundled from `@fontsource` (no CDN) |
+| Language flags | `country-flag-icons` (SVG React components, one module per flag; our language → flag table in `apps/web/src/ui/flags.tsx`) |
 | Routing / server state / UI state | TanStack Router / TanStack Query / Zustand |
 | i18n | i18next + react-i18next + i18next-icu |
 | Charts | Recharts |

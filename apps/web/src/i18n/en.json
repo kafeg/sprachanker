@@ -27,7 +27,10 @@
     "noneMatch": "No course for these languages.",
     "course": "Course",
     "pair": "Languages",
-    "toCatalog": "Choose a course"
+    "toCatalog": "Choose a course",
+    "next": "Next",
+    "nextWorked": "{worked, number} of {total, number} done",
+    "doneShort": "{done, number} / {total, number}"
   },
   "course": {
     "unit": "Unit {number}",

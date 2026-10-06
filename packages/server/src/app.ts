@@ -116,11 +116,24 @@ export function createApp(config: AppConfig) {
     .get("/courses", async (c) => {
       const progress = await runs.progress();
       return c.json(
-        (await content.courses()).map(({ lessons, ...course }) => ({
-          ...course,
-          lessons: lessons.length,
-          ...courseProgress(lessons, progress),
-        })),
+        await Promise.all(
+          (await content.courses()).map(async ({ lessons, ...course }) => {
+            const at = courseProgress(lessons, progress);
+            // The lesson to go on with, as its card shows it: title and exercises worked.
+            const next = at.next as LessonKey | null;
+            const edition = course.editions[0];
+            const locale =
+              next && edition && (await content.localeLesson(course.series, next, edition));
+            const state = next && (await runs.lessonStates(course.series, [next]))[next];
+            return {
+              ...course,
+              lessons: lessons.length,
+              ...at,
+              nextTitle: locale ? locale.title : null,
+              nextRun: state?.run ?? null,
+            };
+          }),
+        ),
       );
     })
     .get(
