@@ -151,6 +151,10 @@ mechanic; a `classify` type is added with the first source that needs it.
 Learner-language strings (titles, instructions, info boxes, translations, category labels, prompts in
 the learner's language) live at the same key path as in canonical files. Tab bodies (grammar, culture,
 script, homework — tasks of the source without answers to check) are locale HTML and may mix languages.
+A grammar or culture page is one topic of the lesson (each becomes a step of its plan, 04): a provider
+joins the parts of a topic within a lesson and marks one continued from an earlier lesson with `part`
+(2, 3, …) instead of a number in the title. An exercise's title is absent when the source has none,
+never empty.
 
 ```jsonc
 // locale/<edition>/<course>/lessons/00-01.json

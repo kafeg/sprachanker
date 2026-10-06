@@ -39,7 +39,8 @@ export const LocaleItem = z.object({
 
 export const LocaleExercise = z.object({
   sourceId: SourceId,
-  title: z.string().optional(),
+  /** Absent when the source gives none (the player numbers the exercise), never empty. */
+  title: z.string().min(1).optional(),
   instructionHtml: z.string().optional(),
   /** Learner-language stimulus text. */
   textHtml: z.string().optional(),
@@ -53,7 +54,10 @@ export const Tab = z.object({
   sourceId: SourceId.optional(),
   title: z.string(),
   bodyHtml: z.string(),
+  /** A topic continued from an earlier lesson: the part it starts with here (2, 3, …). */
+  part: z.number().int().min(2).optional(),
 });
+export type Tab = z.infer<typeof Tab>;
 
 /** `locale/<edition>/<course>/course.json` */
 export const LocaleCourse = z.object({

@@ -73,7 +73,10 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   Learner-language fields are fixed per mechanic and field (research, "Which strings are learner
   language"); the "Play audio" label is dropped; image options keep only the image. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
-  studieren") stays in the headword and not in the lemma.
+  studieren") stays in the headword and not in the lemma. Grammar and culture pages: DW numbers the
+  parts of a topic ("Spelling (2)"); the parts within a lesson are joined into one page, the number
+  leaves the title and a topic begun in an earlier lesson keeps it as `part` (02). Exercise titles keep
+  their numbers ("Im Unterricht (1)", "(2)"): they tell apart exercises of one topic in a lesson.
 - Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
   own vocabulary parser; until then B1 lessons have no vocabulary.
 

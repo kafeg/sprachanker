@@ -1,6 +1,6 @@
 // The lesson plan (09): its steps in order — overview, words, grammar, exercises, culture, AI practice,
-// summary — each with its state in the run, under the labels of their sections; then the reference
-// tabs. Shown beside the lesson on wide screens and in a sheet on phones.
+// summary — each with its state in the run, under the labels of their sections. Shown beside the lesson
+// on wide screens and in a sheet on phones; the reference opens from the lesson's header.
 import {
   type ExerciseResult,
   type ExerciseState,
@@ -11,7 +11,6 @@ import {
 import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
 import {
   BookOpen,
-  BookOpenText,
   Check,
   ClipboardList,
   Drama,
@@ -25,7 +24,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/ui/utils.ts";
-import { type ReferenceTab, referenceTabs } from "./reference.tsx";
+import { pageTitle } from "./reference.tsx";
 
 /** An exercise's mark in the plan and the summary: right (green ✓), with mistakes (red ✕), answered
  *  without a score (grey ✓), skipped (dashed ⏭), the current one (yellow ring), else its number. */
@@ -77,13 +76,15 @@ export function stepTitle(
     case "exercise": {
       const exercise = lesson.pages[step.index]?.exercise;
       return (
-        (exercise && locale?.exercises[exercise.key]?.title) ??
+        (exercise && locale?.exercises[exercise.key]?.title) ||
         t("lesson.exerciseN", { n: step.index + 1 })
       );
     }
     case "grammar":
-    case "culture":
-      return locale?.tabs[step.kind][step.index]?.title ?? t(`lesson.step.${step.kind}`);
+    case "culture": {
+      const page = locale?.tabs[step.kind][step.index];
+      return page ? pageTitle(page, t) : t(`lesson.step.${step.kind}`);
+    }
     case "words":
       return t("lesson.step.wordsCount", { count: lesson.vocab.length });
     default:
@@ -120,7 +121,6 @@ export function Plan({
   results,
   done,
   go,
-  openReference,
 }: {
   lesson: Lesson;
   locale: LocaleLesson | null;
@@ -130,10 +130,8 @@ export function Plan({
   results: Record<string, ExerciseResult>;
   done: Map<StepId, "done" | "skipped">;
   go(id: string): void;
-  openReference(tab: ReferenceTab): void;
 }) {
   const { t } = useTranslation();
-  const tabs = referenceTabs(lesson, locale);
   let section: string | undefined;
   return (
     <nav className="space-y-0.5">
@@ -180,23 +178,6 @@ export function Plan({
           </div>
         );
       })}
-      {!!tabs.length && (
-        <div className="mt-4 border-t pt-3">
-          <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("lesson.reference")}
-          </p>
-          {tabs.map((tab) => (
-            <button
-              type="button"
-              key={tab}
-              onClick={() => openReference(tab)}
-              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] text-muted-foreground hover:bg-accent hover:text-foreground"
-            >
-              <BookOpenText className="size-4" /> {t(`ref.${tab}`)}
-            </button>
-          ))}
-        </div>
-      )}
     </nav>
   );
 }

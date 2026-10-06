@@ -139,13 +139,14 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   };
 
   /** Lesson progress of every lesson with runs, over active and completed runs. An active run counts
-   *  as "in progress" only once something was answered or skipped in it. */
+   *  as "in progress" only once something was answered, skipped or a step done in it. */
   const progress = async () => {
     const activity = new Map(
       db
         .select({ runId: events.runId, at: max(events.ts) })
         .from(events)
-        .where(inArray(events.type, ["answered", "item_skipped"]))
+        // Work done in the run: an answer, a skip, or a step of the plan (words, a page read, practice).
+        .where(inArray(events.type, ["answered", "item_skipped", "step_done"]))
         .groupBy(events.runId)
         .all()
         .map((e) => [e.runId, e.at ?? 0]),

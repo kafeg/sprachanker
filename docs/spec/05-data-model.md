@@ -115,7 +115,7 @@ Statistics (lesson progress and best scores, item history, mistakes, rule and le
 query is too slow, and then it must be rebuildable from events.
 
 Resume = the last `page_shown` of the active run. Lesson progress counts an active run as "in progress"
-only once it has an `answered` or `item_skipped` event.
+only once it has an `answered`, `item_skipped` or `step_done` event.
 
 ## Migrations
 
@@ -154,7 +154,7 @@ only once it has an `answered` or `item_skipped` event.
   items (04).
 - **Progress** (engine `lessonProgress`, the single reading used by the course list, the course map and
   the lesson): a lesson is done once a run of it was completed; it is in progress while an active run has
-  answers or skips (also when it is done again); the lesson to go on with is the one worked on most
+  answers, skips or steps done (also when it is done again); the lesson to go on with is the one worked on most
   recently, else the first not done. A lesson card on the course map shows the run the lesson opens
   (active run, else latest completed) as the player reads it — exercises worked of all,
   and the score of a finished run.

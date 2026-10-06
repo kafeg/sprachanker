@@ -2,7 +2,7 @@
 // at a time; the playback speed is the profile's (provided by the app through PlaybackRate).
 import type { Media } from "@sprachanker/schema";
 import { Pause, Play, RotateCcw, Volume2 } from "lucide-react";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
 import { cn } from "./utils.ts";
@@ -216,15 +216,23 @@ export function AudioPlayer({
   );
 }
 
+/** What a screen can do with an AudioButton besides tapping it (a key that reads the word aloud). */
+export interface AudioControls {
+  /** Plays from the start. */
+  play(): void;
+}
+
 /** A word read aloud: one tap plays it from the start. */
 export function AudioButton({
   src,
   label,
   className,
+  ref,
 }: {
   src: string;
   label: string;
   className?: string;
+  ref?: React.Ref<AudioControls>;
 }) {
   const { rate } = useContext(PlaybackRate);
   const audio = useRef<HTMLAudioElement | null>(null);
@@ -240,7 +248,7 @@ export function AudioButton({
     },
     [src],
   );
-  const toggle = () => {
+  const element = () => {
     if (!audio.current) {
       const a = new Audio(src);
       a.onended = () => setActive(false);
@@ -251,12 +259,19 @@ export function AudioButton({
       };
       audio.current = a;
     }
-    const a = audio.current;
-    if (a.paused) {
-      a.currentTime = 0;
-      a.playbackRate = rate;
-      void a.play();
-    } else a.pause();
+    return audio.current;
+  };
+  const play = () => {
+    const a = element();
+    a.currentTime = 0;
+    a.playbackRate = rate;
+    void a.play();
+  };
+  useImperativeHandle(ref, () => ({ play }));
+  const toggle = () => {
+    const a = element();
+    if (a.paused) play();
+    else a.pause();
   };
   return (
     <button

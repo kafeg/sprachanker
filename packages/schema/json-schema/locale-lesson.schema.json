@@ -38,7 +38,8 @@
             "minLength": 1
           },
           "title": {
-            "type": "string"
+            "type": "string",
+            "minLength": 1
           },
           "instructionHtml": {
             "type": "string"
@@ -148,6 +149,11 @@
               },
               "bodyHtml": {
                 "type": "string"
+              },
+              "part": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 9007199254740991
               }
             },
             "required": [
@@ -170,6 +176,11 @@
               },
               "bodyHtml": {
                 "type": "string"
+              },
+              "part": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 9007199254740991
               }
             },
             "required": [
@@ -190,6 +201,11 @@
             },
             "bodyHtml": {
               "type": "string"
+            },
+            "part": {
+              "type": "integer",
+              "minimum": 2,
+              "maximum": 9007199254740991
             }
           },
           "required": [
@@ -211,6 +227,11 @@
               },
               "bodyHtml": {
                 "type": "string"
+              },
+              "part": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 9007199254740991
               }
             },
             "required": [

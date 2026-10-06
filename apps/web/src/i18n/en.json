@@ -129,7 +129,8 @@
       "exercises": "Exercises",
       "culture": "Culture",
       "practice": "Practice with AI"
-    }
+    },
+    "part": "part {n}"
   },
   "ref": {
     "vocabulary": "Vocabulary",
@@ -470,15 +471,15 @@
     "again": "Go through the cards again",
     "toEnd": "To the list",
     "saving": "Saving…",
-    "done": "Done"
+    "done": "Done",
+    "keys": "Space: listen, then the translation, then the next card · ← → or Backspace, Enter: move · K: already known.",
+    "knownHint": "“Already known” keeps the word out of Review; you can change it in the list at the end."
   },
   "cardReview": {
     "progress": "{n} of {total}",
     "newToday": "new today {n} of {limit}",
     "tapToShow": "Tap to see the answer",
     "show": "Show the answer",
-    "forgot": "Forgot",
-    "remembered": "Remembered",
     "fromLesson": "lesson {unit}.{lesson}",
     "allDone": "{count, plural, one {# card} other {# cards}} reviewed — that's all for now.",
     "nothingDue": "Nothing to review now",
@@ -488,6 +489,13 @@
       "recognition": "what does it mean?",
       "production": "say it in the language you learn",
       "listening": "what do you hear?"
-    }
+    },
+    "rating": {
+      "again": "Again",
+      "hard": "Hard",
+      "good": "Good",
+      "easy": "Easy"
+    },
+    "howTo": "Spaced repetition as in Anki: recall the answer, show it (Space), then say how it went — Again, Hard, Good or Easy (keys 1–4). FSRS schedules each card from your ratings."
   }
 }

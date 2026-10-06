@@ -7,6 +7,7 @@ import {
   type LessonKey,
   type LocaleLesson,
   lessonGoalKey,
+  type Tab,
   type UnitKey,
 } from "@sprachanker/schema";
 import { type ApolloState, entitiesOf, exerciseIds } from "../apollo.ts";
@@ -47,6 +48,32 @@ const listItems = (value: unknown) =>
   [...String(value ?? "").matchAll(/<li>([\s\S]*?)<\/li>/g)]
     .map((m) => plainText(m[1]))
     .filter(Boolean);
+
+/** "Spelling (2)": DW numbers the parts of a topic that runs over several pages and lessons. */
+const PART = /\s*\((\d+)\)\s*$/;
+
+/**
+ * A lesson's grammar or culture pages as one page per topic: the parts of a topic in this lesson
+ * (numbered "(1)", "(2)", or bearing the same title) are joined in order; the number leaves the title
+ * and stays as `part` when the topic began in an earlier lesson.
+ */
+export function topicParts(pages: Tab[]): Tab[] {
+  const byTitle = new Map<string, { page: Tab; first?: number }>();
+  for (const page of pages) {
+    const match = PART.exec(page.title);
+    const title = page.title.replace(PART, "");
+    const n = match ? Number(match[1]) : undefined;
+    const topic = byTitle.get(title);
+    if (topic) {
+      topic.page.bodyHtml += page.bodyHtml;
+      continue;
+    }
+    byTitle.set(title, { page: { ...page, title }, first: n });
+  }
+  return [...byTitle.values()].map(({ page, first }) =>
+    first && first > 1 ? { ...page, part: first } : page,
+  );
+}
 
 function tab(ctx: Context, k: Entity | undefined) {
   return k
@@ -102,10 +129,12 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const parts = (L.overviewParts ?? []) as Array<{ lessonPart: string; targetId: number }>;
   const knowledge = (id: number) => state[`Knowledge:${id}`];
   const tabsOf = (kind: string) =>
-    parts
-      .filter((p) => p.lessonPart === kind)
-      .map((p) => tab(ctx, knowledge(p.targetId)))
-      .filter((t) => !!t);
+    topicParts(
+      parts
+        .filter((p) => p.lessonPart === kind)
+        .map((p) => tab(ctx, knowledge(p.targetId)))
+        .filter((t) => !!t),
+    );
   const scriptHtml = html(ctx, L.manuscript);
 
   const downloads = entitiesOf(src.downloads, "ContentLink").flatMap((link) => {

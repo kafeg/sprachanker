@@ -32,8 +32,9 @@ type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
 type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
 
 const ALL = "all";
-const CATALOG_COURSE = "catalog.course";
-const CATALOG_PAIR = "catalog.pair";
+/** Where each page keeps its two filters (profile settings). */
+const CATALOG_FILTERS = { course: "catalog.course", pair: "catalog.pair" };
+const MY_FILTERS = { course: "mine.course", pair: "mine.pair" };
 
 const started = (c: CourseRow) => c.done > 0 || c.nextStarted;
 
@@ -248,16 +249,32 @@ function useCourseList() {
 export function MyCoursesPage() {
   const { t } = useTranslation();
   const list = useCourseList();
+  const mine = (list.all ?? []).filter(started);
+  const filters = useCourseFilters(
+    mine.map((c) => ({
+      c,
+      titles: c.editions.map((e) => c.titles[e] || c.key),
+      editions: c.editions,
+    })),
+    MY_FILTERS,
+    list.settings ?? {},
+  );
   if (!list.all) return list.state;
-  const mine = list.all.filter(started);
   return (
     <Page title={t("nav.myCourses")}>
+      {mine.length > 1 && filters.bar}
       {mine.length ? (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {mine.map((c) => (
-            <MyCourseCard key={c.key} course={c} />
-          ))}
-        </div>
+        filters.shown.length ? (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {filters.shown.map(({ c }) => (
+              <MyCourseCard key={c.key} course={c} />
+            ))}
+          </div>
+        ) : (
+          <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
+            {t("courses.noneMatch")}
+          </p>
+        )
       ) : (
         <div className="rounded-2xl border border-dashed p-8 text-center">
           <p className="text-lg">{t("courses.noneStarted")}</p>
@@ -302,68 +319,32 @@ function Filter({
   );
 }
 
-export function CatalogPage() {
+/**
+ * The language pair and course filters of a list of courses, the pair first; each offers only what
+ * fits the other one, so the two never combine into an empty page. Kept in the profile per page.
+ */
+function useCourseFilters<T extends { titles: string[]; editions: string[] }>(
+  items: T[],
+  keys: { course: string; pair: string },
+  settings: Record<string, unknown>,
+) {
   const { t } = useTranslation();
   const pairName = usePairName();
   const set = useSetSetting();
-  const list = useCourseList();
-  const catalog = useCatalog();
-  if (!list.all) return list.state;
-  const all = list.all;
-  // Installed courses, then those offered but not downloaded yet (the providers' catalogues).
-  const cards: Array<{
-    key: string;
-    edition: string;
-    title: string;
-    course?: CourseRow;
-    offer?: CatalogEntry;
-  }> = [
-    ...all.flatMap((course) =>
-      course.editions.map((edition) => ({
-        key: `${course.key}:${edition}`,
-        course,
-        edition,
-        title: course.titles[edition] || course.key,
-      })),
-    ),
-    ...(catalog.data ?? [])
-      .filter((offer) => !offer.installed)
-      .map((offer) => ({ key: offer.key, offer, edition: offer.edition, title: offer.title })),
-  ];
-  if (!cards.length)
-    return (
-      <Page title={t("nav.allCourses")}>
-        <div className="rounded-2xl border border-dashed p-8 text-center">
-          <p className="text-lg">{t("courses.empty")}</p>
-        </div>
-      </Page>
-    );
-
   const stored = (key: string) => {
-    const v = list.settings[key];
+    const v = settings[key];
     return typeof v === "string" ? v : ALL;
   };
-  const title = stored(CATALOG_COURSE);
-  const pair = stored(CATALOG_PAIR);
-  // Each list offers what fits the other one, so the two never combine into an empty page.
-  const titles = [
-    ...new Set(cards.filter((c) => pair === ALL || c.edition === pair).map((c) => c.title)),
-  ];
-  const pairs = [
-    ...new Set(cards.filter((c) => title === ALL || c.title === title).map((c) => c.edition)),
-  ];
-  const shown = cards.filter(
-    (c) => (title === ALL || c.title === title) && (pair === ALL || c.edition === pair),
-  );
-  return (
-    <Page title={t("nav.allCourses")}>
+  const title = stored(keys.course);
+  const pair = stored(keys.pair);
+  const fitsTitle = (item: T) => title === ALL || item.titles.includes(title);
+  const fitsPair = (item: T) => pair === ALL || item.editions.includes(pair);
+  const titles = [...new Set(items.filter(fitsPair).flatMap((i) => i.titles))];
+  const pairs = [...new Set(items.filter(fitsTitle).flatMap((i) => i.editions))];
+  return {
+    shown: items.filter((i) => fitsTitle(i) && fitsPair(i)),
+    bar: (
       <div className="mb-6 flex flex-wrap gap-3">
-        <Filter
-          label={t("courses.course")}
-          value={title}
-          options={titles.sort((a, b) => a.localeCompare(b)).map((x) => [x, x])}
-          onChange={(value) => set.mutate({ key: CATALOG_COURSE, value })}
-        />
         <Filter
           label={t("courses.pair")}
           value={pair}
@@ -375,12 +356,68 @@ export function CatalogPage() {
               {pairName(p)}
             </span>,
           ])}
-          onChange={(value) => set.mutate({ key: CATALOG_PAIR, value })}
+          onChange={(value) => set.mutate({ key: keys.pair, value })}
+        />
+        <Filter
+          label={t("courses.course")}
+          value={title}
+          options={titles.sort((a, b) => a.localeCompare(b)).map((x) => [x, x])}
+          onChange={(value) => set.mutate({ key: keys.course, value })}
         />
       </div>
-      {shown.length ? (
+    ),
+  };
+}
+
+export function CatalogPage() {
+  const { t } = useTranslation();
+  const list = useCourseList();
+  const catalog = useCatalog();
+  const all = list.all ?? [];
+  // Installed courses, then those offered but not downloaded yet (the providers' catalogues).
+  const cards: Array<{
+    key: string;
+    edition: string;
+    titles: string[];
+    editions: string[];
+    course?: CourseRow;
+    offer?: CatalogEntry;
+  }> = [
+    ...all.flatMap((course) =>
+      course.editions.map((edition) => ({
+        key: `${course.key}:${edition}`,
+        course,
+        edition,
+        titles: [course.titles[edition] || course.key],
+        editions: [edition],
+      })),
+    ),
+    ...(catalog.data ?? [])
+      .filter((offer) => !offer.installed)
+      .map((offer) => ({
+        key: offer.key,
+        offer,
+        edition: offer.edition,
+        titles: [offer.title],
+        editions: [offer.edition],
+      })),
+  ];
+  const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
+  if (!list.all) return list.state;
+  if (!cards.length)
+    return (
+      <Page title={t("nav.allCourses")}>
+        <div className="rounded-2xl border border-dashed p-8 text-center">
+          <p className="text-lg">{t("courses.empty")}</p>
+        </div>
+      </Page>
+    );
+  return (
+    <Page title={t("nav.allCourses")}>
+      {filters.bar}
+      {filters.shown.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {shown.map((c) =>
+          {filters.shown.map((c) =>
             c.course ? (
               <CourseCard key={c.key} course={c.course} edition={c.edition} />
             ) : c.offer ? (

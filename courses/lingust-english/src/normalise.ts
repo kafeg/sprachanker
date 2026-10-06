@@ -158,7 +158,8 @@ function buildLesson(
         { key: k, type: "speech_selfrate", items: speech.items },
         {
           sourceId: `${src.info.slug}#examples-${pages.length + 1}`,
-          title: section.title,
+          // A section without a heading gives no title (the player numbers it).
+          ...(section.title && { title: section.title }),
           instructionHtml: allAudio ? LISTEN : READ,
           items: speech.locale,
         },
@@ -168,7 +169,7 @@ function buildLesson(
       const k = nextKey();
       const loc: LocaleExercise = {
         sourceId: `${src.info.slug}#${ex.label}`,
-        title: ex.label,
+        ...(ex.label && { title: ex.label }),
         items: {},
       };
       const instructionHtml = renderSection([paragraph(ex.instructionHtml)]);

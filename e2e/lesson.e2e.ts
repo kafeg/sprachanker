@@ -219,3 +219,36 @@ test("words: the sound button plays the word on the card, also after moving on",
   await page.getByRole("button", { name: "die Tasse, die Tassen", exact: true }).click();
   await request;
 });
+
+test("words: the keys — Space listens, shows, goes on; arrows move; K marks known", async ({
+  page,
+}) => {
+  await openStep(page, "Words of the lesson · 4");
+  await expect(page.getByText("1 of 4")).toBeVisible();
+  // The first card has a recording: Space plays it, then shows the translation, then goes on.
+  await page.keyboard.press("Space");
+  await expect(page.getByText("Tap to see the translation")).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(page.getByText("coffee")).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(page.getByText("2 of 4")).toBeVisible();
+  await page.keyboard.press("ArrowLeft");
+  await expect(page.getByText("1 of 4")).toBeVisible();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByText("2 of 4")).toBeVisible();
+  // After a tap on Next (the button keeps the focus), Space still moves one card at a time.
+  await page.getByRole("button", { name: "Next", exact: true }).first().click();
+  await expect(page.getByText("3 of 4")).toBeVisible();
+  // This word has no recording: Space shows the translation (once, not also a click on the button)…
+  await page.keyboard.press("Space");
+  await expect(page.getByText("to order")).toBeVisible();
+  await expect(page.getByText("3 of 4")).toBeVisible();
+  // …then goes on.
+  await page.keyboard.press("Space");
+  await expect(page.getByText("4 of 4")).toBeVisible();
+  await page.keyboard.press("Backspace");
+  await expect(page.getByText("3 of 4")).toBeVisible();
+  // K marks it known and goes on.
+  await page.keyboard.press("k");
+  await expect(page.getByText("4 of 4")).toBeVisible();
+});

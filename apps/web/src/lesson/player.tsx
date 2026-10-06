@@ -180,7 +180,6 @@ export function LessonPlayer({
       results={run.results}
       done={run.done}
       go={go}
-      openReference={(tab) => setReference(tab)}
     />
   );
 

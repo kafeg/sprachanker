@@ -143,6 +143,20 @@ describe("runs", () => {
     expect(map.lessons[LESSON]).toMatchObject({ done: true, run: { status: "active", worked: 1 } });
   });
 
+  test("a lesson with only a step done (its words, a page read) is in progress", async () => {
+    const { getJson, sendJson } = await setup();
+    const { run } = await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    });
+    expect((await getJson("/api/courses"))[0].nextStarted).toBe(false);
+    await sendJson("POST", `/api/runs/${run.id}/events`, {
+      events: [{ id: ulid(), type: "step_done", payload: { step: "words" } }],
+    });
+    expect((await getJson("/api/courses"))[0].nextStarted).toBe(true);
+  });
+
   test("start, answer (outcomes by the server, idempotent), resume, finish, progress", async () => {
     const api = await setup();
     const { send, getJson, sendJson } = api;

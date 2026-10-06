@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
-import { normaliseLesson } from "../src/normalise/lesson.ts";
+import { normaliseLesson, topicParts } from "../src/normalise/lesson.ts";
 import { parseHeadword } from "../src/normalise/vocab.ts";
 
 test.each([
@@ -153,4 +153,23 @@ test("a lesson's own recording becomes media.audio (Deutschtrainer)", () => {
     exercises: new Map(),
   });
   expect(out.lesson.media).toEqual({ audio: "media/audio/q1.mp3" });
+});
+
+test("grammar pages: a topic's parts in a lesson are one page; a topic begun earlier keeps its part", () => {
+  const page = (title: string, body: string) => ({ sourceId: "1", title, bodyHtml: body });
+  expect(
+    topicParts([
+      page("Topic A (1)", "<p>a1</p>"),
+      page("Other", "<p>o</p>"),
+      page("Topic A (2)", "<p>a2</p>"),
+      page("Topic B (2)", "<p>b2</p>"),
+      page("Same", "<p>s1</p>"),
+      page("Same", "<p>s2</p>"),
+    ]),
+  ).toEqual([
+    { sourceId: "1", title: "Topic A", bodyHtml: "<p>a1</p><p>a2</p>" },
+    { sourceId: "1", title: "Other", bodyHtml: "<p>o</p>" },
+    { sourceId: "1", title: "Topic B", bodyHtml: "<p>b2</p>", part: 2 },
+    { sourceId: "1", title: "Same", bodyHtml: "<p>s1</p><p>s2</p>" },
+  ]);
 });

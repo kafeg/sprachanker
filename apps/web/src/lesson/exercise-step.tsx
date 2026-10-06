@@ -286,7 +286,9 @@ export function ExerciseStep({
         <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           {t("lesson.exerciseOf", { n: index + 1, total })}
         </p>
-        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{locale?.title ?? exercise.key}</h1>
+        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
+          {locale?.title || t("lesson.exerciseN", { n: index + 1 })}
+        </h1>
         {locale?.instructionHtml && (
           <CourseHtml className="mt-2 text-lg" html={locale.instructionHtml} />
         )}

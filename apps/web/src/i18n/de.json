@@ -129,7 +129,8 @@
       "exercises": "Übungen",
       "culture": "Landeskunde",
       "practice": "Üben mit KI"
-    }
+    },
+    "part": "Teil {n}"
   },
   "ref": {
     "vocabulary": "Wortschatz",
@@ -470,15 +471,15 @@
     "again": "Karten noch einmal durchgehen",
     "toEnd": "Zur Liste",
     "saving": "Speichere…",
-    "done": "Fertig"
+    "done": "Fertig",
+    "keys": "Leertaste: anhören, dann die Übersetzung, dann die nächste Karte · ← → oder Rücktaste, Enter: blättern · K: kenne ich schon.",
+    "knownHint": "„Kenne ich schon“ hält das Wort aus der Wiederholung heraus; in der Liste am Ende kannst du es ändern."
   },
   "cardReview": {
     "progress": "{n} von {total}",
     "newToday": "neu heute {n} von {limit}",
     "tapToShow": "Tippe, um die Antwort zu sehen",
     "show": "Antwort zeigen",
-    "forgot": "Vergessen",
-    "remembered": "Gewusst",
     "fromLesson": "Lektion {unit}.{lesson}",
     "allDone": "{count, plural, one {# Karte} other {# Karten}} wiederholt — das war's für jetzt.",
     "nothingDue": "Gerade nichts zu wiederholen",
@@ -488,6 +489,13 @@
       "recognition": "was bedeutet das?",
       "production": "sag es in der Sprache, die du lernst",
       "listening": "was hörst du?"
-    }
+    },
+    "rating": {
+      "again": "Nochmal",
+      "hard": "Schwer",
+      "good": "Gut",
+      "easy": "Einfach"
+    },
+    "howTo": "Wiederholen mit Abständen wie in Anki: erinnere dich, zeig die Antwort (Leertaste) und bewerte — Nochmal, Schwer, Gut oder Einfach (Tasten 1–4). Aus deinen Bewertungen plant FSRS, wann die Karte wiederkommt."
   }
 }

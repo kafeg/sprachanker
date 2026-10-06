@@ -3,6 +3,7 @@
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { pageTitle } from "./reference.tsx";
 
 /** The bar under a step, in the same place as the exercises' one: back, skip, next. */
 export function StepBar({
@@ -46,16 +47,17 @@ export function ReadingStep({
 }: {
   /** "Grammar" or "Culture". */
   section: string;
-  page: { title: string; bodyHtml: string };
+  page: { title: string; bodyHtml: string; part?: number };
   children: React.ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
       <div>
         <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           {section}
         </p>
-        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{page.title}</h1>
+        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{pageTitle(page, t)}</h1>
       </div>
       <CourseHtml className="text-lg" html={page.bodyHtml} />
       {children}

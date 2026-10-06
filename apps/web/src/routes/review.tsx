@@ -1,6 +1,6 @@
-// Review (09): the faces due now and the day's new ones, one card at a time — the front, a tap (or Space)
-// for the back, then "Forgot" or "Remembered" (keys 1, 2) with when it comes back. Two ratings are
-// enough for FSRS (again, good).
+// Review (09): spaced repetition as in Anki — the faces due now and the day's new ones, one card at a
+// time: the front, a tap (or Space) for the back, then a rating — Again, Hard, Good, Easy (keys 1–4) —
+// each with when the card comes back, scheduled by FSRS.
 import type { CardDisplay, CardFace } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
@@ -40,6 +40,14 @@ function Side({ display, part }: { display: CardDisplay; part: "word" | "meaning
   );
 }
 
+/** Anki's four ratings (FSRS grades): how easily the answer came. */
+const RATINGS = [
+  { rating: 1, key: "again", tone: "text-wrong" },
+  { rating: 2, key: "hard", tone: "" },
+  { rating: 3, key: "good", tone: "text-correct" },
+  { rating: 4, key: "easy", tone: "" },
+] as const;
+
 /** What a face shows first and what the answer adds. */
 const FRONT: Record<CardFace, Array<"word" | "meaning" | "audio">> = {
   recognition: ["word", "audio"],
@@ -56,7 +64,7 @@ export function ReviewPage() {
   const [rated, setRated] = useState(0);
   const item = queue.data?.items[0];
 
-  const answer = (rating: 1 | 3) => {
+  const answer = (rating: 1 | 2 | 3 | 4) => {
     if (!item || rate.isPending) return;
     rate.mutate(
       { cardId: item.cardId, face: item.face, rating },
@@ -69,16 +77,16 @@ export function ReviewPage() {
     );
   };
 
-  // Space shows the answer; 1 and 2 rate it (desktop).
+  // Space shows the answer; 1–4 rate it (desktop).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.target as HTMLElement).closest("input, textarea, [role=dialog]")) return;
       if (!shown && (e.key === " " || e.key === "Enter")) {
         e.preventDefault();
         setShown(true);
-      } else if (shown && (e.key === "1" || e.key === "2")) {
+      } else if (shown && ["1", "2", "3", "4"].includes(e.key)) {
         e.preventDefault();
-        answer(e.key === "1" ? 1 : 3);
+        answer(Number(e.key) as 1 | 2 | 3 | 4);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -118,6 +126,7 @@ export function ReviewPage() {
           </span>
         </div>
         <Progress value={(rated / total) * 100} className="h-1.5" />
+        <p className="text-sm text-muted-foreground">{t("cardReview.howTo")}</p>
         <button
           type="button"
           key={`${item.cardId}-${item.face}-${rated}`}
@@ -163,31 +172,27 @@ export function ReviewPage() {
           </span>
         </button>
         {shown ? (
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-auto flex-col gap-0.5 py-3 text-base"
-              disabled={rate.isPending}
-              onClick={() => answer(1)}
-            >
-              <span className="text-wrong">{t("cardReview.forgot")}</span>
-              <span className="text-xs font-normal text-muted-foreground">
-                {when(item.due[1], now)}
-              </span>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="h-auto flex-col gap-0.5 py-3 text-base"
-              disabled={rate.isPending}
-              onClick={() => answer(3)}
-            >
-              <span className="text-correct">{t("cardReview.remembered")}</span>
-              <span className="text-xs font-normal text-muted-foreground">
-                {when(item.due[3], now)}
-              </span>
-            </Button>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {RATINGS.map(({ rating, key, tone }) => (
+              <Button
+                key={rating}
+                variant="outline"
+                size="lg"
+                className="h-auto flex-col gap-0.5 py-3 text-base"
+                disabled={rate.isPending}
+                onClick={() => answer(rating)}
+              >
+                <span className={tone}>
+                  <kbd className="mr-1.5 hidden font-mono text-xs text-muted-foreground [@media(pointer:fine)]:inline">
+                    {rating}
+                  </kbd>
+                  {t(`cardReview.rating.${key}`)}
+                </span>
+                <span className="text-xs font-normal text-muted-foreground">
+                  {when(item.due[rating], now)}
+                </span>
+              </Button>
+            ))}
           </div>
         ) : (
           <Button size="lg" className="w-full text-base" onClick={() => setShown(true)}>
