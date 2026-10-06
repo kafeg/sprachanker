@@ -18,10 +18,9 @@ import {
   LocaleLesson,
   lessonKey,
   parseLessonKey,
-  seriesKey,
   unitKey,
 } from "@sprachanker/schema";
-import { ATTRIBUTION_HTML, COURSE, EDITION, SITE } from "./catalog.ts";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE } from "./catalog.ts";
 import type { VocabSection } from "./parse.ts";
 
 export interface Chapter {
@@ -73,7 +72,7 @@ export const chapterPdfUrl = (pdf: string) => new URL(pdf, SITE).href;
 
 export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFile[] {
   const media = (url: string | undefined) => mediaPath(index, url);
-  const course = courseKey(seriesKey("coerll", "dib"), COURSE);
+  const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const units: CourseIndex["units"] = [];
   const unitTitles: LocaleCourse["units"] = {};

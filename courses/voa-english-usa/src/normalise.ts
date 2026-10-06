@@ -22,7 +22,6 @@ import {
   lessonKey,
   type PartOfSpeech,
   parseLessonKey,
-  seriesKey,
   unitKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, UNIT_SIZE } from "./catalog.ts";
@@ -127,7 +126,7 @@ export interface Normalised {
 }
 
 export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex): Normalised {
-  const course = courseKey(seriesKey(SERIES.publisher, SERIES.series), COURSE);
+  const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const byUnit = Map.groupBy(lessons, (l) => Math.ceil(lessonNumber(l.label) / UNIT_SIZE));
   const units: CourseIndex["units"] = [];

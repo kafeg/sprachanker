@@ -22,19 +22,10 @@ import {
   lessonKey,
   type PartOfSpeech,
   parseLessonKey,
-  seriesKey,
   unitKey,
   type VocabEntry,
 } from "@sprachanker/schema";
-import {
-  ATTRIBUTION_HTML,
-  COURSE,
-  EDITION,
-  PUBLISHER,
-  SERIES_NAME,
-  SITE,
-  TITLE,
-} from "./catalog.ts";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE, TITLE } from "./catalog.ts";
 import { type El, parseHtml } from "./dom.ts";
 import { Homework, mapExercise, speechExercise, Unmapped } from "./exercise.ts";
 import type { IndexLesson, LessonPage, VerbRow, VocabRow } from "./parse.ts";
@@ -244,7 +235,7 @@ function buildLesson(
 const paragraph = (html: string): El => ({ ...parseHtml(html), tag: "p" });
 
 export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normalised {
-  const course = courseKey(seriesKey(PUBLISHER, SERIES_NAME), COURSE);
+  const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const courseUnits: CourseIndex["units"] = [];
   const unitTitles: LocaleCourse["units"] = {};

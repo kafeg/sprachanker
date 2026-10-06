@@ -1,6 +1,8 @@
 // DW Learn German courses (03, research): one provider for the platform, a series per DW course. Each
 // language edition of a DW course is a course of its own (DW publishes them as separate courses that
 // differ in exercises and their order): `a1-ru` and `a1-en` share nothing but the series.
+import { seriesKey } from "@sprachanker/schema";
+
 export const SITE = "https://learngerman.dw.com";
 export { IMPORTER_USER_AGENT as USER_AGENT } from "@sprachanker/course-kit";
 
@@ -71,4 +73,4 @@ export const COURSES: DwCourse[] = [
 ];
 
 /** Library folder of a series: `dw.<series>`. */
-export const seriesId = (series: DwSeries) => `dw.${series}`;
+export const seriesId = (series: DwSeries) => seriesKey("dw", series);

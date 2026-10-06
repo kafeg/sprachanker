@@ -14,7 +14,6 @@ import {
   storedPage,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
-import { seriesKey } from "@sprachanker/schema";
 import {
   articleId,
   articleUrl,
@@ -33,7 +32,7 @@ const CONCURRENCY = 4;
 
 export async function importEnglishUsa(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  const seriesDir = join(options.libraryRoot, seriesKey(SERIES.publisher, SERIES.series));
+  const seriesDir = join(options.libraryRoot, SERIES);
   const rawPath = (id: string) => `raw/${EDITION}/${COURSE}/${id}.html`;
   const fetcher = createPoliteFetcher({
     userAgent: IMPORTER_USER_AGENT,

@@ -12,10 +12,9 @@ import {
   LocaleCourse,
   LocaleLesson,
   parseLessonKey,
-  seriesKey,
 } from "@sprachanker/schema";
 import { type ApolloState, exerciseIds } from "../apollo.ts";
-import type { DwCourse } from "../catalog.ts";
+import { type DwCourse, seriesId } from "../catalog.ts";
 
 import { createContext, html } from "./context.ts";
 import { courseFiles, courseLessons } from "./course.ts";
@@ -34,7 +33,7 @@ export async function normaliseCourse(
   const ctx = createContext(
     JSON.parse(await readFile(join(seriesDir, "media.json"), "utf8")) as MediaIndex,
   );
-  const course = courseKey(seriesKey("dw", dw.series), dw.id);
+  const course = courseKey(seriesId(dw.series), dw.id);
   const wanted = options.lessons;
   const courseState = await read("course.json");
   const all = courseLessons(course, courseState);
