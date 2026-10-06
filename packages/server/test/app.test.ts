@@ -62,7 +62,7 @@ describe("courses and lessons", () => {
     ]);
     const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
     expect(map.titles[LESSON]).toBe("Im Café");
-    expect(map.progress).toEqual({});
+    expect(map.lessons).toEqual({});
     const { lesson, locale } = await getJson(
       `/api/lesson?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON, edition: "en-de" })}`,
     );
@@ -118,6 +118,11 @@ describe("runs", () => {
     expect(again.run.id).not.toBe(run.id);
     expect(again.events).toEqual([]);
     expect((await getJson(`/api/runs/lesson?${q}`)).state.run.id).toBe(again.run.id);
+    const first = { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-01#1`, payload: {} };
+    await sendJson("POST", `/api/runs/${again.run.id}/events`, { events: [first] });
+    expect((await getJson(`/api/runs/lesson?${q}`)).state.run.id).toBe(again.run.id);
+    const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
+    expect(map.lessons[LESSON]).toMatchObject({ done: true, run: { status: "active", worked: 1 } });
   });
 
   test("start, answer (outcomes by the server, idempotent), resume, finish, progress", async () => {
@@ -179,7 +184,11 @@ describe("runs", () => {
     expect(finished.status).toBe("finished");
     expect(finished.result).toEqual({ score: 0.5, scored: 2, answered: 2 });
     const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
-    expect(map.progress[LESSON]).toEqual({ status: "done", bestScore: 0.5, finishedRuns: 1 });
+    const total = map.lessons[LESSON].run.total;
+    expect(map.lessons[LESSON]).toEqual({
+      done: true,
+      run: { status: "finished", worked: total, total, score: 0.5 },
+    });
     expect((await send("POST", `/api/runs/${runId}/events`, { events: [] })).status).toBe(409);
   });
 

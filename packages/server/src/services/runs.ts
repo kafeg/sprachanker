@@ -72,7 +72,10 @@ export const runEvents = (db: ProfileDb, runId: string) =>
     .all()
     .map(toEvent);
 
-/** The run a lesson shows: its active run (in `edition`, when given), else its latest finished run. */
+/**
+ * The run a lesson shows — in the player, on the course map and in the session review: its active run
+ * (in `edition`, when given), else its latest finished run.
+ */
 export function shownLessonRun(db: ProfileDb, lessonKey: string, edition?: string) {
   const lessonRuns = db
     .select()
@@ -84,6 +87,19 @@ export function shownLessonRun(db: ProfileDb, lessonKey: string, edition?: strin
     lessonRuns.find((r) => r.status === "active" && (!edition || r.edition === edition)) ??
     lessonRuns.find((r) => r.status === "finished")
   );
+}
+
+/** A lesson on the course map: whether it counts as done, and the run it opens as the lesson shows it. */
+export interface LessonState {
+  done: boolean;
+  run?: {
+    status: "active" | "finished";
+    /** Exercises answered or skipped, of all the lesson's exercises. */
+    worked: number;
+    total: number;
+    /** Score of a finished run that scored any item. */
+    score?: number;
+  };
 }
 
 export interface RunsOptions {
@@ -115,27 +131,56 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   };
   const seriesOf = (row: RunRow) => (row.courseKey ?? "").split("/")[0] ?? "";
 
+  /** Lesson progress of every lesson with runs. An active run counts as "in progress" only once
+   *  something was answered or skipped in it (opening a lesson, or starting it over, is not progress). */
+  const progress = () => {
+    const activity = new Map(
+      db
+        .select({ runId: events.runId, at: max(events.ts) })
+        .from(events)
+        .where(inArray(events.type, ["answered", "item_skipped"]))
+        .groupBy(events.runId)
+        .all()
+        .map((e) => [e.runId, e.at ?? 0]),
+    );
+    const all = db.select().from(runs).where(eq(runs.kind, "lesson")).all();
+    return Object.fromEntries(lessonProgress(all.map(toRun), activity));
+  };
+
   return {
-    /** Lesson progress of every lesson with runs. An active run counts as "in progress" only once
-     *  something was answered or skipped in it (opening a lesson, or starting it over, is not progress). */
-    progress() {
-      const activity = new Map(
-        db
-          .select({ runId: events.runId, at: max(events.ts) })
-          .from(events)
-          .where(inArray(events.type, ["answered", "item_skipped"]))
-          .groupBy(events.runId)
-          .all()
-          .map((e) => [e.runId, e.at ?? 0]),
-      );
-      const all = db.select().from(runs).where(eq(runs.kind, "lesson")).all();
-      return Object.fromEntries(lessonProgress(all.map(toRun), activity));
-    },
+    progress,
 
     /**
      * What the lesson shows on opening, without starting anything: its active run in this edition, else
      * its latest finished run (read-only), else null.
      */
+    /** Each lesson's state for the course map, read like the player reads it. */
+    async lessonStates(
+      series: string,
+      lessons: LessonKey[],
+      edition: string,
+    ): Promise<Record<string, LessonState>> {
+      const byLesson = progress();
+      const out: Record<string, LessonState> = {};
+      for (const key of lessons) {
+        const row = shownLessonRun(db, key, edition);
+        if (!row || row.status === "abandoned") continue;
+        const lesson = await content.lesson(series, key);
+        const coverage = lessonCoverage(lesson, exerciseResults(runEvents(db, row.id)));
+        const result = toRun(row).result;
+        out[key] = {
+          done: lessonDone(byLesson[key]),
+          run: {
+            status: row.status as "active" | "finished",
+            worked: coverage.worked,
+            total: coverage.total,
+            ...(result?.scored ? { score: result.score } : {}),
+          },
+        };
+      }
+      return out;
+    },
+
     lessonState(series: string, lessonKey: LessonKey, edition: string) {
       const row = shownLessonRun(db, lessonKey, edition);
       if (!row?.courseKey?.startsWith(`${series}/`)) return null;

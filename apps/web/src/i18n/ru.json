@@ -32,11 +32,10 @@
     "unit": "Раздел {number}",
     "status": {
       "new": "Не начат",
-      "in_progress": "В процессе",
+      "in_progress": "В процессе · {worked, number} из {total, number}",
       "done": "Пройден · {score, number, percent}",
       "next": "Следующий",
-      "finished": "Пройден",
-      "best": "лучший {score, number, percent}"
+      "finished": "Пройден"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",

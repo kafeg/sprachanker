@@ -125,10 +125,9 @@ export function createApp(config: AppConfig) {
       zod("query", z.object({ series: Series, course: z.string(), edition: Edition })),
       async (c) => {
         const { series, course, edition } = c.req.valid("query");
-        return c.json({
-          ...(await content.courseMap(series, course, edition)),
-          progress: runs.progress(),
-        });
+        const map = await content.courseMap(series, course, edition);
+        const lessons = map.index.units.flatMap((u) => u.lessons) as LessonKey[];
+        return c.json({ ...map, lessons: await runs.lessonStates(series, lessons, edition) });
       },
     )
     // A course's integrity and counts, and syncing it with its source (re-import).

@@ -32,11 +32,10 @@
     "unit": "Einheit {number}",
     "status": {
       "new": "Nicht begonnen",
-      "in_progress": "Begonnen",
+      "in_progress": "Begonnen · {worked, number} von {total, number}",
       "done": "Erledigt · {score, number, percent}",
       "next": "Als Nächstes",
-      "finished": "Erledigt",
-      "best": "bestes {score, number, percent}"
+      "finished": "Erledigt"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",

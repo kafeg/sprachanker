@@ -1,6 +1,5 @@
 // Course map (09): the course head (course-info) over a timeline of units, each with its lesson cards
 // and their status.
-import { lessonDone } from "@sprachanker/engine";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
@@ -11,34 +10,37 @@ import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { cn } from "@/ui/utils.ts";
 import { CourseHero } from "./course-info.tsx";
 
-type Progress = NonNullable<ReturnType<typeof useCourseMap>["data"]>["progress"];
+type LessonState = NonNullable<ReturnType<typeof useCourseMap>["data"]>["lessons"][string];
 
+/** A lesson card: its status is the run the lesson opens, read like the player reads it. */
 function LessonCard({
   series,
   course,
   lessonKey,
   title,
-  progress,
+  state,
   isNext,
 }: {
   series: string;
   course: string;
   lessonKey: string;
   title: string;
-  progress: Progress[string] | undefined;
+  state: LessonState | undefined;
   isNext: boolean;
 }) {
   const { t } = useTranslation();
   const { lesson, name } = parseLessonKey(lessonKey);
-  const status = progress?.status ?? "new";
+  const run = state?.run;
+  const finished = run?.status === "finished";
+  const working = run?.status === "active";
   return (
     <Link
       to="/lesson/$series/$course/$lesson"
       params={{ series, course, lesson: name }}
       className={cn(
         "group flex min-h-24 flex-col justify-between rounded-xl border bg-card p-3.5 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transition-none motion-reduce:hover:translate-y-0",
-        status === "done" && "border-correct/40",
-        (isNext || status === "in_progress") && "border-2 border-primary",
+        finished && "border-correct/40",
+        (isNext || working) && "border-2 border-primary",
       )}
     >
       <div>
@@ -46,21 +48,17 @@ function LessonCard({
         <div className="font-heading font-semibold leading-tight">{title}</div>
       </div>
       <div className="mt-2 flex items-center gap-1.5 text-xs">
-        {status === "done" ? (
+        {finished ? (
           <span className="flex items-center gap-1 text-correct">
             <CheckCircle2 className="size-3.5" />
-            {progress?.bestScore === undefined
+            {run.score === undefined
               ? t("course.status.finished")
-              : t("course.status.done", { score: progress.bestScore })}
+              : t("course.status.done", { score: run.score })}
           </span>
-        ) : status === "in_progress" ? (
+        ) : working ? (
           <span className="flex items-center gap-1 font-medium">
-            <CircleDot className="size-3.5 text-primary" /> {t("course.status.in_progress")}
-            {progress?.bestScore !== undefined && (
-              <span className="font-normal text-muted-foreground">
-                · {t("course.status.best", { score: progress.bestScore })}
-              </span>
-            )}
+            <CircleDot className="size-3.5 text-primary" />
+            {t("course.status.in_progress", { worked: run.worked, total: run.total })}
           </span>
         ) : isNext ? (
           <span className="font-medium">{t("course.status.next")}</span>
@@ -80,7 +78,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
   const map = useCourseMap(series, course, edition);
   if (courses.isPending || map.isPending) return <Loading />;
   if (map.isError) return <ErrorState error={map.error} onRetry={() => map.refetch()} />;
-  const { index, locale, titles, progress } = map.data;
+  const { index, locale, titles, lessons } = map.data;
   const all = index.units.flatMap((u) => u.lessons);
   const next = info?.next;
   return (
@@ -103,7 +101,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
       <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
         {index.units.map((unit) => {
           const number = Number(unit.key.slice(-2));
-          const finished = unit.lessons.filter((key) => lessonDone(progress[key])).length;
+          const finished = unit.lessons.filter((key) => lessons[key]?.done).length;
           const complete = finished === unit.lessons.length;
           const current = unit.lessons.some((key) => key === next);
           return (
@@ -133,8 +131,8 @@ export function CoursePage({ series, course }: { series: string; course: string 
                     course={course}
                     lessonKey={key}
                     title={titles[key] ?? key}
-                    progress={progress[key]}
-                    isNext={key === next && progress[key]?.status !== "done"}
+                    state={lessons[key]}
+                    isNext={key === next && lessons[key]?.run?.status !== "finished"}
                   />
                 ))}
               </div>
