@@ -21,6 +21,7 @@ import {
   parseLessonKey,
   type Run,
   type StoredEvent,
+  seriesOf,
 } from "@sprachanker/schema";
 import { and, asc, desc, eq, inArray, max } from "drizzle-orm";
 import { ulid } from "ulid";
@@ -97,7 +98,6 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
     if (!row) throw new RunError(`no run ${id}`, 404);
     return row;
   };
-  const seriesOf = (row: RunRow) => (row.courseKey ?? "").split("/")[0] ?? "";
 
   /**
    * A finished run counts as completed only when every exercise of the lesson was answered or skipped
@@ -108,7 +108,10 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   const completed = async (row: RunRow) => {
     if (row.status !== "finished") return false;
     if (!complete.has(row.id)) {
-      const lesson = await content.lesson(seriesOf(row), row.contextKey as LessonKey);
+      const lesson = await content.lesson(
+        seriesOf(row.contextKey as LessonKey),
+        row.contextKey as LessonKey,
+      );
       complete.set(row.id, lessonCoverage(lesson, exerciseResults(runEvents(db, row.id))).complete);
     }
     return complete.get(row.id) as boolean;
@@ -252,7 +255,7 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
               .map((e) => e.id)
           : [],
       );
-      const series = seriesOf(row);
+      const series = seriesOf(row.contextKey as LessonKey);
       const lesson = await content.lesson(series, row.contextKey as LessonKey);
       const locale = row.edition
         ? await content.localeLesson(series, lesson.key, row.edition)
@@ -305,7 +308,10 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       const row = getRun(runId);
       if (row.status !== "active") return toRun(row);
       const list = runEvents(db, runId);
-      const lesson = await content.lesson(seriesOf(row), row.contextKey as LessonKey);
+      const lesson = await content.lesson(
+        seriesOf(row.contextKey as LessonKey),
+        row.contextKey as LessonKey,
+      );
       if (!lessonCoverage(lesson, exerciseResults(list)).complete)
         throw new RunError("run_incomplete", 409);
       const result = lessonResult(lesson, list);

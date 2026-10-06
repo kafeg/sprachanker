@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  type CourseKey,
   courseGoalKey,
   courseKey,
   ExerciseKey,
@@ -25,6 +26,7 @@ import {
   SceneKey,
   sceneKey,
   seriesKey,
+  seriesOf,
   unitKey,
   VocabKey,
   vocabKey,
@@ -126,4 +128,9 @@ describe("parsers", () => {
   test("option ids", () => {
     expect([0, 1, 25, 26, 27].map(optionId)).toEqual(["a", "b", "z", "aa", "ab"]);
   });
+});
+
+test("seriesOf: the series every key starts with", () => {
+  expect<string>(seriesOf("dw.nicos-weg/a1-ru/00-01/ex-02#3" as ItemKey)).toBe("dw.nicos-weg");
+  expect<string>(seriesOf("coerll.dib/dib" as CourseKey)).toBe("coerll.dib");
 });

@@ -144,6 +144,10 @@ export function parseLessonKey(key: LessonKey | string): {
   };
 }
 
+/** The series a course, lesson, exercise or item key belongs to (every such key starts with it). */
+export const seriesOf = (key: CourseKey | LessonKey | ExerciseKey | ItemKey) =>
+  key.slice(0, key.indexOf("/")) as SeriesKey;
+
 /** The lesson an exercise belongs to. */
 export const lessonOf = (exercise: ExerciseKey) =>
   exercise.slice(0, exercise.lastIndexOf("/")) as LessonKey;
