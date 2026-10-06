@@ -10,7 +10,8 @@
       "**",
       "!**/*.md",
       "!packages/schema/json-schema",
-      "!packages/server/src/db/profile/migrations"
+      "!packages/server/src/db/profile/migrations",
+      "!.claude"
     ]
   },
   "formatter": {

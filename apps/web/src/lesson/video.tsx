@@ -2,7 +2,7 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { claimPlayback } from "@/ui/media.tsx";
-import { useTargetLang } from "@/ui/target-lang.ts";
+import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 
 export function EpisodeVideo({
@@ -17,7 +17,7 @@ export function EpisodeVideo({
   url(p: string): string;
 }) {
   const { t } = useTranslation();
-  const lang = useTargetLang();
+  const lang = useRequiredTargetLang();
   const ref = useRef<HTMLVideoElement>(null);
   const [quality, setQuality] = useState<"sd" | "hd">("sd");
   const src = quality === "hd" && hd ? hd : (sd ?? hd);
@@ -48,8 +48,8 @@ export function EpisodeVideo({
         {subtitles && (
           <track
             kind="subtitles"
-            srcLang={lang ?? "de"}
-            label={new Intl.DisplayNames([lang ?? "de"], { type: "language" }).of(lang ?? "de")}
+            srcLang={lang}
+            label={new Intl.DisplayNames([lang], { type: "language" }).of(lang)}
             src={url(subtitles)}
             default
           />

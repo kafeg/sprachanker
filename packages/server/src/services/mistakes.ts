@@ -1,67 +1,37 @@
-// The learner's mistakes, derived from lesson runs (05, "Derived state"): items whose latest first
-// attempt was wrong or partly right, newest first, with whether a later attempt got them right.
-import { type AnsweredPayload, type ItemKey, lessonOf, parseItemKey } from "@sprachanker/schema";
-import { and, desc, eq } from "drizzle-orm";
+// The learner's mistakes, derived from lesson runs by the engine (05, "Derived state"): items whose
+// first attempt in the latest run that answered them was wrong or partly right, newest first.
+import { type Mistake, mistakesOf } from "@sprachanker/engine";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
+import { runEvents } from "./runs.ts";
 
-export interface Mistake {
-  itemKey: ItemKey;
-  lessonKey: string;
-  exerciseKey: string;
-  /** 0-based item index in the exercise. */
-  index: number;
-  /** The first (wrong) answer. */
-  answer: unknown;
-  result: "wrong" | "partial";
-  /** A later attempt was correct. */
-  fixed: boolean;
-  ts: number;
-}
-
-type Answered = Pick<AnsweredPayload, "answer" | "attempt" | "outcome">;
+export type { Mistake } from "@sprachanker/engine";
 
 export function createMistakes(db: ProfileDb) {
   return {
     /** Mistakes in lessons, newest first: of all lessons or of one. */
     list(filter: { lesson?: string; limit?: number } = {}): Mistake[] {
-      const rows = db
-        .select({ itemKey: events.itemKey, ts: events.ts, payload: events.payloadJson })
-        .from(events)
-        .innerJoin(runs, eq(runs.id, events.runId))
-        .where(and(eq(runs.kind, "lesson"), eq(events.type, "answered")))
-        .orderBy(desc(events.ts))
+      const lessonRuns = db
+        .select({ id: runs.id })
+        .from(runs)
+        .where(
+          and(
+            eq(runs.kind, "lesson"),
+            filter.lesson ? eq(runs.contextKey, filter.lesson) : undefined,
+            inArray(
+              runs.id,
+              db
+                .selectDistinct({ id: events.runId })
+                .from(events)
+                .where(eq(events.type, "answered")),
+            ),
+          ),
+        )
+        .orderBy(asc(runs.startedAt), asc(runs.id))
         .all();
-      const byItem = new Map<string, { first?: Answered & { ts: number }; latest?: Answered }>();
-      for (const row of rows) {
-        if (!row.itemKey) continue;
-        const lesson = lessonOf(parseItemKey(row.itemKey as ItemKey).exercise);
-        if (filter.lesson && lesson !== filter.lesson) continue;
-        const answered = JSON.parse(row.payload) as Answered;
-        const entry = byItem.get(row.itemKey) ?? {};
-        // Rows come newest first: the first row seen is the latest answer, and the first attempt of the
-        // latest run (a lesson done again counts afresh).
-        entry.latest ??= answered;
-        if (answered.attempt === 1) entry.first ??= { ...answered, ts: row.ts };
-        byItem.set(row.itemKey, entry);
-      }
-      const out: Mistake[] = [];
-      for (const [key, { first, latest }] of byItem) {
-        const result = first?.outcome.result;
-        if (!first || (result !== "wrong" && result !== "partial")) continue;
-        const { exercise, n } = parseItemKey(key as ItemKey);
-        out.push({
-          itemKey: key as ItemKey,
-          lessonKey: lessonOf(exercise),
-          exerciseKey: exercise,
-          index: n - 1,
-          answer: first.answer,
-          result,
-          fixed: latest?.outcome.result === "correct",
-          ts: first.ts,
-        });
-      }
-      return out.sort((a, b) => b.ts - a.ts).slice(0, filter.limit ?? out.length);
+      const all = mistakesOf(lessonRuns.map((r) => ({ events: runEvents(db, r.id) })));
+      return all.slice(0, filter.limit ?? all.length);
     },
   };
 }

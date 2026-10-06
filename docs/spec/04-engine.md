@@ -61,8 +61,8 @@ type Outcome = {
 
 Pure functions over events and cards (05). Built: lesson result (mean first-attempt score), resume
 page and lesson progress (`packages/engine/src/learner/progress.ts`; the best score counts only runs
-that scored an item, so a lesson of words only is done without a score); mistakes (items whose latest
-first attempt was wrong or partial) are derived by the server (`packages/server/src/services/mistakes.ts`).
+that scored an item, so a lesson of words only is done without a score); mistakes (items whose first attempt in the latest run
+that answered them was wrong or partial; `learner/mistakes.ts`), read by the server per request.
 The rest is planned:
 
 - **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM

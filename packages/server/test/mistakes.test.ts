@@ -19,12 +19,13 @@ test("mistakes reach the tutor: fixed ones marked, redone lessons count afresh",
         },
       ],
     });
-  const start = async () =>
+  const start = async (restart = false) =>
     (
       await sendJson("POST", "/api/runs", {
         series: FIXTURE_SERIES,
         lessonKey: CAFE,
         edition: "ru-de",
+        restart,
       })
     ).run.id as string;
   const prompt = async (lessonKey: string) => {
@@ -56,8 +57,7 @@ test("mistakes reach the tutor: fixed ones marked, redone lessons count afresh",
   expect(await prompt(SPEAKING)).toMatch(/In earlier lessons:\n- \[.+\]/);
 
   // The lesson done again, this time right: no longer a mistake.
-  await sendJson("POST", `/api/runs/${run}/finish`, {});
-  const again = await start();
+  const again = await start(true);
   await answer(again, `${CAFE}/ex-01#1`, { optionId: "a" });
   expect(await prompt(CAFE)).not.toContain("Im Park.");
 });

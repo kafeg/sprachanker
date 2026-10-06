@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
-import { useTargetLang } from "@/ui/target-lang.ts";
+import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
 import { modelName, useAssistantLabel } from "./assistant-label.tsx";
@@ -26,8 +26,8 @@ const VERDICT_TONE: Record<Check["verdict"], string> = {
 
 /** The corrected text with the learner's words that changed struck through. */
 function CorrectedText({ text, corrected }: { text: string; corrected: string }) {
-  const lang = useTargetLang();
-  const { diff } = wordDiff(lang ?? "de", corrected, text);
+  const lang = useRequiredTargetLang();
+  const { diff } = wordDiff(lang, corrected, text);
   return (
     <p lang={lang} className="text-lg leading-relaxed">
       {diff.map((d, i) => {
@@ -96,7 +96,7 @@ export function WritingTask({
   lessonKey: LessonKey;
   edition: string;
 }) {
-  const lang = useTargetLang();
+  const lang = useRequiredTargetLang();
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const label = useAssistantLabel();

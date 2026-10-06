@@ -279,7 +279,8 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
         ? await content.localeLesson(series, lesson.key, row.edition)
         : undefined;
       // Answers are checked in the language the edition teaches (case rules differ, 04).
-      const target = row.edition ? parseEditionId(row.edition).target : "de";
+      if (!row.edition) throw new RunError("lesson run without an edition");
+      const target = parseEditionId(row.edition).target;
       const outcomes: Record<string, Outcome> = {};
       for (const e of parsed) {
         if (known.has(e.id)) continue;

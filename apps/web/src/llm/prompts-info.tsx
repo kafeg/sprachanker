@@ -28,9 +28,11 @@ const PARTS = {
 export function PromptsInfo() {
   const { t, i18n } = useTranslation();
   const courses = useCourses();
-  // Prompts name the language being learnt: the target of the installed course.
-  const edition = courses.data?.[0]?.editions[0];
-  const target = edition ? parseEditionId(edition).target : "de";
+  // Prompts name the language being learnt: shown for the first started course (else the first one).
+  const list = courses.data ?? [];
+  const course = list.find((c) => c.done > 0 || c.nextStarted) ?? list[0];
+  const edition = course?.editions[0];
+  const target = edition ? parseEditionId(edition).target : undefined;
   const prompts = useTaskPrompts(i18n.language, target);
   const debug = useDebugPrompts();
   const set = useSetSetting();

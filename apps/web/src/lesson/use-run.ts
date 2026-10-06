@@ -72,10 +72,19 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
       while (queue.current.length) {
         const batch = queue.current.slice(0, 50);
         try {
-          await json(
+          const { outcomes } = await json(
             api.runs[":id"].events.$post({ param: { id: runId }, json: { events: batch } }),
           );
           queue.current = queue.current.slice(batch.length);
+          // The server's outcome is the one stored: it replaces the local one where they differ.
+          if (Object.keys(outcomes).length)
+            setEvents((prev) =>
+              prev.map((e) =>
+                outcomes[e.id]
+                  ? { ...e, payload: { ...(e.payload as object), outcome: outcomes[e.id] } }
+                  : e,
+              ),
+            );
         } catch (e) {
           if (e instanceof ApiError && e.status && e.status < 500) {
             queue.current = queue.current.slice(batch.length);

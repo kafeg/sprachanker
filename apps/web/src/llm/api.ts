@@ -165,11 +165,13 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
 }
 
 /** The tasks' system prompts and context budgets, for the settings. */
-export const useTaskPrompts = (language: string, target: string) =>
+/** The task prompts for a target language (none while no course is installed). */
+export const useTaskPrompts = (language: string, target: string | undefined) =>
   useQuery({
     queryKey: ["llm-prompts", language, target],
+    enabled: !!target,
     staleTime: Number.POSITIVE_INFINITY,
-    queryFn: () => json(api.llm.prompts.$get({ query: { language, target } })),
+    queryFn: () => json(api.llm.prompts.$get({ query: { language, target: target as string } })),
   });
 
 /** How full the tutor's next request is (refreshed after each turn). */

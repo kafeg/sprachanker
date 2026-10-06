@@ -8,7 +8,7 @@ import { correctAnswer, ExerciseItem, isScored } from "@/exercises/index.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
-import { useTargetLang } from "@/ui/target-lang.ts";
+import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { ExerciseResult } from "./use-run.ts";
 
@@ -73,7 +73,7 @@ export function ExerciseStep({
   onNext,
   explain,
 }: StepProps) {
-  const lang = useTargetLang();
+  const lang = useRequiredTargetLang();
   const { t } = useTranslation();
   const scored = isScored(exercise.type);
   // Reopened: the latest answers of the run and, for checked exercises, their outcomes.
@@ -107,7 +107,7 @@ export function ExerciseStep({
       return {
         itemKey: item.key,
         answer,
-        outcome: answer === undefined ? unanswered : checkItem(exercise, i, answer, lang ?? "de"),
+        outcome: answer === undefined ? unanswered : checkItem(exercise, i, answer, lang),
       };
     });
     setOutcomes(Object.fromEntries(results.map((r, i) => [i, r.outcome])));
@@ -129,7 +129,7 @@ export function ExerciseStep({
           rated.push({
             itemKey: item.key,
             answer: answers[i],
-            outcome: checkItem(exercise, i, answers[i], lang ?? "de"),
+            outcome: checkItem(exercise, i, answers[i], lang),
           });
         }
       });
