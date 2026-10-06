@@ -381,7 +381,7 @@
     "sync": "Sync with the source",
     "notDownloaded": "Not downloaded",
     "incomplete": "{count, plural, =0 {Download not finished} one {# file missing} other {# files missing}}",
-    "openSoon": "Lessons open as soon as their pages are in; media keep coming.",
+    "openSoon": "The course can be started once it is fully downloaded.",
     "failed": "Download failed: {error}",
     "done": "Downloaded. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
     "hint": "Downloading fetches what is missing from the source (stored pages and media are kept) and prepares the course again; your progress stays.",

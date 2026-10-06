@@ -1,8 +1,7 @@
-// `sprachanker import voa-english-usa`: fetch the lesson articles (idempotent), normalise a first time
-// when the course is new (so it opens while media download), fetch the recordings, normalise (03).
+// `sprachanker import voa-english-usa`: fetch the lesson articles and recordings (idempotent), then
+// normalise (03).
 import { join } from "node:path";
 import {
-  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   failedMedia,
@@ -13,7 +12,6 @@ import {
   type MediaIndex,
   type MediaRef,
   pageCounter,
-  readMediaIndex,
   runPool,
   storedPage,
   writeLibraryFiles,
@@ -83,7 +81,6 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
     return { count, unmapped, problems: await writeLibraryFiles(seriesDir, files, log) };
   };
   const indexFile = join(seriesDir, "media.json");
-  if (!courseInstalled(seriesDir, COURSE)) await normalise(await readMediaIndex(indexFile));
   const index = await fetchMedia({
     fetcher,
     store: createMediaStore(seriesDir),

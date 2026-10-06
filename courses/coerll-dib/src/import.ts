@@ -1,8 +1,6 @@
-// `sprachanker import coerll-dib`: fetch the chapter pages (idempotent), normalise a first time when the
-// course is new (so it opens while media download), fetch the media, normalise (03).
+// `sprachanker import coerll-dib`: fetch the chapter pages and media (idempotent), then normalise (03).
 import { join } from "node:path";
 import {
-  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   failedMedia,
@@ -13,7 +11,6 @@ import {
   type MediaIndex,
   type MediaRef,
   pageCounter,
-  readMediaIndex,
   storedPage,
   urlFileName,
   writeLibraryFiles,
@@ -70,7 +67,6 @@ export async function importDib(options: ImportOptions): Promise<ImportReport> {
     return { problems, lessons };
   };
   const indexFile = join(seriesDir, "media.json");
-  if (!courseInstalled(seriesDir, COURSE)) await normalise(await readMediaIndex(indexFile));
   const index = await fetchMedia({
     fetcher,
     store: createMediaStore(seriesDir),

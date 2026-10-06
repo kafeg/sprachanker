@@ -1,8 +1,6 @@
-// `sprachanker import dw-<series>`: fetch pages (idempotent), normalise a first time the courses that are
-// new (so they open while media download), fetch media, normalise (03).
+// `sprachanker import dw-<series>`: fetch pages and media (idempotent), then normalise (03).
 import { join } from "node:path";
 import {
-  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   failedMedia,
@@ -37,8 +35,6 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
     options.progress?.({ phase: "normalise" });
     return normaliseCourse(seriesDir, course, { log: options.log });
   };
-  for (const course of selected)
-    if (!courseInstalled(seriesDir, course.id)) await normalise(course);
   const refs = (await collectMedia(join(seriesDir, "raw"))).map((r) => ({
     ...r,
     name: mediaName(r),

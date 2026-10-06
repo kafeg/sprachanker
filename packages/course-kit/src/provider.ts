@@ -49,10 +49,6 @@ export interface CourseOffer {
   approxBytes: number;
 }
 
-/** A course is installed once its canonical course file exists: it can be opened (02). */
-export const courseInstalled = (seriesDir: string, course: string) =>
-  existsSync(join(seriesDir, "canonical", course, "course.json"));
-
 export interface NormaliseResult {
   lessons: number;
   /** Exercises of an unknown structure (`unknown` + report entry). */

@@ -36,14 +36,13 @@ library reader, and the helpers normalisers share: a lesson's vocabulary entries
   the learner's machine; nothing is hosted by us.
 - **Idempotent and resumable.** Stored raw pages are not fetched again unless `--refresh`; stored media
   are skipped, failed media are tried again on the next run.
-- **Phases.** Fetch the pages into `raw/`; a course not installed yet is normalised right away (its
-  lessons open without media); fetch the media into `media/`; normalise again with them. Normalising is
-  offline and deterministic.
+- **Phases.** Fetch the pages into `raw/` and the media into `media/`, then normalise offline and
+  deterministically. A course appears (can be started) once it is normalised, i.e. fully downloaded;
+  until then its card shows the download.
 - **Reports** unknown exercises (`unmapped`), files that failed validation, media that failed.
 - One download at a time (the job queue) and one import per series across processes (a lock folder
   with the owner's pid, taken over when that process is gone), so the CLI and the server never write
-  one `media.json` together. A course is visible once its first normalise wrote it; exercises made only
-  of media show as not supported until the media are in.
+  one `media.json` together.
 
 ## 1. DW Learn German (`courses/dw`)
 

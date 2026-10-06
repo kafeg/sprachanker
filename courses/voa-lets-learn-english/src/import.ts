@@ -1,10 +1,8 @@
 // `sprachanker import voa-lets-learn-english`: fetch the landing pages, lesson articles, their document
 // pages and quiz result pages (idempotent), then the media, then normalise (03). GET only: a quiz's
-// result page (`page=2k`) shows question k with its answer, no answer is submitted. A new course is
-// normalised a first time before the media, so it opens while they download.
+// result page (`page=2k`) shows question k with its answer, no answer is submitted.
 import { join } from "node:path";
 import {
-  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   FetchFailedError,
@@ -16,7 +14,6 @@ import {
   type MediaIndex,
   type PoliteFetcher,
   pageCounter,
-  readMediaIndex,
   runPool,
   storedPage,
   writeLibraryFiles,
@@ -55,9 +52,6 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
     return { result, problems: await writeLibraryFiles(seriesDir, result.files, log) };
   };
   const indexFile = join(seriesDir, "media.json");
-  const known = await readMediaIndex(indexFile);
-  for (const course of courses)
-    if (!courseInstalled(seriesDir, course.def.id)) await normalise(course, known);
 
   const index = await fetchMedia({
     fetcher,
