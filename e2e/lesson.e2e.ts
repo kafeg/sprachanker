@@ -205,3 +205,17 @@ test("words: the cards go to Review, a word marked known is set aside", async ({
   expect(words["lex:de:kaffee:noun:m"].suspended).toBe(true);
   expect(words["lex:de:tasse:noun:f"].suspended).toBe(false);
 });
+
+test("words: the sound button plays the word on the card, also after moving on", async ({
+  page,
+}) => {
+  await openStep(page, "Words of the lesson · 4");
+  let request = page.waitForRequest(/kaffee\.mp3$/);
+  await page.getByRole("button", { name: "der Kaffee, die Kaffees", exact: true }).click();
+  await request;
+  await page.getByRole("button", { name: "Next", exact: true }).first().click();
+  await expect(page.getByText("2 of 4")).toBeVisible();
+  request = page.waitForRequest(/tasse\.mp3$/);
+  await page.getByRole("button", { name: "die Tasse, die Tassen", exact: true }).click();
+  await request;
+});

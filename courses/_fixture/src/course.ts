@@ -80,6 +80,7 @@ const TASSE = vocab(
     gender: "f",
     plural: "die Tassen",
     image: image("tasse"),
+    audio: audio("tasse"),
   },
   "Tasse",
 );

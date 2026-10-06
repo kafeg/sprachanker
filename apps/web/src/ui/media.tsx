@@ -229,7 +229,17 @@ export function AudioButton({
   const { rate } = useContext(PlaybackRate);
   const audio = useRef<HTMLAudioElement | null>(null);
   const [active, setActive] = useState(false);
-  useEffect(() => () => audio.current?.pause(), []);
+  // Another word in the same place (cards one after another): the old recording stops and is let go,
+  // so the next tap plays the new one.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the cleanup runs when `src` changes
+  useEffect(
+    () => () => {
+      audio.current?.pause();
+      audio.current = null;
+      setActive(false);
+    },
+    [src],
+  );
   const toggle = () => {
     if (!audio.current) {
       const a = new Audio(src);
