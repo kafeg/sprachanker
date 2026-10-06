@@ -4,10 +4,10 @@ import { freshLessonRun } from "./api.ts";
 test.beforeEach(({ request }) => freshLessonRun(request));
 
 test("open the course, do an exercise, resume, finish with a summary", async ({ page }) => {
-  await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Courses");
+  await page.goto("/catalog");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("All courses");
   await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Start|Continue lesson/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Start|Continue lesson/ }).first()).toBeVisible();
   // Other projects share the server's profile, so open lesson 1 directly (it was just started anew).
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
 
@@ -47,7 +47,7 @@ test.describe("with a German browser", () => {
   test.use({ locale: "de-DE" });
   test("the interface is German", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kurse");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Meine Kurse");
   });
 });
 

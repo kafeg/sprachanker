@@ -240,7 +240,18 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
   files.push({
     path: `canonical/${COURSE}/course.json`,
     schema: CourseIndex,
-    value: { format: 1, key: course, units, exams: [], goals } satisfies CourseIndex,
+    value: {
+      format: 1,
+      key: course,
+      source: {
+        publisher: "Голос Америки (Voice of America)",
+        url: "https://www.golosameriki.com",
+        licence: "public-domain",
+      },
+      units,
+      exams: [],
+      goals,
+    } satisfies CourseIndex,
   });
   files.push({
     path: `locale/${EDITION}/${COURSE}/course.json`,

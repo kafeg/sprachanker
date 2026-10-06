@@ -1,4 +1,3 @@
-export * from "./align.ts";
 export * from "./canonical-json.ts";
 export * from "./fingerprint.ts";
 export * from "./html.ts";

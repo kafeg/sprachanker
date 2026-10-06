@@ -15,24 +15,10 @@ import {
   parseLessonKey,
 } from "@sprachanker/schema";
 import type { z } from "zod";
+import type { LibraryView } from "./library-view.ts";
+import { verifyCourse } from "./verify.ts";
 
-export interface InstalledCourse {
-  series: string;
-  /** Course id inside the series (`a1`). */
-  course: string;
-  editions: EditionId[];
-}
-
-export interface LibraryView {
-  root: string;
-  courses(): InstalledCourse[];
-  courseIndex(series: string, course: string): Promise<CourseIndex>;
-  localeCourse(series: string, course: string, edition: string): Promise<LocaleCourse | undefined>;
-  lesson(series: string, key: LessonKey): Promise<Lesson>;
-  localeLesson(series: string, key: LessonKey, edition: string): Promise<LocaleLesson | undefined>;
-  /** Absolute file of a media path, or undefined when it does not exist or leaves the media folder. */
-  mediaFile(series: string, path: MediaPath | string): string | undefined;
-}
+export type { InstalledCourse, LibraryView } from "./library-view.ts";
 
 const dirs = (path: string) =>
   existsSync(path)
@@ -49,7 +35,7 @@ async function read<S extends z.ZodType>(schema: S, file: string): Promise<z.inf
 
 export function openLibrary(root: string): LibraryView {
   const seriesDir = (series: string) => join(root, series);
-  return {
+  const view: LibraryView = {
     root,
     courses() {
       return dirs(root)
@@ -94,5 +80,12 @@ export function openLibrary(root: string): LibraryView {
       const file = normalize(join(seriesDir(series), path));
       return file.startsWith(base) && existsSync(file) ? file : undefined;
     },
+    check(series, course) {
+      const editions = view
+        .courses()
+        .find((c) => c.series === series && c.course === course)?.editions;
+      return verifyCourse(view, series, course, editions ?? []);
+    },
   };
+  return view;
 }

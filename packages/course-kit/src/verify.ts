@@ -2,7 +2,7 @@
 // schemas — and checked beyond them: keys that refer to each other, answers that refer to existing
 // options and gaps, fingerprints, locale texts per edition, and media files on disk. One report per
 // course; `problems` must be empty, `notes` are worth a look (e.g. exercises without locale texts).
-import { readdirSync } from "node:fs";
+import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   correctOptions,
@@ -12,24 +12,9 @@ import {
   type LocaleLesson,
 } from "@sprachanker/schema";
 import { fingerprint } from "./fingerprint.ts";
-import type { LibraryView } from "./library.ts";
+import type { CourseReport, LibraryView } from "./library-view.ts";
 
-export interface CourseReport {
-  series: string;
-  course: string;
-  editions: string[];
-  units: number;
-  lessons: number;
-  /** Exercises by type. */
-  exercises: Record<string, number>;
-  items: number;
-  vocab: number;
-  media: { referenced: number; missing: number };
-  /** Broken data: the app would fail or show something wrong. */
-  problems: string[];
-  /** Gaps worth knowing: missing translations, unknown exercises… */
-  notes: string[];
-}
+export type { CourseReport } from "./library-view.ts";
 
 /** Every `media/…` path inside a value (lesson, exercise, locale file). */
 function mediaPaths(value: unknown, out: Set<string>) {
@@ -134,93 +119,109 @@ function localeProblems(lesson: Lesson, locale: LocaleLesson, edition: string) {
 
 export async function verifyLibrary(library: LibraryView): Promise<CourseReport[]> {
   const reports: CourseReport[] = [];
-  for (const { series, course, editions } of library.courses()) {
-    const report: CourseReport = {
-      series,
-      course,
-      editions,
-      units: 0,
-      lessons: 0,
-      exercises: {},
-      items: 0,
-      vocab: 0,
-      media: { referenced: 0, missing: 0 },
-      problems: [],
-      notes: [],
-    };
-    reports.push(report);
-    const guard = async <T>(what: string, read: () => Promise<T>): Promise<T | undefined> => {
-      try {
-        return await read();
-      } catch (error) {
-        report.problems.push(`${what}: ${error instanceof Error ? error.message : String(error)}`);
-        return undefined;
-      }
-    };
-    const index = await guard("course.json", () => library.courseIndex(series, course));
-    if (!index) continue;
-    if (!editions.length) report.problems.push("no edition (locale course.json) installed");
-    const media = new Set<string>();
-    const listed = new Set<string>();
-    report.units = index.units.length;
-    for (const unit of index.units) {
-      for (const key of unit.lessons) {
-        if (listed.has(key)) report.problems.push(`${key}: listed twice in course.json`);
-        listed.add(key);
-        const lesson = await guard(key, () => library.lesson(series, key as LessonKey));
-        if (!lesson) continue;
-        report.lessons++;
-        if (lesson.key !== key) report.problems.push(`${key}: the file holds ${lesson.key}`);
-        if (lesson.unit !== unit.key)
-          report.problems.push(`${key}: unit ${lesson.unit}, listed in ${unit.key}`);
-        report.vocab += lesson.vocab.length;
-        mediaPaths(lesson, media);
-        for (const { exercise } of lesson.pages) {
-          report.exercises[exercise.type] = (report.exercises[exercise.type] ?? 0) + 1;
-          report.items += exercise.items.length;
-          if (exercise.fingerprint !== fingerprint(exercise))
-            report.problems.push(`${exercise.key}: fingerprint does not match its content`);
-          report.problems.push(...answerProblems(exercise));
-        }
-        for (const edition of editions) {
-          const locale = await guard(`${edition} ${key}`, () =>
-            library.localeLesson(series, key as LessonKey, edition),
-          );
-          if (!locale) {
-            report.problems.push(`${edition} ${key}: no locale file`);
-            continue;
-          }
-          mediaPaths(locale, media);
-          const found = localeProblems(lesson, locale, edition);
-          report.problems.push(...found.problems);
-          report.notes.push(...found.notes);
-        }
-      }
-    }
-    for (const edition of editions) {
-      const locale = await guard(`${edition} course.json`, () =>
-        library.localeCourse(series, course, edition),
-      );
-      for (const unit of index.units)
-        if (locale && !locale.units[unit.key])
-          report.notes.push(`${edition} ${unit.key}: no unit title`);
-    }
-    // Lesson files the course does not list are never shown.
-    const dir = join(library.root, series, "canonical", course, "lessons");
-    for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
-      const key = `${series}/${course}/${file.slice(0, -5)}`;
-      if (!listed.has(key)) report.problems.push(`${key}: lesson file not listed in course.json`);
-    }
-    if (report.exercises.unknown)
-      report.notes.push(
-        `${report.exercises.unknown} exercises of an unknown structure (not shown)`,
-      );
-    report.media.referenced = media.size;
-    for (const path of media)
-      if (!library.mediaFile(series, path)) {
-        report.media.missing++;
-        if (report.media.missing <= 20) report.problems.push(`missing media: ${path}`);
-      }
-  }
+  for (const { series, course, editions } of library.courses())
+    reports.push(await verifyCourse(library, series, course, editions));
   return reports;
+}
+
+/** Checks one installed course (see the file comment). */
+export async function verifyCourse(
+  library: LibraryView,
+  series: string,
+  course: string,
+  editions: string[],
+): Promise<CourseReport> {
+  const report: CourseReport = {
+    series,
+    course,
+    editions,
+    units: 0,
+    lessons: 0,
+    exercises: {},
+    items: 0,
+    vocab: 0,
+    media: { referenced: 0, missing: 0, byKind: {}, bytes: 0 },
+    problems: [],
+    notes: [],
+  };
+  const guard = async <T>(what: string, read: () => Promise<T>): Promise<T | undefined> => {
+    try {
+      return await read();
+    } catch (error) {
+      report.problems.push(`${what}: ${error instanceof Error ? error.message : String(error)}`);
+      return undefined;
+    }
+  };
+  const index = await guard("course.json", () => library.courseIndex(series, course));
+  if (!index) return report;
+  if (!editions.length) report.problems.push("no edition (locale course.json) installed");
+  const media = new Set<string>();
+  const listed = new Set<string>();
+  report.units = index.units.length;
+  for (const unit of index.units) {
+    for (const key of unit.lessons) {
+      if (listed.has(key)) report.problems.push(`${key}: listed twice in course.json`);
+      listed.add(key);
+      const lesson = await guard(key, () => library.lesson(series, key as LessonKey));
+      if (!lesson) continue;
+      report.lessons++;
+      if (lesson.key !== key) report.problems.push(`${key}: the file holds ${lesson.key}`);
+      if (lesson.unit !== unit.key)
+        report.problems.push(`${key}: unit ${lesson.unit}, listed in ${unit.key}`);
+      report.vocab += lesson.vocab.length;
+      mediaPaths(lesson, media);
+      for (const { exercise } of lesson.pages) {
+        report.exercises[exercise.type] = (report.exercises[exercise.type] ?? 0) + 1;
+        report.items += exercise.items.length;
+        if (exercise.fingerprint !== fingerprint(exercise))
+          report.problems.push(`${exercise.key}: fingerprint does not match its content`);
+        report.problems.push(...answerProblems(exercise));
+      }
+      for (const edition of editions) {
+        const locale = await guard(`${edition} ${key}`, () =>
+          library.localeLesson(series, key as LessonKey, edition),
+        );
+        if (!locale) {
+          report.problems.push(`${edition} ${key}: no locale file`);
+          continue;
+        }
+        mediaPaths(locale, media);
+        const found = localeProblems(lesson, locale, edition);
+        report.problems.push(...found.problems);
+        report.notes.push(...found.notes);
+      }
+    }
+  }
+  for (const edition of editions) {
+    const locale = await guard(`${edition} course.json`, () =>
+      library.localeCourse(series, course, edition),
+    );
+    for (const unit of index.units)
+      if (locale && !locale.units[unit.key])
+        report.notes.push(`${edition} ${unit.key}: no unit title`);
+  }
+  // Lesson files the course does not list are never shown.
+  const dir = join(library.root, series, "canonical", course, "lessons");
+  for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+    const key = `${series}/${course}/${file.slice(0, -5)}`;
+    if (!listed.has(key)) report.problems.push(`${key}: lesson file not listed in course.json`);
+  }
+  if (report.exercises.unknown)
+    report.notes.push(`${report.exercises.unknown} exercises of an unknown structure (not shown)`);
+  report.media.referenced = media.size;
+  for (const path of media) {
+    const kind = path.split("/")[1] ?? "other";
+    report.media.byKind[kind] ??= { present: 0, missing: 0 };
+    const counts = report.media.byKind[kind];
+    const file = library.mediaFile(series, path);
+    if (file) {
+      counts.present++;
+      report.media.bytes += statSync(file).size;
+    } else {
+      counts.missing++;
+      report.media.missing++;
+      if (report.media.missing <= 20) report.problems.push(`missing media: ${path}`);
+    }
+  }
+  return report;
 }

@@ -38,6 +38,7 @@ describe("courses and lessons", () => {
         done: 0,
         next: "sprachanker.fixture/demo/00-01",
         nextStarted: false,
+        source: null,
       },
     ]);
     const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
@@ -228,4 +229,48 @@ test("directory and file assets stay inside their roots", async () => {
   expect(await dir("/../secret.txt")).toBeUndefined();
   const listed = fileAssets({ "/index.html": join(root, "web/index.html") });
   expect(await listed("/index-1a2b.html")).toBeUndefined();
+});
+
+describe("course check and sync", () => {
+  test("the fixture course checks clean, with counts and media by kind", async () => {
+    const { getJson } = await setup();
+    const report = await getJson(`/api/course/check?series=${FIXTURE_SERIES}&course=demo`);
+    expect(report.problems).toEqual([]);
+    expect(report.lessons).toBeGreaterThan(0);
+    expect(report.media.byKind.audio.missing).toBe(0);
+    expect((await getJson("/api/courses"))[0].source).toBeNull();
+  });
+
+  test("sync runs the course's provider in the background and reports", async () => {
+    const calls: string[] = [];
+    const { getJson, send, sendJson } = await setup({
+      syncCourse: async (series, course, log) => {
+        calls.push(`${series}/${course}`);
+        log("media: 0 to fetch");
+        return { failedMedia: [], normalised: {} };
+      },
+    });
+    const q = `series=${FIXTURE_SERIES}&course=demo`;
+    expect((await getJson(`/api/course/sync?${q}`)).job).toBeNull();
+    const started = await sendJson("POST", "/api/course/sync", {
+      series: FIXTURE_SERIES,
+      course: "demo",
+    });
+    expect(started.job.status).toBe("running");
+    await Bun.sleep(5);
+    const done = (await getJson(`/api/course/sync?${q}`)).job;
+    expect([done.status, done.log, calls]).toEqual([
+      "done",
+      ["media: 0 to fetch"],
+      [`${FIXTURE_SERIES}/demo`],
+    ]);
+
+    const none = await setup();
+    const refused = await none.send("POST", "/api/course/sync", {
+      series: FIXTURE_SERIES,
+      course: "demo",
+    });
+    expect(refused.status).toBe(409);
+    void send;
+  });
 });

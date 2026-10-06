@@ -3,6 +3,7 @@
 import type { LibraryView } from "@sprachanker/course-kit";
 import type {
   CourseIndex,
+  CourseSource,
   Lesson,
   LessonKey,
   LocaleCourse,
@@ -17,6 +18,8 @@ export interface CourseSummary {
   titles: Record<string, string>;
   /** Lesson keys in course order. */
   lessons: string[];
+  /** Where the course comes from (02). */
+  source: CourseSource | null;
 }
 
 export interface CourseMap {
@@ -53,7 +56,15 @@ export function createContent(library: LibraryView) {
             if (locale) titles[edition] = locale.title;
           }
           const lessons = index.units.flatMap((u) => u.lessons);
-          return { series, course, key: index.key, editions, titles, lessons };
+          return {
+            series,
+            course,
+            key: index.key,
+            editions,
+            titles,
+            lessons,
+            source: index.source ?? null,
+          };
         }),
       );
     },

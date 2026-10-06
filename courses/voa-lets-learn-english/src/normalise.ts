@@ -538,7 +538,18 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
   files.push({
     path: `canonical/${course.def.id}/course.json`,
     schema: CourseIndex,
-    value: { format: 1, key, units, exams: [], goals: [] } satisfies CourseIndex,
+    value: {
+      format: 1,
+      key,
+      source: {
+        publisher: "VOA Learning English (Voice of America)",
+        url: "https://learningenglish.voanews.com/p/5644.html",
+        licence: "public-domain",
+      },
+      units,
+      exams: [],
+      goals: [],
+    } satisfies CourseIndex,
   });
   files.push({
     path: `locale/${EDITION}/${course.def.id}/course.json`,

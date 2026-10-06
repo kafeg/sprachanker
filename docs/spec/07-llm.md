@@ -108,8 +108,6 @@ system message makes small models call tools instead of promising to look later.
 ## Later
 
 - `check_answer`: LLM verdict for `respond` items (rubric, corrections, explanation, criterion scores).
-- `translate_mt`: machine translation (e.g. Leben in Deutschland questions), marked as such and cached
-  by input hash.
 - Per-task routes (a provider and model per task, falling back to the default route).
 - Handoff: a prompt with lesson context, known vocabulary and recent mistakes to copy or open in
   another assistant, with a visible preview first.

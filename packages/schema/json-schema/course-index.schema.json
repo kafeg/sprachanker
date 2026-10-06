@@ -9,6 +9,32 @@
     "key": {
       "$ref": "#/$defs/CourseKey"
     },
+    "source": {
+      "type": "object",
+      "properties": {
+        "publisher": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "licence": {
+          "type": "string",
+          "enum": [
+            "cc-by-4.0",
+            "public-domain",
+            "free-access"
+          ]
+        }
+      },
+      "required": [
+        "publisher",
+        "url",
+        "licence"
+      ]
+    },
     "units": {
       "type": "array",
       "items": {

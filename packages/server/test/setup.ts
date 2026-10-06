@@ -7,6 +7,7 @@ import { openLibrary } from "@sprachanker/course-kit";
 import { createApp } from "../src/app.ts";
 import { mediaBlob, openProfileDb } from "../src/runtime/bun.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
+import type { SyncCourse } from "../src/services/sync.ts";
 
 const files: Record<string, Blob> = {
   "/index.html": new Blob(["<!doctype html>"], { type: "text/html" }),
@@ -14,7 +15,12 @@ const files: Record<string, Blob> = {
 };
 
 export async function setup(
-  options: { fetch?: typeof fetch; lmStudio?: LmStudioHost; cli?: CliHost } = {},
+  options: {
+    fetch?: typeof fetch;
+    lmStudio?: LmStudioHost;
+    cli?: CliHost;
+    syncCourse?: SyncCourse;
+  } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
   await writeFixtureLibrary(join(root, "library"));
@@ -29,6 +35,7 @@ export async function setup(
     fetch: options.fetch,
     lmStudio: options.lmStudio,
     cli: options.cli,
+    syncCourse: options.syncCourse,
     now: () => (clock += 1000),
   });
   const get = (path: string, init?: RequestInit) => app.request(path, init);

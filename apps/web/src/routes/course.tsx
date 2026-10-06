@@ -8,6 +8,7 @@ import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { cn } from "@/ui/utils.ts";
+import { CourseInfo } from "./course-info.tsx";
 
 export function CoursePage({ series, course }: { series: string; course: string }) {
   const { t } = useTranslation();
@@ -21,8 +22,9 @@ export function CoursePage({ series, course }: { series: string; course: string 
   return (
     <Page title={locale?.title ?? index.key}>
       {locale?.descriptionHtml && (
-        <CourseHtml className="mb-6 text-muted-foreground" html={locale.descriptionHtml} />
+        <CourseHtml className="mb-4 text-muted-foreground" html={locale.descriptionHtml} />
       )}
+      <CourseInfo series={series} course={course} source={index.source ?? null} />
       <div className="space-y-8">
         {index.units.map((unit) => {
           const number = Number(unit.key.slice(-2));

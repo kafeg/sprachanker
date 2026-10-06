@@ -3,8 +3,9 @@
     "name": "SprachAnker"
   },
   "nav": {
-    "courses": "Courses",
-    "settings": "Settings"
+    "settings": "Settings",
+    "myCourses": "My courses",
+    "allCourses": "All courses"
   },
   "common": {
     "loading": "Loading…",
@@ -12,7 +13,6 @@
     "retry": "Try again"
   },
   "courses": {
-    "title": "Courses",
     "empty": "No course is installed yet.",
     "emptyHint": "Install one from the terminal: {command}",
     "lessons": "{count, plural, one {# lesson} other {# lessons}}",
@@ -23,12 +23,11 @@
     "allLessons": "All lessons",
     "languages": "{from} → {to}",
     "any": "Any",
-    "mine": "My courses ({count})",
-    "all": "All courses ({count})",
-    "from": "I speak",
-    "to": "I learn",
-    "noneStarted": "No course started yet: pick one under \"All courses\".",
-    "noneMatch": "No course for these languages."
+    "noneStarted": "No course started yet.",
+    "noneMatch": "No course for these languages.",
+    "course": "Course",
+    "pair": "Languages",
+    "toCatalog": "Choose a course"
   },
   "course": {
     "unit": "Unit {number}",
@@ -36,7 +35,33 @@
       "new": "Not started",
       "in_progress": "In progress",
       "done": "Done · {score}%"
-    }
+    },
+    "about": "About the course",
+    "source": "Source",
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "public domain",
+      "free-access": "free access (no open licence)"
+    },
+    "checking": "Checking the course files…",
+    "counts": "{units} units · {lessons} lessons · {exercises} exercises ({items} items) · {words} words",
+    "media": {
+      "audio": "Audio",
+      "video": "Video",
+      "image": "Pictures",
+      "pdf": "PDF",
+      "subtitles": "Subtitles"
+    },
+    "missing": "{count} missing",
+    "problems": "{count, plural, one {# problem} other {# problems}} found",
+    "intact": "All files are in place and consistent.",
+    "checkAgain": "Check again",
+    "sync": "Sync with the source",
+    "syncing": "Syncing…",
+    "syncHint": "Sync downloads what is missing (pages and media already stored are kept) and normalises the course again; your progress stays.",
+    "syncRunning": "Syncing…",
+    "syncDone": "Synced. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
+    "syncFailed": "Sync failed: {error}"
   },
   "lesson": {
     "unitLesson": "Unit {unit} · lesson {lesson}",

@@ -7,7 +7,8 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 
 ```
 apps/web/src/
-  routes/          # router.tsx (code-based TanStack Router), courses, course map, settings
+  routes/          # router.tsx (code-based TanStack Router), courses (my courses, all courses), course map
+                   # with course-info (source, counts, integrity, sync), settings
   lesson/          # lesson player: use-run (run + events), exercise step, reference, video
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen

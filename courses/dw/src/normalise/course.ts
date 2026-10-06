@@ -1,5 +1,6 @@
 // Course order → keys: units are the course's lesson groups in order; the final test (no group)
 // becomes its own unit after the last one (03).
+
 import {
   type CourseIndex,
   type CourseKey,
@@ -11,6 +12,7 @@ import {
   unitKey,
 } from "@sprachanker/schema";
 import { type ApolloState, entitiesOf } from "../apollo.ts";
+import { SITE } from "../catalog.ts";
 
 export interface CourseLesson {
   sourceId: number;
@@ -61,6 +63,8 @@ export function courseFiles(
   lessonTitles: Map<LessonKey, string>,
   goals: Map<LessonKey, Record<GoalKey, string>>,
   descriptionHtml: string | undefined,
+  /** DW's level code for the title ("A1"). */
+  level: string,
 ): { index: CourseIndex; locale: LocaleCourse } {
   const entity = entitiesOf(state, "Course")[0] ?? {};
   const units = new Map<UnitKey, { lessons: LessonKey[]; title: string }>();
@@ -79,6 +83,7 @@ export function courseFiles(
     index: {
       format: 1,
       key: course,
+      source: { publisher: "Deutsche Welle", url: `${SITE}/de`, licence: "free-access" },
       units: [...units].map(([key, unit], order) => ({ key, order, lessons: unit.lessons })),
       exams: [],
       goals: goalEntries.map((g) => ({ key: g.key, lessons: [g.lesson] })),
@@ -88,7 +93,7 @@ export function courseFiles(
       edition,
       course,
       sourceId: String(entity.id ?? ""),
-      title: `${String(entity.name ?? "")} ${course.split("/").pop()?.toUpperCase()}`.trim(),
+      title: `${String(entity.name ?? "")} ${level.toUpperCase()}`.trim(),
       ...(descriptionHtml ? { descriptionHtml } : {}),
       units: Object.fromEntries([...units].map(([key, unit]) => [key, { title: unit.title }])),
       goals: Object.fromEntries(goalEntries.map((g) => [g.key, { text: g.text }])),

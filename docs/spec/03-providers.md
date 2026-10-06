@@ -38,15 +38,15 @@ library reader.
 One provider for the DW platform: every DW course has the same page model (course → lessons →
 exercise pages, `window.__APOLLO_STATE__`), so one fetcher and normaliser serve all of them. Each DW
 course is its own series: `dw-nicos-weg` → `dw.nicos-weg`, `dw-deutschtrainer` → `dw.deutschtrainer`
-(100 short A1–A2 lessons on words and phrases by topic, course `a1-a2`, edition `ru-de`; also in
-uk, pl, tr, ar, not en).
+(100 short A1–A2 lessons on words and phrases by topic, course `a1-a2-ru`, edition `ru-de`; also in
+uk, pl, tr, ar, not en). Each language edition of a DW course is a course of its own (01): `a1-ru`
+and `a1-en` are normalised separately from their own pages (`raw/<edition>/<DW course>/`).
 
 ### Nicos Weg (`dw-nicos-weg` → `dw.nicos-weg`)
 
 Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 
-- Courses and source ids: `courses/dw/src/catalog.ts` — `a1`, `a2` (editions `ru-de`, `en-de`), `b1`
-  (`de-de`). The first edition of a course writes its canonical files.
+- Courses and source ids: `courses/dw/src/catalog.ts` — `a1-ru`, `a1-en`, `a2-ru`, `a2-en`, `b1-de`.
 - **Fetch** (`courses/dw/src/pages.ts`): the course page (lesson order, unit groups), per lesson its
   page (overview, vocabulary, grammar, culture, script, videos) and its download page (`…/le`), and one
   page per exercise; URLs are built from ids. The embedded state JSON (`window.__APOLLO_STATE__`) is
@@ -63,13 +63,6 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   language"); the "Play audio" label is dropped; image options keep only the image. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma.
-- Further editions write only their locale files, **aligned** onto the canonical lessons
-  (`packages/course-kit/src/align.ts`): an edition is normalised in memory, its exercises are paired
-  with the canonical ones by content with option ids replaced by option content (identical content in
-  order, then the rest of a run by position when lengths and types agree — an edited exercise), options
-  are re-keyed by text or picture, words by headword. What has no counterpart is reported by the import
-  and not used, never attached to another exercise. Nicos Weg A1 en-de: 2 exercises only in that
-  edition, 29 edited; A2: 0 and 33.
 - Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
   own vocabulary parser; until then B1 lessons have no vocabulary.
 
@@ -78,8 +71,8 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 Official BAMF question catalogue (PDF): 300 general questions + 10 per federal state. A test has 33
 questions (30 general + 3 for the learner's state), 60 minutes; 15 correct passes the course test, 17 are
 needed for naturalisation — both shown. Modes: browse, my state, timed exam, practise wrongly answered
-questions. Questions are shown in German; translations into the learner's language wait for machine
-translation (07, Later).
+questions. Questions are shown in German; translations only where the source has them (no machine
+translation: course content is not generated, 00).
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 

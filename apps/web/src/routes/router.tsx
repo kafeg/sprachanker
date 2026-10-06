@@ -6,7 +6,7 @@ import { AssistantLabel } from "@/llm/assistant-label.tsx";
 import { AppShell } from "@/ui/app-shell.tsx";
 import { PlaybackRate } from "@/ui/media.tsx";
 import { CoursePage } from "./course.tsx";
-import { CoursesPage } from "./courses.tsx";
+import { CatalogPage, MyCoursesPage } from "./courses.tsx";
 import { SettingsPage } from "./settings.tsx";
 
 const root = createRootRoute({
@@ -24,7 +24,12 @@ const shell = createRoute({
   id: "shell",
   component: () => <AppShell footer={<AssistantLabel />} />,
 });
-const courses = createRoute({ getParentRoute: () => shell, path: "/", component: CoursesPage });
+const courses = createRoute({ getParentRoute: () => shell, path: "/", component: MyCoursesPage });
+const catalog = createRoute({
+  getParentRoute: () => shell,
+  path: "/catalog",
+  component: CatalogPage,
+});
 const course = createRoute({ getParentRoute: () => shell, path: "/course/$series/$course" });
 course.update({
   component: function Course() {
@@ -46,7 +51,7 @@ lesson.update({
 });
 
 export const router = createRouter({
-  routeTree: root.addChildren([shell.addChildren([courses, course, settings]), lesson]),
+  routeTree: root.addChildren([shell.addChildren([courses, catalog, course, settings]), lesson]),
   defaultPreload: "intent",
 });
 

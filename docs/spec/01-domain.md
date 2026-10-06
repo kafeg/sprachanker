@@ -7,9 +7,13 @@ Types live in `packages/schema`. Names below are the canonical names in code.
 - `Lang` — BCP-47 primary tag: `de`, `en`, `ru`, …
 - A learner has a **native language** (language of explanations) and studies a **target language**.
   A course edition is described by `source → target`, e.g. `ru → de`; `de → de` is a monolingual edition.
+- **A language pair of a source course is a course of its own**: DW's Nicos Weg A1 for Russian
+  speakers and for English speakers are separate courses (`a1-ru`, `a1-en`) with their own exercises
+  and progress — the source publishes them separately and they differ. A course has several editions
+  only when they are translations of the same content (the test fixture).
 - UI language (`en`, `ru`, `de`) is independent from both.
-- A profile studies the edition last opened from the course list (each card is a course in one edition),
-  else the one whose source is its UI language, else the course's first edition.
+- Of a course with several editions, a profile studies the one last opened from the course list (a
+  card per edition), else the one whose source is its UI language, else the first.
 
 ## Catalog
 
@@ -20,7 +24,8 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
 ```
 
 - A **provider** (03) is the importer that produces series. `courses/dw` produces `dw.nicos-weg` and
-  `dw.deutschtrainer` (CLI ids `dw-<series>`); `courses/coerll-dib` produces `coerll.dib`.
+  `dw.deutschtrainer` (CLI ids `dw-<series>`), a course per DW course and language (`a1-ru`, `a1-en`,
+  `a2-ru`, `a2-en`, `b1-de`, `a1-a2-ru`); the other providers one series each (03).
 - **CatalogEntry**: course key, series, `kind` (`course` | `exam`), `level?` (CEFR), `target`,
   editions, licence, attribution, homepage, approximate size. Planned (schema only): declared statically
   by providers for the install screen; today the CLI imports from each provider's own course list and

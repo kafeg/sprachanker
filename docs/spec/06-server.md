@@ -26,7 +26,10 @@ later areas are fixed in the stage that builds them.
 - `GET /api/health` → `{ "status": "ok" }` (desktop shell and tests wait for it). Unknown `/api/*`
   paths return a JSON 404, never the web app.
 - Content: `GET /api/courses` (installed courses with progress and the lesson to continue),
-  `GET /api/course` (course map), `GET /api/lesson` (canonical + locale lesson).
+  `GET /api/course` (course map), `GET /api/lesson` (canonical + locale lesson),
+  `GET /api/course/check` (the course verified: counts, media by kind and size, problems),
+  `GET` / `POST /api/course/sync` (re-import the course in the background — fetch what is missing,
+  normalise anew — and poll the job's log and result; one job per course, kept in memory).
 - Settings: `GET` / `PUT /api/settings` (one key at a time).
 - Lesson runs: `POST /api/runs` (start or resume), `POST /api/runs/:id/events` (batched, idempotent;
   outcomes computed by the server), `POST /api/runs/:id/finish`.

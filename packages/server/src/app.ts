@@ -1,5 +1,6 @@
 // Runtime-agnostic Hono app. apps/web imports `AppType` from here (type-only), so this module graph
 // must stay free of Bun/Node APIs; those live in src/runtime/.
+
 import type { LibraryView } from "@sprachanker/course-kit";
 import { LessonKey } from "@sprachanker/schema";
 import { Hono } from "hono";
@@ -18,6 +19,7 @@ import { createPractice } from "./services/practice.ts";
 import { createRuns, RunError } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
+import { createSync, type SyncCourse } from "./services/sync.ts";
 import { createTutor } from "./services/tutor.ts";
 import { createTutorTools } from "./services/tutor-tools.ts";
 import { Edition, Series, zod } from "./validate.ts";
@@ -39,16 +41,24 @@ export interface AppConfig {
   /** LM Studio on this machine: detect it, start its server. */
   lmStudio?: LmStudioHost;
   cli?: CliHost;
+  /** Re-imports a course (the runtime passes the providers in); without it, sync is unavailable. */
+  syncCourse?: SyncCourse;
   now?: () => number;
 }
 
 /** Mutating requests must carry this header (CSRF protection, 06). */
 export const CLIENT_HEADER = "x-sprachanker";
 
+const CourseRef = z.object({
+  series: Series,
+  course: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+});
+
 export function createApp(config: AppConfig) {
   const now = config.now ?? Date.now;
   const content = createContent(config.library);
   const settings = createSettings(config.profile);
+  const sync = createSync({ run: config.syncCourse, now });
   const llm = createLlm({
     db: config.profile,
     settings,
@@ -125,6 +135,20 @@ export function createApp(config: AppConfig) {
         });
       },
     )
+    // A course's integrity and counts, and syncing it with its source (re-import).
+    .get("/course/check", zod("query", CourseRef), async (c) => {
+      const { series, course } = c.req.valid("query");
+      return c.json(await config.library.check(series, course));
+    })
+    .get("/course/sync", zod("query", CourseRef), (c) => {
+      const { series, course } = c.req.valid("query");
+      return c.json({ available: sync.available, job: sync.get(series, course) });
+    })
+    .post("/course/sync", zod("json", CourseRef), (c) => {
+      const { series, course } = c.req.valid("json");
+      if (!sync.available) throw new HTTPException(409, { message: "sync_unavailable" });
+      return c.json({ available: true, job: sync.start(series, course) });
+    })
     .get(
       "/lesson",
       zod("query", z.object({ series: Series, key: LessonKey, edition: Edition })),

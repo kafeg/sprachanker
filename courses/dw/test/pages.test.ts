@@ -9,6 +9,7 @@ import { fetchPages } from "../src/pages.ts";
 
 const course: DwCourse = {
   series: "nicos-weg",
+  id: "a1-ru",
   course: "a1",
   edition: "ru-de",
   lang: "ru",

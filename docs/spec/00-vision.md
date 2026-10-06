@@ -44,7 +44,8 @@ SprachAnker is a self-hosted learning app that:
 
 - **Local-first, private.** All data stays on the user's machine. No telemetry.
 - **Real courses first, LLM second.** The curriculum comes from courses; the LLM checks, explains and
-  converses inside it.
+  converses inside it. Course content is never generated or enriched by an LLM: importers and
+  normalisers are deterministic code over the source — import, normalise, and the course is ready.
 - **Deterministic where possible.** Closed exercises are checked by code; LLM only for open answers.
 - **Everything is replayable.** Append-only event log; statistics are derived and rebuildable.
 - **Language-pair agnostic.** German/Russian is the first pair, not an assumption.

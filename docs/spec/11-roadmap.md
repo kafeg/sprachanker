@@ -155,13 +155,13 @@ Specs: 02, 03, 06, 09.
 **Status: not started.**
 
 ### 11 — Second sources and editions
-Nicos Weg `en-de` with edition alignment, `coerll-dib` interviews, `sa-starter-en`.
-**Accept**: adding `en-de` to an installed A1 downloads only texts and keeps progress; one Deutsch im
-Blick chapter playable in an English profile; Starter English lesson 1 playable in a Russian profile.
-**Status: partial** (built early). Built: Nicos Weg A2, B1 (without its glossary) and the `en-de`
-editions aligned onto the canonical lessons by content, Deutschtrainer, Deutsch im Blick vocabulary. Missing:
-exercises found only in a non-primary edition (reported, not shown), B1 glossary, Deutsch im Blick
-interviews, Starter English.
+More sources and language pairs, each pair a course of its own (01): Nicos Weg `en-de`,
+`coerll-dib` interviews, English courses for Russian speakers, `sa-starter-en`.
+**Accept**: one Deutsch im Blick chapter playable in an English profile; an English course lesson
+playable in a Russian profile.
+**Status: partial** (built early). Built: Nicos Weg A1/A2 for Russian and English speakers, B1,
+Deutschtrainer, Deutsch im Blick vocabulary, Lingust, VOA «Так говорят в Америке», VOA Let's Learn
+English. Missing: B1 glossary, Deutsch im Blick interviews, Starter English.
 
 ### 12 — Desktop app
 Tauri shell, first-run wizard (incl. LM Studio setup), network options with QR, signed
@@ -171,8 +171,7 @@ headless `serve` works on a second machine.
 **Status: not started.**
 
 ### 13 — Later
-Missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`), machine
-translation (`translate_mt`), per-task LLM routes, handoff to other assistants, LLM golden tests,
+Missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`), per-task LLM routes, handoff to other assistants, LLM golden tests,
 Goethe A1 practice sets with LLM-scored writing/speaking, FSRS for Leben in Deutschland, badges,
 built-in local CA for LAN HTTPS, Qwen3-TTS and cloud speech, offline downloads and push notifications, reader for books and texts, more
 DW courses, `.apkg` with scheduling, FSRS parameter optimisation, Docker image,

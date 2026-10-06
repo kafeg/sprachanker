@@ -153,7 +153,18 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
   files.push({
     path: `canonical/${COURSE}/course.json`,
     schema: CourseIndex,
-    value: { format: 1, key: course, units, exams: [], goals: [] } satisfies CourseIndex,
+    value: {
+      format: 1,
+      key: course,
+      source: {
+        publisher: "COERLL, The University of Texas at Austin",
+        url: SITE,
+        licence: "cc-by-4.0",
+      },
+      units,
+      exams: [],
+      goals: [],
+    } satisfies CourseIndex,
   });
   files.push({
     path: `locale/${EDITION}/${COURSE}/course.json`,

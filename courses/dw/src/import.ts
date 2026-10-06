@@ -19,7 +19,8 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
   const ofSeries = COURSES.filter((c) => c.series === series);
   const selected = ofSeries.filter(
     (c) =>
-      (!options.courses || options.courses.includes(c.course)) &&
+      // `--courses a1` takes both editions of DW's A1, `a1-ru` one of them.
+      (!options.courses || options.courses.includes(c.course) || options.courses.includes(c.id)) &&
       (!options.editions || options.editions.includes(c.edition)),
   );
   const fetcher = createPoliteFetcher({
@@ -41,9 +42,8 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
     download: (ref) => download(fetcher, ref),
   });
   const normalised: Record<string, NormaliseResult> = {};
-  // Catalog order: a course's primary edition, which writes the canonical files, comes first.
   for (const course of selected) {
-    normalised[`${course.course} ${course.edition}`] = await normaliseCourse(seriesDir, course, {
+    normalised[course.id] = await normaliseCourse(seriesDir, course, {
       log: options.log,
     });
   }

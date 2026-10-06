@@ -38,3 +38,28 @@ export function useSetSetting() {
     onSuccess: (settings) => client.setQueryData(["settings"], settings),
   });
 }
+
+/** A course's integrity and counts (verify): read on demand — it reads every file of the course. */
+export const useCourseCheck = (series: string, course: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["course-check", series, course],
+    enabled,
+    staleTime: Number.POSITIVE_INFINITY,
+    queryFn: () => json(api.course.check.$get({ query: { series, course } })),
+  });
+
+/** The course's sync job; polled while it runs. */
+export const useCourseSync = (series: string, course: string) =>
+  useQuery({
+    queryKey: ["course-sync", series, course],
+    queryFn: () => json(api.course.sync.$get({ query: { series, course } })),
+    refetchInterval: (q) => (q.state.data?.job?.status === "running" ? 1500 : false),
+  });
+
+export function useStartSync(series: string, course: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => json(api.course.sync.$post({ json: { series, course } })),
+    onSuccess: (state) => client.setQueryData(["course-sync", series, course], state),
+  });
+}

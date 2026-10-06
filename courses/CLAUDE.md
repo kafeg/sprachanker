@@ -8,12 +8,13 @@ Research about sources: `docs/research/`.
 ```
 packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching, manifest,
                        # fingerprints, verify, HTML sanitiser, plain text of HTML; provider.ts: the
-                       # provider contract (import options/report, writeLibraryFiles, storedPage); align.ts:
-                       # an edition's locale re-keyed onto the canonical lessons by content
+                       # provider contract (import options/report, writeLibraryFiles, storedPage);
+                       # verify.ts: a course's integrity and counts (LibraryView.check)
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
-  dw/                  # DW Learn German (series dw.nicos-weg, dw.deutschtrainer; CLI ids dw-<series>):
+  dw/                  # DW Learn German (series dw.nicos-weg, dw.deutschtrainer; CLI ids dw-<series>), a course
+                       # per DW course and language (a1-ru, a1-en, …; raw pages by DW course):
                        # src/: catalog, pages, media, stream (HLS fallback), normalise/, import.ts; test/
   coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
                        # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
@@ -30,6 +31,8 @@ courses/
 ## Rules
 
 - Providers depend only on `schema` and `course-kit` and MUST satisfy the normalisation contract (spec 02).
+- Import and normalisation are deterministic code over the source: no LLM, no generated content. A
+  language pair of a source course is a course of its own (spec 01).
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
   Fixtures are hand-written and only shaped like the source.
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
