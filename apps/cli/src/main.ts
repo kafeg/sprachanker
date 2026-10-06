@@ -9,6 +9,7 @@ import {
   providerIds,
   resolveDataRoot,
   startServer,
+  verifyData,
   type WebAssets,
 } from "@sprachanker/server";
 import pkg from "../package.json" with { type: "json" };
@@ -22,6 +23,8 @@ Commands:
   import <provider> [--data <dir>] [--courses a1,a2] [--editions ru-de,en-de] [--refresh]
          download and normalise a course; re-running fetches only what is missing
          providers: ${providerIds().join(", ")}
+  verify [--data <dir>] [--notes]
+         check every installed course: schemas, keys, answers, locale texts, media
 
 The data root holds library/ and profiles/: --data, else $SPRACHANKER_DATA, else the app-data folder.`;
 
@@ -93,6 +96,33 @@ async function importCommand(args: string[]): Promise<void> {
   }
 }
 
+async function verifyCommand(args: string[]): Promise<void> {
+  const { values } = parseArgs({
+    args,
+    options: { data: { type: "string" }, notes: { type: "boolean", default: false } },
+  });
+  const reports = await verifyData(resolveDataRoot(values.data));
+  for (const r of reports) {
+    const types = Object.entries(r.exercises)
+      .sort((a, b) => b[1] - a[1])
+      .map(([type, n]) => `${type} ${n}`)
+      .join(", ");
+    console.log(
+      `${r.problems.length ? "✗" : "✓"} ${r.series}/${r.course} [${r.editions.join(", ")}]: ` +
+        `${r.units} units, ${r.lessons} lessons, ${r.items} items, ${r.vocab} words, ` +
+        `media ${r.media.referenced - r.media.missing}/${r.media.referenced}`,
+    );
+    if (types) console.log(`    exercises: ${types}`);
+    for (const p of r.problems.slice(0, 30)) console.log(`    problem: ${p}`);
+    if (r.problems.length > 30) console.log(`    … ${r.problems.length - 30} more problems`);
+    const notes = values.notes ? r.notes : r.notes.slice(0, 3);
+    for (const n of notes) console.log(`    note: ${n}`);
+    if (!values.notes && r.notes.length > 3)
+      console.log(`    … ${r.notes.length - 3} more notes (--notes)`);
+  }
+  if (reports.some((r) => r.problems.length)) process.exitCode = 1;
+}
+
 export async function main(argv: string[], embedded?: Embedded): Promise<void> {
   const [command, ...rest] = argv;
   switch (command) {
@@ -107,6 +137,9 @@ export async function main(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "import":
       await importCommand(rest);
+      break;
+    case "verify":
+      await verifyCommand(rest);
       break;
     default:
       console.log(USAGE);

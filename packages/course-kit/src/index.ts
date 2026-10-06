@@ -9,3 +9,4 @@ export * from "./pool.ts";
 export * from "./provider.ts";
 export * from "./robots.ts";
 export * from "./text.ts";
+export * from "./verify.ts";

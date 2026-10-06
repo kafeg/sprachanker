@@ -88,8 +88,8 @@ are decided in stage 12.
 ## CLI (`apps/cli`)
 
 Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port]` ·
-`import <provider> [--data] [--courses] [--editions] [--refresh]`. Planned: `owner-link`,
-`verify [<series>]`, `normalise <series>`, `export-profile` / `import-profile`, `enrich check`.
+`import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [--data] [--notes]` (02).
+Planned: `owner-link`, `normalise <series>`, `export-profile` / `import-profile`, `enrich check`.
 
 The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is
 idempotent: stored pages and media are not fetched again (`--refresh` re-reads pages), then every

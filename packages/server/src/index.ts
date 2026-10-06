@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { openLibrary } from "@sprachanker/course-kit";
+import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
 import { type Listening, listen, mediaBlob, openProfileDb, secretKey } from "./runtime/bun.ts";
@@ -36,3 +36,7 @@ export function startServer(config: ServerConfig): Listening {
 }
 export { appDataDir, resolveDataRoot } from "./config.ts";
 export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
+
+/** Checks every installed course of the data root (course-kit verify). */
+export const verifyData = (dataRoot: string) =>
+  verifyLibrary(openLibrary(join(dataRoot, "library")));

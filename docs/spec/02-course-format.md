@@ -223,6 +223,9 @@ their schemas as they are written (`writeLibraryFiles`); failures are reported.
 - The library validates canonical and locale files when they are read (`packages/course-kit/src/library.ts`);
   an invalid file is an error, never partially used. A file with an unknown `format` fails validation.
 - Restore = copy the series folder.
-- Planned: **verify** (sha256 and size of every manifest file — missing, corrupt, extra — and
-  referential integrity: keys, media paths, rule ids, locale coverage); re-normalising older formats
-  from `raw/` offline.
+- **verify** (`packages/course-kit/src/verify.ts`, CLI `sprachanker verify`) reads every installed course
+  the way the app does and checks what the schemas cannot: lessons listed once and in their unit, no
+  unlisted lesson files, answers naming existing options/parts/gaps, fingerprints, locale texts per
+  edition matching the canonical exercises and words (missing ones are notes), unit titles, and every
+  referenced media file on disk. Planned: manifest sha256/size checks, rule ids, re-normalising older
+  formats from `raw/` offline.

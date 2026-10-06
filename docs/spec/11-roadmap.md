@@ -61,7 +61,7 @@ Specs: 02, 03.
   created; a second run makes no requests; the report lists unknown types; archive → delete → restore →
   `verify` passes.
 - **Status: partial.** Built: `course-kit`, `courses/dw`, CLI `import` (idempotent, reports unknown
-  exercises and failed media). Missing: key map, manifest, `verify`, `normalise` command.
+  exercises and failed media). `verify` (schemas, references, locale coverage, media). Missing: key map, manifest, `normalise` command.
 
 ### 3 — Engine core
 Specs: 04.
