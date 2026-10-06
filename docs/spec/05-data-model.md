@@ -35,8 +35,9 @@
 ## `profile.sqlite`
 
 All ids are ULIDs; all content references use keys from 02. Built: `settings`, `secrets`, `llm_routes`,
-`runs`, `events` (`packages/server/src/db/profile/schema.ts`); `cards` and `card_state` come with
-stage 6.
+`runs`, `events`, `cards`, `card_state` (`packages/server/src/db/profile/schema.ts`). A card's
+`display_cache_json` holds what it shows (headword, gender, plural, translation, an example, audio, the
+lesson it was met in); `faces` is a comma-separated list.
 
 ```sql
 settings(key TEXT PRIMARY KEY, value_json TEXT)          -- languages, theme, SRS limits, retention,
@@ -90,7 +91,7 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, an unrated self-rating); excluded from the score |
 | `llm_verdict` | `task` (`writing` \| `review` \| `explain`), `input` (the learner's text; empty otherwise), `result` (the task's structured output, 07; an explanation's text), `model`, `latencyMs`; writing and review in `practice` runs of the lesson, a review with `runId` (the lesson run it reviews); an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains) |
 | `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
-| `card_review` | planned (stage 6): `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
+| `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day) |
 
 Payload schemas: `packages/schema/src/learner.ts`.
 

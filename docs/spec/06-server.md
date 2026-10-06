@@ -36,6 +36,10 @@ later areas are fixed in the stage that builds them.
   log; queue a download — first download, completing one and syncing with the source are the same
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
 - Progress: `POST /api/progress/reset` (a course or one lesson, 05).
+- Cards (04): `POST /api/cards/lesson` (cards of a lesson's words; `known` ones set aside),
+  `GET /api/cards/lesson` (the lesson's words that have cards, from this or an earlier lesson), `GET /api/cards/review` (the queue, each face
+  with its due time per rating), `POST /api/cards/:id/review` (a rating), `GET /api/cards` (the
+  learner's words with their state), `PUT /api/cards/:id` ("already known" on or off).
 - Settings: `GET` / `PUT /api/settings` (one key at a time).
 - Lesson runs: `POST /api/runs` (start or resume), `POST /api/runs/:id/events` (batched, idempotent;
   outcomes computed by the server), `POST /api/runs/:id/finish`.

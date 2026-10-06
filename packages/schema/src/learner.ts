@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { Exercise } from "./exercise/index.ts";
 import { Outcome } from "./exercise/outcome.ts";
-import { ExerciseKey, ItemKey, LessonKey } from "./keys.ts";
+import { ExerciseKey, Gender, ItemKey, LessonKey } from "./keys.ts";
 import { EditionId } from "./lang.ts";
 import { LocaleExercise } from "./locale.ts";
 
@@ -113,6 +113,53 @@ export const LlmVerdictPayload = z.object({
   runId: Ulid.optional(),
 });
 export type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
+
+/** A card's sides (04, "Spaced repetition"): recognition (target → native), production (native →
+ *  target), listening (audio → meaning). */
+export const CardFace = z.enum(["recognition", "production", "listening"]);
+export type CardFace = z.infer<typeof CardFace>;
+
+/** A review grade: 1 again, 2 hard, 3 good, 4 easy (FSRS). */
+export const CardRating = z.number().int().min(1).max(4);
+export type CardRating = z.infer<typeof CardRating>;
+
+/** The FSRS memory state of one face (`card_state.fsrs_json`); times are epoch milliseconds. */
+export const FaceState = z.object({
+  due: z.number().int(),
+  stability: z.number(),
+  difficulty: z.number(),
+  scheduledDays: z.number(),
+  learningSteps: z.number().int(),
+  reps: z.number().int(),
+  lapses: z.number().int(),
+  /** 0 new, 1 learning, 2 review, 3 relearning. */
+  state: z.number().int().min(0).max(3),
+  lastReview: z.number().int().optional(),
+});
+export type FaceState = z.infer<typeof FaceState>;
+
+/** What a card shows, kept with it so it survives course removal (`cards.display_cache_json`, 05). */
+export const CardDisplay = z.object({
+  target: z.string().min(1),
+  gender: Gender.optional(),
+  plural: z.string().optional(),
+  translation: z.string().optional(),
+  example: z.string().optional(),
+  audio: z.string().optional(),
+  /** Where the word was met. */
+  series: z.string(),
+  lessonKey: z.string(),
+});
+export type CardDisplay = z.infer<typeof CardDisplay>;
+
+/** One review of one face, in a `review` run (05, "Events"). */
+export const CardReviewPayload = z.object({
+  face: CardFace,
+  rating: CardRating,
+  stateBefore: FaceState.nullable(),
+  stateAfter: FaceState,
+});
+export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 
 export const StoredEvent = z.object({
   id: Ulid,

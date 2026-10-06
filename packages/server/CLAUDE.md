@@ -27,7 +27,8 @@ src/
                      # this wrong?", kept per attempt in the lesson run), tutor (lesson chats as `chat`
                      # runs, the chat history), practice (writing checks, session reviews of a lesson run in
                      # `practice` runs), scene (role-plays as `scene` runs), tutor-tools (the tutor's
-                     # tools on the learner's data), downloads (course downloads: queue, progress,
+                     # tools on the learner's data), cards (cards from lesson words, review queue
+                     # and ratings by FSRS, the learner's words), downloads (course downloads: queue, progress,
                      # catalogue states, resume after restart; the installer is injected)
   jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)

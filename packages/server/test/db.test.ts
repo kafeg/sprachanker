@@ -45,6 +45,8 @@ test("a new profile database gets every table; reopening changes nothing", () =>
   openProfileDb(file, 1);
   expect(tables(file)).toEqual([
     "_migrations",
+    "card_state",
+    "cards",
     "events",
     "llm_routes",
     "runs",
@@ -87,4 +89,23 @@ test("a failing migration is rolled back and reported", () => {
   ];
   expect(() => migrate(db, broken, options(4))).toThrow(/0001_broken failed/);
   expect(tables(file)).not.toContain("x");
+});
+
+test("0002_cards: a profile from before cards keeps its runs and gets the card tables", () => {
+  const file = fresh();
+  const { db, options, sqlite } = runner(file);
+  const before = migrations.filter((m) => m.tag !== "0002_cards");
+  migrate(db, before, options(1));
+  sqlite.exec(
+    "INSERT INTO runs (id, kind, app_version, status, started_at) VALUES ('r1', 'lesson', 't', 'active', 1)",
+  );
+  expect(migrate(db, migrations, options(2))).toEqual(["0002_cards"]);
+  expect(tables(file)).toContain("cards");
+  expect(tables(file)).toContain("card_state");
+  expect(sqlite.query("SELECT id FROM runs").all()).toEqual([{ id: "r1" }]);
+  // One card per lexeme.
+  const card = (id: string) =>
+    `INSERT INTO cards (id, kind, lexeme_key, faces, created_at) VALUES ('${id}', 'lexeme', 'lex:de:x', 'recognition', 1)`;
+  sqlite.exec(card("c1"));
+  expect(() => sqlite.exec(card("c2"))).toThrow();
 });

@@ -3,7 +3,15 @@
 
 import type { LibraryView } from "@sprachanker/course-kit";
 import { courseProgress } from "@sprachanker/engine";
-import { courseKey, LessonKey, type SeriesKey } from "@sprachanker/schema";
+import {
+  CardFace,
+  CardRating,
+  courseKey,
+  LessonKey,
+  LexemeKey,
+  type SeriesKey,
+  Ulid,
+} from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
@@ -11,6 +19,7 @@ import type { ProfileDb } from "./db/profile/db.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
+import { CardError, createCards } from "./services/cards.ts";
 import { createContent } from "./services/content.ts";
 import { type CourseInstaller, createDownloads, DownloadError } from "./services/downloads.ts";
 import { createExplain } from "./services/explain.ts";
@@ -78,6 +87,13 @@ export function createApp(config: AppConfig) {
   const runs = createRuns({
     db: config.profile,
     content,
+    now,
+    appVersion: config.appVersion,
+  });
+  const cards = createCards({
+    db: config.profile,
+    content,
+    settings,
     now,
     appVersion: config.appVersion,
   });
@@ -242,9 +258,52 @@ export function createApp(config: AppConfig) {
       },
     )
     .post("/runs/:id/finish", async (c) => c.json(await runs.finish(c.req.param("id"))))
+    // Cards and review (04): cards from a lesson's words, the queue, ratings, the learner's words.
+    .post(
+      "/cards/lesson",
+      zod(
+        "json",
+        z.object({
+          series: Series,
+          lessonKey: LessonKey,
+          edition: Edition,
+          known: z.array(LexemeKey).max(1000),
+        }),
+      ),
+      async (c) => c.json(await cards.fromLesson(c.req.valid("json"))),
+    )
+    .get(
+      "/cards/lesson",
+      zod("query", z.object({ series: Series, lessonKey: LessonKey })),
+      async (c) => {
+        const { series, lessonKey } = c.req.valid("query");
+        return c.json({ words: await cards.lesson(series, lessonKey) });
+      },
+    )
+    .get("/cards/review", (c) => c.json(cards.queue()))
+    .post(
+      "/cards/:id/review",
+      zod("param", z.object({ id: Ulid })),
+      zod("json", z.object({ face: CardFace, rating: CardRating })),
+      (c) => {
+        const { face, rating } = c.req.valid("json");
+        return c.json({ state: cards.rate(c.req.valid("param").id, face, rating) });
+      },
+    )
+    .get("/cards", (c) => c.json({ words: cards.words() }))
+    .put(
+      "/cards/:id",
+      zod("param", z.object({ id: Ulid })),
+      zod("json", z.object({ suspended: z.boolean() })),
+      (c) => {
+        cards.setSuspended(c.req.valid("param").id, c.req.valid("json").suspended);
+        return c.json({ ok: true as const });
+      },
+    )
     .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
+      if (error instanceof CardError) return c.json({ error: error.message }, 404);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
       if (error instanceof z.ZodError)
         return c.json({ error: "bad_request", issues: error.issues }, 400);

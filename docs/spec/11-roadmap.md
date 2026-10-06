@@ -146,7 +146,10 @@ Specs: 04, 05, 09.
   Notebook shows two runs of lesson 1 side by side; lesson 1 of Nicos Weg goes overview → words →
   grammar → exercises → culture → writing, scene, review (with an assistant) → summary, and completes
   without an assistant too.
-- **Status: not started.**
+- **Status: in progress.** Built: cards and their FSRS state (migration `0002_cards`), scheduling and
+  the review queue in the engine (`srs/`), cards from a lesson's words, ratings and the learner's words
+  on the server (`/api/cards`). Next: the lesson plan as steps with the "Words" step, the Review
+  screen, My words, the Notebook, attempts under the card, the tutor's chat history.
 
 ### 7 — Speech
 Specs: 08, 06.

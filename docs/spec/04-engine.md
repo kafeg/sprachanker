@@ -82,10 +82,18 @@ The rest is planned:
   score — is built).
 - **Can-do**: a course goal is achieved when its linked lessons are completed.
 
-## Spaced repetition (planned, stage 6)
+## Spaced repetition (stage 6)
 
-- FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (profile setting).
-- **Cards** come from new words of a completed page (one card per lexeme; meeting it again reuses it),
+Built: scheduling and the review queue (`packages/engine/src/srs/`), cards from a lesson's words and
+ratings on the server (`services/cards.ts`). The screens come next.
+
+- FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (profile setting `srs.retention`).
+- The review queue: due faces first (most overdue first), then new faces in the order the cards were
+  made, as many as the day still allows (`srs.newPerDay`, default 10, counted from the start of the
+  learner's day: local midnight). A card shows one face a day; after "again" that face comes back the
+  same day. A card's next face is introduced once the faces before it are in review (recognition, then
+  production, then listening).
+- **Cards** come from the lesson's "Words" step (one card per lexeme; meeting it again reuses it),
   words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
   The learner can mark a card "already known" (suspended).
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
