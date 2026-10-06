@@ -118,8 +118,8 @@ Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russi
   URL manifest in `src/catalog.ts` (found once through the sitemap). Articles as HTML, MP3s via
   `fetchMedia` (av.voanews.com).
 - **Normalise**: «Цель» → the lesson goal; «Содержание» → synopsis; the dialogue → `tabs.script`; words and
-  phrases → vocab (part of speech from the source's headings, else by shape; examples in `note` and the
-  translation); grammar and usage notes and the homework → grammar pages; the MP3 → `media.audio`. There
+  phrases → vocab (part of speech from the source's headings, else by shape; example sentences as the
+  entry's `examples`); grammar and usage notes → grammar pages; the homework → `tabs.homework`; the MP3 → `media.audio`. There
   are no exercises: the homework has no answers anywhere. Units of 10 lessons.
 
 ## 6. VOA «Let's Learn English» (`voa-lets-learn-english` → `voa.lets-learn-english`, edition `en-en`)

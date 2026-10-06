@@ -93,10 +93,10 @@ test("table layout: goal, synopsis, dialogue, words with examples, pages", () =>
     ["Verbs", "be (is, am, are)", "быть"],
   ]);
   // The example-only row is a second example of "we".
-  expect(p?.words[3]).toMatchObject({
-    exampleEn: "We drink tea / We like it",
-    exampleRu: "Мы пьём чай / Нам нравится",
-  });
+  expect(p?.words[3]?.examples).toEqual([
+    { en: "We drink tea", ru: "Мы пьём чай" },
+    { en: "We like it", ru: "Нам нравится" },
+  ]);
   expect(p?.pages.map((x) => [x.kind, x.title])).toEqual([
     ["grammar", "Numbers"],
     ["homework", "Homework - Домашнее задание"],
@@ -129,10 +129,7 @@ test("line layout: tabs, a single space or examples between English and Russian"
     // A word row, not the homework label.
     ["Other", "homework", "домашнее задание"],
   ]);
-  expect(p?.words[3]).toMatchObject({
-    exampleEn: "I walk during the day",
-    exampleRu: "Я гуляю днём",
-  });
+  expect(p?.words[3]?.examples).toEqual([{ en: "I walk during the day", ru: "Я гуляю днём" }]);
   expect(p?.pages).toEqual([
     {
       kind: "homework",
@@ -159,7 +156,7 @@ test("unlabelled parts: dialogue right after the synopsis, homework without a la
     { text: "Conversation #2", heading: true },
     { speaker: "Bob", text: "Bye." },
   ]);
-  expect(p?.words).toEqual([{ category: "Nouns", en: "cat", ru: "кошка" }]);
+  expect(p?.words).toEqual([{ category: "Nouns", en: "cat", ru: "кошка", examples: [] }]);
   expect(p?.pages.map((x) => x.kind)).toEqual(["homework"]);
   expect(parseLesson("<html><body>Страница не существует</body></html>")).toBeUndefined();
 });
@@ -267,7 +264,8 @@ test("normalised files validate; units of ten, review lessons in the unit of the
     ["voa.english-usa/english-usa/01-01/v-pour", "lex:en:pour:verb", "to pour/poured"],
     ["voa.english-usa/english-usa/01-01/v-be", "lex:en:be:verb", "be (is, am, are)"],
   ]);
-  expect(first.vocab[3]?.note).toBe("We drink tea / We like it");
+  expect(first.vocab[3]?.examples).toEqual(["We drink tea", "We like it"]);
+  expect(first.vocab[3]?.note).toBeUndefined();
 
   const locale = files.find((f) => f.path === "locale/ru-en/english-usa/lessons/01-01.json")
     ?.value as LocaleLesson;
@@ -280,11 +278,12 @@ test("normalised files validate; units of ten, review lessons in the unit of the
     title: "Conversation",
     bodyHtml: "<p><b>Ann:</b> Tea, please.</p><p><b>Waiter Bob:</b> Here you are.</p>",
   });
-  expect(locale.tabs.grammar.map((t) => t.title)).toEqual([
-    "Numbers",
-    "Homework - Домашнее задание",
-    "Grammar Notes",
-  ]);
+  expect(locale.vocab["voa.english-usa/english-usa/01-01/v-we" as never]).toEqual({
+    translation: "мы",
+    examples: ["Мы пьём чай", "Нам нравится"],
+  });
+  expect(locale.tabs.grammar.map((t) => t.title)).toEqual(["Numbers", "Grammar Notes"]);
+  expect(locale.tabs.homework?.map((t) => t.title)).toEqual(["Homework - Домашнее задание"]);
 
   // A lesson whose article carries another lesson's text keeps only its recording and title.
   const defect = files.find((f) => f.path === "canonical/english-usa/lessons/09-01.json")

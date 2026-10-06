@@ -1,8 +1,8 @@
 // Normalisation (offline, deterministic): parsed lesson articles + media.json → canonical/ and locale/
 // files. Units of ten lessons by number (52а, 104а join the unit of 52, 104); per lesson the episode
 // recording, the goal («Цель»), the synopsis («Содержание»), the dialogue as the script page, the word
-// list as vocabulary (English canonical, Russian in the locale), homework and notes as pages. The source
-// has no checkable exercises: its homework (translate, answer questions) has no answers anywhere.
+// list as vocabulary (English canonical, Russian in the locale), homework and notes as pages (homework
+// in its own tab). The source has no checkable exercises: its homework has no answers anywhere.
 import { type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
 import {
   CourseIndex,
@@ -129,11 +129,13 @@ function vocabulary(key: LessonKey, words: WordRow[]) {
       target: row.en,
       ...(h.plural ? { plural: h.plural } : {}),
       ...(h.forms ? { forms: h.forms } : {}),
-      ...(row.exampleEn ? { note: row.exampleEn } : {}),
+      ...(row.examples.length ? { examples: row.examples.map((e) => e.en) } : {}),
     };
     vocab.push(entry);
     translations[entry.key] = {
-      translation: row.exampleRu ? `${row.ru} (${row.exampleRu})` : row.ru,
+      translation: row.ru,
+      // Same order as the canonical examples; an example without a Russian side stays empty.
+      ...(row.examples.some((e) => e.ru) ? { examples: row.examples.map((e) => e.ru ?? "") } : {}),
     };
   }
   return { vocab, translations, skipped };
@@ -207,6 +209,7 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
         (parsed?.pages ?? [])
           .filter((p) => kinds.includes(p.kind))
           .map((p) => ({ title: p.title, bodyHtml: p.html }));
+      const homework = tab(["homework"]);
       files.push({
         path: `locale/${EDITION}/${COURSE}/lessons/${name}.json`,
         schema: LocaleLesson,
@@ -220,9 +223,10 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
           exercises: {},
           vocab: translations,
           tabs: {
-            // Homework has no answers to check, so it is a page next to the grammar notes.
-            grammar: tab(["grammar", "homework"]),
+            grammar: tab(["grammar"]),
             culture: tab(["culture"]),
+            // Tasks for the notebook and a partner: the source gives no answers to check.
+            ...(homework.length ? { homework } : {}),
             ...(parsed?.dialogue.length
               ? { script: { title: "Conversation", bodyHtml: scriptHtml(parsed.dialogue) } }
               : {}),

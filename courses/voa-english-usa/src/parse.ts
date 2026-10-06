@@ -18,8 +18,8 @@ export interface WordRow {
   category: string;
   en: string;
   ru: string;
-  exampleEn?: string;
-  exampleRu?: string;
+  /** Usage examples in source order: English, and the Russian when the source gives one. */
+  examples: { en: string; ru?: string }[];
 }
 
 /** A page of learner-language text: the homework, grammar notes or notes inside the word list. */
@@ -123,7 +123,12 @@ function atCyrillic(text: string): string[] {
  * is split where the Russian starts. A row that holds only an example (a second example of the
  * previous word) has no `en`.
  */
-export function wordRow(cells: string[]): Partial<Omit<WordRow, "category">> {
+export function wordRow(cells: string[]): {
+  en?: string;
+  ru?: string;
+  exampleEn?: string;
+  exampleRu?: string;
+} {
   const parts = cells
     .flatMap((c) => c.split(/\s+(?=(?:Example|Например)\s*:)/))
     .flatMap((c) => {
@@ -268,13 +273,14 @@ export function parseLesson(page: string): ParsedLesson | undefined {
         }
         const row = wordRow(line.cells);
         const last = lesson.words.at(-1);
+        const example = row.exampleEn
+          ? [{ en: row.exampleEn, ...(row.exampleRu ? { ru: row.exampleRu } : {}) }]
+          : [];
         if (row.en && row.ru) {
-          lesson.words.push({ category, ...row } as WordRow);
+          lesson.words.push({ category, en: row.en, ru: row.ru, examples: example });
         } else if (!row.en && row.exampleEn && last) {
           // A second example of the word above.
-          last.exampleEn = [last.exampleEn, row.exampleEn].filter(Boolean).join(" / ");
-          const ru = [last.exampleRu, row.exampleRu].filter(Boolean).join(" / ");
-          if (ru) last.exampleRu = ru;
+          last.examples.push(...example);
         } else {
           // Explanations, tables without translations: kept as a page under the heading.
           const title = category || "Words and phrases";
