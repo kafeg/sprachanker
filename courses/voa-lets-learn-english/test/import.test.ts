@@ -10,18 +10,11 @@ import {
   type LocaleLesson,
   VocabKey,
 } from "@sprachanker/schema";
-import {
-  audioUrl,
-  boldWords,
-  type FetchedCourse,
-  type FetchedLesson,
-  groupUnits,
-  hdUrl,
-  headword,
-  mediaRefs,
-  normaliseCourse,
-  sdUrl,
-} from "../src/normalise.ts";
+import { normaliseCourse } from "../src/normalise/course.ts";
+import { audioUrl, hdUrl, sdUrl } from "../src/normalise/media.ts";
+import { type FetchedCourse, type FetchedLesson, mediaRefs } from "../src/normalise/plan.ts";
+import { groupUnits } from "../src/normalise/units.ts";
+import { boldWords, headword } from "../src/normalise/vocab.ts";
 import {
   mediaUrl,
   parseDocPage,

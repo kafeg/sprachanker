@@ -96,7 +96,7 @@ export function mediaUrl(href: string): string {
 }
 
 /** Index just after the `</div>` closing the `<div` at `start`; -1 when unbalanced. */
-export function blockEnd(html: string, start: number): number {
+function blockEnd(html: string, start: number): number {
   const tags = /<div\b|<\/div>/gi;
   tags.lastIndex = start;
   let depth = 0;
@@ -137,7 +137,7 @@ function rendition(url: string, label: string): Rendition | undefined {
 }
 
 /** A player block: renditions from its `data-sources`, its "Direct link" menu and its `src`. */
-export function parsePlayer(block: string): Player | undefined {
+function parsePlayer(block: string): Player | undefined {
   const tag = /<(video|audio)\b[^>]*>/i.exec(block);
   if (!tag) return undefined;
   const kind = tag[1]?.toLowerCase() === "audio" ? "audio" : "video";

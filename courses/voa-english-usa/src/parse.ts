@@ -75,7 +75,7 @@ const HOMEWORK_START = /^1\.\s*Прочитайте/;
 const HOMEWORK_TITLE = "Homework - Домашнее задание";
 
 /** The article body (`<div class="wsw">`), or undefined when the page has none. */
-export function articleBody(html: string): string | undefined {
+function articleBody(html: string): string | undefined {
   const start = html.indexOf('<div class="wsw">');
   if (start < 0) return undefined;
   const end = html.indexOf('<div class="footer-toolbar"', start);
@@ -83,7 +83,7 @@ export function articleBody(html: string): string | undefined {
 }
 
 /** The body as lines in reading order; table rows keep their cells, tabs separate cells otherwise. */
-export function bodyLines(body: string): Line[] {
+function bodyLines(body: string): Line[] {
   const lines: Line[] = [];
   for (const part of body.split(/(<table[\s\S]*?<\/table>)/i)) {
     if (/^<table/i.test(part)) {
