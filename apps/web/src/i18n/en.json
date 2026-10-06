@@ -88,7 +88,7 @@
     "answerWas": "Correct answer: {answer}",
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}",
-    "exercisesDone": "{done} of {total} exercises done",
+    "exercisesDone": "{done, number} of {total, number} exercises done{skipped, plural, =0 {} other { · # skipped}}",
     "skipped": "skipped",
     "notDone": "not done",
     "newWords": "New words of this lesson",
@@ -103,7 +103,13 @@
     "done": "Done",
     "doneScore": "Done · {score, number, percent} right",
     "left": "{count, plural, one {# exercise is} other {# exercises are}} left. The lesson counts as done once every exercise is answered or skipped.",
-    "toExercise": "Go to exercise {n}"
+    "toExercise": "Go to exercise {n}",
+    "state": {
+      "correct": "right",
+      "wrong": "with mistakes",
+      "done": "answered",
+      "skipped": "skipped"
+    }
   },
   "ref": {
     "vocabulary": "Vocabulary",

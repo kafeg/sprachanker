@@ -88,7 +88,7 @@
     "answerWas": "Lösung: {answer}",
     "summary": "Zusammenfassung",
     "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}",
-    "exercisesDone": "{done} von {total} Übungen erledigt",
+    "exercisesDone": "{done, number} von {total, number} Übungen erledigt{skipped, plural, =0 {} other { · # übersprungen}}",
     "skipped": "übersprungen",
     "notDone": "nicht erledigt",
     "newWords": "Neue Wörter dieser Lektion",
@@ -103,7 +103,13 @@
     "done": "Erledigt",
     "doneScore": "Erledigt · {score, number, percent} richtig",
     "left": "{count, plural, one {# Übung ist} other {# Übungen sind}} noch offen. Die Lektion gilt als erledigt, wenn jede Übung beantwortet oder übersprungen ist.",
-    "toExercise": "Zu Übung {n}"
+    "toExercise": "Zu Übung {n}",
+    "state": {
+      "correct": "richtig",
+      "wrong": "mit Fehlern",
+      "done": "beantwortet",
+      "skipped": "übersprungen"
+    }
   },
   "ref": {
     "vocabulary": "Wortschatz",

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import type { Lesson, Run, StoredEvent } from "@sprachanker/schema";
+import type { Exercise, Lesson, Run, StoredEvent } from "@sprachanker/schema";
 import {
   exerciseResults,
   exerciseState,
@@ -17,7 +17,16 @@ const ev = (
 ): StoredEvent => ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as StoredEvent;
 const outcome = (result: string, score: number) => ({ result, score, ruleIds: [], lexemes: [] });
 
-test("first attempts count; unscored items are left out", () => {
+/** A lesson of exercises `key:type` (items are not needed by the progress functions). */
+const lessonOf = (...pages: string[]) =>
+  ({
+    pages: pages.map((p) => {
+      const [key, type = "single_choice"] = p.split(":");
+      return { exercise: { key, type, items: [] } };
+    }),
+  }) as unknown as Lesson;
+
+test("first attempts count; unscored items are left out; scored items skipped count 0", () => {
   const events = [
     ev(1, "page_shown", null, { pageIndex: 0 }),
     ev(2, "answered", "a#1", { attempt: 1, outcome: outcome("wrong", 0) }),
@@ -26,8 +35,12 @@ test("first attempts count; unscored items are left out", () => {
     ev(5, "answered", "a#3", { attempt: 1, outcome: outcome("unscored", 0) }),
     ev(6, "page_shown", null, { pageIndex: 3 }),
   ];
-  expect(lessonResult(events)).toEqual({ score: 0.25, scored: 2, answered: 3 });
+  const lesson = lessonOf("a", "b", "s:speech_selfrate");
+  expect(lessonResult(lesson, events)).toEqual({ score: 0.25, scored: 2, answered: 3 });
   expect(resumePage(events)).toBe(3);
+  // Skipping a checked item is not knowing it; skipping a self-rated one costs nothing.
+  const skipped = [...events, ev(7, "item_skipped", "b#1", {}), ev(8, "item_skipped", "s#1", {})];
+  expect(lessonResult(lesson, skipped)).toEqual({ score: 0.5 / 3, scored: 3, answered: 3 });
 });
 
 test("lesson status and best score over runs", () => {
@@ -76,9 +89,15 @@ test("lesson status and best score over runs", () => {
 });
 
 test("exercise states and coverage of a run", () => {
-  const lesson = {
-    pages: ["a", "b", "c", "d"].map((key) => ({ exercise: { key } })),
-  } as unknown as Lesson;
+  const lesson = lessonOf("a", "b", "c:speech_selfrate", "d", "e:speech_selfrate", "f");
+  const [a, b, c, d, e, f] = lesson.pages.map((p) => p.exercise) as [
+    Exercise,
+    Exercise,
+    Exercise,
+    Exercise,
+    Exercise,
+    Exercise,
+  ];
   const results = exerciseResults([
     ev(1, "answered", "a#1", { answer: 1, outcome: outcome("correct", 1) }),
     ev(2, "answered", "b#1", { answer: 1, outcome: outcome("wrong", 0) }),
@@ -86,16 +105,22 @@ test("exercise states and coverage of a run", () => {
     ev(4, "item_skipped", "c#1", {}),
     ev(5, "item_skipped", "c#2", {}),
     ev(6, "answered", "c#2", { answer: 3, outcome: outcome("unscored", 0) }),
+    ev(7, "item_skipped", "e#1", {}),
+    ev(8, "item_skipped", "f#1", {}),
   ]);
-  expect(exerciseState(results.a)).toBe("correct");
-  expect(exerciseState(results.b)).toBe("wrong");
+  expect(exerciseState(a, results.a)).toBe("correct");
+  expect(exerciseState(b, results.b)).toBe("wrong");
   expect(results.b?.last["b#1"]?.answer).toBe(2);
   expect(results.c?.skipped).toEqual(["c#1"]);
-  expect(exerciseState(results.c)).toBe("done");
-  expect(exerciseState(results.d)).toBeUndefined();
+  expect(exerciseState(c, results.c)).toBe("done");
+  expect(exerciseState(d, results.d)).toBeUndefined();
+  // Skipped: neutral where nothing is scored, wrong where it is.
+  expect(exerciseState(e, results.e)).toBe("skipped");
+  expect(exerciseState(f, results.f)).toBe("wrong");
+  // Skipped counts as worked: the lesson can be completed without answering everything.
   expect(lessonCoverage(lesson, results)).toEqual({
-    worked: 3,
-    total: 4,
+    worked: 5,
+    total: 6,
     complete: false,
     firstLeft: 3,
   });

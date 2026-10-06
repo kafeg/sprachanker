@@ -9,7 +9,16 @@ import {
   parseLessonKey,
 } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, BookOpenText, Check, ListOrdered, Play, Star, X } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpenText,
+  Check,
+  ListOrdered,
+  Play,
+  SkipForward,
+  Star,
+  X,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -35,24 +44,33 @@ import { EpisodeVideo } from "./video.tsx";
 
 type Step = "overview" | number | "summary";
 
+/** An exercise's mark in the plan and the summary: right (green ✓), with mistakes (red ✕), answered
+ *  without a score (grey ✓), skipped (dashed ⏭), the current one (yellow ring), else its number. */
 function StepDot({ state, label }: { state?: ExerciseState | "current"; label: React.ReactNode }) {
+  const { t } = useTranslation();
+  const worked = state && state !== "current";
   return (
     <span
+      title={worked ? t(`lesson.state.${state}`) : undefined}
       className={cn(
         "grid size-6 shrink-0 place-items-center rounded-full border-2 text-xs font-semibold",
         state === "correct" && "border-correct bg-correct text-white",
         state === "wrong" && "border-wrong bg-wrong text-white",
-        state === "done" && "border-muted-foreground bg-muted-foreground text-white",
+        state === "done" && "border-muted-foreground/60 bg-muted text-muted-foreground",
+        state === "skipped" && "border-dashed border-muted-foreground/60 text-muted-foreground",
         state === "current" && "border-primary",
       )}
     >
-      {state === "correct" ? (
+      {state === "correct" || state === "done" ? (
         <Check className="size-3.5" />
       ) : state === "wrong" ? (
         <X className="size-3.5" />
+      ) : state === "skipped" ? (
+        <SkipForward className="size-3" />
       ) : (
         label
       )}
+      {worked && <span className="sr-only">{t(`lesson.state.${state}`)}</span>}
     </span>
   );
 }
@@ -95,7 +113,9 @@ function Plan({
         row(
           i,
           <StepDot
-            state={exerciseState(results[exercise.key]) ?? (step === i ? "current" : undefined)}
+            state={
+              exerciseState(exercise, results[exercise.key]) ?? (step === i ? "current" : undefined)
+            }
             label={i + 1}
           />,
           locale?.exercises[exercise.key]?.title ?? exercise.key,
@@ -204,6 +224,9 @@ export function LessonPlayer({
     .flatMap((r) => Object.values(r.first))
     .filter((o) => o.result === "correct").length;
   const done = coverage.worked;
+  const skipped = lesson.pages.filter(
+    ({ exercise }) => exerciseState(exercise, run.results[exercise.key]) === "skipped",
+  ).length;
   const numbers = parseLessonKey(lesson.key);
   const unitTitle = map.data?.locale?.units[lesson.unit]?.title;
   const firstTab = referenceTabs(lesson, locale)[0];
@@ -232,7 +255,7 @@ export function LessonPlayer({
           </Link>
           <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
           <p className="mb-3 px-2 text-sm text-muted-foreground">
-            {total > 0 && t("lesson.exercisesDone", { done, total })}
+            {total > 0 && t("lesson.exercisesDone", { done: done - skipped, total, skipped })}
           </p>
           {plan}
         </aside>
@@ -429,7 +452,7 @@ export function LessonPlayer({
                   <ul className="divide-y rounded-2xl border bg-card">
                     {lesson.pages.map(({ exercise }, i) => {
                       const r = run.results[exercise.key];
-                      const s = exerciseState(r);
+                      const s = exerciseState(exercise, r);
                       const outcomes = Object.values(r?.first ?? {}).filter(
                         (o) => o.result !== "unscored",
                       );

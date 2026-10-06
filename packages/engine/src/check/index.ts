@@ -69,6 +69,21 @@ function rubric(item: ItemOf<"respond">, text: string) {
  * Outcome of `answer` for item `index` of `exercise`. `lang` is the target language (case rules).
  * Throws on an answer of the wrong shape.
  */
+/** Whether an item is scored: everything a checker can mark right or wrong. Self-rated speech, scenes,
+ *  unknown exercises and free answers without a rubric are not. */
+export function itemScored(exercise: Exercise, index: number): boolean {
+  switch (exercise.type) {
+    case "speech_selfrate":
+    case "scene":
+    case "unknown":
+      return false;
+    case "respond":
+      return !!(exercise.items[index] as ItemOf<"respond"> | undefined)?.rubric?.required?.length;
+    default:
+      return true;
+  }
+}
+
 export function checkItem(
   exercise: Exercise,
   index: number,

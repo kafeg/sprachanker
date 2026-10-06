@@ -113,8 +113,8 @@ describe("runs", () => {
     await sendJson("POST", `/api/runs/${run.id}/finish`, {});
     const done = (await getJson(`/api/runs/lesson?${q}`)).state;
     expect([done.run.id, done.run.status]).toEqual([run.id, "finished"]);
-    // Skipped items are not answers: they count neither for the score nor as answered.
-    expect(done.run.result).toEqual({ score: 0, scored: 0, answered: 0 });
+    // Skipped items are not answers; skipped checked items count as wrong (9 of them in the fixture).
+    expect(done.run.result).toEqual({ score: 0, scored: 9, answered: 0 });
 
     const again = await sendJson("POST", "/api/runs", { ...body, restart: true });
     expect(again.run.id).not.toBe(run.id);
@@ -184,12 +184,13 @@ describe("runs", () => {
     await skipRest(api, runId, [`${LESSON}/ex-01`]);
     const finished = await sendJson("POST", `/api/runs/${runId}/finish`, {});
     expect(finished.status).toBe("finished");
-    expect(finished.result).toEqual({ score: 0.5, scored: 2, answered: 2 });
+    // One of two answered right; the 7 checked items skipped count 0.
+    expect(finished.result).toEqual({ score: 1 / 9, scored: 9, answered: 2 });
     const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
     const total = map.lessons[LESSON].run.total;
     expect(map.lessons[LESSON]).toEqual({
       done: true,
-      run: { status: "finished", worked: total, total, score: 0.5 },
+      run: { status: "finished", worked: total, total, score: 1 / 9 },
     });
     expect((await send("POST", `/api/runs/${runId}/events`, { events: [] })).status).toBe(409);
   });

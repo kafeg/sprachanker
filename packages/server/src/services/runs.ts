@@ -328,7 +328,7 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       const lesson = await content.lesson(seriesOf(row), row.contextKey as LessonKey);
       if (!lessonCoverage(lesson, exerciseResults(list)).complete)
         throw new RunError("run_incomplete", 409);
-      const result = lessonResult(list);
+      const result = lessonResult(lesson, list);
       return toRun(
         db
           .update(runs)

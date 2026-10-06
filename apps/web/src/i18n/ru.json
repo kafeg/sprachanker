@@ -88,7 +88,7 @@
     "answerWas": "Правильный ответ: {answer}",
     "summary": "Итог",
     "score": "Верно с первой попытки: {correct, number} из {scored, number}",
-    "exercisesDone": "Пройдено упражнений: {done} из {total}",
+    "exercisesDone": "Сделано {done, number} из {total, number}{skipped, plural, =0 {} other { · пропущено #}}",
     "skipped": "пропущено",
     "notDone": "не пройдено",
     "newWords": "Новые слова урока",
@@ -103,7 +103,13 @@
     "done": "Пройден",
     "doneScore": "Пройден · {score, number, percent} верно",
     "left": "{count, plural, one {Осталось # упражнение} few {Осталось # упражнения} many {Осталось # упражнений} other {Осталось # упражнения}}. Урок засчитывается, когда каждое упражнение выполнено или пропущено.",
-    "toExercise": "К упражнению {n}"
+    "toExercise": "К упражнению {n}",
+    "state": {
+      "correct": "верно",
+      "wrong": "с ошибками",
+      "done": "выполнено",
+      "skipped": "пропущено"
+    }
   },
   "ref": {
     "vocabulary": "Словарь",

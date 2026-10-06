@@ -38,8 +38,8 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
     if (await score.isVisible()) break;
     await ((await skip.isVisible()) ? skip : next).click();
   }
-  // The unanswered picture question is left out of the score, like a skipped one.
-  await expect(page.getByText("Correct on the first try: 1 of 1")).toBeVisible();
+  // One right; the unanswered picture question and the skipped checked items count as wrong.
+  await expect(page.getByText("Correct on the first try: 1 of 9")).toBeVisible();
   await expect(page.getByRole("heading", { name: "New words of this lesson" })).toBeVisible();
 });
 

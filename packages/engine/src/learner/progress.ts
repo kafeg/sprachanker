@@ -1,7 +1,17 @@
 // Lesson progress derived from runs and events (04, "Learner model"; 05, "Derived state"). The server and
 // the web player both read a run through these functions, so the course map, the lesson plan and the
 // summary always agree on what is done.
-import type { Lesson, LessonResult, Outcome, Run, StoredEvent } from "@sprachanker/schema";
+import {
+  type Exercise,
+  type ItemKey,
+  type Lesson,
+  type LessonResult,
+  type Outcome,
+  parseItemKey,
+  type Run,
+  type StoredEvent,
+} from "@sprachanker/schema";
+import { itemScored } from "../check/index.ts";
 
 export interface LessonProgress {
   /** What the lesson is now: `in_progress` while a run with work in it is open (also when the lesson is
@@ -55,15 +65,27 @@ export function exerciseResults(events: StoredEvent[]): Record<string, ExerciseR
   return results;
 }
 
+/** Items skipped without an answer that would have been scored: they count as wrong (score 0). */
+const missed = (exercise: Exercise, r: ExerciseResult) =>
+  r.skipped.filter(
+    (k) => !(k in r.first) && itemScored(exercise, parseItemKey(k as ItemKey).n - 1),
+  );
+
 /**
- * An exercise's state in a run: not worked yet (undefined), `done` (worked, nothing scored — rated,
- * unscored or skipped), `correct` (every scored first attempt right, nothing skipped) or `wrong`.
+ * An exercise's state in a run: not worked yet (undefined), `skipped` (moved on without an answer and
+ * nothing in it is scored), `done` (answered, nothing scored — self-rated, a free answer without a
+ * rubric), `correct` (every scored item right at the first attempt) or `wrong` (a mistake, or a
+ * scored item skipped: skipping what is checked is not knowing it).
  */
-export function exerciseState(r: ExerciseResult | undefined) {
+export function exerciseState(exercise: Exercise, r: ExerciseResult | undefined) {
   if (!r) return undefined;
   const scored = Object.values(r.first).filter((o) => o.result !== "unscored");
-  if (!scored.length) return Object.keys(r.last).length || r.skipped.length ? "done" : undefined;
-  return scored.every((o) => o.result === "correct") && !r.skipped.length ? "correct" : "wrong";
+  const skippedScored = missed(exercise, r);
+  if (!scored.length && !skippedScored.length) {
+    if (Object.keys(r.last).length) return "done";
+    return r.skipped.length ? "skipped" : undefined;
+  }
+  return scored.every((o) => o.result === "correct") && !skippedScored.length ? "correct" : "wrong";
 }
 export type ExerciseState = NonNullable<ReturnType<typeof exerciseState>>;
 
@@ -71,17 +93,32 @@ export type ExerciseState = NonNullable<ReturnType<typeof exerciseState>>;
 export function lessonCoverage(lesson: Lesson, results: Record<string, ExerciseResult>) {
   const total = lesson.pages.length;
   const left = lesson.pages.flatMap(({ exercise }, i) =>
-    exerciseState(results[exercise.key]) ? [] : [i],
+    exerciseState(exercise, results[exercise.key]) ? [] : [i],
   );
   return { worked: total - left.length, total, complete: !left.length, firstLeft: left[0] };
 }
 
-/** Score of a lesson run: mean first-attempt score of its scored items (05, "Lifecycle"). */
-export function lessonResult(events: StoredEvent[]): LessonResult {
-  const first = Object.values(exerciseResults(events)).flatMap((r) => Object.values(r.first));
-  const scored = first.filter((o) => o.result !== "unscored");
-  const score = scored.length ? scored.reduce((sum, o) => sum + o.score, 0) / scored.length : 0;
-  return { score, scored: scored.length, answered: first.length };
+/**
+ * Score of a lesson run (05, "Lifecycle"): mean first-attempt score of its scored items, a scored item
+ * skipped without an answer counting 0. `scored` counts those items, `answered` the items answered.
+ */
+export function lessonResult(lesson: Lesson, events: StoredEvent[]): LessonResult {
+  const results = exerciseResults(events);
+  let sum = 0;
+  let scored = 0;
+  let answered = 0;
+  for (const { exercise } of lesson.pages) {
+    const r = results[exercise.key];
+    if (!r) continue;
+    for (const o of Object.values(r.first)) {
+      answered++;
+      if (o.result === "unscored") continue;
+      scored++;
+      sum += o.score;
+    }
+    scored += missed(exercise, r).length;
+  }
+  return { score: scored ? sum / scored : 0, scored, answered };
 }
 
 /** Page to continue a run on: the last page shown. */

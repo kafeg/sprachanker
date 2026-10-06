@@ -45,8 +45,9 @@ type Outcome = {
 - `partial` only for multi-select, `order` with a correct prefix, and dictation/speech with ≥ 80% of
   words matched; otherwise results are binary.
 - **Attempts**: the learner may retry an item; every attempt is recorded, but only the **first attempt**
-  counts for the lesson score and statistics. Items may be skipped: skipped items are excluded from the
-  score and listed as skipped in the summary.
+  counts for the lesson score and statistics. Items may be skipped: a skipped item that would be checked
+  counts as wrong (score 0; its exercise is marked wrong), a skipped self-rated or otherwise unscored
+  item costs nothing (its exercise is marked skipped); the summary lists them as skipped.
 - **Text normalisation**: NFC; unify quotes, apostrophes and dashes; collapse whitespace; strip final
   punctuation; case-insensitive except where the target language makes case meaningful (German: a
   token capitalised in the reference and not sentence-initial is compared case-sensitively). Speech is
