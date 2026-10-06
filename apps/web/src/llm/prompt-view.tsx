@@ -87,7 +87,7 @@ export function PromptButton({ request }: { request: PromptRequest | (() => Prom
           <SheetHeader className="p-0">
             <SheetTitle>
               {preview
-                ? `${t("prompt.title")} · ${preview.provider} · ${preview.model}`
+                ? `${t("prompt.title")} · ${t(`llm.provider.${preview.provider}`)} · ${preview.model}`
                 : t("prompt.title")}
             </SheetTitle>
           </SheetHeader>

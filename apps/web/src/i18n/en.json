@@ -10,19 +10,18 @@
   "common": {
     "loading": "Loading…",
     "error": "Something went wrong: {message}",
-    "retry": "Try again"
+    "retry": "Try again",
+    "close": "Close"
   },
   "courses": {
     "empty": "No course is installed yet.",
     "emptyHint": "Install one from the terminal: {command}",
     "lessons": "{count, plural, one {# lesson} other {# lessons}}",
-    "progress": "{done} of {total} done",
+    "progress": "{done, number} of {total, number} done",
     "start": "Start",
-    "continueLesson": "Continue: {title}",
-    "nextLesson": "Next: {title}",
     "allLessons": "All lessons",
     "languages": "{from} → {to}",
-    "any": "Any",
+    "any": "All",
     "noneStarted": "No course started yet.",
     "noneMatch": "No course for these languages.",
     "course": "Course",
@@ -54,13 +53,13 @@
       "size": "on disk"
     },
     "checking": "Checking the course files…",
-    "missing": "{count} missing",
+    "missing": "{count, number} missing",
     "problems": "{count, plural, one {# problem} other {# problems}} found",
     "intact": "All files are in place and consistent.",
     "checkAgain": "Check again",
     "sync": "Sync",
     "syncing": "Syncing…",
-    "syncHint": "Sync downloads what is missing (pages and media already stored are kept) and normalises the course again; your progress stays.",
+    "syncHint": "Sync downloads what is missing (pages and media already stored are kept) and processes the course again; your progress stays.",
     "syncRunning": "Syncing…",
     "syncDone": "Synced. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
     "syncFailed": "Sync failed: {error}",
@@ -69,7 +68,7 @@
     "syncStart": "Sync with the source"
   },
   "lesson": {
-    "unitLesson": "Unit {unit} · lesson {lesson}",
+    "unitLesson": "Unit {unit} · Lesson {lesson}",
     "goals": "In this lesson you will learn to:",
     "counts": "{exercises, plural, =0 {} one {# exercise · } other {# exercises · }}{words, plural, one {# new word} other {# new words}}",
     "start": "Start lesson",
@@ -85,9 +84,9 @@
     "correct": "Correct",
     "partial": "Partly correct",
     "wrong": "Not quite",
-    "answerWas": "Answer: {answer}",
+    "answerWas": "Correct answer: {answer}",
     "summary": "Summary",
-    "score": "Correct at first try: {correct} of {scored}",
+    "score": "Correct on the first try: {correct, number} of {scored, number}",
     "exercisesDone": "{done} of {total} exercises done",
     "skipped": "skipped",
     "notDone": "not done",
@@ -107,13 +106,14 @@
     "vocabulary": "Vocabulary",
     "grammar": "Grammar",
     "culture": "Culture",
-    "script": "Script",
+    "script": "Transcript",
     "downloads": "PDF",
     "none": "Nothing in this lesson.",
-    "homework": "Tasks"
+    "homework": "Homework"
   },
   "video": {
-    "hd": "HD"
+    "hd": "HD",
+    "sd": "SD"
   },
   "ex": {
     "chooseSeveral": "Several answers can be right.",
@@ -128,11 +128,13 @@
       "poor": "Again"
     },
     "unknown": "This exercise type is not supported yet.",
-    "picture": "picture {n}",
+    "picture": "Picture {n}",
     "correctHighlighted": "see the highlighted answer",
     "respondPlaceholder": "Your answer…",
     "reference": "{count, plural, one {Model answer} other {Model answers}}",
-    "selfrateListen": "Listen to the recording and repeat after the speaker."
+    "selfrateListen": "Listen to the recording and repeat after the speaker.",
+    "gap": "Gap {n}",
+    "matchFor": "Match for item {n}"
   },
   "word": {
     "plural": "pl. {plural}"
@@ -219,7 +221,7 @@
     },
     "context": "Context ≈ {used} of {window} tokens",
     "contextSize": "Request ≈ {used} tokens",
-    "remembers": "remembers {kept} of {total} messages",
+    "remembers": "remembers {kept, number} of {total, plural, one {# message} other {# messages}}",
     "contextFull": "The context is nearly full: the earliest messages no longer reach the model. Start a new chat for a fresh topic.",
     "contextHint": "Size of the next request: the lesson context, the conversation and your message, plus room for the reply.",
     "reviewMistakes": "Review my mistakes with the tutor",
@@ -256,7 +258,7 @@
     "title": "Prompt",
     "endpoint": "Endpoint",
     "size": "Size",
-    "sizeValue": "{chars} characters ≈ {tokens} tokens",
+    "sizeValue": "{chars, plural, one {# character} other {# characters}} ≈ {tokens, plural, one {# token} other {# tokens}}",
     "copy": "Copy request as JSON",
     "infoTitle": "What the model gets",
     "infoIntro": "Every request sends standing rules (the system prompt) and course data of the current lesson. Long parts are cut to the limits below so that small local models keep up.",
@@ -284,7 +286,7 @@
       "text": "your text",
       "sessionMistakes": "your mistakes in this session and the exercises done without one"
     },
-    "upTo": "up to {chars} characters",
+    "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
     "debugHint": "Next to explanations and in the tutor: the exact request with all messages, for debugging."
   },
@@ -299,12 +301,12 @@
     "verdict": {
       "good": "Correct",
       "minor_errors": "Small mistakes",
-      "major_errors": "Mistakes",
-      "off_task": "Off the task"
+      "major_errors": "Many mistakes",
+      "off_task": "Off topic"
     },
     "criteria": {
       "task": "Task",
-      "communication": "Message",
+      "communication": "Communication",
       "accuracy": "Accuracy"
     }
   },

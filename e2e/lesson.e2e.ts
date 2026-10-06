@@ -30,7 +30,7 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
   await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
 
-  const score = page.getByText(/Correct at first try/);
+  const score = page.getByText(/Correct on the first try/);
   const skip = page.getByRole("button", { name: "Skip", exact: true });
   const next = page.getByRole("button", { name: /^(Next|To the summary)$/ });
   for (let i = 0; i < 12; i++) {
@@ -39,7 +39,7 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
     await ((await skip.isVisible()) ? skip : next).click();
   }
   // The unanswered picture question is left out of the score, like a skipped one.
-  await expect(page.getByText("Correct at first try: 1 of 1")).toBeVisible();
+  await expect(page.getByText("Correct on the first try: 1 of 1")).toBeVisible();
   await expect(page.getByRole("heading", { name: "New words of this lesson" })).toBeVisible();
 });
 

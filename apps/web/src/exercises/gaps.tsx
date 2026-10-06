@@ -7,6 +7,10 @@ import type { ItemOf, RendererProps } from "./types.ts";
 
 type Segments = ItemOf<"gap_text">["segments"];
 
+/** 1-based position of a gap in the text, for its accessible name. */
+const gapNumber = (segments: Segments, gap: string) =>
+  segments.filter((s) => typeof s !== "string").findIndex((s) => s.gap === gap) + 1;
+
 function Text({ segments, gap }: { segments: Segments; gap(id: string): React.ReactNode }) {
   const lang = useTargetLang();
   return (
@@ -29,6 +33,7 @@ const fieldMark = (outcome: Outcome | undefined, ok: boolean) =>
   outcome ? (ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft") : "border-input";
 
 export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"gap_choice">) {
+  const { t } = useTranslation();
   const lang = useTargetLang();
   const values = answer ?? {};
   const set = (gap: string, id: string) => onAnswer({ ...values, [gap]: id });
@@ -98,6 +103,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
         <>
           <select
             value={values[gap] ?? ""}
+            aria-label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
             disabled={!!outcome}
             onChange={(e) => set(gap, e.target.value)}
             className={cn(
@@ -135,7 +141,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
             <input
               value={values[gap] ?? ""}
               disabled={!!outcome}
-              aria-label={t("lesson.check")}
+              aria-label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
               autoCapitalize="off"
               autoComplete="off"
               spellCheck={false}

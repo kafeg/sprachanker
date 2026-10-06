@@ -21,6 +21,7 @@ const KNOWN = new Set([
 export function errorText(t: TFunction, error: unknown, provider?: string): string {
   const code = error instanceof Error ? error.message : "";
   if (code === "llm_unreachable" && provider === "lmstudio") return t("llm.error.lmstudioDown");
-  if (code === "llm_cli_missing" && provider) return t(`llm.cliMissing.${provider}`);
+  if (code === "llm_cli_missing" && (provider === "claude-code" || provider === "codex"))
+    return t(`llm.cliMissing.${provider}`);
   return KNOWN.has(code) ? t(`llm.error.${code}`) : t("llm.error.other", { message: code });
 }

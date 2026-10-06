@@ -69,7 +69,7 @@ export function EpisodeVideo({
                   quality === q && "bg-primary font-semibold text-primary-foreground",
                 )}
               >
-                {q === "hd" ? t("video.hd") : "SD"}
+                {t(`video.${q}`)}
               </button>
             ))}
           </div>

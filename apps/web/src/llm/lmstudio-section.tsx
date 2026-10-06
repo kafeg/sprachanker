@@ -10,10 +10,14 @@ import { cn } from "@/ui/utils.ts";
 import { type LlmState, useLmStudio, useLmStudioAction, useSetRoute } from "./api.ts";
 import { errorText } from "./errors.ts";
 
-const gb = (bytes: number) => (bytes / 1e9).toFixed(1);
+/** Gigabytes with one decimal in the interface language. */
+const gb = (value: number, locale: string) =>
+  new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(
+    value,
+  );
 
 export function LmStudioSection({ state }: { state: LlmState }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const studio = useLmStudio();
   const action = useLmStudioAction();
   const setRoute = useSetRoute();
@@ -83,7 +87,7 @@ export function LmStudioSection({ state }: { state: LlmState }) {
                     {[
                       m.format.toUpperCase(),
                       m.quantization,
-                      `${gb(m.sizeBytes)} ${t("lmstudio.gb")}`,
+                      `${gb(m.sizeBytes / 1e9, i18n.language)} ${t("lmstudio.gb")}`,
                     ]
                       .filter(Boolean)
                       .join(" · ")}
@@ -128,7 +132,7 @@ export function LmStudioSection({ state }: { state: LlmState }) {
                       <Badge variant="secondary">{t("lmstudio.recommended")}</Badge>
                     )}
                     <span className="text-sm text-muted-foreground">
-                      {t("lmstudio.size", { size: s.sizeGb.toFixed(1), ram: s.ramGb })}
+                      {t("lmstudio.size", { size: gb(s.sizeGb, i18n.language), ram: s.ramGb })}
                     </span>
                   </div>
                   {busy && d?.totalBytes ? (
@@ -139,8 +143,8 @@ export function LmStudioSection({ state }: { state: LlmState }) {
                       />
                       <p className="text-sm text-muted-foreground">
                         {t("lmstudio.progress", {
-                          done: gb(d.downloadedBytes ?? 0),
-                          total: gb(d.totalBytes),
+                          done: gb((d.downloadedBytes ?? 0) / 1e9, i18n.language),
+                          total: gb(d.totalBytes / 1e9, i18n.language),
                         })}
                       </p>
                     </div>

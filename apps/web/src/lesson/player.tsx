@@ -151,7 +151,7 @@ export function LessonPlayer({
   course: string;
   lesson: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const key = `${series}/${course}/${lessonId}`;
   const courses = useCourses();
   const info = courses.data?.find((c) => c.series === series && c.course === course);
@@ -398,7 +398,11 @@ export function LessonPlayer({
                 {total > 0 && (
                   <div className="flex items-end gap-4">
                     <span className="font-heading text-6xl font-bold">
-                      {result ? `${Math.round(result.score * 100)}%` : "—"}
+                      {result
+                        ? new Intl.NumberFormat(i18n.language, { style: "percent" }).format(
+                            result.score,
+                          )
+                        : "—"}
                     </span>
                     {result && (
                       <span className="pb-2 text-muted-foreground">

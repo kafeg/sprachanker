@@ -37,7 +37,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
           ))}
         </div>
       )}
-      {item.left.map((l) => {
+      {item.left.map((l, i) => {
         const ok = outcome ? sameText(chosen.get(l.id), want.get(l.id)) : undefined;
         return (
           <div key={l.id} className="flex flex-wrap items-center gap-3">
@@ -47,6 +47,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
             <span aria-hidden>→</span>
             <select
               value={chosen.get(l.id) ?? ""}
+              aria-label={t("ex.matchFor", { n: i + 1 })}
               disabled={!!outcome}
               onChange={(e) => set(l.id, e.target.value)}
               className={cn(

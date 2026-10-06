@@ -31,6 +31,8 @@ notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<ver
 - No user-facing string outside i18n catalogs (`src/i18n/*.json`, nested keys, ICU messages);
   `test/catalogs.test.ts` fails on differing keys or invalid ICU. Language names come from
   `Intl.DisplayNames`, not catalogs.
+- Catalog style: ru addresses the learner as «вы», de as "du"; counts use ICU `plural` with `#`, other
+  numbers `{x, number}` or `Intl.NumberFormat` (never `toFixed` or `${n}%`).
 - The API client imports only `import type { AppType } from "@sprachanker/server/app"`.
 - der/die/das colours (`text-der`, `text-die`, `text-das`) are used only for grammatical gender;
   correct/incorrect use `correct`/`wrong` tokens plus an icon.
