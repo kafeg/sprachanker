@@ -1,17 +1,13 @@
 // A DW lesson (lesson page, download page, exercise pages) → canonical lesson + locale lesson.
-import { plainText } from "@sprachanker/course-kit";
+import { plainText, vocabEntries } from "@sprachanker/course-kit";
 import {
   exerciseKey,
   type GoalKey,
   type Lesson,
   type LessonKey,
   type LocaleLesson,
-  lemmaSlug,
   lessonGoalKey,
-  lexemeKey,
   type UnitKey,
-  type VocabEntry,
-  vocabKey,
 } from "@sprachanker/schema";
 import { type ApolloState, entitiesOf, exerciseIds } from "../apollo.ts";
 import {
@@ -89,32 +85,19 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
     };
   });
 
-  const seen = new Map<string, number>();
-  const vocab: VocabEntry[] = [];
-  const translations: LocaleLesson["vocab"] = {};
-  for (const k of refs(state, L.knowledges).filter((k) => k.knowledgeType === "VOCABULARY")) {
-    const head = parseHeadword(plainText(k.name), plainText(k.subTitle));
-    const slug = lemmaSlug(head.lemma);
-    if (!slug) continue;
-    const n = (seen.get(slug) ?? 0) + 1;
-    seen.set(slug, n);
-    const key = vocabKey(src.key, head.lemma, n);
-    const audio = audioPath(ctx, state, k);
-    const img = imagePath(ctx, state, k.mainContentImage);
-    vocab.push({
-      key,
-      lexeme: lexemeKey("de", head.lemma, head.pos, head.gender),
-      target: plainText(k.name),
-      ...(head.gender ? { gender: head.gender } : {}),
-      ...(head.plural ? { plural: head.plural } : {}),
-      ...(head.forms ? { forms: head.forms } : {}),
-      ...(head.note ? { note: head.note } : {}),
-      ...(audio ? { audio } : {}),
-      ...(img ? { image: img } : {}),
-    });
-    const translation = plainText(k.text);
-    if (translation) translations[key] = { translation };
-  }
+  const { vocab, translations } = vocabEntries(
+    src.key,
+    "de",
+    refs(state, L.knowledges)
+      .filter((k) => k.knowledgeType === "VOCABULARY")
+      .map((k) => ({
+        head: parseHeadword(plainText(k.name), plainText(k.subTitle)),
+        target: plainText(k.name),
+        audio: audioPath(ctx, state, k),
+        image: imagePath(ctx, state, k.mainContentImage),
+        translation: plainText(k.text) || undefined,
+      })),
+  );
 
   const parts = (L.overviewParts ?? []) as Array<{ lessonPart: string; targetId: number }>;
   const knowledge = (id: number) => state[`Knowledge:${id}`];

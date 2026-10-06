@@ -1,7 +1,13 @@
 // Normalisation (offline, deterministic): parsed chapters + media.json → canonical/ and locale/ files.
 // Chapters become units; each vocabulary section a lesson with its words (German → English) and its
 // recording. The site has no interactive exercises (they are in the textbook PDF, kept as a download).
-import { type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
+import {
+  type Headword,
+  type LibraryFile,
+  type MediaIndex,
+  mediaPath,
+  vocabEntries,
+} from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -10,15 +16,10 @@ import {
   type LessonKey,
   LocaleCourse,
   LocaleLesson,
-  lemmaSlug,
   lessonKey,
-  lexemeKey,
-  type PartOfSpeech,
   parseLessonKey,
   seriesKey,
   unitKey,
-  type VocabEntry,
-  vocabKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SITE } from "./catalog.ts";
 import type { VocabSection } from "./parse.ts";
@@ -33,14 +34,6 @@ export interface Chapter {
 }
 
 const ARTICLES: Record<string, Gender> = { der: "m", die: "f", das: "n" };
-
-export interface Headword {
-  lemma: string;
-  pos: PartOfSpeech;
-  gender?: Gender;
-  plural?: string;
-  note?: string;
-}
 
 /**
  * Part of speech, gender and plural from a headword as the book writes it: "der Apfel (Äpfel)",
@@ -93,26 +86,15 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
     for (const [i, section] of chapter.sections.entries()) {
       const key = lessonKey(course, chapter.k, section.n);
       lessons.push(key);
-      const seen = new Map<string, number>();
-      const vocab: VocabEntry[] = [];
-      const translations: LocaleLesson["vocab"] = {};
-      for (const row of section.rows) {
-        const h = headword(row.de);
-        const slug = lemmaSlug(h.lemma);
-        if (!slug) continue;
-        const n = (seen.get(slug) ?? 0) + 1;
-        seen.set(slug, n);
-        const entry: VocabEntry = {
-          key: vocabKey(key, h.lemma, n),
-          lexeme: lexemeKey("de", h.lemma, h.pos, h.gender),
+      const { vocab, translations } = vocabEntries(
+        key,
+        "de",
+        section.rows.map((row) => ({
+          head: headword(row.de),
           target: row.de,
-          ...(h.gender ? { gender: h.gender } : {}),
-          ...(h.plural ? { plural: h.plural } : {}),
-          ...(h.note ? { note: h.note } : {}),
-        };
-        vocab.push(entry);
-        translations[entry.key] = { translation: row.en };
-      }
+          translation: row.en,
+        })),
+      );
       const audio = media(section.audio);
       const { name } = parseLessonKey(key);
       files.push({

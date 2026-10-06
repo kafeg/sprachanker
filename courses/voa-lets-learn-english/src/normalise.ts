@@ -6,6 +6,7 @@
 import {
   type ExerciseDraft,
   escapeHtml,
+  type Headword,
   type LibraryFile,
   type MediaIndex,
   type MediaRef,
@@ -13,6 +14,7 @@ import {
   plainText,
   sanitizeCourseHtml,
   urlFileName,
+  vocabEntries,
   withFingerprint,
 } from "@sprachanker/course-kit";
 import {
@@ -29,13 +31,9 @@ import {
   LocaleLesson,
   lemmaSlug,
   lessonKey,
-  lexemeKey,
   optionId,
-  type PartOfSpeech,
   parseLessonKey,
   unitKey,
-  type VocabEntry,
-  vocabKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, type CourseDef, EDITION, SERIES } from "./catalog.ts";
 import type {
@@ -91,11 +89,6 @@ export function audioUrl(player: Player | undefined): string | undefined {
 }
 
 // --- vocabulary ----------------------------------------------------------------------------------
-
-export interface Headword {
-  lemma: string;
-  pos: PartOfSpeech;
-}
 
 /** Part of speech by shape (the site gives none): "to …" a verb, several words a phrase. */
 export function headword(text: string): Headword {
@@ -472,12 +465,12 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
         exercises[n.exercise.key] = n.locale;
         if (n.unknown) unknown++;
       }
-      const vocab: VocabEntry[] = plan.words.flatMap((word) => {
-        const h = headword(word);
-        return lemmaSlug(h.lemma)
-          ? [{ key: vocabKey(lk, h.lemma), lexeme: lexemeKey("en", h.lemma, h.pos), target: word }]
-          : [];
-      });
+      // en-en: the source gives no definitions on the page (they are in the lesson plan PDF).
+      const { vocab } = vocabEntries(
+        lk,
+        "en",
+        plan.words.map((word) => ({ head: headword(word), target: word })),
+      );
       const sd = media(plan.video.sd);
       const hd = media(plan.video.hd);
       const audio = media(plan.audio);
@@ -518,7 +511,6 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
           title: lesson.page.title || lesson.source.title,
           ...(summary ? { synopsisHtml: `<p>${escapeHtml(summary)}</p>` } : {}),
           exercises,
-          // en-en: the source gives no definitions on the page (they are in the lesson plan PDF).
           vocab: {},
           tabs: {
             grammar: plan.grammar,

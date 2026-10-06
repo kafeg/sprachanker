@@ -10,7 +10,8 @@ packages/course-kit/   # library format (LibraryView), fetcher, media store + me
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
                        # text of HTML and entity decoding; provider.ts: the
                        # provider contract (import options/report, writeLibraryFiles, storedPage);
-                       # verify.ts: a course's integrity and counts (LibraryView.check)
+                       # verify.ts: a course's integrity and counts (LibraryView.check); vocab.ts:
+                       # Headword and a lesson's vocabulary entries (keys, duplicates, translations)
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
