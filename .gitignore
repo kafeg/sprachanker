@@ -40,3 +40,6 @@ Thumbs.db
 
 # Bun compile temp files
 *.bun-build
+
+# agent worktrees
+.claude/worktrees/
