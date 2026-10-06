@@ -4,7 +4,7 @@
 // | пример]) or as `<br>`-separated lines with tabs or a single space between English and Russian.
 // The parser first flattens the body into lines (table rows keep their cells), then walks them with the
 // section labels as a state machine.
-import { plainText, sanitizeCourseHtml } from "@sprachanker/course-kit";
+import { escapeHtml, plainText, sanitizeCourseHtml } from "@sprachanker/course-kit";
 
 export interface DialogueLine {
   speaker?: string;
@@ -74,11 +74,8 @@ const WORD_HEADING =
 const HOMEWORK_START = /^1\.\s*Прочитайте/;
 const HOMEWORK_TITLE = "Homework - Домашнее задание";
 
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 /** The article body (`<div class="wsw">`), or undefined when the page has none. */
-export function articleBody(html: string): string | undefined {
+function articleBody(html: string): string | undefined {
   const start = html.indexOf('<div class="wsw">');
   if (start < 0) return undefined;
   const end = html.indexOf('<div class="footer-toolbar"', start);
@@ -86,7 +83,7 @@ export function articleBody(html: string): string | undefined {
 }
 
 /** The body as lines in reading order; table rows keep their cells, tabs separate cells otherwise. */
-export function bodyLines(body: string): Line[] {
+function bodyLines(body: string): Line[] {
   const lines: Line[] = [];
   for (const part of body.split(/(<table[\s\S]*?<\/table>)/i)) {
     if (/^<table/i.test(part)) {

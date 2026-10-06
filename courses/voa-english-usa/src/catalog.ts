@@ -8,8 +8,10 @@
 // Lessons 34, 35, 86 and 87 also exist as identical older copies (2001-08); the later copies are used.
 // Lessons 1–31 were republished in 2009 (`learning-english-N`) in a looser layout; the archive copies
 // are kept for one consistent layout.
+import { seriesKey } from "@sprachanker/schema";
+
 export const SITE = "https://www.golosameriki.com";
-export const SERIES = { publisher: "voa", series: "english-usa" } as const;
+export const SERIES = seriesKey("voa", "english-usa");
 export const COURSE = "english-usa";
 export const EDITION = "ru-en";
 /** Lessons per unit: the source has no grouping below its two "years" (1–52а, 53–104а). */

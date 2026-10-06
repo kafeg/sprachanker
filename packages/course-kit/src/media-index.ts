@@ -96,3 +96,12 @@ export function mediaPath(index: MediaIndex, url: string | undefined): MediaPath
 /** URLs that could not be fetched, with the reason, for the import report. */
 export const failedMedia = (index: MediaIndex) =>
   Object.entries(index).flatMap(([url, e]) => ("error" in e ? [`${url}: ${e.error}`] : []));
+
+/**
+ * File name of a media URL (`MediaRef.name`): the last segment of its path, without the query.
+ * `decode` undoes the percent-encoding ("Lesson%201.pdf" → "Lesson 1.pdf").
+ */
+export function urlFileName(url: string, options: { decode?: boolean } = {}): string {
+  const last = new URL(url).pathname.split("/").pop() ?? "";
+  return options.decode ? decodeURIComponent(last) : last;
+}

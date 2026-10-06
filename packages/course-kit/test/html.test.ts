@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { sanitizeCourseHtml } from "../src/html.ts";
+import { escapeHtml, sanitizeCourseHtml } from "../src/html.ts";
 
 const options = {
   image: (a: Record<string, string>) =>
@@ -22,4 +22,8 @@ test("rewrites images to media paths and drops credits and unknown images", () =
   expect(sanitizeCourseHtml(html, options)).toBe(
     '<figure><img src="media/image/5.jpg" alt="Zwei Leute" />\n<figcaption>Gruß</figcaption></figure>',
   );
+});
+
+test("escapes text for HTML content", () => {
+  expect(escapeHtml(`a < b && "c" > d`)).toBe(`a &lt; b &amp;&amp; "c" &gt; d`);
 });

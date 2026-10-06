@@ -2,9 +2,11 @@
 // Stages of the index are units; each lesson keeps its explanation as grammar pages, its examples
 // with recordings as listen-and-repeat exercises, its vocabulary and its exercises (exercise.ts).
 import {
+  escapeHtml,
   type LibraryFile,
   type MediaIndex,
   mediaPath,
+  vocabEntries,
   withFingerprint,
 } from "@sprachanker/course-kit";
 import {
@@ -17,28 +19,19 @@ import {
   LocaleCourse,
   type LocaleExercise,
   LocaleLesson,
-  lemmaSlug,
   lessonKey,
-  lexemeKey,
   type PartOfSpeech,
   parseLessonKey,
-  seriesKey,
   unitKey,
   type VocabEntry,
-  vocabKey,
 } from "@sprachanker/schema";
-import {
-  ATTRIBUTION_HTML,
-  COURSE,
-  EDITION,
-  PUBLISHER,
-  SERIES_NAME,
-  SITE,
-  TITLE,
-} from "./catalog.ts";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE, TITLE } from "./catalog.ts";
 import { type El, parseHtml } from "./dom.ts";
 import { Homework, mapExercise, speechExercise, Unmapped } from "./exercise.ts";
-import type { IndexLesson, LessonPage, VerbRow, VocabRow } from "./parse.ts";
+import type { IndexLesson } from "./parse/course-index.ts";
+import type { LessonPage } from "./parse/lesson.ts";
+import type { VerbRow } from "./parse/verbs.ts";
+import type { VocabRow } from "./parse/vocab.ts";
 import { renderSection } from "./render.ts";
 import { ipaOf, withoutIpa } from "./text.ts";
 
@@ -68,33 +61,30 @@ export function partOfSpeech(head: string, marks: string[], forms: string[]): Pa
   return /\s/.test(head.trim()) ? "phrase" : "word";
 }
 
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 const LISTEN = "<p>Прослушайте и повторите вслух.</p>";
 const READ = "<p>Повторите вслух (прослушайте запись, где она есть).</p>";
 
+/** Words with a translation; the IPA transcription is the entry's note. */
 function vocabulary(key: LessonKey, rows: Array<VocabRow & { lemma?: string }>) {
-  const seen = new Map<string, number>();
-  const vocab: VocabEntry[] = [];
-  const translations: LocaleLesson["vocab"] = {};
-  for (const row of rows) {
-    const lemma = row.lemma ?? withoutIpa(row.head);
-    const slug = lemmaSlug(lemma);
-    if (!slug || !row.translation) continue;
-    const n = (seen.get(slug) ?? 0) + 1;
-    seen.set(slug, n);
-    const entry: VocabEntry = {
-      key: vocabKey(key, lemma, n),
-      lexeme: lexemeKey("en", lemma, partOfSpeech(lemma, row.marks, row.forms)),
-      target: row.head,
-      ...(row.forms.length ? { forms: row.forms.join(", ") } : {}),
-      ...(row.ipa ? { note: row.ipa } : {}),
-    };
-    vocab.push(entry);
-    translations[entry.key] = { translation: row.translation };
-  }
-  return { vocab, translations };
+  return vocabEntries(
+    key,
+    "en",
+    rows
+      .filter((row) => row.translation)
+      .map((row) => {
+        const lemma = row.lemma ?? withoutIpa(row.head);
+        return {
+          head: {
+            lemma,
+            pos: partOfSpeech(lemma, row.marks, row.forms),
+            ...(row.forms.length ? { forms: row.forms.join(", ") } : {}),
+            ...(row.ipa ? { note: row.ipa } : {}),
+          },
+          target: row.head,
+          translation: row.translation,
+        };
+      }),
+  );
 }
 
 interface Built {
@@ -248,7 +238,7 @@ function buildLesson(
 const paragraph = (html: string): El => ({ ...parseHtml(html), tag: "p" });
 
 export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normalised {
-  const course = courseKey(seriesKey(PUBLISHER, SERIES_NAME), COURSE);
+  const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const courseUnits: CourseIndex["units"] = [];
   const unitTitles: LocaleCourse["units"] = {};

@@ -6,6 +6,7 @@ import {
   type MediaKind,
   type PoliteFetcher,
   type MediaRef as StoredRef,
+  urlFileName,
 } from "@sprachanker/course-kit";
 import { type ApolloState, entitiesOf } from "./apollo.ts";
 import { remuxStream, type StreamSource } from "./stream.ts";
@@ -22,7 +23,7 @@ export interface MediaRef {
 
 /** File name of a medium: the source's own name; images and subtitles by their DW id. */
 export function mediaName(ref: Pick<MediaRef, "url" | "kind">): string {
-  const last = new URL(ref.url).pathname.split("/").pop() ?? "";
+  const last = urlFileName(ref.url);
   const name =
     ref.kind === "image"
       ? last.replace(new RegExp(`_${IMAGE_FORMAT}(\\.\\w+)$`), "$1")

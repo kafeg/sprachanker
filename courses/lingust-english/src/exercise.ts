@@ -10,9 +10,16 @@
 //   players / reading or speaking tasks     → speech_selfrate
 // Tasks with no answers at all → Homework (a reference tab); anything else unmappable → unknown.
 import type { ExerciseDraft } from "@sprachanker/course-kit";
-import { plainText } from "@sprachanker/course-kit";
-import { type ExerciseKey, itemKey, type LocaleItem, type MediaPath } from "@sprachanker/schema";
-import type { KeyEntry, Line, Seg, Snippet, SourceExercise, Unit } from "./parse.ts";
+import { escapeHtml, plainText } from "@sprachanker/course-kit";
+import {
+  type ExerciseKey,
+  itemKey,
+  type LocaleItem,
+  type MediaPath,
+  optionId,
+} from "@sprachanker/schema";
+import type { KeyEntry, Seg, SourceExercise, Unit } from "./parse/exercise.ts";
+import type { Line, Snippet } from "./parse/snippets.ts";
 import {
   flatText,
   hasCyrillic,
@@ -35,8 +42,6 @@ export interface Mapped {
 
 type Media = (url: string | undefined) => MediaPath | undefined;
 
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const para = (text: string) => `<p>${escapeHtml(text)}</p>`;
 
 /** Accepted variants of one answer: "who/that" → both; "(the) car" → also "car" and "the car". */
@@ -86,7 +91,7 @@ export function gapKey(entry: KeyEntry, gaps: number): { answers: string[]; tran
 }
 
 /** English lines of a key entry (the model answer) and the Russian ones (a translation). */
-export function englishKey(entry: KeyEntry): { reference?: string; russian: string[] } {
+function englishKey(entry: KeyEntry): { reference?: string; russian: string[] } {
   const en: string[] = [];
   const ru: string[] = [];
   for (const line of entry.map((l) => plainText(l)).filter(Boolean)) {
@@ -203,7 +208,7 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
               const opts = comma
                 ? (g as { options: string[] }).options
                 : [...(g as { options: string[] }).options, ...(none ? ["–"] : [])];
-              const options = opts.map((text, j) => ({ id: String.fromCharCode(97 + j), text }));
+              const options = opts.map((text, j) => ({ id: optionId(j), text }));
               const want = comma ? (sign === "+" ? "," : "–") : (answers[a++] ?? "");
               const accepted = comma ? [want] : variants(want).map((v) => v || "–");
               const right = options

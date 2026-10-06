@@ -14,12 +14,14 @@ never real third-party content). Our enrichment will live next to it (02, planne
 - Normalised files are `LibraryFile`s (path, schema, value) written by `writeLibraryFiles`, which
   validates each one; raw pages are fetched once through `storedPage`.
 - `packages/server/src/providers.ts` maps CLI provider ids to import functions (`dw-nicos-weg`,
-  `dw-deutschtrainer`, `coerll-dib`); `importCourse` runs one into `<data-root>/library`.
+  `dw-deutschtrainer`, `coerll-dib`, …) and to the series key each provider exports (its library
+  folder); `importCourse` runs one into `<data-root>/library`.
 
 `course-kit` also supplies the polite HTTP client (`http.ts`: robots.txt, retries with backoff,
 identifiable User-Agent, stop on 403/429; no fixed rate limit, providers choose their concurrency),
 the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fingerprints and the
-library reader.
+library reader, and the helpers normalisers share: a lesson's vocabulary entries from headwords
+(`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping.
 
 ## Importer behaviour (all providers)
 

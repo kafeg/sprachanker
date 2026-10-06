@@ -17,7 +17,8 @@ import {
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import { COURSES, type CourseDef, EDITION, HOST, SERIES, SITE } from "./catalog.ts";
-import { type FetchedCourse, type FetchedLesson, mediaRefs, normaliseCourse } from "./normalise.ts";
+import { normaliseCourse } from "./normalise/course.ts";
+import { type FetchedCourse, type FetchedLesson, mediaRefs } from "./normalise/plan.ts";
 import {
   type LandingLesson,
   parseDocPage,

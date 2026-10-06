@@ -1,10 +1,10 @@
 // Lingust «Правильный английский» (lingust.ru): a free ru → en course of 52 lessons in three stages,
 // plus bonus materials. Closed licence: personal use, with attribution.
+import { seriesKey } from "@sprachanker/schema";
+
 export const SITE = "https://lingust.ru/english/english-lessons";
 export const HOST = "lingust.ru";
-export const PUBLISHER = "lingust";
-export const SERIES_NAME = "english";
-export const SERIES = `${PUBLISHER}.${SERIES_NAME}`;
+export const SERIES = seriesKey("lingust", "english");
 export const COURSE = "english";
 export const EDITION = "ru-en";
 export const TITLE = "Правильный английский";

@@ -10,13 +10,12 @@ import {
   type ImportReport,
   type MediaRef,
   storedPage,
+  urlFileName,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import { CHAPTERS, COURSE, EDITION, SERIES, SITE } from "./catalog.ts";
 import { type Chapter, chapterPdfUrl, normaliseDib } from "./normalise.ts";
 import { parseChapter, parseVocabulary } from "./parse.ts";
-
-const fileName = (url: string) => new URL(url).pathname.split("/").pop() ?? "";
 
 export async function importDib(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
@@ -38,10 +37,16 @@ export async function importDib(options: ImportOptions): Promise<ImportReport> {
   }
   const refs: MediaRef[] = chapters.flatMap((c) => [
     ...c.sections.flatMap((s) =>
-      s.audio ? [{ url: s.audio, kind: "audio" as const, name: fileName(s.audio) }] : [],
+      s.audio ? [{ url: s.audio, kind: "audio" as const, name: urlFileName(s.audio) }] : [],
     ),
     ...(c.pdf
-      ? [{ url: chapterPdfUrl(c.pdf), kind: "pdf" as const, name: fileName(chapterPdfUrl(c.pdf)) }]
+      ? [
+          {
+            url: chapterPdfUrl(c.pdf),
+            kind: "pdf" as const,
+            name: urlFileName(chapterPdfUrl(c.pdf)),
+          },
+        ]
       : []),
   ]);
   const index = await fetchMedia({

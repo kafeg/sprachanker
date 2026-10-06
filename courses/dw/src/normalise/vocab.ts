@@ -1,14 +1,6 @@
 // Part of speech, gender and forms from a DW vocabulary headword (02, research "Vocabulary").
+import type { Headword } from "@sprachanker/course-kit";
 import type { Gender, PartOfSpeech } from "@sprachanker/schema";
-
-export interface Headword {
-  lemma: string;
-  pos: PartOfSpeech;
-  gender?: Gender;
-  plural?: string;
-  forms?: string;
-  note?: string;
-}
 
 const ARTICLE = /^\(?(der|die|das)\)?\s+(.+)$/;
 const GENDER: Record<string, Gender> = { der: "m", die: "f", das: "n" };

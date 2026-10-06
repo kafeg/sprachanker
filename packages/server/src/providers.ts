@@ -1,11 +1,14 @@
 // Content providers the server can import (03). The CLI and (later) the import job use this.
 import { join } from "node:path";
-import { importDib } from "@sprachanker/coerll-dib";
+import { SERIES as DIB, importDib } from "@sprachanker/coerll-dib";
 import type { ImportReport } from "@sprachanker/course-kit";
-import { importDw } from "@sprachanker/dw";
-import { importLingust } from "@sprachanker/lingust-english";
-import { importEnglishUsa } from "@sprachanker/voa-english-usa";
-import { importLetsLearnEnglish } from "@sprachanker/voa-lets-learn-english";
+import { importDw, seriesId } from "@sprachanker/dw";
+import { importLingust, SERIES as LINGUST } from "@sprachanker/lingust-english";
+import { SERIES as ENGLISH_USA, importEnglishUsa } from "@sprachanker/voa-english-usa";
+import {
+  importLetsLearnEnglish,
+  SERIES as LETS_LEARN_ENGLISH,
+} from "@sprachanker/voa-lets-learn-english";
 
 export interface ImportRequest {
   dataRoot: string;
@@ -19,12 +22,15 @@ type Run = (options: ImportRequest & { libraryRoot: string }) => Promise<ImportR
 
 /** Provider id → the series folder it writes and its importer. */
 const PROVIDERS: Record<string, { series: string; run: Run }> = {
-  "dw-nicos-weg": { series: "dw.nicos-weg", run: (o) => importDw("nicos-weg", o) },
-  "dw-deutschtrainer": { series: "dw.deutschtrainer", run: (o) => importDw("deutschtrainer", o) },
-  "coerll-dib": { series: "coerll.dib", run: importDib },
-  "lingust-english": { series: "lingust.english", run: importLingust },
-  "voa-english-usa": { series: "voa.english-usa", run: importEnglishUsa },
-  "voa-lets-learn-english": { series: "voa.lets-learn-english", run: importLetsLearnEnglish },
+  "dw-nicos-weg": { series: seriesId("nicos-weg"), run: (o) => importDw("nicos-weg", o) },
+  "dw-deutschtrainer": {
+    series: seriesId("deutschtrainer"),
+    run: (o) => importDw("deutschtrainer", o),
+  },
+  "coerll-dib": { series: DIB, run: importDib },
+  "lingust-english": { series: LINGUST, run: importLingust },
+  "voa-english-usa": { series: ENGLISH_USA, run: importEnglishUsa },
+  "voa-lets-learn-english": { series: LETS_LEARN_ENGLISH, run: importLetsLearnEnglish },
 };
 
 export const providerIds = () => Object.keys(PROVIDERS);

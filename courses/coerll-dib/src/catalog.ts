@@ -1,7 +1,9 @@
 // COERLL — Deutsch im Blick, 2nd edition (03 "Later", research coerll-dib.md): CC BY 4.0. One course,
 // ten chapters; the site has vocabulary with audio, interviews and the textbook PDF per chapter.
+import { seriesKey } from "@sprachanker/schema";
+
 export const SITE = "https://coerll.utexas.edu/dib/";
-export const SERIES = "coerll.dib";
+export const SERIES = seriesKey("coerll", "dib");
 export const COURSE = "dib";
 export const EDITION = "en-de";
 export const CHAPTERS = 10;

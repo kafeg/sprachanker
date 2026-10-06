@@ -6,10 +6,12 @@ Research about sources: `docs/research/`.
 ## Layout (target)
 
 ```
-packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching, manifest,
-                       # fingerprints, verify, HTML sanitiser, plain text of HTML; provider.ts: the
+packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching (media file
+                       # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
+                       # text of HTML and entity decoding; provider.ts: the
                        # provider contract (import options/report, writeLibraryFiles, storedPage);
-                       # verify.ts: a course's integrity and counts (LibraryView.check)
+                       # verify.ts: a course's integrity and counts (LibraryView.check); vocab.ts:
+                       # Headword and a lesson's vocabulary entries (keys, duplicates, translations)
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
@@ -19,11 +21,15 @@ courses/
   coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
                        # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
   lingust-english/      # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings as
-                       # selfrate, gap/respond exercises from the tooltip answer keys; src/dom.ts parser
+                       # selfrate, gap/respond exercises from the tooltip answer keys; src/: dom.ts (HTML
+                       # tree), parse/ (page, course-index, lesson, snippets, vocab, exercise, verbs),
+                       # exercise.ts (source exercise → our types), normalise, import.ts
   voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
                        # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
-                       # bold words, quiz answers from the result pages (GET), speaking videos as selfrate
+                       # bold words, quiz answers from the result pages (GET), speaking videos as selfrate;
+                       # src/normalise/: media (renditions), vocab (bold words), plan (what each section
+                       # becomes), units, exercise, course (files)
   sa-starter-en/       # after MVP: our authored course + open-data importer
   bamf-lid/            # exam: Leben in Deutschland
 ```
@@ -38,8 +44,12 @@ courses/
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
   require re-downloading.
 - Unknown source structures become `unknown` + report entries, never silent drops.
+- Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
+  provider never keeps its own copy.
 - Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.
 - Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:
   a `Referer` of the source's own page for its media when it refuses hotlinks (Lingust).
+- A provider's index exports its importer and its series key (`SERIES`; DW: `seriesId(series)`), which
+  the server's provider table uses for the library folder.
 - New provider = new folder implementing the provider contract + contract tests; no engine/UI changes
   unless a new exercise type is needed (root rule 2).

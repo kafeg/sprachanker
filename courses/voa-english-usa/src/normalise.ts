@@ -3,7 +3,14 @@
 // recording, the goal («Цель»), the synopsis («Содержание»), the dialogue as the script page, the word
 // list as vocabulary (English canonical, Russian in the locale), homework and notes as pages (homework
 // in its own tab). The source has no checkable exercises: its homework has no answers anywhere.
-import { type LibraryFile, type MediaIndex, mediaPath } from "@sprachanker/course-kit";
+import {
+  escapeHtml,
+  type Headword,
+  type LibraryFile,
+  type MediaIndex,
+  mediaPath,
+  vocabEntries,
+} from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -11,16 +18,11 @@ import {
   type LessonKey,
   LocaleCourse,
   LocaleLesson,
-  lemmaSlug,
   lessonGoalKey,
   lessonKey,
-  lexemeKey,
   type PartOfSpeech,
   parseLessonKey,
-  seriesKey,
   unitKey,
-  type VocabEntry,
-  vocabKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, UNIT_SIZE } from "./catalog.ts";
 import type { DialogueLine, ParsedLesson, WordRow } from "./parse.ts";
@@ -37,13 +39,6 @@ export interface SourceLesson {
   audioUrl?: string;
   /** Why the article's text is not used (a known defect of the source). */
   textDefect?: string;
-}
-
-export interface Headword {
-  lemma: string;
-  pos: PartOfSpeech;
-  plural?: string;
-  forms?: string;
 }
 
 const PHRASE_HEADING = /phrase|greeting|idiom|question|expression|introduction/i;
@@ -92,9 +87,6 @@ export function headword(en: string, category: string): Headword {
   return { lemma, pos, ...(plural ? { plural } : {}), ...(forms ? { forms } : {}) };
 }
 
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-
 /** The dialogue as course HTML: one paragraph per line, the speaker in bold. */
 export function scriptHtml(lines: DialogueLine[]): string {
   return lines
@@ -110,35 +102,21 @@ export function scriptHtml(lines: DialogueLine[]): string {
 const lessonNumber = (label: string) => Number.parseInt(label, 10);
 
 function vocabulary(key: LessonKey, words: WordRow[]) {
-  const seen = new Map<string, number>();
-  const vocab: VocabEntry[] = [];
-  const translations: LocaleLesson["vocab"] = {};
-  const skipped: string[] = [];
-  for (const row of words) {
-    const h = headword(row.en, row.category);
-    const slug = lemmaSlug(h.lemma);
-    if (!slug) {
-      skipped.push(row.en);
-      continue;
-    }
-    const n = (seen.get(slug) ?? 0) + 1;
-    seen.set(slug, n);
-    const entry: VocabEntry = {
-      key: vocabKey(key, h.lemma, n),
-      lexeme: lexemeKey("en", h.lemma, h.pos),
+  const { vocab, translations, skipped } = vocabEntries(
+    key,
+    "en",
+    words.map((row) => ({
+      head: headword(row.en, row.category),
       target: row.en,
-      ...(h.plural ? { plural: h.plural } : {}),
-      ...(h.forms ? { forms: h.forms } : {}),
-      ...(row.examples.length ? { examples: row.examples.map((e) => e.en) } : {}),
-    };
-    vocab.push(entry);
-    translations[entry.key] = {
+      examples: row.examples.map((e) => e.en),
       translation: row.ru,
       // Same order as the canonical examples; an example without a Russian side stays empty.
-      ...(row.examples.some((e) => e.ru) ? { examples: row.examples.map((e) => e.ru ?? "") } : {}),
-    };
-  }
-  return { vocab, translations, skipped };
+      ...(row.examples.some((e) => e.ru)
+        ? { exampleTranslations: row.examples.map((e) => e.ru ?? "") }
+        : {}),
+    })),
+  );
+  return { vocab, translations, skipped: skipped.map((s) => s.target) };
 }
 
 export interface Normalised {
@@ -148,7 +126,7 @@ export interface Normalised {
 }
 
 export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex): Normalised {
-  const course = courseKey(seriesKey(SERIES.publisher, SERIES.series), COURSE);
+  const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const byUnit = Map.groupBy(lessons, (l) => Math.ceil(lessonNumber(l.label) / UNIT_SIZE));
   const units: CourseIndex["units"] = [];
