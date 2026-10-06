@@ -12,6 +12,7 @@ import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createContent } from "./services/content.ts";
+import { type CourseInstaller, createDownloads } from "./services/downloads.ts";
 import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
@@ -21,7 +22,6 @@ import { createPractice } from "./services/practice.ts";
 import { createRuns, RunError } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
-import { createSync, type SyncCourse } from "./services/sync.ts";
 import { createTutor } from "./services/tutor.ts";
 import { createTutorTools } from "./services/tutor-tools.ts";
 import { Edition, Series, zod } from "./validate.ts";
@@ -43,8 +43,8 @@ export interface AppConfig {
   /** LM Studio on this machine: detect it, start its server. */
   lmStudio?: LmStudioHost;
   cli?: CliHost;
-  /** Re-imports a course (the runtime passes the providers in); without it, sync is unavailable. */
-  syncCourse?: SyncCourse;
+  /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
+  installer?: CourseInstaller;
   now?: () => number;
 }
 
@@ -60,11 +60,13 @@ export function createApp(config: AppConfig) {
   const now = config.now ?? Date.now;
   const content = createContent(config.library);
   const settings = createSettings(config.profile);
-  const sync = createSync({
-    run: config.syncCourse,
+  const downloads = createDownloads({
+    installer: config.installer,
     now,
     onEnd: (series, course) => content.forget(series, course),
   });
+  // Downloads a restart interrupted go on.
+  void downloads.resume();
   const llm = createLlm({
     db: config.profile,
     settings,
@@ -146,20 +148,23 @@ export function createApp(config: AppConfig) {
         return c.json({ ...map, lessons: await runs.lessonStates(series, lessons) });
       },
     )
-    // A course's integrity and counts, and syncing it with its source (re-import).
+    // A course's integrity and counts.
     .get("/course/check", zod("query", CourseRef), async (c) => {
       const { series, course } = c.req.valid("query");
       return c.json(await config.library.check(series, course));
     })
-    .get("/course/sync", zod("query", CourseRef), (c) => {
-      const { series, course } = c.req.valid("query");
-      return c.json({ available: sync.available, job: sync.get(series, course) });
+    // What can be downloaded, and the downloads (first download, completing it, syncing: one job).
+    .get("/catalog", async (c) => {
+      const installed = new Set((await content.courses()).map((c) => c.key));
+      return c.json(await downloads.catalog(installed));
     })
-    .post("/course/sync", zod("json", CourseRef), (c) => {
+    .get("/downloads", (c) => c.json({ available: downloads.available, jobs: downloads.list() }))
+    .post("/downloads", zod("json", CourseRef), (c) => {
       const { series, course } = c.req.valid("json");
-      if (!sync.available) throw new HTTPException(409, { message: "sync_unavailable" });
-      return c.json({ available: true, job: sync.start(series, course) });
+      if (!downloads.available) throw new HTTPException(409, { message: "downloads_unavailable" });
+      return c.json(downloads.start(series, course));
     })
+    .get("/storage", async (c) => c.json(await downloads.storage()))
     .get(
       "/lesson",
       zod("query", z.object({ series: Series, key: LessonKey, edition: Edition })),

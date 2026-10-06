@@ -3,9 +3,16 @@
 // speakers of one language (its edition); another pair of the same source course is a course of its own.
 import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, BookOpen, ExternalLink, X } from "lucide-react";
+import { ArrowRight, BookOpen, CircleAlert, Download, ExternalLink, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCourses, useSetSetting, useSettings } from "@/api/hooks.ts";
+import {
+  useCatalog,
+  useCourseDownload,
+  useCourses,
+  useSetSetting,
+  useSettings,
+  useStartDownload,
+} from "@/api/hooks.ts";
 import { editionSetting, useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -19,8 +26,10 @@ import {
 } from "@/ui/components/select.tsx";
 import { LanguageFlag, PairFlags, usePairName } from "@/ui/flags.tsx";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
+import { DownloadLine, downloading, useBytes } from "./download.tsx";
 
 type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
+type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
 
 const ALL = "all";
 const CATALOG_COURSE = "catalog.course";
@@ -78,6 +87,7 @@ function CourseCard({
       </div>
       <Progress value={share * 100} className="h-1 rounded-none" />
       <div className="flex flex-1 flex-col p-4">
+        <DownloadState series={course.series} course={course.course} />
         <h2 className="text-xl font-bold leading-tight">{title}</h2>
         <p className="mt-0.5 text-sm text-muted-foreground">
           {t("courses.lessons", { count: course.lessons })}
@@ -130,6 +140,80 @@ function CourseCard({
           >
             <BookOpen className="size-4" /> {t("courses.allLessons")}
           </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** A course's download on its card: progress while it runs; files missing with "Continue" after. */
+function DownloadState({ series, course }: { series: string; course: string }) {
+  const { t } = useTranslation();
+  const { job } = useCourseDownload(series, course);
+  const entry = useCatalog().data?.find((e) => e.series === series && e.course === course);
+  const start = useStartDownload();
+  if (job && downloading(job)) return <DownloadLine job={job} className="mb-3" />;
+  if (entry?.state !== "incomplete") return null;
+  return (
+    <div className="mb-3 flex items-center gap-2 rounded-lg bg-wrong-soft px-3 py-1.5 text-sm">
+      <CircleAlert className="size-4 shrink-0 text-wrong" />
+      <span className="flex-1">{t("download.incomplete", { count: entry.missing ?? 0 })}</span>
+      <Button
+        size="sm"
+        variant="outline"
+        disabled={start.isPending}
+        onClick={() => start.mutate({ series, course })}
+      >
+        {t("download.continue")}
+      </Button>
+    </div>
+  );
+}
+
+/** A course offered but not downloaded yet: the same card with its size and "Download". */
+function OfferCard({ offer }: { offer: CatalogEntry }) {
+  const { t } = useTranslation();
+  const bytes = useBytes();
+  const { job } = useCourseDownload(offer.series, offer.course);
+  const start = useStartDownload();
+  const busy = downloading(job);
+  return (
+    <div className="flex flex-col overflow-hidden rounded-2xl border border-dashed bg-card">
+      <div className="flex min-h-14 items-center gap-3 bg-muted px-4">
+        <PairFlags edition={offer.edition} size="md" />
+        <span className="ml-auto text-sm text-muted-foreground">{t("download.notDownloaded")}</span>
+      </div>
+      <div className="flex flex-1 flex-col p-4">
+        <h2 className="text-xl font-bold leading-tight">{offer.title}</h2>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          <a
+            href={offer.source.url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-0.5 underline-offset-4 hover:underline"
+          >
+            {offer.source.publisher} <ExternalLink className="size-3" />
+          </a>
+          {" · "}
+          {t(`course.licence.${offer.source.licence}`)}
+        </p>
+        <div className="mt-auto pt-4">
+          {busy && job ? (
+            <>
+              <DownloadLine job={job} />
+              <p className="mt-2 text-xs text-muted-foreground">{t("download.openSoon")}</p>
+            </>
+          ) : (
+            <Button
+              size="lg"
+              className="w-full"
+              disabled={start.isPending}
+              onClick={() => start.mutate({ series: offer.series, course: offer.course })}
+            >
+              <Download className="size-4" />
+              {t("download.downloadSize", { size: `≈ ${bytes(offer.approxBytes)}` })}
+            </Button>
+          )}
         </div>
       </div>
     </div>
@@ -213,27 +297,38 @@ export function CatalogPage() {
   const pairName = usePairName();
   const set = useSetSetting();
   const list = useCourseList();
+  const catalog = useCatalog();
   if (!list.all) return list.state;
   const all = list.all;
-  if (!all.length)
+  // Installed courses, then those offered but not downloaded yet (the providers' catalogues).
+  const cards: Array<{
+    key: string;
+    edition: string;
+    title: string;
+    course?: CourseRow;
+    offer?: CatalogEntry;
+  }> = [
+    ...all.flatMap((course) =>
+      course.editions.map((edition) => ({
+        key: `${course.key}:${edition}`,
+        course,
+        edition,
+        title: course.titles[edition] || course.key,
+      })),
+    ),
+    ...(catalog.data ?? [])
+      .filter((offer) => !offer.installed)
+      .map((offer) => ({ key: offer.key, offer, edition: offer.edition, title: offer.title })),
+  ];
+  if (!cards.length)
     return (
       <Page title={t("nav.allCourses")}>
         <div className="rounded-2xl border border-dashed p-8 text-center">
           <p className="text-lg">{t("courses.empty")}</p>
-          <p className="mt-2 text-muted-foreground">
-            {t("courses.emptyHint", { command: "sprachanker import dw-nicos-weg" })}
-          </p>
         </div>
       </Page>
     );
 
-  const cards = all.flatMap((course) =>
-    course.editions.map((edition) => ({
-      course,
-      edition,
-      title: course.titles[edition] || course.key,
-    })),
-  );
   const stored = (key: string) => {
     const v = list.settings[key];
     return typeof v === "string" ? v : ALL;
@@ -275,13 +370,13 @@ export function CatalogPage() {
       </div>
       {shown.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {shown.map((c) => (
-            <CourseCard
-              key={`${c.course.key}:${c.edition}`}
-              course={c.course}
-              edition={c.edition}
-            />
-          ))}
+          {shown.map((c) =>
+            c.course ? (
+              <CourseCard key={c.key} course={c.course} edition={c.edition} />
+            ) : c.offer ? (
+              <OfferCard key={c.key} offer={c.offer} />
+            ) : null,
+          )}
         </div>
       ) : (
         <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">

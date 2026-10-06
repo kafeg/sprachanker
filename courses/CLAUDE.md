@@ -9,7 +9,8 @@ Research about sources: `docs/research/`.
 packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching (media file
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
                        # text of HTML and entity decoding; provider.ts: the
-                       # provider contract (import options/report, writeLibraryFiles, storedPage);
+                       # provider contract (import options/report/progress, course offers,
+                       # writeLibraryFiles, storedPage, pageCounter, courseInstalled);
                        # verify.ts: a course's integrity and counts (LibraryView.check); vocab.ts:
                        # Headword and a lesson's vocabulary entries (keys, duplicates, translations)
 courses/
@@ -42,7 +43,8 @@ courses/
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
   Fixtures are hand-written and only shaped like the source.
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
-  require re-downloading.
+  require re-downloading. A provider exports its `OFFERS` (with a measured size), reports progress
+  (`pageCounter`, `fetchMedia`'s `progress`) and normalises a new course once before the media.
 - Unknown source structures become `unknown` + report entries, never silent drops.
 - Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
   provider never keeps its own copy.

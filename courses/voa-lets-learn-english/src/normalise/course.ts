@@ -22,7 +22,7 @@ import {
   parseLessonKey,
   unitKey,
 } from "@sprachanker/schema";
-import { ATTRIBUTION_HTML, EDITION, SERIES } from "../catalog.ts";
+import { ATTRIBUTION_HTML, EDITION, SERIES, sourceOf } from "../catalog.ts";
 import { normaliseExercise } from "./exercise.ts";
 import { type FetchedCourse, planLesson } from "./plan.ts";
 import { groupUnits } from "./units.ts";
@@ -126,11 +126,7 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
     value: {
       format: 1,
       key,
-      source: {
-        publisher: "VOA Learning English (Voice of America)",
-        url: "https://learningenglish.voanews.com/p/5644.html",
-        licence: "public-domain",
-      },
+      source: sourceOf(course.def),
       units,
       exams: [],
       goals: [],

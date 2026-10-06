@@ -6,6 +6,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import type { MediaPath } from "@sprachanker/schema";
 import { FetchFailedError, HostRefusedError, type PoliteFetcher } from "./http.ts";
 import type { MediaStore } from "./media-store.ts";
+import type { ProgressSink } from "./provider.ts";
 
 export type MediaKind = "audio" | "image" | "video" | "subtitles" | "pdf";
 
@@ -34,20 +35,21 @@ export async function fetchMedia<R extends MediaRef>(options: {
   log: (line: string) => void;
   /** How to get one file; by default its URL (providers add fallbacks, e.g. HLS remuxing). */
   download?: (ref: R) => Promise<{ bytes: Uint8Array; mime: string }>;
+  progress?: ProgressSink;
 }): Promise<MediaIndex> {
-  const { fetcher, store, indexFile, refs, log } = options;
+  const { fetcher, store, indexFile, refs, log, progress } = options;
   const download =
     options.download ??
     (async (ref: R) => {
       const { bytes, contentType } = await fetcher.bytes(ref.url);
       return { bytes, mime: contentType };
     });
-  const index: MediaIndex = existsSync(indexFile)
-    ? JSON.parse(await readFile(indexFile, "utf8"))
-    : {};
+  const index = await readMediaIndex(indexFile);
   const todo = refs.filter((ref) => !index[ref.url] || "error" in (index[ref.url] as object));
   const byHost = Map.groupBy(todo, (ref) => new URL(ref.url).host);
   let done = 0;
+  let bytes = 0;
+  progress?.({ phase: "media", done, total: todo.length, bytes });
   let saving = Promise.resolve();
   const save = () => {
     saving = saving.then(() => writeFile(indexFile, JSON.stringify(index, null, 1)));
@@ -57,9 +59,10 @@ export async function fetchMedia<R extends MediaRef>(options: {
   const worker = async (host: string, queue: R[]) => {
     for (let ref = queue.shift(); ref; ref = queue.shift()) {
       try {
-        const { bytes, mime } = await download(ref);
-        const stored = await store.put(`${ref.kind}/${ref.name}`, bytes);
+        const { bytes: data, mime } = await download(ref);
+        const stored = await store.put(`${ref.kind}/${ref.name}`, data);
         index[ref.url] = { kind: ref.kind, ...stored, mime };
+        bytes += data.length;
       } catch (error) {
         if (error instanceof HostRefusedError) {
           log(`media: ${error.message}`);
@@ -71,10 +74,10 @@ export async function fetchMedia<R extends MediaRef>(options: {
           error: error instanceof FetchFailedError ? String(error.status) : String(error),
         };
       }
-      if (++done % 50 === 0) {
-        log(`media: ${done}/${todo.length} (${host})`);
-        await save();
-      }
+      progress?.({ phase: "media", done: ++done, total: todo.length, bytes });
+      // Saved often, so a download stopped midway keeps what it fetched.
+      if (done % 10 === 0) await save();
+      if (done % 50 === 0) log(`media: ${done}/${todo.length} (${host})`);
     }
   };
   await Promise.all(
@@ -85,6 +88,11 @@ export async function fetchMedia<R extends MediaRef>(options: {
   );
   await save();
   return index;
+}
+
+/** The media index as stored so far (empty before the first fetch). */
+export async function readMediaIndex(indexFile: string): Promise<MediaIndex> {
+  return existsSync(indexFile) ? JSON.parse(await readFile(indexFile, "utf8")) : {};
 }
 
 /** The stored file of a fetched URL, or undefined when it was not fetched (or failed). */

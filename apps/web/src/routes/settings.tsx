@@ -1,4 +1,4 @@
-// Settings: interface language, theme, AI assistant, about the project.
+// Settings: interface language, theme, AI assistant, storage, about the project.
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import type { Theme } from "@/app/preferences.ts";
@@ -7,6 +7,7 @@ import { LlmSettings } from "@/llm/settings-section.tsx";
 import { AboutSection } from "@/ui/about.tsx";
 import { Page } from "@/ui/app-shell.tsx";
 import { Choice } from "@/ui/choice.tsx";
+import { StorageSection } from "./storage.tsx";
 
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
@@ -39,6 +40,7 @@ export function SettingsPage() {
           />
         </section>
         <LlmSettings />
+        <StorageSection />
         <AboutSection />
       </div>
     </Page>

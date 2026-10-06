@@ -8,6 +8,8 @@ test("open the course, do an exercise, resume, finish with a summary", async ({ 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("All courses");
   await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Start|Continue lesson/ }).first()).toBeVisible();
+  // Courses the providers offer but not downloaded here come with their size and "Download".
+  await expect(page.getByRole("button", { name: /^Download · ≈/ }).first()).toBeVisible();
   // Other projects share the server's profile, so open lesson 1 directly (it was just started anew).
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
 

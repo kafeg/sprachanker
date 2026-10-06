@@ -8,7 +8,8 @@
 // Lessons 34, 35, 86 and 87 also exist as identical older copies (2001-08); the later copies are used.
 // Lessons 1–31 were republished in 2009 (`learning-english-N`) in a looser layout; the archive copies
 // are kept for one consistent layout.
-import { seriesKey } from "@sprachanker/schema";
+import type { CourseOffer } from "@sprachanker/course-kit";
+import { type CourseSource, seriesKey } from "@sprachanker/schema";
 
 export const SITE = "https://www.golosameriki.com";
 export const SERIES = seriesKey("voa", "english-usa");
@@ -160,3 +161,20 @@ export function audioUrl(label: string): string | undefined {
   const folder = AUDIO_FOLDERS[label] ?? "2001_12";
   return `https://av.voanews.com/Videoroot/Archive/MediaAssets2/russian/${folder}/Audio/mp3/russian_english_${label.padStart(3, "0")}.mp3`;
 }
+
+export const SOURCE: CourseSource = {
+  publisher: "Голос Америки (Voice of America)",
+  url: SITE,
+  licence: "public-domain",
+};
+
+/** For the catalogue (03); the size was measured on a full download. */
+export const OFFERS: CourseOffer[] = [
+  {
+    course: COURSE,
+    edition: EDITION,
+    title: "Так говорят в Америке (English USA)",
+    source: SOURCE,
+    approxBytes: 0.31e9,
+  },
+];

@@ -1,8 +1,10 @@
 // `sprachanker import voa-lets-learn-english`: fetch the landing pages, lesson articles, their document
 // pages and quiz result pages (idempotent), then the media, then normalise (03). GET only: a quiz's
-// result page (`page=2k`) shows question k with its answer, no answer is submitted.
+// result page (`page=2k`) shows question k with its answer, no answer is submitted. A new course is
+// normalised a first time before the media, so it opens while they download.
 import { join } from "node:path";
 import {
+  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   FetchFailedError,
@@ -11,7 +13,10 @@ import {
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
+  type MediaIndex,
   type PoliteFetcher,
+  pageCounter,
+  readMediaIndex,
   runPool,
   storedPage,
   writeLibraryFiles,
@@ -39,21 +44,33 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
   const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, robotsHosts: [HOST] });
   const defs = COURSES.filter((c) => !options.courses || options.courses.includes(c.id));
 
+  const counted = pageCounter(options.progress);
   const courses: FetchedCourse[] = [];
-  for (const def of defs) courses.push(await fetchCourse(fetcher, seriesDir, def, options));
+  for (const def of defs)
+    courses.push(await fetchCourse(fetcher, seriesDir, def, { ...options, counted }));
+
+  const normalise = async (course: FetchedCourse, index: MediaIndex) => {
+    options.progress?.({ phase: "normalise" });
+    const result = normaliseCourse(course, index);
+    return { result, problems: await writeLibraryFiles(seriesDir, result.files, log) };
+  };
+  const indexFile = join(seriesDir, "media.json");
+  const known = await readMediaIndex(indexFile);
+  for (const course of courses)
+    if (!courseInstalled(seriesDir, course.def.id)) await normalise(course, known);
 
   const index = await fetchMedia({
     fetcher,
     store: createMediaStore(seriesDir),
-    indexFile: join(seriesDir, "media.json"),
+    indexFile,
     refs: courses.flatMap(mediaRefs),
     log,
+    progress: options.progress,
   });
   report.failedMedia = failedMedia(index);
 
   for (const course of courses) {
-    const result = normaliseCourse(course, index);
-    const problems = await writeLibraryFiles(seriesDir, result.files, log);
+    const { result, problems } = await normalise(course, index);
     for (const line of result.unmapped) log(`unmapped: ${line}`);
     log(
       `${course.def.id} ${EDITION}: ${result.lessons} lessons, ${result.unknown} unknown exercises, ` +
@@ -72,11 +89,18 @@ async function fetchCourse(
   fetcher: PoliteFetcher,
   seriesDir: string,
   def: CourseDef,
-  options: ImportOptions,
+  options: ImportOptions & { counted: () => void },
 ): Promise<FetchedCourse> {
   const rel = `raw/${EDITION}/${def.id}`;
-  const page = (file: string, url: string) =>
-    storedPage(join(seriesDir, rel, file), () => fetcher.text(url), options.refresh);
+  const page = async (file: string, url: string) => {
+    const text = await storedPage(
+      join(seriesDir, rel, file),
+      () => fetcher.text(url),
+      options.refresh,
+    );
+    options.counted();
+    return text;
+  };
   /** A page that may be missing at the source (documents, quizzes): undefined instead of failing. */
   const optionalPage = (file: string, url: string) =>
     page(file, url).catch((error) => {

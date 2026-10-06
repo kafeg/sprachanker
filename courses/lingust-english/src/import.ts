@@ -1,7 +1,9 @@
-// `sprachanker import lingust-english`: fetch the index, the lesson pages and their recordings
-// (idempotent), then normalise (03).
+// `sprachanker import lingust-english`: fetch the index and the lesson pages (idempotent), normalise a
+// first time when the course is new (so it opens while media download), fetch the recordings,
+// normalise (03).
 import { join } from "node:path";
 import {
+  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   failedMedia,
@@ -9,7 +11,10 @@ import {
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
+  type MediaIndex,
   type MediaRef,
+  pageCounter,
+  readMediaIndex,
   storedPage,
   urlFileName,
   writeLibraryFiles,
@@ -46,12 +51,16 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
     robotsHosts: [HOST],
     fetch: withReferer,
   });
-  const page = (slug: string, file: string) =>
-    storedPage(
+  const counted = pageCounter(options.progress);
+  const page = async (slug: string, file: string) => {
+    const text = await storedPage(
       join(rawDir, file),
       () => fetcher.text(slug ? `${SITE}/${slug}` : SITE),
       options.refresh,
     );
+    counted();
+    return text;
+  };
 
   // Fetch: the index, then every lesson of the stages and the bonus pages we import.
   const stages = parseIndex(await page("", "index.html"));
@@ -78,16 +87,23 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
     }
     if (lessons.length) units.push({ title: stage.title, lessons });
   }
+  const normalise = async (index: MediaIndex) => {
+    options.progress?.({ phase: "normalise" });
+    const { files, lessons, unknown } = normaliseLingust(units, index);
+    return { lessons, unknown, problems: await writeLibraryFiles(seriesDir, files, log) };
+  };
+  const indexFile = join(seriesDir, "media.json");
+  if (!courseInstalled(seriesDir, COURSE)) await normalise(await readMediaIndex(indexFile));
   const index = await fetchMedia({
     fetcher,
     store: createMediaStore(seriesDir),
-    indexFile: join(seriesDir, "media.json"),
+    indexFile,
     refs: [...refs.values()],
     log,
+    progress: options.progress,
   });
 
-  const { files, lessons, unknown } = normaliseLingust(units, index);
-  const problems = await writeLibraryFiles(seriesDir, files, log);
+  const { lessons, unknown, problems } = await normalise(index);
   log(
     `lingust ${EDITION}: ${lessons} lessons, ${unknown} unknown exercises` +
       (problems ? `, ${problems} files failed validation` : ""),

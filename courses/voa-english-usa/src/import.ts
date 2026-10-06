@@ -1,7 +1,8 @@
-// `sprachanker import voa-english-usa`: fetch the lesson articles and recordings (idempotent), then
-// normalise (03).
+// `sprachanker import voa-english-usa`: fetch the lesson articles (idempotent), normalise a first time
+// when the course is new (so it opens while media download), fetch the recordings, normalise (03).
 import { join } from "node:path";
 import {
+  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   failedMedia,
@@ -9,7 +10,10 @@ import {
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
+  type MediaIndex,
   type MediaRef,
+  pageCounter,
+  readMediaIndex,
   runPool,
   storedPage,
   writeLibraryFiles,
@@ -41,6 +45,7 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
 
   // Fetch: one article per lesson, stored as it is.
   const pages = new Map<string, string>();
+  const counted = pageCounter(options.progress);
   await runPool([...LESSONS], CONCURRENCY, async ([, article]) => {
     const id = articleId(article);
     pages.set(
@@ -51,6 +56,7 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
         options.refresh,
       ),
     );
+    counted();
   });
   const lessons: SourceLesson[] = LESSONS.map(([label, article]) => {
     const id = articleId(article);
@@ -71,16 +77,23 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
       ? [{ url: l.audioUrl, kind: "audio" as const, name: l.audioUrl.split("/").pop() ?? "" }]
       : [],
   );
+  const normalise = async (index: MediaIndex) => {
+    options.progress?.({ phase: "normalise" });
+    const { files, lessons: count, unmapped } = normaliseEnglishUsa(lessons, index);
+    return { count, unmapped, problems: await writeLibraryFiles(seriesDir, files, log) };
+  };
+  const indexFile = join(seriesDir, "media.json");
+  if (!courseInstalled(seriesDir, COURSE)) await normalise(await readMediaIndex(indexFile));
   const index = await fetchMedia({
     fetcher,
     store: createMediaStore(seriesDir),
-    indexFile: join(seriesDir, "media.json"),
+    indexFile,
     refs,
     log,
+    progress: options.progress,
   });
 
-  const { files, lessons: count, unmapped } = normaliseEnglishUsa(lessons, index);
-  const problems = await writeLibraryFiles(seriesDir, files, log);
+  const { count, unmapped, problems } = await normalise(index);
   log(
     `${COURSE} ${EDITION}: ${count} lessons${unmapped ? `, ${unmapped} unmapped parts` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
   );

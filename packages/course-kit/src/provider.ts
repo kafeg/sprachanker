@@ -3,7 +3,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { issuesText } from "@sprachanker/schema";
+import { type CourseSource, issuesText } from "@sprachanker/schema";
 import type { z } from "zod";
 import { prettyJson } from "./canonical-json.ts";
 
@@ -16,7 +16,42 @@ export interface ImportOptions {
   /** Fetch pages again to pick up changes at the source; media already stored are kept. */
   refresh?: boolean;
   log: (line: string) => void;
+  /** Where the import is, for a progress display (the download job, 06). */
+  progress?: ProgressSink;
 }
+
+/**
+ * How far an import is: pages read or fetched (their total is often unknown until the end), media
+ * fetched of those still missing (with their bytes), normalising.
+ */
+export type ImportProgress =
+  | { phase: "pages"; done: number }
+  | { phase: "media"; done: number; total: number; bytes: number }
+  | { phase: "normalise" };
+export type ProgressSink = (progress: ImportProgress) => void;
+
+/** Counts pages as an importer reads or fetches them; call the result once per page. */
+export function pageCounter(sink: ProgressSink | undefined): () => void {
+  let done = 0;
+  return () => sink?.({ phase: "pages", done: ++done });
+}
+
+/**
+ * A course a provider offers (03): what the catalogue shows before anything is downloaded. Known
+ * without the network; the size is an estimate measured on a full download.
+ */
+export interface CourseOffer {
+  course: string;
+  edition: string;
+  title: string;
+  source: CourseSource;
+  /** Bytes on disk after a full download (pages and media), roughly. */
+  approxBytes: number;
+}
+
+/** A course is installed once its canonical course file exists: it can be opened (02). */
+export const courseInstalled = (seriesDir: string, course: string) =>
+  existsSync(join(seriesDir, "canonical", course, "course.json"));
 
 export interface NormaliseResult {
   lessons: number;

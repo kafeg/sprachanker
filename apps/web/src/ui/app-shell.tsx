@@ -2,6 +2,7 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { BookOpen, Library, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useDownloadsWatch } from "@/api/hooks.ts";
 import { AboutLine } from "./about.tsx";
 import { cn } from "./utils.ts";
 
@@ -13,6 +14,8 @@ const NAV = [
 
 export function AppShell() {
   const { t } = useTranslation();
+  // Courses downloading in the background keep every screen current.
+  useDownloadsWatch();
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col gap-1 border-r bg-sidebar p-4 lg:flex">

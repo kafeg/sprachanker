@@ -12,7 +12,7 @@ import {
   unitKey,
 } from "@sprachanker/schema";
 import { type ApolloState, entitiesOf } from "../apollo.ts";
-import { SITE } from "../catalog.ts";
+import { SOURCE } from "../catalog.ts";
 
 export interface CourseLesson {
   sourceId: number;
@@ -83,7 +83,7 @@ export function courseFiles(
     index: {
       format: 1,
       key: course,
-      source: { publisher: "Deutsche Welle", url: `${SITE}/de`, licence: "free-access" },
+      source: SOURCE,
       units: [...units].map(([key, unit], order) => ({ key, order, lessons: unit.lessons })),
       exams: [],
       goals: goalEntries.map((g) => ({ key: g.key, lessons: [g.lesson] })),

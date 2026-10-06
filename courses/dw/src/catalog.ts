@@ -1,7 +1,8 @@
 // DW Learn German courses (03, research): one provider for the platform, a series per DW course. Each
 // language edition of a DW course is a course of its own (DW publishes them as separate courses that
 // differ in exercises and their order): `a1-ru` and `a1-en` share nothing but the series.
-import { seriesKey } from "@sprachanker/schema";
+import type { CourseOffer } from "@sprachanker/course-kit";
+import { type CourseSource, seriesKey } from "@sprachanker/schema";
 
 export const SITE = "https://learngerman.dw.com";
 export { IMPORTER_USER_AGENT as USER_AGENT } from "@sprachanker/course-kit";
@@ -18,6 +19,8 @@ export interface DwCourse {
   /** Language segment of DW URLs. */
   lang: "ru" | "en" | "de";
   sourceId: number;
+  /** Bytes after a full download, measured (videos in SD and HD make most of it). */
+  approxBytes: number;
 }
 
 export const COURSES: DwCourse[] = [
@@ -28,6 +31,7 @@ export const COURSES: DwCourse[] = [
     edition: "ru-de",
     lang: "ru",
     sourceId: 45476888,
+    approxBytes: 3.18e9,
   },
   {
     series: "nicos-weg",
@@ -36,6 +40,7 @@ export const COURSES: DwCourse[] = [
     edition: "en-de",
     lang: "en",
     sourceId: 36519789,
+    approxBytes: 3.17e9,
   },
   {
     series: "nicos-weg",
@@ -44,6 +49,7 @@ export const COURSES: DwCourse[] = [
     edition: "ru-de",
     lang: "ru",
     sourceId: 45476921,
+    approxBytes: 3.36e9,
   },
   {
     series: "nicos-weg",
@@ -52,6 +58,7 @@ export const COURSES: DwCourse[] = [
     edition: "en-de",
     lang: "en",
     sourceId: 36519797,
+    approxBytes: 3.35e9,
   },
   {
     series: "nicos-weg",
@@ -60,6 +67,7 @@ export const COURSES: DwCourse[] = [
     edition: "de-de",
     lang: "de",
     sourceId: 36519718,
+    approxBytes: 3.27e9,
   },
   // 100 short lessons, A1 and A2, words and phrases by topic.
   {
@@ -69,8 +77,30 @@ export const COURSES: DwCourse[] = [
     edition: "ru-de",
     lang: "ru",
     sourceId: 57409152,
+    approxBytes: 4.64e9,
   },
 ];
 
 /** Library folder of a series: `dw.<series>`. */
 export const seriesId = (series: DwSeries) => seriesKey("dw", series);
+
+export const SOURCE: CourseSource = {
+  publisher: "Deutsche Welle",
+  url: `${SITE}/de`,
+  licence: "free-access",
+};
+
+const NAMES: Record<DwSeries, string> = {
+  "nicos-weg": "Nicos Weg",
+  deutschtrainer: "Deutschtrainer",
+};
+
+/** The courses of a DW series, for the catalogue (03). */
+export const offers = (series: DwSeries): CourseOffer[] =>
+  COURSES.filter((c) => c.series === series).map((c) => ({
+    course: c.id,
+    edition: c.edition,
+    title: `${NAMES[c.series]} ${c.course.toUpperCase()}`,
+    source: SOURCE,
+    approxBytes: c.approxBytes,
+  }));

@@ -15,8 +15,7 @@
     "cancel": "Cancel"
   },
   "courses": {
-    "empty": "No course is installed yet.",
-    "emptyHint": "Install one from the terminal: {command}",
+    "empty": "No course is installed yet, and none is offered.",
     "lessons": "{count, plural, one {# lesson} other {# lessons}}",
     "progress": "{done, number} of {total, number} done",
     "start": "Start",
@@ -62,15 +61,8 @@
     "problems": "{count, plural, one {# problem} other {# problems}} found",
     "intact": "All files are in place and consistent.",
     "checkAgain": "Check again",
-    "sync": "Sync",
-    "syncing": "Syncing…",
-    "syncHint": "Sync downloads what is missing (pages and media already stored are kept) and processes the course again; your progress stays.",
-    "syncRunning": "Syncing…",
-    "syncDone": "Synced. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
-    "syncFailed": "Sync failed: {error}",
     "complete": "All downloaded",
-    "next": "next: {where} — {title}",
-    "syncStart": "Sync with the source"
+    "next": "next: {where} — {title}"
   },
   "lesson": {
     "unitLesson": "Unit {unit} · Lesson {lesson}",
@@ -378,5 +370,27 @@
     "lessonTitle": "Reset your progress in “{title}”?",
     "lessonBody": "All answers and runs of this lesson are deleted, with its tutor chat, writing checks, reviews and scenes. This cannot be undone.",
     "confirm": "Reset"
+  },
+  "download": {
+    "queued": "Queued — another course is downloading",
+    "pages": "{count, plural, one {# page read} other {# pages read}}",
+    "preparing": "Preparing the lessons…",
+    "media": "Media: {done, number} of {total, number} files · {size}",
+    "download": "Download",
+    "downloadSize": "Download · {size}",
+    "continue": "Continue downloading",
+    "sync": "Sync with the source",
+    "notDownloaded": "Not downloaded",
+    "incomplete": "{count, plural, =0 {Download not finished} one {# file missing} other {# files missing}}",
+    "openSoon": "Lessons open as soon as their pages are in; media keep coming.",
+    "failed": "Download failed: {error}",
+    "done": "Downloaded. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
+    "hint": "Downloading fetches what is missing from the source (stored pages and media are kept) and prepares the course again; your progress stays.",
+    "log": "Download log"
+  },
+  "storage": {
+    "title": "Storage",
+    "intro": "Courses, media and your progress live in this folder on the computer running SprachAnker. It is chosen when the server starts (--data, or SPRACHANKER_DATA); the desktop app will let you change it.",
+    "total": "Total"
   }
 }

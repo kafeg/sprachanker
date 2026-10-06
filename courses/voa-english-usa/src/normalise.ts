@@ -24,7 +24,7 @@ import {
   parseLessonKey,
   unitKey,
 } from "@sprachanker/schema";
-import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, UNIT_SIZE } from "./catalog.ts";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SOURCE, UNIT_SIZE } from "./catalog.ts";
 import type { DialogueLine, ParsedLesson, WordRow } from "./parse.ts";
 
 export interface SourceLesson {
@@ -221,11 +221,7 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
     value: {
       format: 1,
       key: course,
-      source: {
-        publisher: "Голос Америки (Voice of America)",
-        url: "https://www.golosameriki.com",
-        licence: "public-domain",
-      },
+      source: SOURCE,
       units,
       exams: [],
       goals,

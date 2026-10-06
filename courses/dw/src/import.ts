@@ -1,6 +1,8 @@
-// `sprachanker import dw-<series>`: fetch pages and media (idempotent), then normalise (03).
+// `sprachanker import dw-<series>`: fetch pages (idempotent), normalise a first time the courses that are
+// new (so they open while media download), fetch media, normalise (03).
 import { join } from "node:path";
 import {
+  courseInstalled,
   createMediaStore,
   createPoliteFetcher,
   failedMedia,
@@ -8,6 +10,7 @@ import {
   type ImportOptions,
   type ImportReport,
   type NormaliseResult,
+  pageCounter,
 } from "@sprachanker/course-kit";
 import { COURSES, type DwSeries, seriesId, USER_AGENT } from "./catalog.ts";
 import { collectMedia, download, mediaName } from "./media.ts";
@@ -27,8 +30,15 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
     userAgent: USER_AGENT,
     robotsHosts: ["learngerman.dw.com"],
   });
+  const counted = pageCounter(options.progress);
   for (const course of selected)
-    await fetchPages(fetcher, seriesDir, course, options.log, options.refresh);
+    await fetchPages(fetcher, seriesDir, course, options.log, options.refresh, counted);
+  const normalise = (course: (typeof selected)[number]) => {
+    options.progress?.({ phase: "normalise" });
+    return normaliseCourse(seriesDir, course, { log: options.log });
+  };
+  for (const course of selected)
+    if (!courseInstalled(seriesDir, course.id)) await normalise(course);
   const refs = (await collectMedia(join(seriesDir, "raw"))).map((r) => ({
     ...r,
     name: mediaName(r),
@@ -40,12 +50,11 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
     refs,
     log: options.log,
     download: (ref) => download(fetcher, ref),
+    progress: options.progress,
   });
   const normalised: Record<string, NormaliseResult> = {};
   for (const course of selected) {
-    normalised[course.id] = await normaliseCourse(seriesDir, course, {
-      log: options.log,
-    });
+    normalised[course.id] = await normalise(course);
   }
   return { failedMedia: failedMedia(index), normalised };
 }

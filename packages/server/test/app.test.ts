@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import { runs } from "../src/db/profile/schema.ts";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
+import type { CourseInstaller } from "../src/services/downloads.ts";
 import { setup } from "./setup.ts";
 
 const COURSE = { series: FIXTURE_SERIES, course: "demo", edition: "ru-de" };
@@ -330,7 +331,7 @@ test("directory and file assets stay inside their roots", async () => {
   expect(await listed("/index-1a2b.html")).toBeUndefined();
 });
 
-describe("course check and sync", () => {
+describe("course check and downloads", () => {
   test("the fixture course checks clean, with counts and media by kind", async () => {
     const { getJson } = await setup();
     const report = await getJson(`/api/course/check?series=${FIXTURE_SERIES}&course=demo`);
@@ -340,36 +341,71 @@ describe("course check and sync", () => {
     expect((await getJson("/api/courses"))[0].source).toBeNull();
   });
 
-  test("sync runs the course's provider in the background and reports", async () => {
+  test("downloads: a queue, progress from the importer, the catalogue's states, resume", async () => {
+    const offer = (course: string) => ({
+      series: "x.demo",
+      course,
+      edition: "ru-de",
+      title: course,
+      source: { publisher: "X", url: "https://x.test", licence: "public-domain" as const },
+      approxBytes: 1e6,
+    });
     const calls: string[] = [];
-    const { getJson, send, sendJson } = await setup({
-      syncCourse: async (series, course, log) => {
+    const release: Array<() => void> = [];
+    const installer: CourseInstaller = {
+      offers: () => [offer("one"), offer("two"), offer("three")],
+      async run(series, course, { log, progress }) {
         calls.push(`${series}/${course}`);
-        log("media: 0 to fetch");
-        return { failedMedia: [], normalised: {} };
+        progress({ phase: "pages", done: 3 });
+        progress({ phase: "media", done: 1, total: 4, bytes: 500 });
+        log("media: 1/4");
+        await new Promise<void>((resolve) => release.push(resolve));
+        return { failedMedia: course === "two" ? ["a.mp3: 404"] : [], normalised: {} };
       },
-    });
-    const q = `series=${FIXTURE_SERIES}&course=demo`;
-    expect((await getJson(`/api/course/sync?${q}`)).job).toBeNull();
-    const started = await sendJson("POST", "/api/course/sync", {
-      series: FIXTURE_SERIES,
-      course: "demo",
-    });
-    expect(started.job.status).toBe("running");
-    await Bun.sleep(5);
-    const done = (await getJson(`/api/course/sync?${q}`)).job;
-    expect([done.status, done.log, calls]).toEqual([
-      "done",
-      ["media: 0 to fetch"],
-      [`${FIXTURE_SERIES}/demo`],
-    ]);
+      // "three" was left mid-download by an earlier run: it resumes on its own.
+      unfinished: async () => [{ series: "x.demo", course: "three" }],
+      storage: async () => ({ dataRoot: "/data", series: [{ series: "x.demo", bytes: 42 }] }),
+    };
+    const { getJson, sendJson } = await setup({ installer });
+    await Bun.sleep(1);
+    const states = async () =>
+      Object.fromEntries(
+        ((await getJson("/api/catalog")) as Array<{ course: string; state: string }>).map((e) => [
+          e.course,
+          e.state,
+        ]),
+      );
+    expect(await states()).toEqual({ one: "available", two: "available", three: "downloading" });
 
-    const none = await setup();
-    const refused = await none.send("POST", "/api/course/sync", {
-      series: FIXTURE_SERIES,
-      course: "demo",
+    const one = await sendJson("POST", "/api/downloads", { series: "x.demo", course: "one" });
+    expect(one.status).toBe("queued");
+    // Asking again while it waits returns the same job.
+    expect((await sendJson("POST", "/api/downloads", { series: "x.demo", course: "one" })).id).toBe(
+      one.id,
+    );
+    const running = (await getJson("/api/downloads")).jobs.find(
+      (j: { course: string }) => j.course === "three",
+    );
+    expect(running.progress).toEqual({
+      phase: "media",
+      pages: 3,
+      media: { done: 1, total: 4, bytes: 500 },
     });
-    expect(refused.status).toBe(409);
-    void send;
+    release.shift()?.();
+    await Bun.sleep(1);
+    expect(await states()).toMatchObject({ three: "incomplete", one: "downloading" });
+    expect(calls).toEqual(["x.demo/three", "x.demo/one"]);
+    expect(await getJson("/api/storage")).toEqual({
+      dataRoot: "/data",
+      series: [{ series: "x.demo", bytes: 42 }],
+    });
+  });
+
+  test("without an installer nothing can be downloaded", async () => {
+    const { send, getJson } = await setup();
+    expect(await getJson("/api/catalog")).toEqual([]);
+    expect(
+      (await send("POST", "/api/downloads", { series: FIXTURE_SERIES, course: "demo" })).status,
+    ).toBe(409);
   });
 });

@@ -2,7 +2,7 @@ import { join } from "node:path";
 import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
-import { syncCourse } from "./providers.ts";
+import { courseInstaller } from "./providers.ts";
 import { type Listening, listen, mediaBlob, openProfileDb, secretKey } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
@@ -32,7 +32,7 @@ export function startServer(config: ServerConfig): Listening {
     secretKey: secretKey(join(appDataDir(), "secret.key")),
     lmStudio: lmStudioHost(),
     cli: cliHost(),
-    syncCourse: (series, course, log) => syncCourse(config.dataRoot, series, course, log),
+    installer: courseInstaller(config.dataRoot),
   });
   return listen(app.fetch, config);
 }

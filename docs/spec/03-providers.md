@@ -9,13 +9,19 @@ never real third-party content). Our enrichment will live next to it (02, planne
 `packages/course-kit/src/provider.ts` is the contract every provider follows:
 
 - An import function takes `ImportOptions` (library folder, optional `courses` / `editions` filters,
-  `refresh`, `log`) and returns an `ImportReport`: failed media and, per "<course> <edition>", a
-  `NormaliseResult` (lessons, unknown exercises, files that failed validation).
+  `refresh`, `log`, `progress`) and returns an `ImportReport`: failed media and, per "<course>
+  <edition>", a `NormaliseResult` (lessons, unknown exercises, files that failed validation).
+- Each provider offers its courses as `CourseOffer`s (course, edition, title, source, approximate size
+  measured on a full download), known without the network: the catalogue lists them before anything
+  is downloaded.
+- Progress: pages read or fetched (`pageCounter`), media fetched of those missing with their bytes
+  (`fetchMedia`), normalising.
 - Normalised files are `LibraryFile`s (path, schema, value) written by `writeLibraryFiles`, which
   validates each one; raw pages are fetched once through `storedPage`.
 - `packages/server/src/providers.ts` maps CLI provider ids to import functions (`dw-nicos-weg`,
   `dw-deutschtrainer`, `coerll-dib`, …) and to the series key each provider exports (its library
-  folder); `importCourse` runs one into `<data-root>/library`.
+  folder) and offers; `importCourse` runs one into `<data-root>/library`; `courseInstaller` is what the
+  download job uses (06).
 
 `course-kit` also supplies the polite HTTP client (`http.ts`: robots.txt, retries with backoff,
 identifiable User-Agent, stop on 403/429; no fixed rate limit, providers choose their concurrency),
@@ -25,15 +31,16 @@ library reader, and the helpers normalisers share: a lesson's vocabulary entries
 
 ## Importer behaviour (all providers)
 
-- **On demand only**, from the CLI (`sprachanker import <provider> --courses a1 --editions ru-de`);
-  from the UI later (install job, 06).
+- **On demand only**: "Download" in All courses (a background job, 06) or the CLI
+  (`sprachanker import <provider> --courses a1 --editions ru-de`). Content goes from the source site to
+  the learner's machine; nothing is hosted by us.
 - **Idempotent and resumable.** Stored raw pages are not fetched again unless `--refresh`; stored media
   are skipped, failed media are tried again on the next run.
-- **Two phases in one command.** Fetch writes `raw/` + `media/`; normalise then builds canonical +
-  locale files offline from them.
+- **Phases.** Fetch the pages into `raw/`; a course not installed yet is normalised right away (its
+  lessons open without media); fetch the media into `media/`; normalise again with them. Normalising is
+  offline and deterministic.
 - **Reports** unknown exercises (`unmapped`), files that failed validation, media that failed.
-- Planned: no partial installs visible (a course appears only after normalise + verify), one import
-  per series at a time (lock file).
+- One download at a time (the job queue); a course is visible once its first normalise wrote it.
 
 ## 1. DW Learn German (`courses/dw`)
 

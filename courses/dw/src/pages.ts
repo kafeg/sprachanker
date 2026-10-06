@@ -32,20 +32,22 @@ export async function fetchPages(
   c: DwCourse,
   log: (line: string) => void,
   refresh = false,
+  /** Called once per page read or fetched (progress). */
+  counted: () => void = () => {},
 ): Promise<void> {
   const dir = rawDir(seriesDir, c);
+  const get = async (path: string, file: string) => {
+    const state = await page(fetcher, path, file, refresh);
+    counted();
+    return state;
+  };
   // Slugs in DW URLs are ignored by the server, so `x` stands in for them.
-  const course = await page(
-    fetcher,
-    `/${c.lang}/x/c-${c.sourceId}`,
-    join(dir, "course.json"),
-    refresh,
-  );
+  const course = await get(`/${c.lang}/x/c-${c.sourceId}`, join(dir, "course.json"));
   const lessons = lessonIds(course);
   const exercises: Array<{ lesson: number; exercise: number }> = [];
   await runPool(lessons, CONCURRENCY, async (id) => {
-    const lesson = await page(fetcher, `/${c.lang}/x/l-${id}`, join(dir, `l-${id}.json`), refresh);
-    await page(fetcher, `/${c.lang}/x/l-${id}/le`, join(dir, `le-${id}.json`), refresh);
+    const lesson = await get(`/${c.lang}/x/l-${id}`, join(dir, `l-${id}.json`));
+    await get(`/${c.lang}/x/l-${id}/le`, join(dir, `le-${id}.json`));
     for (const exercise of exerciseIds(lesson, id)) exercises.push({ lesson: id, exercise });
   });
   log(
@@ -53,12 +55,7 @@ export async function fetchPages(
   );
   let done = 0;
   await runPool(exercises, CONCURRENCY, async ({ lesson, exercise }) => {
-    await page(
-      fetcher,
-      `/${c.lang}/x/l-${lesson}/e-${exercise}`,
-      join(dir, `e-${exercise}.json`),
-      refresh,
-    );
+    await get(`/${c.lang}/x/l-${lesson}/e-${exercise}`, join(dir, `e-${exercise}.json`));
     if (++done % 200 === 0)
       log(`${c.course} ${c.edition}: ${done}/${exercises.length} exercise pages`);
   });

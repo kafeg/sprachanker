@@ -270,7 +270,7 @@ function course(): FetchedCourse {
   const review = parseLesson(REVIEW);
   const page = (id: string) => (id === "3" ? review : lesson);
   return {
-    def: { id: "level-2", title: "Level 2", landing: "/p/6765.html" },
+    def: { id: "level-2", title: "Level 2", landing: "/p/6765.html", approxBytes: 1 },
     sourceId: "6765",
     landing,
     lessons: landing.lessons.map(

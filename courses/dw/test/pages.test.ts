@@ -14,6 +14,7 @@ const course: DwCourse = {
   edition: "ru-de",
   lang: "ru",
   sourceId: 1,
+  approxBytes: 1,
 };
 const html = (state: object) =>
   `<script>window.__APOLLO_STATE__ = ${JSON.stringify(state)};</script>`;

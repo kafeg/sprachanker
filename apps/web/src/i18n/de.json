@@ -15,8 +15,7 @@
     "cancel": "Abbrechen"
   },
   "courses": {
-    "empty": "Noch kein Kurs installiert.",
-    "emptyHint": "Installiere einen Kurs im Terminal: {command}",
+    "empty": "Noch kein Kurs installiert und keiner verfügbar.",
     "lessons": "{count, plural, one {# Lektion} other {# Lektionen}}",
     "progress": "{done, number} von {total, number} erledigt",
     "start": "Starten",
@@ -62,15 +61,8 @@
     "problems": "{count, plural, one {# Problem} other {# Probleme}} gefunden",
     "intact": "Alle Dateien sind da und stimmig.",
     "checkAgain": "Erneut prüfen",
-    "sync": "Abgleichen",
-    "syncing": "Abgleich läuft…",
-    "syncHint": "Der Abgleich lädt Fehlendes nach (vorhandene Seiten und Medien bleiben erhalten) und bereitet den Kurs neu auf; dein Fortschritt bleibt erhalten.",
-    "syncRunning": "Abgleich läuft…",
-    "syncDone": "Fertig. {failed, plural, =0 {Alle Medien sind da.} one {# Datei konnte nicht geladen werden.} other {# Dateien konnten nicht geladen werden.}}",
-    "syncFailed": "Abgleich fehlgeschlagen: {error}",
     "complete": "Vollständig geladen",
-    "next": "weiter: {where} – {title}",
-    "syncStart": "Mit der Quelle abgleichen"
+    "next": "weiter: {where} – {title}"
   },
   "lesson": {
     "unitLesson": "Einheit {unit} · Lektion {lesson}",
@@ -378,5 +370,27 @@
     "lessonTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
     "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen, Rückblicke und Szenen. Das lässt sich nicht rückgängig machen.",
     "confirm": "Zurücksetzen"
+  },
+  "download": {
+    "queued": "In der Warteschlange – gerade lädt ein anderer Kurs",
+    "pages": "{count, plural, one {# Seite gelesen} other {# Seiten gelesen}}",
+    "preparing": "Lektionen werden vorbereitet…",
+    "media": "Medien: {done, number} von {total, number} Dateien · {size}",
+    "download": "Herunterladen",
+    "downloadSize": "Herunterladen · {size}",
+    "continue": "Weiter herunterladen",
+    "sync": "Mit der Quelle abgleichen",
+    "notDownloaded": "Nicht geladen",
+    "incomplete": "{count, plural, =0 {Download nicht beendet} one {# Datei fehlt} other {# Dateien fehlen}}",
+    "openSoon": "Lektionen öffnen sich, sobald ihre Seiten da sind; die Medien kommen nach.",
+    "failed": "Download fehlgeschlagen: {error}",
+    "done": "Geladen. {failed, plural, =0 {Alle Medien sind da.} one {# Datei konnte nicht geladen werden.} other {# Dateien konnten nicht geladen werden.}}",
+    "hint": "Der Download lädt Fehlendes von der Quelle nach (vorhandene Seiten und Medien bleiben erhalten) und bereitet den Kurs neu auf; dein Fortschritt bleibt erhalten.",
+    "log": "Download-Protokoll"
+  },
+  "storage": {
+    "title": "Speicher",
+    "intro": "Kurse, Medien und dein Fortschritt liegen in diesem Ordner auf dem Computer, auf dem SprachAnker läuft. Er wird beim Start des Servers festgelegt (--data oder SPRACHANKER_DATA); in der Desktop-App lässt er sich ändern.",
+    "total": "Gesamt"
   }
 }

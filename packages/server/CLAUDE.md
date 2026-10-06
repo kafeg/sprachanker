@@ -9,7 +9,7 @@ HTTP API, storage, jobs, sidecars, speech. Spec: `docs/spec/05-data-model.md`, `
 src/
   index.ts           # startServer(config), importCourse(): called by `apps/cli` (`serve`, `import`)
   config.ts          # app-data folder, data root (--data, $SPRACHANKER_DATA, <app-data>/data)
-  providers.ts       # content providers the server can import
+  providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk)
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key; lmstudio.ts (detect, `lms server start`);
@@ -27,8 +27,9 @@ src/
                      # this wrong?"),
                      # tutor (lesson chats as `chat` runs), practice (writing checks, session reviews in
                      # `practice` runs), scene (role-plays as `scene` runs), tutor-tools (the tutor's
-                     # tools on the learner's data), sync (re-importing a course as a background job)
-  jobs/              # import, model download; progress via SSE
+                     # tools on the learner's data), downloads (course downloads: queue, progress,
+                     # catalogue states, resume after restart; the installer is injected)
+  jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys); later profiles, PIN, device tokens, Host check, CSP
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise

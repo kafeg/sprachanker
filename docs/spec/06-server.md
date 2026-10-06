@@ -10,8 +10,10 @@ One Bun process started by `sprachanker serve`. The `sprachanker` binary is buil
 - serves library media with HTTP Range support;
 - talks to LLM providers through `packages/llm`.
 
-Planned: `server.sqlite` (profiles, devices, jobs); jobs (course import, model downloads) with progress
-via Server-Sent Events; supervising sidecars (`whisper-server`, TTS) and talking to them through a
+Course downloads run as background jobs (one at a time, queued; progress polled by the screens, no
+SSE). A download is marked in its series folder while it runs (`.downloads/<course>.json`, kept when
+media failed), so a restart resumes an interrupted one. Planned: `server.sqlite` (profiles, devices);
+model downloads as jobs; supervising sidecars (`whisper-server`, TTS) and talking to them through a
 speech module (08).
 
 Hono + zod; Drizzle on `bun:sqlite`. Bun-specific APIs stay behind an adapter so a Node fallback stays
@@ -23,13 +25,16 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
 `packages/server/src/app.ts` and `packages/server/src/routes/llm.ts` (`/api/llm`). Exact endpoints of
 later areas are fixed in the stage that builds them.
 
-- `GET /api/health` → `{ "status": "ok" }` (desktop shell and tests wait for it). Unknown `/api/*`
+- `GET /api/health` → `{ "status": "ok", "version" }` (desktop shell and tests wait for it). Unknown `/api/*`
   paths return a JSON 404, never the web app.
 - Content: `GET /api/courses` (installed courses with progress and the lesson to continue),
   `GET /api/course` (course map), `GET /api/lesson` (canonical + locale lesson),
-  `GET /api/course/check` (the course verified: counts, media by kind and size, problems),
-  `GET` / `POST /api/course/sync` (re-import the course in the background — fetch what is missing,
-  normalise anew — and poll the job's log and result; one job per course, kept in memory).
+  `GET /api/course/check` (the course verified: counts, media by kind and size, problems).
+- Courses on disk: `GET /api/catalog` (every course the providers offer, with its state: available,
+  queued, downloading, incomplete, ready), `GET` / `POST /api/downloads` (the jobs with progress and
+  log; queue a download — first download, completing one and syncing with the source are the same
+  idempotent import), `GET /api/storage` (the data folder and the space per series).
+- Progress: `POST /api/progress/reset` (a course or one lesson, 05).
 - Settings: `GET` / `PUT /api/settings` (one key at a time).
 - Lesson runs: `POST /api/runs` (start or resume), `POST /api/runs/:id/events` (batched, idempotent;
   outcomes computed by the server), `POST /api/runs/:id/finish`.
@@ -40,7 +45,7 @@ later areas are fixed in the stage that builds them.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).
 
-Planned areas: auth (profiles, PIN, device tokens), catalog install / update / remove (owner) → job,
+Planned areas: auth (profiles, PIN, device tokens), removing a course's files (owner),
 exams, review, practice sets, notebook, cards, stats, speech, `server/*` (owner), `jobs/:id/events`.
 
 ## Profiles and access (planned, stage 4)

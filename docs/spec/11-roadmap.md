@@ -119,9 +119,12 @@ the first lessons a few minutes later while the media keep coming.
 - Settings → Storage: the data folder (chosen at start: `--data`, `SPRACHANKER_DATA`, default
   app-data) and the space each course takes. Changing the folder is the desktop app's job (12).
 - **Accept**: from an empty data root, Deutsch im Blick is downloaded from the UI, its first lesson
-  opens before the media finish, a server restart mid-download resumes it; e2e against a fake
-  provider; progress and states visible on desktop and phone.
-- **Status: not started.**
+  opens before the media finish, a server restart mid-download resumes it; progress and states
+  visible on desktop and phone. The queue, progress, states and resume are tested against a fake
+  installer (server tests); e2e checks the offers in All courses without downloading.
+- **Status: built** (2026-10-06). Checked on an empty data root: Deutsch im Blick downloaded from
+  the UI (20 pages, 104 files, 155 MB); «Так говорят в Америке» listed as installed while its media
+  were downloading, and resumed after the server was stopped midway.
 
 ### 6 — Cards, review, Notebook
 Specs: 04, 05, 09.

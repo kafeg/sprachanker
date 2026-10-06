@@ -2,25 +2,26 @@
 // from and on what terms, what it holds (lessons, exercises, words, media) and whether all of it is on
 // disk, and syncing it with its source.
 import { type CourseSource, parseLessonKey } from "@sprachanker/schema";
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowRight,
   CircleCheck,
   CircleX,
+  Download,
   ExternalLink,
   LoaderCircle,
   RefreshCw,
   RotateCcw,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCourseCheck, useCourseSync, useStartSync } from "@/api/hooks.ts";
+import { useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { cn } from "@/ui/utils.ts";
+import { DownloadLine, downloading } from "./download.tsx";
 
 /** "Deutsche Welle · learngerman.dw.com · free access" with a link to the source. */
 export function SourceLine({ source }: { source: CourseSource }) {
@@ -126,23 +127,11 @@ export function CourseHero(props: CourseHeroProps) {
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
   const check = useCourseCheck(series, course, true);
-  const sync = useCourseSync(series, course);
-  const start = useStartSync(series, course);
-  const client = useQueryClient();
-  const job = sync.data?.job;
-  const running = job?.status === "running";
-  // A finished sync changed the course: check it and reload its lessons and the course list.
-  const finishedAt = job?.finishedAt;
-  useEffect(() => {
-    if (!finishedAt) return;
-    void client.invalidateQueries({ queryKey: ["course-check", series, course] });
-    void client.invalidateQueries({ queryKey: ["course", series, course] });
-    void client.invalidateQueries({ queryKey: ["lesson", series] });
-    void client.invalidateQueries({ queryKey: ["courses"] });
-  }, [finishedAt, client, series, course]);
-  useEffect(() => {
-    if (running) setOpen(true);
-  }, [running]);
+  const { available, job } = useCourseDownload(series, course);
+  const start = useStartDownload();
+  const running = downloading(job);
+  // Files missing (media that failed or have not come yet): the download can go on.
+  const missing = check.data?.media.missing ?? 0;
 
   const r = check.data;
   const exercises = r ? Object.values(r.exercises).reduce((a, b) => a + b, 0) : 0;
@@ -243,18 +232,26 @@ export function CourseHero(props: CourseHeroProps) {
         </div>
       )}
 
-      {/* What can be done with the course itself: sync it with its source, reset its progress. */}
-      {(sync.data?.available || done > 0 || next?.started) && (
+      {job && running && <DownloadLine job={job} className="mt-4" />}
+
+      {/* What can be done with the course itself: download what is missing or sync it with its
+          source, reset its progress. */}
+      {(available || done > 0 || next?.started) && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {sync.data?.available && (
+          {available && !running && (
             <button
               type="button"
-              onClick={() => setOpen((o) => !o)}
-              aria-expanded={open}
-              className="flex min-h-11 items-center gap-1.5 rounded-xl border border-dashed px-3 text-sm text-muted-foreground hover:bg-accent"
+              onClick={() => start.mutate({ series, course })}
+              disabled={start.isPending}
+              className={cn(
+                "flex min-h-11 items-center gap-1.5 rounded-xl border px-3 text-sm",
+                missing
+                  ? "border-primary bg-primary/15 font-medium"
+                  : "border-dashed text-muted-foreground hover:bg-accent",
+              )}
             >
-              <RefreshCw className={cn("size-4", running && "animate-spin")} />
-              {running ? t("course.syncing") : t("course.sync")}
+              {missing ? <Download className="size-4" /> : <RefreshCw className="size-4" />}
+              {missing ? t("download.continue") : t("download.sync")}
             </button>
           )}
           {(done > 0 || next?.started) && (
@@ -304,30 +301,25 @@ export function CourseHero(props: CourseHeroProps) {
             >
               {t("course.checkAgain")}
             </Button>
-            {sync.data?.available && (
-              <Button onClick={() => start.mutate()} disabled={running || start.isPending}>
-                {running ? (
-                  <LoaderCircle className="size-4 animate-spin" />
-                ) : (
-                  <RefreshCw className="size-4" />
-                )}
-                {running ? t("course.syncing") : t("course.syncStart")}
-              </Button>
-            )}
           </div>
-          {sync.data?.available && <p className="text-muted-foreground">{t("course.syncHint")}</p>}
+          {available && <p className="text-muted-foreground">{t("download.hint")}</p>}
           {job && (
             <div className="space-y-1">
-              <p className="font-medium">
-                {job.status === "running"
-                  ? t("course.syncRunning")
-                  : job.status === "done"
-                    ? t("course.syncDone", { failed: job.report?.failedMedia.length ?? 0 })
-                    : t("course.syncFailed", { error: job.error ?? "" })}
-              </p>
-              <pre className="max-h-48 overflow-auto rounded-lg bg-background p-2 text-xs leading-relaxed">
-                {job.log.slice(-15).join("\n")}
-              </pre>
+              {(job.status === "done" || job.status === "failed") && (
+                <p className="font-medium">
+                  {job.status === "done"
+                    ? t("download.done", { failed: job.report?.failedMedia.length ?? 0 })
+                    : t("download.failed", { error: job.error ?? "" })}
+                </p>
+              )}
+              <details>
+                <summary className="cursor-pointer text-muted-foreground">
+                  {t("download.log")}
+                </summary>
+                <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-background p-2 text-xs leading-relaxed">
+                  {job.log.slice(-15).join("\n")}
+                </pre>
+              </details>
             </div>
           )}
         </div>

@@ -25,7 +25,7 @@ import {
   unitKey,
   type VocabEntry,
 } from "@sprachanker/schema";
-import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE, TITLE } from "./catalog.ts";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SOURCE, TITLE } from "./catalog.ts";
 import { type El, parseHtml } from "./dom.ts";
 import { Homework, mapExercise, speechExercise, Unmapped } from "./exercise.ts";
 import type { IndexLesson } from "./parse/course-index.ts";
@@ -273,7 +273,7 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normal
     value: {
       format: 1,
       key: course,
-      source: { publisher: "Lingust", url: SITE, licence: "free-access" },
+      source: SOURCE,
       units: courseUnits,
       exams: [],
       goals: [],

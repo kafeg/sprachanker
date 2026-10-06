@@ -20,7 +20,7 @@ import {
   parseLessonKey,
   unitKey,
 } from "@sprachanker/schema";
-import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE } from "./catalog.ts";
+import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE, SOURCE } from "./catalog.ts";
 import type { VocabSection } from "./parse.ts";
 
 export interface Chapter {
@@ -137,11 +137,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
     value: {
       format: 1,
       key: course,
-      source: {
-        publisher: "COERLL, The University of Texas at Austin",
-        url: SITE,
-        licence: "cc-by-4.0",
-      },
+      source: SOURCE,
       units,
       exams: [],
       goals: [],

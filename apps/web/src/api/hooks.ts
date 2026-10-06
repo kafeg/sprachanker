@@ -1,6 +1,7 @@
 // TanStack Query hooks over the API.
 import type { LessonKey } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { api, json } from "./client.ts";
 
 /** The server's version (and that it answers). */
@@ -57,21 +58,70 @@ export const useCourseCheck = (series: string, course: string, enabled: boolean)
     queryFn: () => json(api.course.check.$get({ query: { series, course } })),
   });
 
-/** The course's sync job; polled while it runs. */
-export const useCourseSync = (series: string, course: string) =>
+type DownloadsState = Awaited<ReturnType<typeof fetchDownloads>>;
+const fetchDownloads = () => json(api.downloads.$get());
+const active = (state: DownloadsState | undefined) =>
+  !!state?.jobs.some((j) => j.status === "queued" || j.status === "running");
+
+/** All downloads of the server; polled while one is queued or running. */
+export const useDownloads = () =>
   useQuery({
-    queryKey: ["course-sync", series, course],
-    queryFn: () => json(api.course.sync.$get({ query: { series, course } })),
-    refetchInterval: (q) => (q.state.data?.job?.status === "running" ? 1500 : false),
+    queryKey: ["downloads"],
+    queryFn: fetchDownloads,
+    refetchInterval: (q) => (active(q.state.data) ? 1500 : false),
   });
 
-export function useStartSync(series: string, course: string) {
+/** The latest download of a course, and whether downloads are possible at all. */
+export function useCourseDownload(series: string, course: string) {
+  const downloads = useDownloads();
+  return {
+    available: !!downloads.data?.available,
+    job: downloads.data?.jobs.find((j) => j.series === series && j.course === course),
+  };
+}
+
+/**
+ * Keeps the screens current while courses download (mounted once, in the app shell): a course
+ * appears as soon as its pages are normalised, and its files change when a download ends.
+ */
+export function useDownloadsWatch() {
+  const client = useQueryClient();
+  const { data } = useDownloads();
+  const ended = data?.jobs.filter((j) => j.finishedAt).length ?? 0;
+  const busy = active(data);
+  useEffect(() => {
+    if (!busy && !ended) return;
+    void client.invalidateQueries({ queryKey: ["courses"] });
+    void client.invalidateQueries({ queryKey: ["catalog"] });
+    if (!busy) {
+      void client.invalidateQueries({ queryKey: ["course"] });
+      void client.invalidateQueries({ queryKey: ["course-check"] });
+      void client.invalidateQueries({ queryKey: ["lesson"] });
+      void client.invalidateQueries({ queryKey: ["storage"] });
+    }
+  }, [busy, ended, client]);
+}
+
+/** Every course the providers offer, with its state (available, downloading, incomplete, ready). */
+export const useCatalog = () =>
+  useQuery({ queryKey: ["catalog"], queryFn: () => json(api.catalog.$get()) });
+
+/** Downloads a course, completes it or syncs it with its source (one idempotent job). */
+export function useStartDownload() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: () => json(api.course.sync.$post({ json: { series, course } })),
-    onSuccess: (state) => client.setQueryData(["course-sync", series, course], state),
+    mutationFn: (target: { series: string; course: string }) =>
+      json(api.downloads.$post({ json: target })),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: ["downloads"] });
+      void client.invalidateQueries({ queryKey: ["catalog"] });
+    },
   });
 }
+
+/** The data folder and the space each series takes. */
+export const useStorage = () =>
+  useQuery({ queryKey: ["storage"], queryFn: () => json(api.storage.$get()) });
 
 /** Resets the progress of a course, or of one of its lessons (the screens confirm first). */
 export function useResetProgress() {
