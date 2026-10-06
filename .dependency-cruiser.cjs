@@ -75,6 +75,17 @@ module.exports = {
       to: { dependencyTypes: ["core"] },
     },
     {
+      name: "web-llm-mounted-only",
+      comment:
+        "apps/web/src/llm is optional: only its mount points (the router and the settings page) import it.",
+      severity: "error",
+      from: {
+        path: "^apps/web/src/",
+        pathNot: "^apps/web/src/(llm/|routes/router\\.tsx$|routes/settings\\.tsx$)",
+      },
+      to: { path: "^apps/web/src/llm/" },
+    },
+    {
       name: "server-io-in-runtime-only",
       comment:
         "app.ts and everything it imports stay runtime-agnostic (the web type-checks that graph): Node/Bun APIs only in src/runtime/ and the entry files that wire it (index, config, providers).",

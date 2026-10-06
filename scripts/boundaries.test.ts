@@ -24,5 +24,6 @@ test("boundary rules fire on deliberate violations and allow the type-only AppTy
     "pure-modules-no-io: packages/llm/src/uses-fs.ts -> fs",
     "server-io-in-runtime-only: packages/server/src/services/uses-fs.ts -> fs",
     "web-imports-server-types-only: apps/web/src/server-value.ts -> packages/server/src/index.ts",
+    "web-llm-mounted-only: apps/web/src/lesson/uses-llm.ts -> apps/web/src/llm/tutor.ts",
   ]);
 });

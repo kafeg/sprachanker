@@ -9,7 +9,8 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 apps/web/src/
   routes/          # router.tsx (code-based TanStack Router), courses (my courses, all courses), course map
                    # with its head in course-info (progress, source, stats, integrity, sync), settings
-  lesson/          # lesson player: use-run (run + events), exercise step, reference, video
+  lesson/          # lesson player: player (run flow), use-run (run + events), plan, overview, exercise step,
+                   # summary, reference, video; slots.ts: what optional features add (header, explain, summary)
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
@@ -42,4 +43,5 @@ notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<ver
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px.
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
-  folder can be removed with its mount points (settings page, lesson player header and `explain` prop).
+  folder can be removed with its mount points: the settings page and the router, which passes
+  `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots. Nothing in `lesson/` imports `llm/`.

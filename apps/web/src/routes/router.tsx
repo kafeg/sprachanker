@@ -3,6 +3,7 @@ import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/re
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { AssistantLabel } from "@/llm/assistant-label.tsx";
+import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AppShell } from "@/ui/app-shell.tsx";
 import { PlaybackRate } from "@/ui/media.tsx";
 import { CoursePage } from "./course.tsx";
@@ -46,7 +47,13 @@ const lesson = createRoute({ getParentRoute: () => root, path: "/lesson/$series/
 lesson.update({
   component: function Lesson() {
     const params = lesson.useParams();
-    return <LessonPlayer key={`${params.series}/${params.course}/${params.lesson}`} {...params} />;
+    return (
+      <LessonPlayer
+        key={`${params.series}/${params.course}/${params.lesson}`}
+        slots={lessonAssistant}
+        {...params}
+      />
+    );
   },
 });
 

@@ -1,158 +1,45 @@
-// Lesson player (09): overview → exercises one by one → summary; plan and reference at hand.
-
-import { type ExerciseState, exerciseState, lessonCoverage } from "@sprachanker/engine";
+// Lesson player (09): overview → exercises one by one → summary; plan and reference at hand. This file
+// holds the run's flow (resume, start, record pages, complete); the pages are overview, exercise-step
+// and summary, the plan is plan.tsx; optional features come in as slots.
+import { exerciseState, lessonCoverage } from "@sprachanker/engine";
 import {
   type Lesson,
   type LessonResult,
   type LocaleLesson,
   parseEditionId,
-  parseLessonKey,
 } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  BookOpenText,
-  Check,
-  ListOrdered,
-  Play,
-  SkipForward,
-  Star,
-  X,
-} from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowLeft, BookOpenText, ListOrdered } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
-import { ExplainMistake } from "@/llm/explain.tsx";
-import { SessionReview } from "@/llm/review.tsx";
-import { SceneCard } from "@/llm/scene.tsx";
-import { LessonTutor, ReviewMistakesButton, type TutorAsk } from "@/llm/tutor.tsx";
-import { WritingTask } from "@/llm/writing.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
-import { CourseHtml } from "@/ui/course-html.tsx";
-import { AudioPlayer } from "@/ui/media.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
-import { cn } from "@/ui/utils.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
-import { Reference, type ReferenceTab, referenceTabs, VocabularyList } from "./reference.tsx";
-import { type ExerciseResult, useRun } from "./use-run.ts";
-import { EpisodeVideo } from "./video.tsx";
-
-type Step = "overview" | number | "summary";
-
-/** An exercise's mark in the plan and the summary: right (green ✓), with mistakes (red ✕), answered
- *  without a score (grey ✓), skipped (dashed ⏭), the current one (yellow ring), else its number. */
-function StepDot({ state, label }: { state?: ExerciseState | "current"; label: React.ReactNode }) {
-  const { t } = useTranslation();
-  const worked = state && state !== "current";
-  return (
-    <span
-      title={worked ? t(`lesson.state.${state}`) : undefined}
-      className={cn(
-        "grid size-6 shrink-0 place-items-center rounded-full border-2 text-xs font-semibold",
-        state === "correct" && "border-correct bg-correct text-white",
-        state === "wrong" && "border-wrong bg-wrong text-white",
-        state === "done" && "border-muted-foreground/60 bg-muted text-muted-foreground",
-        state === "skipped" && "border-dashed border-muted-foreground/60 text-muted-foreground",
-        state === "current" && "border-primary",
-      )}
-    >
-      {state === "correct" || state === "done" ? (
-        <Check className="size-3.5" />
-      ) : state === "wrong" ? (
-        <X className="size-3.5" />
-      ) : state === "skipped" ? (
-        <SkipForward className="size-3" />
-      ) : (
-        label
-      )}
-      {worked && <span className="sr-only">{t(`lesson.state.${state}`)}</span>}
-    </span>
-  );
-}
-
-function Plan({
-  lesson,
-  locale,
-  step,
-  results,
-  go,
-  openReference,
-}: {
-  lesson: Lesson;
-  locale: LocaleLesson | null;
-  step: Step;
-  results: Record<string, ExerciseResult>;
-  go(step: Step): void;
-  openReference(tab: ReferenceTab): void;
-}) {
-  const { t } = useTranslation();
-  const tabs = referenceTabs(lesson, locale);
-  const row = (target: Step, dot: React.ReactNode, label: string) => (
-    <button
-      type="button"
-      key={String(target)}
-      onClick={() => go(target)}
-      className={cn(
-        "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent",
-        step === target && "bg-accent font-semibold",
-      )}
-    >
-      {dot}
-      <span className="leading-snug">{label}</span>
-    </button>
-  );
-  return (
-    <nav className="space-y-0.5">
-      {row("overview", <StepDot label={<Play className="size-3" />} />, t("lesson.overview"))}
-      {lesson.pages.map(({ exercise }, i) =>
-        row(
-          i,
-          <StepDot
-            state={
-              exerciseState(exercise, results[exercise.key]) ?? (step === i ? "current" : undefined)
-            }
-            label={i + 1}
-          />,
-          locale?.exercises[exercise.key]?.title ?? exercise.key,
-        ),
-      )}
-      {row("summary", <StepDot label={<Star className="size-3" />} />, t("lesson.summary"))}
-      {!!tabs.length && (
-        <div className="mt-4 border-t pt-3">
-          <p className="px-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            {t("lesson.reference")}
-          </p>
-          {tabs.map((tab) => (
-            <button
-              type="button"
-              key={tab}
-              onClick={() => openReference(tab)}
-              className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] text-muted-foreground hover:bg-accent hover:text-foreground"
-            >
-              <BookOpenText className="size-4" /> {t(`ref.${tab}`)}
-            </button>
-          ))}
-        </div>
-      )}
-    </nav>
-  );
-}
+import { LessonOverview } from "./overview.tsx";
+import { Plan, type Step } from "./plan.tsx";
+import { Reference, type ReferenceTab, referenceTabs } from "./reference.tsx";
+import type { LessonSlots } from "./slots.ts";
+import { LessonSummary } from "./summary.tsx";
+import { useRun } from "./use-run.ts";
 
 export function LessonPlayer({
   series,
   course,
   lesson: lessonId,
+  slots = {},
 }: {
   series: string;
   course: string;
   lesson: string;
+  slots?: LessonSlots;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const key = `${series}/${course}/${lessonId}`;
   const courses = useCourses();
   const info = courses.data?.find((c) => c.series === series && c.course === course);
@@ -164,7 +51,6 @@ export function LessonPlayer({
   const [reference, setReference] = useState<ReferenceTab>();
   const [planOpen, setPlanOpen] = useState(false);
   const [finished, setFinished] = useState<LessonResult | null>();
-  const [tutorAsk, setTutorAsk] = useState<TutorAsk>();
   const url = (p: string) => mediaUrl(series, p);
 
   // Resume an active run on the page it was left on, if the lesson still has it.
@@ -192,8 +78,9 @@ export function LessonPlayer({
   const { lesson, locale } = data.data as { lesson: Lesson; locale: LocaleLesson | null };
   const total = lesson.pages.length;
   const resume = active && run.resumePage < total ? run.resumePage : -1;
-  // The score shown on the summary: of the run just finished, or of the latest finished run.
+  // The score shown: of the run just finished, or of the latest finished run.
   const result = finished ?? (run.mode === "finished" ? run.run?.result : undefined);
+  const context = { series, lessonKey: lesson.key, edition };
 
   const show = (next: Step) => {
     setPlanOpen(false);
@@ -218,18 +105,16 @@ export function LessonPlayer({
 
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
-  const coverage = lessonCoverage(lesson, run.results);
-  // Items right at the first attempt in the run shown (the score itself also weighs partial answers).
-  const firstCorrect = Object.values(run.results)
-    .flatMap((r) => Object.values(r.first))
-    .filter((o) => o.result === "correct").length;
-  const done = coverage.worked;
+  const done = lessonCoverage(lesson, run.results).worked;
   const skipped = lesson.pages.filter(
     ({ exercise }) => exerciseState(exercise, run.results[exercise.key]) === "skipped",
   ).length;
-  const numbers = parseLessonKey(lesson.key);
-  const unitTitle = map.data?.locale?.units[lesson.unit]?.title;
+  // Answers that were wrong or partly right at the first attempt (skips are not mistakes to talk over).
+  const hasMistakes = Object.values(run.results).some((r) =>
+    Object.values(r.first).some((o) => o.result === "wrong" || o.result === "partial"),
+  );
   const firstTab = referenceTabs(lesson, locale)[0];
+  const exercise = typeof step === "number" ? lesson.pages[step]?.exercise : undefined;
 
   const plan = (
     <Plan
@@ -242,7 +127,39 @@ export function LessonPlayer({
     />
   );
 
-  return (
+  const actions =
+    run.mode === "finished" ? (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium">
+          {result && result.scored > 0
+            ? t("lesson.doneScore", { score: result.score })
+            : t("lesson.done")}
+        </span>
+        <Button size="lg" variant="outline" onClick={() => show("summary")}>
+          {t("lesson.summary")}
+        </Button>
+        <Button size="lg" className="text-base" onClick={() => void begin(true)}>
+          {t("lesson.redo")}
+        </Button>
+      </div>
+    ) : (
+      <Button
+        size="lg"
+        className="text-base"
+        onClick={() =>
+          total === 0
+            ? void run.start().then(() => show("summary"))
+            : active
+              ? go(resume > 0 ? resume : 0)
+              : void begin(false)
+        }
+      >
+        {resume > 0 ? t("lesson.resume") : t("lesson.start")}
+      </Button>
+    );
+
+  const frame = slots.frame ?? ((children: React.ReactNode) => <Fragment>{children}</Fragment>);
+  return frame(
     <TargetLang value={parseEditionId(edition).target}>
       <div className="lg:grid lg:grid-cols-[17rem_1fr]">
         <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-r p-4 lg:block">
@@ -281,15 +198,7 @@ export function LessonPlayer({
               ) : (
                 <span className="flex-1" />
               )}
-              <LessonTutor
-                ask={tutorAsk}
-                series={series}
-                lessonKey={lesson.key}
-                edition={edition}
-                exerciseKey={
-                  typeof step === "number" ? lesson.pages[step]?.exercise.key : undefined
-                }
-              />
+              {slots.header?.({ ...context, exerciseKey: exercise?.key })}
               {firstTab && (
                 <Button
                   variant="outline"
@@ -305,205 +214,50 @@ export function LessonPlayer({
           </header>
           <div className="mx-auto max-w-3xl px-4 py-6">
             {step === "overview" && (
-              <section className="space-y-5">
-                <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  {t("lesson.unitLesson", numbers)}
-                  {unitTitle && ` · ${unitTitle}`}
-                </p>
-                <h1 className="text-4xl font-bold">{locale?.title ?? lesson.key}</h1>
-                {locale?.synopsisHtml && (
-                  <CourseHtml className="text-lg" html={locale.synopsisHtml} />
-                )}
-                {!!lesson.goals.length && (
-                  <div className="rounded-2xl bg-accent px-5 py-4">
-                    <p className="font-semibold">{t("lesson.goals")}</p>
-                    <ul className="mt-1 list-disc pl-5">
-                      {lesson.goals.map((g) => (
-                        <li key={g}>{map.data?.locale?.goals[g]?.text}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {lesson.media.video ? (
-                  <EpisodeVideo {...lesson.media.video} url={url} />
-                ) : (
-                  lesson.media.image && (
-                    <img src={url(lesson.media.image)} alt="" className="w-full rounded-2xl" />
-                  )
-                )}
-                {lesson.media.audio && (
-                  <AudioPlayer
-                    src={url(lesson.media.audio)}
-                    label={locale?.title ?? lesson.key}
-                    title={t("lesson.audio")}
-                  />
-                )}
-                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                  <span className="text-muted-foreground">
-                    {t("lesson.counts", { exercises: total, words: lesson.vocab.length })}
-                  </span>
-                  {run.mode === "finished" ? (
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {result && result.scored > 0
-                          ? t("lesson.doneScore", { score: result.score })
-                          : t("lesson.done")}
-                      </span>
-                      <Button size="lg" variant="outline" onClick={() => show("summary")}>
-                        {t("lesson.summary")}
-                      </Button>
-                      <Button size="lg" className="text-base" onClick={() => void begin(true)}>
-                        {t("lesson.redo")}
-                      </Button>
-                    </div>
-                  ) : (
-                    <Button
-                      size="lg"
-                      className="text-base"
-                      onClick={() =>
-                        total === 0
-                          ? void run.start().then(() => show("summary"))
-                          : active
-                            ? go(resume > 0 ? resume : 0)
-                            : void begin(false)
-                      }
-                    >
-                      {resume > 0 ? t("lesson.resume") : t("lesson.start")}
-                    </Button>
-                  )}
-                </div>
-              </section>
+              <LessonOverview
+                lesson={lesson}
+                locale={locale}
+                unitTitle={map.data?.locale?.units[lesson.unit]?.title}
+                goals={map.data?.locale?.goals ?? {}}
+                url={url}
+                actions={actions}
+              />
             )}
-            {typeof step === "number" && lesson.pages[step] && (
+            {typeof step === "number" && exercise && (
               <ExerciseStep
                 key={`${run.run?.id}-${step}`}
-                stored={run.results[lesson.pages[step].exercise.key]}
+                stored={run.results[exercise.key]}
                 readOnly={run.mode === "finished"}
-                exercise={lesson.pages[step].exercise}
-                locale={locale?.exercises[lesson.pages[step].exercise.key]}
+                exercise={exercise}
+                locale={locale?.exercises[exercise.key]}
                 index={step}
                 total={total}
                 url={url}
                 onAnswered={run.answer}
                 onBack={() => go(step > 0 ? step - 1 : "overview")}
                 onNext={() => go(step + 1 < total ? step + 1 : "summary")}
-                explain={(index, answer) => (
-                  <ExplainMistake
-                    series={series}
-                    lessonKey={lesson.key}
-                    edition={edition}
-                    exerciseKey={lesson.pages[step]?.exercise.key ?? ""}
-                    index={index}
-                    answer={answer}
-                  />
-                )}
+                explain={
+                  slots.explain &&
+                  ((index, answer) =>
+                    slots.explain?.({ ...context, exerciseKey: exercise.key, index, answer }))
+                }
               />
             )}
             {step === "summary" && (
-              <section className="space-y-6">
-                <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  {t("lesson.summary")}
-                </p>
-                <h1 className="text-4xl font-bold">{locale?.title}</h1>
-                {total > 0 && (
-                  <div className="flex items-end gap-4">
-                    <span className="font-heading text-6xl font-bold">
-                      {result
-                        ? new Intl.NumberFormat(i18n.language, { style: "percent" }).format(
-                            result.score,
-                          )
-                        : "—"}
-                    </span>
-                    {result && (
-                      <span className="pb-2 text-muted-foreground">
-                        {t("lesson.score", {
-                          correct: firstCorrect,
-                          scored: result.scored,
-                        })}
-                      </span>
-                    )}
-                  </div>
-                )}
-                {active && !coverage.complete && coverage.firstLeft !== undefined && (
-                  <div className="space-y-3 rounded-2xl bg-accent px-5 py-4">
-                    <p>{t("lesson.left", { count: total - coverage.worked })}</p>
-                    <Button
-                      size="lg"
-                      onClick={() => coverage.firstLeft !== undefined && go(coverage.firstLeft)}
-                    >
-                      {t("lesson.toExercise", { n: coverage.firstLeft + 1 })}
-                    </Button>
-                  </div>
-                )}
-                {run.mode === "finished" && (
-                  <Button size="lg" onClick={() => void begin(true)}>
-                    {t("lesson.redo")}
-                  </Button>
-                )}
-                {Object.values(run.results).some((r) =>
-                  Object.values(r.first).some(
-                    (o) => o.result === "wrong" || o.result === "partial",
-                  ),
-                ) && <ReviewMistakesButton onAsk={setTutorAsk} />}
-                <SessionReview series={series} lessonKey={lesson.key} edition={edition} />
-                <WritingTask series={series} lessonKey={lesson.key} edition={edition} />
-                <SceneCard series={series} lessonKey={lesson.key} edition={edition} />
-                {total > 0 && (
-                  <ul className="divide-y rounded-2xl border bg-card">
-                    {lesson.pages.map(({ exercise }, i) => {
-                      const r = run.results[exercise.key];
-                      const s = exerciseState(exercise, r);
-                      const outcomes = Object.values(r?.first ?? {}).filter(
-                        (o) => o.result !== "unscored",
-                      );
-                      return (
-                        <li key={exercise.key}>
-                          <button
-                            type="button"
-                            onClick={() => go(i)}
-                            className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-accent"
-                          >
-                            <StepDot state={s} label={i + 1} />
-                            <span className="flex-1">{locale?.exercises[exercise.key]?.title}</span>
-                            <span className="text-sm text-muted-foreground">
-                              {!s
-                                ? t("lesson.notDone")
-                                : outcomes.length
-                                  ? `${outcomes.filter((o) => o.result === "correct").length}/${outcomes.length}`
-                                  : r && !Object.keys(r.last).length
-                                    ? t("lesson.skipped")
-                                    : ""}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-                <div>
-                  <h2 className="text-2xl font-bold">{t("lesson.newWords")}</h2>
-                  <p className="mb-2 text-sm text-muted-foreground">{t("lesson.newWordsHint")}</p>
-                  <VocabularyList lesson={lesson} locale={locale} url={url} />
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Link
-                    to="/course/$series/$course"
-                    params={{ series, course }}
-                    className="inline-flex min-h-11 items-center rounded-xl border px-4 font-medium hover:bg-accent"
-                  >
-                    {t("lesson.backToCourse")}
-                  </Link>
-                  {nextLesson && (
-                    <Link
-                      to="/lesson/$series/$course/$lesson"
-                      params={{ series, course, lesson: parseLessonKey(nextLesson).name }}
-                      className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground hover:bg-primary/90"
-                    >
-                      {t("lesson.nextLesson")} →
-                    </Link>
-                  )}
-                </div>
-              </section>
+              <LessonSummary
+                series={series}
+                course={course}
+                lesson={lesson}
+                locale={locale}
+                url={url}
+                results={run.results}
+                result={result}
+                mode={run.mode}
+                nextLesson={nextLesson}
+                extra={slots.summary?.({ ...context, hasMistakes })}
+                go={go}
+                redo={() => void begin(true)}
+              />
             )}
           </div>
         </div>
@@ -532,6 +286,6 @@ export function LessonPlayer({
           </SheetContent>
         </Sheet>
       </div>
-    </TargetLang>
+    </TargetLang>,
   );
 }
