@@ -1,7 +1,7 @@
 // Lesson player (09): overview → exercises one by one → summary; plan and reference at hand.
 
+import { type ExerciseState, exerciseState, lessonCoverage } from "@sprachanker/engine";
 import {
-  type Exercise,
   type Lesson,
   type LessonResult,
   type LocaleLesson,
@@ -15,7 +15,6 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
-import { isScored } from "@/exercises/index.tsx";
 import { ExplainMistake } from "@/llm/explain.tsx";
 import { SessionReview } from "@/llm/review.tsx";
 import { SceneCard } from "@/llm/scene.tsx";
@@ -36,25 +35,7 @@ import { EpisodeVideo } from "./video.tsx";
 
 type Step = "overview" | number | "summary";
 
-/** An exercise's state in the run: not reached, passed without score, all right, or with mistakes. */
-const status = (exercise: Exercise, r: ExerciseResult | undefined) => {
-  if (!r) return undefined;
-  const outcomes = Object.values(r.first);
-  if (!outcomes.length) return r.skipped.length ? ("done" as const) : undefined;
-  if (!isScored(exercise.type) || outcomes.every((o) => o.result === "unscored"))
-    return "done" as const;
-  return outcomes.every((o) => o.result === "correct") && !r.skipped.length
-    ? ("correct" as const)
-    : ("wrong" as const);
-};
-
-function StepDot({
-  state,
-  label,
-}: {
-  state?: "correct" | "wrong" | "done" | "current";
-  label: React.ReactNode;
-}) {
+function StepDot({ state, label }: { state?: ExerciseState | "current"; label: React.ReactNode }) {
   return (
     <span
       className={cn(
@@ -114,7 +95,7 @@ function Plan({
         row(
           i,
           <StepDot
-            state={status(exercise, results[exercise.key]) ?? (step === i ? "current" : undefined)}
+            state={exerciseState(results[exercise.key]) ?? (step === i ? "current" : undefined)}
             label={i + 1}
           />,
           locale?.exercises[exercise.key]?.title ?? exercise.key,
@@ -174,11 +155,16 @@ export function LessonPlayer({
     if (active && pages !== undefined && page >= 0 && page < pages) setStep(page);
   }, [active, run.resumePage, pages]);
 
-  // Reaching the summary completes an active run (05, "Lifecycle").
+  // Reaching the summary with every exercise worked completes an active run (05, "Lifecycle").
   const { finish } = run;
+  const lessonData = data.data?.lesson;
+  const complete = !!lessonData && lessonCoverage(lessonData, run.results).complete;
   useEffect(() => {
-    if (step === "summary" && active) void finish().then(setFinished);
-  }, [step, active, finish]);
+    if (step === "summary" && active && complete)
+      finish()
+        .then(setFinished)
+        .catch(() => undefined);
+  }, [step, active, complete, finish]);
 
   if (data.isPending || !edition || run.mode === "loading")
     return run.error ? <ErrorState error={run.error} /> : <Loading />;
@@ -212,9 +198,8 @@ export function LessonPlayer({
 
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
-  const done = lesson.pages.filter(({ exercise }) =>
-    status(exercise, run.results[exercise.key]),
-  ).length;
+  const coverage = lessonCoverage(lesson, run.results);
+  const done = coverage.worked;
   const numbers = parseLessonKey(lesson.key);
   const unitTitle = map.data?.locale?.units[lesson.unit]?.title;
   const firstTab = referenceTabs(lesson, locale)[0];
@@ -372,9 +357,7 @@ export function LessonPlayer({
                 index={step}
                 total={total}
                 url={url}
-                onAnswered={(answers, skipped, ms) =>
-                  run.answer(lesson.pages[step]?.exercise.key ?? "", answers, skipped, ms)
-                }
+                onAnswered={run.answer}
                 onBack={() => go(step > 0 ? step - 1 : "overview")}
                 onNext={() => go(step + 1 < total ? step + 1 : "summary")}
                 explain={(index, answer) => (
@@ -414,6 +397,17 @@ export function LessonPlayer({
                     )}
                   </div>
                 )}
+                {active && !coverage.complete && coverage.firstLeft !== undefined && (
+                  <div className="space-y-3 rounded-2xl bg-accent px-5 py-4">
+                    <p>{t("lesson.left", { count: total - coverage.worked })}</p>
+                    <Button
+                      size="lg"
+                      onClick={() => coverage.firstLeft !== undefined && go(coverage.firstLeft)}
+                    >
+                      {t("lesson.toExercise", { n: coverage.firstLeft + 1 })}
+                    </Button>
+                  </div>
+                )}
                 {run.mode === "finished" && (
                   <Button size="lg" onClick={() => void begin(true)}>
                     {t("lesson.redo")}
@@ -431,8 +425,10 @@ export function LessonPlayer({
                   <ul className="divide-y rounded-2xl border bg-card">
                     {lesson.pages.map(({ exercise }, i) => {
                       const r = run.results[exercise.key];
-                      const s = status(exercise, r);
-                      const outcomes = Object.values(r?.first ?? {});
+                      const s = exerciseState(r);
+                      const outcomes = Object.values(r?.first ?? {}).filter(
+                        (o) => o.result !== "unscored",
+                      );
                       return (
                         <li key={exercise.key}>
                           <button
@@ -443,12 +439,12 @@ export function LessonPlayer({
                             <StepDot state={s} label={i + 1} />
                             <span className="flex-1">{locale?.exercises[exercise.key]?.title}</span>
                             <span className="text-sm text-muted-foreground">
-                              {r && !outcomes.length && r.skipped.length
-                                ? t("lesson.skipped")
-                                : !s
-                                  ? t("lesson.notDone")
-                                  : outcomes.length && isScored(exercise.type)
-                                    ? `${outcomes.filter((o) => o.result === "correct").length}/${outcomes.length}`
+                              {!s
+                                ? t("lesson.notDone")
+                                : outcomes.length
+                                  ? `${outcomes.filter((o) => o.result === "correct").length}/${outcomes.length}`
+                                  : r && !Object.keys(r.last).length
+                                    ? t("lesson.skipped")
                                     : ""}
                             </span>
                           </button>

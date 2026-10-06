@@ -35,7 +35,8 @@
       "in_progress": "In progress",
       "done": "Done · {score, number, percent}",
       "next": "Up next",
-      "finished": "Done"
+      "finished": "Done",
+      "best": "best {score, number, percent}"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",
@@ -101,7 +102,9 @@
     "itemAudio": "Audio for item {n}",
     "redo": "Start over",
     "done": "Done",
-    "doneScore": "Done · {score}% right"
+    "doneScore": "Done · {score}% right",
+    "left": "{count, plural, one {# exercise is} other {# exercises are}} left. The lesson counts as done once every exercise is answered or skipped.",
+    "toExercise": "Go to exercise {n}"
   },
   "ref": {
     "vocabulary": "Vocabulary",

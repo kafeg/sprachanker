@@ -94,3 +94,24 @@ test("answers and skips are kept: reopening shows them", async ({ page, request 
   await expect(page.getByRole("status").first()).toContainText("Correct");
   await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
 });
+
+test("the summary before the end lists what is left and does not complete the lesson", async ({
+  page,
+  request,
+}) => {
+  await freshLessonRun(request);
+  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
+  await page.getByRole("button", { name: "Start lesson" }).click();
+  await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  const plan = page.getByRole("button", { name: "Lesson plan" });
+  if (await plan.isVisible()) await plan.click();
+  await page.getByRole("button", { name: "Summary", exact: true }).click();
+  await expect(page.getByText(/7 exercises are left/)).toBeVisible();
+  await expect(page.getByText(/Correct on the first try/)).toBeHidden();
+  await page.getByRole("button", { name: "Go to exercise 2" }).click();
+  await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
+  // Still the same run: after a reload the lesson resumes instead of showing a finished run.
+  await page.reload();
+  await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
+});

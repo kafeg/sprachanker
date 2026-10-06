@@ -1,5 +1,6 @@
 // Course map (09): the course head (course-info) over a timeline of units, each with its lesson cards
 // and their status.
+import { lessonDone } from "@sprachanker/engine";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
@@ -55,6 +56,11 @@ function LessonCard({
         ) : status === "in_progress" ? (
           <span className="flex items-center gap-1 font-medium">
             <CircleDot className="size-3.5 text-primary" /> {t("course.status.in_progress")}
+            {progress?.bestScore !== undefined && (
+              <span className="font-normal text-muted-foreground">
+                · {t("course.status.best", { score: progress.bestScore })}
+              </span>
+            )}
           </span>
         ) : isNext ? (
           <span className="font-medium">{t("course.status.next")}</span>
@@ -76,7 +82,6 @@ export function CoursePage({ series, course }: { series: string; course: string 
   if (map.isError) return <ErrorState error={map.error} onRetry={() => map.refetch()} />;
   const { index, locale, titles, progress } = map.data;
   const all = index.units.flatMap((u) => u.lessons);
-  const done = all.filter((key) => progress[key]?.status === "done").length;
   const next = info?.next;
   return (
     <Page>
@@ -87,7 +92,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
         edition={edition ?? ""}
         descriptionHtml={locale?.descriptionHtml}
         source={index.source ?? null}
-        done={done}
+        done={info?.done ?? 0}
         lessons={all.length}
         next={
           next
@@ -98,7 +103,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
       <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
         {index.units.map((unit) => {
           const number = Number(unit.key.slice(-2));
-          const finished = unit.lessons.filter((key) => progress[key]?.status === "done").length;
+          const finished = unit.lessons.filter((key) => lessonDone(progress[key])).length;
           const complete = finished === unit.lessons.length;
           const current = unit.lessons.some((key) => key === next);
           return (

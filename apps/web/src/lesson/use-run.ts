@@ -1,21 +1,17 @@
 // A lesson run on the server (05, "Lifecycle"). Opening a lesson starts nothing: it shows the active run
 // (resume) or the latest finished one (read-only) or nothing. Starting, answering, skipping and finishing
 // are recorded as events (sent in order, retried until stored), so a reload or another device sees the
-// same state. Outcomes are computed locally for instant feedback with the same engine the server uses;
-// the server stores its own (04).
+// same state. The run's state is the engine's reading of its events — the stored ones plus those just
+// recorded here — the same reading the server uses for progress. Outcomes are computed locally for
+// instant feedback with the same engine the server uses; the server stores its own (04).
+import { type ExerciseResult, exerciseResults } from "@sprachanker/engine";
 import type { LessonKey, LessonResult, Outcome, Run, StoredEvent } from "@sprachanker/schema";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ulid } from "ulid";
 import { api, json } from "@/api/client.ts";
 
-export interface ExerciseResult {
-  /** First-attempt outcomes by item key (they count for the score). */
-  first: Record<string, Outcome>;
-  /** The latest answer of each item, with its outcome: what the exercise shows when reopened. */
-  last: Record<string, { answer: unknown; outcome?: Outcome }>;
-  /** Items the learner moved on from without an answer. */
-  skipped: string[];
-}
+export type { ExerciseResult } from "@sprachanker/engine";
 
 /** `none`: never started · `active`: in progress · `finished`: the latest run is done (read-only). */
 export type RunMode = "loading" | "none" | "active" | "finished";
@@ -27,29 +23,6 @@ type Pending = {
   payload: unknown;
 };
 
-const exerciseOf = (itemKey: string) => itemKey.split("#")[0] as string;
-
-function resultsFrom(events: StoredEvent[]) {
-  const results: Record<string, ExerciseResult> = {};
-  const attempts: Record<string, number> = {};
-  for (const e of events) {
-    if ((e.type !== "answered" && e.type !== "item_skipped") || !e.itemKey) continue;
-    const key = exerciseOf(e.itemKey);
-    results[key] ??= { first: {}, last: {}, skipped: [] };
-    const r = results[key];
-    if (e.type === "item_skipped") {
-      if (!r.skipped.includes(e.itemKey)) r.skipped.push(e.itemKey);
-      continue;
-    }
-    const payload = e.payload as { outcome?: Outcome; answer?: unknown };
-    attempts[e.itemKey] = (attempts[e.itemKey] ?? 0) + 1;
-    if (payload.outcome && !(e.itemKey in r.first)) r.first[e.itemKey] = payload.outcome;
-    r.last[e.itemKey] = { answer: payload.answer, outcome: payload.outcome };
-    r.skipped = r.skipped.filter((k) => k !== e.itemKey);
-  }
-  return { results, attempts };
-}
-
 interface Loaded {
   run: Run;
   events: StoredEvent[];
@@ -57,20 +30,19 @@ interface Loaded {
 }
 
 export function useRun(series: string, lessonKey: string, edition: string | undefined) {
+  const client = useQueryClient();
   const [mode, setMode] = useState<RunMode>("loading");
   const [run, setRun] = useState<Run>();
   const [resumePage, setResumePage] = useState(-1);
-  const [results, setResults] = useState<Record<string, ExerciseResult>>({});
+  const [events, setEvents] = useState<StoredEvent[]>([]);
   const [error, setError] = useState<unknown>();
-  const attempts = useRef<Record<string, number>>({});
   const queue = useRef<Pending[]>([]);
   const sending = useRef(false);
   const runId = run?.status === "active" ? run.id : undefined;
+  const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
 
   const load = useCallback((state: Loaded | null) => {
-    const derived = resultsFrom(state?.events ?? []);
-    attempts.current = derived.attempts;
-    setResults(derived.results);
+    setEvents(state?.events ?? []);
     setRun(state?.run);
     setResumePage(state?.events.length ? state.resumePage : -1);
     setMode(!state ? "none" : state.run.status === "active" ? "active" : "finished");
@@ -108,26 +80,46 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     void flush();
   }, [flush]);
 
-  const send = useCallback(
-    (events: Pending[]) => {
-      queue.current.push(...events);
+  /** Queues events for the server and applies them here at once, answers with their local outcome. */
+  const record = useCallback(
+    (pending: Pending[], outcomes: Record<string, Outcome> = {}) => {
+      queue.current.push(...pending);
       void flush();
+      const ts = Date.now();
+      setEvents((prev) => [
+        ...prev,
+        ...pending.map((e) => {
+          const outcome = outcomes[e.id];
+          const payload = outcome ? { ...(e.payload as object), outcome } : e.payload;
+          return {
+            ...e,
+            payload,
+            runId: runId ?? "",
+            ts,
+            itemKey: e.itemKey ?? null,
+          } as StoredEvent;
+        }),
+      ]);
     },
-    [flush],
+    [flush, runId],
   );
 
-  /** Completes the active run (at the summary) and returns its result. */
+  /** The course map and course list read progress from the server: refresh them after a change. */
+  const refreshProgress = useCallback(() => {
+    void client.invalidateQueries({ queryKey: ["courses"] });
+    void client.invalidateQueries({ queryKey: ["course"] });
+  }, [client]);
+
+  /** Completes the active run (every exercise worked) and returns its result. */
   const finish = useCallback(async (): Promise<LessonResult | null> => {
     await flush();
     if (!runId) return null;
     const finished = (await json(api.runs[":id"].finish.$post({ param: { id: runId } }))) as Run;
     setRun(finished);
     setMode("finished");
+    refreshProgress();
     return finished.result;
-  }, [flush, runId]);
-
-  const skippedEvents = (itemKeys: string[]): Pending[] =>
-    itemKeys.map((itemKey) => ({ id: ulid(), type: "item_skipped", itemKey, payload: {} }));
+  }, [flush, runId, refreshProgress]);
 
   return {
     mode,
@@ -144,36 +136,39 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
         }),
       );
       load(started as Loaded);
+      if (restart) refreshProgress();
     },
     pageShown: (pageIndex: number) =>
-      send([{ id: ulid(), type: "page_shown", payload: { pageIndex } }]),
+      record([{ id: ulid(), type: "page_shown", payload: { pageIndex } }]),
     /** Records an exercise: given answers (with local outcomes) and the items left without one. */
     answer(
-      exerciseKey: string,
       answers: Array<{ itemKey: string; answer: unknown; outcome: Outcome }>,
       skipped: string[],
       ms: number,
     ) {
-      const events: Pending[] = answers.map(({ itemKey, answer }) => {
-        const attempt = (attempts.current[itemKey] ?? 0) + 1;
-        attempts.current[itemKey] = attempt;
-        return { id: ulid(), type: "answered", itemKey, payload: { answer, attempt, ms } };
-      });
-      setResults((prev) => {
-        const old = prev[exerciseKey];
-        const r: ExerciseResult = {
-          first: { ...old?.first },
-          last: { ...old?.last },
-          skipped: (old?.skipped ?? []).filter((k) => !answers.some((a) => a.itemKey === k)),
-        };
-        for (const a of answers) {
-          if (!(a.itemKey in r.first)) r.first[a.itemKey] = a.outcome;
-          r.last[a.itemKey] = { answer: a.answer, outcome: a.outcome };
-        }
-        for (const k of skipped) if (!r.skipped.includes(k)) r.skipped.push(k);
-        return { ...prev, [exerciseKey]: r };
-      });
-      send([...events, ...skippedEvents(skipped)]);
+      const attempts = (itemKey: string) =>
+        events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
+      const given = answers.map(({ itemKey, answer, outcome }) => ({
+        event: {
+          id: ulid(),
+          type: "answered" as const,
+          itemKey,
+          payload: { answer, attempt: attempts(itemKey) + 1, ms },
+        },
+        outcome,
+      }));
+      record(
+        [
+          ...given.map((g) => g.event),
+          ...skipped.map((itemKey) => ({
+            id: ulid(),
+            type: "item_skipped" as const,
+            itemKey,
+            payload: {},
+          })),
+        ],
+        Object.fromEntries(given.map((g) => [g.event.id, g.outcome])),
+      );
     },
     finish,
   };

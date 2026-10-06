@@ -1,6 +1,6 @@
 // The tutor's tools on the server side (07, "Tools"): the learner's progress, mistakes, the course's
 // words and lessons, looked up when the model asks. Lessons are "unit.lesson" as the app shows them.
-import type { LessonProgress } from "@sprachanker/engine";
+import { type LessonProgress, lessonDone } from "@sprachanker/engine";
 import { grammarNotes, lessonWords, mistakeLine } from "@sprachanker/llm";
 import { type LessonKey, parseLessonKey } from "@sprachanker/schema";
 import type { Content } from "./content.ts";
@@ -55,7 +55,7 @@ export function createTutorTools(deps: {
           const keys = await order();
           const done = await Promise.all(
             keys
-              .filter((k) => progress[k]?.status === "done")
+              .filter((k) => lessonDone(progress[k]))
               .map(async (k) => ({
                 lesson: await title(k),
                 bestScore:

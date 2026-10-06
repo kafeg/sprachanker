@@ -1,6 +1,15 @@
 // Lesson runs: start or resume, append events (outcomes computed here, never trusted from the client),
 // finish with the lesson score (04, 05).
-import { checkItem, lessonProgress, lessonResult, resumePage } from "@sprachanker/engine";
+import {
+  checkItem,
+  exerciseResults,
+  type LessonProgress,
+  lessonCoverage,
+  lessonDone,
+  lessonProgress,
+  lessonResult,
+  resumePage,
+} from "@sprachanker/engine";
 import {
   EventInput,
   findExercise,
@@ -14,7 +23,7 @@ import {
   type Run,
   type StoredEvent,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, max } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
@@ -60,6 +69,20 @@ export interface RunsOptions {
   appVersion: string;
 }
 
+/** Lessons done in a course and the lesson to go on with: the one worked on most recently, else the
+ *  first not done yet. */
+export function courseProgress(lessons: string[], progress: Record<string, LessonProgress>) {
+  const active = lessons
+    .filter((k) => progress[k]?.activeAt !== undefined)
+    .sort((a, b) => (progress[b]?.activeAt ?? 0) - (progress[a]?.activeAt ?? 0))[0];
+  const next = active ?? lessons.find((k) => !lessonDone(progress[k])) ?? lessons[0];
+  return {
+    done: lessons.filter((k) => lessonDone(progress[k])).length,
+    next: next ?? null,
+    nextStarted: !!active,
+  };
+}
+
 export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   const runEvents = (runId: string) =>
     db
@@ -80,20 +103,17 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
     /** Lesson progress of every lesson with runs. An active run counts as "in progress" only once
      *  something was answered or skipped in it (opening a lesson, or starting it over, is not progress). */
     progress() {
-      const worked = new Set(
+      const activity = new Map(
         db
-          .selectDistinct({ runId: events.runId })
+          .select({ runId: events.runId, at: max(events.ts) })
           .from(events)
           .where(inArray(events.type, ["answered", "item_skipped"]))
+          .groupBy(events.runId)
           .all()
-          .map((e) => e.runId),
+          .map((e) => [e.runId, e.at ?? 0]),
       );
-      const counted = db
-        .select()
-        .from(runs)
-        .all()
-        .filter((r) => r.status !== "active" || worked.has(r.id));
-      return Object.fromEntries(lessonProgress(counted.map(toRun)));
+      const all = db.select().from(runs).where(eq(runs.kind, "lesson")).all();
+      return Object.fromEntries(lessonProgress(all.map(toRun), activity));
     },
 
     /**
@@ -221,11 +241,16 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       return outcomes;
     },
 
-    /** Ends the run at the summary; the score is the mean of first attempts. */
-    finish(runId: string): Run {
+    /** Completes the run once every exercise of the lesson was answered or skipped; the score is the
+     *  mean of first attempts. A run with exercises left is refused (409 `run_incomplete`). */
+    async finish(runId: string): Promise<Run> {
       const row = getRun(runId);
       if (row.status !== "active") return toRun(row);
-      const result = lessonResult(runEvents(runId));
+      const list = runEvents(runId);
+      const lesson = await content.lesson(seriesOf(row), row.contextKey as LessonKey);
+      if (!lessonCoverage(lesson, exerciseResults(list)).complete)
+        throw new RunError("run_incomplete", 409);
+      const result = lessonResult(list);
       return toRun(
         db
           .update(runs)

@@ -10,6 +10,25 @@ import { setup } from "./setup.ts";
 const COURSE = { series: FIXTURE_SERIES, course: "demo", edition: "ru-de" };
 const LESSON = "sprachanker.fixture/demo/00-01";
 
+type Api = Awaited<ReturnType<typeof setup>>;
+/** Skips every item of the lesson's exercises not in `worked`, so the run can be completed. */
+async function skipRest({ getJson, sendJson }: Api, runId: string, worked: string[] = []) {
+  const { lesson } = await getJson(
+    `/api/lesson?${new URLSearchParams({ series: FIXTURE_SERIES, key: LESSON, edition: "ru-de" })}`,
+  );
+  const events = lesson.pages
+    .filter((p: { exercise: { key: string } }) => !worked.includes(p.exercise.key))
+    .flatMap((p: { exercise: { items: Array<{ key: string }> } }) =>
+      p.exercise.items.map((item) => ({
+        id: ulid(),
+        type: "item_skipped",
+        itemKey: item.key,
+        payload: {},
+      })),
+    );
+  await sendJson("POST", `/api/runs/${runId}/events`, { events });
+}
+
 describe("web app", () => {
   test("health, index, hashed assets, client routes, unknown api", async () => {
     const { get, getJson } = await setup();
@@ -69,7 +88,8 @@ describe("runs", () => {
   });
 
   test("opening a lesson starts nothing; skips are stored; a finished run is shown; restart", async () => {
-    const { getJson, sendJson } = await setup();
+    const api = await setup();
+    const { getJson, sendJson, send } = api;
     const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" });
     expect((await getJson(`/api/runs/lesson?${q}`)).state).toBeNull();
     expect((await getJson("/api/courses"))[0].nextStarted).toBe(false);
@@ -85,6 +105,9 @@ describe("runs", () => {
       "item_skipped",
     ]);
 
+    // A run with exercises left is not complete.
+    expect((await send("POST", `/api/runs/${run.id}/finish`, {})).status).toBe(409);
+    await skipRest(api, run.id);
     await sendJson("POST", `/api/runs/${run.id}/finish`, {});
     const done = (await getJson(`/api/runs/lesson?${q}`)).state;
     expect([done.run.id, done.run.status]).toEqual([run.id, "finished"]);
@@ -98,7 +121,8 @@ describe("runs", () => {
   });
 
   test("start, answer (outcomes by the server, idempotent), resume, finish, progress", async () => {
-    const { send, getJson, sendJson } = await setup();
+    const api = await setup();
+    const { send, getJson, sendJson } = api;
     const started = await sendJson("POST", "/api/runs", {
       series: FIXTURE_SERIES,
       lessonKey: LESSON,
@@ -150,6 +174,7 @@ describe("runs", () => {
     expect(resumed.events).toHaveLength(5);
     expect(resumed.events[0].payload.snapshot.exercise.key).toBe(`${LESSON}/ex-01`);
 
+    await skipRest(api, runId, [`${LESSON}/ex-01`]);
     const finished = await sendJson("POST", `/api/runs/${runId}/finish`, {});
     expect(finished.status).toBe("finished");
     expect(finished.result).toEqual({ score: 0.5, scored: 2, answered: 2 });

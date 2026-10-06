@@ -16,7 +16,7 @@ import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createLlmRuns } from "./services/llm-runs.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
-import { createRuns, RunError } from "./services/runs.ts";
+import { courseProgress, createRuns, RunError } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
 import { createSync, type SyncCourse } from "./services/sync.ts";
@@ -109,19 +109,11 @@ export function createApp(config: AppConfig) {
     .get("/courses", async (c) => {
       const progress = runs.progress();
       return c.json(
-        (await content.courses()).map(({ lessons, ...course }) => {
-          const done = lessons.filter((k) => progress[k]?.status === "done").length;
-          // Continue the most recent active lesson, else the first lesson not done yet.
-          const active = lessons.find((k) => progress[k]?.status === "in_progress");
-          const next = active ?? lessons.find((k) => progress[k]?.status !== "done") ?? lessons[0];
-          return {
-            ...course,
-            lessons: lessons.length,
-            done,
-            next: next ?? null,
-            nextStarted: !!active,
-          };
-        }),
+        (await content.courses()).map(({ lessons, ...course }) => ({
+          ...course,
+          lessons: lessons.length,
+          ...courseProgress(lessons, progress),
+        })),
       );
     })
     .get(
@@ -201,7 +193,7 @@ export function createApp(config: AppConfig) {
       async (c) =>
         c.json({ outcomes: await runs.append(c.req.param("id"), c.req.valid("json").events) }),
     )
-    .post("/runs/:id/finish", (c) => c.json(runs.finish(c.req.param("id"))))
+    .post("/runs/:id/finish", async (c) => c.json(await runs.finish(c.req.param("id"))))
     .route("/llm", llmRoutes(llm, tutor, practice, scenes))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);

@@ -35,7 +35,8 @@
       "in_progress": "Begonnen",
       "done": "Erledigt · {score, number, percent}",
       "next": "Als Nächstes",
-      "finished": "Erledigt"
+      "finished": "Erledigt",
+      "best": "bestes {score, number, percent}"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",
@@ -101,7 +102,9 @@
     "itemAudio": "Audio zu Aufgabe {n}",
     "redo": "Neu beginnen",
     "done": "Erledigt",
-    "doneScore": "Erledigt · {score} % richtig"
+    "doneScore": "Erledigt · {score} % richtig",
+    "left": "{count, plural, one {# Übung ist} other {# Übungen sind}} noch offen. Die Lektion gilt als erledigt, wenn jede Übung beantwortet oder übersprungen ist.",
+    "toExercise": "Zu Übung {n}"
   },
   "ref": {
     "vocabulary": "Wortschatz",

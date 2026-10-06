@@ -35,7 +35,8 @@
       "in_progress": "В процессе",
       "done": "Пройден · {score, number, percent}",
       "next": "Следующий",
-      "finished": "Пройден"
+      "finished": "Пройден",
+      "best": "лучший {score, number, percent}"
     },
     "licence": {
       "cc-by-4.0": "CC BY 4.0",
@@ -101,7 +102,9 @@
     "itemAudio": "Аудио к заданию {n}",
     "redo": "Пройти заново",
     "done": "Пройден",
-    "doneScore": "Пройден · {score}% верно"
+    "doneScore": "Пройден · {score}% верно",
+    "left": "{count, plural, one {Осталось # упражнение} few {Осталось # упражнения} many {Осталось # упражнений} other {Осталось # упражнения}}. Урок засчитывается, когда каждое упражнение выполнено или пропущено.",
+    "toExercise": "К упражнению {n}"
   },
   "ref": {
     "vocabulary": "Словарь",
