@@ -8,6 +8,7 @@ import {
   type LessonKey,
   LessonResult,
   type Outcome,
+  parseEditionId,
   parseItemKey,
   parseLessonKey,
   type Run,
@@ -57,10 +58,9 @@ export interface RunsOptions {
   content: Content;
   now: () => number;
   appVersion: string;
-  targetLang: (series: string) => string;
 }
 
-export function createRuns({ db, content, now, appVersion, targetLang }: RunsOptions) {
+export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   const runEvents = (runId: string) =>
     db
       .select()
@@ -146,6 +146,8 @@ export function createRuns({ db, content, now, appVersion, targetLang }: RunsOpt
       const locale = row.edition
         ? await content.localeLesson(series, lesson.key, row.edition)
         : undefined;
+      // Answers are checked in the language the edition teaches (case rules differ, 04).
+      const target = row.edition ? parseEditionId(row.edition).target : "de";
       const outcomes: Record<string, Outcome> = {};
       for (const e of parsed) {
         if (known.has(e.id)) continue;
@@ -154,7 +156,7 @@ export function createRuns({ db, content, now, appVersion, targetLang }: RunsOpt
           const { exercise: exKey, n } = parseItemKey(e.itemKey as ItemKey);
           const exercise = findExercise(lesson, exKey);
           if (!exercise) throw new RunError(`item ${e.itemKey} is not in ${lesson.key}`);
-          const outcome = checkItem(exercise, n - 1, e.payload.answer, targetLang(series));
+          const outcome = checkItem(exercise, n - 1, e.payload.answer, target);
           outcomes[e.id] = outcome;
           payload = { ...e.payload, outcome };
         } else {

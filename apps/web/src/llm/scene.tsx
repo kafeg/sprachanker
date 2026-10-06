@@ -5,6 +5,7 @@ import { Circle, CircleCheck, Drama, Languages, LoaderCircle } from "lucide-reac
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type SceneState, useLlm, useScene, useSceneAction } from "./api.ts";
 import { AssistantLabel, useAssistantLabel } from "./assistant-label.tsx";
@@ -22,11 +23,12 @@ type Ids = { series: string; lessonKey: LessonKey; edition: string };
 type Turn = SceneState["turns"][number];
 
 function PartnerLine({ turn }: { turn: Turn }) {
+  const lang = useTargetLang();
   const { t } = useTranslation();
   const [shown, setShown] = useState(false);
   return (
     <div className="max-w-[92%] rounded-2xl bg-muted px-4 py-2.5">
-      <p lang="de" className="text-lg">
+      <p lang={lang} className="text-lg">
         {turn.text}
       </p>
       {turn.translation &&
@@ -46,9 +48,10 @@ function PartnerLine({ turn }: { turn: Turn }) {
 }
 
 function LearnerLine({ turn }: { turn: Turn }) {
+  const lang = useTargetLang();
   return (
     <div className="ml-auto max-w-[92%] space-y-1">
-      <p lang="de" className="rounded-2xl bg-primary px-4 py-2.5 text-lg text-primary-foreground">
+      <p lang={lang} className="rounded-2xl bg-primary px-4 py-2.5 text-lg text-primary-foreground">
         {turn.text}
       </p>
       <Corrections corrections={turn.corrections ?? []} className="text-right" />
@@ -57,6 +60,7 @@ function LearnerLine({ turn }: { turn: Turn }) {
 }
 
 function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
+  const lang = useTargetLang();
   const { t, i18n } = useTranslation();
   const action = useSceneAction(ids.lessonKey);
   const [text, setText] = useState("");
@@ -103,7 +107,7 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
         {action.isPending && "turn" in (action.variables ?? {}) && (
           <>
             <p
-              lang="de"
+              lang={lang}
               className="ml-auto max-w-[92%] rounded-2xl bg-primary/60 px-4 py-2.5 text-lg"
             >
               {text}
@@ -129,7 +133,7 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
         </div>
       ) : (
         <ChatComposer
-          lang="de"
+          lang={lang}
           value={text}
           onChange={setText}
           onSend={send}

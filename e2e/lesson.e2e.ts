@@ -55,3 +55,21 @@ test("client routes load the app", async ({ page }) => {
   await page.goto("/course/sprachanker.fixture/demo");
   await expect(page.getByRole("heading", { level: 2 }).first()).toContainText("Unit 0");
 });
+
+test("a free answer is checked and shows the model answers", async ({ page, request }) => {
+  await finishLessonRun(request, "sprachanker.fixture/demo/00-02");
+  await page.goto("/lesson/sprachanker.fixture/demo/00-02");
+  await page.getByRole("button", { name: "Start lesson" }).click();
+  const box = page.getByPlaceholder("Your answer…");
+  const skip = page.getByRole("button", { name: "Skip", exact: true });
+  const next = page.getByRole("button", { name: "Next", exact: true });
+  for (let i = 0; i < 8; i++) {
+    await box.or(skip).or(next).first().waitFor();
+    if (await box.isVisible()) break;
+    await ((await skip.isVisible()) ? skip : next).click();
+  }
+  await box.fill("Einen Kaffee, bitte.");
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(page.getByText("Model answers")).toBeVisible();
+  await expect(page.getByText("Ich hätte gern einen Tee.")).toBeVisible();
+});

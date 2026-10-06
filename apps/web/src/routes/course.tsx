@@ -49,7 +49,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
                     >
                       <div>
                         <div className="text-sm text-muted-foreground">{lesson}</div>
-                        <div lang="de" className="font-heading text-lg font-semibold leading-tight">
+                        <div className="font-heading text-lg font-semibold leading-tight">
                           {titles[key] ?? key}
                         </div>
                       </div>

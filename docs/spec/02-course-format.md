@@ -137,7 +137,7 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
 | `speech_selfrate` | `text?`, `media.audio?` (source form; upgraded, 04) | `{rating}` | not scored |
-| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric (LLM verdict: Later, 07) |
+| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` | `{text, speech?}` | rubric (LLM verdict: Later, 07); without a rubric unscored, the model answers shown |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 

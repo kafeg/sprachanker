@@ -1,6 +1,7 @@
 import type { Option } from "@sprachanker/schema";
 import { Check, X } from "lucide-react";
 import { useMemo } from "react";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 
 /** Stable shuffled order for one item (display order is not the canonical order, 02). */
@@ -23,9 +24,10 @@ export function useShuffled<T>(items: T[], seed: string): T[] {
 export type Mark = "correct" | "wrong" | undefined;
 
 export function OptionContent({ option, url }: { option: Option; url(path: string): string }) {
+  const lang = useTargetLang();
   if (option.media?.image)
     return <img src={url(option.media.image)} alt="" className="h-28 w-auto rounded-lg sm:h-32" />;
-  return <span lang="de">{option.text}</span>;
+  return <span lang={lang}>{option.text}</span>;
 }
 
 export function OptionButton({

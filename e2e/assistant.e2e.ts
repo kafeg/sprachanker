@@ -28,7 +28,7 @@ test("explain a mistake, ask the tutor, check a text", async ({ page }) => {
   await expect(page.getByRole("dialog").getByText(FAKE_TEXT).last()).toBeVisible();
   await page.keyboard.press("Escape");
 
-  const writing = page.getByPlaceholder("Your text in German…");
+  const writing = page.getByPlaceholder("Your text…");
   const skip = page.getByRole("button", { name: "Skip", exact: true });
   const next = page.getByRole("button", { name: /^(Next|To the summary)$/ });
   for (let i = 0; i < 12; i++) {

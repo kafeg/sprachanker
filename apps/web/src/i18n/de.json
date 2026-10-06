@@ -87,7 +87,9 @@
     },
     "unknown": "Dieser Übungstyp wird noch nicht unterstützt.",
     "picture": "Bild {n}",
-    "correctHighlighted": "die richtige Antwort ist markiert"
+    "correctHighlighted": "die richtige Antwort ist markiert",
+    "respondPlaceholder": "Deine Antwort…",
+    "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}"
   },
   "word": {
     "plural": "Pl. {plural}"
@@ -247,8 +249,8 @@
   },
   "writing": {
     "title": "Schreib selbst",
-    "task": "Schreib 3–5 Sätze auf Deutsch zum Thema der Lektion: {topic}. Benutze die neuen Wörter.",
-    "placeholder": "Dein Text auf Deutsch…",
+    "task": "Schreib 3–5 Sätze auf {language} zum Thema der Lektion: {topic}. Benutze die neuen Wörter.",
+    "placeholder": "Dein Text…",
     "check": "Prüfen",
     "checking": "Wird geprüft…",
     "lastAttempt": "Dein letzter Versuch:",
@@ -277,14 +279,14 @@
   },
   "scene": {
     "title": "Szene",
-    "intro": "Übe die Lektion in einem kurzen Rollenspiel: dein Gegenüber spricht Deutsch, korrigiert dich und hakt deine Ziele ab.",
+    "intro": "Übe die Lektion in einer kurzen Szene: Dein Gegenüber spricht die Kurssprache, korrigiert dich und hakt deine Ziele ab.",
     "start": "Szene starten",
     "preparing": "Wird vorbereitet…",
     "continue": "Weiter: {title}",
     "showLast": "Letzte Szene zeigen",
     "partner": "Dein Gegenüber: {partner}",
     "translate": "Übersetzung",
-    "placeholder": "Dein Satz auf Deutsch…",
+    "placeholder": "Deine Antwort…",
     "done": "Alle Ziele erreicht – super!",
     "new": "Neue Szene"
   },

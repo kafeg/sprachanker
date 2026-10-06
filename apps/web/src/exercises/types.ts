@@ -8,6 +8,7 @@ import type {
   MultiChoiceAnswer,
   OrderAnswer,
   Outcome,
+  RespondAnswer,
   SingleChoiceAnswer,
   SpeechSelfrateAnswer,
 } from "@sprachanker/schema";
@@ -24,6 +25,7 @@ export interface Answers {
   gap_text: GapTextAnswer;
   dictation: DictationAnswer;
   speech_selfrate: SpeechSelfrateAnswer;
+  respond: RespondAnswer;
 }
 
 export interface RendererProps<T extends keyof Answers> {

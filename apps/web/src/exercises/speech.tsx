@@ -1,14 +1,16 @@
 import { useTranslation } from "react-i18next";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { RendererProps } from "./types.ts";
 
 export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictation">) {
+  const lang = useTargetLang();
   const { t } = useTranslation();
   return (
     <div className="space-y-3">
       <textarea
         rows={2}
-        lang="de"
+        lang={lang}
         value={answer?.text ?? ""}
         disabled={!!outcome}
         placeholder={t("ex.dictationPlaceholder")}
@@ -18,7 +20,7 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
         className="w-full rounded-xl border-2 border-input bg-card p-3 text-xl"
       />
       {outcome?.diff && (
-        <p lang="de" className="text-xl leading-relaxed">
+        <p lang={lang} className="text-xl leading-relaxed">
           {outcome.diff.map((d, i) => (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: a diff is static
@@ -41,12 +43,13 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
 }
 
 export function SpeechSelfrate({ item, answer, onAnswer }: RendererProps<"speech_selfrate">) {
+  const lang = useTargetLang();
   const { t } = useTranslation();
   const ratings = ["good", "fair", "poor"] as const;
   return (
     <div className="space-y-3">
       {item.text ? (
-        <p lang="de" className="font-heading text-2xl font-semibold">
+        <p lang={lang} className="font-heading text-2xl font-semibold">
           {item.text}
         </p>
       ) : (

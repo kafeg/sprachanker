@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
 import { modelName, useAssistantLabel } from "./assistant-label.tsx";
@@ -25,9 +26,10 @@ const VERDICT_TONE: Record<Check["verdict"], string> = {
 
 /** The corrected text with the learner's words that changed struck through. */
 function CorrectedText({ text, corrected }: { text: string; corrected: string }) {
-  const { diff } = wordDiff("de", corrected, text);
+  const lang = useTargetLang();
+  const { diff } = wordDiff(lang ?? "de", corrected, text);
   return (
-    <p lang="de" className="text-lg leading-relaxed">
+    <p lang={lang} className="text-lg leading-relaxed">
       {diff.map((d, i) => {
         const key = `${i}-${d.op}`;
         if (d.op === "equal") return <span key={key}>{d.expected} </span>;
@@ -94,6 +96,7 @@ export function WritingTask({
   lessonKey: LessonKey;
   edition: string;
 }) {
+  const lang = useTargetLang();
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const label = useAssistantLabel();
@@ -107,18 +110,23 @@ export function WritingTask({
 
   return (
     <PracticeCard icon={PenLine} title={t("writing.title")} label={label}>
-      <p>{t("writing.task", { topic: topic.join("; ") })}</p>
+      <p>
+        {t("writing.task", {
+          topic: topic.join("; "),
+          language: lang && new Intl.DisplayNames([i18n.language], { type: "language" }).of(lang),
+        })}
+      </p>
       {words.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {words.slice(0, 14).map((w) => (
-            <Badge key={w} variant="secondary" lang="de">
+            <Badge key={w} variant="secondary" lang={lang}>
               {w.split(",")[0]}
             </Badge>
           ))}
         </div>
       )}
       <Textarea
-        lang="de"
+        lang={lang}
         className="min-h-28 text-base"
         placeholder={t("writing.placeholder")}
         value={text}
@@ -142,7 +150,7 @@ export function WritingTask({
             <p className="text-sm text-muted-foreground">{t("writing.lastAttempt")}</p>
           )}
           {!check.data && (
-            <p lang="de" className="italic">
+            <p lang={lang} className="italic">
               {latest.text}
             </p>
           )}
@@ -160,7 +168,7 @@ export function WritingTask({
                 <span className="text-muted-foreground">
                   {t(`writing.verdict.${a.result.verdict}`)}:{" "}
                 </span>
-                <span lang="de">{a.text}</span>
+                <span lang={lang}>{a.text}</span>
               </li>
             ))}
           </ul>

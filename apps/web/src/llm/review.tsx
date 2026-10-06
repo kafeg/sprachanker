@@ -4,6 +4,7 @@ import type { LessonKey } from "@sprachanker/schema";
 import { CircleCheck, ClipboardList, LoaderCircle, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { useCreateReview, useLlm, useReview } from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
 import { ErrorLine, PracticeCard } from "./parts.tsx";
@@ -18,6 +19,7 @@ export function SessionReview({
   lessonKey: LessonKey;
   edition: string;
 }) {
+  const lang = useTargetLang();
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const label = useAssistantLabel();
@@ -74,7 +76,7 @@ export function SessionReview({
                   <p className="font-medium">{topic.topic}</p>
                   <p className="text-sm">{topic.explanation}</p>
                   {topic.examples.length > 0 && (
-                    <ul className="mt-1 list-disc pl-5 text-sm" lang="de">
+                    <ul className="mt-1 list-disc pl-5 text-sm" lang={lang}>
                       {topic.examples.map((e) => (
                         <li key={e}>{e}</li>
                       ))}

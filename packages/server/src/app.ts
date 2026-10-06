@@ -63,7 +63,6 @@ export function createApp(config: AppConfig) {
     content,
     now,
     appVersion: config.appVersion,
-    targetLang: () => "de",
   });
   const mistakes = createMistakes(config.profile);
   const lessons = createLessonContext(content);

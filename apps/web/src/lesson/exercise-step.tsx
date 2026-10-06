@@ -8,6 +8,7 @@ import { correctAnswer, ExerciseItem, isScored } from "@/exercises/index.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 
 function Feedback({ outcome, answer }: { outcome: Outcome; answer?: string }) {
@@ -65,6 +66,7 @@ export function ExerciseStep({
   onNext,
   explain,
 }: StepProps) {
+  const lang = useTargetLang();
   const { t } = useTranslation();
   const [answers, setAnswers] = useState<Record<number, unknown>>({});
   const [outcomes, setOutcomes] = useState<Record<number, Outcome>>();
@@ -85,7 +87,7 @@ export function ExerciseStep({
       return {
         itemKey: item.key,
         answer,
-        outcome: answer === undefined ? unanswered : checkItem(exercise, i, answer, "de"),
+        outcome: answer === undefined ? unanswered : checkItem(exercise, i, answer, lang ?? "de"),
       };
     });
     setOutcomes(Object.fromEntries(results.map((r, i) => [i, r.outcome])));
@@ -102,7 +104,7 @@ export function ExerciseStep({
               {
                 itemKey: item.key,
                 answer: answers[i],
-                outcome: checkItem(exercise, i, answers[i], "de"),
+                outcome: checkItem(exercise, i, answers[i], lang ?? "de"),
               },
             ]
           : [],
@@ -152,7 +154,7 @@ export function ExerciseStep({
         audioLabel={t("lesson.exerciseOf", { n: index + 1, total })}
       />
       {exercise.text && (
-        <p lang="de" className="text-lg">
+        <p lang={lang} className="text-lg">
           {exercise.text}
         </p>
       )}
@@ -175,7 +177,7 @@ export function ExerciseStep({
               )}
               <div className="mb-3">
                 {item.prompt && (
-                  <p lang="de" className="text-lg font-semibold">
+                  <p lang={lang} className="text-lg font-semibold">
                     {item.prompt}
                   </p>
                 )}

@@ -5,6 +5,7 @@ import { MultiChoice, SingleChoice } from "./choice.tsx";
 import { GapChoice, GapText } from "./gaps.tsx";
 import { Match } from "./match.tsx";
 import { joinParts, Order } from "./order.tsx";
+import { Respond } from "./respond.tsx";
 import { Dictation, SpeechSelfrate } from "./speech.tsx";
 import type { Answers, ItemOf, RendererProps } from "./types.ts";
 
@@ -21,6 +22,7 @@ const RENDERERS: Partial<Record<Exercise["type"], (props: RendererProps<any>) =>
     gap_text: GapText,
     dictation: Dictation,
     speech_selfrate: SpeechSelfrate,
+    respond: Respond,
   };
 
 export function ExerciseItem({
@@ -36,7 +38,8 @@ export function ExerciseItem({
   );
 }
 
-/** Whether checking makes sense for this type (selfrate and unsupported types are not scored). */
+/** Whether the exercise is checked (selfrate and unsupported types are not; respond is checked to show
+ *  its model answer, though without a rubric it is not scored). */
 export const isScored = (type: Exercise["type"]) => type in RENDERERS && type !== "speech_selfrate";
 
 /** The correct answer as text, for the feedback line. */

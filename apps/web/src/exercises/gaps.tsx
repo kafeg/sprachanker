@@ -1,5 +1,6 @@
 import type { Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useShuffled } from "./shared.tsx";
 import type { ItemOf, RendererProps } from "./types.ts";
@@ -7,8 +8,9 @@ import type { ItemOf, RendererProps } from "./types.ts";
 type Segments = ItemOf<"gap_text">["segments"];
 
 function Text({ segments, gap }: { segments: Segments; gap(id: string): React.ReactNode }) {
+  const lang = useTargetLang();
   return (
-    <p lang="de" className="whitespace-pre-wrap text-xl leading-[2.6]">
+    <p lang={lang} className="whitespace-pre-wrap text-xl leading-[2.6]">
       {segments.map((s, i) =>
         typeof s === "string" ? (
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
@@ -27,6 +29,7 @@ const fieldMark = (outcome: Outcome | undefined, ok: boolean) =>
   outcome ? (ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft") : "border-input";
 
 export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"gap_choice">) {
+  const lang = useTargetLang();
   const values = answer ?? {};
   const set = (gap: string, id: string) => onAnswer({ ...values, [gap]: id });
   const textOf = (gap: string, id?: string) =>
@@ -52,7 +55,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
                 used.has(o.id) && "opacity-30",
               )}
             >
-              <span lang="de">{o.text}</span>
+              <span lang={lang}>{o.text}</span>
             </button>
           ))}
         </div>

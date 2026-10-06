@@ -87,7 +87,9 @@
     },
     "unknown": "This exercise type is not supported yet.",
     "picture": "picture {n}",
-    "correctHighlighted": "see the highlighted answer"
+    "correctHighlighted": "see the highlighted answer",
+    "respondPlaceholder": "Your answer…",
+    "reference": "{count, plural, one {Model answer} other {Model answers}}"
   },
   "word": {
     "plural": "pl. {plural}"
@@ -247,8 +249,8 @@
   },
   "writing": {
     "title": "Write it yourself",
-    "task": "Write 3–5 sentences in German on the lesson's topic: {topic}. Use the new words.",
-    "placeholder": "Your text in German…",
+    "task": "Write 3–5 sentences in {language} on the lesson's topic: {topic}. Use the new words.",
+    "placeholder": "Your text…",
     "check": "Check",
     "checking": "Checking…",
     "lastAttempt": "Your last attempt:",
@@ -277,14 +279,14 @@
   },
   "scene": {
     "title": "Scene",
-    "intro": "Practise the lesson in a short role-play: the partner speaks German, corrects you and ticks off your goals.",
+    "intro": "Practise the lesson in a short role-play: the partner speaks the course language, corrects you and ticks off your goals.",
     "start": "Start a scene",
     "preparing": "Preparing…",
     "continue": "Continue: {title}",
     "showLast": "Show the last scene",
     "partner": "Your partner: {partner}",
     "translate": "Translation",
-    "placeholder": "Your line in German…",
+    "placeholder": "Your line…",
     "done": "All goals reached — well done!",
     "new": "New scene"
   },

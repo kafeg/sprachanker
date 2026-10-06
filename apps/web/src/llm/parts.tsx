@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { errorText } from "./errors.ts";
 
@@ -45,12 +46,13 @@ export function Corrections({
   corrections: Array<{ wrong: string; right: string; explanation: string }>;
   className?: string;
 }) {
+  const lang = useTargetLang();
   if (!corrections.length) return null;
   return (
     <ul className={cn("space-y-1.5 text-sm", className)}>
       {corrections.map((c) => (
         <li key={`${c.wrong}→${c.right}`}>
-          <span lang="de">
+          <span lang={lang}>
             <s className="text-wrong">{c.wrong}</s> →{" "}
             <strong className="text-correct">{c.right}</strong>
           </span>
