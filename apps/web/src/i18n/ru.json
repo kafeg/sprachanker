@@ -421,5 +421,13 @@
     "total": "Всего",
     "used": "Курсы занимают {size}",
     "free": "свободно на диске {size}"
+  },
+  "windowTitle": {
+    "course": "Курс",
+    "lesson": "Урок {unit}.{lesson}",
+    "exercise": "Упр {n}/{total}",
+    "summary": "Итог",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …"
   }
 }

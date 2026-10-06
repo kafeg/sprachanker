@@ -2,9 +2,10 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { BookOpen, Library, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useDownloadsWatch } from "@/api/hooks.ts";
+import { useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
 import { AboutLine } from "./about.tsx";
 import { cn } from "./utils.ts";
+import { useWindowBusy, useWindowPlace } from "./window-title.ts";
 
 const NAV = [
   { to: "/", key: "nav.myCourses", icon: BookOpen },
@@ -14,8 +15,17 @@ const NAV = [
 
 export function AppShell() {
   const { t } = useTranslation();
-  // Courses downloading in the background keep every screen current.
+  // Courses downloading in the background keep every screen current, and show in the window title.
   useDownloadsWatch();
+  const running = useDownloads().data?.jobs.find((j) => j.status === "running");
+  const media = running?.progress?.phase === "media" ? running.progress.media : undefined;
+  useWindowBusy(
+    running
+      ? media?.total
+        ? t("windowTitle.download", { percent: Math.floor((media.done / media.total) * 100) / 100 })
+        : t("windowTitle.downloading")
+      : undefined,
+  );
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col gap-1 border-r bg-sidebar p-4 lg:flex">
@@ -69,6 +79,7 @@ export function Page({
   children: React.ReactNode;
   actions?: React.ReactNode;
 }) {
+  useWindowPlace(title);
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:py-10">
       {(title || actions) && (

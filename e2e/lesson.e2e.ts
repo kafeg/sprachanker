@@ -216,3 +216,16 @@ test("word bank: a tapped gap takes the next word; a word can be dragged onto a 
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByTitle("Correct")).toBeVisible();
 });
+
+test("the window title says where you are", async ({ page }) => {
+  await page.goto("/settings");
+  await expect(page).toHaveTitle("SprachAnker · Settings");
+  await openStep(page, "Letters");
+  await expect(page).toHaveTitle("SprachAnker · Ex 5/8");
+  // On a phone the plan is a sheet: wait until it has closed, then open it again.
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const plan = page.getByRole("button", { name: "Lesson plan" });
+  if (await plan.isVisible()) await plan.click();
+  await page.getByRole("button", { name: "Summary" }).filter({ visible: true }).first().click();
+  await expect(page).toHaveTitle("SprachAnker · Summary");
+});

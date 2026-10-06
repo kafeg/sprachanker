@@ -7,6 +7,7 @@ import {
   type LessonResult,
   type LocaleLesson,
   parseEditionId,
+  parseLessonKey,
 } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpenText, ListOrdered, RotateCcw } from "lucide-react";
@@ -22,6 +23,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sh
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
+import { useWindowPlace } from "@/ui/window-title.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { LessonOverview } from "./overview.tsx";
 import { Plan, type Step } from "./plan.tsx";
@@ -73,6 +75,17 @@ export function LessonPlayer({
         .then(setFinished)
         .catch(() => undefined);
   }, [step, active, complete, finish]);
+
+  const shown = data.data?.lesson;
+  useWindowPlace(
+    !shown
+      ? undefined
+      : step === "summary"
+        ? t("windowTitle.summary")
+        : typeof step === "number"
+          ? t("windowTitle.exercise", { n: step + 1, total: shown.pages.length })
+          : t("windowTitle.lesson", parseLessonKey(shown.key)),
+  );
 
   if (data.isPending || !edition || run.mode === "loading")
     return run.error ? <ErrorState error={run.error} /> : <Loading />;

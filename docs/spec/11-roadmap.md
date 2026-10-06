@@ -131,11 +131,21 @@ the first lessons a few minutes later while the media keep coming.
 Specs: 04, 05, 09.
 - Cards from new words, Review with FSRS and beginner-friendly limits, Notebook (runs, run detail with
   snapshots, item history), lesson redo with comparison, study days.
-- The lesson's reading as steps of its plan (owner, 2026-10-06): "Words of the lesson", "Grammar",
-  "Culture" next to the exercises, marked read when opened; the words become cards from there. The
-  reference tabs stay for looking things up.
+- The lesson plan as steps (owner, 2026-10-06; flow in 04, "Lesson composition"): overview with the
+  video and its transcript under it → "Words of the lesson" (cards; the words go to Review from
+  there) → a "Grammar" step per grammar topic → exercises → a "Culture" step per culture page → AI
+  practice while an assistant is set up: "Write it yourself", scene, session review → summary of all
+  of it. Each step has its mark; any can be skipped; the lesson is completed when every step is done or
+  skipped (reading steps when opened, AI steps once done). AI steps keep their history in the step
+  (earlier texts, scenes, reviews of this lesson), like the tutor's chat history. The reference tabs
+  stay for looking things up.
+- Earlier attempts of an item under its card (history control in the item's column; each attempt
+  read-only with its kept explanation); the tutor panel with "Chat" and "History" tabs (each learner
+  message with its time and the exercise it was written on).
 - **Accept**: after lesson 1 its words are due in Review; reviews update due dates per face; the
-  Notebook shows two runs of lesson 1 side by side.
+  Notebook shows two runs of lesson 1 side by side; lesson 1 of Nicos Weg goes overview → words →
+  grammar → exercises → culture → writing, scene, review (with an assistant) → summary, and completes
+  without an assistant too.
 - **Status: not started.**
 
 ### 7 — Speech

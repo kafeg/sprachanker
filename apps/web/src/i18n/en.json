@@ -421,5 +421,13 @@
     "total": "Total",
     "used": "Courses take {size}",
     "free": "{size} free on the disk"
+  },
+  "windowTitle": {
+    "course": "Course",
+    "lesson": "Lesson {unit}.{lesson}",
+    "exercise": "Ex {n}/{total}",
+    "summary": "Summary",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …"
   }
 }

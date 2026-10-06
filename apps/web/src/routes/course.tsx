@@ -10,6 +10,7 @@ import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { cn } from "@/ui/utils.ts";
+import { useWindowPlace } from "@/ui/window-title.ts";
 import { CourseHero } from "./course-info.tsx";
 
 type LessonState = NonNullable<ReturnType<typeof useCourseMap>["data"]>["lessons"][string];
@@ -78,6 +79,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
   const info = courses.data?.find((c) => c.series === series && c.course === course);
   const edition = useEdition(series, course, info?.editions);
   const map = useCourseMap(series, course, edition);
+  useWindowPlace(t("windowTitle.course"));
   if (courses.isPending || map.isPending) return <Loading />;
   if (map.isError) return <ErrorState error={map.error} onRetry={() => map.refetch()} />;
   const { index, locale, titles, lessons } = map.data;
