@@ -19,6 +19,7 @@ import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
+import { CourseMedia } from "@/ui/course-html.tsx";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
@@ -162,156 +163,158 @@ export function LessonPlayer({
   const frame = slots.frame ?? ((children: React.ReactNode) => <Fragment>{children}</Fragment>);
   return frame(
     <TargetLang value={parseEditionId(edition).target}>
-      <div className="lg:grid lg:grid-cols-[17rem_1fr]">
-        <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-r p-4 lg:block">
-          <Link
-            to="/course/$series/$course"
-            params={{ series, course }}
-            className="mb-3 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" /> {map.data?.locale?.title ?? course}
-          </Link>
-          <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
-          <p className="mb-3 px-2 text-sm text-muted-foreground">
-            {total > 0 && t("lesson.exercisesDone", { done: done - skipped, total, skipped })}
-          </p>
-          {plan}
-        </aside>
-        <div className="min-w-0">
-          <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-            <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="lg:hidden"
-                aria-label={t("lesson.plan")}
-                onClick={() => setPlanOpen(true)}
-              >
-                <ListOrdered className="size-5" />
-              </Button>
-              {total > 0 ? (
-                <>
-                  <Progress value={(done / total) * 100} className="h-2 flex-1" />
-                  <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
-                    {done}/{total}
-                  </span>
-                </>
-              ) : (
-                <span className="flex-1" />
-              )}
-              {slots.header?.({ ...context, exerciseKey: exercise?.key })}
-              {firstTab && (
+      <CourseMedia.Provider value={url}>
+        <div className="lg:grid lg:grid-cols-[17rem_1fr]">
+          <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-r p-4 lg:block">
+            <Link
+              to="/course/$series/$course"
+              params={{ series, course }}
+              className="mb-3 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="size-4" /> {map.data?.locale?.title ?? course}
+            </Link>
+            <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
+            <p className="mb-3 px-2 text-sm text-muted-foreground">
+              {total > 0 && t("lesson.exercisesDone", { done: done - skipped, total, skipped })}
+            </p>
+            {plan}
+          </aside>
+          <div className="min-w-0">
+            <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
+              <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-2">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  aria-label={t("lesson.reference")}
-                  onClick={() => setReference(firstTab)}
+                  variant="ghost"
+                  size="icon"
+                  className="lg:hidden"
+                  aria-label={t("lesson.plan")}
+                  onClick={() => setPlanOpen(true)}
                 >
-                  <BookOpenText className="size-4" />{" "}
-                  <span className="hidden sm:inline">{t("lesson.reference")}</span>
+                  <ListOrdered className="size-5" />
                 </Button>
+                {total > 0 ? (
+                  <>
+                    <Progress value={(done / total) * 100} className="h-2 flex-1" />
+                    <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
+                      {done}/{total}
+                    </span>
+                  </>
+                ) : (
+                  <span className="flex-1" />
+                )}
+                {slots.header?.({ ...context, exerciseKey: exercise?.key })}
+                {firstTab && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    aria-label={t("lesson.reference")}
+                    onClick={() => setReference(firstTab)}
+                  >
+                    <BookOpenText className="size-4" />{" "}
+                    <span className="hidden sm:inline">{t("lesson.reference")}</span>
+                  </Button>
+                )}
+              </div>
+            </header>
+            <div className="mx-auto max-w-3xl px-4 py-6">
+              {step === "overview" && (
+                <LessonOverview
+                  lesson={lesson}
+                  locale={locale}
+                  unitTitle={map.data?.locale?.units[lesson.unit]?.title}
+                  goals={map.data?.locale?.goals ?? {}}
+                  url={url}
+                  actions={actions}
+                  more={
+                    run.mode !== "none" && (
+                      <ResetProgress
+                        series={series}
+                        course={course}
+                        lesson={lesson.key}
+                        title={locale?.title ?? lesson.key}
+                        onDone={() => {
+                          setFinished(undefined);
+                          run.reload();
+                        }}
+                      >
+                        {(open) => (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={open}
+                            className="text-muted-foreground"
+                          >
+                            <RotateCcw className="size-4" /> {t("progress.resetLesson")}
+                          </Button>
+                        )}
+                      </ResetProgress>
+                    )
+                  }
+                />
+              )}
+              {typeof step === "number" && exercise && (
+                <ExerciseStep
+                  key={`${run.run?.id}-${step}`}
+                  stored={run.results[exercise.key]}
+                  readOnly={run.mode === "finished"}
+                  exercise={exercise}
+                  locale={locale?.exercises[exercise.key]}
+                  index={step}
+                  total={total}
+                  url={url}
+                  onAnswered={run.answer}
+                  onBack={() => go(step > 0 ? step - 1 : "overview")}
+                  onNext={() => go(step + 1 < total ? step + 1 : "summary")}
+                  explain={
+                    slots.explain &&
+                    ((index, answer) =>
+                      slots.explain?.({ ...context, exerciseKey: exercise.key, index, answer }))
+                  }
+                />
+              )}
+              {step === "summary" && (
+                <LessonSummary
+                  series={series}
+                  course={course}
+                  lesson={lesson}
+                  locale={locale}
+                  url={url}
+                  results={run.results}
+                  result={result}
+                  mode={run.mode}
+                  nextLesson={nextLesson}
+                  extra={slots.summary?.({ ...context, hasMistakes })}
+                  go={go}
+                  redo={() => void begin(true)}
+                />
               )}
             </div>
-          </header>
-          <div className="mx-auto max-w-3xl px-4 py-6">
-            {step === "overview" && (
-              <LessonOverview
-                lesson={lesson}
-                locale={locale}
-                unitTitle={map.data?.locale?.units[lesson.unit]?.title}
-                goals={map.data?.locale?.goals ?? {}}
-                url={url}
-                actions={actions}
-                more={
-                  run.mode !== "none" && (
-                    <ResetProgress
-                      series={series}
-                      course={course}
-                      lesson={lesson.key}
-                      title={locale?.title ?? lesson.key}
-                      onDone={() => {
-                        setFinished(undefined);
-                        run.reload();
-                      }}
-                    >
-                      {(open) => (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={open}
-                          className="text-muted-foreground"
-                        >
-                          <RotateCcw className="size-4" /> {t("progress.resetLesson")}
-                        </Button>
-                      )}
-                    </ResetProgress>
-                  )
-                }
-              />
-            )}
-            {typeof step === "number" && exercise && (
-              <ExerciseStep
-                key={`${run.run?.id}-${step}`}
-                stored={run.results[exercise.key]}
-                readOnly={run.mode === "finished"}
-                exercise={exercise}
-                locale={locale?.exercises[exercise.key]}
-                index={step}
-                total={total}
-                url={url}
-                onAnswered={run.answer}
-                onBack={() => go(step > 0 ? step - 1 : "overview")}
-                onNext={() => go(step + 1 < total ? step + 1 : "summary")}
-                explain={
-                  slots.explain &&
-                  ((index, answer) =>
-                    slots.explain?.({ ...context, exerciseKey: exercise.key, index, answer }))
-                }
-              />
-            )}
-            {step === "summary" && (
-              <LessonSummary
-                series={series}
-                course={course}
-                lesson={lesson}
-                locale={locale}
-                url={url}
-                results={run.results}
-                result={result}
-                mode={run.mode}
-                nextLesson={nextLesson}
-                extra={slots.summary?.({ ...context, hasMistakes })}
-                go={go}
-                redo={() => void begin(true)}
-              />
-            )}
           </div>
+          <Sheet open={planOpen} onOpenChange={setPlanOpen}>
+            <SheetContent side="left" className="w-80 overflow-y-auto p-4">
+              <SheetHeader className="p-0">
+                <SheetTitle>{locale?.title}</SheetTitle>
+              </SheetHeader>
+              {plan}
+            </SheetContent>
+          </Sheet>
+          <Sheet open={!!reference} onOpenChange={(open) => !open && setReference(undefined)}>
+            <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-xl">
+              <SheetHeader className="p-0">
+                <SheetTitle>{t("lesson.reference")}</SheetTitle>
+              </SheetHeader>
+              {reference && (
+                <Reference
+                  lesson={lesson}
+                  locale={locale}
+                  url={url}
+                  tab={reference}
+                  onTab={setReference}
+                />
+              )}
+            </SheetContent>
+          </Sheet>
         </div>
-        <Sheet open={planOpen} onOpenChange={setPlanOpen}>
-          <SheetContent side="left" className="w-80 overflow-y-auto p-4">
-            <SheetHeader className="p-0">
-              <SheetTitle>{locale?.title}</SheetTitle>
-            </SheetHeader>
-            {plan}
-          </SheetContent>
-        </Sheet>
-        <Sheet open={!!reference} onOpenChange={(open) => !open && setReference(undefined)}>
-          <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-xl">
-            <SheetHeader className="p-0">
-              <SheetTitle>{t("lesson.reference")}</SheetTitle>
-            </SheetHeader>
-            {reference && (
-              <Reference
-                lesson={lesson}
-                locale={locale}
-                url={url}
-                tab={reference}
-                onTab={setReference}
-              />
-            )}
-          </SheetContent>
-        </Sheet>
-      </div>
+      </CourseMedia.Provider>
     </TargetLang>,
   );
 }

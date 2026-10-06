@@ -4,9 +4,11 @@ import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { CourseMedia } from "@/ui/course-html.tsx";
 import { cn } from "@/ui/utils.ts";
 import { CourseHero } from "./course-info.tsx";
 
@@ -82,64 +84,66 @@ export function CoursePage({ series, course }: { series: string; course: string 
   const all = index.units.flatMap((u) => u.lessons);
   const next = info?.next;
   return (
-    <Page>
-      <CourseHero
-        series={series}
-        course={course}
-        title={locale?.title ?? index.key}
-        edition={edition ?? ""}
-        descriptionHtml={locale?.descriptionHtml}
-        source={index.source ?? null}
-        done={info?.done ?? 0}
-        lessons={all.length}
-        next={
-          next
-            ? { key: next, title: titles[next] ?? next, started: !!info?.nextStarted }
-            : undefined
-        }
-      />
-      <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
-        {index.units.map((unit) => {
-          const number = Number(unit.key.slice(-2));
-          const finished = unit.lessons.filter((key) => lessons[key]?.done).length;
-          const complete = finished === unit.lessons.length;
-          const current = unit.lessons.some((key) => key === next);
-          return (
-            <li key={unit.key} className="relative pl-12">
-              <span
-                className={cn(
-                  "absolute top-0 left-0 grid size-8 place-items-center rounded-full border-2 bg-background text-xs font-semibold tabular-nums",
-                  complete && "border-correct bg-correct text-white",
-                  current && !complete && "border-primary",
-                )}
-                aria-hidden="true"
-              >
-                {complete ? <Check className="size-4" /> : number}
-              </span>
-              <h2 className="mb-3 flex flex-wrap items-baseline gap-x-2 pt-1 text-lg font-bold">
-                <span className="text-muted-foreground">{t("course.unit", { number })}</span>
-                <span>{locale?.units[unit.key]?.title}</span>
-                <span className="text-sm font-normal text-muted-foreground tabular-nums">
-                  {finished} / {unit.lessons.length}
+    <CourseMedia.Provider value={(path) => mediaUrl(series, path)}>
+      <Page>
+        <CourseHero
+          series={series}
+          course={course}
+          title={locale?.title ?? index.key}
+          edition={edition ?? ""}
+          descriptionHtml={locale?.descriptionHtml}
+          source={index.source ?? null}
+          done={info?.done ?? 0}
+          lessons={all.length}
+          next={
+            next
+              ? { key: next, title: titles[next] ?? next, started: !!info?.nextStarted }
+              : undefined
+          }
+        />
+        <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
+          {index.units.map((unit) => {
+            const number = Number(unit.key.slice(-2));
+            const finished = unit.lessons.filter((key) => lessons[key]?.done).length;
+            const complete = finished === unit.lessons.length;
+            const current = unit.lessons.some((key) => key === next);
+            return (
+              <li key={unit.key} className="relative pl-12">
+                <span
+                  className={cn(
+                    "absolute top-0 left-0 grid size-8 place-items-center rounded-full border-2 bg-background text-xs font-semibold tabular-nums",
+                    complete && "border-correct bg-correct text-white",
+                    current && !complete && "border-primary",
+                  )}
+                  aria-hidden="true"
+                >
+                  {complete ? <Check className="size-4" /> : number}
                 </span>
-              </h2>
-              <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
-                {unit.lessons.map((key) => (
-                  <LessonCard
-                    key={key}
-                    series={series}
-                    course={course}
-                    lessonKey={key}
-                    title={titles[key] ?? key}
-                    state={lessons[key]}
-                    isNext={key === next && lessons[key]?.run?.status !== "finished"}
-                  />
-                ))}
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </Page>
+                <h2 className="mb-3 flex flex-wrap items-baseline gap-x-2 pt-1 text-lg font-bold">
+                  <span className="text-muted-foreground">{t("course.unit", { number })}</span>
+                  <span>{locale?.units[unit.key]?.title}</span>
+                  <span className="text-sm font-normal text-muted-foreground tabular-nums">
+                    {finished} / {unit.lessons.length}
+                  </span>
+                </h2>
+                <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+                  {unit.lessons.map((key) => (
+                    <LessonCard
+                      key={key}
+                      series={series}
+                      course={course}
+                      lessonKey={key}
+                      title={titles[key] ?? key}
+                      state={lessons[key]}
+                      isNext={key === next && lessons[key]?.run?.status !== "finished"}
+                    />
+                  ))}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      </Page>
+    </CourseMedia.Provider>
   );
 }
