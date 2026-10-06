@@ -131,6 +131,9 @@ the first lessons a few minutes later while the media keep coming.
 Specs: 04, 05, 09.
 - Cards from new words, Review with FSRS and beginner-friendly limits, Notebook (runs, run detail with
   snapshots, item history), lesson redo with comparison, study days.
+- The lesson's reading as steps of its plan (owner, 2026-10-06): "Words of the lesson", "Grammar",
+  "Culture" next to the exercises, marked read when opened; the words become cards from there. The
+  reference tabs stay for looking things up.
 - **Accept**: after lesson 1 its words are due in Review; reviews update due dates per face; the
   Notebook shows two runs of lesson 1 side by side.
 - **Status: not started.**
