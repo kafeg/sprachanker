@@ -10,6 +10,7 @@ import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import type { ExerciseResult } from "./use-run.ts";
 
 function Feedback({ outcome, answer }: { outcome: Outcome; answer?: string }) {
   const { t } = useTranslation();
@@ -43,11 +44,16 @@ export interface StepProps {
   index: number;
   total: number;
   url(p: string): string;
+  /** What the run already has for this exercise: shown again when it is reopened. */
+  stored?: ExerciseResult;
+  /** A finished run is shown read-only: no checking, no new answers. */
+  readOnly?: boolean;
+  /** Given answers with their local outcomes, and the items left without an answer. */
   onAnswered(
     answers: Array<{ itemKey: string; answer: unknown; outcome: Outcome }>,
+    skipped: string[],
     ms: number,
   ): void;
-  onSkip(): void;
   onBack(): void;
   onNext(): void;
   /** Extra help under a wrong item (the LLM explanation), if available. */
@@ -60,22 +66,36 @@ export function ExerciseStep({
   index,
   total,
   url,
+  stored,
+  readOnly = false,
   onAnswered,
-  onSkip,
   onBack,
   onNext,
   explain,
 }: StepProps) {
   const lang = useTargetLang();
   const { t } = useTranslation();
-  const [answers, setAnswers] = useState<Record<number, unknown>>({});
-  const [outcomes, setOutcomes] = useState<Record<number, Outcome>>();
-  const shownAt = useRef(Date.now());
   const scored = isScored(exercise.type);
+  // Reopened: the latest answers of the run and, for checked exercises, their outcomes.
+  const [answers, setAnswers] = useState<Record<number, unknown>>(() =>
+    Object.fromEntries(
+      exercise.items.flatMap((item, i) =>
+        stored?.last[item.key] ? [[i, stored.last[item.key]?.answer]] : [],
+      ),
+    ),
+  );
+  const [outcomes, setOutcomes] = useState<Record<number, Outcome> | undefined>(() => {
+    const restored = exercise.items.flatMap((item, i) => {
+      const outcome = stored?.last[item.key]?.outcome;
+      return outcome ? [[i, outcome] as const] : [];
+    });
+    return scored && restored.length ? Object.fromEntries(restored) : undefined;
+  });
+  const shownAt = useRef(Date.now());
   const last = index + 1 === total;
 
   const check = () => {
-    // Unanswered items are wrong; only given answers are recorded.
+    // Unanswered items show as wrong (with the right answer) but are recorded as skipped (04).
     const unanswered: Outcome = {
       result: "wrong",
       score: 0,
@@ -93,24 +113,36 @@ export function ExerciseStep({
     setOutcomes(Object.fromEntries(results.map((r, i) => [i, r.outcome])));
     onAnswered(
       results.filter((r) => r.answer !== undefined),
+      results.filter((r) => r.answer === undefined).map((r) => r.itemKey),
       Date.now() - shownAt.current,
     );
   };
   const next = () => {
-    if (!scored) {
-      const rated = exercise.items.flatMap((item, i) =>
-        answers[i]
-          ? [
-              {
-                itemKey: item.key,
-                answer: answers[i],
-                outcome: checkItem(exercise, i, answers[i], lang ?? "de"),
-              },
-            ]
-          : [],
-      );
-      onAnswered(rated, Date.now() - shownAt.current);
+    // Unscored exercises are recorded on leaving: the ratings given, the rest as skipped.
+    if (!scored && !readOnly) {
+      const rated: Array<{ itemKey: string; answer: unknown; outcome: Outcome }> = [];
+      const skipped: string[] = [];
+      exercise.items.forEach((item, i) => {
+        if (answers[i] === undefined) {
+          if (!stored?.skipped.includes(item.key)) skipped.push(item.key);
+        } else if (answers[i] !== stored?.last[item.key]?.answer) {
+          rated.push({
+            itemKey: item.key,
+            answer: answers[i],
+            outcome: checkItem(exercise, i, answers[i], lang ?? "de"),
+          });
+        }
+      });
+      if (rated.length || skipped.length) onAnswered(rated, skipped, Date.now() - shownAt.current);
     }
+    onNext();
+  };
+  const skip = () => {
+    onAnswered(
+      [],
+      exercise.items.map((item) => item.key),
+      Date.now() - shownAt.current,
+    );
     onNext();
   };
   const retry = () => {
@@ -118,7 +150,7 @@ export function ExerciseStep({
     setOutcomes(undefined);
     shownAt.current = Date.now();
   };
-  const primary = scored && !outcomes ? check : next;
+  const primary = scored && !outcomes && !readOnly ? check : next;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -220,18 +252,18 @@ export function ExerciseStep({
           {t("lesson.previous")}
         </Button>
         <div className="ml-auto flex gap-2">
-          {outcomes && (
+          {outcomes && !readOnly && (
             <Button variant="outline" size="lg" onClick={retry}>
               {t("lesson.retry")}
             </Button>
           )}
-          {scored && !outcomes && (
-            <Button variant="ghost" size="lg" onClick={onSkip}>
+          {scored && !outcomes && !readOnly && (
+            <Button variant="ghost" size="lg" onClick={skip}>
               {t("lesson.skip")}
             </Button>
           )}
           <Button size="lg" className="min-w-36 text-base" onClick={primary}>
-            {scored && !outcomes
+            {scored && !outcomes && !readOnly
               ? t("lesson.check")
               : last
                 ? t("lesson.toSummary")

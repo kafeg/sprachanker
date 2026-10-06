@@ -1,14 +1,14 @@
 import { expect, test } from "@playwright/test";
-import { finishLessonRun } from "./api.ts";
+import { freshLessonRun } from "./api.ts";
 
-test.beforeEach(({ request }) => finishLessonRun(request));
+test.beforeEach(({ request }) => freshLessonRun(request));
 
 test("open the course, do an exercise, resume, finish with a summary", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("My courses");
   await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Start|Continue lesson/ })).toBeVisible();
-  // Other projects share the server's profile, so open lesson 1 directly (its run was just finished).
+  // Other projects share the server's profile, so open lesson 1 directly (it was just started anew).
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Im Café");
@@ -57,7 +57,7 @@ test("client routes load the app", async ({ page }) => {
 });
 
 test("a free answer is checked and shows the model answers", async ({ page, request }) => {
-  await finishLessonRun(request, "sprachanker.fixture/demo/00-02");
+  await freshLessonRun(request, "sprachanker.fixture/demo/00-02");
   await page.goto("/lesson/sprachanker.fixture/demo/00-02");
   await page.getByRole("button", { name: "Start lesson" }).click();
   const box = page.getByPlaceholder("Your answer…");
@@ -72,4 +72,25 @@ test("a free answer is checked and shows the model answers", async ({ page, requ
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText("Model answers")).toBeVisible();
   await expect(page.getByText("Ich hätte gern einen Tee.")).toBeVisible();
+});
+
+test("answers and skips are kept: reopening shows them", async ({ page, request }) => {
+  await freshLessonRun(request);
+  await page.goto("/lesson/sprachanker.fixture/demo/00-01");
+  await page.getByRole("button", { name: "Start lesson" }).click();
+  await page.getByRole("button", { name: "Im Café.", exact: true }).click();
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await page.getByRole("button", { name: "Next", exact: true }).click();
+  await expect(page.getByText("Exercise 2 of 8")).toBeVisible();
+  await page.getByRole("button", { name: "Skip", exact: true }).click();
+  await expect(page.getByText("Exercise 3 of 8")).toBeVisible();
+
+  // After a reload the run resumes where it was; going back shows the checked answers.
+  await page.reload();
+  await expect(page.getByText("Exercise 3 of 8")).toBeVisible();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page.getByText("Exercise 1 of 8")).toBeVisible();
+  await expect(page.getByRole("status").first()).toContainText("Correct");
+  await expect(page.getByRole("button", { name: "Try again" })).toBeVisible();
 });

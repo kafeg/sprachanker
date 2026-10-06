@@ -87,6 +87,7 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 |---|---|
 | `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
 | `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
+| `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, an unrated self-rating); excluded from the score |
 | `llm_verdict` | `task` (`writing` \| `review`), `input` (the learner's text; empty for a review), `result` (the task's structured output, 07), `model`, `latencyMs`; in `practice` runs of the lesson |
 | `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
 | `card_review` | planned (stage 6): `face`, `rating` (1–4), `stateBefore`, `stateAfter` (FSRS) |
@@ -106,7 +107,8 @@ Statistics (lesson progress and best scores, item history, mistakes, rule and le
 (an in-memory cache is added when needed). There are no derived tables; one is added only when a measured
 query is too slow, and then it must be rebuildable from events.
 
-Resume = the last `page_shown` of the active run.
+Resume = the last `page_shown` of the active run. Lesson progress counts an active run as "in progress"
+only once it has an `answered` or `item_skipped` event.
 
 ## Migrations
 
@@ -130,6 +132,10 @@ Resume = the last `page_shown` of the active run.
 - One server process owns all DB files (WAL mode); devices are clients.
 - One active run per (profile, context) and one active review run per profile. Any device of the
   profile may continue it; events from all devices are stored (idempotent by id).
+- **Opening a lesson starts nothing**: it shows the active run in its edition (resumed on its last page,
+  every exercise with its latest answers and outcomes), else the latest finished run read-only, else the
+  overview. A run starts with "Start" (or with opening a page); "Start over" ends the active run
+  `abandoned/user` and begins a new one.
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached. Score = mean
   first-attempt score of scored items (04).
 - Switching a course's edition ends its active lesson run `abandoned/user`.

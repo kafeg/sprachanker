@@ -19,9 +19,8 @@ async function send(
 export const put = (request: APIRequestContext, path: string, data: unknown) =>
   send(request, "put", path, data);
 
-/** Ends the lesson's active run, so the lesson opens on its overview. */
-export async function finishLessonRun(request: APIRequestContext, lessonKey = DEMO_LESSON) {
+/** Starts the lesson anew (an empty active run), so it opens on its overview with nothing done. */
+export async function freshLessonRun(request: APIRequestContext, lessonKey = DEMO_LESSON) {
   const series = lessonKey.split("/")[0];
-  const { run } = await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de" });
-  await send(request, "post", `/api/runs/${run.id}/finish`, {});
+  await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de", restart: true });
 }

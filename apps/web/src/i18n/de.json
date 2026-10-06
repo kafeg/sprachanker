@@ -60,7 +60,10 @@
     "reference": "Nachschlagen",
     "plan": "Ablauf",
     "audio": "Lektion anhören",
-    "itemAudio": "Audio zu Aufgabe {n}"
+    "itemAudio": "Audio zu Aufgabe {n}",
+    "redo": "Neu beginnen",
+    "done": "Erledigt",
+    "doneScore": "Erledigt · {score} % richtig"
   },
   "ref": {
     "vocabulary": "Wortschatz",

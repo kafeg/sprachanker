@@ -36,13 +36,16 @@ import { EpisodeVideo } from "./video.tsx";
 
 type Step = "overview" | number | "summary";
 
+/** An exercise's state in the run: not reached, passed without score, all right, or with mistakes. */
 const status = (exercise: Exercise, r: ExerciseResult | undefined) => {
   if (!r) return undefined;
-  if (r.skipped || r.seen || !isScored(exercise.type)) return "done" as const;
   const outcomes = Object.values(r.first);
-  if (!outcomes.length) return undefined;
-  if (outcomes.every((o) => o.result === "unscored")) return "done" as const;
-  return outcomes.every((o) => o.result === "correct") ? ("correct" as const) : ("wrong" as const);
+  if (!outcomes.length) return r.skipped.length ? ("done" as const) : undefined;
+  if (!isScored(exercise.type) || outcomes.every((o) => o.result === "unscored"))
+    return "done" as const;
+  return outcomes.every((o) => o.result === "correct") && !r.skipped.length
+    ? ("correct" as const)
+    : ("wrong" as const);
 };
 
 function StepDot({
@@ -159,30 +162,52 @@ export function LessonPlayer({
   const [step, setStep] = useState<Step>("overview");
   const [reference, setReference] = useState<ReferenceTab>();
   const [planOpen, setPlanOpen] = useState(false);
-  const [result, setResult] = useState<LessonResult | null>();
+  const [finished, setFinished] = useState<LessonResult | null>();
   const [tutorAsk, setTutorAsk] = useState<TutorAsk>();
   const url = (p: string) => mediaUrl(series, p);
 
-  // Resume on the page the run was left on, if the lesson still has it.
+  // Resume an active run on the page it was left on, if the lesson still has it.
   const pages = data.data?.lesson.pages.length;
+  const active = run.mode === "active";
   useEffect(() => {
     const page = run.resumePage;
-    if (pages !== undefined && page !== undefined && page >= 0 && page < pages) setStep(page);
-  }, [run.resumePage, pages]);
+    if (active && pages !== undefined && page >= 0 && page < pages) setStep(page);
+  }, [active, run.resumePage, pages]);
 
-  if (data.isPending || !edition || run.resumePage === undefined)
+  // Reaching the summary completes an active run (05, "Lifecycle").
+  const { finish } = run;
+  useEffect(() => {
+    if (step === "summary" && active) void finish().then(setFinished);
+  }, [step, active, finish]);
+
+  if (data.isPending || !edition || run.mode === "loading")
     return run.error ? <ErrorState error={run.error} /> : <Loading />;
   if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
   const { lesson, locale } = data.data as { lesson: Lesson; locale: LocaleLesson | null };
   const total = lesson.pages.length;
-  const resume = run.resumePage < total ? run.resumePage : -1;
+  const resume = active && run.resumePage < total ? run.resumePage : -1;
+  // The score shown on the summary: of the run just finished, or of the latest finished run.
+  const result = finished ?? (run.mode === "finished" ? run.run?.result : undefined);
 
-  const go = (next: Step) => {
+  const show = (next: Step) => {
     setPlanOpen(false);
     setStep(next);
     window.scrollTo({ top: 0 });
-    if (typeof next === "number") run.pageShown(next);
-    if (next === "summary") void run.finish().then((r) => setResult(r?.result ?? null));
+  };
+  /** Moves to a step. In an active run pages are recorded; opening a page of a lesson never started
+   *  starts it; a finished run is only looked at. */
+  const go = (next: Step) => {
+    show(next);
+    if (typeof next !== "number") return;
+    if (active) run.pageShown(next);
+    else if (run.mode === "none") void run.start().then(() => run.pageShown(next));
+  };
+  /** Starts the lesson (anew when `restart`) and opens its first page. */
+  const begin = async (restart: boolean) => {
+    await run.start(restart);
+    setFinished(undefined);
+    show(0);
+    run.pageShown(0);
   };
 
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
@@ -305,31 +330,51 @@ export function LessonPlayer({
                   <span className="text-muted-foreground">
                     {t("lesson.counts", { exercises: total, words: lesson.vocab.length })}
                   </span>
-                  <Button
-                    size="lg"
-                    className="text-base"
-                    onClick={() => go(total === 0 ? "summary" : resume > 0 ? resume : 0)}
-                  >
-                    {resume > 0 ? t("lesson.resume") : t("lesson.start")}
-                  </Button>
+                  {run.mode === "finished" ? (
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium">
+                        {result && result.scored > 0
+                          ? t("lesson.doneScore", { score: Math.round(result.score * 100) })
+                          : t("lesson.done")}
+                      </span>
+                      <Button size="lg" variant="outline" onClick={() => show("summary")}>
+                        {t("lesson.summary")}
+                      </Button>
+                      <Button size="lg" className="text-base" onClick={() => void begin(true)}>
+                        {t("lesson.redo")}
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      size="lg"
+                      className="text-base"
+                      onClick={() =>
+                        total === 0
+                          ? void run.start().then(() => show("summary"))
+                          : active
+                            ? go(resume > 0 ? resume : 0)
+                            : void begin(false)
+                      }
+                    >
+                      {resume > 0 ? t("lesson.resume") : t("lesson.start")}
+                    </Button>
+                  )}
                 </div>
               </section>
             )}
             {typeof step === "number" && lesson.pages[step] && (
               <ExerciseStep
-                key={`${step}`}
+                key={`${run.run?.id}-${step}`}
+                stored={run.results[lesson.pages[step].exercise.key]}
+                readOnly={run.mode === "finished"}
                 exercise={lesson.pages[step].exercise}
                 locale={locale?.exercises[lesson.pages[step].exercise.key]}
                 index={step}
                 total={total}
                 url={url}
-                onAnswered={(answers, ms) =>
-                  run.answer(lesson.pages[step]?.exercise.key ?? "", answers, ms)
+                onAnswered={(answers, skipped, ms) =>
+                  run.answer(lesson.pages[step]?.exercise.key ?? "", answers, skipped, ms)
                 }
-                onSkip={() => {
-                  run.answer(lesson.pages[step]?.exercise.key ?? "", [], 0, true);
-                  go(step + 1 < total ? step + 1 : "summary");
-                }}
                 onBack={() => go(step > 0 ? step - 1 : "overview")}
                 onNext={() => go(step + 1 < total ? step + 1 : "summary")}
                 explain={(index, answer) => (
@@ -365,6 +410,11 @@ export function LessonPlayer({
                     )}
                   </div>
                 )}
+                {run.mode === "finished" && (
+                  <Button size="lg" onClick={() => void begin(true)}>
+                    {t("lesson.redo")}
+                  </Button>
+                )}
                 {Object.values(run.results).some((r) =>
                   Object.values(r.first).some(
                     (o) => o.result === "wrong" || o.result === "partial",
@@ -389,7 +439,7 @@ export function LessonPlayer({
                             <StepDot state={s} label={i + 1} />
                             <span className="flex-1">{locale?.exercises[exercise.key]?.title}</span>
                             <span className="text-sm text-muted-foreground">
-                              {r?.skipped
+                              {r && !outcomes.length && r.skipped.length
                                 ? t("lesson.skipped")
                                 : !s
                                   ? t("lesson.notDone")

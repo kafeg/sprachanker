@@ -14,7 +14,7 @@ import {
   type Run,
   type StoredEvent,
 } from "@sprachanker/schema";
-import { and, asc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
@@ -77,13 +77,46 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   const seriesOf = (row: RunRow) => (row.courseKey ?? "").split("/")[0] ?? "";
 
   return {
-    /** Lesson progress of every lesson with runs. */
+    /** Lesson progress of every lesson with runs. An active run counts as "in progress" only once
+     *  something was answered or skipped in it (opening a lesson, or starting it over, is not progress). */
     progress() {
-      return Object.fromEntries(lessonProgress(db.select().from(runs).all().map(toRun)));
+      const worked = new Set(
+        db
+          .selectDistinct({ runId: events.runId })
+          .from(events)
+          .where(inArray(events.type, ["answered", "item_skipped"]))
+          .all()
+          .map((e) => e.runId),
+      );
+      const counted = db
+        .select()
+        .from(runs)
+        .all()
+        .filter((r) => r.status !== "active" || worked.has(r.id));
+      return Object.fromEntries(lessonProgress(counted.map(toRun)));
     },
 
-    /** The active run of the lesson, or a new one. */
-    start(series: string, lessonKey: LessonKey, edition: string) {
+    /**
+     * What the lesson shows on opening, without starting anything: its active run in this edition, else
+     * its latest finished run (read-only), else null.
+     */
+    lessonState(series: string, lessonKey: LessonKey, edition: string) {
+      const lessonRuns = db
+        .select()
+        .from(runs)
+        .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
+        .orderBy(desc(runs.startedAt), desc(runs.id))
+        .all();
+      const row =
+        lessonRuns.find((r) => r.status === "active" && r.edition === edition) ??
+        lessonRuns.find((r) => r.status === "finished");
+      if (!row?.courseKey?.startsWith(`${series}/`)) return null;
+      const list = runEvents(row.id);
+      return { run: toRun(row), events: list, resumePage: resumePage(list) };
+    },
+
+    /** The active run of the lesson, or a new one; `restart` ends the active one first. */
+    start(series: string, lessonKey: LessonKey, edition: string, restart = false) {
       const active = db
         .select()
         .from(runs)
@@ -91,14 +124,15 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
           and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey), eq(runs.status, "active")),
         )
         .get();
-      // A run belongs to one edition; switching editions ends the old one (it stays readable).
-      if (active && active.edition !== edition) {
+      // A run belongs to one edition; switching editions (or starting over) ends the old one; it
+      // stays readable.
+      if (active && (restart || active.edition !== edition)) {
         db.update(runs)
           .set({ status: "abandoned", endReason: "user", finishedAt: now() })
           .where(eq(runs.id, active.id))
           .run();
       }
-      const current = active && active.edition === edition ? active : undefined;
+      const current = active && !restart && active.edition === edition ? active : undefined;
       const row =
         current ??
         db
@@ -159,6 +193,11 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
           const outcome = checkItem(exercise, n - 1, e.payload.answer, target);
           outcomes[e.id] = outcome;
           payload = { ...e.payload, outcome };
+        } else if (e.type === "item_skipped") {
+          const { exercise: exKey } = parseItemKey(e.itemKey as ItemKey);
+          if (!findExercise(lesson, exKey))
+            throw new RunError(`item ${e.itemKey} is not in ${lesson.key}`);
+          payload = {};
         } else {
           const exercise = lesson.pages[e.payload.pageIndex]?.exercise;
           if (exercise) {

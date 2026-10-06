@@ -147,12 +147,28 @@ export function createApp(config: AppConfig) {
         return c.json(settings.all());
       },
     )
+    .get(
+      "/runs/lesson",
+      zod("query", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
+      (c) => {
+        const { series, lessonKey, edition } = c.req.valid("query");
+        return c.json({ state: runs.lessonState(series, lessonKey, edition) });
+      },
+    )
     .post(
       "/runs",
-      zod("json", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
+      zod(
+        "json",
+        z.object({
+          series: Series,
+          lessonKey: LessonKey,
+          edition: Edition,
+          restart: z.boolean().optional(),
+        }),
+      ),
       (c) => {
-        const { series, lessonKey, edition } = c.req.valid("json");
-        return c.json(runs.start(series, lessonKey, edition));
+        const { series, lessonKey, edition, restart } = c.req.valid("json");
+        return c.json(runs.start(series, lessonKey, edition, restart));
       },
     )
     .post(

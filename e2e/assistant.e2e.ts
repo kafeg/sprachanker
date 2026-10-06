@@ -1,6 +1,6 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check.
 import { expect, test } from "@playwright/test";
-import { DEMO_LESSON, finishLessonRun, put } from "./api.ts";
+import { DEMO_LESSON, freshLessonRun, put } from "./api.ts";
 import { FAKE_LLM_PORT, FAKE_TEXT } from "./fake-llm.ts";
 
 test.beforeEach(async ({ request }) => {
@@ -8,7 +8,7 @@ test.beforeEach(async ({ request }) => {
     baseUrl: `http://127.0.0.1:${FAKE_LLM_PORT}/v1`,
   });
   await put(request, "/api/llm/route", { provider: "custom", model: "fake-model" });
-  await finishLessonRun(request);
+  await freshLessonRun(request);
 });
 
 test("explain a mistake, ask the tutor, check a text", async ({ page }) => {

@@ -60,7 +60,10 @@
     "reference": "Reference",
     "plan": "Lesson plan",
     "audio": "Listen to the lesson",
-    "itemAudio": "Audio for item {n}"
+    "itemAudio": "Audio for item {n}",
+    "redo": "Start over",
+    "done": "Done",
+    "doneScore": "Done · {score}% right"
   },
   "ref": {
     "vocabulary": "Vocabulary",

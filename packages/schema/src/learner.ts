@@ -64,6 +64,13 @@ export const EventInput = z.discriminatedUnion("type", [
     payload: PageShownPayload,
   }),
   z.object({ id: Ulid, type: z.literal("answered"), itemKey: ItemKey, payload: AnsweredInput }),
+  /** The learner moved on without answering the item (skip, or nothing given at "Check"). */
+  z.object({
+    id: Ulid,
+    type: z.literal("item_skipped"),
+    itemKey: ItemKey,
+    payload: z.object({}).optional(),
+  }),
 ]);
 export type EventInput = z.infer<typeof EventInput>;
 
@@ -104,7 +111,14 @@ export const StoredEvent = z.object({
   id: Ulid,
   runId: Ulid,
   ts: z.number().int(),
-  type: z.enum(["page_shown", "answered", "llm_verdict", "llm_turn", "card_review"]),
+  type: z.enum([
+    "page_shown",
+    "answered",
+    "item_skipped",
+    "llm_verdict",
+    "llm_turn",
+    "card_review",
+  ]),
   itemKey: z.string().nullable(),
   payload: z.unknown(),
 });

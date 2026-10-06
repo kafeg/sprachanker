@@ -67,6 +67,35 @@ describe("runs", () => {
     expect(res.status).toBe(403);
   });
 
+  test("opening a lesson starts nothing; skips are stored; a finished run is shown; restart", async () => {
+    const { getJson, sendJson } = await setup();
+    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" });
+    expect((await getJson(`/api/runs/lesson?${q}`)).state).toBeNull();
+    expect((await getJson("/api/courses"))[0].nextStarted).toBe(false);
+
+    const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
+    const { run } = await sendJson("POST", "/api/runs", body);
+    const skipped = { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-01#2`, payload: {} };
+    await sendJson("POST", `/api/runs/${run.id}/events`, { events: [skipped] });
+    const active = (await getJson(`/api/runs/lesson?${q}`)).state;
+    expect([active.run.id, active.run.status, active.events[0].type]).toEqual([
+      run.id,
+      "active",
+      "item_skipped",
+    ]);
+
+    await sendJson("POST", `/api/runs/${run.id}/finish`, {});
+    const done = (await getJson(`/api/runs/lesson?${q}`)).state;
+    expect([done.run.id, done.run.status]).toEqual([run.id, "finished"]);
+    // Skipped items are not answers: they count neither for the score nor as answered.
+    expect(done.run.result).toEqual({ score: 0, scored: 0, answered: 0 });
+
+    const again = await sendJson("POST", "/api/runs", { ...body, restart: true });
+    expect(again.run.id).not.toBe(run.id);
+    expect(again.events).toEqual([]);
+    expect((await getJson(`/api/runs/lesson?${q}`)).state.run.id).toBe(again.run.id);
+  });
+
   test("start, answer (outcomes by the server, idempotent), resume, finish, progress", async () => {
     const { send, getJson, sendJson } = await setup();
     const started = await sendJson("POST", "/api/runs", {
