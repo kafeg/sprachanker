@@ -32,6 +32,9 @@ export function useSetSetting() {
   return useMutation({
     mutationFn: ({ key, value }: { key: string; value: unknown }) =>
       json(api.settings.$put({ json: { key, value } })),
+    // Applied at once, so a screen opened right after (e.g. a course in the chosen edition) sees it.
+    onMutate: ({ key, value }) =>
+      client.setQueryData(["settings"], (old: Settings | undefined) => ({ ...old, [key]: value })),
     onSuccess: (settings) => client.setQueryData(["settings"], settings),
   });
 }

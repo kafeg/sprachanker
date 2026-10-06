@@ -8,8 +8,8 @@ Types live in `packages/schema`. Names below are the canonical names in code.
 - A learner has a **native language** (language of explanations) and studies a **target language**.
   A course edition is described by `source → target`, e.g. `ru → de`; `de → de` is a monolingual edition.
 - UI language (`en`, `ru`, `de`) is independent from both.
-- A profile studies the edition chosen for the course in its settings, else the one whose source is its
-  UI language, else the course's first edition.
+- A profile studies the edition last opened from the course list (each card is a course in one edition),
+  else the one whose source is its UI language, else the course's first edition.
 
 ## Catalog
 

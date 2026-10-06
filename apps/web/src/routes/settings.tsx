@@ -1,42 +1,16 @@
-// Settings: interface language, theme, AI assistant, course editions.
+// Settings: interface language, theme, AI assistant.
 import { useTranslation } from "react-i18next";
-import { useCourses, useSetSetting, useSettings } from "@/api/hooks.ts";
-import { editionSetting, type Theme, useEdition } from "@/app/preferences.ts";
+import { useSetSetting, useSettings } from "@/api/hooks.ts";
+import type { Theme } from "@/app/preferences.ts";
 import { nativeName, UI_LANGUAGES } from "@/i18n/index.ts";
 import { LlmSettings } from "@/llm/settings-section.tsx";
 import { Page } from "@/ui/app-shell.tsx";
 import { Choice } from "@/ui/choice.tsx";
 
-function EditionRow({
-  series,
-  course,
-  editions,
-  title,
-}: {
-  series: string;
-  course: string;
-  editions: string[];
-  title: string;
-}) {
-  const set = useSetSetting();
-  const edition = useEdition(series, course, editions);
-  return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border-t py-3 first:border-t-0">
-      <span className="font-medium">{title}</span>
-      <Choice
-        value={edition}
-        options={editions.map((e) => [e, nativeName(e.split("-")[0] ?? e)])}
-        onChange={(value) => set.mutate({ key: editionSetting(series, course), value })}
-      />
-    </div>
-  );
-}
-
 export function SettingsPage() {
   const { t, i18n } = useTranslation();
   const settings = useSettings();
   const set = useSetSetting();
-  const courses = useCourses();
   const theme = (settings.data?.theme as Theme | undefined) ?? "system";
   return (
     <Page title={t("nav.settings")}>
@@ -64,25 +38,6 @@ export function SettingsPage() {
           />
         </section>
         <LlmSettings />
-        {!!courses.data?.length && (
-          <section className="space-y-2">
-            <h2 className="text-xl font-bold">{t("settings.editions")}</h2>
-            <p className="text-sm text-muted-foreground">{t("settings.editionsHint")}</p>
-            <div className="rounded-2xl border bg-card px-4">
-              {courses.data
-                .filter((c) => c.editions.length > 1)
-                .map((c) => (
-                  <EditionRow
-                    key={c.key}
-                    series={c.series}
-                    course={c.course}
-                    editions={c.editions}
-                    title={Object.values(c.titles)[0] ?? c.key}
-                  />
-                ))}
-            </div>
-          </section>
-        )}
       </div>
     </Page>
   );

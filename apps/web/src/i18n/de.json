@@ -12,7 +12,7 @@
     "retry": "Erneut versuchen"
   },
   "courses": {
-    "title": "Meine Kurse",
+    "title": "Kurse",
     "empty": "Noch kein Kurs installiert.",
     "emptyHint": "Installiere einen Kurs im Terminal: {command}",
     "lessons": "{count, plural, one {# Lektion} other {# Lektionen}}",
@@ -20,7 +20,15 @@
     "start": "Starten",
     "continueLesson": "Weiter: {title}",
     "nextLesson": "Weiter mit: {title}",
-    "allLessons": "Alle Lektionen"
+    "allLessons": "Alle Lektionen",
+    "languages": "{from} → {to}",
+    "any": "Alle",
+    "mine": "Meine Kurse ({count})",
+    "all": "Alle Kurse ({count})",
+    "from": "Ich spreche",
+    "to": "Ich lerne",
+    "noneStarted": "Noch kein Kurs begonnen – wähle einen unter „Alle Kurse“.",
+    "noneMatch": "Keine Kurse für diese Sprachen."
   },
   "course": {
     "unit": "Einheit {number}",
@@ -104,9 +112,7 @@
       "system": "System",
       "light": "Hell",
       "dark": "Dunkel"
-    },
-    "editions": "Kursausgaben",
-    "editionsHint": "In welcher Sprache Erklärungen und Übersetzungen erscheinen."
+    }
   },
   "llm": {
     "title": "KI-Assistent",

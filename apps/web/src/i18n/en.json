@@ -12,7 +12,7 @@
     "retry": "Try again"
   },
   "courses": {
-    "title": "My courses",
+    "title": "Courses",
     "empty": "No course is installed yet.",
     "emptyHint": "Install one from the terminal: {command}",
     "lessons": "{count, plural, one {# lesson} other {# lessons}}",
@@ -20,7 +20,15 @@
     "start": "Start",
     "continueLesson": "Continue: {title}",
     "nextLesson": "Next: {title}",
-    "allLessons": "All lessons"
+    "allLessons": "All lessons",
+    "languages": "{from} → {to}",
+    "any": "Any",
+    "mine": "My courses ({count})",
+    "all": "All courses ({count})",
+    "from": "I speak",
+    "to": "I learn",
+    "noneStarted": "No course started yet: pick one under \"All courses\".",
+    "noneMatch": "No course for these languages."
   },
   "course": {
     "unit": "Unit {number}",
@@ -104,9 +112,7 @@
       "system": "System",
       "light": "Light",
       "dark": "Dark"
-    },
-    "editions": "Course editions",
-    "editionsHint": "The language explanations and translations are shown in."
+    }
   },
   "llm": {
     "title": "AI assistant",
