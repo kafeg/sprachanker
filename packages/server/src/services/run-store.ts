@@ -260,7 +260,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
 
     /**
      * Events of some types across runs, newest first: since a time, in runs of a kind about a
-     * context (the day's card answers, a lesson's verdicts).
+     * context, about a card (the day's card answers, a lesson's verdicts, a word's answers).
      */
     eventsWhere(filter: {
       types: EventType[];
@@ -268,11 +268,13 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       kind?: Kind;
       about?: Context;
       runIds?: string[];
+      cardId?: string;
     }) {
       const where: Array<SQL | undefined> = [
         inArray(events.type, filter.types),
         filter.since === undefined ? undefined : gte(events.ts, filter.since),
         filter.runIds ? inArray(events.runId, filter.runIds) : undefined,
+        filter.cardId === undefined ? undefined : eq(events.cardId, filter.cardId),
       ];
       if (filter.kind || filter.about !== undefined)
         where.push(

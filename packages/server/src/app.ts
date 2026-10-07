@@ -283,7 +283,9 @@ export function createApp(config: AppConfig) {
         return c.json({ ok: true as const });
       },
     )
+    // My words: the learner's words, and one word for its sheet.
     .get("/cards", (c) => c.json({ words: cards.words() }))
+    .get("/cards/:id", zod("param", CardParam), (c) => c.json(cards.word(c.req.valid("param").id)))
     .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.

@@ -1,4 +1,5 @@
-// Review: straight on the cards; Decks lists the decks per language and course, as in Anki.
+// Review: straight on the cards; Decks lists the decks per language and course, as in Anki; My words
+// under Decks.
 import { expect, test } from "@playwright/test";
 import { post } from "./api.ts";
 
@@ -74,4 +75,41 @@ test("a course that is not installed says so, with the way to all courses", asyn
   await expect(page.getByText("This course is not installed (any more).")).toBeVisible();
   await page.getByRole("link", { name: "All courses" }).last().click();
   await expect(page).toHaveURL(/\/catalog$/);
+});
+
+test("My words: the table under Decks, search, a word's sheet, suspend and back", async ({
+  page,
+  request,
+}) => {
+  await post(request, "/api/cards/lesson", {
+    series: "sprachanker.fixture",
+    lessonKey: "sprachanker.fixture/demo/00-01",
+    edition: "en-de",
+  });
+  await page.goto("/review?decks=true");
+  await page.getByRole("link", { name: "My words" }).click();
+  await expect(page).toHaveURL(/\/review\/words$/);
+  await expect(page.getByRole("heading", { name: "My words" })).toBeVisible();
+
+  await page.getByPlaceholder("Find a word or translation").fill("kaffee");
+  const row = page.getByRole("button", { name: /der Kaffee/ });
+  await expect(row).toHaveCount(1);
+  await row.click();
+  const sheet = page.getByRole("dialog");
+  await expect(sheet.getByText("Word → meaning")).toBeVisible();
+  await expect(sheet.getByRole("link", { name: /Lesson 0\.1/ })).toBeVisible();
+
+  // Suspended from the sheet: the row says so, the Suspended filter finds it; restored after.
+  await sheet.getByRole("button", { name: "Suspend" }).click();
+  await expect(sheet.getByRole("button", { name: "Unsuspend" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(row).toContainText("Suspended");
+  await page.getByRole("button", { name: /^Suspended \d/ }).click();
+  await expect(row).toBeVisible();
+  await page.getByRole("button", { name: /^New \d/ }).click();
+  await expect(row).toHaveCount(0);
+  await page.getByRole("button", { name: /^All \d/ }).click();
+  await row.click();
+  await sheet.getByRole("button", { name: "Unsuspend" }).click();
+  await expect(sheet.getByRole("button", { name: "Suspend" })).toBeVisible();
 });

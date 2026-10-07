@@ -1,6 +1,9 @@
 // Review (09): opens straight on the cards of the deck chosen last (the study session,
 // study/session.tsx); Decks lists them as in Anki — each language the cards teach, and under it the
 // courses the words were met in — with New, Learning and To Review counts; a deck chosen is studied.
+// My words (words.tsx) opens from Decks.
+import { Link } from "@tanstack/react-router";
+import { BookA } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCourses, useDecks, useSetSetting, useSettings } from "@/api/hooks.ts";
 import { languageName } from "@/i18n/index.ts";
@@ -11,7 +14,7 @@ import { cn } from "@/ui/utils.ts";
 type Counts = { new: number; learning: number; review: number };
 
 /** A deck's name: a course's title, or a language. */
-function useDeckName() {
+export function useDeckName() {
   const { i18n } = useTranslation();
   const courses = useCourses().data ?? [];
   return (scope: string) => {
@@ -116,7 +119,15 @@ export function ReviewPage({
   if (showDecks)
     return (
       <Page title={t("study.toDecks")}>
-        <BackLink onClick={() => go({})}>{t("study.toCards")}</BackLink>
+        <div className="flex max-w-2xl items-center justify-between gap-2">
+          <BackLink onClick={() => go({})}>{t("study.toCards")}</BackLink>
+          <Link
+            to="/review/words"
+            className="mb-4 inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-4 font-medium hover:bg-accent"
+          >
+            <BookA className="size-4" /> {t("myWords.title")}
+          </Link>
+        </div>
         <p className="mb-4 max-w-2xl text-sm text-muted-foreground">{t("study.howTo")}</p>
         <Decks
           open={(scope) => {
@@ -146,7 +157,7 @@ export function ReviewPage({
   );
 }
 
-function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
+export function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
   return (
     <button
       type="button"

@@ -6,6 +6,7 @@
 import {
   type CardEvent,
   cardDay,
+  faceStage,
   intervals,
   isLeech,
   type QueueFace,
@@ -20,6 +21,7 @@ import {
   type CardFace,
   type CardRating,
   type CardReviewPayload,
+  type CardUndoPayload,
   FaceState,
   type LessonKey,
   type LexemeKey,
@@ -80,6 +82,30 @@ export function createCards(deps: {
   };
 
   /** The notes in a scope, in the order they were made (their position in the deck). */
+  /** A word as My words lists it; a suspended face is not due. */
+  const wordOf = (r: CardRow, states: Map<string, StateRow>) => {
+    const byFace: Partial<Record<CardFace, FaceState>> = {};
+    const dues: number[] = [];
+    for (const f of facesOf(r)) {
+      const row = states.get(`${r.id}:${f}`);
+      const s = stateOf(row);
+      if (!s) continue;
+      byFace[f] = s;
+      if (!row?.suspended) dues.push(s.due);
+    }
+    return {
+      cardId: r.id,
+      lexemeKey: r.lexemeKey,
+      display: displayOf(r),
+      lang: languageOf(r),
+      course: courseOf(r),
+      suspended: !!r.suspended,
+      marked: !!r.marked,
+      state: wordState(byFace),
+      due: !r.suspended && dues.length ? Math.min(...dues) : null,
+    };
+  };
+
   async function notesIn(scope: DeckScope, all = allNotes()) {
     if (scope.startsWith("lang:")) return all.filter((r) => languageOf(r) === scope.slice(5));
     if (scope.startsWith("course:")) return all.filter((r) => r.course === scope.slice(7));
@@ -402,28 +428,47 @@ export function createCards(deps: {
         .run();
     },
 
-    /** The learner's words, newest first, with their state and when they are next due. */
+    /** The learner's words (My words), newest first: what the card shows, its language and course,
+     *  its state and when a face of it is next due. */
     words() {
-      const rows = db.select().from(cards).orderBy(desc(cards.createdAt), desc(cards.id)).all();
       const states = stateRows();
-      return rows.map((r) => {
-        const byFace: Partial<Record<CardFace, FaceState>> = {};
-        for (const f of facesOf(r)) {
-          const s = stateOf(states.get(`${r.id}:${f}`));
-          if (s) byFace[f] = s;
-        }
-        const dues = Object.values(byFace).map((f) => f.due);
+      return db
+        .select()
+        .from(cards)
+        .orderBy(desc(cards.createdAt), desc(cards.id))
+        .all()
+        .map((r) => wordOf(r, states));
+    },
+
+    /** One word for its sheet: the list's fields, each face's state, and the answers given to it,
+     *  newest first (answers taken back left out). */
+    word(cardId: string) {
+      const row = note(cardId);
+      const states = stateRows([cardId]);
+      const faces = facesOf(row).map((face) => {
+        const r = states.get(`${cardId}:${face}`);
+        const s = stateOf(r);
         return {
-          cardId: r.id,
-          lexemeKey: r.lexemeKey,
-          display: displayOf(r),
-          course: courseOf(r),
-          suspended: !!r.suspended,
-          marked: !!r.marked,
-          state: wordState(byFace),
-          due: dues.length ? Math.min(...dues) : null,
+          face,
+          stage: faceStage(s),
+          due: s?.due ?? null,
+          lapses: s?.lapses ?? 0,
+          suspended: !!r?.suspended,
+          flag: r?.flag ?? 0,
         };
       });
+      const events = store.eventsWhere({ types: ["card_review", "card_undo"], cardId });
+      const undone = new Set(
+        events.flatMap((e) =>
+          e.type === "card_undo" ? [(e.payload as CardUndoPayload).review] : [],
+        ),
+      );
+      const answers = events.flatMap((e) => {
+        if (e.type !== "card_review" || undone.has(e.id)) return [];
+        const { face, rating } = e.payload as CardReviewPayload;
+        return [{ ts: e.ts, face, rating }];
+      });
+      return { ...wordOf(row, states), faces, answers };
     },
   };
 }

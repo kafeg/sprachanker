@@ -177,13 +177,28 @@ export function useMakeCards() {
   });
 }
 
-/** The decks and the queue read again after cards change; resolves once they are. */
+/** The decks, the queue and My words read again after cards change; resolves once they are. */
 const readCardsAgain = (client: QueryClient) =>
-  Promise.all(["study", "decks"].map((key) => client.invalidateQueries({ queryKey: [key] })));
+  Promise.all(
+    ["study", "decks", "words", "word"].map((key) => client.invalidateQueries({ queryKey: [key] })),
+  );
 
 /** Decks: each language, and under it each course, with Anki's three counts. */
 export const useDecks = () =>
   useQuery({ queryKey: ["decks"], queryFn: () => json(api.cards.decks.$get()) });
+
+/** My words: every word with cards, newest first. */
+export const useWords = () =>
+  useQuery({ queryKey: ["words"], queryFn: () => json(api.cards.$get()) });
+export type MyWord = NonNullable<ReturnType<typeof useWords>["data"]>["words"][number];
+
+/** One word for its sheet: each face's state and the answers given to it. */
+export const useWord = (cardId: string | undefined) =>
+  useQuery({
+    queryKey: ["word", cardId],
+    enabled: !!cardId,
+    queryFn: () => json(api.cards[":id"].$get({ param: { id: cardId as string } })),
+  });
 
 /** What to study now in a scope ("all", "lang:de", "course:…", "lesson:…"). */
 export const useStudy = (scope: string) =>
@@ -225,10 +240,16 @@ export function useCardActions() {
   });
   const suspend = useMutation({
     onSuccess,
-    mutationFn: (r: { cardId: string; face?: CardFace }) =>
-      json(
-        api.cards[":id"].suspend.$put({ ...id(r.cardId), json: { suspended: true, face: r.face } }),
-      ),
+    // Suspends (or, with `suspended: false`, restores) a face or the whole note.
+    mutationFn: ({
+      suspended = true,
+      ...r
+    }: {
+      cardId: string;
+      face?: CardFace;
+      suspended?: boolean;
+    }) =>
+      json(api.cards[":id"].suspend.$put({ ...id(r.cardId), json: { suspended, face: r.face } })),
   });
   const flag = useMutation({
     onSuccess,

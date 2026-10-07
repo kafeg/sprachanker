@@ -158,7 +158,8 @@ Specs: 04, 05, 09.
   keys, undo, bury, suspend, flags and marks (migration `0003_anki`), the same reviewer in the "Words"
   step; "Going over mistakes" (the run's status counted by the app, the tutor's walk-through inline;
   the written session review dropped); the scene on its step page with the lesson's earlier scenes.
-  "Write it yourself" with the lesson's earlier texts and "Fix it and check again". Next: My words,
+  "Write it yourself" with the lesson's earlier texts and "Fix it and check again". My words under Decks (a table as
+  Anki's browser, the word sheet with each face and its answers). Next:
   the Notebook, attempts under the card, the tutor's chat history.
 
 ### 7 — Speech

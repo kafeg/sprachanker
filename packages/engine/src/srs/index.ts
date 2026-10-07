@@ -24,8 +24,6 @@ export const SRS_DEFAULTS = {
   /** A card forgotten this many times is a leech. */
   leechLapses: 8,
 } as const;
-/** Stability from which a word counts as in long-term memory (04, "Lexeme state"). */
-export const LONG_TERM_DAYS = 21;
 /** A note's card types in order: recognition is card 1, production card 2, listening card 3. */
 export const FACE_ORDER: CardFace[] = ["recognition", "production", "listening"];
 
@@ -260,13 +258,18 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
   };
 }
 
-/** How far a word is: never reviewed, learning, or in long-term memory (stability ≥ 21 days on a face). */
-export function wordState(
-  states: Partial<Record<CardFace, FaceState>>,
-): "new" | "learning" | "long_term" {
-  const list = Object.values(states);
-  if (!list.length) return "new";
-  return list.some((s) => s.stability >= LONG_TERM_DAYS) ? "long_term" : "learning";
+export type Stage = "new" | "learning" | "review";
+
+/** A face as Anki counts it: new (never answered), learning (learning or relearning), or review. */
+export const faceStage = (state: FaceState | null | undefined): Stage =>
+  !state || state.state === 0 ? "new" : state.state === 2 ? "review" : "learning";
+
+/** A word as the learner's words show it (04, "Lexeme state"): new until a face is answered, learning
+ *  while a face is (re)learning, else review. */
+export function wordState(states: Partial<Record<CardFace, FaceState>>): Stage {
+  const stages = Object.values(states).map(faceStage);
+  if (stages.includes("learning")) return "learning";
+  return stages.includes("review") ? "review" : "new";
 }
 
 /** A leech: a face forgotten 8 times (Anki tags it; the learner decides what to do). */

@@ -466,6 +466,41 @@
     "learnt": "Die Wörter der Lektion sind für jetzt gelernt.",
     "goOn": "{count, plural, =0 {Sie kommen in der Wiederholung zurück, wenn sie fällig sind.} one {# Lernkarte kommt bald in der Wiederholung zurück.} other {# Lernkarten kommen bald in der Wiederholung zurück.}}"
   },
+  "myWords": {
+    "title": "Meine Wörter",
+    "search": "Wort oder Übersetzung suchen",
+    "allDecks": "Alle Stapel",
+    "all": "Alle",
+    "state": {
+      "new": "Neu",
+      "learning": "Lernen",
+      "review": "Wiederholen",
+      "suspended": "Ausgesetzt",
+      "marked": "Markiert"
+    },
+    "column": {
+      "word": "Wort",
+      "translation": "Übersetzung",
+      "state": "Stand",
+      "due": "Fällig"
+    },
+    "dueNow": "jetzt",
+    "dueIn": "in {interval}",
+    "nothing": "Keine passenden Wörter.",
+    "sheet": "Wort",
+    "toLesson": "Lektion {unit}.{lesson}",
+    "cards": "Karten",
+    "answers": "Antworten",
+    "noAnswers": "Noch nicht beantwortet.",
+    "face": {
+      "recognition": "Wort → Bedeutung",
+      "production": "Bedeutung → Wort",
+      "listening": "Hören"
+    },
+    "lapses": "{count, plural, one {# Mal vergessen} other {# Mal vergessen}}",
+    "suspend": "Aussetzen",
+    "unsuspend": "Wieder lernen"
+  },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",
     "fromLesson": "Lektion {unit}.{lesson}",

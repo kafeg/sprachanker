@@ -40,6 +40,20 @@ export const COUNT_TONE = {
   review: "text-correct",
 } as const;
 
+/** An interval as Anki writes it ("<10m", "4d", "1.2mo"), in the learner's language. */
+export function useIntervalText() {
+  const { t } = useTranslation();
+  return (ms: number) =>
+    intervalText(ms, {
+      s: t("study.unit.s"),
+      m: t("study.unit.m"),
+      h: t("study.unit.h"),
+      d: t("study.unit.d"),
+      mo: t("study.unit.mo"),
+      y: t("study.unit.y"),
+    });
+}
+
 /** On a Mac, Ctrl is ⌘ (the reviewer takes either). */
 const MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 
@@ -124,6 +138,7 @@ export function StudySession({
   const { t } = useTranslation();
   const study = useStudy(scope);
   const actions = useCardActions();
+  const intervalOf = useIntervalText();
   // Counts ratings and undos, so a card back on screen (a learning step, an undo) opens anew.
   const [turn, setTurn] = useState(0);
   const sound = useRef<AudioControls>(null);
@@ -227,14 +242,6 @@ export function StudySession({
       <Finished study={data} onUnbury={() => actions.unbury.mutate(scope)} />
     );
 
-  const units = {
-    s: t("study.unit.s"),
-    m: t("study.unit.m"),
-    h: t("study.unit.h"),
-    d: t("study.unit.d"),
-    mo: t("study.unit.mo"),
-    y: t("study.unit.y"),
-  };
   const marks = (
     <>
       {current.flag > 0 && (
@@ -300,7 +307,7 @@ export function StudySession({
           ) : (
             <div className="grid w-full max-w-lg grid-cols-4 gap-1.5">
               {RATINGS.map(({ rating, key, phone }) => {
-                const interval = intervalText(current.due[rating] - data.now, units);
+                const interval = intervalOf(current.due[rating] - data.now);
                 return (
                   <div key={rating} className="grid justify-items-stretch gap-0.5">
                     <span className="hidden text-center text-xs text-muted-foreground tabular-nums sm:block">

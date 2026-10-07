@@ -466,6 +466,41 @@
     "learnt": "The lesson's words are studied for now.",
     "goOn": "{count, plural, =0 {They come back in Review when they are due.} one {# card in learning comes back in Review soon.} other {# cards in learning come back in Review soon.}}"
   },
+  "myWords": {
+    "title": "My words",
+    "search": "Find a word or translation",
+    "allDecks": "All decks",
+    "all": "All",
+    "state": {
+      "new": "New",
+      "learning": "Learning",
+      "review": "Review",
+      "suspended": "Suspended",
+      "marked": "Marked"
+    },
+    "column": {
+      "word": "Word",
+      "translation": "Translation",
+      "state": "State",
+      "due": "Next"
+    },
+    "dueNow": "now",
+    "dueIn": "in {interval}",
+    "nothing": "No words match.",
+    "sheet": "Word",
+    "toLesson": "Lesson {unit}.{lesson}",
+    "cards": "Cards",
+    "answers": "Answers",
+    "noAnswers": "Not answered yet.",
+    "face": {
+      "recognition": "Word → meaning",
+      "production": "Meaning → word",
+      "listening": "Listening"
+    },
+    "lapses": "{count, plural, one {forgotten # time} other {forgotten # times}}",
+    "suspend": "Suspend",
+    "unsuspend": "Unsuspend"
+  },
   "study": {
     "listen": "Listen and recall the meaning",
     "fromLesson": "lesson {unit}.{lesson}",

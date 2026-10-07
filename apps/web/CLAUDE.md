@@ -9,7 +9,7 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 apps/web/src/
   routes/          # router.tsx (code-based TanStack Router), courses (my courses, all courses), course map
                    # with its head in course-info (progress, source, stats, integrity, sync), review
-                   # (decks, a deck's overview, the session), settings
+                   # (decks, a deck's overview, the session), words (My words, under Decks), settings
   lesson/          # lesson player: player (run flow over the plan's steps), use-run (run + events), plan,
                    # overview, words-step, steps (reading pages, the step bar), exercise step,
                    # mistakes-status (the run counted for "Going over mistakes"), summary, reference,
@@ -24,7 +24,7 @@ apps/web/src/
                    # chat panel, composer, errors
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell, media
-  word/            # gender colouring
+  word/            # gender colouring; word-sheet (a word with cards in full: forms, faces, answers)
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```

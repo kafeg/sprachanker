@@ -9,6 +9,7 @@ import { CoursePage } from "./course.tsx";
 import { CatalogPage, MyCoursesPage } from "./courses.tsx";
 import { ReviewPage } from "./review.tsx";
 import { SettingsPage } from "./settings.tsx";
+import { WordsPage } from "./words.tsx";
 
 const root = createRootRoute({
   component: function Root() {
@@ -53,6 +54,14 @@ review.update({
     return <ReviewPage showDecks={!!search.decks} go={(next) => void navigate({ search: next })} />;
   },
 });
+const words = createRoute({
+  getParentRoute: () => shell,
+  path: "/review/words",
+  component: function Words() {
+    const navigate = words.useNavigate();
+    return <WordsPage back={() => void navigate({ to: "/review", search: { decks: true } })} />;
+  },
+});
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",
@@ -74,7 +83,7 @@ lesson.update({
 
 export const router = createRouter({
   routeTree: root.addChildren([
-    shell.addChildren([courses, catalog, course, review, settings]),
+    shell.addChildren([courses, catalog, course, review, words, settings]),
     lesson,
   ]),
   defaultPreload: "intent",

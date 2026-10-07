@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import type { FaceState } from "@sprachanker/schema";
 import {
+  faceStage,
   intervals,
   intervalText,
   isLeech,
@@ -152,9 +153,9 @@ test("queue: suspended and buried faces are left out; learning cards come early 
 
 test("word state and leeches", () => {
   expect(wordState({})).toBe("new");
-  expect(wordState({ recognition: state(NOW, 2, 3) })).toBe("learning");
-  expect(wordState({ recognition: state(NOW, 2, 3), production: state(NOW, 2, 25) })).toBe(
-    "long_term",
-  );
+  expect(wordState({ recognition: state(NOW, 2) })).toBe("review");
+  expect(wordState({ recognition: state(NOW, 2), production: state(NOW, 3) })).toBe("learning");
+  expect(wordState({ recognition: state(NOW, 1) })).toBe("learning");
+  expect(faceStage(state(NOW, 0))).toBe("new");
   expect(isLeech({ ...state(NOW, 2), lapses: 8 })).toBe(true);
 });

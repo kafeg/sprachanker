@@ -40,8 +40,9 @@ later areas are fixed in the stage that builds them.
   language with its courses and their counts), `GET /api/cards/study?scope=` (the counts, the current
   face with its due time per rating, why a finished deck is finished, whether there is an answer to
   take back), `POST /api/cards/:id/review` (a rating), `POST /api/cards/undo`, `POST /api/cards/:id/bury`,
-  `POST /api/cards/unbury`, `PUT /api/cards/:id/suspend|flag|mark`, `GET /api/cards` (the learner's
-  words with their state). A rating carries its event id (sent again, it is not applied twice) and the
+  `POST /api/cards/unbury`, `PUT /api/cards/:id/suspend|flag|mark`, `GET /api/cards` (My words: the
+  learner's words with their language, course, state and next due), `GET /api/cards/:id` (the word sheet:
+  each face's state and the answers given, newest first, those taken back left out). A rating carries its event id (sent again, it is not applied twice) and the
   face's review count as shown (a face rated meanwhile on another device is refused: 409 `card_changed`).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts

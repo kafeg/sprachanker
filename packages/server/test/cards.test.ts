@@ -265,3 +265,34 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
   expect(count()).toBe(before);
   expect(sqlite.query("SELECT 1 FROM cards WHERE lexeme_key = ?").get(kaffee)).toBeTruthy();
 });
+
+test("My words: a word's sheet has each face's state and its answers; an undone answer is left out", async () => {
+  const { send, sendJson, getJson } = await withCards();
+  const word = (await getJson("/api/cards")).words.find(
+    (w: { lexemeKey: string }) => w.lexemeKey === "lex:de:kaffee:noun:m",
+  );
+  expect([word.lang, word.course, word.state, word.due]).toEqual(["de", COURSE, "new", null]);
+  const rate = (face: string, rating: number, reps: number) =>
+    sendJson("POST", `/api/cards/${word.cardId}/review`, { id: ulid(), face, rating, reps });
+  await rate("recognition", 1, 0);
+  await rate("recognition", 3, 1);
+  await rate("production", 3, 0);
+  await sendJson("POST", "/api/cards/undo", {});
+  const sheet = await getJson(`/api/cards/${word.cardId}`);
+  expect(sheet.state).toBe("learning");
+  expect(sheet.faces.map((f: { face: string; stage: string }) => [f.face, f.stage])).toEqual([
+    ["recognition", "learning"],
+    ["production", "new"],
+  ]);
+  // Newest first; the production answer was taken back.
+  expect(sheet.answers.map((a: { face: string; rating: number }) => [a.face, a.rating])).toEqual([
+    ["recognition", 3],
+    ["recognition", 1],
+  ]);
+  expect(sheet.due).toBe(sheet.faces[0].due);
+  // A suspended word is not due; a word that is not there is a 404.
+  await send("PUT", `/api/cards/${word.cardId}/suspend`, { suspended: true });
+  const suspended = await getJson(`/api/cards/${word.cardId}`);
+  expect([suspended.suspended, suspended.due]).toEqual([true, null]);
+  expect((await send("GET", `/api/cards/${ulid()}`, undefined)).status).toBe(404);
+});

@@ -89,7 +89,8 @@ The rest is planned:
 - **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM
   corrections (07).
 - **Rule mastery**: accuracy over recent attempts per rule (formula fixed in stage 9a).
-- **Lexeme state**: seen, practised, FSRS stability; "in long-term memory" when stability ≥ 21 days.
+- **Lexeme state**: as Anki counts its cards — new until a face is answered, learning while a face is
+  learning or relearning, else review; each face keeps its FSRS state (stability, due, lapses).
 - **Item history**: attempts per item (lesson progress — status `new | in_progress | done`, best
   score — is built).
 - **Can-do**: a course goal is achieved when its linked lessons are completed.
