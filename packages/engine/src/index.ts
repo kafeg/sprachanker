@@ -1,5 +1,6 @@
 export * from "./check/index.ts";
 export * from "./compose/steps.ts";
+export * from "./learner/activity.ts";
 export * from "./learner/mistakes.ts";
 export * from "./learner/progress.ts";
 export * from "./srs/day.ts";

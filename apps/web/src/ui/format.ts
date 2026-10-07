@@ -2,15 +2,27 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-const DATE: Record<"day" | "dayTime", Intl.DateTimeFormatOptions> = {
+const DATE: Record<"day" | "dayTime" | "month" | "weekday", Intl.DateTimeFormatOptions> = {
   day: { day: "numeric", month: "short" },
   dayTime: { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" },
+  month: { month: "short" },
+  weekday: { weekday: "short" },
 };
 
-/** A date as a day ("7 Oct") or a day with its time ("7 Oct, 15:28"). */
+/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its month ("Oct") or its
+ *  weekday ("Mon"). */
 export function useDateFormat(kind: keyof typeof DATE) {
   const { i18n } = useTranslation();
   return useMemo(() => new Intl.DateTimeFormat(i18n.language, DATE[kind]), [i18n.language, kind]);
+}
+
+/** A count as the language writes it ("1,234"; "1 234"). */
+export function useNumber() {
+  const { i18n } = useTranslation();
+  return useMemo(() => {
+    const format = new Intl.NumberFormat(i18n.language);
+    return (value: number) => format.format(value);
+  }, [i18n.language]);
 }
 
 /** A share 0..1 as a percentage. */

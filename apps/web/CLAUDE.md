@@ -27,8 +27,8 @@ apps/web/src/
                    # Review: Anki's deck options)
   exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
-  notebook/        # the Notebook: page (study days, lessons), lesson (passes), pass (in full), compare,
-                   # item-history, mark
+  notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
+                   # (passes), pass (in full), compare, item-history, mark
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
                    # in and out, PIN, passkeys, devices; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
@@ -47,7 +47,8 @@ apps/web/src/
                    # (rows that open, lists of earlier items), side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button), sections (a course page's
-                   # sections; CourseSections in course-html shows them as cards)
+                   # sections; CourseSections in course-html shows them as cards), activity-calendar (a
+                   # year of days as squares)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

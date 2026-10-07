@@ -561,9 +561,8 @@
   },
   "notebook": {
     "title": "Тетрадь",
-    "days": "Учебные дни",
-    "today": "сегодня",
-    "dayTitle": "{date}: {count, plural, =0 {ничего} one {# действие} few {# действия} many {# действий} other {# действия}}",
+    "days": "Активность",
+    "dayTitle": "{date}: {what}",
     "empty": "Пока пусто: здесь появятся уроки, над которыми вы работали, со всеми прохождениями.",
     "passesCount": "{count, plural, one {# прохождение} few {# прохождения} many {# прохождений} other {# прохождения}}",
     "open": "идёт",
@@ -589,9 +588,36 @@
     "itemHistory": "История пункта",
     "passOf": "Прохождение {date}",
     "attemptN": "Попытка {n, number}",
-    "more": "Ещё в этом прохождении",
+    "more": "Больше",
     "wordsAdded": "Слова, добавленные в повторение",
-    "messages": "{count, plural, one {# сообщение} few {# сообщения} many {# сообщений} other {# сообщения}}"
+    "messages": "{count, plural, one {# сообщение} few {# сообщения} many {# сообщений} other {# сообщения}}",
+    "nothing": "ничего",
+    "kind": {
+      "lesson": "уроки {count, number}",
+      "review": "карточки {count, number}",
+      "ai": "ИИ {count, number}"
+    },
+    "less": "Меньше",
+    "calendar": "Дни занятий за последний год",
+    "progress": "Прогресс",
+    "wordsKnown": "Слов выучено",
+    "wordsKnownHint": "все карточки слова на повторении",
+    "lessonsDone": "Уроков пройдено",
+    "range": {
+      "all": "Всё время",
+      "month": "30 дней",
+      "week": "7 дней"
+    },
+    "tile": {
+      "activeDays": "Дней занятий",
+      "lesson": "Упражнения и шаги",
+      "review": "Ответов на карточки",
+      "newCards": "Новых карточек",
+      "remembered": "Вспомнено",
+      "rememberedHint": "из карточек на повторении",
+      "ai": "Практика с ИИ"
+    },
+    "lessons": "Уроки"
   },
   "study": {
     "listen": "Послушайте и вспомните значение",

@@ -1,15 +1,22 @@
-// The Notebook (09): what the learner did, read from the runs — study days, lessons with their passes,
+// The Notebook (09): what the learner did, read from the runs — study days (the engine's activity), the
+// totals (words known, lessons done), lessons with their passes,
 // a pass in full (its events, the exercises as shown, explanations, writing checks, words added, chats
 // and scenes held meanwhile), and one item across passes. Read only; storage goes through the run store,
 // chats and scenes through their services.
-import { exerciseResults, lessonCoverage, studyDay } from "@sprachanker/engine";
+import {
+  ACTIVITY_EVENTS,
+  activityByDay,
+  exerciseResults,
+  type LessonProgress,
+  lessonCoverage,
+  lessonDone,
+  studyDay,
+} from "@sprachanker/engine";
 import { WritingCheck } from "@sprachanker/llm";
 import {
   type AnsweredPayload,
-  type EventType,
   type ItemKey,
   type LessonKey,
-  type LlmTurnPayload,
   type LlmVerdictPayload,
   lessonOf,
   parseItemKey,
@@ -24,18 +31,14 @@ import { toRun, WORK_EVENTS } from "./runs.ts";
 import type { Scenes } from "./scene.ts";
 import type { Tutor } from "./tutor.ts";
 
-/** How many study days the Notebook's strip shows, today last. */
-export const NOTEBOOK_DAYS = 14;
-
-/** What the learner did on a day: lesson work, card answers, messages, checks. */
-const DAY_EVENTS: EventType[] = [...WORK_EVENTS, "card_review", "llm_turn", "llm_verdict"];
-
 export function createNotebook(deps: {
   store: RunStore;
   content: Content;
   cards: CardStore;
   tutor: Tutor;
   scenes: Scenes;
+  /** Each lesson's progress (the runs service's). */
+  progress: () => Promise<Record<string, LessonProgress>>;
   /** The hour the learner's day starts (the Review settings). */
   dayStartHour: () => number;
   now: () => number;
@@ -102,22 +105,24 @@ export function createNotebook(deps: {
 
   return {
     /**
-     * The Notebook's first page: the last study days with how much was done on each (oldest first),
-     * and the courses with the lessons worked on — passes, best score, one open, last work.
+     * The Notebook's first page: every study day with something done (oldest first, what each held)
+     * and today's start; the words known (every face of the note in review) and the lessons done; the
+     * courses with the lessons worked on — passes, best score, one open, last work.
      */
     async overview() {
-      const starts: number[] = [];
-      let start = dayOf(deps.now()).start;
-      while (starts.length < NOTEBOOK_DAYS) {
-        starts.unshift(start);
-        start = dayOf(start - 1).start;
-      }
-      const counts = new Map(starts.map((s) => [s, 0]));
-      for (const e of store.eventsWhere({ types: DAY_EVENTS, since: starts[0] })) {
-        if (e.type === "llm_turn" && (e.payload as LlmTurnPayload).role !== "user") continue;
-        const day = dayOf(e.ts).start;
-        counts.set(day, (counts.get(day) ?? 0) + 1);
-      }
+      const days = activityByDay(
+        store.eventsWhere({ types: [...ACTIVITY_EVENTS] }),
+        (t) => dayOf(t).start,
+      );
+      const states = deps.cards.states();
+      const wordsKnown = deps.cards
+        .all()
+        .filter((note) =>
+          deps.cards
+            .facesOf(note)
+            .every((face) => deps.cards.stateOf(states.get(`${note.id}:${face}`))?.state === 2),
+        ).length;
+      const lessonsDone = Object.values(await deps.progress()).filter(lessonDone).length;
 
       const worked = store.lastActivity([...WORK_EVENTS]);
       const byLesson = new Map<LessonKey, RunRow[]>();
@@ -158,7 +163,10 @@ export function createNotebook(deps: {
         };
       });
       return {
-        days: starts.map((start) => ({ start, count: counts.get(start) ?? 0 })),
+        days,
+        today: dayOf(deps.now()).start,
+        wordsKnown,
+        lessonsDone,
         courses: courses.sort((a, b) => b.lastAt - a.lastAt),
       };
     },

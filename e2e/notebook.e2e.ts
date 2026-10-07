@@ -1,5 +1,5 @@
-// The Notebook: lessons worked on with their passes, two passes compared, a pass in full, an item's
-// history across passes.
+// The Notebook: progress and the study days (today's lesson work in the calendar), lessons worked on
+// with their passes, two passes compared, a pass in full, an item's history across passes.
 import { expect, test } from "@playwright/test";
 import { answerPicture, DEMO_LESSON, freshLessonRun, openStep, post } from "./api.ts";
 
@@ -26,7 +26,12 @@ test("the Notebook: a lesson's passes, compared, one in full, an item across pas
 
   await page.goto("/notebook");
   await expect(page.getByRole("heading", { name: "Notebook" })).toBeVisible();
-  await expect(page.getByText("Study days")).toBeVisible();
+  await expect(page.getByText("Words known")).toBeVisible();
+  await expect(page.getByRole("img", { name: "Study days over the last year" })).toBeVisible();
+  // Today is the calendar's last day, in sight on a phone too, and holds the lesson work.
+  await expect(page.getByTitle(/: lessons \d+/).last()).toBeInViewport();
+  await page.getByRole("button", { name: "7 days" }).click();
+  await expect(page.getByText("Exercises and steps").locator("..")).not.toContainText(/^0/);
   const lesson = page.getByRole("button", { name: /0\.1 Im Café/ });
   await expect(lesson).toContainText("2 passes");
   await lesson.click();

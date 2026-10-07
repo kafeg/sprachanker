@@ -86,6 +86,7 @@ function profileServices(
     cards: cardStore,
     tutor,
     scenes,
+    progress: runs.progress,
     dayStartHour: () => settings.get("srs.dayStartHour") ?? SRS_DEFAULTS.dayStartHour,
     now,
   });

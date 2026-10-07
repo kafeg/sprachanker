@@ -561,9 +561,8 @@
   },
   "notebook": {
     "title": "Notebook",
-    "days": "Study days",
-    "today": "today",
-    "dayTitle": "{date}: {count, plural, =0 {nothing done} one {# action} other {# actions}}",
+    "days": "Activity",
+    "dayTitle": "{date}: {what}",
     "empty": "Nothing yet: the lessons you work on appear here, with every pass.",
     "passesCount": "{count, plural, one {# pass} other {# passes}}",
     "open": "in progress",
@@ -589,9 +588,36 @@
     "itemHistory": "Item history",
     "passOf": "Pass of {date}",
     "attemptN": "Attempt {n, number}",
-    "more": "Also in this pass",
+    "more": "More",
     "wordsAdded": "Words added to Review",
-    "messages": "{count, plural, one {# message} other {# messages}}"
+    "messages": "{count, plural, one {# message} other {# messages}}",
+    "nothing": "nothing done",
+    "kind": {
+      "lesson": "lessons {count, number}",
+      "review": "cards {count, number}",
+      "ai": "AI {count, number}"
+    },
+    "less": "Less",
+    "calendar": "Study days over the last year",
+    "progress": "Progress",
+    "wordsKnown": "Words known",
+    "wordsKnownHint": "every card of the word is in review",
+    "lessonsDone": "Lessons done",
+    "range": {
+      "all": "All time",
+      "month": "30 days",
+      "week": "7 days"
+    },
+    "tile": {
+      "activeDays": "Study days",
+      "lesson": "Exercises and steps",
+      "review": "Cards answered",
+      "newCards": "New cards",
+      "remembered": "Remembered",
+      "rememberedHint": "of the cards in review",
+      "ai": "AI practice"
+    },
+    "lessons": "Lessons"
   },
   "study": {
     "listen": "Listen and recall the meaning",

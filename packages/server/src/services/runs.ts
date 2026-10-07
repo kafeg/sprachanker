@@ -4,6 +4,7 @@ import {
   checkItem,
   courseProgress,
   exerciseResults,
+  LESSON_WORK,
   lessonCoverage,
   lessonDone,
   lessonProgress,
@@ -46,9 +47,8 @@ export const toRun = (r: RunRow): Run => ({
   result: readStored(r.resultJson, LessonResult, `result of run ${r.id}`) ?? null,
 });
 
-/** What counts as work done in a lesson run: an answer, a skip, a step of the plan (words, a page read,
- *  practice). A run without any is only a lesson opened. */
-export const WORK_EVENTS = ["answered", "item_skipped", "step_done"] as const satisfies EventType[];
+/** What counts as work done in a lesson run (the engine's `LESSON_WORK`). */
+export const WORK_EVENTS = LESSON_WORK;
 
 /** A lesson on the course map: whether it counts as done, and the run it opens as the lesson shows it. */
 export interface LessonState {

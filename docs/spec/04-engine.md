@@ -83,7 +83,11 @@ the UI never re-checks an answer.
 Pure functions over events and cards (05). Built: lesson result (mean first-attempt score), resume
 page and lesson progress (`packages/engine/src/learner/progress.ts`; the best score counts only runs
 that scored an item, so a lesson of words only is done without a score); mistakes (items whose first attempt in the latest run
-that answered them was wrong or partial; `learner/mistakes.ts`), read by the server per request.
+that answered them was wrong or partial; `learner/mistakes.ts`), read by the server per request;
+study days (`learner/activity.ts`): what each day held — lesson work (answers, skips, steps), card
+answers (one taken back by undo does not count), new cards learnt, answers to cards in review and those
+not "Again" (the share remembered), AI practice (the learner's messages, checks asked for) — and the
+totals of a span of days.
 The rest is planned:
 
 - **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM

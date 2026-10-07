@@ -29,23 +29,7 @@ offered (03, "Offered in the app").
 
 ## Next, in order
 
-### 1. Notebook: study days and progress (owner's request, 2026-10-07)
-Specs: 04, 05, 09.
-- A study day counts every kind of work and shows it apart: lessons (exercises answered, mistakes,
-  steps), review (cards answered, new cards learnt, the share remembered, time), AI practice. An answer
-  taken back (undo) no longer counts. All of it derived from the events by pure functions (engine), as
-  the event log intends (05).
-- The Notebook becomes progress first, journal second (owner, 2026-10-07): on top, a year of study
-  days as a calendar of squares by how much was done (as GitHub's contributions and Claude's activity
-  show it) and tiles with the totals — active days, words known, lessons done, cards answered, time —
-  for all time, 30 or 7 days; under it the journal as today (courses → lessons → passes, item history,
-  passes compared), where mistakes are looked up again. No punishing streaks (00, non-goals).
-- More pictures: reviews and new cards per day, the share remembered over time, words by state (new,
-  learning, known), lessons and courses done; a review day opens to its answers as a lesson pass does.
-- Mockups first. **Accept**: engine tests of the derivations on synthetic events; server tests; e2e of
-  the Notebook on desktop and phone.
-
-### 2. AI examples for a word (owner's request, 2026-10-07)
+### 1. AI examples for a word (owner's request, 2026-10-07)
 Specs: 04, 07, 09.
 - On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
   an example sentence with its translation in the card's translation language.
@@ -59,14 +43,14 @@ Specs: 04, 07, 09.
 - **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
   the fake server on desktop and phone.
 
-### 3. Speech
+### 2. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 4. Exams: Leben in Deutschland
+### 3. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
@@ -74,6 +58,13 @@ Specs: 02, 03, 06, 09.
   then Downloaded and My courses) and installed from the interface like any course, its exam opened
   from its course page.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
+
+### 4. Notebook: more pictures (owner's request, 2026-10-07)
+Specs: 04, 05, 09.
+- Reviews and new cards per day, the share remembered over time, words by state (new, learning,
+  known), lessons and courses done; a review day opens to its answers as a lesson pass does.
+- Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
+- **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
 ### 5. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).

@@ -561,9 +561,8 @@
   },
   "notebook": {
     "title": "Notizbuch",
-    "days": "Lerntage",
-    "today": "heute",
-    "dayTitle": "{date}: {count, plural, =0 {nichts} one {# Aktion} other {# Aktionen}}",
+    "days": "Aktivität",
+    "dayTitle": "{date}: {what}",
     "empty": "Noch leer: Hier erscheinen die Lektionen, an denen du gearbeitet hast, mit jedem Durchgang.",
     "passesCount": "{count, plural, one {# Durchgang} other {# Durchgänge}}",
     "open": "läuft",
@@ -589,9 +588,36 @@
     "itemHistory": "Verlauf der Aufgabe",
     "passOf": "Durchgang vom {date}",
     "attemptN": "Versuch {n, number}",
-    "more": "Außerdem in diesem Durchgang",
+    "more": "Mehr",
     "wordsAdded": "Zum Wiederholen hinzugefügte Wörter",
-    "messages": "{count, plural, one {# Nachricht} other {# Nachrichten}}"
+    "messages": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
+    "nothing": "nichts",
+    "kind": {
+      "lesson": "Lektionen {count, number}",
+      "review": "Karten {count, number}",
+      "ai": "KI {count, number}"
+    },
+    "less": "Weniger",
+    "calendar": "Lerntage im letzten Jahr",
+    "progress": "Fortschritt",
+    "wordsKnown": "Gelernte Wörter",
+    "wordsKnownHint": "alle Karten des Worts in der Wiederholung",
+    "lessonsDone": "Lektionen abgeschlossen",
+    "range": {
+      "all": "Gesamt",
+      "month": "30 Tage",
+      "week": "7 Tage"
+    },
+    "tile": {
+      "activeDays": "Lerntage",
+      "lesson": "Übungen und Schritte",
+      "review": "Karten beantwortet",
+      "newCards": "Neue Karten",
+      "remembered": "Gewusst",
+      "rememberedHint": "der Karten in der Wiederholung",
+      "ai": "Übung mit KI"
+    },
+    "lessons": "Lektionen"
   },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",

@@ -29,10 +29,10 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
       },
     ]);
 
-  // An empty Notebook: the days are there, nothing worked on yet.
+  // An empty Notebook: no study days, nothing known, nothing worked on yet.
   const empty = await getJson("/api/notebook");
-  expect(empty.days).toHaveLength(14);
-  expect(empty.courses).toEqual([]);
+  expect(empty).toMatchObject({ days: [], wordsKnown: 0, lessonsDone: 0, courses: [] });
+  expect(empty.today).toBeLessThanOrEqual(Date.now());
 
   // A lesson opened and started over without any work is no pass.
   await start();
@@ -49,7 +49,33 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
   await answer(second, "a", 1);
 
   const overview = await getJson("/api/notebook");
-  expect(overview.days.at(-1).count).toBe(3);
+  // Today: three lesson answers; the words added are new cards, none known yet.
+  expect(overview.days).toEqual([
+    {
+      start: overview.today,
+      lesson: 3,
+      review: 0,
+      newCards: 0,
+      recalled: 0,
+      remembered: 0,
+      ai: 0,
+    },
+  ]);
+  expect(overview).toMatchObject({ wordsKnown: 0, lessonsDone: 0 });
+
+  // Two cards answered and one answer taken back: one review, one new card learnt.
+  const scope = `/api/cards/study?scope=${encodeURIComponent("course:sprachanker.fixture/demo")}`;
+  for (let i = 0; i < 2; i++) {
+    const { current } = await getJson(scope);
+    await sendJson("POST", `/api/cards/${current.cardId}/review`, {
+      id: ulid(),
+      reps: 0,
+      face: current.face,
+      rating: 3,
+    });
+  }
+  await sendJson("POST", "/api/cards/undo", {});
+  expect((await getJson("/api/notebook")).days[0]).toMatchObject({ review: 1, newCards: 1 });
   expect(overview.courses).toMatchObject([
     {
       key: "sprachanker.fixture/demo",

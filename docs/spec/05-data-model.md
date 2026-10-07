@@ -194,5 +194,7 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   `abandoned/content_updated`; finished runs stay readable via snapshots.
 - **Course removed**: runs stay readable via snapshots; lexeme cards keep working from
   `display_cache_json`.
+- **Study days** are read from the event log, never stored (04, "Learner model"): the Notebook counts
+  each day's lesson work, card answers and AI practice; a `card_undo` takes its review out.
 - **Study days** use the time zone of the machine the server runs on (the learner's own computer);
   a per-profile time zone comes with profiles if a profile's devices live elsewhere.
