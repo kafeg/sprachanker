@@ -2,7 +2,7 @@
 // they share — back, skip where a step can be left undone, next.
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { CourseHtml } from "@/ui/course-html.tsx";
+import { CourseSections } from "@/ui/course-html.tsx";
 import { cn } from "@/ui/utils.ts";
 import { pageTitle } from "./reference.tsx";
 
@@ -93,7 +93,7 @@ export function ReadingStep({
   return (
     <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
       <StepHeader label={section} title={pageTitle(page, t)} />
-      <CourseHtml className="text-lg" html={page.bodyHtml} />
+      <CourseSections className="text-lg" html={page.bodyHtml} />
       {children}
     </article>
   );

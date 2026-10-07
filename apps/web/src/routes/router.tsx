@@ -7,7 +7,7 @@ import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
 import { NotebookPage } from "@/notebook/page.tsx";
-import { PlaybackRate } from "@/ui/media.tsx";
+import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursePage } from "./course.tsx";
 import { CatalogPage, MyCoursesPage } from "./courses.tsx";
 import { ReviewPage } from "./review.tsx";

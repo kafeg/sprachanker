@@ -118,6 +118,24 @@ export function createCardStore(db: ProfileDb) {
         .onConflictDoUpdate({ target: [cardState.cardId, cardState.face], set: values })
         .run(),
 
+    /** The notes made in some runs (their origin), as stored. */
+    idsMadeIn: (runIds: string[]) =>
+      runIds.length
+        ? db
+            .select({ id: cards.id })
+            .from(cards)
+            .where(inArray(cards.originRunId, runIds))
+            .all()
+            .map((r) => r.id)
+        : [],
+
+    /** Deletes notes with their faces (resetting the progress of the lesson that made them). */
+    remove(cardIds: string[]) {
+      if (!cardIds.length) return;
+      db.delete(cardState).where(inArray(cardState.cardId, cardIds)).run();
+      db.delete(cards).where(inArray(cards.id, cardIds)).run();
+    },
+
     /** Brings back the buried faces of some notes. */
     unbury: (cardIds: string[]) =>
       db

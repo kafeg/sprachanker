@@ -29,6 +29,7 @@ import {
   seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import { type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
@@ -62,7 +63,16 @@ export interface LessonState {
   };
 }
 
-export function createRuns({ store, content }: { store: RunStore; content: Content }) {
+export function createRuns({
+  store,
+  cards,
+  content,
+}: {
+  store: RunStore;
+  /** The cards a run made go with it when progress is reset. */
+  cards: CardStore;
+  content: Content;
+}) {
   /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
     const row = store.get(id, "lesson");
@@ -209,11 +219,19 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
 
     /**
      * Resets the learner's progress in a course, or in one of its lessons: every run of it — lesson
-     * runs, tutor chats, writing checks, scenes — and their events are deleted. The only
-     * deletion of events besides removing a profile; the screen asks for confirmation (05).
+     * runs, tutor chats, writing checks, scenes — and their events are deleted, and so are the cards
+     * those runs made (the words first met there) with their answers. Words a card came from another
+     * lesson for stay. The only deletion of events besides removing a profile; the screen asks for
+     * confirmation (05).
      */
-    reset(course: CourseKey, lesson?: LessonKey): { runs: number; events: number } {
-      return store.remove(store.idsOf(lesson ? { lesson } : { course }));
+    reset(course: CourseKey, lesson?: LessonKey) {
+      return store.atomic(() => {
+        const runIds = store.idsOf(lesson ? { lesson } : { course });
+        const cardIds = cards.idsMadeIn(runIds);
+        const removed = store.remove(runIds, cardIds);
+        cards.remove(cardIds);
+        return { ...removed, cards: cardIds.length };
+      });
     },
 
     /** The active run of the lesson, or a new one; `restart` ends the active one first. Everything is

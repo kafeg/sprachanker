@@ -145,7 +145,8 @@
   },
   "video": {
     "hd": "HD",
-    "sd": "SD"
+    "sd": "SD",
+    "subtitles": "Subtitles"
   },
   "ex": {
     "chooseSeveral": "Several answers can be right.",
@@ -427,9 +428,9 @@
     "removeCourse": "Remove from my courses",
     "resetLesson": "Reset lesson progress",
     "courseTitle": "Reset your progress in “{title}”?",
-    "courseBody": "All answers and lesson runs of this course are deleted, with the tutor chats, writing checks and scenes about it. The course leaves “My courses” but stays installed. This cannot be undone.",
+    "courseBody": "All answers and lesson runs of this course are deleted, with the tutor chats, writing checks and scenes about it, and the word cards its lessons made with their reviews. The course leaves “My courses” but stays installed. This cannot be undone.",
     "lessonTitle": "Reset your progress in “{title}”?",
-    "lessonBody": "All answers and runs of this lesson are deleted, with its tutor chat, writing checks and scenes. This cannot be undone.",
+    "lessonBody": "All answers and runs of this lesson are deleted, with its tutor chat, writing checks and scenes, and the word cards it made with their reviews (words from other lessons stay). This cannot be undone.",
     "confirm": "Reset"
   },
   "download": {

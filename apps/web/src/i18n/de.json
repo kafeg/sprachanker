@@ -145,7 +145,8 @@
   },
   "video": {
     "hd": "HD",
-    "sd": "SD"
+    "sd": "SD",
+    "subtitles": "Untertitel"
   },
   "ex": {
     "chooseSeveral": "Mehrere Antworten können richtig sein.",
@@ -427,9 +428,9 @@
     "removeCourse": "Aus meinen Kursen entfernen",
     "resetLesson": "Lektionsfortschritt zurücksetzen",
     "courseTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
-    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen und Szenen dazu. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
+    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen und Szenen dazu sowie die Wortkarten seiner Lektionen mit ihren Wiederholungen. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
     "lessonTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
-    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen und Szenen. Das lässt sich nicht rückgängig machen.",
+    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen und Szenen sowie die Wortkarten, die sie angelegt hat, mit ihren Wiederholungen (Wörter aus anderen Lektionen bleiben). Das lässt sich nicht rückgängig machen.",
     "confirm": "Zurücksetzen"
   },
   "download": {

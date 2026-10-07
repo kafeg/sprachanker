@@ -120,9 +120,10 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   its name and the UI shows "deleted".
 - **Resetting progress** is the exception, on the learner's confirmed request: for a course (it then
   leaves "My courses") or one lesson, every run of it — lesson runs with their kept explanations, tutor
-  chats, writing checks and reviews, scenes — is deleted with its events. The course stays installed.
-  (Cards, when they come, are a separate decision.) Deleting one tutor chat from the lesson's chat
-  history, also confirmed, deletes that `chat` run with its events.
+  chats, writing checks and reviews, scenes — is deleted with its events, and so are the cards those
+  runs made (`origin_run_id`: the words first met there) with their faces and every answer to them; a
+  card made by another lesson stays (owner, 2026-10-07). The course stays installed. Deleting one tutor
+  chat from the lesson's chat history, also confirmed, deletes that `chat` run with its events.
 - Snapshots make old runs readable after content changes or course removal.
 - Indexes: `events(run_id, ts)` (a run's events), `events(type, ts)` (the day's card answers,
   verdicts, activity).

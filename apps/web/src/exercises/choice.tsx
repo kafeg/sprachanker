@@ -32,14 +32,13 @@ function Options({
   });
   return (
     <div className={cn(grid ? "grid grid-cols-2 gap-2 sm:grid-cols-3" : "flex flex-wrap gap-2")}>
-      {options.map((o, i) => (
+      {options.map((o) => (
         <OptionButton
           key={o.id}
           option={o}
           url={url}
           multi={multi}
           fill={grid}
-          number={active && i < 9 ? i + 1 : undefined}
           selected={selected(o.id)}
           disabled={locked}
           mark={mark(o.id)}

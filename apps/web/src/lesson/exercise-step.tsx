@@ -20,6 +20,10 @@ import { type Answered, useExercise } from "./use-exercise.ts";
 import type { ExerciseResult } from "./use-run.ts";
 
 /** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
+/** Rail (an item's mark once checked) · the items' column · controls; the exercise's own media and
+ *  texts sit in the same column. */
+const ITEM_GRID = "grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2";
+
 function ItemRail({ outcome }: { outcome: Outcome }) {
   const { t } = useTranslation();
   const ok = outcome.result === "correct";
@@ -134,19 +138,26 @@ export function ExerciseStep({
           <CourseHtml className="mt-2 text-lg" html={locale.instructionHtml} />
         )}
       </StepHeader>
-      <MediaBlock
-        media={exercise.media}
-        url={url}
-        audioLabel={t("lesson.exerciseOf", { n: index + 1, total })}
-        onHeard={() => ex.hear("exercise")}
-      />
-      {exercise.text && (
-        <p lang={lang} className="text-lg">
-          {exercise.text}
-        </p>
-      )}
-      {locale?.textHtml && (
-        <CourseHtml className="rounded-xl bg-muted px-4 py-2" html={locale.textHtml} />
+      {/* The exercise's own picture, recording and texts in the items' column. */}
+      {(exercise.media || exercise.text || locale?.textHtml) && (
+        <div className={ITEM_GRID}>
+          <div className="col-start-2 space-y-4">
+            <MediaBlock
+              media={exercise.media}
+              url={url}
+              audioLabel={t("lesson.exerciseOf", { n: index + 1, total })}
+              onHeard={() => ex.hear("exercise")}
+            />
+            {exercise.text && (
+              <p lang={lang} className="text-lg">
+                {exercise.text}
+              </p>
+            )}
+            {locale?.textHtml && (
+              <CourseHtml className="rounded-xl bg-muted px-4 py-2" html={locale.textHtml} />
+            )}
+          </div>
+        </div>
       )}
       <ol className="space-y-6 pb-2">
         {exercise.items.map((item, i) => {
@@ -158,22 +169,11 @@ export function ExerciseStep({
             // explanation asked for adds a panel under it.
             <li
               key={item.key}
-              className="grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2"
+              className={ITEM_GRID}
               onPointerDown={() => ex.touch(i)}
               onFocus={() => ex.touch(i)}
             >
-              <div className="h-full">
-                {marked ? (
-                  <ItemRail outcome={outcome} />
-                ) : (
-                  // Its number, so a long exercise shows where you are.
-                  exercise.items.length > 1 && (
-                    <span className="block pt-4 text-center text-sm tabular-nums text-muted-foreground">
-                      {i + 1}
-                    </span>
-                  )
-                )}
-              </div>
+              <div className="h-full">{marked && <ItemRail outcome={outcome} />}</div>
               <ItemCard
                 exercise={exercise}
                 locale={locale}

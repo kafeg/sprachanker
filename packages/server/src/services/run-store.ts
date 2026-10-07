@@ -16,7 +16,7 @@ import {
   type RunKind,
   type StoredEvent,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, gte, inArray, isNull, max, type SQL } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, max, or, type SQL } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { z } from "zod";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -405,20 +405,20 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     },
 
     /**
-     * Deletes runs with their events, on the learner's confirmed request: resetting progress, deleting
-     * a tutor chat. The only deletion of events besides removing a profile (05).
+     * Deletes runs with their events, and the answers of some cards wherever they are (cards removed
+     * with the lesson that made them), on the learner's confirmed request: resetting progress, deleting
+     * a tutor chat. The only deletion of events besides removing a profile (05). Run it in `atomic`
+     * together with what goes with it.
      */
-    remove(runIds: string[]) {
-      if (!runIds.length) return { runs: 0, events: 0 };
-      return db.transaction((tx) => {
-        const removed = tx
-          .delete(events)
-          .where(inArray(events.runId, runIds))
-          .returning({ id: events.id })
-          .all();
-        tx.delete(runs).where(inArray(runs.id, runIds)).run();
-        return { runs: runIds.length, events: removed.length };
-      });
+    remove(runIds: string[], cardIds: string[] = []) {
+      if (!runIds.length && !cardIds.length) return { runs: 0, events: 0 };
+      const removed = db
+        .delete(events)
+        .where(or(inArray(events.runId, runIds), inArray(events.cardId, cardIds)))
+        .returning({ id: events.id })
+        .all();
+      if (runIds.length) db.delete(runs).where(inArray(runs.id, runIds)).run();
+      return { runs: runIds.length, events: removed.length };
     },
   };
   return self;

@@ -318,13 +318,18 @@ describe("runs", () => {
     expect(await sendJson("POST", "/api/progress/reset", { ...course, lesson: LESSON })).toEqual({
       runs: 1,
       events: 1,
+      cards: 0,
     });
     expect(await map()).toEqual([SECOND]);
     // A lesson of another course is refused.
     const other = { series: FIXTURE_SERIES, course: "other", lesson: SECOND };
     expect((await send("POST", "/api/progress/reset", other)).status).toBe(400);
 
-    expect(await sendJson("POST", "/api/progress/reset", course)).toEqual({ runs: 1, events: 1 });
+    expect(await sendJson("POST", "/api/progress/reset", course)).toEqual({
+      runs: 1,
+      events: 1,
+      cards: 0,
+    });
     expect(await map()).toEqual([]);
     expect((await getJson("/api/courses"))[0]).toMatchObject({ done: 0, nextStarted: false });
   });

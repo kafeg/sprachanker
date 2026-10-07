@@ -38,7 +38,9 @@ apps/web/src/
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
                    # (rows that open, lists of earlier items), side-sheet, chip, video (the episode: HD by
-                   # default, SD switch, subtitles; exercises showing it too), playback (one medium at a time)
+                   # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
+                   # playback (one medium at a time, the speed button), sections (a course page's
+                   # sections; CourseSections in course-html shows them as cards)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

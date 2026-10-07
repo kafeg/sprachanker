@@ -350,7 +350,7 @@ test("My words: a word's sheet has each face's state and its answers; an undone 
   expect((await send("GET", `/api/cards/${ulid()}`, undefined)).status).toBe(404);
 });
 
-test("cards remember the run they were made in; resetting the lesson leaves them, without it", async () => {
+test("cards remember the run they were made in; resetting the lesson removes them", async () => {
   const { sendJson, root } = await setup();
   const lessonKey = LESSONS[0];
   const run = (
@@ -373,5 +373,37 @@ test("cards remember the run they were made in; resetting the lesson leaves them
     course: "demo",
     lesson: lessonKey,
   });
-  expect(origins()).toEqual([null, null, null, null]);
+  expect(origins()).toEqual([]);
+});
+
+test("resetting a lesson removes the cards it made with their answers; another lesson's cards stay", async () => {
+  const { sendJson, getJson } = await setup();
+  const made: Record<string, number> = {};
+  for (const lessonKey of LESSONS) {
+    await sendJson("POST", "/api/runs", { series: FIXTURE_SERIES, lessonKey, edition: "ru-de" });
+    made[lessonKey] = (
+      await sendJson("POST", "/api/cards/lesson", {
+        series: FIXTURE_SERIES,
+        lessonKey,
+        edition: "ru-de",
+      })
+    ).created;
+  }
+  const { current } = await getJson(study(`lesson:ru-de:${LESSONS[0]}`));
+  await sendJson("POST", `/api/cards/${current.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: current.face,
+    rating: 3,
+  });
+  const reset = await sendJson("POST", "/api/progress/reset", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    lesson: LESSONS[0],
+  });
+  expect(reset.cards).toBe(made[LESSONS[0] as string]);
+  const words = (await getJson("/api/cards")).words;
+  expect(words).toHaveLength(made[LESSONS[1] as string] ?? 0);
+  // The answer went with its card: nothing to take back.
+  expect((await getJson(study("all"))).canUndo).toBe(false);
 });

@@ -15,7 +15,7 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 | Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
 | Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
-| HTML | only in fields named `*Html`, sanitised to an allow-list: p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
+| HTML | only in fields named `*Html`, sanitised to an allow-list: h3 (a section title), p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
 | Format versions | integer `format` in every file type; bumped on breaking change; additive optional fields do not bump it |
 
 ## Library layout
@@ -161,7 +161,9 @@ the learner's language) live at the same key path as in canonical files. Tab bod
 script, homework — tasks of the source without answers to check) are locale HTML and may mix languages.
 A grammar or culture page is one topic of the lesson (each becomes a step of its plan, 04): a provider
 joins the parts of a topic within a lesson and marks one continued from an earlier lesson with `part`
-(2, 3, …) instead of a number in the title. An exercise's title is absent when the source has none,
+(2, 3, …) instead of a number in the title. A page's sections are titled with `<h3>` where the source
+titles them (DW: a paragraph of bold text only; course-kit `boldLinesAsHeadings`); the app shows each
+section as a card. An exercise's title is absent when the source has none,
 never empty.
 
 ```jsonc

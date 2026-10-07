@@ -74,7 +74,6 @@ export function OptionButton({
   disabled,
   onClick,
   multi = false,
-  number,
   fill = false,
 }: {
   option: Option;
@@ -85,8 +84,6 @@ export function OptionButton({
   onClick(): void;
   /** Several can be chosen: a square box shows the choice. */
   multi?: boolean;
-  /** The number key that chooses it, shown where there is a keyboard. */
-  number?: number;
   fill?: boolean;
 }) {
   return (
@@ -117,17 +114,6 @@ export function OptionButton({
         </span>
       )}
       <OptionContent option={option} url={url} fill={fill} />
-      {number !== undefined && !disabled && (
-        <kbd
-          aria-hidden
-          className={cn(
-            "ml-auto hidden rounded border px-1.5 font-mono text-xs text-muted-foreground [@media(pointer:fine)]:inline",
-            fill && "absolute top-2 right-2 bg-card",
-          )}
-        >
-          {number}
-        </kbd>
-      )}
       {mark === "correct" && <Check className="size-5 shrink-0 text-correct" aria-hidden />}
       {mark === "wrong" && <X className="size-5 shrink-0 text-wrong" aria-hidden />}
     </button>

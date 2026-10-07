@@ -1,21 +1,35 @@
-// An episode's video (09): HD by default with a switch to SD, and the subtitle track. The lesson's
-// overview shows it, and so does an exercise whose video is the episode (through `Episode`).
-import { createContext, useRef, useState } from "react";
+// An episode's video (09): HD by default with a switch to SD, the profile's speed, the subtitles on or
+// off with one button, and the text of the video under it. The lesson's overview shows it when no
+// exercise does; an exercise whose video is the episode shows it (through `Episode`).
+import { Captions } from "lucide-react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
-import { claimPlayback } from "./playback.ts";
+import { CourseHtml } from "./course-html.tsx";
+import { claimPlayback, PlaybackRate, SpeedButton } from "./playback.tsx";
 import { useRequiredTargetLang } from "./target-lang.ts";
 import { cn } from "./utils.ts";
 
-export type EpisodeFiles = { sd?: string; hd?: string; subtitles?: string };
+export type EpisodeFiles = {
+  sd?: string;
+  hd?: string;
+  subtitles?: string;
+  /** The text of the video (the lesson's script page), under it. */
+  textHtml?: string;
+};
 
 /** The lesson's episode, set by the player: an exercise video that is one of its files plays as it. */
 export const Episode = createContext<EpisodeFiles | undefined>(undefined);
+
+/** One of the episode's files: the exercise shows the episode. */
+export const isEpisode = (episode: EpisodeFiles | undefined, video: string | undefined) =>
+  !!video && !!episode && (video === episode.sd || video === episode.hd);
 
 export function EpisodeVideo({
   sd,
   hd,
   subtitles,
+  textHtml,
   url,
   onHeard,
 }: EpisodeFiles & {
@@ -25,9 +39,19 @@ export function EpisodeVideo({
 }) {
   const { t } = useTranslation();
   const lang = useRequiredTargetLang();
+  const { rate } = useContext(PlaybackRate);
   const ref = useRef<HTMLVideoElement>(null);
   const [quality, setQuality] = useState<"sd" | "hd">("hd");
+  const [captions, setCaptions] = useState(true);
   const src = quality === "hd" && hd ? hd : (sd ?? hd);
+  // The speed and the subtitles follow the controls, also after switching the quality (a new element).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `src` makes a new video element
+  useEffect(() => {
+    const video = ref.current;
+    if (!video) return;
+    video.playbackRate = rate;
+    for (const track of Array.from(video.textTracks)) track.mode = captions ? "showing" : "hidden";
+  }, [rate, captions, src]);
   if (!src) return null;
   const switchTo = (q: "sd" | "hd") => {
     const video = ref.current;
@@ -42,7 +66,7 @@ export function EpisodeVideo({
   };
   return (
     <div className="space-y-2">
-      {/* biome-ignore lint/a11y/useMediaCaption: the German track is added when the source has one */}
+      {/* biome-ignore lint/a11y/useMediaCaption: the subtitle track is added when the source has one */}
       <video
         ref={ref}
         key={src}
@@ -51,6 +75,9 @@ export function EpisodeVideo({
         onPlay={(e) => {
           claimPlayback(e.currentTarget);
           onHeard?.();
+        }}
+        onLoadedMetadata={(e) => {
+          e.currentTarget.playbackRate = rate;
         }}
         onError={onHeard}
         className="aspect-video w-full rounded-2xl bg-black"
@@ -62,12 +89,27 @@ export function EpisodeVideo({
             srcLang={lang}
             label={languageName(lang)}
             src={url(subtitles)}
-            default
+            default={captions}
           />
         )}
       </video>
-      {hd && sd && (
-        <div className="flex justify-end">
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        {subtitles && (
+          <button
+            type="button"
+            aria-pressed={captions}
+            onClick={() => setCaptions((on) => !on)}
+            className={cn(
+              "inline-flex min-h-9 items-center gap-1.5 rounded-lg border bg-card px-3 text-sm pointer-coarse:min-h-11",
+              captions && "bg-primary font-semibold text-primary-foreground",
+            )}
+          >
+            <Captions className="size-4" aria-hidden />
+            {t("video.subtitles")}
+          </button>
+        )}
+        <SpeedButton className="min-h-9 border bg-card pointer-coarse:min-h-11" />
+        {hd && sd && (
           <div className="inline-flex rounded-lg border bg-card p-0.5 text-sm">
             {(["sd", "hd"] as const).map((q) => (
               <button
@@ -84,7 +126,13 @@ export function EpisodeVideo({
               </button>
             ))}
           </div>
-        </div>
+        )}
+      </div>
+      {textHtml && (
+        <details className="rounded-2xl border bg-card px-5 py-3">
+          <summary className="cursor-pointer font-semibold">{t("lesson.videoText")}</summary>
+          <CourseHtml className="mt-3" html={textHtml} />
+        </details>
       )}
     </div>
   );

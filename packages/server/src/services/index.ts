@@ -46,9 +46,9 @@ export function createServices(config: {
     cli: config.cli,
   });
   const store = createRunStore({ db: config.profile, now, appVersion: config.appVersion });
-  const runs = createRuns({ store, content });
-
   const cardStore = createCardStore(config.profile);
+  const runs = createRuns({ store, cards: cardStore, content });
+
   const cards = createCards({ cards: cardStore, content, settings, session: runs.shown, now });
   const study = createStudy({ cards: cardStore, store, content, settings, now });
   const words = createWords({ cards: cardStore, store });

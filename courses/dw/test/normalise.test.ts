@@ -189,3 +189,37 @@ test("grammar pages: a topic's parts in a lesson are one page; a topic begun ear
     { sourceId: "1", title: "Same", bodyHtml: "<p>s1</p><p>s2</p>" },
   ]);
 });
+
+test("a grammar page's bold-only lines become its section titles", () => {
+  const lesson = lessonKey("dw.nicos-weg/a1" as never, 0, 1);
+  const out = normaliseLesson(ctx, {
+    key: lesson,
+    unit: unitKey("dw.nicos-weg/a1" as never, 0),
+    sourceId: 5,
+    edition: "ru-de",
+    rawDir: "raw/ru-de/a1",
+    lesson: {
+      "Lesson:5": {
+        id: 5,
+        name: "Hallo!",
+        videos: [],
+        contentLinks: [],
+        overviewParts: [{ lessonPart: "GRAMMAR", targetId: 3 }],
+      },
+      "Knowledge:3": {
+        id: 3,
+        name: "Приветствие",
+        text: "<p><strong>Неформальное</strong></p><p><em>Hallo!</em></p><p><strong>Формальное:</strong></p><p>Guten Tag!</p>",
+      },
+    },
+    downloads: {},
+    exercises: new Map(),
+  });
+  expect(out.locale.tabs.grammar).toEqual([
+    {
+      sourceId: "3",
+      title: "Приветствие",
+      bodyHtml: "<h3>Неформальное</h3><p><em>Hallo!</em></p><h3>Формальное</h3><p>Guten Tag!</p>",
+    },
+  ]);
+});

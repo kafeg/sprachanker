@@ -3,6 +3,7 @@ import type { MediaPath } from "@sprachanker/schema";
 import sanitizeHtml from "sanitize-html";
 
 const ALLOWED_TAGS = [
+  "h3",
   "p",
   "br",
   "b",
@@ -52,6 +53,18 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
   })
     .replace(/<p>\s*<\/p>/g, "")
     .trim();
+}
+
+/**
+ * Sanitised course HTML whose sections are titled by a paragraph of bold text only ("<p><strong>Formal
+ * greeting</strong></p>"): those paragraphs become `<h3>` section titles (a trailing colon dropped), so
+ * the app can show each section on its own. Other bold text stays as it is.
+ */
+export function boldLinesAsHeadings(html: string): string {
+  return html.replace(
+    /<p>\s*<(strong|b)>((?:(?!<\/?(?:strong|b|p)>).)+?)<\/\1>\s*<\/p>/gs,
+    (_, _tag, title: string) => `<h3>${title.trim().replace(/\s*:$/, "")}</h3>`,
+  );
 }
 
 /** Plain text as HTML text content: `&`, `<` and `>` escaped (quotes stay: not for attributes). */

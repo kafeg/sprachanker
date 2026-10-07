@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { escapeHtml, sanitizeCourseHtml } from "../src/html.ts";
+import { boldLinesAsHeadings, escapeHtml, sanitizeCourseHtml } from "../src/html.ts";
 
 const options = {
   image: (a: Record<string, string>) =>
@@ -26,4 +26,18 @@ test("rewrites images to media paths and drops credits and unknown images", () =
 
 test("escapes text for HTML content", () => {
   expect(escapeHtml(`a < b && "c" > d`)).toBe(`a &lt; b &amp;&amp; "c" &gt; d`);
+});
+
+test("a paragraph of bold text only becomes a section title; bold inside a sentence stays", () => {
+  expect(
+    boldLinesAsHeadings(
+      "<p><strong>Формальное: </strong></p><p>Das ist <strong>wichtig</strong>.</p><p><b>Neu</b></p><p><strong>A</strong> und <strong>B</strong></p>",
+    ),
+  ).toBe(
+    "<h3>Формальное</h3><p>Das ist <strong>wichtig</strong>.</p><h3>Neu</h3><p><strong>A</strong> und <strong>B</strong></p>",
+  );
+  // Kept by the sanitiser.
+  expect(sanitizeCourseHtml("<h3>Titel</h3><h2>x</h2>", { image: () => undefined })).toBe(
+    "<h3>Titel</h3>x",
+  );
 });

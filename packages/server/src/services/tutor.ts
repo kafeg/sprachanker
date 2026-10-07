@@ -208,7 +208,7 @@ export function createTutor(deps: {
     /** Deletes one of the lesson's chats with its turns (05); false when it has no such chat. */
     remove(lessonKey: LessonKey, id: string): boolean {
       if (!store.get(id, "chat", lessonKey)) return false;
-      store.remove([id]);
+      store.atomic(() => store.remove([id]));
       return true;
     },
 

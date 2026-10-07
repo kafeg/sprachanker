@@ -1,5 +1,10 @@
 // A DW lesson (lesson page, download page, exercise pages) → canonical lesson + locale lesson.
-import { plainText, skippedWords, vocabEntries } from "@sprachanker/course-kit";
+import {
+  boldLinesAsHeadings,
+  plainText,
+  skippedWords,
+  vocabEntries,
+} from "@sprachanker/course-kit";
 import {
   exerciseKey,
   type GoalKey,
@@ -74,9 +79,14 @@ export function topicParts(pages: Tab[]): Tab[] {
   );
 }
 
+/** A grammar or culture page; its bold-only lines are its sections' titles (shown as cards, 09). */
 function tab(ctx: Context, k: Entity | undefined) {
   return k
-    ? { sourceId: String(k.id), title: plainText(k.name), bodyHtml: html(ctx, k.text) ?? "" }
+    ? {
+        sourceId: String(k.id),
+        title: plainText(k.name),
+        bodyHtml: boldLinesAsHeadings(html(ctx, k.text) ?? ""),
+      }
     : undefined;
 }
 

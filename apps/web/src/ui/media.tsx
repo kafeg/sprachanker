@@ -1,21 +1,13 @@
 // Media (09): the audio player, the word audio button, stimulus video/image/audio. One medium plays
-// at a time; the playback speed is the profile's (provided by the app through PlaybackRate).
+// at a time at the profile's speed (playback.tsx).
 import type { Media } from "@sprachanker/schema";
 import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
-import { createContext, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
-import { claimPlayback } from "./playback.ts";
+import { claimPlayback, PlaybackRate, SpeedButton } from "./playback.tsx";
 import { cn } from "./utils.ts";
-import { Episode, EpisodeVideo } from "./video.tsx";
-
-/** Speeds the speed button steps through: slower helps beginners. */
-export const PLAYBACK_RATES = [1, 0.75, 0.5] as const;
-
-export const PlaybackRate = createContext<{ rate: number; setRate(rate: number): void }>({
-  rate: 1,
-  setRate() {},
-});
+import { Episode, EpisodeVideo, isEpisode } from "./video.tsx";
 
 /** 75 → "1:15". */
 const clock = (seconds: number) => {
@@ -47,7 +39,7 @@ export function AudioPlayer({
   onHeard?: () => void;
 }) {
   const { t } = useTranslation();
-  const { rate, setRate } = useContext(PlaybackRate);
+  const { rate } = useContext(PlaybackRate);
   const audio = useRef<HTMLAudioElement>(null);
   const [paused, setPaused] = useState(true);
   const [time, setTime] = useState(0);
@@ -82,11 +74,6 @@ export function AudioPlayer({
       void a.play().catch(() => setFailed(true));
     } else a.pause();
   };
-  const nextRate = () =>
-    setRate(
-      PLAYBACK_RATES[(PLAYBACK_RATES.indexOf(rate as never) + 1) % PLAYBACK_RATES.length] ?? 1,
-    );
-
   const shown = dragging ?? time;
   const max = Number.isFinite(duration) && duration > 0 ? duration : 1;
   const button = (
@@ -107,19 +94,7 @@ export function AudioPlayer({
       )}
     </button>
   );
-  const speed = (
-    <button
-      type="button"
-      onClick={nextRate}
-      aria-label={t("player.speed", { rate })}
-      className={cn(
-        "min-h-11 min-w-11 rounded-lg px-1.5 text-sm font-semibold tabular-nums hover:bg-accent",
-        rate !== 1 && "bg-accent ring-1 ring-primary",
-      )}
-    >
-      {rate}×
-    </button>
-  );
+  const speed = <SpeedButton />;
   const timeline = failed ? (
     <p className="flex-1 text-sm text-muted-foreground">{t("player.unavailable")}</p>
   ) : (
@@ -319,15 +294,15 @@ export function MediaBlock({
 }) {
   const episode = useContext(Episode);
   if (!media) return null;
-  const isEpisode = !!media.video && !!episode && [episode.sd, episode.hd].includes(media.video);
+  const episodeVideo = isEpisode(episode, media.video);
   return (
     <div className="my-3 space-y-3">
-      {media.video && isEpisode && (
+      {media.video && episodeVideo && (
         <div className="max-w-2xl">
           <EpisodeVideo {...episode} url={url} onHeard={onHeard} />
         </div>
       )}
-      {media.video && !isEpisode && (
+      {media.video && !episodeVideo && (
         // biome-ignore lint/a11y/useMediaCaption: course clips come without separate captions
         <video
           controls

@@ -1,12 +1,12 @@
 // The lesson's first page (09): where it sits in the course, its synopsis and goals, the episode video
-// or picture and recording with its transcript, and the way in (start, resume, or the result of a
-// finished run).
+// (when no exercise shows it) or its picture, a recording with its transcript, and the way in (start,
+// resume, or the result of a finished run).
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer } from "@/ui/media.tsx";
-import { EpisodeVideo } from "@/ui/video.tsx";
+import { EpisodeVideo, isEpisode } from "@/ui/video.tsx";
 
 export function LessonOverview({
   lesson,
@@ -29,6 +29,14 @@ export function LessonOverview({
   more?: React.ReactNode;
 }) {
   const { t } = useTranslation();
+  // The episode is shown here only when no exercise shows it (DW: the film is the first exercise).
+  const shownInExercise = lesson.pages.some(({ exercise }) =>
+    [
+      exercise.media?.video,
+      ...exercise.items.map((i) => (i.media && "video" in i.media ? i.media.video : undefined)),
+    ].some((v) => isEpisode(lesson.media.video, v)),
+  );
+  const video = shownInExercise ? undefined : lesson.media.video;
   return (
     <section className="space-y-5">
       <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
@@ -36,7 +44,12 @@ export function LessonOverview({
         {unitTitle && ` · ${unitTitle}`}
       </p>
       <h1 className="text-4xl font-bold">{locale?.title ?? lesson.key}</h1>
-      {locale?.synopsisHtml && <CourseHtml className="text-lg" html={locale.synopsisHtml} />}
+      {locale?.synopsisHtml && (
+        <CourseHtml
+          className="rounded-2xl border bg-card px-5 py-4 text-lg"
+          html={locale.synopsisHtml}
+        />
+      )}
       {!!lesson.goals.length && (
         <div className="rounded-2xl bg-accent px-5 py-4">
           <p className="font-semibold">{t("lesson.goals")}</p>
@@ -47,8 +60,8 @@ export function LessonOverview({
           </ul>
         </div>
       )}
-      {lesson.media.video ? (
-        <EpisodeVideo {...lesson.media.video} url={url} />
+      {video ? (
+        <EpisodeVideo {...video} textHtml={locale?.tabs.script?.bodyHtml} url={url} />
       ) : (
         lesson.media.image && (
           <img src={url(lesson.media.image)} alt="" className="w-full rounded-2xl" />
@@ -62,11 +75,9 @@ export function LessonOverview({
         />
       )}
       {/* The recording's transcript under it (the script page of the lesson). */}
-      {locale?.tabs.script && (lesson.media.video || lesson.media.audio) && (
+      {locale?.tabs.script && !lesson.media.video && lesson.media.audio && (
         <details className="rounded-2xl border bg-card px-5 py-3">
-          <summary className="cursor-pointer font-semibold">
-            {lesson.media.video ? t("lesson.videoText") : t("lesson.audioText")}
-          </summary>
+          <summary className="cursor-pointer font-semibold">{t("lesson.audioText")}</summary>
           <CourseHtml className="mt-3" html={locale.tabs.script.bodyHtml} />
         </details>
       )}

@@ -82,6 +82,11 @@ export function LessonPlayer({
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
   const exercise = step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
+  // The episode with its text: an exercise showing it plays it, and then the overview does not.
+  const episode = lesson.media.video && {
+    ...lesson.media.video,
+    textHtml: locale?.tabs.script?.bodyHtml,
+  };
 
   const actions =
     run.mode === "finished" ? (
@@ -119,7 +124,7 @@ export function LessonPlayer({
   return (
     <TargetLang value={parseEditionId(edition).target}>
       <CourseMedia.Provider value={url}>
-        <Episode.Provider value={lesson.media.video}>
+        <Episode.Provider value={episode}>
           <PlayerFrame
             series={series}
             course={course}

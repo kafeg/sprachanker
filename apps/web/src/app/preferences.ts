@@ -31,7 +31,7 @@ export function usePreferences() {
   }, [theme]);
 }
 
-/** The profile's playback speed for course audio, for `PlaybackRate` (ui/media.tsx). */
+/** The profile's playback speed for course audio, for `PlaybackRate` (ui/playback.tsx). */
 export function usePlaybackRate() {
   const { data } = useSettings();
   const set = useSetSetting();

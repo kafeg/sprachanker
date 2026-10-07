@@ -3,7 +3,7 @@ import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
-import { CourseHtml } from "@/ui/course-html.tsx";
+import { CourseSections } from "@/ui/course-html.tsx";
 import { AudioButton } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -80,7 +80,7 @@ function Pages({ pages }: { pages: Array<{ title: string; bodyHtml: string; part
       {pages.map((p) => (
         <article key={p.title + p.bodyHtml.length}>
           {p.title && <h3 className="mb-2 text-xl font-bold">{pageTitle(p, t)}</h3>}
-          <CourseHtml className="" html={p.bodyHtml} />
+          <CourseSections html={p.bodyHtml} />
         </article>
       ))}
     </div>
