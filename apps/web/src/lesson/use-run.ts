@@ -42,6 +42,9 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const [run, setRun] = useState<Run>();
   const [resumePage, setResumePage] = useState(-1);
   const [events, setEvents] = useState<StoredEvent[]>([]);
+  /** The events as of now, for callers holding an older render (a model's answer arriving later). */
+  const latest = useRef(events);
+  latest.current = events;
   const [error, setError] = useState<unknown>();
   const [reload, setReload] = useState(0);
   const queue = useRef<Pending[]>([]);
@@ -203,11 +206,14 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     pageShown: (pageIndex: number) =>
       record([{ id: ulid(), type: "page_shown", payload: { pageIndex } }]),
     done,
-    /** Records a step besides the exercises as done, or skipped. */
-    stepDone: (step: StepId, skipped = false) =>
+    /** Records a step besides the exercises as done, or skipped — once: a step already in that state
+     *  (by the run's events as of now) records nothing. */
+    stepDone: (step: StepId, skipped = false) => {
+      if (stepsDone(latest.current).get(step) === (skipped ? "skipped" : "done")) return;
       record([
         { id: ulid(), type: "step_done", payload: { step, ...(skipped && { skipped: true }) } },
-      ]),
+      ]);
+    },
     /** Records an exercise: given answers (with local outcomes) and the items left without one. */
     answer(
       answers: Array<{ itemKey: string; answer: unknown; outcome: Outcome }>,

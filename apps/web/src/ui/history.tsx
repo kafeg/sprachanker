@@ -26,7 +26,8 @@ export function ListRow({
       aria-expanded={expanded}
       onClick={onClick}
       className={cn(
-        "flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left hover:bg-accent pointer-coarse:min-h-11",
+        // The highlight reaches past the text on both sides; the text stays in line with the panel's.
+        "-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-accent pointer-coarse:min-h-11",
         className,
       )}
     >

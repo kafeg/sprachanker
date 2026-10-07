@@ -50,6 +50,9 @@ Specs: 03, 09.
 
 ### 3. Review: tabs, decks to take, a guide (owner's request, 2026-10-07)
 Specs: 04, 09.
+- The links that lead back inside a section ("Decks" in Review, "Notebook" and "Pass" in the Notebook)
+  look poor (owner, 2026-10-07): they give way to the section's tabs and a proper header with a back
+  control, the same in Review and the Notebook (and wherever else a section goes deeper).
 - Review gets tabs as Settings has: **Study** (the reviewer), **Decks**, **My words**.
 - A guide in a side panel (as the tutor and the reference open): how the method works and where it
   comes from — the forgetting curve, active recall, spacing, FSRS (with a picture of the curve) — what
