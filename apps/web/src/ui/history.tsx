@@ -60,7 +60,8 @@ export function HistoryList<T>({
   summary,
   detail,
 }: {
-  title: React.ReactNode;
+  /** Its heading (none where the panel names it already, e.g. a tab). */
+  title?: React.ReactNode;
   items: T[];
   keyOf(item: T): string | number;
   summary(item: T): React.ReactNode;

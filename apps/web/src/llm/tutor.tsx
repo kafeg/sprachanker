@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import {
@@ -29,6 +30,7 @@ import {
   useScrollToEnd,
 } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { TutorHistory } from "./tutor-history.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language" | "newChat">;
 
@@ -267,7 +269,20 @@ export function LessonTutor(context: Context) {
         <span className="hidden sm:inline">{t("tutor.title")}</span>
       </Button>
       <SideSheet open={open} onOpenChange={setOpen} title={t("tutor.title")}>
-        {open && <Chat {...context} />}
+        {open && (
+          <Tabs defaultValue="chat" className="flex min-h-0 flex-1 flex-col gap-0">
+            <TabsList className="mx-4 mb-2">
+              <TabsTrigger value="chat">{t("tutor.tabChat")}</TabsTrigger>
+              <TabsTrigger value="history">{t("tutor.tabHistory")}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="chat" className="flex min-h-0 flex-1 flex-col">
+              <Chat {...context} />
+            </TabsContent>
+            <TabsContent value="history" className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+              <TutorHistory {...context} />
+            </TabsContent>
+          </Tabs>
+        )}
       </SideSheet>
     </>
   );

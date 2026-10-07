@@ -295,7 +295,14 @@
       "get_progress": "deinen Fortschritt",
       "get_mistakes": "deine Fehler",
       "get_lesson": "Lektion {lesson}"
-    }
+    },
+    "tabChat": "Gespräch",
+    "tabHistory": "Verlauf",
+    "noHistory": "Noch keine früheren Gespräche in dieser Lektion.",
+    "current": "aktuell",
+    "delete": "Gespräch löschen",
+    "deleteTitle": "Dieses Gespräch löschen?",
+    "deleteBody": "Seine Nachrichten werden endgültig gelöscht."
   },
   "lmstudio": {
     "running": "LM Studio läuft.",

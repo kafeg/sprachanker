@@ -30,7 +30,8 @@ apps/web/src/
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads),
                    # about, reset-progress, preferences (language, theme, course edition)
   llm/             # AI assistant: settings (providers, LM Studio), "Why is this wrong?", tutor (header
-                   # panel, inline on the mistakes step), writing, scenes; parts.tsx: chat bubbles, header,
+                   # panel with Conversation and History — tutor-history —, inline on the mistakes step),
+                   # writing, scenes; parts.tsx: chat bubbles, header,
                    # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui

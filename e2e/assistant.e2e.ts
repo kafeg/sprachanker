@@ -47,6 +47,16 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await page.getByRole("button", { name: "Send", exact: true }).click();
   // The chat keeps earlier turns (projects share the profile): the newest reply is the last one.
   await expect(page.getByRole("dialog").getByText(FAKE_TEXT).last()).toBeVisible();
+  // The History tab lists the lesson's chats; one opens to its turns and can be deleted.
+  const tutor = page.getByRole("dialog");
+  await tutor.getByRole("tab", { name: "History" }).click();
+  const chat = tutor.getByRole("button", { name: /Was heißt das\?/ }).first();
+  await chat.click();
+  await expect(chat).toHaveAttribute("aria-expanded", "true");
+  await tutor.getByRole("button", { name: "Delete chat" }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Delete chat" }).click();
+  await expect(page.getByRole("alertdialog")).toHaveCount(0);
+  await tutor.getByRole("tab", { name: "Conversation" }).click();
   await page.keyboard.press("Escape");
 
   // With an assistant the plan has the AI practice steps.

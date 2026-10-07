@@ -150,7 +150,7 @@ Specs: 04, 05, 09.
   Notebook shows two runs of lesson 1 side by side; lesson 1 of Nicos Weg goes overview → words →
   grammar → exercises → culture → writing, scene, mistakes (with an assistant) → summary, and completes
   without an assistant too.
-- **Status: in progress.** Built: cards and their FSRS state, scheduling and
+- **Status: built** (2026-10-07). Built: cards and their FSRS state, scheduling and
   the review queue in the engine (`srs/`), cards from a lesson's words, ratings and the learner's words
   on the server (`/api/cards`); the lesson plan as steps (engine `compose/steps.ts`, `step_done`
   events, completion over the steps) with the "Words" step, grammar and culture pages, the AI practice
@@ -163,7 +163,10 @@ Specs: 04, 05, 09.
   "Write it yourself" with the lesson's earlier texts and "Fix it and check again". My words under Decks (a table as
   Anki's browser, the word sheet with each face and its answers); the Notebook by lesson (study days,
   passes, a pass in full with item history, two passes compared); a checked item's earlier attempts
-  from its card in the lesson (the Notebook's item history). Next: the tutor's chat history.
+  from its card in the lesson (the Notebook's item history); the tutor's panel with "Conversation" and
+  "History" (the lesson's chats, each with its turns, the time and exercise of each question; a chat
+  can be deleted). Checked on Nicos Weg A1 «Ich heiße Emma» (2026-10-07) against the acceptance
+  criteria on a separate data root; the owner's demo on Mac and iPhone is open.
 
 ### 7 — Speech
 Specs: 08, 06.

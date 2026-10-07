@@ -47,7 +47,10 @@ export const useModels = (provider: ProviderId | null) =>
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
 
 /** Reads a streamed text response; `onText` receives the whole text so far. */
-async function readStream(res: Response, onText: (text: string) => void): Promise<string> {
+/** What a streamed reply is read from: its status, its body, and its JSON when it failed. */
+type StreamedResponse = Pick<Response, "ok" | "status" | "body" | "json">;
+
+async function readStream(res: StreamedResponse, onText: (text: string) => void): Promise<string> {
   if (!res.ok || !res.body) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };
     throw new ApiError(body.error ?? `HTTP ${res.status}`);
@@ -116,16 +119,63 @@ export function useTutorCache(lessonKey: string) {
   const key = ["tutor", lessonKey];
   return {
     clear: () => client.setQueryData(key, { turns: [] }),
-    add: (turns: TutorTurn[]) =>
-      client.setQueryData(key, (old: { turns: TutorTurn[] } | undefined) => withTurns(old, turns)),
+    add(turns: TutorTurn[]) {
+      client.setQueryData(key, (old: { turns: TutorTurn[] } | undefined) => withTurns(old, turns));
+      // The history lists the chat with its new turns.
+      void client.invalidateQueries({ queryKey: ["tutor-chats", lessonKey] });
+    },
   };
+}
+
+/** The lesson's chats with the tutor, newest first (the current one marked). */
+export const useTutorChats = (lessonKey: string) =>
+  useQuery({
+    queryKey: ["tutor-chats", lessonKey],
+    queryFn: () => json(api.llm.tutor.chats.$get({ query: { lessonKey: lessonKey as LessonKey } })),
+  });
+export type TutorChat = NonNullable<ReturnType<typeof useTutorChats>["data"]>["chats"][number];
+
+/** One of the lesson's chats, turn by turn. */
+export const useTutorChat = (lessonKey: string, id: string) =>
+  useQuery({
+    queryKey: ["tutor-chat", id],
+    queryFn: () =>
+      json(
+        api.llm.tutor.chats[":id"].$get({
+          param: { id },
+          query: { lessonKey: lessonKey as LessonKey },
+        }),
+      ),
+  });
+
+/** Deletes one of the lesson's chats with its turns (on the learner's confirmation). */
+export function useDeleteChat(lessonKey: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      json(
+        api.llm.tutor.chats[":id"].$delete({
+          param: { id },
+          query: { lessonKey: lessonKey as LessonKey },
+        }),
+      ),
+    onSuccess: () =>
+      Promise.all(
+        ["tutor", "tutor-chats"].map((key) =>
+          client.invalidateQueries({ queryKey: [key, lessonKey] }),
+        ),
+      ),
+  });
 }
 
 export function useResetTutor(lessonKey: string) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: () => json(api.llm.tutor.reset.$post({ json: { lessonKey } })),
-    onSuccess: () => client.setQueryData(["tutor", lessonKey], { turns: [] }),
+    onSuccess: () => {
+      client.setQueryData(["tutor", lessonKey], { turns: [] });
+      void client.invalidateQueries({ queryKey: ["tutor-chats", lessonKey] });
+    },
   });
 }
 

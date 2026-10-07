@@ -241,17 +241,19 @@ export function llmRoutes(
         zod("query", z.object({ lessonKey: LessonKey })),
         (c) => {
           const turns = tutor.chat(c.req.valid("query").lessonKey, c.req.valid("param").id);
-          return turns ? c.json({ turns }) : c.json({ error: "no_such_chat" }, 404);
+          if (!turns) throw new ServiceError("no_such_chat", 404);
+          return c.json({ turns });
         },
       )
       .delete(
         "/tutor/chats/:id",
         zod("param", ChatParam),
         zod("query", z.object({ lessonKey: LessonKey })),
-        (c) =>
-          tutor.remove(c.req.valid("query").lessonKey, c.req.valid("param").id)
-            ? c.json({ ok: true as const })
-            : c.json({ error: "no_such_chat" }, 404),
+        (c) => {
+          if (!tutor.remove(c.req.valid("query").lessonKey, c.req.valid("param").id))
+            throw new ServiceError("no_such_chat", 404);
+          return c.json({ ok: true as const });
+        },
       )
       // Setup and provider failures as their responses (the routes return their results only).
       .onError((error, c) => {

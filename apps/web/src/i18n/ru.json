@@ -295,7 +295,14 @@
       "get_progress": "ваш прогресс",
       "get_mistakes": "ваши ошибки",
       "get_lesson": "урок {lesson}"
-    }
+    },
+    "tabChat": "Разговор",
+    "tabHistory": "История",
+    "noHistory": "Прошлых разговоров в этом уроке пока нет.",
+    "current": "текущий",
+    "delete": "Удалить разговор",
+    "deleteTitle": "Удалить этот разговор?",
+    "deleteBody": "Его сообщения удалятся безвозвратно."
   },
   "lmstudio": {
     "running": "LM Studio работает.",

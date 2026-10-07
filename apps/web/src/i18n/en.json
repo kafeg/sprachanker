@@ -295,7 +295,14 @@
       "get_progress": "your progress",
       "get_mistakes": "your mistakes",
       "get_lesson": "lesson {lesson}"
-    }
+    },
+    "tabChat": "Conversation",
+    "tabHistory": "History",
+    "noHistory": "No earlier chats in this lesson yet.",
+    "current": "current",
+    "delete": "Delete chat",
+    "deleteTitle": "Delete this chat?",
+    "deleteBody": "Its messages are deleted for good."
   },
   "lmstudio": {
     "running": "LM Studio is running.",
