@@ -10,10 +10,12 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 src/
   cli.ts           # command-line providers (claude -p, codex exec): command lines, prompt, output parsing;
                    # the process itself is started by a CliRunner the server passes in
-  client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
+  client.ts        # OpenAI-compatible endpoint: models() (modelInfo: chat models with their metadata),
+                   # streamed chat() with tool rounds, complete();
                    # TimeLimit (to the first byte, then between chunks); errors as LlmError codes
   providers.ts     # presets: lmstudio, openrouter, custom, claude-code, codex (endpoint, key, CLI kind)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
+  openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
   structured.ts    # JSON outputs: schema in the request, zod validation, one repair attempt
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts

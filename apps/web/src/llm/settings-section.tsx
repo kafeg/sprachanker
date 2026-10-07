@@ -1,17 +1,11 @@
-// Settings → AI assistant: provider, endpoint, API key, model, connection check.
+// Settings → AI assistant (07; 09): the providers as cards, then the chosen one's endpoint, key (with
+// what OpenRouter tells of it), connection check and model list. `AssistantSetup` is also the
+// onboarding's AI step.
 import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectSeparator,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/components/select.tsx";
 import {
   type LlmState,
   type ProviderId,
@@ -21,7 +15,10 @@ import {
   useSetRoute,
 } from "./api.ts";
 import { errorText, setupProblem } from "./errors.ts";
+import { KeyState } from "./key-state.tsx";
 import { LmStudioSection } from "./lmstudio-section.tsx";
+import { ModelList } from "./model-list.tsx";
+import { ProviderCards } from "./provider-cards.tsx";
 
 type Provider = LlmState["providers"][number];
 
@@ -113,8 +110,6 @@ function KeyField({ provider }: { provider: Provider }) {
   );
 }
 
-const OTHER = "__other__";
-
 function ModelField({ state, provider }: { state: LlmState; provider: Provider }) {
   const { t } = useTranslation();
   const setRoute = useSetRoute();
@@ -179,32 +174,16 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
           ) : null}
         </span>
       </div>
-      <Field
-        label={t("llm.model")}
-        hint={list.length ? t("llm.modelHint") : t("llm.modelTypeHint")}
-      >
+      <div className="space-y-1.5">
+        <p className="font-medium">{t("llm.model")}</p>
         {/* The provider's models in a list; a model it does not list (or none listed) is typed. */}
+        {!!list.length && !typing && (
+          <ModelList key={provider.id} models={list} value={state.model} onPick={save} />
+        )}
         {!!list.length && (
-          <Select
-            value={typing ? OTHER : (state.model ?? "")}
-            onValueChange={(id) => {
-              setOther(id === OTHER);
-              if (id !== OTHER) save(id);
-            }}
-          >
-            <SelectTrigger className="h-11 w-full max-w-md bg-card" aria-label={t("llm.model")}>
-              <SelectValue placeholder={t("llm.pickModel")} />
-            </SelectTrigger>
-            <SelectContent>
-              {list.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
-                  {m.name}
-                </SelectItem>
-              ))}
-              <SelectSeparator />
-              <SelectItem value={OTHER}>{t("llm.otherModel")}</SelectItem>
-            </SelectContent>
-          </Select>
+          <Button variant="ghost" size="sm" onClick={() => setOther((on) => !on)}>
+            {typing ? t("llm.list.backToList") : t("llm.otherModel")}
+          </Button>
         )}
         {(typing || !list.length) && (
           <Input
@@ -218,12 +197,16 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
             onKeyDown={(e) => e.key === "Enter" && save(value)}
           />
         )}
-      </Field>
+        {(typing || !list.length) && (
+          <p className="text-sm text-muted-foreground">{t("llm.modelTypeHint")}</p>
+        )}
+      </div>
     </div>
   );
 }
 
-export function LlmSettings() {
+/** The providers as cards and the chosen one's settings: Settings → AI assistant and onboarding. */
+export function AssistantSetup() {
   const { t } = useTranslation();
   const llm = useLlm();
   const setRoute = useSetRoute();
@@ -231,43 +214,16 @@ export function LlmSettings() {
   if (!state) return null;
   const provider = state.providers.find((p) => p.id === state.provider);
   return (
-    <section className="space-y-2">
-      <h2 className="text-xl font-bold">{t("llm.title")}</h2>
-      <p className="text-sm text-muted-foreground">{t("llm.intro")}</p>
-      <Field label={t("llm.providerLabel")}>
-        <Select
-          value={state.provider ?? "off"}
-          onValueChange={(v) =>
-            setRoute.mutate({
-              provider: v === "off" ? null : (v as ProviderId),
-              model: v === state.provider ? state.model : null,
-            })
-          }
-        >
-          <SelectTrigger
-            className="h-11 w-full max-w-md bg-card"
-            aria-label={t("llm.providerLabel")}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="off">{t("llm.off")}</SelectItem>
-            {state.providers.map((p) => (
-              <SelectItem key={p.id} value={p.id}>
-                {t(`llm.provider.${p.id}`)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </Field>
+    <div className="space-y-3">
+      <ProviderCards
+        state={state}
+        onPick={(id: ProviderId | null) =>
+          setRoute.mutate({ provider: id, model: id === state.provider ? state.model : null })
+        }
+      />
       {provider && (
-        <div className="mt-3 space-y-5 rounded-2xl border bg-card p-4 sm:p-5">
-          {provider.id === "lmstudio" && (
-            <p className="text-sm text-muted-foreground">{t("llm.lmstudioHint")}</p>
-          )}
-          {provider.installed !== undefined && (
-            <p className="text-sm text-muted-foreground">{t(`llm.cliHint.${provider.id}`)}</p>
-          )}
+        <div className="space-y-5 rounded-2xl border bg-card p-4 sm:p-5">
+          <p className="text-sm text-muted-foreground">{t(`llm.about.${provider.id}`)}</p>
           {provider.installed === false && (
             <p className="flex items-start gap-1.5 text-sm">
               <CircleX className="mt-0.5 size-4 shrink-0 text-wrong" />
@@ -276,6 +232,7 @@ export function LlmSettings() {
           )}
           {provider.editableUrl && <EndpointField provider={provider} />}
           {provider.key !== "none" && <KeyField provider={provider} />}
+          {provider.id === "openrouter" && <KeyState provider={provider} />}
           {provider.id === "lmstudio" ? (
             <LmStudioSection state={state} />
           ) : (
@@ -283,6 +240,17 @@ export function LlmSettings() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+export function LlmSettings() {
+  const { t } = useTranslation();
+  return (
+    <section className="space-y-2">
+      <h2 className="text-xl font-bold">{t("llm.title")}</h2>
+      <p className="text-sm text-muted-foreground">{t("llm.intro")}</p>
+      <AssistantSetup />
     </section>
   );
 }

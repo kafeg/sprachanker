@@ -18,6 +18,8 @@ export interface ProviderPreset {
   noReasoning?: Record<string, unknown>;
   /** Run through this command-line agent instead of an HTTP endpoint. */
   cli?: CliKind;
+  /** The key's state can be asked (openrouter.ts). */
+  keyState?: boolean;
 }
 
 export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
@@ -35,6 +37,7 @@ export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
     key: "required",
     editableUrl: false,
     noReasoning: { reasoning: { enabled: false } },
+    keyState: true,
   },
   custom: { id: "custom", baseUrl: "", key: "optional", editableUrl: true },
   "claude-code": { id: "claude-code", baseUrl: "", key: "none", editableUrl: false, cli: "claude" },

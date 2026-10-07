@@ -202,16 +202,15 @@
   },
   "llm": {
     "title": "KI-Assistent",
-    "intro": "Erklärt Fehler und hilft in den Lektionen. Funktioniert mit einem Modell auf diesem Computer (LM Studio) oder in der Cloud (OpenRouter). Lektionsinhalte und deine Antworten gehen nur an den gewählten Anbieter.",
+    "intro": "Erklärt Fehler, hilft in den Lektionen, prüft Texte und spielt Szenen. Wähle ein Modell auf diesem Computer, auf einem Server in deinem Netzwerk, in der Cloud (OpenRouter) oder einen Kommandozeilen-Agenten mit deinem Abo. Lektionsinhalte und deine Antworten gehen nur an den gewählten Anbieter.",
     "off": "Aus",
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
-      "custom": "Anderer Server",
+      "custom": "Server im Netzwerk",
       "claude-code": "Claude Code",
       "codex": "Codex"
     },
-    "lmstudioHint": "LM Studio führt das Modell auf diesem Computer aus. SprachAnker startet seinen Server, lädt das gewählte Modell und kann empfohlene Modelle hineinladen.",
     "endpoint": "Serveradresse",
     "endpointInvalid": "Gib eine Adresse wie http://localhost:1234/v1 ein",
     "apiKey": "API-Schlüssel",
@@ -224,7 +223,6 @@
     "checking": "Verbindung wird hergestellt…",
     "connected": "Verbunden · {count, plural, =0 {keine Modelle} one {# Modell} other {# Modelle}} · {ms, number} ms",
     "model": "Modell",
-    "modelHint": "Wähle ein Modell des Anbieters oder „Anderes Modell“, um den Namen einzugeben.",
     "setUpHint": "Erklärung gewünscht? KI-Assistent einrichten",
     "explanation": "Erklärung",
     "thinking": "Denkt nach…",
@@ -251,21 +249,54 @@
       "not_installed": "Dieser Kurs ist nicht (mehr) installiert.",
       "server_error": "Auf dem Server ist etwas schiefgelaufen."
     },
-    "cliHint": {
-      "claude-code": "Nutzt das hier installierte Claude Code (`claude -p`) mit deinem Claude-Abo. Seine eigenen Werkzeuge sind aus: die Lektionsdaten stehen im Prompt. Jede Antwort startet den Befehl, daher dauern Antworten ein paar Sekunden länger.",
-      "codex": "Nutzt die hier installierte Codex-CLI (`codex exec`) mit deinem ChatGPT-Abo, nur lesend und ohne ihre Werkzeuge. Jede Antwort startet den Befehl, daher dauern Antworten ein paar Sekunden länger."
-    },
     "cliMissing": {
       "claude-code": "Claude Code ist hier nicht installiert. Installiere es von claude.com/claude-code und melde dich einmal mit `claude` an.",
       "codex": "Die Codex-CLI ist hier nicht installiert. Installiere sie (npm i -g @openai/codex) und melde dich einmal mit `codex login` an."
     },
     "modelTypeHint": "Gib den Modellnamen ein.",
-    "pickModel": "Modell wählen",
     "otherModel": "Anderes Modell…",
     "modelName": "Modellname",
-    "providerLabel": "Anbieter",
     "explainAgain": "Neu erklären",
-    "changeInSettings": "Das Modell wählst du in den Einstellungen → KI-Assistent"
+    "changeInSettings": "Das Modell wählst du in den Einstellungen → KI-Assistent",
+    "about": {
+      "lmstudio": "LM Studio auf diesem Computer: SprachAnker startet seinen Server, lädt das gewählte Modell und kann empfohlene Modelle hineinladen. Kostenlos, und nichts verlässt den Computer. Läuft LM Studio auf einem anderen Computer, wähle „Server im Netzwerk“.",
+      "openrouter": "OpenRouter in der Cloud: Hunderte Modelle vieler Hersteller mit einem Schlüssel, einige davon kostenlos (mit Tageslimits). Lektionsinhalte und deine Antworten gehen an OpenRouter und den Anbieter des Modells.",
+      "custom": "Jeder Server mit OpenAI-kompatibler API auf einem anderen Computer: LM Studio, Ollama, llama.cpp, vLLM und andere. Gib seine Adresse an (endet auf /v1) und einen Schlüssel, falls er einen verlangt.",
+      "claude-code": "Nutzt das hier installierte Claude Code (`claude -p`) mit deinem Claude-Abo. Seine eigenen Werkzeuge sind aus: die Lektionsdaten stehen im Prompt. Jede Antwort startet den Befehl, daher dauern Antworten ein paar Sekunden länger.",
+      "codex": "Nutzt die hier installierte Codex-CLI (`codex exec`) mit deinem ChatGPT-Abo, nur lesend und ohne ihre Werkzeuge. Jede Antwort startet den Befehl, daher dauern Antworten ein paar Sekunden länger."
+    },
+    "cardState": {
+      "off": "ohne Assistent",
+      "llm_cli_missing": "nicht installiert",
+      "llm_no_endpoint": "Adresse fehlt",
+      "llm_no_key": "Schlüssel nötig",
+      "installed": "installiert",
+      "keySaved": "Schlüssel gespeichert",
+      "here": "auf diesem Computer",
+      "at": "auf {host}"
+    },
+    "list": {
+      "search": "Suche: gemma, claude, deepseek…",
+      "free": "Kostenlos ({count, number})",
+      "json": "Kann JSON ({count, number})",
+      "context": "Kontext ≥ {size}",
+      "more": "Mehr…",
+      "fewer": "Weniger",
+      "jsonHint": "„Kann JSON“: Modelle, die Textprüfungen und Szenen in der Form liefern, die die App liest.",
+      "none": "Kein Modell passt zur Suche und den Filtern.",
+      "freeTag": "kostenlos",
+      "price": "{input} / {output} pro 1 Mio. Tokens",
+      "shown": "{shown, number} von {total, number} Modellen",
+      "backToList": "Zurück zur Liste"
+    },
+    "key": {
+      "freeTier": "Kostenlose Stufe",
+      "credits": "Guthaben",
+      "used": "verbraucht {used}",
+      "usedOf": "verbraucht {used} von {limit}",
+      "rate": "{requests, number} Anfragen pro {interval}",
+      "freeModels": "Kostenlose Modelle haben ein Tageslimit an Anfragen, das OpenRouter festlegt (höher, sobald Guthaben gekauft wurde)."
+    }
   },
   "tutor": {
     "title": "Tutor",

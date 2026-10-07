@@ -202,16 +202,15 @@
   },
   "llm": {
     "title": "AI assistant",
-    "intro": "Explains mistakes and tutors in lessons. Works with a model on this computer (LM Studio) or in the cloud (OpenRouter). Lesson content and your answers go only to the provider you choose.",
+    "intro": "Explains mistakes, tutors in lessons, checks texts and plays scenes. Choose a model on this computer, on a server on your network, in the cloud (OpenRouter) or a command-line agent with your subscription. Lesson content and your answers go only to the provider you choose.",
     "off": "Off",
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
-      "custom": "Other server",
+      "custom": "Server on the network",
       "claude-code": "Claude Code",
       "codex": "Codex"
     },
-    "lmstudioHint": "LM Studio runs the model on this computer. SprachAnker starts its server, loads the chosen model and can download suggested models into it.",
     "endpoint": "Server address",
     "endpointInvalid": "Enter an address like http://localhost:1234/v1",
     "apiKey": "API key",
@@ -224,7 +223,6 @@
     "checking": "Connecting…",
     "connected": "Connected · {count, plural, =0 {no models} one {# model} other {# models}} · {ms} ms",
     "model": "Model",
-    "modelHint": "Pick one of the provider's models, or choose “Another model” to type its name.",
     "setUpHint": "Want an explanation? Set up the AI assistant",
     "explanation": "Explanation",
     "thinking": "Thinking…",
@@ -251,21 +249,54 @@
       "not_installed": "This course is not installed (any more).",
       "server_error": "Something went wrong on the server."
     },
-    "cliHint": {
-      "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
-      "codex": "Runs the Codex CLI installed on this computer (`codex exec`) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
-    },
     "cliMissing": {
       "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running `claude`.",
       "codex": "The Codex CLI is not installed here. Install it (npm i -g @openai/codex) and sign in once with `codex login`."
     },
     "modelTypeHint": "Type the model name.",
-    "pickModel": "Choose a model",
     "otherModel": "Another model…",
     "modelName": "Model name",
-    "providerLabel": "Provider",
     "explainAgain": "Explain again",
-    "changeInSettings": "The model is chosen in Settings → AI assistant"
+    "changeInSettings": "The model is chosen in Settings → AI assistant",
+    "about": {
+      "lmstudio": "LM Studio on this computer: SprachAnker starts its server, loads the chosen model and can download suggested models into it. Free, and nothing leaves the computer. If LM Studio runs on another computer, choose “Server on the network”.",
+      "openrouter": "OpenRouter in the cloud: hundreds of models from many makers through one key, some of them free (with daily limits). Lesson content and your answers go to OpenRouter and the model's provider.",
+      "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
+      "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
+      "codex": "Runs the Codex CLI installed on this computer (`codex exec`) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
+    },
+    "cardState": {
+      "off": "no assistant",
+      "llm_cli_missing": "not installed",
+      "llm_no_endpoint": "address not set",
+      "llm_no_key": "needs a key",
+      "installed": "installed",
+      "keySaved": "key saved",
+      "here": "on this computer",
+      "at": "at {host}"
+    },
+    "list": {
+      "search": "Search: gemma, claude, deepseek…",
+      "free": "Free ({count, number})",
+      "json": "Answers JSON ({count, number})",
+      "context": "Context ≥ {size}",
+      "more": "More…",
+      "fewer": "Fewer",
+      "jsonHint": "“Answers JSON”: models that can return writing checks and scenes in the shape the app reads.",
+      "none": "No model fits the search and filters.",
+      "freeTag": "free",
+      "price": "{input} / {output} per 1M tokens",
+      "shown": "{shown, number} of {total, number} models",
+      "backToList": "Back to the list"
+    },
+    "key": {
+      "freeTier": "Free tier",
+      "credits": "Credits",
+      "used": "used {used}",
+      "usedOf": "used {used} of {limit}",
+      "rate": "{requests, number} requests per {interval}",
+      "freeModels": "Free models have a daily request limit set by OpenRouter (higher once credits were bought)."
+    }
   },
   "tutor": {
     "title": "Tutor",

@@ -21,7 +21,9 @@ import {
   type LmStudioModel,
   languageName,
   lmStudioApi,
+  type OpenRouterKey,
   openAiCompatible,
+  openRouterKey,
   PROVIDERS,
   type ProviderId,
   recommendedLmStudioModel,
@@ -274,6 +276,14 @@ export function createLlm(deps: {
       const started = performance.now();
       const models = await (await client(id)).client.models(signal);
       return { models, ms: Math.round(performance.now() - started) };
+    },
+    /** The state of a provider's key where it can be asked (OpenRouter: free tier, usage, limits);
+     *  null where it cannot, or while no key is saved. */
+    async keyState(id: ProviderId, signal?: AbortSignal): Promise<OpenRouterKey | null> {
+      if (!PROVIDERS[id].keyState) return null;
+      const key = await apiKey(id);
+      if (!key) return null;
+      return openRouterKey({ baseUrl: baseUrl(id), apiKey: key }, deps.fetch, signal);
     },
     /** Client and model of the default route; throws when the LLM is not set up. */
     async model(): Promise<{ client: LlmClient; model: string }> {

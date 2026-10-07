@@ -50,7 +50,10 @@ describe("openAiCompatible", () => {
       }),
     );
     const client = openAiCompatible({ baseUrl: "http://h/v1/", apiKey: "k" }, fn);
-    expect(await client.models()).toEqual([{ id: "qwen3-8b" }, { id: "x/y", name: "Y" }]);
+    expect(await client.models()).toEqual([
+      { id: "qwen3-8b" },
+      { id: "x/y", name: "Y", publisher: "x" },
+    ]);
     expect(calls[0]?.url).toBe("http://h/v1/models");
     const headers = calls[0]?.init.headers as Record<string, string> | undefined;
     expect(headers?.authorization).toBe("Bearer k");

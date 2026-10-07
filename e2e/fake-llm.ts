@@ -49,7 +49,14 @@ if (import.meta.main) {
     hostname: "127.0.0.1",
     async fetch(req) {
       const { pathname } = new URL(req.url);
-      if (pathname === "/v1/models") return Response.json({ data: [{ id: "fake-model" }] });
+      // An image generator beside the chat model: the settings must leave it out.
+      if (pathname === "/v1/models")
+        return Response.json({
+          data: [
+            { id: "fake-model" },
+            { id: "fake/painter", architecture: { output_modalities: ["image"] } },
+          ],
+        });
       if (pathname !== "/v1/chat/completions") return new Response("not found", { status: 404 });
       const body = (await req.json()) as {
         stream?: boolean;

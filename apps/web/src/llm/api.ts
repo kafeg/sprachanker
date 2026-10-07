@@ -35,6 +35,15 @@ export function useSetProvider() {
   });
 }
 
+/** The state of a provider's key where it tells it (OpenRouter: free tier, credits, limits). */
+export const useKeyState = (provider: ProviderId, enabled: boolean) =>
+  useQuery({
+    queryKey: ["llm-key", provider],
+    enabled,
+    retry: false,
+    queryFn: () => json(api.llm.key.$get({ query: { provider } })),
+  });
+
 /** Model list of a provider; fetched on demand (it is also the connection test). */
 export const useModels = (provider: ProviderId | null) =>
   useQuery({

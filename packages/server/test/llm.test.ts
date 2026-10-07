@@ -106,6 +106,23 @@ describe("llm setup", () => {
     expect(byId(removed, "openrouter").hasKey).toBe(false);
   });
 
+  test("the key's state where the provider tells it: OpenRouter with a key; else null", async () => {
+    const asked: string[] = [];
+    const { sendJson, getJson } = await setup({
+      fetch: (async (url: string) => {
+        asked.push(String(url));
+        return Response.json({ data: { usage: 0, is_free_tier: true } });
+      }) as typeof fetch,
+    });
+    expect(await getJson("/api/llm/key?provider=openrouter")).toEqual({ key: null });
+    await sendJson("PUT", "/api/llm/providers/openrouter", { apiKey: "sk-or-x" });
+    expect(await getJson("/api/llm/key?provider=openrouter")).toEqual({
+      key: { freeTier: true, usage: 0 },
+    });
+    expect(asked).toEqual(["https://openrouter.ai/api/v1/key"]);
+    expect(await getJson("/api/llm/key?provider=lmstudio")).toEqual({ key: null });
+  });
+
   test("endpoints: editable for local servers, validated, reset with null", async () => {
     const { send, sendJson } = await setup();
     const set = await sendJson("PUT", "/api/llm/providers/lmstudio", {

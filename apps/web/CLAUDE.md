@@ -29,7 +29,8 @@ apps/web/src/
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads),
                    # about, reset-progress, preferences (language, theme, course edition)
-  llm/             # AI assistant: settings (providers, LM Studio), "Why is this wrong?", tutor (header
+  llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
+                   # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
                    # writing, scenes; parts.tsx: chat bubbles, header,
                    # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates

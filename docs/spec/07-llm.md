@@ -12,9 +12,9 @@ installed on the machine with the user's own subscription (`packages/llm/src/cli
 
 | Provider | Endpoint | API key | Notes |
 |---|---|---|---|
-| `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | local models; integrated through LM Studio's own API (below) |
-| `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models |
-| `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | |
+| `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | "LM Studio on this computer": integrated through LM Studio's own API (below) |
+| `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models; the key's state from its `/key` (`packages/llm/src/openrouter.ts`) |
+| `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | "Server on the network": LM Studio, Ollama, llama.cpp, vLLM on another machine |
 | `claude-code` | `claude -p` on the server's machine | none (Claude subscription, signed in once with `claude`) | models by alias (`sonnet`, `opus`, `haiku`) |
 | `codex` | `codex exec` on the server's machine | none (ChatGPT subscription, `codex login`) | read-only sandbox |
 
@@ -26,6 +26,13 @@ starts the command (a few seconds).
 The profile has one route — provider and model — stored as `llm_routes.task = 'default'`; endpoints
 live in the setting `llm.endpoints`, keys in `secrets` (05, 06). The settings page sets them; its
 "test" lists the provider's models and measures the round trip.
+
+**Models listed** (`modelInfo`, client.ts): chat models only — embedding models and models whose output
+is not text alone (image or audio generators) are left out — with what the endpoint tells of each:
+free, price per million tokens, context length, answers in a JSON schema, calls tools, publisher. The
+settings offer a filter only where some model tells it (OpenRouter tells all; most servers only the
+id), JSON on from the start where told (writing checks and scenes need it). A provider that lacks its
+tool, endpoint or required key says so without a request (owner, 2026-10-07).
 
 ## LM Studio
 

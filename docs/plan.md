@@ -28,27 +28,7 @@ Focus (owner, 2026-10-07): German. All courses offers DW; the rest stays CLI-onl
 
 ## Next, in order
 
-### 1. AI assistant settings (owner's request, 2026-10-07)
-Specs: 07, 09.
-- Providers as cards with an icon and a state line ("key saved", "not installed", "address not set")
-  instead of a drop-down; the owner approved the mockup's layout.
-- Two kinds of local model kept apart and said plainly: **LM Studio on this computer** (we start its
-  server, download and load models — only when it runs here) and **a server on the network** (any
-  OpenAI-compatible one: LM Studio, Ollama, llama.cpp, vLLM on another machine; an address and an
-  optional key), each with a line on when to choose it.
-- Models as a list with search instead of a drop-down; only models that answer with text (no image or
-  audio generators). Filters follow what each source tells: OpenRouter — free, answers JSON (needed by
-  writing checks and scenes), context length, publisher, price per million tokens; LM Studio here —
-  downloaded or loaded, size, fits this computer's memory; a network server — search only.
-- Free use: for OpenRouter, the key's state (free tier or credits, what is left, the rate limit; its
-  `/key` endpoint) and the daily limit of free models, as far as the source exposes them (checked when
-  built); free providers with an OpenAI-compatible API as presets if their terms allow (e.g. Gemini's
-  free tier, Groq). Subscriptions of chat apps are not an API and are not used.
-- **Accept**: llm/server tests of the model metadata and filters against fake endpoints; e2e of the
-  settings on desktop and phone.
-- The onboarding's AI step (item 2) reuses these cards and the model list.
-
-### 2. Profiles with onboarding
+### 1. Profiles with onboarding
 Specs: 05, 06, 09, 10.
 - `server.sqlite` (profiles, devices); a profile database per profile (the one `profiles/local` today
   becomes the first profile). "Who is studying?" — profile tiles and "+ New profile" — before the app.
@@ -57,7 +37,7 @@ Specs: 05, 06, 09, 10.
   respect their terms; the same line by "Download") → name or nickname and a colour/avatar → languages:
   the interface's (from the browser), the learner's own (explanations, translations) and the one to
   learn — the pair filters the courses at once → sign-in (below) → the AI assistant: none for now, or a
-  provider with the cards of the AI settings and a connection check → a short tour of the sections
+  provider with the AI settings' own `AssistantSetup` (cards, connection check, model list) → a short tour of the sections
   (Courses, Review, Notebook, Settings; skippable, reopened from the menu) → Courses, filtered by the
   pair, to pick one.
 - **Sign-in**: a passkey (Face ID / Touch ID / fingerprint, WebAuthn; over HTTPS — Tailscale — and on
@@ -78,14 +58,14 @@ Specs: 05, 06, 09, 10.
   PIN sign-in with the attempt limit, device sign-out, the CLI operations covered by tests; e2e of
   onboarding and choosing a profile on desktop and phone.
 
-### 3. Courses: My, Downloaded, Available (owner's request, 2026-10-07)
+### 2. Courses: My, Downloaded, Available (owner's request, 2026-10-07)
 Specs: 03, 09.
 - "Courses" gets three tabs: **My courses** (started), **Downloaded** (installed, started or not) and
   **Available** (every offer not installed — also the providers hidden from All courses today: Deutsch
   im Blick and the English courses, shown here by language pair instead of being CLI-only).
 - Mockups first. **Accept**: e2e on desktop and phone; nothing downloads in tests.
 
-### 4. Review: tabs, decks to take, a guide (owner's request, 2026-10-07)
+### 3. Review: tabs, decks to take, a guide (owner's request, 2026-10-07)
 Specs: 04, 09.
 - The links that lead back inside a section ("Decks" in Review, "Notebook" and "Pass" in the Notebook)
   look poor (owner, 2026-10-07): they give way to the section's tabs and a proper header with a back
@@ -112,7 +92,7 @@ Specs: 04, 09.
 - **Accept**: server tests (adding and leaving a deck, Review over the profile's decks); e2e on desktop
   and phone.
 
-### 5. Review settings (owner's request, 2026-10-07)
+### 4. Review settings (owner's request, 2026-10-07)
 Specs: 04, 09.
 - A "Review" tab in Settings with Anki's deck options for the profile: new cards per day (20), maximum
   reviews per day (200), desired retention (0.9), learning and relearning steps (1m 10m; 10m), the day's
@@ -125,7 +105,7 @@ Specs: 04, 09.
 - **Accept**: settings round-trip and validation tests; the queue and intervals follow them (engine and
   server tests); e2e of the tab.
 
-### 6. Notebook: study days and progress (owner's request, 2026-10-07)
+### 5. Notebook: study days and progress (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - A study day counts every kind of work and shows it apart: lessons (exercises answered, mistakes,
   steps), review (cards answered, new cards learnt, the share remembered, time), AI practice. An answer
@@ -141,7 +121,7 @@ Specs: 04, 05, 09.
 - Mockups first. **Accept**: engine tests of the derivations on synthetic events; server tests; e2e of
   the Notebook on desktop and phone.
 
-### 7. AI examples for a word (owner's request, 2026-10-07)
+### 6. AI examples for a word (owner's request, 2026-10-07)
 Specs: 04, 07, 09.
 - On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
   an example sentence with its translation in the card's translation language.
@@ -155,20 +135,20 @@ Specs: 04, 07, 09.
 - **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
   the fake server on desktop and phone.
 
-### 8. Speech
+### 7. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 9. Exams: Leben in Deutschland
+### 8. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
 
-### 10. MVP acceptance
+### 9. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.

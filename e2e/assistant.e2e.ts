@@ -147,3 +147,22 @@ test("a scene on its step page; a new one keeps the earlier one readable", async
   await expect(earlier).toHaveAttribute("aria-expanded", "true");
   await expect(step.getByText("Einen Kaffe, bitte.")).toBeVisible();
 });
+
+test("AI settings: providers as cards, the chosen one's model list without non-text models", async ({
+  page,
+}) => {
+  await page.goto("/settings");
+  await page.getByRole("tab", { name: "AI assistant" }).click();
+  const network = page.getByRole("button", { name: /Server on the network/ });
+  await expect(network).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText(/Any server with an OpenAI-compatible API/)).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Connected" })).toBeVisible();
+  // The fake server's image generator is left out: one chat model, the one in use.
+  await expect(page.getByText("1 of 1 models")).toBeVisible();
+  await expect(page.getByRole("button", { name: /fake-model/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  // OpenRouter without a key says so on its card.
+  await expect(page.getByRole("button", { name: /OpenRouter/ })).toContainText("needs a key");
+});

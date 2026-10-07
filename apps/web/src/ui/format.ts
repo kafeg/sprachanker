@@ -35,3 +35,25 @@ export function useBytes() {
     }).format(bytes / (giga ? 1e9 : 1e6));
   };
 }
+
+/** US dollars, as model prices and credits are given ("$0.42"; small prices with more digits). */
+export function useDollars() {
+  const { i18n } = useTranslation();
+  return useMemo(() => {
+    const format = new Intl.NumberFormat(i18n.language, {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 3,
+    });
+    return (value: number) => format.format(value);
+  }, [i18n.language]);
+}
+
+/** A large count briefly ("128K" tokens of context). */
+export function useCompact() {
+  const { i18n } = useTranslation();
+  return useMemo(() => {
+    const format = new Intl.NumberFormat(i18n.language, { notation: "compact" });
+    return (value: number) => format.format(value);
+  }, [i18n.language]);
+}

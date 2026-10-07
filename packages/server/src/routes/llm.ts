@@ -147,6 +147,10 @@ export function llmRoutes(
       .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) =>
         c.json(await llm.models(c.req.valid("query").provider, c.req.raw.signal)),
       )
+      // The key's state where the provider tells it (OpenRouter), else null.
+      .get("/key", zod("query", z.object({ provider: ProviderId })), async (c) =>
+        c.json({ key: await llm.keyState(c.req.valid("query").provider, c.req.raw.signal) }),
+      )
       .post("/explain", zod("json", ExplainBody), (c) =>
         streamReply(c, () => explain.stream(c.req.valid("json"), c.req.raw.signal)),
       )
