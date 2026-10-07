@@ -196,12 +196,14 @@ export function WritingTask({
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const state = useWriting(series, lessonKey, edition);
-  const check = useCheckWriting();
+  const check = useCheckWriting(onDone);
   const [text, setText] = useState("");
   const editor = useRef<HTMLTextAreaElement>(null);
   if (!llm.data?.model || !state.data) return null;
   const { topic, words, attempts } = state.data;
   const [latest, ...past] = attempts;
+  // Asked from here, or still being checked on the server since before this page was opened.
+  const checking = check.isPending ? check.variables.text : state.data.checking;
   const request = { series, lessonKey, edition, text: text.trim(), language: i18n.language };
   // A text back in the editor, to fix it after the corrections and check it again.
   const rewrite = (attempt: WritingAttempt) => {
@@ -240,19 +242,14 @@ export function WritingTask({
         <div className="flex flex-wrap items-center gap-2">
           <Button
             size="lg"
-            loading={check.isPending}
+            loading={!!checking}
             disabled={!request.text}
             onClick={() =>
-              check.mutate(request, {
-                // The text is in the result now; "Fix it and check again" brings it back.
-                onSuccess: () => {
-                  setText("");
-                  onDone?.();
-                },
-              })
+              // The text is in the result now; "Fix it and check again" brings it back.
+              check.mutate(request, { onSuccess: () => setText("") })
             }
           >
-            {check.isPending ? t("writing.checking") : t("writing.check")}
+            {checking ? t("writing.checking") : t("writing.check")}
           </Button>
           <PromptButton request={() => ({ writing: { ...request, text: request.text || "…" } })} />
           <AssistantLabel className="ml-auto" />

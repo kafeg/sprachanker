@@ -269,21 +269,28 @@ const fetchWriting = (series: string, lessonKey: string, edition: string) =>
   json(api.llm.writing.$get({ query: { series, lessonKey, edition } }));
 
 /** The lesson's writing task and earlier attempts. */
+/** While the server checks a text (asked from here or before), asked again until its result is in. */
+const WHILE_BUSY = 1500;
+
 export const useWriting = (series: string, lessonKey: string, edition: string) =>
   useQuery({
     queryKey: ["writing", lessonKey, edition],
     queryFn: () => fetchWriting(series, lessonKey, edition),
+    refetchInterval: (query) => (query.state.data?.checking ? WHILE_BUSY : false),
   });
 
-export function useCheckWriting() {
+/** `onChecked` runs once the check is stored, also when the page that asked is gone meanwhile. */
+export function useCheckWriting(onChecked?: () => void) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (request: WritingRequest) => json(api.llm.writing.$post({ json: request })),
     // Shown at once on top of the earlier texts.
-    onSuccess: (attempt, request) =>
+    onSuccess: (attempt, request) => {
       client.setQueryData(["writing", request.lessonKey, request.edition], (old: WritingState) =>
-        withAttempt(old, attempt),
-      ),
+        old ? { ...withAttempt(old, attempt), checking: null } : old,
+      );
+      onChecked?.();
+    },
   });
 }
 
@@ -294,10 +301,15 @@ const fetchScenes = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: {
 
 /** The lesson's scenes, newest first: the latest (active or finished), then earlier ones. */
 export const useScenes = (lessonKey: LessonKey) =>
-  useQuery({ queryKey: ["scenes", lessonKey], queryFn: () => fetchScenes(lessonKey) });
+  useQuery({
+    queryKey: ["scenes", lessonKey],
+    queryFn: () => fetchScenes(lessonKey),
+    refetchInterval: (query) => (query.state.data?.pending ? WHILE_BUSY : false),
+  });
 
-/** Starts a new scene (the open one ends) or sends a line of the open one. */
-export function useSceneAction(lessonKey: LessonKey) {
+/** Starts a new scene (the open one ends) or sends a line of the open one; `onStarted` runs once a
+ *  scene is stored, also when the page that asked is gone meanwhile. */
+export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (action: { start: SceneStartRequest } | { turn: SceneLineRequest }) =>
@@ -305,9 +317,15 @@ export function useSceneAction(lessonKey: LessonKey) {
         ? json(api.llm.scene.start.$post({ json: action.start }))
         : json(api.llm.scene.turn.$post({ json: action.turn })),
     // Shown at once: the scene first; a start ends the one that was open.
-    onSuccess: (scene, action) =>
-      client.setQueryData(["scenes", lessonKey], (old: { scenes: SceneState[] } | undefined) =>
-        withScene(old, scene, "start" in action),
-      ),
+    onSuccess: (scene, action) => {
+      client.setQueryData(
+        ["scenes", lessonKey],
+        (old: { scenes: SceneState[]; pending: unknown } | undefined) => ({
+          ...withScene(old, scene, "start" in action),
+          pending: null,
+        }),
+      );
+      if ("start" in action) onStarted?.();
+    },
   });
 }

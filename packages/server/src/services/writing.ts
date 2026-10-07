@@ -13,6 +13,7 @@ import {
 } from "@sprachanker/llm";
 import type { LessonKey, Run } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
@@ -41,6 +42,8 @@ export function createWriting(deps: {
   now: () => number;
 }) {
   const { store, now } = deps;
+  /** The text being checked, per lesson. */
+  const checking = createInFlight<{ text: string }>("writing_busy");
 
   /** Writing checks of the lesson in all its runs, newest first; one stored in a shape that no longer
    *  reads is left out. */
@@ -68,38 +71,39 @@ export function createWriting(deps: {
         topic: writingTopic(ctx.info),
         words: ctx.info.vocab.map((v) => v.target),
         attempts: attempts(lessonKey).slice(0, HISTORY_LIMIT),
+        /** A text the model is checking now (its result comes as the newest attempt). */
+        checking: checking.get(lessonKey)?.text ?? null,
       };
     },
 
     /** Checks a text with the configured model and keeps the verdict in the lesson's run (also a
-     *  finished one, as the lesson shows it). */
-    async check(request: WritingRequest, signal?: AbortSignal): Promise<WritingAttempt> {
-      const session = await deps.session(request.lessonKey);
-      if (!session) throw new ServiceError("no_session", 409);
-      const task = checkWritingTask(await writingInput(request));
-      const { client, model } = await deps.llm.model();
-      const elapsed = stopwatch(now);
-      const result = cleanWritingCheck(
-        await runStructured(client, model, task, signal),
-        request.text,
-      );
-      const ts = store.append(
-        session.run.id,
-        [
-          {
-            type: "llm_verdict",
-            payload: {
-              task: "writing",
-              input: request.text,
-              result,
-              model,
-              latencyMs: elapsed(),
+     *  finished one, as the lesson shows it). Runs to its end even when the page that asked is gone. */
+    check(request: WritingRequest): Promise<WritingAttempt> {
+      return checking.run(request.lessonKey, { text: request.text }, async () => {
+        const session = await deps.session(request.lessonKey);
+        if (!session) throw new ServiceError("no_session", 409);
+        const task = checkWritingTask(await writingInput(request));
+        const { client, model } = await deps.llm.model();
+        const elapsed = stopwatch(now);
+        const result = cleanWritingCheck(await runStructured(client, model, task), request.text);
+        const ts = store.append(
+          session.run.id,
+          [
+            {
+              type: "llm_verdict",
+              payload: {
+                task: "writing",
+                input: request.text,
+                result,
+                model,
+                latencyMs: elapsed(),
+              },
             },
-          },
-        ],
-        { anyStatus: true },
-      );
-      return { ts, text: request.text, result, model };
+          ],
+          { anyStatus: true },
+        );
+        return { ts, text: request.text, result, model };
+      });
     },
 
     async prompt(request: WritingRequest): Promise<PromptPreview> {

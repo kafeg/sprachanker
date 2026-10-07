@@ -46,7 +46,10 @@ test("a scene: setup, turns with corrections and goals, done when all goals are 
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   const base = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de", language: "ru" };
 
-  expect(await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).toEqual({ scenes: [] });
+  expect(await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).toEqual({
+    scenes: [],
+    pending: null,
+  });
   const started = await sendJson("POST", "/api/llm/scene/start", base);
   expect(started.turns).toEqual([
     {
@@ -105,4 +108,34 @@ test("the lesson's scenes stay readable: a new one ends the open one and comes f
     [first.id, "Im Café", true],
   ]);
   expect(scenes[1].startedAt).toBeLessThanOrEqual(scenes[0].startedAt);
+});
+
+test("a scene being prepared is known to a page opened meanwhile; a second start waits its turn", async () => {
+  let answer: (body: unknown) => void = () => {};
+  const fetch = (async (url: string) => {
+    if (url.endsWith("/api/v1/models")) return Response.json({ models: [] });
+    // The model answers when the test says so.
+    const body = await new Promise((resolve) => {
+      answer = resolve;
+    });
+    return Response.json({ choices: [{ message: { content: JSON.stringify(body) } }] });
+  }) as unknown as typeof globalThis.fetch;
+  const { send, sendJson, getJson } = await setup({ fetch });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const base = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de", language: "ru" };
+  const started = sendJson("POST", "/api/llm/scene/start", base);
+  await Bun.sleep(20);
+  expect((await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).pending).toEqual({
+    preparing: true,
+  });
+  const second = await send("POST", "/api/llm/scene/start", base);
+  expect([second.status, ((await second.json()) as { error: string }).error]).toEqual([
+    409,
+    "scene_busy",
+  ]);
+  answer(SETUP);
+  expect((await started).setup.title).toBe("Im Café");
+  const after = await getJson(`/api/llm/scene?lessonKey=${LESSON}`);
+  expect([after.pending, after.scenes.length]).toEqual([null, 1]);
 });

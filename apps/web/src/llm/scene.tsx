@@ -27,6 +27,7 @@ import { PromptButton } from "./prompt-view.tsx";
 type Ids = { series: string; lessonKey: LessonKey; edition: string };
 type Turn = SceneState["turns"][number];
 type Action = ReturnType<typeof useSceneAction>;
+type Busy = { preparing: true } | { line: string } | null;
 
 function PartnerLine({ turn }: { turn: Turn }) {
   const lang = useTargetLang();
@@ -111,29 +112,32 @@ function CurrentScene({
   ids,
   scene,
   action,
+  busy,
   onNew,
 }: {
   ids: Ids;
   scene: SceneState;
   action: Action;
+  /** What the model is doing for the scene now (asked from here or before leaving the page). */
+  busy: Busy;
   onNew(): void;
 }) {
   const lang = useTargetLang();
   const { t, i18n } = useTranslation();
   const [text, setText] = useState("");
-  const sending = action.isPending && action.variables && "turn" in action.variables;
-  const starting = action.isPending && !sending;
+  const sending = busy && "line" in busy ? busy.line : undefined;
+  const starting = !!busy && "preparing" in busy;
   const end = useScrollToEnd(`${scene.id}:${scene.turns.length}:${sending}`);
   const line = { ...ids, language: i18n.language, text: text.trim() };
   const send = () => {
-    if (!line.text || action.isPending) return;
+    if (!line.text || busy) return;
     action.mutate({ turn: line }, { onSuccess: () => setText("") });
   };
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="mr-auto text-xl font-bold">{scene.setup.title}</h2>
-        <Button variant="outline" loading={starting} disabled={action.isPending} onClick={onNew}>
+        <Button variant="outline" loading={starting} disabled={!!busy} onClick={onNew}>
           {starting ? t("scene.preparing") : t("scene.new")}
         </Button>
       </div>
@@ -148,7 +152,9 @@ function CurrentScene({
         </ChatHeader>
         <div className="space-y-3 p-4" aria-live="polite">
           <Lines turns={scene.turns} />
-          {sending && <PendingExchange question={text} lang={lang} className="text-lg" />}
+          {sending !== undefined && (
+            <PendingExchange question={sending} lang={lang} className="text-lg" />
+          )}
           {scene.done && (
             <p className="font-semibold text-correct">
               {scene.goalsMet.length === scene.setup.goals.length
@@ -208,20 +214,28 @@ export function SceneStep({ onDone, ...ids }: Ids & { onDone?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const scenes = useScenes(ids.lessonKey);
-  const action = useSceneAction(ids.lessonKey);
+  const action = useSceneAction(ids.lessonKey, onDone);
   if (!llm.data?.model || !scenes.data) return null;
   const [current, ...past] = scenes.data.scenes;
-  const start = () =>
-    action.mutate({ start: { ...ids, language: i18n.language } }, { onSuccess: () => onDone?.() });
+  // Asked from here, or still running on the server since before this page was opened.
+  const busy: Busy = action.isPending
+    ? action.variables && "turn" in action.variables
+      ? { line: action.variables.turn.text }
+      : { preparing: true }
+    : scenes.data.pending;
+  const preparing = !!busy && "preparing" in busy;
+  const start = () => {
+    if (!busy) action.mutate({ start: { ...ids, language: i18n.language } });
+  };
   return (
     <div className="space-y-4">
       {current ? (
-        <CurrentScene ids={ids} scene={current} action={action} onNew={start} />
+        <CurrentScene ids={ids} scene={current} action={action} busy={busy} onNew={start} />
       ) : (
         <StartPrompt
           intro={t("scene.intro")}
-          label={action.isPending ? t("scene.preparing") : t("scene.start")}
-          loading={action.isPending}
+          label={preparing ? t("scene.preparing") : t("scene.start")}
+          loading={preparing}
           onStart={start}
         />
       )}

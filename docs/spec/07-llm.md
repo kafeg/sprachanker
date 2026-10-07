@@ -76,6 +76,11 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   text is sent; a reply that breaks off after its first chunk ends with `STREAM_ERROR` (schema) and the
   error, so the client shows the part it got with the error, never as a whole reply. Only a reply that
   finished, or that the learner stopped, is kept.
+- **Calls outlive the page** (scenes, writing checks): a structured call runs to its end on the server
+  and is stored even when the learner left the page meanwhile; the step's state says what is running
+  (`pending` for a scene, `checking` for a text), so a page opened again shows it as waiting and polls
+  until it lands. One such call per lesson at a time; a second is refused (`scene_busy`,
+  `writing_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
   sent with the request; the reply is validated with zod; an invalid reply gets one repair attempt with
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result

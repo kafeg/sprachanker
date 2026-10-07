@@ -182,13 +182,16 @@ export function llmRoutes(
       )
       // Scenes: a role-play on the lesson's topic.
       .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-        c.json({ scenes: scenes.list(c.req.valid("query").lessonKey) }),
+        c.json({
+          scenes: scenes.list(c.req.valid("query").lessonKey),
+          pending: scenes.pending(c.req.valid("query").lessonKey),
+        }),
       )
       .post("/scene/start", zod("json", LessonRequest), async (c) =>
-        c.json(await scenes.start(c.req.valid("json"), c.req.raw.signal)),
+        c.json(await scenes.start(c.req.valid("json"))),
       )
       .post("/scene/turn", zod("json", SceneLine), async (c) =>
-        c.json(await scenes.turn(c.req.valid("json"), c.req.raw.signal)),
+        c.json(await scenes.turn(c.req.valid("json"))),
       )
       .post(
         "/scene/prompt",
@@ -205,7 +208,7 @@ export function llmRoutes(
         },
       )
       .post("/writing", zod("json", WritingBody), async (c) =>
-        c.json(await writing.check(c.req.valid("json"), c.req.raw.signal)),
+        c.json(await writing.check(c.req.valid("json"))),
       )
       .post(
         "/writing/prompt",
