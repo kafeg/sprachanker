@@ -119,7 +119,7 @@ const refused = (error: unknown) =>
  * The time a request may take: until its first byte, then between chunks of a streamed reply (it is
  * extended as data arrives), so a slow model is never cut off while it is still writing.
  */
-export class TimeLimit {
+class TimeLimit {
   private readonly ctl = new AbortController();
   private timer?: ReturnType<typeof setTimeout>;
   constructor(ms: number) {

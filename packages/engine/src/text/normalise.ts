@@ -32,7 +32,7 @@ export const endsSentence = (text: string) => SENTENCE_END.test(text.trimEnd());
  * the formal "Sie", so a capitalised word that does not start a sentence must match exactly (04).
  * `startsSentence`: whether the first word starts a sentence (a gap in mid-sentence does not).
  */
-export function caseMatters(
+function caseMatters(
   lang: string,
   words: string[],
   index: number,

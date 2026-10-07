@@ -8,7 +8,7 @@ import type { MiddlewareHandler } from "hono";
 const IPV4 = /^\d{1,3}(?:\.\d{1,3}){3}$/;
 
 /** Whether a request's host name is one this machine is reached by. */
-export function hostAllowed(hostname: string, extra: readonly string[] = []): boolean {
+function hostAllowed(hostname: string, extra: readonly string[] = []): boolean {
   const name = hostname.toLowerCase().replace(/\.$/, "");
   return (
     name === "localhost" ||

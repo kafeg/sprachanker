@@ -21,19 +21,21 @@ src/
     backup.ts        # copy-before-migrate, retention
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
-  routes/            # one file per API area: llm.ts (/api/llm, removable), notebook.ts (/api/notebook); the
-                     # rest in app.ts
-  services/          # content, runs (lesson runs, progress), settings, run-store (the one module on the
-                     # runs and events tables: start, replace, end, append, read, remove), mistakes
-                     # (derived from lesson runs), lesson-context (what LLM tasks know of a lesson), llm (providers,
-                     # LM Studio, prompt previews), explain ("Why is this wrong?", kept per attempt in the
-                     # lesson run), tutor (lesson chats as `chat` runs, the chat history), writing ("Write
-                     # it yourself": checks kept in the lesson run), scene (role-plays as `scene` runs),
-                     # tutor-tools (the tutor's tools on the learner's data), cards (cards from lesson
-                     # words, Anki's decks, study queue, ratings, undo, bury, suspend, flags; My words and
-                     # the word sheet), notebook (study days, passes, a pass in full, an item across
-                     # passes; read only), downloads (course downloads: queue, progress, catalogue states,
-                     # resume after restart; the installer is injected)
+  routes/            # one file per API area, mounted by app.ts: courses (courses, catalog, downloads, lesson
+                     # content), runs (lesson runs, progress reset), cards (/api/cards), settings,
+                     # notebook, llm (removable as a whole)
+  services/          # index.ts wires them all (app.ts only mounts routes); content; runs (lesson runs,
+                     # progress); run-store (the one module on runs and events: start, replace, end,
+                     # append, read, remove); card-store (the one module on cards and card_state); cards
+                     # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
+                     # bury, suspend, flags, marks); words (My words, the word sheet); notebook (study
+                     # days, passes, a pass in full, an item across passes; read only); settings;
+                     # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
+                     # lesson); llm (providers, LM Studio, prompt previews); explain ("Why is this
+                     # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
+                     # writing ("Write it yourself": checks kept in the lesson run); scene (`scene` runs);
+                     # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
+                     # catalogue states, resume after restart; the installer is injected)
   jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
@@ -47,7 +49,8 @@ test/                # bun test; integration tests call createApp().request()
 
 - Routes are thin: validate the request, call a service, return its typed result (the web client
   gets the types through `AppType`).
-- Runs and events go through `services/run-store.ts` only; no other module queries those tables.
+- Runs and events go through `services/run-store.ts` only, cards and their faces through
+  `services/card-store.ts` only; no other module queries those tables.
 - Histories read the same way everywhere: a run replaced by a new one through `store.replace` (ends
   `abandoned` when unfinished, `finished` when complete as it is); verdicts through `store.verdicts`;
   turns and payloads with their time (`payloadOf`); several runs' events in one query

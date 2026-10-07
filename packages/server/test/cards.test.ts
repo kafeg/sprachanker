@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
 import { ulid } from "ulid";
+import { createCardStore } from "../src/services/card-store.ts";
 import { createCards } from "../src/services/cards.ts";
 import { createContent } from "../src/services/content.ts";
-import { createRunStore } from "../src/services/run-store.ts";
 import { createSettings } from "../src/services/settings.ts";
 import { setup } from "./setup.ts";
 
@@ -243,8 +243,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
   const count = () => (sqlite.query("SELECT count(*) AS n FROM cards").get() as { n: number }).n;
   const before = count();
   const cards = createCards({
-    db: profile,
-    store: createRunStore({ db: profile, now: Date.now, appVersion: "t" }),
+    cards: createCardStore(profile),
     content: createContent(openLibrary(join(root, "library"))),
     settings: createSettings(profile),
     session: async () => undefined,

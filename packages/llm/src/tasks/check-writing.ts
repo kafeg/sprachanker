@@ -75,7 +75,7 @@ export function checkWritingRules(language: Lang, target: Lang): string {
     .join("\n");
 }
 
-export function checkWritingRequest(input: WritingInput): TaskRequest {
+function checkWritingRequest(input: WritingInput): TaskRequest {
   const B = CHECK_WRITING_BUDGETS;
   const { lesson } = input;
   const context = [

@@ -17,7 +17,7 @@ import {
 } from "@sprachanker/schema";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
-import type { Cards } from "./cards.ts";
+import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import { payloadOf, type RunRow, type RunStore } from "./run-store.ts";
 import { toRun, WORK_EVENTS } from "./runs.ts";
@@ -33,7 +33,7 @@ const DAY_EVENTS: EventType[] = [...WORK_EVENTS, "card_review", "llm_turn", "llm
 export function createNotebook(deps: {
   store: RunStore;
   content: Content;
-  cards: Cards;
+  cards: CardStore;
   tutor: Tutor;
   scenes: Scenes;
   now: () => number;
