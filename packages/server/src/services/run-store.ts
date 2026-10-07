@@ -25,7 +25,7 @@ import { ServiceError } from "../errors.ts";
 export type RunRow = typeof runs.$inferSelect;
 export type EventRow = typeof events.$inferSelect;
 export type Kind = z.infer<typeof RunKind>;
-/** What a run is about: a lesson (lesson, chat, scene, practice runs) or nothing (the day's review). */
+/** What a run is about: a lesson (lesson, chat and scene runs) or nothing (the day's review). */
 export type Context = LessonKey | null;
 
 /** An event to store: its own id when the client named it (idempotency key), else one is made. */

@@ -18,9 +18,9 @@ import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import type { Explain } from "../services/explain.ts";
 import { type Llm, PROMPT_TASKS } from "../services/llm.ts";
-import type { Practice } from "../services/practice.ts";
 import type { Scenes } from "../services/scene.ts";
 import type { Tutor } from "../services/tutor.ts";
+import type { Writing } from "../services/writing.ts";
 import { zod } from "../validate.ts";
 
 /** Every LLM request is about a lesson, answered in the learner's language. */
@@ -108,7 +108,7 @@ export function llmRoutes(
   llm: Llm,
   explain: Explain,
   tutor: Tutor,
-  practice: Practice,
+  writing: Writing,
   scenes: Scenes,
 ) {
   return (
@@ -201,16 +201,16 @@ export function llmRoutes(
         zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey, edition: EditionId })),
         async (c) => {
           const { series, lessonKey, edition } = c.req.valid("query");
-          return c.json(await practice.writing.state(series, lessonKey, edition));
+          return c.json(await writing.state(series, lessonKey, edition));
         },
       )
       .post("/writing", zod("json", WritingBody), async (c) =>
-        c.json(await practice.writing.check(c.req.valid("json"), c.req.raw.signal)),
+        c.json(await writing.check(c.req.valid("json"), c.req.raw.signal)),
       )
       .post(
         "/writing/prompt",
         zod("json", WritingBody.extend({ text: z.string().max(WRITING_MAX) })),
-        async (c) => c.json(await practice.writing.prompt(c.req.valid("json"))),
+        async (c) => c.json(await writing.prompt(c.req.valid("json"))),
       )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),

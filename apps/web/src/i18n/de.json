@@ -243,7 +243,7 @@
       "no_active_scene": "Diese Szene ist schon zu Ende. Starte eine neue.",
       "no_such_item": "Die Übung hat sich geändert. Lade die Lektion neu.",
       "llm_cli_missing": "Der Kommandozeilen-Assistent ist auf diesem Computer nicht installiert.",
-      "no_session": "Beantworte zuerst etwas in der Lektion – es gibt noch nichts zu besprechen.",
+      "no_session": "Starte zuerst die Lektion: Ein geprüfter Text wird in ihrem Durchgang gespeichert.",
       "no_such_run": "Diesen Lektionsdurchgang gibt es nicht mehr (der Fortschritt wurde zurückgesetzt). Lade die Lektion neu.",
       "no_such_attempt": "Diese Antwort ist nicht mehr im Lektionsdurchgang. Lade die Lektion neu.",
       "not_installed": "Dieser Kurs ist nicht (mehr) installiert.",

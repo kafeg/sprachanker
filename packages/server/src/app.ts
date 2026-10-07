@@ -30,13 +30,13 @@ import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createMistakes } from "./services/mistakes.ts";
-import { createPractice } from "./services/practice.ts";
 import { createRunStore } from "./services/run-store.ts";
 import { createRuns } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
 import { createTutor } from "./services/tutor.ts";
 import { createTutorTools } from "./services/tutor-tools.ts";
+import { createWriting } from "./services/writing.ts";
 import { zod } from "./validate.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
@@ -114,7 +114,7 @@ export function createApp(config: AppConfig) {
     lessons,
     tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
   });
-  const practice = createPractice({ store, llm, lessons, now });
+  const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
   const scenes = createScenes({ store, llm, lessons });
   const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
 
@@ -286,7 +286,7 @@ export function createApp(config: AppConfig) {
     // My words: the learner's words, and one word for its sheet.
     .get("/cards", (c) => c.json({ words: cards.words() }))
     .get("/cards/:id", zod("param", CardParam), (c) => c.json(cards.word(c.req.valid("param").id)))
-    .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))
+    .route("/llm", llmRoutes(llm, explain, tutor, writing, scenes))
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.
     .onError((error, c) => {

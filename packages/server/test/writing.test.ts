@@ -30,6 +30,8 @@ function model(reply: unknown, bad = 0) {
   return { fetch, bodies };
 }
 
+const START = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
+
 const REQUEST = {
   series: FIXTURE_SERIES,
   lessonKey: LESSON,
@@ -38,7 +40,7 @@ const REQUEST = {
   language: "ru",
 };
 
-test("writing: the task from the lesson, a checked attempt stored, the prompt with its schema", async () => {
+test("writing: the task, a check kept in the lesson's run and listed across its runs, the prompt", async () => {
   const m = model(CHECK, 1);
   const { send, sendJson, getJson } = await setup({ fetch: m.fetch });
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
@@ -50,6 +52,15 @@ test("writing: the task from the lesson, a checked attempt stored, the prompt wi
   expect(before.words).toContain("der Kaffee, die Kaffees");
   expect(before.attempts).toEqual([]);
 
+  // A check belongs to a run of the lesson: none yet, so it is refused before the model is asked.
+  const early = await send("POST", "/api/llm/writing", REQUEST);
+  expect([early.status, ((await early.json()) as { error: string }).error]).toEqual([
+    409,
+    "no_session",
+  ]);
+  expect(m.bodies).toHaveLength(0);
+  const run = (await sendJson("POST", "/api/runs", START)).run.id;
+
   const attempt = await sendJson("POST", "/api/llm/writing", REQUEST);
   expect(attempt.result.verdict).toBe("minor_errors");
   // The no-op correction is dropped; the invalid first reply was repaired.
@@ -57,10 +68,20 @@ test("writing: the task from the lesson, a checked attempt stored, the prompt wi
   expect(m.bodies).toHaveLength(2);
   expect(m.bodies[0]).toMatchObject({ stream: false, response_format: { type: "json_schema" } });
 
+  const state = await getJson(`/api/runs/lesson?series=${FIXTURE_SERIES}&lessonKey=${LESSON}`);
+  expect(state.state.events.map((e: { type: string }) => e.type)).toEqual(["llm_verdict"]);
+  expect(state.state.run.id).toBe(run);
+  // A verdict is no work on the lesson: it stays new.
+  expect((await getJson("/api/courses"))[0].started).toBe(false);
+
+  // The lesson done again: the earlier text stays listed, the new one first.
+  await sendJson("POST", "/api/runs", { ...START, restart: true });
+  await sendJson("POST", "/api/llm/writing", { ...REQUEST, text: "Ich heiße Lena." });
   const after = await getJson(`/api/llm/writing?${query}`);
-  expect(after.attempts.map((a: { text: string }) => a.text)).toEqual(["Ich heisse Lena."]);
-  // Practice runs do not count as lesson progress.
-  expect((await getJson("/api/courses"))[0].done).toBe(0);
+  expect(after.attempts.map((a: { text: string }) => a.text)).toEqual([
+    "Ich heiße Lena.",
+    "Ich heisse Lena.",
+  ]);
 
   const prompt = await sendJson("POST", "/api/llm/writing/prompt", { ...REQUEST, text: "" });
   expect(prompt.body.response_format.json_schema.name).toBe("writing_check");
@@ -68,7 +89,8 @@ test("writing: the task from the lesson, a checked attempt stored, the prompt wi
 });
 
 test("writing: a model that never returns valid JSON is reported, nothing stored", async () => {
-  const { send, getJson } = await setup({ fetch: model(CHECK, 9).fetch });
+  const { send, sendJson, getJson } = await setup({ fetch: model(CHECK, 9).fetch });
+  await sendJson("POST", "/api/runs", START);
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   const res = await send("POST", "/api/llm/writing", REQUEST);

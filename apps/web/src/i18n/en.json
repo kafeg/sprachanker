@@ -243,7 +243,7 @@
       "no_active_scene": "This scene has ended. Start a new one.",
       "no_such_item": "This exercise has changed. Reload the lesson.",
       "llm_cli_missing": "The command-line assistant is not installed on this computer.",
-      "no_session": "Answer something in the lesson first: there is nothing to review yet.",
+      "no_session": "Start the lesson first: a checked text is kept with its run.",
       "no_such_run": "This lesson run is gone (its progress was reset). Reload the lesson.",
       "no_such_attempt": "This answer is no longer in the lesson run. Reload the lesson.",
       "not_installed": "This course is not installed (any more).",

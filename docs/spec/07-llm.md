@@ -54,7 +54,7 @@ kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with t
 (the answer explained is read from that attempt in the run, not taken from the request), and shown
 again from there ("Explain again" asks anew; the newest is shown); "ask about this exercise"
 and the lesson tutor → `chat_turn`; "Write it yourself", a step of the plan (3–5 sentences on the
-lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson's `practice` run; the
+lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson run the lesson shows (05); the
 step shows the latest check under the task and the lesson's earlier texts under it (verdict, the three
 criteria, when), each readable in full, and any text goes back into the editor to be fixed and checked
 again (owner, 2026-10-07);

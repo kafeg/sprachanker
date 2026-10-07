@@ -23,14 +23,15 @@ src/
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
   services/          # content, runs (lesson runs, progress), settings, run-store (the one module on the
-                     # runs and events tables: start, end, append, read, remove),
-                     # mistakes (derived from lesson runs), lesson-context (what LLM
-                     # tasks know of a lesson), llm (providers, LM Studio, prompt previews), explain ("Why is
-                     # this wrong?", kept per attempt in the lesson run), tutor (lesson chats as `chat`
-                     # runs, the chat history), practice (writing checks in `practice` runs), scene
-                     # (role-plays as `scene` runs), tutor-tools (the tutor's tools on the learner's data), cards (cards from lesson words, Anki's decks,
-                     # study queue, ratings, undo, bury, suspend, flags; the learner's words), downloads (course downloads: queue, progress,
-                     # catalogue states, resume after restart; the installer is injected)
+                     # runs and events tables: start, end, append, read, remove), mistakes (derived from
+                     # lesson runs), lesson-context (what LLM tasks know of a lesson), llm (providers,
+                     # LM Studio, prompt previews), explain ("Why is this wrong?", kept per attempt in the
+                     # lesson run), tutor (lesson chats as `chat` runs, the chat history), writing ("Write
+                     # it yourself": checks kept in the lesson run), scene (role-plays as `scene` runs),
+                     # tutor-tools (the tutor's tools on the learner's data), cards (cards from lesson
+                     # words, Anki's decks, study queue, ratings, undo, bury, suspend, flags; My words and
+                     # the word sheet), downloads (course downloads: queue, progress, catalogue states,
+                     # resume after restart; the installer is injected)
   jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
