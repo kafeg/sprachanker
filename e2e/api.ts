@@ -1,6 +1,7 @@
 // Setting up server state for e2e tests. Projects share one profile, so each test starts from a known
 // state instead of whatever an earlier (possibly failed) test left.
 import { type APIRequestContext, expect, type Locator, type Page } from "@playwright/test";
+import { CLIENT_HEADERS } from "@sprachanker/schema";
 
 export const DEMO_LESSON = "sprachanker.fixture/demo/00-01";
 
@@ -11,7 +12,7 @@ async function send(
   data: unknown,
 ) {
   // Mutations carry the app's client header (CSRF check, 06).
-  const res = await request[method](path, { data, headers: { "x-sprachanker": "1" } });
+  const res = await request[method](path, { data, headers: { ...CLIENT_HEADERS } });
   expect(res.ok()).toBe(true);
   return res.json();
 }

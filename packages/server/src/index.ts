@@ -39,7 +39,7 @@ export function startServer(config: ServerConfig): Listening {
   });
   return listen(app.fetch, config);
 }
-export { appDataDir, resolveDataRoot } from "./config.ts";
+export { resolveDataRoot } from "./config.ts";
 export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
 
 /** Checks every installed course of the data root (course-kit verify). */

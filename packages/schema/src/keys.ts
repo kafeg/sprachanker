@@ -107,8 +107,6 @@ export const examSectionKey = (exam: ExamKey, slug: string) =>
   ExamSectionKey.parse(`${exam}/s-${slug}`);
 export const examItemKey = (exam: ExamKey, id: string) => ExamItemKey.parse(`${exam}/q-${id}`);
 export const lessonGoalKey = (lesson: LessonKey, n: number) => GoalKey.parse(`${lesson}/goal-${n}`);
-export const courseGoalKey = (course: CourseKey, slug: string) =>
-  GoalKey.parse(`${course}/goal-${slug}`);
 export const vocabKey = (lesson: LessonKey, lemma: string, n = 1) =>
   VocabKey.parse(`${lesson}/v-${lemmaSlug(lemma)}${n > 1 ? `.${n}` : ""}`);
 export const lexemeKey = (lang: Lang, lemma: string, pos: PartOfSpeech, gender?: Gender) =>

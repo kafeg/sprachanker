@@ -121,7 +121,10 @@ Planned: `owner-link`, `normalise <series>`, `export-profile` / `import-profile`
 
 The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is
 idempotent: stored pages and media are not fetched again (`--refresh` re-reads pages), then every
-selected edition is normalised.
+selected edition is normalised. Exit codes: `import` fails (1) when media failed, a file failed
+validation, or no course matched `--courses` / `--editions`; `verify` fails when a course has
+problems or none is installed. A failure (an unknown provider, a port in use, a held lock, a failed
+migration, a bad option) is one line, `sprachanker: <message>`, never a stack trace.
 
 **Binary build.** `bun run build:cli` builds the web app, generates an entry that imports every web
 file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary. Embedded

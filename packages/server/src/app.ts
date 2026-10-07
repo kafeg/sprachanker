@@ -5,6 +5,7 @@ import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit";
 import {
   CardFace,
   CardRating,
+  CLIENT_HEADERS,
   CourseKey,
   CourseSlug,
   courseKey,
@@ -61,9 +62,6 @@ export interface AppConfig {
   /** Names this machine is reached by besides localhost, IPs and `.local` (its host name). */
   hosts?: string[];
 }
-
-/** Mutating requests must carry this header (CSRF protection, 06). */
-export const CLIENT_HEADER = "x-sprachanker";
 
 const CourseRef = z.object({ series: SeriesKey, course: CourseSlug });
 
@@ -131,7 +129,7 @@ export function createApp(config: AppConfig) {
       if (
         c.req.method !== "GET" &&
         c.req.method !== "HEAD" &&
-        c.req.header(CLIENT_HEADER) !== "1"
+        Object.entries(CLIENT_HEADERS).some(([name, value]) => c.req.header(name) !== value)
       ) {
         return c.json({ error: "missing_client_header" }, 403);
       }

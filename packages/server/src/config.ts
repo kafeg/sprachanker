@@ -10,9 +10,10 @@ export function appDataDir(): string {
   return join(process.env.XDG_DATA_HOME ?? join(home, ".local", "share"), "sprachanker");
 }
 
-/** `--data`, else SPRACHANKER_DATA, else <app-data>/data. A leading `~` is expanded. */
+/** `--data`, else SPRACHANKER_DATA, else <app-data>/data. A leading `~` or `~/` is the home folder
+ *  (`~name` is left as it is). */
 export function resolveDataRoot(flag?: string): string {
   const value = flag ?? process.env.SPRACHANKER_DATA;
   if (!value) return join(appDataDir(), "data");
-  return value.startsWith("~") ? join(homedir(), value.slice(1)) : value;
+  return value === "~" || value.startsWith("~/") ? join(homedir(), value.slice(1)) : value;
 }

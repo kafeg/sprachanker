@@ -50,7 +50,7 @@ function serve(args: string[], webAssets: WebAssets): void {
     },
   });
   const port = Number(values.port);
-  if (!Number.isInteger(port) || port < 0 || port > 65535) {
+  if (!/^\d+$/.test(values.port) || port > 65535) {
     throw new Error(`invalid --port: ${values.port}`);
   }
   const dataRoot = resolveDataRoot(values.data);
@@ -84,10 +84,17 @@ async function importCommand(args: string[]): Promise<void> {
     refresh: values.refresh,
     log,
   });
-  for (const [course, r] of Object.entries(report.normalised)) {
+  const normalised = Object.entries(report.normalised);
+  if (!normalised.length) {
+    // Nothing matched --courses / --editions (a typo selects nothing).
+    log(`nothing imported: no course of ${provider} matches the --courses / --editions given`);
+    process.exitCode = 1;
+  }
+  for (const [course, r] of normalised) {
     log(
       `${course}: ${r.lessons} lessons, ${r.unknown} unknown exercises, ${r.problems} invalid files`,
     );
+    if (r.problems) process.exitCode = 1;
   }
   if (report.failedMedia.length) {
     log(`${report.failedMedia.length} media files failed (run again to retry):`);
@@ -101,7 +108,12 @@ async function verifyCommand(args: string[]): Promise<void> {
     args,
     options: { data: { type: "string" }, notes: { type: "boolean", default: false } },
   });
-  const reports = await verifyData(resolveDataRoot(values.data));
+  const dataRoot = resolveDataRoot(values.data);
+  const reports = await verifyData(dataRoot);
+  if (!reports.length) {
+    console.log(`no courses installed in ${dataRoot} (is --data right?)`);
+    process.exitCode = 1;
+  }
   for (const r of reports) {
     const types = Object.entries(r.exercises)
       .sort((a, b) => b[1] - a[1])
@@ -123,7 +135,17 @@ async function verifyCommand(args: string[]): Promise<void> {
   if (reports.some((r) => r.problems.length)) process.exitCode = 1;
 }
 
+/** Runs a command; a failure is one line and exit code 1, never a stack trace. */
 export async function main(argv: string[], embedded?: Embedded): Promise<void> {
+  try {
+    await run(argv, embedded);
+  } catch (error) {
+    console.error(`sprachanker: ${error instanceof Error ? error.message : String(error)}`);
+    process.exitCode = 1;
+  }
+}
+
+async function run(argv: string[], embedded?: Embedded): Promise<void> {
   const [command, ...rest] = argv;
   switch (command) {
     case "serve":

@@ -217,7 +217,6 @@ export function useCheckWriting() {
 }
 
 export type ReviewRequest = Parameters<typeof api.llm.review.$post>[0]["json"];
-export type ReviewState = Awaited<ReturnType<typeof fetchReview>>;
 const fetchReview = (lessonKey: LessonKey) => json(api.llm.review.$get({ query: { lessonKey } }));
 
 /** The latest session review of a lesson. */

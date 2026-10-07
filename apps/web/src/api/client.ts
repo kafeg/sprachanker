@@ -1,8 +1,9 @@
+import { CLIENT_HEADERS } from "@sprachanker/schema";
 import type { AppType } from "@sprachanker/server/app";
 import { hc } from "hono/client";
 
 /** Typed client for the server's JSON API (Hono RPC, same origin); mutations carry the client header. */
-export const api = hc<AppType>("/", { headers: { "x-sprachanker": "1" } }).api;
+export const api = hc<AppType>("/", { headers: { ...CLIENT_HEADERS } }).api;
 
 /** URL of a library media file. */
 export const mediaUrl = (series: string, path: string) => `/library/${series}/${path}`;

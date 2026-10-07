@@ -1,7 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
   type CourseKey,
-  courseGoalKey,
   courseKey,
   ExerciseKey,
   examItemKey,
@@ -47,7 +46,6 @@ describe("builders produce the keys of spec 02", () => {
     [exerciseKey(lesson, 1, "ours"), "dw.nicos-weg/a1/00-01/x-01"],
     [itemKey(exercise, 2), "dw.nicos-weg/a1/00-01/ex-03#2"],
     [lessonGoalKey(lesson, 1), "dw.nicos-weg/a1/00-01/goal-1"],
-    [courseGoalKey(course, "greet-people"), "dw.nicos-weg/a1/goal-greet-people"],
     [vocabKey(lesson, "Frau"), "dw.nicos-weg/a1/00-01/v-frau"],
     [vocabKey(lesson, "Frau", 2), "dw.nicos-weg/a1/00-01/v-frau.2"],
     [lexemeKey("de", "Frau", "noun", "f"), "lex:de:frau:noun:f"],

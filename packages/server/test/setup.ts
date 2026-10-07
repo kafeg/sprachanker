@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { writeFixtureLibrary } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
+import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { mediaBlob, openProfileDb } from "../src/runtime/bun.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
@@ -43,7 +44,7 @@ export async function setup(
   const send = (method: string, path: string, body: unknown) =>
     app.request(path, {
       method,
-      headers: { "content-type": "application/json", "x-sprachanker": "1" },
+      headers: { "content-type": "application/json", ...CLIENT_HEADERS },
       body: JSON.stringify(body),
     });
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.

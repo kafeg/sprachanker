@@ -50,3 +50,7 @@ export const issuesText = (error: z.ZodError, max = 3) =>
  * (`{"error": "llm_timeout"}`, 06): what came before it was shown, and is not the whole reply.
  */
 export const STREAM_ERROR = "\u0000";
+
+/** What every mutating API request carries (06, "Security": CSRF protection): a header a page on
+ *  another site cannot set without the server's consent. */
+export const CLIENT_HEADERS = { "x-sprachanker": "1" } as const;

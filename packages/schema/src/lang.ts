@@ -14,10 +14,6 @@ export const EditionId = z
   .describe("Edition id <source>-<target>");
 export type EditionId = z.infer<typeof EditionId>;
 
-export function editionId(source: Lang, target: Lang): EditionId {
-  return EditionId.parse(`${source}-${target}`);
-}
-
 export function parseEditionId(id: EditionId): { source: Lang; target: Lang } {
   const [source = "", target = ""] = id.split("-");
   return { source, target };
