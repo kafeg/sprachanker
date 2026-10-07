@@ -350,7 +350,7 @@ test("My words: a word's sheet has each face's state and its answers; an undone 
   expect((await send("GET", `/api/cards/${ulid()}`, undefined)).status).toBe(404);
 });
 
-test("cards remember the run they were made in; resetting the lesson removes them", async () => {
+test("cards remember the run they were made in; resetting the lesson removes them, also once that run is gone", async () => {
   const { sendJson, root } = await setup();
   const lessonKey = LESSONS[0];
   const run = (
@@ -374,6 +374,20 @@ test("cards remember the run they were made in; resetting the lesson removes the
     lesson: lessonKey,
   });
   expect(origins()).toEqual([]);
+  // A card whose run an earlier reset removed (no origin left) still goes with its lesson.
+  await sendJson("POST", "/api/runs", { series: FIXTURE_SERIES, lessonKey, edition: "ru-de" });
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey,
+    edition: "ru-de",
+  });
+  sqlite.exec("UPDATE cards SET origin_run_id = NULL");
+  const reset = await sendJson("POST", "/api/progress/reset", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    lesson: lessonKey,
+  });
+  expect([reset.cards, origins()]).toEqual([4, []]);
 });
 
 test("resetting a lesson removes the cards it made with their answers; another lesson's cards stay", async () => {

@@ -220,14 +220,15 @@ export function createRuns({
     /**
      * Resets the learner's progress in a course, or in one of its lessons: every run of it — lesson
      * runs, tutor chats, writing checks, scenes — and their events are deleted, and so are the cards
-     * those runs made (the words first met there) with their answers. Words a card came from another
-     * lesson for stay. The only deletion of events besides removing a profile; the screen asks for
+     * it made (the words first met there, by the lesson each card names — also when the run that made
+     * it is long gone) with their answers. A card another lesson made stays. The only deletion of events besides removing a profile; the screen asks for
      * confirmation (05).
      */
     reset(course: CourseKey, lesson?: LessonKey) {
       return store.atomic(() => {
-        const runIds = store.idsOf(lesson ? { lesson } : { course });
-        const cardIds = cards.idsMadeIn(runIds);
+        const scope = lesson ? { lesson } : { course };
+        const runIds = store.idsOf(scope);
+        const cardIds = cards.idsMetIn(scope);
         const removed = store.remove(runIds, cardIds);
         cards.remove(cardIds);
         return { ...removed, cards: cardIds.length };

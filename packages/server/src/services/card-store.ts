@@ -118,16 +118,13 @@ export function createCardStore(db: ProfileDb) {
         .onConflictDoUpdate({ target: [cardState.cardId, cardState.face], set: values })
         .run(),
 
-    /** The notes made in some runs (their origin), as stored. */
-    idsMadeIn: (runIds: string[]) =>
-      runIds.length
-        ? db
-            .select({ id: cards.id })
-            .from(cards)
-            .where(inArray(cards.originRunId, runIds))
-            .all()
-            .map((r) => r.id)
-        : [],
+    /** The notes a lesson made (the words first met in it), or every lesson of a course made. */
+    idsMetIn: (scope: { lesson: string } | { course: string }) =>
+      notes(db.select().from(cards).all())
+        .filter((n) =>
+          "lesson" in scope ? n.display.lessonKey === scope.lesson : n.course === scope.course,
+        )
+        .map((n) => n.id),
 
     /** Deletes notes with their faces (resetting the progress of the lesson that made them). */
     remove(cardIds: string[]) {

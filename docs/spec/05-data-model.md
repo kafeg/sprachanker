@@ -120,9 +120,10 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   its name and the UI shows "deleted".
 - **Resetting progress** is the exception, on the learner's confirmed request: for a course (it then
   leaves "My courses") or one lesson, every run of it — lesson runs with their kept explanations, tutor
-  chats, writing checks and reviews, scenes — is deleted with its events, and so are the cards those
-  runs made (`origin_run_id`: the words first met there) with their faces and every answer to them; a
-  card made by another lesson stays (owner, 2026-10-07). The course stays installed. Deleting one tutor
+  chats, writing checks and reviews, scenes — is deleted with its events, and so are the cards it made
+  (the words first met there: the lesson each card names in its display, which outlives the run that
+  made it) with their faces and every answer to them; a card made by another lesson stays (owner,
+  2026-10-07). The course stays installed. Deleting one tutor
   chat from the lesson's chat history, also confirmed, deletes that `chat` run with its events.
 - Snapshots make old runs readable after content changes or course removal.
 - Indexes: `events(run_id, ts)` (a run's events), `events(type, ts)` (the day's card answers,
@@ -163,7 +164,8 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
 - One server process owns all DB files (WAL mode); devices are clients.
 - One active run per (profile, context) and one active review run per profile. Any device of the
   profile may continue it; events from all devices are stored (idempotent by id).
-- **Opening a lesson starts nothing**: it shows its active run (in whichever edition it was started) (resumed on its last page,
+- **Opening a lesson starts nothing**: the step shown is in the page's address (`?step=`), so a reload
+  stays on it (owner, 2026-10-07); opened without one, it shows its active run (in whichever edition it was started) (resumed on its last page,
   every exercise with its latest answers and outcomes), else the latest finished run read-only, else the
   overview. A run starts with "Start" (or with opening a page); "Start over" ends the active run
   `abandoned/user` and begins a new one.

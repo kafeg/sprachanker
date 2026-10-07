@@ -1,5 +1,6 @@
-// The lesson's flow over its plan (09): which step is shown, moving between steps and what that records,
-// starting or starting over, resuming an active run where it was left, and completing it on the summary.
+// The lesson's flow over its plan (09): which step is shown (kept in the page's address, so a reload stays
+// on it), moving between steps and what that records, starting or starting over, resuming an active run
+// where it was left when the lesson is opened without a step, and completing it on the summary.
 // The decisions are the engine's (`resumeStep`, `openingRecord`); this hook keeps the screen's state.
 import {
   type LessonStep,
@@ -21,13 +22,20 @@ export function useLessonFlow({
   locale,
   practice,
   run,
+  opened,
+  onShow,
 }: {
   lesson: Lesson | undefined;
   locale: LocaleLesson | null | undefined;
   practice: PracticeKind[];
   run: Run;
+  /** The step the page was opened on (its address): kept on reload instead of resuming elsewhere. */
+  opened?: string;
+  /** A step is shown: the page's address follows it. */
+  onShow?(id: string): void;
 }) {
-  const [current, setCurrent] = useState("overview");
+  const [current, setCurrent] = useState(opened ?? "overview");
+  const openedOn = useRef(opened);
   const [finished, setFinished] = useState<LessonResult | null>();
   /** Starting a run: one request at a time (a double click starts one run), its failure shown. */
   const [startState, setStartState] = useState<{ busy: boolean; error?: unknown }>({ busy: false });
@@ -48,7 +56,7 @@ export function useLessonFlow({
   const [resumedFor, setResumedFor] = useState<string>();
   if (runLoaded && resumedFor !== runLoaded) {
     setResumedFor(runLoaded);
-    if (resumeId) setCurrent(resumeId);
+    if (resumeId && !openedOn.current) setCurrent(resumeId);
   }
 
   // Reaching the summary with every step done or skipped completes an active run (05, "Lifecycle").
@@ -77,6 +85,7 @@ export function useLessonFlow({
   };
   const show = (id: string) => {
     setCurrent(id);
+    onShow?.(id);
     window.scrollTo({ top: 0 });
   };
   /** Records what opening a step records (the engine's `openingRecord`). */

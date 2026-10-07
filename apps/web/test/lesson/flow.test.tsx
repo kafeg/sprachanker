@@ -73,6 +73,23 @@ test("an active run resumes on the exercise last shown while it is not worked", 
   expect(result.current.current).toBe("exercise:1");
 });
 
+test("a page opened on a step stays on it instead of resuming (a reload); moving updates the address", () => {
+  const shown: string[] = [];
+  const { result } = renderHook(() =>
+    useLessonFlow({
+      lesson,
+      locale,
+      practice: [],
+      run: fakeRun("active", [], 1).run as never,
+      opened: "overview",
+      onShow: (id) => shown.push(id),
+    }),
+  );
+  expect(result.current.current).toBe("overview");
+  act(() => result.current.go("words"));
+  expect(shown).toEqual(["words"]);
+});
+
 test("reaching the summary with every step worked completes the run, once", async () => {
   const events = [
     answered("ex-01#1", "a"),

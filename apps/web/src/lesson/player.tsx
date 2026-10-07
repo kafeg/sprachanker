@@ -36,11 +36,16 @@ export function LessonPlayer({
   series,
   course,
   lesson: lessonId,
+  step: opened,
+  onStep,
   slots = {},
 }: {
   series: string;
   course: string;
   lesson: string;
+  /** The step in the page's address. */
+  step?: string;
+  onStep?(id: string): void;
   slots?: LessonSlots;
 }) {
   const { t } = useTranslation();
@@ -57,6 +62,8 @@ export function LessonPlayer({
     // The AI practice offered (none while no assistant is set up); `slots` is fixed for the player.
     practice: slots.practice?.useKinds() ?? [],
     run,
+    opened,
+    onShow: onStep,
   });
   const url = (p: string) => mediaUrl(series, p);
   const step = flow.step;

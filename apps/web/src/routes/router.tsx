@@ -98,14 +98,25 @@ const settings = createRoute({
   path: "/settings",
   component: SettingsPage,
 });
-const lesson = createRoute({ getParentRoute: () => root, path: "/lesson/$series/$course/$lesson" });
+const lesson = createRoute({
+  getParentRoute: () => root,
+  path: "/lesson/$series/$course/$lesson",
+  // The step shown, so a reload stays on it; without one the lesson resumes where it was left.
+  validateSearch: (s: Record<string, unknown>): { step?: string } =>
+    typeof s.step === "string" ? { step: s.step } : {},
+});
 lesson.update({
   component: function Lesson() {
     const params = lesson.useParams();
+    const { step } = lesson.useSearch();
+    const navigate = lesson.useNavigate();
     return (
       <LessonPlayer
         key={`${params.series}/${params.course}/${params.lesson}`}
         slots={lessonAssistant}
+        step={step}
+        // Replaced, not pushed: the browser's back still leaves the lesson.
+        onStep={(id) => void navigate({ search: { step: id }, replace: true })}
         {...params}
       />
     );
