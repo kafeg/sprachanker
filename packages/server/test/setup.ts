@@ -1,4 +1,5 @@
-// A test app over the fixture library and a fresh profile database.
+// A test app over the fixture library: a fresh server database with one profile, signed in — every
+// request carries its device cookie (`anonymous` sends one without it).
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -6,7 +7,7 @@ import { writeFixtureLibrary } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
-import { mediaBlob, openProfileDb } from "../src/runtime/bun.ts";
+import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
 
@@ -26,11 +27,12 @@ export async function setup(
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
   await writeFixtureLibrary(join(root, "library"));
   let clock = 1_000;
-  const profile = openProfileDb(join(root, "profiles/local/profile.sqlite"));
+  const profiles = profileFiles(root);
   const app = createApp({
     webAssets: async (path) => files[path],
     library: openLibrary(join(root, "library")),
-    profile,
+    server: openServerDb(join(root, "server.sqlite")),
+    profiles,
     mediaBlob,
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
@@ -40,17 +42,38 @@ export async function setup(
     installer: options.installer,
     now: () => (clock += 1000),
   });
-  const get = (path: string, init?: RequestInit) => app.request(path, init);
+  const json = { "content-type": "application/json", ...CLIENT_HEADERS };
+  // The first profile, signed in on this "device".
+  const made = await app.request("/api/profiles", {
+    method: "POST",
+    headers: json,
+    body: JSON.stringify({ name: "Test" }),
+  });
+  const cookie = (made.headers.get("set-cookie") ?? "").split(";")[0] ?? "";
+  const profile = profiles.open("local");
+  const withCookie = (init: RequestInit = {}) => ({
+    ...init,
+    headers: { cookie, ...(init.headers as Record<string, string>) },
+  });
+  const get = (path: string, init?: RequestInit) => app.request(path, withCookie(init));
   const send = (method: string, path: string, body: unknown) =>
+    app.request(path, withCookie({ method, headers: json, body: JSON.stringify(body) }));
+  /** A request from a device that is not signed in. */
+  const anonymous = (
+    method: string,
+    path: string,
+    body?: unknown,
+    headers: Record<string, string> = {},
+  ) =>
     app.request(path, {
       method,
-      headers: { "content-type": "application/json", ...CLIENT_HEADERS },
-      body: JSON.stringify(body),
+      headers: { ...json, ...headers },
+      ...(body === undefined ? {} : { body: JSON.stringify(body) }),
     });
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
   const getJson = async (path: string): Promise<any> => (await get(path)).json();
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
   const sendJson = async (method: string, path: string, body: unknown): Promise<any> =>
     (await send(method, path, body)).json();
-  return { app, root, profile, get, send, getJson, sendJson };
+  return { app, root, profile, profiles, cookie, get, send, getJson, sendJson, anonymous };
 }

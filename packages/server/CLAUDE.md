@@ -21,10 +21,14 @@ src/
     backup.ts        # copy-before-migrate, retention
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
-  routes/            # one file per API area, mounted by app.ts: courses (courses, catalog, downloads, lesson
-                     # content), runs (lesson runs, progress reset), cards (/api/cards), settings,
-                     # notebook, llm (removable as a whole)
-  services/          # index.ts wires them all (app.ts only mounts routes); content; runs (lesson runs,
+  routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
+                     # out — before the session check; the profile itself — after it), courses
+                     # (courses, catalog, downloads, lesson content), runs (lesson runs, progress reset),
+                     # cards (/api/cards), settings, notebook, llm (removable as a whole); env.ts: what a
+                     # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
+  services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
+                     # records, PIN, registration), devices (sign-in tokens), passkeys (WebAuthn), and
+                     # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
                      # progress); run-store (the one module on runs and events: start, replace, end,
                      # append, read, remove); card-store (the one module on cards and card_state); cards
                      # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
@@ -40,16 +44,19 @@ src/
   jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
-                     # headers); later profiles, PIN, device tokens
+                     # headers), encoding.ts (base64url, SHA-256)
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
   media/             # Range responses for library media (read via course-kit) and profile files
-test/                # bun test; integration tests call createApp().request()
+test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
+                     # and sends its cookie (`anonymous` sends none)
 ```
 
 ## Rules
 
 - Routes are thin: validate the request, call a service, return its typed result (the web client
   gets the types through `AppType`).
+- Routes of a profile read its services from the context (`c.var.s`), never from a closure: the
+  session check sets them per request.
 - Runs and events go through `services/run-store.ts` only, cards and their faces through
   `services/card-store.ts` only; no other module queries those tables (dependency-cruiser
   `server-tables-through-stores`). Event types and their payload schemas live in one registry

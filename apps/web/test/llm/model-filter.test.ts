@@ -44,9 +44,9 @@ test("filters are offered where the list tells them; a plain server's list offer
     context: false,
     publishers: [],
   });
-  // JSON is on from the start where the list tells it.
-  expect(initialFilters(models).json).toBe(true);
-  expect(initialFilters([{ id: "qwen3-8b" }]).json).toBe(false);
+  // Free and JSON are on from the start where the list tells them.
+  expect(initialFilters(models)).toMatchObject({ free: true, json: true });
+  expect(initialFilters([{ id: "qwen3-8b" }])).toMatchObject({ free: false, json: false });
 });
 
 test("search by every word in id or name; filters combine; the chosen model always stays", () => {

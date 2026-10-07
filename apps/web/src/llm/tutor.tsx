@@ -170,14 +170,14 @@ function Chat({
   const words = !!lesson?.lesson.vocab.length;
   const grammar = !!lesson?.locale?.tabs.grammar.length;
   const script = !!lesson?.locale?.tabs.script;
+  // Each is a short label on its button and a fuller request to the model: the word and phrase ones go
+  // one at a time and wait for the learner, not a list at once.
   const suggestions = [
-    ...(context.exerciseKey ? [t("tutor.suggest.exercise")] : []),
-    ...(words
-      ? [t("tutor.suggest.wordsQuiz"), t("tutor.suggest.wordsMemory"), t("tutor.suggest.examples")]
-      : []),
-    ...(grammar ? [t("tutor.suggest.grammar"), t("tutor.suggest.grammarDrill")] : []),
-    ...(script ? [t("tutor.suggest.script")] : []),
-    t("tutor.suggest.dialogue"),
+    ...(context.exerciseKey ? ["exercise"] : []),
+    ...(words ? ["wordsQuiz", "wordsMemory", "examples"] : []),
+    ...(grammar ? ["grammar", "grammarDrill"] : []),
+    ...(script ? ["script"] : []),
+    "dialogue",
   ];
 
   return (
@@ -218,9 +218,9 @@ function Chat({
                   key={s}
                   variant="outline"
                   className="h-auto min-h-11 whitespace-normal rounded-full text-left"
-                  onClick={() => send(s)}
+                  onClick={() => send(t(`tutor.ask.${s}`))}
                 >
-                  {s}
+                  {t(`tutor.suggest.${s}`)}
                 </Button>
               ))}
             </div>

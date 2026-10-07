@@ -36,6 +36,12 @@ later areas are fixed in the plan item that builds them.
   log; queue a download — first download, completing one and syncing with the source are the same
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
 - Progress: `POST /api/progress/reset` (a course or one lesson, 05).
+- Profiles (without a session): `GET` / `POST /api/profiles` (who is studying and registration; a new
+  profile, signed in), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
+  choosing or PIN; signing out), `POST /api/session/passkey/options` and `POST /api/session/passkey`.
+  With a session: `PUT /api/profile` (name, colour, onboarded), `PUT /api/profile/pin`,
+  `GET` / `POST /api/profile/passkeys` (+ `/options`, `DELETE …/:id`), `GET /api/profile/devices`,
+  `DELETE /api/profile/devices/:id`.
 - Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
   the lessons worked on), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
   `GET /api/notebook/passes/:id` (a pass in full), `GET /api/notebook/item?itemKey=` (an item across
@@ -70,22 +76,33 @@ later areas are fixed in the plan item that builds them.
 - Every other path serves the web build: existing files as they are (`/assets/*` hashed and
   `immutable`, the rest `no-cache`), extension-less paths fall back to `index.html` (client routes).
 
-Planned areas: auth (profiles, PIN, device tokens), removing a course's files (owner),
-exams, review, practice sets, notebook, cards, stats, speech, `server/*` (owner), `jobs/:id/events`.
+Planned areas: removing a course's files,
+exams, practice sets, stats, speech, `jobs/:id/events`.
 
-## Profiles and access (planned: plan, "Profiles")
+## Profiles and access
 
-Today the server has one local profile and no login. Planned:
+Profiles are separation, not security (owner, 2026-10-07): **every profile is equal** in the app — no
+owner, no admin screens; server matters are the `sprachanker profiles` command's (below).
 
-- Profiles are separation, not security. Optional 4–8 digit PIN, rate-limited attempts.
-- **Owner** = the first profile, created through the owner setup link (Security). Owner-only: library,
-  course install and removal, network, registration toggle, sidecars and models, deleting other
-  profiles. Owner screens need the owner device cookie or the owner PIN; access is never granted by
-  source address (`tailscale serve` makes remote requests look local). The owner profile has a PIN
-  whenever the server is reachable from other devices.
-- New profiles can be created from the PWA (name + optional PIN) while registration is on — on by
-  default; the owner can switch it off (owner, 2026-10-07). The owner can reset another profile's PIN.
-- Devices get a long-lived token (HTTP-only cookie).
+- `server.sqlite` holds the profiles (name, colour, optional PIN, onboarded), the devices signed in to
+  them and their passkeys, and the server's settings; each profile's learning data is its own file
+  `profiles/<id>/profile.sqlite`. The single profile from before (`profiles/local`) becomes the first
+  profile, not yet onboarded (its data kept).
+- A device without a session sees **"Who is studying?"**: the profiles and "+ New profile" while
+  registration is open (on by default). A new profile is signed in at once and goes through the
+  onboarding (09).
+- **Signing in**: a profile without a PIN or passkey opens when chosen; one with a PIN asks for it —
+  wrong ones counted, a pause after five that doubles with each further miss (up to an hour); a passkey
+  (WebAuthn, `@simplewebauthn/server`) signs in with Face ID, Touch ID or a fingerprint. A passkey
+  belongs to the site it was made on (the host name the browser used): one made on localhost does not
+  sign in through the tailnet's name, so a profile may keep one per address.
+- **Devices**: a 256-bit random token in an HttpOnly cookie, its SHA-256 in `devices` (not a JWT: one
+  server decides, and signing a device out is a row); a year, extended with use. The profile lists its
+  devices and signs any out; "Switch profile" signs this device out.
+- Every `/api` route but health, the profile list and signing in needs a session (401 `no_session`);
+  the session check names the profile, whose services (opened on first use) the routes then use.
+- **The command** `sprachanker profiles`: list them; `registration on|off`; `reset <id>` (removes the
+  PIN and passkeys); `delete <id>` (the profile with its data).
 
 ## Network and HTTPS
 
@@ -122,7 +139,7 @@ are decided when it is built.
 
 Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port]` ·
 `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [--data] [--notes]` (02).
-Planned: `owner-link`, `normalise <series>`, `export-profile` / `import-profile`, `enrich check`.
+`profiles` (above). Planned: `normalise <series>`, `export-profile` / `import-profile`, `enrich check`.
 
 The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is
 idempotent: stored pages and media are not fetched again (`--refresh` re-reads pages), then every
@@ -154,21 +171,18 @@ imports (`packages/server/src/db/profile/migrations/index.ts`, generated by
 
 Threat model: a home network or tailnet with trusted people; avoid accidental exposure and common web
 attacks, not a determined attacker on the LAN. Built: the Host check, the CSRF header, security
-headers and CSP, sealed secrets, sanitised course HTML, Markdown without raw HTML, media path checks.
-The rest comes with profiles (plan).
+headers and CSP, sealed secrets, sanitised course HTML, Markdown without raw HTML, media path checks,
+profiles with device tokens, PINs and passkeys (above).
 
-- **Owner bootstrap**: when no owner exists, or on `sprachanker owner-link`, the server creates a
-  one-time secret (15 minutes) and prints `http://127.0.0.1:<port>/owner/<secret>`. Opening it creates
-  the owner profile (or re-attaches the owner) and sets the owner device cookie. The desktop app does
-  this automatically.
 - **Host check** (`src/security/host.ts`): requests are accepted only for the names this machine is
   reached by — `localhost`, an IP address, a `.local` name, its host name, the address it listens on —
   else 421 (DNS-rebinding protection: a page on another site cannot rebind its name to this server).
   Planned: the configured public URLs. No CORS (same-origin only).
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
   header `X-SprachAnker: 1`.
-- **Tokens and PINs**: device tokens 256-bit random, stored hashed, revocable; PINs hashed with argon2id,
-  attempts rate-limited.
+- **Tokens and PINs**: device tokens 256-bit random, stored hashed (SHA-256), revocable; PINs hashed
+  with PBKDF2-SHA256 (WebCrypto, so the server stays runtime-agnostic; a 4–8 digit PIN is protected by
+  the attempt limit, not by the hash), attempts limited as above.
 - **Secrets**: AES-256-GCM with a key file (`0600`, `<app-data>/secret.key`); write-only through the API;
   never logged.
 - **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled. Every

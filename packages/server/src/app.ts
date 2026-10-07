@@ -5,19 +5,22 @@ import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
-import type { ProfileDb } from "./db/profile/db.ts";
+import type { ServerDb } from "./db/server/db.ts";
 import { ServiceError } from "./errors.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
 import { cardRoutes } from "./routes/cards.ts";
 import { courseRoutes } from "./routes/courses.ts";
+import type { ProfileEnv } from "./routes/env.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { notebookRoutes } from "./routes/notebook.ts";
+import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.ts";
 import { runRoutes } from "./routes/runs.ts";
 import { settingsRoutes } from "./routes/settings.ts";
 import { hostGuard } from "./security/host.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
+import type { ProfileFiles } from "./services/profiles.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
 export type { WebAssets } from "./web.ts";
@@ -25,11 +28,13 @@ export type { WebAssets } from "./web.ts";
 export interface AppConfig {
   webAssets: WebAssets;
   library: LibraryView;
-  profile: ProfileDb;
+  /** The server database (profiles, devices, passkeys) and the profiles' own database files. */
+  server: ServerDb;
+  profiles: ProfileFiles;
   /** Reads a library media file (runtime adapter). */
   mediaBlob(file: string): MediaBlob;
   appVersion: string;
-  /** 32-byte key that seals the profile's API keys (06, "Secrets"). */
+  /** 32-byte key that seals the profiles' API keys (06, "Secrets"). */
   secretKey: Uint8Array;
   /** Outgoing requests to LLM providers (replaced in tests). */
   fetch?: typeof fetch;
@@ -44,13 +49,13 @@ export interface AppConfig {
 }
 
 export function createApp(config: AppConfig) {
-  const s = createServices({
+  const svc = createServices({
     ...config,
     fetch: config.fetch ?? fetch,
     now: config.now ?? Date.now,
   });
 
-  const api = new Hono()
+  const api = new Hono<ProfileEnv>()
     // Changes need the app's own header (a cross-site form cannot send it; 06, "Security").
     .use("*", async (c, next) => {
       if (
@@ -63,12 +68,17 @@ export function createApp(config: AppConfig) {
       await next();
     })
     .get("/health", (c) => c.json({ status: "ok" as const, version: config.appVersion }))
-    .route("/", courseRoutes({ ...s, library: config.library }))
-    .route("/", runRoutes(s.runs))
-    .route("/settings", settingsRoutes(s.settings))
-    .route("/cards", cardRoutes(s))
-    .route("/notebook", notebookRoutes(s.notebook))
-    .route("/llm", llmRoutes(s.llm, s.explain, s.tutor, s.writing, s.scenes))
+    // Who is studying, signing in and out: before the session check.
+    .route("/", sessionRoutes(svc))
+    // Everything after it is a profile's: the device's session names it (401 without one).
+    .use("*", requireSession(svc))
+    .route("/", profileRoutes(svc))
+    .route("/", courseRoutes())
+    .route("/", runRoutes())
+    .route("/settings", settingsRoutes())
+    .route("/cards", cardRoutes())
+    .route("/notebook", notebookRoutes())
+    .route("/llm", llmRoutes())
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.
     .onError((error, c) => {

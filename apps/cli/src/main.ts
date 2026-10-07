@@ -6,6 +6,7 @@ import {
   directoryAssets,
   fileAssets,
   importCourse,
+  profileAdmin,
   providerIds,
   resolveDataRoot,
   startServer,
@@ -25,6 +26,11 @@ Commands:
          providers: ${providerIds().join(", ")}
   verify [--data <dir>] [--notes]
          check every installed course: schemas, keys, answers, locale texts, media
+  profiles [--data <dir>]
+         list the profiles; every profile is equal in the app, these are the server's matters:
+  profiles registration on|off     let new profiles be made from the app, or not (on by default)
+  profiles reset <id>              remove a profile's PIN and passkeys (it then signs in by choosing)
+  profiles delete <id>             delete a profile with its data
 
 The data root holds library/ and profiles/: --data, else $SPRACHANKER_DATA, else the app-data folder.`;
 
@@ -135,6 +141,42 @@ async function verifyCommand(args: string[]): Promise<void> {
   if (reports.some((r) => r.problems.length)) process.exitCode = 1;
 }
 
+async function profilesCommand(args: string[]): Promise<void> {
+  const { values, positionals } = parseArgs({
+    args,
+    allowPositionals: true,
+    options: { data: { type: "string" } },
+  });
+  const profiles = profileAdmin(resolveDataRoot(values.data));
+  const [action, arg] = positionals;
+  switch (action) {
+    case undefined:
+      for (const p of profiles.list())
+        console.log(
+          `${p.id}  ${p.name || "(no name yet)"}${p.hasPin ? "  PIN" : ""}${p.hasPasskey ? "  passkey" : ""}`,
+        );
+      console.log(`registration: ${profiles.registrationOpen() ? "on" : "off"}`);
+      return;
+    case "registration":
+      if (arg !== "on" && arg !== "off") throw new Error("registration on or off?");
+      profiles.setRegistration(arg === "on");
+      console.log(`registration: ${arg}`);
+      return;
+    case "reset":
+      if (!arg) throw new Error("which profile? (sprachanker profiles lists them)");
+      await profiles.reset(arg);
+      console.log(`${arg}: PIN and passkeys removed`);
+      return;
+    case "delete":
+      if (!arg) throw new Error("which profile? (sprachanker profiles lists them)");
+      profiles.remove(arg);
+      console.log(`${arg}: deleted`);
+      return;
+    default:
+      throw new Error(`unknown: profiles ${action}`);
+  }
+}
+
 /** Runs a command; a failure is one line and exit code 1, never a stack trace. */
 export async function main(argv: string[], embedded?: Embedded): Promise<void> {
   try {
@@ -162,6 +204,9 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "verify":
       await verifyCommand(rest);
+      break;
+    case "profiles":
+      await profilesCommand(rest);
       break;
     default:
       console.log(USAGE);

@@ -2,19 +2,19 @@
 // routes, e.g. /api/llm).
 import { Hono } from "hono";
 import { z } from "zod";
-import type { Settings } from "../services/settings.ts";
 import { zod } from "../validate.ts";
+import type { ProfileEnv } from "./env.ts";
 
-export function settingsRoutes(settings: Settings) {
-  return new Hono()
-    .get("/", (c) => c.json(settings.all()))
+export function settingsRoutes() {
+  return new Hono<ProfileEnv>()
+    .get("/", (c) => c.json(c.var.s.settings.all()))
     .put(
       "/",
       zod("json", z.object({ key: z.string().min(1).max(300), value: z.unknown() })),
       (c) => {
         const { key, value } = c.req.valid("json");
-        settings.setByLearner(key, value);
-        return c.json(settings.all());
+        c.var.s.settings.setByLearner(key, value);
+        return c.json(c.var.s.settings.all());
       },
     );
 }

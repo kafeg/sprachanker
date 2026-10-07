@@ -16,12 +16,9 @@ import { HTTPException } from "hono/http-exception";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
-import type { Explain } from "../services/explain.ts";
-import { type Llm, PROMPT_TASKS } from "../services/llm.ts";
-import type { Scenes } from "../services/scene.ts";
-import type { Tutor } from "../services/tutor.ts";
-import type { Writing } from "../services/writing.ts";
+import { PROMPT_TASKS } from "../services/llm.ts";
 import { zod } from "../validate.ts";
+import type { ProfileEnv } from "./env.ts";
 
 /** Every LLM request is about a lesson, answered in the learner's language. */
 const LessonRequest = z.object({
@@ -104,16 +101,10 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
   });
 }
 
-export function llmRoutes(
-  llm: Llm,
-  explain: Explain,
-  tutor: Tutor,
-  writing: Writing,
-  scenes: Scenes,
-) {
+export function llmRoutes() {
   return (
-    new Hono()
-      .get("/", (c) => c.json(llm.state()))
+    new Hono<ProfileEnv>()
+      .get("/", (c) => c.json(c.var.s.llm.state()))
       .put(
         "/route",
         zod(
@@ -125,8 +116,8 @@ export function llmRoutes(
         ),
         (c) => {
           const { provider, model } = c.req.valid("json");
-          llm.setRoute(provider, model);
-          return c.json(llm.state());
+          c.var.s.llm.setRoute(provider, model);
+          return c.json(c.var.s.llm.state());
         },
       )
       .put(
@@ -140,31 +131,33 @@ export function llmRoutes(
           }),
         ),
         async (c) => {
-          await llm.setProvider(c.req.valid("param").id, c.req.valid("json"));
-          return c.json(llm.state());
+          await c.var.s.llm.setProvider(c.req.valid("param").id, c.req.valid("json"));
+          return c.json(c.var.s.llm.state());
         },
       )
       .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) =>
-        c.json(await llm.models(c.req.valid("query").provider, c.req.raw.signal)),
+        c.json(await c.var.s.llm.models(c.req.valid("query").provider, c.req.raw.signal)),
       )
       // The key's state where the provider tells it (OpenRouter), else null.
       .get("/key", zod("query", z.object({ provider: ProviderId })), async (c) =>
-        c.json({ key: await llm.keyState(c.req.valid("query").provider, c.req.raw.signal) }),
+        c.json({
+          key: await c.var.s.llm.keyState(c.req.valid("query").provider, c.req.raw.signal),
+        }),
       )
       .post("/explain", zod("json", ExplainBody), (c) =>
-        streamReply(c, () => explain.stream(c.req.valid("json"), c.req.raw.signal)),
+        streamReply(c, () => c.var.s.explain.stream(c.req.valid("json"), c.req.raw.signal)),
       )
       .get("/explanations", zod("query", z.object({ lessonKey: LessonKey, runId: Ulid })), (c) => {
         const { lessonKey, runId } = c.req.valid("query");
-        return c.json({ explanations: explain.list(lessonKey, runId) });
+        return c.json({ explanations: c.var.s.explain.list(lessonKey, runId) });
       })
       // Prompt viewer: the exact request a task would send now (nothing is sent).
       .post("/explain/prompt", zod("json", ExplainBody), async (c) =>
-        c.json(await explain.prompt(c.req.valid("json"))),
+        c.json(await c.var.s.explain.prompt(c.req.valid("json"))),
       )
       .get("/prompts", zod("query", z.object({ language: Lang, target: Lang })), (c) => {
         const { language, target } = c.req.valid("query");
-        return c.json(llm.prompts(language, target));
+        return c.json(c.var.s.llm.prompts(language, target));
       })
       // The learner's own system prompt of a task ({language}, {target} filled in); null: standing rules.
       .put(
@@ -172,35 +165,35 @@ export function llmRoutes(
         zod("param", z.object({ task: z.enum(PROMPT_TASKS) })),
         zod("json", z.object({ template: z.string().max(20_000).nullable() })),
         (c) => {
-          llm.setPrompt(c.req.valid("param").task, c.req.valid("json").template);
+          c.var.s.llm.setPrompt(c.req.valid("param").task, c.req.valid("json").template);
           return c.json({ ok: true as const });
         },
       )
       // LM Studio: what it has and runs; start its server, download suggested models into it.
-      .get("/lmstudio", async (c) => c.json(await llm.lmStudioStatus()))
-      .post("/lmstudio/start", async (c) => c.json(await llm.lmStudioStart()))
+      .get("/lmstudio", async (c) => c.json(await c.var.s.llm.lmStudioStatus()))
+      .post("/lmstudio/start", async (c) => c.json(await c.var.s.llm.lmStudioStart()))
       .post(
         "/lmstudio/download",
         zod("json", z.object({ model: z.enum(LMSTUDIO_RECOMMENDED.map((m) => m.key)) })),
-        async (c) => c.json(await llm.lmStudioDownload(c.req.valid("json").model)),
+        async (c) => c.json(await c.var.s.llm.lmStudioDownload(c.req.valid("json").model)),
       )
       // Scenes: a role-play on the lesson's topic.
       .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({
-          scenes: scenes.list(c.req.valid("query").lessonKey),
-          pending: scenes.pending(c.req.valid("query").lessonKey),
+          scenes: c.var.s.scenes.list(c.req.valid("query").lessonKey),
+          pending: c.var.s.scenes.pending(c.req.valid("query").lessonKey),
         }),
       )
       .post("/scene/start", zod("json", LessonRequest), async (c) =>
-        c.json(await scenes.start(c.req.valid("json"))),
+        c.json(await c.var.s.scenes.start(c.req.valid("json"))),
       )
       .post("/scene/turn", zod("json", SceneLine), async (c) =>
-        c.json(await scenes.turn(c.req.valid("json"))),
+        c.json(await c.var.s.scenes.turn(c.req.valid("json"))),
       )
       .post(
         "/scene/prompt",
         zod("json", SceneLine.extend({ text: z.string().max(MESSAGE_MAX) })),
-        async (c) => c.json(await scenes.prompt(c.req.valid("json"))),
+        async (c) => c.json(await c.var.s.scenes.prompt(c.req.valid("json"))),
       )
       // Writing task of a lesson: the task and attempts; a check stores its verdict.
       .get(
@@ -208,46 +201,46 @@ export function llmRoutes(
         zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey, edition: EditionId })),
         async (c) => {
           const { series, lessonKey, edition } = c.req.valid("query");
-          return c.json(await writing.state(series, lessonKey, edition));
+          return c.json(await c.var.s.writing.state(series, lessonKey, edition));
         },
       )
       .post("/writing", zod("json", WritingBody), async (c) =>
-        c.json(await writing.check(c.req.valid("json"))),
+        c.json(await c.var.s.writing.check(c.req.valid("json"))),
       )
       .post(
         "/writing/prompt",
         zod("json", WritingBody.extend({ text: z.string().max(WRITING_MAX) })),
-        async (c) => c.json(await writing.prompt(c.req.valid("json"))),
+        async (c) => c.json(await c.var.s.writing.prompt(c.req.valid("json"))),
       )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-        c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
+        c.json({ turns: c.var.s.tutor.history(c.req.valid("query").lessonKey) }),
       )
       .post("/tutor", zod("json", TutorBody), (c) =>
-        streamReply(c, () => tutor.send(c.req.valid("json"), c.req.raw.signal)),
+        streamReply(c, () => c.var.s.tutor.send(c.req.valid("json"), c.req.raw.signal)),
       )
       .post(
         "/tutor/context",
         zod("json", TutorBody.extend({ message: z.string().max(MESSAGE_MAX) })),
-        async (c) => c.json(await tutor.usage(c.req.valid("json"))),
+        async (c) => c.json(await c.var.s.tutor.usage(c.req.valid("json"))),
       )
       .post(
         "/tutor/prompt",
         zod("json", TutorBody.extend({ message: z.string().max(MESSAGE_MAX) })),
-        async (c) => c.json(await tutor.prompt(c.req.valid("json"))),
+        async (c) => c.json(await c.var.s.tutor.prompt(c.req.valid("json"))),
       )
       .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
-        tutor.reset(c.req.valid("json").lessonKey);
+        c.var.s.tutor.reset(c.req.valid("json").lessonKey);
         return c.json({ ok: true as const });
       })
       .get("/tutor/chats", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-        c.json({ chats: tutor.chats(c.req.valid("query").lessonKey) }),
+        c.json({ chats: c.var.s.tutor.chats(c.req.valid("query").lessonKey) }),
       )
       .get(
         "/tutor/chats/:id",
         zod("param", ChatParam),
         zod("query", z.object({ lessonKey: LessonKey })),
         (c) => {
-          const turns = tutor.chat(c.req.valid("query").lessonKey, c.req.valid("param").id);
+          const turns = c.var.s.tutor.chat(c.req.valid("query").lessonKey, c.req.valid("param").id);
           if (!turns) throw new ServiceError("no_such_chat", 404);
           return c.json({ turns });
         },
@@ -257,7 +250,7 @@ export function llmRoutes(
         zod("param", ChatParam),
         zod("query", z.object({ lessonKey: LessonKey })),
         (c) => {
-          if (!tutor.remove(c.req.valid("query").lessonKey, c.req.valid("param").id))
+          if (!c.var.s.tutor.remove(c.req.valid("query").lessonKey, c.req.valid("param").id))
             throw new ServiceError("no_such_chat", 404);
           return c.json({ ok: true as const });
         },

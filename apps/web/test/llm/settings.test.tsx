@@ -69,7 +69,7 @@ test("providers as cards, each saying what it lacks or where it is; a card picks
   expect(picked).toEqual(["openrouter", null]);
 });
 
-test("the model list: JSON on where told, search and free filter; a pick reports the model", async () => {
+test("the model list: free and JSON on where told; filters toggle; a pick reports the model", async () => {
   const picked: string[] = [];
   const models = [
     { id: "a/big", name: "A: Big", publisher: "a", json: true, price: { input: 3, output: 15 } },
@@ -84,13 +84,18 @@ test("the model list: JSON on where told, search and free filter; a pick reports
       .getAllByRole("button", { pressed: false })
       .map((b) => b.textContent ?? "")
       .filter((t) => t.startsWith("A:") || t.startsWith("B:"));
-  // "Answers JSON" is on: the old model is not listed.
+  // "Free" and "Answers JSON" are on: only the free model that answers JSON is listed.
+  const free = view.getByRole("button", { name: /^Free/ });
+  expect(free.getAttribute("aria-pressed")).toBe("true");
   expect(view.getByRole("button", { name: /Answers JSON/ }).getAttribute("aria-pressed")).toBe(
     "true",
   );
-  expect(names().some((n) => n.startsWith("B: Old"))).toBe(false);
-  fireEvent.click(view.getByRole("button", { name: /^Free/ }));
   expect(names().map((n) => n.slice(0, 7))).toEqual(["A: Tiny"]);
+  // Free off: the paid one too, still not the one without JSON.
+  fireEvent.click(free);
+  expect(names().some((n) => n.startsWith("A: Big"))).toBe(true);
+  expect(names().some((n) => n.startsWith("B: Old"))).toBe(false);
+  fireEvent.click(free);
   fireEvent.click(view.getByRole("button", { name: /A: Tiny/ }));
   expect(picked).toEqual(["a/tiny:free"]);
   expect(view.getByText("1 of 3 models")).toBeTruthy();

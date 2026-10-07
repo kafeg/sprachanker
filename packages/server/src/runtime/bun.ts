@@ -3,11 +3,15 @@ import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-import { migrate } from "../db/migrate.ts";
+import { type Migration, migrate } from "../db/migrate.ts";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { migrations } from "../db/profile/migrations/index.ts";
 import * as schema from "../db/profile/schema.ts";
+import type { ServerDb } from "../db/server/db.ts";
+import { migrations as serverMigrations } from "../db/server/migrations/index.ts";
+import * as serverSchema from "../db/server/schema.ts";
 import type { MediaBlob } from "../media.ts";
+import type { ProfileFiles } from "../services/profiles.ts";
 import type { WebAssets } from "../web.ts";
 
 export interface Listening {
@@ -44,7 +48,26 @@ export function fileAssets(files: Record<string, string>): WebAssets {
 }
 
 /** Opens (creating if needed) a profile database in WAL mode and applies pending migrations. */
-export function openProfileDb(file: string, now = Date.now()): ProfileDb {
+export const openProfileDb = (file: string, now = Date.now()): ProfileDb =>
+  drizzle(openSqlite(file, migrations, now), { schema });
+
+/** Opens (creating if needed) the server database (profiles, devices, passkeys). */
+export const openServerDb = (file: string, now = Date.now()): ServerDb =>
+  drizzle(openSqlite(file, serverMigrations, now), { schema: serverSchema });
+
+/** The profiles' folders under the data root: profiles/<id>/profile.sqlite, opened on first use. */
+export function profileFiles(dataRoot: string): ProfileFiles {
+  const folder = (id: string) => join(dataRoot, "profiles", id);
+  return {
+    exists: (id) =>
+      statSync(join(folder(id), "profile.sqlite"), { throwIfNoEntry: false }) !== undefined,
+    open: (id) => openProfileDb(join(folder(id), "profile.sqlite")),
+    remove: (id) => rmSync(folder(id), { recursive: true, force: true }),
+  };
+}
+
+/** A SQLite file in WAL mode with its migrations applied (backed up first, 05). */
+function openSqlite(file: string, list: Migration[], now: number) {
   mkdirSync(dirname(file), { recursive: true });
   const sqlite = new Database(file, { create: true, strict: true });
   sqlite.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
@@ -60,7 +83,7 @@ export function openProfileDb(file: string, now = Date.now()): ProfileDb {
       transaction: (fn) => sqlite.transaction(fn)(),
       foreignKeyViolations: () => sqlite.query("PRAGMA foreign_key_check").all().length,
     },
-    migrations,
+    list,
     {
       file,
       now,
@@ -71,7 +94,7 @@ export function openProfileDb(file: string, now = Date.now()): ProfileDb {
       remove: (f) => rmSync(f),
     },
   );
-  return drizzle(sqlite, { schema });
+  return sqlite;
 }
 
 /** A library media file as a Blob (type from the extension). */

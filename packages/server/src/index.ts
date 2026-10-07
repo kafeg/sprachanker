@@ -4,9 +4,17 @@ import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
 import { courseInstaller } from "./providers.ts";
-import { type Listening, listen, mediaBlob, openProfileDb, secretKey } from "./runtime/bun.ts";
+import {
+  type Listening,
+  listen,
+  mediaBlob,
+  openServerDb,
+  profileFiles,
+  secretKey,
+} from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
+import { createProfiles } from "./services/profiles.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
 export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
@@ -25,8 +33,8 @@ export function startServer(config: ServerConfig): Listening {
   const app = createApp({
     webAssets: config.webAssets,
     library: openLibrary(join(config.dataRoot, "library")),
-    // One local profile until profiles come (06).
-    profile: openProfileDb(join(config.dataRoot, "profiles", "local", "profile.sqlite")),
+    server: openServerDb(join(config.dataRoot, "server.sqlite")),
+    profiles: profileFiles(config.dataRoot),
     mediaBlob,
     appVersion: config.appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
@@ -45,3 +53,17 @@ export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
 /** Checks every installed course of the data root (course-kit verify). */
 export const verifyData = (dataRoot: string) =>
   verifyLibrary(openLibrary(join(dataRoot, "library")));
+
+/**
+ * The server's profile matters for the `sprachanker profiles` command (06, "Profiles and access"):
+ * list them, open or close registration, reset a profile's PIN and passkeys, delete one. Not in the app.
+ */
+export function profileAdmin(dataRoot: string) {
+  const profiles = createProfiles({
+    db: openServerDb(join(dataRoot, "server.sqlite")),
+    files: profileFiles(dataRoot),
+    now: Date.now,
+  });
+  profiles.adoptFirst();
+  return profiles;
+}

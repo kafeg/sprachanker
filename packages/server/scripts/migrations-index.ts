@@ -1,8 +1,9 @@
-// Writes src/db/profile/migrations/index.ts: every migration imported as text, so they are bundled
-// into the compiled binary. Run after `drizzle-kit generate` (bun run db:generate does both).
+// Writes src/db/<database>/migrations/index.ts (profile, server): every migration imported as text, so
+// they are bundled into the compiled binary. Run after `drizzle-kit generate` (bun run db:generate).
 import { join } from "node:path";
 
-const dir = join(import.meta.dir, "../src/db/profile/migrations");
+const database = process.argv[2] ?? "profile";
+const dir = join(import.meta.dir, `../src/db/${database}/migrations`);
 const journal = await Bun.file(join(dir, "meta/_journal.json")).json();
 const tags: string[] = journal.entries.map((e: { tag: string }) => e.tag);
 const source = [
@@ -16,4 +17,4 @@ const source = [
   "",
 ].join("\n");
 await Bun.write(join(dir, "index.ts"), source);
-console.log(`migrations index: ${tags.length} migrations`);
+console.log(`${database} migrations index: ${tags.length} migrations`);

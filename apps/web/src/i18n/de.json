@@ -197,7 +197,8 @@
       "general": "Allgemein",
       "ai": "KI-Assistent",
       "prompts": "Prompts",
-      "about": "Über"
+      "about": "Über",
+      "profile": "Profil"
     }
   },
   "llm": {
@@ -335,7 +336,17 @@
     "current": "aktuell",
     "delete": "Gespräch löschen",
     "deleteTitle": "Dieses Gespräch löschen?",
-    "deleteBody": "Seine Nachrichten werden endgültig gelöscht."
+    "deleteBody": "Seine Nachrichten werden endgültig gelöscht.",
+    "ask": {
+      "grammar": "Erklär die Grammatik dieser Lektion kurz mit 2–3 Beispielen aus der Lektion. Frag dann, ob alles klar ist.",
+      "examples": "Gib 3 kurze Beispiele mit den neuen Wörtern der Lektion, mit Übersetzung. Bitte mich dann, mit einem davon einen eigenen Satz zu bilden.",
+      "dialogue": "Lass uns einen kurzen Dialog zum Thema der Lektion üben. Du beginnst mit einem Satz und wartest auf meine Antwort; korrigiere meine Fehler unterwegs.",
+      "exercise": "Gib mir einen Hinweis zu dieser Übung, nicht die Lösung.",
+      "wordsQuiz": "Frag mich die neuen Wörter der Lektion ab, ein Wort nach dem anderen. Frag ein Wort, warte auf meine Antwort, sag, ob sie stimmt, und geh erst dann zum nächsten.",
+      "wordsMemory": "Hilf mir, die neuen Wörter der Lektion einzeln zu behalten: nimm ein Wort, gib mir eine Merkhilfe (ein ähnlicher Klang, ein Bild, der Stamm) und ein kurzes Beispiel, dann bitte mich, es zu wiederholen oder zu benutzen. Das nächste Wort erst nach meiner Antwort.",
+      "grammarDrill": "Gib mir eine kurze Übung zur Grammatik der Lektion: eine Aufgabe nach der anderen, warte auf meine Antwort, prüfe sie und erklär Fehler.",
+      "script": "Gehen wir den Text der Lektion Satz für Satz durch: zeig den ersten Satz, übersetze ihn und erklär, was neu daran ist. Den nächsten Satz erst, wenn ich „weiter“ sage."
+    }
   },
   "lmstudio": {
     "running": "LM Studio läuft.",
@@ -639,5 +650,108 @@
     "left": "{n, plural, one {Antwort bis zum Ende} other {Antworten bis zum Ende}}",
     "leftValue": "≈{n, number}",
     "leftTitle": "Antworten bis zum Ende, wenn du jedes Mal „Gut“ wählst: Eine neue Karte durchläuft zwei Lernschritte, eine Lernkarte ihre restlichen, eine Wiederholung braucht eine Antwort. „Nochmal“ fügt Schritte hinzu."
+  },
+  "profiles": {
+    "who": "Wer lernt?",
+    "welcome": "Willkommen bei SprachAnker",
+    "firstHint": "Leg dein Profil an: ein paar kurze Schritte.",
+    "unnamed": "Noch ohne Namen",
+    "protected": "PIN oder Passkey",
+    "new": "Neues Profil",
+    "unlock": "Als {name} anmelden",
+    "pin": "PIN",
+    "signIn": "Anmelden",
+    "withPasskey": "Mit Passkey anmelden",
+    "cancel": "Abbrechen",
+    "error": {
+      "pin_required": "Gib die PIN ein.",
+      "wrong_pin": "Falsche PIN.",
+      "pin_paused": "Zu viele falsche PINs: warte eine Minute und versuch es erneut.",
+      "passkey_failed": "Die Anmeldung mit dem Passkey hat nicht geklappt. Versuch es erneut oder nimm die PIN.",
+      "passkey_expired": "Das hat zu lange gedauert. Versuch es erneut.",
+      "no_passkey": "Dieses Profil hat keinen Passkey für diese Adresse.",
+      "registration_closed": "Auf diesem Server können keine neuen Profile angelegt werden.",
+      "other": "Etwas ist schiefgegangen. Versuch es erneut."
+    }
+  },
+  "onboarding": {
+    "progress": "Schritt {n} von {total}",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Kurs wählen",
+    "welcome": {
+      "title": "Willkommen",
+      "text": "SprachAnker bringt echte Sprachkurse in einen Player, prüft deine Antworten, hält deine Wörter in verteilter Wiederholung und kann einen KI-Tutor einbinden. Alles bleibt auf diesem Computer.",
+      "sources": "Kurse werden direkt von den Websites ihrer Herausgeber (Deutsche Welle und andere) für deinen persönlichen Gebrauch geladen. Beachte ihre Bedingungen; SprachAnker ist nicht mit ihnen verbunden."
+    },
+    "name": {
+      "title": "Wie sollen wir dich nennen?",
+      "label": "Name oder Spitzname",
+      "colour": "Farbe"
+    },
+    "colour": {
+      "amber": "Bernstein",
+      "teal": "Petrol",
+      "rose": "Rosa",
+      "violet": "Violett",
+      "sky": "Himmelblau",
+      "lime": "Limette"
+    },
+    "languages": {
+      "title": "Deine Sprachen",
+      "interface": "Sprache der App",
+      "native": "Deine Sprache (Erklärungen, Übersetzungen)",
+      "target": "Sprache zum Lernen",
+      "none": "Noch kein Kurs erklärt in dieser Sprache."
+    },
+    "signIn": {
+      "title": "Anmelden",
+      "text": "Andere, die diesen Computer oder dein Handy nutzen, kannst du aus deinem Profil heraushalten. Beides ist freiwillig.",
+      "pin": "PIN (4–8 Ziffern)",
+      "pinNew": "Neue PIN",
+      "pinAgain": "Noch einmal",
+      "setPin": "PIN festlegen",
+      "pinSet": "PIN festgelegt",
+      "passkey": "Passkey",
+      "passkeyHint": "Face ID, Touch ID oder Fingerabdruck statt der PIN, auf diesem Gerät.",
+      "addPasskey": "Passkey hinzufügen",
+      "passkeySet": "Passkey hinzugefügt",
+      "none": "Ohne beides öffnet sich dein Profil, sobald du es wählst."
+    },
+    "assistant": {
+      "title": "KI-Assistent",
+      "text": "Ein Assistent erklärt Fehler, hilft in den Lektionen, prüft deine Texte und spielt Szenen. Wähle ihn jetzt oder später in den Einstellungen — die App funktioniert auch ohne."
+    },
+    "tour": {
+      "title": "Was wo ist"
+    }
+  },
+  "tour": {
+    "myCourses": "Die Kurse, die du lernst, dort, wo du aufgehört hast.",
+    "allCourses": "Alle Kurse zum Herunterladen, nach deinen Sprachen.",
+    "review": "Deine Wörter in verteilter Wiederholung, wie in Anki: ein paar Minuten am Tag.",
+    "notebook": "Jeder Durchgang jeder Lektion, deine Antworten und Fehler.",
+    "settings": "Dein Profil, deine Sprachen, der KI-Assistent und die App."
+  },
+  "profile": {
+    "who": "Name und Farbe",
+    "languages": "Sprachen",
+    "learner.native": "Deine Sprache",
+    "learner.target": "Sprache zum Lernen",
+    "signIn": "Anmelden",
+    "signInHint": "Eine PIN, Passkeys, beides oder nichts. Ohne beides öffnet sich dein Profil, sobald du es wählst.",
+    "changePin": "Ändern",
+    "removePin": "PIN entfernen",
+    "passkeyFor": "Für {site}, hinzugefügt am {date}",
+    "removePasskey": "Passkey entfernen",
+    "passkeyHttps": "Passkeys brauchen HTTPS (z. B. über Tailscale) oder die eigene Adresse dieses Computers.",
+    "devices": "Angemeldete Geräte",
+    "thisDevice": "dieses Gerät",
+    "lastSeen": "zuletzt genutzt {date}",
+    "signOutDevice": "Abmelden",
+    "tour": "Was wo ist",
+    "showTour": "Rundgang zeigen",
+    "switch": "Profil wechseln",
+    "open": "Profil"
   }
 }

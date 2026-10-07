@@ -43,11 +43,12 @@ export function modelFacets(models: ListedModel[]) {
   };
 }
 
-/** The filters a list starts with: answering in JSON where the list tells it (the app needs it). */
-export const initialFilters = (models: ListedModel[]): ModelFilters => ({
-  ...NO_FILTERS,
-  json: modelFacets(models).json > 0,
-});
+/** The filters a list starts with, where the list tells them: free models (owner, 2026-10-08) that
+ *  answer in JSON (the app needs it). */
+export function initialFilters(models: ListedModel[]): ModelFilters {
+  const facets = modelFacets(models);
+  return { ...NO_FILTERS, free: facets.free > 0, json: facets.json > 0 };
+}
 
 /** The models the search (every word, in id or name) and the filters let through; `keep` always. */
 export function filterModels(models: ListedModel[], f: ModelFilters, keep?: string) {

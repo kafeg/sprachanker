@@ -9,9 +9,10 @@
   },
   "scripts": {
     "typecheck": "tsc -p .",
-    "db:generate": "drizzle-kit generate && bun scripts/migrations-index.ts"
+    "db:generate": "drizzle-kit generate && bun scripts/migrations-index.ts profile && drizzle-kit generate --config drizzle.server.config.ts && bun scripts/migrations-index.ts server"
   },
   "dependencies": {
+    "@simplewebauthn/server": "14.0.3",
     "@sprachanker/coerll-dib": "workspace:*",
     "@sprachanker/course-kit": "workspace:*",
     "@sprachanker/dw": "workspace:*",

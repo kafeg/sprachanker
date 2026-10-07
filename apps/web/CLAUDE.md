@@ -26,9 +26,12 @@ apps/web/src/
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   notebook/        # the Notebook: page (study days, lessons), lesson (passes), pass (in full), compare,
                    # item-history, mark
-  api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
-  app/             # the app around the screens, with data: shell (navigation, cards due, downloads),
-                   # about, reset-progress, preferences (language, theme, course edition)
+  api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
+                   # in and out, PIN, passkeys, devices; no codegen
+  app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
+                   # profile chip), who-is-studying, onboarding (with tour; the AI step is a slot from
+                   # the router), profile-settings, pairs (language pairs offered), device-name, about,
+                   # reset-progress, preferences (language, theme, course edition)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),

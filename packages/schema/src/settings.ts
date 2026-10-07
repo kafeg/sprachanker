@@ -12,6 +12,10 @@ const filter = z.string().min(1).max(200);
 /** Preferences the learner sets (the settings route). */
 export const LEARNER_SETTINGS = {
   uiLanguage: Lang,
+  /** The learner's own language (explanations, translations) and the one learnt: they filter the
+   *  courses (set by the onboarding). */
+  "learner.native": Lang,
+  "learner.target": Lang,
   theme: z.enum(["system", "light", "dark"]),
   /** Playback speed of course audio. */
   audioRate: z.number().min(0.25).max(2),

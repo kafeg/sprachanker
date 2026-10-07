@@ -12,8 +12,8 @@
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
 ├── models/                      # planned: downloaded speech models and voices (08)
-├── server.sqlite                # planned: profiles, devices, jobs
-└── profiles/<profile-id>/       # today one profile, `local`
+├── server.sqlite                # profiles, devices, passkeys, server settings
+└── profiles/<profile-id>/       # `local` is the first
     ├── profile.sqlite           # all learner data of this profile
     ├── recordings/              # planned: learner audio as captured, referenced from events
     └── media/                   # planned: learner-added files
@@ -26,11 +26,17 @@
 - The data root is created only on first start; if a configured root is missing later (e.g. an
   unmounted disk), the server refuses to start with a clear message.
 
-## `server.sqlite` (planned, with profiles)
+## `server.sqlite`
 
-- `profiles(id, display_name, pin_hash?, is_owner, created_at)`
-- `devices(id, profile_id, token_hash, name, user_agent, created_at, last_seen_at)`
-- `jobs(id, kind, params_json, state, progress, report_json, created_at, finished_at)`
+`packages/server/src/db/server/schema.ts`, its own migrations (`db/server/migrations`):
+
+- `profiles(id, name, colour, pin_hash?, pin_salt?, failed_pins, locked_until?, onboarded, created_at)` —
+  `local` is the first profile (the folder the single profile had)
+- `devices(id, profile_id, token_hash, user_agent, created_at, last_seen_at)` — the token only in the
+  device's cookie
+- `passkeys(id, profile_id, public_key, counter, transports, rp_id, created_at, last_used_at?)`
+- `server_settings(key, value_json)` — `registration` (on by default), set by the command
+- Planned: `jobs` (model downloads).
 
 ## `profile.sqlite`
 

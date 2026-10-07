@@ -4,21 +4,21 @@ import { courseKey, EditionId, LessonKey, SeriesKey, Ulid } from "@sprachanker/s
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
-import type { Runs } from "../services/runs.ts";
 import { zod } from "../validate.ts";
 import { CourseRef } from "./courses.ts";
+import type { ProfileEnv } from "./env.ts";
 
 const RunParam = z.object({ id: Ulid });
 
-export function runRoutes(runs: Runs) {
+export function runRoutes() {
   return (
-    new Hono()
+    new Hono<ProfileEnv>()
       .get(
         "/runs/lesson",
         zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey })),
         async (c) => {
           const { series, lessonKey } = c.req.valid("query");
-          return c.json({ state: await runs.lessonState(series, lessonKey) });
+          return c.json({ state: await c.var.s.runs.lessonState(series, lessonKey) });
         },
       )
       .post(
@@ -34,7 +34,7 @@ export function runRoutes(runs: Runs) {
         ),
         async (c) => {
           const { series, lessonKey, edition, restart } = c.req.valid("json");
-          return c.json(await runs.start(series, lessonKey, edition, restart));
+          return c.json(await c.var.s.runs.start(series, lessonKey, edition, restart));
         },
       )
       .post(
@@ -43,11 +43,14 @@ export function runRoutes(runs: Runs) {
         zod("json", z.object({ events: z.array(z.unknown()).max(200) })),
         async (c) =>
           c.json({
-            outcomes: await runs.append(c.req.valid("param").id, c.req.valid("json").events),
+            outcomes: await c.var.s.runs.append(
+              c.req.valid("param").id,
+              c.req.valid("json").events,
+            ),
           }),
       )
       .post("/runs/:id/finish", zod("param", RunParam), async (c) =>
-        c.json(await runs.finish(c.req.valid("param").id)),
+        c.json(await c.var.s.runs.finish(c.req.valid("param").id)),
       )
       // Resetting progress: a whole course (it leaves "My courses") or one of its lessons.
       .post(
@@ -58,7 +61,7 @@ export function runRoutes(runs: Runs) {
           const key = courseKey(series, course);
           if (lesson && !lesson.startsWith(`${key}/`))
             throw new HTTPException(400, { message: "lesson is not in this course" });
-          return c.json(runs.reset(key, lesson));
+          return c.json(c.var.s.runs.reset(key, lesson));
         },
       )
   );

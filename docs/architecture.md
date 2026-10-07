@@ -15,7 +15,8 @@ phone / browser ──HTTPS (tailscale serve) or localhost──┐
                  └─ /library/<series>/media/* with Range
                         │
 <data root> (~/SprachAnker) ── library/<series>/…         downloaded courses (02), read-only to the app
-                            └─ profiles/local/profile.sqlite   the learner's runs, events, cards, settings
+                            ├─ server.sqlite              profiles, devices signed in, passkeys
+                            └─ profiles/<id>/profile.sqlite   each learner's runs, events, cards, settings
 ```
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
@@ -50,9 +51,12 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 
 ## Server inside
 
-`createServices()` (`services/index.ts`) wires every service once; `app.ts` only mounts the route files
-(`routes/{courses,runs,cards,settings,notebook,llm}.ts`), each thin: validate, call a service, return
-its typed result. The web client gets the types through Hono RPC (`AppType`), no codegen.
+`createServices()` (`services/index.ts`) wires the shared services once (content, downloads, profiles,
+devices, passkeys) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
+files: the profile list and signing in first, then the session check — the device's cookie names the
+profile and puts its services in the request's context (`c.var.s`) — then every profile route
+(`routes/{profiles,courses,runs,cards,settings,notebook,llm}.ts`), each thin: validate, call a service,
+return its typed result. The web client gets the types through Hono RPC (`AppType`), no codegen.
 
 - **Content**: `content` reads the library through course-kit with a cache; `downloads` queues course
   installs (one at a time, progress, resume after restart) through the providers' importers.
@@ -65,8 +69,11 @@ its typed result. The web client gets the types through Hono RPC (`AppType`), no
   `tutor-tools`), `writing`, `scene`, `lesson-context` (what tasks know of a lesson). `in-flight` keeps
   what a model is doing per lesson, so structured calls (a scene, a writing check) run to their end and
   a page opened meanwhile shows them as waiting.
+- **Profiles** (`profiles`, `devices`, `passkeys`): every profile equal; a device signs in by choosing
+  a profile, its PIN (attempts limited) or a passkey and keeps a revocable token; server matters are
+  the `sprachanker profiles` command's.
 - **Security** (`security/`): Host check, CSP and headers, the client header on mutations (CSRF), API
-  keys sealed with AES-GCM; profiles, PIN and device tokens come with the profiles item of the plan.
+  keys sealed with AES-GCM, tokens and PINs hashed (WebCrypto).
 
 ## Mechanisms that cross modules
 
@@ -89,17 +96,20 @@ its typed result. The web client gets the types through Hono RPC (`AppType`), no
   repair attempt; streamed replies (tutor, explanations) end with their connection, structured ones
   outlive the page (07).
 - **Optional AI in the web**: `apps/web/src/llm/` plugs into the player through slots
-  (`lesson/slots.ts`); removing the folder and its two mount points leaves a working app.
+  (`lesson/slots.ts`) and into the onboarding as its AI step; removing the folder and its mount points
+  (the router, the settings page) leaves a working app.
+- **The app's gate** (web `routes/router.tsx`): no session → "Who is studying?"; a profile not yet
+  onboarded → its onboarding; else the app. A 401 `no_session` anywhere returns to the gate.
 
 ## Tests
 
 | Layer | Where | Runs on |
 |---|---|---|
 | Unit | each package's `test/` (`bun test`) | pure functions, checkers, queue, prompts |
-| Server | `packages/server/test` | `createApp().request()` on a temporary data root with the fixture course; fake `fetch` for models |
+| Server | `packages/server/test` | `createApp().request()` on a temporary data root with the fixture course and a signed-in profile; fake `fetch` for models |
 | Migrations | `packages/server/test/db.test.ts` | each migration upgrades a database of the version before it, with rows |
 | Web | `apps/web/test` | happy-dom; screens rendered with a filled query cache, no requests |
-| End to end | `e2e/` (Playwright) | the compiled binary, the fixture course, a fake OpenAI-compatible server; desktop and phone, Chromium and WebKit |
+| End to end | `e2e/` (Playwright) | the compiled binary, the fixture course, a fake OpenAI-compatible server, a profile signed in by a setup project; desktop and phone, Chromium and WebKit |
 | Repository | `scripts/` | dependency rules, paths named in CLAUDE.md files |
 
 `bun run check` runs typecheck, lint, boundaries and all tests; `bun run e2e` builds the binary first.

@@ -7,8 +7,10 @@ import { useDecks, useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
 import { cn } from "@/ui/utils.ts";
 import { useWindowBusy } from "@/ui/window-title.ts";
 import { AboutLine } from "./about.tsx";
+import { ProfileChip } from "./profile-chip.tsx";
 
-const NAV = [
+/** The app's sections, in the sidebar and the tab bar (and the onboarding's tour). */
+export const NAV = [
   { to: "/", key: "nav.myCourses", icon: BookOpen },
   { to: "/catalog", key: "nav.allCourses", icon: Library },
   { to: "/review", key: "nav.review", icon: Layers },
@@ -53,8 +55,11 @@ export function AppShell() {
             {to === "/review" && due > 0 && <DueBadge count={due} />}
           </Link>
         ))}
-        <div className="mt-auto px-3">
-          <AboutLine />
+        <div className="mt-auto space-y-3 px-1">
+          <ProfileChip />
+          <div className="px-2">
+            <AboutLine />
+          </div>
         </div>
       </aside>
       <main className="min-w-0 pb-20 lg:pb-0">

@@ -197,7 +197,8 @@
       "general": "General",
       "ai": "AI assistant",
       "prompts": "Prompts",
-      "about": "About"
+      "about": "About",
+      "profile": "Profile"
     }
   },
   "llm": {
@@ -335,7 +336,17 @@
     "current": "current",
     "delete": "Delete chat",
     "deleteTitle": "Delete this chat?",
-    "deleteBody": "Its messages are deleted for good."
+    "deleteBody": "Its messages are deleted for good.",
+    "ask": {
+      "grammar": "Explain this lesson's grammar briefly with 2–3 examples from the lesson. Then ask whether it is clear.",
+      "examples": "Give 3 short examples with the lesson's new words, with translations. Then ask me to make my own sentence with one of them.",
+      "dialogue": "Let's practise a short dialogue on the lesson's topic. You start with one line and wait for my answer; correct my mistakes as we go.",
+      "exercise": "Give me a hint for this exercise, not the answer.",
+      "wordsQuiz": "Quiz me on the lesson's new words, one word at a time. Ask a word, wait for my answer, tell me whether it is right, and only then go on to the next.",
+      "wordsMemory": "Help me remember the lesson's new words one at a time: take one word, give me a memory hook (a sound-alike, an image, the root) and a short example, then ask me to repeat or use it. The next word only after my answer.",
+      "grammarDrill": "Give me a short drill on the lesson's grammar: one task at a time, wait for my answer, check it and explain any mistake.",
+      "script": "Let's go through the lesson's text one phrase at a time: show the first phrase, translate it and explain what is new in it. The next phrase only when I say \"next\"."
+    }
   },
   "lmstudio": {
     "running": "LM Studio is running.",
@@ -639,5 +650,108 @@
     "left": "{n, plural, one {answer to go} other {answers to go}}",
     "leftValue": "≈{n, number}",
     "leftTitle": "Answers left if each is Good: a new card goes through two learning steps, a learning card through its steps left, a review takes one answer. Again adds steps back."
+  },
+  "profiles": {
+    "who": "Who is studying?",
+    "welcome": "Welcome to SprachAnker",
+    "firstHint": "Make your profile to start: a few short steps.",
+    "unnamed": "No name yet",
+    "protected": "PIN or passkey",
+    "new": "New profile",
+    "unlock": "Sign in as {name}",
+    "pin": "PIN",
+    "signIn": "Sign in",
+    "withPasskey": "Sign in with a passkey",
+    "cancel": "Cancel",
+    "error": {
+      "pin_required": "Enter the PIN.",
+      "wrong_pin": "Wrong PIN.",
+      "pin_paused": "Too many wrong PINs: wait a minute and try again.",
+      "passkey_failed": "The passkey did not sign in. Try again or use the PIN.",
+      "passkey_expired": "That took too long. Try again.",
+      "no_passkey": "This profile has no passkey for this address.",
+      "registration_closed": "New profiles cannot be made on this server.",
+      "other": "Something went wrong. Try again."
+    }
+  },
+  "onboarding": {
+    "progress": "Step {n} of {total}",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Choose a course",
+    "welcome": {
+      "title": "Welcome",
+      "text": "SprachAnker puts real language courses in one player, checks your answers, keeps your words in spaced repetition and can bring in an AI tutor. Everything stays on this computer.",
+      "sources": "Courses are downloaded straight from their publishers' websites (Deutsche Welle and others) for your personal use. Respect their terms; SprachAnker is not affiliated with them."
+    },
+    "name": {
+      "title": "What should we call you?",
+      "label": "Name or nickname",
+      "colour": "Colour"
+    },
+    "colour": {
+      "amber": "Amber",
+      "teal": "Teal",
+      "rose": "Rose",
+      "violet": "Violet",
+      "sky": "Sky",
+      "lime": "Lime"
+    },
+    "languages": {
+      "title": "Your languages",
+      "interface": "Language of the app",
+      "native": "Your language (explanations, translations)",
+      "target": "Language to learn",
+      "none": "No course here teaches from this language yet."
+    },
+    "signIn": {
+      "title": "Signing in",
+      "text": "Others using this computer or your phone can be kept out of your profile. Both are optional.",
+      "pin": "PIN (4–8 digits)",
+      "pinNew": "New PIN",
+      "pinAgain": "Again",
+      "setPin": "Set PIN",
+      "pinSet": "PIN set",
+      "passkey": "Passkey",
+      "passkeyHint": "Face ID, Touch ID or a fingerprint instead of the PIN, on this device.",
+      "addPasskey": "Add a passkey",
+      "passkeySet": "Passkey added",
+      "none": "Without either, choosing your profile opens it."
+    },
+    "assistant": {
+      "title": "AI assistant",
+      "text": "An assistant explains mistakes, tutors in lessons, checks your texts and plays scenes. Choose one now or later in Settings — the app works without one."
+    },
+    "tour": {
+      "title": "Where things are"
+    }
+  },
+  "tour": {
+    "myCourses": "The courses you study, where you left off.",
+    "allCourses": "Every course you can download, filtered by your languages.",
+    "review": "Your words in spaced repetition, as in Anki: a few minutes a day.",
+    "notebook": "Every pass of every lesson, your answers and mistakes.",
+    "settings": "Your profile, languages, the AI assistant and the app."
+  },
+  "profile": {
+    "who": "Name and colour",
+    "languages": "Languages",
+    "learner.native": "Your language",
+    "learner.target": "Language to learn",
+    "signIn": "Signing in",
+    "signInHint": "A PIN, passkeys, both or neither. Without them, choosing your profile opens it.",
+    "changePin": "Change",
+    "removePin": "Remove PIN",
+    "passkeyFor": "For {site}, added {date}",
+    "removePasskey": "Remove passkey",
+    "passkeyHttps": "Passkeys need HTTPS (e.g. through Tailscale) or this computer's own address.",
+    "devices": "Devices signed in",
+    "thisDevice": "this device",
+    "lastSeen": "last used {date}",
+    "signOutDevice": "Sign out",
+    "tour": "Where things are",
+    "showTour": "Show the tour",
+    "switch": "Switch profile",
+    "open": "Profile"
   }
 }

@@ -1,12 +1,23 @@
 // Routes (TanStack Router, code-based): app pages inside the shell, the lesson player full screen.
 import type { LessonKey } from "@sprachanker/schema";
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  createRoute,
+  createRouter,
+  Outlet,
+  useNavigate,
+} from "@tanstack/react-router";
+import { useSession } from "@/api/session.ts";
+import { Onboarding } from "@/app/onboarding.tsx";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell } from "@/app/shell.tsx";
+import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
+import { AssistantSetup } from "@/llm/settings-section.tsx";
 import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
 import { NotebookPage } from "@/notebook/page.tsx";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursePage } from "./course.tsx";
 import { CatalogPage, MyCoursesPage } from "./courses.tsx";
@@ -14,14 +25,36 @@ import { ReviewPage } from "./review.tsx";
 import { SettingsPage } from "./settings.tsx";
 import { WordsPage } from "./words.tsx";
 
+/** The app of a signed-in, onboarded profile: its preferences applied. */
+function SignedIn() {
+  usePreferences();
+  return (
+    <PlaybackRate value={usePlaybackRate()}>
+      <Outlet />
+    </PlaybackRate>
+  );
+}
+
+// No profile on this device: who is studying; a profile not yet onboarded: its onboarding (with the
+// AI assistant's settings as a step); else the app.
 const root = createRootRoute({
   component: function Root() {
-    usePreferences();
-    return (
-      <PlaybackRate value={usePlaybackRate()}>
-        <Outlet />
-      </PlaybackRate>
-    );
+    const session = useSession();
+    const navigate = useNavigate();
+    if (session.isPending) return <Loading />;
+    if (session.isError)
+      return <ErrorState error={session.error} onRetry={() => session.refetch()} />;
+    const profile = session.data.profile;
+    if (!profile) return <WhoIsStudying />;
+    if (!profile.onboarded)
+      return (
+        <Onboarding
+          profile={profile}
+          assistant={<AssistantSetup />}
+          onDone={() => void navigate({ to: "/catalog" })}
+        />
+      );
+    return <SignedIn />;
   },
 });
 const shell = createRoute({
