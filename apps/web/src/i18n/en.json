@@ -121,7 +121,7 @@
       "culture": "Culture",
       "writing": "Write it yourself",
       "scene": "Scene",
-      "review": "Session review",
+      "mistakes": "Going over mistakes",
       "summary": "Summary"
     },
     "section": {
@@ -288,8 +288,6 @@
     "remembers": "remembers {kept, number} of {total, plural, one {# message} other {# messages}}",
     "contextFull": "The context is nearly full: the earliest messages no longer reach the model. Start a new chat for a fresh topic.",
     "contextHint": "Size of the next request: the lesson context, the conversation and your message, plus room for the reply.",
-    "reviewMistakes": "Review my mistakes with the tutor",
-    "reviewMistakesMessage": "Please go through my mistakes in this lesson.",
     "toolsUsed": "Looked up: {tools}",
     "tool": {
       "find_word": "the word “{word}”",
@@ -329,7 +327,6 @@
       "explain": "“Why is this wrong?”",
       "tutor": "Tutor",
       "writing": "“Write it yourself”",
-      "review": "Session review",
       "scene": "Scene"
     },
     "contextIntro": "Added from the lesson:",
@@ -347,9 +344,7 @@
       "mistakes": "your mistakes: in this lesson those of the current run, then the latest of earlier lessons (fixed ones marked)",
       "tools": "on request (tools): your progress, mistakes in any lesson, where a word is taught, what a lesson covers",
       "text": "your text",
-      "sessionMistakes": "your mistakes in this run, each with its exercise",
-      "script": "the lesson's transcript, when the item is about its audio or video",
-      "exercises": "every exercise of the lesson with its state in this run (right, with mistakes, skipped, not started)"
+      "script": "the lesson's transcript, when the item is about its audio or video"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -379,17 +374,18 @@
       "accuracy": "Accuracy"
     }
   },
-  "review": {
-    "title": "Session review",
-    "make": "Review this session",
-    "making": "Reviewing…",
-    "refresh": "Review again",
-    "stale": "You answered more since the last review.",
-    "strengths": "Went well",
-    "topics": "To work on",
-    "next": "Next steps",
-    "intro": "The model goes through this run: which exercises were done, skipped or not started, where the mistakes are and the rule behind them, and what to do next.",
-    "notYet": "Answer at least one exercise first: the review is about your answers."
+  "mistakes": {
+    "exercises": "Exercises worked",
+    "firstTry": "Right at the first try",
+    "ofTotal": "{n, number} of {total, number}",
+    "list": "Mistakes by exercise",
+    "items": "{count, plural, one {item} other {items}} {items}",
+    "fixed": "{count, plural, one {# fixed later} other {# fixed later}}",
+    "none": "No mistakes in this run.",
+    "notYet": "Nothing answered yet: do the exercises first.",
+    "tutorIntro": "The tutor goes through your mistakes one at a time: what went wrong, the rule behind it, and a short new example to check it.",
+    "start": "Go through my mistakes with the tutor",
+    "message": "Please go through my mistakes in this lesson."
   },
   "scene": {
     "title": "Scene",
@@ -464,7 +460,7 @@
     "culture": "Culture",
     "writing": "Writing",
     "scene": "Scene",
-    "review": "Review"
+    "mistakes": "Mistakes"
   },
   "words": {
     "intro": "The lesson's words as cards, as in Anki: recall, show the answer, rate. When nothing is left for now, they go on in Review.",

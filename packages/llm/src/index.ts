@@ -8,7 +8,6 @@ export * from "./tasks/check-writing.ts";
 export * from "./tasks/describe.ts";
 export * from "./tasks/explain-mistake.ts";
 export * from "./tasks/lesson.ts";
-export * from "./tasks/review-session.ts";
 export * from "./tasks/scene.ts";
 export * from "./tasks/tutor-tools.ts";
 export { estimateTokens, languageName } from "./text.ts";

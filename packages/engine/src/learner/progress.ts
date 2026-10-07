@@ -107,13 +107,13 @@ export function lessonCoverage(lesson: Lesson, results: Record<string, ExerciseR
 }
 
 /**
- * Score of a lesson run (05, "Lifecycle"): mean first-attempt score of its scored items, a scored item
- * skipped without an answer counting 0. `scored` counts those items, `answered` the items answered.
+ * First attempts of a run's scored items: `scored` counts them, a scored item skipped without an answer
+ * included; `correct` those right; `sum` their scores. `answered` counts the items answered.
  */
-export function lessonResult(lesson: Lesson, events: StoredEvent[]): LessonResult {
-  const results = exerciseResults(events);
+export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseResult>) {
   let sum = 0;
   let scored = 0;
+  let correct = 0;
   let answered = 0;
   for (const { exercise } of lesson.pages) {
     const r = results[exercise.key];
@@ -123,9 +123,19 @@ export function lessonResult(lesson: Lesson, events: StoredEvent[]): LessonResul
       if (o.result === "unscored") continue;
       scored++;
       sum += o.score;
+      if (o.result === "correct") correct++;
     }
     scored += missed(exercise, r).length;
   }
+  return { sum, scored, correct, answered };
+}
+
+/**
+ * Score of a lesson run (05, "Lifecycle"): mean first-attempt score of its scored items, a scored item
+ * skipped without an answer counting 0. `scored` counts those items, `answered` the items answered.
+ */
+export function lessonResult(lesson: Lesson, events: StoredEvent[]): LessonResult {
+  const { sum, scored, answered } = firstAttempts(lesson, exerciseResults(events));
   return { score: scored ? sum / scored : 0, scored, answered };
 }
 

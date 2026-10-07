@@ -24,7 +24,6 @@ src/
     explain-mistake.ts # explain_mistake: prompt + call
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
-    review-session.ts  # review_session: a lesson run's results → strengths, topics, next steps
     scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture

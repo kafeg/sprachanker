@@ -2,7 +2,13 @@
 // practice, summary — with the plan and reference at hand. This file holds the run's flow (resume,
 // start, record steps, complete); the pages are overview, words-step, steps (reading), exercise-step and
 // summary, the plan is plan.tsx; optional features come in as slots.
-import { type LessonStep, lessonSteps, planCoverage, stepId } from "@sprachanker/engine";
+import {
+  type LessonStep,
+  lessonCoverage,
+  lessonSteps,
+  planCoverage,
+  stepId,
+} from "@sprachanker/engine";
 import {
   type Lesson,
   type LessonResult,
@@ -13,7 +19,7 @@ import {
 } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, BookOpenText, ListOrdered, RotateCcw } from "lucide-react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
@@ -27,6 +33,7 @@ import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
+import { MistakesStatus } from "./mistakes-status.tsx";
 import { LessonOverview } from "./overview.tsx";
 import { Plan, stepTitle } from "./plan.tsx";
 import { Reference, type ReferenceTab, referenceTabs } from "./reference.tsx";
@@ -148,7 +155,8 @@ export function LessonPlayer({
     setCurrent(id);
     window.scrollTo({ top: 0 });
   };
-  /** What opening a step records: an exercise page shown, a grammar or culture page read. `fresh`:
+  /** What opening a step records: an exercise page shown, a grammar or culture page read, mistakes
+   *  gone over when there are none (every exercise worked, all right at once). `fresh`:
    *  in a run just started (nothing of it is done yet; `run.done` may still be the old run's). */
   const record = (target: LessonStep, fresh = false) => {
     if (target.kind === "exercise") run.pageShown(target.index);
@@ -157,6 +165,14 @@ export function LessonPlayer({
       (fresh || !run.done.has(stepId(target)))
     )
       run.stepDone(stepId(target) as StepId);
+    if (
+      target.kind === "mistakes" &&
+      !fresh &&
+      !run.done.has("mistakes") &&
+      !run.mistakes.length &&
+      lessonCoverage(lesson, run.results).complete
+    )
+      run.stepDone("mistakes");
   };
   /** Moves to a step. In an active run it is recorded; opening a step of a lesson never started
    *  starts it; a finished run is only looked at. */
@@ -189,10 +205,6 @@ export function LessonPlayer({
   const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
   const worked = coverage?.worked ?? 0;
   const todo = coverage?.total ?? 0;
-  // Answers that were wrong or partly right at the first attempt (skips are not mistakes to talk over).
-  const hasMistakes = Object.values(run.results).some((r) =>
-    Object.values(r.first).some((o) => o.result === "wrong" || o.result === "partial"),
-  );
   const firstTab = referenceTabs(lesson, locale)[0];
   const exercise = step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
 
@@ -239,8 +251,7 @@ export function LessonPlayer({
       </Button>
     );
 
-  const frame = slots.frame ?? ((children: React.ReactNode) => <Fragment>{children}</Fragment>);
-  return frame(
+  return (
     <TargetLang value={parseEditionId(edition).target}>
       <CourseMedia.Provider value={url}>
         <div className="lg:grid lg:grid-cols-[17rem_1fr]">
@@ -390,15 +401,25 @@ export function LessonPlayer({
                   }
                 />
               )}
-              {(step.kind === "writing" || step.kind === "scene" || step.kind === "review") && (
+              {(step.kind === "writing" || step.kind === "scene" || step.kind === "mistakes") && (
                 <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
                   <StepHeader
                     label={t("lesson.section.practice")}
                     title={stepTitle(step, lesson, locale, t)}
                   />
+                  {step.kind === "mistakes" && (
+                    <MistakesStatus
+                      lesson={lesson}
+                      locale={locale}
+                      results={run.results}
+                      mistakes={run.mistakes}
+                      go={go}
+                    />
+                  )}
                   {slots.practice?.step(step.kind, {
                     ...context,
-                    hasMistakes,
+                    hasMistakes: run.mistakes.length > 0,
+                    done: run.done.get(step.kind) === "done",
                     onDone: () => mark(step.kind),
                   })}
                   <StepBar
@@ -459,6 +480,6 @@ export function LessonPlayer({
           </Sheet>
         </div>
       </CourseMedia.Provider>
-    </TargetLang>,
+    </TargetLang>
   );
 }

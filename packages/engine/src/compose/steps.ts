@@ -13,12 +13,12 @@ export type LessonStep =
   | { kind: "culture"; index: number }
   | { kind: "writing" }
   | { kind: "scene" }
-  | { kind: "review" }
+  | { kind: "mistakes" }
   | { kind: "summary" };
 
-export type PracticeKind = "writing" | "scene" | "review";
-/** AI practice in the order of the plan: the review last, so it can take the others into account. */
-export const PRACTICE: PracticeKind[] = ["writing", "scene", "review"];
+export type PracticeKind = "writing" | "scene" | "mistakes";
+/** AI practice in the order of the plan: going over the mistakes last, once the exercises are done. */
+export const PRACTICE: PracticeKind[] = ["writing", "scene", "mistakes"];
 
 /** A step's id: the kind, with the page index for grammar, culture and exercises. */
 export const stepId = (step: LessonStep): string =>

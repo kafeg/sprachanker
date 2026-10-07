@@ -1,5 +1,5 @@
 // What the LLM tasks know about a lesson (07): the lesson in the learner's edition, earlier lessons as
-// words and titles, and mistakes with their exercises. Shared by the tutor, writing, review and scenes.
+// words and titles, and mistakes with their exercises. Shared by the tutor, writing and scenes.
 import type { LessonInfo, TutorMistake } from "@sprachanker/llm";
 import {
   findExercise,

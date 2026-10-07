@@ -1,4 +1,5 @@
-// The lesson tutor: a header button and a side panel with the chat of this lesson.
+// The lesson tutor: the chat of this lesson, in a side panel opened from the header, and inline on the
+// "Going over mistakes" step, which opens it with a request to go through the run's mistakes.
 import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
@@ -22,7 +23,7 @@ import { RichText } from "./rich-text.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language" | "newChat">;
 
-/** A message to send on opening (from outside, e.g. the lesson summary); `id` makes each ask new. */
+/** A message to send on opening; `id` makes each ask new. */
 export interface TutorAsk {
   text: string;
   id: number;
@@ -55,7 +56,24 @@ function ToolsUsed({ tools }: { tools: Array<{ name: string; args?: unknown }> }
   );
 }
 
-function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
+/** What an empty chat offers in place of the suggestions: one request, sent in a new chat. */
+interface Starter {
+  intro: string;
+  label: string;
+  text: string;
+}
+
+function Chat({
+  ask,
+  starter,
+  onReply,
+  ...context
+}: Context & {
+  ask?: TutorAsk;
+  starter?: Starter;
+  /** A reply came in full. */
+  onReply?(): void;
+}) {
   const { t, i18n } = useTranslation();
   const client = useQueryClient();
   const llm = useLlm();
@@ -63,11 +81,14 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
   const reset = useResetTutor(context.lessonKey);
   const [input, setInput] = useState("");
-  const [pending, setPending] = useState<{ question: string; reply: string }>();
+  /** The question on its way and the reply so far; `after`: how many turns came before it. */
+  const [pending, setPending] = useState<{ question: string; reply: string; after: number }>();
   const [error, setError] = useState<unknown>();
   const request = useAbortable();
   const turns = history.data?.turns ?? [];
-  const end = useScrollToEnd(`${turns.length}:${pending?.reply}`);
+  // Shown until the turns hold it: never in the same frame as the stored pair.
+  const shown = pending && turns.length <= pending.after ? pending : undefined;
+  const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
 
   // An ask from outside is sent once, as soon as the chat is ready.
   const sendLatest = useRef<(text: string, newChat?: boolean) => void>(undefined);
@@ -97,15 +118,16 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
     setError(undefined);
     // A new chat: the current one leaves the screen at once (the server ends it with this message).
     if (newChat) client.setQueryData(["tutor", context.lessonKey], { turns: [] });
-    setPending({ question, reply: "" });
+    const after = newChat ? 0 : turns.length;
+    setPending({ question, reply: "", after });
     streamTutor(
       { ...context, message: question, language: i18n.language, newChat },
-      (reply) => setPending({ question, reply }),
+      (reply) => setPending({ question, reply, after }),
       controller.signal,
     )
       .then((reply) => {
-        // The pair as the server stored it, shown at once in place of the pending one (no frame
-        // with both); the stored turns follow.
+        // The pair as the server stored it, shown at once in place of the pending one; the stored
+        // turns follow.
         const ts = Date.now();
         client.setQueryData(
           ["tutor", context.lessonKey],
@@ -118,6 +140,7 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
           }),
         );
         setPending(undefined);
+        onReply?.();
       })
       .catch((e: unknown) => {
         // A stopped reply is kept by the server; a failed question goes back into the input.
@@ -167,7 +190,15 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
         turns={turns.length}
       />
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
-        {turns.length === 0 && !pending && (
+        {turns.length === 0 && !shown && starter && history.data && asked.current === ask?.id && (
+          <div className="space-y-3 pt-2">
+            <p className="text-muted-foreground">{starter.intro}</p>
+            <Button size="lg" onClick={() => send(starter.text, true)}>
+              <MessageCircle className="size-4" /> {starter.label}
+            </Button>
+          </div>
+        )}
+        {turns.length === 0 && !shown && !starter && (
           <div className="space-y-3 pt-2">
             <p className="text-muted-foreground">{t("tutor.intro")}</p>
             <div className="flex flex-wrap gap-2">
@@ -197,14 +228,14 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
             )}
           </Bubble>
         ))}
-        {pending && (
+        {shown && (
           <>
             <Bubble from="user">
-              <p className="whitespace-pre-wrap">{pending.question}</p>
+              <p className="whitespace-pre-wrap">{shown.question}</p>
             </Bubble>
             <Bubble from="assistant">
-              {pending.reply ? (
-                <RichText text={pending.reply} />
+              {shown.reply ? (
+                <RichText text={shown.reply} />
               ) : (
                 <p className="text-muted-foreground">{t("llm.thinking")}</p>
               )}
@@ -225,12 +256,9 @@ function Chat({ ask, ...context }: Context & { ask?: TutorAsk }) {
   );
 }
 
-export function LessonTutor({ ask, ...context }: Context & { ask?: TutorAsk }) {
+export function LessonTutor(context: Context) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (ask) setOpen(true);
-  }, [ask]);
   return (
     <>
       <Button
@@ -243,25 +271,44 @@ export function LessonTutor({ ask, ...context }: Context & { ask?: TutorAsk }) {
         <span className="hidden sm:inline">{t("tutor.title")}</span>
       </Button>
       <ChatSheet open={open} onOpenChange={setOpen} title={t("tutor.title")}>
-        {open && <Chat {...context} ask={ask} />}
+        {open && <Chat {...context} />}
       </ChatSheet>
     </>
   );
 }
 
-/** "Review my mistakes" for the lesson summary; nothing when the assistant is off. */
-export function ReviewMistakesButton({ onAsk }: { onAsk(ask: TutorAsk): void }) {
+/**
+ * The tutor going through the run's mistakes one at a time, in the lesson's chat shown on the step page.
+ * Started by the learner (a new chat); shown at once when the step is done (the walk-through goes on).
+ * `onDone` after the tutor's first reply.
+ */
+export function MistakesTutor({
+  done,
+  onDone,
+  ...context
+}: Context & { done: boolean; onDone(): void }) {
   const { t } = useTranslation();
-  if (!useLlm().data?.model) return null;
+  const [ask, setAsk] = useState<TutorAsk>();
+  const starter = {
+    intro: t("mistakes.tutorIntro"),
+    label: t("mistakes.start"),
+    text: t("mistakes.message"),
+  };
+  if (!done && !ask)
+    return (
+      <div className="space-y-3">
+        <p className="text-muted-foreground">{starter.intro}</p>
+        <Button
+          size="lg"
+          onClick={() => setAsk({ text: starter.text, id: Date.now(), newChat: true })}
+        >
+          <MessageCircle className="size-4" /> {starter.label}
+        </Button>
+      </div>
+    );
   return (
-    <Button
-      variant="outline"
-      size="lg"
-      onClick={() =>
-        onAsk({ text: t("tutor.reviewMistakesMessage"), id: Date.now(), newChat: true })
-      }
-    >
-      <MessageCircle className="size-4" /> {t("tutor.reviewMistakes")}
-    </Button>
+    <div className="flex h-[70dvh] min-h-96 flex-col overflow-hidden rounded-2xl border bg-card pt-2">
+      <Chat {...context} ask={ask} starter={starter} onReply={onDone} />
+    </div>
   );
 }

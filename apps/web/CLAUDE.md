@@ -11,15 +11,17 @@ apps/web/src/
                    # with its head in course-info (progress, source, stats, integrity, sync), review
                    # (decks, a deck's overview, the session), settings
   lesson/          # lesson player: player (run flow over the plan's steps), use-run (run + events), plan,
-                   # overview, words-step, steps (reading pages, the step bar), exercise step, summary,
-                   # reference, video; slots.ts: what optional features add (header, explain, practice)
+                   # overview, words-step, steps (reading pages, the step bar), exercise step,
+                   # mistakes-status (the run counted for "Going over mistakes"), summary, reference,
+                   # video; slots.ts: what optional features add (header, explain, practice)
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More)
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
-  llm/             # AI assistant: settings (providers, LM Studio), "Why is this wrong?", tutor, writing,
-                   # session review, scenes; parts.tsx: their shared cards, chat panel, composer, errors
+  llm/             # AI assistant: settings (providers, LM Studio), "Why is this wrong?", tutor (header
+                   # panel, inline on the mistakes step), writing, scenes; parts.tsx: their shared cards,
+                   # chat panel, composer, errors
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell, media
   word/            # gender colouring

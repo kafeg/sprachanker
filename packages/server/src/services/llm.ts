@@ -24,9 +24,7 @@ import {
   openAiCompatible,
   PROVIDERS,
   type ProviderId,
-  REVIEW_SESSION_BUDGETS,
   recommendedLmStudioModel,
-  reviewSessionRules,
   SCENE_BUDGETS,
   sceneTurnRules,
   type TaskRequest,
@@ -107,7 +105,7 @@ export interface PromptPreview {
 }
 
 /** The tasks the settings explain, in the order they are shown. */
-export const PROMPT_TASKS = ["explain", "tutor", "writing", "review", "scene"] as const;
+export const PROMPT_TASKS = ["explain", "tutor", "writing", "scene"] as const;
 export type PromptTask = (typeof PROMPT_TASKS)[number];
 
 /** Each task's standing rules (its system prompt) for an answer language and a learnt language. */
@@ -115,14 +113,12 @@ const RULES: Record<PromptTask, (language: Lang, target: Lang) => string> = {
   explain: explainMistakeRules,
   tutor: chatTurnRules,
   writing: checkWritingRules,
-  review: reviewSessionRules,
   scene: sceneTurnRules,
 };
 const BUDGETS: Record<PromptTask, Record<string, number>> = {
   explain: EXPLAIN_MISTAKE_BUDGETS,
   tutor: CHAT_TURN_BUDGETS,
   writing: CHECK_WRITING_BUDGETS,
-  review: REVIEW_SESSION_BUDGETS,
   scene: SCENE_BUDGETS,
 };
 /** The learner's own system prompts, by task: templates with {language} and {target}. */

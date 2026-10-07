@@ -98,7 +98,7 @@ export type CourseHeroProps = {
 export function CourseHero(props: CourseHeroProps) {
   const { series, course, title, edition, descriptionHtml, source, done, lessons, next, started } =
     props;
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const check = useCourseCheck(series, course);
   const bytes = useBytes();

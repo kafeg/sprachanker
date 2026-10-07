@@ -40,8 +40,6 @@ const ExplainBody = LessonRequest.extend({
   attempt: z.number().int().positive().optional(),
 });
 
-const ReviewBody = LessonRequest;
-
 const SceneLine = LessonRequest.extend({ text: z.string().trim().min(1).max(MESSAGE_MAX) });
 
 // The model checks this much of a text: a longer one would be marked wrong past the cut.
@@ -186,7 +184,7 @@ export function llmRoutes(
       .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ scene: scenes.state(c.req.valid("query").lessonKey) }),
       )
-      .post("/scene/start", zod("json", ReviewBody), async (c) =>
+      .post("/scene/start", zod("json", LessonRequest), async (c) =>
         c.json(await scenes.start(c.req.valid("json"), c.req.raw.signal)),
       )
       .post("/scene/turn", zod("json", SceneLine), async (c) =>
@@ -201,16 +199,6 @@ export function llmRoutes(
         scenes.end(c.req.valid("json").lessonKey);
         return c.json({ ok: true as const });
       })
-      // Session review of a lesson's latest run.
-      .get("/review", zod("query", z.object({ lessonKey: LessonKey })), async (c) =>
-        c.json(await practice.review.state(c.req.valid("query").lessonKey)),
-      )
-      .post("/review", zod("json", ReviewBody), async (c) =>
-        c.json(await practice.review.create(c.req.valid("json"), c.req.raw.signal)),
-      )
-      .post("/review/prompt", zod("json", ReviewBody), async (c) =>
-        c.json(await practice.review.prompt(c.req.valid("json"))),
-      )
       // Writing task of a lesson: the task and attempts; a check stores its verdict.
       .get(
         "/writing",

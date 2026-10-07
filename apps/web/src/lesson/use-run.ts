@@ -4,7 +4,7 @@
 // same state. The run's state is the engine's reading of its events — the stored ones plus those just
 // recorded here — the same reading the server uses for progress. Outcomes are computed locally for
 // instant feedback with the same engine the server uses; the server stores its own (04).
-import { type ExerciseResult, exerciseResults, stepsDone } from "@sprachanker/engine";
+import { type ExerciseResult, exerciseResults, mistakesOf, stepsDone } from "@sprachanker/engine";
 import type {
   LessonKey,
   LessonResult,
@@ -50,6 +50,8 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
   /** Steps besides exercises done or skipped in the run (words, reading, AI practice). */
   const done = useMemo(() => stepsDone(events), [events]);
+  /** Items whose first answer in the run was wrong or partly right (as the tutor reads them). */
+  const mistakes = useMemo(() => mistakesOf([{ events }]), [events]);
   /** How many answers an item has in the run: the number of its latest attempt. */
   const attempts = (itemKey: string) =>
     events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
@@ -184,6 +186,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     run,
     resumePage,
     results,
+    mistakes,
     attempts,
     error,
     /** Starts the lesson (or resumes its active run); `restart` begins it anew. */

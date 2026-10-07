@@ -137,17 +137,17 @@ Specs: 04, 05, 09.
 - The lesson plan as steps (owner, 2026-10-06; flow in 04, "Lesson composition"): overview with the
   video and its transcript under it → "Words of the lesson" (cards; the words go to Review from
   there) → a "Grammar" step per grammar topic → exercises → a "Culture" step per culture page → AI
-  practice while an assistant is set up: "Write it yourself", scene, session review → summary of all
-  of it. Each step has its mark; any can be skipped; the lesson is completed when every step is done or
+  practice while an assistant is set up: "Write it yourself", scene, going over mistakes → summary of
+  all of it. Each step has its mark; any can be skipped; the lesson is completed when every step is done or
   skipped (reading steps when opened, AI steps once done). AI steps keep their history in the step
-  (earlier texts, scenes, reviews of this lesson), like the tutor's chat history. The reference tabs
+  (earlier texts and scenes of this lesson), like the tutor's chat history. The reference tabs
   stay for looking things up.
 - Earlier attempts of an item under its card (history control in the item's column; each attempt
   read-only with its kept explanation); the tutor panel with "Chat" and "History" tabs (each learner
   message with its time and the exercise it was written on).
 - **Accept**: after lesson 1 its words are due in Review; reviews update due dates per face; the
   Notebook shows two runs of lesson 1 side by side; lesson 1 of Nicos Weg goes overview → words →
-  grammar → exercises → culture → writing, scene, review (with an assistant) → summary, and completes
+  grammar → exercises → culture → writing, scene, mistakes (with an assistant) → summary, and completes
   without an assistant too.
 - **Status: in progress.** Built: cards and their FSRS state (migration `0002_cards`), scheduling and
   the review queue in the engine (`srs/`), cards from a lesson's words, ratings and the learner's words
@@ -156,7 +156,8 @@ Specs: 04, 05, 09.
   as steps and the video's text under it; Review as in Anki one-to-one (owner, 2026-10-07; 04): decks by
   language and course, the v3 queue with its limits and 4 AM day, the reviewer with its four ratings,
   keys, undo, bury, suspend, flags and marks (migration `0003_anki`), the same reviewer in the "Words"
-  step. Next: the merged "Mistakes" AI step, the scene and writing histories in their steps, My words,
+  step; "Going over mistakes" (the run's status counted by the app, the tutor's walk-through inline;
+  the written session review dropped). Next: the scene and writing histories in their steps, My words,
   the Notebook, attempts under the card, the tutor's chat history.
 
 ### 7 — Speech
@@ -171,7 +172,7 @@ Specs: 08, 06.
 Specs: 07.
 - Gateway, providers (LM Studio, OpenRouter, any OpenAI-compatible server) with one model per profile,
   structured outputs, prompt viewer; tasks `explain_mistake`, `chat_turn` (lesson tutor with tools),
-  `check_writing`, `review_session`, `scene_setup` + `scene_turn` (07).
+  `check_writing`, `scene_setup` + `scene_turn` (07).
 - **Accept**: the AI screens pass e2e against the fake OpenAI-compatible server; the owner uses them
   with a local (LM Studio) and a cloud model.
 - **Status: built** (early, at the owner's request). `check_answer` for `respond`, `translate_mt`,

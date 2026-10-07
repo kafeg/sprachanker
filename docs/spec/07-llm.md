@@ -46,7 +46,6 @@ All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the native language (streamed text) |
 | `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
-| `review_session` | the lesson; the run the lesson shows: every exercise with its state (right, with mistakes, done unscored, skipped, not started), first attempts right of scored, its mistakes | JSON: summary, strengths[], topics[] (topic, explanation, examples), next[] |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 
@@ -56,10 +55,10 @@ kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with t
 again from there ("Explain again" asks anew; the newest is shown); "ask about this exercise"
 and the lesson tutor → `chat_turn`; "Write it yourself" on the lesson summary (3–5 sentences on the
 lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson's `practice` run;
-"Session review" on the summary → `review_session`, stored the same way with the lesson run it
-reviews (`runId`; older reviews belong to the lesson run started last before them and count as stale,
-made by earlier rules), shown with that run and offered again when newer answers exist. The review says plainly when exercises were skipped or not
-started and praises only what the results show; the scene card on the summary → `scene_setup`, then `scene_turn` per line.
+"Going over mistakes" → `chat_turn`: the run's status is counted by the app (no model), and the
+tutor's chat, inline on the step, starts a new chat asking to go through the mistakes (a written
+session review was dropped, owner 2026-10-07: the numbers need no model, and talking a mistake over
+teaches more than a report); the scene card → `scene_setup`, then `scene_turn` per line.
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
@@ -91,7 +90,7 @@ started and praises only what the results show; the scene card on the summary �
 - The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model.
 - Settings → Prompts: each task's system prompt and the context parts it adds, with
   their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`, `CHECK_WRITING_BUDGETS`,
-  `REVIEW_SESSION_BUDGETS`, `SCENE_BUDGETS`).
+  `SCENE_BUDGETS`).
 - The learner can replace a task's system prompt with their own (Settings → Prompts, "Restore" brings
   the standing one back). It is a template in the profile setting `llm.prompts` (task → text);
   `{language}` and `{target}` are filled in with the names of the answer language and the language
@@ -120,7 +119,7 @@ started and praises only what the results show; the scene card on the summary �
   tools: the tool instructions are left out of their prompt. Each learner turn records the
   exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·
   Title]` where that changed, so earlier turns about other exercises are not read as about the current
-  one. "Review my mistakes" on the lesson summary opens a new chat with that request.
+  one. The "Going over mistakes" step opens a new chat with the request to go through the mistakes.
 - **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted
   from the lesson's goals and words (no authored scenes yet). The app keeps the model honest:
   corrections must quote the learner's new line, met goals only accumulate, all met ends the scene.

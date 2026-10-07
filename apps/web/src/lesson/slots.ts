@@ -12,8 +12,6 @@ export interface LessonSlotContext {
 }
 
 export interface LessonSlots {
-  /** Wraps the player: state the other slots share (e.g. a question for the tutor). */
-  frame?(children: ReactNode): ReactNode;
   /** In the header, next to the reference: the exercise on screen, if any. */
   header?(context: LessonSlotContext & { exerciseKey?: string }): ReactNode;
   /** Under a wrong item: help with that mistake — the run and the attempt it is about, if recorded. */
@@ -26,14 +24,16 @@ export interface LessonSlots {
       attempt?: number;
     },
   ): ReactNode;
-  /** AI practice as steps of the plan (writing, scene, review), while an assistant is set up. */
+  /** AI practice as steps of the plan (writing, scene, going over mistakes), while an assistant is set
+   *  up. The player shows the run's own status above the mistakes step's page. */
   practice?: {
     /** The kinds offered now; a hook, called on every render of the player. */
     useKinds(): PracticeKind[];
-    /** A practice step's page; `onDone` once the learner has done it (a check, a scene, a review). */
+    /** A practice step's page; `done` when the run has it done; `onDone` once the learner has done it
+     *  (a check, a scene, the tutor's first reply on the mistakes). */
     step(
       kind: PracticeKind,
-      context: LessonSlotContext & { hasMistakes: boolean; onDone(): void },
+      context: LessonSlotContext & { hasMistakes: boolean; done: boolean; onDone(): void },
     ): ReactNode;
   };
 }

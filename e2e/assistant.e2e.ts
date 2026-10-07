@@ -1,4 +1,5 @@
-// The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check.
+// The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
+// going over mistakes.
 import { expect, test } from "@playwright/test";
 import { answerPicture, DEMO_LESSON, freshLessonRun, goToStep, openStep, put } from "./api.ts";
 import { FAKE_LLM_PORT, FAKE_TEXT } from "./fake-llm.ts";
@@ -59,12 +60,24 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   };
   await expect.poll(steps).toContain("writing");
 
-  // The session review step offers "Review my mistakes", which opens a new chat without the earlier
-  // question.
-  await goToStep(page, "Session review");
-  await page.getByRole("button", { name: "Review my mistakes with the tutor" }).click();
-  const chat = page.getByRole("dialog");
-  await expect(chat.getByText("Please go through my mistakes in this lesson.")).toBeVisible();
-  await expect(chat.getByText(FAKE_TEXT).last()).toBeVisible();
-  await expect(chat.getByText("Was heißt das?")).toBeHidden();
+  // "Going over mistakes": the run counted by the app, its mistakes by exercise (a row opens the
+  // exercise); then the tutor goes through them inline, in a new chat without the earlier question,
+  // and its first reply marks the step done.
+  await goToStep(page, "Going over mistakes");
+  const step = page.locator("article");
+  await expect(step.getByText("Mistakes by exercise")).toBeVisible();
+  await expect(step.getByRole("button", { name: /Lena at the café/ })).toContainText("item 2");
+  await step.getByRole("button", { name: "Go through my mistakes with the tutor" }).click();
+  await expect(step.getByText("Please go through my mistakes in this lesson.")).toBeVisible();
+  await expect(step.getByText(FAKE_TEXT).last()).toBeVisible();
+  await expect(step.getByText("Was heißt das?")).toBeHidden();
+  await expect.poll(steps).toContain("mistakes");
+  // The walk-through goes on in the step: a follow-up is answered in the same chat.
+  await step.getByPlaceholder("Ask a question…").fill("Noch ein Beispiel?");
+  await step.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(step.getByText("Noch ein Beispiel?")).toBeVisible();
+  // Back on the step later, the chat is there at once.
+  await goToStep(page, "Write it yourself");
+  await goToStep(page, "Going over mistakes");
+  await expect(step.getByText("Noch ein Beispiel?")).toBeVisible();
 });

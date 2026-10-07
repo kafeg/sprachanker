@@ -151,7 +151,6 @@ export type PromptRequest =
   | { explain: ExplainRequest }
   | { tutor: TutorPromptRequest }
   | { writing: WritingRequest }
-  | { review: ReviewRequest }
   | { scene: SceneLineRequest };
 
 /** The exact request a task would send now (nothing is sent). */
@@ -159,7 +158,6 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("explain" in kind) return fetchExplainPrompt(kind.explain);
   if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
-  if ("review" in kind) return json(api.llm.review.prompt.$post({ json: kind.review }));
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }
 
@@ -216,22 +214,7 @@ export function useCheckWriting() {
   });
 }
 
-export type ReviewRequest = Parameters<typeof api.llm.review.$post>[0]["json"];
-const fetchReview = (lessonKey: LessonKey) => json(api.llm.review.$get({ query: { lessonKey } }));
-
-/** The latest session review of a lesson. */
-export const useReview = (lessonKey: LessonKey) =>
-  useQuery({ queryKey: ["review", lessonKey], queryFn: () => fetchReview(lessonKey) });
-
-export function useCreateReview() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (request: ReviewRequest) => json(api.llm.review.$post({ json: request })),
-    onSuccess: (_, request) =>
-      client.invalidateQueries({ queryKey: ["review", request.lessonKey] }),
-  });
-}
-
+type SceneStartRequest = Parameters<typeof api.llm.scene.start.$post>[0]["json"];
 export type SceneLineRequest = Parameters<typeof api.llm.scene.turn.$post>[0]["json"];
 export type SceneState = NonNullable<Awaited<ReturnType<typeof fetchScene>>["scene"]>;
 const fetchScene = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: { lessonKey } }));
@@ -244,7 +227,7 @@ export function useSceneAction(lessonKey: LessonKey) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: async (
-      action: { start: ReviewRequest } | { turn: SceneLineRequest } | { end: true },
+      action: { start: SceneStartRequest } | { turn: SceneLineRequest } | { end: true },
     ): Promise<SceneState | { ok: true }> =>
       "start" in action
         ? json(api.llm.scene.start.$post({ json: action.start }))

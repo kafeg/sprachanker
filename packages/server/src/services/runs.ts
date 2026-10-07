@@ -91,7 +91,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
   };
 
   /**
-   * The run a lesson shows — in the player, on the course map and in the session review: its active
+   * The run a lesson shows — in the player, on the course map and to the tutor: its active
    * run (a lesson has one, in whichever edition it was started), else its latest completed run.
    */
   const shownRun = async (lessonKey: LessonKey) => {
@@ -178,7 +178,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
       return row && toRun(row);
     },
 
-    /** The run the lesson shows, with its events (for the session review and the tutor). */
+    /** The run the lesson shows, with its events (for the tutor). */
     async shown(lessonKey: LessonKey): Promise<{ run: Run; events: StoredEvent[] } | undefined> {
       const row = await shownRun(lessonKey);
       return row && { run: toRun(row), events: store.events(row.id) };
@@ -199,7 +199,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
 
     /**
      * Resets the learner's progress in a course, or in one of its lessons: every run of it — lesson
-     * runs, tutor chats, writing checks and reviews, scenes — and their events are deleted. The only
+     * runs, tutor chats, writing checks, scenes — and their events are deleted. The only
      * deletion of events besides removing a profile; the screen asks for confirmation (05).
      */
     reset(course: CourseKey, lesson?: LessonKey): { runs: number; events: number } {

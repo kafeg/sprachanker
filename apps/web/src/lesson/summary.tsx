@@ -2,6 +2,7 @@
 // its state (exercises with their right answers), and the way on.
 import {
   type ExerciseResult,
+  firstAttempts,
   type LessonStep,
   planCoverage,
   stepId,
@@ -46,9 +47,7 @@ export function LessonSummary({
   const { t, i18n } = useTranslation();
   const coverage = planCoverage(steps, lesson, results, done);
   // Items right at the first attempt (the score itself also weighs partial answers).
-  const firstCorrect = Object.values(results)
-    .flatMap((r) => Object.values(r.first))
-    .filter((o) => o.result === "correct").length;
+  const first = firstAttempts(lesson, results);
   const todo = steps.filter((s) => s.kind !== "overview" && s.kind !== "summary");
   return (
     <section className="space-y-6">
@@ -65,7 +64,7 @@ export function LessonSummary({
           </span>
           {result && (
             <span className="pb-2 text-muted-foreground">
-              {t("lesson.score", { correct: firstCorrect, scored: result.scored })}
+              {t("lesson.score", { correct: first.correct, scored: first.scored })}
             </span>
           )}
         </div>

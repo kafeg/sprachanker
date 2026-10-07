@@ -114,13 +114,7 @@ export function createApp(config: AppConfig) {
     lessons,
     tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
   });
-  const practice = createPractice({
-    session: runs.shown,
-    store,
-    llm,
-    lessons,
-    now,
-  });
+  const practice = createPractice({ store, llm, lessons, now });
   const scenes = createScenes({ store, llm, lessons });
   const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
 

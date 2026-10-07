@@ -21,12 +21,14 @@ player combines them; `speech_selfrate` items are shown for self-rating and not 
    video or recording with its transcript under it) → "Words of the lesson" (cards) → one "Grammar"
    step per grammar page (a page is one topic) → the exercises (source pages, then ours) → one
    "Culture" step per culture page → AI practice when an assistant is set up: "Write it yourself",
-   scene, session review (last, so it can take the writing and the scene into account) → summary of
-   all of it (score, mistakes by rule, writing, scene, review, new cards). The steps come from what
+   scene, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
+   worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
+   the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps come from what
    the provider's normaliser put into the canonical and locale files, the same way for every course.
    Every step has a mark in the plan and "Next" goes through all of them; any step can be skipped (and
    shows it). The lesson is completed when every step is done or skipped: an exercise answered, a
-   reading step opened, an AI step done once. AI steps are in the plan only while an assistant is set
+   reading step opened, an AI step done once (the mistakes step: the tutor's first reply, or opened
+   with every exercise worked and no mistakes). AI steps are in the plan only while an assistant is set
    up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script)
    stay available at any time for looking things up.
 

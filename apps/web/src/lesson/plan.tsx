@@ -12,12 +12,12 @@ import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
 import {
   BookOpen,
   Check,
-  ClipboardList,
   Drama,
   Globe,
   Layers,
   PenLine,
   Play,
+  SearchCheck,
   SkipForward,
   Star,
   X,
@@ -99,7 +99,7 @@ const ICON: Partial<Record<LessonStep["kind"], React.ComponentType<{ className?:
   culture: Globe,
   writing: PenLine,
   scene: Drama,
-  review: ClipboardList,
+  mistakes: SearchCheck,
   summary: Star,
 };
 
@@ -110,7 +110,7 @@ const SECTION: Partial<Record<LessonStep["kind"], string>> = {
   culture: "lesson.section.culture",
   writing: "lesson.section.practice",
   scene: "lesson.section.practice",
-  review: "lesson.section.practice",
+  mistakes: "lesson.section.practice",
 };
 
 export function Plan({

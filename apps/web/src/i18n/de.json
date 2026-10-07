@@ -121,7 +121,7 @@
       "culture": "Landeskunde",
       "writing": "Schreib selbst",
       "scene": "Szene",
-      "review": "Auswertung",
+      "mistakes": "Fehler durchgehen",
       "summary": "Fazit"
     },
     "section": {
@@ -288,8 +288,6 @@
     "remembers": "erinnert sich an {kept, number} von {total, plural, one {# Nachricht} other {# Nachrichten}}",
     "contextFull": "Der Kontext ist fast voll: die ältesten Nachrichten erreichen das Modell nicht mehr. Beginne für ein neues Thema ein neues Gespräch.",
     "contextHint": "Größe der nächsten Anfrage: Lektionskontext, Gespräch und deine Nachricht, plus Platz für die Antwort.",
-    "reviewMistakes": "Meine Fehler mit dem Tutor durchgehen",
-    "reviewMistakesMessage": "Geh bitte meine Fehler in dieser Lektion mit mir durch.",
     "toolsUsed": "Nachgesehen: {tools}",
     "tool": {
       "find_word": "das Wort „{word}“",
@@ -329,7 +327,6 @@
       "explain": "„Warum ist das falsch?“",
       "tutor": "Tutor",
       "writing": "„Schreib selbst“",
-      "review": "Rückblick",
       "scene": "Szene"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
@@ -347,9 +344,7 @@
       "mistakes": "deine Fehler: in dieser Lektion die des aktuellen Durchgangs, dann die letzten aus früheren Lektionen (korrigierte markiert)",
       "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt",
       "text": "dein Text",
-      "sessionMistakes": "deine Fehler in diesem Durchgang, jeweils mit ihrer Übung",
-      "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft",
-      "exercises": "alle Übungen der Lektion mit ihrem Stand in diesem Durchgang (richtig, mit Fehlern, übersprungen, nicht begonnen)"
+      "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -379,17 +374,18 @@
       "accuracy": "Formale Richtigkeit"
     }
   },
-  "review": {
-    "title": "Rückblick",
-    "make": "Rückblick erstellen",
-    "making": "Wird erstellt…",
-    "refresh": "Neu erstellen",
-    "stale": "Seit dem letzten Rückblick hast du weitere Aufgaben beantwortet.",
-    "strengths": "Gut gelungen",
-    "topics": "Noch zu üben",
-    "next": "Nächste Schritte",
-    "intro": "Das Modell sieht sich diesen Durchgang an: welche Übungen erledigt, übersprungen oder nicht begonnen sind, wo Fehler sind und welche Regel dahintersteht, und was als Nächstes kommt.",
-    "notYet": "Beantworte zuerst mindestens eine Übung: Die Auswertung geht von deinen Antworten aus."
+  "mistakes": {
+    "exercises": "Übungen bearbeitet",
+    "firstTry": "Beim ersten Versuch richtig",
+    "ofTotal": "{n, number} von {total, number}",
+    "list": "Fehler nach Übungen",
+    "items": "{count, plural, one {Aufgabe} other {Aufgaben}} {items}",
+    "fixed": "{count, plural, one {# später korrigiert} other {# später korrigiert}}",
+    "none": "In diesem Durchgang keine Fehler.",
+    "notYet": "Noch nichts beantwortet: Mach zuerst die Übungen.",
+    "tutorIntro": "Der Tutor geht deine Fehler einzeln mit dir durch: was falsch war, die Regel dahinter und ein kurzes neues Beispiel zur Kontrolle.",
+    "start": "Fehler mit dem Tutor durchgehen",
+    "message": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
   },
   "scene": {
     "title": "Szene",
@@ -464,7 +460,7 @@
     "culture": "Kultur",
     "writing": "Schreiben",
     "scene": "Szene",
-    "review": "Auswertung"
+    "mistakes": "Fehler"
   },
   "words": {
     "intro": "Die Wörter der Lektion als Karten wie in Anki: erinnern, Antwort zeigen, bewerten. Wenn gerade nichts mehr übrig ist, geht es in der Wiederholung weiter.",

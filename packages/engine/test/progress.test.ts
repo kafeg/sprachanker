@@ -3,6 +3,7 @@ import type { Exercise, Lesson, Run, StoredEvent } from "@sprachanker/schema";
 import {
   exerciseResults,
   exerciseState,
+  firstAttempts,
   lessonCoverage,
   lessonProgress,
   lessonResult,
@@ -41,6 +42,18 @@ test("first attempts count; unscored items are left out; scored items skipped co
   // Skipping a checked item is not knowing it; skipping a self-rated one costs nothing.
   const skipped = [...events, ev(7, "item_skipped", "b#1", {}), ev(8, "item_skipped", "s#1", {})];
   expect(lessonResult(lesson, skipped)).toEqual({ score: 0.5 / 3, scored: 3, answered: 3 });
+  // What the summary and the mistakes step count: right at the first attempt of all scored.
+  expect(firstAttempts(lesson, exerciseResults(skipped))).toEqual({
+    sum: 0.5,
+    scored: 3,
+    correct: 0,
+    answered: 3,
+  });
+  const right = [
+    ...events,
+    ev(9, "answered", "b#1", { attempt: 1, outcome: outcome("correct", 1) }),
+  ];
+  expect(firstAttempts(lesson, exerciseResults(right))).toMatchObject({ scored: 3, correct: 1 });
 });
 
 test("a skip before the first answer is the first attempt: answering after it does not count", () => {

@@ -61,7 +61,7 @@ export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
  */
 export const StepId = z
   .string()
-  .regex(/^(words|grammar:\d+|culture:\d+|writing|scene|review)$/)
+  .regex(/^(words|grammar:\d+|culture:\d+|writing|scene|mistakes)$/)
   .meta({ id: "StepId" });
 export type StepId = z.infer<typeof StepId>;
 
@@ -127,12 +127,12 @@ export const LlmTurnPayload = z.object({
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
 /**
- * A model's verdict on the learner's work (05, "Events"): a writing check or session review in the
- * lesson's `practice` run, or a mistake explanation in the lesson run, on the item it explains.
+ * A model's verdict on the learner's work (05, "Events"): a writing check in the lesson's `practice`
+ * run, or a mistake explanation in the lesson run, on the item it explains.
  */
 export const LlmVerdictPayload = z.object({
-  task: z.enum(["writing", "review", "explain"]),
-  /** The learner's text (writing); empty for a review and an explanation. */
+  task: z.enum(["writing", "explain"]),
+  /** The learner's text (writing); empty for an explanation. */
   input: z.string(),
   /** The task's structured output (07); an explanation's text. */
   result: z.unknown(),
@@ -140,8 +140,6 @@ export const LlmVerdictPayload = z.object({
   latencyMs: z.number().int().nonnegative(),
   /** Explanation: the attempt at the item it explains (1 = the first answer). */
   attempt: z.number().int().positive().optional(),
-  /** Review: the lesson run it reviews (reviews stored before this was kept have none). */
-  runId: Ulid.optional(),
 });
 export type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 

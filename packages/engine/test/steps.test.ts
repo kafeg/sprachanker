@@ -24,7 +24,7 @@ const ev = (n: number, type: StoredEvent["type"], itemKey: string | null, payloa
   ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as StoredEvent;
 
 test("steps: overview, words, grammar, exercises, culture, AI practice offered, summary", () => {
-  const ids = lessonSteps(lesson, locale, ["review", "writing"]).map(stepId);
+  const ids = lessonSteps(lesson, locale, ["mistakes", "writing"]).map(stepId);
   expect(ids).toEqual([
     "overview",
     "words",
@@ -32,7 +32,7 @@ test("steps: overview, words, grammar, exercises, culture, AI practice offered, 
     ...lesson.pages.map((_, i) => `exercise:${i}`),
     "culture:0",
     "writing",
-    "review",
+    "mistakes",
     "summary",
   ]);
   // No assistant, no practice; no locale, no reading pages.
