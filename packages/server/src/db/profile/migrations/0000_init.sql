@@ -14,6 +14,7 @@ CREATE TABLE `cards` (
 	`id` text PRIMARY KEY NOT NULL,
 	`kind` text NOT NULL,
 	`lexeme_key` text,
+	`translation_lang` text NOT NULL,
 	`source_key` text,
 	`origin_run_id` text,
 	`origin_event_id` text,
@@ -22,10 +23,12 @@ CREATE TABLE `cards` (
 	`display_cache_json` text,
 	`suspended` integer DEFAULT 0 NOT NULL,
 	`marked` integer DEFAULT 0 NOT NULL,
-	`created_at` integer NOT NULL
+	`created_at` integer NOT NULL,
+	FOREIGN KEY (`origin_run_id`) REFERENCES `runs`(`id`) ON UPDATE no action ON DELETE set null,
+	FOREIGN KEY (`origin_event_id`) REFERENCES `events`(`id`) ON UPDATE no action ON DELETE set null
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `cards_lexeme` ON `cards` (`lexeme_key`);--> statement-breakpoint
+CREATE UNIQUE INDEX `cards_lexeme` ON `cards` (`lexeme_key`,`translation_lang`);--> statement-breakpoint
 CREATE TABLE `events` (
 	`id` text PRIMARY KEY NOT NULL,
 	`run_id` text NOT NULL,

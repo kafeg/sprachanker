@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "d794691e-6215-4a06-a3c0-9d3c3f371a9b",
+  "id": "64961f12-2d6a-4205-8014-2749a4299a11",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "card_state": {
@@ -111,6 +111,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "translation_lang": {
+          "name": "translation_lang",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "source_key": {
           "name": "source_key",
           "type": "text",
@@ -181,12 +188,40 @@
         "cards_lexeme": {
           "name": "cards_lexeme",
           "columns": [
-            "lexeme_key"
+            "lexeme_key",
+            "translation_lang"
           ],
           "isUnique": true
         }
       },
-      "foreignKeys": {},
+      "foreignKeys": {
+        "cards_origin_run_id_runs_id_fk": {
+          "name": "cards_origin_run_id_runs_id_fk",
+          "tableFrom": "cards",
+          "tableTo": "runs",
+          "columnsFrom": [
+            "origin_run_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "cards_origin_event_id_events_id_fk": {
+          "name": "cards_origin_event_id_events_id_fk",
+          "tableFrom": "cards",
+          "tableTo": "events",
+          "columnsFrom": [
+            "origin_event_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}

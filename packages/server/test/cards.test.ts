@@ -182,7 +182,7 @@ test("each deck has its own day: German answers do not use up English's new card
   const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
   sqlite
     .query(
-      "INSERT INTO cards (id, kind, lexeme_key, faces, display_cache_json, created_at) VALUES (?, 'lexeme', ?, 'recognition', ?, 1)",
+      "INSERT INTO cards (id, kind, lexeme_key, translation_lang, faces, display_cache_json, created_at) VALUES (?, 'lexeme', ?, 'ru', 'recognition', ?, 1)",
     )
     .run(
       "01HZZZZZZZZZZZZZZZZZZZZZZY",
@@ -253,7 +253,7 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
 });
 
 test("a word learned in another language is another card: each edition studies its own translations", async () => {
-  const { sendJson, getJson, root, profile } = await withCards();
+  const { sendJson, getJson } = await withCards();
   const make = (edition: string) =>
     sendJson("POST", "/api/cards/lesson", {
       series: FIXTURE_SERIES,
@@ -268,21 +268,6 @@ test("a word learned in another language is another card: each edition studies i
   };
   expect(await inLesson("ru-de")).toEqual([4, "кофе"]);
   expect(await inLesson("en-de")).toEqual([4, "coffee"]);
-  // A card from before its language was kept gets the one its translation came from.
-  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
-  sqlite.exec("DELETE FROM cards WHERE translation_lang = 'en'");
-  sqlite.exec("UPDATE cards SET translation_lang = NULL");
-  const cards = createCards({
-    cards: createCardStore(profile),
-    content: createContent(openLibrary(join(root, "library"))),
-    settings: createSettings(profile),
-    session: async () => undefined,
-    now: Date.now,
-  });
-  await cards.relink();
-  expect(sqlite.query("SELECT DISTINCT translation_lang AS lang FROM cards").all()).toEqual([
-    { lang: "ru" },
-  ]);
 });
 
 test("a card follows its word's lexeme when a course is normalised again; no second card", async () => {

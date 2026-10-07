@@ -73,8 +73,8 @@ export const cards = sqliteTable(
     kind: text("kind").notNull(),
     lexemeKey: text("lexeme_key"),
     /** The language of the card's translation (its edition's source language): a word learned in Russian
-     *  and in English is two notes. Null on a card made before it was kept, until relinking sets it. */
-    translationLang: text("translation_lang"),
+     *  and in English is two notes. */
+    translationLang: text("translation_lang").notNull(),
     sourceKey: text("source_key"),
     /** The run (and event) the card was made in — a lesson run's "Words" step; emptied when that run
      *  is deleted (resetting progress). */
