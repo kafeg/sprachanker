@@ -74,7 +74,8 @@ cards(
   kind TEXT NOT NULL,             -- lexeme | sentence | custom
   lexeme_key TEXT,                -- for kind=lexeme; one card per lexeme per profile
   source_key TEXT,                -- vocab occurrence or item key where it was met
-  origin_run_id TEXT, origin_event_id TEXT,   -- run (and event, e.g. a mistake) it was created in, if any
+  origin_run_id TEXT, origin_event_id TEXT,   -- run (and event, e.g. a mistake) it was created in, if any:
+                                              -- the lesson run of its "Words" step; set null when deleted (0001)
   fields_json TEXT,               -- sentence | custom only
   faces TEXT NOT NULL,            -- enabled faces
   display_cache_json TEXT,        -- last rendered content, so cards survive course removal

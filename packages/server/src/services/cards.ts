@@ -57,6 +57,8 @@ export function createCards(deps: {
   store: RunStore;
   content: Content;
   settings: Settings;
+  /** The run the lesson shows (the runs service): the run a lesson's cards are made in. */
+  session: (lessonKey: LessonKey) => Promise<{ run: { id: string } } | undefined>;
   now: () => number;
 }) {
   const { db, store, content, settings, now } = deps;
@@ -201,8 +203,10 @@ export function createCards(deps: {
   };
 
   return {
-    /** Makes cards of a lesson's words: one per lexeme; a word met before keeps its card. */
+    /** Makes cards of a lesson's words, in the run the lesson shows (their origin): one per lexeme; a
+     *  word met before keeps its card. */
     async fromLesson(request: { series: string; lessonKey: LessonKey; edition: string }) {
+      const origin = (await deps.session(request.lessonKey))?.run.id ?? null;
       const { lesson, locale } = await content.lessonWithLocale(
         request.series,
         request.lessonKey,
@@ -237,6 +241,7 @@ export function createCards(deps: {
               kind: "lexeme",
               lexemeKey: v.lexeme,
               sourceKey: v.key,
+              originRunId: origin,
               faces,
               displayCacheJson: JSON.stringify(display),
               createdAt: now(),

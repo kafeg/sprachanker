@@ -73,8 +73,10 @@ export const cards = sqliteTable(
     kind: text("kind").notNull(),
     lexemeKey: text("lexeme_key"),
     sourceKey: text("source_key"),
-    originRunId: text("origin_run_id"),
-    originEventId: text("origin_event_id"),
+    /** The run (and event) the card was made in — a lesson run's "Words" step; emptied when that run
+     *  is deleted (resetting progress). */
+    originRunId: text("origin_run_id").references(() => runs.id, { onDelete: "set null" }),
+    originEventId: text("origin_event_id").references(() => events.id, { onDelete: "set null" }),
     fieldsJson: text("fields_json"),
     /** Enabled faces, comma-separated. */
     faces: text("faces").notNull(),

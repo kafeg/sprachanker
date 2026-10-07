@@ -132,3 +132,22 @@ test("a failing migration is rolled back and reported", () => {
   expect(() => migrate(db, broken, options(4))).toThrow(/0001_broken failed/);
   expect(tables(file)).not.toContain("x");
 });
+
+test("0001_card_origin: cards keep their rows; a card's run, once deleted, leaves it without one", () => {
+  const file = fresh();
+  const { db, options, sqlite } = runner(file);
+  const first = migrations.filter((m) => m.tag === "0000_init");
+  migrate(db, first, options(1));
+  sqlite.exec(
+    "INSERT INTO runs (id, kind, app_version, status, started_at) VALUES ('r1', 'lesson', 't', 'active', 1);" +
+      "INSERT INTO cards (id, kind, lexeme_key, faces, created_at, origin_run_id) VALUES ('c1', 'lexeme', 'lex:de:a:word', 'recognition', 1, 'r1');" +
+      "INSERT INTO card_state (card_id, face) VALUES ('c1', 'recognition');",
+  );
+  expect(migrate(db, migrations, options(2))).toEqual(["0001_card_origin"]);
+  expect(sqlite.query("SELECT id, origin_run_id FROM cards").all()).toEqual([
+    { id: "c1", origin_run_id: "r1" },
+  ]);
+  expect(sqlite.query("SELECT card_id FROM card_state").all()).toEqual([{ card_id: "c1" }]);
+  sqlite.exec("DELETE FROM runs WHERE id = 'r1'");
+  expect(sqlite.query("SELECT origin_run_id FROM cards").all()).toEqual([{ origin_run_id: null }]);
+});

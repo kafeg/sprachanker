@@ -99,7 +99,14 @@ export function createApp(config: AppConfig) {
   });
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
-  const cards = createCards({ db: config.profile, store, content, settings, now });
+  const cards = createCards({
+    db: config.profile,
+    store,
+    content,
+    settings,
+    session: runs.shown,
+    now,
+  });
   // Cards follow their words' lexemes after a course was normalised again (also on a download's end).
   const relink = () =>
     cards.relink().catch((error: unknown) => console.error("relinking cards:", error));

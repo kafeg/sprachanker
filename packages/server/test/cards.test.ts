@@ -247,6 +247,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
     store: createRunStore({ db: profile, now: Date.now, appVersion: "t" }),
     content: createContent(openLibrary(join(root, "library"))),
     settings: createSettings(profile),
+    session: async () => undefined,
     now: Date.now,
   });
   expect(await cards.relink()).toBe(1);
@@ -295,4 +296,30 @@ test("My words: a word's sheet has each face's state and its answers; an undone 
   const suspended = await getJson(`/api/cards/${word.cardId}`);
   expect([suspended.suspended, suspended.due]).toEqual([true, null]);
   expect((await send("GET", `/api/cards/${ulid()}`, undefined)).status).toBe(404);
+});
+
+test("cards remember the run they were made in; resetting the lesson leaves them, without it", async () => {
+  const { sendJson, root } = await setup();
+  const lessonKey = LESSONS[0];
+  const run = (
+    await sendJson("POST", "/api/runs", { series: FIXTURE_SERIES, lessonKey, edition: "ru-de" })
+  ).run.id;
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey,
+    edition: "ru-de",
+  });
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  const origins = () =>
+    sqlite
+      .query<{ origin_run_id: string | null }, []>("SELECT origin_run_id FROM cards")
+      .all()
+      .map((r) => r.origin_run_id);
+  expect(origins()).toEqual([run, run, run, run]);
+  await sendJson("POST", "/api/progress/reset", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    lesson: lessonKey,
+  });
+  expect(origins()).toEqual([null, null, null, null]);
 });
