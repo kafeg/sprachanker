@@ -30,9 +30,7 @@ export const CourseIndex = z.object({
   format: format(CANONICAL_FORMAT),
   key: CourseKey,
   source: CourseSource.optional(),
-  units: z.array(
-    z.object({ key: UnitKey, order: z.number().int().nonnegative(), lessons: z.array(LessonKey) }),
-  ),
+  units: z.array(z.object({ key: UnitKey, lessons: z.array(LessonKey) })),
   exams: z.array(ExamKey),
   goals: z.array(z.object({ key: GoalKey, lessons: z.array(LessonKey) })),
 });
@@ -66,7 +64,6 @@ export const Lesson = z.object({
   format: format(CANONICAL_FORMAT),
   key: LessonKey,
   unit: UnitKey,
-  order: z.number().int().nonnegative(),
   media: z.object({
     video: z
       .object({

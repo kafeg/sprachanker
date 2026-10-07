@@ -6,7 +6,7 @@ import config from "../.dependency-cruiser.cjs";
 const fixtureRoot = resolve(import.meta.dir, "fixtures/boundaries");
 
 async function violations(): Promise<string[]> {
-  const result: IReporterOutput = await cruise(["packages", "apps"], {
+  const result: IReporterOutput = await cruise(["packages", "apps", "courses"], {
     ...config.options,
     ruleSet: config,
     validate: true,
@@ -18,6 +18,7 @@ async function violations(): Promise<string[]> {
 
 test("boundary rules fire on deliberate violations and allow the type-only AppType import", async () => {
   expect(await violations()).toEqual([
+    "courses-import-schema-and-course-kit: courses/dw/src/imports-other.ts -> courses/lingust/src/index.ts",
     "engine-imports-schema-only: packages/engine/src/imports-server.ts -> packages/server/src/index.ts",
     "nothing-imports-apps: packages/server/src/imports-app.ts -> apps/web/src/server-type.ts",
     "pure-modules-no-io: packages/engine/src/uses-fs.ts -> fs",

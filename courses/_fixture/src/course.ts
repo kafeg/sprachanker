@@ -114,7 +114,6 @@ export const cafeLesson: Lesson = {
   format: 1,
   key: CAFE,
   unit: UNIT,
-  order: 1,
   media: { video: { sd: video("cafe-sd"), hd: video("cafe-hd") }, image: image("cafe") },
   goals: [lessonGoalKey(CAFE, 1)],
   pages: [
@@ -282,7 +281,6 @@ export const speakingLesson: Lesson = {
   format: 1,
   key: SPEAKING,
   unit: UNIT,
-  order: 2,
   media: { audio: audio("guten-morgen") },
   goals: [lessonGoalKey(SPEAKING, 1)],
   pages: [
@@ -406,7 +404,7 @@ export const miniExam: Exam = {
 export const courseIndex: CourseIndex = {
   format: 1,
   key: COURSE,
-  units: [{ key: UNIT, order: 0, lessons: [CAFE, SPEAKING] }],
+  units: [{ key: UNIT, lessons: [CAFE, SPEAKING] }],
   exams: [EXAM],
   goals: [
     { key: lessonGoalKey(CAFE, 1), lessons: [CAFE] },

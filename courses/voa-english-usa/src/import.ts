@@ -14,6 +14,8 @@ import {
   pageCounter,
   runPool,
   storedPage,
+  urlFileName,
+  wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import {
@@ -34,6 +36,7 @@ const CONCURRENCY = 4;
 
 export async function importEnglishUsa(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
+  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], normalised: {} };
   const seriesDir = join(options.libraryRoot, SERIES);
   const rawPath = (id: string) => `raw/${EDITION}/${COURSE}/${id}.html`;
   const fetcher = createPoliteFetcher({
@@ -71,9 +74,7 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
   });
 
   const refs: MediaRef[] = lessons.flatMap((l) =>
-    l.audioUrl
-      ? [{ url: l.audioUrl, kind: "audio" as const, name: l.audioUrl.split("/").pop() ?? "" }]
-      : [],
+    l.audioUrl ? [{ url: l.audioUrl, kind: "audio" as const, name: urlFileName(l.audioUrl) }] : [],
   );
   const normalise = async (index: MediaIndex) => {
     options.progress?.({ phase: "normalise" });

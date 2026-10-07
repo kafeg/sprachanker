@@ -112,10 +112,10 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     case "SORTING": {
       const alts = refs(state, q.alternatives);
       const parts = alts.map((a, i) => option(ctx, state, a, i, image));
-      const sequence = alts
-        .map((a, i) => ({ order: Number(a.order), id: optionId(i) }))
-        .sort((a, b) => a.order - b.order)
-        .map((p) => p.id);
+      const placed = alts.map((a, i) => ({ order: Number(a.order), id: optionId(i) }));
+      if (placed.some((p) => !Number.isFinite(p.order)))
+        throw new Unmapped("sorting part without its place");
+      const sequence = placed.sort((a, b) => a.order - b.order).map((p) => p.id);
       const join = q.sortingType === "MERGE" ? "none" : "space";
       return { type: "order", item: { ...base, parts, join, answer: { sequence } }, locale };
     }
@@ -130,18 +130,20 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       const alts = subs.map((s) => refs(state, s.alternatives));
       if (kind === "WRITING") {
         const answer = Object.fromEntries(
-          alts.map((a, i) => [
-            gap(i),
-            { accepted: a.filter((x) => x.isCorrect).map((x) => plainText(x.alternativeText)) },
-          ]),
+          alts.map((a, i) => {
+            const accepted = a.filter((x) => x.isCorrect).map((x) => plainText(x.alternativeText));
+            if (!accepted.length) throw new Unmapped(`gap ${gap(i)} without an accepted answer`);
+            return [gap(i), { accepted }];
+          }),
         );
         return { type: "gap_text", item: { ...base, segments: segs, answer }, locale };
       }
       if (kind === "CHOOSE") {
-        const bank = alts.map((a, i) => ({
-          id: optionId(i),
-          text: plainText(a.find((x) => x.isCorrect)?.alternativeText),
-        }));
+        const bank = alts.map((a, i) => {
+          const text = plainText(a.find((x) => x.isCorrect)?.alternativeText);
+          if (!text) throw new Unmapped(`gap ${gap(i)} without its word`);
+          return { id: optionId(i), text };
+        });
         const gaps = Object.fromEntries(alts.map((_, i) => [gap(i), { options: bank }]));
         const answer = Object.fromEntries(alts.map((_, i) => [gap(i), optionId(i)]));
         return {
@@ -158,7 +160,11 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
           ]),
         );
         const answer = Object.fromEntries(
-          alts.map((a, i) => [gap(i), optionId(a.findIndex((x) => x.isCorrect))]),
+          alts.map((a, i) => {
+            const right = a.findIndex((x) => x.isCorrect);
+            if (right < 0) throw new Unmapped(`gap ${gap(i)} without a correct option`);
+            return [gap(i), optionId(right)];
+          }),
         );
         return {
           type: "gap_choice",
@@ -223,7 +229,8 @@ export function normaliseExercise(
   const instructionHtml = html(ctx, ex.description);
   const locale: LocaleExercise = {
     sourceId: String(sourceId),
-    title: plainText(ex.name),
+    // An exercise without a name gives no title (the player numbers it; "" would not validate).
+    ...(plainText(ex.name) ? { title: plainText(ex.name) } : {}),
     ...(instructionHtml ? { instructionHtml } : {}),
     ...(textHtml ? { textHtml } : {}),
     items: {},

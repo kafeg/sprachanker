@@ -6,6 +6,8 @@ import {
   type LibraryFile,
   type MediaIndex,
   mediaPath,
+  shapeHeadword,
+  skippedWords,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
@@ -62,10 +64,8 @@ export function headword(de: string): Headword {
       ...(plural && !plural.includes(",") ? { plural: `die ${plural}` } : {}),
     };
   }
-  const plain = head.replace(/[()]/g, "");
-  if (/[.!?]$/.test(plain) || plain.split(" ").length > 2) return { lemma: plain, pos: "phrase" };
-  if (/^(sich )?[a-zäöüß]{2,}(?:e|er|el)n$/.test(plain)) return { lemma: plain, pos: "verb" };
-  return { lemma: plain, pos: plain.includes(" ") ? "phrase" : "word" };
+  // The source states nothing more: by shape, as every provider (02).
+  return shapeHeadword("de", head.replace(/[()]/g, ""));
 }
 
 export const chapterPdfUrl = (pdf: string) => new URL(pdf, SITE).href;
@@ -76,7 +76,6 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
   const files: LibraryFile[] = [];
   const units: CourseIndex["units"] = [];
   const unitTitles: LocaleCourse["units"] = {};
-  let order = 0;
   for (const chapter of chapters) {
     const unit = unitKey(course, chapter.k);
     const lessons: LessonKey[] = [];
@@ -85,7 +84,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
     for (const [i, section] of chapter.sections.entries()) {
       const key = lessonKey(course, chapter.k, section.n);
       lessons.push(key);
-      const { vocab, translations } = vocabEntries(
+      const { vocab, translations, skipped } = vocabEntries(
         key,
         "de",
         section.rows.map((row) => ({
@@ -103,12 +102,11 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
           format: 1,
           key,
           unit,
-          order: order++,
           media: audio ? { audio } : {},
           goals: [],
           pages: [],
           vocab,
-          unmapped: [],
+          unmapped: skippedWords(`raw/${EDITION}/${COURSE}/voc-${chapter.k}.html`, skipped),
         } satisfies Lesson,
       });
       files.push({
@@ -129,7 +127,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
         } satisfies LocaleLesson,
       });
     }
-    units.push({ key: unit, order: chapter.k, lessons });
+    units.push({ key: unit, lessons });
   }
   files.push({
     path: `canonical/${COURSE}/course.json`,

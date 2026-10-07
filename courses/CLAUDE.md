@@ -9,10 +9,12 @@ Research about sources: `docs/research/`.
 packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching (media file
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
                        # text of HTML and entity decoding; provider.ts: the
-                       # provider contract (import options/report/progress, course offers,
-                       # writeLibraryFiles, storedPage, pageCounter);
+                       # provider contract (import options/report/progress, course offers, wanted,
+                       # libraryWriter / writeLibraryFiles, storedPage, pageCounter); files.ts: atomic
+                       # writes, temporary names, streamed hashes;
                        # verify.ts: a course's integrity and counts (LibraryView.check); vocab.ts:
-                       # Headword and a lesson's vocabulary entries (keys, duplicates, translations)
+                       # Headword, shapeHeadword (the one part-of-speech rule), a lesson's vocabulary
+                       # entries (keys, duplicates, translations), skippedWords
 courses/
   _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e)
@@ -37,7 +39,8 @@ courses/
 
 ## Rules
 
-- Providers depend only on `schema` and `course-kit` and MUST satisfy the normalisation contract (spec 02).
+- Providers depend only on their own folder, `schema` and `course-kit` (never another provider) and
+  MUST satisfy the normalisation contract (spec 02).
 - Import and normalisation are deterministic code over the source: no LLM, no generated content. A
   language pair of a source course is a course of its own (spec 01).
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
@@ -45,7 +48,9 @@ courses/
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
   require re-downloading. A provider exports its `OFFERS` (with a measured size), reports progress
   (`pageCounter`, `fetchMedia`'s `progress`).
-- Unknown source structures become `unknown` + report entries, never silent drops.
+- Unknown source structures become `unknown` + report entries, never silent drops (words left out:
+  `skippedWords`). Library files are written through `libraryWriter` / `storedPage` / `fetchMedia`
+  (atomic), never with a plain `writeFile`.
 - Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
   provider never keeps its own copy.
 - Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.

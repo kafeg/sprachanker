@@ -190,7 +190,7 @@ test.each([
   ["sad/sadder/saddest", "Adjectives", { lemma: "sad", pos: "adj", forms: "sadder, saddest" }],
   ["to recover", "Other", { lemma: "recover", pos: "verb" }],
   ["Good evening!", "Other", { lemma: "Good evening!", pos: "phrase" }],
-  ["Come in", "Other", { lemma: "Come in", pos: "phrase" }],
+  ["Come in", "Other", { lemma: "Come in", pos: "word" }],
   ["box, bag, can", "Cultural Notes", { lemma: "box", pos: "word" }],
   ["See you", "Greetings", { lemma: "See you", pos: "phrase" }],
   ["outside", "Adverbs", { lemma: "outside", pos: "word" }],

@@ -130,12 +130,28 @@ test("an unseen mechanic becomes unknown with a reason", () => {
   expect(unmapped).toBe("inquiry type PUZZLE");
 });
 
+test("a gap without a correct option becomes unknown, not a gap no answer fits; no name, no title", () => {
+  const broken = {
+    ...state,
+    "Exercise:9": { ...state["Exercise:9"], name: "" },
+    "Alt:2": { alternativeText: "Frau", isCorrect: false },
+  };
+  const { exercise, locale, unmapped } = normaliseExercise(
+    ctx,
+    broken as never,
+    9,
+    key,
+    "raw/ru-de/a1/e-9.json",
+  );
+  expect([exercise.type, unmapped]).toEqual(["unknown", "gap g1 without a correct option"]);
+  expect(locale).not.toHaveProperty("title");
+});
+
 test("a lesson's own recording becomes media.audio (Deutschtrainer)", () => {
   const lesson = lessonKey("dw.deutschtrainer/a1-a2" as never, 0, 1);
   const out = normaliseLesson(ctx, {
     key: lesson,
     unit: unitKey("dw.deutschtrainer/a1-a2" as never, 0),
-    order: 0,
     sourceId: 5,
     edition: "ru-de",
     rawDir: "raw/ru-de/a1-a2",

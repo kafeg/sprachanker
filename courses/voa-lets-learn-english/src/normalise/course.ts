@@ -8,6 +8,7 @@ import {
   type LibraryFile,
   type MediaIndex,
   mediaPath,
+  skippedWords,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
@@ -43,7 +44,6 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
   const units: CourseIndex["units"] = [];
   const unitTitles: LocaleCourse["units"] = {};
   const unmappedAll: string[] = [];
-  let order = 0;
   let unknown = 0;
   const groups = groupUnits(course.lessons, course.landing.ranges);
   for (const [u, group] of groups.entries()) {
@@ -63,7 +63,7 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
         if (n.unknown) unknown++;
       }
       // en-en: the source gives no definitions on the page (they are in the lesson plan PDF).
-      const { vocab } = vocabEntries(
+      const { vocab, skipped } = vocabEntries(
         lk,
         "en",
         plan.words.map((word) => ({ head: headword(word), target: word })),
@@ -71,7 +71,10 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
       const sd = media(plan.video.sd);
       const hd = media(plan.video.hd);
       const audio = media(plan.audio);
-      const unmapped = plan.unmapped.map((reason) => ({ path: lesson.raw, reason }));
+      const unmapped = [
+        ...plan.unmapped.map((reason) => ({ path: lesson.raw, reason })),
+        ...skippedWords(lesson.raw, skipped),
+      ];
       unmappedAll.push(...plan.unmapped.map((r) => `${lk}: ${r}`));
       const { name } = parseLessonKey(lk);
       files.push({
@@ -81,7 +84,6 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
           format: 1,
           key: lk,
           unit,
-          order: order++,
           media: {
             ...(sd || hd ? { video: { ...(sd ? { sd } : {}), ...(hd ? { hd } : {}) } } : {}),
             ...(audio ? { audio } : {}),
@@ -118,7 +120,7 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
         } satisfies LocaleLesson,
       });
     }
-    units.push({ key: unit, order: u + 1, lessons });
+    units.push({ key: unit, lessons });
   }
   files.push({
     path: `canonical/${course.def.id}/course.json`,
@@ -146,5 +148,10 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
       goals: {},
     } satisfies LocaleCourse,
   });
-  return { files, lessons: order, unknown, unmapped: unmappedAll };
+  return {
+    files,
+    lessons: files.filter((f) => /^canonical\/[^/]+\/lessons\//.test(f.path)).length,
+    unknown,
+    unmapped: unmappedAll,
+  };
 }

@@ -18,8 +18,6 @@ export interface CourseLesson {
   sourceId: number;
   key: LessonKey;
   unit: UnitKey;
-  /** Position of the lesson in its unit, from 1. */
-  order: number;
   unitTitle: string;
 }
 
@@ -47,7 +45,6 @@ export function courseLessons(course: CourseKey, state: ApolloState): CourseLess
       sourceId: Number(link.id),
       key: lessonKey(course, unit, order),
       unit: unitKey(course, unit),
-      order,
       unitTitle: name.replace(/^\d+\s+/, ""),
     });
   }
@@ -84,7 +81,7 @@ export function courseFiles(
       format: 1,
       key: course,
       source: SOURCE,
-      units: [...units].map(([key, unit], order) => ({ key, order, lessons: unit.lessons })),
+      units: [...units].map(([key, unit]) => ({ key, lessons: unit.lessons })),
       exams: [],
       goals: goalEntries.map((g) => ({ key: g.key, lessons: [g.lesson] })),
     },

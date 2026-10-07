@@ -1,9 +1,12 @@
 // Fetching a series' media (03): every referenced URL → media/<kind>/<name> through the media store,
-// recorded in media.json with sha256 and size. Idempotent: stored files are skipped, failed ones are
-// tried again on the next run; one failing file never stops the import.
+// recorded in media.json with sha256 and size. Idempotent: stored files are skipped, failed ones —
+// and stored ones gone from the disk — are tried again on the next run; one failing file never stops
+// the import, and every file not fetched is in the index with why (a refused host included).
 import { existsSync } from "node:fs";
-import { readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rm } from "node:fs/promises";
+import { join } from "node:path";
 import type { MediaPath } from "@sprachanker/schema";
+import { tempFile, writeFileAtomic } from "./files.ts";
 import { FetchFailedError, HostRefusedError, type PoliteFetcher } from "./http.ts";
 import type { MediaStore } from "./media-store.ts";
 import type { ProgressSink } from "./provider.ts";
@@ -33,40 +36,56 @@ export async function fetchMedia<R extends MediaRef>(options: {
   indexFile: string;
   refs: R[];
   log: (line: string) => void;
-  /** How to get one file; by default its URL (providers add fallbacks, e.g. HLS remuxing). */
-  download?: (ref: R) => Promise<{ bytes: Uint8Array; mime: string }>;
+  /**
+   * How to get one file into `target`; by default its URL (providers add fallbacks, e.g. HLS
+   * remuxing). Returns its type.
+   */
+  download?: (ref: R, target: string) => Promise<{ mime: string }>;
   progress?: ProgressSink;
 }): Promise<MediaIndex> {
-  const { fetcher, store, indexFile, refs, log, progress } = options;
+  const { fetcher, store, indexFile, log, progress } = options;
   const download =
     options.download ??
-    (async (ref: R) => {
-      const { bytes, contentType } = await fetcher.bytes(ref.url);
-      return { bytes, mime: contentType };
-    });
+    (async (ref: R, target: string) => ({
+      mime: (await fetcher.file(ref.url, target)).contentType,
+    }));
+  // Downloads land next to the media (same disk), then move into place.
+  const incoming = store.file("media/.incoming" as MediaPath);
+  await mkdir(incoming, { recursive: true });
   const index = await readMediaIndex(indexFile);
-  const todo = refs.filter((ref) => !index[ref.url] || "error" in (index[ref.url] as object));
+  // One fetch per URL (a source may name a file twice).
+  const refs = [...new Map(options.refs.map((r) => [r.url, r])).values()];
+  const stored = (ref: R) => {
+    const entry = index[ref.url];
+    return !!entry && "path" in entry && existsSync(store.file(entry.path as MediaPath));
+  };
+  const todo = refs.filter((ref) => !stored(ref));
   const byHost = Map.groupBy(todo, (ref) => new URL(ref.url).host);
   let done = 0;
   let bytes = 0;
   progress?.({ phase: "media", done, total: todo.length, bytes });
   let saving = Promise.resolve();
   const save = () => {
-    saving = saving.then(() => writeFile(indexFile, JSON.stringify(index, null, 1)));
+    saving = saving.then(() => writeFileAtomic(indexFile, JSON.stringify(index, null, 1)));
     return saving;
   };
   log(`media: ${todo.length} to fetch of ${refs.length} (${[...byHost.keys()].join(", ")})`);
   const worker = async (host: string, queue: R[]) => {
     for (let ref = queue.shift(); ref; ref = queue.shift()) {
+      const target = tempFile(join(incoming, ref.name.replace(/[/\\]/g, "_")));
       try {
-        const { bytes: data, mime } = await download(ref);
-        const stored = await store.put(`${ref.kind}/${ref.name}`, data);
-        index[ref.url] = { kind: ref.kind, ...stored, mime };
-        bytes += data.length;
+        const { mime } = await download(ref, target);
+        const put = await store.putFile(`${ref.kind}/${ref.name}`, target);
+        index[ref.url] = { kind: ref.kind, ...put, mime };
+        bytes += put.size;
       } catch (error) {
+        await rm(target, { force: true });
         if (error instanceof HostRefusedError) {
+          // This file and the host's others are not fetched this run: recorded, so the report and
+          // the check see them missing.
           log(`media: ${error.message}`);
-          queue.length = 0;
+          for (const left of [ref, ...queue.splice(0)])
+            index[left.url] = { kind: left.kind, error: `refused ${error.status}` };
           return;
         }
         index[ref.url] = {

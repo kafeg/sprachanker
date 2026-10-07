@@ -3,9 +3,12 @@
 // with recordings as listen-and-repeat exercises, its vocabulary and its exercises (exercise.ts).
 import {
   escapeHtml,
+  type Headword,
   type LibraryFile,
   type MediaIndex,
   mediaPath,
+  shapeHeadword,
+  skippedWords,
   vocabEntries,
   withFingerprint,
 } from "@sprachanker/course-kit";
@@ -52,21 +55,24 @@ export interface Normalised {
 
 const MARKS: Record<string, PartOfSpeech> = { v: "verb", adj: "adj", n: "noun", adv: "word" };
 
-/** Part of speech from the source's marks or forms, else by shape ("to …", several words). */
-export function partOfSpeech(head: string, marks: string[], forms: string[]): PartOfSpeech {
-  if (forms.length) return "verb";
+/** Lemma and part of speech from the source's marks or forms, else by shape (`shapeHeadword`). */
+export function headword(head: string, marks: string[], forms: string[]): Headword {
+  const shape = shapeHeadword("en", head);
+  if (forms.length) return { lemma: shape.pos === "verb" ? shape.lemma : head, pos: "verb" };
   const kinds = new Set(marks.map((m) => MARKS[m] ?? "word"));
-  if (kinds.size === 1) return [...kinds][0] as PartOfSpeech;
-  if (/^to\s/i.test(head)) return "verb";
-  return /\s/.test(head.trim()) ? "phrase" : "word";
+  if (kinds.size === 1) {
+    const pos = [...kinds][0] as PartOfSpeech;
+    return { lemma: pos === "verb" && shape.pos === "verb" ? shape.lemma : head, pos };
+  }
+  return shape;
 }
 
 const LISTEN = "<p>Прослушайте и повторите вслух.</p>";
 const READ = "<p>Повторите вслух (прослушайте запись, где она есть).</p>";
 
-/** Words with a translation; the IPA transcription is the entry's note. */
-function vocabulary(key: LessonKey, rows: Array<VocabRow & { lemma?: string }>) {
-  return vocabEntries(
+/** Words with a translation; the IPA transcription is the entry's note. Rows left out are reported. */
+function vocabulary(key: LessonKey, raw: string, rows: Array<VocabRow & { lemma?: string }>) {
+  const words = vocabEntries(
     key,
     "en",
     rows
@@ -75,8 +81,7 @@ function vocabulary(key: LessonKey, rows: Array<VocabRow & { lemma?: string }>) 
         const lemma = row.lemma ?? withoutIpa(row.head);
         return {
           head: {
-            lemma,
-            pos: partOfSpeech(lemma, row.marks, row.forms),
+            ...headword(lemma, row.marks, row.forms),
             ...(row.forms.length ? { forms: row.forms.join(", ") } : {}),
             ...(row.ipa ? { note: row.ipa } : {}),
           },
@@ -85,6 +90,17 @@ function vocabulary(key: LessonKey, rows: Array<VocabRow & { lemma?: string }>) 
         };
       }),
   );
+  return {
+    ...words,
+    unmapped: [
+      ...skippedWords(raw, words.skipped),
+      ...skippedWords(
+        raw,
+        rows.filter((row) => !row.translation).map((row) => ({ target: row.head })),
+        "word without a translation",
+      ),
+    ],
+  };
 }
 
 interface Built {
@@ -97,7 +113,6 @@ function buildLesson(
   src: LessonSource,
   key: LessonKey,
   unit: Lesson["unit"],
-  order: number,
   index: MediaIndex,
 ): Built {
   const media = (url: string | undefined) => mediaPath(index, url);
@@ -121,17 +136,28 @@ function buildLesson(
     pages.push({ exercise });
     exercises[exercise.key] = loc;
   };
-  const nextKey = () => exerciseKey(key, pages.length + 1);
+  // Keys follow the source, never what the mapping made of it (02): a numbered task is ex-<its
+  // number>, a section's examples ex-1<section>, the closing lines ex-300 — so a normaliser fix that
+  // maps one more task never moves the others' keys (and the learner's answers with them).
+  const EXAMPLES = 100;
+  const CLOSING = 300;
+  const UNNUMBERED = 400;
 
   let grammar: LocaleLesson["tabs"]["grammar"] = [];
   const homework: LocaleLesson["tabs"]["grammar"] = [];
   let vocab: VocabEntry[] = [];
   let translations: LocaleLesson["vocab"] = {};
+  let skipped: Lesson["unmapped"] = [];
   let audio: string | undefined;
 
   if (src.kind === "verbs") {
-    ({ vocab, translations } = vocabulary(
+    ({
+      vocab,
+      translations,
+      unmapped: skipped,
+    } = vocabulary(
       key,
+      raw,
       src.rows.map((r) => ({
         head: withoutIpa(r.forms[0]),
         lemma: withoutIpa(r.forms[0]),
@@ -141,23 +167,25 @@ function buildLesson(
         forms: [withoutIpa(r.forms[1]), withoutIpa(r.forms[2])],
       })),
     ));
+    unmapped.push(...skipped);
     const body = renderSection(src.elements);
     grammar = body ? [{ title: src.title, bodyHtml: body }] : [];
   } else {
     const { page } = src;
     audio = media(page.audio);
-    ({ vocab, translations } = vocabulary(key, page.vocab));
-    for (const section of page.sections) {
+    ({ vocab, translations, unmapped: skipped } = vocabulary(key, raw, page.vocab));
+    unmapped.push(...skipped);
+    for (const [s, section] of page.sections.entries()) {
       const bodyHtml = renderSection(section.elements);
       if (bodyHtml) grammar.push({ title: section.title, bodyHtml });
-      const k = nextKey();
+      const k = exerciseKey(key, EXAMPLES + s + 1);
       const speech = speechExercise(k, section.snippets, media);
       if (!speech) continue;
       const allAudio = speech.items.every((i) => "media" in i);
       push(
         { key: k, type: "speech_selfrate", items: speech.items },
         {
-          sourceId: `${src.info.slug}#examples-${pages.length + 1}`,
+          sourceId: `${src.info.slug}#examples-${s + 1}`,
           // A section without a heading gives no title (the player numbers it).
           ...(section.title && { title: section.title }),
           instructionHtml: allAudio ? LISTEN : READ,
@@ -165,8 +193,9 @@ function buildLesson(
         },
       );
     }
-    for (const ex of page.exercises) {
-      const k = nextKey();
+    for (const [i, ex] of page.exercises.entries()) {
+      const number = Number(/\d+/.exec(ex.label)?.[0]);
+      const k = exerciseKey(key, number > 0 && number < EXAMPLES ? number : UNNUMBERED + i);
       const loc: LocaleExercise = {
         sourceId: `${src.info.slug}#${ex.label}`,
         ...(ex.label && { title: ex.label }),
@@ -198,7 +227,7 @@ function buildLesson(
       }
     }
     const epilogue = page.exercises.flatMap((e) => e.epilogue);
-    const k = nextKey();
+    const k = exerciseKey(key, CLOSING);
     const speech = speechExercise(k, epilogue, media);
     if (speech)
       push(
@@ -212,7 +241,6 @@ function buildLesson(
       format: 1,
       key,
       unit,
-      order,
       media: audio ? { audio } : {},
       goals: [],
       pages,
@@ -252,7 +280,8 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normal
     for (const [l, src] of unitSrc.lessons.entries()) {
       const key = lessonKey(course, u + 1, l + 1);
       lessons.push(key);
-      const built = buildLesson(src, key, unit, order++, index);
+      const built = buildLesson(src, key, unit, index);
+      order++;
       unknown += built.unknown;
       const { name } = parseLessonKey(key);
       files.push({
@@ -266,7 +295,7 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normal
         value: built.locale,
       });
     }
-    courseUnits.push({ key: unit, order: u + 1, lessons });
+    courseUnits.push({ key: unit, lessons });
   }
   files.push({
     path: `canonical/${COURSE}/course.json`,

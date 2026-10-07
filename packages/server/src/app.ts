@@ -96,11 +96,16 @@ export function createApp(config: AppConfig) {
     onEnd: (series, course) => {
       content.forget(series, course);
       runs.forget(courseKey(series as SeriesKey, course));
+      void relink();
     },
   });
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const cards = createCards({ db: config.profile, store, content, settings, now });
+  // Cards follow their words' lexemes after a course was normalised again (also on a download's end).
+  const relink = () =>
+    cards.relink().catch((error: unknown) => console.error("relinking cards:", error));
+  void relink();
   const mistakes = createMistakes(store);
   const lessons = createLessonContext(content);
   const tutor = createTutor({

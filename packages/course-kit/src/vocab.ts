@@ -23,6 +23,20 @@ export interface Headword {
   note?: string;
 }
 
+/**
+ * A headword the source states nothing more about, by its shape (02): a sentence or three words or
+ * more is a phrase; English "to X" is a verb with lemma X; anything else is a word. Every provider
+ * uses this, so the same entry gets the same lexeme in every course.
+ */
+export function shapeHeadword(lang: Lang, text: string): Headword {
+  const lemma = text.trim().replace(/\s+/g, " ");
+  const words = lemma.split(" ");
+  if (/[.!?]$/.test(lemma) || words.length > 2) return { lemma, pos: "phrase" };
+  if (lang === "en" && words.length === 2 && words[0]?.toLowerCase() === "to")
+    return { lemma: words[1] as string, pos: "verb" };
+  return { lemma, pos: "word" };
+}
+
 /** One word of a lesson as the source lists it. */
 export interface VocabSource {
   head: Headword;
@@ -82,3 +96,11 @@ export function vocabEntries<S extends VocabSource>(
   }
   return { vocab, translations, skipped };
 }
+
+/** Words a lesson lists that did not become entries, as `unmapped` lines of its raw page (02: never
+ *  drop source content silently). */
+export const skippedWords = (
+  path: string,
+  skipped: Array<{ target: string }>,
+  why = "word without a usable headword",
+) => skipped.map((s) => ({ path, reason: `${why}: "${s.target}"` }));

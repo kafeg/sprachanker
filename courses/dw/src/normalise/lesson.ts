@@ -1,5 +1,5 @@
 // A DW lesson (lesson page, download page, exercise pages) → canonical lesson + locale lesson.
-import { plainText, vocabEntries } from "@sprachanker/course-kit";
+import { plainText, skippedWords, vocabEntries } from "@sprachanker/course-kit";
 import {
   exerciseKey,
   type GoalKey,
@@ -27,7 +27,6 @@ import { parseHeadword } from "./vocab.ts";
 export interface LessonSource {
   key: LessonKey;
   unit: UnitKey;
-  order: number;
   sourceId: number;
   edition: LocaleLesson["edition"];
   /** `raw/<edition>/<course>` inside the series folder. */
@@ -112,7 +111,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
     };
   });
 
-  const { vocab, translations } = vocabEntries(
+  const { vocab, translations, skipped } = vocabEntries(
     src.key,
     "de",
     refs(state, L.knowledges)
@@ -152,7 +151,6 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       format: 1,
       key: src.key,
       unit: src.unit,
-      order: src.order,
       media: {
         ...(sd || hd
           ? {
@@ -169,9 +167,12 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       goals,
       pages: exercises.map((e) => ({ exercise: e.exercise })),
       vocab,
-      unmapped: exercises.flatMap((e) =>
-        e.unmapped ? [{ path: `${src.rawDir}/e-${e.id}.json`, reason: e.unmapped }] : [],
-      ),
+      unmapped: [
+        ...skippedWords(`${src.rawDir}/l-${src.sourceId}.json`, skipped),
+        ...exercises.flatMap((e) =>
+          e.unmapped ? [{ path: `${src.rawDir}/e-${e.id}.json`, reason: e.unmapped }] : [],
+        ),
+      ],
     },
     locale: {
       format: 1,

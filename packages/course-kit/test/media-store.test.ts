@@ -25,3 +25,32 @@ test("media file names from URLs, optionally decoded", () => {
   expect(urlFileName(url, { decode: true })).toBe("Lesson 1.pdf");
   expect(urlFileName("https://cdn.example/")).toBe("");
 });
+
+test("a media name that walks out of its folder is refused", async () => {
+  const store = createMediaStore(mkdtempSync(join(tmpdir(), "sprachanker-media-")));
+  for (const name of [
+    "audio/../../x.mp3",
+    "audio/a/b.mp3",
+    "audio/..",
+    "video/x\u0000.mp4",
+    "x.mp3",
+  ])
+    await expect(store.put(name, bytes("x"))).rejects.toThrow("unsafe media name");
+});
+
+test("two downloads of one name at once: one file, the other a numbered one or the same", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sprachanker-media-"));
+  const store = createMediaStore(dir);
+  const [a, b, c] = await Promise.all([
+    store.put("audio/w.mp3", bytes("one")),
+    store.put("audio/w.mp3", bytes("two")),
+    store.put("audio/w.mp3", bytes("one")),
+  ]);
+  // Which one comes first is up to the disk; the same content shares a file, the other is numbered.
+  expect(a?.path).toBe(c?.path as never);
+  expect(new Set([a?.path, b?.path])).toEqual(
+    new Set(["media/audio/w.mp3", "media/audio/w-2.mp3"] as never[]),
+  );
+  expect(readFileSync(join(dir, b?.path as string), "utf8")).toBe("two");
+  expect(readFileSync(join(dir, a?.path as string), "utf8")).toBe("one");
+});

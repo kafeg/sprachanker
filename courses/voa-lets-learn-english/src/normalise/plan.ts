@@ -115,7 +115,7 @@ export function planLesson(lesson: FetchedLesson): LessonPlan {
       if (player.kind === "video" && (practice || /speaking|pronunciation/i.test(player.title))) {
         plan.exercises.push({
           kind: "speech",
-          sourceId: player.id ?? player.title,
+          sourceId: player.id || player.title || `${section.heading} video`,
           title: practice ? section.heading : player.title,
           instructionHtml: practice ? text : "",
           video: sdUrl(player),

@@ -11,7 +11,7 @@ import {
   parseLessonKey,
 } from "@sprachanker/schema";
 import { gapKey, variants } from "../src/exercise.ts";
-import { normaliseLingust, partOfSpeech, type UnitSource } from "../src/normalise.ts";
+import { headword, normaliseLingust, type UnitSource } from "../src/normalise.ts";
 import { parseIndex } from "../src/parse/course-index.ts";
 import { parseLesson } from "../src/parse/lesson.ts";
 import { parseVerbTable } from "../src/parse/verbs.ts";
@@ -186,15 +186,15 @@ test("answers: bold key parts, variants, remarks", () => {
   expect(withoutRussianRemarks("He goes (досл.: идёт (туда)).")).toBe("He goes.");
 });
 
-test.each([
-  ["swim", [], ["swam", "swum"], "verb"],
-  ["open", ["v", "adj"], [], "word"],
-  ["close", ["v"], [], "verb"],
-  ["to be", [], [], "verb"],
-  ["look around", [], [], "phrase"],
-  ["bed", [], [], "word"],
-])("part of speech %p", (head, marks, forms, pos) => {
-  expect(partOfSpeech(head, marks, forms)).toBe(pos as ReturnType<typeof partOfSpeech>);
+test.each<[string, string[], string[], string, string]>([
+  ["swim", [], ["swam", "swum"], "verb", "swim"],
+  ["open", ["v", "adj"], [], "word", "open"],
+  ["close", ["v"], [], "verb", "close"],
+  ["to be", [], [], "verb", "be"],
+  ["look around", [], [], "word", "look around"],
+  ["bed", [], [], "word", "bed"],
+])("headword %p", (head, marks, forms, pos, lemma) => {
+  expect(headword(head, marks, forms)).toEqual({ lemma, pos } as ReturnType<typeof headword>);
 });
 
 test("normalisation: stages → units, exercises by mechanic, all files valid", () => {
@@ -241,8 +241,8 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   // Branded key types compared with plain strings.
   const plain = (value: unknown): unknown => JSON.parse(JSON.stringify(value));
   expect(plain((get("canonical/english/course.json") as CourseIndex).units)).toEqual([
-    { key: "lingust.english/english/u01", order: 1, lessons: ["lingust.english/english/01-01"] },
-    { key: "lingust.english/english/u02", order: 2, lessons: ["lingust.english/english/02-01"] },
+    { key: "lingust.english/english/u01", lessons: ["lingust.english/english/01-01"] },
+    { key: "lingust.english/english/u02", lessons: ["lingust.english/english/02-01"] },
   ]);
   expect((get("locale/ru-en/english/course.json") as LocaleCourse).descriptionHtml).toContain(
     "© Lingust",
@@ -264,8 +264,20 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   const [examples, gaps, translate, intoRussian, choice, , years] = lesson.pages.map(
     (p) => p.exercise,
   );
+  // Keys follow the source: "Упражнение N" is ex-N, a section's examples ex-1<section>, the closing
+  // lines ex-300 — whatever the mapping made of the tasks around them.
+  expect(lesson.pages.map((p) => p.exercise.key.split("/").at(-1))).toEqual([
+    "ex-102",
+    "ex-01",
+    "ex-02",
+    "ex-03",
+    "ex-04",
+    "ex-05",
+    "ex-06",
+    "ex-300",
+  ]);
   expect(plain(intoRussian?.items[0])).toEqual({
-    key: "lingust.english/english/01-01/ex-04#1",
+    key: "lingust.english/english/01-01/ex-03#1",
     input: "text",
     prompt: "I run.",
     reference: [],
@@ -279,12 +291,12 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   expect(examples?.items[0]?.media).toEqual({ audio: "media/audio/lesson3-s1.mp3" });
   expect(plain(gaps?.items)).toEqual([
     {
-      key: "lingust.english/english/01-01/ex-02#1",
+      key: "lingust.english/english/01-01/ex-01#1",
       segments: ["She ", { gap: "g1" }, " fast and ", { gap: "g2" }, " late."],
       answer: { g1: { accepted: ["runs"] }, g2: { accepted: ["is"] } },
     },
     {
-      key: "lingust.english/english/01-01/ex-02#2",
+      key: "lingust.english/english/01-01/ex-01#2",
       segments: ["They ", { gap: "g1" }, " it."],
       answer: { g1: { accepted: ["do", "did"] } },
     },
@@ -299,7 +311,7 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
     "lex:en:bed:word",
     "lex:en:open:word",
     "lex:en:swim:verb",
-    "lex:en:look-around:phrase",
+    "lex:en:look-around:word",
   ]);
 
   const locale = get("locale/ru-en/english/lessons/01-01.json") as LocaleLesson;
@@ -310,19 +322,19 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   expect(grammar).toContain("<table><tbody><tr><td>");
   expect(grammar).toContain("<small>перевод абзаца");
   expect(
-    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-03"]
+    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-02"]
       ?.items["#2"],
   ).toEqual({
     prompt: "Мы спим (досл.: отдыхаем).",
   });
   expect(
-    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-02"]
+    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-01"]
       ?.items["#1"],
   ).toEqual({
     hintHtml: "<p>Она бегает быстро и опаздывает.</p>",
   });
   expect(
-    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-04"]
+    (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-03"]
       ?.items["#1"],
   ).toEqual({ reference: ["Я бегаю."] });
 

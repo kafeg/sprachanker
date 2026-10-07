@@ -1,8 +1,8 @@
 // Fallback for videos whose direct MP4 is missing (404): remux the HLS stream variant to MP4 with
 // ffmpeg (stream copy, no re-encoding). Needs ffmpeg on PATH.
-import { mkdtemp, readFile, rm } from "node:fs/promises";
-import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { spawn } from "node:child_process";
+import { mkdir } from "node:fs/promises";
+import { dirname } from "node:path";
 import { FetchFailedError, type PoliteFetcher } from "@sprachanker/course-kit";
 
 export interface StreamSource {
@@ -21,38 +21,27 @@ export function variantUrl(master: string, resolution: string): string | undefin
   return i >= 0 ? lines[i + 1] : undefined;
 }
 
+/** Remuxes the variant into an MP4 at `target` (written by ffmpeg there, moved into place by the caller). */
 export async function remuxStream(
   fetcher: PoliteFetcher,
   source: StreamSource,
-): Promise<Uint8Array> {
+  target: string,
+): Promise<void> {
   const master = await fetcher.text(source.master);
   const variant = variantUrl(master, source.resolution);
   if (!variant) throw new FetchFailedError(source.master, "network");
-  const dir = await mkdtemp(join(tmpdir(), "sprachanker-hls-"));
-  const out = join(dir, "video.mp4");
-  try {
-    const ffmpeg = Bun.spawn(
-      [
-        "ffmpeg",
-        "-loglevel",
-        "error",
-        "-i",
-        variant,
-        "-c",
-        "copy",
-        "-bsf:a",
-        "aac_adtstoasc",
-        "-movflags",
-        "+faststart",
-        out,
-      ],
-      { stdout: "ignore", stderr: "pipe" },
-    );
-    if ((await ffmpeg.exited) !== 0) {
-      throw new Error(`ffmpeg failed for ${variant}: ${await new Response(ffmpeg.stderr).text()}`);
-    }
-    return new Uint8Array(await readFile(out));
-  } finally {
-    await rm(dir, { recursive: true, force: true });
-  }
+  await mkdir(dirname(target), { recursive: true });
+  const args = ["-loglevel", "error", "-y", "-i", variant, "-c", "copy", "-bsf:a", "aac_adtstoasc"];
+  // The target has no .mp4 extension (a temporary name): say the format.
+  args.push("-movflags", "+faststart", "-f", "mp4", target);
+  const ffmpeg = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "pipe"] });
+  let stderr = "";
+  ffmpeg.stderr.on("data", (chunk: Buffer) => {
+    stderr += chunk.toString();
+  });
+  const code = await new Promise<number | null>((resolve, reject) => {
+    ffmpeg.on("error", reject);
+    ffmpeg.on("close", resolve);
+  });
+  if (code !== 0) throw new Error(`ffmpeg failed for ${variant}: ${stderr.trim()}`);
 }

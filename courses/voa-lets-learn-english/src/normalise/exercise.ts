@@ -44,7 +44,8 @@ export function normaliseExercise(
 ): Normalised {
   const locale: LocaleExercise = {
     sourceId: ex.kind === "quiz" ? ex.embed.id : ex.sourceId,
-    title: ex.title,
+    // No title rather than an empty one ("" would not validate; the player numbers it).
+    ...(ex.title ? { title: ex.title } : {}),
     ...(ex.instructionHtml ? { instructionHtml: ex.instructionHtml } : {}),
     items: {},
   };

@@ -116,13 +116,14 @@ export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
   return [...byUrl.values()].sort((a, b) => a.url.localeCompare(b.url));
 }
 
-/** The file at `ref.url`, or for a video whose direct file is missing, its remuxed HLS stream. */
-export async function download(fetcher: PoliteFetcher, ref: MediaRef & StoredRef) {
+/** The file at `ref.url` into `target`, or for a video whose direct file is missing, its remuxed HLS
+ *  stream. */
+export async function download(fetcher: PoliteFetcher, ref: MediaRef & StoredRef, target: string) {
   try {
-    const { bytes, contentType } = await fetcher.bytes(ref.url);
-    return { bytes, mime: contentType };
+    return { mime: (await fetcher.file(ref.url, target)).contentType };
   } catch (error) {
     if (!(error instanceof FetchFailedError && error.status === 404 && ref.stream)) throw error;
-    return { bytes: await remuxStream(fetcher, ref.stream), mime: "video/mp4" };
+    await remuxStream(fetcher, ref.stream, target);
+    return { mime: "video/mp4" };
   }
 }

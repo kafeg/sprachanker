@@ -2,7 +2,7 @@
 // download job (06). Downloads are marked on disk (`<series>/.downloads/<course>.json`) while they run,
 // and kept marked when media failed, so the state survives a restart: an interrupted download resumes.
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, rm, stat, statfs, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, rename, rm, stat, statfs, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { SERIES as DIB, OFFERS as DIB_OFFERS, importDib } from "@sprachanker/coerll-dib";
 import {
@@ -78,18 +78,40 @@ export async function importCourse(
   const libraryRoot = join(request.dataRoot, "library");
   const lock = join(libraryRoot, entry.series, ".import-lock");
   await mkdir(join(libraryRoot, entry.series), { recursive: true });
-  try {
-    await mkdir(lock);
-  } catch {
-    const owner = Number(await readFile(join(lock, "pid"), "utf8").catch(() => "0"));
-    if (owner && owner !== process.pid && alive(owner))
-      throw new Error(`${entry.series} is being imported by another process (pid ${owner})`);
-  }
-  await writeFile(join(lock, "pid"), String(process.pid));
+  await takeLock(lock, entry.series);
   try {
     return await entry.run({ ...request, libraryRoot });
   } finally {
     await rm(lock, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Takes the lock folder with this process's pid already in it: the folder is made elsewhere and
+ * renamed into place, so another process never sees the lock without its owner. A lock whose process
+ * is gone is taken over.
+ */
+async function takeLock(lock: string, series: string) {
+  const mine = `${lock}.${process.pid}-${Date.now()}`;
+  await mkdir(mine, { recursive: true });
+  await writeFile(join(mine, "pid"), String(process.pid));
+  for (let attempt = 0; ; attempt++) {
+    try {
+      await rename(mine, lock);
+      return;
+    } catch {
+      const owner = Number(await readFile(join(lock, "pid"), "utf8").catch(() => "0"));
+      if (owner && owner !== process.pid && alive(owner)) {
+        await rm(mine, { recursive: true, force: true });
+        throw new Error(`${series} is being imported by another process (pid ${owner})`);
+      }
+      if (attempt > 2) {
+        await rm(mine, { recursive: true, force: true });
+        throw new Error(`could not take the import lock of ${series}`);
+      }
+      // A stale lock (its process is gone): removed, then taken.
+      await rm(lock, { recursive: true, force: true });
+    }
   }
 }
 
@@ -136,8 +158,11 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
         await mark({ startedAt, error: error instanceof Error ? error.message : String(error) });
         throw error;
       }
-      // Media of this course still missing (the series' media index also holds other courses').
-      const missing = (await openLibrary(library).check(series, course)).media.missing;
+      // Media still missing: referenced but not on disk, or not fetched at all (failed, refused) —
+      // a normaliser leaves out what it does not have, so the check alone would not see those.
+      const missing =
+        (await openLibrary(library).check(series, course)).media.missing +
+        report.failedMedia.length;
       if (missing) await mark({ startedAt, failed: missing });
       else await rm(marker, { force: true });
       return report;

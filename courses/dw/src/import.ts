@@ -9,6 +9,7 @@ import {
   type ImportReport,
   type NormaliseResult,
   pageCounter,
+  wanted,
 } from "@sprachanker/course-kit";
 import { COURSES, type DwSeries, seriesId, USER_AGENT } from "./catalog.ts";
 import { collectMedia, download, mediaName } from "./media.ts";
@@ -18,11 +19,9 @@ import { fetchPages } from "./pages.ts";
 export async function importDw(series: DwSeries, options: ImportOptions): Promise<ImportReport> {
   const seriesDir = join(options.libraryRoot, seriesId(series));
   const ofSeries = COURSES.filter((c) => c.series === series);
-  const selected = ofSeries.filter(
-    (c) =>
-      // `--courses a1` takes both editions of DW's A1, `a1-ru` one of them.
-      (!options.courses || options.courses.includes(c.course) || options.courses.includes(c.id)) &&
-      (!options.editions || options.editions.includes(c.edition)),
+  const selected = ofSeries.filter((c) =>
+    // `--courses a1` takes both editions of DW's A1, `a1-ru` one of them.
+    wanted(options, c.edition, c.course, c.id),
   );
   const fetcher = createPoliteFetcher({
     userAgent: USER_AGENT,
@@ -45,7 +44,7 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
     indexFile: join(seriesDir, "media.json"),
     refs,
     log: options.log,
-    download: (ref) => download(fetcher, ref),
+    download: (ref, target) => download(fetcher, ref, target),
     progress: options.progress,
   });
   const normalised: Record<string, NormaliseResult> = {};

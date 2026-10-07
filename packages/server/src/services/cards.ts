@@ -188,6 +188,12 @@ export function createCards(deps: {
       db.transaction((tx) => {
         for (const v of lesson.vocab) {
           if (tx.select().from(cards).where(eq(cards.lexemeKey, v.lexeme)).get()) continue;
+          // The word's card from before its lexeme changed (a normaliser rule) takes the new one.
+          const earlier = tx.select().from(cards).where(eq(cards.sourceKey, v.key)).get();
+          if (earlier) {
+            tx.update(cards).set({ lexemeKey: v.lexeme }).where(eq(cards.id, earlier.id)).run();
+            continue;
+          }
           const display: CardDisplay = {
             target: v.target,
             ...(v.gender && { gender: v.gender }),
@@ -215,6 +221,26 @@ export function createCards(deps: {
         }
       });
       return { created };
+    },
+
+    /**
+     * Each card follows the word it was made from (its source key, stable across normalisations):
+     * when the course's files give that word another lexeme now (a normaliser rule changed), the card
+     * takes it — unless a card of that lexeme exists already. Returns how many changed.
+     */
+    async relink(): Promise<number> {
+      let changed = 0;
+      for (const row of db.select().from(cards).all()) {
+        if (!row.sourceKey) continue;
+        const { series, lessonKey } = displayOf(row);
+        const lesson = await content.lesson(series, lessonKey as LessonKey).catch(() => undefined);
+        const word = lesson?.vocab.find((v) => v.key === row.sourceKey);
+        if (!word || word.lexeme === row.lexemeKey) continue;
+        if (db.select().from(cards).where(eq(cards.lexemeKey, word.lexeme)).get()) continue;
+        db.update(cards).set({ lexemeKey: word.lexeme }).where(eq(cards.id, row.id)).run();
+        changed++;
+      }
+      return changed;
     },
 
     /** Decks: each language the cards teach, and under it each course, with Anki's three counts. */

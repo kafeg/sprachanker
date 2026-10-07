@@ -2,7 +2,12 @@ import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { openLibrary } from "@sprachanker/course-kit";
 import { ulid } from "ulid";
+import { createCards } from "../src/services/cards.ts";
+import { createContent } from "../src/services/content.ts";
+import { createRunStore } from "../src/services/run-store.ts";
+import { createSettings } from "../src/services/settings.ts";
 import { setup } from "./setup.ts";
 
 const COURSE = "sprachanker.fixture/demo";
@@ -225,4 +230,38 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
     ).status,
   ).toBe(404);
   expect((await send("GET", study("course:nope"), undefined)).status).toBe(400);
+});
+
+test("a card follows its word's lexeme when a course is normalised again; no second card", async () => {
+  const { sendJson, getJson, root, profile } = await withCards();
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  const kaffee = "lex:de:kaffee:noun:m";
+  // As if made by an earlier rule.
+  sqlite
+    .query("UPDATE cards SET lexeme_key = 'lex:de:kaffee:word' WHERE lexeme_key = ?")
+    .run(kaffee);
+  const count = () => (sqlite.query("SELECT count(*) AS n FROM cards").get() as { n: number }).n;
+  const before = count();
+  const cards = createCards({
+    db: profile,
+    store: createRunStore({ db: profile, now: Date.now, appVersion: "t" }),
+    content: createContent(openLibrary(join(root, "library"))),
+    settings: createSettings(profile),
+    now: Date.now,
+  });
+  expect(await cards.relink()).toBe(1);
+  expect(await cards.relink()).toBe(0);
+  const words = (await getJson("/api/cards")).words.map((w: { lexemeKey: string }) => w.lexemeKey);
+  expect(words).toContain(kaffee);
+  // The same through making the lesson's cards again.
+  sqlite
+    .query("UPDATE cards SET lexeme_key = 'lex:de:kaffee:word' WHERE lexeme_key = ?")
+    .run(kaffee);
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: LESSONS[0],
+    edition: "ru-de",
+  });
+  expect(count()).toBe(before);
+  expect(sqlite.query("SELECT 1 FROM cards WHERE lexeme_key = ?").get(kaffee)).toBeTruthy();
 });

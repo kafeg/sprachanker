@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { type MediaIndex, type NormaliseResult, writeLibraryFiles } from "@sprachanker/course-kit";
+import { libraryWriter, type NormaliseResult, readMediaIndex } from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -23,27 +23,23 @@ import { normaliseLesson } from "./lesson.ts";
 export async function normaliseCourse(
   seriesDir: string,
   dw: DwCourse,
-  options: { lessons?: number[]; log: (line: string) => void },
+  options: { log: (line: string) => void },
 ): Promise<NormaliseResult> {
   const { log } = options;
   const rawDir = `raw/${dw.edition}/${dw.course}`;
   const read = async (file: string): Promise<ApolloState> =>
     JSON.parse(await readFile(join(seriesDir, rawDir, file), "utf8"));
 
-  const ctx = createContext(
-    JSON.parse(await readFile(join(seriesDir, "media.json"), "utf8")) as MediaIndex,
-  );
+  const ctx = createContext(await readMediaIndex(join(seriesDir, "media.json")));
   const course = courseKey(seriesId(dw.series), dw.id);
-  const wanted = options.lessons;
+  const writer = libraryWriter(seriesDir, log);
   const courseState = await read("course.json");
   const all = courseLessons(course, courseState);
   const titles = new Map<LessonKey, string>();
   const goals = new Map<LessonKey, Record<GoalKey, string>>();
-  let problems = 0;
   let unknownTotal = 0;
   let lessonsDone = 0;
-  for (const [i, entry] of all.entries()) {
-    if (wanted && !wanted.includes(i + 1)) continue;
+  for (const entry of all) {
     const lesson = await read(`l-${entry.sourceId}.json`);
     const exercises = new Map<number, ApolloState>();
     for (const id of exerciseIds(lesson, entry.sourceId))
@@ -62,46 +58,38 @@ export async function normaliseCourse(
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
     const { name } = parseLessonKey(entry.key);
-    problems += await writeLibraryFiles(
-      seriesDir,
-      [
-        { schema: Lesson, value: out.lesson, path: `canonical/${dw.id}/lessons/${name}.json` },
-        {
-          schema: LocaleLesson,
-          value: out.locale,
-          path: `locale/${dw.edition}/${dw.id}/lessons/${name}.json`,
-        },
-      ],
-      log,
-    );
+    await writer.write([
+      { schema: Lesson, value: out.lesson, path: `canonical/${dw.id}/lessons/${name}.json` },
+      {
+        schema: LocaleLesson,
+        value: out.locale,
+        path: `locale/${dw.edition}/${dw.id}/lessons/${name}.json`,
+      },
+    ]);
     unknownTotal += out.lesson.unmapped.length;
     lessonsDone++;
   }
-  if (!wanted) {
-    const courseEntity = Object.entries(courseState).find(([k]) => k.startsWith("Course:"))?.[1];
-    const files = courseFiles(
-      course,
-      dw.edition,
-      courseState,
-      all,
-      titles,
-      goals,
-      html(ctx, courseEntity?.description),
-      dw.course,
-    );
-    problems += await writeLibraryFiles(
-      seriesDir,
-      [
-        { schema: CourseIndex, value: files.index, path: `canonical/${dw.id}/course.json` },
-        {
-          schema: LocaleCourse,
-          value: files.locale,
-          path: `locale/${dw.edition}/${dw.id}/course.json`,
-        },
-      ],
-      log,
-    );
-  }
+  const courseEntity = Object.entries(courseState).find(([k]) => k.startsWith("Course:"))?.[1];
+  const files = courseFiles(
+    course,
+    dw.edition,
+    courseState,
+    all,
+    titles,
+    goals,
+    html(ctx, courseEntity?.description),
+    dw.course,
+  );
+  await writer.write([
+    { schema: CourseIndex, value: files.index, path: `canonical/${dw.id}/course.json` },
+    {
+      schema: LocaleCourse,
+      value: files.locale,
+      path: `locale/${dw.edition}/${dw.id}/course.json`,
+    },
+  ]);
+  await writer.finish();
+  const { problems } = writer;
   log(
     `${dw.id} (${dw.edition}): ${lessonsDone} lessons normalised${unknownTotal ? `, ${unknownTotal} unknown exercises` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
   );

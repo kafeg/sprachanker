@@ -1,6 +1,6 @@
 // Part of speech, gender and forms from a DW vocabulary headword (02, research "Vocabulary").
-import type { Headword } from "@sprachanker/course-kit";
-import type { Gender, PartOfSpeech } from "@sprachanker/schema";
+import { type Headword, shapeHeadword } from "@sprachanker/course-kit";
+import type { Gender } from "@sprachanker/schema";
 
 const ARTICLE = /^\(?(der|die|das)\)?\s+(.+)$/;
 const GENDER: Record<string, Gender> = { der: "m", die: "f", das: "n" };
@@ -41,6 +41,5 @@ export function parseHeadword(name: string, subTitle: string): Headword {
   const { rest } = splitParens(name);
   if (VERB_FORMS.test(sub)) return { lemma: rest, pos: "verb", forms: sub };
   if (COMPARISON.test(sub)) return { lemma: rest, pos: "adj", forms: sub };
-  const pos: PartOfSpeech = /[.!?]$/.test(rest) || rest.split(" ").length > 2 ? "phrase" : "word";
-  return { lemma: rest, pos, ...(sub ? { note: sub } : {}) };
+  return { ...shapeHeadword("de", rest), ...(sub ? { note: sub } : {}) };
 }

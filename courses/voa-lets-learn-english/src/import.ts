@@ -16,6 +16,7 @@ import {
   pageCounter,
   runPool,
   storedPage,
+  wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import { COURSES, type CourseDef, EDITION, HOST, SERIES, SITE } from "./catalog.ts";
@@ -37,9 +38,9 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
   const { log } = options;
   const seriesDir = join(options.libraryRoot, SERIES);
   const report: ImportReport = { failedMedia: [], normalised: {} };
-  if (options.editions && !options.editions.includes(EDITION)) return report;
+  if (!wanted({ ...options, courses: undefined }, EDITION)) return report;
   const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, robotsHosts: [HOST] });
-  const defs = COURSES.filter((c) => !options.courses || options.courses.includes(c.id));
+  const defs = COURSES.filter((c) => wanted(options, EDITION, c.id));
 
   const counted = pageCounter(options.progress);
   const courses: FetchedCourse[] = [];

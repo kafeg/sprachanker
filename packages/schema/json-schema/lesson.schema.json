@@ -12,11 +12,6 @@
     "unit": {
       "$ref": "#/$defs/UnitKey"
     },
-    "order": {
-      "type": "integer",
-      "minimum": 0,
-      "maximum": 9007199254740991
-    },
     "media": {
       "type": "object",
       "properties": {
@@ -182,7 +177,6 @@
     "format",
     "key",
     "unit",
-    "order",
     "media",
     "goals",
     "pages",

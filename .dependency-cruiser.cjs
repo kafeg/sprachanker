@@ -47,11 +47,17 @@ module.exports = {
       "packages/anki-export",
       "packages/schema",
     ]),
-    onlyMayImport("courses-import-schema-and-course-kit", "^courses/", [
-      "courses",
-      "packages/schema",
-      "packages/course-kit",
-    ]),
+    {
+      name: "courses-import-schema-and-course-kit",
+      comment:
+        "A provider imports its own folder, the shared rules, schema and course-kit; never another provider.",
+      severity: "error",
+      from: { path: "^courses/([^/]+)/", pathNot: "\\.test\\.tsx?$" },
+      to: {
+        path: "^(packages|courses|apps)/",
+        pathNot: "^(courses/$1|courses/_shared|packages/schema|packages/course-kit)/",
+      },
+    },
     onlyMayImport("web-imports-schema-engine-server-types", "^apps/web/", [
       "apps/web",
       "packages/schema",

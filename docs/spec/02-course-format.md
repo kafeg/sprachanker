@@ -61,12 +61,19 @@ moved, or restored by copying.
   the second and later get `.2`, `.3` in source order.
 - `pos` ∈ `noun`, `verb`, `adj`, `phrase`, `word`; `gender` ∈ `m`, `f`, `n`, `pl` (plural-only noun),
   nouns only. Providers derive them from what the source states, never by guessing: an article makes a
-  noun, verb forms a verb, comparison forms an adjective, a sentence or 3+ words a phrase; anything
-  else is `word`. Different values give different lexemes ("Frau" as a title ≠ "die Frau").
+  noun, verb forms a verb, comparison forms an adjective, a sentence or 3+ words a phrase, English
+  "to X" a verb with lemma X; anything else is `word`. Where the source states nothing, every provider
+  uses one function (`shapeHeadword`, course-kit `vocab.ts`), so the same entry is the same lexeme in
+  every course. Different values give different lexemes ("Frau" as a title ≠ "die Frau"). A card
+  follows its word (the vocab key): when a rule gives the word another lexeme, the card takes it.
 - Keys are built and parsed only by `packages/schema/src/keys.ts`; fingerprints are computed by
   `packages/course-kit/src/fingerprint.ts`.
-- Keys follow the source order (units and lessons in course order, exercises in lesson order). Source
+- Keys follow the source order (units and lessons in course order, exercises in lesson order) — the
+  source's, never what the mapping made of it: where the source numbers its tasks, the key is that
+  number (Lingust: "Упражнение N" is `ex-N`, a section's examples `ex-1<section>`, the closing lines
+  `ex-300`), so a normaliser fix that maps one more task never moves the others. Source
   ids are stored in locale files (`sourceId`), so adding an edition never changes canonical files.
+  Unit and lesson order is the order of the course index's arrays.
   Planned: a key map per provider (our keys ↔ source ids), so keys do not shift when the source
   changes order; removed keys are never re-used.
 - **Fingerprint** of an exercise = sha256(JCS of its canonical object without `fingerprint`); identical
@@ -91,12 +98,12 @@ Exams of a course are listed in its course index; a stand-alone exam (`bamf.lid`
 { "format": 1, "key": "dw.nicos-weg/a1-ru",
   // Where the course comes from: shown with it (licence: cc-by-4.0 | public-domain | free-access).
   "source": { "publisher": "Deutsche Welle", "url": "https://learngerman.dw.com/de", "licence": "free-access" },
-  "units": [ { "key": "dw.nicos-weg/a1-ru/u00", "order": 0, "lessons": ["dw.nicos-weg/a1-ru/00-01"] } ],
+  "units": [ { "key": "dw.nicos-weg/a1-ru/u00", "lessons": ["dw.nicos-weg/a1-ru/00-01"] } ],
   "exams": [],
   "goals": [ { "key": "dw.nicos-weg/a1-ru/00-01/goal-1", "lessons": ["dw.nicos-weg/a1-ru/00-01"] } ] }
 
 // canonical/<course>/lessons/00-01.json
-{ "format": 1, "key": "dw.nicos-weg/a1/00-01", "unit": "dw.nicos-weg/a1/u00", "order": 1,
+{ "format": 1, "key": "dw.nicos-weg/a1/00-01", "unit": "dw.nicos-weg/a1/u00",
   "media": { "video": { "sd": "media/video/…_sd.mp4", "subtitles": "media/subtitles/….vtt" } }, "goals": ["dw.nicos-weg/a1/00-01/goal-1"],
   "pages": [ { "exercise": { "key": "…/00-01/ex-03", "type": "single_choice", "fingerprint": "…",
       "newWords": ["…/00-01/v-guten-tag"], "ruleIds": [],
@@ -105,6 +112,7 @@ Exams of a course are listed in its course index; a stand-alone exam (`bamf.lid`
                    "answer": { "optionIds": ["b"] } } ] } } ],
   "vocab": [ { "key": "…/00-01/v-frau", "lexeme": "lex:de:frau:noun:f", "target": "die Frau, die Frauen",
                "gender": "f", "plural": "die Frauen", "audio": "media/audio/….mp3" } ],
+  // What the provider could not map, and words it left out (no usable headword, no translation).
   "unmapped": [ { "path": "raw/ru-de/a1/00-01/ex-07.json", "reason": "unknown inputType X" } ] }
 
 // canonical/<course>/exams/<slug>.json

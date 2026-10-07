@@ -13,6 +13,7 @@ import {
   pageCounter,
   storedPage,
   urlFileName,
+  wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import { CHAPTERS, COURSE, EDITION, SERIES, SITE } from "./catalog.ts";
@@ -21,6 +22,7 @@ import { parseChapter, parseVocabulary } from "./parse.ts";
 
 export async function importDib(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
+  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], normalised: {} };
   const seriesDir = join(options.libraryRoot, SERIES);
   const rawDir = join(seriesDir, "raw", EDITION, COURSE);
   const fetcher = createPoliteFetcher({

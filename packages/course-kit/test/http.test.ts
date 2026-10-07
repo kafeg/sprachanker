@@ -87,3 +87,37 @@ test("a connection lost while reading the body is retried; for good it fails the
   const always = createPoliteFetcher(opts(broken(99)));
   await expect(always.bytes("https://b.test/img")).rejects.toBeInstanceOf(FetchFailedError);
 });
+
+test("robots.txt that cannot be read is asked again; a 403 on it stops the host", async () => {
+  let robotsCalls = 0;
+  const flaky = (async (input: URL | string) => {
+    const url = String(input);
+    if (url.endsWith("robots.txt") && robotsCalls++ === 0) throw new TypeError("offline");
+    return new Response("ok");
+  }) as typeof fetch;
+  const fetcher = createPoliteFetcher(opts(flaky));
+  await expect(fetcher.text("https://a.test/x")).rejects.toThrow(FetchFailedError);
+  expect(await fetcher.text("https://a.test/x")).toBe("ok");
+
+  const refusing = (async () => new Response("no", { status: 403 })) as unknown as typeof fetch;
+  await expect(createPoliteFetcher(opts(refusing)).text("https://a.test/x")).rejects.toThrow(
+    HostRefusedError,
+  );
+});
+
+test("a body that goes silent is retried, then fails the URL", async () => {
+  let calls = 0;
+  const silent = (async () => {
+    calls++;
+    return new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.enqueue(new TextEncoder().encode("part"));
+        },
+      }),
+    );
+  }) as unknown as typeof fetch;
+  const fetcher = createPoliteFetcher({ ...opts(silent), robotsHosts: [], retries: 1, idleMs: 30 });
+  await expect(fetcher.text("https://b.test/x")).rejects.toThrow(FetchFailedError);
+  expect(calls).toBe(2);
+});

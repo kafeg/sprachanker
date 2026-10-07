@@ -50,10 +50,11 @@ test.each([
   ["die Nudeln (plural only ?)", { lemma: "Nudeln", pos: "noun", gender: "pl" }],
   ["das Brot, die Semmel (Brote, Semmeln)", { lemma: "Brot", pos: "noun", gender: "n" }],
   ["die Seife / das Gel", { lemma: "Seife", pos: "noun", gender: "f" }],
-  ["sich anziehen", { lemma: "sich anziehen", pos: "verb" }],
-  ["aufstehen", { lemma: "aufstehen", pos: "verb" }],
-  ["Notizen machen", { lemma: "Notizen machen", pos: "phrase" }],
-  ["etwas (ein)kaufen", { lemma: "etwas einkaufen", pos: "phrase" }],
+  // The source states no part of speech: by shape, as every provider (02) — no guessing from endings.
+  ["sich anziehen", { lemma: "sich anziehen", pos: "word" }],
+  ["aufstehen", { lemma: "aufstehen", pos: "word" }],
+  ["Notizen machen", { lemma: "Notizen machen", pos: "word" }],
+  ["etwas (ein)kaufen", { lemma: "etwas einkaufen", pos: "word" }],
   ["Wie geht's?", { lemma: "Wie geht's?", pos: "phrase" }],
   ["gern", { lemma: "gern", pos: "word" }],
 ])("headword %p", (de, expected) => {
@@ -81,8 +82,8 @@ test("normalisation: chapters → units, sections → lessons, all files valid",
     expect([f.path, f.schema.safeParse(f.value).error?.issues]).toEqual([f.path, undefined]);
   const byPath = Object.fromEntries(files.map((f) => [f.path, f.value]));
   const index = CourseIndex.parse(byPath["canonical/dib/course.json"]);
-  expect(JSON.parse(JSON.stringify(index.units.map((u) => [u.key, u.order, u.lessons])))).toEqual([
-    ["coerll.dib/dib/u02", 2, ["coerll.dib/dib/02-01", "coerll.dib/dib/02-02"]],
+  expect(JSON.parse(JSON.stringify(index.units.map((u) => [u.key, u.lessons])))).toEqual([
+    ["coerll.dib/dib/u02", ["coerll.dib/dib/02-01", "coerll.dib/dib/02-02"]],
   ]);
   const first = Lesson.parse(byPath["canonical/dib/lessons/02-01.json"]);
   expect(first.media.audio as string).toBe("media/audio/voc_02_01.mp3");

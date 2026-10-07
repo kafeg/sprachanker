@@ -2,7 +2,7 @@
 // schemas — and checked beyond them: keys that refer to each other, answers that refer to existing
 // options and gaps, fingerprints, locale texts per edition, and media files on disk. One report per
 // course; `problems` must be empty, `notes` are worth a look (e.g. exercises without locale texts).
-import { readdirSync, statSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   correctOptions,
@@ -19,7 +19,8 @@ export type { CourseReport } from "./library-view.ts";
 /** Every `media/…` path inside a value (lesson, exercise, locale file). */
 function mediaPaths(value: unknown, out: Set<string>) {
   if (typeof value === "string") {
-    for (const m of value.matchAll(/media\/[^\s"'<>)]+/g)) out.add(m[0]);
+    // A library path (a value, or src="…" in HTML), not "multimedia/…" in a text.
+    for (const m of value.matchAll(/(?<![\w/.-])media\/[^\s"'<>)]+/g)) out.add(m[0]);
   } else if (Array.isArray(value)) for (const v of value) mediaPaths(v, out);
   else if (value && typeof value === "object")
     for (const v of Object.values(value)) mediaPaths(v, out);
@@ -202,7 +203,8 @@ export async function verifyCourse(
   }
   // Lesson files the course does not list are never shown.
   const dir = join(library.root, series, "canonical", course, "lessons");
-  for (const file of readdirSync(dir).filter((f) => f.endsWith(".json"))) {
+  const files = existsSync(dir) ? readdirSync(dir) : [];
+  for (const file of files.filter((f) => f.endsWith(".json"))) {
     const key = `${series}/${course}/${file.slice(0, -5)}`;
     if (!listed.has(key)) report.problems.push(`${key}: lesson file not listed in course.json`);
   }

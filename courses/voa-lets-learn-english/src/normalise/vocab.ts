@@ -1,12 +1,9 @@
 // New words of a lesson: the bold words of its transcript, regular inflections folded into their base.
-import { type Headword, plainText } from "@sprachanker/course-kit";
+import { type Headword, plainText, shapeHeadword } from "@sprachanker/course-kit";
 import { lemmaSlug } from "@sprachanker/schema";
 
-/** Part of speech by shape (the site gives none): "to …" a verb, several words a phrase. */
-export function headword(text: string): Headword {
-  if (/^to \p{L}/u.test(text)) return { lemma: text, pos: "verb" };
-  return { lemma: text, pos: /\s/.test(text) ? "phrase" : "word" };
-}
+/** Part of speech by shape (the site gives none; `shapeHeadword`). */
+export const headword = (text: string): Headword => shapeHeadword("en", text);
 
 const EDGE = /^[\s"“”'‘’([—–-]+|[\s"“”'‘’)\].,!?;:—–-]+$/g;
 

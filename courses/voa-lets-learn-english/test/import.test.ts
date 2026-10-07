@@ -258,7 +258,7 @@ test("inflected duplicates go when the base form is a new word too", () => {
 
 test.each([
   ["apples", { lemma: "apples", pos: "word" }],
-  ["to buy", { lemma: "to buy", pos: "verb" }],
+  ["to buy", { lemma: "buy", pos: "verb" }],
   ["pay in cash", { lemma: "pay in cash", pos: "phrase" }],
 ])("headword %p", (text, expected) => {
   expect(headword(text)).toEqual(expected as ReturnType<typeof headword>);

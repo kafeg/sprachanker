@@ -2,11 +2,12 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { prettyJson } from "@sprachanker/course-kit";
-import { courseIndex, exams, lessons } from "./course.ts";
+import { courseIndex, exams, lessons, SERIES } from "./course.ts";
 import { EDITIONS, localeCourse, localeExam, localeLessons } from "./locales.ts";
 import { FIXTURE_MEDIA } from "./media.ts";
 
-export const FIXTURE_SERIES = "sprachanker.fixture";
+/** The fixture's series key as a plain string (tests compare with it). */
+export const FIXTURE_SERIES: string = SERIES;
 
 /** Writes `<libraryRoot>/sprachanker.fixture/…`; returns the series folder. */
 export async function writeFixtureLibrary(libraryRoot: string): Promise<string> {

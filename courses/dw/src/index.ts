@@ -1,7 +1,4 @@
-export * from "./apollo.ts";
+// What the server uses of the DW provider: its offers, the import and the series key.
 export type { DwSeries } from "./catalog.ts";
-export * from "./catalog.ts";
+export { offers, seriesId } from "./catalog.ts";
 export { importDw } from "./import.ts";
-export * from "./media.ts";
-export { normaliseCourse } from "./normalise/run.ts";
-export * from "./pages.ts";

@@ -35,9 +35,13 @@ const NAMED: Record<string, string> = {
 /** Character references (`&#x27;`, `&#39;`) and the common named entities decoded; others kept. */
 export function decodeEntities(text: string): string {
   return text.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (match, name: string) => {
-    if (name.startsWith("#x") || name.startsWith("#X"))
-      return String.fromCodePoint(Number.parseInt(name.slice(2), 16));
-    if (name.startsWith("#")) return String.fromCodePoint(Number(name.slice(1)));
+    const code = /^#x/i.test(name)
+      ? Number.parseInt(name.slice(2), 16)
+      : name.startsWith("#")
+        ? Number(name.slice(1))
+        : undefined;
+    // A number past Unicode is kept as written (it would throw).
+    if (code !== undefined) return code <= 0x10ffff ? String.fromCodePoint(code) : match;
     return NAMED[name] ?? match;
   });
 }

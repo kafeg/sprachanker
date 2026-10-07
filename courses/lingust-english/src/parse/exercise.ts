@@ -68,7 +68,7 @@ function keyEntries(
       const line = raw.replace(/&emsp;/g, " ").trim();
       if (!line) continue;
       const num = /^(\d+)\.\s*(.*)$/.exec(line);
-      const part = /^([абвгaбcd])\)\s*(.*)$/i.exec(line);
+      const part = /^([абвгabcd])\)\s*(.*)$/i.exec(line);
       if (num) {
         n = num[1] as string;
         const sub = /^([аa])\)\s*(.*)$/i.exec(num[2] ?? "");

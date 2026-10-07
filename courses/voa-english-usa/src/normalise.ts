@@ -9,6 +9,7 @@ import {
   type LibraryFile,
   type MediaIndex,
   mediaPath,
+  shapeHeadword,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
@@ -78,8 +79,8 @@ export function headword(en: string, category: string): Headword {
   // Alternatives: "dad, daddy", "box, bag, can" — the first is the lemma.
   const [first = bare, ...others] = bare.split(/\s*\/\s*/);
   let lemma = first.split(/\s*[,;]\s*/)[0]?.trim() || first;
-  const pos: PartOfSpeech =
-    stated ?? (/^to\s/i.test(lemma) ? "verb" : lemma.includes(" ") ? "phrase" : "word");
+  const shape = shapeHeadword("en", lemma);
+  const pos: PartOfSpeech = stated ?? shape.pos;
   if (pos === "verb") lemma = lemma.replace(/^to\s+/i, "");
   const forms = pos === "noun" ? "" : others.map((o) => o.replace(/^to\s+/i, "")).join(", ");
   const plural =
@@ -133,7 +134,6 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
   const unitTitles: LocaleCourse["units"] = {};
   const goals: CourseIndex["goals"] = [];
   const goalTexts: LocaleCourse["goals"] = {};
-  let order = 0;
   let unmapped = 0;
   for (const [u, members] of [...byUnit].sort(([a], [b]) => a - b)) {
     const unit = unitKey(course, u);
@@ -175,7 +175,6 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
           format: 1,
           key,
           unit,
-          order: order++,
           media: audio ? { audio } : {},
           goals: goal ? [goal] : [],
           pages: [],
@@ -213,7 +212,7 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
         } satisfies LocaleLesson,
       });
     }
-    units.push({ key: unit, order: u, lessons: keys });
+    units.push({ key: unit, lessons: keys });
   }
   files.push({
     path: `canonical/${COURSE}/course.json`,
@@ -241,5 +240,9 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
       goals: goalTexts,
     } satisfies LocaleCourse,
   });
-  return { files, lessons: order, unmapped };
+  return {
+    files,
+    lessons: files.filter((f) => /^canonical\/[^/]+\/lessons\//.test(f.path)).length,
+    unmapped,
+  };
 }

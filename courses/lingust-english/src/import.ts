@@ -14,6 +14,7 @@ import {
   pageCounter,
   storedPage,
   urlFileName,
+  wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
 import { BONUS, COURSE, EDITION, HOST, MEDIA_REFERER, SERIES, SITE } from "./catalog.ts";
@@ -36,11 +37,7 @@ const withReferer: typeof fetch = Object.assign(
 
 export async function importLingust(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  if (
-    (options.courses && !options.courses.includes(COURSE)) ||
-    (options.editions && !options.editions.includes(EDITION))
-  )
-    return { failedMedia: [], normalised: {} };
+  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], normalised: {} };
   const seriesDir = join(options.libraryRoot, SERIES);
   const rawDir = join(seriesDir, "raw", EDITION, COURSE);
   const fetcher = createPoliteFetcher({
