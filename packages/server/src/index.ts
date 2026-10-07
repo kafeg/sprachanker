@@ -1,3 +1,4 @@
+import { hostname } from "node:os";
 import { join } from "node:path";
 import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
@@ -33,6 +34,8 @@ export function startServer(config: ServerConfig): Listening {
     lmStudio: lmStudioHost(),
     cli: cliHost(),
     installer: courseInstaller(config.dataRoot),
+    // The machine's own names: its host name, and the one the server was told to listen on.
+    hosts: [hostname(), `${hostname()}.local`, config.hostname],
   });
   return listen(app.fetch, config);
 }

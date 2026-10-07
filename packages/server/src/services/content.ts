@@ -32,16 +32,22 @@ export interface CourseMap {
 export function createContent(library: LibraryView) {
   const lessons = new Map<string, Promise<Lesson>>();
   const locales = new Map<string, Promise<LocaleLesson | undefined>>();
-  const lesson = (series: string, key: LessonKey) => {
-    const id = `${series}|${key}`;
-    if (!lessons.has(id)) lessons.set(id, library.lesson(series, key));
-    return lessons.get(id) as Promise<Lesson>;
+  /** Reads once and keeps the result; a failed read is not kept (asked again next time). */
+  const cached = <T>(cache: Map<string, Promise<T>>, id: string, read: () => Promise<T>) => {
+    let value = cache.get(id);
+    if (!value) {
+      value = read();
+      cache.set(id, value);
+      value.catch(() => cache.delete(id));
+    }
+    return value;
   };
-  const localeLesson = (series: string, key: LessonKey, edition: string) => {
-    const id = `${series}|${key}|${edition}`;
-    if (!locales.has(id)) locales.set(id, library.localeLesson(series, key, edition));
-    return locales.get(id) as Promise<LocaleLesson | undefined>;
-  };
+  const lesson = (series: string, key: LessonKey) =>
+    cached(lessons, `${series}|${key}`, () => library.lesson(series, key));
+  const localeLesson = (series: string, key: LessonKey, edition: string) =>
+    cached(locales, `${series}|${key}|${edition}`, () =>
+      library.localeLesson(series, key, edition),
+    );
 
   return {
     lesson,

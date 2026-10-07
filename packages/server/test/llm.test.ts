@@ -104,6 +104,29 @@ describe("llm setup", () => {
     expect(byId(reset, "lmstudio").baseUrl).toBe("http://localhost:1234/v1");
   });
 
+  test("a key is never sent to a host it was not given for: moving the endpoint drops it", async () => {
+    const { sendJson } = await setup();
+    await sendJson("PUT", "/api/llm/providers/custom", {
+      baseUrl: "http://192.168.1.5:8080/v1",
+      apiKey: "sk-local",
+    });
+    // The same server, another path: the key stays.
+    const samehost = await sendJson("PUT", "/api/llm/providers/custom", {
+      baseUrl: "http://192.168.1.5:8080/api/v1",
+    });
+    expect(byId(samehost, "custom").hasKey).toBe(true);
+    const moved = await sendJson("PUT", "/api/llm/providers/custom", {
+      baseUrl: "https://elsewhere.example/v1",
+    });
+    expect(byId(moved, "custom").hasKey).toBe(false);
+    // Moved with a key given for the new host: kept.
+    const given = await sendJson("PUT", "/api/llm/providers/custom", {
+      baseUrl: "https://other.example/v1",
+      apiKey: "sk-other",
+    });
+    expect(byId(given, "custom").hasKey).toBe(true);
+  });
+
   test("connection test lists models and sends the key", async () => {
     const fake = provider();
     const { send, sendJson, get, getJson } = await setup({ fetch: fake.fetch });
@@ -179,7 +202,7 @@ describe("explain a mistake", () => {
     const other = (await start("sprachanker.fixture/demo/00-02")).run.id;
     const res = await send("POST", "/api/llm/explain", { ...EXPLAIN, runId: other, attempt: 1 });
     expect([res.status, ((await res.json()) as { error: string }).error]).toEqual([
-      409,
+      404,
       "no_such_run",
     ]);
 
@@ -230,7 +253,7 @@ describe("explain a mistake", () => {
     const { send } = await setup({ fetch: provider().fetch });
     await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
     const res = await send("POST", "/api/llm/explain", { ...EXPLAIN, index: 9 });
-    expect(res.status).toBe(409);
+    expect(res.status).toBe(404);
   });
 });
 

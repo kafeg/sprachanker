@@ -28,16 +28,10 @@ import { and, asc, desc, eq, gte, inArray } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { cardState, cards, events, runs } from "../db/profile/schema.ts";
+import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
 import type { Settings } from "./settings.ts";
 
-/** Profile settings of the review (Anki's deck options). */
-export const SRS_SETTINGS = {
-  newPerDay: "srs.newPerDay",
-  reviewsPerDay: "srs.reviewsPerDay",
-  retention: "srs.retention",
-  faces: "srs.faces",
-} as const;
 const DEFAULT_FACES: CardFace[] = ["recognition", "production"];
 
 /**
@@ -45,8 +39,6 @@ const DEFAULT_FACES: CardFace[] = ["recognition", "production"];
  * words (`lesson:<lesson key>`: their first card type only, without the day's new limit).
  */
 export type DeckScope = string;
-
-export class CardError extends Error {}
 
 type CardRow = typeof cards.$inferSelect;
 type StateRow = typeof cardState.$inferSelect;
@@ -64,8 +56,7 @@ export function createCards(deps: {
   const { db, content, settings, now } = deps;
   // Monotonic: cards made in one call keep the order of the lesson's words.
   const id = monotonicFactory();
-  const setting = <T>(key: string, fallback: T) => settings.get<T>(key) ?? fallback;
-  const retention = () => setting(SRS_SETTINGS.retention, SRS_DEFAULTS.retention);
+  const retention = () => settings.get("srs.retention") ?? SRS_DEFAULTS.retention;
   const facesOf = (row: CardRow) => row.faces.split(",") as CardFace[];
   const displayOf = (row: CardRow) => CardDisplay.parse(JSON.parse(row.displayCacheJson ?? "{}"));
   const courseOf = (row: CardRow) => parseLessonKey(displayOf(row).lessonKey).course;
@@ -163,8 +154,8 @@ export function createCards(deps: {
     const result = studyQueue(faces, {
       now: t,
       nextDay: studyDay(t).next,
-      newPerDay: setting(SRS_SETTINGS.newPerDay, SRS_DEFAULTS.newPerDay),
-      reviewsPerDay: setting(SRS_SETTINGS.reviewsPerDay, SRS_DEFAULTS.reviewsPerDay),
+      newPerDay: settings.get("srs.newPerDay") ?? SRS_DEFAULTS.newPerDay,
+      reviewsPerDay: settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay,
       newToday: done.fresh,
       reviewsToday: done.reviews,
       allNew: lesson,
@@ -202,7 +193,7 @@ export function createCards(deps: {
 
   const note = (cardId: string) => {
     const row = db.select().from(cards).where(eq(cards.id, cardId)).get();
-    if (!row) throw new CardError("no_such_card");
+    if (!row) throw new ServiceError("no_such_card", 404);
     return row;
   };
   /** Sets fields of a face's row, made when the face has none yet (a new face). */
@@ -213,7 +204,7 @@ export function createCards(deps: {
       .onConflictDoUpdate({ target: [cardState.cardId, cardState.face], set: values })
       .run();
   const checkFace = (row: CardRow, face: CardFace) => {
-    if (!facesOf(row).includes(face)) throw new CardError("no_such_card");
+    if (!facesOf(row).includes(face)) throw new ServiceError("no_such_card", 404);
   };
 
   return {
@@ -223,7 +214,7 @@ export function createCards(deps: {
         content.lesson(request.series, request.lessonKey),
         content.localeLesson(request.series, request.lessonKey, request.edition),
       ]);
-      const faces = setting<CardFace[]>(SRS_SETTINGS.faces, DEFAULT_FACES).join(",");
+      const faces = (settings.get("srs.faces") ?? DEFAULT_FACES).join(",");
       let created = 0;
       db.transaction((tx) => {
         for (const v of lesson.vocab) {
@@ -305,6 +296,8 @@ export function createCards(deps: {
                 kind: entry.kind,
                 display: displayOf(row),
                 due: intervals(state, q.now, retention()),
+                /** Reviews of the face so far: sent back with the rating (`rate`). */
+                reps: state?.reps ?? 0,
                 leech: isLeech(state),
                 flag: face?.flag ?? 0,
                 marked: !!row.marked,
@@ -319,20 +312,29 @@ export function createCards(deps: {
       };
     },
 
-    /** Rates a face: its new state and the review event are written together. */
-    rate(cardId: string, face: CardFace, rating: CardRating) {
-      const row = note(cardId);
-      checkFace(row, face);
-      const t = now();
-      const before = stateOf(stateRows([cardId]).get(`${cardId}:${face}`)) ?? null;
-      const after = review(before, rating, t, retention());
-      const payload: CardReviewPayload = { face, rating, stateBefore: before, stateAfter: after };
-      const runId = reviewRun();
-      db.transaction((tx) => {
+    /**
+     * Rates a face: its new state and the review event are written together. The client names the
+     * event (`id`) and says how many reviews the face had when it was shown (`reps`): a rating sent
+     * again is not applied twice, and a face rated meanwhile elsewhere (another device) is refused.
+     */
+    rate(cardId: string, face: CardFace, rating: CardRating, answer: { id: string; reps: number }) {
+      checkFace(note(cardId), face);
+      return db.transaction((tx) => {
+        const sent = tx.select().from(events).where(eq(events.id, answer.id)).get();
+        if (sent) {
+          if (sent.type !== "card_review" || sent.cardId !== cardId)
+            throw new ServiceError("event_id_taken", 409);
+          return CardReviewPayload.parse(JSON.parse(sent.payloadJson)).stateAfter;
+        }
+        const t = now();
+        const before = stateOf(stateRows([cardId]).get(`${cardId}:${face}`)) ?? null;
+        if ((before?.reps ?? 0) !== answer.reps) throw new ServiceError("card_changed", 409);
+        const after = review(before, rating, t, retention());
+        const payload: CardReviewPayload = { face, rating, stateBefore: before, stateAfter: after };
         tx.insert(events)
           .values({
-            id: id(t),
-            runId,
+            id: answer.id,
+            runId: reviewRun(),
             ts: t,
             type: "card_review",
             cardId,
@@ -346,8 +348,8 @@ export function createCards(deps: {
             set: { fsrsJson: JSON.stringify(after), dueAt: after.due },
           })
           .run();
+        return after;
       });
-      return after;
     },
 
     /** Takes back today's latest review not taken back yet: the face is as before it and is shown next
@@ -355,7 +357,7 @@ export function createCards(deps: {
     undo() {
       const { rows, undone } = todaysEvents();
       const last = rows.find((r) => r.type === "card_review" && !undone.has(r.id));
-      if (!last?.cardId) throw new CardError("nothing_to_undo");
+      if (!last?.cardId) throw new ServiceError("nothing_to_undo", 409);
       const p = CardReviewPayload.parse(JSON.parse(last.payloadJson));
       const t = now();
       db.transaction((tx) => {

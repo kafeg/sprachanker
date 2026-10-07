@@ -58,6 +58,7 @@ export function openProfileDb(file: string, now = Date.now()): ProfileDb {
           .map((r) => r.tag),
       backup: (target) => sqlite.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`),
       transaction: (fn) => sqlite.transaction(fn)(),
+      foreignKeyViolations: () => sqlite.query("PRAGMA foreign_key_check").all().length,
     },
     migrations,
     {

@@ -40,8 +40,10 @@ All ids are ULIDs; all content references use keys from 02. Built: `settings`, `
 lesson it was met in); `faces` is a comma-separated list.
 
 ```sql
-settings(key TEXT PRIMARY KEY, value_json TEXT)          -- languages, theme, SRS limits, retention,
-                                                         -- speech preferences, time zone, federal state…
+settings(key TEXT PRIMARY KEY, value_json TEXT)          -- every key with its schema and owner
+                                                         -- (packages/schema/src/settings.ts): checked
+                                                         -- when written, parsed when read (a value that
+                                                         -- no longer fits reads as unset)
 secrets(provider_id TEXT PRIMARY KEY, value_encrypted)   -- the profile's API keys; never returned by the API
 llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- the profile's model (07); only
                                                          -- task 'default' is used (per-task routes: Later)
@@ -167,4 +169,5 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   `abandoned/content_updated`; finished runs stay readable via snapshots.
 - **Course removed**: runs stay readable via snapshots; lexeme cards keep working from
   `display_cache_json`.
-- **Study days** use the profile's time zone.
+- **Study days** use the time zone of the machine the server runs on (the learner's own computer);
+  a per-profile time zone comes with profiles if a profile's devices live elsewhere.

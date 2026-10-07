@@ -125,7 +125,7 @@ export function StudySession({
   const rate = (rating: CardRating) => {
     if (!current || busy || side !== "answer") return;
     actions.rate.mutate(
-      { cardId: current.cardId, face: current.face, rating },
+      { cardId: current.cardId, face: current.face, rating, reps: current.reps },
       { onSuccess: () => setTurn((n) => n + 1) },
     );
   };

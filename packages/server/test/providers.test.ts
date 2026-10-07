@@ -16,8 +16,10 @@ test("download markers on disk: interrupted and incomplete downloads, space per 
     { series: "dw.nicos-weg", course: "a1-ru", failed: undefined },
     { series: "dw.nicos-weg", course: "a2-ru", failed: 3 },
   ]);
+  // A file next to the series folders (Finder's .DS_Store) is not a series.
+  writeFileSync(join(root, "library", ".DS_Store"), "x");
   const { series } = await installer.storage();
-  expect(series[0]?.series).toBe("dw.nicos-weg");
+  expect(series.map((s) => s.series)).toEqual(["dw.nicos-weg"]);
   expect(series[0]?.bytes).toBeGreaterThan(10);
   // Every provider's courses are offered, each with its series folder.
   const offers = installer.offers();

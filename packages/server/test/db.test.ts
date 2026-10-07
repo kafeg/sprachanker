@@ -11,6 +11,8 @@ const fresh = () => join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "profil
 
 function runner(file: string) {
   const sqlite = new Database(file);
+  // As the app opens a profile (runtime/bun.ts).
+  sqlite.exec("PRAGMA foreign_keys = ON");
   return {
     sqlite,
     db: {
@@ -22,6 +24,7 @@ function runner(file: string) {
           .map((r) => r.tag),
       backup: (target: string) => sqlite.exec(`VACUUM INTO '${target}'`),
       transaction: (fn: () => void) => sqlite.transaction(fn)(),
+      foreignKeyViolations: () => sqlite.query("PRAGMA foreign_key_check").all().length,
     },
     options: (now: number) => ({
       file,
@@ -67,6 +70,45 @@ test("pending migrations on an existing database are applied after a backup", ()
   ];
   expect(migrate(db, next, options(5))).toEqual(["0001_note"]);
   expect(existsSync(`${file}.bak-5`)).toBe(true);
+});
+
+test("a migration may rebuild a table others refer to; a reference left dangling fails it", () => {
+  const file = fresh();
+  openProfileDb(file, 1);
+  const { db, options, sqlite } = runner(file);
+  sqlite.exec(
+    "INSERT INTO runs (id, kind, app_version, status, started_at) VALUES ('r1', 'lesson', 't', 'active', 1);" +
+      "INSERT INTO events (id, run_id, ts, type, payload_json) VALUES ('e1', 'r1', 1, 'step_done', '{}');",
+  );
+  // drizzle-kit's table rebuild: create a copy, move the rows, drop the old table, rename.
+  const ddl =
+    sqlite.query<{ sql: string }, []>("SELECT sql FROM sqlite_master WHERE name = 'runs'").get()
+      ?.sql ?? "";
+  const rebuild = (tag: string, rows: string): Migration => ({
+    tag,
+    sql: [
+      ddl.replace(/CREATE TABLE [`"]?runs[`"]?/, "CREATE TABLE `__new_runs`"),
+      `INSERT INTO __new_runs SELECT * FROM runs ${rows}`,
+      "DROP TABLE runs",
+      "ALTER TABLE __new_runs RENAME TO runs",
+    ].join(";--> statement-breakpoint\n"),
+  });
+  expect(migrate(db, [...migrations, rebuild("0901_rebuild", "")], options(5))).toEqual([
+    "0901_rebuild",
+  ]);
+  expect(sqlite.query("SELECT id FROM events").all()).toEqual([{ id: "e1" }]);
+  // A rebuild that loses the run its event belongs to is rolled back.
+  expect(() =>
+    migrate(
+      db,
+      [...migrations, rebuild("0901_rebuild", ""), rebuild("0902_lose", "WHERE 0")],
+      options(6),
+    ),
+  ).toThrow(/0902_lose failed.*a foreign key no longer resolves/);
+  expect(sqlite.query("SELECT id FROM runs").all()).toEqual([{ id: "r1" }]);
+  expect(
+    sqlite.query<{ foreign_keys: number }, []>("PRAGMA foreign_keys").get()?.foreign_keys,
+  ).toBe(1);
 });
 
 test("a database from a newer version is refused", () => {

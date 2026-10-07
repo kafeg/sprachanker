@@ -5,12 +5,14 @@ import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
 import {
   CourseIndex,
-  type EditionId,
+  CourseSlug,
+  EditionId,
   issuesText,
   Lesson,
   LocaleCourse,
   LocaleLesson,
   parseLessonKey,
+  SeriesKey,
 } from "@sprachanker/schema";
 import type { z } from "zod";
 import type { LibraryView } from "./library-view.ts";
@@ -25,18 +27,31 @@ const dirs = (path: string) =>
         .map((d) => d.name)
     : [];
 
+/** A course, lesson or file that is not in the library (a stale link, a course removed). */
+export class NotInstalledError extends Error {}
+
 async function read<S extends z.ZodType>(schema: S, file: string): Promise<z.infer<S>> {
+  if (!existsSync(file)) throw new NotInstalledError(file);
   const result = schema.safeParse(JSON.parse(await readFile(file, "utf8")));
   if (!result.success) throw new Error(`${file}: ${issuesText(result.error, 1)}`);
   return result.data;
 }
 
 export function openLibrary(root: string): LibraryView {
-  const seriesDir = (series: string) => join(root, series);
+  // Only a series key names a folder: nothing from a request can point outside the library.
+  const seriesDir = (series: string) => {
+    if (!SeriesKey.safeParse(series).success) throw new NotInstalledError(series);
+    return join(root, series);
+  };
+  const named = (schema: z.ZodType, name: string) => {
+    if (!schema.safeParse(name).success) throw new NotInstalledError(name);
+    return name;
+  };
   const view: LibraryView = {
     root,
     courses() {
       return dirs(root)
+        .filter((series) => SeriesKey.safeParse(series).success)
         .sort()
         .flatMap((series) =>
           dirs(join(seriesDir(series), "canonical"))
@@ -56,9 +71,18 @@ export function openLibrary(root: string): LibraryView {
         );
     },
     courseIndex: (series, course) =>
-      read(CourseIndex, join(seriesDir(series), "canonical", course, "course.json")),
+      read(
+        CourseIndex,
+        join(seriesDir(series), "canonical", named(CourseSlug, course), "course.json"),
+      ),
     async localeCourse(series, course, edition) {
-      const file = join(seriesDir(series), "locale", edition, course, "course.json");
+      const file = join(
+        seriesDir(series),
+        "locale",
+        named(EditionId, edition),
+        named(CourseSlug, course),
+        "course.json",
+      );
       return existsSync(file) ? read(LocaleCourse, file) : undefined;
     },
     lesson(series, key) {
@@ -70,10 +94,18 @@ export function openLibrary(root: string): LibraryView {
     },
     async localeLesson(series, key, edition) {
       const { courseId, name } = parseLessonKey(key);
-      const file = join(seriesDir(series), "locale", edition, courseId, "lessons", `${name}.json`);
+      const file = join(
+        seriesDir(series),
+        "locale",
+        named(EditionId, edition),
+        courseId,
+        "lessons",
+        `${name}.json`,
+      );
       return existsSync(file) ? read(LocaleLesson, file) : undefined;
     },
     mediaFile(series, path) {
+      if (!SeriesKey.safeParse(series).success) return undefined;
       const base = join(seriesDir(series), "media") + sep;
       const file = normalize(join(seriesDir(series), path));
       return file.startsWith(base) && existsSync(file) ? file : undefined;

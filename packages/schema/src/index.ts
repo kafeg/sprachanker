@@ -10,3 +10,4 @@ export * from "./learner.ts";
 export * from "./locale.ts";
 export * from "./manifest.ts";
 export * from "./rules.ts";
+export * from "./settings.ts";

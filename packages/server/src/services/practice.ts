@@ -20,8 +20,9 @@ import { type LessonKey, LlmVerdictPayload, type Run, type StoredEvent } from "@
 import { and, desc, eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
+import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import { type Llm, LlmSetupError, type PromptPreview } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
 
 export interface WritingRequest {
@@ -209,7 +210,7 @@ export function createPractice(deps: {
 
       async create(request: ReviewRequest, signal?: AbortSignal): Promise<StoredReview> {
         const session = await deps.session(request.lessonKey);
-        if (!session) throw new LlmSetupError("no_session");
+        if (!session) throw new ServiceError("no_session", 409);
         const task = reviewSessionTask(await reviewInput(request));
         const verdict = { task: "review" as const, input: "", runId: session.run.id };
         return judge(request, verdict, task, (r) => r, signal);

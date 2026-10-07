@@ -1,39 +1,43 @@
 // Runtime-agnostic Hono app. apps/web imports `AppType` from here (type-only), so this module graph
 // must stay free of Bun/Node APIs; those live in src/runtime/.
 
-import type { LibraryView } from "@sprachanker/course-kit";
+import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit";
 import { courseProgress } from "@sprachanker/engine";
 import {
   CardFace,
   CardRating,
   CourseKey,
+  CourseSlug,
   courseKey,
+  EditionId,
   LessonKey,
-  type SeriesKey,
+  SeriesKey,
   Ulid,
 } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { z } from "zod";
 import type { ProfileDb } from "./db/profile/db.ts";
+import { ServiceError } from "./errors.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
+import { hostGuard } from "./security/host.ts";
 import { secretBox } from "./security/secrets.ts";
-import { CardError, createCards } from "./services/cards.ts";
+import { createCards } from "./services/cards.ts";
 import { createContent } from "./services/content.ts";
-import { type CourseInstaller, createDownloads, DownloadError } from "./services/downloads.ts";
+import { type CourseInstaller, createDownloads } from "./services/downloads.ts";
 import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createLlmRuns } from "./services/llm-runs.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
-import { createRuns, RunError } from "./services/runs.ts";
+import { createRuns } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
 import { createTutor } from "./services/tutor.ts";
 import { createTutorTools } from "./services/tutor-tools.ts";
-import { Edition, Series, zod } from "./validate.ts";
+import { zod } from "./validate.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
 export type { WebAssets } from "./web.ts";
@@ -55,15 +59,14 @@ export interface AppConfig {
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;
+  /** Names this machine is reached by besides localhost, IPs and `.local` (its host name). */
+  hosts?: string[];
 }
 
 /** Mutating requests must carry this header (CSRF protection, 06). */
 export const CLIENT_HEADER = "x-sprachanker";
 
-const CourseRef = z.object({
-  series: Series,
-  course: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-});
+const CourseRef = z.object({ series: SeriesKey, course: CourseSlug });
 
 const CardParam = z.object({ id: Ulid });
 /** Every deck, a language, a course, or a lesson's own words (services/cards.ts). */
@@ -158,7 +161,7 @@ export function createApp(config: AppConfig) {
             const edition = course.editions[0];
             const locale =
               next && edition && (await content.localeLesson(course.series, next, edition));
-            const state = next && (await runs.lessonStates(course.series, [next]))[next];
+            const state = next && (await runs.lessonStates([next], progress))[next];
             return {
               ...course,
               lessons: lessons.length,
@@ -170,16 +173,12 @@ export function createApp(config: AppConfig) {
         ),
       );
     })
-    .get(
-      "/course",
-      zod("query", z.object({ series: Series, course: z.string(), edition: Edition })),
-      async (c) => {
-        const { series, course, edition } = c.req.valid("query");
-        const map = await content.courseMap(series, course, edition);
-        const lessons = map.index.units.flatMap((u) => u.lessons) as LessonKey[];
-        return c.json({ ...map, lessons: await runs.lessonStates(series, lessons) });
-      },
-    )
+    .get("/course", zod("query", CourseRef.extend({ edition: EditionId })), async (c) => {
+      const { series, course, edition } = c.req.valid("query");
+      const map = await content.courseMap(series, course, edition);
+      const lessons = map.index.units.flatMap((u) => u.lessons) as LessonKey[];
+      return c.json({ ...map, lessons: await runs.lessonStates(lessons) });
+    })
     // A course's integrity and counts.
     .get("/course/check", zod("query", CourseRef), async (c) => {
       const { series, course } = c.req.valid("query");
@@ -193,18 +192,12 @@ export function createApp(config: AppConfig) {
     .get("/downloads", (c) => c.json({ available: downloads.available, jobs: downloads.list() }))
     .post("/downloads", zod("json", CourseRef), (c) => {
       const { series, course } = c.req.valid("json");
-      try {
-        return c.json(downloads.start(series, course));
-      } catch (error) {
-        if (!(error instanceof DownloadError)) throw error;
-        const status = error.message === "not_offered" ? 404 : 409;
-        throw new HTTPException(status, { message: error.message });
-      }
+      return c.json(downloads.start(series, course));
     })
     .get("/storage", async (c) => c.json(await downloads.storage()))
     .get(
       "/lesson",
-      zod("query", z.object({ series: Series, key: LessonKey, edition: Edition })),
+      zod("query", z.object({ series: SeriesKey, key: LessonKey, edition: EditionId })),
       async (c) => {
         const { series, key, edition } = c.req.valid("query");
         const [lesson, locale] = await Promise.all([
@@ -217,16 +210,16 @@ export function createApp(config: AppConfig) {
     .get("/settings", (c) => c.json(settings.all()))
     .put(
       "/settings",
-      zod("json", z.object({ key: z.string().min(1).max(100), value: z.unknown() })),
+      zod("json", z.object({ key: z.string().min(1).max(300), value: z.unknown() })),
       (c) => {
         const { key, value } = c.req.valid("json");
-        settings.set(key, value);
+        settings.setByLearner(key, value);
         return c.json(settings.all());
       },
     )
     .get(
       "/runs/lesson",
-      zod("query", z.object({ series: Series, lessonKey: LessonKey })),
+      zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey })),
       async (c) => {
         const { series, lessonKey } = c.req.valid("query");
         return c.json({ state: await runs.lessonState(series, lessonKey) });
@@ -237,15 +230,15 @@ export function createApp(config: AppConfig) {
       zod(
         "json",
         z.object({
-          series: Series,
+          series: SeriesKey,
           lessonKey: LessonKey,
-          edition: Edition,
+          edition: EditionId,
           restart: z.boolean().optional(),
         }),
       ),
-      (c) => {
+      async (c) => {
         const { series, lessonKey, edition, restart } = c.req.valid("json");
-        return c.json(runs.start(series, lessonKey, edition, restart));
+        return c.json(await runs.start(series, lessonKey, edition, restart));
       },
     )
     .post(
@@ -260,7 +253,7 @@ export function createApp(config: AppConfig) {
       zod("json", CourseRef.extend({ lesson: LessonKey.optional() })),
       (c) => {
         const { series, course, lesson } = c.req.valid("json");
-        const key = courseKey(series as SeriesKey, course);
+        const key = courseKey(series, course);
         if (lesson && !lesson.startsWith(`${key}/`))
           throw new HTTPException(400, { message: "lesson is not in this course" });
         return c.json(runs.reset(key, lesson));
@@ -270,7 +263,7 @@ export function createApp(config: AppConfig) {
     // Cards and review as in Anki (04): cards from a lesson's words, decks, study, the reviewer's actions.
     .post(
       "/cards/lesson",
-      zod("json", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
+      zod("json", z.object({ series: SeriesKey, lessonKey: LessonKey, edition: EditionId })),
       async (c) => c.json(await cards.fromLesson(c.req.valid("json"))),
     )
     .get("/cards/decks", async (c) => c.json({ decks: await cards.decks() }))
@@ -280,10 +273,13 @@ export function createApp(config: AppConfig) {
     .post(
       "/cards/:id/review",
       zod("param", CardParam),
-      zod("json", z.object({ face: CardFace, rating: CardRating })),
+      zod(
+        "json",
+        z.object({ id: Ulid, face: CardFace, rating: CardRating, reps: z.number().int().min(0) }),
+      ),
       (c) => {
-        const { face, rating } = c.req.valid("json");
-        return c.json({ state: cards.rate(c.req.valid("param").id, face, rating) });
+        const { id, face, rating, reps } = c.req.valid("json");
+        return c.json({ state: cards.rate(c.req.valid("param").id, face, rating, { id, reps }) });
       },
     )
     .post("/cards/undo", (c) => c.json(cards.undo()))
@@ -331,26 +327,35 @@ export function createApp(config: AppConfig) {
     )
     .get("/cards", (c) => c.json({ words: cards.words() }))
     .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))
+    // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
+    // stored data included, is a server fault.
     .onError((error, c) => {
-      if (error instanceof RunError) return c.json({ error: error.message }, error.status);
-      if (error instanceof CardError)
-        return c.json({ error: error.message }, error.message === "nothing_to_undo" ? 409 : 404);
+      if (error instanceof ServiceError) return c.json({ error: error.message }, error.status);
+      if (error instanceof NotInstalledError) return c.json({ error: "not_installed" }, 404);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
-      if (error instanceof z.ZodError)
-        return c.json({ error: "bad_request", issues: error.issues }, 400);
       throw error;
     });
 
   return new Hono()
+    .use("*", hostGuard(config.hosts))
     .route("/api", api)
     .all("/api/*", (c) => c.json({ error: "not_found" }, 404))
     .get("/library/:series/*", (c) => {
       const series = c.req.param("series");
-      const path = decodeURIComponent(c.req.path.slice(`/library/${series}/`.length));
-      const file = config.library.mediaFile(series, path);
+      const path = safeDecode(c.req.path.slice(`/library/${series}/`.length));
+      const file = path && config.library.mediaFile(series, path);
       return file ? blobResponse(config.mediaBlob(file), c.req.header("range")) : c.notFound();
     })
     .get("*", serveWeb(config.webAssets));
 }
 
 export type AppType = ReturnType<typeof createApp>;
+
+/** A URL path decoded, or undefined when its escapes are malformed. */
+function safeDecode(path: string) {
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return undefined;
+  }
+}

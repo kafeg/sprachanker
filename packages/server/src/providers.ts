@@ -166,8 +166,9 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
 
     async storage() {
       const series: Array<{ series: string; bytes: number }> = [];
-      for (const name of existsSync(library) ? await readdir(library) : [])
-        series.push({ series: name, bytes: await folderBytes(join(library, name)) });
+      const entries = existsSync(library) ? await readdir(library, { withFileTypes: true }) : [];
+      for (const entry of entries.filter((e) => e.isDirectory()))
+        series.push({ series: entry.name, bytes: await folderBytes(join(library, entry.name)) });
       const disk = await statfs(dataRoot).catch(() => undefined);
       return { dataRoot, series, free: disk ? disk.bavail * disk.bsize : null };
     },

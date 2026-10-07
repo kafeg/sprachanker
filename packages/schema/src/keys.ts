@@ -32,6 +32,8 @@ function key<const B extends string>(brand: B, pattern: string, description: str
 }
 
 export const SeriesKey = key("SeriesKey", SERIES, "<publisher>.<series>");
+/** A course's id within its series (the `<course>` of a course key). */
+export const CourseSlug = z.string().regex(new RegExp(`^${SLUG}$`));
 export const CourseKey = key("CourseKey", COURSE, "<series>/<course>");
 export const UnitKey = key("UnitKey", `${COURSE}/u${NN}`, "<course>/u<NN>");
 export const LessonKey = key("LessonKey", LESSON, "<course>/<unit NN>-<lesson NN>");

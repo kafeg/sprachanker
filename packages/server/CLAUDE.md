@@ -19,7 +19,8 @@ src/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
     backup.ts        # copy-before-migrate, retention
-  validate.ts        # request validation helper and shared param schemas
+  validate.ts        # request validation helper (input type for the client, output for the handler)
+  errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
   services/          # content, runs, settings, llm-runs (chat/scene/practice runs and their LLM events),
                      # mistakes (derived from lesson runs), lesson-context (what LLM
@@ -32,7 +33,8 @@ src/
                      # catalogue states, resume after restart; the installer is injected)
   jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
-  security/          # secrets.ts (AES-GCM sealing of API keys); later profiles, PIN, device tokens, Host check, CSP
+  security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
+                     # headers); later profiles, PIN, device tokens
   speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
   media/             # Range responses for library media (read via course-kit) and profile files
 test/                # bun test; integration tests call createApp().request()

@@ -11,8 +11,9 @@ import {
   structuredRequest,
 } from "@sprachanker/llm";
 import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
+import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import { type Llm, LlmSetupError, type PromptPreview } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
 
 export interface SceneRequest {
@@ -42,7 +43,7 @@ export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonCon
 
   async function turnInput(request: SceneRequest, message: string) {
     const run = latestRun(request.lessonKey);
-    if (run?.status !== "active") throw new LlmSetupError("no_active_scene");
+    if (run?.status !== "active") throw new ServiceError("no_active_scene", 409);
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
     const state = stateOf(run);
     const input: SceneTurnInput = {

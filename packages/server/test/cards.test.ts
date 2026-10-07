@@ -2,6 +2,7 @@ import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { ulid } from "ulid";
 import { setup } from "./setup.ts";
 
 const COURSE = "sprachanker.fixture/demo";
@@ -66,6 +67,8 @@ test("study as in Anki: card 1 of every note first; a rating moves it to learnin
   ]);
 
   await sendJson("POST", `/api/cards/${first.current.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
     face: "recognition",
     rating: 3,
   });
@@ -90,7 +93,20 @@ test("study as in Anki: card 1 of every note first; a rating moves it to learnin
     { type: "card_undo" },
   ]);
   expect((await send("POST", "/api/cards/undo", {})).status).toBe(409);
+
   expect((await getJson(study(`course:${COURSE}`))).canUndo).toBe(false);
+
+  // A rating sent twice is applied once; a face rated meanwhile elsewhere is refused.
+  const answer = { id: ulid(), face: "recognition", rating: 3, reps: 0 };
+  const path = `/api/cards/${first.current.cardId}/review`;
+  const once = await sendJson("POST", path, answer);
+  expect(await sendJson("POST", path, answer)).toEqual(once);
+  expect(sqlite.query("SELECT type FROM events WHERE type = 'card_review'").all()).toHaveLength(2);
+  const stale = await send("POST", path, { ...answer, id: ulid() });
+  expect([stale.status, ((await stale.json()) as { error: string }).error]).toEqual([
+    409,
+    "card_changed",
+  ]);
 });
 
 test("undo shows the face taken back next, ahead of the queue's order, until something is answered", async () => {
@@ -101,14 +117,24 @@ test("undo shows the face taken back next, ahead of the queue's order, until som
   const later = (await getJson("/api/cards")).words.find(
     (w: { cardId: string }) => w.cardId !== order.current.cardId,
   );
-  await sendJson("POST", `/api/cards/${later.cardId}/review`, { face: "production", rating: 3 });
+  await sendJson("POST", `/api/cards/${later.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: "production",
+    rating: 3,
+  });
   await sendJson("POST", "/api/cards/undo", {});
   expect((await getJson(scope)).current).toMatchObject({
     cardId: later.cardId,
     face: "production",
   });
   // Answering anything returns the queue to its order.
-  await sendJson("POST", `/api/cards/${later.cardId}/review`, { face: "production", rating: 3 });
+  await sendJson("POST", `/api/cards/${later.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: "production",
+    rating: 3,
+  });
   expect((await getJson(scope)).current.cardId).toBe(order.current.cardId);
 });
 
@@ -140,7 +166,12 @@ test("each deck has its own day: German answers do not use up English's new card
     );
   await send("PUT", "/api/settings", { key: "srs.newPerDay", value: 1 });
   const german = (await getJson(study("lang:de"))).current;
-  await sendJson("POST", `/api/cards/${german.cardId}/review`, { face: german.face, rating: 3 });
+  await sendJson("POST", `/api/cards/${german.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: german.face,
+    rating: 3,
+  });
   expect((await getJson(study("lang:de"))).counts.new).toBe(0);
   expect((await getJson(study("lang:en"))).counts.new).toBe(1);
 });
@@ -184,8 +215,14 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
   const missing = "01HZZZZZZZZZZZZZZZZZZZZZZZ";
   expect((await send("PUT", `/api/cards/${missing}/mark`, { marked: true })).status).toBe(404);
   expect(
-    (await send("POST", `/api/cards/${card.cardId}/review`, { face: "listening", rating: 3 }))
-      .status,
+    (
+      await send("POST", `/api/cards/${card.cardId}/review`, {
+        id: ulid(),
+        reps: 0,
+        face: "listening",
+        rating: 3,
+      })
+    ).status,
   ).toBe(404);
   expect((await send("GET", study("course:nope"), undefined)).status).toBe(400);
 });

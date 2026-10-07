@@ -1,25 +1,24 @@
 // /api/llm: provider setup, LM Studio, connection test, mistake explanations and the lesson tutor.
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
 import { LlmError, LMSTUDIO_RECOMMENDED, ProviderId } from "@sprachanker/llm";
-import { LessonKey, Ulid } from "@sprachanker/schema";
+import { EditionId, Lang, LessonKey, SeriesKey, Ulid } from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
+import { ServiceError } from "../errors.ts";
 import type { Explain } from "../services/explain.ts";
-import { type Llm, LlmSetupError, PROMPT_TASKS } from "../services/llm.ts";
+import { type Llm, PROMPT_TASKS } from "../services/llm.ts";
 import type { Practice } from "../services/practice.ts";
 import type { Scenes } from "../services/scene.ts";
 import type { Tutor } from "../services/tutor.ts";
-import { Edition, Series, zod } from "../validate.ts";
-
-const Language = z.string().regex(/^[a-z]{2,3}$/);
+import { zod } from "../validate.ts";
 
 /** Every LLM request is about a lesson, answered in the learner's language. */
 const LessonRequest = z.object({
-  series: Series,
+  series: SeriesKey,
   lessonKey: LessonKey,
-  edition: Edition,
-  language: Language,
+  edition: EditionId,
+  language: Lang,
 });
 
 const ExplainBody = LessonRequest.extend({
@@ -51,9 +50,9 @@ const Url = z
   .max(500)
   .regex(/^https?:\/\/\S+$/);
 
-/** LLM failures as responses: setup problems are 409, provider problems 502. */
+/** LLM failures as responses: a service's own (setup: 409), provider problems 502. */
 function failure(error: unknown) {
-  if (error instanceof LlmSetupError) return { status: 409 as const, error: error.message };
+  if (error instanceof ServiceError) return { status: error.status, error: error.message };
   if (error instanceof LlmError)
     return { status: 502 as const, error: `llm_${error.code}`, message: error.message };
   throw error;
@@ -149,7 +148,7 @@ export function llmRoutes(
       .post("/explain/prompt", zod("json", ExplainBody), (c) =>
         jsonOrFailure(c, () => explain.prompt(c.req.valid("json"))),
       )
-      .get("/prompts", zod("query", z.object({ language: Language, target: Language })), (c) => {
+      .get("/prompts", zod("query", z.object({ language: Lang, target: Lang })), (c) => {
         const { language, target } = c.req.valid("query");
         return c.json(llm.prompts(language, target));
       })
@@ -201,7 +200,7 @@ export function llmRoutes(
       // Writing task of a lesson: the task and attempts; a check stores its verdict.
       .get(
         "/writing",
-        zod("query", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
+        zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey, edition: EditionId })),
         async (c) => {
           const { series, lessonKey, edition } = c.req.valid("query");
           return c.json(await practice.writing.state(series, lessonKey, edition));

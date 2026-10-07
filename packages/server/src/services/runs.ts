@@ -31,16 +31,8 @@ import { and, asc, count, desc, eq, inArray, max } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
+import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-
-export class RunError extends Error {
-  constructor(
-    message: string,
-    readonly status: 400 | 404 | 409 = 400,
-  ) {
-    super(message);
-  }
-}
 
 type RunRow = typeof runs.$inferSelect;
 type EventRow = typeof events.$inferSelect;
@@ -97,10 +89,23 @@ export interface RunsOptions {
 }
 
 export function createRuns({ db, content, now, appVersion }: RunsOptions) {
+  /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
-    const row = db.select().from(runs).where(eq(runs.id, id)).get();
-    if (!row) throw new RunError(`no run ${id}`, 404);
+    const row = db
+      .select()
+      .from(runs)
+      .where(and(eq(runs.id, id), eq(runs.kind, "lesson")))
+      .get();
+    if (!row) throw new ServiceError("no_such_run", 404);
     return row;
+  };
+  /** The lesson of a run, or undefined when it is no longer in the library (a course removed). */
+  const lessonOf = async (row: RunRow) => {
+    const key = row.contextKey as LessonKey;
+    return content.lesson(seriesOf(key), key).catch((error: unknown) => {
+      console.error(`lesson of run ${row.id}:`, (error as Error).message);
+      return undefined;
+    });
   };
 
   /**
@@ -112,10 +117,9 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
   const completed = async (row: RunRow) => {
     if (row.status !== "finished") return false;
     if (!complete.has(row.id)) {
-      const lesson = await content.lesson(
-        seriesOf(row.contextKey as LessonKey),
-        row.contextKey as LessonKey,
-      );
+      // A lesson that cannot be read is not counted, and asked again next time.
+      const lesson = await lessonOf(row);
+      if (!lesson) return false;
       complete.set(row.id, lessonCoverage(lesson, exerciseResults(runEvents(db, row.id))).complete);
     }
     return complete.get(row.id) as boolean;
@@ -176,18 +180,23 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       return row && { run: toRun(row), events: runEvents(db, row.id) };
     },
 
-    /** Each lesson's state for the course map, read like the player reads it. */
-    async lessonStates(series: string, lessons: LessonKey[]): Promise<Record<string, LessonState>> {
-      const byLesson = await progress();
+    /** Each lesson's state for the course map, read like the player reads it. `byLesson` is
+     *  `progress()` when the caller has it already. */
+    async lessonStates(
+      lessons: LessonKey[],
+      byLesson?: Awaited<ReturnType<typeof progress>>,
+    ): Promise<Record<string, LessonState>> {
+      const progressOf = byLesson ?? (await progress());
       const out: Record<string, LessonState> = {};
       for (const key of lessons) {
         const row = await shownRun(key);
         if (!row) continue;
-        const lesson = await content.lesson(series, key);
+        const lesson = await lessonOf(row);
+        if (!lesson) continue;
         const coverage = lessonCoverage(lesson, exerciseResults(runEvents(db, row.id)));
         const result = toRun(row).result;
         out[key] = {
-          done: lessonDone(byLesson[key]),
+          done: lessonDone(progressOf[key]),
           run: {
             status: row.status as "active" | "finished",
             worked: coverage.worked,
@@ -235,27 +244,28 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
       return { runs: ids.length, events: counted?.n ?? 0 };
     },
 
-    /** The active run of the lesson, or a new one; `restart` ends the active one first. */
-    start(series: string, lessonKey: LessonKey, edition: string, restart = false) {
-      const active = db
-        .select()
-        .from(runs)
-        .where(
-          and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey), eq(runs.status, "active")),
-        )
-        .get();
-      // A run belongs to one edition; switching editions (or starting over) ends the old one; it
-      // stays readable.
-      if (active && (restart || active.edition !== edition)) {
-        db.update(runs)
-          .set({ status: "abandoned", endReason: "user", finishedAt: now() })
-          .where(eq(runs.id, active.id))
-          .run();
-      }
-      const current = active && !restart && active.edition === edition ? active : undefined;
-      const row =
-        current ??
-        db
+    /** The active run of the lesson, or a new one; `restart` ends the active one first. Everything is
+     *  checked before anything is written. */
+    async start(series: string, lessonKey: LessonKey, edition: string, restart = false) {
+      if (seriesOf(lessonKey) !== series) throw new ServiceError("lesson is not in this series");
+      await content.lesson(series, lessonKey);
+      const row = db.transaction((tx) => {
+        const active = tx
+          .select()
+          .from(runs)
+          .where(
+            and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey), eq(runs.status, "active")),
+          )
+          .get();
+        if (active && !restart && active.edition === edition) return active;
+        // A run belongs to one edition; switching editions (or starting over) ends the old one; it
+        // stays readable.
+        if (active)
+          tx.update(runs)
+            .set({ status: "abandoned", endReason: "user", finishedAt: now() })
+            .where(and(eq(runs.id, active.id), eq(runs.status, "active")))
+            .run();
+        return tx
           .insert(runs)
           .values({
             id: ulid(now()),
@@ -269,55 +279,53 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
           })
           .returning()
           .get();
-      if (!row.courseKey?.startsWith(`${series}/`))
-        throw new RunError("lesson is not in this series");
+      });
       const list = runEvents(db, row.id);
       return { run: toRun(row), events: list, resumePage: resumePage(list) };
     },
 
-    /** Appends events idempotently (by id); returns the outcome of each `answered` event. */
+    /**
+     * Appends events idempotently (by id): the batch is checked whole, then written in one transaction,
+     * so it is stored entirely or not at all; an id stored before is left as it is. Returns the outcome
+     * of each `answered` event of the batch — the stored one for an event sent again.
+     */
     async append(runId: string, input: unknown[]): Promise<Record<string, Outcome>> {
       const row = getRun(runId);
-      if (row.status !== "active") throw new RunError("run is not active", 409);
-      const parsed = input.map((e) => EventInput.parse(e));
-      const known = new Set(
-        parsed.length
-          ? db
-              .select({ id: events.id })
-              .from(events)
-              .where(
-                inArray(
-                  events.id,
-                  parsed.map((e) => e.id),
-                ),
-              )
-              .all()
-              .map((e) => e.id)
-          : [],
-      );
+      if (row.status !== "active") throw new ServiceError("run is not active", 409);
+      const parsed: EventInput[] = [];
+      const seen = new Set<string>();
+      for (const e of input) {
+        const result = EventInput.safeParse(e);
+        if (!result.success) throw new ServiceError("invalid_event");
+        if (seen.has(result.data.id)) continue;
+        seen.add(result.data.id);
+        parsed.push(result.data);
+      }
+      if (!row.edition) throw new ServiceError("lesson run without an edition", 409);
       const series = seriesOf(row.contextKey as LessonKey);
       const lesson = await content.lesson(series, row.contextKey as LessonKey);
-      const locale = row.edition
-        ? await content.localeLesson(series, lesson.key, row.edition)
-        : undefined;
+      const locale = await content.localeLesson(series, lesson.key, row.edition);
       // Answers are checked in the language the edition teaches (case rules differ, 04).
-      if (!row.edition) throw new RunError("lesson run without an edition");
       const target = parseEditionId(row.edition).target;
       const outcomes: Record<string, Outcome> = {};
-      for (const e of parsed) {
-        if (known.has(e.id)) continue;
+      const rows = parsed.map((e) => {
         let payload: unknown = e.payload;
         if (e.type === "answered") {
           const { exercise: exKey, n } = parseItemKey(e.itemKey as ItemKey);
           const exercise = findExercise(lesson, exKey);
-          if (!exercise) throw new RunError(`item ${e.itemKey} is not in ${lesson.key}`);
-          const outcome = checkItem(exercise, n - 1, e.payload.answer, target);
+          if (!exercise) throw new ServiceError(`item ${e.itemKey} is not in ${lesson.key}`);
+          let outcome: Outcome;
+          try {
+            outcome = checkItem(exercise, n - 1, e.payload.answer, target);
+          } catch {
+            throw new ServiceError(`answer does not fit ${e.itemKey}`);
+          }
           outcomes[e.id] = outcome;
           payload = { ...e.payload, outcome };
         } else if (e.type === "item_skipped") {
           const { exercise: exKey } = parseItemKey(e.itemKey as ItemKey);
           if (!findExercise(lesson, exKey))
-            throw new RunError(`item ${e.itemKey} is not in ${lesson.key}`);
+            throw new ServiceError(`item ${e.itemKey} is not in ${lesson.key}`);
           payload = {};
         } else if (e.type === "page_shown") {
           const exercise = lesson.pages[e.payload.pageIndex]?.exercise;
@@ -328,18 +336,53 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
             };
           }
         }
-        db.insert(events)
-          .values({
-            id: e.id,
-            runId,
-            ts: now(),
-            type: e.type,
-            itemKey: e.itemKey ?? null,
-            payloadJson: JSON.stringify(payload),
-          })
-          .run();
-      }
-      return outcomes;
+        return {
+          id: e.id,
+          runId,
+          type: e.type,
+          itemKey: e.itemKey ?? null,
+          payloadJson: JSON.stringify(payload),
+        };
+      });
+      return db.transaction((tx) => {
+        // Checked again after the lesson was read: the run may have ended meanwhile.
+        const status = tx
+          .select({ status: runs.status })
+          .from(runs)
+          .where(eq(runs.id, runId))
+          .get();
+        if (status?.status !== "active") throw new ServiceError("run is not active", 409);
+        const stored = new Map(
+          rows.length
+            ? tx
+                .select()
+                .from(events)
+                .where(
+                  inArray(
+                    events.id,
+                    rows.map((r) => r.id),
+                  ),
+                )
+                .all()
+                .map((e) => [e.id, e])
+            : [],
+        );
+        for (const r of rows) {
+          const before = stored.get(r.id);
+          if (before) {
+            if (before.runId !== runId)
+              throw new ServiceError(`event ${r.id} is another run's`, 409);
+            if (before.type === "answered")
+              outcomes[r.id] = (JSON.parse(before.payloadJson) as { outcome: Outcome }).outcome;
+            else delete outcomes[r.id];
+            continue;
+          }
+          tx.insert(events)
+            .values({ ...r, ts: now() })
+            .run();
+        }
+        return outcomes;
+      });
     },
 
     /**
@@ -351,29 +394,29 @@ export function createRuns({ db, content, now, appVersion }: RunsOptions) {
     async finish(runId: string): Promise<Run> {
       const row = getRun(runId);
       if (row.status !== "active") return toRun(row);
-      const list = runEvents(db, runId);
       const series = seriesOf(row.contextKey as LessonKey);
       const lesson = await content.lesson(series, row.contextKey as LessonKey);
       const locale = row.edition
         ? await content.localeLesson(series, lesson.key, row.edition)
         : undefined;
+      const list = runEvents(db, runId);
       const steps = lessonSteps(lesson, locale);
       if (!planCoverage(steps, lesson, exerciseResults(list), stepsDone(list)).complete)
-        throw new RunError("run_incomplete", 409);
+        throw new ServiceError("run_incomplete", 409);
       const result = lessonResult(lesson, list);
-      return toRun(
-        db
-          .update(runs)
-          .set({
-            status: "finished",
-            endReason: "completed",
-            finishedAt: now(),
-            resultJson: JSON.stringify(result),
-          })
-          .where(eq(runs.id, runId))
-          .returning()
-          .get(),
-      );
+      // Only an active run finishes: one started over meanwhile stays abandoned.
+      const finished = db
+        .update(runs)
+        .set({
+          status: "finished",
+          endReason: "completed",
+          finishedAt: now(),
+          resultJson: JSON.stringify(result),
+        })
+        .where(and(eq(runs.id, runId), eq(runs.status, "active")))
+        .returning()
+        .get();
+      return toRun(finished ?? getRun(runId));
     },
   };
 }

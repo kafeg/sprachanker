@@ -1,7 +1,8 @@
 // TanStack Query hooks over the API.
 import type { CardFace, CardRating, LessonKey } from "@sprachanker/schema";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { ulid } from "ulid";
 import { api, json } from "./client.ts";
 
 /** The server's version (and that it answers). */
@@ -143,40 +144,43 @@ export function useMakeCards() {
   return useMutation({
     mutationFn: (request: { series: string; lessonKey: LessonKey; edition: string }) =>
       json(api.cards.lesson.$post({ json: request })),
-    onSuccess: () => {
-      for (const key of ["study", "decks", "words"])
-        void client.invalidateQueries({ queryKey: [key] });
-    },
+    onSuccess: () => readCardsAgain(client),
   });
 }
+
+/** The decks and the queue read again after cards change; resolves once they are. */
+const readCardsAgain = (client: QueryClient) =>
+  Promise.all(["study", "decks"].map((key) => client.invalidateQueries({ queryKey: [key] })));
 
 /** Decks: each language, and under it each course, with Anki's three counts. */
 export const useDecks = () =>
   useQuery({ queryKey: ["decks"], queryFn: () => json(api.cards.decks.$get()) });
 
 /** What to study now in a scope ("all", "lang:de", "course:…", "lesson:…"). */
-export const useStudy = (scope: string, enabled = true) =>
+export const useStudy = (scope: string) =>
   useQuery({
     queryKey: ["study", scope],
-    enabled,
     queryFn: () => json(api.cards.study.$get({ query: { scope: scope as never } })),
   });
 
-/** What the reviewer does to cards: rate, undo, bury, suspend, flag, mark. Each reads the queue anew. */
+/**
+ * What the reviewer does to cards: rate, undo, bury, suspend, flag, mark. Each reads the queue anew,
+ * and its `onSuccess` callbacks run once the new queue is in (so the next card shows straight away).
+ */
 export function useCardActions() {
   const client = useQueryClient();
-  const onSuccess = () => {
-    for (const key of ["study", "decks", "words"])
-      void client.invalidateQueries({ queryKey: [key] });
-  };
+  const onSuccess = () => readCardsAgain(client);
   const id = (cardId: string) => ({ param: { id: cardId } });
   const rate = useMutation({
     onSuccess,
-    mutationFn: (r: { cardId: string; face: CardFace; rating: CardRating }) =>
+    // Refused (rated meanwhile on another device): the queue as it is now.
+    onError: onSuccess,
+    mutationFn: (r: { cardId: string; face: CardFace; rating: CardRating; reps: number }) =>
       json(
         api.cards[":id"].review.$post({
           ...id(r.cardId),
-          json: { face: r.face, rating: r.rating },
+          // The answer's own id: sent again after a lost response, it is not applied twice.
+          json: { id: ulid(), face: r.face, rating: r.rating, reps: r.reps },
         }),
       ),
   });

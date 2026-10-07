@@ -1,3 +1,4 @@
+import { Database } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -85,9 +86,24 @@ describe("courses and lessons", () => {
     expect(locale.edition).toBe("en-de");
   });
 
-  test("bad queries are rejected", async () => {
+  test("bad queries are rejected; what is not installed is 404", async () => {
     const { get } = await setup();
     expect((await get(`/api/lesson?series=x&key=nope&edition=ru-de`)).status).toBe(400);
+    const lesson = new URLSearchParams({
+      series: FIXTURE_SERIES,
+      key: `${FIXTURE_SERIES}/demo/09-09`,
+      edition: "ru-de",
+    });
+    expect((await get(`/api/lesson?${lesson}`)).status).toBe(404);
+    const course = new URLSearchParams({
+      series: FIXTURE_SERIES,
+      course: "nope",
+      edition: "ru-de",
+    });
+    expect((await get(`/api/course?${course}`)).status).toBe(404);
+    expect((await get(`/api/course?series=${FIXTURE_SERIES}&course=..&edition=ru-de`)).status).toBe(
+      400,
+    );
   });
 });
 
@@ -196,10 +212,36 @@ describe("runs", () => {
       outcomes[retry.id].result,
     ]).toEqual(["correct", "wrong", "correct"]);
 
+    // Sent again (a lost response): stored once, its stored outcome returned.
     const again = await sendJson("POST", `/api/runs/${runId}/events`, {
-      events: [right, { id: ulid(), type: "page_shown", payload: { pageIndex: 2 } }],
+      events: [right, right, { id: ulid(), type: "page_shown", payload: { pageIndex: 2 } }],
     });
-    expect(again.outcomes).toEqual({});
+    expect(again.outcomes).toEqual({ [right.id]: outcomes[right.id] });
+
+    // A batch with an event that does not fit stores nothing of it.
+    const before = (
+      await sendJson("POST", "/api/runs", {
+        series: FIXTURE_SERIES,
+        lessonKey: LESSON,
+        edition: "ru-de",
+      })
+    ).events.length;
+    const bad = await send("POST", `/api/runs/${runId}/events`, {
+      events: [
+        { id: ulid(), type: "page_shown", payload: { pageIndex: 3 } },
+        { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-99#1`, payload: {} },
+      ],
+    });
+    expect(bad.status).toBe(400);
+    expect(
+      (
+        await sendJson("POST", "/api/runs", {
+          series: FIXTURE_SERIES,
+          lessonKey: LESSON,
+          edition: "ru-de",
+        })
+      ).events,
+    ).toHaveLength(before);
 
     const resumed = await sendJson("POST", "/api/runs", {
       series: FIXTURE_SERIES,
@@ -308,6 +350,57 @@ describe("runs", () => {
     expect(again.run.id).toBe(en.run.id);
   });
 
+  test("a start that does not fit writes nothing; the lesson endpoints take lesson runs only", async () => {
+    const { send, sendJson, getJson, root } = await setup();
+    const runCount = () =>
+      new Database(join(root, "profiles/local/profile.sqlite")).query("SELECT id FROM runs").all()
+        .length;
+    const { run } = await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    });
+    const mismatch = await send("POST", "/api/runs", {
+      series: "other.series",
+      lessonKey: LESSON,
+      edition: "en-de",
+    });
+    expect(mismatch.status).toBe(400);
+    const missing = await send("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: `${FIXTURE_SERIES}/demo/09-09`,
+      edition: "ru-de",
+    });
+    expect(missing.status).toBe(404);
+    expect(runCount()).toBe(1);
+    // The active run is still the one started.
+    const again = await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    });
+    expect(again.run.id).toBe(run.id);
+    // A review run (cards) is not a lesson run.
+    await sendJson("POST", "/api/cards/lesson", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+    });
+    const scope = encodeURIComponent(`lesson:${LESSON}`);
+    const card = (await getJson(`/api/cards/study?scope=${scope}`)).current;
+    await sendJson("POST", `/api/cards/${card.cardId}/review`, {
+      id: ulid(),
+      face: card.face,
+      rating: 3,
+      reps: 0,
+    });
+    const review = new Database(join(root, "profiles/local/profile.sqlite"))
+      .query<{ id: string }, []>("SELECT id FROM runs WHERE kind = 'review'")
+      .get();
+    expect((await send("POST", `/api/runs/${review?.id}/events`, { events: [] })).status).toBe(404);
+    expect((await send("POST", `/api/runs/${review?.id}/finish`, {})).status).toBe(404);
+  });
+
   test("an item from another lesson is refused", async () => {
     const { send, sendJson } = await setup();
     const { run } = await sendJson("POST", "/api/runs", {
@@ -329,10 +422,38 @@ describe("runs", () => {
 });
 
 describe("settings and media", () => {
-  test("settings round-trip", async () => {
-    const { send, getJson } = await setup();
+  test("settings round-trip; only the learner's keys, only values that fit", async () => {
+    const { send, getJson, root } = await setup();
     await send("PUT", "/api/settings", { key: "uiLanguage", value: "ru" });
-    expect(await getJson("/api/settings")).toEqual({ uiLanguage: "ru" });
+    await send("PUT", "/api/settings", { key: `edition:${FIXTURE_SERIES}/demo`, value: "en-de" });
+    expect(await getJson("/api/settings")).toEqual({
+      uiLanguage: "ru",
+      [`edition:${FIXTURE_SERIES}/demo`]: "en-de",
+    });
+    const status = async (key: string, value: unknown) =>
+      (await send("PUT", "/api/settings", { key, value })).status;
+    expect(await status("nope", 1)).toBe(400);
+    expect(await status("theme", "pink")).toBe(400);
+    expect(await status("srs.faces", "x")).toBe(400);
+    expect(await status("edition:../x/demo", "ru-de")).toBe(400);
+    // The assistant's endpoints and prompts belong to its own routes.
+    expect(await status("llm.endpoints", { openrouter: "https://elsewhere.example/v1" })).toBe(400);
+    expect(await status("llm.prompts", { tutor: 42 })).toBe(400);
+    // A stored value that no longer fits reads as unset.
+    new Database(join(root, "profiles/local/profile.sqlite"))
+      .query("INSERT INTO settings (key, value_json) VALUES ('theme', '\"pink\"')")
+      .run();
+    expect(await getJson("/api/settings")).not.toHaveProperty("theme");
+  });
+
+  test("only this machine's names are answered; security headers", async () => {
+    const { app, get } = await setup();
+    expect((await app.request("http://rebound.example/api/health")).status).toBe(421);
+    for (const host of ["127.0.0.1", "192.168.1.20", "[::1]", "mac.local", "localhost"])
+      expect((await app.request(`http://${host}:4580/api/health`)).status).toBe(200);
+    const index = await get("/");
+    expect(index.headers.get("x-frame-options")).toBe("DENY");
+    expect(index.headers.get("content-security-policy")).toContain("img-src 'self' data: blob:");
   });
 
   test("media with ranges; nothing outside the media folder", async () => {
@@ -348,6 +469,16 @@ describe("settings and media", () => {
     expect(
       (await get(`/library/${FIXTURE_SERIES}/media/../canonical/demo/course.json`)).status,
     ).toBe(404);
+  });
+
+  test("a series name cannot point outside the library; malformed escapes are 404", async () => {
+    const { get, root } = await setup();
+    // "../../" as the series makes <library>/../../media the series' media folder: the folder next
+    // to the data root.
+    const name = `secret-${Date.now()}.txt`;
+    await Bun.write(join(root, "..", "media", name), "secret");
+    expect((await get(`/library/..%2F..%2F/media/${name}`)).status).toBe(404);
+    expect((await get(`/library/${FIXTURE_SERIES}/media/%E0%A4%A`)).status).toBe(404);
   });
 });
 

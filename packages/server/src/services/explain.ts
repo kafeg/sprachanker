@@ -11,8 +11,9 @@ import {
 import { and, asc, eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events } from "../db/profile/schema.ts";
+import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-import { type Llm, LlmSetupError, type PromptPreview } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import type { LlmRuns } from "./llm-runs.ts";
 
 export interface ExplainRequest {
@@ -56,7 +57,7 @@ export function createExplain(deps: {
     ]);
     const exercise = findExercise(lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
-    if (!exercise || !item) throw new LlmSetupError("no_such_item");
+    if (!exercise || !item) throw new ServiceError("no_such_item", 404);
     const target = parseEditionId(request.edition).target;
     // Understanding of a recording is explained from its transcript, not guessed.
     const recording = [exercise.media, item.media].some(
@@ -82,7 +83,7 @@ export function createExplain(deps: {
     /** Explanation of a wrong answer, streamed; kept in the lesson run once the model has finished. */
     async stream(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
       const run = request.runId ? lessonRun(request.lessonKey, request.runId) : undefined;
-      if (request.runId && !run) throw new LlmSetupError("no_such_run");
+      if (request.runId && !run) throw new ServiceError("no_such_run", 404);
       const { itemKey, input: task } = await input(request);
       const { client, model } = await llm.model();
       const started = now();

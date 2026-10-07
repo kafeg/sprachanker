@@ -10,6 +10,7 @@ import type {
   ProgressSink,
 } from "@sprachanker/course-kit";
 import { courseKey, type SeriesKey } from "@sprachanker/schema";
+import { ServiceError } from "../errors.ts";
 
 export interface CourseInstaller {
   /** Every course the providers offer, with the series folder it goes to. */
@@ -59,8 +60,6 @@ const LOG_LINES = 200;
 const LISTED_LOG_LINES = 15;
 const keyOf = (series: string, course: string): string => courseKey(series as SeriesKey, course);
 
-export class DownloadError extends Error {}
-
 export function createDownloads(deps: {
   installer?: CourseInstaller;
   now: () => number;
@@ -107,9 +106,9 @@ export function createDownloads(deps: {
 
   /** Queues a download of the course unless one is queued or running; returns its job. */
   function start(series: string, course: string): DownloadJob {
-    if (!deps.installer) throw new DownloadError("downloads_unavailable");
+    if (!deps.installer) throw new ServiceError("downloads_unavailable", 409);
     if (!deps.installer.offers().some((o) => o.series === series && o.course === course))
-      throw new DownloadError("not_offered");
+      throw new ServiceError("not_offered", 404);
     const key = keyOf(series, course);
     const known = jobs.get(key);
     if (known && (known.status === "queued" || known.status === "running")) return known;

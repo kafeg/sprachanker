@@ -34,14 +34,20 @@ import type { Lang } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { llmRoutes, secrets } from "../db/profile/schema.ts";
+import { ServiceError } from "../errors.ts";
 import type { SecretBox } from "../security/secrets.ts";
 import type { Settings } from "./settings.ts";
 
 /** Settings key with custom endpoints by provider id. */
-const ENDPOINTS = "llm.endpoints";
+const ENDPOINTS = "llm.endpoints" as const;
 const DEFAULT_ROUTE = "default";
 
-export class LlmSetupError extends Error {}
+/** The assistant cannot run as set up (no provider, key, model…): 409. */
+export class LlmSetupError extends ServiceError {
+  constructor(message: string) {
+    super(message, 409);
+  }
+}
 
 export interface ProviderState {
   id: ProviderId;
@@ -117,7 +123,7 @@ const BUDGETS: Record<PromptTask, Record<string, number>> = {
   scene: SCENE_BUDGETS,
 };
 /** The learner's own system prompts, by task: templates with {language} and {target}. */
-const PROMPTS = "llm.prompts";
+const PROMPTS = "llm.prompts" as const;
 
 /** Placeholders a prompt template may hold: the answer language and the language learnt. */
 const fill = (template: string, language: Lang, target: Lang) =>
@@ -158,12 +164,13 @@ export function createLlm(deps: {
   const downloads = new Map<string, string>();
   /** LM Studio loads in progress, by model key. */
   const loading = new Map<string, Promise<void>>();
-  const endpoints = () => settings.get<Partial<Record<ProviderId, string>>>(ENDPOINTS) ?? {};
-  const customPrompts = () => settings.get<Partial<Record<PromptTask, string>>>(PROMPTS) ?? {};
+  const endpoints = (): Partial<Record<ProviderId, string>> => settings.get(ENDPOINTS) ?? {};
+  const customPrompts = (): Partial<Record<PromptTask, string>> => settings.get(PROMPTS) ?? {};
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
   const hasKey = (id: ProviderId) =>
     !!db.select().from(secrets).where(eq(secrets.providerId, id)).get();
   const baseUrl = (id: ProviderId) => endpoints()[id] ?? PROVIDERS[id].baseUrl;
+  const origin = (url: string) => URL.parse(url)?.origin ?? url;
   const apiKey = async (id: ProviderId) => {
     const row = db.select().from(secrets).where(eq(secrets.providerId, id)).get();
     return row ? await box.open(row.valueEncrypted) : undefined;
@@ -240,13 +247,17 @@ export function createLlm(deps: {
     },
     /** Endpoint (null → preset) and API key (null → remove; undefined → keep). */
     async setProvider(id: ProviderId, change: { baseUrl?: string | null; apiKey?: string | null }) {
+      let keyLeft = change.apiKey;
       if (change.baseUrl !== undefined && PROVIDERS[id].editableUrl) {
+        const before = baseUrl(id);
         const { [id]: _, ...rest } = endpoints();
         settings.set(ENDPOINTS, change.baseUrl ? { ...rest, [id]: change.baseUrl } : rest);
+        // A key is never sent to a host it was not given for.
+        if (keyLeft === undefined && origin(before) !== origin(baseUrl(id))) keyLeft = null;
       }
-      if (change.apiKey === null) db.delete(secrets).where(eq(secrets.providerId, id)).run();
-      else if (change.apiKey !== undefined) {
-        const valueEncrypted = await box.seal(change.apiKey);
+      if (keyLeft === null) db.delete(secrets).where(eq(secrets.providerId, id)).run();
+      else if (keyLeft !== undefined) {
+        const valueEncrypted = await box.seal(keyLeft);
         db.insert(secrets)
           .values({ providerId: id, valueEncrypted })
           .onConflictDoUpdate({ target: secrets.providerId, set: { valueEncrypted } })
