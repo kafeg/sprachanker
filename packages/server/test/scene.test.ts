@@ -46,7 +46,7 @@ test("a scene: setup, turns with corrections and goals, done when all goals are 
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   const base = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de", language: "ru" };
 
-  expect(await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).toEqual({ scene: null });
+  expect(await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).toEqual({ scenes: [] });
   const started = await sendJson("POST", "/api/llm/scene/start", base);
   expect(started.turns).toEqual([
     { role: "assistant", text: SETUP.opening, model: "m", goalsMet: [], ts: expect.any(Number) },
@@ -73,5 +73,29 @@ test("a scene: setup, turns with corrections and goals, done when all goals are 
     409,
     "no_active_scene",
   ]);
-  expect((await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).scene.done).toBe(true);
+  const [done] = (await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).scenes;
+  expect([done.id, done.done, done.turns.length]).toEqual([started.id, true, 5]);
+});
+
+test("the lesson's scenes stay readable: a new one ends the open one and comes first", async () => {
+  const m = model([SETUP, { ...SETUP, title: "Am Bahnhof" }]);
+  const { send, sendJson, getJson } = await setup({ fetch: m.fetch });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  const base = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de", language: "ru" };
+  const first = await sendJson("POST", "/api/llm/scene/start", base);
+  expect(first.done).toBe(false);
+  const second = await sendJson("POST", "/api/llm/scene/start", base);
+  const { scenes } = await getJson(`/api/llm/scene?lessonKey=${LESSON}`);
+  expect(
+    scenes.map((s: { id: string; setup: { title: string }; done: boolean }) => [
+      s.id,
+      s.setup.title,
+      s.done,
+    ]),
+  ).toEqual([
+    [second.id, "Am Bahnhof", false],
+    [first.id, "Im Café", true],
+  ]);
+  expect(scenes[1].startedAt).toBeLessThanOrEqual(scenes[0].startedAt);
 });

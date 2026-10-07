@@ -1,27 +1,21 @@
-// Scenes, a practice step of the lesson: a role-play on the lesson's topic. The partner speaks the target
-// language (translation on demand), corrects the learner's lines and ticks off the scene's goals.
+// Scenes, a practice step of the lesson, on the step's page: a role-play on the lesson's topic. The
+// partner speaks the target language (translation on demand), corrects the learner's lines and ticks
+// off the scene's goals; the lesson's earlier scenes are listed under it, each readable again.
 import type { LessonKey } from "@sprachanker/schema";
-import { Circle, CircleCheck, Drama, Languages, LoaderCircle } from "lucide-react";
+import { ChevronDown, Circle, CircleCheck, Languages, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { type SceneState, useLlm, useScene, useSceneAction } from "./api.ts";
-import { AssistantLabel, useAssistantLabel } from "./assistant-label.tsx";
-import {
-  ChatBubble,
-  ChatComposer,
-  ChatSheet,
-  Corrections,
-  ErrorLine,
-  PracticeCard,
-  useScrollToEnd,
-} from "./parts.tsx";
+import { type SceneState, useLlm, useSceneAction, useScenes } from "./api.ts";
+import { AssistantLabel } from "./assistant-label.tsx";
+import { ChatBubble, ChatComposer, Corrections, ErrorLine, useScrollToEnd } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 type Ids = { series: string; lessonKey: LessonKey; edition: string };
 type Turn = SceneState["turns"][number];
+type Action = ReturnType<typeof useSceneAction>;
 
 function PartnerLine({ turn }: { turn: Turn }) {
   const lang = useTargetLang();
@@ -38,7 +32,7 @@ function PartnerLine({ turn }: { turn: Turn }) {
         ) : (
           <button
             type="button"
-            className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground underline"
+            className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
             onClick={() => setShown(true)}
           >
             <Languages className="size-3.5" /> {t("scene.translate")}
@@ -60,12 +54,65 @@ function LearnerLine({ turn }: { turn: Turn }) {
   );
 }
 
-function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
+/** A scene's lines in order. */
+function Lines({ turns }: { turns: Turn[] }) {
+  return turns.map((turn, i) =>
+    turn.role === "assistant" ? (
+      // biome-ignore lint/suspicious/noArrayIndexKey: lines are append-only
+      <PartnerLine key={i} turn={turn} />
+    ) : (
+      // biome-ignore lint/suspicious/noArrayIndexKey: lines are append-only
+      <LearnerLine key={i} turn={turn} />
+    ),
+  );
+}
+
+/** The situation, the partner and the goals, those reached ticked off. */
+function Setup({ scene }: { scene: SceneState }) {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-2">
+      <p>{scene.setup.situation}</p>
+      <p className="text-sm text-muted-foreground">
+        {t("scene.partner", { partner: scene.setup.partner })}
+      </p>
+      <ul className="space-y-1">
+        {scene.setup.goals.map((g, i) => {
+          const met = scene.goalsMet.includes(i);
+          return (
+            <li key={g} className={cn("flex items-center gap-2", met && "text-correct")}>
+              {met ? (
+                <CircleCheck className="size-4 shrink-0" />
+              ) : (
+                <Circle className="size-4 shrink-0 text-muted-foreground" />
+              )}
+              {g}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+}
+
+/** The latest scene: its setup, the conversation and the line to send (until it is done). */
+function CurrentScene({
+  ids,
+  scene,
+  action,
+  onNew,
+}: {
+  ids: Ids;
+  scene: SceneState;
+  action: Action;
+  onNew(): void;
+}) {
   const lang = useTargetLang();
   const { t, i18n } = useTranslation();
-  const action = useSceneAction(ids.lessonKey);
   const [text, setText] = useState("");
-  const end = useScrollToEnd(`${scene.turns.length}:${action.isPending}`);
+  const sending = action.isPending && action.variables && "turn" in action.variables;
+  const starting = action.isPending && !sending;
+  const end = useScrollToEnd(`${scene.id}:${scene.turns.length}:${sending}`);
   const line = { ...ids, language: i18n.language, text: text.trim() };
   const send = () => {
     if (!line.text || action.isPending) return;
@@ -73,127 +120,134 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
   };
   return (
     <>
-      <div className="space-y-2 border-b px-4 pb-3">
-        <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="mr-auto text-xl font-bold">{scene.setup.title}</h2>
+        <Button variant="outline" disabled={action.isPending} onClick={onNew}>
+          {starting && <LoaderCircle className="size-4 animate-spin" />}
+          {starting ? t("scene.preparing") : t("scene.new")}
+        </Button>
+      </div>
+      <div className="rounded-2xl border bg-card p-4 sm:p-5">
+        <Setup scene={scene} />
+      </div>
+      <div className="rounded-2xl border bg-card">
+        <div className="flex min-h-11 items-center gap-1 border-b px-4 py-1">
           <AssistantLabel className="mr-auto" />
           {!scene.done && (
             <PromptButton request={() => ({ scene: { ...line, text: line.text || "…" } })} />
           )}
         </div>
-        <p className="text-sm">{scene.setup.situation}</p>
-        <p className="text-sm text-muted-foreground">
-          {t("scene.partner", { partner: scene.setup.partner })}
-        </p>
-        <ul className="space-y-0.5 text-sm">
-          {scene.setup.goals.map((g, i) => {
-            const met = scene.goalsMet.includes(i);
-            return (
-              <li key={g} className={cn("flex items-center gap-1.5", met && "text-correct")}>
-                {met ? <CircleCheck className="size-4" /> : <Circle className="size-4" />} {g}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
-        {scene.turns.map((turn, i) =>
-          turn.role === "assistant" ? (
-            // biome-ignore lint/suspicious/noArrayIndexKey: lines are append-only
-            <PartnerLine key={i} turn={turn} />
-          ) : (
-            // biome-ignore lint/suspicious/noArrayIndexKey: lines are append-only
-            <LearnerLine key={i} turn={turn} />
-          ),
+        <div className="space-y-3 p-4" aria-live="polite">
+          <Lines turns={scene.turns} />
+          {sending && (
+            <>
+              <ChatBubble from="learner" pending lang={lang} className="text-lg">
+                {text}
+              </ChatBubble>
+              <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
+            </>
+          )}
+          {scene.done && (
+            <p className="font-semibold text-correct">
+              {scene.goalsMet.length === scene.setup.goals.length
+                ? t("scene.done")
+                : t("scene.ended")}
+            </p>
+          )}
+        </div>
+        {!scene.done && (
+          <ChatComposer
+            lang={lang}
+            value={text}
+            onChange={setText}
+            onSend={send}
+            placeholder={t("scene.placeholder")}
+          />
         )}
-        {action.isPending && "turn" in (action.variables ?? {}) && (
-          <>
-            <ChatBubble from="learner" pending lang={lang} className="text-lg">
-              {text}
-            </ChatBubble>
-            <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
-          </>
-        )}
-        {scene.done && <p className="font-semibold text-correct">{t("scene.done")}</p>}
-        <ErrorLine error={action.error} />
         <div ref={end} />
       </div>
-      {scene.done ? (
-        <div className="border-t p-3">
-          <Button
-            size="lg"
-            className="w-full"
-            disabled={action.isPending}
-            onClick={() => action.mutate({ start: { ...ids, language: i18n.language } })}
-          >
-            {action.isPending && <LoaderCircle className="size-4 animate-spin" />}
-            {t("scene.new")}
-          </Button>
-        </div>
-      ) : (
-        <ChatComposer
-          lang={lang}
-          value={text}
-          onChange={setText}
-          onSend={send}
-          placeholder={t("scene.placeholder")}
-        />
-      )}
     </>
   );
 }
 
-/** The scene of the lesson; `onDone` once one was started. */
-export function SceneCard({ onDone, ...ids }: Ids & { onDone?(): void }) {
+/** Earlier scenes of the lesson, newest first; one opens to be read again. */
+function PastScenes({ scenes }: { scenes: SceneState[] }) {
+  const { t, i18n } = useTranslation();
+  const [open, setOpen] = useState<string>();
+  const when = new Intl.DateTimeFormat(i18n.language, {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return (
+    <section className="rounded-2xl border bg-card p-4 sm:p-5">
+      <h3 className="mb-1 font-semibold">{t("scene.past")}</h3>
+      <ul className="divide-y">
+        {scenes.map((scene) => (
+          <li key={scene.id}>
+            <button
+              type="button"
+              aria-expanded={open === scene.id}
+              onClick={() => setOpen(open === scene.id ? undefined : scene.id)}
+              className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left hover:bg-accent pointer-coarse:min-h-11"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block truncate">{scene.setup.title}</span>
+                <span className="block text-sm text-muted-foreground">
+                  {t("scene.goals", {
+                    met: scene.goalsMet.length,
+                    total: scene.setup.goals.length,
+                  })}
+                </span>
+              </span>
+              <span className="text-sm text-muted-foreground">{when.format(scene.startedAt)}</span>
+              <ChevronDown
+                className={cn(
+                  "size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
+                  open === scene.id && "rotate-180",
+                )}
+              />
+            </button>
+            {open === scene.id && (
+              <div className="space-y-3 pb-4">
+                <Setup scene={scene} />
+                <Lines turns={scene.turns} />
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** The lesson's scene step: the latest scene (or a start), then the earlier ones; `onDone` once a
+ *  scene was started. */
+export function SceneStep({ onDone, ...ids }: Ids & { onDone?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
-  const scene = useScene(ids.lessonKey);
+  const scenes = useScenes(ids.lessonKey);
   const action = useSceneAction(ids.lessonKey);
-  const label = useAssistantLabel();
-  const [open, setOpen] = useState(false);
-  if (!llm.data?.model || !scene.data) return null;
-  const current = scene.data.scene;
+  if (!llm.data?.model || !scenes.data) return null;
+  const [current, ...past] = scenes.data.scenes;
   const start = () =>
-    action.mutate(
-      { start: { ...ids, language: i18n.language } },
-      {
-        onSuccess: () => {
-          setOpen(true);
-          onDone?.();
-        },
-      },
-    );
+    action.mutate({ start: { ...ids, language: i18n.language } }, { onSuccess: () => onDone?.() });
   return (
-    <PracticeCard icon={Drama} title={t("scene.title")} label={label}>
-      <p>{t("scene.intro")}</p>
-      <div className="flex flex-wrap gap-2">
-        {current && !current.done && (
-          <Button size="lg" onClick={() => setOpen(true)}>
-            {t("scene.continue", { title: current.setup.title })}
+    <div className="space-y-4">
+      {current ? (
+        <CurrentScene ids={ids} scene={current} action={action} onNew={start} />
+      ) : (
+        <div className="space-y-3">
+          <p className="text-muted-foreground">{t("scene.intro")}</p>
+          <Button size="lg" disabled={action.isPending} onClick={start}>
+            {action.isPending && <LoaderCircle className="size-4 animate-spin" />}
+            {action.isPending ? t("scene.preparing") : t("scene.start")}
           </Button>
-        )}
-        <Button
-          size="lg"
-          variant={current && !current.done ? "outline" : "default"}
-          disabled={action.isPending}
-          onClick={start}
-        >
-          {action.isPending && <LoaderCircle className="size-4 animate-spin" />}
-          {action.isPending ? t("scene.preparing") : t("scene.start")}
-        </Button>
-        {current?.done && (
-          <Button size="lg" variant="ghost" onClick={() => setOpen(true)}>
-            {t("scene.showLast")}
-          </Button>
-        )}
-      </div>
+        </div>
+      )}
       <ErrorLine error={action.error} />
-      <ChatSheet
-        open={open && !!current}
-        onOpenChange={setOpen}
-        title={current?.setup.title ?? t("scene.title")}
-      >
-        {current && <SceneView ids={ids} scene={current} />}
-      </ChatSheet>
-    </PracticeCard>
+      {past.length > 0 && <PastScenes scenes={past} />}
+    </div>
   );
 }

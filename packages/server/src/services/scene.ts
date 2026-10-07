@@ -1,5 +1,6 @@
 // Scenes (07): a role-play on the lesson's topic, one `scene` run each — the setup in the run's plan,
-// the lines as `llm_turn` events. A scene ends when its goals are reached or the learner ends it.
+// the lines as `llm_turn` events. A scene ends when its goals are reached or a new one is started; the
+// lesson's scenes stay readable, newest first.
 import {
   cleanSceneTurn,
   runStructured,
@@ -24,6 +25,8 @@ export interface SceneRequest {
 }
 
 export interface SceneState {
+  id: string;
+  startedAt: number;
   setup: SceneSetup;
   turns: LlmTurnPayload[];
   goalsMet: number[];
@@ -40,7 +43,14 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
     if (!setup.success) return undefined;
     const list = store.payloads(run.id, "llm_turn");
     const goalsMet = list.at(-1)?.goalsMet ?? [];
-    return { setup: setup.data, turns: list, goalsMet, done: run.status !== "active" };
+    return {
+      id: run.id,
+      startedAt: run.startedAt,
+      setup: setup.data,
+      turns: list,
+      goalsMet,
+      done: run.status !== "active",
+    };
   }
 
   async function turnInput(request: SceneRequest, message: string) {
@@ -62,10 +72,12 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
   }
 
   return {
-    /** The lesson's latest scene (active or finished), or null. */
-    state(lessonKey: LessonKey): SceneState | null {
-      const run = latestRun(lessonKey);
-      return (run && stateOf(run)) ?? null;
+    /** The lesson's scenes, newest first (the latest, active or finished, then earlier ones). */
+    list(lessonKey: LessonKey, limit = 20): SceneState[] {
+      return store
+        .list("scene", lessonKey)
+        .slice(0, limit)
+        .flatMap((run) => stateOf(run) ?? []);
     },
 
     /** Drafts a new scene from the lesson (ending an unfinished one). */
@@ -132,11 +144,6 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
         if (turn.done) store.end(run.id, "finished", "completed");
       });
       return stateOf(store.get(run.id) ?? run) as SceneState;
-    },
-
-    end(lessonKey: LessonKey) {
-      const run = store.active("scene", lessonKey);
-      if (run) store.end(run.id, "finished", "user");
     },
 
     async prompt(request: SceneRequest & { text: string }): Promise<PromptPreview> {

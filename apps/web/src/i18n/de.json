@@ -388,17 +388,17 @@
     "message": "Geh bitte meine Fehler in dieser Lektion mit mir durch."
   },
   "scene": {
-    "title": "Szene",
     "intro": "Übe die Lektion in einer kurzen Szene: Dein Gegenüber spricht die Kurssprache, korrigiert dich und hakt deine Ziele ab.",
     "start": "Szene starten",
     "preparing": "Wird vorbereitet…",
-    "continue": "Weiter: {title}",
-    "showLast": "Letzte Szene zeigen",
     "partner": "Dein Gegenüber: {partner}",
     "translate": "Übersetzung",
     "placeholder": "Was sagst du?…",
     "done": "Alle Ziele erreicht – super!",
-    "new": "Neue Szene"
+    "new": "Neue Szene",
+    "past": "Frühere Szenen dieser Lektion",
+    "goals": "Ziele: {met, number} von {total, number}",
+    "ended": "Szene beendet."
   },
   "player": {
     "play": "Abspielen: {what}",
@@ -420,9 +420,9 @@
     "removeCourse": "Aus meinen Kursen entfernen",
     "resetLesson": "Lektionsfortschritt zurücksetzen",
     "courseTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
-    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen, Rückblicke und Szenen dazu. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
+    "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen und Szenen dazu. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
     "lessonTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
-    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen, Rückblicke und Szenen. Das lässt sich nicht rückgängig machen.",
+    "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen und Szenen. Das lässt sich nicht rückgängig machen.",
     "confirm": "Zurücksetzen"
   },
   "download": {

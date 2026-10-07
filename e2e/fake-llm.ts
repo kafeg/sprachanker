@@ -15,6 +15,23 @@ const WRITING_CHECK = {
   feedback: "FAKE: a good start.",
 };
 
+const SCENE_SETUP = {
+  title: "FAKE: Im Café",
+  situation: "FAKE: you are at a café table.",
+  partner: "FAKE: the waiter",
+  goals: ["Order a coffee", "Pay"],
+  opening: "FAKE: Guten Tag! Was möchten Sie?",
+};
+const SCENE_TURN = {
+  reply: "FAKE: Gern. Sonst noch etwas?",
+  translation: "FAKE: Sure. Anything else?",
+  corrections: [{ wrong: "Kaffe", right: "Kaffee", explanation: "FAKE: double e." }],
+  goalsMet: [0],
+  done: false,
+};
+/** Structured replies by the task's schema name; the writing check otherwise. */
+const STRUCTURED: Record<string, unknown> = { scene_setup: SCENE_SETUP, scene_turn: SCENE_TURN };
+
 const sse = (text: string) =>
   new Response(
     [
@@ -34,9 +51,15 @@ if (import.meta.main) {
       const { pathname } = new URL(req.url);
       if (pathname === "/v1/models") return Response.json({ data: [{ id: "fake-model" }] });
       if (pathname !== "/v1/chat/completions") return new Response("not found", { status: 404 });
-      const body = (await req.json()) as { stream?: boolean; response_format?: unknown };
+      const body = (await req.json()) as {
+        stream?: boolean;
+        response_format?: { json_schema?: { name?: string } };
+      };
       if (!body.stream) {
-        const content = body.response_format ? JSON.stringify(WRITING_CHECK) : FAKE_TEXT;
+        const task = body.response_format?.json_schema?.name ?? "";
+        const content = body.response_format
+          ? JSON.stringify(STRUCTURED[task] ?? WRITING_CHECK)
+          : FAKE_TEXT;
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }
       return sse(FAKE_TEXT);

@@ -1,7 +1,15 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
 // going over mistakes.
 import { expect, test } from "@playwright/test";
-import { answerPicture, DEMO_LESSON, freshLessonRun, goToStep, openStep, put } from "./api.ts";
+import {
+  answerPicture,
+  DEMO_LESSON,
+  freshLessonRun,
+  goToStep,
+  openStep,
+  post,
+  put,
+} from "./api.ts";
 import { FAKE_LLM_PORT, FAKE_TEXT } from "./fake-llm.ts";
 
 test.beforeEach(async ({ request }) => {
@@ -80,4 +88,38 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await goToStep(page, "Write it yourself");
   await goToStep(page, "Going over mistakes");
   await expect(step.getByText("Noch ein Beispiel?")).toBeVisible();
+});
+
+test("a scene on its step page; a new one keeps the earlier one readable", async ({
+  page,
+  request,
+}) => {
+  // No scenes of the lesson left from earlier tests (projects share the profile).
+  const [series, course] = DEMO_LESSON.split("/");
+  await post(request, "/api/progress/reset", { series, course, lesson: DEMO_LESSON });
+  await openStep(page, "Scene");
+  const step = page.locator("article");
+  await step.getByRole("button", { name: "Start a scene" }).click();
+  await expect(step.getByRole("heading", { name: "FAKE: Im Café" })).toBeVisible();
+  await expect(step.getByText("FAKE: Guten Tag! Was möchten Sie?")).toBeVisible();
+
+  // A line: the partner answers, the mistake in the line is corrected, the goal is ticked off.
+  await step.getByPlaceholder("Your line…").fill("Einen Kaffe, bitte.");
+  await step.getByRole("button", { name: "Send", exact: true }).click();
+  await expect(step.getByText("FAKE: Gern. Sonst noch etwas?")).toBeVisible();
+  await expect(step.getByText("FAKE: double e.")).toBeVisible();
+  await expect(step.getByRole("listitem").filter({ hasText: "Order a coffee" })).toHaveClass(
+    /text-correct/,
+  );
+  await step.getByRole("button", { name: "Translation" }).last().click();
+  await expect(step.getByText("FAKE: Sure. Anything else?")).toBeVisible();
+
+  // A new scene: the earlier one is listed under it with its goals and opens to be read again.
+  await step.getByRole("button", { name: "New scene" }).click();
+  await expect(step.getByText("Earlier scenes of this lesson")).toBeVisible();
+  await expect(step.getByText("Einen Kaffe, bitte.")).toBeHidden();
+  const earlier = step.getByRole("button", { name: /Goals: 1 of 2/ });
+  await earlier.click();
+  await expect(earlier).toHaveAttribute("aria-expanded", "true");
+  await expect(step.getByText("Einen Kaffe, bitte.")).toBeVisible();
 });

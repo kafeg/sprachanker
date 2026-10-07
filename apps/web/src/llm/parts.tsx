@@ -200,15 +200,31 @@ export function ChatComposer({
   );
 }
 
-/** A ref for the end of a list that scrolls into view whenever `content` changes. */
+/** A ref for the end of a list, brought into view whenever `content` changes: in its scrolling box,
+ *  or on the page once something new comes. */
 export function useScrollToEnd(content: unknown) {
   const end = useRef<HTMLDivElement>(null);
-  // Braces matter: scrollIntoView may return a promise, which React would take for a cleanup.
+  const shown = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll on new content
   useEffect(() => {
-    end.current?.scrollIntoView({ block: "end" });
+    const el = end.current;
+    if (!el) return;
+    const box = scroller(el);
+    if (box) box.scrollTop = box.scrollHeight;
+    // On the page itself only for new content: opening a step does not jump past its top.
+    else if (shown.current) el.scrollIntoView({ block: "end" });
+    shown.current = true;
   }, [content]);
   return end;
+}
+
+/** The nearest ancestor that scrolls on its own, if any (else the page scrolls). */
+function scroller(el: HTMLElement) {
+  for (let p = el.parentElement; p; p = p.parentElement) {
+    const overflow = getComputedStyle(p).overflowY;
+    if (overflow === "auto" || overflow === "scroll") return p;
+  }
+  return undefined;
 }
 
 /** One request at a time that can be stopped; a new one stops the old, unmounting stops it too. */

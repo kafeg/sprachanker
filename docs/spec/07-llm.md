@@ -58,7 +58,7 @@ lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson
 "Going over mistakes" → `chat_turn`: the run's status is counted by the app (no model), and the
 tutor's chat, inline on the step, starts a new chat asking to go through the mistakes (a written
 session review was dropped, owner 2026-10-07: the numbers need no model, and talking a mistake over
-teaches more than a report); the scene card → `scene_setup`, then `scene_turn` per line.
+teaches more than a report); the scene step → `scene_setup`, then `scene_turn` per line.
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
@@ -123,6 +123,9 @@ teaches more than a report); the scene card → `scene_setup`, then `scene_turn`
 - **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted
   from the lesson's goals and words (no authored scenes yet). The app keeps the model honest:
   corrections must quote the learner's new line, met goals only accumulate, all met ends the scene.
+  The scene step shows the latest scene on its page (setup and goals, the conversation, the line to
+  send); starting a new one ends the open one, and the lesson's earlier scenes are listed under it
+  (title, goals reached, when), each readable again (owner, 2026-10-07).
 
 ## Tools
 

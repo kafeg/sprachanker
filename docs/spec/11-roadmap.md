@@ -157,7 +157,8 @@ Specs: 04, 05, 09.
   language and course, the v3 queue with its limits and 4 AM day, the reviewer with its four ratings,
   keys, undo, bury, suspend, flags and marks (migration `0003_anki`), the same reviewer in the "Words"
   step; "Going over mistakes" (the run's status counted by the app, the tutor's walk-through inline;
-  the written session review dropped). Next: the scene and writing histories in their steps, My words,
+  the written session review dropped); the scene on its step page with the lesson's earlier scenes.
+  Next: the writing history in its step, My words,
   the Notebook, attempts under the card, the tutor's chat history.
 
 ### 7 — Speech

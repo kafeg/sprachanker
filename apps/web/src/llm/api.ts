@@ -216,27 +216,30 @@ export function useCheckWriting() {
 
 type SceneStartRequest = Parameters<typeof api.llm.scene.start.$post>[0]["json"];
 export type SceneLineRequest = Parameters<typeof api.llm.scene.turn.$post>[0]["json"];
-export type SceneState = NonNullable<Awaited<ReturnType<typeof fetchScene>>["scene"]>;
-const fetchScene = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: { lessonKey } }));
+export type SceneState = Awaited<ReturnType<typeof fetchScenes>>["scenes"][number];
+const fetchScenes = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: { lessonKey } }));
 
-/** The lesson's latest scene (active or finished). */
-export const useScene = (lessonKey: LessonKey) =>
-  useQuery({ queryKey: ["scene", lessonKey], queryFn: () => fetchScene(lessonKey) });
+/** The lesson's scenes, newest first: the latest (active or finished), then earlier ones. */
+export const useScenes = (lessonKey: LessonKey) =>
+  useQuery({ queryKey: ["scenes", lessonKey], queryFn: () => fetchScenes(lessonKey) });
 
+/** Starts a new scene (the open one ends) or sends a line of the open one. */
 export function useSceneAction(lessonKey: LessonKey) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: async (
-      action: { start: SceneStartRequest } | { turn: SceneLineRequest } | { end: true },
-    ): Promise<SceneState | { ok: true }> =>
+    mutationFn: (action: { start: SceneStartRequest } | { turn: SceneLineRequest }) =>
       "start" in action
         ? json(api.llm.scene.start.$post({ json: action.start }))
-        : "turn" in action
-          ? json(api.llm.scene.turn.$post({ json: action.turn }))
-          : json(api.llm.scene.end.$post({ json: { lessonKey } })),
-    onSuccess: (result) =>
-      "setup" in result
-        ? client.setQueryData(["scene", lessonKey], { scene: result })
-        : client.invalidateQueries({ queryKey: ["scene", lessonKey] }),
+        : json(api.llm.scene.turn.$post({ json: action.turn })),
+    // Shown at once: the scene first; a start ends the one that was open.
+    onSuccess: (scene, action) =>
+      client.setQueryData(["scenes", lessonKey], (old: { scenes: SceneState[] } | undefined) => ({
+        scenes: [
+          scene,
+          ...(old?.scenes ?? [])
+            .filter((s) => s.id !== scene.id)
+            .map((s) => ("start" in action ? { ...s, done: true } : s)),
+        ],
+      })),
   });
 }

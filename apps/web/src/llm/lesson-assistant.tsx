@@ -5,7 +5,7 @@ import { PRACTICE } from "@sprachanker/engine";
 import type { LessonSlots } from "@/lesson/slots.ts";
 import { useLlm } from "./api.ts";
 import { ExplainMistake } from "./explain.tsx";
-import { SceneCard } from "./scene.tsx";
+import { SceneStep } from "./scene.tsx";
 import { LessonTutor, MistakesTutor } from "./tutor.tsx";
 import { WritingTask } from "./writing.tsx";
 
@@ -19,7 +19,7 @@ export const lessonAssistant: LessonSlots = {
       kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} />
       ) : kind === "scene" ? (
-        <SceneCard {...context} onDone={onDone} />
+        <SceneStep {...context} onDone={onDone} />
       ) : hasMistakes ? (
         <MistakesTutor {...context} done={done} onDone={onDone} />
       ) : null,
