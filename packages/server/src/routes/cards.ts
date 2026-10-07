@@ -4,7 +4,9 @@ import {
   CardFace,
   CardRating,
   CourseKey,
+  CourseSlug,
   EditionId,
+  Lang,
   LessonKey,
   SeriesKey,
   Ulid,
@@ -33,6 +35,26 @@ export function cardRoutes() {
         async (c) => c.json(await c.var.s.cards.fromLesson(c.req.valid("json"))),
       )
       .get("/decks", async (c) => c.json({ decks: await c.var.s.study.decks() }))
+      // Decks to take: each installed course's words (Anki: a deck), taken or left whole.
+      .get("/decks/offers", async (c) => c.json({ offers: await c.var.s.cards.deckOffers() }))
+      .post(
+        "/decks/take",
+        zod("json", z.object({ series: SeriesKey, course: CourseSlug, edition: EditionId })),
+        async (c) => c.json(await c.var.s.cards.takeDeck(c.req.valid("json"))),
+      )
+      .post("/decks/leave", zod("json", z.object({ course: CourseKey, lang: Lang })), (c) =>
+        c.json(c.var.s.cards.leaveDeck(c.req.valid("json"))),
+      )
+      // More new cards today in a deck (Anki's custom study).
+      .post(
+        "/decks/more",
+        zod("json", z.object({ scope: DeckScope, count: z.number().int().min(1).max(999) })),
+        (c) => {
+          const { scope, count } = c.req.valid("json");
+          c.var.s.study.learnMore(scope, count);
+          return c.json(ok);
+        },
+      )
       .get("/study", zod("query", z.object({ scope: DeckScope })), async (c) =>
         c.json(await c.var.s.study.study(c.req.valid("query").scope)),
       )

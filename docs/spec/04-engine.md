@@ -127,6 +127,12 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
+- **Decks to take** (owner, 2026-10-08): each installed course and language pair offers its words as one
+  deck. Taking it makes every lesson's words cards at once, new and in course order (Anki: a deck
+  imported); words with a card already keep it. Leaving a course's deck removes its cards never studied;
+  studied ones stay with their progress. **More new cards today** adds to a deck's daily limit for the
+  study day (Anki's custom study "increase today's new card limit"; a course's extra counts in its
+  language deck too, and the review limit grows as much so it does not hold them back).
 - **"Words of the lesson"** is the same reviewer over the lesson's words in the edition's translation
   language, recognition only and without the day's new limit (the learner chose to learn them now);
   otherwise exactly Anki's reviewer: a new word goes through the learning steps (1m, 10m), shown again

@@ -21,6 +21,7 @@ import {
 } from "@/ui/components/dropdown-menu.tsx";
 import type { AudioControls } from "@/ui/media.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
+import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type Side, StudyCard } from "./card.tsx";
 import { useIntervalText } from "./time.ts";
@@ -258,15 +259,18 @@ export function StudySession({
   return (
     // Phone: the card fills the screen and the buttons sit at its bottom, under the thumb (AnkiDroid).
     <div className="flex flex-col gap-3 max-sm:flex-1">
-      <StudyCard
-        key={cardKey}
-        display={current.display}
-        face={current.face}
-        side={side}
-        onTap={showAnswer}
-        audio={sound}
-        marks={current.flag || current.marked || current.leech ? marks : undefined}
-      />
+      {/* The word's language: the example's and which way card 2 asks. */}
+      <TargetLang value={current.lang}>
+        <StudyCard
+          key={cardKey}
+          display={current.display}
+          face={current.face}
+          side={side}
+          onTap={showAnswer}
+          audio={sound}
+          marks={current.flag || current.marked || current.leech ? marks : undefined}
+        />
+      </TargetLang>
       <div
         className={cn(
           "-mx-4 grid grid-cols-[auto_1fr_auto] items-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-2xl",

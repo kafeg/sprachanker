@@ -10,7 +10,7 @@ import { COUNT_TONE } from "@/study/tones.ts";
 import { WordSheet } from "@/study/word-sheet.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { ListRow } from "@/ui/history.tsx";
-import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
+import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -32,7 +32,8 @@ const KEY: Record<Column, (w: MyWord) => string | number> = {
   due: (w) => w.due ?? Number.MAX_SAFE_INTEGER,
 };
 
-export function WordsPage({ back }: { back(): void }) {
+/** Review → My words: the profile's words as Anki's browser shows them. */
+export function MyWords() {
   const { t, i18n } = useTranslation();
   const words = useWords();
   const deckName = useDeckName();
@@ -43,17 +44,10 @@ export function WordsPage({ back }: { back(): void }) {
   const [sort, setSort] = useState<{ by: Column; desc: boolean }>();
   const [open, setOpen] = useState<string>();
 
-  const header = <BackLink onClick={back}>{t("study.toDecks")}</BackLink>;
   if (words.isPending) return <Loading />;
   if (words.isError) return <ErrorState error={words.error} onRetry={() => words.refetch()} />;
   const all = words.data.words;
-  if (!all.length)
-    return (
-      <Page title={t("myWords.title")}>
-        {header}
-        <EmptyState>{t("study.noCards")}</EmptyState>
-      </Page>
-    );
+  if (!all.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
 
   // Decks as in Decks: each language, then the courses in it.
   const langs = [...new Set(all.map((w) => w.lang))];
@@ -100,8 +94,7 @@ export function WordsPage({ back }: { back(): void }) {
     "grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 sm:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_7rem_6rem]";
 
   return (
-    <Page title={t("myWords.title")}>
-      {header}
+    <div>
       <div className="max-w-4xl space-y-3">
         <input
           type="search"
@@ -182,6 +175,6 @@ export function WordsPage({ back }: { back(): void }) {
         </div>
       </div>
       <WordSheet word={all.find((w) => w.cardId === open)} onClose={() => setOpen(undefined)} />
-    </Page>
+    </div>
   );
 }

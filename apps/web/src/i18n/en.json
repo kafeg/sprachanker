@@ -647,14 +647,20 @@
       "learning": "Learn",
       "review": "Due"
     },
-    "toDecks": "Decks",
-    "howTo": "Spaced repetition as in Anki: one deck per course, under the language it teaches. Recall the answer, show it, then rate how it went — FSRS schedules each card from your ratings.",
     "due": "{count, plural, one {# card} other {# cards}} to study",
     "flagKey": "Ctrl+{n}",
-    "toCards": "Cards",
     "left": "{n, plural, one {answer to go} other {answers to go}}",
     "leftValue": "≈{n, number}",
-    "leftTitle": "Answers left if each is Good: a new card goes through two learning steps, a learning card through its steps left, a review takes one answer. Again adds steps back."
+    "leftTitle": "Answers left if each is Good: a new card goes through two learning steps, a learning card through its steps left, a review takes one answer. Again adds steps back.",
+    "asks": {
+      "recognition": "What does it mean?",
+      "production": "In {in}?",
+      "in": {
+        "de": "German",
+        "en": "English",
+        "ru": "Russian"
+      }
+    }
   },
   "profiles": {
     "who": "Who is studying?",
@@ -757,5 +763,101 @@
     "showTour": "Show the tour",
     "switch": "Switch profile",
     "open": "Profile"
+  },
+  "decks": {
+    "tabs": {
+      "study": "Study",
+      "decks": "Decks",
+      "words": "My words"
+    },
+    "studying": "Studying: {deck}",
+    "actions": "Actions for {deck}",
+    "more": "{count, plural, one {# more new card today} other {# more new cards today}}",
+    "leave": "Leave the deck (its cards not studied yet)",
+    "offers": "Decks to take",
+    "offersHint": "Each downloaded course's words as one deck: taken whole, its words come as new cards in course order — within your daily limit, or more with \"more new cards today\".",
+    "words": "{words, plural, one {# word} other {# words}} · {mine, number} yours already",
+    "take": "Take the deck",
+    "takeRest": "Add the other {count, number}"
+  },
+  "guide": {
+    "open": "How it works",
+    "title": "How review works",
+    "curveAlt": "Three forgetting curves, each flatter than the one before",
+    "days": "days",
+    "curveCaption": "Memory fades unless it is used: each review at the edge of forgetting makes the curve flatter, so the next one can wait longer.",
+    "method": {
+      "title": "Spaced repetition",
+      "text": "Each card comes back just before you would forget it. The intervals grow with every good answer: minutes, then days, weeks, months. The idea goes back to Ebbinghaus's forgetting curve (1885); Anki made it a habit for millions."
+    },
+    "recall": {
+      "title": "Remember first, then look",
+      "text": "Try to recall the answer before you show it. The effort of recalling is what strengthens memory — reading the answer again does far less. Then rate yourself honestly."
+    },
+    "buttons": {
+      "title": "The four buttons",
+      "again": {
+        "name": "Again",
+        "text": "not remembered, or wrong: the card comes back in a minute"
+      },
+      "hard": {
+        "name": "Hard",
+        "text": "remembered with effort: a shorter interval"
+      },
+      "good": {
+        "name": "Good",
+        "text": "remembered: the usual choice (Space or Enter)"
+      },
+      "easy": {
+        "name": "Easy",
+        "text": "too easy: it comes back much later"
+      }
+    },
+    "counts": {
+      "title": "The three numbers",
+      "text": "New cards still to learn today, cards in learning (coming back within minutes), and cards due for review. The one underlined is where the card on screen comes from. \"Answers to go\" estimates how many answers finish the session if each is Good."
+    },
+    "faces": {
+      "title": "Two cards per word",
+      "recognition": {
+        "name": "Card 1",
+        "text": "the word → what it means (understanding)"
+      },
+      "production": {
+        "name": "Card 2",
+        "text": "the meaning → the word (speaking); it comes after card 1, as Anki's \"Basic and reversed card\""
+      }
+    },
+    "more": {
+      "title": "Under \"…\"",
+      "replay": {
+        "name": "Replay (R)",
+        "text": "hear the word again"
+      },
+      "bury": {
+        "name": "Bury (- or =)",
+        "text": "not today: the card or the whole word comes back tomorrow"
+      },
+      "suspend": {
+        "name": "Suspend (@ or !)",
+        "text": "out of review until you bring it back — a word you know or do not need"
+      },
+      "flag": {
+        "name": "Flags (Ctrl+1–7)",
+        "text": "colour marks to find cards later in My words"
+      },
+      "mark": {
+        "name": "Mark (*)",
+        "text": "a star on the word, to come back to it"
+      }
+    },
+    "keys": {
+      "title": "Keys",
+      "text": "Space or Enter shows the answer, then rates Good; 1–4 rate; U or Ctrl+Z takes the last answer back; R replays."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "The schedule is FSRS, the model Anki uses today: it estimates how stable each memory is and when you would forget it, aiming at a 90% chance you still remember. Your settings can change the daily limits."
+    }
   }
 }

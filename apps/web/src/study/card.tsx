@@ -8,6 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
+import { languageName } from "@/i18n/index.ts";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -55,7 +56,7 @@ export function StudyCard({
   /** Flag, mark and leech, top left. */
   marks?: React.ReactNode;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const lang = useTargetLang();
   const own = useRef<AudioControls>(null);
   const sound = audio ?? own;
@@ -68,6 +69,15 @@ export function StudyCard({
     if (src && WORD_SIDE[face] === side) sound.current?.play();
   }, [src, face, side, sound]);
 
+  // Which way the card asks, so a card 2 (translation → word) is not taken for a mistake.
+  const asks =
+    face === "production"
+      ? t("study.asks.production", {
+          in: t(`study.asks.in.${lang}`, { defaultValue: languageName(lang ?? "", i18n.language) }),
+        })
+      : face === "recognition"
+        ? t("study.asks.recognition")
+        : undefined;
   const question =
     face === "production" ? (
       <span className="text-2xl">{display.translation}</span>
@@ -96,12 +106,16 @@ export function StudyCard({
       {side === "question" ? (
         // The question is one button: a tap shows the answer (AnkiMobile).
         <button type="button" data-study-card onClick={onTap} className={FACE}>
-          <span className="grid w-full justify-items-center gap-4">{question}</span>
+          <span className="grid w-full justify-items-center gap-4">
+            {asks && <span className="text-sm text-muted-foreground">{asks}</span>}
+            {question}
+          </span>
         </button>
       ) : (
         // The answer side holds a link (the lesson): no button around it.
         <div data-study-card data-answer className={FACE}>
           <div className="grid w-full justify-items-center gap-4">
+            {asks && <span className="text-sm text-muted-foreground">{asks}</span>}
             {question}
             <hr id="answer" className="w-3/4 border-border" />
             {answer}

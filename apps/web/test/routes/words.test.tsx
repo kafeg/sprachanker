@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { fireEvent, waitFor, within } from "@testing-library/react";
-import { WordsPage } from "../../src/routes/words.tsx";
+import { MyWords } from "../../src/routes/words.tsx";
 import { renderApp } from "../render.tsx";
 
 const COURSE = "sprachanker.test/demo";
@@ -36,7 +36,7 @@ const COURSES = [
 ];
 
 const page = () =>
-  renderApp(<WordsPage back={() => {}} />, {
+  renderApp(<MyWords />, {
     path: "/review/words",
     data: [
       [["words"], { words: WORDS }],

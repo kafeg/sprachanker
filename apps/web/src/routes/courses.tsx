@@ -8,7 +8,7 @@ import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
 import { CourseCard, MyCourseCard, OfferCard } from "@/courses/card.tsx";
 import { CATALOG_FILTERS, MY_FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
-import { cn } from "@/ui/utils.ts";
+import { SectionTabs } from "@/ui/section-tabs.tsx";
 
 export type CoursesTab = "mine" | "downloaded" | "available";
 const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
@@ -37,25 +37,15 @@ export function CoursesPage({ tab }: { tab: CoursesTab }) {
   };
   return (
     <Page title={t("nav.courses")}>
-      <nav
-        className="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-muted p-1"
-        aria-label={t("nav.courses")}
-      >
-        {(["mine", "downloaded", "available"] as const).map((id) => (
-          <Link
-            key={id}
-            to={PATH[id]}
-            aria-current={tab === id ? "page" : undefined}
-            className={cn(
-              "flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted-foreground pointer-coarse:min-h-11",
-              tab === id && "bg-background text-foreground shadow-sm",
-            )}
-          >
-            {t(`courses.tabs.${id}`)}
-            <span className="tabular-nums text-muted-foreground">{count[id]}</span>
-          </Link>
-        ))}
-      </nav>
+      <SectionTabs
+        label={t("nav.courses")}
+        tabs={(["mine", "downloaded", "available"] as const).map((id) => ({
+          to: PATH[id],
+          label: t(`courses.tabs.${id}`),
+          count: count[id],
+          current: tab === id,
+        }))}
+      />
       {tab === "mine" ? <MyCourses /> : tab === "downloaded" ? <Downloaded /> : <Available />}
     </Page>
   );

@@ -21,9 +21,8 @@ import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursePage } from "./course.tsx";
 import { CoursesPage } from "./courses.tsx";
-import { ReviewPage } from "./review.tsx";
+import { ReviewPage, type ReviewTab } from "./review.tsx";
 import { SettingsPage } from "./settings.tsx";
-import { WordsPage } from "./words.tsx";
 
 /** The app of a signed-in, onboarded profile: its preferences applied. */
 function SignedIn() {
@@ -85,28 +84,34 @@ course.update({
     return <CoursePage series={params.series} course={params.course} />;
   },
 });
+// Review in three tabs, each its own address.
+function Review({ tab }: { tab: ReviewTab }) {
+  const navigate = useNavigate();
+  return (
+    <ReviewPage
+      tab={tab}
+      go={(next) =>
+        void navigate({
+          to: next === "study" ? "/review" : next === "decks" ? "/review/decks" : "/review/words",
+        })
+      }
+    />
+  );
+}
 const review = createRoute({
   getParentRoute: () => shell,
   path: "/review",
-  // Review opens on the cards; `decks` shows the deck list instead.
-  validateSearch: (s: Record<string, unknown>): { decks?: boolean } => ({
-    ...((s.decks === true || s.decks === "true") && { decks: true }),
-  }),
+  component: () => <Review tab="study" />,
 });
-review.update({
-  component: function Review() {
-    const search = review.useSearch();
-    const navigate = review.useNavigate();
-    return <ReviewPage showDecks={!!search.decks} go={(next) => void navigate({ search: next })} />;
-  },
+const reviewDecks = createRoute({
+  getParentRoute: () => shell,
+  path: "/review/decks",
+  component: () => <Review tab="decks" />,
 });
 const words = createRoute({
   getParentRoute: () => shell,
   path: "/review/words",
-  component: function Words() {
-    const navigate = words.useNavigate();
-    return <WordsPage back={() => void navigate({ to: "/review", search: { decks: true } })} />;
-  },
+  component: () => <Review tab="words" />,
 });
 const notebook = createRoute({
   getParentRoute: () => shell,
@@ -174,6 +179,7 @@ export const router = createRouter({
       catalog,
       course,
       review,
+      reviewDecks,
       words,
       notebook,
       notebookLesson,

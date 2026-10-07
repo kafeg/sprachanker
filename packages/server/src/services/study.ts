@@ -73,6 +73,19 @@ export function createStudy(deps: {
   /** What a queue is built from, read once for any number of decks. */
   const studyData = () => ({ t: now(), notes: cards.all(), states: cards.states(), today: day() });
 
+  /** New cards added to today's limit of a scope (Anki's custom study): its own, and for a language
+   *  those of its courses. */
+  function extraNew(scope: DeckScope, notes: Note[]) {
+    const extra = settings.get("srs.extraNew");
+    if (!extra || extra.day !== studyDay(now()).start) return 0;
+    const own = extra.scopes[scope] ?? 0;
+    if (!scope.startsWith("lang:")) return own;
+    const courses = new Set(
+      notes.filter((n) => n.lang === scope.slice(5)).map((n) => `course:${n.course}`),
+    );
+    return own + [...courses].reduce((sum, c) => sum + (extra.scopes[c] ?? 0), 0);
+  }
+
   /** The study queue of a scope, with Anki's counts and what the "finished" screen says. */
   async function queueOf(scope: DeckScope, data = studyData()) {
     const notes = await notesIn(scope, data.notes);
@@ -94,11 +107,13 @@ export function createStudy(deps: {
         }),
     );
     const done = data.today.used(new Set(notes.map((n) => n.id)));
+    // More new cards today raise the review limit as much, so they are not held back by it.
+    const extra = extraNew(scope, data.notes);
     const result = studyQueue(faces, {
       now: data.t,
       nextDay: studyDay(data.t).next,
-      newPerDay: settings.get("srs.newPerDay") ?? SRS_DEFAULTS.newPerDay,
-      reviewsPerDay: settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay,
+      newPerDay: (settings.get("srs.newPerDay") ?? SRS_DEFAULTS.newPerDay) + extra,
+      reviewsPerDay: (settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay) + extra,
       newToday: done.fresh,
       reviewsToday: done.reviews,
       allNew: lesson,
@@ -114,6 +129,16 @@ export function createStudy(deps: {
   }
 
   return {
+    /** Adds `count` new cards to today's limit of a deck (Anki: Custom Study → increase today's new
+     *  card limit). */
+    learnMore(scope: DeckScope, count: number) {
+      const day = studyDay(now()).start;
+      const stored = settings.get("srs.extraNew");
+      const scopes = stored?.day === day ? { ...stored.scopes } : {};
+      scopes[scope] = Math.min((scopes[scope] ?? 0) + count, 9999);
+      settings.set("srs.extraNew", { day, scopes });
+    },
+
     /** Decks: each language the cards teach, and under it each course, with Anki's three counts. */
     async decks() {
       const data = studyData();
@@ -163,6 +188,8 @@ export function createStudy(deps: {
                 face: entry.face,
                 kind: entry.kind,
                 display: note.display,
+                /** The language the word is in (its lexeme's). */
+                lang: note.lang,
                 due: intervals(state, q.now, `${entry.cardId}:${entry.face}`, retention()),
                 /** Reviews of the face so far: sent back with the rating (`rate`). */
                 reps: state?.reps ?? 0,

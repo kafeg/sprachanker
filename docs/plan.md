@@ -29,34 +29,7 @@ offered (03, "Offered in the app").
 
 ## Next, in order
 
-### 1. Review: tabs, decks to take, a guide (owner's request, 2026-10-07)
-Specs: 04, 09.
-- The links that lead back inside a section ("Decks" in Review, "Notebook" and "Pass" in the Notebook)
-  look poor (owner, 2026-10-07): they give way to the section's tabs and a proper header with a back
-  control, the same in Review and the Notebook (and wherever else a section goes deeper).
-- Review gets tabs as Settings has: **Study** (the reviewer), **Decks**, **My words**.
-- A guide in a side panel (as the tutor and the reference open): how the method works and where it
-  comes from — the forgetting curve, active recall, spacing, FSRS (with a picture of the curve) — what
-  the four buttons and the counts mean, the two card types of a word (card 1 German → translation,
-  card 2 translation → German, shown after every card 1 as Anki's "Basic (and reversed card)" does), the
-  actions under "…" (replay, bury, suspend, flags, mark: why one would use each) and the keys.
-- The question side says which way a card asks (e.g. "in German?" on card 2), so a card 2 is not
-  taken for a mistake.
-- Decks as courses are: a list of decks one can take (to start: each installed course's words, as Anki
-  decks; later `.apkg` decks) and the profile's own decks, added from it; Review studies the profile's
-  decks. Replaces today's deck list under Review, which the owner finds poor.
-- A lesson's "Words" step keeps making the cards of what the lesson teaches; they land in the deck of
-  that course.
-- Learning a big deck faster: Anki has no separate "learning mode" — new cards come through the same
-  reviewer, 20 a day by default (cards, not words: a word with two card types is two). As in Anki's
-  Custom Study, a deck offers "learn N more new cards today" (and the Review settings raise the daily
-  limit); a lesson's "Words" step is our own way in.
-- Open for the plan: what "taking" a course deck does to cards not yet met in a lesson (new cards in
-  course order, or only words met), and how a deck is left. Mockups first (tabs, decks, the guide).
-- **Accept**: server tests (adding and leaving a deck, Review over the profile's decks); e2e on desktop
-  and phone.
-
-### 2. Review settings (owner's request, 2026-10-07)
+### 1. Review settings (owner's request, 2026-10-07)
 Specs: 04, 09.
 - A "Review" tab in Settings with Anki's deck options for the profile: new cards per day (20), maximum
   reviews per day (200), desired retention (0.9), learning and relearning steps (1m 10m; 10m), the day's
@@ -69,7 +42,7 @@ Specs: 04, 09.
 - **Accept**: settings round-trip and validation tests; the queue and intervals follow them (engine and
   server tests); e2e of the tab.
 
-### 3. Notebook: study days and progress (owner's request, 2026-10-07)
+### 2. Notebook: study days and progress (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - A study day counts every kind of work and shows it apart: lessons (exercises answered, mistakes,
   steps), review (cards answered, new cards learnt, the share remembered, time), AI practice. An answer
@@ -85,7 +58,7 @@ Specs: 04, 05, 09.
 - Mockups first. **Accept**: engine tests of the derivations on synthetic events; server tests; e2e of
   the Notebook on desktop and phone.
 
-### 4. AI examples for a word (owner's request, 2026-10-07)
+### 3. AI examples for a word (owner's request, 2026-10-07)
 Specs: 04, 07, 09.
 - On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
   an example sentence with its translation in the card's translation language.
@@ -99,14 +72,14 @@ Specs: 04, 07, 09.
 - **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
   the fake server on desktop and phone.
 
-### 5. Speech
+### 4. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 6. Exams: Leben in Deutschland
+### 5. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
@@ -115,7 +88,7 @@ Specs: 02, 03, 06, 09.
   from its course page.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
 
-### 7. MVP acceptance
+### 6. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.

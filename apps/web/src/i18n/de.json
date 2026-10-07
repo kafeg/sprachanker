@@ -647,14 +647,20 @@
       "learning": "Lernen",
       "review": "Fällig"
     },
-    "toDecks": "Stapel",
-    "howTo": "Wiederholen mit Abständen wie in Anki: ein Stapel je Kurs, unter der Sprache, die er lehrt. Erinnere dich, zeig die Antwort und bewerte — FSRS plant jede Karte aus deinen Bewertungen.",
     "due": "{count, plural, one {# Karte} other {# Karten}} zu lernen",
     "flagKey": "Strg+{n}",
-    "toCards": "Karten",
     "left": "{n, plural, one {Antwort bis zum Ende} other {Antworten bis zum Ende}}",
     "leftValue": "≈{n, number}",
-    "leftTitle": "Antworten bis zum Ende, wenn du jedes Mal „Gut“ wählst: Eine neue Karte durchläuft zwei Lernschritte, eine Lernkarte ihre restlichen, eine Wiederholung braucht eine Antwort. „Nochmal“ fügt Schritte hinzu."
+    "leftTitle": "Antworten bis zum Ende, wenn du jedes Mal „Gut“ wählst: Eine neue Karte durchläuft zwei Lernschritte, eine Lernkarte ihre restlichen, eine Wiederholung braucht eine Antwort. „Nochmal“ fügt Schritte hinzu.",
+    "asks": {
+      "recognition": "Was bedeutet das?",
+      "production": "Auf {in}?",
+      "in": {
+        "de": "Deutsch",
+        "en": "Englisch",
+        "ru": "Russisch"
+      }
+    }
   },
   "profiles": {
     "who": "Wer lernt?",
@@ -757,5 +763,101 @@
     "showTour": "Rundgang zeigen",
     "switch": "Profil wechseln",
     "open": "Profil"
+  },
+  "decks": {
+    "tabs": {
+      "study": "Lernen",
+      "decks": "Stapel",
+      "words": "Meine Wörter"
+    },
+    "studying": "Stapel: {deck}",
+    "actions": "Aktionen für {deck}",
+    "more": "{count, plural, one {# neue Karte mehr heute} other {# neue Karten mehr heute}}",
+    "leave": "Stapel verlassen (noch nicht gelernte Karten)",
+    "offers": "Stapel zum Übernehmen",
+    "offersHint": "Die Wörter jedes heruntergeladenen Kurses als ein Stapel: ganz übernommen, kommen seine Wörter als neue Karten in Kursreihenfolge — im Tageslimit oder mehr mit „neue Karten mehr heute“.",
+    "words": "{words, plural, one {# Wort} other {# Wörter}} · schon deine: {mine, number}",
+    "take": "Stapel übernehmen",
+    "takeRest": "Die übrigen {count, number} hinzufügen"
+  },
+  "guide": {
+    "open": "So funktioniert's",
+    "title": "So funktioniert die Wiederholung",
+    "curveAlt": "Drei Vergessenskurven, jede flacher als die vorige",
+    "days": "Tage",
+    "curveCaption": "Gedächtnis verblasst, wenn es nicht genutzt wird: jede Wiederholung kurz vor dem Vergessen macht die Kurve flacher, die nächste kann länger warten.",
+    "method": {
+      "title": "Verteilte Wiederholung",
+      "text": "Jede Karte kommt zurück, kurz bevor du sie vergessen würdest. Mit jeder guten Antwort wächst der Abstand: Minuten, dann Tage, Wochen, Monate. Die Idee geht auf Ebbinghaus' Vergessenskurve (1885) zurück; Anki hat sie für Millionen zur Gewohnheit gemacht."
+    },
+    "recall": {
+      "title": "Erst erinnern, dann schauen",
+      "text": "Versuch, dich an die Antwort zu erinnern, bevor du sie aufdeckst. Gerade die Mühe des Erinnerns stärkt das Gedächtnis — die Antwort nur nochmal zu lesen bringt viel weniger. Dann bewerte dich ehrlich."
+    },
+    "buttons": {
+      "title": "Die vier Tasten",
+      "again": {
+        "name": "Nochmal",
+        "text": "nicht gewusst oder falsch: die Karte kommt in einer Minute wieder"
+      },
+      "hard": {
+        "name": "Schwer",
+        "text": "mit Mühe gewusst: kürzerer Abstand"
+      },
+      "good": {
+        "name": "Gut",
+        "text": "gewusst: die übliche Wahl (Leertaste oder Enter)"
+      },
+      "easy": {
+        "name": "Einfach",
+        "text": "zu einfach: kommt viel später wieder"
+      }
+    },
+    "counts": {
+      "title": "Die drei Zahlen",
+      "text": "Neue Karten, die heute noch zu lernen sind, Karten im Lernen (kommen in Minuten wieder) und fällige Wiederholungen. Unterstrichen ist die Reihe, aus der die Karte auf dem Bildschirm stammt. „Antworten bis zum Ende“ schätzt, wie viele Antworten die Sitzung beenden, wenn jede „Gut“ ist."
+    },
+    "faces": {
+      "title": "Zwei Karten pro Wort",
+      "recognition": {
+        "name": "Karte 1",
+        "text": "das Wort → seine Bedeutung (verstehen)"
+      },
+      "production": {
+        "name": "Karte 2",
+        "text": "die Bedeutung → das Wort (sprechen); kommt nach Karte 1, wie Ankis „Basic (and reversed card)“"
+      }
+    },
+    "more": {
+      "title": "Unter „…“",
+      "replay": {
+        "name": "Abspielen (R)",
+        "text": "das Wort nochmal hören"
+      },
+      "bury": {
+        "name": "Zurückstellen (- oder =)",
+        "text": "nicht heute: die Karte oder das ganze Wort kommt morgen wieder"
+      },
+      "suspend": {
+        "name": "Aussetzen (@ oder !)",
+        "text": "aus der Wiederholung, bis du es zurückholst — ein Wort, das du kennst oder nicht brauchst"
+      },
+      "flag": {
+        "name": "Markierungen (Strg+1–7)",
+        "text": "Farbmarken, um Karten später in Meine Wörter zu finden"
+      },
+      "mark": {
+        "name": "Markieren (*)",
+        "text": "ein Stern am Wort, um darauf zurückzukommen"
+      }
+    },
+    "keys": {
+      "title": "Tasten",
+      "text": "Leertaste oder Enter deckt die Antwort auf und wählt dann „Gut“; 1–4 bewerten; U oder Strg+Z nimmt die letzte Antwort zurück; R spielt erneut ab."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Den Plan rechnet FSRS, das Modell, das Anki heute nutzt: es schätzt, wie fest jede Erinnerung ist und wann du sie vergessen würdest, und zielt auf 90 % Wahrscheinlichkeit, dass du dich noch erinnerst. Die Tageslimits änderst du in den Einstellungen."
+    }
   }
 }

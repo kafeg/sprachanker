@@ -436,3 +436,54 @@ test("undo, then another rating: the answer is replaced; Easy takes a new word o
   const sheet = await getJson(`/api/cards/${first.cardId}`);
   expect(sheet.answers.map((a: { rating: number }) => a.rating)).toEqual([4]);
 });
+
+test("decks: a course's words taken at once in course order; leaving removes only the unstudied", async () => {
+  const { sendJson, getJson } = await setup();
+  const offer = async () =>
+    (await getJson("/api/cards/decks/offers")).offers.find(
+      (o: { edition: string }) => o.edition === "ru-de",
+    );
+  const before = await offer();
+  expect(before).toMatchObject({ key: COURSE, lang: "ru", mine: 0 });
+  expect(before.words).toBeGreaterThan(4);
+  const taken = await sendJson("POST", "/api/cards/decks/take", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    edition: "ru-de",
+  });
+  expect(taken.created).toBe(before.words);
+  expect((await offer()).mine).toBe(before.words);
+  // A lesson's words step finds its cards made already.
+  expect(
+    (
+      await sendJson("POST", "/api/cards/lesson", {
+        series: FIXTURE_SERIES,
+        lessonKey: LESSONS[0],
+        edition: "ru-de",
+      })
+    ).created,
+  ).toBe(0);
+  // The first new card is the course's first word.
+  const first = (await getJson(study(`course:${COURSE}`))).current;
+  expect(first.display.lessonKey).toBe(LESSONS[0]);
+  await sendJson("POST", `/api/cards/${first.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: first.face,
+    rating: 3,
+  });
+  const left = await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "ru" });
+  expect(left.removed).toBe(before.words - 1);
+  expect((await getJson("/api/cards")).words.map((w: { cardId: string }) => w.cardId)).toEqual([
+    first.cardId,
+  ]);
+});
+
+test("more new cards today in a deck (custom study): the limit grows for it and its language", async () => {
+  const { send, sendJson, getJson } = await withCards();
+  await send("PUT", "/api/settings", { key: "srs.newPerDay", value: 1 });
+  expect((await getJson(study(`course:${COURSE}`))).counts.new).toBe(1);
+  await sendJson("POST", "/api/cards/decks/more", { scope: `course:${COURSE}`, count: 2 });
+  expect((await getJson(study(`course:${COURSE}`))).counts.new).toBe(3);
+  expect((await getJson(study("lang:de"))).counts.new).toBe(3);
+});

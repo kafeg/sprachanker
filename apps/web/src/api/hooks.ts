@@ -187,6 +187,36 @@ const readCardsAgain = (client: QueryClient) =>
 export const useDecks = () =>
   useQuery({ queryKey: ["decks"], queryFn: () => json(api.cards.decks.$get()) });
 
+/** Decks to take: each installed course's words with how many are cards already. */
+export const useDeckOffers = () =>
+  useQuery({ queryKey: ["deck-offers"], queryFn: () => json(api.cards.decks.offers.$get()) });
+
+/** Taking or leaving a course's deck, and more new cards today: every card list is read anew. */
+export function useDeckActions() {
+  const client = useQueryClient();
+  const fresh = () =>
+    void client.invalidateQueries({
+      predicate: (q) => ["decks", "deck-offers", "study", "words"].includes(String(q.queryKey[0])),
+    });
+  return {
+    take: useMutation({
+      mutationFn: (input: { series: string; course: string; edition: string }) =>
+        json(api.cards.decks.take.$post({ json: input })),
+      onSuccess: fresh,
+    }),
+    leave: useMutation({
+      mutationFn: (input: { course: string; lang: string }) =>
+        json(api.cards.decks.leave.$post({ json: input as never })),
+      onSuccess: fresh,
+    }),
+    more: useMutation({
+      mutationFn: (input: { scope: string; count: number }) =>
+        json(api.cards.decks.more.$post({ json: input as never })),
+      onSuccess: fresh,
+    }),
+  };
+}
+
 /** My words: every word with cards, newest first. */
 export const useWords = () =>
   useQuery({ queryKey: ["words"], queryFn: () => json(api.cards.$get()) });

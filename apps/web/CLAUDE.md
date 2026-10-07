@@ -8,8 +8,9 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 ```
 apps/web/src/
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages): courses (tabs My,
-                   # Downloaded, Available — /, /downloaded, /catalog), course (its map), review (decks, a deck's overview, the session), words
-                   # (My words, under Decks), settings
+                   # Downloaded, Available — /, /downloaded, /catalog), review (tabs Study, Decks with
+                   # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
+                   # My words), course (its map), settings
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
                    # the course page's hero (progress, source, stats, integrity, sync)
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
@@ -21,7 +22,8 @@ apps/web/src/
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
-                   # word-sheet (a word with cards in full: forms, faces, answers)
+                   # word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # works: the method, buttons, card types, actions, keys)
   exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   notebook/        # the Notebook: page (study days, lessons), lesson (passes), pass (in full), compare,
@@ -41,7 +43,7 @@ apps/web/src/
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
-                   # (rows that open, lists of earlier items), side-sheet, chip, video (the episode: HD by
+                   # (rows that open, lists of earlier items), side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards)

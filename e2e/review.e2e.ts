@@ -1,5 +1,5 @@
-// Review: straight on the cards; Decks lists the decks per language and course, as in Anki; My words
-// under Decks.
+// Review: tabs — Study straight on the cards, Decks (per language and course, as in Anki, and the decks
+// to take), My words — and the guide beside.
 import { expect, test } from "@playwright/test";
 import { post } from "./api.ts";
 
@@ -15,14 +15,17 @@ test("review: the cards straight away, Decks to choose another, tap and keys, un
       edition: "en-de",
     });
   await page.goto("/review");
-  // The window names the deck: the one chosen last (the projects share a profile), else German.
-  await expect(page).toHaveTitle(/^SprachAnker · (German|Demo course)$/);
-  // Straight on the cards; Decks lists German and under it the demo course, with New / Learn / Due.
+  await expect(page).toHaveTitle("SprachAnker · Review");
+  // Straight on the cards of the deck chosen last (the projects share a profile), else German.
+  await expect(page.getByText(/^Studying: (German|Demo course)$/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Show answer" })).toBeVisible();
-  await page.getByRole("button", { name: "Decks" }).click();
-  await expect(page.getByRole("button", { name: /^German/ })).toBeVisible();
-  await page.getByRole("button", { name: /^Demo course/ }).click();
-  await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
+  // Decks lists German and under it the demo course, with New / Learn / Due; and the decks to take.
+  await page.getByRole("link", { name: "Decks" }).click();
+  await expect(page).toHaveURL(/\/review\/decks$/);
+  await expect(page.getByRole("button", { name: "German", exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Demo course", exact: true }).click();
+  await expect(page).toHaveURL(/\/review$/);
+  await expect(page.getByText("Studying: Demo course")).toBeVisible();
 
   const show = page.getByRole("button", { name: "Show answer" });
   const card = page.locator("[data-study-card]").first();
@@ -32,19 +35,19 @@ test("review: the cards straight away, Decks to choose another, tap and keys, un
   await page.getByRole("button", { name: "Good", exact: true }).click();
   // The next card, on its question.
   await expect(show).toBeVisible();
-  await expect(card).not.toHaveText(first);
+  await expect.poll(() => card.innerText()).not.toBe(first);
   const second = await card.innerText();
   // The keyboard: Space shows the answer, Space again answers Good; Ctrl+Z and U undo.
   await page.keyboard.press("Space");
   await expect(page.getByRole("button", { name: "Again", exact: true })).toBeVisible();
   await page.keyboard.press("Space");
   await expect(show).toBeVisible();
-  await expect(card).not.toHaveText(second);
+  await expect.poll(() => card.innerText()).not.toBe(second);
   await page.keyboard.press("Control+z");
   await expect(show).toBeVisible();
-  await expect(card).toHaveText(second);
+  await expect.poll(() => card.innerText()).toBe(second);
   await page.keyboard.press("u");
-  await expect(card).toHaveText(first);
+  await expect.poll(() => card.innerText()).toBe(first);
 });
 
 test("review: a card buried from the More menu comes back with Unbury in the same menu", async ({
@@ -63,11 +66,11 @@ test("review: a card buried from the More menu comes back with Unbury in the sam
   const buried = await card.innerText();
   await page.getByRole("button", { name: "More" }).click();
   await page.getByRole("menuitem", { name: /Bury card/ }).click();
-  await expect(card).not.toHaveText(buried);
+  await expect.poll(() => card.innerText()).not.toBe(buried);
   await page.getByRole("button", { name: "More" }).click();
   await page.getByRole("menuitem", { name: "Unbury" }).click();
   // The buried card is the deck's first new card again.
-  await expect(card).toHaveText(buried);
+  await expect.poll(() => card.innerText()).toBe(buried);
 });
 
 test("a course that is not installed says so, with the way to the available courses", async ({
@@ -88,10 +91,13 @@ test("My words: the table under Decks, search, a word's sheet, suspend and back"
     lessonKey: "sprachanker.fixture/demo/00-01",
     edition: "en-de",
   });
-  await page.goto("/review?decks=true");
+  await page.goto("/review/decks");
   await page.getByRole("link", { name: "My words" }).click();
   await expect(page).toHaveURL(/\/review\/words$/);
-  await expect(page.getByRole("heading", { name: "My words" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "My words" })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 
   await page.getByPlaceholder("Find a word or translation").fill("kaffee");
   const row = page.getByRole("button", { name: /der Kaffee/ });
@@ -114,4 +120,22 @@ test("My words: the table under Decks, search, a word's sheet, suspend and back"
   await row.click();
   await sheet.getByRole("button", { name: "Unsuspend" }).click();
   await expect(sheet.getByRole("button", { name: "Suspend" })).toBeVisible();
+});
+
+test("review: the guide explains the method beside; the decks to take are offered", async ({
+  page,
+  request,
+}) => {
+  await post(request, "/api/cards/lesson", {
+    series: "sprachanker.fixture",
+    lessonKey: "sprachanker.fixture/demo/00-01",
+    edition: "en-de",
+  });
+  await page.goto("/review/decks");
+  await expect(page.getByRole("heading", { name: "Decks to take" })).toBeVisible();
+  await page.getByRole("button", { name: "How it works" }).click();
+  const guide = page.getByRole("dialog");
+  await expect(guide.getByRole("heading", { name: "How review works" })).toBeVisible();
+  await expect(guide.getByRole("heading", { name: "Spaced repetition" })).toBeVisible();
+  await expect(guide.getByRole("img", { name: /forgetting curves/ })).toBeVisible();
 });

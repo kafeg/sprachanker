@@ -1,16 +1,44 @@
-// Review (09): opens straight on the cards of the deck chosen last (the study session,
-// study/session.tsx); Decks lists them as in Anki — each language the cards teach, and under it the
-// courses the words were met in — with New, Learning and To Review counts; a deck chosen is studied.
-// My words (words.tsx) opens from Decks.
-import { Link } from "@tanstack/react-router";
-import { BookA } from "lucide-react";
+// Review (09): tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
+// profile's decks as Anki lists them, each language and its courses with New, Learning and To review;
+// more new cards today or leaving a course's deck; the decks to take — each installed course's words)
+// and My words (words.tsx). "How it works" opens the guide beside.
+import { HelpCircle, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDecks, useSetSetting, useSettings } from "@/api/hooks.ts";
+import {
+  useDeckActions,
+  useDeckOffers,
+  useDecks,
+  useSetSetting,
+  useSettings,
+} from "@/api/hooks.ts";
 import { useDeckName } from "@/study/decks.ts";
+import { StudyGuide } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
 import { COUNT_TONE } from "@/study/tones.ts";
-import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
+import { Button } from "@/ui/components/button.tsx";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/ui/components/dropdown-menu.tsx";
+import { usePairName } from "@/ui/flags.tsx";
+import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
+import { Panel } from "@/ui/panel.tsx";
+import { SectionTabs } from "@/ui/section-tabs.tsx";
+import { SideSheet } from "@/ui/side-sheet.tsx";
 import { cn } from "@/ui/utils.ts";
+import { MyWords } from "./words.tsx";
+
+export type ReviewTab = "study" | "decks" | "words";
+const PATH: Record<ReviewTab, string> = {
+  study: "/review",
+  decks: "/review/decks",
+  words: "/review/words",
+};
+/** New cards one "more today" adds. */
+const MORE = 10;
 
 type Counts = { new: number; learning: number; review: number };
 
@@ -27,44 +55,111 @@ function CountCells({ counts }: { counts: Counts }) {
   );
 }
 
-function Decks({ open }: { open(scope: string): void }) {
+/** The profile's decks: a deck chosen is studied; a course's has more new cards today and leaving. */
+function MyDecks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
   const decks = useDecks();
   const name = useDeckName();
+  const actions = useDeckActions();
   if (decks.isPending) return <Loading />;
   if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
   if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
-  const row = "grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_3.5rem] items-center gap-2 px-4";
+  const row = "grid grid-cols-[minmax(0,1fr)_3rem_3rem_3rem_2.75rem] items-center gap-2 px-4";
   return (
-    <div className="max-w-2xl rounded-2xl border bg-card">
+    <div className="rounded-2xl border bg-card">
       <div className={cn(row, "border-b py-2 text-xs text-muted-foreground")}>
         <span>{t("study.deck")}</span>
         <span className="text-right">{t("study.count.new")}</span>
         <span className="text-right">{t("study.count.learning")}</span>
         <span className="text-right">{t("study.count.review")}</span>
+        <span />
       </div>
       {decks.data.decks.map((lang) => (
         <div key={lang.scope} className="border-b last:border-b-0">
-          {[{ ...lang, child: false }, ...lang.courses.map((c) => ({ ...c, child: true }))].map(
-            (deck) => (
+          {[
+            { ...lang, child: false, course: undefined as string | undefined },
+            ...lang.courses.map((c) => ({ ...c, child: true })),
+          ].map((deck) => (
+            <div key={deck.scope} className={cn(row, "min-h-11 py-1 hover:bg-accent/50")}>
               <button
                 type="button"
-                key={deck.scope}
                 onClick={() => open(deck.scope)}
-                className={cn(
-                  row,
-                  "min-h-11 w-full py-2 text-left hover:bg-accent",
-                  deck.child ? "pl-9" : "font-semibold",
-                )}
+                className={cn("truncate py-2 text-left", deck.child ? "pl-5" : "font-semibold")}
               >
-                <span className="truncate">{name(deck.scope)}</span>
-                <CountCells counts={deck.counts} />
+                {name(deck.scope)}
               </button>
-            ),
-          )}
+              <CountCells counts={deck.counts} />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label={t("decks.actions", { deck: name(deck.scope) })}
+                  >
+                    <MoreHorizontal className="size-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    onSelect={() => actions.more.mutate({ scope: deck.scope, count: MORE })}
+                  >
+                    {t("decks.more", { count: MORE })}
+                  </DropdownMenuItem>
+                  {deck.course && (
+                    <DropdownMenuItem
+                      onSelect={() =>
+                        actions.leave.mutate({ course: deck.course as string, lang: lang.language })
+                      }
+                    >
+                      {t("decks.leave")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          ))}
         </div>
       ))}
     </div>
+  );
+}
+
+/** The decks to take: each installed course's words, with how many are cards already. */
+function DeckOffers() {
+  const { t } = useTranslation();
+  const offers = useDeckOffers();
+  const actions = useDeckActions();
+  const pairName = usePairName();
+  const open = (offers.data?.offers ?? []).filter((o) => o.mine < o.words);
+  if (!open.length) return null;
+  return (
+    <Panel title={t("decks.offers")}>
+      <p className="mb-3 text-sm text-muted-foreground">{t("decks.offersHint")}</p>
+      <ul className="space-y-2">
+        {open.map((o) => (
+          <li
+            key={`${o.key}:${o.edition}`}
+            className="flex flex-wrap items-center gap-3 rounded-xl border p-3"
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">{o.title}</span>
+              <span className="text-sm text-muted-foreground">
+                {pairName(o.edition)} · {t("decks.words", { words: o.words, mine: o.mine })}
+              </span>
+            </span>
+            <Button
+              variant="outline"
+              loading={actions.take.isPending && actions.take.variables?.course === o.course}
+              onClick={() =>
+                actions.take.mutate({ series: o.series, course: o.course, edition: o.edition })
+              }
+            >
+              {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </Panel>
   );
 }
 
@@ -89,52 +184,60 @@ function useOpenDeck() {
   };
 }
 
-/** Review (09): the cards of the deck chosen last, straight away; Decks lists them all. */
-export function ReviewPage({
-  showDecks,
-  go,
-}: {
-  showDecks: boolean;
-  go(next: { decks?: boolean }): void;
-}) {
+function Study() {
   const { t } = useTranslation();
   const name = useDeckName();
   const open = useOpenDeck();
-  if (showDecks)
-    return (
-      <Page title={t("study.toDecks")}>
-        <div className="flex max-w-2xl items-center justify-between gap-2">
-          <BackLink onClick={() => go({})}>{t("study.toCards")}</BackLink>
-          <Link
-            to="/review/words"
-            className="mb-4 inline-flex min-h-11 items-center gap-1.5 rounded-xl border px-4 font-medium hover:bg-accent"
-          >
-            <BookA className="size-4" /> {t("myWords.title")}
-          </Link>
-        </div>
-        <p className="mb-4 max-w-2xl text-sm text-muted-foreground">{t("study.howTo")}</p>
-        <Decks
-          open={(scope) => {
-            open.choose(scope);
-            go({});
-          }}
-        />
-      </Page>
-    );
   if (open.pending) return <Loading />;
   if (open.error) return <ErrorState error={open.error} onRetry={open.retry} />;
-  if (!open.deck)
-    return (
-      <Page title={t("nav.review")}>
-        <EmptyState>{t("study.noCards")}</EmptyState>
-      </Page>
-    );
+  if (!open.deck) return <EmptyState>{t("study.noCards")}</EmptyState>;
   return (
-    <Page title={name(open.deck)}>
-      <BackLink onClick={() => go({ decks: true })}>{t("study.toDecks")}</BackLink>
-      <div className="mx-auto flex max-w-2xl flex-col max-sm:min-h-[calc(100dvh-15rem)]">
-        <StudySession scope={open.deck} />
-      </div>
+    <div className="mx-auto flex max-w-2xl flex-col max-sm:min-h-[calc(100dvh-17rem)]">
+      <p className="mb-3 text-sm text-muted-foreground">
+        {t("decks.studying", { deck: name(open.deck) })}
+      </p>
+      <StudySession scope={open.deck} />
+    </div>
+  );
+}
+
+export function ReviewPage({ tab, go }: { tab: ReviewTab; go(tab: ReviewTab): void }) {
+  const { t } = useTranslation();
+  const open = useOpenDeck();
+  const [guide, setGuide] = useState(false);
+  return (
+    <Page
+      title={t("nav.review")}
+      actions={
+        <Button variant="outline" onClick={() => setGuide(true)}>
+          <HelpCircle /> {t("guide.open")}
+        </Button>
+      }
+    >
+      <SectionTabs
+        label={t("nav.review")}
+        tabs={(["study", "decks", "words"] as const).map((id) => ({
+          to: PATH[id],
+          label: t(`decks.tabs.${id}`),
+          current: tab === id,
+        }))}
+      />
+      {tab === "study" && <Study />}
+      {tab === "decks" && (
+        <div className="max-w-3xl space-y-6">
+          <MyDecks
+            open={(scope) => {
+              open.choose(scope);
+              go("study");
+            }}
+          />
+          <DeckOffers />
+        </div>
+      )}
+      {tab === "words" && <MyWords />}
+      <SideSheet open={guide} onOpenChange={setGuide} title={t("guide.title")}>
+        <StudyGuide />
+      </SideSheet>
     </Page>
   );
 }

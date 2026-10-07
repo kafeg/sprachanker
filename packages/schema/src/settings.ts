@@ -41,6 +41,12 @@ export const SERVICE_SETTINGS = {
   "llm.endpoints": z.record(z.string(), z.url()),
   /** The learner's own system prompts, by task. */
   "llm.prompts": z.record(z.string(), z.string().max(20_000)),
+  /** New cards added to today's limit of some decks (Anki's custom study), for the study day that
+   *  starts at `day`; another day reads as none. */
+  "srs.extraNew": z.object({
+    day: z.number(),
+    scopes: z.record(z.string(), z.number().int().min(0).max(9999)),
+  }),
 } as const;
 
 /** The edition chosen for a course: `edition:<series>/<course>`. */
