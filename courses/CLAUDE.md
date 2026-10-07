@@ -41,6 +41,8 @@ courses/
 
 - Providers depend only on their own folder, `schema` and `course-kit` (never another provider) and
   MUST satisfy the normalisation contract (spec 02).
+- `course-kit` never imports a provider, its tests included: they write their own synthetic library
+  (`packages/course-kit/test/mini-library.ts`).
 - Import and normalisation are deterministic code over the source: no LLM, no generated content. A
   language pair of a source course is a course of its own (spec 01).
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.

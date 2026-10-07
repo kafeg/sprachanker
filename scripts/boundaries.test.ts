@@ -18,6 +18,7 @@ async function violations(): Promise<string[]> {
 
 test("boundary rules fire on deliberate violations and allow the type-only AppType import", async () => {
   expect(await violations()).toEqual([
+    "course-kit-never-imports-courses: packages/course-kit/test/uses-course.test.ts -> courses/lingust/src/index.ts",
     "courses-import-schema-and-course-kit: courses/dw/src/imports-other.ts -> courses/lingust/src/index.ts",
     "engine-imports-schema-only: packages/engine/src/imports-server.ts -> packages/server/src/index.ts",
     "nothing-imports-apps: packages/server/src/imports-app.ts -> apps/web/src/server-type.ts",

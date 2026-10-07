@@ -7,9 +7,11 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 
 ```
 apps/web/src/
-  routes/          # router.tsx (code-based TanStack Router), courses (my courses, all courses), course map
-                   # with its head in course-info (progress, source, stats, integrity, sync), review
-                   # (decks, a deck's overview, the session), words (My words, under Decks), settings
+  routes/          # router.tsx (code-based TanStack Router) and the pages: courses (my courses, all
+                   # courses), course (its map), review (decks, a deck's overview, the session), words
+                   # (My words, under Decks), settings
+  courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
+                   # the course page's hero (progress, source, stats, integrity, sync)
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
                    # header, reference), use-run (run + events), plan, overview, words-step, steps

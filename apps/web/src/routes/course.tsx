@@ -7,11 +7,11 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
+import { CourseHero } from "@/courses/hero.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
-import { CourseHero } from "./course-info.tsx";
 
 type LessonState = NonNullable<ReturnType<typeof useCourseMap>["data"]>["lessons"][string];
 

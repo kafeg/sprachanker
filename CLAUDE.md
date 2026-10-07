@@ -31,7 +31,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 
 Encoded in `.dependency-cruiser.cjs`; `scripts/boundaries.test.ts` proves them on deliberate violations.
 
-- `schema` → nothing. `engine` → `schema` only. `course-kit` → `schema`.
+- `schema` → nothing. `engine` → `schema` only. `course-kit` → `schema` (its tests too: never a course).
 - `courses/*` → `schema`, `course-kit` only. Never `server`, `engine`.
 - `llm` → `schema`. It never imports `server`.
 - `server` → `schema`, `engine`, `course-kit`, `courses/*`, `llm`, `anki-export`.

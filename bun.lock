@@ -129,7 +129,6 @@
         "zod": "4.6.5",
       },
       "devDependencies": {
-        "@sprachanker/course-fixture": "workspace:*",
         "@types/sanitize-html": "2.16.2",
       },
     },

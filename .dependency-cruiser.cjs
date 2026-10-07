@@ -42,6 +42,14 @@ module.exports = {
       "packages/course-kit",
       "packages/schema",
     ]),
+    {
+      name: "course-kit-never-imports-courses",
+      comment:
+        "Course packages depend on course-kit; course-kit — its tests too — never imports one (its tests build their own library).",
+      severity: "error",
+      from: { path: "^packages/course-kit/" },
+      to: { path: "^courses/" },
+    },
     onlyMayImport("llm-imports-schema-only", "^packages/llm/", ["packages/llm", "packages/schema"]),
     onlyMayImport("anki-export-imports-schema-only", "^packages/anki-export/", [
       "packages/anki-export",
