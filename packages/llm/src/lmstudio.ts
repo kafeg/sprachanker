@@ -117,4 +117,3 @@ export function lmStudioApi(endpoint: { baseUrl: string; apiKey?: string }, fetc
   };
   return api;
 }
-export type LmStudioApi = ReturnType<typeof lmStudioApi>;

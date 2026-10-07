@@ -1,8 +1,18 @@
 // /api/llm: provider setup, LM Studio, connection test, mistake explanations and the lesson tutor.
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
 import { LlmError, LMSTUDIO_RECOMMENDED, ProviderId } from "@sprachanker/llm";
-import { EditionId, Lang, LessonKey, SeriesKey, Ulid } from "@sprachanker/schema";
+import {
+  EditionId,
+  Lang,
+  LessonKey,
+  MESSAGE_MAX,
+  SeriesKey,
+  STREAM_ERROR,
+  Ulid,
+  WRITING_MAX,
+} from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
@@ -32,13 +42,14 @@ const ExplainBody = LessonRequest.extend({
 
 const ReviewBody = LessonRequest;
 
-const SceneLine = LessonRequest.extend({ text: z.string().trim().min(1).max(1000) });
+const SceneLine = LessonRequest.extend({ text: z.string().trim().min(1).max(MESSAGE_MAX) });
 
-const WritingBody = LessonRequest.extend({ text: z.string().trim().min(1).max(4000) });
+// The model checks this much of a text: a longer one would be marked wrong past the cut.
+const WritingBody = LessonRequest.extend({ text: z.string().trim().min(1).max(WRITING_MAX) });
 
 const TutorBody = LessonRequest.extend({
   exerciseKey: z.string().max(300).optional(),
-  message: z.string().trim().min(1).max(4000),
+  message: z.string().trim().min(1).max(MESSAGE_MAX),
   /** Ends the current chat first: the message opens a new one. */
   newChat: z.boolean().optional(),
 });
@@ -59,8 +70,10 @@ function failure(error: unknown) {
 }
 
 /**
- * Streams model text. Waits for the first chunk, so that setup and connection errors still get a
- * JSON response; a learner closing the request stops the generation (the signal reaches the provider).
+ * Streams model text. Waits for the first chunk, so that setup and connection errors — and a model
+ * that answers nothing — still get a JSON response; a learner closing the request stops the
+ * generation (the signal reaches the provider). A failure after the first chunk ends the text with
+ * `STREAM_ERROR` and the error, so the client does not take the part for the whole.
  */
 async function streamReply(c: Context, start: () => Promise<AsyncIterable<string>>) {
   let chunks: AsyncIterator<string>;
@@ -68,6 +81,7 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
   try {
     chunks = (await start())[Symbol.asyncIterator]();
     first = await chunks.next();
+    if (first.done) throw new LlmError("bad_response", "the model answered nothing");
   } catch (error) {
     const { status, ...body } = failure(error);
     return c.json(body, status);
@@ -76,22 +90,20 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
     try {
       // Writes to a stream the learner closed do not fail: stop reading the model instead, so the
       // task sees the reply cut short (an explanation is then not kept).
-      for (let next = first; !next.done && !stream.aborted; next = await chunks.next())
+      let next: IteratorResult<string> = first;
+      for (; !next.done && !stream.aborted; next = await chunks.next())
         await stream.write(next.value);
+    } catch (error) {
+      if (!(error instanceof LlmError || error instanceof ServiceError)) console.error(error);
+      const body =
+        error instanceof LlmError || error instanceof ServiceError
+          ? (({ status: _, ...rest }) => rest)(failure(error))
+          : { error: "server_error" };
+      if (!stream.aborted) await stream.write(STREAM_ERROR + JSON.stringify(body));
     } finally {
       await chunks.return?.();
     }
   });
-}
-
-/** Runs a call and turns setup and provider failures into their JSON responses. */
-async function jsonOrFailure<T>(c: Context, run: () => Promise<T>) {
-  try {
-    return c.json(await run());
-  } catch (error) {
-    const { status, ...body } = failure(error);
-    return c.json(body, status);
-  }
 }
 
 export function llmRoutes(
@@ -134,8 +146,8 @@ export function llmRoutes(
           return c.json(llm.state());
         },
       )
-      .get("/models", zod("query", z.object({ provider: ProviderId })), (c) =>
-        jsonOrFailure(c, () => llm.models(c.req.valid("query").provider, c.req.raw.signal)),
+      .get("/models", zod("query", z.object({ provider: ProviderId })), async (c) =>
+        c.json(await llm.models(c.req.valid("query").provider, c.req.raw.signal)),
       )
       .post("/explain", zod("json", ExplainBody), (c) =>
         streamReply(c, () => explain.stream(c.req.valid("json"), c.req.raw.signal)),
@@ -145,8 +157,8 @@ export function llmRoutes(
         return c.json({ explanations: explain.list(lessonKey, runId) });
       })
       // Prompt viewer: the exact request a task would send now (nothing is sent).
-      .post("/explain/prompt", zod("json", ExplainBody), (c) =>
-        jsonOrFailure(c, () => explain.prompt(c.req.valid("json"))),
+      .post("/explain/prompt", zod("json", ExplainBody), async (c) =>
+        c.json(await explain.prompt(c.req.valid("json"))),
       )
       .get("/prompts", zod("query", z.object({ language: Lang, target: Lang })), (c) => {
         const { language, target } = c.req.valid("query");
@@ -164,24 +176,26 @@ export function llmRoutes(
       )
       // LM Studio: what it has and runs; start its server, download suggested models into it.
       .get("/lmstudio", async (c) => c.json(await llm.lmStudioStatus()))
-      .post("/lmstudio/start", (c) => jsonOrFailure(c, () => llm.lmStudioStart()))
+      .post("/lmstudio/start", async (c) => c.json(await llm.lmStudioStart()))
       .post(
         "/lmstudio/download",
         zod("json", z.object({ model: z.enum(LMSTUDIO_RECOMMENDED.map((m) => m.key)) })),
-        (c) => jsonOrFailure(c, () => llm.lmStudioDownload(c.req.valid("json").model)),
+        async (c) => c.json(await llm.lmStudioDownload(c.req.valid("json").model)),
       )
       // Scenes: a role-play on the lesson's topic.
       .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ scene: scenes.state(c.req.valid("query").lessonKey) }),
       )
-      .post("/scene/start", zod("json", ReviewBody), (c) =>
-        jsonOrFailure(c, () => scenes.start(c.req.valid("json"), c.req.raw.signal)),
+      .post("/scene/start", zod("json", ReviewBody), async (c) =>
+        c.json(await scenes.start(c.req.valid("json"), c.req.raw.signal)),
       )
-      .post("/scene/turn", zod("json", SceneLine), (c) =>
-        jsonOrFailure(c, () => scenes.turn(c.req.valid("json"), c.req.raw.signal)),
+      .post("/scene/turn", zod("json", SceneLine), async (c) =>
+        c.json(await scenes.turn(c.req.valid("json"), c.req.raw.signal)),
       )
-      .post("/scene/prompt", zod("json", SceneLine.extend({ text: z.string().max(1000) })), (c) =>
-        jsonOrFailure(c, () => scenes.prompt(c.req.valid("json"))),
+      .post(
+        "/scene/prompt",
+        zod("json", SceneLine.extend({ text: z.string().max(MESSAGE_MAX) })),
+        async (c) => c.json(await scenes.prompt(c.req.valid("json"))),
       )
       .post("/scene/end", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
         scenes.end(c.req.valid("json").lessonKey);
@@ -191,11 +205,11 @@ export function llmRoutes(
       .get("/review", zod("query", z.object({ lessonKey: LessonKey })), async (c) =>
         c.json(await practice.review.state(c.req.valid("query").lessonKey)),
       )
-      .post("/review", zod("json", ReviewBody), (c) =>
-        jsonOrFailure(c, () => practice.review.create(c.req.valid("json"), c.req.raw.signal)),
+      .post("/review", zod("json", ReviewBody), async (c) =>
+        c.json(await practice.review.create(c.req.valid("json"), c.req.raw.signal)),
       )
-      .post("/review/prompt", zod("json", ReviewBody), (c) =>
-        jsonOrFailure(c, () => practice.review.prompt(c.req.valid("json"))),
+      .post("/review/prompt", zod("json", ReviewBody), async (c) =>
+        c.json(await practice.review.prompt(c.req.valid("json"))),
       )
       // Writing task of a lesson: the task and attempts; a check stores its verdict.
       .get(
@@ -206,13 +220,13 @@ export function llmRoutes(
           return c.json(await practice.writing.state(series, lessonKey, edition));
         },
       )
-      .post("/writing", zod("json", WritingBody), (c) =>
-        jsonOrFailure(c, () => practice.writing.check(c.req.valid("json"), c.req.raw.signal)),
+      .post("/writing", zod("json", WritingBody), async (c) =>
+        c.json(await practice.writing.check(c.req.valid("json"), c.req.raw.signal)),
       )
       .post(
         "/writing/prompt",
-        zod("json", WritingBody.extend({ text: z.string().max(4000) })),
-        (c) => jsonOrFailure(c, () => practice.writing.prompt(c.req.valid("json"))),
+        zod("json", WritingBody.extend({ text: z.string().max(WRITING_MAX) })),
+        async (c) => c.json(await practice.writing.prompt(c.req.valid("json"))),
       )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({ turns: tutor.history(c.req.valid("query").lessonKey) }),
@@ -222,13 +236,13 @@ export function llmRoutes(
       )
       .post(
         "/tutor/context",
-        zod("json", TutorBody.extend({ message: z.string().max(4000) })),
+        zod("json", TutorBody.extend({ message: z.string().max(MESSAGE_MAX) })),
         async (c) => c.json(await tutor.usage(c.req.valid("json"))),
       )
       .post(
         "/tutor/prompt",
-        zod("json", TutorBody.extend({ message: z.string().max(4000) })),
-        (c) => jsonOrFailure(c, () => tutor.prompt(c.req.valid("json"))),
+        zod("json", TutorBody.extend({ message: z.string().max(MESSAGE_MAX) })),
+        async (c) => c.json(await tutor.prompt(c.req.valid("json"))),
       )
       .post("/tutor/reset", zod("json", z.object({ lessonKey: LessonKey })), (c) => {
         tutor.reset(c.req.valid("json").lessonKey);
@@ -255,5 +269,14 @@ export function llmRoutes(
             ? c.json({ ok: true as const })
             : c.json({ error: "no_such_chat" }, 404),
       )
+      // Setup and provider failures as their responses (the routes return their results only).
+      .onError((error, c) => {
+        if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
+        if (error instanceof ServiceError || error instanceof LlmError) {
+          const { status, ...body } = failure(error);
+          return c.json(body, status);
+        }
+        throw error;
+      })
   );
 }

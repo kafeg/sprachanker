@@ -44,3 +44,9 @@ export const issuesText = (error: z.ZodError, max = 3) =>
     .slice(0, max)
     .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
     .join("; ");
+
+/**
+ * A streamed text that broke off ends with this mark followed by the error as JSON
+ * (`{"error": "llm_timeout"}`, 06): what came before it was shown, and is not the whole reply.
+ */
+export const STREAM_ERROR = "\u0000";

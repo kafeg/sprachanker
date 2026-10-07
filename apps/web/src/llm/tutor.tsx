@@ -6,11 +6,17 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
-import { cn } from "@/ui/utils.ts";
 import { streamTutor, type TutorRequest, useLlm, useResetTutor, useTutorHistory } from "./api.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
 import { ContextMeter } from "./context-meter.tsx";
-import { ChatComposer, ChatSheet, ErrorLine, useAbortable, useScrollToEnd } from "./parts.tsx";
+import {
+  ChatBubble,
+  ChatComposer,
+  ChatSheet,
+  ErrorLine,
+  useAbortable,
+  useScrollToEnd,
+} from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { RichText } from "./rich-text.tsx";
 
@@ -24,17 +30,9 @@ export interface TutorAsk {
   newChat?: boolean;
 }
 
+/** A chat turn's bubble: the learner's ("user") or the tutor's. */
 function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
-  return (
-    <div
-      className={cn(
-        "max-w-[92%] rounded-2xl px-4 py-2.5",
-        from === "user" ? "ml-auto bg-primary text-primary-foreground" : "bg-muted",
-      )}
-    >
-      {children}
-    </div>
-  );
+  return <ChatBubble from={from === "user" ? "learner" : "other"}>{children}</ChatBubble>;
 }
 
 /** What the model looked up for a reply (its tool calls), in plain words. */

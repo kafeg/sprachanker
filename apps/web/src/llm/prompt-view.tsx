@@ -9,9 +9,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sh
 import { DEBUG_PROMPTS, fetchPrompt, type PromptPreview, type PromptRequest } from "./api.ts";
 import { errorText } from "./errors.ts";
 
-/** Rough token count (about 4 characters per token for these languages). */
-const tokens = (text: string) => Math.ceil(text.length / 4);
-
 export const useDebugPrompts = () => useSettings().data?.[DEBUG_PROMPTS] === true;
 
 function Preview({ preview }: { preview: PromptPreview }) {
@@ -33,7 +30,7 @@ function Preview({ preview }: { preview: PromptPreview }) {
         <dd>
           {t("prompt.sizeValue", {
             chars: total,
-            tokens: tokens(messages.map((m) => m.content).join("")),
+            tokens: preview.tokens.reduce((n, k) => n + k, 0),
           })}
         </dd>
       </dl>
@@ -43,7 +40,7 @@ function Preview({ preview }: { preview: PromptPreview }) {
           <p className="flex items-center gap-2 text-sm">
             <Badge variant={m.role === "system" ? "default" : "secondary"}>{m.role}</Badge>
             <span className="text-muted-foreground">
-              {t("prompt.sizeValue", { chars: m.content.length, tokens: tokens(m.content) })}
+              {t("prompt.sizeValue", { chars: m.content.length, tokens: preview.tokens[i] ?? 0 })}
             </span>
           </p>
           <pre className="max-h-[60vh] overflow-auto whitespace-pre-wrap rounded-lg bg-muted p-3 text-[13px] leading-relaxed">

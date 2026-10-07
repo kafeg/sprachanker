@@ -100,6 +100,94 @@ describe("openAiCompatible", () => {
   });
 });
 
+describe("failures while a reply is read", () => {
+  /** A stream that sends `first`, then waits `pause` ms before the rest (or errors, or hangs). */
+  const slow = (first: string, then: "rest" | "break" | "hang", pause = 30) =>
+    new Response(
+      new ReadableStream({
+        async start(controller) {
+          const enc = new TextEncoder();
+          controller.enqueue(enc.encode(first));
+          if (then === "hang") return;
+          await new Promise((r) => setTimeout(r, pause));
+          if (then === "break") return controller.error(new TypeError("socket closed"));
+          controller.enqueue(enc.encode(`${delta(" mehr")}data: [DONE]\n\n`));
+          controller.close();
+        },
+      }),
+    );
+  const chat = (res: () => Response, limits = { firstMs: 1000, idleMs: 100 }) =>
+    collect(
+      openAiCompatible({ baseUrl: "http://x/v1" }, fakeFetch(res).fn, limits).chat({
+        model: "m",
+        messages: [],
+      }),
+    );
+
+  test("a slow model is not cut off while it keeps writing: the limit runs between chunks", async () => {
+    // 150 ms in all, never 100 ms of silence.
+    expect(await chat(() => slow(delta("Erst"), "rest", 60), { firstMs: 100, idleMs: 100 })).toBe(
+      "Erst mehr",
+    );
+  });
+
+  test("silence mid-reply is a timeout; a dropped connection is unreachable", async () => {
+    const code = (p: Promise<unknown>) => p.catch((e: LlmError) => e.code);
+    expect(await code(chat(() => slow(delta("Erst"), "hang")))).toBe("timeout");
+    expect(await code(chat(() => slow(delta("Erst"), "break")))).toBe("unreachable");
+  });
+
+  test("a busy server (429, 5xx) is not asked again without tools or the switch", async () => {
+    const { fn, calls } = fakeFetch(() => new Response("busy", { status: 429 }));
+    const client = openAiCompatible({ baseUrl: "http://x/v1", noReasoning: { think: false } }, fn);
+    const error = await collect(client.chat({ model: "m", messages: [], reasoning: false })).catch(
+      (e: LlmError) => e,
+    );
+    expect([(error as LlmError).code, (error as LlmError).status, calls.length]).toEqual([
+      "bad_response",
+      429,
+      1,
+    ]);
+  });
+
+  test("tool calls without an index; the last line without a newline", async () => {
+    const call = (id: string | undefined, name: string, args: string) =>
+      `data: ${JSON.stringify({
+        choices: [
+          { delta: { tool_calls: [{ ...(id && { id }), function: { name, arguments: args } }] } },
+        ],
+      })}\n\n`;
+    let round = 0;
+    const ran: string[] = [];
+    const out = await collect(
+      openAiCompatible(
+        { baseUrl: "http://x/v1" },
+        fakeFetch(() =>
+          round++ === 0
+            ? sse([
+                call("c1", "progress", ""),
+                call(undefined, "", "{}"),
+                call("c2", "mistakes", "{}"),
+              ])
+            : sse([`data: ${JSON.stringify({ choices: [{ delta: { content: "Fertig" } }] })}`]),
+        ).fn,
+      ).chat({
+        model: "m",
+        messages: [],
+        tools: [
+          { name: "progress", description: "", parameters: {} },
+          { name: "mistakes", description: "", parameters: {} },
+        ],
+        runTool: async (name) => {
+          ran.push(name);
+          return {};
+        },
+      }),
+    );
+    expect([ran, out]).toEqual([["progress", "mistakes"], "Fertig"]);
+  });
+});
+
 describe("stripThinking", () => {
   test.each([
     [["<think>hmm</think>\n\nAnswer"], "Answer"],

@@ -17,8 +17,13 @@ export function htmlToText(html: string): string {
     .replace(/<\/t[dh]>/gi, " | ")
     .replace(/<[^>]+>/g, "")
     .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (m, e: string) => {
-      if (e.startsWith("#x")) return String.fromCodePoint(Number.parseInt(e.slice(2), 16));
-      if (e.startsWith("#")) return String.fromCodePoint(Number(e.slice(1)));
+      const code = e.startsWith("#x")
+        ? Number.parseInt(e.slice(2), 16)
+        : e.startsWith("#")
+          ? Number(e.slice(1))
+          : undefined;
+      // A number past Unicode stays as written.
+      if (code !== undefined) return code <= 0x10ffff ? String.fromCodePoint(code) : m;
       return ENTITIES[e.toLowerCase()] ?? m;
     })
     .replace(/[ \t]+/g, " ")
@@ -66,15 +71,25 @@ export function fitting(lines: string[], max: number): string[] {
   return out;
 }
 
-/** The most recent conversation turns that fit `budget` characters of text, oldest first. */
+/**
+ * The most recent conversation turns that fit `budget` characters of text, oldest first. The latest
+ * exchange (the last two turns) is always kept — a long one clipped — so "go on" never loses what
+ * it continues.
+ */
 export function recentTurns<T extends { text: string }>(history: T[], budget: number): T[] {
+  const out: T[] = [];
   let size = 0;
-  let start = history.length;
-  while (start > 0) {
-    const length = (history[start - 1] as T).text.length;
-    if (size + length > budget) break;
-    size += length;
-    start--;
+  for (let i = history.length - 1; i >= 0; i--) {
+    const turn = history[i] as T;
+    const room = budget - size;
+    if (turn.text.length <= room) {
+      out.unshift(turn);
+      size += turn.text.length;
+    } else if (out.length < 2) {
+      const keep = Math.max(room, Math.floor(budget / 4));
+      out.unshift({ ...turn, text: clip(turn.text, keep) });
+      size += keep;
+    } else break;
   }
-  return history.slice(start);
+  return out;
 }

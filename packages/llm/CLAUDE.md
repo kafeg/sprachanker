@@ -11,7 +11,7 @@ src/
   cli.ts           # command-line providers (claude -p, codex exec): command lines, prompt, output parsing;
                    # the process itself is started by a CliRunner the server passes in
   client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
-                   # errors as LlmError codes
+                   # TimeLimit (to the first byte, then between chunks); errors as LlmError codes
   providers.ts     # presets: lmstudio, openrouter, custom, claude-code, codex (endpoint, key, CLI kind)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   structured.ts    # JSON outputs: schema in the request, zod validation, one repair attempt
@@ -37,6 +37,8 @@ Later (07, "Later"): per-task routes, golden tests.
 - JSON task outputs are validated with zod; invalid → one repair attempt → `invalid_output`, which the
   UI shows as "the model could not answer usefully, try again or a larger model" (nothing is stored).
 - Prompts live next to their task; course text and learner input are delimited data in the prompt.
+  The delimiting line (and "JSON only") is a fixed suffix after the rules, so the learner's own
+  rules never remove it.
 - Each task exposes `<task>Request(input)` (what is sent), `<task>Rules()` (its system prompt) and its
   context budgets; the real call and the prompt viewer use the same functions.
 - Explanations in the learner's native language; target-language text stays in the target language.

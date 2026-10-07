@@ -94,6 +94,19 @@ export const EventInput = z.discriminatedUnion("type", [
 ]);
 export type EventInput = z.infer<typeof EventInput>;
 
+/** Longest text the learner sends: a "Write it yourself" text (what the model checks whole), and a
+ *  message to the tutor or a scene. */
+export const WRITING_MAX = 2000;
+export const MESSAGE_MAX = 4000;
+
+/** A mistake in the learner's text and its fix (a writing check, a scene line). */
+export const Correction = z.object({
+  wrong: z.string(),
+  right: z.string(),
+  explanation: z.string(),
+});
+export type Correction = z.infer<typeof Correction>;
+
 /** One message of a tutor chat or a scene (05, "Events"). */
 export const LlmTurnPayload = z.object({
   role: z.enum(["user", "assistant"]),
@@ -105,9 +118,7 @@ export const LlmTurnPayload = z.object({
   /** Scenes: the partner's line in the learner's language. */
   translation: z.string().optional(),
   /** Scenes: errors in the learner's line. */
-  corrections: z
-    .array(z.object({ wrong: z.string(), right: z.string(), explanation: z.string() }))
-    .optional(),
+  corrections: z.array(Correction).optional(),
   /** Scenes: indices of the scene's goals reached so far. */
   goalsMet: z.array(z.number().int().nonnegative()).optional(),
   /** Tutor: the tools the model called for this reply. */

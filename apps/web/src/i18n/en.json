@@ -242,7 +242,12 @@
       "llm_invalid_output": "The model could not give a usable answer. Try again, or choose a larger model in Settings → AI assistant.",
       "no_active_scene": "This scene has ended. Start a new one.",
       "no_such_item": "This exercise has changed. Reload the lesson.",
-      "llm_cli_missing": "The command-line assistant is not installed on this computer."
+      "llm_cli_missing": "The command-line assistant is not installed on this computer.",
+      "no_session": "Answer something in the lesson first: there is nothing to review yet.",
+      "no_such_run": "This lesson run is gone (its progress was reset). Reload the lesson.",
+      "no_such_attempt": "This answer is no longer in the lesson run. Reload the lesson.",
+      "not_installed": "This course is not installed (any more).",
+      "server_error": "Something went wrong on the server."
     },
     "cliHint": {
       "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",

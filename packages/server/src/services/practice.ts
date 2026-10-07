@@ -9,14 +9,15 @@ import {
   reviewSessionTask,
   runStructured,
   type SessionExerciseState,
-  type SessionReview,
+  SessionReview,
   type StructuredTask,
   structuredRequest,
-  type WritingCheck,
+  WritingCheck,
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
 import type { LessonKey, LlmVerdictPayload, Run, StoredEvent } from "@sprachanker/schema";
+import type { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
@@ -60,12 +61,19 @@ export function createPractice(deps: {
 }) {
   const { store, now } = deps;
 
-  /** Verdicts of a task for the lesson, newest first. */
-  function verdicts(lessonKey: LessonKey, task: LlmVerdictPayload["task"]) {
+  /**
+   * Verdicts of a task for the lesson, newest first, their result read with the task's schema: one
+   * stored in a shape that no longer reads is left out.
+   */
+  function verdicts<T>(lessonKey: LessonKey, task: "review" | "writing", schema: z.ZodType<T>) {
     return store
       .eventsWhere({ types: ["llm_verdict"], kind: "practice", about: lessonKey })
       .map((e) => ({ ts: e.ts, ...(e.payload as LlmVerdictPayload) }))
-      .filter((v) => v.task === task);
+      .filter((v) => v.task === task)
+      .flatMap((v) => {
+        const result = schema.safeParse(v.result);
+        return result.success ? [{ ...v, result: result.data }] : [];
+      });
   }
 
   /** Stores a verdict in the lesson's practice run; returns its time. */
@@ -137,6 +145,7 @@ export function createPractice(deps: {
           (o) => o.result === "wrong" || o.result === "partial",
         );
         return {
+          // The list is numbered: the title alone (exerciseLabel would number it twice).
           title: ctx.locale?.exercises[exercise.key]?.title ?? `Exercise ${i + 1}`,
           state:
             state === "wrong" && !answeredWrong ? "skipped" : (STATE[state ?? ""] ?? "not_started"),
@@ -169,7 +178,7 @@ export function createPractice(deps: {
        *  `possible` when the run has answers. */
       async state(lessonKey: LessonKey) {
         const session = await deps.session(lessonKey);
-        const reviews = verdicts(lessonKey, "review");
+        const reviews = verdicts(lessonKey, "review", SessionReview);
         const reviewed = reviewedRuns(lessonKey, reviews);
         const latest = session && reviews.find((_, i) => reviewed[i] === session.run.id);
         const { lastTs, first } = firstAttempts(session?.events ?? []);
@@ -178,7 +187,7 @@ export function createPractice(deps: {
           review: latest
             ? ({
                 ts: latest.ts,
-                result: latest.result as SessionReview,
+                result: latest.result,
                 model: latest.model,
               } satisfies StoredReview)
             : null,
@@ -208,13 +217,13 @@ export function createPractice(deps: {
         return {
           topic: writingTopic(ctx.info),
           words: ctx.info.vocab.map((v) => v.target),
-          attempts: verdicts(lessonKey, "writing")
+          attempts: verdicts(lessonKey, "writing", WritingCheck)
             .slice(0, 10)
             .map(
               (v): WritingAttempt => ({
                 ts: v.ts,
                 text: v.input,
-                result: v.result as WritingCheck,
+                result: v.result,
                 model: v.model,
               }),
             ),

@@ -10,6 +10,7 @@ import { cn } from "@/ui/utils.ts";
 import { type SceneState, useLlm, useScene, useSceneAction } from "./api.ts";
 import { AssistantLabel, useAssistantLabel } from "./assistant-label.tsx";
 import {
+  ChatBubble,
   ChatComposer,
   ChatSheet,
   Corrections,
@@ -27,7 +28,7 @@ function PartnerLine({ turn }: { turn: Turn }) {
   const { t } = useTranslation();
   const [shown, setShown] = useState(false);
   return (
-    <div className="max-w-[92%] rounded-2xl bg-muted px-4 py-2.5">
+    <ChatBubble from="other">
       <p lang={lang} className="text-lg">
         {turn.text}
       </p>
@@ -43,7 +44,7 @@ function PartnerLine({ turn }: { turn: Turn }) {
             <Languages className="size-3.5" /> {t("scene.translate")}
           </button>
         ))}
-    </div>
+    </ChatBubble>
   );
 }
 
@@ -51,9 +52,9 @@ function LearnerLine({ turn }: { turn: Turn }) {
   const lang = useTargetLang();
   return (
     <div className="ml-auto max-w-[92%] space-y-1">
-      <p lang={lang} className="rounded-2xl bg-primary px-4 py-2.5 text-lg text-primary-foreground">
+      <ChatBubble from="learner" lang={lang} className="max-w-none text-lg">
         {turn.text}
-      </p>
+      </ChatBubble>
       <Corrections corrections={turn.corrections ?? []} className="text-right" />
     </div>
   );
@@ -106,12 +107,9 @@ function SceneView({ ids, scene }: { ids: Ids; scene: SceneState }) {
         )}
         {action.isPending && "turn" in (action.variables ?? {}) && (
           <>
-            <p
-              lang={lang}
-              className="ml-auto max-w-[92%] rounded-2xl bg-primary/60 px-4 py-2.5 text-lg"
-            >
+            <ChatBubble from="learner" pending lang={lang} className="text-lg">
               {text}
-            </p>
+            </ChatBubble>
             <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
           </>
         )}

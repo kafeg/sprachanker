@@ -160,7 +160,7 @@ export const useDecks = () =>
 export const useStudy = (scope: string) =>
   useQuery({
     queryKey: ["study", scope],
-    queryFn: () => json(api.cards.study.$get({ query: { scope: scope as never } })),
+    queryFn: () => json(api.cards.study.$get({ query: { scope } })),
   });
 
 /**
@@ -192,8 +192,7 @@ export function useCardActions() {
   });
   const unbury = useMutation({
     onSuccess,
-    mutationFn: (scope: string) =>
-      json(api.cards.unbury.$post({ json: { scope: scope as never } })),
+    mutationFn: (scope: string) => json(api.cards.unbury.$post({ json: { scope } })),
   });
   const suspend = useMutation({
     onSuccess,

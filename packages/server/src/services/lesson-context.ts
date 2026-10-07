@@ -90,3 +90,12 @@ export function createLessonContext(content: Content) {
   };
 }
 export type LessonContexts = ReturnType<typeof createLessonContext>;
+
+/** "Exercise 3 · Title": how the model is told which exercise a message was written on. */
+export function exerciseLabel(lesson: Lesson, locale: LocaleLesson | undefined, key: string) {
+  const n = lesson.pages.findIndex((p) => p.exercise.key === key);
+  const exercise = lesson.pages[n]?.exercise;
+  if (!exercise) return undefined;
+  const title = locale?.exercises[exercise.key]?.title;
+  return `Exercise ${n + 1}${title ? ` · ${title}` : ""}`;
+}

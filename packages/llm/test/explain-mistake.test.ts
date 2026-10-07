@@ -78,3 +78,7 @@ test("htmlToText", () => {
     "a &ü\nx | y |",
   );
 });
+
+test("htmlToText keeps a numeric entity past Unicode as written", () => {
+  expect(htmlToText("a&#99999999;b&#x110000;c")).toBe("a&#99999999;b&#x110000;c");
+});

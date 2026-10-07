@@ -84,3 +84,17 @@ export function sameText(
     ref.every((_, i) => wordMatches(lang, ref, i, got[i] as string, { startsSentence }))
   );
 }
+
+/** Words before a headword that are not the word itself (articles, "sich", "to"…), per language. */
+const LEADING: Record<string, RegExp> = {
+  de: /^\(?(der|die|das|ein|eine|sich|etwas|jemand(en|em)?)\)?\s+/g,
+  en: /^\(?(the|a|an|to)\)?\s+/g,
+};
+
+/** A headword for looking a word up: without articles, case and the forms after a comma
+ *  ("die Frau, die Frauen" → "frau"). */
+export const headword = (lang: string, text: string) =>
+  (text.split(",")[0] ?? "")
+    .toLocaleLowerCase(lang)
+    .replace(LEADING[lang] ?? /^$/, "")
+    .trim();

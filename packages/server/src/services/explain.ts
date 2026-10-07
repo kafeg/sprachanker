@@ -45,7 +45,10 @@ export function createExplain(deps: {
 }) {
   const { llm, content, lessonRun, store, now } = deps;
 
-  /** What explain_mistake gets for one item: the item, the answers and the lesson's grammar. */
+  /**
+   * What explain_mistake gets for one item: the item, the answers and the lesson's grammar. An
+   * explanation kept with a run explains that run's answer at that attempt, read from the run.
+   */
   async function input(request: ExplainRequest) {
     const [lesson, locale] = await Promise.all([
       content.lesson(request.series, request.lessonKey),
@@ -55,6 +58,18 @@ export function createExplain(deps: {
     const item = exercise?.items[request.index];
     if (!exercise || !item) throw new ServiceError("no_such_item", 404);
     const target = parseEditionId(request.edition).target;
+    let answer = request.answer;
+    if (request.runId && request.attempt) {
+      const given = store
+        .events(request.runId, ["answered"])
+        .find(
+          (e) =>
+            e.itemKey === item.key &&
+            (e.payload as { attempt: number }).attempt === request.attempt,
+        );
+      if (!given) throw new ServiceError("no_such_attempt", 404);
+      answer = (given.payload as { answer: unknown }).answer;
+    }
     // Understanding of a recording is explained from its transcript, not guessed.
     const recording = [exercise.media, item.media].some(
       (m) => !!m?.audio || !!(m && "video" in m && m.video),
@@ -65,7 +80,7 @@ export function createExplain(deps: {
         exercise,
         locale: locale?.exercises[exercise.key],
         index: request.index,
-        answer: request.answer,
+        answer,
         grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
         scriptHtml: recording ? locale?.tabs.script?.bodyHtml : undefined,
         language: request.language,

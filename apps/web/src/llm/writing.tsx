@@ -1,7 +1,7 @@
 // "Write it yourself", a practice step of the lesson: a short text on the lesson's topic, checked by the model
 // (verdict, corrected text, corrections, Goethe A1 writing criteria). Attempts are kept.
 import { wordDiff } from "@sprachanker/engine";
-import type { LessonKey } from "@sprachanker/schema";
+import { type LessonKey, WRITING_MAX } from "@sprachanker/schema";
 import { LoaderCircle, PenLine } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -132,6 +132,7 @@ export function WritingTask({
         lang={lang}
         className="min-h-28 text-base"
         placeholder={t("writing.placeholder")}
+        maxLength={WRITING_MAX}
         value={text}
         onChange={(e) => setText(e.target.value)}
       />

@@ -11,6 +11,7 @@ import {
   cliClient,
   cliCommand,
   EXPLAIN_MISTAKE_BUDGETS,
+  estimateTokens,
   explainMistakeRules,
   type LlmClient,
   LlmError,
@@ -101,6 +102,8 @@ export interface PromptPreview {
   model: string;
   url: string;
   body: ReturnType<typeof chatBody>;
+  /** Rough token count of each message (07, "Debugging"). */
+  tokens: number[];
 }
 
 /** The tasks the settings explain, in the order they are shown. */
@@ -331,6 +334,7 @@ export function createLlm(deps: {
           ? cliCommand(PROVIDERS[r.providerId].cli as CliKind, r.model)
           : `${baseUrl(r.providerId).replace(/\/+$/, "")}/chat/completions`,
         body: chatBody({ ...task, model: r.model }, PROVIDERS[r.providerId].noReasoning),
+        tokens: task.messages.map((m) => estimateTokens(m.content)),
       };
     },
     /** The model's context window when the app knows it (LM Studio: loaded by us with this size). */

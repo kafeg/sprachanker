@@ -1,5 +1,5 @@
 // LLM endpoints of the API: provider setup, connection test, streamed lesson help.
-import type { LessonKey } from "@sprachanker/schema";
+import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, json } from "@/api/client.ts";
 
@@ -40,12 +40,7 @@ export const useModels = (provider: ProviderId | null) =>
     queryKey: ["llm-models", provider],
     enabled: false,
     retry: false,
-    queryFn: async () => {
-      const res = await api.llm.models.$get({ query: { provider: provider as ProviderId } });
-      const body = await res.json();
-      if ("error" in body) throw new ApiError(body.error);
-      return body;
-    },
+    queryFn: () => json(api.llm.models.$get({ query: { provider: provider as ProviderId } })),
   });
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
@@ -60,9 +55,20 @@ async function readStream(res: Response, onText: (text: string) => void): Promis
   let text = "";
   while (true) {
     const { value, done } = await reader.read();
-    if (done) return text;
-    text += value;
-    onText(text);
+    if (!done) text += value;
+    // The reply broke off: the server says why after the mark (the part shown stays).
+    const broken = text.indexOf(STREAM_ERROR);
+    if (broken < 0) {
+      if (done) return text;
+      onText(text);
+    } else if (done) {
+      onText(text.slice(0, broken));
+      let error = "llm_bad_response";
+      try {
+        error = (JSON.parse(text.slice(broken + 1)) as { error?: string }).error ?? error;
+      } catch {}
+      throw new ApiError(error);
+    }
   }
 }
 
@@ -124,11 +130,9 @@ export function useLmStudioAction() {
   return useMutation({
     // Error responses (409/502) become an ApiError in json(); success is the new status.
     mutationFn: (action: { start: true } | { download: SuggestedModel }) =>
-      json<LmStudioStatus>(
-        ("start" in action
-          ? api.llm.lmstudio.start.$post()
-          : api.llm.lmstudio.download.$post({ json: { model: action.download } })) as never,
-      ),
+      "start" in action
+        ? json(api.llm.lmstudio.start.$post())
+        : json(api.llm.lmstudio.download.$post({ json: { model: action.download } })),
     onSuccess: (status) => client.setQueryData(["lmstudio"], status),
   });
 }
@@ -138,16 +142,7 @@ export const DEBUG_PROMPTS = "llm.debugPrompts";
 
 export type PromptPreview = Awaited<ReturnType<typeof fetchExplainPrompt>>;
 const fetchExplainPrompt = (request: ExplainRequest) =>
-  json(api.llm.explain.prompt.$post({ json: request }) as never) as Promise<{
-    provider: string;
-    model: string;
-    url: string;
-    body: {
-      model: string;
-      messages: Array<{ role: "system" | "user" | "assistant"; content: string }>;
-      [field: string]: unknown;
-    };
-  }>;
+  json(api.llm.explain.prompt.$post({ json: request }));
 
 export type TutorPromptRequest = Omit<TutorRequest, "message"> & { message: string };
 
@@ -162,25 +157,22 @@ export type PromptRequest =
 /** The exact request a task would send now (nothing is sent). */
 export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("explain" in kind) return fetchExplainPrompt(kind.explain);
-  const response =
-    "tutor" in kind
-      ? api.llm.tutor.prompt.$post({ json: kind.tutor })
-      : "writing" in kind
-        ? api.llm.writing.prompt.$post({ json: kind.writing })
-        : "review" in kind
-          ? api.llm.review.prompt.$post({ json: kind.review })
-          : api.llm.scene.prompt.$post({ json: kind.scene });
-  return json(response as never) as Promise<PromptPreview>;
+  if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
+  if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
+  if ("review" in kind) return json(api.llm.review.prompt.$post({ json: kind.review }));
+  return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }
 
 /** The tasks' system prompts (standing or the learner's own) and context budgets, for the settings;
  *  none while no course is installed. */
+const fetchTaskPrompts = (language: string, target: string) =>
+  json(api.llm.prompts.$get({ query: { language, target } }));
 export const useTaskPrompts = (language: string, target: string | undefined) =>
   useQuery({
     queryKey: ["llm-prompts", language, target],
     enabled: !!target,
     staleTime: Number.POSITIVE_INFINITY,
-    queryFn: () => json(api.llm.prompts.$get({ query: { language, target: target as string } })),
+    queryFn: () => fetchTaskPrompts(language, target as string),
   });
 
 /** Saves the learner's own system prompt of a task ({language}, {target}); null restores the standing one. */
@@ -192,20 +184,14 @@ export function useSetPrompt() {
     onSuccess: () => void client.invalidateQueries({ queryKey: ["llm-prompts"] }),
   });
 }
-export type PromptTaskId = "explain" | "tutor" | "writing" | "review" | "scene";
+/** The tasks with a system prompt the learner may change (the server's list). */
+export type PromptTaskId = keyof Awaited<ReturnType<typeof fetchTaskPrompts>>;
 
 /** How full the tutor's next request is (refreshed after each turn). */
 export const useTutorContext = (request: TutorPromptRequest, turns: number) =>
   useQuery({
     queryKey: ["tutor-context", request.lessonKey, request.exerciseKey, request.language, turns],
-    queryFn: () =>
-      json(api.llm.tutor.context.$post({ json: request }) as never) as Promise<{
-        tokens: number;
-        window: number | null;
-        reply: number;
-        kept: number;
-        total: number;
-      }>,
+    queryFn: () => json(api.llm.tutor.context.$post({ json: request })),
   });
 
 export type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];
@@ -224,8 +210,7 @@ export const useWriting = (series: string, lessonKey: string, edition: string) =
 export function useCheckWriting() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (request: WritingRequest) =>
-      json(api.llm.writing.$post({ json: request }) as never) as Promise<WritingAttempt>,
+    mutationFn: (request: WritingRequest) => json(api.llm.writing.$post({ json: request })),
     onSuccess: (_, request) =>
       client.invalidateQueries({ queryKey: ["writing", request.lessonKey, request.edition] }),
   });
@@ -242,10 +227,7 @@ export const useReview = (lessonKey: LessonKey) =>
 export function useCreateReview() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (request: ReviewRequest) =>
-      json(api.llm.review.$post({ json: request }) as never) as Promise<
-        NonNullable<ReviewState["review"]>
-      >,
+    mutationFn: (request: ReviewRequest) => json(api.llm.review.$post({ json: request })),
     onSuccess: (_, request) =>
       client.invalidateQueries({ queryKey: ["review", request.lessonKey] }),
   });
@@ -262,14 +244,14 @@ export const useScene = (lessonKey: LessonKey) =>
 export function useSceneAction(lessonKey: LessonKey) {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (action: { start: ReviewRequest } | { turn: SceneLineRequest } | { end: true }) =>
-      json(
-        ("start" in action
-          ? api.llm.scene.start.$post({ json: action.start })
-          : "turn" in action
-            ? api.llm.scene.turn.$post({ json: action.turn })
-            : api.llm.scene.end.$post({ json: { lessonKey } })) as never,
-      ) as Promise<SceneState | { ok: true }>,
+    mutationFn: async (
+      action: { start: ReviewRequest } | { turn: SceneLineRequest } | { end: true },
+    ): Promise<SceneState | { ok: true }> =>
+      "start" in action
+        ? json(api.llm.scene.start.$post({ json: action.start }))
+        : "turn" in action
+          ? json(api.llm.scene.turn.$post({ json: action.turn }))
+          : json(api.llm.scene.end.$post({ json: { lessonKey } })),
     onSuccess: (result) =>
       "setup" in result
         ? client.setQueryData(["scene", lessonKey], { scene: result })

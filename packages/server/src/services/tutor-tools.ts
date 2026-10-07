@@ -1,8 +1,8 @@
 // The tutor's tools on the server side (07, "Tools"): the learner's progress, mistakes, the course's
 // words and lessons, looked up when the model asks. Lessons are "unit.lesson" as the app shows them.
-import { type LessonProgress, lessonDone } from "@sprachanker/engine";
+import { headword, type LessonProgress, lessonDone } from "@sprachanker/engine";
 import { grammarNotes, lessonWords, mistakeLine } from "@sprachanker/llm";
-import { type LessonKey, parseLessonKey } from "@sprachanker/schema";
+import { type LessonKey, parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import type { Content } from "./content.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Mistakes } from "./mistakes.ts";
@@ -11,14 +11,6 @@ const number = (key: string) => {
   const { unit, lesson } = parseLessonKey(key as LessonKey);
   return `${unit}.${lesson}`;
 };
-
-/** Words compared without articles, case and the forms after a comma: "die Frau, die Frauen" → "frau". */
-const headword = (text: string) =>
-  text
-    .split(",")[0]
-    ?.toLowerCase()
-    .replace(/^\(?(der|die|das|ein|eine|sich|etwas|jemand(en|em)?)\)?\s+/g, "")
-    .trim() ?? "";
 
 export function createTutorTools(deps: {
   content: Content;
@@ -32,6 +24,7 @@ export function createTutorTools(deps: {
     /** The tool runner for a tutor chat in this lesson's course and edition. */
     runner(series: string, lessonKey: LessonKey, edition: string) {
       const course = parseLessonKey(lessonKey).courseId;
+      const lang = parseEditionId(edition).target;
       const map = content.courseMap(series, course, edition);
       const order = async () => (await map).index.units.flatMap((u) => u.lessons);
       const title = async (key: string) => `${number(key)} ${(await map).titles[key] ?? ""}`.trim();
@@ -89,7 +82,7 @@ export function createTutorTools(deps: {
         },
 
         async find_word({ word }) {
-          const q = headword(String(word ?? ""));
+          const q = headword(lang, String(word ?? ""));
           if (!q) return { error: "no word" };
           const found: Array<{ lesson: string; word: string; translation?: string }> = [];
           for (const key of await order()) {
@@ -99,7 +92,7 @@ export function createTutorTools(deps: {
             ]);
             for (const v of lesson.vocab) {
               const translation = locale?.vocab[v.key]?.translation;
-              if (headword(v.target).includes(q) || translation?.toLowerCase().includes(q)) {
+              if (headword(lang, v.target).includes(q) || translation?.toLowerCase().includes(q)) {
                 found.push({ lesson: await title(key), word: v.target, translation });
               }
             }

@@ -4,13 +4,11 @@ import { exerciseResults, mistakesOf } from "@sprachanker/engine";
 import { type ChatTurnInput, chatTurn, chatTurnRequest, estimateTokens } from "@sprachanker/llm";
 import {
   findExercise,
-  type Lesson,
   type LessonKey,
   type LlmTurnPayload,
-  type LocaleLesson,
   type StoredEvent,
 } from "@sprachanker/schema";
-import type { LessonContexts } from "./lesson-context.ts";
+import { exerciseLabel, type LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { Mistakes } from "./mistakes.ts";
 import type { RunStore } from "./run-store.ts";
@@ -39,15 +37,6 @@ export interface ChatSummary {
   turns: number;
   /** Exercises on screen when the learner wrote, in order of first mention. */
   exerciseKeys: string[];
-}
-
-/** "Exercise 3 · Title": how the model is told which exercise a message was written on. */
-export function exerciseLabel(lesson: Lesson, locale: LocaleLesson | undefined, key: string) {
-  const n = lesson.pages.findIndex((p) => p.exercise.key === key);
-  const exercise = lesson.pages[n]?.exercise;
-  if (!exercise) return undefined;
-  const title = locale?.exercises[exercise.key]?.title;
-  return `Exercise ${n + 1}${title ? ` · ${title}` : ""}`;
 }
 
 export interface ContextUsage {
@@ -224,14 +213,19 @@ export function createTutor(deps: {
       const reply = chatTurn(client, model, input, runTool, signal);
       return (async function* () {
         let text = "";
+        let failed = false;
         try {
           for await (const chunk of reply) {
             text += chunk;
             yield chunk;
           }
+        } catch (error) {
+          failed = true;
+          throw error;
         } finally {
-          // Also keeps a reply cut short by the learner; nothing is stored if the model never answered.
-          if (text.trim()) {
+          // Also keeps a reply the learner cut short (the stream is closed, not failed); a reply the
+          // provider broke off is not kept, nor anything when the model never answered.
+          if (!failed && text.trim()) {
             // One transaction: the new chat replaces the current one only together with its turns.
             store.atomic(() => {
               const current = activeRun(request.lessonKey);

@@ -104,9 +104,52 @@ export class LlmError extends Error {
   constructor(
     readonly code: LlmErrorCode,
     message: string,
+    /** The HTTP status the provider answered with, when it answered. */
+    readonly status?: number,
   ) {
     super(message);
   }
+}
+
+/** The provider refused the request as sent (400, 422): asking again without an option may help. */
+const refused = (error: unknown) =>
+  error instanceof LlmError && (error.status === 400 || error.status === 422);
+
+/**
+ * The time a request may take: until its first byte, then between chunks of a streamed reply (it is
+ * extended as data arrives), so a slow model is never cut off while it is still writing.
+ */
+export class TimeLimit {
+  private readonly ctl = new AbortController();
+  private timer?: ReturnType<typeof setTimeout>;
+  constructor(ms: number) {
+    this.extend(ms);
+  }
+  get signal() {
+    return this.ctl.signal;
+  }
+  get expired() {
+    return this.ctl.signal.aborted;
+  }
+  extend(ms: number) {
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => this.ctl.abort(), ms);
+    // A pending limit does not keep the process alive (Bun, Node).
+    (this.timer as { unref?: () => void }).unref?.();
+  }
+  clear() {
+    clearTimeout(this.timer);
+  }
+}
+
+/**
+ * An error while reading a response body: the limit run out is a timeout, a dropped connection is
+ * unreachable; the learner stopping, and errors already mapped, stay as they are.
+ */
+function readFailure(error: unknown, base: string, limit: TimeLimit, signal?: AbortSignal) {
+  if (limit.expired) return new LlmError("timeout", `${base} stopped answering`);
+  if (signal?.aborted || error instanceof LlmError) return error;
+  return new LlmError("unreachable", `${base}: the connection broke off`);
 }
 
 export interface Endpoint {
@@ -122,6 +165,8 @@ const MAX_TOOL_ROUNDS = 4;
 const ANSWER_NOW = "Answer the learner now with the information you have; no more tools.";
 /** Local servers may load the model on the first request (JIT), which takes a while. */
 const CHAT_TIMEOUT_MS = 180_000;
+/** Silence allowed between chunks of a streamed reply. */
+const IDLE_MS = 60_000;
 
 /**
  * Requests to one HTTP endpoint with the shared error mapping (unreachable, timeout, unauthorized…).
@@ -136,36 +181,44 @@ export function endpointCaller(baseUrl: string, apiKey: string | undefined, fetc
   };
   if (apiKey) headers.authorization = `Bearer ${apiKey}`;
 
+  /** A request under a time limit (milliseconds, or a limit the caller extends while reading). */
   return async function call(
     path: string,
     init: RequestInit,
-    timeoutMs: number,
+    limit: number | TimeLimit,
     signal?: AbortSignal,
   ): Promise<Response> {
-    const timeout = AbortSignal.timeout(timeoutMs);
+    const time = typeof limit === "number" ? new TimeLimit(limit) : limit;
     let res: Response;
     try {
       res = await fetchFn(`${base}${path}`, {
         ...init,
         headers,
-        signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
+        signal: signal ? AbortSignal.any([signal, time.signal]) : time.signal,
       });
     } catch (error) {
-      if (timeout.aborted) throw new LlmError("timeout", `${base} did not answer in time`);
+      if (time.expired) throw new LlmError("timeout", `${base} did not answer in time`);
       if (signal?.aborted) throw error;
       throw new LlmError("unreachable", `${base} is not reachable`);
     }
     if (res.ok) return res;
     const text = await res.text().catch(() => "");
     const message = errorMessage(text) ?? `HTTP ${res.status}`;
-    if (res.status === 401 || res.status === 403) throw new LlmError("unauthorized", message);
-    if (res.status === 404) throw new LlmError("model_not_found", message);
-    throw new LlmError("bad_response", message);
+    if (res.status === 401 || res.status === 403)
+      throw new LlmError("unauthorized", message, res.status);
+    if (res.status === 404) throw new LlmError("model_not_found", message, res.status);
+    throw new LlmError("bad_response", message, res.status);
   };
 }
 
-export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fetch): LlmClient {
+export function openAiCompatible(
+  endpoint: Endpoint,
+  fetchFn: typeof fetch = fetch,
+  /** Until the first byte, and between chunks of a streamed reply (tests shorten them). */
+  limits = { firstMs: CHAT_TIMEOUT_MS, idleMs: IDLE_MS },
+): LlmClient {
   const call = endpointCaller(endpoint.baseUrl, endpoint.apiKey, fetchFn);
+  const base = endpoint.baseUrl.replace(/\/+$/, "");
 
   return {
     async models(signal) {
@@ -180,7 +233,11 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
         .map((m) => (typeof m.name === "string" ? { id: m.id, name: m.name } : { id: m.id }));
     },
     chat(request) {
-      const open = (messages: ChatMessage[], options: { switchOff: boolean; tools: boolean }) =>
+      const open = (
+        messages: ChatMessage[],
+        options: { switchOff: boolean; tools: boolean },
+        limit: TimeLimit,
+      ) =>
         call(
           "/chat/completions",
           {
@@ -192,11 +249,16 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
               ),
             ),
           },
-          CHAT_TIMEOUT_MS,
+          limit,
           request.signal,
         );
-      // Models that always reason reject the switch, some servers reject tools: ask again without.
-      const openWithFallbacks = async (messages: ChatMessage[], tools: boolean) => {
+      // Models that always reason reject the switch, some servers reject tools: ask again without
+      // (only when the request itself was refused — not when the server is busy or failing).
+      const openWithFallbacks = async (
+        messages: ChatMessage[],
+        tools: boolean,
+        limit: TimeLimit,
+      ) => {
         const switchOff = request.reasoning === false && !!endpoint.noReasoning;
         const tries = [
           { switchOff, tools },
@@ -206,10 +268,10 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
         let last: unknown;
         for (const t of tries) {
           try {
-            return { res: await open(messages, t), tools: t.tools };
+            return { res: await open(messages, t, limit), tools: t.tools };
           } catch (error) {
             last = error;
-            if (!(error instanceof LlmError && error.code === "bad_response")) throw error;
+            if (!refused(error)) throw error;
           }
         }
         throw last;
@@ -221,15 +283,26 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
           // A few rounds: the model may call tools, read their results, then answer.
           for (let round = 0; round < MAX_TOOL_ROUNDS; round++) {
             const last = round === MAX_TOOL_ROUNDS - 1;
-            const opened = await openWithFallbacks(messages, tools && !last);
-            tools = opened.tools;
+            const limit = new TimeLimit(limits.firstMs);
             const calls: ToolCall[] = [];
             let text = "";
-            for await (const event of streamEvents(opened.res)) {
-              if (event.text) {
-                text += event.text;
-                yield event.text;
-              } else if (event.toolCalls) calls.push(...event.toolCalls);
+            try {
+              const opened = await openWithFallbacks(messages, tools && !last, limit);
+              tools = opened.tools;
+              const stop = request.signal
+                ? AbortSignal.any([request.signal, limit.signal])
+                : limit.signal;
+              const events = streamEvents(opened.res, stop, () => limit.extend(limits.idleMs));
+              for await (const event of events) {
+                if (event.text) {
+                  text += event.text;
+                  yield event.text;
+                } else if (event.toolCalls) calls.push(...event.toolCalls);
+              }
+            } catch (error) {
+              throw readFailure(error, base, limit, request.signal);
+            } finally {
+              limit.clear();
             }
             if (text.trim() && (!calls.length || last)) return;
             if (!calls.length || !request.runTool || last) {
@@ -280,16 +353,23 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
           { ...request, jsonSchema: a.schema ? request.jsonSchema : undefined },
           a.switchOff ? endpoint.noReasoning : undefined,
         );
+        const limit = new TimeLimit(limits.firstMs);
         try {
           const res = await call(
             "/chat/completions",
             { method: "POST", body: JSON.stringify({ ...body, stream: false }) },
-            CHAT_TIMEOUT_MS,
+            limit,
             request.signal,
           );
-          const json = (await res.json().catch(() => null)) as {
-            choices?: Array<{ message?: { content?: unknown } }>;
-          } | null;
+          let json: { choices?: Array<{ message?: { content?: unknown } }> } | null;
+          try {
+            json = JSON.parse(await res.text());
+          } catch (error) {
+            // Not JSON at all is a bad reply; a body that never arrived is a timeout or a dropped
+            // connection.
+            if (error instanceof SyntaxError) throw new LlmError("bad_response", "no JSON reply");
+            throw readFailure(error, base, limit, request.signal);
+          }
           const content = json?.choices?.[0]?.message?.content;
           if (typeof content !== "string") throw new LlmError("bad_response", "no reply");
           return content
@@ -298,7 +378,9 @@ export function openAiCompatible(endpoint: Endpoint, fetchFn: typeof fetch = fet
             .trim();
         } catch (error) {
           last = error;
-          if (!(error instanceof LlmError && error.code === "bad_response")) throw error;
+          if (!refused(error)) throw error;
+        } finally {
+          limit.clear();
         }
       }
       throw last;
@@ -312,17 +394,28 @@ const SPECIAL_TOKEN = /<\|?[a-z_]+\|>/g;
 /** Text deltas and, at the end, the tool calls of an OpenAI-style server-sent event stream. */
 async function* streamEvents(
   res: Response,
+  /** Stops reading: the time limit or the learner (whatever the fetch implementation does). */
+  stop: AbortSignal,
+  onData: () => void,
 ): AsyncIterable<{ text?: string; toolCalls?: ToolCall[] }> {
   if (!res.body) throw new LlmError("bad_response", "empty response");
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
-  // Tool calls arrive in pieces, by index: id and name first, then the arguments.
+  const cancel = () => void reader.cancel().catch(() => {});
+  stop.addEventListener("abort", cancel, { once: true });
+  // Tool calls arrive in pieces, by index: id and name first, then the arguments. A server that sends
+  // no index sends one call at a time: a delta with an id starts the next call.
   const calls: ToolCall[] = [];
   let buffer = "";
   try {
     reading: while (true) {
       const { value, done } = await reader.read();
-      if (done) break;
-      buffer += value;
+      if (stop.aborted) throw stop.reason ?? new Error("stopped");
+      // The last line may come without a newline.
+      if (done) buffer += "\n";
+      else {
+        onData();
+        buffer += value;
+      }
       const lines = buffer.split("\n");
       buffer = lines.pop() ?? "";
       for (const line of lines) {
@@ -334,19 +427,22 @@ async function* streamEvents(
         const text = chunk.text?.replace(SPECIAL_TOKEN, "");
         if (text) yield { text };
         for (const part of chunk.toolCalls ?? []) {
-          calls[part.index] ??= {
-            id: part.id ?? `call_${part.index}`,
+          const index = part.index ?? (part.id || !calls.length ? calls.length : calls.length - 1);
+          calls[index] ??= {
+            id: part.id ?? `call_${index}`,
             type: "function",
             function: { name: "", arguments: "" },
           };
-          const call = calls[part.index] as ToolCall;
+          const call = calls[index] as ToolCall;
           if (part.id) call.id = part.id;
           if (part.function?.name) call.function.name += part.function.name;
           if (part.function?.arguments) call.function.arguments += part.function.arguments;
         }
       }
+      if (done) break;
     }
   } finally {
+    stop.removeEventListener("abort", cancel);
     reader.releaseLock();
   }
   const complete = calls.filter((c) => c?.function.name);
@@ -354,7 +450,7 @@ async function* streamEvents(
 }
 
 interface ToolCallDelta {
-  index: number;
+  index?: number;
   id?: string;
   function?: { name?: string; arguments?: string };
 }

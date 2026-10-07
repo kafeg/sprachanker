@@ -2,6 +2,7 @@
 import { expect, test } from "bun:test";
 import { type CliRun, cliClient, cliPrompt } from "../src/cli.ts";
 import { LlmError } from "../src/client.ts";
+import { TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "../src/tasks/tutor-tools.ts";
 
 function fakeRunner(lines: string[]) {
   const runs: CliRun[] = [];
@@ -148,4 +149,19 @@ test("a command that fails to start is reported, not thrown raw", async () => {
     .catch((e: unknown) => e);
   expect(error).toBeInstanceOf(LlmError);
   expect((error as LlmError).code).toBe("bad_response");
+});
+
+test("cliPrompt: without tools, the tutor's tool instructions are left out, not contradicted", () => {
+  const { system } = cliPrompt(
+    [
+      {
+        role: "system",
+        content: `Rules\n${TUTOR_TOOLS_RULE}\n\nContext\n\n${TUTOR_TOOLS_REMINDER}`,
+      },
+    ],
+    true,
+  );
+  expect(system).not.toContain("call the tool first");
+  expect(system).not.toContain("you can look up");
+  expect(system).toContain("Tools are not available");
 });

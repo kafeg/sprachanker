@@ -16,6 +16,11 @@ const KNOWN = new Set([
   "llm_cli_missing",
   "no_active_scene",
   "no_such_item",
+  "no_session",
+  "no_such_run",
+  "no_such_attempt",
+  "not_installed",
+  "server_error",
 ]);
 
 export function errorText(t: TFunction, error: unknown, provider?: string): string {

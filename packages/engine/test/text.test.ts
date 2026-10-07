@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { normalise, sameText, wordDiff } from "../src/index.ts";
+import { headword, normalise, sameText, wordDiff } from "../src/index.ts";
 
 describe("normalise", () => {
   test.each([
@@ -42,4 +42,12 @@ describe("word diff", () => {
     ]);
     expect(score).toBe(0.5);
   });
+});
+
+test("headword: articles and forms off, per language", () => {
+  expect(headword("de", "die Frau, die Frauen")).toBe("frau");
+  expect(headword("de", "(sich) freuen")).toBe("freuen");
+  expect(headword("en", "to go")).toBe("go");
+  expect(headword("en", "the Die Hard")).toBe("die hard");
+  expect(headword("ru", "Дом")).toBe("дом");
 });

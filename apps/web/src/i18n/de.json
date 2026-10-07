@@ -242,7 +242,12 @@
       "llm_invalid_output": "Das Modell konnte keine brauchbare Antwort geben. Versuch es noch einmal oder wähle unter Einstellungen → KI-Assistent ein größeres Modell.",
       "no_active_scene": "Diese Szene ist schon zu Ende. Starte eine neue.",
       "no_such_item": "Die Übung hat sich geändert. Lade die Lektion neu.",
-      "llm_cli_missing": "Der Kommandozeilen-Assistent ist auf diesem Computer nicht installiert."
+      "llm_cli_missing": "Der Kommandozeilen-Assistent ist auf diesem Computer nicht installiert.",
+      "no_session": "Beantworte zuerst etwas in der Lektion – es gibt noch nichts zu besprechen.",
+      "no_such_run": "Diesen Lektionsdurchgang gibt es nicht mehr (der Fortschritt wurde zurückgesetzt). Lade die Lektion neu.",
+      "no_such_attempt": "Diese Antwort ist nicht mehr im Lektionsdurchgang. Lade die Lektion neu.",
+      "not_installed": "Dieser Kurs ist nicht (mehr) installiert.",
+      "server_error": "Auf dem Server ist etwas schiefgelaufen."
     },
     "cliHint": {
       "claude-code": "Nutzt das hier installierte Claude Code (`claude -p`) mit deinem Claude-Abo. Seine eigenen Werkzeuge sind aus: die Lektionsdaten stehen im Prompt. Jede Antwort startet den Befehl, daher dauern Antworten ein paar Sekunden länger.",

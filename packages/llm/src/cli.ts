@@ -3,6 +3,7 @@
 // lines and reads their output; starting the process is the server's (a CliRunner), so this package
 // stays free of runtime APIs. Their own tools stay off: the app gives all context in the prompt.
 import { type ChatMessage, type ChatRequest, type LlmClient, LlmError } from "./client.ts";
+import { TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tasks/tutor-tools.ts";
 
 export type CliKind = "claude" | "codex";
 
@@ -35,10 +36,13 @@ const NO_TOOLS =
  * user message the request. Tool turns are dropped (the CLIs run without the app's tools).
  */
 export function cliPrompt(messages: ChatMessage[], withTools: boolean) {
+  // The tool instructions are taken out where there are no tools: they would contradict NO_TOOLS.
   const system = messages
     .filter((m) => m.role === "system")
     .map((m) => m.content ?? "")
-    .join("\n\n");
+    .join("\n\n")
+    .replace(`\n${TUTOR_TOOLS_RULE}`, "")
+    .replace(`\n\n${TUTOR_TOOLS_REMINDER}`, "");
   const turns = messages.filter(
     (m) => (m.role === "user" || m.role === "assistant") && !m.tool_calls?.length,
   );

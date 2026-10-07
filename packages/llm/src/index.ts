@@ -11,4 +11,4 @@ export * from "./tasks/lesson.ts";
 export * from "./tasks/review-session.ts";
 export * from "./tasks/scene.ts";
 export * from "./tasks/tutor-tools.ts";
-export { clip, estimateTokens, htmlToText, languageName } from "./text.ts";
+export { estimateTokens, languageName } from "./text.ts";
