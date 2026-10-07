@@ -1,7 +1,6 @@
 // Building blocks shared by the AI screens: practice cards on the summary, corrections, error lines,
 // the chat panel with its composer, and requests that can be stopped.
 import { MESSAGE_MAX } from "@sprachanker/schema";
-import type { LucideIcon } from "lucide-react";
 import { Send, Square } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -40,33 +39,6 @@ export function ChatBubble({
     >
       {children}
     </div>
-  );
-}
-
-/** A card of a practice step: icon, title, the assistant's label and an action on the right. */
-export function PracticeCard({
-  icon: Icon,
-  title,
-  label,
-  action,
-  children,
-}: {
-  icon: LucideIcon;
-  title: string;
-  label?: string;
-  action?: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <Icon className="size-5" />
-        <h2 className="text-xl font-bold">{title}</h2>
-        {label && <span className="text-sm text-muted-foreground">· {label}</span>}
-        {action && <span className="ml-auto">{action}</span>}
-      </div>
-      {children}
-    </section>
   );
 }
 
@@ -197,6 +169,21 @@ export function ChatComposer({
         </Button>
       )}
     </form>
+  );
+}
+
+/** When an attempt or a scene was made, short: day, month and time in the learner's language. */
+export function useWhen() {
+  const { i18n } = useTranslation();
+  return useMemo(
+    () =>
+      new Intl.DateTimeFormat(i18n.language, {
+        day: "numeric",
+        month: "short",
+        hour: "numeric",
+        minute: "2-digit",
+      }),
+    [i18n.language],
   );
 }
 

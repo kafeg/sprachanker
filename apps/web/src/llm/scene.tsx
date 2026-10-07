@@ -10,7 +10,14 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type SceneState, useLlm, useSceneAction, useScenes } from "./api.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
-import { ChatBubble, ChatComposer, Corrections, ErrorLine, useScrollToEnd } from "./parts.tsx";
+import {
+  ChatBubble,
+  ChatComposer,
+  Corrections,
+  ErrorLine,
+  useScrollToEnd,
+  useWhen,
+} from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 type Ids = { series: string; lessonKey: LessonKey; edition: string };
@@ -172,14 +179,9 @@ function CurrentScene({
 
 /** Earlier scenes of the lesson, newest first; one opens to be read again. */
 function PastScenes({ scenes }: { scenes: SceneState[] }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [open, setOpen] = useState<string>();
-  const when = new Intl.DateTimeFormat(i18n.language, {
-    day: "numeric",
-    month: "short",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const when = useWhen();
   return (
     <section className="rounded-2xl border bg-card p-4 sm:p-5">
       <h3 className="mb-1 font-semibold">{t("scene.past")}</h3>

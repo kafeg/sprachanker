@@ -70,7 +70,7 @@ export function createPractice(deps: {
         return {
           topic: writingTopic(ctx.info),
           words: ctx.info.vocab.map((v) => v.target),
-          attempts: attempts(lessonKey).slice(0, 10),
+          attempts: attempts(lessonKey).slice(0, 20),
         };
       },
 

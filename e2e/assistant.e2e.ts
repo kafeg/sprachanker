@@ -67,6 +67,20 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
       .map((e: { payload: { step: string } }) => e.payload.step);
   };
   await expect.poll(steps).toContain("writing");
+  // The text is in the result now; "Fix it and check again" brings it back into the editor.
+  await expect(writing).toHaveValue("");
+  await page.getByRole("button", { name: "Fix it and check again" }).first().click();
+  await expect(writing).toHaveValue("Ich heisse Lena.");
+  await expect(writing).toBeFocused();
+  await writing.fill("Ich heiße Lena.");
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(writing).toHaveValue("");
+  // The earlier text is listed under the latest check, with its criteria, and opens in full.
+  const earlier = page.getByRole("button", { name: /Ich heisse Lena\./ }).first();
+  await expect(earlier).toContainText("Small mistakes");
+  await earlier.click();
+  await expect(earlier).toHaveAttribute("aria-expanded", "true");
+  await expect(page.getByRole("button", { name: "Fix it and check again" })).toHaveCount(2);
 
   // "Going over mistakes": the run counted by the app, its mistakes by exercise (a row opens the
   // exercise); then the tutor goes through them inline, in a new chat without the earlier question,

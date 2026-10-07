@@ -355,13 +355,12 @@
     "restore": "Standard-Prompt wiederherstellen"
   },
   "writing": {
-    "title": "Schreib selbst",
     "task": "Schreib 3–5 Sätze auf {language} zum Thema der Lektion: {topic}. Benutze die neuen Wörter.",
     "placeholder": "Dein Text…",
     "check": "Prüfen",
     "checking": "Wird geprüft…",
-    "lastAttempt": "Dein letzter Versuch:",
-    "history": "{count, plural, one {# Versuch} other {# Versuche}}",
+    "rewrite": "Verbessern und neu prüfen",
+    "past": "Frühere Texte dieser Lektion",
     "verdict": {
       "good": "Richtig",
       "minor_errors": "Kleine Fehler",

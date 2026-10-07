@@ -355,13 +355,12 @@
     "restore": "Restore the standard prompt"
   },
   "writing": {
-    "title": "Write it yourself",
     "task": "Write 3–5 sentences in {language} on the lesson's topic: {topic}. Use the new words.",
     "placeholder": "Your text…",
     "check": "Check",
     "checking": "Checking…",
-    "lastAttempt": "Your last attempt:",
-    "history": "{count, plural, one {# attempt} other {# attempts}}",
+    "rewrite": "Fix it and check again",
+    "past": "Earlier texts of this lesson",
     "verdict": {
       "good": "Correct",
       "minor_errors": "Small mistakes",
