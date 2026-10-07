@@ -4,18 +4,21 @@
 // readable again; any text can be taken back into the editor to fix it and check it again.
 import { wordDiff } from "@sprachanker/engine";
 import { type LessonKey, WRITING_MAX } from "@sprachanker/schema";
-import { ChevronDown, LoaderCircle, PenLine } from "lucide-react";
+import { PenLine } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { useDateFormat } from "@/ui/format.ts";
+import { HistoryList } from "@/ui/history.tsx";
+import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
-import { Corrections, ErrorLine, useWhen } from "./parts.tsx";
+import { Corrections, ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 type Check = WritingAttempt["result"];
@@ -62,20 +65,50 @@ function Dots({ score }: { score: number }) {
   ));
 }
 
+/** The check's verdict as a badge (small in a list row). */
+function Verdict({ verdict, small }: { verdict: Check["verdict"]; small?: boolean }) {
+  const { t } = useTranslation();
+  return (
+    <span
+      className={cn(
+        "shrink-0 whitespace-nowrap font-semibold",
+        small ? "rounded-md px-2 py-0.5 text-xs" : "rounded-lg px-2.5 py-1 text-sm",
+        VERDICT_TONE[verdict],
+      )}
+    >
+      {t(`writing.verdict.${verdict}`)}
+    </span>
+  );
+}
+
+/** The three criteria as dots, named for screen readers. */
+function CriteriaDots({ criteria }: { criteria: Check["criteria"] }) {
+  const { t } = useTranslation();
+  const scores = CRITERIA.map((k) => `${t(`writing.criteria.${k}`)} ${criteria[k].score}/2`).join(
+    ", ",
+  );
+  return (
+    <span title={scores} className="shrink-0 whitespace-nowrap">
+      <span className="sr-only">{scores}</span>
+      {CRITERIA.map((k) => (
+        <span key={k} className="mr-1.5">
+          <Dots score={criteria[k].score} />
+        </span>
+      ))}
+    </span>
+  );
+}
+
 /** A check in full: the verdict, feedback, the text with its corrections and the criteria. */
 function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): void }) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
-  const when = useWhen();
+  const when = useDateFormat("dayTime");
   const r = attempt.result;
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <span
-          className={cn("rounded-lg px-2.5 py-1 text-sm font-semibold", VERDICT_TONE[r.verdict])}
-        >
-          {t(`writing.verdict.${r.verdict}`)}
-        </span>
+        <Verdict verdict={r.verdict} />
         <span className="text-sm text-muted-foreground">
           {when.format(attempt.ts)} · {modelName(attempt.model)}
         </span>
@@ -120,68 +153,30 @@ function PastAttempts({
 }) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
-  const when = useWhen();
-  const [open, setOpen] = useState<number>();
+  const when = useDateFormat("dayTime");
   return (
-    <section className="rounded-2xl border bg-card p-4 sm:p-5">
-      <h3 className="mb-1 font-semibold">{t("writing.past")}</h3>
-      <ul className="divide-y">
-        {attempts.map((a) => {
-          const r = a.result;
-          const scores = CRITERIA.map(
-            (k) => `${t(`writing.criteria.${k}`)} ${r.criteria[k].score}/2`,
-          ).join(", ");
-          return (
-            <li key={a.ts}>
-              <button
-                type="button"
-                aria-expanded={open === a.ts}
-                onClick={() => setOpen(open === a.ts ? undefined : a.ts)}
-                className="block w-full space-y-1 rounded-lg px-1 py-2 text-left hover:bg-accent pointer-coarse:min-h-11"
-              >
-                <span className="flex items-center gap-3">
-                  <span
-                    className={cn(
-                      "shrink-0 whitespace-nowrap rounded-md px-2 py-0.5 text-xs font-semibold",
-                      VERDICT_TONE[r.verdict],
-                    )}
-                  >
-                    {t(`writing.verdict.${r.verdict}`)}
-                  </span>
-                  <span title={scores} className="shrink-0 whitespace-nowrap">
-                    <span className="sr-only">{scores}</span>
-                    {CRITERIA.map((k) => (
-                      <span key={k} className="mr-1.5">
-                        <Dots score={r.criteria[k].score} />
-                      </span>
-                    ))}
-                  </span>
-                  <ChevronDown
-                    className={cn(
-                      "ml-auto size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
-                      open === a.ts && "rotate-180",
-                    )}
-                  />
-                </span>
-                <span className="flex items-baseline gap-3">
-                  <span lang={lang} className="min-w-0 flex-1 truncate">
-                    {a.text}
-                  </span>
-                  <span className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
-                    {when.format(a.ts)}
-                  </span>
-                </span>
-              </button>
-              {open === a.ts && (
-                <div className="pb-4 pt-1">
-                  <Result attempt={a} onRewrite={() => onRewrite(a)} />
-                </div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <HistoryList
+      title={t("writing.past")}
+      items={attempts}
+      keyOf={(a) => a.ts}
+      summary={(a) => (
+        <span className="block space-y-1">
+          <span className="flex items-center gap-3">
+            <Verdict verdict={a.result.verdict} small />
+            <CriteriaDots criteria={a.result.criteria} />
+          </span>
+          <span className="flex items-baseline gap-3">
+            <span lang={lang} className="min-w-0 flex-1 truncate">
+              {a.text}
+            </span>
+            <span className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
+              {when.format(a.ts)}
+            </span>
+          </span>
+        </span>
+      )}
+      detail={(a) => <Result attempt={a} onRewrite={() => onRewrite(a)} />}
+    />
   );
 }
 
@@ -206,8 +201,7 @@ export function WritingTask({
   const editor = useRef<HTMLTextAreaElement>(null);
   if (!llm.data?.model || !state.data) return null;
   const { topic, words, attempts } = state.data;
-  const latest = check.data ?? attempts[0];
-  const past = attempts.filter((a) => a.ts !== latest?.ts);
+  const [latest, ...past] = attempts;
   const request = { series, lessonKey, edition, text: text.trim(), language: i18n.language };
   // A text back in the editor, to fix it after the corrections and check it again.
   const rewrite = (attempt: WritingAttempt) => {
@@ -218,7 +212,7 @@ export function WritingTask({
 
   return (
     <div className="space-y-4">
-      <section className="space-y-4 rounded-2xl border bg-card p-4 sm:p-5">
+      <Panel className="space-y-4">
         <p>
           {t("writing.task", {
             topic: topic.join("; "),
@@ -246,7 +240,8 @@ export function WritingTask({
         <div className="flex flex-wrap items-center gap-2">
           <Button
             size="lg"
-            disabled={!request.text || check.isPending}
+            loading={check.isPending}
+            disabled={!request.text}
             onClick={() =>
               check.mutate(request, {
                 // The text is in the result now; "Fix it and check again" brings it back.
@@ -257,20 +252,19 @@ export function WritingTask({
               })
             }
           >
-            {check.isPending && <LoaderCircle className="size-4 animate-spin" />}
             {check.isPending ? t("writing.checking") : t("writing.check")}
           </Button>
           <PromptButton request={() => ({ writing: { ...request, text: request.text || "…" } })} />
           <AssistantLabel className="ml-auto" />
         </div>
         <ErrorLine error={check.error} />
-      </section>
+      </Panel>
       {latest && (
-        <section className="rounded-2xl border bg-card p-4 sm:p-5">
+        <Panel>
           <Result attempt={latest} onRewrite={() => rewrite(latest)} />
-        </section>
+        </Panel>
       )}
-      {past.length > 0 && <PastAttempts attempts={past} onRewrite={rewrite} />}
+      <PastAttempts attempts={past} onRewrite={rewrite} />
     </div>
   );
 }

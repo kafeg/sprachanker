@@ -1,15 +1,17 @@
-// Building blocks shared by the AI screens: practice cards on the summary, corrections, error lines,
-// the chat panel with its composer, and requests that can be stopped.
+// Building blocks shared by the AI screens: chat bubbles, the conversation's header, the pending
+// exchange and the composer, a conversation's start, corrections, error lines, scrolling to the end,
+// and requests that can be stopped.
 import { MESSAGE_MAX } from "@sprachanker/schema";
-import { Send, Square } from "lucide-react";
+import { type LucideIcon, Send, Square } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { AssistantLabel } from "./assistant-label.tsx";
 import { errorText } from "./errors.ts";
+import { RichText } from "./rich-text.tsx";
 
 /** A line of a conversation: the learner's on the right, the other side's (tutor, partner) on the
  *  left; `pending` while it is being sent. */
@@ -87,27 +89,69 @@ export function ErrorLine({
   );
 }
 
-/** The side panel of a conversation (tutor, scene). */
-export function ChatSheet({
-  open,
-  onOpenChange,
-  title,
-  children,
+/** A conversation's top bar: who answers (provider · model), then its actions. */
+export function ChatHeader({ children }: { children?: React.ReactNode }) {
+  return (
+    <div className="flex min-h-11 items-center gap-1 border-b px-4 py-1">
+      <AssistantLabel className="mr-auto" />
+      {children}
+    </div>
+  );
+}
+
+/** The line just sent and the answer so far — "thinking…" until it comes — while the reply is on its
+ *  way (the tutor streams it, a scene's partner answers at once). */
+export function PendingExchange({
+  question,
+  reply,
+  lang,
+  className,
 }: {
-  open: boolean;
-  onOpenChange(open: boolean): void;
-  title: string;
-  children: React.ReactNode;
+  question: string;
+  reply?: string;
+  lang?: string;
+  /** The learner's bubble (a scene's lines are larger). */
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  return (
+    <>
+      <ChatBubble from="learner" pending lang={lang} className={className}>
+        <p className="whitespace-pre-wrap">{question}</p>
+      </ChatBubble>
+      <ChatBubble from="other">
+        {reply ? (
+          <RichText text={reply} />
+        ) : (
+          <p className="text-muted-foreground">{t("llm.thinking")}</p>
+        )}
+      </ChatBubble>
+    </>
+  );
+}
+
+/** What a conversation offers before it begins: what it is for, and the one button that starts it. */
+export function StartPrompt({
+  intro,
+  label,
+  icon: Icon,
+  loading,
+  onStart,
+}: {
+  intro: string;
+  label: string;
+  icon?: LucideIcon;
+  loading?: boolean;
+  onStart(): void;
 }) {
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full gap-0 sm:max-w-lg">
-        <SheetHeader className="pb-2">
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-        {children}
-      </SheetContent>
-    </Sheet>
+    <div className="space-y-3">
+      <p className="text-muted-foreground">{intro}</p>
+      <Button size="lg" loading={loading} onClick={onStart}>
+        {Icon && !loading && <Icon />}
+        {label}
+      </Button>
+    </div>
   );
 }
 
@@ -169,21 +213,6 @@ export function ChatComposer({
         </Button>
       )}
     </form>
-  );
-}
-
-/** When an attempt or a scene was made, short: day, month and time in the learner's language. */
-export function useWhen() {
-  const { i18n } = useTranslation();
-  return useMemo(
-    () =>
-      new Intl.DateTimeFormat(i18n.language, {
-        day: "numeric",
-        month: "short",
-        hour: "numeric",
-        minute: "2-digit",
-      }),
-    [i18n.language],
   );
 }
 

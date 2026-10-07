@@ -50,8 +50,7 @@ export function LmStudioSection({ state }: { state: LlmState }) {
                 : errorText(t, new Error(status.error ?? "llm_unreachable"), "lmstudio")}
         </p>
         {canStart && status.error !== "llm_unauthorized" && (
-          <Button onClick={() => action.mutate({ start: true })} disabled={action.isPending}>
-            {action.isPending && <LoaderCircle className="size-4 animate-spin" />}
+          <Button onClick={() => action.mutate({ start: true })} loading={action.isPending}>
             {t("lmstudio.start")}
           </Button>
         )}

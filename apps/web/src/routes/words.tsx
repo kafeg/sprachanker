@@ -4,13 +4,16 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type MyWord, useWords } from "@/api/hooks.ts";
-import { COUNT_TONE } from "@/study/session.tsx";
-import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { useDeckName } from "@/study/decks.ts";
+import { useDueText } from "@/study/time.ts";
+import { COUNT_TONE } from "@/study/tones.ts";
+import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { Chip } from "@/ui/chip.tsx";
+import { ListRow } from "@/ui/history.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
-import { useDueText, WordSheet } from "@/word/word-sheet.tsx";
-import { BackLink, useDeckName } from "./review.tsx";
+import { WordSheet } from "@/word/word-sheet.tsx";
 
 const STATES = ["all", "new", "learning", "review", "suspended", "marked"] as const;
 type StateFilter = (typeof STATES)[number];
@@ -28,30 +31,6 @@ const KEY: Record<Column, (w: MyWord) => string | number> = {
   state: (w) => (w.suspended ? 3 : STAGE_ORDER[w.state]),
   due: (w) => w.due ?? Number.MAX_SAFE_INTEGER,
 };
-
-function Chip({
-  on,
-  onClick,
-  children,
-}: {
-  on: boolean;
-  onClick(): void;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={on}
-      onClick={onClick}
-      className={cn(
-        "rounded-full border px-3 py-1 text-sm pointer-coarse:min-h-11",
-        on ? "border-primary bg-primary/15 font-medium" : "text-muted-foreground hover:bg-accent",
-      )}
-    >
-      {children}
-    </button>
-  );
-}
 
 export function WordsPage({ back }: { back(): void }) {
   const { t, i18n } = useTranslation();
@@ -72,9 +51,7 @@ export function WordsPage({ back }: { back(): void }) {
     return (
       <Page title={t("myWords.title")}>
         {header}
-        <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-          {t("study.noCards")}
-        </p>
+        <EmptyState>{t("study.noCards")}</EmptyState>
       </Page>
     );
 
@@ -166,12 +143,12 @@ export function WordsPage({ back }: { back(): void }) {
             <ul className="divide-y">
               {shown.map((w) => (
                 <li key={w.cardId}>
-                  <button
-                    type="button"
+                  <ListRow
+                    chevron={false}
                     onClick={() => setOpen(w.cardId)}
                     className={cn(
                       row,
-                      "w-full items-baseline px-4 py-2 text-left hover:bg-accent pointer-coarse:min-h-11",
+                      "items-baseline rounded-none px-4",
                       w.suspended && "text-muted-foreground",
                     )}
                   >
@@ -195,7 +172,7 @@ export function WordsPage({ back }: { back(): void }) {
                     <span className="text-right text-sm text-muted-foreground sm:order-4">
                       {w.suspended ? "—" : due(w.due, now)}
                     </span>
-                  </button>
+                  </ListRow>
                 </li>
               ))}
             </ul>

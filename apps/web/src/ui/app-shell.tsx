@@ -120,6 +120,39 @@ export function Page({
   );
 }
 
+/** A page or list with nothing in it yet: what comes here, and how (`children` can hold a link). */
+export function EmptyState({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div
+      className={cn(
+        "rounded-2xl border border-dashed p-8 text-center text-muted-foreground",
+        className,
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** A quiet link back to where the page was opened from (Review ↔ Decks ↔ My words). */
+export function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mb-4 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
+    >
+      {children}
+    </button>
+  );
+}
+
 export function Loading() {
   const { t } = useTranslation();
   return <p className="p-8 text-muted-foreground">{t("common.loading")}</p>;

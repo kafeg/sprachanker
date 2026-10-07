@@ -14,7 +14,7 @@ import {
   useStartDownload,
 } from "@/api/hooks.ts";
 import { editionSetting, useEdition } from "@/app/preferences.ts";
-import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import {
@@ -25,8 +25,9 @@ import {
   SelectValue,
 } from "@/ui/components/select.tsx";
 import { LanguageFlag, PairFlags, usePairName } from "@/ui/flags.tsx";
+import { useBytes, usePercent } from "@/ui/format.ts";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
-import { DownloadLine, downloading, useBytes } from "./download.tsx";
+import { DownloadLine, downloading } from "./download.tsx";
 
 type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
 type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
@@ -48,7 +49,8 @@ function CourseCard({
   /** In "My courses": the course can be removed from there (its progress is reset). */
   removable?: boolean;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const percent = usePercent();
   const set = useSetSetting();
   const chosen = useEdition(course.series, course.course, course.editions);
   const title = course.titles[edition] || course.key;
@@ -64,8 +66,7 @@ function CourseCard({
       <div className="flex min-h-14 items-center gap-3 bg-primary/15 px-4">
         <PairFlags edition={edition} size="md" />
         <span className="ml-auto text-sm tabular-nums text-muted-foreground">
-          {t("courses.doneShort", { done: course.done, total: course.lessons })} ·{" "}
-          {new Intl.NumberFormat(i18n.language, { style: "percent" }).format(share)}
+          {t("courses.doneShort", { done: course.done, total: course.lessons })} · {percent(share)}
         </span>
         {removable && (
           <ResetProgress series={course.series} course={course.course} title={title}>
@@ -251,17 +252,15 @@ export function MyCoursesPage() {
             ))}
           </div>
         ) : (
-          <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-            {t("courses.noneMatch")}
-          </p>
+          <EmptyState>{t("courses.noneMatch")}</EmptyState>
         )
       ) : (
-        <div className="rounded-2xl border border-dashed p-8 text-center">
+        <EmptyState className="text-foreground">
           <p className="text-lg">{t("courses.noneStarted")}</p>
           <Link to="/catalog" className="mt-3 inline-block font-medium underline">
             {t("courses.toCatalog")}
           </Link>
-        </div>
+        </EmptyState>
       )}
     </Page>
   );
@@ -405,9 +404,7 @@ export function CatalogPage() {
   if (!cards.length)
     return (
       <Page title={t("nav.allCourses")}>
-        <div className="rounded-2xl border border-dashed p-8 text-center">
-          <p className="text-lg">{t("courses.empty")}</p>
-        </div>
+        <EmptyState className="text-lg text-foreground">{t("courses.empty")}</EmptyState>
       </Page>
     );
   return (
@@ -424,9 +421,7 @@ export function CatalogPage() {
           )}
         </div>
       ) : (
-        <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-          {t("courses.noneMatch")}
-        </p>
+        <EmptyState>{t("courses.noneMatch")}</EmptyState>
       )}
     </Page>
   );

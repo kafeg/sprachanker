@@ -1,13 +1,18 @@
 // "Why is this wrong?" under a wrong answer: asks the configured model and streams its explanation. In a
 // lesson run the explanation is kept with the attempt it explains (05): shown again without asking, and
 // "Explain again" asks anew.
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
-import { type ExplainRequest, streamExplain, useExplanations, useLlm } from "./api.ts";
+import {
+  type ExplainRequest,
+  streamExplain,
+  useExplanations,
+  useExplanationsKept,
+  useLlm,
+} from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
 import { ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
@@ -19,7 +24,7 @@ export function ExplainMistake({
   ...props
 }: Omit<ExplainRequest, "language"> & { autoStart?: boolean }) {
   const { t, i18n } = useTranslation();
-  const client = useQueryClient();
+  const refreshKept = useExplanationsKept(props.runId);
   const llm = useLlm();
   const label = useAssistantLabel();
   const kept = useExplanations(props.lessonKey, props.runId);
@@ -42,7 +47,7 @@ export function ExplainMistake({
     setError(undefined);
     setText("");
     streamExplain({ ...props, language: i18n.language }, setText, controller.signal)
-      .then(() => client.invalidateQueries({ queryKey: ["explanations", props.runId] }))
+      .then(refreshKept)
       .catch((e: unknown) => {
         if (!controller.signal.aborted) setError(e);
       })

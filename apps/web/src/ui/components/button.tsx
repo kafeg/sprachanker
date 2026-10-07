@@ -1,4 +1,5 @@
 import { cva, type VariantProps } from "class-variance-authority";
+import { LoaderCircle } from "lucide-react";
 import { Slot } from "radix-ui";
 import type * as React from "react";
 import { cn } from "@/ui/utils";
@@ -41,21 +42,40 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  loading = false,
+  disabled,
+  children,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
+    /** Waiting for what it started: a spinner before the label, and not pressed again meanwhile. */
+    loading?: boolean;
   }) {
-  const Comp = asChild ? Slot.Root : "button";
-
+  if (asChild)
+    return (
+      <Slot.Root
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
+        className={cn(buttonVariants({ variant, size, className }))}
+        {...props}
+      >
+        {children}
+      </Slot.Root>
+    );
   return (
-    <Comp
+    <button
       data-slot="button"
       data-variant={variant}
       data-size={size}
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || loading}
       {...props}
-    />
+    >
+      {loading && <LoaderCircle className="animate-spin motion-reduce:animate-none" />}
+      {children}
+    </button>
   );
 }
 

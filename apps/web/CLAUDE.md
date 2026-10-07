@@ -15,15 +15,18 @@ apps/web/src/
                    # mistakes-status (the run counted for "Going over mistakes"), summary, reference,
                    # video; slots.ts: what optional features add (header, explain, practice)
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
-                   # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More)
+                   # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
+                   # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names)
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
   llm/             # AI assistant: settings (providers, LM Studio), "Why is this wrong?", tutor (header
-                   # panel, inline on the mistakes step), writing, scenes; parts.tsx: their shared cards,
-                   # chat panel, composer, errors
+                   # panel, inline on the mistakes step), writing, scenes; parts.tsx: chat bubbles, header,
+                   # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
-  ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell, media
+  ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell (pages,
+                   # empty states, back links), media, format (dates, percent, bytes), panel, history
+                   # (rows that open, lists of earlier items), side-sheet, chip
   word/            # gender colouring; word-sheet (a word with cards in full: forms, faces, answers)
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
@@ -46,6 +49,10 @@ notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<ver
 - Business logic stays in engine/server; components render and emit events. Answers are checked with
   `@sprachanker/engine` for instant feedback; the server re-checks and stores its own outcome.
 - Every screen works on phone width (375 px) and desktop; test both in Playwright.
+- Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
+  `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
+  `Panel`, side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`;
+  cached lists take a new item through the pure updaters in `llm/cache.ts` (tested).
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
   does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.
 - Screen key handlers leave Space and Enter to a focused button, link or slider.

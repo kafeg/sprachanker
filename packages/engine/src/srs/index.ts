@@ -113,6 +113,10 @@ export function intervalText(
   return `${one(days / 365)}${units.y}`;
 }
 
+/** How long until a face is due: null when it has no due date (new, suspended), 0 when it is due. */
+export const dueIn = (due: number | null | undefined, now: number) =>
+  due === null || due === undefined ? null : Math.max(0, due - now);
+
 /** The start of the learner's day for a moment, and of the next one (local time, 4 AM). */
 export function studyDay(now: number, hour: number = SRS_DEFAULTS.dayStartHour) {
   const start = new Date(now);

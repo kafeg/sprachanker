@@ -19,9 +19,10 @@ import { useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
+import { useBytes, usePercent } from "@/ui/format.ts";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { cn } from "@/ui/utils.ts";
-import { DownloadLine, downloading, useBytes } from "./download.tsx";
+import { DownloadLine, downloading } from "./download.tsx";
 
 /** Media tiles in this order; kinds not listed come last. */
 const KINDS = ["video", "audio", "image", "subtitles", "pdf"];
@@ -34,8 +35,7 @@ const chip = "inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 
 
 /** Share of lessons done, 0..1, as a ring with the percentage inside. */
 function ProgressRing({ value }: { value: number }) {
-  const { i18n } = useTranslation();
-  const text = new Intl.NumberFormat(i18n.language, { style: "percent" }).format(value);
+  const text = usePercent()(value);
   const r = 30;
   const length = 2 * Math.PI * r;
   return (

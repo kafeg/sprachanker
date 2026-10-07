@@ -7,55 +7,42 @@ import { ArrowRight, Pause, Play, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { type MyWord, useCardActions, useWord } from "@/api/hooks.ts";
-import { COUNT_TONE, useIntervalText } from "@/study/session.tsx";
+import { useDueText } from "@/study/time.ts";
+import { COUNT_TONE, ratingOf } from "@/study/tones.ts";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
+import { useDateFormat } from "@/ui/format.ts";
 import { AudioButton } from "@/ui/media.tsx";
+import { SideSheet } from "@/ui/side-sheet.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "./word.tsx";
-
-const RATING = ["again", "hard", "good", "easy"] as const;
-const RATING_TONE = ["text-wrong", "text-muted-foreground", "text-correct", "text-srs-new"];
-
-/** When a face or word is next due: now, or in how long. */
-export function useDueText() {
-  const { t } = useTranslation();
-  const interval = useIntervalText();
-  return (due: number | null, now = Date.now()) =>
-    due === null
-      ? "—"
-      : due <= now
-        ? t("myWords.dueNow")
-        : t("myWords.dueIn", { interval: interval(due - now) });
-}
 
 /** The sheet of `word` (the list's latest copy of it, so suspend and mark show at once). */
 export function WordSheet({ word, onClose }: { word: MyWord | undefined; onClose(): void }) {
   const { t } = useTranslation();
   return (
-    <Sheet open={!!word} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="w-full gap-0 overflow-y-auto sm:max-w-md">
-        <SheetHeader className="pb-2">
-          <SheetTitle>{t("myWords.sheet")}</SheetTitle>
-        </SheetHeader>
-        {word && (
-          <TargetLang value={word.lang}>
-            <WordDetails word={word} />
-          </TargetLang>
-        )}
-      </SheetContent>
-    </Sheet>
+    <SideSheet
+      open={!!word}
+      onOpenChange={(open) => !open && onClose()}
+      title={t("myWords.sheet")}
+      className="overflow-y-auto sm:max-w-md"
+    >
+      {word && (
+        <TargetLang value={word.lang}>
+          <WordDetails word={word} />
+        </TargetLang>
+      )}
+    </SideSheet>
   );
 }
 
 function WordDetails({ word }: { word: MyWord }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const sheet = useWord(word.cardId);
   const actions = useCardActions();
   const due = useDueText();
-  const when = new Intl.DateTimeFormat(i18n.language, { day: "numeric", month: "short" });
+  const when = useDateFormat("day");
   const d = word.display;
   const lesson = parseLessonKey(d.lessonKey);
   return (
@@ -118,8 +105,8 @@ function WordDetails({ word }: { word: MyWord }) {
                   <li key={`${a.ts}-${a.face}`} className="flex gap-3">
                     <span className="w-16 shrink-0 text-muted-foreground">{when.format(a.ts)}</span>
                     <span className="flex-1">{t(`myWords.face.${a.face as CardFace}`)}</span>
-                    <span className={cn("font-medium", RATING_TONE[a.rating - 1])}>
-                      {t(`study.rating.${RATING[a.rating - 1]}`)}
+                    <span className={cn("font-medium", ratingOf(a.rating).tone)}>
+                      {t(`study.rating.${ratingOf(a.rating).key}`)}
                     </span>
                   </li>
                 ))}

@@ -2,6 +2,7 @@
 import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, json } from "@/api/client.ts";
+import { withAttempt, withScene, withTurns } from "./cache.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
 export type ProviderId = LlmState["providers"][number]["id"];
@@ -87,6 +88,12 @@ export const useExplanations = (lessonKey: string, runId: string | undefined) =>
     enabled: !!runId,
   });
 
+/** After an explanation was kept: the run's kept explanations are read again. */
+export function useExplanationsKept(runId: string | undefined) {
+  const client = useQueryClient();
+  return () => client.invalidateQueries({ queryKey: ["explanations", runId] });
+}
+
 export type TutorRequest = Parameters<typeof api.llm.tutor.$post>[0]["json"];
 
 export const useTutorHistory = (lessonKey: string) =>
@@ -100,6 +107,19 @@ export const streamTutor = async (
   onText: (text: string) => void,
   signal: AbortSignal,
 ) => readStream(await api.llm.tutor.$post({ json: request }, { init: { signal } }), onText);
+
+export type TutorTurn = NonNullable<ReturnType<typeof useTutorHistory>["data"]>["turns"][number];
+
+/** The lesson's chat as cached: emptied when a new chat opens, a stored pair added at once. */
+export function useTutorCache(lessonKey: string) {
+  const client = useQueryClient();
+  const key = ["tutor", lessonKey];
+  return {
+    clear: () => client.setQueryData(key, { turns: [] }),
+    add: (turns: TutorTurn[]) =>
+      client.setQueryData(key, (old: { turns: TutorTurn[] } | undefined) => withTurns(old, turns)),
+  };
+}
 
 export function useResetTutor(lessonKey: string) {
   const client = useQueryClient();
@@ -209,8 +229,11 @@ export function useCheckWriting() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (request: WritingRequest) => json(api.llm.writing.$post({ json: request })),
-    onSuccess: (_, request) =>
-      client.invalidateQueries({ queryKey: ["writing", request.lessonKey, request.edition] }),
+    // Shown at once on top of the earlier texts.
+    onSuccess: (attempt, request) =>
+      client.setQueryData(["writing", request.lessonKey, request.edition], (old: WritingState) =>
+        withAttempt(old, attempt),
+      ),
   });
 }
 
@@ -233,13 +256,8 @@ export function useSceneAction(lessonKey: LessonKey) {
         : json(api.llm.scene.turn.$post({ json: action.turn })),
     // Shown at once: the scene first; a start ends the one that was open.
     onSuccess: (scene, action) =>
-      client.setQueryData(["scenes", lessonKey], (old: { scenes: SceneState[] } | undefined) => ({
-        scenes: [
-          scene,
-          ...(old?.scenes ?? [])
-            .filter((s) => s.id !== scene.id)
-            .map((s) => ("start" in action ? { ...s, done: true } : s)),
-        ],
-      })),
+      client.setQueryData(["scenes", lessonKey], (old: { scenes: SceneState[] } | undefined) =>
+        withScene(old, scene, "start" in action),
+      ),
   });
 }

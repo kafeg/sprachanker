@@ -3,7 +3,7 @@
 // share their media, so space is shown per source.
 import { useTranslation } from "react-i18next";
 import { useCatalog, useStorage } from "@/api/hooks.ts";
-import { useBytes } from "./download.tsx";
+import { useBytes } from "@/ui/format.ts";
 
 export function StorageSection() {
   const { t } = useTranslation();

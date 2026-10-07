@@ -8,8 +8,9 @@ import {
   type Mistake,
 } from "@sprachanker/engine";
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
-import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ListRow } from "@/ui/history.tsx";
+import { Panel } from "@/ui/panel.tsx";
 import { StepDot, stepTitle } from "./plan.tsx";
 
 export function MistakesStatus({
@@ -37,7 +38,7 @@ export function MistakesStatus({
   });
 
   return (
-    <div className="space-y-4 rounded-2xl border bg-card p-5">
+    <Panel as="div" className="space-y-4">
       <dl className="grid grid-cols-2 gap-4">
         <div>
           <dt className="text-sm text-muted-foreground">{t("mistakes.exercises")}</dt>
@@ -60,11 +61,7 @@ export function MistakesStatus({
               const fixed = here.filter((m) => m.fixed).length;
               return (
                 <li key={index}>
-                  <button
-                    type="button"
-                    onClick={() => go(`exercise:${index}`)}
-                    className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left hover:bg-accent pointer-coarse:min-h-11"
-                  >
+                  <ListRow onClick={() => go(`exercise:${index}`)}>
                     <StepDot state="wrong" label={index + 1} />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate">
@@ -78,8 +75,7 @@ export function MistakesStatus({
                         {fixed > 0 && ` · ${t("mistakes.fixed", { count: fixed })}`}
                       </span>
                     </span>
-                    <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-                  </button>
+                  </ListRow>
                 </li>
               );
             })}
@@ -90,6 +86,6 @@ export function MistakesStatus({
           {first.answered ? t("mistakes.none") : t("mistakes.notYet")}
         </p>
       )}
-    </div>
+    </Panel>
   );
 }

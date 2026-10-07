@@ -5,25 +5,14 @@
 import { Link } from "@tanstack/react-router";
 import { BookA } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCourses, useDecks, useSetSetting, useSettings } from "@/api/hooks.ts";
-import { languageName } from "@/i18n/index.ts";
-import { COUNT_TONE, StudySession } from "@/study/session.tsx";
-import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { useDecks, useSetSetting, useSettings } from "@/api/hooks.ts";
+import { useDeckName } from "@/study/decks.ts";
+import { StudySession } from "@/study/session.tsx";
+import { COUNT_TONE } from "@/study/tones.ts";
+import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { cn } from "@/ui/utils.ts";
 
 type Counts = { new: number; learning: number; review: number };
-
-/** A deck's name: a course's title, or a language. */
-export function useDeckName() {
-  const { i18n } = useTranslation();
-  const courses = useCourses().data ?? [];
-  return (scope: string) => {
-    if (scope.startsWith("lang:")) return languageName(scope.slice(5), i18n.language, true);
-    const key = scope.slice("course:".length);
-    const course = courses.find((c) => c.key === key);
-    return (course && (course.titles[course.editions[0] ?? ""] || course.key)) ?? key;
-  };
-}
 
 function CountCells({ counts }: { counts: Counts }) {
   const cell = (n: number, tone: string) => (
@@ -44,12 +33,7 @@ function Decks({ open }: { open(scope: string): void }) {
   const name = useDeckName();
   if (decks.isPending) return <Loading />;
   if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
-  if (!decks.data.decks.length)
-    return (
-      <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-        {t("study.noCards")}
-      </p>
-    );
+  if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
   const row = "grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_3.5rem] items-center gap-2 px-4";
   return (
     <div className="max-w-2xl rounded-2xl border bg-card">
@@ -142,9 +126,7 @@ export function ReviewPage({
   if (!open.deck)
     return (
       <Page title={t("nav.review")}>
-        <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-          {t("study.noCards")}
-        </p>
+        <EmptyState>{t("study.noCards")}</EmptyState>
       </Page>
     );
   return (
@@ -154,17 +136,5 @@ export function ReviewPage({
         <StudySession scope={open.deck} />
       </div>
     </Page>
-  );
-}
-
-export function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="mb-4 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
-    >
-      {children}
-    </button>
   );
 }

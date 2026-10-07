@@ -1,20 +1,29 @@
 // The lesson tutor: the chat of this lesson, in a side panel opened from the header, and inline on the
 // "Going over mistakes" step, which opens it with a request to go through the run's mistakes.
-import { useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
-import { streamTutor, type TutorRequest, useLlm, useResetTutor, useTutorHistory } from "./api.ts";
-import { AssistantLabel } from "./assistant-label.tsx";
+import { SideSheet } from "@/ui/side-sheet.tsx";
+import {
+  streamTutor,
+  type TutorRequest,
+  type TutorTurn,
+  useLlm,
+  useResetTutor,
+  useTutorCache,
+  useTutorHistory,
+} from "./api.ts";
 import { ContextMeter } from "./context-meter.tsx";
 import {
   ChatBubble,
   ChatComposer,
-  ChatSheet,
+  ChatHeader,
   ErrorLine,
+  PendingExchange,
+  StartPrompt,
   useAbortable,
   useScrollToEnd,
 } from "./parts.tsx";
@@ -75,11 +84,11 @@ function Chat({
   onReply?(): void;
 }) {
   const { t, i18n } = useTranslation();
-  const client = useQueryClient();
   const llm = useLlm();
   const history = useTutorHistory(context.lessonKey);
   const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
   const reset = useResetTutor(context.lessonKey);
+  const cache = useTutorCache(context.lessonKey);
   const [input, setInput] = useState("");
   /** The question on its way and the reply so far; `after`: how many turns came before it. */
   const [pending, setPending] = useState<{ question: string; reply: string; after: number }>();
@@ -117,7 +126,7 @@ function Chat({
     setInput("");
     setError(undefined);
     // A new chat: the current one leaves the screen at once (the server ends it with this message).
-    if (newChat) client.setQueryData(["tutor", context.lessonKey], { turns: [] });
+    if (newChat) cache.clear();
     const after = newChat ? 0 : turns.length;
     setPending({ question, reply: "", after });
     streamTutor(
@@ -129,16 +138,15 @@ function Chat({
         // The pair as the server stored it, shown at once in place of the pending one; the stored
         // turns follow.
         const ts = Date.now();
-        client.setQueryData(
-          ["tutor", context.lessonKey],
-          (old: { turns: unknown[] } | undefined) => ({
-            turns: [
-              ...(old?.turns ?? []),
-              { role: "user", text: question, exerciseKey: context.exerciseKey, ts },
-              { role: "assistant", text: reply.trim(), ts },
-            ],
-          }),
-        );
+        cache.add([
+          {
+            role: "user",
+            text: question,
+            exerciseKey: context.exerciseKey as TutorTurn["exerciseKey"],
+            ts,
+          },
+          { role: "assistant", text: reply.trim(), ts },
+        ]);
         setPending(undefined);
         onReply?.();
       })
@@ -172,8 +180,7 @@ function Chat({
 
   return (
     <>
-      <div className="flex min-h-11 items-center gap-1 border-b px-4 pb-2">
-        <AssistantLabel className="mr-auto" />
+      <ChatHeader>
         <PromptButton
           request={() => ({
             tutor: { ...context, message: input.trim(), language: i18n.language },
@@ -184,18 +191,20 @@ function Chat({
             <RotateCcw className="size-4" /> {t("tutor.newChat")}
           </Button>
         )}
-      </div>
+      </ChatHeader>
       <ContextMeter
         request={{ ...context, message: "", language: i18n.language }}
         turns={turns.length}
       />
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
         {turns.length === 0 && !shown && starter && history.data && asked.current === ask?.id && (
-          <div className="space-y-3 pt-2">
-            <p className="text-muted-foreground">{starter.intro}</p>
-            <Button size="lg" onClick={() => send(starter.text, true)}>
-              <MessageCircle className="size-4" /> {starter.label}
-            </Button>
+          <div className="pt-2">
+            <StartPrompt
+              intro={starter.intro}
+              label={starter.label}
+              icon={MessageCircle}
+              onStart={() => send(starter.text, true)}
+            />
           </div>
         )}
         {turns.length === 0 && !shown && !starter && (
@@ -228,20 +237,7 @@ function Chat({
             )}
           </Bubble>
         ))}
-        {shown && (
-          <>
-            <Bubble from="user">
-              <p className="whitespace-pre-wrap">{shown.question}</p>
-            </Bubble>
-            <Bubble from="assistant">
-              {shown.reply ? (
-                <RichText text={shown.reply} />
-              ) : (
-                <p className="text-muted-foreground">{t("llm.thinking")}</p>
-              )}
-            </Bubble>
-          </>
-        )}
+        {shown && <PendingExchange question={shown.question} reply={shown.reply} />}
         <ErrorLine error={error} provider={llm.data.provider ?? undefined} />
         <div ref={end} />
       </div>
@@ -270,9 +266,9 @@ export function LessonTutor(context: Context) {
         <MessageCircle className="size-4" />{" "}
         <span className="hidden sm:inline">{t("tutor.title")}</span>
       </Button>
-      <ChatSheet open={open} onOpenChange={setOpen} title={t("tutor.title")}>
+      <SideSheet open={open} onOpenChange={setOpen} title={t("tutor.title")}>
         {open && <Chat {...context} />}
-      </ChatSheet>
+      </SideSheet>
     </>
   );
 }
@@ -296,15 +292,12 @@ export function MistakesTutor({
   };
   if (!done && !ask)
     return (
-      <div className="space-y-3">
-        <p className="text-muted-foreground">{starter.intro}</p>
-        <Button
-          size="lg"
-          onClick={() => setAsk({ text: starter.text, id: Date.now(), newChat: true })}
-        >
-          <MessageCircle className="size-4" /> {starter.label}
-        </Button>
-      </div>
+      <StartPrompt
+        intro={starter.intro}
+        label={starter.label}
+        icon={MessageCircle}
+        onStart={() => setAsk({ text: starter.text, id: Date.now(), newChat: true })}
+      />
     );
   return (
     <div className="flex h-[70dvh] min-h-96 flex-col overflow-hidden rounded-2xl border bg-card pt-2">

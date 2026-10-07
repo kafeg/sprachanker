@@ -13,6 +13,8 @@ import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { usePercent } from "@/ui/format.ts";
+import { ListRow } from "@/ui/history.tsx";
 import { StepDot, stepTitle } from "./plan.tsx";
 
 export function LessonSummary({
@@ -44,7 +46,8 @@ export function LessonSummary({
   go(id: string): void;
   redo(): void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const percent = usePercent();
   const coverage = planCoverage(steps, lesson, results, done);
   // Items right at the first attempt (the score itself also weighs partial answers).
   const first = firstAttempts(lesson, results);
@@ -58,9 +61,7 @@ export function LessonSummary({
       {lesson.pages.length > 0 && (
         <div className="flex items-end gap-4">
           <span className="font-heading text-6xl font-bold">
-            {result
-              ? new Intl.NumberFormat(i18n.language, { style: "percent" }).format(result.score)
-              : "—"}
+            {result ? percent(result.score) : "—"}
           </span>
           {result && (
             <span className="pb-2 text-muted-foreground">
@@ -97,10 +98,10 @@ export function LessonSummary({
             const scored = Object.values(r?.first ?? {}).filter((o) => o.result !== "unscored");
             return (
               <li key={stepId(step)}>
-                <button
-                  type="button"
+                <ListRow
+                  chevron={false}
                   onClick={() => go(stepId(step))}
-                  className="flex w-full items-center gap-3 px-4 py-2.5 text-left hover:bg-accent"
+                  className="rounded-none px-4 py-2.5"
                 >
                   <StepDot
                     state={state === "done" && step.kind !== "exercise" ? "read" : state}
@@ -116,7 +117,7 @@ export function LessonSummary({
                           ? `${scored.filter((o) => o.result === "correct").length}/${scored.length}`
                           : ""}
                   </span>
-                </button>
+                </ListRow>
               </li>
             );
           })}

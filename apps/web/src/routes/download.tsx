@@ -3,25 +3,13 @@
 import { useTranslation } from "react-i18next";
 import type { useDownloads } from "@/api/hooks.ts";
 import { Progress } from "@/ui/components/progress.tsx";
+import { useBytes } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";
 
 export type DownloadJob = NonNullable<ReturnType<typeof useDownloads>["data"]>["jobs"][number];
 
 export const downloading = (job: DownloadJob | undefined) =>
   job?.status === "queued" || job?.status === "running";
-
-/** Bytes as MB or GB in the interface language. */
-export function useBytes() {
-  const { i18n } = useTranslation();
-  return (bytes: number) => {
-    const giga = bytes >= 1e9;
-    return new Intl.NumberFormat(i18n.language, {
-      style: "unit",
-      unit: giga ? "gigabyte" : "megabyte",
-      maximumFractionDigits: giga ? 1 : 0,
-    }).format(bytes / (giga ? 1e9 : 1e6));
-  };
-}
 
 export function DownloadLine({ job, className }: { job: DownloadJob; className?: string }) {
   const { t } = useTranslation();

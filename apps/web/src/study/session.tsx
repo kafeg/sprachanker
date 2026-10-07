@@ -4,7 +4,7 @@
 // Keys as in Anki: Space or Enter shows the answer and then answers Good, 1–4 rate, R replays, U or
 // Ctrl+Z undoes, - and = bury, @ and ! suspend, * marks, Ctrl+1…7 flag. On a phone a tap on the card
 // shows the answer and the buttons are coloured, the interval inside (AnkiDroid).
-import { intervalText, SRS_DEFAULTS } from "@sprachanker/engine";
+import { SRS_DEFAULTS } from "@sprachanker/engine";
 import type { CardRating } from "@sprachanker/schema";
 import { Flag, MoreHorizontal, Star, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -23,36 +23,8 @@ import {
 import type { AudioControls } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 import { type Side, StudyCard } from "./card.tsx";
-
-/** Anki's ratings; on a phone the buttons are coloured as in AnkiDroid — in our own hues (the gender
- *  hues mean gender only, 09): Again as wrong, Good as correct, Easy as new cards. */
-const RATINGS = [
-  { rating: 1, key: "again", phone: "max-sm:bg-wrong max-sm:hover:bg-wrong/90" },
-  { rating: 2, key: "hard", phone: "max-sm:bg-slate-600 max-sm:hover:bg-slate-700" },
-  { rating: 3, key: "good", phone: "max-sm:bg-correct max-sm:hover:bg-correct/90" },
-  { rating: 4, key: "easy", phone: "max-sm:bg-srs-new max-sm:hover:bg-srs-new/90" },
-] as const;
-
-/** Anki's three counts in our hues: new, learning (as Again), to review (as Good). */
-export const COUNT_TONE = {
-  new: "text-srs-new",
-  learning: "text-wrong",
-  review: "text-correct",
-} as const;
-
-/** An interval as Anki writes it ("<10m", "4d", "1.2mo"), in the learner's language. */
-export function useIntervalText() {
-  const { t } = useTranslation();
-  return (ms: number) =>
-    intervalText(ms, {
-      s: t("study.unit.s"),
-      m: t("study.unit.m"),
-      h: t("study.unit.h"),
-      d: t("study.unit.d"),
-      mo: t("study.unit.mo"),
-      y: t("study.unit.y"),
-    });
-}
+import { useIntervalText } from "./time.ts";
+import { COUNT_TONE, RATINGS } from "./tones.ts";
 
 /** On a Mac, Ctrl is ⌘ (the reviewer takes either). */
 const MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);

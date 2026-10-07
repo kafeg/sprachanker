@@ -2,21 +2,25 @@
 // partner speaks the target language (translation on demand), corrects the learner's lines and ticks
 // off the scene's goals; the lesson's earlier scenes are listed under it, each readable again.
 import type { LessonKey } from "@sprachanker/schema";
-import { ChevronDown, Circle, CircleCheck, Languages, LoaderCircle } from "lucide-react";
+import { Circle, CircleCheck, Languages } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { useDateFormat } from "@/ui/format.ts";
+import { HistoryList } from "@/ui/history.tsx";
+import { Panel } from "@/ui/panel.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type SceneState, useLlm, useSceneAction, useScenes } from "./api.ts";
-import { AssistantLabel } from "./assistant-label.tsx";
 import {
   ChatBubble,
   ChatComposer,
+  ChatHeader,
   Corrections,
   ErrorLine,
+  PendingExchange,
+  StartPrompt,
   useScrollToEnd,
-  useWhen,
 } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
@@ -129,31 +133,22 @@ function CurrentScene({
     <>
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="mr-auto text-xl font-bold">{scene.setup.title}</h2>
-        <Button variant="outline" disabled={action.isPending} onClick={onNew}>
-          {starting && <LoaderCircle className="size-4 animate-spin" />}
+        <Button variant="outline" loading={starting} disabled={action.isPending} onClick={onNew}>
           {starting ? t("scene.preparing") : t("scene.new")}
         </Button>
       </div>
-      <div className="rounded-2xl border bg-card p-4 sm:p-5">
+      <Panel as="div">
         <Setup scene={scene} />
-      </div>
+      </Panel>
       <div className="rounded-2xl border bg-card">
-        <div className="flex min-h-11 items-center gap-1 border-b px-4 py-1">
-          <AssistantLabel className="mr-auto" />
+        <ChatHeader>
           {!scene.done && (
             <PromptButton request={() => ({ scene: { ...line, text: line.text || "…" } })} />
           )}
-        </div>
+        </ChatHeader>
         <div className="space-y-3 p-4" aria-live="polite">
           <Lines turns={scene.turns} />
-          {sending && (
-            <>
-              <ChatBubble from="learner" pending lang={lang} className="text-lg">
-                {text}
-              </ChatBubble>
-              <LoaderCircle className="size-5 animate-spin text-muted-foreground" />
-            </>
-          )}
+          {sending && <PendingExchange question={text} lang={lang} className="text-lg" />}
           {scene.done && (
             <p className="font-semibold text-correct">
               {scene.goalsMet.length === scene.setup.goals.length
@@ -180,47 +175,30 @@ function CurrentScene({
 /** Earlier scenes of the lesson, newest first; one opens to be read again. */
 function PastScenes({ scenes }: { scenes: SceneState[] }) {
   const { t } = useTranslation();
-  const [open, setOpen] = useState<string>();
-  const when = useWhen();
+  const when = useDateFormat("dayTime");
   return (
-    <section className="rounded-2xl border bg-card p-4 sm:p-5">
-      <h3 className="mb-1 font-semibold">{t("scene.past")}</h3>
-      <ul className="divide-y">
-        {scenes.map((scene) => (
-          <li key={scene.id}>
-            <button
-              type="button"
-              aria-expanded={open === scene.id}
-              onClick={() => setOpen(open === scene.id ? undefined : scene.id)}
-              className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left hover:bg-accent pointer-coarse:min-h-11"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="block truncate">{scene.setup.title}</span>
-                <span className="block text-sm text-muted-foreground">
-                  {t("scene.goals", {
-                    met: scene.goalsMet.length,
-                    total: scene.setup.goals.length,
-                  })}
-                </span>
-              </span>
-              <span className="text-sm text-muted-foreground">{when.format(scene.startedAt)}</span>
-              <ChevronDown
-                className={cn(
-                  "size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
-                  open === scene.id && "rotate-180",
-                )}
-              />
-            </button>
-            {open === scene.id && (
-              <div className="space-y-3 pb-4">
-                <Setup scene={scene} />
-                <Lines turns={scene.turns} />
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
-    </section>
+    <HistoryList
+      title={t("scene.past")}
+      items={scenes}
+      keyOf={(scene) => scene.id}
+      summary={(scene) => (
+        <span className="flex items-center gap-3">
+          <span className="min-w-0 flex-1">
+            <span className="block truncate">{scene.setup.title}</span>
+            <span className="block text-sm text-muted-foreground">
+              {t("scene.goals", { met: scene.goalsMet.length, total: scene.setup.goals.length })}
+            </span>
+          </span>
+          <span className="text-sm text-muted-foreground">{when.format(scene.startedAt)}</span>
+        </span>
+      )}
+      detail={(scene) => (
+        <>
+          <Setup scene={scene} />
+          <Lines turns={scene.turns} />
+        </>
+      )}
+    />
   );
 }
 
@@ -240,16 +218,15 @@ export function SceneStep({ onDone, ...ids }: Ids & { onDone?(): void }) {
       {current ? (
         <CurrentScene ids={ids} scene={current} action={action} onNew={start} />
       ) : (
-        <div className="space-y-3">
-          <p className="text-muted-foreground">{t("scene.intro")}</p>
-          <Button size="lg" disabled={action.isPending} onClick={start}>
-            {action.isPending && <LoaderCircle className="size-4 animate-spin" />}
-            {action.isPending ? t("scene.preparing") : t("scene.start")}
-          </Button>
-        </div>
+        <StartPrompt
+          intro={t("scene.intro")}
+          label={action.isPending ? t("scene.preparing") : t("scene.start")}
+          loading={action.isPending}
+          onStart={start}
+        />
       )}
       <ErrorLine error={action.error} />
-      {past.length > 0 && <PastScenes scenes={past} />}
+      <PastScenes scenes={past} />
     </div>
   );
 }
