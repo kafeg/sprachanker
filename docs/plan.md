@@ -28,20 +28,7 @@ Focus (owner, 2026-10-07): German. All courses offers DW; the rest stays CLI-onl
 
 ## Next, in order
 
-### 1. Profiles
-Specs: 05, 06, 09.
-- `server.sqlite` (profiles, devices); a profile database per profile (the one `profiles/local` today
-  becomes the owner's); owner setup link (`sprachanker owner-link`); owner-only areas (06, "Profiles
-  and access"); device tokens; optional PIN with rate limiting; profiles in the PWA (choose, create,
-  switch); the owner resets another profile's PIN and deletes profiles.
-- Decided (owner, 2026-10-07): registration of new profiles is **open by default**, the owner closes
-  it; LLM provider settings stay **per profile** (07).
-- **Accept**: integration and migration tests (the owner's existing data becomes the owner profile);
-  two profiles on Mac and iPhone with separate progress; a run continues on a second device with events
-  from both stored; Host check, CSRF header and PIN rate limit covered by tests; e2e for choosing and
-  creating a profile on desktop and phone.
-
-### 2. AI assistant settings (owner's request, 2026-10-07)
+### 1. AI assistant settings (owner's request, 2026-10-07)
 Specs: 07, 09.
 - Providers as cards with an icon and a state line ("key saved", "not installed", "address not set")
   instead of a drop-down; the owner approved the mockup's layout.
@@ -59,6 +46,37 @@ Specs: 07, 09.
   free tier, Groq). Subscriptions of chat apps are not an API and are not used.
 - **Accept**: llm/server tests of the model metadata and filters against fake endpoints; e2e of the
   settings on desktop and phone.
+- The onboarding's AI step (item 2) reuses these cards and the model list.
+
+### 2. Profiles with onboarding
+Specs: 05, 06, 09, 10.
+- `server.sqlite` (profiles, devices); a profile database per profile (the one `profiles/local` today
+  becomes the first profile). "Who is studying?" — profile tiles and "+ New profile" — before the app.
+- **Onboarding** of a new profile, each step short and changeable later (owner, 2026-10-07): welcome
+  (what the app is; courses are downloaded straight from their publishers' sites for personal use —
+  respect their terms; the same line by "Download") → name or nickname and a colour/avatar → languages:
+  the interface's (from the browser), the learner's own (explanations, translations) and the one to
+  learn — the pair filters the courses at once → sign-in (below) → the AI assistant: none for now, or a
+  provider with the cards of the AI settings and a connection check → a short tour of the sections
+  (Courses, Review, Notebook, Settings; skippable, reopened from the menu) → Courses, filtered by the
+  pair, to pick one.
+- **Sign-in**: a passkey (Face ID / Touch ID / fingerprint, WebAuthn; over HTTPS — Tailscale — and on
+  localhost) and a 4–8 digit PIN with limited attempts as the fallback (any device, plain HTTP too);
+  both optional — a profile may have none. The WebAuthn library goes into spec 10's fixed choices when
+  chosen.
+- **Sessions**: a long random device token in an HttpOnly cookie, its hash in `devices` (not JWT: one
+  server and one database, and a device must be revocable); a year, extended with use; the profile lists
+  its devices with "sign out here".
+- **No roles** (owner, 2026-10-07): every profile is equal in the app; any may install courses (the
+  library is shared). Server matters are system operations of the `sprachanker` command (or the
+  server's config): registration open (default) or closed, resetting a profile's PIN or passkeys,
+  deleting a profile. Spec 06 "Profiles and access" is rewritten accordingly (no owner, no setup link).
+- LLM provider settings stay per profile (07).
+- Mockups first (who is studying, the onboarding steps, sign-in).
+- **Accept**: integration and migration tests (the existing profile becomes the first one); two
+  profiles on Mac and iPhone with separate progress; a run continues on a second device; passkey and
+  PIN sign-in with the attempt limit, device sign-out, the CLI operations covered by tests; e2e of
+  onboarding and choosing a profile on desktop and phone.
 
 ### 3. Courses: My, Downloaded, Available (owner's request, 2026-10-07)
 Specs: 03, 09.
