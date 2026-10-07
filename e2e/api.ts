@@ -57,6 +57,9 @@ export async function openStep(page: Page, step: string, lesson = DEMO_LESSON) {
 /** Goes to a step of the open lesson through its plan (a sheet on a phone, opened and closed). */
 export async function goToStep(page: Page, step: string) {
   await expect(page.getByRole("dialog")).toHaveCount(0);
+  // The player's header is there (after a reload the lesson loads first): only then does the plan's
+  // button say whether this is a phone.
+  await expect(page.getByRole("button", { name: "Reference" })).toBeVisible();
   const plan = page.getByRole("button", { name: "Lesson plan" });
   if (await plan.isVisible()) await plan.click();
   await page.getByRole("button", { name: step }).filter({ visible: true }).first().click();
