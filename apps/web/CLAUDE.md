@@ -16,7 +16,8 @@ apps/web/src/
                    # video; slots.ts: what optional features add (header, explain, practice)
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
-                   # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names)
+                   # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
+                   # word-sheet (a word with cards in full: forms, faces, answers)
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
@@ -27,7 +28,7 @@ apps/web/src/
   ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
                    # (rows that open, lists of earlier items), side-sheet, chip
-  word/            # gender colouring; word-sheet (a word with cards in full: forms, faces, answers)
+  word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```

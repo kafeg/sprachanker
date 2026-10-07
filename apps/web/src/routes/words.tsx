@@ -7,13 +7,13 @@ import { type MyWord, useWords } from "@/api/hooks.ts";
 import { useDeckName } from "@/study/decks.ts";
 import { useDueText } from "@/study/time.ts";
 import { COUNT_TONE } from "@/study/tones.ts";
+import { WordSheet } from "@/study/word-sheet.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { ListRow } from "@/ui/history.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
-import { WordSheet } from "@/word/word-sheet.tsx";
 
 const STATES = ["all", "new", "learning", "review", "suspended", "marked"] as const;
 type StateFilter = (typeof STATES)[number];

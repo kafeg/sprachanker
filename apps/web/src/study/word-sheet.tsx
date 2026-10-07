@@ -7,8 +7,6 @@ import { ArrowRight, Pause, Play, Star } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { type MyWord, useCardActions, useWord } from "@/api/hooks.ts";
-import { useDueText } from "@/study/time.ts";
-import { COUNT_TONE, ratingOf } from "@/study/tones.ts";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
@@ -16,7 +14,9 @@ import { AudioButton } from "@/ui/media.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { GenderWord } from "./word.tsx";
+import { GenderWord } from "@/word/word.tsx";
+import { useDueText } from "./time.ts";
+import { COUNT_TONE, ratingOf } from "./tones.ts";
 
 /** The sheet of `word` (the list's latest copy of it, so suspend and mark show at once). */
 export function WordSheet({ word, onClose }: { word: MyWord | undefined; onClose(): void }) {
