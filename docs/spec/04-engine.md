@@ -121,13 +121,16 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's
   overview has the counts, Study now and Unbury; a finished deck says when the next learning card is
   due and whether new cards or reviews wait behind a limit.
-- **Cards** come from the lesson's "Words" step (one card per lexeme; meeting it again reuses it),
+- **Cards** come from the lesson's "Words" step (one card per lexeme and translation language — the
+  edition's source language: a word learned through Russian and through English is two notes, since
+  each shows its own translation; meeting it again in the same language reuses it; owner, 2026-10-07),
   words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
-- **"Words of the lesson"** is the same reviewer over the lesson's words, recognition only and without
-  the day's new limit (the learner chose to learn them now). The step is done once nothing is left to
-  study now; the learning faces go on in Review.
+- **"Words of the lesson"** is the same reviewer over the lesson's words in the edition's translation
+  language, recognition only and without the day's new limit (the learner chose to learn them now). A
+  word answered Good or Easy leaves the step (Again and Hard bring it back there); its learning steps go
+  on in Review (owner, 2026-10-07). The step is done once nothing is left to study now.
 - **Practice set ("Practise this")**: a run with the original items selected in the Notebook (e.g. all
   du/Sie mistakes this week).
 

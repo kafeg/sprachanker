@@ -10,7 +10,7 @@ import {
   parseLessonKey,
   parseLexemeKey,
 } from "@sprachanker/schema";
-import { asc, eq, inArray } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { cardState, cards } from "../db/profile/schema.ts";
 import { ServiceError } from "../errors.ts";
@@ -74,20 +74,28 @@ export function createCardStore(db: ProfileDb) {
           .all(),
       ),
 
-    /** The note of a lexeme, or of a course's word (its source key), if any. */
-    byLexeme: (lexemeKey: string) =>
-      db.select().from(cards).where(eq(cards.lexemeKey, lexemeKey)).get(),
-    bySource: (sourceKey: string) =>
-      db.select().from(cards).where(eq(cards.sourceKey, sourceKey)).get(),
+    /** The note of a lexeme, or of a course's word (its source key), translated into a language. */
+    byLexeme: (lexemeKey: string, lang: string) =>
+      db
+        .select()
+        .from(cards)
+        .where(and(eq(cards.lexemeKey, lexemeKey), eq(cards.translationLang, lang)))
+        .get(),
+    bySource: (sourceKey: string, lang: string) =>
+      db
+        .select()
+        .from(cards)
+        .where(and(eq(cards.sourceKey, sourceKey), eq(cards.translationLang, lang)))
+        .get(),
     /** Every row as stored (relinking reads them all, a display that no longer reads included). */
     rows: () => db.select().from(cards).all(),
 
     insert: (values: typeof cards.$inferInsert) => db.insert(cards).values(values).run(),
 
-    /** Sets fields of a note: its lexeme, suspension (Anki: suspend note) or mark. */
+    /** Sets fields of a note: its lexeme, translation language, suspension (Anki: suspend note) or mark. */
     setNote: (
       cardId: string,
-      values: Partial<Pick<CardRow, "lexemeKey" | "suspended" | "marked">>,
+      values: Partial<Pick<CardRow, "lexemeKey" | "translationLang" | "suspended" | "marked">>,
     ) => db.update(cards).set(values).where(eq(cards.id, cardId)).run(),
 
     /** The face rows of some notes (all when none are named), by `<card>:<face>`. */

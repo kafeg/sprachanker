@@ -72,7 +72,9 @@ events(
 cards(
   id TEXT PRIMARY KEY,
   kind TEXT NOT NULL,             -- lexeme | sentence | custom
-  lexeme_key TEXT,                -- for kind=lexeme; one card per lexeme per profile
+  lexeme_key TEXT,                -- for kind=lexeme; one card per lexeme and translation_lang (0002)
+  translation_lang TEXT,          -- the edition's source language its translation is in; null on a
+                                  -- card made before 0002 until relinking finds its edition
   source_key TEXT,                -- vocab occurrence or item key where it was met
   origin_run_id TEXT, origin_event_id TEXT,   -- run (and event, e.g. a mistake) it was created in, if any:
                                               -- the lesson run of its "Words" step; set null when deleted (0001)

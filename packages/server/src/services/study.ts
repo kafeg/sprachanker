@@ -17,7 +17,9 @@ import {
   type CardFace,
   type CardRating,
   type CardReviewPayload,
+  type EditionId,
   type LessonKey,
+  parseEditionId,
   seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
@@ -28,7 +30,8 @@ import type { Settings } from "./settings.ts";
 
 /**
  * What to study: every deck, a language (`lang:de`), a course (`course:<course key>`), or a lesson's own
- * words (`lesson:<lesson key>`: their first card type only, without the day's new limit).
+ * words in an edition (`lesson:<edition>:<lesson key>`: their cards in its translation language, the
+ * first card type only, without the day's new limit; a word answered Good or Easy today is done there).
  */
 export type DeckScope = string;
 
@@ -47,10 +50,13 @@ export function createStudy(deps: {
     if (scope.startsWith("lang:")) return all.filter((n) => n.lang === scope.slice(5));
     if (scope.startsWith("course:")) return all.filter((n) => n.course === scope.slice(7));
     if (scope.startsWith("lesson:")) {
-      const lessonKey = scope.slice(7) as LessonKey;
-      const lesson = await content.lesson(seriesOf(lessonKey), lessonKey);
+      const [, edition = "", lessonKey = ""] = scope.split(":") as [string, EditionId, LessonKey];
+      const lesson = await content.lesson(seriesOf(lessonKey as LessonKey), lessonKey as LessonKey);
       const lexemes = new Set<string>(lesson.vocab.map((v) => v.lexeme));
-      return all.filter((n) => n.lexemeKey && lexemes.has(n.lexemeKey));
+      const lang = parseEditionId(edition as EditionId).source;
+      return all.filter(
+        (n) => n.lexemeKey && lexemes.has(n.lexemeKey) && n.translationLang === lang,
+      );
     }
     return all;
   }
@@ -84,6 +90,7 @@ export function createStudy(deps: {
             state: cards.stateOf(row),
             suspended: !!note.suspended || !!row?.suspended,
             buriedUntil: row?.buriedUntil ?? null,
+            passedToday: lesson && data.today.passed(note.id, face),
           };
         }),
     );
@@ -95,7 +102,7 @@ export function createStudy(deps: {
       reviewsPerDay: settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay,
       newToday: done.fresh,
       reviewsToday: done.reviews,
-      allNew: lesson,
+      lessonWords: lesson,
     });
     return { ...result, notes, states: data.states, now: data.t, today: data.today };
   }

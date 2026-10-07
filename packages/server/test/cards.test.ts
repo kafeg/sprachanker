@@ -148,12 +148,32 @@ test("limits: a lesson's own words ignore the new limit; the review limit holds 
   await send("PUT", "/api/settings", { key: "srs.newPerDay", value: 1 });
   expect((await getJson(study(`course:${COURSE}`))).counts.new).toBe(1);
   // The lesson's words: their first card type, all of them.
-  const lesson = await getJson(study(`lesson:${LESSONS[0]}`));
+  const lesson = await getJson(study(`lesson:ru-de:${LESSONS[0]}`));
   expect(lesson.counts).toEqual({ new: 4, learning: 0, review: 0 });
   expect(lesson.current.face).toBe("recognition");
   await send("PUT", "/api/settings", { key: "srs.reviewsPerDay", value: 0 });
   const held = await getJson(study(`course:${COURSE}`));
   expect([held.counts.new, held.current, held.newWaiting]).toEqual([0, null, true]);
+});
+
+test("a lesson's words: a word answered Good leaves the step, Again keeps it there; Review has both", async () => {
+  const { sendJson, getJson } = await withCards();
+  const scope = study(`lesson:ru-de:${LESSONS[0]}`);
+  const rate = async (rating: number) => {
+    const { current } = await getJson(scope);
+    await sendJson("POST", `/api/cards/${current.cardId}/review`, {
+      id: ulid(),
+      reps: 0,
+      face: current.face,
+      rating,
+    });
+  };
+  await rate(3);
+  await rate(1);
+  const lesson = await getJson(scope);
+  expect(lesson.counts).toEqual({ new: 2, learning: 1, review: 0 });
+  // In Review both are learning (Again's soon, Good's in ten minutes).
+  expect((await getJson(study(`course:${COURSE}`))).counts.learning).toBe(2);
 });
 
 test("each deck has its own day: German answers do not use up English's new cards", async () => {
@@ -185,7 +205,7 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
   const { sendJson, send, getJson } = await withCards();
   const card = (await getJson(study(`course:${COURSE}`))).current;
   const ids = async () => {
-    const s = await getJson(study(`lesson:${LESSONS[0]}`));
+    const s = await getJson(study(`lesson:ru-de:${LESSONS[0]}`));
     return { count: s.counts.new, buried: s.buried };
   };
   await sendJson("POST", `/api/cards/${card.cardId}/bury`, {});
@@ -194,7 +214,7 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
   // Unbury is a deck's: another deck's leaves this one buried.
   await sendJson("POST", "/api/cards/unbury", { scope: "lang:en" });
   expect(await ids()).toEqual({ count: 3, buried: 1 });
-  await sendJson("POST", "/api/cards/unbury", { scope: `lesson:${LESSONS[0]}` });
+  await sendJson("POST", "/api/cards/unbury", { scope: `lesson:ru-de:${LESSONS[0]}` });
   expect(await ids()).toEqual({ count: 4, buried: 0 });
 
   await sendJson("PUT", `/api/cards/${card.cardId}/suspend`, {
@@ -212,7 +232,7 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
 
   await sendJson("PUT", `/api/cards/${card.cardId}/flag`, { face: "recognition", flag: 2 });
   await sendJson("PUT", `/api/cards/${card.cardId}/mark`, { marked: true });
-  expect((await getJson(study(`lesson:${LESSONS[0]}`))).current).toMatchObject({
+  expect((await getJson(study(`lesson:ru-de:${LESSONS[0]}`))).current).toMatchObject({
     flag: 2,
     marked: true,
   });
@@ -230,6 +250,39 @@ test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
     ).status,
   ).toBe(404);
   expect((await send("GET", study("course:nope"), undefined)).status).toBe(400);
+});
+
+test("a word learned in another language is another card: each edition studies its own translations", async () => {
+  const { sendJson, getJson, root, profile } = await withCards();
+  const make = (edition: string) =>
+    sendJson("POST", "/api/cards/lesson", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSONS[0],
+      edition,
+    });
+  // The Russian edition made the lesson's four cards; the English one makes its own four.
+  expect((await make("en-de")).created).toBe(4);
+  const inLesson = async (edition: string) => {
+    const s = await getJson(study(`lesson:${edition}:${LESSONS[0]}`));
+    return [s.counts.new, s.current.display.translation];
+  };
+  expect(await inLesson("ru-de")).toEqual([4, "кофе"]);
+  expect(await inLesson("en-de")).toEqual([4, "coffee"]);
+  // A card from before its language was kept gets the one its translation came from.
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  sqlite.exec("DELETE FROM cards WHERE translation_lang = 'en'");
+  sqlite.exec("UPDATE cards SET translation_lang = NULL");
+  const cards = createCards({
+    cards: createCardStore(profile),
+    content: createContent(openLibrary(join(root, "library"))),
+    settings: createSettings(profile),
+    session: async () => undefined,
+    now: Date.now,
+  });
+  await cards.relink();
+  expect(sqlite.query("SELECT DISTINCT translation_lang AS lang FROM cards").all()).toEqual([
+    { lang: "ru" },
+  ]);
 });
 
 test("a card follows its word's lexeme when a course is normalised again; no second card", async () => {

@@ -22,7 +22,7 @@ const DeckScope = z.union([
   z.literal("all"),
   z.string().regex(/^lang:[a-z]{2,3}$/),
   z.templateLiteral(["course:", CourseKey]),
-  z.templateLiteral(["lesson:", LessonKey]),
+  z.templateLiteral(["lesson:", EditionId, ":", LessonKey]),
 ]);
 const ok = { ok: true as const };
 

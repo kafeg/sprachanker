@@ -17,6 +17,8 @@ test("a scene still being prepared on the server shows as preparing on a page op
   );
   const button = view.getByRole("button", { name: /Preparing…/ });
   expect(button.hasAttribute("disabled")).toBe(true);
+  // The page polls while the server works: gone with it.
+  view.unmount();
 });
 
 test("a text still being checked on the server keeps Check waiting on a page opened again", async () => {
@@ -37,4 +39,5 @@ test("a text still being checked on the server keeps Check waiting on a page ope
   );
   const button = view.getByRole("button", { name: /Checking…/ });
   expect(button.hasAttribute("disabled")).toBe(true);
+  view.unmount();
 });

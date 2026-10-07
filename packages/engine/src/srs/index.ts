@@ -138,6 +138,8 @@ export interface QueueFace {
   /** Suspended (this face or the whole note), or buried until a later day. */
   suspended?: boolean;
   buriedUntil?: number | null;
+  /** Answered Good or Easy today (and not taken back): done in a lesson's "Words" step. */
+  passedToday?: boolean;
 }
 
 export interface QueueEntry {
@@ -156,8 +158,9 @@ export interface QueueLimits {
   /** New faces introduced and review faces answered today. */
   newToday?: number;
   reviewsToday?: number;
-  /** No daily limit on new faces (a lesson's own words). */
-  allNew?: boolean;
+  /** A lesson's own words (its "Words" step): no daily limit on new faces, and a face answered Good or
+   *  Easy today is done there — its learning steps go on in Review. */
+  lessonWords?: boolean;
 }
 
 const isLearning = (s: FaceState) => s.state === 1 || s.state === 3;
@@ -179,7 +182,12 @@ const shuffleKey = (id: string) => {
  */
 export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
   const { now, nextDay } = limits;
-  const active = faces.filter((f) => !f.suspended && !(f.buriedUntil && f.buriedUntil > now));
+  const active = faces.filter(
+    (f) =>
+      !f.suspended &&
+      !(f.buriedUntil && f.buriedUntil > now) &&
+      !(limits.lessonWords && f.passedToday),
+  );
   const learningAll = active
     .filter((f) => f.state && isLearning(f.state))
     .map(
@@ -216,7 +224,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     .sort((a, b) => a.due - b.due || shuffleKey(a.cardId + a.face) - shuffleKey(b.cardId + b.face))
     .slice(0, reviewsLeft);
 
-  const newLeft = limits.allNew
+  const newLeft = limits.lessonWords
     ? Number.POSITIVE_INFINITY
     : Math.max(
         0,

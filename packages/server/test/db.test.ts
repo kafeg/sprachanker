@@ -143,11 +143,38 @@ test("0001_card_origin: cards keep their rows; a card's run, once deleted, leave
       "INSERT INTO cards (id, kind, lexeme_key, faces, created_at, origin_run_id) VALUES ('c1', 'lexeme', 'lex:de:a:word', 'recognition', 1, 'r1');" +
       "INSERT INTO card_state (card_id, face) VALUES ('c1', 'recognition');",
   );
-  expect(migrate(db, migrations, options(2))).toEqual(["0001_card_origin"]);
+  expect(migrate(db, migrations, options(2))).toEqual([
+    "0001_card_origin",
+    "0002_translation_lang",
+  ]);
   expect(sqlite.query("SELECT id, origin_run_id FROM cards").all()).toEqual([
     { id: "c1", origin_run_id: "r1" },
   ]);
   expect(sqlite.query("SELECT card_id FROM card_state").all()).toEqual([{ card_id: "c1" }]);
   sqlite.exec("DELETE FROM runs WHERE id = 'r1'");
   expect(sqlite.query("SELECT origin_run_id FROM cards").all()).toEqual([{ origin_run_id: null }]);
+});
+
+test("0002_translation_lang: cards keep their rows; a lexeme has one card per translation language", () => {
+  const file = fresh();
+  const { db, options, sqlite } = runner(file);
+  migrate(
+    db,
+    migrations.filter((m) => m.tag !== "0002_translation_lang"),
+    options(1),
+  );
+  sqlite.exec(
+    "INSERT INTO cards (id, kind, lexeme_key, faces, created_at) VALUES ('c1', 'lexeme', 'lex:de:a:word', 'recognition', 1);",
+  );
+  expect(migrate(db, migrations, options(2))).toEqual(["0002_translation_lang"]);
+  expect(sqlite.query("SELECT id, translation_lang FROM cards").all()).toEqual([
+    { id: "c1", translation_lang: null },
+  ]);
+  const add = (id: string, lang: string) =>
+    sqlite.exec(
+      `INSERT INTO cards (id, kind, lexeme_key, translation_lang, faces, created_at) VALUES ('${id}', 'lexeme', 'lex:de:a:word', '${lang}', 'recognition', 1);`,
+    );
+  add("c2", "ru");
+  add("c3", "en");
+  expect(() => add("c4", "ru")).toThrow(/UNIQUE/);
 });

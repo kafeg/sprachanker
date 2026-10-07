@@ -278,34 +278,26 @@ export function StudySession({
             </>
           ) : (
             <div className="grid w-full max-w-lg grid-cols-4 gap-1.5">
-              {RATINGS.map(({ rating, key, phone }) => {
-                const interval = intervalOf(current.due[rating] - data.now);
-                return (
-                  <div key={rating} className="grid justify-items-stretch gap-0.5">
-                    <span className="hidden text-center text-xs text-muted-foreground tabular-nums sm:block">
-                      {interval}
-                    </span>
-                    <Button
-                      variant="outline"
-                      autoFocus={rating === 3}
-                      disabled={busy}
-                      title={`${rating}`}
-                      onClick={() => rate(rating)}
-                      className={cn(
-                        "h-auto flex-col gap-0 py-2 text-sm",
-                        "max-sm:border-0 max-sm:text-white max-sm:hover:text-white",
-                        phone,
-                      )}
-                    >
-                      {/* Phone: the interval inside; the button is still named by its rating. */}
-                      <span aria-hidden className="text-[11px] opacity-90 sm:hidden">
-                        {interval}
-                      </span>
-                      {t(`study.rating.${key}`)}
-                    </Button>
-                  </div>
-                );
-              })}
+              {RATINGS.map(({ rating, key, button }) => (
+                <Button
+                  key={rating}
+                  variant="outline"
+                  autoFocus={rating === 3}
+                  disabled={busy}
+                  title={`${rating}`}
+                  onClick={() => rate(rating)}
+                  className={cn(
+                    "h-auto flex-col gap-0 border-0 py-2 text-sm text-white hover:text-white",
+                    button,
+                  )}
+                >
+                  {/* The interval inside; the button is still named by its rating. */}
+                  <span aria-hidden className="text-[11px] opacity-90 tabular-nums">
+                    {intervalOf(current.due[rating] - data.now)}
+                  </span>
+                  {t(`study.rating.${key}`)}
+                </Button>
+              ))}
             </div>
           )}
         </div>

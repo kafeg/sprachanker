@@ -387,7 +387,7 @@ describe("runs", () => {
       lessonKey: LESSON,
       edition: "ru-de",
     });
-    const scope = encodeURIComponent(`lesson:${LESSON}`);
+    const scope = encodeURIComponent(`lesson:ru-de:${LESSON}`);
     const card = (await getJson(`/api/cards/study?scope=${scope}`)).current;
     await sendJson("POST", `/api/cards/${card.cardId}/review`, {
       id: ulid(),

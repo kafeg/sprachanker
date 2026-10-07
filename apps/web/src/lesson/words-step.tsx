@@ -45,7 +45,7 @@ export function WordsStep({
       </StepHeader>
       {make.isSuccess ? (
         <StudySession
-          scope={`lesson:${lesson.key}`}
+          scope={`lesson:${edition}:${lesson.key}`}
           // The step's own bar stays at the bottom; the reviewer's sits under the card.
           stickyBar={false}
           finished={(study) => <WordsLearnt learning={study.counts.learning} onDone={onDone} />}
