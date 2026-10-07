@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { RichText } from "@/ui/rich-text.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import {
   streamTutor,
@@ -28,7 +29,6 @@ import {
   useScrollToEnd,
 } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
-import { RichText } from "./rich-text.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language" | "newChat">;
 

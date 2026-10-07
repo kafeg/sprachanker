@@ -6,11 +6,12 @@ import type { Exercise, LocaleExercise, Outcome } from "@sprachanker/schema";
 import { Check, RotateCcw, Sparkles, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { answerComplete, correctAnswer, ExerciseItem, isScored } from "@/exercises/index.tsx";
+import { answerComplete, isScored } from "@/exercises/index.tsx";
+import { ItemCard } from "@/exercises/item-card.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
-import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
+import { MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { StepBar, StepHeader } from "./steps.tsx";
@@ -309,11 +310,9 @@ export function ExerciseStep({
       )}
       <ol className="space-y-6 pb-2">
         {exercise.items.map((item, i) => {
-          const loc = locale?.items[`#${i + 1}`];
           const outcome = outcomes?.[i];
           const marked = outcome && outcome.result !== "unscored";
           const right = outcome?.result === "correct";
-          const answer = marked && !right ? correctAnswer(exercise, i) : undefined;
           return (
             // Rail (status) · card · controls: the card keeps its size when checked; only an
             // explanation asked for adds a panel under it.
@@ -335,62 +334,22 @@ export function ExerciseStep({
                   )
                 )}
               </div>
-              <div className="rounded-2xl border bg-card p-4 sm:p-5">
-                {item.media?.audio && (
-                  <AudioPlayer
-                    compact
-                    src={url(item.media.audio)}
-                    label={item.prompt ?? t("lesson.itemAudio", { n: i + 1 })}
-                    className="mb-3"
-                    onHeard={() => hear(`item-${i}`)}
-                  />
-                )}
-                <div className="mb-3">
-                  {item.prompt && (
-                    <p lang={lang} className="text-lg font-semibold">
-                      {item.prompt}
-                    </p>
-                  )}
-                  {loc?.prompt && <p className="text-lg font-semibold">{loc.prompt}</p>}
-                  {loc?.hintHtml && (
-                    <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
-                  )}
-                </div>
-                {item.media && ("image" in item.media || "video" in item.media) && (
-                  <MediaBlock
-                    media={{
-                      image: "image" in item.media ? item.media.image : undefined,
-                      video: "video" in item.media ? item.media.video : undefined,
-                    }}
-                    url={url}
-                    audioLabel=""
-                    onHeard={() => hear(`item-${i}`)}
-                  />
-                )}
-                <ExerciseItem
-                  type={exercise.type}
-                  item={item as never}
-                  locale={loc}
-                  answer={answers[i] as never}
-                  onAnswer={(a: unknown) => {
-                    setAnswers((prev) => ({ ...prev, [i]: a }));
-                    // One choice answers the item: the number keys go on to the next one.
-                    setTouched(exercise.type === "single_choice" ? undefined : i);
-                  }}
-                  outcome={outcome}
-                  url={url}
-                  active={i === activeItem && !readOnly}
-                  heard={readOnly || itemHeard(i)}
-                />
-                {answer && (
-                  <p className="mt-3 text-sm">
-                    <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>
-                    <span lang={lang} className="font-medium">
-                      {answer}
-                    </span>
-                  </p>
-                )}
-              </div>
+              <ItemCard
+                exercise={exercise}
+                locale={locale}
+                index={i}
+                answer={answers[i]}
+                outcome={outcome}
+                url={url}
+                onAnswer={(a: unknown) => {
+                  setAnswers((prev) => ({ ...prev, [i]: a }));
+                  // One choice answers the item: the number keys go on to the next one.
+                  setTouched(exercise.type === "single_choice" ? undefined : i);
+                }}
+                active={i === activeItem && !readOnly}
+                heard={readOnly || itemHeard(i)}
+                onHeard={() => hear(`item-${i}`)}
+              />
               <div className="flex flex-col gap-1.5 pt-2">
                 {marked && !right && explain && (
                   <ItemControl

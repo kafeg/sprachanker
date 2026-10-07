@@ -1,5 +1,5 @@
 // TanStack Query hooks over the API.
-import type { CardFace, CardRating, LessonKey } from "@sprachanker/schema";
+import type { CardFace, CardRating, ItemKey, LessonKey } from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ulid } from "ulid";
@@ -263,3 +263,35 @@ export function useCardActions() {
   });
   return { rate, undo, bury, unbury, suspend, flag, mark };
 }
+
+/** The Notebook (09): the study days and the lessons worked on. */
+export const useNotebook = () =>
+  useQuery({ queryKey: ["notebook"], queryFn: () => json(api.notebook.$get()) });
+export type NotebookOverview = NonNullable<ReturnType<typeof useNotebook>["data"]>;
+
+/** A lesson's passes, newest first. */
+export const useNotebookLesson = (lessonKey: string) =>
+  useQuery({
+    queryKey: ["notebook", "lesson", lessonKey],
+    queryFn: () => json(api.notebook.lesson.$get({ query: { lessonKey: lessonKey as LessonKey } })),
+  });
+export type NotebookPassSummary = NonNullable<
+  ReturnType<typeof useNotebookLesson>["data"]
+>["passes"][number];
+
+/** One pass in full. */
+export const useNotebookPass = (id: string | undefined) =>
+  useQuery({
+    queryKey: ["notebook", "pass", id],
+    enabled: !!id,
+    queryFn: () => json(api.notebook.passes[":id"].$get({ param: { id: id as string } })),
+  });
+export type NotebookPass = NonNullable<ReturnType<typeof useNotebookPass>["data"]>;
+
+/** One item in every pass that answered it. */
+export const useItemHistory = (itemKey: string | undefined) =>
+  useQuery({
+    queryKey: ["notebook", "item", itemKey],
+    enabled: !!itemKey,
+    queryFn: () => json(api.notebook.item.$get({ query: { itemKey: itemKey as ItemKey } })),
+  });

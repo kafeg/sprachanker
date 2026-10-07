@@ -1,8 +1,11 @@
 // Routes (TanStack Router, code-based): app pages inside the shell, the lesson player full screen.
+import type { LessonKey } from "@sprachanker/schema";
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
+import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
+import { NotebookPage } from "@/notebook/page.tsx";
 import { AppShell } from "@/ui/app-shell.tsx";
 import { PlaybackRate } from "@/ui/media.tsx";
 import { CoursePage } from "./course.tsx";
@@ -62,6 +65,34 @@ const words = createRoute({
     return <WordsPage back={() => void navigate({ to: "/review", search: { decks: true } })} />;
   },
 });
+const notebook = createRoute({
+  getParentRoute: () => shell,
+  path: "/notebook",
+  component: NotebookPage,
+});
+const notebookLesson = createRoute({
+  getParentRoute: () => shell,
+  path: "/notebook/$series/$course/$lesson",
+  // A pass opened (`pass`) or two compared (`compare`: "<run>,<run>"); else the lesson's passes.
+  validateSearch: (s: Record<string, unknown>): LessonView => ({
+    ...(typeof s.pass === "string" && { pass: s.pass }),
+    ...(typeof s.compare === "string" && { compare: s.compare }),
+  }),
+});
+notebookLesson.update({
+  component: function NotebookLesson() {
+    const params = notebookLesson.useParams();
+    const search = notebookLesson.useSearch();
+    const navigate = notebookLesson.useNavigate();
+    return (
+      <LessonNotebook
+        lessonKey={`${params.series}/${params.course}/${params.lesson}` as LessonKey}
+        view={search}
+        go={(view) => void (view ? navigate({ search: view }) : navigate({ to: "/notebook" }))}
+      />
+    );
+  },
+});
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",
@@ -83,7 +114,16 @@ lesson.update({
 
 export const router = createRouter({
   routeTree: root.addChildren([
-    shell.addChildren([courses, catalog, course, review, words, settings]),
+    shell.addChildren([
+      courses,
+      catalog,
+      course,
+      review,
+      words,
+      notebook,
+      notebookLesson,
+      settings,
+    ]),
     lesson,
   ]),
   defaultPreload: "intent",

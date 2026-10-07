@@ -42,6 +42,7 @@ export const PageShownPayload = z.object({
   /** Attached by the server. */
   snapshot: PageSnapshot.optional(),
 });
+export type PageShownPayload = z.infer<typeof PageShownPayload>;
 
 /** An answer as the client sends it; an `outcome` sent by the client is dropped. */
 export const AnsweredInput = z.object({

@@ -172,7 +172,7 @@ export function createTutor(deps: {
     },
 
     /** The lesson's chats with something in them, newest first. */
-    chats(lessonKey: LessonKey): ChatSummary[] {
+    chats(lessonKey: LessonKey, limit = HISTORY_LIMIT): ChatSummary[] {
       const runs = store.list("chat", lessonKey);
       const byRun = store.eventsOf(
         runs.map((r) => r.id),
@@ -197,7 +197,7 @@ export function createTutor(deps: {
             },
           ];
         })
-        .slice(0, HISTORY_LIMIT);
+        .slice(0, limit);
     },
 
     /** The turns of one of the lesson's chats; undefined when it has no such chat. */

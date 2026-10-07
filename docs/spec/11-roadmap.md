@@ -159,8 +159,9 @@ Specs: 04, 05, 09.
   step; "Going over mistakes" (the run's status counted by the app, the tutor's walk-through inline;
   the written session review dropped); the scene on its step page with the lesson's earlier scenes.
   "Write it yourself" with the lesson's earlier texts and "Fix it and check again". My words under Decks (a table as
-  Anki's browser, the word sheet with each face and its answers). Next:
-  the Notebook, attempts under the card, the tutor's chat history.
+  Anki's browser, the word sheet with each face and its answers); the Notebook by lesson (study days,
+  passes, a pass in full with item history, two passes compared). Next: attempts under the card, the
+  tutor's chat history.
 
 ### 7 — Speech
 Specs: 08, 06.

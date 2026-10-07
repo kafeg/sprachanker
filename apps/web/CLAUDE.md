@@ -18,14 +18,18 @@ apps/web/src/
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
                    # word-sheet (a word with cards in full: forms, faces, answers)
-  exercises/       # one renderer per exercise type; no API calls, render and emit answers
+  exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
+                   # renderer: answered in the player, read-only in the Notebook); no API calls
+  notebook/        # the Notebook: page (study days, lessons), lesson (passes), pass (in full), compare,
+                   # item-history, mark
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
   llm/             # AI assistant: settings (providers, LM Studio), "Why is this wrong?", tutor (header
                    # panel, inline on the mistakes step), writing, scenes; parts.tsx: chat bubbles, header,
                    # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
-  ui/              # design tokens in styles.css, shadcn/ui components (ui/components), app shell (pages,
+  ui/              # design tokens in styles.css, shadcn/ui components (ui/components), rich-text (model
+                   # Markdown), app shell (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
                    # (rows that open, lists of earlier items), side-sheet, chip
   word/            # gender colouring
@@ -34,7 +38,7 @@ apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsv
 ```
 
 Later (target): `audio/` (recorder, PTT), `pwa/` (service worker, IndexedDB outbox), more routes (today,
-notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
+chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 (components.json points to `@/ui`).
 
 ## Rules

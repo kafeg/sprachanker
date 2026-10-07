@@ -432,6 +432,17 @@ export function createCards(deps: {
         .run();
     },
 
+    /** The words whose cards were made in a run (a lesson run's "Words" step), as they show. */
+    madeIn(runId: string) {
+      return db
+        .select()
+        .from(cards)
+        .where(eq(cards.originRunId, runId))
+        .orderBy(asc(cards.createdAt), asc(cards.id))
+        .all()
+        .map((r) => ({ cardId: r.id, display: displayOf(r) }));
+    },
+
     /** The learner's words (My words), newest first: what the card shows, its language and course,
      *  its state and when a face of it is next due. */
     words() {

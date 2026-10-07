@@ -21,6 +21,7 @@ import type { ProfileDb } from "./db/profile/db.ts";
 import { ServiceError } from "./errors.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
 import { llmRoutes } from "./routes/llm.ts";
+import { notebookRoutes } from "./routes/notebook.ts";
 import { hostGuard } from "./security/host.ts";
 import { secretBox } from "./security/secrets.ts";
 import { createCards } from "./services/cards.ts";
@@ -30,6 +31,7 @@ import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
 import { createMistakes } from "./services/mistakes.ts";
+import { createNotebook } from "./services/notebook.ts";
 import { createRunStore } from "./services/run-store.ts";
 import { createRuns } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
@@ -124,6 +126,7 @@ export function createApp(config: AppConfig) {
   });
   const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
   const scenes = createScenes({ store, llm, lessons, now });
+  const notebook = createNotebook({ store, content, cards, tutor, scenes, now });
   const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
 
   const api = new Hono()
@@ -292,6 +295,7 @@ export function createApp(config: AppConfig) {
     .get("/cards", (c) => c.json({ words: cards.words() }))
     .get("/cards/:id", zod("param", CardParam), (c) => c.json(cards.word(c.req.valid("param").id)))
     .route("/llm", llmRoutes(llm, explain, tutor, writing, scenes))
+    .route("/notebook", notebookRoutes(notebook))
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.
     .onError((error, c) => {

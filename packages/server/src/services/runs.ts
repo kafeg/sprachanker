@@ -16,6 +16,7 @@ import {
 import {
   type CourseKey,
   EventInput,
+  type EventType,
   findExercise,
   type ItemKey,
   type LessonKey,
@@ -43,6 +44,10 @@ export const toRun = (r: RunRow): Run => ({
   finishedAt: r.finishedAt,
   result: readStored(r.resultJson, LessonResult, `result of run ${r.id}`) ?? null,
 });
+
+/** What counts as work done in a lesson run: an answer, a skip, a step of the plan (words, a page read,
+ *  practice). A run without any is only a lesson opened. */
+export const WORK_EVENTS = ["answered", "item_skipped", "step_done"] as const satisfies EventType[];
 
 /** A lesson on the course map: whether it counts as done, and the run it opens as the lesson shows it. */
 export interface LessonState {
@@ -112,7 +117,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
    *  as "in progress" only once something was answered, skipped or a step done in it. */
   const progress = async () => {
     // Work done in the run: an answer, a skip, or a step of the plan (words, a page read, practice).
-    const activity = store.lastActivity(["answered", "item_skipped", "step_done"]);
+    const activity = store.lastActivity([...WORK_EVENTS]);
     const counted: Run[] = [];
     for (const row of store.all("lesson"))
       if (row.status === "active" || (await completed(row))) counted.push(toRun(row));

@@ -36,6 +36,10 @@ later areas are fixed in the stage that builds them.
   log; queue a download — first download, completing one and syncing with the source are the same
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
 - Progress: `POST /api/progress/reset` (a course or one lesson, 05).
+- Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
+  the lessons worked on), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
+  `GET /api/notebook/passes/:id` (a pass in full), `GET /api/notebook/item?itemKey=` (an item across
+  passes). Read only; a pass is a lesson run with work in it.
 - Cards (04): `POST /api/cards/lesson` (cards of a lesson's words), `GET /api/cards/decks` (each
   language with its courses and their counts), `GET /api/cards/study?scope=` (the counts, the current
   face with its due time per rating, why a finished deck is finished, whether there is an answer to

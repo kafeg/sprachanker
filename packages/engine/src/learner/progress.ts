@@ -7,7 +7,10 @@ import {
   type ItemKey,
   type Lesson,
   type LessonResult,
+  type LocaleExercise,
+  type LocaleLesson,
   type Outcome,
+  type PageShownPayload,
   parseItemKey,
   type Run,
   type StoredEvent,
@@ -108,27 +111,34 @@ export function lessonCoverage(lesson: Lesson, results: Record<string, ExerciseR
 }
 
 /**
- * First attempts of a run's scored items: `scored` counts them, a scored item skipped without an answer
- * included; `correct` those right; `sum` their scores. `answered` counts the items answered.
+ * First attempts of one exercise's scored items in a run: `scored` counts them, a scored item skipped
+ * without an answer included; `correct` those right; `sum` their scores; `answered` the items answered.
  */
-export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseResult>) {
-  let sum = 0;
-  let scored = 0;
-  let correct = 0;
-  let answered = 0;
-  for (const { exercise } of lesson.pages) {
-    const r = results[exercise.key];
-    if (!r) continue;
-    for (const o of Object.values(r.first)) {
-      answered++;
-      if (o.result === "unscored") continue;
-      scored++;
-      sum += o.score;
-      if (o.result === "correct") correct++;
-    }
-    scored += missed(exercise, r).length;
+export function firstTry(exercise: Exercise, r: ExerciseResult | undefined) {
+  const out = { sum: 0, scored: 0, correct: 0, answered: 0 };
+  if (!r) return out;
+  for (const o of Object.values(r.first)) {
+    out.answered++;
+    if (o.result === "unscored") continue;
+    out.scored++;
+    out.sum += o.score;
+    if (o.result === "correct") out.correct++;
   }
-  return { sum, scored, correct, answered };
+  out.scored += missed(exercise, r).length;
+  return out;
+}
+
+/** The same over every exercise of the lesson (the summary, the lesson score). */
+export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseResult>) {
+  const total = { sum: 0, scored: 0, correct: 0, answered: 0 };
+  for (const { exercise } of lesson.pages) {
+    const one = firstTry(exercise, results[exercise.key]);
+    total.sum += one.sum;
+    total.scored += one.scored;
+    total.correct += one.correct;
+    total.answered += one.answered;
+  }
+  return total;
 }
 
 /**
@@ -153,6 +163,36 @@ export function answerAt(
       (e.payload as AnsweredPayload).attempt === attempt,
   );
   return e?.payload as AnsweredPayload | undefined;
+}
+
+/**
+ * A run's exercises as they were shown (05, "Lifecycle"): each page's snapshot from the first time it
+ * was shown, the lesson's current page where none was kept; in the lesson's order (by page when the
+ * lesson is no longer installed).
+ */
+export function shownExercises(
+  events: StoredEvent[],
+  lesson?: Lesson | null,
+  locale?: LocaleLesson | null,
+): Array<{ pageIndex: number; exercise: Exercise; locale: LocaleExercise | null }> {
+  const snapshots = new Map<number, { exercise: Exercise; locale: LocaleExercise | null }>();
+  for (const e of events) {
+    if (e.type !== "page_shown") continue;
+    const { pageIndex, snapshot } = e.payload as PageShownPayload;
+    if (snapshot && !snapshots.has(pageIndex))
+      snapshots.set(pageIndex, { exercise: snapshot.exercise, locale: snapshot.locale ?? null });
+  }
+  if (!lesson)
+    return [...snapshots]
+      .sort(([a], [b]) => a - b)
+      .map(([pageIndex, shown]) => ({ pageIndex, ...shown }));
+  return lesson.pages.map(({ exercise }, pageIndex) => ({
+    pageIndex,
+    ...(snapshots.get(pageIndex) ?? {
+      exercise,
+      locale: locale?.exercises[exercise.key] ?? null,
+    }),
+  }));
 }
 
 /** Page to continue a run on: the last page shown. */

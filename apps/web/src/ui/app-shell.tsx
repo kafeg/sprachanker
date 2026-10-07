@@ -1,6 +1,6 @@
 // App layout: sidebar on desktop, bottom tab bar on phones (09, "Layouts").
 import { Link, Outlet } from "@tanstack/react-router";
-import { BookOpen, Layers, Library, Settings } from "lucide-react";
+import { BookOpen, Layers, Library, NotebookPen, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDecks, useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
 import { AboutLine } from "./about.tsx";
@@ -11,6 +11,7 @@ const NAV = [
   { to: "/", key: "nav.myCourses", icon: BookOpen },
   { to: "/catalog", key: "nav.allCourses", icon: Library },
   { to: "/review", key: "nav.review", icon: Layers },
+  { to: "/notebook", key: "nav.notebook", icon: NotebookPen },
   { to: "/settings", key: "nav.settings", icon: Settings },
 ] as const;
 

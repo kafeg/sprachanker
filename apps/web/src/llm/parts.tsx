@@ -7,11 +7,11 @@ import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { RichText } from "@/ui/rich-text.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
 import { errorText } from "./errors.ts";
-import { RichText } from "./rich-text.tsx";
 
 /** A line of a conversation: the learner's on the right, the other side's (tutor, partner) on the
  *  left; `pending` while it is being sent. */

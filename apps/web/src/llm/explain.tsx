@@ -6,6 +6,7 @@ import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
+import { RichText } from "@/ui/rich-text.tsx";
 import {
   type ExplainRequest,
   streamExplain,
@@ -16,7 +17,6 @@ import {
 import { useAssistantLabel } from "./assistant-label.tsx";
 import { ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
-import { RichText } from "./rich-text.tsx";
 
 /** "Why is this wrong?" for one item. `autoStart`: asked when shown, unless one is kept already. */
 export function ExplainMistake({

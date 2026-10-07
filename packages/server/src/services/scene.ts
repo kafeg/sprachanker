@@ -86,13 +86,13 @@ export function createScenes(deps: {
 
   return {
     /** The lesson's scenes, newest first (the latest, active or finished, then earlier ones). */
-    list(lessonKey: LessonKey): SceneState[] {
+    list(lessonKey: LessonKey, limit = HISTORY_LIMIT): SceneState[] {
       const runs = store.list("scene", lessonKey);
       const turns = store.eventsOf(
         runs.map((r) => r.id),
         ["llm_turn"],
       );
-      return runs.flatMap((run) => stateOf(run, turns.get(run.id)) ?? []).slice(0, HISTORY_LIMIT);
+      return runs.flatMap((run) => stateOf(run, turns.get(run.id)) ?? []).slice(0, limit);
     },
 
     /** Drafts a new scene from the lesson; an unfinished one is left (abandoned). */

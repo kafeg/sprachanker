@@ -21,7 +21,8 @@ src/
     backup.ts        # copy-before-migrate, retention
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
-  routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
+  routes/            # one file per API area: llm.ts (/api/llm, removable), notebook.ts (/api/notebook); the
+                     # rest in app.ts
   services/          # content, runs (lesson runs, progress), settings, run-store (the one module on the
                      # runs and events tables: start, replace, end, append, read, remove), mistakes
                      # (derived from lesson runs), lesson-context (what LLM tasks know of a lesson), llm (providers,
@@ -30,7 +31,8 @@ src/
                      # it yourself": checks kept in the lesson run), scene (role-plays as `scene` runs),
                      # tutor-tools (the tutor's tools on the learner's data), cards (cards from lesson
                      # words, Anki's decks, study queue, ratings, undo, bury, suspend, flags; My words and
-                     # the word sheet), downloads (course downloads: queue, progress, catalogue states,
+                     # the word sheet), notebook (study days, passes, a pass in full, an item across
+                     # passes; read only), downloads (course downloads: queue, progress, catalogue states,
                      # resume after restart; the installer is injected)
   jobs/              # model downloads (later)
   sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
