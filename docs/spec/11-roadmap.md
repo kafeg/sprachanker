@@ -75,8 +75,9 @@ Specs: 04.
   types, FSRS wrapper and card creation rules.
 - **Accept**: table-driven tests per type; every imported A1 lesson composes or reports `unknown` types.
 - **Status: partial.** Built: checkers for all closed types plus `dictation`, `speech_repeat` and the
-  rubric part of `respond`; German text normalisation and word diff; lesson progress. Missing:
-  compose (selfrate upgrade), FSRS wrapper, card creation rules.
+  rubric part of `respond`; German text normalisation and word diff; lesson progress; the FSRS wrapper
+  and the card rules (stage 6: `srs/`, cards from a lesson's words). Missing: compose (selfrate
+  upgrade).
 
 ### 4 — Server and storage
 Specs: 05, 06.
@@ -89,7 +90,7 @@ Specs: 05, 06.
 - **Status: partial.** Built: data root, `profile.sqlite` with migrations, backups and downgrade
   protection, runs/events with server-side outcomes, lesson and run API, media with Range, CSRF
   header, sealed API keys, course sync as a background job (polled), resetting the progress of a course
-  or lesson. Missing: `server.sqlite`, profiles/PIN/devices, owner setup link, Host check.
+  or lesson, Host check and CSP. Missing: `server.sqlite`, profiles/PIN/devices, owner setup link.
 
 ### 5 — Lesson UI
 Specs: 09, 06.
@@ -105,7 +106,7 @@ Specs: 09, 06.
   and audio player, reference tabs, summary, resume, i18n en/ru/de, light/dark, PWA manifest and icons;
   My courses / All courses with language flags, course page (stats, integrity, sync, reset), exercise
   marks and lesson completion rules; Playwright tests on desktop and phone. Missing: first run via the
-  owner setup link, profiles in the PWA, word sheet; installing courses moved to 5c.
+  owner setup link, profiles in the PWA; installing courses moved to 5c; the word sheet came with My words (6).
 
 ### 5c — Courses from the interface
 Specs: 03, 06, 09.
@@ -149,13 +150,14 @@ Specs: 04, 05, 09.
   Notebook shows two runs of lesson 1 side by side; lesson 1 of Nicos Weg goes overview → words →
   grammar → exercises → culture → writing, scene, mistakes (with an assistant) → summary, and completes
   without an assistant too.
-- **Status: in progress.** Built: cards and their FSRS state (migration `0002_cards`), scheduling and
+- **Status: in progress.** Built: cards and their FSRS state, scheduling and
   the review queue in the engine (`srs/`), cards from a lesson's words, ratings and the learner's words
   on the server (`/api/cards`); the lesson plan as steps (engine `compose/steps.ts`, `step_done`
   events, completion over the steps) with the "Words" step, grammar and culture pages, the AI practice
   as steps and the video's text under it; Review as in Anki one-to-one (owner, 2026-10-07; 04): decks by
   language and course, the v3 queue with its limits and 4 AM day, the reviewer with its four ratings,
-  keys, undo, bury, suspend, flags and marks (migration `0003_anki`), the same reviewer in the "Words"
+  keys, undo, bury, suspend, flags and marks (the migrations were squashed into `0000_init`, 2026-10-07;
+  `0001_card_origin` records the run a card was made in), the same reviewer in the "Words"
   step; "Going over mistakes" (the run's status counted by the app, the tutor's walk-through inline;
   the written session review dropped); the scene on its step page with the lesson's earlier scenes.
   "Write it yourself" with the lesson's earlier texts and "Fix it and check again". My words under Decks (a table as
