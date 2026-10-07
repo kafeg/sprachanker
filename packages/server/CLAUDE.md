@@ -51,7 +51,9 @@ test/                # bun test; integration tests call createApp().request()
 - Routes are thin: validate the request, call a service, return its typed result (the web client
   gets the types through `AppType`).
 - Runs and events go through `services/run-store.ts` only, cards and their faces through
-  `services/card-store.ts` only; no other module queries those tables.
+  `services/card-store.ts` only; no other module queries those tables (dependency-cruiser
+  `server-tables-through-stores`). Event types and their payload schemas live in one registry
+  (`EVENT_PAYLOADS`, schema `learner.ts`): checked when written and when read.
 - Histories read the same way everywhere: a run replaced by a new one through `store.replace` (ends
   `abandoned` when unfinished, `finished` when complete as it is); verdicts through `store.verdicts`;
   turns and payloads with their time (`payloadOf`); several runs' events in one query

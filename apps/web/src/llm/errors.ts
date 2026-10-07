@@ -30,3 +30,20 @@ export function errorText(t: TFunction, error: unknown, provider?: string): stri
     return t(`llm.cliMissing.${provider}`);
   return KNOWN.has(code) ? t(`llm.error.${code}`) : t("llm.error.other", { message: code });
 }
+
+/**
+ * What a provider still lacks before it can be asked anything, from the settings' own state: its
+ * command-line tool, an endpoint, a key it requires. Undefined when it can be checked. The settings
+ * say so at once instead of asking the server for a list it would refuse.
+ */
+export function setupProblem(provider: {
+  baseUrl: string;
+  key: "required" | "optional" | "none";
+  hasKey: boolean;
+  installed?: boolean;
+}): string | undefined {
+  if (provider.installed === false) return "llm_cli_missing";
+  if (provider.installed === undefined && !provider.baseUrl) return "llm_no_endpoint";
+  if (provider.key === "required" && !provider.hasKey) return "llm_no_key";
+  return undefined;
+}

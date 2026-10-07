@@ -100,6 +100,18 @@ module.exports = {
       to: { path: "^apps/web/src/llm/" },
     },
     {
+      name: "server-tables-through-stores",
+      comment:
+        "The profile's tables are reached through their stores: runs and events through services/run-store.ts, cards through services/card-store.ts; settings, keys and model routes through their own services. Nothing else imports the table definitions.",
+      severity: "error",
+      from: {
+        path: "^packages/server/src/",
+        pathNot:
+          "^packages/server/src/(db/|runtime/|services/(run-store|card-store|settings|llm)\\.ts$)",
+      },
+      to: { path: "^packages/server/src/db/profile/schema\\.ts$" },
+    },
+    {
       name: "web-ui-presentational",
       comment:
         "apps/web/src/ui holds presentational pieces: no API calls and no features; what needs data lives in app/ or a feature folder.",

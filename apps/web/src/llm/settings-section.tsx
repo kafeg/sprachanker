@@ -20,7 +20,7 @@ import {
   useSetProvider,
   useSetRoute,
 } from "./api.ts";
-import { errorText } from "./errors.ts";
+import { errorText, setupProblem } from "./errors.ts";
 import { LmStudioSection } from "./lmstudio-section.tsx";
 
 type Provider = LlmState["providers"][number];
@@ -121,12 +121,14 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
   const models = useModels(provider.id);
   const [value, setValue] = useState(state.model ?? "");
   useEffect(() => setValue(state.model ?? ""), [state.model]);
-  // Check the connection whenever the provider or its endpoint/key changes.
+  // What the provider lacks, if anything: said at once, without asking the server.
+  const problem = setupProblem(provider);
+  // Check the connection whenever the provider or its endpoint/key changes (once it can be checked).
   const { refetch } = models;
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-check when the endpoint or key changes
   useEffect(() => {
-    void refetch();
-  }, [provider.id, provider.baseUrl, provider.hasKey, refetch]);
+    if (!problem) void refetch();
+  }, [provider.id, provider.baseUrl, provider.hasKey, problem, refetch]);
   const save = (model: string) => {
     const m = model.trim();
     if (m !== (state.model ?? "")) setRoute.mutate({ provider: provider.id, model: m || null });
@@ -146,11 +148,21 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">
-        <Button variant="outline" size="lg" onClick={() => void models.refetch()}>
+        <Button
+          variant="outline"
+          size="lg"
+          disabled={!!problem}
+          onClick={() => void models.refetch()}
+        >
           {t("llm.check")}
         </Button>
         <span role="status" className="flex items-center gap-1.5 text-sm">
-          {models.isFetching ? (
+          {problem ? (
+            <>
+              <CircleX className="size-4 shrink-0 text-wrong" />
+              {errorText(t, new Error(problem), provider.id)}
+            </>
+          ) : models.isFetching ? (
             <>
               <LoaderCircle className="size-4 animate-spin" /> {t("llm.checking")}
             </>
