@@ -16,12 +16,12 @@
     "e2e"
   ],
   "scripts": {
-    "check": "bun run typecheck && bun run lint && bun run boundaries && bun test",
+    "check": "bun run typecheck && bun run lint && bun run boundaries && bun run test",
     "typecheck": "bun run --filter '*' typecheck && tsc -p .",
     "lint": "biome check .",
     "format": "biome check --write .",
     "boundaries": "bun --bun depcruise packages apps courses scripts e2e",
-    "test": "bun test",
+    "test": "bun test --isolate --path-ignore-patterns='apps/web/**' && bun run --filter @sprachanker/web test",
     "cli": "bun apps/cli/src/main.ts",
     "dev": "bun run --filter @sprachanker/cli --filter @sprachanker/web dev",
     "build:web": "bun run --filter @sprachanker/web build",

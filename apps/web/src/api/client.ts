@@ -18,8 +18,15 @@ export class ApiError extends Error {
   }
 }
 
+/** What `json` reads of a response: its status and its body (a Hono RPC response is no more). */
+interface JsonResponse<T> {
+  ok: boolean;
+  status: number;
+  json(): Promise<T>;
+}
+
 /** JSON of a response, or an ApiError with the server's message. */
-export async function json<T>(response: Promise<Response & { json(): Promise<T> }>): Promise<T> {
+export async function json<T>(response: Promise<JsonResponse<T>>): Promise<T> {
   const res = await response;
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { error?: string };

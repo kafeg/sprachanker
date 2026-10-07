@@ -1,0 +1,3 @@
+# Component tests run in a browser: happy-dom is loaded before React (test/dom.ts).
+[test]
+preload = ["./test/dom.ts"]

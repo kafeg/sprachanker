@@ -51,12 +51,14 @@ table in the same commit with the reason.
 | Native engines | whisper.cpp (`whisper-server`), Piper — pinned versions; LLMs run in LM Studio (07) |
 | Type checking | TypeScript, current major (`tsc --noEmit` per workspace); tooling must not pin it to an older one |
 | Lint / boundaries / e2e | Biome / dependency-cruiser with the swc parser (no dependency on the TypeScript compiler API) / Playwright |
+| Web component tests | `@testing-library/react` on `happy-dom` (`@happy-dom/global-registrator`, preloaded in `apps/web/bunfig.toml`), `bun test --isolate`; the web's tests run apart from the server's so the browser globals never reach them (2026-10-07: 10 000 lines of UI were covered by e2e only) |
 
 ## Tests
 
 | Level | What |
 |---|---|
 | Unit (`bun test`) | checkers per type (table-driven), text normalisation, progress functions, normalisers, LLM tasks with fake endpoints (prompts, output parsing, repair) |
+| Component (web) | screens and hooks with the query cache filled (no requests) and a router in memory: the lesson flow, item cards, histories, My words, the Notebook, the summary; pure UI logic in its own modules (filters, cache updates) |
 | Contract / snapshot | providers on **synthetic** fixtures |
 | Integration | server API against a temp data root (`createApp().request()`); media Range |
 | Migration | migrations with backup, downgrade refusal and rollback; upgrades of fixture DBs from every released schema version |
