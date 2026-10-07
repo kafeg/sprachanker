@@ -84,24 +84,35 @@ The rest is planned:
 
 ## Spaced repetition (stage 6)
 
-Built: scheduling and the review queue (`packages/engine/src/srs/`), cards from a lesson's words and
-ratings on the server (`services/cards.ts`), the Review screen with Anki's four ratings — Again, Hard,
-Good, Easy (FSRS grades 1–4) — so cards and their history stay compatible with Anki decks imported
-later (stage 10).
+Anki one-to-one (owner, 2026-10-07): the study queue, its limits, the reviewer's ratings, keys and
+actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and decks carry over and
+`.apkg` decks imported later (stage 10) fit in. Scheduling and the queue are pure functions in
+`packages/engine/src/srs/`; the server keeps the cards and answers (`services/cards.ts`).
 
-- FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (profile setting `srs.retention`).
-- The review queue: due faces first (most overdue first), then new faces in the order the cards were
-  made, as many as the day still allows (`srs.newPerDay`, default 10, counted from the start of the
-  learner's day: local midnight). A card shows one face a day; after "again" that face comes back the
-  same day. A card's next face is introduced once the faces before it are in review (recognition, then
-  production, then listening).
+- FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (`srs.retention`), Anki's default
+  steps: learning 1m 10m, relearning 10m; Hard on a new card is 6m; intervals fuzzed. A face lapsed
+  8 times is a leech (marked on the card).
+- **The day** starts at 4 AM local time (Anki's "next day starts at"); limits and burying count from it.
+- **The queue** (`studyQueue`): learning faces due now first; then reviews and new faces mixed evenly;
+  new faces gathered by the order the cards were made, card 1 (recognition) of every note before card 2
+  (production) before card 3 (listening). Limits per day: 20 new (`srs.newPerDay`), 200 reviews
+  (`srs.reviewsPerDay`), new faces counting against the review limit too. When nothing else is left,
+  learning faces due within 20 minutes are shown ahead (learn ahead). Siblings are not buried.
+- **Counts** as in Anki: new · learning · to review, the current card's queue underlined.
+- **The reviewer**: the question; Show answer (Space, Enter, a tap) shows the question and the answer
+  under a line; Again, Hard, Good, Easy (1–4; Space/Enter is Good) with the next interval on each.
+  Undo (U, Ctrl+Z) takes back today's latest answer and shows that card next. The More menu: replay
+  audio (R), bury card or note until tomorrow (-, =), suspend card or note (@, !), mark the note (*),
+  seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's
+  overview has the counts, Study now and Unbury; a finished deck says when the next learning card is
+  due and whether new cards or reviews wait behind a limit.
 - **Cards** come from the lesson's "Words" step (one card per lexeme; meeting it again reuses it),
   words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
-  The learner can mark a card "already known" (suspended).
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
-- **Review session** = due cards plus a limited number of new cards (profile limits; beginner-friendly
-  defaults fixed in stage 6, e.g. 10 new cards a day). At most one face of a card per day.
+- **"Words of the lesson"** is the same reviewer over the lesson's words, recognition only and without
+  the day's new limit (the learner chose to learn them now). The step is done once nothing is left to
+  study now; the learning faces go on in Review.
 - **Practice set ("Practise this")**: a run with the original items selected in the Notebook (e.g. all
   du/Sie mistakes this week).
 

@@ -6,9 +6,9 @@ import { courseProgress } from "@sprachanker/engine";
 import {
   CardFace,
   CardRating,
+  CourseKey,
   courseKey,
   LessonKey,
-  LexemeKey,
   type SeriesKey,
   Ulid,
 } from "@sprachanker/schema";
@@ -64,6 +64,15 @@ const CourseRef = z.object({
   series: Series,
   course: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
 });
+
+const CardParam = z.object({ id: Ulid });
+/** Every deck, a language, a course, or a lesson's own words (services/cards.ts). */
+const DeckScope = z.union([
+  z.literal("all"),
+  z.string().regex(/^lang:[a-z]{2,3}$/),
+  z.templateLiteral(["course:", CourseKey]),
+  z.templateLiteral(["lesson:", LessonKey]),
+]);
 
 export function createApp(config: AppConfig) {
   const now = config.now ?? Date.now;
@@ -258,52 +267,74 @@ export function createApp(config: AppConfig) {
       },
     )
     .post("/runs/:id/finish", async (c) => c.json(await runs.finish(c.req.param("id"))))
-    // Cards and review (04): cards from a lesson's words, the queue, ratings, the learner's words.
+    // Cards and review as in Anki (04): cards from a lesson's words, decks, study, the reviewer's actions.
     .post(
       "/cards/lesson",
-      zod(
-        "json",
-        z.object({
-          series: Series,
-          lessonKey: LessonKey,
-          edition: Edition,
-          known: z.array(LexemeKey).max(1000),
-        }),
-      ),
+      zod("json", z.object({ series: Series, lessonKey: LessonKey, edition: Edition })),
       async (c) => c.json(await cards.fromLesson(c.req.valid("json"))),
     )
-    .get(
-      "/cards/lesson",
-      zod("query", z.object({ series: Series, lessonKey: LessonKey })),
-      async (c) => {
-        const { series, lessonKey } = c.req.valid("query");
-        return c.json({ words: await cards.lesson(series, lessonKey) });
-      },
+    .get("/cards/decks", async (c) => c.json({ decks: await cards.decks() }))
+    .get("/cards/study", zod("query", z.object({ scope: DeckScope })), async (c) =>
+      c.json(await cards.study(c.req.valid("query").scope)),
     )
-    .get("/cards/review", (c) => c.json(cards.queue()))
     .post(
       "/cards/:id/review",
-      zod("param", z.object({ id: Ulid })),
+      zod("param", CardParam),
       zod("json", z.object({ face: CardFace, rating: CardRating })),
       (c) => {
         const { face, rating } = c.req.valid("json");
         return c.json({ state: cards.rate(c.req.valid("param").id, face, rating) });
       },
     )
-    .get("/cards", (c) => c.json({ words: cards.words() }))
-    .put(
-      "/cards/:id",
-      zod("param", z.object({ id: Ulid })),
-      zod("json", z.object({ suspended: z.boolean() })),
+    .post("/cards/undo", (c) => c.json(cards.undo()))
+    .post(
+      "/cards/:id/bury",
+      zod("param", CardParam),
+      zod("json", z.object({ face: CardFace.optional() })),
       (c) => {
-        cards.setSuspended(c.req.valid("param").id, c.req.valid("json").suspended);
+        cards.bury(c.req.valid("param").id, c.req.valid("json").face);
         return c.json({ ok: true as const });
       },
     )
+    .post("/cards/unbury", zod("json", z.object({ scope: DeckScope })), async (c) => {
+      await cards.unbury(c.req.valid("json").scope);
+      return c.json({ ok: true as const });
+    })
+    .put(
+      "/cards/:id/suspend",
+      zod("param", CardParam),
+      zod("json", z.object({ suspended: z.boolean(), face: CardFace.optional() })),
+      (c) => {
+        const { suspended, face } = c.req.valid("json");
+        cards.suspend(c.req.valid("param").id, suspended, face);
+        return c.json({ ok: true as const });
+      },
+    )
+    .put(
+      "/cards/:id/flag",
+      zod("param", CardParam),
+      zod("json", z.object({ face: CardFace, flag: z.number().int().min(0).max(7) })),
+      (c) => {
+        const { face, flag } = c.req.valid("json");
+        cards.flag(c.req.valid("param").id, face, flag);
+        return c.json({ ok: true as const });
+      },
+    )
+    .put(
+      "/cards/:id/mark",
+      zod("param", CardParam),
+      zod("json", z.object({ marked: z.boolean() })),
+      (c) => {
+        cards.mark(c.req.valid("param").id, c.req.valid("json").marked);
+        return c.json({ ok: true as const });
+      },
+    )
+    .get("/cards", (c) => c.json({ words: cards.words() }))
     .route("/llm", llmRoutes(llm, explain, tutor, practice, scenes))
     .onError((error, c) => {
       if (error instanceof RunError) return c.json({ error: error.message }, error.status);
-      if (error instanceof CardError) return c.json({ error: error.message }, 404);
+      if (error instanceof CardError)
+        return c.json({ error: error.message }, error.message === "nothing_to_undo" ? 409 : 404);
       if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
       if (error instanceof z.ZodError)
         return c.json({ error: "bad_request", issues: error.issues }, 400);

@@ -38,7 +38,28 @@ course.update({
     return <CoursePage series={params.series} course={params.course} />;
   },
 });
-const review = createRoute({ getParentRoute: () => shell, path: "/review", component: ReviewPage });
+const review = createRoute({
+  getParentRoute: () => shell,
+  path: "/review",
+  // The deck open and whether it is being studied (Anki: deck list → overview → reviewer).
+  validateSearch: (s: Record<string, unknown>): { deck?: string; study?: boolean } => ({
+    ...(typeof s.deck === "string" && { deck: s.deck }),
+    ...((s.study === true || s.study === "true") && { study: true }),
+  }),
+});
+review.update({
+  component: function Review() {
+    const search = review.useSearch();
+    const navigate = review.useNavigate();
+    return (
+      <ReviewPage
+        deck={search.deck}
+        studying={!!search.study}
+        go={(next) => void navigate({ search: next })}
+      />
+    );
+  },
+});
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",

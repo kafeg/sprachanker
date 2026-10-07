@@ -1,107 +1,187 @@
-// Cards and review (04, "Spaced repetition"; 05): cards made from a lesson's words — one per lexeme,
-// reused when the word is met again — the review queue by FSRS, each rating stored as a `card_review`
-// event in the day's `review` run together with the face's state, and the learner's words.
+// Cards and review as in Anki (04, "Spaced repetition"; 05). A card is a note (one per lexeme, reused
+// when the word is met again) whose faces are Anki's cards; decks are the courses the words were met in,
+// under the language they teach. Study follows Anki's queue (engine `studyQueue`): each rating is a
+// `card_review` event in the day's `review` run written together with the face's state; undo, bury,
+// suspend, flag and mark as in Anki's reviewer.
 import {
-  DEFAULT_NEW_PER_DAY,
-  DEFAULT_RETENTION,
   intervals,
-  type QueueCard,
+  isLeech,
+  type QueueFace,
   review,
-  reviewQueue,
+  SRS_DEFAULTS,
+  studyDay,
+  studyQueue,
   wordState,
 } from "@sprachanker/engine";
 import {
   CardDisplay,
   type CardFace,
   type CardRating,
-  type CardReviewPayload,
+  CardReviewPayload,
+  type CardUndoPayload,
   FaceState,
   type LessonKey,
   parseLessonKey,
+  seriesOf,
 } from "@sprachanker/schema";
-import { and, desc, eq, gte, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { cardState, cards, events, runs } from "../db/profile/schema.ts";
 import type { Content } from "./content.ts";
 import type { Settings } from "./settings.ts";
 
-/** Profile settings of the review (04): new faces a day, desired retention, faces of a new card. */
+/** Profile settings of the review (Anki's deck options). */
 export const SRS_SETTINGS = {
   newPerDay: "srs.newPerDay",
+  reviewsPerDay: "srs.reviewsPerDay",
   retention: "srs.retention",
   faces: "srs.faces",
 } as const;
 const DEFAULT_FACES: CardFace[] = ["recognition", "production"];
 
-/** The start of the learner's day: local midnight on this machine. */
-const localDayStart = (now: number) => new Date(now).setHours(0, 0, 0, 0);
+/**
+ * What to study: every deck, a language (`lang:de`), a course (`course:<course key>`), or a lesson's own
+ * words (`lesson:<lesson key>`: their first card type only, without the day's new limit).
+ */
+export type DeckScope = string;
 
 export class CardError extends Error {}
+
+type CardRow = typeof cards.$inferSelect;
+type StateRow = typeof cardState.$inferSelect;
+
+/** The language a card's words are in ("lex:de:…" → de). */
+const languageOf = (row: CardRow) => row.lexemeKey?.split(":")[1] ?? "";
 
 export function createCards(deps: {
   db: ProfileDb;
   content: Content;
   settings: Settings;
   now: () => number;
-  dayStart?: (now: number) => number;
   appVersion: string;
 }) {
   const { db, content, settings, now } = deps;
-  const dayStart = deps.dayStart ?? localDayStart;
   // Monotonic: cards made in one call keep the order of the lesson's words.
   const id = monotonicFactory();
-  const newPerDay = () => settings.get<number>(SRS_SETTINGS.newPerDay) ?? DEFAULT_NEW_PER_DAY;
-  const retention = () => settings.get<number>(SRS_SETTINGS.retention) ?? DEFAULT_RETENTION;
+  const setting = <T>(key: string, fallback: T) => settings.get<T>(key) ?? fallback;
+  const retention = () => setting(SRS_SETTINGS.retention, SRS_DEFAULTS.retention);
+  const facesOf = (row: CardRow) => row.faces.split(",") as CardFace[];
+  const displayOf = (row: CardRow) => CardDisplay.parse(JSON.parse(row.displayCacheJson ?? "{}"));
+  const courseOf = (row: CardRow) => parseLessonKey(displayOf(row).lessonKey).course;
+  const stateOf = (row: StateRow | undefined) =>
+    row?.fsrsJson ? FaceState.parse(JSON.parse(row.fsrsJson)) : undefined;
 
-  const facesOf = (row: { faces: string }) => row.faces.split(",") as CardFace[];
-  const displayOf = (row: { displayCacheJson: string | null }) =>
-    CardDisplay.parse(JSON.parse(row.displayCacheJson ?? "{}"));
-
-  /** Stored face states, by card. */
-  function states(cardIds?: string[]) {
-    const out = new Map<string, Partial<Record<CardFace, FaceState>>>();
-    const rows = db
+  const stateRows = (cardIds?: string[]) => {
+    const out = new Map<string, StateRow>();
+    for (const r of db
       .select()
       .from(cardState)
       .where(cardIds ? inArray(cardState.cardId, cardIds) : undefined)
-      .all();
-    for (const r of rows) {
-      const byFace = out.get(r.cardId) ?? {};
-      byFace[r.face as CardFace] = FaceState.parse(JSON.parse(r.fsrsJson));
-      out.set(r.cardId, byFace);
-    }
+      .all())
+      out.set(`${r.cardId}:${r.face}`, r);
     return out;
-  }
+  };
 
-  /** Today's reviews: the face each card showed (the latest), and how many faces were new. */
-  function today() {
-    const since = dayStart(now());
-    const rows = db
-      .select({ cardId: events.cardId, payload: events.payloadJson })
-      .from(events)
-      .where(and(eq(events.type, "card_review"), gte(events.ts, since)))
-      .orderBy(events.ts, events.id)
-      .all();
-    const faces = new Map<string, CardFace>();
-    let fresh = 0;
-    for (const r of rows) {
-      const p = JSON.parse(r.payload) as CardReviewPayload;
-      if (r.cardId) faces.set(r.cardId, p.face);
-      if (p.stateBefore === null) fresh++;
+  /** The notes in a scope, in the order they were made (their position in the deck). */
+  async function notesIn(scope: DeckScope) {
+    const all = db.select().from(cards).orderBy(asc(cards.createdAt), asc(cards.id)).all();
+    if (scope.startsWith("lang:")) return all.filter((r) => languageOf(r) === scope.slice(5));
+    if (scope.startsWith("course:")) return all.filter((r) => courseOf(r) === scope.slice(7));
+    if (scope.startsWith("lesson:")) {
+      const lessonKey = scope.slice(7) as LessonKey;
+      const lesson = await content.lesson(seriesOf(lessonKey), lessonKey);
+      const lexemes = new Set<string>(lesson.vocab.map((v) => v.lexeme));
+      return all.filter((r) => r.lexemeKey && lexemes.has(r.lexemeKey));
     }
-    return { faces, fresh };
+    return all;
   }
 
-  /** The `review` run of today: the active one if it began today, else a new one (the old ends). */
+  /** Today's card events, newest first, and the reviews taken back among them. */
+  function todaysEvents() {
+    const { start } = studyDay(now());
+    const rows = db
+      .select()
+      .from(events)
+      .where(and(inArray(events.type, ["card_review", "card_undo"]), gte(events.ts, start)))
+      .orderBy(desc(events.ts), desc(events.id))
+      .all();
+    const undone = new Set(
+      rows
+        .filter((r) => r.type === "card_undo")
+        .map((r) => (JSON.parse(r.payloadJson) as CardUndoPayload).review),
+    );
+    return { rows, undone };
+  }
+
+  /** Today's answers in a deck (undone ones left out): new faces introduced and review faces answered.
+   *  Each deck counts its own, as Anki's limits are the deck's: German does not use up English. */
+  function today(cardIds: Set<string>) {
+    const { rows, undone } = todaysEvents();
+    let fresh = 0;
+    let reviews = 0;
+    for (const r of rows) {
+      if (r.type !== "card_review" || undone.has(r.id) || !cardIds.has(r.cardId ?? "")) continue;
+      const p = CardReviewPayload.parse(JSON.parse(r.payloadJson));
+      if (!p.stateBefore) fresh++;
+      else if (p.stateBefore.state === 2) reviews++;
+    }
+    return { fresh, reviews };
+  }
+
+  /** The face whose answer was just taken back, when nothing was answered since (Anki shows it next). */
+  function justUndone({ rows }: ReturnType<typeof todaysEvents>) {
+    const latest = rows[0];
+    if (latest?.type !== "card_undo") return undefined;
+    const review = (JSON.parse(latest.payloadJson) as CardUndoPayload).review;
+    const row = rows.find((r) => r.id === review);
+    return row && `${row.cardId}:${CardReviewPayload.parse(JSON.parse(row.payloadJson)).face}`;
+  }
+
+  /** The study queue of a scope, with Anki's counts and what the "finished" screen says. */
+  async function queueOf(scope: DeckScope) {
+    const t = now();
+    const notes = await notesIn(scope);
+    const states = stateRows(notes.map((n) => n.id));
+    const lesson = scope.startsWith("lesson:");
+    const faces: QueueFace[] = notes.flatMap((note, position) =>
+      facesOf(note)
+        .filter((face) => !lesson || face === "recognition")
+        .map((face) => {
+          const row = states.get(`${note.id}:${face}`);
+          return {
+            cardId: note.id,
+            face,
+            position,
+            state: stateOf(row),
+            suspended: !!note.suspended || !!row?.suspended,
+            buriedUntil: row?.buriedUntil ?? null,
+          };
+        }),
+    );
+    const done = today(new Set(notes.map((n) => n.id)));
+    const result = studyQueue(faces, {
+      now: t,
+      nextDay: studyDay(t).next,
+      newPerDay: setting(SRS_SETTINGS.newPerDay, SRS_DEFAULTS.newPerDay),
+      reviewsPerDay: setting(SRS_SETTINGS.reviewsPerDay, SRS_DEFAULTS.reviewsPerDay),
+      newToday: done.fresh,
+      reviewsToday: done.reviews,
+      allNew: lesson,
+    });
+    return { ...result, notes, states, now: t };
+  }
+
+  /** The `review` run of the learner's day: the active one if it began today, else a new one. */
   function reviewRun() {
+    const { start } = studyDay(now());
     const active = db
       .select()
       .from(runs)
       .where(and(eq(runs.kind, "review"), eq(runs.status, "active")))
       .orderBy(desc(runs.startedAt))
       .get();
-    if (active && active.startedAt >= dayStart(now())) return active.id;
+    if (active && active.startedAt >= start) return active.id;
     if (active)
       db.update(runs)
         .set({ status: "finished", endReason: "completed", finishedAt: now() })
@@ -120,32 +200,34 @@ export function createCards(deps: {
     return runId;
   }
 
+  const note = (cardId: string) => {
+    const row = db.select().from(cards).where(eq(cards.id, cardId)).get();
+    if (!row) throw new CardError("no_such_card");
+    return row;
+  };
+  /** Sets fields of a face's row, made when the face has none yet (a new face). */
+  const setFace = (cardId: string, face: CardFace, values: Partial<StateRow>) =>
+    db
+      .insert(cardState)
+      .values({ cardId, face, ...values })
+      .onConflictDoUpdate({ target: [cardState.cardId, cardState.face], set: values })
+      .run();
+  const checkFace = (row: CardRow, face: CardFace) => {
+    if (!facesOf(row).includes(face)) throw new CardError("no_such_card");
+  };
+
   return {
-    /**
-     * Makes cards of a lesson's words (the lesson's "Words" step): one per lexeme, a word met before
-     * keeps its card. Words the learner marks as known are suspended ("already known", 04).
-     */
-    async fromLesson(request: {
-      series: string;
-      lessonKey: LessonKey;
-      edition: string;
-      known: string[];
-    }) {
+    /** Makes cards of a lesson's words: one per lexeme; a word met before keeps its card. */
+    async fromLesson(request: { series: string; lessonKey: LessonKey; edition: string }) {
       const [lesson, locale] = await Promise.all([
         content.lesson(request.series, request.lessonKey),
         content.localeLesson(request.series, request.lessonKey, request.edition),
       ]);
-      const known = new Set(request.known);
-      const faces = (settings.get<CardFace[]>(SRS_SETTINGS.faces) ?? DEFAULT_FACES).join(",");
+      const faces = setting<CardFace[]>(SRS_SETTINGS.faces, DEFAULT_FACES).join(",");
       let created = 0;
       db.transaction((tx) => {
         for (const v of lesson.vocab) {
-          const existing = tx.select().from(cards).where(eq(cards.lexemeKey, v.lexeme)).get();
-          if (existing) {
-            if (known.has(v.lexeme) && !existing.suspended)
-              tx.update(cards).set({ suspended: 1 }).where(eq(cards.id, existing.id)).run();
-            continue;
-          }
+          if (tx.select().from(cards).where(eq(cards.lexemeKey, v.lexeme)).get()) continue;
           const display: CardDisplay = {
             target: v.target,
             ...(v.gender && { gender: v.gender }),
@@ -166,7 +248,6 @@ export function createCards(deps: {
               sourceKey: v.key,
               faces,
               displayCacheJson: JSON.stringify(display),
-              suspended: known.has(v.lexeme) ? 1 : 0,
               createdAt: now(),
             })
             .run();
@@ -176,63 +257,75 @@ export function createCards(deps: {
       return { created };
     },
 
-    /** The lesson's words that have cards (made here or in an earlier lesson), by lexeme: suspended or
-     *  not, and their state. */
-    async lesson(series: string, lessonKey: LessonKey) {
-      const lexemes = (await content.lesson(series, lessonKey)).vocab.map((v) => v.lexeme);
-      const rows = lexemes.length
-        ? db.select().from(cards).where(inArray(cards.lexemeKey, lexemes)).all()
-        : [];
-      const byCard = states(rows.map((r) => r.id));
-      return Object.fromEntries(
-        rows.map((r) => [
-          r.lexemeKey,
-          { cardId: r.id, suspended: !!r.suspended, state: wordState(byCard.get(r.id) ?? {}) },
-        ]),
-      );
+    /** Decks: each language the cards teach, and under it each course, with Anki's three counts. */
+    async decks() {
+      const all = db.select().from(cards).all();
+      const languages = [...new Set(all.map(languageOf))].sort();
+      const out = [];
+      for (const lang of languages) {
+        const courses = [
+          ...new Set(all.filter((r) => languageOf(r) === lang).map(courseOf)),
+        ].sort();
+        const children = [];
+        for (const course of courses)
+          children.push({
+            scope: `course:${course}`,
+            course,
+            counts: (await queueOf(`course:${course}`)).counts,
+          });
+        out.push({
+          scope: `lang:${lang}`,
+          language: lang,
+          counts: (await queueOf(`lang:${lang}`)).counts,
+          courses: children,
+        });
+      }
+      return out;
     },
 
-    /** What to review now: the faces in order, with what the card shows and the next due times. */
-    queue() {
-      const t = now();
-      const rows = db.select().from(cards).where(eq(cards.suspended, 0)).all();
-      const byCard = states(rows.map((r) => r.id));
-      const { faces: shownToday, fresh } = today();
-      const queueCards: QueueCard[] = rows.map((r) => ({
-        id: r.id,
-        faces: facesOf(r),
-        suspended: false,
-        createdAt: r.createdAt,
-        states: byCard.get(r.id) ?? {},
-        reviewedToday: shownToday.get(r.id),
-      }));
-      const limit = newPerDay();
-      const entries = reviewQueue(queueCards, { now: t, newPerDay: limit, newToday: fresh });
-      const rowById = new Map(rows.map((r) => [r.id, r]));
+    /** What to study now in a scope: the current card with its display and due times, the counts,
+     *  and when it is finished, why (Anki's congratulations screen). */
+    async study(scope: DeckScope) {
+      const q = await queueOf(scope);
+      const day = todaysEvents();
+      const undone = justUndone(day);
+      const entry = q.queue.find((e) => `${e.cardId}:${e.face}` === undone) ?? q.queue[0];
+      const row = entry && q.notes.find((n) => n.id === entry.cardId);
+      const face = entry && q.states.get(`${entry.cardId}:${entry.face}`);
+      const state = stateOf(face);
       return {
-        newPerDay: limit,
-        newToday: fresh,
-        items: entries.map((e) => {
-          const row = rowById.get(e.cardId) as (typeof rows)[number];
-          const state = byCard.get(e.cardId)?.[e.face];
-          return {
-            cardId: e.cardId,
-            face: e.face,
-            isNew: e.isNew,
-            display: displayOf(row),
-            due: intervals(state, t, retention()),
-          };
-        }),
+        /** The server's time: the due times are relative to it. */
+        now: q.now,
+        counts: q.counts,
+        current:
+          entry && row
+            ? {
+                cardId: entry.cardId,
+                face: entry.face,
+                kind: entry.kind,
+                display: displayOf(row),
+                due: intervals(state, q.now, retention()),
+                leech: isLeech(state),
+                flag: face?.flag ?? 0,
+                marked: !!row.marked,
+              }
+            : null,
+        nextLearning: q.nextLearning ?? null,
+        newWaiting: q.newWaiting,
+        reviewsWaiting: q.reviewsWaiting,
+        buried: q.buried,
+        /** Today has an answer to take back. */
+        canUndo: day.rows.some((r) => r.type === "card_review" && !day.undone.has(r.id)),
       };
     },
 
     /** Rates a face: its new state and the review event are written together. */
     rate(cardId: string, face: CardFace, rating: CardRating) {
-      const row = db.select().from(cards).where(eq(cards.id, cardId)).get();
-      if (!row || !facesOf(row).includes(face)) throw new CardError("no_such_card");
+      const row = note(cardId);
+      checkFace(row, face);
       const t = now();
-      const before = states([cardId]).get(cardId)?.[face] ?? null;
-      const after = review(before ?? undefined, rating, t, retention());
+      const before = stateOf(stateRows([cardId]).get(`${cardId}:${face}`)) ?? null;
+      const after = review(before, rating, t, retention());
       const payload: CardReviewPayload = { face, rating, stateBefore: before, stateAfter: after };
       const runId = reviewRun();
       db.transaction((tx) => {
@@ -246,45 +339,114 @@ export function createCards(deps: {
             payloadJson: JSON.stringify(payload),
           })
           .run();
-        const fsrsJson = JSON.stringify(after);
         tx.insert(cardState)
-          .values({ cardId, face, fsrsJson, dueAt: after.due })
+          .values({ cardId, face, fsrsJson: JSON.stringify(after), dueAt: after.due })
           .onConflictDoUpdate({
             target: [cardState.cardId, cardState.face],
-            set: { fsrsJson, dueAt: after.due },
+            set: { fsrsJson: JSON.stringify(after), dueAt: after.due },
           })
           .run();
       });
       return after;
     },
 
+    /** Takes back today's latest review not taken back yet: the face is as before it and is shown next
+     *  (Anki: undo). */
+    undo() {
+      const { rows, undone } = todaysEvents();
+      const last = rows.find((r) => r.type === "card_review" && !undone.has(r.id));
+      if (!last?.cardId) throw new CardError("nothing_to_undo");
+      const p = CardReviewPayload.parse(JSON.parse(last.payloadJson));
+      const t = now();
+      db.transaction((tx) => {
+        tx.insert(events)
+          .values({
+            id: id(t),
+            runId: last.runId,
+            ts: t,
+            type: "card_undo",
+            cardId: last.cardId,
+            payloadJson: JSON.stringify({ review: last.id } satisfies CardUndoPayload),
+          })
+          .run();
+        tx.update(cardState)
+          .set({
+            fsrsJson: p.stateBefore ? JSON.stringify(p.stateBefore) : null,
+            dueAt: p.stateBefore?.due ?? null,
+          })
+          .where(and(eq(cardState.cardId, last.cardId as string), eq(cardState.face, p.face)))
+          .run();
+      });
+      return { cardId: last.cardId, face: p.face };
+    },
+
+    /** Hides a face — or every face of the note — until the next day (Anki: bury card / note). */
+    bury(cardId: string, face?: CardFace) {
+      const row = note(cardId);
+      const { next } = studyDay(now());
+      for (const f of face ? [face] : facesOf(row)) {
+        checkFace(row, f);
+        setFace(cardId, f, { buriedUntil: next });
+      }
+    },
+
+    /** Brings back the buried faces of a deck (Anki: Unbury on the deck's overview). */
+    async unbury(scope: DeckScope) {
+      const ids = (await notesIn(scope)).map((n) => n.id);
+      db.update(cardState).set({ buriedUntil: null }).where(inArray(cardState.cardId, ids)).run();
+    },
+
+    /** Suspends or restores a face, or the whole note (Anki: suspend card / note). */
+    suspend(cardId: string, suspended: boolean, face?: CardFace) {
+      const row = note(cardId);
+      if (!face) {
+        db.update(cards)
+          .set({ suspended: suspended ? 1 : 0 })
+          .where(eq(cards.id, cardId))
+          .run();
+        return;
+      }
+      checkFace(row, face);
+      setFace(cardId, face, { suspended: suspended ? 1 : 0 });
+    },
+
+    /** Sets a face's flag, 0 (none) to 7 (Anki: Ctrl+1…7). */
+    flag(cardId: string, face: CardFace, flag: number) {
+      checkFace(note(cardId), face);
+      setFace(cardId, face, { flag });
+    },
+
+    /** Marks or unmarks the note (Anki: `*`). */
+    mark(cardId: string, marked: boolean) {
+      note(cardId);
+      db.update(cards)
+        .set({ marked: marked ? 1 : 0 })
+        .where(eq(cards.id, cardId))
+        .run();
+    },
+
     /** The learner's words, newest first, with their state and when they are next due. */
     words() {
       const rows = db.select().from(cards).orderBy(desc(cards.createdAt), desc(cards.id)).all();
-      const byCard = states();
+      const states = stateRows();
       return rows.map((r) => {
-        const s = byCard.get(r.id) ?? {};
-        const dues = Object.values(s).map((f) => f.due);
+        const byFace: Partial<Record<CardFace, FaceState>> = {};
+        for (const f of facesOf(r)) {
+          const s = stateOf(states.get(`${r.id}:${f}`));
+          if (s) byFace[f] = s;
+        }
+        const dues = Object.values(byFace).map((f) => f.due);
         return {
           cardId: r.id,
           lexemeKey: r.lexemeKey,
           display: displayOf(r),
-          course: parseLessonKey(displayOf(r).lessonKey).course,
+          course: courseOf(r),
           suspended: !!r.suspended,
-          state: wordState(s),
+          marked: !!r.marked,
+          state: wordState(byFace),
           due: dues.length ? Math.min(...dues) : null,
         };
       });
-    },
-
-    /** "Already known" on or off. */
-    setSuspended(cardId: string, suspended: boolean) {
-      if (!db.select({ id: cards.id }).from(cards).where(eq(cards.id, cardId)).get())
-        throw new CardError("no_such_card");
-      db.update(cards)
-        .set({ suspended: suspended ? 1 : 0 })
-        .where(eq(cards.id, cardId))
-        .run();
     },
   };
 }

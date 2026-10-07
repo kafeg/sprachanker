@@ -1,5 +1,5 @@
 // TanStack Query hooks over the API.
-import type { CardFace, CardRating, LessonKey, LexemeKey } from "@sprachanker/schema";
+import type { CardFace, CardRating, LessonKey } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { api, json } from "./client.ts";
@@ -137,61 +137,76 @@ export function useResetProgress() {
   });
 }
 
-/** The lesson's words that have cards, by lexeme (made in this or an earlier lesson). */
-export const useLessonCards = (series: string, lessonKey: LessonKey) =>
-  useQuery({
-    queryKey: ["lesson-cards", lessonKey],
-    queryFn: () => json(api.cards.lesson.$get({ query: { series, lessonKey } })),
-  });
-
-/** Makes cards of the lesson's words; the ones marked known are set aside. */
+/** Makes cards of a lesson's words (one per word; a word met before keeps its card). */
 export function useMakeCards() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (request: {
-      series: string;
-      lessonKey: LessonKey;
-      edition: string;
-      known: LexemeKey[];
-    }) => json(api.cards.lesson.$post({ json: request })),
-    onSuccess: (_, request) => {
-      void client.invalidateQueries({ queryKey: ["lesson-cards", request.lessonKey] });
-      void client.invalidateQueries({ queryKey: ["review"] });
-      void client.invalidateQueries({ queryKey: ["words"] });
-    },
-  });
-}
-
-/** What to review now: faces in order with what each card shows and its due time per rating. */
-export const useReviewQueue = () =>
-  useQuery({ queryKey: ["review"], queryFn: () => json(api.cards.review.$get()) });
-
-/** Rates a face; the queue and the learner's words are read again. */
-export function useRateCard() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ cardId, ...body }: { cardId: string; face: CardFace; rating: CardRating }) =>
-      json(api.cards[":id"].review.$post({ param: { id: cardId }, json: body })),
+    mutationFn: (request: { series: string; lessonKey: LessonKey; edition: string }) =>
+      json(api.cards.lesson.$post({ json: request })),
     onSuccess: () => {
-      void client.invalidateQueries({ queryKey: ["review"] });
-      void client.invalidateQueries({ queryKey: ["words"] });
-    },
-  });
-}
-
-/** The learner's words with their state. */
-export const useWords = () =>
-  useQuery({ queryKey: ["words"], queryFn: () => json(api.cards.$get()) });
-
-/** "Already known" on or off for a card. */
-export function useSetKnown() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ cardId, known }: { cardId: string; known: boolean }) =>
-      json(api.cards[":id"].$put({ param: { id: cardId }, json: { suspended: known } })),
-    onSuccess: () => {
-      for (const key of ["words", "review", "lesson-cards"])
+      for (const key of ["study", "decks", "words"])
         void client.invalidateQueries({ queryKey: [key] });
     },
   });
+}
+
+/** Decks: each language, and under it each course, with Anki's three counts. */
+export const useDecks = () =>
+  useQuery({ queryKey: ["decks"], queryFn: () => json(api.cards.decks.$get()) });
+
+/** What to study now in a scope ("all", "lang:de", "course:…", "lesson:…"). */
+export const useStudy = (scope: string, enabled = true) =>
+  useQuery({
+    queryKey: ["study", scope],
+    enabled,
+    queryFn: () => json(api.cards.study.$get({ query: { scope: scope as never } })),
+  });
+
+/** What the reviewer does to cards: rate, undo, bury, suspend, flag, mark. Each reads the queue anew. */
+export function useCardActions() {
+  const client = useQueryClient();
+  const onSuccess = () => {
+    for (const key of ["study", "decks", "words"])
+      void client.invalidateQueries({ queryKey: [key] });
+  };
+  const id = (cardId: string) => ({ param: { id: cardId } });
+  const rate = useMutation({
+    onSuccess,
+    mutationFn: (r: { cardId: string; face: CardFace; rating: CardRating }) =>
+      json(
+        api.cards[":id"].review.$post({
+          ...id(r.cardId),
+          json: { face: r.face, rating: r.rating },
+        }),
+      ),
+  });
+  const undo = useMutation({ onSuccess, mutationFn: () => json(api.cards.undo.$post()) });
+  const bury = useMutation({
+    onSuccess,
+    mutationFn: (r: { cardId: string; face?: CardFace }) =>
+      json(api.cards[":id"].bury.$post({ ...id(r.cardId), json: { face: r.face } })),
+  });
+  const unbury = useMutation({
+    onSuccess,
+    mutationFn: (scope: string) =>
+      json(api.cards.unbury.$post({ json: { scope: scope as never } })),
+  });
+  const suspend = useMutation({
+    onSuccess,
+    mutationFn: (r: { cardId: string; face?: CardFace }) =>
+      json(
+        api.cards[":id"].suspend.$put({ ...id(r.cardId), json: { suspended: true, face: r.face } }),
+      ),
+  });
+  const flag = useMutation({
+    onSuccess,
+    mutationFn: (r: { cardId: string; face: CardFace; flag: number }) =>
+      json(api.cards[":id"].flag.$put({ ...id(r.cardId), json: { face: r.face, flag: r.flag } })),
+  });
+  const mark = useMutation({
+    onSuccess,
+    mutationFn: (r: { cardId: string; marked: boolean }) =>
+      json(api.cards[":id"].mark.$put({ ...id(r.cardId), json: { marked: r.marked } })),
+  });
+  return { rate, undo, bury, unbury, suspend, flag, mark };
 }

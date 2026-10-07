@@ -8,10 +8,13 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 ```
 apps/web/src/
   routes/          # router.tsx (code-based TanStack Router), courses (my courses, all courses), course map
-                   # with its head in course-info (progress, source, stats, integrity, sync), settings
+                   # with its head in course-info (progress, source, stats, integrity, sync), review
+                   # (decks, a deck's overview, the session), settings
   lesson/          # lesson player: player (run flow over the plan's steps), use-run (run + events), plan,
                    # overview, words-step, steps (reading pages, the step bar), exercise step, summary,
                    # reference, video; slots.ts: what optional features add (header, explain, practice)
+  study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
+                   # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More)
   exercises/       # one renderer per exercise type; no API calls, render and emit answers
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; no codegen
   app/             # preferences applied in the UI: language, theme, course edition
@@ -24,7 +27,7 @@ apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor)
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```
 
-Later (target): `audio/` (recorder, PTT), `pwa/` (service worker, IndexedDB outbox), more routes (today, review,
+Later (target): `audio/` (recorder, PTT), `pwa/` (service worker, IndexedDB outbox), more routes (today,
 notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 (components.json points to `@/ui`).
 

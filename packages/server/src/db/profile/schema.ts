@@ -78,13 +78,20 @@ export const cards = sqliteTable(
     /** Enabled faces, comma-separated. */
     faces: text("faces").notNull(),
     displayCacheJson: text("display_cache_json"),
+    /** The whole note suspended (Anki: suspend note). */
     suspended: integer("suspended").notNull().default(0),
+    /** Marked by the learner (Anki: mark note, `*`). */
+    marked: integer("marked").notNull().default(0),
     createdAt: integer("created_at").notNull(),
   },
   (t) => [uniqueIndex("cards_lexeme").on(t.lexemeKey)],
 );
 
-/** FSRS state per card face, written with each `card_review` event; rebuildable from them (05). */
+/**
+ * One face of a card (an Anki card): its FSRS state, written with each `card_review` event and
+ * rebuildable from them (05) — none while the face is new — and what the learner set on it: suspended,
+ * buried until a day, a flag (1–7).
+ */
 export const cardState = sqliteTable(
   "card_state",
   {
@@ -92,8 +99,11 @@ export const cardState = sqliteTable(
       .notNull()
       .references(() => cards.id),
     face: text("face").notNull(),
-    fsrsJson: text("fsrs_json").notNull(),
-    dueAt: integer("due_at").notNull(),
+    fsrsJson: text("fsrs_json"),
+    dueAt: integer("due_at"),
+    suspended: integer("suspended").notNull().default(0),
+    buriedUntil: integer("buried_until"),
+    flag: integer("flag").notNull().default(0),
   },
   (t) => [primaryKey({ columns: [t.cardId, t.face] }), index("card_state_due").on(t.dueAt)],
 );

@@ -94,12 +94,12 @@ test("a failing migration is rolled back and reported", () => {
 test("0002_cards: a profile from before cards keeps its runs and gets the card tables", () => {
   const file = fresh();
   const { db, options, sqlite } = runner(file);
-  const before = migrations.filter((m) => m.tag !== "0002_cards");
+  const before = migrations.filter((m) => m.tag < "0002");
   migrate(db, before, options(1));
   sqlite.exec(
     "INSERT INTO runs (id, kind, app_version, status, started_at) VALUES ('r1', 'lesson', 't', 'active', 1)",
   );
-  expect(migrate(db, migrations, options(2))).toEqual(["0002_cards"]);
+  expect(migrate(db, migrations, options(2))).toEqual(["0002_cards", "0003_anki"]);
   expect(tables(file)).toContain("cards");
   expect(tables(file)).toContain("card_state");
   expect(sqlite.query("SELECT id FROM runs").all()).toEqual([{ id: "r1" }]);
@@ -108,4 +108,35 @@ test("0002_cards: a profile from before cards keeps its runs and gets the card t
     `INSERT INTO cards (id, kind, lexeme_key, faces, created_at) VALUES ('${id}', 'lexeme', 'lex:de:x', 'recognition', 1)`;
   sqlite.exec(card("c1"));
   expect(() => sqlite.exec(card("c2"))).toThrow();
+});
+
+test("0003_anki: card faces keep their state and get suspended, buried and flag; notes get marked", () => {
+  const file = fresh();
+  const { db, options, sqlite } = runner(file);
+  migrate(
+    db,
+    migrations.filter((m) => m.tag < "0003"),
+    options(1),
+  );
+  sqlite.exec(
+    "INSERT INTO cards (id, kind, lexeme_key, faces, created_at) VALUES ('c1', 'lexeme', 'lex:de:x', 'recognition', 1)",
+  );
+  sqlite.exec(
+    `INSERT INTO card_state (card_id, face, fsrs_json, due_at) VALUES ('c1', 'recognition', '{"due":5}', 5)`,
+  );
+  expect(migrate(db, migrations, options(2))).toEqual(["0003_anki"]);
+  expect(sqlite.query("SELECT * FROM card_state").all()).toEqual([
+    {
+      card_id: "c1",
+      face: "recognition",
+      fsrs_json: '{"due":5}',
+      due_at: 5,
+      suspended: 0,
+      buried_until: null,
+      flag: 0,
+    },
+  ]);
+  expect(sqlite.query("SELECT marked FROM cards").all()).toEqual([{ marked: 0 }]);
+  // A new face can be held (suspended, buried) before it has any state.
+  sqlite.exec("INSERT INTO card_state (card_id, face, suspended) VALUES ('c1', 'production', 1)");
 });

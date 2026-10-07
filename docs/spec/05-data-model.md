@@ -79,7 +79,10 @@ cards(
   suspended INTEGER DEFAULT 0,
   created_at INTEGER NOT NULL
 );
-card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
+card_state(card_id, face,
+  fsrs_json, due_at,              -- null while the face is new
+  suspended, buried_until, flag,  -- Anki's card: suspended, buried until the next day, flag 0–7
+  PRIMARY KEY(card_id, face))     -- cards.suspended is the note's; cards.marked its mark (0003_anki)
 ```
 
 ## Events
@@ -92,7 +95,8 @@ card_state(card_id, face, fsrs_json, due_at, PRIMARY KEY(card_id, face))
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `review`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
 | `llm_verdict` | `task` (`writing` \| `review` \| `explain`), `input` (the learner's text; empty otherwise), `result` (the task's structured output, 07; an explanation's text), `model`, `latencyMs`; writing and review in `practice` runs of the lesson, a review with `runId` (the lesson run it reviews); an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains) |
 | `llm_turn` | `role`, `text`, `model?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
-| `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day) |
+| `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day, from 4 AM) |
+| `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |
 
 Payload schemas: `packages/schema/src/learner.ts`.
 
@@ -104,8 +108,8 @@ Payload schemas: `packages/schema/src/learner.ts`.
   (Cards, when they come, are a separate decision.) Deleting one tutor chat from the lesson's chat
   history, also confirmed, deletes that `chat` run with its events.
 - Snapshots make old runs readable after content changes or course removal.
-- `card_state` is written in the same transaction as each `card_review` event and can be recomputed
-  from those events.
+- `card_state` is written in the same transaction as each `card_review` and `card_undo` event; its
+  FSRS state can be recomputed from those events.
 
 ## Derived state
 

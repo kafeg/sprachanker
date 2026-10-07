@@ -2,7 +2,7 @@
 import { Link, Outlet } from "@tanstack/react-router";
 import { BookOpen, Layers, Library, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useDownloads, useDownloadsWatch, useReviewQueue } from "@/api/hooks.ts";
+import { useDecks, useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
 import { AboutLine } from "./about.tsx";
 import { cn } from "./utils.ts";
 import { useWindowBusy, useWindowPlace } from "./window-title.ts";
@@ -18,8 +18,11 @@ export function AppShell() {
   const { t } = useTranslation();
   // Courses downloading in the background keep every screen current, and show in the window title.
   useDownloadsWatch();
-  // Cards to review now, on the Review entry.
-  const due = useReviewQueue().data?.items.length ?? 0;
+  // Cards to study now (new, learning and review of every deck), on the Review entry.
+  const due = (useDecks().data?.decks ?? []).reduce(
+    (n, d) => n + d.counts.new + d.counts.learning + d.counts.review,
+    0,
+  );
   const running = useDownloads().data?.jobs.find((j) => j.status === "running");
   const media = running?.progress?.phase === "media" ? running.progress.media : undefined;
   useWindowBusy(
@@ -83,7 +86,7 @@ function DueBadge({ count, corner = false }: { count: number; corner?: boolean }
   const { t } = useTranslation();
   return (
     <span
-      title={t("cardReview.due", { count })}
+      title={t("study.due", { count })}
       className={cn(
         "rounded-full bg-primary px-1.5 text-xs font-semibold tabular-nums text-primary-foreground",
         corner ? "absolute -top-1.5 -right-3" : "ml-auto",

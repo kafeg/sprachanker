@@ -16,7 +16,7 @@ import { ArrowLeft, BookOpenText, ListOrdered, RotateCcw } from "lucide-react";
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useCourseMap, useCourses, useLesson, useMakeCards } from "@/api/hooks.ts";
+import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -55,7 +55,6 @@ export function LessonPlayer({
   const data = useLesson(series, key, edition);
   const map = useCourseMap(series, course, edition);
   const run = useRun(series, key, edition);
-  const makeCards = useMakeCards();
   const [current, setCurrent] = useState("overview");
   const [reference, setReference] = useState<ReferenceTab>();
   const [planOpen, setPlanOpen] = useState(false);
@@ -301,29 +300,17 @@ export function LessonPlayer({
               )}
               {step.kind === "words" && (
                 <WordsStep
-                  key={run.run?.id}
                   series={series}
+                  edition={edition}
                   lesson={lesson}
                   locale={locale}
-                  url={url}
-                  done={run.done.get("words") === "done"}
-                  saving={makeCards.isPending}
-                  onDone={(known) =>
-                    makeCards.mutate(
-                      { ...context, known },
-                      {
-                        onSuccess: () => {
-                          mark("words");
-                          next();
-                        },
-                      },
-                    )
-                  }
+                  onDone={() => mark("words")}
                   onSkip={() => {
                     mark("words", true);
                     next();
                   }}
                   onBack={back}
+                  onNext={next}
                 />
               )}
               {(step.kind === "grammar" || step.kind === "culture") && (

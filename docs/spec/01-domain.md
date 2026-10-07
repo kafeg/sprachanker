@@ -57,9 +57,11 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
   the content version it used, and a result.
 - **Event**: append-only record inside a run (05) with a snapshot of what was shown.
 - **Mistake**: derived from events: rule ids, lexemes, exercise key, source (exercise/speech/LLM).
-- **Card**: SRS item built from a lexeme (one per lexeme), a sentence, or a custom note. Each enabled
-  face (recognition, production, listening) has its own FSRS state.
-- **Deck**: virtual (`lesson:<key>`, `course:<key>`, `mine`); stored decks come with `.apkg` (stage 10).
+- **Card**: SRS item built from a lexeme (one per lexeme), a sentence, or a custom note — Anki's note.
+  Each enabled face (recognition, production, listening) is one of Anki's cards with its own FSRS state.
+- **Deck**: virtual, as in Anki's deck list: a language (`lang:<code>`) with its courses under it
+  (`course:<key>`, by the lesson a word was first met in) — German and English never share a deck; a
+  lesson's own words (`lesson:<key>`) in its "Words" step. Stored decks come with `.apkg` (stage 10).
 - **Mastery**: per rule and per lexeme, derived from events and FSRS state.
 - **Conversation**: an LLM dialogue (scene, chat) stored as a run with events.
 

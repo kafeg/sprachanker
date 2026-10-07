@@ -1,46 +1,45 @@
-// Review: the cards made from the lessons' words, one at a time, rated by tap or keyboard.
+// Review as in Anki: decks per language and course, the deck's overview, the study session.
 import { expect, test } from "@playwright/test";
-import { post, put } from "./api.ts";
+import { post } from "./api.ts";
 
-test("review: the front, the answer on a tap, four ratings as in Anki; the keyboard does the same", async ({
+test("review: decks, the overview, a card studied by tap and keys, undo", async ({
   page,
   request,
 }) => {
-  // Cards are shared by the projects' one profile and a rated card waits for its due time; the demo
-  // lessons have six words, so two projects review (both engines, both layouts).
-  test.skip(
-    !["chromium-desktop", "webkit-phone"].includes(test.info().project.name),
-    "the demo course has words enough for two projects",
-  );
-  // Cards of both demo lessons, with room for every new one of the day.
-  await put(request, "/api/settings", { key: "srs.newPerDay", value: 100 });
+  // Cards of both demo lessons. The projects share one profile: the test takes its ratings back.
   for (const lesson of ["00-01", "00-02"])
     await post(request, "/api/cards/lesson", {
       series: "sprachanker.fixture",
       lessonKey: `sprachanker.fixture/demo/${lesson}`,
       edition: "en-de",
-      known: [],
     });
-
   await page.goto("/review");
   await expect(page).toHaveTitle("SprachAnker · Review");
-  const position = page.getByText(/^1 of \d+$/);
-  await expect(position).toBeVisible();
-  const total = Number((await position.textContent())?.split(" of ")[1]);
-  await expect(page.getByRole("button", { name: /Again\s*(in |tomorrow)/ })).toBeHidden();
-  await page.getByRole("button", { name: "Show the answer" }).click();
-  // Each rating says when the card comes back.
-  await expect(page.getByRole("button", { name: /Good\s*(in |tomorrow)/ })).toContainText(
-    /in \d+ minutes?|in \d+ hours?|tomorrow|in \d+ days/,
-  );
-  await page.getByRole("button", { name: /Good\s*(in |tomorrow)/ }).click();
-  if (total === 1) {
-    await expect(page.getByText("1 card reviewed")).toBeVisible();
-    return;
-  }
-  await expect(page.getByText(`2 of ${total}`)).toBeVisible();
+  // German, and under it the demo course, each with New / Learn / Due.
+  await expect(page.getByRole("button", { name: /^German/ })).toBeVisible();
+  await page.getByRole("button", { name: /^Demo course/ }).click();
+  await expect(page.getByText("To Review")).toBeVisible();
+  await page.getByRole("button", { name: "Study now" }).click();
+
+  const show = page.getByRole("button", { name: "Show answer" });
+  const card = page.locator("[aria-expanded]").first();
+  await expect(show).toBeVisible();
+  const first = await card.innerText();
+  await show.click();
+  await page.getByRole("button", { name: "Good", exact: true }).click();
+  // The next card, on its question.
+  await expect(show).toBeVisible();
+  await expect(card).not.toHaveText(first);
+  const second = await card.innerText();
+  // The keyboard: Space shows the answer, Space again answers Good; Ctrl+Z and U undo.
   await page.keyboard.press("Space");
-  await expect(page.getByRole("button", { name: /Again\s*(in |tomorrow)/ })).toBeVisible();
-  await page.keyboard.press("1");
-  await expect(page.getByText(total > 2 ? `3 of ${total}` : "2 cards reviewed")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Again", exact: true })).toBeVisible();
+  await page.keyboard.press("Space");
+  await expect(show).toBeVisible();
+  await expect(card).not.toHaveText(second);
+  await page.keyboard.press("Control+z");
+  await expect(show).toBeVisible();
+  await expect(card).toHaveText(second);
+  await page.keyboard.press("u");
+  await expect(card).toHaveText(first);
 });

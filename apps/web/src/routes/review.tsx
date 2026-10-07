@@ -1,205 +1,157 @@
-// Review (09): spaced repetition as in Anki — the faces due now and the day's new ones, one card at a
-// time: the front, a tap (or Space) for the back, then a rating — Again, Hard, Good, Easy (keys 1–4) —
-// each with when the card comes back, scheduled by FSRS.
-import type { CardDisplay, CardFace } from "@sprachanker/schema";
-import { parseLessonKey } from "@sprachanker/schema";
-import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+// Review (09) as in Anki: the decks — each language the cards teach, and under it the courses the words
+// were met in — with New, Learning and To Review counts; a deck's overview with "Study now"; then the
+// study session (study/session.tsx). The deck and the session are kept in the address.
 import { useTranslation } from "react-i18next";
-import { mediaUrl } from "@/api/client.ts";
-import { useRateCard, useReviewQueue } from "@/api/hooks.ts";
+import { useCardActions, useCourses, useDecks, useStudy } from "@/api/hooks.ts";
+import { StudySession } from "@/study/session.tsx";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
-import { Progress } from "@/ui/components/progress.tsx";
-import { AudioButton } from "@/ui/media.tsx";
-import { GenderWord } from "@/word/word.tsx";
+import { cn } from "@/ui/utils.ts";
 
-/** "in 10 minutes", "tomorrow", "in 4 days": when a face comes back. */
-function useWhen() {
+type Counts = { new: number; learning: number; review: number };
+
+/** A deck's name: a course's title, or a language. */
+function useDeckName() {
   const { i18n } = useTranslation();
-  const format = new Intl.RelativeTimeFormat(i18n.language, { numeric: "auto" });
-  return (due: number, now: number) => {
-    const minutes = Math.max(1, Math.round((due - now) / 60_000));
-    if (minutes < 60) return format.format(minutes, "minute");
-    const hours = Math.round(minutes / 60);
-    if (hours < 24) return format.format(hours, "hour");
-    return format.format(Math.round(hours / 24), "day");
+  const courses = useCourses().data ?? [];
+  const languages = new Intl.DisplayNames([i18n.language], { type: "language" });
+  return (scope: string) => {
+    if (scope.startsWith("lang:")) {
+      const name = languages.of(scope.slice(5)) ?? scope;
+      return name.charAt(0).toLocaleUpperCase(i18n.language) + name.slice(1);
+    }
+    const key = scope.slice("course:".length);
+    const course = courses.find((c) => c.key === key);
+    return (course && (course.titles[course.editions[0] ?? ""] || course.key)) ?? key;
   };
 }
 
-function Side({ display, part }: { display: CardDisplay; part: "word" | "meaning" }) {
-  if (part === "meaning") return <span className="text-2xl">{display.translation}</span>;
+function CountCells({ counts }: { counts: Counts }) {
+  const cell = (n: number, tone: string) => (
+    <span className={cn("text-right tabular-nums", n ? tone : "text-muted-foreground")}>{n}</span>
+  );
   return (
-    <span className="grid justify-items-center gap-1">
-      <GenderWord text={display.target} gender={display.gender} className="text-3xl" />
-      {/* Sources often give the plural in the headword already ("die Frau, die Frauen"). */}
-      {display.plural && !display.target.includes(display.plural) && (
-        <span className="text-muted-foreground">{display.plural}</span>
-      )}
-    </span>
+    <>
+      {cell(counts.new, "text-blue-600 dark:text-blue-300")}
+      {cell(counts.learning, "text-red-600 dark:text-red-400")}
+      {cell(counts.review, "text-green-600 dark:text-green-500")}
+    </>
   );
 }
 
-/** Anki's four ratings (FSRS grades): how easily the answer came. */
-const RATINGS = [
-  { rating: 1, key: "again", tone: "text-wrong" },
-  { rating: 2, key: "hard", tone: "" },
-  { rating: 3, key: "good", tone: "text-correct" },
-  { rating: 4, key: "easy", tone: "" },
-] as const;
-
-/** What a face shows first and what the answer adds. */
-const FRONT: Record<CardFace, Array<"word" | "meaning" | "audio">> = {
-  recognition: ["word", "audio"],
-  production: ["meaning"],
-  listening: ["audio"],
-};
-
-export function ReviewPage() {
+function Decks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
-  const queue = useReviewQueue();
-  const rate = useRateCard();
-  const when = useWhen();
-  const [shown, setShown] = useState(false);
-  const [rated, setRated] = useState(0);
-  const item = queue.data?.items[0];
-
-  const answer = (rating: 1 | 2 | 3 | 4) => {
-    if (!item || rate.isPending) return;
-    rate.mutate(
-      { cardId: item.cardId, face: item.face, rating },
-      {
-        onSuccess: () => {
-          setRated((n) => n + 1);
-          setShown(false);
-        },
-      },
+  const decks = useDecks();
+  const name = useDeckName();
+  if (decks.isPending) return <Loading />;
+  if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
+  if (!decks.data.decks.length)
+    return (
+      <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
+        {t("study.noCards")}
+      </p>
     );
-  };
+  const row = "grid grid-cols-[minmax(0,1fr)_3.5rem_3.5rem_3.5rem] items-center gap-2 px-4";
+  return (
+    <div className="max-w-2xl rounded-2xl border bg-card">
+      <div className={cn(row, "border-b py-2 text-xs text-muted-foreground")}>
+        <span>{t("study.deck")}</span>
+        <span className="text-right">{t("study.count.new")}</span>
+        <span className="text-right">{t("study.count.learning")}</span>
+        <span className="text-right">{t("study.count.review")}</span>
+      </div>
+      {decks.data.decks.map((lang) => (
+        <div key={lang.scope} className="border-b last:border-b-0">
+          {[{ ...lang, child: false }, ...lang.courses.map((c) => ({ ...c, child: true }))].map(
+            (deck) => (
+              <button
+                type="button"
+                key={deck.scope}
+                onClick={() => open(deck.scope)}
+                className={cn(
+                  row,
+                  "min-h-11 w-full py-2 text-left hover:bg-accent",
+                  deck.child ? "pl-9" : "font-semibold",
+                )}
+              >
+                <span className="truncate">{name(deck.scope)}</span>
+                <CountCells counts={deck.counts} />
+              </button>
+            ),
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
-  // Space shows the answer; 1–4 rate it (desktop).
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest("input, textarea, [role=dialog]")) return;
-      if (!shown && (e.key === " " || e.key === "Enter")) {
-        e.preventDefault();
-        setShown(true);
-      } else if (shown && ["1", "2", "3", "4"].includes(e.key)) {
-        e.preventDefault();
-        answer(Number(e.key) as 1 | 2 | 3 | 4);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  });
+/** Anki's overview: the deck's counts, Study now, and Unbury when cards are buried. */
+function Overview({ scope, study }: { scope: string; study(): void }) {
+  const { t } = useTranslation();
+  const data = useStudy(scope);
+  const actions = useCardActions();
+  if (data.isPending) return <Loading />;
+  if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
+  const { counts, buried } = data.data;
+  const line = (label: string, n: number, tone: string) => (
+    <div className="flex justify-between gap-6">
+      <span>{label}</span>
+      <span className={cn("font-semibold tabular-nums", tone)}>{n}</span>
+    </div>
+  );
+  return (
+    <div className="max-w-sm space-y-5 rounded-2xl border bg-card p-6">
+      <div className="space-y-1.5 text-lg">
+        {line(t("study.overview.new"), counts.new, "text-blue-600 dark:text-blue-300")}
+        {line(t("study.overview.learning"), counts.learning, "text-red-600 dark:text-red-400")}
+        {line(t("study.overview.review"), counts.review, "text-green-600 dark:text-green-500")}
+      </div>
+      <Button size="lg" className="w-full text-base" autoFocus onClick={study}>
+        {t("study.studyNow")}
+      </Button>
+      {buried > 0 && (
+        <Button variant="outline" className="w-full" onClick={() => actions.unbury.mutate(scope)}>
+          {t("study.unbury")}
+        </Button>
+      )}
+    </div>
+  );
+}
 
-  if (queue.isPending) return <Loading />;
-  if (queue.isError) return <ErrorState error={queue.error} onRetry={() => queue.refetch()} />;
-  const { items, newToday, newPerDay } = queue.data;
-  const total = rated + items.length;
-
-  if (!item)
+export function ReviewPage({
+  deck,
+  studying,
+  go,
+}: {
+  deck?: string;
+  studying: boolean;
+  go(next: { deck?: string; study?: boolean }): void;
+}) {
+  const { t } = useTranslation();
+  const name = useDeckName();
+  if (!deck)
     return (
       <Page title={t("nav.review")}>
-        <div className="max-w-xl space-y-3 rounded-2xl border bg-card px-6 py-8">
-          <h2 className="text-2xl font-bold">
-            {rated ? t("cardReview.allDone", { count: rated }) : t("cardReview.nothingDue")}
-          </h2>
-          <p className="text-muted-foreground">{t("cardReview.comeBack")}</p>
-        </div>
+        <p className="mb-4 max-w-2xl text-sm text-muted-foreground">{t("study.howTo")}</p>
+        <Decks open={(scope) => go({ deck: scope })} />
       </Page>
     );
-
-  const { display } = item;
-  const now = Date.now();
-  const front = FRONT[item.face];
-  const audio = display.audio && mediaUrl(display.series, display.audio);
-  const lesson = parseLessonKey(display.lessonKey);
-
   return (
-    <Page title={t("nav.review")}>
-      <div className="mx-auto max-w-xl space-y-4">
-        <div className="flex items-center justify-between text-sm text-muted-foreground">
-          <span className="tabular-nums">{t("cardReview.progress", { n: rated + 1, total })}</span>
-          <span className="tabular-nums">
-            {t("cardReview.newToday", { n: newToday, limit: newPerDay })}
-          </span>
+    <Page title={name(deck)}>
+      <button
+        type="button"
+        onClick={() => go(studying ? { deck } : {})}
+        className="mb-4 text-sm text-muted-foreground underline"
+      >
+        ← {studying ? t("study.toOverview") : t("study.toDecks")}
+      </button>
+      {studying ? (
+        <div className="mx-auto flex max-w-2xl flex-col max-sm:min-h-[calc(100dvh-15rem)]">
+          <StudySession scope={deck} />
         </div>
-        <Progress value={(rated / total) * 100} className="h-1.5" />
-        <p className="text-sm text-muted-foreground">{t("cardReview.howTo")}</p>
-        <button
-          type="button"
-          key={`${item.cardId}-${item.face}-${rated}`}
-          onClick={() => setShown(true)}
-          aria-expanded={shown}
-          className="grid min-h-56 w-full place-items-center rounded-3xl border bg-card px-6 py-6 text-center sm:min-h-80 sm:py-8"
-        >
-          <span className="grid justify-items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              {t(`cardReview.face.${item.face}`)}
-            </span>
-            {front.includes("word") && <Side display={display} part="word" />}
-            {front.includes("meaning") && <Side display={display} part="meaning" />}
-            {front.includes("audio") && audio && (
-              <AudioButton src={audio} label={display.target} className="size-12" />
-            )}
-            {shown ? (
-              <span className="grid justify-items-center gap-2 border-t pt-3">
-                {!front.includes("word") && <Side display={display} part="word" />}
-                {!front.includes("meaning") && <Side display={display} part="meaning" />}
-                {!front.includes("audio") && audio && (
-                  <AudioButton src={audio} label={display.target} className="size-11" />
-                )}
-                {display.example && (
-                  <span className="text-sm italic text-muted-foreground">{display.example}</span>
-                )}
-                <Link
-                  to="/lesson/$series/$course/$lesson"
-                  params={{
-                    series: display.series,
-                    course: lesson.courseId,
-                    lesson: lesson.name,
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-sm text-muted-foreground underline"
-                >
-                  {t("cardReview.fromLesson", { unit: lesson.unit, lesson: lesson.lesson })}
-                </Link>
-              </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">{t("cardReview.tapToShow")}</span>
-            )}
-          </span>
-        </button>
-        {shown ? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {RATINGS.map(({ rating, key, tone }) => (
-              <Button
-                key={rating}
-                variant="outline"
-                size="lg"
-                className="h-auto flex-col gap-0.5 py-3 text-base"
-                disabled={rate.isPending}
-                onClick={() => answer(rating)}
-              >
-                <span className={tone}>
-                  <kbd className="mr-1.5 hidden font-mono text-xs text-muted-foreground [@media(pointer:fine)]:inline">
-                    {rating}
-                  </kbd>
-                  {t(`cardReview.rating.${key}`)}
-                </span>
-                <span className="text-xs font-normal text-muted-foreground">
-                  {when(item.due[rating], now)}
-                </span>
-              </Button>
-            ))}
-          </div>
-        ) : (
-          <Button size="lg" className="w-full text-base" onClick={() => setShown(true)}>
-            {t("cardReview.show")}
-          </Button>
-        )}
-      </div>
+      ) : (
+        <Overview scope={deck} study={() => go({ deck, study: true })} />
+      )}
     </Page>
   );
 }

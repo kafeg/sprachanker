@@ -463,39 +463,74 @@
     "review": "Auswertung"
   },
   "words": {
-    "position": "{n} von {total}",
-    "tapToShow": "Tippe, um die Übersetzung zu sehen",
-    "previous": "Voriges Wort",
-    "known": "Kenne ich schon",
-    "summary": "{review, plural, one {# Wort kommt} other {# Wörter kommen}} in die Wiederholung; {known, plural, =0 {noch keins bekannt} one {# kennst du schon} other {# kennst du schon}}.",
-    "again": "Karten noch einmal durchgehen",
-    "toEnd": "Zur Liste",
-    "saving": "Speichere…",
-    "done": "Fertig",
-    "keys": "Leertaste: anhören, dann die Übersetzung, dann die nächste Karte · ← → oder Rücktaste, Enter: blättern · K: kenne ich schon.",
-    "knownHint": "„Kenne ich schon“ hält das Wort aus der Wiederholung heraus; in der Liste am Ende kannst du es ändern."
+    "intro": "Die Wörter der Lektion als Karten wie in Anki: erinnern, Antwort zeigen, bewerten. Wenn gerade nichts mehr übrig ist, geht es in der Wiederholung weiter.",
+    "learnt": "Die Wörter der Lektion sind für jetzt gelernt.",
+    "goOn": "{count, plural, =0 {Sie kommen in der Wiederholung zurück, wenn sie fällig sind.} one {# Lernkarte kommt bald in der Wiederholung zurück.} other {# Lernkarten kommen bald in der Wiederholung zurück.}}"
   },
-  "cardReview": {
-    "progress": "{n} von {total}",
-    "newToday": "neu heute {n} von {limit}",
-    "tapToShow": "Tippe, um die Antwort zu sehen",
-    "show": "Antwort zeigen",
+  "study": {
+    "listen": "Hör zu und erinnere dich an die Bedeutung",
     "fromLesson": "Lektion {unit}.{lesson}",
-    "allDone": "{count, plural, one {# Karte} other {# Karten}} wiederholt — das war's für jetzt.",
-    "nothingDue": "Gerade nichts zu wiederholen",
-    "comeBack": "Neue Karten kommen aus den Wörtern der Lektionen; wiederholte kommen zurück, wenn sie fällig sind.",
-    "due": "{count, plural, one {# Karte} other {# Karten}} zu wiederholen",
-    "face": {
-      "recognition": "was bedeutet das?",
-      "production": "sag es in der Sprache, die du lernst",
-      "listening": "was hörst du?"
+    "countsTitle": "Neu {new}, Lernen {learning}, Wiederholen {review}",
+    "finished": "Herzlichen Glückwunsch! Du hast diesen Stapel für heute beendet.",
+    "nextLearning": "{minutes, plural, one {Die nächste Lernkarte ist in # Minute bereit.} other {Die nächste Lernkarte ist in # Minuten bereit.}}",
+    "reviewLimit": "Das tägliche Wiederholungslimit ist erreicht, aber es warten noch Karten.",
+    "newLimit": "Es gibt weitere neue Karten, aber das Tageslimit ist erreicht.",
+    "buried": "Einige Karten wurden zurückgestellt und kommen morgen.",
+    "unbury": "Zurückgestellte zeigen",
+    "unit": {
+      "s": "s",
+      "m": "min",
+      "h": "h",
+      "d": "T",
+      "mo": "Mo",
+      "y": "J"
     },
+    "flag": {
+      "red": "Rot",
+      "orange": "Orange",
+      "green": "Grün",
+      "blue": "Blau",
+      "pink": "Rosa",
+      "turquoise": "Türkis",
+      "purple": "Lila"
+    },
+    "marked": "Markiert",
+    "leech": "Lästling",
+    "undo": "Rückgängig",
+    "undoKeys": "Rückgängig (U, Strg+Z)",
+    "showKeys": "Leertaste oder Enter",
+    "show": "Antwort zeigen",
     "rating": {
       "again": "Nochmal",
       "hard": "Schwer",
       "good": "Gut",
       "easy": "Einfach"
     },
-    "howTo": "Wiederholen mit Abständen wie in Anki: erinnere dich, zeig die Antwort (Leertaste) und bewerte — Nochmal, Schwer, Gut oder Einfach (Tasten 1–4). Aus deinen Bewertungen plant FSRS, wann die Karte wiederkommt."
+    "more": "Mehr",
+    "replay": "Audio wiederholen",
+    "buryCard": "Karte zurückstellen",
+    "buryNote": "Notiz zurückstellen",
+    "suspendCard": "Karte aussetzen",
+    "suspendNote": "Notiz aussetzen",
+    "mark": "Notiz markieren",
+    "unmark": "Markierung entfernen",
+    "keys": "Leertaste oder Enter: Antwort zeigen, dann Gut · 1–4: bewerten · R: Audio · U: rückgängig",
+    "noCards": "Noch keine Karten: Sie kommen aus dem Schritt „Wörter der Lektion“.",
+    "deck": "Stapel",
+    "count": {
+      "new": "Neu",
+      "learning": "Lernen",
+      "review": "Fällig"
+    },
+    "overview": {
+      "new": "Neu",
+      "learning": "Lernen",
+      "review": "Wiederholen"
+    },
+    "studyNow": "Jetzt lernen",
+    "toOverview": "Stapelübersicht",
+    "toDecks": "Stapel",
+    "howTo": "Wiederholen mit Abständen wie in Anki: ein Stapel je Kurs, unter der Sprache, die er lehrt. Erinnere dich, zeig die Antwort und bewerte — FSRS plant jede Karte aus deinen Bewertungen.",
+    "due": "{count, plural, one {# Karte} other {# Karten}} zu lernen"
   }
 }

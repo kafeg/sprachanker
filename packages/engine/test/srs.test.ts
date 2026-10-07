@@ -1,46 +1,61 @@
 import { expect, test } from "bun:test";
 import type { FaceState } from "@sprachanker/schema";
-import { intervals, type QueueCard, review, reviewQueue, wordState } from "../src/srs/index.ts";
+import {
+  intervals,
+  intervalText,
+  isLeech,
+  type QueueFace,
+  review,
+  studyDay,
+  studyQueue,
+  wordState,
+} from "../src/srs/index.ts";
 
+const MIN = 60_000;
 const DAY = 86_400_000;
-const NOW = Date.UTC(2026, 9, 6, 9);
+const NOW = new Date(2026, 9, 6, 12).getTime();
+const NEXT = new Date(2026, 9, 7, 4).getTime();
 
-test("a new face reviewed good is due later than one reviewed again; easy later still", () => {
-  const again = review(undefined, 1, NOW);
-  const good = review(undefined, 3, NOW);
-  const easy = review(undefined, 4, NOW);
-  expect(again.due).toBeLessThan(good.due);
-  expect(good.due).toBeLessThanOrEqual(easy.due);
-  expect(good.reps).toBe(1);
-  expect(good.lastReview).toBe(NOW);
+test("a new face: again, hard, good stay in the learning steps (1m 10m), easy graduates", () => {
+  const due = intervals(undefined, NOW);
+  expect(due[1] - NOW).toBe(MIN);
+  expect(due[2] - NOW).toBe(6 * MIN);
+  expect(due[3] - NOW).toBe(10 * MIN);
+  expect(due[4] - NOW).toBeGreaterThanOrEqual(DAY);
+  expect(review(undefined, 3, NOW).state).toBe(1);
 });
 
-test("reviewing on time grows the interval; forgetting counts a lapse and shortens it", () => {
+test("good through the steps graduates; forgetting relearns for 10 minutes and counts a lapse", () => {
   let s = review(undefined, 3, NOW);
   s = review(s, 3, s.due);
-  s = review(s, 3, s.due);
-  const longer = review(s, 3, s.due);
-  expect(longer.due - s.due).toBeGreaterThan(s.due - (s.lastReview ?? 0));
-  const lapse = review(longer, 1, longer.due);
-  expect(lapse.lapses).toBe(1);
-  expect(lapse.due).toBeLessThan(longer.due + DAY);
+  expect(s.state).toBe(2);
+  expect(s.due - (s.lastReview ?? 0)).toBeGreaterThanOrEqual(DAY);
+  const lapse = review(s, 1, s.due);
+  expect([lapse.state, lapse.lapses, lapse.due - (lapse.lastReview ?? 0)]).toEqual([
+    3,
+    1,
+    10 * MIN,
+  ]);
 });
 
-test("intervals: one due time per rating, in order", () => {
-  const due = intervals(undefined, NOW);
-  expect(due[1]).toBeLessThan(due[3]);
-  expect(due[3]).toBeLessThanOrEqual(due[4]);
+test("interval text as in Anki", () => {
+  const u = { s: "s", m: "m", h: "h", d: "d", mo: "mo", y: "y" };
+  expect(intervalText(MIN, u)).toBe("<1m");
+  expect(intervalText(10 * MIN, u)).toBe("<10m");
+  expect(intervalText(25 * MIN, u)).toBe("25m");
+  expect(intervalText(90 * MIN, u)).toBe("1.5h");
+  expect(intervalText(4 * DAY, u)).toBe("4d");
+  expect(intervalText(36 * DAY, u)).toBe("1.2mo");
+  expect(intervalText(400 * DAY, u)).toBe("1.1y");
 });
 
-const card = (id: string, extra: Partial<QueueCard> = {}): QueueCard => ({
-  id,
-  faces: ["recognition", "production"],
-  suspended: false,
-  createdAt: 0,
-  states: {},
-  ...extra,
+test("the study day starts at 4 AM", () => {
+  const night = new Date(2026, 9, 7, 2).getTime();
+  expect(studyDay(night).start).toBe(new Date(2026, 9, 6, 4).getTime());
+  expect(studyDay(NOW).next).toBe(NEXT);
 });
-const state = (due: number, stability = 1, phase = 2): FaceState => ({
+
+const state = (due: number, phase: number, stability = 3): FaceState => ({
   due,
   stability,
   difficulty: 5,
@@ -50,56 +65,80 @@ const state = (due: number, stability = 1, phase = 2): FaceState => ({
   lapses: 0,
   state: phase,
 });
+const face = (cardId: string, extra: Partial<QueueFace> = {}): QueueFace => ({
+  cardId,
+  face: "recognition",
+  position: 0,
+  ...extra,
+});
 
-test("queue: due faces first, most overdue first; then new ones within the day's limit", () => {
-  const queue = reviewQueue(
+test("queue: learning due first, then reviews mixed with new cards; counts as in Anki", () => {
+  const { queue, counts } = studyQueue(
     [
-      card("new-1", { createdAt: 1 }),
-      card("due-late", { states: { recognition: state(NOW - DAY) } }),
-      card("new-2", { createdAt: 2 }),
-      card("due-early", { states: { recognition: state(NOW - 2 * DAY) } }),
-      // Recognition still being learnt: production is not introduced yet.
-      card("not-yet", { states: { recognition: state(NOW + DAY, 1, 1) } }),
-      card("known", { suspended: true }),
+      face("r1", { state: state(NOW - DAY, 2) }),
+      face("r2", { state: state(NOW + 3600_000, 2) }), // due later today: due today
+      face("tomorrow", { state: state(NEXT + 1, 2) }),
+      face("l1", { state: state(NOW - MIN, 1) }),
+      face("ahead", { state: state(NOW + 5 * MIN, 1) }),
+      face("n1", { position: 1 }),
+      face("n2", { position: 2 }),
     ],
-    { now: NOW, newPerDay: 3, newToday: 2 },
+    { now: NOW, nextDay: NEXT },
   );
-  expect(queue.map((e) => [e.cardId, e.face, e.isNew])).toEqual([
-    ["due-early", "recognition", false],
-    ["due-late", "recognition", false],
-    ["new-1", "recognition", true],
-  ]);
+  expect(queue[0]).toMatchObject({ cardId: "l1", kind: "learning" });
+  expect(
+    queue
+      .slice(1)
+      .map((e) => e.kind)
+      .sort(),
+  ).toEqual(["new", "new", "review", "review"]);
+  expect(counts).toEqual({ new: 2, learning: 2, review: 2 });
 });
 
-test("queue: a card shows one face a day; after again that face comes back the same day", () => {
-  const learnt = card("a", {
-    states: { recognition: state(NOW - DAY), production: state(NOW - DAY) },
-  });
-  // Both faces due: only one is offered.
-  expect(reviewQueue([learnt], { now: NOW }).map((e) => e.face)).toEqual(["recognition"]);
-  // Recognition reviewed today and due again (again → minutes): only it comes back.
-  const again = { ...learnt, reviewedToday: "recognition" as const };
-  expect(reviewQueue([again], { now: NOW }).map((e) => e.face)).toEqual(["recognition"]);
-  // Recognition done for today: production waits for tomorrow.
-  const done = card("b", {
-    states: { recognition: state(NOW + DAY), production: state(NOW - DAY) },
-    reviewedToday: "recognition",
-  });
-  expect(reviewQueue([done], { now: NOW })).toEqual([]);
-  // A card whose first face was introduced today gets no new face the same day.
-  const introduced = card("c", {
-    states: { recognition: state(NOW + DAY) },
-    reviewedToday: "recognition",
-  });
-  expect(reviewQueue([introduced], { now: NOW })).toEqual([]);
-  // The next day, its recognition in review, its production face is new.
-  expect(reviewQueue([{ ...introduced, reviewedToday: undefined }], { now: NOW })).toMatchObject([
-    { cardId: "c", face: "production", isNew: true },
+test("queue: new cards by card type — every card 1 before any card 2 — within the day's limits", () => {
+  const faces: QueueFace[] = [1, 2, 3].flatMap((n) => [
+    face(`c${n}`, { position: n }),
+    face(`c${n}`, { position: n, face: "production" }),
   ]);
+  const { queue, newWaiting } = studyQueue(faces, { now: NOW, nextDay: NEXT, newPerDay: 4 });
+  // Gathered by position (c1, c1', c2, c2'), shown by card type.
+  expect(queue.map((e) => `${e.cardId}:${e.face}`)).toEqual([
+    "c1:recognition",
+    "c2:recognition",
+    "c1:production",
+    "c2:production",
+  ]);
+  expect(newWaiting).toBe(true);
+  // New cards also count against the review limit; a lesson's own words ignore the new limit.
+  expect(studyQueue(faces, { now: NOW, nextDay: NEXT, reviewsPerDay: 1 }).queue).toHaveLength(1);
+  // New faces introduced today used the review limit too: 4 − 3 leaves one.
+  expect(
+    studyQueue(faces, { now: NOW, nextDay: NEXT, reviewsPerDay: 4, newToday: 3 }).queue,
+  ).toHaveLength(1);
+  expect(
+    studyQueue(faces, { now: NOW, nextDay: NEXT, newToday: 20, allNew: true }).queue,
+  ).toHaveLength(6);
 });
 
-test("word state: new, learning, long-term from 21 days of stability", () => {
+test("queue: suspended and buried faces are left out; learning cards come early when nothing is left", () => {
+  const { queue, counts, buried, nextLearning } = studyQueue(
+    [
+      face("s", { suspended: true }),
+      face("b", { buriedUntil: NEXT }),
+      face("soon", { state: state(NOW + 5 * MIN, 1) }),
+      face("later", { state: state(NOW + 60 * MIN, 1) }),
+    ],
+    { now: NOW, nextDay: NEXT },
+  );
+  expect(queue.map((e) => e.cardId)).toEqual(["soon"]);
+  expect([counts.learning, buried, nextLearning]).toEqual([1, 1, NOW + 5 * MIN]);
+});
+
+test("word state and leeches", () => {
   expect(wordState({})).toBe("new");
-  expect(wordState({ recognition: state(NOW, 3) })).toBe("learning");
-  expect(wordState({ recognition: state(NOW, 3), production: state(NOW, 25) })).toBe("long_term");
+  expect(wordState({ recognition: state(NOW, 2, 3) })).toBe("learning");
+  expect(wordState({ recognition: state(NOW, 2, 3), production: state(NOW, 2, 25) })).toBe(
+    "long_term",
+  );
+  expect(isLeech({ ...state(NOW, 2), lapses: 8 })).toBe(true);
 });

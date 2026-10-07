@@ -4,90 +4,188 @@ import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { setup } from "./setup.ts";
 
-const LESSON = "sprachanker.fixture/demo/00-01";
-const KAFFEE = "lex:de:kaffee:noun:m";
-const words = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
+const COURSE = "sprachanker.fixture/demo";
+const LESSONS = [`${COURSE}/00-01`, `${COURSE}/00-02`];
+const study = (scope: string) => `/api/cards/study?scope=${encodeURIComponent(scope)}`;
 
-test("a lesson's words become cards: one per word, kept when met again, known ones set aside", async () => {
+async function withCards() {
+  const api = await setup();
+  for (const lessonKey of LESSONS)
+    await api.sendJson("POST", "/api/cards/lesson", {
+      series: FIXTURE_SERIES,
+      lessonKey,
+      edition: "ru-de",
+    });
+  return api;
+}
+
+test("a lesson's words become cards, one per word, kept when met again; decks by language and course", async () => {
   const { sendJson, getJson } = await setup();
-  const first = await sendJson("POST", "/api/cards/lesson", { ...words, known: [KAFFEE] });
-  expect(first.created).toBe(4);
-  expect((await sendJson("POST", "/api/cards/lesson", { ...words, known: [] })).created).toBe(0);
-  const lessonCards = (key: string) =>
-    getJson(`/api/cards/lesson?series=${FIXTURE_SERIES}&lessonKey=${key}`);
-  const { words: lesson } = await lessonCards(LESSON);
-  expect(Object.keys(lesson)).toHaveLength(4);
-  expect(lesson[KAFFEE]).toMatchObject({ suspended: true, state: "new" });
-  // The second lesson's words have no cards yet.
-  expect((await lessonCards(`${FIXTURE_SERIES}/demo/00-02`)).words).toEqual({});
-  const list = (await getJson("/api/cards")).words;
-  const kaffee = list.find((w: { lexemeKey: string }) => w.lexemeKey === KAFFEE);
+  const make = () =>
+    sendJson("POST", "/api/cards/lesson", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSONS[0],
+      edition: "ru-de",
+    });
+  expect((await make()).created).toBe(4);
+  expect((await make()).created).toBe(0);
+  const { decks } = await getJson("/api/cards/decks");
+  // Four words, two faces each: eight new cards (within the day's 20).
+  expect(decks).toEqual([
+    {
+      scope: "lang:de",
+      language: "de",
+      counts: { new: 8, learning: 0, review: 0 },
+      courses: [
+        { scope: `course:${COURSE}`, course: COURSE, counts: { new: 8, learning: 0, review: 0 } },
+      ],
+    },
+  ]);
+  const kaffee = (await getJson("/api/cards")).words.find(
+    (w: { lexemeKey: string }) => w.lexemeKey === "lex:de:kaffee:noun:m",
+  );
   expect(kaffee.display).toMatchObject({
     target: "der Kaffee, die Kaffees",
     gender: "m",
-    lessonKey: LESSON,
+    translation: "кофе",
   });
-  expect(kaffee.display.translation).toBe("кофе");
 });
 
-test("review: new faces within the day's limit; a rated face is stored with its event and leaves the queue", async () => {
-  const { send, sendJson, getJson, root } = await setup();
-  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
-  await send("PUT", "/api/settings", { key: "srs.newPerDay", value: 2 });
-  await sendJson("POST", "/api/cards/lesson", { ...words, known: [KAFFEE] });
-  const queue = await getJson("/api/cards/review");
-  expect(queue).toMatchObject({ newPerDay: 2, newToday: 0 });
-  expect(queue.items).toHaveLength(2);
-  expect(
-    queue.items.every((i: { face: string; isNew: boolean }) => i.face === "recognition" && i.isNew),
-  ).toBe(true);
-  // The due time after each rating, again earliest.
-  const [a, b] = queue.items;
-  expect(a.due[1]).toBeLessThan(a.due[3]);
+test("study as in Anki: card 1 of every note first; a rating moves it to learning; undo takes it back", async () => {
+  const { sendJson, getJson, send, root } = await withCards();
+  const first = await getJson(study(`course:${COURSE}`));
+  expect(first.counts).toEqual({ new: 12, learning: 0, review: 0 });
+  expect(first.current).toMatchObject({ face: "recognition", kind: "new", flag: 0, marked: false });
+  expect(first.current.display.target).toBe("der Kaffee, die Kaffees");
+  expect(first.canUndo).toBe(false);
+  // Again 1m, Hard 6m, Good 10m (the learning steps), Easy days later.
+  const now = first.current.due[1] - 60_000;
+  expect([first.current.due[2] - now, first.current.due[3] - now]).toEqual([
+    6 * 60_000,
+    10 * 60_000,
+  ]);
 
-  const rated = await sendJson("POST", `/api/cards/${a.cardId}/review`, {
+  await sendJson("POST", `/api/cards/${first.current.cardId}/review`, {
     face: "recognition",
     rating: 3,
   });
-  expect(rated.state.reps).toBe(1);
-  await sendJson("POST", `/api/cards/${b.cardId}/review`, { face: "recognition", rating: 1 });
-  // Both new faces of the day are used: nothing new is offered, the rated faces are not due yet.
-  const after = await getJson("/api/cards/review");
-  expect([after.newToday, after.items.length]).toEqual([2, 0]);
+  const after = await getJson(study(`course:${COURSE}`));
+  expect(after.counts).toEqual({ new: 11, learning: 1, review: 0 });
+  expect(after.current.cardId).not.toBe(first.current.cardId);
+  expect(after.canUndo).toBe(true);
 
-  const reviews = sqlite
-    .query(
-      "SELECT e.card_id, r.kind FROM events e JOIN runs r ON r.id = e.run_id WHERE e.type = 'card_review'",
-    )
-    .all();
-  expect(reviews).toEqual([
-    { card_id: a.cardId, kind: "review" },
-    { card_id: b.cardId, kind: "review" },
+  expect(await sendJson("POST", "/api/cards/undo", {})).toEqual({
+    cardId: first.current.cardId,
+    face: "recognition",
+  });
+  expect((await getJson(study(`course:${COURSE}`))).counts).toEqual({
+    new: 12,
+    learning: 0,
+    review: 0,
+  });
+  // The review stays in the log, taken back by a card_undo event.
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  expect(sqlite.query("SELECT type FROM events ORDER BY ts").all()).toEqual([
+    { type: "card_review" },
+    { type: "card_undo" },
   ]);
-  const states = sqlite.query("SELECT card_id, face FROM card_state ORDER BY card_id").all();
-  expect(states).toHaveLength(2);
-  const mine = (await getJson("/api/cards")).words;
-  expect(mine.find((w: { cardId: string }) => w.cardId === a.cardId).state).toBe("learning");
+  expect((await send("POST", "/api/cards/undo", {})).status).toBe(409);
+  expect((await getJson(study(`course:${COURSE}`))).canUndo).toBe(false);
 });
 
-test("already known: a card set aside leaves the queue and comes back; unknown cards are refused", async () => {
-  const { send, sendJson, getJson } = await setup();
-  await sendJson("POST", "/api/cards/lesson", { ...words, known: [] });
-  const [first] = (await getJson("/api/cards/review")).items;
-  await sendJson("PUT", `/api/cards/${first.cardId}`, { suspended: true });
-  const ids = async () =>
-    (await getJson("/api/cards/review")).items.map((i: { cardId: string }) => i.cardId);
-  expect(await ids()).not.toContain(first.cardId);
-  await sendJson("PUT", `/api/cards/${first.cardId}`, { suspended: false });
-  expect(await ids()).toContain(first.cardId);
+test("undo shows the face taken back next, ahead of the queue's order, until something is answered", async () => {
+  const { sendJson, getJson } = await withCards();
+  const scope = study(`course:${COURSE}`);
+  const order = await getJson(scope);
+  // A card further down the queue, answered out of turn.
+  const later = (await getJson("/api/cards")).words.find(
+    (w: { cardId: string }) => w.cardId !== order.current.cardId,
+  );
+  await sendJson("POST", `/api/cards/${later.cardId}/review`, { face: "production", rating: 3 });
+  await sendJson("POST", "/api/cards/undo", {});
+  expect((await getJson(scope)).current).toMatchObject({
+    cardId: later.cardId,
+    face: "production",
+  });
+  // Answering anything returns the queue to its order.
+  await sendJson("POST", `/api/cards/${later.cardId}/review`, { face: "production", rating: 3 });
+  expect((await getJson(scope)).current.cardId).toBe(order.current.cardId);
+});
+
+test("limits: a lesson's own words ignore the new limit; the review limit holds new cards too", async () => {
+  const { send, getJson } = await withCards();
+  await send("PUT", "/api/settings", { key: "srs.newPerDay", value: 1 });
+  expect((await getJson(study(`course:${COURSE}`))).counts.new).toBe(1);
+  // The lesson's words: their first card type, all of them.
+  const lesson = await getJson(study(`lesson:${LESSONS[0]}`));
+  expect(lesson.counts).toEqual({ new: 4, learning: 0, review: 0 });
+  expect(lesson.current.face).toBe("recognition");
+  await send("PUT", "/api/settings", { key: "srs.reviewsPerDay", value: 0 });
+  const held = await getJson(study(`course:${COURSE}`));
+  expect([held.counts.new, held.current, held.newWaiting]).toEqual([0, null, true]);
+});
+
+test("each deck has its own day: German answers do not use up English's new cards", async () => {
+  const { send, sendJson, getJson, root } = await withCards();
+  // An English word next to the German ones (its course is the lesson's; its language its own).
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  sqlite
+    .query(
+      "INSERT INTO cards (id, kind, lexeme_key, faces, display_cache_json, created_at) VALUES (?, 'lexeme', ?, 'recognition', ?, 1)",
+    )
+    .run(
+      "01HZZZZZZZZZZZZZZZZZZZZZZY",
+      "lex:en:coffee:noun",
+      JSON.stringify({ target: "coffee", series: FIXTURE_SERIES, lessonKey: LESSONS[0] }),
+    );
+  await send("PUT", "/api/settings", { key: "srs.newPerDay", value: 1 });
+  const german = (await getJson(study("lang:de"))).current;
+  await sendJson("POST", `/api/cards/${german.cardId}/review`, { face: german.face, rating: 3 });
+  expect((await getJson(study("lang:de"))).counts.new).toBe(0);
+  expect((await getJson(study("lang:en"))).counts.new).toBe(1);
+});
+
+test("bury, suspend, flag and mark as in Anki's reviewer", async () => {
+  const { sendJson, send, getJson } = await withCards();
+  const card = (await getJson(study(`course:${COURSE}`))).current;
+  const ids = async () => {
+    const s = await getJson(study(`lesson:${LESSONS[0]}`));
+    return { count: s.counts.new, buried: s.buried };
+  };
+  await sendJson("POST", `/api/cards/${card.cardId}/bury`, {});
+  // The note's faces are buried; a lesson's words show their first card type, so one of them here.
+  expect(await ids()).toEqual({ count: 3, buried: 1 });
+  // Unbury is a deck's: another deck's leaves this one buried.
+  await sendJson("POST", "/api/cards/unbury", { scope: "lang:en" });
+  expect(await ids()).toEqual({ count: 3, buried: 1 });
+  await sendJson("POST", "/api/cards/unbury", { scope: `lesson:${LESSONS[0]}` });
+  expect(await ids()).toEqual({ count: 4, buried: 0 });
+
+  await sendJson("PUT", `/api/cards/${card.cardId}/suspend`, {
+    suspended: true,
+    face: "recognition",
+  });
+  expect((await ids()).count).toBe(3);
+  await sendJson("PUT", `/api/cards/${card.cardId}/suspend`, {
+    suspended: false,
+    face: "recognition",
+  });
+  await sendJson("PUT", `/api/cards/${card.cardId}/suspend`, { suspended: true });
+  expect((await ids()).count).toBe(3);
+  await sendJson("PUT", `/api/cards/${card.cardId}/suspend`, { suspended: false });
+
+  await sendJson("PUT", `/api/cards/${card.cardId}/flag`, { face: "recognition", flag: 2 });
+  await sendJson("PUT", `/api/cards/${card.cardId}/mark`, { marked: true });
+  expect((await getJson(study(`lesson:${LESSONS[0]}`))).current).toMatchObject({
+    flag: 2,
+    marked: true,
+  });
+
   const missing = "01HZZZZZZZZZZZZZZZZZZZZZZZ";
-  expect((await send("PUT", `/api/cards/${missing}`, { suspended: true })).status).toBe(404);
+  expect((await send("PUT", `/api/cards/${missing}/mark`, { marked: true })).status).toBe(404);
   expect(
-    (await send("POST", `/api/cards/${missing}/review`, { face: "recognition", rating: 3 })).status,
-  ).toBe(404);
-  // A face the card does not have is refused too.
-  expect(
-    (await send("POST", `/api/cards/${first.cardId}/review`, { face: "listening", rating: 3 }))
+    (await send("POST", `/api/cards/${card.cardId}/review`, { face: "listening", rating: 3 }))
       .status,
   ).toBe(404);
+  expect((await send("GET", study("course:nope"), undefined)).status).toBe(400);
 });

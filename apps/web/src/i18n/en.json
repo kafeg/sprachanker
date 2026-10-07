@@ -463,39 +463,74 @@
     "review": "Review"
   },
   "words": {
-    "position": "{n} of {total}",
-    "tapToShow": "Tap to see the translation",
-    "previous": "Previous word",
-    "known": "Already known",
-    "summary": "{review, plural, one {# word goes} other {# words go}} to Review; {known, plural, =0 {none known yet} one {# you know already} other {# you know already}}.",
-    "again": "Go through the cards again",
-    "toEnd": "To the list",
-    "saving": "Saving…",
-    "done": "Done",
-    "keys": "Space: listen, then the translation, then the next card · ← → or Backspace, Enter: move · K: already known.",
-    "knownHint": "“Already known” keeps the word out of Review; you can change it in the list at the end."
+    "intro": "The lesson's words as cards, as in Anki: recall, show the answer, rate. When nothing is left for now, they go on in Review.",
+    "learnt": "The lesson's words are studied for now.",
+    "goOn": "{count, plural, =0 {They come back in Review when they are due.} one {# card in learning comes back in Review soon.} other {# cards in learning come back in Review soon.}}"
   },
-  "cardReview": {
-    "progress": "{n} of {total}",
-    "newToday": "new today {n} of {limit}",
-    "tapToShow": "Tap to see the answer",
-    "show": "Show the answer",
+  "study": {
+    "listen": "Listen and recall the meaning",
     "fromLesson": "lesson {unit}.{lesson}",
-    "allDone": "{count, plural, one {# card} other {# cards}} reviewed — that's all for now.",
-    "nothingDue": "Nothing to review now",
-    "comeBack": "New cards come from the lessons' words; reviewed ones come back when they are due.",
-    "due": "{count, plural, one {# card} other {# cards}} to review",
-    "face": {
-      "recognition": "what does it mean?",
-      "production": "say it in the language you learn",
-      "listening": "what do you hear?"
+    "countsTitle": "New {new}, learning {learning}, to review {review}",
+    "finished": "Congratulations! You have finished this deck for now.",
+    "nextLearning": "{minutes, plural, one {The next learning card will be ready in # minute.} other {The next learning card will be ready in # minutes.}}",
+    "reviewLimit": "Today's review limit has been reached, but there are still cards waiting to be reviewed.",
+    "newLimit": "There are more new cards available, but the daily limit has been reached.",
+    "buried": "One or more cards were buried, and will be shown tomorrow.",
+    "unbury": "Unbury",
+    "unit": {
+      "s": "s",
+      "m": "m",
+      "h": "h",
+      "d": "d",
+      "mo": "mo",
+      "y": "y"
     },
+    "flag": {
+      "red": "Red",
+      "orange": "Orange",
+      "green": "Green",
+      "blue": "Blue",
+      "pink": "Pink",
+      "turquoise": "Turquoise",
+      "purple": "Purple"
+    },
+    "marked": "Marked",
+    "leech": "leech",
+    "undo": "Undo",
+    "undoKeys": "Undo (U, Ctrl+Z)",
+    "showKeys": "Space or Enter",
+    "show": "Show answer",
     "rating": {
       "again": "Again",
       "hard": "Hard",
       "good": "Good",
       "easy": "Easy"
     },
-    "howTo": "Spaced repetition as in Anki: recall the answer, show it (Space), then say how it went — Again, Hard, Good or Easy (keys 1–4). FSRS schedules each card from your ratings."
+    "more": "More",
+    "replay": "Replay audio",
+    "buryCard": "Bury card",
+    "buryNote": "Bury note",
+    "suspendCard": "Suspend card",
+    "suspendNote": "Suspend note",
+    "mark": "Mark note",
+    "unmark": "Unmark note",
+    "keys": "Space or Enter: show the answer, then Good · 1–4: rate · R: replay · U: undo",
+    "noCards": "No cards yet: they come from the lessons' “Words of the lesson” step.",
+    "deck": "Deck",
+    "count": {
+      "new": "New",
+      "learning": "Learn",
+      "review": "Due"
+    },
+    "overview": {
+      "new": "New",
+      "learning": "Learning",
+      "review": "To Review"
+    },
+    "studyNow": "Study now",
+    "toOverview": "Deck overview",
+    "toDecks": "Decks",
+    "howTo": "Spaced repetition as in Anki: one deck per course, under the language it teaches. Recall the answer, show it, then rate how it went — FSRS schedules each card from your ratings.",
+    "due": "{count, plural, one {# card} other {# cards}} to study"
   }
 }

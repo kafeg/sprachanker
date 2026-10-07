@@ -11,7 +11,7 @@ src/
   check/          # one checker per exercise type: check(item, answer) → Outcome (+ diff, rule ids)
   text/           # normalisation and word diff used by checkers and speech
   learner/        # mistakes, rule mastery, lexeme state, lesson progress, can-do
-  srs/            # ts-fsrs wrapper, card creation rules, review session builder, practice sets
+  srs/            # ts-fsrs wrapper, Anki's study queue (limits, 4 AM day, learn ahead), interval text
   replay/         # derive stats from events + cards (server caches the result in memory)
 ```
 

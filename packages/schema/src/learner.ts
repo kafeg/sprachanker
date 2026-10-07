@@ -181,6 +181,10 @@ export const CardReviewPayload = z.object({
 });
 export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 
+/** A review taken back (Anki: undo); the face's state is restored to the review's `stateBefore`. */
+export const CardUndoPayload = z.object({ review: Ulid });
+export type CardUndoPayload = z.infer<typeof CardUndoPayload>;
+
 export const StoredEvent = z.object({
   id: Ulid,
   runId: Ulid,
@@ -193,6 +197,7 @@ export const StoredEvent = z.object({
     "llm_verdict",
     "llm_turn",
     "card_review",
+    "card_undo",
   ]),
   itemKey: z.string().nullable(),
   payload: z.unknown(),

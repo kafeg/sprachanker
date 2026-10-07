@@ -129,8 +129,8 @@ the first lessons a few minutes later while the media keep coming.
 
 ### 6 — Cards, review, Notebook
 Specs: 04, 05, 09.
-- Cards from new words, Review with FSRS and beginner-friendly limits, Notebook (runs, run detail with
-  snapshots, item history), lesson redo with comparison, study days.
+- Cards from new words, Review with FSRS as in Anki (its limits and reviewer), Notebook (runs, run
+  detail with snapshots, item history), lesson redo with comparison, study days.
 - The lesson plan as steps (owner, 2026-10-06; flow in 04, "Lesson composition"): overview with the
   video and its transcript under it → "Words of the lesson" (cards; the words go to Review from
   there) → a "Grammar" step per grammar topic → exercises → a "Culture" step per culture page → AI
@@ -149,10 +149,12 @@ Specs: 04, 05, 09.
 - **Status: in progress.** Built: cards and their FSRS state (migration `0002_cards`), scheduling and
   the review queue in the engine (`srs/`), cards from a lesson's words, ratings and the learner's words
   on the server (`/api/cards`); the lesson plan as steps (engine `compose/steps.ts`, `step_done`
-  events, completion over the steps) with the "Words" step (cards one at a time), grammar and culture
-  pages, the AI practice as steps and the video's text under it; the Review screen. Next: My words,
-  the history of AI practice in its steps, the Notebook, attempts under the card, the tutor's chat
-  history.
+  events, completion over the steps) with the "Words" step, grammar and culture pages, the AI practice
+  as steps and the video's text under it; Review as in Anki one-to-one (owner, 2026-10-07; 04): decks by
+  language and course, the v3 queue with its limits and 4 AM day, the reviewer with its four ratings,
+  keys, undo, bury, suspend, flags and marks (migration `0003_anki`), the same reviewer in the "Words"
+  step. Next: the merged "Mistakes" AI step, the scene and writing histories in their steps, My words,
+  the Notebook, attempts under the card, the tutor's chat history.
 
 ### 7 — Speech
 Specs: 08, 06.

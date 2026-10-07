@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { answerPicture, DEMO_LESSON, freshLessonRun, goToStep, openStep } from "./api.ts";
+import { answerPicture, freshLessonRun, goToStep, openStep } from "./api.ts";
 
 test.beforeEach(({ request }) => freshLessonRun(request));
 
@@ -19,13 +19,10 @@ test("open the course, go through the words, the grammar and an exercise, resume
   await expect(page.getByText("order a drink")).toBeVisible();
   await page.getByRole("button", { name: "Start lesson" }).click();
 
-  // The lesson's words one card at a time, then the grammar page, then the exercises.
-  await expect(page.getByText("1 of 4")).toBeVisible();
-  for (let i = 0; i < 4; i++)
-    await page.getByRole("button", { name: "Next", exact: true }).first().click();
-  // (How many are known depends on what other tests left in the shared profile.)
-  await expect(page.getByText(/words? goe?s? to Review/)).toBeVisible();
-  await page.getByRole("button", { name: "Done", exact: true }).click();
+  // The lesson's words (studied in their own test; skipped here), then the grammar page, then the
+  // exercises.
+  await expect(page.getByRole("button", { name: "Show answer" })).toBeVisible();
+  await page.getByRole("button", { name: "Skip", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Articles" })).toBeVisible();
   await page.getByRole("button", { name: "Next", exact: true }).click();
   await expect(page.getByText("Exercise 1 of 8")).toBeVisible();
@@ -129,10 +126,15 @@ test("the summary before the end lists what is left and does not complete the le
   await expect(page.getByText(/^\d+ steps are still to do\.$/)).toBeVisible();
   await expect(page.getByText(/Correct on the first try/)).toBeHidden();
   await page.getByRole("button", { name: "Go to: Words of the lesson · 4" }).click();
-  await expect(page.getByText("1 of 4")).toBeVisible();
+  await expect(
+    page
+      .getByRole("heading", { name: "Words of the lesson" })
+      .or(page.getByText("Words of the lesson", { exact: true }))
+      .first(),
+  ).toBeVisible();
   // Still the same run: after a reload the lesson resumes at the first step left.
   await page.reload();
-  await expect(page.getByText("1 of 4")).toBeVisible();
+  await expect(page).toHaveTitle("SprachAnker · Words");
 });
 
 test("resetting a lesson asks first and leaves it not started", async ({ page, request }) => {
@@ -184,71 +186,28 @@ test("the window title says where you are", async ({ page }) => {
   await expect(page).toHaveTitle("SprachAnker · Summary");
 });
 
-test("words: the cards go to Review, a word marked known is set aside", async ({
+test("words: studied as in Anki — the card plays itself, Show answer, ratings with intervals, undo", async ({
   page,
-  request,
 }) => {
+  // Cards are shared by the projects' profile: the test takes its rating back, so they stay new.
+  const played = page.waitForRequest(/kaffee\.mp3$/);
   await openStep(page, "Words of the lesson · 4");
-  await page.getByText("Tap to see the translation").click();
+  // The question: the word, its recording playing by itself; the counts new + learning + review.
+  await expect(page.getByText("der Kaffee, die Kaffees")).toBeVisible();
+  await played;
+  await expect(page.getByText("coffee")).toBeHidden();
+  await page.getByRole("button", { name: "Show answer" }).click();
   await expect(page.getByText("coffee")).toBeVisible();
-  await page.getByRole("button", { name: "To the list" }).click();
-  // Cards persist in the shared profile: make sure the coffee is marked known, whatever an earlier run left.
-  const kaffee = page.getByRole("listitem").filter({ hasText: "der Kaffee" }).getByRole("button");
-  if ((await kaffee.getAttribute("aria-pressed")) !== "true") await kaffee.click();
-  await expect(page.getByText("3 words go to Review; 1 you know already.")).toBeVisible();
-  await page.getByRole("button", { name: "Done", exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Articles" })).toBeVisible();
-  const res = await request.get(
-    `/api/cards/lesson?series=sprachanker.fixture&lessonKey=${DEMO_LESSON}`,
-  );
-  const { words } = await res.json();
-  expect(words["lex:de:kaffee:noun:m"].suspended).toBe(true);
-  expect(words["lex:de:tasse:noun:f"].suspended).toBe(false);
-});
-
-test("words: the sound button plays the word on the card, also after moving on", async ({
-  page,
-}) => {
-  await openStep(page, "Words of the lesson · 4");
-  let request = page.waitForRequest(/kaffee\.mp3$/);
-  await page.getByRole("button", { name: "der Kaffee, die Kaffees", exact: true }).click();
-  await request;
-  await page.getByRole("button", { name: "Next", exact: true }).first().click();
-  await expect(page.getByText("2 of 4")).toBeVisible();
-  request = page.waitForRequest(/tasse\.mp3$/);
-  await page.getByRole("button", { name: "die Tasse, die Tassen", exact: true }).click();
-  await request;
-});
-
-test("words: the keys — Space listens, shows, goes on; arrows move; K marks known", async ({
-  page,
-}) => {
-  await openStep(page, "Words of the lesson · 4");
-  await expect(page.getByText("1 of 4")).toBeVisible();
-  // The first card has a recording: Space plays it, then shows the translation, then goes on.
-  await page.keyboard.press("Space");
-  await expect(page.getByText("Tap to see the translation")).toBeVisible();
-  await page.keyboard.press("Space");
-  await expect(page.getByText("coffee")).toBeVisible();
-  await page.keyboard.press("Space");
-  await expect(page.getByText("2 of 4")).toBeVisible();
-  await page.keyboard.press("ArrowLeft");
-  await expect(page.getByText("1 of 4")).toBeVisible();
-  await page.keyboard.press("ArrowRight");
-  await expect(page.getByText("2 of 4")).toBeVisible();
-  // After a tap on Next (the button keeps the focus), Space still moves one card at a time.
-  await page.getByRole("button", { name: "Next", exact: true }).first().click();
-  await expect(page.getByText("3 of 4")).toBeVisible();
-  // This word has no recording: Space shows the translation (once, not also a click on the button)…
-  await page.keyboard.press("Space");
-  await expect(page.getByText("to order")).toBeVisible();
-  await expect(page.getByText("3 of 4")).toBeVisible();
-  // …then goes on.
-  await page.keyboard.press("Space");
-  await expect(page.getByText("4 of 4")).toBeVisible();
-  await page.keyboard.press("Backspace");
-  await expect(page.getByText("3 of 4")).toBeVisible();
-  // K marks it known and goes on.
-  await page.keyboard.press("k");
-  await expect(page.getByText("4 of 4")).toBeVisible();
+  // A new card's learning steps: 1m, 6m, 10m.
+  for (const [name, interval] of [
+    ["Again", "<1m"],
+    ["Hard", "<6m"],
+    ["Good", "<10m"],
+  ] as const)
+    await expect(page.getByRole("button", { name, exact: true })).toContainText(interval);
+  await page.keyboard.press("3");
+  await expect(page.getByText("die Tasse, die Tassen")).toBeVisible();
+  await page.keyboard.press("u");
+  await expect(page.getByText("der Kaffee, die Kaffees")).toBeVisible();
+  await expect(page.getByText("coffee")).toBeHidden();
 });
