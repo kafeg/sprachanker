@@ -48,15 +48,23 @@ Specs: 03, 09.
   im Blick and the English courses, shown here by language pair instead of being CLI-only).
 - Mockups first. **Accept**: e2e on desktop and phone; nothing downloads in tests.
 
-### 3. Decks: available and mine (owner's request, 2026-10-07)
+### 3. Review: tabs, decks to take, a guide (owner's request, 2026-10-07)
 Specs: 04, 09.
+- Review gets tabs as Settings has: **Study** (the reviewer), **Decks**, **My words**.
+- A guide in a side panel (as the tutor and the reference open): how the method works and where it
+  comes from — the forgetting curve, active recall, spacing, FSRS (with a picture of the curve) — what
+  the four buttons and the counts mean, the two card types of a word (card 1 German → translation,
+  card 2 translation → German, shown after every card 1 as Anki's "Basic (and reversed card)" does), the
+  actions under "…" (replay, bury, suspend, flags, mark: why one would use each) and the keys.
+- The question side says which way a card asks (e.g. "in German?" on card 2), so a card 2 is not
+  taken for a mistake.
 - Decks as courses are: a list of decks one can take (to start: each installed course's words, as Anki
   decks; later `.apkg` decks) and the profile's own decks, added from it; Review studies the profile's
   decks. Replaces today's deck list under Review, which the owner finds poor.
 - A lesson's "Words" step keeps making the cards of what the lesson teaches; they land in the deck of
   that course.
 - Open for the plan: what "taking" a course deck does to cards not yet met in a lesson (new cards in
-  course order, or only words met), and how a deck is left. Mockups first.
+  course order, or only words met), and how a deck is left. Mockups first (tabs, decks, the guide).
 - **Accept**: server tests (adding and leaving a deck, Review over the profile's decks); e2e on desktop
   and phone.
 
@@ -64,7 +72,8 @@ Specs: 04, 09.
 Specs: 04, 09.
 - A "Review" tab in Settings with Anki's deck options for the profile: new cards per day (20), maximum
   reviews per day (200), desired retention (0.9), learning and relearning steps (1m 10m; 10m), the day's
-  start (4 AM), new cards ignore the review limit (off). Values are profile settings the engine already
+  start (4 AM), new cards ignore the review limit (off), and the card types a new word gets (recognition
+  and production today; listening; `srs.faces`). Values are profile settings the engine already
   takes as parameters.
 - The FSRS optimizer lives here too ("Optimize" from the profile's own answers), once there are a few
   hundred answers: `@open-spaced-repetition/binding` (MIT; FSRS's Rust optimizer for Node/Bun, the one
