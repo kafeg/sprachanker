@@ -17,7 +17,7 @@ player combines them; `speech_selfrate` items are shown for self-rating and not 
    one without becomes `respond`. Enrichment may override this (`upgrade`, 02).
 3. Apply enrichment: rule tags, contrastive notes for the native language, extra exercises, scenes.
    Skip stale entries (fingerprint mismatch) and report them.
-4. Lesson flow (the plan's steps, owner 2026-10-06; built in stage 6): overview (synopsis, goals, the
+4. Lesson flow (the plan's steps, owner 2026-10-06): overview (synopsis, goals, the
    video or recording with its transcript under it) → "Words of the lesson" (cards) → one "Grammar"
    step per grammar page (a page is one topic) → the exercises (source pages, then ours) → one
    "Culture" step per culture page → AI practice when an assistant is set up: "Write it yourself",
@@ -37,7 +37,7 @@ player combines them; `speech_selfrate` items are shown for self-rating and not 
 Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (`apps/web`) and tests.
 Checkers (`packages/engine/src/check/index.ts`) exist for every scored type; renderers exist for the
 closed types, `dictation` and `speech_selfrate` — `speech_repeat`, `respond` and `scene` get theirs with
-speech (stage 7) and their LLM checks.
+speech (planned) and their LLM checks.
 
 ```ts
 type Outcome = {
@@ -88,18 +88,18 @@ The rest is planned:
 
 - **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM
   corrections (07).
-- **Rule mastery**: accuracy over recent attempts per rule (formula fixed in stage 9a).
+- **Rule mastery**: accuracy over recent attempts per rule (formula fixed when enrichment is built).
 - **Lexeme state**: as Anki counts its cards — new until a face is answered, learning while a face is
   learning or relearning, else review; each face keeps its FSRS state (stability, due, lapses).
 - **Item history**: attempts per item (lesson progress — status `new | in_progress | done`, best
   score — is built).
 - **Can-do**: a course goal is achieved when its linked lessons are completed.
 
-## Spaced repetition (stage 6)
+## Spaced repetition
 
 Anki one-to-one (owner, 2026-10-07): the study queue, its limits, the reviewer's ratings, keys and
 actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and decks carry over and
-`.apkg` decks imported later (stage 10) fit in. Scheduling and the queue are pure functions in
+`.apkg` decks imported later fit in. Scheduling and the queue are pure functions in
 `packages/engine/src/srs/`; the server keeps the cards and answers (`services/cards.ts`).
 
 - FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (`srs.retention`), Anki's default
@@ -143,8 +143,8 @@ enrichment (setting, roles, goals, allowed vocabulary and rules, register, succe
 
 ## After MVP
 
-- **Anki** (`packages/anki-export`, stage 10): `.apkg` export per deck with media (no scheduling) and
+- **Anki** (`packages/anki-export`, after the MVP): `.apkg` export per deck with media (no scheduling) and
   import into stored decks, linking notes to existing lexemes.
-- **Word images** (stage 10): candidates from ARASAAC (CC BY-NC-SA), OpenMoji (CC BY-SA) and course
+- **Word images** (after the MVP): candidates from ARASAAC (CC BY-NC-SA), OpenMoji (CC BY-SA) and course
   images, fetched at runtime into the profile's media with licence and attribution, never bundled;
   per-word learner data (chosen image, note, own translation) is stored then.

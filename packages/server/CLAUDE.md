@@ -34,6 +34,7 @@ src/
                      # lesson); llm (providers, LM Studio, prompt previews); explain ("Why is this
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
                      # writing ("Write it yourself": checks kept in the lesson run); scene (`scene` runs);
+                     # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)
   jobs/              # model downloads (later)

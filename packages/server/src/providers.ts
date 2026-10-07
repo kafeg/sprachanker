@@ -42,7 +42,7 @@ type Run = (options: ImportRequest & { libraryRoot: string }) => Promise<ImportR
 
 /**
  * Provider id → the series folder it writes, its courses and its importer. `listed: false`: not
- * offered in All courses for now (the app focuses on German, 11); the CLI still imports it.
+ * offered in All courses for now (the app focuses on German: docs/plan.md); the CLI still imports it.
  */
 const PROVIDERS: Record<
   string,

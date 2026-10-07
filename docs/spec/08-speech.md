@@ -1,6 +1,6 @@
 # 08 — Speech
 
-Planned (stage 7); nothing of this is built yet. The answer schema already has a spoken answer
+Planned (plan, "Speech"); nothing of this is built yet. The answer schema already has a spoken answer
 (`speech{recording, transcript}`, 05). The server's speech module will talk to the sidecars through two
 functions:
 
@@ -25,7 +25,7 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading.
 - `respond` and scenes: the transcript is shown and editable before it goes to the LLM.
-- Target (stage 7): median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
+- Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Synthesis (TTS)
 

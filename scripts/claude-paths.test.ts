@@ -6,7 +6,7 @@ test("collects backticked repository paths and applies the exemptions", () => {
   const markdown = [
     "# Area",
     "Uses `packages/schema` and `apps/web/src/i18n/`, runs `bun test`, see `courses/*`.",
-    "`packages/anki-export` (created in stage 10).",
+    "`packages/anki-export` (planned).",
     "Per provider: `courses/<provider>/fixtures`.",
     "```",
     "e2e/smoke.spec.ts   # checked: not under a (target) heading",

@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { Glob } from "bun";
 
 const REPO_PATH = /^(packages|apps|courses|native|docs|e2e)(\/|$)/;
-const PLANNED = /created in stage \d+/i;
+const PLANNED = /\(planned\)/i;
 
 /** Repository paths a CLAUDE.md mentions, minus the exempt ones. */
 export function mentionedPaths(markdown: string): string[] {

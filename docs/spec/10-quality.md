@@ -63,7 +63,7 @@ table in the same commit with the reason.
 | Integration | server API against a temp data root (`createApp().request()`); media Range |
 | Migration | migrations with backup, downgrade refusal and rollback; upgrades of fixture DBs from every released schema version |
 | E2E (Playwright) | the fixture course: open the course, do exercises, resume, finish with a summary; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model; desktop and phone viewport |
-| Manual | owner demo at the end of each stage on Mac and iPhone |
+| Manual | owner demo at the end of each plan item on Mac and iPhone |
 
 Third-party content never appears in fixtures.
 
@@ -78,13 +78,16 @@ Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/
 
 - `docs/spec/*` — what and why, at the level of detail described in `docs/spec/README.md`. Updated in
   the same commit as behaviour changes.
+- `docs/plan.md` — only the work left, in order; an item done is removed in the commit that finishes it
+  (the spec describes what is built). `docs/architecture.md` — the parts and how they fit; updated when
+  a module, a dependency or a cross-cutting mechanism changes.
 - `CLAUDE.md` files — how to work in an area. Root file holds the module map and dependency rules;
   module files link to their spec and never repeat it. Max ≈150 lines each. No changelogs or progress
   logs; git history is the history.
 - A CI script checks that backticked paths starting with `packages/`, `apps/`, `courses/`, `native/`,
   `docs/`, `e2e/` in CLAUDE.md files exist. Exempt: code blocks under a heading containing "(target)",
-  paths marked "created in stage N", and paths containing `<placeholders>`.
-- End of each stage: sweep all CLAUDE.md and spec files; remove stale statements.
+  lines marked "(planned)", and paths containing `<placeholders>`.
+- End of each plan item: sweep all CLAUDE.md and spec files; remove stale statements.
 - `docs/research/*` — facts about external sources; re-verified when importers change.
 
 ## Commits
@@ -95,5 +98,5 @@ Work goes straight to `main` in small commits; CI runs on every push.
 - Body: what problem, which modules, why this place, what was reused, what was deliberately not built.
 - Checklist: tests · `bun run check` green · spec/CLAUDE.md updated if structure or contracts changed ·
   no third-party content · strings in i18n catalogs · migration + test if stored data changed.
-- Review questions: Is anything built that the stage does not need? Could an existing entity cover a
+- Review questions: Is anything built that the item does not need? Could an existing entity cover a
   new one? Is logic duplicated? Is every change in the module that owns it?

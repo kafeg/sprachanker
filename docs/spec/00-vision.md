@@ -53,16 +53,14 @@ SprachAnker is a self-hosted learning app that:
 
 ## Scope
 
-**MVP** (stages 0–9b, see 11): `sprachanker serve` with browser and phone PWA (online), profiles,
-library and importer for **Nicos Weg A1 `ru-de`**, Leben in Deutschland, lesson player, Notebook, SRS,
-speech checks, LLM via external providers, our A1 enrichment, UI in English, Russian and German.
-Some post-MVP imports and the LLM practice features were built early at the owner's request (11).
+**MVP**: `sprachanker serve` with browser and phone PWA (online), profiles, courses installed from the
+interface (DW first), Leben in Deutschland, lesson player, Notebook, SRS, speech checks, LLM via
+external providers, UI in English, Russian and German. More courses and the LLM practice features were
+built early at the owner's request.
 
-**After MVP** (stages 10–12): `.apkg` import/export and word images; Nicos Weg edition alignment,
-Deutsch im Blick interviews, Starter English; the desktop app (Tauri) with onboarding wizard
-(incl. LM Studio setup); Windows/Linux builds.
-
-Later: see 11, stage 13.
+**After MVP**: our enrichment (rules, contrastive notes, scenes), `.apkg` import/export and word images,
+more sources, the desktop app (Tauri) with onboarding wizard (incl. LM Studio setup), Windows/Linux
+builds. The order and what is left: `docs/plan.md`.
 
 ## Non-goals
 

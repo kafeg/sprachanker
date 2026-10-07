@@ -31,7 +31,7 @@ library reader, and the helpers normalisers share: a lesson's vocabulary entries
 
 ## Offered for now
 
-The app focuses on German (11): All courses offers DW (Nicos Weg, Deutschtrainer). Deutsch im Blick and
+The app focuses on German (plan): All courses offers DW (Nicos Weg, Deutschtrainer). Deutsch im Blick and
 the English courses (sections 3–6) stay importable with the CLI (`sprachanker import <provider>`) and
 are not offered in the app (`listed: false` in `packages/server/src/providers.ts`). A course taken out
 of the library keeps working where it is remembered: its cards (their text is kept with them), its runs
@@ -100,7 +100,7 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 - Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
   own vocabulary parser; until then B1 lessons have no vocabulary.
 
-## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`; planned, stage 9b)
+## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`; planned: plan, "Exams")
 
 Official BAMF question catalogue (PDF): 300 general questions + 10 per federal state. A test has 33
 questions (30 general + 3 for the learner's state), 60 minutes; 15 correct passes the course test, 17 are

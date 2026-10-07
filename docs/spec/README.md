@@ -13,14 +13,15 @@
 | [08-speech.md](08-speech.md) | Speech recognition and synthesis |
 | [09-ui.md](09-ui.md) | Screens, layouts, design system, i18n |
 | [10-quality.md](10-quality.md) | Architecture enforcement, fixed technical choices, testing, CI, docs |
-| [11-roadmap.md](11-roadmap.md) | Stages and their status, MVP boundary, how to run a stage |
 
-Supporting research: [../research/dw-nicos-weg.md](../research/dw-nicos-weg.md),
-[../research/coerll-dib.md](../research/coerll-dib.md).
+The remaining work, the MVP boundary and how an item is run: [../plan.md](../plan.md). How the parts fit
+together: [../architecture.md](../architecture.md).
+
+Supporting research (facts about each source, used by its importer): [../research/](../research/).
 
 **Level of detail.** The spec fixes decisions that are expensive to change later: keys, stored formats,
 the event log, module boundaries, security basics. Everything else (exact endpoints, UI details, limits,
-heuristics) is decided in the plan of the stage that builds it and written here when it is built.
+heuristics) is decided in the plan of the item that builds it and written here when it is built.
 
 Conventions: "MUST/SHOULD/MAY" as in RFC 2119. "Later" marks deliberately postponed scope.
 Examples use German as target language and Russian as the learner's language, but nothing in the

@@ -27,9 +27,8 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
   `dw.deutschtrainer` (CLI ids `dw-<series>`), a course per DW course and language (`a1-ru`, `a1-en`,
   `a2-ru`, `a2-en`, `b1-de`, `a1-a2-ru`); the other providers one series each (03).
 - **CatalogEntry**: course key, series, `kind` (`course` | `exam`), `level?` (CEFR), `target`,
-  editions, licence, attribution, homepage, approximate size. Planned (schema only): declared statically
-  by providers for the install screen; today the CLI imports from each provider's own course list and
-  installed state comes from the library.
+  editions, licence, attribution, homepage, approximate size; declared by the providers built into the
+  app and listed in All courses with each course's state (03, 06).
 
 ## Course content
 
@@ -57,11 +56,12 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
   the content version it used, and a result.
 - **Event**: append-only record inside a run (05) with a snapshot of what was shown.
 - **Mistake**: derived from events: rule ids, lexemes, exercise key, source (exercise/speech/LLM).
-- **Card**: SRS item built from a lexeme (one per lexeme), a sentence, or a custom note — Anki's note.
+- **Card**: SRS item built from a lexeme (one per lexeme and translation language), a sentence, or a
+  custom note — Anki's note.
   Each enabled face (recognition, production, listening) is one of Anki's cards with its own FSRS state.
 - **Deck**: virtual, as in Anki's deck list: a language (`lang:<code>`) with its courses under it
   (`course:<key>`, by the lesson a word was first met in) — German and English never share a deck; a
-  lesson's own words (`lesson:<key>`) in its "Words" step. Stored decks come with `.apkg` (stage 10).
+  lesson's own words in an edition (`lesson:<edition>:<key>`) in its "Words" step. Stored decks come with `.apkg` (after the MVP).
 - **Mastery**: per rule and per lexeme, derived from events and FSRS state.
 - **Conversation**: an LLM dialogue (scene, chat) stored as a run with events.
 
@@ -69,6 +69,7 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
 
 - Installed content changes only through an update, which creates a new `contentVersion`. Runs carry
   snapshots, so old runs stay readable after content changes or removal.
-- Events are never updated or deleted (except by deleting the whole profile).
+- Events are never updated; they are deleted only with the whole profile or at the learner's confirmed
+  request (resetting progress, deleting a tutor chat).
 - Statistics are derived from events by pure functions (04, 05); nothing derived is a source of truth.
 - Nothing in the domain assumes German or Russian.

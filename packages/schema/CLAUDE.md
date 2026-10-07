@@ -19,7 +19,7 @@ src/
   exercise/          # item fields and stored answers per type, grouped by family; outcome.ts; index.ts (union)
   rules.ts           # grammar rules registry
   enrichment.ts      # enrichment
-  learner.ts         # runs, event payloads per event type, cards, settings (created in stage 4)
+  learner.ts         # runs, event payloads per event type, cards, settings
 json-schema/        # generated JSON Schemas, committed; `bun run --filter @sprachanker/schema gen`
 scripts/gen-json-schema.ts
 test/               # bun test (Bun types via tsconfig.dev.json; src has no runtime types)

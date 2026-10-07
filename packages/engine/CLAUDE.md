@@ -16,7 +16,7 @@ src/
   replay/         # derive stats from events + cards (server caches the result in memory)
 ```
 
-`packages/anki-export` (created in stage 10): `.apkg` read/write (SQLite inside zip + media). Maps notes ↔ cards via schema
+`packages/anki-export` (planned): `.apkg` read/write (SQLite inside zip + media). Maps notes ↔ cards via schema
 types; no engine internals.
 
 ## Rules

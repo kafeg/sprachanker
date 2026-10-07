@@ -87,7 +87,7 @@ cards(
 card_state(card_id, face,
   fsrs_json, due_at,              -- null while the face is new
   suspended, buried_until, flag,  -- Anki's card: suspended, buried until the next day, flag 0–7
-  PRIMARY KEY(card_id, face))     -- cards.suspended is the note's; cards.marked its mark (0003_anki)
+  PRIMARY KEY(card_id, face))     -- cards.suspended is the note's; cards.marked its mark
 ```
 
 What a run is (owner, 2026-10-07: one rule for every history): a pass through a lesson (`lesson`), a
@@ -148,8 +148,7 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   explanation.
 - The server refuses to open a DB that has migrations it does not know (downgrade protection).
 - Each migration has a test that upgrades a database of the version before it (10). Until the first
-  release the set may be squashed into one `0000_init` (done 2026-10-07; the owner's profile was
-  started anew); after a release, never.
+  release the set may be squashed into one `0000_init`; after a release, never.
 
 ## Export, import, backup (planned)
 
