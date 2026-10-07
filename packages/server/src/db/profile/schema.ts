@@ -47,7 +47,8 @@ export const events = sqliteTable(
     cardId: text("card_id"),
     payloadJson: text("payload_json").notNull(),
   },
-  (t) => [index("events_run").on(t.runId, t.ts)],
+  // By run (a run's events); by type and time (the day's card answers, verdicts, activity).
+  (t) => [index("events_run").on(t.runId, t.ts), index("events_type_ts").on(t.type, t.ts)],
 );
 
 /** The profile's API keys, AES-256-GCM sealed; never returned by the API (06, "Secrets"). */
@@ -105,5 +106,5 @@ export const cardState = sqliteTable(
     buriedUntil: integer("buried_until"),
     flag: integer("flag").notNull().default(0),
   },
-  (t) => [primaryKey({ columns: [t.cardId, t.face] }), index("card_state_due").on(t.dueAt)],
+  (t) => [primaryKey({ columns: [t.cardId, t.face] })],
 );

@@ -185,21 +185,29 @@ export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 export const CardUndoPayload = z.object({ review: Ulid });
 export type CardUndoPayload = z.infer<typeof CardUndoPayload>;
 
+/** Every event type with the schema of its stored payload: written and read through these (05). */
+export const EVENT_PAYLOADS = {
+  page_shown: PageShownPayload,
+  answered: AnsweredPayload,
+  item_skipped: z.object({}),
+  step_done: StepDonePayload,
+  llm_verdict: LlmVerdictPayload,
+  llm_turn: LlmTurnPayload,
+  card_review: CardReviewPayload,
+  card_undo: CardUndoPayload,
+} as const;
+export type EventType = keyof typeof EVENT_PAYLOADS;
+export type EventPayload<T extends EventType> = z.infer<(typeof EVENT_PAYLOADS)[T]>;
+export const EventType = z.enum(Object.keys(EVENT_PAYLOADS) as [EventType, ...EventType[]]);
+
 export const StoredEvent = z.object({
   id: Ulid,
   runId: Ulid,
   ts: z.number().int(),
-  type: z.enum([
-    "page_shown",
-    "answered",
-    "item_skipped",
-    "step_done",
-    "llm_verdict",
-    "llm_turn",
-    "card_review",
-    "card_undo",
-  ]),
+  type: EventType,
   itemKey: z.string().nullable(),
+  /** The card a `card_review` / `card_undo` is about. */
+  cardId: z.string().nullable().optional(),
   payload: z.unknown(),
 });
 export type StoredEvent = z.infer<typeof StoredEvent>;

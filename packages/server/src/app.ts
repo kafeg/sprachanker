@@ -2,7 +2,6 @@
 // must stay free of Bun/Node APIs; those live in src/runtime/.
 
 import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit";
-import { courseProgress } from "@sprachanker/engine";
 import {
   CardFace,
   CardRating,
@@ -29,9 +28,9 @@ import { type CourseInstaller, createDownloads } from "./services/downloads.ts";
 import { createExplain } from "./services/explain.ts";
 import { createLessonContext } from "./services/lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./services/llm.ts";
-import { createLlmRuns } from "./services/llm-runs.ts";
 import { createMistakes } from "./services/mistakes.ts";
 import { createPractice } from "./services/practice.ts";
+import { createRunStore } from "./services/run-store.ts";
 import { createRuns } from "./services/runs.ts";
 import { createScenes } from "./services/scene.ts";
 import { createSettings } from "./services/settings.ts";
@@ -81,13 +80,6 @@ export function createApp(config: AppConfig) {
   const now = config.now ?? Date.now;
   const content = createContent(config.library);
   const settings = createSettings(config.profile);
-  const downloads = createDownloads({
-    installer: config.installer,
-    now,
-    onEnd: (series, course) => content.forget(series, course),
-  });
-  // Downloads a restart interrupted go on.
-  downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const llm = createLlm({
     db: config.profile,
     settings,
@@ -96,24 +88,23 @@ export function createApp(config: AppConfig) {
     lmStudio: config.lmStudio,
     cli: config.cli,
   });
-  const runs = createRuns({
-    db: config.profile,
-    content,
+  const store = createRunStore({ db: config.profile, now, appVersion: config.appVersion });
+  const runs = createRuns({ store, content });
+  const downloads = createDownloads({
+    installer: config.installer,
     now,
-    appVersion: config.appVersion,
+    onEnd: (series, course) => {
+      content.forget(series, course);
+      runs.forget(courseKey(series as SeriesKey, course));
+    },
   });
-  const cards = createCards({
-    db: config.profile,
-    content,
-    settings,
-    now,
-    appVersion: config.appVersion,
-  });
-  const mistakes = createMistakes(config.profile);
+  // Downloads a restart interrupted go on.
+  downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
+  const cards = createCards({ db: config.profile, store, content, settings, now });
+  const mistakes = createMistakes(store);
   const lessons = createLessonContext(content);
-  const llmRuns = createLlmRuns({ db: config.profile, now, appVersion: config.appVersion });
   const tutor = createTutor({
-    runs: llmRuns,
+    store,
     session: runs.shown,
     llm,
     mistakes,
@@ -121,22 +112,14 @@ export function createApp(config: AppConfig) {
     tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
   });
   const practice = createPractice({
-    db: config.profile,
     session: runs.shown,
-    runs: llmRuns,
+    store,
     llm,
     lessons,
     now,
   });
-  const scenes = createScenes({ runs: llmRuns, llm, lessons });
-  const explain = createExplain({
-    llm,
-    content,
-    lessonRun: runs.lessonRun,
-    runs: llmRuns,
-    db: config.profile,
-    now,
-  });
+  const scenes = createScenes({ store, llm, lessons });
+  const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
 
   const api = new Hono()
     .use("*", async (c, next) => {
@@ -150,29 +133,7 @@ export function createApp(config: AppConfig) {
       await next();
     })
     .get("/health", (c) => c.json({ status: "ok" as const, version: config.appVersion }))
-    .get("/courses", async (c) => {
-      const progress = await runs.progress();
-      return c.json(
-        await Promise.all(
-          (await content.courses()).map(async ({ lessons, ...course }) => {
-            const at = courseProgress(lessons, progress);
-            // The lesson to go on with, as its card shows it: title and exercises worked.
-            const next = at.next as LessonKey | null;
-            const edition = course.editions[0];
-            const locale =
-              next && edition && (await content.localeLesson(course.series, next, edition));
-            const state = next && (await runs.lessonStates([next], progress))[next];
-            return {
-              ...course,
-              lessons: lessons.length,
-              ...at,
-              nextTitle: locale ? locale.title : null,
-              nextRun: state?.run ?? null,
-            };
-          }),
-        ),
-      );
-    })
+    .get("/courses", async (c) => c.json(await runs.courses()))
     .get("/course", zod("query", CourseRef.extend({ edition: EditionId })), async (c) => {
       const { series, course, edition } = c.req.valid("query");
       const map = await content.courseMap(series, course, edition);

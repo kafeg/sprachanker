@@ -141,7 +141,7 @@ test("0002_cards: a profile from before cards keeps its runs and gets the card t
   sqlite.exec(
     "INSERT INTO runs (id, kind, app_version, status, started_at) VALUES ('r1', 'lesson', 't', 'active', 1)",
   );
-  expect(migrate(db, migrations, options(2))).toEqual(["0002_cards", "0003_anki"]);
+  expect(migrate(db, migrations, options(2))).toEqual(["0002_cards", "0003_anki", "0004_indexes"]);
   expect(tables(file)).toContain("cards");
   expect(tables(file)).toContain("card_state");
   expect(sqlite.query("SELECT id FROM runs").all()).toEqual([{ id: "r1" }]);
@@ -166,7 +166,13 @@ test("0003_anki: card faces keep their state and get suspended, buried and flag;
   sqlite.exec(
     `INSERT INTO card_state (card_id, face, fsrs_json, due_at) VALUES ('c1', 'recognition', '{"due":5}', 5)`,
   );
-  expect(migrate(db, migrations, options(2))).toEqual(["0003_anki"]);
+  expect(
+    migrate(
+      db,
+      migrations.filter((m) => m.tag < "0004"),
+      options(2),
+    ),
+  ).toEqual(["0003_anki"]);
   expect(sqlite.query("SELECT * FROM card_state").all()).toEqual([
     {
       card_id: "c1",
@@ -181,4 +187,23 @@ test("0003_anki: card faces keep their state and get suspended, buried and flag;
   expect(sqlite.query("SELECT marked FROM cards").all()).toEqual([{ marked: 0 }]);
   // A new face can be held (suspended, buried) before it has any state.
   sqlite.exec("INSERT INTO card_state (card_id, face, suspended) VALUES ('c1', 'production', 1)");
+});
+
+test("0004_indexes: events get an index by type and time; card_state loses the unused due index", () => {
+  const file = fresh();
+  const { db, options, sqlite } = runner(file);
+  migrate(
+    db,
+    migrations.filter((m) => m.tag < "0004"),
+    options(1),
+  );
+  expect(migrate(db, migrations, options(2))).toEqual(["0004_indexes"]);
+  const indexes = sqlite
+    .query<{ name: string }, []>(
+      "SELECT name FROM sqlite_master WHERE type = 'index' AND name NOT LIKE 'sqlite_%' ORDER BY name",
+    )
+    .all()
+    .map((r) => r.name);
+  expect(indexes).toContain("events_type_ts");
+  expect(indexes).not.toContain("card_state_due");
 });

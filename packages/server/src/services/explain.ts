@@ -5,16 +5,13 @@ import { type ExplainMistakeInput, explainMistake, explainMistakeRequest } from 
 import {
   findExercise,
   type LessonKey,
-  LlmVerdictPayload,
+  type LlmVerdictPayload,
   parseEditionId,
 } from "@sprachanker/schema";
-import { and, asc, eq } from "drizzle-orm";
-import type { ProfileDb } from "../db/profile/db.ts";
-import { events } from "../db/profile/schema.ts";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { LlmRuns } from "./llm-runs.ts";
+import type { RunStore } from "./run-store.ts";
 
 export interface ExplainRequest {
   series: string;
@@ -42,12 +39,11 @@ export function createExplain(deps: {
   llm: Llm;
   content: Content;
   /** One of the lesson's runs (the runs service). */
-  lessonRun: (lessonKey: string, runId: string) => { id: string } | undefined;
-  runs: LlmRuns;
-  db: ProfileDb;
+  lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
+  store: RunStore;
   now: () => number;
 }) {
-  const { llm, content, lessonRun, runs, db, now } = deps;
+  const { llm, content, lessonRun, store, now } = deps;
 
   /** What explain_mistake gets for one item: the item, the answers and the lesson's grammar. */
   async function input(request: ExplainRequest) {
@@ -97,20 +93,24 @@ export function createExplain(deps: {
         }
         // Reached only when the model finished: an explanation cut short is not kept.
         if (run && attempt && text.trim()) {
-          runs.add(
+          // Kept with the lesson run, also a finished one.
+          store.append(
             run.id,
-            "llm_verdict",
             [
               {
-                task: "explain",
-                input: "",
-                result: text.trim(),
-                model,
-                latencyMs: Math.max(0, now() - started),
-                attempt,
-              } satisfies LlmVerdictPayload,
+                type: "llm_verdict",
+                itemKey,
+                payload: {
+                  task: "explain",
+                  input: "",
+                  result: text.trim(),
+                  model,
+                  latencyMs: Math.max(0, now() - started),
+                  attempt,
+                },
+              },
             ],
-            itemKey,
+            { anyStatus: true },
           );
         }
       })();
@@ -119,28 +119,20 @@ export function createExplain(deps: {
     /** Explanations kept in a lesson run, oldest first. */
     list(lessonKey: LessonKey, runId: string): StoredExplanation[] {
       if (!lessonRun(lessonKey, runId)) return [];
-      return db
-        .select()
-        .from(events)
-        .where(and(eq(events.runId, runId), eq(events.type, "llm_verdict")))
-        .orderBy(asc(events.ts), asc(events.id))
-        .all()
-        .flatMap((e) => {
-          // A row that does not read as a verdict is skipped, not the whole list.
-          const parsed = LlmVerdictPayload.safeParse(JSON.parse(e.payloadJson));
-          const v = parsed.data;
-          return v?.task === "explain" && e.itemKey && v.attempt
-            ? [
-                {
-                  itemKey: e.itemKey,
-                  attempt: v.attempt,
-                  text: String(v.result),
-                  model: v.model,
-                  ts: e.ts,
-                },
-              ]
-            : [];
-        });
+      return store.events(runId, ["llm_verdict"]).flatMap((e) => {
+        const v = e.payload as LlmVerdictPayload;
+        return v.task === "explain" && e.itemKey && v.attempt
+          ? [
+              {
+                itemKey: e.itemKey,
+                attempt: v.attempt,
+                text: String(v.result),
+                model: v.model,
+                ts: e.ts,
+              },
+            ]
+          : [];
+      });
     },
 
     /** The request it would send, without sending it. */

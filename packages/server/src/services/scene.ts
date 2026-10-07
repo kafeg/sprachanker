@@ -14,7 +14,7 @@ import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { LlmRuns } from "./llm-runs.ts";
+import type { RunRow, RunStore } from "./run-store.ts";
 
 export interface SceneRequest {
   series: string;
@@ -30,22 +30,24 @@ export interface SceneState {
   done: boolean;
 }
 
-export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonContexts }) {
-  const { runs } = deps;
-  const latestRun = (lessonKey: string) => runs.latest("scene", lessonKey);
+export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonContexts }) {
+  const { store } = deps;
+  const latestRun = (lessonKey: LessonKey) => store.latest("scene", lessonKey);
 
-  function stateOf(run: { id: string; planJson: string | null; status: string }): SceneState {
-    const setup = SceneSetupSchema.parse(JSON.parse(run.planJson ?? "{}"));
-    const list = runs.turns(run.id);
+  /** A scene as stored; undefined when its setup no longer reads (it is left out, not an error). */
+  function stateOf(run: RunRow): SceneState | undefined {
+    const setup = SceneSetupSchema.safeParse(JSON.parse(run.planJson ?? "{}"));
+    if (!setup.success) return undefined;
+    const list = store.payloads(run.id, "llm_turn");
     const goalsMet = list.at(-1)?.goalsMet ?? [];
-    return { setup, turns: list, goalsMet, done: run.status !== "active" };
+    return { setup: setup.data, turns: list, goalsMet, done: run.status !== "active" };
   }
 
   async function turnInput(request: SceneRequest, message: string) {
     const run = latestRun(request.lessonKey);
-    if (run?.status !== "active") throw new ServiceError("no_active_scene", 409);
+    const state = run?.status === "active" ? stateOf(run) : undefined;
+    if (!run || !state) throw new ServiceError("no_active_scene", 409);
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
-    const state = stateOf(run);
     const input: SceneTurnInput = {
       language: request.language,
       target: ctx.target,
@@ -61,9 +63,9 @@ export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonCon
 
   return {
     /** The lesson's latest scene (active or finished), or null. */
-    state(lessonKey: string): SceneState | null {
+    state(lessonKey: LessonKey): SceneState | null {
       const run = latestRun(lessonKey);
-      return run ? stateOf(run) : null;
+      return (run && stateOf(run)) ?? null;
     },
 
     /** Drafts a new scene from the lesson (ending an unfinished one). */
@@ -81,13 +83,22 @@ export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonCon
         }),
         signal,
       );
-      const previous = latestRun(request.lessonKey);
-      if (previous?.status === "active") runs.finish(previous.id, "user");
-      const run = runs.start("scene", request.lessonKey, request.edition, setup);
-      runs.add(run.id, "llm_turn", [
-        { role: "assistant", text: setup.opening, model, goalsMet: [] },
-      ]);
-      return stateOf(run);
+      const run = store.atomic(() => {
+        const previous = store.active("scene", request.lessonKey);
+        if (previous) store.end(previous.id, "finished", "user");
+        const started = store.start("scene", request.lessonKey, {
+          edition: request.edition,
+          plan: setup,
+        });
+        store.append(started.id, [
+          {
+            type: "llm_turn",
+            payload: { role: "assistant", text: setup.opening, model, goalsMet: [] },
+          },
+        ]);
+        return started;
+      });
+      return stateOf(run) as SceneState;
     },
 
     /** The learner's line: the partner answers, corrects and tracks the goals. */
@@ -100,23 +111,32 @@ export function createScenes(deps: { runs: LlmRuns; llm: Llm; lessons: LessonCon
         state.setup.goals.length,
         state.goalsMet,
       );
-      runs.add(run.id, "llm_turn", [
-        { role: "user", text: request.text, corrections: turn.corrections },
-        {
-          role: "assistant",
-          text: turn.reply,
-          translation: turn.translation,
-          goalsMet: turn.goalsMet,
-          model,
-        },
-      ]);
-      if (turn.done) runs.finish(run.id, "completed");
-      return stateOf(latestRun(request.lessonKey) ?? run);
+      // Stored only while this scene is still active (not ended or replaced during the call).
+      store.atomic(() => {
+        store.append(run.id, [
+          {
+            type: "llm_turn",
+            payload: { role: "user", text: request.text, corrections: turn.corrections },
+          },
+          {
+            type: "llm_turn",
+            payload: {
+              role: "assistant",
+              text: turn.reply,
+              translation: turn.translation,
+              goalsMet: turn.goalsMet,
+              model,
+            },
+          },
+        ]);
+        if (turn.done) store.end(run.id, "finished", "completed");
+      });
+      return stateOf(store.get(run.id) ?? run) as SceneState;
     },
 
-    end(lessonKey: string) {
-      const run = latestRun(lessonKey);
-      if (run?.status === "active") runs.finish(run.id, "user");
+    end(lessonKey: LessonKey) {
+      const run = store.active("scene", lessonKey);
+      if (run) store.end(run.id, "finished", "user");
     },
 
     async prompt(request: SceneRequest & { text: string }): Promise<PromptPreview> {

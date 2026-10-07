@@ -22,7 +22,8 @@ src/
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
-  services/          # content, runs, settings, llm-runs (chat/scene/practice runs and their LLM events),
+  services/          # content, runs (lesson runs, progress), settings, run-store (the one module on the
+                     # runs and events tables: start, end, append, read, remove),
                      # mistakes (derived from lesson runs), lesson-context (what LLM
                      # tasks know of a lesson), llm (providers, LM Studio, prompt previews), explain ("Why is
                      # this wrong?", kept per attempt in the lesson run), tutor (lesson chats as `chat`
@@ -44,9 +45,11 @@ test/                # bun test; integration tests call createApp().request()
 
 - Routes are thin: validate the request, call a service, return its typed result (the web client
   gets the types through `AppType`).
-- Events are append-only; never UPDATE or DELETE `events`. Only two things remove them: deleting a
-  profile, and resetting the progress of a course or lesson on the learner's confirmed request (`runs.reset`).
-- Any change to a Drizzle schema → new migration + migration test with fixture DBs (`test/fixtures/db/`).
+- Runs and events go through `services/run-store.ts` only; no other module queries those tables.
+- Events are append-only; never UPDATE or DELETE `events`. Only two things remove them (`store.remove`):
+  deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat).
+- Any change to a Drizzle schema → new migration (`bun run db:generate`, hand-check the SQL) + a
+  migration test that upgrades a database built by the earlier migrations, with rows in it.
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
   (outside the data root), read by `src/runtime/`.
 - Outgoing requests to LLM providers go through the injected `fetch` (`AppConfig.fetch`); tests fake it.

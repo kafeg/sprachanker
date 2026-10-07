@@ -91,7 +91,7 @@ card_state(card_id, face,
 
 | Event type | Payload (required fields) |
 |---|---|
-| `page_shown` | `pageIndex`, `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
+| `page_shown` | `pageIndex`; the first time a page is shown in a run, the `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
 | `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, an unrated self-rating); excluded from the score |
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `review`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
@@ -100,7 +100,12 @@ card_state(card_id, face,
 | `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day, from 4 AM) |
 | `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |
 
-Payload schemas: `packages/schema/src/learner.ts`.
+Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type).
+
+Runs and events are written and read only through the run store (`packages/server/src/services/
+run-store.ts`): a run is ended once, only while active; events of one request are stored in one
+transaction, all or nothing, each payload checked against its type's schema; events are read back
+parsed, and a stored row that no longer parses is left out (and logged), never breaking the list.
 
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
   its name and the UI shows "deleted".
@@ -110,6 +115,8 @@ Payload schemas: `packages/schema/src/learner.ts`.
   (Cards, when they come, are a separate decision.) Deleting one tutor chat from the lesson's chat
   history, also confirmed, deletes that `chat` run with its events.
 - Snapshots make old runs readable after content changes or course removal.
+- Indexes: `events(run_id, ts)` (a run's events), `events(type, ts)` (the day's card answers,
+  verdicts, activity).
 - `card_state` is written in the same transaction as each `card_review` and `card_undo` event; its
   FSRS state can be recomputed from those events.
 

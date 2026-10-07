@@ -4,6 +4,8 @@
 // `card_review` event in the day's `review` run written together with the face's state; undo, bury,
 // suspend, flag and mark as in Anki's reviewer.
 import {
+  type CardEvent,
+  cardDay,
   intervals,
   isLeech,
   type QueueFace,
@@ -17,19 +19,21 @@ import {
   CardDisplay,
   type CardFace,
   type CardRating,
-  CardReviewPayload,
-  type CardUndoPayload,
+  type CardReviewPayload,
   FaceState,
   type LessonKey,
+  type LexemeKey,
   parseLessonKey,
+  parseLexemeKey,
   seriesOf,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, gte, inArray } from "drizzle-orm";
+import { asc, desc, eq, inArray } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
-import { cardState, cards, events, runs } from "../db/profile/schema.ts";
+import { cardState, cards } from "../db/profile/schema.ts";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
+import type { RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
 const DEFAULT_FACES: CardFace[] = ["recognition", "production"];
@@ -43,17 +47,18 @@ export type DeckScope = string;
 type CardRow = typeof cards.$inferSelect;
 type StateRow = typeof cardState.$inferSelect;
 
-/** The language a card's words are in ("lex:de:…" → de). */
-const languageOf = (row: CardRow) => row.lexemeKey?.split(":")[1] ?? "";
+/** The language a card's words are in. */
+const languageOf = (row: CardRow) =>
+  row.lexemeKey ? parseLexemeKey(row.lexemeKey as LexemeKey).lang : "";
 
 export function createCards(deps: {
   db: ProfileDb;
+  store: RunStore;
   content: Content;
   settings: Settings;
   now: () => number;
-  appVersion: string;
 }) {
-  const { db, content, settings, now } = deps;
+  const { db, store, content, settings, now } = deps;
   // Monotonic: cards made in one call keep the order of the lesson's words.
   const id = monotonicFactory();
   const retention = () => settings.get("srs.retention") ?? SRS_DEFAULTS.retention;
@@ -75,10 +80,9 @@ export function createCards(deps: {
   };
 
   /** The notes in a scope, in the order they were made (their position in the deck). */
-  async function notesIn(scope: DeckScope) {
-    const all = db.select().from(cards).orderBy(asc(cards.createdAt), asc(cards.id)).all();
+  async function notesIn(scope: DeckScope, all = allNotes()) {
     if (scope.startsWith("lang:")) return all.filter((r) => languageOf(r) === scope.slice(5));
-    if (scope.startsWith("course:")) return all.filter((r) => courseOf(r) === scope.slice(7));
+    if (scope.startsWith("course:")) return all.filter((r) => r.course === scope.slice(7));
     if (scope.startsWith("lesson:")) {
       const lessonKey = scope.slice(7) as LessonKey;
       const lesson = await content.lesson(seriesOf(lessonKey), lessonKey);
@@ -88,52 +92,37 @@ export function createCards(deps: {
     return all;
   }
 
-  /** Today's card events, newest first, and the reviews taken back among them. */
-  function todaysEvents() {
-    const { start } = studyDay(now());
-    const rows = db
+  /** The learner's day of card answers (engine `cardDay`). */
+  function day() {
+    const events = store.eventsWhere({
+      types: ["card_review", "card_undo"],
+      since: studyDay(now()).start,
+    });
+    return cardDay(events as CardEvent[]);
+  }
+
+  /** Every note in the order it was made, with its course read once. */
+  const allNotes = () =>
+    db
       .select()
-      .from(events)
-      .where(and(inArray(events.type, ["card_review", "card_undo"]), gte(events.ts, start)))
-      .orderBy(desc(events.ts), desc(events.id))
-      .all();
-    const undone = new Set(
-      rows
-        .filter((r) => r.type === "card_undo")
-        .map((r) => (JSON.parse(r.payloadJson) as CardUndoPayload).review),
-    );
-    return { rows, undone };
-  }
+      .from(cards)
+      .orderBy(asc(cards.createdAt), asc(cards.id))
+      .all()
+      .map((row) => Object.assign(row, { course: courseOf(row) }));
 
-  /** Today's answers in a deck (undone ones left out): new faces introduced and review faces answered.
-   *  Each deck counts its own, as Anki's limits are the deck's: German does not use up English. */
-  function today(cardIds: Set<string>) {
-    const { rows, undone } = todaysEvents();
-    let fresh = 0;
-    let reviews = 0;
-    for (const r of rows) {
-      if (r.type !== "card_review" || undone.has(r.id) || !cardIds.has(r.cardId ?? "")) continue;
-      const p = CardReviewPayload.parse(JSON.parse(r.payloadJson));
-      if (!p.stateBefore) fresh++;
-      else if (p.stateBefore.state === 2) reviews++;
-    }
-    return { fresh, reviews };
-  }
-
-  /** The face whose answer was just taken back, when nothing was answered since (Anki shows it next). */
-  function justUndone({ rows }: ReturnType<typeof todaysEvents>) {
-    const latest = rows[0];
-    if (latest?.type !== "card_undo") return undefined;
-    const review = (JSON.parse(latest.payloadJson) as CardUndoPayload).review;
-    const row = rows.find((r) => r.id === review);
-    return row && `${row.cardId}:${CardReviewPayload.parse(JSON.parse(row.payloadJson)).face}`;
-  }
+  /** What a queue is built from, read once for any number of decks. */
+  const studyData = () => ({
+    t: now(),
+    notes: allNotes(),
+    states: stateRows(),
+    today: day(),
+  });
 
   /** The study queue of a scope, with Anki's counts and what the "finished" screen says. */
-  async function queueOf(scope: DeckScope) {
-    const t = now();
-    const notes = await notesIn(scope);
-    const states = stateRows(notes.map((n) => n.id));
+  async function queueOf(scope: DeckScope, data = studyData()) {
+    const t = data.t;
+    const notes = await notesIn(scope, data.notes);
+    const states = data.states;
     const lesson = scope.startsWith("lesson:");
     const faces: QueueFace[] = notes.flatMap((note, position) =>
       facesOf(note)
@@ -150,7 +139,7 @@ export function createCards(deps: {
           };
         }),
     );
-    const done = today(new Set(notes.map((n) => n.id)));
+    const done = data.today.used(new Set(notes.map((n) => n.id)));
     const result = studyQueue(faces, {
       now: t,
       nextDay: studyDay(t).next,
@@ -160,35 +149,15 @@ export function createCards(deps: {
       reviewsToday: done.reviews,
       allNew: lesson,
     });
-    return { ...result, notes, states, now: t };
+    return { ...result, notes, states, now: t, today: data.today };
   }
 
   /** The `review` run of the learner's day: the active one if it began today, else a new one. */
   function reviewRun() {
-    const { start } = studyDay(now());
-    const active = db
-      .select()
-      .from(runs)
-      .where(and(eq(runs.kind, "review"), eq(runs.status, "active")))
-      .orderBy(desc(runs.startedAt))
-      .get();
-    if (active && active.startedAt >= start) return active.id;
-    if (active)
-      db.update(runs)
-        .set({ status: "finished", endReason: "completed", finishedAt: now() })
-        .where(eq(runs.id, active.id))
-        .run();
-    const runId = id(now());
-    db.insert(runs)
-      .values({
-        id: runId,
-        kind: "review",
-        appVersion: deps.appVersion,
-        status: "active",
-        startedAt: now(),
-      })
-      .run();
-    return runId;
+    const active = store.active("review", null);
+    if (active && active.startedAt >= studyDay(now()).start) return active.id;
+    if (active) store.end(active.id, "finished", "completed");
+    return store.start("review", null).id;
   }
 
   const note = (cardId: string) => {
@@ -250,24 +219,24 @@ export function createCards(deps: {
 
     /** Decks: each language the cards teach, and under it each course, with Anki's three counts. */
     async decks() {
-      const all = db.select().from(cards).all();
-      const languages = [...new Set(all.map(languageOf))].sort();
+      const data = studyData();
+      const languages = [...new Set(data.notes.map(languageOf))].sort();
       const out = [];
       for (const lang of languages) {
         const courses = [
-          ...new Set(all.filter((r) => languageOf(r) === lang).map(courseOf)),
+          ...new Set(data.notes.filter((r) => languageOf(r) === lang).map((r) => r.course)),
         ].sort();
         const children = [];
         for (const course of courses)
           children.push({
             scope: `course:${course}`,
             course,
-            counts: (await queueOf(`course:${course}`)).counts,
+            counts: (await queueOf(`course:${course}`, data)).counts,
           });
         out.push({
           scope: `lang:${lang}`,
           language: lang,
-          counts: (await queueOf(`lang:${lang}`)).counts,
+          counts: (await queueOf(`lang:${lang}`, data)).counts,
           courses: children,
         });
       }
@@ -278,9 +247,10 @@ export function createCards(deps: {
      *  and when it is finished, why (Anki's congratulations screen). */
     async study(scope: DeckScope) {
       const q = await queueOf(scope);
-      const day = todaysEvents();
-      const undone = justUndone(day);
-      const entry = q.queue.find((e) => `${e.cardId}:${e.face}` === undone) ?? q.queue[0];
+      const today = q.today;
+      const undone = today.justUndone;
+      const entry =
+        q.queue.find((e) => e.cardId === undone?.cardId && e.face === undone.face) ?? q.queue[0];
       const row = entry && q.notes.find((n) => n.id === entry.cardId);
       const face = entry && q.states.get(`${entry.cardId}:${entry.face}`);
       const state = stateOf(face);
@@ -308,7 +278,7 @@ export function createCards(deps: {
         reviewsWaiting: q.reviewsWaiting,
         buried: q.buried,
         /** Today has an answer to take back. */
-        canUndo: day.rows.some((r) => r.type === "card_review" && !day.undone.has(r.id)),
+        canUndo: !!today.undoable,
       };
     },
 
@@ -319,35 +289,26 @@ export function createCards(deps: {
      */
     rate(cardId: string, face: CardFace, rating: CardRating, answer: { id: string; reps: number }) {
       checkFace(note(cardId), face);
-      return db.transaction((tx) => {
-        const sent = tx.select().from(events).where(eq(events.id, answer.id)).get();
+      return store.atomic(() => {
+        const sent = store.event(answer.id);
         if (sent) {
           if (sent.type !== "card_review" || sent.cardId !== cardId)
             throw new ServiceError("event_id_taken", 409);
-          return CardReviewPayload.parse(JSON.parse(sent.payloadJson)).stateAfter;
+          return (sent.payload as CardReviewPayload).stateAfter;
         }
         const t = now();
         const before = stateOf(stateRows([cardId]).get(`${cardId}:${face}`)) ?? null;
         if ((before?.reps ?? 0) !== answer.reps) throw new ServiceError("card_changed", 409);
         const after = review(before, rating, t, retention());
-        const payload: CardReviewPayload = { face, rating, stateBefore: before, stateAfter: after };
-        tx.insert(events)
-          .values({
+        store.append(reviewRun(), [
+          {
             id: answer.id,
-            runId: reviewRun(),
-            ts: t,
             type: "card_review",
             cardId,
-            payloadJson: JSON.stringify(payload),
-          })
-          .run();
-        tx.insert(cardState)
-          .values({ cardId, face, fsrsJson: JSON.stringify(after), dueAt: after.due })
-          .onConflictDoUpdate({
-            target: [cardState.cardId, cardState.face],
-            set: { fsrsJson: JSON.stringify(after), dueAt: after.due },
-          })
-          .run();
+            payload: { face, rating, stateBefore: before, stateAfter: after },
+          },
+        ]);
+        setFace(cardId, face, { fsrsJson: JSON.stringify(after), dueAt: after.due });
         return after;
       });
     },
@@ -355,31 +316,19 @@ export function createCards(deps: {
     /** Takes back today's latest review not taken back yet: the face is as before it and is shown next
      *  (Anki: undo). */
     undo() {
-      const { rows, undone } = todaysEvents();
-      const last = rows.find((r) => r.type === "card_review" && !undone.has(r.id));
-      if (!last?.cardId) throw new ServiceError("nothing_to_undo", 409);
-      const p = CardReviewPayload.parse(JSON.parse(last.payloadJson));
-      const t = now();
-      db.transaction((tx) => {
-        tx.insert(events)
-          .values({
-            id: id(t),
-            runId: last.runId,
-            ts: t,
-            type: "card_undo",
-            cardId: last.cardId,
-            payloadJson: JSON.stringify({ review: last.id } satisfies CardUndoPayload),
-          })
-          .run();
-        tx.update(cardState)
-          .set({
-            fsrsJson: p.stateBefore ? JSON.stringify(p.stateBefore) : null,
-            dueAt: p.stateBefore?.due ?? null,
-          })
-          .where(and(eq(cardState.cardId, last.cardId as string), eq(cardState.face, p.face)))
-          .run();
+      const last = day().undoable;
+      if (!last) throw new ServiceError("nothing_to_undo", 409);
+      const before = last.review.stateBefore;
+      store.atomic(() => {
+        store.append(reviewRun(), [
+          { type: "card_undo", cardId: last.cardId, payload: { review: last.id } },
+        ]);
+        setFace(last.cardId, last.face, {
+          fsrsJson: before ? JSON.stringify(before) : null,
+          dueAt: before?.due ?? null,
+        });
       });
-      return { cardId: last.cardId, face: p.face };
+      return { cardId: last.cardId, face: last.face };
     },
 
     /** Hides a face — or every face of the note — until the next day (Anki: bury card / note). */

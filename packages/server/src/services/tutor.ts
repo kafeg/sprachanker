@@ -12,8 +12,8 @@ import {
 } from "@sprachanker/schema";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { LlmRuns } from "./llm-runs.ts";
 import type { Mistakes } from "./mistakes.ts";
+import type { RunStore } from "./run-store.ts";
 import type { TutorTools } from "./tutor-tools.ts";
 
 export interface TutorRequest {
@@ -63,17 +63,17 @@ export interface ContextUsage {
 }
 
 export function createTutor(deps: {
-  runs: LlmRuns;
+  store: RunStore;
   /** The lesson run the lesson shows, with its events (the runs service). */
-  session: (lessonKey: string) => Promise<{ events: StoredEvent[] } | undefined>;
+  session: (lessonKey: LessonKey) => Promise<{ events: StoredEvent[] } | undefined>;
   llm: Llm;
   mistakes: Mistakes;
   lessons: LessonContexts;
   tools: TutorTools;
 }) {
-  const { runs } = deps;
-  const activeRun = (lessonKey: string) => runs.active("chat", lessonKey);
-  const turns = (runId: string) => runs.turns(runId);
+  const { store } = deps;
+  const activeRun = (lessonKey: LessonKey) => store.active("chat", lessonKey);
+  const turns = (runId: string) => store.payloads(runId, "llm_turn");
   /** The turns a message continues: the current chat's, none when it opens a new chat. */
   const before = (request: TutorRequest) => {
     const run = request.newChat ? undefined : activeRun(request.lessonKey);
@@ -170,14 +170,14 @@ export function createTutor(deps: {
     },
 
     /** Turns of the lesson's current chat. */
-    history(lessonKey: string): Array<LlmTurnPayload & { ts: number }> {
+    history(lessonKey: LessonKey): Array<LlmTurnPayload & { ts: number }> {
       const run = activeRun(lessonKey);
       return run ? turns(run.id) : [];
     },
 
     /** The lesson's chats with something in them, newest first. */
-    chats(lessonKey: string): ChatSummary[] {
-      return runs.list("chat", lessonKey).flatMap((run) => {
+    chats(lessonKey: LessonKey): ChatSummary[] {
+      return store.list("chat", lessonKey).flatMap((run) => {
         const list = turns(run.id);
         const first = list.find((t) => t.role === "user");
         if (!first) return [];
@@ -196,14 +196,14 @@ export function createTutor(deps: {
     },
 
     /** The turns of one of the lesson's chats; undefined when it has no such chat. */
-    chat(lessonKey: string, id: string) {
-      return runs.get("chat", lessonKey, id) ? turns(id) : undefined;
+    chat(lessonKey: LessonKey, id: string) {
+      return store.get(id, "chat", lessonKey) ? turns(id) : undefined;
     },
 
     /** Deletes one of the lesson's chats with its turns (05); false when it has no such chat. */
-    remove(lessonKey: string, id: string): boolean {
-      if (!runs.get("chat", lessonKey, id)) return false;
-      runs.remove([id]);
+    remove(lessonKey: LessonKey, id: string): boolean {
+      if (!store.get(id, "chat", lessonKey)) return false;
+      store.remove([id]);
       return true;
     },
 
@@ -232,24 +232,37 @@ export function createTutor(deps: {
         } finally {
           // Also keeps a reply cut short by the learner; nothing is stored if the model never answered.
           if (text.trim()) {
-            const current = activeRun(request.lessonKey);
-            if (request.newChat && current) runs.finish(current.id, "user");
-            const run =
-              (!request.newChat && current) ||
-              runs.start("chat", request.lessonKey, request.edition);
-            runs.add(run.id, "llm_turn", [
-              { role: "user", text: request.message, exerciseKey: exercise?.key },
-              { role: "assistant", text: text.trim(), model, ...(used.length && { tools: used }) },
-            ]);
+            // One transaction: the new chat replaces the current one only together with its turns.
+            store.atomic(() => {
+              const current = activeRun(request.lessonKey);
+              if (request.newChat && current) store.end(current.id, "finished", "user");
+              const run =
+                (!request.newChat && current) ||
+                store.start("chat", request.lessonKey, { edition: request.edition });
+              store.append(
+                run.id,
+                (
+                  [
+                    { role: "user", text: request.message, exerciseKey: exercise?.key },
+                    {
+                      role: "assistant",
+                      text: text.trim(),
+                      model,
+                      ...(used.length && { tools: used }),
+                    },
+                  ] satisfies LlmTurnPayload[]
+                ).map((payload) => ({ type: "llm_turn", payload })),
+              );
+            });
           }
         }
       })();
     },
 
     /** Ends the lesson's chat; the next message starts a new one. */
-    reset(lessonKey: string) {
+    reset(lessonKey: LessonKey) {
       const run = activeRun(lessonKey);
-      if (run) runs.finish(run.id, "user");
+      if (run) store.end(run.id, "finished", "user");
     },
   };
 }

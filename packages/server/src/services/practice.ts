@@ -16,14 +16,11 @@ import {
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
-import { type LessonKey, LlmVerdictPayload, type Run, type StoredEvent } from "@sprachanker/schema";
-import { and, desc, eq } from "drizzle-orm";
-import type { ProfileDb } from "../db/profile/db.ts";
-import { events, runs } from "../db/profile/schema.ts";
+import type { LessonKey, LlmVerdictPayload, Run, StoredEvent } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { LlmRuns } from "./llm-runs.ts";
+import type { RunStore } from "./run-store.ts";
 
 export interface WritingRequest {
   series: string;
@@ -54,39 +51,27 @@ export interface WritingAttempt {
 }
 
 export function createPractice(deps: {
-  db: ProfileDb;
   /** The run the lesson shows, with its events (the runs service). */
-  session: (lessonKey: string) => Promise<{ run: Run; events: StoredEvent[] } | undefined>;
-  runs: LlmRuns;
+  session: (lessonKey: LessonKey) => Promise<{ run: Run; events: StoredEvent[] } | undefined>;
+  store: RunStore;
   llm: Llm;
   lessons: LessonContexts;
   now: () => number;
 }) {
-  const { db, now } = deps;
+  const { store, now } = deps;
 
   /** Verdicts of a task for the lesson, newest first. */
-  function verdicts(lessonKey: string, task: LlmVerdictPayload["task"]) {
-    return db
-      .select({ ts: events.ts, payload: events.payloadJson })
-      .from(events)
-      .innerJoin(runs, eq(runs.id, events.runId))
-      .where(
-        and(
-          eq(runs.kind, "practice"),
-          eq(runs.contextKey, lessonKey),
-          eq(events.type, "llm_verdict"),
-        ),
-      )
-      .orderBy(desc(events.ts))
-      .all()
-      .map((e) => ({ ts: e.ts, ...LlmVerdictPayload.parse(JSON.parse(e.payload)) }))
+  function verdicts(lessonKey: LessonKey, task: LlmVerdictPayload["task"]) {
+    return store
+      .eventsWhere({ types: ["llm_verdict"], kind: "practice", about: lessonKey })
+      .map((e) => ({ ts: e.ts, ...(e.payload as LlmVerdictPayload) }))
       .filter((v) => v.task === task);
   }
 
   /** Stores a verdict in the lesson's practice run; returns its time. */
-  const store = (lessonKey: LessonKey, edition: string, payload: LlmVerdictPayload) =>
-    deps.runs.add(deps.runs.activeOrStart("practice", lessonKey, edition).id, "llm_verdict", [
-      payload,
+  const keep = (lessonKey: LessonKey, edition: string, payload: LlmVerdictPayload) =>
+    store.append(store.activeOrStart("practice", lessonKey, edition).id, [
+      { type: "llm_verdict", payload },
     ]);
 
   /** Runs a structured task with the configured model and stores the result as a verdict. */
@@ -100,7 +85,7 @@ export function createPractice(deps: {
     const { client, model } = await deps.llm.model();
     const started = now();
     const result = clean(await runStructured(client, model, task, signal));
-    const ts = store(request.lessonKey, request.edition, {
+    const ts = keep(request.lessonKey, request.edition, {
       ...verdict,
       result,
       model,
@@ -111,13 +96,8 @@ export function createPractice(deps: {
 
   /** The lesson run each review is about: the one it names; a review stored before reviews named
    *  their run belongs to the latest lesson run started before it. */
-  function reviewedRuns(lessonKey: string, reviews: Array<{ ts: number; runId?: string }>) {
-    const lessonRuns = db
-      .select({ id: runs.id, startedAt: runs.startedAt })
-      .from(runs)
-      .where(and(eq(runs.kind, "lesson"), eq(runs.contextKey, lessonKey)))
-      .orderBy(desc(runs.startedAt), desc(runs.id))
-      .all();
+  function reviewedRuns(lessonKey: LessonKey, reviews: Array<{ ts: number; runId?: string }>) {
+    const lessonRuns = store.list("lesson", lessonKey);
     return reviews.map((r) => r.runId ?? lessonRuns.find((run) => run.startedAt <= r.ts)?.id);
   }
 
