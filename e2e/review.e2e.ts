@@ -139,3 +139,18 @@ test("review: the guide explains the method beside; the decks to take are offere
   await expect(guide.getByRole("heading", { name: "Spaced repetition" })).toBeVisible();
   await expect(guide.getByRole("img", { name: /forgetting curves/ })).toBeVisible();
 });
+
+test("Settings → Review: Anki's deck options, kept; back to Anki's defaults", async ({ page }) => {
+  await page.goto("/settings#review");
+  const perDay = page.getByRole("textbox", { name: "New cards per day" });
+  await expect(perDay).toHaveValue("20");
+  await perDay.fill("15");
+  await perDay.press("Enter");
+  await page.reload();
+  await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("15");
+  await expect(page.getByRole("textbox", { name: "Learning steps", exact: true })).toHaveValue(
+    "1m 10m",
+  );
+  await page.getByRole("button", { name: "Back to Anki's defaults" }).click();
+  await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("20");
+});

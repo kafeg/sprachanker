@@ -487,3 +487,22 @@ test("more new cards today in a deck (custom study): the limit grows for it and 
   expect((await getJson(study(`course:${COURSE}`))).counts.new).toBe(3);
   expect((await getJson(study("lang:de"))).counts.new).toBe(3);
 });
+
+test("the Review settings reach the reviewer: learning steps, and a bad value refused", async () => {
+  const { send, getJson } = await withCards();
+  expect(
+    (await send("PUT", "/api/settings", { key: "srs.learningSteps", value: ["5m", "1h"] })).status,
+  ).toBe(200);
+  const { current } = await getJson(study(`course:${COURSE}`));
+  const now = current.due[1] - 5 * 60_000;
+  expect([current.due[1] - now, current.due[3] - now]).toEqual([5 * 60_000, 60 * 60_000]);
+  expect(
+    (await send("PUT", "/api/settings", { key: "srs.learningSteps", value: ["soon"] })).status,
+  ).toBe(400);
+  expect((await send("PUT", "/api/settings", { key: "srs.dayStartHour", value: 25 })).status).toBe(
+    400,
+  );
+  expect(
+    (await send("PUT", "/api/settings", { key: "srs.newIgnoresReviewLimit", value: true })).status,
+  ).toBe(200);
+});

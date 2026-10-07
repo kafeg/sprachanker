@@ -1,5 +1,5 @@
 // Settings (09): tabs — General (language, theme, storage), Profile (name, languages, sign-in, devices,
-// switching), AI assistant (providers, models, LM Studio), Prompts (the tasks' system prompts, the {}
+// switching), Review (Anki's deck options), AI assistant (providers, models, LM Studio), Prompts (the tasks' system prompts, the {}
 // buttons), About. The open tab is kept in the URL hash.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -10,6 +10,7 @@ import { ProfileSettings } from "@/app/profile-settings.tsx";
 import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
 import { PromptsSettings } from "@/llm/prompts-info.tsx";
 import { LlmSettings } from "@/llm/settings-section.tsx";
+import { ReviewSettings } from "@/study/review-settings.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import {
   Select,
@@ -22,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.t
 import { Page } from "@/ui/page.tsx";
 import { StorageSection } from "./storage.tsx";
 
-const TABS = ["general", "profile", "ai", "prompts", "about"] as const;
+const TABS = ["general", "profile", "review", "ai", "prompts", "about"] as const;
 type Tab = (typeof TABS)[number];
 const tabOfHash = (): Tab => {
   const hash = window.location.hash.slice(1);
@@ -104,6 +105,9 @@ export function SettingsPage() {
         </TabsContent>
         <TabsContent value="profile">
           <ProfileSettings />
+        </TabsContent>
+        <TabsContent value="review">
+          <ReviewSettings />
         </TabsContent>
         <TabsContent value="ai">
           <LlmSettings />

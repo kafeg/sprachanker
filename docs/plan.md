@@ -29,20 +29,7 @@ offered (03, "Offered in the app").
 
 ## Next, in order
 
-### 1. Review settings (owner's request, 2026-10-07)
-Specs: 04, 09.
-- A "Review" tab in Settings with Anki's deck options for the profile: new cards per day (20), maximum
-  reviews per day (200), desired retention (0.9), learning and relearning steps (1m 10m; 10m), the day's
-  start (4 AM), new cards ignore the review limit (off), and the card types a new word gets (recognition
-  and production today; listening; `srs.faces`). Values are profile settings the engine already
-  takes as parameters.
-- The FSRS optimizer lives here too ("Optimize" from the profile's own answers), once there are a few
-  hundred answers: `@open-spaced-repetition/binding` (MIT; FSRS's Rust optimizer for Node/Bun, the one
-  Anki uses) — after the MVP, see Later.
-- **Accept**: settings round-trip and validation tests; the queue and intervals follow them (engine and
-  server tests); e2e of the tab.
-
-### 2. Notebook: study days and progress (owner's request, 2026-10-07)
+### 1. Notebook: study days and progress (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - A study day counts every kind of work and shows it apart: lessons (exercises answered, mistakes,
   steps), review (cards answered, new cards learnt, the share remembered, time), AI practice. An answer
@@ -58,7 +45,7 @@ Specs: 04, 05, 09.
 - Mockups first. **Accept**: engine tests of the derivations on synthetic events; server tests; e2e of
   the Notebook on desktop and phone.
 
-### 3. AI examples for a word (owner's request, 2026-10-07)
+### 2. AI examples for a word (owner's request, 2026-10-07)
 Specs: 04, 07, 09.
 - On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
   an example sentence with its translation in the card's translation language.
@@ -72,14 +59,14 @@ Specs: 04, 07, 09.
 - **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
   the fake server on desktop and phone.
 
-### 4. Speech
+### 3. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 5. Exams: Leben in Deutschland
+### 4. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
@@ -88,7 +75,7 @@ Specs: 02, 03, 06, 09.
   from its course page.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
 
-### 6. MVP acceptance
+### 5. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.

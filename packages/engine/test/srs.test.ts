@@ -179,3 +179,25 @@ test("answers left today, if each is Good: two per new face, a learning face's s
   );
   expect(answersLeft).toBe(2 + 2 + 2 + 1 + 1 + 1);
 });
+
+test("the profile's steps: Again and Good follow the learning steps set; answers left count them", () => {
+  const steps = { learningSteps: ["5m", "30m", "2h"] };
+  const due = intervals(undefined, NOW, "c1:recognition", steps);
+  expect(due[1] - NOW).toBe(5 * MIN);
+  expect(due[3] - NOW).toBe(30 * MIN);
+  const { answersLeft } = studyQueue([face("n")], { now: NOW, nextDay: NEXT, ...steps });
+  expect(answersLeft).toBe(3);
+});
+
+test("new cards ignoring the review limit (Anki's option): the review limit holds only reviews", () => {
+  const fresh = ["a", "b", "c"].map((id, position) => face(id, { position }));
+  const limited = studyQueue(fresh, { now: NOW, nextDay: NEXT, reviewsPerDay: 1 });
+  expect(limited.queue).toHaveLength(1);
+  const ignoring = studyQueue(fresh, {
+    now: NOW,
+    nextDay: NEXT,
+    reviewsPerDay: 1,
+    newIgnoresReviewLimit: true,
+  });
+  expect(ignoring.queue).toHaveLength(3);
+});

@@ -23,7 +23,8 @@ apps/web/src/
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
                    # word-sheet (a word with cards in full: forms, faces, answers), guide (how review
-                   # works: the method, buttons, card types, actions, keys)
+                   # works: the method, buttons, card types, actions, keys), review-settings (Settings →
+                   # Review: Anki's deck options)
   exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   notebook/        # the Notebook: page (study days, lessons), lesson (passes), pass (in full), compare,

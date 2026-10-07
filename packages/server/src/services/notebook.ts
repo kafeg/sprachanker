@@ -36,9 +36,12 @@ export function createNotebook(deps: {
   cards: CardStore;
   tutor: Tutor;
   scenes: Scenes;
+  /** The hour the learner's day starts (the Review settings). */
+  dayStartHour: () => number;
   now: () => number;
 }) {
   const { store, content } = deps;
+  const dayOf = (t: number) => studyDay(t, deps.dayStartHour());
 
   /** A lesson's passes with work in them (a lesson only opened is none), newest first. */
   function passes(lessonKey: LessonKey) {
@@ -104,15 +107,15 @@ export function createNotebook(deps: {
      */
     async overview() {
       const starts: number[] = [];
-      let start = studyDay(deps.now()).start;
+      let start = dayOf(deps.now()).start;
       while (starts.length < NOTEBOOK_DAYS) {
         starts.unshift(start);
-        start = studyDay(start - 1).start;
+        start = dayOf(start - 1).start;
       }
       const counts = new Map(starts.map((s) => [s, 0]));
       for (const e of store.eventsWhere({ types: DAY_EVENTS, since: starts[0] })) {
         if (e.type === "llm_turn" && (e.payload as LlmTurnPayload).role !== "user") continue;
-        const day = studyDay(e.ts).start;
+        const day = dayOf(e.ts).start;
         counts.set(day, (counts.get(day) ?? 0) + 1);
       }
 

@@ -127,6 +127,10 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
+- **Deck options** are the profile's (Settings → Review, owner 2026-10-08), Anki's defaults where unset:
+  new cards and reviews per day (20, 200), new cards ignoring the review limit (off), desired retention
+  (0.9), learning and relearning steps (1m 10m; 10m — passed to the FSRS scheduler), the hour the day
+  starts (4; also the Notebook's study days), the card types of a new word (recognition, production).
 - **Decks to take** (owner, 2026-10-08): each installed course and language pair offers its words as one
   deck. Taking it makes every lesson's words cards at once, new and in course order (Anki: a deck
   imported); words with a card already keep it. Leaving a course's deck removes its cards never studied;

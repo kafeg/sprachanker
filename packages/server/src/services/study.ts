@@ -10,6 +10,7 @@ import {
   type QueueFace,
   review,
   SRS_DEFAULTS,
+  type SrsParams,
   studyDay,
   studyQueue,
 } from "@sprachanker/engine";
@@ -43,7 +44,15 @@ export function createStudy(deps: {
   now: () => number;
 }) {
   const { cards, store, content, settings, now } = deps;
-  const retention = () => settings.get("srs.retention") ?? SRS_DEFAULTS.retention;
+  /** The profile's scheduling options (its Review settings). */
+  const params = (): SrsParams => ({
+    retention: settings.get("srs.retention") ?? SRS_DEFAULTS.retention,
+    learningSteps: settings.get("srs.learningSteps") ?? SRS_DEFAULTS.learningSteps,
+    relearningSteps: settings.get("srs.relearningSteps") ?? SRS_DEFAULTS.relearningSteps,
+  });
+  /** The learner's day (Anki: next day starts at the profile's hour). */
+  const dayOf = (t: number) =>
+    studyDay(t, settings.get("srs.dayStartHour") ?? SRS_DEFAULTS.dayStartHour);
 
   /** The notes of a scope, in the order they were made (their position in the deck). */
   async function notesIn(scope: DeckScope, all = cards.all()) {
@@ -65,7 +74,7 @@ export function createStudy(deps: {
   function day() {
     const events = store.eventsWhere({
       types: ["card_review", "card_undo"],
-      since: studyDay(now()).start,
+      since: dayOf(now()).start,
     });
     return cardDay(events as CardEvent[]);
   }
@@ -77,7 +86,7 @@ export function createStudy(deps: {
    *  those of its courses. */
   function extraNew(scope: DeckScope, notes: Note[]) {
     const extra = settings.get("srs.extraNew");
-    if (!extra || extra.day !== studyDay(now()).start) return 0;
+    if (!extra || extra.day !== dayOf(now()).start) return 0;
     const own = extra.scopes[scope] ?? 0;
     if (!scope.startsWith("lang:")) return own;
     const courses = new Set(
@@ -111,7 +120,10 @@ export function createStudy(deps: {
     const extra = extraNew(scope, data.notes);
     const result = studyQueue(faces, {
       now: data.t,
-      nextDay: studyDay(data.t).next,
+      nextDay: dayOf(data.t).next,
+      newIgnoresReviewLimit: settings.get("srs.newIgnoresReviewLimit") ?? false,
+      learningSteps: params().learningSteps,
+      relearningSteps: params().relearningSteps,
       newPerDay: (settings.get("srs.newPerDay") ?? SRS_DEFAULTS.newPerDay) + extra,
       reviewsPerDay: (settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay) + extra,
       newToday: done.fresh,
@@ -124,7 +136,7 @@ export function createStudy(deps: {
   /** The `review` run of the learner's day: the active one if it began today, else a new one. */
   function reviewRun() {
     const active = store.active("review", null);
-    if (active && active.startedAt >= studyDay(now()).start) return active.id;
+    if (active && active.startedAt >= dayOf(now()).start) return active.id;
     return store.replace("review", null, { status: "finished", reason: "completed" }).id;
   }
 
@@ -132,11 +144,11 @@ export function createStudy(deps: {
     /** Adds `count` new cards to today's limit of a deck (Anki: Custom Study → increase today's new
      *  card limit). */
     learnMore(scope: DeckScope, count: number) {
-      const day = studyDay(now()).start;
+      const today = dayOf(now()).start;
       const stored = settings.get("srs.extraNew");
-      const scopes = stored?.day === day ? { ...stored.scopes } : {};
+      const scopes = stored?.day === today ? { ...stored.scopes } : {};
       scopes[scope] = Math.min((scopes[scope] ?? 0) + count, 9999);
-      settings.set("srs.extraNew", { day, scopes });
+      settings.set("srs.extraNew", { day: today, scopes });
     },
 
     /** Decks: each language the cards teach, and under it each course, with Anki's three counts. */
@@ -190,7 +202,7 @@ export function createStudy(deps: {
                 display: note.display,
                 /** The language the word is in (its lexeme's). */
                 lang: note.lang,
-                due: intervals(state, q.now, `${entry.cardId}:${entry.face}`, retention()),
+                due: intervals(state, q.now, `${entry.cardId}:${entry.face}`, params()),
                 /** Reviews of the face so far: sent back with the rating (`rate`). */
                 reps: state?.reps ?? 0,
                 leech: isLeech(state),
@@ -223,7 +235,7 @@ export function createStudy(deps: {
         }
         const before = cards.stateOf(cards.states([cardId]).get(`${cardId}:${face}`)) ?? null;
         if ((before?.reps ?? 0) !== answer.reps) throw new ServiceError("card_changed", 409);
-        const after = review(before, rating, now(), `${cardId}:${face}`, retention());
+        const after = review(before, rating, now(), `${cardId}:${face}`, params());
         store.append(reviewRun(), [
           {
             id: answer.id,
@@ -258,7 +270,7 @@ export function createStudy(deps: {
     /** Hides a face — or every face of the note — until the next day (Anki: bury card / note). */
     bury(cardId: string, face?: CardFace) {
       const note = cards.note(cardId);
-      const { next } = studyDay(now());
+      const { next } = dayOf(now());
       for (const f of face ? [face] : cards.facesOf(note)) {
         cards.checkFace(note, f);
         cards.setFace(cardId, f, { buriedUntil: next });

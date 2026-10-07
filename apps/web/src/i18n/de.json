@@ -203,7 +203,8 @@
       "ai": "KI-Assistent",
       "prompts": "Prompts",
       "about": "Über",
-      "profile": "Profil"
+      "profile": "Profil",
+      "review": "Wiederholung"
     }
   },
   "llm": {
@@ -859,5 +860,30 @@
       "title": "FSRS",
       "text": "Den Plan rechnet FSRS, das Modell, das Anki heute nutzt: es schätzt, wie fest jede Erinnerung ist und wann du sie vergessen würdest, und zielt auf 90 % Wahrscheinlichkeit, dass du dich noch erinnerst. Die Tageslimits änderst du in den Einstellungen."
     }
+  },
+  "reviewSettings": {
+    "intro": "Ankis Stapeloptionen für deine Karten. Voreingestellt sind Ankis Werte; ändere sie nur, wenn sie dir nicht passen.",
+    "limits": "Tageslimits",
+    "newPerDay": "Neue Karten pro Tag",
+    "reviewsPerDay": "Höchstens Wiederholungen pro Tag",
+    "limitsHint": "Ein Wort mit zwei Kartentypen sind zwei neue Karten. Jede neue Karte bringt im ersten Monat etwa 5–10 Wiederholungen.",
+    "newIgnoresReviewLimit": "Neue Karten zählen nicht zum Wiederholungslimit",
+    "yes": "Ja",
+    "no": "Nein (wie in Anki)",
+    "retention": "Gewünschte Behaltensquote",
+    "retentionHint": "Wie wahrscheinlich du eine Karte noch weißt, wenn sie wiederkommt. Höher heißt mehr Wiederholungen; 90 % ist Ankis Wert.",
+    "steps": "Schritte",
+    "learningSteps": "Lernschritte",
+    "learningStepsHint": "Die Abstände einer neuen Karte, bevor sie aufsteigt: Minuten (m), Stunden (h) oder Tage (d), z. B. 1m 10m.",
+    "relearningSteps": "Neulernschritte",
+    "relearningStepsHint": "Die Abstände einer vergessenen Karte, bevor sie wieder wiederholt wird (leer: keine).",
+    "badSteps": "Schreib Schritte als 1m 10m 1h 1d.",
+    "day": "Der nächste Tag beginnt um",
+    "dayHint": "Wiederholungen nach Mitternacht zählen bis zu dieser Stunde noch zum Vorabend.",
+    "faces": "Kartentypen eines neuen Worts",
+    "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre.",
+    "optimizer": "Optimieren",
+    "optimizerHint": "Später: FSRS, an deine eigenen Antworten angepasst, sobald es einige hundert sind. Bis dahin gelten Ankis Standardwerte.",
+    "defaults": "Ankis Standardwerte"
   }
 }

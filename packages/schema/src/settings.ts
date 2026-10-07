@@ -8,6 +8,8 @@ import { EditionId, Lang } from "./lang.ts";
 import { CardFace } from "./learner.ts";
 
 const filter = z.string().min(1).max(200);
+/** A learning step as Anki writes it: minutes, hours or days. */
+const step = z.string().regex(/^[1-9]\d{0,3}[mhd]$/);
 
 /** Preferences the learner sets (the settings route). */
 export const LEARNER_SETTINGS = {
@@ -33,6 +35,13 @@ export const LEARNER_SETTINGS = {
   "srs.reviewsPerDay": z.number().int().min(0).max(9999),
   "srs.retention": z.number().min(0.7).max(0.99),
   "srs.faces": z.array(CardFace).min(1),
+  /** Learning steps of a new card and relearning steps of a forgotten one ("1m", "10m", "1h", "1d"). */
+  "srs.learningSteps": z.array(step).min(1).max(10),
+  "srs.relearningSteps": z.array(step).max(10),
+  /** The hour the learner's day starts (Anki: "next day starts at"). */
+  "srs.dayStartHour": z.number().int().min(0).max(23),
+  /** New cards do not count against the review limit (Anki's option, off by default). */
+  "srs.newIgnoresReviewLimit": z.boolean(),
 } as const;
 
 /** Settings written only by the service that owns them. */

@@ -203,7 +203,8 @@
       "ai": "AI assistant",
       "prompts": "Prompts",
       "about": "About",
-      "profile": "Profile"
+      "profile": "Profile",
+      "review": "Review"
     }
   },
   "llm": {
@@ -859,5 +860,30 @@
       "title": "FSRS",
       "text": "The schedule is FSRS, the model Anki uses today: it estimates how stable each memory is and when you would forget it, aiming at a 90% chance you still remember. Your settings can change the daily limits."
     }
+  },
+  "reviewSettings": {
+    "intro": "Anki's deck options for your cards. The defaults are Anki's; change them only if they do not suit you.",
+    "limits": "Daily limits",
+    "newPerDay": "New cards per day",
+    "reviewsPerDay": "Maximum reviews per day",
+    "limitsHint": "A word with two card types is two new cards. Each new card brings about 5–10 reviews in its first month.",
+    "newIgnoresReviewLimit": "New cards ignore the review limit",
+    "yes": "Yes",
+    "no": "No (Anki's default)",
+    "retention": "Desired retention",
+    "retentionHint": "How likely you still remember a card when it comes back. Higher means more reviews; 90% is Anki's default.",
+    "steps": "Steps",
+    "learningSteps": "Learning steps",
+    "learningStepsHint": "A new card's intervals before it graduates: minutes (m), hours (h) or days (d), e.g. 1m 10m.",
+    "relearningSteps": "Relearning steps",
+    "relearningStepsHint": "A forgotten card's intervals before it is back in review (empty: none).",
+    "badSteps": "Write steps as 1m 10m 1h 1d.",
+    "day": "Next day starts at",
+    "dayHint": "Reviews done after midnight still count for the evening before until this hour.",
+    "faces": "Card types of a new word",
+    "facesHint": "Which cards a new word gets. Words that have cards keep theirs.",
+    "optimizer": "Optimize",
+    "optimizerHint": "Later: FSRS fitted to your own answers, once there are a few hundred of them. Until then Anki's defaults are used.",
+    "defaults": "Back to Anki's defaults"
   }
 }
