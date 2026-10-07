@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
-import { PickSelect, SpecialLetters, useShuffled } from "./shared.tsx";
+import { PickSelect, partRight, SpecialLetters, useShuffled } from "./shared.tsx";
 import type { ItemOf, RendererProps } from "./types.ts";
 
 type Segments = ItemOf<"gap_text">["segments"];
@@ -132,8 +132,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
   const textOf = (gap: string, id?: string) =>
     item.gaps[gap]?.options.find((o) => o.id === id)?.text;
   const right = (gap: string) => correctOptions(item.answer[gap]);
-  const ok = (gap: string) =>
-    !!values[gap] && right(gap).some((id) => textOf(gap, values[gap]) === textOf(gap, id));
+  const ok = (gap: string) => partRight(outcome, gap);
   const rightText = (gap: string) =>
     right(gap)
       .map((id) => textOf(gap, id))
@@ -187,7 +186,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
         segments={item.segments}
         gap={(gap) => {
           const accepted = item.answer[gap]?.accepted ?? [];
-          const ok = outcome?.result === "correct";
+          const ok = partRight(outcome, gap);
           return (
             <>
               <input

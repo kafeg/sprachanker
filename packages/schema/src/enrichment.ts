@@ -1,6 +1,7 @@
 // Our layer over a lesson, keyed by stable keys and fingerprints (02, "Enrichment").
 import { z } from "zod";
 import { format, LocalizedText, Sha256 } from "./common.ts";
+import { GapId } from "./exercise/base.ts";
 import { Exercise } from "./exercise/index.ts";
 import { ExerciseKey, LessonKey, LexemeKey, RuleId, SceneKey } from "./keys.ts";
 import { ItemRef } from "./locale.ts";
@@ -23,8 +24,13 @@ export const Enrichment = z.object({
         ruleIds: z.array(RuleId).optional(),
         /** Override of the selfrate upgrade (04). */
         upgrade: z.enum(["speech_repeat", "respond"]).optional(),
-        /** Extra accepted answers per item. */
-        accepted: z.record(ItemRef, z.array(z.string().min(1))).optional(),
+        /** Extra accepted answers per item: texts, or texts per gap (a gap_text item). */
+        accepted: z
+          .record(
+            ItemRef,
+            z.union([z.array(z.string().min(1)), z.record(GapId, z.array(z.string().min(1)))]),
+          )
+          .optional(),
       }),
     )
     .default({}),

@@ -17,20 +17,32 @@ const NOW = new Date(2026, 9, 6, 12).getTime();
 const NEXT = new Date(2026, 9, 7, 4).getTime();
 
 test("a new face: again, hard, good stay in the learning steps (1m 10m), easy graduates", () => {
-  const due = intervals(undefined, NOW);
+  const due = intervals(undefined, NOW, "c1:recognition");
   expect(due[1] - NOW).toBe(MIN);
   expect(due[2] - NOW).toBe(6 * MIN);
   expect(due[3] - NOW).toBe(10 * MIN);
   expect(due[4] - NOW).toBeGreaterThanOrEqual(DAY);
-  expect(review(undefined, 3, NOW).state).toBe(1);
+  expect(review(undefined, 3, NOW, "c1:recognition").state).toBe(1);
+});
+
+test("the interval a button shows is the one the answer gets, whenever it is given", () => {
+  const face = "c1:recognition";
+  let s = review(undefined, 3, NOW, face);
+  s = review(s, 3, s.due, face);
+  s = review(s, 3, s.due + 3 * DAY, face);
+  const shown = intervals(s, s.due, face);
+  for (const rating of [1, 2, 3, 4] as const)
+    expect(review(s, rating, s.due + 7_000, face).due - (s.due + 7_000)).toBe(
+      shown[rating] - s.due,
+    );
 });
 
 test("good through the steps graduates; forgetting relearns for 10 minutes and counts a lapse", () => {
-  let s = review(undefined, 3, NOW);
-  s = review(s, 3, s.due);
+  let s = review(undefined, 3, NOW, "c1:recognition");
+  s = review(s, 3, s.due, "c1:recognition");
   expect(s.state).toBe(2);
   expect(s.due - (s.lastReview ?? 0)).toBeGreaterThanOrEqual(DAY);
-  const lapse = review(s, 1, s.due);
+  const lapse = review(s, 1, s.due, "c1:recognition");
   expect([lapse.state, lapse.lapses, lapse.due - (lapse.lastReview ?? 0)]).toEqual([
     3,
     1,
@@ -86,13 +98,17 @@ test("queue: learning due first, then reviews mixed with new cards; counts as in
     { now: NOW, nextDay: NEXT },
   );
   expect(queue[0]).toMatchObject({ cardId: "l1", kind: "learning" });
-  expect(
-    queue
-      .slice(1)
-      .map((e) => e.kind)
-      .sort(),
-  ).toEqual(["new", "new", "review", "review"]);
+  // Spread evenly: a new card after every review here (two of each).
+  expect(queue.slice(1).map((e) => e.kind)).toEqual(["review", "new", "review", "new"]);
   expect(counts).toEqual({ new: 2, learning: 2, review: 2 });
+});
+
+test("queue: a face in FSRS's own new state is new", () => {
+  const { counts } = studyQueue([face("imported", { state: state(NOW, 0) })], {
+    now: NOW,
+    nextDay: NEXT,
+  });
+  expect(counts).toEqual({ new: 1, learning: 0, review: 0 });
 });
 
 test("queue: new cards by card type — every card 1 before any card 2 — within the day's limits", () => {

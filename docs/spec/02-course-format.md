@@ -45,7 +45,7 @@ moved, or restored by copying.
 | Unit | `<course>/u<NN>` | `dw.nicos-weg/a1/u00` |
 | Lesson | `<course>/<NN>-<NN>` (unit-lesson) | `dw.nicos-weg/a1/00-01` |
 | Exercise | `<lesson>/ex-<NN>` (source order); ours: `<lesson>/x-<NN>` | `dw.nicos-weg/a1/00-01/ex-03` |
-| Item | `<exercise>#<n>` (1-based) | `dw.nicos-weg/a1/00-01/ex-03#2` |
+| Item | `<exercise>#<n>` (1-based; the schema checks that an item's key is its position) | `dw.nicos-weg/a1/00-01/ex-03#2` |
 | Option | id inside an item: `a`, `b`, `c`… in canonical order | option `b` |
 | Exam | `<course>/exam-<slug>` | `bamf.lid/lid/exam-test` |
 | Exam section | `<exam>/s-<slug>` | `bamf.lid/lid/exam-test/s-state` |
@@ -204,7 +204,8 @@ exercises:
     fingerprint: "…"                             # entry is stale if it differs
     ruleIds: [de.greeting.du-sie]
     upgrade: respond                             # optional override of the selfrate upgrade (04)
-    accepted: { "#2": ["Guten Tag!"] }           # optional extra accepted answers
+    accepted: { "#2": ["Guten Tag!"], "#3": { g1: ["Tee"] } }   # optional extra accepted answers
+                                                 # (per gap for a gap_text item)
 extra:
   - after: dw.nicos-weg/a1/00-01/ex-12           # existing exercise key, or "end"
     exercise: { key: dw.nicos-weg/a1/00-01/x-01, type: respond, items: [ … ] }

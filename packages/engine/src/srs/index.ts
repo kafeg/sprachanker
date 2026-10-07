@@ -3,7 +3,14 @@
 // then reviews mixed with new cards within the day's limits, learning cards up to 20 minutes early when
 // nothing else is left. Pure: the caller passes the time and the day's boundaries.
 import type { CardFace, CardRating, FaceState } from "@sprachanker/schema";
-import { type Card, createEmptyCard, fsrs, type Grade } from "ts-fsrs";
+import {
+  type AbstractScheduler,
+  type Card,
+  createEmptyCard,
+  fsrs,
+  type Grade,
+  StrategyMode,
+} from "ts-fsrs";
 
 /** Anki's defaults (deck options; desired retention for FSRS). */
 export const SRS_DEFAULTS = {
@@ -22,7 +29,19 @@ export const LONG_TERM_DAYS = 21;
 /** A note's card types in order: recognition is card 1, production card 2, listening card 3. */
 export const FACE_ORDER: CardFace[] = ["recognition", "production", "listening"];
 
-const scheduler = (retention: number) => fsrs({ request_retention: retention, enable_fuzz: true });
+/**
+ * The scheduler for one face. Its fuzz is seeded by the face (`seed`, e.g. "<card id>:<face>") and
+ * its review count, as Anki seeds it by card: the interval a button shows is the one the answer gets,
+ * whenever the learner answers.
+ */
+const scheduler = (retention: number, seed: string) =>
+  fsrs({ request_retention: retention, enable_fuzz: true }).useStrategy(
+    StrategyMode.SEED,
+    function (this: AbstractScheduler) {
+      // ts-fsrs keeps the card being scheduled in a protected field (as its own id strategy reads it).
+      return `${seed}_${(Reflect.get(this, "current") as Card).reps}`;
+    },
+  );
 
 const toCard = (s: FaceState): Card => ({
   due: new Date(s.due),
@@ -49,15 +68,16 @@ const fromCard = (c: Card): FaceState => ({
   ...(c.last_review ? { lastReview: c.last_review.getTime() } : {}),
 });
 
-/** A face's state after a rating; a face never reviewed starts new. */
+/** A face's state after a rating; a face never reviewed starts new. `seed` names the face. */
 export function review(
   state: FaceState | undefined | null,
   rating: CardRating,
   now: number,
+  seed: string,
   retention: number = SRS_DEFAULTS.retention,
 ): FaceState {
   const card = state ? toCard(state) : createEmptyCard(new Date(now));
-  return fromCard(scheduler(retention).next(card, new Date(now), rating as Grade).card);
+  return fromCard(scheduler(retention, seed).next(card, new Date(now), rating as Grade).card);
 }
 
 /** Due times by rating: again, hard, good, easy. */
@@ -67,9 +87,10 @@ export type Intervals = Record<1 | 2 | 3 | 4, number>;
 export function intervals(
   state: FaceState | undefined | null,
   now: number,
+  seed: string,
   retention: number = SRS_DEFAULTS.retention,
 ): Intervals {
-  const at = (rating: CardRating) => review(state, rating, now, retention).due;
+  const at = (rating: CardRating) => review(state, rating, now, seed, retention).due;
   return { 1: at(1), 2: at(2), 3: at(3), 4: at(4) };
 }
 
@@ -138,6 +159,8 @@ export interface QueueLimits {
 }
 
 const isLearning = (s: FaceState) => s.state === 1 || s.state === 3;
+/** Never answered: no state, or FSRS's own "new" (an imported deck may carry one). */
+const isNew = (s: FaceState | null | undefined) => !s || s.state === 0;
 /** A stable order among cards due at the same time (Anki: "then random"). */
 const shuffleKey = (id: string) => {
   let h = 0;
@@ -202,7 +225,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
       );
   const order = (f: CardFace) => FACE_ORDER.indexOf(f);
   const fresh = active
-    .filter((f) => !f.state)
+    .filter((f) => isNew(f.state))
     .sort((a, b) => a.position - b.position || order(a.face) - order(b.face))
     .slice(0, newLeft)
     .sort((a, b) => order(a.face) - order(b.face) || a.position - b.position)
@@ -229,7 +252,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     /** When the next learning card is due, if later today (the "finished for now" screen). */
     nextLearning: learningAll.find((e) => e.due > now)?.due,
     /** New faces left but held back by the day's limit. */
-    newWaiting: active.filter((f) => !f.state).length > fresh.length,
+    newWaiting: active.filter((f) => isNew(f.state)).length > fresh.length,
     /** Reviews due today held back by the review limit. */
     reviewsWaiting:
       active.filter((f) => f.state?.state === 2 && f.state.due < nextDay).length > reviews.length,

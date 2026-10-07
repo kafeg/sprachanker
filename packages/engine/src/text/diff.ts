@@ -1,15 +1,18 @@
 // Word diff between a reference and an answer (dictation, speech).
 import type { TokenDiff } from "@sprachanker/schema";
-import { caseMatters, tokens } from "./normalise.ts";
+import { tokens, wordMatches } from "./normalise.ts";
 
 export interface WordDiff {
   diff: TokenDiff[];
-  /** Reference words matched, 0..1. */
+  /** Words matched of the reference or the answer, whichever has more: 0..1 (extra words cost). */
   score: number;
 }
 
 /** A word without surrounding punctuation: dictation and speech grade words, not commas. */
 const bare = (word: string) => word.replace(/^[\p{P}]+|[\p{P}]+$/gu, "");
+
+/** Words only: a dash or a lone punctuation mark is no word (a recogniser never writes one). */
+const words = (text: string) => tokens(text).filter((t) => bare(t) !== "");
 
 /** LCS-based alignment; a missing and an extra word at the same place become one `wrong`. */
 export function wordDiff(
@@ -18,14 +21,10 @@ export function wordDiff(
   actual: string,
   ignoreCase = false,
 ): WordDiff {
-  const ref = tokens(reference);
-  const got = tokens(actual);
-  const eq = (i: number, j: number) => {
-    const expected = bare(ref[i] ?? "");
-    const actual = bare(got[j] ?? "");
-    if (!ignoreCase && caseMatters(lang, ref, i)) return expected === actual;
-    return expected.toLocaleLowerCase(lang) === actual.toLocaleLowerCase(lang);
-  };
+  const ref = words(reference);
+  const got = words(actual);
+  const eq = (i: number, j: number) =>
+    wordMatches(lang, ref, i, got[j] ?? "", { ignoreCase, strip: bare });
   const lcs: number[][] = Array.from({ length: ref.length + 1 }, () =>
     Array(got.length + 1).fill(0),
   );
@@ -67,5 +66,6 @@ export function wordDiff(
     } else diff.push(d);
   }
   const matched = diff.filter((d) => d.op === "equal").length;
-  return { diff, score: ref.length ? matched / ref.length : got.length ? 0 : 1 };
+  const longest = Math.max(ref.length, got.length);
+  return { diff, score: longest ? matched / longest : 1 };
 }

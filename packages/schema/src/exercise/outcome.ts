@@ -18,5 +18,7 @@ export const Outcome = z.object({
   lexemes: z.array(LexemeKey),
   /** respond: deterministic part done, LLM verdict pending. */
   needsLlm: z.boolean().optional(),
+  /** Each part right or not: gaps by gap id, match pairs by left id (what the item marks). */
+  parts: z.record(z.string(), z.boolean()).optional(),
 });
 export type Outcome = z.infer<typeof Outcome>;

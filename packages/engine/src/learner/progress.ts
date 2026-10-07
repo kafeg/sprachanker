@@ -37,6 +37,9 @@ export interface ExerciseResult {
   last: Record<string, { answer: unknown; outcome?: Outcome }>;
   /** Items the learner moved on from without an answer (and has not answered since). */
   skipped: string[];
+  /** Items skipped before their first answer: the skip was their first attempt (an answer after it
+   *  is shown, but does not count). */
+  skippedFirst: string[];
 }
 
 interface Answered {
@@ -44,30 +47,35 @@ interface Answered {
   outcome?: Outcome;
 }
 
-const exerciseOf = (itemKey: string) => itemKey.slice(0, itemKey.lastIndexOf("#"));
+const exerciseOf = (itemKey: string) => parseItemKey(itemKey as ItemKey).exercise;
 
 /** Answers and skips of a run per exercise key. */
 export function exerciseResults(events: StoredEvent[]): Record<string, ExerciseResult> {
   const results: Record<string, ExerciseResult> = {};
   for (const e of events) {
     if ((e.type !== "answered" && e.type !== "item_skipped") || !e.itemKey) continue;
-    results[exerciseOf(e.itemKey)] ??= { first: {}, last: {}, skipped: [] };
+    results[exerciseOf(e.itemKey)] ??= { first: {}, last: {}, skipped: [], skippedFirst: [] };
     const r = results[exerciseOf(e.itemKey)] as ExerciseResult;
     if (e.type === "item_skipped") {
       if (!r.skipped.includes(e.itemKey)) r.skipped.push(e.itemKey);
+      if (!(e.itemKey in r.last) && !r.skippedFirst.includes(e.itemKey))
+        r.skippedFirst.push(e.itemKey);
       continue;
     }
     const { answer, outcome } = e.payload as Answered;
-    if (outcome && !(e.itemKey in r.first)) r.first[e.itemKey] = outcome;
+    // Only the first attempt counts (04); skipping an item first is its first attempt.
+    if (outcome && !(e.itemKey in r.first) && !r.skippedFirst.includes(e.itemKey))
+      r.first[e.itemKey] = outcome;
     r.last[e.itemKey] = { answer, outcome };
     r.skipped = r.skipped.filter((k) => k !== e.itemKey);
   }
   return results;
 }
 
-/** Items skipped without an answer that would have been scored: they count as wrong (score 0). */
+/** Items that would have been scored but were skipped at their first attempt (answered later or
+ *  not): they count as wrong (score 0). */
 const missed = (exercise: Exercise, r: ExerciseResult) =>
-  r.skipped.filter(
+  [...new Set([...r.skipped, ...r.skippedFirst])].filter(
     (k) => !(k in r.first) && itemScored(exercise, parseItemKey(k as ItemKey).n - 1),
   );
 

@@ -126,7 +126,16 @@ describe("parsers", () => {
     });
   });
   test("option ids", () => {
-    expect([0, 1, 25, 26, 27].map(optionId)).toEqual(["a", "b", "z", "aa", "ab"]);
+    expect([0, 1, 25, 26, 27, 52, 701].map(optionId)).toEqual([
+      "a",
+      "b",
+      "z",
+      "aa",
+      "ab",
+      "ba",
+      "zz",
+    ]);
+    expect(() => optionId(702)).toThrow(RangeError);
   });
 });
 

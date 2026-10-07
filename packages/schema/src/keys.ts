@@ -119,8 +119,14 @@ export const sceneKey = (series: SeriesKey, slug: string) =>
   SceneKey.parse(`${series}/scene-${slug}`);
 
 const LETTERS = "abcdefghijklmnopqrstuvwxyz";
-/** Id of a choice option by its 0-based position: `a`…`z`, then `aa`…`az` (`OptionId`). */
-export const optionId = (i: number) => (i < 26 ? LETTERS[i] : `a${LETTERS[i - 26]}`) as string;
+/** Id of a choice option by its 0-based position: `a`…`z`, then `aa`…`zz` (`OptionId`). */
+export function optionId(i: number): string {
+  if (!Number.isInteger(i) || i < 0 || i >= 26 + 26 * 26)
+    throw new RangeError(`no option id for position ${i}`);
+  if (i < 26) return LETTERS[i] as string;
+  const n = i - 26;
+  return `${LETTERS[Math.floor(n / 26)]}${LETTERS[n % 26]}`;
+}
 
 /**
  * The parts of a lesson key: `dw.nicos-weg/a1/02-03` → course `dw.nicos-weg/a1`, its id `a1`, the

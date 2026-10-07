@@ -1,12 +1,15 @@
 // Text normalisation for checking typed and spoken answers (04, "Checking").
 
+const DASHES = /[‐‑‒–—―]/g;
+
 /** NFC; one form for quotes, apostrophes and dashes; collapsed whitespace; no final punctuation. */
 export function normalise(text: string): string {
   return text
     .normalize("NFC")
-    .replace(/[’‘`´ʼ]/g, "'")
+    .replace(/[’‘`´ʼ‚‛]/g, "'")
     .replace(/[“”„«»‹›]/g, '"')
-    .replace(/[‐‑‒–—―]/g, "-")
+    .replace(DASHES, "-")
+    .replace(/[​-‍﻿]/g, "")
     .replace(/\s+/g, " ")
     .trim()
     .replace(/\s*[.!?…]+$/, "")
@@ -16,37 +19,68 @@ export function normalise(text: string): string {
 /** Words of a normalised text; punctuation stays attached so "Ihnen?" ≠ "Ihnen". */
 export const tokens = (text: string) => normalise(text).split(" ").filter(Boolean);
 
+/** Whether a gap_text answer leaves a gap empty: blank, or a dash for "nothing here". */
+export const isEmptyGap = (text: string) => /^[\s-]*$/.test(text.replace(DASHES, "-"));
+
 const SENTENCE_END = /[.!?:]$/;
+
+/** Whether text ends a sentence, so the next word starts one. */
+export const endsSentence = (text: string) => SENTENCE_END.test(text.trimEnd());
 
 /**
  * Whether the reference word at `index` keeps its case when compared: German capitalises nouns and
  * the formal "Sie", so a capitalised word that does not start a sentence must match exactly (04).
+ * `startsSentence`: whether the first word starts a sentence (a gap in mid-sentence does not).
  */
-export function caseMatters(lang: string, words: string[], index: number): boolean {
+export function caseMatters(
+  lang: string,
+  words: string[],
+  index: number,
+  startsSentence = true,
+): boolean {
   if (lang !== "de") return false;
   const word = words[index] ?? "";
-  const starts = index === 0 || SENTENCE_END.test(words[index - 1] ?? "");
+  const starts = index === 0 ? startsSentence : endsSentence(words[index - 1] ?? "");
   return !starts && /^\p{Lu}/u.test(word);
 }
 
-function sameWord(
+/**
+ * Whether `actual` is the reference word at `index`, with the language's case rule; `strip` takes
+ * what does not count off both words (punctuation, for dictation and speech).
+ */
+export function wordMatches(
   lang: string,
   reference: string[],
   index: number,
   actual: string,
-  ignoreCase: boolean,
+  options: {
+    ignoreCase?: boolean;
+    startsSentence?: boolean;
+    strip?: (word: string) => string;
+  } = {},
 ) {
-  const expected = reference[index] ?? "";
-  if (!ignoreCase && caseMatters(lang, reference, index)) return expected === actual;
-  return expected.toLocaleLowerCase(lang) === actual.toLocaleLowerCase(lang);
+  const strip = options.strip ?? ((w: string) => w);
+  const expected = strip(reference[index] ?? "");
+  const got = strip(actual);
+  if (!options.ignoreCase && caseMatters(lang, reference, index, options.startsSentence))
+    return expected === got;
+  return expected.toLocaleLowerCase(lang) === got.toLocaleLowerCase(lang);
 }
 
-/** Typed answer equals the reference after normalisation, with the case rule of the language. */
-export function sameText(lang: string, reference: string, actual: string): boolean {
+/**
+ * Typed answer equals the reference after normalisation, with the case rule of the language.
+ * `startsSentence`: false for a gap in mid-sentence, whose first word keeps its case rule.
+ */
+export function sameText(
+  lang: string,
+  reference: string,
+  actual: string,
+  startsSentence = true,
+): boolean {
   const ref = tokens(reference);
   const got = tokens(actual);
   return (
     ref.length === got.length &&
-    ref.every((_, i) => sameWord(lang, ref, i, got[i] as string, false))
+    ref.every((_, i) => wordMatches(lang, ref, i, got[i] as string, { startsSentence }))
   );
 }

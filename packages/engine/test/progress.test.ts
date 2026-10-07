@@ -43,6 +43,21 @@ test("first attempts count; unscored items are left out; scored items skipped co
   expect(lessonResult(lesson, skipped)).toEqual({ score: 0.5 / 3, scored: 3, answered: 3 });
 });
 
+test("a skip before the first answer is the first attempt: answering after it does not count", () => {
+  const lesson = lessonOf("b");
+  const events = [
+    ev(1, "item_skipped", "b#1", {}),
+    ev(2, "answered", "b#1", { attempt: 1, outcome: outcome("correct", 1) }),
+  ];
+  const results = exerciseResults(events);
+  expect(results.b?.first).toEqual({});
+  expect(results.b?.last["b#1"]?.outcome?.result).toBe("correct");
+  expect(exerciseState({ key: "b", type: "single_choice", items: [{}] } as never, results.b)).toBe(
+    "wrong",
+  );
+  expect(lessonResult(lesson, events)).toEqual({ score: 0, scored: 1, answered: 0 });
+});
+
 test("lesson status and best score over runs", () => {
   const run = (id: string, key: string, status: Run["status"], startedAt: number, score?: number) =>
     ({

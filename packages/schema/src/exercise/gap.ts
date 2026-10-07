@@ -16,8 +16,6 @@ export const GapChoiceAnswer = z.record(GapId, OptionId);
 export const correctOptions = (want: OptionId | OptionId[] | undefined): OptionId[] =>
   want === undefined ? [] : Array.isArray(want) ? want : [want];
 
-/** Whether a gap_text answer leaves a gap empty: blank, or a dash for "nothing here". */
-export const isEmptyGap = (text: string) => /^[\s\-–—]*$/.test(text);
 export const GapChoiceExercise = exerciseOf("gap_choice", GapChoiceItem);
 
 export const GapTextItem = ItemBase.extend({

@@ -45,24 +45,34 @@ type Outcome = {
   ruleIds: string[];      // canonical ruleIds + enrichment
   lexemes: string[];
   needsLlm?: boolean;     // respond: deterministic part done, LLM verdict pending
+  parts?: Record<string, boolean>;  // gaps by gap id, match pairs by left id: what the item marks
 };
 ```
 
+The renderers mark gaps and pairs from `parts` (an outcome stored before parts counts as a whole);
+the UI never re-checks an answer.
+
 - Matching is by ids, never by display position. Exception: options with identical content are
-  interchangeable (`order` with repeated letters, `match` with the same form twice, a word bank with
-  duplicates), so ids with equal content compare equal.
-- `partial` only for multi-select, `order` with a correct prefix, and dictation/speech with ≥ 80% of
-  words matched; otherwise results are binary.
+  interchangeable (`order` with repeated letters, `match` with the same form twice on either side, a
+  word bank with duplicates), so ids with equal content compare equal. Content is the text as written
+  (only whitespace evened out: "Berlin?" and "Berlin." differ), else the picture, else the id.
+- `partial` only for multi-select, `order` with a correct prefix (parts beyond the sequence cost like
+  missing ones), and dictation/speech with ≥ 80% of words matched — of the reference or the answer,
+  whichever is longer, so extra words cost; a dash or lone punctuation mark is no word. With several
+  accepted texts, an exact match wins. Otherwise results are binary.
 - **Attempts**: the learner may retry an item; every attempt is recorded, but only the **first attempt**
   counts for the lesson score and statistics. Items may be skipped: a skipped item that would be checked
-  counts as wrong (score 0; its exercise is marked wrong), a skipped self-rated or otherwise unscored
-  item costs nothing (its exercise is marked skipped); the summary lists them as skipped.
+  counts as wrong (score 0; its exercise is marked wrong) — a skip before the first answer is the first
+  attempt, so answering after it does not count — a skipped self-rated or otherwise unscored item
+  costs nothing (its exercise is marked skipped); the summary lists them as skipped.
 - **Text normalisation**: NFC; unify quotes, apostrophes and dashes; collapse whitespace; strip final
   punctuation; case-insensitive except where the target language makes case meaningful (German: a
-  token capitalised in the reference and not sentence-initial is compared case-sensitively). Speech is
+  token capitalised in the reference and not sentence-initial is compared case-sensitively; a gap
+  starts a sentence only when nothing but a sentence's end comes before it). Speech is
   always compared case-insensitively. Normalisation and the per-language case rule live in
   `packages/engine/src/text/normalise.ts`, the word diff in `packages/engine/src/text/diff.ts`.
-- `respond`: scored from the rubric's required groups if it has them, otherwise `unscored`; the outcome
+- `respond`: scored from the rubric's required groups (each a phrase said as whole words) if it has
+  them, otherwise `unscored`; the outcome
   carries `needsLlm` and the reference is shown either way. Planned: an LLM verdict on top (07, Later).
 - `unknown` is never rendered; the page shows "not supported yet".
 
@@ -90,8 +100,10 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 `packages/engine/src/srs/`; the server keeps the cards and answers (`services/cards.ts`).
 
 - FSRS via `ts-fsrs`, default parameters, desired retention 0.9 (`srs.retention`), Anki's default
-  steps: learning 1m 10m, relearning 10m; Hard on a new card is 6m; intervals fuzzed. A face lapsed
-  8 times is a leech (marked on the card).
+  steps: learning 1m 10m, relearning 10m; Hard on a new card is 6m; intervals fuzzed, the fuzz seeded
+  by the face and its review count (as Anki seeds it by card), so the interval a button shows is the
+  one the answer gets. A face lapsed 8 times is a leech (marked on the card); a face in FSRS's own
+  "new" state (an imported deck) is new.
 - **The day** starts at 4 AM local time (Anki's "next day starts at"); limits and burying count from it.
 - **The queue** (`studyQueue`): learning faces due now first; then reviews and new faces mixed evenly;
   new faces gathered by the order the cards were made, card 1 (recognition) of every note before card 2

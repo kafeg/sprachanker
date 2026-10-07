@@ -67,15 +67,13 @@ export function SingleChoice({
       active={active}
       locked={!!outcome}
       selected={(id) => answer?.optionId === id}
-      mark={(id) =>
-        outcome
-          ? id === right
-            ? "correct"
-            : answer?.optionId === id
-              ? "wrong"
-              : undefined
-          : undefined
-      }
+      // The chosen option takes the outcome (an option with the same text as the right one is
+      // right too, 04); the right one is shown when the choice was wrong.
+      mark={(id) => {
+        if (!outcome) return undefined;
+        if (id === answer?.optionId) return outcome.result === "correct" ? "correct" : "wrong";
+        return id === right && outcome.result !== "correct" ? "correct" : undefined;
+      }}
       choose={(id) => onAnswer({ optionId: id })}
     />
   );

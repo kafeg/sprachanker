@@ -265,7 +265,7 @@ export function createCards(deps: {
                 face: entry.face,
                 kind: entry.kind,
                 display: displayOf(row),
-                due: intervals(state, q.now, retention()),
+                due: intervals(state, q.now, `${entry.cardId}:${entry.face}`, retention()),
                 /** Reviews of the face so far: sent back with the rating (`rate`). */
                 reps: state?.reps ?? 0,
                 leech: isLeech(state),
@@ -299,7 +299,7 @@ export function createCards(deps: {
         const t = now();
         const before = stateOf(stateRows([cardId]).get(`${cardId}:${face}`)) ?? null;
         if ((before?.reps ?? 0) !== answer.reps) throw new ServiceError("card_changed", 409);
-        const after = review(before, rating, t, retention());
+        const after = review(before, rating, t, `${cardId}:${face}`, retention());
         store.append(reviewRun(), [
           {
             id: answer.id,

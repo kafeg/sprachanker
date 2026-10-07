@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
-import { useShuffled } from "./shared.tsx";
+import { partRight, useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 const hasImage = (options: Option[]) => options.some((o) => o.media?.image);
@@ -28,12 +28,8 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
   const wanted = new Map(item.answer.pairs.map((p) => toSlot(p)));
   const used = new Set(placed.values());
   const textOf = (id: string | undefined) => chips.find((c) => c.id === id)?.text;
-  // Options with the same text are interchangeable (04).
-  const right = (slot: string) => {
-    const a = placed.get(slot);
-    const b = wanted.get(slot);
-    return a === b || (!!textOf(a) && textOf(a) === textOf(b));
-  };
+  // The engine marks each pair by its left side.
+  const right = (slot: string) => partRight(outcome, flip ? (wanted.get(slot) ?? "") : slot);
 
   const commit = (next: Map<string, string>) =>
     onAnswer({

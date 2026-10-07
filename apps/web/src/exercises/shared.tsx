@@ -1,4 +1,4 @@
-import type { Option } from "@sprachanker/schema";
+import type { Option, Outcome } from "@sprachanker/schema";
 import { Check, X } from "lucide-react";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +11,13 @@ import {
 } from "@/ui/components/select.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+
+/**
+ * Whether a part of an item — a gap, a match pair — was right, as the engine marked it (04); an
+ * outcome stored before parts were marked counts as a whole.
+ */
+export const partRight = (outcome: Outcome | undefined, part: string) =>
+  outcome?.parts?.[part] ?? outcome?.result === "correct";
 
 /** Stable shuffled order for one item (display order is not the canonical order, 02). */
 export function useShuffled<T>(items: T[], seed: string): T[] {

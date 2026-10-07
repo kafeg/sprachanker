@@ -21,6 +21,11 @@ describe("German case rule", () => {
     ["Kaffee", "kaffee", true],
   ])("%s vs %s → %p", (ref, got, ok) => expect(sameText("de", ref, got)).toBe(ok));
 
+  test("a text in mid-sentence (a gap) keeps the rule for its first word", () => {
+    expect(sameText("de", "Kaffee", "kaffee", false)).toBe(false);
+    expect(sameText("de", "trinke", "Trinke", false)).toBe(true);
+  });
+
   test("other languages ignore case", () => {
     expect(sameText("ru", "Привет, Иван", "привет, иван")).toBe(true);
   });

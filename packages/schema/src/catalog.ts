@@ -1,7 +1,5 @@
-// Catalog entries declared statically by providers (01, "Catalog").
+// What a catalog says about a course (01, "Catalog"): its kind, level and licence (manifest.ts).
 import { z } from "zod";
-import { CourseKey, SeriesKey } from "./keys.ts";
-import { EditionId, Lang } from "./lang.ts";
 
 export const CourseKind = z.enum(["course", "exam"]);
 export type CourseKind = z.infer<typeof CourseKind>;
@@ -15,17 +13,3 @@ export const Licence = z.object({
   url: z.url(),
 });
 export type Licence = z.infer<typeof Licence>;
-
-export const CatalogEntry = z.object({
-  course: CourseKey,
-  series: SeriesKey,
-  kind: CourseKind,
-  level: CefrLevel.optional(),
-  target: Lang,
-  editions: z.array(z.object({ id: EditionId, source: Lang })).min(1),
-  licence: Licence,
-  homepage: z.url(),
-  /** Rough download size of one edition with media, for the UI. */
-  approxSizeMb: z.number().int().nonnegative(),
-});
-export type CatalogEntry = z.infer<typeof CatalogEntry>;
