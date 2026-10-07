@@ -63,6 +63,10 @@ Specs: 04, 09.
   decks. Replaces today's deck list under Review, which the owner finds poor.
 - A lesson's "Words" step keeps making the cards of what the lesson teaches; they land in the deck of
   that course.
+- Learning a big deck faster: Anki has no separate "learning mode" — new cards come through the same
+  reviewer, 20 a day by default (cards, not words: a word with two card types is two). As in Anki's
+  Custom Study, a deck offers "learn N more new cards today" (and the Review settings raise the daily
+  limit); a lesson's "Words" step is our own way in.
 - Open for the plan: what "taking" a course deck does to cards not yet met in a lesson (new cards in
   course order, or only words met), and how a deck is left. Mockups first (tabs, decks, the guide).
 - **Accept**: server tests (adding and leaving a deck, Review over the profile's decks); e2e on desktop
@@ -81,7 +85,19 @@ Specs: 04, 09.
 - **Accept**: settings round-trip and validation tests; the queue and intervals follow them (engine and
   server tests); e2e of the tab.
 
-### 5. AI examples for a word (owner's request, 2026-10-07)
+### 5. Notebook: study days and progress (owner's request, 2026-10-07)
+Specs: 04, 05, 09.
+- A study day counts every kind of work and shows it apart: lessons (exercises answered, mistakes,
+  steps), review (cards answered, new cards learnt, the share remembered, time), AI practice. An answer
+  taken back (undo) no longer counts. All of it derived from the events by pure functions (engine), as
+  the event log intends (05).
+- Progress drawn: an activity calendar, reviews and new cards per day, the share remembered over time,
+  words by state (new, learning, known), lessons and courses done; a review day opens to its answers as
+  a lesson pass does.
+- Mockups first. **Accept**: engine tests of the derivations on synthetic events; server tests; e2e of
+  the Notebook on desktop and phone.
+
+### 6. AI examples for a word (owner's request, 2026-10-07)
 Specs: 04, 07, 09.
 - On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
   an example sentence with its translation in the card's translation language.
@@ -95,20 +111,20 @@ Specs: 04, 07, 09.
 - **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
   the fake server on desktop and phone.
 
-### 6. Speech
+### 7. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 7. Exams: Leben in Deutschland
+### 8. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
 
-### 8. MVP acceptance
+### 9. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.
