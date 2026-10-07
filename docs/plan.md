@@ -41,7 +41,38 @@ Specs: 05, 06, 09.
   from both stored; Host check, CSRF header and PIN rate limit covered by tests; e2e for choosing and
   creating a profile on desktop and phone.
 
-### 2. AI examples for a word (owner's request, 2026-10-07)
+### 2. Courses: My, Downloaded, Available (owner's request, 2026-10-07)
+Specs: 03, 09.
+- "Courses" gets three tabs: **My courses** (started), **Downloaded** (installed, started or not) and
+  **Available** (every offer not installed — also the providers hidden from All courses today: Deutsch
+  im Blick and the English courses, shown here by language pair instead of being CLI-only).
+- Mockups first. **Accept**: e2e on desktop and phone; nothing downloads in tests.
+
+### 3. Decks: available and mine (owner's request, 2026-10-07)
+Specs: 04, 09.
+- Decks as courses are: a list of decks one can take (to start: each installed course's words, as Anki
+  decks; later `.apkg` decks) and the profile's own decks, added from it; Review studies the profile's
+  decks. Replaces today's deck list under Review, which the owner finds poor.
+- A lesson's "Words" step keeps making the cards of what the lesson teaches; they land in the deck of
+  that course.
+- Open for the plan: what "taking" a course deck does to cards not yet met in a lesson (new cards in
+  course order, or only words met), and how a deck is left. Mockups first.
+- **Accept**: server tests (adding and leaving a deck, Review over the profile's decks); e2e on desktop
+  and phone.
+
+### 4. Review settings (owner's request, 2026-10-07)
+Specs: 04, 09.
+- A "Review" tab in Settings with Anki's deck options for the profile: new cards per day (20), maximum
+  reviews per day (200), desired retention (0.9), learning and relearning steps (1m 10m; 10m), the day's
+  start (4 AM), new cards ignore the review limit (off). Values are profile settings the engine already
+  takes as parameters.
+- The FSRS optimizer lives here too ("Optimize" from the profile's own answers), once there are a few
+  hundred answers: `@open-spaced-repetition/binding` (MIT; FSRS's Rust optimizer for Node/Bun, the one
+  Anki uses) — after the MVP, see Later.
+- **Accept**: settings round-trip and validation tests; the queue and intervals follow them (engine and
+  server tests); e2e of the tab.
+
+### 5. AI examples for a word (owner's request, 2026-10-07)
 Specs: 04, 07, 09.
 - On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
   an example sentence with its translation in the card's translation language.
@@ -55,20 +86,20 @@ Specs: 04, 07, 09.
 - **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
   the fake server on desktop and phone.
 
-### 3. Speech
+### 6. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 4. Exams: Leben in Deutschland
+### 7. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
 
-### 5. MVP acceptance
+### 8. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.
@@ -80,7 +111,7 @@ Taken along when an item above touches the area, or on request.
   rule ids; content updated while a run is active ends the run (05).
 - Engine (04): compose with the selfrate upgrade and enrichment.
 - Server (05, 06): export/import of a profile, structured logs, recordings served only to their profile.
-- Review (09): a deck's words list; the course map's exams and can-do list; speech and SRS settings.
+- Review (09): the course map's exams and can-do list; speech settings.
 
 ## After the MVP
 Order decided by the week of use.
@@ -96,6 +127,6 @@ Order decided by the week of use.
   under 30 minutes (without the course download); headless `serve` works on a second machine.
 - **Later**: missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`),
   per-task LLM routes, handoff to other assistants, LLM golden tests, Goethe A1 practice sets, FSRS for
-  Leben in Deutschland, badges, a local CA for LAN HTTPS, Qwen3-TTS and cloud speech, offline use and push
-  notifications, a reader for books and texts, `.apkg` with scheduling, FSRS parameter optimisation,
+  Leben in Deutschland, the FSRS optimizer in the Review settings (once there is history), badges, a local CA for LAN HTTPS, Qwen3-TTS and cloud speech, offline use and push
+  notifications, a reader for books and texts, `.apkg` with scheduling,
   Docker image, project website, native mobile via Tauri.

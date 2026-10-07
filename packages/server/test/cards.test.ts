@@ -406,3 +406,33 @@ test("resetting a lesson removes the cards it made with their answers; another l
   // The answer went with its card: nothing to take back.
   expect((await getJson(study("all"))).canUndo).toBe(false);
 });
+
+test("undo, then another rating: the answer is replaced; Easy takes a new word out of today's queue", async () => {
+  const { sendJson, getJson } = await withCards();
+  const scope = study(`lesson:ru-de:${LESSONS[0]}`);
+  const first = (await getJson(scope)).current;
+  const rate = (rating: number, reps: number) =>
+    sendJson("POST", `/api/cards/${first.cardId}/review`, {
+      id: ulid(),
+      reps,
+      face: first.face,
+      rating,
+    });
+  await rate(2, 0);
+  expect((await getJson(scope)).counts).toEqual({ new: 3, learning: 1, review: 0 });
+  await sendJson("POST", "/api/cards/undo", {});
+  const back = await getJson(scope);
+  // Taken back: the same card next, new again.
+  expect([back.current.cardId, back.current.kind, back.counts.new]).toEqual([
+    first.cardId,
+    "new",
+    4,
+  ]);
+  await rate(4, 0);
+  const after = await getJson(scope);
+  // Easy graduates it (days away): it leaves the session, as in Anki.
+  expect(after.counts).toEqual({ new: 3, learning: 0, review: 0 });
+  expect(after.current.cardId).not.toBe(first.cardId);
+  const sheet = await getJson(`/api/cards/${first.cardId}`);
+  expect(sheet.answers.map((a: { rating: number }) => a.rating)).toEqual([4]);
+});
