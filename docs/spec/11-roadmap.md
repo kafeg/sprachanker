@@ -162,8 +162,8 @@ Specs: 04, 05, 09.
   the written session review dropped); the scene on its step page with the lesson's earlier scenes.
   "Write it yourself" with the lesson's earlier texts and "Fix it and check again". My words under Decks (a table as
   Anki's browser, the word sheet with each face and its answers); the Notebook by lesson (study days,
-  passes, a pass in full with item history, two passes compared). Next: attempts under the card, the
-  tutor's chat history.
+  passes, a pass in full with item history, two passes compared); a checked item's earlier attempts
+  from its card in the lesson (the Notebook's item history). Next: the tutor's chat history.
 
 ### 7 — Speech
 Specs: 08, 06.

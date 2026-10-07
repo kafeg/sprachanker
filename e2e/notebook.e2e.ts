@@ -19,6 +19,11 @@ test("the Notebook: a lesson's passes, compared, one in full, an item across pas
     await expect(page.getByRole("button", { name: "Why is this wrong?" }).first()).toBeVisible();
   }
 
+  // In the lesson too: a checked item's earlier attempts, in every pass.
+  await page.getByRole("button", { name: "Item history" }).first().click();
+  await expect(page.getByRole("dialog").getByRole("heading", { name: /^Pass of/ })).toHaveCount(2);
+  await page.keyboard.press("Escape");
+
   await page.goto("/notebook");
   await expect(page.getByRole("heading", { name: "Notebook" })).toBeVisible();
   await expect(page.getByText("Study days")).toBeVisible();

@@ -15,7 +15,8 @@ apps/web/src/
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
                    # header, reference), use-run (run + events), plan, overview, words-step, steps
-                   # (reading pages, the step bar), exercise step, practice-step, mistakes-status,
+                   # (reading pages, the step bar), exercise step (its rules in use-exercise, Enter in
+                   # enter-key), practice-step, mistakes-status,
                    # summary, reference, video; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
