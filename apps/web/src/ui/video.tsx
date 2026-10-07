@@ -1,26 +1,32 @@
-// Episode video with an HD switch and the German subtitle track (09).
-import { useRef, useState } from "react";
+// An episode's video (09): HD by default with a switch to SD, and the subtitle track. The lesson's
+// overview shows it, and so does an exercise whose video is the episode (through `Episode`).
+import { createContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
-import { claimPlayback } from "@/ui/media.tsx";
-import { useRequiredTargetLang } from "@/ui/target-lang.ts";
-import { cn } from "@/ui/utils.ts";
+import { claimPlayback } from "./playback.ts";
+import { useRequiredTargetLang } from "./target-lang.ts";
+import { cn } from "./utils.ts";
+
+export type EpisodeFiles = { sd?: string; hd?: string; subtitles?: string };
+
+/** The lesson's episode, set by the player: an exercise video that is one of its files plays as it. */
+export const Episode = createContext<EpisodeFiles | undefined>(undefined);
 
 export function EpisodeVideo({
   sd,
   hd,
   subtitles,
   url,
-}: {
-  sd?: string;
-  hd?: string;
-  subtitles?: string;
+  onHeard,
+}: EpisodeFiles & {
   url(p: string): string;
+  /** Called once it has been played (or cannot be). */
+  onHeard?: () => void;
 }) {
   const { t } = useTranslation();
   const lang = useRequiredTargetLang();
   const ref = useRef<HTMLVideoElement>(null);
-  const [quality, setQuality] = useState<"sd" | "hd">("sd");
+  const [quality, setQuality] = useState<"sd" | "hd">("hd");
   const src = quality === "hd" && hd ? hd : (sd ?? hd);
   if (!src) return null;
   const switchTo = (q: "sd" | "hd") => {
@@ -42,7 +48,11 @@ export function EpisodeVideo({
         key={src}
         controls
         preload="metadata"
-        onPlay={(e) => claimPlayback(e.currentTarget)}
+        onPlay={(e) => {
+          claimPlayback(e.currentTarget);
+          onHeard?.();
+        }}
+        onError={onHeard}
         className="aspect-video w-full rounded-2xl bg-black"
         src={url(src)}
       >

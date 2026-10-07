@@ -5,7 +5,9 @@ import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { createContext, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
+import { claimPlayback } from "./playback.ts";
 import { cn } from "./utils.ts";
+import { Episode, EpisodeVideo } from "./video.tsx";
 
 /** Speeds the speed button steps through: slower helps beginners. */
 export const PLAYBACK_RATES = [1, 0.75, 0.5] as const;
@@ -14,13 +16,6 @@ export const PlaybackRate = createContext<{ rate: number; setRate(rate: number):
   rate: 1,
   setRate() {},
 });
-
-let playing: HTMLMediaElement | undefined;
-/** Pauses whatever else plays; call when a medium starts. */
-export function claimPlayback(media: HTMLMediaElement) {
-  if (playing && playing !== media) playing.pause();
-  playing = media;
-}
 
 /** 75 → "1:15". */
 const clock = (seconds: number) => {
@@ -322,10 +317,17 @@ export function MediaBlock({
   /** Called once its audio or video has been played (or cannot be). */
   onHeard?: () => void;
 }) {
+  const episode = useContext(Episode);
   if (!media) return null;
+  const isEpisode = !!media.video && !!episode && [episode.sd, episode.hd].includes(media.video);
   return (
     <div className="my-3 space-y-3">
-      {media.video && (
+      {media.video && isEpisode && (
+        <div className="max-w-2xl">
+          <EpisodeVideo {...episode} url={url} onHeard={onHeard} />
+        </div>
+      )}
+      {media.video && !isEpisode && (
         // biome-ignore lint/a11y/useMediaCaption: course clips come without separate captions
         <video
           controls

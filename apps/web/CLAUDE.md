@@ -17,7 +17,7 @@ apps/web/src/
                    # header, reference), use-run (run + events), plan, overview, words-step, steps
                    # (reading pages, the step bar), exercise step (its rules in use-exercise, Enter in
                    # enter-key), practice-step, mistakes-status,
-                   # summary, reference, video; slots.ts: what optional features add
+                   # summary, reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
@@ -37,7 +37,8 @@ apps/web/src/
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
-                   # (rows that open, lists of earlier items), side-sheet, chip
+                   # (rows that open, lists of earlier items), side-sheet, chip, video (the episode: HD by
+                   # default, SD switch, subtitles; exercises showing it too), playback (one medium at a time)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

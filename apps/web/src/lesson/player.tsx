@@ -18,6 +18,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
+import { Episode } from "@/ui/video.tsx";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { PlayerFrame } from "./frame.tsx";
@@ -118,155 +119,157 @@ export function LessonPlayer({
   return (
     <TargetLang value={parseEditionId(edition).target}>
       <CourseMedia.Provider value={url}>
-        <PlayerFrame
-          series={series}
-          course={course}
-          courseTitle={map.data?.locale?.title ?? course}
-          lesson={lesson}
-          locale={locale}
-          worked={flow.worked}
-          todo={flow.todo}
-          plan={(chosen) => (
-            <Plan
-              lesson={lesson}
-              locale={locale}
-              steps={flow.steps}
-              current={flow.current}
-              results={run.results}
-              done={run.done}
-              go={(id) => {
-                chosen?.();
-                go(id);
-              }}
-            />
-          )}
-          header={slots.header?.({ ...context, exerciseKey: exercise?.key })}
-          url={url}
-        >
-          {flow.error !== undefined && <ErrorState error={flow.error} />}
-          {step.kind === "overview" && (
-            <LessonOverview
-              lesson={lesson}
-              locale={locale}
-              unitTitle={map.data?.locale?.units[lesson.unit]?.title}
-              goals={map.data?.locale?.goals ?? {}}
-              url={url}
-              actions={actions}
-              more={
-                run.mode !== "none" && (
-                  <ResetProgress
-                    series={series}
-                    course={course}
-                    lesson={lesson.key}
-                    title={locale?.title ?? lesson.key}
-                    onDone={() => {
-                      flow.forget();
-                      run.reload();
-                    }}
-                  >
-                    {(open) => (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={open}
-                        className="text-muted-foreground"
-                      >
-                        <RotateCcw className="size-4" /> {t("progress.resetLesson")}
-                      </Button>
-                    )}
-                  </ResetProgress>
-                )
-              }
-            />
-          )}
-          {step.kind === "words" && (
-            <WordsStep
-              series={series}
-              edition={edition}
-              lesson={lesson}
-              locale={locale}
-              onDone={() => mark("words")}
-              // A step done stays done: no Skip over it.
-              onSkip={
-                run.done.get("words") === "done"
-                  ? undefined
-                  : () => {
-                      mark("words", true);
-                      next();
-                    }
-              }
-              onBack={back}
-              onNext={next}
-            />
-          )}
-          {(step.kind === "grammar" || step.kind === "culture") && (
-            <ReadingStep
-              section={t(`lesson.step.${step.kind}`)}
-              page={locale?.tabs[step.kind][step.index] ?? { title: "", bodyHtml: "" }}
-            >
-              <StepBar onBack={back} onNext={next} />
-            </ReadingStep>
-          )}
-          {step.kind === "exercise" && exercise && (
-            <ExerciseStep
-              key={`${run.run?.id}-${step.index}`}
-              stored={run.results[exercise.key]}
-              readOnly={run.mode === "finished"}
-              exercise={exercise}
-              locale={locale?.exercises[exercise.key]}
-              index={step.index}
-              total={lesson.pages.length}
-              last={flow.ids[flow.at + 1] === "summary"}
-              url={url}
-              onAnswered={run.answer}
-              onBack={back}
-              onNext={next}
-              explain={
-                slots.explain &&
-                ((index, answer) =>
-                  slots.explain?.({
-                    ...context,
-                    exerciseKey: exercise.key,
-                    index,
-                    answer,
-                    // Kept with the run and the attempt it explains (the latest answer).
-                    runId: run.run?.id,
-                    attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
-                  }))
-              }
-            />
-          )}
-          {(step.kind === "writing" || step.kind === "scene" || step.kind === "mistakes") && (
-            <PracticeStep
-              kind={step.kind}
-              lesson={lesson}
-              locale={locale}
-              run={run}
-              slots={slots}
-              context={context}
-              go={go}
-              mark={mark}
-              onBack={back}
-              onNext={next}
-            />
-          )}
-          {step.kind === "summary" && (
-            <LessonSummary
-              series={series}
-              course={course}
-              lesson={lesson}
-              locale={locale}
-              steps={flow.steps}
-              results={run.results}
-              done={run.done}
-              result={result}
-              mode={run.mode}
-              nextLesson={nextLesson}
-              go={go}
-              redo={() => void flow.begin(true)}
-            />
-          )}
-        </PlayerFrame>
+        <Episode.Provider value={lesson.media.video}>
+          <PlayerFrame
+            series={series}
+            course={course}
+            courseTitle={map.data?.locale?.title ?? course}
+            lesson={lesson}
+            locale={locale}
+            worked={flow.worked}
+            todo={flow.todo}
+            plan={(chosen) => (
+              <Plan
+                lesson={lesson}
+                locale={locale}
+                steps={flow.steps}
+                current={flow.current}
+                results={run.results}
+                done={run.done}
+                go={(id) => {
+                  chosen?.();
+                  go(id);
+                }}
+              />
+            )}
+            header={slots.header?.({ ...context, exerciseKey: exercise?.key })}
+            url={url}
+          >
+            {flow.error !== undefined && <ErrorState error={flow.error} />}
+            {step.kind === "overview" && (
+              <LessonOverview
+                lesson={lesson}
+                locale={locale}
+                unitTitle={map.data?.locale?.units[lesson.unit]?.title}
+                goals={map.data?.locale?.goals ?? {}}
+                url={url}
+                actions={actions}
+                more={
+                  run.mode !== "none" && (
+                    <ResetProgress
+                      series={series}
+                      course={course}
+                      lesson={lesson.key}
+                      title={locale?.title ?? lesson.key}
+                      onDone={() => {
+                        flow.forget();
+                        run.reload();
+                      }}
+                    >
+                      {(open) => (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={open}
+                          className="text-muted-foreground"
+                        >
+                          <RotateCcw className="size-4" /> {t("progress.resetLesson")}
+                        </Button>
+                      )}
+                    </ResetProgress>
+                  )
+                }
+              />
+            )}
+            {step.kind === "words" && (
+              <WordsStep
+                series={series}
+                edition={edition}
+                lesson={lesson}
+                locale={locale}
+                onDone={() => mark("words")}
+                // A step done stays done: no Skip over it.
+                onSkip={
+                  run.done.get("words") === "done"
+                    ? undefined
+                    : () => {
+                        mark("words", true);
+                        next();
+                      }
+                }
+                onBack={back}
+                onNext={next}
+              />
+            )}
+            {(step.kind === "grammar" || step.kind === "culture") && (
+              <ReadingStep
+                section={t(`lesson.step.${step.kind}`)}
+                page={locale?.tabs[step.kind][step.index] ?? { title: "", bodyHtml: "" }}
+              >
+                <StepBar onBack={back} onNext={next} />
+              </ReadingStep>
+            )}
+            {step.kind === "exercise" && exercise && (
+              <ExerciseStep
+                key={`${run.run?.id}-${step.index}`}
+                stored={run.results[exercise.key]}
+                readOnly={run.mode === "finished"}
+                exercise={exercise}
+                locale={locale?.exercises[exercise.key]}
+                index={step.index}
+                total={lesson.pages.length}
+                last={flow.ids[flow.at + 1] === "summary"}
+                url={url}
+                onAnswered={run.answer}
+                onBack={back}
+                onNext={next}
+                explain={
+                  slots.explain &&
+                  ((index, answer) =>
+                    slots.explain?.({
+                      ...context,
+                      exerciseKey: exercise.key,
+                      index,
+                      answer,
+                      // Kept with the run and the attempt it explains (the latest answer).
+                      runId: run.run?.id,
+                      attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
+                    }))
+                }
+              />
+            )}
+            {(step.kind === "writing" || step.kind === "scene" || step.kind === "mistakes") && (
+              <PracticeStep
+                kind={step.kind}
+                lesson={lesson}
+                locale={locale}
+                run={run}
+                slots={slots}
+                context={context}
+                go={go}
+                mark={mark}
+                onBack={back}
+                onNext={next}
+              />
+            )}
+            {step.kind === "summary" && (
+              <LessonSummary
+                series={series}
+                course={course}
+                lesson={lesson}
+                locale={locale}
+                steps={flow.steps}
+                results={run.results}
+                done={run.done}
+                result={result}
+                mode={run.mode}
+                nextLesson={nextLesson}
+                go={go}
+                redo={() => void flow.begin(true)}
+              />
+            )}
+          </PlayerFrame>
+        </Episode.Provider>
       </CourseMedia.Provider>
     </TargetLang>
   );

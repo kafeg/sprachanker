@@ -6,7 +6,7 @@ import { parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer } from "@/ui/media.tsx";
-import { EpisodeVideo } from "./video.tsx";
+import { EpisodeVideo } from "@/ui/video.tsx";
 
 export function LessonOverview({
   lesson,
