@@ -60,6 +60,19 @@ describe("structured outputs", () => {
     expect((error as LlmError).code).toBe("invalid_output");
   });
 
+  test("the task's own check: an unmet one is a problem to repair like a schema's", async () => {
+    const checked = {
+      ...task,
+      check: (v: z.infer<typeof Verdict>) => (v.note ? undefined : "note is empty"),
+    };
+    const fixed = scripted(['{"ok":true,"note":""}', '{"ok":true,"note":"x"}']);
+    expect(await runStructured(fixed.client, "m", checked)).toEqual({ ok: true, note: "x" });
+    expect(fixed.seen[1]?.messages.at(-1)?.content).toContain("note is empty");
+    const never = scripted(['{"ok":true,"note":""}', '{"ok":true,"note":""}']);
+    const error: unknown = await runStructured(never.client, "m", checked).catch((e) => e);
+    expect((error as LlmError).code).toBe("invalid_output");
+  });
+
   test("complete(): non-streamed, with response_format; a server rejecting the schema is asked without it", async () => {
     const bodies: Array<Record<string, unknown>> = [];
     const fetchFn = (async (_: string, init: RequestInit) => {

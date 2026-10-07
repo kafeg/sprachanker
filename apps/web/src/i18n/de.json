@@ -385,7 +385,8 @@
       "explain": "„Warum ist das falsch?“",
       "tutor": "Tutor",
       "writing": "„Schreib selbst“",
-      "scene": "Szene"
+      "scene": "Szene",
+      "example": "Beispiel zu einem Wort"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "systemIntro": "System-Prompt:",
@@ -402,7 +403,10 @@
       "mistakes": "deine Fehler: in dieser Lektion die des aktuellen Durchgangs, dann die letzten aus früheren Lektionen (korrigierte markiert)",
       "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt",
       "text": "dein Text",
-      "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft"
+      "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft",
+      "word": "das Wort mit Übersetzung",
+      "courseVocab": "die Wörter des Kurses bis zur Lektion des Worts (die neuesten zuerst)",
+      "earlier": "die früheren Beispiele zum Wort, damit ein neues anders ist"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -911,5 +915,12 @@
     "optimizer": "Optimieren",
     "optimizerHint": "Später: FSRS, an deine eigenen Antworten angepasst, sobald es einige hundert sind. Bis dahin gelten Ankis Standardwerte.",
     "defaults": "Ankis Standardwerte"
+  },
+  "example": {
+    "show": "Beispiel",
+    "title": "Beispiel",
+    "another": "Anderes Beispiel",
+    "newWords": "Neu hier:",
+    "setUp": "Ein Beispiel? Richte den KI-Assistenten in den Einstellungen ein."
   }
 }

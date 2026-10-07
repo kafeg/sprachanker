@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { prepend, withAttempt, withScene, withTurns } from "../src/llm/cache.ts";
+import { prepend, withAttempt, withExample, withScene, withTurns } from "../src/llm/cache.ts";
 
 test("a new item goes on top, replacing an older copy of it", () => {
   const same = (a: { id: number }, b: { id: number }) => a.id === b.id;
@@ -29,4 +29,12 @@ test("a chat's stored pair is added at its end", () => {
     turns: ["q1", "a1", "q2", "a2"],
   });
   expect(withTurns(undefined, ["q"])).toEqual({ turns: ["q"] });
+});
+
+test("a word's new example on top of the kept ones, also when none were read", () => {
+  expect(withExample({ examples: [{ ts: 1 }] }, { ts: 2 }).examples).toEqual([
+    { ts: 2 },
+    { ts: 1 },
+  ]);
+  expect(withExample(undefined, { ts: 2 })).toEqual({ examples: [{ ts: 2 }] });
 });

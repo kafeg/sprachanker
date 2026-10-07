@@ -2,7 +2,7 @@
 import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, json } from "@/api/client.ts";
-import { withAttempt, withScene, withTurns } from "./cache.ts";
+import { withAttempt, withExample, withScene, withTurns } from "./cache.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
 export type ProviderId = LlmState["providers"][number]["id"];
@@ -230,13 +230,15 @@ export type PromptRequest =
   | { explain: ExplainRequest }
   | { tutor: TutorPromptRequest }
   | { writing: WritingRequest }
-  | { scene: SceneLineRequest };
+  | { scene: SceneLineRequest }
+  | { example: ExampleRequest };
 
 /** The exact request a task would send now (nothing is sent). */
 export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("explain" in kind) return fetchExplainPrompt(kind.explain);
   if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
+  if ("example" in kind) return json(api.llm.examples.prompt.$post({ json: kind.example }));
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }
 
@@ -336,5 +338,30 @@ export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
       );
       if ("start" in action) onStarted?.();
     },
+  });
+}
+
+export type ExampleRequest = Parameters<typeof api.llm.examples.$post>[0]["json"];
+export type WordExampleShown = Awaited<ReturnType<typeof makeExample>>;
+const makeExample = (request: ExampleRequest) => json(api.llm.examples.$post({ json: request }));
+
+/** A card's AI examples, newest first; read only once asked for (`enabled`). */
+export const useExamples = (cardId: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["examples", cardId],
+    enabled,
+    queryFn: () => json(api.llm.examples.$get({ query: { cardId } })),
+  });
+
+/** A new example of the card's word, on top of the kept ones. */
+export function useMakeExample(cardId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (language: string) => makeExample({ cardId, language }),
+    onSuccess: (made) =>
+      client.setQueryData(
+        ["examples", cardId],
+        (old: { examples: WordExampleShown[] } | undefined) => withExample(old, made),
+      ),
   });
 }

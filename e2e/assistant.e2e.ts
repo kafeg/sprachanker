@@ -1,5 +1,5 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
-// going over mistakes.
+// going over mistakes, an example for a word.
 import { expect, test } from "@playwright/test";
 import {
   answerPicture,
@@ -165,4 +165,39 @@ test("AI settings: providers as cards, the chosen one's model list without non-t
   );
   // OpenRouter without a key says so on its card.
   await expect(page.getByRole("button", { name: /OpenRouter/ })).toContainText("needs a key");
+});
+
+test("an example for a word: asked for in its sheet, kept, another on request", async ({
+  page,
+  request,
+}) => {
+  await post(request, "/api/cards/lesson", {
+    series: "sprachanker.fixture",
+    lessonKey: DEMO_LESSON,
+    edition: "en-de",
+  });
+  await page.goto("/review/words");
+  await page.getByPlaceholder("Find a word or translation").fill("kaffee");
+  await page.getByRole("button", { name: /der Kaffee/ }).click();
+  const sheet = page.getByRole("dialog");
+  await sheet.getByRole("button", { name: "Example" }).click();
+  // The word is known; "heute" is not met in the course: marked, its translation under the sentence.
+  await expect(sheet.getByText("Hier ist der Kaffee heute.")).toBeVisible();
+  await expect(sheet.getByText("FAKE: Here it is today.").first()).toBeVisible();
+  await expect(sheet.getByText("heute — today")).toBeVisible();
+  await expect(sheet.locator("span[title=today]")).toHaveText("heute");
+
+  // Kept: the sheet opened again shows it when asked, without asking the model; another on request.
+  let made = 0;
+  page.on("request", (r) => {
+    if (r.method() === "POST" && r.url().endsWith("/api/llm/examples")) made++;
+  });
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: /der Kaffee/ }).click();
+  await sheet.getByRole("button", { name: "Example" }).click();
+  await expect(sheet.getByText("Hier ist der Kaffee heute.")).toBeVisible();
+  expect(made).toBe(0);
+  await sheet.getByRole("button", { name: "Another example" }).click();
+  await expect.poll(() => made).toBe(1);
+  await expect(sheet.getByRole("button", { name: "Another example" })).toBeVisible();
 });

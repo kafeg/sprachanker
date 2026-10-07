@@ -28,3 +28,11 @@ export function withScene<T extends { id: string; done: boolean }>(
 export function withTurns<T>(data: { turns: T[] } | undefined, turns: T[]): { turns: T[] } {
   return { turns: [...(data?.turns ?? []), ...turns] };
 }
+
+/** A word's example on top of the kept ones. */
+export function withExample<T extends { ts: number }>(
+  data: { examples: T[] } | undefined,
+  example: T,
+): { examples: T[] } {
+  return { examples: prepend(data?.examples, example, (a, b) => a.ts === b.ts) };
+}

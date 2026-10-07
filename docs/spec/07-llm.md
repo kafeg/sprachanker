@@ -55,8 +55,10 @@ All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
+| `word_example` | a card's word with its translation, the course's words up to its lesson, the sentences given before | JSON: sentence (with the word: checked, one repair), translation, glossary[] (words beyond the given ones, translated) |
 
-"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
+"Example" on a card or in the word sheet → `word_example`, kept as an `llm_verdict` (`task: example`)
+on the card (04, "AI examples"); "Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
 kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with the attempt it explains
 (the answer explained is read from that attempt in the run, not taken from the request), and shown
 again from there ("Explain again" asks anew; the newest is shown); "ask about this exercise"

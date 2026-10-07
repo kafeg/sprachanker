@@ -1,5 +1,6 @@
 // What the LLM tasks know about a lesson (07): the lesson in the learner's edition, earlier lessons as
 // words and titles, and mistakes with their exercises. Shared by the tutor, writing and scenes.
+import type { VocabWord } from "@sprachanker/engine";
 import type { LessonInfo, TutorMistake } from "@sprachanker/llm";
 import {
   findExercise,
@@ -57,6 +58,30 @@ export function createLessonContext(content: Content) {
         earlierLessons: earlier.map((k) => map.titles[k] ?? k),
         titles: map.titles,
       };
+    },
+
+    /** The course's words with their forms and translations in the edition: those met up to the
+     *  lesson (it included) and those of later lessons, each in course order. */
+    async vocabulary(series: string, lessonKey: LessonKey, edition: string) {
+      const course = parseLessonKey(lessonKey).courseId;
+      const map = await content.courseMap(series, course, edition);
+      const order = map.index.units.flatMap((u) => u.lessons);
+      const words = await Promise.all(
+        order.map(async (key): Promise<VocabWord[]> => {
+          const [lesson, locale] = await Promise.all([
+            content.lesson(series, key).catch(() => undefined),
+            content.localeLesson(series, key, edition),
+          ]);
+          return (lesson?.vocab ?? []).map((v) => ({
+            target: v.target,
+            plural: v.plural,
+            forms: v.forms,
+            translation: locale?.vocab[v.key]?.translation,
+          }));
+        }),
+      );
+      const at = order.indexOf(lessonKey) + 1;
+      return { upTo: words.slice(0, at).flat(), later: words.slice(at).flat() };
     },
 
     /** Mistakes with their exercises as the edition shows them; items no longer in the course are

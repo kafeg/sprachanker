@@ -141,6 +141,8 @@ export function createStudy(deps: {
   }
 
   return {
+    reviewRun,
+
     /** Adds `count` new cards to today's limit of a deck (Anki: Custom Study → increase today's new
      *  card limit). */
     learnMore(scope: DeckScope, count: number) {

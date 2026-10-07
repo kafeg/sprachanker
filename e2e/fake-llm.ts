@@ -29,6 +29,16 @@ const SCENE_TURN = {
   goalsMet: [0],
   done: false,
 };
+/** An example for the word in <word> ("der Kaffee, die Kaffees (coffee)" → "der Kaffee"). */
+const wordExample = (prompt: string) => {
+  const word = (/<word>([^,(<]+)/.exec(prompt)?.[1] ?? "").trim();
+  return {
+    sentence: `Hier ist ${word} heute.`,
+    translation: "FAKE: Here it is today.",
+    glossary: [{ word: "heute", translation: "today" }],
+  };
+};
+
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = { scene_setup: SCENE_SETUP, scene_turn: SCENE_TURN };
 
@@ -61,12 +71,17 @@ if (import.meta.main) {
       const body = (await req.json()) as {
         stream?: boolean;
         response_format?: { json_schema?: { name?: string } };
+        messages: Array<{ content: string }>;
       };
       if (!body.stream) {
         const task = body.response_format?.json_schema?.name ?? "";
-        const content = body.response_format
-          ? JSON.stringify(STRUCTURED[task] ?? WRITING_CHECK)
-          : FAKE_TEXT;
+        const content = !body.response_format
+          ? FAKE_TEXT
+          : JSON.stringify(
+              task === "word_example"
+                ? wordExample(body.messages.at(-1)?.content ?? "")
+                : (STRUCTURED[task] ?? WRITING_CHECK),
+            );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }
       return sse(FAKE_TEXT);

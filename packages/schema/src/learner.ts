@@ -133,8 +133,8 @@ export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
  * the item it explains), in the lesson run it was given in.
  */
 export const LlmVerdictPayload = z.object({
-  task: z.enum(["writing", "explain"]),
-  /** The learner's text (writing); empty for an explanation. */
+  task: z.enum(["writing", "explain", "example"]),
+  /** The learner's text (writing); the word (example); empty for an explanation. */
   input: z.string(),
   /** The task's structured output (07); an explanation's text. */
   result: z.unknown(),

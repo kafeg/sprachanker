@@ -16,7 +16,7 @@ src/
   providers.ts     # presets: lmstudio, openrouter, custom, claude-code, codex (endpoint, key, CLI kind)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
-  structured.ts    # JSON outputs: schema in the request, zod validation, one repair attempt
+  structured.ts    # JSON outputs: schema in the request, zod validation and the task's check, one repair
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
@@ -28,6 +28,7 @@ src/
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
     scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
+    word-example.ts    # word_example: a sentence with a card's word in the course's words so far
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

@@ -15,6 +15,7 @@ import { SideSheet } from "@/ui/side-sheet.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
+import { useStudySlots } from "./slots.ts";
 import { useDueText } from "./time.ts";
 import { COUNT_TONE, ratingOf } from "./tones.ts";
 
@@ -41,6 +42,7 @@ function WordDetails({ word }: { word: MyWord }) {
   const { t } = useTranslation();
   const sheet = useWord(word.cardId);
   const actions = useCardActions();
+  const slots = useStudySlots();
   const due = useDueText();
   const when = useDateFormat("day");
   const d = word.display;
@@ -60,6 +62,7 @@ function WordDetails({ word }: { word: MyWord }) {
             {d.example}
           </p>
         )}
+        <div className="-ml-2">{slots.word?.({ cardId: word.cardId })}</div>
         <Link
           to="/lesson/$series/$course/$lesson"
           params={{ series: d.series, course: lesson.courseId, lesson: lesson.name }}

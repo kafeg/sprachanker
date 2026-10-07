@@ -7,3 +7,4 @@ export * from "./srs/day.ts";
 export * from "./srs/index.ts";
 export * from "./text/diff.ts";
 export * from "./text/normalise.ts";
+export * from "./text/words.ts";

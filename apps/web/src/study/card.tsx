@@ -12,6 +12,7 @@ import { languageName } from "@/i18n/index.ts";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
+import { useStudySlots } from "./slots.ts";
 
 export type Side = "question" | "answer";
 
@@ -39,6 +40,7 @@ function Word({ display }: { display: CardDisplay }) {
 }
 
 export function StudyCard({
+  cardId,
   display,
   face,
   side,
@@ -46,6 +48,8 @@ export function StudyCard({
   audio,
   marks,
 }: {
+  /** The note shown, for what optional features add under the answer. */
+  cardId?: string;
   display: CardDisplay;
   face: CardFace;
   side: Side;
@@ -63,6 +67,7 @@ export function StudyCard({
   const wordShown = side === "answer" || WORD_SIDE[face] === "question";
   const src = display.audio && mediaUrl(display.series, display.audio);
   const lesson = parseLessonKey(display.lessonKey);
+  const slots = useStudySlots();
 
   // Autoplay as in Anki: the side's own recording, once, when the side opens.
   useEffect(() => {
@@ -119,6 +124,7 @@ export function StudyCard({
             {question}
             <hr id="answer" className="w-3/4 border-border" />
             {answer}
+            {cardId && slots.word?.({ cardId })}
             <Link
               to="/lesson/$series/$course/$lesson"
               params={{ series: display.series, course: lesson.courseId, lesson: lesson.name }}

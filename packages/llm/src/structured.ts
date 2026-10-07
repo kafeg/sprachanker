@@ -1,5 +1,6 @@
-// Structured task outputs (07): JSON requested with a schema, parsed and validated with zod; an invalid
-// reply gets one repair attempt with the problems listed, then the task fails with `invalid_output`.
+// Structured task outputs (07): JSON requested with a schema, parsed and validated with zod, then the
+// task's own check; an invalid reply gets one repair attempt with the problems listed, then the task
+// fails with `invalid_output`.
 import { issuesText } from "@sprachanker/schema";
 import { z } from "zod";
 import { type ChatMessage, type LlmClient, LlmError, type TaskRequest } from "./client.ts";
@@ -9,6 +10,8 @@ export interface StructuredTask<T> {
   /** Schema name sent to the provider. */
   name: string;
   schema: z.ZodType<T>;
+  /** What the schema cannot say ("the sentence does not use the word"); undefined when it holds. */
+  check?(value: T): string | undefined;
 }
 
 /** The JSON Schema of a zod schema, as providers take it. */
@@ -43,8 +46,9 @@ export async function runStructured<T>(
     const reply = await client.complete({ ...request, messages, model, signal });
     try {
       const result = task.schema.safeParse(parseJson(reply));
-      if (result.success) return result.data;
-      problem = issuesText(result.error, 5);
+      const unmet = result.success ? task.check?.(result.data) : undefined;
+      if (result.success && !unmet) return result.data;
+      problem = result.success ? (unmet as string) : issuesText(result.error, 5);
     } catch {
       problem = "the reply was not valid JSON";
     }
@@ -53,7 +57,7 @@ export async function runStructured<T>(
       { role: "assistant", content: reply },
       {
         role: "user",
-        content: `Your reply did not match the required JSON format (${problem}). Reply again with only the JSON object.`,
+        content: `Your reply did not meet the requirements (${problem}). Reply again with only the JSON object.`,
       },
     ];
   }

@@ -135,6 +135,12 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   new cards and reviews per day (20, 200), new cards ignoring the review limit (off), desired retention
   (0.9), learning and relearning steps (1m 10m; 10m — passed to the FSRS scheduler), the hour the day
   starts (4; also the Notebook's study days), the card types of a new word (recognition, production).
+- **AI examples** (owner, 2026-10-07): on request only — "Example" under a card's answer and in the
+  word sheet — the model writes a sentence with the word (07, `word_example`). Each is kept with the
+  card and never shown by itself: asking again shows the newest kept, "Another example" asks anew.
+  The sentence's words are matched against the course's words up to the card's lesson (their forms,
+  and a form differing only by an ending: `text/words.ts`); the others are marked new, translated by
+  the course's later lessons, else by the model's glossary.
 - **Decks to take** (owner, 2026-10-08): each installed course and language pair offers its words as one
   deck. Taking it makes every lesson's words cards at once, new and in course order (Anki: a deck
   imported); words with a card already keep it. Leaving a course's deck removes its cards never studied;

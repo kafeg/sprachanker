@@ -9,7 +9,8 @@ No network, no filesystem, no `Date.now()` — time and randomness are parameter
 src/
   compose/        # canonical + locale + enrichment → ComposedLesson; stale detection
   check/          # one checker per exercise type: check(item, answer) → Outcome (+ diff, rule ids)
-  text/           # normalisation and word diff used by checkers and speech
+  text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
+                  # met or new against a vocabulary)
   learner/        # mistakes, lesson progress, study days (activity); planned: rule mastery, can-do
   srs/            # ts-fsrs wrapper, Anki's study queue (limits, 4 AM day, learn ahead), interval text;
                   # day.ts: the day's card answers (limits used, undo, the face just taken back)

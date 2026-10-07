@@ -15,8 +15,10 @@ import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AssistantSetup } from "@/llm/settings-section.tsx";
+import { wordAssistant } from "@/llm/word-example.tsx";
 import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
 import { NotebookPage } from "@/notebook/page.tsx";
+import { StudySlotsProvider } from "@/study/slots.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursePage } from "./course.tsx";
@@ -29,7 +31,9 @@ function SignedIn() {
   usePreferences();
   return (
     <PlaybackRate value={usePlaybackRate()}>
-      <Outlet />
+      <StudySlotsProvider value={wordAssistant}>
+        <Outlet />
+      </StudySlotsProvider>
     </PlaybackRate>
   );
 }

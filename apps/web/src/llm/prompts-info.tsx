@@ -26,6 +26,7 @@ const PARTS = {
   ],
   writing: ["lesson", "lessonVocab", "grammar", "text"],
   scene: ["lesson", "lessonVocab", "knownVocab", "history"],
+  example: ["word", "courseVocab", "earlier"],
 } as const;
 
 type Prompt = {

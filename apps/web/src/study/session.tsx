@@ -263,6 +263,7 @@ export function StudySession({
       <TargetLang value={current.lang}>
         <StudyCard
           key={cardKey}
+          cardId={current.cardId}
           display={current.display}
           face={current.face}
           side={side}

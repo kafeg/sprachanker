@@ -360,7 +360,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     verdicts<T>(
       task: LlmVerdictPayload["task"],
       result: z.ZodType<T>,
-      where: { runIds?: string[]; kind?: Kind; about?: Context; itemKey?: string },
+      where: { runIds?: string[]; kind?: Kind; about?: Context; itemKey?: string; cardId?: string },
     ) {
       return self.eventsWhere({ types: ["llm_verdict"], ...where }).flatMap((e) => {
         const v = e.payload as LlmVerdictPayload;

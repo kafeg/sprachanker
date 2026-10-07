@@ -385,7 +385,8 @@
       "explain": "“Why is this wrong?”",
       "tutor": "Tutor",
       "writing": "“Write it yourself”",
-      "scene": "Scene"
+      "scene": "Scene",
+      "example": "Example for a word"
     },
     "contextIntro": "Added from the lesson:",
     "systemIntro": "System prompt:",
@@ -402,7 +403,10 @@
       "mistakes": "your mistakes: in this lesson those of the current run, then the latest of earlier lessons (fixed ones marked)",
       "tools": "on request (tools): your progress, mistakes in any lesson, where a word is taught, what a lesson covers",
       "text": "your text",
-      "script": "the lesson's transcript, when the item is about its audio or video"
+      "script": "the lesson's transcript, when the item is about its audio or video",
+      "word": "the word with its translation",
+      "courseVocab": "the course's words up to the word's lesson (the most recent first)",
+      "earlier": "the examples given for the word before, so a new one differs"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -911,5 +915,12 @@
     "optimizer": "Optimize",
     "optimizerHint": "Later: FSRS fitted to your own answers, once there are a few hundred of them. Until then Anki's defaults are used.",
     "defaults": "Back to Anki's defaults"
+  },
+  "example": {
+    "show": "Example",
+    "title": "Example",
+    "another": "Another example",
+    "newWords": "New here:",
+    "setUp": "Want an example? Set up the AI assistant in Settings."
   }
 }

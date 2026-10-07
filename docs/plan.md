@@ -29,28 +29,14 @@ offered (03, "Offered in the app").
 
 ## Next, in order
 
-### 1. AI examples for a word (owner's request, 2026-10-07)
-Specs: 04, 07, 09.
-- On request only: an "Example" button on a card's answer side and in the word sheet asks the model for
-  an example sentence with its translation in the card's translation language.
-- Kept with the card and never shown by itself: what was generated comes back only when examples are
-  asked for again (the learner can ask for a new one). Marked as AI like "Why is this wrong?"
-  (`AssistantLabel` under it).
-- Vocabulary: the words of the course up to the card's lesson, plus basic A1 words the prompt allows
-  (early lessons have almost none), plus the word itself. Words of the example not met in the course yet
-  are found by us (the course's vocabulary, not the model) and highlighted with their translation.
-- Checks: the sentence contains the word (a form of it); one repair attempt as other structured tasks.
-- **Accept**: llm task tests against the fake endpoint; server tests (stored, hidden, reused); e2e with
-  the fake server on desktop and phone.
-
-### 2. Speech
+### 1. Speech
 Specs: 08, 06.
 - whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
   how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
 - **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
   the Notebook; speech disabled with a clear message on plain HTTP.
 
-### 3. Exams: Leben in Deutschland
+### 2. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
 - Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
   of wrong answers.
@@ -59,14 +45,14 @@ Specs: 02, 03, 06, 09.
   from its course page.
 - **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
 
-### 4. Notebook: more pictures (owner's request, 2026-10-07)
+### 3. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 5. MVP acceptance
+### 4. MVP acceptance
 - The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.

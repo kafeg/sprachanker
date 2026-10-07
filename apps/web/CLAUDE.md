@@ -24,7 +24,7 @@ apps/web/src/
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
                    # word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
-                   # Review: Anki's deck options)
+                   # Review: Anki's deck options); slots (what optional features add: AI examples)
   exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
@@ -38,7 +38,7 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
-                   # writing, scenes; parts.tsx: chat bubbles, header,
+                   # writing, scenes, word-example (the reviewer's slot); parts.tsx: chat bubbles, header,
                    # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
@@ -85,4 +85,5 @@ chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
   folder can be removed with its mount points: the settings page and the router, which passes
-  `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots. Nothing in `lesson/` imports `llm/`.
+  `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots and `wordAssistant`
+  (llm/word-example.tsx) as the reviewer's (study/slots.ts). Nothing in `lesson/` or `study/` imports `llm/`.

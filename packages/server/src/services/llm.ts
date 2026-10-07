@@ -30,6 +30,8 @@ import {
   SCENE_BUDGETS,
   sceneTurnRules,
   type TaskRequest,
+  WORD_EXAMPLE_BUDGETS,
+  wordExampleRules,
 } from "@sprachanker/llm";
 import type { Lang } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
@@ -113,7 +115,7 @@ export function stopwatch(now: () => number) {
 }
 
 /** The tasks the settings explain, in the order they are shown. */
-export const PROMPT_TASKS = ["explain", "tutor", "writing", "scene"] as const;
+export const PROMPT_TASKS = ["explain", "tutor", "writing", "scene", "example"] as const;
 export type PromptTask = (typeof PROMPT_TASKS)[number];
 
 /** Each task's standing rules (its system prompt) for an answer language and a learnt language. */
@@ -122,12 +124,14 @@ const RULES: Record<PromptTask, (language: Lang, target: Lang) => string> = {
   tutor: chatTurnRules,
   writing: checkWritingRules,
   scene: sceneTurnRules,
+  example: wordExampleRules,
 };
 const BUDGETS: Record<PromptTask, Record<string, number>> = {
   explain: EXPLAIN_MISTAKE_BUDGETS,
   tutor: CHAT_TURN_BUDGETS,
   writing: CHECK_WRITING_BUDGETS,
   scene: SCENE_BUDGETS,
+  example: WORD_EXAMPLE_BUDGETS,
 };
 /** The learner's own system prompts, by task: templates with {language} and {target}. */
 const PROMPTS = "llm.prompts" as const;

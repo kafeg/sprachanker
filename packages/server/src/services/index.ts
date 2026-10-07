@@ -12,6 +12,7 @@ import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
+import { createExamples } from "./examples.ts";
 import { createExplain } from "./explain.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
@@ -80,6 +81,14 @@ function profileServices(
   const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
   const scenes = createScenes({ store, llm, lessons, now });
   const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
+  const examples = createExamples({
+    cards: cardStore,
+    lessons,
+    llm,
+    store,
+    reviewRun: study.reviewRun,
+    now,
+  });
   const notebook = createNotebook({
     store,
     content,
@@ -102,6 +111,7 @@ function profileServices(
     notebook,
     llm,
     explain,
+    examples,
     tutor,
     writing,
     scenes,
