@@ -19,7 +19,7 @@ export function Choice({
           aria-pressed={value === v}
           onClick={() => onChange(v)}
           className={cn(
-            "min-h-10 rounded-lg px-4",
+            "min-h-10 rounded-lg px-4 pointer-coarse:min-h-11",
             value === v ? "bg-primary font-semibold text-primary-foreground" : "hover:bg-accent",
           )}
         >

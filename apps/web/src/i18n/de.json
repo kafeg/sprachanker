@@ -63,7 +63,8 @@
     "intact": "Alle Dateien sind da und stimmig.",
     "checkAgain": "Erneut prüfen",
     "complete": "Vollständig geladen",
-    "next": "weiter: {where} – {title}"
+    "next": "weiter: {where} – {title}",
+    "notInstalled": "Dieser Kurs ist nicht (mehr) installiert."
   },
   "lesson": {
     "unitLesson": "Einheit {unit} · Lektion {lesson}",
@@ -71,7 +72,6 @@
     "counts": "{exercises, plural, =0 {} one {# Übung · } other {# Übungen · }}{words, plural, one {# neues Wort} other {# neue Wörter}}",
     "start": "Lektion starten",
     "resume": "Lektion fortsetzen",
-    "overview": "Überblick",
     "exerciseOf": "Übung {n} von {total}",
     "check": "Prüfen",
     "next": "Weiter",
@@ -130,7 +130,8 @@
       "culture": "Landeskunde",
       "practice": "Üben mit KI"
     },
-    "part": "Teil {n}"
+    "part": "Teil {n}",
+    "why": "Warum ist das falsch?"
   },
   "ref": {
     "vocabulary": "Wortschatz",
@@ -223,7 +224,6 @@
     "model": "Modell",
     "modelHint": "Wähle ein Modell des Anbieters oder „Anderes Modell“, um den Namen einzugeben.",
     "setUpHint": "Erklärung gewünscht? KI-Assistent einrichten",
-    "why": "Warum ist das falsch?",
     "explanation": "Erklärung",
     "thinking": "Denkt nach…",
     "error": {
@@ -434,8 +434,7 @@
     "pages": "{count, plural, one {# Seite gelesen} other {# Seiten gelesen}}",
     "preparing": "Lektionen werden vorbereitet…",
     "media": "Medien: {done, number} von {total, number} Dateien · {size}",
-    "download": "Herunterladen",
-    "downloadSize": "Herunterladen · {size}",
+    "downloadSize": "Herunterladen · ≈ {size}",
     "continue": "Weiter herunterladen",
     "sync": "Mit der Quelle abgleichen",
     "notDownloaded": "Nicht geladen",
@@ -536,6 +535,7 @@
     "toOverview": "Stapelübersicht",
     "toDecks": "Stapel",
     "howTo": "Wiederholen mit Abständen wie in Anki: ein Stapel je Kurs, unter der Sprache, die er lehrt. Erinnere dich, zeig die Antwort und bewerte — FSRS plant jede Karte aus deinen Bewertungen.",
-    "due": "{count, plural, one {# Karte} other {# Karten}} zu lernen"
+    "due": "{count, plural, one {# Karte} other {# Karten}} zu lernen",
+    "flagKey": "Strg+{n}"
   }
 }

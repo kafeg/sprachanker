@@ -1,7 +1,7 @@
 // Media (09): the audio player, the word audio button, stimulus video/image/audio. One medium plays
 // at a time; the playback speed is the profile's (provided by the app through PlaybackRate).
 import type { Media } from "@sprachanker/schema";
-import { Pause, Play, RotateCcw, Volume2 } from "lucide-react";
+import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { createContext, useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
@@ -235,8 +235,11 @@ export function AudioButton({
   ref?: React.Ref<AudioControls>;
 }) {
   const { rate } = useContext(PlaybackRate);
+  const { t } = useTranslation();
   const audio = useRef<HTMLAudioElement | null>(null);
   const [active, setActive] = useState(false);
+  /** The recording cannot be loaded (09: a file that cannot load says so). */
+  const [failed, setFailed] = useState(false);
   // Another word in the same place (cards one after another): the old recording stops and is let go,
   // so the next tap plays the new one.
   // biome-ignore lint/correctness/useExhaustiveDependencies: the cleanup runs when `src` changes
@@ -245,6 +248,7 @@ export function AudioButton({
       audio.current?.pause();
       audio.current = null;
       setActive(false);
+      setFailed(false);
     },
     [src],
   );
@@ -257,6 +261,10 @@ export function AudioButton({
         claimPlayback(a);
         setActive(true);
       };
+      a.onerror = () => {
+        setFailed(true);
+        setActive(false);
+      };
       audio.current = a;
     }
     return audio.current;
@@ -265,7 +273,11 @@ export function AudioButton({
     const a = element();
     a.currentTime = 0;
     a.playbackRate = rate;
-    void a.play();
+    a.play().catch((error: unknown) => {
+      // The browser not letting it play by itself yet (autoplay) is no failure: a tap plays it.
+      setActive(false);
+      if ((error as Error).name !== "NotAllowedError") setFailed(true);
+    });
   };
   useImperativeHandle(ref, () => ({ play }));
   const toggle = () => {
@@ -276,15 +288,23 @@ export function AudioButton({
   return (
     <button
       type="button"
-      aria-label={label}
+      aria-label={failed ? `${label}: ${t("player.unavailable")}` : label}
+      title={failed ? t("player.unavailable") : undefined}
       onClick={toggle}
       className={cn(
         "inline-flex size-11 shrink-0 items-center justify-center rounded-full border bg-card text-foreground transition hover:bg-accent",
         active && "border-primary bg-primary text-primary-foreground",
+        failed && "text-muted-foreground",
         className,
       )}
     >
-      {active ? <Pause className="size-5" /> : <Volume2 className="size-5" />}
+      {failed ? (
+        <VolumeX className="size-5" />
+      ) : active ? (
+        <Pause className="size-5" />
+      ) : (
+        <Volume2 className="size-5" />
+      )}
     </button>
   );
 }
@@ -294,13 +314,11 @@ export function MediaBlock({
   media,
   url,
   audioLabel,
-  compact = false,
   onHeard,
 }: {
   media?: Media;
   url: (path: string) => string;
   audioLabel: string;
-  compact?: boolean;
   /** Called once its audio or video has been played (or cannot be). */
   onHeard?: () => void;
 }) {
@@ -322,14 +340,7 @@ export function MediaBlock({
         />
       )}
       {media.image && <img src={url(media.image)} alt="" className="max-h-72 w-auto rounded-xl" />}
-      {media.audio && (
-        <AudioPlayer
-          src={url(media.audio)}
-          label={audioLabel}
-          compact={compact}
-          onHeard={onHeard}
-        />
-      )}
+      {media.audio && <AudioPlayer src={url(media.audio)} label={audioLabel} onHeard={onHeard} />}
     </div>
   );
 }

@@ -66,6 +66,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     if (!edition) return;
     let cancelled = false;
     setMode("loading");
+    setError(undefined);
     json(api.runs.lesson.$get({ query: { series, lessonKey: lessonKey as LessonKey } }))
       .then(({ state }) => !cancelled && load(state as Loaded | null))
       .catch((e) => !cancelled && setError(e));
@@ -240,4 +241,3 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     },
   };
 }
-export type RunState = ReturnType<typeof useRun>;

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
-import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { ErrorState, Loading, NotInstalled, Page } from "@/ui/app-shell.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
@@ -80,7 +80,9 @@ export function CoursePage({ series, course }: { series: string; course: string 
   const edition = useEdition(series, course, info?.editions);
   const map = useCourseMap(series, course, edition);
   useWindowPlace(t("windowTitle.course"));
-  if (courses.isPending || map.isPending) return <Loading />;
+  if (courses.isPending) return <Loading />;
+  if (!info) return <NotInstalled />;
+  if (map.isPending) return <Loading />;
   if (map.isError) return <ErrorState error={map.error} onRetry={() => map.refetch()} />;
   const { index, locale, titles, lessons } = map.data;
   const all = index.units.flatMap((u) => u.lessons);
@@ -97,11 +99,8 @@ export function CoursePage({ series, course }: { series: string; course: string 
           source={index.source ?? null}
           done={info?.done ?? 0}
           lessons={all.length}
-          next={
-            next
-              ? { key: next, title: titles[next] ?? next, started: !!info?.nextStarted }
-              : undefined
-          }
+          next={next ? { key: next, title: titles[next] ?? next } : undefined}
+          started={!!info?.started}
         />
         <ol className="relative space-y-8 before:absolute before:top-2 before:bottom-2 before:left-[15px] before:w-0.5 before:bg-border">
           {index.units.map((unit) => {

@@ -44,7 +44,9 @@ notebook, words, chat). shadcn components are added with `bunx --bun shadcn@<ver
 - Business logic stays in engine/server; components render and emit events. Answers are checked with
   `@sprachanker/engine` for instant feedback; the server re-checks and stores its own outcome.
 - Every screen works on phone width (375 px) and desktop; test both in Playwright.
-- Respect `prefers-reduced-motion`; touch targets ≥ 44 px.
+- Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
+  does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.
+- Screen key handlers leave Space and Enter to a focused button, link or slider.
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
   folder can be removed with its mount points: the settings page and the router, which passes

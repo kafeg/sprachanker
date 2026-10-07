@@ -3,7 +3,8 @@
 // study session (study/session.tsx). The deck and the session are kept in the address.
 import { useTranslation } from "react-i18next";
 import { useCardActions, useCourses, useDecks, useStudy } from "@/api/hooks.ts";
-import { StudySession } from "@/study/session.tsx";
+import { languageName } from "@/i18n/index.ts";
+import { COUNT_TONE, StudySession } from "@/study/session.tsx";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -14,12 +15,8 @@ type Counts = { new: number; learning: number; review: number };
 function useDeckName() {
   const { i18n } = useTranslation();
   const courses = useCourses().data ?? [];
-  const languages = new Intl.DisplayNames([i18n.language], { type: "language" });
   return (scope: string) => {
-    if (scope.startsWith("lang:")) {
-      const name = languages.of(scope.slice(5)) ?? scope;
-      return name.charAt(0).toLocaleUpperCase(i18n.language) + name.slice(1);
-    }
+    if (scope.startsWith("lang:")) return languageName(scope.slice(5), i18n.language, true);
     const key = scope.slice("course:".length);
     const course = courses.find((c) => c.key === key);
     return (course && (course.titles[course.editions[0] ?? ""] || course.key)) ?? key;
@@ -32,9 +29,9 @@ function CountCells({ counts }: { counts: Counts }) {
   );
   return (
     <>
-      {cell(counts.new, "text-blue-600 dark:text-blue-300")}
-      {cell(counts.learning, "text-red-600 dark:text-red-400")}
-      {cell(counts.review, "text-green-600 dark:text-green-500")}
+      {cell(counts.new, COUNT_TONE.new)}
+      {cell(counts.learning, COUNT_TONE.learning)}
+      {cell(counts.review, COUNT_TONE.review)}
     </>
   );
 }
@@ -102,9 +99,9 @@ function Overview({ scope, study }: { scope: string; study(): void }) {
   return (
     <div className="max-w-sm space-y-5 rounded-2xl border bg-card p-6">
       <div className="space-y-1.5 text-lg">
-        {line(t("study.overview.new"), counts.new, "text-blue-600 dark:text-blue-300")}
-        {line(t("study.overview.learning"), counts.learning, "text-red-600 dark:text-red-400")}
-        {line(t("study.overview.review"), counts.review, "text-green-600 dark:text-green-500")}
+        {line(t("study.overview.new"), counts.new, COUNT_TONE.new)}
+        {line(t("study.overview.learning"), counts.learning, COUNT_TONE.learning)}
+        {line(t("study.overview.review"), counts.review, COUNT_TONE.review)}
       </div>
       <Button size="lg" className="w-full text-base" autoFocus onClick={study}>
         {t("study.studyNow")}
@@ -141,7 +138,7 @@ export function ReviewPage({
       <button
         type="button"
         onClick={() => go(studying ? { deck } : {})}
-        className="mb-4 text-sm text-muted-foreground underline"
+        className="mb-4 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
       >
         ← {studying ? t("study.toOverview") : t("study.toDecks")}
       </button>

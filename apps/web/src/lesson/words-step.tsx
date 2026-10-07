@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useMakeCards } from "@/api/hooks.ts";
 import { StudySession } from "@/study/session.tsx";
 import { ErrorState, Loading } from "@/ui/app-shell.tsx";
-import { StepBar } from "./steps.tsx";
+import { StepBar, StepHeader } from "./steps.tsx";
 
 export function WordsStep({
   series,
@@ -26,8 +26,8 @@ export function WordsStep({
   locale: LocaleLesson | null;
   /** Nothing left to study now: the step is done. */
   onDone(): void;
-  /** Leaves the step undone. */
-  onSkip(): void;
+  /** Leaves the step undone (absent once it is done). */
+  onSkip?(): void;
   onBack(): void;
   onNext(): void;
 }) {
@@ -40,16 +40,14 @@ export function WordsStep({
 
   return (
     <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
-      <div>
-        <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          {t("lesson.step.words")}
-        </p>
-        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{locale?.title}</h1>
+      <StepHeader label={t("lesson.step.words")} title={locale?.title}>
         <p className="mt-1 text-sm text-muted-foreground">{t("words.intro")}</p>
-      </div>
+      </StepHeader>
       {make.isSuccess ? (
         <StudySession
           scope={`lesson:${lesson.key}`}
+          // The step's own bar stays at the bottom; the reviewer's sits under the card.
+          stickyBar={false}
           finished={(study) => <WordsLearnt learning={study.counts.learning} onDone={onDone} />}
         />
       ) : make.isError ? (

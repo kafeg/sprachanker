@@ -5,6 +5,7 @@ import { type LessonKey, WRITING_MAX } from "@sprachanker/schema";
 import { LoaderCircle, PenLine } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { languageName } from "@/i18n/index.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
@@ -116,7 +117,7 @@ export function WritingTask({
       <p>
         {t("writing.task", {
           topic: topic.join("; "),
-          language: lang && new Intl.DisplayNames([i18n.language], { type: "language" }).of(lang),
+          language: lang && languageName(lang, i18n.language),
         })}
       </p>
       {words.length > 0 && (

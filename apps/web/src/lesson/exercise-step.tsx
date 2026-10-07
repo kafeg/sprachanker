@@ -13,6 +13,7 @@ import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { StepBar, StepHeader } from "./steps.tsx";
 import type { ExerciseResult } from "./use-run.ts";
 
 /** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
@@ -254,7 +255,9 @@ export function ExerciseStep({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
-      if (e.key !== "Enter" || e.isComposing || target.tagName === "BUTTON") return;
+      // Enter on a control (a button, a link, the audio slider, a details summary) is that control's.
+      if (e.key !== "Enter" || e.isComposing) return;
+      if (target.closest("button, a, summary, [role=button], [role=slider]")) return;
       if (target.tagName === "SELECT" || target.closest("[role=listbox], [role=dialog]")) return;
       // In a text field Enter goes to the next field of the exercise, from the last one it checks;
       // Shift+Enter keeps a new line in a text area.
@@ -282,17 +285,14 @@ export function ExerciseStep({
   return (
     // At least a screen tall, so the action bar sits at the bottom even under a short exercise.
     <article ref={article} className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
-      <div>
-        <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-          {t("lesson.exerciseOf", { n: index + 1, total })}
-        </p>
-        <h1 className="mt-1 text-2xl font-bold sm:text-3xl">
-          {locale?.title || t("lesson.exerciseN", { n: index + 1 })}
-        </h1>
+      <StepHeader
+        label={t("lesson.exerciseOf", { n: index + 1, total })}
+        title={locale?.title || t("lesson.exerciseN", { n: index + 1 })}
+      >
         {locale?.instructionHtml && (
           <CourseHtml className="mt-2 text-lg" html={locale.instructionHtml} />
         )}
-      </div>
+      </StepHeader>
       <MediaBlock
         media={exercise.media}
         url={url}
@@ -394,7 +394,7 @@ export function ExerciseStep({
               <div className="flex flex-col gap-1.5 pt-2">
                 {marked && !right && explain && (
                   <ItemControl
-                    label={t("llm.why")}
+                    label={t("lesson.why")}
                     pressed={explaining.has(i)}
                     onClick={() =>
                       setExplaining((prev) => {
@@ -422,37 +422,23 @@ export function ExerciseStep({
       </ol>
       {/* The action bar: at the bottom of the screen, its buttons always in the same places — the main one
           (Check, then Next) on the right with a fixed width, under the finger or cursor. */}
-      <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-        <Button variant="ghost" size="lg" onClick={onBack}>
-          {t("lesson.previous")}
-        </Button>
-        {/* What Check is waiting for. */}
-        {waiting && (
-          <p className="order-first w-full text-center text-xs text-muted-foreground sm:order-none sm:ml-auto sm:w-auto sm:text-right sm:text-sm">
-            {waiting}
-          </p>
-        )}
-        <div className={cn("flex gap-2", waiting ? "ml-auto sm:ml-0" : "ml-auto")}>
-          {outcomes && !readOnly && (
+      <StepBar
+        onBack={onBack}
+        onNext={primary}
+        next={checking ? t("lesson.check") : last ? t("lesson.toSummary") : t("lesson.next")}
+        nextDisabled={checking && !canCheck}
+        // What Check is waiting for.
+        note={waiting}
+        onSkip={checking && !outcomes ? skip : undefined}
+        extra={
+          outcomes &&
+          !readOnly && (
             <Button variant="outline" size="lg" onClick={retry}>
               {t("lesson.retry")}
             </Button>
-          )}
-          {checking && !outcomes && (
-            <Button variant="ghost" size="lg" onClick={skip}>
-              {t("lesson.skip")}
-            </Button>
-          )}
-          <Button
-            size="lg"
-            className="w-32 text-base sm:w-40"
-            onClick={primary}
-            disabled={checking && !canCheck}
-          >
-            {checking ? t("lesson.check") : last ? t("lesson.toSummary") : t("lesson.next")}
-          </Button>
-        </div>
-      </div>
+          )
+        }
+      />
     </article>
   );
 }

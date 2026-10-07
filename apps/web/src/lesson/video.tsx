@@ -1,6 +1,7 @@
 // Episode video with an HD switch and the German subtitle track (09).
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { languageName } from "@/i18n/index.ts";
 import { claimPlayback } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -49,7 +50,7 @@ export function EpisodeVideo({
           <track
             kind="subtitles"
             srcLang={lang}
-            label={new Intl.DisplayNames([lang], { type: "language" }).of(lang)}
+            label={languageName(lang)}
             src={url(subtitles)}
             default
           />
@@ -65,7 +66,7 @@ export function EpisodeVideo({
                 onClick={() => switchTo(q)}
                 aria-pressed={quality === q}
                 className={cn(
-                  "rounded-md px-3 py-1",
+                  "rounded-md px-3 py-1 pointer-coarse:min-h-11",
                   quality === q && "bg-primary font-semibold text-primary-foreground",
                 )}
               >

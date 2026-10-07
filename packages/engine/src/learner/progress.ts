@@ -174,9 +174,12 @@ export function courseProgress(
     .filter((k) => progress[k]?.activeAt !== undefined)
     .sort((a, b) => (progress[b]?.activeAt ?? 0) - (progress[a]?.activeAt ?? 0))[0];
   const next = active ?? lessons.find((k) => !lessonDone(progress[k])) ?? lessons[0];
+  const done = lessons.filter((k) => lessonDone(progress[k])).length;
   return {
-    done: lessons.filter((k) => lessonDone(progress[k])).length,
+    done,
     next: next ?? null,
     nextStarted: !!active,
+    /** The course is begun (it belongs in "My courses"): a lesson done, or one in progress. */
+    started: done > 0 || !!active,
   };
 }

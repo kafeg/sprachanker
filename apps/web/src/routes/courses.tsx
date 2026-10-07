@@ -1,7 +1,7 @@
 // Courses (09): "My courses" — the ones started, ready to continue — and "All courses" — every installed
 // course, narrowed by two lists: which course and which language pair. A course teaches one language to
 // speakers of one language (its edition); another pair of the same source course is a course of its own.
-import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
+import { type CourseSource, parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, CircleAlert, Download, ExternalLink, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -35,8 +35,6 @@ const ALL = "all";
 /** Where each page keeps its two filters (profile settings). */
 const CATALOG_FILTERS = { course: "catalog.course", pair: "catalog.pair" };
 const MY_FILTERS = { course: "mine.course", pair: "mine.pair" };
-
-const started = (c: CourseRow) => c.done > 0 || c.nextStarted;
 
 /** A course card: a band with the language pair and progress, the title and source, the lesson to go
  *  on with, and the way in. */
@@ -98,16 +96,7 @@ function CourseCard({
           {course.source && (
             <>
               <span className="shrink-0">·</span>
-              <a
-                href={course.source.url}
-                target="_blank"
-                rel="noreferrer"
-                title={course.source.publisher}
-                className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline"
-              >
-                <span className="truncate">{course.source.publisher}</span>
-                <ExternalLink className="size-3 shrink-0" />
-              </a>
+              <PublisherLink source={course.source} />
             </>
           )}
         </p>
@@ -134,7 +123,7 @@ function CourseCard({
               onClick={choose}
               className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground hover:bg-primary/90"
             >
-              {started(course) ? t("lesson.resume") : t("courses.start")}
+              {course.started ? t("lesson.resume") : t("courses.start")}
               <ArrowRight className="size-4" />
             </Link>
           )}
@@ -194,16 +183,7 @@ function OfferCard({ offer }: { offer: CatalogEntry }) {
           {offer.title}
         </h2>
         <p className="mt-0.5 flex min-w-0 items-center gap-1 text-sm text-muted-foreground">
-          <a
-            href={offer.source.url}
-            target="_blank"
-            rel="noreferrer"
-            title={offer.source.publisher}
-            className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline"
-          >
-            <span className="truncate">{offer.source.publisher}</span>
-            <ExternalLink className="size-3 shrink-0" />
-          </a>
+          <PublisherLink source={offer.source} />
         </p>
         <p className="truncate text-sm text-muted-foreground">
           {t(`course.licence.${offer.source.licence}`)}
@@ -222,7 +202,7 @@ function OfferCard({ offer }: { offer: CatalogEntry }) {
               onClick={() => start.mutate({ series: offer.series, course: offer.course })}
             >
               <Download className="size-4" />
-              {t("download.downloadSize", { size: `≈ ${bytes(offer.approxBytes)}` })}
+              {t("download.downloadSize", { size: bytes(offer.approxBytes) })}
             </Button>
           )}
         </div>
@@ -249,7 +229,7 @@ function useCourseList() {
 export function MyCoursesPage() {
   const { t } = useTranslation();
   const list = useCourseList();
-  const mine = (list.all ?? []).filter(started);
+  const mine = (list.all ?? []).filter((c) => c.started);
   const filters = useCourseFilters(
     mine.map((c) => ({
       c,
@@ -262,7 +242,7 @@ export function MyCoursesPage() {
   if (!list.all) return list.state;
   return (
     <Page title={t("nav.myCourses")}>
-      {mine.length > 1 && filters.bar}
+      {(mine.length > 1 || filters.active) && filters.bar}
       {mine.length ? (
         filters.shown.length ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -284,6 +264,22 @@ export function MyCoursesPage() {
         </div>
       )}
     </Page>
+  );
+}
+
+/** The course's publisher, linked to its site (cut to fit a card; hover shows it whole). */
+function PublisherLink({ source }: { source: CourseSource }) {
+  return (
+    <a
+      href={source.url}
+      target="_blank"
+      rel="noreferrer"
+      title={source.publisher}
+      className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline"
+    >
+      <span className="truncate">{source.publisher}</span>
+      <ExternalLink className="size-3 shrink-0" />
+    </a>
   );
 }
 
@@ -343,6 +339,8 @@ function useCourseFilters<T extends { titles: string[]; editions: string[] }>(
   const pairs = [...new Set(items.filter(fitsTitle).flatMap((i) => i.editions))];
   return {
     shown: items.filter((i) => fitsTitle(i) && fitsPair(i)),
+    /** A filter is set: its bar must show, so it can be cleared. */
+    active: title !== ALL || pair !== ALL,
     bar: (
       <div className="mb-6 flex flex-wrap gap-3">
         <Filter

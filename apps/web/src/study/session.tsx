@@ -24,15 +24,26 @@ import type { AudioControls } from "@/ui/media.tsx";
 import { cn } from "@/ui/utils.ts";
 import { type Side, StudyCard } from "./card.tsx";
 
-/** Anki's ratings; on a phone the buttons take AnkiDroid's colours. */
+/** Anki's ratings; on a phone the buttons are coloured as in AnkiDroid — in our own hues (the gender
+ *  hues mean gender only, 09): Again as wrong, Good as correct, Easy as new cards. */
 const RATINGS = [
-  { rating: 1, key: "again", phone: "max-sm:bg-red-700 max-sm:hover:bg-red-800" },
+  { rating: 1, key: "again", phone: "max-sm:bg-wrong max-sm:hover:bg-wrong/90" },
   { rating: 2, key: "hard", phone: "max-sm:bg-slate-600 max-sm:hover:bg-slate-700" },
-  { rating: 3, key: "good", phone: "max-sm:bg-green-600 max-sm:hover:bg-green-700" },
-  { rating: 4, key: "easy", phone: "max-sm:bg-sky-500 max-sm:hover:bg-sky-600" },
+  { rating: 3, key: "good", phone: "max-sm:bg-correct max-sm:hover:bg-correct/90" },
+  { rating: 4, key: "easy", phone: "max-sm:bg-srs-new max-sm:hover:bg-srs-new/90" },
 ] as const;
 
-/** Anki's flag colours, 1–7. */
+/** Anki's three counts in our hues: new, learning (as Again), to review (as Good). */
+export const COUNT_TONE = {
+  new: "text-srs-new",
+  learning: "text-wrong",
+  review: "text-correct",
+} as const;
+
+/** On a Mac, Ctrl is ⌘ (the reviewer takes either). */
+const MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
+
+/** Anki's flag colours, 1–7 (small icons named by their colour: the one exception to the hues). */
 const FLAGS = ["red", "orange", "green", "blue", "pink", "turquoise", "purple"] as const;
 const FLAG_CLASS = [
   "text-red-600",
@@ -65,9 +76,8 @@ export function Counts({
   return (
     <span className={cn("text-sm", className)} title={t("study.countsTitle", counts)}>
       <span aria-hidden>
-        {part("new", "text-blue-600 dark:text-blue-300")} +{" "}
-        {part("learning", "text-red-600 dark:text-red-400")} +{" "}
-        {part("review", "text-green-600 dark:text-green-500")}
+        {part("new", COUNT_TONE.new)} + {part("learning", COUNT_TONE.learning)} +{" "}
+        {part("review", COUNT_TONE.review)}
       </span>
       <span className="sr-only">{t("study.countsTitle", counts)}</span>
     </span>
@@ -102,11 +112,14 @@ function Finished({ study, onUnbury }: { study: Study; onUnbury(): void }) {
 export function StudySession({
   scope,
   finished,
+  stickyBar = true,
 }: {
   /** "all", "lang:de", "course:…" or "lesson:…" (a lesson's own words). */
   scope: string;
   /** What shows instead of Anki's congratulations once nothing is left (a lesson's words step). */
   finished?(study: Study): React.ReactNode;
+  /** The buttons' bar sticks to the bottom of the screen (not where another bar does). */
+  stickyBar?: boolean;
 }) {
   const { t } = useTranslation();
   const study = useStudy(scope);
@@ -153,6 +166,11 @@ export function StudySession({
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (target.closest("input, textarea, select, [role=dialog], [role=menu]")) return;
+      // Space and Enter on a focused control are that control's (Undo, the More menu, the step
+      // bar, a link) — except on the card itself.
+      const control = target.closest("button, a, summary, [role=button], [role=slider]");
+      if ((e.key === " " || e.key === "Enter") && control && !control.matches("[data-study-card]"))
+        return;
       const ctrl = e.ctrlKey || e.metaKey;
       if (ctrl && /^Digit[1-7]$/.test(e.code)) {
         e.preventDefault();
@@ -250,7 +268,12 @@ export function StudySession({
         audio={sound}
         marks={current.flag || current.marked || current.leech ? marks : undefined}
       />
-      <div className="sticky bottom-0 z-10 -mx-4 grid grid-cols-[auto_1fr_auto] items-end gap-2 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:mx-0 sm:rounded-b-2xl">
+      <div
+        className={cn(
+          "-mx-4 grid grid-cols-[auto_1fr_auto] items-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-2xl",
+          stickyBar && "sticky bottom-0 z-10 pb-[max(0.75rem,env(safe-area-inset-bottom))]",
+        )}
+      >
         <Button
           variant="ghost"
           size="icon"
@@ -348,7 +371,9 @@ export function StudySession({
                 <Flag className={cn("size-4 fill-current", FLAG_CLASS[i])} />
                 {t(`study.flag.${name}`)}
                 {current.flag === i + 1 && " ✓"}
-                <DropdownMenuShortcut>Ctrl+{i + 1}</DropdownMenuShortcut>
+                <DropdownMenuShortcut>
+                  {MAC ? `⌘${i + 1}` : t("study.flagKey", { n: i + 1 })}
+                </DropdownMenuShortcut>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>

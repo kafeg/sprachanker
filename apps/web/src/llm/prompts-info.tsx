@@ -103,7 +103,7 @@ export function PromptsSettings() {
   const courses = useCourses();
   // Prompts name the language being learnt: shown for the first started course (else the first one).
   const list = courses.data ?? [];
-  const course = list.find((c) => c.done > 0 || c.nextStarted) ?? list[0];
+  const course = list.find((c) => c.started) ?? list[0];
   const edition = course?.editions[0];
   const target = edition ? parseEditionId(edition).target : undefined;
   const prompts = useTaskPrompts(i18n.language, target);

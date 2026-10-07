@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import type { Theme } from "@/app/preferences.ts";
-import { nativeName, UI_LANGUAGES } from "@/i18n/index.ts";
+import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
 import { PromptsSettings } from "@/llm/prompts-info.tsx";
 import { LlmSettings } from "@/llm/settings-section.tsx";
 import { AboutSection } from "@/ui/about.tsx";
@@ -52,7 +52,7 @@ function General() {
           <SelectContent>
             {UI_LANGUAGES.map((l) => (
               <SelectItem key={l} value={l}>
-                {nativeName(l)}
+                {languageName(l, l, true)}
               </SelectItem>
             ))}
           </SelectContent>

@@ -10,10 +10,13 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
-import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
 
 export type Side = "question" | "answer";
+
+/** The card's face, the same on both sides. */
+const FACE =
+  "grid min-h-56 w-full place-items-center rounded-3xl border bg-card px-6 py-8 text-center max-sm:flex-1 sm:min-h-72";
 
 /** Which side of a face carries the word (and its recording). */
 const WORD_SIDE: Record<CardFace, Side> = {
@@ -90,33 +93,28 @@ export function StudyCard({
 
   return (
     <div className="relative flex flex-col max-sm:flex-1">
-      <button
-        type="button"
-        onClick={onTap}
-        aria-expanded={side === "answer"}
-        className={cn(
-          "grid min-h-56 w-full place-items-center rounded-3xl border bg-card px-6 py-8 text-center max-sm:flex-1 sm:min-h-72",
-          side === "answer" && "cursor-default",
-        )}
-      >
-        <span className="grid w-full justify-items-center gap-4">
-          {question}
-          {side === "answer" && (
-            <>
-              <hr id="answer" className="w-3/4 border-border" />
-              {answer}
-              <Link
-                to="/lesson/$series/$course/$lesson"
-                params={{ series: display.series, course: lesson.courseId, lesson: lesson.name }}
-                onClick={(e) => e.stopPropagation()}
-                className="text-xs text-muted-foreground underline"
-              >
-                {t("study.fromLesson", { unit: lesson.unit, lesson: lesson.lesson })}
-              </Link>
-            </>
-          )}
-        </span>
-      </button>
+      {side === "question" ? (
+        // The question is one button: a tap shows the answer (AnkiMobile).
+        <button type="button" data-study-card onClick={onTap} className={FACE}>
+          <span className="grid w-full justify-items-center gap-4">{question}</span>
+        </button>
+      ) : (
+        // The answer side holds a link (the lesson): no button around it.
+        <div data-study-card data-answer className={FACE}>
+          <div className="grid w-full justify-items-center gap-4">
+            {question}
+            <hr id="answer" className="w-3/4 border-border" />
+            {answer}
+            <Link
+              to="/lesson/$series/$course/$lesson"
+              params={{ series: display.series, course: lesson.courseId, lesson: lesson.name }}
+              className="text-xs text-muted-foreground underline"
+            >
+              {t("study.fromLesson", { unit: lesson.unit, lesson: lesson.lesson })}
+            </Link>
+          </div>
+        </div>
+      )}
       {marks && <div className="absolute top-3 left-3 flex items-center gap-1.5">{marks}</div>}
       {/* In the card's corner, so a word without a recording keeps the same layout. */}
       {src && wordShown && (

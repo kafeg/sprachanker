@@ -43,18 +43,40 @@ export function useSetSetting() {
   return useMutation({
     mutationFn: ({ key, value }: { key: string; value: unknown }) =>
       json(api.settings.$put({ json: { key, value } })),
-    // Applied at once, so a screen opened right after (e.g. a course in the chosen edition) sees it.
-    onMutate: ({ key, value }) =>
-      client.setQueryData(["settings"], (old: Settings | undefined) => ({ ...old, [key]: value })),
-    onSuccess: (settings) => client.setQueryData(["settings"], settings),
+    // Applied at once, so a screen opened right after (e.g. a course in the chosen edition) sees it;
+    // a read in flight could bring the old value back, so it is cancelled.
+    onMutate: async ({ key, value }) => {
+      await client.cancelQueries({ queryKey: ["settings"] });
+      const before = client.getQueryData<Settings>(["settings"]);
+      client.setQueryData(["settings"], (old: Settings | undefined) => ({ ...old, [key]: value }));
+      return { key, had: before && key in before, was: before?.[key] };
+    },
+    // Not stored: the value goes back to what it was.
+    onError: (_error, _vars, saved) => {
+      if (!saved) return;
+      client.setQueryData(["settings"], (old: Settings | undefined) => {
+        const next = { ...old };
+        if (saved.had) next[saved.key] = saved.was;
+        else delete next[saved.key];
+        return next;
+      });
+    },
+    // Only this key from the answer: another change still in flight keeps its own value.
+    onSuccess: (settings, { key }) =>
+      client.setQueryData(["settings"], (old: Settings | undefined) => {
+        const next = { ...old };
+        if (key in settings) next[key] = settings[key];
+        else delete next[key];
+        return next;
+      }),
   });
 }
 
-/** A course's integrity and counts (verify): read on demand — it reads every file of the course. */
-export const useCourseCheck = (series: string, course: string, enabled: boolean) =>
+/** A course's integrity and counts (verify) for its page: read once per session — it reads every
+ *  file of the course (a download's end reads it again). */
+export const useCourseCheck = (series: string, course: string) =>
   useQuery({
     queryKey: ["course-check", series, course],
-    enabled,
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.course.check.$get({ query: { series, course } })),
   });
@@ -127,14 +149,21 @@ export function useStartDownload() {
 export const useStorage = () =>
   useQuery({ queryKey: ["storage"], queryFn: () => json(api.storage.$get()) });
 
+/** Queries whose data no learner action changes (content, the course's files, the app). */
+const STATIC_QUERIES = new Set(["lesson", "course-check", "health", "catalog", "llm-prompts"]);
+
 /** Resets the progress of a course, or of one of its lessons (the screens confirm first). */
 export function useResetProgress() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (target: { series: string; course: string; lesson?: LessonKey }) =>
       json(api.progress.reset.$post({ json: target })),
-    // Progress shows in many places (course list and map, tutor, reviews): read everything again.
-    onSuccess: () => void client.invalidateQueries(),
+    // Progress shows in many places (course list and map, tutor, reviews): read it all again — not
+    // the course content and its file check, which a reset does not change.
+    onSuccess: () =>
+      void client.invalidateQueries({
+        predicate: (q) => !STATIC_QUERIES.has(String(q.queryKey[0])),
+      }),
   });
 }
 

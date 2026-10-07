@@ -154,7 +154,7 @@ export function Plan({
               onClick={() => go(id)}
               aria-current={current === id ? "step" : undefined}
               className={cn(
-                "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent",
+                "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent pointer-coarse:min-h-11",
                 current === id && "bg-accent font-semibold",
               )}
             >

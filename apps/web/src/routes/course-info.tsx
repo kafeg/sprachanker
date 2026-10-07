@@ -21,36 +21,7 @@ import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { cn } from "@/ui/utils.ts";
-import { DownloadLine, downloading } from "./download.tsx";
-
-/** "Deutsche Welle · learngerman.dw.com · free access" with a link to the source. */
-export function SourceLine({ source }: { source: CourseSource }) {
-  const { t } = useTranslation();
-  return (
-    <span className="inline-flex flex-wrap items-center gap-x-1.5">
-      {source.publisher} ·{" "}
-      <a
-        href={source.url}
-        target="_blank"
-        rel="noreferrer"
-        className="inline-flex items-center gap-0.5 underline-offset-4 hover:underline"
-      >
-        {new URL(source.url).host}
-        <ExternalLink className="size-3" />
-      </a>
-      · {t(`course.licence.${source.licence}`)}
-    </span>
-  );
-}
-
-const size = (bytes: number, locale: string) => {
-  const giga = bytes >= 1e9;
-  return new Intl.NumberFormat(locale, {
-    style: "unit",
-    unit: giga ? "gigabyte" : "megabyte",
-    maximumFractionDigits: 1,
-  }).format(bytes / (giga ? 1e9 : 1e6));
-};
+import { DownloadLine, downloading, useBytes } from "./download.tsx";
 
 /** Media tiles in this order; kinds not listed come last. */
 const KINDS = ["video", "audio", "image", "subtitles", "pdf"];
@@ -118,15 +89,19 @@ export type CourseHeroProps = {
   source: CourseSource | null;
   done: number;
   lessons: number;
-  /** The lesson to go on with, its title, and whether it was started. */
-  next?: { key: string; title: string; started: boolean };
+  /** The lesson to go on with and its title. */
+  next?: { key: string; title: string };
+  /** The course is begun (engine `courseProgress`). */
+  started: boolean;
 };
 
 export function CourseHero(props: CourseHeroProps) {
-  const { series, course, title, edition, descriptionHtml, source, done, lessons, next } = props;
+  const { series, course, title, edition, descriptionHtml, source, done, lessons, next, started } =
+    props;
   const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const check = useCourseCheck(series, course, true);
+  const check = useCourseCheck(series, course);
+  const bytes = useBytes();
   const { available, job } = useCourseDownload(series, course);
   const start = useStartDownload();
   const running = downloading(job);
@@ -207,7 +182,7 @@ export function CourseHero(props: CourseHeroProps) {
             params={{ series, course, lesson: nextKey.name }}
             className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90"
           >
-            {next.started || done > 0 ? t("lesson.resume") : t("courses.start")}
+            {started ? t("lesson.resume") : t("courses.start")}
             <ArrowRight className="size-4" />
           </Link>
         )}
@@ -228,7 +203,7 @@ export function CourseHero(props: CourseHeroProps) {
                 missing={n.missing}
               />
             ))}
-          <Tile value={size(r.media.bytes, i18n.language)} label={t("course.stats.size")} />
+          <Tile value={bytes(r.media.bytes)} label={t("course.stats.size")} />
         </div>
       )}
 
@@ -236,7 +211,7 @@ export function CourseHero(props: CourseHeroProps) {
 
       {/* What can be done with the course itself: download what is missing or sync it with its
           source, reset its progress. */}
-      {(available || done > 0 || next?.started) && (
+      {(available || started) && (
         <div className="mt-3 flex flex-wrap gap-2">
           {available && !running && (
             <button
@@ -254,7 +229,7 @@ export function CourseHero(props: CourseHeroProps) {
               {missing ? t("download.continue") : t("download.sync")}
             </button>
           )}
-          {(done > 0 || next?.started) && (
+          {started && (
             <ResetProgress series={series} course={course} title={title}>
               {(open) => (
                 <button

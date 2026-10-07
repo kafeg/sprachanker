@@ -22,7 +22,7 @@ test("review: decks, the overview, a card studied by tap and keys, undo", async 
   await page.getByRole("button", { name: "Study now" }).click();
 
   const show = page.getByRole("button", { name: "Show answer" });
-  const card = page.locator("[aria-expanded]").first();
+  const card = page.locator("[data-study-card]").first();
   await expect(show).toBeVisible();
   const first = await card.innerText();
   await show.click();
@@ -42,4 +42,36 @@ test("review: decks, the overview, a card studied by tap and keys, undo", async 
   await expect(card).toHaveText(second);
   await page.keyboard.press("u");
   await expect(card).toHaveText(first);
+});
+
+test("review: a card buried from the More menu comes back with Unbury on the overview", async ({
+  page,
+  request,
+}) => {
+  for (const lesson of ["00-01", "00-02"])
+    await post(request, "/api/cards/lesson", {
+      series: "sprachanker.fixture",
+      lessonKey: `sprachanker.fixture/demo/${lesson}`,
+      edition: "en-de",
+    });
+  await page.goto(
+    `/review?deck=${encodeURIComponent("course:sprachanker.fixture/demo")}&study=true`,
+  );
+  const card = page.locator("[data-study-card]").first();
+  await expect(page.getByRole("button", { name: "Show answer" })).toBeVisible();
+  const buried = await card.innerText();
+  await page.getByRole("button", { name: "More" }).click();
+  await page.getByRole("menuitem", { name: /Bury card/ }).click();
+  await expect(card).not.toHaveText(buried);
+  await page.getByRole("button", { name: /Deck overview/ }).click();
+  const unbury = page.getByRole("button", { name: "Unbury" });
+  await unbury.click();
+  await expect(unbury).toBeHidden();
+});
+
+test("a course that is not installed says so, with the way to all courses", async ({ page }) => {
+  await page.goto("/course/sprachanker.fixture/nope");
+  await expect(page.getByText("This course is not installed (any more).")).toBeVisible();
+  await page.getByRole("link", { name: "All courses" }).last().click();
+  await expect(page).toHaveURL(/\/catalog$/);
 });

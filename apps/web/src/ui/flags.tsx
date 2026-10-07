@@ -14,6 +14,7 @@ import TR from "country-flag-icons/react/3x2/TR";
 import UA from "country-flag-icons/react/3x2/UA";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { languageName } from "@/i18n/index.ts";
 import { cn } from "./utils.ts";
 
 const FLAGS: Record<string, typeof DE> = {
@@ -31,10 +32,10 @@ const FLAGS: Record<string, typeof DE> = {
 /** "ru-de" → "русский → немецкий" in the interface language. */
 export function usePairName() {
   const { t, i18n } = useTranslation();
-  const names = new Intl.DisplayNames([i18n.language], { type: "language" });
   return (edition: string) => {
     const { source, target } = parseEditionId(edition);
-    return t("courses.languages", { from: names.of(source), to: names.of(target) });
+    const name = (code: string) => languageName(code, i18n.language);
+    return t("courses.languages", { from: name(source), to: name(target) });
   };
 }
 

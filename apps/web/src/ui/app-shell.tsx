@@ -125,6 +125,19 @@ export function Loading() {
   return <p className="p-8 text-muted-foreground">{t("common.loading")}</p>;
 }
 
+/** A course (or a lesson of it) that is not installed: a stale link, a course removed. */
+export function NotInstalled() {
+  const { t } = useTranslation();
+  return (
+    <div className="m-6 space-y-2 rounded-xl border p-4">
+      <p>{t("course.notInstalled")}</p>
+      <Link to="/catalog" className="font-semibold underline">
+        {t("nav.allCourses")}
+      </Link>
+    </div>
+  );
+}
+
 export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () => void }) {
   const { t } = useTranslation();
   return (

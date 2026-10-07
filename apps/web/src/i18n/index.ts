@@ -17,10 +17,13 @@ function browserLanguage(): UiLanguage {
   return codes.find(isUiLanguage) ?? "en";
 }
 
-/** A language's own name ("Deutsch", "Русский"), from Intl rather than a catalog. */
-export function nativeName(code: string): string {
-  const name = new Intl.DisplayNames([code], { type: "language" }).of(code) ?? code;
-  return name.charAt(0).toLocaleUpperCase(code) + name.slice(1);
+/**
+ * A language's name from Intl rather than a catalog: in `locale` (its own by default: "Deutsch",
+ * "Русский"), capitalised when it stands alone (Russian names are lower case in a sentence).
+ */
+export function languageName(code: string, locale = code, capital = false): string {
+  const name = new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code;
+  return capital ? name.charAt(0).toLocaleUpperCase(locale) + name.slice(1) : name;
 }
 
 i18n.on("languageChanged", (language) => {

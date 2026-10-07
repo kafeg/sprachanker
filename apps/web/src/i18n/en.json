@@ -63,7 +63,8 @@
     "intact": "All files are in place and consistent.",
     "checkAgain": "Check again",
     "complete": "All downloaded",
-    "next": "next: {where} — {title}"
+    "next": "next: {where} — {title}",
+    "notInstalled": "This course is not installed (any more)."
   },
   "lesson": {
     "unitLesson": "Unit {unit} · Lesson {lesson}",
@@ -71,7 +72,6 @@
     "counts": "{exercises, plural, =0 {} one {# exercise · } other {# exercises · }}{words, plural, one {# new word} other {# new words}}",
     "start": "Start lesson",
     "resume": "Continue lesson",
-    "overview": "Overview",
     "exerciseOf": "Exercise {n} of {total}",
     "check": "Check",
     "next": "Next",
@@ -130,7 +130,8 @@
       "culture": "Culture",
       "practice": "Practice with AI"
     },
-    "part": "part {n}"
+    "part": "part {n}",
+    "why": "Why is this wrong?"
   },
   "ref": {
     "vocabulary": "Vocabulary",
@@ -223,7 +224,6 @@
     "model": "Model",
     "modelHint": "Pick one of the provider's models, or choose “Another model” to type its name.",
     "setUpHint": "Want an explanation? Set up the AI assistant",
-    "why": "Why is this wrong?",
     "explanation": "Explanation",
     "thinking": "Thinking…",
     "error": {
@@ -434,8 +434,7 @@
     "pages": "{count, plural, one {# page read} other {# pages read}}",
     "preparing": "Preparing the lessons…",
     "media": "Media: {done, number} of {total, number} files · {size}",
-    "download": "Download",
-    "downloadSize": "Download · {size}",
+    "downloadSize": "Download · ≈ {size}",
     "continue": "Continue downloading",
     "sync": "Sync with the source",
     "notDownloaded": "Not downloaded",
@@ -536,6 +535,7 @@
     "toOverview": "Deck overview",
     "toDecks": "Decks",
     "howTo": "Spaced repetition as in Anki: one deck per course, under the language it teaches. Recall the answer, show it, then rate how it went — FSRS schedules each card from your ratings.",
-    "due": "{count, plural, one {# card} other {# cards}} to study"
+    "due": "{count, plural, one {# card} other {# cards}} to study",
+    "flagKey": "Ctrl+{n}"
   }
 }
