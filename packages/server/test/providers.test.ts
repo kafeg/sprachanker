@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { courseInstaller, importCourse } from "../src/providers.ts";
+import { courseInstaller, importCourse, providerIds } from "../src/providers.ts";
 
 test("download markers on disk: interrupted and incomplete downloads, space per series", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-installer-"));
@@ -23,7 +23,12 @@ test("download markers on disk: interrupted and incomplete downloads, space per 
   expect(series[0]?.bytes).toBeGreaterThan(10);
   // Every provider's courses are offered, each with its series folder.
   const offers = installer.offers();
-  expect(offers.map((o) => `${o.series}/${o.course}`)).toContain("coerll.dib/dib");
+  // German for now: the English courses and Deutsch im Blick are imported by the CLI only.
+  const offered = offers.map((o) => `${o.series}/${o.course}`);
+  expect(offered).toContain("dw.nicos-weg/a1-ru");
+  expect(offered).not.toContain("coerll.dib/dib");
+  expect(offered.some((o) => o.startsWith("voa.") || o.startsWith("lingust."))).toBe(false);
+  expect(providerIds()).toContain("coerll-dib");
   expect(offers.every((o) => o.approxBytes > 0 && o.title && o.source.url)).toBe(true);
 });
 

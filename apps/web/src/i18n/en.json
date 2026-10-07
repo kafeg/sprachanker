@@ -526,16 +526,10 @@
       "learning": "Learn",
       "review": "Due"
     },
-    "overview": {
-      "new": "New",
-      "learning": "Learning",
-      "review": "To Review"
-    },
-    "studyNow": "Study now",
-    "toOverview": "Deck overview",
     "toDecks": "Decks",
     "howTo": "Spaced repetition as in Anki: one deck per course, under the language it teaches. Recall the answer, show it, then rate how it went — FSRS schedules each card from your ratings.",
     "due": "{count, plural, one {# card} other {# cards}} to study",
-    "flagKey": "Ctrl+{n}"
+    "flagKey": "Ctrl+{n}",
+    "toCards": "Cards"
   }
 }

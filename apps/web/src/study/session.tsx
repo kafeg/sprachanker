@@ -365,6 +365,12 @@ export function StudySession({
               {current.marked ? t("study.unmark") : t("study.mark")}
               <DropdownMenuShortcut>*</DropdownMenuShortcut>
             </DropdownMenuItem>
+            {data.buried > 0 && (
+              // The deck's buried cards back today (Anki: Unbury, on the deck's overview).
+              <DropdownMenuItem onSelect={() => actions.unbury.mutate(scope)}>
+                {t("study.unbury")}
+              </DropdownMenuItem>
+            )}
             <DropdownMenuSeparator />
             {FLAGS.map((name, i) => (
               <DropdownMenuItem key={name} onSelect={() => flag(i + 1)}>

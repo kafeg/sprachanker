@@ -526,16 +526,10 @@
       "learning": "Lernen",
       "review": "Fällig"
     },
-    "overview": {
-      "new": "Neu",
-      "learning": "Lernen",
-      "review": "Wiederholen"
-    },
-    "studyNow": "Jetzt lernen",
-    "toOverview": "Stapelübersicht",
     "toDecks": "Stapel",
     "howTo": "Wiederholen mit Abständen wie in Anki: ein Stapel je Kurs, unter der Sprache, die er lehrt. Erinnere dich, zeig die Antwort und bewerte — FSRS plant jede Karte aus deinen Bewertungen.",
     "due": "{count, plural, one {# Karte} other {# Karten}} zu lernen",
-    "flagKey": "Strg+{n}"
+    "flagKey": "Strg+{n}",
+    "toCards": "Karten"
   }
 }

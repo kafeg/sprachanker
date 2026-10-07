@@ -20,6 +20,8 @@ export const LEARNER_SETTINGS = {
   "catalog.pair": filter,
   "mine.course": filter,
   "mine.pair": filter,
+  /** The deck Review opens on (a deck scope: `lang:de`, `course:…`). */
+  "review.deck": z.string().min(1).max(400),
   /** Shows the prompt behind each AI answer. */
   "llm.debugPrompts": z.boolean(),
   /** Anki's deck options (04). */

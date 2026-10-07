@@ -1,3 +1,31 @@
+CREATE TABLE `card_state` (
+	`card_id` text NOT NULL,
+	`face` text NOT NULL,
+	`fsrs_json` text,
+	`due_at` integer,
+	`suspended` integer DEFAULT 0 NOT NULL,
+	`buried_until` integer,
+	`flag` integer DEFAULT 0 NOT NULL,
+	PRIMARY KEY(`card_id`, `face`),
+	FOREIGN KEY (`card_id`) REFERENCES `cards`(`id`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `cards` (
+	`id` text PRIMARY KEY NOT NULL,
+	`kind` text NOT NULL,
+	`lexeme_key` text,
+	`source_key` text,
+	`origin_run_id` text,
+	`origin_event_id` text,
+	`fields_json` text,
+	`faces` text NOT NULL,
+	`display_cache_json` text,
+	`suspended` integer DEFAULT 0 NOT NULL,
+	`marked` integer DEFAULT 0 NOT NULL,
+	`created_at` integer NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `cards_lexeme` ON `cards` (`lexeme_key`);--> statement-breakpoint
 CREATE TABLE `events` (
 	`id` text PRIMARY KEY NOT NULL,
 	`run_id` text NOT NULL,
@@ -11,6 +39,14 @@ CREATE TABLE `events` (
 );
 --> statement-breakpoint
 CREATE INDEX `events_run` ON `events` (`run_id`,`ts`);--> statement-breakpoint
+CREATE INDEX `events_type_ts` ON `events` (`type`,`ts`);--> statement-breakpoint
+CREATE TABLE `llm_routes` (
+	`task` text PRIMARY KEY NOT NULL,
+	`provider_id` text NOT NULL,
+	`model` text,
+	`params_json` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `runs` (
 	`id` text PRIMARY KEY NOT NULL,
 	`kind` text NOT NULL,
@@ -28,6 +64,11 @@ CREATE TABLE `runs` (
 );
 --> statement-breakpoint
 CREATE INDEX `runs_context` ON `runs` (`context_key`,`status`);--> statement-breakpoint
+CREATE TABLE `secrets` (
+	`provider_id` text PRIMARY KEY NOT NULL,
+	`value_encrypted` text NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `settings` (
 	`key` text PRIMARY KEY NOT NULL,
 	`value_json` text NOT NULL

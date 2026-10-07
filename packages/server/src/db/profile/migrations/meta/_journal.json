@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1791216005611,
+      "when": 1791374921999,
       "tag": "0000_init",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1791229015144,
-      "tag": "0001_llm",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1791316218084,
-      "tag": "0002_cards",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1791363136656,
-      "tag": "0003_anki",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1791368269819,
-      "tag": "0004_indexes",
       "breakpoints": true
     }
   ]

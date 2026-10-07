@@ -1,12 +1,11 @@
-// Review (09) as in Anki: the decks — each language the cards teach, and under it the courses the words
-// were met in — with New, Learning and To Review counts; a deck's overview with "Study now"; then the
-// study session (study/session.tsx). The deck and the session are kept in the address.
+// Review (09): opens straight on the cards of the deck chosen last (the study session,
+// study/session.tsx); Decks lists them as in Anki — each language the cards teach, and under it the
+// courses the words were met in — with New, Learning and To Review counts; a deck chosen is studied.
 import { useTranslation } from "react-i18next";
-import { useCardActions, useCourses, useDecks, useStudy } from "@/api/hooks.ts";
+import { useCourses, useDecks, useSetSetting, useSettings } from "@/api/hooks.ts";
 import { languageName } from "@/i18n/index.ts";
 import { COUNT_TONE, StudySession } from "@/study/session.tsx";
 import { ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
-import { Button } from "@/ui/components/button.tsx";
 import { cn } from "@/ui/utils.ts";
 
 type Counts = { new: number; learning: number; review: number };
@@ -82,73 +81,79 @@ function Decks({ open }: { open(scope: string): void }) {
   );
 }
 
-/** Anki's overview: the deck's counts, Study now, and Unbury when cards are buried. */
-function Overview({ scope, study }: { scope: string; study(): void }) {
-  const { t } = useTranslation();
-  const data = useStudy(scope);
-  const actions = useCardActions();
-  if (data.isPending) return <Loading />;
-  if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
-  const { counts, buried } = data.data;
-  const line = (label: string, n: number, tone: string) => (
-    <div className="flex justify-between gap-6">
-      <span>{label}</span>
-      <span className={cn("font-semibold tabular-nums", tone)}>{n}</span>
-    </div>
-  );
-  return (
-    <div className="max-w-sm space-y-5 rounded-2xl border bg-card p-6">
-      <div className="space-y-1.5 text-lg">
-        {line(t("study.overview.new"), counts.new, COUNT_TONE.new)}
-        {line(t("study.overview.learning"), counts.learning, COUNT_TONE.learning)}
-        {line(t("study.overview.review"), counts.review, COUNT_TONE.review)}
-      </div>
-      <Button size="lg" className="w-full text-base" autoFocus onClick={study}>
-        {t("study.studyNow")}
-      </Button>
-      {buried > 0 && (
-        <Button variant="outline" className="w-full" onClick={() => actions.unbury.mutate(scope)}>
-          {t("study.unbury")}
-        </Button>
-      )}
-    </div>
-  );
+/** The deck Review opens on: the one chosen last, else the first language with cards. */
+function useOpenDeck() {
+  const decks = useDecks();
+  const settings = useSettings();
+  const set = useSetSetting();
+  const scopes = (decks.data?.decks ?? []).flatMap((d) => [
+    d.scope,
+    ...d.courses.map((c) => c.scope),
+  ]);
+  const stored = settings.data?.["review.deck"];
+  const deck =
+    typeof stored === "string" && scopes.includes(stored) ? stored : decks.data?.decks[0]?.scope;
+  return {
+    deck,
+    pending: decks.isPending || settings.isPending,
+    error: decks.error,
+    retry: () => decks.refetch(),
+    choose: (scope: string) => set.mutate({ key: "review.deck", value: scope }),
+  };
 }
 
+/** Review (09): the cards of the deck chosen last, straight away; Decks lists them all. */
 export function ReviewPage({
-  deck,
-  studying,
+  showDecks,
   go,
 }: {
-  deck?: string;
-  studying: boolean;
-  go(next: { deck?: string; study?: boolean }): void;
+  showDecks: boolean;
+  go(next: { decks?: boolean }): void;
 }) {
   const { t } = useTranslation();
   const name = useDeckName();
-  if (!deck)
+  const open = useOpenDeck();
+  if (showDecks)
+    return (
+      <Page title={t("study.toDecks")}>
+        <BackLink onClick={() => go({})}>{t("study.toCards")}</BackLink>
+        <p className="mb-4 max-w-2xl text-sm text-muted-foreground">{t("study.howTo")}</p>
+        <Decks
+          open={(scope) => {
+            open.choose(scope);
+            go({});
+          }}
+        />
+      </Page>
+    );
+  if (open.pending) return <Loading />;
+  if (open.error) return <ErrorState error={open.error} onRetry={open.retry} />;
+  if (!open.deck)
     return (
       <Page title={t("nav.review")}>
-        <p className="mb-4 max-w-2xl text-sm text-muted-foreground">{t("study.howTo")}</p>
-        <Decks open={(scope) => go({ deck: scope })} />
+        <p className="rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
+          {t("study.noCards")}
+        </p>
       </Page>
     );
   return (
-    <Page title={name(deck)}>
-      <button
-        type="button"
-        onClick={() => go(studying ? { deck } : {})}
-        className="mb-4 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
-      >
-        ← {studying ? t("study.toOverview") : t("study.toDecks")}
-      </button>
-      {studying ? (
-        <div className="mx-auto flex max-w-2xl flex-col max-sm:min-h-[calc(100dvh-15rem)]">
-          <StudySession scope={deck} />
-        </div>
-      ) : (
-        <Overview scope={deck} study={() => go({ deck, study: true })} />
-      )}
+    <Page title={name(open.deck)}>
+      <BackLink onClick={() => go({ decks: true })}>{t("study.toDecks")}</BackLink>
+      <div className="mx-auto flex max-w-2xl flex-col max-sm:min-h-[calc(100dvh-15rem)]">
+        <StudySession scope={open.deck} />
+      </div>
     </Page>
+  );
+}
+
+function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="mb-4 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
+    >
+      {children}
+    </button>
   );
 }

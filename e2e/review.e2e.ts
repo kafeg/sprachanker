@@ -1,8 +1,8 @@
-// Review as in Anki: decks per language and course, the deck's overview, the study session.
+// Review: straight on the cards; Decks lists the decks per language and course, as in Anki.
 import { expect, test } from "@playwright/test";
 import { post } from "./api.ts";
 
-test("review: decks, the overview, a card studied by tap and keys, undo", async ({
+test("review: the cards straight away, Decks to choose another, tap and keys, undo", async ({
   page,
   request,
 }) => {
@@ -14,12 +14,14 @@ test("review: decks, the overview, a card studied by tap and keys, undo", async 
       edition: "en-de",
     });
   await page.goto("/review");
-  await expect(page).toHaveTitle("SprachAnker · Review");
-  // German, and under it the demo course, each with New / Learn / Due.
+  // The window names the deck: the one chosen last (the projects share a profile), else German.
+  await expect(page).toHaveTitle(/^SprachAnker · (German|Demo course)$/);
+  // Straight on the cards; Decks lists German and under it the demo course, with New / Learn / Due.
+  await expect(page.getByRole("button", { name: "Show answer" })).toBeVisible();
+  await page.getByRole("button", { name: "Decks" }).click();
   await expect(page.getByRole("button", { name: /^German/ })).toBeVisible();
   await page.getByRole("button", { name: /^Demo course/ }).click();
-  await expect(page.getByText("To Review")).toBeVisible();
-  await page.getByRole("button", { name: "Study now" }).click();
+  await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
 
   const show = page.getByRole("button", { name: "Show answer" });
   const card = page.locator("[data-study-card]").first();
@@ -44,7 +46,7 @@ test("review: decks, the overview, a card studied by tap and keys, undo", async 
   await expect(card).toHaveText(first);
 });
 
-test("review: a card buried from the More menu comes back with Unbury on the overview", async ({
+test("review: a card buried from the More menu comes back with Unbury in the same menu", async ({
   page,
   request,
 }) => {
@@ -54,19 +56,17 @@ test("review: a card buried from the More menu comes back with Unbury on the ove
       lessonKey: `sprachanker.fixture/demo/${lesson}`,
       edition: "en-de",
     });
-  await page.goto(
-    `/review?deck=${encodeURIComponent("course:sprachanker.fixture/demo")}&study=true`,
-  );
+  await page.goto("/review");
   const card = page.locator("[data-study-card]").first();
   await expect(page.getByRole("button", { name: "Show answer" })).toBeVisible();
   const buried = await card.innerText();
   await page.getByRole("button", { name: "More" }).click();
   await page.getByRole("menuitem", { name: /Bury card/ }).click();
   await expect(card).not.toHaveText(buried);
-  await page.getByRole("button", { name: /Deck overview/ }).click();
-  const unbury = page.getByRole("button", { name: "Unbury" });
-  await unbury.click();
-  await expect(unbury).toBeHidden();
+  await page.getByRole("button", { name: "More" }).click();
+  await page.getByRole("menuitem", { name: "Unbury" }).click();
+  // The buried card is the deck's first new card again.
+  await expect(card).toHaveText(buried);
 });
 
 test("a course that is not installed says so, with the way to all courses", async ({ page }) => {

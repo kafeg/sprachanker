@@ -29,6 +29,14 @@ the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fing
 library reader, and the helpers normalisers share: a lesson's vocabulary entries from headwords
 (`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping.
 
+## Offered for now
+
+The app focuses on German (11): All courses offers DW (Nicos Weg, Deutschtrainer). Deutsch im Blick and
+the English courses (sections 3–6) stay importable with the CLI (`sprachanker import <provider>`) and
+are not offered in the app (`listed: false` in `packages/server/src/providers.ts`). A course taken out
+of the library keeps working where it is remembered: its cards (their text is kept with them), its runs
+(left out of progress), its pages say it is not installed.
+
 ## Importer behaviour (all providers)
 
 - **On demand only**: "Download" in All courses (a background job, 06) or the CLI

@@ -40,8 +40,14 @@ export interface ImportRequest {
 
 type Run = (options: ImportRequest & { libraryRoot: string }) => Promise<ImportReport>;
 
-/** Provider id → the series folder it writes, its courses and its importer. */
-const PROVIDERS: Record<string, { series: string; offers: CourseOffer[]; run: Run }> = {
+/**
+ * Provider id → the series folder it writes, its courses and its importer. `listed: false`: not
+ * offered in All courses for now (the app focuses on German, 11); the CLI still imports it.
+ */
+const PROVIDERS: Record<
+  string,
+  { series: string; offers: CourseOffer[]; run: Run; listed?: false }
+> = {
   "dw-nicos-weg": {
     series: seriesId("nicos-weg"),
     offers: dwOffers("nicos-weg"),
@@ -52,13 +58,24 @@ const PROVIDERS: Record<string, { series: string; offers: CourseOffer[]; run: Ru
     offers: dwOffers("deutschtrainer"),
     run: (o) => importDw("deutschtrainer", o),
   },
-  "coerll-dib": { series: DIB, offers: DIB_OFFERS, run: importDib },
-  "lingust-english": { series: LINGUST, offers: LINGUST_OFFERS, run: importLingust },
-  "voa-english-usa": { series: ENGLISH_USA, offers: ENGLISH_USA_OFFERS, run: importEnglishUsa },
+  "coerll-dib": { series: DIB, offers: DIB_OFFERS, run: importDib, listed: false },
+  "lingust-english": {
+    series: LINGUST,
+    offers: LINGUST_OFFERS,
+    run: importLingust,
+    listed: false,
+  },
+  "voa-english-usa": {
+    series: ENGLISH_USA,
+    offers: ENGLISH_USA_OFFERS,
+    run: importEnglishUsa,
+    listed: false,
+  },
   "voa-lets-learn-english": {
     series: LETS_LEARN_ENGLISH,
     offers: LETS_LEARN_ENGLISH_OFFERS,
     run: importLetsLearnEnglish,
+    listed: false,
   },
 };
 
@@ -141,7 +158,9 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
     join(library, series, ".downloads", `${course}.json`);
   return {
     offers: () =>
-      Object.values(PROVIDERS).flatMap((p) => p.offers.map((o) => ({ ...o, series: p.series }))),
+      Object.values(PROVIDERS)
+        .filter((p) => p.listed !== false)
+        .flatMap((p) => p.offers.map((o) => ({ ...o, series: p.series }))),
 
     async run(series, course, { log, progress }) {
       const provider = Object.entries(PROVIDERS).find(([, p]) => p.series === series)?.[0];

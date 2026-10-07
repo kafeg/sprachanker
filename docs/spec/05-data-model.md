@@ -138,7 +138,9 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   migration runs in a transaction; a failed one is rolled back and the server refuses to start with an
   explanation.
 - The server refuses to open a DB that has migrations it does not know (downgrade protection).
-- Each migration has a test that upgrades fixture DBs of every released version (10).
+- Each migration has a test that upgrades a database of the version before it (10). Until the first
+  release the set may be squashed into one `0000_init` (done 2026-10-07; the owner's profile was
+  started anew); after a release, never.
 
 ## Export, import, backup (planned)
 

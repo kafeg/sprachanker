@@ -28,6 +28,9 @@ and decks stay after the MVP (10, 12). Do not build post-MVP features early.
 Built early at the owner's request: courses beyond Nicos Weg A1 `ru-de` (stage 11: eleven courses in
 three language pairs) and the LLM features (stage 8).
 
+Focus (owner, 2026-10-07): German. All courses offers the DW courses; Deutsch im Blick and the English
+courses stay importable with the CLI, not offered in the app (03, "Offered for now").
+
 **Order of the remaining MVP work** (agreed 2026-10-06): 5c courses from the interface → 6 cards,
 review, Notebook → profiles (rest of 4) → 7 speech → 9b exams → MVP acceptance.
 
