@@ -2,11 +2,11 @@
 import type { LessonKey } from "@sprachanker/schema";
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
+import { AppShell } from "@/app/shell.tsx";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
 import { NotebookPage } from "@/notebook/page.tsx";
-import { AppShell } from "@/ui/app-shell.tsx";
 import { PlaybackRate } from "@/ui/media.tsx";
 import { CoursePage } from "./course.tsx";
 import { CatalogPage, MyCoursesPage } from "./courses.tsx";

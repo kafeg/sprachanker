@@ -16,11 +16,11 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
+import { ResetProgress } from "@/app/reset-progress.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
-import { ResetProgress } from "@/ui/reset-progress.tsx";
 import { cn } from "@/ui/utils.ts";
 import { DownloadLine, downloading } from "./download.tsx";
 

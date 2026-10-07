@@ -92,6 +92,16 @@ module.exports = {
       to: { path: "^apps/web/src/llm/" },
     },
     {
+      name: "web-ui-presentational",
+      comment:
+        "apps/web/src/ui holds presentational pieces: no API calls and no features; what needs data lives in app/ or a feature folder.",
+      severity: "error",
+      from: { path: "^apps/web/src/ui/" },
+      to: {
+        path: "^apps/web/src/(api|app|exercises|lesson|llm|notebook|routes|study|word)/",
+      },
+    },
+    {
       name: "server-io-in-runtime-only",
       comment:
         "app.ts and everything it imports stay runtime-agnostic (the web type-checks that graph): Node/Bun APIs only in src/runtime/ and the entry files that wire it (index, config, providers).",

@@ -10,7 +10,6 @@ import { Flag, MoreHorizontal, Star, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCardActions, useStudy } from "@/api/hooks.ts";
-import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import {
   DropdownMenu,
@@ -21,6 +20,7 @@ import {
   DropdownMenuTrigger,
 } from "@/ui/components/dropdown-menu.tsx";
 import type { AudioControls } from "@/ui/media.tsx";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 import { type Side, StudyCard } from "./card.tsx";
 import { useIntervalText } from "./time.ts";

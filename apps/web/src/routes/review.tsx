@@ -9,7 +9,7 @@ import { useDecks, useSetSetting, useSettings } from "@/api/hooks.ts";
 import { useDeckName } from "@/study/decks.ts";
 import { StudySession } from "@/study/session.tsx";
 import { COUNT_TONE } from "@/study/tones.ts";
-import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 
 type Counts = { new: number; learning: number; review: number };

@@ -3,7 +3,7 @@
 // → summary. Built from what the normaliser put into the canonical and locale files, the same way for
 // every course; what is done is read from the run's events.
 import type { Lesson, LocaleLesson, StepId, StoredEvent } from "@sprachanker/schema";
-import { type ExerciseResult, exerciseState } from "../learner/progress.ts";
+import { type ExerciseResult, exerciseState, lessonCoverage } from "../learner/progress.ts";
 
 export type LessonStep =
   | { kind: "overview" }
@@ -87,4 +87,54 @@ export function planCoverage(
     /** Index in `steps` of the first step still to do. */
     firstLeft: left[0],
   };
+}
+
+/**
+ * Where an active run resumes: the exercise last shown while it is not worked yet, else the first step
+ * still to do (the exercise again when none is left); undefined when no exercise was shown.
+ */
+export function resumeStep(
+  steps: LessonStep[],
+  lesson: Lesson,
+  results: Record<string, ExerciseResult>,
+  done: Map<StepId, "done" | "skipped">,
+  resumePage: number,
+): string | undefined {
+  const exercise = lesson.pages[resumePage]?.exercise;
+  if (!exercise) return undefined;
+  const page = `exercise:${resumePage}`;
+  if (!results[exercise.key]) return page;
+  const left = planCoverage(steps, lesson, results, done).firstLeft;
+  const step = left === undefined ? undefined : steps[left];
+  return step ? stepId(step) : page;
+}
+
+/**
+ * What opening a step records in an active run: an exercise page shown, a grammar or culture page read
+ * (once; again in a run just started — `fresh` — whose `done` may still be the old run's), and the
+ * mistakes gone over when there are none to go over (every exercise worked, all right at once).
+ */
+export function openingRecord(
+  step: LessonStep,
+  run: {
+    lesson: Lesson;
+    results: Record<string, ExerciseResult>;
+    done: Map<StepId, "done" | "skipped">;
+    mistakes: number;
+    fresh: boolean;
+  },
+): { pageShown?: number; stepDone?: StepId } {
+  if (step.kind === "exercise") return { pageShown: step.index };
+  const id = stepId(step) as StepId;
+  if ((step.kind === "grammar" || step.kind === "culture") && (run.fresh || !run.done.has(id)))
+    return { stepDone: id };
+  if (
+    step.kind === "mistakes" &&
+    !run.fresh &&
+    !run.done.has(id) &&
+    !run.mistakes &&
+    lessonCoverage(run.lesson, run.results).complete
+  )
+    return { stepDone: id };
+  return {};
 }

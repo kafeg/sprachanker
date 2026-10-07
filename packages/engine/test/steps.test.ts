@@ -3,7 +3,9 @@ import type { Lesson, LocaleLesson, StoredEvent } from "@sprachanker/schema";
 import {
   exerciseResults,
   lessonSteps,
+  openingRecord,
   planCoverage,
+  resumeStep,
   stepId,
   stepState,
   stepsDone,
@@ -62,4 +64,48 @@ test("coverage: complete when every step is done or skipped; the latest record o
   // Done after a skip: done.
   const later = stepsDone([...events, ev(104, "step_done", null, { step: "writing" })]);
   expect(stepState({ kind: "writing" }, lesson, {}, later)).toBe("done");
+});
+
+test("resume: the exercise last shown while it is not worked, else the first step still to do", () => {
+  const steps = lessonSteps(lesson, locale);
+  const none = new Map();
+  expect(resumeStep(steps, lesson, {}, none, 1)).toBe("exercise:1");
+  const worked = exerciseResults([ev(1, "item_skipped", "s.x/c/01-01/ex-02#1", {})]);
+  // The exercise shown was worked: the first step still to do is the words.
+  expect(resumeStep(steps, lesson, worked, none, 1)).toBe("words");
+  const all = new Map([
+    ["words", "done"],
+    ["grammar:0", "done"],
+    ["culture:0", "done"],
+  ] as const);
+  const both = exerciseResults([
+    ev(1, "item_skipped", "s.x/c/01-01/ex-01#1", {}),
+    ev(2, "item_skipped", "s.x/c/01-01/ex-02#1", {}),
+  ]);
+  // Nothing left: back on that exercise.
+  expect(resumeStep(steps, lesson, both, new Map(all), 1)).toBe("exercise:1");
+  expect(resumeStep(steps, lesson, {}, none, 9)).toBeUndefined();
+});
+
+test("opening a step records what it is: a page shown, a page read once, mistakes when there are none", () => {
+  const run = { lesson, results: {}, done: new Map(), mistakes: 0, fresh: false };
+  expect(openingRecord({ kind: "exercise", index: 1 }, run)).toEqual({ pageShown: 1 });
+  expect(openingRecord({ kind: "grammar", index: 0 }, run)).toEqual({ stepDone: "grammar:0" });
+  const read = { ...run, done: new Map([["grammar:0", "done"]] as const) };
+  expect(openingRecord({ kind: "grammar", index: 0 }, read)).toEqual({});
+  // A run just started records it again (its `done` may still be the old run's).
+  expect(openingRecord({ kind: "grammar", index: 0 }, { ...read, fresh: true })).toEqual({
+    stepDone: "grammar:0",
+  });
+  // Mistakes: only with every exercise worked and none to go over.
+  expect(openingRecord({ kind: "mistakes" }, run)).toEqual({});
+  const worked = exerciseResults([
+    ev(1, "item_skipped", "s.x/c/01-01/ex-01#1", {}),
+    ev(2, "item_skipped", "s.x/c/01-01/ex-02#1", {}),
+  ]);
+  expect(openingRecord({ kind: "mistakes" }, { ...run, results: worked })).toEqual({
+    stepDone: "mistakes",
+  });
+  expect(openingRecord({ kind: "mistakes" }, { ...run, results: worked, mistakes: 2 })).toEqual({});
+  expect(openingRecord({ kind: "words" }, run)).toEqual({});
 });

@@ -14,7 +14,7 @@ import {
   useStartDownload,
 } from "@/api/hooks.ts";
 import { editionSetting, useEdition } from "@/app/preferences.ts";
-import { EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
+import { ResetProgress } from "@/app/reset-progress.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import {
@@ -26,7 +26,7 @@ import {
 } from "@/ui/components/select.tsx";
 import { LanguageFlag, PairFlags, usePairName } from "@/ui/flags.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
-import { ResetProgress } from "@/ui/reset-progress.tsx";
+import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { DownloadLine, downloading } from "./download.tsx";
 
 type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];

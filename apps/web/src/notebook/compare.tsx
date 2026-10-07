@@ -2,8 +2,8 @@
 import { exerciseResults, firstTry, shownExercises } from "@sprachanker/engine";
 import { useTranslation } from "react-i18next";
 import { useNotebookPass } from "@/api/hooks.ts";
-import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { useDateFormat } from "@/ui/format.ts";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { usePassMark } from "./mark.ts";

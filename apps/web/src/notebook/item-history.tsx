@@ -4,8 +4,8 @@ import type { Exercise, LocaleExercise } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useItemHistory } from "@/api/hooks.ts";
 import { ItemCard } from "@/exercises/item-card.tsx";
-import { ErrorState, Loading } from "@/ui/app-shell.tsx";
 import { useDateFormat } from "@/ui/format.ts";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 

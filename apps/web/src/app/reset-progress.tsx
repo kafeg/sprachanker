@@ -4,7 +4,7 @@ import type { LessonKey } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useResetProgress } from "@/api/hooks.ts";
-import { ConfirmDialog } from "./confirm.tsx";
+import { ConfirmDialog } from "@/ui/confirm.tsx";
 
 export function ResetProgress({
   series,

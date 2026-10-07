@@ -1,0 +1,143 @@
+// The lesson's flow over its plan (09): which step is shown, moving between steps and what that records,
+// starting or starting over, resuming an active run where it was left, and completing it on the summary.
+// The decisions are the engine's (`resumeStep`, `openingRecord`); this hook keeps the screen's state.
+import {
+  type LessonStep,
+  lessonSteps,
+  openingRecord,
+  type PracticeKind,
+  planCoverage,
+  resumeStep,
+  stepId,
+} from "@sprachanker/engine";
+import type { Lesson, LessonResult, LocaleLesson, StepId } from "@sprachanker/schema";
+import { useEffect, useRef, useState } from "react";
+import type { useRun } from "./use-run.ts";
+
+type Run = ReturnType<typeof useRun>;
+
+export function useLessonFlow({
+  lesson,
+  locale,
+  practice,
+  run,
+}: {
+  lesson: Lesson | undefined;
+  locale: LocaleLesson | null | undefined;
+  practice: PracticeKind[];
+  run: Run;
+}) {
+  const [current, setCurrent] = useState("overview");
+  const [finished, setFinished] = useState<LessonResult | null>();
+  /** Starting a run: one request at a time (a double click starts one run), its failure shown. */
+  const [startState, setStartState] = useState<{ busy: boolean; error?: unknown }>({ busy: false });
+  /** Finishing is tried once per run: a refusal is shown, not asked again in a loop. */
+  const finishTried = useRef<string>(undefined);
+  const [finishError, setFinishError] = useState<unknown>();
+
+  const steps = lesson ? lessonSteps(lesson, locale, practice) : [];
+  const ids = steps.map(stepId);
+  const coverage = lesson ? planCoverage(steps, lesson, run.results, run.done) : undefined;
+  const active = run.mode === "active";
+  const resumeId =
+    active && lesson ? resumeStep(steps, lesson, run.results, run.done, run.resumePage) : undefined;
+
+  // Once per run loaded (not while the learner works through it), in the same render — the overview
+  // never shows for a frame first.
+  const runLoaded = active && lesson ? run.run?.id : undefined;
+  const [resumedFor, setResumedFor] = useState<string>();
+  if (runLoaded && resumedFor !== runLoaded) {
+    setResumedFor(runLoaded);
+    if (resumeId) setCurrent(resumeId);
+  }
+
+  // Reaching the summary with every step done or skipped completes an active run (05, "Lifecycle").
+  const { finish } = run;
+  const complete = !!coverage?.complete;
+  const runId = run.run?.id;
+  useEffect(() => {
+    if (current !== "summary" || !active || !complete || !runId || finishTried.current === runId)
+      return;
+    finishTried.current = runId;
+    finish().then(setFinished).catch(setFinishError);
+  }, [current, active, complete, finish, runId]);
+
+  const at = Math.max(0, ids.indexOf(current));
+  const starting = async (start: () => Promise<void>) => {
+    if (startState.busy) return false;
+    setStartState({ busy: true });
+    try {
+      await start();
+      setStartState({ busy: false });
+      return true;
+    } catch (error) {
+      setStartState({ busy: false, error });
+      return false;
+    }
+  };
+  const show = (id: string) => {
+    setCurrent(id);
+    window.scrollTo({ top: 0 });
+  };
+  /** Records what opening a step records (the engine's `openingRecord`). */
+  const record = (target: LessonStep, fresh = false) => {
+    if (!lesson) return;
+    const { pageShown, stepDone } = openingRecord(target, {
+      lesson,
+      results: run.results,
+      done: run.done,
+      mistakes: run.mistakes.length,
+      fresh,
+    });
+    if (pageShown !== undefined) run.pageShown(pageShown);
+    if (stepDone) run.stepDone(stepDone);
+  };
+  /** Moves to a step. In an active run it is recorded; opening a step of a lesson never started
+   *  starts it; a finished run is only looked at. */
+  const go = (id: string) => {
+    show(id);
+    const target = steps[ids.indexOf(id)];
+    if (!target || target.kind === "overview" || target.kind === "summary") return;
+    if (active) record(target);
+    else if (run.mode === "none")
+      void starting(() => run.start()).then((ok) => ok && record(target, true));
+  };
+  /** Records a step besides the exercises as done or skipped (in an active run). */
+  const mark = (id: string, skipped = false) => {
+    if (active && run.done.get(id as StepId) !== (skipped ? "skipped" : "done"))
+      run.stepDone(id as StepId, skipped);
+  };
+  /** Starts the lesson (anew when `restart`) and opens its first step after the overview. */
+  const begin = async (restart: boolean) => {
+    if (!(await starting(() => run.start(restart)))) return;
+    setFinished(undefined);
+    const first = steps[1];
+    if (!first) return;
+    show(stepId(first));
+    record(first, true);
+  };
+
+  return {
+    steps,
+    ids,
+    at,
+    current,
+    step: steps[at],
+    worked: coverage?.worked ?? 0,
+    todo: coverage?.total ?? 0,
+    resumeId,
+    /** The score shown: of the run just finished, or of the latest finished run. */
+    result: finished ?? (run.mode === "finished" ? run.run?.result : undefined),
+    busy: startState.busy,
+    error: startState.error ?? finishError,
+    show,
+    go,
+    next: () => go(ids[at + 1] ?? "summary"),
+    back: () => go(ids[at - 1] ?? "overview"),
+    mark,
+    begin,
+    /** After progress was reset: nothing of the old run is shown. */
+    forget: () => setFinished(undefined),
+  };
+}
+export type LessonFlow = ReturnType<typeof useLessonFlow>;

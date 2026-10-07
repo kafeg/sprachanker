@@ -4,9 +4,9 @@ import { parseLessonKey, seriesOf } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { type NotebookOverview, useNotebook } from "@/api/hooks.ts";
-import { EmptyState, ErrorState, Loading, Page } from "@/ui/app-shell.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
+import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 
