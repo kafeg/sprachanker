@@ -70,10 +70,12 @@ test("review: a card buried from the More menu comes back with Unbury in the sam
   await expect(card).toHaveText(buried);
 });
 
-test("a course that is not installed says so, with the way to all courses", async ({ page }) => {
+test("a course that is not installed says so, with the way to the available courses", async ({
+  page,
+}) => {
   await page.goto("/course/sprachanker.fixture/nope");
   await expect(page.getByText("This course is not installed (any more).")).toBeVisible();
-  await page.getByRole("link", { name: "All courses" }).last().click();
+  await page.getByRole("link", { name: "Available" }).last().click();
   await expect(page).toHaveURL(/\/catalog$/);
 });
 

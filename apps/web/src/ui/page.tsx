@@ -73,7 +73,7 @@ export function NotInstalled() {
     <div className="m-6 space-y-2 rounded-xl border p-4">
       <p>{t("course.notInstalled")}</p>
       <Link to="/catalog" className="font-semibold underline">
-        {t("nav.allCourses")}
+        {t("courses.tabs.available")}
       </Link>
     </div>
   );

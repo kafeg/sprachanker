@@ -3,9 +3,8 @@
     "name": "SprachAnker"
   },
   "nav": {
+    "courses": "Courses",
     "settings": "Settings",
-    "myCourses": "My courses",
-    "allCourses": "All courses",
     "review": "Review",
     "notebook": "Notebook"
   },
@@ -17,7 +16,6 @@
     "cancel": "Cancel"
   },
   "courses": {
-    "empty": "No course is installed yet, and none is offered.",
     "lessons": "{count, plural, one {# lesson} other {# lessons}}",
     "progress": "{done, number} of {total, number} done",
     "start": "Start",
@@ -31,7 +29,14 @@
     "toCatalog": "Choose a course",
     "next": "Next",
     "nextWorked": "{worked, number} of {total, number} done",
-    "doneShort": "{done, number} / {total, number}"
+    "doneShort": "{done, number} / {total, number}",
+    "tabs": {
+      "mine": "My courses",
+      "downloaded": "Downloaded",
+      "available": "Available"
+    },
+    "noneDownloaded": "No course is downloaded yet.",
+    "allDownloaded": "Every course on offer is downloaded."
   },
   "course": {
     "unit": "Unit {number}",
@@ -727,8 +732,7 @@
     }
   },
   "tour": {
-    "myCourses": "The courses you study, where you left off.",
-    "allCourses": "Every course you can download, filtered by your languages.",
+    "courses": "Your courses (where you left off), the ones downloaded, and every course you can download — filtered by your languages.",
     "review": "Your words in spaced repetition, as in Anki: a few minutes a day.",
     "notebook": "Every pass of every lesson, your answers and mistakes.",
     "settings": "Your profile, languages, the AI assistant and the app."

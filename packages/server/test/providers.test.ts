@@ -23,11 +23,11 @@ test("download markers on disk: interrupted and incomplete downloads, space per 
   expect(series[0]?.bytes).toBeGreaterThan(10);
   // Every provider's courses are offered, each with its series folder.
   const offers = installer.offers();
-  // German for now: the English courses and Deutsch im Blick are imported by the CLI only.
+  // Every provider is offered (Courses → Available), Deutsch im Blick and the English courses too.
   const offered = offers.map((o) => `${o.series}/${o.course}`);
   expect(offered).toContain("dw.nicos-weg/a1-ru");
-  expect(offered).not.toContain("coerll.dib/dib");
-  expect(offered.some((o) => o.startsWith("voa.") || o.startsWith("lingust."))).toBe(false);
+  expect(offered).toContain("coerll.dib/dib");
+  expect(offered.some((o) => o.startsWith("voa.") || o.startsWith("lingust."))).toBe(true);
   expect(providerIds()).toContain("coerll-dib");
   expect(offers.every((o) => o.approxBytes > 0 && o.title && o.source.url)).toBe(true);
 });

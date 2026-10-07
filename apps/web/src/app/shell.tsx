@@ -1,7 +1,7 @@
 // The app's frame (09, "Layouts"): sidebar on desktop, bottom tab bar on phones, the cards due on the
 // Review entry, background downloads in the window title.
-import { Link, Outlet } from "@tanstack/react-router";
-import { BookOpen, Layers, Library, NotebookPen, Settings } from "lucide-react";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { BookOpen, Layers, NotebookPen, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDecks, useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
 import { cn } from "@/ui/utils.ts";
@@ -11,15 +11,19 @@ import { ProfileChip } from "./profile-chip.tsx";
 
 /** The app's sections, in the sidebar and the tab bar (and the onboarding's tour). */
 export const NAV = [
-  { to: "/", key: "nav.myCourses", icon: BookOpen },
-  { to: "/catalog", key: "nav.allCourses", icon: Library },
+  { to: "/", key: "nav.courses", icon: BookOpen },
   { to: "/review", key: "nav.review", icon: Layers },
   { to: "/notebook", key: "nav.notebook", icon: NotebookPen },
   { to: "/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
+/** The Courses entry is active on any of its tabs. */
+const COURSE_PATHS = ["/", "/downloaded", "/catalog"];
+
 export function AppShell() {
   const { t } = useTranslation();
+  const path = useRouterState({ select: (s) => s.location.pathname });
+  const active = (to: string) => (to === "/" ? COURSE_PATHS.includes(path) : path.startsWith(to));
   // Courses downloading in the background keep every screen current, and show in the window title.
   useDownloadsWatch();
   // Cards to study now (new, learning and review of every deck), on the Review entry.
@@ -47,9 +51,11 @@ export function AppShell() {
           <Link
             key={to}
             to={to}
-            activeOptions={{ exact: to === "/" }}
-            className="flex min-h-11 items-center gap-3 rounded-lg px-3 text-[15px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-            activeProps={{ className: "bg-accent text-foreground" }}
+            aria-current={active(to) ? "page" : undefined}
+            className={cn(
+              "flex min-h-11 items-center gap-3 rounded-lg px-3 text-[15px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground",
+              active(to) && "bg-accent text-foreground",
+            )}
           >
             <Icon className="size-5" /> {t(key)}
             {to === "/review" && due > 0 && <DueBadge count={due} />}
@@ -70,11 +76,11 @@ export function AppShell() {
           <Link
             key={to}
             to={to}
-            activeOptions={{ exact: to === "/" }}
+            aria-current={active(to) ? "page" : undefined}
             className={cn(
               "flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-xs text-muted-foreground",
+              active(to) && "font-semibold text-foreground",
             )}
-            activeProps={{ className: "text-foreground font-semibold" }}
           >
             <span className="relative">
               <Icon className="size-5" />

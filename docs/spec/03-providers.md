@@ -29,17 +29,17 @@ the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fing
 library reader, and the helpers normalisers share: a lesson's vocabulary entries from headwords
 (`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping.
 
-## Offered for now
+## Offered in the app
 
-The app focuses on German (plan): All courses offers DW (Nicos Weg, Deutschtrainer). Deutsch im Blick and
-the English courses (sections 3–6) stay importable with the CLI (`sprachanker import <provider>`) and
-are not offered in the app (`listed: false` in `packages/server/src/providers.ts`). A course taken out
-of the library keeps working where it is remembered: its cards (their text is kept with them), its runs
-(left out of progress), its pages say it is not installed.
+Every provider's courses are offered in Courses → Available (owner, 2026-10-08: the ones kept CLI-only
+before — Deutsch im Blick and the English courses — moved there); the pair the onboarding sets as the
+course filters keeps a learner's own language pair in front. A course taken out of the library keeps
+working where it is remembered: its cards (their text is kept with them), its runs (left out of
+progress), its pages say it is not installed.
 
 ## Importer behaviour (all providers)
 
-- **On demand only**: "Download" in All courses (a background job, 06) or the CLI
+- **On demand only**: "Download" in Courses → Available (a background job, 06) or the CLI
   (`sprachanker import <provider> --courses a1 --editions ru-de`). Content goes from the source site to
   the learner's machine; nothing is hosted by us.
 - **Idempotent and resumable.** Stored raw pages are not fetched again unless `--refresh`; stored media

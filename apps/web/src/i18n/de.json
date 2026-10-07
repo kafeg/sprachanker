@@ -3,9 +3,8 @@
     "name": "SprachAnker"
   },
   "nav": {
+    "courses": "Kurse",
     "settings": "Einstellungen",
-    "myCourses": "Meine Kurse",
-    "allCourses": "Alle Kurse",
     "review": "Wiederholen",
     "notebook": "Notizbuch"
   },
@@ -17,7 +16,6 @@
     "cancel": "Abbrechen"
   },
   "courses": {
-    "empty": "Noch kein Kurs installiert und keiner verfügbar.",
     "lessons": "{count, plural, one {# Lektion} other {# Lektionen}}",
     "progress": "{done, number} von {total, number} erledigt",
     "start": "Starten",
@@ -31,7 +29,14 @@
     "toCatalog": "Kurs auswählen",
     "next": "Weiter",
     "nextWorked": "{worked, number} von {total, number} erledigt",
-    "doneShort": "{done, number} / {total, number}"
+    "doneShort": "{done, number} / {total, number}",
+    "tabs": {
+      "mine": "Meine Kurse",
+      "downloaded": "Heruntergeladen",
+      "available": "Verfügbar"
+    },
+    "noneDownloaded": "Noch kein Kurs heruntergeladen.",
+    "allDownloaded": "Alle angebotenen Kurse sind heruntergeladen."
   },
   "course": {
     "unit": "Einheit {number}",
@@ -727,8 +732,7 @@
     }
   },
   "tour": {
-    "myCourses": "Die Kurse, die du lernst, dort, wo du aufgehört hast.",
-    "allCourses": "Alle Kurse zum Herunterladen, nach deinen Sprachen.",
+    "courses": "Deine Kurse (dort, wo du aufgehört hast), die heruntergeladenen und alle Kurse zum Herunterladen — nach deinen Sprachen.",
     "review": "Deine Wörter in verteilter Wiederholung, wie in Anki: ein paar Minuten am Tag.",
     "notebook": "Jeder Durchgang jeder Lektion, deine Antworten und Fehler.",
     "settings": "Dein Profil, deine Sprachen, der KI-Assistent und die App."

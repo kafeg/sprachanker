@@ -7,8 +7,8 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 
 ```
 apps/web/src/
-  routes/          # router.tsx (code-based TanStack Router) and the pages: courses (my courses, all
-                   # courses), course (its map), review (decks, a deck's overview, the session), words
+  routes/          # router.tsx (code-based TanStack Router: the gate, then the pages): courses (tabs My,
+                   # Downloaded, Available — /, /downloaded, /catalog), course (its map), review (decks, a deck's overview, the session), words
                    # (My words, under Decks), settings
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
                    # the course page's hero (progress, source, stats, integrity, sync)

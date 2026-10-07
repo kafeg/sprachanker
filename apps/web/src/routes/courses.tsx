@@ -1,18 +1,21 @@
-// Courses (09): "My courses" — the ones started, ready to continue — and "All courses" — every installed
-// course and those offered, narrowed by the pair and course filters. A course teaches one language to
-// speakers of one language (its edition); another pair of the same source course is a course of its own.
+// Courses (09): one page in three tabs — My courses (started, ready to continue), Downloaded (installed,
+// started or not) and Available (every course a provider offers that is not here yet) — each narrowed by
+// the pair and course filters. A course teaches one language to speakers of one language (its edition);
+// another pair of the same source course is a course of its own.
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
-import {
-  type CatalogEntry,
-  CourseCard,
-  type CourseRow,
-  MyCourseCard,
-  OfferCard,
-} from "@/courses/card.tsx";
+import { CourseCard, MyCourseCard, OfferCard } from "@/courses/card.tsx";
 import { CATALOG_FILTERS, MY_FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
+import { cn } from "@/ui/utils.ts";
+
+export type CoursesTab = "mine" | "downloaded" | "available";
+const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
+  mine: "/",
+  downloaded: "/downloaded",
+  available: "/catalog",
+};
 
 function useCourseList() {
   const courses = useCourses();
@@ -23,7 +26,42 @@ function useCourseList() {
   return { all: courses.data, settings: settings.data ?? {} };
 }
 
-export function MyCoursesPage() {
+export function CoursesPage({ tab }: { tab: CoursesTab }) {
+  const { t } = useTranslation();
+  const all = useCourses().data ?? [];
+  const offers = (useCatalog().data ?? []).filter((o) => !o.installed);
+  const count: Record<CoursesTab, number> = {
+    mine: all.filter((c) => c.started).length,
+    downloaded: all.reduce((n, c) => n + c.editions.length, 0),
+    available: offers.length,
+  };
+  return (
+    <Page title={t("nav.courses")}>
+      <nav
+        className="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-muted p-1"
+        aria-label={t("nav.courses")}
+      >
+        {(["mine", "downloaded", "available"] as const).map((id) => (
+          <Link
+            key={id}
+            to={PATH[id]}
+            aria-current={tab === id ? "page" : undefined}
+            className={cn(
+              "flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted-foreground pointer-coarse:min-h-11",
+              tab === id && "bg-background text-foreground shadow-sm",
+            )}
+          >
+            {t(`courses.tabs.${id}`)}
+            <span className="tabular-nums text-muted-foreground">{count[id]}</span>
+          </Link>
+        ))}
+      </nav>
+      {tab === "mine" ? <MyCourses /> : tab === "downloaded" ? <Downloaded /> : <Available />}
+    </Page>
+  );
+}
+
+function MyCourses() {
   const { t } = useTranslation();
   const list = useCourseList();
   const mine = (list.all ?? []).filter((c) => c.started);
@@ -37,88 +75,102 @@ export function MyCoursesPage() {
     list.settings ?? {},
   );
   if (!list.all) return list.state;
-  return (
-    <Page title={t("nav.myCourses")}>
-      {(mine.length > 1 || filters.active) && filters.bar}
-      {mine.length ? (
-        filters.shown.length ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {filters.shown.map(({ c }) => (
-              <MyCourseCard key={c.key} course={c} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState>{t("courses.noneMatch")}</EmptyState>
-        )
-      ) : (
-        <EmptyState className="text-foreground">
-          <p className="text-lg">{t("courses.noneStarted")}</p>
-          <Link to="/catalog" className="mt-3 inline-block font-medium underline">
-            {t("courses.toCatalog")}
-          </Link>
-        </EmptyState>
-      )}
-    </Page>
-  );
-}
-
-export function CatalogPage() {
-  const { t } = useTranslation();
-  const list = useCourseList();
-  const catalog = useCatalog();
-  const all = list.all ?? [];
-  // Installed courses, then those offered but not downloaded yet (the providers' catalogues).
-  const cards: Array<{
-    key: string;
-    edition: string;
-    titles: string[];
-    editions: string[];
-    course?: CourseRow;
-    offer?: CatalogEntry;
-  }> = [
-    ...all.flatMap((course) =>
-      course.editions.map((edition) => ({
-        key: `${course.key}:${edition}`,
-        course,
-        edition,
-        titles: [course.titles[edition] || course.key],
-        editions: [edition],
-      })),
-    ),
-    ...(catalog.data ?? [])
-      .filter((offer) => !offer.installed)
-      .map((offer) => ({
-        key: offer.key,
-        offer,
-        edition: offer.edition,
-        titles: [offer.title],
-        editions: [offer.edition],
-      })),
-  ];
-  const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
-  if (!list.all) return list.state;
-  if (!cards.length)
+  if (!mine.length)
     return (
-      <Page title={t("nav.allCourses")}>
-        <EmptyState className="text-lg text-foreground">{t("courses.empty")}</EmptyState>
-      </Page>
+      <EmptyState className="text-foreground">
+        <p className="text-lg">{t("courses.noneStarted")}</p>
+        <Link to="/catalog" className="mt-3 inline-block font-medium underline">
+          {t("courses.toCatalog")}
+        </Link>
+      </EmptyState>
     );
   return (
-    <Page title={t("nav.allCourses")}>
-      {filters.bar}
+    <>
+      {(mine.length > 1 || filters.active) && filters.bar}
       {filters.shown.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {filters.shown.map((c) =>
-            c.course ? (
-              <CourseCard key={c.key} course={c.course} edition={c.edition} />
-            ) : c.offer ? (
-              <OfferCard key={c.key} offer={c.offer} />
-            ) : null,
-          )}
+          {filters.shown.map(({ c }) => (
+            <MyCourseCard key={c.key} course={c} />
+          ))}
         </div>
       ) : (
         <EmptyState>{t("courses.noneMatch")}</EmptyState>
       )}
-    </Page>
+    </>
+  );
+}
+
+function Downloaded() {
+  const { t } = useTranslation();
+  const list = useCourseList();
+  // Each edition of an installed course is a card of its own.
+  const cards = (list.all ?? []).flatMap((course) =>
+    course.editions.map((edition) => ({
+      key: `${course.key}:${edition}`,
+      course,
+      edition,
+      titles: [course.titles[edition] || course.key],
+      editions: [edition],
+    })),
+  );
+  const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
+  if (!list.all) return list.state;
+  if (!cards.length)
+    return (
+      <EmptyState className="text-foreground">
+        <p className="text-lg">{t("courses.noneDownloaded")}</p>
+        <Link to="/catalog" className="mt-3 inline-block font-medium underline">
+          {t("courses.toCatalog")}
+        </Link>
+      </EmptyState>
+    );
+  return (
+    <>
+      {filters.bar}
+      {filters.shown.length ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filters.shown.map((c) => (
+            <CourseCard key={c.key} course={c.course} edition={c.edition} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState>{t("courses.noneMatch")}</EmptyState>
+      )}
+    </>
+  );
+}
+
+function Available() {
+  const { t } = useTranslation();
+  const list = useCourseList();
+  const catalog = useCatalog();
+  const cards = (catalog.data ?? [])
+    .filter((offer) => !offer.installed)
+    .map((offer) => ({
+      key: offer.key,
+      offer,
+      titles: [offer.title],
+      editions: [offer.edition],
+    }));
+  const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
+  if (!list.all) return list.state;
+  if (catalog.isPending) return <Loading />;
+  if (!cards.length)
+    return (
+      <EmptyState className="text-lg text-foreground">{t("courses.allDownloaded")}</EmptyState>
+    );
+  return (
+    <>
+      {filters.bar}
+      {filters.shown.length ? (
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {filters.shown.map((c) => (
+            <OfferCard key={c.key} offer={c.offer} />
+          ))}
+        </div>
+      ) : (
+        <EmptyState>{t("courses.noneMatch")}</EmptyState>
+      )}
+    </>
   );
 }

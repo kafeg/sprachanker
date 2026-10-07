@@ -6,11 +6,18 @@ test.beforeEach(({ request }) => freshLessonRun(request));
 test("open the course, go through the words, the grammar and an exercise, resume, finish", async ({
   page,
 }) => {
-  await page.goto("/catalog");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("All courses");
+  // Courses → Downloaded: the installed course with its way in.
+  await page.goto("/downloaded");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Courses");
+  await expect(page.getByRole("link", { name: /Downloaded/ })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
   await expect(page.getByRole("heading", { name: "Demo course" })).toBeVisible();
   await expect(page.getByRole("link", { name: /Start|Continue lesson/ }).first()).toBeVisible();
-  // Courses the providers offer but not downloaded here come with their size and "Download".
+  // Available: courses the providers offer but not downloaded here, with their size and "Download".
+  await page.getByRole("link", { name: /Available/ }).click();
+  await expect(page).toHaveURL(/\/catalog$/);
   await expect(page.getByRole("button", { name: /^Download · ≈/ }).first()).toBeVisible();
   // Other projects share the server's profile, so open lesson 1 directly (it was just started anew).
   await page.goto("/lesson/sprachanker.fixture/demo/00-01");
@@ -63,7 +70,7 @@ test.describe("with a German browser", () => {
   test.use({ locale: "de-DE" });
   test("the interface is German", async ({ page }) => {
     await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Meine Kurse");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kurse");
   });
 });
 

@@ -1,9 +1,9 @@
-// A device signed in to no profile: who is studying, a new profile and its onboarding to All courses.
+// A device signed in to no profile: who is studying, a new profile and its onboarding to Courses → Available.
 import { expect, test } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
 
-test("a new profile: who is studying, then the onboarding step by step to All courses", async ({
+test("a new profile: who is studying, then the onboarding step by step to Courses", async ({
   page,
 }) => {
   await page.goto("/");
@@ -34,7 +34,10 @@ test("a new profile: who is studying, then the onboarding step by step to All co
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "Where things are" })).toBeVisible();
   await page.getByRole("button", { name: "Choose a course" }).click();
-  // All courses, filtered by the pair chosen.
+  // Courses → Available, filtered by the pair chosen.
   await expect(page).toHaveURL(/\/catalog$/);
-  await expect(page.getByRole("heading", { name: "All courses" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Available/ })).toHaveAttribute(
+    "aria-current",
+    "page",
+  );
 });

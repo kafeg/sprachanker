@@ -20,7 +20,7 @@ import { NotebookPage } from "@/notebook/page.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursePage } from "./course.tsx";
-import { CatalogPage, MyCoursesPage } from "./courses.tsx";
+import { CoursesPage } from "./courses.tsx";
 import { ReviewPage } from "./review.tsx";
 import { SettingsPage } from "./settings.tsx";
 import { WordsPage } from "./words.tsx";
@@ -62,11 +62,21 @@ const shell = createRoute({
   id: "shell",
   component: AppShell,
 });
-const courses = createRoute({ getParentRoute: () => shell, path: "/", component: MyCoursesPage });
+// Courses in three tabs, each its own address (Available keeps the old "/catalog").
+const courses = createRoute({
+  getParentRoute: () => shell,
+  path: "/",
+  component: () => <CoursesPage tab="mine" />,
+});
+const downloaded = createRoute({
+  getParentRoute: () => shell,
+  path: "/downloaded",
+  component: () => <CoursesPage tab="downloaded" />,
+});
 const catalog = createRoute({
   getParentRoute: () => shell,
   path: "/catalog",
-  component: CatalogPage,
+  component: () => <CoursesPage tab="available" />,
 });
 const course = createRoute({ getParentRoute: () => shell, path: "/course/$series/$course" });
 course.update({
@@ -160,6 +170,7 @@ export const router = createRouter({
   routeTree: root.addChildren([
     shell.addChildren([
       courses,
+      downloaded,
       catalog,
       course,
       review,

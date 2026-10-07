@@ -28,7 +28,7 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
   `a2-ru`, `a2-en`, `b1-de`, `a1-a2-ru`); the other providers one series each (03).
 - **CatalogEntry**: course key, series, `kind` (`course` | `exam`), `level?` (CEFR), `target`,
   editions, licence, attribution, homepage, approximate size; declared by the providers built into the
-  app and listed in All courses with each course's state (03, 06).
+  app and listed in Courses (Available, Downloaded) with each course's state (03, 06).
 
 ## Course content
 
