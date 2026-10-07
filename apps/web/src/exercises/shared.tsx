@@ -1,6 +1,6 @@
 import type { Option, Outcome } from "@sprachanker/schema";
 import { Check, X } from "lucide-react";
-import { useEffect, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Select,
@@ -19,21 +19,32 @@ import { cn } from "@/ui/utils.ts";
 export const partRight = (outcome: Outcome | undefined, part: string) =>
   outcome?.parts?.[part] ?? outcome?.result === "correct";
 
-/** Stable shuffled order for one item (display order is not the canonical order, 02). */
+/**
+ * The pass an item is shown in (its run): options are ordered anew for every pass, so a lesson done
+ * again is not answered by where things were; within a pass (a reload, the Notebook showing it) the
+ * order stays.
+ */
+export const ShuffleSeed = createContext("");
+
+/** `items` in an order fixed by `seed` (display order is not the canonical order, 02). Pure. */
+export function shuffled<T>(items: T[], seed: string): T[] {
+  let h = 0;
+  for (const c of seed) h = (h * 31 + c.charCodeAt(0)) | 0;
+  const rand = () => {
+    h = (h * 1103515245 + 12345) | 0;
+    return (h >>> 0) / 2 ** 32;
+  };
+  return items
+    .map((x) => [rand(), x] as const)
+    .sort((a, b) => a[0] - b[0])
+    .map((x) => x[1]);
+}
+
+/** Stable shuffled order for one item in the pass it is shown in. */
 export function useShuffled<T>(items: T[], seed: string): T[] {
-  // biome-ignore lint/correctness/useExhaustiveDependencies: reshuffle only for another item
-  return useMemo(() => {
-    let h = 0;
-    for (const c of seed) h = (h * 31 + c.charCodeAt(0)) | 0;
-    const rand = () => {
-      h = (h * 1103515245 + 12345) | 0;
-      return (h >>> 0) / 2 ** 32;
-    };
-    return items
-      .map((x) => [rand(), x] as const)
-      .sort((a, b) => a[0] - b[0])
-      .map((x) => x[1]);
-  }, [seed]);
+  const pass = useContext(ShuffleSeed);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reshuffle only for another item or pass
+  return useMemo(() => shuffled(items, `${pass}:${seed}`), [pass, seed]);
 }
 
 export type Mark = "correct" | "wrong" | undefined;

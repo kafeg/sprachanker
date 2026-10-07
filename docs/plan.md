@@ -91,9 +91,13 @@ Specs: 04, 05, 09.
   steps), review (cards answered, new cards learnt, the share remembered, time), AI practice. An answer
   taken back (undo) no longer counts. All of it derived from the events by pure functions (engine), as
   the event log intends (05).
-- Progress drawn: an activity calendar, reviews and new cards per day, the share remembered over time,
-  words by state (new, learning, known), lessons and courses done; a review day opens to its answers as
-  a lesson pass does.
+- The Notebook becomes progress first, journal second (owner, 2026-10-07): on top, a year of study
+  days as a calendar of squares by how much was done (as GitHub's contributions and Claude's activity
+  show it) and tiles with the totals — active days, words known, lessons done, cards answered, time —
+  for all time, 30 or 7 days; under it the journal as today (courses → lessons → passes, item history,
+  passes compared), where mistakes are looked up again. No punishing streaks (00, non-goals).
+- More pictures: reviews and new cards per day, the share remembered over time, words by state (new,
+  learning, known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Mockups first. **Accept**: engine tests of the derivations on synthetic events; server tests; e2e of
   the Notebook on desktop and phone.
 

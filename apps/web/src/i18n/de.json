@@ -264,7 +264,8 @@
     "otherModel": "Anderes Modell…",
     "modelName": "Modellname",
     "providerLabel": "Anbieter",
-    "explainAgain": "Neu erklären"
+    "explainAgain": "Neu erklären",
+    "changeInSettings": "Das Modell wählst du in den Einstellungen → KI-Assistent"
   },
   "tutor": {
     "title": "Tutor",

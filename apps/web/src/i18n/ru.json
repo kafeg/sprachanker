@@ -264,7 +264,8 @@
     "otherModel": "Другая модель…",
     "modelName": "Название модели",
     "providerLabel": "Провайдер",
-    "explainAgain": "Объяснить заново"
+    "explainAgain": "Объяснить заново",
+    "changeInSettings": "Модель выбирается в Настройках → ИИ-помощник"
   },
   "tutor": {
     "title": "Репетитор",

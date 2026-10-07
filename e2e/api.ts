@@ -28,9 +28,10 @@ export async function freshLessonRun(request: APIRequestContext, lessonKey = DEM
   await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de", restart: true });
 }
 
-/** The picture question of the first exercise: Tom instead of Lena (wrong on purpose). */
+/** The picture question of the first exercise: Lena instead of Tom (wrong on purpose). Found by its
+ *  picture: options are shown in an order of their own in every pass. */
 export async function answerPicture(page: Page) {
-  await page.locator("ol > li").nth(1).getByRole("button").nth(1).click();
+  await page.locator("ol > li").nth(1).locator("button:has(img[src*='lena'])").click();
 }
 
 /** Drags with small pointer moves, as a hand would (a drag starts after a short move). */

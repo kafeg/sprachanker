@@ -14,6 +14,7 @@ import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
 import { useEdition } from "@/app/preferences.ts";
 import { ResetProgress } from "@/app/reset-progress.tsx";
+import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";
@@ -222,33 +223,36 @@ export function LessonPlayer({
               </ReadingStep>
             )}
             {step.kind === "exercise" && exercise && (
-              <ExerciseStep
-                key={`${run.run?.id}-${step.index}`}
-                stored={run.results[exercise.key]}
-                readOnly={run.mode === "finished"}
-                exercise={exercise}
-                locale={locale?.exercises[exercise.key]}
-                index={step.index}
-                total={lesson.pages.length}
-                last={flow.ids[flow.at + 1] === "summary"}
-                url={url}
-                onAnswered={run.answer}
-                onBack={back}
-                onNext={next}
-                explain={
-                  slots.explain &&
-                  ((index, answer) =>
-                    slots.explain?.({
-                      ...context,
-                      exerciseKey: exercise.key,
-                      index,
-                      answer,
-                      // Kept with the run and the attempt it explains (the latest answer).
-                      runId: run.run?.id,
-                      attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
-                    }))
-                }
-              />
+              // Options ordered anew for every pass of the lesson.
+              <ShuffleSeed.Provider value={run.run?.id ?? ""}>
+                <ExerciseStep
+                  key={`${run.run?.id}-${step.index}`}
+                  stored={run.results[exercise.key]}
+                  readOnly={run.mode === "finished"}
+                  exercise={exercise}
+                  locale={locale?.exercises[exercise.key]}
+                  index={step.index}
+                  total={lesson.pages.length}
+                  last={flow.ids[flow.at + 1] === "summary"}
+                  url={url}
+                  onAnswered={run.answer}
+                  onBack={back}
+                  onNext={next}
+                  explain={
+                    slots.explain &&
+                    ((index, answer) =>
+                      slots.explain?.({
+                        ...context,
+                        exerciseKey: exercise.key,
+                        index,
+                        answer,
+                        // Kept with the run and the attempt it explains (the latest answer).
+                        runId: run.run?.id,
+                        attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
+                      }))
+                  }
+                />
+              </ShuffleSeed.Provider>
             )}
             {(step.kind === "writing" || step.kind === "scene" || step.kind === "mistakes") && (
               <PracticeStep

@@ -1,5 +1,5 @@
 // Rendering a component as the app does (the DOM is test/dom.ts, preloaded): English, the query cache filled
-// with the data the screen reads (no requests), and — for screens with links — a router in memory.
+// with the data the screen reads (no requests), tooltips, and — for screens with links — a router in memory.
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   createMemoryHistory,
@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { render } from "@testing-library/react";
 import "../src/i18n/index.ts";
+import { TooltipProvider } from "../src/ui/components/tooltip.tsx";
 
 /** A query client whose cache holds `data` by query key; nothing goes stale, nothing is fetched. */
 export function queryClient(data: Array<[unknown[], unknown]> = []) {
@@ -30,10 +31,18 @@ export async function renderApp(
     return {
       client,
       router: undefined,
-      ...render(<QueryClientProvider client={client}>{ui}</QueryClientProvider>),
+      ...render(
+        <QueryClientProvider client={client}>
+          <TooltipProvider>{ui}</TooltipProvider>
+        </QueryClientProvider>,
+      ),
     };
   const root = createRootRoute();
-  const page = createRoute({ getParentRoute: () => root, path: "$", component: () => ui });
+  const page = createRoute({
+    getParentRoute: () => root,
+    path: "$",
+    component: () => <TooltipProvider>{ui}</TooltipProvider>,
+  });
   const router = createRouter({
     routeTree: root.addChildren([page]),
     history: createMemoryHistory({ initialEntries: [path] }),

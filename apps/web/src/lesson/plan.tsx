@@ -22,6 +22,7 @@ import {
   Star,
   X,
 } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/ui/utils.ts";
 import { pageTitle } from "./reference.tsx";
@@ -132,9 +133,18 @@ export function Plan({
   go(id: string): void;
 }) {
   const { t } = useTranslation();
+  const nav = useRef<HTMLElement>(null);
+  // The step on screen stays in sight: the list scrolls gently when Next moves past its edge.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the step on screen changes
+  useEffect(() => {
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    nav.current
+      ?.querySelector('[aria-current="step"]')
+      ?.scrollIntoView?.({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
+  }, [current]);
   let section: string | undefined;
   return (
-    <nav className="space-y-0.5">
+    <nav ref={nav} className="space-y-0.5">
       {steps.map((step) => {
         const id = stepId(step);
         const state = stepState(step, lesson, results, done);

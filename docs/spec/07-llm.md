@@ -95,7 +95,8 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
 
 ## Transparency and debugging
 
-- The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model.
+- The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model,
+  with a hint that it is chosen in the settings — not a link, so a lesson is not left by a tap on it.
 - Settings → Prompts: each task's system prompt and the context parts it adds, with
   their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`, `CHECK_WRITING_BUDGETS`,
   `SCENE_BUDGETS`).

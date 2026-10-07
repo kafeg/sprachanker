@@ -1,10 +1,17 @@
 import { correctOptions, type Option, type Outcome } from "@sprachanker/schema";
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
-import { PickSelect, partRight, SpecialLetters, useShuffled } from "./shared.tsx";
+import {
+  PickSelect,
+  partRight,
+  ShuffleSeed,
+  SpecialLetters,
+  shuffled,
+  useShuffled,
+} from "./shared.tsx";
 import type { ItemOf, RendererProps } from "./types.ts";
 
 type Segments = ItemOf<"gap_text">["segments"];
@@ -138,6 +145,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
       .map((id) => textOf(gap, id))
       .join(" / ");
   const bank = useShuffled(Object.values(item.gaps)[0]?.options ?? [], item.key);
+  const pass = useContext(ShuffleSeed);
 
   if (item.display === "bank")
     return (
@@ -160,7 +168,9 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
         <>
           <PickSelect
             value={values[gap]}
-            options={(item.gaps[gap]?.options ?? []).map((o) => ({ id: o.id, text: o.text ?? "" }))}
+            options={shuffled(item.gaps[gap]?.options ?? [], `${pass}:${item.key}:${gap}`).map(
+              (o) => ({ id: o.id, text: o.text ?? "" }),
+            )}
             placeholder="…"
             label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
             disabled={!!outcome}

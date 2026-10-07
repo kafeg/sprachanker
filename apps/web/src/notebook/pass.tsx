@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { type NotebookPass, useNotebookPass } from "@/api/hooks.ts";
 import { ItemCard } from "@/exercises/item-card.tsx";
+import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { StepDot } from "@/lesson/plan.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
@@ -85,53 +86,57 @@ function Pass({ pass }: { pass: NotebookPass }) {
                   </span>
                 </ListRow>
                 {open.isOpen(key) && (
-                  <ol className="space-y-4 pt-1 pb-4">
-                    {exercise.items.map((item, index) => {
-                      const last = r?.last[item.key];
-                      const tries = attempts(item.key);
-                      const explained = pass.explanations.filter((e) => e.itemKey === item.key);
-                      return (
-                        <li key={item.key} className="space-y-2">
-                          <ItemCard
-                            exercise={exercise}
-                            locale={locale}
-                            index={index}
-                            answer={last?.answer}
-                            outcome={last?.outcome}
-                            url={url}
-                          />
-                          <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                            <span>
-                              {!tries
-                                ? r?.skipped.includes(item.key) ||
-                                  r?.skippedFirst.includes(item.key)
-                                  ? t("lesson.skipped")
-                                  : t("lesson.notDone")
-                                : tries > 1 &&
-                                    answerAt(events, item.key, 1)?.outcome?.result !== "correct" &&
-                                    last?.outcome?.result === "correct"
-                                  ? t("notebook.rightAt", { n: tries })
-                                  : t("notebook.attempts", { count: tries })}
-                            </span>
-                            {tries > 0 && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setHistory(item.key)}
-                              >
-                                <History /> {t("notebook.itemHistory")}
-                              </Button>
-                            )}
-                          </div>
-                          {explained.map((e) => (
-                            <div key={e.ts} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
-                              <RichText text={e.text} />
+                  // The options in the order this pass showed them.
+                  <ShuffleSeed.Provider value={run.id}>
+                    <ol className="space-y-4 pt-1 pb-4">
+                      {exercise.items.map((item, index) => {
+                        const last = r?.last[item.key];
+                        const tries = attempts(item.key);
+                        const explained = pass.explanations.filter((e) => e.itemKey === item.key);
+                        return (
+                          <li key={item.key} className="space-y-2">
+                            <ItemCard
+                              exercise={exercise}
+                              locale={locale}
+                              index={index}
+                              answer={last?.answer}
+                              outcome={last?.outcome}
+                              url={url}
+                            />
+                            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+                              <span>
+                                {!tries
+                                  ? r?.skipped.includes(item.key) ||
+                                    r?.skippedFirst.includes(item.key)
+                                    ? t("lesson.skipped")
+                                    : t("lesson.notDone")
+                                  : tries > 1 &&
+                                      answerAt(events, item.key, 1)?.outcome?.result !==
+                                        "correct" &&
+                                      last?.outcome?.result === "correct"
+                                    ? t("notebook.rightAt", { n: tries })
+                                    : t("notebook.attempts", { count: tries })}
+                              </span>
+                              {tries > 0 && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setHistory(item.key)}
+                                >
+                                  <History /> {t("notebook.itemHistory")}
+                                </Button>
+                              )}
                             </div>
-                          ))}
-                        </li>
-                      );
-                    })}
-                  </ol>
+                            {explained.map((e) => (
+                              <div key={e.ts} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
+                                <RichText text={e.text} />
+                              </div>
+                            ))}
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  </ShuffleSeed.Provider>
                 )}
               </li>
             );

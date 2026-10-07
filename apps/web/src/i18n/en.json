@@ -264,7 +264,8 @@
     "otherModel": "Another model…",
     "modelName": "Model name",
     "providerLabel": "Provider",
-    "explainAgain": "Explain again"
+    "explainAgain": "Explain again",
+    "changeInSettings": "The model is chosen in Settings → AI assistant"
   },
   "tutor": {
     "title": "Tutor",

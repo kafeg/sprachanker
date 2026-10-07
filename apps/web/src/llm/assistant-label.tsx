@@ -1,7 +1,7 @@
 // Which AI answers: "LM Studio · gemma-4-12b" — in the tutor, under explanations, in the sidebar.
-import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useLlm } from "./api.ts";
 
@@ -16,21 +16,25 @@ export function useAssistantLabel(): string | undefined {
   return `${t(`llm.provider.${llm.provider}`)} · ${modelName(llm.model)}`;
 }
 
-/** A small line naming the assistant; links to its settings. */
+/** A small line naming the assistant; where to change it says a hint (not a link: a lesson is not left
+ *  for the settings by a tap on a label). */
 export function AssistantLabel({ className }: { className?: string }) {
   const { t } = useTranslation();
   const label = useAssistantLabel();
   return (
-    <Link
-      to="/settings"
-      title={t("llm.title")}
-      className={cn(
-        "flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground",
-        className,
-      )}
-    >
-      <Sparkles className="size-4 shrink-0" />
-      <span className="truncate">{label ?? t("llm.off")}</span>
-    </Link>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span
+          className={cn(
+            "flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground",
+            className,
+          )}
+        >
+          <Sparkles className="size-4 shrink-0" />
+          <span className="truncate">{label ?? t("llm.off")}</span>
+        </span>
+      </TooltipTrigger>
+      <TooltipContent>{t("llm.changeInSettings")}</TooltipContent>
+    </Tooltip>
   );
 }

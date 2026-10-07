@@ -4,6 +4,7 @@ import type { Exercise, LocaleExercise } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useItemHistory } from "@/api/hooks.ts";
 import { ItemCard } from "@/exercises/item-card.tsx";
+import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
@@ -53,33 +54,35 @@ function Passes({
   return (
     <ol className="space-y-6 px-4 pb-6">
       {history.data.passes.map((p) => (
-        <li key={p.runId} className="space-y-3">
-          <h3 className="font-semibold">
-            {t("notebook.passOf", { date: when.format(p.startedAt) })}
-          </h3>
-          {p.answers.map((a) => (
-            <div key={a.ts} className="space-y-1">
-              <p className="text-sm text-muted-foreground">
-                {t("notebook.attemptN", { n: a.attempt })} · {when.format(a.ts)}
-              </p>
-              <ItemCard
-                exercise={shown.exercise}
-                locale={shown.locale}
-                index={index}
-                answer={a.answer}
-                outcome={a.outcome}
-                url={url}
-              />
-              {p.explanations
-                .filter((e) => e.attempt === a.attempt)
-                .map((e) => (
-                  <div key={e.text} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
-                    <RichText text={e.text} />
-                  </div>
-                ))}
-            </div>
-          ))}
-        </li>
+        <ShuffleSeed.Provider key={p.runId} value={p.runId}>
+          <li className="space-y-3">
+            <h3 className="font-semibold">
+              {t("notebook.passOf", { date: when.format(p.startedAt) })}
+            </h3>
+            {p.answers.map((a) => (
+              <div key={a.ts} className="space-y-1">
+                <p className="text-sm text-muted-foreground">
+                  {t("notebook.attemptN", { n: a.attempt })} · {when.format(a.ts)}
+                </p>
+                <ItemCard
+                  exercise={shown.exercise}
+                  locale={shown.locale}
+                  index={index}
+                  answer={a.answer}
+                  outcome={a.outcome}
+                  url={url}
+                />
+                {p.explanations
+                  .filter((e) => e.attempt === a.attempt)
+                  .map((e) => (
+                    <div key={e.text} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
+                      <RichText text={e.text} />
+                    </div>
+                  ))}
+              </div>
+            ))}
+          </li>
+        </ShuffleSeed.Provider>
       ))}
     </ol>
   );

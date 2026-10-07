@@ -19,11 +19,11 @@ import { StepBar, StepHeader } from "./steps.tsx";
 import { type Answered, useExercise } from "./use-exercise.ts";
 import type { ExerciseResult } from "./use-run.ts";
 
-/** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
 /** Rail (an item's mark once checked) · the items' column · controls; the exercise's own media and
  *  texts sit in the same column. */
 const ITEM_GRID = "grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2";
 
+/** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
 function ItemRail({ outcome }: { outcome: Outcome }) {
   const { t } = useTranslation();
   const ok = outcome.result === "correct";
