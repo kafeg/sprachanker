@@ -4,6 +4,8 @@ import { defineConfig, devices } from "@playwright/test";
 import { FAKE_LLM_PORT } from "./fake-llm.ts";
 
 const PORT = 4590;
+const ALL = !!process.env.CI || !!process.env.E2E_ALL;
+const LOCAL = ["chromium-desktop", "webkit-phone"];
 // Phone width required by apps/web/CLAUDE.md.
 const phone = { width: 375, height: 812 };
 // The compiled binary (`bun run build:cli`), started from an unrelated folder: everything it serves
@@ -35,10 +37,12 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
     },
   ],
+  // CI (and `bun run e2e:all`) runs every browser on both sizes; a local run takes the two far corners
+  // — Chromium on a desktop, WebKit on a phone — in half the time.
   projects: [
     { name: "chromium-desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "webkit-desktop", use: { ...devices["Desktop Safari"] } },
     { name: "chromium-phone", use: { ...devices["Pixel 7"], viewport: phone } },
     { name: "webkit-phone", use: { ...devices["iPhone 15"], viewport: phone } },
-  ],
+  ].filter((p) => ALL || LOCAL.includes(p.name)),
 });

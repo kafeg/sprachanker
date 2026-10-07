@@ -93,7 +93,8 @@ alternatives without updating that table.
 
 - `bun install` · `bun run check` (typecheck + lint + boundaries + tests) · `bun run format`
 - `bun run dev` — server on 127.0.0.1:4580 + Vite (proxies `/api`); open the URL Vite prints
-- `bun run build:cli` — web build + binary (`dist/sprachanker` in `apps/cli`) · `bun run e2e` (builds it first)
+- `bun run build:cli` — web build + binary (`dist/sprachanker` in `apps/cli`) · `bun run e2e` (builds it
+  first; Chromium desktop + WebKit phone, ≈1.5 min) · `bun run e2e:all` (all four, as CI)
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
 - `bun run cli -- import dw-nicos-weg --data ~/SprachAnker` · `bun run cli -- serve --data ~/SprachAnker`
 - `bun run cli -- verify --data ~/SprachAnker` — checks every installed course (run after an import)

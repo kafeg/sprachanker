@@ -71,7 +71,8 @@ Third-party content never appears in fixtures.
 
 GitHub Actions on every push to `main` and every PR: install → typecheck → Biome →
 dependency-cruiser → tests → web build → binary build → e2e against the binary (Chromium + WebKit,
-desktop + phone). `bun run check` runs the same locally except the builds and e2e (`bun run e2e`).
+desktop + phone). `bun run check` runs the same locally except the builds and e2e (`bun run e2e`: Chromium on
+a desktop and WebKit on a phone; `bun run e2e:all` runs all four as CI does).
 Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/` and run in `bun test`.
 
 ## Documentation rules
