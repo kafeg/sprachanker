@@ -1,16 +1,14 @@
 // "Why is this wrong?" (07): the item, the answers and the lesson's grammar go to the configured model,
 // whose explanation is streamed back. A finished explanation is stored in the lesson run as an
 // `llm_verdict` on the item, with the attempt it explains (05), so it is shown again without asking.
+
+import { answerAt } from "@sprachanker/engine";
 import { type ExplainMistakeInput, explainMistake, explainMistakeRequest } from "@sprachanker/llm";
-import {
-  findExercise,
-  type LessonKey,
-  type LlmVerdictPayload,
-  parseEditionId,
-} from "@sprachanker/schema";
+import { findExercise, type LessonKey, parseEditionId } from "@sprachanker/schema";
+import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-import type { Llm, PromptPreview } from "./llm.ts";
+import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
 import type { RunStore } from "./run-store.ts";
 
 export interface ExplainRequest {
@@ -50,25 +48,26 @@ export function createExplain(deps: {
    * explanation kept with a run explains that run's answer at that attempt, read from the run.
    */
   async function input(request: ExplainRequest) {
-    const [lesson, locale] = await Promise.all([
-      content.lesson(request.series, request.lessonKey),
-      content.localeLesson(request.series, request.lessonKey, request.edition),
-    ]);
+    if (request.runId && !lessonRun(request.lessonKey, request.runId))
+      throw new ServiceError("no_such_run", 404);
+    const { lesson, locale } = await content.lessonWithLocale(
+      request.series,
+      request.lessonKey,
+      request.edition,
+    );
     const exercise = findExercise(lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
     if (!exercise || !item) throw new ServiceError("no_such_item", 404);
     const target = parseEditionId(request.edition).target;
     let answer = request.answer;
     if (request.runId && request.attempt) {
-      const given = store
-        .events(request.runId, ["answered"])
-        .find(
-          (e) =>
-            e.itemKey === item.key &&
-            (e.payload as { attempt: number }).attempt === request.attempt,
-        );
+      const given = answerAt(
+        store.eventsWhere({ types: ["answered"], runIds: [request.runId], itemKey: item.key }),
+        item.key,
+        request.attempt,
+      );
       if (!given) throw new ServiceError("no_such_attempt", 404);
-      answer = (given.payload as { answer: unknown }).answer;
+      answer = given.answer;
     }
     // Understanding of a recording is explained from its transcript, not guessed.
     const recording = [exercise.media, item.media].some(
@@ -93,11 +92,10 @@ export function createExplain(deps: {
   return {
     /** Explanation of a wrong answer, streamed; kept in the lesson run once the model has finished. */
     async stream(request: ExplainRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
-      const run = request.runId ? lessonRun(request.lessonKey, request.runId) : undefined;
-      if (request.runId && !run) throw new ServiceError("no_such_run", 404);
       const { itemKey, input: task } = await input(request);
+      const run = request.runId ? lessonRun(request.lessonKey, request.runId) : undefined;
       const { client, model } = await llm.model();
-      const started = now();
+      const elapsed = stopwatch(now);
       const reply = explainMistake(client, model, task, signal);
       const attempt = request.attempt;
       return (async function* () {
@@ -120,7 +118,7 @@ export function createExplain(deps: {
                   input: "",
                   result: text.trim(),
                   model,
-                  latencyMs: Math.max(0, now() - started),
+                  latencyMs: elapsed(),
                   attempt,
                 },
               },
@@ -134,20 +132,14 @@ export function createExplain(deps: {
     /** Explanations kept in a lesson run, oldest first. */
     list(lessonKey: LessonKey, runId: string): StoredExplanation[] {
       if (!lessonRun(lessonKey, runId)) return [];
-      return store.events(runId, ["llm_verdict"]).flatMap((e) => {
-        const v = e.payload as LlmVerdictPayload;
-        return v.task === "explain" && e.itemKey && v.attempt
-          ? [
-              {
-                itemKey: e.itemKey,
-                attempt: v.attempt,
-                text: String(v.result),
-                model: v.model,
-                ts: e.ts,
-              },
-            ]
-          : [];
-      });
+      return store
+        .verdicts("explain", z.string(), { runIds: [runId] })
+        .flatMap((v) =>
+          v.itemKey && v.attempt
+            ? [{ itemKey: v.itemKey, attempt: v.attempt, text: v.result, model: v.model, ts: v.ts }]
+            : [],
+        )
+        .reverse();
     },
 
     /** The request it would send, without sending it. */

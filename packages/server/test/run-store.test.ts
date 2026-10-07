@@ -5,8 +5,9 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
+import { z } from "zod";
 import { openProfileDb } from "../src/runtime/bun.ts";
-import { createRunStore } from "../src/services/run-store.ts";
+import { createRunStore, readStored } from "../src/services/run-store.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01" as LessonKey;
 
@@ -79,7 +80,64 @@ test("a stored row that no longer reads is left out, not the whole list", () => 
       "INSERT INTO events (id, run_id, ts, type, payload_json) VALUES (?, ?, 5000, 'llm_turn', '{\"role\":\"robot\"}')",
     )
     .run(ulid(), run.id);
+  // Not JSON at all: left out too.
+  sqlite
+    .query(
+      "INSERT INTO events (id, run_id, ts, type, payload_json) VALUES (?, ?, 5001, 'llm_turn', '{oops')",
+    )
+    .run(ulid(), run.id);
   expect(store.payloads(run.id, "llm_turn").map((t) => t.text)).toEqual(["Hallo"]);
+  // A plan or result column likewise.
+  expect(readStored("{oops", z.object({ a: z.number() }), "test")).toBeUndefined();
+  expect(readStored('{"a":1}', z.object({ a: z.number() }), "test")).toEqual({ a: 1 });
+  expect(readStored(null, z.object({ a: z.number() }), "test")).toBeUndefined();
+});
+
+test("replace: a new run in place of the active one, which ends as asked, in one go", () => {
+  const { store } = open();
+  const first = store.start("scene", LESSON, { edition: "ru-de" });
+  const second = store.replace(
+    "scene",
+    LESSON,
+    { status: "abandoned", reason: "user" },
+    {
+      edition: "ru-de",
+      plan: { title: "x" },
+    },
+  );
+  expect(store.get(first.id)?.status).toBe("abandoned");
+  expect([store.active("scene", LESSON)?.id, second.planJson]).toEqual([
+    second.id,
+    '{"title":"x"}',
+  ]);
+  // Nothing active: a run is started.
+  const day = store.replace("review", null, { status: "finished", reason: "completed" });
+  expect(store.active("review", null)?.id).toBe(day.id);
+});
+
+test("verdicts of a task read with its schema, newest first; events of many runs in one call", () => {
+  const { store } = open();
+  const a = store.start("lesson", LESSON, { edition: "ru-de" });
+  const b = store.start("chat", LESSON, { edition: "ru-de" });
+  const verdict = (task: "writing" | "explain", result: unknown, itemKey?: string) => ({
+    type: "llm_verdict" as const,
+    itemKey,
+    payload: { task, input: "t", result, model: "m", latencyMs: 1 },
+  });
+  store.append(a.id, [
+    verdict("writing", { ok: 1 }),
+    verdict("explain", "why", "x#1"),
+    verdict("writing", "not an object"),
+    verdict("writing", { ok: 2 }),
+  ]);
+  const ok = z.object({ ok: z.number() });
+  expect(
+    store.verdicts("writing", ok, { kind: "lesson", about: LESSON }).map((v) => v.result.ok),
+  ).toEqual([2, 1]);
+  expect(store.verdicts("explain", z.string(), { runIds: [a.id], itemKey: "x#1" })).toHaveLength(1);
+  store.append(b.id, [{ type: "llm_turn", payload: { role: "user", text: "Hallo" } }]);
+  const byRun = store.eventsOf([a.id, b.id], ["llm_turn"]);
+  expect([byRun.get(a.id)?.length, byRun.get(b.id)?.map((e) => e.type)]).toEqual([0, ["llm_turn"]]);
 });
 
 test("removing runs takes their events with them, in one go", () => {

@@ -104,6 +104,12 @@ export interface PromptPreview {
   tokens: number[];
 }
 
+/** A stopwatch for a model's answer (a call or a stream): every stored answer records how long it took. */
+export function stopwatch(now: () => number) {
+  const started = now();
+  return () => Math.max(0, now() - started);
+}
+
 /** The tasks the settings explain, in the order they are shown. */
 export const PROMPT_TASKS = ["explain", "tutor", "writing", "scene"] as const;
 export type PromptTask = (typeof PROMPT_TASKS)[number];

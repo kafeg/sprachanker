@@ -23,8 +23,8 @@ src/
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area that can be removed as a whole: llm.ts (/api/llm); the rest in app.ts
   services/          # content, runs (lesson runs, progress), settings, run-store (the one module on the
-                     # runs and events tables: start, end, append, read, remove), mistakes (derived from
-                     # lesson runs), lesson-context (what LLM tasks know of a lesson), llm (providers,
+                     # runs and events tables: start, replace, end, append, read, remove), mistakes
+                     # (derived from lesson runs), lesson-context (what LLM tasks know of a lesson), llm (providers,
                      # LM Studio, prompt previews), explain ("Why is this wrong?", kept per attempt in the
                      # lesson run), tutor (lesson chats as `chat` runs, the chat history), writing ("Write
                      # it yourself": checks kept in the lesson run), scene (role-plays as `scene` runs),
@@ -46,6 +46,12 @@ test/                # bun test; integration tests call createApp().request()
 - Routes are thin: validate the request, call a service, return its typed result (the web client
   gets the types through `AppType`).
 - Runs and events go through `services/run-store.ts` only; no other module queries those tables.
+- Histories read the same way everywhere: a run replaced by a new one through `store.replace` (ends
+  `abandoned` when unfinished, `finished` when complete as it is); verdicts through `store.verdicts`;
+  turns and payloads with their time (`payloadOf`); several runs' events in one query
+  (`store.eventsOf`); lists newest first, at most `HISTORY_LIMIT`; a stored row or JSON column that no
+  longer reads is left out and logged (`readStored`), never failing the list.
+- A model's stored answer records `model` and `latencyMs` (`stopwatch` in services/llm.ts).
 - Events are append-only; never UPDATE or DELETE `events`. Only two things remove them (`store.remove`):
   deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat).
 - Any change to a Drizzle schema → new migration (`bun run db:generate`, hand-check the SQL) + a

@@ -14,6 +14,7 @@ const state = (s: number): FaceState => ({
 });
 const review = (id: string, cardId: string, before: FaceState | null): CardEvent => ({
   id,
+  ts: 0,
   type: "card_review",
   cardId,
   payload: {
@@ -25,6 +26,7 @@ const review = (id: string, cardId: string, before: FaceState | null): CardEvent
 });
 const undo = (id: string, cardId: string, of: string): CardEvent => ({
   id,
+  ts: 0,
   type: "card_undo",
   cardId,
   payload: { review: of },

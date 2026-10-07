@@ -9,9 +9,9 @@ import {
   type StoredEvent,
 } from "@sprachanker/schema";
 import { exerciseLabel, type LessonContexts } from "./lesson-context.ts";
-import type { Llm, PromptPreview } from "./llm.ts";
+import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
 import type { Mistakes } from "./mistakes.ts";
-import type { RunStore } from "./run-store.ts";
+import { HISTORY_LIMIT, payloadOf, type RunStore } from "./run-store.ts";
 import type { TutorTools } from "./tutor-tools.ts";
 
 export interface TutorRequest {
@@ -59,13 +59,20 @@ export function createTutor(deps: {
   mistakes: Mistakes;
   lessons: LessonContexts;
   tools: TutorTools;
+  now: () => number;
 }) {
-  const { store } = deps;
+  const { store, now } = deps;
   const activeRun = (lessonKey: LessonKey) => store.active("chat", lessonKey);
   const turns = (runId: string) => store.payloads(runId, "llm_turn");
-  /** The turns a message continues: the current chat's, none when it opens a new chat. */
-  const before = (request: TutorRequest) => {
+  /** The chat a message continues: the current one — none when the message opens a new chat, or when
+   *  the lesson is shown in another edition now (a run belongs to one edition, as a lesson run does). */
+  const continued = (request: TutorRequest) => {
     const run = request.newChat ? undefined : activeRun(request.lessonKey);
+    return run && run.edition === request.edition ? run : undefined;
+  };
+  /** The turns a message continues. */
+  const before = (request: TutorRequest) => {
+    const run = continued(request);
     return run ? turns(run.id) : [];
   };
 
@@ -166,22 +173,31 @@ export function createTutor(deps: {
 
     /** The lesson's chats with something in them, newest first. */
     chats(lessonKey: LessonKey): ChatSummary[] {
-      return store.list("chat", lessonKey).flatMap((run) => {
-        const list = turns(run.id);
-        const first = list.find((t) => t.role === "user");
-        if (!first) return [];
-        return [
-          {
-            id: run.id,
-            current: run.status === "active",
-            startedAt: run.startedAt,
-            lastAt: list.at(-1)?.ts ?? run.startedAt,
-            title: first.text.length > 120 ? `${first.text.slice(0, 119)}…` : first.text,
-            turns: list.length,
-            exerciseKeys: [...new Set(list.flatMap((t) => (t.exerciseKey ? [t.exerciseKey] : [])))],
-          },
-        ];
-      });
+      const runs = store.list("chat", lessonKey);
+      const byRun = store.eventsOf(
+        runs.map((r) => r.id),
+        ["llm_turn"],
+      );
+      return runs
+        .flatMap((run) => {
+          const list = (byRun.get(run.id) ?? []).map((e) => payloadOf<LlmTurnPayload>(e));
+          const first = list.find((t) => t.role === "user");
+          if (!first) return [];
+          return [
+            {
+              id: run.id,
+              current: run.status === "active",
+              startedAt: run.startedAt,
+              lastAt: list.at(-1)?.ts ?? run.startedAt,
+              title: first.text.length > 120 ? `${first.text.slice(0, 119)}…` : first.text,
+              turns: list.length,
+              exerciseKeys: [
+                ...new Set(list.flatMap((t) => (t.exerciseKey ? [t.exerciseKey] : []))),
+              ],
+            },
+          ];
+        })
+        .slice(0, HISTORY_LIMIT);
     },
 
     /** The turns of one of the lesson's chats; undefined when it has no such chat. */
@@ -202,7 +218,10 @@ export function createTutor(deps: {
      */
     async send(request: TutorRequest, signal?: AbortSignal): Promise<AsyncIterable<string>> {
       const { client, model } = await deps.llm.model();
-      const { input, exercise } = await turnInput(request, before(request));
+      // The chat the reply belongs to, as the history it answers was read.
+      const chat = continued(request);
+      const { input, exercise } = await turnInput(request, chat ? turns(chat.id) : []);
+      const elapsed = stopwatch(now);
       // The tools the model calls are recorded with its reply.
       const used: Array<{ name: string; args: unknown }> = [];
       const tool = deps.tools.runner(request.series, request.lessonKey, request.edition);
@@ -226,13 +245,19 @@ export function createTutor(deps: {
           // Also keeps a reply the learner cut short (the stream is closed, not failed); a reply the
           // provider broke off is not kept, nor anything when the model never answered.
           if (!failed && text.trim()) {
-            // One transaction: the new chat replaces the current one only together with its turns.
+            // One transaction: a new chat replaces the current one only together with its turns. A
+            // reply to a chat that was reset or replaced meanwhile is not kept (it answered another
+            // history).
             store.atomic(() => {
-              const current = activeRun(request.lessonKey);
-              if (request.newChat && current) store.end(current.id, "finished", "user");
+              if (chat && activeRun(request.lessonKey)?.id !== chat.id) return;
               const run =
-                (!request.newChat && current) ||
-                store.start("chat", request.lessonKey, { edition: request.edition });
+                chat ??
+                store.replace(
+                  "chat",
+                  request.lessonKey,
+                  { status: "finished", reason: "user" },
+                  { edition: request.edition },
+                );
               store.append(
                 run.id,
                 (
@@ -242,6 +267,7 @@ export function createTutor(deps: {
                       role: "assistant",
                       text: text.trim(),
                       model,
+                      latencyMs: elapsed(),
                       ...(used.length && { tools: used }),
                     },
                   ] satisfies LlmTurnPayload[]

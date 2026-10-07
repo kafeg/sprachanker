@@ -86,10 +86,7 @@ export function createTutorTools(deps: {
           if (!q) return { error: "no word" };
           const found: Array<{ lesson: string; word: string; translation?: string }> = [];
           for (const key of await order()) {
-            const [lesson, locale] = await Promise.all([
-              content.lesson(series, key),
-              content.localeLesson(series, key, edition),
-            ]);
+            const { lesson, locale } = await content.lessonWithLocale(series, key, edition);
             for (const v of lesson.vocab) {
               const translation = locale?.vocab[v.key]?.translation;
               if (headword(lang, v.target).includes(q) || translation?.toLowerCase().includes(q)) {

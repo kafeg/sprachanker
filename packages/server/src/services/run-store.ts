@@ -11,6 +11,7 @@ import {
   type EventType,
   type LessonKey,
   type LessonResult,
+  type LlmVerdictPayload,
   parseLessonKey,
   type RunKind,
   type StoredEvent,
@@ -40,6 +41,38 @@ export interface NewEvent<T extends EventType = EventType> {
 /** A stored event read back: its payload parsed with its type's schema. */
 export type ReadEvent = StoredEvent;
 
+/** How many of a lesson's earlier items a history lists (chats, scenes, writing checks), newest first. */
+export const HISTORY_LIMIT = 20;
+
+/** An event's payload with the time it was stored: how a history shows a turn or a verdict. */
+export const payloadOf = <T>(e: ReadEvent): T & { ts: number } => ({
+  ...(e.payload as T),
+  ts: e.ts,
+});
+
+/** Stored JSON read back; undefined when it is not JSON at all (the row is then left out). */
+function parseJson(text: string): unknown {
+  try {
+    return JSON.parse(text);
+  } catch {
+    return undefined;
+  }
+}
+
+/** A JSON column read with its schema (a run's plan or result); undefined, and logged, when it no
+ *  longer reads — the row it belongs to is shown without it, never breaking a list. */
+export function readStored<T>(
+  json: string | null,
+  schema: z.ZodType<T>,
+  what: string,
+): T | undefined {
+  if (json === null) return undefined;
+  const parsed = schema.safeParse(parseJson(json));
+  if (parsed.success) return parsed.data;
+  console.error(`${what} does not read as stored; left out`);
+  return undefined;
+}
+
 export function createRunStore(deps: { db: ProfileDb; now: () => number; appVersion: string }) {
   const { db, now } = deps;
   // Monotonic: runs and events made in the same millisecond keep their order.
@@ -49,7 +82,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
 
   const toEvent = (row: EventRow): ReadEvent | undefined => {
     const schema = EVENT_PAYLOADS[row.type as EventType];
-    const parsed = schema?.safeParse(JSON.parse(row.payloadJson));
+    const parsed = schema?.safeParse(parseJson(row.payloadJson));
     if (!parsed?.success) {
       console.error(`event ${row.id} (${row.type}) does not read as stored; left out`);
       return undefined;
@@ -187,9 +220,22 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .get();
     },
 
-    /** The active run of this kind about a lesson, started if there is none. */
-    activeOrStart(kind: Kind, lessonKey: LessonKey, edition: string) {
-      return self.active(kind, lessonKey) ?? self.start(kind, lessonKey, { edition });
+    /**
+     * Starts a run in place of the active one of its kind about the same context, in one transaction:
+     * the old one ends as `end` says — `abandoned` when it was left unfinished (a lesson started over,
+     * a scene replaced), `finished` when it is complete as it is (a chat, a day of reviews).
+     */
+    replace(
+      kind: Kind,
+      about: Context,
+      end: { status: "finished" | "abandoned"; reason: "completed" | "user" },
+      options: { edition?: string | null; plan?: unknown } = {},
+    ) {
+      return db.transaction(() => {
+        const active = self.active(kind, about);
+        if (active) self.end(active.id, end.status, end.reason);
+        return self.start(kind, about, options);
+      });
     },
 
     /**
@@ -253,9 +299,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
 
     /** The payloads of a run's events of one type, in order, each with the time it was stored. */
     payloads<T extends EventType>(runId: string, type: T): Array<EventPayload<T> & { ts: number }> {
-      return self
-        .events(runId, [type])
-        .map((e) => ({ ...(e.payload as EventPayload<T>), ts: e.ts }));
+      return self.events(runId, [type]).map((e) => payloadOf<EventPayload<T>>(e));
     },
 
     /**
@@ -269,12 +313,16 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       about?: Context;
       runIds?: string[];
       cardId?: string;
+      itemKey?: string;
+      /** Oldest first instead of newest first. */
+      ascending?: boolean;
     }) {
       const where: Array<SQL | undefined> = [
         inArray(events.type, filter.types),
         filter.since === undefined ? undefined : gte(events.ts, filter.since),
         filter.runIds ? inArray(events.runId, filter.runIds) : undefined,
         filter.cardId === undefined ? undefined : eq(events.cardId, filter.cardId),
+        filter.itemKey === undefined ? undefined : eq(events.itemKey, filter.itemKey),
       ];
       if (filter.kind || filter.about !== undefined)
         where.push(
@@ -291,14 +339,56 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
               ),
           ),
         );
+      const order = filter.ascending
+        ? [asc(events.ts), asc(events.id)]
+        : [desc(events.ts), desc(events.id)];
       return read(
         db
           .select()
           .from(events)
           .where(and(...where))
-          .orderBy(desc(events.ts), desc(events.id))
+          .orderBy(...order)
           .all(),
       );
+    },
+
+    /**
+     * The model's verdicts of one task (05: `llm_verdict`), newest first: in some runs or in runs of
+     * a kind about a context, on one item when given; `result` read with the task's schema — a
+     * verdict stored in a shape that no longer reads is left out and logged.
+     */
+    verdicts<T>(
+      task: LlmVerdictPayload["task"],
+      result: z.ZodType<T>,
+      where: { runIds?: string[]; kind?: Kind; about?: Context; itemKey?: string },
+    ) {
+      return self.eventsWhere({ types: ["llm_verdict"], ...where }).flatMap((e) => {
+        const v = e.payload as LlmVerdictPayload;
+        if (v.task !== task) return [];
+        const parsed = result.safeParse(v.result);
+        if (!parsed.success) {
+          console.error(`verdict ${e.id} (${task}) does not read as stored; left out`);
+          return [];
+        }
+        return [
+          { ...v, result: parsed.data, id: e.id, runId: e.runId, itemKey: e.itemKey, ts: e.ts },
+        ];
+      });
+    },
+
+    /** The events of several runs, each run's in the order they were stored, of some types only when
+     *  given: one query for a list of runs, not one per run. */
+    eventsOf(runIds: string[], types?: EventType[]): Map<string, ReadEvent[]> {
+      const out = new Map<string, ReadEvent[]>(runIds.map((id) => [id, []]));
+      if (!runIds.length) return out;
+      const rows = db
+        .select()
+        .from(events)
+        .where(and(inArray(events.runId, runIds), types ? inArray(events.type, types) : undefined))
+        .orderBy(asc(events.ts), asc(events.id))
+        .all();
+      for (const e of read(rows)) out.get(e.runId)?.push(e);
+      return out;
     },
 
     /** When each run last had an event of these types (runs without one are absent). */

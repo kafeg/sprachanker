@@ -15,7 +15,11 @@ export function createMistakes(store: RunStore) {
       const lessonRuns = (
         filter.lesson ? store.list("lesson", filter.lesson).reverse() : store.all("lesson")
       ).filter((r) => answered.has(r.id));
-      const all = mistakesOf(lessonRuns.map((r) => ({ events: store.events(r.id) })));
+      const answers = store.eventsOf(
+        lessonRuns.map((r) => r.id),
+        ["answered"],
+      );
+      const all = mistakesOf(lessonRuns.map((r) => ({ events: answers.get(r.id) ?? [] })));
       return all.slice(0, filter.limit ?? all.length);
     },
   };

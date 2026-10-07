@@ -11,11 +11,11 @@ import {
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
-import type { LessonKey, LlmVerdictPayload, Run } from "@sprachanker/schema";
+import type { LessonKey, Run } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunStore } from "./run-store.ts";
+import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
+import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
 
 export interface WritingRequest {
   series: string;
@@ -46,15 +46,8 @@ export function createWriting(deps: {
    *  reads is left out. */
   const attempts = (lessonKey: LessonKey): WritingAttempt[] =>
     store
-      .eventsWhere({ types: ["llm_verdict"], kind: "lesson", about: lessonKey })
-      .map((e) => ({ ts: e.ts, ...(e.payload as LlmVerdictPayload) }))
-      .filter((v) => v.task === "writing")
-      .flatMap((v) => {
-        const result = WritingCheck.safeParse(v.result);
-        return result.success
-          ? [{ ts: v.ts, text: v.input, result: result.data, model: v.model }]
-          : [];
-      });
+      .verdicts("writing", WritingCheck, { kind: "lesson", about: lessonKey })
+      .map((v) => ({ ts: v.ts, text: v.input, result: v.result, model: v.model }));
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
@@ -74,7 +67,7 @@ export function createWriting(deps: {
       return {
         topic: writingTopic(ctx.info),
         words: ctx.info.vocab.map((v) => v.target),
-        attempts: attempts(lessonKey).slice(0, 20),
+        attempts: attempts(lessonKey).slice(0, HISTORY_LIMIT),
       };
     },
 
@@ -85,7 +78,7 @@ export function createWriting(deps: {
       if (!session) throw new ServiceError("no_session", 409);
       const task = checkWritingTask(await writingInput(request));
       const { client, model } = await deps.llm.model();
-      const started = now();
+      const elapsed = stopwatch(now);
       const result = cleanWritingCheck(
         await runStructured(client, model, task, signal),
         request.text,
@@ -100,7 +93,7 @@ export function createWriting(deps: {
               input: request.text,
               result,
               model,
-              latencyMs: Math.max(0, now() - started),
+              latencyMs: elapsed(),
             },
           },
         ],

@@ -14,8 +14,8 @@ import {
 import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunRow, RunStore } from "./run-store.ts";
+import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
+import { HISTORY_LIMIT, payloadOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export interface SceneRequest {
   series: string;
@@ -28,27 +28,35 @@ export interface SceneState {
   id: string;
   startedAt: number;
   setup: SceneSetup;
-  turns: LlmTurnPayload[];
+  turns: Array<LlmTurnPayload & { ts: number }>;
   goalsMet: number[];
   done: boolean;
 }
 
-export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonContexts }) {
-  const { store } = deps;
+export function createScenes(deps: {
+  store: RunStore;
+  llm: Llm;
+  lessons: LessonContexts;
+  now: () => number;
+}) {
+  const { store, now } = deps;
   const latestRun = (lessonKey: LessonKey) => store.latest("scene", lessonKey);
 
-  /** A scene as stored; undefined when its setup no longer reads (it is left out, not an error). */
-  function stateOf(run: RunRow): SceneState | undefined {
-    const setup = SceneSetupSchema.safeParse(JSON.parse(run.planJson ?? "{}"));
-    if (!setup.success) return undefined;
-    const list = store.payloads(run.id, "llm_turn");
-    const goalsMet = list.at(-1)?.goalsMet ?? [];
+  /** A scene as stored, from its run and its turns; undefined when its setup no longer reads (it is
+   *  left out, not an error). */
+  function stateOf(
+    run: RunRow,
+    events = store.events(run.id, ["llm_turn"]),
+  ): SceneState | undefined {
+    const setup = readStored(run.planJson, SceneSetupSchema, `scene ${run.id}`);
+    if (!setup) return undefined;
+    const turns = events.map((e) => payloadOf<LlmTurnPayload>(e));
     return {
       id: run.id,
       startedAt: run.startedAt,
-      setup: setup.data,
-      turns: list,
-      goalsMet,
+      setup,
+      turns,
+      goalsMet: turns.at(-1)?.goalsMet ?? [],
       done: run.status !== "active",
     };
   }
@@ -57,7 +65,12 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
     const run = latestRun(request.lessonKey);
     const state = run?.status === "active" ? stateOf(run) : undefined;
     if (!run || !state) throw new ServiceError("no_active_scene", 409);
-    const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
+    // A scene goes on in the edition it was set up in.
+    const ctx = await deps.lessons.get(
+      request.series,
+      request.lessonKey,
+      run.edition ?? request.edition,
+    );
     const input: SceneTurnInput = {
       language: request.language,
       target: ctx.target,
@@ -73,16 +86,19 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
 
   return {
     /** The lesson's scenes, newest first (the latest, active or finished, then earlier ones). */
-    list(lessonKey: LessonKey, limit = 20): SceneState[] {
-      return store
-        .list("scene", lessonKey)
-        .slice(0, limit)
-        .flatMap((run) => stateOf(run) ?? []);
+    list(lessonKey: LessonKey): SceneState[] {
+      const runs = store.list("scene", lessonKey);
+      const turns = store.eventsOf(
+        runs.map((r) => r.id),
+        ["llm_turn"],
+      );
+      return runs.flatMap((run) => stateOf(run, turns.get(run.id)) ?? []).slice(0, HISTORY_LIMIT);
     },
 
-    /** Drafts a new scene from the lesson (ending an unfinished one). */
+    /** Drafts a new scene from the lesson; an unfinished one is left (abandoned). */
     async start(request: SceneRequest, signal?: AbortSignal): Promise<SceneState> {
       const { client, model } = await deps.llm.model();
+      const elapsed = stopwatch(now);
       const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
       const setup = await runStructured(
         client,
@@ -95,17 +111,18 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
         }),
         signal,
       );
+      const latencyMs = elapsed();
       const run = store.atomic(() => {
-        const previous = store.active("scene", request.lessonKey);
-        if (previous) store.end(previous.id, "finished", "user");
-        const started = store.start("scene", request.lessonKey, {
-          edition: request.edition,
-          plan: setup,
-        });
+        const started = store.replace(
+          "scene",
+          request.lessonKey,
+          { status: "abandoned", reason: "user" },
+          { edition: request.edition, plan: setup },
+        );
         store.append(started.id, [
           {
             type: "llm_turn",
-            payload: { role: "assistant", text: setup.opening, model, goalsMet: [] },
+            payload: { role: "assistant", text: setup.opening, model, latencyMs, goalsMet: [] },
           },
         ]);
         return started;
@@ -117,6 +134,7 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
     async turn(request: SceneRequest & { text: string }, signal?: AbortSignal) {
       const { client, model } = await deps.llm.model();
       const { run, state, input } = await turnInput(request, request.text);
+      const elapsed = stopwatch(now);
       const turn = cleanSceneTurn(
         await runStructured(client, model, sceneTurnTask(input), signal),
         request.text,
@@ -138,6 +156,7 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
               translation: turn.translation,
               goalsMet: turn.goalsMet,
               model,
+              latencyMs: elapsed(),
             },
           },
         ]);

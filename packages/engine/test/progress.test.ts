@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import type { Exercise, Lesson, Run, StoredEvent } from "@sprachanker/schema";
 import {
+  answerAt,
   exerciseResults,
   exerciseState,
   firstAttempts,
@@ -152,4 +153,15 @@ test("exercise states and coverage of a run", () => {
     complete: false,
     firstLeft: 3,
   });
+});
+
+test("the answer an item got at one attempt", () => {
+  const events = [
+    ev(1, "answered", "a#1", { answer: "x", attempt: 1, outcome: outcome("wrong", 0) }),
+    ev(2, "answered", "a#2", { answer: "y", attempt: 1, outcome: outcome("correct", 1) }),
+    ev(3, "answered", "a#1", { answer: "z", attempt: 2, outcome: outcome("correct", 1) }),
+  ];
+  expect(answerAt(events, "a#1", 2)?.answer).toBe("z");
+  expect(answerAt(events, "a#1", 1)?.answer).toBe("x");
+  expect(answerAt(events, "a#1", 3)).toBeUndefined();
 });

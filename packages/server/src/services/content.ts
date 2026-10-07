@@ -52,6 +52,14 @@ export function createContent(library: LibraryView) {
   return {
     lesson,
     localeLesson,
+    /** A lesson with its locale file of an edition (null when the edition has none). */
+    async lessonWithLocale(series: string, key: LessonKey, edition: string) {
+      const [l, locale] = await Promise.all([
+        lesson(series, key),
+        localeLesson(series, key, edition),
+      ]);
+      return { lesson: l, locale };
+    },
     /** Drops the cached lessons of a course whose files were replaced. */
     forget(series: string, course: string) {
       const prefix = `${series}|${series}/${course}/`;

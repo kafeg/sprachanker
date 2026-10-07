@@ -21,7 +21,6 @@ import {
   type CardFace,
   type CardRating,
   type CardReviewPayload,
-  type CardUndoPayload,
   FaceState,
   type LessonKey,
   type LexemeKey,
@@ -182,8 +181,7 @@ export function createCards(deps: {
   function reviewRun() {
     const active = store.active("review", null);
     if (active && active.startedAt >= studyDay(now()).start) return active.id;
-    if (active) store.end(active.id, "finished", "completed");
-    return store.start("review", null).id;
+    return store.replace("review", null, { status: "finished", reason: "completed" }).id;
   }
 
   const note = (cardId: string) => {
@@ -205,10 +203,11 @@ export function createCards(deps: {
   return {
     /** Makes cards of a lesson's words: one per lexeme; a word met before keeps its card. */
     async fromLesson(request: { series: string; lessonKey: LessonKey; edition: string }) {
-      const [lesson, locale] = await Promise.all([
-        content.lesson(request.series, request.lessonKey),
-        content.localeLesson(request.series, request.lessonKey, request.edition),
-      ]);
+      const { lesson, locale } = await content.lessonWithLocale(
+        request.series,
+        request.lessonKey,
+        request.edition,
+      );
       const faces = (settings.get("srs.faces") ?? DEFAULT_FACES).join(",");
       let created = 0;
       db.transaction((tx) => {
@@ -458,16 +457,12 @@ export function createCards(deps: {
         };
       });
       const events = store.eventsWhere({ types: ["card_review", "card_undo"], cardId });
-      const undone = new Set(
-        events.flatMap((e) =>
-          e.type === "card_undo" ? [(e.payload as CardUndoPayload).review] : [],
-        ),
-      );
-      const answers = events.flatMap((e) => {
-        if (e.type !== "card_review" || undone.has(e.id)) return [];
-        const { face, rating } = e.payload as CardReviewPayload;
-        return [{ ts: e.ts, face, rating }];
-      });
+      // Read as the day is: an answer taken back is no answer.
+      const answers = cardDay(events as CardEvent[]).answers.map((a) => ({
+        ts: a.ts,
+        face: a.face,
+        rating: a.review.rating,
+      }));
       return { ...wordOf(row, states), faces, answers };
     },
   };

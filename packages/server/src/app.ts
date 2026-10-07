@@ -113,9 +113,10 @@ export function createApp(config: AppConfig) {
     mistakes,
     lessons,
     tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
+    now,
   });
   const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
-  const scenes = createScenes({ store, llm, lessons });
+  const scenes = createScenes({ store, llm, lessons, now });
   const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
 
   const api = new Hono()
@@ -158,10 +159,7 @@ export function createApp(config: AppConfig) {
       zod("query", z.object({ series: SeriesKey, key: LessonKey, edition: EditionId })),
       async (c) => {
         const { series, key, edition } = c.req.valid("query");
-        const [lesson, locale] = await Promise.all([
-          content.lesson(series, key),
-          content.localeLesson(series, key, edition),
-        ]);
+        const { lesson, locale } = await content.lessonWithLocale(series, key, edition);
         return c.json({ lesson, locale: locale ?? null });
       },
     )

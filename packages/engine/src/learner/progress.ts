@@ -2,6 +2,7 @@
 // the web player both read a run through these functions, so the course map, the lesson plan and the
 // summary always agree on what is done.
 import {
+  type AnsweredPayload,
   type Exercise,
   type ItemKey,
   type Lesson,
@@ -137,6 +138,21 @@ export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseRe
 export function lessonResult(lesson: Lesson, events: StoredEvent[]): LessonResult {
   const { sum, scored, answered } = firstAttempts(lesson, exerciseResults(events));
   return { score: scored ? sum / scored : 0, scored, answered };
+}
+
+/** What an item was answered at one attempt in a run (1 = its first answer), if it was. */
+export function answerAt(
+  events: StoredEvent[],
+  itemKey: string,
+  attempt: number,
+): AnsweredPayload | undefined {
+  const e = events.find(
+    (e) =>
+      e.type === "answered" &&
+      e.itemKey === itemKey &&
+      (e.payload as AnsweredPayload).attempt === attempt,
+  );
+  return e?.payload as AnsweredPayload | undefined;
 }
 
 /** Page to continue a run on: the last page shown. */

@@ -29,7 +29,7 @@ import {
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-import type { NewEvent, RunRow, RunStore } from "./run-store.ts";
+import { type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export const toRun = (r: RunRow): Run => ({
   id: r.id,
@@ -41,7 +41,7 @@ export const toRun = (r: RunRow): Run => ({
   endReason: r.endReason as Run["endReason"],
   startedAt: r.startedAt,
   finishedAt: r.finishedAt,
-  result: r.resultJson ? LessonResult.parse(JSON.parse(r.resultJson)) : null,
+  result: readStored(r.resultJson, LessonResult, `result of run ${r.id}`) ?? null,
 });
 
 /** A lesson on the course map: whether it counts as done, and the run it opens as the lesson shows it. */
@@ -100,6 +100,12 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     if (active) return active;
     for (const r of lessonRuns) if (await completed(r)) return r;
     return undefined;
+  };
+
+  /** A run as the player opens it: the run, its events, and the page to go on with. */
+  const openState = (row: RunRow) => {
+    const list = store.events(row.id);
+    return { run: toRun(row), events: list, resumePage: resumePage(list) };
   };
 
   /** Lesson progress of every lesson with runs, over active and completed runs. An active run counts
@@ -193,8 +199,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     async lessonState(series: string, lessonKey: LessonKey) {
       const row = await shownRun(lessonKey);
       if (!row?.courseKey?.startsWith(`${series}/`)) return null;
-      const list = store.events(row.id);
-      return { run: toRun(row), events: list, resumePage: resumePage(list) };
+      return openState(row);
     },
 
     /**
@@ -214,13 +219,16 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
       const row = store.atomic(() => {
         const active = store.active("lesson", lessonKey);
         if (active && !restart && active.edition === edition) return active;
-        // A run belongs to one edition; switching editions (or starting over) ends the old one; it
-        // stays readable.
-        if (active) store.end(active.id, "abandoned", "user");
-        return store.start("lesson", lessonKey, { edition });
+        // A run belongs to one edition; switching editions (or starting over) leaves the old one
+        // unfinished; it stays readable.
+        return store.replace(
+          "lesson",
+          lessonKey,
+          { status: "abandoned", reason: "user" },
+          { edition },
+        );
       });
-      const list = store.events(row.id);
-      return { run: toRun(row), events: list, resumePage: resumePage(list) };
+      return openState(row);
     },
 
     /**
@@ -245,9 +253,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
       const target = parseEditionId(row.edition).target;
       // A page's snapshot is kept with the first time it was shown in the run.
       const snapshotted = new Set(
-        store
-          .events(runId, ["page_shown"])
-          .flatMap((e) => (hasSnapshot(e.payload) ? [pageIndexOf(e.payload)] : [])),
+        store.payloads(runId, "page_shown").flatMap((p) => (p.snapshot ? [p.pageIndex] : [])),
       );
       const outcomes: Record<string, Outcome> = {};
       const list: NewEvent[] = [...parsed.values()].map((e): NewEvent => {
@@ -314,6 +320,3 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
   };
 }
 export type Runs = ReturnType<typeof createRuns>;
-
-const hasSnapshot = (payload: unknown) => !!(payload as { snapshot?: unknown }).snapshot;
-const pageIndexOf = (payload: unknown) => (payload as { pageIndex: number }).pageIndex;

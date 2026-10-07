@@ -5,22 +5,23 @@ import type { CardFace, CardReviewPayload, CardUndoPayload } from "@sprachanker/
 
 /** A `card_review` or `card_undo` event of the day. */
 export type CardEvent =
-  | { id: string; type: "card_review"; cardId: string; payload: CardReviewPayload }
-  | { id: string; type: "card_undo"; cardId: string; payload: CardUndoPayload };
+  | { id: string; ts: number; type: "card_review"; cardId: string; payload: CardReviewPayload }
+  | { id: string; ts: number; type: "card_undo"; cardId: string; payload: CardUndoPayload };
 
 export interface CardAnswer {
   id: string;
+  ts: number;
   cardId: string;
   face: CardFace;
   review: CardReviewPayload;
 }
 
-/** The day read from its card events, newest first. */
+/** The day read from its card events, newest first (also any card events: a word's answers). */
 export function cardDay(events: CardEvent[]) {
   const undone = new Set(events.flatMap((e) => (e.type === "card_undo" ? [e.payload.review] : [])));
   const answers: CardAnswer[] = events.flatMap((e) =>
     e.type === "card_review" && !undone.has(e.id)
-      ? [{ id: e.id, cardId: e.cardId, face: e.payload.face, review: e.payload }]
+      ? [{ id: e.id, ts: e.ts, cardId: e.cardId, face: e.payload.face, review: e.payload }]
       : [],
   );
   const latest = events[0];

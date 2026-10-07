@@ -111,8 +111,9 @@ export type Correction = z.infer<typeof Correction>;
 export const LlmTurnPayload = z.object({
   role: z.enum(["user", "assistant"]),
   text: z.string(),
-  /** The model that wrote an assistant turn. */
+  /** The model that wrote an assistant turn, and how long it took (ms). */
   model: z.string().optional(),
+  latencyMs: z.number().int().nonnegative().optional(),
   /** The exercise on screen when the learner wrote. */
   exerciseKey: ExerciseKey.optional(),
   /** Scenes: the partner's line in the learner's language. */
@@ -127,8 +128,8 @@ export const LlmTurnPayload = z.object({
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
 /**
- * A model's verdict on the learner's work (05, "Events"): a writing check in the lesson's `practice`
- * run, or a mistake explanation in the lesson run, on the item it explains.
+ * A model's verdict on the learner's work (05, "Events"): a writing check or a mistake explanation (on
+ * the item it explains), in the lesson run it was given in.
  */
 export const LlmVerdictPayload = z.object({
   task: z.enum(["writing", "explain"]),

@@ -370,6 +370,30 @@ describe("lesson tutor", () => {
     expect(courses[0].done).toBe(0);
   });
 
+  test("a reply to a chat reset meanwhile is not kept; another edition opens a new chat", async () => {
+    const fake = provider();
+    const { send, getJson } = await setup({ fetch: fake.fetch });
+    await send("PUT", "/api/llm/route", { provider: "lmstudio", model: "qwen3-8b" });
+    const history = async () =>
+      (await getJson(`/api/llm/tutor?lessonKey=${TUTOR.lessonKey}`)).turns;
+    await (await send("POST", "/api/llm/tutor", TUTOR)).text();
+    expect((await history())[1].latencyMs).toBeGreaterThanOrEqual(0);
+
+    // The reply is read after the chat was reset: it answered the old chat, so it is not kept.
+    const late = await send("POST", "/api/llm/tutor", { ...TUTOR, message: "Ещё" });
+    await send("POST", "/api/llm/tutor/reset", { lessonKey: TUTOR.lessonKey });
+    // The learner still gets the whole reply, without an error.
+    expect(await late.text()).toBe("Weil »Frau« weiblich ist.");
+    expect(await history()).toEqual([]);
+
+    // A chat belongs to one edition: in another one the next message opens a new chat.
+    await (await send("POST", "/api/llm/tutor", TUTOR)).text();
+    await (await send("POST", "/api/llm/tutor", { ...TUTOR, edition: "en-de" })).text();
+    expect(prompt(fake.calls.at(-1)).map((m) => m.role)).toEqual(["system", "user"]);
+    expect((await history()).map((t: { text: string }) => t.text)[0]).toBe("Дай пример");
+    expect(await history()).toHaveLength(2);
+  });
+
   test("context usage: size of the next request, the window, turns that still fit", async () => {
     const fake = provider();
     const { send, sendJson } = await setup({ fetch: fake.fetch });
