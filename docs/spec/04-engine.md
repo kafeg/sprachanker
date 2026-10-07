@@ -117,7 +117,7 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 - **The reviewer**: the question; Show answer (Space, Enter, a tap) shows the question and the answer
   under a line; Again, Hard, Good, Easy (1–4; Space/Enter is Good) with the next interval on each.
   Undo (U, Ctrl+Z) takes back today's latest answer and shows that card next. The More menu: replay
-  audio (R), bury card or note until tomorrow (-, =), suspend card or note (@, !), mark the note (*),
+  audio (R, F5), bury card or note until tomorrow (-, =), suspend card or note (@, !), mark the note (*),
   seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's
   overview has the counts, Study now and Unbury; a finished deck says when the next learning card is
   due and whether new cards or reviews wait behind a limit.
@@ -128,9 +128,10 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
 - **"Words of the lesson"** is the same reviewer over the lesson's words in the edition's translation
-  language, recognition only and without the day's new limit (the learner chose to learn them now). A
-  word answered Good or Easy leaves the step (Again and Hard bring it back there); its learning steps go
-  on in Review (owner, 2026-10-07). The step is done once nothing is left to study now.
+  language, recognition only and without the day's new limit (the learner chose to learn them now);
+  otherwise exactly Anki's reviewer: a new word goes through the learning steps (1m, 10m), shown again
+  within the 20-minute learn-ahead (owner, 2026-10-07: identical to Anki everywhere). The step is done
+  once nothing is left to study now; the learning faces go on in Review.
 - **Practice set ("Practise this")**: a run with the original items selected in the Notebook (e.g. all
   du/Sie mistakes this week).
 

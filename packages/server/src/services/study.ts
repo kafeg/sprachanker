@@ -31,7 +31,7 @@ import type { Settings } from "./settings.ts";
 /**
  * What to study: every deck, a language (`lang:de`), a course (`course:<course key>`), or a lesson's own
  * words in an edition (`lesson:<edition>:<lesson key>`: their cards in its translation language, the
- * first card type only, without the day's new limit; a word answered Good or Easy today is done there).
+ * first card type only, without the day's new limit).
  */
 export type DeckScope = string;
 
@@ -90,7 +90,6 @@ export function createStudy(deps: {
             state: cards.stateOf(row),
             suspended: !!note.suspended || !!row?.suspended,
             buriedUntil: row?.buriedUntil ?? null,
-            passedToday: lesson && data.today.passed(note.id, face),
           };
         }),
     );
@@ -102,7 +101,7 @@ export function createStudy(deps: {
       reviewsPerDay: settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay,
       newToday: done.fresh,
       reviewsToday: done.reviews,
-      lessonWords: lesson,
+      allNew: lesson,
     });
     return { ...result, notes, states: data.states, now: data.t, today: data.today };
   }
@@ -148,10 +147,15 @@ export function createStudy(deps: {
       const note = entry && q.notes.find((n) => n.id === entry.cardId);
       const face = entry && q.states.get(`${entry.cardId}:${entry.face}`);
       const state = cards.stateOf(face);
+      const inScope = new Set(q.notes.map((n) => n.id));
       return {
         /** The server's time: the due times are relative to it. */
         now: q.now,
         counts: q.counts,
+        /** About how many answers finish the scope today if each is Good (changes with each answer),
+         *  and how many were given today: the session's progress. */
+        answersLeft: q.answersLeft,
+        answeredToday: q.today.answers.filter((a) => inScope.has(a.cardId)).length,
         current:
           entry && note
             ? {

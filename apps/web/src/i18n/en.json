@@ -602,6 +602,9 @@
     "howTo": "Spaced repetition as in Anki: one deck per course, under the language it teaches. Recall the answer, show it, then rate how it went — FSRS schedules each card from your ratings.",
     "due": "{count, plural, one {# card} other {# cards}} to study",
     "flagKey": "Ctrl+{n}",
-    "toCards": "Cards"
+    "toCards": "Cards",
+    "left": "{n, plural, one {answer to go} other {answers to go}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Answers left if each is Good: a new card goes through two learning steps, a learning card through its steps left, a review takes one answer. Again adds steps back."
   }
 }

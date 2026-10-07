@@ -39,9 +39,6 @@ export function cardDay(events: CardEvent[]) {
       takenBack?.type === "card_review"
         ? { cardId: takenBack.cardId, face: takenBack.payload.face }
         : undefined,
-    /** A face's latest answer today was Good or Easy. */
-    passed: (cardId: string, face: CardFace) =>
-      (answers.find((a) => a.cardId === cardId && a.face === face)?.review.rating ?? 0) >= 3,
     /** What a deck's cards used today: new faces introduced and review faces answered (Anki's limits
      *  are the deck's own, so German answers do not use up English). */
     used(cardIds: Set<string>) {

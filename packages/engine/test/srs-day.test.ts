@@ -51,23 +51,3 @@ test("a day of card answers: what each deck used, what Undo takes back, the face
   expect(cardDay([review("r4", "d", null), ...events]).justUndone).toBeUndefined();
   expect(cardDay([]).undoable).toBeUndefined();
 });
-
-test("a face passed today: its latest answer not taken back was Good or Easy", () => {
-  const again = (id: string, cardId: string): CardEvent => {
-    const e = review(id, cardId, null);
-    return e.type === "card_review" ? { ...e, payload: { ...e.payload, rating: 1 } } : e;
-  };
-  // Newest first: "a" answered Again then Good; "b" Good then Again; "c" Good taken back.
-  const day = cardDay([
-    review("r4", "a", state(1)),
-    again("r3", "a"),
-    again("r2", "b"),
-    review("r1", "b", null),
-    undo("u0", "c", "r0"),
-    review("r0", "c", null),
-  ]);
-  expect(day.passed("a", "recognition")).toBe(true);
-  expect(day.passed("b", "recognition")).toBe(false);
-  expect(day.passed("c", "recognition")).toBe(false);
-  expect(day.passed("a", "production")).toBe(false);
-});

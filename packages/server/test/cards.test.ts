@@ -156,7 +156,7 @@ test("limits: a lesson's own words ignore the new limit; the review limit holds 
   expect([held.counts.new, held.current, held.newWaiting]).toEqual([0, null, true]);
 });
 
-test("a lesson's words: a word answered Good leaves the step, Again keeps it there; Review has both", async () => {
+test("a lesson's words as in Anki: Good and Again both keep a new word learning, shown again in the step", async () => {
   const { sendJson, getJson } = await withCards();
   const scope = study(`lesson:ru-de:${LESSONS[0]}`);
   const rate = async (rating: number) => {
@@ -171,8 +171,8 @@ test("a lesson's words: a word answered Good leaves the step, Again keeps it the
   await rate(3);
   await rate(1);
   const lesson = await getJson(scope);
-  expect(lesson.counts).toEqual({ new: 2, learning: 1, review: 0 });
-  // In Review both are learning (Again's soon, Good's in ten minutes).
+  // Again's 1 minute and Good's 10 are within Anki's 20-minute learn-ahead: both count as learning.
+  expect(lesson.counts).toEqual({ new: 2, learning: 2, review: 0 });
   expect((await getJson(study(`course:${COURSE}`))).counts.learning).toBe(2);
 });
 

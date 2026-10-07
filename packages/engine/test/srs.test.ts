@@ -133,27 +133,8 @@ test("queue: new cards by card type — every card 1 before any card 2 — withi
     studyQueue(faces, { now: NOW, nextDay: NEXT, reviewsPerDay: 4, newToday: 3 }).queue,
   ).toHaveLength(1);
   expect(
-    studyQueue(faces, { now: NOW, nextDay: NEXT, newToday: 20, lessonWords: true }).queue,
+    studyQueue(faces, { now: NOW, nextDay: NEXT, newToday: 20, allNew: true }).queue,
   ).toHaveLength(6);
-});
-
-test("a lesson's words: a face answered Good or Easy today is done there, even while still learning", () => {
-  const faces = [
-    face("passed", { state: state(NOW - MIN, 1), passedToday: true }),
-    face("again", { state: state(NOW - MIN, 1) }),
-    face("new", { position: 1 }),
-  ];
-  const ids = (q: { cardId: string }[]) => q.map((e) => e.cardId).sort();
-  expect(ids(studyQueue(faces, { now: NOW, nextDay: NEXT, lessonWords: true }).queue)).toEqual([
-    "again",
-    "new",
-  ]);
-  // Review keeps Anki's learning steps: there it comes back.
-  expect(ids(studyQueue(faces, { now: NOW, nextDay: NEXT }).queue)).toEqual([
-    "again",
-    "new",
-    "passed",
-  ]);
 });
 
 test("queue: suspended and buried faces are left out; learning cards come early when nothing is left", () => {
@@ -177,4 +158,24 @@ test("word state and leeches", () => {
   expect(wordState({ recognition: state(NOW, 1) })).toBe("learning");
   expect(faceStage(state(NOW, 0))).toBe("new");
   expect(isLeech({ ...state(NOW, 2), lapses: 8 })).toBe(true);
+});
+
+test("answers left today, if each is Good: two per new face, a learning face's steps left, one per review", () => {
+  const learningAt = (step: number, due: number): FaceState => ({
+    ...state(due, 1),
+    learningSteps: step,
+  });
+  const { answersLeft } = studyQueue(
+    [
+      face("new1"),
+      face("new2"),
+      face("first step", { state: learningAt(0, NOW + MIN) }),
+      face("last step", { state: learningAt(1, NOW + 10 * MIN) }),
+      face("relearning", { state: { ...state(NOW, 3), learningSteps: 0 } }),
+      face("review", { state: state(NOW - DAY, 2) }),
+      face("tomorrow", { state: state(NEXT + DAY, 2) }),
+    ],
+    { now: NOW, nextDay: NEXT },
+  );
+  expect(answersLeft).toBe(2 + 2 + 2 + 1 + 1 + 1);
 });

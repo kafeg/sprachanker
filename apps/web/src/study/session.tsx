@@ -43,30 +43,51 @@ const FLAG_CLASS = [
 
 type Study = NonNullable<ReturnType<typeof useStudy>["data"]>;
 
-/** new + learning + review in Anki's colours; the queue of the card on screen underlined. */
+/** Show answer and the four ratings: one height, so the bar keeps its size when the answer opens. */
+const BAR_BUTTON = "h-14 min-h-14";
+
+/**
+ * Anki's three counts (new, learning, to review) in their colours, each named, the queue of the card on
+ * screen underlined; and about how many answers finish the session. Under the buttons on both sides, so
+ * nothing moves when the answer opens.
+ */
 export function Counts({
-  counts,
+  study,
   current,
-  className,
 }: {
-  counts: Study["counts"];
+  study: Pick<Study, "counts" | "answersLeft">;
   current?: "new" | "learning" | "review";
-  className?: string;
 }) {
   const { t } = useTranslation();
-  const part = (kind: "new" | "learning" | "review", tone: string) => (
-    <span className={cn("tabular-nums", tone, current === kind && "underline underline-offset-4")}>
-      {counts[kind]}
+  const { counts, answersLeft } = study;
+  const cell = (value: React.ReactNode, label: string, tone?: string, underline?: boolean) => (
+    <span className="grid justify-items-center leading-tight">
+      <span
+        className={cn(
+          "text-lg font-medium tabular-nums",
+          tone,
+          underline && "underline underline-offset-4",
+        )}
+      >
+        {value}
+      </span>
+      <span className="text-xs text-muted-foreground">{label}</span>
     </span>
   );
   return (
-    <span className={cn("text-sm", className)} title={t("study.countsTitle", counts)}>
-      <span aria-hidden>
-        {part("new", COUNT_TONE.new)} + {part("learning", COUNT_TONE.learning)} +{" "}
-        {part("review", COUNT_TONE.review)}
-      </span>
+    <div className="flex justify-center gap-5" title={t("study.countsTitle", counts)}>
       <span className="sr-only">{t("study.countsTitle", counts)}</span>
-    </span>
+      <div aria-hidden className="contents">
+        {(["new", "learning", "review"] as const).map((kind) => (
+          <span key={kind}>
+            {cell(counts[kind], t(`study.count.${kind}`), COUNT_TONE[kind], current === kind)}
+          </span>
+        ))}
+      </div>
+      <span title={t("study.leftTitle")}>
+        {cell(t("study.leftValue", { n: answersLeft }), t("study.left", { n: answersLeft }))}
+      </span>
+    </div>
   );
 }
 
@@ -179,6 +200,7 @@ export function StudySession({
         "3": () => rate(3),
         "4": () => rate(4),
         r: () => sound.current?.play(),
+        F5: () => sound.current?.play(),
         u: undo,
         "-": () => bury(false),
         "=": () => bury(true),
@@ -236,8 +258,6 @@ export function StudySession({
   return (
     // Phone: the card fills the screen and the buttons sit at its bottom, under the thumb (AnkiDroid).
     <div className="flex flex-col gap-3 max-sm:flex-1">
-      {/* Phone: the counts on top (AnkiDroid). */}
-      <Counts counts={data.counts} current={current.kind} className="block text-center sm:hidden" />
       <StudyCard
         key={cardKey}
         display={current.display}
@@ -263,19 +283,17 @@ export function StudySession({
         >
           <Undo2 className="size-5" />
         </Button>
-        <div className="grid justify-items-center gap-1">
+        <div className="grid justify-items-center gap-2">
+          {/* The same height on both sides: the answer opening moves nothing. */}
           {side === "question" ? (
-            <>
-              <Counts counts={data.counts} current={current.kind} className="hidden sm:block" />
-              <Button
-                size="lg"
-                className="w-full max-w-xs text-base"
-                title={t("study.showKeys")}
-                onClick={showAnswer}
-              >
-                {t("study.show")}
-              </Button>
-            </>
+            <Button
+              size="lg"
+              className={cn("w-full max-w-lg text-base", BAR_BUTTON)}
+              title={t("study.showKeys")}
+              onClick={showAnswer}
+            >
+              {t("study.show")}
+            </Button>
           ) : (
             <div className="grid w-full max-w-lg grid-cols-4 gap-1.5">
               {RATINGS.map(({ rating, key, button }) => (
@@ -287,7 +305,8 @@ export function StudySession({
                   title={`${rating}`}
                   onClick={() => rate(rating)}
                   className={cn(
-                    "h-auto flex-col gap-0 border-0 py-2 text-sm text-white hover:text-white",
+                    "flex-col gap-0 border-0 text-sm text-white hover:text-white",
+                    BAR_BUTTON,
                     button,
                   )}
                 >
@@ -300,6 +319,7 @@ export function StudySession({
               ))}
             </div>
           )}
+          <Counts study={data} current={current.kind} />
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

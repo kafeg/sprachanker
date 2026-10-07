@@ -602,6 +602,9 @@
     "howTo": "Wiederholen mit Abständen wie in Anki: ein Stapel je Kurs, unter der Sprache, die er lehrt. Erinnere dich, zeig die Antwort und bewerte — FSRS plant jede Karte aus deinen Bewertungen.",
     "due": "{count, plural, one {# Karte} other {# Karten}} zu lernen",
     "flagKey": "Strg+{n}",
-    "toCards": "Karten"
+    "toCards": "Karten",
+    "left": "{n, plural, one {Antwort bis zum Ende} other {Antworten bis zum Ende}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Antworten bis zum Ende, wenn du jedes Mal „Gut“ wählst: Eine neue Karte durchläuft zwei Lernschritte, eine Lernkarte ihre restlichen, eine Wiederholung braucht eine Antwort. „Nochmal“ fügt Schritte hinzu."
   }
 }

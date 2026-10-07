@@ -7,6 +7,8 @@ import {
   type AbstractScheduler,
   type Card,
   createEmptyCard,
+  default_learning_steps,
+  default_relearning_steps,
   fsrs,
   type Grade,
   StrategyMode,
@@ -138,8 +140,6 @@ export interface QueueFace {
   /** Suspended (this face or the whole note), or buried until a later day. */
   suspended?: boolean;
   buriedUntil?: number | null;
-  /** Answered Good or Easy today (and not taken back): done in a lesson's "Words" step. */
-  passedToday?: boolean;
 }
 
 export interface QueueEntry {
@@ -158,14 +158,24 @@ export interface QueueLimits {
   /** New faces introduced and review faces answered today. */
   newToday?: number;
   reviewsToday?: number;
-  /** A lesson's own words (its "Words" step): no daily limit on new faces, and a face answered Good or
-   *  Easy today is done there — its learning steps go on in Review. */
-  lessonWords?: boolean;
+  /** No daily limit on new faces (a lesson's own words, as Anki's custom study adds new cards). */
+  allNew?: boolean;
 }
 
 const isLearning = (s: FaceState) => s.state === 1 || s.state === 3;
+
 /** Never answered: no state, or FSRS's own "new" (an imported deck may carry one). */
 const isNew = (s: FaceState | null | undefined) => !s || s.state === 0;
+
+/** Answers a face still needs today if each is Good: a new face goes through every learning step, a
+ *  (re)learning face through the steps it has left, a review is one answer. */
+function answersToGo(state: FaceState | null | undefined): number {
+  if (isNew(state)) return default_learning_steps.length;
+  if (!state || state.state === 2) return 1;
+  const steps = state.state === 1 ? default_learning_steps : default_relearning_steps;
+  return Math.max(1, steps.length - state.learningSteps);
+}
+
 /** A stable order among cards due at the same time (Anki: "then random"). */
 const shuffleKey = (id: string) => {
   let h = 0;
@@ -182,12 +192,7 @@ const shuffleKey = (id: string) => {
  */
 export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
   const { now, nextDay } = limits;
-  const active = faces.filter(
-    (f) =>
-      !f.suspended &&
-      !(f.buriedUntil && f.buriedUntil > now) &&
-      !(limits.lessonWords && f.passedToday),
-  );
+  const active = faces.filter((f) => !f.suspended && !(f.buriedUntil && f.buriedUntil > now));
   const learningAll = active
     .filter((f) => f.state && isLearning(f.state))
     .map(
@@ -224,7 +229,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     .sort((a, b) => a.due - b.due || shuffleKey(a.cardId + a.face) - shuffleKey(b.cardId + b.face))
     .slice(0, reviewsLeft);
 
-  const newLeft = limits.lessonWords
+  const newLeft = limits.allNew
     ? Number.POSITIVE_INFINITY
     : Math.max(
         0,
@@ -267,6 +272,15 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     reviewsWaiting:
       active.filter((f) => f.state?.state === 2 && f.state.due < nextDay).length > reviews.length,
     buried: faces.filter((f) => f.buriedUntil && f.buriedUntil > now).length,
+    /** About how many answers finish the day's study, if each is Good: changes as the learner answers
+     *  (Again adds steps back). Learning faces due later today count too. */
+    answersLeft: [
+      ...fresh.map(() => default_learning_steps.length),
+      ...reviews.map(() => 1),
+      ...active
+        .filter((f) => f.state && isLearning(f.state) && f.state.due < nextDay)
+        .map((f) => answersToGo(f.state)),
+    ].reduce((sum, n) => sum + n, 0),
   };
 }
 
