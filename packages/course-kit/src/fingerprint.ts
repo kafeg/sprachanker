@@ -3,8 +3,7 @@ import { createHash } from "node:crypto";
 import type { Exercise } from "@sprachanker/schema";
 import { canonicalJson } from "./canonical-json.ts";
 
-const sha256Hex = (data: string | Uint8Array) =>
-  createHash("sha256").update(data).digest("hex");
+const sha256Hex = (data: string | Uint8Array) => createHash("sha256").update(data).digest("hex");
 
 /** An exercise before its fingerprint is computed. */
 export type ExerciseDraft = Exercise extends infer E
