@@ -37,18 +37,18 @@ table in the same commit with the reason.
 | YAML | `yaml` |
 | HTML sanitising (importers) | `sanitize-html` with the allow-list from 02 |
 | Markdown rendering | `markdown-it` with `html: false` |
-| Zip | `fflate` |
-| Logging | `pino` |
+| Zip | `fflate` (when first needed: profile export, `.apkg`) |
+| Logging | `pino` (when first needed: structured logs; today `console.error` for what is left out or fails) |
 | Crypto | WebCrypto: AES-256-GCM (API keys), SHA-256 (device tokens) — runtime-agnostic, no adapter |
-| Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide, Motion; fonts bundled from `@fontsource` (no CDN) |
+| Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide; fonts bundled from `@fontsource` (no CDN); Motion when an animation needs more than CSS |
 | Drag and drop | `@dnd-kit/core` (mouse, touch and keyboard) with `@dnd-kit/utilities`; every drag also works by tap (pick, then place) |
 | Language flags | `country-flag-icons` (SVG React components, one module per flag; our language → flag table in `apps/web/src/ui/flags.tsx`) |
-| Routing / server state / UI state | TanStack Router / TanStack Query / Zustand |
+| Routing / server state / UI state | TanStack Router / TanStack Query / React state and context (Zustand when shared client state outgrows them) |
 | i18n | i18next + react-i18next + i18next-icu |
-| Charts | Recharts |
+| Charts | our own SVG (the activity calendar); Recharts when charts with axes come (plan, Notebook) |
 | Media | native `<video>`/`<audio>`; MediaRecorder + WebAudio resampling to 16 kHz |
-| Desktop | Tauri 2 |
-| Native engines | whisper.cpp (`whisper-server`), Piper — pinned versions; LLMs run in LM Studio (07) |
+| Desktop | Tauri 2 (planned) |
+| Native engines | whisper.cpp (`whisper-server`), pinned (`native/whisper/VERSION`); Piper or Qwen3-TTS planned (08); LLMs run in LM Studio (07) |
 | Type checking | TypeScript, current major (`tsc --noEmit` per workspace); tooling must not pin it to an older one |
 | Lint / boundaries / e2e | Biome / dependency-cruiser with the swc parser (no dependency on the TypeScript compiler API) / Playwright |
 | Web component tests | `@testing-library/react` on `happy-dom` (`@happy-dom/global-registrator`, preloaded in `apps/web/bunfig.toml`), `bun test --isolate`; the web's tests run apart from the server's so the browser globals never reach them (2026-10-07: 10 000 lines of UI were covered by e2e only) |
@@ -85,9 +85,10 @@ Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/
 - `CLAUDE.md` files — how to work in an area. Root file holds the module map and dependency rules;
   module files link to their spec and never repeat it. Max ≈150 lines each. No changelogs or progress
   logs; git history is the history.
-- A CI script checks that backticked paths starting with `packages/`, `apps/`, `courses/`, `native/`,
-  `docs/`, `e2e/` in CLAUDE.md files exist. Exempt: code blocks under a heading containing "(target)",
-  lines marked "(planned)", and paths containing `<placeholders>`.
+- A CI script (`scripts/claude-paths.ts`) checks that what CLAUDE.md files name exists: backticked
+  paths starting with `packages/`, `apps/`, `courses/`, `native/`, `docs/`, `e2e/`, and every entry of
+  a `## Layout` tree (relative to the CLAUDE.md's folder). What is not built yet goes in a `## Planned`
+  list (not checked); lines marked "(planned)" and paths with `<placeholders>` are not checked either.
 - End of each plan item: sweep all CLAUDE.md and spec files; remove stale statements.
 - `docs/research/*` — facts about external sources; re-verified when importers change.
 

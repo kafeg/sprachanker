@@ -86,8 +86,8 @@ alternatives without updating that table.
 - Keep each file ≤ 150 lines. Link to the spec instead of repeating it.
 - When you change structure or contracts of an area, update its CLAUDE.md in the same commit.
 - At the end of every plan item: sweep all CLAUDE.md files, delete stale lines.
-- CI checks that repository paths mentioned in CLAUDE.md files exist; "Layout (target)" blocks and paths
-  marked "created in stage N" are exempt until then (10).
+- CI checks that what CLAUDE.md files name exists — backticked repository paths and every entry of a
+  `## Layout` tree; what is not built yet goes in a `## Planned` list (10).
 
 ## Commands
 

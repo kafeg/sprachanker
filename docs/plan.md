@@ -24,8 +24,8 @@ LLM via external providers — `sprachanker serve` with browser/PWA access. Do n
 early. Built early at the owner's request: courses beyond Nicos Weg A1 (DW in Russian, English and
 German; Deutsch im Blick and four English courses importable with the CLI) and the LLM features.
 
-Past the MVP's scope (owner, 2026-10-08): what is built goes beyond it; before more features, the
-architecture is made coherent and its debt paid (item 1). Phones come when convenient: Tailscale is
+Past the MVP's scope (owner, 2026-10-08): what is built goes beyond it; the architecture was made
+coherent and its debt paid after the review of 2026-10-08. Phones come when convenient: Tailscale is
 known to work; the desktop browser is enough meanwhile.
 
 Focus (owner, 2026-10-07): German — the onboarding's language pair filters Courses; every provider is
@@ -33,41 +33,7 @@ offered (03, "Offered in the app").
 
 ## Next, in order
 
-### 1. Architecture and debt (owner, 2026-10-08)
-From the architectural review of 2026-10-08 (five areas: data and engine, server, web, AI and speech,
-the system). Goal: a coherent architecture — bugs fixed, duplicated and dead code gone, shared
-contracts in their owning module, the risky logic tested, the docs describing what is. Each step its
-own commits with tests; behaviour stays unless a step says so. Done: the bugs (PINs removed, one
-supervisor for local engines, web tests sealed from the network, prompt templates, daily database
-copies, one connection per profile migrated at start, error codes, audio body limits); history
-that survives content changes (DW keys kept by source id, resume and snapshots by exercise key,
-every stored event shape on record); `llm_verdict` a union by task with typed results, the AI's
-stored answers in `schema` (Notebook no longer imports `llm`); events typed by their type
-(`TypedEvent`, no casts in the engine, one undo rule); step ids and practice kinds from one list; error codes one list shared by server and web, each
-with its words (a spoken check stays matched to its answer by what was heard: it is asked before the
-answer is recorded, on Check); the AI services on one path (`llm.structured`, one corrections cleaner,
-explain and speaking on the lesson contexts), tool notes sent only with tools, the prompt preview of
-command-line providers what they get, the scene's setup in Settings → Prompts, Codex's file access
-written in 07; the lesson run in the query cache with a tested outbox, the player's rules in the
-engine (checked, answer complete, an item's tries, a spoken answer's words); preferences read
-typed with their defaults in one place (schema `SETTING_DEFAULTS`, server and web); queries a
-progress reset leaves marked static by their own meta, one list of card queries, the cache
-updaters in `api/` for every feature; duplicates merged (one clip hook for words and takes, one
-stat tile, one reader of error bodies, every number and date through `ui/format.ts`, one course
-edition lookup); the reviewer's keys (a tested pure function) and More menu out of `session.tsx`,
-one card action at a time; no two-way imports between feature folders (the step mark in `ui/`,
-resetting progress in `courses/`, the course edition in `api/`); unused imports and variables are
-lint errors; the AI practice steps known before a run resumes; `speech_repeat` rendered; a `CourseProvider` contract in course-kit with one test over every
-provider, exercises drafted and checked where they are made (no casts), `Unmapped`, unknown
-exercises and the two-script split shared in course-kit.
-1. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
-   (a separate short "Planned" list), stale lines gone; spec drift fixed (04, 05, 06, 08, 09, 10's
-   fixed choices only for what is used).
-- **Accept**: every step's tests; `bun run check` and `bun run e2e` green; a sweep finds no
-  duplicated helper or dead export the review named; the owner's lessons and cards unchanged after
-  the migrations.
-
-### 2. Speech: synthesis (owner's decisions, 2026-10-08)
+### 1. Speech: synthesis (owner's decisions, 2026-10-08)
 Specs: 08, 06, 09. Recording, recognition and the AI's check of answers said aloud are built (08).
 - **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
   settings Piper or Qwen3-TTS on the server instead. Used for words without a recording, AI examples
@@ -76,7 +42,7 @@ Specs: 08, 06, 09. Recording, recognition and the AI's check of answers said alo
   replies aloud.
 - **Accept**: on the Mac; the iPhone in item "Phones".
 
-### 3. Exams (owner, 2026-10-08)
+### 2. Exams (owner, 2026-10-08)
 Specs: 02, 03, 06, 09.
 - **An "Exams" section of its own** beside Courses, built like it (tabs: mine, downloaded,
   available; the pair filter): an exam is got and installed from the interface like a course, from
@@ -90,14 +56,14 @@ Specs: 02, 03, 06, 09.
 - **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
   section; at least one A1–B1 model test, if one is importable; results in the Notebook.
 
-### 4. Notebook: more pictures (owner's request, 2026-10-07)
+### 3. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 5. Phones (owner, 2026-10-08: functionality first, phones after)
+### 4. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The app on the owner's and his wife's iPhones: HTTPS through Tailscale (`tailscale serve`, 06) set
   up and described, installed as a PWA, signing in on a phone (device token); the server accepts the
@@ -108,7 +74,7 @@ Specs: 06, 09.
   the PWA; layouts at phone width; what breaks is fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 6. MVP acceptance
+### 5. MVP acceptance
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.

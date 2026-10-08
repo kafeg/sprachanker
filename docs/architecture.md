@@ -12,12 +12,17 @@ phone / browser ──HTTPS (tailscale serve) or localhost──┐
               sprachanker serve  (apps/cli, one compiled Bun binary with the web build inside)
                  ├─ Hono app: /api/* routes → services   (packages/server)
                  ├─ web build: the React app (apps/web), SPA fallback
-                 └─ /library/<series>/media/* with Range
+                 ├─ /library/<series>/media/* with Range
+                 └─ whisper-server on 127.0.0.1 (native/, beside the binary), started on demand
                         │
 <data root> (~/SprachAnker) ── library/<series>/…         downloaded courses (02), read-only to the app
+                            ├─ models/                    speech models (08)
                             ├─ server.sqlite              profiles, devices signed in
-                            └─ profiles/<id>/profile.sqlite   each learner's runs, events, cards, settings
+                            └─ profiles/<id>/             each learner's profile.sqlite (runs, events,
+                                                          cards, settings) and recordings/
 ```
+
+Each database is copied beside itself once a day (a week kept) and before a migration.
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
@@ -41,11 +46,11 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 | Module | Owns |
 |---|---|
 | `packages/schema` | zod schemas of every stored format and API payload, keys (`keys.ts`), event payloads |
-| `packages/course-kit` | library read/write, fetcher, media store, provider contract, `verify`, vocab rules |
+| `packages/course-kit` | library read/write, fetcher, media store, the provider contract (`CourseProvider`), exercises drafted and checked, the key map, `verify`, vocab rules |
 | `courses/<provider>` | fetch a source politely into `raw/`, normalise deterministically into canonical + locale |
 | `packages/engine` | checking answers, text normalisation and diff, the lesson's steps and progress, mistakes, FSRS and Anki's study queue |
 | `packages/llm` | providers, streamed and structured calls, time limits, prompts and tasks, tutor tools |
-| `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, security |
+| `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engine and its supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
 | `apps/cli` | `serve`, `import`, `verify` |
 
@@ -55,8 +60,9 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 devices) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
 files: the profile list and signing in first, then the session check — the device's cookie names the
 profile and puts its services in the request's context (`c.var.s`) — then every profile route
-(`routes/{profiles,courses,runs,cards,settings,notebook,llm}.ts`), each thin: validate, call a service,
-return its typed result. The web client gets the types through Hono RPC (`AppType`), no codegen.
+(`routes/{profiles,courses,runs,cards,settings,notebook,recordings,speech,llm}.ts`), each thin:
+validate, call a service, return its typed result or one of schema's `ERROR_CODES`. The web client
+gets the types through Hono RPC (`AppType`), no codegen.
 
 - **Content**: `content` reads the library through course-kit with a cache; `downloads` queues course
   installs (one at a time, progress, resume after restart) through the providers' importers.
@@ -65,10 +71,15 @@ return its typed result. The web client gets the types through Hono RPC (`AppTyp
   progress, reset), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
   ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (study days, passes),
   `mistakes`, `settings`.
-- **AI**: `llm` (providers, LM Studio, prompt previews, the stopwatch), `explain`, `tutor` (+
-  `tutor-tools`), `writing`, `scene`, `lesson-context` (what tasks know of a lesson). `in-flight` keeps
-  what a model is doing per lesson, so structured calls (a scene, a writing check) run to their end and
-  a page opened meanwhile shows them as waiting.
+- **AI**: `llm` (providers, LM Studio, prompt previews, `structured`: one path for a task's call and
+  its timing), `explain`, `tutor` (+ `tutor-tools`), `writing`, `speaking` (an answer said aloud),
+  `scene`, `examples` (a card's word), `lesson-context` (what tasks know of a lesson). `in-flight`
+  keeps what a model is doing per lesson, so structured calls run to their end and a page opened
+  meanwhile shows them as waiting.
+- **Speech**: `speech` (whisper-server and its models; course recordings heard once per model) on
+  `sidecar`, the supervisor of local engines (one start for requests arriving together, idle stop, a
+  model switch after the requests in flight); `recordings` (the learner's audio per profile). The
+  runtime (`runtime/speech.ts`) finds and runs the binary and stops a stale one on start.
 - **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
   choosing a profile (no PINs: profiles keep learning apart) and keeps a revocable token; server matters are
   the `sprachanker profiles` command's.
@@ -79,15 +90,19 @@ return its typed result. The web client gets the types through Hono RPC (`AppTyp
 
 - **Content pipeline**: provider fetch → `raw/` → normalise → `canonical/` (language-independent) +
   `locale/<edition>/` (learner-language texts) → validated on write and on read → `content` → web.
-  Keys (02) are stable across editions; course content is never generated by a model.
+  Keys (02) are stable across editions and kept by source id when a source reorders (DW: the key
+  map); course content is never generated by a model. Each provider is a `CourseProvider`, tested
+  against the contract together.
 - **One history rule**: everything the learner does is an event in a run (05). Lesson passes, review
-  days, tutor chats and scenes are runs; one-off model verdicts (explain, writing) are `llm_verdict`
-  events of the lesson run. Events are append-only; statistics are pure functions over them (engine).
+  days, tutor chats and scenes are runs; one-off model verdicts (explain, writing, speaking, word
+  examples) are `llm_verdict` events, typed by task. Events are append-only and only grow (every
+  stored shape on record in schema's tests); statistics are pure functions over `TypedEvent`s (engine).
   Lists of earlier items read the same way everywhere (`store.replace`, `store.verdicts`, newest first,
   at most `HISTORY_LIMIT`; a row that no longer reads is left out and logged).
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
-  `page_shown` / `step_done`; the server re-checks every answer and stores its own outcome.
+  `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`
+  through the run's outbox; the server re-checks every answer and stores its own outcome.
 - **Cards and review**: a card is a lexeme in a translation language (04); its faces carry FSRS state
   written together with each `card_review` event. The engine builds Anki's queue (limits, 4 AM day,
   learning steps, learn-ahead) and `answersLeft`; the same reviewer (`study/`) serves Review and the
@@ -108,8 +123,8 @@ return its typed result. The web client gets the types through Hono RPC (`AppTyp
 | Unit | each package's `test/` (`bun test`) | pure functions, checkers, queue, prompts |
 | Server | `packages/server/test` | `createApp().request()` on a temporary data root with the fixture course and a signed-in profile; fake `fetch` for models |
 | Migrations | `packages/server/test/db.test.ts` | each migration upgrades a database of the version before it, with rows |
-| Web | `apps/web/test` | happy-dom; screens rendered with a filled query cache, no requests |
+| Web | `apps/web/test` | happy-dom on an origin no server listens on; screens rendered with a filled query cache — a request fails the test |
 | End to end | `e2e/` (Playwright) | the compiled binary, the fixture course, a fake OpenAI-compatible server, a profile signed in by a setup project; desktop and phone, Chromium and WebKit |
-| Repository | `scripts/` | dependency rules, paths named in CLAUDE.md files |
+| Repository | `scripts/` | dependency rules, paths named in CLAUDE.md files and their Layout trees |
 
 `bun run check` runs typecheck, lint, boundaries and all tests; `bun run e2e` builds the binary first.

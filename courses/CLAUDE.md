@@ -3,14 +3,16 @@
 Content providers and our enrichment. Spec: `docs/spec/03-providers.md`, `docs/spec/02-course-format.md`.
 Research about sources: `docs/research/`.
 
-## Layout (target)
+## Layout
 
 ```
 packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching (media file
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
                        # text of HTML and entity decoding; provider.ts: the
                        # provider contract (import options/report/progress, course offers, wanted,
-                       # libraryWriter / writeLibraryFiles, storedPage, pageCounter); files.ts: atomic
+                       # libraryWriter / writeLibraryFiles, storedPage, pageCounter, CourseProvider);
+                       # exercise-draft.ts: draftExercise, Unmapped, unknownExercise; key-map.ts: keys
+                       # kept by source id; text.ts: plain text, scripts told apart; files.ts: atomic
                        # writes, temporary names, streamed hashes;
                        # verify.ts: a course's integrity and counts (LibraryView.check); vocab.ts:
                        # Headword, shapeHeadword (the one part-of-speech rule), a lesson's vocabulary
@@ -33,9 +35,12 @@ courses/
                        # bold words, quiz answers from the result pages (GET), speaking videos as selfrate;
                        # src/normalise/: media (renditions), vocab (bold words), plan (what each section
                        # becomes), units, exercise, course (files)
-  sa-starter-en/       # after MVP: our authored course + open-data importer
-  bamf-lid/            # exam: Leben in Deutschland
 ```
+
+## Planned
+
+- `sa-starter-en/`: our authored course and an open-data importer (after the MVP).
+- `bamf-lid/`: the Leben in Deutschland exam (plan, "Exams").
 
 ## Rules
 

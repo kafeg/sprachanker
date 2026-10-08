@@ -3,7 +3,7 @@
 Tauri 2 shell. Spec: `docs/spec/06-server.md` (desktop shell section).
 Knows only the `sprachanker` binary (built from `apps/cli`) and its CLI flags; contains no business logic.
 
-## Layout (target)
+## Planned (the desktop app, after the MVP)
 
 ```
 src-tauri/

@@ -1,23 +1,40 @@
 # SprachAnker
 
-**Self-hosted AI language tutor.** Install real courses into a local library, study them in one clean
-interface on your computer and phone, and practise with spaced repetition, speech checks and any LLM you
-choose — local (LM Studio, Ollama, built-in llama.cpp) or cloud.
+**Self-hosted language tutor.** Install real courses into a local library, study them in one clean
+interface on your computer and phone, and practise with spaced repetition, speech recognition and any
+LLM you choose — local (LM Studio, or any OpenAI-compatible server on your network) or cloud
+(OpenRouter, Gemini, Groq, Claude Code, Codex).
 
-> Status: specification phase. See [`docs/spec/`](docs/spec/README.md).
+> Status: in use by its authors; the desktop app is planned. See [`docs/plan.md`](docs/plan.md) for
+> what is next and [`docs/spec/`](docs/spec/README.md) for how it works.
 
-## Idea
+## What it does
 
-- **Real courses, not generated ones.** Importers download courses for your personal use (e.g. Deutsche
-  Welle "Nicos Weg", Deutsch im Blick) and present them in a single consistent player.
-- **What courses lack:** checked speaking instead of self-rating, flashcards (FSRS) for every word you meet,
-  an error log by grammar rule, explanations in your own language, LLM scenes within what you already know.
-- **Everything is recorded.** Every answer, recording and conversation — compare attempts, see progress
-  and regressions, practise weak spots.
-- **Private by design.** A desktop app that is also your server. Phones use it as a web app over your
-  network or Tailscale. No accounts, no telemetry.
+- **Real courses, not generated ones.** Importers download courses for your personal use — Deutsche
+  Welle "Nicos Weg" (A1–B1, explained in 19 languages) and Deutschtrainer, Deutsch im Blick, and
+  English courses from Lingust and VOA — and show them in one player.
+- **Lessons** as steps: the episode, words, grammar and culture pages, exercises checked as you go,
+  speaking with recognition (whisper.cpp on your machine), AI practice (writing, scenes, going over
+  mistakes, a tutor that knows the lesson).
+- **Cards** for every word you meet, studied as in Anki (FSRS).
+- **A Notebook** of every pass: answers, recordings, explanations and checks, study days.
+- **Private by design.** A local server; phones use it as a web app over your network or Tailscale.
+  Profiles keep people's learning apart. No accounts, no telemetry; your data stays on your machine
+  except what you send to the AI provider you chose.
 
-First language pair: Russian → German. The design is language-agnostic; UI in English, Russian, German.
+UI in English, Russian and German.
+
+## Running it
+
+```
+bun install
+bun run build:speech     # optional: whisper.cpp for speech recognition (needs cmake)
+bun run build:cli        # the `sprachanker` binary with the web app inside
+apps/cli/dist/sprachanker serve --data ~/SprachAnker
+```
+
+Open the address it prints, choose your language, make a profile, and download a course from
+Courses → Available. Developers: `CLAUDE.md` and `docs/architecture.md`.
 
 ## Content and licences
 

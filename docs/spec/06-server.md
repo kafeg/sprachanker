@@ -6,7 +6,7 @@ One Bun process started by `sprachanker serve`. The `sprachanker` binary is buil
 `bun build --compile`; the desktop app (planned) bundles the same binary. The server:
 
 - serves the web app (static build of `apps/web`) and the JSON API;
-- owns the `profile.sqlite` files (05; today one profile, `local`);
+- owns the `profile.sqlite` files (05; one per profile, the first `local`) and `server.sqlite`;
 - serves library media with HTTP Range support;
 - talks to LLM providers through `packages/llm`.
 

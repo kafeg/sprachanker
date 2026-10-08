@@ -3,7 +3,7 @@
 HTTP API, storage, jobs, sidecars, speech. Spec: `docs/spec/05-data-model.md`, `docs/spec/06-server.md`,
 `docs/spec/08-speech.md`. May depend on: schema, engine, course-kit, courses/*, llm, anki-export.
 
-## Layout (target)
+## Layout
 
 ```
 src/
@@ -16,11 +16,10 @@ src/
                      # speech.ts (finds and runs whisper-server, downloads models into <data-root>/models);
                      # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
-  config/            # app-data paths, config.json
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
-    backup.ts        # copy-before-migrate, retention
+    migrate.ts       # forward-only migrations, a copy before migrating (five kept), newer databases refused
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
@@ -50,12 +49,9 @@ src/
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)
-  jobs/              # model downloads (later)
-  sidecars/          # whisper-server, TTS supervisors (spawn, health, restart)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
                      # headers), encoding.ts (base64url, SHA-256)
-  speech/            # whisper-server and TTS HTTP clients: transcribe, synthesise
-  media/             # Range responses for library media (read via course-kit) and profile files
+  media.ts           # Range responses for library media and profile recordings; audio body limits
 test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
                      # and sends its cookie (`anonymous` sends none)
 ```

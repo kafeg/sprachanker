@@ -11,7 +11,7 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
-├── models/                      # planned: downloaded speech models and voices (08)
+├── models/                      # downloaded speech models (08; voices planned)
 ├── server.sqlite                # profiles, devices, server settings
 └── profiles/<profile-id>/       # `local` is the first
     ├── profile.sqlite           # all learner data of this profile
@@ -153,8 +153,8 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
 
 ## Migrations
 
-- Drizzle migrations, forward-only, one set per database (`profile.sqlite` today;
-  `server.sqlite` when it is added).
+- Drizzle migrations, forward-only, one set per database (`profile.sqlite`, `server.sqlite`); every
+  profile's database is migrated when the server starts (one that cannot be stops it).
 - Before migrating, the file is copied to `<file>.bak-<timestamp>`; the last 5 are kept. Each
   migration runs in a transaction; a failed one is rolled back and the server refuses to start with an
   explanation.
