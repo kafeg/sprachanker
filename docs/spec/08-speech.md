@@ -23,13 +23,18 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 
 - `speech_repeat`: engine word diff (04) between ASR text and reference; show hits and misses.
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
-  not pronunciation grading.
+  not pronunciation grading (sounds: a phoneme recogniser, planned after the MVP).
 - `respond` and scenes: the transcript is shown and editable before it goes to the LLM.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Synthesis (TTS)
 
-- Course audio is used whenever available; TTS for LLM replies, our own exercises, words without audio.
-- Default engine: **Piper** with one German and one Russian voice, downloaded per language; mixed text
-  synthesised per language segment. Cached by `(voice, text)` hash in `<app-data>/cache`.
-- Later: Qwen3-TTS, cloud speech.
+- Course audio is used whenever available; TTS for LLM replies, AI examples, our own exercises, words
+  without audio.
+- Default (owner, 2026-10-08): **the device's voices** (Web Speech API, in the browser; Apple's enhanced
+  German and Russian voices are close to Siri's) — nothing to install, but each device has its own.
+- In the settings instead, on the server: **Piper** (light, the same everywhere, clearly synthetic) or
+  **Qwen3-TTS** (Apache-2.0, German and Russian, near commercial quality, needs a strong machine);
+  voices downloaded per language; mixed text synthesised per language segment; cached by
+  `(voice, text)` hash in `<app-data>/cache`.
+- Not now: spoken answers on review cards. Later: cloud speech; pronunciation by sounds (plan).

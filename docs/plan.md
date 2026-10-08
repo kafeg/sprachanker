@@ -29,12 +29,26 @@ offered (03, "Offered in the app").
 
 ## Next, in order
 
-### 1. Speech
-Specs: 08, 06.
-- whisper-server and TTS sidecars with supervision, capture → WAV, `speech_repeat`, push-to-talk, TTS;
-  how the binaries are obtained (`native/` builds or prebuilt) is decided in this item's plan.
-- **Accept**: latency target (08) met on the owner's Mac with his own phrases; recordings replayable in
-  the Notebook; speech disabled with a clear message on plain HTTP.
+### 1. Speech (owner's decisions, 2026-10-08)
+Specs: 08, 06, 09. Four steps, each planned, built and accepted on its own; mockups (the microphone
+button and its result in an exercise, Settings → Speech) before the first screen.
+1. **Recording**: capture (MediaRecorder → 16 kHz WAV and the original), recordings kept and replayed
+   (shadowing on the courses' speaking exercises: the original, then oneself), the microphone test,
+   no microphone on plain HTTP with the way to the HTTPS address (06).
+2. **Recognition**: `whisper-server` (large-v3-turbo; how the binary is obtained — `native/` build or
+   prebuilt — and whether Parakeet v3 is offered too is decided in the step's plan), the model
+   downloaded as a job, `speech_repeat` with the word diff ("heard: …", no pronunciation grade).
+   Accept: the latency target (08) on the owner's Mac with his phrases.
+3. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
+   editable before it is sent). Not on review cards for now.
+4. **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
+   settings Piper or Qwen3-TTS on the server instead. Used for words without a recording, AI examples
+   (a play button), tutor and scene replies (read aloud on request or automatically).
+- Settings → Speech: microphone (device, test, level), recognition on/off and its model (size,
+  download), push-to-talk mode, keeping recordings (space, delete all), synthesis engine and a voice
+  per language with "Listen", speed, reading AI replies aloud.
+- **Accept** (the item): recordings replayable in the Notebook; speech disabled with a clear message
+  on plain HTTP; all four steps on Mac and iPhone.
 
 ### 2. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
@@ -81,11 +95,15 @@ Order decided by the week of use.
   (a catalogue of shared decks; AnkiWeb asks for an account after a few searches, so its decks come
   by link or as an `.apkg` file) and the profile's own; a downloaded deck is taken and left like a
   course's. Accept: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
+- **Pronunciation by sounds** (owner, 2026-10-08): whisper hears words, not sounds, and corrects what
+  it hears. A phoneme recogniser (e.g. wav2vec2 XLSR-53 espeak, Apache-2.0) against the reference's
+  phonemes (espeak-ng) would show which sounds went wrong; tried on the owner's phrases first.
 - **Books** (owner, 2026-10-08): free books downloaded and read like courses — a library of books to
   download (public-domain sources such as Project Gutenberg; the sources and their terms decided in the
   item's plan), "My books" with the place read; a reader with the translation beside (by sentence or
   paragraph), a word tapped opens its sheet (dictionary: the course's words, else the model) and goes
-  to cards, the AI to explain a sentence or the grammar, and read aloud (speech). Accept: a German book
+  to cards, the AI to explain a sentence or the grammar, and read aloud (speech: a word or sentence
+  heard, for its pronunciation). Accept: a German book
   downloaded, read on Mac and iPhone with translation, words added to Review.
 - **More sources**: B1 glossary, Deutsch im Blick interviews, Starter English (03).
 - **Desktop app** (06, 09): Tauri shell, first-run wizard (incl. LM Studio), network options with QR,
