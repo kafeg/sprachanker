@@ -149,6 +149,62 @@ test("a scene on its step page; a new one keeps the earlier one readable", async
   await expect(step.getByText("Einen Kaffe, bitte.")).toBeVisible();
 });
 
+test("read aloud: a scene's new line at once when asked, the speaker in its corner, the voices in Settings", async ({
+  page,
+  request,
+}) => {
+  // The device's voices, stubbed: what the page asks to say is kept on the page.
+  await page.addInitScript(() => {
+    const said: Array<{ text: string; lang: string }> = [];
+    const voices = [
+      { voiceURI: "anna", name: "Anna", lang: "de-DE", localService: true, default: false },
+      { voiceURI: "samantha", name: "Samantha", lang: "en-US", localService: true, default: true },
+    ];
+    Object.assign(globalThis, {
+      said,
+      SpeechSynthesisUtterance: class {
+        lang = "";
+        constructor(readonly text: string) {}
+      },
+    });
+    Object.defineProperty(globalThis, "speechSynthesis", {
+      value: {
+        getVoices: () => voices,
+        addEventListener() {},
+        removeEventListener() {},
+        speak: (u: { text: string; lang: string }) => said.push({ text: u.text, lang: u.lang }),
+        cancel() {},
+      },
+    });
+  });
+  const said = () => page.evaluate(() => (globalThis as unknown as { said: unknown[] }).said);
+  const [series, course] = DEMO_LESSON.split("/");
+  await post(request, "/api/progress/reset", { series, course, lesson: DEMO_LESSON });
+  await put(request, "/api/settings", { key: "speech.readAtOnce", value: "scenes" });
+  try {
+    await openStep(page, "Scene");
+    const step = page.locator("article");
+    await step.getByRole("button", { name: "Start a scene" }).click();
+    await expect(step.getByText("FAKE: Guten Tag! Was möchten Sie?")).toBeVisible();
+    await expect.poll(said).toEqual([{ text: "FAKE: Guten Tag! Was möchten Sie?", lang: "de-DE" }]);
+    // The line being read shows it in its corner: stopped, then read again from there.
+    await step.getByRole("button", { name: "Stop reading" }).click();
+    await step
+      .getByRole("button", { name: /Read aloud/ })
+      .first()
+      .click();
+    await expect.poll(async () => (await said()).length).toBe(2);
+  } finally {
+    await put(request, "/api/settings", { key: "speech.readAtOnce", value: "none" });
+  }
+  await page.goto("/settings#speech");
+  await expect(page.getByText("This device's voices")).toBeVisible();
+  // The profile's languages (this one has only its own set): the best voice of each.
+  await expect(page.getByRole("combobox", { name: "Voice for English" })).toHaveText(
+    "Automatic — Samantha",
+  );
+});
+
 test("AI settings: providers as cards, the chosen one's model list without non-text models", async ({
   page,
 }) => {

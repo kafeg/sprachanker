@@ -4,10 +4,14 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "./utils.ts";
 
-let playing: HTMLMediaElement | undefined;
+/** What plays: a medium, or a text being read aloud (audio/speaker.ts). */
+interface Playing {
+  pause(): void;
+}
+let playing: Playing | undefined;
 
-/** Pauses whatever else plays; call when a medium starts. */
-export function claimPlayback(media: HTMLMediaElement) {
+/** Pauses whatever else plays; call when a medium starts (or reading aloud does). */
+export function claimPlayback(media: Playing) {
   if (playing && playing !== media) playing.pause();
   playing = media;
 }

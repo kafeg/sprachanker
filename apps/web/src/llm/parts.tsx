@@ -6,6 +6,8 @@ import { type LucideIcon, Send, Square } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { DictateButton } from "@/audio/dictate.tsx";
+import { type SpokenPart, speakable, splitByScript } from "@/audio/speak.ts";
+import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
@@ -13,18 +15,25 @@ import { cn } from "@/ui/utils.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
 import { errorText } from "./errors.ts";
 
+/** A model's reply as it is read aloud: in the learner's language, with what it quotes in the
+ *  language learnt in that language's voice (when the two are written differently). */
+export const replyParts = (markdown: string, learner: string, target: string): SpokenPart[] =>
+  splitByScript(speakable(markdown), [learner, target], learner);
+
 /** A line of a conversation: the learner's on the right, the other side's (tutor, partner) on the
- *  left; `pending` while it is being sent. */
+ *  left; `pending` while it is being sent. `say`: what its speaker button reads (in its corner). */
 export function ChatBubble({
   from,
   pending,
   lang,
+  say,
   className,
   children,
 }: {
   from: "learner" | "other";
   pending?: boolean;
   lang?: string;
+  say?: SpokenPart[];
   className?: string;
   children: React.ReactNode;
 }) {
@@ -39,6 +48,7 @@ export function ChatBubble({
         className,
       )}
     >
+      {say && <SpeakButton parts={say} className="float-right -mt-1 -mr-2 ml-1" />}
       {children}
     </div>
   );

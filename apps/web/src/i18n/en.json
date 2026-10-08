@@ -931,6 +931,25 @@
       "talk": {
         "tap": "Tap to start, tap to stop",
         "hold": "Hold while speaking"
+      },
+      "read": "Read aloud",
+      "readHint": "What the AI writes — scene lines, the tutor's replies, a word's example — and words without a recording, read by a voice.",
+      "engine": {
+        "device": "This device's voices",
+        "deviceLine": "{count, plural, one {# voice} other {# voices}}, nothing to install",
+        "deviceNone": "This browser has no voices to read with."
+      },
+      "voiceFor": "Voice for {language}",
+      "voiceAuto": "Automatic — {name}",
+      "noVoice": "This device has no voice for {language}.",
+      "betterVoices": "On a Mac, better voices (Premium, Enhanced) are downloaded in System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "readRate": "Speed: {rate}×",
+      "readRateLabel": "Reading speed",
+      "atOnce": "Read aloud at once",
+      "atOnceOption": {
+        "none": "Nothing",
+        "scenes": "Scene lines",
+        "all": "Scenes and the tutor"
       }
     },
     "listening": "Listening to it…",
@@ -951,7 +970,11 @@
     "answerSample": "Sample answer",
     "aiChecking": "The AI is checking your answer…",
     "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech.",
-    "languageUnknown": "The language of this course is not known, so what you say cannot be heard."
+    "languageUnknown": "The language of this course is not known, so what you say cannot be heard.",
+    "read": {
+      "listen": "Read aloud: {what}",
+      "stop": "Stop reading"
+    }
   },
   "error": {
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",

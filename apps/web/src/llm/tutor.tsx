@@ -6,6 +6,8 @@ import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLesson } from "@/api/hooks.ts";
+import type { SpokenPart } from "@/audio/speak.ts";
+import { useReadAtOnce } from "@/audio/speaker.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
@@ -26,6 +28,7 @@ import {
   ChatHeader,
   ErrorLine,
   PendingExchange,
+  replyParts,
   StartPrompt,
   useAbortable,
   useScrollToEnd,
@@ -43,9 +46,21 @@ export interface TutorAsk {
   newChat?: boolean;
 }
 
-/** A chat turn's bubble: the learner's ("user") or the tutor's. */
-function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
-  return <ChatBubble from={from === "user" ? "learner" : "other"}>{children}</ChatBubble>;
+/** A chat turn's bubble: the learner's ("user") or the tutor's (read aloud from its corner). */
+function Bubble({
+  from,
+  say,
+  children,
+}: {
+  from: "user" | "assistant";
+  say?: SpokenPart[];
+  children: React.ReactNode;
+}) {
+  return (
+    <ChatBubble from={from === "user" ? "learner" : "other"} say={say}>
+      {children}
+    </ChatBubble>
+  );
 }
 
 /** What the model looked up for a reply (its tool calls), in plain words. */
@@ -98,6 +113,16 @@ function Chat({
   const [error, setError] = useState<unknown>();
   const request = useAbortable();
   const turns = history.data?.turns ?? [];
+  /** A reply read aloud in the learner's language, what it quotes in the language learnt. */
+  const sayReply = (text: string) =>
+    replyParts(text, i18n.language, parseEditionId(context.edition).target);
+  const last = turns.at(-1);
+  useReadAtOnce(
+    "tutor",
+    !!history.data,
+    last?.role === "assistant" ? `${context.lessonKey}:${turns.length}` : undefined,
+    last?.role === "assistant" ? sayReply(last.text) : [],
+  );
   // Shown until the turns hold it: never in the same frame as the stored pair.
   const shown = pending && turns.length <= pending.after ? pending : undefined;
   const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
@@ -228,8 +253,12 @@ function Chat({
           </div>
         )}
         {turns.map((turn, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey: turns are append-only
-          <Bubble key={i} from={turn.role}>
+          <Bubble
+            // biome-ignore lint/suspicious/noArrayIndexKey: turns are append-only
+            key={i}
+            from={turn.role}
+            say={turn.role === "assistant" ? sayReply(turn.text) : undefined}
+          >
             {turn.role === "user" ? (
               <p className="whitespace-pre-wrap">{turn.text}</p>
             ) : (

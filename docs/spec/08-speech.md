@@ -1,7 +1,7 @@
 # 08 — Speech
 
-**Recording**, **recognition**, **saying instead of typing** and **the AI's check of an answer of
-one's own** (below). The server's speech module (`services/speech.ts`) talks to the engine (sidecars,
+**Recording**, **recognition**, **saying instead of typing**, **the AI's check of an answer of
+one's own** and **reading aloud** (below). The server's speech module (`services/speech.ts`) talks to the engine (sidecars,
 06) through `transcribe(audio, lang, model) → { text, ms }`.
 
 ## Recording
@@ -64,7 +64,21 @@ one's own** (below). The server's speech module (`services/speech.ts`) talks to 
   on and ready.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
-## Synthesis (TTS)
+## Reading aloud (TTS)
 
-Course audio is used whenever available. Planned (plan, "Speech: synthesis"): the device's voices by
-default, Piper or Qwen3-TTS on the server instead. Not now: spoken answers on review cards.
+Course audio is used whenever there is some; reading aloud is for what has none — mostly what the AI
+writes (owner, 2026-10-08).
+- **Where**: a speaker in the corner of the tutor's replies (in the chat and its history), of a
+  scene's partner lines and of a word's AI example; in a card's corner for a word without a
+  recording (replayed with R and autoplayed like a recording). A second tap stops; one text is read at
+  a time, and a recording or video starting stops it (and it stops them, `ui/playback.tsx`).
+- **What is said** (`audio/speak.ts`): a model's Markdown without its markup; a tutor reply in parts,
+  each in its language's voice — the learner's language and the one learnt told apart by script
+  (Cyrillic, Latin, …: `Intl.Locale`), one voice when both share a script.
+- **Voices**: the device's (Web Speech API, `audio/speaker.ts`), per language the one the profile
+  picked while the device has it, else the best one there: "Premium", then "Enhanced", of the
+  language's main region (de-DE for German), never a macOS novelty voice. Settings `speech.voices`
+  (engine → language → voice), `speech.readRate` (0.5–1.5), `speech.readAtOnce` (none / scenes / all:
+  a line that arrives while the page is open is read at once, never what was there on opening).
+- Planned (plan, "Speech: synthesis"): Piper on this computer and an own server with OpenAI's
+  `/v1/audio/speech` (Qwen3-TTS through mlx-audio) as engines. Not now: spoken answers on review cards.

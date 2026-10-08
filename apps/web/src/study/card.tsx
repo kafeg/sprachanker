@@ -8,6 +8,8 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
+import { said } from "@/audio/speak.ts";
+import { SpeakButton } from "@/audio/speak-button.tsx";
 import { languageName } from "@/i18n/index.ts";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
@@ -143,6 +145,15 @@ export function StudyCard({
           src={src}
           label={display.target}
           className="absolute top-3 right-3 size-11"
+        />
+      )}
+      {/* No recording: the word read by the device's voice, replayed and autoplayed the same way. */}
+      {!src && wordShown && (
+        <SpeakButton
+          ref={sound}
+          parts={said(display.target, lang)}
+          label={display.target}
+          className="absolute top-3 right-3 size-11 border bg-card text-foreground"
         />
       )}
     </div>

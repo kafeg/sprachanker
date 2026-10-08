@@ -1,6 +1,7 @@
 // Settings → Speech (08; 09): the microphone of this device (which one, a test with its level and the
 // take played back; why it cannot be used, if so), recognition (on or off, its models), whether
-// recordings are kept, how the phrase to repeat is shown, and the recordings kept — how many, their size, all deleted after asking.
+// reading aloud (read-aloud-settings.tsx), whether recordings are kept, how the phrase to repeat is
+// shown, and the recordings kept — how many, their size, all deleted after asking.
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -25,6 +26,7 @@ import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { MicButton, micProblem } from "./mic-button.tsx";
+import { ReadAloud } from "./read-aloud-settings.tsx";
 import { micDevice, micState, useRecorder } from "./recorder.ts";
 import { TakeButton } from "./take-button.tsx";
 
@@ -297,6 +299,7 @@ export function SpeechSettings() {
     <div className="space-y-6">
       <Microphone />
       <Recognition />
+      <ReadAloud />
       <Recordings />
     </div>
   );

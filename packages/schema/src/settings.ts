@@ -55,6 +55,11 @@ export const LEARNER_SETTINGS = {
   "speech.model": z.string().min(1).max(100),
   /** The microphone beside a text box: tap to start and stop (default), or hold to talk. */
   "speech.pushToTalk": z.enum(["tap", "hold"]),
+  /** Reading aloud (08): the voice chosen per engine and language (none: the best one there), the
+   *  speed, and what is read at once — nothing, scene lines, or scene lines and the tutor's replies. */
+  "speech.voices": z.record(z.string().max(40), z.record(z.string().max(40), z.string().max(400))),
+  "speech.readRate": z.number().min(0.5).max(1.5),
+  "speech.readAtOnce": z.enum(["none", "scenes", "all"]),
 } as const;
 
 /** Settings written only by the service that owns them. */
@@ -94,6 +99,8 @@ export const SETTING_DEFAULTS = {
   "speech.showText": "after",
   "speech.recognition": true,
   "speech.pushToTalk": "tap",
+  "speech.readRate": 1,
+  "speech.readAtOnce": "none",
   "srs.faces": ["recognition", "production"],
   "srs.newIgnoresReviewLimit": false,
 } as const satisfies { [K in keyof Learner]?: SettingValue<K> };

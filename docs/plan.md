@@ -35,9 +35,6 @@ the engines as cards (as the AI providers), the voices of the chosen one under i
 the corner of an AI message (tutor, scene line, a word's AI example) and beside a word without a
 recording; a tutor reply read part by part, each in its language's voice (parts told apart by script;
 one voice when both languages share one).
-- **1a. The device's voices** (Web Speech API, default): the best voice per language picked
-  (enhanced/premium first) unless one is chosen; the web only. Accept: tests of picking, splitting
-  and reading; e2e with a stubbed `speechSynthesis`.
 - **1b. Piper on this computer**: piper1-gpl (GPL-3, a separate program beside ours like whisper)
   built in `native/piper`, pinned; voices per language downloaded and checked in Settings; the server
   speaks (`POST /api/speech/say` → WAV, kept in `<data-root>/cache/tts`).

@@ -4,6 +4,8 @@
 import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { said } from "@/audio/speak.ts";
+import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { useExamples, useLlm, useMakeExample } from "./api.ts";
@@ -62,6 +64,10 @@ export function WordExample({ cardId }: { cardId: string }) {
       {shown ? (
         <div className={fresh ? "motion-safe:animate-in motion-safe:fade-in" : undefined}>
           <p lang={lang} className="text-lg">
+            <SpeakButton
+              parts={said(shown.words.map((w) => w.text).join(""), lang)}
+              className="float-right -mr-2"
+            />
             {shown.words.map((w, i) =>
               w.new ? (
                 <span

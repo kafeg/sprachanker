@@ -70,7 +70,9 @@ apps/web/src/
                    # take-button, context (the speech
                    # host the router provides: keep recordings, show the phrase, save, src, recognition —
                    # renderers
-                   # call no API; use-speech-host makes it), speech-settings (Settings → Speech)
+                   # call no API; use-speech-host makes it), speech-settings (Settings → Speech),
+                   # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (the device's
+                   # voices, one text at a time, read at once), speak-button, read-aloud-settings
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

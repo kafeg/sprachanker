@@ -931,6 +931,25 @@
       "talk": {
         "tap": "Tippen zum Starten und Beenden",
         "hold": "Gedrückt halten beim Sprechen"
+      },
+      "read": "Vorlesen",
+      "readHint": "Was die KI schreibt — Sätze der Szene, Antworten des Tutors, ein Beispiel zum Wort — und Wörter ohne Aufnahme liest eine Stimme vor.",
+      "engine": {
+        "device": "Stimmen dieses Geräts",
+        "deviceLine": "{count, plural, one {# Stimme} other {# Stimmen}}, nichts zu installieren",
+        "deviceNone": "Dieser Browser hat keine Stimmen zum Vorlesen."
+      },
+      "voiceFor": "Stimme für {language}",
+      "voiceAuto": "Automatisch — {name}",
+      "noVoice": "Dieses Gerät hat keine Stimme für {language}.",
+      "betterVoices": "Auf dem Mac lädst du bessere Stimmen (Premium, Erweitert) in den Systemeinstellungen → Bedienungshilfen → Gesprochene Inhalte → Systemstimme → Stimmen verwalten.",
+      "readRate": "Tempo: {rate}×",
+      "readRateLabel": "Vorlesetempo",
+      "atOnce": "Sofort vorlesen",
+      "atOnceOption": {
+        "none": "Nichts",
+        "scenes": "Sätze der Szene",
+        "all": "Szenen und Tutor"
       }
     },
     "listening": "Wird erkannt …",
@@ -951,7 +970,11 @@
     "answerSample": "Musterantwort",
     "aiChecking": "Die KI prüft deine Antwort …",
     "needsRecognition": "Für das Nachsprechen braucht es die Spracherkennung: Schalte sie unter Einstellungen → Sprechen ein.",
-    "languageUnknown": "Die Sprache dieses Kurses ist unbekannt, deshalb kann das Gesagte nicht erkannt werden."
+    "languageUnknown": "Die Sprache dieses Kurses ist unbekannt, deshalb kann das Gesagte nicht erkannt werden.",
+    "read": {
+      "listen": "Vorlesen: {what}",
+      "stop": "Vorlesen beenden"
+    }
   },
   "error": {
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",
