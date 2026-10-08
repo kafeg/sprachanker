@@ -15,7 +15,8 @@ apps/web/src/
                    # the course page's hero (progress, source, stats, integrity, sync)
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
-                   # header, reference), use-run (run + events), plan, overview, words-step, steps
+                   # header, reference), use-run (the run in the query cache + its events), outbox (events sent in
+                   # order, retried, a refused batch dropped; tested), plan, overview, words-step, steps
                    # (reading pages, the step bar), exercise step (its rules in use-exercise, Enter in
                    # enter-key), practice-step, mistakes-status,
                    # summary, reference; slots.ts: what optional features add

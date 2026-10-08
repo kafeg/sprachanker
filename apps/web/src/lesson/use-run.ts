@@ -13,10 +13,11 @@ import type {
   StepId,
   TypedEvent,
 } from "@sprachanker/schema";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ulid } from "ulid";
 import { ApiError, api, json } from "@/api/client.ts";
+import { createOutbox } from "./outbox.ts";
 
 export type { ExerciseResult } from "@sprachanker/engine";
 
@@ -36,20 +37,44 @@ interface Loaded {
   resumePage: number;
 }
 
+const NO_EVENTS: TypedEvent[] = [];
+
 export function useRun(series: string, lessonKey: string, edition: string | undefined) {
   const client = useQueryClient();
-  const [mode, setMode] = useState<RunMode>("loading");
-  const [run, setRun] = useState<Run>();
-  const [resumePage, setResumePage] = useState(-1);
-  const [events, setEvents] = useState<TypedEvent[]>([]);
+  const key = useMemo(() => ["run", series, lessonKey], [series, lessonKey]);
+  // The run as the server last gave it, with the events recorded here since: in the query cache, so
+  // whatever reads the lesson's progress anew (a reset) reads the run anew too.
+  const query = useQuery({
+    queryKey: key,
+    queryFn: async () =>
+      (await json(api.runs.lesson.$get({ query: { series, lessonKey: lessonKey as LessonKey } })))
+        .state as Loaded | null,
+    enabled: !!edition,
+    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnWindowFocus: false,
+  });
+  const state = query.data;
+  const update = useCallback(
+    (change: (state: Loaded) => Loaded) =>
+      client.setQueryData<Loaded | null>(key, (old) => (old ? change(old) : old)),
+    [client, key],
+  );
+  const run = state?.run;
+  const events = state?.events ?? NO_EVENTS;
+  const mode: RunMode = query.isPending
+    ? "loading"
+    : !state
+      ? "none"
+      : state.run.status === "active"
+        ? "active"
+        : "finished";
+  const resumePage = state?.events.length ? state.resumePage : -1;
   /** The events as of now, for callers holding an older render (a model's answer arriving later). */
   const latest = useRef(events);
   latest.current = events;
-  const [error, setError] = useState<unknown>();
-  const [reload, setReload] = useState(0);
-  const queue = useRef<Pending[]>([]);
-  const sending = useRef<Promise<void> | null>(null);
   const runId = run?.status === "active" ? run.id : undefined;
+  const runIdNow = useRef(runId);
+  runIdNow.current = runId;
   const results: Record<string, ExerciseResult> = useMemo(() => exerciseResults(events), [events]);
   /** Steps besides exercises done or skipped in the run (words, reading, AI practice). */
   const done = useMemo(() => stepsDone(events), [events]);
@@ -59,64 +84,42 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const attempts = (itemKey: string) =>
     events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
 
-  const load = useCallback((state: Loaded | null) => {
-    setEvents(state?.events ?? []);
-    setRun(state?.run);
-    setResumePage(state?.events.length ? state.resumePage : -1);
-    setMode(!state ? "none" : state.run.status === "active" ? "active" : "finished");
-  }, []);
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `reload` re-reads the run on purpose
-  useEffect(() => {
-    if (!edition) return;
-    let cancelled = false;
-    setMode("loading");
-    setError(undefined);
-    json(api.runs.lesson.$get({ query: { series, lessonKey: lessonKey as LessonKey } }))
-      .then(({ state }) => !cancelled && load(state as Loaded | null))
-      .catch((e) => !cancelled && setError(e));
-    return () => {
-      cancelled = true;
-    };
-  }, [series, lessonKey, edition, load, reload]);
-
-  /** Sends queued events in order; resolves once the queue is empty (events queued meanwhile
-   *  included). Network failures are retried; events the server refuses (4xx) are dropped, since
-   *  sending them again cannot succeed, and the run is read again from the server. */
-  const flush = useCallback((): Promise<void> => {
-    if (!runId) return Promise.resolve();
-    if (sending.current) return sending.current;
-    const send = async () => {
-      while (queue.current.length) {
-        const batch = queue.current.slice(0, 50);
-        try {
+  // Recorded events go out in order (lesson/outbox.ts); the server's outcome of an answer is the one
+  // stored, and replaces the local one where they differ. A batch it refuses: the run is read again.
+  const outbox = useMemo(
+    () =>
+      createOutbox<Pending>({
+        async send(batch) {
+          const id = runIdNow.current;
+          if (!id) throw new Error("no run yet");
           const { outcomes } = await json(
-            api.runs[":id"].events.$post({ param: { id: runId }, json: { events: batch } }),
+            api.runs[":id"].events.$post({ param: { id }, json: { events: batch } }),
           );
-          queue.current = queue.current.slice(batch.length);
-          // The server's outcome is the one stored: it replaces the local one where they differ.
           if (Object.keys(outcomes).length)
-            setEvents((prev) =>
-              prev.map((e): TypedEvent => {
+            update((s) => ({
+              ...s,
+              events: s.events.map((e): TypedEvent => {
                 const outcome = outcomes[e.id];
                 return outcome && e.type === "answered"
                   ? { ...e, payload: { ...e.payload, outcome } }
                   : e;
               }),
-            );
-        } catch (e) {
-          if (e instanceof ApiError && e.status && e.status < 500) {
-            queue.current = queue.current.slice(batch.length);
-            setReload((n) => n + 1);
-          } else await new Promise((resolve) => setTimeout(resolve, 3000));
-        }
-      }
-    };
-    sending.current = send().finally(() => {
-      sending.current = null;
-    });
-    return sending.current;
-  }, [runId]);
+            }));
+        },
+        refused: (e) => e instanceof ApiError && !!e.status && e.status < 500,
+        onRefused: () => void client.invalidateQueries({ queryKey: key }),
+      }),
+    [client, key, update],
+  );
+  const reload = useCallback(() => {
+    outbox.clear();
+    void client.invalidateQueries({ queryKey: key });
+  }, [client, key, outbox]);
+  /** Sends what is queued; nothing goes before the run exists. */
+  const flush = useCallback(
+    (): Promise<void> => (runId ? outbox.flush() : Promise.resolve()),
+    [runId, outbox],
+  );
 
   // Events queued while the run was being started go out as soon as it exists.
   useEffect(() => {
@@ -128,38 +131,42 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   useEffect(() => {
     if (!runId) return;
     const onHide = () => {
-      if (!queue.current.length) return;
+      const pending = outbox.pending();
+      if (!pending.length) return;
       void api.runs[":id"].events.$post(
-        { param: { id: runId }, json: { events: queue.current.slice(0, 50) } },
+        { param: { id: runId }, json: { events: [...pending] } },
         { init: { keepalive: true } },
       );
     };
     window.addEventListener("pagehide", onHide);
     return () => window.removeEventListener("pagehide", onHide);
-  }, [runId]);
+  }, [runId, outbox]);
 
   /** Queues events for the server and applies them here at once, answers with their local outcome. */
   const record = useCallback(
     (pending: Pending[], outcomes: Record<string, Outcome> = {}) => {
-      queue.current.push(...pending);
+      outbox.push(pending);
       void flush();
       const ts = Date.now();
-      setEvents((prev) => [
-        ...prev,
-        ...pending.map((e) => {
-          const outcome = outcomes[e.id];
-          const payload = outcome ? { ...(e.payload as object), outcome } : e.payload;
-          return {
-            ...e,
-            payload,
-            runId: runId ?? "",
-            ts,
-            itemKey: e.itemKey ?? null,
-          } as TypedEvent;
-        }),
-      ]);
+      update((s) => ({
+        ...s,
+        events: [
+          ...s.events,
+          ...pending.map((e) => {
+            const outcome = outcomes[e.id];
+            const payload = outcome ? { ...(e.payload as object), outcome } : e.payload;
+            return {
+              ...e,
+              payload,
+              runId: runId ?? "",
+              ts,
+              itemKey: e.itemKey ?? null,
+            } as TypedEvent;
+          }),
+        ],
+      }));
     },
-    [flush, runId],
+    [flush, runId, outbox, update],
   );
 
   /** The course map and course list read progress from the server: refresh them after a change. */
@@ -175,15 +182,14 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     if (!runId) return null;
     const finished = (await json(api.runs[":id"].finish.$post({ param: { id: runId } })).catch(
       (e) => {
-        setReload((n) => n + 1);
+        reload();
         throw e;
       },
     )) as Run;
-    setRun(finished);
-    setMode("finished");
+    update((s) => ({ ...s, run: finished }));
     refreshProgress();
     return finished.result;
-  }, [flush, runId, refreshProgress]);
+  }, [flush, runId, refreshProgress, reload, update]);
 
   return {
     mode,
@@ -192,7 +198,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     results,
     mistakes,
     attempts,
-    error,
+    error: query.error,
     /** Starts the lesson (or resumes its active run); `restart` begins it anew. */
     async start(restart = false) {
       if (!edition) return;
@@ -201,7 +207,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
           json: { series, lessonKey: lessonKey as LessonKey, edition, restart },
         }),
       );
-      load(started as Loaded);
+      client.setQueryData(key, started as Loaded);
       if (restart) refreshProgress();
     },
     pageShown: (pageIndex: number) =>
@@ -246,12 +252,12 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     finish,
     /** Events the server stored in the run by itself (a model's check): applied here as they are. */
     received(stored: TypedEvent[]) {
-      setEvents((prev) => [...prev, ...stored.filter((e) => !prev.some((p) => p.id === e.id))]);
+      update((s) => ({
+        ...s,
+        events: [...s.events, ...stored.filter((e) => !s.events.some((p) => p.id === e.id))],
+      }));
     },
     /** Reads the run again from the server (e.g. after the lesson's progress was reset). */
-    reload() {
-      queue.current = [];
-      setReload((n) => n + 1);
-    },
+    reload,
   };
 }
