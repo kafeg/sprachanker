@@ -50,9 +50,10 @@ explain and speaking on the lesson contexts), tool notes sent only with tools, t
 command-line providers what they get, the scene's setup in Settings → Prompts, Codex's file access
 written in 07; the lesson run in the query cache with a tested outbox, the player's rules in the
 engine (checked, answer complete, an item's tries, a spoken answer's words); preferences read
-typed with their defaults in one place (schema `SETTING_DEFAULTS`, server and web).
-1. **Web** (rest). Query keys from one
-   factory and cache helpers outside `llm/`; duplicates merged (audio clip playback, stat tiles,
+typed with their defaults in one place (schema `SETTING_DEFAULTS`, server and web); queries a
+progress reset leaves marked static by their own meta, one list of card queries, the cache
+updaters in `api/` for every feature.
+1. **Web** (rest). Duplicates merged (audio clip playback, stat tiles,
    error bodies, `Intl` formatters, the course edition lookup); the reviewer's keys and More menu out
    of `session.tsx` with tests, actions blocked while one is pending; feature folders without
    two-way imports; AI practice steps known before the flow resumes; `speech_repeat` rendered.

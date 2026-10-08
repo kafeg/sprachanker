@@ -15,9 +15,15 @@ import { ulid } from "ulid";
 import { ApiError, api, json } from "./client.ts";
 
 /** The server's version (and that it answers). */
+
+/** Queries whose data no learner action changes (content, the course's files, the app, the standing
+ *  prompts): a progress reset leaves them. */
+export const STATIC = { static: true } as const;
+
 export const useAppInfo = () =>
   useQuery({
     queryKey: ["health"],
+    meta: STATIC,
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.health.$get()),
   });
@@ -35,6 +41,7 @@ export const useCourseMap = (series: string, course: string, edition: string | u
 export const useLesson = (series: string, key: string, edition: string | undefined) =>
   useQuery({
     queryKey: ["lesson", series, key, edition],
+    meta: STATIC,
     enabled: !!edition,
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.lesson.$get({ query: { series, key, edition: edition as string } })),
@@ -90,6 +97,7 @@ export function useSetSetting() {
 export const useCourseCheck = (series: string, course: string) =>
   useQuery({
     queryKey: ["course-check", series, course],
+    meta: STATIC,
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.course.check.$get({ query: { series, course } })),
   });
@@ -143,7 +151,7 @@ export function useDownloadsWatch() {
 
 /** Every course the providers offer, with its state (available, downloading, incomplete, ready). */
 export const useCatalog = () =>
-  useQuery({ queryKey: ["catalog"], queryFn: () => json(api.catalog.$get()) });
+  useQuery({ queryKey: ["catalog"], meta: STATIC, queryFn: () => json(api.catalog.$get()) });
 
 /** Downloads a course, completes it or syncs it with its source (one idempotent job). */
 export function useStartDownload() {
@@ -162,9 +170,6 @@ export function useStartDownload() {
 export const useStorage = () =>
   useQuery({ queryKey: ["storage"], queryFn: () => json(api.storage.$get()) });
 
-/** Queries whose data no learner action changes (content, the course's files, the app). */
-const STATIC_QUERIES = new Set(["lesson", "course-check", "health", "catalog", "llm-prompts"]);
-
 /** Resets the progress of a course, or of one of its lessons (the screens confirm first). */
 export function useResetProgress() {
   const client = useQueryClient();
@@ -173,10 +178,7 @@ export function useResetProgress() {
       json(api.progress.reset.$post({ json: target })),
     // Progress shows in many places (course list and map, tutor, reviews): read it all again — not
     // the course content and its file check, which a reset does not change.
-    onSuccess: () =>
-      void client.invalidateQueries({
-        predicate: (q) => !STATIC_QUERIES.has(String(q.queryKey[0])),
-      }),
+    onSuccess: () => void client.invalidateQueries({ predicate: (q) => q.meta?.static !== true }),
   });
 }
 
@@ -190,11 +192,12 @@ export function useMakeCards() {
   });
 }
 
-/** The decks, the queue and My words read again after cards change; resolves once they are. */
+/** Every query that shows cards: the queue, the decks and the decks to take, My words, a word. */
+const CARD_QUERIES = ["study", "decks", "deck-offers", "words", "word"];
+
+/** The card lists read again after cards change; resolves once they are. */
 const readCardsAgain = (client: QueryClient) =>
-  Promise.all(
-    ["study", "decks", "words", "word"].map((key) => client.invalidateQueries({ queryKey: [key] })),
-  );
+  client.invalidateQueries({ predicate: (q) => CARD_QUERIES.includes(String(q.queryKey[0])) });
 
 /** Decks: each language, and under it each course, with Anki's three counts. */
 export const useDecks = () =>
@@ -207,10 +210,7 @@ export const useDeckOffers = () =>
 /** Taking or leaving a course's deck, and more new cards today: every card list is read anew. */
 export function useDeckActions() {
   const client = useQueryClient();
-  const fresh = () =>
-    void client.invalidateQueries({
-      predicate: (q) => ["decks", "deck-offers", "study", "words"].includes(String(q.queryKey[0])),
-    });
+  const fresh = () => void readCardsAgain(client);
   return {
     take: useMutation({
       mutationFn: (input: { series: string; course: string; edition: string }) =>

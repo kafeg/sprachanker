@@ -43,7 +43,7 @@ apps/web/src/
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
                    # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-example
                    # (the reviewer's slot); parts.tsx: chat bubbles, header,
-                   # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates
+                   # pending exchange, composer, start prompt, errors
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
@@ -93,7 +93,7 @@ chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 - Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
   `Panel`, side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`;
-  cached lists take a new item through the pure updaters in `llm/cache.ts` (tested).
+  cached lists take a new item through the pure updaters in `api/cache.ts` (tested).
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
   does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.
 - Screen key handlers leave Space and Enter to a focused button, link or slider.

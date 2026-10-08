@@ -1,8 +1,9 @@
 // LLM endpoints of the API: provider setup, connection test, streamed lesson help.
 import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { withAttempt, withCheck, withExample, withScene, withTurns } from "@/api/cache.ts";
 import { ApiError, api, json } from "@/api/client.ts";
-import { withAttempt, withExample, withScene, withTurns } from "./cache.ts";
+import { STATIC } from "@/api/hooks.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
 export type ProviderId = LlmState["providers"][number]["id"];
@@ -126,7 +127,7 @@ export function useCheckSpoken() {
     mutationFn: (request: SpeakingRequest) => json(api.llm.speaking.$post({ json: request })),
     onSuccess: (check, request) =>
       client.setQueryData(["spoken", request.runId], (old: SpokenChecks | undefined) =>
-        old ? { checks: [...old.checks, check] } : old,
+        withCheck(old, check),
       ),
   });
 }
@@ -276,6 +277,7 @@ const fetchTaskPrompts = (language: string, target: string) =>
 export const useTaskPrompts = (language: string, target: string | undefined) =>
   useQuery({
     queryKey: ["llm-prompts", language, target],
+    meta: STATIC,
     enabled: !!target,
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => fetchTaskPrompts(language, target as string),

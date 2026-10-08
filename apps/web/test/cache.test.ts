@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { prepend, withAttempt, withExample, withScene, withTurns } from "../src/llm/cache.ts";
+import { prepend, withAttempt, withExample, withScene, withTurns } from "../src/api/cache.ts";
 
 test("a new item goes on top, replacing an older copy of it", () => {
   const same = (a: { id: number }, b: { id: number }) => a.id === b.id;

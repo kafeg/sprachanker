@@ -1,5 +1,5 @@
-// How the AI screens show what they just stored at once, before the next read: pure updates of the
-// cached lists (newest first), kept here so each is written once and tested (test/cache.test.ts).
+// How a screen shows what it just stored at once, before the next read: pure updates of cached lists,
+// kept here so each is written once and tested (test/cache.test.ts). Used by every feature folder.
 
 /** A list newest first with `item` at the top, replacing an older copy of it (`same`). */
 export function prepend<T>(list: T[] | undefined, item: T, same: (a: T, b: T) => boolean): T[] {
@@ -35,4 +35,12 @@ export function withExample<T extends { ts: number }>(
   example: T,
 ): { examples: T[] } {
   return { examples: prepend(data?.examples, example, (a, b) => a.ts === b.ts) };
+}
+
+/** A spoken answer's check after the run's earlier ones (oldest first, as the run keeps them). */
+export function withCheck<T>(
+  data: { checks: T[] } | undefined,
+  check: T,
+): { checks: T[] } | undefined {
+  return data && { checks: [...data.checks, check] };
 }
