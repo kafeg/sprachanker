@@ -1,3 +1,5 @@
+import { spokenCheck } from "@sprachanker/engine";
+import { Check, CircleDot, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
@@ -50,6 +52,64 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
   );
 }
 
+/** What the recogniser heard (08): against the phrase to say, its words matched and missed with a
+ *  verdict; for a free answer, just the words heard. In no score. */
+function Heard({
+  lang,
+  reference,
+  transcript,
+}: {
+  lang?: string;
+  reference?: string;
+  transcript: string;
+}) {
+  const { t } = useTranslation();
+  // Without a language known the words still compare ("und": undetermined).
+  const check = reference ? spokenCheck(lang || "und", reference, transcript) : undefined;
+  const Icon =
+    check?.verdict === "correct" ? Check : check?.verdict === "partial" ? CircleDot : RotateCcw;
+  return (
+    <div className="space-y-1.5 rounded-xl bg-muted/60 px-4 py-3" aria-live="polite">
+      {check && (
+        <p
+          className={cn(
+            "flex items-center gap-1.5 font-medium",
+            check.verdict === "correct"
+              ? "text-correct"
+              : check.verdict === "wrong" && "text-wrong",
+          )}
+        >
+          <Icon className="size-4" /> {t(`speech.verdict.${check.verdict}`)}
+        </p>
+      )}
+      <p className="text-sm text-muted-foreground">
+        {t("speech.heard")}{" "}
+        <span lang={lang} className="text-foreground">
+          {transcript || t("speech.heardNothing")}
+        </span>
+      </p>
+      {check && check.verdict !== "correct" && (
+        <p lang={lang} className="text-lg leading-relaxed">
+          {check.diff
+            .filter((d) => d.op !== "extra")
+            .map((d, i) => (
+              <span
+                // biome-ignore lint/suspicious/noArrayIndexKey: the words of one fixed phrase
+                key={i}
+                className={cn(
+                  "mr-1.5 rounded px-1",
+                  d.op === "equal" ? "text-correct" : "bg-wrong-soft text-wrong",
+                )}
+              >
+                {d.expected ?? d.actual}
+              </span>
+            ))}
+        </p>
+      )}
+    </div>
+  );
+}
+
 /** "m:ss" of a length in milliseconds. */
 const clock = (ms: number) => {
   const s = Math.max(1, Math.round(ms / 1000));
@@ -74,6 +134,12 @@ export function SpeechSelfrate({
   const [take, setTake] = useState<{ url: string; ms: number }>();
   const [saving, setSaving] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
+  const [unheard, setUnheard] = useState(false);
+  // The recogniser starts loading while the learner listens to the original.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: once, when shown
+  useEffect(() => {
+    if (!readOnly) host?.warm();
+  }, []);
   const [reveal, setReveal] = useState(false);
   useEffect(
     () => () => {
@@ -90,17 +156,29 @@ export function SpeechSelfrate({
   const taken = async (recorded: Take) => {
     setTake({ url: URL.createObjectURL(recorded.blob), ms: recorded.ms });
     setUnsaved(false);
-    if (!host?.keepRecordings) return onAnswer({});
+    setUnheard(false);
     setSaving(true);
-    try {
-      onAnswer({ recording: await host.save(recorded) });
-    } catch {
-      // Not kept: the take still plays here and the item counts.
-      setUnsaved(true);
-      onAnswer({});
-    } finally {
-      setSaving(false);
-    }
+    // Kept and heard at once; either failing leaves the item counted by the recording (08).
+    const [recording, transcript] = await Promise.all([
+      host?.keepRecordings
+        ? host.save(recorded).catch(() => {
+            setUnsaved(true);
+            return undefined;
+          })
+        : undefined,
+      // Recognition needs the language spoken (never detected, 08).
+      host?.recognition && lang
+        ? host.transcribe(recorded, lang).catch(() => {
+            setUnheard(true);
+            return undefined;
+          })
+        : undefined,
+    ]);
+    setSaving(false);
+    onAnswer({
+      ...(recording && { recording }),
+      ...(transcript !== undefined && { transcript }),
+    });
   };
 
   return (
@@ -162,19 +240,26 @@ export function SpeechSelfrate({
           )}
         </div>
       )}
+      {answer?.transcript !== undefined && !saving && (
+        <Heard lang={lang} reference={item.text} transcript={answer.transcript} />
+      )}
       {!readOnly && (
         <p className="text-center text-xs text-muted-foreground" aria-live="polite">
           {recorder.state === "recording"
             ? t("speech.recording")
             : saving
-              ? t("speech.saving")
+              ? host?.recognition
+                ? t("speech.listening")
+                : t("speech.saving")
               : unsaved
                 ? t("speech.notSaved")
-                : attempted
-                  ? t("speech.again")
-                  : heard
-                    ? t("speech.howTo")
-                    : null}
+                : unheard
+                  ? t("speech.notHeard")
+                  : attempted
+                    ? t("speech.again")
+                    : heard
+                      ? t("speech.howTo")
+                      : null}
         </p>
       )}
     </div>

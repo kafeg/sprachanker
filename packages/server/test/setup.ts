@@ -10,6 +10,7 @@ import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
+import type { SpeechHost } from "../src/services/speech.ts";
 
 const files: Record<string, Blob> = {
   "/index.html": new Blob(["<!doctype html>"], { type: "text/html" }),
@@ -22,6 +23,7 @@ export async function setup(
     lmStudio?: LmStudioHost;
     cli?: CliHost;
     installer?: CourseInstaller;
+    speech?: SpeechHost;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
@@ -40,6 +42,7 @@ export async function setup(
     lmStudio: options.lmStudio,
     cli: options.cli,
     installer: options.installer,
+    speech: options.speech,
     now: () => (clock += 1000),
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };

@@ -21,9 +21,11 @@ export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem
  *  upgrades one with a reference text, 04). */
 export const SpeechSelfrateItem = ItemBase.extend({ text: z.string().min(1).optional() });
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when
- *  the learner keeps no recordings). `rating`: the self-rating of answers given before 2026-10-08. */
+ *  the learner keeps no recordings), and what the recogniser heard when it is on (08). `rating`: the
+ *  self-rating of answers given before 2026-10-08. */
 export const SpeechSelfrateAnswer = z.object({
   recording: z.string().min(1).optional(),
+  transcript: z.string().max(2000).optional(),
   rating: z.enum(["good", "fair", "poor"]).optional(),
 });
 

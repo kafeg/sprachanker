@@ -359,3 +359,46 @@ export function useDeleteRecordings() {
     onSuccess: () => client.invalidateQueries({ queryKey: ["recordings"] }),
   });
 }
+
+export type SpeechState = Awaited<ReturnType<typeof fetchSpeech>>;
+const fetchSpeech = () => json(api.speech.$get());
+
+/** Recognition: the engine, its models (a download's progress polled while it runs), the profile's. */
+export const useSpeechState = () =>
+  useQuery({
+    queryKey: ["speech"],
+    queryFn: fetchSpeech,
+    refetchInterval: (q) => (q.state.data?.models.some((m) => "downloaded" in m) ? 1000 : false),
+  });
+
+export function useSpeechModels() {
+  const client = useQueryClient();
+  const done = () => client.invalidateQueries({ queryKey: ["speech"] });
+  return {
+    download: useMutation({
+      mutationFn: (id: string) => json(api.speech.models[":id"].$post({ param: { id } })),
+      onSuccess: done,
+    }),
+    remove: useMutation({
+      mutationFn: (id: string) => json(api.speech.models[":id"].$delete({ param: { id } })),
+      onSuccess: done,
+    }),
+  };
+}
+
+/** What was said in a 16 kHz WAV, in a language given (a binary body, not through the RPC client). */
+export async function transcribe(wav: Uint8Array<ArrayBuffer>, lang: string): Promise<string> {
+  const res = await fetch(`/api/speech/transcribe?lang=${encodeURIComponent(lang)}`, {
+    method: "POST",
+    headers: { ...CLIENT_HEADERS, "content-type": "audio/wav" },
+    body: wav,
+  });
+  const body = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
+  if (!res.ok || body.text === undefined)
+    throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
+  return body.text;
+}
+
+/** Starts the recogniser ahead of a recording. */
+export const warmSpeech = () =>
+  fetch("/api/speech/warm", { method: "POST", headers: { ...CLIENT_HEADERS } }).catch(() => {});

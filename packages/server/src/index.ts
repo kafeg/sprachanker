@@ -14,6 +14,7 @@ import {
 } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
+import { speechHost } from "./runtime/speech.ts";
 import { createProfiles } from "./services/profiles.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
@@ -42,6 +43,7 @@ export function startServer(config: ServerConfig): Listening {
     lmStudio: lmStudioHost(),
     cli: cliHost(),
     installer: courseInstaller(config.dataRoot),
+    speech: speechHost(config.dataRoot),
     // The machine's own names: its host name, and the one the server was told to listen on.
     hosts: [hostname(), `${hostname()}.local`, config.hostname],
   });

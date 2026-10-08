@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import type { Exercise } from "@sprachanker/schema";
-import { checkItem } from "../src/index.ts";
+import { checkItem, spokenCheck } from "../src/index.ts";
 
 const ex = (type: string, item: Record<string, unknown>, ruleIds: string[] = []) =>
   ({
@@ -339,4 +339,33 @@ describe("speech and open answers", () => {
         "de",
       ),
     ).toThrow());
+});
+
+test("a recorded phrase, heard: the words compared and a verdict, still in no score", () => {
+  const exercise = {
+    key: "s/c/00-01/ex-01",
+    type: "speech_selfrate",
+    ruleIds: [],
+    items: [{ key: "s/c/00-01/ex-01#1", text: "Ich heiße Nico." }, { key: "s/c/00-01/ex-01#2" }],
+  } as unknown as Exercise;
+  const heard = checkItem(exercise, 0, { recording: "r", transcript: "Ich heiße Nico" }, "de");
+  expect([heard.result, heard.score, heard.diff?.every((d) => d.op === "equal")]).toEqual([
+    "unscored",
+    0,
+    true,
+  ]);
+  expect(checkItem(exercise, 0, { recording: "r" }, "de").diff).toBeUndefined();
+  expect(checkItem(exercise, 1, { transcript: "Hallo" }, "de").diff).toBeUndefined();
+  expect(
+    spokenCheck(
+      "de",
+      "Ich heiße Nico und komme aus Spanien.",
+      "Ich heiße Nico und komme aus Spanien",
+    ).verdict,
+  ).toBe("correct");
+  expect(
+    spokenCheck("de", "Ich heiße Nico und komme aus Spanien.", "Ich heiße Nico und komme aus")
+      .verdict,
+  ).toBe("partial");
+  expect(spokenCheck("de", "Ich heiße Nico und komme aus Spanien.", "Nico").verdict).toBe("wrong");
 });

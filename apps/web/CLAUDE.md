@@ -51,8 +51,10 @@ apps/web/src/
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
-                   # loudness), mic-button (disabled with the reason), take-button, context (the speech
-                   # host the router provides: keep recordings, show the phrase, save, src — renderers
+                   # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
+                   # take-button, context (the speech
+                   # host the router provides: keep recordings, show the phrase, save, src, recognition —
+                   # renderers
                    # call no API), speech-settings (Settings → Speech)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest

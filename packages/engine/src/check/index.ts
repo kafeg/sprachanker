@@ -14,6 +14,7 @@ import {
   RespondAnswer,
   SingleChoiceAnswer,
   SpeechRepeatAnswer,
+  SpeechSelfrateAnswer,
 } from "@sprachanker/schema";
 import { type WordDiff, wordDiff } from "../text/diff.ts";
 import { endsSentence, isEmptyGap, sameText, tokens } from "../text/normalise.ts";
@@ -60,6 +61,16 @@ function textOutcome(lang: string, references: string[], actual: string, ignoreC
   const { diff, score } = bestDiff(lang, references, actual, ignoreCase);
   const exact = diff.every((d) => d.op === "equal");
   return { ...(exact ? binary(true) : graded(Math.min(score, 0.99), PARTIAL_WORDS - 0.001)), diff };
+}
+
+/** How a spoken phrase went (08): every word heard ("correct"), most of them — at least 80%,
+ *  "partial" — or too few ("wrong"). Shown on a recorded speaking item, which counts in no score. */
+export type SpokenVerdict = "correct" | "partial" | "wrong";
+
+/** What was heard against the phrase to say: the words matched and missed, and the verdict. */
+export function spokenCheck(lang: string, reference: string, transcript: string) {
+  const { diff, result } = textOutcome(lang, [reference], transcript, true);
+  return { diff, verdict: result as SpokenVerdict };
 }
 
 /** Whether `words` contains `phrase` as whole words in a row (case aside). */
@@ -224,7 +235,14 @@ export function checkItem(
       const { text, speech } = RespondAnswer.parse(answer);
       return { ...base, ...rubric(it, text || speech?.transcript || "", lang), needsLlm: true };
     }
-    case "speech_selfrate":
+    case "speech_selfrate": {
+      // Recorded and, with recognition, heard: the words compared, still in no score (08).
+      const it = item as ItemOf<"speech_selfrate">;
+      const { transcript } = SpeechSelfrateAnswer.parse(answer);
+      const heard =
+        it.text && transcript !== undefined ? spokenCheck(lang, it.text, transcript) : undefined;
+      return { ...base, result: "unscored", score: 0, ...(heard && { diff: heard.diff }) };
+    }
     case "scene":
     case "unknown":
       return { ...base, result: "unscored", score: 0 };

@@ -2,17 +2,21 @@
 
 Platform builds of C/C++ engines used as sidecars. Spec: `docs/spec/08-speech.md`.
 
-## Layout (target)
+## Layout
 
 ```
-whisper/   # whisper.cpp pinned as a git submodule or fetched by tag; CMake presets: metal, cuda, cpu → whisper-server
-piper/     # Piper release binaries per platform + voices manifest (URLs, sha256)
-scripts/   # build-all.ts: builds for current platform, writes binaries with target-triple suffix
+whisper/   # VERSION (the whisper.cpp tag); out/ (the binary, whisper-server-<target triple>) is not
+           # committed; the clone and its build are in ~/.cache/sprachanker
+scripts/   # build.ts (`bun run build:speech`): clones the pinned tag, builds whisper-server static with
+           # Metal and embedded shaders on macOS, writes it to whisper/out/; build:cli copies it beside
+           # the sprachanker binary
 ```
+
+Later (target): `piper/` — Piper release binaries per platform + voices manifest (URLs, sha256).
 
 ## Rules
 
 - Pin exact upstream versions; record them in each folder's `VERSION` file.
-- Builds are reproducible from scripts; CI builds per platform on tags.
+- Builds are reproducible from scripts; CI builds per platform on tags (planned).
 - Model and voice files are downloaded at runtime by the server, never committed or bundled.
 - The server talks to these binaries only over their HTTP/stdio interfaces.

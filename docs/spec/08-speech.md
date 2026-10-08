@@ -1,7 +1,7 @@
 # 08 — Speech
 
-Built: **recording** (below). Planned (plan, "Speech"): recognition, speaking where text is typed,
-synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
+Built: **recording** and **recognition** (below). Planned (plan, "Speech"): speaking where text is
+typed, synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
 server's speech module will talk to the sidecars through two functions:
 
 ```ts
@@ -27,17 +27,34 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 
 ## Recognition (STT)
 
-- **whisper.cpp `whisper-server`** sidecar with **large-v3-turbo** (quantised); Metal on macOS.
-- **Language is explicit**: push-to-talk buttons per language (e.g. 🎤 DE / 🎤 RU); in exercises only the
-  target-language button is shown. Auto-detection is never used.
-- **Client capture**: MediaRecorder; the browser decodes with WebAudio and uploads 16 kHz mono WAV (no
-  ffmpeg on the server) together with the original compressed recording, which is stored in
-  `recordings/` for replay; recognition data goes into the answer or turn event (05).
+- **whisper.cpp `whisper-server`** (pinned in `native/whisper/VERSION`, built by `bun run build:speech`:
+  static, Metal with its shaders embedded; beside the `sprachanker` binary, where the server looks
+  for it — also `$SPRACHANKER_WHISPER_SERVER` or the repository's build). Started on demand with the
+  profile's model on a free 127.0.0.1 port, warmed when a speaking exercise opens (the large model
+  loads in ~15 s on an M2 Pro), stopped after 10 idle minutes, started again on the next request if it
+  exits (`services/speech.ts`, `runtime/speech.ts`).
+- **Models** in `<data-root>/models`: large-v3-turbo q5_0 (574 MB, recommended) and small q5_1 (190
+  MB), downloaded from a pinned Hugging Face commit and checked against their sha256, from Settings →
+  Speech; each profile turns recognition on or off and picks an installed model (settings
+  `speech.recognition`, `speech.model`).
+- **Language is explicit**: the item's target language goes with each request; auto-detection is never
+  used. Planned for the tutor and scenes: push-to-talk per language (🎤 DE / 🎤 RU).
+- **Client**: the take is decoded and resampled to 16 kHz mono WAV in the browser (no ffmpeg on the
+  server, `audio/wav.ts`) and sent to `POST /api/speech/transcribe?lang=` while the original is kept in
+  `recordings/`; the transcript goes into the answer (05).
 - The reference text is never passed to the recogniser (it biases results).
+- Measured on the owner's M2 Pro (large-v3-turbo q5_0, Metal): a 3–4 s phrase in 0.7 s warm, 1.2 s
+  the first time.
 
 ## Checking speech
 
-- `speech_repeat`: engine word diff (04) between ASR text and reference; show hits and misses.
+- A recorded speaking item with its phrase (`speech_selfrate` with `text`): the engine's word diff
+  between the transcript and the phrase (`spokenCheck`): every word — "You said it", at least 80% —
+  "Almost", fewer — "Try again"; "Heard: …" and the words missed shown under it; kept with the answer
+  (transcript, outcome with the diff) and in no score, so a lesson's score is the same with recognition
+  on or off (owner, 2026-10-08). A free spoken answer (no phrase) shows what was heard; the AI's check
+  of it is planned with speaking where text is typed. Recognition off or failing: the recording counts.
+- `speech_repeat` (our own exercises): the same diff, scored.
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
 - `respond` and scenes: the transcript is shown and editable before it goes to the LLM.

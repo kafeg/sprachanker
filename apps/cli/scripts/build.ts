@@ -1,6 +1,7 @@
-// Compiles the `sprachanker` binary with the built web app embedded (spec 06).
+// Compiles the `sprachanker` binary with the built web app embedded (spec 06), and puts the speech
+// engine beside it when it was built (`bun run build:speech`, 08), where the server looks for it.
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
-import { existsSync, rmSync } from "node:fs";
+import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
 import { Glob } from "bun";
 
@@ -46,3 +47,10 @@ if (!result.success) {
   process.exit(1);
 }
 console.log(`built ${relative(process.cwd(), outfile)} with ${files.length} web files`);
+
+const engines = resolve(cliDir, "../../native/whisper/out");
+if (existsSync(engines))
+  for (const engine of new Glob("whisper-server-*").scanSync({ cwd: engines })) {
+    copyFileSync(join(engines, engine), join(outDir, engine));
+    console.log(`with ${engine}`);
+  }

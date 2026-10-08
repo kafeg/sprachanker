@@ -24,6 +24,7 @@ import { createRunStore } from "./run-store.ts";
 import { createRuns } from "./runs.ts";
 import { createScenes } from "./scene.ts";
 import { createSettings } from "./settings.ts";
+import { createSpeech, type Speech, type SpeechHost } from "./speech.ts";
 import { createStudy } from "./study.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
@@ -41,18 +42,19 @@ export interface ServicesConfig {
   lmStudio?: LmStudioHost;
   cli?: CliHost;
   installer?: CourseInstaller;
+  speech?: SpeechHost;
   now: () => number;
 }
 
 /** A profile's services over its database; the content and downloads are the server's. */
 function profileServices(
   config: ServicesConfig,
-  shared: { content: Content; downloads: Downloads },
+  shared: { content: Content; downloads: Downloads; speech: Speech },
   db: ProfileDb,
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, downloads } = shared;
+  const { content, downloads, speech } = shared;
   const settings = createSettings(db);
   const llm = createLlm({
     db,
@@ -106,6 +108,7 @@ function profileServices(
     content,
     downloads,
     settings,
+    speech,
     recordings,
     runs,
     cards,
@@ -149,10 +152,12 @@ export function createServices(config: ServicesConfig) {
   });
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
+  const speech = createSpeech({ host: config.speech, fetch: config.fetch });
 
   return {
     content,
     downloads,
+    speech,
     profiles,
     devices: createDevices({ db: config.server, now }),
     /** A profile's services (its database opened and its cards relinked on first use). */
@@ -161,7 +166,7 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          { content, downloads },
+          { content, downloads, speech },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

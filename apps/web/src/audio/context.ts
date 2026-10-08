@@ -1,5 +1,5 @@
 // What the app gives recording screens (08): whether recordings are kept, where one is saved and
-// played from, how the phrase to repeat is shown. The router provides it from the profile's settings
+// played from, how the phrase to repeat is shown, and recognition (on or not, transcribing, warming). The router provides it from the profile's settings
 // and the API; the exercise renderers read it, so they call no API themselves.
 import { createContext, useContext } from "react";
 import type { Take } from "./recorder.ts";
@@ -13,6 +13,12 @@ export interface SpeechHost {
   save(take: Take): Promise<string>;
   /** Where a kept recording plays from. */
   src(id: string): string;
+  /** Speech recognition is on and ready (the engine and a model, 08). */
+  recognition: boolean;
+  /** What was said in a take, in a language given. */
+  transcribe(take: Take, lang: string): Promise<string>;
+  /** Starts the recogniser ahead of a recording (loading its model takes seconds). */
+  warm(): void;
 }
 
 const Speech = createContext<SpeechHost | undefined>(undefined);

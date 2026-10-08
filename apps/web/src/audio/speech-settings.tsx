@@ -1,10 +1,17 @@
 // Settings → Speech (08; 09): the microphone of this device (which one, a test with its level and the
-// take played back; why it cannot be used, if so), whether recordings are kept, how the phrase to
-// repeat is shown, and the recordings kept — how many, their size, all deleted after asking.
+// take played back; why it cannot be used, if so), recognition (on or off, its models), whether
+// recordings are kept, how the phrase to repeat is shown, and the recordings kept — how many, their size, all deleted after asking.
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useDeleteRecordings, useRecordingStats, useSetSetting, useSettings } from "@/api/hooks.ts";
+import {
+  useDeleteRecordings,
+  useRecordingStats,
+  useSetSetting,
+  useSettings,
+  useSpeechModels,
+  useSpeechState,
+} from "@/api/hooks.ts";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import {
@@ -15,7 +22,7 @@ import {
   SelectValue,
 } from "@/ui/components/select.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
-import { useBytes, useNumber } from "@/ui/format.ts";
+import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { MicButton, micProblem } from "./mic-button.tsx";
 import { micDevice, micState, useRecorder } from "./recorder.ts";
@@ -110,6 +117,97 @@ function Microphone() {
   );
 }
 
+/** Recognition (08): on or off for this profile, and the models — size, download with its progress,
+ *  removal, which one is used. The engine itself is built with the app (native/). */
+function Recognition() {
+  const { t } = useTranslation();
+  const settings = useSettings().data;
+  const set = useSetSetting();
+  const state = useSpeechState();
+  const models = useSpeechModels();
+  const bytes = useBytes();
+  const percent = usePercent();
+  const on = settings?.["speech.recognition"] !== false;
+  const data = state.data;
+  return (
+    <Panel title={t("speech.settings.recognition")}>
+      <div className="mt-2 space-y-4">
+        <p className="text-sm text-muted-foreground">{t("speech.settings.recognitionHint")}</p>
+        {data && !data.engine ? (
+          <p className="text-sm">{t("speech.settings.noEngine")}</p>
+        ) : (
+          <>
+            <label className="flex min-h-11 items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                className="size-5 accent-primary"
+                checked={on}
+                onChange={(e) => set.mutate({ key: "speech.recognition", value: e.target.checked })}
+              />
+              {t("speech.settings.recognitionOn")}
+            </label>
+            <ul className="space-y-2">
+              {(data?.models ?? []).map((m) => {
+                const downloading = "downloaded" in m ? (m.downloaded as number) : undefined;
+                const chosen = data?.model === m.id;
+                return (
+                  <li
+                    key={m.id}
+                    className="flex flex-wrap items-center gap-3 rounded-xl border p-3"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block font-medium">{t(`speech.model.${m.id}`)}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {bytes(m.bytes)}
+                        {m.installed && chosen && on && ` · ${t("speech.settings.inUse")}`}
+                        {"error" in m && ` · ${t("speech.settings.downloadFailed")}`}
+                      </span>
+                    </span>
+                    {downloading !== undefined ? (
+                      <span className="text-sm tabular-nums text-muted-foreground">
+                        {percent(downloading / m.bytes)}
+                      </span>
+                    ) : m.installed ? (
+                      <>
+                        {!chosen && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => set.mutate({ key: "speech.model", value: m.id })}
+                          >
+                            {t("speech.settings.use")}
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          aria-label={t("speech.settings.removeModel")}
+                          onClick={() => models.remove.mutate(m.id)}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => models.download.mutate(m.id)}
+                        loading={models.download.isPending && models.download.variables === m.id}
+                      >
+                        {t("speech.settings.download")}
+                      </Button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
 function Recordings() {
   const { t } = useTranslation();
   const settings = useSettings().data;
@@ -181,6 +279,7 @@ export function SpeechSettings() {
   return (
     <div className="space-y-6">
       <Microphone />
+      <Recognition />
       <Recordings />
     </div>
   );

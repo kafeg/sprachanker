@@ -9,14 +9,15 @@ The `sprachanker` binary. Spec: `docs/spec/06-server.md` (CLI, binary build). De
 src/main.ts         # serve, import, verify, profiles (the server's profile matters: list, registration,
                     # reset, delete; export, enrich check are planned, 06);
                     # main(argv, embedded?) — also runs from sources
-scripts/build.ts    # bun run build:cli: embeds the web build, compiles dist/sprachanker
+scripts/build.ts    # bun run build:cli: embeds the web build, compiles dist/sprachanker, copies the
+                    # speech engine built in native/ beside it
 ```
 
 ## Rules
 
 - Commands stay thin: parse flags, call `@sprachanker/server`, print the result.
 - Anything the binary needs at runtime is embedded, never read relative to the binary or the working
-  directory: the web build by importing it `with { type: "file" }` from the generated entry,
+  directory (the one exception: the speech engine, a separate program beside it, 08): the web build by importing it `with { type: "file" }` from the generated entry,
   migrations through the server's own text imports. `bun run e2e` proves this by starting the binary
   from a temp folder.
 - Bun stores embedded files under `/$bunfs/root/` with a hash in the name; pass the import's path

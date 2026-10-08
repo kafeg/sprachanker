@@ -958,7 +958,29 @@
       "kept": "{count, plural, =0 {No recordings kept} one {{n} recording · {size}} other {{n} recordings · {size}}}",
       "deleteAll": "Delete all",
       "deleteTitle": "Delete all recordings?",
-      "deleteBody": "Your recordings are deleted from this computer. Your answers and progress stay. This can't be undone."
+      "deleteBody": "Your recordings are deleted from this computer. Your answers and progress stay. This can't be undone.",
+      "recognition": "Recognition",
+      "recognitionHint": "Your speech is recognised on this computer (Whisper): what you said is compared with the phrase. It hears words, not sounds, and is lenient. Nothing leaves the computer.",
+      "noEngine": "The recognition engine isn't installed on this computer.",
+      "recognitionOn": "Recognise my speech",
+      "inUse": "in use",
+      "downloadFailed": "download failed",
+      "use": "Use",
+      "removeModel": "Remove the model",
+      "download": "Download"
+    },
+    "listening": "Listening to it…",
+    "notHeard": "It couldn't be recognised; the recording counts anyway.",
+    "heard": "Heard:",
+    "heardNothing": "nothing",
+    "verdict": {
+      "correct": "You said it",
+      "partial": "Almost: a few words missing",
+      "wrong": "Try again: listen and say it once more"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate (recommended)",
+      "small-q5_1": "Whisper small — faster, less accurate"
     }
   }
 }

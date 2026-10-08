@@ -13,6 +13,7 @@ src/
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key; lmstudio.ts (detect, `lms server start`);
+                     # speech.ts (finds and runs whisper-server, downloads models into <data-root>/models);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
   config/            # app-data paths, config.json
   db/
@@ -24,7 +25,7 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), runs (lesson runs, progress reset),
-                     # cards (/api/cards), settings, notebook, recordings, llm (removable as a whole); env.ts: what a
+                     # cards (/api/cards), settings, notebook, recordings, speech, llm (removable as a whole); env.ts: what a
                      # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, PIN, registration), devices (sign-in tokens), and
@@ -39,7 +40,8 @@ src/
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
                      # writing ("Write it yourself": checks kept in the lesson run); scene (`scene` runs);
                      # examples (AI examples of a card's word, kept on the card in the review run);
-                     # recordings (the learner's audio in the profile's recordings folder);
+                     # recordings (the learner's audio in the profile's recordings folder); speech
+                     # (whisper-server on demand, its models: one engine for the server);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

@@ -41,6 +41,9 @@ later areas are fixed in the plan item that builds them.
   choosing or PIN; signing out). With a session: `PUT /api/profile` (name, colour, onboarded),
   `PUT /api/profile/pin`, `GET /api/profile/devices`,
   `DELETE /api/profile/devices/:id`.
+- Speech (08): `GET /api/speech` (the engine, its models with downloads, the profile's recognition and
+  model), `POST` / `DELETE /api/speech/models/:id`, `POST /api/speech/warm`,
+  `POST /api/speech/transcribe?lang=` (a 16 kHz WAV as the body).
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
   body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
 - Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
@@ -119,15 +122,13 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
 
 ## Sidecars and models
 
-Planned (plan, "Speech"), except LM Studio:
-
-- `whisper-server` (whisper.cpp) started on demand, kept warm while in use; models in `<data-root>/models`.
-- TTS engine (08), started on demand.
+- `whisper-server` (whisper.cpp, built in `native/`, 08) started on demand, kept warm while in use,
+  started again after it exits; models in `<data-root>/models`, downloaded and checked from Settings.
+- Planned (plan, "Speech"): the TTS engine (08), started on demand.
 - No LLM runtime of its own: local models run in LM Studio (07); the server only starts LM Studio's
   server (`lms server start`) on request when LM Studio is installed on the same machine.
-- Crash → restart with backoff (3 tries) → marked failed; dependent features show a clear message.
-- How the speech binaries are obtained (own builds in `native/` or prebuilt) is decided in the
-  speech item's plan.
+- An engine that exits is started again on the next request; one that does not answer its health
+  check within two minutes fails that request (`speech_engine_failed`), and the feature says so.
 
 ## Desktop shell (`apps/desktop`, Tauri 2, planned after the MVP)
 

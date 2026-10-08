@@ -30,26 +30,19 @@ offered (03, "Offered in the app").
 ## Next, in order
 
 ### 1. Speech (owner's decisions, 2026-10-08)
-Specs: 08, 06, 09. Recording is built (08); three steps left, each planned, built and accepted on
-its own.
-1. **Recognition**: `whisper-server` (large-v3-turbo; how the binary is obtained — `native/` build or
-   prebuilt — and whether Parakeet v3 is offered too is decided in the step's plan), the model
-   downloaded as a job, `speech_repeat`: the transcript compared word by word with the item's text
-   (engine diff: words matched and missed, "heard: …"), the outcome from it (≥ 80% of words, 04);
-   recorded speaking with a reference text becomes `speech_repeat`; free speaking ("answer it
-   yourself") is checked by the AI from the transcript when one is set up, else counts when recorded;
-   verdicts are kept as text in the run (heard, words matched, the AI's note), so the Notebook, going
-   over mistakes and the tutor read them;
-   lenient by nature (whisper corrects what it hears), no pronunciation grade.
-   Accept: the latency target (08) on the owner's Mac with his phrases.
-2. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
-   editable before it is sent). Not on review cards for now.
-3. **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
+Specs: 08, 06, 09. Recording and recognition are built (08); two steps left, each planned, built and
+accepted on its own.
+1. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
+   editable before it is sent; push-to-talk per language); free spoken answers in the speaking
+   exercises ("answer it yourself") checked by the AI from the transcript when one is set up — its
+   verdict kept as text in the run (`llm_verdict`), read by the Notebook, going over mistakes and the
+   tutor. Not on review cards for now.
+2. **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
    settings Piper or Qwen3-TTS on the server instead. Used for words without a recording, AI examples
    (a play button), tutor and scene replies (read aloud on request or automatically).
-- Settings → Speech gains: recognition on/off and its model (size, download), push-to-talk mode,
-  synthesis engine and a voice per language with "Listen", speed, reading AI replies aloud.
-- **Accept** (the item): the three steps on the Mac; the iPhone in item "Phones".
+- Settings → Speech gains: push-to-talk mode, synthesis engine and a voice per language with
+  "Listen", speed, reading AI replies aloud.
+- **Accept** (the item): both steps on the Mac; the iPhone in item "Phones".
 
 ### 2. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.

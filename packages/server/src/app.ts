@@ -17,11 +17,13 @@ import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.
 import { recordingsRoutes } from "./routes/recordings.ts";
 import { runRoutes } from "./routes/runs.ts";
 import { settingsRoutes } from "./routes/settings.ts";
+import { speechRoutes } from "./routes/speech.ts";
 import { hostGuard } from "./security/host.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
+import type { SpeechHost } from "./services/speech.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
 export type { WebAssets } from "./web.ts";
@@ -42,6 +44,8 @@ export interface AppConfig {
   /** LM Studio on this machine: detect it, start its server. */
   lmStudio?: LmStudioHost;
   cli?: CliHost;
+  /** The speech engine on this machine (08); without it, no recognition. */
+  speech?: SpeechHost;
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;
@@ -80,6 +84,7 @@ export function createApp(config: AppConfig) {
     .route("/cards", cardRoutes())
     .route("/notebook", notebookRoutes())
     .route("/recordings", recordingsRoutes())
+    .route("/speech", speechRoutes())
     .route("/llm", llmRoutes())
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.

@@ -958,7 +958,29 @@
       "kept": "{count, plural, =0 {Keine Aufnahmen} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
       "deleteAll": "Alle löschen",
       "deleteTitle": "Alle Aufnahmen löschen?",
-      "deleteBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
+      "deleteBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen.",
+      "recognition": "Erkennung",
+      "recognitionHint": "Deine Sprache wird auf diesem Computer erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt den Computer.",
+      "noEngine": "Die Erkennung ist auf diesem Computer nicht installiert.",
+      "recognitionOn": "Meine Sprache erkennen",
+      "inUse": "in Gebrauch",
+      "downloadFailed": "Download fehlgeschlagen",
+      "use": "Verwenden",
+      "removeModel": "Modell entfernen",
+      "download": "Herunterladen"
+    },
+    "listening": "Wird erkannt …",
+    "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",
+    "heard": "Gehört:",
+    "heardNothing": "nichts",
+    "verdict": {
+      "correct": "Geschafft",
+      "partial": "Fast: ein paar Wörter fehlen",
+      "wrong": "Noch einmal: hör zu und sprich nach"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — genau (empfohlen)",
+      "small-q5_1": "Whisper small — schneller, weniger genau"
     }
   }
 }

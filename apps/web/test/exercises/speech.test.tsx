@@ -17,6 +17,9 @@ const host = (showText: "after" | "always") => ({
   showText,
   save: async () => "01K00000000000000000000000",
   src: (id: string) => `/api/recordings/${id}`,
+  recognition: true,
+  transcribe: async () => "",
+  warm() {},
 });
 const item = {
   key: "s/c/00-01/ex-01#1" as ItemKey,
@@ -70,4 +73,37 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
   );
   expect(notebook.getByRole("button", { name: "Mine" })).toBeTruthy();
   expect(notebook.queryByRole("button", { name: "Record yourself" })).toBeNull();
+});
+
+test("what was heard: the verdict and the words missed against the phrase; a free answer just heard", async () => {
+  setSecure(true);
+  const view = await renderApp(
+    <SpeechProvider value={host("after")}>
+      <SpeechSelfrate
+        item={{ ...item, text: "Ich heiße Nico und komme aus Spanien." }}
+        answer={{ transcript: "Ich heiße Nico und komme aus" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(view.getByText("Almost: a few words missing")).toBeTruthy();
+  expect(view.getByText("Ich heiße Nico und komme aus")).toBeTruthy();
+  expect(view.getByText(/^Spanien/).className).toContain("text-wrong");
+  view.unmount();
+
+  const free = await renderApp(
+    <SpeechProvider value={host("after")}>
+      <SpeechSelfrate
+        item={{ key: item.key }}
+        answer={{ transcript: "Tschüss, gute Reise!" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(free.getByText("Tschüss, gute Reise!")).toBeTruthy();
+  expect(free.queryByText(/You said it|Almost|Try again/)).toBeNull();
 });
