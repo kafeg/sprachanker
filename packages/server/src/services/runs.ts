@@ -250,7 +250,7 @@ export function createRuns({
     /** The active run of the lesson, or a new one; `restart` ends the active one first. Everything is
      *  checked before anything is written. */
     async start(series: string, lessonKey: LessonKey, edition: string, restart = false) {
-      if (seriesOf(lessonKey) !== series) throw new ServiceError("lesson is not in this series");
+      if (seriesOf(lessonKey) !== series) throw new ServiceError("lesson_not_in_series");
       await content.lesson(series, lessonKey);
       const row = store.atomic(() => {
         const active = store.active("lesson", lessonKey);
@@ -274,14 +274,14 @@ export function createRuns({
      */
     async append(runId: string, input: unknown[]): Promise<Record<string, Outcome>> {
       const row = getRun(runId);
-      if (row.status !== "active") throw new ServiceError("run is not active", 409);
+      if (row.status !== "active") throw new ServiceError("run_not_active", 409);
       const parsed = new Map<string, EventInput>();
       for (const e of input) {
         const result = EventInput.safeParse(e);
         if (!result.success) throw new ServiceError("invalid_event");
         if (!parsed.has(result.data.id)) parsed.set(result.data.id, result.data);
       }
-      if (!row.edition) throw new ServiceError("lesson run without an edition", 409);
+      if (!row.edition) throw new ServiceError("run_without_edition", 409);
       const series = seriesOf(row.contextKey as LessonKey);
       const lesson = await content.lesson(series, row.contextKey as LessonKey);
       const locale = await content.localeLesson(series, lesson.key, row.edition);
@@ -296,7 +296,7 @@ export function createRuns({
         const itemOf = (key: string) => {
           const { exercise: exKey, n } = parseItemKey(key as ItemKey);
           const exercise = findExercise(lesson, exKey);
-          if (!exercise) throw new ServiceError(`item ${key} is not in ${lesson.key}`);
+          if (!exercise) throw new ServiceError("no_such_item");
           return { exercise, n };
         };
         switch (e.type) {
@@ -306,7 +306,7 @@ export function createRuns({
             try {
               outcome = checkItem(exercise, n - 1, e.payload.answer, target);
             } catch {
-              throw new ServiceError(`answer does not fit ${e.itemKey}`);
+              throw new ServiceError("answer_does_not_fit");
             }
             outcomes[e.id] = outcome;
             return { ...e, payload: { ...e.payload, outcome } };

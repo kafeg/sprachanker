@@ -14,6 +14,7 @@ import type { MediaBlob } from "../media.ts";
 /** The profiles' database files (runtime adapter): opened on first use, removed with the profile. */
 export interface ProfileFiles {
   exists(id: string): boolean;
+  /** The profile's database, created and migrated on first use; the same handle every time. */
   open(id: string): ProfileDb;
   remove(id: string): void;
   /** The profile's recordings folder (`profiles/<id>/recordings`). */

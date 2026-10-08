@@ -255,7 +255,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         const run = tx.select({ status: runs.status }).from(runs).where(eq(runs.id, runId)).get();
         if (!run) throw new ServiceError("no_such_run", 404);
         if (!options.anyStatus && run.status !== "active")
-          throw new ServiceError("run is not active", 409);
+          throw new ServiceError("run_not_active", 409);
         const named = rows.map((r) => r.id);
         const before = new Map(
           tx
@@ -268,7 +268,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         for (const r of rows) {
           const stored = before.get(r.id);
           if (stored) {
-            if (stored.runId !== runId) throw new Error(`event ${r.id} belongs to another run`);
+            if (stored.runId !== runId) throw new ServiceError("event_of_another_run", 409);
             const read = toEvent(stored);
             if (read) options.onStored?.(read);
             continue;

@@ -55,14 +55,28 @@ export const openProfileDb = (file: string, now = Date.now()): ProfileDb =>
 export const openServerDb = (file: string, now = Date.now()): ServerDb =>
   drizzle(openSqlite(file, serverMigrations, now), { schema: serverSchema });
 
-/** The profiles' folders under the data root: profiles/<id>/profile.sqlite, opened on first use. */
+/** The profiles' folders under the data root: profiles/<id>/profile.sqlite, opened once (one
+ *  connection per profile) and closed when the profile is removed. */
 export function profileFiles(dataRoot: string): ProfileFiles {
   const folder = (id: string) => join(dataRoot, "profiles", id);
+  const opened = new Map<string, { db: ProfileDb; close(): void }>();
   return {
     exists: (id) =>
       statSync(join(folder(id), "profile.sqlite"), { throwIfNoEntry: false }) !== undefined,
-    open: (id) => openProfileDb(join(folder(id), "profile.sqlite")),
-    remove: (id) => rmSync(folder(id), { recursive: true, force: true }),
+    open(id) {
+      let entry = opened.get(id);
+      if (!entry) {
+        const sqlite = openSqlite(join(folder(id), "profile.sqlite"), migrations, Date.now());
+        entry = { db: drizzle(sqlite, { schema }), close: () => sqlite.close() };
+        opened.set(id, entry);
+      }
+      return entry.db;
+    },
+    remove(id) {
+      opened.get(id)?.close();
+      opened.delete(id);
+      rmSync(folder(id), { recursive: true, force: true });
+    },
     recordings: (id) => recordingFiles(join(folder(id), "recordings")),
   };
 }

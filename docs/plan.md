@@ -37,46 +37,33 @@ offered (03, "Offered in the app").
 From the architectural review of 2026-10-08 (five areas: data and engine, server, web, AI and speech,
 the system). Goal: a coherent architecture — bugs fixed, duplicated and dead code gone, shared
 contracts in their owning module, the risky logic tested, the docs describing what is. Each step its
-own commits with tests; behaviour stays unless a step says so.
-1. **Bugs.**
-   - PINs and passwords removed (owner: profiles only keep people apart, not secure them): a profile
-     is chosen, not unlocked; migration drops the PIN columns; spec 06 and the UI follow.
-   - Speech engine: one start for concurrent first requests (the second process leaked); a model
-     switch waits for requests in flight; a time limit on transcription (a hung engine no longer
-     hangs requests or the hearing cache); stopped on the server's shutdown, a stale one killed on
-     start — as a generic sidecar supervisor that synthesis will reuse.
-   - The web tests no longer reach 127.0.0.1:4580 (the owner's server): their own origin, `fetch`
-     failing loudly, the leaking test seeded.
-   - The learner's own prompt template: placeholders replace language names only where they stand
-     for them ("{target}y" for "Germany").
-   - A daily copy of each profile's database (`VACUUM INTO`, a few kept).
-   - Smaller: a database connection leaked per new profile; profile databases migrated at start (a
-     failing one stops the server, as 05 says); error responses always codes, never sentences;
-     request bodies limited without Content-Length.
-2. **History that survives content changes.** `page_shown` keeps the exercise key; snapshots and
+own commits with tests; behaviour stays unless a step says so. Done: the bugs (PINs removed, one
+supervisor for local engines, web tests sealed from the network, prompt templates, daily database
+copies, one connection per profile migrated at start, error codes, audio body limits).
+1. **History that survives content changes.** `page_shown` keeps the exercise key; snapshots and
    resume read by key, not page index; stable keys when a source reorders (DW: a key map from source
    ids); golden fixtures of every stored event shape that must keep parsing, a stale snapshot no
    longer dropping its event; the rule "payloads only grow" written in 05.
-3. **One contract per stored thing.** `llm_verdict` a union by task with typed results, all result
+2. **One contract per stored thing.** `llm_verdict` a union by task with typed results, all result
    schemas in `schema` (Notebook no longer imports `llm`); a spoken check linked to its answer event;
    events typed by their type for the engine (no casts, one undo rule); step ids from one list;
    error codes one enum shared by server and web (busy states named in the UI).
-4. **Server AI services.** One path for a structured task kept as a verdict (model, stopwatch, run,
+3. **Server AI services.** One path for a structured task kept as a verdict (model, stopwatch, run,
    clean, append) used by writing, speaking, examples, scenes; one corrections cleaner; explain on
    the lesson contexts; the prompt preview built by the client that sends (CLI providers show what
    they get); tool instructions added only when tools go; `scene_setup` in Settings → Prompts; Codex
    run without its shell where possible, otherwise the risk written in 07.
-5. **Web.** The lesson run's outbox a module with tests and the run read through the query cache;
+4. **Web.** The lesson run's outbox a module with tests and the run read through the query cache;
    rules out of components into the engine (scored, answer complete, right at attempt n, a spoken
    answer's transcript); typed settings with their defaults in one place; query keys from one
    factory and cache helpers outside `llm/`; duplicates merged (audio clip playback, stat tiles,
    error bodies, `Intl` formatters, the course edition lookup); the reviewer's keys and More menu out
    of `session.tsx` with tests, actions blocked while one is pending; feature folders without
    two-way imports; AI practice steps known before the flow resumes; `speech_repeat` rendered.
-6. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
+5. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
    one contract test over every provider; exercises drafted typed (no `as never`); `Unmapped`,
    unknown exercises and the Cyrillic/Latin split shared in course-kit.
-7. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
+6. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
    (a separate short "Planned" list), stale lines gone; spec drift fixed (04, 05, 06, 08, 09, 10's
    fixed choices only for what is used).
 - **Accept**: every step's tests; `bun run check` and `bun run e2e` green; a sweep finds no

@@ -36,6 +36,18 @@ test("recordings: saved as recorded, played with ranges, counted, removed; bad o
   expect((await upload(audio, "text/plain")).status).toBe(415);
   expect((await upload(new Uint8Array(0), "audio/mp4")).status).toBe(400);
   expect((await upload(audio, "audio/mp4", { "content-length": "6000000" })).status).toBe(413);
+  // Not announced: stopped while it streams.
+  const streamed = await app.request("/api/recordings", {
+    method: "POST",
+    headers: { cookie, "content-type": "audio/mp4", ...CLIENT_HEADERS },
+    body: new ReadableStream({
+      start(controller) {
+        for (let i = 0; i < 6; i++) controller.enqueue(new Uint8Array(1_000_000));
+        controller.close();
+      },
+    }),
+  });
+  expect(streamed.status).toBe(413);
   const noHeader = await app.request("/api/recordings", {
     method: "POST",
     headers: { cookie, "content-type": "audio/mp4" },

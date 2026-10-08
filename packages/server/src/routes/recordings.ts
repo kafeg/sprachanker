@@ -4,8 +4,7 @@
 import { Ulid } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
-import { ServiceError } from "../errors.ts";
-import { blobResponse } from "../media.ts";
+import { audioBody, blobResponse } from "../media.ts";
 import { RECORDING_MAX_BYTES } from "../services/recordings.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
@@ -13,10 +12,7 @@ import type { ProfileEnv } from "./env.ts";
 export function recordingsRoutes() {
   return new Hono<ProfileEnv>()
     .get("/", (c) => c.json(c.var.s.recordings.stats()))
-    .post("/", async (c) => {
-      // A body announced as larger than allowed is refused before it is read.
-      if (Number(c.req.header("content-length") ?? 0) > RECORDING_MAX_BYTES)
-        throw new ServiceError("recording_too_large", 413);
+    .post("/", audioBody(RECORDING_MAX_BYTES), async (c) => {
       const bytes = new Uint8Array(await c.req.arrayBuffer());
       return c.json(await c.var.s.recordings.save(bytes, c.req.header("content-type") ?? ""));
     })

@@ -1,4 +1,5 @@
-// Range responses for media (video seeking, audio): runtime-agnostic over Blob.
+// Range responses for media (video seeking, audio): runtime-agnostic over Blob; audio bodies limited.
+import { bodyLimit } from "hono/body-limit";
 
 /** A Blob that can be sliced (Bun.file, Node's Blob, the web Blob). */
 export type MediaBlob = Blob & { slice(start: number, end?: number): Blob };
@@ -30,3 +31,11 @@ export function blobResponse(blob: MediaBlob, range: string | undefined): Respon
     },
   });
 }
+
+/** A request body of audio up to `max` bytes: refused with 413 `recording_too_large` before it is
+ *  read when announced larger, and while it streams when it is not announced. */
+export const audioBody = (max: number) =>
+  bodyLimit({
+    maxSize: max,
+    onError: (c) => c.json({ error: "recording_too_large" }, 413),
+  });

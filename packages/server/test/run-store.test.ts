@@ -34,6 +34,11 @@ test("events are checked when written and stored all or nothing; a resent id is 
       { type: "step_done", payload: { step: "nope" } as never },
     ]),
   ).toThrow();
+  // The same id sent to another run: refused as a client's mistake, not a server fault.
+  const other = store.start("lesson", "sprachanker.fixture/demo/00-02" as LessonKey, {
+    edition: "ru-de",
+  });
+  expect(() => store.append(other.id, [step])).toThrow("event_of_another_run");
   const seen: string[] = [];
   store.append(run.id, [step], { onStored: (e) => seen.push(e.id) });
   expect(seen).toEqual([step.id]);
@@ -48,7 +53,7 @@ test("only an active run takes events and ends; an explanation may go to a finis
   expect(store.end(run.id, "abandoned", "user")).toBeUndefined();
   expect(store.get(run.id)?.status).toBe("finished");
   expect(() => store.append(run.id, [{ type: "step_done", payload: { step: "words" } }])).toThrow(
-    "run is not active",
+    "run_not_active",
   );
   store.append(
     run.id,

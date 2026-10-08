@@ -5,6 +5,7 @@ import { Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
+import { audioBody } from "../media.ts";
 import { recogniserOf } from "../services/speech.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
@@ -35,15 +36,17 @@ export function speechRoutes() {
       if (model) c.var.s.speech.warm(model);
       return c.json({ ok: true as const });
     })
-    .post("/transcribe", zod("query", z.object({ lang: Lang })), async (c) => {
-      const model = modelOf(c.var.s);
-      if (!model) throw new ServiceError("speech_unavailable", 409);
-      if (Number(c.req.header("content-length") ?? 0) > WAV_MAX_BYTES)
-        throw new ServiceError("recording_too_large", 413);
-      const wav = new Uint8Array(await c.req.arrayBuffer());
-      if (!wav.length || wav.length > WAV_MAX_BYTES)
-        throw new ServiceError("recording_too_large", 413);
-      const audio = new Blob([wav], { type: "audio/wav" });
-      return c.json(await c.var.s.speech.transcribe(audio, c.req.valid("query").lang, model));
-    });
+    .post(
+      "/transcribe",
+      zod("query", z.object({ lang: Lang })),
+      audioBody(WAV_MAX_BYTES),
+      async (c) => {
+        const model = modelOf(c.var.s);
+        if (!model) throw new ServiceError("speech_unavailable", 409);
+        const wav = new Uint8Array(await c.req.arrayBuffer());
+        if (!wav.length) throw new ServiceError("recording_empty");
+        const audio = new Blob([wav], { type: "audio/wav" });
+        return c.json(await c.var.s.speech.transcribe(audio, c.req.valid("query").lang, model));
+      },
+    );
 }
