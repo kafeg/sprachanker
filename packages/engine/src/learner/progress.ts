@@ -166,40 +166,53 @@ export function answerAt(
 }
 
 /**
- * A run's exercises as they were shown (05, "Lifecycle"): each page's snapshot from the first time it
- * was shown, the lesson's current page where none was kept; in the lesson's order (by page when the
- * lesson is no longer installed).
+ * A run's exercises as they were shown (05, "Lifecycle"): each exercise's snapshot from the first time
+ * it was shown — by its key, so a page the lesson moved since still finds its own —, the lesson's
+ * current exercise where none was kept; in the lesson's order (in the order shown when the lesson is
+ * no longer installed).
  */
 export function shownExercises(
   events: StoredEvent[],
   lesson?: Lesson | null,
   locale?: LocaleLesson | null,
 ): Array<{ pageIndex: number; exercise: Exercise; locale: LocaleExercise | null }> {
-  const snapshots = new Map<number, { exercise: Exercise; locale: LocaleExercise | null }>();
+  const snapshots = new Map<
+    string,
+    { pageIndex: number; exercise: Exercise; locale: LocaleExercise | null }
+  >();
   for (const e of events) {
     if (e.type !== "page_shown") continue;
     const { pageIndex, snapshot } = e.payload as PageShownPayload;
-    if (snapshot && !snapshots.has(pageIndex))
-      snapshots.set(pageIndex, { exercise: snapshot.exercise, locale: snapshot.locale ?? null });
+    if (snapshot && !snapshots.has(snapshot.exercise.key))
+      snapshots.set(snapshot.exercise.key, {
+        pageIndex,
+        exercise: snapshot.exercise,
+        locale: snapshot.locale ?? null,
+      });
   }
-  if (!lesson)
-    return [...snapshots]
-      .sort(([a], [b]) => a - b)
-      .map(([pageIndex, shown]) => ({ pageIndex, ...shown }));
-  return lesson.pages.map(({ exercise }, pageIndex) => ({
-    pageIndex,
-    ...(snapshots.get(pageIndex) ?? {
-      exercise,
-      locale: locale?.exercises[exercise.key] ?? null,
-    }),
-  }));
+  if (!lesson) return [...snapshots.values()].sort((a, b) => a.pageIndex - b.pageIndex);
+  return lesson.pages.map(({ exercise }, pageIndex) => {
+    const shown = snapshots.get(exercise.key);
+    return {
+      pageIndex,
+      exercise: shown?.exercise ?? exercise,
+      locale: shown ? shown.locale : (locale?.exercises[exercise.key] ?? null),
+    };
+  });
 }
 
-/** Page to continue a run on: the last page shown. */
-export function resumePage(events: StoredEvent[]): number {
+/** Page to continue a run on: the last exercise shown, where it is in the lesson now (its page
+ *  number when it is no longer there, or the event names none). */
+export function resumePage(events: StoredEvent[], lesson?: Lesson): number {
   let page = 0;
-  for (const e of events)
-    if (e.type === "page_shown") page = (e.payload as { pageIndex: number }).pageIndex;
+  for (const e of events) {
+    if (e.type !== "page_shown") continue;
+    const { pageIndex, exerciseKey } = e.payload as PageShownPayload;
+    const now = exerciseKey
+      ? (lesson?.pages.findIndex((p) => p.exercise.key === exerciseKey) ?? -1)
+      : -1;
+    page = now >= 0 ? now : pageIndex;
+  }
   return page;
 }
 

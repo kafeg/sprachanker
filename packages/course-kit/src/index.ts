@@ -3,6 +3,7 @@ export * from "./files.ts";
 export * from "./fingerprint.ts";
 export * from "./html.ts";
 export * from "./http.ts";
+export * from "./key-map.ts";
 export * from "./library.ts";
 export * from "./media-index.ts";
 export * from "./media-store.ts";

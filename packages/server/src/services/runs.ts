@@ -122,10 +122,13 @@ export function createRuns({
     return undefined;
   };
 
-  /** A run as the player opens it: the run, its events, and the page to go on with. */
-  const openState = (row: RunRow) => {
+  /** A run as the player opens it: the run, its events, and the page to go on with (where the last
+   *  exercise shown is in the lesson now). */
+  const openState = async (row: RunRow) => {
     const list = store.events(row.id);
-    return { run: toRun(row), events: list, resumePage: resumePage(list) };
+    const key = row.contextKey as LessonKey;
+    const lesson = await content.lesson(seriesOf(key), key).catch(() => undefined);
+    return { run: toRun(row), events: list, resumePage: resumePage(list, lesson) };
   };
 
   /** Lesson progress of every lesson with runs, over active and completed runs. An active run counts
@@ -287,9 +290,11 @@ export function createRuns({
       const locale = await content.localeLesson(series, lesson.key, row.edition);
       // Answers are checked in the language the edition teaches (case rules differ, 04).
       const target = parseEditionId(row.edition).target;
-      // A page's snapshot is kept with the first time it was shown in the run.
+      // An exercise's snapshot is kept with the first time it was shown in the run.
       const snapshotted = new Set(
-        store.payloads(runId, "page_shown").flatMap((p) => (p.snapshot ? [p.pageIndex] : [])),
+        store
+          .payloads(runId, "page_shown")
+          .flatMap((p) => (p.snapshot ? [p.snapshot.exercise.key as string] : [])),
       );
       const outcomes: Record<string, Outcome> = {};
       const list: NewEvent[] = [...parsed.values()].map((e): NewEvent => {
@@ -317,10 +322,12 @@ export function createRuns({
           case "page_shown": {
             const { pageIndex } = e.payload;
             const exercise = lesson.pages[pageIndex]?.exercise;
-            if (!exercise || snapshotted.has(pageIndex)) return { ...e, payload: { pageIndex } };
-            snapshotted.add(pageIndex);
+            if (!exercise) return { ...e, payload: { pageIndex } };
+            const shown = { pageIndex, exerciseKey: exercise.key };
+            if (snapshotted.has(exercise.key)) return { ...e, payload: shown };
+            snapshotted.add(exercise.key);
             const snapshot = { exercise, locale: locale?.exercises[exercise.key] ?? null };
-            return { ...e, payload: { pageIndex, snapshot } };
+            return { ...e, payload: { ...shown, snapshot } };
           }
           default:
             return e;

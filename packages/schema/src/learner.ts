@@ -39,8 +39,12 @@ export const PageSnapshot = z.object({ exercise: Exercise, locale: LocaleExercis
 
 export const PageShownPayload = z.object({
   pageIndex: z.number().int().nonnegative(),
-  /** Attached by the server. */
-  snapshot: PageSnapshot.optional(),
+  /** The exercise on that page (attached by the server): what the run resumes on and what its
+   *  snapshot belongs to, wherever the page is after the lesson changed. */
+  exerciseKey: ExerciseKey.optional(),
+  /** Attached by the server the first time the exercise is shown in the run. A snapshot that no
+   *  longer reads (the exercise format changed since) is dropped, not its event. */
+  snapshot: PageSnapshot.optional().catch(undefined),
 });
 export type PageShownPayload = z.infer<typeof PageShownPayload>;
 

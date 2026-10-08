@@ -104,7 +104,7 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 
 | Event type | Payload (required fields) |
 |---|---|
-| `page_shown` | `pageIndex`; the first time a page is shown in a run, the `snapshot` of the exercise as displayed (`{exercise, locale}`, attached by the server) |
+| `page_shown` | `pageIndex`; `exerciseKey` (attached by the server: the exercise on that page); the first time an exercise is shown in a run, its `snapshot` as displayed (`{exercise, locale}`, attached by the server; one that no longer reads is dropped, not its event) |
 | `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, a speaking item not recorded); excluded from the score |
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `mistakes`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
@@ -113,7 +113,10 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 | `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day, from 4 AM) |
 | `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |
 
-Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type).
+Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type). **Payloads only
+grow**: a field is added (optional), never renamed, narrowed or removed; every shape stored so far is
+on record in `packages/schema/test/stored-events/` and must keep reading. A change that cannot be
+additive comes with an upgrade of the stored events (a migration), not an edit of the record.
 
 Runs and events are written and read only through the run store (`packages/server/src/services/
 run-store.ts`): a run is ended once, only while active; events of one request are stored in one
@@ -142,7 +145,9 @@ Statistics (lesson progress and best scores, item history, mistakes, rule and le
 (an in-memory cache is added when needed). There are no derived tables; one is added only when a measured
 query is too slow, and then it must be rebuildable from events.
 
-Resume = the last `page_shown` of the active run. Lesson progress counts an active run as "in progress"
+Resume = the last `page_shown` of the active run: the exercise it names, where it is in the lesson
+now (its page number when the lesson no longer has it). A pass in the Notebook shows each exercise by
+its snapshot, found by exercise key. Lesson progress counts an active run as "in progress"
 only once it has an `answered`, `item_skipped` or `step_done` event.
 
 ## Migrations

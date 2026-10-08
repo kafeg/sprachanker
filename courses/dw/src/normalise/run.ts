@@ -2,7 +2,12 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { libraryWriter, type NormaliseResult, readMediaIndex } from "@sprachanker/course-kit";
+import {
+  libraryWriter,
+  type NormaliseResult,
+  openKeyMap,
+  readMediaIndex,
+} from "@sprachanker/course-kit";
 import {
   CourseIndex,
   courseKey,
@@ -34,7 +39,8 @@ export async function normaliseCourse(
   const course = courseKey(seriesId(dw.series), dw.id);
   const writer = libraryWriter(seriesDir, log);
   const courseState = await read("course.json");
-  const all = courseLessons(course, courseState);
+  const keys = await openKeyMap(seriesDir);
+  const all = courseLessons(course, courseState, keys);
   const titles = new Map<LessonKey, string>();
   const goals = new Map<LessonKey, Record<GoalKey, string>>();
   let unknownTotal = 0;
@@ -57,6 +63,7 @@ export async function normaliseCourse(
       lesson,
       downloads,
       exercises,
+      exerciseNumber: (id, position) => keys.number(entry.key, String(id), position),
     });
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
@@ -97,6 +104,7 @@ export async function normaliseCourse(
     },
   ]);
   await writer.finish();
+  await keys.save();
   const { problems } = writer;
   log(
     `${dw.id} (${dw.edition}): ${lessonsDone} lessons normalised${unknownTotal ? `, ${unknownTotal} unknown exercises` : ""}${leftOut ? `, ${leftOut} parts left out (unmapped)` : ""}${problems ? `, ${problems} files failed validation` : ""}`,

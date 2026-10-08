@@ -39,6 +39,8 @@ export interface LessonSource {
   lesson: ApolloState;
   downloads: ApolloState;
   exercises: Map<number, ApolloState>;
+  /** An exercise's number in the lesson: its own by source id, else its place (the key map). */
+  exerciseNumber(exerciseId: number, position: number): number;
 }
 
 export interface NormalisedLesson {
@@ -123,7 +125,8 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const goalTexts = listItems(L.learningTargetDescription);
   const goals = goalTexts.map((_, i) => lessonGoalKey(src.key, i + 1));
 
-  // Keys follow the source's order, a missing page keeping its number, so the others never shift.
+  // Keys follow the source's order the first time and stay by source id (a missing page keeps its
+  // number, one inserted takes a new one), so the others never shift.
   const gone: Array<{ path: string; reason: string }> = [];
   const exercises = exerciseIds(state, src.sourceId).flatMap((id, i) => {
     const page = src.exercises.get(id);
@@ -146,7 +149,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
         ctx,
         page,
         id,
-        exerciseKey(src.key, i + 1),
+        exerciseKey(src.key, src.exerciseNumber(id, i + 1)),
         `${src.rawDir}/e-${id}.json`,
       ),
     };

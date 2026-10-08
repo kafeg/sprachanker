@@ -74,8 +74,11 @@ moved, or restored by copying.
   `ex-300`), so a normaliser fix that maps one more task never moves the others. Source
   ids are stored in locale files (`sourceId`), so adding an edition never changes canonical files.
   Unit and lesson order is the order of the course index's arrays.
-  Planned: a key map per provider (our keys ↔ source ids), so keys do not shift when the source
-  changes order; removed keys are never re-used.
+  The first normalisation numbers by place; after that a key stays with its source id through the
+  series' key map (`keys.json`, `course-kit/key-map.ts`): one the source inserts, moves or drops
+  shifts no other, a new one takes its place's number when free, else the next free one, and a
+  removed one's number is never re-used. Built for DW (lessons in their unit, exercises in their
+  lesson); the other providers key by the source's own numbering.
 - **Fingerprint** of an exercise = sha256(JCS of its canonical object without `fingerprint`); identical
   across editions of the same content.
 - Planned: **contentVersion** of an edition = sha256 over the sorted `path:sha256` list of the course's

@@ -1,6 +1,7 @@
 // Course order → keys: units are the course's lesson groups in order; the final test (no group)
-// becomes its own unit after the last one (03).
-
+// becomes its own unit after the last one (03). A lesson keeps its number in its unit by its source id
+// (the key map), so one DW inserts shifts no other.
+import type { KeyMap } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
   type CourseKey,
@@ -21,7 +22,7 @@ export interface CourseLesson {
   unitTitle: string;
 }
 
-export function courseLessons(course: CourseKey, state: ApolloState): CourseLesson[] {
+export function courseLessons(course: CourseKey, state: ApolloState, keys: KeyMap): CourseLesson[] {
   const entity = entitiesOf(state, "Course")[0];
   const links = Object.entries(entity ?? {}).find(([k]) =>
     k.startsWith("contentLinks"),
@@ -41,10 +42,11 @@ export function courseLessons(course: CourseKey, state: ApolloState): CourseLess
       group = name;
     }
     order++;
+    const unitK = unitKey(course, unit);
     out.push({
       sourceId: Number(link.id),
-      key: lessonKey(course, unit, order),
-      unit: unitKey(course, unit),
+      key: lessonKey(course, unit, keys.number(unitK, String(link.id), order)),
+      unit: unitK,
       unitTitle: name.replace(/^\d+\s+/, ""),
     });
   }

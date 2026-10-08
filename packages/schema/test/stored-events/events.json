@@ -1,0 +1,163 @@
+{
+  "page_shown": [
+    { "since": "2026-10-06", "payload": { "pageIndex": 0 } },
+    {
+      "since": "2026-10-06",
+      "payload": {
+        "pageIndex": 1,
+        "snapshot": {
+          "exercise": {
+            "key": "s.x/c/00-01/ex-02",
+            "type": "single_choice",
+            "items": [
+              {
+                "key": "s.x/c/00-01/ex-02#1",
+                "options": [{ "id": "a", "text": "Ja" }, { "id": "b", "text": "Nein" }],
+                "answer": { "optionIds": ["a"] }
+              }
+            ]
+          },
+          "locale": null
+        }
+      }
+    },
+    { "since": "2026-10-08", "payload": { "pageIndex": 2, "exerciseKey": "s.x/c/00-01/ex-03" } }
+  ],
+  "answered": [
+    {
+      "since": "2026-10-06",
+      "payload": {
+        "answer": { "optionId": "a" },
+        "attempt": 1,
+        "ms": 1200,
+        "outcome": { "result": "correct", "score": 1, "ruleIds": [], "lexemes": [] }
+      }
+    },
+    {
+      "since": "2026-10-07",
+      "payload": {
+        "answer": { "rating": "good" },
+        "attempt": 1,
+        "ms": 900,
+        "outcome": { "result": "unscored", "score": 0, "ruleIds": [], "lexemes": [] }
+      }
+    },
+    {
+      "since": "2026-10-08",
+      "payload": {
+        "answer": { "recording": "01K00000000000000000000000", "transcript": "Hallo" },
+        "attempt": 1,
+        "ms": 4000,
+        "outcome": { "result": "unscored", "score": 0, "ruleIds": [], "lexemes": [] }
+      }
+    }
+  ],
+  "item_skipped": [{ "since": "2026-10-06", "payload": {} }],
+  "step_done": [
+    { "since": "2026-10-06", "payload": { "step": "words" } },
+    { "since": "2026-10-07", "payload": { "step": "grammar:1", "skipped": true } }
+  ],
+  "llm_verdict": [
+    {
+      "since": "2026-10-06",
+      "payload": {
+        "task": "explain",
+        "input": "",
+        "result": "Weil …",
+        "model": "m",
+        "latencyMs": 10,
+        "attempt": 1
+      }
+    },
+    {
+      "since": "2026-10-07",
+      "payload": {
+        "task": "writing",
+        "input": "Ich heisse Lena.",
+        "result": {
+          "verdict": "minor_errors",
+          "corrected": "Ich heiße Lena.",
+          "corrections": [{ "wrong": "heisse", "right": "heiße", "explanation": "ß" }],
+          "criteria": {
+            "task": { "score": 2, "comment": "" },
+            "communication": { "score": 2, "comment": "" },
+            "accuracy": { "score": 1, "comment": "" }
+          },
+          "feedback": "Gut."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-08",
+      "payload": {
+        "task": "example",
+        "input": "der Kaffee",
+        "result": {
+          "sentence": "Der Kaffee ist heiß.",
+          "translation": "The coffee is hot.",
+          "glossary": []
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-08",
+      "payload": {
+        "task": "speaking",
+        "input": "Hallo gute Tag",
+        "result": {
+          "verdict": "minor_errors",
+          "corrected": "Hallo, guten Tag",
+          "corrections": [],
+          "feedback": "Fast."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    }
+  ],
+  "llm_turn": [
+    {
+      "since": "2026-10-06",
+      "payload": { "role": "user", "text": "Warum?", "exerciseKey": "s.x/c/00-01/ex-02" }
+    },
+    {
+      "since": "2026-10-07",
+      "payload": {
+        "role": "assistant",
+        "text": "Gern.",
+        "model": "m",
+        "latencyMs": 10,
+        "translation": "Sure.",
+        "corrections": [],
+        "goalsMet": [0],
+        "tools": [{ "name": "get_mistakes", "args": {} }]
+      }
+    }
+  ],
+  "card_review": [
+    {
+      "since": "2026-10-07",
+      "payload": {
+        "face": "recognition",
+        "rating": 3,
+        "stateBefore": null,
+        "stateAfter": {
+          "due": 1791405524598,
+          "stability": 2.3,
+          "difficulty": 2.1,
+          "scheduledDays": 0,
+          "learningSteps": 1,
+          "reps": 1,
+          "lapses": 0,
+          "state": 1,
+          "lastReview": 1791404924598
+        }
+      }
+    }
+  ],
+  "card_undo": [{ "since": "2026-10-07", "payload": { "review": "01K00000000000000000000000" } }]
+}

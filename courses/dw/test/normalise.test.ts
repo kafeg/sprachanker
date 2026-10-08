@@ -1,5 +1,9 @@
 // Synthetic page states shaped like DW's; no real content.
 import { expect, test } from "bun:test";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { openKeyMap } from "@sprachanker/course-kit";
 import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
@@ -223,6 +227,7 @@ test("a lesson's own recording becomes media.audio (Deutschtrainer)", () => {
     },
     downloads: {},
     exercises: new Map(),
+    exerciseNumber: (_id: number, position: number) => position,
   });
   expect(out.lesson.media).toEqual({ audio: "media/audio/q1.mp3" });
 });
@@ -303,6 +308,7 @@ test("a grammar page's bold-only lines become its section titles", () => {
     },
     downloads: {},
     exercises: new Map(),
+    exerciseNumber: (_id: number, position: number) => position,
   });
   expect(out.locale.tabs.grammar).toEqual([
     {
@@ -339,6 +345,7 @@ test("an exercise page gone at the source, or without its exercise, is left out 
       [9, state as never],
       [10, {} as never],
     ]),
+    exerciseNumber: (_id: number, position: number) => position,
   });
   expect(out.lesson.pages.map((p) => ("exercise" in p ? String(p.exercise.key) : ""))).toEqual([
     `${lesson}/ex-02`,
@@ -351,4 +358,38 @@ test("an exercise page gone at the source, or without its exercise, is left out 
     path: "raw/tr-de/a1/e-8.json",
     reason: "exercise page gone at the source",
   });
+});
+
+test("an exercise keeps its key by its source id when the source inserts one before it", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sprachanker-keys-"));
+  const lesson = lessonKey("dw.nicos-weg/a1" as never, 0, 1);
+  const keysOf = async (ids: number[]) => {
+    const keys = await openKeyMap(dir);
+    const out = normaliseLesson(ctx, {
+      key: lesson,
+      unit: unitKey("dw.nicos-weg/a1" as never, 0),
+      sourceId: 5,
+      edition: "ru-de",
+      rawDir: "raw/ru-de/a1",
+      lesson: {
+        "Lesson:5": {
+          id: 5,
+          name: "Hallo!",
+          videos: [],
+          contentLinks: [],
+          overviewParts: ids.map((id) => ({ lessonPart: "EXERCISE", targetId: id })),
+        },
+      },
+      downloads: {},
+      exercises: new Map(
+        ids.map((id) => [id, { ...state, [`Exercise:${id}`]: state["Exercise:9"] }]),
+      ),
+      exerciseNumber: (id, position) => keys.number(lesson, String(id), position),
+    });
+    await keys.save();
+    return out.lesson.pages.map((p) => ("exercise" in p ? String(p.exercise.key).slice(-5) : ""));
+  };
+  expect(await keysOf([9, 10])).toEqual(["ex-01", "ex-02"]);
+  // A new exercise first: the two keep theirs, it takes the next free number.
+  expect(await keysOf([7, 9, 10])).toEqual(["ex-03", "ex-01", "ex-02"]);
 });

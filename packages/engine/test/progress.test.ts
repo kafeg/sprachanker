@@ -9,6 +9,7 @@ import {
   lessonProgress,
   lessonResult,
   resumePage,
+  shownExercises,
 } from "../src/index.ts";
 
 const ev = (
@@ -164,4 +165,27 @@ test("the answer an item got at one attempt", () => {
   expect(answerAt(events, "a#1", 2)?.answer).toBe("z");
   expect(answerAt(events, "a#1", 1)?.answer).toBe("x");
   expect(answerAt(events, "a#1", 3)).toBeUndefined();
+});
+
+test("a lesson changed since: the run resumes on the exercise it showed and keeps its snapshots by key", () => {
+  const shown = (n: number, pageIndex: number, key: string, snapshot = false) =>
+    ev(n, "page_shown", null, {
+      pageIndex,
+      exerciseKey: key,
+      ...(snapshot && {
+        snapshot: { exercise: { key, type: "single_choice", items: [] }, locale: null },
+      }),
+    });
+  const events = [shown(1, 0, "a", true), shown(2, 1, "b", true)];
+  // The source put a new exercise first: "b" is the third page now.
+  const now = lessonOf("n", "a", "b");
+  expect(resumePage(events, now)).toBe(2);
+  expect(shownExercises(events, now).map((s) => `${s.pageIndex}:${s.exercise.key}`)).toEqual([
+    "0:n",
+    "1:a",
+    "2:b",
+  ]);
+  // Without the lesson, or an exercise it no longer has: the page number as recorded.
+  expect(resumePage(events)).toBe(1);
+  expect(resumePage([shown(3, 4, "gone")], now)).toBe(4);
 });
