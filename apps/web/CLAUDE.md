@@ -7,16 +7,18 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 
 ```
 apps/web/src/
+  main.tsx         # the entry: query client, i18n, the router
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages): courses (tabs My,
                    # Downloaded, Available — /, /downloaded, /catalog), review (tabs Study, Decks with
                    # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
-                   # My words), course (its map), settings
+                   # My words), course (its map), settings, storage (Settings → Storage)
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
                    # the course page's hero (progress, source, stats, integrity, sync), reset-progress
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
                    # header, reference), use-run (the run in the query cache + its events), outbox (events sent in
-                   # order, retried, a refused batch dropped; tested), plan, overview, words-step, steps
+                   # order, each to its run, retried less often while failing, a refused batch dropped;
+                   # one per lesson, in use-run; tested), plan, overview, words-step, steps
                    # (reading pages, the step bar), exercise step (its rules in use-exercise, Enter in
                    # enter-key), practice-step, mistakes-status,
                    # summary, reference; slots.ts: what optional features add
@@ -27,7 +29,8 @@ apps/web/src/
                    # word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: Anki's deck options); slots (what optional features add: AI examples)
-  exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
+  exercises/       # one renderer per exercise type (index.tsx: the renderer of each type); dnd (placing
+                   # chips by drag or tap); item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
@@ -36,7 +39,7 @@ apps/web/src/
                    # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
                    # cache updates; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
-                   # profile chip), language-switch (the interface language, kept on the device),
+                   # profile chip — profile-chip), language-switch (the interface language, kept on the device),
                    # who-is-studying, onboarding (with tour; the AI step is a slot from
                    # the router), profile-settings, pairs (language pairs offered), device-name, about,
                    # preferences (language, theme, playback speed)
@@ -44,8 +47,10 @@ apps/web/src/
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
                    # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-example
-                   # (the reviewer's slot); parts.tsx: chat bubbles, header,
-                   # pending exchange, composer, start prompt, errors
+                   # (the reviewer's slot); settings-section (Settings → AI assistant), lmstudio-section,
+                   # prompts-info (Settings → Prompts), prompt-view (a request as sent), context-meter
+                   # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
+                   # bubbles, header, pending exchange, composer, start prompt, errors
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
@@ -55,14 +60,17 @@ apps/web/src/
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, checked-text (a model's check: verdict, the text
-                   # corrected, corrections)
+                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented),
+                   # confirm (an action that cannot be undone), flags (a language's flag), error-text (an
+                   # API error in words), target-lang (`lang` of the course's language), window-title,
+                   # utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it),
                    # take-button, context (the speech
                    # host the router provides: keep recordings, show the phrase, save, src, recognition —
                    # renderers
-                   # call no API), speech-settings (Settings → Speech)
+                   # call no API; use-speech-host makes it), speech-settings (Settings → Speech)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

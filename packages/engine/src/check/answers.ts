@@ -9,6 +9,7 @@ import type {
   MultiChoiceAnswer,
   OrderAnswer,
   SingleChoiceAnswer,
+  SpeechRepeatAnswer,
 } from "@sprachanker/schema";
 
 type ItemOf<T extends Exercise["type"]> = Extract<Exercise, { type: T }>["items"][number];
@@ -47,6 +48,9 @@ export function answerComplete(exercise: Exercise, index: number, answer: unknow
     case "dictation":
     case "respond":
       return (answer as { text: string }).text.trim() !== "";
+    case "speech_repeat":
+      // Nothing heard is no answer to check: the learner says it again (or skips).
+      return (answer as SpeechRepeatAnswer).speech.transcript.trim() !== "";
     default:
       return true;
   }

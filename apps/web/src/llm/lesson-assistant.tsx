@@ -16,7 +16,8 @@ export const lessonAssistant: LessonSlots = {
   explain: (context) => <ExplainMistake autoStart {...context} />,
   spoken: (context) => <SpokenAnswerCheck {...context} />,
   practice: {
-    // Offered while a model is set up; a lesson never waits for an assistant.
+    // Offered while a model is set up; undefined while that is read (a run resumes onto a practice
+    // step only once it is known).
     useKinds: () => {
       const llm = useLlm();
       return llm.isPending ? undefined : llm.data?.model ? PRACTICE : [];

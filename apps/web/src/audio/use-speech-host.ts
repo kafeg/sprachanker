@@ -13,9 +13,10 @@ import {
 import type { SpeechHost } from "./context.ts";
 import { toWav16k } from "./wav.ts";
 
-/** A warm-up is asked again only after this long (the engine stays warm for ten minutes). */
+/** A warm-up of the same model is asked again only after this long (the engine stays warm for ten
+ *  minutes); another model is warmed at once. */
 const WARM_AGAIN_MS = 5 * 60_000;
-let warmedAt = 0;
+let warmed = { model: "", at: 0 };
 
 export function useSpeechHostValue(): SpeechHost {
   const client = useQueryClient();
@@ -23,6 +24,7 @@ export function useSpeechHostValue(): SpeechHost {
   const show = useSetting("speech.showText");
   const pushToTalk = useSetting("speech.pushToTalk");
   const recognition = !!useSpeechState().data?.recognition;
+  const model = useSetting("speech.model") ?? "";
   return useMemo(
     () => ({
       keepRecordings: keep,
@@ -37,11 +39,12 @@ export function useSpeechHostValue(): SpeechHost {
       pushToTalk,
       transcribe: async (take, lang) => transcribe(await toWav16k(take.blob), lang),
       warm() {
-        if (!recognition || Date.now() - warmedAt < WARM_AGAIN_MS) return;
-        warmedAt = Date.now();
+        if (!recognition) return;
+        if (warmed.model === model && Date.now() - warmed.at < WARM_AGAIN_MS) return;
+        warmed = { model, at: Date.now() };
         void warmSpeech();
       },
     }),
-    [keep, show, client, recognition, pushToTalk],
+    [keep, show, client, recognition, pushToTalk, model],
   );
 }

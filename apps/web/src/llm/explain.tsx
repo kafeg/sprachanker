@@ -1,6 +1,7 @@
 // "Why is this wrong?" under a wrong answer: asks the configured model and streams its explanation. In a
 // lesson run the explanation is kept with the attempt it explains (05): shown again without asking, and
 // "Explain again" asks anew.
+import { type ExerciseKey, itemKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -22,7 +23,10 @@ import { PromptButton } from "./prompt-view.tsx";
 export function ExplainMistake({
   autoStart = false,
   ...props
-}: Omit<ExplainRequest, "language"> & { autoStart?: boolean }) {
+}: Omit<ExplainRequest, "language" | "exerciseKey"> & {
+  exerciseKey: ExerciseKey;
+  autoStart?: boolean;
+}) {
   const { t, i18n } = useTranslation();
   const refreshKept = useExplanationsKept(props.runId);
   const llm = useLlm();
@@ -34,10 +38,9 @@ export function ExplainMistake({
   const request = useAbortable();
   const asked = useRef(false);
   const ready = !!llm.data?.model;
-  // Item keys are "<exercise>#<n>", 1-based (02).
-  const itemKey = `${props.exerciseKey}#${props.index + 1}`;
+  const key = itemKey(props.exerciseKey, props.index + 1);
   const saved = kept.data?.explanations.findLast(
-    (e) => e.itemKey === itemKey && e.attempt === props.attempt,
+    (e) => e.itemKey === key && e.attempt === props.attempt,
   );
   const loaded = !props.runId || !kept.isPending;
 

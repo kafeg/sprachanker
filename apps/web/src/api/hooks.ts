@@ -218,13 +218,13 @@ export function useDeckActions() {
       onSuccess: fresh,
     }),
     leave: useMutation({
-      mutationFn: (input: { course: string; lang: string }) =>
-        json(api.cards.decks.leave.$post({ json: input as never })),
+      mutationFn: (input: Parameters<typeof api.cards.decks.leave.$post>[0]["json"]) =>
+        json(api.cards.decks.leave.$post({ json: input })),
       onSuccess: fresh,
     }),
     more: useMutation({
-      mutationFn: (input: { scope: string; count: number }) =>
-        json(api.cards.decks.more.$post({ json: input as never })),
+      mutationFn: (input: Parameters<typeof api.cards.decks.more.$post>[0]["json"]) =>
+        json(api.cards.decks.more.$post({ json: input })),
       onSuccess: fresh,
     }),
   };

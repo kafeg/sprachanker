@@ -21,6 +21,7 @@ export function MicButton({
   recorder,
   level,
   waiting,
+  blocked,
   onStart,
   onStop,
   className,
@@ -29,6 +30,9 @@ export function MicButton({
   level: number;
   /** A reason to wait first (the original not heard yet), as a message key. */
   waiting?: string;
+  /** Why recording is of no use here (nothing could hear it), as a message key: said before the
+   *  microphone's own problems, and under the button on every screen, not only on touch ones. */
+  blocked?: string;
   onStart(): void;
   onStop(): void;
   className?: string;
@@ -36,7 +40,7 @@ export function MicButton({
   const { t } = useTranslation();
   const problem = micProblem(micState(), recorder);
   const recording = recorder === "recording";
-  const reason = problem ?? waiting;
+  const reason = blocked ?? problem ?? waiting;
   const button = (
     <button
       type="button"
@@ -80,7 +84,12 @@ export function MicButton({
         button
       )}
       {reason && (
-        <p className="hidden max-w-64 text-center text-xs text-muted-foreground pointer-coarse:block">
+        <p
+          className={cn(
+            "max-w-64 text-center text-xs text-muted-foreground",
+            !blocked && "hidden pointer-coarse:block",
+          )}
+        >
           {t(reason)}
         </p>
       )}

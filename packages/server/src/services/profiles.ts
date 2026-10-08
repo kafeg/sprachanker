@@ -3,6 +3,7 @@
 // chosen, not unlocked: profiles keep people's learning apart, they are no security boundary (owner,
 // 2026-10-08). Registration (open by default) is the server's own setting,
 // changed by the `sprachanker` command. Signing in is devices.ts.
+import { ProfileColour } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -32,8 +33,10 @@ export interface RecordingFiles {
 
 /** The first profile's id: the folder the single profile had before there were several. */
 export const FIRST_PROFILE = "local";
-/** Tile colours (design tokens of the web app). */
-export const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
+const COLOURS = ProfileColour.options;
+const FIRST_COLOUR: ProfileColour = "amber";
+/** A stored colour as a tile's (one no longer offered: the first). */
+const colourOf = (stored: string): ProfileColour => ProfileColour.catch(FIRST_COLOUR).parse(stored);
 
 export type ProfileRow = typeof profiles.$inferSelect;
 
@@ -50,7 +53,7 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
   const view = (r: ProfileRow) => ({
     id: r.id,
     name: r.name,
-    colour: r.colour,
+    colour: colourOf(r.colour),
     onboarded: !!r.onboarded,
   });
 
@@ -60,7 +63,7 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
       if (db.select({ id: profiles.id }).from(profiles).get() || !files.exists(FIRST_PROFILE))
         return;
       db.insert(profiles)
-        .values({ id: FIRST_PROFILE, name: "", colour: COLOURS[0], createdAt: now() })
+        .values({ id: FIRST_PROFILE, name: "", colour: FIRST_COLOUR, createdAt: now() })
         .run();
     },
 
@@ -94,7 +97,7 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
 
     /** A new profile (its database made at once); refused while registration is closed, unless it
      *  is the first. */
-    create(input: { name: string; colour?: string }) {
+    create(input: { name: string; colour?: ProfileColour }) {
       const name = nameOf(input.name);
       const any = db.select({ id: profiles.id }).from(profiles).get();
       if (any && !self.registrationOpen()) throw new ServiceError("registration_closed", 403);
@@ -104,9 +107,7 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
         .values({
           id,
           name,
-          colour: COLOURS.includes(input.colour as never)
-            ? (input.colour as string)
-            : (COLOURS[count % COLOURS.length] as string),
+          colour: input.colour ?? (COLOURS[count % COLOURS.length] as ProfileColour),
           createdAt: now(),
         })
         .run();
@@ -114,12 +115,11 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
       return self.get(id);
     },
 
-    update(id: string, input: { name?: string; colour?: string; onboarded?: boolean }) {
+    update(id: string, input: { name?: string; colour?: ProfileColour; onboarded?: boolean }) {
       self.get(id);
       const values: Partial<ProfileRow> = {};
       if (input.name !== undefined) values.name = nameOf(input.name);
       if (input.colour !== undefined) {
-        if (!COLOURS.includes(input.colour as never)) throw new ServiceError("bad_colour");
         values.colour = input.colour;
       }
       // Onboarding ends with a name (the profile from before profiles had none).

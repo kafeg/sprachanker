@@ -13,7 +13,6 @@ export const ERROR_CODES = [
   "no_such_profile",
   "name_required",
   "registration_closed",
-  "bad_colour",
   "no_device",
   // Courses and downloads.
   "not_installed",

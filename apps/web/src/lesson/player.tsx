@@ -94,7 +94,7 @@ export function LessonPlayer({
   const { go, next, back, mark, result } = flow;
   const active = run.mode === "active";
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
-  const nextLesson = allLessons[allLessons.indexOf(lesson.key as never) + 1];
+  const nextLesson = allLessons[allLessons.indexOf(lesson.key) + 1];
   const exercise = step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
   // The episode with its text: an exercise showing it plays it, and then the overview does not.
   const episode = lesson.media.video && {

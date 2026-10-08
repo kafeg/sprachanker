@@ -85,9 +85,11 @@ export function useClip(src: string, rate = 1) {
     a.currentTime = 0;
     a.playbackRate = rate;
     a.play().catch((error: unknown) => {
-      // The browser not letting it play by itself yet (autoplay) is no failure: a tap plays it.
+      // The browser not letting it play by itself yet (autoplay) is no failure: a tap plays it. Nor is
+      // a play cut short by a pause or another clip (AbortError).
       setPlaying(false);
-      if ((error as Error).name !== "NotAllowedError") setFailed(true);
+      const name = (error as Error).name;
+      if (name !== "NotAllowedError" && name !== "AbortError") setFailed(true);
     });
   };
   const toggle = () => {

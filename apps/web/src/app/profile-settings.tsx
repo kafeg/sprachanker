@@ -1,5 +1,6 @@
 // Settings → Profile (06, "Profiles and access"; 09): the name and colour, the languages, the devices
 // signed in to it, switching profile.
+import { ProfileColour, settingOf } from "@sprachanker/schema";
 import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -22,8 +23,6 @@ import { cn } from "@/ui/utils.ts";
 import { deviceName } from "./device-name.ts";
 import { nativesOf, targetsOf, useLanguagePairs } from "./pairs.ts";
 
-const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
-
 export function ProfileSettings() {
   const { t, i18n } = useTranslation();
   const profile = useSession().data?.profile;
@@ -39,7 +38,7 @@ export function ProfileSettings() {
     if (!name.trim()) setName(profile.name);
     else if (name.trim() !== profile.name) update.mutate({ name: name.trim() });
   };
-  const lang = (key: "learner.native" | "learner.target") => settings?.[key] as string | undefined;
+  const lang = (key: "learner.native" | "learner.target") => settingOf(settings, key);
 
   return (
     <div className="space-y-6">
@@ -60,7 +59,7 @@ export function ProfileSettings() {
           className="mt-3 flex min-w-0 flex-wrap gap-2 border-0 p-0"
           aria-label={t("onboarding.name.colour")}
         >
-          {COLOURS.map((c) => (
+          {ProfileColour.options.map((c) => (
             <button
               key={c}
               type="button"

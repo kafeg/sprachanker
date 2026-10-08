@@ -92,32 +92,19 @@ export function useExercise({
   const ms = () => Date.now() - shownAt.current;
 
   const check = () => {
+    // Not waiting: every open item has a complete answer (an item left out is skipped, not checked).
     if (!checking || waiting) return;
-    // Typed gaps may be left empty; an item with no answer at all is recorded as skipped (04).
-    const unanswered: Outcome = {
-      result: "wrong",
-      score: 0,
-      ruleIds: exercise.ruleIds,
-      lexemes: [],
-    };
-    const results = open.map((i) => {
-      const answer = answers[i];
-      return {
-        i,
-        itemKey: exercise.items[i]?.key as string,
-        answer,
-        outcome: answer === undefined ? unanswered : checkItem(exercise, i, answer, lang),
-      };
-    });
+    const results = open.map((i) => ({
+      i,
+      itemKey: exercise.items[i]?.key as string,
+      answer: answers[i],
+      outcome: checkItem(exercise, i, answers[i], lang),
+    }));
     setOutcomes((prev) => ({
       ...prev,
       ...Object.fromEntries(results.map((r) => [r.i, r.outcome])),
     }));
-    onAnswered(
-      results.filter((r) => r.answer !== undefined),
-      results.filter((r) => r.answer === undefined).map((r) => r.itemKey),
-      ms(),
-    );
+    onAnswered(results, [], ms());
   };
 
   return {

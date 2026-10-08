@@ -3,7 +3,7 @@
 // buttons), About. The open tab is kept in the URL hash.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSetting, useSettings } from "@/api/hooks.ts";
+import { useSetSetting, useSetting } from "@/api/hooks.ts";
 import { AboutSection } from "@/app/about.tsx";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
 import { SpeechSettings } from "@/audio/speech-settings.tsx";
@@ -32,7 +32,6 @@ const tabOfHash = (): Tab => {
 
 function General() {
   const { t, i18n } = useTranslation();
-  const _settings = useSettings();
   const set = useSetSetting();
   const theme = useSetting("theme");
   return (

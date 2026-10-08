@@ -5,16 +5,10 @@ import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
+import { clock } from "./format.ts";
 import { claimPlayback, PlaybackRate, SpeedButton, useClip } from "./playback.tsx";
 import { cn } from "./utils.ts";
 import { Episode, EpisodeVideo, isEpisode } from "./video.tsx";
-
-/** 75 → "1:15". */
-const clock = (seconds: number) => {
-  if (!Number.isFinite(seconds)) return "--:--";
-  const s = Math.max(0, Math.round(seconds));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-};
 
 /**
  * Audio with play/pause, a timeline to drag or click, elapsed and remaining time and the speed; the

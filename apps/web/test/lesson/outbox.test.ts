@@ -58,3 +58,27 @@ test("cleared: nothing left to send", async () => {
   await o.box.flush();
   expect(o.stored).toEqual([]);
 });
+
+test("a batch never mixes two runs; failures in a row wait longer each time, up to the limit", async () => {
+  const stored: string[][] = [];
+  const waited: number[] = [];
+  let down = 4;
+  const box = createOutbox<string>({
+    async send(batch) {
+      if (down-- > 0) throw new Error("server error");
+      stored.push(batch);
+    },
+    refused: () => false,
+    onRefused: () => {},
+    batchKey: (e) => e.split(":")[0] ?? "",
+    wait: async (ms) => {
+      waited.push(ms);
+    },
+    retryMs: 100,
+    maxRetryMs: 500,
+  });
+  box.push(["a:1", "a:2", "b:1"]);
+  await box.flush();
+  expect(stored).toEqual([["a:1", "a:2"], ["b:1"]]);
+  expect(waited).toEqual([100, 200, 400, 500]);
+});

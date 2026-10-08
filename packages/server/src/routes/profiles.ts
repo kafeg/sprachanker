@@ -2,6 +2,8 @@
 // profile (while registration is open), signing in by choosing a profile, signing out. With one (after
 // the session check): the profile's name, colour and onboarding, and its devices.
 // Every profile is equal; server matters are the `sprachanker` command's.
+
+import { ProfileColour } from "@sprachanker/schema";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
@@ -9,7 +11,6 @@ import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import { DEVICE_LIFETIME_MS } from "../services/devices.ts";
 import type { Services } from "../services/index.ts";
-import { COLOURS } from "../services/profiles.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
@@ -46,7 +47,7 @@ export function sessionRoutes(svc: Services) {
       // A new profile, signed in on this device at once (its onboarding follows).
       .post(
         "/profiles",
-        zod("json", z.object({ name: Name, colour: z.enum(COLOURS).optional() })),
+        zod("json", z.object({ name: Name, colour: ProfileColour.optional() })),
         async (c) => {
           const profile = profiles.create(c.req.valid("json"));
           await issue(c, profile.id);
@@ -98,7 +99,7 @@ export function profileRoutes(svc: Services) {
         "json",
         z.object({
           name: Name.optional(),
-          colour: z.enum(COLOURS).optional(),
+          colour: ProfileColour.optional(),
           onboarded: z.boolean().optional(),
         }),
       ),

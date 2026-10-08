@@ -950,11 +950,11 @@
     "notHeardShort": "It couldn't be recognised. Try again.",
     "answerSample": "Sample answer",
     "aiChecking": "The AI is checking your answer…",
-    "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech."
+    "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech.",
+    "languageUnknown": "The language of this course is not known, so what you say cannot be heard."
   },
   "error": {
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",
-    "bad_colour": "Choose one of the colours.",
     "card_changed": "This card changed on another device. It is shown again.",
     "downloads_unavailable": "Courses cannot be downloaded here.",
     "empty_recording": "The recording is empty. Try again.",

@@ -5,7 +5,6 @@
 // them is study.ts; listing them, words.ts.
 import {
   CardDisplay,
-  type CardFace,
   type EditionId,
   type Lesson,
   type LessonKey,
@@ -17,8 +16,6 @@ import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import { readStored } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
-
-const DEFAULT_FACES: CardFace[] = ["recognition", "production"];
 
 export function createCards(deps: {
   cards: CardStore;
@@ -43,7 +40,7 @@ export function createCards(deps: {
     origin: string | null,
   ) {
     const lang = parseEditionId(request.edition as EditionId).source;
-    const faces = (settings.get("srs.faces") ?? DEFAULT_FACES).join(",");
+    const faces = settings.value("srs.faces").join(",");
     let created = 0;
     for (const { lesson, locale } of lessons)
       for (const v of lesson.vocab) {

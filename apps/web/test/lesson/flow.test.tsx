@@ -86,6 +86,38 @@ test("the AI practice still unknown: the run resumes only once every step is kno
   expect(result.current.current).toBe("exercise:1");
 });
 
+test("every exercise worked and AI practice left: the run resumes on the practice step once it is known", () => {
+  const step = (id: string): TypedEvent =>
+    ({
+      id: `S-${id}`,
+      runId: "R1",
+      ts: 1,
+      type: "step_done",
+      itemKey: null,
+      payload: { step: id },
+    }) as TypedEvent;
+  const events = [
+    answered("ex-01#1", "a"),
+    answered("ex-02#1", "a"),
+    step("words"),
+    step("grammar:0"),
+    step("culture:0"),
+  ];
+  const run = fakeRun("active", events, 1).run;
+  const { result, rerender } = renderHook(
+    ({ practice }: { practice?: readonly ("writing" | "scene" | "mistakes")[] }) =>
+      useLessonFlow({ lesson, locale, practice, run: run as never }),
+    {
+      initialProps: { practice: undefined } as {
+        practice?: readonly ("writing" | "scene" | "mistakes")[];
+      },
+    },
+  );
+  expect(result.current.current).toBe("overview");
+  rerender({ practice: ["writing"] });
+  expect(result.current.current).toBe("writing");
+});
+
 test("a page opened on a step stays on it instead of resuming (a reload); moving updates the address", () => {
   const shown: string[] = [];
   const { result } = renderHook(() =>

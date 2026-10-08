@@ -105,7 +105,7 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 
 | Event type | Payload (required fields) |
 |---|---|
-| `page_shown` | `pageIndex`; `exerciseKey` (attached by the server: the exercise on that page); the first time an exercise is shown in a run, its `snapshot` as displayed (`{exercise, locale}`, attached by the server; one that no longer reads is dropped, not its event) |
+| `page_shown` | `pageIndex`; `exerciseKey` (attached by the server: the exercise on that page); the first time an exercise is shown in a run, its `snapshot` as displayed (`{exercise, locale}`, attached by the server and written whole; one that no longer reads is dropped when read, not its event) |
 | `answered` | `answer` (02; spoken answers carry `speech{recording?, transcript}`: the recording only when recordings are kept), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, a speaking item not recorded); excluded from the score |
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `mistakes`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
@@ -124,6 +124,12 @@ run-store.ts`): a run is ended once, only while active; events of one request ar
 transaction, all or nothing, each payload checked against its type's schema; events are read back
 parsed, and a stored row that no longer parses is left out (and logged), never breaking the list.
 
+- **Sending** (the web's outbox, `apps/web/src/lesson/outbox.ts`): a lesson's events go out in order,
+  one queue per lesson, each event to the run it was recorded in (a batch never mixes two), idempotent
+  by id. Not reached or a 5xx: sent again after 2 s, doubling up to a minute. A lost session (401), a
+  wrong host (421), 408 and 429 keep the events for later. Any other 4xx, or a run no longer there to
+  send to, drops the batch and the run is read again. A lesson opened again reads its run anew,
+  keeping what is still on its way.
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
   its name and the UI shows "deleted".
 - **Resetting progress** is the exception, on the learner's confirmed request: for a course (it then

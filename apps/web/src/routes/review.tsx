@@ -2,6 +2,7 @@
 // profile's decks as Anki lists them, each language and its courses with New, Learning and To review;
 // more new cards today or leaving a course's deck; the decks to take — each installed course's words)
 // and My words (words.tsx). "How it works" opens the guide beside.
+import { settingOf } from "@sprachanker/schema";
 import { HelpCircle, MoreHorizontal } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -172,9 +173,8 @@ function useOpenDeck() {
     d.scope,
     ...d.courses.map((c) => c.scope),
   ]);
-  const stored = settings.data?.["review.deck"];
-  const deck =
-    typeof stored === "string" && scopes.includes(stored) ? stored : decks.data?.decks[0]?.scope;
+  const stored = settingOf(settings.data, "review.deck");
+  const deck = stored && scopes.includes(stored) ? stored : decks.data?.decks[0]?.scope;
   return {
     deck,
     pending: decks.isPending || settings.isPending,

@@ -2,6 +2,13 @@
 // learning and relearning steps, when the day starts, whether new cards count against the review
 // limit, and the card types a new word gets. Each saved when changed; Anki's defaults one tap away.
 import { SRS_DEFAULTS, STEP } from "@sprachanker/engine";
+import {
+  CardFace,
+  type LearnerSettingKey,
+  SETTING_DEFAULTS,
+  type SettingValue,
+  settingOf,
+} from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
@@ -13,18 +20,19 @@ import { Slider } from "@/ui/components/slider.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 
-const FACES = ["recognition", "production", "listening"] as const;
-const DEFAULT_FACES = ["recognition", "production"];
-const DEFAULTS: Record<string, unknown> = {
+type Option = Extract<LearnerSettingKey, `srs.${string}`> & keyof typeof DEFAULT_VALUES;
+/** Anki's defaults of every option here: the engine's for the scheduler, the schema's for the rest. */
+const DEFAULT_VALUES = {
   "srs.newPerDay": SRS_DEFAULTS.newPerDay,
   "srs.reviewsPerDay": SRS_DEFAULTS.reviewsPerDay,
   "srs.retention": SRS_DEFAULTS.retention,
   "srs.learningSteps": [...SRS_DEFAULTS.learningSteps],
   "srs.relearningSteps": [...SRS_DEFAULTS.relearningSteps],
   "srs.dayStartHour": SRS_DEFAULTS.dayStartHour,
-  "srs.newIgnoresReviewLimit": false,
-  "srs.faces": DEFAULT_FACES,
-};
+  "srs.newIgnoresReviewLimit": SETTING_DEFAULTS["srs.newIgnoresReviewLimit"],
+  "srs.faces": [...SETTING_DEFAULTS["srs.faces"]],
+} satisfies { [K in LearnerSettingKey]?: SettingValue<K> };
+const DEFAULTS: { [K in Option]: SettingValue<K> } = DEFAULT_VALUES;
 
 /** Steps as typed ("1m 10m") into the stored list, or undefined while one does not read. */
 export function parseSteps(text: string, allowNone = false): string[] | undefined {
@@ -112,11 +120,13 @@ export function ReviewSettings() {
   const settings = useSettings().data ?? {};
   const set = useSetSetting();
   const percent = usePercent();
-  const get = <T,>(key: string) => (settings[key] ?? DEFAULTS[key]) as T;
-  const save = (key: string, value: unknown) => set.mutate({ key, value });
+  // SettingRead of a generic key does not narrow: as a value or unset.
+  const get = <K extends Option>(key: K): SettingValue<K> =>
+    (settingOf(settings, key) as SettingValue<K> | undefined) ?? DEFAULTS[key];
+  const save = <K extends Option>(key: K, value: SettingValue<K>) => set.mutate({ key, value });
   const [retention, setRetention] = useState<number>();
-  const shownRetention = retention ?? get<number>("srs.retention");
-  const faces = get<string[]>("srs.faces");
+  const shownRetention = retention ?? get("srs.retention");
+  const faces = get("srs.faces");
   const time = useDateFormat("time");
   const hour = (h: number) => time.format(new Date(2026, 0, 1, h));
 
@@ -140,7 +150,7 @@ export function ReviewSettings() {
         <div className="mt-4 space-y-1.5">
           <p className="text-sm font-medium">{t("reviewSettings.newIgnoresReviewLimit")}</p>
           <Choice
-            value={get<boolean>("srs.newIgnoresReviewLimit") ? "yes" : "no"}
+            value={get("srs.newIgnoresReviewLimit") ? "yes" : "no"}
             options={[
               ["no", t("reviewSettings.no")],
               ["yes", t("reviewSettings.yes")],
@@ -190,7 +200,7 @@ export function ReviewSettings() {
           {[0, 2, 3, 4, 5, 6].map((h) => (
             <Chip
               key={h}
-              on={get<number>("srs.dayStartHour") === h}
+              on={get("srs.dayStartHour") === h}
               onClick={() => save("srs.dayStartHour", h)}
             >
               {hour(h)}
@@ -201,7 +211,7 @@ export function ReviewSettings() {
       </Panel>
       <Panel title={t("reviewSettings.faces")}>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {FACES.map((f) => (
+          {CardFace.options.map((f) => (
             <Chip
               key={f}
               on={faces.includes(f)}
@@ -210,7 +220,7 @@ export function ReviewSettings() {
                 if (next.length)
                   save(
                     "srs.faces",
-                    FACES.filter((x) => next.includes(x)),
+                    CardFace.options.filter((x) => next.includes(x)),
                   );
               }}
             >
@@ -226,7 +236,7 @@ export function ReviewSettings() {
       <Button
         variant="outline"
         onClick={() => {
-          for (const [key, value] of Object.entries(DEFAULTS)) save(key, value);
+          for (const [key, value] of Object.entries(DEFAULTS)) set.mutate({ key, value });
         }}
       >
         {t("reviewSettings.defaults")}

@@ -5,6 +5,7 @@
 // courses, filtered by the pair. Every step but the tour can be
 // changed later in Settings.
 
+import { ProfileColour } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/hooks.ts";
@@ -23,7 +24,6 @@ import { Tour } from "./tour.tsx";
 
 const STEPS = ["welcome", "name", "languages", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
-const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
 
 export function Onboarding({
   profile,
@@ -110,7 +110,7 @@ export function Onboarding({
               className="flex min-w-0 flex-wrap gap-2 border-0 p-0"
               aria-label={t("onboarding.name.colour")}
             >
-              {COLOURS.map((c) => (
+              {ProfileColour.options.map((c) => (
                 <button
                   key={c}
                   type="button"

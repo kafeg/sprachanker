@@ -153,6 +153,7 @@ export function StudySession({
     });
   const mark = () =>
     current && !busy && actions.mark.mutate({ cardId: current.cardId, marked: !current.marked });
+  const unbury = () => !busy && actions.unbury.mutate(scope);
 
   /** What a key or the More menu does with the card on screen. */
   const act = (action: ReviewerAction) => {
@@ -179,12 +180,7 @@ export function StudySession({
   if (study.isPending) return <Loading />;
   if (study.isError) return <ErrorState error={study.error} onRetry={() => study.refetch()} />;
   const data = study.data;
-  if (!current)
-    return finished ? (
-      finished(data)
-    ) : (
-      <Finished study={data} onUnbury={() => actions.unbury.mutate(scope)} />
-    );
+  if (!current) return finished ? finished(data) : <Finished study={data} onUnbury={unbury} />;
 
   const marks = (
     <>
@@ -275,13 +271,7 @@ export function StudySession({
           )}
           <Counts study={data} current={current.kind} />
         </div>
-        <MoreMenu
-          current={current}
-          buried={data.buried}
-          replay={() => sound.current?.play()}
-          act={act}
-          onUnbury={() => actions.unbury.mutate(scope)}
-        />
+        <MoreMenu current={current} buried={data.buried} act={act} onUnbury={unbury} />
       </div>
       <p className="hidden text-center text-xs text-muted-foreground [@media(pointer:fine)]:block">
         {t("study.keys")}

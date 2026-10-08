@@ -35,13 +35,11 @@ type Current = NonNullable<NonNullable<ReturnType<typeof useStudy>["data"]>["cur
 export function MoreMenu({
   current,
   buried,
-  replay,
   act,
   onUnbury,
 }: {
   current: Current;
   buried: number;
-  replay(): void;
   act(action: ReviewerAction): void;
   onUnbury(): void;
 }) {
@@ -54,7 +52,7 @@ export function MoreMenu({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onSelect={replay} disabled={!current.display.audio}>
+        <DropdownMenuItem onSelect={() => act({ do: "replay" })} disabled={!current.display.audio}>
           {t("study.replay")}
           <DropdownMenuShortcut>R</DropdownMenuShortcut>
         </DropdownMenuItem>

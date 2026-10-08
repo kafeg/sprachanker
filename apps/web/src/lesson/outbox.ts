@@ -1,8 +1,9 @@
-// Events on their way to the server (05; 09): sent in order, in batches, retried until stored. A batch
-// the server refuses (4xx) is dropped — sending it again cannot succeed — and the caller is told, so
-// it reads the run again. Events are idempotent by id: one sent twice (a retry, the copy sent as the
-// page closes) is stored once. Plain, so it is tested without React; the planned offline outbox
-// (IndexedDB) keeps this contract.
+// Events on their way to the server (05; 09): sent in order, in batches of one run, retried until
+// stored — sooner at first, then less often (doubling up to a minute) while the server cannot be
+// reached or fails. A batch the server refuses is dropped — sending it again cannot succeed — and the
+// caller is told, so it reads the run again; the caller decides what counts as refused. Events are
+// idempotent by id: one sent twice (a retry, the copy sent as the page closes) is stored once. Plain,
+// so it is tested without React; the planned offline outbox (IndexedDB) keeps this contract.
 
 export interface OutboxOptions<E> {
   /** Stores a batch; throws when it is not stored. */
@@ -11,32 +12,50 @@ export interface OutboxOptions<E> {
   refused(error: unknown): boolean;
   /** A batch was refused and dropped. */
   onRefused(): void;
+  /** What a batch shares (the run its events belong to): a batch never mixes two. */
+  batchKey?: (event: E) => string;
   /** Waits before a retry (tests pass their own). */
   wait?: (ms: number) => Promise<void>;
   batchSize?: number;
+  /** The first wait before a retry; each failure in a row doubles it, up to `maxRetryMs`. */
   retryMs?: number;
+  maxRetryMs?: number;
 }
 
 export function createOutbox<E>(options: OutboxOptions<E>) {
   const {
     batchSize = 50,
-    retryMs = 3000,
+    retryMs = 2000,
+    maxRetryMs = 60_000,
+    batchKey = () => "",
     wait = (ms) => new Promise<void>((resolve) => setTimeout(resolve, ms)),
   } = options;
   let queue: E[] = [];
   let sending: Promise<void> | null = null;
 
+  /** The next batch: the first events, as many as fit, all with the first one's key. */
+  const nextBatch = () => {
+    const first = queue[0] as E;
+    const end = queue.findIndex((e, i) => i >= batchSize || batchKey(e) !== batchKey(first));
+    return queue.slice(0, end < 0 ? queue.length : end);
+  };
+
   async function drain() {
+    let delay = retryMs;
     while (queue.length) {
-      const batch = queue.slice(0, batchSize);
+      const batch = nextBatch();
       try {
         await options.send(batch);
         queue = queue.slice(batch.length);
+        delay = retryMs;
       } catch (error) {
         if (options.refused(error)) {
           queue = queue.slice(batch.length);
           options.onRefused();
-        } else await wait(retryMs);
+        } else {
+          await wait(delay);
+          delay = Math.min(delay * 2, maxRetryMs);
+        }
       }
     }
   }
@@ -54,8 +73,10 @@ export function createOutbox<E>(options: OutboxOptions<E>) {
         });
       return sending;
     },
-    /** What is still to send (for the copy sent as the page closes). */
-    pending: (): readonly E[] => queue.slice(0, batchSize),
+    /** What is still to send, in order. */
+    pending: (): readonly E[] => queue,
+    /** The next batch (for the copy sent as the page closes). */
+    nextBatch: (): readonly E[] => (queue.length ? nextBatch() : []),
     /** Forgets what is queued (the run is read again). */
     clear() {
       queue = [];

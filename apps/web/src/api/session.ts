@@ -60,11 +60,8 @@ function useProfileSaved() {
 export function useUpdateProfile() {
   const saved = useProfileSaved();
   return useMutation({
-    mutationFn: (input: {
-      name?: string;
-      colour?: SessionProfile["colour"];
-      onboarded?: boolean;
-    }) => json(api.profile.$put({ json: input as never })),
+    mutationFn: (input: Parameters<typeof api.profile.$put>[0]["json"]) =>
+      json(api.profile.$put({ json: input })),
     onSuccess: saved,
   });
 }

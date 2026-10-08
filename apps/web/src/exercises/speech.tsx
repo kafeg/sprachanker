@@ -6,6 +6,7 @@ import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
 import { type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
+import { clock } from "@/ui/format.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { SpecialLetters } from "./shared.tsx";
@@ -110,31 +111,35 @@ function Heard({
   );
 }
 
-/** "m:ss" of a length in milliseconds. */
-const clock = (ms: number) => {
-  const s = Math.max(1, Math.round(ms / 1000));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-};
-
 /**
  * One's takes of an item (08): recorded, kept when recordings are, heard when recognition is on —
- * at once, either failing leaving the take itself. `done` gets what was kept and heard. The
- * recogniser starts loading as the item shows (while the learner listens to the original).
+ * at once, either failing leaving the take itself; with `heardFirst`, kept only once heard (a take
+ * that counts by its words is not kept without them). `done` gets what was kept and heard, for the
+ * latest take only, while the item is shown. The recogniser starts loading as the item shows (while
+ * the learner listens to the original), and again when recognition comes on or changes model.
  */
 function useTakes(
   lang: string | undefined,
   readOnly: boolean | undefined,
   done: (kept: { recording?: string; transcript?: string }) => void,
+  heardFirst = false,
 ) {
   const host = useSpeechHost();
   const [take, setTake] = useState<{ url: string; ms: number }>();
   const [saving, setSaving] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
   const [unheard, setUnheard] = useState(false);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: once, when shown
+  /** The latest take's number; 0 once the item is gone. */
+  const latest = useRef(0);
   useEffect(() => {
     if (!readOnly) host?.warm();
-  }, []);
+  }, [readOnly, host?.warm]);
+  useEffect(
+    () => () => {
+      latest.current = 0;
+    },
+    [],
+  );
   useEffect(
     () => () => {
       if (take) URL.revokeObjectURL(take.url);
@@ -143,25 +148,31 @@ function useTakes(
   );
   const recorder = useRecorder({ onTake: (recorded) => void taken(recorded) });
   const taken = async (recorded: Take) => {
+    const n = ++latest.current;
+    const current = () => latest.current === n;
     setTake({ url: URL.createObjectURL(recorded.blob), ms: recorded.ms });
     setUnsaved(false);
     setUnheard(false);
     setSaving(true);
-    const [recording, transcript] = await Promise.all([
+    const save = () =>
       host?.keepRecordings
         ? host.save(recorded).catch(() => {
-            setUnsaved(true);
+            if (current()) setUnsaved(true);
             return undefined;
           })
-        : undefined,
-      // Recognition needs the language spoken (never detected, 08).
+        : Promise.resolve(undefined);
+    // Recognition needs the language spoken (never detected, 08).
+    const hear =
       host?.recognition && lang
         ? host.transcribe(recorded, lang).catch(() => {
-            setUnheard(true);
+            if (current()) setUnheard(true);
             return undefined;
           })
-        : undefined,
-    ]);
+        : Promise.resolve(undefined);
+    const [recording, transcript] = heardFirst
+      ? await hear.then(async (heard) => [heard ? await save() : undefined, heard] as const)
+      : await Promise.all([save(), hear]);
+    if (!current()) return;
     setSaving(false);
     done({ ...(recording && { recording }), ...(transcript !== undefined && { transcript }) });
   };
@@ -284,7 +295,11 @@ export function SpeechSelfrate({
           {own && (
             <TakeButton
               src={own}
-              label={take ? t("speech.mineFor", { time: clock(take.ms) }) : t("speech.mine")}
+              label={
+                take
+                  ? t("speech.mineFor", { time: clock(Math.max(1, take.ms / 1000)) })
+                  : t("speech.mine")
+              }
               className="mt-1.5"
             />
           )}
@@ -314,11 +329,23 @@ export function SpeechRepeat({
 }: RendererProps<"speech_repeat">) {
   const lang = useTargetLang();
   const { t } = useTranslation();
-  const takes = useTakes(lang, readOnly, ({ recording, transcript }) => {
-    if (transcript !== undefined)
-      onAnswer({ speech: { ...(recording && { recording }), transcript } });
-  });
-  const { host, take, recorder } = takes;
+  const takes = useTakes(
+    lang,
+    readOnly,
+    ({ recording, transcript }) => {
+      if (transcript !== undefined)
+        onAnswer({ speech: { ...(recording && { recording }), transcript } });
+    },
+    true,
+  );
+  const { host, take, saving, recorder } = takes;
+  // Without recognition, or a language to hear it in, nothing can check the phrase: the item is left
+  // to skip, and the microphone says why.
+  const unable = !host?.recognition
+    ? "speech.needsRecognition"
+    : !lang
+      ? "speech.languageUnknown"
+      : undefined;
   const attempted = answer !== undefined || !!take;
   const own =
     take?.url ?? (answer?.speech.recording && host ? host.src(answer.speech.recording) : undefined);
@@ -332,23 +359,17 @@ export function SpeechRepeat({
           <MicButton
             recorder={recorder.state}
             level={recorder.level}
-            waiting={
-              !host?.recognition
-                ? "speech.needsRecognition"
-                : heard
-                  ? undefined
-                  : "speech.listenFirst"
-            }
+            waiting={heard ? undefined : "speech.listenFirst"}
+            blocked={unable}
             onStart={() => void recorder.start()}
             onStop={recorder.stop}
           />
           {own && <TakeButton src={own} label={t("speech.mine")} className="mt-1.5" />}
         </div>
       )}
-      {!readOnly && !outcome && !host?.recognition && (
-        <p className="text-center text-sm text-muted-foreground">{t("speech.needsRecognition")}</p>
+      {answer && !saving && (
+        <Heard lang={lang} reference={item.text} transcript={answer.speech.transcript} />
       )}
-      {answer && <Heard lang={lang} reference={item.text} transcript={answer.speech.transcript} />}
       {!readOnly && !outcome && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
     </div>
   );

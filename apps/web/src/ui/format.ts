@@ -85,3 +85,10 @@ export function useCompact() {
     return (value: number) => format.format(value);
   }, [i18n.language]);
 }
+
+/** A length as a clock: 75 s → "1:15"; unknown → "--:--". */
+export const clock = (seconds: number) => {
+  if (!Number.isFinite(seconds)) return "--:--";
+  const s = Math.max(0, Math.round(seconds));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+};

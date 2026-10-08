@@ -7,6 +7,10 @@ import { CourseSlug, SeriesKey } from "./keys.ts";
 import { EditionId, Lang } from "./lang.ts";
 import { CardFace } from "./learner.ts";
 
+/** A profile's tile colour ("Who is studying?"; design tokens of the web app). */
+export const ProfileColour = z.enum(["amber", "teal", "rose", "violet", "sky", "lime"]);
+export type ProfileColour = z.infer<typeof ProfileColour>;
+
 const filter = z.string().min(1).max(200);
 /** A learning step as Anki writes it: minutes, hours or days. */
 const step = z.string().regex(/^[1-9]\d{0,3}[mhd]$/);
@@ -90,6 +94,8 @@ export const SETTING_DEFAULTS = {
   "speech.showText": "after",
   "speech.recognition": true,
   "speech.pushToTalk": "tap",
+  "srs.faces": ["recognition", "production"],
+  "srs.newIgnoresReviewLimit": false,
 } as const satisfies { [K in keyof Learner]?: SettingValue<K> };
 export type LearnerSettingKey = keyof Learner;
 /** A preference as read: its value, or its default where it has one. */

@@ -32,6 +32,10 @@ test("complete enough to check: every pair and part, one typed gap, text typed",
   expect(answerComplete(gaps, 0, { g1: "der", g2: "" })).toBe(true);
   expect(answerComplete(ex("respond", [{}]), 0, { text: "  " })).toBe(false);
   expect(answerComplete(ex("single_choice", [{}]), 0, undefined)).toBe(false);
+  // A phrase said and nothing heard: no answer to check yet.
+  const say = ex("speech_repeat", [{ text: "Hallo!" }]);
+  expect(answerComplete(say, 0, { speech: { transcript: " " } })).toBe(false);
+  expect(answerComplete(say, 0, { speech: { transcript: "hallo" } })).toBe(true);
 });
 
 test("what was heard of an answer said aloud with no phrase to say", () => {

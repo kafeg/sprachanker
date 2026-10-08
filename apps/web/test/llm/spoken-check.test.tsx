@@ -1,14 +1,15 @@
 import { expect, test } from "bun:test";
+import type { ExerciseKey } from "@sprachanker/schema";
 import { SpokenAnswerCheck } from "../../src/llm/spoken-check.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
 const RUN = "01K00000000000000000000000";
 const props = {
-  series: "s",
-  lessonKey: "s/c/00-01",
+  series: "s.x",
+  lessonKey: "s.x/c/00-01",
   edition: "ru-de",
-  exerciseKey: "s/c/00-01/ex-02",
+  exerciseKey: "s.x/c/00-01/ex-02" as ExerciseKey,
   index: 1,
   transcript: "Hallo gute Tag",
   runId: RUN,
@@ -17,7 +18,7 @@ const props = {
 const kept = {
   checks: [
     {
-      itemKey: "s/c/00-01/ex-02#2",
+      itemKey: "s.x/c/00-01/ex-02#2",
       transcript: "Hallo gute Tag",
       model: "google/gemma",
       ts: 2,
