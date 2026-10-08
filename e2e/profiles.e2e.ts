@@ -51,6 +51,10 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await expect(page.getByRole("heading", { name: "AI assistant" })).toBeVisible();
   await expect(page.getByRole("button", { name: /OpenRouter/ })).toBeVisible();
   await page.getByRole("button", { name: "Next" }).click();
+  // Speaking: the microphone test and the recogniser, as in Settings → Speech.
+  await expect(page.getByRole("heading", { name: "Speaking" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Record yourself" })).toBeVisible();
+  await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "Where things are" })).toBeVisible();
   await page.getByRole("button", { name: "Choose a course" }).click();
   // Courses → Available, filtered by the pair chosen.

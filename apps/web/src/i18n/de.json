@@ -766,6 +766,10 @@
     },
     "tour": {
       "title": "Was wo ist"
+    },
+    "speech": {
+      "title": "Sprechen",
+      "text": "Sprich die Sätze der Kurse selbst: teste dein Mikrofon und lade die Spracherkennung herunter (einmal), damit die App hört, was du gesagt hast. Alles bleibt auf diesem Computer; beides geht auch später unter Einstellungen → Sprechen."
     }
   },
   "tour": {

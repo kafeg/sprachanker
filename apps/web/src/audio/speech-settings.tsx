@@ -275,6 +275,16 @@ function Recordings() {
   );
 }
 
+/** The onboarding's speech step: the microphone test and recognition (the rest stays in Settings). */
+export function SpeechSetup() {
+  return (
+    <div className="space-y-6">
+      <Microphone />
+      <Recognition />
+    </div>
+  );
+}
+
 export function SpeechSettings() {
   return (
     <div className="space-y-6">

@@ -766,6 +766,10 @@
     },
     "tour": {
       "title": "Where things are"
+    },
+    "speech": {
+      "title": "Speaking",
+      "text": "Say the courses' phrases yourself: test your microphone, and download the speech recogniser (once) so the app hears what you said. Everything stays on this computer; both can be done later in Settings → Speech."
     }
   },
   "tour": {

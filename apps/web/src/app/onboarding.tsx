@@ -1,7 +1,8 @@
 // A new profile's onboarding (06, "Profiles and access"; 09): welcome with the interface language
 // (courses come straight from their publishers) → name (never empty) and colour → languages (own,
 // learnt: the pair filters the courses) → sign-in (none or a PIN) → the AI assistant (a slot: the llm
-// folder's own settings) → a tour → the courses, filtered by the pair. Every step but the tour can be
+// folder's own settings) → speech (the microphone test, the recogniser's download) → a tour → the
+// courses, filtered by the pair. Every step but the tour can be
 // changed later in Settings.
 
 import { Check } from "lucide-react";
@@ -9,6 +10,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/hooks.ts";
 import { type SessionProfile, useSetPin, useUpdateProfile } from "@/api/session.ts";
+import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { CATALOG_FILTERS, MY_FILTERS } from "@/courses/filter.ts";
 import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
 import { Avatar } from "@/ui/avatar.tsx";
@@ -20,7 +22,7 @@ import { LanguageSwitch } from "./language-switch.tsx";
 import { targetsOf, useLanguagePairs } from "./pairs.ts";
 import { Tour } from "./tour.tsx";
 
-const STEPS = ["welcome", "name", "languages", "signIn", "assistant", "tour"] as const;
+const STEPS = ["welcome", "name", "languages", "signIn", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
 const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
 
@@ -148,6 +150,12 @@ export function Onboarding({
           <>
             <p className="text-muted-foreground">{t("onboarding.assistant.text")}</p>
             {assistant}
+          </>
+        )}
+        {step === "speech" && (
+          <>
+            <p className="text-muted-foreground">{t("onboarding.speech.text")}</p>
+            <SpeechSetup />
           </>
         )}
         {step === "tour" && <Tour />}
