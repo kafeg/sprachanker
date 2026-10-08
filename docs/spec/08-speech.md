@@ -23,7 +23,7 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 
 - `speech_repeat`: engine word diff (04) between ASR text and reference; show hits and misses.
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
-  not pronunciation grading (sounds: a phoneme recogniser, planned after the MVP).
+  not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
 - `respond` and scenes: the transcript is shown and editable before it goes to the LLM.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
@@ -37,4 +37,4 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
   **Qwen3-TTS** (Apache-2.0, German and Russian, near commercial quality, needs a strong machine);
   voices downloaded per language; mixed text synthesised per language segment; cached by
   `(voice, text)` hash in `<app-data>/cache`.
-- Not now: spoken answers on review cards. Later: cloud speech; pronunciation by sounds (plan).
+- Not now: spoken answers on review cards. Later: cloud speech; pronunciation by sounds (plan, "Later").

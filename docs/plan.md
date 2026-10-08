@@ -95,26 +95,6 @@ Order decided by the week of use.
   (a catalogue of shared decks; AnkiWeb asks for an account after a few searches, so its decks come
   by link or as an `.apkg` file) and the profile's own; a downloaded deck is taken and left like a
   course's. Accept: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
-- **Pronunciation by sounds** (owner, 2026-10-08; researched the same day): whisper hears words, not
-  sounds, and corrects what it hears. Nothing ready names German learners' wrong sounds (Azure gives
-  de-DE phoneme scores without names; SpeechSuper only words; ELSA, Speechace no German), so it is
-  built locally and stays silent when unsure:
-  - a CTC phoneme recogniser without a language model or the reference text — wav2vec2
-    `*-espeak-cv-ft` (Apache-2.0; lv-60 has ONNX, int8 ≈ 318 MB; xlsr-53 needs one export) or ZIPA
-    CR-CTC small (CC BY 4.0, ONNX, int8 ≈ 71 MB; the NS variants are non-commercial — excluded) —
-    through `onnxruntime-node` in the server's speech module, else a sidecar in `native/`;
-  - the reference's phonemes from espeak-ng run as a separate program (GPL-3.0: never compiled into
-    the binary), course phrases phonemised at import;
-  - scoring in `packages/engine`: a sound is flagged only when CTC-based GOP and the free recognition
-    (Levenshtein weighted by PanPhon features) agree and the substitution is on a short list for the
-    learner's language (ü/ö, [ç], vowel length, h, -er/-en); at most one or two marks a phrase, "it
-    sounded like u", replay of one's word beside the course's, a sound called a problem only when it
-    repeats; native course recordings calibrate the thresholds and catch espeak's mistakes;
-  - not detectable this way: word stress (shown as the learner's and the course's pitch curves side
-    by side, no verdict), aspiration, palatalisation, r variants, the glottal stop.
-  - **Prototype first**: 30 of the owner's phrases, each clean and with a deliberate typical error,
-    course recordings as control. Go on only with precision ≥ 0.7, at most one false mark per three
-    clean phrases, ≤ 1.5 s for a 5 s phrase, ≤ ~1 GB memory; otherwise the word-level feedback stays.
 - **Books** (owner, 2026-10-08): free books downloaded and read like courses — a library of books to
   download (public-domain sources such as Project Gutenberg; the sources and their terms decided in the
   item's plan), "My books" with the place read; a reader with the translation beside (by sentence or
@@ -128,6 +108,9 @@ Order decided by the week of use.
   under 30 minutes (without the course download); headless `serve` works on a second machine.
 - **Later**: missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`),
   per-task LLM routes, handoff to other assistants, LLM golden tests, Goethe A1 practice sets, FSRS for
-  Leben in Deutschland, the FSRS optimizer in the Review settings (once there is history), badges, a local CA for LAN HTTPS, Qwen3-TTS and cloud speech, offline use and push
+  Leben in Deutschland, the FSRS optimizer in the Review settings (once there is history), badges, a local CA for LAN HTTPS, Qwen3-TTS and cloud speech, pronunciation by sounds
+  (researched 2026-10-08 and set aside by the owner: a local phoneme recogniser against espeak-ng
+  references is unreliable for German learners without annotated learner speech, and nothing ready
+  names their wrong sounds; a prototype on the owner's phrases would decide), offline use and push
   notifications, `.apkg` with scheduling,
   Docker image, project website, native mobile via Tauri.
