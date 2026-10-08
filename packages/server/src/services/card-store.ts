@@ -92,10 +92,21 @@ export function createCardStore(db: ProfileDb) {
 
     insert: (values: typeof cards.$inferInsert) => db.insert(cards).values(values).run(),
 
-    /** Sets fields of a note: its lexeme, translation language, suspension (Anki: suspend note) or mark. */
+    /** Sets fields of a note: its lexeme, translation language, suspension (Anki: suspend note) or
+     *  mark, or the word it is of (its source key and display: the note moved to another course). */
     setNote: (
       cardId: string,
-      values: Partial<Pick<CardRow, "lexemeKey" | "translationLang" | "suspended" | "marked">>,
+      values: Partial<
+        Pick<
+          CardRow,
+          | "lexemeKey"
+          | "translationLang"
+          | "suspended"
+          | "marked"
+          | "sourceKey"
+          | "displayCacheJson"
+        >
+      >,
     ) => db.update(cards).set(values).where(eq(cards.id, cardId)).run(),
 
     /** The face rows of some notes (all when none are named), by `<card>:<face>`. */

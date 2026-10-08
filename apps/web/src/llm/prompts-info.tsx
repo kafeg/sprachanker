@@ -56,6 +56,7 @@ function TaskPrompt({ task, prompt }: { task: PromptTaskId; prompt: Prompt }) {
         )}
       </summary>
       <div className="space-y-3 border-t px-4 py-4">
+        <p className="text-sm">{t(`prompt.about.${task}`)}</p>
         <div>
           <p className="text-sm">{t("prompt.contextIntro")}</p>
           <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-muted-foreground">

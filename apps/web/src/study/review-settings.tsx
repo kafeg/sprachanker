@@ -60,7 +60,7 @@ function NumberField({
   return (
     // biome-ignore lint/a11y/noLabelWithoutControl: the control is inside
     <label className="block space-y-1">
-      <span className="text-sm font-medium">{label}</span>
+      <span className="block text-sm font-medium">{label}</span>
       <Input
         className="h-11 w-32"
         inputMode="numeric"
@@ -97,7 +97,7 @@ function StepsField({
     <div className="space-y-1">
       {/* biome-ignore lint/a11y/noLabelWithoutControl: the control is inside */}
       <label className="block space-y-1">
-        <span className="text-sm font-medium">{label}</span>
+        <span className="block text-sm font-medium">{label}</span>
         <Input
           className="h-11 w-48"
           spellCheck={false}
@@ -157,6 +157,9 @@ export function ReviewSettings() {
             ]}
             onChange={(v) => save("srs.newIgnoresReviewLimit", v === "yes")}
           />
+          <p className="text-sm text-muted-foreground">
+            {t("reviewSettings.newIgnoresReviewLimitHint")}
+          </p>
         </div>
       </Panel>
       <Panel title={t("reviewSettings.retention")}>

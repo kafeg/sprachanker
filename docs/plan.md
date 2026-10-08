@@ -44,7 +44,32 @@ one voice when both languages share one).
   checked in Settings; spoken through the same `POST /api/speech/say` and cache as Piper.
 - **Accept**: on the Mac; the iPhone in item "Phones".
 
-### 2. Exams (owner, 2026-10-08)
+### 2. Fixes from use: course content, checks, layout (owner, 2026-10-09)
+Specs: 02, 03, 08, 09.
+- Lingust ("Правильный английский"): "≈" marks left in phrases; a transcription line cut where the
+  English was taken out ("бай) - Пока!"); grammar pages split into cards by their sub-headings
+  ("Спряжение глагола to be в настоящем времени" / "… в прошедшем времени").
+- Every provider's normaliser looked over for structure and how its pages read (sections, headings,
+  tables, leftovers) and fixed where a general rule does it.
+- The spoken check's word diff: a word heard as one where the phrase has two ("Goodbye" for "Good
+  bye", and the other way) counts as said; marks that are not words ("≈") are not words to say.
+- A phrase to repeat is shown at once when there is nothing to listen to first.
+- Courses → Downloaded: check and sync the courses (all, or one) from the list, as a course's page does.
+- Forms and layout looked over screen by screen (Settings first: labels, spacing, hints for every
+  option that is not plain).
+- **Accept**: the Lingust lessons named above read cleanly; tests of the normaliser rules and the diff;
+  the screens looked over on desktop and phone width.
+
+### 3. Interface in every language a course explains in (owner, 2026-10-09)
+Specs: 09, 10.
+- The UI catalogs beyond en/ru/de: every source language of the installed providers (DW: Arabic,
+  Bosnian, Greek, Spanish, Persian, French, Hindi, Hungarian, Indonesian, Polish, Portuguese,
+  Romanian, Swahili, Turkish, Ukrainian, Chinese, …): translated (model-assisted, then checked by the
+  catalog tests: keys, ICU, plurals), right-to-left layout for Arabic and Persian, fonts for every
+  script; the onboarding and the language switch offer them.
+- **Accept**: catalog tests over every language; RTL screens in e2e.
+
+### 4. Exams (owner, 2026-10-08)
 Specs: 02, 03, 06, 09.
 - **An "Exams" section of its own** beside Courses, built like it (tabs: mine, downloaded,
   available; the pair filter): an exam is got and installed from the interface like a course, from
@@ -58,14 +83,14 @@ Specs: 02, 03, 06, 09.
 - **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
   section; at least one A1–B1 model test, if one is importable; results in the Notebook.
 
-### 3. Notebook: more pictures (owner's request, 2026-10-07)
+### 5. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 4. Phones (owner, 2026-10-08: functionality first, phones after)
+### 6. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The app on the owner's and his wife's iPhones: HTTPS through Tailscale (`tailscale serve`, 06) set
   up and described, installed as a PWA, signing in on a phone (device token); the server accepts the
@@ -76,7 +101,7 @@ Specs: 06, 09.
   the PWA; layouts at phone width; what breaks is fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 5. A week of real use
+### 7. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".

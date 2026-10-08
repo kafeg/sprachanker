@@ -430,6 +430,15 @@
         "name": "Beispiel zum Wort",
         "where": "auf seiner Karte und in seinem Blatt"
       }
+    },
+    "about": {
+      "explain": "Erklärt eine falsche Antwort unter der Übung („Warum ist das falsch?“): was der Fehler ist und welche Regel dahintersteht, in deiner Sprache.",
+      "tutor": "Der Tutor der Lektion: beantwortet deine Fragen zur Lektion, ihren Wörtern und ihrer Grammatik und geht im Schritt „Fehler durchgehen“ deine Fehler einzeln durch.",
+      "writing": "Prüft einen kurzen Text aus „Schreib selbst“: Korrekturen, die A1-Kriterien (Aufgabe, Kommunikation, Richtigkeit) und eine Rückmeldung.",
+      "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",
+      "sceneSetup": "Beginnt eine Szene: erfindet die Situation zum Thema der Lektion — wer du bist, mit wem du sprichst, wo und welche Ziele du erreichen sollst. Einmal pro Szene.",
+      "scene": "Spielt die Szene: antwortet auf jeden deiner Sätze als dein Gegenüber, korrigiert Fehler, gibt eine Übersetzung und hakt erreichte Ziele ab.",
+      "example": "Schreibt einen Beispielsatz mit dem Wort der Karte, möglichst aus Wörtern, die du kennst, und übersetzt die neuen."
     }
   },
   "writing": {
@@ -784,14 +793,16 @@
       "words": "Meine Wörter"
     },
     "studying": "Stapel: {deck}",
-    "actions": "Aktionen für {deck}",
     "more": "{count, plural, one {# neue Karte mehr heute} other {# neue Karten mehr heute}}",
-    "leave": "Stapel verlassen (noch nicht gelernte Karten)",
+    "leave": "Stapel entfernen…",
     "offers": "Stapel zum Übernehmen",
-    "offersHint": "Die Wörter jedes heruntergeladenen Kurses als ein Stapel: ganz übernommen, kommen seine Wörter als neue Karten in Kursreihenfolge — im Tageslimit oder mehr mit „neue Karten mehr heute“.",
+    "offersHint": "Die Wörter jedes deiner Kurse sind ein Stapel: als Ganzes übernommen, fügt er sie als neue Karten in Kursreihenfolge hinzu — im Tageslimit oder mehr mit „heute mehr neue“.",
     "words": "{words, plural, one {# Wort} other {# Wörter}} · schon deine: {mine, number}",
     "take": "Stapel übernehmen",
-    "takeRest": "Die übrigen {count, number} hinzufügen"
+    "takeRest": "Die übrigen {count, number} hinzufügen",
+    "study": "Lernen",
+    "leaveTitle": "Stapel {deck} entfernen?",
+    "leaveBody": "Seine Karten gehen mit ihrem Fortschritt. Wörter, die ein anderer deiner Stapel hat, wandern mit allem Fortschritt dorthin."
   },
   "guide": {
     "open": "So funktioniert's",
@@ -880,6 +891,7 @@
     "reviewsPerDay": "Höchstens Wiederholungen pro Tag",
     "limitsHint": "Ein Wort mit zwei Kartentypen sind zwei neue Karten. Jede neue Karte bringt im ersten Monat etwa 5–10 Wiederholungen.",
     "newIgnoresReviewLimit": "Neue Karten zählen nicht zum Wiederholungslimit",
+    "newIgnoresReviewLimitHint": "In Anki zählen neue Karten auch zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr. „Ja“ zeigt neue Karten bis zu ihrem eigenen Limit, auch wenn die Wiederholungen für heute aufgebraucht sind.",
     "yes": "Ja",
     "no": "Nein (wie in Anki)",
     "retention": "Gewünschte Behaltensquote",

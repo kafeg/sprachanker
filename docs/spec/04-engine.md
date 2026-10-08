@@ -152,10 +152,12 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   The sentence's words are matched against the course's words up to the card's lesson (their forms,
   and a form differing only by an ending: `text/words.ts`); the others are marked new, translated by
   the course's later lessons, else by the model's glossary.
-- **Decks to take** (owner, 2026-10-08): each installed course and language pair offers its words as one
-  deck. Taking it makes every lesson's words cards at once, new and in course order (Anki: a deck
-  imported); words with a card already keep it. Leaving a course's deck removes its cards never studied;
-  studied ones stay with their progress. **More new cards today** adds to a deck's daily limit for the
+- **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
+  its words as one deck. Taking it makes every lesson's words cards at once, new and in course order
+  (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)
+  removes its cards with their progress; a card of a word another of the learner's decks has (a course
+  with cards, in the same translation language) moves there with its progress instead (its word and
+  display become that course's). **More new cards today** adds to a deck's daily limit for the
   study day (Anki's custom study "increase today's new card limit"; a course's extra counts in its
   language deck too, and the review limit grows as much so it does not hold them back).
 - **"Words of the lesson"** is the same reviewer over the lesson's words in the edition's translation

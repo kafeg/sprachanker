@@ -1,6 +1,7 @@
 import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
-import { join } from "node:path";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { openLibrary } from "@sprachanker/course-kit";
 import { ulid } from "ulid";
@@ -43,7 +44,12 @@ test("a lesson's words become cards, one per word, kept when met again; decks by
       language: "de",
       counts: { new: 8, learning: 0, review: 0 },
       courses: [
-        { scope: `course:${COURSE}`, course: COURSE, counts: { new: 8, learning: 0, review: 0 } },
+        {
+          scope: `course:${COURSE}`,
+          course: COURSE,
+          edition: "ru-de",
+          counts: { new: 8, learning: 0, review: 0 },
+        },
       ],
     },
   ]);
@@ -285,6 +291,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
     content: createContent(openLibrary(join(root, "library"))),
     settings: createSettings(profile),
     session: async () => undefined,
+    myCourses: async () => new Set(),
     now: Date.now,
   });
   expect(await cards.relink()).toBe(1);
@@ -437,12 +444,46 @@ test("undo, then another rating: the answer is replaced; Easy takes a new word o
   expect(sheet.answers.map((a: { rating: number }) => a.rating)).toEqual([4]);
 });
 
-test("decks: a course's words taken at once in course order; leaving removes only the unstudied", async () => {
-  const { sendJson, getJson } = await setup();
+/** Begins the course (My courses): a run of its first lesson with an item skipped. */
+async function begin({ sendJson }: Awaited<ReturnType<typeof setup>>) {
+  const { run } = await sendJson("POST", "/api/runs", {
+    series: FIXTURE_SERIES,
+    lessonKey: LESSONS[0],
+    edition: "ru-de",
+  });
+  await sendJson("POST", `/api/runs/${run.id}/events`, {
+    events: [{ id: ulid(), type: "item_skipped", itemKey: `${LESSONS[0]}/ex-01#1`, payload: {} }],
+  });
+}
+
+/** A second course in the library with the same words: the fixture course copied as `demo2`. */
+function copyCourse(root: string) {
+  const series = join(root, "library", FIXTURE_SERIES);
+  const files = [...new Bun.Glob("**/*.json").scanSync({ cwd: series })].filter((f) =>
+    /^(canonical|locale\/[^/]+)\/demo\//.test(f),
+  );
+  for (const file of files) {
+    const text = readFileSync(join(series, file), "utf8");
+    const to = join(series, file.replace(/(^|\/)demo\//, "$1demo2/"));
+    mkdirSync(dirname(to), { recursive: true });
+    writeFileSync(
+      to,
+      text.replace(/sprachanker\.fixture\/demo(?=[/"])/g, "sprachanker.fixture/demo2"),
+    );
+  }
+  return { course: `${FIXTURE_SERIES}/demo2`, lesson: LESSONS[0]?.replace("/demo/", "/demo2/") };
+}
+
+test("decks to take: the courses of My courses; a course's words taken at once in course order", async () => {
+  const api = await setup();
+  const { sendJson, getJson } = api;
   const offer = async () =>
     (await getJson("/api/cards/decks/offers")).offers.find(
       (o: { edition: string }) => o.edition === "ru-de",
     );
+  // Not begun: not offered.
+  expect(await offer()).toBeUndefined();
+  await begin(api);
   const before = await offer();
   expect(before).toMatchObject({ key: COURSE, lang: "ru", mine: 0 });
   expect(before.words).toBeGreaterThan(4);
@@ -466,18 +507,51 @@ test("decks: a course's words taken at once in course order; leaving removes onl
   // The first new card is the course's first word.
   const first = (await getJson(study(`course:${COURSE}`))).current;
   expect(first.display.lessonKey).toBe(LESSONS[0]);
-  await sendJson("POST", `/api/cards/${first.cardId}/review`, {
+  // The deck as Review lists it: the course, its language pair.
+  const deck = (await getJson("/api/cards/decks")).decks[0].courses[0];
+  expect(deck).toMatchObject({ course: COURSE, edition: "ru-de" });
+});
+
+test("leaving a deck: its cards go, studied too; a word another deck has moves there with its progress", async () => {
+  const api = await setup();
+  const { sendJson, getJson, root } = api;
+  const other = copyCourse(root);
+  // The copy's first lesson made its cards (it owns them); the fixture course's deck took the rest.
+  const made = await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: other.lesson,
+    edition: "ru-de",
+  });
+  expect(made.created).toBe(4);
+  const taken = await sendJson("POST", "/api/cards/decks/take", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    edition: "ru-de",
+  });
+  const card = (await getJson(study(`course:${other.course}`))).current;
+  await sendJson("POST", `/api/cards/${card.cardId}/review`, {
     id: ulid(),
     reps: 0,
-    face: first.face,
+    face: card.face,
     rating: 3,
   });
-  // The deck as Review lists it: the course under the language its words are in.
-  const left = await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "de" });
-  expect(left.removed).toBe(before.words - 1);
-  expect((await getJson("/api/cards")).words.map((w: { cardId: string }) => w.cardId)).toEqual([
-    first.cardId,
-  ]);
+  // The copy's words are all in the fixture course's deck: they move there, the studied one with its
+  // progress; nothing goes.
+  expect(
+    await sendJson("POST", "/api/cards/decks/leave", { course: other.course, lang: "de" }),
+  ).toEqual({
+    removed: 0,
+    moved: 4,
+  });
+  const sheet = await getJson(`/api/cards/${card.cardId}`);
+  expect(sheet.display.lessonKey).toBe(LESSONS[0]);
+  expect(sheet.answers).toHaveLength(1);
+  // No other deck has them: leaving the fixture course's deck removes every card, studied or not.
+  expect(await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "de" })).toEqual({
+    removed: taken.created + 4,
+    moved: 0,
+  });
+  expect((await getJson("/api/cards")).words).toEqual([]);
 });
 
 test("more new cards today in a deck (custom study): the limit grows for it and its language", async () => {

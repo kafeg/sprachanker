@@ -1,7 +1,7 @@
 // Review: tabs — Study straight on the cards, Decks (per language and course, as in Anki, and the decks
 // to take), My words — and the guide beside.
 import { expect, test } from "@playwright/test";
-import { post } from "./api.ts";
+import { beginCourse, post } from "./api.ts";
 
 test("review: the cards straight away, Decks to choose another, tap and keys, undo", async ({
   page,
@@ -131,8 +131,13 @@ test("review: the guide explains the method beside; the decks to take are offere
     lessonKey: "sprachanker.fixture/demo/00-01",
     edition: "en-de",
   });
+  // Offered: the courses of My courses.
+  await beginCourse(request);
   await page.goto("/review/decks");
   await expect(page.getByRole("heading", { name: "Decks to take" })).toBeVisible();
+  // A course's deck with its language pair and what it does, at hand.
+  await expect(page.getByText("English → German").first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Leave deck…" }).first()).toBeVisible();
   await page.getByRole("button", { name: "How it works" }).click();
   const guide = page.getByRole("dialog");
   await expect(guide.getByRole("heading", { name: "How review works" })).toBeVisible();

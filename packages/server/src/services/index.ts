@@ -72,7 +72,15 @@ function profileServices(
   const cardStore = createCardStore(db);
   const recordings = createRecordings(recordingFiles, now);
   const runs = createRuns({ store, cards: cardStore, content, recordings });
-  const cards = createCards({ cards: cardStore, content, settings, session: runs.shown, now });
+  const cards = createCards({
+    cards: cardStore,
+    content,
+    settings,
+    session: runs.shown,
+    myCourses: async () =>
+      new Set((await runs.courses()).filter((c) => c.started).map((c) => c.key)),
+    now,
+  });
   const study = createStudy({ cards: cardStore, store, content, settings, now });
   const words = createWords({ cards: cardStore, store });
   const mistakes = createMistakes(store);

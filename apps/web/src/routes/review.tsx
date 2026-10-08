@@ -3,7 +3,7 @@
 // more new cards today or leaving a course's deck; the decks to take — each installed course's words)
 // and My words (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
-import { HelpCircle, MoreHorizontal } from "lucide-react";
+import { HelpCircle, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -18,13 +18,8 @@ import { StudyGuide } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
 import { COUNT_TONE } from "@/study/tones.ts";
 import { Button } from "@/ui/components/button.tsx";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/ui/components/dropdown-menu.tsx";
-import { usePairName } from "@/ui/flags.tsx";
+import { ConfirmDialog } from "@/ui/confirm.tsx";
+import { PairFlags, usePairName } from "@/ui/flags.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { SectionTabs } from "@/ui/section-tabs.tsx";
@@ -56,16 +51,19 @@ function CountCells({ counts }: { counts: Counts }) {
   );
 }
 
-/** The profile's decks: a deck chosen is studied; a course's has more new cards today and leaving. */
+/** The profile's decks as Anki lists them, a course's with its language pair; under each deck what it
+ *  does, at hand: study it, more new cards today, and for a course's, leave it (after asking). */
 function MyDecks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
   const decks = useDecks();
   const name = useDeckName();
+  const pairName = usePairName();
   const actions = useDeckActions();
+  const [leaving, setLeaving] = useState<{ course: string; lang: string; title: string }>();
   if (decks.isPending) return <Loading />;
   if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
   if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
-  const row = "grid grid-cols-[minmax(0,1fr)_3rem_3rem_3rem_2.75rem] items-center gap-2 px-4";
+  const row = "grid grid-cols-[minmax(0,1fr)_3rem_3rem_3rem] items-center gap-2 px-4";
   return (
     <div className="rounded-2xl border bg-card">
       <div className={cn(row, "border-b py-2 text-xs text-muted-foreground")}>
@@ -73,54 +71,80 @@ function MyDecks({ open }: { open(scope: string): void }) {
         <span className="text-right">{t("study.count.new")}</span>
         <span className="text-right">{t("study.count.learning")}</span>
         <span className="text-right">{t("study.count.review")}</span>
-        <span />
       </div>
       {decks.data.decks.map((lang) => (
         <div key={lang.scope} className="border-b last:border-b-0">
           {[
-            { ...lang, child: false, course: undefined as string | undefined },
+            { ...lang, child: false, course: undefined as string | undefined, edition: undefined },
             ...lang.courses.map((c) => ({ ...c, child: true })),
           ].map((deck) => (
-            <div key={deck.scope} className={cn(row, "min-h-11 py-1 hover:bg-accent/50")}>
-              <button
-                type="button"
-                onClick={() => open(deck.scope)}
-                className={cn("truncate py-2 text-left", deck.child ? "pl-5" : "font-semibold")}
-              >
-                {name(deck.scope)}
-              </button>
-              <CountCells counts={deck.counts} />
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={t("decks.actions", { deck: name(deck.scope) })}
+            <div key={deck.scope} className={cn("py-2", deck.child && "border-t border-dashed")}>
+              <div className={row}>
+                <span className={cn("min-w-0", deck.child ? "pl-5" : "font-semibold")}>
+                  <button
+                    type="button"
+                    onClick={() => open(deck.scope)}
+                    className="block max-w-full truncate text-left hover:underline"
                   >
-                    <MoreHorizontal className="size-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    onSelect={() => actions.more.mutate({ scope: deck.scope, count: MORE })}
-                  >
-                    {t("decks.more", { count: MORE })}
-                  </DropdownMenuItem>
-                  {deck.course && (
-                    <DropdownMenuItem
-                      onSelect={() =>
-                        actions.leave.mutate({ course: deck.course as string, lang: lang.language })
-                      }
-                    >
-                      {t("decks.leave")}
-                    </DropdownMenuItem>
+                    {name(deck.scope)}
+                  </button>
+                  {deck.edition && (
+                    <span className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+                      <PairFlags edition={deck.edition} />
+                      {pairName(deck.edition)}
+                    </span>
                   )}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                </span>
+                <CountCells counts={deck.counts} />
+              </div>
+              <div className={cn("mt-1.5 flex flex-wrap gap-2 px-4", deck.child && "pl-9")}>
+                <Button variant="outline" size="sm" onClick={() => open(deck.scope)}>
+                  <Play className="size-3.5" /> {t("decks.study")}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  loading={actions.more.isPending && actions.more.variables?.scope === deck.scope}
+                  onClick={() => actions.more.mutate({ scope: deck.scope, count: MORE })}
+                >
+                  {t("decks.more", { count: MORE })}
+                </Button>
+                {deck.course && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setLeaving({
+                        course: deck.course as string,
+                        lang: lang.language,
+                        title: `${name(deck.scope)}${deck.edition ? ` (${pairName(deck.edition)})` : ""}`,
+                      })
+                    }
+                  >
+                    <Trash2 className="size-3.5" /> {t("decks.leave")}
+                  </Button>
+                )}
+              </div>
             </div>
           ))}
         </div>
       ))}
+      <ConfirmDialog
+        open={!!leaving}
+        onOpenChange={(o) => !o && setLeaving(undefined)}
+        title={t("decks.leaveTitle", { deck: leaving?.title ?? "" })}
+        description={t("decks.leaveBody")}
+        confirm={t("decks.leave")}
+        cancel={t("common.cancel")}
+        busy={actions.leave.isPending}
+        onConfirm={() =>
+          leaving &&
+          actions.leave.mutate(
+            { course: leaving.course, lang: leaving.lang },
+            { onSuccess: () => setLeaving(undefined) },
+          )
+        }
+      />
     </div>
   );
 }

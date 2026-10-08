@@ -42,8 +42,8 @@ export function cardRoutes() {
         zod("json", z.object({ series: SeriesKey, course: CourseSlug, edition: EditionId })),
         async (c) => c.json(await c.var.s.cards.takeDeck(c.req.valid("json"))),
       )
-      .post("/decks/leave", zod("json", z.object({ course: CourseKey, lang: Lang })), (c) =>
-        c.json(c.var.s.cards.leaveDeck(c.req.valid("json"))),
+      .post("/decks/leave", zod("json", z.object({ course: CourseKey, lang: Lang })), async (c) =>
+        c.json(await c.var.s.cards.leaveDeck(c.req.valid("json"))),
       )
       // More new cards today in a deck (Anki's custom study).
       .post(

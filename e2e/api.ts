@@ -28,6 +28,26 @@ export async function freshLessonRun(request: APIRequestContext, lessonKey = DEM
   await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de", restart: true });
 }
 
+/** A fresh event id: a ULID (Crockford's base 32, 26 characters) of now and random bits. */
+const eventId = () => {
+  const ABC = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  let time = Date.now();
+  let head = "";
+  for (let i = 0; i < 10; i++, time = Math.floor(time / 32)) head = ABC[time % 32] + head;
+  const tail = Array.from({ length: 16 }, () => ABC[Math.floor(Math.random() * 32)]).join("");
+  return head + tail;
+};
+
+/** Begins the demo course for the profile (it is then in My courses): a lesson run with one item
+ *  skipped. */
+export async function beginCourse(request: APIRequestContext, lessonKey = DEMO_LESSON) {
+  const series = lessonKey.split("/")[0];
+  const { run } = await send(request, "post", "/api/runs", { series, lessonKey, edition: "en-de" });
+  await send(request, "post", `/api/runs/${run.id}/events`, {
+    events: [{ id: eventId(), type: "item_skipped", itemKey: `${lessonKey}/ex-01#1`, payload: {} }],
+  });
+}
+
 /** The picture question of the first exercise: Lena instead of Tom (wrong on purpose). Found by its
  *  picture: options are shown in an order of their own in every pass. */
 export async function answerPicture(page: Page) {

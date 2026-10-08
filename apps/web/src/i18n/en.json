@@ -430,6 +430,15 @@
         "name": "A word's example",
         "where": "on its card and in its sheet"
       }
+    },
+    "about": {
+      "explain": "Explains a wrong answer under the exercise (“Why is this wrong?”): what the mistake is and the rule behind it, in your language.",
+      "tutor": "The lesson's tutor: answers your questions about the lesson, its words and grammar, and goes over your mistakes one by one in the “Going over mistakes” step.",
+      "writing": "Checks a short text you wrote in “Write it yourself”: corrections, the A1 criteria (task, communication, accuracy) and feedback.",
+      "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",
+      "sceneSetup": "Starts a scene: invents the situation from the lesson's topic — who you are, who you talk to, where, and the goals to reach. Asked once per scene.",
+      "scene": "Plays the scene: answers each of your lines as your partner, corrects your mistakes, gives a translation and ticks off the goals you reached.",
+      "example": "Writes an example sentence with a card's word, using words you know where it can, with the new ones translated."
     }
   },
   "writing": {
@@ -784,14 +793,16 @@
       "words": "My words"
     },
     "studying": "Studying: {deck}",
-    "actions": "Actions for {deck}",
     "more": "{count, plural, one {# more new card today} other {# more new cards today}}",
-    "leave": "Leave the deck (its cards not studied yet)",
+    "leave": "Leave deck…",
     "offers": "Decks to take",
-    "offersHint": "Each downloaded course's words as one deck: taken whole, its words come as new cards in course order — within your daily limit, or more with \"more new cards today\".",
+    "offersHint": "The words of each of your courses are a deck: taken whole, it adds them as new cards in course order — within the daily limit, or more with “more new today”.",
     "words": "{words, plural, one {# word} other {# words}} · {mine, number} yours already",
     "take": "Take the deck",
-    "takeRest": "Add the other {count, number}"
+    "takeRest": "Add the other {count, number}",
+    "study": "Study",
+    "leaveTitle": "Leave the deck {deck}?",
+    "leaveBody": "Its cards go, with their progress. Words that another of your decks has move there, progress and all."
   },
   "guide": {
     "open": "How it works",
@@ -880,6 +891,7 @@
     "reviewsPerDay": "Maximum reviews per day",
     "limitsHint": "A word with two card types is two new cards. Each new card brings about 5–10 reviews in its first month.",
     "newIgnoresReviewLimit": "New cards ignore the review limit",
+    "newIgnoresReviewLimitHint": "In Anki, new cards a day also count against the reviews a day: once the review limit is reached, no new cards are shown either. “Yes” shows new cards up to their own limit even then.",
     "yes": "Yes",
     "no": "No (Anki's default)",
     "retention": "Desired retention",
