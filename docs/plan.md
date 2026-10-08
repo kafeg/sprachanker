@@ -32,16 +32,15 @@ offered (03, "Offered in the app").
 ### 1. Speech (owner's decisions, 2026-10-08)
 Specs: 08, 06, 09. Recording and recognition are built (08); two steps left, each planned, built and
 accepted on its own.
-1. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
-   editable before it is sent; push-to-talk per language); free spoken answers in the speaking
-   exercises ("answer it yourself") checked by the AI from the transcript when one is set up — its
-   verdict kept as text in the run (`llm_verdict`), read by the Notebook, going over mistakes and the
-   tutor. Not on review cards for now.
+1. **The AI's check of free spoken answers** (saying instead of typing is built, 08): the speaking
+   exercises' "answer it yourself" items checked by the AI from the transcript when one is set up —
+   its verdict kept as text in the run (`llm_verdict`), read by the Notebook, going over mistakes and
+   the tutor. Not on review cards for now.
 2. **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
    settings Piper or Qwen3-TTS on the server instead. Used for words without a recording, AI examples
    (a play button), tutor and scene replies (read aloud on request or automatically).
-- Settings → Speech gains: push-to-talk mode, synthesis engine and a voice per language with
-  "Listen", speed, reading AI replies aloud.
+- Settings → Speech gains: synthesis engine and a voice per language with "Listen", speed, reading AI
+  replies aloud.
 - **Accept** (the item): both steps on the Mac; the iPhone in item "Phones".
 
 ### 2. Exams (owner, 2026-10-08)

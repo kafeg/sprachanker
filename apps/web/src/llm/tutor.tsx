@@ -1,5 +1,6 @@
 // The lesson tutor: the chat of this lesson, in a side panel opened from the header, and inline on the
 // "Going over mistakes" step, which opens it with a request to go through the run's mistakes.
+import { parseEditionId } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -249,6 +250,7 @@ function Chat({
         onSend={() => send(input)}
         onStop={pending ? request.stop : undefined}
         placeholder={t("tutor.placeholder")}
+        speak={[parseEditionId(context.edition).target, i18n.language]}
       />
     </>
   );

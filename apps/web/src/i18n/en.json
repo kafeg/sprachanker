@@ -970,7 +970,12 @@
       "downloadFailed": "download failed",
       "use": "Use",
       "removeModel": "Remove the model",
-      "download": "Download"
+      "download": "Download",
+      "pushToTalk": "The microphone beside a text box",
+      "talk": {
+        "tap": "Tap to start, tap to stop",
+        "hold": "Hold while speaking"
+      }
     },
     "listening": "Listening to it…",
     "notHeard": "It couldn't be recognised; the recording counts anyway.",
@@ -984,6 +989,8 @@
     "model": {
       "large-v3-turbo-q5_0": "Whisper large-v3 turbo — accurate (recommended)",
       "small-q5_1": "Whisper small — faster, less accurate"
-    }
+    },
+    "sayIn": "Say it in {language}",
+    "notHeardShort": "It couldn't be recognised. Try again."
   }
 }

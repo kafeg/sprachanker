@@ -20,6 +20,7 @@ const host = (showText: "after" | "always") => ({
   recognition: true,
   transcribe: async () => "",
   warm() {},
+  pushToTalk: "tap" as const,
 });
 const item = {
   key: "s/c/00-01/ex-01#1" as ItemKey,

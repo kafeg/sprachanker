@@ -49,6 +49,8 @@ export const LEARNER_SETTINGS = {
   /** Speech recognition used when the engine and a model are there (on by default), and the model. */
   "speech.recognition": z.boolean(),
   "speech.model": z.string().min(1).max(100),
+  /** The microphone beside a text box: tap to start and stop (default), or hold to talk. */
+  "speech.pushToTalk": z.enum(["tap", "hold"]),
 } as const;
 
 /** Settings written only by the service that owns them. */

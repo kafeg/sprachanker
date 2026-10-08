@@ -1,7 +1,7 @@
 # 08 — Speech
 
-Built: **recording** and **recognition** (below). Planned (plan, "Speech"): speaking where text is
-typed, synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
+Built: **recording**, **recognition** and **saying instead of typing** (below). Planned (plan,
+"Speech"): the AI's check of a free spoken answer, synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
 server's speech module will talk to the sidecars through two functions:
 
 ```ts
@@ -57,7 +57,12 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 - `speech_repeat` (our own exercises): the same diff, scored.
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
-- `respond` and scenes: the transcript is shown and editable before it goes to the LLM.
+- **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of a free answer
+  (`respond`, in the answer's language; the take kept as the spoken answer's recording when recordings
+  are) and of the tutor and scenes (one per language — the learnt one and the learner's, "DE" / "RU"):
+  what was heard goes into the box, joined to what is typed, read over and changed before it is sent.
+  Tap to start and stop, or hold while speaking (Settings → Speech). Shown only while recognition is
+  on and ready.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Synthesis (TTS)

@@ -19,6 +19,8 @@ export interface SpeechHost {
   transcribe(take: Take, lang: string): Promise<string>;
   /** Starts the recogniser ahead of a recording (loading its model takes seconds). */
   warm(): void;
+  /** The microphone beside a text box: a tap starts and stops it, or it records while held. */
+  pushToTalk: "tap" | "hold";
 }
 
 const Speech = createContext<SpeechHost | undefined>(undefined);

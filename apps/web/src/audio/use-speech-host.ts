@@ -22,6 +22,7 @@ export function useSpeechHostValue(): SpeechHost {
   const client = useQueryClient();
   const keep = settings?.["speech.keepRecordings"];
   const show = settings?.["speech.showText"];
+  const hold = settings?.["speech.pushToTalk"] === "hold";
   const recognition = !!useSpeechState().data?.recognition;
   return useMemo(
     () => ({
@@ -34,6 +35,7 @@ export function useSpeechHostValue(): SpeechHost {
       },
       src: recordingUrl,
       recognition,
+      pushToTalk: hold ? "hold" : "tap",
       transcribe: async (take, lang) => transcribe(await toWav16k(take.blob), lang),
       warm() {
         if (!recognition || Date.now() - warmedAt < WARM_AGAIN_MS) return;
@@ -41,6 +43,6 @@ export function useSpeechHostValue(): SpeechHost {
         void warmSpeech();
       },
     }),
-    [keep, show, client, recognition],
+    [keep, show, client, recognition, hold],
   );
 }

@@ -146,6 +146,14 @@ function Recognition() {
               />
               {t("speech.settings.recognitionOn")}
             </label>
+            <div className="space-y-1.5">
+              <p className="text-sm font-medium">{t("speech.settings.pushToTalk")}</p>
+              <Choice
+                value={settings?.["speech.pushToTalk"] === "hold" ? "hold" : "tap"}
+                options={(["tap", "hold"] as const).map((v) => [v, t(`speech.settings.talk.${v}`)])}
+                onChange={(value) => set.mutate({ key: "speech.pushToTalk", value })}
+              />
+            </div>
             <ul className="space-y-2">
               {(data?.models ?? []).map((m) => {
                 const downloading = "downloaded" in m ? (m.downloaded as number) : undefined;

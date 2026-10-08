@@ -5,6 +5,7 @@ import { MESSAGE_MAX } from "@sprachanker/schema";
 import { type LucideIcon, Send, Square } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { DictateButton } from "@/audio/dictate.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
@@ -155,7 +156,8 @@ export function StartPrompt({
   );
 }
 
-/** The message box under a conversation: Enter sends, Shift+Enter breaks the line. */
+/** The message box under a conversation: Enter sends, Shift+Enter breaks the line; with `speak`, a
+ *  microphone per language says it instead of typing (the text heard goes into the box). */
 export function ChatComposer({
   value,
   onChange,
@@ -163,6 +165,7 @@ export function ChatComposer({
   onStop,
   placeholder,
   lang,
+  speak = [],
 }: {
   value: string;
   onChange(value: string): void;
@@ -171,8 +174,11 @@ export function ChatComposer({
   onStop?: () => void;
   placeholder: string;
   lang?: string;
+  /** Languages one may speak the message in (the learnt one first). */
+  speak?: string[];
 }) {
   const { t } = useTranslation();
+  const languages = [...new Set(speak)];
   return (
     <form
       className="flex items-end gap-2 border-t p-3"
@@ -196,6 +202,14 @@ export function ChatComposer({
           }
         }}
       />
+      {languages.map((l) => (
+        <DictateButton
+          key={l}
+          lang={l}
+          short={languages.length > 1}
+          onText={(heard) => onChange(value.trim() ? `${value.trimEnd()} ${heard}` : heard)}
+        />
+      ))}
       {onStop ? (
         <Button
           type="button"

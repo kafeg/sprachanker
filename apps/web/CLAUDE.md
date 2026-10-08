@@ -52,6 +52,7 @@ apps/web/src/
                    # year of days as squares)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
+                   # dictate (a microphone beside a text box: what was heard goes into it),
                    # take-button, context (the speech
                    # host the router provides: keep recordings, show the phrase, save, src, recognition —
                    # renderers
