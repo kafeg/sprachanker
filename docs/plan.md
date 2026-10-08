@@ -64,7 +64,11 @@ Taken along when an item above touches the area, or on request.
   rule ids; content updated while a run is active ends the run (05).
 - Engine (04): compose with the selfrate upgrade and enrichment.
 - Server (05, 06): export/import of a profile, structured logs, recordings served only to their profile.
-- Review (09): the course map's exams and can-do list; speech settings.
+- Review (09): the course map's exams and can-do list; speech settings; a word anywhere in a lesson
+  opens its sheet (09, "word sheet": forms, translation, audio, examples from lessons met, answers,
+  "add to cards").
+- Tests (10): the web tests log `ECONNREFUSED 127.0.0.1:4580` — a request escapes the filled query
+  cache; find it and make the tests quiet.
 
 ## After the MVP
 Order decided by the week of use.
