@@ -102,13 +102,14 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
   const read = (rows: EventRow[]) => rows.flatMap((r) => toEvent(r) ?? []);
 
   /** The row an event is stored as; its payload checked against its type's schema. */
-  const row = (runId: string, e: NewEvent, ts: number) => ({
+  const row = (runId: string, e: NewEvent, ts: number, deviceId?: string) => ({
     id: e.id ?? id(ts),
     runId,
     ts,
     type: e.type,
     itemKey: e.itemKey ?? null,
     cardId: e.cardId ?? null,
+    deviceId: deviceId ?? null,
     payloadJson: JSON.stringify(EVENT_PAYLOADS[e.type].parse(e.payload)),
   });
 
@@ -249,9 +250,14 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     append(
       runId: string,
       list: NewEvent[],
-      options: { anyStatus?: boolean; onStored?: (before: ReadEvent) => void } = {},
+      options: {
+        anyStatus?: boolean;
+        onStored?: (before: ReadEvent) => void;
+        /** The device the learner did it on (05: `events.device_id`). */
+        deviceId?: string;
+      } = {},
     ): number {
-      const rows = list.map((e) => row(runId, e, now()));
+      const rows = list.map((e) => row(runId, e, now(), options.deviceId));
       const ts = rows.at(-1)?.ts ?? now();
       db.transaction((tx) => {
         const run = tx.select({ status: runs.status }).from(runs).where(eq(runs.id, runId)).get();

@@ -225,7 +225,13 @@ export function createStudy(deps: {
      * event (`id`) and says how many reviews the face had when it was shown (`reps`): a rating sent
      * again is not applied twice, and a face rated meanwhile elsewhere (another device) is refused.
      */
-    rate(cardId: string, face: CardFace, rating: CardRating, answer: { id: string; reps: number }) {
+    rate(
+      cardId: string,
+      face: CardFace,
+      rating: CardRating,
+      answer: { id: string; reps: number },
+      deviceId?: string,
+    ) {
       cards.checkFace(cards.note(cardId), face);
       return store.atomic(() => {
         const sent = store.event(answer.id);
@@ -237,14 +243,18 @@ export function createStudy(deps: {
         const before = cards.stateOf(cards.states([cardId]).get(`${cardId}:${face}`)) ?? null;
         if ((before?.reps ?? 0) !== answer.reps) throw new ServiceError("card_changed", 409);
         const after = review(before, rating, now(), `${cardId}:${face}`, params());
-        store.append(reviewRun(), [
-          {
-            id: answer.id,
-            type: "card_review",
-            cardId,
-            payload: { face, rating, stateBefore: before, stateAfter: after },
-          },
-        ]);
+        store.append(
+          reviewRun(),
+          [
+            {
+              id: answer.id,
+              type: "card_review",
+              cardId,
+              payload: { face, rating, stateBefore: before, stateAfter: after },
+            },
+          ],
+          { deviceId },
+        );
         cards.setFace(cardId, face, { fsrsJson: JSON.stringify(after), dueAt: after.due });
         return after;
       });

@@ -68,7 +68,13 @@ export function cardRoutes() {
         (c) => {
           const { id, face, rating, reps } = c.req.valid("json");
           return c.json({
-            state: c.var.s.study.rate(c.req.valid("param").id, face, rating, { id, reps }),
+            state: c.var.s.study.rate(
+              c.req.valid("param").id,
+              face,
+              rating,
+              { id, reps },
+              c.var.deviceId,
+            ),
           });
         },
       )

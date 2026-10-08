@@ -46,6 +46,7 @@ export function runRoutes() {
             outcomes: await c.var.s.runs.append(
               c.req.valid("param").id,
               c.req.valid("json").events,
+              c.var.deviceId,
             ),
           }),
       )

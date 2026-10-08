@@ -275,7 +275,11 @@ export function createRuns({
      * entirely or not at all; an id stored before is left as it is. Returns the outcome of each
      * `answered` event of the batch — the stored one for an event sent again.
      */
-    async append(runId: string, input: unknown[]): Promise<Record<string, Outcome>> {
+    async append(
+      runId: string,
+      input: unknown[],
+      deviceId?: string,
+    ): Promise<Record<string, Outcome>> {
       const row = getRun(runId);
       if (row.status !== "active") throw new ServiceError("run_not_active", 409);
       const parsed = new Map<string, EventInput>();
@@ -334,6 +338,7 @@ export function createRuns({
         }
       });
       store.append(runId, list, {
+        deviceId,
         onStored: (before) => {
           if (before.type === "answered") outcomes[before.id] = before.payload.outcome;
           else delete outcomes[before.id];

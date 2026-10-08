@@ -48,15 +48,22 @@ function stopWithServer() {
     });
 }
 
-/** Stops engines a killed server left running (only processes that are whisper-server). */
+/** Stops engines a killed server left running (only processes that are whisper-server; the server
+ *  starting holds the data folder, so none of them is another server's). */
 function stopLeftOver(file: string) {
   const pids = (existsSync(file) ? readFileSync(file, "utf8") : "")
     .split("\n")
     .map(Number)
     .filter((n) => Number.isInteger(n) && n > 0);
   for (const pid of pids) {
-    const name = Bun.spawnSync(["ps", "-p", String(pid), "-o", "comm="]).stdout.toString();
-    if (name.includes("whisper-server")) process.kill(pid);
+    try {
+      // `ps` names the process (POSIX); elsewhere the pid alone is not trusted enough to stop it.
+      if (process.platform === "win32") continue;
+      const name = Bun.spawnSync(["ps", "-p", String(pid), "-o", "comm="]).stdout.toString();
+      if (name.includes("whisper-server")) process.kill(pid);
+    } catch {
+      // Gone meanwhile, or not ours to stop.
+    }
   }
   rmSync(file, { force: true });
 }

@@ -60,6 +60,7 @@ export const ERROR_CODES = [
   "llm_cli_missing",
   "llm_lmstudio_missing",
   "llm_lmstudio_remote",
+  "llm_lmstudio_failed",
   "llm_unreachable",
   "llm_unauthorized",
   "llm_model_not_found",

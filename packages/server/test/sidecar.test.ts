@@ -1,8 +1,10 @@
 import { expect, test } from "bun:test";
 import { createSidecar } from "../src/services/sidecar.ts";
 
+const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
+
 /** Fake processes: each answers its health check once started; `exit` ends one. */
-function machine(options: { idleMs?: number; healthy?: boolean } = {}) {
+function machine(options: { idleMs?: number; healthy?: boolean; portMs?: number } = {}) {
   const spawned: Array<{ setup: string; port: number; killed: boolean; exit(): void }> = [];
   let port = 9000;
   const sidecar = createSidecar({
@@ -19,7 +21,10 @@ function machine(options: { idleMs?: number; healthy?: boolean } = {}) {
         },
       };
     },
-    freePort: async () => ++port,
+    freePort: async () => {
+      if (options.portMs) await tick(options.portMs);
+      return ++port;
+    },
     fetch: (async (url: string) => {
       const proc = spawned.find((s) => url.startsWith(`http://127.0.0.1:${s.port}/`));
       return new Response(null, {
@@ -32,8 +37,6 @@ function machine(options: { idleMs?: number; healthy?: boolean } = {}) {
   });
   return { sidecar, spawned };
 }
-
-const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 
 test("requests arriving together start one process", async () => {
   const { sidecar, spawned } = machine();
@@ -78,4 +81,28 @@ test("a start that never becomes ready fails and leaves nothing running", async 
   await expect(sidecar.use("a", async () => {})).rejects.toThrow("speech_engine_failed");
   expect(spawned[0]?.killed).toBe(true);
   expect(sidecar.setup()).toBeUndefined();
+});
+
+test("stopped while it starts: the process is not left running", async () => {
+  const { sidecar, spawned } = machine({ portMs: 20 });
+  const use = sidecar.use("a", async () => {}).catch(() => {});
+  await tick(5);
+  sidecar.stop();
+  await use;
+  await tick(10);
+  expect(spawned.every((s) => s.killed)).toBe(true);
+  expect(sidecar.setup()).toBeUndefined();
+});
+
+test("a request failing with the engine's own failure replaces the engine for the next", async () => {
+  const { sidecar, spawned } = machine();
+  const { ServiceError } = await import("../src/errors.ts");
+  await expect(
+    sidecar.use("a", async () => {
+      throw new ServiceError("speech_engine_failed", 502);
+    }),
+  ).rejects.toThrow("speech_engine_failed");
+  expect(spawned[0]?.killed).toBe(true);
+  await sidecar.use("a", async () => {});
+  expect(spawned).toHaveLength(2);
 });

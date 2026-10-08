@@ -968,6 +968,7 @@
     "llm_bad_response": "The server returned an error.",
     "llm_cli_missing": "The command-line assistant is not installed on this computer.",
     "llm_invalid_output": "The model could not give a usable answer. Try again, or choose a larger model in Settings → AI assistant.",
+    "llm_lmstudio_failed": "LM Studio's server did not start. Open LM Studio and start it there.",
     "llm_lmstudio_missing": "LM Studio is not installed on this computer.",
     "llm_lmstudio_remote": "LM Studio runs on another computer: start its server there.",
     "llm_model_not_found": "The model was not found on the server.",

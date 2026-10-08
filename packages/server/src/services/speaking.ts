@@ -71,16 +71,23 @@ export function createSpeaking(deps: {
         : [],
     );
 
-  async function input(request: SpeakingRequest) {
+  /** The item asked about, checked: a speaking item of one's own in a run of the lesson. */
+  async function itemOf(request: SpeakingRequest) {
     if (!deps.lessonRun(request.lessonKey, request.runId))
       throw new ServiceError("no_such_run", 404);
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
-    const { lesson, locale } = ctx;
-    const exercise = findExercise(lesson, request.exerciseKey);
+    const exercise = findExercise(ctx.lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
     // Only an answer of one's own: a phrase to say is checked by the word diff (08).
     if (exercise?.type !== "speech_selfrate" || !item || ("text" in item && item.text))
       throw new ServiceError("no_such_item", 404);
+    return { ctx, exercise, item };
+  }
+
+  /** What the task gets: the item, and its recordings heard (the recogniser may need starting). */
+  async function input(request: SpeakingRequest, found: Awaited<ReturnType<typeof itemOf>>) {
+    const { ctx, exercise, item } = found;
+    const { locale } = ctx;
     const hear = (path: string | undefined) =>
       path ? deps.hear(request.series, path, ctx.target) : Promise.resolve(undefined);
     const [question, sample] = await Promise.all([
@@ -88,7 +95,6 @@ export function createSpeaking(deps: {
       hear("answerAudio" in item ? item.answerAudio : undefined),
     ]);
     return {
-      itemKey: item.key,
       input: {
         language: request.language,
         target: ctx.target,
@@ -112,10 +118,13 @@ export function createSpeaking(deps: {
     ): Promise<
       StoredSpokenCheck & { /** The event kept, for the player's run. */ event?: TypedEvent }
     > {
-      const { itemKey, input: task } = await input(request);
+      const found = await itemOf(request);
+      const itemKey = found.item.key;
+      // A check kept for the same words is the answer, before anything is heard or asked.
       const same = kept(request.runId, itemKey).find((c) => c.transcript === request.transcript);
       if (same) return same;
       return checking.run(`${request.runId}|${itemKey}|${request.transcript}`, true, async () => {
+        const { input: task } = await input(request, found);
         const { result: check, model, latencyMs } = await llm.structured(checkSpeakingTask(task));
         const result = cleanCheck(check, request.transcript);
         const id = ulid();
@@ -148,7 +157,9 @@ export function createSpeaking(deps: {
 
     /** The request it would send, without sending it. */
     async prompt(request: SpeakingRequest): Promise<PromptPreview> {
-      return llm.preview(structuredRequest(checkSpeakingTask((await input(request)).input)));
+      return llm.preview(
+        structuredRequest(checkSpeakingTask((await input(request, await itemOf(request))).input)),
+      );
     },
   };
 }

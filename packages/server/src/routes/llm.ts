@@ -289,7 +289,8 @@ export function llmRoutes() {
       )
       // Setup and provider failures as their responses (the routes return their results only).
       .onError((error, c) => {
-        if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
+        if (error instanceof HTTPException)
+          return c.json({ error: "invalid_request", detail: error.message }, error.status);
         if (error instanceof ServiceError || error instanceof LlmError) {
           const { status, ...body } = failure(error);
           return c.json(body, status);

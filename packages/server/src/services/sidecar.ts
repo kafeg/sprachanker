@@ -30,6 +30,8 @@ interface Running {
   ready: Promise<string>;
   proc?: SidecarProcess;
   exited: boolean;
+  /** Stopped (maybe while still starting): a process spawned after is killed at once. */
+  stopped: boolean;
   /** Requests using it now, and those waiting for it to be free. */
   inFlight: number;
   drained: Array<() => void>;
@@ -44,6 +46,7 @@ export function createSidecar(options: SidecarOptions) {
 
   function stop(run: Running | undefined = current) {
     if (!run) return;
+    run.stopped = true;
     if (run.idle) clearTimeout(run.idle);
     run.proc?.kill();
     if (current === run) current = undefined;
@@ -56,6 +59,7 @@ export function createSidecar(options: SidecarOptions) {
     const run: Running = {
       setup,
       exited: false,
+      stopped: false,
       inFlight: 0,
       drained: [],
       ready: undefined as never,
@@ -63,16 +67,18 @@ export function createSidecar(options: SidecarOptions) {
     run.ready = (async () => {
       const port = await options.freePort();
       const url = `http://127.0.0.1:${port}`;
+      if (run.stopped) throw new ServiceError(options.failed, 502);
       const proc = options.spawn(setup, port);
       run.proc = proc;
+      if (run.stopped) proc.kill();
       void proc.exited.then(() => {
         run.exited = true;
         if (current === run) current = undefined;
       });
       const until = Date.now() + options.startMs;
-      while (Date.now() < until && !run.exited) {
+      while (Date.now() < until && !run.exited && !run.stopped) {
         const ok = await options
-          .fetch(`${url}${healthPath}`)
+          .fetch(`${url}${healthPath}`, { signal: AbortSignal.timeout(2000) })
           .then((r) => r.ok)
           .catch(() => false);
         if (ok) return url;
@@ -110,11 +116,16 @@ export function createSidecar(options: SidecarOptions) {
     if (current === run) run.idle = setTimeout(() => stop(run), options.idleMs);
   }
 
-  /** Runs `call` with the process's base URL, the process kept for the setup meanwhile. */
+  /** Runs `call` with the process's base URL, the process kept for the setup meanwhile. A call
+   *  failing with the engine's own failure (`failed`: it did not answer, or not in time) stops the
+   *  process — a stuck engine would hold every later request behind it — and the next starts afresh. */
   async function use<T>(setup: string, call: (url: string) => Promise<T>): Promise<T> {
     const run = await acquire(setup);
     try {
       return await call(await run.ready);
+    } catch (error) {
+      if (error instanceof ServiceError && error.code === options.failed) stop(run);
+      throw error;
     } finally {
       release(run);
     }

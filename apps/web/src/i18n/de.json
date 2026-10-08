@@ -968,6 +968,7 @@
     "llm_bad_response": "Der Server hat einen Fehler gemeldet.",
     "llm_cli_missing": "Der Kommandozeilen-Assistent ist auf diesem Computer nicht installiert.",
     "llm_invalid_output": "Das Modell konnte keine brauchbare Antwort geben. Versuch es noch einmal oder wähle unter Einstellungen → KI-Assistent ein größeres Modell.",
+    "llm_lmstudio_failed": "Der Server von LM Studio ist nicht gestartet. Öffne LM Studio und starte ihn dort.",
     "llm_lmstudio_missing": "LM Studio ist auf diesem Computer nicht installiert.",
     "llm_lmstudio_remote": "LM Studio läuft auf einem anderen Computer – starte den Server dort.",
     "llm_model_not_found": "Das Modell wurde auf dem Server nicht gefunden.",

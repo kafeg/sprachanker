@@ -2,7 +2,7 @@
 // `VACUUM INTO` beside the file as `<file>.day-<date>` when the server starts and then every few hours
 // for a day that has none; the last week's kept. A bad migration or a wrong reset loses a day at most.
 import { Database } from "bun:sqlite";
-import { existsSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, readdirSync, renameSync, rmSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 
 const DAYS_KEPT = 7;
@@ -28,16 +28,22 @@ export function backUpToday(dataRoot: string, now: Date) {
     try {
       const copy = `${file}.day-${day}`;
       if (!existsSync(copy)) {
+        // Written aside and renamed when whole: a copy cut short (a crash, a full disk) never
+        // stands in for the day's.
+        const part = `${copy}.part`;
+        rmSync(part, { force: true });
         const db = new Database(file);
         try {
-          db.exec(`VACUUM INTO '${copy.replace(/'/g, "''")}'`);
+          db.exec("PRAGMA busy_timeout = 5000");
+          db.exec(`VACUUM INTO '${part.replace(/'/g, "''")}'`);
         } finally {
           db.close();
         }
+        renameSync(part, copy);
       }
       const prefix = `${basename(file)}.day-`;
       const copies = readdirSync(dirname(file))
-        .filter((f) => f.startsWith(prefix))
+        .filter((f) => f.startsWith(prefix) && /^\d{4}-\d{2}-\d{2}$/.test(f.slice(prefix.length)))
         .sort();
       for (const old of copies.slice(0, -DAYS_KEPT)) rmSync(join(dirname(file), old));
     } catch (error) {

@@ -14,6 +14,7 @@ import {
   secretKey,
 } from "./runtime/bun.ts";
 import { cliHost } from "./runtime/cli.ts";
+import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { speechHost } from "./runtime/speech.ts";
 import { createProfiles } from "./services/profiles.ts";
@@ -32,6 +33,7 @@ export interface ServerConfig {
 
 /** Starts the HTTP server: JSON API under /api, library media and the built web app. */
 export function startServer(config: ServerConfig): Listening {
+  holdDataRoot(config.dataRoot);
   const app = createApp({
     webAssets: config.webAssets,
     library: openLibrary(join(config.dataRoot, "library")),
@@ -70,5 +72,13 @@ export function profileAdmin(dataRoot: string) {
     now: Date.now,
   });
   profiles.adoptFirst();
-  return profiles;
+  return {
+    ...profiles,
+    /** Deletes a profile with its data — not while a server holds its database open. */
+    remove(id: string) {
+      const pid = serverOn(dataRoot);
+      if (pid) throw new Error(`a server (pid ${pid}) is running on ${dataRoot}: stop it first`);
+      profiles.remove(id);
+    },
+  };
 }

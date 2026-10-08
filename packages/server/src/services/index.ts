@@ -25,7 +25,7 @@ import { createRuns } from "./runs.ts";
 import { createScenes } from "./scene.ts";
 import { createSettings } from "./settings.ts";
 import { createSpeaking } from "./speaking.ts";
-import { createSpeech, recogniserOf, type Speech, type SpeechHost } from "./speech.ts";
+import { courseHearing, createSpeech, type Speech, type SpeechHost } from "./speech.ts";
 import { createStudy } from "./study.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
@@ -94,15 +94,10 @@ function profileServices(
     lessons,
     lessonRun: runs.lessonRun,
     store,
-    // Heard with the profile's recogniser; without one (or failing), the check goes on without it.
-    hear: async (series, path, lang) => {
-      const model = recogniserOf(speech, settings);
-      const file = model && config.library.mediaFile(series, path);
-      if (!model || !file) return undefined;
-      return speech
-        .heard(`${series}/${path}`, () => config.mediaBlob(file), lang, model)
-        .catch(() => undefined);
-    },
+    hear: courseHearing(speech, settings, {
+      file: (series, path) => config.library.mediaFile(series, path),
+      blob: config.mediaBlob,
+    }),
   });
   const examples = createExamples({
     cards: cardStore,
@@ -196,10 +191,6 @@ export function createServices(config: ServicesConfig) {
         void relink(s);
       }
       return s;
-    },
-    /** Forgets a removed profile's services. */
-    close(profileId: string) {
-      open.delete(profileId);
     },
   };
 }

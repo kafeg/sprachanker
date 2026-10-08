@@ -201,9 +201,6 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       }
       return text;
     },
-
-    /** Stops the engine (the server is stopping). */
-    close: () => engine.stop(),
   };
 }
 export type Speech = ReturnType<typeof createSpeech>;
@@ -211,3 +208,20 @@ export type Speech = ReturnType<typeof createSpeech>;
 /** The model a profile hears with: its choice while recognition is on and the model is installed. */
 export const recogniserOf = (speech: Speech, settings: Settings) =>
   !settings.value("speech.recognition") ? undefined : speech.modelFor(settings.get("speech.model"));
+
+/** What a course recording says, heard with the profile's recogniser; undefined without one, or
+ *  when hearing fails (what asks goes on without it). */
+export function courseHearing(
+  speech: Speech,
+  settings: Settings,
+  media: { file(series: string, path: string): string | undefined; blob(file: string): Blob },
+) {
+  return async (series: string, path: string, lang: string) => {
+    const model = recogniserOf(speech, settings);
+    const file = model && media.file(series, path);
+    if (!model || !file) return undefined;
+    return speech
+      .heard(`${series}/${path}`, () => media.blob(file), lang, model)
+      .catch(() => undefined);
+  };
+}

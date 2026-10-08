@@ -128,7 +128,10 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   it exits; a request for another setup waits for those in flight before the process is replaced.
   The runtime stops the engines with the server (exit and stop signals) and keeps their pids in
   `<data-root>/models/whisper-server.pid`, so one left by a server killed outright is stopped when the
-  next one starts.
+  next one starts. An engine stopped while it starts is not left running; an engine that fails a
+  request with its own failure is replaced on the next one.
+- One server per data root: `serve` writes `<data-root>/server.pid` and refuses to start while the
+  server named there is alive; `profiles delete` refuses while one is.
 - `whisper-server` (whisper.cpp, built in `native/`, 08) on that supervisor; models in
   `<data-root>/models`, downloaded and checked from Settings.
 - Planned (plan, "Speech"): the TTS engine (08) on the same supervisor.
