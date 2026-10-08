@@ -10,7 +10,7 @@
 //   players / reading or speaking tasks     → speech_selfrate
 // Tasks with no answers at all → Homework (a reference tab); anything else unmappable → unknown.
 import type { ExerciseDraft } from "@sprachanker/course-kit";
-import { escapeHtml, plainText } from "@sprachanker/course-kit";
+import { CYRILLIC, escapeHtml, plainText, Unmapped } from "@sprachanker/course-kit";
 import {
   type ExerciseKey,
   itemKey,
@@ -29,7 +29,6 @@ import {
   withoutRussianRemarks,
 } from "./text.ts";
 
-export class Unmapped extends Error {}
 /** A task without answers to check ("write a letter"): the lesson's homework, not an exercise. */
 export class Homework extends Error {}
 
@@ -287,7 +286,7 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
       const prompt = row.prompt.replace(/\s+/g, " ");
       const head = /^\s*<strong>([^<]*)<\/strong>/.exec(line);
       const text = flatText(line);
-      const cut = text.search(/[А-Яа-яЁё]/);
+      const cut = text.search(CYRILLIC);
       const en = withoutIpa(cut < 0 ? text : text.slice(0, cut))
         .replace(/\s*\d\)\s*$/, "")
         .replace(/[\s,;:–(-]+$/, "");

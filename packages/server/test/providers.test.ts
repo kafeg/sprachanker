@@ -2,7 +2,8 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { courseInstaller, importCourse, providerIds } from "../src/providers.ts";
+import { CourseSlug, EditionId, SeriesKey } from "@sprachanker/schema";
+import { courseInstaller, importCourse, PROVIDERS, providerIds } from "../src/providers.ts";
 
 test("download markers on disk: interrupted and incomplete downloads, space per series", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-installer-"));
@@ -41,4 +42,22 @@ test("one import per series at a time, also across processes", async () => {
   await expect(importCourse("coerll-dib", { dataRoot: root, log: () => {} })).rejects.toThrow(
     /being imported by another process/,
   );
+});
+
+test("every provider keeps the contract: its own id and series, courses offered with valid keys", () => {
+  expect(new Set(PROVIDERS.map((p) => p.id)).size).toBe(PROVIDERS.length);
+  expect(new Set(PROVIDERS.map((p) => p.series)).size).toBe(PROVIDERS.length);
+  for (const p of PROVIDERS) {
+    expect(SeriesKey.safeParse(p.series).success, p.id).toBe(true);
+    expect(p.offers.length, p.id).toBeGreaterThan(0);
+    expect(typeof p.import, p.id).toBe("function");
+    const courses = p.offers.map((o) => `${o.course} ${o.edition}`);
+    expect(new Set(courses).size, `${p.id}: a course offered twice`).toBe(courses.length);
+    for (const o of p.offers) {
+      const where = `${p.id} ${o.course}`;
+      expect(CourseSlug.safeParse(o.course).success, where).toBe(true);
+      expect(EditionId.safeParse(o.edition).success, where).toBe(true);
+      expect(o.title && o.source.url && o.approxBytes > 0, where).toBeTruthy();
+    }
+  }
 });

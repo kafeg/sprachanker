@@ -54,11 +54,16 @@ courses/
   `skippedWords`). Library files are written through `libraryWriter` / `storedPage` / `fetchMedia`
   (atomic), never with a plain `writeFile`.
 - Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
-  provider never keeps its own copy.
-- Enrichment references keys and fingerprints only; run `bun run cli -- enrich check` after editing it.
+  provider never keeps its own copy: exercises are built with `draftExercise` (checked against their
+  type's schema where they are made; `Unmapped` for what cannot be mapped, `unknownExercise` in its
+  place), keys that stay by source id with `openKeyMap`, two scripts told apart with `CYRILLIC`,
+  `latinLetters`, `splitAtCyrillic`.
+- Enrichment references keys and fingerprints only (its check, `enrich check`, is planned).
 - Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:
   a `Referer` of the source's own page for its media when it refuses hotlinks (Lingust).
-- A provider's index exports its importer and its series key (`SERIES`; DW: `seriesId(series)`), which
-  the server's provider table uses for the library folder.
-- New provider = new folder implementing the provider contract + contract tests; no engine/UI changes
+- A provider's index exports its `CourseProvider` (course-kit: id, series folder, offers, import; DW
+  one per series); the server lists them (`packages/server/src/providers.ts`) and tests every one
+  against the contract.
+- New provider = new folder exporting a `CourseProvider`, listed in the server's providers (the
+  contract test covers it) + its own normaliser tests; no engine/UI changes
   unless a new exercise type is needed (root rule 2).

@@ -44,6 +44,18 @@ export function pageCounter(sink: ProgressSink | undefined): () => void {
 }
 
 /**
+ * A content provider as the server sees it (03): its id (the CLI's and the downloads'), the series
+ * folder it writes, the courses it offers, and its import. Every provider package exports its own
+ * (DW one per series); the server lists them and tests them all against this contract.
+ */
+export interface CourseProvider {
+  id: string;
+  series: string;
+  offers: CourseOffer[];
+  import(options: ImportOptions): Promise<ImportReport>;
+}
+
+/**
  * A course a provider offers (03): what the catalogue shows before anything is downloaded. Known
  * without the network; the size is an estimate measured on a full download.
  */

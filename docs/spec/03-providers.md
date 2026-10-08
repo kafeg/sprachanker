@@ -8,6 +8,9 @@ never real third-party content). Our enrichment will live next to it (02, planne
 
 `packages/course-kit/src/provider.ts` is the contract every provider follows:
 
+- A provider is a `CourseProvider`: its id (the CLI's and the downloads'), the series folder it
+  writes, its offers and its import. Each provider package exports its own (DW one per series); the
+  server's test checks every one against the contract (unique ids and series, offers with valid keys).
 - An import function takes `ImportOptions` (library folder, optional `courses` / `editions` filters,
   `refresh`, `log`, `progress`) and returns an `ImportReport`: failed media and, per "<course>
   <edition>", a `NormaliseResult` (lessons, unknown exercises, files that failed validation).
@@ -18,16 +21,18 @@ never real third-party content). Our enrichment will live next to it (02, planne
   (`fetchMedia`), normalising.
 - Normalised files are `LibraryFile`s (path, schema, value) written by `writeLibraryFiles`, which
   validates each one; raw pages are fetched once through `storedPage`.
-- `packages/server/src/providers.ts` maps CLI provider ids to import functions (`dw-nicos-weg`,
-  `dw-deutschtrainer`, `coerll-dib`, …) and to the series key each provider exports (its library
-  folder) and offers; `importCourse` runs one into `<data-root>/library`; `courseInstaller` is what the
+- `packages/server/src/providers.ts` lists the providers (`dw-nicos-weg`, `dw-deutschtrainer`,
+  `coerll-dib`, …); `importCourse` runs one into `<data-root>/library`; `courseInstaller` is what the
   download job uses (06).
 
 `course-kit` also supplies the polite HTTP client (`http.ts`: robots.txt, retries with backoff,
 identifiable User-Agent, stop on 403/429; no fixed rate limit, providers choose their concurrency),
 the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fingerprints and the
 library reader, and the helpers normalisers share: a lesson's vocabulary entries from headwords
-(`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping.
+(`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping,
+exercises drafted and checked against their type's schema where they are made (`exercise-draft.ts`:
+`draftExercise`, `Unmapped`, `unknownExercise`), the key map (`key-map.ts`), and two scripts told
+apart in one line (`CYRILLIC`, `latinLetters`, `splitAtCyrillic`).
 
 ## Offered in the app
 

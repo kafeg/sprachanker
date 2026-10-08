@@ -4,29 +4,17 @@
 import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rename, rm, stat, statfs, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { SERIES as DIB, OFFERS as DIB_OFFERS, importDib } from "@sprachanker/coerll-dib";
+import { DIB_PROVIDER } from "@sprachanker/coerll-dib";
 import {
-  type CourseOffer,
+  type CourseProvider,
   type ImportReport,
   openLibrary,
   type ProgressSink,
 } from "@sprachanker/course-kit";
-import { offers as dwOffers, importDw, seriesId } from "@sprachanker/dw";
-import {
-  importLingust,
-  SERIES as LINGUST,
-  OFFERS as LINGUST_OFFERS,
-} from "@sprachanker/lingust-english";
-import {
-  SERIES as ENGLISH_USA,
-  OFFERS as ENGLISH_USA_OFFERS,
-  importEnglishUsa,
-} from "@sprachanker/voa-english-usa";
-import {
-  importLetsLearnEnglish,
-  SERIES as LETS_LEARN_ENGLISH,
-  OFFERS as LETS_LEARN_ENGLISH_OFFERS,
-} from "@sprachanker/voa-lets-learn-english";
+import { DW_PROVIDERS } from "@sprachanker/dw";
+import { LINGUST_PROVIDER } from "@sprachanker/lingust-english";
+import { ENGLISH_USA_PROVIDER } from "@sprachanker/voa-english-usa";
+import { LETS_LEARN_ENGLISH_PROVIDER } from "@sprachanker/voa-lets-learn-english";
 import type { CourseInstaller } from "./services/downloads.ts";
 
 export interface ImportRequest {
@@ -38,40 +26,18 @@ export interface ImportRequest {
   progress?: ProgressSink;
 }
 
-type Run = (options: ImportRequest & { libraryRoot: string }) => Promise<ImportReport>;
+/** Every content provider, by id: its series folder, its courses (all offered in Courses → Available)
+ *  and its importer (course-kit's `CourseProvider`). */
+export const PROVIDERS: CourseProvider[] = [
+  ...DW_PROVIDERS,
+  DIB_PROVIDER,
+  LINGUST_PROVIDER,
+  ENGLISH_USA_PROVIDER,
+  LETS_LEARN_ENGLISH_PROVIDER,
+];
+const byId = new Map(PROVIDERS.map((p) => [p.id, p]));
 
-/** Provider id → the series folder it writes, its courses (all offered in Courses → Available) and its
- *  importer. */
-const PROVIDERS: Record<string, { series: string; offers: CourseOffer[]; run: Run }> = {
-  "dw-nicos-weg": {
-    series: seriesId("nicos-weg"),
-    offers: dwOffers("nicos-weg"),
-    run: (o) => importDw("nicos-weg", o),
-  },
-  "dw-deutschtrainer": {
-    series: seriesId("deutschtrainer"),
-    offers: dwOffers("deutschtrainer"),
-    run: (o) => importDw("deutschtrainer", o),
-  },
-  "coerll-dib": { series: DIB, offers: DIB_OFFERS, run: importDib },
-  "lingust-english": {
-    series: LINGUST,
-    offers: LINGUST_OFFERS,
-    run: importLingust,
-  },
-  "voa-english-usa": {
-    series: ENGLISH_USA,
-    offers: ENGLISH_USA_OFFERS,
-    run: importEnglishUsa,
-  },
-  "voa-lets-learn-english": {
-    series: LETS_LEARN_ENGLISH,
-    offers: LETS_LEARN_ENGLISH_OFFERS,
-    run: importLetsLearnEnglish,
-  },
-};
-
-export const providerIds = () => Object.keys(PROVIDERS);
+export const providerIds = () => PROVIDERS.map((p) => p.id);
 
 /**
  * Runs a provider into `<dataRoot>/library`. One import per series at a time, across processes (the
@@ -82,14 +48,14 @@ export async function importCourse(
   provider: string,
   request: ImportRequest,
 ): Promise<ImportReport> {
-  const entry = PROVIDERS[provider];
+  const entry = byId.get(provider);
   if (!entry) throw new Error(`unknown provider ${provider}; known: ${providerIds().join(", ")}`);
   const libraryRoot = join(request.dataRoot, "library");
   const lock = join(libraryRoot, entry.series, ".import-lock");
   await mkdir(join(libraryRoot, entry.series), { recursive: true });
   await takeLock(lock, entry.series);
   try {
-    return await entry.run({ ...request, libraryRoot });
+    return await entry.import({ ...request, libraryRoot });
   } finally {
     await rm(lock, { recursive: true, force: true });
   }
@@ -149,11 +115,10 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
   const markerFile = (series: string, course: string) =>
     join(library, series, ".downloads", `${course}.json`);
   return {
-    offers: () =>
-      Object.values(PROVIDERS).flatMap((p) => p.offers.map((o) => ({ ...o, series: p.series }))),
+    offers: () => PROVIDERS.flatMap((p) => p.offers.map((o) => ({ ...o, series: p.series }))),
 
     async run(series, course, { log, progress }) {
-      const provider = Object.entries(PROVIDERS).find(([, p]) => p.series === series)?.[0];
+      const provider = PROVIDERS.find((p) => p.series === series)?.id;
       if (!provider) throw new Error(`no provider writes ${series}`);
       const marker = markerFile(series, course);
       await mkdir(join(library, series, ".downloads"), { recursive: true });

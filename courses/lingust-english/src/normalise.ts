@@ -2,6 +2,7 @@
 // Stages of the index are units; each lesson keeps its explanation as grammar pages, its examples
 // with recordings as listen-and-repeat exercises, its vocabulary and its exercises (exercise.ts).
 import {
+  draftExercise,
   escapeHtml,
   type Headword,
   type LibraryFile,
@@ -9,8 +10,9 @@ import {
   mediaPath,
   shapeHeadword,
   skippedWords,
+  Unmapped,
+  unknownExercise,
   vocabEntries,
-  withFingerprint,
 } from "@sprachanker/course-kit";
 import {
   CourseIndex,
@@ -30,7 +32,7 @@ import {
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SOURCE, TITLE } from "./catalog.ts";
 import { type El, parseHtml } from "./dom.ts";
-import { Homework, mapExercise, speechExercise, Unmapped } from "./exercise.ts";
+import { Homework, mapExercise, speechExercise } from "./exercise.ts";
 import type { IndexLesson } from "./parse/course-index.ts";
 import type { LessonPage } from "./parse/lesson.ts";
 import type { VerbRow } from "./parse/verbs.ts";
@@ -127,12 +129,7 @@ function buildLesson(
   const exercises: LocaleLesson["exercises"] = {};
   const unmapped: Lesson["unmapped"] = [];
   let unknown = 0;
-  const push = (draft: Record<string, unknown>, loc: LocaleExercise) => {
-    const exercise = withFingerprint({
-      newWords: [],
-      ruleIds: [],
-      ...draft,
-    } as never) as Exercise;
+  const push = (exercise: Exercise, loc: LocaleExercise) => {
     pages.push({ exercise });
     exercises[exercise.key] = loc;
   };
@@ -182,16 +179,13 @@ function buildLesson(
       const speech = speechExercise(k, section.snippets, media);
       if (!speech) continue;
       const allAudio = speech.items.every((i) => "media" in i);
-      push(
-        { key: k, type: "speech_selfrate", items: speech.items },
-        {
-          sourceId: `${src.info.slug}#examples-${s + 1}`,
-          // A section without a heading gives no title (the player numbers it).
-          ...(section.title && { title: section.title }),
-          instructionHtml: allAudio ? LISTEN : READ,
-          items: speech.locale,
-        },
-      );
+      push(draftExercise({ key: k, type: "speech_selfrate", items: speech.items }), {
+        sourceId: `${src.info.slug}#examples-${s + 1}`,
+        // A section without a heading gives no title (the player numbers it).
+        ...(section.title && { title: section.title }),
+        instructionHtml: allAudio ? LISTEN : READ,
+        items: speech.locale,
+      });
     }
     for (const [i, ex] of page.exercises.entries()) {
       const number = Number(/\d+/.exec(ex.label)?.[0]);
@@ -205,7 +199,7 @@ function buildLesson(
       if (instructionHtml) loc.instructionHtml = instructionHtml;
       try {
         const mapped = mapExercise(k, ex, media);
-        push({ key: k, ...mapped.draft }, { ...loc, items: mapped.items });
+        push(draftExercise({ key: k, ...mapped.draft }), { ...loc, items: mapped.items });
         for (const s of mapped.skipped)
           unmapped.push({ path: raw, reason: `${k} (${ex.label}) ${s}` });
       } catch (error) {
@@ -219,10 +213,7 @@ function buildLesson(
         }
         if (!(error instanceof Unmapped)) throw error;
         unknown++;
-        push(
-          { key: k, type: "unknown", items: [{ key: `${k}#1`, raw, reason: error.message }] },
-          loc,
-        );
+        push(unknownExercise({ key: k }, raw, error.message), loc);
         unmapped.push({ path: raw, reason: `${k} (${ex.label}): ${error.message}` });
       }
     }
@@ -230,10 +221,11 @@ function buildLesson(
     const k = exerciseKey(key, CLOSING);
     const speech = speechExercise(k, epilogue, media);
     if (speech)
-      push(
-        { key: k, type: "speech_selfrate", items: speech.items },
-        { sourceId: `${src.info.slug}#closing`, instructionHtml: LISTEN, items: speech.locale },
-      );
+      push(draftExercise({ key: k, type: "speech_selfrate", items: speech.items }), {
+        sourceId: `${src.info.slug}#closing`,
+        instructionHtml: LISTEN,
+        items: speech.locale,
+      });
   }
 
   return {

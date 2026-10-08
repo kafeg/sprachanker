@@ -1,9 +1,10 @@
 // One DW exercise page → an exercise of our types + its learner-language texts (research, "Exercises").
 import {
-  type ExerciseDraft,
+  draftExercise,
   plainLines,
   plainText,
-  withFingerprint,
+  Unmapped,
+  unknownExercise,
 } from "@sprachanker/course-kit";
 import {
   type Exercise,
@@ -27,8 +28,6 @@ import {
   videoPaths,
 } from "./context.ts";
 import { isUiLabel, uiLabels } from "./text.ts";
-
-class Unmapped extends Error {}
 
 const GAP = /#p[a-z]*#/g;
 
@@ -256,15 +255,13 @@ export function normaliseExercise(
       if (Object.keys(m.locale).length) locale.items[`#${i + 1}`] = m.locale;
     });
     const items = mapped.map((m, i) => ({ key: itemKey(key, i + 1), ...m.item }));
-    return {
-      exercise: withFingerprint({ ...common, type: mapped[0]?.type, items } as ExerciseDraft),
-      locale,
-    };
+    const type = mapped[0]?.type;
+    if (!type) throw new Unmapped("no items");
+    return { exercise: draftExercise({ ...common, type, items }), locale };
   } catch (error) {
     if (!(error instanceof Unmapped)) throw error;
-    const items = [{ key: itemKey(key, 1), raw: rawPath, reason: error.message }];
     return {
-      exercise: withFingerprint({ ...common, type: "unknown", items } as ExerciseDraft),
+      exercise: unknownExercise(common, rawPath, error.message),
       locale,
       unmapped: error.message,
     };

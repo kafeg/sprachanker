@@ -4,7 +4,13 @@
 // | пример]) or as `<br>`-separated lines with tabs or a single space between English and Russian.
 // The parser first flattens the body into lines (table rows keep their cells), then walks them with the
 // section labels as a state machine.
-import { escapeHtml, plainText, sanitizeCourseHtml } from "@sprachanker/course-kit";
+import {
+  CYRILLIC,
+  escapeHtml,
+  plainText,
+  sanitizeCourseHtml,
+  splitAtCyrillic,
+} from "@sprachanker/course-kit";
 
 export interface DialogueLine {
   speaker?: string;
@@ -53,7 +59,6 @@ interface Line {
 
 type Section = "preamble" | "goal" | "synopsis" | "dialogue" | "words" | "notes";
 
-const CYRILLIC = /\p{Script=Cyrillic}/u;
 const LATIN = /\p{Script=Latin}/u;
 const EXAMPLE = /^(?:Example|Например)\s*:/;
 
@@ -106,14 +111,6 @@ function bodyLines(body: string): Line[] {
   return lines;
 }
 
-/** Splits text where the Russian starts after English ("baseball бейсбол"). */
-function atCyrillic(text: string): string[] {
-  const at = text.search(CYRILLIC);
-  return at > 0 && LATIN.test(text.slice(0, at))
-    ? [text.slice(0, at).trim(), text.slice(at).trim()]
-    : [text];
-}
-
 /**
  * A word-list row → English headword, Russian translation and an example pair. Cells come in either
  * order ("I | я | Example: … | Например: …", "What | Example: … | Что? | Например: …"); a single cell
@@ -129,9 +126,9 @@ export function wordRow(cells: string[]): {
   const parts = cells
     .flatMap((c) => c.split(/\s+(?=(?:Example|Например)\s*:)/))
     .flatMap((c) => {
-      if (!/^Example\s*:/.test(c)) return /^Например\s*:/.test(c) ? [c] : atCyrillic(c);
+      if (!/^Example\s*:/.test(c)) return /^Например\s*:/.test(c) ? [c] : splitAtCyrillic(c);
       // "Example: I go there в течение" — the Russian after an English example is a plain part.
-      const [example = c, russian] = atCyrillic(c);
+      const [example = c, russian] = splitAtCyrillic(c);
       return russian ? [example, russian] : [example];
     })
     .filter(Boolean);

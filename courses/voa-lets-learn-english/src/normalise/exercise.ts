@@ -1,10 +1,10 @@
 // A planned exercise → one of our types: a practice video as speech_selfrate, a quiz as single or
 // multiple choice; anything not available as unknown.
 import {
-  type ExerciseDraft,
+  draftExercise,
   type MediaIndex,
   mediaPath,
-  withFingerprint,
+  unknownExercise,
 } from "@sprachanker/course-kit";
 import {
   type Exercise,
@@ -22,18 +22,13 @@ interface Normalised {
   unknown: boolean;
 }
 
-function unknownExercise(
+function unknown(
   key: ExerciseKey,
   raw: string,
   reason: string,
   locale: LocaleExercise,
 ): Normalised {
-  const items = [{ key: itemKey(key, 1), raw, reason }];
-  return {
-    exercise: withFingerprint({ key, type: "unknown", newWords: [], ruleIds: [], items }),
-    locale,
-    unknown: true,
-  };
+  return { exercise: unknownExercise({ key }, raw, reason), locale, unknown: true };
 }
 
 export function normaliseExercise(
@@ -51,13 +46,11 @@ export function normaliseExercise(
   };
   if (ex.kind === "speech") {
     const video = mediaPath(index, ex.video);
-    if (!video) return unknownExercise(key, raw, "practice video not downloaded", locale);
+    if (!video) return unknown(key, raw, "practice video not downloaded", locale);
     return {
-      exercise: withFingerprint({
+      exercise: draftExercise({
         key,
         type: "speech_selfrate",
-        newWords: [],
-        ruleIds: [],
         // The video is the item's stimulus: an item with media and no text is "listen and repeat".
         items: [{ key: itemKey(key, 1), media: { video } }],
       }),
@@ -65,10 +58,10 @@ export function normaliseExercise(
       unknown: false,
     };
   }
-  if (!ex.questions.length) return unknownExercise(key, raw, "quiz pages not available", locale);
+  if (!ex.questions.length) return unknown(key, raw, "quiz pages not available", locale);
   const total = ex.questions[0]?.total ?? 0;
   if (ex.questions.length !== total) {
-    return unknownExercise(
+    return unknown(
       key,
       raw,
       `quiz incomplete: ${ex.questions.length} of ${total} questions`,
@@ -77,7 +70,7 @@ export function normaliseExercise(
   }
   const unanswered = ex.questions.find((q) => !q.options.some((o) => o.correct));
   if (unanswered) {
-    return unknownExercise(key, raw, `quiz question ${unanswered.index}: no answer marked`, locale);
+    return unknown(key, raw, `quiz question ${unanswered.index}: no answer marked`, locale);
   }
   const multiple = ex.questions.some(
     (q) => q.multiple || q.options.filter((o) => o.correct).length > 1,
@@ -94,12 +87,6 @@ export function normaliseExercise(
       },
     };
   });
-  const draft = {
-    key,
-    type: multiple ? "multi_choice" : "single_choice",
-    newWords: [],
-    ruleIds: [],
-    items,
-  } as ExerciseDraft;
-  return { exercise: withFingerprint(draft), locale, unknown: false };
+  const exercise = draftExercise({ key, type: multiple ? "multi_choice" : "single_choice", items });
+  return { exercise, locale, unknown: false };
 }

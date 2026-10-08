@@ -70,3 +70,19 @@ export function plainLines(html: unknown): string {
     .filter(Boolean)
     .join("\n");
 }
+
+// Two scripts in one line (the ru → en courses: Russian explanations and English examples share an
+// element; Cyrillic vs Latin tells them apart).
+export const CYRILLIC = /\p{Script=Cyrillic}/u;
+export const hasCyrillic = (text: string) => CYRILLIC.test(text);
+/** Latin letters A–Z in a text (how much of it is English). */
+export const latinLetters = (text: string) => text.match(/[A-Za-z]/g)?.length ?? 0;
+
+/** Splits text where Russian starts after English ("baseball бейсбол" → ["baseball", "бейсбол"]);
+ *  the text whole otherwise. */
+export function splitAtCyrillic(text: string): string[] {
+  const at = text.search(CYRILLIC);
+  return at > 0 && latinLetters(text.slice(0, at)) > 0
+    ? [text.slice(0, at).trim(), text.slice(at).trim()]
+    : [text];
+}

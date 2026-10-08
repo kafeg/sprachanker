@@ -1,12 +1,10 @@
-// Telling the course's two scripts apart: the pages mix Russian explanations and English examples in
-// one element, and Cyrillic vs Latin is unambiguous for this ru → en edition.
-import { plainText } from "@sprachanker/course-kit";
+// Telling the course's two scripts apart (course-kit's helpers): the pages mix Russian explanations and
+// English examples in one element; how Lingust's lines read.
+import { CYRILLIC, hasCyrillic, latinLetters, plainText } from "@sprachanker/course-kit";
 
-const CYRILLIC = /[А-Яа-яЁё]/;
-const count = (text: string, re: RegExp) => text.match(new RegExp(re.source, "g"))?.length ?? 0;
+export { hasCyrillic, latinLetters };
 
-export const hasCyrillic = (text: string) => CYRILLIC.test(text);
-export const latinLetters = (text: string) => count(text, /[A-Za-z]/);
+const cyrillicLetters = (text: string) => text.match(/\p{Script=Cyrillic}/gu)?.length ?? 0;
 
 /**
  * Text of an HTML fragment where inline tags do not split words ("c<strong>a</strong>t" → "cat");
@@ -20,7 +18,7 @@ export const flatText = (html: string) =>
   );
 
 /** More Cyrillic letters than Latin ones. */
-export const isRussian = (text: string) => count(text, CYRILLIC) > latinLetters(text);
+export const isRussian = (text: string) => cyrillicLetters(text) > latinLetters(text);
 
 /** Pronunciation in slashes ("/gɪv/", "/ə'baʊt/"): IPA marks or an apostrophe for stress. */
 const IPA = /\s*\/[^\s/][^/]*?[ˈˌːəɪʊʌæɒɔɜθðŋʃʒʤʧɑɛ'][^/]*?\/(?=[\s,;.)]|$)/g;
