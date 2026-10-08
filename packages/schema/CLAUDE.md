@@ -19,7 +19,10 @@ src/
   exercise/          # item fields and stored answers per type, grouped by family; outcome.ts; index.ts (union)
   rules.ts           # grammar rules registry
   enrichment.ts      # enrichment
-  learner.ts         # runs, event payloads per event type, cards, settings
+  learner.ts         # runs, event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed by
+                     # its type; llm_verdict a union by task), step ids and AI practice kinds, cards
+  assistant.ts       # the AI's answers as kept: corrections, writing and spoken checks, word examples,
+                     # scene setups
 json-schema/        # generated JSON Schemas, committed; `bun run --filter @sprachanker/schema gen`
 scripts/gen-json-schema.ts
 test/               # bun test (Bun types via tsconfig.dev.json; src has no runtime types)
@@ -31,6 +34,8 @@ test/               # bun test (Bun types via tsconfig.dev.json; src has no runt
 - Adding an exercise type: add it to its family file in `exercise/` and to the union in
   `exercise/index.ts`, then checker in engine, renderer in `apps/web` and a fixture item (root rule 2).
 - Changing a stored format: bump its version constant; add a migration (server) or re-normaliser path.
+- Event payloads only grow (05): every stored shape is on record in `test/stored-events/` and must
+  keep reading; a change that cannot be additive comes with an upgrade of the stored events.
 - Keys are built only through `keys.ts` helpers — never by string concatenation elsewhere.
 - No runtime logic beyond parsing/validation helpers; no Node/Bun APIs in `src/` (boundary rule).
 - After changing a stored format, regenerate the JSON Schemas; the drift test fails otherwise.

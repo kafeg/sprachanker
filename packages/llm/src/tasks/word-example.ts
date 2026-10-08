@@ -3,6 +3,7 @@
 // the word itself. The model lists the words it used beyond those, with translations; which words are
 // new is found by the server against the course (the engine's `markWords`), not taken from the model.
 import type { Lang } from "@sprachanker/schema";
+import { WordExample } from "@sprachanker/schema";
 import { z } from "zod";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
@@ -21,14 +22,6 @@ export interface WordExampleInput {
   /** Sentences given for the word before: a new one differs. */
   earlier: string[];
 }
-
-export const WordExample = z.object({
-  sentence: z.string().min(1).max(300),
-  translation: z.string().min(1).max(400),
-  /** Words of the sentence beyond the known ones and the word, as written there, translated. */
-  glossary: z.array(z.object({ word: z.string(), translation: z.string() })).max(10),
-});
-export type WordExample = z.infer<typeof WordExample>;
 
 export const WORD_EXAMPLE_BUDGETS = { courseVocab: 2500, earlier: 600 } as const;
 

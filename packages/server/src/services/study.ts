@@ -233,7 +233,7 @@ export function createStudy(deps: {
         if (sent) {
           if (sent.type !== "card_review" || sent.cardId !== cardId)
             throw new ServiceError("event_id_taken", 409);
-          return (sent.payload as CardReviewPayload).stateAfter;
+          return sent.payload.stateAfter;
         }
         const before = cards.stateOf(cards.states([cardId]).get(`${cardId}:${face}`)) ?? null;
         if ((before?.reps ?? 0) !== answer.reps) throw new ServiceError("card_changed", 409);

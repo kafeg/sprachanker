@@ -1,6 +1,6 @@
 // A synthetic lesson for the player's tests: two single-choice exercises, a word, a grammar and a culture
 // page — our own text, nothing from a course.
-import type { Exercise, Lesson, LocaleLesson, StoredEvent } from "@sprachanker/schema";
+import type { Exercise, Lesson, LocaleLesson, TypedEvent } from "@sprachanker/schema";
 
 const KEY = "sprachanker.test/demo/00-01";
 const choice = (n: number): Exercise =>
@@ -54,7 +54,7 @@ export const locale = {
 
 let n = 0;
 /** An answer to an item as the run stores it, with its outcome. */
-export const answered = (item: string, optionId: string, attempt = 1): StoredEvent =>
+export const answered = (item: string, optionId: string, attempt = 1): TypedEvent =>
   ({
     id: `E${++n}`,
     runId: "R",
@@ -72,4 +72,4 @@ export const answered = (item: string, optionId: string, attempt = 1): StoredEve
         lexemes: [],
       },
     },
-  }) as StoredEvent;
+  }) as TypedEvent;

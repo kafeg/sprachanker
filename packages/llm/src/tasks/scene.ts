@@ -1,7 +1,7 @@
 // Scenes (07, `scene_turn`): a short role-play on the lesson's topic. `scene_setup` drafts the situation
 // and goals from the lesson; `scene_turn` plays the partner, corrects the learner's line and tracks the
 // goals. Both are structured outputs.
-import { Correction, type Lang } from "@sprachanker/schema";
+import { Correction, type Lang, SceneSetup } from "@sprachanker/schema";
 import { z } from "zod";
 import type { ChatMessage, TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
@@ -10,20 +10,6 @@ import { goalsLine, knownWordsLine, type LessonInfo, lessonWordsLine } from "./l
 
 /** Scenes need the lesson's topic and words, not its grammar. */
 export type SceneLesson = Omit<LessonInfo, "grammarHtml">;
-
-export const SceneSetup = z.object({
-  /** Short title in the learner's language. */
-  title: z.string(),
-  /** Where and who, in the learner's language (two sentences at most). */
-  situation: z.string(),
-  /** Who the model plays, in the learner's language. */
-  partner: z.string(),
-  /** What the learner should achieve, in the learner's language. */
-  goals: z.array(z.string()).min(1).max(3),
-  /** The partner's first line, in the target language. */
-  opening: z.string(),
-});
-export type SceneSetup = z.infer<typeof SceneSetup>;
 
 export const SceneTurn = z.object({
   /** The partner's next line, in the target language. */

@@ -1,6 +1,6 @@
 // Task `check_writing` (07, `check_answer` for free writing): a short text the learner wrote on the
 // lesson's topic, checked against the task and the lesson, scored on the A1 writing criteria (Goethe A1 "Schreiben" for German).
-import { Correction, type Lang, WRITING_MAX } from "@sprachanker/schema";
+import { Correction, type Lang, WRITING_MAX, WritingCheck } from "@sprachanker/schema";
 import { z } from "zod";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
@@ -16,23 +16,6 @@ export interface WritingInput {
   lesson: LessonInfo;
   text: string;
 }
-
-const Criterion = z.object({
-  /** 0 not met · 1 partly · 2 fully. */
-  score: z.number().int().min(0).max(2),
-  comment: z.string(),
-});
-
-export const WritingCheck = z.object({
-  verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
-  /** The learner's text with the errors corrected, changed as little as possible. */
-  corrected: z.string(),
-  corrections: z.array(Correction).max(12),
-  criteria: z.object({ task: Criterion, communication: Criterion, accuracy: Criterion }),
-  /** One or two encouraging, concrete sentences in the learner's language. */
-  feedback: z.string(),
-});
-export type WritingCheck = z.infer<typeof WritingCheck>;
 
 export const CHECK_WRITING_BUDGETS = {
   grammar: 3000,

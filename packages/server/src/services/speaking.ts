@@ -13,8 +13,8 @@ import {
   findExercise,
   type LessonKey,
   type LlmVerdictPayload,
-  SpokenCheck,
-  type StoredEvent,
+  type SpokenCheck,
+  type TypedEvent,
 } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { ServiceError } from "../errors.ts";
@@ -61,7 +61,7 @@ export function createSpeaking(deps: {
   const checking = createInFlight<true>("speaking_busy");
 
   const kept = (runId: string, itemKey?: string): StoredSpokenCheck[] =>
-    store.verdicts("speaking", SpokenCheck, { runIds: [runId], itemKey }).flatMap((v) =>
+    store.verdicts("speaking", { runIds: [runId], itemKey }).flatMap((v) =>
       v.itemKey
         ? [
             {
@@ -116,7 +116,7 @@ export function createSpeaking(deps: {
     async check(
       request: SpeakingRequest,
     ): Promise<
-      StoredSpokenCheck & { /** The event kept, for the player's run. */ event?: StoredEvent }
+      StoredSpokenCheck & { /** The event kept, for the player's run. */ event?: TypedEvent }
     > {
       const { itemKey, input: task } = await input(request);
       const same = kept(request.runId, itemKey).find((c) => c.transcript === request.transcript);

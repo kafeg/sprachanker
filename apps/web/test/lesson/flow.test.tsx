@@ -1,16 +1,12 @@
 import { expect, test } from "bun:test";
 import { exerciseResults, stepsDone } from "@sprachanker/engine";
-import type { StepId, StoredEvent } from "@sprachanker/schema";
+import type { StepId, TypedEvent } from "@sprachanker/schema";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { useLessonFlow } from "../../src/lesson/use-flow.ts";
 import { answered, lesson, locale } from "./lesson.ts";
 
 /** A run as `useRun` gives it, recording what the flow asks for. */
-function fakeRun(
-  mode: "none" | "active" | "finished",
-  events: StoredEvent[] = [],
-  resumePage = -1,
-) {
+function fakeRun(mode: "none" | "active" | "finished", events: TypedEvent[] = [], resumePage = -1) {
   const calls: string[] = [];
   const run = {
     mode,
@@ -103,7 +99,7 @@ test("reaching the summary with every step worked completes the run, once", asyn
           type: "step_done",
           itemKey: null,
           payload: { step },
-        }) as StoredEvent,
+        }) as TypedEvent,
     ),
   ];
   const { run, calls } = fakeRun("active", events);

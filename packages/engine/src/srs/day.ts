@@ -1,7 +1,7 @@
 // The learner's day of card answers as Anki keeps it (04, "Spaced repetition"): the answers not taken
 // back, what each deck has used of its daily limits, the answer Undo takes back, and the face just
 // taken back (shown next). Pure: the caller passes the day's card events.
-import type { CardFace, CardReviewPayload, CardUndoPayload } from "@sprachanker/schema";
+import type { CardFace, CardReviewPayload, CardUndoPayload, TypedEvent } from "@sprachanker/schema";
 
 /** A `card_review` or `card_undo` event of the day. */
 export type CardEvent =
@@ -16,9 +16,13 @@ export interface CardAnswer {
   review: CardReviewPayload;
 }
 
+/** Card answers taken back (Anki: undo): they count nowhere — not in the day, not in study days. */
+export const undoneReviews = (events: ReadonlyArray<CardEvent | TypedEvent>) =>
+  new Set(events.flatMap((e) => (e.type === "card_undo" ? [e.payload.review] : [])));
+
 /** The day read from its card events, newest first (also any card events: a word's answers). */
 export function cardDay(events: CardEvent[]) {
-  const undone = new Set(events.flatMap((e) => (e.type === "card_undo" ? [e.payload.review] : [])));
+  const undone = undoneReviews(events);
   const answers: CardAnswer[] = events.flatMap((e) =>
     e.type === "card_review" && !undone.has(e.id)
       ? [{ id: e.id, ts: e.ts, cardId: e.cardId, face: e.payload.face, review: e.payload }]

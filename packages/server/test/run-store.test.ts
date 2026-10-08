@@ -120,26 +120,37 @@ test("replace: a new run in place of the active one, which ends as asked, in one
   expect(store.active("review", null)?.id).toBe(day.id);
 });
 
-test("verdicts of a task read with its schema, newest first; events of many runs in one call", () => {
+test("verdicts typed by their task, checked when written, newest first; events of many runs in one call", () => {
   const { store } = open();
   const a = store.start("lesson", LESSON, { edition: "ru-de" });
   const b = store.start("chat", LESSON, { edition: "ru-de" });
-  const verdict = (task: "writing" | "explain", result: unknown, itemKey?: string) => ({
+  const spoken = (input: string) => ({
     type: "llm_verdict" as const,
-    itemKey,
-    payload: { task, input: "t", result, model: "m", latencyMs: 1 },
+    itemKey: "x#2",
+    payload: {
+      task: "speaking" as const,
+      input,
+      result: { verdict: "good" as const, corrected: input, corrections: [], feedback: "" },
+      model: "m",
+      latencyMs: 1,
+    },
   });
-  store.append(a.id, [
-    verdict("writing", { ok: 1 }),
-    verdict("explain", "why", "x#1"),
-    verdict("writing", "not an object"),
-    verdict("writing", { ok: 2 }),
-  ]);
-  const ok = z.object({ ok: z.number() });
+  const why = {
+    type: "llm_verdict" as const,
+    itemKey: "x#1",
+    payload: { task: "explain" as const, input: "", result: "why", model: "m", latencyMs: 1 },
+  };
+  store.append(a.id, [spoken("Ja"), why, spoken("Nein")]);
+  // A result that does not fit its task is refused when written.
+  expect(() =>
+    store.append(a.id, [
+      { ...why, payload: { ...why.payload, task: "speaking", result: "not a check" } } as never,
+    ]),
+  ).toThrow();
   expect(
-    store.verdicts("writing", ok, { kind: "lesson", about: LESSON }).map((v) => v.result.ok),
-  ).toEqual([2, 1]);
-  expect(store.verdicts("explain", z.string(), { runIds: [a.id], itemKey: "x#1" })).toHaveLength(1);
+    store.verdicts("speaking", { kind: "lesson", about: LESSON }).map((v) => v.result.corrected),
+  ).toEqual(["Nein", "Ja"]);
+  expect(store.verdicts("explain", { runIds: [a.id], itemKey: "x#1" })).toHaveLength(1);
   store.append(b.id, [{ type: "llm_turn", payload: { role: "user", text: "Hallo" } }]);
   const byRun = store.eventsOf([a.id, b.id], ["llm_turn"]);
   expect([byRun.get(a.id)?.length, byRun.get(b.id)?.map((e) => e.type)]).toEqual([0, ["llm_turn"]]);

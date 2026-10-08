@@ -41,11 +41,12 @@ own commits with tests; behaviour stays unless a step says so. Done: the bugs (P
 supervisor for local engines, web tests sealed from the network, prompt templates, daily database
 copies, one connection per profile migrated at start, error codes, audio body limits); history
 that survives content changes (DW keys kept by source id, resume and snapshots by exercise key,
-every stored event shape on record).
-1. **One contract per stored thing.** `llm_verdict` a union by task with typed results, all result
-   schemas in `schema` (Notebook no longer imports `llm`); a spoken check linked to its answer event;
-   events typed by their type for the engine (no casts, one undo rule); step ids from one list;
-   error codes one enum shared by server and web (busy states named in the UI).
+every stored event shape on record); `llm_verdict` a union by task with typed results, the AI's
+stored answers in `schema` (Notebook no longer imports `llm`); events typed by their type
+(`TypedEvent`, no casts in the engine, one undo rule); step ids and practice kinds from one list.
+1. **One contract per stored thing** (rest). Error codes one enum shared by server and web (busy
+   states named in the UI). A spoken check stays matched to its answer by what was heard: it is
+   asked before the answer is recorded (on Check), so no answer event exists to link to.
 2. **Server AI services.** One path for a structured task kept as a verdict (model, stopwatch, run,
    clean, append) used by writing, speaking, examples, scenes; one corrections cleaner; explain on
    the lesson contexts; the prompt preview built by the client that sends (CLI providers show what

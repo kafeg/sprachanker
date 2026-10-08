@@ -2,14 +2,8 @@
 // log — lesson work (answers, skips, steps), card reviews (an answer taken back does not count), new
 // cards learnt, how many reviewed cards were remembered, and AI practice (the learner's messages and
 // checks) — and the totals of a span of days. Pure: the caller passes the events and the day boundary.
-import type { EventType } from "@sprachanker/schema";
-
-export interface ActivityEvent {
-  id: string;
-  ts: number;
-  type: string;
-  payload: unknown;
-}
+import type { EventType, TypedEvent } from "@sprachanker/schema";
+import { undoneReviews } from "../srs/day.ts";
 
 export interface DayActivity {
   /** When the study day starts. */
@@ -41,15 +35,8 @@ export const ACTIVITY_EVENTS = [
   "llm_verdict",
 ] as const satisfies EventType[];
 
-export function activityByDay(
-  events: ActivityEvent[],
-  dayOf: (ts: number) => number,
-): DayActivity[] {
-  const undone = new Set(
-    events.flatMap((e) =>
-      e.type === "card_undo" ? [(e.payload as { review?: string }).review ?? ""] : [],
-    ),
-  );
+export function activityByDay(events: TypedEvent[], dayOf: (ts: number) => number): DayActivity[] {
+  const undone = undoneReviews(events);
   const days = new Map<number, DayActivity>();
   const at = (ts: number) => {
     const start = dayOf(ts);
@@ -63,7 +50,7 @@ export function activityByDay(
   for (const e of events) {
     if (LESSON.has(e.type)) at(e.ts).lesson++;
     else if (e.type === "card_review" && !undone.has(e.id)) {
-      const p = e.payload as { rating: number; stateBefore: { state: number } | null };
+      const p = e.payload;
       const day = at(e.ts);
       day.review++;
       if (!p.stateBefore) day.newCards++;
@@ -72,8 +59,7 @@ export function activityByDay(
         if (p.rating > 1) day.remembered++;
       }
     } else if (e.type === "llm_verdict") at(e.ts).ai++;
-    else if (e.type === "llm_turn" && (e.payload as { role?: string }).role === "user")
-      at(e.ts).ai++;
+    else if (e.type === "llm_turn" && e.payload.role === "user") at(e.ts).ai++;
   }
   return [...days.values()].sort((a, b) => a.start - b.start);
 }

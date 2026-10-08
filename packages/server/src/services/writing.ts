@@ -7,11 +7,10 @@ import {
   cleanWritingCheck,
   runStructured,
   structuredRequest,
-  WritingCheck,
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
-import type { LessonKey, Run } from "@sprachanker/schema";
+import type { LessonKey, Run, WritingCheck } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
@@ -49,7 +48,7 @@ export function createWriting(deps: {
    *  reads is left out. */
   const attempts = (lessonKey: LessonKey): WritingAttempt[] =>
     store
-      .verdicts("writing", WritingCheck, { kind: "lesson", about: lessonKey })
+      .verdicts("writing", { kind: "lesson", about: lessonKey })
       .map((v) => ({ ts: v.ts, text: v.input, result: v.result, model: v.model }));
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {

@@ -4,14 +4,12 @@
 import {
   cleanSceneTurn,
   runStructured,
-  type SceneSetup,
-  SceneSetup as SceneSetupSchema,
   type SceneTurnInput,
   sceneSetupTask,
   sceneTurnTask,
   structuredRequest,
 } from "@sprachanker/llm";
-import type { LessonKey, LlmTurnPayload } from "@sprachanker/schema";
+import { type LessonKey, type LlmTurnPayload, SceneSetup } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
@@ -51,7 +49,7 @@ export function createScenes(deps: {
     run: RunRow,
     events = store.events(run.id, ["llm_turn"]),
   ): SceneState | undefined {
-    const setup = readStored(run.planJson, SceneSetupSchema, `scene ${run.id}`);
+    const setup = readStored(run.planJson, SceneSetup, `scene ${run.id}`);
     if (!setup) return undefined;
     const turns = events.map((e) => payloadOf<LlmTurnPayload>(e));
     return {

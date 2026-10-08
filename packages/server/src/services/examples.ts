@@ -7,11 +7,10 @@ import { markWords, usesWord, type VocabWord } from "@sprachanker/engine";
 import {
   runStructured,
   structuredRequest,
-  WordExample,
   type WordExampleInput,
   wordExampleTask,
 } from "@sprachanker/llm";
-import type { LessonKey } from "@sprachanker/schema";
+import type { LessonKey, WordExample } from "@sprachanker/schema";
 import type { CardStore } from "./card-store.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
@@ -55,7 +54,7 @@ export function createExamples(deps: {
     return { note, word, vocabulary };
   }
 
-  const stored = (cardId: string) => store.verdicts("example", WordExample, { cardId });
+  const stored = (cardId: string) => store.verdicts("example", { cardId });
 
   /** A sentence as shown: its words, the new ones marked with a translation where one is known. */
   const shown = (

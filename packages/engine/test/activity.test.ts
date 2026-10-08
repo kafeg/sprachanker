@@ -1,13 +1,10 @@
 import { expect, test } from "bun:test";
-import { type ActivityEvent, activityByDay, activityTotals } from "../src/learner/activity.ts";
+import type { TypedEvent } from "@sprachanker/schema";
+import { activityByDay, activityTotals } from "../src/learner/activity.ts";
 
 const DAY = 86_400_000;
-const e = (id: string, day: number, type: string, payload: unknown = {}): ActivityEvent => ({
-  id,
-  ts: day * DAY + 1000,
-  type,
-  payload,
-});
+const e = (id: string, day: number, type: string, payload: unknown = {}) =>
+  ({ id, runId: "R", ts: day * DAY + 1000, type, itemKey: null, payload }) as TypedEvent;
 const review = (id: string, day: number, rating: number, state: number | null) =>
   e(id, day, "card_review", { rating, stateBefore: state === null ? null : { state } });
 

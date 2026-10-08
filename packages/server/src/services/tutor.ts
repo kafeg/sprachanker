@@ -6,7 +6,7 @@ import {
   findExercise,
   type LessonKey,
   type LlmTurnPayload,
-  type StoredEvent,
+  type TypedEvent,
 } from "@sprachanker/schema";
 import { exerciseLabel, type LessonContexts } from "./lesson-context.ts";
 import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
@@ -54,7 +54,7 @@ export interface ContextUsage {
 export function createTutor(deps: {
   store: RunStore;
   /** The lesson run the lesson shows, with its events (the runs service). */
-  session: (lessonKey: LessonKey) => Promise<{ events: StoredEvent[] } | undefined>;
+  session: (lessonKey: LessonKey) => Promise<{ events: TypedEvent[] } | undefined>;
   llm: Llm;
   mistakes: Mistakes;
   lessons: LessonContexts;

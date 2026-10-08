@@ -11,7 +11,7 @@ import type {
   Outcome,
   Run,
   StepId,
-  StoredEvent,
+  TypedEvent,
 } from "@sprachanker/schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -32,7 +32,7 @@ type Pending = {
 
 interface Loaded {
   run: Run;
-  events: StoredEvent[];
+  events: TypedEvent[];
   resumePage: number;
 }
 
@@ -41,7 +41,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const [mode, setMode] = useState<RunMode>("loading");
   const [run, setRun] = useState<Run>();
   const [resumePage, setResumePage] = useState(-1);
-  const [events, setEvents] = useState<StoredEvent[]>([]);
+  const [events, setEvents] = useState<TypedEvent[]>([]);
   /** The events as of now, for callers holding an older render (a model's answer arriving later). */
   const latest = useRef(events);
   latest.current = events;
@@ -97,11 +97,12 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
           // The server's outcome is the one stored: it replaces the local one where they differ.
           if (Object.keys(outcomes).length)
             setEvents((prev) =>
-              prev.map((e) =>
-                outcomes[e.id]
-                  ? { ...e, payload: { ...(e.payload as object), outcome: outcomes[e.id] } }
-                  : e,
-              ),
+              prev.map((e): TypedEvent => {
+                const outcome = outcomes[e.id];
+                return outcome && e.type === "answered"
+                  ? { ...e, payload: { ...e.payload, outcome } }
+                  : e;
+              }),
             );
         } catch (e) {
           if (e instanceof ApiError && e.status && e.status < 500) {
@@ -154,7 +155,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
             runId: runId ?? "",
             ts,
             itemKey: e.itemKey ?? null,
-          } as StoredEvent;
+          } as TypedEvent;
         }),
       ]);
     },
@@ -244,7 +245,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     },
     finish,
     /** Events the server stored in the run by itself (a model's check): applied here as they are. */
-    received(stored: StoredEvent[]) {
+    received(stored: TypedEvent[]) {
       setEvents((prev) => [...prev, ...stored.filter((e) => !prev.some((p) => p.id === e.id))]);
     },
     /** Reads the run again from the server (e.g. after the lesson's progress was reset). */

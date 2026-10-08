@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
-import type { StoredEvent } from "@sprachanker/schema";
+import type { TypedEvent } from "@sprachanker/schema";
 import { mistakesOf } from "../src/index.ts";
 
-const answered = (ts: number, itemKey: string, result: string, answer: unknown): StoredEvent =>
+const answered = (ts: number, itemKey: string, result: string, answer: unknown): TypedEvent =>
   ({
     id: `E${ts}`,
     runId: "R",
@@ -10,7 +10,7 @@ const answered = (ts: number, itemKey: string, result: string, answer: unknown):
     type: "answered",
     itemKey,
     payload: { answer, outcome: { result, score: result === "correct" ? 1 : 0 } },
-  }) as StoredEvent;
+  }) as TypedEvent;
 
 const A = "s/c/00-01/ex-01#1";
 const B = "s/c/00-01/ex-02#2";
@@ -27,7 +27,7 @@ test("the first answer of the latest run that answered an item decides; later an
   expect(mistakesOf([first, { events: [answered(4, A, "correct", "y")] }])).toEqual([]);
 });
 
-const spoken = (ts: number, itemKey: string, transcript: string): StoredEvent =>
+const spoken = (ts: number, itemKey: string, transcript: string): TypedEvent =>
   ({
     id: `E${ts}`,
     runId: "R",
@@ -35,8 +35,8 @@ const spoken = (ts: number, itemKey: string, transcript: string): StoredEvent =>
     type: "answered",
     itemKey,
     payload: { answer: { transcript }, outcome: { result: "unscored", score: 0 } },
-  }) as StoredEvent;
-const checked = (ts: number, itemKey: string, input: string, verdict: string): StoredEvent =>
+  }) as TypedEvent;
+const checked = (ts: number, itemKey: string, input: string, verdict: string): TypedEvent =>
   ({
     id: `V${ts}`,
     runId: "R",
@@ -50,7 +50,7 @@ const checked = (ts: number, itemKey: string, input: string, verdict: string): S
       model: "m",
       latencyMs: 1,
     },
-  }) as StoredEvent;
+  }) as TypedEvent;
 
 test("an answer said aloud is read by the model's check of what was heard; unchecked, no mistake", () => {
   const run = {

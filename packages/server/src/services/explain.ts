@@ -133,7 +133,7 @@ export function createExplain(deps: {
     list(lessonKey: LessonKey, runId: string): StoredExplanation[] {
       if (!lessonRun(lessonKey, runId)) return [];
       return store
-        .verdicts("explain", z.string(), { runIds: [runId] })
+        .verdicts("explain", { runIds: [runId] })
         .flatMap((v) =>
           v.itemKey && v.attempt
             ? [{ itemKey: v.itemKey, attempt: v.attempt, text: v.result, model: v.model, ts: v.ts }]

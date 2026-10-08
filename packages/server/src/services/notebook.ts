@@ -12,22 +12,23 @@ import {
   lessonDone,
   studyDay,
 } from "@sprachanker/engine";
-import { WritingCheck } from "@sprachanker/llm";
+
 import {
   type AnsweredPayload,
   type ItemKey,
   type LessonKey,
-  type LlmVerdictPayload,
   lessonOf,
   parseItemKey,
   SpokenCheck,
   seriesOf,
+  type VerdictTask,
+  WritingCheck,
 } from "@sprachanker/schema";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
-import { payloadOf, type RunRow, type RunStore } from "./run-store.ts";
+import { payloadOf, type ReadEvent, type RunRow, type RunStore } from "./run-store.ts";
 import { toRun, WORK_EVENTS } from "./runs.ts";
 import type { Scenes } from "./scene.ts";
 import type { Tutor } from "./tutor.ts";
@@ -100,13 +101,12 @@ export function createNotebook(deps: {
           .catch(() => undefined)
       : Promise.resolve(undefined);
 
-  const verdictCount = (events: Array<{ type: string; payload: unknown }>, task: string) =>
-    events.filter((e) => e.type === "llm_verdict" && (e.payload as LlmVerdictPayload).task === task)
-      .length;
+  const verdictCount = (events: ReadEvent[], task: VerdictTask) =>
+    events.filter((e) => e.type === "llm_verdict" && e.payload.task === task).length;
 
   /** Checks of answers said aloud (08), newest first: by item and the words heard. */
-  const spokenChecks = (where: Parameters<RunStore["verdicts"]>[2]) =>
-    store.verdicts("speaking", SpokenCheck, where).map((v) => ({
+  const spokenChecks = (where: Parameters<RunStore["verdicts"]>[1]) =>
+    store.verdicts("speaking", where).map((v) => ({
       runId: v.runId,
       itemKey: v.itemKey,
       transcript: v.input,
@@ -231,11 +231,11 @@ export function createNotebook(deps: {
         lesson: now?.lesson ?? null,
         locale: now?.locale ?? null,
         explanations: store
-          .verdicts("explain", z.string(), { runIds: [runId] })
+          .verdicts("explain", { runIds: [runId] })
           .map((v) => ({ itemKey: v.itemKey, attempt: v.attempt, text: v.result, ts: v.ts })),
         spoken: spokenChecks({ runIds: [runId] }),
         writing: store
-          .verdicts("writing", WritingCheck, { runIds: [runId] })
+          .verdicts("writing", { runIds: [runId] })
           .map((v) => ({ ts: v.ts, text: v.input, verdict: v.result.verdict })),
         words: deps.cards.madeIn(runId).map((w) => w.display),
         chats: held?.chats ?? [],
@@ -249,7 +249,7 @@ export function createNotebook(deps: {
       const lessonKey = lessonOf(parseItemKey(itemKey).exercise);
       const where = { kind: "lesson" as const, about: lessonKey, itemKey };
       const answered = store.eventsWhere({ types: ["answered"], ascending: true, ...where });
-      const explained = store.verdicts("explain", z.string(), where);
+      const explained = store.verdicts("explain", where);
       const spoken = spokenChecks(where);
       return store.list("lesson", lessonKey).flatMap((row) => {
         const answers = answered

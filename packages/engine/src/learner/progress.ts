@@ -13,7 +13,7 @@ import {
   type PageShownPayload,
   parseItemKey,
   type Run,
-  type StoredEvent,
+  type TypedEvent,
 } from "@sprachanker/schema";
 import { itemScored } from "../check/index.ts";
 
@@ -54,7 +54,7 @@ interface Answered {
 const exerciseOf = (itemKey: string) => parseItemKey(itemKey as ItemKey).exercise;
 
 /** Answers and skips of a run per exercise key. */
-export function exerciseResults(events: StoredEvent[]): Record<string, ExerciseResult> {
+export function exerciseResults(events: TypedEvent[]): Record<string, ExerciseResult> {
   const results: Record<string, ExerciseResult> = {};
   for (const e of events) {
     if ((e.type !== "answered" && e.type !== "item_skipped") || !e.itemKey) continue;
@@ -66,7 +66,7 @@ export function exerciseResults(events: StoredEvent[]): Record<string, ExerciseR
         r.skippedFirst.push(e.itemKey);
       continue;
     }
-    const { answer, outcome } = e.payload as Answered;
+    const { answer, outcome } = e.payload;
     // Only the first attempt counts (04); skipping an item first is its first attempt.
     if (outcome && !(e.itemKey in r.first) && !r.skippedFirst.includes(e.itemKey))
       r.first[e.itemKey] = outcome;
@@ -145,24 +145,22 @@ export function firstAttempts(lesson: Lesson, results: Record<string, ExerciseRe
  * Score of a lesson run (05, "Lifecycle"): mean first-attempt score of its scored items, a scored item
  * skipped without an answer counting 0. `scored` counts those items, `answered` the items answered.
  */
-export function lessonResult(lesson: Lesson, events: StoredEvent[]): LessonResult {
+export function lessonResult(lesson: Lesson, events: TypedEvent[]): LessonResult {
   const { sum, scored, answered } = firstAttempts(lesson, exerciseResults(events));
   return { score: scored ? sum / scored : 0, scored, answered };
 }
 
 /** What an item was answered at one attempt in a run (1 = its first answer), if it was. */
 export function answerAt(
-  events: StoredEvent[],
+  events: TypedEvent[],
   itemKey: string,
   attempt: number,
 ): AnsweredPayload | undefined {
   const e = events.find(
-    (e) =>
-      e.type === "answered" &&
-      e.itemKey === itemKey &&
-      (e.payload as AnsweredPayload).attempt === attempt,
+    (e): e is Extract<TypedEvent, { type: "answered" }> =>
+      e.type === "answered" && e.itemKey === itemKey && e.payload.attempt === attempt,
   );
-  return e?.payload as AnsweredPayload | undefined;
+  return e?.payload;
 }
 
 /**
@@ -172,7 +170,7 @@ export function answerAt(
  * no longer installed).
  */
 export function shownExercises(
-  events: StoredEvent[],
+  events: TypedEvent[],
   lesson?: Lesson | null,
   locale?: LocaleLesson | null,
 ): Array<{ pageIndex: number; exercise: Exercise; locale: LocaleExercise | null }> {
@@ -182,7 +180,7 @@ export function shownExercises(
   >();
   for (const e of events) {
     if (e.type !== "page_shown") continue;
-    const { pageIndex, snapshot } = e.payload as PageShownPayload;
+    const { pageIndex, snapshot } = e.payload;
     if (snapshot && !snapshots.has(snapshot.exercise.key))
       snapshots.set(snapshot.exercise.key, {
         pageIndex,
@@ -203,11 +201,11 @@ export function shownExercises(
 
 /** Page to continue a run on: the last exercise shown, where it is in the lesson now (its page
  *  number when it is no longer there, or the event names none). */
-export function resumePage(events: StoredEvent[], lesson?: Lesson): number {
+export function resumePage(events: TypedEvent[], lesson?: Lesson): number {
   let page = 0;
   for (const e of events) {
     if (e.type !== "page_shown") continue;
-    const { pageIndex, exerciseKey } = e.payload as PageShownPayload;
+    const { pageIndex, exerciseKey } = e.payload;
     const now = exerciseKey
       ? (lesson?.pages.findIndex((p) => p.exercise.key === exerciseKey) ?? -1)
       : -1;

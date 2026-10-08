@@ -27,8 +27,8 @@ import {
   parseItemKey,
   type Run,
   recordingOf,
-  type StoredEvent,
   seriesOf,
+  type TypedEvent,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
@@ -208,7 +208,7 @@ export function createRuns({
     },
 
     /** The run the lesson shows, with its events (for the tutor). */
-    async shown(lessonKey: LessonKey): Promise<{ run: Run; events: StoredEvent[] } | undefined> {
+    async shown(lessonKey: LessonKey): Promise<{ run: Run; events: TypedEvent[] } | undefined> {
       const row = await shownRun(lessonKey);
       return row && { run: toRun(row), events: store.events(row.id) };
     },
@@ -335,8 +335,7 @@ export function createRuns({
       });
       store.append(runId, list, {
         onStored: (before) => {
-          if (before.type === "answered")
-            outcomes[before.id] = (before.payload as { outcome: Outcome }).outcome;
+          if (before.type === "answered") outcomes[before.id] = before.payload.outcome;
           else delete outcomes[before.id];
         },
       });

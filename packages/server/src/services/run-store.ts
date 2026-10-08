@@ -14,7 +14,9 @@ import {
   type LlmVerdictPayload,
   parseLessonKey,
   type RunKind,
-  type StoredEvent,
+  type TypedEvent,
+  type VerdictOf,
+  type VerdictTask,
 } from "@sprachanker/schema";
 import { and, asc, desc, eq, gte, inArray, isNull, max, or, type SQL } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
@@ -38,13 +40,14 @@ export interface NewEvent<T extends EventType = EventType> {
   payload: EventPayload<T>;
 }
 
-/** A stored event read back: its payload parsed with its type's schema. */
-export type ReadEvent = StoredEvent;
+/** A stored event read back: its payload parsed with its type's schema, so typed by its type. */
+export type ReadEvent = TypedEvent;
 
 /** How many of a lesson's earlier items a history lists (chats, scenes, writing checks), newest first. */
 export const HISTORY_LIMIT = 20;
 
-/** An event's payload with the time it was stored: how a history shows a turn or a verdict. */
+/** An event's payload with the time it was stored: how a history shows a turn or a verdict (`T`:
+ *  the payload of the type the events were asked for). */
 export const payloadOf = <T>(e: ReadEvent): T & { ts: number } => ({
   ...(e.payload as T),
   ts: e.ts,
@@ -95,7 +98,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       itemKey: row.itemKey,
       cardId: row.cardId,
       payload: parsed.data,
-    };
+    } as TypedEvent;
   };
   const read = (rows: EventRow[]) => rows.flatMap((r) => toEvent(r) ?? []);
 
@@ -354,26 +357,26 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
 
     /**
      * The model's verdicts of one task (05: `llm_verdict`), newest first: in some runs or in runs of
-     * a kind about a context, on one item when given; `result` read with the task's schema — a
-     * verdict stored in a shape that no longer reads is left out and logged.
+     * a kind about a context, on one item when given; typed by the task (the payload was read with
+     * its schema, so one that no longer reads was left out and logged already).
      */
-    verdicts<T>(
-      task: LlmVerdictPayload["task"],
-      result: z.ZodType<T>,
+    verdicts<T extends VerdictTask>(
+      task: T,
       where: { runIds?: string[]; kind?: Kind; about?: Context; itemKey?: string; cardId?: string },
     ) {
-      return self.eventsWhere({ types: ["llm_verdict"], ...where }).flatMap((e) => {
-        const v = e.payload as LlmVerdictPayload;
-        if (v.task !== task) return [];
-        const parsed = result.safeParse(v.result);
-        if (!parsed.success) {
-          console.error(`verdict ${e.id} (${task}) does not read as stored; left out`);
-          return [];
-        }
-        return [
-          { ...v, result: parsed.data, id: e.id, runId: e.runId, itemKey: e.itemKey, ts: e.ts },
-        ];
-      });
+      return self.eventsWhere({ types: ["llm_verdict"], ...where }).flatMap((e) =>
+        e.type === "llm_verdict" && e.payload.task === task
+          ? [
+              {
+                ...(e.payload as VerdictOf<T>),
+                id: e.id,
+                runId: e.runId,
+                itemKey: e.itemKey,
+                ts: e.ts,
+              },
+            ]
+          : [],
+      );
     },
 
     /** The events of several runs, each run's in the order they were stored, of some types only when

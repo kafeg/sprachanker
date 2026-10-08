@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import type { Exercise, Lesson, Run, StoredEvent } from "@sprachanker/schema";
+import type { Exercise, Lesson, Run, TypedEvent } from "@sprachanker/schema";
 import {
   answerAt,
   exerciseResults,
@@ -14,10 +14,10 @@ import {
 
 const ev = (
   n: number,
-  type: StoredEvent["type"],
+  type: TypedEvent["type"],
   itemKey: string | null,
   payload: unknown,
-): StoredEvent => ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as StoredEvent;
+): TypedEvent => ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as TypedEvent;
 const outcome = (result: string, score: number) => ({ result, score, ruleIds: [], lexemes: [] });
 
 /** A lesson of exercises `key:type` (items are not needed by the progress functions). */

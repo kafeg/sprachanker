@@ -8,10 +8,11 @@ import {
   openingRecord,
   type PracticeKind,
   planCoverage,
+  recordedStep,
   resumeStep,
   stepId,
 } from "@sprachanker/engine";
-import type { Lesson, LessonResult, LocaleLesson, StepId } from "@sprachanker/schema";
+import type { Lesson, LessonResult, LocaleLesson } from "@sprachanker/schema";
 import { useEffect, useRef, useState } from "react";
 import type { useRun } from "./use-run.ts";
 
@@ -27,7 +28,7 @@ export function useLessonFlow({
 }: {
   lesson: Lesson | undefined;
   locale: LocaleLesson | null | undefined;
-  practice: PracticeKind[];
+  practice: readonly PracticeKind[];
   run: Run;
   /** The step the page was opened on (its address): kept on reload instead of resuming elsewhere. */
   opened?: string;
@@ -113,8 +114,10 @@ export function useLessonFlow({
   };
   /** Records a step besides the exercises as done or skipped (in an active run). */
   const mark = (id: string, skipped = false) => {
-    if (active && run.done.get(id as StepId) !== (skipped ? "skipped" : "done"))
-      run.stepDone(id as StepId, skipped);
+    const step = steps[ids.indexOf(id)];
+    const recorded = step && recordedStep(step);
+    if (active && recorded && run.done.get(recorded) !== (skipped ? "skipped" : "done"))
+      run.stepDone(recorded, skipped);
   };
   /** Starts the lesson (anew when `restart`) and opens its first step after the overview. */
   const begin = async (restart: boolean) => {

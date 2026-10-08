@@ -5,11 +5,10 @@
 // partly right, major errors or off the task wrong, good right; unchecked, it is no mistake.
 import {
   type ItemKey,
-  LlmVerdictPayload,
   lessonOf,
   parseItemKey,
-  SpokenCheck,
-  type StoredEvent,
+  type SpokenCheck,
+  type TypedEvent,
 } from "@sprachanker/schema";
 
 export interface Mistake {
@@ -37,35 +36,31 @@ const SPOKEN_RESULT: Record<SpokenCheck["verdict"], "correct" | "partial" | "wro
 };
 
 /** The model's checks of spoken answers in a run, by item and what was heard; the latest counts. */
-function spokenChecks(events: StoredEvent[]) {
+function spokenChecks(events: TypedEvent[]) {
   const checks = new Map<string, SpokenCheck>();
-  for (const e of events) {
-    if (e.type !== "llm_verdict" || !e.itemKey) continue;
-    const payload = LlmVerdictPayload.safeParse(e.payload);
-    if (!payload.success || payload.data.task !== "speaking") continue;
-    const check = SpokenCheck.safeParse(payload.data.result);
-    if (check.success) checks.set(`${e.itemKey}\n${payload.data.input}`, check.data);
-  }
+  for (const e of events)
+    if (e.type === "llm_verdict" && e.itemKey && e.payload.task === "speaking")
+      checks.set(`${e.itemKey}\n${e.payload.input}`, e.payload.result);
   return checks;
 }
 
+type Answered = Extract<TypedEvent, { type: "answered" }>;
+
 /** An answer's result: its outcome, or for one said aloud and unscored, the model's check of it. */
-function resultOf(e: StoredEvent, checks: Map<string, SpokenCheck>) {
-  const { outcome, answer } = e.payload as {
-    outcome?: { result: string };
-    answer?: { transcript?: unknown };
-  };
-  if (outcome?.result !== "unscored" || typeof answer?.transcript !== "string")
-    return { result: outcome?.result };
+function resultOf(e: Answered, checks: Map<string, SpokenCheck>) {
+  const { outcome } = e.payload;
+  const answer = e.payload.answer as { transcript?: unknown } | undefined;
+  if (outcome.result !== "unscored" || typeof answer?.transcript !== "string")
+    return { result: outcome.result };
   const check = checks.get(`${e.itemKey}\n${answer.transcript}`);
   return { result: check && SPOKEN_RESULT[check.verdict], corrected: check?.corrected };
 }
 
-type Read = { event: StoredEvent; result?: string; corrected?: string };
+type Read = { event: Answered; result?: string; corrected?: string };
 
 /** Mistakes over lesson runs given oldest first, each with its events in order (a lesson done again
  *  counts afresh); newest first. */
-export function mistakesOf(runs: Array<{ events: StoredEvent[] }>): Mistake[] {
+export function mistakesOf(runs: Array<{ events: TypedEvent[] }>): Mistake[] {
   const items = new Map<string, { first: Read; latest: Read }>();
   for (const { events } of runs) {
     const checks = spokenChecks(events);
@@ -89,7 +84,7 @@ export function mistakesOf(runs: Array<{ events: StoredEvent[] }>): Mistake[] {
       lessonKey: lessonOf(exercise),
       exerciseKey: exercise,
       index: n - 1,
-      answer: (first.event.payload as { answer?: unknown }).answer,
+      answer: first.event.payload.answer,
       result,
       ...(corrected !== undefined && { corrected }),
       fixed: latest.result === "correct",

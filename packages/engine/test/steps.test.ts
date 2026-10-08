@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import type { Lesson, LocaleLesson, StoredEvent } from "@sprachanker/schema";
+import type { Lesson, LocaleLesson, TypedEvent } from "@sprachanker/schema";
 import {
   exerciseResults,
   lessonSteps,
@@ -22,8 +22,8 @@ const lesson = {
 const page = { title: "t", bodyHtml: "<p>b</p>" };
 const locale = { tabs: { grammar: [page], culture: [page] } } as unknown as LocaleLesson;
 
-const ev = (n: number, type: StoredEvent["type"], itemKey: string | null, payload: unknown) =>
-  ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as StoredEvent;
+const ev = (n: number, type: TypedEvent["type"], itemKey: string | null, payload: unknown) =>
+  ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as TypedEvent;
 
 test("steps: overview, words, grammar, exercises, culture, AI practice offered, summary", () => {
   const ids = lessonSteps(lesson, locale, ["mistakes", "writing"]).map(stepId);

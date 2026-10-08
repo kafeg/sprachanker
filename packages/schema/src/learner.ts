@@ -1,5 +1,6 @@
 // Learner data stored in profile.sqlite: runs and their events (05, "Events").
 import { z } from "zod";
+import { Correction, SpokenCheck, WordExample, WritingCheck } from "./assistant.ts";
 import { Exercise } from "./exercise/index.ts";
 import { Outcome } from "./exercise/outcome.ts";
 import { ExerciseKey, Gender, ItemKey, LessonKey } from "./keys.ts";
@@ -60,13 +61,18 @@ export const AnsweredInput = z.object({
 export const AnsweredPayload = AnsweredInput.extend({ outcome: Outcome });
 export type AnsweredPayload = z.infer<typeof AnsweredPayload>;
 
+/** AI practice in the order of the lesson plan (04): going over the mistakes last, once the exercises
+ *  are done. */
+export const PRACTICE = ["writing", "scene", "mistakes"] as const;
+export type PracticeKind = (typeof PRACTICE)[number];
+
 /**
  * A step of the lesson plan besides its exercises (04, "Lesson composition"): the words, a grammar or
  * culture page by its index, and the AI practice. Exercises are recorded by their answers.
  */
 export const StepId = z
   .string()
-  .regex(/^(words|grammar:\d+|culture:\d+|writing|scene|mistakes)$/)
+  .regex(new RegExp(`^(words|grammar:\\d+|culture:\\d+|${PRACTICE.join("|")})$`))
   .meta({ id: "StepId" });
 export type StepId = z.infer<typeof StepId>;
 
@@ -104,26 +110,6 @@ export type EventInput = z.infer<typeof EventInput>;
 export const WRITING_MAX = 2000;
 export const MESSAGE_MAX = 4000;
 
-/** A mistake in the learner's text and its fix (a writing check, a scene line). */
-export const Correction = z.object({
-  wrong: z.string(),
-  right: z.string(),
-  explanation: z.string(),
-});
-export type Correction = z.infer<typeof Correction>;
-
-/** A model's check of an answer said aloud without a phrase to say (08, "Checking speech"), from what
- *  the recogniser heard; kept as an `llm_verdict` (`task: speaking`) on the item. */
-export const SpokenCheck = z.object({
-  verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
-  /** The learner's answer with its errors corrected, changed as little as possible. */
-  corrected: z.string(),
-  corrections: z.array(Correction).max(8),
-  /** One or two encouraging, concrete sentences in the learner's language. */
-  feedback: z.string(),
-});
-export type SpokenCheck = z.infer<typeof SpokenCheck>;
-
 /** One message of a tutor chat or a scene (05, "Events"). */
 export const LlmTurnPayload = z.object({
   role: z.enum(["user", "assistant"]),
@@ -148,19 +134,32 @@ export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
  * A model's verdict on the learner's work (05, "Events"): a writing check, a mistake explanation or a
  * spoken answer's check (on the item it is about), in the lesson run it was given in.
  */
-export const LlmVerdictPayload = z.object({
-  task: z.enum(["writing", "explain", "example", "speaking"]),
-  /** The learner's text (writing); the word (example); what was heard (speaking); empty for an
-   *  explanation. */
-  input: z.string(),
-  /** The task's structured output (07); an explanation's text. */
-  result: z.unknown(),
-  model: z.string(),
-  latencyMs: z.number().int().nonnegative(),
-  /** Explanation: the attempt at the item it explains (1 = the first answer). */
-  attempt: z.number().int().positive().optional(),
-});
+const verdict = <T extends string, R extends z.ZodType>(task: T, result: R) =>
+  z.object({
+    task: z.literal(task),
+    /** The learner's text (writing); the word (example); what was heard (speaking); empty for an
+     *  explanation. */
+    input: z.string(),
+    /** The task's result (07, schemas in assistant.ts); an explanation's text. */
+    result,
+    model: z.string(),
+    latencyMs: z.number().int().nonnegative(),
+  });
+
+/** One verdict's shape per task, its result typed: checked when written and when read. */
+export const LlmVerdictPayload = z.discriminatedUnion("task", [
+  verdict("explain", z.string()).extend({
+    /** The attempt at the item it explains (1 = the first answer). */
+    attempt: z.number().int().positive().optional(),
+  }),
+  verdict("writing", WritingCheck),
+  verdict("example", WordExample),
+  verdict("speaking", SpokenCheck),
+]);
 export type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
+export type VerdictTask = LlmVerdictPayload["task"];
+/** The verdict of one task, its result typed. */
+export type VerdictOf<T extends VerdictTask> = Extract<LlmVerdictPayload, { task: T }>;
 
 /** A card's sides (04, "Spaced repetition"): recognition (target → native), production (native →
  *  target), listening (audio → meaning). */
@@ -239,3 +238,9 @@ export const StoredEvent = z.object({
   payload: z.unknown(),
 });
 export type StoredEvent = z.infer<typeof StoredEvent>;
+
+/** A stored event with its payload typed by its type: what the run store reads back (each payload
+ *  parsed with its type's schema), so readers narrow on `type` instead of casting. */
+export type TypedEvent = {
+  [T in EventType]: Omit<StoredEvent, "type" | "payload"> & { type: T; payload: EventPayload<T> };
+}[EventType];

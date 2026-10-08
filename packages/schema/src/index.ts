@@ -1,3 +1,4 @@
+export * from "./assistant.ts";
 export * from "./canonical.ts";
 export * from "./catalog.ts";
 export * from "./common.ts";

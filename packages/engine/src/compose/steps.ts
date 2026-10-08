@@ -2,7 +2,14 @@
 // page → the exercises → a culture step per culture page → AI practice (while an assistant is set up)
 // → summary. Built from what the normaliser put into the canonical and locale files, the same way for
 // every course; what is done is read from the run's events.
-import type { Lesson, LocaleLesson, StepId, StoredEvent } from "@sprachanker/schema";
+import {
+  type Lesson,
+  type LocaleLesson,
+  PRACTICE,
+  type PracticeKind,
+  type StepId,
+  type TypedEvent,
+} from "@sprachanker/schema";
 import { type ExerciseResult, exerciseState, lessonCoverage } from "../learner/progress.ts";
 
 export type LessonStep =
@@ -16,19 +23,24 @@ export type LessonStep =
   | { kind: "mistakes" }
   | { kind: "summary" };
 
-export type PracticeKind = "writing" | "scene" | "mistakes";
-/** AI practice in the order of the plan: going over the mistakes last, once the exercises are done. */
-export const PRACTICE: PracticeKind[] = ["writing", "scene", "mistakes"];
+export { PRACTICE, type PracticeKind };
 
 /** A step's id: the kind, with the page index for grammar, culture and exercises. */
 export const stepId = (step: LessonStep): string =>
   "index" in step ? `${step.kind}:${step.index}` : step.kind;
 
+/** The id a step is recorded by in the run (`step_done`): every step but the overview, the exercises
+ *  (recorded by their answers) and the summary. */
+export const recordedStep = (step: LessonStep): StepId | undefined =>
+  step.kind === "overview" || step.kind === "exercise" || step.kind === "summary"
+    ? undefined
+    : (stepId(step) as StepId);
+
 /** The lesson's steps; `practice`: the AI practice offered (none without an assistant). */
 export function lessonSteps(
   lesson: Lesson,
   locale: LocaleLesson | null | undefined,
-  practice: PracticeKind[] = [],
+  practice: readonly PracticeKind[] = [],
 ): LessonStep[] {
   const tabs = locale?.tabs ?? { grammar: [], culture: [] };
   return [
@@ -43,11 +55,11 @@ export function lessonSteps(
 }
 
 /** Steps besides exercises recorded as done or skipped in the run (the latest record counts). */
-export function stepsDone(events: StoredEvent[]): Map<StepId, "done" | "skipped"> {
+export function stepsDone(events: TypedEvent[]): Map<StepId, "done" | "skipped"> {
   const out = new Map<StepId, "done" | "skipped">();
   for (const e of events) {
     if (e.type !== "step_done") continue;
-    const { step, skipped } = e.payload as { step: StepId; skipped?: boolean };
+    const { step, skipped } = e.payload;
     out.set(step, skipped ? "skipped" : "done");
   }
   return out;
@@ -65,7 +77,8 @@ export function stepState(
     const exercise = lesson.pages[step.index]?.exercise;
     return exercise ? exerciseState(exercise, results[exercise.key]) : undefined;
   }
-  return done.get(stepId(step) as StepId);
+  const id = recordedStep(step);
+  return id ? done.get(id) : undefined;
 }
 
 /**
@@ -125,7 +138,8 @@ export function openingRecord(
   },
 ): { pageShown?: number; stepDone?: StepId } {
   if (step.kind === "exercise") return { pageShown: step.index };
-  const id = stepId(step) as StepId;
+  const id = recordedStep(step);
+  if (!id) return {};
   if ((step.kind === "grammar" || step.kind === "culture") && (run.fresh || !run.done.has(id)))
     return { stepDone: id };
   if (

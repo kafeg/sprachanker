@@ -1,10 +1,10 @@
 import { expect, test } from "bun:test";
-import type { StoredEvent } from "@sprachanker/schema";
+import type { TypedEvent } from "@sprachanker/schema";
 import { CompareView } from "../../src/notebook/compare.tsx";
 import { answered, lesson, locale } from "../lesson/lesson.ts";
 import { renderApp } from "../render.tsx";
 
-const pass = (id: string, startedAt: number, events: StoredEvent[], status = "abandoned") => ({
+const pass = (id: string, startedAt: number, events: TypedEvent[], status = "abandoned") => ({
   run: {
     id,
     kind: "lesson",

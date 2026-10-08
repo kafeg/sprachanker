@@ -1,0 +1,70 @@
+// What the AI assistant's answers are, as they are kept (05, "Events"; 07): each task's structured
+// result stored in an `llm_verdict` or a scene run's plan. Read back with these schemas; the tasks in
+// packages/llm ask the models for them.
+import { z } from "zod";
+
+/** A mistake in the learner's text and its fix (a writing check, a scene line). */
+export const Correction = z.object({
+  wrong: z.string(),
+  right: z.string(),
+  explanation: z.string(),
+});
+export type Correction = z.infer<typeof Correction>;
+
+/** A criterion of the writing check: 0 not met · 1 partly · 2 fully, and why. */
+const WritingCriterion = z.object({
+  score: z.number().int().min(0).max(2),
+  comment: z.string(),
+});
+
+/** "Write it yourself" checked (`check_writing`). */
+export const WritingCheck = z.object({
+  verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
+  /** The learner's text with the errors corrected, changed as little as possible. */
+  corrected: z.string(),
+  corrections: z.array(Correction).max(12),
+  criteria: z.object({
+    task: WritingCriterion,
+    communication: WritingCriterion,
+    accuracy: WritingCriterion,
+  }),
+  /** One or two encouraging, concrete sentences in the learner's language. */
+  feedback: z.string(),
+});
+export type WritingCheck = z.infer<typeof WritingCheck>;
+
+/** A model's check of an answer said aloud without a phrase to say (08, "Checking speech"), from what
+ *  the recogniser heard; kept as an `llm_verdict` (`task: speaking`) on the item. */
+export const SpokenCheck = z.object({
+  verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
+  /** The learner's answer with its errors corrected, changed as little as possible. */
+  corrected: z.string(),
+  corrections: z.array(Correction).max(8),
+  /** One or two encouraging, concrete sentences in the learner's language. */
+  feedback: z.string(),
+});
+export type SpokenCheck = z.infer<typeof SpokenCheck>;
+
+/** An example sentence for a card's word (`word_example`). */
+export const WordExample = z.object({
+  sentence: z.string().min(1).max(300),
+  translation: z.string().min(1).max(400),
+  /** Words of the sentence beyond the known ones and the word, as written there, translated. */
+  glossary: z.array(z.object({ word: z.string(), translation: z.string() })).max(10),
+});
+export type WordExample = z.infer<typeof WordExample>;
+
+/** A scene as drafted (`scene_setup`), kept as its run's plan. */
+export const SceneSetup = z.object({
+  /** Short title in the learner's language. */
+  title: z.string(),
+  /** Where and who, in the learner's language (two sentences at most). */
+  situation: z.string(),
+  /** Who the model plays, in the learner's language. */
+  partner: z.string(),
+  /** What the learner should achieve, in the learner's language. */
+  goals: z.array(z.string()).min(1).max(3),
+  /** The partner's first line, in the target language. */
+  opening: z.string(),
+});
+export type SceneSetup = z.infer<typeof SceneSetup>;
