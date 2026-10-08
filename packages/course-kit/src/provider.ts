@@ -65,7 +65,10 @@ export interface NormaliseResult {
 }
 
 export interface ImportReport {
+  /** Media not fetched that may be on a later run: the course is incomplete. */
   failedMedia: string[];
+  /** Media the source no longer has (404, 410): reported, the course complete without them. */
+  goneMedia: string[];
   /** By "<course> <edition>". */
   normalised: Record<string, NormaliseResult>;
 }

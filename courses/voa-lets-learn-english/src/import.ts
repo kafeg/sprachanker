@@ -8,6 +8,7 @@ import {
   FetchFailedError,
   failedMedia,
   fetchMedia,
+  goneMedia,
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
@@ -37,7 +38,7 @@ const CONCURRENCY = 4;
 export async function importLetsLearnEnglish(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
   const seriesDir = join(options.libraryRoot, SERIES);
-  const report: ImportReport = { failedMedia: [], normalised: {} };
+  const report: ImportReport = { failedMedia: [], goneMedia: [], normalised: {} };
   if (!wanted({ ...options, courses: undefined }, EDITION)) return report;
   const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, robotsHosts: [HOST] });
   const defs = COURSES.filter((c) => wanted(options, EDITION, c.id));
@@ -63,6 +64,7 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
     progress: options.progress,
   });
   report.failedMedia = failedMedia(index);
+  report.goneMedia = goneMedia(index);
 
   for (const course of courses) {
     const { result, problems } = await normalise(course, index);

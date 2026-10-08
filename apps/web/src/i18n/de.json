@@ -535,7 +535,6 @@
     "goOn": "{count, plural, =0 {Sie kommen in der Wiederholung zurück, wenn sie fällig sind.} one {# Lernkarte kommt bald in der Wiederholung zurück.} other {# Lernkarten kommen bald in der Wiederholung zurück.}}"
   },
   "myWords": {
-    "title": "Meine Wörter",
     "search": "Wort oder Übersetzung suchen",
     "allDecks": "Alle Stapel",
     "all": "Alle",

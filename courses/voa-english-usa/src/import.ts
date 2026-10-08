@@ -6,6 +6,7 @@ import {
   createPoliteFetcher,
   failedMedia,
   fetchMedia,
+  goneMedia,
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
@@ -36,7 +37,7 @@ const CONCURRENCY = 4;
 
 export async function importEnglishUsa(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], normalised: {} };
+  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], goneMedia: [], normalised: {} };
   const seriesDir = join(options.libraryRoot, SERIES);
   const rawPath = (id: string) => `raw/${EDITION}/${COURSE}/${id}.html`;
   const fetcher = createPoliteFetcher({
@@ -97,6 +98,7 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
   );
   return {
     failedMedia: failedMedia(index),
+    goneMedia: goneMedia(index),
     normalised: { [`${COURSE} ${EDITION}`]: { lessons: count, unknown: unmapped, problems } },
   };
 }

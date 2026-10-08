@@ -6,7 +6,7 @@ import { Lesson } from "@sprachanker/schema";
 import { z } from "zod";
 import { writeFileAtomic } from "../src/files.ts";
 import { HostRefusedError, type PoliteFetcher } from "../src/http.ts";
-import { fetchMedia } from "../src/media-index.ts";
+import { failedMedia, fetchMedia, goneMedia } from "../src/media-index.ts";
 import { createMediaStore } from "../src/media-store.ts";
 import { libraryWriter } from "../src/provider.ts";
 
@@ -82,4 +82,24 @@ test("media: a host that refuses leaves every file of it recorded as not fetched
     log: () => {},
   });
   expect(Object.values(index)).toEqual(refs.map(() => ({ kind: "audio", error: "refused 429" })));
+});
+
+test("media the source no longer has (404, 410) are gone, not failed: a course is complete without them", () => {
+  const index = {
+    "https://a.test/one.pdf": { kind: "pdf", error: "404" },
+    "https://a.test/two.mp3": { kind: "audio", error: "410" },
+    "https://a.test/three.mp3": { kind: "audio", error: "503" },
+    "https://a.test/four.mp3": { kind: "audio", error: "refused 429" },
+    "https://a.test/five.mp3": {
+      kind: "audio",
+      path: "media/audio/five.mp3",
+      sha256: "x",
+      size: 1,
+    },
+  } as never;
+  expect(failedMedia(index)).toEqual([
+    "https://a.test/three.mp3: 503",
+    "https://a.test/four.mp3: refused 429",
+  ]);
+  expect(goneMedia(index)).toEqual(["https://a.test/one.pdf: 404", "https://a.test/two.mp3: 410"]);
 });

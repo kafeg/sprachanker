@@ -535,7 +535,6 @@
     "goOn": "{count, plural, =0 {They come back in Review when they are due.} one {# card in learning comes back in Review soon.} other {# cards in learning come back in Review soon.}}"
   },
   "myWords": {
-    "title": "My words",
     "search": "Find a word or translation",
     "allDecks": "All decks",
     "all": "All",

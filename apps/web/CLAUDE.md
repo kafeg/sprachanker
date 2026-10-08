@@ -68,7 +68,9 @@ chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 ## Rules
 
 - No user-facing string outside i18n catalogs (`src/i18n/*.json`, nested keys, ICU messages);
-  `test/catalogs.test.ts` fails on differing keys or invalid ICU. Language names come from
+  `test/catalogs.test.ts` fails on differing keys, invalid ICU, a key the code asks for that no
+  catalog has, a key no code uses, a ru/de message left as the English text, or one taking other
+  arguments than the English one. Language names come from
   `Intl.DisplayNames`, not catalogs.
 - Catalog style: ru addresses the learner as «вы», de as "du"; counts use ICU `plural` with `#`, other
   numbers `{x, number}` or `Intl.NumberFormat` (never `toFixed` or `${n}%`).

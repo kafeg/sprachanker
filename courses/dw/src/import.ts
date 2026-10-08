@@ -5,6 +5,7 @@ import {
   createPoliteFetcher,
   failedMedia,
   fetchMedia,
+  goneMedia,
   type ImportOptions,
   type ImportReport,
   type NormaliseResult,
@@ -51,5 +52,5 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
   for (const course of selected) {
     normalised[course.id] = await normalise(course);
   }
-  return { failedMedia: failedMedia(index), normalised };
+  return { failedMedia: failedMedia(index), goneMedia: goneMedia(index), normalised };
 }

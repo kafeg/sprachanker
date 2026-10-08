@@ -102,6 +102,10 @@ async function importCommand(args: string[]): Promise<void> {
     );
     if (r.problems) process.exitCode = 1;
   }
+  if (report.goneMedia.length) {
+    log(`${report.goneMedia.length} media files are not at the source (left out):`);
+    for (const line of report.goneMedia.slice(0, 20)) log(`  ${line}`);
+  }
   if (report.failedMedia.length) {
     log(`${report.failedMedia.length} media files failed (run again to retry):`);
     for (const line of report.failedMedia.slice(0, 20)) log(`  ${line}`);

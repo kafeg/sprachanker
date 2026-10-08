@@ -120,9 +120,25 @@ export function mediaPath(index: MediaIndex, url: string | undefined): MediaPath
   return entry && "path" in entry ? (entry.path as MediaPath) : undefined;
 }
 
-/** URLs that could not be fetched, with the reason, for the import report. */
+/** A source's answer that the file is not there (404, 410): gone at the source, not a download to
+ *  try again later — the course is complete without it (the normaliser leaves it out). */
+const GONE = new Set(["404", "410"]);
+const errorOf = (e: MediaIndex[string]) => ("error" in e ? String(e.error) : undefined);
+
+/** URLs that could not be fetched and may be on a later run (network, refusals, server errors), with
+ *  the reason, for the import report: a course with any is incomplete. */
 export const failedMedia = (index: MediaIndex) =>
-  Object.entries(index).flatMap(([url, e]) => ("error" in e ? [`${url}: ${e.error}`] : []));
+  Object.entries(index).flatMap(([url, e]) => {
+    const error = errorOf(e);
+    return error && !GONE.has(error) ? [`${url}: ${error}`] : [];
+  });
+
+/** URLs the source no longer has (404, 410), for the import report; tried again on the next run. */
+export const goneMedia = (index: MediaIndex) =>
+  Object.entries(index).flatMap(([url, e]) => {
+    const error = errorOf(e);
+    return error && GONE.has(error) ? [`${url}: ${error}`] : [];
+  });
 
 /**
  * File name of a media URL (`MediaRef.name`): the last segment of its path, without the query.

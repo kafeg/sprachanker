@@ -528,7 +528,11 @@ describe("course check and downloads", () => {
         progress({ phase: "media", done: 1, total: 4, bytes: 500 });
         log("media: 1/4");
         await new Promise<void>((resolve) => release.push(resolve));
-        return { failedMedia: course === "two" ? ["a.mp3: 404"] : [], normalised: {} };
+        return {
+          failedMedia: course === "two" ? ["a.mp3: 503"] : [],
+          goneMedia: [],
+          normalised: {},
+        };
       },
       // "three" was left mid-download by an earlier run: it resumes on its own; "two" stopped with an
       // error and waits for the learner.

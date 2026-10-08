@@ -42,6 +42,9 @@ progress), its pages say it is not installed.
 - **On demand only**: "Download" in Courses → Available (a background job, 06) or the CLI
   (`sprachanker import <provider> --courses a1 --editions ru-de`). Content goes from the source site to
   the learner's machine; nothing is hosted by us.
+- **Gone at the source**: a medium the source answers 404 or 410 for is reported apart ("not at the
+  source") and tried again on the next run, but leaves no course incomplete — the normaliser leaves it
+  out; other failures (network, refusals, server errors) make the course incomplete until fetched.
 - **Idempotent and resumable.** Stored raw pages are not fetched again unless `--refresh`; stored media
   are skipped, failed media — and stored ones gone from the disk — are fetched again on the next run.
   Every file is written whole or not at all (a temporary file, flushed, renamed: `writeFileAtomic`),

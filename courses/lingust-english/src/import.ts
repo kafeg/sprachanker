@@ -6,6 +6,7 @@ import {
   createPoliteFetcher,
   failedMedia,
   fetchMedia,
+  goneMedia,
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
@@ -37,7 +38,7 @@ const withReferer: typeof fetch = Object.assign(
 
 export async function importLingust(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], normalised: {} };
+  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], goneMedia: [], normalised: {} };
   const seriesDir = join(options.libraryRoot, SERIES);
   const rawDir = join(seriesDir, "raw", EDITION, COURSE);
   const fetcher = createPoliteFetcher({
@@ -103,6 +104,7 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
   );
   return {
     failedMedia: failedMedia(index),
+    goneMedia: goneMedia(index),
     normalised: { [`${COURSE} ${EDITION}`]: { lessons, unknown, problems } },
   };
 }
