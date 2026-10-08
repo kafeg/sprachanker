@@ -391,6 +391,7 @@
       "explain": "“Why is this wrong?”",
       "tutor": "Tutor",
       "writing": "“Write it yourself”",
+      "speaking": "Spoken answers",
       "scene": "Scene",
       "example": "Example for a word"
     },
@@ -412,7 +413,9 @@
       "script": "the lesson's transcript, when the item is about its audio or video",
       "word": "the word with its translation",
       "courseVocab": "the course's words up to the word's lesson (the most recent first)",
-      "earlier": "the examples given for the word before, so a new one differs"
+      "earlier": "the examples given for the word before, so a new one differs",
+      "heard": "the question and the course's own answer, as the recogniser heard them in the course's recordings",
+      "answer": "what you said, as the recogniser heard it"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -992,6 +995,7 @@
     },
     "sayIn": "Say it in {language}",
     "notHeardShort": "It couldn't be recognised. Try again.",
-    "answerSample": "Sample answer"
+    "answerSample": "Sample answer",
+    "aiChecking": "The AI is checking your answer…"
   }
 }

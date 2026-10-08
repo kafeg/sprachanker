@@ -2,12 +2,12 @@
 // topic, checked by the model (verdict, corrected text, corrections, Goethe A1 writing criteria). The
 // latest check is shown under the task; earlier texts of the lesson are listed with their criteria, each
 // readable again; any text can be taken back into the editor to fix it and check it again.
-import { wordDiff } from "@sprachanker/engine";
 import { type LessonKey, WRITING_MAX } from "@sprachanker/schema";
 import { PenLine } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
+import { CorrectedText, Corrections, VerdictBadge as Verdict } from "@/ui/checked-text.tsx";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
@@ -18,39 +18,11 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
-import { Corrections, ErrorLine } from "./parts.tsx";
+import { ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
 type Check = WritingAttempt["result"];
 const CRITERIA = ["task", "communication", "accuracy"] as const;
-
-const VERDICT_TONE: Record<Check["verdict"], string> = {
-  good: "bg-correct-soft text-correct",
-  minor_errors: "bg-correct-soft text-correct",
-  major_errors: "bg-wrong-soft text-wrong",
-  off_task: "bg-wrong-soft text-wrong",
-};
-
-/** The corrected text with the learner's words that changed struck through. */
-function CorrectedText({ text, corrected }: { text: string; corrected: string }) {
-  const lang = useRequiredTargetLang();
-  const { diff } = wordDiff(lang, corrected, text);
-  return (
-    <p lang={lang} className="text-lg leading-relaxed">
-      {diff.map((d, i) => {
-        const key = `${i}-${d.op}`;
-        if (d.op === "equal") return <span key={key}>{d.expected} </span>;
-        return (
-          <span key={key}>
-            {d.actual && <s className="text-wrong decoration-2">{d.actual}</s>}
-            {d.actual && d.expected && " "}
-            {d.expected && <strong className="text-correct">{d.expected}</strong>}{" "}
-          </span>
-        );
-      })}
-    </p>
-  );
-}
 
 /** A criterion's score, 0–2, as two dots. */
 function Dots({ score }: { score: number }) {
@@ -63,22 +35,6 @@ function Dots({ score }: { score: number }) {
       )}
     />
   ));
-}
-
-/** The check's verdict as a badge (small in a list row). */
-function Verdict({ verdict, small }: { verdict: Check["verdict"]; small?: boolean }) {
-  const { t } = useTranslation();
-  return (
-    <span
-      className={cn(
-        "shrink-0 whitespace-nowrap font-semibold",
-        small ? "rounded-md px-2 py-0.5 text-xs" : "rounded-lg px-2.5 py-1 text-sm",
-        VERDICT_TONE[verdict],
-      )}
-    >
-      {t(`writing.verdict.${verdict}`)}
-    </span>
-  );
 }
 
 /** The three criteria as dots, named for screen readers. */

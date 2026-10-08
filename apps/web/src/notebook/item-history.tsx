@@ -9,6 +9,7 @@ import { useDateFormat } from "@/ui/format.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
+import { SpokenCheckNote, spokenCheckOf } from "./spoken.tsx";
 
 export function ItemHistory({
   itemKey,
@@ -72,6 +73,7 @@ function Passes({
                   outcome={a.outcome}
                   url={url}
                 />
+                <SpokenCheckNote check={spokenCheckOf(p.spoken, itemKey, a.answer)} />
                 {p.explanations
                   .filter((e) => e.attempt === a.attempt)
                   .map((e) => (

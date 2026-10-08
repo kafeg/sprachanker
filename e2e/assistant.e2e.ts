@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test";
 import {
   answerPicture,
   DEMO_LESSON,
+  fakeMicrophone,
   freshLessonRun,
   goToStep,
   openStep,
@@ -200,4 +201,41 @@ test("an example for a word: asked for in its sheet, kept, another on request", 
   await sheet.getByRole("button", { name: "Another example" }).click();
   await expect.poll(() => made).toBe(1);
   await expect(sheet.getByRole("button", { name: "Another example" })).toBeVisible();
+});
+
+test("an answer said aloud is checked by the AI from what was heard, kept in the run", async ({
+  page,
+  request,
+}) => {
+  const lesson = "sprachanker.fixture/demo/00-02";
+  await freshLessonRun(request, lesson);
+  await fakeMicrophone(page);
+  // Recognition on, as if a model were installed: what is "heard" is fixed.
+  await page.route("**/api/speech", async (route) => {
+    const state = await (await route.fetch()).json();
+    await route.fulfill({ json: { ...state, recognition: true, model: "small-q5_1" } });
+  });
+  await page.route("**/api/speech/transcribe?*", (route) =>
+    route.fulfill({ json: { text: "Hallo gute Tag", ms: 5 } }),
+  );
+  await openStep(page, "Repeat", lesson);
+  const free = page.locator("ol > li").nth(1);
+  await free.getByRole("button", { name: "Record yourself" }).click();
+  await page.waitForTimeout(1200);
+  await free.getByRole("button", { name: "Stop recording" }).click();
+
+  await expect(free.getByText("Hallo gute Tag")).toBeVisible();
+  await expect(free.getByText("Small mistakes")).toBeVisible();
+  await expect(free.getByText("FAKE: nearly there.")).toBeVisible();
+  await expect(free.getByText(/FAKE: der Tag → guten Tag/)).toBeVisible();
+  // The course's own answer, after one's own.
+  await expect(free.getByRole("button", { name: "Sample answer" })).toBeVisible();
+
+  const runs = await (
+    await request.get(`/api/runs/lesson?series=sprachanker.fixture&lessonKey=${lesson}`)
+  ).json();
+  const kept = await (
+    await request.get(`/api/llm/speaking?lessonKey=${lesson}&runId=${runs.state.run.id}`)
+  ).json();
+  expect(kept.checks.map((c: { transcript: string }) => c.transcript)).toEqual(["Hallo gute Tag"]);
 });

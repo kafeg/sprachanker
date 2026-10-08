@@ -251,6 +251,19 @@ export function LessonPlayer({
                         attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
                       }))
                   }
+                  spoken={
+                    slots.spoken && run.run
+                      ? (index, transcript) =>
+                          slots.spoken?.({
+                            ...context,
+                            exerciseKey: exercise.key,
+                            index,
+                            transcript,
+                            runId: run.run?.id as string,
+                            onStored: (event) => run.received([event]),
+                          })
+                      : undefined
+                  }
                 />
               </ShuffleSeed.Provider>
             )}

@@ -27,6 +27,8 @@ src/
     explain-mistake.ts # explain_mistake: prompt + call
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
+    check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
+                       # question and the source's answer as heard → structured verdict
     scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     word-example.ts    # word_example: a sentence with a card's word in the course's words so far

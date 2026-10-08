@@ -38,10 +38,13 @@ src/
                      # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
                      # lesson); llm (providers, LM Studio, prompt previews); explain ("Why is this
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
-                     # writing ("Write it yourself": checks kept in the lesson run); scene (`scene` runs);
+                     # writing ("Write it yourself": checks kept in the lesson run); speaking (an
+                     # answer said aloud checked by the model, kept on the item in the lesson run);
+                     # scene (`scene` runs);
                      # examples (AI examples of a card's word, kept on the card in the review run);
                      # recordings (the learner's audio in the profile's recordings folder); speech
-                     # (whisper-server on demand, its models: one engine for the server);
+                     # (whisper-server on demand, its models: one engine for the server; course
+                     # recordings heard once per model);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

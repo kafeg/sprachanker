@@ -391,6 +391,7 @@
       "explain": "„Warum ist das falsch?“",
       "tutor": "Tutor",
       "writing": "„Schreib selbst“",
+      "speaking": "Mündliche Antworten",
       "scene": "Szene",
       "example": "Beispiel zu einem Wort"
     },
@@ -412,7 +413,9 @@
       "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft",
       "word": "das Wort mit Übersetzung",
       "courseVocab": "die Wörter des Kurses bis zur Lektion des Worts (die neuesten zuerst)",
-      "earlier": "die früheren Beispiele zum Wort, damit ein neues anders ist"
+      "earlier": "die früheren Beispiele zum Wort, damit ein neues anders ist",
+      "heard": "die Frage und die Antwort des Kurses, wie die Spracherkennung sie in seinen Aufnahmen gehört hat",
+      "answer": "was du gesagt hast, wie die Spracherkennung es gehört hat"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -992,6 +995,7 @@
     },
     "sayIn": "Auf {language} sagen",
     "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal.",
-    "answerSample": "Musterantwort"
+    "answerSample": "Musterantwort",
+    "aiChecking": "Die KI prüft deine Antwort …"
   }
 }

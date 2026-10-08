@@ -25,6 +25,7 @@ const PARTS = {
     "tools",
   ],
   writing: ["lesson", "lessonVocab", "grammar", "text"],
+  speaking: ["lesson", "lessonVocab", "grammar", "item", "heard", "answer"],
   scene: ["lesson", "lessonVocab", "knownVocab", "history"],
   example: ["word", "courseVocab", "earlier"],
 } as const;

@@ -106,6 +106,31 @@ export function useExplanationsKept(runId: string | undefined) {
   return () => client.invalidateQueries({ queryKey: ["explanations", runId] });
 }
 
+export type SpeakingRequest = Parameters<typeof api.llm.speaking.$post>[0]["json"];
+type SpokenChecks = Awaited<ReturnType<typeof fetchSpokenChecks>>;
+export type KeptSpokenCheck = SpokenChecks["checks"][number];
+const fetchSpokenChecks = (lessonKey: string, runId: string) =>
+  json(api.llm.speaking.$get({ query: { lessonKey, runId } }));
+
+/** Checks of answers said aloud kept in a lesson run (05). */
+export const useSpokenChecks = (lessonKey: string, runId: string) =>
+  useQuery({
+    queryKey: ["spoken", runId],
+    queryFn: () => fetchSpokenChecks(lessonKey, runId),
+  });
+
+/** Checks an answer said aloud; the run's kept checks take it at once. */
+export function useCheckSpoken() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: SpeakingRequest) => json(api.llm.speaking.$post({ json: request })),
+    onSuccess: (check, request) =>
+      client.setQueryData(["spoken", request.runId], (old: SpokenChecks | undefined) =>
+        old ? { checks: [...old.checks, check] } : old,
+      ),
+  });
+}
+
 export type TutorRequest = Parameters<typeof api.llm.tutor.$post>[0]["json"];
 
 export const useTutorHistory = (lessonKey: string) =>
@@ -230,6 +255,7 @@ export type PromptRequest =
   | { explain: ExplainRequest }
   | { tutor: TutorPromptRequest }
   | { writing: WritingRequest }
+  | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
   | { example: ExampleRequest };
 
@@ -238,6 +264,7 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("explain" in kind) return fetchExplainPrompt(kind.explain);
   if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
+  if ("speaking" in kind) return json(api.llm.speaking.prompt.$post({ json: kind.speaking }));
   if ("example" in kind) return json(api.llm.examples.prompt.$post({ json: kind.example }));
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }

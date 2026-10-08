@@ -5,6 +5,7 @@ export * from "./openrouter.ts";
 export * from "./providers.ts";
 export * from "./structured.ts";
 export * from "./tasks/chat-turn.ts";
+export * from "./tasks/check-speaking.ts";
 export * from "./tasks/check-writing.ts";
 export * from "./tasks/describe.ts";
 export * from "./tasks/explain-mistake.ts";

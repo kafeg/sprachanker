@@ -97,7 +97,7 @@ card_state(card_id, face,
 What a run is (owner, 2026-10-07: one rule for every history): a pass through a lesson (`lesson`), a
 day of card reviews (`review`), and each conversation — a tutor chat (`chat`), a scene (`scene`) — is
 its own run about its lesson. A one-off verdict of the model on the learner's work (an explanation, a
-writing check) is an `llm_verdict` event of the lesson run it was given in, also a finished one; the
+writing check, a spoken answer's check) is an `llm_verdict` event of the lesson run it was given in, also a finished one; the
 lesson's earlier ones are read across its runs. Resetting a lesson's progress deletes all of them.
 
 ## Events
@@ -108,7 +108,7 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 | `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, a speaking item not recorded); excluded from the score |
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `mistakes`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
-| `llm_verdict` | `task` (`writing` \| `explain` \| `example`), `input` (the learner's text; the word of an example; empty otherwise), `result` (the task's structured output, 07; an explanation's text), `model`, `latencyMs`; a writing check in the lesson run the lesson shows; an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains); an example in the day's review run, on its `cardId` |
+| `llm_verdict` | `task` (`writing` \| `explain` \| `example` \| `speaking`), `input` (the learner's text; the word of an example; what was heard of a spoken answer; empty otherwise), `result` (the task's structured output, 07; an explanation's text), `model`, `latencyMs`; a writing check in the lesson run the lesson shows; an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains); an example in the day's review run, on its `cardId`; a spoken answer's check in the lesson run, on its `itemKey`, matched to the answer by `input` |
 | `llm_turn` | `role`, `text`, `model?` and `latencyMs?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
 | `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day, from 4 AM) |
 | `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |

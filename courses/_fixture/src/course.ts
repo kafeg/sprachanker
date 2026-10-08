@@ -296,7 +296,10 @@ export const speakingLesson: Lesson = {
     exercise(SPEAKING, 2, {
       type: "speech_selfrate",
       newWords: [GUTEN_TAG.key],
-      items: [{ text: "Guten Tag!", media: { audio: audio("guten-tag") } }, {}],
+      items: [
+        { text: "Guten Tag!", media: { audio: audio("guten-tag") } },
+        { answerAudio: audio("hallo-guten-tag") },
+      ],
     }),
     exercise(SPEAKING, 3, {
       type: "speech_repeat",

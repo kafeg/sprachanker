@@ -39,8 +39,19 @@ const wordExample = (prompt: string) => {
   };
 };
 
+const SPOKEN_CHECK = {
+  verdict: "minor_errors",
+  corrected: "Hallo, guten Tag!",
+  corrections: [{ wrong: "gute", right: "guten", explanation: "FAKE: der Tag → guten Tag." }],
+  feedback: "FAKE: nearly there.",
+};
+
 /** Structured replies by the task's schema name; the writing check otherwise. */
-const STRUCTURED: Record<string, unknown> = { scene_setup: SCENE_SETUP, scene_turn: SCENE_TURN };
+const STRUCTURED: Record<string, unknown> = {
+  scene_setup: SCENE_SETUP,
+  scene_turn: SCENE_TURN,
+  speaking_check: SPOKEN_CHECK,
+};
 
 const sse = (text: string) =>
   new Response(

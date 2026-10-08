@@ -28,7 +28,8 @@ apps/web/src/
   exercises/       # one renderer per exercise type; item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
-                   # (passes), pass (in full), compare, item-history, mark
+                   # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
+                   # check under its item)
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
                    # in and out, PIN, devices; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
@@ -39,7 +40,8 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
-                   # writing, scenes, word-example (the reviewer's slot); parts.tsx: chat bubbles, header,
+                   # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-example
+                   # (the reviewer's slot); parts.tsx: chat bubbles, header,
                    # pending exchange, composer, start prompt, errors; cache.ts: pure cache updates
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
@@ -49,7 +51,8 @@ apps/web/src/
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
-                   # year of days as squares)
+                   # year of days as squares), checked-text (a model's check: verdict, the text
+                   # corrected, corrections)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it),
@@ -95,5 +98,5 @@ chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
   folder can be removed with its mount points: the settings page and the router, which passes
-  `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots and `wordAssistant`
+  `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots (header, explain, spoken, practice) and `wordAssistant`
   (llm/word-example.tsx) as the reviewer's (study/slots.ts). Nothing in `lesson/` or `study/` imports `llm/`.

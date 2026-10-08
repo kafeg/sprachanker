@@ -57,6 +57,7 @@ All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the native language (streamed text) |
 | `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
+| `check_speaking` | the lesson (title, words, grammar), a speaking item without a phrase (instruction, prompt, hint), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 | `word_example` | a card's word with its translation, the course's words up to its lesson, the sentences given before | JSON: sentence (with the word: checked, one repair), translation, glossary[] (words beyond the given ones, translated) |
@@ -71,6 +72,12 @@ lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson
 step shows the latest check under the task and the lesson's earlier texts under it (verdict, the three
 criteria, when), each readable in full, and any text goes back into the editor to be fixed and checked
 again (owner, 2026-10-07);
+an answer said aloud to a speaking item without a phrase to say → `check_speaking` as soon as it is
+heard, while an assistant is set up (owner, 2026-10-08: at once, not on request): an `llm_verdict`
+(`task: speaking`) on the item in the lesson run, for the words heard — asked once for the same words,
+shown under the item and in the Notebook; its verdict makes it a mistake of the lesson (minor errors
+partly right, major errors or off the task wrong; owner, 2026-10-08) for going over mistakes and the
+tutor, never the lesson's score (08);
 "Going over mistakes" → `chat_turn`: the run's status is counted by the app (no model), and the
 tutor's chat, inline on the step, starts a new chat asking to go through the mistakes (a written
 session review was dropped, owner 2026-10-07: the numbers need no model, and talking a mistake over

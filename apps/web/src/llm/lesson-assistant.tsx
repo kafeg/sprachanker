@@ -1,17 +1,20 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
-// wrong item, and the practice steps of the plan — writing, scene, and the tutor going through the run's
-// mistakes. The router passes these slots to the player; nothing in lesson/ imports llm/.
+// wrong item, the check of an answer said aloud under it, and the practice steps of the plan — writing,
+// scene, and the tutor going through the run's mistakes. The router passes these slots to the player;
+// nothing in lesson/ imports llm/.
 import { PRACTICE } from "@sprachanker/engine";
 import type { LessonSlots } from "@/lesson/slots.ts";
 import { useLlm } from "./api.ts";
 import { ExplainMistake } from "./explain.tsx";
 import { SceneStep } from "./scene.tsx";
+import { SpokenAnswerCheck } from "./spoken-check.tsx";
 import { LessonTutor, MistakesTutor } from "./tutor.tsx";
 import { WritingTask } from "./writing.tsx";
 
 export const lessonAssistant: LessonSlots = {
   header: (context) => <LessonTutor {...context} />,
   explain: (context) => <ExplainMistake autoStart {...context} />,
+  spoken: (context) => <SpokenAnswerCheck {...context} />,
   practice: {
     // Offered while a model is set up; a lesson never waits for an assistant.
     useKinds: () => (useLlm().data?.model ? PRACTICE : []),

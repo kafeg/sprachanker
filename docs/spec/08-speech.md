@@ -1,7 +1,7 @@
 # 08 — Speech
 
-Built: **recording**, **recognition** and **saying instead of typing** (below). Planned (plan,
-"Speech"): the AI's check of a free spoken answer, synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
+Built: **recording**, **recognition**, **saying instead of typing** and **the AI's check of an answer
+of one's own** (below). Planned (plan, "Speech"): synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
 server's speech module will talk to the sidecars through two functions:
 
 ```ts
@@ -52,8 +52,12 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
   between the transcript and the phrase (`spokenCheck`): every word — "You said it", at least 80% —
   "Almost", fewer — "Try again"; "Heard: …" and the words missed shown under it; kept with the answer
   (transcript, outcome with the diff) and in no score, so a lesson's score is the same with recognition
-  on or off (owner, 2026-10-08). A free spoken answer (no phrase) shows what was heard; the AI's check
-  of it is planned with speaking where text is typed. Recognition off or failing: the recording counts.
+  on or off (owner, 2026-10-08). A spoken answer of one's own (no phrase) shows what was heard, then the
+  AI's check of it (07, `check_speaking`) while an assistant is set up: the item, the question and the
+  source's answer — both heard by the recogniser from the course's recordings, once per model while the
+  server runs (`speech.heard`) — against what was heard; verdict, feedback, the answer corrected and
+  the corrections under the item, kept in the run (05) and in the Notebook; a mistake of the lesson
+  when it has errors, never in the score. Recognition off or failing: the recording counts.
 - `speech_repeat` (our own exercises): the same diff, scored.
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").

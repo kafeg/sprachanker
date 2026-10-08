@@ -2,7 +2,7 @@
 // router passes the AI assistant's slots (llm/lesson-assistant.tsx), so llm/ can be removed with its
 // mount points.
 import type { PracticeKind } from "@sprachanker/engine";
-import type { LessonKey } from "@sprachanker/schema";
+import type { LessonKey, StoredEvent } from "@sprachanker/schema";
 import type { ReactNode } from "react";
 
 export interface LessonSlotContext {
@@ -22,6 +22,17 @@ export interface LessonSlots {
       answer: unknown;
       runId?: string;
       attempt?: number;
+    },
+  ): ReactNode;
+  /** Under an answer said aloud without a phrase to say: a check of what was heard, kept in the run. */
+  spoken?(
+    context: LessonSlotContext & {
+      exerciseKey: string;
+      index: number;
+      transcript: string;
+      runId: string;
+      /** The check kept in the run: the run's mistakes read it at once. */
+      onStored(event: StoredEvent): void;
     },
   ): ReactNode;
   /** AI practice as steps of the plan (writing, scene, going over mistakes), while an assistant is set

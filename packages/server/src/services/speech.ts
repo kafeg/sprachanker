@@ -3,6 +3,7 @@
 // exits; the models it can use, downloaded from a pinned commit and checked against their sha256. One
 // server-wide engine: each profile chooses whether to use it and which installed model (settings).
 import { ServiceError } from "../errors.ts";
+import type { Settings } from "./settings.ts";
 
 export interface WhisperModel {
   id: string;
@@ -83,6 +84,8 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     return model;
   };
   const installed = (m: WhisperModel) => !!host?.models.path(m.file, m.bytes);
+  /** Course recordings heard, by model, language and recording. */
+  const heard = new Map<string, Promise<string>>();
 
   function stop() {
     if (engine?.idle) clearTimeout(engine.idle);
@@ -135,6 +138,24 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     if (current.idle) clearTimeout(current.idle);
     current.idle = setTimeout(() => engine === current && stop(), IDLE_MS);
     return current;
+  }
+
+  /** What was said in a recording (a 16 kHz mono WAV, or a course's MP3), in a language given
+   *  (never detected, 08). */
+  async function transcribe(audio: Blob, lang: string, model: string) {
+    const started = Date.now();
+    const { url } = await running(model);
+    const form = new FormData();
+    form.set("file", audio, "speech");
+    form.set("language", lang);
+    form.set("response_format", "json");
+    form.set("temperature", "0");
+    const res = await deps
+      .fetch(`${url}/inference`, { method: "POST", body: form })
+      .catch(() => undefined);
+    if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
+    const { text } = (await res.json()) as { text?: string };
+    return { text: (text ?? "").trim(), ms: Date.now() - started };
   }
 
   return {
@@ -199,21 +220,19 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       void running(model).catch(() => {});
     },
 
-    /** What was said in a 16 kHz mono WAV, in a language given (never detected, 08). */
-    async transcribe(wav: Uint8Array<ArrayBuffer>, lang: string, model: string) {
-      const started = Date.now();
-      const { url } = await running(model);
-      const form = new FormData();
-      form.set("file", new Blob([wav], { type: "audio/wav" }), "speech.wav");
-      form.set("language", lang);
-      form.set("response_format", "json");
-      form.set("temperature", "0");
-      const res = await deps
-        .fetch(`${url}/inference`, { method: "POST", body: form })
-        .catch(() => undefined);
-      if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
-      const { text } = (await res.json()) as { text?: string };
-      return { text: (text ?? "").trim(), ms: Date.now() - started };
+    transcribe,
+
+    /** What a course's recording says (a question asked, an answer spoken), heard once per model and
+     *  kept while the server runs; a failed hearing is not kept. */
+    heard(key: string, audio: () => Blob, lang: string, model: string): Promise<string> {
+      const id = `${model}\n${lang}\n${key}`;
+      let text = heard.get(id);
+      if (!text) {
+        text = transcribe(audio(), lang, model).then((r) => r.text);
+        heard.set(id, text);
+        text.catch(() => heard.delete(id));
+      }
+      return text;
     },
 
     /** Stops the engine (the server is stopping). */
@@ -221,3 +240,9 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   };
 }
 export type Speech = ReturnType<typeof createSpeech>;
+
+/** The model a profile hears with: its choice while recognition is on and the model is installed. */
+export const recogniserOf = (speech: Speech, settings: Settings) =>
+  settings.get("speech.recognition") === false
+    ? undefined
+    : speech.modelFor(settings.get("speech.model"));

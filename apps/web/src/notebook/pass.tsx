@@ -28,6 +28,7 @@ import { TargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { ItemHistory } from "./item-history.tsx";
 import { usePassMark } from "./mark.ts";
+import { SpokenCheckNote, spokenCheckOf } from "./spoken.tsx";
 
 export function PassView({ id }: { id: string }) {
   const pass = useNotebookPass(id);
@@ -132,6 +133,9 @@ function Pass({ pass }: { pass: NotebookPass }) {
                                 <RichText text={e.text} />
                               </div>
                             ))}
+                            <SpokenCheckNote
+                              check={spokenCheckOf(pass.spoken, item.key, last?.answer)}
+                            />
                           </li>
                         );
                       })}

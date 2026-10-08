@@ -12,6 +12,7 @@ import {
   type Option,
   OrderAnswer,
   SingleChoiceAnswer,
+  SpeechSelfrateAnswer,
 } from "@sprachanker/schema";
 import type { z } from "zod";
 import { clip, htmlToText } from "../text.ts";
@@ -150,6 +151,13 @@ export function describeItem(
         learner: parse(DictationAnswer)?.text,
       };
     }
+    case "speech_selfrate": {
+      const it = item as ItemOf<"speech_selfrate">;
+      const heard = parse(SpeechSelfrateAnswer)?.transcript;
+      return it.text
+        ? { task: task([`Say: ${it.text}`]), correct: it.text, learner: heard }
+        : { task: task(["Answer aloud."]), correct: "(any fitting answer)", learner: heard };
+    }
     default:
       return { task: task([]), correct: "(not available)" };
   }
@@ -173,6 +181,8 @@ export interface TutorMistake {
   locale?: LocaleExercise;
   index: number;
   answer: unknown;
+  /** An answer said aloud: the model's correction of what was heard. */
+  corrected?: string;
   /** A later attempt was correct. */
   fixed: boolean;
 }
@@ -184,6 +194,6 @@ export function mistakeLine(m: TutorMistake): string {
   const where = [m.lesson, m.locale?.title, `item ${m.index + 1}`].filter(Boolean);
   return [
     `- [${where.join(" · ")}] ${clip(d.task.replaceAll("\n", " · "), 200)}`.trimEnd(),
-    `  correct: ${d.correct}; learner: ${d.learner ?? "(no answer)"}${m.fixed ? " (fixed later)" : ""}`,
+    `  correct: ${m.corrected ?? d.correct}; learner: ${d.learner ?? "(no answer)"}${m.fixed ? " (fixed later)" : ""}`,
   ].join("\n");
 }

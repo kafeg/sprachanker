@@ -108,6 +108,18 @@ export const Correction = z.object({
 });
 export type Correction = z.infer<typeof Correction>;
 
+/** A model's check of an answer said aloud without a phrase to say (08, "Checking speech"), from what
+ *  the recogniser heard; kept as an `llm_verdict` (`task: speaking`) on the item. */
+export const SpokenCheck = z.object({
+  verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
+  /** The learner's answer with its errors corrected, changed as little as possible. */
+  corrected: z.string(),
+  corrections: z.array(Correction).max(8),
+  /** One or two encouraging, concrete sentences in the learner's language. */
+  feedback: z.string(),
+});
+export type SpokenCheck = z.infer<typeof SpokenCheck>;
+
 /** One message of a tutor chat or a scene (05, "Events"). */
 export const LlmTurnPayload = z.object({
   role: z.enum(["user", "assistant"]),
@@ -129,12 +141,13 @@ export const LlmTurnPayload = z.object({
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
 /**
- * A model's verdict on the learner's work (05, "Events"): a writing check or a mistake explanation (on
- * the item it explains), in the lesson run it was given in.
+ * A model's verdict on the learner's work (05, "Events"): a writing check, a mistake explanation or a
+ * spoken answer's check (on the item it is about), in the lesson run it was given in.
  */
 export const LlmVerdictPayload = z.object({
-  task: z.enum(["writing", "explain", "example"]),
-  /** The learner's text (writing); the word (example); empty for an explanation. */
+  task: z.enum(["writing", "explain", "example", "speaking"]),
+  /** The learner's text (writing); the word (example); what was heard (speaking); empty for an
+   *  explanation. */
   input: z.string(),
   /** The task's structured output (07); an explanation's text. */
   result: z.unknown(),

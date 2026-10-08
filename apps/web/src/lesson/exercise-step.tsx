@@ -97,6 +97,16 @@ export interface StepProps {
   onNext(): void;
   /** Help with a wrong item (the LLM explanation), if available: shown under it when asked for. */
   explain?(index: number, answer: unknown): React.ReactNode;
+  /** An answer said aloud without a phrase to say, as heard (the LLM's check), if available. */
+  spoken?(index: number, transcript: string): React.ReactNode;
+}
+
+/** What was heard of an answer said aloud without a phrase to say, if anything. */
+function heardFreely(exercise: Exercise, index: number, answer: unknown) {
+  const item = exercise.items[index];
+  if (exercise.type !== "speech_selfrate" || !item || ("text" in item && item.text)) return;
+  const transcript = (answer as { transcript?: unknown } | undefined)?.transcript;
+  return typeof transcript === "string" && transcript.trim() ? transcript : undefined;
 }
 
 export function ExerciseStep({
@@ -112,6 +122,7 @@ export function ExerciseStep({
   onBack,
   onNext,
   explain,
+  spoken,
 }: StepProps) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
@@ -164,6 +175,7 @@ export function ExerciseStep({
           const outcome = outcomes?.[i];
           const marked = outcome && outcome.result !== "unscored";
           const right = outcome?.result === "correct";
+          const said = spoken && heardFreely(exercise, i, answers[i]);
           return (
             // Rail (status) · card · controls: the card keeps its size when checked; only an
             // explanation asked for adds a panel under it.
@@ -213,6 +225,7 @@ export function ExerciseStep({
               {ex.explaining.has(i) && explain && (
                 <div className="col-start-2">{explain(i, answers[i])}</div>
               )}
+              {said && <div className="col-start-2">{spoken(i, said)}</div>}
             </li>
           );
         })}

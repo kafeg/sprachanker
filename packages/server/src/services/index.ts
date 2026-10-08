@@ -24,7 +24,8 @@ import { createRunStore } from "./run-store.ts";
 import { createRuns } from "./runs.ts";
 import { createScenes } from "./scene.ts";
 import { createSettings } from "./settings.ts";
-import { createSpeech, type Speech, type SpeechHost } from "./speech.ts";
+import { createSpeaking } from "./speaking.ts";
+import { createSpeech, recogniserOf, type Speech, type SpeechHost } from "./speech.ts";
 import { createStudy } from "./study.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
@@ -43,6 +44,8 @@ export interface ServicesConfig {
   cli?: CliHost;
   installer?: CourseInstaller;
   speech?: SpeechHost;
+  /** Reads a library media file (runtime adapter): course recordings the recogniser hears. */
+  mediaBlob(file: string): Blob;
   now: () => number;
 }
 
@@ -85,6 +88,23 @@ function profileServices(
   const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
   const scenes = createScenes({ store, llm, lessons, now });
   const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
+  const speaking = createSpeaking({
+    llm,
+    content,
+    lessons,
+    lessonRun: runs.lessonRun,
+    store,
+    // Heard with the profile's recogniser; without one (or failing), the check goes on without it.
+    hear: async (series, path, lang) => {
+      const model = recogniserOf(speech, settings);
+      const file = model && config.library.mediaFile(series, path);
+      if (!model || !file) return undefined;
+      return speech
+        .heard(`${series}/${path}`, () => config.mediaBlob(file), lang, model)
+        .catch(() => undefined);
+    },
+    now,
+  });
   const examples = createExamples({
     cards: cardStore,
     lessons,
@@ -117,6 +137,7 @@ function profileServices(
     notebook,
     llm,
     explain,
+    speaking,
     examples,
     tutor,
     writing,

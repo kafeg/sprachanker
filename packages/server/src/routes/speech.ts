@@ -5,6 +5,7 @@ import { Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
+import { recogniserOf } from "../services/speech.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
@@ -14,10 +15,7 @@ const ModelParam = z.object({ id: z.string().min(1).max(100) });
 
 export function speechRoutes() {
   /** The model the profile uses when recognition is on and ready, else undefined. */
-  const modelOf = (s: ProfileEnv["Variables"]["s"]) =>
-    s.settings.get("speech.recognition") === false
-      ? undefined
-      : s.speech.modelFor(s.settings.get("speech.model"));
+  const modelOf = (s: ProfileEnv["Variables"]["s"]) => recogniserOf(s.speech, s.settings);
   return new Hono<ProfileEnv>()
     .get("/", (c) => {
       const model = modelOf(c.var.s);
@@ -45,6 +43,7 @@ export function speechRoutes() {
       const wav = new Uint8Array(await c.req.arrayBuffer());
       if (!wav.length || wav.length > WAV_MAX_BYTES)
         throw new ServiceError("recording_too_large", 413);
-      return c.json(await c.var.s.speech.transcribe(wav, c.req.valid("query").lang, model));
+      const audio = new Blob([wav], { type: "audio/wav" });
+      return c.json(await c.var.s.speech.transcribe(audio, c.req.valid("query").lang, model));
     });
 }

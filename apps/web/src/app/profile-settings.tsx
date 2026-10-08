@@ -12,7 +12,7 @@ import {
   useSignOut,
   useUpdateProfile,
 } from "@/api/session.ts";
-import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
+import { languageName } from "@/i18n/index.ts";
 import { Avatar } from "@/ui/avatar.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { Button } from "@/ui/components/button.tsx";

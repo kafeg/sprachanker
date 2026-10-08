@@ -37,6 +37,14 @@ const ExplainBody = LessonRequest.extend({
   attempt: z.number().int().positive().optional(),
 });
 
+/** An answer said aloud: what was heard, checked for the item in the lesson run it was given in. */
+const SpeakingBody = LessonRequest.extend({
+  exerciseKey: z.string().max(300),
+  index: z.number().int().nonnegative(),
+  transcript: z.string().trim().min(1).max(2000),
+  runId: Ulid,
+});
+
 /** An example for a card's word, its translation in the learner's language. */
 const ExampleBody = z.object({ cardId: Ulid, language: Lang });
 
@@ -157,6 +165,17 @@ export function llmRoutes() {
       // Prompt viewer: the exact request a task would send now (nothing is sent).
       .post("/explain/prompt", zod("json", ExplainBody), async (c) =>
         c.json(await c.var.s.explain.prompt(c.req.valid("json"))),
+      )
+      // An answer said aloud: its check (kept in the run), the run's checks, the prompt it would send.
+      .post("/speaking", zod("json", SpeakingBody), async (c) =>
+        c.json(await c.var.s.speaking.check(c.req.valid("json"))),
+      )
+      .get("/speaking", zod("query", z.object({ lessonKey: LessonKey, runId: Ulid })), (c) => {
+        const { lessonKey, runId } = c.req.valid("query");
+        return c.json({ checks: c.var.s.speaking.list(lessonKey, runId) });
+      })
+      .post("/speaking/prompt", zod("json", SpeakingBody), async (c) =>
+        c.json(await c.var.s.speaking.prompt(c.req.valid("json"))),
       )
       // AI examples of a card's word: the kept ones (asked for), a new one, the prompt it would send.
       .get("/examples", zod("query", z.object({ cardId: Ulid })), async (c) =>

@@ -2,11 +2,13 @@
 // lesson tasks that use the route (07). Everything model-specific lives in @sprachanker/llm.
 import {
   CHAT_TURN_BUDGETS,
+  CHECK_SPEAKING_BUDGETS,
   CHECK_WRITING_BUDGETS,
   type CliKind,
   type CliRunner,
   chatBody,
   chatTurnRules,
+  checkSpeakingRules,
   checkWritingRules,
   cliClient,
   cliCommand,
@@ -115,7 +117,14 @@ export function stopwatch(now: () => number) {
 }
 
 /** The tasks the settings explain, in the order they are shown. */
-export const PROMPT_TASKS = ["explain", "tutor", "writing", "scene", "example"] as const;
+export const PROMPT_TASKS = [
+  "explain",
+  "tutor",
+  "writing",
+  "speaking",
+  "scene",
+  "example",
+] as const;
 export type PromptTask = (typeof PROMPT_TASKS)[number];
 
 /** Each task's standing rules (its system prompt) for an answer language and a learnt language. */
@@ -123,6 +132,7 @@ const RULES: Record<PromptTask, (language: Lang, target: Lang) => string> = {
   explain: explainMistakeRules,
   tutor: chatTurnRules,
   writing: checkWritingRules,
+  speaking: checkSpeakingRules,
   scene: sceneTurnRules,
   example: wordExampleRules,
 };
@@ -130,6 +140,7 @@ const BUDGETS: Record<PromptTask, Record<string, number>> = {
   explain: EXPLAIN_MISTAKE_BUDGETS,
   tutor: CHAT_TURN_BUDGETS,
   writing: CHECK_WRITING_BUDGETS,
+  speaking: CHECK_SPEAKING_BUDGETS,
   scene: SCENE_BUDGETS,
   example: WORD_EXAMPLE_BUDGETS,
 };

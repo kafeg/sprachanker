@@ -5,6 +5,7 @@ import type { LessonKey } from "@sprachanker/schema";
 import { Circle, CircleCheck, Languages } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { HistoryList } from "@/ui/history.tsx";
@@ -16,7 +17,6 @@ import {
   ChatBubble,
   ChatComposer,
   ChatHeader,
-  Corrections,
   ErrorLine,
   PendingExchange,
   StartPrompt,

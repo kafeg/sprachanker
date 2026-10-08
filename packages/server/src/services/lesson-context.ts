@@ -107,6 +107,7 @@ export function createLessonContext(content: Content) {
           locale: locale?.exercises[exercise.key],
           index: m.index,
           answer: m.answer,
+          ...(m.corrected !== undefined && { corrected: m.corrected }),
           fixed: m.fixed,
         });
       }

@@ -243,6 +243,10 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
       );
     },
     finish,
+    /** Events the server stored in the run by itself (a model's check): applied here as they are. */
+    received(stored: StoredEvent[]) {
+      setEvents((prev) => [...prev, ...stored.filter((e) => !prev.some((p) => p.id === e.id))]);
+    },
     /** Reads the run again from the server (e.g. after the lesson's progress was reset). */
     reload() {
       queue.current = [];

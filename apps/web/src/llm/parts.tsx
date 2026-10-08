@@ -9,7 +9,6 @@ import { DictateButton } from "@/audio/dictate.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
-import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
 import { errorText } from "./errors.ts";
@@ -42,31 +41,6 @@ export function ChatBubble({
     >
       {children}
     </div>
-  );
-}
-
-/** "wrong → right — why", as the model corrected the learner's text. */
-export function Corrections({
-  corrections,
-  className,
-}: {
-  corrections: Array<{ wrong: string; right: string; explanation: string }>;
-  className?: string;
-}) {
-  const lang = useTargetLang();
-  if (!corrections.length) return null;
-  return (
-    <ul className={cn("space-y-1.5 text-sm", className)}>
-      {corrections.map((c) => (
-        <li key={`${c.wrong}→${c.right}`}>
-          <span lang={lang}>
-            <s className="text-wrong">{c.wrong}</s> →{" "}
-            <strong className="text-correct">{c.right}</strong>
-          </span>
-          <span className="text-muted-foreground"> — {c.explanation}</span>
-        </li>
-      ))}
-    </ul>
   );
 }
 

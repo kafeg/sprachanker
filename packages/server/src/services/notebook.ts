@@ -20,6 +20,7 @@ import {
   type LlmVerdictPayload,
   lessonOf,
   parseItemKey,
+  SpokenCheck,
   seriesOf,
 } from "@sprachanker/schema";
 import { z } from "zod";
@@ -102,6 +103,17 @@ export function createNotebook(deps: {
   const verdictCount = (events: Array<{ type: string; payload: unknown }>, task: string) =>
     events.filter((e) => e.type === "llm_verdict" && (e.payload as LlmVerdictPayload).task === task)
       .length;
+
+  /** Checks of answers said aloud (08), newest first: by item and the words heard. */
+  const spokenChecks = (where: Parameters<RunStore["verdicts"]>[2]) =>
+    store.verdicts("speaking", SpokenCheck, where).map((v) => ({
+      runId: v.runId,
+      itemKey: v.itemKey,
+      transcript: v.input,
+      result: v.result,
+      model: v.model,
+      ts: v.ts,
+    }));
 
   return {
     /**
@@ -221,6 +233,7 @@ export function createNotebook(deps: {
         explanations: store
           .verdicts("explain", z.string(), { runIds: [runId] })
           .map((v) => ({ itemKey: v.itemKey, attempt: v.attempt, text: v.result, ts: v.ts })),
+        spoken: spokenChecks({ runIds: [runId] }),
         writing: store
           .verdicts("writing", WritingCheck, { runIds: [runId] })
           .map((v) => ({ ts: v.ts, text: v.input, verdict: v.result.verdict })),
@@ -237,6 +250,7 @@ export function createNotebook(deps: {
       const where = { kind: "lesson" as const, about: lessonKey, itemKey };
       const answered = store.eventsWhere({ types: ["answered"], ascending: true, ...where });
       const explained = store.verdicts("explain", z.string(), where);
+      const spoken = spokenChecks(where);
       return store.list("lesson", lessonKey).flatMap((row) => {
         const answers = answered
           .filter((e) => e.runId === row.id)
@@ -251,6 +265,7 @@ export function createNotebook(deps: {
               .filter((v) => v.runId === row.id)
               .map((v) => ({ attempt: v.attempt, text: v.result }))
               .reverse(),
+            spoken: spoken.filter((v) => v.runId === row.id),
           },
         ];
       });
