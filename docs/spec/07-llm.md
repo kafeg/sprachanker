@@ -110,7 +110,7 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result
   is read back with its task's schema; one in a shape that no longer reads is left out.
 - Corrections are `{ wrong, right, explanation }` (schema `Correction`); they carry no rule id (rule
-  ids come with the rules registry and enrichment, 9a).
+  ids come with the rules registry and enrichment: plan, "Enrichment and rules").
 - Model output is Markdown without raw HTML, images or links: nothing in it makes the browser load or
   open another site.
 - Prompts: the learner's level and known vocabulary are context; target-language replies stay within
@@ -119,8 +119,9 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
 
 ## Transparency and debugging
 
-- The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model,
-  with a hint that it is chosen in the settings — not a link, so a lesson is not left by a tap on it.
+- The UI names the assistant wherever it answers (explanations, writing checks, the tutor, scenes):
+  provider · model, with a hint that it is chosen in the settings — not a link, so a lesson is not
+  left by a tap on it.
 - Settings → Prompts: each task's system prompt and the context parts it adds, with
   their character limits (each task's `*_BUDGETS`): explanations, the tutor, writing and spoken
   checks, a scene's situation and its lines, word examples.
@@ -175,14 +176,7 @@ and the UI shows them. Servers rejecting tools are asked again without (and with
 reminder at the end of the system message makes small models call tools instead of promising to look
 later.
 
-## Later
+## Planned
 
-- `check_answer`: LLM verdict for `respond` items (rubric, corrections, explanation, criterion scores).
-- Per-task routes (a provider and model per task, falling back to the default route).
-- Handoff: a prompt with lesson context, known vocabulary and recent mistakes to copy or open in
-  another assistant, with a visible preview first.
-- Golden tests: cases per task with expected properties (errors that must be found, claims that must
-  not be made, explanation language, JSON validity) to choose default models and check prompt changes.
-- After a scene: mistakes by rule, new words (one tap → card), link to "Practise this".
-- `exam_score` for Goethe A1 speaking (with speech recognition), tools over cards, cloud usage counters,
-  mixed text segmented by language (`[{lang,text}]`) for TTS.
+`check_answer` (a model's verdict for `respond` items), per-task routes, handoff to other assistants,
+golden tests: plan, "Later".

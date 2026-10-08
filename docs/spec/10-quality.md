@@ -61,9 +61,9 @@ table in the same commit with the reason.
 | Component (web) | screens and hooks with the query cache filled (no requests) and a router in memory: the lesson flow, item cards, histories, My words, the Notebook, the summary; pure UI logic in its own modules (filters, cache updates) |
 | Contract / snapshot | providers on **synthetic** fixtures |
 | Integration | server API against a temp data root (`createApp().request()`); media Range |
-| Migration | migrations with backup, downgrade refusal and rollback; upgrades of fixture DBs from every released schema version |
+| Migration | migrations with backup, downgrade refusal and rollback; each schema change upgrades a database built by the earlier migrations, with rows in it |
 | E2E (Playwright) | the fixture course: open the course, do exercises, resume, finish with a summary; AI screens against a fake OpenAI-compatible server (`e2e/fake-llm.ts`), never a real model; desktop and phone viewport |
-| Manual | owner demo at the end of each plan item on Mac and iPhone |
+| Manual | owner demo at the end of each plan item on the Mac (phones: plan, "Phones") |
 
 Third-party content never appears in fixtures.
 

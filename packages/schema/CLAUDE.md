@@ -11,7 +11,7 @@ src/
   keys.ts            # key schemas (branded), builders, parsers, lemma slugs, part of speech, gender,
                      # choice option ids
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
-  catalog.ts         # CatalogEntry, kind, licence
+  catalog.ts         # course kind, CEFR level, licence
   manifest.ts        # course.json
   canonical.ts       # course index, lesson, vocab entries, unmapped
   exam.ts            # exam, sections, pools, thresholds

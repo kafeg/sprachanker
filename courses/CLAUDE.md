@@ -25,21 +25,21 @@ courses/
                        # src/: catalog, pages, media, stream (HLS fallback), normalise/, import.ts; test/
   coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
                        # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
-  lingust-english/      # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings as
-                       # selfrate, gap/respond exercises from the tooltip answer keys; src/: dom.ts (HTML
-                       # tree), parse/ (page, course-index, lesson, snippets, vocab, exercise, verbs),
-                       # exercise.ts (source exercise → our types), normalise, import.ts
+  lingust-english/      # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings
+                       # as `speech_selfrate`, gap/respond exercises from the tooltip answer keys;
+                       # src/: dom.ts (HTML tree), parse/ (page, course-index, lesson, snippets, vocab,
+                       # exercise, verbs), exercise.ts (source exercise → our types), normalise, import.ts
   voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
                        # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
-                       # bold words, quiz answers from the result pages (GET), speaking videos as selfrate;
-                       # src/normalise/: media (renditions), vocab (bold words), plan (what each section
-                       # becomes), units, exercise, course (files)
+                       # bold words, quiz answers from the result pages (GET), speaking videos as
+                       # `speech_selfrate`; src/normalise/: media (renditions), vocab (bold words), plan
+                       # (what each section becomes), units, exercise, course (files)
 ```
 
 ## Planned
 
-- `sa-starter-en/`: our authored course and an open-data importer (after the MVP).
+- `sa-starter-en/`: our authored course and an open-data importer (plan, "More sources").
 - `bamf-lid/`: the Leben in Deutschland exam (plan, "Exams").
 
 ## Rules

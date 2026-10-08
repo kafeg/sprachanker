@@ -12,11 +12,14 @@ scripts/   # build.ts (`bun run build:speech`): clones the pinned tag, builds wh
            # the sprachanker binary
 ```
 
-Later (target): `piper/` — Piper release binaries per platform + voices manifest (URLs, sha256).
+## Planned
+
+- A server-side TTS engine, Piper or Qwen3-TTS, with its voices manifest (URLs, sha256): plan,
+  "Speech: synthesis".
 
 ## Rules
 
 - Pin exact upstream versions; record them in each folder's `VERSION` file.
-- Builds are reproducible from scripts; CI builds per platform on tags (planned).
+- Builds are reproducible from scripts.
 - Model and voice files are downloaded at runtime by the server, never committed or bundled.
 - The server talks to these binaries only over their HTTP/stdio interfaces.

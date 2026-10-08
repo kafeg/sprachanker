@@ -23,8 +23,9 @@ export const SpeechRepeatItem = ItemBase.extend({ text: z.string().min(1) });
 export const SpeechRepeatAnswer = z.object({ speech: SpokenAnswer });
 export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem);
 
-/** Speaking without a check: listen, then record oneself (the courses' "say it" exercises; compose
- *  upgrades one with a reference text, 04). `answerAudio`: the source's own answer, spoken (DW's
+/** Speaking oneself (the courses' "say it" exercises): listen, then record oneself; recorded is done.
+ *  With a phrase (`text`), what was heard gets a word diff; without one, the AI checks it (08).
+ *  `answerAudio`: the source's own answer, spoken (DW's
  *  "Lösungsaudio"), played after the learner's first try. */
 export const SpeechSelfrateItem = ItemBase.extend({
   text: z.string().min(1).optional(),

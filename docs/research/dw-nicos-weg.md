@@ -158,7 +158,7 @@ forms), `text` (translation HTML), `audios[].mp3Src`, optional image. A1 has 186
 - A2 `ru` lesson 1 and B1 `de` lesson 1 use only the mechanics above.
 - B1 (German-only edition) has no `VOCABULARY` entries: its glossary is `knowledgeType: GLOSSARY` with
   German definitions instead of translations and headwords like "Arbeitsmarkt, -märkte (m.)",
-  "Agentur für Arbeit (f., nur Singular)" — a different parser (after MVP).
+  "Agentur für Arbeit (f., nur Singular)" — a different parser (not handled).
 
 ## Downloads and media sizes
 

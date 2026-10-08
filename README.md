@@ -1,7 +1,7 @@
 # SprachAnker
 
 **Self-hosted language tutor.** Install real courses into a local library, study them in one clean
-interface on your computer and phone, and practise with spaced repetition, speech recognition and any
+interface in your browser, and practise with spaced repetition, speech recognition and any
 LLM you choose — local (LM Studio, or any OpenAI-compatible server on your network) or cloud
 (OpenRouter, Gemini, Groq, Claude Code, Codex).
 

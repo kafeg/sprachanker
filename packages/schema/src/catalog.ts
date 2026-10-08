@@ -1,4 +1,5 @@
-// What a catalog says about a course (01, "Catalog"): its kind, level and licence (manifest.ts).
+// A course's kind, level and licence: the licence in every course index (`source.licence`), kind and
+// level in the planned manifest (manifest.ts; 02, "Manifest").
 import { z } from "zod";
 
 export const CourseKind = z.enum(["course", "exam"]);

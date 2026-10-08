@@ -22,8 +22,6 @@ export const Enrichment = z.object({
         /** The entry is stale (skipped and reported) when this differs from the exercise. */
         fingerprint: Sha256,
         ruleIds: z.array(RuleId).optional(),
-        /** Override of the selfrate upgrade (04). */
-        upgrade: z.enum(["speech_repeat", "respond"]).optional(),
         /** Extra accepted answers per item: texts, or texts per gap (a gap_text item). */
         accepted: z
           .record(

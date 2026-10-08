@@ -3,39 +3,36 @@
 ## Locations
 
 ```
-<app-data>/                      # OS-specific: ~/Library/Application Support/SprachAnker, %APPDATA%\…, ~/.local/share/…
-├── secret.key                   # seals the profiles' API keys (06, Security)
-├── config.json                  # planned: data root path, port, network settings
-├── cache/                       # planned: TTS cache (08)
-└── logs/                        # planned
+<app-data>/                      # OS-specific (config.ts): ~/Library/Application Support/SprachAnker, %APPDATA%\SprachAnker, ~/.local/share/sprachanker
+└── secret.key                   # seals the profiles' API keys (06, Security)
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
-├── models/                      # downloaded speech models (08; voices planned)
+├── models/                      # downloaded speech models (08)
 ├── server.sqlite                # profiles, devices, server settings
+├── server.pid                   # the running server's pid: one server per data root (06)
 └── profiles/<profile-id>/       # `local` is the first
     ├── profile.sqlite           # all learner data of this profile
-    ├── recordings/              # learner audio as captured (<ulid>.<ext>), referenced from answers (08)
-    └── media/                   # planned: learner-added files
+    └── recordings/              # learner audio as captured (<ulid>.<ext>), referenced from answers (08)
 ```
 
 - One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
 - The library never contains learner data; profiles never contain course content.
-- Large downloads (courses, speech models) live in the data root, on the disk the user chose; keys and
-  caches stay in app-data. LLM models are LM Studio's business (07).
-- The data root is created only on first start; if a configured root is missing later (e.g. an
-  unmounted disk), the server refuses to start with a clear message.
+- Large downloads (courses, speech models) live in the data root, on the disk the user chose; keys
+  stay in app-data. LLM models are LM Studio's business (07).
+- The server creates the data root when it starts on it and holds it with `server.pid`
+  (`runtime/data-root.ts`).
+- Planned: structured logs (plan, "Open items in built areas", Server); voices for synthesis (plan,
+  "Speech: synthesis").
 
 ## `server.sqlite`
 
 `packages/server/src/db/server/schema.ts`, its own migrations (`db/server/migrations`):
 
-- `profiles(id, name, colour, onboarded, created_at)` —
-  `local` is the first profile (the folder the single profile had)
+- `profiles(id, name, colour, onboarded, created_at)` — `local` is the first profile
 - `devices(id, profile_id, token_hash, user_agent, created_at, last_seen_at)` — the token only in the
   device's cookie
 - `server_settings(key, value_json)` — `registration` (on by default), set by the command
-- Planned: `jobs` (model downloads).
 
 ## `profile.sqlite`
 
@@ -52,15 +49,16 @@ settings(key TEXT PRIMARY KEY, value_json TEXT)          -- every key with its s
                                                          -- preference reads as its SETTING_DEFAULTS value
 secrets(provider_id TEXT PRIMARY KEY, value_encrypted)   -- the profile's API keys; never returned by the API
 llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- the profile's model (07); only
-                                                         -- task 'default' is used (per-task routes: Later)
+                                                         -- task 'default' is used (per-task routes: plan, "Later")
 
 runs(
   id TEXT PRIMARY KEY,
   kind TEXT NOT NULL,             -- lesson | exam | review | scene | chat
   context_key TEXT,               -- lesson key for lesson, chat and scene runs; exam key; null for review
-  course_key TEXT, edition TEXT, content_version TEXT,   -- null when not tied to one course
-  app_version TEXT NOT NULL,      -- includes our enrichment version
-  plan_json TEXT,                 -- a scene's setup; fixed at start for review and exam runs; null otherwise
+  course_key TEXT, edition TEXT, -- null when not tied to one course
+  content_version TEXT,           -- null: contentVersion is not computed yet (02)
+  app_version TEXT NOT NULL,      -- the app's version when the run started
+  plan_json TEXT,                 -- a scene's setup; null otherwise
   status TEXT NOT NULL,           -- active | finished | abandoned
   end_reason TEXT,                -- completed | timeout | content_updated | user
   started_at INTEGER NOT NULL, finished_at INTEGER,
@@ -77,22 +75,23 @@ events(
 );
 cards(
   id TEXT PRIMARY KEY,
-  kind TEXT NOT NULL,             -- lexeme | sentence | custom
-  lexeme_key TEXT,                -- for kind=lexeme; one card per lexeme and translation_lang
+  kind TEXT NOT NULL,             -- lexeme (the only kind made)
+  lexeme_key TEXT,                -- unique with translation_lang (04, "Spaced repetition")
   translation_lang TEXT NOT NULL, -- the edition's source language its translation is in
   source_key TEXT,                -- vocab occurrence or item key where it was met
   origin_run_id TEXT, origin_event_id TEXT,   -- run (and event, e.g. a mistake) it was created in, if any:
                                               -- the lesson run of its "Words" step; set null when deleted
-  fields_json TEXT,               -- sentence | custom only
+  fields_json TEXT,               -- not written (no kind has fields)
   faces TEXT NOT NULL,            -- enabled faces
   display_cache_json TEXT,        -- last rendered content, so cards survive course removal
-  suspended INTEGER DEFAULT 0,
+  suspended INTEGER NOT NULL DEFAULT 0,   -- the note suspended
+  marked INTEGER NOT NULL DEFAULT 0,      -- the note marked (Anki: mark note, *)
   created_at INTEGER NOT NULL
 );
 card_state(card_id, face,
   fsrs_json, due_at,              -- null while the face is new
   suspended, buried_until, flag,  -- Anki's card: suspended, buried until the next day, flag 0–7
-  PRIMARY KEY(card_id, face))     -- cards.suspended is the note's; cards.marked its mark
+  PRIMARY KEY(card_id, face))
 ```
 
 What a run is (owner, 2026-10-07: one rule for every history): a pass through a lesson (`lesson`), a
@@ -111,7 +110,7 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `mistakes`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
 | `llm_verdict` | `task` (`writing` \| `explain` \| `example` \| `speaking`), `input` (the learner's text; the word of an example; what was heard of a spoken answer; empty otherwise), `result` (the task's structured output, 07 — one schema per task in `schema/src/assistant.ts`, checked when written and read; an explanation's text), `model`, `latencyMs`; a writing check in the lesson run the lesson shows; an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains); an example in the day's review run, on its `cardId`; a spoken answer's check in the lesson run, on its `itemKey`, matched to the answer by `input` |
 | `llm_turn` | `role`, `text`, `model?` and `latencyMs?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
-| `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each day, from 4 AM) |
+| `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each study day, 04) |
 | `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |
 
 Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type). **Payloads only
@@ -147,15 +146,13 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
 
 ## Derived state
 
-Statistics (lesson progress and best scores, item history, mistakes, rule and lexeme stats, can-do) are
-**pure engine functions over events and cards** (04). The server computes them per profile when asked
+Statistics (lesson progress and best scores, item history, mistakes, study days) are **pure engine
+functions over events and cards** (04, "Learner model"). The server computes them per profile when asked
 (an in-memory cache is added when needed). There are no derived tables; one is added only when a measured
 query is too slow, and then it must be rebuildable from events.
 
-Resume = the last `page_shown` of the active run: the exercise it names, where it is in the lesson
-now (its page number when the lesson no longer has it). A pass in the Notebook shows each exercise by
-its snapshot, found by exercise key. Lesson progress counts an active run as "in progress"
-only once it has an `answered`, `item_skipped` or `step_done` event.
+Resume reads the last `page_shown` of the active run (04). A pass in the Notebook shows each exercise
+by its snapshot, found by exercise key.
 
 ## Migrations
 
@@ -176,10 +173,9 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   is written as `<copy>.part` and renamed when whole, so a cut-short copy never counts as the day's.
   A profile's copies are in its folder: deleting the profile deletes them too (a deletion is final,
   and nothing of a person is left behind).
-- Planned: **Profile export** = zip of the profile folder (`profile.sqlite` via `VACUUM INTO`, recordings,
-  media) without secrets and without the daily copies (`*.day-*`). **Import** unpacks it as a new profile; migrations bring it up to date.
-- The same export is the backup of a person's data. The library is re-downloadable and copied per
-  series (02).
+- Planned: export and import of a profile (plan, "Open items in built areas", Server); an export
+  leaves out secrets and the daily copies (`*.day-*`).
+- The library is re-downloadable and copied per series (02).
 
 ## Lifecycle
 
@@ -191,27 +187,20 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   every exercise with its latest answers and outcomes), else the latest finished run read-only, else the
   overview. A run starts with "Start" (or with opening a page); "Start over" ends the active run
   `abandoned/user` and begins a new one.
-- **Lesson completion**: a lesson run is `finished/completed` when the summary is reached with every
-  step of its plan done or skipped (04): exercises answered or skipped, the words, grammar and culture
-  steps recorded (`step_done`), and the AI practice when an assistant offers it. The server refuses to
+- **Lesson completion**: a lesson run is `finished/completed` when the summary is reached with its
+  plan done (04, "Lesson composition"; reading steps recorded as `step_done`). The server refuses to
   finish a run with exercises or reading steps left (`run_incomplete`; the AI practice depends on the
   assistant and is left to the player), and the summary then lists what is left. Reading a finished run
-  back, completion counts its exercises only, so runs completed before the steps existed stay
-  completed. A finished run that did not work every exercise (stored before this was enforced) is no
-  completion: it is neither shown nor counted. Score = mean first-attempt score of scored
-  items (04).
-- **Progress** (engine `lessonProgress`, the single reading used by the course list, the course map and
-  the lesson): a lesson is done once a run of it was completed; it is in progress while an active run has
-  answers, skips or steps done (also when it is done again); the lesson to go on with is the one worked on most
-  recently, else the first not done. A lesson card on the course map shows the run the lesson opens
-  (active run, else latest completed) as the player reads it — exercises worked of all,
+  back, completion counts its exercises only (a run without `step_done` records stays completed); a
+  finished run that did not work every exercise is no completion: it is neither shown nor counted.
+  Score: the lesson result (04).
+- **Progress**: the engine's (04, "Learner model"). A lesson card on the course map shows the run the
+  lesson opens (active run, else latest completed) as the player reads it — exercises worked of all,
   and the score of a finished run.
 - Switching a course's edition ends its active lesson run `abandoned/user`.
-- Planned (with `contentVersion`, 02): **content updated** while a run is active ends the run
-  `abandoned/content_updated`; finished runs stay readable via snapshots.
+- Content updated while a run is active ends the run `abandoned/content_updated`: planned (plan, "Open
+  items in built areas", Library).
 - **Course removed**: runs stay readable via snapshots; lexeme cards keep working from
   `display_cache_json`.
-- **Study days** are read from the event log, never stored (04, "Learner model"): the Notebook counts
-  each day's lesson work, card answers and AI practice; a `card_undo` takes its review out.
-- **Study days** use the time zone of the machine the server runs on (the learner's own computer);
-  a per-profile time zone comes with profiles if a profile's devices live elsewhere.
+- **Study days** are read from the event log, never stored (04, "Learner model"), in the time zone of
+  the machine the server runs on (the learner's own computer).

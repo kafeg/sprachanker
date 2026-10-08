@@ -14,7 +14,7 @@
 | [09-ui.md](09-ui.md) | Screens, layouts, design system, i18n |
 | [10-quality.md](10-quality.md) | Architecture enforcement, fixed technical choices, testing, CI, docs |
 
-The remaining work, the MVP boundary and how an item is run: [../plan.md](../plan.md). How the parts fit
+The remaining work and how an item is run: [../plan.md](../plan.md). How the parts fit
 together: [../architecture.md](../architecture.md).
 
 Supporting research (facts about each source, used by its importer): [../research/](../research/).

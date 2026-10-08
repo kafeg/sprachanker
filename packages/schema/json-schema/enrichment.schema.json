@@ -46,13 +46,6 @@
               "$ref": "#/$defs/RuleId"
             }
           },
-          "upgrade": {
-            "type": "string",
-            "enum": [
-              "speech_repeat",
-              "respond"
-            ]
-          },
           "accepted": {
             "type": "object",
             "propertyNames": {

@@ -1,15 +1,10 @@
 # 08 — Speech
 
-Built: **recording**, **recognition**, **saying instead of typing** and **the AI's check of an answer
-of one's own** (below). Planned (plan, "Speech"): synthesis. The server's speech module talks to the
-engines (sidecars, 06) through two functions:
+**Recording**, **recognition**, **saying instead of typing** and **the AI's check of an answer of
+one's own** (below). The server's speech module (`services/speech.ts`) talks to the engine (sidecars,
+06) through `transcribe(audio, lang, model) → { text, ms }`.
 
-```ts
-transcribe(audio: Blob, lang: Lang, model: string): Promise<{ text; ms }>   // built
-synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promise<AudioRef> // planned
-```
-
-## Recording (built)
+## Recording
 
 - **Capture** in the browser (`apps/web/src/audio/recorder.ts`): MediaRecorder in the browser's own
   format (Safari MP4/AAC, Chrome WebM/Opus), at most 30 s a take, the loudness shown while it records;
@@ -21,9 +16,9 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
   counted and deleted all at once in Settings → Speech; a progress reset deletes those of its runs. With
   "Keep my recordings" off nothing is uploaded: a take plays only until the exercise is left.
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
-  then a take, played beside it; the item counts once recorded, without a self-rating (owner,
-  2026-10-08) and without a score; the phrase to repeat hidden until the first try unless shown (a
-  setting); the source's own answer, spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it. The 16 kHz WAV for recognition is made with recognition (plan).
+  then a take, played beside it; the item counts once recorded, without a score (owner, 2026-10-08);
+  the phrase to repeat hidden until the first try unless shown (a setting); the source's own answer,
+  spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it.
 
 ## Recognition (STT)
 
@@ -36,8 +31,8 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
   MB), downloaded from a pinned Hugging Face commit and checked against their sha256, from Settings →
   Speech; each profile turns recognition on or off and picks an installed model (settings
   `speech.recognition`, `speech.model`).
-- **Language is explicit**: the item's target language goes with each request; auto-detection is never
-  used. Planned for the tutor and scenes: push-to-talk per language (🎤 DE / 🎤 RU).
+- **Language is explicit**: the item's target language (or the box's, below) goes with each request;
+  auto-detection is never used.
 - **Client**: the take is decoded and resampled to 16 kHz mono WAV in the browser (no ffmpeg on the
   server, `audio/wav.ts`) and sent to `POST /api/speech/transcribe?lang=` while the original is kept in
   `recordings/`; the transcript goes into the answer (05).
@@ -71,12 +66,5 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 
 ## Synthesis (TTS)
 
-- Course audio is used whenever available; TTS for LLM replies, AI examples, our own exercises, words
-  without audio.
-- Default (owner, 2026-10-08): **the device's voices** (Web Speech API, in the browser; Apple's enhanced
-  German and Russian voices are close to Siri's) — nothing to install, but each device has its own.
-- In the settings instead, on the server: **Piper** (light, the same everywhere, clearly synthetic) or
-  **Qwen3-TTS** (Apache-2.0, German and Russian, near commercial quality, needs a strong machine);
-  voices downloaded per language; mixed text synthesised per language segment; cached by
-  `(voice, text)` hash in `<app-data>/cache`.
-- Not now: spoken answers on review cards. Later: cloud speech; pronunciation by sounds (plan, "Later").
+Course audio is used whenever available. Planned (plan, "Speech: synthesis"): the device's voices by
+default, Piper or Qwen3-TTS on the server instead. Not now: spoken answers on review cards.

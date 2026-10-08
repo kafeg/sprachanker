@@ -29,6 +29,7 @@ moved, or restored by copying.
 └── dw.nicos-weg/                               # series id
     ├── media.json                              # media index: source URL → path, sha256, size, MIME (or last error)
     ├── media/<kind>/<name>                     # video, audio, image, subtitles, pdf under source names
+    ├── keys.json                               # key map: source ids → keys (below)
     ├── raw/<edition>/<course>/…                # extracted source data as fetched (provider-specific)
     ├── canonical/<course>/course.json          # course index
     ├── canonical/<course>/lessons/<NN>-<NN>.json
@@ -41,17 +42,17 @@ moved, or restored by copying.
 | Key | Pattern | Example |
 |---|---|---|
 | Series | `<publisher>.<series>` | `dw.nicos-weg` |
-| Course | `<series>/<course>` | `dw.nicos-weg/a1` |
-| Unit | `<course>/u<NN>` | `dw.nicos-weg/a1/u00` |
-| Lesson | `<course>/<NN>-<NN>` (unit-lesson) | `dw.nicos-weg/a1/00-01` |
-| Exercise | `<lesson>/ex-<NN>` (source order); ours: `<lesson>/x-<NN>` | `dw.nicos-weg/a1/00-01/ex-03` |
-| Item | `<exercise>#<n>` (1-based; the schema checks that an item's key is its position) | `dw.nicos-weg/a1/00-01/ex-03#2` |
+| Course | `<series>/<course>` | `dw.nicos-weg/a1-ru` |
+| Unit | `<course>/u<NN>` | `dw.nicos-weg/a1-ru/u00` |
+| Lesson | `<course>/<NN>-<NN>` (unit-lesson) | `dw.nicos-weg/a1-ru/00-01` |
+| Exercise | `<lesson>/ex-<NN>` (source order); ours: `<lesson>/x-<NN>` | `dw.nicos-weg/a1-ru/00-01/ex-03` |
+| Item | `<exercise>#<n>` (1-based; the schema checks that an item's key is its position) | `dw.nicos-weg/a1-ru/00-01/ex-03#2` |
 | Option | id inside an item: `a`, `b`, `c`… in canonical order | option `b` |
 | Exam | `<course>/exam-<slug>` | `bamf.lid/lid/exam-test` |
 | Exam section | `<exam>/s-<slug>` | `bamf.lid/lid/exam-test/s-state` |
 | Exam item | `<exam>/q-<id>`, id unique within the exam | `bamf.lid/lid/exam-test/q-001`, `…/q-be-01` |
-| Goal | `<lesson>/goal-<n>` or `<course>/goal-<slug>` (ours) | `dw.nicos-weg/a1/00-01/goal-1` |
-| Vocab occurrence | `<lesson>/v-<lemma-slug>[.<n>]` | `dw.nicos-weg/a1/00-01/v-frau`, `…/v-frau.2` |
+| Goal | `<lesson>/goal-<n>` or `<course>/goal-<slug>` (ours) | `dw.nicos-weg/a1-ru/00-01/goal-1` |
+| Vocab occurrence | `<lesson>/v-<lemma-slug>[.<n>]` | `dw.nicos-weg/a1-ru/00-01/v-frau`, `…/v-frau.2` |
 | Lexeme | `lex:<lang>:<lemma-slug>:<pos>[:<gender>]` | `lex:de:frau:noun:f` |
 | Rule | `<lang>.<area>.<slug>` | `de.greeting.du-sie` |
 | Scene | `<series>/scene-<slug>` | `dw.nicos-weg/scene-neighbour-morning` |
@@ -84,18 +85,15 @@ moved, or restored by copying.
   normaliser: numbering afresh would hand kept keys to other content.
 - **Fingerprint** of an exercise = sha256(JCS of its canonical object without `fingerprint`); identical
   across editions of the same content.
-- Planned: **contentVersion** of an edition = sha256 over the sorted `path:sha256` list of the course's
-  canonical files and that edition's locale files.
 
-## Manifest (planned)
+## Manifest
 
-A series manifest `course.json` (schema: `packages/schema/src/manifest.ts`): provider and version,
-licence, courses (`kind` ∈ `course exam`, level, target) with editions (`fetchedAt`, `contentVersion`)
-and every file with sha256 and size, written last after normalise and verify. Not written yet: today
-`media.json` records the media and the library is read from the canonical and locale folders.
+None is written: `media.json` records the media and the library is read from the canonical and locale
+folders. Planned: a series manifest with each edition's `contentVersion` (schema
+`packages/schema/src/manifest.ts`; plan, "Open items in built areas", Library).
 
-Exams of a course are listed in its course index; a stand-alone exam (`bamf.lid`) is a course of kind
-`exam`.
+Exams of a course are listed in its course index (`exams`); a stand-alone exam (plan, "Exams") is a
+course with exams only.
 
 ## Canonical files (language-independent)
 
@@ -109,8 +107,8 @@ Exams of a course are listed in its course index; a stand-alone exam (`bamf.lid`
   "goals": [ { "key": "dw.nicos-weg/a1-ru/00-01/goal-1", "lessons": ["dw.nicos-weg/a1-ru/00-01"] } ] }
 
 // canonical/<course>/lessons/00-01.json
-{ "format": 1, "key": "dw.nicos-weg/a1/00-01", "unit": "dw.nicos-weg/a1/u00",
-  "media": { "video": { "sd": "media/video/…_sd.mp4", "subtitles": "media/subtitles/….vtt" } }, "goals": ["dw.nicos-weg/a1/00-01/goal-1"],
+{ "format": 1, "key": "dw.nicos-weg/a1-ru/00-01", "unit": "dw.nicos-weg/a1-ru/u00",
+  "media": { "video": { "sd": "media/video/…_sd.mp4", "subtitles": "media/subtitles/….vtt" } }, "goals": ["dw.nicos-weg/a1-ru/00-01/goal-1"],
   "pages": [ { "exercise": { "key": "…/00-01/ex-03", "type": "single_choice", "fingerprint": "…",
       "newWords": ["…/00-01/v-guten-tag"], "ruleIds": [],
       "items": [ { "key": "…/ex-03#1", "media": { "image": "media/image/….jpg" },
@@ -121,7 +119,7 @@ Exams of a course are listed in its course index; a stand-alone exam (`bamf.lid`
   // What the provider could not map, and words it left out (no usable headword, no translation).
   "unmapped": [ { "path": "raw/ru-de/a1/00-01/ex-07.json", "reason": "unknown inputType X" } ] }
 
-// canonical/<course>/exams/<slug>.json
+// canonical/<course>/exams/<slug>.json — the Leben in Deutschland test (03)
 { "format": 1, "key": "bamf.lid/lid/exam-test", "timeLimitSec": 3600,
   "sections": [ { "key": "…/s-general", "pool": ["…/q-001"], "draw": 30, "filter": null },
                 { "key": "…/s-state", "pool": ["…/q-be-01"], "draw": 3, "filter": { "setting": "federalState" } } ],
@@ -152,8 +150,8 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `gap_text` | `segments`, `answer{gapId:{accepted[text]}}`; `""` = nothing belongs there (no article) | `{gapId:text}` | normalised text ∈ accepted; an empty or dash answer matches `""` |
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
-| `speech_selfrate` | `text?`, `media.audio?`, `answerAudio?` (the source's answer, spoken; source form; upgraded, 04) | `{recording?}` (08; `rating` in answers before 2026-10-08) | not scored |
-| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (LLM verdict: Later, 07); without a rubric unscored, the model answers shown |
+| `speech_selfrate` | `text?`, `media.audio?`, `answerAudio?` (the source's answer, spoken) | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With `text`, what was heard gets a word diff; without, the AI checks it (08) |
+| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (an LLM verdict: plan, "Later"); without a rubric unscored, the model answers shown |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 
@@ -174,12 +172,13 @@ never empty.
 
 ```jsonc
 // locale/<edition>/<course>/lessons/00-01.json
-{ "format": 1, "edition": "ru-de", "lesson": "dw.nicos-weg/a1/00-01", "sourceId": "46381195",
-  "title": "Hallo!", "synopsis": "…",
-  "exercises": { "dw.nicos-weg/a1/00-01/ex-03": { "sourceId": "46381693", "title": "…", "instructionHtml": "…",
+{ "format": 1, "edition": "ru-de", "lesson": "dw.nicos-weg/a1-ru/00-01", "sourceId": "46381195",
+  "title": "Hallo!", "synopsisHtml": "…",
+  "exercises": { "dw.nicos-weg/a1-ru/00-01/ex-03": { "sourceId": "46381693", "title": "…", "instructionHtml": "…",
                   "items": { "#1": { "hintHtml": "<p>Справка: …</p>" } } } },
-  "vocab": { "dw.nicos-weg/a1/00-01/v-frau": { "translation": "женщина", "examples": ["…"] } },
-  "tabs": { "grammar": [ { "title": "…", "bodyHtml": "…" } ], "culture": [ … ], "script": { … } } }
+  "vocab": { "dw.nicos-weg/a1-ru/00-01/v-frau": { "translation": "женщина", "examples": ["…"] } },
+  "tabs": { "grammar": [ { "title": "…", "bodyHtml": "…" } ], "culture": [ … ], "script": { … } },
+  "downloads": [ { "title": "…", "path": "media/pdf/….pdf" } ] }
 ```
 
 Items are referenced as `#<n>` within their exercise; an item may carry `prompt`, `hintHtml`, option
@@ -204,32 +203,12 @@ The locale course file holds the course title, unit titles and goal texts in the
 
 Every `ruleIds` value anywhere MUST exist in the registry.
 
-## Enrichment (ours, in the repository; planned after the MVP)
+## Enrichment (ours, in the repository)
 
-Not built yet; the format is fixed by `packages/schema/src/enrichment.ts`. Enrichment is written by hand and reviewed; it is never generated by an LLM (00).
-`courses/<provider>/enrichment/<course>/<NN>-<NN>.yaml` (+ `scenes/`). Keys and fingerprints only —
-never copies of third-party text.
-
-```yaml
-format: 1
-lesson: dw.nicos-weg/a1/00-01
-rules: [de.greeting.du-sie]
-notes: { ru: "…", en: "…" }                      # contrastive notes per learner language
-exercises:
-  dw.nicos-weg/a1/00-01/ex-05:
-    fingerprint: "…"                             # entry is stale if it differs
-    ruleIds: [de.greeting.du-sie]
-    upgrade: respond                             # optional override of the selfrate upgrade (04)
-    accepted: { "#2": ["Guten Tag!"], "#3": { g1: ["Tee"] } }   # optional extra accepted answers
-                                                 # (per gap for a gap_text item)
-extra:
-  - after: dw.nicos-weg/a1/00-01/ex-12           # existing exercise key, or "end"
-    exercise: { key: dw.nicos-weg/a1/00-01/x-01, type: respond, items: [ … ] }
-scenes: [dw.nicos-weg/scene-neighbour-morning]
-cards: { phrases: ["lex:de:wie-geht-es-ihnen:phrase"] }
-```
-
-Stale entries are skipped at compose time and listed by `enrich check`.
+Planned (plan, "Enrichment and rules"); the format is fixed by `packages/schema/src/enrichment.ts`:
+`courses/<provider>/enrichment/<course>/<NN>-<NN>.yaml`, written by hand and reviewed, never generated
+by an LLM (00), keyed by keys and fingerprints only — never copies of third-party text. An entry whose
+fingerprint differs from its exercise's is stale and skipped.
 
 ## Normalisation contract (all providers)
 
@@ -252,5 +231,5 @@ their schemas as they are written (`writeLibraryFiles`); failures are reported.
   the way the app does and checks what the schemas cannot: lessons listed once and in their unit, no
   unlisted lesson files, answers naming existing options/parts/gaps, fingerprints, locale texts per
   edition matching the canonical exercises and words (missing ones are notes), unit titles, and every
-  referenced media file on disk. Planned: manifest sha256/size checks, rule ids, re-normalising older
-  formats from `raw/` offline.
+  referenced media file on disk. Planned: checks of manifest hashes and rule ids, normalising from
+  `raw/` offline (plan, "Open items in built areas", Library).

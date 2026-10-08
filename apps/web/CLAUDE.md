@@ -1,6 +1,6 @@
 # apps/web
 
-React UI for the desktop window and phone PWA. Spec: `docs/spec/09-ui.md`.
+React UI for desktop and phone screens (an installable PWA). Spec: `docs/spec/09-ui.md`.
 May use `schema`, `engine`, and a type-only import of the server's `AppType` (Hono RPC).
 
 ## Layout
@@ -76,9 +76,8 @@ apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor)
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```
 
-Later (target): `pwa/` (service worker, IndexedDB outbox), more routes (today,
-chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
-(components.json points to `@/ui`).
+shadcn components are added with `bunx --bun shadcn@<version> add <name>` (components.json points
+to `@/ui`).
 
 ## Rules
 

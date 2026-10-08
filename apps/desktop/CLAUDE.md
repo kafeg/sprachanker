@@ -1,14 +1,14 @@
 # apps/desktop
 
-Tauri 2 shell. Spec: `docs/spec/06-server.md` (desktop shell section).
+Tauri 2 shell (planned). Spec: `docs/spec/06-server.md` (desktop shell section).
 Knows only the `sprachanker` binary (built from `apps/cli`) and its CLI flags; contains no business logic.
 
-## Planned (the desktop app, after the MVP)
+## Planned (plan, "Desktop app")
 
 ```
 src-tauri/
   tauri.conf.json      # externalBin: `sprachanker` + native sidecar binaries per target triple
-  src/main.rs          # run `sprachanker serve`, wait for /health, open window, tray, quit handling
+  src/main.rs          # run `sprachanker serve`, wait for /api/health, open window, tray, quit handling
   binaries/            # build outputs copied here by scripts (not committed)
 scripts/
   bundle-sidecars.ts   # run `bun run build:cli` (the only binary build), copy it and native builds with target suffixes
@@ -17,5 +17,6 @@ scripts/
 ## Rules
 
 - Keep Rust minimal: process start/stop, window, tray, updater. Everything else via the local API.
-- Sidecar supervision (whisper, piper) is the server's job so headless mode has the same features.
+- Supervising the speech engines (whisper-server today) is the server's job, so headless `serve` has
+  the same features.
 - Never bundle model files or course content.

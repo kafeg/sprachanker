@@ -36,8 +36,6 @@ src/
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 
-Later (07, "Later"): per-task routes, golden tests.
-
 ## Rules
 
 - JSON task outputs are validated with zod; invalid → one repair attempt → `invalid_output`, which the

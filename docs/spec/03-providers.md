@@ -2,7 +2,7 @@
 
 A provider turns an external source into library content (02). Each provider is a workspace package in
 `courses/<provider>/` with `src/` (course list, fetch, normalise) and `test/` (on SYNTHETIC inputs only —
-never real third-party content). Our enrichment will live next to it (02, planned).
+never real third-party content). Our enrichment goes next to it (02).
 
 ## Provider contract
 
@@ -36,11 +36,10 @@ apart in one line (`CYRILLIC`, `latinLetters`, `splitAtCyrillic`).
 
 ## Offered in the app
 
-Every provider's courses are offered in Courses → Available (owner, 2026-10-08: the ones kept CLI-only
-before — Deutsch im Blick and the English courses — moved there); the pair the onboarding sets as the
-course filters keeps a learner's own language pair in front. A course taken out of the library keeps
-working where it is remembered: its cards (their text is kept with them), its runs (left out of
-progress), its pages say it is not installed.
+Every provider's courses are offered in Courses → Available (owner, 2026-10-08); the pair the
+onboarding sets as the course filters keeps a learner's own language pair in front. A course taken
+out of the library keeps working where it is remembered: its cards (their text is kept with them), its
+runs (left out of progress), its pages say it is not installed.
 
 ## Importer behaviour (all providers)
 
@@ -62,8 +61,9 @@ progress), its pages say it is not installed.
 - `--courses` / `--editions` select what is imported in every provider (`wanted`); a provider with one
   course imports nothing when it is not asked for.
 - **Phases.** Fetch the pages into `raw/` and the media into `media/`, then normalise offline and
-  deterministically. A course appears (can be started) once it is normalised, i.e. fully downloaded;
-  until then its card shows the download.
+  deterministically. A course is installed (can be opened) once it is normalised; until then its card
+  shows the download. Media that failed leave it `incomplete` — it opens, its card counting the
+  files missing — until a later download fetches them.
 - **Reports** unknown exercises and left-out words (`unmapped`), files that failed validation, media
   that failed — a host that refused (403/429, also on robots.txt) records every file of it not fetched,
   so the download stays marked incomplete. A robots.txt that could not be read is asked again later.
@@ -111,16 +111,15 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   parts of a topic ("Spelling (2)", in the edition's own digits and brackets: "(۲)", "(२)", "（2）"; titles compared with full-width forms as plain ones and spaces ignored); the parts within a lesson are joined into one page, the number
   leaves the title and a topic begun in an earlier lesson keeps it as `part` (02). Exercise titles keep
   their numbers ("Im Unterricht (1)", "(2)"): they tell apart exercises of one topic in a lesson.
-- Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
-  own vocabulary parser; until then B1 lessons have no vocabulary.
+- **B1** lessons have no vocabulary: B1 has a German glossary (`GLOSSARY`, definitions instead of
+  translations) not read yet (plan, "More sources").
 
 ## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`; planned: plan, "Exams")
 
 Official BAMF question catalogue (PDF): 300 general questions + 10 per federal state. A test has 33
 questions (30 general + 3 for the learner's state), 60 minutes; 15 correct passes the course test, 17 are
-needed for naturalisation — both shown. Modes: browse, my state, timed exam, practise wrongly answered
-questions. Questions are shown in German; translations only where the source has them (no machine
-translation: course content is not generated, 00).
+needed for naturalisation — both shown. Questions are shown in German; translations only where the
+source has them (no machine translation: course content is not generated, 00).
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 
@@ -135,8 +134,8 @@ not DW-shaped: an `en-de` edition with English learner strings and no exercises.
   interactive exercises; they are in the textbook PDF, a download of the chapter's first lesson.
   Headwords as the book writes them ("der Apfel (Äpfel)", "(no plural)", "(plural only)") give
   gender and plural; verbs and phrases by shape.
-- Planned (after MVP): the interviews (several videos per topic with parallel de/en transcripts) —
-  they need lessons with more than one video and transcript pages (02); web quests; pronunciation.
+- Not imported: the interviews (several videos per topic with parallel de/en transcripts; plan, "More
+  sources") — they need lessons with more than one video and transcript pages (02).
 
 ## 4. Lingust «Правильный английский» (`lingust-english` → `lingust.english`, edition `ru-en`)
 
@@ -182,17 +181,11 @@ courses `level-1`, `level-2`. Facts: `docs/research/voa-lets-learn-english.md`.
   the listening quiz → `single_choice` with each question's clip. Quiz answers come by GET: even `page`
   values of `/Quiz/Start` show the result view with the correct option marked — nothing is POSTed.
 
-## Later
-
-- **SprachAnker Starter English** (`sa-starter-en` → `sprachanker.starter-en`): small ru → en course
-  authored by us, with open data fetched at runtime (Tatoeba, Wiktionary via kaikki.org) and per-item
-  attribution.
-- Goethe-Zertifikat A1 practice sets, more DW courses, readers.
-
 ## Rules for every provider
 
 - No third-party content in the repository, including fixtures and tests.
 - No brand assets of the source used as SprachAnker branding; the source is shown only as attribution.
-- Crawling as above; stop and report on 403/429.
-- Licence and attribution recorded in the manifest and displayed in the UI (planned with the manifest,
-  02; Deutsch im Blick already carries its CC BY attribution in the course description).
+- Crawling as above: robots.txt respected, an identifiable User-Agent, stop and report on 403/429,
+  resume instead of downloading again.
+- Licence and publisher recorded in the course index (`source`, 02) and shown with the course in the
+  UI; Deutsch im Blick's CC BY attribution is its course description.

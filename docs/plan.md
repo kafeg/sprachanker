@@ -16,19 +16,13 @@ how it fits together, by `docs/architecture.md`. Each item names the spec files 
 5. **Stop and report after every item**: what was built, what was learned, open problems, an honest
    view of direction and remaining scope, proposed spec/plan edits, the next item's plan.
 
-## MVP boundary
+## Direction
 
-**MVP = what two people need for a week of real study**: courses installed from the interface, the
-lesson player, cards and review, two profiles on Mac and phones, speech checks, Leben in Deutschland,
-LLM via external providers — `sprachanker serve` with browser/PWA access. Do not build post-MVP features
-early. Built early at the owner's request: courses beyond Nicos Weg A1 (DW in Russian, English and
-German; Deutsch im Blick and four English courses importable with the CLI) and the LLM features.
-
-Past the MVP's scope (owner, 2026-10-08): what is built goes beyond it. Phones come when convenient:
-Tailscale is known to work; the desktop browser is enough meanwhile.
-
-Focus (owner, 2026-10-07): German — the onboarding's language pair filters Courses; every provider is
-offered (03, "Offered in the app").
+- Past the first version's scope (owner, 2026-10-08): the items below are what the owner wants next,
+  in this order; anything else waits for "After the week of use".
+- German first (owner, 2026-10-07): the onboarding's language pair filters Courses; every provider is
+  offered (03, "Offered in the app").
+- The desktop browser now; phones when convenient (item "Phones": Tailscale is known to work).
 
 ## Next, in order
 
@@ -73,10 +67,10 @@ Specs: 06, 09.
   the PWA; layouts at phone width; what breaks is fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 5. MVP acceptance
+### 5. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
-- The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
-  findings decide the order of the work after the MVP.
+- The owner and his wife study with it for at least a week — on the Mac, and on phones once item
+  "Phones" is done; their findings decide the order of "After the week of use".
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
@@ -85,15 +79,15 @@ Taken along when an item above touches the area, or on request.
   rule ids; content updated while a run is active ends the run (05). A word the source leaves without
   a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:
   Persian A1 "alt", German A2 "der Spinat"; seen in the 2026-10-08 audit of all Nicos Weg editions).
-- Engine (04): compose with the selfrate upgrade and enrichment.
 - Server (05, 06): export/import of a profile, structured logs.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
-  exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08).
+  exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
+  beside the "Write it yourself" box, as in free answers, scenes and the tutor.
 - Review (09): the course map's can-do list; a word anywhere in a lesson
   opens its sheet (09, "word sheet": forms, translation, audio, examples from lessons met, answers,
   "add to cards").
 
-## After the MVP
+## After the week of use
 Order decided by the week of use.
 - **Enrichment and rules** (02, 04, 07): `enrich check`, the rules registry for A1, A1 enrichment chapter
   by chapter (rule tags, contrastive notes, speaking, scenes), mistakes by rule, rule mastery, weak spots,
@@ -112,7 +106,8 @@ Order decided by the week of use.
   heard, for its pronunciation). Accept: a German book
   downloaded, read on Mac and iPhone with translation, words added to Review.
 - **More sources**: B1 glossary, Deutsch im Blick interviews, Starter English (03).
-- **Desktop app** (06, 09): Tauri shell, first-run wizard (incl. LM Studio), network options with QR,
+- **Desktop app** (06, 09): Tauri shell, first-run wizard (the data folder chosen there, LM Studio),
+  network options with QR,
   signed bundles for macOS then Windows and Linux, auto-update. Accept: fresh machine → lesson 1 in
   under 30 minutes (without the course download); headless `serve` works on a second machine.
 - **Later**: missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`),

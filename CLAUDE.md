@@ -1,9 +1,9 @@
 # SprachAnker — working guide for agents
 
-SprachAnker is a self-hosted, local-first language-learning app. A desktop app (Tauri 2) runs a local
-server; the same web UI is used in the desktop window and as a PWA on phones. Real courses are installed
-by importers into a local library, enriched with our own layer, and practised with spaced repetition,
-speech checks and any LLM the user connects.
+SprachAnker is a self-hosted, local-first language-learning app. `sprachanker serve` runs a local
+server with the web UI, used in the browser (a desktop window and phones are planned). Real courses are
+installed by importers into a local library and practised with spaced repetition, speech checks and
+any LLM the user connects.
 
 Read before working: `docs/architecture.md` (how the parts fit), `docs/plan.md` (what is left, in
 order, and how an item is run), `docs/spec/README.md` (index), then the spec file for the area you touch.
@@ -17,13 +17,13 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `packages/course-kit` | Library format (read/write), fetcher, media store, manifest, fingerprints, verify. | 02, 03 | `courses/CLAUDE.md` |
 | `courses/<provider>` | One folder per content source: provider (importer + normaliser), enrichment, tests. `courses/_shared/rules` — grammar rules registry. | 02, 03 | `courses/CLAUDE.md` |
 | `packages/engine` | Pure logic: lesson composition, exercise checking, learner model, FSRS. No I/O. | 04 | `packages/engine/CLAUDE.md` |
-| `packages/server` | HTTP API, SQLite, media, profiles, jobs, sidecar supervision, speech (STT/TTS clients). | 05, 06, 08 | `packages/server/CLAUDE.md` |
-| `packages/llm` | LLM gateway, providers, task routing, prompts, golden tests. | 07 | `packages/llm/CLAUDE.md` |
+| `packages/server` | HTTP API, SQLite, media, profiles, course downloads, sidecar supervision, speech recognition. | 05, 06, 08 | `packages/server/CLAUDE.md` |
+| `packages/llm` | LLM gateway, providers, tasks, prompts, structured outputs. | 07 | `packages/llm/CLAUDE.md` |
 | `packages/anki-export` | `.apkg` import/export (planned). | 04 | `packages/engine/CLAUDE.md` |
-| `apps/web` | React UI: desktop window and phone PWA, components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
-| `apps/desktop` | Tauri 2 shell: window, tray, starts the server sidecar, updates. | 06 | `apps/desktop/CLAUDE.md` |
-| `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles` (export, enrichment check planned). Compiled with the web build embedded; the desktop app bundles it. | 03, 06 | `apps/cli/CLAUDE.md` |
-| `native` | Builds of whisper.cpp and Piper for each platform. | 08 | `native/CLAUDE.md` |
+| `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
+| `apps/desktop` | Tauri 2 shell (planned): window, tray, starts the server binary, updates. | 06 | `apps/desktop/CLAUDE.md` |
+| `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | 03, 06 | `apps/cli/CLAUDE.md` |
+| `native` | Builds of whisper.cpp (`whisper-server`); a TTS engine planned. | 08 | `native/CLAUDE.md` |
 | `e2e` | Playwright end-to-end tests against the compiled binary. | 10 | — |
 | `scripts` | Repository checks run by `bun test`: boundary rules test, CLAUDE.md paths. | 10 | — |
 | `docs` | `spec/` — specification; `plan.md` — remaining work; `architecture.md` — overview; `research/` — facts gathered about sources. | — | — |
@@ -51,7 +51,7 @@ alternatives without updating that table.
 
 ## Engineering principles
 
-- **KISS as a default, not a dogma.** Build what the current stage needs; no abstraction, option, layer,
+- **KISS as a default, not a dogma.** Build what the current item needs; no abstraction, option, layer,
   table or entity "for later" unless the spec requires it. But when a slightly bigger design now clearly
   avoids rework (stable keys, event log, module boundaries, data formats), choose it and say why —
   the goal is a coherent, maintainable system, not the smallest diff.
@@ -70,7 +70,7 @@ alternatives without updating that table.
 ## Rules
 
 1. Spec first. If the code needs to diverge from the spec, update the spec in the same commit and say why.
-   The spec fixes only decisions that are expensive to change; the rest is decided in the stage plan
+   The spec fixes only decisions that are expensive to change; the rest is decided in the item's plan
    and written into the spec when built (`docs/spec/README.md`).
 2. A new exercise type = schema + checker (engine) + renderer (`apps/web`) + tests. Never only one of them.
 3. Schema changes that touch stored data require a migration (05) and a migration test.
@@ -104,6 +104,5 @@ alternatives without updating that table.
 
 ## Current work
 
-See `docs/plan.md`. Respect the **MVP boundary** defined there — do not build post-MVP features
-early. Work on one item at a time; stop at its acceptance criteria and report. Update the plan in the
-same commit when an item is done (remove it; what was built lives in the spec).
+See `docs/plan.md`. Work on one item at a time; stop at its acceptance criteria and report. Update the
+plan in the same commit when an item is done (remove it; what was built lives in the spec).

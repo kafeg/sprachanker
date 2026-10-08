@@ -7,15 +7,15 @@ shows the parts, their dependencies and the mechanisms that cross them. The rema
 ## Runtime
 
 ```
-phone / browser ──HTTPS (tailscale serve) or localhost──┐
-                                                        ▼
+browser ──localhost or a LAN name (phones over Tailscale: planned)──┐
+                                                                   ▼
               sprachanker serve  (apps/cli, one compiled Bun binary with the web build inside)
                  ├─ Hono app: /api/* routes → services   (packages/server)
                  ├─ web build: the React app (apps/web), SPA fallback
                  ├─ /library/<series>/media/* with Range
                  └─ whisper-server on 127.0.0.1 (native/, beside the binary), started on demand
                         │
-<data root> (~/SprachAnker) ── library/<series>/…         downloaded courses (02), read-only to the app
+<data root> (~/SprachAnker) ── library/<series>/…         courses (02), written only by the importers
                             ├─ models/                    speech models (08)
                             ├─ server.sqlite              profiles, devices signed in
                             └─ profiles/<id>/             each learner's profile.sqlite (runs, events,
@@ -52,7 +52,7 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 | `packages/llm` | providers, streamed and structured calls, time limits, prompts and tasks, tutor tools |
 | `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engine and its supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
-| `apps/cli` | `serve`, `import`, `verify` |
+| `apps/cli` | `serve`, `import`, `verify`, `profiles` |
 
 ## Server inside
 
@@ -76,13 +76,11 @@ gets the types through Hono RPC (`AppType`), no codegen.
   `scene`, `examples` (a card's word), `lesson-context` (what tasks know of a lesson). `in-flight`
   keeps what a model is doing per lesson, so structured calls run to their end and a page opened
   meanwhile shows them as waiting.
-- **Speech**: `speech` (whisper-server and its models; course recordings heard once per model) on
-  `sidecar`, the supervisor of local engines (one start for requests arriving together, idle stop, a
-  model switch after the requests in flight); `recordings` (the learner's audio per profile). The
-  runtime (`runtime/speech.ts`) finds and runs the binary and stops a stale one on start.
+- **Speech**: `speech` (whisper-server and its models) on `sidecar`, the supervisor of local engines
+  (06, "Sidecars"); `recordings` (the learner's audio per profile).
 - **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
-  choosing a profile (no PINs: profiles keep learning apart) and keeps a revocable token; server matters are
-  the `sprachanker profiles` command's.
+  choosing a profile and keeps a revocable token; server matters are the `sprachanker profiles`
+  command's (06).
 - **Security** (`security/`): Host check, CSP and headers, the client header on mutations (CSRF), API
   keys sealed with AES-GCM, tokens hashed (WebCrypto).
 
@@ -95,18 +93,17 @@ gets the types through Hono RPC (`AppType`), no codegen.
   against the contract together.
 - **One history rule**: everything the learner does is an event in a run (05). Lesson passes, review
   days, tutor chats and scenes are runs; one-off model verdicts (explain, writing, speaking, word
-  examples) are `llm_verdict` events, typed by task. Events are append-only and only grow (every
-  stored shape on record in schema's tests); statistics are pure functions over `TypedEvent`s (engine).
-  Lists of earlier items read the same way everywhere (`store.replace`, `store.verdicts`, newest first,
-  at most `HISTORY_LIMIT`; a row that no longer reads is left out and logged).
+  examples) are `llm_verdict` events, typed by task. Events are append-only and only grow; statistics
+  are pure functions over `TypedEvent`s (engine). How histories are read: `packages/server/CLAUDE.md`.
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
   `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`
   through the run's outbox; the server re-checks every answer and stores its own outcome.
 - **Cards and review**: a card is a lexeme in a translation language (04); its faces carry FSRS state
-  written together with each `card_review` event. The engine builds Anki's queue (limits, 4 AM day,
-  learning steps, learn-ahead) and `answersLeft`; the same reviewer (`study/`) serves Review and the
-  lesson's "Words" step.
+  written together with each `card_review` event. The engine builds Anki's queue (limits, a day that
+  starts at the hour set in Review settings — `srs.dayStartHour`, default 4 —, learning steps,
+  learn-ahead) and `answersLeft`; the same reviewer (`study/`) serves Review and the lesson's "Words"
+  step.
 - **Model calls**: every answer records `model` and `latencyMs`; JSON outputs are validated with one
   repair attempt; streamed replies (tutor, explanations) end with their connection, structured ones
   outlive the page (07).

@@ -5,54 +5,52 @@ parameters). It runs on the server and in the browser (instant feedback for clos
 server re-checks every answer with the same code; the stored outcome is the server's, never the
 client's. Answers of closed exercises are visible to the client — acceptable for self-study.
 
-## Lesson composition (planned)
+## Lesson composition
 
-Today the server returns a lesson's canonical and locale files as they are (`GET /api/lesson`) and the
-player combines them; `speech_selfrate` items are recorded (08) and not scored. Planned:
+The server returns a lesson's canonical file with its locale file for the profile's edition as they
+are (`GET /api/lesson`); the player combines them. `speech_selfrate` items are recorded (08) and not
+scored.
 
-`compose(canonical, locale, enrichment, profile) → ComposedLesson`
+The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose/steps.ts`; owner
+2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
+of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
+one "Culture" step per culture page → AI practice when an assistant is set up: "Write it yourself",
+scene, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
+worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
+the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps
+come from what the provider's normaliser put into the canonical and locale files, the same way for
+every course. Every step has a mark in the plan and "Next" goes through all of them; any step can be
+skipped (and shows it). The lesson is completed when every step is done or skipped: an exercise
+answered, a reading step opened, an AI step done once (the mistakes step: the tutor's first reply, or
+opened with every exercise worked and no mistakes). AI steps are in the plan only while an assistant
+is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
+homework, downloads) stay available at any time for looking things up.
 
-1. Take canonical pages and attach locale texts of the profile's edition.
-2. Upgrade self-rated speaking: a `speech_selfrate` item with a reference text becomes `speech_repeat`;
-   one without becomes `respond`. Enrichment may override this (`upgrade`, 02).
-3. Apply enrichment: rule tags, contrastive notes for the native language, extra exercises, scenes.
-   Skip stale entries (fingerprint mismatch) and report them.
-4. Lesson flow (the plan's steps, owner 2026-10-06): overview (synopsis, goals, the
-   video or recording with its transcript under it) → "Words of the lesson" (cards) → one "Grammar"
-   step per grammar page (a page is one topic) → the exercises (source pages, then ours) → one
-   "Culture" step per culture page → AI practice when an assistant is set up: "Write it yourself",
-   scene, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
-   worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
-   the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps come from what
-   the provider's normaliser put into the canonical and locale files, the same way for every course.
-   Every step has a mark in the plan and "Next" goes through all of them; any step can be skipped (and
-   shows it). The lesson is completed when every step is done or skipped: an exercise answered, a
-   reading step opened, an AI step done once (the mistakes step: the tutor's first reply, or opened
-   with every exercise worked and no mistakes). AI steps are in the plan only while an assistant is set
-   up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script)
-   stay available at any time for looking things up.
+Planned: composing with enrichment — rule tags, contrastive notes for the native language, extra
+exercises after the source's, scenes; stale entries skipped and reported (plan, "Enrichment and rules").
 
 ## Checking
 
 Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (`apps/web`) and tests.
 Checkers (`packages/engine/src/check/index.ts`) exist for every scored type; renderers exist for every
-type but `scene` (planned with authored scenes). What the player asks before checking is the engine's
-too (`check/answers.ts`): whether an exercise is checked at all, whether an answer is complete enough
-to check, the words of an answer said aloud.
+type but `scene` (authored scenes: plan, "Enrichment and rules"). What the player asks before checking
+is the engine's too (`check/answers.ts`): whether an exercise is checked at all, whether an answer is
+complete enough to check, the words of an answer said aloud, a spoken answer the AI is to check
+(`spokenFreely`: a `speech_selfrate` item without text, 08).
 
 ```ts
 type Outcome = {
   result: "correct" | "partial" | "wrong" | "unscored";
   score: number;          // 0..1; partial = share of matched ids or words
   diff?: TokenDiff[];     // text and speech
-  ruleIds: string[];      // canonical ruleIds + enrichment
-  lexemes: string[];      // always [] until mistakes name their words (planned, below)
+  ruleIds: string[];      // the exercise's ruleIds
+  lexemes: string[];      // always []: mistakes do not name their words yet (below)
   needsLlm?: boolean;     // respond: deterministic part done, LLM verdict pending
   parts?: Record<string, boolean>;  // gaps by gap id, match pairs by left id: what the item marks
 };
 ```
 
-The renderers mark gaps and pairs from `parts` (an outcome stored before parts counts as a whole);
+The renderers mark gaps and pairs from `parts` (an outcome without `parts` counts as a whole);
 the UI never re-checks an answer.
 
 - Matching is by ids, never by display position. Exception: options with identical content are
@@ -66,8 +64,8 @@ the UI never re-checks an answer.
 - **Attempts**: the learner may retry an item; every attempt is recorded, but only the **first attempt**
   counts for the lesson score and statistics. Items may be skipped: a skipped item that would be checked
   counts as wrong (score 0; its exercise is marked wrong) — a skip before the first answer is the first
-  attempt, so answering after it does not count — a skipped self-rated or otherwise unscored item
-  costs nothing (its exercise is marked skipped); the summary lists them as skipped.
+  attempt, so answering after it does not count — a skipped speaking (`speech_selfrate`) or
+  otherwise unscored item costs nothing (its exercise is marked skipped); the summary lists them as skipped.
 - **Text normalisation**: NFC; unify quotes, apostrophes and dashes; collapse whitespace; strip final
   punctuation; case-insensitive except where the target language makes case meaningful (German: a
   token capitalised in the reference and not sentence-initial is compared case-sensitively; a gap
@@ -76,29 +74,35 @@ the UI never re-checks an answer.
   `packages/engine/src/text/normalise.ts`, the word diff in `packages/engine/src/text/diff.ts`.
 - `respond`: scored from the rubric's required groups (each a phrase said as whole words) if it has
   them, otherwise `unscored`; the outcome
-  carries `needsLlm` and the reference is shown either way. Planned: an LLM verdict on top (07, Later).
+  carries `needsLlm` and the reference is shown either way. An LLM verdict on top: plan, "Later".
 - `unknown` is never rendered; the page shows "not supported yet".
 
 ## Learner model
 
-Pure functions over events and cards (05). Built: lesson result (mean first-attempt score), resume
-page and lesson progress (`packages/engine/src/learner/progress.ts`; the best score counts only runs
-that scored an item, so a lesson of words only is done without a score); mistakes (items whose first attempt in the latest run
-that answered them was wrong or partial; `learner/mistakes.ts`), read by the server per request;
-study days (`learner/activity.ts`): what each day held — lesson work (answers, skips, steps), card
-answers (one taken back by undo does not count), new cards learnt, answers to cards in review and those
-not "Again" (the share remembered), AI practice (the learner's messages, checks asked for) — and the
-totals of a span of days.
-The rest is planned:
+Pure functions over events and cards (05), read by the server per request:
 
-- **Mistakes** with rule ids and lexemes, from closed exercises (via rule tags), speech diffs and LLM
-  corrections (07).
-- **Rule mastery**: accuracy over recent attempts per rule (formula fixed when enrichment is built).
-- **Lexeme state**: as Anki counts its cards — new until a face is answered, learning while a face is
-  learning or relearning, else review; each face keeps its FSRS state (stability, due, lapses).
-- **Item history**: attempts per item (lesson progress — status `new | in_progress | done`, best
-  score — is built).
-- **Can-do**: a course goal is achieved when its linked lessons are completed.
+- **Lesson result**: the mean first-attempt score of scored items (`learner/progress.ts`).
+- **Lesson progress** (`lessonProgress`, the single reading used by the course list, the course map
+  and the lesson): a lesson is done once a run of it was completed; it is in progress while an active
+  run has answers, skips or steps done (also when it is done again); the best score counts only runs
+  that scored an item, so a lesson of words only is done without a score. The lesson to go on with
+  (`courseProgress`) is the one worked on most recently, else the first not done.
+- **Resume page** (`resumePage`): the last exercise shown in the active run, where it is in the
+  lesson now (its page number when the lesson no longer has it).
+- **Item history** (`itemTries`, the Notebook's pass): an item's answers in a run, whether it was
+  skipped without one, the attempt it was right at when the first was not.
+- **Mistakes** (`learner/mistakes.ts`): items whose first attempt in the latest run that answered them
+  was wrong or partial — an answer said aloud without a phrase read by the model's check of it (08) —
+  with the answer, the model's correction, and whether a later answer got it right.
+- **Study days** (`learner/activity.ts`): what each day held — lesson work (answers, skips, steps), card
+  answers (one taken back by undo does not count), new cards learnt, answers to cards in review and
+  those not "Again" (the share remembered), AI practice (the learner's messages, checks asked for) —
+  and the totals of a span of days. The day starts at the profile's hour (Spaced repetition, below).
+
+The Notebook's words known (every face of the note in review) are counted by the server
+(`services/notebook.ts`). Planned: words by state — new, learning, known, as Anki counts its cards
+(plan, "Notebook: more pictures"); mistakes by rule and lexeme, rule mastery, weak spots,
+"Practise this", the can-do list (plan, "Enrichment and rules").
 
 ## Spaced repetition
 
@@ -112,7 +116,8 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   by the face and its review count (as Anki seeds it by card), so the interval a button shows is the
   one the answer gets. A face lapsed 8 times is a leech (marked on the card); a face in FSRS's own
   "new" state (an imported deck) is new.
-- **The day** starts at 4 AM local time (Anki's "next day starts at"); limits and burying count from it.
+- **The day** starts at the hour set in Settings → Review (`srs.dayStartHour`, default 4 AM local
+  time; Anki's "next day starts at"); limits and burying count from it.
 - **The queue** (`studyQueue`): learning faces due now first; then reviews and new faces mixed evenly;
   new faces gathered by the order the cards were made, card 1 (recognition) of every note before card 2
   (production) before card 3 (listening). Limits per day: 20 new (`srs.newPerDay`), 200 reviews
@@ -126,10 +131,15 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's
   overview has the counts, Study now and Unbury; a finished deck says when the next learning card is
   due and whether new cards or reviews wait behind a limit.
-- **Cards** come from the lesson's "Words" step (one card per lexeme and translation language — the
-  edition's source language: a word learned through Russian and through English is two notes, since
-  each shows its own translation; meeting it again in the same language reuses it; owner, 2026-10-07),
-  words the learner adds, phrases in enrichment (`cards.phrases`), and sentences from mistakes.
+- **Cards** come from the lesson's "Words" step and from taking a course's deck (below)
+  (`services/cards.ts`): one card per lexeme and translation language — the edition's source language:
+  a word learned through Russian and through English is two notes, since each shows its own
+  translation; meeting it again in the same language reuses it (owner, 2026-10-07). A word added from
+  its sheet: plan, "Open items in built areas", Review.
+- **Decks** are virtual, as in Anki's deck list (`services/study.ts`): a language (`lang:<code>`) with
+  its courses under it (`course:<key>`, by the lesson a word was first met in) — German and English
+  never share a deck; a lesson's own words in an edition (`lesson:<edition>:<key>`) in its "Words"
+  step.
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
 - **Deck options** are the profile's (Settings → Review, owner 2026-10-08), Anki's defaults where unset:
@@ -153,19 +163,10 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   otherwise exactly Anki's reviewer: a new word goes through the learning steps (1m, 10m), shown again
   within the 20-minute learn-ahead (owner, 2026-10-07: identical to Anki everywhere). The step is done
   once nothing is left to study now; the learning faces go on in Review.
-- **Practice set ("Practise this")**: a run with the original items selected in the Notebook (e.g. all
-  du/Sie mistakes this week).
+- Planned: `.apkg` export and import, stored decks, word images (plan, "Anki decks and word images").
 
 ## Scenes
 
 `scene_setup` drafts a scene from the lesson's goals and words (title, situation, partner, 1–3 goals,
-opening line); `scene_turn` runs it (`packages/llm/src/tasks/scene.ts`, 07). Planned: authored scenes in
-enrichment (setting, roles, goals, allowed vocabulary and rules, register, success criteria).
-
-## After MVP
-
-- **Anki** (`packages/anki-export`, after the MVP): `.apkg` export per deck with media (no scheduling) and
-  import into stored decks, linking notes to existing lexemes.
-- **Word images** (after the MVP): candidates from ARASAAC (CC BY-NC-SA), OpenMoji (CC BY-SA) and course
-  images, fetched at runtime into the profile's media with licence and attribution, never bundled;
-  per-word learner data (chosen image, note, own translation) is stored then.
+opening line); `scene_turn` runs it (`packages/llm/src/tasks/scene.ts`, 07). Authored scenes in
+enrichment: plan, "Enrichment and rules".
