@@ -25,7 +25,6 @@ test("without a session only who is studying and signing in answer; the rest is 
         name: "Test",
         colour: "amber",
         hasPin: false,
-        hasPasskey: false,
         onboarded: false,
       },
     ],
@@ -119,7 +118,7 @@ test("the single profile from before profiles existed becomes the first one, not
   });
   const { profiles } = await read(app.request("/api/profiles"));
   expect(profiles).toEqual([
-    { id: "local", name: "", colour: "amber", hasPin: false, hasPasskey: false, onboarded: false },
+    { id: "local", name: "", colour: "amber", hasPin: false, onboarded: false },
   ]);
   const signedIn = await app.request("/api/session", {
     method: "POST",
@@ -127,19 +126,21 @@ test("the single profile from before profiles existed becomes the first one, not
     body: JSON.stringify({ profile: "local" }),
   });
   expect(signedIn.status).toBe(200);
+  // Adopted without a name, it ends its onboarding only once it has one.
+  const finish = await app.request("/api/profile", {
+    method: "PUT",
+    headers: { "content-type": "application/json", cookie: cookieOf(signedIn), ...CLIENT_HEADERS },
+    body: JSON.stringify({ onboarded: true }),
+  });
+  expect([finish.status, await read(finish)]).toEqual([400, { error: "name_required" }]);
 });
 
-test("passkeys: options for this site (its host name), none to sign in with yet", async () => {
+test("a profile always has a name: none to create one, none to keep, none to end the onboarding", async () => {
   const { send, anonymous } = await setup();
-  const options = await read(send("POST", "/api/profile/passkeys/options", {}));
-  expect(options.rp).toEqual({ name: "SprachAnker", id: "localhost" });
-  expect(typeof options.challenge).toBe("string");
-  const none = await anonymous("POST", "/api/session/passkey/options", { profile: "local" });
-  expect([none.status, await read(none)]).toEqual([404, { error: "no_passkey" }]);
-  // An answer without the options asked first is refused.
-  const late = await anonymous("POST", "/api/session/passkey", {
-    profile: "local",
-    response: { id: "x", type: "public-key" },
-  });
-  expect(late.status).toBe(409);
+  for (const name of ["", "   "])
+    expect((await anonymous("POST", "/api/profiles", { name })).status).toBe(400);
+  expect((await anonymous("POST", "/api/profiles", {})).status).toBe(400);
+  expect((await send("PUT", "/api/profile", { name: " " })).status).toBe(400);
+  const named = await read(send("PUT", "/api/profile", { name: "  Vitaly ", onboarded: true }));
+  expect(named.profile).toMatchObject({ name: "Vitaly", onboarded: true });
 });

@@ -11,10 +11,30 @@ export type UiLanguage = (typeof UI_LANGUAGES)[number];
 export const isUiLanguage = (code: unknown): code is UiLanguage =>
   (UI_LANGUAGES as readonly unknown[]).includes(code);
 
-/** First supported language from the browser preferences; English otherwise. */
-function browserLanguage(): UiLanguage {
+/** Where this device keeps the interface language chosen last (before any profile is signed in, and
+ *  so a reload starts in it); the profile keeps its own (`uiLanguage`). */
+const DEVICE_LANGUAGE = "sprachanker.uiLanguage";
+
+/** The language chosen on this device, else the first supported one of the browser, else English. */
+function startLanguage(): UiLanguage {
+  try {
+    const chosen = localStorage.getItem(DEVICE_LANGUAGE);
+    if (isUiLanguage(chosen)) return chosen;
+  } catch {
+    // Storage blocked: the browser's language.
+  }
   const codes = navigator.languages.map((tag) => tag.split("-")[0] ?? "");
   return codes.find(isUiLanguage) ?? "en";
+}
+
+/** Switches the interface language and remembers it on this device. */
+export function switchLanguage(language: UiLanguage) {
+  void i18n.changeLanguage(language);
+  try {
+    localStorage.setItem(DEVICE_LANGUAGE, language);
+  } catch {
+    // Storage blocked: the profile setting still keeps it.
+  }
 }
 
 /**
@@ -35,7 +55,7 @@ await i18n
   .use(initReactI18next)
   .init({
     resources: { en: { translation: en }, ru: { translation: ru }, de: { translation: de } },
-    lng: browserLanguage(),
+    lng: startLanguage(),
     fallbackLng: "en",
     supportedLngs: UI_LANGUAGES,
     interpolation: { escapeValue: false },

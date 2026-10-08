@@ -7,12 +7,22 @@ export const ALL = "all";
 export const CATALOG_FILTERS = { course: "catalog.course", pair: "catalog.pair" };
 export const MY_FILTERS = { course: "mine.course", pair: "mine.pair" };
 
-/** The items a course title and a pair let through, and what each filter can still offer. */
+/**
+ * The items a course title and a pair let through, and what each filter can still offer. A stored
+ * value the list does not have (the onboarding's pair on a page without a course of it, a course
+ * since downloaded) counts as no filter, so the page is never empty with a blank filter.
+ */
 export function filterCourses<T extends { titles: string[]; editions: string[] }>(
   items: T[],
-  title: string,
-  pair: string,
+  storedTitle: string,
+  storedPair: string,
 ) {
+  const title = items.some((i) => i.titles.includes(storedTitle)) ? storedTitle : ALL;
+  const pair = items.some(
+    (i) => (title === ALL || i.titles.includes(title)) && i.editions.includes(storedPair),
+  )
+    ? storedPair
+    : ALL;
   const fitsTitle = (item: T) => title === ALL || item.titles.includes(title);
   const fitsPair = (item: T) => pair === ALL || item.editions.includes(pair);
   return {
@@ -21,6 +31,9 @@ export function filterCourses<T extends { titles: string[]; editions: string[] }
       a.localeCompare(b),
     ),
     pairs: [...new Set(items.filter(fitsTitle).flatMap((i) => i.editions))].sort(),
+    /** The filters in force (a stored value the list lacks is none). */
+    title,
+    pair,
     /** A filter is set: its bar must show, so it can be cleared. */
     active: title !== ALL || pair !== ALL,
   };

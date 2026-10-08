@@ -24,3 +24,16 @@ test("each filter offers only what fits the other, so the two never empty the pa
   expect(filterCourses(items, "Nicos Weg A1", "ru-de").shown.map((i) => i.name)).toEqual(["a"]);
   expect(title.active).toBe(true);
 });
+
+test("a stored value the list lacks counts as no filter: never an empty page with a blank filter", () => {
+  // The onboarding's pair where no course of it is offered (all downloaded already).
+  const gone = filterCourses(items, ALL, "de-en");
+  expect([gone.pair, gone.active, gone.shown.length]).toEqual([ALL, false, 3]);
+  // A pair the chosen course does not have: the course stays, the pair goes.
+  const mixed = filterCourses(items, "Deutschtrainer", "en-de");
+  expect([mixed.title, mixed.pair, mixed.shown.map((i) => i.name)]).toEqual([
+    "Deutschtrainer",
+    ALL,
+    ["c"],
+  ]);
+});

@@ -1,19 +1,14 @@
-// A new profile's onboarding (06, "Profiles and access"; 09): welcome (courses come straight from their
-// publishers) → name and colour → languages (interface, own, learnt: the pair filters the courses) →
-// sign-in (none, PIN, passkey) → the AI assistant (a slot: the llm folder's own settings) → a tour →
-// All courses, filtered by the pair. Every step can be changed later in Settings.
+// A new profile's onboarding (06, "Profiles and access"; 09): welcome with the interface language
+// (courses come straight from their publishers) → name (never empty) and colour → languages (own,
+// learnt: the pair filters the courses) → sign-in (none or a PIN) → the AI assistant (a slot: the llm
+// folder's own settings) → a tour → the courses, filtered by the pair. Every step but the tour can be
+// changed later in Settings.
 
-import { Check, Fingerprint } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/hooks.ts";
-import {
-  passkeysHere,
-  type SessionProfile,
-  useAddPasskey,
-  useSetPin,
-  useUpdateProfile,
-} from "@/api/session.ts";
+import { type SessionProfile, useSetPin, useUpdateProfile } from "@/api/session.ts";
 import { CATALOG_FILTERS, MY_FILTERS } from "@/courses/filter.ts";
 import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
 import { Avatar } from "@/ui/avatar.tsx";
@@ -21,6 +16,7 @@ import { Chip } from "@/ui/chip.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { cn } from "@/ui/utils.ts";
+import { LanguageSwitch } from "./language-switch.tsx";
 import { targetsOf, useLanguagePairs } from "./pairs.ts";
 import { Tour } from "./tour.tsx";
 
@@ -56,7 +52,8 @@ export function Onboarding({
   const learnt = target && targets.includes(target) ? target : targets[0];
 
   const next = async () => {
-    if (step === "name") update.mutate({ name, colour });
+    if (step === "welcome") setSetting.mutate({ key: "uiLanguage", value: i18n.language });
+    if (step === "name") update.mutate({ name: name.trim(), colour });
     if (step === "languages" && learnt) {
       setSetting.mutate({ key: "learner.native", value: native });
       setSetting.mutate({ key: "learner.target", value: learnt });
@@ -90,6 +87,7 @@ export function Onboarding({
       <div className="flex-1 space-y-4">
         {step === "welcome" && (
           <>
+            <LanguageSwitch onPick={(value) => setSetting.mutate({ key: "uiLanguage", value })} />
             <p className="text-lg">{t("onboarding.welcome.text")}</p>
             <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
               {t("onboarding.welcome.sources")}
@@ -129,15 +127,6 @@ export function Onboarding({
         {step === "languages" && (
           <>
             <Choice
-              label={t("onboarding.languages.interface")}
-              options={[...UI_LANGUAGES]}
-              value={i18n.language}
-              onPick={(l) => {
-                void i18n.changeLanguage(l);
-                setSetting.mutate({ key: "uiLanguage", value: l });
-              }}
-            />
-            <Choice
               label={t("onboarding.languages.native")}
               options={[...UI_LANGUAGES]}
               value={native}
@@ -173,7 +162,7 @@ export function Onboarding({
         )}
         <Button
           size="lg"
-          disabled={step === "languages" && !learnt}
+          disabled={(step === "languages" && !learnt) || (step === "name" && !name.trim())}
           loading={update.isPending && at === steps.length - 1}
           onClick={() => void next()}
         >
@@ -210,13 +199,12 @@ function Choice({
   );
 }
 
-/** Sign-in: none, a PIN (typed twice), a passkey where the browser has them; both may be set. */
+/** Sign-in: none or a PIN (typed twice). */
 function SignInStep() {
   const { t } = useTranslation();
   const [pin, setPin] = useState("");
   const [again, setAgain] = useState("");
   const savePin = useSetPin();
-  const addPasskey = useAddPasskey();
   const ready = /^\d{4,8}$/.test(pin) && pin === again;
   return (
     <div className="space-y-4">
@@ -257,29 +245,6 @@ function SignInStep() {
           </div>
         )}
       </div>
-      {passkeysHere() && (
-        <div className="space-y-2 rounded-2xl border bg-card p-4">
-          <p className="font-medium">{t("onboarding.signIn.passkey")}</p>
-          <p className="text-sm text-muted-foreground">{t("onboarding.signIn.passkeyHint")}</p>
-          {addPasskey.isSuccess ? (
-            <p className="flex items-center gap-1.5 text-sm">
-              <Check className="size-4 text-correct" /> {t("onboarding.signIn.passkeySet")}
-            </p>
-          ) : (
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => addPasskey.mutate()}
-              loading={addPasskey.isPending}
-            >
-              <Fingerprint /> {t("onboarding.signIn.addPasskey")}
-            </Button>
-          )}
-          {addPasskey.isError && (
-            <p className="text-sm text-wrong">{t("profiles.error.passkey_failed")}</p>
-          )}
-        </div>
-      )}
       <p className="text-sm text-muted-foreground">{t("onboarding.signIn.none")}</p>
     </div>
   );

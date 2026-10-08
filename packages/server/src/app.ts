@@ -28,7 +28,7 @@ export type { WebAssets } from "./web.ts";
 export interface AppConfig {
   webAssets: WebAssets;
   library: LibraryView;
-  /** The server database (profiles, devices, passkeys) and the profiles' own database files. */
+  /** The server database (profiles, devices) and the profiles' own database files. */
   server: ServerDb;
   profiles: ProfileFiles;
   /** Reads a library media file (runtime adapter). */

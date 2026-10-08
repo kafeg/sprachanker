@@ -17,7 +17,6 @@ import {
 import {
   type CourseKey,
   EventInput,
-  type EventType,
   findExercise,
   type ItemKey,
   type LessonKey,

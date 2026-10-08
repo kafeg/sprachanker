@@ -18,7 +18,6 @@ import { createLessonContext } from "./lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNotebook } from "./notebook.ts";
-import { createPasskeys } from "./passkeys.ts";
 import { createProfiles, type ProfileFiles } from "./profiles.ts";
 import { createRunStore } from "./run-store.ts";
 import { createRuns } from "./runs.ts";
@@ -32,7 +31,7 @@ import { createWriting } from "./writing.ts";
 
 export interface ServicesConfig {
   library: LibraryView;
-  /** The server database (profiles, devices, passkeys) and the profiles' own files. */
+  /** The server database (profiles, devices) and the profiles' own files. */
   server: ServerDb;
   profiles: ProfileFiles;
   appVersion: string;
@@ -152,7 +151,6 @@ export function createServices(config: ServicesConfig) {
     downloads,
     profiles,
     devices: createDevices({ db: config.server, now }),
-    passkeys: createPasskeys({ db: config.server, now }),
     /** A profile's services (its database opened and its cards relinked on first use). */
     of(profileId: string): ProfileServices {
       let s = open.get(profileId);

@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { type Migration, MigrationError, migrate } from "../src/db/migrate.ts";
 import { migrations } from "../src/db/profile/migrations/index.ts";
+import { migrations as serverMigrations } from "../src/db/server/migrations/index.ts";
 import { openProfileDb } from "../src/runtime/bun.ts";
 
 const fresh = () => join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "profile.sqlite");
@@ -151,4 +152,19 @@ test("cards: a card's run, once deleted, leaves it without one; a lexeme has one
   expect(sqlite.query("SELECT origin_run_id FROM cards WHERE id = 'c1'").get()).toEqual({
     origin_run_id: null,
   });
+});
+
+test("server.sqlite without passkeys: a database with one upgrades, its profiles and devices kept", () => {
+  const file = join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "server.sqlite");
+  const { db, sqlite, options } = runner(file);
+  migrate(db, serverMigrations.slice(0, 1), options(1));
+  sqlite.exec(
+    "INSERT INTO profiles (id, name, colour, created_at) VALUES ('local', 'Anna', 'amber', 1)",
+  );
+  sqlite.exec(
+    "INSERT INTO passkeys (id, profile_id, public_key, counter, transports, rp_id, created_at) VALUES ('k', 'local', 'pk', 0, '', 'localhost', 1)",
+  );
+  expect(migrate(db, serverMigrations, options(2))).toEqual(["0001_drop_passkeys"]);
+  expect(tables(file)).not.toContain("passkeys");
+  expect(sqlite.query("SELECT name FROM profiles").all()).toEqual([{ name: "Anna" }]);
 });

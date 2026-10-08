@@ -1,5 +1,5 @@
 // A short tour of the app's sections (09): each with its icon and one line — at the end of the
-// onboarding, and again from Settings → Profile.
+// onboarding.
 import { useTranslation } from "react-i18next";
 import { NAV } from "./shell.tsx";
 

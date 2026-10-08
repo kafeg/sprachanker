@@ -59,9 +59,11 @@ export function useCourseFilters<T extends { titles: string[]; editions: string[
     const v = settings[key];
     return typeof v === "string" ? v : ALL;
   };
-  const title = stored(keys.course);
-  const pair = stored(keys.pair);
-  const { shown, titles, pairs, active } = filterCourses(items, title, pair);
+  const { shown, titles, pairs, active, title, pair } = filterCourses(
+    items,
+    stored(keys.course),
+    stored(keys.pair),
+  );
   return {
     shown,
     active,

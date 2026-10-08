@@ -27,7 +27,7 @@ src/
                      # cards (/api/cards), settings, notebook, llm (removable as a whole); env.ts: what a
                      # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
-                     # records, PIN, registration), devices (sign-in tokens), passkeys (WebAuthn), and
+                     # records, PIN, registration), devices (sign-in tokens), and
                      # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
                      # progress); run-store (the one module on runs and events: start, replace, end,
                      # append, read, remove); card-store (the one module on cards and card_state); cards

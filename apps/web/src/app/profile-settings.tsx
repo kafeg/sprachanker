@@ -1,15 +1,11 @@
 // Settings → Profile (06, "Profiles and access"; 09): the name and colour, the languages, how this
-// profile signs in (PIN, passkeys), the devices signed in to it, the tour again, switching profile.
-import { Check, Fingerprint, LogOut, Trash2 } from "lucide-react";
+// profile signs in (a PIN), the devices signed in to it, switching profile.
+import { Check, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import {
-  passkeysHere,
-  useAddPasskey,
   useDevices,
-  usePasskeys,
-  useRemovePasskey,
   useRevokeDevice,
   useSession,
   useSetPin,
@@ -26,7 +22,6 @@ import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { deviceName } from "./device-name.ts";
 import { targetsOf, useLanguagePairs } from "./pairs.ts";
-import { Tour } from "./tour.tsx";
 
 const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
 
@@ -38,10 +33,13 @@ export function ProfileSettings() {
   const setSetting = useSetSetting();
   const signOut = useSignOut();
   const [name, setName] = useState(profile?.name ?? "");
-  const [tour, setTour] = useState(false);
   const pairs = useLanguagePairs();
   if (!profile) return null;
-  const saveName = () => name.trim() !== profile.name && update.mutate({ name: name.trim() });
+  // An emptied name is not saved: the field shows the name kept again.
+  const saveName = () => {
+    if (!name.trim()) setName(profile.name);
+    else if (name.trim() !== profile.name) update.mutate({ name: name.trim() });
+  };
   const lang = (key: "learner.native" | "learner.target") => settings?.[key] as string | undefined;
 
   return (
@@ -104,17 +102,6 @@ export function ProfileSettings() {
       </Panel>
       <SignInPanel hasPin={profile.hasPin} />
       <DevicesPanel />
-      <Panel title={t("profile.tour")}>
-        {tour ? (
-          <div className="mt-2">
-            <Tour />
-          </div>
-        ) : (
-          <Button className="mt-2" variant="outline" onClick={() => setTour(true)}>
-            {t("profile.showTour")}
-          </Button>
-        )}
-      </Panel>
       <Button
         variant="outline"
         size="lg"
@@ -129,11 +116,7 @@ export function ProfileSettings() {
 
 function SignInPanel({ hasPin }: { hasPin: boolean }) {
   const { t } = useTranslation();
-  const when = useDateFormat("day");
   const setPin = useSetPin();
-  const passkeys = usePasskeys();
-  const add = useAddPasskey();
-  const remove = useRemovePasskey();
   const [pin, setPinValue] = useState("");
   const [again, setAgain] = useState("");
   const [changing, setChanging] = useState(false);
@@ -192,35 +175,6 @@ function SignInPanel({ hasPin }: { hasPin: boolean }) {
             </Button>
           </div>
         )}
-      </div>
-      <div className="mt-4 space-y-2">
-        <p className="text-sm font-medium">{t("onboarding.signIn.passkey")}</p>
-        <ul className="space-y-1">
-          {(passkeys.data?.passkeys ?? []).map((k) => (
-            <li key={k.id} className="flex items-center gap-2 text-sm">
-              <Fingerprint className="size-4 text-muted-foreground" />
-              <span className="flex-1">
-                {t("profile.passkeyFor", { site: k.rpId, date: when.format(k.createdAt) })}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={t("profile.removePasskey")}
-                onClick={() => remove.mutate(k.id)}
-              >
-                <Trash2 className="size-4" />
-              </Button>
-            </li>
-          ))}
-        </ul>
-        {passkeysHere() ? (
-          <Button variant="outline" onClick={() => add.mutate()} loading={add.isPending}>
-            <Fingerprint /> {t("onboarding.signIn.addPasskey")}
-          </Button>
-        ) : (
-          <p className="text-sm text-muted-foreground">{t("profile.passkeyHttps")}</p>
-        )}
-        {add.isError && <p className="text-sm text-wrong">{t("profiles.error.passkey_failed")}</p>}
       </div>
     </Panel>
   );

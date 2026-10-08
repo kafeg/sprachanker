@@ -2,7 +2,7 @@
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
-import { isUiLanguage } from "@/i18n/index.ts";
+import { isUiLanguage, switchLanguage } from "@/i18n/index.ts";
 
 export type Theme = "system" | "light" | "dark";
 
@@ -12,15 +12,20 @@ function applyTheme(theme: Theme) {
   document.documentElement.classList.toggle("dark", dark);
 }
 
-/** Applies the stored language and theme; follows the system theme when set to "system". */
+/** Applies the profile's language (a profile without one keeps the language on screen) and theme;
+ *  follows the system theme when set to "system". */
 export function usePreferences() {
   const { data } = useSettings();
   const { i18n } = useTranslation();
+  const { mutate } = useSetSetting();
   const language = data?.uiLanguage;
   const theme = (data?.theme as Theme | undefined) ?? "system";
   useEffect(() => {
-    if (isUiLanguage(language) && i18n.language !== language) void i18n.changeLanguage(language);
-  }, [language, i18n]);
+    if (!data) return;
+    if (isUiLanguage(language)) {
+      if (i18n.language !== language) switchLanguage(language);
+    } else mutate({ key: "uiLanguage", value: i18n.language });
+  }, [data, language, i18n, mutate]);
   useEffect(() => {
     applyTheme(theme);
     if (theme !== "system") return;

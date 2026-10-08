@@ -1,4 +1,4 @@
-// Bytes as text for tokens, salts, hashes and passkey ids: base64url without padding (Web APIs only,
+// Bytes as text for tokens, salts and hashes: base64url without padding (Web APIs only,
 // so it runs in Bun and Node alike).
 
 export const base64url = (bytes: ArrayBuffer | Uint8Array) =>

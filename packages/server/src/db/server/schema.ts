@@ -1,5 +1,5 @@
-// server.sqlite (05): the profiles on this server and how devices sign in to them — device tokens and
-// passkeys — and the server's own settings (registration). A profile's learning data is its own file.
+// server.sqlite (05): the profiles on this server and how devices sign in to them (device tokens), and
+// the server's own settings (registration). A profile's learning data is its own file.
 import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /** A learner. Its data lives in profiles/<id>/profile.sqlite; `local` is the first one. */
@@ -36,24 +36,6 @@ export const devices = sqliteTable(
   },
   (t) => [uniqueIndex("devices_token").on(t.tokenHash)],
 );
-
-/** A passkey (WebAuthn credential) of a profile. */
-export const passkeys = sqliteTable("passkeys", {
-  /** The credential id (base64url). */
-  id: text("id").primaryKey(),
-  profileId: text("profile_id")
-    .notNull()
-    .references(() => profiles.id, { onDelete: "cascade" }),
-  /** The credential's public key (base64url, COSE). */
-  publicKey: text("public_key").notNull(),
-  counter: integer("counter").notNull(),
-  /** How the authenticator is reached ("internal", "hybrid", …), comma-separated. */
-  transports: text("transports").notNull(),
-  /** The site it was made for (host name): a passkey made on localhost does not sign in on the tailnet. */
-  rpId: text("rp_id").notNull(),
-  createdAt: integer("created_at").notNull(),
-  lastUsedAt: integer("last_used_at"),
-});
 
 /** The server's own settings (registration open or closed), set by the `sprachanker` command. */
 export const serverSettings = sqliteTable("server_settings", {

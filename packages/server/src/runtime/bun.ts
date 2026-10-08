@@ -51,7 +51,7 @@ export function fileAssets(files: Record<string, string>): WebAssets {
 export const openProfileDb = (file: string, now = Date.now()): ProfileDb =>
   drizzle(openSqlite(file, migrations, now), { schema });
 
-/** Opens (creating if needed) the server database (profiles, devices, passkeys). */
+/** Opens (creating if needed) the server database (profiles, devices). */
 export const openServerDb = (file: string, now = Date.now()): ServerDb =>
   drizzle(openSqlite(file, serverMigrations, now), { schema: serverSchema });
 

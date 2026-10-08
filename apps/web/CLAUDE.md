@@ -30,9 +30,10 @@ apps/web/src/
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
                    # (passes), pass (in full), compare, item-history, mark
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
-                   # in and out, PIN, passkeys, devices; no codegen
+                   # in and out, PIN, devices; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
-                   # profile chip), who-is-studying, onboarding (with tour; the AI step is a slot from
+                   # profile chip), language-switch (the interface language, kept on the device),
+                   # who-is-studying, onboarding (with tour; the AI step is a slot from
                    # the router), profile-settings, pairs (language pairs offered), device-name, about,
                    # reset-progress, preferences (language, theme, course edition)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the

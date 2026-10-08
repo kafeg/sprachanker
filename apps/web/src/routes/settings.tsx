@@ -7,7 +7,7 @@ import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import { AboutSection } from "@/app/about.tsx";
 import type { Theme } from "@/app/preferences.ts";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
-import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
+import { isUiLanguage, languageName, switchLanguage, UI_LANGUAGES } from "@/i18n/index.ts";
 import { PromptsSettings } from "@/llm/prompts-info.tsx";
 import { LlmSettings } from "@/llm/settings-section.tsx";
 import { ReviewSettings } from "@/study/review-settings.tsx";
@@ -42,7 +42,7 @@ function General() {
         <Select
           value={i18n.language}
           onValueChange={(value) => {
-            void i18n.changeLanguage(value);
+            if (isUiLanguage(value)) switchLanguage(value);
             set.mutate({ key: "uiLanguage", value });
           }}
         >

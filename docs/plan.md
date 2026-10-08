@@ -63,8 +63,7 @@ Taken along when an item above touches the area, or on request.
   `contentVersion`, `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
   rule ids; content updated while a run is active ends the run (05).
 - Engine (04): compose with the selfrate upgrade and enrichment.
-- Server (05, 06): export/import of a profile, structured logs, recordings served only to their profile;
-  passkey sign-in tested end to end on a real device (the tests stop at the options).
+- Server (05, 06): export/import of a profile, structured logs, recordings served only to their profile.
 - Review (09): the course map's exams and can-do list; speech settings.
 
 ## After the MVP

@@ -15,7 +15,7 @@ phone / browser ──HTTPS (tailscale serve) or localhost──┐
                  └─ /library/<series>/media/* with Range
                         │
 <data root> (~/SprachAnker) ── library/<series>/…         downloaded courses (02), read-only to the app
-                            ├─ server.sqlite              profiles, devices signed in, passkeys
+                            ├─ server.sqlite              profiles, devices signed in
                             └─ profiles/<id>/profile.sqlite   each learner's runs, events, cards, settings
 ```
 
@@ -52,7 +52,7 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 ## Server inside
 
 `createServices()` (`services/index.ts`) wires the shared services once (content, downloads, profiles,
-devices, passkeys) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
+devices) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
 files: the profile list and signing in first, then the session check — the device's cookie names the
 profile and puts its services in the request's context (`c.var.s`) — then every profile route
 (`routes/{profiles,courses,runs,cards,settings,notebook,llm}.ts`), each thin: validate, call a service,
@@ -69,8 +69,8 @@ return its typed result. The web client gets the types through Hono RPC (`AppTyp
   `tutor-tools`), `writing`, `scene`, `lesson-context` (what tasks know of a lesson). `in-flight` keeps
   what a model is doing per lesson, so structured calls (a scene, a writing check) run to their end and
   a page opened meanwhile shows them as waiting.
-- **Profiles** (`profiles`, `devices`, `passkeys`): every profile equal; a device signs in by choosing
-  a profile, its PIN (attempts limited) or a passkey and keeps a revocable token; server matters are
+- **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
+  choosing a profile or with its PIN (attempts limited) and keeps a revocable token; server matters are
   the `sprachanker profiles` command's.
 - **Security** (`security/`): Host check, CSP and headers, the client header on mutations (CSRF), API
   keys sealed with AES-GCM, tokens and PINs hashed (WebCrypto).

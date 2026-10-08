@@ -698,23 +698,22 @@
     "welcome": "Willkommen bei SprachAnker",
     "firstHint": "Leg dein Profil an: ein paar kurze Schritte.",
     "unnamed": "Noch ohne Namen",
-    "protected": "PIN oder Passkey",
+    "protected": "Mit PIN",
     "new": "Neues Profil",
     "unlock": "Als {name} anmelden",
     "pin": "PIN",
     "signIn": "Anmelden",
-    "withPasskey": "Mit Passkey anmelden",
     "cancel": "Abbrechen",
     "error": {
       "pin_required": "Gib die PIN ein.",
       "wrong_pin": "Falsche PIN.",
       "pin_paused": "Zu viele falsche PINs: warte eine Minute und versuch es erneut.",
-      "passkey_failed": "Die Anmeldung mit dem Passkey hat nicht geklappt. Versuch es erneut oder nimm die PIN.",
-      "passkey_expired": "Das hat zu lange gedauert. Versuch es erneut.",
-      "no_passkey": "Dieses Profil hat keinen Passkey für diese Adresse.",
       "registration_closed": "Auf diesem Server können keine neuen Profile angelegt werden.",
-      "other": "Etwas ist schiefgegangen. Versuch es erneut."
-    }
+      "other": "Etwas ist schiefgegangen. Versuch es erneut.",
+      "name_required": "Ein Profil braucht einen Namen."
+    },
+    "nameIt": "Wie heißt du?",
+    "create": "Anlegen"
   },
   "onboarding": {
     "progress": "Schritt {n} von {total}",
@@ -741,24 +740,19 @@
     },
     "languages": {
       "title": "Deine Sprachen",
-      "interface": "Sprache der App",
       "native": "Deine Sprache (Erklärungen, Übersetzungen)",
       "target": "Sprache zum Lernen",
       "none": "Noch kein Kurs erklärt in dieser Sprache."
     },
     "signIn": {
       "title": "Anmelden",
-      "text": "Andere, die diesen Computer oder dein Handy nutzen, kannst du aus deinem Profil heraushalten. Beides ist freiwillig.",
+      "text": "Mit einer PIN bleiben andere an diesem Computer oder Handy aus deinem Profil draußen. Sie ist freiwillig.",
       "pin": "PIN (4–8 Ziffern)",
       "pinNew": "Neue PIN",
       "pinAgain": "Noch einmal",
       "setPin": "PIN festlegen",
       "pinSet": "PIN festgelegt",
-      "passkey": "Passkey",
-      "passkeyHint": "Face ID, Touch ID oder Fingerabdruck statt der PIN, auf diesem Gerät.",
-      "addPasskey": "Passkey hinzufügen",
-      "passkeySet": "Passkey hinzugefügt",
-      "none": "Ohne beides öffnet sich dein Profil, sobald du es wählst."
+      "none": "Ohne PIN öffnet sich dein Profil, sobald du es wählst."
     },
     "assistant": {
       "title": "KI-Assistent",
@@ -780,18 +774,13 @@
     "learner.native": "Deine Sprache",
     "learner.target": "Sprache zum Lernen",
     "signIn": "Anmelden",
-    "signInHint": "Eine PIN, Passkeys, beides oder nichts. Ohne beides öffnet sich dein Profil, sobald du es wählst.",
+    "signInHint": "Eine PIN oder nichts. Ohne PIN öffnet sich dein Profil, sobald du es wählst.",
     "changePin": "Ändern",
     "removePin": "PIN entfernen",
-    "passkeyFor": "Für {site}, hinzugefügt am {date}",
-    "removePasskey": "Passkey entfernen",
-    "passkeyHttps": "Passkeys brauchen HTTPS (z. B. über Tailscale) oder die eigene Adresse dieses Computers.",
     "devices": "Angemeldete Geräte",
     "thisDevice": "dieses Gerät",
     "lastSeen": "zuletzt genutzt {date}",
     "signOutDevice": "Abmelden",
-    "tour": "Was wo ist",
-    "showTour": "Rundgang zeigen",
     "switch": "Profil wechseln",
     "open": "Profil"
   },

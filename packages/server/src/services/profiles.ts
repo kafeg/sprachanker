@@ -1,12 +1,12 @@
 // The profiles on this server (06, "Profiles and access"): every one equal, each with its own database
 // file; a name and colour for "Who is studying?", an optional PIN tried a limited number of times, and
 // whether the onboarding was finished. Registration (open by default) is the server's own setting,
-// changed by the `sprachanker` command. Signing in is devices.ts and passkeys.ts.
+// changed by the `sprachanker` command. Signing in is devices.ts.
 import { eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
-import { passkeys, profiles, serverSettings } from "../db/server/schema.ts";
+import { profiles, serverSettings } from "../db/server/schema.ts";
 import { ServiceError } from "../errors.ts";
 import { base64url, fromBase64url } from "../security/encoding.ts";
 
@@ -51,15 +51,18 @@ export type ProfileRow = typeof profiles.$inferSelect;
 export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: () => number }) {
   const { db, files, now } = deps;
   const row = (id: string) => db.select().from(profiles).where(eq(profiles.id, id)).get();
-  const hasPasskey = (id: string) =>
-    !!db.select({ id: passkeys.id }).from(passkeys).where(eq(passkeys.profileId, id)).get();
+  /** A name as kept: trimmed, at most 40 characters, never empty. */
+  const nameOf = (name: string) => {
+    const kept = name.trim().slice(0, 40);
+    if (!kept) throw new ServiceError("name_required");
+    return kept;
+  };
   /** A profile as the app shows it: never its PIN. */
   const view = (r: ProfileRow) => ({
     id: r.id,
     name: r.name,
     colour: r.colour,
     hasPin: !!r.pinHash,
-    hasPasskey: hasPasskey(r.id),
     onboarded: !!r.onboarded,
   });
 
@@ -103,7 +106,8 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
 
     /** A new profile (its database made at once); refused while registration is closed, unless it
      *  is the first. */
-    create(input: { name?: string; colour?: string } = {}) {
+    create(input: { name: string; colour?: string }) {
+      const name = nameOf(input.name);
       const any = db.select({ id: profiles.id }).from(profiles).get();
       if (any && !self.registrationOpen()) throw new ServiceError("registration_closed", 403);
       const id = any ? ulid(now()).toLowerCase() : FIRST_PROFILE;
@@ -111,7 +115,7 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
       db.insert(profiles)
         .values({
           id,
-          name: (input.name ?? "").trim().slice(0, 40),
+          name,
           colour: COLOURS.includes(input.colour as never)
             ? (input.colour as string)
             : (COLOURS[count % COLOURS.length] as string),
@@ -125,11 +129,14 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
     update(id: string, input: { name?: string; colour?: string; onboarded?: boolean }) {
       self.get(id);
       const values: Partial<ProfileRow> = {};
-      if (input.name !== undefined) values.name = input.name.trim().slice(0, 40);
+      if (input.name !== undefined) values.name = nameOf(input.name);
       if (input.colour !== undefined) {
         if (!COLOURS.includes(input.colour as never)) throw new ServiceError("bad_colour");
         values.colour = input.colour;
       }
+      // Onboarding ends with a name (the profile from before profiles had none).
+      if (input.onboarded && !(values.name ?? self.get(id).name))
+        throw new ServiceError("name_required");
       if (input.onboarded !== undefined) values.onboarded = input.onboarded ? 1 : 0;
       if (Object.keys(values).length)
         db.update(profiles).set(values).where(eq(profiles.id, id)).run();
@@ -176,13 +183,12 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
       return right;
     },
 
-    /** Removes the PIN and every passkey of a profile (a server matter: the command line). */
+    /** Removes the PIN of a profile (a server matter: the command line). */
     async reset(id: string) {
       await self.setPin(id, null);
-      db.delete(passkeys).where(eq(passkeys.profileId, id)).run();
     },
 
-    /** Deletes a profile with its devices, passkeys and database (a server matter). */
+    /** Deletes a profile with its devices and database (a server matter). */
     remove(id: string) {
       self.get(id);
       db.delete(profiles).where(eq(profiles.id, id)).run();

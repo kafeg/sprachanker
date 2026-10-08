@@ -698,23 +698,22 @@
     "welcome": "Welcome to SprachAnker",
     "firstHint": "Make your profile to start: a few short steps.",
     "unnamed": "No name yet",
-    "protected": "PIN or passkey",
+    "protected": "With a PIN",
     "new": "New profile",
     "unlock": "Sign in as {name}",
     "pin": "PIN",
     "signIn": "Sign in",
-    "withPasskey": "Sign in with a passkey",
     "cancel": "Cancel",
     "error": {
       "pin_required": "Enter the PIN.",
       "wrong_pin": "Wrong PIN.",
       "pin_paused": "Too many wrong PINs: wait a minute and try again.",
-      "passkey_failed": "The passkey did not sign in. Try again or use the PIN.",
-      "passkey_expired": "That took too long. Try again.",
-      "no_passkey": "This profile has no passkey for this address.",
       "registration_closed": "New profiles cannot be made on this server.",
-      "other": "Something went wrong. Try again."
-    }
+      "other": "Something went wrong. Try again.",
+      "name_required": "A profile needs a name."
+    },
+    "nameIt": "What is your name?",
+    "create": "Create"
   },
   "onboarding": {
     "progress": "Step {n} of {total}",
@@ -741,24 +740,19 @@
     },
     "languages": {
       "title": "Your languages",
-      "interface": "Language of the app",
       "native": "Your language (explanations, translations)",
       "target": "Language to learn",
       "none": "No course here teaches from this language yet."
     },
     "signIn": {
       "title": "Signing in",
-      "text": "Others using this computer or your phone can be kept out of your profile. Both are optional.",
+      "text": "Others using this computer or your phone can be kept out of your profile with a PIN. It is optional.",
       "pin": "PIN (4–8 digits)",
       "pinNew": "New PIN",
       "pinAgain": "Again",
       "setPin": "Set PIN",
       "pinSet": "PIN set",
-      "passkey": "Passkey",
-      "passkeyHint": "Face ID, Touch ID or a fingerprint instead of the PIN, on this device.",
-      "addPasskey": "Add a passkey",
-      "passkeySet": "Passkey added",
-      "none": "Without either, choosing your profile opens it."
+      "none": "Without a PIN, choosing your profile opens it."
     },
     "assistant": {
       "title": "AI assistant",
@@ -780,18 +774,13 @@
     "learner.native": "Your language",
     "learner.target": "Language to learn",
     "signIn": "Signing in",
-    "signInHint": "A PIN, passkeys, both or neither. Without them, choosing your profile opens it.",
+    "signInHint": "A PIN or none. Without one, choosing your profile opens it.",
     "changePin": "Change",
     "removePin": "Remove PIN",
-    "passkeyFor": "For {site}, added {date}",
-    "removePasskey": "Remove passkey",
-    "passkeyHttps": "Passkeys need HTTPS (e.g. through Tailscale) or this computer's own address.",
     "devices": "Devices signed in",
     "thisDevice": "this device",
     "lastSeen": "last used {date}",
     "signOutDevice": "Sign out",
-    "tour": "Where things are",
-    "showTour": "Show the tour",
     "switch": "Switch profile",
     "open": "Profile"
   },

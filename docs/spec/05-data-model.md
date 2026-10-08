@@ -12,7 +12,7 @@
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
 ├── models/                      # planned: downloaded speech models and voices (08)
-├── server.sqlite                # profiles, devices, passkeys, server settings
+├── server.sqlite                # profiles, devices, server settings
 └── profiles/<profile-id>/       # `local` is the first
     ├── profile.sqlite           # all learner data of this profile
     ├── recordings/              # planned: learner audio as captured, referenced from events
@@ -34,7 +34,6 @@
   `local` is the first profile (the folder the single profile had)
 - `devices(id, profile_id, token_hash, user_agent, created_at, last_seen_at)` — the token only in the
   device's cookie
-- `passkeys(id, profile_id, public_key, counter, transports, rp_id, created_at, last_used_at?)`
 - `server_settings(key, value_json)` — `registration` (on by default), set by the command
 - Planned: `jobs` (model downloads).
 
