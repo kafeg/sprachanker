@@ -44,14 +44,19 @@ accepted on its own.
   "Listen", speed, reading AI replies aloud.
 - **Accept** (the item): both steps on the Mac; the iPhone in item "Phones".
 
-### 2. Exams: Leben in Deutschland
+### 2. Exams (owner, 2026-10-08)
 Specs: 02, 03, 06, 09.
-- Provider `bamf-lid` (official PDF), exam player and Exams screen: pools, state filter, timer, practice
-  of wrong answers.
-- Offered as a course (owner, 2026-10-08): "Leben in Deutschland" is listed in Courses (Available,
-  then Downloaded and My courses) and installed from the interface like any course, its exam opened
-  from its course page.
-- **Accept**: a timed exam with Berlin questions end to end; results in the Notebook.
+- **An "Exams" section of its own** beside Courses, built like it (tabs: mine, downloaded,
+  available; the pair filter): an exam is got and installed from the interface like a course, from
+  its provider, and practised in an exam player — pools, a timer, the test as the real one runs it,
+  practice of wrong answers, results in the Notebook.
+- **Leben in Deutschland** first: provider `bamf-lid` (BAMF's official question catalogue, PDF),
+  the federal state's questions (the profile's state).
+- **Find the other practice exams** for German at A1, A2, B1 (official free model tests — Goethe,
+  telc, ÖSD and others; which ones, from where and under what terms is the item's research) and add
+  those that can be imported; English exams later, with the English courses.
+- **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
+  section; at least one A1–B1 model test, if one is importable; results in the Notebook.
 
 ### 3. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
