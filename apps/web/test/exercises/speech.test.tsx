@@ -2,7 +2,7 @@ import { afterEach, expect, test } from "bun:test";
 import type { ItemKey } from "@sprachanker/schema";
 import { fireEvent } from "@testing-library/react";
 import { SpeechProvider } from "../../src/audio/context.ts";
-import { SpeechSelfrate } from "../../src/exercises/speech.tsx";
+import { SpeechRepeat, SpeechSelfrate } from "../../src/exercises/speech.tsx";
 import { renderApp } from "../render.tsx";
 
 const secure = Object.getOwnPropertyDescriptor(window, "isSecureContext");
@@ -124,4 +124,33 @@ test("the source's answer is not offered before the first try", async () => {
     </SpeechProvider>,
   );
   expect(view.queryByRole("button", { name: "Sample answer" })).toBeNull();
+});
+
+test("saying a phrase: shown at once; without recognition the microphone says why; what was heard checked against it", async () => {
+  setSecure(true);
+  const phrase = { key: item.key, text: "Wie geht es Ihnen?" };
+  const off = await renderApp(
+    <SpeechProvider value={{ ...host("after"), recognition: false }}>
+      <SpeechRepeat item={phrase} answer={undefined} onAnswer={() => {}} url={(p) => p} />
+    </SpeechProvider>,
+  );
+  expect(off.getByText("Wie geht es Ihnen?")).toBeTruthy();
+  expect(off.getByRole("button", { name: "Record yourself" }).getAttribute("aria-disabled")).toBe(
+    "true",
+  );
+  expect(off.getByText(/needs speech recognition/)).toBeTruthy();
+  off.unmount();
+
+  const said = await renderApp(
+    <SpeechProvider value={host("after")}>
+      <SpeechRepeat
+        item={phrase}
+        answer={{ speech: { transcript: "Wie geht es" } }}
+        onAnswer={() => {}}
+        url={(p) => p}
+      />
+    </SpeechProvider>,
+  );
+  // Three words of four: under the share for "almost".
+  expect(said.getByText(/^Try again/)).toBeTruthy();
 });

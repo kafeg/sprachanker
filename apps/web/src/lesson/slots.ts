@@ -38,8 +38,9 @@ export interface LessonSlots {
   /** AI practice as steps of the plan (writing, scene, going over mistakes), while an assistant is set
    *  up. The player shows the run's own status above the mistakes step's page. */
   practice?: {
-    /** The kinds offered now; a hook, called on every render of the player. */
-    useKinds(): readonly PracticeKind[];
+    /** The kinds offered now, undefined while that is not known yet (the player waits: the flow
+     *  resumes on a step only once it knows every step); a hook, called on every render. */
+    useKinds(): readonly PracticeKind[] | undefined;
     /** A practice step's page; `done` when the run has it done; `onDone` once the learner has done it
      *  (a check, a scene, the tutor's first reply on the mistakes). */
     step(

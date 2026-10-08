@@ -55,11 +55,12 @@ export function LessonPlayer({
   const data = useLesson(series, key, edition);
   const map = useCourseMap(series, course, edition);
   const run = useRun(series, key, edition);
+  const practice = slots.practice?.useKinds();
   const flow = useLessonFlow({
     lesson: data.data?.lesson as Lesson | undefined,
     locale: data.data?.locale as LocaleLesson | null | undefined,
     // The AI practice offered (none while no assistant is set up); `slots` is fixed for the player.
-    practice: slots.practice?.useKinds() ?? [],
+    practice: slots.practice ? practice : [],
     run,
     opened,
     onShow: onStep,
@@ -79,7 +80,14 @@ export function LessonPlayer({
 
   if (courses.isSuccess && !info) return <NotInstalled />;
   if (run.error) return <ErrorState error={run.error} onRetry={run.reload} />;
-  if (data.isPending || !edition || run.mode === "loading" || !step) return <Loading />;
+  if (
+    data.isPending ||
+    !edition ||
+    run.mode === "loading" ||
+    (slots.practice && !practice) ||
+    !step
+  )
+    return <Loading />;
   if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
   const { lesson, locale } = data.data as { lesson: Lesson; locale: LocaleLesson | null };
   const context = { series, lessonKey: lesson.key, edition };

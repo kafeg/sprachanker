@@ -35,9 +35,10 @@ player combines them; `speech_selfrate` items are recorded (08) and not scored. 
 ## Checking
 
 Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (`apps/web`) and tests.
-Checkers (`packages/engine/src/check/index.ts`) exist for every scored type; renderers exist for the
-closed types, `dictation` and `speech_selfrate` — `speech_repeat`, `respond` and `scene` get theirs with
-speech (planned) and their LLM checks.
+Checkers (`packages/engine/src/check/index.ts`) exist for every scored type; renderers exist for every
+type but `scene` (planned with authored scenes). What the player asks before checking is the engine's
+too (`check/answers.ts`): whether an exercise is checked at all, whether an answer is complete enough
+to check, the words of an answer said aloud.
 
 ```ts
 type Outcome = {

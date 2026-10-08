@@ -69,6 +69,23 @@ test("an active run resumes on the exercise last shown while it is not worked", 
   expect(result.current.current).toBe("exercise:1");
 });
 
+test("the AI practice still unknown: the run resumes only once every step is known", () => {
+  const run = fakeRun("active", [], 1).run;
+  const { result, rerender } = renderHook(
+    ({ practice }: { practice?: readonly ("writing" | "scene" | "mistakes")[] }) =>
+      useLessonFlow({ lesson, locale, practice, run: run as never }),
+    {
+      initialProps: { practice: undefined } as {
+        practice?: readonly ("writing" | "scene" | "mistakes")[];
+      },
+    },
+  );
+  expect(result.current.current).toBe("overview");
+  rerender({ practice: ["writing"] });
+  expect(result.current.ids).toContain("writing");
+  expect(result.current.current).toBe("exercise:1");
+});
+
 test("a page opened on a step stays on it instead of resuming (a reload); moving updates the address", () => {
   const shown: string[] = [];
   const { result } = renderHook(() =>

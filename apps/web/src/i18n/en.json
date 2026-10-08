@@ -949,7 +949,8 @@
     "sayIn": "Say it in {language}",
     "notHeardShort": "It couldn't be recognised. Try again.",
     "answerSample": "Sample answer",
-    "aiChecking": "The AI is checking your answer…"
+    "aiChecking": "The AI is checking your answer…",
+    "needsRecognition": "Saying a phrase needs speech recognition: turn it on in Settings → Speech."
   },
   "error": {
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",

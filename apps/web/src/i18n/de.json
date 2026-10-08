@@ -949,7 +949,8 @@
     "sayIn": "Auf {language} sagen",
     "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal.",
     "answerSample": "Musterantwort",
-    "aiChecking": "Die KI prüft deine Antwort …"
+    "aiChecking": "Die KI prüft deine Antwort …",
+    "needsRecognition": "Für das Nachsprechen braucht es die Spracherkennung: Schalte sie unter Einstellungen → Sprechen ein."
   },
   "error": {
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",

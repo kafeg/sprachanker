@@ -106,7 +106,7 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 | Event type | Payload (required fields) |
 |---|---|
 | `page_shown` | `pageIndex`; `exerciseKey` (attached by the server: the exercise on that page); the first time an exercise is shown in a run, its `snapshot` as displayed (`{exercise, locale}`, attached by the server; one that no longer reads is dropped, not its event) |
-| `answered` | `answer` (02; spoken answers carry `speech{recording, transcript}`), `outcome` (04, computed by the server), `attempt`, `ms` |
+| `answered` | `answer` (02; spoken answers carry `speech{recording?, transcript}`: the recording only when recordings are kept), `outcome` (04, computed by the server), `attempt`, `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, a speaking item not recorded); excluded from the score |
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `mistakes`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
 | `llm_verdict` | `task` (`writing` \| `explain` \| `example` \| `speaking`), `input` (the learner's text; the word of an example; what was heard of a spoken answer; empty otherwise), `result` (the task's structured output, 07 — one schema per task in `schema/src/assistant.ts`, checked when written and read; an explanation's text), `model`, `latencyMs`; a writing check in the lesson run the lesson shows; an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains); an example in the day's review run, on its `cardId`; a spoken answer's check in the lesson run, on its `itemKey`, matched to the answer by `input` |

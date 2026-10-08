@@ -7,7 +7,7 @@ import { GapChoice, GapText } from "./gaps.tsx";
 import { Match } from "./match.tsx";
 import { Order } from "./order.tsx";
 import { Respond } from "./respond.tsx";
-import { Dictation, SpeechSelfrate } from "./speech.tsx";
+import { Dictation, SpeechRepeat, SpeechSelfrate } from "./speech.tsx";
 import type { Answers, ItemOf, RendererProps } from "./types.ts";
 
 export type { Answers, RendererProps } from "./types.ts";
@@ -23,6 +23,7 @@ const RENDERERS: Partial<Record<Exercise["type"], (props: RendererProps<any>) =>
     gap_text: GapText,
     dictation: Dictation,
     speech_selfrate: SpeechSelfrate,
+    speech_repeat: SpeechRepeat,
     respond: Respond,
   };
 

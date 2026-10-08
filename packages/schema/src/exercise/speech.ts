@@ -3,8 +3,12 @@ import { z } from "zod";
 import { MediaPath } from "../common.ts";
 import { exerciseOf, ItemBase } from "./base.ts";
 
-/** A recorded spoken answer: profile recording id and the recogniser's transcript (08). */
-export const SpokenAnswer = z.object({ recording: z.string().min(1), transcript: z.string() });
+/** A spoken answer: what the recogniser heard (08), and the profile recording when recordings are
+ *  kept. */
+export const SpokenAnswer = z.object({
+  recording: z.string().min(1).optional(),
+  transcript: z.string(),
+});
 
 export const DictationItem = ItemBase.extend({
   media: z.object({ audio: MediaPath }),

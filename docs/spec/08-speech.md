@@ -57,7 +57,8 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
   server runs (`speech.heard`) — against what was heard; verdict, feedback, the answer corrected and
   the corrections under the item, kept in the run (05) and in the Notebook; a mistake of the lesson
   when it has errors, never in the score. Recognition off or failing: the recording counts.
-- `speech_repeat` (our own exercises): the same diff, scored.
+- `speech_repeat` (our own exercises): the phrase shown, the same diff, scored; it needs recognition
+  (without it the item says so and is left to skip).
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
 - **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of a free answer

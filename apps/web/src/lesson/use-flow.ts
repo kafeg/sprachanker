@@ -28,7 +28,8 @@ export function useLessonFlow({
 }: {
   lesson: Lesson | undefined;
   locale: LocaleLesson | null | undefined;
-  practice: readonly PracticeKind[];
+  /** The AI practice offered; undefined while not known yet (the flow resumes only once it is). */
+  practice: readonly PracticeKind[] | undefined;
   run: Run;
   /** The step the page was opened on (its address): kept on reload instead of resuming elsewhere. */
   opened?: string;
@@ -44,7 +45,7 @@ export function useLessonFlow({
   const finishTried = useRef<string>(undefined);
   const [finishError, setFinishError] = useState<unknown>();
 
-  const steps = lesson ? lessonSteps(lesson, locale, practice) : [];
+  const steps = lesson ? lessonSteps(lesson, locale, practice ?? []) : [];
   const ids = steps.map(stepId);
   const coverage = lesson ? planCoverage(steps, lesson, run.results, run.done) : undefined;
   const active = run.mode === "active";
@@ -53,7 +54,7 @@ export function useLessonFlow({
 
   // Once per run loaded (not while the learner works through it), in the same render — the overview
   // never shows for a frame first.
-  const runLoaded = active && lesson ? run.run?.id : undefined;
+  const runLoaded = active && lesson && practice ? run.run?.id : undefined;
   const [resumedFor, setResumedFor] = useState<string>();
   if (runLoaded && resumedFor !== runLoaded) {
     setResumedFor(runLoaded);

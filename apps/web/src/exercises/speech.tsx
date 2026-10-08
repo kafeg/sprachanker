@@ -117,54 +117,36 @@ const clock = (ms: number) => {
 };
 
 /**
- * Saying it oneself (08; 09): listen to the original (the item's recording, above), record oneself,
- * play one's take beside it. The item counts once recorded — no self-rating. The phrase to repeat is
- * hidden until the first attempt (the ear first) unless the learner shows it or chose it shown.
+ * One's takes of an item (08): recorded, kept when recordings are, heard when recognition is on —
+ * at once, either failing leaving the take itself. `done` gets what was kept and heard. The
+ * recogniser starts loading as the item shows (while the learner listens to the original).
  */
-export function SpeechSelfrate({
-  item,
-  answer,
-  onAnswer,
-  heard = true,
-  readOnly,
-  url,
-}: RendererProps<"speech_selfrate">) {
-  const lang = useTargetLang();
-  const { t } = useTranslation();
+function useTakes(
+  lang: string | undefined,
+  readOnly: boolean | undefined,
+  done: (kept: { recording?: string; transcript?: string }) => void,
+) {
   const host = useSpeechHost();
   const [take, setTake] = useState<{ url: string; ms: number }>();
   const [saving, setSaving] = useState(false);
   const [unsaved, setUnsaved] = useState(false);
   const [unheard, setUnheard] = useState(false);
-  // The recogniser starts loading while the learner listens to the original.
   // biome-ignore lint/correctness/useExhaustiveDependencies: once, when shown
   useEffect(() => {
     if (!readOnly) host?.warm();
   }, []);
-  const [reveal, setReveal] = useState(false);
   useEffect(
     () => () => {
       if (take) URL.revokeObjectURL(take.url);
     },
     [take],
   );
-
-  const attempted = answer !== undefined || !!take;
-  const textShown = readOnly || host?.showText === "always" || attempted || reveal;
-  const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
-  // The source's own answer, once the learner has tried (their answer first, then the model one).
-  const sample =
-    item.answerAudio && (readOnly || attempted) ? (
-      <TakeButton src={url(item.answerAudio)} label={t("speech.answerSample")} />
-    ) : null;
-
   const recorder = useRecorder({ onTake: (recorded) => void taken(recorded) });
   const taken = async (recorded: Take) => {
     setTake({ url: URL.createObjectURL(recorded.blob), ms: recorded.ms });
     setUnsaved(false);
     setUnheard(false);
     setSaving(true);
-    // Kept and heard at once; either failing leaves the item counted by the recording (08).
     const [recording, transcript] = await Promise.all([
       host?.keepRecordings
         ? host.save(recorded).catch(() => {
@@ -181,11 +163,72 @@ export function SpeechSelfrate({
         : undefined,
     ]);
     setSaving(false);
-    onAnswer({
-      ...(recording && { recording }),
-      ...(transcript !== undefined && { transcript }),
-    });
+    done({ ...(recording && { recording }), ...(transcript !== undefined && { transcript }) });
   };
+  return { host, take, saving, unsaved, unheard, recorder };
+}
+
+/** What the take's line under the microphone says: recording, saving or listening, what failed,
+ *  then how to go on. */
+function TakeStatus({
+  takes,
+  attempted,
+  heard,
+}: {
+  takes: ReturnType<typeof useTakes>;
+  attempted: boolean;
+  heard: boolean;
+}) {
+  const { t } = useTranslation();
+  const { recorder, saving, host, unsaved, unheard } = takes;
+  return (
+    <p className="text-center text-xs text-muted-foreground" aria-live="polite">
+      {recorder.state === "recording"
+        ? t("speech.recording")
+        : saving
+          ? host?.recognition
+            ? t("speech.listening")
+            : t("speech.saving")
+          : unsaved
+            ? t("speech.notSaved")
+            : unheard
+              ? t("speech.notHeard")
+              : attempted
+                ? t("speech.again")
+                : heard
+                  ? t("speech.howTo")
+                  : null}
+    </p>
+  );
+}
+
+/**
+ * Saying it oneself (08; 09): listen to the original (the item's recording, above), record oneself,
+ * play one's take beside it. The item counts once recorded — no self-rating. The phrase to repeat is
+ * hidden until the first attempt (the ear first) unless the learner shows it or chose it shown.
+ */
+export function SpeechSelfrate({
+  item,
+  answer,
+  onAnswer,
+  heard = true,
+  readOnly,
+  url,
+}: RendererProps<"speech_selfrate">) {
+  const lang = useTargetLang();
+  const { t } = useTranslation();
+  const takes = useTakes(lang, readOnly, onAnswer);
+  const { host, take, saving, recorder } = takes;
+  const [reveal, setReveal] = useState(false);
+
+  const attempted = answer !== undefined || !!take;
+  const textShown = readOnly || host?.showText === "always" || attempted || reveal;
+  const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
+  // The source's own answer, once the learner has tried (their answer first, then the model one).
+  const sample =
+    item.answerAudio && (readOnly || attempted) ? (
+      <TakeButton src={url(item.answerAudio)} label={t("speech.answerSample")} />
+    ) : null;
 
   return (
     <div className="space-y-3">
@@ -251,25 +294,62 @@ export function SpeechSelfrate({
       {answer?.transcript !== undefined && !saving && (
         <Heard lang={lang} reference={item.text} transcript={answer.transcript} />
       )}
-      {!readOnly && (
-        <p className="text-center text-xs text-muted-foreground" aria-live="polite">
-          {recorder.state === "recording"
-            ? t("speech.recording")
-            : saving
-              ? host?.recognition
-                ? t("speech.listening")
-                : t("speech.saving")
-              : unsaved
-                ? t("speech.notSaved")
-                : unheard
-                  ? t("speech.notHeard")
-                  : attempted
-                    ? t("speech.again")
-                    : heard
-                      ? t("speech.howTo")
-                      : null}
-        </p>
+      {!readOnly && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
+    </div>
+  );
+}
+
+/**
+ * Saying a phrase (08, our own exercises): the phrase shown, the learner says it, and the words heard
+ * are checked against it (scored). It needs recognition: without it the microphone says why, and the
+ * item is left to skip.
+ */
+export function SpeechRepeat({
+  item,
+  answer,
+  onAnswer,
+  outcome,
+  heard = true,
+  readOnly,
+}: RendererProps<"speech_repeat">) {
+  const lang = useTargetLang();
+  const { t } = useTranslation();
+  const takes = useTakes(lang, readOnly, ({ recording, transcript }) => {
+    if (transcript !== undefined)
+      onAnswer({ speech: { ...(recording && { recording }), transcript } });
+  });
+  const { host, take, recorder } = takes;
+  const attempted = answer !== undefined || !!take;
+  const own =
+    take?.url ?? (answer?.speech.recording && host ? host.src(answer.speech.recording) : undefined);
+  return (
+    <div className="space-y-3">
+      <p lang={lang} className="whitespace-pre-line font-heading text-2xl font-semibold">
+        {item.text}
+      </p>
+      {!readOnly && !outcome && (
+        <div className="flex flex-wrap items-start justify-center gap-4">
+          <MicButton
+            recorder={recorder.state}
+            level={recorder.level}
+            waiting={
+              !host?.recognition
+                ? "speech.needsRecognition"
+                : heard
+                  ? undefined
+                  : "speech.listenFirst"
+            }
+            onStart={() => void recorder.start()}
+            onStop={recorder.stop}
+          />
+          {own && <TakeButton src={own} label={t("speech.mine")} className="mt-1.5" />}
+        </div>
       )}
+      {!readOnly && !outcome && !host?.recognition && (
+        <p className="text-center text-sm text-muted-foreground">{t("speech.needsRecognition")}</p>
+      )}
+      {answer && <Heard lang={lang} reference={item.text} transcript={answer.speech.transcript} />}
+      {!readOnly && !outcome && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
     </div>
   );
 }

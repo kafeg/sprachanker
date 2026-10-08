@@ -10,6 +10,7 @@ import type {
   Outcome,
   RespondAnswer,
   SingleChoiceAnswer,
+  SpeechRepeatAnswer,
   SpeechSelfrateAnswer,
 } from "@sprachanker/schema";
 
@@ -25,6 +26,7 @@ export interface Answers {
   gap_text: GapTextAnswer;
   dictation: DictationAnswer;
   speech_selfrate: SpeechSelfrateAnswer;
+  speech_repeat: SpeechRepeatAnswer;
   respond: RespondAnswer;
 }
 

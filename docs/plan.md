@@ -57,12 +57,11 @@ stat tile, one reader of error bodies, every number and date through `ui/format.
 edition lookup); the reviewer's keys (a tested pure function) and More menu out of `session.tsx`,
 one card action at a time; no two-way imports between feature folders (the step mark in `ui/`,
 resetting progress in `courses/`, the course edition in `api/`); unused imports and variables are
-lint errors.
-1. **Web** (rest). AI practice steps known before the flow resumes; `speech_repeat` rendered.
-2. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
+lint errors; the AI practice steps known before a run resumes; `speech_repeat` rendered.
+1. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
    one contract test over every provider; exercises drafted typed (no `as never`); `Unmapped`,
    unknown exercises and the Cyrillic/Latin split shared in course-kit.
-3. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
+2. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
    (a separate short "Planned" list), stale lines gone; spec drift fixed (04, 05, 06, 08, 09, 10's
    fixed choices only for what is used).
 - **Accept**: every step's tests; `bun run check` and `bun run e2e` green; a sweep finds no

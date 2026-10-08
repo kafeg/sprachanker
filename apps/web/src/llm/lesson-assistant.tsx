@@ -17,7 +17,10 @@ export const lessonAssistant: LessonSlots = {
   spoken: (context) => <SpokenAnswerCheck {...context} />,
   practice: {
     // Offered while a model is set up; a lesson never waits for an assistant.
-    useKinds: () => (useLlm().data?.model ? PRACTICE : []),
+    useKinds: () => {
+      const llm = useLlm();
+      return llm.isPending ? undefined : llm.data?.model ? PRACTICE : [];
+    },
     step: (kind, { hasMistakes, done, onDone, ...context }) =>
       kind === "writing" ? (
         <WritingTask {...context} onDone={onDone} />
