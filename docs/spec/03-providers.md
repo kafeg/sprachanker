@@ -88,8 +88,9 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   page (overview, vocabulary, grammar, culture, script, videos) and its download page (`…/le`), and one
   page per exercise; URLs are built from ids. The embedded state JSON (`window.__APOLLO_STATE__`) is
   stored in `raw/<edition>/<course>/` (`course.json`, `l-<id>.json`, `le-<id>.json`, `e-<id>.json`),
-  not full HTML. An exercise page the source no longer serves (404), or serves without its exercise,
-  is left out and reported; the lesson keeps the others under their own numbers.
+  not full HTML. A stored page without the lesson or exercise it is for is fetched once more (DW
+  serves an empty content now and then). An exercise page the source no longer serves (404), or
+  still serves without its exercise, is left out and reported; the lesson keeps the others under their own numbers.
 - **Media** (`courses/dw/src/media.ts`): every MP3 the pages link (items, vocabulary, lessons); images
   in format 6 (940×529); episode videos as direct MP4s in SD and HD (from the download page, else
   remuxed from the HLS stream), not the variant with burned-in subtitles; the German subtitle track;

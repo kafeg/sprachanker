@@ -36,8 +36,11 @@ export async function fetchPages(
   counted: () => void = () => {},
 ): Promise<void> {
   const dir = rawDir(seriesDir, c);
-  const get = async (path: string, file: string) => {
-    const state = await page(fetcher, path, file, refresh);
+  /** A page; one stored without the entity it is for (DW answers an empty content now and then) is
+   *  fetched once more. */
+  const get = async (path: string, file: string, entity?: string) => {
+    let state = await page(fetcher, path, file, refresh);
+    if (entity && !state[entity] && !refresh) state = await page(fetcher, path, file, true);
     counted();
     return state;
   };
@@ -46,7 +49,7 @@ export async function fetchPages(
   const lessons = lessonIds(course);
   const exercises: Array<{ lesson: number; exercise: number }> = [];
   await runPool(lessons, CONCURRENCY, async (id) => {
-    const lesson = await get(`/${c.lang}/x/l-${id}`, join(dir, `l-${id}.json`));
+    const lesson = await get(`/${c.lang}/x/l-${id}`, join(dir, `l-${id}.json`), `Lesson:${id}`);
     await get(`/${c.lang}/x/l-${id}/le`, join(dir, `le-${id}.json`));
     for (const exercise of exerciseIds(lesson, id)) exercises.push({ lesson: id, exercise });
   });
@@ -56,7 +59,11 @@ export async function fetchPages(
   let done = 0;
   await runPool(exercises, CONCURRENCY, async ({ lesson, exercise }) => {
     try {
-      await get(`/${c.lang}/x/l-${lesson}/e-${exercise}`, join(dir, `e-${exercise}.json`));
+      await get(
+        `/${c.lang}/x/l-${lesson}/e-${exercise}`,
+        join(dir, `e-${exercise}.json`),
+        `Exercise:${exercise}`,
+      );
     } catch (error) {
       // An exercise the lesson lists but DW no longer serves (seen in the Turkish A1): it is left
       // out and reported by the normaliser; anything else stops the import.

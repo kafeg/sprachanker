@@ -47,7 +47,8 @@ test("fetches every page once, in parallel, and nothing on the next run", async 
     requested.push(url.pathname);
     if (url.pathname === "/robots.txt")
       return new Response("User-agent: *\nDisallow: /*/*/l-*/ler$");
-    return new Response(html(PAGES[url.pathname] ?? { "Exercise:0": {} }));
+    const exercise = /\/e-(\d+)$/.exec(url.pathname)?.[1];
+    return new Response(html(PAGES[url.pathname] ?? { [`Exercise:${exercise}`]: {} }));
   }) as typeof fetch;
   const fetcher = () =>
     createPoliteFetcher({ userAgent: "test", robotsHosts: ["learngerman.dw.com"], fetch: fake });
@@ -70,4 +71,28 @@ test("fetches every page once, in parallel, and nothing on the next run", async 
   requested.length = 0;
   await fetchPages(fetcher(), seriesDir, course, () => {});
   expect(requested).toEqual([]);
+});
+
+test("a page that came without its exercise is fetched once more", async () => {
+  const requested: string[] = [];
+  const fake = (async (input: URL | string) => {
+    const url = new URL(String(input));
+    requested.push(url.pathname);
+    if (url.pathname === "/robots.txt") return new Response("User-agent: *");
+    const exercise = /\/e-(\d+)$/.exec(url.pathname)?.[1];
+    // e-12 comes empty the first time, as DW sometimes answers.
+    const empty = exercise === "12" && requested.filter((p) => p.endsWith("/e-12")).length === 1;
+    return new Response(
+      html(PAGES[url.pathname] ?? (empty ? {} : { [`Exercise:${exercise}`]: {} })),
+    );
+  }) as typeof fetch;
+  const seriesDir = mkdtempSync(join(tmpdir(), "sprachanker-dw-"));
+  await fetchPages(
+    createPoliteFetcher({ userAgent: "test", robotsHosts: ["learngerman.dw.com"], fetch: fake }),
+    seriesDir,
+    course,
+    () => {},
+  );
+  expect(requested.filter((p) => p.endsWith("/e-12"))).toHaveLength(2);
+  expect(requested.filter((p) => p.endsWith("/e-11"))).toHaveLength(1);
 });
