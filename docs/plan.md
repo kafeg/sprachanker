@@ -28,11 +28,21 @@ how it fits together, by `docs/architecture.md`. Each item names the spec files 
 
 ### 1. Speech: synthesis (owner's decisions, 2026-10-08)
 Specs: 08, 06, 09. Recording, recognition and the AI's check of answers said aloud are built (08).
-- **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
-  settings Piper or Qwen3-TTS on the server instead. Used for words without a recording, AI examples
-  (a play button), tutor and scene replies (read aloud on request or automatically).
-- Settings → Speech gains: synthesis engine and a voice per language with "Listen", speed, reading AI
-  replies aloud.
+Course audio is used whenever there is some (DW: 72 of 68,878 words without a recording); synthesis
+is mostly for what the AI writes. Decided (owner, 2026-10-08): Settings → Speech → "Read aloud" with
+the engines as cards (as the AI providers), the voices of the chosen one under it per language with
+"Listen", speed, and "read aloud at once: nothing / scenes / scenes and the tutor"; a speaker icon in
+the corner of an AI message (tutor, scene line, a word's AI example) and beside a word without a
+recording; a tutor reply read part by part, each in its language's voice (parts told apart by script;
+one voice when both languages share one).
+- **1a. The device's voices** (Web Speech API, default): the best voice per language picked
+  (enhanced/premium first) unless one is chosen; the web only. Accept: tests of picking, splitting
+  and reading; e2e with a stubbed `speechSynthesis`.
+- **1b. Piper on this computer**: piper1-gpl (GPL-3, a separate program beside ours like whisper)
+  built in `native/piper`, pinned; voices per language downloaded and checked in Settings; the server
+  speaks (`POST /api/speech/say` → WAV, kept in `<data-root>/cache/tts`).
+- **1c. Own server**: any server with OpenAI's `/v1/audio/speech` (Qwen3-TTS through mlx-audio), its
+  address, model and voice in Settings; reached by our server, which keeps what it said like Piper's.
 - **Accept**: on the Mac; the iPhone in item "Phones".
 
 ### 2. Exams (owner, 2026-10-08)
