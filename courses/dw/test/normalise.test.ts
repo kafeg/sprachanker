@@ -204,6 +204,22 @@ test("grammar pages: a topic's parts in a lesson are one page; a topic begun ear
   ]);
 });
 
+test("parts numbered in the edition's own digits are joined too (Persian, Hindi)", () => {
+  const page = (title: string, body: string) => ({ sourceId: "1", title, bodyHtml: body });
+  expect(
+    topicParts([
+      page("وجه مجهول (۱)", "<p>1</p>"),
+      page("وجه مجهول (۲)", "<p>2</p>"),
+      page("صرف صفت (۳)", "<p>3</p>"),
+      page("कर्मवाच्य (२)", "<p>h</p>"),
+    ]),
+  ).toEqual([
+    { sourceId: "1", title: "وجه مجهول", bodyHtml: "<p>1</p><p>2</p>" },
+    { sourceId: "1", title: "صرف صفت", bodyHtml: "<p>3</p>", part: 3 },
+    { sourceId: "1", title: "कर्मवाच्य", bodyHtml: "<p>h</p>", part: 2 },
+  ]);
+});
+
 test("a grammar page's bold-only lines become its section titles", () => {
   const lesson = lessonKey("dw.nicos-weg/a1" as never, 0, 1);
   const out = normaliseLesson(ctx, {

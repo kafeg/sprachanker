@@ -53,8 +53,21 @@ const listItems = (value: unknown) =>
     .map((m) => plainText(m[1]))
     .filter(Boolean);
 
-/** "Spelling (2)": DW numbers the parts of a topic that runs over several pages and lessons. */
-const PART = /\s*\((\d+)\)\s*$/;
+/** "Spelling (2)": DW numbers the parts of a topic that runs over several pages and lessons, in the
+ *  edition's own digits ("(۲)" in Persian, "(२)" in Hindi). */
+const PART = /\s*\((\p{Nd}+)\)\s*$/u;
+
+/** A number written in any script's decimal digits: each digit's value is its distance from the
+ *  zero of its run of ten (Unicode keeps them in order). */
+function digitsValue(digits: string) {
+  let n = 0;
+  for (const d of digits) {
+    let zero = d.codePointAt(0) as number;
+    while (zero > 0 && /\p{Nd}/u.test(String.fromCodePoint(zero - 1))) zero--;
+    n = n * 10 + (((d.codePointAt(0) as number) - zero) % 10);
+  }
+  return n;
+}
 
 /**
  * A lesson's grammar or culture pages as one page per topic: the parts of a topic in this lesson
@@ -66,7 +79,7 @@ export function topicParts(pages: Tab[]): Tab[] {
   for (const page of pages) {
     const match = PART.exec(page.title);
     const title = page.title.replace(PART, "");
-    const n = match ? Number(match[1]) : undefined;
+    const n = match ? digitsValue(match[1] as string) : undefined;
     const topic = byTitle.get(title);
     if (topic) {
       topic.page.bodyHtml += page.bodyHtml;

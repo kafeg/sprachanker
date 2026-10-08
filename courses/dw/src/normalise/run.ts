@@ -38,6 +38,7 @@ export async function normaliseCourse(
   const titles = new Map<LessonKey, string>();
   const goals = new Map<LessonKey, Record<GoalKey, string>>();
   let unknownTotal = 0;
+  let leftOut = 0;
   let lessonsDone = 0;
   for (const entry of all) {
     const lesson = await read(`l-${entry.sourceId}.json`);
@@ -68,7 +69,12 @@ export async function normaliseCourse(
         path: `locale/${dw.edition}/${dw.id}/lessons/${name}.json`,
       },
     ]);
-    unknownTotal += out.lesson.unmapped.length;
+    // Unknown: exercises of a mechanic not mapped; left out: what the source does not have (a gone
+    // page) or a word that did not read — both listed in the lesson's `unmapped`.
+    unknownTotal += out.lesson.pages.filter(
+      (p) => "exercise" in p && p.exercise.type === "unknown",
+    ).length;
+    leftOut += out.lesson.unmapped.length;
     lessonsDone++;
   }
   const courseEntity = Object.entries(courseState).find(([k]) => k.startsWith("Course:"))?.[1];
@@ -93,7 +99,7 @@ export async function normaliseCourse(
   await writer.finish();
   const { problems } = writer;
   log(
-    `${dw.id} (${dw.edition}): ${lessonsDone} lessons normalised${unknownTotal ? `, ${unknownTotal} unknown exercises` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
+    `${dw.id} (${dw.edition}): ${lessonsDone} lessons normalised${unknownTotal ? `, ${unknownTotal} unknown exercises` : ""}${leftOut ? `, ${leftOut} parts left out (unmapped)` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
   );
   return { lessons: lessonsDone, unknown: unknownTotal, problems };
 }

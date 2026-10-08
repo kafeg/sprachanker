@@ -102,7 +102,7 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   (`exercise.playAudio`), so every edition language is covered; image options keep only the image. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma. Grammar and culture pages: DW numbers the
-  parts of a topic ("Spelling (2)"); the parts within a lesson are joined into one page, the number
+  parts of a topic ("Spelling (2)", in the edition's own digits: "(۲)", "(२)"); the parts within a lesson are joined into one page, the number
   leaves the title and a topic begun in an earlier lesson keeps it as `part` (02). Exercise titles keep
   their numbers ("Im Unterricht (1)", "(2)"): they tell apart exercises of one topic in a lesson.
 - Planned: **B1** has a German glossary (`GLOSSARY`, definitions instead of translations) that needs its
