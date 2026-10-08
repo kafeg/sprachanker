@@ -77,7 +77,16 @@ Order decided by the week of use.
   "Practise this", can-do list. Accept: A1 units 0–2 enriched and reviewed; a practice set from du/Sie
   mistakes runs end to end.
 - **Anki decks and word images** (04): `packages/anki-export` (`.apkg` export and import, stored decks),
-  word images. Accept: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
+  word images. Decks are got like courses (owner, 2026-10-08): Review → Decks lists decks to download
+  (a catalogue of shared decks; AnkiWeb asks for an account after a few searches, so its decks come
+  by link or as an `.apkg` file) and the profile's own; a downloaded deck is taken and left like a
+  course's. Accept: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
+- **Books** (owner, 2026-10-08): free books downloaded and read like courses — a library of books to
+  download (public-domain sources such as Project Gutenberg; the sources and their terms decided in the
+  item's plan), "My books" with the place read; a reader with the translation beside (by sentence or
+  paragraph), a word tapped opens its sheet (dictionary: the course's words, else the model) and goes
+  to cards, the AI to explain a sentence or the grammar, and read aloud (speech). Accept: a German book
+  downloaded, read on Mac and iPhone with translation, words added to Review.
 - **More sources**: B1 glossary, Deutsch im Blick interviews, Starter English (03).
 - **Desktop app** (06, 09): Tauri shell, first-run wizard (incl. LM Studio), network options with QR,
   signed bundles for macOS then Windows and Linux, auto-update. Accept: fresh machine → lesson 1 in
@@ -85,5 +94,5 @@ Order decided by the week of use.
 - **Later**: missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`),
   per-task LLM routes, handoff to other assistants, LLM golden tests, Goethe A1 practice sets, FSRS for
   Leben in Deutschland, the FSRS optimizer in the Review settings (once there is history), badges, a local CA for LAN HTTPS, Qwen3-TTS and cloud speech, offline use and push
-  notifications, a reader for books and texts, `.apkg` with scheduling,
+  notifications, `.apkg` with scheduling,
   Docker image, project website, native mobile via Tauri.
