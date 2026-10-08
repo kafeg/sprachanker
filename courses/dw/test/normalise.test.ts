@@ -220,6 +220,23 @@ test("parts numbered in the edition's own digits are joined too (Persian, Hindi)
   ]);
 });
 
+test("parts in full-width brackets, or titled with full-width colons and spaces apart, are joined (Chinese)", () => {
+  const page = (title: string, body: string) => ({ sourceId: "1", title, bodyHtml: body });
+  expect(
+    topicParts([
+      page("被动态 （1）", "<p>1</p>"),
+      page("被动态（2）", "<p>2</p>"),
+      page("第二虚拟式：请求（1）", "<p>a</p>"),
+      page("第二虚拟式: 请求（2）", "<p>b</p>"),
+      page("形容词变格（3）", "<p>c</p>"),
+    ]),
+  ).toEqual([
+    { sourceId: "1", title: "被动态", bodyHtml: "<p>1</p><p>2</p>" },
+    { sourceId: "1", title: "第二虚拟式：请求", bodyHtml: "<p>a</p><p>b</p>" },
+    { sourceId: "1", title: "形容词变格", bodyHtml: "<p>c</p>", part: 3 },
+  ]);
+});
+
 test("a grammar page's bold-only lines become its section titles", () => {
   const lesson = lessonKey("dw.nicos-weg/a1" as never, 0, 1);
   const out = normaliseLesson(ctx, {

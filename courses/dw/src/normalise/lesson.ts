@@ -54,8 +54,12 @@ const listItems = (value: unknown) =>
     .filter(Boolean);
 
 /** "Spelling (2)": DW numbers the parts of a topic that runs over several pages and lessons, in the
- *  edition's own digits ("(۲)" in Persian, "(२)" in Hindi). */
-const PART = /\s*\((\p{Nd}+)\)\s*$/u;
+ *  edition's own digits ("(۲)" in Persian, "(२)" in Hindi) and brackets ("（2）" in Chinese). */
+const PART = /\s*[(（](\p{Nd}+)[)）]\s*$/u;
+
+/** A topic's title as compared: full-width forms as plain ones, spaces ignored ("被动态 （1）" and
+ *  "第二虚拟式: 请求" are the same topics as "被动态（2）" and "第二虚拟式：请求"). */
+const topicOf = (title: string) => title.normalize("NFKC").replace(/\s+/g, "");
 
 /** A number written in any script's decimal digits: each digit's value is its distance from the
  *  zero of its run of ten (Unicode keeps them in order). */
@@ -80,12 +84,12 @@ export function topicParts(pages: Tab[]): Tab[] {
     const match = PART.exec(page.title);
     const title = page.title.replace(PART, "");
     const n = match ? digitsValue(match[1] as string) : undefined;
-    const topic = byTitle.get(title);
+    const topic = byTitle.get(topicOf(title));
     if (topic) {
       topic.page.bodyHtml += page.bodyHtml;
       continue;
     }
-    byTitle.set(title, { page: { ...page, title }, first: n });
+    byTitle.set(topicOf(title), { page: { ...page, title }, first: n });
   }
   return [...byTitle.values()].map(({ page, first }) =>
     first && first > 1 ? { ...page, part: first } : page,

@@ -1,6 +1,6 @@
 // Language flags (09): a language is shown by the flag we chose for it — a language is not a
-// country, so this table is ours (English → the British flag, Portuguese → Brazil's as DW teaches it).
-// A language spoken across many countries without one obvious flag (Arabic, Swahili) shows its code.
+// country, so this table is ours (English → the British flag, Portuguese → Brazil's as DW teaches it,
+// Arabic → Saudi Arabia's, Swahili → Tanzania's). A language not in it shows its code.
 // Flags come from country-flag-icons, one module per flag, so only these are bundled.
 
 import { parseEditionId } from "@sprachanker/schema";
@@ -20,7 +20,9 @@ import IT from "country-flag-icons/react/3x2/IT";
 import PL from "country-flag-icons/react/3x2/PL";
 import RO from "country-flag-icons/react/3x2/RO";
 import RU from "country-flag-icons/react/3x2/RU";
+import SA from "country-flag-icons/react/3x2/SA";
 import TR from "country-flag-icons/react/3x2/TR";
+import TZ from "country-flag-icons/react/3x2/TZ";
 import UA from "country-flag-icons/react/3x2/UA";
 import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -28,6 +30,7 @@ import { languageName } from "@/i18n/index.ts";
 import { cn } from "./utils.ts";
 
 const FLAGS: Record<string, typeof DE> = {
+  ar: SA,
   bs: BA,
   de: DE,
   el: GR,
@@ -43,6 +46,7 @@ const FLAGS: Record<string, typeof DE> = {
   pt: BR,
   ro: RO,
   ru: RU,
+  sw: TZ,
   tr: TR,
   uk: UA,
   zh: CN,
