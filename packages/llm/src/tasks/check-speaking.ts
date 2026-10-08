@@ -40,11 +40,11 @@ export function checkSpeakingRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You are a ${t} teacher. A beginner who speaks ${l} answered a speaking exercise aloud; a speech recogniser wrote down what they said.`,
+    `You are a ${t} teacher. A beginner (level A1) who speaks ${l} answered a speaking exercise aloud; a speech recogniser wrote down what they said.`,
     "Judge the answer against the item: does it answer the question or do what the task asks, in fitting words and correct grammar for the level?",
-    "Any sensible answer counts: the source's answer is one good answer, not the only one; the learner may say what is true for them.",
+    "Any sensible answer counts: the source's answer is one good answer, not the only one; the learner may say what is true for them. Words the lesson has not taught are fine if correct.",
     "It was spoken: ignore punctuation, capitalisation and spelling the recogniser chose. A word that is clearly the recogniser mishearing a right word is not an error.",
-    'When the task asks for complete sentences (or a form such as "Ja, ich ..."), a bare word or fragment is a major error.',
+    "When the task asks for complete sentences (or a form it gives), a bare word or fragment is a major error.",
     `Correct only real errors, changing as little as possible; keep the learner's ideas. List each error once in "corrections"; none: an empty list.`,
     `Write "corrected", "wrong" and "right" in ${t}. Write every "explanation" and "feedback" in ${l} — not in ${t} — briefly. "feedback" is one or two encouraging, concrete sentences; when the answer is good, it may offer another way to say it.`,
     `verdict: "good" (fits and no errors), "minor_errors", "major_errors", or "off_task" (does not answer the item or is not in ${t}).`,

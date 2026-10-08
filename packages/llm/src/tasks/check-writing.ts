@@ -49,16 +49,17 @@ export function checkWritingRules(
     "- communication: is it a coherent message for the situation, with fitting greetings or connectors where the task needs them (2/1/0);",
     "- accuracy: grammar and spelling at A1 level; errors that block understanding weigh most (2 few or none, 1 several, 0 many).",
     `Rules: correct only real errors, changing as little as possible; keep the learner's ideas. Words the lesson has not taught are fine if correct. Ignore missing final punctuation.`,
-    german
-      ? "Spelling is the standard of Germany, as the course teaches it: ß and umlauts where they belong (heiße, not heisse; Grüße, not Grüsse) — that is an error to correct."
-      : undefined,
     `List each error once in "corrections"; never list text that needs no change. No errors: an empty list.`,
     `Write "corrected", "wrong" and "right" in ${t}. Write every "comment", "explanation" and "feedback" in ${l} — not in ${t} — briefly. "feedback" is one or two encouraging, concrete sentences.`,
     `verdict: "good" (no errors), "minor_errors", "major_errors", or "off_task" (not about the task or not in ${t}).`,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ].join("\n");
 }
+
+/** What the text's language spells in a way learners often miss: said with the text, so it holds
+ *  whatever rules the learner wrote. */
+const SPELLING: Partial<Record<Lang, string>> = {
+  de: 'Spelling is the standard of Germany, as the course teaches it: ß and umlauts where they belong (heiße, not heisse; Grüße, not Grüsse) — "ss" where German writes "ß" is an error to correct.',
+};
 
 function checkWritingRequest(input: WritingInput): TaskRequest {
   const B = CHECK_WRITING_BUDGETS;
@@ -73,8 +74,9 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
     "<text>",
     clip(input.text.trim(), B.text),
     "</text>",
-    // Small models follow the last lines best: repeat what they most often get wrong.
-    `Remember: ${input.target === "de" ? '"ss" where German writes "ß" is an error; ' : ""}comments, explanations and feedback in ${languageName(input.language)}.`,
+    // Small models follow the last lines best: what they most often get wrong.
+    SPELLING[input.target],
+    `Remember: comments, explanations and feedback in ${languageName(input.language)}.`,
   ]
     .filter(Boolean)
     .join("\n");

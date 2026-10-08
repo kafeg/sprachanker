@@ -702,10 +702,8 @@ describe("prompt viewer", () => {
     // The text to edit has the languages as placeholders.
     expect(prompts.explain.template).toContain("Explain in {language}");
     expect(prompts.explain.custom).toBe(false);
-    // Only the languages become placeholders: "Germany" stays a word ("{target}y" before).
-    expect(prompts.writing.template).toContain("the standard of Germany");
     expect(prompts.writing.template).toContain("{target} teacher");
-    expect(prompts.speaking.template).toContain("A beginner who speaks {language}");
+    expect(prompts.speaking.template).toContain("A beginner (level A1) who speaks {language}");
   });
 
   test("own system prompts: saved per task, languages filled in, used, reset", async () => {

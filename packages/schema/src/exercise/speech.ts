@@ -7,7 +7,9 @@ import { exerciseOf, ItemBase } from "./base.ts";
  *  kept. */
 export const SpokenAnswer = z.object({
   recording: z.string().min(1).optional(),
-  transcript: z.string(),
+  /** As long as a self-rated answer's: a take is at most a few minutes. Checked when an answer is
+   *  checked (stored payloads keep `answer` as it was). */
+  transcript: z.string().max(2000),
 });
 
 export const DictationItem = ItemBase.extend({
