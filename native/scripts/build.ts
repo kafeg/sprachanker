@@ -4,7 +4,7 @@
 // (and the desktop app will bundle it). The sources and the build live in ~/.cache/sprachanker, out of
 // the repository (its own tests must not run with ours). Needs git, cmake and a C++ toolchain.
 //   bun native/scripts/build.ts
-import { copyFileSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
@@ -21,9 +21,13 @@ const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
       : "unknown-linux-gnu"
 }`;
 
+// Cloned aside and moved into place when whole: an interrupted clone is not taken for the sources.
 if (!existsSync(src)) {
   mkdirSync(cache, { recursive: true });
-  await $`git clone --depth 1 --branch ${version} https://github.com/ggml-org/whisper.cpp ${src}`;
+  const part = `${src}.part`;
+  rmSync(part, { recursive: true, force: true });
+  await $`git clone --depth 1 --branch ${version} https://github.com/ggml-org/whisper.cpp ${part}`;
+  renameSync(part, src);
 }
 const metal =
   process.platform === "darwin" ? ["-DGGML_METAL=ON", "-DGGML_METAL_EMBED_LIBRARY=ON"] : [];

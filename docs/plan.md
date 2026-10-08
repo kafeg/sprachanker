@@ -24,9 +24,8 @@ LLM via external providers — `sprachanker serve` with browser/PWA access. Do n
 early. Built early at the owner's request: courses beyond Nicos Weg A1 (DW in Russian, English and
 German; Deutsch im Blick and four English courses importable with the CLI) and the LLM features.
 
-Past the MVP's scope (owner, 2026-10-08): what is built goes beyond it; the architecture was made
-coherent and its debt paid after the review of 2026-10-08. Phones come when convenient: Tailscale is
-known to work; the desktop browser is enough meanwhile.
+Past the MVP's scope (owner, 2026-10-08): what is built goes beyond it. Phones come when convenient:
+Tailscale is known to work; the desktop browser is enough meanwhile.
 
 Focus (owner, 2026-10-07): German — the onboarding's language pair filters Courses; every provider is
 offered (03, "Offered in the app").
@@ -81,7 +80,7 @@ Specs: 06, 09.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
-- Library (02, 03): key map per provider (keys stay when the source reorders), series manifest with
+- Library (02, 03): a key map for providers other than DW (keys stay when the source reorders), series manifest with
   `contentVersion`, `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
   rule ids; content updated while a run is active ends the run (05). A word the source leaves without
   a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:

@@ -98,7 +98,7 @@ function partsOf(message: string, lang: string) {
 
 /** Words the same in every language: names, abbreviations, keys. */
 const SAME_EVERYWHERE = new Set(
-  "PDF FSRS Ctrl JSON PIN SprachAnker OpenRouter Groq Codex Gemini Google Claude Code Studio".split(
+  "PDF FSRS Ctrl JSON SprachAnker OpenRouter Groq Codex Gemini Google Claude Code Studio".split(
     " ",
   ),
 );

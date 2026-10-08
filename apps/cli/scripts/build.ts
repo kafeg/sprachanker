@@ -3,6 +3,7 @@
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
 import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
+import { targetTriple } from "@sprachanker/server";
 import { Glob } from "bun";
 
 const cliDir = resolve(import.meta.dir, "..");
@@ -48,9 +49,10 @@ if (!result.success) {
 }
 console.log(`built ${relative(process.cwd(), outfile)} with ${files.length} web files`);
 
-const engines = resolve(cliDir, "../../native/whisper/out");
-if (existsSync(engines))
-  for (const engine of new Glob("whisper-server-*").scanSync({ cwd: engines })) {
-    copyFileSync(join(engines, engine), join(outDir, engine));
-    console.log(`with ${engine}`);
-  }
+// The engine built for this machine only: the binary compiled here runs here.
+const engine = `whisper-server-${targetTriple}`;
+const built = resolve(cliDir, "../../native/whisper/out", engine);
+if (existsSync(built)) {
+  copyFileSync(built, join(outDir, engine));
+  console.log(`with ${engine}`);
+}

@@ -56,6 +56,7 @@ export function startServer(config: ServerConfig): Listening {
 }
 export { resolveDataRoot } from "./config.ts";
 export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
+export { triple as targetTriple } from "./runtime/speech.ts";
 
 /** Checks every installed course of the data root (course-kit verify). */
 export const verifyData = (dataRoot: string) =>

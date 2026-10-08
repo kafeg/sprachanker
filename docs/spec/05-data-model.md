@@ -30,7 +30,7 @@
 
 `packages/server/src/db/server/schema.ts`, its own migrations (`db/server/migrations`):
 
-- `profiles(id, name, colour, pin_hash?, pin_salt?, failed_pins, locked_until?, onboarded, created_at)` —
+- `profiles(id, name, colour, onboarded, created_at)` —
   `local` is the first profile (the folder the single profile had)
 - `devices(id, profile_id, token_hash, user_agent, created_at, last_seen_at)` — the token only in the
   device's cookie
@@ -174,8 +174,10 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
   `VACUUM INTO` beside the file as `<file>.day-<date>` when the server starts and every six hours for
   a day without one; the last seven kept. They hold everything but recordings and the library. A copy
   is written as `<copy>.part` and renamed when whole, so a cut-short copy never counts as the day's.
+  A profile's copies are in its folder: deleting the profile deletes them too (a deletion is final,
+  and nothing of a person is left behind).
 - Planned: **Profile export** = zip of the profile folder (`profile.sqlite` via `VACUUM INTO`, recordings,
-  media) without secrets. **Import** unpacks it as a new profile; migrations bring it up to date.
+  media) without secrets and without the daily copies (`*.day-*`). **Import** unpacks it as a new profile; migrations bring it up to date.
 - The same export is the backup of a person's data. The library is re-downloadable and copied per
   series (02).
 

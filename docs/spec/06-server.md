@@ -65,7 +65,7 @@ later areas are fixed in the plan item that builds them.
   server), `POST /api/runs/:id/finish` (only an active run finishes). These take lesson runs only.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
-  `detail`), 404 (`not_installed` for a course, lesson or file that is not in the library; unknown
+  `detail`, the AI's routes included), 404 (`not_installed` for a course, lesson or file that is not in the library; unknown
   ids), 409 (state: a run not active, an assistant not set up, a model already busy with the same
   thing), 413, 415, 421 (a host name this machine is not reached by), 502 (the LLM provider, the
   speech engine); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
@@ -111,7 +111,8 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
 
 - Default: listen on `127.0.0.1:4580` (`--host`, `--port`; later stored in config; a changed address is a
   new origin for the phone).
-- Phone access options:
+- Phone access options (planned, plan item "Phones"; today the server accepts only local host names,
+  a `*.ts.net` Host is refused):
   1. **Tailscale** (recommended): `tailscale serve` publishes the local server over HTTPS at
      `https://<machine>.<tailnet>.ts.net`; the server can stay localhost-only.
   2. **Own domain / VPN** with a valid certificate or reverse proxy.

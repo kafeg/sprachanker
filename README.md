@@ -18,7 +18,8 @@ LLM you choose — local (LM Studio, or any OpenAI-compatible server on your net
   mistakes, a tutor that knows the lesson).
 - **Cards** for every word you meet, studied as in Anki (FSRS).
 - **A Notebook** of every pass: answers, recordings, explanations and checks, study days.
-- **Private by design.** A local server; phones use it as a web app over your network or Tailscale.
+- **Private by design.** A local server, used in the browser on the same computer (phones over
+  Tailscale are planned).
   Profiles keep people's learning apart. No accounts, no telemetry; your data stays on your machine
   except what you send to the AI provider you chose.
 

@@ -15,7 +15,8 @@ import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import type { SpeechHost, WhisperModel } from "../services/speech.ts";
 
-const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
+/** This machine's target triple: the speech engine built for it is `whisper-server-<triple>`. */
+export const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
   process.platform === "darwin"
     ? "apple-darwin"
     : process.platform === "win32"

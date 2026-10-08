@@ -18,6 +18,7 @@ test("collects backticked repository paths and every entry of a Layout tree; Pla
     "                   # (a comment going on)",
     "    page.tsx",
     "  api.ts",
+    "  docs/            # nested: inside src, not the repository's docs",
     "test/",
     "e2e/flow.e2e.ts    # from the root",
     "```",
@@ -33,6 +34,7 @@ test("collects backticked repository paths and every entry of a Layout tree; Pla
     "apps/web/src/routes/",
     "apps/web/src/routes/page.tsx",
     "apps/web/src/api.ts",
+    "apps/web/src/docs/",
     "apps/web/test/",
     "e2e/flow.e2e.ts",
   ]);

@@ -1,6 +1,7 @@
 // Finds paths mentioned in CLAUDE.md files that do not exist (spec 10, "Documentation rules"): backticked
 // repository paths in the text, and every entry of a "## Layout" tree — read as a tree of folders and
-// files relative to the CLAUDE.md's own folder (a line naming a repository path starts from the root).
+// files relative to the CLAUDE.md's own folder (a root line naming a repository path starts from the
+// repository's root).
 // What is not built yet goes in a "## Planned" list, which is not checked.
 import { existsSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -49,7 +50,9 @@ function layoutEntry(line: string, dir: string, tree: Array<{ indent: number; pa
   const name = match[2] ?? "";
   while (tree.length && (tree.at(-1)?.indent ?? 0) >= indent) tree.pop();
   const parent = tree.at(-1)?.path ?? dir;
-  const path = REPO_PATH.test(name) ? name : join(parent, name);
+  // Only an entry at the tree's root names a path from the repository's root: a folder deeper in
+  // (a provider's own `docs/`) is inside its parent.
+  const path = indent === 0 && REPO_PATH.test(name) ? name : join(parent, name);
   if (name.endsWith("/")) tree.push({ indent, path });
   return path;
 }
