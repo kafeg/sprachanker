@@ -100,8 +100,8 @@ export function createCards(deps: {
       return { created: cards.atomic(() => make(request, words, null)) };
     },
 
-    /** Leaves a course's deck in a language: its cards never studied are removed; those studied stay,
-     *  with their progress. */
+    /** Leaves a course's deck of the language it teaches (as Review lists it: `lang` is the words'
+     *  language): its cards never studied are removed; those studied stay, with their progress. */
     leaveDeck(request: { course: string; lang: string }) {
       const states = cards.states();
       const unstudied = cards
@@ -109,7 +109,7 @@ export function createCards(deps: {
         .filter(
           (n) =>
             n.course === request.course &&
-            n.translationLang === request.lang &&
+            n.lang === request.lang &&
             !cards.facesOf(n).some((f) => states.has(`${n.id}:${f}`)),
         )
         .map((n) => n.id);

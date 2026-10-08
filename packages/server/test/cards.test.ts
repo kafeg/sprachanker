@@ -472,7 +472,8 @@ test("decks: a course's words taken at once in course order; leaving removes onl
     face: first.face,
     rating: 3,
   });
-  const left = await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "ru" });
+  // The deck as Review lists it: the course under the language its words are in.
+  const left = await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "de" });
   expect(left.removed).toBe(before.words - 1);
   expect((await getJson("/api/cards")).words.map((w: { cardId: string }) => w.cardId)).toEqual([
     first.cardId,
