@@ -1,14 +1,24 @@
 // Language flags (09): a language is shown by the flag we chose for it — a language is not a
-// country, so this table is ours (English → the British flag). A language without one shows its code.
+// country, so this table is ours (English → the British flag, Portuguese → Brazil's as DW teaches it).
+// A language spoken across many countries without one obvious flag (Arabic, Swahili) shows its code.
 // Flags come from country-flag-icons, one module per flag, so only these are bundled.
 
 import { parseEditionId } from "@sprachanker/schema";
+import BA from "country-flag-icons/react/3x2/BA";
+import BR from "country-flag-icons/react/3x2/BR";
+import CN from "country-flag-icons/react/3x2/CN";
 import DE from "country-flag-icons/react/3x2/DE";
 import ES from "country-flag-icons/react/3x2/ES";
 import FR from "country-flag-icons/react/3x2/FR";
 import GB from "country-flag-icons/react/3x2/GB";
+import GR from "country-flag-icons/react/3x2/GR";
+import HU from "country-flag-icons/react/3x2/HU";
+import ID from "country-flag-icons/react/3x2/ID";
+import IN from "country-flag-icons/react/3x2/IN";
+import IR from "country-flag-icons/react/3x2/IR";
 import IT from "country-flag-icons/react/3x2/IT";
 import PL from "country-flag-icons/react/3x2/PL";
+import RO from "country-flag-icons/react/3x2/RO";
 import RU from "country-flag-icons/react/3x2/RU";
 import TR from "country-flag-icons/react/3x2/TR";
 import UA from "country-flag-icons/react/3x2/UA";
@@ -18,15 +28,24 @@ import { languageName } from "@/i18n/index.ts";
 import { cn } from "./utils.ts";
 
 const FLAGS: Record<string, typeof DE> = {
+  bs: BA,
   de: DE,
+  el: GR,
   en: GB,
   es: ES,
+  fa: IR,
   fr: FR,
+  hi: IN,
+  hu: HU,
+  id: ID,
   it: IT,
   pl: PL,
+  pt: BR,
+  ro: RO,
   ru: RU,
   tr: TR,
   uk: UA,
+  zh: CN,
 };
 
 /** "ru-de" → "русский → немецкий" in the interface language. */

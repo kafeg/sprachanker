@@ -16,6 +16,8 @@ export function CourseHtml({ html, className }: { html: string; className?: stri
   return (
     <div
       className={cn("prose-course", className)}
+      // The learner's language may run right to left (Arabic, Persian editions).
+      dir="auto"
       // biome-ignore lint/security/noDangerouslySetInnerHtml: sanitised at normalisation (02, "Conventions")
       dangerouslySetInnerHTML={{ __html: resolved }}
     />

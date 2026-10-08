@@ -131,15 +131,31 @@
   h3 {
     @apply font-heading tracking-tight;
   }
+  /* Text blocks take their direction from what they say: an Arabic or Persian line runs right to
+     left, a German example in it left to right (courses explain in many languages, 09). */
+  p,
+  li,
+  h1,
+  h2,
+  h3,
+  h4,
+  td,
+  th,
+  dt,
+  dd,
+  blockquote,
+  figcaption {
+    unicode-bidi: plaintext;
+  }
   /* Course HTML (instructions, grammar, culture, script) */
   .prose-course p {
     @apply my-2;
   }
   .prose-course ul {
-    @apply my-2 list-disc pl-5;
+    @apply my-2 list-disc ps-5;
   }
   .prose-course ol {
-    @apply my-2 list-decimal pl-5;
+    @apply my-2 list-decimal ps-5;
   }
   .prose-course table {
     @apply my-3 border-collapse text-sm;

@@ -77,12 +77,16 @@ and `a1-en` are normalised separately from their own pages (`raw/<edition>/<DW c
 
 Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
 
-- Courses and source ids: `courses/dw/src/catalog.ts` — `a1-ru`, `a1-en`, `a2-ru`, `a2-en`, `b1-de`.
+- Courses and source ids: `courses/dw/src/catalog.ts` — A1 and A2 in every language DW publishes them
+  (19: ar, bs, de, el, en, es, fa, fr, hi, hu, id, pl, pt, ro, ru, sw — A1 only —, tr, uk, zh; owner,
+  2026-10-08), `a1-<lang>`, `a2-<lang>`, and `b1-de`. The editions of a level share their media (same
+  URLs), so another edition adds its pages and a few images (~110 MB), not the videos.
 - **Fetch** (`courses/dw/src/pages.ts`): the course page (lesson order, unit groups), per lesson its
   page (overview, vocabulary, grammar, culture, script, videos) and its download page (`…/le`), and one
   page per exercise; URLs are built from ids. The embedded state JSON (`window.__APOLLO_STATE__`) is
   stored in `raw/<edition>/<course>/` (`course.json`, `l-<id>.json`, `le-<id>.json`, `e-<id>.json`),
-  not full HTML.
+  not full HTML. An exercise page the source no longer serves (404) is left out and reported; the
+  lesson keeps the others under their own numbers.
 - **Media** (`courses/dw/src/media.ts`): every MP3 the pages link (items, vocabulary, lessons); images
   in format 6 (940×529); episode videos as direct MP4s in SD and HD (from the download page, else
   remuxed from the HLS stream), not the variant with burned-in subtitles; the German subtitle track;
@@ -91,7 +95,8 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   type (02); an unseen combination → `unknown` + report. Units are the course's lesson groups in
   order (`u00`…); the final test is a lesson in its own unit after the last one (A1: `19-01`).
   Learner-language fields are fixed per mechanic and field (research, "Which strings are learner
-  language"); the "Play audio" label is dropped; image options keep only the image. Vocabulary
+  language"); the player's "play audio" label is dropped — read from the page's own interface strings
+  (`exercise.playAudio`), so every edition language is covered; image options keep only the image. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma. Grammar and culture pages: DW numbers the
   parts of a topic ("Spelling (2)"); the parts within a lesson are joined into one page, the number

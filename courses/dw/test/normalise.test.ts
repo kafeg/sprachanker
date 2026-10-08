@@ -117,6 +117,20 @@ test("a pulldown cloze becomes gap_choice; learner texts go to the locale; playe
   });
 });
 
+test("a player label in any edition's language is dropped: the page's own interface strings name it", () => {
+  const turkish = {
+    ...state,
+    ROOT_QUERY: {
+      'i18nByLang({"lang":"TURKISH"})': {
+        all: JSON.stringify({ exercise: { playAudio: "Sesi dinle" } }),
+      },
+    },
+    "Inquiry:2": { ...state["Inquiry:2"], inquiryText: "Sesi dinle" },
+  };
+  const { exercise } = normaliseExercise(ctx, turkish as never, 9, key, "raw/tr-de/a1/e-9.json");
+  expect((exercise.items as Array<Record<string, unknown>>)[1]?.prompt).toBeUndefined();
+});
+
 test("an unseen mechanic becomes unknown with a reason", () => {
   const odd = { ...state, "Inquiry:1": { ...state["Inquiry:1"], inquiryType: "PUZZLE" } };
   const { exercise, unmapped } = normaliseExercise(
@@ -222,4 +236,36 @@ test("a grammar page's bold-only lines become its section titles", () => {
       bodyHtml: "<h3>Неформальное</h3><p><em>Hallo!</em></p><h3>Формальное</h3><p>Guten Tag!</p>",
     },
   ]);
+});
+
+test("an exercise page gone at the source is left out and reported; the others keep their keys", () => {
+  const lesson = lessonKey("dw.nicos-weg/a1-tr" as never, 0, 1);
+  const out = normaliseLesson(ctx, {
+    key: lesson,
+    unit: unitKey("dw.nicos-weg/a1-tr" as never, 0),
+    sourceId: 5,
+    edition: "tr-de",
+    rawDir: "raw/tr-de/a1",
+    lesson: {
+      "Lesson:5": {
+        id: 5,
+        name: "Hallo!",
+        videos: [],
+        contentLinks: [],
+        overviewParts: [
+          { lessonPart: "EXERCISE", targetId: 8 },
+          { lessonPart: "EXERCISE", targetId: 9 },
+        ],
+      },
+    },
+    downloads: {},
+    exercises: new Map([[9, state as never]]),
+  });
+  expect(out.lesson.pages.map((p) => ("exercise" in p ? String(p.exercise.key) : ""))).toEqual([
+    `${lesson}/ex-02`,
+  ]);
+  expect(out.lesson.unmapped).toContainEqual({
+    path: "raw/tr-de/a1/e-8.json",
+    reason: "exercise page gone at the source",
+  });
 });

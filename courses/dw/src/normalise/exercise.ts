@@ -25,7 +25,7 @@ import {
   refs,
   videoPaths,
 } from "./context.ts";
-import { isUiLabel } from "./text.ts";
+import { isUiLabel, uiLabels } from "./text.ts";
 
 class Unmapped extends Error {}
 
@@ -38,10 +38,20 @@ interface Mapped {
   locale: LocaleItem;
 }
 
-/** Target-language text of a field, or undefined for empty fields and player labels. */
-function german(value: unknown): string | undefined {
+/** Target-language text of a field, or undefined for empty fields and the page's player labels. */
+function german(state: ApolloState, value: unknown): string | undefined {
   const text = plainText(value);
-  return text && !isUiLabel(text) ? text : undefined;
+  return text && !isUiLabel(text, labelsOf(state)) ? text : undefined;
+}
+
+/** The player labels of a page, read once per page state. */
+const labelCache = new WeakMap<ApolloState, Set<string>>();
+function labelsOf(state: ApolloState) {
+  const known = labelCache.get(state);
+  if (known) return known;
+  const labels = uiLabels(state);
+  labelCache.set(state, labels);
+  return labels;
 }
 
 function option(ctx: Context, state: ApolloState, alt: Entity, i: number, image: boolean): Option {
@@ -67,7 +77,7 @@ function segments(text: string, gaps: number) {
 
 function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   const subs = refs(state, q.subInquiries);
-  const prompt = german(q.inquiryText);
+  const prompt = german(state, q.inquiryText);
   const base: Item = {
     ...(prompt ? { prompt } : {}),
   };
@@ -175,7 +185,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       throw new Unmapped(`cloze type ${String(kind)}`);
     }
     case "REPEAT": {
-      const text = german(subs[0]?.inquiryText);
+      const text = german(state, subs[0]?.inquiryText);
       const task = plainText(subs[0]?.inquiryDescription);
       return {
         type: "speech_selfrate",

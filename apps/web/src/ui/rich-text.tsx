@@ -15,6 +15,8 @@ export function RichText({ text }: { text: string }) {
   return (
     <div
       className="prose-course"
+      // A reply in a right-to-left language runs that way.
+      dir="auto"
       // biome-ignore lint/security/noDangerouslySetInnerHtml: markdown-it with html: false escapes raw HTML
       dangerouslySetInnerHTML={{ __html: html }}
     />

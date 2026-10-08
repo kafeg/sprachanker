@@ -106,9 +106,14 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const goalTexts = listItems(L.learningTargetDescription);
   const goals = goalTexts.map((_, i) => lessonGoalKey(src.key, i + 1));
 
-  const exercises = exerciseIds(state, src.sourceId).map((id, i) => {
+  // Keys follow the source's order, a missing page keeping its number, so the others never shift.
+  const gone: Array<{ path: string; reason: string }> = [];
+  const exercises = exerciseIds(state, src.sourceId).flatMap((id, i) => {
     const page = src.exercises.get(id);
-    if (!page) throw new Error(`exercise page e-${id} missing`);
+    if (!page) {
+      gone.push({ path: `${src.rawDir}/e-${id}.json`, reason: "exercise page gone at the source" });
+      return [];
+    }
     return {
       id,
       ...normaliseExercise(
@@ -179,6 +184,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       vocab,
       unmapped: [
         ...skippedWords(`${src.rawDir}/l-${src.sourceId}.json`, skipped),
+        ...gone,
         ...exercises.flatMap((e) =>
           e.unmapped ? [{ path: `${src.rawDir}/e-${e.id}.json`, reason: e.unmapped }] : [],
         ),

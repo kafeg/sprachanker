@@ -2,7 +2,7 @@
 // language edition of a DW course is a course of its own (DW publishes them as separate courses that
 // differ in exercises and their order): `a1-ru` and `a1-en` share nothing but the series.
 import type { CourseOffer } from "@sprachanker/course-kit";
-import { type CourseSource, seriesKey } from "@sprachanker/schema";
+import { type CourseSource, type EditionId, seriesKey } from "@sprachanker/schema";
 
 export const SITE = "https://learngerman.dw.com";
 export { IMPORTER_USER_AGENT as USER_AGENT } from "@sprachanker/course-kit";
@@ -15,51 +15,62 @@ export interface DwCourse {
   id: string;
   /** The DW course it comes from (`a1`): the folder of its raw pages. */
   course: string;
-  edition: "ru-de" | "en-de" | "de-de";
-  /** Language segment of DW URLs. */
-  lang: "ru" | "en" | "de";
+  /** `<learner's language>-de` (02). */
+  edition: EditionId;
+  /** Language segment of DW URLs (`ru`, `pt-br`, `fa-ir`). */
+  lang: string;
   sourceId: number;
-  /** Bytes after a full download, measured (videos in SD and HD make most of it). */
+  /** Bytes of the course downloaded on its own (videos in SD and HD make most of it); editions of a
+   *  series share their media, so another edition adds far less. */
   approxBytes: number;
 }
 
+/**
+ * Nicos Weg in every language DW publishes it (research, October 2026): the URL segment, our language
+ * code, and the course ids of A1 and A2 (Swahili has only A1). B1 exists in German only.
+ */
+const NICOS_WEG: Array<[segment: string, lang: string, a1: number, a2?: number]> = [
+  ["ru", "ru", 45476888, 45476921],
+  ["en", "en", 36519789, 36519797],
+  ["de", "de", 36519687, 36519709],
+  ["ar", "ar", 36519911, 36519923],
+  ["bs", "bs", 63700880, 64297340],
+  ["el", "el", 61913011, 61998903],
+  ["es", "es", 47994059, 47994051],
+  ["fa-ir", "fa", 45477023, 45477041],
+  ["fr", "fr", 47994036, 47994035],
+  ["hi", "hi", 71245621, 71245696],
+  ["hu", "hu", 65959869, 66442819],
+  ["id", "id", 75397583, 75929056],
+  ["pl", "pl", 50080643, 50080708],
+  ["pt-br", "pt", 45457080, 45476771],
+  ["ro", "ro", 61583453, 61816530],
+  ["sw", "sw", 77498923],
+  ["tr", "tr", 54846011, 47993853],
+  ["uk", "uk", 57366636, 57366663],
+  ["zh", "zh", 47993645, 47993807],
+];
+
+const nicosWeg = (
+  course: "a1" | "a2",
+  segment: string,
+  lang: string,
+  sourceId: number,
+): DwCourse => ({
+  series: "nicos-weg",
+  id: `${course}-${lang}`,
+  course,
+  edition: `${lang}-de`,
+  lang: segment,
+  sourceId,
+  approxBytes: course === "a1" ? 3.18e9 : 3.36e9,
+});
+
 export const COURSES: DwCourse[] = [
-  {
-    series: "nicos-weg",
-    id: "a1-ru",
-    course: "a1",
-    edition: "ru-de",
-    lang: "ru",
-    sourceId: 45476888,
-    approxBytes: 3.18e9,
-  },
-  {
-    series: "nicos-weg",
-    id: "a1-en",
-    course: "a1",
-    edition: "en-de",
-    lang: "en",
-    sourceId: 36519789,
-    approxBytes: 3.17e9,
-  },
-  {
-    series: "nicos-weg",
-    id: "a2-ru",
-    course: "a2",
-    edition: "ru-de",
-    lang: "ru",
-    sourceId: 45476921,
-    approxBytes: 3.36e9,
-  },
-  {
-    series: "nicos-weg",
-    id: "a2-en",
-    course: "a2",
-    edition: "en-de",
-    lang: "en",
-    sourceId: 36519797,
-    approxBytes: 3.35e9,
-  },
+  ...NICOS_WEG.flatMap(([segment, lang, a1, a2]) => [
+    nicosWeg("a1", segment, lang, a1),
+    ...(a2 ? [nicosWeg("a2", segment, lang, a2)] : []),
+  ]),
   {
     series: "nicos-weg",
     id: "b1-de",

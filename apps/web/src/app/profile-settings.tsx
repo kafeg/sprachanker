@@ -21,7 +21,7 @@ import { useDateFormat } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { deviceName } from "./device-name.ts";
-import { targetsOf, useLanguagePairs } from "./pairs.ts";
+import { nativesOf, targetsOf, useLanguagePairs } from "./pairs.ts";
 
 const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
 
@@ -85,7 +85,7 @@ export function ProfileSettings() {
             <p className="text-sm font-medium">{t(`profile.${key}`)}</p>
             <div className="flex flex-wrap gap-2">
               {(key === "learner.native"
-                ? [...UI_LANGUAGES]
+                ? nativesOf(pairs, (l) => languageName(l, i18n.language))
                 : targetsOf(pairs, lang("learner.native") ?? i18n.language)
               ).map((l) => (
                 <Chip

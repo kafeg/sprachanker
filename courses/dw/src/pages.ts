@@ -1,6 +1,6 @@
 // Fetch phase, pages: course page, lesson pages, download pages and exercise pages → raw JSON (03).
 import { join } from "node:path";
-import { type PoliteFetcher, runPool, storedPage } from "@sprachanker/course-kit";
+import { FetchFailedError, type PoliteFetcher, runPool, storedPage } from "@sprachanker/course-kit";
 import { type ApolloState, exerciseIds, extractState, lessonIds } from "./apollo.ts";
 import { type DwCourse, SITE } from "./catalog.ts";
 
@@ -55,7 +55,16 @@ export async function fetchPages(
   );
   let done = 0;
   await runPool(exercises, CONCURRENCY, async ({ lesson, exercise }) => {
-    await get(`/${c.lang}/x/l-${lesson}/e-${exercise}`, join(dir, `e-${exercise}.json`));
+    try {
+      await get(`/${c.lang}/x/l-${lesson}/e-${exercise}`, join(dir, `e-${exercise}.json`));
+    } catch (error) {
+      // An exercise the lesson lists but DW no longer serves (seen in the Turkish A1): it is left
+      // out and reported by the normaliser; anything else stops the import.
+      if (!(error instanceof FetchFailedError && error.status === 404)) throw error;
+      log(
+        `${c.course} ${c.edition}: exercise e-${exercise} of l-${lesson} is gone at the source (404)`,
+      );
+    }
     if (++done % 200 === 0)
       log(`${c.course} ${c.edition}: ${done}/${exercises.length} exercise pages`);
   });

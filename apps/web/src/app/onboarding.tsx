@@ -19,7 +19,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { cn } from "@/ui/utils.ts";
 import { LanguageSwitch } from "./language-switch.tsx";
-import { targetsOf, useLanguagePairs } from "./pairs.ts";
+import { nativesOf, targetsOf, useLanguagePairs } from "./pairs.ts";
 import { Tour } from "./tour.tsx";
 
 const STEPS = ["welcome", "name", "languages", "signIn", "assistant", "speech", "tour"] as const;
@@ -130,7 +130,7 @@ export function Onboarding({
           <>
             <Choice
               label={t("onboarding.languages.native")}
-              options={[...UI_LANGUAGES]}
+              options={nativesOf(pairs, (l) => languageName(l, i18n.language))}
               value={native}
               onPick={setNative}
             />

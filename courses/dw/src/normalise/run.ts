@@ -42,8 +42,10 @@ export async function normaliseCourse(
   for (const entry of all) {
     const lesson = await read(`l-${entry.sourceId}.json`);
     const exercises = new Map<number, ApolloState>();
+    // A page the source no longer serves was not stored: the lesson goes on without it.
     for (const id of exerciseIds(lesson, entry.sourceId))
-      exercises.set(id, await read(`e-${id}.json`));
+      if (existsSync(join(seriesDir, rawDir, `e-${id}.json`)))
+        exercises.set(id, await read(`e-${id}.json`));
     const downloads = existsSync(join(seriesDir, rawDir, `le-${entry.sourceId}.json`))
       ? await read(`le-${entry.sourceId}.json`)
       : {};

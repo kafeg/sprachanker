@@ -18,13 +18,35 @@ Re-verify when the importer changes.
 
 ## Courses and editions
 
-| Level | Edition | Course page | Entries |
+Nicos Weg is published in 19 interface languages (checked 2026-10-08 by asking each language's
+dashboard, `/<lang>/overview`, and its section pages for courses named "Nicos Weg";
+`dkLearningLevel` 2 = A1, 4 = A2, 8 = B1):
+
+| URL segment | Our code | A1 | A2 |
 |---|---|---|---|
-| A1 | en | `/en/nicos-weg/c-36519789` | 77 |
-| A1 | ru | `/ru/nicos-weg/c-45476888` | 77 |
-| A2 | en | `/en/nicos-weg/c-36519797` | 77 |
-| A2 | ru | `/ru/nicos-weg/c-45476921` | 77 |
-| B1 | de | `/de/nicos-weg/c-36519718` | 77 (German interface only; no en/ru) |
+| ar | ar | `c-36519911` | `c-36519923` |
+| bs | bs | `c-63700880` | `c-64297340` |
+| de | de | `c-36519687` | `c-36519709` |
+| el | el | `c-61913011` | `c-61998903` |
+| en | en | `c-36519789` | `c-36519797` |
+| es | es | `c-47994059` | `c-47994051` |
+| fa-ir | fa | `c-45477023` | `c-45477041` |
+| fr | fr | `c-47994036` | `c-47994035` |
+| hi | hi | `c-71245621` | `c-71245696` |
+| hu | hu | `c-65959869` | `c-66442819` |
+| id | id | `c-75397583` | `c-75929056` |
+| pl | pl | `c-50080643` | `c-50080708` |
+| pt-br | pt | `c-45457080` | `c-45476771` |
+| ro | ro | `c-61583453` | `c-61816530` |
+| ru | ru | `c-45476888` | `c-45476921` |
+| sw | sw | `c-77498923` | — |
+| tr | tr | `c-54846011` | `c-47993853` |
+| uk | uk | `c-57366636` | `c-57366663` |
+| zh | zh | `c-47993645` | `c-47993807` |
+
+B1 exists in German only: `/de/nicos-weg/c-36519718`. Each page carries the interface strings of its
+language (`ROOT_QUERY.i18nByLang({"lang":…}).all`, JSON): the player's "play audio" label, which
+DW also writes into some exercise fields, is `exercise.playAudio` there.
 
 - 77 = 76 lessons + final test. A1: units 0–18 with 4 lessons each, then the final test.
 - Editions have different ids for the same lesson ("Hallo!" = `l-37250531` en, `l-46381195` ru);
