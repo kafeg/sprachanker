@@ -66,3 +66,16 @@ describe("rules registry", () => {
     expect(result.error?.issues[0]?.message).toBe("duplicate rule id de.greeting.du-sie");
   });
 });
+
+test("a preference reads as set, else its default; one without a default stays unset", async () => {
+  const { settingOf, SETTING_DEFAULTS, LEARNER_SETTINGS } = await import("../src/settings.ts");
+  expect(settingOf({}, "speech.recognition")).toBe(true);
+  expect(settingOf({ "speech.recognition": false }, "speech.recognition")).toBe(false);
+  expect(settingOf(undefined, "theme")).toBe("system");
+  expect(settingOf({}, "learner.target")).toBeUndefined();
+  // Every default fits its key's schema.
+  for (const [key, value] of Object.entries(SETTING_DEFAULTS))
+    expect(LEARNER_SETTINGS[key as keyof typeof LEARNER_SETTINGS].safeParse(value).success).toBe(
+      true,
+    );
+});

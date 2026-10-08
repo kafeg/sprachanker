@@ -8,7 +8,7 @@ import {
   useDeleteRecordings,
   useRecordingStats,
   useSetSetting,
-  useSettings,
+  useSetting,
   useSpeechModels,
   useSpeechState,
 } from "@/api/hooks.ts";
@@ -121,13 +121,13 @@ function Microphone() {
  *  removal, which one is used. The engine itself is built with the app (native/). */
 function Recognition() {
   const { t } = useTranslation();
-  const settings = useSettings().data;
   const set = useSetSetting();
   const state = useSpeechState();
   const models = useSpeechModels();
   const bytes = useBytes();
   const percent = usePercent();
-  const on = settings?.["speech.recognition"] !== false;
+  const on = useSetting("speech.recognition");
+  const pushToTalk = useSetting("speech.pushToTalk");
   const data = state.data;
   return (
     <Panel title={t("speech.settings.recognition")}>
@@ -149,7 +149,7 @@ function Recognition() {
             <div className="space-y-1.5">
               <p className="text-sm font-medium">{t("speech.settings.pushToTalk")}</p>
               <Choice
-                value={settings?.["speech.pushToTalk"] === "hold" ? "hold" : "tap"}
+                value={pushToTalk}
                 options={(["tap", "hold"] as const).map((v) => [v, t(`speech.settings.talk.${v}`)])}
                 onChange={(value) => set.mutate({ key: "speech.pushToTalk", value })}
               />
@@ -218,15 +218,14 @@ function Recognition() {
 
 function Recordings() {
   const { t } = useTranslation();
-  const settings = useSettings().data;
   const set = useSetSetting();
   const stats = useRecordingStats();
   const remove = useDeleteRecordings();
   const bytes = useBytes();
   const count = useNumber();
   const [asking, setAsking] = useState(false);
-  const keep = settings?.["speech.keepRecordings"] !== false;
-  const show = settings?.["speech.showText"] === "always" ? "always" : "after";
+  const keep = useSetting("speech.keepRecordings");
+  const show = useSetting("speech.showText");
   return (
     <Panel title={t("speech.settings.recordings")}>
       <div className="mt-2 space-y-4">

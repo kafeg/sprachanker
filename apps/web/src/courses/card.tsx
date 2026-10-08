@@ -1,7 +1,7 @@
 // A course on "My courses" and "All courses" (09): a band with the language pair and progress, the
 // title and publisher, its download when one runs or files are missing, the lesson to go on with, and
 // the way in; and a course offered but not downloaded yet, with its size and "Download".
-import { type CourseSource, parseLessonKey } from "@sprachanker/schema";
+import { type CourseSource, editionSetting, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, CircleAlert, Download, ExternalLink, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -12,7 +12,7 @@ import {
   useSetSetting,
   useStartDownload,
 } from "@/api/hooks.ts";
-import { editionSetting, useEdition } from "@/app/preferences.ts";
+import { useEdition } from "@/app/preferences.ts";
 import { ResetProgress } from "@/app/reset-progress.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";

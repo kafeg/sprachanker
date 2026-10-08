@@ -1,9 +1,12 @@
 // Profile settings: small JSON values by key (05), each key with its schema (schema `settings.ts`).
 // Values are checked when written and parsed when read: one that no longer fits reads as unset.
 import {
+  type LearnerSettingKey,
   learnerSettingSchema,
   type SettingKey,
+  type SettingRead,
   type SettingValue,
+  settingOf,
   settingSchema,
 } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
@@ -24,7 +27,7 @@ export function createSettings(db: ProfileDb) {
       .run();
   };
 
-  return {
+  const self = {
     /** The learner's preferences (what the settings route reads and writes). */
     all(): Record<string, unknown> {
       const out: Record<string, unknown> = {};
@@ -39,6 +42,10 @@ export function createSettings(db: ProfileDb) {
       const row = db.select().from(settings).where(eq(settings.key, key)).get();
       return row ? (parsed(key, row.valueJson) as SettingValue<K> | undefined) : undefined;
     },
+    /** A preference as read: set, or its default (schema `SETTING_DEFAULTS`). */
+    value<K extends LearnerSettingKey>(key: K): SettingRead<K> {
+      return settingOf({ [key]: self.get(key) }, key);
+    },
     /** A service's own setting (or a preference set on the learner's behalf). */
     set<K extends SettingKey>(key: K, value: SettingValue<K>) {
       write(key, settingSchema(key)?.parse(value));
@@ -52,5 +59,6 @@ export function createSettings(db: ProfileDb) {
       write(key, result.data);
     },
   };
+  return self;
 }
 export type Settings = ReturnType<typeof createSettings>;

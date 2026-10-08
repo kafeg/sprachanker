@@ -48,7 +48,8 @@ lesson it was met in); `faces` is a comma-separated list.
 settings(key TEXT PRIMARY KEY, value_json TEXT)          -- every key with its schema and owner
                                                          -- (packages/schema/src/settings.ts): checked
                                                          -- when written, parsed when read (a value that
-                                                         -- no longer fits reads as unset)
+                                                         -- no longer fits reads as unset); an unset
+                                                         -- preference reads as its SETTING_DEFAULTS value
 secrets(provider_id TEXT PRIMARY KEY, value_encrypted)   -- the profile's API keys; never returned by the API
 llm_routes(task TEXT PRIMARY KEY, provider_id, model, params_json)   -- the profile's model (07); only
                                                          -- task 'default' is used (per-task routes: Later)

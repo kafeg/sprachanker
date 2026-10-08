@@ -80,6 +80,30 @@ export type SettingValue<K extends SettingKey> = K extends keyof Learner
     ? z.infer<Service[K]>
     : never;
 
+/** What a preference is while the learner has not set it — the one place both the server and the web
+ *  read it from (Anki's deck options: the engine's `SRS_DEFAULTS`). */
+export const SETTING_DEFAULTS = {
+  theme: "system",
+  audioRate: 1,
+  "llm.debugPrompts": false,
+  "speech.keepRecordings": true,
+  "speech.showText": "after",
+  "speech.recognition": true,
+  "speech.pushToTalk": "tap",
+} as const satisfies { [K in keyof Learner]?: SettingValue<K> };
+export type LearnerSettingKey = keyof Learner;
+/** A preference as read: its value, or its default where it has one. */
+export type SettingRead<K extends LearnerSettingKey> = K extends keyof typeof SETTING_DEFAULTS
+  ? SettingValue<K>
+  : SettingValue<K> | undefined;
+
+/** A preference read from stored values, with its default. */
+export const settingOf = <K extends LearnerSettingKey>(
+  stored: Record<string, unknown> | undefined,
+  key: K,
+): SettingRead<K> =>
+  (stored?.[key] ?? (SETTING_DEFAULTS as Record<string, unknown>)[key]) as SettingRead<K>;
+
 /** The schema of a key the learner may set, or undefined for any other key. */
 export function learnerSettingSchema(key: string): z.ZodType | undefined {
   if (Object.hasOwn(LEARNER_SETTINGS, key)) return LEARNER_SETTINGS[key as keyof Learner];

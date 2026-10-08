@@ -4,7 +4,10 @@ import {
   type CardRating,
   CLIENT_HEADERS,
   type ItemKey,
+  type LearnerSettingKey,
   type LessonKey,
+  type SettingRead,
+  settingOf,
 } from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -43,6 +46,10 @@ export const useSettings = () =>
     queryKey: ["settings"],
     queryFn: () => json(api.settings.$get()) as Promise<Settings>,
   });
+
+/** A preference as the profile has it: set, or its default (schema `SETTING_DEFAULTS`). */
+export const useSetting = <K extends LearnerSettingKey>(key: K): SettingRead<K> =>
+  settingOf(useSettings().data, key);
 
 export function useSetSetting() {
   const client = useQueryClient();

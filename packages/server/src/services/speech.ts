@@ -210,6 +210,4 @@ export type Speech = ReturnType<typeof createSpeech>;
 
 /** The model a profile hears with: its choice while recognition is on and the model is installed. */
 export const recogniserOf = (speech: Speech, settings: Settings) =>
-  settings.get("speech.recognition") === false
-    ? undefined
-    : speech.modelFor(settings.get("speech.model"));
+  !settings.value("speech.recognition") ? undefined : speech.modelFor(settings.get("speech.model"));

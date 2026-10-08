@@ -2,14 +2,14 @@
 import { Braces, Copy, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSettings } from "@/api/hooks.ts";
+import { useSetting } from "@/api/hooks.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
 import { DEBUG_PROMPTS, fetchPrompt, type PromptPreview, type PromptRequest } from "./api.ts";
 import { errorText } from "./errors.ts";
 
-export const useDebugPrompts = () => useSettings().data?.[DEBUG_PROMPTS] === true;
+export const useDebugPrompts = () => useSetting(DEBUG_PROMPTS);
 
 function Preview({ preview }: { preview: PromptPreview }) {
   const { t } = useTranslation();
