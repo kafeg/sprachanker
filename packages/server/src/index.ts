@@ -4,6 +4,7 @@ import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
 import { courseInstaller } from "./providers.ts";
+import { startDailyBackups } from "./runtime/backup.ts";
 import {
   type Listening,
   listen,
@@ -47,6 +48,8 @@ export function startServer(config: ServerConfig): Listening {
     // The machine's own names: its host name, and the one the server was told to listen on.
     hosts: [hostname(), `${hostname()}.local`, config.hostname],
   });
+  // After the app: its databases exist and are migrated.
+  startDailyBackups(config.dataRoot);
   return listen(app.fetch, config);
 }
 export { resolveDataRoot } from "./config.ts";

@@ -156,9 +156,12 @@ only once it has an `answered`, `item_skipped` or `step_done` event.
 - Each migration has a test that upgrades a database of the version before it (10). Until the first
   release the set may be squashed into one `0000_init`; after a release, never.
 
-## Export, import, backup (planned)
+## Backups, export, import
 
-- **Profile export** = zip of the profile folder (`profile.sqlite` via `VACUUM INTO`, recordings,
+- **Daily copies** (built, `runtime/backup.ts`): `server.sqlite` and every `profile.sqlite` copied with
+  `VACUUM INTO` beside the file as `<file>.day-<date>` when the server starts and every six hours for
+  a day without one; the last seven kept. They hold everything but recordings and the library.
+- Planned: **Profile export** = zip of the profile folder (`profile.sqlite` via `VACUUM INTO`, recordings,
   media) without secrets. **Import** unpacks it as a new profile; migrations bring it up to date.
 - The same export is the backup of a person's data. The library is re-downloadable and copied per
   series (02).

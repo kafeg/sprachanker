@@ -14,6 +14,7 @@ src/
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key; lmstudio.ts (detect, `lms server start`);
                      # speech.ts (finds and runs whisper-server, downloads models into <data-root>/models);
+                     # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
   config/            # app-data paths, config.json
   db/
