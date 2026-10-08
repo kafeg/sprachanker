@@ -43,8 +43,9 @@ src/
                      # scene (`scene` runs);
                      # examples (AI examples of a card's word, kept on the card in the review run);
                      # recordings (the learner's audio in the profile's recordings folder); speech
-                     # (whisper-server on demand, its models: one engine for the server; course
-                     # recordings heard once per model);
+                     # (whisper-server, its models: one engine for the server; course recordings
+                     # heard once per model); sidecar (the supervisor of local engines: one start,
+                     # idle stop, switching after requests in flight);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

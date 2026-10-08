@@ -1,12 +1,12 @@
 # 08 — Speech
 
 Built: **recording**, **recognition**, **saying instead of typing** and **the AI's check of an answer
-of one's own** (below). Planned (plan, "Speech"): synthesis. The answer schema already has a spoken answer (`speech{recording, transcript}`, 05). The
-server's speech module will talk to the sidecars through two functions:
+of one's own** (below). Planned (plan, "Speech"): synthesis. The server's speech module talks to the
+engines (sidecars, 06) through two functions:
 
 ```ts
-transcribe(audio: Wav16kMono, lang: Lang): Promise<{ text; segments; model; latencyMs }>
-synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promise<AudioRef>
+transcribe(audio: Blob, lang: Lang, model: string): Promise<{ text; ms }>   // built
+synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promise<AudioRef> // planned
 ```
 
 ## Recording (built)
@@ -29,10 +29,9 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 
 - **whisper.cpp `whisper-server`** (pinned in `native/whisper/VERSION`, built by `bun run build:speech`:
   static, Metal with its shaders embedded; beside the `sprachanker` binary, where the server looks
-  for it — also `$SPRACHANKER_WHISPER_SERVER` or the repository's build). Started on demand with the
-  profile's model on a free 127.0.0.1 port, warmed when a speaking exercise opens (the large model
-  loads in ~15 s on an M2 Pro), stopped after 10 idle minutes, started again on the next request if it
-  exits (`services/speech.ts`, `runtime/speech.ts`).
+  for it — also `$SPRACHANKER_WHISPER_SERVER` or the repository's build). Run by the sidecar supervisor
+  (06) with the profile's model, warmed when a speaking exercise opens (the large model loads in ~15 s
+  on an M2 Pro), stopped after 10 idle minutes (`services/speech.ts`, `runtime/speech.ts`).
 - **Models** in `<data-root>/models`: large-v3-turbo q5_0 (574 MB, recommended) and small q5_1 (190
   MB), downloaded from a pinned Hugging Face commit and checked against their sha256, from Settings →
   Speech; each profile turns recognition on or off and picks an installed model (settings

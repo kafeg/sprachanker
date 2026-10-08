@@ -13,9 +13,7 @@ One Bun process started by `sprachanker serve`. The `sprachanker` binary is buil
 Course downloads run as background jobs (one at a time, queued; progress polled by the screens, no
 SSE). A download is marked in its series folder while it runs (`.downloads/<course>.json`), kept with the
 number of the course's media still missing or with the error it stopped on; a restart resumes only an
-interrupted one, the others wait for "Continue downloading". Planned: `server.sqlite` (profiles, devices);
-model downloads as jobs; supervising sidecars (`whisper-server`, TTS) and talking to them through a
-speech module (08).
+interrupted one, the others wait for "Continue downloading". Sidecars: below.
 
 Hono + zod; Drizzle on `bun:sqlite`. Bun-specific APIs stay behind an adapter so a Node fallback stays
 possible. Headless (`--data <root>`) and desktop modes have the same features.
@@ -121,13 +119,21 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
 
 ## Sidecars and models
 
-- `whisper-server` (whisper.cpp, built in `native/`, 08) started on demand, kept warm while in use,
-  started again after it exits; models in `<data-root>/models`, downloaded and checked from Settings.
-- Planned (plan, "Speech"): the TTS engine (08), started on demand.
+- One supervisor for local engines (`services/sidecar.ts`): a process on a free 127.0.0.1 port, one
+  at a time per kind, for one setup (a model); started once however many requests arrive together,
+  ready when its health check answers, stopped after a while without requests, started again after
+  it exits; a request for another setup waits for those in flight before the process is replaced.
+  The runtime stops the engines with the server (exit and stop signals) and keeps their pids in
+  `<data-root>/models/whisper-server.pid`, so one left by a server killed outright is stopped when the
+  next one starts.
+- `whisper-server` (whisper.cpp, built in `native/`, 08) on that supervisor; models in
+  `<data-root>/models`, downloaded and checked from Settings.
+- Planned (plan, "Speech"): the TTS engine (08) on the same supervisor.
 - No LLM runtime of its own: local models run in LM Studio (07); the server only starts LM Studio's
   server (`lms server start`) on request when LM Studio is installed on the same machine.
-- An engine that exits is started again on the next request; one that does not answer its health
-  check within two minutes fails that request (`speech_engine_failed`), and the feature says so.
+- One that does not answer its health check within two minutes fails that request
+  (`speech_engine_failed`), and the feature says so; so does a transcription that takes over a
+  minute.
 
 ## Desktop shell (`apps/desktop`, Tauri 2, planned after the MVP)
 

@@ -1,7 +1,16 @@
 // The speech engine on this machine (Bun): where `whisper-server` is — beside the app's binary (the
 // desktop app bundles it there), else built in the repository (native/scripts/build.ts) or named by
 // $SPRACHANKER_WHISPER_SERVER — running it on a local port, and the models in <data-root>/models.
-import { createWriteStream, existsSync, mkdirSync, renameSync, rmSync, statSync } from "node:fs";
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import type { SpeechHost, WhisperModel } from "../services/speech.ts";
@@ -15,15 +24,21 @@ const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
 }`;
 
 /** Engines running: they go with the server — on its exit and on the signals that stop it — so no
- *  engine is left holding a model in memory. */
-const running = new Set<{ kill(): void }>();
-let watching = false;
+ *  engine is left holding a model in memory. Their pids are kept in a file, so one left by a server
+ *  that was killed outright is stopped when the next one starts. */
+const running = new Map<number, { kill(): void }>();
+let pidFile: string | undefined;
+const writePids = () => {
+  if (!pidFile) return;
+  if (running.size) writeFileSync(pidFile, [...running.keys()].join("\n"));
+  else rmSync(pidFile, { force: true });
+};
+
 function stopWithServer() {
-  if (watching) return;
-  watching = true;
   const stopAll = () => {
-    for (const proc of running) proc.kill();
+    for (const proc of running.values()) proc.kill();
     running.clear();
+    writePids();
   };
   process.once("exit", stopAll);
   for (const signal of ["SIGINT", "SIGTERM", "SIGHUP"] as const)
@@ -33,8 +48,24 @@ function stopWithServer() {
     });
 }
 
+/** Stops engines a killed server left running (only processes that are whisper-server). */
+function stopLeftOver(file: string) {
+  const pids = (existsSync(file) ? readFileSync(file, "utf8") : "")
+    .split("\n")
+    .map(Number)
+    .filter((n) => Number.isInteger(n) && n > 0);
+  for (const pid of pids) {
+    const name = Bun.spawnSync(["ps", "-p", String(pid), "-o", "comm="]).stdout.toString();
+    if (name.includes("whisper-server")) process.kill(pid);
+  }
+  rmSync(file, { force: true });
+}
+
 export function speechHost(dataRoot: string): SpeechHost {
   const models = join(dataRoot, "models");
+  pidFile = join(models, "whisper-server.pid");
+  stopLeftOver(pidFile);
+  stopWithServer();
   return {
     whisperBinary() {
       const named = `whisper-server-${triple}`;
@@ -56,13 +87,17 @@ export function speechHost(dataRoot: string): SpeechHost {
         });
       }),
     spawnWhisper(binary, model, port) {
-      stopWithServer();
       const proc = Bun.spawn(
         [binary, "-m", model, "--host", "127.0.0.1", "--port", String(port), "--no-timestamps"],
         { stdout: "ignore", stderr: "ignore" },
       );
-      running.add(proc);
-      void proc.exited.then(() => running.delete(proc));
+      mkdirSync(models, { recursive: true });
+      running.set(proc.pid, proc);
+      writePids();
+      void proc.exited.then(() => {
+        running.delete(proc.pid);
+        writePids();
+      });
       return { exited: proc.exited, kill: () => proc.kill() };
     },
     models: {

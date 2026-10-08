@@ -1,9 +1,10 @@
-// Speech recognition on this machine (08; 06, "Sidecars"): whisper.cpp's `whisper-server`, started on
-// demand with the chosen model, kept warm while in use and stopped when idle, started again if it
-// exits; the models it can use, downloaded from a pinned commit and checked against their sha256. One
-// server-wide engine: each profile chooses whether to use it and which installed model (settings).
+// Speech recognition on this machine (08; 06, "Sidecars"): whisper.cpp's `whisper-server`, run by the
+// sidecar supervisor with the chosen model; the models it can use, downloaded from a pinned commit and
+// checked against their sha256. One server-wide engine: each profile chooses whether to use it and
+// which installed model (settings); a transcription has a time limit.
 import { ServiceError } from "../errors.ts";
 import type { Settings } from "./settings.ts";
+import { createSidecar } from "./sidecar.ts";
 
 export interface WhisperModel {
   id: string;
@@ -61,6 +62,8 @@ export interface SpeechHost {
 const IDLE_MS = 10 * 60_000;
 /** Loading the large model takes about 15 s on an M2; slower machines get more. */
 const START_MS = 120_000;
+/** A 30 s take is heard in a few seconds; an engine that takes longer is stuck. */
+const TRANSCRIBE_MS = 60_000;
 
 export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   const { host } = deps;
@@ -68,16 +71,6 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     string,
     { done: number; controller: AbortController; error?: string }
   >();
-  let engine:
-    | {
-        model: string;
-        url: string;
-        ready: Promise<void>;
-        stop(): void;
-        idle?: ReturnType<typeof setTimeout>;
-      }
-    | undefined;
-
   const modelOf = (id: string) => {
     const model = WHISPER_MODELS.find((m) => m.id === id);
     if (!model) throw new ServiceError("no_such_model", 404);
@@ -87,75 +80,49 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   /** Course recordings heard, by model, language and recording. */
   const heard = new Map<string, Promise<string>>();
 
-  function stop() {
-    if (engine?.idle) clearTimeout(engine.idle);
-    engine?.stop();
-    engine = undefined;
-  }
-
-  /** The engine running with this model, started (or restarted) when needed. */
-  async function running(id: string) {
-    const binary = host?.whisperBinary();
+  /** The model file of an installed model, to run the engine with. */
+  const fileOf = (id: string) => {
     const model = modelOf(id);
     const file = host?.models.path(model.file, model.bytes);
-    if (!host || !binary || !file) throw new ServiceError("speech_unavailable", 409);
-    if (engine && engine.model !== id) stop();
-    if (!engine) {
-      const port = await host.freePort();
-      const url = `http://127.0.0.1:${port}`;
-      const proc = host.spawnWhisper(binary, file, port);
-      let exited = false;
-      const current = {
-        model: id,
-        url,
-        stop: () => proc.kill(),
-        ready: (async () => {
-          const until = Date.now() + START_MS;
-          while (Date.now() < until && !exited) {
-            const ok = await deps
-              .fetch(`${url}/health`)
-              .then((r) => r.ok)
-              .catch(() => false);
-            if (ok) return;
-            await new Promise((r) => setTimeout(r, 250));
-          }
-          throw new ServiceError("speech_engine_failed", 502);
-        })(),
-      } as NonNullable<typeof engine>;
-      engine = current;
-      void proc.exited.then(() => {
-        exited = true;
-        if (engine === current) engine = undefined;
-      });
-    }
-    const current = engine;
-    try {
-      await current.ready;
-    } catch (error) {
-      if (engine === current) stop();
-      throw error;
-    }
-    if (current.idle) clearTimeout(current.idle);
-    current.idle = setTimeout(() => engine === current && stop(), IDLE_MS);
-    return current;
-  }
+    if (!host?.whisperBinary() || !file) throw new ServiceError("speech_unavailable", 409);
+    return file;
+  };
+  const engine = createSidecar({
+    spawn: (id, port) => {
+      const binary = host?.whisperBinary();
+      if (!host || !binary) throw new ServiceError("speech_unavailable", 409);
+      return host.spawnWhisper(binary, fileOf(id), port);
+    },
+    freePort: () => (host ? host.freePort() : Promise.reject(new Error("no speech host"))),
+    fetch: deps.fetch,
+    failed: "speech_engine_failed",
+    startMs: START_MS,
+    idleMs: IDLE_MS,
+  });
 
   /** What was said in a recording (a 16 kHz mono WAV, or a course's MP3), in a language given
    *  (never detected, 08). */
   async function transcribe(audio: Blob, lang: string, model: string) {
     const started = Date.now();
-    const { url } = await running(model);
-    const form = new FormData();
-    form.set("file", audio, "speech");
-    form.set("language", lang);
-    form.set("response_format", "json");
-    form.set("temperature", "0");
-    const res = await deps
-      .fetch(`${url}/inference`, { method: "POST", body: form })
-      .catch(() => undefined);
-    if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
-    const { text } = (await res.json()) as { text?: string };
-    return { text: (text ?? "").trim(), ms: Date.now() - started };
+    fileOf(model);
+    const text = await engine.use(model, async (url) => {
+      const form = new FormData();
+      form.set("file", audio, "speech");
+      form.set("language", lang);
+      form.set("response_format", "json");
+      form.set("temperature", "0");
+      const res = await deps
+        .fetch(`${url}/inference`, {
+          method: "POST",
+          body: form,
+          signal: AbortSignal.timeout(TRANSCRIBE_MS),
+        })
+        .catch(() => undefined);
+      const body = res?.ok ? await res.json().catch(() => undefined) : undefined;
+      if (!body) throw new ServiceError("speech_engine_failed", 502);
+      return String((body as { text?: unknown }).text ?? "");
+    });
+    return { text: text.trim(), ms: Date.now() - started };
   }
 
   return {
@@ -211,13 +178,13 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
       const model = modelOf(id);
       downloads.get(id)?.controller.abort();
       downloads.delete(id);
-      if (engine?.model === id) stop();
+      if (engine.setup() === id) engine.stop();
       host?.models.remove(model.file);
     },
 
     /** Starts the engine ahead of a recording (loading the model takes seconds). */
     warm(model: string) {
-      void running(model).catch(() => {});
+      if (installed(modelOf(model)) && host?.whisperBinary()) engine.warm(model);
     },
 
     transcribe,
@@ -236,7 +203,7 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     },
 
     /** Stops the engine (the server is stopping). */
-    close: stop,
+    close: () => engine.stop(),
   };
 }
 export type Speech = ReturnType<typeof createSpeech>;
