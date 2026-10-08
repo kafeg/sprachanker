@@ -238,7 +238,7 @@ test("a grammar page's bold-only lines become its section titles", () => {
   ]);
 });
 
-test("an exercise page gone at the source is left out and reported; the others keep their keys", () => {
+test("an exercise page gone at the source, or without its exercise, is left out and reported; the others keep their keys", () => {
   const lesson = lessonKey("dw.nicos-weg/a1-tr" as never, 0, 1);
   const out = normaliseLesson(ctx, {
     key: lesson,
@@ -255,15 +255,23 @@ test("an exercise page gone at the source is left out and reported; the others k
         overviewParts: [
           { lessonPart: "EXERCISE", targetId: 8 },
           { lessonPart: "EXERCISE", targetId: 9 },
+          { lessonPart: "EXERCISE", targetId: 10 },
         ],
       },
     },
     downloads: {},
-    exercises: new Map([[9, state as never]]),
+    exercises: new Map([
+      [9, state as never],
+      [10, {} as never],
+    ]),
   });
   expect(out.lesson.pages.map((p) => ("exercise" in p ? String(p.exercise.key) : ""))).toEqual([
     `${lesson}/ex-02`,
   ]);
+  expect(out.lesson.unmapped).toContainEqual({
+    path: "raw/tr-de/a1/e-10.json",
+    reason: "exercise not in its page at the source",
+  });
   expect(out.lesson.unmapped).toContainEqual({
     path: "raw/tr-de/a1/e-8.json",
     reason: "exercise page gone at the source",

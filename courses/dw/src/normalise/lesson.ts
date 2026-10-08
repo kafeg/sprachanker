@@ -114,6 +114,15 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       gone.push({ path: `${src.rawDir}/e-${id}.json`, reason: "exercise page gone at the source" });
       return [];
     }
+    // A page that comes without its exercise (DW answers with an empty content for it, seen in the
+    // Persian A1): the exercise is not there in this edition.
+    if (!page[`Exercise:${id}`]) {
+      gone.push({
+        path: `${src.rawDir}/e-${id}.json`,
+        reason: "exercise not in its page at the source",
+      });
+      return [];
+    }
     return {
       id,
       ...normaliseExercise(
