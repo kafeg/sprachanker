@@ -18,8 +18,12 @@ export const SpeechRepeatAnswer = z.object({ speech: SpokenAnswer });
 export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem);
 
 /** Speaking without a check: listen, then record oneself (the courses' "say it" exercises; compose
- *  upgrades one with a reference text, 04). */
-export const SpeechSelfrateItem = ItemBase.extend({ text: z.string().min(1).optional() });
+ *  upgrades one with a reference text, 04). `answerAudio`: the source's own answer, spoken (DW's
+ *  "Lösungsaudio"), played after the learner's first try. */
+export const SpeechSelfrateItem = ItemBase.extend({
+  text: z.string().min(1).optional(),
+  answerAudio: MediaPath.optional(),
+});
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when
  *  the learner keeps no recordings), and what the recogniser heard when it is on (08). `rating`: the
  *  self-rating of answers given before 2026-10-08. */

@@ -99,7 +99,7 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
 | `ASSOCIATION` `SINGLE` (text or image options) | 252 | `single_choice` |
 | `ASSOCIATION` `MULTIPLE` | 127 | `multi_choice` |
 | `ASSOCIATION` `DIRECT` (sub-inquiries, each with its one correct partner; text or image) | 60 | `match` |
-| `REPEAT` (listen, repeat, rate yourself; sub-inquiry text or a learner-language task) | 180 | `speech_selfrate` |
+| `REPEAT` (listen, repeat, rate yourself; sub-inquiry text or a learner-language task; a second audio link, `mainContent: false`, is the answer spoken — "Lösungsaudio" — on almost every item) | 180 | `speech_selfrate` (`answerAudio`) |
 | `CLOZE` `CHOOSE` (gaps filled from a shared word bank, each word once) | 153 | `gap_choice` (`bank`) |
 | `CLOZE` `PULLDOWN` (options per gap) | 60 | `gap_choice` (`dropdown`) |
 | `CLOZE` `WRITING` | 132 | `gap_text` |

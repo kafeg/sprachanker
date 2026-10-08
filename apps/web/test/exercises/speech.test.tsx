@@ -97,7 +97,7 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   const free = await renderApp(
     <SpeechProvider value={host("after")}>
       <SpeechSelfrate
-        item={{ key: item.key }}
+        item={{ key: item.key, answerAudio: "answer.mp3" }}
         answer={{ transcript: "Tschüss, gute Reise!" }}
         onAnswer={() => {}}
         url={(p) => p}
@@ -107,4 +107,21 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   );
   expect(free.getByText("Tschüss, gute Reise!")).toBeTruthy();
   expect(free.queryByText(/You said it|Almost|Try again/)).toBeNull();
+  // The source's own answer, after the learner's.
+  expect(free.getByRole("button", { name: "Sample answer" })).toBeTruthy();
+});
+
+test("the source's answer is not offered before the first try", async () => {
+  setSecure(true);
+  const view = await renderApp(
+    <SpeechProvider value={host("after")}>
+      <SpeechSelfrate
+        item={{ key: item.key, answerAudio: "answer.mp3" }}
+        answer={undefined}
+        onAnswer={() => {}}
+        url={(p) => p}
+      />
+    </SpeechProvider>,
+  );
+  expect(view.queryByRole("button", { name: "Sample answer" })).toBeNull();
 });

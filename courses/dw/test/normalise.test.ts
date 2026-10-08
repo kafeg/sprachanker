@@ -131,6 +131,48 @@ test("a player label in any edition's language is dropped: the page's own interf
   expect((exercise.items as Array<Record<string, unknown>>)[1]?.prompt).toBeUndefined();
 });
 
+test("a speaking item keeps its spoken answer (the link besides the question) for after the try", () => {
+  const audio = (name: string) => ({
+    kind: "audio" as const,
+    path: `media/audio/${name}.mp3` as never,
+    sha256: "a".repeat(64),
+    size: 1,
+    mime: "audio/mpeg",
+  });
+  const withAnswer = createContext({
+    "https://audio.test/q.mp3": audio("q"),
+    "https://audio.test/a.mp3": audio("a"),
+  });
+  const speaking = {
+    "Exercise:9": { id: 9, name: "Sprich", inputType: "NONE", inquiries: [{ __ref: "Inquiry:1" }] },
+    "Inquiry:1": {
+      inquiryType: "REPEAT",
+      inquiryText: "",
+      'contentLinks({"targetTypes":["AUDIO"]})': [
+        { __ref: "ContentLink:1" },
+        { __ref: "ContentLink:2" },
+      ],
+      subInquiries: [{ __ref: "Inquiry:11" }],
+    },
+    "ContentLink:1": { mainContent: true, target: { mp3Src: "https://audio.test/q.mp3" } },
+    "ContentLink:2": { mainContent: false, target: { mp3Src: "https://audio.test/a.mp3" } },
+    "Inquiry:11": { inquiryText: "Play audio", inquiryDescription: "Ja, ich ... / Nein, ich ..." },
+  };
+  const { exercise, locale } = normaliseExercise(
+    withAnswer,
+    speaking as never,
+    9,
+    key,
+    "raw/en-de/a1/e-9.json",
+  );
+  expect(Exercise.parse(exercise).items[0]).toEqual({
+    key: `${key}#1`,
+    media: { audio: "media/audio/q.mp3" },
+    answerAudio: "media/audio/a.mp3",
+  } as never);
+  expect(locale.items["#1"]?.prompt).toBe("Ja, ich ... / Nein, ich ...");
+});
+
 test("an unseen mechanic becomes unknown with a reason", () => {
   const odd = { ...state, "Inquiry:1": { ...state["Inquiry:1"], inquiryType: "PUZZLE" } };
   const { exercise, unmapped } = normaliseExercise(

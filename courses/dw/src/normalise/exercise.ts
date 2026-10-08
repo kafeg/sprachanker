@@ -16,6 +16,7 @@ import {
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import {
+  answerAudioPath,
   audioPath,
   type Context,
   type Entity,
@@ -187,9 +188,10 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     case "REPEAT": {
       const text = german(state, subs[0]?.inquiryText);
       const task = plainText(subs[0]?.inquiryDescription);
+      const answerAudio = answerAudioPath(ctx, state, q);
       return {
         type: "speech_selfrate",
-        item: { ...base, ...(text ? { text } : {}) },
+        item: { ...base, ...(text ? { text } : {}), ...(answerAudio ? { answerAudio } : {}) },
         locale: { ...locale, ...(task ? { prompt: task } : {}) },
       };
     }

@@ -991,6 +991,7 @@
       "small-q5_1": "Whisper small — faster, less accurate"
     },
     "sayIn": "Say it in {language}",
-    "notHeardShort": "It couldn't be recognised. Try again."
+    "notHeardShort": "It couldn't be recognised. Try again.",
+    "answerSample": "Sample answer"
   }
 }

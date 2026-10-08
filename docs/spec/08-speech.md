@@ -23,7 +23,7 @@ synthesise(segments: { lang: Lang; text: string }[], voice?: VoicePrefs): Promis
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
   then a take, played beside it; the item counts once recorded, without a self-rating (owner,
   2026-10-08) and without a score; the phrase to repeat hidden until the first try unless shown (a
-  setting). The 16 kHz WAV for recognition is made with recognition (plan).
+  setting); the source's own answer, spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it. The 16 kHz WAV for recognition is made with recognition (plan).
 
 ## Recognition (STT)
 

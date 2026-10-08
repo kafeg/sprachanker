@@ -127,6 +127,7 @@ export function SpeechSelfrate({
   onAnswer,
   heard = true,
   readOnly,
+  url,
 }: RendererProps<"speech_selfrate">) {
   const lang = useTargetLang();
   const { t } = useTranslation();
@@ -151,6 +152,11 @@ export function SpeechSelfrate({
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || host?.showText === "always" || attempted || reveal;
   const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
+  // The source's own answer, once the learner has tried (their answer first, then the model one).
+  const sample =
+    item.answerAudio && (readOnly || attempted) ? (
+      <TakeButton src={url(item.answerAudio)} label={t("speech.answerSample")} />
+    ) : null;
 
   const recorder = useRecorder({ onTake: (recorded) => void taken(recorded) });
   const taken = async (recorded: Take) => {
@@ -221,6 +227,7 @@ export function SpeechSelfrate({
           ) : answer ? (
             t("speech.recordedNotKept")
           ) : null}
+          {sample}
         </p>
       ) : (
         <div className="flex flex-wrap items-start justify-center gap-4">
@@ -238,6 +245,7 @@ export function SpeechSelfrate({
               className="mt-1.5"
             />
           )}
+          {sample && <span className="mt-1.5">{sample}</span>}
         </div>
       )}
       {answer?.transcript !== undefined && !saving && (

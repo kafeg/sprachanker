@@ -991,6 +991,7 @@
       "small-q5_1": "Whisper small — schneller, weniger genau"
     },
     "sayIn": "Auf {language} sagen",
-    "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal."
+    "notHeardShort": "Das ließ sich nicht erkennen. Versuch es noch einmal.",
+    "answerSample": "Musterantwort"
   }
 }

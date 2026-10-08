@@ -36,12 +36,26 @@ export function imagePath(ctx: Context, state: ApolloState, image: unknown): Med
   return typeof url === "string" ? ctx.media(imageUrl(url)) : undefined;
 }
 
-/** First audio linked from an entity (`contentLinks(... AUDIO)` or `audios`). */
-export function audioPath(ctx: Context, state: ApolloState, entity: Entity): MediaPath | undefined {
+/** The audio links of an entity (`contentLinks(... AUDIO)`). */
+function audioLinks(state: ApolloState, entity: Entity) {
   const linkKey = Object.keys(entity).find(
     (k) => k.startsWith("contentLinks(") && k.includes("AUDIO"),
   );
-  for (const link of refs(state, linkKey ? entity[linkKey] : [])) {
+  return refs(state, linkKey ? entity[linkKey] : []);
+}
+
+/** The audio of an entity's answer: the link besides its main one (a speaking exercise's
+ *  "Lösungsaudio" after its question). */
+export function answerAudioPath(ctx: Context, state: ApolloState, entity: Entity) {
+  const links = audioLinks(state, entity);
+  if (links.length < 2) return undefined;
+  const src = (links.find((l) => l.mainContent === false)?.target as Entity | undefined)?.mp3Src;
+  return typeof src === "string" ? ctx.media(src) : undefined;
+}
+
+/** First audio linked from an entity (`contentLinks(... AUDIO)` or `audios`). */
+export function audioPath(ctx: Context, state: ApolloState, entity: Entity): MediaPath | undefined {
+  for (const link of audioLinks(state, entity)) {
     const src = (link.target as Entity | undefined)?.mp3Src;
     if (typeof src === "string") return ctx.media(src);
   }

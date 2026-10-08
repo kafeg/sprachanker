@@ -1093,6 +1093,9 @@
               "text": {
                 "type": "string",
                 "minLength": 1
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
               }
             },
             "required": [
