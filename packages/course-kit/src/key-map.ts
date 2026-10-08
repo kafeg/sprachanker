@@ -25,7 +25,8 @@ export async function openKeyMap(seriesDir: string): Promise<KeyMap> {
   let changed = false;
   return {
     number(scope, sourceId, position) {
-      const numbers = (stored[scope] ??= {});
+      const numbers = stored[scope] ?? {};
+      stored[scope] = numbers;
       const own = numbers[sourceId];
       if (own !== undefined) return own;
       const taken = new Set(Object.values(numbers));
