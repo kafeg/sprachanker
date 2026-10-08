@@ -10,7 +10,7 @@ how it fits together, by `docs/architecture.md`. Each item names the spec files 
    approves. New screens or redesigns: rendered mockup options first, the owner picks.
 2. **Implement** in small commits to `main`, each with tests; `bun run check` and `bun run e2e` green
    (check their exit codes, not a piped tail).
-3. **Demo**: commands to run, what to look at, on Mac and iPhone.
+3. **Demo**: commands to run, what to look at, on the Mac (phones: item "Phones").
 4. **Review checklist**: engineering principles (root CLAUDE.md) · boundaries · tests · spec, this plan
    and CLAUDE.md current · no third-party content · i18n keys complete.
 5. **Stop and report after every item**: what was built, what was learned, open problems, an honest
@@ -49,8 +49,7 @@ its own.
    (a play button), tutor and scene replies (read aloud on request or automatically).
 - Settings → Speech gains: recognition on/off and its model (size, download), push-to-talk mode,
   synthesis engine and a voice per language with "Listen", speed, reading AI replies aloud.
-- **Accept** (the item): the three steps on Mac and iPhone (recording: the owner on his iPhone through
-  Tailscale).
+- **Accept** (the item): the three steps on the Mac; the iPhone in item "Phones".
 
 ### 2. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
@@ -68,8 +67,17 @@ Specs: 04, 05, 09.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 4. MVP acceptance
-- The owner's demo of cards, review and the Notebook on Mac and iPhone (open since 2026-10-07).
+### 4. Phones (owner, 2026-10-08: functionality first, phones after)
+Specs: 06, 09.
+- The app on the owner's and his wife's iPhones: HTTPS through Tailscale (`tailscale serve`, 06) set
+  up and described, installed as a PWA, signing in on a phone (device token, PIN).
+- Everything built so far checked on the iPhone: lessons, review, the Notebook, profiles, the AI;
+  speech — the microphone and recording (built), recognition and synthesis (item 1) — in Safari and
+  the PWA; layouts at phone width; what breaks is fixed here.
+- **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
+
+### 5. MVP acceptance
+- The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife use the MVP for at least one week of real study on phones and Mac; their
   findings decide the order of the work after the MVP.
 
