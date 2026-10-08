@@ -33,11 +33,16 @@ offered (03, "Offered in the app").
 Specs: 08, 06, 09. Four steps, each planned, built and accepted on its own; mockups (the microphone
 button and its result in an exercise, Settings → Speech) before the first screen.
 1. **Recording**: capture (MediaRecorder → 16 kHz WAV and the original), recordings kept and replayed
-   (shadowing on the courses' speaking exercises: the original, then oneself), the microphone test,
-   no microphone on plain HTTP with the way to the HTTPS address (06).
+   (shadowing on the courses' speaking exercises: the original, then oneself, then the self-rating),
+   the microphone test and recordings in Settings → Speech, a recording replayable in the Notebook;
+   on plain HTTP the microphone button disabled, saying why (a tooltip, on a phone a line under it)
+   and how to reach the HTTPS address (06).
 2. **Recognition**: `whisper-server` (large-v3-turbo; how the binary is obtained — `native/` build or
    prebuilt — and whether Parakeet v3 is offered too is decided in the step's plan), the model
-   downloaded as a job, `speech_repeat` with the word diff ("heard: …", no pronunciation grade).
+   downloaded as a job, `speech_repeat`: the transcript compared word by word with the item's text
+   (engine diff: words matched and missed, "heard: …"), the outcome from it (≥ 80% of words, 04);
+   self-rated speaking with a reference text becomes `speech_repeat`, free speaking stays self-rated;
+   lenient by nature (whisper corrects what it hears), no pronunciation grade.
    Accept: the latency target (08) on the owner's Mac with his phrases.
 3. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
    editable before it is sent). Not on review cards for now.
