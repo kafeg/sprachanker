@@ -59,3 +59,14 @@ test("without a model nothing is shown or asked", async () => {
   });
   expect(view.container.textContent).toBe("");
 });
+
+test("other words heard: nothing asked until the learner asks for the check", async () => {
+  const view = await renderApp(<SpokenAnswerCheck {...props} transcript="Guten Morgen" />, {
+    data: [
+      [["llm"], { provider: "custom", model: "m", providers: [] }],
+      [["spoken", RUN], kept],
+    ],
+  });
+  // No request on its own (a request in a test fails it): the button is there to ask.
+  expect(view.getByRole("button", { name: "Check with AI" })).toBeTruthy();
+});

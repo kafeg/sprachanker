@@ -8,7 +8,7 @@ import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
-import { useExamples, useLlm, useMakeExample } from "./api.ts";
+import { useAiIn, useExamples, useLlm, useMakeExample } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
 import { ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
@@ -106,5 +106,10 @@ export function WordExample({ cardId }: { cardId: string }) {
 
 /** The reviewer's and the word sheet's slots (study/slots.ts). */
 export const wordAssistant = {
-  word: ({ cardId }: { cardId: string }) => <WordExample cardId={cardId} />,
+  word: ({ cardId }: { cardId: string }) => <WordSlot cardId={cardId} />,
 };
+
+/** A word's example, while its place is on (Settings → Prompts). */
+function WordSlot({ cardId }: { cardId: string }) {
+  return useAiIn("example") ? <WordExample cardId={cardId} /> : null;
+}

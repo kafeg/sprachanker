@@ -14,7 +14,7 @@ scored.
 The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose/steps.ts`; owner
 2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
-one "Culture" step per culture page → AI practice when an assistant is set up: "Write it yourself",
+one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07): "Write it yourself",
 scene, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
 worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
 the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps

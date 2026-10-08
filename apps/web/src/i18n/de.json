@@ -402,7 +402,35 @@
     "custom": "geändert",
     "placeholders": "'{language}' wird durch die Sprache der Antworten ersetzt, '{target}' durch die Sprache, die du lernst.",
     "save": "Speichern",
-    "restore": "Standard-Prompt wiederherstellen"
+    "restore": "Standard-Prompt wiederherstellen",
+    "places": {
+      "title": "Wo der Assistent hilft",
+      "hint": "Was ausgeschaltet ist, erscheint nicht in Lektionen und Karten. Erledigte Lektionen bleiben erledigt.",
+      "explain": {
+        "name": "„Warum ist das falsch?“",
+        "where": "die Schaltfläche unter einem Fehler"
+      },
+      "tutor": {
+        "name": "Tutor",
+        "where": "die Schaltfläche in der Lektion und der Schritt „Fehler durchgehen“"
+      },
+      "writing": {
+        "name": "„Schreib selbst“",
+        "where": "ein Schritt der Lektion"
+      },
+      "scene": {
+        "name": "Szenen",
+        "where": "ein Schritt der Lektion"
+      },
+      "speaking": {
+        "name": "Gesprochene Antworten",
+        "where": "„Mit KI prüfen“ unter einer gesprochenen Antwort"
+      },
+      "example": {
+        "name": "Beispiel zum Wort",
+        "where": "auf seiner Karte und in seinem Blatt"
+      }
+    }
   },
   "writing": {
     "task": "Schreib 3–5 Sätze auf {language} zum Thema der Lektion: {topic}. Benutze die neuen Wörter.",
@@ -974,7 +1002,8 @@
     "read": {
       "listen": "Vorlesen: {what}",
       "stop": "Vorlesen beenden"
-    }
+    },
+    "aiCheck": "Mit KI prüfen"
   },
   "error": {
     "answer_does_not_fit": "Die Antwort passt nicht zur Übung. Lade die Lektion neu.",

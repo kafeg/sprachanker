@@ -46,8 +46,8 @@ one's own** and **reading aloud** (below). The server's speech module (`services
   between the transcript and the phrase (`spokenCheck`): every word — "You said it", at least 80% —
   "Almost", fewer — "Try again"; "Heard: …" and the words missed shown under it; kept with the answer
   (transcript, outcome with the diff) and in no score, so a lesson's score is the same with recognition
-  on or off (owner, 2026-10-08). A spoken answer of one's own (no phrase) shows what was heard, then the
-  AI's check of it (07, `check_speaking`) while an assistant is set up: the item, the question and the
+  on or off (owner, 2026-10-08). A spoken answer of one's own (no phrase) shows what was heard, and "Check
+  with AI" asks for the AI's check of it (07, `check_speaking`; owner, 2026-10-09): the item, the question and the
   source's answer — both heard by the recogniser from the course's recordings, once per model while the
   server runs (`speech.heard`) — against what was heard; verdict, feedback, the answer corrected and
   the corrections under the item, kept in the run (05) and in the Notebook; a mistake of the lesson

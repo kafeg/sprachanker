@@ -402,7 +402,35 @@
     "custom": "changed",
     "placeholders": "'{language}' is replaced by the language of the answers, '{target}' by the language you learn.",
     "save": "Save",
-    "restore": "Restore the standard prompt"
+    "restore": "Restore the standard prompt",
+    "places": {
+      "title": "Where the assistant works",
+      "hint": "A place turned off is not shown in lessons and cards. Lessons done stay done.",
+      "explain": {
+        "name": "“Why is this wrong?”",
+        "where": "the button under a mistake"
+      },
+      "tutor": {
+        "name": "Tutor",
+        "where": "the button in a lesson and the “Going over mistakes” step"
+      },
+      "writing": {
+        "name": "“Write it yourself”",
+        "where": "a step of the lesson"
+      },
+      "scene": {
+        "name": "Scenes",
+        "where": "a step of the lesson"
+      },
+      "speaking": {
+        "name": "Spoken answers",
+        "where": "“Check with AI” under an answer said aloud"
+      },
+      "example": {
+        "name": "A word's example",
+        "where": "on its card and in its sheet"
+      }
+    }
   },
   "writing": {
     "task": "Write 3–5 sentences in {language} on the lesson's topic: {topic}. Use the new words.",
@@ -974,7 +1002,8 @@
     "read": {
       "listen": "Read aloud: {what}",
       "stop": "Stop reading"
-    }
+    },
+    "aiCheck": "Check with AI"
   },
   "error": {
     "answer_does_not_fit": "The answer does not fit this exercise. Reload the lesson.",

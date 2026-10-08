@@ -38,8 +38,10 @@ one voice when both languages share one).
 - **1b. Piper on this computer**: piper1-gpl (GPL-3, a separate program beside ours like whisper)
   built in `native/piper`, pinned; voices per language downloaded and checked in Settings; the server
   speaks (`POST /api/speech/say` → WAV, kept in `<data-root>/cache/tts`).
-- **1c. Own server**: any server with OpenAI's `/v1/audio/speech` (Qwen3-TTS through mlx-audio), its
-  address, model and voice in Settings; reached by our server, which keeps what it said like Piper's.
+- **1c. Qwen3-TTS on this computer** (owner, 2026-10-09: run by us like whisper, no server of the
+  learner's own): a native GGML build without Python (qwen3-tts.cpp or another, chosen in the step's
+  plan after trying them) in `native/`, pinned, on the sidecar supervisor; its model downloaded and
+  checked in Settings; spoken through the same `POST /api/speech/say` and cache as Piper.
 - **Accept**: on the Mac; the iPhone in item "Phones".
 
 ### 2. Exams (owner, 2026-10-08)

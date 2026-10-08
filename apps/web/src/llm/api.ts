@@ -1,9 +1,9 @@
 // LLM endpoints of the API: provider setup, connection test, streamed lesson help.
-import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
+import { type AiPlace, type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { withAttempt, withCheck, withExample, withScene, withTurns } from "@/api/cache.ts";
 import { ApiError, api, apiError, json } from "@/api/client.ts";
-import { STATIC } from "@/api/hooks.ts";
+import { STATIC, useSetting } from "@/api/hooks.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
 export type ProviderId = LlmState["providers"][number]["id"];
@@ -11,6 +11,15 @@ export type ProviderId = LlmState["providers"][number]["id"];
 const fetchState = () => json(api.llm.$get());
 
 export const useLlm = () => useQuery({ queryKey: ["llm"], queryFn: fetchState });
+
+/** Whether the assistant works in a place: a model set up and the place not turned off (Settings →
+ *  Prompts); undefined while that is read. */
+export function useAiIn(place: AiPlace): boolean | undefined {
+  const llm = useLlm();
+  const off = useSetting("llm.offIn");
+  if (llm.isPending) return undefined;
+  return !!llm.data?.model && !off.includes(place);
+}
 
 export function useSetRoute() {
   const client = useQueryClient();

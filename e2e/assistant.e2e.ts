@@ -259,7 +259,7 @@ test("an example for a word: asked for in its sheet, kept, another on request", 
   await expect(sheet.getByRole("button", { name: "Another example" })).toBeVisible();
 });
 
-test("an answer said aloud is checked by the AI from what was heard, kept in the run", async ({
+test("an answer said aloud is checked by the AI from what was heard on request, kept in the run", async ({
   page,
   request,
 }) => {
@@ -283,6 +283,8 @@ test("an answer said aloud is checked by the AI from what was heard, kept in the
   await free.getByRole("button", { name: "Stop recording" }).click();
 
   await expect(free.getByText("Hallo gute Tag")).toBeVisible();
+  // Asked for, not on its own.
+  await free.getByRole("button", { name: "Check with AI" }).click();
   await expect(free.getByText("Small mistakes")).toBeVisible();
   await expect(free.getByText("FAKE: nearly there.")).toBeVisible();
   await expect(free.getByText(/FAKE: der Tag → guten Tag/)).toBeVisible();

@@ -11,6 +11,12 @@ import { CardFace } from "./learner.ts";
 export const ProfileColour = z.enum(["amber", "teal", "rose", "violet", "sky", "lime"]);
 export type ProfileColour = z.infer<typeof ProfileColour>;
 
+/** Where the AI assistant works (07), each of which the learner can turn off: "Why is this wrong?",
+ *  the tutor (with the lesson's "Going over mistakes"), "Write it yourself", scenes, the check of an
+ *  answer said aloud, a word's example. */
+export const AI_PLACES = ["explain", "tutor", "writing", "scene", "speaking", "example"] as const;
+export type AiPlace = (typeof AI_PLACES)[number];
+
 const filter = z.string().min(1).max(200);
 /** A learning step as Anki writes it: minutes, hours or days. */
 const step = z.string().regex(/^[1-9]\d{0,3}[mhd]$/);
@@ -34,6 +40,8 @@ export const LEARNER_SETTINGS = {
   "review.deck": z.string().min(1).max(400),
   /** Shows the prompt behind each AI answer. */
   "llm.debugPrompts": z.boolean(),
+  /** The places the assistant is turned off in (none by default): they are not shown. */
+  "llm.offIn": z.array(z.enum(AI_PLACES)).max(AI_PLACES.length),
   /** Anki's deck options (04). */
   "srs.newPerDay": z.number().int().min(0).max(9999),
   "srs.reviewsPerDay": z.number().int().min(0).max(9999),
@@ -95,6 +103,7 @@ export const SETTING_DEFAULTS = {
   theme: "system",
   audioRate: 1,
   "llm.debugPrompts": false,
+  "llm.offIn": [],
   "speech.keepRecordings": true,
   "speech.showText": "after",
   "speech.recognition": true,

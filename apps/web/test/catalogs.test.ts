@@ -108,6 +108,7 @@ const SAME_IN_GERMAN = new Set([
   "settings.theme.system",
   "settings.tabs.prompts",
   "tutor.title",
+  "prompt.places.tutor.name",
   "prompt.button",
   "prompt.title",
   "prompt.task.tutor",

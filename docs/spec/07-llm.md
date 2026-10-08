@@ -52,7 +52,11 @@ sent when LM Studio requires one.
 
 ## Tasks
 
-All tasks use the profile's route. Code: `packages/llm/src/tasks/`.
+All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
+turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
+this wrong?", the tutor (and with it "Going over mistakes"), "Write it yourself", scenes, spoken
+answers, a word's example — a place off is not shown (its button, its step of the lesson plan); a
+lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
 
 | Task | Input | Output |
 |---|---|---|
@@ -74,8 +78,8 @@ lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson
 step shows the latest check under the task and the lesson's earlier texts under it (verdict, the three
 criteria, when), each readable in full, and any text goes back into the editor to be fixed and checked
 again (owner, 2026-10-07);
-an answer said aloud to a speaking item without a phrase to say → `check_speaking` as soon as it is
-heard, while an assistant is set up (owner, 2026-10-08: at once, not on request): an `llm_verdict`
+an answer said aloud to a speaking item without a phrase to say → `check_speaking` on request ("Check
+with AI" under what was heard; owner, 2026-10-09): an `llm_verdict`
 (`task: speaking`) on the item in the lesson run, for the words heard — asked once for the same words,
 shown under the item and in the Notebook; its verdict makes it a mistake of the lesson (minor errors
 partly right, major errors or off the task wrong; owner, 2026-10-08) for going over mistakes and the
