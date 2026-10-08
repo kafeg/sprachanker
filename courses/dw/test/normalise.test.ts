@@ -227,7 +227,7 @@ test("a lesson's own recording becomes media.audio (Deutschtrainer)", () => {
     },
     downloads: {},
     exercises: new Map(),
-    exerciseNumber: (_id: number, position: number) => position,
+    exerciseNumber: (_occurrence: string, position: number) => position,
   });
   expect(out.lesson.media).toEqual({ audio: "media/audio/q1.mp3" });
 });
@@ -308,7 +308,7 @@ test("a grammar page's bold-only lines become its section titles", () => {
     },
     downloads: {},
     exercises: new Map(),
-    exerciseNumber: (_id: number, position: number) => position,
+    exerciseNumber: (_occurrence: string, position: number) => position,
   });
   expect(out.locale.tabs.grammar).toEqual([
     {
@@ -345,7 +345,7 @@ test("an exercise page gone at the source, or without its exercise, is left out 
       [9, state as never],
       [10, {} as never],
     ]),
-    exerciseNumber: (_id: number, position: number) => position,
+    exerciseNumber: (_occurrence: string, position: number) => position,
   });
   expect(out.lesson.pages.map((p) => ("exercise" in p ? String(p.exercise.key) : ""))).toEqual([
     `${lesson}/ex-02`,
@@ -360,10 +360,10 @@ test("an exercise page gone at the source, or without its exercise, is left out 
   });
 });
 
-test("an exercise keeps its key by its source id when the source inserts one before it", async () => {
+test("an exercise keeps its key by its source id when the source inserts one before it; a missing page keeps its number, a repeat has its own", async () => {
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-keys-"));
   const lesson = lessonKey("dw.nicos-weg/a1" as never, 0, 1);
-  const keysOf = async (ids: number[]) => {
+  const keysOf = async (ids: number[], missing: number[] = []) => {
     const keys = await openKeyMap(dir);
     const out = normaliseLesson(ctx, {
       key: lesson,
@@ -382,9 +382,11 @@ test("an exercise keeps its key by its source id when the source inserts one bef
       },
       downloads: {},
       exercises: new Map(
-        ids.map((id) => [id, { ...state, [`Exercise:${id}`]: state["Exercise:9"] }]),
+        ids
+          .filter((id) => !missing.includes(id))
+          .map((id) => [id, { ...state, [`Exercise:${id}`]: state["Exercise:9"] }]),
       ),
-      exerciseNumber: (id, position) => keys.number(lesson, String(id), position),
+      exerciseNumber: (occurrence, position) => keys.number(lesson, occurrence, position),
     });
     await keys.save();
     return out.lesson.pages.map((p) => ("exercise" in p ? String(p.exercise.key).slice(-5) : ""));
@@ -392,4 +394,17 @@ test("an exercise keeps its key by its source id when the source inserts one bef
   expect(await keysOf([9, 10])).toEqual(["ex-01", "ex-02"]);
   // A new exercise first: the two keep theirs, it takes the next free number.
   expect(await keysOf([7, 9, 10])).toEqual(["ex-03", "ex-01", "ex-02"]);
+  // A page missing the first time it is listed still takes its place's number: when it comes, the
+  // number is its own and no other key moved for it.
+  expect(await keysOf([7, 9, 10, 11, 12], [11])).toEqual(["ex-03", "ex-01", "ex-02", "ex-05"]);
+  expect(await keysOf([7, 9, 10, 11, 12])).toEqual(["ex-03", "ex-01", "ex-02", "ex-04", "ex-05"]);
+  // Listed twice: two exercises, two keys.
+  expect(await keysOf([7, 9, 10, 11, 12, 9])).toEqual([
+    "ex-03",
+    "ex-01",
+    "ex-02",
+    "ex-04",
+    "ex-05",
+    "ex-06",
+  ]);
 });

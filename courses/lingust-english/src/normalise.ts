@@ -3,9 +3,11 @@
 // with recordings as listen-and-repeat exercises, its vocabulary and its exercises (exercise.ts).
 import {
   draftExercise,
+  draftOrUnknown,
   escapeHtml,
   type Headword,
   type LibraryFile,
+  type LooseDraft,
   type MediaIndex,
   mediaPath,
   shapeHeadword,
@@ -133,6 +135,15 @@ function buildLesson(
     pages.push({ exercise });
     exercises[exercise.key] = loc;
   };
+  /** A drafted exercise pushed; one that does not fit stands as `unknown`, its reason noted. */
+  const pushDraft = (draft: LooseDraft, loc: LocaleExercise) => {
+    const { exercise, unmapped: reason } = draftOrUnknown(draft, raw);
+    if (reason) {
+      unknown++;
+      unmapped.push({ path: raw, reason: `${draft.key}: ${reason}` });
+    }
+    push(exercise, loc);
+  };
   // Keys follow the source, never what the mapping made of it (02): a numbered task is ex-<its
   // number>, a section's examples ex-1<section>, the closing lines ex-300 — so a normaliser fix that
   // maps one more task never moves the others' keys (and the learner's answers with them).
@@ -179,13 +190,16 @@ function buildLesson(
       const speech = speechExercise(k, section.snippets, media);
       if (!speech) continue;
       const allAudio = speech.items.every((i) => "media" in i);
-      push(draftExercise({ key: k, type: "speech_selfrate", items: speech.items }), {
-        sourceId: `${src.info.slug}#examples-${s + 1}`,
-        // A section without a heading gives no title (the player numbers it).
-        ...(section.title && { title: section.title }),
-        instructionHtml: allAudio ? LISTEN : READ,
-        items: speech.locale,
-      });
+      pushDraft(
+        { key: k, type: "speech_selfrate", items: speech.items },
+        {
+          sourceId: `${src.info.slug}#examples-${s + 1}`,
+          // A section without a heading gives no title (the player numbers it).
+          ...(section.title && { title: section.title }),
+          instructionHtml: allAudio ? LISTEN : READ,
+          items: speech.locale,
+        },
+      );
     }
     for (const [i, ex] of page.exercises.entries()) {
       const number = Number(/\d+/.exec(ex.label)?.[0]);
@@ -221,11 +235,14 @@ function buildLesson(
     const k = exerciseKey(key, CLOSING);
     const speech = speechExercise(k, epilogue, media);
     if (speech)
-      push(draftExercise({ key: k, type: "speech_selfrate", items: speech.items }), {
-        sourceId: `${src.info.slug}#closing`,
-        instructionHtml: LISTEN,
-        items: speech.locale,
-      });
+      pushDraft(
+        { key: k, type: "speech_selfrate", items: speech.items },
+        {
+          sourceId: `${src.info.slug}#closing`,
+          instructionHtml: LISTEN,
+          items: speech.locale,
+        },
+      );
   }
 
   return {

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync, readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openKeyMap } from "../src/key-map.ts";
@@ -19,4 +19,12 @@ test("numbers by place the first time, then by source id, kept across normalisat
     u1: { a: 1, b: 2, c: 3, x: 4 },
     u2: { a: 1 },
   });
+});
+
+test("a key map that does not read stops the normaliser instead of numbering afresh", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "sprachanker-keys-"));
+  writeFileSync(join(dir, "keys.json"), "{ cut short");
+  await expect(openKeyMap(dir)).rejects.toThrow();
+  writeFileSync(join(dir, "keys.json"), JSON.stringify({ u1: { a: "one" } }));
+  await expect(openKeyMap(dir)).rejects.toThrow();
 });

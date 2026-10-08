@@ -10,7 +10,14 @@
 //   players / reading or speaking tasks     → speech_selfrate
 // Tasks with no answers at all → Homework (a reference tab); anything else unmappable → unknown.
 import type { ExerciseDraft } from "@sprachanker/course-kit";
-import { CYRILLIC, escapeHtml, plainText, Unmapped } from "@sprachanker/course-kit";
+import {
+  CYRILLIC,
+  escapeHtml,
+  hasCyrillic,
+  latinLetters,
+  plainText,
+  Unmapped,
+} from "@sprachanker/course-kit";
 import {
   type ExerciseKey,
   itemKey,
@@ -20,14 +27,7 @@ import {
 } from "@sprachanker/schema";
 import type { KeyEntry, Seg, SourceExercise, Unit } from "./parse/exercise.ts";
 import type { Line, Snippet } from "./parse/snippets.ts";
-import {
-  flatText,
-  hasCyrillic,
-  isRussian,
-  latinLetters,
-  withoutIpa,
-  withoutRussianRemarks,
-} from "./text.ts";
+import { flatText, isRussian, withoutIpa, withoutRussianRemarks } from "./text.ts";
 
 /** A task without answers to check ("write a letter"): the lesson's homework, not an exercise. */
 export class Homework extends Error {}

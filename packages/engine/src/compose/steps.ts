@@ -18,9 +18,7 @@ export type LessonStep =
   | { kind: "grammar"; index: number }
   | { kind: "exercise"; index: number }
   | { kind: "culture"; index: number }
-  | { kind: "writing" }
-  | { kind: "scene" }
-  | { kind: "mistakes" }
+  | { kind: PracticeKind }
   | { kind: "summary" };
 
 export { PRACTICE, type PracticeKind };

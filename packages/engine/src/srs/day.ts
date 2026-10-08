@@ -1,12 +1,12 @@
 // The learner's day of card answers as Anki keeps it (04, "Spaced repetition"): the answers not taken
 // back, what each deck has used of its daily limits, the answer Undo takes back, and the face just
 // taken back (shown next). Pure: the caller passes the day's card events.
-import type { CardFace, CardReviewPayload, CardUndoPayload, TypedEvent } from "@sprachanker/schema";
+import type { CardFace, CardReviewPayload, TypedEvent } from "@sprachanker/schema";
 
-/** A `card_review` or `card_undo` event of the day. */
-export type CardEvent =
-  | { id: string; ts: number; type: "card_review"; cardId: string; payload: CardReviewPayload }
-  | { id: string; ts: number; type: "card_undo"; cardId: string; payload: CardUndoPayload };
+/** A `card_review` or `card_undo` event of the day (always about a card). */
+export type CardEvent = Extract<TypedEvent, { type: "card_review" | "card_undo" }> & {
+  cardId: string;
+};
 
 export interface CardAnswer {
   id: string;

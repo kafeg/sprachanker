@@ -5,10 +5,12 @@
 // Kept per series in `keys.json` (the normaliser's own state, beside media.json).
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { z } from "zod";
 import { writeFileAtomic } from "./files.ts";
 
 /** By scope (a course's unit, a lesson), each source id's number. */
-type Stored = Record<string, Record<string, number>>;
+const Stored = z.record(z.string(), z.record(z.string(), z.number().int().positive()));
+type Stored = z.infer<typeof Stored>;
 
 export interface KeyMap {
   /** The number of `sourceId` in `scope`: its own, else `position` when free, else the next free. */
@@ -19,9 +21,13 @@ export interface KeyMap {
 
 export async function openKeyMap(seriesDir: string): Promise<KeyMap> {
   const file = join(seriesDir, "keys.json");
-  const stored: Stored = await readFile(file, "utf8")
-    .then((text) => JSON.parse(text) as Stored)
-    .catch(() => ({}));
+  // None yet: a series normalised the first time. One that does not read stops the normaliser: numbering
+  // afresh would give kept keys to other lessons and exercises.
+  const text = await readFile(file, "utf8").catch((error: NodeJS.ErrnoException) => {
+    if (error.code === "ENOENT") return undefined;
+    throw error;
+  });
+  const stored: Stored = text === undefined ? {} : Stored.parse(JSON.parse(text));
   let changed = false;
   return {
     number(scope, sourceId, position) {

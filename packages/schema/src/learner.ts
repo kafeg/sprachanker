@@ -43,9 +43,9 @@ export const PageShownPayload = z.object({
   /** The exercise on that page (attached by the server): what the run resumes on and what its
    *  snapshot belongs to, wherever the page is after the lesson changed. */
   exerciseKey: ExerciseKey.optional(),
-  /** Attached by the server the first time the exercise is shown in the run. A snapshot that no
-   *  longer reads (the exercise format changed since) is dropped, not its event. */
-  snapshot: PageSnapshot.optional().catch(undefined),
+  /** Attached by the server the first time the exercise is shown in the run. Written whole; one
+   *  that no longer reads (the exercise format changed since) is dropped when read (`readPayload`). */
+  snapshot: PageSnapshot.optional(),
 });
 export type PageShownPayload = z.infer<typeof PageShownPayload>;
 
@@ -226,6 +226,20 @@ export const EVENT_PAYLOADS = {
 export type EventType = keyof typeof EVENT_PAYLOADS;
 export type EventPayload<T extends EventType> = z.infer<(typeof EVENT_PAYLOADS)[T]>;
 export const EventType = z.enum(Object.keys(EVENT_PAYLOADS) as [EventType, ...EventType[]]);
+
+/** A stored payload read: as written, except that a page's snapshot that no longer reads is dropped,
+ *  not its event (the page and the exercise key still do). Undefined when the payload does not read. */
+export function readPayload<T extends EventType>(
+  type: T,
+  stored: unknown,
+): EventPayload<T> | undefined {
+  const read = EVENT_PAYLOADS[type].safeParse(stored);
+  if (read.success) return read.data as EventPayload<T>;
+  if (type !== "page_shown" || typeof stored !== "object" || stored === null) return undefined;
+  const { snapshot: _, ...page } = stored as Record<string, unknown>;
+  const again = PageShownPayload.safeParse(page);
+  return again.success ? (again.data as EventPayload<T>) : undefined;
+}
 
 export const StoredEvent = z.object({
   id: Ulid,

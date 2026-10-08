@@ -189,6 +189,9 @@ test("a lesson changed since: the run resumes on the exercise it showed and keep
   // Without the lesson, or an exercise it no longer has: the page number as recorded.
   expect(resumePage(events)).toBe(1);
   expect(resumePage([shown(3, 4, "gone")], now)).toBe(4);
+  // Stored before pages named their exercise: the snapshot names it.
+  const { exerciseKey: _, ...older } = shown(4, 1, "b", true).payload as Record<string, unknown>;
+  expect(resumePage([ev(4, "page_shown", null, older)], now)).toBe(2);
 });
 
 test("how an item went in a run: right at a later attempt, or only tries, or skipped", () => {

@@ -1,10 +1,12 @@
 // Telling the course's two scripts apart (course-kit's helpers): the pages mix Russian explanations and
 // English examples in one element; how Lingust's lines read.
-import { CYRILLIC, hasCyrillic, latinLetters, plainText } from "@sprachanker/course-kit";
-
-export { hasCyrillic, latinLetters };
-
-const cyrillicLetters = (text: string) => text.match(/\p{Script=Cyrillic}/gu)?.length ?? 0;
+import {
+  CYRILLIC,
+  cyrillicLetters,
+  hasCyrillic,
+  latinLetters,
+  plainText,
+} from "@sprachanker/course-kit";
 
 /**
  * Text of an HTML fragment where inline tags do not split words ("c<strong>a</strong>t" → "cat");
@@ -30,7 +32,7 @@ export function withoutRussianRemarks(text: string): string {
   let out = text;
   for (let prev = ""; prev !== out; ) {
     prev = out;
-    out = out.replace(/\s*\([^()]*[А-Яа-яЁё][^()]*\)/g, "");
+    out = out.replace(/\s*\([^()]*\p{Script=Cyrillic}[^()]*\)/gu, "");
   }
   return out
     .replace(/\s+([.,!?;:])/g, "$1")

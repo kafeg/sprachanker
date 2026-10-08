@@ -13,6 +13,7 @@ import {
   type LessonResult,
   parseLessonKey,
   type RunKind,
+  readPayload,
   type TypedEvent,
   type VerdictOf,
   type VerdictTask,
@@ -83,9 +84,11 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     key === null ? isNull(runs.contextKey) : eq(runs.contextKey, key);
 
   const toEvent = (row: EventRow): ReadEvent | undefined => {
-    const schema = EVENT_PAYLOADS[row.type as EventType];
-    const parsed = schema?.safeParse(parseJson(row.payloadJson));
-    if (!parsed?.success) {
+    const payload =
+      row.type in EVENT_PAYLOADS
+        ? readPayload(row.type as EventType, parseJson(row.payloadJson))
+        : undefined;
+    if (!payload) {
       console.error(`event ${row.id} (${row.type}) does not read as stored; left out`);
       return undefined;
     }
@@ -96,7 +99,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       type: row.type as EventType,
       itemKey: row.itemKey,
       cardId: row.cardId,
-      payload: parsed.data,
+      payload,
     } as TypedEvent;
   };
   const read = (rows: EventRow[]) => rows.flatMap((r) => toEvent(r) ?? []);

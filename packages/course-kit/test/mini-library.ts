@@ -18,7 +18,7 @@ import {
   unitKey,
 } from "@sprachanker/schema";
 import { prettyJson } from "../src/canonical-json.ts";
-import { type ExerciseDraft, withFingerprint } from "../src/fingerprint.ts";
+import { draftExercise } from "../src/exercise-draft.ts";
 
 export const MINI_SERIES = seriesKey("sprachanker", "mini");
 const COURSE = courseKey(MINI_SERIES, "basic");
@@ -27,11 +27,9 @@ export const MINI_LESSON = lessonKey(COURSE, 0, 1);
 export const MINI_AUDIO = "media/audio/hallo.mp3" as MediaPath;
 const CHOICE = exerciseKey(MINI_LESSON, 1);
 
-const choice: Exercise = withFingerprint({
+const choice: Exercise = draftExercise({
   key: CHOICE,
   type: "single_choice",
-  newWords: [],
-  ruleIds: [],
   media: { audio: MINI_AUDIO },
   items: [
     {
@@ -44,7 +42,7 @@ const choice: Exercise = withFingerprint({
       answer: { optionIds: ["a"] },
     },
   ],
-} as ExerciseDraft);
+});
 
 const index: CourseIndex = {
   format: 1,

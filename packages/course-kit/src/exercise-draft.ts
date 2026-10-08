@@ -43,10 +43,31 @@ export function draftExercise(loose: LooseDraft): Exercise {
   return withFingerprint(draft as unknown as ExerciseDraft);
 }
 
-/** The `unknown` exercise standing where one could not be mapped: the raw page it came from and why. */
-export const unknownExercise = (common: ExerciseCommon, raw: string, reason: string): Exercise =>
-  draftExercise({
-    ...common,
+/** The `unknown` exercise standing where one could not be mapped: the raw page it came from and why.
+ *  Built as it is, never checked: what stands for a failure must not fail itself. */
+export function unknownExercise(common: ExerciseCommon, raw: string, reason: string): Exercise {
+  const { key, newWords = [], ruleIds = [], media } = common;
+  // In the order a drafted one has (the files keep it).
+  return withFingerprint({
+    newWords,
+    ruleIds,
+    key,
+    ...(media && { media }),
     type: "unknown",
-    items: [{ key: itemKey(common.key, 1), raw, reason }],
+    items: [{ key: itemKey(key, 1), raw, reason }],
   });
+}
+
+/** An exercise drafted, or — when it does not fit its type — the `unknown` one standing for it, with
+ *  why (for the lesson's unmapped list). */
+export function draftOrUnknown(
+  loose: LooseDraft,
+  raw: string,
+): { exercise: Exercise; unmapped?: string } {
+  try {
+    return { exercise: draftExercise(loose) };
+  } catch (error) {
+    if (!(error instanceof Unmapped)) throw error;
+    return { exercise: unknownExercise(loose, raw, error.message), unmapped: error.message };
+  }
+}

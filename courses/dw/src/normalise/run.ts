@@ -63,7 +63,7 @@ export async function normaliseCourse(
       lesson,
       downloads,
       exercises,
-      exerciseNumber: (id, position) => keys.number(entry.key, String(id), position),
+      exerciseNumber: (occurrence, position) => keys.number(entry.key, occurrence, position),
     });
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);

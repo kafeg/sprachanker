@@ -9,6 +9,9 @@
           "exercise": {
             "key": "s.x/c/00-01/ex-02",
             "type": "single_choice",
+            "fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+            "newWords": [],
+            "ruleIds": [],
             "items": [
               {
                 "key": "s.x/c/00-01/ex-02#1",

@@ -39,8 +39,9 @@ export interface LessonSource {
   lesson: ApolloState;
   downloads: ApolloState;
   exercises: Map<number, ApolloState>;
-  /** An exercise's number in the lesson: its own by source id, else its place (the key map). */
-  exerciseNumber(exerciseId: number, position: number): number;
+  /** An exercise's number in the lesson: its own by source id (`<id>`, a repeat `<id>.<n>`), else
+   *  its place (the key map). */
+  exerciseNumber(occurrence: string, position: number): number;
 }
 
 export interface NormalisedLesson {
@@ -126,9 +127,14 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const goals = goalTexts.map((_, i) => lessonGoalKey(src.key, i + 1));
 
   // Keys follow the source's order the first time and stay by source id (a missing page keeps its
-  // number, one inserted takes a new one), so the others never shift.
+  // number — taken even while it is missing — one inserted takes a new one), so the others never
+  // shift. An exercise the lesson lists twice is numbered per occurrence.
   const gone: Array<{ path: string; reason: string }> = [];
+  const seen = new Map<number, number>();
   const exercises = exerciseIds(state, src.sourceId).flatMap((id, i) => {
+    const occurrence = (seen.get(id) ?? 0) + 1;
+    seen.set(id, occurrence);
+    const number = src.exerciseNumber(occurrence === 1 ? String(id) : `${id}.${occurrence}`, i + 1);
     const page = src.exercises.get(id);
     if (!page) {
       gone.push({ path: `${src.rawDir}/e-${id}.json`, reason: "exercise page gone at the source" });
@@ -149,7 +155,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
         ctx,
         page,
         id,
-        exerciseKey(src.key, src.exerciseNumber(id, i + 1)),
+        exerciseKey(src.key, number),
         `${src.rawDir}/e-${id}.json`,
       ),
     };

@@ -46,7 +46,7 @@ type Outcome = {
   score: number;          // 0..1; partial = share of matched ids or words
   diff?: TokenDiff[];     // text and speech
   ruleIds: string[];      // canonical ruleIds + enrichment
-  lexemes: string[];
+  lexemes: string[];      // always [] until mistakes name their words (planned, below)
   needsLlm?: boolean;     // respond: deterministic part done, LLM verdict pending
   parts?: Record<string, boolean>;  // gaps by gap id, match pairs by left id: what the item marks
 };

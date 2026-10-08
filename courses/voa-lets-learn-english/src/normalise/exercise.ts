@@ -1,7 +1,8 @@
 // A planned exercise → one of our types: a practice video as speech_selfrate, a quiz as single or
 // multiple choice; anything not available as unknown.
 import {
-  draftExercise,
+  draftOrUnknown,
+  type LooseDraft,
   type MediaIndex,
   mediaPath,
   unknownExercise,
@@ -31,6 +32,12 @@ function unknown(
   return { exercise: unknownExercise({ key }, raw, reason), locale, unknown: true };
 }
 
+/** A drafted exercise; one that does not fit its type stands as `unknown`. */
+function drafted(draft: LooseDraft, raw: string, locale: LocaleExercise): Normalised {
+  const { exercise, unmapped } = draftOrUnknown(draft, raw);
+  return { exercise, locale, unknown: !!unmapped };
+}
+
 export function normaliseExercise(
   ex: SpeechPlan | QuizPlan,
   key: ExerciseKey,
@@ -47,16 +54,16 @@ export function normaliseExercise(
   if (ex.kind === "speech") {
     const video = mediaPath(index, ex.video);
     if (!video) return unknown(key, raw, "practice video not downloaded", locale);
-    return {
-      exercise: draftExercise({
+    return drafted(
+      {
         key,
         type: "speech_selfrate",
         // The video is the item's stimulus: an item with media and no text is "listen and repeat".
         items: [{ key: itemKey(key, 1), media: { video } }],
-      }),
+      },
+      raw,
       locale,
-      unknown: false,
-    };
+    );
   }
   if (!ex.questions.length) return unknown(key, raw, "quiz pages not available", locale);
   const total = ex.questions[0]?.total ?? 0;
@@ -87,6 +94,5 @@ export function normaliseExercise(
       },
     };
   });
-  const exercise = draftExercise({ key, type: multiple ? "multi_choice" : "single_choice", items });
-  return { exercise, locale, unknown: false };
+  return drafted({ key, type: multiple ? "multi_choice" : "single_choice", items }, raw, locale);
 }

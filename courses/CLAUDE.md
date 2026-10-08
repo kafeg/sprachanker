@@ -53,7 +53,7 @@ courses/
 - **Never commit third-party content**: no texts, media, raw page JSON, PDFs — also not in fixtures.
   Fixtures are hand-written and only shaped like the source.
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
-  require re-downloading. A provider exports its `OFFERS` (with a measured size), reports progress
+  require re-downloading. A provider's offers carry a measured size; it reports progress
   (`pageCounter`, `fetchMedia`'s `progress`).
 - Unknown source structures become `unknown` + report entries, never silent drops (words left out:
   `skippedWords`). Library files are written through `libraryWriter` / `storedPage` / `fetchMedia`

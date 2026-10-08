@@ -161,9 +161,15 @@ export function createNotebook(deps: {
       );
       const courses = [...new Set(lessons.map((l) => l.course))].map((key) => {
         const course = installed.find((c) => c.key === key);
+        // In the course's order (its index), not by key: a key kept through a reorder says nothing
+        // of where the lesson is now. A lesson no longer in the course comes last.
+        const place = (k: LessonKey) => {
+          const i = course?.lessons.indexOf(k) ?? -1;
+          return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+        };
         const own = lessons
           .filter((l) => l.course === key)
-          .sort((a, b) => a.key.localeCompare(b.key));
+          .sort((a, b) => place(a.key) - place(b.key) || a.key.localeCompare(b.key));
         return {
           key,
           title: course?.titles[course.editions[0] ?? ""] ?? null,

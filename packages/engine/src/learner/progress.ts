@@ -194,12 +194,14 @@ export function shownExercises(
 }
 
 /** Page to continue a run on: the last exercise shown, where it is in the lesson now (its page
- *  number when it is no longer there, or the event names none). */
+ *  number when it is no longer there, or the event names none). An event from before pages named
+ *  their exercise names it by its snapshot. */
 export function resumePage(events: TypedEvent[], lesson?: Lesson): number {
   let page = 0;
   for (const e of events) {
     if (e.type !== "page_shown") continue;
-    const { pageIndex, exerciseKey } = e.payload;
+    const { pageIndex, snapshot } = e.payload;
+    const exerciseKey = e.payload.exerciseKey ?? snapshot?.exercise.key;
     const now = exerciseKey
       ? (lesson?.pages.findIndex((p) => p.exercise.key === exerciseKey) ?? -1)
       : -1;

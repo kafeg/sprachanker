@@ -18,6 +18,7 @@ import {
 } from "@sprachanker/schema";
 import { type WordDiff, wordDiff } from "../text/diff.ts";
 import { endsSentence, isEmptyGap, sameText, tokens } from "../text/normalise.ts";
+import { isChecked } from "./answers.ts";
 
 type Of<T extends Exercise["type"]> = Extract<Exercise, { type: T }>;
 type ItemOf<T extends Exercise["type"]> = Of<T>["items"][number];
@@ -106,25 +107,19 @@ const byParts = (parts: Record<string, boolean>) => ({
   parts,
 });
 
+/** Whether an item is scored: every item of a checked exercise (`isChecked`) the checker can mark
+ *  right or wrong — all but free answers without a rubric. */
+export function itemScored(exercise: Exercise, index: number): boolean {
+  if (!isChecked(exercise.type)) return false;
+  if (exercise.type === "respond")
+    return !!(exercise.items[index] as ItemOf<"respond"> | undefined)?.rubric?.required?.length;
+  return true;
+}
+
 /**
  * Outcome of `answer` for item `index` of `exercise`. `lang` is the target language (case rules).
  * Throws on an answer of the wrong shape.
  */
-/** Whether an item is scored: everything a checker can mark right or wrong. Self-rated speech, scenes,
- *  unknown exercises and free answers without a rubric are not. */
-export function itemScored(exercise: Exercise, index: number): boolean {
-  switch (exercise.type) {
-    case "speech_selfrate":
-    case "scene":
-    case "unknown":
-      return false;
-    case "respond":
-      return !!(exercise.items[index] as ItemOf<"respond"> | undefined)?.rubric?.required?.length;
-    default:
-      return true;
-  }
-}
-
 export function checkItem(
   exercise: Exercise,
   index: number,
