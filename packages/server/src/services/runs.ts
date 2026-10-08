@@ -15,6 +15,7 @@ import {
   stepsDone,
 } from "@sprachanker/engine";
 import {
+  type AnsweredPayload,
   type CourseKey,
   EventInput,
   findExercise,
@@ -25,13 +26,15 @@ import {
   parseEditionId,
   parseItemKey,
   type Run,
+  recordingOf,
   type StoredEvent,
   seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
-import { type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
+import type { Recordings } from "./recordings.ts";
+import { type NewEvent, payloadOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export const toRun = (r: RunRow): Run => ({
   id: r.id,
@@ -66,11 +69,14 @@ export function createRuns({
   store,
   cards,
   content,
+  recordings,
 }: {
   store: RunStore;
   /** The cards a run made go with it when progress is reset. */
   cards: CardStore;
   content: Content;
+  /** And the recordings its answers hold. */
+  recordings: Pick<Recordings, "remove">;
 }) {
   /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
@@ -220,18 +226,25 @@ export function createRuns({
      * Resets the learner's progress in a course, or in one of its lessons: every run of it — lesson
      * runs, tutor chats, writing checks, scenes — and their events are deleted, and so are the cards
      * it made (the words first met there, by the lesson each card names — also when the run that made
-     * it is long gone) with their answers. A card another lesson made stays. The only deletion of events besides removing a profile; the screen asks for
+     * it is long gone) with their answers, and the recordings its answers hold. A card another lesson
+     * made stays. The only deletion of events besides removing a profile; the screen asks for
      * confirmation (05).
      */
     reset(course: CourseKey, lesson?: LessonKey) {
-      return store.atomic(() => {
+      const { removed, recordingIds } = store.atomic(() => {
         const scope = lesson ? { lesson } : { course };
         const runIds = store.idsOf(scope);
         const cardIds = cards.idsMetIn(scope);
+        const recordingIds = [...store.eventsOf(runIds, ["answered"]).values()].flatMap((list) =>
+          list.flatMap((e) => recordingOf(payloadOf<AnsweredPayload>(e).answer) ?? []),
+        );
         const removed = store.remove(runIds, cardIds);
         cards.remove(cardIds);
-        return { ...removed, cards: cardIds.length };
+        return { removed: { ...removed, cards: cardIds.length }, recordingIds };
       });
+      // Files go once the rows are gone: a failed reset keeps both.
+      if (recordingIds.length) recordings.remove(recordingIds);
+      return removed;
     },
 
     /** The active run of the lesson, or a new one; `restart` ends the active one first. Everything is

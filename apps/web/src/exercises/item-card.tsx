@@ -88,6 +88,7 @@ export function ItemCard({
         url={url}
         active={active && !!onAnswer}
         heard={heard}
+        readOnly={!onAnswer}
       />
       {shown && (
         <p className="mt-3 text-sm">

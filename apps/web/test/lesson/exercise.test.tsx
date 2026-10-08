@@ -92,7 +92,7 @@ test("skipping records every item as skipped; leaving a scored exercise records 
   expect(sent[0]?.[1]).toEqual([`${KEY}#1`, `${KEY}#2`]);
 });
 
-test("an unscored exercise is recorded on leaving: the ratings given, the rest skipped", () => {
+test("an unscored exercise is recorded on leaving: the items recorded, the rest skipped", () => {
   const selfrate = {
     ...exercise,
     type: "speech_selfrate",
@@ -100,7 +100,7 @@ test("an unscored exercise is recorded on leaving: the ratings given, the rest s
   } as unknown as Exercise;
   const { result, sent } = exerciseHook(selfrate);
   expect(result.current.checking).toBe(false);
-  act(() => result.current.answer(0, { rating: "good" }));
+  act(() => result.current.answer(0, { recording: "01K00000000000000000000000" }));
   act(() => result.current.leave());
   expect(sent[0]?.[0].map((a) => a.itemKey)).toEqual([`${KEY}#1`]);
   expect(sent[0]?.[1]).toEqual([`${KEY}#2`]);

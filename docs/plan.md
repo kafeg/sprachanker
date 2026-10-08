@@ -30,30 +30,27 @@ offered (03, "Offered in the app").
 ## Next, in order
 
 ### 1. Speech (owner's decisions, 2026-10-08)
-Specs: 08, 06, 09. Four steps, each planned, built and accepted on its own; mockups (the microphone
-button and its result in an exercise, Settings → Speech) before the first screen.
-1. **Recording**: capture (MediaRecorder → 16 kHz WAV and the original), recordings kept and replayed
-   (shadowing on the courses' speaking exercises: the original, then oneself, then the self-rating),
-   the microphone test and recordings in Settings → Speech, a recording replayable in the Notebook;
-   on plain HTTP the microphone button disabled, saying why (a tooltip, on a phone a line under it)
-   and how to reach the HTTPS address (06).
-2. **Recognition**: `whisper-server` (large-v3-turbo; how the binary is obtained — `native/` build or
+Specs: 08, 06, 09. Recording is built (08); three steps left, each planned, built and accepted on
+its own.
+1. **Recognition**: `whisper-server` (large-v3-turbo; how the binary is obtained — `native/` build or
    prebuilt — and whether Parakeet v3 is offered too is decided in the step's plan), the model
    downloaded as a job, `speech_repeat`: the transcript compared word by word with the item's text
    (engine diff: words matched and missed, "heard: …"), the outcome from it (≥ 80% of words, 04);
-   self-rated speaking with a reference text becomes `speech_repeat`, free speaking stays self-rated;
+   recorded speaking with a reference text becomes `speech_repeat`; free speaking ("answer it
+   yourself") is checked by the AI from the transcript when one is set up, else counts when recorded;
+   verdicts are kept as text in the run (heard, words matched, the AI's note), so the Notebook, going
+   over mistakes and the tutor read them;
    lenient by nature (whisper corrects what it hears), no pronunciation grade.
    Accept: the latency target (08) on the owner's Mac with his phrases.
-3. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
+2. **Speaking where text is typed**: spoken answers in `respond`, scenes and the tutor (the transcript
    editable before it is sent). Not on review cards for now.
-4. **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
+3. **Synthesis**: the device's voices by default (Web Speech API; Apple's enhanced voices); in the
    settings Piper or Qwen3-TTS on the server instead. Used for words without a recording, AI examples
    (a play button), tutor and scene replies (read aloud on request or automatically).
-- Settings → Speech: microphone (device, test, level), recognition on/off and its model (size,
-  download), push-to-talk mode, keeping recordings (space, delete all), synthesis engine and a voice
-  per language with "Listen", speed, reading AI replies aloud.
-- **Accept** (the item): recordings replayable in the Notebook; speech disabled with a clear message
-  on plain HTTP; all four steps on Mac and iPhone.
+- Settings → Speech gains: recognition on/off and its model (size, download), push-to-talk mode,
+  synthesis engine and a voice per language with "Listen", speed, reading AI replies aloud.
+- **Accept** (the item): the three steps on Mac and iPhone (recording: the owner on his iPhone through
+  Tailscale).
 
 ### 2. Exams: Leben in Deutschland
 Specs: 02, 03, 06, 09.
@@ -83,6 +80,8 @@ Taken along when an item above touches the area, or on request.
   rule ids; content updated while a run is active ends the run (05).
 - Engine (04): compose with the selfrate upgrade and enrichment.
 - Server (05, 06): export/import of a profile, structured logs, recordings served only to their profile.
+- Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
+  exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08).
 - Review (09): the course map's exams and can-do list; speech settings; a word anywhere in a lesson
   opens its sheet (09, "word sheet": forms, translation, audio, examples from lessons met, answers,
   "add to cards").

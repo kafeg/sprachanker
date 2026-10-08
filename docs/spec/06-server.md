@@ -41,6 +41,8 @@ later areas are fixed in the plan item that builds them.
   choosing or PIN; signing out). With a session: `PUT /api/profile` (name, colour, onboarded),
   `PUT /api/profile/pin`, `GET /api/profile/devices`,
   `DELETE /api/profile/devices/:id`.
+- Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
+  body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
 - Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
   the lessons worked on), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
   `GET /api/notebook/passes/:id` (a pass in full), `GET /api/notebook/item?itemKey=` (an item across
@@ -191,7 +193,8 @@ profiles with device tokens and PINs (above).
   series that is not a series key, another folder, `..`, a malformed escape, a missing file) is
   refused (`mediaFile` in `packages/course-kit/src/library.ts`). The library reader takes series,
   course and edition names only when they are keys, so nothing from a request points outside it.
-  Planned: recordings served only to their profile.
+  Recordings are served only to their profile (`/api/recordings/:id` behind the session check, ids
+  are ULIDs, files named by the server).
 - **Downloads** (models, binaries): HTTPS, sha256 pinned, verified before use.
 - **LLM**: course text and learner input are passed as delimited data; output is validated against
   schemas and never executed.

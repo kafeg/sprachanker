@@ -12,6 +12,8 @@ import { Onboarding } from "@/app/onboarding.tsx";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell } from "@/app/shell.tsx";
 import { WhoIsStudying } from "@/app/who-is-studying.tsx";
+import { SpeechProvider } from "@/audio/context.ts";
+import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AssistantSetup } from "@/llm/settings-section.tsx";
@@ -31,9 +33,11 @@ function SignedIn() {
   usePreferences();
   return (
     <PlaybackRate value={usePlaybackRate()}>
-      <StudySlotsProvider value={wordAssistant}>
-        <Outlet />
-      </StudySlotsProvider>
+      <SpeechProvider value={useSpeechHostValue()}>
+        <StudySlotsProvider value={wordAssistant}>
+          <Outlet />
+        </StudySlotsProvider>
+      </SpeechProvider>
     </PlaybackRate>
   );
 }

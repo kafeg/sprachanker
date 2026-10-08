@@ -24,7 +24,7 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), runs (lesson runs, progress reset),
-                     # cards (/api/cards), settings, notebook, llm (removable as a whole); env.ts: what a
+                     # cards (/api/cards), settings, notebook, recordings, llm (removable as a whole); env.ts: what a
                      # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, PIN, registration), devices (sign-in tokens), and
@@ -39,6 +39,7 @@ src/
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
                      # writing ("Write it yourself": checks kept in the lesson run); scene (`scene` runs);
                      # examples (AI examples of a card's word, kept on the card in the review run);
+                     # recordings (the learner's audio in the profile's recordings folder);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

@@ -7,6 +7,7 @@ import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import { AboutSection } from "@/app/about.tsx";
 import type { Theme } from "@/app/preferences.ts";
 import { ProfileSettings } from "@/app/profile-settings.tsx";
+import { SpeechSettings } from "@/audio/speech-settings.tsx";
 import { isUiLanguage, languageName, switchLanguage, UI_LANGUAGES } from "@/i18n/index.ts";
 import { PromptsSettings } from "@/llm/prompts-info.tsx";
 import { LlmSettings } from "@/llm/settings-section.tsx";
@@ -23,7 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.t
 import { Page } from "@/ui/page.tsx";
 import { StorageSection } from "./storage.tsx";
 
-const TABS = ["general", "profile", "review", "ai", "prompts", "about"] as const;
+const TABS = ["general", "profile", "review", "speech", "ai", "prompts", "about"] as const;
 type Tab = (typeof TABS)[number];
 const tabOfHash = (): Tab => {
   const hash = window.location.hash.slice(1);
@@ -108,6 +109,9 @@ export function SettingsPage() {
         </TabsContent>
         <TabsContent value="review">
           <ReviewSettings />
+        </TabsContent>
+        <TabsContent value="speech">
+          <SpeechSettings />
         </TabsContent>
         <TabsContent value="ai">
           <LlmSettings />

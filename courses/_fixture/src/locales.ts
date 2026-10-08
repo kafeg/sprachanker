@@ -111,7 +111,7 @@ const SPEAKING_EXERCISES: ExerciseText[] = [
   },
   {
     title: { ru: "Повтори", en: "Repeat" },
-    instruction: { ru: "Послушай и повтори. Оцени себя.", en: "Listen and repeat. Rate yourself." },
+    instruction: { ru: "Послушай и повтори.", en: "Listen and repeat." },
     items: { "#2": { prompt: { ru: "Поздоровайся с соседом.", en: "Greet your neighbour." } } },
   },
   {

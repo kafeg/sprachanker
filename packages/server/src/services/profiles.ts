@@ -8,6 +8,7 @@ import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { profiles, serverSettings } from "../db/server/schema.ts";
 import { ServiceError } from "../errors.ts";
+import type { MediaBlob } from "../media.ts";
 import { base64url, fromBase64url } from "../security/encoding.ts";
 
 /** The profiles' database files (runtime adapter): opened on first use, removed with the profile. */
@@ -15,6 +16,17 @@ export interface ProfileFiles {
   exists(id: string): boolean;
   open(id: string): ProfileDb;
   remove(id: string): void;
+  /** The profile's recordings folder (`profiles/<id>/recordings`). */
+  recordings(id: string): RecordingFiles;
+}
+
+/** Files in a profile's recordings folder, by name (`<id>.<ext>`). */
+export interface RecordingFiles {
+  write(name: string, bytes: Uint8Array): Promise<void>;
+  /** The file, if there is one by that name. */
+  read(name: string): MediaBlob | undefined;
+  list(): Array<{ name: string; size: number }>;
+  remove(names: string[]): void;
 }
 
 /** The first profile's id: the folder the single profile had before there were several. */

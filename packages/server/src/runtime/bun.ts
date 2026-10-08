@@ -11,7 +11,7 @@ import type { ServerDb } from "../db/server/db.ts";
 import { migrations as serverMigrations } from "../db/server/migrations/index.ts";
 import * as serverSchema from "../db/server/schema.ts";
 import type { MediaBlob } from "../media.ts";
-import type { ProfileFiles } from "../services/profiles.ts";
+import type { ProfileFiles, RecordingFiles } from "../services/profiles.ts";
 import type { WebAssets } from "../web.ts";
 
 export interface Listening {
@@ -63,6 +63,30 @@ export function profileFiles(dataRoot: string): ProfileFiles {
       statSync(join(folder(id), "profile.sqlite"), { throwIfNoEntry: false }) !== undefined,
     open: (id) => openProfileDb(join(folder(id), "profile.sqlite")),
     remove: (id) => rmSync(folder(id), { recursive: true, force: true }),
+    recordings: (id) => recordingFiles(join(folder(id), "recordings")),
+  };
+}
+
+/** A recordings folder; names are checked by the service (`<ulid>.<ext>`), kept to the folder here too. */
+function recordingFiles(dir: string): RecordingFiles {
+  const file = (name: string) => {
+    if (basename(name) !== name) throw new Error(`bad recording name ${name}`);
+    return join(dir, name);
+  };
+  return {
+    async write(name, bytes) {
+      mkdirSync(dir, { recursive: true });
+      await Bun.write(file(name), bytes);
+    },
+    read: (name) =>
+      statSync(file(name), { throwIfNoEntry: false })?.isFile() ? Bun.file(file(name)) : undefined,
+    list: () =>
+      (statSync(dir, { throwIfNoEntry: false })?.isDirectory() ? readdirSync(dir) : []).map(
+        (name) => ({ name, size: statSync(join(dir, name)).size }),
+      ),
+    remove(names) {
+      for (const name of names) rmSync(file(name), { force: true });
+    },
   };
 }
 

@@ -146,7 +146,7 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `gap_text` | `segments`, `answer{gapId:{accepted[text]}}`; `""` = nothing belongs there (no article) | `{gapId:text}` | normalised text ∈ accepted; an empty or dash answer matches `""` |
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
-| `speech_selfrate` | `text?`, `media.audio?` (source form; upgraded, 04) | `{rating}` | not scored |
+| `speech_selfrate` | `text?`, `media.audio?` (source form; upgraded, 04) | `{recording?}` (08; `rating` in answers before 2026-10-08) | not scored |
 | `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (LLM verdict: Later, 07); without a rubric unscored, the model answers shown |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |

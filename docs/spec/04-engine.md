@@ -8,7 +8,7 @@ client's. Answers of closed exercises are visible to the client — acceptable f
 ## Lesson composition (planned)
 
 Today the server returns a lesson's canonical and locale files as they are (`GET /api/lesson`) and the
-player combines them; `speech_selfrate` items are shown for self-rating and not scored. Planned:
+player combines them; `speech_selfrate` items are recorded (08) and not scored. Planned:
 
 `compose(canonical, locale, enrichment, profile) → ComposedLesson`
 

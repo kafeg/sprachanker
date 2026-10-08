@@ -17,9 +17,23 @@ export const SpeechRepeatItem = ItemBase.extend({ text: z.string().min(1) });
 export const SpeechRepeatAnswer = z.object({ speech: SpokenAnswer });
 export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem);
 
-/** Source form of self-rated speaking; compose upgrades it (04). */
+/** Speaking without a check: listen, then record oneself (the courses' "say it" exercises; compose
+ *  upgrades one with a reference text, 04). */
 export const SpeechSelfrateItem = ItemBase.extend({ text: z.string().min(1).optional() });
-export const SpeechSelfrateAnswer = z.object({ rating: z.enum(["good", "fair", "poor"]) });
+/** Answered once the learner recorded themselves: the profile recording when they are kept (none when
+ *  the learner keeps no recordings). `rating`: the self-rating of answers given before 2026-10-08. */
+export const SpeechSelfrateAnswer = z.object({
+  recording: z.string().min(1).optional(),
+  rating: z.enum(["good", "fair", "poor"]).optional(),
+});
+
+/** The profile recording an answer refers to, if any (a spoken answer or a recorded self-check). */
+export function recordingOf(answer: unknown): string | undefined {
+  if (!answer || typeof answer !== "object") return undefined;
+  const a = answer as { recording?: unknown; speech?: { recording?: unknown } };
+  const id = a.recording ?? a.speech?.recording;
+  return typeof id === "string" ? id : undefined;
+}
 export const SpeechSelfrateExercise = exerciseOf("speech_selfrate", SpeechSelfrateItem);
 export type DictationAnswer = z.infer<typeof DictationAnswer>;
 export type SpeechRepeatAnswer = z.infer<typeof SpeechRepeatAnswer>;

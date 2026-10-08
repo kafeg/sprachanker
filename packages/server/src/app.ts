@@ -14,6 +14,7 @@ import type { ProfileEnv } from "./routes/env.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { notebookRoutes } from "./routes/notebook.ts";
 import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.ts";
+import { recordingsRoutes } from "./routes/recordings.ts";
 import { runRoutes } from "./routes/runs.ts";
 import { settingsRoutes } from "./routes/settings.ts";
 import { hostGuard } from "./security/host.ts";
@@ -78,6 +79,7 @@ export function createApp(config: AppConfig) {
     .route("/settings", settingsRoutes())
     .route("/cards", cardRoutes())
     .route("/notebook", notebookRoutes())
+    .route("/recordings", recordingsRoutes())
     .route("/llm", llmRoutes())
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.

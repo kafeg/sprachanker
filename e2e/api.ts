@@ -66,3 +66,21 @@ export async function goToStep(page: Page, step: string) {
   await page.getByRole("button", { name: step }).filter({ visible: true }).first().click();
   await expect(page.getByRole("dialog")).toHaveCount(0);
 }
+
+/** A microphone for the page: a tone from WebAudio instead of a device (browsers under test have no
+ *  reliable fake one), so recording runs the same in Chromium and WebKit. */
+export async function fakeMicrophone(page: Page) {
+  // A script for the page (the e2e code has no DOM types). On the prototype: WebKit gives
+  // `navigator.mediaDevices` only once the page is a secure one.
+  await page.addInitScript({
+    content: `if (typeof MediaDevices !== "undefined")
+      MediaDevices.prototype.getUserMedia = async () => {
+        const context = new AudioContext();
+        const tone = context.createOscillator();
+        const out = context.createMediaStreamDestination();
+        tone.connect(out);
+        tone.start();
+        return out.stream;
+      };`,
+  });
+}

@@ -1,9 +1,15 @@
 // TanStack Query hooks over the API.
-import type { CardFace, CardRating, ItemKey, LessonKey } from "@sprachanker/schema";
+import {
+  type CardFace,
+  type CardRating,
+  CLIENT_HEADERS,
+  type ItemKey,
+  type LessonKey,
+} from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ulid } from "ulid";
-import { api, json } from "./client.ts";
+import { ApiError, api, json } from "./client.ts";
 
 /** The server's version (and that it answers). */
 export const useAppInfo = () =>
@@ -325,3 +331,31 @@ export const useItemHistory = (itemKey: string | undefined) =>
     enabled: !!itemKey,
     queryFn: () => json(api.notebook.item.$get({ query: { itemKey: itemKey as ItemKey } })),
   });
+
+/** Keeps a recording (its bytes as the browser encoded them); its id. A binary body, so not through
+ *  the RPC client. */
+export async function uploadRecording(take: { blob: Blob; type: string }): Promise<string> {
+  const res = await fetch("/api/recordings", {
+    method: "POST",
+    headers: { ...CLIENT_HEADERS, "content-type": take.type },
+    body: take.blob,
+  });
+  const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
+  if (!res.ok || !body.id) throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
+  return body.id;
+}
+
+/** Where a kept recording plays from. */
+export const recordingUrl = (id: string) => `/api/recordings/${id}`;
+
+/** How many recordings are kept and their size. */
+export const useRecordingStats = () =>
+  useQuery({ queryKey: ["recordings"], queryFn: () => json(api.recordings.$get()) });
+
+export function useDeleteRecordings() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: () => json(api.recordings.$delete()),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["recordings"] }),
+  });
+}

@@ -1,6 +1,6 @@
 // The exercise renderers in the player: answering by tap, drag and keyboard, and what each waits for.
 import { expect, test } from "@playwright/test";
-import { DEMO_LESSON, drag, freshLessonRun, goToStep, openStep } from "./api.ts";
+import { DEMO_LESSON, drag, fakeMicrophone, freshLessonRun, goToStep, openStep } from "./api.ts";
 
 const SPEAKING_LESSON = "sprachanker.fixture/demo/00-02";
 
@@ -100,14 +100,33 @@ test("typed gaps: the letter row types at the cursor; Enter goes to the next gap
   await expect(page.getByTitle("Correct")).toBeVisible();
 });
 
-test("self-rating opens once the recording has been played", async ({ page }) => {
+test("speaking: listen first, then record oneself and play it back; the phrase shows after", async ({
+  page,
+}) => {
+  await fakeMicrophone(page);
   await page.route("**/guten-tag.mp3", (route) =>
     route.fulfill({ contentType: "audio/wav", body: silentWav() }),
   );
   await openStep(page, "Repeat", SPEAKING_LESSON);
   const [withAudio, without] = [page.locator("ol > li").nth(0), page.locator("ol > li").nth(1)];
-  await expect(withAudio.getByRole("button", { name: "Good" })).toBeDisabled();
-  await expect(without.getByRole("button", { name: "Good" })).toBeEnabled();
+  const mic = withAudio.getByRole("button", { name: "Record yourself" });
+  // The phrase is hidden until the first try; the microphone waits for the original.
+  await expect(withAudio.getByRole("button", { name: "Show the text" })).toBeVisible();
+  await expect(mic).toHaveAttribute("aria-disabled", "true");
+  await expect(without.getByRole("button", { name: "Record yourself" })).toHaveAttribute(
+    "aria-disabled",
+    "false",
+  );
   await withAudio.getByRole("button", { name: /^Play:/ }).click();
-  await expect(withAudio.getByRole("button", { name: "Good" })).toBeEnabled();
+  await expect(mic).toHaveAttribute("aria-disabled", "false");
+  await mic.click();
+  const stop = withAudio.getByRole("button", { name: "Stop recording" });
+  await expect(stop).toBeVisible();
+  await page.waitForTimeout(1200);
+  await stop.click();
+  await expect(withAudio.getByRole("button", { name: /^Mine · 0:0\d/ })).toBeVisible();
+  await expect(withAudio.getByText("Guten Tag!")).toBeVisible();
+  // Kept in the profile: Settings → Speech counts it.
+  await page.goto("/settings#speech");
+  await expect(page.getByText(/^\d+ recordings? · /)).toBeVisible();
 });

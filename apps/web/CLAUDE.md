@@ -50,12 +50,16 @@ apps/web/src/
                    # playback (one medium at a time, the speed button), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares)
+  audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
+                   # loudness), mic-button (disabled with the reason), take-button, context (the speech
+                   # host the router provides: keep recordings, show the phrase, save, src — renderers
+                   # call no API), speech-settings (Settings → Speech)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```
 
-Later (target): `audio/` (recorder, PTT), `pwa/` (service worker, IndexedDB outbox), more routes (today,
+Later (target): `pwa/` (service worker, IndexedDB outbox), more routes (today,
 chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 (components.json points to `@/ui`).
 

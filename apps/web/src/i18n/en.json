@@ -158,8 +158,6 @@
     "orderHint": "Tap or drag the parts into the line in order; drag one within the line to move it, tap it to take it back.",
     "reset": "Reset",
     "dictationPlaceholder": "Write what you hear",
-    "selfrate": "Listen, say it aloud, then rate yourself:",
-    "selfrateFree": "Answer aloud. Spoken answers will be checked once speech recognition is set up.",
     "rate": {
       "good": "Good",
       "fair": "So-so",
@@ -168,7 +166,6 @@
     "unknown": "This exercise type is not supported yet.",
     "respondPlaceholder": "Your answer…",
     "reference": "{count, plural, one {Model answer} other {Model answers}}",
-    "selfrateListen": "Listen to the recording and repeat after the speaker.",
     "gap": "Gap {n}",
     "matchFor": "Match for item {n}",
     "dropHere": "drop or tap here",
@@ -184,8 +181,7 @@
       "cancel": "{item} — put back."
     },
     "chosen": "{count, plural, one {# chosen} other {# chosen}}",
-    "specialLetters": "Letters to type",
-    "selfrateAfterListening": "Listen to the recording first, then rate yourself."
+    "specialLetters": "Letters to type"
   },
   "word": {
     "plural": "pl. {plural}"
@@ -204,7 +200,8 @@
       "prompts": "Prompts",
       "about": "About",
       "profile": "Profile",
-      "review": "Review"
+      "review": "Review",
+      "speech": "Speech"
     }
   },
   "llm": {
@@ -920,5 +917,48 @@
     "another": "Another example",
     "newWords": "New here:",
     "setUp": "Want an example? Set up the AI assistant in Settings."
+  },
+  "speech": {
+    "record": "Record yourself",
+    "stop": "Stop recording",
+    "showText": "Show the text",
+    "answerHeard": "Listen, then answer out loud.",
+    "answerFree": "Answer out loud.",
+    "mine": "Mine",
+    "mineFor": "Mine · {time}",
+    "recordedNotKept": "Recorded (not kept)",
+    "listenFirst": "Listen to the recording first.",
+    "recording": "Recording… tap again to stop.",
+    "saving": "Saving…",
+    "notSaved": "The recording couldn't be saved; it counts anyway.",
+    "again": "Listen to both. Record again to replace it.",
+    "howTo": "Tap the microphone, say it, tap again.",
+    "mic": {
+      "insecure": "The microphone works only at a secure address (https), such as the one Tailscale gives this computer.",
+      "unsupported": "This browser can't record audio.",
+      "denied": "Access to the microphone was denied. Allow it in the browser's site settings.",
+      "failed": "The microphone couldn't be started."
+    },
+    "settings": {
+      "mic": "Microphone",
+      "device": "Microphone to use",
+      "defaultDevice": "The system's default",
+      "unnamedDevice": "Microphone",
+      "testing": "Say something…",
+      "testHint": "Test: three seconds, then listen to yourself. Chosen on this device.",
+      "listen": "Listen",
+      "recordings": "Recordings",
+      "keep": "Keep my recordings",
+      "keepHint": "To listen to them again later and in the Notebook. Off: a recording plays only until you leave the exercise.",
+      "showText": "The phrase to repeat",
+      "show": {
+        "after": "Hidden until the first try",
+        "always": "Shown at once"
+      },
+      "kept": "{count, plural, =0 {No recordings kept} one {{n} recording · {size}} other {{n} recordings · {size}}}",
+      "deleteAll": "Delete all",
+      "deleteTitle": "Delete all recordings?",
+      "deleteBody": "Your recordings are deleted from this computer. Your answers and progress stay. This can't be undone."
+    }
   }
 }

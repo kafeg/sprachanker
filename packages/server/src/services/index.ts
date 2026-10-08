@@ -18,7 +18,8 @@ import { createLessonContext } from "./lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNotebook } from "./notebook.ts";
-import { createProfiles, type ProfileFiles } from "./profiles.ts";
+import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
+import { createRecordings } from "./recordings.ts";
 import { createRunStore } from "./run-store.ts";
 import { createRuns } from "./runs.ts";
 import { createScenes } from "./scene.ts";
@@ -48,6 +49,7 @@ function profileServices(
   config: ServicesConfig,
   shared: { content: Content; downloads: Downloads },
   db: ProfileDb,
+  recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
   const { content, downloads } = shared;
@@ -62,7 +64,8 @@ function profileServices(
   });
   const store = createRunStore({ db, now, appVersion: config.appVersion });
   const cardStore = createCardStore(db);
-  const runs = createRuns({ store, cards: cardStore, content });
+  const recordings = createRecordings(recordingFiles, now);
+  const runs = createRuns({ store, cards: cardStore, content, recordings });
   const cards = createCards({ cards: cardStore, content, settings, session: runs.shown, now });
   const study = createStudy({ cards: cardStore, store, content, settings, now });
   const words = createWords({ cards: cardStore, store });
@@ -103,6 +106,7 @@ function profileServices(
     content,
     downloads,
     settings,
+    recordings,
     runs,
     cards,
     study,
@@ -155,7 +159,12 @@ export function createServices(config: ServicesConfig) {
     of(profileId: string): ProfileServices {
       let s = open.get(profileId);
       if (!s) {
-        s = profileServices(config, { content, downloads }, config.profiles.open(profileId));
+        s = profileServices(
+          config,
+          { content, downloads },
+          config.profiles.open(profileId),
+          config.profiles.recordings(profileId),
+        );
         open.set(profileId, s);
         void relink(s);
       }

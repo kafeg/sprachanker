@@ -42,6 +42,10 @@ export const LEARNER_SETTINGS = {
   "srs.dayStartHour": z.number().int().min(0).max(23),
   /** New cards do not count against the review limit (Anki's option, off by default). */
   "srs.newIgnoresReviewLimit": z.boolean(),
+  /** Recordings of oneself are kept (on by default): replayed later, in the Notebook (08). */
+  "speech.keepRecordings": z.boolean(),
+  /** The phrase to repeat: hidden until the first attempt (by default), or shown at once. */
+  "speech.showText": z.enum(["after", "always"]),
 } as const;
 
 /** Settings written only by the service that owns them. */

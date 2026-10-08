@@ -158,8 +158,6 @@
     "orderHint": "Tippe oder zieh die Teile der Reihe nach in die Zeile; zieh einen Teil in der Zeile, um ihn zu verschieben, tippe ihn an, um ihn zurückzunehmen.",
     "reset": "Zurücksetzen",
     "dictationPlaceholder": "Schreib, was du hörst",
-    "selfrate": "Hör zu, sprich nach und bewerte dich selbst:",
-    "selfrateFree": "Antworte laut. Gesprochene Antworten werden geprüft, sobald die Spracherkennung eingerichtet ist.",
     "rate": {
       "good": "Gut",
       "fair": "Geht so",
@@ -168,7 +166,6 @@
     "unknown": "Dieser Übungstyp wird noch nicht unterstützt.",
     "respondPlaceholder": "Deine Antwort…",
     "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}",
-    "selfrateListen": "Hör dir die Aufnahme an und sprich nach.",
     "gap": "Lücke {n}",
     "matchFor": "Platz für Paar {n}",
     "dropHere": "hierher ziehen oder tippen",
@@ -184,8 +181,7 @@
       "cancel": "{item} — zurückgelegt."
     },
     "chosen": "{count, plural, one {# gewählt} other {# gewählt}}",
-    "specialLetters": "Buchstaben zum Tippen",
-    "selfrateAfterListening": "Hör dir zuerst die Aufnahme an, dann bewerte dich."
+    "specialLetters": "Buchstaben zum Tippen"
   },
   "word": {
     "plural": "Pl. {plural}"
@@ -204,7 +200,8 @@
       "prompts": "Prompts",
       "about": "Über",
       "profile": "Profil",
-      "review": "Wiederholung"
+      "review": "Wiederholung",
+      "speech": "Sprechen"
     }
   },
   "llm": {
@@ -920,5 +917,48 @@
     "another": "Anderes Beispiel",
     "newWords": "Neu hier:",
     "setUp": "Ein Beispiel? Richte den KI-Assistenten in den Einstellungen ein."
+  },
+  "speech": {
+    "record": "Dich aufnehmen",
+    "stop": "Aufnahme beenden",
+    "showText": "Text zeigen",
+    "answerHeard": "Hör zu und antworte laut.",
+    "answerFree": "Antworte laut.",
+    "mine": "Meine",
+    "mineFor": "Meine · {time}",
+    "recordedNotKept": "Aufgenommen (nicht gespeichert)",
+    "listenFirst": "Hör dir zuerst die Aufnahme an.",
+    "recording": "Aufnahme läuft … tippe noch einmal zum Beenden.",
+    "saving": "Wird gespeichert …",
+    "notSaved": "Die Aufnahme ließ sich nicht speichern; sie zählt trotzdem.",
+    "again": "Hör beide an. Eine neue Aufnahme ersetzt die alte.",
+    "howTo": "Tippe aufs Mikrofon, sprich, tippe noch einmal.",
+    "mic": {
+      "insecure": "Das Mikrofon funktioniert nur unter einer sicheren Adresse (https), etwa der, die Tailscale diesem Computer gibt.",
+      "unsupported": "Dieser Browser kann keinen Ton aufnehmen.",
+      "denied": "Der Zugriff aufs Mikrofon wurde verweigert. Erlaube ihn in den Website-Einstellungen des Browsers.",
+      "failed": "Das Mikrofon ließ sich nicht starten."
+    },
+    "settings": {
+      "mic": "Mikrofon",
+      "device": "Welches Mikrofon",
+      "defaultDevice": "Standard des Systems",
+      "unnamedDevice": "Mikrofon",
+      "testing": "Sag etwas …",
+      "testHint": "Test: drei Sekunden, dann hör dich an. Gilt für dieses Gerät.",
+      "listen": "Anhören",
+      "recordings": "Aufnahmen",
+      "keep": "Meine Aufnahmen behalten",
+      "keepHint": "Um sie später und im Heft wieder anzuhören. Aus: eine Aufnahme gibt es nur, bis du die Übung verlässt.",
+      "showText": "Der Satz zum Nachsprechen",
+      "show": {
+        "after": "Bis zum ersten Versuch verdeckt",
+        "always": "Sofort sichtbar"
+      },
+      "kept": "{count, plural, =0 {Keine Aufnahmen} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
+      "deleteAll": "Alle löschen",
+      "deleteTitle": "Alle Aufnahmen löschen?",
+      "deleteBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
+    }
   }
 }
