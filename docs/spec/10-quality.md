@@ -39,7 +39,7 @@ table in the same commit with the reason.
 | Markdown rendering | `markdown-it` with `html: false` |
 | Zip | `fflate` |
 | Logging | `pino` |
-| Crypto | WebCrypto: AES-256-GCM (API keys), PBKDF2-SHA256 (PINs), SHA-256 (device tokens) — runtime-agnostic, no adapter |
+| Crypto | WebCrypto: AES-256-GCM (API keys), SHA-256 (device tokens) — runtime-agnostic, no adapter |
 | Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide, Motion; fonts bundled from `@fontsource` (no CDN) |
 | Drag and drop | `@dnd-kit/core` (mouse, touch and keyboard) with `@dnd-kit/utilities`; every drag also works by tap (pick, then place) |
 | Language flags | `country-flag-icons` (SVG React components, one module per flag; our language → flag table in `apps/web/src/ui/flags.tsx`) |

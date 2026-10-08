@@ -49,7 +49,7 @@ Series      e.g. "dw.nicos-weg"       (<publisher>.<series>; a product that may 
 
 ## Learner
 
-- **Profile**: display name, optional PIN, native and target languages, UI language, settings (incl. own
+- **Profile**: display name, native and target languages, UI language, settings (incl. own
   LLM and speech choices). Separate SQLite file per profile (05).
 - **Device**: a browser/PWA logged in to a profile (token).
 - **Run**: one attempt of a lesson, exam, review session, practice set, scene or chat; has a `kind`,

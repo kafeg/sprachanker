@@ -15,6 +15,13 @@
       "when": 1791447287044,
       "tag": "0001_drop_passkeys",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1791478448973,
+      "tag": "0002_drop_pins",
+      "breakpoints": true
     }
   ]
 }

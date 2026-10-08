@@ -1,6 +1,6 @@
 // Profiles and signing in (06, "Profiles and access"): who is studying, the session of this device, a
-// new profile, signing in by choosing or with a PIN, signing out; the signed-in profile's name, colour,
-// onboarding, PIN and devices.
+// new profile, signing in by choosing, signing out; the signed-in profile's name, colour, onboarding and
+// devices.
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, json } from "./client.ts";
 
@@ -27,8 +27,7 @@ function useSignedIn() {
 export function useSignIn() {
   const signedIn = useSignedIn();
   return useMutation({
-    mutationFn: (input: { profile: string; pin?: string }) =>
-      json(api.session.$post({ json: input })),
+    mutationFn: (input: { profile: string }) => json(api.session.$post({ json: input })),
     onSuccess: ({ profile }) => signedIn(profile),
   });
 }
@@ -66,14 +65,6 @@ export function useUpdateProfile() {
       colour?: SessionProfile["colour"];
       onboarded?: boolean;
     }) => json(api.profile.$put({ json: input as never })),
-    onSuccess: saved,
-  });
-}
-
-export function useSetPin() {
-  const saved = useProfileSaved();
-  return useMutation({
-    mutationFn: (pin: string | null) => json(api.profile.pin.$put({ json: { pin } })),
     onSuccess: saved,
   });
 }

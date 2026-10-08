@@ -9,12 +9,6 @@ export const profiles = sqliteTable("profiles", {
   name: text("name").notNull(),
   /** Its tile's colour (one of the app's own). */
   colour: text("colour").notNull(),
-  /** PBKDF2 of the PIN with its salt (base64url), when one is set. */
-  pinHash: text("pin_hash"),
-  pinSalt: text("pin_salt"),
-  /** Wrong PINs in a row, and until when no PIN is taken after too many. */
-  failedPins: integer("failed_pins").notNull().default(0),
-  lockedUntil: integer("locked_until"),
   /** The onboarding was finished (name, languages, sign-in, assistant). */
   onboarded: integer("onboarded").notNull().default(0),
   createdAt: integer("created_at").notNull(),

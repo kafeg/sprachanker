@@ -2,8 +2,10 @@
 /// <reference path="../../../sql.d.ts" />
 import m0 from "./0000_init.sql" with { type: "text" };
 import m1 from "./0001_drop_passkeys.sql" with { type: "text" };
+import m2 from "./0002_drop_pins.sql" with { type: "text" };
 
 export const migrations: Array<{ tag: string; sql: string }> = [
   { tag: "0000_init", sql: m0 },
   { tag: "0001_drop_passkeys", sql: m1 },
+  { tag: "0002_drop_pins", sql: m2 },
 ];

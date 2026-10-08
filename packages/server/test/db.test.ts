@@ -164,7 +164,24 @@ test("server.sqlite without passkeys: a database with one upgrades, its profiles
   sqlite.exec(
     "INSERT INTO passkeys (id, profile_id, public_key, counter, transports, rp_id, created_at) VALUES ('k', 'local', 'pk', 0, '', 'localhost', 1)",
   );
-  expect(migrate(db, serverMigrations, options(2))).toEqual(["0001_drop_passkeys"]);
+  expect(migrate(db, serverMigrations.slice(0, 2), options(2))).toEqual(["0001_drop_passkeys"]);
   expect(tables(file)).not.toContain("passkeys");
   expect(sqlite.query("SELECT name FROM profiles").all()).toEqual([{ name: "Anna" }]);
+});
+
+test("server.sqlite without PINs: a profile with one and its device are kept, the PIN is gone", () => {
+  const file = join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "server.sqlite");
+  const { db, sqlite, options } = runner(file);
+  migrate(db, serverMigrations.slice(0, 2), options(1));
+  sqlite.exec(
+    "INSERT INTO profiles (id, name, colour, pin_hash, pin_salt, failed_pins, created_at) VALUES ('local', 'Anna', 'amber', 'h', 's', 3, 1)",
+  );
+  sqlite.exec(
+    "INSERT INTO devices (id, profile_id, token_hash, user_agent, created_at, last_seen_at) VALUES ('d', 'local', 't', 'Mac', 1, 1)",
+  );
+  expect(migrate(db, serverMigrations, options(2))).toEqual(["0002_drop_pins"]);
+  expect(sqlite.query("SELECT * FROM profiles").all()).toEqual([
+    { id: "local", name: "Anna", colour: "amber", onboarded: 0, created_at: 1 },
+  ]);
+  expect(sqlite.query("SELECT id FROM devices").all()).toEqual([{ id: "d" }]);
 });

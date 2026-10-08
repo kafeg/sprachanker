@@ -44,9 +44,7 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await expect(
     page.getByRole("group", { name: "Language to learn" }).getByRole("button", { name: /German/ }),
   ).toHaveAttribute("aria-pressed", "true");
-  await page.getByRole("button", { name: "Next" }).click();
-  await expect(page.getByRole("heading", { name: "Signing in" })).toBeVisible();
-  await expect(page.getByText(/passkey/i)).toHaveCount(0);
+  // No signing-in step: profiles are chosen, not unlocked.
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "AI assistant" })).toBeVisible();
   await expect(page.getByRole("button", { name: /OpenRouter/ })).toBeVisible();

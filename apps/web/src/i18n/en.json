@@ -706,19 +706,10 @@
     "welcome": "Welcome to SprachAnker",
     "firstHint": "Make your profile to start: a few short steps.",
     "unnamed": "No name yet",
-    "protected": "With a PIN",
     "new": "New profile",
-    "unlock": "Sign in as {name}",
-    "pin": "PIN",
-    "signIn": "Sign in",
     "cancel": "Cancel",
     "error": {
-      "pin_required": "Enter the PIN.",
-      "wrong_pin": "Wrong PIN.",
-      "pin_paused": "Too many wrong PINs: wait a minute and try again.",
-      "registration_closed": "New profiles cannot be made on this server.",
-      "other": "Something went wrong. Try again.",
-      "name_required": "A profile needs a name."
+      "other": "Something went wrong. Try again."
     },
     "nameIt": "What is your name?",
     "create": "Create"
@@ -752,16 +743,6 @@
       "target": "Language to learn",
       "none": "No course here teaches from this language yet."
     },
-    "signIn": {
-      "title": "Signing in",
-      "text": "Others using this computer or your phone can be kept out of your profile with a PIN. It is optional.",
-      "pin": "PIN (4–8 digits)",
-      "pinNew": "New PIN",
-      "pinAgain": "Again",
-      "setPin": "Set PIN",
-      "pinSet": "PIN set",
-      "none": "Without a PIN, choosing your profile opens it."
-    },
     "assistant": {
       "title": "AI assistant",
       "text": "An assistant explains mistakes, tutors in lessons, checks your texts and plays scenes. Choose one now or later in Settings — the app works without one."
@@ -785,10 +766,6 @@
     "languages": "Languages",
     "learner.native": "Your language",
     "learner.target": "Language to learn",
-    "signIn": "Signing in",
-    "signInHint": "A PIN or none. Without one, choosing your profile opens it.",
-    "changePin": "Change",
-    "removePin": "Remove PIN",
     "devices": "Devices signed in",
     "thisDevice": "this device",
     "lastSeen": "last used {date}",

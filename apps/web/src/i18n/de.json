@@ -706,19 +706,10 @@
     "welcome": "Willkommen bei SprachAnker",
     "firstHint": "Leg dein Profil an: ein paar kurze Schritte.",
     "unnamed": "Noch ohne Namen",
-    "protected": "Mit PIN",
     "new": "Neues Profil",
-    "unlock": "Als {name} anmelden",
-    "pin": "PIN",
-    "signIn": "Anmelden",
     "cancel": "Abbrechen",
     "error": {
-      "pin_required": "Gib die PIN ein.",
-      "wrong_pin": "Falsche PIN.",
-      "pin_paused": "Zu viele falsche PINs: warte eine Minute und versuch es erneut.",
-      "registration_closed": "Auf diesem Server können keine neuen Profile angelegt werden.",
-      "other": "Etwas ist schiefgegangen. Versuch es erneut.",
-      "name_required": "Ein Profil braucht einen Namen."
+      "other": "Etwas ist schiefgegangen. Versuch es erneut."
     },
     "nameIt": "Wie heißt du?",
     "create": "Anlegen"
@@ -752,16 +743,6 @@
       "target": "Sprache zum Lernen",
       "none": "Noch kein Kurs erklärt in dieser Sprache."
     },
-    "signIn": {
-      "title": "Anmelden",
-      "text": "Mit einer PIN bleiben andere an diesem Computer oder Handy aus deinem Profil draußen. Sie ist freiwillig.",
-      "pin": "PIN (4–8 Ziffern)",
-      "pinNew": "Neue PIN",
-      "pinAgain": "Noch einmal",
-      "setPin": "PIN festlegen",
-      "pinSet": "PIN festgelegt",
-      "none": "Ohne PIN öffnet sich dein Profil, sobald du es wählst."
-    },
     "assistant": {
       "title": "KI-Assistent",
       "text": "Ein Assistent erklärt Fehler, hilft in den Lektionen, prüft deine Texte und spielt Szenen. Wähle ihn jetzt oder später in den Einstellungen — die App funktioniert auch ohne."
@@ -785,10 +766,6 @@
     "languages": "Sprachen",
     "learner.native": "Deine Sprache",
     "learner.target": "Sprache zum Lernen",
-    "signIn": "Anmelden",
-    "signInHint": "Eine PIN oder nichts. Ohne PIN öffnet sich dein Profil, sobald du es wählst.",
-    "changePin": "Ändern",
-    "removePin": "PIN entfernen",
     "devices": "Angemeldete Geräte",
     "thisDevice": "dieses Gerät",
     "lastSeen": "zuletzt genutzt {date}",

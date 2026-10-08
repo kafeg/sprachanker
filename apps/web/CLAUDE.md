@@ -31,7 +31,7 @@ apps/web/src/
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
                    # check under its item)
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
-                   # in and out, PIN, devices; no codegen
+                   # in and out, devices; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
                    # profile chip), language-switch (the interface language, kept on the device),
                    # who-is-studying, onboarding (with tour; the AI step is a slot from

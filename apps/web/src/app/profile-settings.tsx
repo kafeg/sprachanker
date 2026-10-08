@@ -1,6 +1,6 @@
-// Settings → Profile (06, "Profiles and access"; 09): the name and colour, the languages, how this
-// profile signs in (a PIN), the devices signed in to it, switching profile.
-import { Check, LogOut } from "lucide-react";
+// Settings → Profile (06, "Profiles and access"; 09): the name and colour, the languages, the devices
+// signed in to it, switching profile.
+import { LogOut } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
@@ -8,7 +8,6 @@ import {
   useDevices,
   useRevokeDevice,
   useSession,
-  useSetPin,
   useSignOut,
   useUpdateProfile,
 } from "@/api/session.ts";
@@ -100,7 +99,6 @@ export function ProfileSettings() {
           </fieldset>
         ))}
       </Panel>
-      <SignInPanel hasPin={profile.hasPin} />
       <DevicesPanel />
       <Button
         variant="outline"
@@ -111,72 +109,6 @@ export function ProfileSettings() {
         <LogOut /> {t("profile.switch")}
       </Button>
     </div>
-  );
-}
-
-function SignInPanel({ hasPin }: { hasPin: boolean }) {
-  const { t } = useTranslation();
-  const setPin = useSetPin();
-  const [pin, setPinValue] = useState("");
-  const [again, setAgain] = useState("");
-  const [changing, setChanging] = useState(false);
-  const ready = /^\d{4,8}$/.test(pin) && pin === again;
-  const save = () =>
-    setPin.mutate(pin, {
-      onSuccess: () => {
-        setPinValue("");
-        setAgain("");
-        setChanging(false);
-      },
-    });
-  return (
-    <Panel title={t("profile.signIn")}>
-      <p className="mt-1 text-sm text-muted-foreground">{t("profile.signInHint")}</p>
-      <div className="mt-3 space-y-2">
-        <p className="text-sm font-medium">{t("onboarding.signIn.pin")}</p>
-        {hasPin && !changing ? (
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="flex items-center gap-1.5 text-sm">
-              <Check className="size-4 text-correct" /> {t("onboarding.signIn.pinSet")}
-            </span>
-            <Button variant="outline" size="sm" onClick={() => setChanging(true)}>
-              {t("profile.changePin")}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => setPin.mutate(null)}>
-              {t("profile.removePin")}
-            </Button>
-          </div>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            <Input
-              className="h-11 w-40 tracking-widest"
-              type="password"
-              inputMode="numeric"
-              autoComplete="new-password"
-              maxLength={8}
-              aria-label={t("onboarding.signIn.pinNew")}
-              placeholder={t("onboarding.signIn.pinNew")}
-              value={pin}
-              onChange={(e) => setPinValue(e.target.value.replace(/\D/g, ""))}
-            />
-            <Input
-              className="h-11 w-40 tracking-widest"
-              type="password"
-              inputMode="numeric"
-              autoComplete="new-password"
-              maxLength={8}
-              aria-label={t("onboarding.signIn.pinAgain")}
-              placeholder={t("onboarding.signIn.pinAgain")}
-              value={again}
-              onChange={(e) => setAgain(e.target.value.replace(/\D/g, ""))}
-            />
-            <Button disabled={!ready} onClick={save} loading={setPin.isPending}>
-              {t("onboarding.signIn.setPin")}
-            </Button>
-          </div>
-        )}
-      </div>
-    </Panel>
   );
 }
 

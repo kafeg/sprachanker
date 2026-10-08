@@ -70,10 +70,10 @@ return its typed result. The web client gets the types through Hono RPC (`AppTyp
   what a model is doing per lesson, so structured calls (a scene, a writing check) run to their end and
   a page opened meanwhile shows them as waiting.
 - **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
-  choosing a profile or with its PIN (attempts limited) and keeps a revocable token; server matters are
+  choosing a profile (no PINs: profiles keep learning apart) and keeps a revocable token; server matters are
   the `sprachanker profiles` command's.
 - **Security** (`security/`): Host check, CSP and headers, the client header on mutations (CSRF), API
-  keys sealed with AES-GCM, tokens and PINs hashed (WebCrypto).
+  keys sealed with AES-GCM, tokens hashed (WebCrypto).
 
 ## Mechanisms that cross modules
 

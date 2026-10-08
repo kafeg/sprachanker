@@ -29,7 +29,6 @@ Commands:
   profiles [--data <dir>]
          list the profiles; every profile is equal in the app, these are the server's matters:
   profiles registration on|off     let new profiles be made from the app, or not (on by default)
-  profiles reset <id>              remove a profile's PIN (it then signs in by choosing)
   profiles delete <id>             delete a profile with its data
 
 The data root holds library/ and profiles/: --data, else $SPRACHANKER_DATA, else the app-data folder.`;
@@ -155,19 +154,13 @@ async function profilesCommand(args: string[]): Promise<void> {
   const [action, arg] = positionals;
   switch (action) {
     case undefined:
-      for (const p of profiles.list())
-        console.log(`${p.id}  ${p.name || "(no name yet)"}${p.hasPin ? "  PIN" : ""}`);
+      for (const p of profiles.list()) console.log(`${p.id}  ${p.name || "(no name yet)"}`);
       console.log(`registration: ${profiles.registrationOpen() ? "on" : "off"}`);
       return;
     case "registration":
       if (arg !== "on" && arg !== "off") throw new Error("registration on or off?");
       profiles.setRegistration(arg === "on");
       console.log(`registration: ${arg}`);
-      return;
-    case "reset":
-      if (!arg) throw new Error("which profile? (sprachanker profiles lists them)");
-      await profiles.reset(arg);
-      console.log(`${arg}: PIN removed`);
       return;
     case "delete":
       if (!arg) throw new Error("which profile? (sprachanker profiles lists them)");

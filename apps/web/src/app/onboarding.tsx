@@ -1,15 +1,14 @@
 // A new profile's onboarding (06, "Profiles and access"; 09): welcome with the interface language
 // (courses come straight from their publishers) → name (never empty) and colour → languages (own,
-// learnt: the pair filters the courses) → sign-in (none or a PIN) → the AI assistant (a slot: the llm
+// learnt: the pair filters the courses) → the AI assistant (a slot: the llm
 // folder's own settings) → speech (the microphone test, the recogniser's download) → a tour → the
 // courses, filtered by the pair. Every step but the tour can be
 // changed later in Settings.
 
-import { Check } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/hooks.ts";
-import { type SessionProfile, useSetPin, useUpdateProfile } from "@/api/session.ts";
+import { type SessionProfile, useUpdateProfile } from "@/api/session.ts";
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { CATALOG_FILTERS, MY_FILTERS } from "@/courses/filter.ts";
 import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
@@ -22,7 +21,7 @@ import { LanguageSwitch } from "./language-switch.tsx";
 import { nativesOf, targetsOf, useLanguagePairs } from "./pairs.ts";
 import { Tour } from "./tour.tsx";
 
-const STEPS = ["welcome", "name", "languages", "signIn", "assistant", "speech", "tour"] as const;
+const STEPS = ["welcome", "name", "languages", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
 const COLOURS = ["amber", "teal", "rose", "violet", "sky", "lime"] as const;
 
@@ -145,7 +144,6 @@ export function Onboarding({
             )}
           </>
         )}
-        {step === "signIn" && <SignInStep />}
         {step === "assistant" && (
           <>
             <p className="text-muted-foreground">{t("onboarding.assistant.text")}</p>
@@ -204,56 +202,5 @@ function Choice({
         ))}
       </div>
     </fieldset>
-  );
-}
-
-/** Sign-in: none or a PIN (typed twice). */
-function SignInStep() {
-  const { t } = useTranslation();
-  const [pin, setPin] = useState("");
-  const [again, setAgain] = useState("");
-  const savePin = useSetPin();
-  const ready = /^\d{4,8}$/.test(pin) && pin === again;
-  return (
-    <div className="space-y-4">
-      <p className="text-muted-foreground">{t("onboarding.signIn.text")}</p>
-      <div className="space-y-2 rounded-2xl border bg-card p-4">
-        <p className="font-medium">{t("onboarding.signIn.pin")}</p>
-        {savePin.isSuccess ? (
-          <p className="flex items-center gap-1.5 text-sm">
-            <Check className="size-4 text-correct" /> {t("onboarding.signIn.pinSet")}
-          </p>
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {[
-              [pin, setPin, t("onboarding.signIn.pinNew")],
-              [again, setAgain, t("onboarding.signIn.pinAgain")],
-            ].map(([value, set, label]) => (
-              <Input
-                key={label as string}
-                className="h-11 w-40 tracking-widest"
-                type="password"
-                inputMode="numeric"
-                autoComplete="new-password"
-                maxLength={8}
-                aria-label={label as string}
-                placeholder={label as string}
-                value={value as string}
-                onChange={(e) => (set as (v: string) => void)(e.target.value.replace(/\D/g, ""))}
-              />
-            ))}
-            <Button
-              size="lg"
-              disabled={!ready}
-              onClick={() => savePin.mutate(pin)}
-              loading={savePin.isPending}
-            >
-              {t("onboarding.signIn.setPin")}
-            </Button>
-          </div>
-        )}
-      </div>
-      <p className="text-sm text-muted-foreground">{t("onboarding.signIn.none")}</p>
-    </div>
   );
 }

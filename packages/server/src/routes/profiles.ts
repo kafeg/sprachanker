@@ -1,6 +1,6 @@
 // /api: profiles and signing in (06, "Profiles and access"). Without a session: who is studying, a new
-// profile (while registration is open), signing in by choosing a profile or with its PIN, signing out.
-// With one (after the session check): the profile's name, colour and onboarding, its PIN and devices.
+// profile (while registration is open), signing in by choosing a profile, signing out. With one (after
+// the session check): the profile's name, colour and onboarding, and its devices.
 // Every profile is equal; server matters are the `sprachanker` command's.
 import type { Context } from "hono";
 import { Hono } from "hono";
@@ -17,7 +17,6 @@ import type { ProfileEnv } from "./env.ts";
 export const DEVICE_COOKIE = "sprachanker_device";
 
 const ProfileId = z.string().regex(/^[a-z0-9]{1,40}$/);
-const Pin = z.string().regex(/^\d{4,8}$/);
 /** A profile's name: never empty. */
 const Name = z.string().trim().min(1).max(40);
 
@@ -58,21 +57,13 @@ export function sessionRoutes(svc: Services) {
         const device = await devices.resolve(getCookie(c, DEVICE_COOKIE));
         return c.json({ profile: device ? profiles.get(device.profileId) : null });
       })
-      // Choosing a profile: one without a PIN opens; one with a PIN wants it.
-      .post(
-        "/session",
-        zod("json", z.object({ profile: ProfileId, pin: Pin.optional() })),
-        async (c) => {
-          const { profile: id, pin } = c.req.valid("json");
-          const profile = profiles.get(id);
-          if (profile.hasPin) {
-            if (!pin) throw new ServiceError("pin_required", 401);
-            if (!(await profiles.checkPin(id, pin))) throw new ServiceError("wrong_pin", 401);
-          }
-          await issue(c, id);
-          return c.json({ profile: profiles.get(id) });
-        },
-      )
+      // Choosing a profile signs this device in to it.
+      .post("/session", zod("json", z.object({ profile: ProfileId })), async (c) => {
+        const { profile: id } = c.req.valid("json");
+        profiles.get(id);
+        await issue(c, id);
+        return c.json({ profile: profiles.get(id) });
+      })
       // Signing this device out.
       .delete("/session", async (c) => {
         const device = await devices.resolve(getCookie(c, DEVICE_COOKIE));
@@ -97,7 +88,7 @@ export function requireSession(svc: Services) {
   };
 }
 
-/** The signed-in profile itself: name, colour, onboarding, PIN, devices. */
+/** The signed-in profile itself: name, colour, onboarding, devices. */
 export function profileRoutes(svc: Services) {
   const { profiles, devices } = svc;
   return new Hono<ProfileEnv>()
@@ -113,10 +104,6 @@ export function profileRoutes(svc: Services) {
       ),
       (c) => c.json({ profile: profiles.update(c.var.profileId, c.req.valid("json")) }),
     )
-    .put("/profile/pin", zod("json", z.object({ pin: Pin.nullable() })), async (c) => {
-      await profiles.setPin(c.var.profileId, c.req.valid("json").pin);
-      return c.json({ profile: profiles.get(c.var.profileId) });
-    })
     .get("/profile/devices", (c) =>
       c.json({
         devices: devices

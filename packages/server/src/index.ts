@@ -58,7 +58,7 @@ export const verifyData = (dataRoot: string) =>
 
 /**
  * The server's profile matters for the `sprachanker profiles` command (06, "Profiles and access"):
- * list them, open or close registration, reset a profile's PIN, delete one. Not in the app.
+ * list them, open or close registration, delete one. Not in the app.
  */
 export function profileAdmin(dataRoot: string) {
   const profiles = createProfiles({

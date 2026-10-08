@@ -24,7 +24,6 @@ test("without a session only who is studying and signing in answer; the rest is 
         id: "local",
         name: "Test",
         colour: "amber",
-        hasPin: false,
         onboarded: false,
       },
     ],
@@ -36,7 +35,7 @@ test("without a session only who is studying and signing in answer; the rest is 
     expect((await anonymous("GET", path)).status).toBe(401);
 });
 
-test("two profiles: each its own progress; choosing one without a PIN signs it in", async () => {
+test("two profiles: each its own progress; choosing one signs it in", async () => {
   const { sendJson, anonymous } = await setup();
   await sendJson("POST", "/api/runs", {
     series: FIXTURE_SERIES,
@@ -60,20 +59,6 @@ test("two profiles: each its own progress; choosing one without a PIN signs it i
   expect(cookieOf(again)).not.toBe(cookie);
 });
 
-test("a PIN: wanted, wrong ones counted, a pause after five; right one signs in", async () => {
-  const { send, anonymous } = await setup();
-  expect((await send("PUT", "/api/profile/pin", { pin: "12" })).status).toBe(400);
-  const set = await read(send("PUT", "/api/profile/pin", { pin: "2468" }));
-  expect(set.profile.hasPin).toBe(true);
-  const signIn = (pin?: string) => anonymous("POST", "/api/session", { profile: "local", pin });
-  expect(await read(signIn())).toEqual({ error: "pin_required" });
-  expect((await signIn("2468")).status).toBe(200);
-  for (let i = 0; i < 5; i++) expect((await signIn("0000")).status).toBe(401);
-  // Paused now, even for the right PIN.
-  const paused = await signIn("2468");
-  expect([paused.status, await read(paused)]).toEqual([429, { error: "pin_paused" }]);
-});
-
 test("devices: listed with the current one; one signed out; signing out ends the session", async () => {
   const { getJson, send, get, anonymous } = await setup();
   const other = cookieOf(await anonymous("POST", "/api/session", { profile: "local" }));
@@ -86,16 +71,13 @@ test("devices: listed with the current one; one signed out; signing out ends the
   expect((await get("/api/courses")).status).toBe(401);
 });
 
-test("the server's matters: registration closed refuses new profiles; reset and delete by the command", async () => {
-  const { root, send, anonymous } = await setup();
-  await send("PUT", "/api/profile/pin", { pin: "1357" });
+test("the server's matters: registration closed refuses new profiles; delete by the command", async () => {
+  const { root, anonymous } = await setup();
   const admin = profileAdmin(root);
   admin.setRegistration(false);
   const refused = await anonymous("POST", "/api/profiles", { name: "Late" });
   expect([refused.status, await read(refused)]).toEqual([403, { error: "registration_closed" }]);
   expect((await read(anonymous("GET", "/api/profiles"))).registration).toBe(false);
-  await admin.reset("local");
-  expect((await anonymous("POST", "/api/session", { profile: "local" })).status).toBe(200);
   admin.setRegistration(true);
   const late = (await read(anonymous("POST", "/api/profiles", { name: "Late" }))).profile;
   admin.remove(late.id);
@@ -117,9 +99,7 @@ test("the single profile from before profiles existed becomes the first one, not
     secretKey: new Uint8Array(32).fill(7),
   });
   const { profiles } = await read(app.request("/api/profiles"));
-  expect(profiles).toEqual([
-    { id: "local", name: "", colour: "amber", hasPin: false, onboarded: false },
-  ]);
+  expect(profiles).toEqual([{ id: "local", name: "", colour: "amber", onboarded: false }]);
   const signedIn = await app.request("/api/session", {
     method: "POST",
     headers: { "content-type": "application/json", ...CLIENT_HEADERS },
