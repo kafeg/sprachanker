@@ -3,7 +3,7 @@
 import { editionSetting, type SettingValue } from "@sprachanker/schema";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSetting, useSettings } from "@/api/hooks.ts";
+import { useCourses, useSetSetting, useSetting, useSettings } from "@/api/hooks.ts";
 import { isUiLanguage, switchLanguage } from "@/i18n/index.ts";
 
 export type Theme = SettingValue<"theme">;
@@ -62,4 +62,12 @@ export function useEdition(
   if (typeof stored === "string" && editions.includes(stored)) return stored;
   const language = isUiLanguage(data.uiLanguage) ? data.uiLanguage : i18n.language;
   return editions.find((e) => e.startsWith(`${language}-`)) ?? editions[0];
+}
+
+/** An installed course and the edition to show it in (`useEdition`): what a course's page and its
+ *  lessons open with. `courses` is the list query (pending while it loads). */
+export function useCourseEdition(series: string, course: string) {
+  const courses = useCourses();
+  const info = courses.data?.find((c) => c.series === series && c.course === course);
+  return { courses, info, edition: useEdition(series, course, info?.editions) };
 }

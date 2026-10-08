@@ -50,9 +50,9 @@ apps/web/src/
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
                    # (rows that open, lists of earlier items), side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
-                   # playback (one medium at a time, the speed button), sections (a course page's
+                   # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
-                   # year of days as squares), checked-text (a model's check: verdict, the text
+                   # year of days as squares), stat-tile, checked-text (a model's check: verdict, the text
                    # corrected, corrections)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),

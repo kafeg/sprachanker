@@ -11,8 +11,8 @@ import {
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useCourseMap, useCourses, useLesson } from "@/api/hooks.ts";
-import { useEdition } from "@/app/preferences.ts";
+import { useCourseMap, useLesson } from "@/api/hooks.ts";
+import { useCourseEdition } from "@/app/preferences.ts";
 import { ResetProgress } from "@/app/reset-progress.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -51,9 +51,7 @@ export function LessonPlayer({
 }) {
   const { t } = useTranslation();
   const key = `${series}/${course}/${lessonId}`;
-  const courses = useCourses();
-  const info = courses.data?.find((c) => c.series === series && c.course === course);
-  const edition = useEdition(series, course, info?.editions);
+  const { courses, info, edition } = useCourseEdition(series, course);
   const data = useLesson(series, key, edition);
   const map = useCourseMap(series, course, edition);
   const run = useRun(series, key, edition);

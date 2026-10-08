@@ -1,6 +1,6 @@
 // Playback shared by every medium (09): one plays at a time — whatever starts pauses the one playing —
 // and the profile's speed (provided by the app through PlaybackRate) with the button that steps it.
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cn } from "./utils.ts";
 
@@ -42,4 +42,58 @@ export function SpeedButton({ className }: { className?: string }) {
       {rate}×
     </button>
   );
+}
+
+/**
+ * A short clip played from the start on demand (a word, one's take): playing or not, and whether it
+ * cannot load (09: a file that cannot load says so). Made on first play; another `src` in the same
+ * place stops the old one and lets it go. `rate`: the speed it plays at.
+ */
+export function useClip(src: string, rate = 1) {
+  const audio = useRef<HTMLAudioElement | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [failed, setFailed] = useState(false);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the cleanup runs when `src` changes
+  useEffect(
+    () => () => {
+      audio.current?.pause();
+      audio.current = null;
+      setPlaying(false);
+      setFailed(false);
+    },
+    [src],
+  );
+  const element = () => {
+    if (!audio.current) {
+      const a = new Audio(src);
+      a.onplay = () => {
+        claimPlayback(a);
+        setPlaying(true);
+      };
+      a.onpause = () => setPlaying(false);
+      a.onended = () => setPlaying(false);
+      a.onerror = () => {
+        setFailed(true);
+        setPlaying(false);
+      };
+      audio.current = a;
+    }
+    return audio.current;
+  };
+  const play = () => {
+    const a = element();
+    a.currentTime = 0;
+    a.playbackRate = rate;
+    a.play().catch((error: unknown) => {
+      // The browser not letting it play by itself yet (autoplay) is no failure: a tap plays it.
+      setPlaying(false);
+      if ((error as Error).name !== "NotAllowedError") setFailed(true);
+    });
+  };
+  const toggle = () => {
+    const a = element();
+    if (a.paused) play();
+    else a.pause();
+  };
+  return { playing, failed, play, toggle };
 }

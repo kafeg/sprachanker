@@ -5,7 +5,7 @@ import { Pause, Play, RotateCcw, Volume2, VolumeX } from "lucide-react";
 import { useContext, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
-import { claimPlayback, PlaybackRate, SpeedButton } from "./playback.tsx";
+import { claimPlayback, PlaybackRate, SpeedButton, useClip } from "./playback.tsx";
 import { cn } from "./utils.ts";
 import { Episode, EpisodeVideo, isEpisode } from "./video.tsx";
 
@@ -206,55 +206,8 @@ export function AudioButton({
 }) {
   const { rate } = useContext(PlaybackRate);
   const { t } = useTranslation();
-  const audio = useRef<HTMLAudioElement | null>(null);
-  const [active, setActive] = useState(false);
-  /** The recording cannot be loaded (09: a file that cannot load says so). */
-  const [failed, setFailed] = useState(false);
-  // Another word in the same place (cards one after another): the old recording stops and is let go,
-  // so the next tap plays the new one.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: the cleanup runs when `src` changes
-  useEffect(
-    () => () => {
-      audio.current?.pause();
-      audio.current = null;
-      setActive(false);
-      setFailed(false);
-    },
-    [src],
-  );
-  const element = () => {
-    if (!audio.current) {
-      const a = new Audio(src);
-      a.onended = () => setActive(false);
-      a.onpause = () => setActive(false);
-      a.onplay = () => {
-        claimPlayback(a);
-        setActive(true);
-      };
-      a.onerror = () => {
-        setFailed(true);
-        setActive(false);
-      };
-      audio.current = a;
-    }
-    return audio.current;
-  };
-  const play = () => {
-    const a = element();
-    a.currentTime = 0;
-    a.playbackRate = rate;
-    a.play().catch((error: unknown) => {
-      // The browser not letting it play by itself yet (autoplay) is no failure: a tap plays it.
-      setActive(false);
-      if ((error as Error).name !== "NotAllowedError") setFailed(true);
-    });
-  };
+  const { playing: active, failed, play, toggle } = useClip(src, rate);
   useImperativeHandle(ref, () => ({ play }));
-  const toggle = () => {
-    const a = element();
-    if (a.paused) play();
-    else a.pause();
-  };
   return (
     <button
       type="button"

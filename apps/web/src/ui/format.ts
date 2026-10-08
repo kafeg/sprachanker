@@ -2,15 +2,16 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-const DATE: Record<"day" | "dayTime" | "month" | "weekday", Intl.DateTimeFormatOptions> = {
+const DATE: Record<"day" | "dayTime" | "month" | "weekday" | "time", Intl.DateTimeFormatOptions> = {
   day: { day: "numeric", month: "short" },
   dayTime: { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" },
   month: { month: "short" },
   weekday: { weekday: "short" },
+  time: { hour: "numeric", minute: "2-digit" },
 };
 
-/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its month ("Oct") or its
- *  weekday ("Mon"). */
+/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its month ("Oct"), its weekday
+ *  ("Mon") or its time of day ("15:28"). */
 export function useDateFormat(kind: keyof typeof DATE) {
   const { i18n } = useTranslation();
   return useMemo(() => new Intl.DateTimeFormat(i18n.language, DATE[kind]), [i18n.language, kind]);
@@ -61,11 +62,26 @@ export function useDollars() {
   }, [i18n.language]);
 }
 
-/** A large count briefly ("128K" tokens of context). */
+/** A number with one decimal ("4.2" gigabytes). */
+export function useDecimal() {
+  const { i18n } = useTranslation();
+  return useMemo(() => {
+    const format = new Intl.NumberFormat(i18n.language, {
+      minimumFractionDigits: 1,
+      maximumFractionDigits: 1,
+    });
+    return (value: number) => format.format(value);
+  }, [i18n.language]);
+}
+
+/** A large count briefly ("128K", "1.5K" tokens of context). */
 export function useCompact() {
   const { i18n } = useTranslation();
   return useMemo(() => {
-    const format = new Intl.NumberFormat(i18n.language, { notation: "compact" });
+    const format = new Intl.NumberFormat(i18n.language, {
+      notation: "compact",
+      maximumFractionDigits: 1,
+    });
     return (value: number) => format.format(value);
   }, [i18n.language]);
 }

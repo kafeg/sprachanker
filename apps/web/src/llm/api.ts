@@ -2,7 +2,7 @@
 import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { withAttempt, withCheck, withExample, withScene, withTurns } from "@/api/cache.ts";
-import { ApiError, api, json } from "@/api/client.ts";
+import { ApiError, api, apiError, json } from "@/api/client.ts";
 import { STATIC } from "@/api/hooks.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
@@ -61,10 +61,7 @@ export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"]
 type StreamedResponse = Pick<Response, "ok" | "status" | "body" | "json">;
 
 async function readStream(res: StreamedResponse, onText: (text: string) => void): Promise<string> {
-  if (!res.ok || !res.body) {
-    const body = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new ApiError(body.error ?? `HTTP ${res.status}`);
-  }
+  if (!res.ok || !res.body) throw await apiError(res);
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
   let text = "";
   while (true) {

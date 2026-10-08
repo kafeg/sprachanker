@@ -21,6 +21,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
+import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
 import { DownloadLine, downloading } from "./download.tsx";
 
@@ -56,27 +57,6 @@ function ProgressRing({ value }: { value: number }) {
         {text}
       </text>
     </svg>
-  );
-}
-
-function Tile({
-  value,
-  label,
-  missing,
-}: {
-  value: string | number;
-  label: string;
-  missing?: number;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div className="rounded-xl border px-3 py-2">
-      <div className="whitespace-nowrap text-xl font-semibold tabular-nums">{value}</div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      {!!missing && (
-        <div className="text-xs text-wrong">{t("course.missing", { count: missing })}</div>
-      )}
-    </div>
   );
 }
 
@@ -190,20 +170,29 @@ export function CourseHero(props: CourseHeroProps) {
 
       {r && (
         <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
-          <Tile value={r.lessons} label={t("course.stats.lessons", { count: r.lessons })} />
-          <Tile value={exercises} label={t("course.stats.exercises", { count: exercises })} />
-          <Tile value={r.vocab} label={t("course.stats.words", { count: r.vocab })} />
+          <StatTile
+            size="sm"
+            value={r.lessons}
+            label={t("course.stats.lessons", { count: r.lessons })}
+          />
+          <StatTile
+            size="sm"
+            value={exercises}
+            label={t("course.stats.exercises", { count: exercises })}
+          />
+          <StatTile size="sm" value={r.vocab} label={t("course.stats.words", { count: r.vocab })} />
           {Object.entries(r.media.byKind)
             .sort(([a], [b]) => kindRank(a) - kindRank(b))
             .map(([kind, n]) => (
-              <Tile
+              <StatTile
+                size="sm"
                 key={kind}
                 value={n.present}
                 label={t(`course.stats.${kind}`, { count: n.present, defaultValue: kind })}
-                missing={n.missing}
+                alert={n.missing ? t("course.missing", { count: n.missing }) : undefined}
               />
             ))}
-          <Tile value={bytes(r.media.bytes)} label={t("course.stats.size")} />
+          <StatTile size="sm" value={bytes(r.media.bytes)} label={t("course.stats.size")} />
         </div>
       )}
 

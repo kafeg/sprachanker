@@ -10,7 +10,7 @@ import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { Slider } from "@/ui/components/slider.tsx";
-import { usePercent } from "@/ui/format.ts";
+import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 
 const FACES = ["recognition", "production", "listening"] as const;
@@ -108,7 +108,7 @@ function StepsField({
 }
 
 export function ReviewSettings() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const settings = useSettings().data ?? {};
   const set = useSetSetting();
   const percent = usePercent();
@@ -117,10 +117,8 @@ export function ReviewSettings() {
   const [retention, setRetention] = useState<number>();
   const shownRetention = retention ?? get<number>("srs.retention");
   const faces = get<string[]>("srs.faces");
-  const hour = (h: number) =>
-    new Intl.DateTimeFormat(i18n.language, { hour: "numeric", minute: "2-digit" }).format(
-      new Date(2026, 0, 1, h),
-    );
+  const time = useDateFormat("time");
+  const hour = (h: number) => time.format(new Date(2026, 0, 1, h));
 
   return (
     <div className="space-y-6">

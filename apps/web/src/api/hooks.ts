@@ -12,7 +12,7 @@ import {
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ulid } from "ulid";
-import { ApiError, api, json } from "./client.ts";
+import { api, json, sendBinary } from "./client.ts";
 
 /** The server's version (and that it answers). */
 
@@ -342,14 +342,7 @@ export const useItemHistory = (itemKey: string | undefined) =>
 /** Keeps a recording (its bytes as the browser encoded them); its id. A binary body, so not through
  *  the RPC client. */
 export async function uploadRecording(take: { blob: Blob; type: string }): Promise<string> {
-  const res = await fetch("/api/recordings", {
-    method: "POST",
-    headers: { ...CLIENT_HEADERS, "content-type": take.type },
-    body: take.blob,
-  });
-  const body = (await res.json().catch(() => ({}))) as { id?: string; error?: string };
-  if (!res.ok || !body.id) throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
-  return body.id;
+  return (await sendBinary<{ id: string }>("/api/recordings", take.blob, take.type)).id;
 }
 
 /** Where a kept recording plays from. */
@@ -395,15 +388,8 @@ export function useSpeechModels() {
 
 /** What was said in a 16 kHz WAV, in a language given (a binary body, not through the RPC client). */
 export async function transcribe(wav: Uint8Array<ArrayBuffer>, lang: string): Promise<string> {
-  const res = await fetch(`/api/speech/transcribe?lang=${encodeURIComponent(lang)}`, {
-    method: "POST",
-    headers: { ...CLIENT_HEADERS, "content-type": "audio/wav" },
-    body: wav,
-  });
-  const body = (await res.json().catch(() => ({}))) as { text?: string; error?: string };
-  if (!res.ok || body.text === undefined)
-    throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
-  return body.text;
+  const url = `/api/speech/transcribe?lang=${encodeURIComponent(lang)}`;
+  return (await sendBinary<{ text: string }>(url, wav, "audio/wav")).text;
 }
 
 /** Starts the recogniser ahead of a recording. */

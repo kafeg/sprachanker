@@ -5,8 +5,8 @@ import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useCourseMap, useCourses } from "@/api/hooks.ts";
-import { useEdition } from "@/app/preferences.ts";
+import { useCourseMap } from "@/api/hooks.ts";
+import { useCourseEdition } from "@/app/preferences.ts";
 import { CourseHero } from "@/courses/hero.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
@@ -75,9 +75,7 @@ function LessonCard({
 
 export function CoursePage({ series, course }: { series: string; course: string }) {
   const { t } = useTranslation();
-  const courses = useCourses();
-  const info = courses.data?.find((c) => c.series === series && c.course === course);
-  const edition = useEdition(series, course, info?.editions);
+  const { courses, info, edition } = useCourseEdition(series, course);
   const map = useCourseMap(series, course, edition);
   useWindowPlace(t("windowTitle.course"));
   if (courses.isPending) return <Loading />;

@@ -14,6 +14,7 @@ import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
+import { StatTile } from "@/ui/stat-tile.tsx";
 
 type Day = NotebookOverview["days"][number];
 const RANGES = { all: undefined, month: 30, week: 7 } as const;
@@ -39,16 +40,6 @@ function useDescribeDay(days: Day[]) {
   };
 }
 
-function Tile({ label, value, hint }: { label: string; value: string; hint?: string }) {
-  return (
-    <div className="rounded-xl border p-3">
-      <p className="text-2xl font-semibold tabular-nums">{value}</p>
-      <p className="text-sm">{label}</p>
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
-    </div>
-  );
-}
-
 function Progress({ overview }: { overview: NotebookOverview }) {
   const { t } = useTranslation();
   const percent = usePercent();
@@ -67,12 +58,12 @@ function Progress({ overview }: { overview: NotebookOverview }) {
     <>
       <Panel title={t("notebook.progress")}>
         <div className="mt-2 grid grid-cols-2 gap-2">
-          <Tile
+          <StatTile
             label={t("notebook.wordsKnown")}
             value={count(overview.wordsKnown)}
-            hint={t("notebook.wordsKnownHint")}
+            note={t("notebook.wordsKnownHint")}
           />
-          <Tile label={t("notebook.lessonsDone")} value={count(overview.lessonsDone)} />
+          <StatTile label={t("notebook.lessonsDone")} value={count(overview.lessonsDone)} />
         </div>
       </Panel>
       <Panel title={t("notebook.days")}>
@@ -91,16 +82,16 @@ function Progress({ overview }: { overview: NotebookOverview }) {
           ))}
         </div>
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
-          <Tile label={t("notebook.tile.activeDays")} value={count(totals.activeDays)} />
-          <Tile label={t("notebook.tile.lesson")} value={count(totals.lesson)} />
-          <Tile label={t("notebook.tile.review")} value={count(totals.review)} />
-          <Tile label={t("notebook.tile.newCards")} value={count(totals.newCards)} />
-          <Tile
+          <StatTile label={t("notebook.tile.activeDays")} value={count(totals.activeDays)} />
+          <StatTile label={t("notebook.tile.lesson")} value={count(totals.lesson)} />
+          <StatTile label={t("notebook.tile.review")} value={count(totals.review)} />
+          <StatTile label={t("notebook.tile.newCards")} value={count(totals.newCards)} />
+          <StatTile
             label={t("notebook.tile.remembered")}
             value={totals.remembered === undefined ? "—" : percent(totals.remembered)}
-            hint={t("notebook.tile.rememberedHint")}
+            note={t("notebook.tile.rememberedHint")}
           />
-          <Tile label={t("notebook.tile.ai")} value={count(totals.ai)} />
+          <StatTile label={t("notebook.tile.ai")} value={count(totals.ai)} />
         </div>
       </Panel>
     </>

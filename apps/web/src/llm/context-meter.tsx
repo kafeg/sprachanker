@@ -2,14 +2,15 @@
 // start of the conversation still fits — so the learner knows when to start a new chat.
 import { useTranslation } from "react-i18next";
 import { Progress } from "@/ui/components/progress.tsx";
+import { useCompact } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";
 import { type TutorPromptRequest, useTutorContext } from "./api.ts";
 
 export function ContextMeter({ request, turns }: { request: TutorPromptRequest; turns: number }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
+  const compact = useCompact();
   const usage = useTutorContext(request, turns).data;
   if (!usage) return null;
-  const n = new Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 });
   const used = usage.tokens + usage.reply;
   const share = usage.window ? used / usage.window : 0;
   const forgetting = usage.kept < usage.total;
@@ -19,8 +20,8 @@ export function ContextMeter({ request, turns }: { request: TutorPromptRequest; 
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         <span className="shrink-0">
           {usage.window
-            ? t("tutor.context", { used: n.format(usage.tokens), window: n.format(usage.window) })
-            : t("tutor.contextSize", { used: n.format(usage.tokens) })}
+            ? t("tutor.context", { used: compact(usage.tokens), window: compact(usage.window) })
+            : t("tutor.contextSize", { used: compact(usage.tokens) })}
         </span>
         {usage.window && (
           <Progress

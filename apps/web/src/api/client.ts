@@ -25,12 +25,30 @@ interface JsonResponse<T> {
   json(): Promise<T>;
 }
 
-/** JSON of a response, or an ApiError with the server's message. */
+/** The error a failed response answered with (`{ error: <code> }`, 06), as an ApiError. */
+export async function apiError(res: { status: number; json(): Promise<unknown> }) {
+  const body = (await res.json().catch(() => ({}))) as { error?: string };
+  return new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
+}
+
+/** JSON of a response, or an ApiError with the server's code. */
 export async function json<T>(response: Promise<JsonResponse<T>>): Promise<T> {
   const res = await response;
-  if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { error?: string };
-    throw new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
-  }
+  if (!res.ok) throw await apiError(res);
   return res.json();
+}
+
+/** A request with a binary body (not through the RPC client): its JSON, or an ApiError. */
+export async function sendBinary<T>(
+  url: string,
+  body: Blob | Uint8Array<ArrayBuffer>,
+  type: string,
+) {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { ...CLIENT_HEADERS, "content-type": type },
+    body,
+  });
+  if (!res.ok) throw await apiError(res);
+  return (await res.json()) as T;
 }
