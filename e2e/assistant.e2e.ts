@@ -221,7 +221,9 @@ test("an answer said aloud is checked by the AI from what was heard, kept in the
   await openStep(page, "Repeat", lesson);
   const free = page.locator("ol > li").nth(1);
   await free.getByRole("button", { name: "Record yourself" }).click();
-  await page.waitForTimeout(1200);
+  // Long enough for the fake microphone's tone to be in the take under load (a take with no sound
+  // does not decode, and is "not heard").
+  await page.waitForTimeout(2500);
   await free.getByRole("button", { name: "Stop recording" }).click();
 
   await expect(free.getByText("Hallo gute Tag")).toBeVisible();

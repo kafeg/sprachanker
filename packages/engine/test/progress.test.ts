@@ -5,6 +5,7 @@ import {
   exerciseResults,
   exerciseState,
   firstAttempts,
+  itemTries,
   lessonCoverage,
   lessonProgress,
   lessonResult,
@@ -188,4 +189,17 @@ test("a lesson changed since: the run resumes on the exercise it showed and keep
   // Without the lesson, or an exercise it no longer has: the page number as recorded.
   expect(resumePage(events)).toBe(1);
   expect(resumePage([shown(3, 4, "gone")], now)).toBe(4);
+});
+
+test("how an item went in a run: right at a later attempt, or only tries, or skipped", () => {
+  const events = [
+    ev(1, "answered", "a#1", { attempt: 1, outcome: outcome("wrong", 0) }),
+    ev(2, "answered", "a#1", { attempt: 2, outcome: outcome("correct", 1) }),
+    ev(3, "answered", "a#2", { attempt: 1, outcome: outcome("wrong", 0) }),
+    ev(4, "item_skipped", "a#3", {}),
+  ];
+  const r = exerciseResults(events).a;
+  expect(itemTries(events, r, "a#1")).toEqual({ tries: 2, skipped: false, rightAt: 2 });
+  expect(itemTries(events, r, "a#2")).toEqual({ tries: 1, skipped: false, rightAt: undefined });
+  expect(itemTries(events, r, "a#3")).toEqual({ tries: 0, skipped: true, rightAt: undefined });
 });

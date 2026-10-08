@@ -2,14 +2,20 @@
 // the answer it ended with (marked as checked), how many attempts it took, the explanations kept, and
 // its history across passes. Then what else the pass did: texts checked, scenes, chats, words added.
 import {
-  answerAt,
   exerciseResults,
   exerciseState,
   firstAttempts,
   firstTry,
+  itemTries,
   shownExercises,
 } from "@sprachanker/engine";
-import { type LessonKey, parseEditionId, seriesOf } from "@sprachanker/schema";
+import {
+  type ItemKey,
+  type LessonKey,
+  parseEditionId,
+  parseItemKey,
+  seriesOf,
+} from "@sprachanker/schema";
 import { History } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,9 +59,6 @@ function Pass({ pass }: { pass: NotebookPass }) {
   const results = exerciseResults(events);
   const shown = shownExercises(events, pass.lesson, pass.locale);
   const total = pass.lesson && firstAttempts(pass.lesson, results);
-  const attempts = (itemKey: string) =>
-    events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
-
   return (
     <div className="max-w-3xl space-y-4">
       <p className="text-muted-foreground">
@@ -92,7 +95,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
                     <ol className="space-y-4 pt-1 pb-4">
                       {exercise.items.map((item, index) => {
                         const last = r?.last[item.key];
-                        const tries = attempts(item.key);
+                        const { tries, skipped, rightAt } = itemTries(events, r, item.key);
                         const explained = pass.explanations.filter((e) => e.itemKey === item.key);
                         return (
                           <li key={item.key} className="space-y-2">
@@ -106,17 +109,13 @@ function Pass({ pass }: { pass: NotebookPass }) {
                             />
                             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                               <span>
-                                {!tries
-                                  ? r?.skipped.includes(item.key) ||
-                                    r?.skippedFirst.includes(item.key)
-                                    ? t("lesson.skipped")
-                                    : t("lesson.notDone")
-                                  : tries > 1 &&
-                                      answerAt(events, item.key, 1)?.outcome?.result !==
-                                        "correct" &&
-                                      last?.outcome?.result === "correct"
-                                    ? t("notebook.rightAt", { n: tries })
-                                    : t("notebook.attempts", { count: tries })}
+                                {skipped
+                                  ? t("lesson.skipped")
+                                  : !tries
+                                    ? t("lesson.notDone")
+                                    : rightAt
+                                      ? t("notebook.rightAt", { n: rightAt })
+                                      : t("notebook.attempts", { count: tries })}
                               </span>
                               {tries > 0 && (
                                 <Button
@@ -150,7 +149,9 @@ function Pass({ pass }: { pass: NotebookPass }) {
       <More pass={pass} />
       <ItemHistory
         itemKey={history}
-        exercise={shown.find((s) => history?.startsWith(`${s.exercise.key}#`))}
+        exercise={shown.find(
+          (s) => history && parseItemKey(history as ItemKey).exercise === s.exercise.key,
+        )}
         url={url}
         onClose={() => setHistory(undefined)}
       />

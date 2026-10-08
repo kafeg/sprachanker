@@ -1,4 +1,5 @@
 // Exercise renderers by type (root rule 2: every type has a renderer). No API calls here.
+import { isChecked } from "@sprachanker/engine";
 import { type Exercise, joinParts } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { MultiChoice, SingleChoice } from "./choice.tsx";
@@ -38,9 +39,8 @@ export function ExerciseItem({
   );
 }
 
-/** Whether the exercise is checked (selfrate and unsupported types are not; respond is checked to show
- *  its model answer, though without a rubric it is not scored). */
-export const isScored = (type: Exercise["type"]) => type in RENDERERS && type !== "speech_selfrate";
+/** Whether the player checks the exercise (engine's `isChecked`) — and can show it here. */
+export const isCheckedHere = (type: Exercise["type"]) => isChecked(type) && type in RENDERERS;
 
 /**
  * The correct answer as text, under a wrong item, where the renderer does not show it itself (choices,
@@ -62,40 +62,5 @@ export function correctAnswer(exercise: Exercise, index: number): string | undef
       return (item as ItemOf<"dictation">).answer.accepted[0];
     default:
       return undefined;
-  }
-}
-
-const gapsOf = (segments: Array<string | { gap: string }>) =>
-  segments.flatMap((s) => (typeof s === "string" ? [] : [s.gap]));
-
-/**
- * Whether an item's answer is complete enough to check: every option, pair, part or gap chosen; text
- * typed. Typed gaps need one gap filled, since a gap may rightly stay empty ("no article").
- */
-export function answerComplete(exercise: Exercise, index: number, answer: unknown): boolean {
-  if (answer === undefined) return false;
-  const item = exercise.items[index];
-  switch (exercise.type) {
-    case "single_choice":
-      return !!(answer as Answers["single_choice"]).optionId;
-    case "multi_choice":
-      return (answer as Answers["multi_choice"]).optionIds.length > 0;
-    case "match":
-      return (answer as Answers["match"]).pairs.length === (item as ItemOf<"match">).left.length;
-    case "order":
-      return (
-        (answer as Answers["order"]).sequence.length === (item as ItemOf<"order">).parts.length
-      );
-    case "gap_choice":
-      return gapsOf((item as ItemOf<"gap_choice">).segments).every(
-        (g) => !!(answer as Answers["gap_choice"])[g],
-      );
-    case "gap_text":
-      return Object.values(answer as Answers["gap_text"]).some((v) => v.trim() !== "");
-    case "dictation":
-    case "respond":
-      return (answer as { text: string }).text.trim() !== "";
-    default:
-      return true;
   }
 }

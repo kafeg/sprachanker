@@ -2,10 +2,10 @@
 // the engine the server checks with too), the recordings that must be played first, the item the number
 // keys choose in, and what checking, answering an item again, retrying, skipping and leaving record.
 // The screen (exercise-step.tsx) draws it; this hook holds the rules, tested on their own.
-import { checkItem } from "@sprachanker/engine";
+import { answerComplete, checkItem } from "@sprachanker/engine";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { useRef, useState } from "react";
-import { answerComplete, isScored } from "@/exercises/index.tsx";
+import { isCheckedHere } from "@/exercises/index.tsx";
 import type { ExerciseResult } from "./use-run.ts";
 
 export type Answered = (
@@ -35,7 +35,7 @@ export function useExercise({
   lang: string;
   onAnswered: Answered;
 }) {
-  const scored = isScored(exercise.type);
+  const scored = isCheckedHere(exercise.type);
   // Reopened: the latest answers of the run and, for checked exercises, their outcomes.
   const [answers, setAnswers] = useState<Record<number, unknown>>(() =>
     Object.fromEntries(

@@ -260,3 +260,23 @@ export function courseProgress(
     started: done > 0 || !!active,
   };
 }
+
+/** How an item went in a run (the Notebook's pass): its answers counted, skipped without one, and
+ *  the attempt it was right at when the first was not. */
+export function itemTries(
+  events: TypedEvent[],
+  result: ExerciseResult | undefined,
+  itemKey: string,
+) {
+  const tries = events.filter((e) => e.type === "answered" && e.itemKey === itemKey).length;
+  const right =
+    tries > 1 &&
+    answerAt(events, itemKey, 1)?.outcome.result !== "correct" &&
+    result?.last[itemKey]?.outcome?.result === "correct";
+  return {
+    tries,
+    skipped:
+      !tries && !!(result?.skipped.includes(itemKey) || result?.skippedFirst.includes(itemKey)),
+    rightAt: right ? tries : undefined,
+  };
+}

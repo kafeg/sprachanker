@@ -1,3 +1,4 @@
+export * from "./check/answers.ts";
 export * from "./check/index.ts";
 export * from "./compose/steps.ts";
 export * from "./learner/activity.ts";

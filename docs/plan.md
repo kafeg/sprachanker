@@ -48,10 +48,9 @@ with its words (a spoken check stays matched to its answer by what was heard: it
 answer is recorded, on Check); the AI services on one path (`llm.structured`, one corrections cleaner,
 explain and speaking on the lesson contexts), tool notes sent only with tools, the prompt preview of
 command-line providers what they get, the scene's setup in Settings → Prompts, Codex's file access
-written in 07.
-1. **Web.** The lesson run's outbox a module with tests and the run read through the query cache;
-   rules out of components into the engine (scored, answer complete, right at attempt n, a spoken
-   answer's transcript); typed settings with their defaults in one place; query keys from one
+written in 07; the lesson run in the query cache with a tested outbox, the player's rules in the
+engine (checked, answer complete, an item's tries, a spoken answer's words).
+1. **Web** (rest). Typed settings with their defaults in one place; query keys from one
    factory and cache helpers outside `llm/`; duplicates merged (audio clip playback, stat tiles,
    error bodies, `Intl` formatters, the course edition lookup); the reviewer's keys and More menu out
    of `session.tsx` with tests, actions blocked while one is pending; feature folders without

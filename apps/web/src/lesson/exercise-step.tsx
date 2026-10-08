@@ -2,6 +2,7 @@
 // "Check" opens once every item is answered and every recording has been played (use-exercise.ts);
 // checked items are marked on a rail left of their card, with their own controls on the right: why
 // wrong, answer again, and the item's earlier attempts in every pass (the Notebook's item history).
+import { spokenFreely } from "@sprachanker/engine";
 import type { Exercise, LocaleExercise, Outcome } from "@sprachanker/schema";
 import { Check, History, RotateCcw, Sparkles, X } from "lucide-react";
 import { useRef, useState } from "react";
@@ -101,14 +102,6 @@ export interface StepProps {
   spoken?(index: number, transcript: string): React.ReactNode;
 }
 
-/** What was heard of an answer said aloud without a phrase to say, if anything. */
-function heardFreely(exercise: Exercise, index: number, answer: unknown) {
-  const item = exercise.items[index];
-  if (exercise.type !== "speech_selfrate" || !item || ("text" in item && item.text)) return;
-  const transcript = (answer as { transcript?: unknown } | undefined)?.transcript;
-  return typeof transcript === "string" && transcript.trim() ? transcript : undefined;
-}
-
 export function ExerciseStep({
   exercise,
   locale,
@@ -175,7 +168,7 @@ export function ExerciseStep({
           const outcome = outcomes?.[i];
           const marked = outcome && outcome.result !== "unscored";
           const right = outcome?.result === "correct";
-          const said = spoken && heardFreely(exercise, i, answers[i]);
+          const said = spoken && spokenFreely(exercise, i, answers[i]);
           return (
             // Rail (status) · card · controls: the card keeps its size when checked; only an
             // explanation asked for adds a panel under it.
