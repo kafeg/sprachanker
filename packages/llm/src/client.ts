@@ -46,6 +46,10 @@ interface RawModel {
   id?: unknown;
   name?: unknown;
   context_length?: unknown;
+  /** Groq's name for the context length. */
+  context_window?: unknown;
+  /** Who serves it (Groq, Gemini); the publisher when the id does not name one. */
+  owned_by?: unknown;
   pricing?: { prompt?: unknown; completion?: unknown };
   architecture?: { output_modalities?: unknown };
   supported_parameters?: unknown;
@@ -58,11 +62,14 @@ const perMillion = (value: unknown) => {
 
 /**
  * A model of an OpenAI-compatible `/models` list with what the endpoint tells of it; undefined for one
- * that is no chat model: an embedding model, or one whose output is not text alone (image or audio
- * generators).
+ * that is no chat model: an embedding model, speech in or out, an image or video generator, a safety
+ * classifier — by its id where the list does not say (Groq, Gemini) —, or one whose output is not
+ * text alone.
  */
+const NOT_CHAT = /embed|whisper|tts|orpheus|guard|imagen|veo|image|audio|aqa/i;
+
 export function modelInfo(raw: RawModel): ModelInfo | undefined {
-  if (typeof raw.id !== "string" || /embed/i.test(raw.id)) return undefined;
+  if (typeof raw.id !== "string" || NOT_CHAT.test(raw.id)) return undefined;
   const output = raw.architecture?.output_modalities;
   if (Array.isArray(output) && output.some((m) => m !== "text")) return undefined;
   const input = perMillion(raw.pricing?.prompt);
@@ -76,11 +83,14 @@ export function modelInfo(raw: RawModel): ModelInfo | undefined {
     ...(input !== undefined &&
       outputPrice !== undefined && { price: { input, output: outputPrice } }),
     ...(typeof raw.context_length === "number" && { contextLength: raw.context_length }),
+    ...(typeof raw.context_window === "number" && { contextLength: raw.context_window }),
     ...(params && {
       json: params.includes("response_format") || params.includes("structured_outputs"),
       tools: params.includes("tools"),
     }),
-    ...(slash > 0 && { publisher: raw.id.slice(0, slash) }),
+    ...(slash > 0
+      ? { publisher: raw.id.slice(0, slash) }
+      : typeof raw.owned_by === "string" && raw.owned_by && { publisher: raw.owned_by }),
   };
 }
 
@@ -152,6 +162,8 @@ export type LlmErrorCode =
   | "model_not_found"
   | "timeout"
   | "bad_response"
+  /** The provider's limit is reached for now (429: free tiers limit requests per minute and day). */
+  | "rate_limited"
   /** A structured reply stayed invalid after the repair attempt. */
   | "invalid_output";
 
@@ -259,9 +271,15 @@ export function endpointCaller(baseUrl: string, apiKey: string | undefined, fetc
     if (res.ok) return res;
     const text = await res.text().catch(() => "");
     const message = errorMessage(text) ?? `HTTP ${res.status}`;
-    if (res.status === 401 || res.status === 403)
+    // Gemini refuses a wrong key with 400 and says so.
+    if (
+      res.status === 401 ||
+      res.status === 403 ||
+      (res.status === 400 && /api key/i.test(message))
+    )
       throw new LlmError("unauthorized", message, res.status);
     if (res.status === 404) throw new LlmError("model_not_found", message, res.status);
+    if (res.status === 429) throw new LlmError("rate_limited", message, res.status);
     throw new LlmError("bad_response", message, res.status);
   };
 }
@@ -524,7 +542,10 @@ function parseChunk(data: string): { text?: string; toolCalls?: ToolCallDelta[];
 
 function errorMessage(body: string): string | undefined {
   try {
-    const json = JSON.parse(body) as { error?: string | { message?: string } };
+    type Body = { error?: string | { message?: string } };
+    const parsed = JSON.parse(body) as Body | Body[];
+    // Gemini wraps the error in a list.
+    const json = Array.isArray(parsed) ? (parsed[0] ?? {}) : parsed;
     return typeof json.error === "string" ? json.error : json.error?.message;
   } catch {
     return body.trim().slice(0, 200) || undefined;

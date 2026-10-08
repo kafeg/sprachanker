@@ -34,6 +34,24 @@ test("a model's metadata as an OpenRouter-style list tells it; non-text models a
     modelInfo({ id: "maker/voice", architecture: { output_modalities: ["text", "audio"] } }),
   ).toBeUndefined();
   expect(modelInfo({ id: "text-embedding-3" })).toBeUndefined();
+  // Groq and Gemini: the context and the maker from their own fields; speech, safety and image models
+  // left out by their ids.
+  expect(
+    modelInfo({ id: "llama-3.3-70b-versatile", owned_by: "Meta", context_window: 131_072 }),
+  ).toEqual({ id: "llama-3.3-70b-versatile", publisher: "Meta", contextLength: 131_072 });
+  expect(modelInfo({ id: "qwen/qwen3-32b", owned_by: "Alibaba Cloud" })?.publisher).toBe("qwen");
+  for (const id of [
+    "whisper-large-v3",
+    "canopylabs/orpheus-v1-english",
+    "meta-llama/llama-prompt-guard-2-22m",
+    "gemini-2.5-flash-preview-tts",
+    "gemini-2.5-flash-image",
+    "imagen-4.0-generate-001",
+    "veo-3.0-generate-001",
+    "gemini-embedding-001",
+  ])
+    expect(modelInfo({ id })).toBeUndefined();
+  expect(modelInfo({ id: "gemini-2.5-flash", owned_by: "google" })?.publisher).toBe("google");
   // A plain server tells only the id.
   expect(modelInfo({ id: "qwen3-8b" })).toEqual({ id: "qwen3-8b" });
 });

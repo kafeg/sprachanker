@@ -88,6 +88,14 @@ describe("openAiCompatible", () => {
     expect(
       await code(() => Response.json({ error: { message: "bad key" } }, { status: 401 })),
     ).toBe("unauthorized");
+    // Gemini: a wrong key is a 400 saying so, the error in a list.
+    expect(
+      await code(() =>
+        Response.json([{ error: { code: 400, message: "Please pass a valid API key" } }], {
+          status: 400,
+        }),
+      ),
+    ).toBe("unauthorized");
     expect(await code(() => new Response("nope", { status: 500 }))).toBe("bad_response");
     expect(await code(() => Response.json({}))).toBe("bad_response");
   });
@@ -146,8 +154,9 @@ describe("failures while a reply is read", () => {
     const error = await collect(client.chat({ model: "m", messages: [], reasoning: false })).catch(
       (e: LlmError) => e,
     );
+    // A limit reached is said as such (free tiers): not a broken server.
     expect([(error as LlmError).code, (error as LlmError).status, calls.length]).toEqual([
-      "bad_response",
+      "rate_limited",
       429,
       1,
     ]);

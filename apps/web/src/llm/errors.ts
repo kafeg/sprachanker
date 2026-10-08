@@ -10,6 +10,7 @@ const KNOWN = new Set([
   "llm_model_not_found",
   "llm_timeout",
   "llm_bad_response",
+  "llm_rate_limited",
   "llm_lmstudio_missing",
   "llm_lmstudio_remote",
   "llm_invalid_output",

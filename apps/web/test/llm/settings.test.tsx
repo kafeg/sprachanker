@@ -23,6 +23,14 @@ const providers = [
     editableUrl: false,
   },
   {
+    id: "groq",
+    baseUrl: "https://api.groq.com/openai/v1",
+    defaultUrl: "https://api.groq.com/openai/v1",
+    key: "required",
+    hasKey: true,
+    editableUrl: false,
+  },
+  {
     id: "custom",
     baseUrl: "http://192.168.1.5:8080/v1",
     defaultUrl: "",
@@ -64,6 +72,7 @@ test("providers as cards, each saying what it lacks or where it is; a card picks
   expect(card(/Server on the network/).textContent).toContain("at 192.168.1.5:8080");
   expect(card(/Server on the network/).getAttribute("aria-pressed")).toBe("true");
   expect(card(/Codex/).textContent).toContain("not installed");
+  expect(card(/Groq/).textContent).toContain("key saved");
   fireEvent.click(card(/OpenRouter/));
   fireEvent.click(card(/Off/));
   expect(picked).toEqual(["openrouter", null]);

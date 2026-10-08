@@ -78,7 +78,7 @@ function KeyField({ provider }: { provider: Provider }) {
   return (
     <Field
       label={t("llm.apiKey")}
-      hint={provider.id === "openrouter" ? t("llm.openrouterKeyHint") : t("llm.keyHint")}
+      hint={t(`llm.keyHintFor.${provider.id}`, { defaultValue: t("llm.keyHint") })}
     >
       <div className="flex gap-2">
         <Input

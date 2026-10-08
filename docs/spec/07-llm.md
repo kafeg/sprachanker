@@ -14,6 +14,8 @@ installed on the machine with the user's own subscription (`packages/llm/src/cli
 |---|---|---|---|
 | `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | "LM Studio on this computer": integrated through LM Studio's own API (below) |
 | `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models; the key's state from its `/key` (`packages/llm/src/openrouter.ts`) |
+| `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai` | required (Google AI Studio) | free tier with limits, no card; on it Google may use what is sent (the card says so); reasoning left on (newer Gemini models refuse to turn it off) |
+| `groq` | `https://api.groq.com/openai/v1` | required | open models, free tier with limits per model, no card |
 | `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | "Server on the network": LM Studio, Ollama, llama.cpp, vLLM on another machine |
 | `claude-code` | `claude -p` on the server's machine | none (Claude subscription, signed in once with `claude`) | models by alias (`sonnet`, `opus`, `haiku`) |
 | `codex` | `codex exec` on the server's machine | none (ChatGPT subscription, `codex login`) | read-only sandbox |
@@ -27,8 +29,10 @@ The profile has one route — provider and model — stored as `llm_routes.task 
 live in the setting `llm.endpoints`, keys in `secrets` (05, 06). The settings page sets them; its
 "test" lists the provider's models and measures the round trip.
 
-**Models listed** (`modelInfo`, client.ts): chat models only — embedding models and models whose output
-is not text alone (image or audio generators) are left out — with what the endpoint tells of each:
+**Models listed** (`modelInfo`, client.ts): chat models only — embedding models, models whose output
+is not text alone (image or audio generators), and, by their ids where a list does not say (Groq,
+Gemini), speech, image and video models and safety classifiers are left out — with what the endpoint
+tells of each (Groq: context and maker as `context_window`, `owned_by`):
 free, price per million tokens, context length, answers in a JSON schema, calls tools, publisher. The
 settings offer a filter only where some model tells it (OpenRouter tells all; most servers only the
 id), JSON on from the start where told (writing checks and scenes need it). A provider that lacks its
@@ -77,6 +81,8 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   `reasoning: { enabled: false }`); a model that always reasons rejects that and is asked again without.
   Asking again without an option (the reasoning switch, tools, the response schema) happens only when
   the server refused the request as sent (400, 422) — never when it is busy or failing (429, 5xx).
+  A 429 is `rate_limited` (free tiers limit requests per minute and day: the learner is told to try
+  later or choose another model); a wrong key is `unauthorized` (401, 403, or Gemini's 400 saying so).
   Inline `<think>…</think>` output is stripped.
 - **Time limits**: a request may take 180 s to its first byte (a local server may load the model
   first), then 60 s of silence between chunks of a streamed reply, so a slow model writing a long

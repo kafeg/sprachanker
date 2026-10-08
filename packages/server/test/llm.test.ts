@@ -84,6 +84,8 @@ describe("llm setup", () => {
     expect(state.providers.map((p: { id: string; baseUrl: string }) => [p.id, p.baseUrl])).toEqual([
       ["lmstudio", "http://localhost:1234/v1"],
       ["openrouter", "https://openrouter.ai/api/v1"],
+      ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai"],
+      ["groq", "https://api.groq.com/openai/v1"],
       ["custom", ""],
       ["claude-code", ""],
       ["codex", ""],

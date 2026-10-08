@@ -3,7 +3,15 @@
 import { z } from "zod";
 import type { CliKind } from "./cli.ts";
 
-export const ProviderId = z.enum(["lmstudio", "openrouter", "custom", "claude-code", "codex"]);
+export const ProviderId = z.enum([
+  "lmstudio",
+  "openrouter",
+  "gemini",
+  "groq",
+  "custom",
+  "claude-code",
+  "codex",
+]);
 export type ProviderId = z.infer<typeof ProviderId>;
 
 export interface ProviderPreset {
@@ -38,6 +46,21 @@ export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
     editableUrl: false,
     noReasoning: { reasoning: { enabled: false } },
     keyState: true,
+  },
+  // Google's Gemini API through its OpenAI-compatible layer: a free tier with limits (AI Studio key).
+  // Reasoning stays on: newer Gemini models refuse to turn it off.
+  gemini: {
+    id: "gemini",
+    baseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+    key: "required",
+    editableUrl: false,
+  },
+  // Groq: open models on fast hardware, a free tier with limits per model.
+  groq: {
+    id: "groq",
+    baseUrl: "https://api.groq.com/openai/v1",
+    key: "required",
+    editableUrl: false,
   },
   custom: { id: "custom", baseUrl: "", key: "optional", editableUrl: true },
   "claude-code": { id: "claude-code", baseUrl: "", key: "none", editableUrl: false, cli: "claude" },

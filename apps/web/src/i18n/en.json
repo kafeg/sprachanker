@@ -214,6 +214,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
       "custom": "Server on the network",
       "claude-code": "Claude Code",
       "codex": "Codex"
@@ -221,7 +223,6 @@
     "endpoint": "Server address",
     "endpointInvalid": "Enter an address like http://localhost:1234/v1",
     "apiKey": "API key",
-    "openrouterKeyHint": "Create a key at openrouter.ai/keys. It is stored encrypted on this computer and never shown again.",
     "keyHint": "Only if the server needs one. It is stored encrypted and never shown again.",
     "keySaved": "Saved — enter a new one to replace it",
     "save": "Save",
@@ -254,7 +255,8 @@
       "no_such_run": "This lesson run is gone (its progress was reset). Reload the lesson.",
       "no_such_attempt": "This answer is no longer in the lesson run. Reload the lesson.",
       "not_installed": "This course is not installed (any more).",
-      "server_error": "Something went wrong on the server."
+      "server_error": "Something went wrong on the server.",
+      "llm_rate_limited": "The provider's limit is reached for now (free tiers limit requests per minute and per day). Try again later, or choose another model in Settings → AI assistant."
     },
     "cliMissing": {
       "claude-code": "Claude Code is not installed here. Install it from claude.com/claude-code and sign in once by running `claude`.",
@@ -268,6 +270,8 @@
     "about": {
       "lmstudio": "LM Studio on this computer: SprachAnker starts its server, loads the chosen model and can download suggested models into it. Free, and nothing leaves the computer. If LM Studio runs on another computer, choose “Server on the network”.",
       "openrouter": "OpenRouter in the cloud: hundreds of models from many makers through one key, some of them free (with daily limits). Lesson content and your answers go to OpenRouter and the model's provider.",
+      "gemini": "Google's Gemini models in the cloud with a key from Google AI Studio. The free tier needs no card and has limits per minute and per day; some models need billing. On the free tier Google may use what is sent to improve its products: lesson content and your answers go to Google.",
+      "groq": "Open models (Llama, Qwen, GPT-OSS and others) on Groq's fast hardware in the cloud. The free tier needs no card and has limits per minute and per day for each model. Lesson content and your answers go to Groq.",
       "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
       "claude-code": "Runs Claude Code installed on this computer (`claude -p`) with your Claude subscription. Its own tools are off: lesson data goes in the prompt. Each answer starts the command, so replies take a few seconds longer.",
       "codex": "Runs the Codex CLI installed on this computer (`codex exec`) with your ChatGPT subscription, read-only and without its tools. Each answer starts the command, so replies take a few seconds longer."
@@ -303,6 +307,11 @@
       "usedOf": "used {used} of {limit}",
       "rate": "{requests, number} requests per {interval}",
       "freeModels": "Free models have a daily request limit set by OpenRouter (higher once credits were bought)."
+    },
+    "keyHintFor": {
+      "openrouter": "Create a key at openrouter.ai/keys. It is stored encrypted on this computer and never shown again.",
+      "gemini": "Create a key at aistudio.google.com/apikey. It is stored encrypted on this computer and never shown again.",
+      "groq": "Create a key at console.groq.com/keys. It is stored encrypted on this computer and never shown again."
     }
   },
   "tutor": {
