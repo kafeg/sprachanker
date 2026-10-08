@@ -2,9 +2,10 @@
 // after leaving it, a reload, another device — shows it instead of offering to start again, and a
 // second one of the same kind is refused until the first is done. The calls run to their end even when
 // the page that asked for them is gone: their result is kept and shown on return.
+import type { ErrorCode } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 
-export function createInFlight<T>(busy: string) {
+export function createInFlight<T>(busy: ErrorCode) {
   const running = new Map<string, T>();
   return {
     /** What is running for a key, if anything. */

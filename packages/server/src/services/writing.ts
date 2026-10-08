@@ -80,7 +80,7 @@ export function createWriting(deps: {
     check(request: WritingRequest): Promise<WritingAttempt> {
       return checking.run(request.lessonKey, { text: request.text }, async () => {
         const session = await deps.session(request.lessonKey);
-        if (!session) throw new ServiceError("no_session", 409);
+        if (!session) throw new ServiceError("no_lesson_run", 409);
         const task = checkWritingTask(await writingInput(request));
         const { client, model } = await deps.llm.model();
         const elapsed = stopwatch(now);

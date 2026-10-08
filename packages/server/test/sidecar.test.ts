@@ -26,7 +26,7 @@ function machine(options: { idleMs?: number; healthy?: boolean } = {}) {
         status: proc && !proc.killed && options.healthy !== false ? 200 : 503,
       });
     }) as unknown as typeof fetch,
-    failed: "engine_failed",
+    failed: "speech_engine_failed",
     startMs: 300,
     idleMs: options.idleMs ?? 60_000,
   });
@@ -75,7 +75,7 @@ test("stopped after a while without requests; started again after it exits", asy
 
 test("a start that never becomes ready fails and leaves nothing running", async () => {
   const { sidecar, spawned } = machine({ healthy: false });
-  await expect(sidecar.use("a", async () => {})).rejects.toThrow("engine_failed");
+  await expect(sidecar.use("a", async () => {})).rejects.toThrow("speech_engine_failed");
   expect(spawned[0]?.killed).toBe(true);
   expect(sidecar.setup()).toBeUndefined();
 });

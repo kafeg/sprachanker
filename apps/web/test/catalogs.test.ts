@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { ERROR_CODES } from "@sprachanker/schema";
 import { IntlMessageFormat } from "intl-messageformat";
 import de from "../src/i18n/de.json";
 import en from "../src/i18n/en.json";
@@ -145,4 +146,9 @@ test("ru and de take the same arguments as en in every message", () => {
     );
     expect(differ, lang).toEqual([]);
   }
+});
+
+test("every error the API answers with has its words, and no words are kept for codes it no longer has", () => {
+  const codes = Object.keys(en.error).filter((k) => k !== "other");
+  expect(codes.sort()).toEqual([...ERROR_CODES].sort());
 });

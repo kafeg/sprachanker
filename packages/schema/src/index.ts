@@ -3,6 +3,7 @@ export * from "./canonical.ts";
 export * from "./catalog.ts";
 export * from "./common.ts";
 export * from "./enrichment.ts";
+export * from "./errors.ts";
 export * from "./exam.ts";
 export * from "./exercise/index.ts";
 export * from "./keys.ts";

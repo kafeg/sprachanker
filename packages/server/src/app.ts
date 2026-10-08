@@ -89,9 +89,11 @@ export function createApp(config: AppConfig) {
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.
     .onError((error, c) => {
-      if (error instanceof ServiceError) return c.json({ error: error.message }, error.status);
+      if (error instanceof ServiceError) return c.json({ error: error.code }, error.status);
       if (error instanceof NotInstalledError) return c.json({ error: "not_installed" }, 404);
-      if (error instanceof HTTPException) return c.json({ error: error.message }, error.status);
+      // A request that does not validate: the code, and what did not fit for whoever reads it.
+      if (error instanceof HTTPException)
+        return c.json({ error: "invalid_request", detail: error.message }, error.status);
       throw error;
     });
 

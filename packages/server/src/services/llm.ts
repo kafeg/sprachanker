@@ -36,7 +36,7 @@ import {
   WORD_EXAMPLE_BUDGETS,
   wordExampleRules,
 } from "@sprachanker/llm";
-import type { Lang } from "@sprachanker/schema";
+import type { ErrorCode, Lang } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { llmRoutes, secrets } from "../db/profile/schema.ts";
@@ -50,8 +50,8 @@ const DEFAULT_ROUTE = "default";
 
 /** The assistant cannot run as set up (no provider, key, model…): 409. */
 export class LlmSetupError extends ServiceError {
-  constructor(message: string) {
-    super(message, 409);
+  constructor(code: ErrorCode) {
+    super(code, 409);
   }
 }
 

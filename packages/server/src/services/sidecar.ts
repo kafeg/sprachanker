@@ -3,6 +3,7 @@
 // model): started once however many requests ask at the same moment, ready when its health check
 // answers, stopped after a while without requests, started again after it exits. A request for another
 // setup waits for the requests in flight before the process is replaced.
+import type { ErrorCode } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 
 export interface SidecarProcess {
@@ -16,7 +17,7 @@ export interface SidecarOptions {
   freePort(): Promise<number>;
   fetch: typeof fetch;
   /** The error code a start that never became ready gives. */
-  failed: string;
+  failed: ErrorCode;
   /** How long a start may take (loading a model), and how long the process stays without requests. */
   startMs: number;
   idleMs: number;

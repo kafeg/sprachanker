@@ -63,10 +63,13 @@ later areas are fixed in the plan item that builds them.
   `POST /api/runs/:id/events` (batched: checked whole, then stored in one transaction — all or
   nothing; idempotent by id, an event sent again returns its stored outcome; outcomes computed by the
   server), `POST /api/runs/:id/finish` (only an active run finishes). These take lesson runs only.
-- Errors: `{error: <code>}` with 400 (input), 404 (`not_installed` for a course, lesson or file that is
-  not in the library; unknown ids), 409 (state: a run not active, an assistant not set up), 421 (a host
-  name this machine is not reached by), 502 (the LLM provider); services raise `ServiceError(code,
-  status)` (`src/errors.ts`). Anything else, a stored row that no longer parses included, is a 500.
+- Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
+  for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
+  `detail`), 404 (`not_installed` for a course, lesson or file that is not in the library; unknown
+  ids), 409 (state: a run not active, an assistant not set up, a model already busy with the same
+  thing), 413, 415, 421 (a host name this machine is not reached by), 502 (the LLM provider, the
+  speech engine); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
+  stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm`: state, route and provider settings, models; LM Studio status, start and downloads;
   `explain`, `tutor` (streamed text), `writing`, `review`, `scene` (JSON); each task also has a
   `…/prompt` route that returns the exact request without sending it (07); `prompts` lists the system

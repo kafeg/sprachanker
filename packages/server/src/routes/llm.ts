@@ -69,7 +69,7 @@ const Url = z
 
 /** LLM failures as responses: a service's own (setup: 409), provider problems 502. */
 function failure(error: unknown) {
-  if (error instanceof ServiceError) return { status: error.status, error: error.message };
+  if (error instanceof ServiceError) return { status: error.status, error: error.code };
   if (error instanceof LlmError)
     return { status: 502 as const, error: `llm_${error.code}`, message: error.message };
   throw error;

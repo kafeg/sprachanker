@@ -1,35 +1,13 @@
-// Error codes of the LLM endpoints as messages.
+// The LLM endpoints' errors as messages: the API's own words, a provider's own where it has them.
 import type { TFunction } from "i18next";
-
-const KNOWN = new Set([
-  "llm_not_configured",
-  "llm_no_endpoint",
-  "llm_no_key",
-  "llm_unreachable",
-  "llm_unauthorized",
-  "llm_model_not_found",
-  "llm_timeout",
-  "llm_bad_response",
-  "llm_rate_limited",
-  "llm_lmstudio_missing",
-  "llm_lmstudio_remote",
-  "llm_invalid_output",
-  "llm_cli_missing",
-  "no_active_scene",
-  "no_such_item",
-  "no_session",
-  "no_such_run",
-  "no_such_attempt",
-  "not_installed",
-  "server_error",
-]);
+import { errorText as apiErrorText } from "@/ui/error-text.ts";
 
 export function errorText(t: TFunction, error: unknown, provider?: string): string {
   const code = error instanceof Error ? error.message : "";
   if (code === "llm_unreachable" && provider === "lmstudio") return t("llm.error.lmstudioDown");
   if (code === "llm_cli_missing" && (provider === "claude-code" || provider === "codex"))
     return t(`llm.cliMissing.${provider}`);
-  return KNOWN.has(code) ? t(`llm.error.${code}`) : t("llm.error.other", { message: code });
+  return apiErrorText(t, error);
 }
 
 /**

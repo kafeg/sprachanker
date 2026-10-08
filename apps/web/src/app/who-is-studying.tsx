@@ -9,6 +9,7 @@ import { useCreateProfile, useProfiles, useSignIn } from "@/api/session.ts";
 import { Avatar } from "@/ui/avatar.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
+import { errorText } from "@/ui/error-text.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 import { LanguageSwitch } from "./language-switch.tsx";
@@ -68,7 +69,9 @@ export function WhoIsStudying() {
         />
       )}
       {(signIn.isError || create.isError) && (
-        <p className="text-center text-sm text-wrong">{t("profiles.error.other")}</p>
+        <p className="text-center text-sm text-wrong">
+          {errorText(t, signIn.error ?? create.error)}
+        </p>
       )}
     </main>
   );

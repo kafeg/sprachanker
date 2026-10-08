@@ -44,7 +44,7 @@ export function speechRoutes() {
         const model = modelOf(c.var.s);
         if (!model) throw new ServiceError("speech_unavailable", 409);
         const wav = new Uint8Array(await c.req.arrayBuffer());
-        if (!wav.length) throw new ServiceError("recording_empty");
+        if (!wav.length) throw new ServiceError("empty_recording");
         const audio = new Blob([wav], { type: "audio/wav" });
         return c.json(await c.var.s.speech.transcribe(audio, c.req.valid("query").lang, model));
       },

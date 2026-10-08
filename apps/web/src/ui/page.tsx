@@ -2,6 +2,7 @@
 // a course that is not installed. Presentational: no data of their own.
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
+import { errorText } from "./error-text.ts";
 import { cn } from "./utils.ts";
 import { useWindowPlace } from "./window-title.ts";
 
@@ -83,9 +84,7 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
   const { t } = useTranslation();
   return (
     <div className="m-6 rounded-xl border border-wrong/40 bg-wrong-soft p-4">
-      <p>
-        {t("common.error", { message: error instanceof Error ? error.message : String(error) })}
-      </p>
+      <p>{errorText(t, error)}</p>
       {onRetry && (
         <button type="button" className="mt-2 font-semibold underline" onClick={onRetry}>
           {t("common.retry")}

@@ -56,7 +56,7 @@ test("writing: the task, a check kept in the lesson's run and listed across its 
   const early = await send("POST", "/api/llm/writing", REQUEST);
   expect([early.status, ((await early.json()) as { error: string }).error]).toEqual([
     409,
-    "no_session",
+    "no_lesson_run",
   ]);
   expect(m.bodies).toHaveLength(0);
   const run = (await sendJson("POST", "/api/runs", START)).run.id;
