@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { fixture } from "@sprachanker/course-fixture";
-import { checkSpeakingTask, cleanSpokenCheck } from "../src/tasks/check-speaking.ts";
+import { checkSpeakingTask } from "../src/tasks/check-speaking.ts";
+import { cleanCheck } from "../src/tasks/corrections.ts";
 import { mistakeLine } from "../src/tasks/describe.ts";
 
 const lesson = fixture.lessons.find((l) => l.key.endsWith("/00-02"));
@@ -41,7 +42,7 @@ test("check_speaking: the item, the question and the source's answer as heard, t
 });
 
 test("a check's no-op corrections are dropped and an empty correction filled; a spoken mistake reads its correction", () => {
-  const check = cleanSpokenCheck(
+  const check = cleanCheck(
     {
       verdict: "minor_errors",
       corrected: " ",

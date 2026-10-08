@@ -3,7 +3,6 @@
 // lesson's scenes stay readable, newest first.
 import {
   cleanSceneTurn,
-  runStructured,
   type SceneTurnInput,
   sceneSetupTask,
   sceneTurnTask,
@@ -87,20 +86,20 @@ export function createScenes(deps: {
 
   /** Drafts a scene and stores it in place of the open one. */
   async function startScene(request: SceneRequest): Promise<SceneState> {
-    const { client, model } = await deps.llm.model();
-    const elapsed = stopwatch(now);
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
-    const setup = await runStructured(
-      client,
+    const {
+      result: setup,
       model,
+      latencyMs,
+    } = await deps.llm.structured(
       sceneSetupTask({
+        rules: deps.llm.rulesFor("sceneSetup", request.language, ctx.target),
         language: request.language,
         target: ctx.target,
         lesson: ctx.info,
         knownVocab: ctx.knownVocab,
       }),
     );
-    const latencyMs = elapsed();
     const run = store.atomic(() => {
       const started = store.replace(
         "scene",
@@ -121,15 +120,9 @@ export function createScenes(deps: {
 
   /** Answers the learner's line and stores both, while the scene is still the open one. */
   async function answerLine(request: SceneRequest & { text: string }): Promise<SceneState> {
-    const { client, model } = await deps.llm.model();
     const { run, state, input } = await turnInput(request, request.text);
-    const elapsed = stopwatch(now);
-    const turn = cleanSceneTurn(
-      await runStructured(client, model, sceneTurnTask(input)),
-      request.text,
-      state.setup.goals.length,
-      state.goalsMet,
-    );
+    const { result, model, latencyMs } = await deps.llm.structured(sceneTurnTask(input));
+    const turn = cleanSceneTurn(result, request.text, state.setup.goals.length, state.goalsMet);
     // Stored only while this scene is still active (not ended or replaced during the call).
     store.atomic(() => {
       store.append(run.id, [
@@ -145,7 +138,7 @@ export function createScenes(deps: {
             translation: turn.translation,
             goalsMet: turn.goalsMet,
             model,
-            latencyMs: elapsed(),
+            latencyMs,
           },
         },
       ]);

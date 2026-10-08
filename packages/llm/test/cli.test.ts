@@ -1,7 +1,7 @@
 // The command-line backends against a fake runner: no process is started.
 import { expect, test } from "bun:test";
-import { type CliRun, cliClient, cliPrompt } from "../src/cli.ts";
-import { LlmError } from "../src/client.ts";
+import { type CliRun, cliClient, cliPrompt, cliRun } from "../src/cli.ts";
+import { chatBody, LlmError } from "../src/client.ts";
 import { TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "../src/tasks/tutor-tools.ts";
 
 function fakeRunner(lines: string[]) {
@@ -151,17 +151,19 @@ test("a command that fails to start is reported, not thrown raw", async () => {
   expect((error as LlmError).code).toBe("bad_response");
 });
 
-test("cliPrompt: without tools, the tutor's tool instructions are left out, not contradicted", () => {
-  const { system } = cliPrompt(
-    [
-      {
-        role: "system",
-        content: `Rules\n${TUTOR_TOOLS_RULE}\n\nContext\n\n${TUTOR_TOOLS_REMINDER}`,
-      },
+test("tool notes go only with the tools: the HTTP body with them, without them, and never a CLI prompt", () => {
+  const request = {
+    model: "m",
+    messages: [
+      { role: "system" as const, content: "Rules\n\nContext" },
+      { role: "user" as const, content: "Hallo" },
     ],
-    true,
-  );
-  expect(system).not.toContain("call the tool first");
-  expect(system).not.toContain("you can look up");
-  expect(system).toContain("Tools are not available");
+    tools: [{ name: "get_progress", description: "", parameters: {} }],
+    toolNotes: [TUTOR_TOOLS_RULE, TUTOR_TOOLS_REMINDER],
+  };
+  expect(chatBody(request).messages[0]?.content).toEndWith(TUTOR_TOOLS_REMINDER);
+  expect(chatBody({ ...request, tools: undefined }).messages[0]?.content).toBe("Rules\n\nContext");
+  const { files } = cliRun("claude", request);
+  expect(files?.["system.txt"]).not.toContain("call the tool first");
+  expect(files?.["system.txt"]).toContain("Tools are not available");
 });

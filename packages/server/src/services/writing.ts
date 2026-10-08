@@ -4,8 +4,7 @@
 // checks are read across its runs.
 import {
   checkWritingTask,
-  cleanWritingCheck,
-  runStructured,
+  cleanCheck,
   structuredRequest,
   type WritingInput,
   writingTopic,
@@ -82,9 +81,8 @@ export function createWriting(deps: {
         const session = await deps.session(request.lessonKey);
         if (!session) throw new ServiceError("no_lesson_run", 409);
         const task = checkWritingTask(await writingInput(request));
-        const { client, model } = await deps.llm.model();
-        const elapsed = stopwatch(now);
-        const result = cleanWritingCheck(await runStructured(client, model, task), request.text);
+        const { result: check, model, latencyMs } = await deps.llm.structured(task);
+        const result = cleanCheck(check, request.text);
         const ts = store.append(
           session.run.id,
           [
@@ -95,7 +93,7 @@ export function createWriting(deps: {
                 input: request.text,
                 result,
                 model,
-                latencyMs: elapsed(),
+                latencyMs,
               },
             },
           ],

@@ -23,7 +23,9 @@ installed on the machine with the user's own subscription (`packages/llm/src/cli
 Command-line providers run each request in a fresh empty folder with our system prompt and without the
 agent's own tools, MCP servers, settings or saved session: only the lesson context goes out. Structured
 outputs use `--json-schema` / `--output-schema`; the tutor answers there without its tools. Each request
-starts the command (a few seconds).
+starts the command (a few seconds). Codex's read-only sandbox still lets it run commands that read
+files on this machine; only its instructions ("do not run commands or read files") keep it to the
+prompt — choose Claude Code (no tools at all) where that matters.
 
 The profile has one route — provider and model — stored as `llm_routes.task = 'default'`; endpoints
 live in the setting `llm.endpoints`, keys in `secrets` (05, 06). The settings page sets them; its
@@ -120,8 +122,8 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
 - The UI names the assistant wherever it answers (tutor, explanations, practice cards): provider · model,
   with a hint that it is chosen in the settings — not a link, so a lesson is not left by a tap on it.
 - Settings → Prompts: each task's system prompt and the context parts it adds, with
-  their character limits (`CHAT_TURN_BUDGETS`, `EXPLAIN_MISTAKE_BUDGETS`, `CHECK_WRITING_BUDGETS`,
-  `SCENE_BUDGETS`).
+  their character limits (each task's `*_BUDGETS`): explanations, the tutor, writing and spoken
+  checks, a scene's situation and its lines, word examples.
 - The learner can replace a task's system prompt with their own (Settings → Prompts, "Restore" brings
   the standing one back). It is a template in the profile setting `llm.prompts` (task → text);
   `{language}` and `{target}` are filled in with the names of the answer language and the language
@@ -131,7 +133,9 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   `WRITING_MAX` characters (what the model checks whole), a message `MESSAGE_MAX`.
 - A "{}" button (switched on in Settings → Prompts) shows the exact request of a task — endpoint,
   fields, every message with its size — built by the same function as the real call (`<task>Request`,
-  `chatBody`); nothing is sent.
+  `chatBody`; a command-line provider's prompt, files and arguments by `cliRun`); nothing is sent.
+- A task's model call and its timing are one path (`llm.structured` in services/llm.ts); a check's
+  corrections are cleaned the same way for writing and speaking (`cleanCheck`).
 - The tutor shows how full the next request is (≈ tokens of the window when known, room for the reply)
   and how many turns still fit; when the earliest no longer fit it suggests a new chat.
 
@@ -146,8 +150,9 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   learner's checked answers — the tutor gives hints first), the learner's mistakes (this lesson's: those of the run the lesson shows;
   then the latest of earlier lessons; each named by exercise and item, fixed ones marked), the most
   recent turns within a character budget sized for small local models — the latest exchange always,
-  a long reply clipped, so "go on" never loses what it continues. Command-line providers have no
-  tools: the tool instructions are left out of their prompt. Each learner turn records the
+  a long reply clipped, so "go on" never loses what it continues. The tools' instructions are the
+  request's `toolNotes`, added to the system message only when the tools are sent (not to
+  command-line providers, nor when a server refused the tools). Each learner turn records the
   exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·
   Title]` where that changed, so earlier turns about other exercises are not read as about the current
   one. The "Going over mistakes" step opens a new chat with the request to go through the mistakes.
@@ -164,8 +169,9 @@ The tutor may call tools while answering (OpenAI function calling, streamed; up 
 then it must answer): `get_progress`, `get_mistakes` (all lessons or one), `find_word` (where a word is
 taught, with its translation), `get_lesson` (goals, words, grammar). Lessons are named "unit.lesson" as
 the app shows them. The server runs them on the learner's data; the reply records which tools it used
-and the UI shows them. Servers rejecting tools are asked again without. A reminder at the end of the
-system message makes small models call tools instead of promising to look later.
+and the UI shows them. Servers rejecting tools are asked again without (and without their notes). A
+reminder at the end of the system message makes small models call tools instead of promising to look
+later.
 
 ## Later
 

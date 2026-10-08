@@ -87,7 +87,6 @@ export function chatTurnRules(
     "- A learner's message may start with [On screen: …]: the exercise they were on from then on. Earlier messages may be about other exercises; the one in <course> is the one on screen now.",
     "- The learner's recent mistakes are listed in <course>. Connect explanations to them when it helps; when asked to review mistakes, go through them one at a time, the most instructive first, and check understanding with a short new example.",
     "- Do not invent grammar rules; when the lesson notes cover a topic, use their terms.",
-    TUTOR_TOOLS_RULE,
   ].join("\n");
 }
 
@@ -160,8 +159,7 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
   while (history[0]?.role === "assistant") history.shift();
 
   return [
-    // Small models follow the last lines best: the tool reminder closes the system message.
-    { role: "system", content: `${system}\n\n${context}\n\n${TUTOR_TOOLS_REMINDER}` },
+    { role: "system", content: `${system}\n\n${context}` },
     ...history,
     {
       role: "user",
@@ -177,6 +175,8 @@ export const chatTurnRequest = (input: ChatTurnInput): TaskRequest => ({
   maxTokens: 1500,
   reasoning: false,
   tools: TUTOR_TOOLS,
+  // Small models follow the last lines best: the tools' rule and reminder close the system message.
+  toolNotes: [TUTOR_TOOLS_RULE, TUTOR_TOOLS_REMINDER],
 });
 
 /** `runTool` answers the model's tool calls (the server's data); without it, no tools are offered. */

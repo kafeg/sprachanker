@@ -4,8 +4,7 @@
 // run, for what was heard: asked once per answer, shown again without asking.
 import {
   checkSpeakingTask,
-  cleanSpokenCheck,
-  runStructured,
+  cleanCheck,
   type SpeakingInput,
   structuredRequest,
 } from "@sprachanker/llm";
@@ -18,10 +17,9 @@ import {
 } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { ServiceError } from "../errors.ts";
-import type { Content } from "./content.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import type { RunStore } from "./run-store.ts";
 
 export interface SpeakingRequest {
@@ -47,16 +45,14 @@ export interface StoredSpokenCheck {
 
 export function createSpeaking(deps: {
   llm: Llm;
-  content: Content;
   lessons: LessonContexts;
   /** One of the lesson's runs (the runs service). */
   lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
   store: RunStore;
   /** What a course recording says, heard with the profile's recogniser; undefined without one. */
   hear: (series: string, path: string, lang: string) => Promise<string | undefined>;
-  now: () => number;
 }) {
-  const { llm, content, store, now } = deps;
+  const { llm, store } = deps;
   /** Answers being checked, by run, item and what was heard. */
   const checking = createInFlight<true>("speaking_busy");
 
@@ -78,10 +74,8 @@ export function createSpeaking(deps: {
   async function input(request: SpeakingRequest) {
     if (!deps.lessonRun(request.lessonKey, request.runId))
       throw new ServiceError("no_such_run", 404);
-    const [{ lesson, locale }, ctx] = await Promise.all([
-      content.lessonWithLocale(request.series, request.lessonKey, request.edition),
-      deps.lessons.get(request.series, request.lessonKey, request.edition),
-    ]);
+    const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
+    const { lesson, locale } = ctx;
     const exercise = findExercise(lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
     // Only an answer of one's own: a phrase to say is checked by the word diff (08).
@@ -122,19 +116,15 @@ export function createSpeaking(deps: {
       const same = kept(request.runId, itemKey).find((c) => c.transcript === request.transcript);
       if (same) return same;
       return checking.run(`${request.runId}|${itemKey}|${request.transcript}`, true, async () => {
-        const { client, model } = await llm.model();
-        const elapsed = stopwatch(now);
-        const result = cleanSpokenCheck(
-          await runStructured(client, model, checkSpeakingTask(task)),
-          request.transcript,
-        );
+        const { result: check, model, latencyMs } = await llm.structured(checkSpeakingTask(task));
+        const result = cleanCheck(check, request.transcript);
         const id = ulid();
         const payload: LlmVerdictPayload = {
           task: "speaking",
           input: request.transcript,
           result,
           model,
-          latencyMs: elapsed(),
+          latencyMs,
         };
         const ts = store.append(request.runId, [{ id, type: "llm_verdict", itemKey, payload }], {
           anyStatus: true,

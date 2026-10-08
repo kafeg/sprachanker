@@ -93,10 +93,3 @@ export const checkSpeakingTask = (input: SpeakingInput): StructuredTask<SpokenCh
   schema: SpokenCheck,
   request: checkSpeakingRequest(input),
 });
-
-/** Drops corrections that change nothing and fills an empty "corrected" (small models do both). */
-export const cleanSpokenCheck = (check: SpokenCheck, transcript: string): SpokenCheck => ({
-  ...check,
-  corrected: check.corrected.trim() || transcript.trim(),
-  corrections: check.corrections.filter((c) => c.wrong.trim() !== c.right.trim()),
-});

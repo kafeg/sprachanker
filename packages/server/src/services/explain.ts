@@ -4,10 +4,10 @@
 
 import { answerAt } from "@sprachanker/engine";
 import { type ExplainMistakeInput, explainMistake, explainMistakeRequest } from "@sprachanker/llm";
-import { findExercise, type LessonKey, parseEditionId } from "@sprachanker/schema";
+import { findExercise, type LessonKey } from "@sprachanker/schema";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
-import type { Content } from "./content.ts";
+import type { LessonContexts } from "./lesson-context.ts";
 import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
 import type { RunStore } from "./run-store.ts";
 
@@ -35,13 +35,13 @@ export interface StoredExplanation {
 
 export function createExplain(deps: {
   llm: Llm;
-  content: Content;
+  lessons: LessonContexts;
   /** One of the lesson's runs (the runs service). */
   lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
   store: RunStore;
   now: () => number;
 }) {
-  const { llm, content, lessonRun, store, now } = deps;
+  const { llm, lessons, lessonRun, store, now } = deps;
 
   /**
    * What explain_mistake gets for one item: the item, the answers and the lesson's grammar. An
@@ -50,7 +50,7 @@ export function createExplain(deps: {
   async function input(request: ExplainRequest) {
     if (request.runId && !lessonRun(request.lessonKey, request.runId))
       throw new ServiceError("no_such_run", 404);
-    const { lesson, locale } = await content.lessonWithLocale(
+    const { lesson, locale, target, info } = await lessons.get(
       request.series,
       request.lessonKey,
       request.edition,
@@ -58,7 +58,6 @@ export function createExplain(deps: {
     const exercise = findExercise(lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
     if (!exercise || !item) throw new ServiceError("no_such_item", 404);
-    const target = parseEditionId(request.edition).target;
     let answer = request.answer;
     if (request.runId && request.attempt) {
       const given = answerAt(
@@ -80,7 +79,7 @@ export function createExplain(deps: {
         locale: locale?.exercises[exercise.key],
         index: request.index,
         answer,
-        grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
+        grammarHtml: info.grammarHtml,
         scriptHtml: recording ? locale?.tabs.script?.bodyHtml : undefined,
         language: request.language,
         target,

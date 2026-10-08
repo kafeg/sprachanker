@@ -69,3 +69,11 @@ test("a new profile: who is studying, then the onboarding step by step to Course
       .uiLanguage,
   ).toBe("en");
 });
+
+test.describe("with a German browser", () => {
+  test.use({ locale: "de-DE" });
+  test("a device signed in to nothing shows the browser's language", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Wer lernt?");
+  });
+});

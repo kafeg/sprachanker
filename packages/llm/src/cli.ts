@@ -3,7 +3,6 @@
 // lines and reads their output; starting the process is the server's (a CliRunner), so this package
 // stays free of runtime APIs. Their own tools stay off: the app gives all context in the prompt.
 import { type ChatMessage, type ChatRequest, type LlmClient, LlmError } from "./client.ts";
-import { TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tasks/tutor-tools.ts";
 
 export type CliKind = "claude" | "codex";
 
@@ -36,13 +35,11 @@ const NO_TOOLS =
  * user message the request. Tool turns are dropped (the CLIs run without the app's tools).
  */
 export function cliPrompt(messages: ChatMessage[], withTools: boolean) {
-  // The tool instructions are taken out where there are no tools: they would contradict NO_TOOLS.
+  // The tools' own notes are never added here (the request's `toolNotes` go only with the tools).
   const system = messages
     .filter((m) => m.role === "system")
     .map((m) => m.content ?? "")
-    .join("\n\n")
-    .replace(`\n${TUTOR_TOOLS_RULE}`, "")
-    .replace(`\n\n${TUTOR_TOOLS_REMINDER}`, "");
+    .join("\n\n");
   const turns = messages.filter(
     (m) => (m.role === "user" || m.role === "assistant") && !m.tool_calls?.length,
   );
@@ -86,7 +83,10 @@ function withTimeout(signal?: AbortSignal) {
 }
 
 /** `claude -p` with its system prompt replaced, no tools, MCP servers, settings or saved session. */
-function claudeArgs(request: ChatRequest, output: "stream-json" | "json") {
+function claudeArgs(
+  request: Omit<ChatRequest, "signal" | "runTool">,
+  output: "stream-json" | "json",
+) {
   return [
     "-p",
     "--model",
@@ -108,7 +108,7 @@ function claudeArgs(request: ChatRequest, output: "stream-json" | "json") {
 }
 
 /** `codex exec` read-only, without the user's config or a saved session; instructions go into stdin. */
-function codexArgs(request: ChatRequest) {
+function codexArgs(request: Omit<ChatRequest, "signal" | "runTool">) {
   return [
     "exec",
     "--json",
@@ -135,26 +135,28 @@ function claudeResult(kind: CliKind, result: Record<string, unknown>): string {
   return String(result.result ?? "");
 }
 
+/** The command a request runs (also what the prompt viewer shows): its arguments, stdin and files. */
+export function cliRun(
+  kind: CliKind,
+  request: Omit<ChatRequest, "signal" | "runTool">,
+  output: "stream-json" | "json" = request.jsonSchema ? "json" : "stream-json",
+): Omit<CliRun, "signal"> {
+  const { system, prompt } = cliPrompt(request.messages, !!request.tools?.length);
+  return kind === "claude"
+    ? { args: claudeArgs(request, output), stdin: prompt, files: { "system.txt": system } }
+    : {
+        args: codexArgs(request),
+        stdin: codexStdin(system, prompt),
+        files: request.jsonSchema
+          ? { "schema.json": JSON.stringify(request.jsonSchema.schema) }
+          : undefined,
+      };
+}
+
 export function cliClient(kind: CliKind, run: CliRunner): LlmClient {
   async function* lines(request: ChatRequest, output: "stream-json" | "json") {
-    const { system, prompt } = cliPrompt(request.messages, !!request.tools?.length);
     const signal = withTimeout(request.signal);
-    const job =
-      kind === "claude"
-        ? run({
-            args: claudeArgs(request, output),
-            stdin: prompt,
-            files: { "system.txt": system },
-            signal,
-          })
-        : run({
-            args: codexArgs(request),
-            stdin: codexStdin(system, prompt),
-            files: request.jsonSchema
-              ? { "schema.json": JSON.stringify(request.jsonSchema.schema) }
-              : undefined,
-            signal,
-          });
+    const job = run({ ...cliRun(kind, request, output), signal });
     try {
       for await (const line of job) {
         const event = parse(line);

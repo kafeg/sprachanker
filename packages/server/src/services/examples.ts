@@ -4,12 +4,7 @@
 // card's examples come back only when asked for again. Which words of a sentence are new is worked
 // out when read, against the course as installed now (the engine's `markWords`).
 import { markWords, usesWord, type VocabWord } from "@sprachanker/engine";
-import {
-  runStructured,
-  structuredRequest,
-  type WordExampleInput,
-  wordExampleTask,
-} from "@sprachanker/llm";
+import { structuredRequest, type WordExampleInput, wordExampleTask } from "@sprachanker/llm";
 import type { LessonKey, WordExample } from "@sprachanker/schema";
 import type { CardStore } from "./card-store.ts";
 import { createInFlight } from "./in-flight.ts";
@@ -100,9 +95,7 @@ export function createExamples(deps: {
       return making.run(request.cardId, true, async () => {
         const ctx = await context(request.cardId);
         const task = wordExampleTask(await input(request, ctx), (s) => usesWord(s, ctx.word));
-        const { client, model } = await deps.llm.model();
-        const elapsed = stopwatch(now);
-        const result = await runStructured(client, model, task);
+        const { result, model, latencyMs } = await deps.llm.structured(task);
         const ts = deps.store.append(deps.reviewRun(), [
           {
             type: "llm_verdict",
@@ -112,7 +105,7 @@ export function createExamples(deps: {
               input: ctx.word.target,
               result,
               model,
-              latencyMs: elapsed(),
+              latencyMs,
             },
           },
         ]);

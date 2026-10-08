@@ -105,6 +105,9 @@ export interface ChatRequest {
   jsonSchema?: { name: string; schema: Record<string, unknown> };
   /** Functions the model may call while answering; `runTool` answers each call. */
   tools?: ToolDef[];
+  /** How to use the tools: added to the end of the first system message only when the tools are
+   *  sent (a model without them must not be told to call them). */
+  toolNotes?: string[];
   runTool?: (name: string, args: unknown) => Promise<unknown>;
   signal?: AbortSignal;
 }
@@ -122,7 +125,9 @@ export function chatBody(
 ) {
   return {
     model: request.model,
-    messages: request.messages,
+    messages: request.tools?.length
+      ? withToolNotes(request.messages, request.toolNotes)
+      : request.messages,
     temperature: request.temperature ?? 0.3,
     max_tokens: request.maxTokens,
     // Structured answers are read whole; text is streamed.
@@ -145,6 +150,15 @@ export function chatBody(
     }),
     ...(request.reasoning === false ? noReasoning : undefined),
   };
+}
+
+/** The messages with the tool notes at the end of the first system message. */
+function withToolNotes(messages: ChatMessage[], notes: string[] | undefined): ChatMessage[] {
+  const at = messages.findIndex((m) => m.role === "system");
+  if (!notes?.length || at < 0) return messages;
+  return messages.map((m, i) =>
+    i === at ? { ...m, content: `${m.content ?? ""}\n\n${notes.join("\n")}` } : m,
+  );
 }
 
 export interface LlmClient {

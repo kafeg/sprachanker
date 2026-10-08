@@ -66,14 +66,6 @@ test("open the course, go through the words, the grammar and an exercise, resume
   ).toBeVisible();
 });
 
-test.describe("with a German browser", () => {
-  test.use({ locale: "de-DE" });
-  test("the interface is German", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kurse");
-  });
-});
-
 test("client routes load the app", async ({ page }) => {
   await page.goto("/course/sprachanker.fixture/demo");
   await expect(page.getByRole("heading", { level: 2 }).first()).toContainText("Unit 0");

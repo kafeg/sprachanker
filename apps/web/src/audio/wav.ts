@@ -31,18 +31,17 @@ export function encodeWav(samples: Float32Array, rate = RATE): Uint8Array<ArrayB
 
 /** A recording, decoded and resampled to 16 kHz mono, as WAV. */
 export async function toWav16k(blob: Blob): Promise<Uint8Array<ArrayBuffer>> {
-  const decoder = new AudioContext();
-  try {
-    const decoded = await decoder.decodeAudioData(await blob.arrayBuffer());
-    const length = Math.max(1, Math.ceil(decoded.duration * RATE));
-    const offline = new OfflineAudioContext(1, length, RATE);
-    const source = offline.createBufferSource();
-    source.buffer = decoded;
-    source.connect(offline.destination);
-    source.start();
-    const rendered = await offline.startRendering();
-    return encodeWav(rendered.getChannelData(0));
-  } finally {
-    void decoder.close();
-  }
+  // Decoded offline: no audio device is opened (a realtime context may fail to start, and a page
+  // may hold only a few).
+  const decoded = await new OfflineAudioContext(1, 1, RATE).decodeAudioData(
+    await blob.arrayBuffer(),
+  );
+  const length = Math.max(1, Math.ceil(decoded.duration * RATE));
+  const offline = new OfflineAudioContext(1, length, RATE);
+  const source = offline.createBufferSource();
+  source.buffer = decoded;
+  source.connect(offline.destination);
+  source.start();
+  const rendered = await offline.startRendering();
+  return encodeWav(rendered.getChannelData(0));
 }

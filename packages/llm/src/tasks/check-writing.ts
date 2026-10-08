@@ -98,10 +98,3 @@ export const checkWritingTask = (input: WritingInput): StructuredTask<WritingChe
   schema: WritingCheck,
   request: checkWritingRequest(input),
 });
-
-/** Drops corrections that change nothing and fills an empty "corrected" (small models do both). */
-export const cleanWritingCheck = (check: WritingCheck, text: string): WritingCheck => ({
-  ...check,
-  corrected: check.corrected.trim() || text.trim(),
-  corrections: check.corrections.filter((c) => c.wrong.trim() !== c.right.trim()),
-});

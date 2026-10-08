@@ -4,6 +4,7 @@ import {
   CHAT_TURN_BUDGETS,
   CHECK_SPEAKING_BUDGETS,
   CHECK_WRITING_BUDGETS,
+  type ChatMessage,
   type CliKind,
   type CliRunner,
   chatBody,
@@ -12,6 +13,7 @@ import {
   checkWritingRules,
   cliClient,
   cliCommand,
+  cliRun,
   EXPLAIN_MISTAKE_BUDGETS,
   estimateTokens,
   explainMistakeRules,
@@ -30,7 +32,10 @@ import {
   PROVIDERS,
   type ProviderId,
   recommendedLmStudioModel,
+  runStructured,
   SCENE_BUDGETS,
+  type StructuredTask,
+  sceneSetupRules,
   sceneTurnRules,
   type TaskRequest,
   WORD_EXAMPLE_BUDGETS,
@@ -106,7 +111,9 @@ export interface PromptPreview {
   provider: ProviderId;
   model: string;
   url: string;
-  body: ReturnType<typeof chatBody>;
+  /** The HTTP body as posted, or a command-line agent's prompt (system file or instructions, and
+   *  stdin) with its arguments. */
+  body: { messages: ChatMessage[] } & Record<string, unknown>;
   /** Rough token count of each message (07, "Debugging"). */
   tokens: number[];
 }
@@ -123,6 +130,7 @@ export const PROMPT_TASKS = [
   "tutor",
   "writing",
   "speaking",
+  "sceneSetup",
   "scene",
   "example",
 ] as const;
@@ -137,6 +145,7 @@ const RULES: Record<
   tutor: chatTurnRules,
   writing: checkWritingRules,
   speaking: checkSpeakingRules,
+  sceneSetup: sceneSetupRules,
   scene: sceneTurnRules,
   example: wordExampleRules,
 };
@@ -145,6 +154,7 @@ const BUDGETS: Record<PromptTask, Record<string, number>> = {
   tutor: CHAT_TURN_BUDGETS,
   writing: CHECK_WRITING_BUDGETS,
   speaking: CHECK_SPEAKING_BUDGETS,
+  sceneSetup: { lessonVocab: SCENE_BUDGETS.lessonVocab, knownVocab: SCENE_BUDGETS.knownVocab },
   scene: SCENE_BUDGETS,
   example: WORD_EXAMPLE_BUDGETS,
 };
@@ -184,6 +194,7 @@ export function createLlm(deps: {
   fetch: typeof fetch;
   lmStudio?: LmStudioHost;
   cli?: CliHost;
+  now: () => number;
 }) {
   const { db, settings, box } = deps;
   /** Downloads started from the app: model key → LM Studio job id. */
@@ -241,7 +252,7 @@ export function createLlm(deps: {
     };
   }
 
-  return {
+  const self = {
     state(): LlmState {
       const r = route();
       const provider = known(r?.providerId) ? (r?.providerId as ProviderId) : null;
@@ -358,15 +369,38 @@ export function createLlm(deps: {
     preview(task: TaskRequest): PromptPreview {
       const r = route();
       if (!r?.model || !known(r.providerId)) throw new LlmSetupError("llm_not_configured");
+      const cli = PROVIDERS[r.providerId].cli as CliKind | undefined;
+      const request = { ...task, model: r.model };
+      // What the provider gets: the HTTP body, or the command line agent's prompt, files and flags.
+      let body: PromptPreview["body"];
+      if (cli) {
+        const { stdin, args, files } = cliRun(cli, request);
+        body = {
+          messages: [
+            { role: "system", content: files?.["system.txt"] ?? "" },
+            { role: "user", content: stdin },
+          ],
+          args,
+          files: Object.keys(files ?? {}),
+        };
+      } else body = chatBody(request, PROVIDERS[r.providerId].noReasoning);
       return {
         provider: r.providerId,
         model: r.model,
-        url: PROVIDERS[r.providerId].cli
-          ? cliCommand(PROVIDERS[r.providerId].cli as CliKind, r.model)
+        url: cli
+          ? cliCommand(cli, r.model)
           : `${baseUrl(r.providerId).replace(/\/+$/, "")}/chat/completions`,
-        body: chatBody({ ...task, model: r.model }, PROVIDERS[r.providerId].noReasoning),
-        tokens: task.messages.map((m) => estimateTokens(m.content)),
+        body,
+        tokens: body.messages.map((m) => estimateTokens(m.content)),
       };
+    },
+    /** A structured task with the configured model: its result, the model and how long it took (a
+     *  stored answer records both). */
+    async structured<T>(task: StructuredTask<T>) {
+      const { client, model } = await self.model();
+      const elapsed = stopwatch(deps.now);
+      const result = await runStructured(client, model, task);
+      return { result, model, latencyMs: elapsed() };
     },
     /** The model's context window when the app knows it (LM Studio: loaded by us with this size). */
     contextWindow(): number | null {
@@ -403,5 +437,6 @@ export function createLlm(deps: {
       settings.set(PROMPTS, template?.trim() ? { ...rest, [task]: template } : rest);
     },
   };
+  return self;
 }
 export type Llm = ReturnType<typeof createLlm>;

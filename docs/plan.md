@@ -45,23 +45,21 @@ every stored event shape on record); `llm_verdict` a union by task with typed re
 stored answers in `schema` (Notebook no longer imports `llm`); events typed by their type
 (`TypedEvent`, no casts in the engine, one undo rule); step ids and practice kinds from one list; error codes one list shared by server and web, each
 with its words (a spoken check stays matched to its answer by what was heard: it is asked before the
-answer is recorded, on Check).
-1. **Server AI services.** One path for a structured task kept as a verdict (model, stopwatch, run,
-   clean, append) used by writing, speaking, examples, scenes; one corrections cleaner; explain on
-   the lesson contexts; the prompt preview built by the client that sends (CLI providers show what
-   they get); tool instructions added only when tools go; `scene_setup` in Settings → Prompts; Codex
-   run without its shell where possible, otherwise the risk written in 07.
-2. **Web.** The lesson run's outbox a module with tests and the run read through the query cache;
+answer is recorded, on Check); the AI services on one path (`llm.structured`, one corrections cleaner,
+explain and speaking on the lesson contexts), tool notes sent only with tools, the prompt preview of
+command-line providers what they get, the scene's setup in Settings → Prompts, Codex's file access
+written in 07.
+1. **Web.** The lesson run's outbox a module with tests and the run read through the query cache;
    rules out of components into the engine (scored, answer complete, right at attempt n, a spoken
    answer's transcript); typed settings with their defaults in one place; query keys from one
    factory and cache helpers outside `llm/`; duplicates merged (audio clip playback, stat tiles,
    error bodies, `Intl` formatters, the course edition lookup); the reviewer's keys and More menu out
    of `session.tsx` with tests, actions blocked while one is pending; feature folders without
    two-way imports; AI practice steps known before the flow resumes; `speech_repeat` rendered.
-3. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
+2. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
    one contract test over every provider; exercises drafted typed (no `as never`); `Unmapped`,
    unknown exercises and the Cyrillic/Latin split shared in course-kit.
-4. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
+3. **Docs.** `architecture.md` and `README.md` as the system is; CLAUDE.md layouts exact and checked
    (a separate short "Planned" list), stale lines gone; spec drift fixed (04, 05, 06, 08, 09, 10's
    fixed choices only for what is used).
 - **Accept**: every step's tests; `bun run check` and `bun run e2e` green; a sweep finds no

@@ -66,6 +66,7 @@ function profileServices(
     fetch: config.fetch,
     lmStudio: config.lmStudio,
     cli: config.cli,
+    now,
   });
   const store = createRunStore({ db, now, appVersion: config.appVersion });
   const cardStore = createCardStore(db);
@@ -87,10 +88,9 @@ function profileServices(
   });
   const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
   const scenes = createScenes({ store, llm, lessons, now });
-  const explain = createExplain({ llm, content, lessonRun: runs.lessonRun, store, now });
+  const explain = createExplain({ llm, lessons, lessonRun: runs.lessonRun, store, now });
   const speaking = createSpeaking({
     llm,
-    content,
     lessons,
     lessonRun: runs.lessonRun,
     store,
@@ -103,7 +103,6 @@ function profileServices(
         .heard(`${series}/${path}`, () => config.mediaBlob(file), lang, model)
         .catch(() => undefined);
     },
-    now,
   });
   const examples = createExamples({
     cards: cardStore,
