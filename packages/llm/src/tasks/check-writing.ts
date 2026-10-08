@@ -1,7 +1,6 @@
 // Task `check_writing` (07, `check_answer` for free writing): a short text the learner wrote on the
 // lesson's topic, checked against the task and the lesson, scored on the A1 writing criteria (Goethe A1 "Schreiben" for German).
-import { Correction, type Lang, WRITING_MAX, WritingCheck } from "@sprachanker/schema";
-import { z } from "zod";
+import { type Lang, WRITING_MAX, WritingCheck } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";

@@ -12,7 +12,7 @@ apps/web/src/
                    # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
                    # My words), course (its map), settings
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
-                   # the course page's hero (progress, source, stats, integrity, sync)
+                   # the course page's hero (progress, source, stats, integrity, sync), reset-progress
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
                    # header, reference), use-run (the run in the query cache + its events), outbox (events sent in
@@ -21,7 +21,8 @@ apps/web/src/
                    # enter-key), practice-step, mistakes-status,
                    # summary, reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
-                   # its recording and autoplay), session (counts, Show answer, ratings, keys, undo, More);
+                   # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
+                   # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
                    # word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
@@ -32,12 +33,13 @@ apps/web/src/
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
                    # check under its item)
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
-                   # in and out, devices; no codegen
+                   # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
+                   # cache updates; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
                    # profile chip), language-switch (the interface language, kept on the device),
                    # who-is-studying, onboarding (with tour; the AI step is a slot from
                    # the router), profile-settings, pairs (language pairs offered), device-name, about,
-                   # reset-progress, preferences (language, theme, course edition)
+                   # preferences (language, theme, playback speed)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),

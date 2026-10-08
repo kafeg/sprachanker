@@ -86,8 +86,8 @@ function profileServices(
     tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
     now,
   });
-  const writing = createWriting({ store, session: runs.shown, llm, lessons, now });
-  const scenes = createScenes({ store, llm, lessons, now });
+  const writing = createWriting({ store, session: runs.shown, llm, lessons });
+  const scenes = createScenes({ store, llm, lessons });
   const explain = createExplain({ llm, lessons, lessonRun: runs.lessonRun, store, now });
   const speaking = createSpeaking({
     llm,
@@ -110,7 +110,6 @@ function profileServices(
     llm,
     store,
     reviewRun: study.reviewRun,
-    now,
   });
   const notebook = createNotebook({
     store,

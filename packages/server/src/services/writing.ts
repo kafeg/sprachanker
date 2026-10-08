@@ -13,7 +13,7 @@ import type { LessonKey, Run, WritingCheck } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
 
 export interface WritingRequest {
@@ -37,9 +37,8 @@ export function createWriting(deps: {
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
   lessons: LessonContexts;
-  now: () => number;
 }) {
-  const { store, now } = deps;
+  const { store } = deps;
   /** The text being checked, per lesson. */
   const checking = createInFlight<{ text: string }>("writing_busy");
 

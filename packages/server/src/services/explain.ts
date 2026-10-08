@@ -5,7 +5,6 @@
 import { answerAt } from "@sprachanker/engine";
 import { type ExplainMistakeInput, explainMistake, explainMistakeRequest } from "@sprachanker/llm";
 import { findExercise, type LessonKey } from "@sprachanker/schema";
-import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";

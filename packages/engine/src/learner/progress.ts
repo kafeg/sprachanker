@@ -10,7 +10,6 @@ import {
   type LocaleExercise,
   type LocaleLesson,
   type Outcome,
-  type PageShownPayload,
   parseItemKey,
   type Run,
   type TypedEvent,
@@ -44,11 +43,6 @@ export interface ExerciseResult {
   /** Items skipped before their first answer: the skip was their first attempt (an answer after it
    *  is shown, but does not count). */
   skippedFirst: string[];
-}
-
-interface Answered {
-  answer?: unknown;
-  outcome?: Outcome;
 }
 
 const exerciseOf = (itemKey: string) => parseItemKey(itemKey as ItemKey).exercise;

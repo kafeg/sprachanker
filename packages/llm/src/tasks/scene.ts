@@ -5,7 +5,7 @@ import { Correction, type Lang, SceneSetup } from "@sprachanker/schema";
 import { z } from "zod";
 import type { ChatMessage, TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
-import { languageName, languageNames, recentTurns } from "../text.ts";
+import { languageNames, recentTurns } from "../text.ts";
 import { goalsLine, knownWordsLine, type LessonInfo, lessonWordsLine } from "./lesson.ts";
 
 /** Scenes need the lesson's topic and words, not its grammar. */

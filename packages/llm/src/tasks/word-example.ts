@@ -4,7 +4,6 @@
 // new is found by the server against the course (the engine's `markWords`), not taken from the model.
 import type { Lang } from "@sprachanker/schema";
 import { WordExample } from "@sprachanker/schema";
-import { z } from "zod";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames, newest } from "../text.ts";

@@ -16,7 +16,6 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
-import { ResetProgress } from "@/app/reset-progress.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
@@ -24,6 +23,7 @@ import { useBytes, usePercent } from "@/ui/format.ts";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
 import { DownloadLine, downloading } from "./download.tsx";
+import { ResetProgress } from "./reset-progress.tsx";
 
 /** Media tiles in this order; kinds not listed come last. */
 const KINDS = ["video", "audio", "image", "subtitles", "pdf"];

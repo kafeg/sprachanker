@@ -12,7 +12,7 @@ import { type LessonKey, type LlmTurnPayload, SceneSetup } from "@sprachanker/sc
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import { HISTORY_LIMIT, payloadOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export interface SceneRequest {
@@ -31,13 +31,8 @@ export interface SceneState {
   done: boolean;
 }
 
-export function createScenes(deps: {
-  store: RunStore;
-  llm: Llm;
-  lessons: LessonContexts;
-  now: () => number;
-}) {
-  const { store, now } = deps;
+export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonContexts }) {
+  const { store } = deps;
   /** A scene being prepared, or the line being answered, per lesson. */
   const pending = createInFlight<{ preparing: true } | { line: string }>("scene_busy");
   const latestRun = (lessonKey: LessonKey) => store.latest("scene", lessonKey);

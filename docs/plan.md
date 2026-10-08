@@ -54,10 +54,11 @@ typed with their defaults in one place (schema `SETTING_DEFAULTS`, server and we
 progress reset leaves marked static by their own meta, one list of card queries, the cache
 updaters in `api/` for every feature; duplicates merged (one clip hook for words and takes, one
 stat tile, one reader of error bodies, every number and date through `ui/format.ts`, one course
-edition lookup).
-1. **Web** (rest). The reviewer's keys and More menu out
-   of `session.tsx` with tests, actions blocked while one is pending; feature folders without
-   two-way imports; AI practice steps known before the flow resumes; `speech_repeat` rendered.
+edition lookup); the reviewer's keys (a tested pure function) and More menu out of `session.tsx`,
+one card action at a time; no two-way imports between feature folders (the step mark in `ui/`,
+resetting progress in `courses/`, the course edition in `api/`); unused imports and variables are
+lint errors.
+1. **Web** (rest). AI practice steps known before the flow resumes; `speech_repeat` rendered.
 2. **Course providers.** A `CourseProvider` contract in course-kit (id, series, offers, import) with
    one contract test over every provider; exercises drafted typed (no `as never`); `Unmapped`,
    unknown exercises and the Cyrillic/Latin split shared in course-kit.

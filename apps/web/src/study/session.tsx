@@ -1,46 +1,24 @@
 // Studying cards as in Anki's reviewer (09) — Review's decks and a lesson's words use the same session:
 // the card, the counts (new + learning + review, the current queue underlined), "Show answer", then
-// Again / Hard / Good / Easy with when each brings the card back; Undo on the left, More on the right.
-// Keys as in Anki: Space or Enter shows the answer and then answers Good, 1–4 rate, R replays, U or
-// Ctrl+Z undoes, - and = bury, @ and ! suspend, * marks, Ctrl+1…7 flag. On a phone a tap on the card
-// shows the answer and the buttons are coloured, the interval inside (AnkiDroid).
+// Again / Hard / Good / Easy with when each brings the card back; Undo on the left, More on the right
+// (more-menu.tsx). Keys as in Anki (reviewer-keys.ts); one action at a time. On a phone a tap on the
+// card shows the answer and the buttons are coloured, the interval inside (AnkiDroid).
 import { SRS_DEFAULTS } from "@sprachanker/engine";
 import type { CardRating } from "@sprachanker/schema";
-import { Flag, MoreHorizontal, Star, Undo2 } from "lucide-react";
+import { Flag, Star, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCardActions, useStudy } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from "@/ui/components/dropdown-menu.tsx";
 import type { AudioControls } from "@/ui/media.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type Side, StudyCard } from "./card.tsx";
+import { FLAG_CLASS, FLAGS, MoreMenu } from "./more-menu.tsx";
+import { type ReviewerAction, useReviewerKeys } from "./reviewer-keys.ts";
 import { useIntervalText } from "./time.ts";
 import { COUNT_TONE, RATINGS } from "./tones.ts";
-
-/** On a Mac, Ctrl is ⌘ (the reviewer takes either). */
-const MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
-
-/** Anki's flag colours, 1–7 (small icons named by their colour: the one exception to the hues). */
-const FLAGS = ["red", "orange", "green", "blue", "pink", "turquoise", "purple"] as const;
-const FLAG_CLASS = [
-  "text-red-600",
-  "text-orange-500",
-  "text-green-600",
-  "text-blue-600",
-  "text-pink-500",
-  "text-teal-500",
-  "text-purple-600",
-];
 
 type Study = NonNullable<ReturnType<typeof useStudy>["data"]>;
 
@@ -143,7 +121,9 @@ export function StudySession({
   const side: Side = cardKey && shownFor === cardKey ? "answer" : "question";
   const showAnswer = () => setShownFor(cardKey);
 
-  const busy = actions.rate.isPending || study.isFetching;
+  // One action at a time: a second press before the first is stored would act on the old state
+  // (Ctrl+1 twice would set the flag twice instead of taking it off).
+  const busy = study.isFetching || Object.values(actions).some((a) => a.isPending);
   const rate = (rating: CardRating) => {
     if (!current || busy || side !== "answer") return;
     actions.rate.mutate(
@@ -152,71 +132,40 @@ export function StudySession({
     );
   };
   const undo = () =>
+    !busy &&
     study.data?.canUndo &&
     actions.undo.mutate(undefined, { onSuccess: () => setTurn((n) => n + 1) });
   const bury = (note: boolean) =>
     current &&
+    !busy &&
     actions.bury.mutate({ cardId: current.cardId, face: note ? undefined : current.face });
   const suspend = (note: boolean) =>
     current &&
+    !busy &&
     actions.suspend.mutate({ cardId: current.cardId, face: note ? undefined : current.face });
   const flag = (n: number) =>
     current &&
+    !busy &&
     actions.flag.mutate({
       cardId: current.cardId,
       face: current.face,
       flag: current.flag === n ? 0 : n,
     });
   const mark = () =>
-    current && actions.mark.mutate({ cardId: current.cardId, marked: !current.marked });
+    current && !busy && actions.mark.mutate({ cardId: current.cardId, marked: !current.marked });
 
-  // Anki's reviewer keys.
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.closest("input, textarea, select, [role=dialog], [role=menu]")) return;
-      // Space and Enter on a focused control are that control's (Undo, the More menu, the step
-      // bar, a link) — except on the card itself.
-      const control = target.closest("button, a, summary, [role=button], [role=slider]");
-      if ((e.key === " " || e.key === "Enter") && control && !control.matches("[data-study-card]"))
-        return;
-      const ctrl = e.ctrlKey || e.metaKey;
-      if (ctrl && /^Digit[1-7]$/.test(e.code)) {
-        e.preventDefault();
-        flag(Number(e.code.slice(5)));
-        return;
-      }
-      if (ctrl && e.key.toLowerCase() === "z") {
-        e.preventDefault();
-        undo();
-        return;
-      }
-      if (ctrl || e.altKey) return;
-      const key = e.key;
-      const act: Record<string, () => void> = {
-        " ": () => (side === "question" ? showAnswer() : rate(3)),
-        Enter: () => (side === "question" ? showAnswer() : rate(3)),
-        "1": () => rate(1),
-        "2": () => rate(2),
-        "3": () => rate(3),
-        "4": () => rate(4),
-        r: () => sound.current?.play(),
-        F5: () => sound.current?.play(),
-        u: undo,
-        "-": () => bury(false),
-        "=": () => bury(true),
-        "@": () => suspend(false),
-        "!": () => suspend(true),
-        "*": mark,
-      };
-      const run = act[key.length === 1 ? key.toLowerCase() : key] ?? act[key];
-      if (!run || !current) return;
-      e.preventDefault();
-      run();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  });
+  /** What a key or the More menu does with the card on screen. */
+  const act = (action: ReviewerAction) => {
+    if (action.do === "show") showAnswer();
+    else if (action.do === "rate") rate(action.rating);
+    else if (action.do === "replay") sound.current?.play();
+    else if (action.do === "undo") undo();
+    else if (action.do === "bury") bury(action.note);
+    else if (action.do === "suspend") suspend(action.note);
+    else if (action.do === "mark") mark();
+    else flag(action.flag);
+  };
+  useReviewerKeys(side, !!current, act);
 
   // Finished for now: the deck opens again when its next learning card comes within the learn-ahead.
   const wakeAt = !current && study.data?.nextLearning;
@@ -326,60 +275,13 @@ export function StudySession({
           )}
           <Counts study={data} current={current.kind} />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" aria-label={t("study.more")}>
-              <MoreHorizontal className="size-5" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onSelect={() => sound.current?.play()}
-              disabled={!current.display.audio}
-            >
-              {t("study.replay")}
-              <DropdownMenuShortcut>R</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => bury(false)}>
-              {t("study.buryCard")}
-              <DropdownMenuShortcut>-</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => bury(true)}>
-              {t("study.buryNote")}
-              <DropdownMenuShortcut>=</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => suspend(false)}>
-              {t("study.suspendCard")}
-              <DropdownMenuShortcut>@</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => suspend(true)}>
-              {t("study.suspendNote")}
-              <DropdownMenuShortcut>!</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={mark}>
-              {current.marked ? t("study.unmark") : t("study.mark")}
-              <DropdownMenuShortcut>*</DropdownMenuShortcut>
-            </DropdownMenuItem>
-            {data.buried > 0 && (
-              // The deck's buried cards back today (Anki: Unbury, on the deck's overview).
-              <DropdownMenuItem onSelect={() => actions.unbury.mutate(scope)}>
-                {t("study.unbury")}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            {FLAGS.map((name, i) => (
-              <DropdownMenuItem key={name} onSelect={() => flag(i + 1)}>
-                <Flag className={cn("size-4 fill-current", FLAG_CLASS[i])} />
-                {t(`study.flag.${name}`)}
-                {current.flag === i + 1 && " ✓"}
-                <DropdownMenuShortcut>
-                  {MAC ? `⌘${i + 1}` : t("study.flagKey", { n: i + 1 })}
-                </DropdownMenuShortcut>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <MoreMenu
+          current={current}
+          buried={data.buried}
+          replay={() => sound.current?.play()}
+          act={act}
+          onUnbury={() => actions.unbury.mutate(scope)}
+        />
       </div>
       <p className="hidden text-center text-xs text-muted-foreground [@media(pointer:fine)]:block">
         {t("study.keys")}

@@ -19,12 +19,9 @@ import {
   type LessonKey,
   lessonOf,
   parseItemKey,
-  SpokenCheck,
   seriesOf,
   type VerdictTask,
-  WritingCheck,
 } from "@sprachanker/schema";
-import { z } from "zod";
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";

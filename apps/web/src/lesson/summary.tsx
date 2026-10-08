@@ -15,7 +15,8 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
-import { StepDot, stepTitle } from "./plan.tsx";
+import { StepDot } from "@/ui/step-dot.tsx";
+import { stepTitle } from "./plan.tsx";
 
 export function LessonSummary({
   series,

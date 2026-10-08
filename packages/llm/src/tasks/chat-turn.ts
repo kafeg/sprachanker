@@ -2,7 +2,7 @@
 // examples within the material the learner has met so far.
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, ChatRequest, LlmClient, TaskRequest } from "../client.ts";
-import { clip, fitting, languageName, languageNames, newest, recentTurns } from "../text.ts";
+import { clip, fitting, languageNames, newest, recentTurns } from "../text.ts";
 import { describeItem, exerciseHeader, mistakeLine, type TutorMistake } from "./describe.ts";
 import {
   goalsLine,

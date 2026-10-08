@@ -11,7 +11,8 @@ import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { ListRow } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
-import { StepDot, stepTitle } from "./plan.tsx";
+import { StepDot } from "@/ui/step-dot.tsx";
+import { stepTitle } from "./plan.tsx";
 
 export function MistakesStatus({
   lesson,

@@ -1,7 +1,7 @@
 // Task `explain_mistake`: why the learner's answer to one item is wrong, in the learner's language (07).
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
-import { clip, htmlToText, languageName, languageNames } from "../text.ts";
+import { clip, htmlToText, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo } from "./lesson.ts";
 

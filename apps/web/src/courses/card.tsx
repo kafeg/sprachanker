@@ -5,6 +5,7 @@ import { type CourseSource, editionSetting, parseLessonKey } from "@sprachanker/
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, CircleAlert, Download, ExternalLink, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useEdition } from "@/api/edition.ts";
 import {
   useCatalog,
   useCourseDownload,
@@ -12,13 +13,12 @@ import {
   useSetSetting,
   useStartDownload,
 } from "@/api/hooks.ts";
-import { useEdition } from "@/app/preferences.ts";
-import { ResetProgress } from "@/app/reset-progress.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
 import { DownloadLine, downloading } from "./download.tsx";
+import { ResetProgress } from "./reset-progress.tsx";
 
 export type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
 export type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];

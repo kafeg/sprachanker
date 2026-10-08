@@ -11,7 +11,6 @@ import {
   type EventType,
   type LessonKey,
   type LessonResult,
-  type LlmVerdictPayload,
   parseLessonKey,
   type RunKind,
   type TypedEvent,

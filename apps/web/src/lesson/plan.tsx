@@ -1,70 +1,14 @@
 // The lesson plan (09): its steps in order — overview, words, grammar, exercises, culture, AI practice,
 // summary — each with its state in the run, under the labels of their sections. Shown beside the lesson
 // on wide screens and in a sheet on phones; the reference opens from the lesson's header.
-import {
-  type ExerciseResult,
-  type ExerciseState,
-  type LessonStep,
-  stepId,
-  stepState,
-} from "@sprachanker/engine";
+import { type ExerciseResult, type LessonStep, stepId, stepState } from "@sprachanker/engine";
 import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
-import {
-  BookOpen,
-  Check,
-  Drama,
-  Globe,
-  Layers,
-  PenLine,
-  Play,
-  SearchCheck,
-  SkipForward,
-  Star,
-  X,
-} from "lucide-react";
+import { BookOpen, Drama, Globe, Layers, PenLine, Play, SearchCheck, Star } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { StepDot } from "@/ui/step-dot.tsx";
 import { cn } from "@/ui/utils.ts";
 import { pageTitle } from "./reference.tsx";
-
-/** An exercise's mark in the plan and the summary: right (green ✓), with mistakes (red ✕), answered
- *  without a score (grey ✓), skipped (dashed ⏭), the current one (yellow ring), else its number. */
-export function StepDot({
-  state,
-  label,
-}: {
-  /** An exercise's state, a step besides exercises done ("read"), or the current exercise. */
-  state?: ExerciseState | "read" | "current";
-  label: React.ReactNode;
-}) {
-  const { t } = useTranslation();
-  const worked = state && state !== "current";
-  return (
-    <span
-      title={worked ? t(`lesson.state.${state}`) : undefined}
-      className={cn(
-        "grid size-6 shrink-0 place-items-center rounded-full border-2 text-xs font-semibold",
-        state === "correct" && "border-correct bg-correct text-white",
-        state === "wrong" && "border-wrong bg-wrong text-white",
-        state === "done" && "border-muted-foreground/60 bg-muted text-muted-foreground",
-        state === "skipped" && "border-dashed border-muted-foreground/60 text-muted-foreground",
-        state === "read" && "border-correct text-correct",
-        state === "current" && "border-primary",
-      )}
-    >
-      {state === "correct" || state === "done" || state === "read" ? (
-        <Check className="size-3.5" />
-      ) : state === "wrong" ? (
-        <X className="size-3.5" />
-      ) : state === "skipped" ? (
-        <SkipForward className="size-3" />
-      ) : (
-        label
-      )}
-      {worked && <span className="sr-only">{t(`lesson.state.${state}`)}</span>}
-    </span>
-  );
-}
 
 /** A step's title in the plan. */
 export function stepTitle(

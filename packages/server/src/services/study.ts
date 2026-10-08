@@ -17,7 +17,6 @@ import {
 import {
   type CardFace,
   type CardRating,
-  type CardReviewPayload,
   type EditionId,
   type LessonKey,
   parseEditionId,

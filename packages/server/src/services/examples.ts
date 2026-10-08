@@ -9,7 +9,7 @@ import type { LessonKey, WordExample } from "@sprachanker/schema";
 import type { CardStore } from "./card-store.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
-import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
 import type { RunStore } from "./run-store.ts";
 
 export interface ExampleRequest {
@@ -28,9 +28,8 @@ export function createExamples(deps: {
   store: RunStore;
   /** The day's review run (the study service's). */
   reviewRun: () => string;
-  now: () => number;
 }) {
-  const { store, now } = deps;
+  const { store } = deps;
   const making = createInFlight<true>("example_busy");
 
   /** The card's word and the course's words around it, in the card's language pair. */

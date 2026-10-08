@@ -11,9 +11,9 @@ import {
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
+import { useCourseEdition } from "@/api/edition.ts";
 import { useCourseMap, useLesson } from "@/api/hooks.ts";
-import { useCourseEdition } from "@/app/preferences.ts";
-import { ResetProgress } from "@/app/reset-progress.tsx";
+import { ResetProgress } from "@/courses/reset-progress.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
