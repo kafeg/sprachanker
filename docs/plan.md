@@ -82,12 +82,14 @@ Specs: 06, 09.
 Taken along when an item above touches the area, or on request.
 - Library (02, 03): key map per provider (keys stay when the source reorders), series manifest with
   `contentVersion`, `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
-  rule ids; content updated while a run is active ends the run (05).
+  rule ids; content updated while a run is active ends the run (05). A word the source leaves without
+  a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:
+  Persian A1 "alt", German A2 "der Spinat"; seen in the 2026-10-08 audit of all Nicos Weg editions).
 - Engine (04): compose with the selfrate upgrade and enrichment.
-- Server (05, 06): export/import of a profile, structured logs, recordings served only to their profile.
+- Server (05, 06): export/import of a profile, structured logs.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08).
-- Review (09): the course map's exams and can-do list; speech settings; a word anywhere in a lesson
+- Review (09): the course map's can-do list; a word anywhere in a lesson
   opens its sheet (09, "word sheet": forms, translation, audio, examples from lessons met, answers,
   "add to cards").
 - Tests (10): the web tests log `ECONNREFUSED 127.0.0.1:4580` — a request escapes the filled query
@@ -116,8 +118,9 @@ Order decided by the week of use.
   signed bundles for macOS then Windows and Linux, auto-update. Accept: fresh machine → lesson 1 in
   under 30 minutes (without the course download); headless `serve` works on a second machine.
 - **Later**: missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`),
-  per-task LLM routes, handoff to other assistants, LLM golden tests, Goethe A1 practice sets, FSRS for
-  Leben in Deutschland, the FSRS optimizer in the Review settings (once there is history), badges, a local CA for LAN HTTPS, Qwen3-TTS and cloud speech, pronunciation by sounds
+  per-task LLM routes, handoff to other assistants, LLM golden tests, FSRS for Leben in Deutschland,
+  the FSRS optimizer in the Review settings (once there is history), badges, a local CA for LAN HTTPS,
+  cloud speech, pronunciation by sounds
   (researched 2026-10-08 and set aside by the owner: a local phoneme recogniser against espeak-ng
   references is unreliable for German learners without annotated learner speech, and nothing ready
   names their wrong sounds; a prototype on the owner's phrases would decide), offline use and push
