@@ -26,6 +26,7 @@ import {
   type OpenRouterKey,
   openAiCompatible,
   openRouterKey,
+  PLACEHOLDER_NAMES,
   PROVIDERS,
   type ProviderId,
   recommendedLmStudioModel,
@@ -128,7 +129,10 @@ export const PROMPT_TASKS = [
 export type PromptTask = (typeof PROMPT_TASKS)[number];
 
 /** Each task's standing rules (its system prompt) for an answer language and a learnt language. */
-const RULES: Record<PromptTask, (language: Lang, target: Lang) => string> = {
+const RULES: Record<
+  PromptTask,
+  (language: Lang, target: Lang, names?: { language: string; target: string }) => string
+> = {
   explain: explainMistakeRules,
   tutor: chatTurnRules,
   writing: checkWritingRules,
@@ -375,11 +379,7 @@ export function createLlm(deps: {
         PROMPT_TASKS.map((task) => {
           const custom = own[task];
           const standing = RULES[task](language, target);
-          const template =
-            custom ??
-            standing
-              .replaceAll(languageName(target), "{target}")
-              .replaceAll(languageName(language), "{language}");
+          const template = custom ?? RULES[task](language, target, PLACEHOLDER_NAMES);
           return [
             task,
             {

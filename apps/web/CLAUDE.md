@@ -84,9 +84,10 @@ chat). shadcn components are added with `bunx --bun shadcn@<version> add <name>`
 - Business logic stays in engine/server; components render and emit events. Answers are checked with
   `@sprachanker/engine` for instant feedback; the server re-checks and stores its own outcome.
 - Every screen works on phone width (375 px) and desktop; test both in Playwright.
-- Tests live in `test/` and run in a browser (happy-dom, preloaded by `bunfig.toml`; `bun run test`
-  here, also from the root): render with `test/render.tsx` — the query cache filled, no requests, a
-  memory router when there are links. Logic goes to the engine or to pure modules and is tested there;
+- Tests live in `test/` and run in a browser (happy-dom on an origin no server listens on, preloaded
+  by `bunfig.toml`; `bun run test` here, also from the root): render with `test/render.tsx` — the
+  query cache filled (settings empty unless given), a memory router when there are links; a test
+  that makes a request fails (`test/dom.ts`). Logic goes to the engine or to pure modules and is tested there;
   a screen's test checks what it shows and what it asks for.
 - Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are

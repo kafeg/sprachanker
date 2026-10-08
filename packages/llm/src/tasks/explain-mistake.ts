@@ -1,7 +1,7 @@
 // Task `explain_mistake`: why the learner's answer to one item is wrong, in the learner's language (07).
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
-import { clip, htmlToText, languageName } from "../text.ts";
+import { clip, htmlToText, languageName, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo } from "./lesson.ts";
 
@@ -27,9 +27,12 @@ export interface ExplainMistakeInput {
 export const EXPLAIN_MISTAKE_BUDGETS = { notes: 6000, script: 4000 } as const;
 
 /** The task's standing rules: the system prompt. */
-export function explainMistakeRules(language: Lang, target: Lang): string {
-  const l = languageName(language);
-  const t = languageName(target);
+export function explainMistakeRules(
+  language: Lang,
+  target: Lang,
+  names = languageNames(language, target),
+): string {
+  const { language: l, target: t } = names;
   return [
     `You are a patient ${t} teacher. The learner speaks ${l} and is working through a beginner ${t} course.`,
     `They answered one exercise item incorrectly. Explain in ${l}, briefly (at most 120 words):`,

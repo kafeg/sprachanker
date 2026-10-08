@@ -12,11 +12,13 @@ import { render } from "@testing-library/react";
 import "../src/i18n/index.ts";
 import { TooltipProvider } from "../src/ui/components/tooltip.tsx";
 
-/** A query client whose cache holds `data` by query key; nothing goes stale, nothing is fetched. */
+/** A query client whose cache holds `data` by query key; nothing goes stale, nothing is fetched. The
+ *  profile's settings (read all over the app) start empty — the defaults — unless a test gives them. */
 export function queryClient(data: Array<[unknown[], unknown]> = []) {
   const client = new QueryClient({
     defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
   });
+  client.setQueryData(["settings"], {});
   for (const [key, value] of data) client.setQueryData(key, value);
   return client;
 }

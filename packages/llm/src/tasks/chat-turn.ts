@@ -2,7 +2,7 @@
 // examples within the material the learner has met so far.
 import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, ChatRequest, LlmClient, TaskRequest } from "../client.ts";
-import { clip, fitting, languageName, newest, recentTurns } from "../text.ts";
+import { clip, fitting, languageName, languageNames, newest, recentTurns } from "../text.ts";
 import { describeItem, exerciseHeader, mistakeLine, type TutorMistake } from "./describe.ts";
 import {
   goalsLine,
@@ -71,9 +71,12 @@ function mistakeLines(mistakes: ChatTurnInput["mistakes"]): string | undefined {
 }
 
 /** The tutor's standing rules: the system prompt before the course context. */
-export function chatTurnRules(language: Lang, target: Lang): string {
-  const l = languageName(language);
-  const t = languageName(target);
+export function chatTurnRules(
+  language: Lang,
+  target: Lang,
+  names = languageNames(language, target),
+): string {
+  const { language: l, target: t } = names;
   return [
     `You are a friendly ${t} tutor inside a course app. The learner speaks ${l} and is a beginner.`,
     `- Explain in ${l}. Write ${t} words, examples and practice lines in ${t}.`,

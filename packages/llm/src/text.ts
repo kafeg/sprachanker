@@ -43,6 +43,14 @@ export function clip(text: string, max: number): string {
 export const languageName = (code: string) =>
   new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? code;
 
+/** The two languages as a task's rules name them: by their English names, or as placeholders for the
+ *  learner's own prompt template (Settings → Prompts). */
+export const languageNames = (language: string, target: string) => ({
+  language: languageName(language),
+  target: languageName(target),
+});
+export const PLACEHOLDER_NAMES = { language: "{language}", target: "{target}" } as const;
+
 /** Rough token count: about 4 characters per token for German, English and Russian text. */
 export const estimateTokens = (text: string) => Math.ceil(text.length / 4);
 
