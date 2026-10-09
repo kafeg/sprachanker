@@ -7,22 +7,21 @@ import {
   escapeHtml,
   type Headword,
   type LibraryFile,
-  type MediaIndex,
+  libraryFile,
   mediaPath,
   shapeHeadword,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
-  CourseIndex,
+  type CourseIndex,
   courseKey,
-  Lesson,
+  type Lesson,
   type LessonKey,
-  LocaleCourse,
-  LocaleLesson,
+  type LocaleCourse,
   lessonGoalKey,
   lessonKey,
+  type MediaIndex,
   type PartOfSpeech,
-  parseLessonKey,
   unitKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SOURCE, UNIT_SIZE } from "./catalog.ts";
@@ -167,11 +166,8 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
         goalTexts[goal] = { text: parsed.goal };
       }
       const audio = mediaPath(index, source.audioUrl);
-      const { name } = parseLessonKey(key);
-      files.push({
-        path: `canonical/${COURSE}/lessons/${name}.json`,
-        schema: Lesson,
-        value: {
+      files.push(
+        libraryFile.lesson({
           format: 1,
           key,
           unit,
@@ -180,17 +176,15 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
           pages: [],
           vocab,
           unmapped: lessonUnmapped,
-        } satisfies Lesson,
-      });
+        }),
+      );
       const tab = (kinds: string[]) =>
         (parsed?.pages ?? [])
           .filter((p) => kinds.includes(p.kind))
           .map((p) => ({ title: p.title, bodyHtml: p.html }));
       const homework = tab(["homework"]);
-      files.push({
-        path: `locale/${EDITION}/${COURSE}/lessons/${name}.json`,
-        schema: LocaleLesson,
-        value: {
+      files.push(
+        libraryFile.localeLesson({
           format: 1,
           edition: EDITION,
           lesson: key,
@@ -209,27 +203,23 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
               : {}),
           },
           downloads: [],
-        } satisfies LocaleLesson,
-      });
+        }),
+      );
     }
     units.push({ key: unit, lessons: keys });
   }
-  files.push({
-    path: `canonical/${COURSE}/course.json`,
-    schema: CourseIndex,
-    value: {
+  files.push(
+    libraryFile.course({
       format: 1,
       key: course,
       source: SOURCE,
       units,
       exams: [],
       goals,
-    } satisfies CourseIndex,
-  });
-  files.push({
-    path: `locale/${EDITION}/${COURSE}/course.json`,
-    schema: LocaleCourse,
-    value: {
+    }),
+  );
+  files.push(
+    libraryFile.localeCourse({
       format: 1,
       edition: EDITION,
       course,
@@ -238,8 +228,8 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
       descriptionHtml: ATTRIBUTION_HTML,
       units: unitTitles,
       goals: goalTexts,
-    } satisfies LocaleCourse,
-  });
+    }),
+  );
   return {
     files,
     lessons: files.filter((f) => /^canonical\/[^/]+\/lessons\//.test(f.path)).length,

@@ -3,7 +3,6 @@
 import {
   draftOrUnknown,
   type LooseDraft,
-  type MediaIndex,
   mediaPath,
   unknownExercise,
 } from "@sprachanker/course-kit";
@@ -12,6 +11,7 @@ import {
   type ExerciseKey,
   itemKey,
   type LocaleExercise,
+  type MediaIndex,
   optionId,
 } from "@sprachanker/schema";
 import { sdUrl } from "./media.ts";

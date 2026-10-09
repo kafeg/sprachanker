@@ -9,6 +9,7 @@ export * from "./exercise/index.ts";
 export * from "./keys.ts";
 export * from "./lang.ts";
 export * from "./learner.ts";
+export * from "./library-state.ts";
 export * from "./locale.ts";
 export * from "./manifest.ts";
 export * from "./rules.ts";

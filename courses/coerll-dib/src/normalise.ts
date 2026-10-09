@@ -4,22 +4,20 @@
 import {
   type Headword,
   type LibraryFile,
-  type MediaIndex,
+  libraryFile,
   mediaPath,
   shapeHeadword,
   skippedWords,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
-  CourseIndex,
+  type CourseIndex,
   courseKey,
   type Gender,
-  Lesson,
   type LessonKey,
-  LocaleCourse,
-  LocaleLesson,
+  type LocaleCourse,
   lessonKey,
-  parseLessonKey,
+  type MediaIndex,
   unitKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SITE, SOURCE } from "./catalog.ts";
@@ -94,11 +92,8 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
         })),
       );
       const audio = media(section.audio);
-      const { name } = parseLessonKey(key);
-      files.push({
-        path: `canonical/${COURSE}/lessons/${name}.json`,
-        schema: Lesson,
-        value: {
+      files.push(
+        libraryFile.lesson({
           format: 1,
           key,
           unit,
@@ -107,12 +102,10 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
           pages: [],
           vocab,
           unmapped: skippedWords(`raw/${EDITION}/${COURSE}/voc-${chapter.k}.html`, skipped),
-        } satisfies Lesson,
-      });
-      files.push({
-        path: `locale/${EDITION}/${COURSE}/lessons/${name}.json`,
-        schema: LocaleLesson,
-        value: {
+        }),
+      );
+      files.push(
+        libraryFile.localeLesson({
           format: 1,
           edition: EDITION,
           lesson: key,
@@ -124,27 +117,23 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
           // The chapter's textbook (with its exercises) goes with the chapter's first lesson.
           downloads:
             i === 0 && pdf ? [{ title: `Kapitel ${chapter.k} — textbook (PDF)`, path: pdf }] : [],
-        } satisfies LocaleLesson,
-      });
+        }),
+      );
     }
     units.push({ key: unit, lessons });
   }
-  files.push({
-    path: `canonical/${COURSE}/course.json`,
-    schema: CourseIndex,
-    value: {
+  files.push(
+    libraryFile.course({
       format: 1,
       key: course,
       source: SOURCE,
       units,
       exams: [],
       goals: [],
-    } satisfies CourseIndex,
-  });
-  files.push({
-    path: `locale/${EDITION}/${COURSE}/course.json`,
-    schema: LocaleCourse,
-    value: {
+    }),
+  );
+  files.push(
+    libraryFile.localeCourse({
       format: 1,
       edition: EDITION,
       course,
@@ -153,7 +142,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
       descriptionHtml: ATTRIBUTION_HTML,
       units: unitTitles,
       goals: {},
-    } satisfies LocaleCourse,
-  });
+    }),
+  );
   return files;
 }

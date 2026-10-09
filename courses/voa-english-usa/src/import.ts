@@ -10,7 +10,6 @@ import {
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
-  type MediaIndex,
   type MediaRef,
   pageCounter,
   runPool,
@@ -19,6 +18,8 @@ import {
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
+import type { MediaIndex } from "@sprachanker/schema";
+
 import {
   articleId,
   articleUrl,

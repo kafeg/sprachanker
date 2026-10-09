@@ -1,7 +1,13 @@
 // Synthetic articles shaped like the site's two layouts; every sentence is invented.
 import { expect, test } from "bun:test";
-import type { LibraryFile, MediaIndex } from "@sprachanker/course-kit";
-import type { CourseIndex, Lesson, LocaleCourse, LocaleLesson } from "@sprachanker/schema";
+import type { LibraryFile } from "@sprachanker/course-kit";
+import type {
+  CourseIndex,
+  Lesson,
+  LocaleCourse,
+  LocaleLesson,
+  MediaIndex,
+} from "@sprachanker/schema";
 import { audioUrl, LESSONS } from "../src/catalog.ts";
 import { headword, normaliseEnglishUsa, type SourceLesson } from "../src/normalise.ts";
 import { parseLesson, wordRow } from "../src/parse.ts";

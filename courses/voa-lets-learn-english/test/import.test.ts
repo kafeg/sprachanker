@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type MediaIndex, openKeyMap } from "@sprachanker/course-kit";
+import { openKeyMap } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
   type Lesson,
@@ -11,6 +11,7 @@ import {
   LexemeKey,
   type LocaleCourse,
   type LocaleLesson,
+  type MediaIndex,
   VocabKey,
 } from "@sprachanker/schema";
 import { normaliseCourse } from "../src/normalise/course.ts";

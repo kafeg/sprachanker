@@ -5,12 +5,8 @@
 // Kept per series in `keys.json` (the normaliser's own state, beside media.json).
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { z } from "zod";
+import { KeyMapFile } from "@sprachanker/schema";
 import { writeFileAtomic } from "./files.ts";
-
-/** By scope (a course's unit, a lesson), each source id's number. */
-const Stored = z.record(z.string(), z.record(z.string(), z.number().int().positive()));
-type Stored = z.infer<typeof Stored>;
 
 export interface KeyMap {
   /** The number of `sourceId` in `scope`: its own, else `position` when free, else the next free. */
@@ -27,7 +23,7 @@ export async function openKeyMap(seriesDir: string): Promise<KeyMap> {
     if (error.code === "ENOENT") return undefined;
     throw error;
   });
-  const stored: Stored = text === undefined ? {} : Stored.parse(JSON.parse(text));
+  const stored: KeyMapFile = text === undefined ? {} : KeyMapFile.parse(JSON.parse(text));
   let changed = false;
   return {
     number(scope, sourceId, position) {

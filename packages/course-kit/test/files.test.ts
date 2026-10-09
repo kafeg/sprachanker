@@ -15,7 +15,7 @@ import { writeFileAtomic } from "../src/files.ts";
 import { HostRefusedError, type PoliteFetcher } from "../src/http.ts";
 import { failedMedia, fetchMedia, goneMedia } from "../src/media-index.ts";
 import { createMediaStore } from "../src/media-store.ts";
-import { libraryWriter } from "../src/provider.ts";
+import { libraryFile, libraryWriter, writeLibraryFiles } from "../src/provider.ts";
 
 const dir = () => mkdtempSync(join(tmpdir(), "sprachanker-files-"));
 
@@ -197,4 +197,26 @@ test("a media.json that does not read stops the fetch (taken as empty, it would 
     fetchMedia({ fetcher, store: createMediaStore(root), indexFile, refs: [ref], log: () => {} }),
   ).rejects.toThrow(/media\.json/);
   expect(asked).toEqual([]);
+});
+
+test("library files by kind: each path from its keys, each checked against its kind's schema", async () => {
+  const lesson = {
+    format: 1,
+    key: "a.b/c1/02-03",
+    unit: "a.b/c1/u02",
+    media: {},
+    goals: [],
+    pages: [],
+    vocab: [],
+    unmapped: [],
+  } as unknown as Parameters<typeof libraryFile.lesson>[0];
+  expect(libraryFile.lesson(lesson).path).toBe("canonical/c1/lessons/02-03.json");
+  const exam = { key: "a.b/c1/exam-mini" } as unknown as Parameters<typeof libraryFile.exam>[0];
+  expect(libraryFile.exam(exam).path).toBe("canonical/c1/exams/mini.json");
+  const root = dir();
+  // A lesson whose value does not fit is written all the same, and counted.
+  const bad = { ...lesson, typo: 1 } as typeof lesson;
+  expect(
+    await writeLibraryFiles(root, [libraryFile.lesson(lesson), libraryFile.lesson(bad)], () => {}),
+  ).toBe(1);
 });

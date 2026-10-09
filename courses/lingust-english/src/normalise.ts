@@ -9,7 +9,7 @@ import {
   type KeyMap,
   type LibraryFile,
   type LooseDraft,
-  type MediaIndex,
+  libraryFile,
   mediaPath,
   occurrences,
   shapeHeadword,
@@ -19,18 +19,18 @@ import {
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
-  CourseIndex,
+  type CourseIndex,
   courseKey,
   type Exercise,
   exerciseKey,
-  Lesson,
+  type Lesson,
   type LessonKey,
-  LocaleCourse,
+  type LocaleCourse,
   type LocaleExercise,
-  LocaleLesson,
+  type LocaleLesson,
   lessonKey,
+  type MediaIndex,
   type PartOfSpeech,
-  parseLessonKey,
   unitKey,
   type VocabEntry,
 } from "@sprachanker/schema";
@@ -307,36 +307,23 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: K
       const built = buildLesson(src, key, unit, index, keys);
       order++;
       unknown += built.unknown;
-      const { name } = parseLessonKey(key);
-      files.push({
-        path: `canonical/${COURSE}/lessons/${name}.json`,
-        schema: Lesson,
-        value: built.lesson,
-      });
-      files.push({
-        path: `locale/${EDITION}/${COURSE}/lessons/${name}.json`,
-        schema: LocaleLesson,
-        value: built.locale,
-      });
+      files.push(libraryFile.lesson(built.lesson));
+      files.push(libraryFile.localeLesson(built.locale));
     }
     courseUnits.push({ key: unit, lessons });
   }
-  files.push({
-    path: `canonical/${COURSE}/course.json`,
-    schema: CourseIndex,
-    value: {
+  files.push(
+    libraryFile.course({
       format: 1,
       key: course,
       source: SOURCE,
       units: courseUnits,
       exams: [],
       goals: [],
-    } satisfies CourseIndex,
-  });
-  files.push({
-    path: `locale/${EDITION}/${COURSE}/course.json`,
-    schema: LocaleCourse,
-    value: {
+    }),
+  );
+  files.push(
+    libraryFile.localeCourse({
       format: 1,
       edition: EDITION,
       course,
@@ -345,7 +332,7 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: K
       descriptionHtml: ATTRIBUTION_HTML,
       units: unitTitles,
       goals: {},
-    } satisfies LocaleCourse,
-  });
+    }),
+  );
   return { files, lessons: order, unknown };
 }

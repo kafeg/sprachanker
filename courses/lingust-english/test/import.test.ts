@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type MediaIndex, openKeyMap } from "@sprachanker/course-kit";
+import { openKeyMap } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
   type Lesson,
@@ -11,6 +11,7 @@ import {
   type LocaleCourse,
   type LocaleExercise,
   type LocaleLesson,
+  type MediaIndex,
   parseLessonKey,
 } from "@sprachanker/schema";
 import { gapKey, variants } from "../src/exercise.ts";

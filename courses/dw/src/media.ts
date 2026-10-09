@@ -3,11 +3,12 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   FetchFailedError,
-  type MediaKind,
   type PoliteFetcher,
   type MediaRef as StoredRef,
   urlFileName,
 } from "@sprachanker/course-kit";
+import type { MediaKind } from "@sprachanker/schema";
+
 import { type ApolloState, entitiesOf } from "./apollo.ts";
 import { remuxStream, type StreamSource } from "./stream.ts";
 

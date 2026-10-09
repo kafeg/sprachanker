@@ -126,6 +126,9 @@ export function optionId(i: number): string {
   return `${LETTERS[Math.floor(n / 26)]}${LETTERS[n % 26]}`;
 }
 
+/** A course key's id inside its series: `dw.nicos-weg/a1` → `a1` (its folder in the library). */
+export const courseIdOf = (course: CourseKey | string) => course.slice(course.lastIndexOf("/") + 1);
+
 /**
  * The parts of a lesson key: `dw.nicos-weg/a1/02-03` → course `dw.nicos-weg/a1`, its id `a1`, the
  * lesson's name `02-03` (its file name and URL segment), unit 2 and lesson 3.
@@ -143,7 +146,7 @@ export function parseLessonKey(key: LessonKey | string): {
   const [unit = "", lesson = ""] = name.split("-");
   return {
     course,
-    courseId: course.slice(course.lastIndexOf("/") + 1),
+    courseId: courseIdOf(course),
     name,
     unit: Number(unit),
     lesson: Number(lesson),

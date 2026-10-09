@@ -8,6 +8,8 @@ Depends on nothing (zod only). Every other module imports types from here.
 ```
 src/
   lang.ts            # Lang, edition ids
+  library-state.ts   # the importer's and server's own files beside a series: media.json, keys.json, a
+                     # download's marker (checked when read, no `format`)
   keys.ts            # key schemas (branded), builders, parsers, lemma slugs, part of speech, gender,
                      # choice option ids
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
@@ -34,6 +36,9 @@ test/               # bun test (Bun types via tsconfig.dev.json; src has no runt
 ## Rules
 
 - Types are zod schemas; TS types are inferred (`z.infer`). No hand-written duplicate interfaces.
+  Every file the app stores or reads has its schema here (settings too: `LEARNER_SETTINGS`,
+  `SERVICE_SETTINGS`, `SERVER_SETTINGS`); data from outside (a source's pages, a model's answer) is
+  parsed where it comes in.
 - Adding an exercise type: add it to its family file in `exercise/` and to the union in
   `exercise/index.ts`, then checker in engine, renderer in `apps/web` and a fixture item (root rule 2).
 - Changing a stored format: bump its version constant; add a migration (server) or re-normaliser path.

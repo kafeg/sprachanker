@@ -13,6 +13,7 @@ import {
 } from "@sprachanker/course-kit";
 import { DW_PROVIDERS } from "@sprachanker/dw";
 import { LINGUST_PROVIDER } from "@sprachanker/lingust-english";
+import { DownloadMarker } from "@sprachanker/schema";
 import { ENGLISH_USA_PROVIDER } from "@sprachanker/voa-english-usa";
 import { LETS_LEARN_ENGLISH_PROVIDER } from "@sprachanker/voa-lets-learn-english";
 import { sprachAnkerRuns } from "./runtime/data-root.ts";
@@ -92,16 +93,6 @@ async function takeLock(lock: string, series: string) {
 }
 
 /**
- * A download marker: written when it starts; `failed` once it ended with media of the course missing;
- * `error` when it stopped with an error (then it waits for the learner instead of resuming).
- */
-interface Marker {
-  startedAt: number;
-  failed?: number;
-  error?: string;
-}
-
-/**
  * How a download that ran ended: files that did not fit their schema (written all the same, so where
  * they are read they say so — 02) make it an error, as they make the CLI's import fail; media still
  * missing — referenced but not on disk (`missingOnDisk`), or not fetched at all (failed, refused: a
@@ -131,7 +122,8 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
       const marker = markerFile(series, course);
       await mkdir(join(library, series, ".downloads"), { recursive: true });
       const startedAt = now();
-      const mark = (m: Marker) => writeFile(marker, JSON.stringify(m satisfies Marker));
+      const mark = (m: DownloadMarker) =>
+        writeFile(marker, JSON.stringify(m satisfies DownloadMarker));
       await mark({ startedAt });
       let report: ImportReport;
       try {
@@ -157,10 +149,11 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
         const dir = join(library, series, ".downloads");
         if (!existsSync(dir)) continue;
         for (const file of (await readdir(dir)).filter((f) => f.endsWith(".json"))) {
-          // A marker cut short (the process stopped while writing it) reads as an interrupted download.
+          // A marker cut short (the process stopped while writing it), or not of its shape, reads as an
+          // interrupted download.
           const marker = await readFile(join(dir, file), "utf8")
-            .then((text) => JSON.parse(text) as Marker)
-            .catch((): Marker => ({ startedAt: 0 }));
+            .then((text) => DownloadMarker.parse(JSON.parse(text)))
+            .catch((): DownloadMarker => ({ startedAt: 0 }));
           out.push({
             series,
             course: file.slice(0, -5),

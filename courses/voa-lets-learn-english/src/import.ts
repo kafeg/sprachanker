@@ -12,7 +12,6 @@ import {
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
-  type MediaIndex,
   openKeyMap,
   type PoliteFetcher,
   pageCounter,
@@ -21,6 +20,8 @@ import {
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
+import type { MediaIndex } from "@sprachanker/schema";
+
 import { COURSES, type CourseDef, EDITION, HOST, SERIES, SITE } from "./catalog.ts";
 import { normaliseCourse } from "./normalise/course.ts";
 import { type FetchedCourse, type FetchedLesson, mediaRefs } from "./normalise/plan.ts";

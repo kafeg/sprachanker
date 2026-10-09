@@ -3,7 +3,18 @@
 import { existsSync } from "node:fs";
 import { readdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
-import { type CourseSource, issuesText } from "@sprachanker/schema";
+import {
+  CourseIndex,
+  type CourseSource,
+  courseIdOf,
+  Exam,
+  issuesText,
+  Lesson,
+  LocaleCourse,
+  LocaleExam,
+  LocaleLesson,
+  parseLessonKey,
+} from "@sprachanker/schema";
 import type { z } from "zod";
 import { prettyJson } from "./canonical-json.ts";
 import { isTempFile, writeFileAtomic } from "./files.ts";
@@ -85,11 +96,54 @@ export interface ImportReport {
   normalised: Record<string, NormaliseResult>;
 }
 
-/** A file the normaliser produces: its path in the series folder, its schema and its value. */
+/** A file the normaliser produces: its path in the series folder, its schema and its value. Made by
+ *  `libraryFile`, which ties the value to its kind's schema and the path to its keys. */
 export interface LibraryFile {
   path: string;
   schema: z.ZodType;
   value: unknown;
+}
+
+/** The library's files by kind (02, "Library layout"): each from its value, its path from its keys. */
+export const libraryFile = {
+  lesson: (value: Lesson): LibraryFile => {
+    const { courseId, name } = parseLessonKey(value.key);
+    return { path: `canonical/${courseId}/lessons/${name}.json`, schema: Lesson, value };
+  },
+  localeLesson: (value: LocaleLesson): LibraryFile => {
+    const { courseId, name } = parseLessonKey(value.lesson);
+    return {
+      path: `locale/${value.edition}/${courseId}/lessons/${name}.json`,
+      schema: LocaleLesson,
+      value,
+    };
+  },
+  course: (value: CourseIndex): LibraryFile => ({
+    path: `canonical/${courseIdOf(value.key)}/course.json`,
+    schema: CourseIndex,
+    value,
+  }),
+  localeCourse: (value: LocaleCourse): LibraryFile => ({
+    path: `locale/${value.edition}/${courseIdOf(value.course)}/course.json`,
+    schema: LocaleCourse,
+    value,
+  }),
+  exam: (value: Exam): LibraryFile => ({
+    path: `canonical/${examFile(value.key)}`,
+    schema: Exam,
+    value,
+  }),
+  localeExam: (value: LocaleExam): LibraryFile => ({
+    path: `locale/${value.edition}/${examFile(value.exam)}`,
+    schema: LocaleExam,
+    value,
+  }),
+};
+
+/** An exam's file under its course's folder: `<course>/exam-<slug>` → `<course id>/exams/<slug>.json`. */
+function examFile(key: string) {
+  const slash = key.lastIndexOf("/");
+  return `${courseIdOf(key.slice(0, slash))}/exams/${key.slice(slash + 1).replace(/^exam-/, "")}.json`;
 }
 
 /** The course folder a library file belongs to: `canonical/<course>` or `locale/<edition>/<course>`. */

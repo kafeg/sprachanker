@@ -88,6 +88,12 @@ export const SERVICE_SETTINGS = {
   }),
 } as const;
 
+/** The server's own settings (`server.sqlite`, `server_settings`), set by the command line (06). */
+export const SERVER_SETTINGS = {
+  /** New profiles may be made from "Who is studying?" (on by default). */
+  registration: z.boolean(),
+} as const;
+
 /** The edition chosen for a course: `edition:<series>/<course>`. */
 export const editionSetting = (series: string, course: string) => `edition:${series}/${course}`;
 const EDITION_KEY = /^edition:([^/]+)\/(.+)$/;

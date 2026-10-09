@@ -3,7 +3,7 @@
 // chosen, not unlocked: profiles keep people's learning apart, they are no security boundary (owner,
 // 2026-10-08). Registration (open by default) is the server's own setting,
 // changed by the `sprachanker` command. Signing in is devices.ts.
-import { ProfileColour } from "@sprachanker/schema";
+import { ProfileColour, SERVER_SETTINGS } from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -83,7 +83,8 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
         .from(serverSettings)
         .where(eq(serverSettings.key, "registration"))
         .get();
-      return r ? JSON.parse(r.valueJson) !== false : true;
+      // A value that does not read is the default: open.
+      return r ? SERVER_SETTINGS.registration.catch(true).parse(JSON.parse(r.valueJson)) : true;
     },
     setRegistration(open: boolean) {
       db.insert(serverSettings)

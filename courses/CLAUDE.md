@@ -10,7 +10,8 @@ packages/course-kit/   # library format (LibraryView), fetcher, media store + me
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
                        # text of HTML and entity decoding; provider.ts: the
                        # provider contract (import options/report/progress, course offers, wanted,
-                       # libraryWriter / writeLibraryFiles, storedPage, pageCounter, CourseProvider);
+                       # libraryFile (a file by kind: path from its keys, its schema), libraryWriter /
+                       # writeLibraryFiles, storedPage, pageCounter, CourseProvider);
                        # exercise-draft.ts: draftExercise, Unmapped, unknownExercise; key-map.ts: keys
                        # kept by source id (`occurrences` for an id met twice); text.ts: plain text,
                        # scripts told apart; files.ts: atomic
@@ -57,8 +58,9 @@ courses/
   require re-downloading. A provider's offers carry a measured size; it reports progress
   (`pageCounter`, `fetchMedia`'s `progress`).
 - Unknown source structures become `unknown` + report entries, never silent drops (words left out:
-  `skippedWords`). Library files are written through `libraryWriter` / `storedPage` / `fetchMedia`
-  (atomic), never with a plain `writeFile`.
+  `skippedWords`). Library files are made with `libraryFile` (never a path or schema of one's own)
+  and written through `libraryWriter` / `storedPage` / `fetchMedia` (atomic), never with a plain
+  `writeFile` — the fixture course too.
 - Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
   provider never keeps its own copy: exercises are built with `draftExercise` (checked against their
   type's schema where they are made; `Unmapped` for what cannot be mapped, `unknownExercise` in its

@@ -7,22 +7,22 @@ import {
   escapeHtml,
   type KeyMap,
   type LibraryFile,
-  type MediaIndex,
+  libraryFile,
   mediaPath,
   occurrences,
   skippedWords,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
-  CourseIndex,
+  type CourseIndex,
   courseKey,
   exerciseKey,
-  Lesson,
+  type Lesson,
   type LessonKey,
-  LocaleCourse,
-  LocaleLesson,
+  type LocaleCourse,
+  type LocaleLesson,
   lessonKey,
-  parseLessonKey,
+  type MediaIndex,
   unitKey,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, EDITION, SERIES, sourceOf } from "../catalog.ts";
@@ -91,11 +91,8 @@ export function normaliseCourse(
         ...skippedWords(lesson.raw, skipped),
       ];
       unmappedAll.push(...plan.unmapped.map((r) => `${lk}: ${r}`));
-      const { name } = parseLessonKey(lk);
-      files.push({
-        path: `canonical/${course.def.id}/lessons/${name}.json`,
-        schema: Lesson,
-        value: {
+      files.push(
+        libraryFile.lesson({
           format: 1,
           key: lk,
           unit,
@@ -107,17 +104,15 @@ export function normaliseCourse(
           pages,
           vocab,
           unmapped,
-        } satisfies Lesson,
-      });
+        }),
+      );
       const downloads = plan.downloads.flatMap((d) => {
         const path = media(d.url);
         return path ? [{ title: d.title, path }] : [];
       });
       const summary = lesson.page.summary;
-      files.push({
-        path: `locale/${EDITION}/${course.def.id}/lessons/${name}.json`,
-        schema: LocaleLesson,
-        value: {
+      files.push(
+        libraryFile.localeLesson({
           format: 1,
           edition: EDITION,
           lesson: lk,
@@ -132,27 +127,23 @@ export function normaliseCourse(
             ...(plan.script ? { script: plan.script } : {}),
           },
           downloads,
-        } satisfies LocaleLesson,
-      });
+        }),
+      );
     }
     units.push({ key: unit, lessons });
   }
-  files.push({
-    path: `canonical/${course.def.id}/course.json`,
-    schema: CourseIndex,
-    value: {
+  files.push(
+    libraryFile.course({
       format: 1,
       key,
       source: sourceOf(course.def),
       units,
       exams: [],
       goals: [],
-    } satisfies CourseIndex,
-  });
-  files.push({
-    path: `locale/${EDITION}/${course.def.id}/course.json`,
-    schema: LocaleCourse,
-    value: {
+    }),
+  );
+  files.push(
+    libraryFile.localeCourse({
       format: 1,
       edition: EDITION,
       course: key,
@@ -161,8 +152,8 @@ export function normaliseCourse(
       descriptionHtml: ATTRIBUTION_HTML,
       units: unitTitles,
       goals: {},
-    } satisfies LocaleCourse,
-  });
+    }),
+  );
   return {
     files,
     lessons: files.filter((f) => /^canonical\/[^/]+\/lessons\//.test(f.path)).length,

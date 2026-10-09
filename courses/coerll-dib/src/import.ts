@@ -9,7 +9,6 @@ import {
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
-  type MediaIndex,
   type MediaRef,
   pageCounter,
   storedPage,
@@ -17,6 +16,8 @@ import {
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
+import type { MediaIndex } from "@sprachanker/schema";
+
 import { CHAPTERS, COURSE, EDITION, SERIES, SITE } from "./catalog.ts";
 import { type Chapter, chapterPdfUrl, normaliseDib } from "./normalise.ts";
 import { parseChapter, parseVocabulary } from "./parse.ts";

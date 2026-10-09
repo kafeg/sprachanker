@@ -3,21 +3,13 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
+  libraryFile,
   libraryWriter,
   type NormaliseResult,
   openKeyMap,
   readMediaIndex,
 } from "@sprachanker/course-kit";
-import {
-  CourseIndex,
-  courseKey,
-  type GoalKey,
-  Lesson,
-  type LessonKey,
-  LocaleCourse,
-  LocaleLesson,
-  parseLessonKey,
-} from "@sprachanker/schema";
+import { courseKey, type GoalKey, type LessonKey } from "@sprachanker/schema";
 import { type ApolloState, exerciseIds } from "../apollo.ts";
 import { type DwCourse, seriesId } from "../catalog.ts";
 
@@ -67,15 +59,7 @@ export async function normaliseCourse(
     });
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
-    const { name } = parseLessonKey(entry.key);
-    await writer.write([
-      { schema: Lesson, value: out.lesson, path: `canonical/${dw.id}/lessons/${name}.json` },
-      {
-        schema: LocaleLesson,
-        value: out.locale,
-        path: `locale/${dw.edition}/${dw.id}/lessons/${name}.json`,
-      },
-    ]);
+    await writer.write([libraryFile.lesson(out.lesson), libraryFile.localeLesson(out.locale)]);
     // Unknown: exercises of a mechanic not mapped; left out: what the source does not have (a gone
     // page) or a word that did not read — both listed in the lesson's `unmapped`.
     unknownTotal += out.lesson.pages.filter(
@@ -95,14 +79,7 @@ export async function normaliseCourse(
     html(ctx, courseEntity?.description),
     dw.course,
   );
-  await writer.write([
-    { schema: CourseIndex, value: files.index, path: `canonical/${dw.id}/course.json` },
-    {
-      schema: LocaleCourse,
-      value: files.locale,
-      path: `locale/${dw.edition}/${dw.id}/course.json`,
-    },
-  ]);
+  await writer.write([libraryFile.course(files.index), libraryFile.localeCourse(files.locale)]);
   await writer.finish();
   await keys.save();
   const { problems } = writer;
