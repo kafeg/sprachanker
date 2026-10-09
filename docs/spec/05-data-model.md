@@ -106,7 +106,7 @@ lesson's earlier ones are read across its runs. Resetting a lesson's progress de
 | Event type | Payload (required fields) |
 |---|---|
 | `page_shown` | `pageIndex`; `exerciseKey` (attached by the server: the exercise on that page); the first time an exercise is shown in a run, its `snapshot` as displayed (`{exercise, locale}`, attached by the server and written whole; one that no longer reads is dropped when read, not its event) |
-| `answered` | `answer` (02; spoken answers carry `speech{recording?, transcript}`: the recording only when recordings are kept), `outcome` (04, computed by the server), `attempt`, `ms` |
+| `answered` | `answer` (02; spoken answers carry `speech{recording?, transcript}`: the recording only when recordings are kept), `outcome` (04, computed by the server), `attempt` (numbered by the server after the item's answers the run holds), `ms` |
 | `item_skipped` | — (`itemKey`): the learner moved on without answering (Skip, nothing given at Check, a speaking item not recorded); excluded from the score |
 | `step_done` | `step` (`words`, `grammar:<n>`, `culture:<n>`, `writing`, `scene`, `mistakes`), `skipped?`: a step of the lesson plan besides its exercises done or skipped; the latest record of a step counts |
 | `llm_verdict` | `task` (`writing` \| `explain` \| `example` \| `speaking`), `input` (the learner's text; the word of an example; what was heard of a spoken answer; empty otherwise), `result` (the task's structured output, 07 — one schema per task in `schema/src/assistant.ts`, checked when written and read; an explanation's text), `model`, `latencyMs`; a writing check in the lesson run the lesson shows; an explanation in the lesson run, on its `itemKey`, with `attempt` (the answer it explains); an example in the day's review run, on its `cardId`; a spoken answer's check in the lesson run, on its `itemKey`, matched to the answer by `input` |
@@ -128,7 +128,8 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   one queue per lesson, each event to the run it was recorded in (a batch never mixes two), idempotent
   by id. Not reached or a 5xx: sent again after 2 s, doubling up to a minute. A lost session (401), a
   wrong host (421), 408 and 429 keep the events for later. Any other 4xx, or a run no longer there to
-  send to, drops the batch and the run is read again. A new event while it waits to retry sends at
+  send to: the batch is sent again event by event (the server keeps a batch whole or not), an event
+  refused alone is dropped and the run is read again. A new event while it waits to retry sends at
   once. Each profile has its own queues: events of a profile signed out wait until it is back. A lesson
   opened again reads its run anew, keeping what is still on its way and what was stored meanwhile; a
   read that fails is tried again without dropping them.

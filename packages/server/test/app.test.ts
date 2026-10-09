@@ -222,6 +222,7 @@ describe("runs", () => {
       events: [right, right, { id: ulid(), type: "page_shown", payload: { pageIndex: 2 } }],
     });
     expect(again.outcomes).toEqual({ [right.id]: outcomes[right.id] });
+    expect(again.attempts).toEqual({ [right.id]: 1 });
 
     // A batch with an event that does not fit stores nothing of it.
     const before = (
@@ -271,6 +272,26 @@ describe("runs", () => {
       run: { status: "finished", worked: total, total, score: 1 / 9 },
     });
     expect((await send("POST", `/api/runs/${runId}/events`, { events: [] })).status).toBe(409);
+  });
+
+  test("an answer's attempt is numbered by the server: two devices never give two answers one number", async () => {
+    const { sendJson } = await setup();
+    const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
+    const { run } = await sendJson("POST", "/api/runs", body);
+    const answer = () => ({
+      id: ulid(),
+      type: "answered",
+      itemKey: `${LESSON}/ex-01#1`,
+      // Each device counts it its first try.
+      payload: { answer: { optionId: "a" }, attempt: 1, ms: 900 },
+    });
+    const here = answer();
+    const there = answer();
+    const first = await sendJson("POST", `/api/runs/${run.id}/events`, { events: [here] });
+    expect(first.attempts).toEqual({ [here.id]: 1 });
+    // The other device's, sent with the first again (a lost response): it is the second.
+    const second = await sendJson("POST", `/api/runs/${run.id}/events`, { events: [here, there] });
+    expect(second.attempts).toEqual({ [here.id]: 1, [there.id]: 2 });
   });
 
   test("a completed run stays completed when its lesson gains an exercise (a course normalised again)", async () => {

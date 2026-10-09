@@ -42,13 +42,13 @@ export function runRoutes() {
         zod("param", RunParam),
         zod("json", z.object({ events: z.array(z.unknown()).max(200) })),
         async (c) =>
-          c.json({
-            outcomes: await c.var.s.runs.append(
+          c.json(
+            await c.var.s.runs.append(
               c.req.valid("param").id,
               c.req.valid("json").events,
               c.var.deviceId,
             ),
-          }),
+          ),
       )
       .post("/runs/:id/finish", zod("param", RunParam), async (c) =>
         c.json(await c.var.s.runs.finish(c.req.valid("param").id)),

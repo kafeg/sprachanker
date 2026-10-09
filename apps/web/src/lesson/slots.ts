@@ -22,6 +22,8 @@ export interface LessonSlots {
       answer: unknown;
       runId?: string;
       attempt?: number;
+      /** Resolves once the run's answers are stored (the attempt explained is looked up there). */
+      stored?: () => Promise<void>;
     },
   ): ReactNode;
   /** Under an answer said aloud without a phrase to say: a check of what was heard, kept in the run. */

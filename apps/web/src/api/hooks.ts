@@ -82,10 +82,12 @@ export function useSetSetting() {
       client.setQueryData(["settings"], (old: Settings | undefined) => ({ ...old, [key]: value }));
       return { key, had: before && key in before, was: before?.[key] };
     },
-    // Not stored: the value goes back to what it was.
-    onError: (_error, _vars, saved) => {
+    // Not stored: the value goes back to what it was — unless a later change of it is shown by now
+    // (a later one stored, or on its way, is the one to keep).
+    onError: (_error, { key, value }, saved) => {
       if (!saved) return;
       client.setQueryData(["settings"], (old: Settings | undefined) => {
+        if (old?.[key] !== value) return old;
         const next = { ...old };
         if (saved.had) next[saved.key] = saved.was;
         else delete next[saved.key];

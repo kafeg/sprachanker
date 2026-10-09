@@ -33,12 +33,32 @@ test("sent in order, in batches, until the queue is empty", async () => {
   expect(o.box.pending()).toEqual([]);
 });
 
-test("a network failure is retried; a refused batch is dropped and reported", async () => {
+test("a network failure is retried; a refused batch is sent again event by event", async () => {
   const o = outbox(["down", undefined, "refused"]);
   o.box.push([1, 2, 3, 4]);
   await o.box.flush();
-  expect(o.stored).toEqual([[1, 2]]);
-  expect([o.waits(), o.refused()]).toEqual([1, 1]);
+  expect(o.stored).toEqual([[1, 2], [3], [4]]);
+  expect([o.waits(), o.refused()]).toEqual([1, 0]);
+});
+
+test("only the event the server refuses is dropped and reported; the others of its batch are stored", async () => {
+  const stored: number[][] = [];
+  let refused = 0;
+  const box = createOutbox<number>({
+    async send(batch) {
+      // The server keeps a batch whole or not at all; it refuses 3 (e.g. an answer that no longer fits).
+      if (batch.includes(3)) throw new Refused();
+      stored.push(batch);
+    },
+    refused: (e) => e instanceof Refused,
+    onRefused: () => refused++,
+    wait: async () => {},
+    batchSize: 3,
+  });
+  box.push([1, 2, 3, 4, 5, 6]);
+  await box.flush();
+  expect(stored).toEqual([[1], [2], [4, 5, 6]]);
+  expect(refused).toBe(1);
 });
 
 test("one sending at a time; events queued while it runs go out with it", async () => {

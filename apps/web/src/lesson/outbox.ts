@@ -1,7 +1,9 @@
 // Events on their way to the server (05; 09): sent in order, in batches of one run, retried until
 // stored — sooner at first, then less often (doubling up to a minute) while the server cannot be
-// reached or fails; asked to send meanwhile, it tries again at once. A batch the server refuses is dropped — sending it again cannot succeed — and the
-// caller is told, so it reads the run again; the caller decides what counts as refused. Events are
+// reached or fails; asked to send meanwhile, it tries again at once. A batch the server refuses is
+// sent again event by event, and an event it refuses alone is dropped — sending it again cannot
+// succeed — and the caller is told, so it reads the run again; the caller decides what counts as
+// refused. Events are
 // idempotent by id: one sent twice (a retry, the copy sent as the page closes) is stored once. Plain,
 // so it is tested without React; the planned offline outbox (IndexedDB) keeps this contract.
 
@@ -36,11 +38,14 @@ export function createOutbox<E>(options: OutboxOptions<E>) {
   let wake: (() => void) | undefined;
   /** Events stored so far, in order (a reader marks where it started: `mark`, `storedSince`). */
   const stored: E[] = [];
+  /** Events of a refused batch still to send one at a time (the server keeps a batch whole or not). */
+  let alone = 0;
 
   /** The next batch: the first events, as many as fit, all with the first one's key. */
   const nextBatch = () => {
     const first = queue[0] as E;
-    const end = queue.findIndex((e, i) => i >= batchSize || batchKey(e) !== batchKey(first));
+    const size = alone > 0 ? 1 : batchSize;
+    const end = queue.findIndex((e, i) => i >= size || batchKey(e) !== batchKey(first));
     return queue.slice(0, end < 0 ? queue.length : end);
   };
 
@@ -52,10 +57,15 @@ export function createOutbox<E>(options: OutboxOptions<E>) {
         await options.send(batch);
         queue = queue.slice(batch.length);
         stored.push(...batch);
+        alone = Math.max(alone - batch.length, 0);
         delay = retryMs;
       } catch (error) {
-        if (options.refused(error)) {
-          queue = queue.slice(batch.length);
+        if (options.refused(error) && batch.length > 1) {
+          // One of them may be what is refused: the others are not lost with it.
+          alone = batch.length;
+        } else if (options.refused(error)) {
+          queue = queue.slice(1);
+          alone = Math.max(alone - 1, 0);
           options.onRefused();
         } else {
           await new Promise<void>((resolve) => {

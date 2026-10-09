@@ -255,6 +255,7 @@ export function LessonPlayer({
                         // Kept with the run and the attempt it explains (the latest answer).
                         runId: run.run?.id,
                         attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
+                        stored: run.flush,
                       }))
                   }
                   spoken={

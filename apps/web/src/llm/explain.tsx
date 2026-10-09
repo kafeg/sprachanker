@@ -19,13 +19,16 @@ import { useAssistantLabel } from "./assistant-label.tsx";
 import { ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
-/** "Why is this wrong?" for one item. `autoStart`: asked when shown, unless one is kept already. */
+/** "Why is this wrong?" for one item. `autoStart`: asked when shown, unless one is kept already;
+ *  `stored`: resolves once the run's answers are stored (the attempt explained is looked up there). */
 export function ExplainMistake({
   autoStart = false,
+  stored,
   ...props
 }: Omit<ExplainRequest, "language" | "exerciseKey"> & {
   exerciseKey: ExerciseKey;
   autoStart?: boolean;
+  stored?: () => Promise<void>;
 }) {
   const { t, i18n } = useTranslation();
   const refreshKept = useExplanationsKept(props.runId);
@@ -49,7 +52,9 @@ export function ExplainMistake({
     setBusy(true);
     setError(undefined);
     setText("");
-    streamExplain({ ...props, language: i18n.language }, setText, controller.signal)
+    // The answer explained may still be on its way: the server explains it as stored.
+    (stored?.() ?? Promise.resolve())
+      .then(() => streamExplain({ ...props, language: i18n.language }, setText, controller.signal))
       .then(refreshKept)
       .catch((e: unknown) => {
         if (!controller.signal.aborted) setError(e);

@@ -264,14 +264,16 @@ export function createRuns({
 
     /**
      * Appends events idempotently (by id): the batch is checked whole, then stored in one transaction,
-     * entirely or not at all; an id stored before is left as it is. Returns the outcome of each
-     * `answered` event of the batch — the stored one for an event sent again.
+     * entirely or not at all; an id stored before is left as it is. Returns the outcome and the attempt
+     * of each `answered` event of the batch — the stored ones for an event sent again. An answer's
+     * attempt is numbered here, after the item's answers the run holds: two devices answering in one
+     * run never give two answers the same number.
      */
     async append(
       runId: string,
       input: unknown[],
       deviceId?: string,
-    ): Promise<Record<string, Outcome>> {
+    ): Promise<{ outcomes: Record<string, Outcome>; attempts: Record<string, number> }> {
       const row = getRun(runId);
       if (row.status !== "active") throw new ServiceError("run_not_active", 409);
       const parsed = new Map<string, EventInput>();
@@ -293,6 +295,10 @@ export function createRuns({
           .flatMap((p) => (p.snapshot ? [p.snapshot.exercise.key as string] : [])),
       );
       const outcomes: Record<string, Outcome> = {};
+      const attempts: Record<string, number> = {};
+      const answersOf = new Map<string, number>();
+      for (const a of store.eventsWhere({ types: ["answered"], runIds: [runId] }))
+        if (a.itemKey) answersOf.set(a.itemKey, (answersOf.get(a.itemKey) ?? 0) + 1);
       const list: NewEvent[] = [...parsed.values()].map((e): NewEvent => {
         const itemOf = (key: string) => {
           const { exercise: exKey, n } = parseItemKey(key as ItemKey);
@@ -310,7 +316,14 @@ export function createRuns({
               throw new ServiceError("answer_does_not_fit");
             }
             outcomes[e.id] = outcome;
-            return { ...e, payload: { ...e.payload, outcome } };
+            // One sent again is counted among those stored and keeps its number (onStored below).
+            let attempt = e.payload.attempt;
+            if (!store.event(e.id)) {
+              attempt = (answersOf.get(e.itemKey) ?? 0) + 1;
+              answersOf.set(e.itemKey, attempt);
+              attempts[e.id] = attempt;
+            }
+            return { ...e, payload: { ...e.payload, outcome, attempt } };
           }
           case "item_skipped":
             itemOf(e.itemKey);
@@ -332,11 +345,13 @@ export function createRuns({
       store.append(runId, list, {
         deviceId,
         onStored: (before) => {
-          if (before.type === "answered") outcomes[before.id] = before.payload.outcome;
-          else delete outcomes[before.id];
+          if (before.type === "answered") {
+            outcomes[before.id] = before.payload.outcome;
+            attempts[before.id] = before.payload.attempt;
+          } else delete outcomes[before.id];
         },
       });
-      return outcomes;
+      return { outcomes, attempts };
     },
 
     /** Finishes a run once every step of the plan is done or skipped; the result is the lesson score. */

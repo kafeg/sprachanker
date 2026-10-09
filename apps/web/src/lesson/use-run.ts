@@ -81,10 +81,11 @@ function outboxOf(client: QueryClient, key: readonly unknown[]): Outbox<Queued> 
         const runId = batch[0]?.runId ?? activeRun(client, key);
         if (!runId) throw new NoRun();
         const events = batch.map(({ runId: _, ...e }) => e);
-        const { outcomes } = await json(
+        const { outcomes, attempts } = await json(
           api.runs[":id"].events.$post({ param: { id: runId }, json: { events } }),
         );
-        // The server's outcome of an answer is the one stored; it replaces the local one.
+        // The server's outcome and attempt of an answer are the ones stored; they replace the local
+        // ones (another device may have answered the item meanwhile).
         if (Object.keys(outcomes).length)
           client.setQueryData<Loaded | null>(key, (s) =>
             s
@@ -93,7 +94,14 @@ function outboxOf(client: QueryClient, key: readonly unknown[]): Outbox<Queued> 
                   events: s.events.map((e): TypedEvent => {
                     const outcome = outcomes[e.id];
                     return outcome && e.type === "answered"
-                      ? { ...e, payload: { ...e.payload, outcome } }
+                      ? {
+                          ...e,
+                          payload: {
+                            ...e.payload,
+                            outcome,
+                            attempt: attempts[e.id] ?? e.payload.attempt,
+                          },
+                        }
                       : e;
                   }),
                 }
@@ -311,6 +319,8 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
       );
     },
     finish,
+    /** Sends what is queued; resolves once it is stored. */
+    flush,
     /** Events the server stored in the run by itself (a model's check): applied here as they are. */
     received(stored: TypedEvent[]) {
       update((s) => ({
