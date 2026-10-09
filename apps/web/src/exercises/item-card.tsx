@@ -45,8 +45,28 @@ export function ItemCard({
   const marked = outcome && outcome.result !== "unscored";
   const right = correctAnswer(exercise, index);
   const shown = marked && outcome.result !== "correct" ? right : undefined;
+  const ok = outcome?.result === "correct";
   return (
-    <div className={cn("rounded-2xl border bg-card p-4 sm:p-5", className)}>
+    // Once checked, the card's left edge takes the result's colour (owner's choice, 2026-10-10); the
+    // answer's parts carry ✓/✕, and the result is read out.
+    <div
+      className={cn(
+        "rounded-2xl border bg-card p-4 sm:p-5",
+        marked && (ok ? "border-l-4 border-l-correct" : "border-l-4 border-l-wrong"),
+        className,
+      )}
+    >
+      {marked && (
+        <span role="status" className="sr-only">
+          {t(
+            ok
+              ? "lesson.correct"
+              : outcome.result === "partial"
+                ? "lesson.partial"
+                : "lesson.wrong",
+          )}
+        </span>
+      )}
       {item.media?.audio && (
         <AudioPlayer
           compact

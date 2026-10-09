@@ -42,7 +42,8 @@ test("order: parts are added by tapping and moved along the line by dragging", a
   await drag(page, line.getByRole("button", { name: "e" }), line.getByRole("button").last());
   await expect(line.getByRole("button")).toHaveText(["T", "a", "s", "s", "e"]);
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  await expect(page.getByTitle("Correct")).toBeVisible();
+  // The result is read out (the card shows it on its edge).
+  await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
 });
 
 test("word bank: a tapped gap takes the next word; a word can be dragged onto a gap", async ({
@@ -56,7 +57,8 @@ test("word bank: a tapped gap takes the next word; a word can be dragged onto a 
   await drag(page, page.getByRole("button", { name: "heiße" }), gaps.first());
   await expect(gaps.first()).toHaveText("heiße");
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  await expect(page.getByTitle("Correct")).toBeVisible();
+  // The result is read out (the card shows it on its edge).
+  await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
 });
 
 test("choices: number keys answer the next item to answer; several choices count what is chosen", async ({
@@ -97,7 +99,8 @@ test("typed gaps: the letter row types at the cursor; Enter goes to the next gap
   expect(await second.evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThan(before);
   await second.fill("Milch");
   await second.press("Enter");
-  await expect(page.getByTitle("Correct")).toBeVisible();
+  // The result is read out (the card shows it on its edge).
+  await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
 });
 
 test("speaking: listen first, then record oneself and play it back; the phrase shows after", async ({

@@ -1,10 +1,10 @@
 // One exercise on its own screen: answer, check (instant, same engine as the server), feedback, next.
 // "Check" opens once every item is answered and every recording has been played (use-exercise.ts);
-// checked items are marked on a rail left of their card, with their own controls on the right: why
+// a checked item's card takes the result's colour on its left edge, with its own controls beside it: why
 // wrong, answer again, and the item's earlier attempts in every pass (the Notebook's item history).
 import { spokenFreely } from "@sprachanker/engine";
-import type { Exercise, LocaleExercise, Outcome } from "@sprachanker/schema";
-import { Check, History, RotateCcw, Sparkles, X } from "lucide-react";
+import type { Exercise, LocaleExercise } from "@sprachanker/schema";
+import { History, RotateCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ItemCard } from "@/exercises/item-card.tsx";
@@ -20,37 +20,9 @@ import { StepBar, StepHeader } from "./steps.tsx";
 import { type Answered, useExercise } from "./use-exercise.ts";
 import type { ExerciseResult } from "./use-run.ts";
 
-/** Rail (an item's mark once checked) · the items' column · controls; the exercise's own media and
- *  texts sit in the same column. */
-/** Rail · card · controls; on a phone the controls go in a row under the card, so the card has the
- *  width. */
-const ITEM_GRID =
-  "grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_2.25rem]";
-
-/** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
-function ItemRail({ outcome }: { outcome: Outcome }) {
-  const { t } = useTranslation();
-  const ok = outcome.result === "correct";
-  const label = t(
-    ok ? "lesson.correct" : outcome.result === "partial" ? "lesson.partial" : "lesson.wrong",
-  );
-  return (
-    <div className="flex h-full flex-col items-center gap-1.5 pt-3">
-      <span
-        role="status"
-        title={label}
-        className={cn(
-          "grid size-6 place-items-center rounded-full text-white",
-          ok ? "bg-correct" : "bg-wrong",
-        )}
-      >
-        {ok ? <Check className="size-3.5" /> : <X className="size-3.5" />}
-        <span className="sr-only">{label}</span>
-      </span>
-      <span className={cn("w-1 flex-1 rounded-full", ok ? "bg-correct" : "bg-wrong")} />
-    </div>
-  );
-}
+/** The items' column · their controls; the exercise's own media and texts sit in the same column. On a
+ *  phone the controls go in a row under the card, so the card has the width. */
+const ITEM_GRID = "grid grid-cols-[minmax(0,1fr)] gap-x-2 sm:grid-cols-[minmax(0,1fr)_2.25rem]";
 
 /** An item's control: an icon button with its name shown on hover and focus. */
 function ItemControl({
@@ -151,7 +123,7 @@ export function ExerciseStep({
       {/* The exercise's own picture, recording and texts in the items' column. */}
       {(exercise.media || exercise.text || locale?.textHtml) && (
         <div className={ITEM_GRID}>
-          <div className="col-start-2 space-y-4">
+          <div className="col-start-1 space-y-4">
             <MediaBlock
               media={exercise.media}
               url={url}
@@ -176,15 +148,14 @@ export function ExerciseStep({
           const right = outcome?.result === "correct";
           const said = spoken && spokenFreely(exercise, i, answers[i]);
           return (
-            // Rail (status) · card · controls: the card keeps its size when checked; only an
-            // explanation asked for adds a panel under it.
+            // Card · controls: the card keeps its size when checked; only an explanation asked
+            // for adds a panel under it.
             <li
               key={item.key}
               className={ITEM_GRID}
               onPointerDown={() => ex.touch(i)}
               onFocus={() => ex.touch(i)}
             >
-              <div className="h-full">{marked && <ItemRail outcome={outcome} />}</div>
               <ItemCard
                 exercise={exercise}
                 locale={locale}
@@ -197,7 +168,7 @@ export function ExerciseStep({
                 heard={readOnly || ex.itemHeard(i)}
                 onHeard={() => ex.hear(`item-${i}`)}
               />
-              <div className="col-start-2 flex gap-1.5 pt-2 empty:hidden sm:col-start-3 sm:flex-col">
+              <div className="col-start-1 flex gap-1.5 pt-2 empty:hidden sm:col-start-2 sm:flex-col">
                 {marked && !right && explain && (
                   <ItemControl
                     label={t("lesson.why")}
@@ -222,9 +193,9 @@ export function ExerciseStep({
                 )}
               </div>
               {ex.explaining.has(i) && explain && (
-                <div className="col-start-2">{explain(i, answers[i])}</div>
+                <div className="col-start-1">{explain(i, answers[i])}</div>
               )}
-              {said && <div className="col-start-2">{spoken(i, said)}</div>}
+              {said && <div className="col-start-1">{spoken(i, said)}</div>}
             </li>
           );
         })}
