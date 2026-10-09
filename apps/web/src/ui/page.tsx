@@ -1,6 +1,7 @@
 // Page pieces every screen uses (09): the page with its title, loading, errors, empty states, a link back,
 // a course that is not installed. Presentational: no data of their own.
 import { Link } from "@tanstack/react-router";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { errorText } from "./error-text.ts";
 import { cn } from "./utils.ts";
@@ -10,14 +11,18 @@ export function Page({
   title,
   children,
   actions,
+  back,
 }: {
   title?: string;
   children: React.ReactNode;
   actions?: React.ReactNode;
+  /** The way back up (a BackLink), above the title. */
+  back?: React.ReactNode;
 }) {
   useWindowPlace(title);
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 lg:py-10">
+      {back}
       {(title || actions) && (
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           {title && <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>}
@@ -50,14 +55,15 @@ export function EmptyState({
 }
 
 /** A quiet link back to where the page was opened from (Review ↔ Decks ↔ My words). */
+/** The way back up from a page (Page's `back`): an arrow and where it leads. */
 export function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="mb-4 text-sm text-muted-foreground underline pointer-coarse:min-h-11"
+      className="mb-2 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11"
     >
-      {children}
+      <ArrowLeft className="size-4" /> {children}
     </button>
   );
 }

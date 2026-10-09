@@ -56,16 +56,14 @@ export function LessonNotebook({
 
   if (view.pass)
     return (
-      <Page title={title}>
-        <BackLink onClick={() => go({})}>{t("notebook.passes")}</BackLink>
+      <Page title={title} back={<BackLink onClick={() => go({})}>{t("notebook.passes")}</BackLink>}>
         <PassView id={view.pass} />
       </Page>
     );
   const pair = view.compare?.split(",");
   if (pair?.length === 2)
     return (
-      <Page title={title}>
-        <BackLink onClick={() => go({})}>{t("notebook.passes")}</BackLink>
+      <Page title={title} back={<BackLink onClick={() => go({})}>{t("notebook.passes")}</BackLink>}>
         <CompareView ids={[pair[0] as string, pair[1] as string]} />
       </Page>
     );
@@ -73,8 +71,7 @@ export function LessonNotebook({
   const toggle = (id: string) =>
     setChosen((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c.slice(-1), id]));
   return (
-    <Page title={title}>
-      <BackLink onClick={() => go(null)}>{t("notebook.title")}</BackLink>
+    <Page title={title} back={<BackLink onClick={() => go(null)}>{t("notebook.title")}</BackLink>}>
       <div className="max-w-3xl space-y-3">
         {passes.length ? (
           <Panel title={t("notebook.passes")}>

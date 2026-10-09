@@ -119,7 +119,8 @@ export function OptionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "relative flex min-h-12 items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition",
+        // On a phone options that wrap share their row, so a list of long ones is not ragged.
+        "relative flex min-h-12 items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition max-sm:flex-auto",
         fill && "flex-col items-stretch px-2",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",
