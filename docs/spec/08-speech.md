@@ -78,7 +78,11 @@ writes (owner, 2026-10-08).
   voice when both share a script) is read whole by Qwen3-TTS, one voice, the model telling the
   languages apart (`language: "auto"`); with a voice per language (the device's, Piper's) in parts —
   never word by word: a run of fewer than three words of the other language stays with the text
-  around it (owner, 2026-10-10).
+  around it (owner, 2026-10-10). Measured by the speech round-trip (10) on 72 mixed texts the tutor
+  wrote: with "auto" the learner's language is heard whole (median 100%) and a quoted phrase of the
+  language learnt at 67% (Russian → German, English → German) to 100% (Russian → English); read as
+  the language learnt the quote gains a little (German 75%) and the learner's text loses at worst — so
+  "auto" stays.
 - **Engines** (the profile's `speech.readEngine`; owner, 2026-10-08/09): the device's voices (Web
   Speech API, the default), **Qwen3-TTS on this computer** (below), or **Piper on this computer** — Piper voices run by sherpa-onnx's
   `sherpa-onnx-offline-tts` (Apache-2.0; pinned in `native/piper/VERSION`, built static by `bun run

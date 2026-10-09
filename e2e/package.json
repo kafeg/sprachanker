@@ -6,7 +6,8 @@
   "scripts": {
     "e2e": "bun fixture-data.ts && playwright test",
     "typecheck": "tsc -p .",
-    "e2e:real": "bun real/data.ts && playwright test -c real/playwright.config.ts"
+    "e2e:real": "bun real/data.ts && playwright test -c real/playwright.config.ts",
+    "speech:check": "bun speech/roundtrip.ts"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0",

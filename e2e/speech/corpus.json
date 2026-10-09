@@ -1,0 +1,1082 @@
+[
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Guten Morgen, Frau Schneider!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Hallo, Lena! Wie geht es dir?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Es geht mir gut, danke. Und dir?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Guten Tag, Herr Müller!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Guten Abend! Wie geht es Ihnen?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Es geht mir nicht so gut."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Утром до 11 часов немцы говорят «Guten Morgen!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Когда дела отличные, можно ответить «Sehr gut!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Друзьям и семье говорят просто «Hallo!» или «Hey!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/00-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "К незнакомым взрослым обращаются формально, например «Guten Tag, Frau Kamp!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Das ist Nico."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich heiße Emma."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Er ist Taxifahrer."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Sie ist Taxifahrerin."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich lerne Deutsch."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Woher bist du?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Keine Ahnung.» означает «без понятия», используется, когда не знаешь ответа."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Er ist Taxifahrer.» показывает профессию мужчины, без артикля перед словом."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Sie ist Taxifahrerin.» — женская форма профессии, с окончанием -in."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/01-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Ich lerne Deutsch.» означает «я изучаю немецкий», глагол lernen используется с названием языка без артикля."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Was machst du hier?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Wollen wir uns nicht duzen?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Herzlich willkommen!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Die Lampe ist kaputt."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich trinke gern ein Getränk."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Wer ist denn das?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Was machst du hier?» означает «Что ты здесь делаешь?» — вопрос к собеседнику на «ты»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Wollen wir uns nicht duzen?» используется, чтобы предложить перейти на «ты»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Слово «kaputt» значит «сломанный» — например, «Die Lampe ist kaputt»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/03-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Herzlich willkommen!» переводится как «Добро пожаловать!» и используется при встрече гостей."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich habe kein Auto."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Sie hat keine Wohnung."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Wir suchen ein Zimmer."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Das Haus hat keine Terrasse."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich habe keinen Schlüssel."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Die Mieterin sucht eine WG."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Слово «kein» заменяет артикль, если нужно сказать, что чего-то нет, например «Ich habe kein Zimmer»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "В винительном падеже мужской род меняет «ein» на «einen», как в «Ich habe keinen Schlüssel»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Женский и средний род в винительном падеже совпадают с именительным, например «Ich suche eine Wohnung»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Во множественном числе используется просто «keine» без артикля, как в «Wir haben keine Autos»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Heute ist der siebzehnte Januar."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Hast du morgen Zeit?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Das passt gut."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Der Wievielte ist heute?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Am siebzehnten Januar fahre ich nach Berlin."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Vom ersten bis zum zehnten April habe ich Urlaub."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "После предлога «am» порядковое числительное меняет окончание, например «am siebzehnten Januar»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Предлог «von» перед датой превращается в «vom», например «vom ersten Januar»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Предлог «bis» перед датой превращается в «bis zum», например «bis zum zehnten April»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/08-02",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Числительное «sieben» образует порядковое неправильно — «der siebte Januar», а не «siebente»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich kaufe im Supermarkt ein."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Inge geht auf den Markt."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Wir brauchen ein Kilo Mehl."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Kannst du das wiederholen?"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "In der Bäckerei gibt es frisches Brot."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Eine Tafel Schokolade kostet zwei Euro."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "После предлога «in» с дательным падежом говорят «in der Bäckerei»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Слово «das Kilo» во множественном числе после числа не меняется, например «zwei Kilo»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Kannst du das wiederholen?» значит «Повтори, пожалуйста»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/12-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Цена товара обозначается словом «der Preis», например «Der Preis ist hoch»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Iss mehr Obst und Gemüse!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Trink genug Wasser jeden Tag!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Chips und Kekse sind ungesund."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Vorsicht, die Soße ist scharf!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Nimm nicht zu viel Fett zu dir!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Esst Mandarinen und Kirschen, sie haben Vitamine!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "В повелительном наклонении для «ты» обычно убирают окончание, например «Trink viel Wasser!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Если глагол меняет гласную e на i, эта форма сохраняется в повелительном наклонении, например «Iss mehr Obst!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Для обращения к нескольким людям используют форму на -t, как в «Esst mehr Gemüse!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a1-ru/16-04",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Слово «die Vorsicht» часто используют как предупреждение, например «Vorsicht, das ist fett!»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Mein Vater ist streng mit mir."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Nico wohnt nicht mehr bei seinen Eltern."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Er will erwachsen sein."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Yara spielt mit ihrem Bruder."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Sie hört ihrer Mutter zu."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Außerdem will er von zu Hause abhauen."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "После предлога «bei» всегда дательный падеж, например «bei seinen Eltern»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "После предлога «mit» тоже нужен дательный падеж, например «mit meinem Vater»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Глагол «zuhören» требует дательного падежа, поэтому говорим «ihrer Mutter zuhören»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/02-01",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Притяжательное местоимение во множественном числе в дательном падеже получает окончание -en, как в «mit ihren Eltern»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Nico ist glücklich über die Zusage."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Sie ärgert sich über die Absage."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Das hört sich gut an."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Ich bin aufgeregt vor dem Vorstellungsgespräch."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "Das schaffst du schon!"
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "target",
+    "text": "So ein Mist, das Gespräch ist genervt verlaufen."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Прилагательное «glücklich» требует предлога «über» с винительным падежом, например «glücklich über die Zusage»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "«enttäuscht» сочетается с предлогом «von» и дательным падежом, например «enttäuscht von ihrem Sohn»."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "Фраза «Das klappt bestimmt» используется, чтобы подбодрить кого-то перед трудным делом."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/05-03",
+    "edition": "ru-de",
+    "kind": "mixed",
+    "text": "«genervt» также требует «von» и дательного падежа, например «genervt von seinem Bruder»."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "My name is Beatrice."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Spell your name, please."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "My name is Sergei."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Just call me Grey."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "The alphabet has 26 letters."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Car has a letter R."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «spell your name» означает просьбу произнести имя по буквам."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "В слове «car» буква R в британском варианте почти не произносится."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «never mind» используется, когда что-то не важно."
+  },
+  {
+    "lesson": "lingust.english/english/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Выражение «just call me» означает «просто зовите меня»."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "I am a teacher."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "He was young, now he is old."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "You were fast, now you’re slow."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "It’s good to be here."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "She is a nice girl."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "They were in Moscow, now they’re in London."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Сокращённая форма «he’s» означает «he is», удобно в речи."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «It’s me» переводится как «Это я»."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "В «It is dark» слово «it» просто указывает на ситуацию, без перевода «оно»."
+  },
+  {
+    "lesson": "lingust.english/english/01-06",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "В прошедшем времени «was» используется с «I, he, she, it», а «were» с «we, you, they»."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "I will call you tomorrow."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "I'll wait for you here."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "He won't blow up the boat."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Will you stay away from trouble?"
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "We will fix it, I promise."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "She'll be here at least by nine."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «I'll» — это сокращение от «I will», так говорят быстро и естественно."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «won't» произносится /wəʊnt/ — это отрицание «will not»."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «stay away from» значит «держаться подальше от» чего-то."
+  },
+  {
+    "lesson": "lingust.english/english/02-03",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «I'll wait for you here» показывает, что после «wait» всегда нужен предлог «for»."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "I like reading before going to bed."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Searching for the truth took ages."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "They enjoy learning about ancient civilizations."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Solving this mystery is a monumental task."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Spending time in the ruins was fascinating."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Meeting new people confirms my knowledge."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Герундий часто переводится как «процесс» через окончание -ние, например «learning» — изучение."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "После предлогов, таких как «before» и «after», глагол всегда ставится в форме герундия, например «before going»."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Герундий отличается от обычного существительного тем, что перед ним нет артикля, например «reading» без «the»."
+  },
+  {
+    "lesson": "lingust.english/english/03-10",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "У герундия, в отличие от существительного, не может быть множественного числа, например нельзя сказать «readings» в значении процесса."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Good morning!"
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "How are you?"
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Fine, thanks."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Come in, please."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "I am a reporter."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Thank you very much."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «Good morning!» используется, когда встречаем кого-то утром."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «How are you?» — это вежливый вопрос о самочувствии собеседника."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «Fine, thanks.» — стандартный короткий ответ на вопрос о делах."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/01-01",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «Come in, please.» произносится, когда приглашаем человека войти в кабинет."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "When did you go on vacation?"
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "I went on vacation last summer."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "Did you play tennis last week?"
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "She was in the hospital last month."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "We saw a concert last Thursday."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "target",
+    "text": "He had a working vacation five years ago."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «last week» означает «на прошлой неделе» и используется с прошедшим временем."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «during the winter» означает «в течение зимы», показывает период, когда что-то происходило."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «five years ago» означает «пять лет назад», используется для указания точного момента в прошлом."
+  },
+  {
+    "lesson": "voa.english-usa/english-usa/03-05",
+    "edition": "ru-en",
+    "kind": "mixed",
+    "text": "Фраза «on vacation» означает «в отпуске», описывает состояние отдыха."
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Guten Morgen!"
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Guten Tag!"
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Guten Abend!"
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Gute Nacht."
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Bis morgen."
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Mach's gut!"
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Guten Morgen!\" is used to greet someone in the morning."
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Gute Nacht.\" means \"Good night,\" said when parting at bedtime."
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Bis morgen.\" means \"See you tomorrow,\" used when leaving."
+  },
+  {
+    "lesson": "coerll.dib/dib/01-01",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Mach's gut!\" is a casual way to say \"Take care!\" when saying goodbye."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Ich trage heute ein Hemd und eine Hose."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Der Pullover ist sehr warm."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Sie trägt ein schönes Kleid."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Die Schuhe mit Absätzen sind rot."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Er kauft eine neue Krawatte."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Im Sommer trage ich oft Shorts und FlipFlops."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "The word \"Hemd\" means shirt, and it starts with a soft \"H\" sound, not silent like in English."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "In \"trägt\", the ä makes an \"eh\" sound, similar to \"bear\" without the r."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Absätzen\" has the tricky German \"z\", pronounced like \"ts\" in \"cats\"."
+  },
+  {
+    "lesson": "coerll.dib/dib/04-03",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Krawatte\" is pronounced with stress on the second syllable: kra-VAT-te."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Ich mache gerne Yoga am Morgen."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Er hebt Gewichte im Fitnessstudio."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Wir tanzen jeden Freitag zusammen."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Sie spielt oft Racquetball mit ihrer Freundin."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Mein Bruder trainiert für den Marathon."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "target",
+    "text": "Am Abend mache ich Pilates zu Hause."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Gewichte heben\" means \"to lift weights\" — \"Gewichte\" is the plural object before the verb."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"trainieren\" means \"to train\" and is used just like in English, with a regular conjugation."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"Yoga machen\" uses \"machen\" (to do) with the activity name, similar to \"Pilates machen\"."
+  },
+  {
+    "lesson": "coerll.dib/dib/07-02",
+    "edition": "en-de",
+    "kind": "mixed",
+    "text": "\"tanzen\" means \"to dance\" and conjugates regularly: ich tanze, wir tanzen."
+  }
+]

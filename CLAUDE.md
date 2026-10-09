@@ -97,6 +97,8 @@ alternatives without updating that table.
   first; Chromium desktop + WebKit phone, ≈1.5 min) · `bun run e2e:all` (all four, as CI)
 - `bun run e2e:real` — run-throughs on real courses at phone width (a clone of `~/SprachAnker/library`;
   `REAL=<key prefix>`, `REAL_PER_COURSE=<n|all>`, `REAL_DESKTOP=1`); the Mac only, not in CI
+- `bun run speech:check` — speech round-trip: the corpus read by Qwen3-TTS, heard by Whisper (the Mac,
+  models in `~/SprachAnker/models`)
 - `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS) for this machine (native/, needs cmake); build:cli then
   puts it beside the binary
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
