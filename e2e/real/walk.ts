@@ -25,6 +25,19 @@ async function playAll(page: Page) {
   });
 }
 
+/** Labels cut short on the screen — buttons and links whose text does not fit them — to look at (not
+ *  a failure: some are cut on purpose, with the whole text on hover). */
+export const clipped: string[] = [];
+async function noteClipped(page: Page, where: string) {
+  const cut = await page.evaluate(() =>
+    [...document.querySelectorAll<HTMLElement>("button, a, [role=tab]")]
+      .filter((el) => el.offsetParent && el.scrollWidth > el.clientWidth + 1)
+      .map((el) => (el.textContent ?? "").trim().slice(0, 50))
+      .filter(Boolean),
+  );
+  for (const text of cut) clipped.push(`${where}: ${text}`);
+}
+
 /** The screen is whole: nothing wider than it, no error page. */
 export async function expectWhole(page: Page, where: string) {
   // The layout's width, not the window's: a phone's window grows with content that sticks out.
@@ -33,6 +46,7 @@ export async function expectWhole(page: Page, where: string) {
   );
   expect(wide, `${where}: the page is wider than the screen`).toBeLessThanOrEqual(1);
   await expect(page.getByText("Something went wrong"), `${where}: an error page`).toHaveCount(0);
+  await noteClipped(page, where);
 }
 
 /** A complete answer for one item, given through its card. */

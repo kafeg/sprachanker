@@ -7,8 +7,13 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { REAL_DATA } from "./data.ts";
 import { readStore } from "./read-store.ts";
 import { lessonFiles, scenarios } from "./scenarios.ts";
-import { lessonProblems } from "./store.ts";
-import { notebookShows, reviewSome, walkLesson } from "./walk.ts";
+import { lessonProblems, storeProblems } from "./store.ts";
+import { clipped, notebookShows, reviewSome, walkLesson } from "./walk.ts";
+
+// Labels cut short, for a look: printed once all lessons ran.
+test.afterAll(() => {
+  if (clipped.length) console.log(`\nlabels cut short:\n${[...new Set(clipped)].join("\n")}`);
+});
 
 for (const s of scenarios())
   test(`lesson ${s.key} [${s.edition}]`, async ({ page }) => {
@@ -58,5 +63,6 @@ for (const s of scenarios())
       finished: true,
     });
     expect(problems, `stored for ${s.key}`).toEqual([]);
+    expect(storeProblems(stored), "the store as a whole").toEqual([]);
     expect(consoleErrors, "errors in the page").toEqual([]);
   });

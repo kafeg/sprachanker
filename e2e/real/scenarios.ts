@@ -1,6 +1,7 @@
 // Which lessons a run-through goes through (10, "Run-throughs"), read from the cloned library: `REAL`
 // names them by key prefix (comma-separated: a series, a course, a lesson), else the first course of
-// every series; `REAL_PER_COURSE` is how many lessons of each course (1 by default, "all" for every one).
+// every series; `REAL_PER_COURSE` is how many lessons of each course, spread over it (1 by default: the
+// first; "all" for every one).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
@@ -29,6 +30,15 @@ const editionOf = (series: string, course: string) =>
     existsSync(join(LIBRARY, series, "locale", e, course)),
   );
 
+/** `n` of `list` spread evenly from its first (all when `n` is not less than its length). */
+const spread = <T>(list: T[], n: number) =>
+  n >= list.length
+    ? list
+    : Array.from(
+        { length: n },
+        (_, i) => list[Math.round((i * (list.length - 1)) / Math.max(1, n - 1))] as T,
+      );
+
 export function scenarios(): Scenario[] {
   const prefixes = (process.env.REAL ?? "").split(",").filter(Boolean);
   const per =
@@ -51,7 +61,7 @@ export function scenarios(): Scenario[] {
         .sort();
       // Lessons named by key: just those; else the course's from the first.
       const named = all.filter((l) => prefixes.includes(`${series}/${course}/${l}`));
-      for (const lesson of named.length ? named : all.slice(0, per))
+      for (const lesson of named.length ? named : spread(all, per))
         out.push({ series, course, lesson, key: `${series}/${course}/${lesson}`, edition });
     }
   }

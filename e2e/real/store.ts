@@ -2,7 +2,7 @@
 // rows (read by read-store.ts) checked by a pure function, so a store broken on purpose shows that
 // the checks catch it (store.test.ts).
 import { checkItem, itemScored } from "@sprachanker/engine";
-import type { Lesson, LocaleLesson } from "@sprachanker/schema";
+import { EVENT_PAYLOADS, type Lesson, type LocaleLesson } from "@sprachanker/schema";
 
 export interface RunRow {
   id: string;
@@ -10,8 +10,11 @@ export interface RunRow {
   context_key: string | null;
   status: string;
   end_reason: string | null;
+  finished_at?: number | null;
 }
 export interface EventRow {
+  id?: string;
+  ts?: number;
   run_id: string;
   type: string;
   item_key: string | null;
@@ -21,11 +24,110 @@ export interface EventRow {
 export interface CardRow {
   id: string;
   lexeme_key: string | null;
+  /** The faces it is studied by, comma-separated. */
+  faces?: string;
+}
+export interface CardStateRow {
+  card_id: string;
+  face: string;
+  fsrs_json: string | null;
+  due_at: number | null;
 }
 export interface Stored {
   runs: RunRow[];
   events: EventRow[];
   cards: CardRow[];
+  cardState?: CardStateRow[];
+  /** The profile's recordings folder: the files' names. */
+  recordings?: string[];
+}
+
+/**
+ * Problems with the profile's store as a whole, whatever was done (05): every event reads by its
+ * type's schema and belongs to a run there, in time order within its run; one active run per lesson; a
+ * finished run with its end; an item's answers numbered 1, 2, 3… with none twice; a card's faces
+ * only reviewed and kept, each face's state the one its latest review (not taken back) left; a spoken answer's recording on disk.
+ */
+export function storeProblems(stored: Stored): string[] {
+  const problems: string[] = [];
+  const runs = new Map(stored.runs.map((r) => [r.id, r]));
+  const lastTs = new Map<string, number>();
+  for (const e of stored.events) {
+    const schema = EVENT_PAYLOADS[e.type as keyof typeof EVENT_PAYLOADS];
+    if (!schema) problems.push(`an event of an unknown type ${e.type}`);
+    else if (!schema.safeParse(JSON.parse(e.payload_json)).success)
+      problems.push(
+        `a ${e.type} event (${e.item_key ?? e.card_id ?? e.id}) that its schema refuses`,
+      );
+    if (!runs.has(e.run_id)) problems.push(`a ${e.type} event of no run (${e.run_id})`);
+    if (e.ts !== undefined) {
+      if (e.ts < (lastTs.get(e.run_id) ?? 0))
+        problems.push(`events of run ${e.run_id} out of order`);
+      lastTs.set(e.run_id, e.ts);
+    }
+  }
+  const active = new Map<string, number>();
+  for (const r of stored.runs) {
+    if (r.kind === "lesson" && r.status === "active" && r.context_key)
+      active.set(r.context_key, (active.get(r.context_key) ?? 0) + 1);
+    if (r.status === "finished" && (!r.end_reason || r.finished_at === null))
+      problems.push(`run ${r.id} finished without its end`);
+  }
+  for (const [key, n] of active) if (n > 1) problems.push(`${n} active runs of ${key}`);
+
+  // An item's answers within a run: numbered from 1 with no gap and none twice.
+  const attempts = new Map<string, number[]>();
+  for (const e of stored.events)
+    if (e.type === "answered" && e.item_key) {
+      const k = `${e.run_id} ${e.item_key}`;
+      attempts.set(k, [...(attempts.get(k) ?? []), JSON.parse(e.payload_json).attempt as number]);
+    }
+  for (const [k, list] of attempts)
+    if (list.some((n, i) => n !== i + 1))
+      problems.push(`${k}: attempts numbered ${list.join(", ")}`);
+
+  // Cards: states and reviews of its faces only (a face's row is made at its first review: a new face
+  // has none), each face as its latest review left it.
+  if (stored.cardState) {
+    const state = new Map(stored.cardState.map((s) => [`${s.card_id} ${s.face}`, s]));
+    const faces = new Map(
+      stored.cards.map((c) => [c.id, (c.faces ?? "").split(",").filter(Boolean)]),
+    );
+    for (const s of stored.cardState)
+      if (!faces.get(s.card_id)?.includes(s.face))
+        problems.push(`card ${s.card_id}: a state of ${s.face}, not one of its faces`);
+    const undone = new Set(
+      stored.events
+        .filter((e) => e.type === "card_undo")
+        .map((e) => JSON.parse(e.payload_json).review as string),
+    );
+    const latest = new Map<string, Record<string, unknown>>();
+    for (const e of stored.events)
+      if (e.type === "card_review" && e.card_id && !(e.id && undone.has(e.id))) {
+        const p = JSON.parse(e.payload_json);
+        if (!faces.get(e.card_id)?.includes(p.face))
+          problems.push(`card ${e.card_id}: reviewed by ${p.face}, not one of its faces`);
+        latest.set(`${e.card_id} ${p.face}`, p.stateAfter);
+      }
+    for (const [k, after] of latest) {
+      const now = state.get(k);
+      if (!now) problems.push(`card ${k}: reviewed, with no state`);
+      else if (now.due_at !== after.due)
+        problems.push(`card ${k}: due ${now.due_at}, its latest review says ${after.due}`);
+    }
+  }
+
+  // A spoken answer's recording is kept on disk.
+  if (stored.recordings) {
+    const files = new Set(stored.recordings.map((f) => f.replace(/\.[^.]+$/, "")));
+    for (const e of stored.events)
+      if (e.type === "answered") {
+        const id = JSON.parse(e.payload_json).answer?.recording;
+        if (typeof id === "string" && !files.has(id))
+          problems.push(`${e.item_key}: its recording ${id} is not on disk`);
+      }
+  }
+  return problems;
 }
 
 /** What the run-through did in the lesson, to compare the store with. */

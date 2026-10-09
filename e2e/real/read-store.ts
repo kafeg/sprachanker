@@ -1,19 +1,24 @@
 // The profile's database as a run-through reads it: read-only, beside the running server (Node's
-// sqlite: Playwright runs on Node).
+// sqlite: Playwright runs on Node); and the names of its recordings.
+import { existsSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import type { CardRow, EventRow, RunRow, Stored } from "./store.ts";
+import type { CardRow, CardStateRow, EventRow, RunRow, Stored } from "./store.ts";
 
-/** The profile's runs, events and cards. */
+/** The profile's runs, events, cards and their states, and its recordings' file names. */
 export function readStore(path: string): Stored {
   const db = new DatabaseSync(path, { readOnly: true });
   try {
     const all = <T>(sql: string) => db.prepare(sql).all() as T[];
+    const recordings = join(dirname(path), "recordings");
     return {
-      runs: all<RunRow>("select id, kind, context_key, status, end_reason from runs"),
+      runs: all<RunRow>("select id, kind, context_key, status, end_reason, finished_at from runs"),
       events: all<EventRow>(
-        "select run_id, type, item_key, card_id, payload_json from events order by ts",
+        "select id, ts, run_id, type, item_key, card_id, payload_json from events order by ts, id",
       ),
-      cards: all<CardRow>("select id, lexeme_key from cards"),
+      cards: all<CardRow>("select id, lexeme_key, faces from cards"),
+      cardState: all<CardStateRow>("select card_id, face, fsrs_json, due_at from card_state"),
+      recordings: existsSync(recordings) ? readdirSync(recordings) : [],
     };
   } finally {
     db.close();
