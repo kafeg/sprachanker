@@ -83,6 +83,7 @@ function profileServices(
   const runs = createRuns({ store, cards: cardStore, content, recordings });
   const cards = createCards({
     cards: cardStore,
+    store,
     content,
     settings,
     session: runs.shown,

@@ -43,6 +43,12 @@ const NO_EVENTS: TypedEvent[] = [];
 
 /** Events of no run: the lesson's run ended or was replaced before they went (dropped). */
 class NoRun extends Error {}
+/** Events of a profile not signed in now: they wait for it (another profile cannot store them). */
+class NotSignedIn extends Error {}
+
+/** The profile this device is signed in to, as the session query last read it. */
+const signedIn = (client: QueryClient) =>
+  client.getQueryData<{ profile: { id: string } | null }>(["session"])?.profile?.id ?? "";
 
 /** A refusal that sending again cannot change; a lost session (401) or a request that reached the
  *  wrong host (421) is not one — the events wait for the learner to be back. */
@@ -59,16 +65,18 @@ const activeRun = (client: QueryClient, key: readonly unknown[]) => {
   return run?.status === "active" ? run.id : undefined;
 };
 
-/** One outbox per lesson for the page's life: a lesson opened again sends on after what it queued
- *  before, never beside it. */
+/** One outbox per profile and lesson for the page's life: a lesson opened again sends on after what
+ *  it queued before, never beside it; a profile signed out keeps its events until it is back. */
 const outboxes = new Map<string, Outbox<Queued>>();
 function outboxOf(client: QueryClient, key: readonly unknown[]): Outbox<Queued> {
-  const id = JSON.stringify(key);
+  const profile = signedIn(client);
+  const id = JSON.stringify([profile, ...key]);
   let outbox = outboxes.get(id);
   if (!outbox) {
     outbox = createOutbox<Queued>({
       batchKey: (e) => e.runId ?? "",
       async send(batch) {
+        if (signedIn(client) !== profile) throw new NotSignedIn();
         // Queued before the run existed: it belongs to the run started since.
         const runId = batch[0]?.runId ?? activeRun(client, key);
         if (!runId) throw new NoRun();
@@ -111,11 +119,13 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const query = useQuery({
     queryKey: key,
     queryFn: async () => {
+      // Events stored while the run is read may be stored after the server read it: they stay too.
+      const mark = outbox.mark();
       const loaded = (
         await json(api.runs.lesson.$get({ query: { series, lessonKey: lessonKey as LessonKey } }))
       ).state as Loaded | null;
       if (!loaded) return loaded;
-      const queued = new Set(outbox.pending().map((e) => e.id));
+      const queued = new Set([...outbox.pending(), ...outbox.storedSince(mark)].map((e) => e.id));
       const stored = new Set(loaded.events.map((e) => e.id));
       const before = client.getQueryData<Loaded | null>(key);
       const onTheWay =
@@ -248,6 +258,8 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     mistakes,
     attempts,
     error: query.error,
+    /** Reads the run again after a failed read, keeping what is still on its way. */
+    retry: () => void query.refetch(),
     /** Starts the lesson (or resumes its active run); `restart` begins it anew. */
     async start(restart = false) {
       if (!edition) return;

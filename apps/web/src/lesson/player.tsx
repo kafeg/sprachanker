@@ -79,7 +79,7 @@ export function LessonPlayer({
   );
 
   if (courses.isSuccess && !info) return <NotInstalled />;
-  if (run.error) return <ErrorState error={run.error} onRetry={run.reload} />;
+  if (run.error) return <ErrorState error={run.error} onRetry={run.retry} />;
   if (
     data.isPending ||
     !edition ||

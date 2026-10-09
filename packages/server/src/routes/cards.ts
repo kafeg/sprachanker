@@ -78,7 +78,9 @@ export function cardRoutes() {
           });
         },
       )
-      .post("/undo", (c) => c.json(c.var.s.study.undo()))
+      .post("/undo", zod("json", z.object({ scope: DeckScope })), async (c) =>
+        c.json(await c.var.s.study.undo(c.req.valid("json").scope)),
+      )
       .post(
         "/:id/bury",
         zod("param", CardParam),

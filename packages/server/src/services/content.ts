@@ -66,27 +66,35 @@ export function createContent(library: LibraryView) {
       for (const cache of [lessons, locales])
         for (const id of cache.keys()) if (id.startsWith(prefix)) cache.delete(id);
     },
+    /** The installed courses; one whose files do not read is left out (and logged): the others still
+     *  list, and the catalogue offers it again to download. */
     async courses(): Promise<CourseSummary[]> {
-      return Promise.all(
+      const all = await Promise.all(
         library.courses().map(async ({ series, course, editions }) => {
-          const index = await library.courseIndex(series, course);
-          const titles: Record<string, string> = {};
-          for (const edition of editions) {
-            const locale = await library.localeCourse(series, course, edition);
-            if (locale) titles[edition] = locale.title;
+          try {
+            const index = await library.courseIndex(series, course);
+            const titles: Record<string, string> = {};
+            for (const edition of editions) {
+              const locale = await library.localeCourse(series, course, edition);
+              if (locale) titles[edition] = locale.title;
+            }
+            const lessons = index.units.flatMap((u) => u.lessons);
+            return {
+              series,
+              course,
+              key: index.key,
+              editions,
+              titles,
+              lessons,
+              source: index.source ?? null,
+            };
+          } catch (error) {
+            console.error(`${series}/${course} does not read; left out: ${String(error)}`);
+            return undefined;
           }
-          const lessons = index.units.flatMap((u) => u.lessons);
-          return {
-            series,
-            course,
-            key: index.key,
-            editions,
-            titles,
-            lessons,
-            source: index.source ?? null,
-          };
         }),
       );
+      return all.filter((c) => c !== undefined);
     },
     async courseMap(series: string, course: string, edition: string): Promise<CourseMap> {
       const index = await library.courseIndex(series, course);

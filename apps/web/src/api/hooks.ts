@@ -271,7 +271,10 @@ export function useCardActions() {
         }),
       ),
   });
-  const undo = useMutation({ onSuccess, mutationFn: () => json(api.cards.undo.$post()) });
+  const undo = useMutation({
+    onSuccess,
+    mutationFn: (scope: string) => json(api.cards.undo.$post({ json: { scope } })),
+  });
   const bury = useMutation({
     onSuccess,
     mutationFn: (r: { cardId: string; face?: CardFace }) =>

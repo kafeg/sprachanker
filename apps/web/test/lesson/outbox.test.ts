@@ -82,3 +82,37 @@ test("a batch never mixes two runs; failures in a row wait longer each time, up 
   expect(stored).toEqual([["a:1", "a:2"], ["b:1"]]);
   expect(waited).toEqual([100, 200, 400, 500]);
 });
+
+test("asked to send while it waits to retry, it tries again at once", async () => {
+  const stored: number[][] = [];
+  let down = 1;
+  const box = createOutbox<number>({
+    async send(batch) {
+      if (down-- > 0) throw new Error("network");
+      stored.push(batch);
+    },
+    refused: () => false,
+    onRefused: () => {},
+    // A wait that would never end by itself.
+    wait: () => new Promise<void>(() => {}),
+  });
+  box.push([1]);
+  const sending = box.flush();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  expect(stored).toEqual([]);
+  box.push([2]);
+  expect(box.flush()).toBe(sending);
+  await sending;
+  expect(stored).toEqual([[1, 2]]);
+});
+
+test("what was stored since a mark: events stored while a reader was away", async () => {
+  const o = outbox();
+  o.box.push([1]);
+  await o.box.flush();
+  const mark = o.box.mark();
+  o.box.push([2, 3]);
+  await o.box.flush();
+  expect(o.box.storedSince(mark)).toEqual([2, 3]);
+  expect(o.box.storedSince(o.box.mark())).toEqual([]);
+});

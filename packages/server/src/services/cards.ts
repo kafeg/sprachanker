@@ -15,11 +15,13 @@ import {
 import { monotonicFactory } from "ulid";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
-import { readStored } from "./run-store.ts";
+import { type RunStore, readStored } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
 export function createCards(deps: {
   cards: CardStore;
+  /** The run store: a card that goes takes its answers with it (05, "Events"). */
+  store: Pick<RunStore, "remove">;
   content: Content;
   settings: Settings;
   /** The run the lesson shows (the runs service): the run a lesson's cards are made in. */
@@ -135,7 +137,7 @@ export function createCards(deps: {
 
     /**
      * Leaves a course's deck (as Review lists it: the course under its words' language): its cards go,
-     * with their progress — but a card of a word another of the learner's decks has (a course with
+     * with their progress (their faces and every answer to them, as a reset takes them) — but a card of a word another of the learner's decks has (a course with
      * cards, in the same translation language) moves to that deck with its progress (owner,
      * 2026-10-09). Returns how many went and how many moved.
      */
@@ -184,6 +186,7 @@ export function createCards(deps: {
             sourceKey: m.sourceKey,
             displayCacheJson: JSON.stringify(m.display),
           });
+        deps.store.remove([], gone);
         cards.remove(gone);
       });
       return { removed: gone.length, moved: moves.length };
@@ -199,8 +202,14 @@ export function createCards(deps: {
         for (const edition of c.editions) {
           const lang = parseEditionId(edition as EditionId).source;
           const lexemes = new Set<string>();
-          for (const key of c.lessons as LessonKey[])
-            for (const v of (await content.lesson(c.series, key)).vocab) lexemes.add(v.lexeme);
+          try {
+            for (const key of c.lessons as LessonKey[])
+              for (const v of (await content.lesson(c.series, key)).vocab) lexemes.add(v.lexeme);
+          } catch (error) {
+            // A lesson that does not read leaves its course out of the offers, not the others.
+            console.error(`${c.key} does not read; not offered: ${String(error)}`);
+            continue;
+          }
           if (!lexemes.size) continue;
           const mine = notes.filter(
             (n) => n.translationLang === lang && n.lexemeKey && lexemes.has(n.lexemeKey),

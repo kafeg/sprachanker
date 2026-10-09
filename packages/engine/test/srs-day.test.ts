@@ -46,12 +46,12 @@ test("a day of card answers: what each deck used, what Undo takes back, the face
   ];
   const day = cardDay(events);
   expect(day.answers.map((a) => a.id)).toEqual(["r2", "r1"]);
-  expect(day.undoable?.id).toBe("r2");
+  expect(day.answers[0]?.id).toBe("r2");
   expect(day.justUndone).toEqual({ cardId: "a", face: "recognition" });
   expect(day.used(new Set(["a", "b", "c"]))).toEqual({ fresh: 1, reviews: 1 });
   // Each deck counts its own cards.
   expect(day.used(new Set(["b"]))).toEqual({ fresh: 0, reviews: 1 });
   // Something answered after the undo: nothing is "just taken back" any more.
   expect(cardDay([review("r4", "d", null), ...events]).justUndone).toBeUndefined();
-  expect(cardDay([]).undoable).toBeUndefined();
+  expect(cardDay([]).answers).toEqual([]);
 });

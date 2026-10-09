@@ -134,7 +134,7 @@ export function StudySession({
   const undo = () =>
     !busy &&
     study.data?.canUndo &&
-    actions.undo.mutate(undefined, { onSuccess: () => setTurn((n) => n + 1) });
+    actions.undo.mutate(scope, { onSuccess: () => setTurn((n) => n + 1) });
   const bury = (note: boolean) =>
     current &&
     !busy &&

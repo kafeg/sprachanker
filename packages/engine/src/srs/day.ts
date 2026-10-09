@@ -1,5 +1,5 @@
 // The learner's day of card answers as Anki keeps it (04, "Spaced repetition"): the answers not taken
-// back, what each deck has used of its daily limits, the answer Undo takes back, and the face just
+// back (Undo takes back a deck's latest), what each deck has used of its daily limits, and the face just
 // taken back (shown next). Pure: the caller passes the day's card events.
 import type { CardFace, CardReviewPayload, TypedEvent } from "@sprachanker/schema";
 
@@ -36,8 +36,6 @@ export function cardDay(events: CardEvent[]) {
   return {
     /** Today's answers not taken back, newest first. */
     answers,
-    /** The answer Undo takes back: today's latest not taken back yet. */
-    undoable: answers[0],
     /** The face whose answer was just taken back, when nothing was answered since (shown next). */
     justUndone:
       takenBack?.type === "card_review"

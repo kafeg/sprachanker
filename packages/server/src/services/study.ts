@@ -221,8 +221,8 @@ export function createStudy(deps: {
         newWaiting: q.newWaiting,
         reviewsWaiting: q.reviewsWaiting,
         buried: q.buried,
-        /** Today has an answer to take back. */
-        canUndo: !!q.today.undoable,
+        /** Today has an answer in this deck to take back. */
+        canUndo: q.today.answers.some((a) => inScope.has(a.cardId)),
       };
     },
 
@@ -266,10 +266,12 @@ export function createStudy(deps: {
       });
     },
 
-    /** Takes back today's latest review not taken back yet: the face is as before it and is shown next
-     *  (Anki: undo). */
-    undo() {
-      const last = day().undoable;
+    /** Takes back today's latest review in the deck being studied not taken back yet (one of another
+     *  deck is not this one's to take back, nor shown here): the face is as before it and is shown next
+     *  (Anki: undo). It is its face's latest review too — a face is in the decks its note is in. */
+    async undo(scope: DeckScope) {
+      const inScope = new Set((await notesIn(scope)).map((n) => n.id));
+      const last = day().answers.find((a) => inScope.has(a.cardId));
       if (!last) throw new ServiceError("nothing_to_undo", 409);
       const before = last.review.stateBefore;
       store.atomic(() => {

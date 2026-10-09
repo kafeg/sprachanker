@@ -127,8 +127,10 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   one queue per lesson, each event to the run it was recorded in (a batch never mixes two), idempotent
   by id. Not reached or a 5xx: sent again after 2 s, doubling up to a minute. A lost session (401), a
   wrong host (421), 408 and 429 keep the events for later. Any other 4xx, or a run no longer there to
-  send to, drops the batch and the run is read again. A lesson opened again reads its run anew,
-  keeping what is still on its way.
+  send to, drops the batch and the run is read again. A new event while it waits to retry sends at
+  once. Each profile has its own queues: events of a profile signed out wait until it is back. A lesson
+  opened again reads its run anew, keeping what is still on its way and what was stored meanwhile; a
+  read that fails is tried again without dropping them.
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps
   its name and the UI shows "deleted".
 - **Resetting progress** is the exception, on the learner's confirmed request: for a course (it then
@@ -138,6 +140,7 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   made it) with their faces and every answer to them; a card made by another lesson stays (owner,
   2026-10-07). The course stays installed. Deleting one tutor
   chat from the lesson's chat history, also confirmed, deletes that `chat` run with its events.
+  Leaving a deck (04, "Decks to take"), also confirmed, deletes the answers to the cards it removes.
 - Snapshots make old runs readable after content changes or course removal.
 - Indexes: `events(run_id, ts)` (a run's events), `events(type, ts)` (the day's card answers,
   verdicts, activity).

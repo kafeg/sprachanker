@@ -126,8 +126,9 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 - **Counts** as in Anki: new · learning · to review, the current card's queue underlined.
 - **The reviewer**: the question; Show answer (Space, Enter, a tap) shows the question and the answer
   under a line; Again, Hard, Good, Easy (1–4; Space/Enter is Good) with the next interval on each.
-  Undo (U, Ctrl+Z) takes back today's latest answer and shows that card next. The More menu: replay
-  audio (R, F5), bury card or note until tomorrow (-, =), suspend card or note (@, !), mark the note (*),
+  Undo (U, Ctrl+Z) takes back today's latest answer in the deck being studied (one in another deck
+  is not this one's: a lesson's "Words" step never takes back the morning's review) and shows that
+  card next. The More menu: replay audio (R, F5), bury card or note until tomorrow (-, =), suspend card or note (@, !), mark the note (*),
   seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's
   overview has the counts, Study now and Unbury; a finished deck says when the next learning card is
   due and whether new cards or reviews wait behind a limit.
@@ -155,7 +156,7 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)
-  removes its cards with their progress; a card of a word another of the learner's decks has (a course
+  removes its cards with their progress (faces and every answer to them, as a reset does); a card of a word another of the learner's decks has (a course
   with cards, in the same translation language) moves there with its progress instead (its word and
   display become that course's). **More new cards today** adds to a deck's daily limit for the
   study day (Anki's custom study "increase today's new card limit"; a course's extra counts in its

@@ -8,6 +8,7 @@ import { ulid } from "ulid";
 import { createCardStore } from "../src/services/card-store.ts";
 import { createCards } from "../src/services/cards.ts";
 import { createContent } from "../src/services/content.ts";
+import { createRunStore } from "../src/services/run-store.ts";
 import { createSettings } from "../src/services/settings.ts";
 import { setup } from "./setup.ts";
 
@@ -88,7 +89,7 @@ test("study as in Anki: card 1 of every note first; a rating moves it to learnin
   expect(after.current.cardId).not.toBe(first.current.cardId);
   expect(after.canUndo).toBe(true);
 
-  expect(await sendJson("POST", "/api/cards/undo", {})).toEqual({
+  expect(await sendJson("POST", "/api/cards/undo", { scope: `course:${COURSE}` })).toEqual({
     cardId: first.current.cardId,
     face: "recognition",
   });
@@ -103,7 +104,7 @@ test("study as in Anki: card 1 of every note first; a rating moves it to learnin
     { type: "card_review" },
     { type: "card_undo" },
   ]);
-  expect((await send("POST", "/api/cards/undo", {})).status).toBe(409);
+  expect((await send("POST", "/api/cards/undo", { scope: `course:${COURSE}` })).status).toBe(409);
 
   expect((await getJson(study(`course:${COURSE}`))).canUndo).toBe(false);
 
@@ -134,7 +135,7 @@ test("undo shows the face taken back next, ahead of the queue's order, until som
     face: "production",
     rating: 3,
   });
-  await sendJson("POST", "/api/cards/undo", {});
+  await sendJson("POST", "/api/cards/undo", { scope: `course:${COURSE}` });
   expect((await getJson(scope)).current).toMatchObject({
     cardId: later.cardId,
     face: "production",
@@ -288,6 +289,7 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
   const before = count();
   const cards = createCards({
     cards: createCardStore(profile),
+    store: createRunStore({ db: profile, now: Date.now, appVersion: "test" }),
     content: createContent(openLibrary(join(root, "library"))),
     settings: createSettings(profile),
     session: async () => undefined,
@@ -322,7 +324,7 @@ test("My words: a word's sheet has each face's state and its answers; an undone 
   await rate("recognition", 1, 0);
   await rate("recognition", 3, 1);
   await rate("production", 3, 0);
-  await sendJson("POST", "/api/cards/undo", {});
+  await sendJson("POST", "/api/cards/undo", { scope: `course:${COURSE}` });
   const sheet = await getJson(`/api/cards/${word.cardId}`);
   expect(sheet.state).toBe("learning");
   expect(sheet.faces.map((f: { face: string; stage: string }) => [f.face, f.stage])).toEqual([
@@ -427,7 +429,7 @@ test("undo, then another rating: the answer is replaced; Easy takes a new word o
     });
   await rate(2, 0);
   expect((await getJson(scope)).counts).toEqual({ new: 3, learning: 1, review: 0 });
-  await sendJson("POST", "/api/cards/undo", {});
+  await sendJson("POST", "/api/cards/undo", { scope: `course:${COURSE}` });
   const back = await getJson(scope);
   // Taken back: the same card next, new again.
   expect([back.current.cardId, back.current.kind, back.counts.new]).toEqual([
@@ -546,12 +548,18 @@ test("leaving a deck: its cards go, studied too; a word another deck has moves t
   const sheet = await getJson(`/api/cards/${card.cardId}`);
   expect(sheet.display.lessonKey).toBe(LESSONS[0]);
   expect(sheet.answers).toHaveLength(1);
-  // No other deck has them: leaving the fixture course's deck removes every card, studied or not.
+  // No other deck has them: leaving the fixture course's deck removes every card, studied or not,
+  // with its answers: today's answer to a card gone is nothing to undo.
   expect(await sendJson("POST", "/api/cards/decks/leave", { course: COURSE, lang: "de" })).toEqual({
     removed: taken.created + 4,
     moved: 0,
   });
   expect((await getJson("/api/cards")).words).toEqual([]);
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  expect(sqlite.query("SELECT count(*) AS n FROM events WHERE card_id IS NOT NULL").get()).toEqual({
+    n: 0,
+  });
+  expect((await getJson(study("lang:de"))).canUndo).toBe(false);
 });
 
 test("more new cards today in a deck (custom study): the limit grows for it and its language", async () => {
@@ -580,4 +588,25 @@ test("the Review settings reach the reviewer: learning steps, and a bad value re
   expect(
     (await send("PUT", "/api/settings", { key: "srs.newIgnoresReviewLimit", value: true })).status,
   ).toBe(200);
+});
+
+test("Undo takes back the deck's own latest answer: one in another deck is not this one's", async () => {
+  const { sendJson, send, getJson } = await withCards();
+  const [one, two] = LESSONS.map((key) => `lesson:ru-de:${key}`) as [string, string];
+  const card = (await getJson(study(two))).current;
+  await sendJson("POST", `/api/cards/${card.cardId}/review`, {
+    id: ulid(),
+    reps: 0,
+    face: card.face,
+    rating: 3,
+  });
+  // The first lesson's words: nothing of theirs answered today.
+  expect((await getJson(study(one))).canUndo).toBe(false);
+  expect((await send("POST", "/api/cards/undo", { scope: one })).status).toBe(409);
+  // The second lesson's words, and the language's deck that has them, take it back.
+  expect((await getJson(study("lang:de"))).canUndo).toBe(true);
+  expect(await sendJson("POST", "/api/cards/undo", { scope: two })).toEqual({
+    cardId: card.cardId,
+    face: card.face,
+  });
 });

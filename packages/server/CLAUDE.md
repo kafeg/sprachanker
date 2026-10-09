@@ -79,7 +79,8 @@ test/                # bun test; integration tests call createApp().request() â€
   longer reads is left out and logged (`readStored`), never failing the list.
 - A model's stored answer records `model` and `latencyMs` (`stopwatch` in services/llm.ts).
 - Events are append-only; never UPDATE or DELETE `events`. Only two things remove them (`store.remove`):
-  deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat).
+  deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat,
+  leaving a deck: the answers to the cards that go).
 - Any change to a Drizzle schema â†’ new migration (`bun run db:generate`, hand-check the SQL) + a
   migration test that upgrades a database built by the earlier migrations, with rows in it.
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`

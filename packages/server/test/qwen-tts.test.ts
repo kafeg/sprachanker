@@ -90,3 +90,42 @@ test("Qwen3-TTS: a model downloaded with its codec; a text said in its language 
   await send("DELETE", "/api/speech/qwen/models/0.6b", {});
   expect(q.files).toEqual([]);
 });
+
+test("Qwen3-TTS: both models downloaded at once fetch the codec once; removing one keeps the codec the other needs", async () => {
+  const q = qwen();
+  /** Downloads that end when the test says: by file, in the order asked. */
+  const asked: string[] = [];
+  const finish = new Map<string, () => void>();
+  q.host.models.download = (_url, model) => {
+    asked.push(model.file);
+    return new Promise<void>((resolve) =>
+      finish.set(model.file, () => {
+        q.files.push(model.file);
+        resolve();
+      }),
+    );
+  };
+  const { getJson, send, sendJson } = await setup({ speech: q.host });
+  const tick = () => new Promise((r) => setTimeout(r, 10));
+  await sendJson("POST", "/api/speech/qwen/models/0.6b", {});
+  await sendJson("POST", "/api/speech/qwen/models/1.7b", {});
+  await tick();
+  expect(asked).toEqual(["qwen-tokenizer-12hz-Q8_0.gguf"]);
+  finish.get("qwen-tokenizer-12hz-Q8_0.gguf")?.();
+  await tick();
+  expect(asked.slice(1).sort()).toEqual([
+    "qwen-talker-0.6b-customvoice-Q8_0.gguf",
+    "qwen-talker-1.7b-customvoice-Q8_0.gguf",
+  ]);
+  finish.get("qwen-talker-0.6b-customvoice-Q8_0.gguf")?.();
+  await tick();
+  // The small one removed while the large one still comes: the codec stays for it.
+  expect((await send("DELETE", "/api/speech/qwen/models/0.6b", undefined)).status).toBe(200);
+  expect(q.files).toContain("qwen-tokenizer-12hz-Q8_0.gguf");
+  finish.get("qwen-talker-1.7b-customvoice-Q8_0.gguf")?.();
+  await tick();
+  const large = (await getJson("/api/speech/qwen")).models.find(
+    (m: { id: string }) => m.id === "1.7b",
+  );
+  expect(large).toMatchObject({ installed: true, inUse: true });
+});

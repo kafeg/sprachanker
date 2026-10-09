@@ -74,7 +74,7 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
       rating: 3,
     });
   }
-  await sendJson("POST", "/api/cards/undo", {});
+  await sendJson("POST", "/api/cards/undo", { scope: "course:sprachanker.fixture/demo" });
   expect((await getJson("/api/notebook")).days[0]).toMatchObject({ review: 1, newCards: 1 });
   expect(overview.courses).toMatchObject([
     {

@@ -78,10 +78,39 @@ export function createQwenTts(deps: {
   fetch: typeof fetch;
 }) {
   const { host } = deps;
+  /** The codec's download, one for every model's that needs it; stopped only when none still does. */
+  type CodecDownload = {
+    promise: Promise<void>;
+    controller: AbortController;
+    done: number;
+    users: number;
+  };
+  let codec: CodecDownload | undefined;
+  /** Each model's download: bytes done of `total` (with the codec when it came along; while it waits
+   *  for the codec, the codec's). */
   const downloads = new Map<
     string,
-    { done: number; controller: AbortController; error?: string }
+    {
+      done: number;
+      total: number;
+      controller: AbortController;
+      codec?: CodecDownload;
+      error?: string;
+    }
   >();
+  const fetchCodec = (h: SpeechHost) => {
+    if (!codec) {
+      const controller = new AbortController();
+      const c = { controller, done: 0, users: 0, promise: Promise.resolve() };
+      c.promise = h.models
+        .download(`${MODEL_URL}${CODEC.file}`, CODEC, (n) => (c.done = n), controller.signal)
+        .finally(() => {
+          if (codec === c) codec = undefined;
+        });
+      codec = c;
+    }
+    return codec;
+  };
   const modelOf = (id: string) => {
     const model = QWEN_MODELS.find((m) => m.id === id);
     if (!model) throw new ServiceError("no_such_model", 404);
@@ -117,10 +146,10 @@ export function createQwenTts(deps: {
           const d = downloads.get(m.id);
           return {
             id: m.id,
-            bytes: m.bytes + (installed(m) ? 0 : codecMissing),
+            bytes: d && !d.error ? d.total : m.bytes + (installed(m) ? 0 : codecMissing),
             installed: installed(m),
             inUse: inUse()?.id === m.id,
-            ...(d && !d.error && { downloaded: d.done }),
+            ...(d && !d.error && { downloaded: d.codec ? d.codec.done : d.done }),
             ...(d?.error && { error: d.error }),
           };
         }),
@@ -133,30 +162,45 @@ export function createQwenTts(deps: {
       };
     },
 
-    /** Starts downloading a model with the codec when it is not there yet (once); its progress is in
-     *  `state`. */
+    /** Starts downloading a model with the codec when it is not there yet (once; the codec once for
+     *  both models); its progress is in `state`. */
     download(id: string) {
       const model = modelOf(id);
       if (!host) throw new ServiceError("speech_unavailable", 409);
       if (installed(model) || (downloads.has(id) && !downloads.get(id)?.error)) return;
-      const entry: { done: number; controller: AbortController; error?: string } = {
+      const withCodec = !there(CODEC);
+      const entry: NonNullable<ReturnType<typeof downloads.get>> = {
         done: 0,
+        total: model.bytes + (withCodec ? CODEC.bytes : 0),
         controller: new AbortController(),
       };
       downloads.set(id, entry);
       const { signal } = entry.controller;
       (async () => {
-        let before = 0;
-        for (const file of [CODEC, model]) {
-          if (there(file)) continue;
+        if (withCodec && !there(CODEC)) {
+          const c = fetchCodec(host);
+          c.users++;
+          entry.codec = c;
+          try {
+            await new Promise<void>((resolve, reject) => {
+              c.promise.then(resolve, reject);
+              signal.addEventListener("abort", () => reject(new Error("cancelled")), {
+                once: true,
+              });
+            });
+          } finally {
+            entry.codec = undefined;
+            if (--c.users === 0 && signal.aborted) c.controller.abort();
+          }
+        }
+        const before = withCodec ? CODEC.bytes : 0;
+        if (!there(model))
           await host.models.download(
-            `${MODEL_URL}${file.file}`,
-            file,
+            `${MODEL_URL}${model.file}`,
+            model,
             (n) => (entry.done = before + n),
             signal,
           );
-          before += file.bytes;
-        }
       })()
         .then(() => downloads.delete(id))
         .catch((error: unknown) => {
@@ -165,14 +209,20 @@ export function createQwenTts(deps: {
     },
 
     /** Removes a model (stopping a download of it, or the engine running it); the codec goes with the
-     *  last one. */
+     *  last one — kept while another model has its talker or is being downloaded. */
     remove(id: string) {
       const model = modelOf(id);
       downloads.get(id)?.controller.abort();
       downloads.delete(id);
       if (engine.setup() === id) engine.stop();
       host?.models.remove(model.file);
-      if (!QWEN_MODELS.some(installed)) host?.models.remove(CODEC.file);
+      const needed = QWEN_MODELS.some(
+        (m) => m.id !== id && (!!there(m) || (downloads.has(m.id) && !downloads.get(m.id)?.error)),
+      );
+      if (!needed) {
+        codec?.controller.abort();
+        host?.models.remove(CODEC.file);
+      }
     },
 
     /** Starts the engine ahead of reading (loading the model takes seconds). */

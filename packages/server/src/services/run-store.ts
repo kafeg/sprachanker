@@ -418,8 +418,8 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     /**
      * Deletes runs with their events, and the answers of some cards wherever they are (cards removed
      * with the lesson that made them), on the learner's confirmed request: resetting progress, deleting
-     * a tutor chat. The only deletion of events besides removing a profile (05). Run it in `atomic`
-     * together with what goes with it.
+     * a tutor chat, leaving a deck (the answers to its cards that go). The only deletion of events
+     * besides removing a profile (05). Run it in `atomic` together with what goes with it.
      */
     remove(runIds: string[], cardIds: string[] = []) {
       if (!runIds.length && !cardIds.length) return { runs: 0, events: 0 };
