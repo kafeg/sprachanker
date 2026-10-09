@@ -1,7 +1,8 @@
-// Settings (09): tabs — General (language, theme, storage), Profile (name, languages, sign-in, devices,
-// switching), Review (Anki's deck options), Speech (microphone, recognition, reading aloud), AI
-// assistant (providers, models, LM Studio), Prompts (the tasks' system prompts, the {} buttons), About.
-// The open tab is kept in the URL hash.
+// Settings (09): five tabs, one row on a phone — General (language, theme, storage, about), Profile
+// (name, languages, sign-in, devices, switching, deleting), Review (Anki's deck options), Speech
+// (microphone, recognition, reading aloud), AI assistant (providers, models, LM Studio; then where it
+// works and its prompts). The open tab is kept in the URL hash; a section's own (#prompts, #about)
+// opens its tab there.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSetting } from "@/api/hooks.ts";
@@ -24,11 +25,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.t
 import { Page } from "@/ui/page.tsx";
 import { StorageSection } from "./storage.tsx";
 
-const TABS = ["general", "profile", "review", "speech", "ai", "prompts", "about"] as const;
+const TABS = ["general", "profile", "review", "speech", "ai"] as const;
 type Tab = (typeof TABS)[number];
+/** Sections inside a tab that an address may name. */
+const SECTIONS: Record<string, Tab> = { prompts: "ai", about: "general" };
 const tabOfHash = (): Tab => {
   const hash = window.location.hash.slice(1);
-  return (TABS as readonly string[]).includes(hash) ? (hash as Tab) : "general";
+  return (TABS as readonly string[]).includes(hash) ? (hash as Tab) : (SECTIONS[hash] ?? "general");
 };
 
 function General() {
@@ -70,6 +73,7 @@ function General() {
         />
       </section>
       <StorageSection />
+      <AboutSection />
     </div>
   );
 }
@@ -77,9 +81,16 @@ function General() {
 export function SettingsPage() {
   const { t } = useTranslation();
   const [tab, setTab] = useState(tabOfHash);
-  // A link or Back/Forward that changes only the hash opens that tab.
+  // A link or Back/Forward that changes only the hash opens that tab; one naming a section inside a
+  // tab (#prompts) opens the tab there.
   useEffect(() => {
-    const follow = () => setTab(tabOfHash());
+    const follow = () => {
+      setTab(tabOfHash());
+      const section = window.location.hash.slice(1);
+      if (SECTIONS[section])
+        requestAnimationFrame(() => document.getElementById(section)?.scrollIntoView());
+    };
+    follow();
     window.addEventListener("hashchange", follow);
     return () => window.removeEventListener("hashchange", follow);
   }, []);
@@ -93,13 +104,13 @@ export function SettingsPage() {
         }}
         className="max-w-2xl"
       >
-        {/* Every tab in sight: on a phone they wrap, three to a row. */}
-        <TabsList className="mb-6 h-auto! w-full flex-wrap justify-start">
+        {/* Five tabs in one row, on a phone too (smaller there). */}
+        <TabsList className="mb-6 h-auto! w-full">
           {TABS.map((id) => (
             <TabsTrigger
               key={id}
               value={id}
-              className="min-h-9 basis-[30%] pointer-coarse:min-h-11 sm:basis-auto"
+              className="min-h-9 px-1 text-[13px] pointer-coarse:min-h-11 sm:px-2 sm:text-sm"
             >
               {t(`settings.tabs.${id}`)}
             </TabsTrigger>
@@ -117,14 +128,12 @@ export function SettingsPage() {
         <TabsContent value="speech">
           <SpeechSettings />
         </TabsContent>
-        <TabsContent value="ai">
+        <TabsContent value="ai" className="space-y-10">
           <LlmSettings />
-        </TabsContent>
-        <TabsContent value="prompts">
-          <PromptsSettings />
-        </TabsContent>
-        <TabsContent value="about">
-          <AboutSection />
+          <section id="prompts" className="space-y-2">
+            <h2 className="text-xl font-bold">{t("settings.tabs.prompts")}</h2>
+            <PromptsSettings />
+          </section>
         </TabsContent>
       </Tabs>
     </Page>

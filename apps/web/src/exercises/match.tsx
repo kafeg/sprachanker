@@ -6,7 +6,6 @@ import type { Option } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
-import { cn } from "@/ui/utils.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
 import { partRight, useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
@@ -115,12 +114,15 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
         ) : (
           <div className="space-y-2">
             {slots.map((s, i) => (
-              <div key={s.id} className="flex flex-wrap items-center gap-3">
-                <span lang={lang} className="min-w-32 text-lg font-semibold">
+              // On a phone the entry above its slot, the slot the row's width; side by side wider.
+              <div key={s.id} className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span lang={lang} className="text-lg font-semibold max-sm:w-full sm:min-w-32">
                   {chipView(s)}
                 </span>
-                <span aria-hidden>→</span>
-                <Slot {...slotProps(s, i + 1)} className={cn("min-w-40")}>
+                <span aria-hidden className="max-sm:hidden">
+                  →
+                </span>
+                <Slot {...slotProps(s, i + 1)} className="max-sm:w-full sm:min-w-40">
                   {slotContent(s.id)}
                 </Slot>
                 {correction(s.id)}
