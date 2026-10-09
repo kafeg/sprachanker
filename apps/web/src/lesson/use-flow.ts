@@ -56,9 +56,11 @@ export function useLessonFlow({
   // never shows for a frame first.
   const runLoaded = active && lesson && practice ? run.run?.id : undefined;
   const [resumedFor, setResumedFor] = useState<string>();
+  /** A run started here (Start, Start over, opening a step) is not resumed: its first step is shown. */
+  const startedHere = useRef(false);
   if (runLoaded && resumedFor !== runLoaded) {
     setResumedFor(runLoaded);
-    if (resumeId && !openedOn.current) setCurrent(resumeId);
+    if (resumeId && !openedOn.current && !startedHere.current) setCurrent(resumeId);
   }
 
   // Reaching the summary with every step done or skipped completes an active run (05, "Lifecycle").
@@ -77,6 +79,7 @@ export function useLessonFlow({
     if (startState.busy) return false;
     setStartState({ busy: true });
     try {
+      startedHere.current = true;
       await start();
       setStartState({ busy: false });
       return true;

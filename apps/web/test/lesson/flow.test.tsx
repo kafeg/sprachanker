@@ -175,6 +175,30 @@ test("reaching the summary with every step worked completes the run, once", asyn
   expect(calls).toEqual(["finish"]);
 });
 
+test("a run started here shows its first step, not where an earlier visit would resume", async () => {
+  const before = fakeRun("none");
+  const { result, rerender } = renderHook(
+    ({ run }) => useLessonFlow({ lesson, locale, practice: [], run: run as never }),
+    { initialProps: { run: before.run } },
+  );
+  await act(() => result.current.begin(false));
+  expect(result.current.current).toBe("words");
+  // The run now active, its first steps recorded: resuming would jump past the words.
+  const done = ["words", "grammar:0"].map(
+    (step, i) =>
+      ({
+        id: `S${i}`,
+        runId: "R1",
+        ts: i,
+        type: "step_done",
+        itemKey: null,
+        payload: { step },
+      }) as TypedEvent,
+  );
+  rerender({ run: fakeRun("active", done, 0).run });
+  expect(result.current.current).toBe("words");
+});
+
 test("starting over begins with the first step after the overview", async () => {
   const { run, calls } = fakeRun("finished");
   const { result } = flow(run);

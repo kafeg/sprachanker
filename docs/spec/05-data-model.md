@@ -193,7 +193,8 @@ by its snapshot, found by exercise key.
   every exercise with its latest answers and outcomes), else the latest finished run read-only, else the
   overview. A run starts with "Start" or with opening a page — by moving to it or by an address that
   opens on it (a link, a reload of a lesson never started), so nothing answered goes without a run to
-  be stored in; "Start over" ends the active run
+  be stored in; a run started on the page shows the step it was started on (it is not resumed elsewhere
+  as one opened later is); "Start over" ends the active run
   `abandoned/user` and begins a new one.
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached with its
   plan done (04, "Lesson composition"; reading steps recorded as `step_done`). The server refuses to
