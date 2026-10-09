@@ -43,11 +43,13 @@ test("one import per series at a time, also across processes", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-lock-"));
   const lock = join(root, "library", "coerll.dib", ".import-lock");
   mkdirSync(lock, { recursive: true });
-  // The parent of this test process is alive: its lock is respected.
-  writeFileSync(join(lock, "pid"), String(process.ppid));
+  // Another SprachAnker (Bun running it) holds it: its lock is respected.
+  const other = Bun.spawn(["bun", "-e", "setTimeout(() => {}, 60_000)"]);
+  writeFileSync(join(lock, "pid"), String(other.pid));
   await expect(importCourse("coerll-dib", { dataRoot: root, log: () => {} })).rejects.toThrow(
     /being imported by another process/,
   );
+  other.kill();
 });
 
 test("every provider keeps the contract: its own id and series, courses offered with valid keys", () => {

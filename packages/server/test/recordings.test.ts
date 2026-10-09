@@ -4,6 +4,8 @@ import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { ulid } from "ulid";
+import type { RecordingFiles } from "../src/services/profiles.ts";
+import { createRecordings } from "../src/services/recordings.ts";
 import { setup } from "./setup.ts";
 
 const SPEAKING = "sprachanker.fixture/demo/00-02";
@@ -103,4 +105,24 @@ test("a speaking item answered with a recording; resetting the lesson removes th
   });
   expect(existsSync(join(root, "profiles/local/recordings", `${id}.m4a`))).toBe(false);
   expect(await getJson("/api/recordings")).toEqual({ count: 0, bytes: 0 });
+});
+
+test("takes no answer holds go once a day old; those answers hold, and newer ones, stay", () => {
+  const day = 24 * 60 * 60_000;
+  const now = Date.UTC(2026, 9, 9);
+  const held = ulid(now - 3 * day);
+  const unheld = ulid(now - 2 * day);
+  const recent = ulid(now - 60_000);
+  let names = [held, unheld, recent].map((id) => `${id}.webm`);
+  const recordings = createRecordings(
+    {
+      list: () => names.map((name) => ({ name, size: 1 })),
+      remove: (gone: string[]) => {
+        names = names.filter((n) => !gone.includes(n));
+      },
+    } as unknown as RecordingFiles,
+    () => now,
+  );
+  expect(recordings.removeUnused(new Set([held]), now - day)).toBe(1);
+  expect(names).toEqual([`${held}.webm`, `${recent}.webm`]);
 });

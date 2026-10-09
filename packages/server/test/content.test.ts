@@ -12,6 +12,7 @@ test("a lesson read is kept; a failed read is not (the file may appear, e.g. a d
       if (reads === 1) throw new Error("not there yet");
       return { key } as unknown as Lesson;
     },
+    lessonStamp: () => "1",
   } as unknown as LibraryView;
   const content = createContent(library);
   expect(await content.lesson("a.b", key).catch((e: Error) => e.message)).toBe("not there yet");
@@ -33,4 +34,20 @@ test("a course whose files do not read is left out of the list; the others still
   } as unknown as LibraryView;
   const courses = await createContent(library).courses();
   expect(courses.map((c) => c.key)).toEqual(["a.b/good"]);
+});
+
+test("a lesson kept is read again once its file changed (an import from the command line, a copy put back)", async () => {
+  const key = "a.b/c/01-01" as LessonKey;
+  let stamp = "1";
+  let reads = 0;
+  const library = {
+    lesson: async () => ({ key, title: `read ${++reads}` }) as unknown as Lesson,
+    lessonStamp: () => stamp,
+  } as unknown as LibraryView;
+  const content = createContent(library);
+  const title = async () =>
+    ((await content.lesson("a.b", key)) as unknown as { title: string }).title;
+  expect([await title(), await title()]).toEqual(["read 1", "read 1"]);
+  stamp = "2";
+  expect(await title()).toBe("read 2");
 });

@@ -4,6 +4,7 @@
 import { Database } from "bun:sqlite";
 import { existsSync, readdirSync, renameSync, rmSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
+import { BUSY_MS } from "./bun.ts";
 
 const DAYS_KEPT = 7;
 const EVERY_MS = 6 * 3_600_000;
@@ -34,7 +35,7 @@ export function backUpToday(dataRoot: string, now: Date) {
         rmSync(part, { force: true });
         const db = new Database(file);
         try {
-          db.exec("PRAGMA busy_timeout = 5000");
+          db.exec(`PRAGMA busy_timeout = ${BUSY_MS}`);
           db.exec(`VACUUM INTO '${part.replace(/'/g, "''")}'`);
         } finally {
           db.close();
@@ -42,10 +43,12 @@ export function backUpToday(dataRoot: string, now: Date) {
         renameSync(part, copy);
       }
       const prefix = `${basename(file)}.day-`;
-      const copies = readdirSync(dirname(file))
-        .filter((f) => f.startsWith(prefix) && /^\d{4}-\d{2}-\d{2}$/.test(f.slice(prefix.length)))
-        .sort();
+      const named = readdirSync(dirname(file)).filter((f) => f.startsWith(prefix));
+      const copies = named.filter((f) => /^\d{4}-\d{2}-\d{2}$/.test(f.slice(prefix.length))).sort();
       for (const old of copies.slice(0, -DAYS_KEPT)) rmSync(join(dirname(file), old));
+      // A copy of an earlier day cut short (the copy is made here, one at a time: none is being made).
+      for (const part of named.filter((f) => f.endsWith(".part")))
+        rmSync(join(dirname(file), part));
     } catch (error) {
       console.error(`backing up ${file}:`, error);
     }

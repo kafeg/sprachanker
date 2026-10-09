@@ -49,8 +49,10 @@ export async function fetchMedia<R extends MediaRef>(options: {
     (async (ref: R, target: string) => ({
       mime: (await fetcher.file(ref.url, target)).contentType,
     }));
-  // Downloads land next to the media (same disk), then move into place.
+  // Downloads land next to the media (same disk), then move into place. What an import cut short left
+  // there goes (an import holds its series: nothing else downloads into it now).
   const incoming = store.file("media/.incoming" as MediaPath);
+  await rm(incoming, { recursive: true, force: true });
   await mkdir(incoming, { recursive: true });
   const index = await readMediaIndex(indexFile);
   // One file per content: URLs whose files have the same content point to one of them (the first path

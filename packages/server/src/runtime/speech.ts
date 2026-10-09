@@ -11,6 +11,7 @@ import {
   renameSync,
   rmSync,
   statSync,
+  utimesSync,
   writeFileSync,
 } from "node:fs";
 import { createServer } from "node:net";
@@ -114,9 +115,19 @@ const engineAt = (env: string | undefined, folder: string, program: string) =>
     join(import.meta.dir, "../../../../native", folder, "out", `${program}-${triple}`),
   ].find((p): p is string => !!p && existsSync(p));
 
+/** Removes the parts of downloads or readings a stopped server left in `dir` (made once the server
+ *  runs: nothing is being written there yet; a download starts anew, it does not go on from a part). */
+function removeParts(dir: string, also: (name: string) => boolean = () => false) {
+  if (!existsSync(dir)) return;
+  for (const name of readdirSync(dir))
+    if (name.endsWith(".part") || also(name))
+      rmSync(join(dir, name), { recursive: true, force: true });
+}
+
 export function speechHost(dataRoot: string): SpeechHost {
   const models = join(dataRoot, "models");
   pidFile = join(models, "engines.pid");
+  removeParts(models);
   stopLeftOver(pidFile);
   stopLeftOver(join(models, "whisper-server.pid"));
   stopWithServer();
@@ -188,6 +199,8 @@ export function speechHost(dataRoot: string): SpeechHost {
   };
 }
 
+/** Piper writes a reading here (in the cache folder) before it is kept. */
+const PIPER_OUT = ".piper.wav";
 /** What was read aloud and kept: the newest this many (a few hours of replies). */
 const KEPT_READINGS = 2000;
 /** A text of a reply is read in a second or two; one that takes longer is stuck. */
@@ -196,6 +209,8 @@ const SAY_MS = 60_000;
 export function piperHost(dataRoot: string): PiperHost {
   const voices = join(dataRoot, "models", "voices");
   const cache = join(dataRoot, "cache", "tts");
+  removeParts(voices);
+  removeParts(cache, (name) => name.endsWith(PIPER_OUT));
   /** Readings being made, by key: a second request for the same one waits for it. */
   const making = new Map<string, Promise<Uint8Array<ArrayBuffer>>>();
   /** New readings since the cache was last pruned (pruned every so many). */
@@ -203,7 +218,8 @@ export function piperHost(dataRoot: string): PiperHost {
   /** Old readings go when there are too many (oldest first). */
   const prune = () => {
     const files = readdirSync(cache)
-      .filter((f) => f.endsWith(".wav"))
+      // Readings kept — not Piper's output still being written.
+      .filter((f) => f.endsWith(".wav") && !f.endsWith(PIPER_OUT))
       .map((f) => ({ f, at: statSync(join(cache, f)).mtimeMs }))
       .sort((a, b) => b.at - a.at);
     for (const { f } of files.slice(KEPT_READINGS)) rmSync(join(cache, f), { force: true });
@@ -249,7 +265,17 @@ export function piperHost(dataRoot: string): PiperHost {
    *  for the first) and written there whole. */
   async function kept(key: string, produce: () => Promise<Uint8Array<ArrayBuffer>>) {
     const file = join(cache, `${key}.wav`);
-    if (existsSync(file)) return new Uint8Array(await Bun.file(file).arrayBuffer());
+    if (existsSync(file)) {
+      try {
+        const bytes = new Uint8Array(await Bun.file(file).arrayBuffer());
+        // Used now: the newest are kept, by use.
+        const now = new Date();
+        utimesSync(file, now, now);
+        return bytes;
+      } catch {
+        // Pruned meanwhile: made again.
+      }
+    }
     let pending = making.get(key);
     if (!pending) {
       pending = (async () => {
@@ -272,7 +298,7 @@ export function piperHost(dataRoot: string): PiperHost {
     { binary, dir, id, text, lengthScale }: Parameters<PiperHost["say"]>[1],
   ) {
     mkdirSync(cache, { recursive: true });
-    const out = join(cache, `${key}.piper.wav`);
+    const out = join(cache, `${key}${PIPER_OUT}`);
     const proc = Bun.spawn(
       [
         binary,

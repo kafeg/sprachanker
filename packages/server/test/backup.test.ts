@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readdirSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { backUpToday } from "../src/runtime/backup.ts";
@@ -13,6 +13,8 @@ test("a copy of every database a day, readable; a week's kept", () => {
     db.exec("PRAGMA journal_mode = WAL; CREATE TABLE t (x); INSERT INTO t VALUES (1);");
     db.close();
   }
+  // A copy of an earlier day cut short (a full disk): gone with the next copy.
+  writeFileSync(join(root, "server.sqlite.day-2026-09-30.part"), "half");
   for (let d = 1; d <= 9; d++) backUpToday(root, new Date(2026, 9, d, 12));
   // The same day again makes no new copy.
   backUpToday(root, new Date(2026, 9, 9, 18));
@@ -21,6 +23,7 @@ test("a copy of every database a day, readable; a week's kept", () => {
     [3, 4, 5, 6, 7, 8, 9].map((d) => `profile.sqlite.day-2026-10-0${d}`),
   );
   expect(readdirSync(root).filter((f) => f.includes(".day-"))).toHaveLength(7);
+  expect(readdirSync(root).filter((f) => f.endsWith(".part"))).toEqual([]);
   const copy = new Database(join(root, "profiles/local/profile.sqlite.day-2026-10-09"));
   expect(copy.query("SELECT x FROM t").all()).toEqual([{ x: 1 }]);
 });

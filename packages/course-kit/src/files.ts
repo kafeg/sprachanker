@@ -9,6 +9,9 @@ import { dirname } from "node:path";
 export const tempFile = (target: string) =>
   `${target}.tmp-${process.pid}-${randomUUID().slice(0, 8)}`;
 
+/** A file `tempFile` named: left behind when the process stopped before it was renamed. */
+export const isTempFile = (path: string) => /\.tmp-\d+-[0-9a-f]{8}$/.test(path);
+
 /** Writes `data` to a temporary file, flushes it to disk, then renames it over `target`. */
 export async function writeFileAtomic(target: string, data: string | Uint8Array): Promise<void> {
   await mkdir(dirname(target), { recursive: true });

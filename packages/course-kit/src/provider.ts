@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { type CourseSource, issuesText } from "@sprachanker/schema";
 import type { z } from "zod";
 import { prettyJson } from "./canonical-json.ts";
-import { writeFileAtomic } from "./files.ts";
+import { isTempFile, writeFileAtomic } from "./files.ts";
 
 export interface ImportOptions {
   /** Library folder of the data root. */
@@ -130,14 +130,17 @@ export function libraryWriter(seriesDir: string, log: (line: string) => void) {
     get problems() {
       return problems;
     },
-    /** Removes what the written courses no longer have; returns the removed paths. */
+    /** Removes what the written courses no longer have, and the temporary files a normalisation cut
+     *  short left there (an import holds its series: none is being written now); returns the removed
+     *  paths. */
     async finish(): Promise<string[]> {
       const removed: string[] = [];
       for (const folder of courses) {
         const dir = join(seriesDir, folder);
         for (const name of await readdir(dir, { recursive: true })) {
           const path = `${folder}/${name}`;
-          if (!path.endsWith(".json") || written.has(path)) continue;
+          const stale = path.endsWith(".json") ? !written.has(path) : isTempFile(path);
+          if (!stale) continue;
           await rm(join(seriesDir, path), { force: true });
           removed.push(path);
         }

@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openLibrary } from "../src/library.ts";
@@ -30,4 +30,16 @@ test("media files stay inside the media folder", async () => {
   );
   expect(lib.mediaFile("sprachanker.mini", "media/../canonical/basic/course.json")).toBeUndefined();
   expect(lib.mediaFile("sprachanker.mini", "media/audio/none.mp3")).toBeUndefined();
+});
+
+test("a lesson file's stamp: what it is now, another once it is replaced, empty while there is none", async () => {
+  const lib = await library();
+  const series = "sprachanker.mini";
+  const before = lib.lessonStamp(series, MINI_LESSON);
+  expect(before).not.toBe("");
+  expect(lib.lessonStamp(series, MINI_LESSON, "ru-de")).not.toBe("");
+  expect(lib.lessonStamp(series, MINI_LESSON, "fr-de")).toBe("");
+  const file = join(lib.root, series, "canonical/basic/lessons/00-01.json");
+  writeFileSync(file, `${readFileSync(file, "utf8")}\n`);
+  expect(lib.lessonStamp(series, MINI_LESSON)).not.toBe(before);
 });

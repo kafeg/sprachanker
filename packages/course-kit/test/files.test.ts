@@ -33,12 +33,18 @@ test("a normalisation removes the files of its courses the source no longer has"
   const stale = join(root, "canonical/c1/lessons/09-09.json");
   const other = join(root, "canonical/c2/lessons/01-01.json");
   for (const f of [stale, other]) await writeFileAtomic(f, "{}");
+  // A file one cut short was writing.
+  const half = join(root, "canonical/c1/lessons/01-01.json.tmp-123-0a1b2c3d");
+  writeFileSync(half, "{");
   const writer = libraryWriter(root, () => {});
   await writer.write([{ path: "canonical/c1/lessons/01-01.json", schema: z.any(), value: {} }]);
   await writer.write([{ path: "canonical/c1/course.json", schema: Lesson, value: {} }]);
   expect(writer.problems).toBe(1);
-  expect(await writer.finish()).toEqual(["canonical/c1/lessons/09-09.json"]);
-  expect([existsSync(stale), existsSync(other)]).toEqual([false, true]);
+  expect((await writer.finish()).sort()).toEqual([
+    "canonical/c1/lessons/01-01.json.tmp-123-0a1b2c3d",
+    "canonical/c1/lessons/09-09.json",
+  ]);
+  expect([existsSync(stale), existsSync(other), existsSync(half)]).toEqual([false, true, false]);
 });
 
 /** A fetcher that writes `body` for each URL, or throws what `fail` gives. */
@@ -66,8 +72,9 @@ test("media: each URL once; a stored file gone from the disk is fetched again", 
   expect(asked).toEqual([ref.url]);
   await fetchMedia({ fetcher, store, indexFile, refs: [ref], log: () => {} });
   expect(asked).toHaveLength(1);
-  // Deleted by hand: fetched again.
+  // Deleted by hand: fetched again; a download an import cut short left goes.
   await Bun.file(join(root, "media/audio/a.mp3")).delete();
+  writeFileSync(join(root, "media/.incoming/b.mp3.tmp-1-0a1b2c3d"), "half");
   await fetchMedia({ fetcher, store, indexFile, refs: [ref], log: () => {} });
   expect(asked).toHaveLength(2);
   expect(readdirSync(join(root, "media/.incoming"))).toEqual([]);

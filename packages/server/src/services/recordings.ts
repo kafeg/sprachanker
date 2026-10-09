@@ -1,7 +1,7 @@
 // The learner's recordings (08; 05): audio as the browser captured it, kept in the profile's
 // `recordings/` folder by id and referenced from the answers that hold them. Saved, served, counted,
 // removed — all of them on request (Settings → Speech), or those of the runs a progress reset deletes.
-import { ulid } from "ulid";
+import { decodeTime, ulid } from "ulid";
 import { ServiceError } from "../errors.ts";
 import type { RecordingFiles } from "./profiles.ts";
 
@@ -43,6 +43,19 @@ export function createRecordings(files: RecordingFiles, now: () => number) {
     stats() {
       const list = files.list().filter((f) => NAME.test(f.name));
       return { count: list.length, bytes: list.reduce((n, f) => n + f.size, 0) };
+    },
+
+    /**
+     * Removes the recordings no answer holds (`inUse`) made before `before`: takes recorded again or
+     * never answered with, and those not to be kept. A newer one may belong to an answer still on its
+     * way. Returns how many went.
+     */
+    removeUnused(inUse: ReadonlySet<string>, before: number) {
+      const unused = files
+        .list()
+        .flatMap((f) => NAME.exec(f.name)?.[1] ?? [])
+        .filter((id) => !inUse.has(id) && decodeTime(id) < before);
+      return unused.length ? this.remove(unused) : 0;
     },
 
     /** Removes some recordings (those of runs deleted), or all of them. */

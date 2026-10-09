@@ -14,7 +14,8 @@
 ├── server.pid                   # the running server's pid: one server per data root (06)
 └── profiles/<profile-id>/       # `local` is the first
     ├── profile.sqlite           # all learner data of this profile
-    └── recordings/              # learner audio as captured (<ulid>.<ext>), referenced from answers (08)
+    └── recordings/              # learner audio as captured (<ulid>.<ext>), referenced from answers (08);
+                                 # a take no answer holds goes when the profile opens, a day old
 ```
 
 - One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
@@ -182,7 +183,8 @@ by its snapshot, found by exercise key.
 
 ## Lifecycle
 
-- One server process owns all DB files (WAL mode); devices are clients.
+- One server process owns all DB files (WAL mode); devices are clients. A connection waits up to 5 s
+  for another's write (the command line beside a server, a daily copy) before it fails.
 - One active run per (profile, context) and one active review run per profile. Any device of the
   profile may continue it; events from all devices are stored (idempotent by id).
 - **Opening a lesson starts nothing**: the step shown is in the page's address (`?step=`), so a reload

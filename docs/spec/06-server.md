@@ -133,8 +133,10 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   `<data-root>/models/engines.pid`, so one left by a server killed outright is stopped when the
   next one starts. An engine stopped while it starts is not left running; an engine that fails a
   request with its own failure is replaced on the next one.
-- One server per data root: `serve` writes `<data-root>/server.pid` and refuses to start while the
-  server named there is alive; `profiles delete` refuses while one is.
+- One server per data root: `serve` makes `<data-root>/server.pid` (only where there is none, so two
+  started at once cannot both have it) and refuses to start while the server named there runs — a
+  live SprachAnker process, not another program given its pid after a restart; `profiles delete`
+  refuses while one does.
 - `whisper-server` (whisper.cpp, built in `native/`, 08) on that supervisor; models in
   `<data-root>/models`, downloaded and checked from Settings.
 - Qwen3-TTS (`tts-server`, 08) on the same supervisor (health `/health`, start 180 s, idle stop 10

@@ -8,6 +8,8 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
+  statSync,
+  utimesSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -79,4 +81,25 @@ test("a reading is made once however many ask for it together, then served from 
   await host.say("k1", run);
   expect(readFileSync(runs, "utf8").trim().split("\n")).toHaveLength(1);
   expect(readdirSync(join(root, "cache", "tts"))).toEqual(["k1.wav"]);
+});
+
+test("what a stopped server left is gone once one starts; a reading kept counts as new when used", async () => {
+  const root = join(work, "root-leftovers");
+  const cache = join(root, "cache", "tts");
+  const voices = join(root, "models", "voices");
+  mkdirSync(cache, { recursive: true });
+  mkdirSync(join(voices, `${ID}.part`), { recursive: true });
+  for (const name of ["a.part", "b.piper.wav", "kept.wav"]) writeFileSync(join(cache, name), "x");
+  writeFileSync(join(voices, `${ID}.tar.bz2.part`), "x");
+  const host = piperHost(root);
+  expect(readdirSync(cache)).toEqual(["kept.wav"]);
+  expect(readdirSync(voices)).toEqual([]);
+  // Read from the cache: its time is now, so pruning the oldest keeps it.
+  const old = new Date(2020, 0, 1);
+  utimesSync(join(cache, "kept.wav"), old, old);
+  const bytes = await host.kept("kept", async () => {
+    throw new Error("made again");
+  });
+  expect(new TextDecoder().decode(bytes)).toBe("x");
+  expect(statSync(join(cache, "kept.wav")).mtimeMs).toBeGreaterThan(old.getTime());
 });

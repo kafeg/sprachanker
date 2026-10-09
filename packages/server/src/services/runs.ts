@@ -93,6 +93,12 @@ export function createRuns({
     });
   };
 
+  /** The recordings the answers of some runs hold. */
+  const recordingsIn = (runIds: string[]) =>
+    [...store.eventsOf(runIds, ["answered"]).values()].flatMap((list) =>
+      list.flatMap((e) => recordingOf(payloadOf<AnsweredPayload>(e).answer) ?? []),
+    );
+
   /**
    * A finished run is a completion by how it ended: the server ends a run `finished/completed` only
    * when its plan was done then (`finish`, `replace`). A lesson changed since — an exercise added when
@@ -163,6 +169,9 @@ export function createRuns({
   return {
     progress,
 
+    /** The recordings the answers of every lesson run hold. */
+    recordingsInUse: () => new Set(recordingsIn(store.all("lesson").map((r) => r.id))),
+
     /** The installed courses with the learner's progress and the lesson to go on with, as its card
      *  shows it (title and exercises worked). */
     async courses() {
@@ -223,9 +232,7 @@ export function createRuns({
         const scope = lesson ? { lesson } : { course };
         const runIds = store.idsOf(scope);
         const cardIds = cards.idsMetIn(scope);
-        const recordingIds = [...store.eventsOf(runIds, ["answered"]).values()].flatMap((list) =>
-          list.flatMap((e) => recordingOf(payloadOf<AnsweredPayload>(e).answer) ?? []),
-        );
+        const recordingIds = recordingsIn(runIds);
         const removed = store.remove(runIds, cardIds);
         cards.remove(cardIds);
         return { removed: { ...removed, cards: cardIds.length }, recordingIds };

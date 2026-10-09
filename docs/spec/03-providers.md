@@ -53,7 +53,7 @@ runs (left out of progress), its pages say it is not installed.
   are skipped, failed media — and stored ones gone from the disk — are fetched again on the next run.
   Every file is written whole or not at all (a temporary file, flushed, renamed: `writeFileAtomic`),
   so an import stopped midway never leaves a half page, lesson or index that a later run would take
-  as stored. Media are streamed to disk (never held whole in memory), each URL fetched once; a name
+  as stored; the temporary files and the downloads it left are removed by the series' next import. Media are streamed to disk (never held whole in memory), each URL fetched once; a name
   from the source is a plain file name under its kind's folder, nothing that walks out. A connection
   silent for 60 s counts as failed and is retried.
 - **Normalising again** writes a course whole: the files of its courses that this normalisation no
@@ -69,7 +69,7 @@ runs (left out of progress), its pages say it is not installed.
   so the download stays marked incomplete. A robots.txt that could not be read is asked again later.
 - One download at a time (the job queue) and one import per series across processes (a lock folder
   with the owner's pid, made elsewhere and renamed into place so it is never seen without its owner;
-  taken over when that process is gone), so the CLI and the server never write one `media.json`
+  taken over when that process is gone or is no SprachAnker), so the CLI and the server never write one `media.json`
   together.
 
 ## 1. DW Learn German (`courses/dw`)

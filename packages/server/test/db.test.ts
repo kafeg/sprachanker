@@ -3,10 +3,11 @@ import { expect, test } from "bun:test";
 import { existsSync, mkdtempSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { sql } from "drizzle-orm";
 import { type Migration, MigrationError, migrate } from "../src/db/migrate.ts";
 import { migrations } from "../src/db/profile/migrations/index.ts";
 import { migrations as serverMigrations } from "../src/db/server/migrations/index.ts";
-import { openProfileDb } from "../src/runtime/bun.ts";
+import { BUSY_MS, openProfileDb } from "../src/runtime/bun.ts";
 
 const fresh = () => join(mkdtempSync(join(tmpdir(), "sprachanker-db-")), "profile.sqlite");
 
@@ -184,4 +185,10 @@ test("server.sqlite without PINs: a profile with one and its device are kept, th
     { id: "local", name: "Anna", colour: "amber", onboarded: 0, created_at: 1 },
   ]);
   expect(sqlite.query("SELECT id FROM devices").all()).toEqual([{ id: "d" }]);
+});
+
+test("a database waits for another connection's write instead of failing at once", () => {
+  const dir = mkdtempSync(join(tmpdir(), "sprachanker-busy-"));
+  const db = openProfileDb(join(dir, "profile.sqlite"));
+  expect(db.all(sql`PRAGMA busy_timeout`)).toEqual([{ timeout: BUSY_MS }]);
 });

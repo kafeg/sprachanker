@@ -2,6 +2,7 @@
 import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
+import { writeFileAtomic } from "@sprachanker/course-kit";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { type Migration, migrate } from "../db/migrate.ts";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -88,10 +89,8 @@ function recordingFiles(dir: string): RecordingFiles {
     return join(dir, name);
   };
   return {
-    async write(name, bytes) {
-      mkdirSync(dir, { recursive: true });
-      await Bun.write(file(name), bytes);
-    },
+    // Whole or not at all: a take cut short (the server stopped) is never served as one.
+    write: (name, bytes) => writeFileAtomic(file(name), bytes),
     read: (name) =>
       statSync(file(name), { throwIfNoEntry: false })?.isFile() ? Bun.file(file(name)) : undefined,
     list: () =>
@@ -104,11 +103,18 @@ function recordingFiles(dir: string): RecordingFiles {
   };
 }
 
+/** How long a statement waits for another connection's write before it fails (SQLITE_BUSY). */
+export const BUSY_MS = 5000;
+
 /** A SQLite file in WAL mode with its migrations applied (backed up first, 05). */
 function openSqlite(file: string, list: Migration[], now: number) {
   mkdirSync(dirname(file), { recursive: true });
   const sqlite = new Database(file, { create: true, strict: true });
-  sqlite.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;");
+  // Another connection writing (the command line beside a server, a daily copy) is waited for, not
+  // failed at once.
+  sqlite.exec(
+    `PRAGMA busy_timeout = ${BUSY_MS}; PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;`,
+  );
   migrate(
     {
       exec: (sql) => sqlite.exec(sql),

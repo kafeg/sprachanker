@@ -1,5 +1,5 @@
-// Installed course content for the API: course list, course map, lessons (cached; files are immutable
-// until an import or sync replaces them — a sync calls `forget` for its course).
+// Installed course content for the API: course list, course map, lessons (cached while their files
+// stay the same).
 import type { LibraryView } from "@sprachanker/course-kit";
 import type {
   CourseIndex,
@@ -30,22 +30,33 @@ export interface CourseMap {
 }
 
 export function createContent(library: LibraryView) {
-  const lessons = new Map<string, Promise<Lesson>>();
-  const locales = new Map<string, Promise<LocaleLesson | undefined>>();
-  /** Reads once and keeps the result; a failed read is not kept (asked again next time). */
-  const cached = <T>(cache: Map<string, Promise<T>>, id: string, read: () => Promise<T>) => {
-    let value = cache.get(id);
-    if (!value) {
-      value = read();
-      cache.set(id, value);
-      value.catch(() => cache.delete(id));
-    }
+  type Kept<T> = { stamp: string; value: Promise<T> };
+  const lessons = new Map<string, Kept<Lesson>>();
+  const locales = new Map<string, Kept<LocaleLesson | undefined>>();
+  /** Reads once and keeps the result while its file stays the same — replaced by a download, an import
+   *  from the command line or a series folder copied back, it is read again; a failed read is not
+   *  kept (asked again next time). */
+  const cached = <T>(
+    cache: Map<string, Kept<T>>,
+    id: string,
+    stamp: string,
+    read: () => Promise<T>,
+  ) => {
+    const kept = cache.get(id);
+    if (kept?.stamp === stamp) return kept.value;
+    const value = read();
+    cache.set(id, { stamp, value });
+    value.catch(() => {
+      if (cache.get(id)?.value === value) cache.delete(id);
+    });
     return value;
   };
   const lesson = (series: string, key: LessonKey) =>
-    cached(lessons, `${series}|${key}`, () => library.lesson(series, key));
+    cached(lessons, `${series}|${key}`, library.lessonStamp(series, key), () =>
+      library.lesson(series, key),
+    );
   const localeLesson = (series: string, key: LessonKey, edition: string) =>
-    cached(locales, `${series}|${key}|${edition}`, () =>
+    cached(locales, `${series}|${key}|${edition}`, library.lessonStamp(series, key, edition), () =>
       library.localeLesson(series, key, edition),
     );
 
@@ -59,12 +70,6 @@ export function createContent(library: LibraryView) {
         localeLesson(series, key, edition),
       ]);
       return { lesson: l, locale };
-    },
-    /** Drops the cached lessons of a course whose files were replaced. */
-    forget(series: string, course: string) {
-      const prefix = `${series}|${series}/${course}/`;
-      for (const cache of [lessons, locales])
-        for (const id of cache.keys()) if (id.startsWith(prefix)) cache.delete(id);
     },
     /** The installed courses; one whose files do not read is left out (and logged): the others still
      *  list, and the catalogue offers it again to download. */

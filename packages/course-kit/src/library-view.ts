@@ -22,6 +22,9 @@ export interface LibraryView {
   localeCourse(series: string, course: string, edition: string): Promise<LocaleCourse | undefined>;
   lesson(series: string, key: LessonKey): Promise<Lesson>;
   localeLesson(series: string, key: LessonKey, edition: string): Promise<LocaleLesson | undefined>;
+  /** What a lesson's file (with `edition`, its locale file) is now — its size and time of change, ""
+   *  while there is none: a reading kept is good while this stays the same. */
+  lessonStamp(series: string, key: LessonKey, edition?: string): string;
   /** Absolute file of a media path, or undefined when it does not exist or leaves the media folder. */
   mediaFile(series: string, path: MediaPath | string): string | undefined;
   /** Verifies one installed course: integrity and counts (verify.ts). */

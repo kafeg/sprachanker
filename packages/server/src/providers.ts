@@ -15,6 +15,7 @@ import { DW_PROVIDERS } from "@sprachanker/dw";
 import { LINGUST_PROVIDER } from "@sprachanker/lingust-english";
 import { ENGLISH_USA_PROVIDER } from "@sprachanker/voa-english-usa";
 import { LETS_LEARN_ENGLISH_PROVIDER } from "@sprachanker/voa-lets-learn-english";
+import { sprachAnkerRuns } from "./runtime/data-root.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 
 export interface ImportRequest {
@@ -42,7 +43,7 @@ export const providerIds = () => PROVIDERS.map((p) => p.id);
 /**
  * Runs a provider into `<dataRoot>/library`. One import per series at a time, across processes (the
  * CLI and a server's download job share media.json): a lock folder with the owner's pid; a lock whose
- * process is gone is taken over.
+ * process is gone (or is no SprachAnker) is taken over.
  */
 export async function importCourse(
   provider: string,
@@ -64,7 +65,7 @@ export async function importCourse(
 /**
  * Takes the lock folder with this process's pid already in it: the folder is made elsewhere and
  * renamed into place, so another process never sees the lock without its owner. A lock whose process
- * is gone is taken over.
+ * is gone (or is no SprachAnker) is taken over.
  */
 async function takeLock(lock: string, series: string) {
   const mine = `${lock}.${process.pid}-${Date.now()}`;
@@ -76,7 +77,7 @@ async function takeLock(lock: string, series: string) {
       return;
     } catch {
       const owner = Number(await readFile(join(lock, "pid"), "utf8").catch(() => "0"));
-      if (owner && owner !== process.pid && alive(owner)) {
+      if (owner && owner !== process.pid && sprachAnkerRuns(owner)) {
         await rm(mine, { recursive: true, force: true });
         throw new Error(`${series} is being imported by another process (pid ${owner})`);
       }
@@ -84,20 +85,11 @@ async function takeLock(lock: string, series: string) {
         await rm(mine, { recursive: true, force: true });
         throw new Error(`could not take the import lock of ${series}`);
       }
-      // A stale lock (its process is gone): removed, then taken.
+      // A stale lock (its process gone, or no SprachAnker): removed, then taken.
       await rm(lock, { recursive: true, force: true });
     }
   }
 }
-
-const alive = (pid: number) => {
-  try {
-    process.kill(pid, 0);
-    return true;
-  } catch {
-    return false;
-  }
-};
 
 /**
  * A download marker: written when it starts; `failed` once it ended with media of the course missing;

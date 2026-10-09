@@ -1,6 +1,6 @@
 // Reading installed courses from the library folder (02, "Library layout"). Files are validated
 // against the schemas on read; an invalid file is an error, never partially used.
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
 import {
@@ -9,6 +9,7 @@ import {
   EditionId,
   issuesText,
   Lesson,
+  type LessonKey,
   LocaleCourse,
   LocaleLesson,
   parseLessonKey,
@@ -46,6 +47,20 @@ export function openLibrary(root: string): LibraryView {
   const named = (schema: z.ZodType, name: string) => {
     if (!schema.safeParse(name).success) throw new NotInstalledError(name);
     return name;
+  };
+  /** A lesson's canonical file, or with an edition its locale file. */
+  const lessonFile = (series: string, key: LessonKey, edition?: string) => {
+    const { courseId, name } = parseLessonKey(key);
+    return edition === undefined
+      ? join(seriesDir(series), "canonical", courseId, "lessons", `${name}.json`)
+      : join(
+          seriesDir(series),
+          "locale",
+          named(EditionId, edition),
+          courseId,
+          "lessons",
+          `${name}.json`,
+        );
   };
   const view: LibraryView = {
     root,
@@ -85,24 +100,14 @@ export function openLibrary(root: string): LibraryView {
       );
       return existsSync(file) ? read(LocaleCourse, file) : undefined;
     },
-    lesson(series, key) {
-      const { courseId, name } = parseLessonKey(key);
-      return read(
-        Lesson,
-        join(seriesDir(series), "canonical", courseId, "lessons", `${name}.json`),
-      );
-    },
+    lesson: (series, key) => read(Lesson, lessonFile(series, key)),
     async localeLesson(series, key, edition) {
-      const { courseId, name } = parseLessonKey(key);
-      const file = join(
-        seriesDir(series),
-        "locale",
-        named(EditionId, edition),
-        courseId,
-        "lessons",
-        `${name}.json`,
-      );
+      const file = lessonFile(series, key, edition);
       return existsSync(file) ? read(LocaleLesson, file) : undefined;
+    },
+    lessonStamp(series, key, edition) {
+      const stat = statSync(lessonFile(series, key, edition), { throwIfNoEntry: false });
+      return stat ? `${stat.size}:${stat.mtimeMs}` : "";
     },
     mediaFile(series, path) {
       if (!SeriesKey.safeParse(series).success) return undefined;
