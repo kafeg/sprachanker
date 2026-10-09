@@ -152,8 +152,8 @@ export function createStudy(deps: {
       settings.set("srs.extraNew", { day: today, scopes });
     },
 
-    /** Decks: each language the cards teach, and under it each course with its language pair (the
-     *  edition its cards translate into: `ru-de`), with Anki's three counts. */
+    /** Decks: each language the cards teach, and under it each course with its language pairs (the
+     *  editions its cards translate into: `ru-de`), with Anki's three counts. */
     async decks() {
       const data = studyData();
       const out = [];
@@ -164,7 +164,11 @@ export function createStudy(deps: {
           courses.push({
             scope: `course:${course}`,
             course,
-            edition: `${own.find((n) => n.course === course)?.translationLang}-${lang}`,
+            editions: [
+              ...new Set(own.filter((n) => n.course === course).map((n) => n.translationLang)),
+            ]
+              .sort()
+              .map((from) => `${from}-${lang}`),
             counts: (await queueOf(`course:${course}`, data)).counts,
           });
         out.push({

@@ -173,6 +173,10 @@ const SAY_MS = 60_000;
 export function piperHost(dataRoot: string): PiperHost {
   const voices = join(dataRoot, "models", "voices");
   const cache = join(dataRoot, "cache", "tts");
+  /** Readings being made, by key: a second request for the same one waits for it. */
+  const making = new Map<string, Promise<void>>();
+  /** New readings since the cache was last pruned (pruned every so many). */
+  let made = 0;
   /** Old readings go when there are too many (oldest first). */
   const prune = () => {
     const files = readdirSync(cache)
@@ -196,9 +200,12 @@ export function piperHost(dataRoot: string): PiperHost {
         rmSync(unpacked, { recursive: true, force: true });
         mkdirSync(unpacked, { recursive: true });
         // The archive holds one folder, vits-piper-<id>: the model, its tokens and espeak-ng data.
-        const tar = Bun.spawnSync(["tar", "-xjf", archive, "-C", unpacked]);
-        if (tar.exitCode !== 0)
-          throw new Error(`unpacking failed: ${tar.stderr.toString().slice(0, 200)}`);
+        // Unpacked by another process, so the server goes on answering meanwhile.
+        const tar = Bun.spawn(["tar", "-xjf", archive, "-C", unpacked], { stderr: "pipe" });
+        if ((await tar.exited) !== 0)
+          throw new Error(
+            `unpacking failed: ${(await new Response(tar.stderr).text()).slice(0, 200)}`,
+          );
         rmSync(join(voices, voice.id), { recursive: true, force: true });
         renameSync(join(unpacked, `vits-piper-${voice.id}`), join(voices, voice.id));
       } finally {
@@ -213,31 +220,48 @@ export function piperHost(dataRoot: string): PiperHost {
     },
     async say(key, { binary, dir, id, text, lengthScale }) {
       const file = join(cache, `${key}.wav`);
-      if (existsSync(file)) return new Uint8Array(await Bun.file(file).arrayBuffer());
-      mkdirSync(cache, { recursive: true });
-      const part = join(cache, `${key}.part.wav`);
-      const proc = Bun.spawn(
-        [
-          binary,
-          `--vits-model=${join(dir, `${id}.onnx`)}`,
-          `--vits-tokens=${join(dir, "tokens.txt")}`,
-          `--vits-data-dir=${join(dir, "espeak-ng-data")}`,
-          `--vits-length-scale=${lengthScale}`,
-          "--num-threads=2",
-          `--output-filename=${part}`,
-          text,
-        ],
-        { stdout: "ignore", stderr: "ignore" },
-      );
-      const timer = setTimeout(() => proc.kill(), SAY_MS);
-      const code = await proc.exited.finally(() => clearTimeout(timer));
-      if (code !== 0 || !existsSync(part)) {
-        rmSync(part, { force: true });
-        throw new Error(`reading aloud failed (${code})`);
+      const bytes = async () => new Uint8Array(await Bun.file(file).arrayBuffer());
+      if (existsSync(file)) return bytes();
+      let pending = making.get(key);
+      if (!pending) {
+        pending = make(key, file, { binary, dir, id, text, lengthScale }).finally(() =>
+          making.delete(key),
+        );
+        making.set(key, pending);
       }
-      renameSync(part, file);
-      prune();
-      return new Uint8Array(await Bun.file(file).arrayBuffer());
+      await pending;
+      return bytes();
     },
   };
+
+  /** Runs the engine once for a reading, into its file (written aside, renamed when whole). */
+  async function make(
+    key: string,
+    file: string,
+    { binary, dir, id, text, lengthScale }: Parameters<PiperHost["say"]>[1],
+  ) {
+    mkdirSync(cache, { recursive: true });
+    const part = join(cache, `${key}.part.wav`);
+    const proc = Bun.spawn(
+      [
+        binary,
+        `--vits-model=${join(dir, `${id}.onnx`)}`,
+        `--vits-tokens=${join(dir, "tokens.txt")}`,
+        `--vits-data-dir=${join(dir, "espeak-ng-data")}`,
+        `--vits-length-scale=${lengthScale}`,
+        "--num-threads=2",
+        `--output-filename=${part}`,
+        text,
+      ],
+      { stdout: "ignore", stderr: "ignore" },
+    );
+    const timer = setTimeout(() => proc.kill(), SAY_MS);
+    const code = await proc.exited.finally(() => clearTimeout(timer));
+    if (code !== 0 || !existsSync(part)) {
+      rmSync(part, { force: true });
+      throw new Error(`reading aloud failed (${code})`);
+    }
+    renameSync(part, file);
+    if (++made % 100 === 0) prune();
+  }
 }

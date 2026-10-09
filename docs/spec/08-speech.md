@@ -79,7 +79,8 @@ writes (owner, 2026-10-08).
   Speech API, the default), or **Piper on this computer** — Piper voices run by sherpa-onnx's
   `sherpa-onnx-offline-tts` (Apache-2.0; pinned in `native/piper/VERSION`, built static by `bun run
   build:speech`, beside the binary like whisper-server). A part whose language has no Piper voice
-  here is read by the device's voices. Piper is run once per text (no sidecar: a phrase takes about
+  here, or that Piper fails to say, is read by the device's voices. Piper is run once per text (no sidecar; a text
+  asked for twice at once is made once: a phrase takes about
   a second with the model's load, e.g. 1.0 s for 3.6 s of German on an M2 Pro); the WAV is kept in
   `<data-root>/cache/tts` by voice, speed and text (the newest 2,000 kept), so a text read again comes
   at once.

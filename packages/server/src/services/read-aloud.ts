@@ -64,7 +64,10 @@ export function createReadAloud(deps: { host?: PiperHost }) {
     const main = new Intl.Locale(lang).maximize().region;
     const rank = (v: PiperVoice) =>
       (v.region === main ? 10 : 0) + ["x_low", "low", "medium", "high"].indexOf(v.quality);
-    return ready.find((v) => v.id === choice) ?? [...ready].sort((a, b) => rank(b) - rank(a))[0];
+    return (
+      ready.find((v) => v.id === choice) ??
+      [...ready].sort((a, b) => rank(b) - rank(a) || a.name.localeCompare(b.name))[0]
+    );
   }
 
   return {

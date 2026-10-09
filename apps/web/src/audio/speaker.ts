@@ -17,16 +17,18 @@ const pieces = (text: string) =>
   text.length <= PIECE ? [text] : (text.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [text]);
 
 /** How a piece is read: with a device voice (none: the browser's for its language), or by the server. */
-type Way =
-  | { device: SpeechSynthesisVoice | undefined; rate: number }
-  | { server: { voice?: string } };
+type Device = { device: SpeechSynthesisVoice | undefined; rate: number };
+/** By the server (a Piper voice); `fallback`: the device's way, when the server cannot say it. */
+type Way = Device | { server: { voice?: string }; fallback?: Device };
 export interface ReadOptions {
   /** How a language is read (undefined: it cannot be). */
   wayFor(lang: string): Way | undefined;
 }
 
+/** What is being read, for the buttons; and the run reading it — a new run, even of the same text,
+ *  is another one, so a stopped run never goes on. */
 let reading: string | undefined;
-let cancel: (() => void) | undefined;
+let run: { cancel(): void } | undefined;
 const listeners = new Set<() => void>();
 const setReading = (id: string | undefined) => {
   reading = id;
@@ -36,26 +38,19 @@ const setReading = (id: string | undefined) => {
 const asPlaying = { pause: () => stop() };
 
 export function stop() {
-  if (reading === undefined) return;
-  setReading(undefined);
-  cancel?.();
-  cancel = undefined;
+  run?.cancel();
+  run = undefined;
+  if (reading !== undefined) setReading(undefined);
 }
 
-/** Says a piece with a device voice; resolves when it is said or stopped. */
-function sayOnDevice(
-  text: string,
-  lang: string,
-  voice: SpeechSynthesisVoice | undefined,
-  rate: number,
-  stopped: Promise<void>,
-) {
+/** Says a piece with a device voice; resolves when it is said or the run is stopped. */
+function sayOnDevice(text: string, lang: string, way: Device, stopped: Promise<void>) {
   const engine = synth();
   if (!engine) return Promise.resolve();
   const u = new SpeechSynthesisUtterance(text);
-  u.lang = voice?.lang ?? lang;
-  if (voice) u.voice = voice;
-  u.rate = rate;
+  u.lang = way.device?.lang ?? lang;
+  if (way.device) u.voice = way.device;
+  u.rate = way.rate;
   return Promise.race([
     new Promise<void>((resolve) => {
       u.onend = u.onerror = () => resolve();
@@ -79,7 +74,8 @@ function play(wav: Blob, stopped: Promise<void>) {
 }
 
 /** Reads `parts` aloud as `id` (stopping whatever is read or played); resolves when done or stopped.
- *  The server's pieces are asked for one ahead, so the next is there when one ends. */
+ *  The server's pieces are asked for one ahead, so the next is there when one ends; a piece the server
+ *  cannot say is said by the device's voice. */
 export async function read(id: string, parts: SpokenPart[], options: ReadOptions): Promise<void> {
   stop();
   const queue = parts.flatMap(({ text, lang }) => {
@@ -87,18 +83,22 @@ export async function read(id: string, parts: SpokenPart[], options: ReadOptions
     return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
   });
   if (!queue.length) return;
-  claimPlayback(asPlaying);
-  setReading(id);
   const controller = new AbortController();
   let stopNow = () => {};
   const stopped = new Promise<void>((resolve) => {
     stopNow = resolve;
   });
-  cancel = () => {
-    controller.abort();
-    synth()?.cancel();
-    stopNow();
+  const mine = {
+    cancel() {
+      controller.abort();
+      synth()?.cancel();
+      stopNow();
+    },
   };
+  run = mine;
+  const live = () => run === mine;
+  claimPlayback(asPlaying);
+  setReading(id);
   const fetched = new Map<number, Promise<Blob | undefined>>();
   const fetchAt = (i: number) => {
     const piece = queue[i];
@@ -112,19 +112,21 @@ export async function read(id: string, parts: SpokenPart[], options: ReadOptions
   };
   try {
     for (const [i, piece] of queue.entries()) {
-      if (reading !== id) return;
+      if (!live()) return;
       fetchAt(i);
       fetchAt(queue.findIndex((p, j) => j > i && "server" in p.way));
       const way = piece.way;
       if ("server" in way) {
         const wav = await fetched.get(i);
-        if (wav && reading === id) await play(wav, stopped);
-      } else await sayOnDevice(piece.text, piece.lang, way.device, way.rate, stopped);
+        if (!live()) return;
+        if (wav) await play(wav, stopped);
+        else if (way.fallback) await sayOnDevice(piece.text, piece.lang, way.fallback, stopped);
+      } else await sayOnDevice(piece.text, piece.lang, way, stopped);
     }
   } finally {
-    if (reading === id) {
+    if (live()) {
+      run = undefined;
       setReading(undefined);
-      cancel = undefined;
     }
   }
 }
@@ -187,9 +189,10 @@ export function useSpeaker() {
       : [],
   );
   const wayFor = (lang: string): Way | undefined => {
-    if (piperLangs.has(lang)) return { server: {} };
-    if (!voices.some((v) => speaks(voiceInfo(v), lang))) return undefined;
-    return { device: deviceVoice(voices, chosen?.device, lang), rate };
+    const device = voices.some((v) => speaks(voiceInfo(v), lang))
+      ? { device: deviceVoice(voices, chosen?.device, lang), rate }
+      : undefined;
+    return piperLangs.has(lang) ? { server: {}, fallback: device } : device;
   };
   const say = (id: string, parts: SpokenPart[]) => read(id, parts, { wayFor });
   return {

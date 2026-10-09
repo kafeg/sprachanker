@@ -252,3 +252,43 @@ test("reading with Piper: a language with a voice is said by the server, one wit
     (globalThis as { Audio: unknown }).Audio = realAudio;
   }
 });
+
+test("the same text stopped and read again: only the new reading goes on", async () => {
+  const parts = [
+    { text: "Eins.", lang: "de" },
+    { text: "Zwei.", lang: "de" },
+    { text: "Drei.", lang: "de" },
+  ];
+  const view = await renderApp(<SpeakButton parts={parts} label="Zahlen" />);
+  fireEvent.click(view.getByRole("button", { name: "Read aloud: Zahlen" }));
+  await waitFor(() => expect(said).toHaveLength(1));
+  fireEvent.click(view.getByRole("button", { name: "Stop reading" }));
+  fireEvent.click(view.getByRole("button", { name: "Read aloud: Zahlen" }));
+  await waitFor(() => expect(said).toHaveLength(2));
+  // Give the stopped run every chance to go on: it must not.
+  await act(() => new Promise((r) => setTimeout(r, 20)));
+  expect(said.map((s) => s.text)).toEqual(["Eins.", "Eins."]);
+  await finish();
+  await waitFor(() => expect(said.map((s) => s.text)).toEqual(["Eins.", "Eins.", "Zwei."]));
+});
+
+test("a piece the server cannot say is said by the device's voice", async () => {
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = (async () =>
+    Response.json({ error: "speech_unavailable" }, { status: 409 })) as unknown as typeof fetch;
+  try {
+    const view = await renderApp(
+      <SpeakButton parts={[{ text: "Hallo!", lang: "de" }]} label="x" />,
+      {
+        data: [
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["piper-voices"], PIPER],
+        ],
+      },
+    );
+    fireEvent.click(view.getByRole("button", { name: "Read aloud: x" }));
+    await waitFor(() => expect(said.map((s) => s.text)).toEqual(["Hallo!"]));
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});

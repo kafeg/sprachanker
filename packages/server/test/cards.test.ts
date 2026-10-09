@@ -47,7 +47,7 @@ test("a lesson's words become cards, one per word, kept when met again; decks by
         {
           scope: `course:${COURSE}`,
           course: COURSE,
-          edition: "ru-de",
+          editions: ["ru-de"],
           counts: { new: 8, learning: 0, review: 0 },
         },
       ],
@@ -509,7 +509,7 @@ test("decks to take: the courses of My courses; a course's words taken at once i
   expect(first.display.lessonKey).toBe(LESSONS[0]);
   // The deck as Review lists it: the course, its language pair.
   const deck = (await getJson("/api/cards/decks")).decks[0].courses[0];
-  expect(deck).toMatchObject({ course: COURSE, edition: "ru-de" });
+  expect(deck).toMatchObject({ course: COURSE, editions: ["ru-de"] });
 });
 
 test("leaving a deck: its cards go, studied too; a word another deck has moves there with its progress", async () => {

@@ -75,7 +75,12 @@ function MyDecks({ open }: { open(scope: string): void }) {
       {decks.data.decks.map((lang) => (
         <div key={lang.scope} className="border-b last:border-b-0">
           {[
-            { ...lang, child: false, course: undefined as string | undefined, edition: undefined },
+            {
+              ...lang,
+              child: false,
+              course: undefined as string | undefined,
+              editions: [] as string[],
+            },
             ...lang.courses.map((c) => ({ ...c, child: true })),
           ].map((deck) => (
             <div key={deck.scope} className={cn("py-2", deck.child && "border-t border-dashed")}>
@@ -88,12 +93,15 @@ function MyDecks({ open }: { open(scope: string): void }) {
                   >
                     {name(deck.scope)}
                   </button>
-                  {deck.edition && (
-                    <span className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
-                      <PairFlags edition={deck.edition} />
-                      {pairName(deck.edition)}
+                  {deck.editions.map((edition) => (
+                    <span
+                      key={edition}
+                      className="flex items-center gap-2 text-sm font-normal text-muted-foreground"
+                    >
+                      <PairFlags edition={edition} />
+                      {pairName(edition)}
                     </span>
-                  )}
+                  ))}
                 </span>
                 <CountCells counts={deck.counts} />
               </div>
@@ -117,7 +125,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
                       setLeaving({
                         course: deck.course as string,
                         lang: lang.language,
-                        title: `${name(deck.scope)}${deck.edition ? ` (${pairName(deck.edition)})` : ""}`,
+                        title: `${name(deck.scope)}${deck.editions.length ? ` (${deck.editions.map(pairName).join(", ")})` : ""}`,
                       })
                     }
                   >
