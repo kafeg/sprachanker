@@ -50,7 +50,8 @@ export function headword(de: string): Headword {
   const noun = /^(der|die|das) (\S+)$/.exec(head);
   if (noun) {
     const lemma = noun[2] ?? "";
-    if (parens && /plural only/i.test(parens)) return { lemma, pos: "noun", gender: "pl" };
+    if (parens && /plural only|only plural/i.test(parens))
+      return { lemma, pos: "noun", gender: "pl" };
     if (parens && /no plural/i.test(parens)) {
       return { lemma, pos: "noun", gender: ARTICLES[noun[1] ?? ""], note: "nur Singular" };
     }
@@ -65,6 +66,13 @@ export function headword(de: string): Headword {
   // The source states nothing more: by shape, as every provider (02).
   return shapeHeadword("de", head.replace(/[()]/g, ""));
 }
+
+/** The source's English remarks on a word ("no plural", "fig."): its fields say them (gender, note), so
+ *  they leave the German text the learner reads (02, "Text language"). */
+const REMARK = /\s*\((?:typically, )?(?:no plural|plural only|only plural|fig\.)\)/giu;
+
+/** A row's German as the word reads, without the source's English remarks. */
+export const germanOf = (de: string) => de.replace(REMARK, "").trim();
 
 export const chapterPdfUrl = (pdf: string) => new URL(pdf, SITE).href;
 
@@ -86,8 +94,11 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
         key,
         "de",
         section.rows.map((row) => ({
-          head: headword(row.de),
-          target: row.de,
+          head: {
+            ...headword(row.de),
+            ...(/\(fig\.\)/i.test(row.de) ? { note: "fig." } : {}),
+          },
+          target: germanOf(row.de),
           translation: row.en,
         })),
       );

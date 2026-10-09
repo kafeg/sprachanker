@@ -19,7 +19,7 @@ import { headword, normaliseLingust, type UnitSource } from "../src/normalise.ts
 import { parseIndex } from "../src/parse/course-index.ts";
 import { parseLesson } from "../src/parse/lesson.ts";
 import { parseVerbTable } from "../src/parse/verbs.ts";
-import { englishLine, withoutRussianRemarks } from "../src/text.ts";
+import { englishAnswers, englishLine, withoutRussianRemarks } from "../src/text.ts";
 
 const BASE = "https://lingust.ru/english/english-lessons/lesson3";
 const page = (body: string) => `<html><body><div class="com-content-article__body">
@@ -471,4 +471,16 @@ test("keys stay by source id: a lesson and a section the source inserts move no 
   expect(after.filter((k) => k.startsWith("01-01/ex-1") && !before.includes(k))).toEqual([
     "01-01/ex-103",
   ]);
+});
+
+test("a key's English answers: alternatives joined with Russian words, list letters and era marks in English", () => {
+  expect(englishAnswers("I run fast. или I run quickly. также можно: I'm fast.")).toEqual([
+    "I run fast.",
+    "I run quickly.",
+    "I'm fast.",
+  ]);
+  expect(englishAnswers("а. She left. б. She has left.")).toEqual([
+    "a. She left. b. She has left.",
+  ]);
+  expect(englishAnswers("300 н.э., 50 до н.э.")).toEqual(["300 AD, 50 BC"]);
 });

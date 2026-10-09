@@ -1,9 +1,16 @@
 // single_choice and multi_choice: options as buttons (pictures as a grid of tiles), chosen by tap or,
 // in the active item, by the number keys; several choices show square boxes and how many are chosen.
-import type { Option } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/ui/utils.ts";
-import { allPictures, type Mark, OptionButton, useNumberKeys, useShuffled } from "./shared.tsx";
+import {
+  allPictures,
+  type Mark,
+  OptionButton,
+  type ShownOption,
+  shownOptions,
+  useNumberKeys,
+  useShuffled,
+} from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 function Options({
@@ -16,7 +23,7 @@ function Options({
   mark,
   choose,
 }: {
-  options: Option[];
+  options: ShownOption[];
   url(path: string): string;
   multi?: boolean;
   active?: boolean;
@@ -56,8 +63,9 @@ export function SingleChoice({
   outcome,
   url,
   active,
+  locale,
 }: RendererProps<"single_choice">) {
-  const options = useShuffled(item.options, item.key);
+  const options = useShuffled(shownOptions(item.options, locale), item.key);
   const right = item.answer.optionIds[0];
   return (
     <Options
@@ -85,9 +93,10 @@ export function MultiChoice({
   outcome,
   url,
   active,
+  locale,
 }: RendererProps<"multi_choice">) {
   const { t } = useTranslation();
-  const options = useShuffled(item.options, item.key);
+  const options = useShuffled(shownOptions(item.options, locale), item.key);
   const chosen = new Set(answer?.optionIds ?? []);
   const right = new Set(item.answer.optionIds);
   const toggle = (id: string) => {

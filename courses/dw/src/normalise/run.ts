@@ -27,7 +27,7 @@ export async function normaliseCourse(
   const read = async (file: string): Promise<ApolloState> =>
     JSON.parse(await readFile(join(seriesDir, rawDir, file), "utf8"));
 
-  const ctx = createContext(await readMediaIndex(join(seriesDir, "media.json")));
+  const ctx = createContext(await readMediaIndex(join(seriesDir, "media.json")), dw.edition);
   const course = courseKey(seriesId(dw.series), dw.id);
   const writer = libraryWriter(seriesDir, log);
   const courseState = await read("course.json");

@@ -27,7 +27,7 @@ import {
 } from "@sprachanker/schema";
 import type { KeyEntry, Seg, SourceExercise, Unit } from "./parse/exercise.ts";
 import type { Line, Snippet } from "./parse/snippets.ts";
-import { flatText, isRussian, withoutIpa, withoutRussianRemarks } from "./text.ts";
+import { englishAnswers, flatText, isRussian, withoutIpa, withoutRussianRemarks } from "./text.ts";
 
 /** A task without answers to check ("write a letter"): the lesson's homework, not an exercise. */
 export class Homework extends Error {}
@@ -89,8 +89,9 @@ export function gapKey(entry: KeyEntry, gaps: number): { answers: string[]; tran
   return { answers, translation };
 }
 
-/** English lines of a key entry (the model answer) and the Russian ones (a translation). */
-function englishKey(entry: KeyEntry): { reference?: string; russian: string[] } {
+/** The English answers of a key entry (its model answer; alternatives the key joins with Russian
+ *  words are answers of their own) and its Russian lines (a translation). */
+function englishKey(entry: KeyEntry): { references: string[]; russian: string[] } {
   const en: string[] = [];
   const ru: string[] = [];
   for (const line of entry.map((l) => plainText(l)).filter(Boolean)) {
@@ -98,7 +99,7 @@ function englishKey(entry: KeyEntry): { reference?: string; russian: string[] } 
     if (isRussian(text) || latinLetters(text) < 2) ru.push(line);
     else en.push(text);
   }
-  return { ...(en.length ? { reference: en.join(" ") } : {}), russian: ru };
+  return { references: en.length ? englishAnswers(en.join(" ")) : [], russian: ru };
 }
 
 const segText = (segs: Seg[]) =>
@@ -167,9 +168,20 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
   const skipped: string[] = [];
   const items: Array<Record<string, unknown>> = [];
   const locale: Record<string, LocaleItem> = {};
+  // Every item keeps its canonical texts English (02, "Text language"): a prompt with Russian in it is
+  // the locale file's whole, an English answer the key writes with Russian words is its answers.
   const add = (item: Record<string, unknown>, loc: LocaleItem) => {
     const n = items.length + 1;
-    items.push({ key: itemKey(key, n), ...item });
+    const own = { ...item };
+    if (typeof own.prompt === "string" && hasCyrillic(own.prompt)) {
+      if (!loc.prompt) loc.prompt = own.prompt;
+      delete own.prompt;
+    }
+    if (Array.isArray(own.reference))
+      own.reference = (own.reference as string[]).flatMap((r) =>
+        hasCyrillic(r) ? englishAnswers(r) : [r],
+      );
+    items.push({ key: itemKey(key, n), ...own });
     if (Object.keys(loc).length) locale[`#${n}`] = loc;
   };
   const done = (draft: Omit<Mapped["draft"], "items">): Mapped => {
@@ -239,16 +251,20 @@ export function mapExercise(key: ExerciseKey, ex: SourceExercise, media: Media):
         skipped.push(`item ${u.n}: no key entry`);
         continue;
       }
-      const { reference, russian } = englishKey(u.key);
+      const { references, russian } = englishKey(u.key);
+      const reference = references.length > 0;
       const loc: LocaleItem = {};
       // A translation into Russian: the model answer is in the learner's language.
       const item: Record<string, unknown> = reference
-        ? { input: "text", reference: [reference] }
+        ? { input: "text", reference: references }
         : { input: "text", reference: [], answerIn: "learner" };
       if (!reference) loc.reference = [plainText(u.key.join(" "))];
-      if (isRussian(text)) loc.prompt = text;
+      // English with Russian glosses left in it (a word list "field — поле") is the locale file's
+      // whole: no Russian in a canonical prompt.
+      const english = withoutIpa(withoutRussianRemarks(text));
+      if (isRussian(text) || hasCyrillic(english)) loc.prompt = text;
       else if (text) {
-        item.prompt = withoutIpa(withoutRussianRemarks(text));
+        item.prompt = english;
         if (u.intro) loc.prompt = u.intro;
       }
       if (reference && russian.length && !isRussian(text)) loc.hintHtml = para(russian.join(" "));

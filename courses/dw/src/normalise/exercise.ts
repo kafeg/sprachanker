@@ -77,9 +77,11 @@ function segments(text: string, gaps: number) {
 
 function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   const subs = refs(state, q.subInquiries);
+  // A prompt in the learner's language goes to the locale file (02, "Text language").
   const prompt = german(state, q.inquiryText);
+  const learnerPrompt = prompt && ctx.learnerText(prompt) ? prompt : undefined;
   const base: Item = {
-    ...(prompt ? { prompt } : {}),
+    ...(prompt && !learnerPrompt ? { prompt } : {}),
   };
   const itemMedia = media({
     audio: audioPath(ctx, state, q),
@@ -87,7 +89,10 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   });
   if (itemMedia) base.media = itemMedia;
   const hintHtml = html(ctx, q.inquiryDescription);
-  const locale: LocaleItem = hintHtml ? { hintHtml } : {};
+  const locale: LocaleItem = {
+    ...(learnerPrompt ? { prompt: learnerPrompt } : {}),
+    ...(hintHtml ? { hintHtml } : {}),
+  };
   const image = q.mediaType === "IMAGE";
 
   switch (q.inquiryType) {
@@ -109,13 +114,19 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       const correct = alts.flatMap((a, i) => (a.isCorrect ? [optionId(i)] : []));
       if (!correct.length) throw new Unmapped("choice without a correct option");
       const single = q.selectionType === "SINGLE" && correct.length === 1;
+      // Options in the learner's language (a question on what the text says) go to the locale file
+      // together, read as one.
+      let options = alts.map((a, i) => option(ctx, state, a, i, image));
+      const texts = options.flatMap((o) => (o.text ? [o.text] : []));
+      if (texts.length && ctx.learnerText(texts.join(" "))) {
+        locale.options = Object.fromEntries(
+          options.flatMap((o) => (o.text ? [[o.id, o.text]] : [])),
+        );
+        options = options.map(({ text: _, ...o }) => o);
+      }
       return {
         type: single ? "single_choice" : "multi_choice",
-        item: {
-          ...base,
-          options: alts.map((a, i) => option(ctx, state, a, i, image)),
-          answer: { optionIds: correct },
-        },
+        item: { ...base, options, answer: { optionIds: correct } },
         locale,
       };
     }

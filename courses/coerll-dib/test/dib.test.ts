@@ -1,7 +1,7 @@
 // Synthetic pages shaped like the site's; no real content.
 import { expect, test } from "bun:test";
 import { CourseIndex, Lesson, LocaleCourse, LocaleLesson } from "@sprachanker/schema";
-import { headword, normaliseDib } from "../src/normalise.ts";
+import { germanOf, headword, normaliseDib } from "../src/normalise.ts";
 import { parseChapter, parseVocabulary } from "../src/parse.ts";
 
 const section = (n: number, de: string, en: string, rows: string[][], audio?: string) => `
@@ -102,4 +102,16 @@ test("normalisation: chapters → units, sections → lessons, all files valid",
   expect(Object.values(locale.vocab).map((v) => v.translation)).toEqual(["dog", "size"]);
   const course = LocaleCourse.parse(byPath["locale/en-de/dib/course.json"]);
   expect(Object.values(course.units)).toEqual([{ title: "Ein Tag & eine Nacht" }]);
+});
+
+test("the source's English remarks leave the German the learner reads; the word's fields say them", () => {
+  expect(germanOf("das Eis (no plural)")).toBe("das Eis");
+  expect(germanOf("die Leute (only plural)")).toBe("die Leute");
+  expect(germanOf("der Tisch (Tische)")).toBe("der Tisch (Tische)");
+  expect(headword("die Leute (only plural)")).toEqual({
+    lemma: "Leute",
+    pos: "noun",
+    gender: "pl",
+  });
+  expect(headword("das Obst (typically, no plural)")).toMatchObject({ note: "nur Singular" });
 });

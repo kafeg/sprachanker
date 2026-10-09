@@ -2,8 +2,8 @@
 // English examples in one element; how Lingust's lines read.
 import {
   CYRILLIC,
-  cyrillicLetters,
   hasCyrillic,
+  inLearnerLanguage,
   latinLetters,
   plainText,
 } from "@sprachanker/course-kit";
@@ -20,7 +20,31 @@ export const flatText = (html: string) =>
   );
 
 /** More Cyrillic letters than Latin ones. */
-export const isRussian = (text: string) => cyrillicLetters(text) > latinLetters(text);
+export const isRussian = (text: string) => inLearnerLanguage(text, "en", "ru");
+
+/** Russian words the key joins English answers with ("… или …", "также можно: …"). */
+const OR = /\s*(?:[;,]\s*)?(?<!\p{L})(?:или|также(?:\s+можно)?)(?!\p{L})\s*:?\s*/giu;
+/** The key's Russian list letters and era marks, as the English answer writes them. */
+const LETTERS: Record<string, string> = { а: "a", б: "b", в: "c", г: "d" };
+
+/**
+ * The English answers of a key's line: alternatives it joins with Russian words are answers of
+ * their own; its list letters ("а.", "б.") and era marks ("н.э.", "до н.э.") the English ones —
+ * the source's answer written in the language it is in (02, "Text language").
+ */
+export function englishAnswers(line: string): string[] {
+  const english = line
+    .replace(
+      /(^|\s)([абвг])\.(?=\s)/gu,
+      (_, space: string, letter: string) => `${space}${LETTERS[letter]}.`,
+    )
+    .replace(/\s*(?:до|д\.)\s*н\.\s*э\./gu, " BC")
+    .replace(/\s*н\.\s*э\./gu, " AD");
+  return english
+    .split(OR)
+    .map((answer) => answer.replace(/^[\s.,;:]+|[\s,;:]+$/g, ""))
+    .filter((answer) => latinLetters(answer) >= 2);
+}
 
 /** Pronunciation in slashes ("/gɪv/", "/ə'baʊt/"): IPA marks or an apostrophe for stress. */
 const IPA = /\s*\/[^\s/][^/]*?[ˈˌːəɪʊʌæɒɔɜθðŋʃʒʤʧɑɛ'][^/]*?\/(?=[\s,;.)]|$)/g;

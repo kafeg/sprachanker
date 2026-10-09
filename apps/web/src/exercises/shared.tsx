@@ -1,4 +1,4 @@
-import type { Option, Outcome } from "@sprachanker/schema";
+import type { LocaleItem, Option, Outcome } from "@sprachanker/schema";
 import { Check, X } from "lucide-react";
 import { createContext, useContext, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -49,12 +49,24 @@ export function useShuffled<T>(items: T[], seed: string): T[] {
 
 export type Mark = "correct" | "wrong" | undefined;
 
+/** An option as shown: its target-language text, or its text in the learner's language (the locale
+ *  file's), and its picture's description. */
+export type ShownOption = Option & { learnerText?: string; alt?: string };
+
+/** The options of an item with what the locale file says of them. */
+export const shownOptions = (options: Option[], locale: LocaleItem | undefined): ShownOption[] =>
+  options.map((o) => ({
+    ...o,
+    ...(locale?.options?.[o.id] !== undefined && { learnerText: locale.options[o.id] }),
+    ...(locale?.alt?.[o.id] !== undefined && { alt: locale.alt[o.id] }),
+  }));
+
 export function OptionContent({
   option,
   url,
   fill = false,
 }: {
-  option: Option;
+  option: ShownOption;
   url(path: string): string;
   /** A picture fills the option's width (options laid out as a grid of pictures). */
   fill?: boolean;
@@ -64,13 +76,16 @@ export function OptionContent({
     return (
       <img
         src={url(option.media.image)}
-        alt=""
+        alt={option.alt ?? ""}
         className={cn(
           "rounded-lg",
           fill ? "aspect-[4/3] w-full object-contain" : "h-28 w-auto sm:h-32",
         )}
       />
     );
+  // The learner's language is the page's: no `lang` of the target's on it.
+  if (option.text === undefined && option.learnerText !== undefined)
+    return <span>{option.learnerText}</span>;
   return <span lang={lang}>{option.text}</span>;
 }
 
@@ -87,7 +102,7 @@ export function OptionButton({
   multi = false,
   fill = false,
 }: {
-  option: Option;
+  option: ShownOption;
   url(path: string): string;
   selected: boolean;
   mark: Mark;

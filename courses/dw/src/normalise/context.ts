@@ -1,7 +1,13 @@
 // What the normaliser needs besides the page states: where downloaded media live.
 
-import { mediaPath, sanitizeCourseHtml } from "@sprachanker/course-kit";
-import type { Media, MediaIndex, MediaPath } from "@sprachanker/schema";
+import { inLearnerLanguage, mediaPath, sanitizeCourseHtml } from "@sprachanker/course-kit";
+import {
+  type EditionId,
+  type Media,
+  type MediaIndex,
+  type MediaPath,
+  parseEditionId,
+} from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import { IMAGE_FORMAT, videoFiles } from "../media.ts";
 
@@ -10,11 +16,16 @@ export type Entity = Record<string, unknown>;
 export interface Context {
   /** Media path of a downloaded URL. */
   media(url: string | undefined): MediaPath | undefined;
+  /** Whether a text of the page is in the edition's learner language (its locale file's), not German. */
+  learnerText(text: string): boolean;
 }
 
-export function createContext(index: MediaIndex): Context {
+/** `edition`: the course's language pair ("ru-de"): German taught in Russian. */
+export function createContext(index: MediaIndex, edition: EditionId): Context {
+  const { source, target } = parseEditionId(edition);
   return {
     media: (url) => mediaPath(index, url),
+    learnerText: (text) => inLearnerLanguage(text, target, source),
   };
 }
 

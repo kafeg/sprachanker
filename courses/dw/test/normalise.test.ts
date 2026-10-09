@@ -47,15 +47,18 @@ test.each([
   expect(parseHeadword(name, sub)).toEqual(expected as never);
 });
 
-const ctx = createContext({
-  "https://audio.test/q1.mp3": {
-    kind: "audio",
-    path: "media/audio/q1.mp3",
-    sha256: "a".repeat(64),
-    size: 1,
-    mime: "audio/mpeg",
+const ctx = createContext(
+  {
+    "https://audio.test/q1.mp3": {
+      kind: "audio",
+      path: "media/audio/q1.mp3",
+      sha256: "a".repeat(64),
+      size: 1,
+      mime: "audio/mpeg",
+    },
   },
-});
+  "ru-de",
+);
 const key = exerciseKey(lessonKey("dw.nicos-weg/a1" as never, 0, 1), 9);
 const state = {
   "Exercise:9": {
@@ -143,10 +146,13 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
     size: 1,
     mime: "audio/mpeg",
   });
-  const withAnswer = createContext({
-    "https://audio.test/q.mp3": audio("q"),
-    "https://audio.test/a.mp3": audio("a"),
-  });
+  const withAnswer = createContext(
+    {
+      "https://audio.test/q.mp3": audio("q"),
+      "https://audio.test/a.mp3": audio("a"),
+    },
+    "ru-de",
+  );
   const speaking = {
     "Exercise:9": { id: 9, name: "Sprich", inputType: "NONE", inquiries: [{ __ref: "Inquiry:1" }] },
     "Inquiry:1": {
@@ -407,4 +413,50 @@ test("an exercise keeps its key by its source id when the source inserts one bef
     "ex-05",
     "ex-06",
   ]);
+});
+
+test("a question on the text in the learner's language: its prompt and options go to the locale file", () => {
+  const page = {
+    "Exercise:7": {
+      id: 7,
+      name: "Wie gut kennen sie sich?",
+      inputType: "NONE",
+      inquiries: [{ __ref: "Inquiry:70" }, { __ref: "Inquiry:80" }],
+    },
+    "Inquiry:70": {
+      inquiryType: "ASSOCIATION",
+      selectionType: "SINGLE",
+      inquiryText: "Лиза и Керстин…",
+      subInquiries: [{ __ref: "Inquiry:71" }],
+    },
+    "Inquiry:71": { alternatives: [{ __ref: "Alt:71" }, { __ref: "Alt:72" }] },
+    "Alt:71": { alternativeText: "возможно, не так хорошо знакомы.", isCorrect: true },
+    "Alt:72": { alternativeText: "хорошо знакомы.", isCorrect: false },
+    "Inquiry:80": {
+      inquiryType: "ASSOCIATION",
+      selectionType: "SINGLE",
+      inquiryText: "Wie heißt sie?",
+      subInquiries: [{ __ref: "Inquiry:81" }],
+    },
+    "Inquiry:81": { alternatives: [{ __ref: "Alt:81" }, { __ref: "Alt:82" }] },
+    "Alt:81": { alternativeText: "Lisa", isCorrect: true },
+    "Alt:82": { alternativeText: "Kerstin", isCorrect: false },
+  };
+  const { exercise, locale } = normaliseExercise(ctx, page as never, 7, key, "raw/e-7.json");
+  const [russian, german] = exercise.items as Array<{ prompt?: string; options: unknown[] }>;
+  expect(russian).toMatchObject({ options: [{ id: "a" }, { id: "b" }] });
+  expect(russian?.prompt).toBeUndefined();
+  expect(locale.items["#1"]).toEqual({
+    prompt: "Лиза и Керстин…",
+    options: { a: "возможно, не так хорошо знакомы.", b: "хорошо знакомы." },
+  });
+  // German stays where it is.
+  expect(german).toMatchObject({
+    prompt: "Wie heißt sie?",
+    options: [
+      { id: "a", text: "Lisa" },
+      { id: "b", text: "Kerstin" },
+    ],
+  });
+  expect(locale.items["#2"]).toBeUndefined();
 });

@@ -55,3 +55,37 @@ test("a right answer or one not checked yet shows no answer under it", async () 
   const open = await card();
   expect(open.queryByText(/Correct answer/)).toBeNull();
 });
+
+test("options in the learner's language come from the locale file, without the target's lang", async () => {
+  const choice = {
+    key: "sprachanker.test/demo/00-01/ex-04",
+    type: "single_choice",
+    fingerprint: "x",
+    newWords: [],
+    ruleIds: [],
+    items: [
+      {
+        key: "sprachanker.test/demo/00-01/ex-04#1",
+        options: [{ id: "a" }, { id: "b", text: "Ja, gern." }],
+        answer: { optionIds: ["a"] },
+      },
+    ],
+  } as unknown as Exercise;
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={choice}
+        locale={{
+          sourceId: "x",
+          items: { "#1": { prompt: "Лиза и Керстин…", options: { a: "хорошо знакомы." } } },
+        }}
+        index={0}
+        answer={undefined}
+        url={(p) => `/library/x/${p}`}
+      />
+    </TargetLang>,
+  );
+  expect(view.getByText("Лиза и Керстин…")).toBeTruthy();
+  expect(view.getByText("хорошо знакомы.").getAttribute("lang")).toBeNull();
+  expect(view.getByText("Ja, gern.").getAttribute("lang")).toBe("de");
+});

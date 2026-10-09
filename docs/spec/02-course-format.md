@@ -193,8 +193,15 @@ Items are referenced as `#<n>` within their exercise; an item may carry `prompt`
 texts (`options{id:text}`), image descriptions (`alt`), gap labels and learner-language model answers
 (`reference`). A vocab entry's `examples` (canonical, target language) have their translations in the
 locale entry's `examples`, in the same order. Which source fields are learner
-language is decided by the provider per mechanic and field (DW: by comparing editions), not by
-language detection. UI labels of the source ("Play audio") are not content and are dropped.
+language is decided by the provider per mechanic and field; a field the source fills in either
+language (DW's choice prompts and options — a question on what a text says —, Lingust's prompts and
+answer keys) is read by `inLearnerLanguage` (course-kit `language.ts`): by script where the two
+languages differ in it, else by their frequent words and letters, taken as the learner's only when
+it says so twice over (a German text moved to the locale file is worse than a learner-language one
+left). Comparing editions cannot do it: DW's editions number their exercises apart, and few are
+installed together. An item's options in the learner's language move to the locale file together,
+and the app shows them from there. UI labels of the source ("Play audio") are not content and are
+dropped.
 
 The locale course file holds the course title, unit titles and goal texts in the same way.
 
