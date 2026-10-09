@@ -70,7 +70,14 @@
     "complete": "Всё скачано",
     "next": "дальше: {where} — {title}",
     "notInstalled": "Этот курс не установлен (или уже удалён).",
-    "checkFiles": "Проверить"
+    "checkFiles": "Проверить",
+    "problem": {
+      "missingMedia": "Нет файла: {at}",
+      "unreadable": "Файл не читается: {at}",
+      "noLocale": "Нет текстов урока на этом языке: {at}",
+      "noEdition": "Не установлено ни одного языкового издания",
+      "inconsistent": "Данные курса не согласованы: {at}"
+    }
   },
   "lesson": {
     "unitLesson": "Раздел {unit} · урок {lesson}",

@@ -70,7 +70,14 @@
     "complete": "All downloaded",
     "next": "next: {where} — {title}",
     "notInstalled": "This course is not installed (any more).",
-    "checkFiles": "Check"
+    "checkFiles": "Check",
+    "problem": {
+      "missingMedia": "File missing: {at}",
+      "unreadable": "File does not read: {at}",
+      "noLocale": "No texts of the lesson in this language: {at}",
+      "noEdition": "No language edition installed",
+      "inconsistent": "Course data do not agree: {at}"
+    }
   },
   "lesson": {
     "unitLesson": "Unit {unit} · Lesson {lesson}",

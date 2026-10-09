@@ -37,10 +37,11 @@ test("broken data is reported: a wrong answer id, a missing medium, a stray loca
   writeFileSync(localeFile, JSON.stringify(locale));
 
   const [report] = await verifyLibrary(openLibrary(root));
-  const problems = report?.problems.join("\n") ?? "";
+  const problems = report?.problems.map((p) => p.text).join("\n") ?? "";
   expect(problems).toContain('answer names option "zz"');
   expect(problems).toContain("fingerprint does not match");
-  expect(problems).toContain("missing media: media/audio/hallo.mp3");
+  expect(problems).toContain("media/audio/hallo.mp3: missing media");
+  expect(report?.problems.find((p) => p.at === "media/audio/hallo.mp3")?.kind).toBe("missingMedia");
   expect(problems).toContain("ex-99: locale texts for an exercise the lesson does not have");
 });
 
@@ -53,5 +54,7 @@ test("a lesson whose exercise key is met twice does not read: verify says so", a
   lesson.pages.push(page);
   writeFileSync(lessonFile, JSON.stringify(lesson));
   const [report] = await verifyLibrary(openLibrary(root));
-  expect(report?.problems.join("\n")).toContain(`exercise key ${page.exercise.key} met twice`);
+  expect(report?.problems.map((p) => p.text).join("\n")).toContain(
+    `exercise key ${page.exercise.key} met twice`,
+  );
 });

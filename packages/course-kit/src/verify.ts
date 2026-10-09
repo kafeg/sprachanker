@@ -12,9 +12,17 @@ import {
   type LocaleLesson,
 } from "@sprachanker/schema";
 import { fingerprint } from "./fingerprint.ts";
-import type { CourseReport, LibraryView } from "./library-view.ts";
+import type { CourseProblem, CourseReport, LibraryView } from "./library-view.ts";
 
-export type { CourseReport } from "./library-view.ts";
+export type { CourseProblem, CourseReport } from "./library-view.ts";
+
+const problem = (kind: CourseProblem["kind"], at: string, text: string): CourseProblem => ({
+  kind,
+  at,
+  text: `${at}: ${text}`,
+});
+/** Data that do not agree. */
+const inconsistent = (at: string, text: string) => problem("inconsistent", at, text);
 
 /** Every `media/…` path inside a value (lesson, exercise, locale file). */
 function mediaPaths(value: unknown, out: Set<string>) {
@@ -27,14 +35,15 @@ function mediaPaths(value: unknown, out: Set<string>) {
 }
 
 /** Answers and gaps that point to options, parts or gaps the item does not have. */
-function answerProblems(exercise: Exercise): string[] {
-  const out: string[] = [];
+function answerProblems(exercise: Exercise): CourseProblem[] {
+  const out: CourseProblem[] = [];
   exercise.items.forEach((item, i) => {
     const at = `${exercise.key}#${i + 1}`;
     const missing = (ids: string[], known: Array<{ id: string }>, what: string) => {
       const have = new Set(known.map((o) => o.id));
       for (const id of ids)
-        if (!have.has(id)) out.push(`${at}: answer names ${what} "${id}" it does not have`);
+        if (!have.has(id))
+          out.push(inconsistent(at, `answer names ${what} "${id}" it does not have`));
     };
     switch (exercise.type) {
       case "single_choice":
@@ -62,7 +71,10 @@ function answerProblems(exercise: Exercise): string[] {
         missing(it.answer.sequence, it.parts, "part");
         if (it.answer.sequence.length !== it.parts.length)
           out.push(
-            `${at}: the order uses ${it.answer.sequence.length} of ${it.parts.length} parts`,
+            inconsistent(
+              at,
+              `the order uses ${it.answer.sequence.length} of ${it.parts.length} parts`,
+            ),
           );
         break;
       }
@@ -71,10 +83,11 @@ function answerProblems(exercise: Exercise): string[] {
         const it = item as Extract<Exercise, { type: "gap_text" }>["items"][number];
         const gaps = it.segments.flatMap((s) => (typeof s === "string" ? [] : [s.gap]));
         const answered = Object.keys(it.answer);
-        if (!gaps.length) out.push(`${at}: no gaps in the text`);
-        for (const g of gaps) if (!answered.includes(g)) out.push(`${at}: gap ${g} has no answer`);
+        if (!gaps.length) out.push(inconsistent(at, "no gaps in the text"));
+        for (const g of gaps)
+          if (!answered.includes(g)) out.push(inconsistent(at, `gap ${g} has no answer`));
         for (const g of answered)
-          if (!gaps.includes(g)) out.push(`${at}: answer for missing gap ${g}`);
+          if (!gaps.includes(g)) out.push(inconsistent(at, `answer for missing gap ${g}`));
         if (exercise.type === "gap_choice") {
           const gc = item as Extract<Exercise, { type: "gap_choice" }>["items"][number];
           for (const [g, want] of Object.entries(gc.answer))
@@ -89,21 +102,25 @@ function answerProblems(exercise: Exercise): string[] {
 
 /** Locale texts of one edition that do not match the canonical lesson. */
 function localeProblems(lesson: Lesson, locale: LocaleLesson, edition: string) {
-  const problems: string[] = [];
+  const problems: CourseProblem[] = [];
   const notes: string[] = [];
   if (locale.lesson !== lesson.key)
-    problems.push(`${edition} ${lesson.key}: locale is for ${locale.lesson}`);
+    problems.push(inconsistent(`${edition} ${lesson.key}`, `locale is for ${locale.lesson}`));
   const exercises = new Map(lesson.pages.map((p) => [p.exercise.key as string, p.exercise]));
   for (const [key, ex] of Object.entries(locale.exercises)) {
     const canonical = exercises.get(key);
     if (!canonical) {
-      problems.push(`${edition} ${key}: locale texts for an exercise the lesson does not have`);
+      problems.push(
+        inconsistent(`${edition} ${key}`, "locale texts for an exercise the lesson does not have"),
+      );
       continue;
     }
     for (const ref of Object.keys(ex.items)) {
       const n = Number(ref.slice(1));
       if (!(n >= 1 && n <= canonical.items.length))
-        problems.push(`${edition} ${key}: locale item ${ref} of ${canonical.items.length}`);
+        problems.push(
+          inconsistent(`${edition} ${key}`, `locale item ${ref} of ${canonical.items.length}`),
+        );
     }
   }
   const untitled = lesson.pages.filter((p) => !locale.exercises[p.exercise.key]).length;
@@ -111,7 +128,9 @@ function localeProblems(lesson: Lesson, locale: LocaleLesson, edition: string) {
   const vocab = new Set(lesson.vocab.map((v) => v.key as string));
   for (const key of Object.keys(locale.vocab))
     if (!vocab.has(key))
-      problems.push(`${edition} ${key}: translation of a word the lesson does not have`);
+      problems.push(
+        inconsistent(`${edition} ${key}`, "translation of a word the lesson does not have"),
+      );
   const untranslated = lesson.vocab.filter((v) => !locale.vocab[v.key]).length;
   if (untranslated)
     notes.push(`${edition} ${lesson.key}: ${untranslated} words without translation`);
@@ -149,33 +168,39 @@ export async function verifyCourse(
     try {
       return await read();
     } catch (error) {
-      report.problems.push(`${what}: ${error instanceof Error ? error.message : String(error)}`);
+      report.problems.push(
+        problem("unreadable", what, error instanceof Error ? error.message : String(error)),
+      );
       return undefined;
     }
   };
   const index = await guard("course.json", () => library.courseIndex(series, course));
   if (!index) return report;
-  if (!editions.length) report.problems.push("no edition (locale course.json) installed");
+  if (!editions.length)
+    report.problems.push(problem("noEdition", course, "no edition (locale course.json) installed"));
   const media = new Set<string>();
   const listed = new Set<string>();
   report.units = index.units.length;
   for (const unit of index.units) {
     for (const key of unit.lessons) {
-      if (listed.has(key)) report.problems.push(`${key}: listed twice in course.json`);
+      if (listed.has(key)) report.problems.push(inconsistent(key, "listed twice in course.json"));
       listed.add(key);
       const lesson = await guard(key, () => library.lesson(series, key as LessonKey));
       if (!lesson) continue;
       report.lessons++;
-      if (lesson.key !== key) report.problems.push(`${key}: the file holds ${lesson.key}`);
+      if (lesson.key !== key)
+        report.problems.push(inconsistent(key, `the file holds ${lesson.key}`));
       if (lesson.unit !== unit.key)
-        report.problems.push(`${key}: unit ${lesson.unit}, listed in ${unit.key}`);
+        report.problems.push(inconsistent(key, `unit ${lesson.unit}, listed in ${unit.key}`));
       report.vocab += lesson.vocab.length;
       mediaPaths(lesson, media);
       for (const { exercise } of lesson.pages) {
         report.exercises[exercise.type] = (report.exercises[exercise.type] ?? 0) + 1;
         report.items += exercise.items.length;
         if (exercise.fingerprint !== fingerprint(exercise))
-          report.problems.push(`${exercise.key}: fingerprint does not match its content`);
+          report.problems.push(
+            inconsistent(exercise.key, "fingerprint does not match its content"),
+          );
         report.problems.push(...answerProblems(exercise));
       }
       for (const edition of editions) {
@@ -183,7 +208,7 @@ export async function verifyCourse(
           library.localeLesson(series, key as LessonKey, edition),
         );
         if (!locale) {
-          report.problems.push(`${edition} ${key}: no locale file`);
+          report.problems.push(problem("noLocale", `${edition} ${key}`, "no locale file"));
           continue;
         }
         mediaPaths(locale, media);
@@ -206,7 +231,8 @@ export async function verifyCourse(
   const files = existsSync(dir) ? readdirSync(dir) : [];
   for (const file of files.filter((f) => f.endsWith(".json"))) {
     const key = `${series}/${course}/${file.slice(0, -5)}`;
-    if (!listed.has(key)) report.problems.push(`${key}: lesson file not listed in course.json`);
+    if (!listed.has(key))
+      report.problems.push(inconsistent(key, "lesson file not listed in course.json"));
   }
   if (report.exercises.unknown)
     report.notes.push(`${report.exercises.unknown} exercises of an unknown structure (not shown)`);
@@ -222,7 +248,8 @@ export async function verifyCourse(
     } else {
       counts.missing++;
       report.media.missing++;
-      if (report.media.missing <= 20) report.problems.push(`missing media: ${path}`);
+      if (report.media.missing <= 20)
+        report.problems.push(problem("missingMedia", path, "missing media"));
     }
   }
   return report;

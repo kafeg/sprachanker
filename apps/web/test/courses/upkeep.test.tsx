@@ -7,7 +7,7 @@ const ready: Array<[unknown[], unknown]> = [
   [["downloads"], { available: true, jobs: [] }],
   [["catalog"], [{ series: "s", course: "c", state: "installed" }]],
 ];
-const report = (problems: string[], missing = 0) => ({
+const report = (problems: Array<{ kind: string; at: string; text: string }>, missing = 0) => ({
   lessons: 2,
   exercises: {},
   vocab: 0,
@@ -24,13 +24,28 @@ test("a card's course is checked when asked, not on its own", async () => {
 
 test("problems found are shown on the card, listed on a tap, and the sync is marked", async () => {
   const view = await renderApp(<CourseUpkeep series="s" course="c" />, {
-    data: [...ready, [["course-check", "s", "c"], report(["a1/01-01: media/audio/x.mp3 missing"])]],
+    data: [
+      ...ready,
+      [
+        ["course-check", "s", "c"],
+        report([
+          {
+            kind: "missingMedia",
+            at: "media/audio/x.mp3",
+            text: "media/audio/x.mp3: missing media",
+          },
+        ]),
+      ],
+    ],
   });
   const found = view.getByRole("button", { name: /1 problem/ });
   expect(found.className).toContain("text-wrong");
   expect(view.getByRole("button", { name: /^Sync$/ }).className).toContain("border-primary");
   fireEvent.click(found);
-  expect(view.getByText("a1/01-01: media/audio/x.mp3 missing")).toBeTruthy();
+  // In the interface's language, the finding in full on hover.
+  expect(view.getByText("File missing: media/audio/x.mp3").title).toBe(
+    "media/audio/x.mp3: missing media",
+  );
 });
 
 test("a whole course: the check says so and the sync stays quiet", async () => {

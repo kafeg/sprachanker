@@ -27,7 +27,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   return a JSON 404, never the web app.
 - Content: `GET /api/courses` (installed courses with progress and the lesson to continue),
   `GET /api/course` (course map), `GET /api/lesson` (canonical + locale lesson),
-  `GET /api/course/check` (the course verified: counts, media by kind and size, problems).
+  `GET /api/course/check` (the course verified: counts, media by kind and size, problems — each its
+  kind, place and the finding in English: the app names the kind in the interface's language).
 - Courses on disk: `GET /api/catalog` (every course the providers offer, with its state: available,
   queued, downloading, incomplete, ready), `GET` / `POST /api/downloads` (the jobs with progress and
   log; queue a download — first download, completing one and syncing with the source are the same

@@ -44,13 +44,14 @@ export function CheckState({ check }: { check: Check }) {
   );
 }
 
-/** The first problems the check found. */
-export function ProblemList({ problems, max }: { problems: string[]; max: number }) {
+/** The first problems the check found, in the interface's language (the finding in full on hover). */
+export function ProblemList({ problems, max }: { problems: Report["problems"]; max: number }) {
+  const { t } = useTranslation();
   return (
     <ul className="list-disc space-y-0.5 pl-5 text-muted-foreground">
       {problems.slice(0, max).map((p) => (
-        <li key={p} className="break-all">
-          {p}
+        <li key={p.text} title={p.text} className="break-all">
+          {t(`course.problem.${p.kind}`, { at: p.at })}
         </li>
       ))}
     </ul>

@@ -70,7 +70,14 @@
     "complete": "Vollständig geladen",
     "next": "weiter: {where} – {title}",
     "notInstalled": "Dieser Kurs ist nicht (mehr) installiert.",
-    "checkFiles": "Prüfen"
+    "checkFiles": "Prüfen",
+    "problem": {
+      "missingMedia": "Datei fehlt: {at}",
+      "unreadable": "Datei nicht lesbar: {at}",
+      "noLocale": "Keine Texte der Lektion in dieser Sprache: {at}",
+      "noEdition": "Keine Sprachausgabe installiert",
+      "inconsistent": "Kursdaten passen nicht zusammen: {at}"
+    }
   },
   "lesson": {
     "unitLesson": "Einheit {unit} · Lektion {lesson}",

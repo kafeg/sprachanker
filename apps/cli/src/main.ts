@@ -134,7 +134,7 @@ async function verifyCommand(args: string[]): Promise<void> {
         `media ${r.media.referenced - r.media.missing}/${r.media.referenced}`,
     );
     if (types) console.log(`    exercises: ${types}`);
-    for (const p of r.problems.slice(0, 30)) console.log(`    problem: ${p}`);
+    for (const p of r.problems.slice(0, 30)) console.log(`    problem: ${p.text}`);
     if (r.problems.length > 30) console.log(`    … ${r.problems.length - 30} more problems`);
     const notes = values.notes ? r.notes : r.notes.slice(0, 3);
     for (const n of notes) console.log(`    note: ${n}`);

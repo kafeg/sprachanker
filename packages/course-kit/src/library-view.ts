@@ -31,6 +31,16 @@ export interface LibraryView {
   check(series: string, course: string): Promise<CourseReport>;
 }
 
+/** What is wrong with a course, by what the learner can make of it: a media file missing, a file that
+ *  does not read, a lesson without its texts in an edition, no edition, or data that do not agree
+ *  (keys, units, answers, fingerprints, locale texts). `at`: the file, key or path; `text`: the whole
+ *  finding in English (the CLI, a tooltip). */
+export interface CourseProblem {
+  kind: "missingMedia" | "unreadable" | "noLocale" | "noEdition" | "inconsistent";
+  at: string;
+  text: string;
+}
+
 /** A course as verify finds it (verify.ts). */
 export interface CourseReport {
   series: string;
@@ -51,7 +61,7 @@ export interface CourseReport {
     bytes: number;
   };
   /** Broken data: the app would fail or show something wrong. */
-  problems: string[];
+  problems: CourseProblem[];
   /** Gaps worth knowing: missing translations, unknown exercises… */
   notes: string[];
 }
