@@ -33,7 +33,8 @@
         "publisher",
         "url",
         "licence"
-      ]
+      ],
+      "additionalProperties": false
     },
     "units": {
       "type": "array",
@@ -53,7 +54,8 @@
         "required": [
           "key",
           "lessons"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "exams": {
@@ -80,7 +82,8 @@
         "required": [
           "key",
           "lessons"
-        ]
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -91,6 +94,7 @@
     "exams",
     "goals"
   ],
+  "additionalProperties": false,
   "$defs": {
     "CourseKey": {
       "type": "string",

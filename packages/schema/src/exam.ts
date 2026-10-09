@@ -18,21 +18,23 @@ export const ExamItem = SingleChoiceItem.extend({
 export type ExamItem = z.infer<typeof ExamItem>;
 
 /** `canonical/<course>/exams/<slug>.json` */
-export const Exam = z.object({
+export const Exam = z.strictObject({
   format: format(EXAM_FORMAT),
   key: ExamKey,
   timeLimitSec: z.number().int().positive(),
   sections: z.array(
-    z.object({
+    z.strictObject({
       key: ExamSectionKey,
       pool: z.array(ExamItemKey).min(1),
       draw: z.number().int().positive(),
       /** Draw only items whose tag equals the profile setting of the same name. */
-      filter: z.object({ setting: z.string().min(1) }).nullable(),
+      filter: z.strictObject({ setting: z.string().min(1) }).nullable(),
     }),
   ),
   items: z.array(ExamItem).min(1),
   /** Pass marks shown to the learner, e.g. course test 15, naturalisation 17; titles in locale. */
-  thresholds: z.array(z.object({ id: ThresholdId, minPoints: z.number().int().positive() })).min(1),
+  thresholds: z
+    .array(z.strictObject({ id: ThresholdId, minPoints: z.number().int().positive() }))
+    .min(1),
 });
 export type Exam = z.infer<typeof Exam>;

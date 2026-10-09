@@ -23,6 +23,9 @@ src/
                      # its type; llm_verdict a union by task), step ids and AI practice kinds, cards
   assistant.ts       # the AI's answers as kept: corrections, writing and spoken checks, word examples,
                      # scene setups
+  settings.ts        # every setting key with its schema and owner (LEARNER_SETTINGS, SERVICE_SETTINGS),
+                     # SETTING_DEFAULTS
+  errors.ts          # ERROR_CODES: what the server refuses, shared with the web
 json-schema/        # generated JSON Schemas, committed; `bun run --filter @sprachanker/schema gen`
 scripts/gen-json-schema.ts
 test/               # bun test (Bun types via tsconfig.dev.json; src has no runtime types)
@@ -34,6 +37,9 @@ test/               # bun test (Bun types via tsconfig.dev.json; src has no runt
 - Adding an exercise type: add it to its family file in `exercise/` and to the union in
   `exercise/index.ts`, then checker in engine, renderer in `apps/web` and a fixture item (root rule 2).
 - Changing a stored format: bump its version constant; add a migration (server) or re-normaliser path.
+- Library formats (canonical, locale, exercises, exams, manifest, enrichment, rules) are
+  `z.strictObject`: an unknown or misspelt field is an error where it is written and read, never
+  dropped silently (02). Event payloads and API shapes are not strict.
 - Event payloads only grow (05): every stored shape is on record in `test/stored-events/` and must
   keep reading; a change that cannot be additive comes with an upgrade of the stored events.
 - Keys are built only through `keys.ts` helpers — never by string concatenation elsewhere.

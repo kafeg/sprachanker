@@ -39,7 +39,8 @@
         },
         "required": [
           "title"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "goals": {
@@ -57,7 +58,8 @@
         },
         "required": [
           "text"
-        ]
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -70,6 +72,7 @@
     "units",
     "goals"
   ],
+  "additionalProperties": false,
   "$defs": {
     "CourseKey": {
       "type": "string",

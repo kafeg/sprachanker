@@ -3,7 +3,7 @@ import { z } from "zod";
 import { LocalizedText } from "./common.ts";
 import { RuleId } from "./keys.ts";
 
-export const GrammarRule = z.object({
+export const GrammarRule = z.strictObject({
   id: RuleId,
   /** Short title per UI/learner language. */
   title: LocalizedText,

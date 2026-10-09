@@ -10,9 +10,9 @@ export const RespondItem = ItemBase.extend({
   rubric: z
     .object({
       /** Groups of which the answer must contain at least one variant. */
-      required: z.array(z.object({ id: RubricId, anyOf: z.array(z.string().min(1)).min(1) })),
+      required: z.array(z.strictObject({ id: RubricId, anyOf: z.array(z.string().min(1)).min(1) })),
       /** Criteria judged by the LLM; their texts live in the locale file. */
-      criteria: z.array(z.object({ id: RubricId })),
+      criteria: z.array(z.strictObject({ id: RubricId })),
     })
     .optional(),
   /** Model answers in the target language; a translation into the learner's language has its model
@@ -21,6 +21,6 @@ export const RespondItem = ItemBase.extend({
   /** The language the answer is written in: the target (default) or the learner's (a translation). */
   answerIn: z.enum(["target", "learner"]).optional(),
 });
-export const RespondAnswer = z.object({ text: z.string(), speech: SpokenAnswer.optional() });
+export const RespondAnswer = z.strictObject({ text: z.string(), speech: SpokenAnswer.optional() });
 export const RespondExercise = exerciseOf("respond", RespondItem);
 export type RespondAnswer = z.infer<typeof RespondAnswer>;

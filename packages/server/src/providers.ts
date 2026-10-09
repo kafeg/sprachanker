@@ -109,6 +109,22 @@ interface Marker {
   error?: string;
 }
 
+/**
+ * How a download that ran ended: files that did not fit their schema (written all the same, so where
+ * they are read they say so — 02) make it an error, as they make the CLI's import fail; media still
+ * missing — referenced but not on disk (`missingOnDisk`), or not fetched at all (failed, refused: a
+ * normaliser leaves out what it does not have, so the check alone would not see those) — leave it
+ * incomplete; else it is done.
+ */
+export function downloadEnd(
+  report: ImportReport,
+  missingOnDisk: number,
+): { error: string } | { failed: number } {
+  const invalid = Object.values(report.normalised).reduce((n, r) => n + r.problems, 0);
+  if (invalid) return { error: `${invalid} files failed validation (listed in the log)` };
+  return { failed: missingOnDisk + report.failedMedia.length };
+}
+
 /** Downloads through the providers into `<dataRoot>/library` (the server's CourseInstaller). */
 export function courseInstaller(dataRoot: string, now: () => number = Date.now): CourseInstaller {
   const library = join(dataRoot, "library");
@@ -132,12 +148,13 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
         await mark({ startedAt, error: error instanceof Error ? error.message : String(error) });
         throw error;
       }
-      // Media still missing: referenced but not on disk, or not fetched at all (failed, refused) —
-      // a normaliser leaves out what it does not have, so the check alone would not see those.
-      const missing =
-        (await openLibrary(library).check(series, course)).media.missing +
-        report.failedMedia.length;
-      if (missing) await mark({ startedAt, failed: missing });
+      const missing = (await openLibrary(library).check(series, course)).media.missing;
+      const end = downloadEnd(report, missing);
+      if ("error" in end) {
+        await mark({ startedAt, error: end.error });
+        throw new Error(end.error);
+      }
+      if (end.failed) await mark({ startedAt, failed: end.failed });
       else await rm(marker, { force: true });
       return report;
     },

@@ -81,7 +81,8 @@
         },
         "required": [
           "fingerprint"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "extra": {
@@ -145,7 +146,8 @@
         "required": [
           "after",
           "exercise"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "scenes": {
@@ -167,13 +169,15 @@
       },
       "required": [
         "phrases"
-      ]
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
     "format",
     "lesson"
   ],
+  "additionalProperties": false,
   "$defs": {
     "LessonKey": {
       "type": "string",
@@ -262,14 +266,16 @@
                 },
                 "required": [
                   "optionIds"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "key",
               "options",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -406,14 +412,16 @@
                 },
                 "required": [
                   "optionIds"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "key",
               "options",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -513,7 +521,8 @@
                 },
                 "required": [
                   "pairs"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -521,7 +530,8 @@
               "left",
               "right",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -609,7 +619,8 @@
                 },
                 "required": [
                   "sequence"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
@@ -617,7 +628,8 @@
               "parts",
               "join",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -699,7 +711,8 @@
                   },
                   "required": [
                     "options"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               },
               "display": {
@@ -739,7 +752,8 @@
               "gaps",
               "display",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -770,7 +784,8 @@
             },
             "required": [
               "gap"
-            ]
+            ],
+            "additionalProperties": false
           }
         ]
       }
@@ -844,7 +859,8 @@
                   },
                   "required": [
                     "accepted"
-                  ]
+                  ],
+                  "additionalProperties": false
                 }
               }
             },
@@ -852,7 +868,8 @@
               "key",
               "segments",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -915,7 +932,8 @@
                 },
                 "required": [
                   "audio"
-                ]
+                ],
+                "additionalProperties": false
               },
               "prompt": {
                 "type": "string"
@@ -934,14 +952,16 @@
                 },
                 "required": [
                   "accepted"
-                ]
+                ],
+                "additionalProperties": false
               }
             },
             "required": [
               "key",
               "media",
               "answer"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -1009,7 +1029,8 @@
             "required": [
               "key",
               "text"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -1079,7 +1100,8 @@
             },
             "required": [
               "key"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -1170,7 +1192,8 @@
                       "required": [
                         "id",
                         "anyOf"
-                      ]
+                      ],
+                      "additionalProperties": false
                     }
                   },
                   "criteria": {
@@ -1185,7 +1208,8 @@
                       },
                       "required": [
                         "id"
-                      ]
+                      ],
+                      "additionalProperties": false
                     }
                   }
                 },
@@ -1213,7 +1237,8 @@
               "key",
               "input",
               "reference"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -1280,7 +1305,8 @@
             "required": [
               "key",
               "scene"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
@@ -1360,7 +1386,8 @@
               "key",
               "raw",
               "reason"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },

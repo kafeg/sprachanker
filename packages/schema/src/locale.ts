@@ -24,7 +24,7 @@ const SourceId = z.string().min(1);
 export const ItemRef = z.string().regex(/^#[1-9]\d*$/);
 
 /** Learner-language strings of one item; every field mirrors a canonical one. */
-export const LocaleItem = z.object({
+export const LocaleItem = z.strictObject({
   prompt: z.string().optional(),
   /** Help or tip shown with the item ("Справка: …"). */
   hintHtml: z.string().optional(),
@@ -37,7 +37,7 @@ export const LocaleItem = z.object({
   reference: z.array(z.string().min(1)).optional(),
 });
 
-export const LocaleExercise = z.object({
+export const LocaleExercise = z.strictObject({
   sourceId: SourceId,
   /** Absent when the source gives none (the player numbers the exercise), never empty. */
   title: z.string().min(1).optional(),
@@ -50,7 +50,7 @@ export type LocaleExercise = z.infer<typeof LocaleExercise>;
 export type LocaleItem = z.infer<typeof LocaleItem>;
 
 /** Grammar, culture or script page of a lesson; may mix languages. */
-export const Tab = z.object({
+export const Tab = z.strictObject({
   sourceId: SourceId.optional(),
   title: z.string(),
   bodyHtml: z.string(),
@@ -60,20 +60,20 @@ export const Tab = z.object({
 export type Tab = z.infer<typeof Tab>;
 
 /** `locale/<edition>/<course>/course.json` */
-export const LocaleCourse = z.object({
+export const LocaleCourse = z.strictObject({
   format: format(LOCALE_FORMAT),
   edition: EditionId,
   course: CourseKey,
   sourceId: SourceId,
   title: z.string().min(1),
   descriptionHtml: z.string().optional(),
-  units: z.record(UnitKey, z.object({ title: z.string() })),
-  goals: z.record(GoalKey, z.object({ text: z.string().min(1) })),
+  units: z.record(UnitKey, z.strictObject({ title: z.string() })),
+  goals: z.record(GoalKey, z.strictObject({ text: z.string().min(1) })),
 });
 export type LocaleCourse = z.infer<typeof LocaleCourse>;
 
 /** `locale/<edition>/<course>/lessons/<NN>-<NN>.json` */
-export const LocaleLesson = z.object({
+export const LocaleLesson = z.strictObject({
   format: format(LOCALE_FORMAT),
   edition: EditionId,
   lesson: LessonKey,
@@ -83,13 +83,13 @@ export const LocaleLesson = z.object({
   exercises: z.record(ExerciseKey, LocaleExercise),
   vocab: z.record(
     VocabKey,
-    z.object({
+    z.strictObject({
       translation: z.string().min(1),
       /** Translations of the entry's `examples`, in the same order. */
       examples: z.array(z.string()).optional(),
     }),
   ),
-  tabs: z.object({
+  tabs: z.strictObject({
     grammar: z.array(Tab),
     culture: z.array(Tab),
     script: Tab.optional(),
@@ -97,18 +97,18 @@ export const LocaleLesson = z.object({
     homework: z.array(Tab).optional(),
   }),
   /** Printable material of this edition (script with vocabulary, worksheets). */
-  downloads: z.array(z.object({ title: z.string().min(1), path: MediaPath })),
+  downloads: z.array(z.strictObject({ title: z.string().min(1), path: MediaPath })),
 });
 export type LocaleLesson = z.infer<typeof LocaleLesson>;
 
 /** `locale/<edition>/<course>/exams/<slug>.json` */
-export const LocaleExam = z.object({
+export const LocaleExam = z.strictObject({
   format: format(LOCALE_FORMAT),
   edition: EditionId,
   exam: ExamKey,
   title: z.string().min(1),
-  sections: z.record(ExamSectionKey, z.object({ title: z.string() })),
-  thresholds: z.record(z.string(), z.object({ title: z.string() })),
+  sections: z.record(ExamSectionKey, z.strictObject({ title: z.string() })),
+  thresholds: z.record(z.string(), z.strictObject({ title: z.string() })),
   items: z.record(ExamItemKey, LocaleItem),
 });
 export type LocaleExam = z.infer<typeof LocaleExam>;

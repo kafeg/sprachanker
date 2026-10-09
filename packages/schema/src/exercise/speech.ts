@@ -5,7 +5,7 @@ import { exerciseOf, ItemBase } from "./base.ts";
 
 /** A spoken answer: what the recogniser heard (08), and the profile recording when recordings are
  *  kept. */
-export const SpokenAnswer = z.object({
+export const SpokenAnswer = z.strictObject({
   recording: z.string().min(1).optional(),
   /** As long as a self-rated answer's: a take is at most a few minutes. Checked when an answer is
    *  checked (stored payloads keep `answer` as it was). */
@@ -13,14 +13,14 @@ export const SpokenAnswer = z.object({
 });
 
 export const DictationItem = ItemBase.extend({
-  media: z.object({ audio: MediaPath }),
-  answer: z.object({ accepted: z.array(z.string().min(1)).min(1) }),
+  media: z.strictObject({ audio: MediaPath }),
+  answer: z.strictObject({ accepted: z.array(z.string().min(1)).min(1) }),
 });
-export const DictationAnswer = z.object({ text: z.string() });
+export const DictationAnswer = z.strictObject({ text: z.string() });
 export const DictationExercise = exerciseOf("dictation", DictationItem);
 
 export const SpeechRepeatItem = ItemBase.extend({ text: z.string().min(1) });
-export const SpeechRepeatAnswer = z.object({ speech: SpokenAnswer });
+export const SpeechRepeatAnswer = z.strictObject({ speech: SpokenAnswer });
 export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem);
 
 /** Speaking oneself (the courses' "say it" exercises): listen, then record oneself; recorded is done.
@@ -34,7 +34,7 @@ export const SpeechSelfrateItem = ItemBase.extend({
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when
  *  the learner keeps no recordings), and what the recogniser heard when it is on (08). `rating`: the
  *  self-rating of answers given before 2026-10-08. */
-export const SpeechSelfrateAnswer = z.object({
+export const SpeechSelfrateAnswer = z.strictObject({
   recording: z.string().min(1).optional(),
   transcript: z.string().max(2000).optional(),
   rating: z.enum(["good", "fair", "poor"]).optional(),

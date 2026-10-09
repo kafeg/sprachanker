@@ -32,7 +32,8 @@
         },
         "required": [
           "title"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "thresholds": {
@@ -49,7 +50,8 @@
         },
         "required": [
           "title"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "items": {
@@ -102,7 +104,8 @@
               "minLength": 1
             }
           }
-        }
+        },
+        "additionalProperties": false
       }
     }
   },
@@ -115,6 +118,7 @@
     "thresholds",
     "items"
   ],
+  "additionalProperties": false,
   "$defs": {
     "ExamKey": {
       "type": "string",

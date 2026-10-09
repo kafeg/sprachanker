@@ -42,7 +42,8 @@
       "title",
       "explanation",
       "examples"
-    ]
+    ],
+    "additionalProperties": false
   },
   "$defs": {
     "RuleId": {

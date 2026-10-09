@@ -7,9 +7,9 @@ export const OrderItem = ItemBase.extend({
   /** How text parts are joined: words with spaces (punctuation attaches), letters without. */
   join: z.enum(["space", "none"]),
   /** Parts with identical text are interchangeable when checking. */
-  answer: z.object({ sequence: z.array(OptionId).min(2) }),
+  answer: z.strictObject({ sequence: z.array(OptionId).min(2) }),
 });
-export const OrderAnswer = z.object({ sequence: z.array(OptionId) });
+export const OrderAnswer = z.strictObject({ sequence: z.array(OptionId) });
 export const OrderExercise = exerciseOf("order", OrderItem);
 export type OrderAnswer = z.infer<typeof OrderAnswer>;
 

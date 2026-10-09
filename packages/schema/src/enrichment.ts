@@ -9,7 +9,7 @@ import { ItemRef } from "./locale.ts";
 export const ENRICHMENT_FORMAT = 1;
 
 /** `courses/<provider>/enrichment/<course>/<NN>-<NN>.yaml` */
-export const Enrichment = z.object({
+export const Enrichment = z.strictObject({
   format: format(ENRICHMENT_FORMAT),
   lesson: LessonKey,
   rules: z.array(RuleId).default([]),
@@ -18,7 +18,7 @@ export const Enrichment = z.object({
   exercises: z
     .record(
       ExerciseKey,
-      z.object({
+      z.strictObject({
         /** The entry is stale (skipped and reported) when this differs from the exercise. */
         fingerprint: Sha256,
         ruleIds: z.array(RuleId).optional(),
@@ -34,7 +34,7 @@ export const Enrichment = z.object({
     .default({}),
   extra: z
     .array(
-      z.object({
+      z.strictObject({
         /** Existing exercise key, or `end`. */
         after: z.union([ExerciseKey, z.literal("end")]),
         exercise: Exercise,
@@ -42,6 +42,6 @@ export const Enrichment = z.object({
     )
     .default([]),
   scenes: z.array(SceneKey).default([]),
-  cards: z.object({ phrases: z.array(LexemeKey) }).optional(),
+  cards: z.strictObject({ phrases: z.array(LexemeKey) }).optional(),
 });
 export type Enrichment = z.infer<typeof Enrichment>;

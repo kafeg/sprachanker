@@ -98,14 +98,16 @@
                     "minLength": 1
                   }
                 }
-              }
+              },
+              "additionalProperties": false
             }
           }
         },
         "required": [
           "sourceId",
           "items"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "vocab": {
@@ -129,7 +131,8 @@
         },
         "required": [
           "translation"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "tabs": {
@@ -159,7 +162,8 @@
             "required": [
               "title",
               "bodyHtml"
-            ]
+            ],
+            "additionalProperties": false
           }
         },
         "culture": {
@@ -186,7 +190,8 @@
             "required": [
               "title",
               "bodyHtml"
-            ]
+            ],
+            "additionalProperties": false
           }
         },
         "script": {
@@ -211,7 +216,8 @@
           "required": [
             "title",
             "bodyHtml"
-          ]
+          ],
+          "additionalProperties": false
         },
         "homework": {
           "type": "array",
@@ -237,14 +243,16 @@
             "required": [
               "title",
               "bodyHtml"
-            ]
+            ],
+            "additionalProperties": false
           }
         }
       },
       "required": [
         "grammar",
         "culture"
-      ]
+      ],
+      "additionalProperties": false
     },
     "downloads": {
       "type": "array",
@@ -262,7 +270,8 @@
         "required": [
           "title",
           "path"
-        ]
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -277,6 +286,7 @@
     "tabs",
     "downloads"
   ],
+  "additionalProperties": false,
   "$defs": {
     "LessonKey": {
       "type": "string",

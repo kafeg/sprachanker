@@ -4,7 +4,7 @@ import { exerciseOf, GapId, ItemBase, Option, OptionId, Segments } from "./base.
 
 export const GapChoiceItem = ItemBase.extend({
   segments: Segments,
-  gaps: z.record(GapId, z.object({ options: z.array(Option).min(1) })),
+  gaps: z.record(GapId, z.strictObject({ options: z.array(Option).min(1) })),
   /** `bank`: one shared word bank, each word used once; `dropdown`: options per gap. */
   display: z.enum(["dropdown", "bank"]),
   /** The correct option of each gap, or several when any of them is right. */
@@ -22,7 +22,7 @@ export const GapTextItem = ItemBase.extend({
   segments: Segments,
   /** Accepted texts per gap; "" means nothing belongs there (no article), and an empty or dash
    *  answer is then right. */
-  answer: z.record(GapId, z.object({ accepted: z.array(z.string()).min(1) })),
+  answer: z.record(GapId, z.strictObject({ accepted: z.array(z.string()).min(1) })),
 });
 export const GapTextAnswer = z.record(GapId, z.string());
 export const GapTextExercise = exerciseOf("gap_text", GapTextItem);

@@ -3,7 +3,13 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { CourseSlug, EditionId, SeriesKey } from "@sprachanker/schema";
-import { courseInstaller, importCourse, PROVIDERS, providerIds } from "../src/providers.ts";
+import {
+  courseInstaller,
+  downloadEnd,
+  importCourse,
+  PROVIDERS,
+  providerIds,
+} from "../src/providers.ts";
 
 test("download markers on disk: interrupted and incomplete downloads, space per series", async () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-installer-"));
@@ -60,4 +66,17 @@ test("every provider keeps the contract: its own id and series, courses offered 
       expect(o.title && o.source.url && o.approxBytes > 0, where).toBeTruthy();
     }
   }
+});
+
+test("a download's end: invalid files are an error, media missing leave it incomplete, else done", () => {
+  const report = (problems: number, failedMedia: string[] = []) => ({
+    failedMedia,
+    goneMedia: [],
+    normalised: { "a1-ru ru-de": { lessons: 3, unknown: 0, problems } },
+  });
+  expect(downloadEnd(report(2), 0)).toEqual({
+    error: "2 files failed validation (listed in the log)",
+  });
+  expect(downloadEnd(report(0, ["https://x.test/a.mp3: 503"]), 1)).toEqual({ failed: 2 });
+  expect(downloadEnd(report(0), 0)).toEqual({ failed: 0 });
 });

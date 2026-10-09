@@ -41,7 +41,8 @@
         "id",
         "attribution",
         "url"
-      ]
+      ],
+      "additionalProperties": false
     },
     "courses": {
       "type": "array",
@@ -105,7 +106,8 @@
                 "source",
                 "fetchedAt",
                 "contentVersion"
-              ]
+              ],
+              "additionalProperties": false
             }
           }
         },
@@ -114,7 +116,8 @@
           "kind",
           "target",
           "editions"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "files": {
@@ -151,7 +154,8 @@
         "required": [
           "sha256",
           "size"
-        ]
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -165,6 +169,7 @@
     "courses",
     "files"
   ],
+  "additionalProperties": false,
   "$defs": {
     "SeriesKey": {
       "type": "string",

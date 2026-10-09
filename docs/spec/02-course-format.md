@@ -230,7 +230,11 @@ their schemas as they are written (`writeLibraryFiles`); failures are reported.
 ## Validation and versions
 
 - The library validates canonical and locale files when they are read (`packages/course-kit/src/library.ts`);
-  an invalid file is an error, never partially used. A file with an unknown `format` fails validation.
+  an invalid file is an error, never partially used. A file with an unknown `format` fails validation,
+  and so does one with a field its schema does not know (the schemas are strict: a misspelt field is
+  never written and silently dropped on read). A normaliser writes a file that fails its schema all the
+  same — where it is read, it says so — and the import counts it: the CLI exits with an error, a
+  download from the app ends with one.
 - Restore = copy the series folder.
 - **verify** (`packages/course-kit/src/verify.ts`, CLI `sprachanker verify`) reads every installed course
   the way the app does and checks what the schemas cannot: lessons listed once and in their unit, no

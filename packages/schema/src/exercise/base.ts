@@ -23,11 +23,11 @@ export type Option = z.infer<typeof Option>;
 
 /** Text with gaps: plain strings and `{ gap }` markers, in reading order. */
 export const Segments = z
-  .array(z.union([z.string(), z.object({ gap: GapId })]))
+  .array(z.union([z.string(), z.strictObject({ gap: GapId })]))
   .min(1)
   .meta({ id: "Segments" });
 
-export const ItemBase = z.object({
+export const ItemBase = z.strictObject({
   key: ItemKey,
   media: Media.optional(),
   /** Target-language prompt or context line; a learner-language one lives in the locale file. */

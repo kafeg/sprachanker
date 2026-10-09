@@ -46,7 +46,8 @@
                 },
                 "required": [
                   "setting"
-                ]
+                ],
+                "additionalProperties": false
               },
               {
                 "type": "null"
@@ -59,7 +60,8 @@
           "pool",
           "draw",
           "filter"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "items": {
@@ -99,7 +101,8 @@
             },
             "required": [
               "optionIds"
-            ]
+            ],
+            "additionalProperties": false
           },
           "type": {
             "type": "string",
@@ -124,7 +127,8 @@
           "answer",
           "type",
           "tags"
-        ]
+        ],
+        "additionalProperties": false
       }
     },
     "thresholds": {
@@ -146,7 +150,8 @@
         "required": [
           "id",
           "minPoints"
-        ]
+        ],
+        "additionalProperties": false
       }
     }
   },
@@ -158,6 +163,7 @@
     "items",
     "thresholds"
   ],
+  "additionalProperties": false,
   "$defs": {
     "ExamKey": {
       "type": "string",

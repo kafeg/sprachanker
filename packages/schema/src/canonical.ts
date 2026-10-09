@@ -17,7 +17,7 @@ export const CANONICAL_FORMAT = 1;
 
 /** `canonical/<course>/course.json` */
 /** Where a course comes from and on what terms (shown with the course; attribution in its locale). */
-export const CourseSource = z.object({
+export const CourseSource = z.strictObject({
   publisher: z.string().min(1),
   /** The source's home page of the course. */
   url: z.url(),
@@ -26,18 +26,18 @@ export const CourseSource = z.object({
 });
 export type CourseSource = z.infer<typeof CourseSource>;
 
-export const CourseIndex = z.object({
+export const CourseIndex = z.strictObject({
   format: format(CANONICAL_FORMAT),
   key: CourseKey,
   source: CourseSource.optional(),
-  units: z.array(z.object({ key: UnitKey, lessons: z.array(LessonKey) })),
+  units: z.array(z.strictObject({ key: UnitKey, lessons: z.array(LessonKey) })),
   exams: z.array(ExamKey),
-  goals: z.array(z.object({ key: GoalKey, lessons: z.array(LessonKey) })),
+  goals: z.array(z.strictObject({ key: GoalKey, lessons: z.array(LessonKey) })),
 });
 export type CourseIndex = z.infer<typeof CourseIndex>;
 
 /** A word or phrase introduced by a lesson; its translation lives in the locale file. */
-export const VocabEntry = z.object({
+export const VocabEntry = z.strictObject({
   key: VocabKey,
   lexeme: LexemeKey,
   /** Headword as the source shows it: "die Frau, die Frauen", "(etwas) studieren". */
@@ -57,14 +57,14 @@ export const VocabEntry = z.object({
 export type VocabEntry = z.infer<typeof VocabEntry>;
 
 /** Source content the provider could not map; listed in the import report (02). */
-export const Unmapped = z.object({ path: LibraryPath, reason: z.string().min(1) });
+export const Unmapped = z.strictObject({ path: LibraryPath, reason: z.string().min(1) });
 
 /** `canonical/<course>/lessons/<NN>-<NN>.json` */
-export const Lesson = z.object({
+export const Lesson = z.strictObject({
   format: format(CANONICAL_FORMAT),
   key: LessonKey,
   unit: UnitKey,
-  media: z.object({
+  media: z.strictObject({
     video: z
       .object({
         sd: MediaPath.optional(),
@@ -80,7 +80,7 @@ export const Lesson = z.object({
     audio: MediaPath.optional(),
   }),
   goals: z.array(GoalKey),
-  pages: z.array(z.object({ exercise: Exercise })),
+  pages: z.array(z.strictObject({ exercise: Exercise })),
   vocab: z.array(VocabEntry),
   unmapped: z.array(Unmapped),
 });

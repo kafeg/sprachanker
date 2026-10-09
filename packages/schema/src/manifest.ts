@@ -7,7 +7,7 @@ import { EditionId, Lang } from "./lang.ts";
 
 export const MANIFEST_FORMAT = 1;
 
-export const ManifestFile = z.object({
+export const ManifestFile = z.strictObject({
   sha256: Sha256,
   size: z.number().int().nonnegative(),
   /** Blobs only. */
@@ -16,7 +16,7 @@ export const ManifestFile = z.object({
   durationSec: z.number().nonnegative().optional(),
 });
 
-export const Manifest = z.object({
+export const Manifest = z.strictObject({
   format: format(MANIFEST_FORMAT),
   series: SeriesKey,
   provider: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -24,14 +24,14 @@ export const Manifest = z.object({
   title: z.string().min(1),
   licence: Licence,
   courses: z.array(
-    z.object({
+    z.strictObject({
       /** Course id inside the series (`a1`); the course key is `<series>/<id>`. */
       id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
       kind: CourseKind,
       level: CefrLevel.optional(),
       target: Lang,
       editions: z.array(
-        z.object({
+        z.strictObject({
           id: EditionId,
           source: Lang,
           fetchedAt: Timestamp,
