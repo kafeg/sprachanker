@@ -51,8 +51,13 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
     exclusiveFilter: (frame) =>
       frame.tag === "drop-image" || (options.drop?.(frame.tag, frame.attribs) ?? false),
   });
-  return nestedHeadingsAsBold(withoutEmpty(clean)).trim();
+  return nestedHeadingsAsBold(withoutEmpty(breakable(clean))).trim();
 }
+
+/** A no-break space between two letters is an editor's leftover ("und\u00a0leckeren", whole sentences
+ *  so joined): a plain space, so the text wraps. One that keeps a number with its unit ("25\u00a0°C") or
+ *  a mark off its word ("Bonjour\u00a0!") stays. */
+const breakable = (html: string) => html.replace(/(?<=\p{L})(?:\u00a0|&nbsp;)(?=\p{L})/gu, " ");
 
 /** Emphasis around nothing but spaces (an editor's leftover) gives just its spaces; a paragraph,
  *  caption or title left with nothing in it goes (a dropped credit leaves an empty caption). */

@@ -147,7 +147,11 @@
   figcaption {
     unicode-bidi: plaintext;
   }
-  /* Course HTML (instructions, grammar, culture, script) */
+  /* Course HTML (instructions, grammar, culture, script); a run the source keeps from breaking
+     still wraps rather than push the page wider than the screen. */
+  .prose-course {
+    overflow-wrap: break-word;
+  }
   .prose-course p {
     @apply my-2;
   }

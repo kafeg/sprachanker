@@ -27,7 +27,10 @@ async function playAll(page: Page) {
 
 /** The screen is whole: nothing wider than it, no error page. */
 export async function expectWhole(page: Page, where: string) {
-  const wide = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  // The layout's width, not the window's: a phone's window grows with content that sticks out.
+  const wide = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
   expect(wide, `${where}: the page is wider than the screen`).toBeLessThanOrEqual(1);
   await expect(page.getByText("Something went wrong"), `${where}: an error page`).toHaveCount(0);
 }

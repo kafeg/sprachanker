@@ -62,3 +62,11 @@ test("empty emphasis, paragraphs and captions go; titles inside tables are bold 
     ),
   ).toBe("<ul><li><p><strong>eins</strong></p></li></ul><h3>Zwei</h3>");
 });
+
+test("a no-break space between letters wraps; one by a number or a mark stays", () => {
+  expect(
+    sanitizeCourseHtml("<p>gesunden\u00a0und\u00a0leckeren 25\u00a0°C Bonjour\u00a0!</p>", {
+      image: () => undefined,
+    }),
+  ).toBe("<p>gesunden und leckeren 25\u00a0°C Bonjour\u00a0!</p>");
+});

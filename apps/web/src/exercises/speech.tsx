@@ -31,13 +31,14 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
       />
       {!outcome && <SpecialLetters scope={scope} />}
       {outcome?.diff && (
-        <p lang={lang} className="text-xl leading-relaxed">
+        // Words as wrapping chips: spans side by side with no space between have nowhere to break.
+        <p lang={lang} className="flex flex-wrap gap-x-1.5 gap-y-1 text-xl leading-relaxed">
           {outcome.diff.map((d, i) => (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: a diff is static
               key={i}
               className={cn(
-                "mr-1.5 rounded px-1",
+                "rounded px-1",
                 d.op === "equal" && "text-correct",
                 d.op === "missing" && "bg-wrong-soft text-wrong underline decoration-dotted",
                 d.op === "extra" && "text-wrong line-through",
@@ -90,7 +91,7 @@ function Heard({
         </span>
       </p>
       {check && check.verdict !== "correct" && (
-        <p lang={lang} className="text-lg leading-relaxed">
+        <p lang={lang} className="flex flex-wrap gap-x-1.5 gap-y-1 text-lg leading-relaxed">
           {check.diff
             .filter((d) => d.op !== "extra")
             .map((d, i) => (
@@ -98,7 +99,7 @@ function Heard({
                 // biome-ignore lint/suspicious/noArrayIndexKey: the words of one fixed phrase
                 key={i}
                 className={cn(
-                  "mr-1.5 rounded px-1",
+                  "rounded px-1",
                   d.op === "equal" ? "text-correct" : "bg-wrong-soft text-wrong",
                 )}
               >
