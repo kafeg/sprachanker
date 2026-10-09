@@ -1,6 +1,7 @@
 // Settings (09): tabs — General (language, theme, storage), Profile (name, languages, sign-in, devices,
-// switching), Review (Anki's deck options), AI assistant (providers, models, LM Studio), Prompts (the tasks' system prompts, the {}
-// buttons), About. The open tab is kept in the URL hash.
+// switching), Review (Anki's deck options), Speech (microphone, recognition, reading aloud), AI
+// assistant (providers, models, LM Studio), Prompts (the tasks' system prompts, the {} buttons), About.
+// The open tab is kept in the URL hash.
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSetting } from "@/api/hooks.ts";

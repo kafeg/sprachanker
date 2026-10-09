@@ -121,7 +121,8 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
 - **The queue** (`studyQueue`): learning faces due now first; then reviews and new faces mixed evenly;
   new faces gathered by the order the cards were made, card 1 (recognition) of every note before card 2
   (production) before card 3 (listening). Limits per day: 20 new (`srs.newPerDay`), 200 reviews
-  (`srs.reviewsPerDay`), new faces counting against the review limit too. When nothing else is left,
+  (`srs.reviewsPerDay`), new faces counting against the review limit too unless the profile sets
+  `srs.newIgnoresReviewLimit` (Anki's "new cards ignore review limit", off). When nothing else is left,
   learning faces due within 20 minutes are shown ahead (learn ahead). Siblings are not buried.
 - **Counts** as in Anki: new · learning · to review, the current card's queue underlined.
 - **The reviewer**: the question; Show answer (Space, Enter, a tap) shows the question and the answer

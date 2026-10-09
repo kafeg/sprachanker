@@ -2,6 +2,8 @@
 // on this computer — the voice of each of the profile's languages with "Listen" (automatic: the best one
 // there) and the text it reads (a phrase in that language, or the learner's own), Piper's voices to
 // download per language or Qwen3-TTS's models, the speed, and what is read at once.
+
+import type { SettingValue } from "@sprachanker/schema";
 import {
   Cpu,
   Download,
@@ -43,7 +45,7 @@ import { bestVoice, speaks } from "./speak.ts";
 import { deviceVoice, read, stop, useDeviceVoices, voiceInfo } from "./speaker.ts";
 
 const AUTO = "auto";
-type Engine = "device" | "piper" | "qwen";
+type Engine = SettingValue<"speech.readEngine">;
 type QwenState = NonNullable<ReturnType<typeof useQwenTts>["data"]>;
 type PiperVoice = NonNullable<ReturnType<typeof usePiperVoices>["data"]>["voices"][number];
 const QUALITY = ["x_low", "low", "medium", "high"];

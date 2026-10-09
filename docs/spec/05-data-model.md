@@ -8,8 +8,8 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
-├── models/                      # downloaded speech models; voices/ Piper's voices (08)
-├── cache/tts/                   # texts read aloud with Piper, by voice, speed and text (08)
+├── models/                      # downloaded speech models; voices/ Piper's voices; engines.pid (06) (08)
+├── cache/tts/                   # texts read aloud by Piper (by voice, speed, text) and Qwen3-TTS (08)
 ├── server.sqlite                # profiles, devices, server settings
 ├── server.pid                   # the running server's pid: one server per data root (06)
 └── profiles/<profile-id>/       # `local` is the first

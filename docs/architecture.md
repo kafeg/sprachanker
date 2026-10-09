@@ -13,11 +13,14 @@ browser ──localhost or a LAN name (phones over Tailscale: planned)──┐
                  ├─ Hono app: /api/* routes → services   (packages/server)
                  ├─ web build: the React app (apps/web), SPA fallback
                  ├─ /library/<series>/media/* with Range
-                 └─ whisper-server on 127.0.0.1 (native/, beside the binary), started on demand
+                 ├─ whisper-server and Qwen3-TTS's tts-server on 127.0.0.1 (native/, beside the
+                 │  binary), started on demand by the supervisor, stopped when idle
+                 └─ Piper (sherpa-onnx-offline-tts), run once per text read aloud
                         │
 <data root> (~/SprachAnker) ── library/<series>/…         courses (02), written only by the importers
-                            ├─ models/                    speech models (08)
-                            ├─ server.sqlite              profiles, devices signed in
+                            ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
+                            ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
+                            ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
                             └─ profiles/<id>/             each learner's profile.sqlite (runs, events,
                                                           cards, settings) and recordings/
 ```
@@ -50,7 +53,7 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 | `courses/<provider>` | fetch a source politely into `raw/`, normalise deterministically into canonical + locale |
 | `packages/engine` | checking answers, text normalisation and diff, the lesson's steps and progress, mistakes, FSRS and Anki's study queue |
 | `packages/llm` | providers, streamed and structured calls, time limits, prompts and tasks, tutor tools |
-| `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engine and its supervisor, security |
+| `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engines and their supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
 | `apps/cli` | `serve`, `import`, `verify`, `profiles` |
 
@@ -76,8 +79,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
   `scene`, `examples` (a card's word), `lesson-context` (what tasks know of a lesson). `in-flight`
   keeps what a model is doing per lesson, so structured calls run to their end and a page opened
   meanwhile shows them as waiting.
-- **Speech**: `speech` (whisper-server and its models) on `sidecar`, the supervisor of local engines
-  (06, "Sidecars"); `recordings` (the learner's audio per profile).
+- **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
+  models) on `sidecar`, the supervisor of local engines (06, "Sidecars"); `read-aloud` (Piper's voices,
+  a text read as a WAV); `recordings` (the learner's audio per profile).
 - **Profiles** (`profiles`, `devices`): every profile equal, never nameless; a device signs in by
   choosing a profile and keeps a revocable token; server matters are the `sprachanker profiles`
   command's (06).

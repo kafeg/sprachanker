@@ -2,7 +2,7 @@
 
 HTTP API, storage, course downloads, sidecars, speech. Spec: `docs/spec/05-data-model.md`,
 `docs/spec/06-server.md`, `docs/spec/08-speech.md`. May depend on: schema, engine, course-kit,
-courses/*, llm (and anki-export, planned: plan, "Anki decks").
+courses/*, llm (and anki-export, planned: plan, "Anki decks and word images").
 
 ## Layout
 

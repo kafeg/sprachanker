@@ -17,7 +17,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `packages/course-kit` | Library format (read/write), fetcher, media store, manifest, fingerprints, verify. | 02, 03 | `courses/CLAUDE.md` |
 | `courses/<provider>` | One folder per content source: provider (importer + normaliser), enrichment, tests. `courses/_shared/rules` — grammar rules registry. | 02, 03 | `courses/CLAUDE.md` |
 | `packages/engine` | Pure logic: lesson composition, exercise checking, learner model, FSRS. No I/O. | 04 | `packages/engine/CLAUDE.md` |
-| `packages/server` | HTTP API, SQLite, media, profiles, course downloads, sidecar supervision, speech recognition. | 05, 06, 08 | `packages/server/CLAUDE.md` |
+| `packages/server` | HTTP API, SQLite, media, profiles, course downloads, sidecar supervision, speech recognition and reading aloud. | 05, 06, 08 | `packages/server/CLAUDE.md` |
 | `packages/llm` | LLM gateway, providers, tasks, prompts, structured outputs. | 07 | `packages/llm/CLAUDE.md` |
 | `packages/anki-export` | `.apkg` import/export (planned). | 04 | `packages/engine/CLAUDE.md` |
 | `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
@@ -45,7 +45,7 @@ Encoded in `.dependency-cruiser.cjs`; `scripts/boundaries.test.ts` proves them o
 
 TypeScript (strict) everywhere · Bun (runtime, workspaces, `bun test`) · Hono · Drizzle + `bun:sqlite` ·
 zod · React + Vite + Tailwind + shadcn/ui (Radix) + TanStack Router/Query · Tauri 2 · Biome · Playwright ·
-dependency-cruiser. Native: whisper.cpp, Piper; local LLMs via LM Studio. Keep server code runtime-agnostic (Node fallback).
+dependency-cruiser. Native: whisper.cpp, Piper (sherpa-onnx), Qwen3-TTS (qwentts.cpp); local LLMs via LM Studio. Keep server code runtime-agnostic (Node fallback).
 All library choices are fixed in `docs/spec/10-quality.md` ("Fixed technical choices"); do not add
 alternatives without updating that table.
 

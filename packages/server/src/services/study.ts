@@ -120,7 +120,7 @@ export function createStudy(deps: {
     const result = studyQueue(faces, {
       now: data.t,
       nextDay: dayOf(data.t).next,
-      newIgnoresReviewLimit: settings.get("srs.newIgnoresReviewLimit") ?? false,
+      newIgnoresReviewLimit: settings.value("srs.newIgnoresReviewLimit"),
       learningSteps: params().learningSteps,
       relearningSteps: params().relearningSteps,
       newPerDay: (settings.get("srs.newPerDay") ?? SRS_DEFAULTS.newPerDay) + extra,

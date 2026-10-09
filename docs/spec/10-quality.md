@@ -18,7 +18,7 @@
 | Fixture library | `courses/_fixture` (invented course, two editions) has an exercise of every type, validates against the schemas, and its fingerprints match the content |
 | Provider contracts | synthetic fixtures normalise into valid, deterministic output |
 | Exercise registry | a type missing from the fixture course |
-| i18n | en/ru/de catalogs have different keys or a message is not valid ICU |
+| i18n | en/ru/de catalogs have different keys, a message is not valid ICU or takes other arguments than the English one, a key the code asks for is in no catalog, a key no code uses, a ru/de message left as the English text |
 | CLAUDE.md paths | a backticked repository path in a CLAUDE.md does not exist (see Documentation) |
 
 ## Fixed technical choices
@@ -44,7 +44,7 @@ table in the same commit with the reason.
 | Drag and drop | `@dnd-kit/core` (mouse, touch and keyboard) with `@dnd-kit/utilities`; every drag also works by tap (pick, then place) |
 | Language flags | `country-flag-icons` (SVG React components, one module per flag; our language → flag table in `apps/web/src/ui/flags.tsx`) |
 | Routing / server state / UI state | TanStack Router / TanStack Query / React state and context (Zustand when shared client state outgrows them) |
-| i18n | i18next + react-i18next + i18next-icu |
+| i18n | i18next + react-i18next + i18next-icu (intl-messageformat checks the catalogs in tests) |
 | Charts | our own SVG (the activity calendar); Recharts when charts with axes come (plan, Notebook) |
 | Media | native `<video>`/`<audio>`; MediaRecorder + WebAudio resampling to 16 kHz |
 | Desktop | Tauri 2 (planned) |

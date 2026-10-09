@@ -20,7 +20,7 @@ src/
 ## Planned
 
 - `compose/`: canonical + locale + enrichment → a composed lesson, stale detection (04).
-- `packages/anki-export`: `.apkg` import and export (plan, "Anki decks").
+- `packages/anki-export`: `.apkg` import and export (plan, "Anki decks and word images").
 
 ## Rules
 

@@ -17,6 +17,6 @@ scripts/
 ## Rules
 
 - Keep Rust minimal: process start/stop, window, tray, updater. Everything else via the local API.
-- Supervising the speech engines (whisper-server today) is the server's job, so headless `serve` has
-  the same features.
+- Supervising the speech engines (whisper-server, Qwen3-TTS's tts-server; Piper runs per text) is
+  the server's job, so headless `serve` has the same features.
 - Never bundle model files or course content.
