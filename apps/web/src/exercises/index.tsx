@@ -43,6 +43,16 @@ export function ExerciseItem({
 /** Whether the player checks the exercise (engine's `isChecked`) — and can show it here. */
 export const isCheckedHere = (type: Exercise["type"]) => isChecked(type) && type in RENDERERS;
 
+/** The recordings an item is to be heard with before it is answered (09): the exercise's and its own
+ *  (`exercise`, `item-<index>`). */
+export function toHear(exercise: Exercise, index: number): string[] {
+  const media = exercise.items[index]?.media;
+  return [
+    ...(exercise.media?.audio || exercise.media?.video ? ["exercise"] : []),
+    ...(media && ("audio" in media || "video" in media) ? [`item-${index}`] : []),
+  ];
+}
+
 /**
  * The correct answer as text, under a wrong item, where the renderer does not show it itself (choices,
  * gaps and pairs mark the right option in place).

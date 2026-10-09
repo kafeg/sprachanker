@@ -5,7 +5,7 @@
 import { answerComplete, checkItem } from "@sprachanker/engine";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { useRef, useState } from "react";
-import { isCheckedHere } from "@/exercises/index.tsx";
+import { isCheckedHere, toHear } from "@/exercises/index.tsx";
 import type { ExerciseResult } from "./use-run.ts";
 
 export type Answered = (
@@ -56,12 +56,7 @@ export function useExercise({
 
   // Recordings that must be played before checking: the exercise's own and each item's. Reopening an
   // exercise answered before, or a finished run, asks for nothing.
-  const recordings = [
-    ...(exercise.media?.audio || exercise.media?.video ? ["exercise"] : []),
-    ...exercise.items.flatMap((item, i) =>
-      item.media && ("audio" in item.media || "video" in item.media) ? [`item-${i}`] : [],
-    ),
-  ];
+  const recordings = [...new Set(exercise.items.flatMap((_, i) => toHear(exercise, i)))];
   const [heard, setHeard] = useState<Set<string>>(() =>
     readOnly || Object.keys(stored?.last ?? {}).length ? new Set(recordings) : new Set(),
   );

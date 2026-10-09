@@ -17,7 +17,8 @@ one's own** and **reading aloud** (below). The server's speech module (`services
   "Keep my recordings" off nothing is uploaded: a take plays only until the exercise is left.
 - **Saying it oneself** (`speech_selfrate`, the courses' speaking exercises; 09): the original first,
   then a take, played beside it; the item counts once recorded, without a score (owner, 2026-10-08);
-  the phrase to repeat hidden until the first try unless shown (a setting); the source's own answer,
+  the phrase to repeat hidden until the first try unless shown (a setting) or there is nothing to hear
+  first (no recording of the item or its exercise); the source's own answer,
   spoken (`answerAudio`, DW's "Lösungsaudio"), playable after it.
 
 ## Recognition (STT)

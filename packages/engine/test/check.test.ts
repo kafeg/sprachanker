@@ -368,4 +368,8 @@ test("a recorded phrase, heard: the words compared and a verdict, still in no sc
       .verdict,
   ).toBe("partial");
   expect(spokenCheck("de", "Ich heiße Nico und komme aus Spanien.", "Nico").verdict).toBe("wrong");
+  // Every word said, however the recogniser joined them; marks are not words.
+  expect(
+    spokenCheck("en", "Bye! Good bye. See you later. ≈", "bye goodbye see you later").verdict,
+  ).toBe("correct");
 });

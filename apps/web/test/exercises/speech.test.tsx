@@ -52,6 +52,7 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
         answer={undefined}
         onAnswer={() => {}}
         url={(p) => p}
+        listen
         heard={false}
       />
     </SpeechProvider>,
@@ -60,6 +61,21 @@ test("the phrase hidden until the first try, shown on request; a kept take plays
   fireEvent.click(view.getByRole("button", { name: "Show the text" }));
   expect(view.getByText("Guten Tag!").getAttribute("aria-hidden")).toBe("false");
   view.unmount();
+
+  // Nothing to hear first (a recording the source keeps locked): the phrase is shown at once.
+  const silent = await renderApp(
+    <SpeechProvider value={host("after")}>
+      <SpeechSelfrate
+        item={{ key: item.key, text: "Guten Tag!" }}
+        answer={undefined}
+        onAnswer={() => {}}
+        url={(p) => p}
+      />
+    </SpeechProvider>,
+  );
+  expect(silent.getByText("Guten Tag!").getAttribute("aria-hidden")).toBe("false");
+  expect(silent.queryByRole("button", { name: "Show the text" })).toBeNull();
+  silent.unmount();
 
   const notebook = await renderApp(
     <SpeechProvider value={host("after")}>

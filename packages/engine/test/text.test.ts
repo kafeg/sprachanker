@@ -42,6 +42,39 @@ describe("word diff", () => {
     ]);
     expect(score).toBe(0.5);
   });
+
+  test("marks that are not words are no words to say or write", () => {
+    const { diff, score } = wordDiff(
+      "en",
+      "See you later. ≈ See you → soon",
+      "see you later see you soon",
+      true,
+    );
+    expect(diff.every((d) => d.op === "equal")).toBe(true);
+    expect(score).toBe(1);
+  });
+
+  test("spoken: words joined differently are one word said, either way round", () => {
+    for (const [ref, heard] of [
+      ["Good bye.", "Goodbye"],
+      ["Goodbye!", "good bye"],
+      ["Good-bye.", "goodbye"],
+      ["Good, bye", "goodbye"],
+    ] as const) {
+      const { diff, score } = wordDiff("en", ref, heard, true);
+      expect(diff).toHaveLength(1);
+      expect(diff[0]?.op).toBe("equal");
+      expect(score).toBe(1);
+    }
+    const { diff, score } = wordDiff("en", "Good bye, my friend", "goodbye friend", true);
+    expect(diff.map((d) => d.op)).toEqual(["equal", "missing", "equal"]);
+    expect(score).toBe(2 / 3);
+  });
+
+  test("typed: how words are joined counts", () => {
+    const { diff } = wordDiff("en", "Good bye", "Goodbye");
+    expect(diff.some((d) => d.op !== "equal")).toBe(true);
+  });
 });
 
 test("headword: articles and forms off, per language", () => {

@@ -59,8 +59,8 @@ the UI never re-checks an answer.
   (only whitespace evened out: "Berlin?" and "Berlin." differ), else the picture, else the id.
 - `partial` only for multi-select, `order` with a correct prefix (parts beyond the sequence cost like
   missing ones), and dictation/speech with ≥ 80% of words matched — of the reference or the answer,
-  whichever is longer, so extra words cost; a dash or lone punctuation mark is no word. With several
-  accepted texts, an exact match wins. Otherwise results are binary.
+  whichever is longer, so extra words cost; a dash or a lone punctuation mark or symbol ("≈", "→") is no
+  word. With several accepted texts, an exact match wins. Otherwise results are binary.
 - **Attempts**: the learner may retry an item; every attempt is recorded, but only the **first attempt**
   counts for the lesson score and statistics. Items may be skipped: a skipped item that would be checked
   counts as wrong (score 0; its exercise is marked wrong) — a skip before the first answer is the first
@@ -69,8 +69,9 @@ the UI never re-checks an answer.
 - **Text normalisation**: NFC; unify quotes, apostrophes and dashes; collapse whitespace; strip final
   punctuation; case-insensitive except where the target language makes case meaningful (German: a
   token capitalised in the reference and not sentence-initial is compared case-sensitively; a gap
-  starts a sentence only when nothing but a sentence's end comes before it). Speech is
-  always compared case-insensitively. Normalisation and the per-language case rule live in
+  starts a sentence only when nothing but a sentence's end comes before it). Speech is compared as
+  heard: case and hyphens aside, and words joined differently are one word said ("Goodbye" for "Good
+  bye" and the other way round); dictation compares how words are joined. Normalisation and the per-language case rule live in
   `packages/engine/src/text/normalise.ts`, the word diff in `packages/engine/src/text/diff.ts`.
 - `respond`: scored from the rubric's required groups (each a phrase said as whole words) if it has
   them, otherwise `unscored`; the outcome

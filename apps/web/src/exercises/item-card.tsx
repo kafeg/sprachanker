@@ -7,7 +7,7 @@ import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { correctAnswer, ExerciseItem } from "./index.tsx";
+import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
 
 export function ItemCard({
   exercise,
@@ -87,6 +87,7 @@ export function ItemCard({
         outcome={outcome}
         url={url}
         active={active && !!onAnswer}
+        listen={toHear(exercise, index).length > 0}
         heard={heard}
         readOnly={!onAnswer}
       />

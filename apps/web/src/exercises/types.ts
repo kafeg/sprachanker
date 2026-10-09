@@ -40,6 +40,8 @@ export interface RendererProps<T extends keyof Answers> {
   url(path: string): string;
   /** The item the number keys (1–9) choose in; it shows the numbers where there is a keyboard. */
   active?: boolean;
+  /** The item has recordings to hear first (its own or the exercise's: `toHear`). */
+  listen?: boolean;
   /** The recordings the item is about have been played (recording oneself waits for it). */
   heard?: boolean;
   /** Shown as answered, nothing to change (the Notebook). */

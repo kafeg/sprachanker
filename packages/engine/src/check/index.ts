@@ -49,17 +49,18 @@ const graded = (score: number, partialFrom = 0) =>
   }) as const;
 
 /** The reference the answer is closest to: an exact one first, then the best score. */
-function bestDiff(lang: string, references: string[], actual: string, ignoreCase: boolean) {
+function bestDiff(lang: string, references: string[], actual: string, spoken: boolean) {
   const exact = (d: WordDiff) => d.diff.every((x) => x.op === "equal");
   const better = (a: WordDiff, b: WordDiff) =>
     exact(a) !== exact(b) ? exact(b) : b.score > a.score;
   return references
-    .map((r) => wordDiff(lang, r, actual, ignoreCase))
+    .map((r) => wordDiff(lang, r, actual, spoken))
     .reduce((a, b) => (better(a, b) ? b : a));
 }
 
-function textOutcome(lang: string, references: string[], actual: string, ignoreCase: boolean) {
-  const { diff, score } = bestDiff(lang, references, actual, ignoreCase);
+/** An answer against its references (dictation typed; `spoken`: what a recogniser heard). */
+function textOutcome(lang: string, references: string[], actual: string, spoken: boolean) {
+  const { diff, score } = bestDiff(lang, references, actual, spoken);
   const exact = diff.every((d) => d.op === "equal");
   return { ...(exact ? binary(true) : graded(Math.min(score, 0.99), PARTIAL_WORDS - 0.001)), diff };
 }

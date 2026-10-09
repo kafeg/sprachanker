@@ -216,12 +216,14 @@ function TakeStatus({
 /**
  * Saying it oneself (08; 09): listen to the original (the item's recording, above), record oneself,
  * play one's take beside it. The item counts once recorded — no self-rating. The phrase to repeat is
- * hidden until the first attempt (the ear first) unless the learner shows it or chose it shown.
+ * hidden until the first attempt (the ear first) unless the learner shows it or chose it shown, or
+ * there is nothing to hear first.
  */
 export function SpeechSelfrate({
   item,
   answer,
   onAnswer,
+  listen = false,
   heard = true,
   readOnly,
   url,
@@ -233,7 +235,7 @@ export function SpeechSelfrate({
   const [reveal, setReveal] = useState(false);
 
   const attempted = answer !== undefined || !!take;
-  const textShown = readOnly || host?.showText === "always" || attempted || reveal;
+  const textShown = readOnly || !listen || host?.showText === "always" || attempted || reveal;
   const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
   // The source's own answer, once the learner has tried (their answer first, then the model one).
   const sample =
