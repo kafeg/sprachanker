@@ -74,7 +74,8 @@ apps/web/src/
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
                    # read at once), speak-button, read-aloud-settings (engines, voices, downloads),
-                   # samples (what "Listen" reads: everyday sentences per language; pure)
+                   # samples (what "Listen" reads: everyday sentences per language; pure); in-use (the mark of
+                   # the model in use: Whisper's, Qwen3-TTS's)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

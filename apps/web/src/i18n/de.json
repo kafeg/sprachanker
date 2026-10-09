@@ -964,7 +964,7 @@
       "recognitionHint": "Deine Sprache wird auf diesem Computer erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt den Computer.",
       "noEngine": "Die Erkennung ist auf diesem Computer nicht installiert.",
       "recognitionOn": "Meine Sprache erkennen",
-      "inUse": "in Gebrauch",
+      "inUse": "In Gebrauch",
       "downloadFailed": "Download fehlgeschlagen",
       "use": "Verwenden",
       "removeModel": "Modell entfernen",

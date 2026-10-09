@@ -25,6 +25,8 @@ import {
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
+import { cn } from "@/ui/utils.ts";
+import { InUse } from "./in-use.tsx";
 import { MicButton, micProblem } from "./mic-button.tsx";
 import { ReadAloud } from "./read-aloud-settings.tsx";
 import { micDevice, micState, useRecorder } from "./recorder.ts";
@@ -163,13 +165,15 @@ function Recognition() {
                 return (
                   <li
                     key={m.id}
-                    className="flex flex-wrap items-center gap-3 rounded-xl border p-3"
+                    className={cn(
+                      "flex flex-wrap items-center gap-3 rounded-xl border p-3",
+                      m.installed && chosen && on && "border-primary",
+                    )}
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block font-medium">{t(`speech.model.${m.id}`)}</span>
                       <span className="text-xs text-muted-foreground">
                         {bytes(m.bytes)}
-                        {m.installed && chosen && on && ` · ${t("speech.settings.inUse")}`}
                         {"error" in m && ` · ${t("speech.settings.downloadFailed")}`}
                       </span>
                     </span>
@@ -179,6 +183,7 @@ function Recognition() {
                       </span>
                     ) : m.installed ? (
                       <>
+                        {chosen && on && <InUse />}
                         {!chosen && (
                           <Button
                             variant="outline"

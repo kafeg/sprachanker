@@ -6,6 +6,7 @@ import { setup } from "./setup.ts";
  *  that answers its health check and says what it is asked as bytes. */
 function qwen(files: string[] = []) {
   const asked: Array<Record<string, unknown>> = [];
+  const talkers: string[] = [];
   let spawned = 0;
   const host: SpeechHost = {
     whisperBinary: () => undefined,
@@ -15,6 +16,7 @@ function qwen(files: string[] = []) {
     qwenBinary: () => "/bin/tts-server",
     spawnQwen(_binary, talker, codec, port) {
       spawned++;
+      talkers.push(talker);
       expect([talker, codec].every((f) => f.startsWith("/models/"))).toBe(true);
       const server = Bun.serve({
         port,
@@ -43,7 +45,7 @@ function qwen(files: string[] = []) {
       },
     },
   };
-  return { host, asked, files, spawned: () => spawned };
+  return { host, asked, files, talkers, spawned: () => spawned };
 }
 
 test("Qwen3-TTS: a model downloaded with its codec; a text said in its language by the profile's speaker", async () => {
@@ -128,4 +130,23 @@ test("Qwen3-TTS: both models downloaded at once fetch the codec once; removing o
     (m: { id: string }) => m.id === "1.7b",
   );
   expect(large).toMatchObject({ installed: true, inUse: true });
+});
+
+test("Qwen3-TTS: both models there, the large one is used unless the profile chose the small one", async () => {
+  const q = qwen([
+    "qwen-tokenizer-12hz-Q8_0.gguf",
+    "qwen-talker-0.6b-customvoice-Q8_0.gguf",
+    "qwen-talker-1.7b-customvoice-Q8_0.gguf",
+  ]);
+  const { getJson, send } = await setup({ speech: q.host });
+  const inUse = async () =>
+    (await getJson("/api/speech/qwen")).models
+      .filter((m: { inUse: boolean }) => m.inUse)
+      .map((m: { id: string }) => m.id);
+  expect(await inUse()).toEqual(["1.7b"]);
+  await send("PUT", "/api/settings", { key: "speech.qwenModel", value: "0.6b" });
+  expect(await inUse()).toEqual(["0.6b"]);
+  await send("PUT", "/api/settings", { key: "speech.readEngine", value: "qwen" });
+  expect((await send("POST", "/api/speech/say", { text: "Hallo", lang: "de" })).status).toBe(200);
+  expect(q.talkers).toEqual(["/models/qwen-talker-0.6b-customvoice-Q8_0.gguf"]);
 });

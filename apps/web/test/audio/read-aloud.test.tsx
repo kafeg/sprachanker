@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, expect, test } from "bun:test";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { act, fireEvent, renderHook, waitFor } from "@testing-library/react";
+import { act, fireEvent, renderHook, waitFor, within } from "@testing-library/react";
 import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
 import { samplesOf } from "../../src/audio/samples.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
@@ -327,8 +327,8 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
         {
           engine: true,
           models: [
-            { id: "0.6b", bytes: 968e6, installed: true, inUse: true },
-            { id: "1.7b", bytes: 2043e6, installed: false, inUse: false },
+            { id: "0.6b", bytes: 968e6, installed: true, inUse: false },
+            { id: "1.7b", bytes: 2043e6, installed: true, inUse: true },
           ],
           languages: ["de", "en", "ru"],
           speakers: ["ryan", "serena"],
@@ -338,8 +338,11 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
     ],
   });
   expect(view.getByText("Ready: a model downloaded")).toBeTruthy();
-  expect(view.getByText(/Small model \(0\.6B\): faster/).textContent).toContain("in use");
-  expect(view.getByRole("button", { name: "Download" })).toBeTruthy();
+  // Both there: the one in use is marked, the other can be used instead.
+  const row = (name: RegExp) => view.getByText(name).closest("li") as HTMLElement;
+  expect(row(/Large model/).textContent).toContain("In use");
+  expect(row(/Small model/).textContent).not.toContain("In use");
+  expect(within(row(/Small model/)).getByRole("button", { name: "Use" })).toBeTruthy();
   expect(view.getByRole("combobox", { name: "Voice for German" }).textContent).toBe(
     "Automatic — Ryan",
   );

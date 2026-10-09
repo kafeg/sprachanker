@@ -37,6 +37,7 @@ import { Textarea } from "@/ui/components/textarea.tsx";
 import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
+import { InUse } from "./in-use.tsx";
 import { samplesOf } from "./samples.ts";
 import { bestVoice, speaks } from "./speak.ts";
 import { deviceVoice, read, stop, useDeviceVoices, voiceInfo } from "./speaker.ts";
@@ -329,30 +330,47 @@ function DownloadState({
   );
 }
 
-/** Qwen3-TTS: its models to download (the large one used when both are there), and each language's
- *  speaker with "Listen". */
+/** Qwen3-TTS: its models to download, the one in use marked and another installed one to use instead
+ *  (none chosen: the large one when it is there), and each language's speaker with "Listen". */
 function QwenSection({ state, langs }: { state: QwenState; langs: string[] }) {
   const { t } = useTranslation();
   const actions = useQwenModelActions();
+  const set = useSetSetting();
   const bytes = useBytes();
   const ready = state.models.some((m) => m.installed);
   return (
     <div className="space-y-3">
-      <ul className="space-y-1 text-sm">
+      <ul className="space-y-2">
         {state.models.map((m) => (
-          <li key={m.id} className="flex flex-wrap items-center gap-2">
+          <li
+            key={m.id}
+            className={cn(
+              "flex flex-wrap items-center gap-3 rounded-xl border p-3",
+              m.inUse && "border-primary",
+            )}
+          >
             <span className="min-w-0 flex-1">
-              {t(`speech.settings.qwenModel.${m.id === "0.6b" ? "small" : "large"}`)}
-              <span className="text-muted-foreground"> · {bytes(m.bytes)}</span>
-              {m.inUse && (
-                <span className="text-muted-foreground"> · {t("speech.settings.inUse")}</span>
-              )}
-              {"error" in m && m.error && (
-                <span className="block text-xs text-wrong">
-                  {t("speech.settings.downloadFailed")}
-                </span>
-              )}
+              <span className="block font-medium">
+                {t(`speech.settings.qwenModel.${m.id === "0.6b" ? "small" : "large"}`)}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {bytes(m.bytes)}
+                {"error" in m && m.error && ` · ${t("speech.settings.downloadFailed")}`}
+              </span>
             </span>
+            {m.inUse ? (
+              <InUse />
+            ) : (
+              m.installed && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => set.mutate({ key: "speech.qwenModel", value: m.id })}
+                >
+                  {t("speech.settings.use")}
+                </Button>
+              )
+            )}
             <DownloadState
               item={m}
               label={t(`speech.settings.qwenModel.${m.id === "0.6b" ? "small" : "large"}`)}

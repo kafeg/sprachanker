@@ -58,6 +58,17 @@ export const useSettings = () =>
 export const useSetting = <K extends LearnerSettingKey>(key: K): SettingRead<K> =>
   settingOf(useSettings().data, key);
 
+/** What the server works out from a setting, read again once the setting is stored: the model in use
+ *  (recognition, Qwen3-TTS), the decks' counts and queues (Review's limits). */
+const derivedFrom = (key: string): string[][] =>
+  key === "speech.model" || key === "speech.recognition"
+    ? [["speech"]]
+    : key === "speech.qwenModel"
+      ? [["qwen-tts"]]
+      : key.startsWith("srs.")
+        ? [["decks"], ["study"]]
+        : [];
+
 export function useSetSetting() {
   const client = useQueryClient();
   return useMutation({
@@ -82,13 +93,15 @@ export function useSetSetting() {
       });
     },
     // Only this key from the answer: another change still in flight keeps its own value.
-    onSuccess: (settings, { key }) =>
+    onSuccess: (settings, { key }) => {
       client.setQueryData(["settings"], (old: Settings | undefined) => {
         const next = { ...old };
         if (key in settings) next[key] = settings[key];
         else delete next[key];
         return next;
-      }),
+      });
+      for (const queryKey of derivedFrom(key)) void client.invalidateQueries({ queryKey });
+    },
   });
 }
 

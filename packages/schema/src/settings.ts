@@ -63,10 +63,12 @@ export const LEARNER_SETTINGS = {
   "speech.model": z.string().min(1).max(100),
   /** The microphone beside a text box: tap to start and stop (default), or hold to talk. */
   "speech.pushToTalk": z.enum(["tap", "hold"]),
-  /** Reading aloud (08): the engine (the device's voices, or Piper on the server), the voice chosen per
-   *  engine and language (none: the best one there), the speed, and what is read at once — nothing,
-   *  scene lines, or scene lines and the tutor's replies. */
+  /** Reading aloud (08): the engine (the device's voices, Piper or Qwen3-TTS on the server), Qwen3-TTS's
+   *  model (none: the large one when it is there), the voice chosen per engine and language (none: the
+   *  best one there), the speed, and what is read at once — nothing, scene lines, or scene lines and
+   *  the tutor's replies. */
   "speech.readEngine": z.enum(["device", "piper", "qwen"]),
+  "speech.qwenModel": z.string().min(1).max(100),
   "speech.voices": z.record(z.string().max(40), z.record(z.string().max(40), z.string().max(400))),
   "speech.readRate": z.number().min(0.5).max(1.5),
   "speech.readAtOnce": z.enum(["none", "scenes", "all"]),

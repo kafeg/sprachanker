@@ -97,7 +97,7 @@ writes (owner, 2026-10-08).
 - **Qwen3-TTS** (owner, 2026-10-09: run by us like whisper): qwentts.cpp's `tts-server` (MIT; pinned by
   commit in `native/qwen/VERSION`, built static with Metal by `bun run build:speech`, beside the
   binary), an OpenAI-compatible server run by the sidecar supervisor (06) with a model — a CustomVoice
-  talker (0.6B, or 1.7B used when both are there) and the codec they share, GGUF from Hugging Face at a
+  talker (0.6B or 1.7B: the profile's `speech.qwenModel`, else the 1.7B when it is there) and the codec they share, GGUF from Hugging Face at a
   fixed commit, sha256 checked — downloaded from Settings into `<data-root>/models`. Ten languages
   (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean), nine
   named speakers (each speaks every language; a native one by default for Chinese, Japanese and

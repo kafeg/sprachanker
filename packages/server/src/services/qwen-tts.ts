@@ -118,8 +118,11 @@ export function createQwenTts(deps: {
   };
   const there = (m: ModelFile) => host?.models.path(m.file, m.bytes);
   const installed = (m: ModelFile) => !!there(m) && !!there(CODEC);
-  /** The model in use: the large one when it is there. */
-  const inUse = () => [...QWEN_MODELS].reverse().find(installed);
+  /** The model in use: the profile's choice when it is there, else the large one when it is there. */
+  const inUse = (choice?: unknown) => {
+    const ready = QWEN_MODELS.filter(installed);
+    return ready.find((m) => m.id === choice) ?? ready.at(-1);
+  };
   const engine = createSidecar({
     spawn: (id, port) => {
       const binary = host?.qwenBinary();
@@ -137,8 +140,9 @@ export function createQwenTts(deps: {
   const ready = () => !!host?.qwenBinary() && !!inUse();
 
   return {
-    /** The engine (built or not), each model (installed, downloading, failed), what it speaks. */
-    state() {
+    /** The engine (built or not), each model (installed, downloading, failed, the one in use with the
+     *  profile's `choice`), what it speaks. */
+    state(choice?: unknown) {
       const codecMissing = there(CODEC) ? 0 : CODEC.bytes;
       return {
         engine: !!host?.qwenBinary(),
@@ -148,7 +152,7 @@ export function createQwenTts(deps: {
             id: m.id,
             bytes: d && !d.error ? d.total : m.bytes + (installed(m) ? 0 : codecMissing),
             installed: installed(m),
-            inUse: inUse()?.id === m.id,
+            inUse: inUse(choice)?.id === m.id,
             ...(d && !d.error && { downloaded: d.codec ? d.codec.done : d.done }),
             ...(d?.error && { error: d.error }),
           };
@@ -225,18 +229,19 @@ export function createQwenTts(deps: {
       }
     },
 
-    /** Starts the engine ahead of reading (loading the model takes seconds). */
-    warm() {
-      const model = inUse();
+    /** Starts the engine ahead of reading with the profile's model (loading it takes seconds). */
+    warm(choice?: unknown) {
+      const model = inUse(choice);
       if (model && host?.qwenBinary()) engine.warm(model.id);
     },
 
     /** Whether a language can be read with Qwen3-TTS here. */
     canRead: (lang: string) => ready() && lang in QWEN_LANGUAGES,
 
-    /** A WAV of a text in a language, said by the profile's speaker for it (else the language's). */
-    async say(text: string, lang: string, choice: unknown) {
-      const model = inUse();
+    /** A WAV of a text in a language, said with the profile's model by its speaker for it (else the
+     *  language's). */
+    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown) {
+      const model = inUse(modelChoice);
       const language = QWEN_LANGUAGES[lang];
       if (!host?.qwenBinary() || !model || !language)
         throw new ServiceError("speech_unavailable", 409);

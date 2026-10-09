@@ -964,7 +964,7 @@
       "recognitionHint": "Your speech is recognised on this computer (Whisper): what you said is compared with the phrase. It hears words, not sounds, and is lenient. Nothing leaves the computer.",
       "noEngine": "The recognition engine isn't installed on this computer.",
       "recognitionOn": "Recognise my speech",
-      "inUse": "in use",
+      "inUse": "In use",
       "downloadFailed": "download failed",
       "use": "Use",
       "removeModel": "Remove the model",

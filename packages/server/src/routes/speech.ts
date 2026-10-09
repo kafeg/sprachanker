@@ -20,6 +20,8 @@ const ModelParam = z.object({ id: z.string().min(1).max(100) });
 export function speechRoutes() {
   /** The model the profile uses when recognition is on and ready, else undefined. */
   const modelOf = (s: ProfileEnv["Variables"]["s"]) => recogniserOf(s.speech, s.settings);
+  /** The Qwen3-TTS model the profile chose (none: the large one when it is there). */
+  const qwenModelOf = (s: ProfileEnv["Variables"]["s"]) => s.settings.get("speech.qwenModel");
   return new Hono<ProfileEnv>()
     .get("/", (c) => {
       const model = modelOf(c.var.s);
@@ -43,17 +45,17 @@ export function speechRoutes() {
       c.var.s.readAloud.remove(c.req.valid("param").id);
       return c.json(c.var.s.readAloud.state());
     })
-    .get("/qwen", (c) => c.json(c.var.s.qwenTts.state()))
+    .get("/qwen", (c) => c.json(c.var.s.qwenTts.state(qwenModelOf(c.var.s))))
     .post("/qwen/models/:id", zod("param", ModelParam), (c) => {
       c.var.s.qwenTts.download(c.req.valid("param").id);
-      return c.json(c.var.s.qwenTts.state());
+      return c.json(c.var.s.qwenTts.state(qwenModelOf(c.var.s)));
     })
     .delete("/qwen/models/:id", zod("param", ModelParam), (c) => {
       c.var.s.qwenTts.remove(c.req.valid("param").id);
-      return c.json(c.var.s.qwenTts.state());
+      return c.json(c.var.s.qwenTts.state(qwenModelOf(c.var.s)));
     })
     .post("/qwen/warm", (c) => {
-      c.var.s.qwenTts.warm();
+      c.var.s.qwenTts.warm(qwenModelOf(c.var.s));
       return c.json({ ok: true as const });
     })
     .post(
@@ -75,7 +77,7 @@ export function speechRoutes() {
         const chosen = voice ?? settings.value("speech.voices")?.[engine]?.[lang];
         const wav =
           engine === "qwen"
-            ? await qwenTts.say(text, lang, chosen)
+            ? await qwenTts.say(text, lang, chosen, settings.get("speech.qwenModel"))
             : await readAloud.say(text, lang, chosen, settings.value("speech.readRate"));
         return c.body(wav, 200, { "content-type": "audio/wav", "cache-control": "no-store" });
       },
