@@ -147,7 +147,7 @@ Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russi
   `/media/` requests. `/images/` is disallowed by robots and not fetched; locked (paid) players are skipped.
 - **Normalise**: the index's stages are units (plus a bonus unit with the irregular-verbs table); lesson
   text before «Словарь» → grammar pages; each section's example recordings with their lines →
-  `speech_selfrate`; the first full-width recording → `media.audio`; «Словарь» → vocab (IPA in `note`);
+  `speech_selfrate`; the first full-width recording → `media.audio`; «Словарь» → vocab (IPA in `ipa`; a past form the irregular-verbs table lists has its verb as lemma: "came" is "come");
   exercises with the tooltip answer keys → `gap_text` / `gap_choice` / `respond` (model answers as
   `reference`, `answerIn: "learner"` with locale model answers for translations into Russian; "no
   article" gaps accept ""; comma check boxes → `gap_choice`, several right options where the key allows);

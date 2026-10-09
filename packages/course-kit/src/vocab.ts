@@ -21,6 +21,8 @@ export interface Headword {
   plural?: string;
   forms?: string;
   note?: string;
+  /** Pronunciation as the source writes it (IPA). */
+  ipa?: string;
 }
 
 /**
@@ -83,6 +85,7 @@ export function vocabEntries<S extends VocabSource>(
       ...(head.plural !== undefined ? { plural: head.plural } : {}),
       ...(head.forms !== undefined ? { forms: head.forms } : {}),
       ...(head.note !== undefined ? { note: head.note } : {}),
+      ...(head.ipa !== undefined ? { ipa: head.ipa } : {}),
       ...(source.examples?.length ? { examples: source.examples } : {}),
       ...(source.audio ? { audio: source.audio } : {}),
       ...(source.image ? { image: source.image } : {}),

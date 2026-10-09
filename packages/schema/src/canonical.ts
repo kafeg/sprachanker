@@ -49,6 +49,8 @@ export const VocabEntry = z.strictObject({
   forms: z.string().optional(),
   /** Target-language usage note: "hier nur Singular". */
   note: z.string().optional(),
+  /** Its pronunciation as the source writes it (IPA): "/keɪm/". */
+  ipa: z.string().optional(),
   /** Example sentences in the target language; their translations are in the locale entry. */
   examples: z.array(z.string().min(1)).optional(),
   audio: MediaPath.optional(),

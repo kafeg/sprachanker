@@ -62,8 +62,16 @@ export interface Normalised {
 const MARKS: Record<string, PartOfSpeech> = { v: "verb", adj: "adj", n: "noun", adv: "word" };
 
 /** Lemma and part of speech from the source's marks or forms, else by shape (`shapeHeadword`). */
-export function headword(head: string, marks: string[], forms: string[]): Headword {
+export function headword(
+  head: string,
+  marks: string[],
+  forms: string[],
+  bases: ReadonlyMap<string, string> = new Map(),
+): Headword {
   const shape = shapeHeadword("en", head);
+  // A past form or participle of the source's table of irregular verbs ("came") is a form of its verb.
+  const base = bases.get(head.toLowerCase());
+  if (base && base !== head.toLowerCase()) return { lemma: base, pos: "verb" };
   if (forms.length) return { lemma: shape.pos === "verb" ? shape.lemma : head, pos: "verb" };
   const kinds = new Set(marks.map((m) => MARKS[m] ?? "word"));
   if (kinds.size === 1) {
@@ -77,7 +85,25 @@ const LISTEN = "<p>Прослушайте и повторите вслух.</p>"
 const READ = "<p>Повторите вслух (прослушайте запись, где она есть).</p>";
 
 /** Words with a translation; the IPA transcription is the entry's note. Rows left out are reported. */
-function vocabulary(key: LessonKey, raw: string, rows: Array<VocabRow & { lemma?: string }>) {
+/** The source's table of irregular verbs as each form's verb ("came" → "come"): lemmas of its words. */
+export function verbBases(units: UnitSource[]): Map<string, string> {
+  const bases = new Map<string, string>();
+  for (const src of units.flatMap((u) => u.lessons))
+    if (src.kind === "verbs")
+      for (const row of src.rows) {
+        const base = withoutIpa(row.forms[0]).toLowerCase();
+        for (const form of row.forms.slice(1).flatMap((f) => withoutIpa(f).split(/\s*[/,]\s*/)))
+          if (form && !bases.has(form.toLowerCase())) bases.set(form.toLowerCase(), base);
+      }
+  return bases;
+}
+
+function vocabulary(
+  key: LessonKey,
+  raw: string,
+  rows: Array<VocabRow & { lemma?: string }>,
+  bases: ReadonlyMap<string, string> = new Map(),
+) {
   const words = vocabEntries(
     key,
     "en",
@@ -85,11 +111,14 @@ function vocabulary(key: LessonKey, raw: string, rows: Array<VocabRow & { lemma?
       .filter((row) => row.translation)
       .map((row) => {
         const lemma = row.lemma ?? withoutIpa(row.head);
+        const head = headword(lemma, row.marks, row.forms, bases);
+        // A word's forms are its others: the verb a past form belongs to is its lemma, not a form.
+        const forms = row.forms.filter((f) => f.toLowerCase() !== head.lemma.toLowerCase());
         return {
           head: {
-            ...headword(lemma, row.marks, row.forms),
-            ...(row.forms.length ? { forms: row.forms.join(", ") } : {}),
-            ...(row.ipa ? { note: row.ipa } : {}),
+            ...head,
+            ...(forms.length ? { forms: forms.join(", ") } : {}),
+            ...(row.ipa ? { ipa: row.ipa } : {}),
           },
           target: row.head,
           translation: row.translation,
@@ -121,6 +150,7 @@ function buildLesson(
   unit: Lesson["unit"],
   index: MediaIndex,
   keys: KeyMap,
+  bases: ReadonlyMap<string, string>,
 ): Built {
   const media = (url: string | undefined) => mediaPath(index, url);
   const raw = `raw/${EDITION}/${COURSE}/${src.info.slug}.html`;
@@ -186,7 +216,7 @@ function buildLesson(
   } else {
     const { page } = src;
     audio = media(page.audio);
-    ({ vocab, translations, unmapped: skipped } = vocabulary(key, raw, page.vocab));
+    ({ vocab, translations, unmapped: skipped } = vocabulary(key, raw, page.vocab, bases));
     unmapped.push(...skipped);
     const sectionIds = occurrences();
     for (const [s, section] of page.sections.entries()) {
@@ -291,6 +321,7 @@ const paragraph = (html: string): El => ({ ...parseHtml(html), tag: "p" });
 /** The course's files; lessons, example sections and tasks without a number keep their numbers by
  *  source id in `keys`, the series' key map (02, "Keys"). */
 export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: KeyMap): Normalised {
+  const bases = verbBases(units);
   const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const courseUnits: CourseIndex["units"] = [];
@@ -304,7 +335,7 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: K
     for (const [l, src] of unitSrc.lessons.entries()) {
       const key = lessonKey(course, u + 1, keys.number(unit, src.info.slug, l + 1));
       lessons.push(key);
-      const built = buildLesson(src, key, unit, index, keys);
+      const built = buildLesson(src, key, unit, index, keys, bases);
       order++;
       unknown += built.unknown;
       files.push(libraryFile.lesson(built.lesson));

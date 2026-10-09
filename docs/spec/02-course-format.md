@@ -65,7 +65,10 @@ moved, or restored by copying.
   noun, verb forms a verb, comparison forms an adjective, a sentence or 3+ words a phrase, English
   "to X" a verb with lemma X; anything else is `word`. Where the source states nothing, every provider
   uses one function (`shapeHeadword`, course-kit `vocab.ts`), so the same entry is the same lexeme in
-  every course. Different values give different lexemes ("Frau" as a title ≠ "die Frau"). A card
+  every course. Different values give different lexemes ("Frau" as a title ≠ "die Frau"). A word's
+  fields mean one thing in every course: `target` is the headword as the source shows it, `forms` its
+  other forms (never its lemma), `plural` its plural, `note` a usage note, `ipa` its pronunciation —
+  each in the target language, only when the source gives it. A card
   follows its word (the vocab key: its lesson and lemma): when a rule gives the word another lexeme,
   the card takes it, and what it shows of the word (the word, gender, plural, example, recording) is
   the word's now. A lemma corrected at the source is another word: the old card keeps its progress.

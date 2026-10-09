@@ -346,7 +346,8 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   ).toEqual({ reference: ["Я бегаю."] });
 
   const verbs = get("canonical/english/lessons/02-01.json") as Lesson;
-  expect(verbs.vocab.map((v) => [v.target, v.forms, v.note])).toEqual([
+  // The pronunciation in its own field; a note is for usage.
+  expect(verbs.vocab.map((v) => [v.target, v.forms, v.ipa])).toEqual([
     ["sing", "sang, sung", "/sɪŋ/"],
     ["burn", "burnt / burned, burnt / burned", undefined],
   ]);
@@ -483,4 +484,15 @@ test("a key's English answers: alternatives joined with Russian words, list lett
     "a. She left. b. She has left.",
   ]);
   expect(englishAnswers("300 н.э., 50 до н.э.")).toEqual(["300 AD, 50 BC"]);
+});
+
+test("a past form of the source's irregular verbs has its verb as lemma, not as one of its forms", () => {
+  const bases = new Map([
+    ["came", "come"],
+    ["fought", "fight"],
+  ]);
+  expect(headword("came", [], ["come"], bases)).toEqual({ lemma: "come", pos: "verb" });
+  // The verb itself, its past beside it: its own lemma.
+  expect(headword("fight", [], ["fought"], bases)).toEqual({ lemma: "fight", pos: "verb" });
+  expect(headword("table", ["n"], [], bases)).toEqual({ lemma: "table", pos: "noun" });
 });

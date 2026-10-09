@@ -40,6 +40,7 @@ export function VocabularyList({
           )}
           <div className="min-w-0 flex-1">
             <GenderWord text={v.target} gender={v.gender} className="text-lg" />
+            {v.ipa && <span className="ml-2 text-sm text-muted-foreground">{v.ipa}</span>}
             {(v.forms || v.note) && (
               <div className="text-sm text-muted-foreground">
                 {[v.forms, v.note].filter(Boolean).join(" · ")}

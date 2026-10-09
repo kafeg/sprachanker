@@ -133,6 +133,9 @@
           "note": {
             "type": "string"
           },
+          "ipa": {
+            "type": "string"
+          },
           "examples": {
             "type": "array",
             "items": {
