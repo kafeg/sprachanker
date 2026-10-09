@@ -54,19 +54,28 @@ Specs: 02, 03, 06, 09.
   the federal state's questions (the profile's state).
 - **Find the other practice exams** for German at A1, A2, B1 (official free model tests — Goethe,
   telc, ÖSD and others; which ones, from where and under what terms is the item's research) and add
-  those that can be imported; English exams later, with the English courses.
+  those that can be imported; English exams later, with the English courses. The theory test of a
+  driving licence too, where its question catalogue is public (owner, 2026-10-10).
 - **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
   section; at least one A1–B1 model test, if one is importable; results in the Notebook; an exam in
   the run-throughs on real courses (`e2e/real`).
 
-### 4. Notebook: more pictures (owner's request, 2026-10-07)
+### 4. The tutor on its own (owner, 2026-10-10)
+Specs: 07, 09.
+- A section of its own for talking with the AI outside any lesson: on any topic the learner asks
+  about (a grammar question, a text to go through, a conversation to practise), in the profile's
+  language pair, with what the learner has met in their courses as its context; chats kept and
+  listed as the lesson tutor's are.
+- **Accept**: a chat started from the section, kept, continued later; read aloud as the tutor's.
+
+### 5. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 5. Phones (owner, 2026-10-08: functionality first, phones after)
+### 6. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
   network (when the server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them
@@ -82,7 +91,7 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 6. A week of real use
+### 7. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
