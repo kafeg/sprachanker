@@ -5,9 +5,11 @@
 // lesson plans and certificates as downloads.
 import {
   escapeHtml,
+  type KeyMap,
   type LibraryFile,
   type MediaIndex,
   mediaPath,
+  occurrences,
   skippedWords,
   vocabEntries,
 } from "@sprachanker/course-kit";
@@ -37,7 +39,13 @@ export interface CourseResult {
   unmapped: string[];
 }
 
-export function normaliseCourse(course: FetchedCourse, index: MediaIndex): CourseResult {
+/** A course's files; lessons and exercises keep their numbers by source id in `keys`, the series' key
+ *  map (02, "Keys"): one the source inserts or a planning rule adds moves no other. */
+export function normaliseCourse(
+  course: FetchedCourse,
+  index: MediaIndex,
+  keys: KeyMap,
+): CourseResult {
   const media = (url: string | undefined) => mediaPath(index, url);
   const key = courseKey(SERIES, course.def.id);
   const files: LibraryFile[] = [];
@@ -51,13 +59,20 @@ export function normaliseCourse(course: FetchedCourse, index: MediaIndex): Cours
     unitTitles[unit] = { title: group.title };
     const lessons: LessonKey[] = [];
     for (const [l, lesson] of group.lessons.entries()) {
-      const lk = lessonKey(key, u + 1, l + 1);
+      const lk = lessonKey(key, u + 1, keys.number(unit, lesson.source.id, l + 1));
       lessons.push(lk);
       const plan = planLesson(lesson);
       const pages: Lesson["pages"] = [];
       const exercises: LocaleLesson["exercises"] = {};
+      const exerciseIds = occurrences();
       for (const [i, ex] of plan.exercises.entries()) {
-        const n = normaliseExercise(ex, exerciseKey(lk, i + 1), lesson.raw, index);
+        const id = exerciseIds(ex.kind === "quiz" ? ex.embed.id : ex.sourceId);
+        const n = normaliseExercise(
+          ex,
+          exerciseKey(lk, keys.number(lk, id, i + 1)),
+          lesson.raw,
+          index,
+        );
         pages.push({ exercise: n.exercise });
         exercises[n.exercise.key] = n.locale;
         if (n.unknown) unknown++;

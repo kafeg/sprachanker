@@ -1,6 +1,9 @@
 // Synthetic pages shaped like the site's (invented names and sentences); no real content.
 import { expect, test } from "bun:test";
-import type { MediaIndex } from "@sprachanker/course-kit";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { type MediaIndex, openKeyMap } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
   type Lesson,
@@ -264,6 +267,9 @@ test.each([
   expect(headword(text)).toEqual(expected as ReturnType<typeof headword>);
 });
 
+/** A series' key map of its own (a folder nobody else writes). */
+const keyMap = () => openKeyMap(mkdtempSync(join(tmpdir(), "voa-keys-")));
+
 function course(): FetchedCourse {
   const landing = parseLanding(LANDING_2);
   const lesson = parseLesson(LESSON);
@@ -310,8 +316,8 @@ test("media: one small and one 720p main video, 64 kbps audio, practice and quiz
   ]);
 });
 
-test("normalisation: valid files, keys, exercises with answers, vocabulary, tabs", () => {
-  const result = normaliseCourse(course(), index);
+test("normalisation: valid files, keys, exercises with answers, vocabulary, tabs", async () => {
+  const result = normaliseCourse(course(), index, await keyMap());
   for (const file of result.files) {
     const parsed = file.schema.safeParse(file.value);
     if (!parsed.success) throw new Error(`${file.path}: ${parsed.error.message}`);
@@ -425,8 +431,33 @@ test("normalisation: valid files, keys, exercises with answers, vocabulary, tabs
   );
 });
 
-test("normalisation is deterministic", () => {
-  expect(JSON.stringify(normaliseCourse(course(), index).files.map((f) => f.value))).toBe(
-    JSON.stringify(normaliseCourse(course(), index).files.map((f) => f.value)),
-  );
+test("normalisation is deterministic", async () => {
+  const once = async () =>
+    JSON.stringify(normaliseCourse(course(), index, await keyMap()).files.map((f) => f.value));
+  expect(await once()).toBe(await once());
+});
+
+test("keys stay by source id: a lesson the source inserts moves no other key", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "voa-keys-"));
+  const run = async (fetched: FetchedCourse) => {
+    const keys = await openKeyMap(dir);
+    const { files } = normaliseCourse(fetched, index, keys);
+    await keys.save();
+    // Each lesson's source id with its key and its exercises' keys.
+    return Object.fromEntries(
+      files
+        .filter((f) => f.path.startsWith("locale/en-en/level-2/lessons/"))
+        .map((f) => {
+          const locale = f.value as LocaleLesson;
+          return [locale.sourceId, Object.keys(locale.exercises).sort()];
+        }),
+    );
+  };
+  const before = await run(course());
+  const inserted = course();
+  const first = inserted.lessons[0] as FetchedLesson;
+  inserted.lessons.unshift({ ...first, source: { ...first.source, id: "99" } });
+  const after = await run(inserted);
+  for (const [id, keys] of Object.entries(before)) expect(after[id]).toEqual(keys);
+  expect(Object.keys(after)).toContain("99");
 });

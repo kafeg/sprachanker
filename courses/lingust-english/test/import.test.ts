@@ -1,6 +1,9 @@
 // Synthetic pages shaped like the site's (invented sentences); no real content.
 import { expect, test } from "bun:test";
-import type { MediaIndex } from "@sprachanker/course-kit";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { type MediaIndex, openKeyMap } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
   type Lesson,
@@ -197,7 +200,10 @@ test.each<[string, string[], string[], string, string]>([
   expect(headword(head, marks, forms)).toEqual({ lemma, pos } as ReturnType<typeof headword>);
 });
 
-test("normalisation: stages → units, exercises by mechanic, all files valid", () => {
+/** A series' key map of its own (a folder nobody else writes). */
+const keyMap = () => openKeyMap(mkdtempSync(join(tmpdir(), "lingust-keys-")));
+
+test("normalisation: stages → units, exercises by mechanic, all files valid", async () => {
   const audio = (name: string) => ({
     kind: "audio" as const,
     path: `media/audio/${name}`,
@@ -234,7 +240,7 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
       ],
     },
   ];
-  const { files, lessons, unknown } = normaliseLingust(units, index);
+  const { files, lessons, unknown } = normaliseLingust(units, index, await keyMap());
   expect([lessons, unknown]).toEqual([2, 0]);
   for (const f of files) expect(f.schema.safeParse(f.value).error).toBeUndefined();
   const get = (path: string) => files.find((f) => f.path === path)?.value;
@@ -365,7 +371,7 @@ test("a recording without its own lines gets none, not an example further down",
   ]);
 });
 
-test("comma check boxes, several right options, no-article gaps, word grids, homework", () => {
+test("comma check boxes, several right options, no-article gaps, word grids, homework", async () => {
   const html = page(`
 <p><strong>Упражнение 1</strong>. Вставьте артикль.</p>
 <ol><li>I like <input name="w" type="text"> tea. <input class="form-control" type="text"></li></ol>
@@ -392,7 +398,7 @@ test("comma check boxes, several right options, no-article gaps, word grids, hom
       ],
     },
   ];
-  const { files, unknown } = normaliseLingust(units, {});
+  const { files, unknown } = normaliseLingust(units, {}, await keyMap());
   expect(unknown).toBe(0);
   for (const f of files) expect(f.schema.safeParse(f.value).error).toBeUndefined();
   const lesson = files.find((f) => f.path === "canonical/english/lessons/01-01.json")
@@ -416,5 +422,52 @@ test("comma check boxes, several right options, no-article gaps, word grids, hom
     ?.value as LocaleLesson;
   expect(locale.tabs.homework?.map((t) => [t.title, t.bodyHtml])).toEqual([
     ["Упражнение 4", "<p>Напишите письмо другу.</p>"],
+  ]);
+});
+
+test("keys stay by source id: a lesson and a section the source inserts move no other key", async () => {
+  const dir = mkdtempSync(join(tmpdir(), "lingust-keys-"));
+  let lastFiles: ReturnType<typeof normaliseLingust>["files"] = [];
+  const sourceOf = (name: string) =>
+    (
+      lastFiles.find((f) => f.path === `locale/ru-en/english/lessons/${name}.json`)?.value as {
+        sourceId: string;
+      }
+    )?.sourceId;
+  const lesson = (slug: string, page = parseLesson(LESSON, BASE)) => ({
+    kind: "lesson" as const,
+    info: { slug, title: slug, desc: "", level: "A1" },
+    page,
+  });
+  const keysOf = async (units: UnitSource[]) => {
+    const keys = await openKeyMap(dir);
+    const { files } = normaliseLingust(units, {}, keys);
+    await keys.save();
+    lastFiles = files;
+    return files
+      .filter((f) => f.path.startsWith("canonical/english/lessons/"))
+      .flatMap((f) =>
+        (f.value as Lesson).pages.map((p) =>
+          p.exercise.key.replace("lingust.english/english/", ""),
+        ),
+      )
+      .sort();
+  };
+  const before = await keysOf([{ title: "Этап", lessons: [lesson("lesson3")] }]);
+  expect(before).toContain("01-01/ex-102");
+  // The source puts a lesson before it, and a section before its sections.
+  const page = parseLesson(LESSON, BASE);
+  page.sections.unshift({
+    ...(page.sections[1] as (typeof page.sections)[number]),
+    title: "Новое",
+  });
+  const after = await keysOf([
+    { title: "Этап", lessons: [lesson("lesson2"), lesson("lesson3", page)] },
+  ]);
+  expect([sourceOf("01-01"), sourceOf("01-02")]).toEqual(["lesson3", "lesson2"]);
+  for (const key of before) expect(after).toContain(key);
+  expect(after).toContain("01-02/ex-102");
+  expect(after.filter((k) => k.startsWith("01-01/ex-1") && !before.includes(k))).toEqual([
+    "01-01/ex-103",
   ]);
 });

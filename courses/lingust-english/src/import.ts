@@ -12,6 +12,7 @@ import {
   type ImportReport,
   type MediaIndex,
   type MediaRef,
+  openKeyMap,
   pageCounter,
   storedPage,
   urlFileName,
@@ -84,8 +85,12 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
   }
   const normalise = async (index: MediaIndex) => {
     options.progress?.({ phase: "normalise" });
-    const { files, lessons, unknown } = normaliseLingust(units, index);
-    return { lessons, unknown, problems: await writeLibraryFiles(seriesDir, files, log) };
+    // Keys stay by source id across normalisations (02): the series' key map, saved once written.
+    const keys = await openKeyMap(seriesDir);
+    const { files, lessons, unknown } = normaliseLingust(units, index, keys);
+    const problems = await writeLibraryFiles(seriesDir, files, log);
+    await keys.save();
+    return { lessons, unknown, problems };
   };
   const indexFile = join(seriesDir, "media.json");
   const index = await fetchMedia({

@@ -81,9 +81,12 @@ moved, or restored by copying.
   series' key map (`keys.json`, `course-kit/key-map.ts`): one the source inserts, moves or drops
   shifts no other, a new one takes its place's number when free, else the next free one, and a
   removed one's number is never re-used; an exercise missing at the source still takes its number
-  the first time it is listed, and one listed twice is numbered per occurrence. Built for DW (lessons
-  in their unit, exercises in their lesson); units stay positional (DW's levels have fixed units).
-  The other providers key by the source's own numbering. A key map that does not read stops the
+  the first time it is listed, and one listed twice is numbered per occurrence (`occurrences`). Built
+  for DW (lessons in their unit, exercises in their lesson), Lingust (lessons in their stage by page,
+  example sections by their title, tasks without a number by their label; numbered tasks keep their
+  number) and VOA Let's Learn English (lessons in their unit, exercises by their video or quiz); units
+  stay positional (their sources' levels and stages are fixed). Deutsch im Blick keys by the source's
+  chapter and section numbers, VOA «Так говорят в Америке» by its fixed catalogue. A key map that does not read stops the
   normaliser: numbering afresh would hand kept keys to other content.
 - **Fingerprint** of an exercise = sha256(JCS of its canonical object without `fingerprint`); identical
   across editions of the same content.

@@ -48,3 +48,14 @@ export async function openKeyMap(seriesDir: string): Promise<KeyMap> {
     },
   };
 }
+
+/** Source ids of one scope as the key map takes them: an id met again is numbered per occurrence
+ *  (`id`, `id.2`, …), so a part the source lists twice keeps a key for each. */
+export function occurrences(): (id: string) => string {
+  const seen = new Map<string, number>();
+  return (id) => {
+    const n = (seen.get(id) ?? 0) + 1;
+    seen.set(id, n);
+    return n === 1 ? id : `${id}.${n}`;
+  };
+}

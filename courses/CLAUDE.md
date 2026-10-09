@@ -12,7 +12,8 @@ packages/course-kit/   # library format (LibraryView), fetcher, media store + me
                        # provider contract (import options/report/progress, course offers, wanted,
                        # libraryWriter / writeLibraryFiles, storedPage, pageCounter, CourseProvider);
                        # exercise-draft.ts: draftExercise, Unmapped, unknownExercise; key-map.ts: keys
-                       # kept by source id; text.ts: plain text, scripts told apart; files.ts: atomic
+                       # kept by source id (`occurrences` for an id met twice); text.ts: plain text,
+                       # scripts told apart; files.ts: atomic
                        # writes, temporary names, streamed hashes;
                        # verify.ts: a course's integrity and counts (LibraryView.check); vocab.ts:
                        # Headword, shapeHeadword (the one part-of-speech rule), a lesson's vocabulary

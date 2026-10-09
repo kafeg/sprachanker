@@ -6,10 +6,12 @@ import {
   draftOrUnknown,
   escapeHtml,
   type Headword,
+  type KeyMap,
   type LibraryFile,
   type LooseDraft,
   type MediaIndex,
   mediaPath,
+  occurrences,
   shapeHeadword,
   skippedWords,
   Unmapped,
@@ -118,6 +120,7 @@ function buildLesson(
   key: LessonKey,
   unit: Lesson["unit"],
   index: MediaIndex,
+  keys: KeyMap,
 ): Built {
   const media = (url: string | undefined) => mediaPath(index, url);
   const raw = `raw/${EDITION}/${COURSE}/${src.info.slug}.html`;
@@ -146,7 +149,9 @@ function buildLesson(
   };
   // Keys follow the source, never what the mapping made of it (02): a numbered task is ex-<its
   // number>, a section's examples ex-1<section>, the closing lines ex-300 — so a normaliser fix that
-  // maps one more task never moves the others' keys (and the learner's answers with them).
+  // maps one more task never moves the others' keys (and the learner's answers with them). A section
+  // and a task without a number keep theirs by their title through the series' key map (by place the
+  // first time), so one the source inserts or a fix splits out moves no other.
   const EXAMPLES = 100;
   const CLOSING = 300;
   const UNNUMBERED = 400;
@@ -183,10 +188,12 @@ function buildLesson(
     audio = media(page.audio);
     ({ vocab, translations, unmapped: skipped } = vocabulary(key, raw, page.vocab));
     unmapped.push(...skipped);
+    const sectionIds = occurrences();
     for (const [s, section] of page.sections.entries()) {
       const bodyHtml = renderSection(section.elements);
       if (bodyHtml) grammar.push({ title: section.title, bodyHtml });
-      const k = exerciseKey(key, EXAMPLES + s + 1);
+      const id = sectionIds(section.title || `#${s + 1}`);
+      const k = exerciseKey(key, EXAMPLES + keys.number(`${key}#examples`, id, s + 1));
       const speech = speechExercise(k, section.snippets, media);
       if (!speech) continue;
       const allAudio = speech.items.every((i) => "media" in i);
@@ -201,9 +208,15 @@ function buildLesson(
         },
       );
     }
+    const labels = occurrences();
     for (const [i, ex] of page.exercises.entries()) {
       const number = Number(/\d+/.exec(ex.label)?.[0]);
-      const k = exerciseKey(key, number > 0 && number < EXAMPLES ? number : UNNUMBERED + i);
+      const k = exerciseKey(
+        key,
+        number > 0 && number < EXAMPLES
+          ? number
+          : UNNUMBERED - 1 + keys.number(`${key}#unnumbered`, labels(ex.label), i + 1),
+      );
       const loc: LocaleExercise = {
         sourceId: `${src.info.slug}#${ex.label}`,
         ...(ex.label && { title: ex.label }),
@@ -275,7 +288,9 @@ function buildLesson(
 /** An HTML fragment as one paragraph (instructions; answer fields inside are dropped when rendered). */
 const paragraph = (html: string): El => ({ ...parseHtml(html), tag: "p" });
 
-export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normalised {
+/** The course's files; lessons, example sections and tasks without a number keep their numbers by
+ *  source id in `keys`, the series' key map (02, "Keys"). */
+export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: KeyMap): Normalised {
   const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
   const courseUnits: CourseIndex["units"] = [];
@@ -287,9 +302,9 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex): Normal
     unitTitles[unit] = { title: unitSrc.title };
     const lessons: LessonKey[] = [];
     for (const [l, src] of unitSrc.lessons.entries()) {
-      const key = lessonKey(course, u + 1, l + 1);
+      const key = lessonKey(course, u + 1, keys.number(unit, src.info.slug, l + 1));
       lessons.push(key);
-      const built = buildLesson(src, key, unit, index);
+      const built = buildLesson(src, key, unit, index, keys);
       order++;
       unknown += built.unknown;
       const { name } = parseLessonKey(key);

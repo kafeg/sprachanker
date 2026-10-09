@@ -1,6 +1,7 @@
 // A DW lesson (lesson page, download page, exercise pages) → canonical lesson + locale lesson.
 import {
   boldLinesAsHeadings,
+  occurrences,
   plainText,
   skippedWords,
   vocabEntries,
@@ -130,11 +131,9 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   // number — taken even while it is missing — one inserted takes a new one), so the others never
   // shift. An exercise the lesson lists twice is numbered per occurrence.
   const gone: Array<{ path: string; reason: string }> = [];
-  const seen = new Map<number, number>();
+  const occurrence = occurrences();
   const exercises = exerciseIds(state, src.sourceId).flatMap((id, i) => {
-    const occurrence = (seen.get(id) ?? 0) + 1;
-    seen.set(id, occurrence);
-    const number = src.exerciseNumber(occurrence === 1 ? String(id) : `${id}.${occurrence}`, i + 1);
+    const number = src.exerciseNumber(occurrence(String(id)), i + 1);
     const page = src.exercises.get(id);
     if (!page) {
       gone.push({ path: `${src.rawDir}/e-${id}.json`, reason: "exercise page gone at the source" });

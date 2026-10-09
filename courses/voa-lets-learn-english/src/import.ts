@@ -13,6 +13,7 @@ import {
   type ImportOptions,
   type ImportReport,
   type MediaIndex,
+  openKeyMap,
   type PoliteFetcher,
   pageCounter,
   runPool,
@@ -48,10 +49,14 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
   for (const def of defs)
     courses.push(await fetchCourse(fetcher, seriesDir, def, { ...options, counted }));
 
+  // Keys stay by source id across normalisations (02): the series' key map, saved once written.
+  const keys = await openKeyMap(seriesDir);
   const normalise = async (course: FetchedCourse, index: MediaIndex) => {
     options.progress?.({ phase: "normalise" });
-    const result = normaliseCourse(course, index);
-    return { result, problems: await writeLibraryFiles(seriesDir, result.files, log) };
+    const result = normaliseCourse(course, index, keys);
+    const problems = await writeLibraryFiles(seriesDir, result.files, log);
+    await keys.save();
+    return { result, problems };
   };
   const indexFile = join(seriesDir, "media.json");
 
