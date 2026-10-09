@@ -109,10 +109,13 @@ export function useSetSetting() {
 
 /** A course's integrity and counts (verify) for its page: read once per session — it reads every
  *  file of the course (a download's end reads it again). */
-export const useCourseCheck = (series: string, course: string) =>
+/** A course's check (files on disk, consistent); `enabled` false until asked for (a check found
+ *  before shows all the same). */
+export const useCourseCheck = (series: string, course: string, enabled = true) =>
   useQuery({
     queryKey: ["course-check", series, course],
     meta: STATIC,
+    enabled,
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.course.check.$get({ query: { series, course } })),
   });

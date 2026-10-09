@@ -3,19 +3,10 @@
 // disk, and syncing it with its source.
 import { type CourseSource, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import {
-  ArrowRight,
-  CircleCheck,
-  CircleX,
-  Download,
-  ExternalLink,
-  LoaderCircle,
-  RefreshCw,
-  RotateCcw,
-} from "lucide-react";
+import { ArrowRight, CircleCheck, CircleX, ExternalLink, RotateCcw } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
+import { useCourseCheck, useCourseDownload } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
@@ -24,6 +15,7 @@ import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
 import { DownloadLine, downloading } from "./download.tsx";
 import { ResetProgress } from "./reset-progress.tsx";
+import { CheckState, checkTone, chip, needsSync, ProblemList, SyncButton } from "./upkeep.tsx";
 
 /** Media tiles in this order; kinds not listed come last. */
 const KINDS = ["video", "audio", "image", "subtitles", "pdf"];
@@ -31,8 +23,6 @@ const kindRank = (kind: string) => {
   const i = KINDS.indexOf(kind);
   return i < 0 ? KINDS.length : i;
 };
-
-const chip = "inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 text-xs";
 
 /** Share of lessons done, 0..1, as a ring with the percentage inside. */
 function ProgressRing({ value }: { value: number }) {
@@ -83,10 +73,7 @@ export function CourseHero(props: CourseHeroProps) {
   const check = useCourseCheck(series, course);
   const bytes = useBytes();
   const { available, job } = useCourseDownload(series, course);
-  const start = useStartDownload();
   const running = downloading(job);
-  // Files missing (media that failed or have not come yet): the download can go on.
-  const missing = check.data?.media.missing ?? 0;
 
   const r = check.data;
   const exercises = r ? Object.values(r.exercises).reduce((a, b) => a + b, 0) : 0;
@@ -121,27 +108,9 @@ export function CourseHero(props: CourseHeroProps) {
                 type="button"
                 onClick={() => setOpen((o) => !o)}
                 aria-expanded={open}
-                className={cn(
-                  chip,
-                  "hover:bg-accent",
-                  r && !r.problems.length && "border-correct/50 text-correct",
-                  r?.problems.length && "border-wrong/50 text-wrong",
-                )}
+                className={cn(chip, "hover:bg-accent", checkTone(r))}
               >
-                {!r ? (
-                  <>
-                    <LoaderCircle className="size-3 animate-spin" /> {t("course.checking")}
-                  </>
-                ) : r.problems.length ? (
-                  <>
-                    <CircleX className="size-3" />{" "}
-                    {t("course.problems", { count: r.problems.length })}
-                  </>
-                ) : (
-                  <>
-                    <CircleCheck className="size-3" /> {t("course.complete")}
-                  </>
-                )}
+                <CheckState check={check} />
               </button>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -202,22 +171,12 @@ export function CourseHero(props: CourseHeroProps) {
           source, reset its progress. */}
       {(available || started) && (
         <div className="mt-3 flex flex-wrap gap-2">
-          {available && !running && (
-            <button
-              type="button"
-              onClick={() => start.mutate({ series, course })}
-              disabled={start.isPending}
-              className={cn(
-                "flex min-h-11 items-center gap-1.5 rounded-xl border px-3 text-sm",
-                missing
-                  ? "border-primary bg-primary/15 font-medium"
-                  : "border-dashed text-muted-foreground hover:bg-accent",
-              )}
-            >
-              {missing ? <Download className="size-4" /> : <RefreshCw className="size-4" />}
-              {missing ? t("download.continue") : t("download.sync")}
-            </button>
-          )}
+          <SyncButton
+            series={series}
+            course={course}
+            attention={needsSync(r)}
+            missing={(r?.media.missing ?? 0) > 0}
+          />
           {started && (
             <ResetProgress series={series} course={course} title={title}>
               {(open) => (
@@ -248,15 +207,7 @@ export function CourseHero(props: CourseHeroProps) {
                 : t("course.intact")}
             </p>
           )}
-          {!!r?.problems.length && (
-            <ul className="list-disc space-y-0.5 pl-5 text-muted-foreground">
-              {r.problems.slice(0, 10).map((p) => (
-                <li key={p} className="break-all">
-                  {p}
-                </li>
-              ))}
-            </ul>
-          )}
+          {!!r?.problems.length && <ProblemList problems={r.problems} max={10} />}
           <div className="flex flex-wrap items-center gap-2">
             <Button
               variant="outline"

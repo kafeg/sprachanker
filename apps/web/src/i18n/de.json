@@ -69,7 +69,8 @@
     "checkAgain": "Erneut prüfen",
     "complete": "Vollständig geladen",
     "next": "weiter: {where} – {title}",
-    "notInstalled": "Dieser Kurs ist nicht (mehr) installiert."
+    "notInstalled": "Dieser Kurs ist nicht (mehr) installiert.",
+    "checkFiles": "Prüfen"
   },
   "lesson": {
     "unitLesson": "Einheit {unit} · Lektion {lesson}",
@@ -525,7 +526,8 @@
     "failed": "Download fehlgeschlagen: {error}",
     "done": "Geladen. {failed, plural, =0 {Alle Medien sind da.} one {# Datei konnte nicht geladen werden.} other {# Dateien konnten nicht geladen werden.}}",
     "hint": "Der Download lädt Fehlendes von der Quelle nach (vorhandene Seiten und Medien bleiben erhalten) und bereitet den Kurs neu auf; dein Fortschritt bleibt erhalten.",
-    "log": "Download-Protokoll"
+    "log": "Download-Protokoll",
+    "syncShort": "Abgleichen"
   },
   "storage": {
     "title": "Speicher",

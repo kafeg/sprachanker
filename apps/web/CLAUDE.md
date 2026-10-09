@@ -13,7 +13,8 @@ apps/web/src/
                    # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
                    # My words), course (its map), settings, storage (Settings → Storage)
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
-                   # the course page's hero (progress, source, stats, integrity, sync), reset-progress
+                   # the course page's hero (progress, source, stats, integrity, sync), upkeep (a course's
+                   # check and sync, shared by the hero and the Downloaded cards), reset-progress
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
                    # header, reference), use-run (the run in the query cache + its events), outbox (events sent in

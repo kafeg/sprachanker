@@ -120,7 +120,7 @@ function Downloaded() {
       {filters.shown.length ? (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {filters.shown.map((c) => (
-            <CourseCard key={c.key} course={c.course} edition={c.edition} />
+            <CourseCard key={c.key} course={c.course} edition={c.edition} upkeep />
           ))}
         </div>
       ) : (

@@ -1,6 +1,6 @@
-// A course on "My courses" and "All courses" (09): a band with the language pair and progress, the
-// title and publisher, its download when one runs or files are missing, the lesson to go on with, and
-// the way in; and a course offered but not downloaded yet, with its size and "Download".
+// A course on "My courses" and "Downloaded" (09): a band with the language pair and progress, the
+// title and publisher, its download when one runs or files are missing (on "Downloaded" its check and
+// sync), the lesson to go on with, and the way in; and a course offered but not downloaded yet, with its size and "Download".
 import { type CourseSource, editionSetting, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, BookOpen, CircleAlert, Download, ExternalLink, X } from "lucide-react";
@@ -19,6 +19,7 @@ import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
 import { DownloadLine, downloading } from "./download.tsx";
 import { ResetProgress } from "./reset-progress.tsx";
+import { CourseUpkeep } from "./upkeep.tsx";
 
 export type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
 export type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
@@ -29,11 +30,14 @@ export function CourseCard({
   course,
   edition,
   removable,
+  upkeep,
 }: {
   course: CourseRow;
   edition: string;
   /** In "My courses": the course can be removed from there (its progress is reset). */
   removable?: boolean;
+  /** In "Downloaded": the course's check and sync. */
+  upkeep?: boolean;
 }) {
   const { t } = useTranslation();
   const percent = usePercent();
@@ -87,6 +91,7 @@ export function CourseCard({
             </>
           )}
         </p>
+        {upkeep && <CourseUpkeep series={course.series} course={course.course} />}
         {next && course.nextTitle && (
           <p className="mt-3 line-clamp-2 text-sm" title={course.nextTitle}>
             <span className="text-muted-foreground">{t("courses.next")}: </span>

@@ -36,7 +36,6 @@ Specs: 02, 03, 08, 09.
 - The spoken check's word diff: a word heard as one where the phrase has two ("Goodbye" for "Good
   bye", and the other way) counts as said; marks that are not words ("≈") are not words to say.
 - A phrase to repeat is shown at once when there is nothing to listen to first.
-- Courses → Downloaded: check and sync the courses (all, or one) from the list, as a course's page does.
 - Forms and layout looked over screen by screen (Settings first: labels, spacing, hints for every
   option that is not plain).
 - **Accept**: the Lingust lessons named above read cleanly; tests of the normaliser rules and the diff;

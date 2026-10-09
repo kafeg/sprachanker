@@ -69,7 +69,8 @@
     "checkAgain": "Check again",
     "complete": "All downloaded",
     "next": "next: {where} — {title}",
-    "notInstalled": "This course is not installed (any more)."
+    "notInstalled": "This course is not installed (any more).",
+    "checkFiles": "Check"
   },
   "lesson": {
     "unitLesson": "Unit {unit} · Lesson {lesson}",
@@ -525,7 +526,8 @@
     "failed": "Download failed: {error}",
     "done": "Downloaded. {failed, plural, =0 {All media are in place.} one {# file could not be downloaded.} other {# files could not be downloaded.}}",
     "hint": "Downloading fetches what is missing from the source (stored pages and media are kept) and prepares the course again; your progress stays.",
-    "log": "Download log"
+    "log": "Download log",
+    "syncShort": "Sync"
   },
   "storage": {
     "title": "Storage",
