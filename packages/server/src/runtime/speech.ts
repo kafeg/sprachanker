@@ -1,10 +1,12 @@
-// The speech engine on this machine (Bun): where `whisper-server` is — beside the app's binary (the
-// desktop app bundles it there), else built in the repository (native/scripts/build.ts) or named by
-// $SPRACHANKER_WHISPER_SERVER — running it on a local port, and the models in <data-root>/models.
+// The speech engines on this machine (Bun): where `whisper-server` and `sherpa-onnx-offline-tts` are —
+// beside the app's binary (the desktop app bundles them there), else built in the repository
+// (native/scripts/build.ts) or named by $SPRACHANKER_WHISPER_SERVER / $SPRACHANKER_PIPER — running
+// them, and their models and voices in <data-root>/models; what was read aloud in <data-root>/cache/tts.
 import {
   createWriteStream,
   existsSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   renameSync,
   rmSync,
@@ -13,6 +15,7 @@ import {
 } from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
+import type { PiperHost } from "../services/read-aloud.ts";
 import type { SpeechHost, WhisperModel } from "../services/speech.ts";
 
 /** This machine's target triple: the speech engine built for it is `whisper-server-<triple>`. */
@@ -69,21 +72,56 @@ function stopLeftOver(file: string) {
   rmSync(file, { force: true });
 }
 
+/** Downloads a file to `part`, its sha256 checked as it comes; a failed or wrong download leaves
+ *  nothing behind. */
+async function downloadChecked(
+  url: string,
+  part: string,
+  sha256: string,
+  onProgress: (bytes: number) => void,
+  signal: AbortSignal,
+) {
+  const res = await fetch(url, { signal });
+  if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
+  const hash = new Bun.CryptoHasher("sha256");
+  const out = createWriteStream(part);
+  let done = 0;
+  try {
+    for await (const chunk of res.body) {
+      hash.update(chunk);
+      done += chunk.length;
+      onProgress(done);
+      if (!out.write(chunk)) await new Promise((r) => out.once("drain", r));
+    }
+    await new Promise<void>((resolve, reject) =>
+      out.end((e?: Error | null) => (e ? reject(e) : resolve())),
+    );
+    if (hash.digest("hex") !== sha256) throw new Error("checksum mismatch");
+  } catch (error) {
+    out.destroy();
+    rmSync(part, { force: true });
+    throw error;
+  }
+}
+
+/** Where a program built in native/ is: named by an environment variable, beside the app's binary
+ *  (with or without the target triple), else in the repository's build. */
+const engineAt = (env: string | undefined, folder: string, program: string) =>
+  [
+    env,
+    join(dirname(process.execPath), `${program}-${triple}`),
+    join(dirname(process.execPath), program),
+    join(import.meta.dir, "../../../../native", folder, "out", `${program}-${triple}`),
+  ].find((p): p is string => !!p && existsSync(p));
+
 export function speechHost(dataRoot: string): SpeechHost {
   const models = join(dataRoot, "models");
   pidFile = join(models, "whisper-server.pid");
   stopLeftOver(pidFile);
   stopWithServer();
   return {
-    whisperBinary() {
-      const named = `whisper-server-${triple}`;
-      return [
-        process.env.SPRACHANKER_WHISPER_SERVER,
-        join(dirname(process.execPath), named),
-        join(dirname(process.execPath), "whisper-server"),
-        join(import.meta.dir, "../../../../native/whisper/out", named),
-      ].find((p): p is string => !!p && existsSync(p));
-    },
+    whisperBinary: () =>
+      engineAt(process.env.SPRACHANKER_WHISPER_SERVER, "whisper", "whisper-server"),
     freePort: () =>
       new Promise((resolve, reject) => {
         const server = createServer();
@@ -116,33 +154,90 @@ export function speechHost(dataRoot: string): SpeechHost {
       async download(url, model: WhisperModel, onProgress, signal) {
         mkdirSync(models, { recursive: true });
         const part = join(models, `${model.file}.part`);
-        const res = await fetch(url, { signal });
-        if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
-        const hash = new Bun.CryptoHasher("sha256");
-        const out = createWriteStream(part);
-        let done = 0;
-        try {
-          for await (const chunk of res.body) {
-            hash.update(chunk);
-            done += chunk.length;
-            onProgress(done);
-            if (!out.write(chunk)) await new Promise((r) => out.once("drain", r));
-          }
-          await new Promise<void>((resolve, reject) =>
-            out.end((e?: Error | null) => (e ? reject(e) : resolve())),
-          );
-          if (hash.digest("hex") !== model.sha256) throw new Error("checksum mismatch");
-          renameSync(part, join(models, model.file));
-        } catch (error) {
-          out.destroy();
-          rmSync(part, { force: true });
-          throw error;
-        }
+        await downloadChecked(url, part, model.sha256, onProgress, signal);
+        renameSync(part, join(models, model.file));
       },
       remove(file) {
         rmSync(join(models, file), { force: true });
         rmSync(join(models, `${file}.part`), { force: true });
       },
+    },
+  };
+}
+
+/** What was read aloud and kept: the newest this many (a few hours of replies). */
+const KEPT_READINGS = 2000;
+/** A text of a reply is read in a second or two; one that takes longer is stuck. */
+const SAY_MS = 60_000;
+
+export function piperHost(dataRoot: string): PiperHost {
+  const voices = join(dataRoot, "models", "voices");
+  const cache = join(dataRoot, "cache", "tts");
+  /** Old readings go when there are too many (oldest first). */
+  const prune = () => {
+    const files = readdirSync(cache)
+      .filter((f) => f.endsWith(".wav"))
+      .map((f) => ({ f, at: statSync(join(cache, f)).mtimeMs }))
+      .sort((a, b) => b.at - a.at);
+    for (const { f } of files.slice(KEPT_READINGS)) rmSync(join(cache, f), { force: true });
+  };
+  return {
+    binary: () => engineAt(process.env.SPRACHANKER_PIPER, "piper", "sherpa-onnx-offline-tts"),
+    voiceDir(id) {
+      const dir = join(voices, id);
+      return existsSync(join(dir, `${id}.onnx`)) ? dir : undefined;
+    },
+    async download(url, voice, onProgress, signal) {
+      mkdirSync(voices, { recursive: true });
+      const archive = join(voices, `${voice.id}.tar.bz2.part`);
+      const unpacked = join(voices, `${voice.id}.part`);
+      await downloadChecked(url, archive, voice.sha256, onProgress, signal);
+      try {
+        rmSync(unpacked, { recursive: true, force: true });
+        mkdirSync(unpacked, { recursive: true });
+        // The archive holds one folder, vits-piper-<id>: the model, its tokens and espeak-ng data.
+        const tar = Bun.spawnSync(["tar", "-xjf", archive, "-C", unpacked]);
+        if (tar.exitCode !== 0)
+          throw new Error(`unpacking failed: ${tar.stderr.toString().slice(0, 200)}`);
+        rmSync(join(voices, voice.id), { recursive: true, force: true });
+        renameSync(join(unpacked, `vits-piper-${voice.id}`), join(voices, voice.id));
+      } finally {
+        rmSync(archive, { force: true });
+        rmSync(unpacked, { recursive: true, force: true });
+      }
+    },
+    remove(id) {
+      rmSync(join(voices, id), { recursive: true, force: true });
+      rmSync(join(voices, `${id}.part`), { recursive: true, force: true });
+      rmSync(join(voices, `${id}.tar.bz2.part`), { force: true });
+    },
+    async say(key, { binary, dir, id, text, lengthScale }) {
+      const file = join(cache, `${key}.wav`);
+      if (existsSync(file)) return new Uint8Array(await Bun.file(file).arrayBuffer());
+      mkdirSync(cache, { recursive: true });
+      const part = join(cache, `${key}.part.wav`);
+      const proc = Bun.spawn(
+        [
+          binary,
+          `--vits-model=${join(dir, `${id}.onnx`)}`,
+          `--vits-tokens=${join(dir, "tokens.txt")}`,
+          `--vits-data-dir=${join(dir, "espeak-ng-data")}`,
+          `--vits-length-scale=${lengthScale}`,
+          "--num-threads=2",
+          `--output-filename=${part}`,
+          text,
+        ],
+        { stdout: "ignore", stderr: "ignore" },
+      );
+      const timer = setTimeout(() => proc.kill(), SAY_MS);
+      const code = await proc.exited.finally(() => clearTimeout(timer));
+      if (code !== 0 || !existsSync(part)) {
+        rmSync(part, { force: true });
+        throw new Error(`reading aloud failed (${code})`);
+      }
+      renameSync(part, file);
+      prune();
+      return new Uint8Array(await Bun.file(file).arrayBuffer());
     },
   };
 }

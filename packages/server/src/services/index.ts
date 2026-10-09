@@ -19,6 +19,7 @@ import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNotebook } from "./notebook.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
+import { createReadAloud, type PiperHost, type ReadAloud } from "./read-aloud.ts";
 import { createRecordings } from "./recordings.ts";
 import { createRunStore } from "./run-store.ts";
 import { createRuns } from "./runs.ts";
@@ -44,6 +45,7 @@ export interface ServicesConfig {
   cli?: CliHost;
   installer?: CourseInstaller;
   speech?: SpeechHost;
+  piper?: PiperHost;
   /** Reads a library media file (runtime adapter): course recordings the recogniser hears. */
   mediaBlob(file: string): Blob;
   now: () => number;
@@ -52,12 +54,12 @@ export interface ServicesConfig {
 /** A profile's services over its database; the content and downloads are the server's. */
 function profileServices(
   config: ServicesConfig,
-  shared: { content: Content; downloads: Downloads; speech: Speech },
+  shared: { content: Content; downloads: Downloads; speech: Speech; readAloud: ReadAloud },
   db: ProfileDb,
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, downloads, speech } = shared;
+  const { content, downloads, speech, readAloud } = shared;
   const settings = createSettings(db);
   const llm = createLlm({
     db,
@@ -130,6 +132,7 @@ function profileServices(
     downloads,
     settings,
     speech,
+    readAloud,
     recordings,
     runs,
     cards,
@@ -178,6 +181,7 @@ export function createServices(config: ServicesConfig) {
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const speech = createSpeech({ host: config.speech, fetch: config.fetch });
+  const readAloud = createReadAloud({ host: config.piper });
 
   return {
     content,
@@ -191,7 +195,7 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          { content, downloads, speech },
+          { content, downloads, speech, readAloud },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

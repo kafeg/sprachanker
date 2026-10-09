@@ -40,7 +40,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `DELETE /api/profile/devices/:id`.
 - Speech (08): `GET /api/speech` (the engine, its models with downloads, the profile's recognition and
   model), `POST` / `DELETE /api/speech/models/:id`, `POST /api/speech/warm`,
-  `POST /api/speech/transcribe?lang=` (a 16 kHz WAV as the body).
+  `POST /api/speech/transcribe?lang=` (a 16 kHz WAV as the body); reading aloud: `GET
+  /api/speech/voices` (Piper's engine and voices with downloads), `POST` / `DELETE
+  /api/speech/voices/:id`, `POST /api/speech/say` (`{text, lang, voice?}` → a WAV with the profile's
+  voice and speed; `voice` to hear another installed one).
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
   body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
 - Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
@@ -132,7 +135,8 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   server named there is alive; `profiles delete` refuses while one is.
 - `whisper-server` (whisper.cpp, built in `native/`, 08) on that supervisor; models in
   `<data-root>/models`, downloaded and checked from Settings.
-- Planned (plan, "Speech: synthesis"): a server-side TTS engine on the same supervisor.
+- Piper (reading aloud, 08) is no sidecar: `sherpa-onnx-offline-tts` runs once per text (a time
+  limit of 60 s), its WAV kept. Planned (plan, "Speech: synthesis"): Qwen3-TTS, on the supervisor.
 - No LLM runtime of its own: local models run in LM Studio (07); the server only starts LM Studio's
   server (`lms server start`) on request when LM Studio is installed on the same machine.
 - One that does not answer its health check within two minutes fails that request

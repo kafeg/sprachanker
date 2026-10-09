@@ -1,23 +1,32 @@
-// Reading aloud (08): one text at a time, through the device's voices (Web Speech API) — the voice
-// chosen for each language in the profile, else the best one there — at the profile's reading speed.
+// Reading aloud (08): one text at a time, each part with the profile's engine — Piper on the server
+// when it has a voice for the part's language, else the device's voices (Web Speech API) — the voice
+// chosen for each language in the profile, else the best one there, at the profile's reading speed.
 // What starts playing (a recording, a video) stops it, and it stops what plays; which text is being
 // read is shared by every speaker button, so one shows "stop" while the others show "listen".
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { useSetting } from "@/api/hooks.ts";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { sayOnServer, usePiperVoices, useSetting } from "@/api/hooks.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
 
-/** Engines a profile can choose for reading aloud (the device's voices only, for now). */
-export type ReadEngine = "device";
-
 const synth = () => (typeof speechSynthesis === "undefined" ? undefined : speechSynthesis);
 
-/** Chrome stops reading an utterance after about 15 s: long parts go sentence by sentence. */
+/** Long parts go sentence by sentence: Chrome stops an utterance after about 15 s, and the server's
+ *  voice starts sooner on a short piece. */
 const PIECE = 200;
 const pieces = (text: string) =>
   text.length <= PIECE ? [text] : (text.match(/[^.!?…\n]+[.!?…]*\s*/g) ?? [text]);
 
+/** How a piece is read: with a device voice (none: the browser's for its language), or by the server. */
+type Way =
+  | { device: SpeechSynthesisVoice | undefined; rate: number }
+  | { server: { voice?: string } };
+export interface ReadOptions {
+  /** How a language is read (undefined: it cannot be). */
+  wayFor(lang: string): Way | undefined;
+}
+
 let reading: string | undefined;
+let cancel: (() => void) | undefined;
 const listeners = new Set<() => void>();
 const setReading = (id: string | undefined) => {
   reading = id;
@@ -29,47 +38,95 @@ const asPlaying = { pause: () => stop() };
 export function stop() {
   if (reading === undefined) return;
   setReading(undefined);
-  synth()?.cancel();
+  cancel?.();
+  cancel = undefined;
 }
 
-/** Reads `parts` aloud as `id` (stopping whatever is read or played); resolves when done or stopped. */
-export function read(
-  id: string,
-  parts: SpokenPart[],
-  options: { voiceFor(lang: string): SpeechSynthesisVoice | undefined; rate: number },
-): Promise<void> {
+/** Says a piece with a device voice; resolves when it is said or stopped. */
+function sayOnDevice(
+  text: string,
+  lang: string,
+  voice: SpeechSynthesisVoice | undefined,
+  rate: number,
+  stopped: Promise<void>,
+) {
   const engine = synth();
+  if (!engine) return Promise.resolve();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = voice?.lang ?? lang;
+  if (voice) u.voice = voice;
+  u.rate = rate;
+  return Promise.race([
+    new Promise<void>((resolve) => {
+      u.onend = u.onerror = () => resolve();
+      engine.speak(u);
+    }),
+    stopped,
+  ]);
+}
+
+/** Plays a WAV to its end, or until stopped. */
+function play(wav: Blob, stopped: Promise<void>) {
+  const url = URL.createObjectURL(wav);
+  const audio = new Audio(url);
+  return Promise.race([
+    new Promise<void>((resolve) => {
+      audio.onended = audio.onerror = () => resolve();
+      audio.play().catch(() => resolve());
+    }),
+    stopped.then(() => audio.pause()),
+  ]).finally(() => URL.revokeObjectURL(url));
+}
+
+/** Reads `parts` aloud as `id` (stopping whatever is read or played); resolves when done or stopped.
+ *  The server's pieces are asked for one ahead, so the next is there when one ends. */
+export async function read(id: string, parts: SpokenPart[], options: ReadOptions): Promise<void> {
   stop();
-  if (!engine || !parts.length) return Promise.resolve();
+  const queue = parts.flatMap(({ text, lang }) => {
+    const way = options.wayFor(lang);
+    return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
+  });
+  if (!queue.length) return;
   claimPlayback(asPlaying);
   setReading(id);
-  const utterances = parts.flatMap(({ text, lang }) =>
-    pieces(text).map((piece) => {
-      const u = new SpeechSynthesisUtterance(piece);
-      const voice = options.voiceFor(lang);
-      u.lang = voice?.lang ?? lang;
-      if (voice) u.voice = voice;
-      u.rate = options.rate;
-      return u;
-    }),
-  );
-  return new Promise((resolve) => {
-    const last = utterances.at(-1) as SpeechSynthesisUtterance;
-    last.onend = last.onerror = () => {
-      if (reading === id) setReading(undefined);
-      resolve();
-    };
-    // A stop before the end ends nothing more: the promise settles with the stop.
-    const unsubscribe = () => listeners.delete(onStop);
-    const onStop = () => {
-      if (reading !== id) {
-        unsubscribe();
-        resolve();
-      }
-    };
-    listeners.add(onStop);
-    for (const u of utterances) engine.speak(u);
+  const controller = new AbortController();
+  let stopNow = () => {};
+  const stopped = new Promise<void>((resolve) => {
+    stopNow = resolve;
   });
+  cancel = () => {
+    controller.abort();
+    synth()?.cancel();
+    stopNow();
+  };
+  const fetched = new Map<number, Promise<Blob | undefined>>();
+  const fetchAt = (i: number) => {
+    const piece = queue[i];
+    if (!piece || !("server" in piece.way) || fetched.has(i)) return;
+    fetched.set(
+      i,
+      sayOnServer(piece.text, piece.lang, { ...piece.way.server, signal: controller.signal }).catch(
+        () => undefined,
+      ),
+    );
+  };
+  try {
+    for (const [i, piece] of queue.entries()) {
+      if (reading !== id) return;
+      fetchAt(i);
+      fetchAt(queue.findIndex((p, j) => j > i && "server" in p.way));
+      const way = piece.way;
+      if ("server" in way) {
+        const wav = await fetched.get(i);
+        if (wav && reading === id) await play(wav, stopped);
+      } else await sayOnDevice(piece.text, piece.lang, way.device, way.rate, stopped);
+    }
+  } finally {
+    if (reading === id) {
+      setReading(undefined);
+      cancel = undefined;
+    }
+  }
 }
 
 /** The device's voices, as they load (Safari and Chrome give them after a while). */
@@ -108,11 +165,14 @@ export function deviceVoice(
   return mine || bestVoice(voices.map(voiceInfo), lang)?.voice;
 }
 
-/** Reading aloud with the profile's voices and speed: whether it can, what is being read, read/stop. */
+/** Reading aloud with the profile's engine, voices and speed: whether it can, what is being read,
+ *  read/stop. */
 export function useSpeaker() {
   const voices = useDeviceVoices();
-  const chosen = useSetting("speech.voices")?.device;
+  const engine = useSetting("speech.readEngine");
+  const chosen = useSetting("speech.voices");
   const rate = useSetting("speech.readRate");
+  const piper = usePiperVoices(engine === "piper").data;
   const current = useSyncExternalStore(
     (l) => {
       listeners.add(l);
@@ -120,16 +180,23 @@ export function useSpeaker() {
     },
     () => reading,
   );
-  const say = useCallback(
-    (id: string, parts: SpokenPart[]) =>
-      read(id, parts, { voiceFor: (lang) => deviceVoice(voices, chosen, lang), rate }),
-    [voices, chosen, rate],
+  /** Languages Piper reads here: its engine built and a voice of the language downloaded. */
+  const piperLangs = new Set(
+    engine === "piper" && piper?.engine
+      ? piper.voices.filter((v) => v.installed).map((v) => v.lang)
+      : [],
   );
+  const wayFor = (lang: string): Way | undefined => {
+    if (piperLangs.has(lang)) return { server: {} };
+    if (!voices.some((v) => speaks(voiceInfo(v), lang))) return undefined;
+    return { device: deviceVoice(voices, chosen?.device, lang), rate };
+  };
+  const say = (id: string, parts: SpokenPart[]) => read(id, parts, { wayFor });
   return {
-    /** The device reads aloud at all (no voices: nothing to read with). */
-    available: !!synth() && voices.length > 0,
-    /** Whether the device has a voice for a language. */
-    canRead: (lang: string) => voices.some((v) => speaks(voiceInfo(v), lang)),
+    /** Something here reads aloud at all. */
+    available: (!!synth() && voices.length > 0) || piperLangs.size > 0,
+    /** Whether a language can be read (by Piper or a device voice). */
+    canRead: (lang: string) => !!wayFor(lang),
     reading: current,
     say,
     stop,

@@ -35,9 +35,6 @@ the engines as cards (as the AI providers), the voices of the chosen one under i
 the corner of an AI message (tutor, scene line, a word's AI example) and beside a word without a
 recording; a tutor reply read part by part, each in its language's voice (parts told apart by script;
 one voice when both languages share one).
-- **1b. Piper on this computer**: piper1-gpl (GPL-3, a separate program beside ours like whisper)
-  built in `native/piper`, pinned; voices per language downloaded and checked in Settings; the server
-  speaks (`POST /api/speech/say` → WAV, kept in `<data-root>/cache/tts`).
 - **1c. Qwen3-TTS on this computer** (owner, 2026-10-09: run by us like whisper, no server of the
   learner's own): a native GGML build without Python (qwen3-tts.cpp or another, chosen in the step's
   plan after trying them) in `native/`, pinned, on the sidecar supervisor; its model downloaded and
@@ -60,7 +57,16 @@ Specs: 02, 03, 08, 09.
 - **Accept**: the Lingust lessons named above read cleanly; tests of the normaliser rules and the diff;
   the screens looked over on desktop and phone width.
 
-### 3. Interface in every language a course explains in (owner, 2026-10-09)
+### 3. Word examples by deck (owner, 2026-10-09)
+Specs: 04, 07, 09.
+- Examples of use made for a whole deck at once, on the learner's request from Review → Decks: the
+  model goes through every word of a course's deck and writes 3–5 examples per word (with the course's
+  words where it can), kept with the words; a card shows them. The example on a card made one at a
+  time goes; a card whose deck has none yet (examples on in Settings) offers to go to Decks and make
+  them.
+- **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them.
+
+### 4. Interface in every language a course explains in (owner, 2026-10-09)
 Specs: 09, 10.
 - The UI catalogs beyond en/ru/de: every source language of the installed providers (DW: Arabic,
   Bosnian, Greek, Spanish, Persian, French, Hindi, Hungarian, Indonesian, Polish, Portuguese,
@@ -69,7 +75,7 @@ Specs: 09, 10.
   script; the onboarding and the language switch offer them.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
-### 4. Exams (owner, 2026-10-08)
+### 5. Exams (owner, 2026-10-08)
 Specs: 02, 03, 06, 09.
 - **An "Exams" section of its own** beside Courses, built like it (tabs: mine, downloaded,
   available; the pair filter): an exam is got and installed from the interface like a course, from
@@ -83,14 +89,14 @@ Specs: 02, 03, 06, 09.
 - **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
   section; at least one A1–B1 model test, if one is importable; results in the Notebook.
 
-### 5. Notebook: more pictures (owner's request, 2026-10-07)
+### 6. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 6. Phones (owner, 2026-10-08: functionality first, phones after)
+### 7. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The app on the owner's and his wife's iPhones: HTTPS through Tailscale (`tailscale serve`, 06) set
   up and described, installed as a PWA, signing in on a phone (device token); the server accepts the
@@ -101,7 +107,7 @@ Specs: 06, 09.
   the PWA; layouts at phone width; what breaks is fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 7. A week of real use
+### 8. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".

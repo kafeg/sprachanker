@@ -23,6 +23,7 @@ import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
+import type { PiperHost } from "./services/read-aloud.ts";
 import type { SpeechHost } from "./services/speech.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
@@ -46,6 +47,8 @@ export interface AppConfig {
   cli?: CliHost;
   /** The speech engine on this machine (08); without it, no recognition. */
   speech?: SpeechHost;
+  /** Reading aloud with Piper voices on this machine (08); without it, the device's voices only. */
+  piper?: PiperHost;
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;

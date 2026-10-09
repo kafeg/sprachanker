@@ -7,15 +7,16 @@ Platform builds of C/C++ engines used as sidecars. Spec: `docs/spec/08-speech.md
 ```
 whisper/   # VERSION (the whisper.cpp tag); out/ (the binary, whisper-server-<target triple>) is not
            # committed; the clone and its build are in ~/.cache/sprachanker
-scripts/   # build.ts (`bun run build:speech`): clones the pinned tag, builds whisper-server static with
-           # Metal and embedded shaders on macOS, writes it to whisper/out/; build:cli copies it beside
-           # the sprachanker binary
+piper/     # VERSION (the sherpa-onnx tag: it runs Piper's voices); out/
+           # (sherpa-onnx-offline-tts-<target triple>) is not committed
+scripts/   # build.ts (`bun run build:speech [whisper|piper]`): clones each pinned tag, builds
+           # whisper-server static with Metal and embedded shaders on macOS and sherpa-onnx-offline-tts
+           # static, writes them to <engine>/out/; build:cli copies them beside the sprachanker binary
 ```
 
 ## Planned
 
-- A server-side TTS engine, Piper or Qwen3-TTS, with its voices manifest (URLs, sha256): plan,
-  "Speech: synthesis".
+- Qwen3-TTS, a native GGML build: plan, "Speech: synthesis".
 
 ## Rules
 

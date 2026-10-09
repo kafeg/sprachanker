@@ -49,10 +49,15 @@ if (!result.success) {
 }
 console.log(`built ${relative(process.cwd(), outfile)} with ${files.length} web files`);
 
-// The engine built for this machine only: the binary compiled here runs here.
-const engine = `whisper-server-${targetTriple}`;
-const built = resolve(cliDir, "../../native/whisper/out", engine);
-if (existsSync(built)) {
-  copyFileSync(built, join(outDir, engine));
-  console.log(`with ${engine}`);
+// The speech engines built for this machine only: the binary compiled here runs here.
+for (const [folder, program] of [
+  ["whisper", "whisper-server"],
+  ["piper", "sherpa-onnx-offline-tts"],
+] as const) {
+  const engine = `${program}-${targetTriple}`;
+  const built = resolve(cliDir, "../../native", folder, "out", engine);
+  if (existsSync(built)) {
+    copyFileSync(built, join(outDir, engine));
+    console.log(`with ${engine}`);
+  }
 }

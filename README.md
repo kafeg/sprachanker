@@ -29,7 +29,7 @@ UI in English, Russian and German.
 
 ```
 bun install
-bun run build:speech     # optional: whisper.cpp for speech recognition (needs cmake)
+bun run build:speech     # optional: speech recognition (whisper.cpp) and Piper voices (needs cmake)
 bun run build:cli        # the `sprachanker` binary with the web app inside
 apps/cli/dist/sprachanker serve --data ~/SprachAnker
 ```

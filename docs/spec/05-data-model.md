@@ -8,7 +8,8 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
-├── models/                      # downloaded speech models (08)
+├── models/                      # downloaded speech models; voices/ Piper's voices (08)
+├── cache/tts/                   # texts read aloud with Piper, by voice, speed and text (08)
 ├── server.sqlite                # profiles, devices, server settings
 ├── server.pid                   # the running server's pid: one server per data root (06)
 └── profiles/<profile-id>/       # `local` is the first
@@ -22,8 +23,7 @@
   stay in app-data. LLM models are LM Studio's business (07).
 - The server creates the data root when it starts on it and holds it with `server.pid`
   (`runtime/data-root.ts`).
-- Planned: structured logs (plan, "Open items in built areas", Server); voices for synthesis (plan,
-  "Speech: synthesis").
+- Planned: structured logs (plan, "Open items in built areas", Server).
 
 ## `server.sqlite`
 

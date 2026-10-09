@@ -15,7 +15,8 @@ src/
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per
                      # data root: server.pid); lmstudio.ts (detect, `lms server start`);
-                     # speech.ts (finds and runs whisper-server, downloads models into <data-root>/models);
+                     # speech.ts (finds and runs whisper-server and Piper's sherpa-onnx-offline-tts,
+                     # downloads models and voices into <data-root>/models, keeps readings in cache/tts);
                      # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
   db/
@@ -46,7 +47,8 @@ src/
                      # examples (AI examples of a card's word, kept on the card in the review run);
                      # recordings (the learner's audio in the profile's recordings folder); speech
                      # (whisper-server, its models: one engine for the server; course recordings
-                     # heard once per model); sidecar (the supervisor of local engines: one start,
+                     # heard once per model); read-aloud (Piper's voices — piper-voices.json, written by
+                     # scripts/piper-voices.ts — downloads, a text read as a WAV); sidecar (the supervisor of local engines: one start,
                      # idle stop, switching after requests in flight);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,

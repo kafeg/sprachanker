@@ -12,7 +12,7 @@ import {
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { ulid } from "ulid";
-import { api, json, sendBinary } from "./client.ts";
+import { api, apiError, json, sendBinary } from "./client.ts";
 
 /** The server's version (and that it answers). */
 
@@ -384,6 +384,43 @@ export function useSpeechModels() {
       onSuccess: done,
     }),
   };
+}
+
+/** Piper's voices on the server: the engine (built or not), each voice (a download's progress polled
+ *  while it runs). */
+export const usePiperVoices = (enabled = true) =>
+  useQuery({
+    queryKey: ["piper-voices"],
+    queryFn: () => json(api.speech.voices.$get()),
+    enabled,
+    refetchInterval: (q) => (q.state.data?.voices.some((v) => "downloaded" in v) ? 1000 : false),
+  });
+
+export function usePiperVoiceActions() {
+  const client = useQueryClient();
+  const done = () => client.invalidateQueries({ queryKey: ["piper-voices"] });
+  return {
+    download: useMutation({
+      mutationFn: (id: string) => json(api.speech.voices[":id"].$post({ param: { id } })),
+      onSuccess: done,
+    }),
+    remove: useMutation({
+      mutationFn: (id: string) => json(api.speech.voices[":id"].$delete({ param: { id } })),
+      onSuccess: done,
+    }),
+  };
+}
+
+/** A text said by the server's Piper voice for its language, as a WAV (the profile's voice and speed). */
+export async function sayOnServer(
+  text: string,
+  lang: string,
+  options: { voice?: string; signal?: AbortSignal } = {},
+): Promise<Blob> {
+  const json = { text, lang, ...(options.voice && { voice: options.voice }) };
+  const res = await api.speech.say.$post({ json }, { init: { signal: options.signal } });
+  if (!res.ok) throw await apiError(res);
+  return res.blob();
 }
 
 /** What was said in a 16 kHz WAV, in a language given (a binary body, not through the RPC client). */

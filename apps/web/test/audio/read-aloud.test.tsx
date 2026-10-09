@@ -70,6 +70,12 @@ test("a tutor's reply read part by part, each language in its best voice; a seco
   );
   const button = view.getByRole("button", { name: /Read aloud/ });
   fireEvent.click(button);
+  // One part at a time: the next when the device has said the last.
+  await waitFor(() => expect(said).toHaveLength(1));
+  await finish();
+  await waitFor(() => expect(said).toHaveLength(2));
+  await finish();
+  await waitFor(() => expect(said).toHaveLength(3));
   expect(said).toEqual([
     { text: "Скажи:", lang: "ru-RU", voice: "milena", rate: 0.8 },
     { text: "Ich heiße Anna.", lang: "de-DE", voice: "petra", rate: 0.8 },
@@ -126,11 +132,123 @@ test("read at once: only a line that comes while the page is open, and only what
 
 test("Settings: the profile's languages with their voice (automatic: the best one) and Listen", async () => {
   const view = await renderApp(<ReadAloud />, {
-    data: [[["settings"], { "learner.target": "de", "learner.native": "ru" }]],
+    data: [
+      [["settings"], { "learner.target": "de", "learner.native": "ru" }],
+      [["piper-voices"], { engine: false, voices: [] }],
+    ],
   });
   expect(view.getByText("This device's voices")).toBeTruthy();
+  // Piper not built here: its card says so and cannot be chosen.
+  expect(view.getByRole("button", { name: /Piper on this computer/ })).toHaveProperty(
+    "disabled",
+    true,
+  );
   expect(view.getByText("Automatic — Petra (Enhanced)")).toBeTruthy();
   expect(view.getByText("Automatic — Milena")).toBeTruthy();
   fireEvent.click(view.getAllByRole("button", { name: "Listen" })[0] as HTMLElement);
   expect(said).toEqual([{ text: "Deutsch (Deutschland)", lang: "de-DE", voice: "petra", rate: 1 }]);
+});
+
+const PIPER = {
+  engine: true,
+  voices: [
+    {
+      id: "de_DE-thorsten-medium",
+      lang: "de",
+      region: "DE",
+      name: "thorsten",
+      quality: "medium",
+      bytes: 67e6,
+      installed: true,
+    },
+    {
+      id: "de_DE-thorsten-high",
+      lang: "de",
+      region: "DE",
+      name: "thorsten",
+      quality: "high",
+      bytes: 116e6,
+      installed: false,
+    },
+    {
+      id: "de_AT-hmm-low",
+      lang: "de",
+      region: "AT",
+      name: "hmm",
+      quality: "low",
+      bytes: 60e6,
+      installed: false,
+      downloaded: 30e6,
+    },
+    {
+      id: "ru_RU-irina-medium",
+      lang: "ru",
+      region: "RU",
+      name: "irina",
+      quality: "medium",
+      bytes: 67e6,
+      installed: false,
+    },
+  ],
+};
+
+test("Settings with Piper: each language's voices — the one reading, those to download, one coming", async () => {
+  const view = await renderApp(<ReadAloud />, {
+    data: [
+      [
+        ["settings"],
+        { "learner.target": "de", "learner.native": "ru", "speech.readEngine": "piper" },
+      ],
+      [["piper-voices"], PIPER],
+    ],
+  });
+  expect(view.getByText("1 voice downloaded")).toBeTruthy();
+  expect(view.getByText("Automatic — thorsten · Germany · medium quality")).toBeTruthy();
+  // Germany first, best quality first; a download in progress shows how far it is.
+  const rows = view.getAllByRole("listitem").map((li) => li.textContent);
+  expect(rows[0]).toContain("thorsten · Germany · high quality");
+  expect(rows.some((r) => r?.includes("50 %") || r?.includes("50%"))).toBe(true);
+  expect(view.getByText(/No voice for Russian yet/)).toBeTruthy();
+  expect(view.getAllByRole("button", { name: "Download" }).length).toBeGreaterThan(0);
+});
+
+test("reading with Piper: a language with a voice is said by the server, one without by the device", async () => {
+  const asked: Array<{ text: string; lang: string }> = [];
+  const played: string[] = [];
+  const realFetch = globalThis.fetch;
+  const realAudio = globalThis.Audio;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    asked.push((await request.json()) as { text: string; lang: string });
+    return new Response(new Blob([new Uint8Array([1])], { type: "audio/wav" }));
+  }) as typeof fetch;
+  (globalThis as { Audio: unknown }).Audio = class {
+    onended?: () => void;
+    constructor(readonly src: string) {}
+    async play() {
+      played.push(this.src);
+      setTimeout(() => this.onended?.(), 0);
+    }
+    pause() {}
+  };
+  try {
+    const view = await renderApp(
+      <SpeakButton parts={replyParts("Скажи: Ich heiße Anna.", "ru", "de")} label="reply" />,
+      {
+        data: [
+          [["settings"], { "speech.readEngine": "piper" }],
+          [["piper-voices"], PIPER],
+        ],
+      },
+    );
+    fireEvent.click(view.getByRole("button", { name: "Read aloud: reply" }));
+    // Russian has no Piper voice here: the device says it first.
+    await waitFor(() => expect(said.map((s) => s.text)).toEqual(["Скажи:"]));
+    await finish();
+    await waitFor(() => expect(played).toHaveLength(1));
+    expect(asked).toEqual([{ text: "Ich heiße Anna.", lang: "de" }]);
+  } finally {
+    globalThis.fetch = realFetch;
+    (globalThis as { Audio: unknown }).Audio = realAudio;
+  }
 });

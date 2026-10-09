@@ -16,7 +16,7 @@ import {
 import { cliHost } from "./runtime/cli.ts";
 import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
-import { speechHost } from "./runtime/speech.ts";
+import { piperHost, speechHost } from "./runtime/speech.ts";
 import { createProfiles } from "./services/profiles.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
@@ -47,6 +47,7 @@ export function startServer(config: ServerConfig): Listening {
     cli: cliHost(),
     installer: courseInstaller(config.dataRoot),
     speech: speechHost(config.dataRoot),
+    piper: piperHost(config.dataRoot),
     // The machine's own names: its host name, and the one the server was told to listen on.
     hosts: [hostname(), `${hostname()}.local`, config.hostname],
   });

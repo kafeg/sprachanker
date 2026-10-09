@@ -75,10 +75,23 @@ writes (owner, 2026-10-08).
 - **What is said** (`audio/speak.ts`): a model's Markdown without its markup; a tutor reply in parts,
   each in its language's voice — the learner's language and the one learnt told apart by script
   (Cyrillic, Latin, …: `Intl.Locale`), one voice when both share a script.
-- **Voices**: the device's (Web Speech API, `audio/speaker.ts`), per language the one the profile
-  picked while the device has it, else the best one there: "Premium", then "Enhanced", of the
-  language's main region (de-DE for German), never a macOS novelty voice. Settings `speech.voices`
-  (engine → language → voice), `speech.readRate` (0.5–1.5), `speech.readAtOnce` (none / scenes / all:
-  a line that arrives while the page is open is read at once, never what was there on opening).
-- Planned (plan, "Speech: synthesis"): Piper on this computer and an own server with OpenAI's
-  `/v1/audio/speech` (Qwen3-TTS through mlx-audio) as engines. Not now: spoken answers on review cards.
+- **Engines** (the profile's `speech.readEngine`; owner, 2026-10-08/09): the device's voices (Web
+  Speech API, the default), or **Piper on this computer** — Piper voices run by sherpa-onnx's
+  `sherpa-onnx-offline-tts` (Apache-2.0; pinned in `native/piper/VERSION`, built static by `bun run
+  build:speech`, beside the binary like whisper-server). A part whose language has no Piper voice
+  here is read by the device's voices. Piper is run once per text (no sidecar: a phrase takes about
+  a second with the model's load, e.g. 1.0 s for 3.6 s of German on an M2 Pro); the WAV is kept in
+  `<data-root>/cache/tts` by voice, speed and text (the newest 2,000 kept), so a text read again comes
+  at once.
+- **Piper's voices**: those sherpa-onnx publishes (its `tts-models` release; game-character voices
+  left out), listed with their size and sha256 in `services/piper-voices.json`
+  (`packages/server/scripts/piper-voices.ts` writes it); downloaded from Settings into
+  `<data-root>/models/voices/<id>`, checked, unpacked whole (the model, its tokens, espeak-ng data).
+- **Voices**: per language the one the profile picked while it is there, else the best one: on the
+  device "Premium", then "Enhanced", of the language's main region (de-DE for German), never a macOS
+  novelty voice; with Piper the main region first, then the highest quality. Settings `speech.voices`
+  (engine → language → voice), `speech.readRate` (0.5–1.5; Piper's length scale is its inverse),
+  `speech.readAtOnce` (none / scenes / all: a line that arrives while the page is open is read at
+  once, never what was there on opening).
+- Planned (plan, "Speech: synthesis"): Qwen3-TTS on this computer as a third engine. Not now: spoken
+  answers on review cards.

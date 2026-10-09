@@ -63,8 +63,10 @@ export const LEARNER_SETTINGS = {
   "speech.model": z.string().min(1).max(100),
   /** The microphone beside a text box: tap to start and stop (default), or hold to talk. */
   "speech.pushToTalk": z.enum(["tap", "hold"]),
-  /** Reading aloud (08): the voice chosen per engine and language (none: the best one there), the
-   *  speed, and what is read at once — nothing, scene lines, or scene lines and the tutor's replies. */
+  /** Reading aloud (08): the engine (the device's voices, or Piper on the server), the voice chosen per
+   *  engine and language (none: the best one there), the speed, and what is read at once — nothing,
+   *  scene lines, or scene lines and the tutor's replies. */
+  "speech.readEngine": z.enum(["device", "piper"]),
   "speech.voices": z.record(z.string().max(40), z.record(z.string().max(40), z.string().max(400))),
   "speech.readRate": z.number().min(0.5).max(1.5),
   "speech.readAtOnce": z.enum(["none", "scenes", "all"]),
@@ -108,6 +110,7 @@ export const SETTING_DEFAULTS = {
   "speech.showText": "after",
   "speech.recognition": true,
   "speech.pushToTalk": "tap",
+  "speech.readEngine": "device",
   "speech.readRate": 1,
   "speech.readAtOnce": "none",
   "srs.faces": ["recognition", "production"],
