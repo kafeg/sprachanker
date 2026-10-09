@@ -811,7 +811,8 @@
     "takeRest": "Add the other {count, number}",
     "study": "Study",
     "leaveTitle": "Leave the deck {deck}?",
-    "leaveBody": "Its cards go, with their progress. Words that another of your decks has move there, progress and all."
+    "leaveBody": "Its cards go, with their progress. Words that another of your decks has move there, progress and all.",
+    "moreShort": "{count, plural, one {+# new} other {+# new}}"
   },
   "guide": {
     "open": "How it works",

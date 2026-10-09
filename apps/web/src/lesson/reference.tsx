@@ -130,9 +130,10 @@ export function Reference({
   const tabs = locale?.tabs ?? { grammar: [], culture: [] };
   return (
     <Tabs value={tab} onValueChange={(v) => onTab(v as ReferenceTab)}>
-      <TabsList className="flex h-auto w-full flex-wrap justify-start">
+      {/* The tabs wrap rather than run out of the panel (a lesson may have five). */}
+      <TabsList className="h-auto! w-full flex-wrap justify-start">
         {referenceTabs(lesson, locale).map((k) => (
-          <TabsTrigger key={k} value={k}>
+          <TabsTrigger key={k} value={k} className="min-h-8 pointer-coarse:min-h-10">
             {t(`ref.${k}`)}
           </TabsTrigger>
         ))}

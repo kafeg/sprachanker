@@ -6,7 +6,7 @@
 // changed later in Settings.
 
 import { ProfileColour } from "@sprachanker/schema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/hooks.ts";
 import { type SessionProfile, useUpdateProfile } from "@/api/session.ts";
@@ -39,6 +39,11 @@ export function Onboarding({
   const { t, i18n } = useTranslation();
   const steps = STEPS.filter((s) => s !== "assistant" || assistant);
   const [step, setStep] = useState<Step>("welcome");
+  // Each step opens at its top (a long one, Speech, is scrolled to its end to go on).
+  // biome-ignore lint/correctness/useExhaustiveDependencies: on every change of step
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
   const at = steps.indexOf(step);
   const update = useUpdateProfile();
   const setSetting = useSetSetting();
@@ -72,7 +77,7 @@ export function Onboarding({
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-4 py-8">
+    <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-4 pt-8">
       <ol
         className="flex gap-1.5"
         aria-label={t("onboarding.progress", { n: at + 1, total: steps.length })}
@@ -158,7 +163,8 @@ export function Onboarding({
         )}
         {step === "tour" && <Tour />}
       </div>
-      <div className="flex items-center justify-between gap-3">
+      {/* Back and Next stay at the bottom of the screen, a long step scrolling under them. */}
+      <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-3 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
         {at > 0 ? (
           <Button variant="ghost" size="lg" onClick={() => setStep(steps[at - 1] ?? "welcome")}>
             {t("onboarding.back")}

@@ -219,59 +219,60 @@ export function StudySession({
       </TargetLang>
       <div
         className={cn(
-          "-mx-4 grid grid-cols-[auto_1fr_auto] items-end gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-2xl",
+          "-mx-4 grid justify-items-center gap-2 border-t bg-background/95 px-4 py-3 backdrop-blur sm:mx-0 sm:rounded-b-2xl",
           stickyBar && "sticky bottom-0 z-10 pb-[max(0.75rem,env(safe-area-inset-bottom))]",
         )}
       >
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t("study.undo")}
-          title={t("study.undoKeys")}
-          disabled={!data.canUndo || actions.undo.isPending}
-          onClick={undo}
-        >
-          <Undo2 className="size-5" />
-        </Button>
-        <div className="grid justify-items-center gap-2">
-          {/* The same height on both sides: the answer opening moves nothing. */}
-          {side === "question" ? (
-            <Button
-              size="lg"
-              className={cn("w-full max-w-lg text-base", BAR_BUTTON)}
-              title={t("study.showKeys")}
-              onClick={showAnswer}
-            >
-              {t("study.show")}
-            </Button>
-          ) : (
-            <div className="grid w-full max-w-lg grid-cols-4 gap-1.5">
-              {RATINGS.map(({ rating, key, button }) => (
-                <Button
-                  key={rating}
-                  variant="outline"
-                  autoFocus={rating === 3}
-                  disabled={busy}
-                  title={`${rating}`}
-                  onClick={() => rate(rating)}
-                  className={cn(
-                    "flex-col gap-0 border-0 text-sm text-white hover:text-white",
-                    BAR_BUTTON,
-                    button,
-                  )}
-                >
-                  {/* The interval inside; the button is still named by its rating. */}
-                  <span aria-hidden className="text-[11px] opacity-90 tabular-nums">
-                    {intervalOf(current.due[rating] - data.now)}
-                  </span>
-                  {t(`study.rating.${key}`)}
-                </Button>
-              ))}
-            </div>
-          )}
+        {/* The same height on both sides: the answer opening moves nothing. */}
+        {side === "question" ? (
+          <Button
+            size="lg"
+            className={cn("w-full max-w-lg text-base", BAR_BUTTON)}
+            title={t("study.showKeys")}
+            onClick={showAnswer}
+          >
+            {t("study.show")}
+          </Button>
+        ) : (
+          <div className="grid w-full max-w-lg grid-cols-4 gap-1.5">
+            {RATINGS.map(({ rating, key, button }) => (
+              <Button
+                key={rating}
+                variant="outline"
+                autoFocus={rating === 3}
+                disabled={busy}
+                title={`${rating}`}
+                onClick={() => rate(rating)}
+                className={cn(
+                  "flex-col gap-0 border-0 text-sm text-white hover:text-white",
+                  BAR_BUTTON,
+                  button,
+                )}
+              >
+                {/* The interval inside; the button is still named by its rating. */}
+                <span aria-hidden className="text-[11px] opacity-90 tabular-nums">
+                  {intervalOf(current.due[rating] - data.now)}
+                </span>
+                {t(`study.rating.${key}`)}
+              </Button>
+            ))}
+          </div>
+        )}
+        {/* Undo and the card's menu beside the counts: the answer buttons have the whole width. */}
+        <div className="flex w-full max-w-lg items-center justify-between gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t("study.undo")}
+            title={t("study.undoKeys")}
+            disabled={!data.canUndo || actions.undo.isPending}
+            onClick={undo}
+          >
+            <Undo2 className="size-5" />
+          </Button>
           <Counts study={data} current={current.kind} />
+          <MoreMenu current={current} buried={data.buried} act={act} onUnbury={unbury} />
         </div>
-        <MoreMenu current={current} buried={data.buried} act={act} onUnbury={unbury} />
       </div>
       <p className="hidden text-center text-xs text-muted-foreground [@media(pointer:fine)]:block">
         {t("study.keys")}

@@ -41,21 +41,28 @@ export function PlayerFrame({
   const [planOpen, setPlanOpen] = useState(false);
   const [reference, setReference] = useState<ReferenceTab>();
   const firstTab = referenceTabs(lesson, locale)[0];
+  // The way back to the course, the lesson and its plan: beside the lesson on a wide screen, in the
+  // plan's panel on a phone.
+  const side = (onPick?: () => void) => (
+    <>
+      <Link
+        to="/course/$series/$course"
+        params={{ series, course }}
+        className="mr-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:mr-0"
+      >
+        <ArrowLeft className="size-4 shrink-0" /> <span className="truncate">{courseTitle}</span>
+      </Link>
+      <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
+      <p className="mb-3 px-2 text-sm text-muted-foreground">
+        {todo > 0 && t("lesson.stepsDone", { done: worked, total: todo })}
+      </p>
+      {plan(onPick)}
+    </>
+  );
   return (
     <div className="lg:grid lg:grid-cols-[17rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-r p-4 lg:block">
-        <Link
-          to="/course/$series/$course"
-          params={{ series, course }}
-          className="mb-3 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> {courseTitle}
-        </Link>
-        <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
-        <p className="mb-3 px-2 text-sm text-muted-foreground">
-          {todo > 0 && t("lesson.stepsDone", { done: worked, total: todo })}
-        </p>
-        {plan()}
+        {side()}
       </aside>
       <div className="min-w-0">
         <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
@@ -97,10 +104,10 @@ export function PlayerFrame({
       </div>
       <Sheet open={planOpen} onOpenChange={setPlanOpen}>
         <SheetContent side="left" className="w-80 overflow-y-auto p-4">
-          <SheetHeader className="p-0">
-            <SheetTitle>{locale?.title}</SheetTitle>
+          <SheetHeader className="sr-only p-0">
+            <SheetTitle>{t("lesson.plan")}</SheetTitle>
           </SheetHeader>
-          {plan(() => setPlanOpen(false))}
+          {side(() => setPlanOpen(false))}
         </SheetContent>
       </Sheet>
       <Sheet open={!!reference} onOpenChange={(open) => !open && setReference(undefined)}>

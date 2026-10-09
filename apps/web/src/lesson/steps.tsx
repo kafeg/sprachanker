@@ -1,5 +1,6 @@
 // Steps of the lesson besides its exercises (09): a reading page (grammar, culture) and the action bar
 // they share — back, skip where a step can be left undone, next.
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseSections } from "@/ui/course-html.tsx";
@@ -50,18 +51,26 @@ export function StepBar({
   const { t } = useTranslation();
   return (
     <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-      <Button variant="ghost" size="lg" onClick={onBack}>
-        {t("lesson.previous")}
+      {/* On a phone Back is an arrow, so the bar keeps to one row under its note. */}
+      <Button
+        variant="ghost"
+        size="lg"
+        onClick={onBack}
+        aria-label={t("lesson.previous")}
+        className="max-sm:px-3"
+      >
+        <ArrowLeft className="size-5 sm:hidden" />
+        <span className="max-sm:sr-only">{t("lesson.previous")}</span>
       </Button>
       {note && (
         <p className="order-first w-full text-center text-xs text-muted-foreground sm:order-none sm:ml-auto sm:w-auto sm:text-right sm:text-sm">
           {note}
         </p>
       )}
-      <div className={cn("flex gap-2", note ? "ml-auto sm:ml-0" : "ml-auto")}>
+      <div className={cn("flex gap-1 sm:gap-2", note ? "ml-auto sm:ml-0" : "ml-auto")}>
         {extra}
         {onSkip && (
-          <Button variant="ghost" size="lg" onClick={onSkip}>
+          <Button variant="ghost" size="lg" onClick={onSkip} className="max-sm:px-3">
             {t("lesson.skip")}
           </Button>
         )}

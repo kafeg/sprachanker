@@ -59,16 +59,13 @@ export function LessonSummary({
         {t("lesson.summary")}
       </p>
       <h1 className="text-4xl font-bold">{locale?.title}</h1>
-      {lesson.pages.length > 0 && (
+      {/* The score once something is scored; before that, no placeholder. */}
+      {lesson.pages.length > 0 && result && (
         <div className="flex items-end gap-4">
-          <span className="font-heading text-6xl font-bold">
-            {result ? percent(result.score) : "—"}
+          <span className="font-heading text-6xl font-bold">{percent(result.score)}</span>
+          <span className="pb-2 text-muted-foreground">
+            {t("lesson.score", { correct: first.correct, scored: first.scored })}
           </span>
-          {result && (
-            <span className="pb-2 text-muted-foreground">
-              {t("lesson.score", { correct: first.correct, scored: first.scored })}
-            </span>
-          )}
         </div>
       )}
       {mode === "active" && coverage.firstLeft !== undefined && (

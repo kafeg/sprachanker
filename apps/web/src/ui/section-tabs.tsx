@@ -19,13 +19,16 @@ export function SectionTabs({ label, tabs }: { label: string; tabs: SectionTab[]
           to={tab.to}
           aria-current={tab.current ? "page" : undefined}
           className={cn(
-            "flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg px-3 text-sm font-medium text-muted-foreground pointer-coarse:min-h-11",
+            // On a phone the count goes under the label, so three tabs fit in any language.
+            "flex min-h-10 min-w-0 flex-1 flex-col items-center justify-center whitespace-nowrap rounded-lg px-1.5 text-[13px] leading-tight font-medium text-muted-foreground pointer-coarse:min-h-11 sm:flex-row sm:gap-1.5 sm:px-3 sm:text-sm",
             tab.current && "bg-background text-foreground shadow-sm",
           )}
         >
           {tab.label}
           {tab.count !== undefined && (
-            <span className="tabular-nums text-muted-foreground">{tab.count}</span>
+            <span className="text-xs tabular-nums text-muted-foreground sm:text-sm">
+              {tab.count}
+            </span>
           )}
         </Link>
       ))}

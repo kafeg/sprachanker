@@ -1,4 +1,5 @@
-// Segmented choice: one of a few options, the selected one highlighted.
+// Segmented choice: one of a few options, the selected one highlighted. Options that do not fit in a
+// row (a phone, long labels) wrap and share the row's width, so no row ends in a gap.
 import { cn } from "./utils.ts";
 
 export function Choice({
@@ -19,7 +20,7 @@ export function Choice({
           aria-pressed={value === v}
           onClick={() => onChange(v)}
           className={cn(
-            "min-h-10 rounded-lg px-4 pointer-coarse:min-h-11",
+            "min-h-10 flex-auto rounded-lg px-4 pointer-coarse:min-h-11",
             value === v ? "bg-primary font-semibold text-primary-foreground" : "hover:bg-accent",
           )}
         >

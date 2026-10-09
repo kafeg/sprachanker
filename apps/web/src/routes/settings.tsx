@@ -93,9 +93,14 @@ export function SettingsPage() {
         }}
         className="max-w-2xl"
       >
-        <TabsList className="mb-6 w-full justify-start overflow-x-auto">
+        {/* Every tab in sight: on a phone they wrap, three to a row. */}
+        <TabsList className="mb-6 h-auto! w-full flex-wrap justify-start">
           {TABS.map((id) => (
-            <TabsTrigger key={id} value={id}>
+            <TabsTrigger
+              key={id}
+              value={id}
+              className="min-h-9 basis-[30%] pointer-coarse:min-h-11 sm:basis-auto"
+            >
               {t(`settings.tabs.${id}`)}
             </TabsTrigger>
           ))}

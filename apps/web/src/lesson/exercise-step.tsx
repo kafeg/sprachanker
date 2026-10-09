@@ -22,7 +22,10 @@ import type { ExerciseResult } from "./use-run.ts";
 
 /** Rail (an item's mark once checked) · the items' column · controls; the exercise's own media and
  *  texts sit in the same column. */
-const ITEM_GRID = "grid grid-cols-[1.5rem_minmax(0,1fr)_2.25rem] gap-x-2";
+/** Rail · card · controls; on a phone the controls go in a row under the card, so the card has the
+ *  width. */
+const ITEM_GRID =
+  "grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_2.25rem]";
 
 /** A checked item's mark on the rail left of its card: ✓ right, ✕ wrong or partly right (no button). */
 function ItemRail({ outcome }: { outcome: Outcome }) {
@@ -70,7 +73,10 @@ function ItemControl({
           aria-label={label}
           aria-pressed={pressed}
           onClick={onClick}
-          className={cn("size-9 text-muted-foreground", pressed && "bg-accent text-foreground")}
+          className={cn(
+            "size-9 text-muted-foreground pointer-coarse:size-11",
+            pressed && "bg-accent text-foreground",
+          )}
         >
           {children}
         </Button>
@@ -191,7 +197,7 @@ export function ExerciseStep({
                 heard={readOnly || ex.itemHeard(i)}
                 onHeard={() => ex.hear(`item-${i}`)}
               />
-              <div className="flex flex-col gap-1.5 pt-2">
+              <div className="col-start-2 flex gap-1.5 pt-2 empty:hidden sm:col-start-3 sm:flex-col">
                 {marked && !right && explain && (
                   <ItemControl
                     label={t("lesson.why")}

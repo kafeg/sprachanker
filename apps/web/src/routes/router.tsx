@@ -196,6 +196,8 @@ export const router = createRouter({
     lesson,
   ]),
   defaultPreload: "intent",
+  // A new page opens at its top; Back returns to where the page was left (a long list of courses).
+  scrollRestoration: true,
 });
 
 declare module "@tanstack/react-router" {

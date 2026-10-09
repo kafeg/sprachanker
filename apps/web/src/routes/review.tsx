@@ -63,7 +63,9 @@ function MyDecks({ open }: { open(scope: string): void }) {
   if (decks.isPending) return <Loading />;
   if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
   if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
-  const row = "grid grid-cols-[minmax(0,1fr)_3rem_3rem_3rem] items-center gap-2 px-4";
+  // Narrower counts on a phone, so the deck's name keeps its room.
+  const row =
+    "grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem_2.25rem] items-center gap-2 px-4 sm:grid-cols-[minmax(0,1fr)_3rem_3rem_3rem]";
   return (
     <div className="rounded-2xl border bg-card">
       <div className={cn(row, "border-b py-2 text-xs text-muted-foreground")}>
@@ -99,7 +101,8 @@ function MyDecks({ open }: { open(scope: string): void }) {
                       className="flex items-center gap-2 text-sm font-normal text-muted-foreground"
                     >
                       <PairFlags edition={edition} />
-                      {pairName(edition)}
+                      {/* On a phone the flags say it; the pair's name is still read out. */}
+                      <span className="max-sm:sr-only">{pairName(edition)}</span>
                     </span>
                   ))}
                 </span>
@@ -115,7 +118,8 @@ function MyDecks({ open }: { open(scope: string): void }) {
                   loading={actions.more.isPending && actions.more.variables?.scope === deck.scope}
                   onClick={() => actions.more.mutate({ scope: deck.scope, count: MORE })}
                 >
-                  {t("decks.more", { count: MORE })}
+                  <span className="sm:hidden">{t("decks.moreShort", { count: MORE })}</span>
+                  <span className="max-sm:hidden">{t("decks.more", { count: MORE })}</span>
                 </Button>
                 {deck.course && (
                   <Button
@@ -129,7 +133,8 @@ function MyDecks({ open }: { open(scope: string): void }) {
                       })
                     }
                   >
-                    <Trash2 className="size-3.5" /> {t("decks.leave")}
+                    <Trash2 className="size-3.5" />{" "}
+                    <span className="max-sm:sr-only">{t("decks.leave")}</span>
                   </Button>
                 )}
               </div>

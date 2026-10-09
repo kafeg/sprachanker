@@ -811,7 +811,8 @@
     "takeRest": "Die übrigen {count, number} hinzufügen",
     "study": "Lernen",
     "leaveTitle": "Stapel {deck} entfernen?",
-    "leaveBody": "Seine Karten gehen mit ihrem Fortschritt. Wörter, die ein anderer deiner Stapel hat, wandern mit allem Fortschritt dorthin."
+    "leaveBody": "Seine Karten gehen mit ihrem Fortschritt. Wörter, die ein anderer deiner Stapel hat, wandern mit allem Fortschritt dorthin.",
+    "moreShort": "{count, plural, one {+# neue} other {+# neue}}"
   },
   "guide": {
     "open": "So funktioniert's",
