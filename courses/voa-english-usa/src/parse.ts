@@ -184,7 +184,6 @@ function pageHtml(lines: Line[]): string {
     .replace(/\s+/g, " ")
     .replace(/<p>\s+/g, "<p>")
     .replace(/\s+<\/p>/g, "</p>")
-    .replace(/<p><\/p>/g, "")
     .trim();
 }
 

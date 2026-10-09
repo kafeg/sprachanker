@@ -34,7 +34,7 @@ export interface SanitizeOptions {
 
 /** Keeps the allow-listed elements without attributes (images get `src` and `alt`); unwraps the rest. */
 export function sanitizeCourseHtml(html: string, options: SanitizeOptions): string {
-  return sanitizeHtml(html, {
+  const clean = sanitizeHtml(html, {
     allowedTags: ALLOWED_TAGS,
     allowedAttributes: { img: ["src", "alt"] },
     allowedSchemes: [],
@@ -50,9 +50,35 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
     },
     exclusiveFilter: (frame) =>
       frame.tag === "drop-image" || (options.drop?.(frame.tag, frame.attribs) ?? false),
-  })
-    .replace(/<p>\s*<\/p>/g, "")
-    .trim();
+  });
+  return nestedHeadingsAsBold(withoutEmpty(clean)).trim();
+}
+
+/** Emphasis around nothing but spaces (an editor's leftover) gives just its spaces; a paragraph,
+ *  caption or title left with nothing in it goes (a dropped credit leaves an empty caption). */
+function withoutEmpty(html: string): string {
+  let out = html;
+  for (let prev = ""; prev !== out; ) {
+    prev = out;
+    out = out
+      .replace(/<(strong|b|em|i|small)>(\s*)<\/\1>/g, "$2")
+      .replace(/<(p|figcaption|h3)>(?:\s|<br \/>)*<\/\1>/g, "");
+  }
+  return out;
+}
+
+/** An `<h3>` titles a section of the page only outside tables, lists and figures (the app divides a
+ *  page at its titles, 09); one inside them is a bold paragraph. */
+function nestedHeadingsAsBold(html: string): string {
+  let depth = 0;
+  return html.replace(/<(\/?)(table|ul|ol|figure|h3)>/g, (tag, close: string, name: string) => {
+    if (name !== "h3") {
+      depth += close ? -1 : 1;
+      return tag;
+    }
+    if (!depth) return tag;
+    return close ? "</strong></p>" : "<p><strong>";
+  });
 }
 
 /**
@@ -61,10 +87,11 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
  * the app can show each section on its own. Other bold text stays as it is.
  */
 export function boldLinesAsHeadings(html: string): string {
-  return html.replace(
+  const titled = html.replace(
     /<p>\s*<(strong|b)>((?:(?!<\/?(?:strong|b|p)>).)+?)<\/\1>\s*<\/p>/gs,
     (_, _tag, title: string) => `<h3>${title.trim().replace(/\s*:$/, "")}</h3>`,
   );
+  return nestedHeadingsAsBold(titled);
 }
 
 /** Plain text as HTML text content: `&`, `<` and `>` escaped (quotes stay: not for attributes). */

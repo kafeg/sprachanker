@@ -17,6 +17,19 @@ const NAMED: Record<string, string> = {
   laquo: "«",
   raquo: "»",
   hellip: "…",
+  sbquo: "‚",
+  iquest: "¿",
+  iexcl: "¡",
+  bull: "•",
+  rarr: "→",
+  minus: "−",
+  deg: "°",
+  ordf: "ª",
+  ordm: "º",
+  acute: "´",
+  emsp: "\u2003",
+  thinsp: "\u2009",
+  zwnj: "\u200c",
   shy: "",
   euro: "€",
   auml: "ä",
@@ -29,6 +42,7 @@ const NAMED: Record<string, string> = {
   eacute: "é",
   egrave: "è",
   agrave: "à",
+  aacute: "á",
   ccedil: "ç",
 };
 
@@ -46,10 +60,17 @@ export function decodeEntities(text: string): string {
   });
 }
 
-/** Text without tags and entities, whitespace collapsed, NFC. */
+/** Comments of HTML, an editor's conditional markup in them too (Word's `<!--[if gte vml 1]>…`). */
+const COMMENT = /<!--[\s\S]*?-->/g;
+
+/** Text without tags, comments and entities, whitespace collapsed, NFC. */
 export function plainText(html: unknown): string {
   return (
-    decodeEntities(String(html ?? "").replace(/<[^>]+>/g, " "))
+    decodeEntities(
+      String(html ?? "")
+        .replace(COMMENT, " ")
+        .replace(/<[^>]+>/g, " "),
+    )
       .replace(/[\s ]+/g, " ")
       // Tags around words ("<span>bitte</span>.") leave a space before punctuation; adjacent tags
       // ("<span>Appetit</span><span>auf</span>") must still separate words, so tags become spaces first.
@@ -64,6 +85,7 @@ export function plainText(html: unknown): string {
 /** Text keeping line breaks of `<br>` and paragraphs (dialogues in cloze texts). */
 export function plainLines(html: unknown): string {
   return String(html ?? "")
+    .replace(COMMENT, "")
     .replace(/<br\s*\/?>|<\/p>/gi, "\n")
     .split("\n")
     .map((line) => plainText(line))

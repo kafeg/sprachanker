@@ -41,3 +41,24 @@ test("a paragraph of bold text only becomes a section title; bold inside a sente
     "<h3>Titel</h3>x",
   );
 });
+
+test("empty emphasis, paragraphs and captions go; titles inside tables are bold paragraphs", () => {
+  const none = { image: () => undefined };
+  expect(
+    sanitizeCourseHtml(
+      '<p><strong> </strong></p><p>oder<em> </em>und<strong>\u200c</strong></p><p><strong><em></em></strong><br></p><figure><figcaption><small class="copyright">DW</small></figcaption></figure>',
+      { ...none, drop: options.drop },
+    ),
+  ).toBe("<p>oder und<strong>\u200c</strong></p><figure></figure>");
+  expect(
+    sanitizeCourseHtml(
+      "<h3>Kasus</h3><table><tr><td><h3>Nominativ: -</h3></td></tr></table>",
+      none,
+    ),
+  ).toBe("<h3>Kasus</h3><table><tr><td><p><strong>Nominativ: -</strong></p></td></tr></table>");
+  expect(
+    boldLinesAsHeadings(
+      "<ul><li><p><strong>eins</strong></p></li></ul><p><strong>Zwei</strong></p>",
+    ),
+  ).toBe("<ul><li><p><strong>eins</strong></p></li></ul><h3>Zwei</h3>");
+});

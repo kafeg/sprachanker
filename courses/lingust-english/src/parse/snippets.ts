@@ -44,8 +44,10 @@ function exampleLines(el: El): Line[] | undefined {
 type Place = Array<{ els: El[]; i: number }>;
 
 /**
- * Text of a player: the next example block, else (a table read after it is shown) the previous, up to
- * the next heading or recording outside an example block. A player alone in its container (a column)
+ * Text of a player: the example block right before it — the source's "block, then its recording" —
+ * unless one follows at once or a player right before that block claims it; else the next example
+ * block, else (a table read after it is shown) the previous, up to the next heading or recording
+ * outside an example block. A player alone in its container (a column)
  * looks around that container. Players grouped in a container with no text of its own (the same word in
  * two accents) belong to what was shown before them, so above it they only look back. A recording
  * without its own lines (the whole alphabet) thus gets none rather than an example further down.
@@ -54,6 +56,19 @@ export function snippetLines(place: Place): Line[] {
   const holdsPlayer = (el: El) => isPlayer(el) || !!find(el, isPlayer);
   const stop = (el: El) => isPlayer(el) || isHeading(el) || (holdsPlayer(el) && !exampleLines(el));
   const blank = (el: El) => !holdsPlayer(el) && textOf(el) === "";
+  const { els: here, i: at } = place[place.length - 1] as Place[number];
+  const near = (from: number, step: 1 | -1) => {
+    let j = from + step;
+    while (here[j] && blank(here[j] as El)) j += step;
+    return here[j] ? j : -1;
+  };
+  const next = near(at, 1);
+  const prev = near(at, -1);
+  if (prev >= 0 && !(next >= 0 && exampleLines(here[next] as El))) {
+    const before = near(prev, -1);
+    const found = exampleLines(here[prev] as El);
+    if (found && !(before >= 0 && isPlayer(here[before] as El))) return found;
+  }
   let grouped = false;
   for (let level = place.length - 1; level >= 0; level--) {
     const { els, i } = place[level] as Place[number];

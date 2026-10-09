@@ -46,8 +46,10 @@ export function englishAnswers(line: string): string[] {
     .filter((answer) => latinLetters(answer) >= 2);
 }
 
-/** Pronunciation in slashes ("/gɪv/", "/ə'baʊt/"): IPA marks or an apostrophe for stress. */
-const IPA = /\s*\/[^\s/][^/]*?[ˈˌːəɪʊʌæɒɔɜθðŋʃʒʤʧɑɛ'][^/]*?\/(?=[\s,;.)]|$)/g;
+/** Pronunciation in slashes: with IPA marks or an apostrophe for stress ("/gɪv/", "/əm/", "/siː jʊ
+ *  'leɪtə/"), or one token in slashes standing apart ("10 /ten/ ten") — never "who/that" or "a / b". */
+const IPA =
+  /\s*(?:\/(?![\s/])[^/]*?[ˈˌːəɪʊʌæɒɔɜθðŋʃʒʤʧɑɛ'][^/]*?|(?<=^|\s)\/[^\s/]+)\/(?=[\s,;:.)]|$)/g;
 export const withoutIpa = (text: string) => text.replace(IPA, "").trim();
 export const ipaOf = (text: string) => text.match(IPA)?.[0]?.trim();
 
@@ -64,6 +66,10 @@ export function withoutRussianRemarks(text: string): string {
     .trim();
 }
 
+/** What sets a line's Russian part off its English: a dash, a bracket, "=", "≈" (how it sounds, in
+ *  Russian letters: "See you later. ≈ (си: ю лэ́йтэ) - Увидимся позже."). */
+const SET_OFF = /[\s–—\-(:;,=≈«"“]*$/;
+
 /**
  * The English example at the start of a line ("I do. – Я делаю.", "Always (всегда)", "Monday
  * Понедельник"): the text before the first Cyrillic letter, if it is the main part of the line or
@@ -76,21 +82,21 @@ export function englishLine(line: string): { en: string; ru?: string } | undefin
   const bare = withoutRussianRemarks(text);
   if (!hasCyrillic(bare) && latinLetters(bare) >= 2 && bare.length < text.length)
     return { en: withoutIpa(bare).replace(/[\s,;:]+$/, "") };
-  const cut = text.search(CYRILLIC);
+  // Transcriptions are of neither language ("/е/ men /men/" writes a sound with a Cyrillic letter):
+  // left out where the line is cut; the Russian part keeps its own ("/æm/ – под ударением").
+  const cut = text.replace(IPA, (t) => " ".repeat(t.length)).search(CYRILLIC);
   const head = cut < 0 ? text : text.slice(0, cut);
-  const en = withoutIpa(head)
-    .replace(/[\s–—\-(:;,=«"“]+$/, "")
+  const mark = head.match(SET_OFF)?.[0] ?? "";
+  const en = withoutIpa(head.slice(0, head.length - mark.length))
+    .replace(SET_OFF, "")
     .replace(/^[\s–—-]+/, "")
     .trim();
   if (latinLetters(en) < 2 || !/^[\s‘'"“(—–-]*[A-Za-z0-9]/.test(en)) return undefined;
   if (cut < 0) return { en };
-  const setOff = /[–—(=:]\s*$/.test(head) || /^\(/.test(text.slice(head.trimEnd().length).trim());
-  if (!setOff && head.length < text.length * 0.3) return undefined;
-  const ru = text
-    .slice(head.length)
-    .replace(/^[\s–—(=:-]+/, "")
-    .trim();
-  // "Always (всегда)": the closing bracket of the gloss, not one of the translation's own.
-  const unbalanced = (ru.match(/\)/g)?.length ?? 0) > (ru.match(/\(/g)?.length ?? 0);
-  return { en, ...(ru ? { ru: unbalanced ? ru.replace(/\)$/, "") : ru } : {}) };
+  if (!/[–—(=:≈]/.test(mark) && head.length < text.length * 0.3) return undefined;
+  // The bracket the Russian part opens with stays its own: "(бай) - Пока!", the sound before the
+  // translation; a part wholly in brackets is a gloss ("Always (всегда), …" → "всегда").
+  const rest = `${mark.includes("(") ? "(" : ""}${text.slice(head.length).trim()}`;
+  const ru = rest.match(/^\(([^()]*)\)$/)?.[1]?.trim() ?? rest;
+  return { en, ...(ru ? { ru } : {}) };
 }

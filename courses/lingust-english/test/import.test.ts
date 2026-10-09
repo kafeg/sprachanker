@@ -48,6 +48,7 @@ const LESSON = page(`
 <div class="row"><div class="col-6"><p class="tac"><strong>Monday</strong> Понедельник</p></div><div class="col-6"><p class="tac"><strong>Friday</strong> Пятница</p></div></div>
 <div class="cplayer cplayer--center" data-src="/media/sound/eng/course/lesson3/lesson3-s2.mp3"></div>
 <p class="eg3">Объяснение после таблицы.</p>
+<h3 class="tac bbgc-g padtb f-inh"><strong>Отрицательная форма</strong></h3>
 <div class="cplayer-lock cplayer-lock--center"></div>
 <p class="egml3">Why is it late? – Почему уже поздно?</p>
 <div class="audio-notice">🔒 Здесь должно быть аудио.</div>
@@ -169,6 +170,22 @@ test("lesson page: exercises with their keys, examples marked, closing phrase", 
 test.each([
   ["I do. – Я делаю.", { en: "I do.", ru: "Я делаю." }],
   ["Always (всегда)", { en: "Always" }],
+  ["Bye! (бай) - Пока!", { en: "Bye!", ru: "(бай) - Пока!" }],
+  // Transcriptions are not said: one starting with an IPA mark, one in plain letters.
+  ["am /əm/", { en: "am" }],
+  ["10 /ten/ ten", { en: "10 ten" }],
+  ["/е/ men /men/, leg /leg/", { en: "men, leg" }],
+  ["am /əm/ – обычное, /æm/ – под ударением.", { en: "am", ru: "обычное, /æm/ – под ударением." }],
+  ["‘misery’ /'mɪzərɪ/: бедственное положение", { en: "‘misery’", ru: "бедственное положение" }],
+  ["I’ll tell you after/when I get back.", { en: "I’ll tell you after/when I get back." }],
+  [
+    "See you later. ≈ (си: ю лэ́йтэ) - Увидимся позже.",
+    { en: "See you later.", ru: "(си: ю лэ́йтэ) - Увидимся позже." },
+  ],
+  [
+    "See ya! /siː ja/ ≈ (си: я) разговорная фраза",
+    { en: "See ya!", ru: "(си: я) разговорная фраза" },
+  ],
   ["c<strong>a</strong>t (кошка), d<strong>o</strong>g (собака)", { en: "cat, dog" }],
   ["Well нам уже известно, как междометие ‘ну’, и так далее", undefined],
   ["Новый глагол: speak", undefined],
@@ -328,6 +345,8 @@ test("normalisation: stages → units, exercises by mechanic, all files valid", 
   expect(grammar).not.toContain("Здесь должно быть аудио");
   expect(grammar).toContain("<table><tbody><tr><td>");
   expect(grammar).toContain("<small>перевод абзаца");
+  // A sub-heading of the source titles a part of the page (a card of its own).
+  expect(grammar).toContain("<h3><strong>Отрицательная форма</strong></h3>");
   expect(
     (locale.exercises as Record<string, LocaleExercise>)["lingust.english/english/01-01/ex-02"]
       ?.items["#2"],
@@ -370,6 +389,22 @@ test("a recording without its own lines gets none, not an example further down",
     ["abc.mp3", 0],
     ["car1.mp3", 0],
     ["car2.mp3", 0],
+  ]);
+});
+
+test("a block, then its recording: each recording reads the block right before it", () => {
+  const html = page(`
+<h2 class="tac">Множественное число</h2>
+<p class="egml3">a window – windows (окна)<br> a king – kings (короли)</p>
+<div class="cplayer cplayer--center" data-src="/media/sound/eng/course/lesson7/p1.mp3"></div>
+<p>После глухих согласных окончание -s читается как /s/:</p>
+<p class="egml3">cats /kæts/ – кошки<br> cups /kʌps/ – чашки</p>
+<div class="cplayer cplayer--center" data-src="/media/sound/eng/course/lesson7/p2.mp3"></div>
+`);
+  const snippets = parseLesson(html, BASE).sections.flatMap((s) => s.snippets);
+  expect(snippets.map((s) => [s.audio?.split("/").pop(), s.lines.map((l) => l.en)])).toEqual([
+    ["p1.mp3", ["a window – windows", "a king – kings"]],
+    ["p2.mp3", ["cats", "cups"]],
   ]);
 });
 

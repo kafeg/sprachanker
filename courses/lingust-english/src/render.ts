@@ -1,6 +1,6 @@
 // Explanation sections → locale page HTML: players and paid-audio notices removed, images dropped,
-// tooltips shown (short ones — transcriptions — in place, translations after their paragraph),
-// two-column rows (English | Russian) as table rows.
+// sub-headings as section titles (`<h3>`), tooltips shown (short ones — transcriptions — in place,
+// translations after their paragraph), two-column rows (English | Russian) as table rows.
 import { sanitizeCourseHtml } from "@sprachanker/course-kit";
 import { type El, hasClass, isEl, type Node } from "./dom.ts";
 
@@ -28,8 +28,8 @@ function node(n: Node, out: Out): string {
     out.pending.push(tip);
     return inner;
   }
-  if (/^h[3-6]$/.test(n.tag))
-    return /^\s*<strong>/.test(inner) ? `<p>${inner}</p>` : `<p><strong>${inner}</strong></p>`;
+  // The source's sub-headings title the parts of a section (02: `<h3>`, a card each).
+  if (/^h[3-6]$/.test(n.tag)) return `<h3>${inner}</h3>`;
   if (/\bcol-/.test(n.attrs.class ?? "")) return `<p>${inner}</p>`;
   return `<${n.tag}>${inner}</${n.tag}>`;
 }

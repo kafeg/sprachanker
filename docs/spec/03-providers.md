@@ -146,8 +146,11 @@ Free online course (© Lingust, no open licence), 52 lessons A1–B1+ with Russi
   serves MP3s only with a `Referer` of its lesson pages (hotlink protection); the importer sends it for
   `/media/` requests. `/images/` is disallowed by robots and not fetched; locked (paid) players are skipped.
 - **Normalise**: the index's stages are units (plus a bonus unit with the irregular-verbs table); lesson
-  text before «Словарь» → grammar pages; each section's example recordings with their lines →
-  `speech_selfrate`; the first full-width recording → `media.audio`; «Словарь» → vocab (IPA in `ipa`; a past form the irregular-verbs table lists has its verb as lemma: "came" is "come");
+  text before «Словарь» → grammar pages (split at `<h2>`, their sub-headings section titles); each
+  section's example recordings with their lines → `speech_selfrate` (a recording reads the example
+  block right before it — "a block, then its recording" — else the one after it; an example line is
+  English without its transcriptions in slashes, then its Russian part: the sound in Russian letters —
+  after "≈" or in brackets — and the translation, the item's hint); the first full-width recording → `media.audio`; «Словарь» → vocab (IPA in `ipa`; a past form the irregular-verbs table lists has its verb as lemma: "came" is "come");
   exercises with the tooltip answer keys → `gap_text` / `gap_choice` / `respond` (model answers as
   `reference`, `answerIn: "learner"` with locale model answers for translations into Russian; "no
   article" gaps accept ""; comma check boxes → `gap_choice`, several right options where the key allows);
