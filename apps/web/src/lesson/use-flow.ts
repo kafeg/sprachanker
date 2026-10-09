@@ -113,6 +113,16 @@ export function useLessonFlow({
     else if (run.mode === "none")
       void starting(() => run.start()).then((ok) => ok && record(target, true));
   };
+  // A lesson never started, opened on one of its steps (its address: a reload, a link): opening the
+  // step starts it as moving to it does, so what is answered there has a run to be stored in.
+  const openStarted = useRef(false);
+  useEffect(() => {
+    if (openStarted.current || run.mode !== "none" || !lesson) return;
+    const target = steps[ids.indexOf(current)];
+    if (!target || target.kind === "overview" || target.kind === "summary") return;
+    openStarted.current = true;
+    void starting(() => run.start()).then((ok) => ok && record(target, true));
+  });
   /** Records a step besides the exercises as done or skipped (in an active run). */
   const mark = (id: string, skipped = false) => {
     const step = steps[ids.indexOf(id)];

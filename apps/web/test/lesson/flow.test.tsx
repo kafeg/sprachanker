@@ -54,6 +54,22 @@ test("opening a step of a lesson never started starts it, then records the step"
   expect(result.current.current).toBe("exercise:1");
 });
 
+test("a lesson never started, opened on a step (a reload, a link), starts there; the overview starts nothing", async () => {
+  const { run, calls } = fakeRun("none");
+  const { result } = renderHook(() =>
+    useLessonFlow({ lesson, locale, practice: [], run: run as never, opened: "exercise:1" }),
+  );
+  await waitFor(() => expect(calls).toEqual(["start", "page 1"]));
+  expect(result.current.current).toBe("exercise:1");
+
+  const quiet = fakeRun("none");
+  renderHook(() =>
+    useLessonFlow({ lesson, locale, practice: [], run: quiet.run as never, opened: "overview" }),
+  );
+  await new Promise((r) => setTimeout(r, 20));
+  expect(quiet.calls).toEqual([]);
+});
+
 test("in an active run: a reading page is recorded once, a skip is a skip, Next goes on", () => {
   const { run, calls } = fakeRun("active");
   const { result } = flow(run);
