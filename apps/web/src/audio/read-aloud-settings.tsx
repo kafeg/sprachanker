@@ -3,7 +3,7 @@
 // there) and the text it reads (a phrase in that language, or the learner's own), Piper's voices to
 // download per language or Qwen3-TTS's models, the speed, and what is read at once.
 
-import type { SettingValue } from "@sprachanker/schema";
+import { ALL_LANGS, type SettingValue } from "@sprachanker/schema";
 import {
   Cpu,
   Download,
@@ -88,17 +88,17 @@ function useChoice(engine: Engine, lang: string) {
  *  language (another one on request) or the learner's own; left empty, the phrase. */
 function VoicePick({
   lang,
-  options,
-  value,
-  auto,
-  onChange,
+  pick,
   onListen,
 }: {
   lang: string;
-  options: Array<{ id: string; name: string }>;
-  value: string;
-  auto: string;
-  onChange(id: string): void;
+  /** The voices to choose from for this language (none: one voice reads every language). */
+  pick?: {
+    options: Array<{ id: string; name: string }>;
+    value: string;
+    auto: string;
+    onChange(id: string): void;
+  };
   onListen(text: string): void;
 }) {
   const { t, i18n } = useTranslation();
@@ -114,22 +114,26 @@ function VoicePick({
   };
   return (
     <>
-      <Select value={value} onValueChange={onChange}>
-        <SelectTrigger
-          className="min-w-56 flex-1"
-          aria-label={t("speech.settings.voiceFor", { language: name })}
-        >
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value={AUTO}>{t("speech.settings.voiceAuto", { name: auto })}</SelectItem>
-          {options.map((v) => (
-            <SelectItem key={v.id} value={v.id}>
-              {v.name}
+      {pick && (
+        <Select value={pick.value} onValueChange={pick.onChange}>
+          <SelectTrigger
+            className="min-w-56 flex-1"
+            aria-label={t("speech.settings.voiceFor", { language: name })}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={AUTO}>
+              {t("speech.settings.voiceAuto", { name: pick.auto })}
             </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            {pick.options.map((v) => (
+              <SelectItem key={v.id} value={v.id}>
+                {v.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
       <Button variant="outline" size="sm" onClick={() => onListen(text.trim() || phrase)}>
         <Volume2 className="size-4" /> {t("speech.settings.listen")}
       </Button>
@@ -175,10 +179,12 @@ function DeviceVoiceRow({ lang }: { lang: string }) {
       {mine.length ? (
         <VoicePick
           lang={lang}
-          value={value}
-          auto={bestVoice(mine.map(voiceInfo), lang)?.name ?? ""}
-          options={mine.map((v) => ({ id: v.voiceURI, name: v.name }))}
-          onChange={choose}
+          pick={{
+            value,
+            auto: bestVoice(mine.map(voiceInfo), lang)?.name ?? "",
+            options: mine.map((v) => ({ id: v.voiceURI, name: v.name })),
+            onChange: choose,
+          }}
           onListen={listen}
         />
       ) : (
@@ -232,10 +238,12 @@ function PiperLanguage({ lang, voices }: { lang: string; voices: PiperVoice[] })
         {installed.length ? (
           <VoicePick
             lang={lang}
-            value={value}
-            auto={installed[0] ? nameOf(installed[0]) : ""}
-            options={installed.map((v) => ({ id: v.id, name: nameOf(v) }))}
-            onChange={choose}
+            pick={{
+              value,
+              auto: installed[0] ? nameOf(installed[0]) : "",
+              options: installed.map((v) => ({ id: v.id, name: nameOf(v) })),
+              onChange: choose,
+            }}
             onListen={listen}
           />
         ) : (
@@ -333,7 +341,8 @@ function DownloadState({
 }
 
 /** Qwen3-TTS: its models to download, the one in use marked and another installed one to use instead
- *  (none chosen: the large one when it is there), and each language's speaker with "Listen". */
+ *  (none chosen: the large one when it is there), the one voice it reads every language with, and a
+ *  phrase of each language with "Listen". */
 function QwenSection({ state, langs }: { state: QwenState; langs: string[] }) {
   const { t } = useTranslation();
   const actions = useQwenModelActions();
@@ -384,6 +393,7 @@ function QwenSection({ state, langs }: { state: QwenState; langs: string[] }) {
       </ul>
       {ready && (
         <div>
+          <QwenVoice state={state} />
           {langs.map((lang) => (
             <QwenLanguage key={lang} lang={lang} state={state} />
           ))}
@@ -394,32 +404,60 @@ function QwenSection({ state, langs }: { state: QwenState; langs: string[] }) {
   );
 }
 
-/** One language with Qwen3-TTS: its speaker, and "Listen". */
+/** A Qwen3-TTS speaker's name as shown: "uncle_fu" → "Uncle fu". */
+const speakerName = (s: string) => s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+
+/** Qwen3-TTS's voice: one speaker for every language (each speaks them all, and a text mixing them is
+ *  read whole). */
+function QwenVoice({ state }: { state: QwenState }) {
+  const { t } = useTranslation();
+  const { own, choose } = useChoice("qwen", ALL_LANGS);
+  const value =
+    own[ALL_LANGS] && (state.speakers as readonly string[]).includes(own[ALL_LANGS])
+      ? own[ALL_LANGS]
+      : AUTO;
+  return (
+    <div className="space-y-1 py-2">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="w-28 text-sm font-medium">{t("speech.settings.qwenVoice")}</span>
+        <Select value={value} onValueChange={choose}>
+          <SelectTrigger className="min-w-56 flex-1" aria-label={t("speech.settings.qwenVoice")}>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={AUTO}>
+              {t("speech.settings.voiceAuto", { name: speakerName(state.defaultSpeaker) })}
+            </SelectItem>
+            {state.speakers.map((s) => (
+              <SelectItem key={s} value={s}>
+                {speakerName(s)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <p className="text-xs text-muted-foreground sm:pl-31">{t("speech.settings.qwenVoiceHint")}</p>
+    </div>
+  );
+}
+
+/** One language with Qwen3-TTS: a phrase and "Listen", in the voice chosen for all. */
 function QwenLanguage({ lang, state }: { lang: string; state: QwenState }) {
   const { t, i18n } = useTranslation();
-  const { own, choose } = useChoice("qwen", lang);
+  const own = useSetting("speech.voices")?.qwen ?? {};
   const name = languageName(lang, i18n.language, true);
   const speaks = state.languages.includes(lang);
-  const value =
-    own[lang] && (state.speakers as readonly string[]).includes(own[lang]) ? own[lang] : AUTO;
-  const speakerName = (s: string) => s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
+  const chosen = own[ALL_LANGS];
+  const voice =
+    chosen && (state.speakers as readonly string[]).includes(chosen) ? chosen : undefined;
   const listen = (text: string) => {
-    void read(`listen:${lang}`, [{ text, lang }], {
-      wayFor: () => ({ server: { voice: value === AUTO ? undefined : value } }),
-    });
+    void read(`listen:${lang}`, [{ text, lang }], { wayFor: () => ({ server: { voice } }) });
   };
   return (
     <div className="flex flex-wrap items-center gap-3 border-t py-2 first:border-t-0">
       <span className="w-28 text-sm font-medium">{name}</span>
       {speaks ? (
-        <VoicePick
-          lang={lang}
-          value={value}
-          auto={speakerName(state.speakerOf[lang] ?? "")}
-          options={state.speakers.map((s) => ({ id: s, name: speakerName(s) }))}
-          onChange={choose}
-          onListen={listen}
-        />
+        <VoicePick lang={lang} onListen={listen} />
       ) : (
         <span className="text-sm text-muted-foreground">
           {t("speech.settings.qwenNoLanguage", { language: name })}

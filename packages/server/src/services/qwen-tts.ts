@@ -34,9 +34,8 @@ export const QWEN_SPEAKERS = [
   "ono_anna",
   "sohee",
 ] as const;
-/** A language's speaker unless the learner picks one: a native speaker where there is one. */
-const SPEAKER_OF: Record<string, string> = { zh: "vivian", ja: "ono_anna", ko: "sohee" };
-const defaultSpeaker = (lang: string) => SPEAKER_OF[lang] ?? "ryan";
+/** The speaker unless the learner picks one: one voice for every language, as a chosen one is. */
+export const DEFAULT_SPEAKER = "ryan";
 
 const CODEC: ModelFile = {
   id: "codec",
@@ -159,10 +158,8 @@ export function createQwenTts(deps: {
         }),
         languages: Object.keys(QWEN_LANGUAGES),
         speakers: [...QWEN_SPEAKERS],
-        /** Each language's speaker unless the learner picks one. */
-        speakerOf: Object.fromEntries(
-          Object.keys(QWEN_LANGUAGES).map((l) => [l, defaultSpeaker(l)]),
-        ),
+        /** The speaker unless the learner picks one. */
+        defaultSpeaker: DEFAULT_SPEAKER,
       };
     },
 
@@ -238,14 +235,15 @@ export function createQwenTts(deps: {
     /** Whether a language can be read with Qwen3-TTS here. */
     canRead: (lang: string) => ready() && lang in QWEN_LANGUAGES,
 
-    /** A WAV of a text in a language, said with the profile's model by its speaker for it (else the
-     *  language's). */
-    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown) {
+    /** A WAV of a text in a language, said with the profile's model by its speaker (else the default
+     *  one). `mixed`: the text mixes languages, read whole with the model telling them apart
+     *  ("auto"), never cut into each language's pieces. */
+    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown, mixed = false) {
       const model = inUse(modelChoice);
-      const language = QWEN_LANGUAGES[lang];
-      if (!host?.qwenBinary() || !model || !language)
+      if (!host?.qwenBinary() || !model || !QWEN_LANGUAGES[lang])
         throw new ServiceError("speech_unavailable", 409);
-      const speaker = QWEN_SPEAKERS.find((s) => s === choice) ?? defaultSpeaker(lang);
+      const language = mixed ? "auto" : (QWEN_LANGUAGES[lang] as string);
+      const speaker = QWEN_SPEAKERS.find((s) => s === choice) ?? DEFAULT_SPEAKER;
       const make = () =>
         engine.use(model.id, async (url) => {
           const res = await deps

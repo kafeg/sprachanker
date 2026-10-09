@@ -1026,7 +1026,9 @@
         "large": "Großes Modell (1.7B): natürlicher, langsamer"
       },
       "qwenHint": "Eine neuronale Stimme für 10 Sprachen (Deutsch, Englisch, Russisch, Französisch, Spanisch, Italienisch, Portugiesisch, Chinesisch, Japanisch, Koreanisch) mit neun Sprechern. Solange sie läuft, belegt sie etwa 3 GB Speicher (das große Modell mehr) und stoppt nach 10 Minuten ohne Vorlesen; das erste Vorlesen danach wartet etwa 20 s, bis sie geladen ist. Sprachen, die sie nicht spricht, lesen die Stimmen des Geräts.",
-      "qwenNoLanguage": "Qwen3-TTS spricht kein {language}: die Stimmen des Geräts lesen es."
+      "qwenNoLanguage": "Qwen3-TTS spricht kein {language}: die Stimmen des Geräts lesen es.",
+      "qwenVoice": "Stimme",
+      "qwenVoiceHint": "Eine Stimme liest jede Sprache; ein Text aus mehreren Sprachen wird am Stück gelesen, ohne Stimmwechsel mitten im Satz."
     },
     "listening": "Wird erkannt …",
     "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",

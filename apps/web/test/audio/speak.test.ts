@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { bestVoice, speakable, splitByScript } from "../../src/audio/speak.ts";
+import { asOneText, bestVoice, speakable, splitByScript } from "../../src/audio/speak.ts";
 
 test("a model's Markdown said without its markup", () => {
   expect(
@@ -22,6 +22,26 @@ test("a reply mixing Russian and German: each run in its own language, punctuati
     { text: "Say: Ich heiße Anna.", lang: "en" },
   ]);
   expect(splitByScript("  ", ["ru", "de"], "ru")).toEqual([]);
+  // A word or two of the other language stay with the text around them: no voice change per word.
+  expect(
+    splitByScript("Слово Hund значит «собака», а Katze — «кошка».", ["ru", "de"], "ru"),
+  ).toEqual([{ text: "Слово Hund значит «собака», а Katze — «кошка».", lang: "ru" }]);
+});
+
+test("one voice for every language: a mixed text as one, in the language most of it is in", () => {
+  expect(
+    asOneText([
+      { text: "Скажи:", lang: "ru" },
+      { text: "Ich heiße Anna.", lang: "de" },
+      { text: "Это значит «меня зовут Анна».", lang: "ru" },
+    ]),
+  ).toEqual([
+    {
+      text: "Скажи: Ich heiße Anna. Это значит «меня зовут Анна».",
+      lang: "ru",
+      langs: ["ru", "de"],
+    },
+  ]);
 });
 
 test("the best voice of a language: high quality in its main region first, never a novelty voice", () => {

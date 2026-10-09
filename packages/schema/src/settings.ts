@@ -21,6 +21,10 @@ const filter = z.string().min(1).max(200);
 /** A learning step as Anki writes it: minutes, hours or days. */
 const step = z.string().regex(/^[1-9]\d{0,3}[mhd]$/);
 
+/** In `speech.voices`, the voice an engine reads every language with (Qwen3-TTS: each of its speakers
+ *  speaks them all, so one is chosen for all). */
+export const ALL_LANGS = "*";
+
 /** Preferences the learner sets (the settings route). */
 export const LEARNER_SETTINGS = {
   uiLanguage: Lang,

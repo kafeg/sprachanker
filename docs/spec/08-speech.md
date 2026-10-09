@@ -73,9 +73,12 @@ writes (owner, 2026-10-08).
   scene's partner lines and of a word's AI example; in a card's corner for a word without a
   recording (replayed with R and autoplayed like a recording). A second tap stops; one text is read at
   a time, and a recording or video starting stops it (and it stops them, `ui/playback.tsx`).
-- **What is said** (`audio/speak.ts`): a model's Markdown without its markup; a tutor reply in parts,
-  each in its language's voice — the learner's language and the one learnt told apart by script
-  (Cyrillic, Latin, …: `Intl.Locale`), one voice when both share a script.
+- **What is said** (`audio/speak.ts`): a model's Markdown without its markup; a tutor reply mixing the
+  learner's language and the one learnt (told apart by script — Cyrillic, Latin, …: `Intl.Locale`; one
+  voice when both share a script) is read whole by Qwen3-TTS, one voice, the model telling the
+  languages apart (`language: "auto"`); with a voice per language (the device's, Piper's) in parts —
+  never word by word: a run of fewer than three words of the other language stays with the text
+  around it (owner, 2026-10-10).
 - **Engines** (the profile's `speech.readEngine`; owner, 2026-10-08/09): the device's voices (Web
   Speech API, the default), **Qwen3-TTS on this computer** (below), or **Piper on this computer** — Piper voices run by sherpa-onnx's
   `sherpa-onnx-offline-tts` (Apache-2.0; pinned in `native/piper/VERSION`, built static by `bun run
@@ -102,8 +105,8 @@ writes (owner, 2026-10-08).
   talker (0.6B or 1.7B: the profile's `speech.qwenModel`, else the 1.7B when it is there) and the codec they share, GGUF from Hugging Face at a
   fixed commit, sha256 checked — downloaded from Settings into `<data-root>/models`. Ten languages
   (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean), nine
-  named speakers (each speaks every language; a native one by default for Chinese, Japanese and
-  Korean, else Ryan), seeded so a text always sounds the same; its readings kept with Piper's. On an
+  named speakers (each speaks every language: the profile picks one for all — `speech.voices.qwen["*"]`
+  —, else Ryan; owner, 2026-10-10), seeded so a text always sounds the same; its readings kept with Piper's. On an
   M2 Pro with the small model: about 3 GB of memory while it runs, a cold start of 5–20 s, then
   twice as fast as it speaks (2.5 s for 5.4 s of German). Warmed when a page that may read opens;
   stopped after 10 idle minutes. Not now: speed (it has no control for it), spoken answers on review

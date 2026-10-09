@@ -3,7 +3,7 @@
 // 16 kHz mono WAV in a language given; reading aloud — Piper's voices and Qwen3-TTS's models
 // (download, remove; Qwen warmed ahead) and a text said as a WAV with the profile's engine, voice and
 // speed.
-import { Lang } from "@sprachanker/schema";
+import { ALL_LANGS, Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
@@ -65,19 +65,25 @@ export function speechRoutes() {
         z.object({
           text: z.string().trim().min(1).max(SAY_MAX),
           lang: Lang,
+          /** The languages a text mixes (a tutor's reply quoting German): read whole, the engine
+           *  telling them apart where it can (Qwen3-TTS). */
+          langs: z.array(Lang).max(4).optional(),
           /** A voice to hear instead of the profile's (Settings: "Listen"). */
           voice: z.string().min(1).max(100).optional(),
         }),
       ),
       async (c) => {
-        const { text, lang, voice } = c.req.valid("json");
+        const { text, lang, langs, voice } = c.req.valid("json");
         const { settings, readAloud, qwenTts } = c.var.s;
         // The server reads with Qwen3-TTS when the profile chose it, else with Piper.
         const engine = settings.value("speech.readEngine") === "qwen" ? "qwen" : "piper";
-        const chosen = voice ?? settings.value("speech.voices")?.[engine]?.[lang];
+        const own = settings.value("speech.voices")?.[engine];
+        // Qwen3-TTS reads every language with one voice (its speakers speak them all).
+        const chosen = voice ?? own?.[engine === "qwen" ? ALL_LANGS : lang];
+        const mixed = new Set([lang, ...(langs ?? [])]).size > 1;
         const wav =
           engine === "qwen"
-            ? await qwenTts.say(text, lang, chosen, settings.get("speech.qwenModel"))
+            ? await qwenTts.say(text, lang, chosen, settings.get("speech.qwenModel"), mixed)
             : await readAloud.say(text, lang, chosen, settings.value("speech.readRate"));
         return c.body(wav, 200, { "content-type": "audio/wav", "cache-control": "no-store" });
       },

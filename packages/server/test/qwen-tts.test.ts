@@ -71,7 +71,7 @@ test("Qwen3-TTS: a model downloaded with its codec; a text said in its language 
   });
 
   await send("PUT", "/api/settings", { key: "speech.readEngine", value: "qwen" });
-  await send("PUT", "/api/settings", { key: "speech.voices", value: { qwen: { de: "serena" } } });
+  await send("PUT", "/api/settings", { key: "speech.voices", value: { qwen: { "*": "serena" } } });
   const wav = await send("POST", "/api/speech/say", { text: "Guten Tag!", lang: "de" });
   expect(wav.status).toBe(200);
   expect(await wav.text()).toBe("Guten Tag!");
@@ -81,9 +81,17 @@ test("Qwen3-TTS: a model downloaded with its codec; a text said in its language 
     language: "German",
     response_format: "wav",
   });
-  // Another language with no speaker chosen: the default one.
+  // One voice reads every language.
   await send("POST", "/api/speech/say", { text: "Hello", lang: "en" });
-  expect(q.asked[1]).toMatchObject({ voice: "ryan", language: "English" });
+  expect(q.asked[1]).toMatchObject({ voice: "serena", language: "English" });
+  // A text mixing languages is read whole, the model telling them apart.
+  const mixed = "Скажи: Ich heiße Anna. Это значит «меня зовут Анна».";
+  await send("POST", "/api/speech/say", { text: mixed, lang: "ru", langs: ["ru", "de"] });
+  expect(q.asked[2]).toMatchObject({ input: mixed, voice: "serena", language: "auto" });
+  // None chosen: one default voice for all.
+  await send("PUT", "/api/settings", { key: "speech.voices", value: {} });
+  await send("POST", "/api/speech/say", { text: "Hallo", lang: "de" });
+  expect(q.asked[3]).toMatchObject({ voice: "ryan", language: "German" });
   expect(q.spawned()).toBe(1);
 
   // A language Qwen3-TTS does not speak.

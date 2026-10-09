@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { sayOnServer, usePiperVoices, useQwenTts, useSetting, warmQwen } from "@/api/hooks.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
-import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
+import { asOneText, bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
 
 const synth = () => (typeof speechSynthesis === "undefined" ? undefined : speechSynthesis);
 
@@ -82,9 +82,9 @@ function play(wav: Blob, stopped: Promise<void>) {
  *  cannot say is said by the device's voice. */
 export async function read(id: string, parts: SpokenPart[], options: ReadOptions): Promise<void> {
   stop();
-  const queue = parts.flatMap(({ text, lang }) => {
+  const queue = parts.flatMap(({ text, lang, langs }) => {
     const way = options.wayFor(lang);
-    return way ? pieces(text).map((piece) => ({ text: piece, lang, way })) : [];
+    return way ? pieces(text).map((piece) => ({ text: piece, lang, langs, way })) : [];
   });
   if (!queue.length) return;
   const controller = new AbortController();
@@ -109,9 +109,11 @@ export async function read(id: string, parts: SpokenPart[], options: ReadOptions
     if (!piece || !("server" in piece.way) || fetched.has(i)) return;
     fetched.set(
       i,
-      sayOnServer(piece.text, piece.lang, { ...piece.way.server, signal: controller.signal }).catch(
-        () => undefined,
-      ),
+      sayOnServer(piece.text, piece.lang, {
+        ...piece.way.server,
+        ...(piece.langs && { langs: piece.langs }),
+        signal: controller.signal,
+      }).catch(() => undefined),
     );
   };
   try {
@@ -209,7 +211,12 @@ export function useSpeaker() {
       : undefined;
     return serverLangs.has(lang) ? { server: {}, fallback: device } : device;
   };
-  const say = (id: string, parts: SpokenPart[]) => read(id, parts, { wayFor });
+  // Qwen3-TTS reads a text mixing languages whole, with one voice: never word by word.
+  const whole = (parts: SpokenPart[]) =>
+    engine === "qwen" && parts.length > 1 && parts.every((p) => serverLangs.has(p.lang))
+      ? asOneText(parts)
+      : parts;
+  const say = (id: string, parts: SpokenPart[]) => read(id, whole(parts), { wayFor });
   return {
     /** Something here reads aloud at all. */
     available: (!!synth() && voices.length > 0) || serverLangs.size > 0,

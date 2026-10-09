@@ -167,7 +167,7 @@ test("Settings: the profile's languages with their voice (automatic: the best on
   expect(said.at(-1)?.text).toBe(samplesOf("de")[1] as string);
 });
 
-const NO_QWEN = { engine: false, models: [], languages: [], speakers: [], speakerOf: {} };
+const NO_QWEN = { engine: false, models: [], languages: [], speakers: [], defaultSpeaker: "ryan" };
 
 const PIPER = {
   engine: true,
@@ -332,7 +332,7 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
           ],
           languages: ["de", "en", "ru"],
           speakers: ["ryan", "serena"],
-          speakerOf: { de: "ryan", en: "ryan", ru: "ryan" },
+          defaultSpeaker: "ryan",
         },
       ],
     ],
@@ -343,9 +343,9 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
   expect(row(/Large model/).textContent).toContain("In use");
   expect(row(/Small model/).textContent).not.toContain("In use");
   expect(within(row(/Small model/)).getByRole("button", { name: "Use" })).toBeTruthy();
-  expect(view.getByRole("combobox", { name: "Voice for German" }).textContent).toBe(
-    "Automatic — Ryan",
-  );
+  // One voice for every language: no voice per language.
+  expect(view.getByRole("combobox", { name: "Voice" }).textContent).toBe("Automatic — Ryan");
+  expect(view.queryByRole("combobox", { name: "Voice for German" })).toBeNull();
   expect(view.getByText(/Qwen3-TTS does not speak Arabic/)).toBeTruthy();
   // It has no speed of its own: no speed slider with it.
   expect(view.queryByText(/^Speed:/)).toBeNull();
