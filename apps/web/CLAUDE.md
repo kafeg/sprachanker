@@ -72,8 +72,8 @@ apps/web/src/
                    # renderers
                    # call no API; use-speech-host makes it), speech-settings (Settings → Speech),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
-                   # Piper on the server or the device's voices, one text at a time, read at once),
-                   # speak-button, read-aloud-settings (engines, voices, Piper's downloads)
+                   # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
+                   # read at once), speak-button, read-aloud-settings (engines, voices, downloads)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

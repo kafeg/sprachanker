@@ -980,7 +980,11 @@
         "deviceNone": "Dieser Browser hat keine Stimmen zum Vorlesen.",
         "piper": "Piper auf diesem Computer",
         "piperMissing": "Hier nicht gebaut: bun run build:speech",
-        "piperLine": "{count, plural, =0 {noch keine Stimmen: unten eine laden} one {# Stimme geladen} other {# Stimmen geladen}}"
+        "piperLine": "{count, plural, =0 {noch keine Stimmen: unten eine laden} one {# Stimme geladen} other {# Stimmen geladen}}",
+        "qwen": "Qwen3-TTS auf diesem Computer",
+        "qwenMissing": "Hier nicht gebaut: bun run build:speech",
+        "qwenReady": "Bereit: ein Modell geladen",
+        "qwenNoModel": "Noch kein Modell: unten eins laden"
       },
       "voiceFor": "Stimme für {language}",
       "voiceAuto": "Automatisch — {name}",
@@ -1004,7 +1008,13 @@
         "low": "niedrige Qualität",
         "medium": "mittlere Qualität",
         "high": "hohe Qualität"
-      }
+      },
+      "qwenModel": {
+        "small": "Kleines Modell (0.6B): schneller",
+        "large": "Großes Modell (1.7B): natürlicher, langsamer"
+      },
+      "qwenHint": "Eine neuronale Stimme für 10 Sprachen (Deutsch, Englisch, Russisch, Französisch, Spanisch, Italienisch, Portugiesisch, Chinesisch, Japanisch, Koreanisch) mit neun Sprechern. Solange sie läuft, belegt sie etwa 3 GB Speicher (das große Modell mehr) und stoppt nach 10 Minuten ohne Vorlesen; das erste Vorlesen danach wartet etwa 20 s, bis sie geladen ist. Sprachen, die sie nicht spricht, lesen die Stimmen des Geräts.",
+      "qwenNoLanguage": "Qwen3-TTS spricht kein {language}: die Stimmen des Geräts lesen es."
     },
     "listening": "Wird erkannt …",
     "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",

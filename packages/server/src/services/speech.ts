@@ -6,12 +6,14 @@ import { ServiceError } from "../errors.ts";
 import type { Settings } from "./settings.ts";
 import { createSidecar } from "./sidecar.ts";
 
-export interface WhisperModel {
+/** A model file downloaded into <data-root>/models and checked against its sha256. */
+export interface ModelFile {
   id: string;
   file: string;
   bytes: number;
   sha256: string;
 }
+export type WhisperModel = ModelFile;
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
  *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */
@@ -44,13 +46,22 @@ export interface SpeechHost {
     model: string,
     port: number,
   ): { exited: Promise<number>; kill(): void };
+  /** qwentts.cpp's `tts-server` (reading aloud with Qwen3-TTS), if it was built (native/). */
+  qwenBinary(): string | undefined;
+  /** Starts Qwen3-TTS on that port with its talker and codec model files. */
+  spawnQwen(
+    binary: string,
+    talker: string,
+    codec: string,
+    port: number,
+  ): { exited: Promise<number>; kill(): void };
   models: {
     /** The model file's path, if it is there whole. */
     path(file: string, bytes: number): string | undefined;
     /** Downloads a model (to a part file, checked, then renamed); `onProgress` gets the bytes so far. */
     download(
       url: string,
-      model: WhisperModel,
+      model: ModelFile,
       onProgress: (bytes: number) => void,
       signal: AbortSignal,
     ): Promise<void>;

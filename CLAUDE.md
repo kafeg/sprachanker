@@ -23,7 +23,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell (planned): window, tray, starts the server binary, updates. | 06 | `apps/desktop/CLAUDE.md` |
 | `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | 03, 06 | `apps/cli/CLAUDE.md` |
-| `native` | Builds of whisper.cpp (`whisper-server`) and sherpa-onnx (`sherpa-onnx-offline-tts`, Piper voices). | 08 | `native/CLAUDE.md` |
+| `native` | Builds of whisper.cpp (`whisper-server`), sherpa-onnx (`sherpa-onnx-offline-tts`, Piper voices) and qwentts.cpp (`tts-server`, Qwen3-TTS). | 08 | `native/CLAUDE.md` |
 | `e2e` | Playwright end-to-end tests against the compiled binary. | 10 | — |
 | `scripts` | Repository checks run by `bun test`: boundary rules test, CLAUDE.md paths. | 10 | — |
 | `docs` | `spec/` — specification; `plan.md` — remaining work; `architecture.md` — overview; `research/` — facts gathered about sources. | — | — |
@@ -95,7 +95,7 @@ alternatives without updating that table.
 - `bun run dev` — server on 127.0.0.1:4580 + Vite (proxies `/api`); open the URL Vite prints
 - `bun run build:cli` — web build + binary (`dist/sprachanker` in `apps/cli`) · `bun run e2e` (builds it
   first; Chromium desktop + WebKit phone, ≈1.5 min) · `bun run e2e:all` (all four, as CI)
-- `bun run build:speech` — builds whisper-server and sherpa-onnx-offline-tts (Piper) for this machine (native/, needs cmake); build:cli then
+- `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS) for this machine (native/, needs cmake); build:cli then
   puts it beside the binary
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
 - `bun run cli -- import dw-nicos-weg --data ~/SprachAnker` · `bun run cli -- serve --data ~/SprachAnker`

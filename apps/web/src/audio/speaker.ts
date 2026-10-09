@@ -4,7 +4,7 @@
 // What starts playing (a recording, a video) stops it, and it stops what plays; which text is being
 // read is shared by every speaker button, so one shows "stop" while the others show "listen".
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { sayOnServer, usePiperVoices, useSetting } from "@/api/hooks.ts";
+import { sayOnServer, usePiperVoices, useQwenTts, useSetting, warmQwen } from "@/api/hooks.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
 
@@ -27,6 +27,10 @@ export interface ReadOptions {
 
 /** What is being read, for the buttons; and the run reading it — a new run, even of the same text,
  *  is another one, so a stopped run never goes on. */
+/** Qwen3-TTS is warmed again only after this long (it stays loaded for ten minutes). */
+const WARM_AGAIN_MS = 5 * 60_000;
+let qwenWarmedAt = 0;
+
 let reading: string | undefined;
 let run: { cancel(): void } | undefined;
 const listeners = new Set<() => void>();
@@ -175,6 +179,14 @@ export function useSpeaker() {
   const chosen = useSetting("speech.voices");
   const rate = useSetting("speech.readRate");
   const piper = usePiperVoices(engine === "piper").data;
+  const qwen = useQwenTts(engine === "qwen").data;
+  // Qwen3-TTS takes seconds to load: started as soon as something here may read with it.
+  useEffect(() => {
+    if (engine === "qwen" && Date.now() - qwenWarmedAt > WARM_AGAIN_MS) {
+      qwenWarmedAt = Date.now();
+      void warmQwen();
+    }
+  }, [engine]);
   const current = useSyncExternalStore(
     (l) => {
       listeners.add(l);
@@ -182,22 +194,25 @@ export function useSpeaker() {
     },
     () => reading,
   );
-  /** Languages Piper reads here: its engine built and a voice of the language downloaded. */
-  const piperLangs = new Set(
+  /** Languages the server reads here: Piper's with a voice downloaded, or Qwen3-TTS's while a model of
+   *  it is there. */
+  const serverLangs = new Set(
     engine === "piper" && piper?.engine
       ? piper.voices.filter((v) => v.installed).map((v) => v.lang)
-      : [],
+      : engine === "qwen" && qwen?.engine && qwen.models.some((m) => m.installed)
+        ? qwen.languages
+        : [],
   );
   const wayFor = (lang: string): Way | undefined => {
     const device = voices.some((v) => speaks(voiceInfo(v), lang))
       ? { device: deviceVoice(voices, chosen?.device, lang), rate }
       : undefined;
-    return piperLangs.has(lang) ? { server: {}, fallback: device } : device;
+    return serverLangs.has(lang) ? { server: {}, fallback: device } : device;
   };
   const say = (id: string, parts: SpokenPart[]) => read(id, parts, { wayFor });
   return {
     /** Something here reads aloud at all. */
-    available: (!!synth() && voices.length > 0) || piperLangs.size > 0,
+    available: (!!synth() && voices.length > 0) || serverLangs.size > 0,
     /** Whether a language can be read (by Piper or a device voice). */
     canRead: (lang: string) => !!wayFor(lang),
     reading: current,

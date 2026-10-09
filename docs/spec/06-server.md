@@ -43,7 +43,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `POST /api/speech/transcribe?lang=` (a 16 kHz WAV as the body); reading aloud: `GET
   /api/speech/voices` (Piper's engine and voices with downloads), `POST` / `DELETE
   /api/speech/voices/:id`, `POST /api/speech/say` (`{text, lang, voice?}` → a WAV with the profile's
-  voice and speed; `voice` to hear another installed one).
+  voice and speed; `voice` to hear another installed one); `GET /api/speech/qwen` (Qwen3-TTS's engine,
+  models with downloads, languages, speakers and each language's default), `POST` / `DELETE
+  /api/speech/qwen/models/:id`, `POST /api/speech/qwen/warm`.
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
   body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
 - Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
@@ -128,15 +130,16 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   ready when its health check answers, stopped after a while without requests, started again after
   it exits; a request for another setup waits for those in flight before the process is replaced.
   The runtime stops the engines with the server (exit and stop signals) and keeps their pids in
-  `<data-root>/models/whisper-server.pid`, so one left by a server killed outright is stopped when the
+  `<data-root>/models/engines.pid`, so one left by a server killed outright is stopped when the
   next one starts. An engine stopped while it starts is not left running; an engine that fails a
   request with its own failure is replaced on the next one.
 - One server per data root: `serve` writes `<data-root>/server.pid` and refuses to start while the
   server named there is alive; `profiles delete` refuses while one is.
 - `whisper-server` (whisper.cpp, built in `native/`, 08) on that supervisor; models in
   `<data-root>/models`, downloaded and checked from Settings.
-- Piper (reading aloud, 08) is no sidecar: `sherpa-onnx-offline-tts` runs once per text (a time
-  limit of 60 s), its WAV kept. Planned (plan, "Speech: synthesis"): Qwen3-TTS, on the supervisor.
+- Qwen3-TTS (`tts-server`, 08) on the same supervisor (health `/health`, start 180 s, idle stop 10
+  min). Piper is no sidecar: `sherpa-onnx-offline-tts` runs once per text (a time limit of 60 s), its
+  WAV kept. The engines' pids are kept in `<data-root>/models/engines.pid`.
 - No LLM runtime of its own: local models run in LM Studio (07); the server only starts LM Studio's
   server (`lms server start`) on request when LM Studio is installed on the same machine.
 - One that does not answer its health check within two minutes fails that request

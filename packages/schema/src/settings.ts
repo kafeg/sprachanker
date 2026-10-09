@@ -66,7 +66,7 @@ export const LEARNER_SETTINGS = {
   /** Reading aloud (08): the engine (the device's voices, or Piper on the server), the voice chosen per
    *  engine and language (none: the best one there), the speed, and what is read at once — nothing,
    *  scene lines, or scene lines and the tutor's replies. */
-  "speech.readEngine": z.enum(["device", "piper"]),
+  "speech.readEngine": z.enum(["device", "piper", "qwen"]),
   "speech.voices": z.record(z.string().max(40), z.record(z.string().max(40), z.string().max(400))),
   "speech.readRate": z.number().min(0.5).max(1.5),
   "speech.readAtOnce": z.enum(["none", "scenes", "all"]),

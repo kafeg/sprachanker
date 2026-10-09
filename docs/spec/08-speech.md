@@ -76,7 +76,7 @@ writes (owner, 2026-10-08).
   each in its language's voice — the learner's language and the one learnt told apart by script
   (Cyrillic, Latin, …: `Intl.Locale`), one voice when both share a script.
 - **Engines** (the profile's `speech.readEngine`; owner, 2026-10-08/09): the device's voices (Web
-  Speech API, the default), or **Piper on this computer** — Piper voices run by sherpa-onnx's
+  Speech API, the default), **Qwen3-TTS on this computer** (below), or **Piper on this computer** — Piper voices run by sherpa-onnx's
   `sherpa-onnx-offline-tts` (Apache-2.0; pinned in `native/piper/VERSION`, built static by `bun run
   build:speech`, beside the binary like whisper-server). A part whose language has no Piper voice
   here, or that Piper fails to say, is read by the device's voices. Piper is run once per text (no sidecar; a text
@@ -94,5 +94,15 @@ writes (owner, 2026-10-08).
   (engine → language → voice), `speech.readRate` (0.5–1.5; Piper's length scale is its inverse),
   `speech.readAtOnce` (none / scenes / all: a line that arrives while the page is open is read at
   once, never what was there on opening).
-- Planned (plan, "Speech: synthesis"): Qwen3-TTS on this computer as a third engine. Not now: spoken
-  answers on review cards.
+- **Qwen3-TTS** (owner, 2026-10-09: run by us like whisper): qwentts.cpp's `tts-server` (MIT; pinned by
+  commit in `native/qwen/VERSION`, built static with Metal by `bun run build:speech`, beside the
+  binary), an OpenAI-compatible server run by the sidecar supervisor (06) with a model — a CustomVoice
+  talker (0.6B, or 1.7B used when both are there) and the codec they share, GGUF from Hugging Face at a
+  fixed commit, sha256 checked — downloaded from Settings into `<data-root>/models`. Ten languages
+  (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean), nine
+  named speakers (each speaks every language; a native one by default for Chinese, Japanese and
+  Korean, else Ryan), seeded so a text always sounds the same; its readings kept with Piper's. On an
+  M2 Pro with the small model: about 3 GB of memory while it runs, a cold start of 5–20 s, then
+  twice as fast as it speaks (2.5 s for 5.4 s of German). Warmed when a page that may read opens;
+  stopped after 10 idle minutes. Not now: speed (it has no control for it), spoken answers on review
+  cards.

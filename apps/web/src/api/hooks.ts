@@ -411,7 +411,38 @@ export function usePiperVoiceActions() {
   };
 }
 
-/** A text said by the server's Piper voice for its language, as a WAV (the profile's voice and speed). */
+/** Qwen3-TTS on the server: the engine (built or not), its models (a download's progress polled while it
+ *  runs), the languages it speaks and its speakers. */
+export const useQwenTts = (enabled = true) =>
+  useQuery({
+    queryKey: ["qwen-tts"],
+    queryFn: () => json(api.speech.qwen.$get()),
+    enabled,
+    refetchInterval: (q) => (q.state.data?.models.some((m) => "downloaded" in m) ? 1000 : false),
+  });
+
+export function useQwenModelActions() {
+  const client = useQueryClient();
+  const done = () => client.invalidateQueries({ queryKey: ["qwen-tts"] });
+  return {
+    download: useMutation({
+      mutationFn: (id: string) => json(api.speech.qwen.models[":id"].$post({ param: { id } })),
+      onSuccess: done,
+    }),
+    remove: useMutation({
+      mutationFn: (id: string) => json(api.speech.qwen.models[":id"].$delete({ param: { id } })),
+      onSuccess: done,
+    }),
+  };
+}
+
+/** Starts Qwen3-TTS ahead of reading (loading its model takes seconds). */
+export const warmQwen = () =>
+  fetch("/api/speech/qwen/warm", { method: "POST", headers: { ...CLIENT_HEADERS } }).catch(
+    () => {},
+  );
+
+/** A text said by the server's voice for its language, as a WAV (the profile's voice and speed). */
 export async function sayOnServer(
   text: string,
   lang: string,

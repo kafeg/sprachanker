@@ -39,6 +39,12 @@ export interface PiperHost {
     key: string,
     run: { binary: string; dir: string; id: string; text: string; lengthScale: number },
   ): Promise<Uint8Array<ArrayBuffer>>;
+  /** A reading kept under `key` (any engine's): from the cache, else made by `produce` once (a
+   *  second request for it waits for the first) and kept. */
+  kept(
+    key: string,
+    produce: () => Promise<Uint8Array<ArrayBuffer>>,
+  ): Promise<Uint8Array<ArrayBuffer>>;
 }
 
 /** A text read aloud is at most this long (a reply is read in parts). */

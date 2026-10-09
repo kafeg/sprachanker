@@ -53,6 +53,7 @@ console.log(`built ${relative(process.cwd(), outfile)} with ${files.length} web 
 for (const [folder, program] of [
   ["whisper", "whisper-server"],
   ["piper", "sherpa-onnx-offline-tts"],
+  ["qwen", "tts-server"],
 ] as const) {
   const engine = `${program}-${targetTriple}`;
   const built = resolve(cliDir, "../../native", folder, "out", engine);

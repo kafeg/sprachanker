@@ -20,6 +20,10 @@ function machine() {
   const bodies: Array<Record<string, unknown>> = [];
   const heard: FormData[] = [];
   const speech: SpeechHost = {
+    qwenBinary: () => undefined,
+    spawnQwen: () => {
+      throw new Error("no Qwen here");
+    },
     whisperBinary: () => "/opt/whisper-server",
     freePort: async () => 9912,
     spawnWhisper: () => ({ exited: new Promise(() => {}), kill() {} }),

@@ -16,6 +16,7 @@ function piper(installed: string[], built = true) {
     remove(id) {
       installed.splice(installed.indexOf(id), 1);
     },
+    kept: (_key, produce) => produce(),
     async say(key, run) {
       said.push({ key, id: run.id, text: run.text, lengthScale: run.lengthScale });
       return new Uint8Array([82, 73, 70, 70]);

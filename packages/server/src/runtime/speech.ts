@@ -16,7 +16,7 @@ import {
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
 import type { PiperHost } from "../services/read-aloud.ts";
-import type { SpeechHost, WhisperModel } from "../services/speech.ts";
+import type { ModelFile, SpeechHost } from "../services/speech.ts";
 
 /** This machine's target triple: the speech engine built for it is `whisper-server-<triple>`. */
 export const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
@@ -52,7 +52,7 @@ function stopWithServer() {
     });
 }
 
-/** Stops engines a killed server left running (only processes that are whisper-server; the server
+/** Stops engines a killed server left running (only processes that are its engines; the server
  *  starting holds the data folder, so none of them is another server's). */
 function stopLeftOver(file: string) {
   const pids = (existsSync(file) ? readFileSync(file, "utf8") : "")
@@ -64,7 +64,7 @@ function stopLeftOver(file: string) {
       // `ps` names the process (POSIX); elsewhere the pid alone is not trusted enough to stop it.
       if (process.platform === "win32") continue;
       const name = Bun.spawnSync(["ps", "-p", String(pid), "-o", "comm="]).stdout.toString();
-      if (name.includes("whisper-server")) process.kill(pid);
+      if (name.includes("whisper-server") || name.includes("tts-server")) process.kill(pid);
     } catch {
       // Gone meanwhile, or not ours to stop.
     }
@@ -116,9 +116,22 @@ const engineAt = (env: string | undefined, folder: string, program: string) =>
 
 export function speechHost(dataRoot: string): SpeechHost {
   const models = join(dataRoot, "models");
-  pidFile = join(models, "whisper-server.pid");
+  pidFile = join(models, "engines.pid");
   stopLeftOver(pidFile);
+  stopLeftOver(join(models, "whisper-server.pid"));
   stopWithServer();
+  /** Runs an engine on a local port, kept in the pid file while it runs. */
+  const spawnEngine = (args: string[]) => {
+    const proc = Bun.spawn(args, { stdout: "ignore", stderr: "ignore" });
+    mkdirSync(models, { recursive: true });
+    running.set(proc.pid, proc);
+    writePids();
+    void proc.exited.then(() => {
+      running.delete(proc.pid);
+      writePids();
+    });
+    return { exited: proc.exited, kill: () => proc.kill() };
+  };
   return {
     whisperBinary: () =>
       engineAt(process.env.SPRACHANKER_WHISPER_SERVER, "whisper", "whisper-server"),
@@ -132,26 +145,36 @@ export function speechHost(dataRoot: string): SpeechHost {
           server.close(() => resolve(port));
         });
       }),
-    spawnWhisper(binary, model, port) {
-      const proc = Bun.spawn(
-        [binary, "-m", model, "--host", "127.0.0.1", "--port", String(port), "--no-timestamps"],
-        { stdout: "ignore", stderr: "ignore" },
-      );
-      mkdirSync(models, { recursive: true });
-      running.set(proc.pid, proc);
-      writePids();
-      void proc.exited.then(() => {
-        running.delete(proc.pid);
-        writePids();
-      });
-      return { exited: proc.exited, kill: () => proc.kill() };
-    },
+    spawnWhisper: (binary, model, port) =>
+      spawnEngine([
+        binary,
+        "-m",
+        model,
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+        "--no-timestamps",
+      ]),
+    qwenBinary: () => engineAt(process.env.SPRACHANKER_QWEN, "qwen", "tts-server"),
+    spawnQwen: (binary, talker, codec, port) =>
+      spawnEngine([
+        binary,
+        "--model",
+        talker,
+        "--codec",
+        codec,
+        "--host",
+        "127.0.0.1",
+        "--port",
+        String(port),
+      ]),
     models: {
       path(file, bytes) {
         const path = join(models, file);
         return statSync(path, { throwIfNoEntry: false })?.size === bytes ? path : undefined;
       },
-      async download(url, model: WhisperModel, onProgress, signal) {
+      async download(url, model: ModelFile, onProgress, signal) {
         mkdirSync(models, { recursive: true });
         const part = join(models, `${model.file}.part`);
         await downloadChecked(url, part, model.sha256, onProgress, signal);
@@ -174,7 +197,7 @@ export function piperHost(dataRoot: string): PiperHost {
   const voices = join(dataRoot, "models", "voices");
   const cache = join(dataRoot, "cache", "tts");
   /** Readings being made, by key: a second request for the same one waits for it. */
-  const making = new Map<string, Promise<void>>();
+  const making = new Map<string, Promise<Uint8Array<ArrayBuffer>>>();
   /** New readings since the cache was last pruned (pruned every so many). */
   let made = 0;
   /** Old readings go when there are too many (oldest first). */
@@ -218,30 +241,38 @@ export function piperHost(dataRoot: string): PiperHost {
       rmSync(join(voices, `${id}.part`), { recursive: true, force: true });
       rmSync(join(voices, `${id}.tar.bz2.part`), { force: true });
     },
-    async say(key, { binary, dir, id, text, lengthScale }) {
-      const file = join(cache, `${key}.wav`);
-      const bytes = async () => new Uint8Array(await Bun.file(file).arrayBuffer());
-      if (existsSync(file)) return bytes();
-      let pending = making.get(key);
-      if (!pending) {
-        pending = make(key, file, { binary, dir, id, text, lengthScale }).finally(() =>
-          making.delete(key),
-        );
-        making.set(key, pending);
-      }
-      await pending;
-      return bytes();
-    },
+    say: (key, run) => kept(key, () => runPiper(key, run)),
+    kept,
   };
 
-  /** Runs the engine once for a reading, into its file (written aside, renamed when whole). */
-  async function make(
+  /** A reading kept under `key`: read from the cache, else made once (a second request for it waits
+   *  for the first) and written there whole. */
+  async function kept(key: string, produce: () => Promise<Uint8Array<ArrayBuffer>>) {
+    const file = join(cache, `${key}.wav`);
+    if (existsSync(file)) return new Uint8Array(await Bun.file(file).arrayBuffer());
+    let pending = making.get(key);
+    if (!pending) {
+      pending = (async () => {
+        const bytes = await produce();
+        mkdirSync(cache, { recursive: true });
+        const part = join(cache, `${key}.part`);
+        writeFileSync(part, bytes);
+        renameSync(part, file);
+        if (++made % 100 === 0) prune();
+        return bytes;
+      })().finally(() => making.delete(key));
+      making.set(key, pending);
+    }
+    return pending;
+  }
+
+  /** Runs Piper once for a reading: its WAV's bytes. */
+  async function runPiper(
     key: string,
-    file: string,
     { binary, dir, id, text, lengthScale }: Parameters<PiperHost["say"]>[1],
   ) {
     mkdirSync(cache, { recursive: true });
-    const part = join(cache, `${key}.part.wav`);
+    const out = join(cache, `${key}.piper.wav`);
     const proc = Bun.spawn(
       [
         binary,
@@ -250,18 +281,18 @@ export function piperHost(dataRoot: string): PiperHost {
         `--vits-data-dir=${join(dir, "espeak-ng-data")}`,
         `--vits-length-scale=${lengthScale}`,
         "--num-threads=2",
-        `--output-filename=${part}`,
+        `--output-filename=${out}`,
         text,
       ],
       { stdout: "ignore", stderr: "ignore" },
     );
     const timer = setTimeout(() => proc.kill(), SAY_MS);
-    const code = await proc.exited.finally(() => clearTimeout(timer));
-    if (code !== 0 || !existsSync(part)) {
-      rmSync(part, { force: true });
-      throw new Error(`reading aloud failed (${code})`);
+    try {
+      const code = await proc.exited.finally(() => clearTimeout(timer));
+      if (code !== 0 || !existsSync(out)) throw new Error(`reading aloud failed (${code})`);
+      return new Uint8Array(await Bun.file(out).arrayBuffer());
+    } finally {
+      rmSync(out, { force: true });
     }
-    renameSync(part, file);
-    if (++made % 100 === 0) prune();
   }
 }

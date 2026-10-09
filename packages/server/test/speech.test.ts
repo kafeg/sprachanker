@@ -10,6 +10,10 @@ function machine() {
   let kills = 0;
   let healthy = false;
   const host: SpeechHost = {
+    qwenBinary: () => undefined,
+    spawnQwen: () => {
+      throw new Error("no Qwen here");
+    },
     whisperBinary: () => "/opt/whisper-server",
     freePort: async () => 9911,
     spawnWhisper(binary, model, port) {

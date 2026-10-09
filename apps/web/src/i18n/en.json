@@ -980,7 +980,11 @@
         "deviceNone": "This browser has no voices to read with.",
         "piper": "Piper on this computer",
         "piperMissing": "Not built here: bun run build:speech",
-        "piperLine": "{count, plural, =0 {no voices yet: download one below} one {# voice downloaded} other {# voices downloaded}}"
+        "piperLine": "{count, plural, =0 {no voices yet: download one below} one {# voice downloaded} other {# voices downloaded}}",
+        "qwen": "Qwen3-TTS on this computer",
+        "qwenMissing": "Not built here: bun run build:speech",
+        "qwenReady": "Ready: a model downloaded",
+        "qwenNoModel": "No model yet: download one below"
       },
       "voiceFor": "Voice for {language}",
       "voiceAuto": "Automatic — {name}",
@@ -1004,7 +1008,13 @@
         "low": "low quality",
         "medium": "medium quality",
         "high": "high quality"
-      }
+      },
+      "qwenModel": {
+        "small": "Small model (0.6B): faster",
+        "large": "Large model (1.7B): more natural, slower"
+      },
+      "qwenHint": "A neural voice that reads 10 languages (German, English, Russian, French, Spanish, Italian, Portuguese, Chinese, Japanese, Korean) with nine speakers. While it runs it holds about 3 GB of memory (more for the large model) and stops after 10 minutes without reading; the first reading after that waits about 20 s while it loads. Languages it does not speak are read by the device's voices.",
+      "qwenNoLanguage": "Qwen3-TTS does not speak {language}: the device's voices read it."
     },
     "listening": "Listening to it…",
     "notHeard": "It couldn't be recognised; the recording counts anyway.",

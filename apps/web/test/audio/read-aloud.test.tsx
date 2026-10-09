@@ -135,6 +135,7 @@ test("Settings: the profile's languages with their voice (automatic: the best on
     data: [
       [["settings"], { "learner.target": "de", "learner.native": "ru" }],
       [["piper-voices"], { engine: false, voices: [] }],
+      [["qwen-tts"], NO_QWEN],
     ],
   });
   expect(view.getByText("This device's voices")).toBeTruthy();
@@ -148,6 +149,8 @@ test("Settings: the profile's languages with their voice (automatic: the best on
   fireEvent.click(view.getAllByRole("button", { name: "Listen" })[0] as HTMLElement);
   expect(said).toEqual([{ text: "Deutsch (Deutschland)", lang: "de-DE", voice: "petra", rate: 1 }]);
 });
+
+const NO_QWEN = { engine: false, models: [], languages: [], speakers: [], speakerOf: {} };
 
 const PIPER = {
   engine: true,
@@ -200,6 +203,7 @@ test("Settings with Piper: each language's voices — the one reading, those to 
         { "learner.target": "de", "learner.native": "ru", "speech.readEngine": "piper" },
       ],
       [["piper-voices"], PIPER],
+      [["qwen-tts"], NO_QWEN],
     ],
   });
   expect(view.getByText("1 voice downloaded")).toBeTruthy();
@@ -291,4 +295,36 @@ test("a piece the server cannot say is said by the device's voice", async () => 
   } finally {
     globalThis.fetch = realFetch;
   }
+});
+
+test("Settings with Qwen3-TTS: its models (the one in use), each language's speaker; a language it lacks said so", async () => {
+  const view = await renderApp(<ReadAloud />, {
+    data: [
+      [
+        ["settings"],
+        { "learner.target": "de", "learner.native": "ar", "speech.readEngine": "qwen" },
+      ],
+      [["piper-voices"], { engine: false, voices: [] }],
+      [
+        ["qwen-tts"],
+        {
+          engine: true,
+          models: [
+            { id: "0.6b", bytes: 968e6, installed: true, inUse: true },
+            { id: "1.7b", bytes: 2043e6, installed: false, inUse: false },
+          ],
+          languages: ["de", "en", "ru"],
+          speakers: ["ryan", "serena"],
+          speakerOf: { de: "ryan", en: "ryan", ru: "ryan" },
+        },
+      ],
+    ],
+  });
+  expect(view.getByText("Ready: a model downloaded")).toBeTruthy();
+  expect(view.getByText(/Small model \(0\.6B\): faster/).textContent).toContain("in use");
+  expect(view.getByRole("button", { name: "Download" })).toBeTruthy();
+  expect(view.getByRole("combobox", { name: "Voice for German" }).textContent).toBe(
+    "Automatic — Ryan",
+  );
+  expect(view.getByText(/Qwen3-TTS does not speak Arabic/)).toBeTruthy();
 });

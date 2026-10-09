@@ -19,6 +19,7 @@ import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNotebook } from "./notebook.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
+import { createQwenTts, type QwenTts } from "./qwen-tts.ts";
 import { createReadAloud, type PiperHost, type ReadAloud } from "./read-aloud.ts";
 import { createRecordings } from "./recordings.ts";
 import { createRunStore } from "./run-store.ts";
@@ -54,12 +55,18 @@ export interface ServicesConfig {
 /** A profile's services over its database; the content and downloads are the server's. */
 function profileServices(
   config: ServicesConfig,
-  shared: { content: Content; downloads: Downloads; speech: Speech; readAloud: ReadAloud },
+  shared: {
+    content: Content;
+    downloads: Downloads;
+    speech: Speech;
+    readAloud: ReadAloud;
+    qwenTts: QwenTts;
+  },
   db: ProfileDb,
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, downloads, speech, readAloud } = shared;
+  const { content, downloads, speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
   const llm = createLlm({
     db,
@@ -133,6 +140,7 @@ function profileServices(
     settings,
     speech,
     readAloud,
+    qwenTts,
     recordings,
     runs,
     cards,
@@ -182,6 +190,7 @@ export function createServices(config: ServicesConfig) {
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const speech = createSpeech({ host: config.speech, fetch: config.fetch });
   const readAloud = createReadAloud({ host: config.piper });
+  const qwenTts = createQwenTts({ host: config.speech, cache: config.piper, fetch: config.fetch });
 
   return {
     content,
@@ -195,7 +204,7 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          { content, downloads, speech, readAloud },
+          { content, downloads, speech, readAloud, qwenTts },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

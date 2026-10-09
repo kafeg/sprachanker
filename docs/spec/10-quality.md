@@ -48,7 +48,7 @@ table in the same commit with the reason.
 | Charts | our own SVG (the activity calendar); Recharts when charts with axes come (plan, Notebook) |
 | Media | native `<video>`/`<audio>`; MediaRecorder + WebAudio resampling to 16 kHz |
 | Desktop | Tauri 2 (planned) |
-| Native engines | whisper.cpp (`whisper-server`), pinned (`native/whisper/VERSION`); Piper voices through sherpa-onnx (`sherpa-onnx-offline-tts`), pinned (`native/piper/VERSION`); Qwen3-TTS planned (08); LLMs run in LM Studio (07) |
+| Native engines | whisper.cpp (`whisper-server`), pinned (`native/whisper/VERSION`); Piper voices through sherpa-onnx (`sherpa-onnx-offline-tts`), pinned (`native/piper/VERSION`); Qwen3-TTS through qwentts.cpp (`tts-server`), pinned by commit (`native/qwen/VERSION`) (08); LLMs run in LM Studio (07) |
 | Type checking | TypeScript, current major (`tsc --noEmit` per workspace); tooling must not pin it to an older one |
 | Lint / boundaries / e2e | Biome / dependency-cruiser with the swc parser (no dependency on the TypeScript compiler API) / Playwright |
 | Web component tests | `@testing-library/react` on `happy-dom` (`@happy-dom/global-registrator`, preloaded in `apps/web/bunfig.toml`), `bun test --isolate`; the web's tests run apart from the server's so the browser globals never reach them (2026-10-07: 10 000 lines of UI were covered by e2e only) |
