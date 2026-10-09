@@ -60,30 +60,51 @@ export type VocabEntry = z.infer<typeof VocabEntry>;
 export const Unmapped = z.strictObject({ path: LibraryPath, reason: z.string().min(1) });
 
 /** `canonical/<course>/lessons/<NN>-<NN>.json` */
-export const Lesson = z.strictObject({
-  format: format(CANONICAL_FORMAT),
-  key: LessonKey,
-  unit: UnitKey,
-  media: z.strictObject({
-    video: z
-      .object({
-        sd: MediaPath.optional(),
-        hd: MediaPath.optional(),
-        /** Variant with subtitles burned in. */
-        subtitled: MediaPath.optional(),
-        /** Target-language subtitle track (WebVTT). */
-        subtitles: MediaPath.optional(),
-      })
-      .optional(),
-    image: MediaPath.optional(),
-    /** Lesson-level recording (Deutschtrainer: the lesson's words and phrases read aloud). */
-    audio: MediaPath.optional(),
-  }),
-  goals: z.array(GoalKey),
-  pages: z.array(z.strictObject({ exercise: Exercise })),
-  vocab: z.array(VocabEntry),
-  unmapped: z.array(Unmapped),
-});
+export const Lesson = z
+  .strictObject({
+    format: format(CANONICAL_FORMAT),
+    key: LessonKey,
+    unit: UnitKey,
+    media: z.strictObject({
+      video: z
+        .strictObject({
+          sd: MediaPath.optional(),
+          hd: MediaPath.optional(),
+          /** Variant with subtitles burned in. */
+          subtitled: MediaPath.optional(),
+          /** Target-language subtitle track (WebVTT). */
+          subtitles: MediaPath.optional(),
+        })
+        .optional(),
+      image: MediaPath.optional(),
+      /** Lesson-level recording (Deutschtrainer: the lesson's words and phrases read aloud). */
+      audio: MediaPath.optional(),
+    }),
+    goals: z.array(GoalKey),
+    pages: z.array(z.strictObject({ exercise: Exercise })),
+    vocab: z.array(VocabEntry),
+    unmapped: z.array(Unmapped),
+  })
+  // A lesson's exercises and words each under their own key, under the lesson's (items: the
+  // exercise's own check): a key met twice would let one's answers and cards stand for another's.
+  .superRefine((lesson, ctx) => {
+    for (const [what, keys] of [
+      ["exercise", lesson.pages.map((p) => p.exercise.key)],
+      ["word", lesson.vocab.map((v) => v.key)],
+    ] as const) {
+      const seen = new Set<string>();
+      for (const key of keys) {
+        if (seen.has(key))
+          ctx.addIssue({ code: "custom", message: `${what} key ${key} met twice` });
+        if (!key.startsWith(`${lesson.key}/`))
+          ctx.addIssue({
+            code: "custom",
+            message: `${what} key ${key} not of lesson ${lesson.key}`,
+          });
+        seen.add(key);
+      }
+    }
+  });
 export type Lesson = z.infer<typeof Lesson>;
 
 /** The lesson's exercise with this key, if the lesson (still) has it. */

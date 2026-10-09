@@ -30,7 +30,7 @@ export const format = <const V extends number>(version: V) => z.literal(version)
 
 /** Media attached to a lesson, exercise, item or option. */
 export const Media = z
-  .object({
+  .strictObject({
     image: MediaPath.optional(),
     audio: MediaPath.optional(),
     video: MediaPath.optional(),

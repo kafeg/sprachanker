@@ -13,7 +13,7 @@ export type GapId = z.infer<typeof GapId>;
 
 /** A choice shown to the learner: target-language text, media, or both. */
 export const Option = z
-  .object({
+  .strictObject({
     id: OptionId,
     text: z.string().optional(),
     media: Media.optional(),
@@ -36,7 +36,7 @@ export const ItemBase = z.strictObject({
 
 export const exerciseOf = <const T extends string, I extends z.ZodType>(type: T, item: I) =>
   z
-    .object({
+    .strictObject({
       key: ExerciseKey,
       type: z.literal(type),
       /** sha256 of the JCS of this object without `fingerprint` (course-kit computes it). */

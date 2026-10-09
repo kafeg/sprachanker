@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { Manifest, RulesRegistry } from "../src/index.ts";
+import { Lesson, Manifest, RulesRegistry } from "../src/index.ts";
 
 const hash = "ab".repeat(32);
 
@@ -78,4 +78,50 @@ test("a preference reads as set, else its default; one without a default stays u
     expect(LEARNER_SETTINGS[key as keyof typeof LEARNER_SETTINGS].safeParse(value).success).toBe(
       true,
     );
+});
+
+describe("lesson", () => {
+  const key = "dw.nicos-weg/a1-ru/00-01";
+  const exercise = {
+    key: `${key}/ex-01`,
+    type: "speech_repeat",
+    fingerprint: hash,
+    newWords: [],
+    ruleIds: [],
+    items: [{ key: `${key}/ex-01#1`, text: "Hallo" }],
+  };
+  const lesson = {
+    format: 1,
+    key,
+    unit: "dw.nicos-weg/a1-ru/u00",
+    media: {},
+    goals: [],
+    pages: [{ exercise }],
+    vocab: [],
+    unmapped: [],
+  };
+
+  test("valid lesson", () => {
+    expect(Lesson.safeParse(lesson).error).toBeUndefined();
+  });
+
+  test("a field the format does not know is an error, not dropped", () => {
+    expect(Lesson.safeParse({ ...lesson, titel: "x" }).success).toBe(false);
+    const misspelt = { ...exercise, instrucion: "x" };
+    expect(Lesson.safeParse({ ...lesson, pages: [{ exercise: misspelt }] }).success).toBe(false);
+  });
+
+  test("an exercise key met twice, or not of the lesson, fails", () => {
+    const twice = Lesson.safeParse({ ...lesson, pages: [{ exercise }, { exercise }] });
+    expect(twice.error?.issues.map((i) => i.message)).toContain(
+      `exercise key ${exercise.key} met twice`,
+    );
+    const other = "dw.nicos-weg/a1-ru/00-02/ex-01";
+    const elsewhere = { ...exercise, key: other, items: [{ key: `${other}#1`, text: "Hallo" }] };
+    expect(
+      Lesson.safeParse({ ...lesson, pages: [{ exercise: elsewhere }] }).error?.issues.map(
+        (i) => i.message,
+      ),
+    ).toEqual([`exercise key ${other} not of lesson ${key}`]);
+  });
 });

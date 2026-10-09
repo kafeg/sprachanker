@@ -153,7 +153,7 @@ test("media: URLs stored before as two files of the same content point to one af
   const entry = (name: string) => ({
     kind: "audio",
     path: `media/audio/${name}`,
-    sha256: "h",
+    sha256: "a".repeat(64),
     size: 4,
     mime: "audio/mpeg",
   });
@@ -185,4 +185,16 @@ test("media: URLs stored before as two files of the same content point to one af
   expect(readdirSync(audio).sort()).toEqual(["x.mp3", "y.mp3"]);
   // Again: the same.
   expect(await run()).toEqual(index);
+});
+
+test("a media.json that does not read stops the fetch (taken as empty, it would fetch every file again)", async () => {
+  const root = dir();
+  const indexFile = join(root, "media.json");
+  writeFileSync(indexFile, JSON.stringify({ "https://a.test/a.mp3": { kind: "audio", pth: "x" } }));
+  const { fetcher, asked } = fetcherOf();
+  const ref = { url: "https://a.test/a.mp3", kind: "audio" as const, name: "a.mp3" };
+  await expect(
+    fetchMedia({ fetcher, store: createMediaStore(root), indexFile, refs: [ref], log: () => {} }),
+  ).rejects.toThrow(/media\.json/);
+  expect(asked).toEqual([]);
 });

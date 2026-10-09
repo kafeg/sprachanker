@@ -8,7 +8,7 @@ const RubricId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 export const RespondItem = ItemBase.extend({
   input: z.enum(["text", "speech"]),
   rubric: z
-    .object({
+    .strictObject({
       /** Groups of which the answer must contain at least one variant. */
       required: z.array(z.strictObject({ id: RubricId, anyOf: z.array(z.string().min(1)).min(1) })),
       /** Criteria judged by the LLM; their texts live in the locale file. */

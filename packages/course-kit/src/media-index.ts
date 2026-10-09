@@ -5,13 +5,15 @@
 import { existsSync } from "node:fs";
 import { mkdir, readFile, rm } from "node:fs/promises";
 import { join } from "node:path";
-import type { MediaPath } from "@sprachanker/schema";
+import { issuesText, type MediaPath } from "@sprachanker/schema";
+import { z } from "zod";
 import { tempFile, writeFileAtomic } from "./files.ts";
 import { FetchFailedError, HostRefusedError, type PoliteFetcher } from "./http.ts";
 import type { MediaStore } from "./media-store.ts";
 import type { ProgressSink } from "./provider.ts";
 
-export type MediaKind = "audio" | "image" | "video" | "subtitles" | "pdf";
+const MediaKindSchema = z.enum(["audio", "image", "video", "subtitles", "pdf"]);
+export type MediaKind = z.infer<typeof MediaKindSchema>;
 
 export interface MediaRef {
   url: string;
@@ -20,12 +22,23 @@ export interface MediaRef {
   name: string;
 }
 
-/** Source URL → stored file (path, sha256 and size for integrity checks) or the last error. */
-export type MediaIndex = Record<
-  string,
-  | { kind: MediaKind; path: string; sha256: string; size: number; mime: string }
-  | { kind: MediaKind; error: string }
->;
+/** Source URL → stored file (path, sha256 and size for integrity checks) or the last error. Checked
+ *  when read: one that does not read stops the import (taken as empty, it would fetch every file
+ *  again). The importer's own state, like keys.json: no `format` (02). */
+const MediaIndexSchema = z.record(
+  z.string(),
+  z.union([
+    z.strictObject({
+      kind: MediaKindSchema,
+      path: z.string().min(1),
+      sha256: z.string().regex(/^[0-9a-f]{64}$/),
+      size: z.number().int().nonnegative(),
+      mime: z.string(),
+    }),
+    z.strictObject({ kind: MediaKindSchema, error: z.string() }),
+  ]),
+);
+export type MediaIndex = z.infer<typeof MediaIndexSchema>;
 
 /** Requests in flight per host. */
 const WORKERS_PER_HOST = 8;
@@ -134,7 +147,10 @@ export async function fetchMedia<R extends MediaRef>(options: {
 
 /** The media index as stored so far (empty before the first fetch). */
 export async function readMediaIndex(indexFile: string): Promise<MediaIndex> {
-  return existsSync(indexFile) ? JSON.parse(await readFile(indexFile, "utf8")) : {};
+  if (!existsSync(indexFile)) return {};
+  const read = MediaIndexSchema.safeParse(JSON.parse(await readFile(indexFile, "utf8")));
+  if (!read.success) throw new Error(`${indexFile}: ${issuesText(read.error, 2)}`);
+  return read.data;
 }
 
 /** The stored file of a fetched URL, or undefined when it was not fetched (or failed). */

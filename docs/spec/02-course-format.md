@@ -16,7 +16,7 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 | Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL; one file per content in a series — URLs whose files are the same (by sha256) point to one, the first path in order (each fetch makes it so, stored ones too; files no URL points to any more stay, as passes and cards may name them) |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
 | HTML | only in fields named `*Html`, sanitised to an allow-list: h3 (a section title), p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
-| Format versions | integer `format` in every file type; bumped on breaking change; additive optional fields do not bump it |
+| Format versions | integer `format` in every content file type (canonical, locale, manifest, enrichment, exams); bumped on breaking change; additive optional fields do not bump it. The importer's own state (`media.json`, `keys.json`) has none: it is checked when read, and one that does not read stops the import |
 
 ## Library layout
 
@@ -86,7 +86,10 @@ moved, or restored by copying.
   example sections by their title, tasks without a number by their label; numbered tasks keep their
   number) and VOA Let's Learn English (lessons in their unit, exercises by their video or quiz); units
   stay positional (their sources' levels and stages are fixed). Deutsch im Blick keys by the source's
-  chapter and section numbers, VOA «Так говорят в Америке» by its fixed catalogue. A key map that does not read stops the
+  chapter and section numbers, VOA «Так говорят в Америке» by its fixed catalogue. A lesson's
+  exercises and words are each under their own key, once (the lesson's schema checks it, items by
+  their exercise's). The app shows a lesson's number from its key ("3.7"): one the source inserts
+  shows its key's number, not its place, on every screen alike. A key map that does not read stops the
   normaliser: numbering afresh would hand kept keys to other content.
 - **Fingerprint** of an exercise = sha256(JCS of its canonical object without `fingerprint`); identical
   across editions of the same content.

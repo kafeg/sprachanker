@@ -195,7 +195,8 @@
         "video": {
           "$ref": "#/$defs/MediaPath"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "MediaPath": {
       "type": "string",
@@ -225,7 +226,8 @@
       },
       "required": [
         "id"
-      ]
+      ],
+      "additionalProperties": false
     }
   }
 }

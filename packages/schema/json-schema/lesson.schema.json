@@ -30,7 +30,8 @@
             "subtitles": {
               "$ref": "#/$defs/MediaPath"
             }
-          }
+          },
+          "additionalProperties": false
         },
         "image": {
           "$ref": "#/$defs/MediaPath"
@@ -308,7 +309,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "ExerciseKey": {
       "type": "string",
@@ -328,7 +330,8 @@
         "video": {
           "$ref": "#/$defs/MediaPath"
         }
-      }
+      },
+      "additionalProperties": false
     },
     "VocabKey": {
       "type": "string",
@@ -364,7 +367,8 @@
       },
       "required": [
         "id"
-      ]
+      ],
+      "additionalProperties": false
     },
     "multi_choice_exercise": {
       "type": "object",
@@ -454,7 +458,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "match_exercise": {
       "type": "object",
@@ -564,7 +569,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "order_exercise": {
       "type": "object",
@@ -662,7 +668,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "gap_choice_exercise": {
       "type": "object",
@@ -786,7 +793,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "Segments": {
       "minItems": 1,
@@ -902,7 +910,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "dictation_exercise": {
       "type": "object",
@@ -994,7 +1003,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "speech_repeat_exercise": {
       "type": "object",
@@ -1063,7 +1073,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "speech_selfrate_exercise": {
       "type": "object",
@@ -1134,7 +1145,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "respond_exercise": {
       "type": "object",
@@ -1238,7 +1250,8 @@
                 "required": [
                   "required",
                   "criteria"
-                ]
+                ],
+                "additionalProperties": false
               },
               "reference": {
                 "type": "array",
@@ -1271,7 +1284,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "scene_exercise": {
       "type": "object",
@@ -1339,7 +1353,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "SceneKey": {
       "type": "string",
@@ -1420,7 +1435,8 @@
         "newWords",
         "ruleIds",
         "items"
-      ]
+      ],
+      "additionalProperties": false
     },
     "LexemeKey": {
       "type": "string",

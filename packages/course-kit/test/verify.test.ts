@@ -43,3 +43,15 @@ test("broken data is reported: a wrong answer id, a missing medium, a stray loca
   expect(problems).toContain("missing media: media/audio/hallo.mp3");
   expect(problems).toContain("ex-99: locale texts for an exercise the lesson does not have");
 });
+
+test("a lesson whose exercise key is met twice does not read: verify says so", async () => {
+  const root = await fixture();
+  const lessonFile = join(root, "sprachanker.mini/canonical/basic/lessons/00-01.json");
+  const lesson = JSON.parse(readFileSync(lessonFile, "utf8"));
+  const page = lesson.pages[0];
+  // A numbering that gave two tasks one number.
+  lesson.pages.push(page);
+  writeFileSync(lessonFile, JSON.stringify(lesson));
+  const [report] = await verifyLibrary(openLibrary(root));
+  expect(report?.problems.join("\n")).toContain(`exercise key ${page.exercise.key} met twice`);
+});
