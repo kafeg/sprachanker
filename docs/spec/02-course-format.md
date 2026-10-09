@@ -13,7 +13,7 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 | Generated ids (learner data) | ULID |
 | Edition id | `<source>-<target>` (`ru-de`, `en-de`, `de-de`) |
 | Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
-| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL |
+| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL; one file per content in a series — URLs whose files are the same (by sha256) point to one, the first path in order (each fetch makes it so, stored ones too; files no URL points to any more stay, as passes and cards may name them) |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
 | HTML | only in fields named `*Html`, sanitised to an allow-list: h3 (a section title), p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
 | Format versions | integer `format` in every file type; bumped on breaking change; additive optional fields do not bump it |
@@ -66,7 +66,9 @@ moved, or restored by copying.
   "to X" a verb with lemma X; anything else is `word`. Where the source states nothing, every provider
   uses one function (`shapeHeadword`, course-kit `vocab.ts`), so the same entry is the same lexeme in
   every course. Different values give different lexemes ("Frau" as a title ≠ "die Frau"). A card
-  follows its word (the vocab key): when a rule gives the word another lexeme, the card takes it.
+  follows its word (the vocab key: its lesson and lemma): when a rule gives the word another lexeme,
+  the card takes it, and what it shows of the word (the word, gender, plural, example, recording) is
+  the word's now. A lemma corrected at the source is another word: the old card keeps its progress.
 - Keys are built and parsed only by `packages/schema/src/keys.ts`; fingerprints are computed by
   `packages/course-kit/src/fingerprint.ts`.
 - Keys follow the source order (units and lessons in course order, exercises in lesson order) — the

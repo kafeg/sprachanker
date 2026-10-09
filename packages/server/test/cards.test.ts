@@ -298,6 +298,25 @@ test("a card follows its word's lexeme when a course is normalised again; no sec
   });
   expect(await cards.relink()).toBe(1);
   expect(await cards.relink()).toBe(0);
+  // What a card shows of its word is the word's now (a recording renamed, the word corrected).
+  const shown = () =>
+    JSON.parse(
+      (
+        sqlite
+          .query("SELECT display_cache_json AS d FROM cards WHERE lexeme_key = ?")
+          .get(kaffee) as {
+          d: string;
+        }
+      ).d,
+    );
+  const shownBefore = shown();
+  sqlite
+    .query(
+      "UPDATE cards SET display_cache_json = json_set(display_cache_json, '$.target', 'Kafee', '$.audio', 'media/audio/other.mp3') WHERE lexeme_key = ?",
+    )
+    .run(kaffee);
+  expect(await cards.relink()).toBe(1);
+  expect(shown()).toEqual(shownBefore);
   const words = (await getJson("/api/cards")).words.map((w: { lexemeKey: string }) => w.lexemeKey);
   expect(words).toContain(kaffee);
   // The same through making the lesson's cards again.

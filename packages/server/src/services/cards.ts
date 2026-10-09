@@ -38,10 +38,9 @@ export function createCards(deps: {
   function displayOf(
     series: string,
     lesson: Lesson,
-    locale: LocaleLesson | null | undefined,
+    translation: string | undefined,
     v: Lesson["vocab"][number],
   ): CardDisplay {
-    const translation = locale?.vocab[v.key]?.translation;
     return {
       target: v.target,
       ...(v.gender && { gender: v.gender }),
@@ -95,7 +94,7 @@ export function createCards(deps: {
           cards.setNote(earlier.id, { lexemeKey: v.lexeme });
           continue;
         }
-        const display = displayOf(request.series, lesson, locale, v);
+        const display = displayOf(request.series, lesson, locale?.vocab[v.key]?.translation, v);
         cards.insert({
           id: id(now()),
           kind: "lexeme",
@@ -176,7 +175,12 @@ export function createCards(deps: {
           moves.push({
             id: n.id,
             sourceKey: home.word.key,
-            display: displayOf(home.series, home.lesson, home.locale, home.word),
+            display: displayOf(
+              home.series,
+              home.lesson,
+              home.locale?.vocab[home.word.key]?.translation,
+              home.word,
+            ),
           });
         else gone.push(n.id);
       }
@@ -231,7 +235,9 @@ export function createCards(deps: {
     /**
      * Each card follows the word it was made from (its source key, stable across normalisations):
      * when the course's files give that word another lexeme now (a normaliser rule changed), the card
-     * takes it — unless a card of that lexeme exists already. Returns how many changed.
+     * takes it — unless a card of that lexeme exists already; and what it shows of the word (the word,
+     * gender, plural, example, recording) is the word's now — a recording renamed when the series was
+     * fetched again is not another word's. Returns how many changed.
      */
     async relink(): Promise<number> {
       let changed = 0;
@@ -243,13 +249,14 @@ export function createCards(deps: {
           .lesson(display.series, display.lessonKey as LessonKey)
           .catch(() => undefined);
         const word = lesson?.vocab.find((v) => v.key === row.sourceKey);
-        if (
-          !word ||
-          word.lexeme === row.lexemeKey ||
-          cards.byLexeme(word.lexeme, row.translationLang)
-        )
-          continue;
-        cards.setNote(row.id, { lexemeKey: word.lexeme });
+        if (!lesson || !word) continue;
+        const note: Parameters<typeof cards.setNote>[1] = {};
+        if (word.lexeme !== row.lexemeKey && !cards.byLexeme(word.lexeme, row.translationLang))
+          note.lexemeKey = word.lexeme;
+        const shown = JSON.stringify(displayOf(display.series, lesson, display.translation, word));
+        if (shown !== row.displayCacheJson) note.displayCacheJson = shown;
+        if (!Object.keys(note).length) continue;
+        cards.setNote(row.id, note);
         changed++;
       }
       return changed;

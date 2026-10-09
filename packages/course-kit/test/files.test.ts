@@ -1,5 +1,12 @@
 import { expect, test } from "bun:test";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Lesson } from "@sprachanker/schema";
@@ -102,4 +109,73 @@ test("media the source no longer has (404, 410) are gone, not failed: a course i
     "https://a.test/four.mp3: refused 429",
   ]);
   expect(goneMedia(index)).toEqual(["https://a.test/one.pdf: 404", "https://a.test/two.mp3: 410"]);
+});
+
+test("media: the same content from several URLs under other names is one file", async () => {
+  const root = dir();
+  const refs = ["a", "b", "c"].map((n) => ({
+    url: `https://${n}.test/${n}.mp3`,
+    kind: "audio" as const,
+    name: `${n}.mp3`,
+  }));
+  // a and b give the same bytes, c other ones; all downloaded at once.
+  const fetcher = {
+    async file(url: string, target: string) {
+      writeFileSync(target, url.includes("c.test") ? "other" : "same");
+      return { contentType: "audio/mpeg" };
+    },
+  } as unknown as PoliteFetcher;
+  const index = await fetchMedia({
+    fetcher,
+    store: createMediaStore(root),
+    indexFile: join(root, "media.json"),
+    refs,
+    log: () => {},
+  });
+  const paths = refs.map((r) => (index[r.url] as { path: string }).path);
+  expect(paths[0]).toBe(paths[1] as string);
+  expect(paths[2]).not.toBe(paths[0] as string);
+  expect(readdirSync(join(root, "media/audio")).sort()).toHaveLength(2);
+});
+
+test("media: URLs stored before as two files of the same content point to one after a run; the files stay", async () => {
+  const root = dir();
+  const audio = join(root, "media/audio");
+  mkdirSync(audio, { recursive: true });
+  for (const name of ["x.mp3", "y.mp3"]) writeFileSync(join(audio, name), "same");
+  const entry = (name: string) => ({
+    kind: "audio",
+    path: `media/audio/${name}`,
+    sha256: "h",
+    size: 4,
+    mime: "audio/mpeg",
+  });
+  const indexFile = join(root, "media.json");
+  writeFileSync(
+    indexFile,
+    JSON.stringify({
+      "https://a.test/y.mp3": entry("y.mp3"),
+      "https://a.test/x.mp3": entry("x.mp3"),
+    }),
+  );
+  const { fetcher, asked } = fetcherOf();
+  const refs = ["x", "y"].map((n) => ({
+    url: `https://a.test/${n}.mp3`,
+    kind: "audio" as const,
+    name: `${n}.mp3`,
+  }));
+  const run = () =>
+    fetchMedia({ fetcher, store: createMediaStore(root), indexFile, refs, log: () => {} });
+  const index = await run();
+  expect(asked).toEqual([]);
+  expect(Object.values(index).map((e) => (e as { path: string }).path)).toEqual([
+    "media/audio/x.mp3",
+    "media/audio/x.mp3",
+  ]);
+  expect(JSON.parse(readFileSync(indexFile, "utf8"))["https://a.test/y.mp3"].path).toBe(
+    "media/audio/x.mp3",
+  );
+  expect(readdirSync(audio).sort()).toEqual(["x.mp3", "y.mp3"]);
+  // Again: the same.
+  expect(await run()).toEqual(index);
 });

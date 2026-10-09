@@ -53,6 +53,27 @@ export async function fetchMedia<R extends MediaRef>(options: {
   const incoming = store.file("media/.incoming" as MediaPath);
   await mkdir(incoming, { recursive: true });
   const index = await readMediaIndex(indexFile);
+  // One file per content: URLs whose files have the same content point to one of them (the first path
+  // in order, so a run again gives the same), and content that comes again is not stored twice. Files
+  // no URL points to any more stay: what was read before (a pass, a card) may still name them.
+  const onDisk = Object.values(index).flatMap((e) =>
+    "path" in e && existsSync(store.file(e.path as MediaPath)) ? [e] : [],
+  );
+  let merged = 0;
+  for (const same of Map.groupBy(onDisk, (e) => e.sha256).values()) {
+    const path = same.map((e) => e.path).sort()[0] as string;
+    for (const e of same)
+      if (e.path !== path) {
+        e.path = path;
+        merged++;
+      }
+    const first = same[0] as (typeof same)[number];
+    store.know({ path: path as MediaPath, sha256: first.sha256, size: first.size });
+  }
+  if (merged) {
+    log(`media: ${merged} URLs point to a file of the same content now`);
+    await writeFileAtomic(indexFile, JSON.stringify(index, null, 1));
+  }
   // One fetch per URL (a source may name a file twice).
   const refs = [...new Map(options.refs.map((r) => [r.url, r])).values()];
   const stored = (ref: R) => {
