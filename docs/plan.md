@@ -74,15 +74,34 @@ Specs: 02, 03, 06, 09.
 - **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
   section; at least one A1–B1 model test, if one is importable; results in the Notebook.
 
-### 5. Notebook: more pictures (owner's request, 2026-10-07)
+### 5. Run-throughs on real courses: the screens and what is stored (owner, 2026-10-09)
+Specs: 05, 10.
+- Playwright scenarios that go through installed courses as a learner does — every kind of step and
+  exercise a course has, its words into Review and a review session, an exam once item 4 is built,
+  the Notebook — and after each step read the profile's database (events, runs, cards, card state)
+  to check that what was done is stored as it should be (05); a failing step leaves screenshots and
+  the rows it read.
+- Run selectively, on the Mac only: by provider, course, lesson or scenario (`bun run e2e:real
+  -- <filter>`), against a throwaway data root whose library is an APFS clone of the real one (never
+  the owner's profiles); the scenarios name courses and lessons by key and assert on structure
+  (types, counts, states), never on course text — no third-party content enters the repository, and
+  CI keeps running the fixture course only (10).
+- **Accept**: a run-through of one lesson of every installed provider and of a review session,
+  selectable by filter, with the stored data checked; a deliberately broken store makes it fail.
+
+### 6. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 6. Phones (owner, 2026-10-08: functionality first, phones after)
+### 7. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
+- The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
+  network (when the server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them
+  (Settings, or the foot of the side panel beside the profile) by mockup options; an address without a
+  secure context says that the microphone needs HTTPS there.
 - The app on the owner's and his wife's iPhones: HTTPS through Tailscale (`tailscale serve`, 06) set
   up and described, installed as a PWA, signing in on a phone (device token); the server accepts the
   tailnet's host name (today only localhost, `.local`, IPs and the machine's name: a `*.ts.net` Host
@@ -93,7 +112,7 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 7. A week of real use
+### 8. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
