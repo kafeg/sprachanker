@@ -139,6 +139,7 @@ test("Settings: the profile's languages with their voice (automatic: the best on
     ],
   });
   expect(view.getByText("This device's voices")).toBeTruthy();
+  expect(view.getByText(/^Speed:/)).toBeTruthy();
   // Piper not built here: its card says so and cannot be chosen.
   expect(view.getByRole("button", { name: /Piper on this computer/ })).toHaveProperty(
     "disabled",
@@ -327,4 +328,6 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
     "Automatic — Ryan",
   );
   expect(view.getByText(/Qwen3-TTS does not speak Arabic/)).toBeTruthy();
+  // It has no speed of its own: no speed slider with it.
+  expect(view.queryByText(/^Speed:/)).toBeNull();
 });

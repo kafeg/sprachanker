@@ -88,8 +88,9 @@ Specs: 06, 09.
   tailnet's host name (today only localhost, `.local`, IPs and the machine's name: a `*.ts.net` Host
   is refused with 421).
 - Everything built so far checked on the iPhone: lessons, review, the Notebook, profiles, the AI;
-  speech — the microphone and recording (built), recognition and synthesis (item 1) — in Safari and
-  the PWA; layouts at phone width; what breaks is fixed here.
+  speech — the microphone and recording, recognition, reading aloud (the device's voices in Safari;
+  Piper and Qwen3-TTS from the server) — in Safari and the PWA; layouts at phone width; what breaks is
+  fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
 ### 7. A week of real use
@@ -99,8 +100,8 @@ Specs: 06, 09.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.
-- Library (02, 03): a key map for providers other than DW (keys stay when the source reorders), series manifest with
-  `contentVersion`, `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
+- Library (02, 03): a key map for providers other than DW (keys stay when the source reorders), a
+  series manifest with `contentVersion`, `normalise <series>` from `raw/` offline, `verify` checks for manifest hashes and
   rule ids; content updated while a run is active ends the run (05). A word the source leaves without
   a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:
   Persian A1 "alt", German A2 "der Spinat"; seen in the 2026-10-08 audit of all Nicos Weg editions).
@@ -108,9 +109,10 @@ Taken along when an item above touches the area, or on request.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
   beside the "Write it yourself" box, as in free answers, scenes and the tutor.
-- Review (09): the course map's can-do list; a word anywhere in a lesson
-  opens its sheet (09, "word sheet": forms, translation, audio, examples from lessons met, answers,
-  "add to cards").
+- Review (09): the course map's can-do list; a word anywhere in a lesson opens its sheet (09, "word
+  sheet": forms, translation, audio, examples from lessons met, answers, "add to cards").
+- Reading aloud (08): Qwen3-TTS's voice cloning and voice design (the engine has both; a voice of the
+  learner's choosing per language) — on request.
 
 ## After the week of use
 Order decided by the week of use.
@@ -127,12 +129,12 @@ Order decided by the week of use.
   download (public-domain sources such as Project Gutenberg; the sources and their terms decided in the
   item's plan), "My books" with the place read; a reader with the translation beside (by sentence or
   paragraph), a word tapped opens its sheet (dictionary: the course's words, else the model) and goes
-  to cards, the AI to explain a sentence or the grammar, and read aloud (speech: a word or sentence
-  heard, for its pronunciation). Accept: a German book
-  downloaded, read on Mac and iPhone with translation, words added to Review.
+  to cards, the AI to explain a sentence or the grammar, and read aloud (the reading-aloud engines:
+  a word or sentence heard, for its pronunciation). Accept: a German book downloaded, read on Mac and
+  iPhone with translation, words added to Review.
 - **More sources**: B1 glossary, Deutsch im Blick interviews, Starter English (03).
 - **Desktop app** (06, 09): Tauri shell, first-run wizard (the data folder chosen there, LM Studio),
-  network options with QR,
+  network options with QR, the speech engines bundled (whisper-server, sherpa-onnx, tts-server),
   signed bundles for macOS then Windows and Linux, auto-update. Accept: fresh machine → lesson 1 in
   under 30 minutes (without the course download); headless `serve` works on a second machine.
 - **Later**: missions, unit reviews, in-lesson adaptivity, LLM verdicts for `respond` (`check_answer`),

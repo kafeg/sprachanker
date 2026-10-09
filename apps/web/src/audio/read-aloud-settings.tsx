@@ -472,26 +472,29 @@ export function ReadAloud() {
             </div>
           )
         )}
-        <div className="space-y-1.5">
-          <p className="text-sm font-medium">
-            {t("speech.settings.readRate", { rate: number(shownRate ?? rate) })}
-          </p>
-          <Slider
-            className="max-w-sm"
-            aria-label={t("speech.settings.readRateLabel")}
-            min={0.5}
-            max={1.5}
-            step={0.1}
-            value={[shownRate ?? rate]}
-            onValueChange={([v]) => setShownRate(v)}
-            onValueCommit={([v]) => {
-              setShownRate(undefined);
-              stop();
-              if (v !== undefined)
-                set.mutate({ key: "speech.readRate", value: Math.round(v * 10) / 10 });
-            }}
-          />
-        </div>
+        {/* Qwen3-TTS has no speed of its own: the setting is not shown with it. */}
+        {!(engine === "qwen" && qwen?.engine) && (
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium">
+              {t("speech.settings.readRate", { rate: number(shownRate ?? rate) })}
+            </p>
+            <Slider
+              className="max-w-sm"
+              aria-label={t("speech.settings.readRateLabel")}
+              min={0.5}
+              max={1.5}
+              step={0.1}
+              value={[shownRate ?? rate]}
+              onValueChange={([v]) => setShownRate(v)}
+              onValueCommit={([v]) => {
+                setShownRate(undefined);
+                stop();
+                if (v !== undefined)
+                  set.mutate({ key: "speech.readRate", value: Math.round(v * 10) / 10 });
+              }}
+            />
+          </div>
+        )}
         <div className="space-y-1.5">
           <p className="text-sm font-medium">{t("speech.settings.atOnce")}</p>
           <Choice
