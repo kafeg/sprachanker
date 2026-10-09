@@ -3,7 +3,6 @@
 // Notebook, settings and AI assistant, over its own database, made when it is first used.
 import type { LibraryView } from "@sprachanker/course-kit";
 import { SRS_DEFAULTS } from "@sprachanker/engine";
-import { courseKey, type SeriesKey } from "@sprachanker/schema";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { secretBox } from "../security/secrets.ts";
@@ -181,10 +180,7 @@ export function createServices(config: ServicesConfig) {
     now,
     onEnd: (series, course) => {
       content.forget(series, course);
-      for (const s of open.values()) {
-        s.runs.forget(courseKey(series as SeriesKey, course));
-        void relink(s);
-      }
+      for (const s of open.values()) void relink(s);
     },
   });
   // Downloads a restart interrupted go on.

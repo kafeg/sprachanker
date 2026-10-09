@@ -94,21 +94,11 @@ export function createRuns({
   };
 
   /**
-   * A finished run counts as completed only when every exercise of the lesson was answered or skipped
-   * in it. Runs finished before that was enforced (by merely opening the summary) are no completions:
-   * they are not shown and not counted. Kept per run; dropped when the course's files change.
+   * A finished run is a completion by how it ended: the server ends a run `finished/completed` only
+   * when its plan was done then (`finish`, `replace`). A lesson changed since — an exercise added when
+   * its course was normalised again — does not take that back.
    */
-  const complete = new Map<string, boolean>();
-  const completed = async (row: RunRow) => {
-    if (row.status !== "finished") return false;
-    if (!complete.has(row.id)) {
-      // A lesson that cannot be read is not counted, and asked again next time.
-      const lesson = await lessonOf(row);
-      if (!lesson) return false;
-      complete.set(row.id, lessonCoverage(lesson, exerciseResults(store.events(row.id))).complete);
-    }
-    return complete.get(row.id) as boolean;
-  };
+  const completed = (row: RunRow) => row.status === "finished" && row.endReason === "completed";
 
   /**
    * The run a lesson shows — in the player, on the course map and to the tutor: its active
@@ -118,7 +108,7 @@ export function createRuns({
     const lessonRuns = store.list("lesson", lessonKey);
     const active = lessonRuns.find((r) => r.status === "active");
     if (active) return active;
-    for (const r of lessonRuns) if (await completed(r)) return r;
+    for (const r of lessonRuns) if (completed(r)) return r;
     return undefined;
   };
 
@@ -138,7 +128,7 @@ export function createRuns({
     const activity = store.lastActivity([...WORK_EVENTS]);
     const counted: Run[] = [];
     for (const row of store.all("lesson"))
-      if (row.status === "active" || (await completed(row))) counted.push(toRun(row));
+      if (row.status === "active" || completed(row)) counted.push(toRun(row));
     return Object.fromEntries(lessonProgress(counted, activity));
   };
 
@@ -172,11 +162,6 @@ export function createRuns({
 
   return {
     progress,
-
-    /** Forgets what was worked out from a course's lessons (its files were replaced). */
-    forget(course: string) {
-      for (const row of store.all("lesson")) if (row.courseKey === course) complete.delete(row.id);
-    },
 
     /** The installed courses with the learner's progress and the lesson to go on with, as its card
      *  shows it (title and exercises worked). */

@@ -193,9 +193,9 @@ by its snapshot, found by exercise key.
 - **Lesson completion**: a lesson run is `finished/completed` when the summary is reached with its
   plan done (04, "Lesson composition"; reading steps recorded as `step_done`). The server refuses to
   finish a run with exercises or reading steps left (`run_incomplete`; the AI practice depends on the
-  assistant and is left to the player), and the summary then lists what is left. Reading a finished run
-  back, completion counts its exercises only (a run without `step_done` records stays completed); a
-  finished run that did not work every exercise is no completion: it is neither shown nor counted.
+  assistant and is left to the player), and the summary then lists what is left. A run ended
+  `finished/completed` stays a completion: a lesson changed since (an exercise added when its course
+  was normalised again) does not take it back.
   Score: the lesson result (04).
 - **Progress**: the engine's (04, "Learner model"). A lesson card on the course map shows the run the
   lesson opens (active run, else latest completed) as the player reads it — exercises worked of all,

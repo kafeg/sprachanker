@@ -1,14 +1,18 @@
 import { Database } from "bun:sqlite";
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
-import { eq } from "drizzle-orm";
+import { openLibrary } from "@sprachanker/course-kit";
+import type { LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
-import { runs } from "../src/db/profile/schema.ts";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
+import { createCardStore } from "../src/services/card-store.ts";
+import { createContent } from "../src/services/content.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
+import { createRunStore } from "../src/services/run-store.ts";
+import { createRuns } from "../src/services/runs.ts";
 import { setup } from "./setup.ts";
 
 const COURSE = { series: FIXTURE_SERIES, course: "demo", edition: "ru-de" };
@@ -269,27 +273,46 @@ describe("runs", () => {
     expect((await send("POST", `/api/runs/${runId}/events`, { events: [] })).status).toBe(409);
   });
 
-  test("a run finished with exercises left (before completion was enforced) does not count", async () => {
-    const { profile, getJson, sendJson } = await setup();
+  test("a completed run stays completed when its lesson gains an exercise (a course normalised again)", async () => {
+    const api = await setup();
+    const { sendJson, root, profile } = api;
     const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
     const { run } = await sendJson("POST", "/api/runs", body);
-    const skipped = { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-01#1`, payload: {} };
-    await sendJson("POST", `/api/runs/${run.id}/events`, { events: [skipped] });
-    // As the old player stored it: finished on opening the summary, with most exercises untouched.
-    profile
-      .update(runs)
-      .set({
-        status: "finished",
-        endReason: "completed",
-        resultJson: '{"score":0,"scored":0,"answered":0}',
-      })
-      .where(eq(runs.id, run.id))
-      .run();
-    const q = new URLSearchParams({ series: FIXTURE_SERIES, lessonKey: LESSON });
-    expect((await getJson(`/api/runs/lesson?${q}`)).state).toBeNull();
-    const map = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
-    expect(map.lessons[LESSON]).toBeUndefined();
-    expect((await getJson("/api/courses"))[0].done).toBe(0);
+    await skipRest(api, run.id);
+    await readSteps(api, run.id);
+    expect((await sendJson("POST", `/api/runs/${run.id}/finish`, {})).status).toBe("finished");
+    // The lesson's file gains an exercise; the runs read it afresh.
+    const series = join(root, "library", FIXTURE_SERIES);
+    const file = [
+      ...new Bun.Glob("canonical/**/00-01.json").scanSync({ cwd: series }),
+    ][0] as string;
+    const lesson = JSON.parse(readFileSync(join(series, file), "utf8"));
+    const last = lesson.pages.at(-1);
+    const key = `${LESSON}/ex-99`;
+    lesson.pages.push({
+      ...last,
+      exercise: {
+        ...last.exercise,
+        key,
+        items: last.exercise.items.map((item: { key: string }, i: number) => ({
+          ...item,
+          key: `${key}#${i + 1}`,
+        })),
+      },
+    });
+    writeFileSync(join(series, file), JSON.stringify(lesson));
+    const content = createContent(openLibrary(join(root, "library")));
+    expect((await content.lesson(FIXTURE_SERIES, LESSON as LessonKey)).pages).toHaveLength(
+      lesson.pages.length,
+    );
+    const runsNow = createRuns({
+      store: createRunStore({ db: profile, now: Date.now, appVersion: "test" }),
+      cards: createCardStore(profile),
+      content,
+      recordings: { remove: () => 0 },
+    });
+    expect((await runsNow.shown(LESSON as LessonKey))?.run.id).toBe(run.id);
+    expect((await runsNow.progress())[LESSON]).toBeTruthy();
   });
 
   test("resetting progress: one lesson, then the whole course", async () => {
