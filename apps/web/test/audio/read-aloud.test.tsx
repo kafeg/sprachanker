@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, renderHook, waitFor } from "@testing-library/react";
 import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
+import { samplesOf } from "../../src/audio/samples.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
 import { useReadAtOnce } from "../../src/audio/speaker.ts";
 import { ChatBubble, replyParts } from "../../src/llm/parts.tsx";
@@ -147,8 +148,23 @@ test("Settings: the profile's languages with their voice (automatic: the best on
   );
   expect(view.getByText("Automatic — Petra (Enhanced)")).toBeTruthy();
   expect(view.getByText("Automatic — Milena")).toBeTruthy();
-  fireEvent.click(view.getAllByRole("button", { name: "Listen" })[0] as HTMLElement);
-  expect(said).toEqual([{ text: "Deutsch (Deutschland)", lang: "de-DE", voice: "petra", rate: 1 }]);
+  // Listen reads the phrase under it, in the voice's language.
+  const field = view.getByRole("textbox", { name: "Text to listen to in German" });
+  const phrase = (field as HTMLTextAreaElement).value;
+  expect(phrase).toBe(samplesOf("de")[0] as string);
+  const listen = () =>
+    fireEvent.click(view.getAllByRole("button", { name: "Listen" })[0] as HTMLElement);
+  listen();
+  expect(said).toEqual([{ text: phrase, lang: "de-DE", voice: "petra", rate: 1 }]);
+  // Another phrase, then the learner's own text; left empty, the phrase again.
+  fireEvent.click(view.getAllByRole("button", { name: "Another phrase" })[0] as HTMLElement);
+  expect((field as HTMLTextAreaElement).value).toBe(samplesOf("de")[1] as string);
+  fireEvent.change(field, { target: { value: "Wie spät ist es?" } });
+  listen();
+  expect(said.at(-1)?.text).toBe("Wie spät ist es?");
+  fireEvent.change(field, { target: { value: "  " } });
+  listen();
+  expect(said.at(-1)?.text).toBe(samplesOf("de")[1] as string);
 });
 
 const NO_QWEN = { engine: false, models: [], languages: [], speakers: [], speakerOf: {} };

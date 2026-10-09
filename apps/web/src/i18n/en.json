@@ -946,6 +946,8 @@
       "testing": "Say something…",
       "testHint": "Test: three seconds, then listen to yourself. Chosen on this device.",
       "listen": "Listen",
+      "sampleFor": "Text to listen to in {language}",
+      "otherSample": "Another phrase",
       "recordings": "Recordings",
       "keep": "Keep my recordings",
       "keepHint": "To listen to them again later and in the Notebook. Off: a recording plays only until you leave the exercise.",

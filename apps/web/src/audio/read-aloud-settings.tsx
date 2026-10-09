@@ -1,8 +1,17 @@
 // Settings → Speech → Read aloud (08; 09): the engine as cards — the device's voices, Piper or Qwen3-TTS
 // on this computer — the voice of each of the profile's languages with "Listen" (automatic: the best one
-// there), Piper's voices to download per language or Qwen3-TTS's models, the speed, and what is read
-// at once.
-import { Cpu, Download, Laptop, LoaderCircle, Sparkles, Trash2, Volume2 } from "lucide-react";
+// there) and the text it reads (a phrase in that language, or the learner's own), Piper's voices to
+// download per language or Qwen3-TTS's models, the speed, and what is read at once.
+import {
+  Cpu,
+  Download,
+  Laptop,
+  LoaderCircle,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+  Volume2,
+} from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -24,9 +33,11 @@ import {
   SelectValue,
 } from "@/ui/components/select.tsx";
 import { Slider } from "@/ui/components/slider.tsx";
+import { Textarea } from "@/ui/components/textarea.tsx";
 import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
+import { samplesOf } from "./samples.ts";
 import { bestVoice, speaks } from "./speak.ts";
 import { deviceVoice, read, stop, useDeviceVoices, voiceInfo } from "./speaker.ts";
 
@@ -48,10 +59,10 @@ const ranked = (voices: PiperVoice[], lang: string) => {
       a.name.localeCompare(b.name),
   );
 };
-/** The voice says its language's name in that language ("Deutsch (Deutschland)"). */
-const sampleOf = (tag: string) => {
-  const t = tag.replace("_", "-");
-  return languageName(t, t, true);
+/** What "Listen" reads in a language: its phrases, else the language's name in it ("Deutsch"). */
+const samplesFor = (lang: string) => {
+  const phrases = samplesOf(lang);
+  return phrases.length ? phrases : [languageName(lang, lang, true)];
 };
 
 /** The voice a profile chose for a language, with an engine, and how to change it. */
@@ -70,7 +81,8 @@ function useChoice(engine: Engine, lang: string) {
   };
 }
 
-/** A select of voices, automatic first, and "Listen". */
+/** A select of voices, automatic first, "Listen", and below them the text it reads: a phrase in the
+ *  language (another one on request) or the learner's own; left empty, the phrase. */
 function VoicePick({
   lang,
   options,
@@ -84,10 +96,19 @@ function VoicePick({
   value: string;
   auto: string;
   onChange(id: string): void;
-  onListen(): void;
+  onListen(text: string): void;
 }) {
   const { t, i18n } = useTranslation();
   const name = languageName(lang, i18n.language, true);
+  const phrases = samplesFor(lang);
+  const [shown, setShown] = useState(0);
+  const phrase = phrases[shown % phrases.length] ?? "";
+  const [text, setText] = useState(phrase);
+  const another = () => {
+    const next = (shown + 1) % phrases.length;
+    setShown(next);
+    setText(phrases[next] ?? "");
+  };
   return (
     <>
       <Select value={value} onValueChange={onChange}>
@@ -106,9 +127,26 @@ function VoicePick({
           ))}
         </SelectContent>
       </Select>
-      <Button variant="outline" size="sm" onClick={onListen}>
+      <Button variant="outline" size="sm" onClick={() => onListen(text.trim() || phrase)}>
         <Volume2 className="size-4" /> {t("speech.settings.listen")}
       </Button>
+      <div className="basis-full space-y-1 sm:pl-31">
+        <Textarea
+          lang={lang}
+          dir="auto"
+          rows={2}
+          className="min-h-0"
+          aria-label={t("speech.settings.sampleFor", { language: name })}
+          placeholder={phrase}
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        {phrases.length > 1 && (
+          <Button variant="link" size="sm" className="h-auto px-0 py-0" onClick={another}>
+            <RefreshCw className="size-3.5" /> {t("speech.settings.otherSample")}
+          </Button>
+        )}
+      </div>
     </>
   );
 }
@@ -122,9 +160,9 @@ function DeviceVoiceRow({ lang }: { lang: string }) {
   const mine = voices.filter((v) => speaks(voiceInfo(v), lang));
   const name = languageName(lang, i18n.language, true);
   const value = own[lang] && mine.some((v) => v.voiceURI === own[lang]) ? own[lang] : AUTO;
-  const listen = () => {
+  const listen = (text: string) => {
     const voice = deviceVoice(voices, own, lang);
-    void read(`listen:${lang}`, [{ text: sampleOf(voice?.lang ?? lang), lang }], {
+    void read(`listen:${lang}`, [{ text, lang }], {
       wayFor: () => ({ device: voice, rate }),
     });
   };
@@ -178,9 +216,9 @@ function PiperLanguage({ lang, voices }: { lang: string; voices: PiperVoice[] })
   const name = languageName(lang, i18n.language, true);
   const value = own[lang] && installed.some((v) => v.id === own[lang]) ? own[lang] : AUTO;
   const shown = all ? mine : mine.slice(0, 4);
-  const listen = () => {
+  const listen = (text: string) => {
     const voice = value === AUTO ? installed[0]?.id : value;
-    void read(`listen:${lang}`, [{ text: sampleOf(lang), lang }], {
+    void read(`listen:${lang}`, [{ text, lang }], {
       wayFor: () => ({ server: { voice } }),
     });
   };
@@ -345,8 +383,8 @@ function QwenLanguage({ lang, state }: { lang: string; state: QwenState }) {
   const value =
     own[lang] && (state.speakers as readonly string[]).includes(own[lang]) ? own[lang] : AUTO;
   const speakerName = (s: string) => s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
-  const listen = () => {
-    void read(`listen:${lang}`, [{ text: sampleOf(lang), lang }], {
+  const listen = (text: string) => {
+    void read(`listen:${lang}`, [{ text, lang }], {
       wayFor: () => ({ server: { voice: value === AUTO ? undefined : value } }),
     });
   };

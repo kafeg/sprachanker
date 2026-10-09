@@ -946,6 +946,8 @@
       "testing": "Sag etwas …",
       "testHint": "Test: drei Sekunden, dann hör dich an. Gilt für dieses Gerät.",
       "listen": "Anhören",
+      "sampleFor": "Text zum Anhören: {language}",
+      "otherSample": "Anderer Satz",
       "recordings": "Aufnahmen",
       "keep": "Meine Aufnahmen behalten",
       "keepHint": "Um sie später und im Heft wieder anzuhören. Aus: eine Aufnahme gibt es nur, bis du die Übung verlässt.",
