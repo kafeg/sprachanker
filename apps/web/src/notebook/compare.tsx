@@ -56,7 +56,7 @@ export function CompareView({ ids }: { ids: [string, string] }) {
             .find((s) => s.exercise.key === key);
           return (
             <li key={key} className={grid}>
-              <span className="truncate">
+              <span className="line-clamp-2">
                 {shown?.locale?.title || t("lesson.exerciseN", { n: (shown?.pageIndex ?? 0) + 1 })}
               </span>
               <span className="text-right tabular-nums">{cell(0, key)}</span>

@@ -78,7 +78,8 @@ function Pass({ pass }: { pass: NotebookPass }) {
               <li key={key}>
                 <ListRow expanded={open.isOpen(key)} onClick={() => open.toggle(key)}>
                   <StepDot state={state} label={pageIndex + 1} />
-                  <span className="min-w-0 flex-1 truncate">
+                  {/* Two lines before it is cut: on a phone the status takes its share. */}
+                  <span className="line-clamp-2 min-w-0 flex-1">
                     {locale?.title || t("lesson.exerciseN", { n: pageIndex + 1 })}
                   </span>
                   <span className="text-sm tabular-nums text-muted-foreground">

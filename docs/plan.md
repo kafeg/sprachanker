@@ -26,22 +26,7 @@ how it fits together, by `docs/architecture.md`. Each item names the spec files 
 
 ## Next, in order
 
-### 1. Fixes from use: course content, checks, layout (owner, 2026-10-09)
-Specs: 02, 03, 08, 09.
-- Lingust ("Правильный английский"): "≈" marks left in phrases; a transcription line cut where the
-  English was taken out ("бай) - Пока!"); grammar pages split into cards by their sub-headings
-  ("Спряжение глагола to be в настоящем времени" / "… в прошедшем времени").
-- Every provider's normaliser looked over for structure and how its pages read (sections, headings,
-  tables, leftovers) and fixed where a general rule does it.
-- The spoken check's word diff: a word heard as one where the phrase has two ("Goodbye" for "Good
-  bye", and the other way) counts as said; marks that are not words ("≈") are not words to say.
-- A phrase to repeat is shown at once when there is nothing to listen to first.
-- Forms and layout looked over screen by screen (Settings first: labels, spacing, hints for every
-  option that is not plain).
-- **Accept**: the Lingust lessons named above read cleanly; tests of the normaliser rules and the diff;
-  the screens looked over on desktop and phone width.
-
-### 2. Word examples by deck (owner, 2026-10-09)
+### 1. Word examples by deck (owner, 2026-10-09)
 Specs: 04, 07, 09.
 - Examples of use made for a whole deck at once, on the learner's request from Review → Decks: the
   model goes through every word of a course's deck and writes 3–5 examples per word (with the course's
@@ -50,7 +35,7 @@ Specs: 04, 07, 09.
   them.
 - **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them.
 
-### 3. Interface in every language a course explains in (owner, 2026-10-09)
+### 2. Interface in every language a course explains in (owner, 2026-10-09)
 Specs: 09, 10.
 - The UI catalogs beyond en/ru/de: every source language of the installed providers (DW: Arabic,
   Bosnian, Greek, Spanish, Persian, French, Hindi, Hungarian, Indonesian, Polish, Portuguese,
@@ -59,7 +44,7 @@ Specs: 09, 10.
   script; the onboarding and the language switch offer them.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
-### 4. Exams (owner, 2026-10-08)
+### 3. Exams (owner, 2026-10-08)
 Specs: 02, 03, 06, 09.
 - **An "Exams" section of its own** beside Courses, built like it (tabs: mine, downloaded,
   available; the pair filter): an exam is got and installed from the interface like a course, from
@@ -73,10 +58,10 @@ Specs: 02, 03, 06, 09.
 - **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
   section; at least one A1–B1 model test, if one is importable; results in the Notebook.
 
-### 5. Run-throughs on real courses: the screens and what is stored (owner, 2026-10-09)
+### 4. Run-throughs on real courses: the screens and what is stored (owner, 2026-10-09)
 Specs: 05, 10.
 - Playwright scenarios that go through installed courses as a learner does — every kind of step and
-  exercise a course has, its words into Review and a review session, an exam once item 4 is built,
+  exercise a course has, its words into Review and a review session, an exam once item 3 is built,
   the Notebook — and after each step read the profile's database (events, runs, cards, card state)
   to check that what was done is stored as it should be (05); a failing step leaves screenshots and
   the rows it read.
@@ -88,14 +73,14 @@ Specs: 05, 10.
 - **Accept**: a run-through of one lesson of every installed provider and of a review session,
   selectable by filter, with the stored data checked; a deliberately broken store makes it fail.
 
-### 6. Notebook: more pictures (owner's request, 2026-10-07)
+### 5. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 7. Phones (owner, 2026-10-08: functionality first, phones after)
+### 6. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
   network (when the server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them
@@ -111,7 +96,7 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 8. A week of real use
+### 7. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
@@ -127,6 +112,8 @@ Taken along when an item above touches the area, or on request.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
   beside the "Write it yourself" box, as in free answers, scenes and the tutor.
+- Notebook (09): a lesson's page opened without passes (a link) has no title — the server names it by
+  the edition of a pass.
 - Review (09): the course map's can-do list; a word anywhere in a lesson opens its sheet (09, "word
   sheet": forms, translation, audio, examples from lessons met, answers, "add to cards").
 - Reading aloud (08): Qwen3-TTS's voice cloning and voice design (the engine has both; a voice of the
