@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync } from "node:fs";
+import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES, writeFixtureLibrary } from "@sprachanker/course-fixture";
@@ -57,6 +57,35 @@ test("two profiles: each its own progress; choosing one signs it in", async () =
   const again = await anonymous("POST", "/api/session", { profile: anna.id });
   expect(again.status).toBe(200);
   expect(cookieOf(again)).not.toBe(cookie);
+});
+
+test("a profile deletes itself with everything it holds; this device is signed out; the others stay", async () => {
+  const { sendJson, anonymous, root } = await setup();
+  await sendJson("POST", "/api/runs", {
+    series: FIXTURE_SERIES,
+    lessonKey: LESSON,
+    edition: "ru-de",
+  });
+  const made = await anonymous("POST", "/api/profiles", { name: "Anna" });
+  const anna = (await read(made)).profile;
+  const cookie = cookieOf(made);
+  const asAnna = (method: string, path: string) => anonymous(method, path, {}, { cookie });
+  expect(existsSync(join(root, "profiles", anna.id, "profile.sqlite"))).toBe(true);
+  const gone = await asAnna("DELETE", "/api/profile");
+  expect(gone.status).toBe(200);
+  expect(gone.headers.get("set-cookie")).toMatch(/sprachanker_device=;/);
+  // Her folder and her place on the list are gone; her device no longer signs in.
+  expect(existsSync(join(root, "profiles", anna.id))).toBe(false);
+  const list = await read(anonymous("GET", "/api/profiles"));
+  expect(list.profiles.map((p: { name: string }) => p.name)).toEqual(["Test"]);
+  expect((await asAnna("GET", "/api/courses")).status).toBe(401);
+  // The other profile keeps its progress.
+  const state = await read(
+    anonymous("GET", `/api/runs/lesson?series=${FIXTURE_SERIES}&lessonKey=${LESSON}`, undefined, {
+      cookie: cookieOf(await anonymous("POST", "/api/session", { profile: "local" })),
+    }),
+  );
+  expect(state.state).not.toBeNull();
 });
 
 test("devices: listed with the current one; one signed out; signing out ends the session", async () => {

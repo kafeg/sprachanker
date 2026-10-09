@@ -48,6 +48,15 @@ export function useSignOut() {
   });
 }
 
+/** Deletes the signed-in profile with everything it holds; this device is then signed out. */
+export function useDeleteProfile() {
+  const signedIn = useSignedIn();
+  return useMutation({
+    mutationFn: () => json(api.profile.$delete()),
+    onSuccess: () => signedIn(null),
+  });
+}
+
 /** Keeps a changed profile as the session's. */
 function useProfileSaved() {
   const client = useQueryClient();

@@ -1,5 +1,5 @@
 // A device signed in to no profile: who is studying in the language chosen there, a new profile (named
-// first) and its onboarding to Courses → Available.
+// first), its onboarding to Courses → Available, and deleting it again.
 import { expect, test } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -68,6 +68,14 @@ test("a new profile: who is studying, then the onboarding step by step to Course
     ((await (await page.request.get("/api/settings")).json()) as Record<string, unknown>)
       .uiLanguage,
   ).toBe("en");
+
+  // Deleted again from Settings, after asking: back to who is studying, where it is no more.
+  await page.goto("/settings#profile");
+  await page.getByRole("button", { name: "Delete profile…" }).click();
+  const ask = page.getByRole("alertdialog");
+  await expect(ask).toContainText("Delete the profile “Mila”?");
+  await ask.getByRole("button", { name: "Delete for good" }).click();
+  await expect(page.getByRole("heading", { name: "Who is studying?" })).toBeVisible();
 });
 
 test.describe("with a German browser", () => {

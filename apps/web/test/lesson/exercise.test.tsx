@@ -64,14 +64,21 @@ test("an item answered again is the only one Check checks; a retry clears everyt
   act(() => result.current.hear("item-1"));
   act(() => result.current.check());
   act(() => result.current.toggleExplain(1));
+  const [first, second] = [result.current.cardKey(0), result.current.cardKey(1)];
   act(() => result.current.answerAgain(1));
+  // Only the item answered again is made anew (its renderer's state, its players at the start).
+  expect([result.current.cardKey(0), result.current.cardKey(1) === second]).toEqual([first, false]);
   expect(result.current.explaining.has(1)).toBe(false);
   expect(result.current.activeItem).toBe(1);
   act(() => result.current.answer(1, { optionId: "a" }));
   act(() => result.current.check());
   expect(sent[1]?.[0].map((a) => [a.itemKey, a.outcome.result])).toEqual([[`${KEY}#2`, "correct"]]);
+  const round = result.current.round;
   act(() => result.current.retry());
   expect([result.current.outcomes, result.current.answers]).toEqual([undefined, {}]);
+  // Every card and the exercise's own media made anew.
+  expect(result.current.round).toBe(round + 1);
+  expect(result.current.cardKey(0)).not.toBe(first);
 });
 
 test("reopened: the run's latest answers and outcomes are back, nothing to listen to again", () => {

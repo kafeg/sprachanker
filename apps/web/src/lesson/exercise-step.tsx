@@ -125,6 +125,7 @@ export function ExerciseStep({
         <div className={ITEM_GRID}>
           <div className="col-start-1 space-y-4">
             <MediaBlock
+              key={ex.round}
               media={exercise.media}
               url={url}
               audioLabel={t("lesson.exerciseOf", { n: index + 1, total })}
@@ -151,7 +152,7 @@ export function ExerciseStep({
             // Card · controls: the card keeps its size when checked; only an explanation asked
             // for adds a panel under it.
             <li
-              key={item.key}
+              key={ex.cardKey(i)}
               className={ITEM_GRID}
               onPointerDown={() => ex.touch(i)}
               onFocus={() => ex.touch(i)}
@@ -226,7 +227,15 @@ export function ExerciseStep({
         extra={
           outcomes &&
           !readOnly && (
-            <Button variant="outline" size="lg" onClick={ex.retry}>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                ex.retry();
+                // Begun again from the top: the exercise's text and its first item.
+                window.scrollTo({ top: 0 });
+              }}
+            >
               {t("lesson.retry")}
             </Button>
           )

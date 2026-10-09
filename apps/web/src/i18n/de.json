@@ -793,7 +793,11 @@
     "lastSeen": "zuletzt genutzt {date}",
     "signOutDevice": "Abmelden",
     "switch": "Profil wechseln",
-    "open": "Profil"
+    "open": "Profil",
+    "delete": "Profil löschen…",
+    "deleteTitle": "Das Profil „{name}“ löschen?",
+    "deleteBody": "Fortschritt, Wörter und Karten, Aufnahmen, Gespräche mit der KI und die angemeldeten Geräte werden endgültig gelöscht. Andere Profile und die Kurse bleiben.",
+    "deleteConfirm": "Endgültig löschen"
   },
   "decks": {
     "tabs": {

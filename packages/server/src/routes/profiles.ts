@@ -92,33 +92,41 @@ export function requireSession(svc: Services) {
 /** The signed-in profile itself: name, colour, onboarding, devices. */
 export function profileRoutes(svc: Services) {
   const { profiles, devices } = svc;
-  return new Hono<ProfileEnv>()
-    .put(
-      "/profile",
-      zod(
-        "json",
-        z.object({
-          name: Name.optional(),
-          colour: ProfileColour.optional(),
-          onboarded: z.boolean().optional(),
-        }),
-      ),
-      (c) => c.json({ profile: profiles.update(c.var.profileId, c.req.valid("json")) }),
-    )
-    .get("/profile/devices", (c) =>
-      c.json({
-        devices: devices
-          .list(c.var.profileId)
-          .map((d) => ({ ...d, current: d.id === c.var.deviceId })),
-      }),
-    )
-    .delete(
-      "/profile/devices/:id",
-      zod("param", z.object({ id: z.string().min(1).max(40) })),
-      (c) => {
-        if (!devices.revoke(c.var.profileId, c.req.valid("param").id))
-          throw new ServiceError("no_device", 404);
+  return (
+    new Hono<ProfileEnv>()
+      .put(
+        "/profile",
+        zod(
+          "json",
+          z.object({
+            name: Name.optional(),
+            colour: ProfileColour.optional(),
+            onboarded: z.boolean().optional(),
+          }),
+        ),
+        (c) => c.json({ profile: profiles.update(c.var.profileId, c.req.valid("json")) }),
+      )
+      // The profile deleted with everything it holds; this device is signed out of it.
+      .delete("/profile", (c) => {
+        svc.removeProfile(c.var.profileId);
+        deleteCookie(c, DEVICE_COOKIE, { path: "/" });
         return c.json({ ok: true as const });
-      },
-    );
+      })
+      .get("/profile/devices", (c) =>
+        c.json({
+          devices: devices
+            .list(c.var.profileId)
+            .map((d) => ({ ...d, current: d.id === c.var.deviceId })),
+        }),
+      )
+      .delete(
+        "/profile/devices/:id",
+        zod("param", z.object({ id: z.string().min(1).max(40) })),
+        (c) => {
+          if (!devices.revoke(c.var.profileId, c.req.valid("param").id))
+            throw new ServiceError("no_device", 404);
+          return c.json({ ok: true as const });
+        },
+      )
+  );
 }

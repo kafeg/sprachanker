@@ -197,6 +197,12 @@ export function createServices(config: ServicesConfig) {
     speech,
     profiles,
     devices: createDevices({ db: config.server, now }),
+    /** Deletes a profile with all it holds — its database and its daily copies, recordings, devices —
+     *  its services let go first (the learner's own request, asked to confirm in the app). */
+    removeProfile(profileId: string) {
+      open.delete(profileId);
+      profiles.remove(profileId);
+    },
     /** A profile's services (its database opened and its cards relinked on first use). */
     of(profileId: string): ProfileServices {
       let s = open.get(profileId);

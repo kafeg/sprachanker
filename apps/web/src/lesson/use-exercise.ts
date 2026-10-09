@@ -52,6 +52,12 @@ export function useExercise({
     return scored && restored.length ? Object.fromEntries(restored) : undefined;
   });
   const shownAt = useRef(Date.now());
+  /** How often the exercise, and each item, was begun again: a card begun again is made anew — its
+   *  renderer's own state (a chip picked, a take), its players back at the start. */
+  const [rounds, setRounds] = useState<{ all: number; item: Record<number, number> }>({
+    all: 0,
+    item: {},
+  });
   const [explaining, setExplaining] = useState<Set<number>>(new Set());
 
   // Recordings that must be played before checking: the exercise's own and each item's. Reopening an
@@ -139,15 +145,21 @@ export function useExercise({
         next.delete(i);
         return next;
       });
+      setRounds((r) => ({ ...r, item: { ...r.item, [i]: (r.item[i] ?? 0) + 1 } }));
       shownAt.current = Date.now();
     },
-    /** The whole exercise again. */
+    /** The whole exercise again: every card, and the exercise's own media, made anew. */
     retry() {
       setAnswers({});
       setOutcomes(undefined);
       setExplaining(new Set());
+      setRounds((r) => ({ all: r.all + 1, item: {} }));
       shownAt.current = Date.now();
     },
+    /** What a card is made anew by (React's key): the item, and how often it was begun again. */
+    cardKey: (i: number) => `${exercise.items[i]?.key}:${rounds.all}:${rounds.item[i] ?? 0}`,
+    /** What the exercise's own media are made anew by. */
+    round: rounds.all,
     toggleExplain(i: number) {
       setExplaining((prev) => {
         const next = new Set(prev);

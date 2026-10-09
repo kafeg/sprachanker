@@ -36,7 +36,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
 - Progress: `POST /api/progress/reset` (a course or one lesson, 05).
 - Profiles (without a session): `GET` / `POST /api/profiles` (who is studying and registration; a new
   profile, signed in), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
-  choosing; signing out). With a session: `PUT /api/profile` (name, colour, onboarded),
+  choosing; signing out). With a session: `PUT /api/profile` (name, colour, onboarded), `DELETE
+  /api/profile` (the profile with its database and daily copies, recordings and devices; this device
+  signed out),
   `GET /api/profile/devices`,
   `DELETE /api/profile/devices/:id`.
 - Speech (08): `GET /api/speech` (the engine, its models with downloads, the profile's recognition and
@@ -45,7 +47,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   /api/speech/voices` (Piper's engine and voices with downloads), `POST` / `DELETE
   /api/speech/voices/:id`, `POST /api/speech/say` (`{text, lang, voice?}` → a WAV with the profile's
   voice and speed; `voice` to hear another installed one); `GET /api/speech/qwen` (Qwen3-TTS's engine,
-  models with downloads, languages, speakers and each language's default), `POST` / `DELETE
+  models with downloads, languages, speakers and the default speaker), `POST` / `DELETE
   /api/speech/qwen/models/:id`, `POST /api/speech/qwen/warm`.
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
   body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.

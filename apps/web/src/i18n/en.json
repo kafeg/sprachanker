@@ -793,7 +793,11 @@
     "lastSeen": "last used {date}",
     "signOutDevice": "Sign out",
     "switch": "Switch profile",
-    "open": "Profile"
+    "open": "Profile",
+    "delete": "Delete profile…",
+    "deleteTitle": "Delete the profile “{name}”?",
+    "deleteBody": "Its progress, words and cards, recordings, AI chats and devices signed in to it are deleted for good. Other profiles and the courses stay.",
+    "deleteConfirm": "Delete for good"
   },
   "decks": {
     "tabs": {

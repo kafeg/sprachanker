@@ -1,11 +1,12 @@
 // Settings → Profile (06, "Profiles and access"; 09): the name and colour, the languages, the devices
-// signed in to it, switching profile.
+// signed in to it, switching profile, deleting it (asked to confirm).
 import { ProfileColour, settingOf } from "@sprachanker/schema";
-import { LogOut } from "lucide-react";
+import { LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import {
+  useDeleteProfile,
   useDevices,
   useRevokeDevice,
   useSession,
@@ -17,6 +18,7 @@ import { Avatar } from "@/ui/avatar.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
+import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -107,7 +109,38 @@ export function ProfileSettings() {
       >
         <LogOut /> {t("profile.switch")}
       </Button>
+      <DeleteProfile />
     </div>
+  );
+}
+
+/** Deleting the profile with its progress, words, recordings and devices — after asking. */
+function DeleteProfile() {
+  const { t } = useTranslation();
+  const name = useSession().data?.profile?.name ?? "";
+  const remove = useDeleteProfile();
+  const [asking, setAsking] = useState(false);
+  return (
+    <>
+      <Button
+        variant="ghost"
+        size="lg"
+        className="text-muted-foreground hover:text-wrong"
+        onClick={() => setAsking(true)}
+      >
+        <Trash2 /> {t("profile.delete")}
+      </Button>
+      <ConfirmDialog
+        open={asking}
+        onOpenChange={setAsking}
+        title={t("profile.deleteTitle", { name })}
+        description={t("profile.deleteBody")}
+        confirm={t("profile.deleteConfirm")}
+        cancel={t("common.cancel")}
+        busy={remove.isPending}
+        onConfirm={() => remove.mutate()}
+      />
+    </>
   );
 }
 
