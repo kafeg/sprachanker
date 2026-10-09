@@ -199,7 +199,7 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
             // Tasks for the notebook and a partner: the source gives no answers to check.
             ...(homework.length ? { homework } : {}),
             ...(parsed?.dialogue.length
-              ? { script: { title: "Conversation", bodyHtml: scriptHtml(parsed.dialogue) } }
+              ? { script: { bodyHtml: scriptHtml(parsed.dialogue) } }
               : {}),
           },
           downloads: [],

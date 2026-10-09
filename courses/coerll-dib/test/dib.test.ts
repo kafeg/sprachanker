@@ -96,7 +96,8 @@ test("normalisation: chapters → units, sections → lessons, all files valid",
   const locale = LocaleLesson.parse(byPath["locale/en-de/dib/lessons/02-01.json"]);
   expect(locale.title).toBe("Im Zoo · At the zoo");
   expect(locale.downloads.map((d) => [d.title, d.path as string])).toEqual([
-    ["Kapitel 2 — textbook (PDF)", "media/pdf/k_02.pdf"],
+    // Named by the chapter as the source names it, nothing of our own.
+    ["Ein Tag & eine Nacht (PDF)", "media/pdf/k_02.pdf"],
   ]);
   expect(Object.values(locale.vocab).map((v) => v.translation)).toEqual(["dog", "size"]);
   const course = LocaleCourse.parse(byPath["locale/en-de/dib/course.json"]);

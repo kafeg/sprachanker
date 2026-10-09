@@ -9,10 +9,14 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 
 /** A grammar or culture page's title; a topic begun in an earlier lesson says which part this is. */
+/** A page's title as shown, with its part; "" for a page the source gave no title. */
 export const pageTitle = (
-  page: { title: string; part?: number },
+  page: { title?: string; part?: number },
   t: (key: string, values?: Record<string, unknown>) => string,
-) => (page.part ? `${page.title} · ${t("lesson.part", { n: page.part })}` : page.title);
+) => {
+  if (!page.title) return "";
+  return page.part ? `${page.title} · ${t("lesson.part", { n: page.part })}` : page.title;
+};
 
 export function VocabularyList({
   lesson,
@@ -72,13 +76,13 @@ export function VocabularyList({
   );
 }
 
-function Pages({ pages }: { pages: Array<{ title: string; bodyHtml: string; part?: number }> }) {
+function Pages({ pages }: { pages: Array<{ title?: string; bodyHtml: string; part?: number }> }) {
   const { t } = useTranslation();
   if (!pages.length) return <p className="text-muted-foreground">{t("ref.none")}</p>;
   return (
     <div className="space-y-6">
       {pages.map((p) => (
-        <article key={p.title + p.bodyHtml.length}>
+        <article key={`${p.title ?? ""}:${p.bodyHtml.length}`}>
           {p.title && <h3 className="mb-2 text-xl font-bold">{pageTitle(p, t)}</h3>}
           <CourseSections html={p.bodyHtml} />
         </article>

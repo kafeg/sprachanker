@@ -160,7 +160,6 @@
               }
             },
             "required": [
-              "title",
               "bodyHtml"
             ],
             "additionalProperties": false
@@ -188,7 +187,6 @@
               }
             },
             "required": [
-              "title",
               "bodyHtml"
             ],
             "additionalProperties": false
@@ -214,7 +212,6 @@
             }
           },
           "required": [
-            "title",
             "bodyHtml"
           ],
           "additionalProperties": false
@@ -241,7 +238,6 @@
               }
             },
             "required": [
-              "title",
               "bodyHtml"
             ],
             "additionalProperties": false

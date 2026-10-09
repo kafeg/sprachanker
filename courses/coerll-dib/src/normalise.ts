@@ -115,8 +115,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
           vocab: translations,
           tabs: { grammar: [], culture: [] },
           // The chapter's textbook (with its exercises) goes with the chapter's first lesson.
-          downloads:
-            i === 0 && pdf ? [{ title: `Kapitel ${chapter.k} — textbook (PDF)`, path: pdf }] : [],
+          downloads: i === 0 && pdf ? [{ title: `${chapter.title} (PDF)`, path: pdf }] : [],
         }),
       );
     }

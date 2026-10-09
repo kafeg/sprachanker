@@ -280,8 +280,8 @@ test("normalised files validate; units of ten, review lessons in the unit of the
   expect(locale.vocab["voa.english-usa/english-usa/01-01/v-cup" as never]).toEqual({
     translation: "чашка",
   });
+  // The source gives the conversation no title: none of our own.
   expect(locale.tabs.script).toEqual({
-    title: "Conversation",
     bodyHtml: "<p><b>Ann:</b> Tea, please.</p><p><b>Waiter Bob:</b> Here you are.</p>",
   });
   expect(locale.vocab["voa.english-usa/english-usa/01-01/v-we" as never]).toEqual({

@@ -28,7 +28,7 @@ export function stepTitle(
     case "grammar":
     case "culture": {
       const page = locale?.tabs[step.kind][step.index];
-      return page ? pageTitle(page, t) : t(`lesson.step.${step.kind}`);
+      return (page && pageTitle(page, t)) || t(`lesson.step.${step.kind}`);
     }
     case "words":
       return t("lesson.step.wordsCount", { count: lesson.vocab.length });

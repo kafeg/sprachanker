@@ -86,13 +86,13 @@ export function ReadingStep({
 }: {
   /** "Grammar" or "Culture". */
   section: string;
-  page: { title: string; bodyHtml: string; part?: number };
+  page: { title?: string; bodyHtml: string; part?: number };
   children: React.ReactNode;
 }) {
   const { t } = useTranslation();
   return (
     <article className="flex min-h-[calc(100dvh-8rem)] flex-col gap-4">
-      <StepHeader label={section} title={pageTitle(page, t)} />
+      <StepHeader label={section} title={pageTitle(page, t) || section} />
       <CourseSections className="text-lg" html={page.bodyHtml} />
       {children}
     </article>

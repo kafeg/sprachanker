@@ -223,7 +223,7 @@ export function LessonPlayer({
             {(step.kind === "grammar" || step.kind === "culture") && (
               <ReadingStep
                 section={t(`lesson.step.${step.kind}`)}
-                page={locale?.tabs[step.kind][step.index] ?? { title: "", bodyHtml: "" }}
+                page={locale?.tabs[step.kind][step.index] ?? { bodyHtml: "" }}
               >
                 <StepBar onBack={back} onNext={next} />
               </ReadingStep>

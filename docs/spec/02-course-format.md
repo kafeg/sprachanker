@@ -14,7 +14,7 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 | Edition id | `<source>-<target>` (`ru-de`, `en-de`, `de-de`) |
 | Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
 | Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL; one file per content in a series — URLs whose files are the same (by sha256) point to one, the first path in order (each fetch makes it so, stored ones too; files no URL points to any more stay, as passes and cards may name them) |
-| Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path |
+| Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path. Every text is the source's: a provider makes up none (a page the source gives no title has none, and the app names it by its kind) |
 | HTML | only in fields named `*Html`, sanitised to an allow-list: h3 (a section title), p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text |
 | Format versions | integer `format` in every content file type (canonical, locale, manifest, enrichment, exams); bumped on breaking change; additive optional fields do not bump it. The importer's own state (`media.json`, `keys.json`) has none: it is checked when read, and one that does not read stops the import |
 

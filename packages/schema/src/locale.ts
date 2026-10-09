@@ -49,10 +49,11 @@ export const LocaleExercise = z.strictObject({
 export type LocaleExercise = z.infer<typeof LocaleExercise>;
 export type LocaleItem = z.infer<typeof LocaleItem>;
 
-/** Grammar, culture or script page of a lesson; may mix languages. */
+/** Grammar, culture or script page of a lesson; may mix languages. Its title is the source's, when the
+ *  source gives one (none: the app names the page by its kind). */
 export const Tab = z.strictObject({
   sourceId: SourceId.optional(),
-  title: z.string(),
+  title: z.string().optional(),
   bodyHtml: z.string(),
   /** A topic continued from an earlier lesson: the part it starts with here (2, 3, …). */
   part: z.number().int().min(2).optional(),

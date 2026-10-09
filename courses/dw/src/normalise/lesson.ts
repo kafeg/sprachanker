@@ -85,8 +85,8 @@ function digitsValue(digits: string) {
 export function topicParts(pages: Tab[]): Tab[] {
   const byTitle = new Map<string, { page: Tab; first?: number }>();
   for (const page of pages) {
-    const match = PART.exec(page.title);
-    const title = page.title.replace(PART, "");
+    const match = PART.exec(page.title ?? "");
+    const title = (page.title ?? "").replace(PART, "");
     const n = match ? digitsValue(match[1] as string) : undefined;
     const topic = byTitle.get(topicOf(title));
     if (topic) {
@@ -236,7 +236,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       tabs: {
         grammar: tabsOf("GRAMMAR"),
         culture: tabsOf("REGIONAL_STUDIES"),
-        ...(scriptHtml ? { script: { title: "", bodyHtml: scriptHtml } } : {}),
+        ...(scriptHtml ? { script: { bodyHtml: scriptHtml } } : {}),
       },
       downloads,
     },
