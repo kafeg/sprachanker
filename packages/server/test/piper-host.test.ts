@@ -1,5 +1,6 @@
-// The runtime's Piper host on the file system: a voice's archive downloaded, checked and unpacked
-// whole; a reading made once by the engine (a stand-in script) however many ask for it together.
+// The runtime's Piper host and reading cache on the file system: a voice's archive downloaded, checked
+// and unpacked whole; a reading made by the engine (a stand-in script), kept once however many ask for
+// it together.
 import { afterAll, expect, test } from "bun:test";
 import {
   chmodSync,
@@ -14,7 +15,8 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { piperHost } from "../src/runtime/speech.ts";
+import { piperHost } from "../src/runtime/piper.ts";
+import { readingCache } from "../src/runtime/readings.ts";
 import type { PiperVoice } from "../src/services/read-aloud.ts";
 
 const work = mkdtempSync(join(tmpdir(), "sprachanker-piper-"));
@@ -65,6 +67,7 @@ test("a voice downloaded, checked and unpacked whole; a wrong one leaves nothing
 test("a reading is made once however many ask for it together, then served from the cache", async () => {
   const root = join(work, "root-say");
   const host = piperHost(root);
+  const readings = readingCache(root);
   // The engine's stand-in: writes the text as the WAV after a moment, and counts its runs.
   const runs = join(work, "runs.txt");
   const engine = join(work, "engine.sh");
@@ -74,11 +77,12 @@ test("a reading is made once however many ask for it together, then served from 
   );
   chmodSync(engine, 0o755);
   const run = { binary: engine, dir: work, id: ID, text: "Guten Tag", lengthScale: 1 };
-  const [a, b] = await Promise.all([host.say("k1", run), host.say("k1", run)]);
+  const say = () => readings.kept("k1", () => host.run(run));
+  const [a, b] = await Promise.all([say(), say()]);
   expect(new TextDecoder().decode(a)).toBe("Guten Tag");
   expect(new TextDecoder().decode(b)).toBe("Guten Tag");
   expect(readFileSync(runs, "utf8").trim().split("\n")).toHaveLength(1);
-  await host.say("k1", run);
+  await say();
   expect(readFileSync(runs, "utf8").trim().split("\n")).toHaveLength(1);
   expect(readdirSync(join(root, "cache", "tts"))).toEqual(["k1.wav"]);
 });
@@ -89,17 +93,19 @@ test("what a stopped server left is gone once one starts; a reading kept counts 
   const voices = join(root, "models", "voices");
   mkdirSync(cache, { recursive: true });
   mkdirSync(join(voices, `${ID}.part`), { recursive: true });
-  for (const name of ["a.part", "b.piper.wav", "kept.wav"]) writeFileSync(join(cache, name), "x");
+  writeFileSync(join(cache, "a.part"), "x");
+  writeFileSync(join(cache, "kept.wav"), "x");
   writeFileSync(join(voices, `${ID}.tar.bz2.part`), "x");
-  const host = piperHost(root);
+  piperHost(root);
+  const readings = readingCache(root);
   expect(readdirSync(cache)).toEqual(["kept.wav"]);
   expect(readdirSync(voices)).toEqual([]);
   // Read from the cache: its time is now, so pruning the oldest keeps it.
   const old = new Date(2020, 0, 1);
   utimesSync(join(cache, "kept.wav"), old, old);
-  const bytes = await host.kept("kept", async () => {
+  const kept = await readings.kept("kept", async () => {
     throw new Error("made again");
   });
-  expect(new TextDecoder().decode(bytes)).toBe("x");
+  expect(new TextDecoder().decode(kept)).toBe("x");
   expect(statSync(join(cache, "kept.wav")).mtimeMs).toBeGreaterThan(old.getTime());
 });

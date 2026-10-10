@@ -1,10 +1,19 @@
 import { expect, test } from "bun:test";
+import type { ReadingCache } from "../src/services/local-engines.ts";
 import type { PiperHost, PiperVoice } from "../src/services/read-aloud.ts";
 import { setup } from "./setup.ts";
 
-/** A Piper host on paper: voices installed by id, what it was asked to say, a WAV per text. */
+/** A Piper host on paper: voices installed by id, what it was asked to say (under which key it is
+ *  kept), a WAV per text. */
 function piper(installed: string[], built = true) {
   const said: Array<{ key: string; id: string; text: string; lengthScale: number }> = [];
+  let key = "";
+  const readings: ReadingCache = {
+    kept(k, produce) {
+      key = k;
+      return produce();
+    },
+  };
   const downloaded: string[] = [];
   const host: PiperHost = {
     binary: () => (built ? "/bin/sherpa" : undefined),
@@ -16,18 +25,17 @@ function piper(installed: string[], built = true) {
     remove(id) {
       installed.splice(installed.indexOf(id), 1);
     },
-    kept: (_key, produce) => produce(),
-    async say(key, run) {
+    async run(run) {
       said.push({ key, id: run.id, text: run.text, lengthScale: run.lengthScale });
       return new Uint8Array([82, 73, 70, 70]);
     },
   };
-  return { host, said, downloaded };
+  return { host, readings, said, downloaded };
 }
 
 test("reading aloud with Piper: the voices offered, one downloaded; a text said as a WAV with the best voice or the profile's", async () => {
   const p = piper(["de_DE-thorsten-medium"]);
-  const { getJson, send, sendJson } = await setup({ piper: p.host });
+  const { getJson, send, sendJson } = await setup({ piper: p.host, readings: p.readings });
   const state = await getJson("/api/speech/voices");
   expect(state.engine).toBe(true);
   const thorsten = state.voices.find((v: { id: string }) => v.id === "de_DE-thorsten-medium");
@@ -38,9 +46,12 @@ test("reading aloud with Piper: the voices offered, one downloaded; a text said 
     installed: true,
   });
   expect(state.voices.some((v: { lang: string }) => v.lang === "ru")).toBe(true);
+  expect(state.auto).toEqual({ de: "de_DE-thorsten-medium" });
 
   await sendJson("POST", "/api/speech/voices/de_DE-thorsten-high", {});
   expect(p.downloaded).toEqual(["de_DE-thorsten-high"]);
+  // Each language read with its best voice there unless the profile picks one: high before medium.
+  expect((await getJson("/api/speech/voices")).auto).toEqual({ de: "de_DE-thorsten-high" });
 
   const say = (text: string) => send("POST", "/api/speech/say", { text, lang: "de" });
   const wav = await say("Guten Tag!");

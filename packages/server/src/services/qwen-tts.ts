@@ -5,9 +5,16 @@
 // Piper's (one cache), so a text read again comes at once.
 import { ServiceError } from "../errors.ts";
 import { sha256 } from "../security/encoding.ts";
-import type { PiperHost } from "./read-aloud.ts";
-import { createSidecar } from "./sidecar.ts";
-import type { ModelFile, SpeechHost } from "./speech.ts";
+import {
+  createModelDownloads,
+  engineSidecar,
+  keptIn,
+  type ModelFile,
+  offered,
+  type ReadingCache,
+  type SpeechHost,
+  untilAborted,
+} from "./local-engines.ts";
 
 /** The languages Qwen3-TTS speaks, by code, with the name its server takes. */
 export const QWEN_LANGUAGES: Record<string, string> = {
@@ -73,36 +80,33 @@ const SEED = 42;
 
 export function createQwenTts(deps: {
   host?: SpeechHost;
-  cache?: Pick<PiperHost, "kept">;
+  readings?: ReadingCache;
   fetch: typeof fetch;
 }) {
   const { host } = deps;
-  /** The codec's download, one for every model's that needs it; stopped only when none still does. */
+  const binary = () => host?.qwen?.binary();
+  const kept = keptIn(deps.readings);
+  /** The codec's download, one for every model's that needs it (each told its bytes); stopped only
+   *  when none still waits for it. */
   type CodecDownload = {
     promise: Promise<void>;
     controller: AbortController;
-    done: number;
-    users: number;
+    watchers: Set<(bytes: number) => void>;
   };
   let codec: CodecDownload | undefined;
-  /** Each model's download: bytes done of `total` (with the codec when it came along; while it waits
-   *  for the codec, the codec's). */
-  const downloads = new Map<
-    string,
-    {
-      done: number;
-      total: number;
-      controller: AbortController;
-      codec?: CodecDownload;
-      error?: string;
-    }
-  >();
   const fetchCodec = (h: SpeechHost) => {
     if (!codec) {
       const controller = new AbortController();
-      const c = { controller, done: 0, users: 0, promise: Promise.resolve() };
+      const c: CodecDownload = { controller, watchers: new Set(), promise: Promise.resolve() };
       c.promise = h.models
-        .download(`${MODEL_URL}${CODEC.file}`, CODEC, (n) => (c.done = n), controller.signal)
+        .download(
+          `${MODEL_URL}${CODEC.file}`,
+          CODEC,
+          (n) => {
+            for (const watch of c.watchers) watch(n);
+          },
+          controller.signal,
+        )
         .finally(() => {
           if (codec === c) codec = undefined;
         });
@@ -110,11 +114,8 @@ export function createQwenTts(deps: {
     }
     return codec;
   };
-  const modelOf = (id: string) => {
-    const model = QWEN_MODELS.find((m) => m.id === id);
-    if (!model) throw new ServiceError("no_such_model", 404);
-    return model;
-  };
+  /** Each model's download: bytes done of all it fetches (with the codec when it comes along). */
+  const downloads = createModelDownloads();
   const there = (m: ModelFile) => host?.models.path(m.file, m.bytes);
   const installed = (m: ModelFile) => !!there(m) && !!there(CODEC);
   /** The model in use: the profile's choice when it is there, else the large one when it is there. */
@@ -122,21 +123,20 @@ export function createQwenTts(deps: {
     const ready = QWEN_MODELS.filter(installed);
     return ready.find((m) => m.id === choice) ?? ready.at(-1);
   };
-  const engine = createSidecar({
-    spawn: (id, port) => {
-      const binary = host?.qwenBinary();
-      const talker = there(modelOf(id));
+  const engine = engineSidecar(host, {
+    spawn: (h, id, port) => {
+      const program = binary();
+      const talker = there(offered(QWEN_MODELS, id));
       const codec = there(CODEC);
-      if (!host || !binary || !talker || !codec) throw new ServiceError("speech_unavailable", 409);
-      return host.spawnQwen(binary, talker, codec, port);
+      if (!h.qwen || !program || !talker || !codec)
+        throw new ServiceError("speech_unavailable", 409);
+      return h.qwen.spawn(program, { talker, codec }, port);
     },
-    freePort: () => (host ? host.freePort() : Promise.reject(new Error("no speech host"))),
     fetch: deps.fetch,
-    failed: "speech_engine_failed",
     startMs: START_MS,
     idleMs: IDLE_MS,
   });
-  const ready = () => !!host?.qwenBinary() && !!inUse();
+  const ready = () => !!binary() && !!inUse();
 
   return {
     /** The engine (built or not), each model (installed, downloading, failed, the one in use with the
@@ -144,18 +144,14 @@ export function createQwenTts(deps: {
     state(choice?: unknown) {
       const codecMissing = there(CODEC) ? 0 : CODEC.bytes;
       return {
-        engine: !!host?.qwenBinary(),
-        models: QWEN_MODELS.map((m) => {
-          const d = downloads.get(m.id);
-          return {
-            id: m.id,
-            bytes: d && !d.error ? d.total : m.bytes + (installed(m) ? 0 : codecMissing),
-            installed: installed(m),
-            inUse: inUse(choice)?.id === m.id,
-            ...(d && !d.error && { downloaded: d.codec ? d.codec.done : d.done }),
-            ...(d?.error && { error: d.error }),
-          };
-        }),
+        engine: !!binary(),
+        models: QWEN_MODELS.map((m) => ({
+          id: m.id,
+          bytes: downloads.total(m.id) ?? m.bytes + (installed(m) ? 0 : codecMissing),
+          installed: installed(m),
+          inUse: inUse(choice)?.id === m.id,
+          ...downloads.of(m.id),
+        })),
         languages: Object.keys(QWEN_LANGUAGES),
         speakers: [...QWEN_SPEAKERS],
         /** The speaker unless the learner picks one. */
@@ -166,60 +162,44 @@ export function createQwenTts(deps: {
     /** Starts downloading a model with the codec when it is not there yet (once; the codec once for
      *  both models); its progress is in `state`. */
     download(id: string) {
-      const model = modelOf(id);
+      const model = offered(QWEN_MODELS, id);
       if (!host) throw new ServiceError("speech_unavailable", 409);
-      if (installed(model) || (downloads.has(id) && !downloads.get(id)?.error)) return;
+      if (installed(model)) return;
       const withCodec = !there(CODEC);
-      const entry: NonNullable<ReturnType<typeof downloads.get>> = {
-        done: 0,
-        total: model.bytes + (withCodec ? CODEC.bytes : 0),
-        controller: new AbortController(),
-      };
-      downloads.set(id, entry);
-      const { signal } = entry.controller;
-      (async () => {
-        if (withCodec && !there(CODEC)) {
-          const c = fetchCodec(host);
-          c.users++;
-          entry.codec = c;
-          try {
-            await new Promise<void>((resolve, reject) => {
-              c.promise.then(resolve, reject);
-              signal.addEventListener("abort", () => reject(new Error("cancelled")), {
-                once: true,
-              });
-            });
-          } finally {
-            entry.codec = undefined;
-            if (--c.users === 0 && signal.aborted) c.controller.abort();
+      const before = withCodec ? CODEC.bytes : 0;
+      downloads.start(
+        id,
+        async (progress, signal) => {
+          if (withCodec && !there(CODEC)) {
+            const c = fetchCodec(host);
+            c.watchers.add(progress);
+            try {
+              await untilAborted(c.promise, signal);
+            } finally {
+              c.watchers.delete(progress);
+              if (c.watchers.size === 0 && signal.aborted) c.controller.abort();
+            }
           }
-        }
-        const before = withCodec ? CODEC.bytes : 0;
-        if (!there(model))
-          await host.models.download(
-            `${MODEL_URL}${model.file}`,
-            model,
-            (n) => (entry.done = before + n),
-            signal,
-          );
-      })()
-        .then(() => downloads.delete(id))
-        .catch((error: unknown) => {
-          entry.error = signal.aborted ? "cancelled" : String(error).slice(0, 200);
-        });
+          if (!there(model))
+            await host.models.download(
+              `${MODEL_URL}${model.file}`,
+              model,
+              (n) => progress(before + n),
+              signal,
+            );
+        },
+        model.bytes + before,
+      );
     },
 
     /** Removes a model (stopping a download of it, or the engine running it); the codec goes with the
      *  last one — kept while another model has its talker or is being downloaded. */
     remove(id: string) {
-      const model = modelOf(id);
-      downloads.get(id)?.controller.abort();
-      downloads.delete(id);
+      const model = offered(QWEN_MODELS, id);
+      downloads.cancel(id);
       if (engine.setup() === id) engine.stop();
       host?.models.remove(model.file);
-      const needed = QWEN_MODELS.some(
-        (m) => m.id !== id && (!!there(m) || (downloads.has(m.id) && !downloads.get(m.id)?.error)),
-      );
+      const needed = QWEN_MODELS.some((m) => m.id !== id && (!!there(m) || downloads.going(m.id)));
       if (!needed) {
         codec?.controller.abort();
         host?.models.remove(CODEC.file);
@@ -229,7 +209,7 @@ export function createQwenTts(deps: {
     /** Starts the engine ahead of reading with the profile's model (loading it takes seconds). */
     warm(choice?: unknown) {
       const model = inUse(choice);
-      if (model && host?.qwenBinary()) engine.warm(model.id);
+      if (model && binary()) engine.warm(model.id);
     },
 
     /** Whether a language can be read with Qwen3-TTS here. */
@@ -240,11 +220,12 @@ export function createQwenTts(deps: {
      *  ("auto"), never cut into each language's pieces. */
     async say(text: string, lang: string, choice: unknown, modelChoice?: unknown, mixed = false) {
       const model = inUse(modelChoice);
-      if (!host?.qwenBinary() || !model || !QWEN_LANGUAGES[lang])
+      if (!binary() || !model || !QWEN_LANGUAGES[lang])
         throw new ServiceError("speech_unavailable", 409);
       const language = mixed ? "auto" : (QWEN_LANGUAGES[lang] as string);
       const speaker = QWEN_SPEAKERS.find((s) => s === choice) ?? DEFAULT_SPEAKER;
-      const make = () =>
+      const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
+      return kept(key, () =>
         engine.use(model.id, async (url) => {
           const res = await deps
             .fetch(`${url}/v1/audio/speech`, {
@@ -262,9 +243,8 @@ export function createQwenTts(deps: {
             .catch(() => undefined);
           if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
           return new Uint8Array(await res.arrayBuffer());
-        });
-      const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
-      return deps.cache ? deps.cache.kept(key, make) : make();
+        }),
+      );
     },
   };
 }

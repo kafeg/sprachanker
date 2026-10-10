@@ -1,23 +1,20 @@
 // Speech recognition on this machine (08; 06, "Sidecars"): whisper.cpp's `whisper-server`, run by the
 // sidecar supervisor with the chosen model; the models it can use, downloaded from a pinned commit and
 // checked against their sha256. One server-wide engine: each profile chooses whether to use it and
-// which installed model (settings); a transcription has a time limit.
+// which installed model (settings, profile-speech.ts); a transcription has a time limit.
 import { ServiceError } from "../errors.ts";
-import type { Settings } from "./settings.ts";
-import { createSidecar } from "./sidecar.ts";
-
-/** A model file downloaded into <data-root>/models and checked against its sha256. */
-export interface ModelFile {
-  id: string;
-  file: string;
-  bytes: number;
-  sha256: string;
-}
-export type WhisperModel = ModelFile;
+import {
+  createModelDownloads,
+  engineSidecar,
+  type ModelFile,
+  offered,
+  type SpeechHost,
+} from "./local-engines.ts";
+import { createOnce } from "./once.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
  *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */
-export const WHISPER_MODELS: WhisperModel[] = [
+export const WHISPER_MODELS: ModelFile[] = [
   {
     id: "large-v3-turbo-q5_0",
     file: "ggml-large-v3-turbo-q5_0.bin",
@@ -34,41 +31,6 @@ export const WHISPER_MODELS: WhisperModel[] = [
 const MODEL_URL =
   "https://huggingface.co/ggerganov/whisper.cpp/resolve/5359861c739e955e79d9a303bcbc70fb988958b1/";
 
-/** What the runtime does for speech: find the engine, run it, keep its models. */
-export interface SpeechHost {
-  /** The `whisper-server` binary, if it was built (native/). */
-  whisperBinary(): string | undefined;
-  /** A free port on 127.0.0.1. */
-  freePort(): Promise<number>;
-  /** Starts the engine on that port with a model file. */
-  spawnWhisper(
-    binary: string,
-    model: string,
-    port: number,
-  ): { exited: Promise<number>; kill(): void };
-  /** qwentts.cpp's `tts-server` (reading aloud with Qwen3-TTS), if it was built (native/). */
-  qwenBinary(): string | undefined;
-  /** Starts Qwen3-TTS on that port with its talker and codec model files. */
-  spawnQwen(
-    binary: string,
-    talker: string,
-    codec: string,
-    port: number,
-  ): { exited: Promise<number>; kill(): void };
-  models: {
-    /** The model file's path, if it is there whole. */
-    path(file: string, bytes: number): string | undefined;
-    /** Downloads a model (to a part file, checked, then renamed); `onProgress` gets the bytes so far. */
-    download(
-      url: string,
-      model: ModelFile,
-      onProgress: (bytes: number) => void,
-      signal: AbortSignal,
-    ): Promise<void>;
-    remove(file: string): void;
-  };
-}
-
 /** The engine stops after this long without a request (it holds the model in memory). */
 const IDLE_MS = 10 * 60_000;
 /** Loading the large model takes about 15 s on an M2; slower machines get more. */
@@ -78,35 +40,26 @@ const TRANSCRIBE_MS = 60_000;
 
 export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
   const { host } = deps;
-  const downloads = new Map<
-    string,
-    { done: number; controller: AbortController; error?: string }
-  >();
-  const modelOf = (id: string) => {
-    const model = WHISPER_MODELS.find((m) => m.id === id);
-    if (!model) throw new ServiceError("no_such_model", 404);
-    return model;
-  };
-  const installed = (m: WhisperModel) => !!host?.models.path(m.file, m.bytes);
-  /** Course recordings heard, by model, language and recording. */
-  const heard = new Map<string, Promise<string>>();
+  const binary = () => host?.whisper?.binary();
+  const downloads = createModelDownloads();
+  const installed = (m: ModelFile) => !!host?.models.path(m.file, m.bytes);
+  /** Course recordings heard, by model, language and recording; a failed hearing is not kept. */
+  const heard = createOnce<string>({ keep: true });
 
   /** The model file of an installed model, to run the engine with. */
   const fileOf = (id: string) => {
-    const model = modelOf(id);
+    const model = offered(WHISPER_MODELS, id);
     const file = host?.models.path(model.file, model.bytes);
-    if (!host?.whisperBinary() || !file) throw new ServiceError("speech_unavailable", 409);
+    if (!binary() || !file) throw new ServiceError("speech_unavailable", 409);
     return file;
   };
-  const engine = createSidecar({
-    spawn: (id, port) => {
-      const binary = host?.whisperBinary();
-      if (!host || !binary) throw new ServiceError("speech_unavailable", 409);
-      return host.spawnWhisper(binary, fileOf(id), port);
+  const engine = engineSidecar(host, {
+    spawn: (h, id, port) => {
+      const program = binary();
+      if (!h.whisper || !program) throw new ServiceError("speech_unavailable", 409);
+      return h.whisper.spawn(program, { model: fileOf(id) }, port);
     },
-    freePort: () => (host ? host.freePort() : Promise.reject(new Error("no speech host"))),
     fetch: deps.fetch,
-    failed: "speech_engine_failed",
     startMs: START_MS,
     idleMs: IDLE_MS,
   });
@@ -140,17 +93,13 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
     /** The engine (built or not) and each model: installed, downloading, failed. */
     state() {
       return {
-        engine: !!host?.whisperBinary(),
-        models: WHISPER_MODELS.map((m) => {
-          const d = downloads.get(m.id);
-          return {
-            id: m.id,
-            bytes: m.bytes,
-            installed: installed(m),
-            ...(d && !d.error && { downloaded: d.done }),
-            ...(d?.error && { error: d.error }),
-          };
-        }),
+        engine: !!binary(),
+        models: WHISPER_MODELS.map((m) => ({
+          id: m.id,
+          bytes: m.bytes,
+          installed: installed(m),
+          ...downloads.of(m.id),
+        })),
       };
     },
 
@@ -162,77 +111,35 @@ export function createSpeech(deps: { host?: SpeechHost; fetch: typeof fetch }) {
 
     /** Starts downloading a model (once); its progress is in `state`. */
     download(id: string) {
-      const model = modelOf(id);
+      const model = offered(WHISPER_MODELS, id);
       if (!host) throw new ServiceError("speech_unavailable", 409);
-      if (installed(model) || (downloads.has(id) && !downloads.get(id)?.error)) return;
-      const entry = { done: 0, controller: new AbortController() } as {
-        done: number;
-        controller: AbortController;
-        error?: string;
-      };
-      downloads.set(id, entry);
-      host.models
-        .download(
-          `${MODEL_URL}${model.file}`,
-          model,
-          (n) => (entry.done = n),
-          entry.controller.signal,
-        )
-        .then(() => downloads.delete(id))
-        .catch((error: unknown) => {
-          entry.error = entry.controller.signal.aborted ? "cancelled" : String(error).slice(0, 200);
-        });
+      if (installed(model)) return;
+      downloads.start(id, (progress, signal) =>
+        host.models.download(`${MODEL_URL}${model.file}`, model, progress, signal),
+      );
     },
 
     /** Removes a model (stopping a download of it, or the engine running it). */
     remove(id: string) {
-      const model = modelOf(id);
-      downloads.get(id)?.controller.abort();
-      downloads.delete(id);
+      const model = offered(WHISPER_MODELS, id);
+      downloads.cancel(id);
       if (engine.setup() === id) engine.stop();
       host?.models.remove(model.file);
     },
 
     /** Starts the engine ahead of a recording (loading the model takes seconds). */
     warm(model: string) {
-      if (installed(modelOf(model)) && host?.whisperBinary()) engine.warm(model);
+      if (installed(offered(WHISPER_MODELS, model)) && binary()) engine.warm(model);
     },
 
     transcribe,
 
     /** What a course's recording says (a question asked, an answer spoken), heard once per model and
      *  kept while the server runs; a failed hearing is not kept. */
-    heard(key: string, audio: () => Blob, lang: string, model: string): Promise<string> {
-      const id = `${model}\n${lang}\n${key}`;
-      let text = heard.get(id);
-      if (!text) {
-        text = transcribe(audio(), lang, model).then((r) => r.text);
-        heard.set(id, text);
-        text.catch(() => heard.delete(id));
-      }
-      return text;
-    },
+    heard: (key: string, audio: () => Blob, lang: string, model: string): Promise<string> =>
+      heard(`${model}\n${lang}\n${key}`, () =>
+        transcribe(audio(), lang, model).then((r) => r.text),
+      ),
   };
 }
 export type Speech = ReturnType<typeof createSpeech>;
-
-/** The model a profile hears with: its choice while recognition is on and the model is installed. */
-export const recogniserOf = (speech: Speech, settings: Settings) =>
-  !settings.value("speech.recognition") ? undefined : speech.modelFor(settings.get("speech.model"));
-
-/** What a course recording says, heard with the profile's recogniser; undefined without one, or
- *  when hearing fails (what asks goes on without it). */
-export function courseHearing(
-  speech: Speech,
-  settings: Settings,
-  media: { file(series: string, path: string): string | undefined; blob(file: string): Blob },
-) {
-  return async (series: string, path: string, lang: string) => {
-    const model = recogniserOf(speech, settings);
-    const file = model && media.file(series, path);
-    if (!model || !file) return undefined;
-    return speech
-      .heard(`${series}/${path}`, () => media.blob(file), lang, model)
-      .catch(() => undefined);
-  };
-}

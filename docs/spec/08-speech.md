@@ -2,7 +2,8 @@
 
 **Recording**, **recognition**, **saying instead of typing**, **the AI's check of an answer of
 one's own** and **reading aloud** (below). The server's speech module (`services/speech.ts`) talks to the engine (sidecars,
-06) through `transcribe(audio, lang, model) → { text, ms }`.
+06) through `transcribe(audio, lang, model) → { text, ms }`; a profile's choices (recognition on or
+off, its model, the engine, voice and speed reading aloud) are applied by `services/profile-speech.ts`.
 
 ## Recording
 
@@ -27,7 +28,8 @@ one's own** and **reading aloud** (below). The server's speech module (`services
   static, Metal with its shaders embedded; beside the `sprachanker` binary, where the server looks
   for it — also `$SPRACHANKER_WHISPER_SERVER` or the repository's build). Run by the sidecar supervisor
   (06) with the profile's model, warmed when a speaking exercise opens (the large model loads in ~15 s
-  on an M2 Pro), stopped after 10 idle minutes (`services/speech.ts`, `runtime/speech.ts`).
+  on an M2 Pro), stopped after 10 idle minutes (`services/speech.ts`, `runtime/speech.ts`; where an engine is:
+  `runtime/engines.ts`).
 - **Models** in `<data-root>/models`: large-v3-turbo q5_0 (574 MB, recommended) and small q5_1 (190
   MB), downloaded from a pinned Hugging Face commit and checked against their sha256, from Settings →
   Speech; each profile turns recognition on or off and picks an installed model (settings

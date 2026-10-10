@@ -15,9 +15,11 @@ src/
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per
                      # data root: server.pid); lmstudio.ts (detect, `lms server start`);
-                     # speech.ts (finds and runs whisper-server, Qwen3-TTS's tts-server and Piper's
-                     # sherpa-onnx-offline-tts,
-                     # downloads models and voices into <data-root>/models, keeps readings in cache/tts);
+                     # speech engines: engines.ts (the engines built in native/ — also read by the
+                     # build scripts —, where each is, their processes going with the server),
+                     # model-files.ts (checked downloads into <data-root>/models), speech.ts
+                     # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
+                     # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers)
   db/
@@ -54,8 +56,12 @@ src/
                      # (whisper-server, its models: one engine for the server; course recordings
                      # heard once per model); read-aloud (Piper's voices — piper-voices.json, written by
                      # scripts/piper-voices.ts — downloads, a text read as a WAV); qwen-tts (Qwen3-TTS:
-                     # models, the engine on the supervisor, a text read by a speaker); sidecar (the supervisor of local engines: one start,
-                     # idle stop, switching after requests in flight);
+                     # models, the engine on the supervisor, a text read by a speaker); local-engines
+                     # (what they share: SpeechHost, ReadingCache, model downloads, an engine on the
+                     # supervisor); profile-speech (a profile's choices applied: recognition, the
+                     # engine, voice and speed reading aloud); sidecar (the supervisor of local
+                     # engines: one start, idle stop, switching after requests in flight); once (one
+                     # promise per key: a load, a reading, a hearing asked twice made once);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

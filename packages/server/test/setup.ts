@@ -10,8 +10,8 @@ import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
+import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts";
 import type { PiperHost } from "../src/services/read-aloud.ts";
-import type { SpeechHost } from "../src/services/speech.ts";
 
 const files: Record<string, Blob> = {
   "/index.html": new Blob(["<!doctype html>"], { type: "text/html" }),
@@ -26,6 +26,7 @@ export async function setup(
     installer?: CourseInstaller;
     speech?: SpeechHost;
     piper?: PiperHost;
+    readings?: ReadingCache;
   } = {},
 ) {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
@@ -46,6 +47,7 @@ export async function setup(
     installer: options.installer,
     speech: options.speech,
     piper: options.piper,
+    readings: options.readings,
     now: () => (clock += 1000),
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };

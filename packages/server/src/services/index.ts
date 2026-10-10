@@ -18,8 +18,10 @@ import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
+import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNotebook } from "./notebook.ts";
+import { createProfileSpeech } from "./profile-speech.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
 import { createProgress } from "./progress.ts";
 import { createQwenTts, type QwenTts } from "./qwen-tts.ts";
@@ -30,7 +32,7 @@ import { createRuns } from "./runs.ts";
 import { createScenes } from "./scene.ts";
 import { createSettings } from "./settings.ts";
 import { createSpeaking } from "./speaking.ts";
-import { courseHearing, createSpeech, type Speech, type SpeechHost } from "./speech.ts";
+import { createSpeech, type Speech } from "./speech.ts";
 import { createStudy } from "./study.ts";
 import { createTutor } from "./tutor.ts";
 import { createTutorTools } from "./tutor-tools.ts";
@@ -50,6 +52,8 @@ export interface ServicesConfig {
   installer?: CourseInstaller;
   speech?: SpeechHost;
   piper?: PiperHost;
+  /** Readings kept (Piper's and Qwen3-TTS's); without it each is made again. */
+  readings?: ReadingCache;
   /** Reads a library media file (runtime adapter): course recordings the recogniser hears. */
   mediaBlob(file: string): Blob;
   now: () => number;
@@ -74,6 +78,7 @@ function profileServices(
   const { now } = config;
   const { content, downloads, speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
+  const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
   const llm = createLlm({
     db,
     settings,
@@ -127,7 +132,7 @@ function profileServices(
     lessons,
     lessonRun: runs.lessonRun,
     store,
-    hear: courseHearing(speech, settings, {
+    hear: speechOfProfile.hearing({
       file: (series, path) => config.library.mediaFile(series, path),
       blob: config.mediaBlob,
     }),
@@ -156,9 +161,7 @@ function profileServices(
     content,
     downloads,
     settings,
-    speech,
-    readAloud,
-    qwenTts,
+    speech: speechOfProfile,
     recordings,
     runs,
     progress,
@@ -207,8 +210,12 @@ export function createServices(config: ServicesConfig) {
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const speech = createSpeech({ host: config.speech, fetch: config.fetch });
-  const readAloud = createReadAloud({ host: config.piper });
-  const qwenTts = createQwenTts({ host: config.speech, cache: config.piper, fetch: config.fetch });
+  const readAloud = createReadAloud({ host: config.piper, readings: config.readings });
+  const qwenTts = createQwenTts({
+    host: config.speech,
+    readings: config.readings,
+    fetch: config.fetch,
+  });
 
   return {
     content,

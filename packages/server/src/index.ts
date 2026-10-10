@@ -16,7 +16,9 @@ import {
 import { cliHost } from "./runtime/cli.ts";
 import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
-import { piperHost, speechHost } from "./runtime/speech.ts";
+import { piperHost } from "./runtime/piper.ts";
+import { readingCache } from "./runtime/readings.ts";
+import { speechHost } from "./runtime/speech.ts";
 import { createProfiles } from "./services/profiles.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
@@ -48,6 +50,7 @@ export function startServer(config: ServerConfig): Listening {
     installer: courseInstaller(config.dataRoot),
     speech: speechHost(config.dataRoot),
     piper: piperHost(config.dataRoot),
+    readings: readingCache(config.dataRoot),
     // The machine's own names: its host name, and the one the server was told to listen on.
     hosts: [hostname(), `${hostname()}.local`, config.hostname],
   });
@@ -57,7 +60,7 @@ export function startServer(config: ServerConfig): Listening {
 }
 export { resolveDataRoot } from "./config.ts";
 export { type ImportRequest, importCourse, providerIds } from "./providers.ts";
-export { triple as targetTriple } from "./runtime/speech.ts";
+export { ENGINES as speechEngines, triple as targetTriple } from "./runtime/engines.ts";
 
 /** Checks every installed course of the data root (course-kit verify). */
 export const verifyData = (dataRoot: string) =>

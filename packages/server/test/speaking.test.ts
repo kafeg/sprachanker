@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
-import type { SpeechHost } from "../src/services/speech.ts";
+import type { SpeechHost } from "../src/services/local-engines.ts";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-02";
@@ -20,13 +20,11 @@ function machine() {
   const bodies: Array<Record<string, unknown>> = [];
   const heard: FormData[] = [];
   const speech: SpeechHost = {
-    qwenBinary: () => undefined,
-    spawnQwen: () => {
-      throw new Error("no Qwen here");
-    },
-    whisperBinary: () => "/opt/whisper-server",
     freePort: async () => 9912,
-    spawnWhisper: () => ({ exited: new Promise(() => {}), kill() {} }),
+    whisper: {
+      binary: () => "/opt/whisper-server",
+      spawn: () => ({ exited: new Promise(() => {}), kill() {} }),
+    },
     models: {
       path: (file) => `/models/${file}`,
       async download() {},

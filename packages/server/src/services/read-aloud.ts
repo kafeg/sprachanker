@@ -4,7 +4,8 @@
 // engine for the server: each profile picks Piper or its device's voices, and a voice per language.
 import { ServiceError } from "../errors.ts";
 import { sha256 } from "../security/encoding.ts";
-import VOICES from "./piper-voices.json";
+import { createModelDownloads, keptIn, offered, type ReadingCache } from "./local-engines.ts";
+import VOICES from "./piper-voices.json" with { type: "json" };
 
 export interface PiperVoice {
   id: string;
@@ -17,9 +18,24 @@ export interface PiperVoice {
 }
 
 const VOICE_URL = "https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/";
-export const PIPER_VOICES = VOICES as PiperVoice[];
+const QUALITY = ["x_low", "low", "medium", "high"];
 
-/** What the runtime does for reading aloud: find the engine, keep its voices, run it. */
+/** The voices offered, each language's best first: its main region (de-DE for German), then the
+ *  highest quality. */
+export const PIPER_VOICES: PiperVoice[] = (() => {
+  const main = new Map<string, string | undefined>();
+  const regionOf = (lang: string) => {
+    if (!main.has(lang)) main.set(lang, new Intl.Locale(lang).maximize().region);
+    return main.get(lang);
+  };
+  const rank = (v: PiperVoice) =>
+    (v.region === regionOf(v.lang) ? 10 : 0) + QUALITY.indexOf(v.quality);
+  return [...(VOICES as PiperVoice[])].sort(
+    (a, b) => a.lang.localeCompare(b.lang) || rank(b) - rank(a) || a.name.localeCompare(b.name),
+  );
+})();
+
+/** What the runtime does for Piper: find the engine, keep its voices, run it. */
 export interface PiperHost {
   /** The `sherpa-onnx-offline-tts` binary, if it was built (native/). */
   binary(): string | undefined;
@@ -33,99 +49,64 @@ export interface PiperHost {
     signal: AbortSignal,
   ): Promise<void>;
   remove(id: string): void;
-  /** A WAV of `text` said by the voice at `lengthScale` (1: as recorded; larger: slower), kept under
-   *  `key` and served from there again. */
-  say(
-    key: string,
-    run: { binary: string; dir: string; id: string; text: string; lengthScale: number },
-  ): Promise<Uint8Array<ArrayBuffer>>;
-  /** A reading kept under `key` (any engine's): from the cache, else made by `produce` once (a
-   *  second request for it waits for the first) and kept. */
-  kept(
-    key: string,
-    produce: () => Promise<Uint8Array<ArrayBuffer>>,
-  ): Promise<Uint8Array<ArrayBuffer>>;
+  /** A WAV of `text` said by the voice at `lengthScale` (1: as recorded; larger: slower). */
+  run(run: {
+    binary: string;
+    dir: string;
+    id: string;
+    text: string;
+    lengthScale: number;
+  }): Promise<Uint8Array<ArrayBuffer>>;
 }
 
 /** A text read aloud is at most this long (a reply is read in parts). */
 export const SAY_MAX = 2000;
 
-export function createReadAloud(deps: { host?: PiperHost }) {
+export function createReadAloud(deps: { host?: PiperHost; readings?: ReadingCache }) {
   const { host } = deps;
-  const downloads = new Map<
-    string,
-    { done: number; controller: AbortController; error?: string }
-  >();
-  const voiceOf = (id: string) => {
-    const voice = PIPER_VOICES.find((v) => v.id === id);
-    if (!voice) throw new ServiceError("no_such_model", 404);
-    return voice;
-  };
+  const kept = keptIn(deps.readings);
+  const downloads = createModelDownloads();
   const installed = (v: PiperVoice) => !!host?.voiceDir(v.id);
 
-  /** The voice a profile reads a language with: its choice if installed, else the best installed one
-   *  (the language's main region first — de-DE for German — then the highest quality). */
+  /** The voice a profile reads a language with: its choice if installed, else the best installed one. */
   function voiceFor(lang: string, choice: unknown) {
     const ready = PIPER_VOICES.filter((v) => v.lang === lang && installed(v));
-    const main = new Intl.Locale(lang).maximize().region;
-    const rank = (v: PiperVoice) =>
-      (v.region === main ? 10 : 0) + ["x_low", "low", "medium", "high"].indexOf(v.quality);
-    return (
-      ready.find((v) => v.id === choice) ??
-      [...ready].sort((a, b) => rank(b) - rank(a) || a.name.localeCompare(b.name))[0]
-    );
+    return ready.find((v) => v.id === choice) ?? ready[0];
   }
 
   return {
-    /** The engine (built or not) and every voice: installed, downloading, failed. */
+    /** The engine (built or not), every voice (each language's best first: installed, downloading,
+     *  failed) and the voice each language is read with unless the profile picks one. */
     state() {
-      return {
-        engine: !!host?.binary(),
-        voices: PIPER_VOICES.map((v) => {
-          const d = downloads.get(v.id);
-          return {
-            id: v.id,
-            lang: v.lang,
-            region: v.region,
-            name: v.name,
-            quality: v.quality,
-            bytes: v.bytes,
-            installed: installed(v),
-            ...(d && !d.error && { downloaded: d.done }),
-            ...(d?.error && { error: d.error }),
-          };
-        }),
-      };
+      const voices = PIPER_VOICES.map((v) => ({
+        id: v.id,
+        lang: v.lang,
+        region: v.region,
+        name: v.name,
+        quality: v.quality,
+        bytes: v.bytes,
+        installed: installed(v),
+        ...downloads.of(v.id),
+      }));
+      const auto: Record<string, string> = {};
+      for (const v of voices) if (v.installed) auto[v.lang] ??= v.id;
+      return { engine: !!host?.binary(), voices, auto };
     },
 
     /** Starts downloading a voice (once); its progress is in `state`. */
     download(id: string) {
-      const voice = voiceOf(id);
+      const voice = offered(PIPER_VOICES, id);
       if (!host) throw new ServiceError("speech_unavailable", 409);
-      if (installed(voice) || (downloads.has(id) && !downloads.get(id)?.error)) return;
-      const entry: { done: number; controller: AbortController; error?: string } = {
-        done: 0,
-        controller: new AbortController(),
-      };
-      downloads.set(id, entry);
-      host
-        .download(
-          `${VOICE_URL}vits-piper-${voice.id}.tar.bz2`,
-          voice,
-          (n) => (entry.done = n),
-          entry.controller.signal,
-        )
-        .then(() => downloads.delete(id))
-        .catch((error: unknown) => {
-          entry.error = entry.controller.signal.aborted ? "cancelled" : String(error).slice(0, 200);
-        });
+      if (installed(voice)) return;
+      downloads.start(id, (progress, signal) =>
+        host.download(`${VOICE_URL}vits-piper-${voice.id}.tar.bz2`, voice, progress, signal),
+      );
     },
 
     /** Removes a voice (stopping a download of it). */
     remove(id: string) {
-      voiceOf(id);
-      downloads.get(id)?.controller.abort();
-      downloads.delete(id);
+      offered(PIPER_VOICES, id);
+      downloads.cancel(id);
       host?.remove(id);
     },
 
@@ -140,12 +121,12 @@ export function createReadAloud(deps: { host?: PiperHost }) {
       if (!host || !binary || !voice || !dir) throw new ServiceError("speech_unavailable", 409);
       const lengthScale = Math.round((1 / rate) * 100) / 100;
       const key = await sha256(`${voice.id}\n${lengthScale}\n${text}`);
-      return host
-        .say(key, { binary, dir, id: voice.id, text, lengthScale })
-        .catch((error: unknown) => {
+      return kept(key, () => host.run({ binary, dir, id: voice.id, text, lengthScale })).catch(
+        (error: unknown) => {
           console.error("reading aloud:", error);
           throw new ServiceError("speech_engine_failed", 502);
-        });
+        },
+      );
     },
   };
 }

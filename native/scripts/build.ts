@@ -12,15 +12,10 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync }
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { $ } from "bun";
+// The engines (folder, program) and the target triple, as the server finds them.
+import { ENGINES, type EngineName, triple } from "../../packages/server/src/runtime/engines.ts";
 
 const cache = join(homedir(), ".cache", "sprachanker");
-const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
-  process.platform === "darwin"
-    ? "apple-darwin"
-    : process.platform === "win32"
-      ? "pc-windows-msvc"
-      : "unknown-linux-gnu"
-}`;
 
 /** The pinned sources of an engine (a tag, or a commit), with their submodules, cloned aside and
  *  moved into place when whole (an interrupted clone is not taken for the sources). */
@@ -41,9 +36,10 @@ async function sources(repo: string, name: string, version: string) {
   return src;
 }
 
-/** Builds one target of an engine and puts it in the engine's out/ folder. */
-async function build(engine: string, repo: string, target: string, flags: string[]) {
-  const root = join(import.meta.dir, "..", engine);
+/** Builds an engine's program and puts it in the engine's out/ folder. */
+async function build(engine: EngineName, repo: string, flags: string[]) {
+  const { folder, program: target } = ENGINES[engine];
+  const root = join(import.meta.dir, "..", folder);
   const version = readFileSync(join(root, "VERSION"), "utf8").trim();
   const src = await sources(repo, repo.split("/").at(-1) ?? engine, version);
   await $`cmake -S ${src} -B ${join(src, "build")} -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF ${flags}`;
@@ -60,7 +56,7 @@ const only = process.argv[2];
 const metal =
   process.platform === "darwin" ? ["-DGGML_METAL=ON", "-DGGML_METAL_EMBED_LIBRARY=ON"] : [];
 if (!only || only === "whisper")
-  await build("whisper", "https://github.com/ggml-org/whisper.cpp", "whisper-server", [
+  await build("whisper", "https://github.com/ggml-org/whisper.cpp", [
     "-DWHISPER_BUILD_SERVER=ON",
     "-DWHISPER_BUILD_EXAMPLES=ON",
     "-DWHISPER_BUILD_TESTS=OFF",
@@ -68,7 +64,7 @@ if (!only || only === "whisper")
     ...metal,
   ]);
 if (!only || only === "piper")
-  await build("piper", "https://github.com/k2-fsa/sherpa-onnx", "sherpa-onnx-offline-tts", [
+  await build("piper", "https://github.com/k2-fsa/sherpa-onnx", [
     "-DSHERPA_ONNX_ENABLE_PYTHON=OFF",
     "-DSHERPA_ONNX_ENABLE_TESTS=OFF",
     "-DSHERPA_ONNX_ENABLE_CHECK=OFF",
@@ -77,4 +73,4 @@ if (!only || only === "piper")
     "-DSHERPA_ONNX_ENABLE_BINARY=ON",
   ]);
 if (!only || only === "qwen")
-  await build("qwen", "https://github.com/ServeurpersoCom/qwentts.cpp", "tts-server", metal);
+  await build("qwen", "https://github.com/ServeurpersoCom/qwentts.cpp", metal);

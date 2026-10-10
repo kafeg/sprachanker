@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import type { SpeechHost } from "../src/services/speech.ts";
+import type { SpeechHost } from "../src/services/local-engines.ts";
 import { setup } from "./setup.ts";
 
 /** A machine with Qwen3-TTS on paper: model files "there" by name, the engine a local HTTP server
@@ -9,25 +9,23 @@ function qwen(files: string[] = []) {
   const talkers: string[] = [];
   let spawned = 0;
   const host: SpeechHost = {
-    whisperBinary: () => undefined,
-    spawnWhisper: () => {
-      throw new Error("no whisper here");
-    },
-    qwenBinary: () => "/bin/tts-server",
-    spawnQwen(_binary, talker, codec, port) {
-      spawned++;
-      talkers.push(talker);
-      expect([talker, codec].every((f) => f.startsWith("/models/"))).toBe(true);
-      const server = Bun.serve({
-        port,
-        async fetch(req) {
-          if (new URL(req.url).pathname === "/health") return Response.json({ status: "ok" });
-          const body = (await req.json()) as Record<string, unknown>;
-          asked.push(body);
-          return new Response(new TextEncoder().encode(String(body.input)));
-        },
-      });
-      return { exited: new Promise<number>(() => {}), kill: () => void server.stop(true) };
+    qwen: {
+      binary: () => "/bin/tts-server",
+      spawn(_binary, { talker, codec }, port) {
+        spawned++;
+        talkers.push(talker);
+        expect([talker, codec].every((f) => f.startsWith("/models/"))).toBe(true);
+        const server = Bun.serve({
+          port,
+          async fetch(req) {
+            if (new URL(req.url).pathname === "/health") return Response.json({ status: "ok" });
+            const body = (await req.json()) as Record<string, unknown>;
+            asked.push(body);
+            return new Response(new TextEncoder().encode(String(body.input)));
+          },
+        });
+        return { exited: new Promise<number>(() => {}), kill: () => void server.stop(true) };
+      },
     },
     freePort: async () => {
       const probe = Bun.serve({ port: 0, fetch: () => new Response() });

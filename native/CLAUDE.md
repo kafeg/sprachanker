@@ -14,7 +14,8 @@ qwen/      # VERSION (a qwentts.cpp commit: it has no tags); out/ (tts-server-<t
 scripts/   # build.ts (`bun run build:speech [whisper|piper|qwen]`): clones each pinned tag or commit
            # with submodules, builds whisper-server and tts-server static with Metal and embedded
            # shaders on macOS and sherpa-onnx-offline-tts static, writes them to <engine>/out/;
-           # build:cli copies them beside the sprachanker binary
+           # build:cli copies them beside the sprachanker binary. The engines (folder, program) and
+           # the target triple are the server's (packages/server/src/runtime/engines.ts)
 ```
 
 ## Rules

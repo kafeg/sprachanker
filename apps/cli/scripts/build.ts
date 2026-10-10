@@ -3,7 +3,7 @@
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
 import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { targetTriple } from "@sprachanker/server";
+import { speechEngines, targetTriple } from "@sprachanker/server";
 import { Glob } from "bun";
 
 const cliDir = resolve(import.meta.dir, "..");
@@ -50,11 +50,7 @@ if (!result.success) {
 console.log(`built ${relative(process.cwd(), outfile)} with ${files.length} web files`);
 
 // The speech engines built for this machine only: the binary compiled here runs here.
-for (const [folder, program] of [
-  ["whisper", "whisper-server"],
-  ["piper", "sherpa-onnx-offline-tts"],
-  ["qwen", "tts-server"],
-] as const) {
+for (const { folder, program } of Object.values(speechEngines)) {
   const engine = `${program}-${targetTriple}`;
   const built = resolve(cliDir, "../../native", folder, "out", engine);
   if (existsSync(built)) {

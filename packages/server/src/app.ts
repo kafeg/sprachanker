@@ -24,9 +24,9 @@ import { hostGuard } from "./security/host.ts";
 import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
+import type { ReadingCache, SpeechHost } from "./services/local-engines.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
 import type { PiperHost } from "./services/read-aloud.ts";
-import type { SpeechHost } from "./services/speech.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
 
 export type { WebAssets } from "./web.ts";
@@ -47,10 +47,13 @@ export interface AppConfig {
   /** LM Studio on this machine: detect it, start its server. */
   lmStudio?: LmStudioHost;
   cli?: CliHost;
-  /** The speech engine on this machine (08); without it, no recognition. */
+  /** The speech engines the sidecar supervisor runs here — whisper-server, Qwen3-TTS — and their
+   *  models (08); without it, no recognition. */
   speech?: SpeechHost;
   /** Reading aloud with Piper voices on this machine (08); without it, the device's voices only. */
   piper?: PiperHost;
+  /** Readings kept on disk (Piper's and Qwen3-TTS's); without it each is made again. */
+  readings?: ReadingCache;
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;

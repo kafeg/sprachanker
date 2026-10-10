@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
-import type { SpeechHost } from "../src/services/speech.ts";
+import type { SpeechHost } from "../src/services/local-engines.ts";
 import { setup } from "./setup.ts";
 
 /** A machine with the engine built and models kept in memory; the engine answers through `fetch`. */
@@ -10,16 +10,14 @@ function machine() {
   let kills = 0;
   let healthy = false;
   const host: SpeechHost = {
-    qwenBinary: () => undefined,
-    spawnQwen: () => {
-      throw new Error("no Qwen here");
-    },
-    whisperBinary: () => "/opt/whisper-server",
     freePort: async () => 9911,
-    spawnWhisper(binary, model, port) {
-      spawned.push([binary, model, String(port)]);
-      setTimeout(() => (healthy = true), 30);
-      return { exited: new Promise(() => {}), kill: () => void kills++ };
+    whisper: {
+      binary: () => "/opt/whisper-server",
+      spawn(binary, { model }, port) {
+        spawned.push([binary, model, String(port)]);
+        setTimeout(() => (healthy = true), 30);
+        return { exited: new Promise(() => {}), kill: () => void kills++ };
+      },
     },
     models: {
       path: (file) => (files.has(file) ? `/models/${file}` : undefined),
@@ -95,7 +93,7 @@ test("speech: without the engine built, nothing to recognise with", async () => 
   const m = machine();
   const { getJson } = await setup({
     fetch: m.fetch,
-    speech: { ...m.host, whisperBinary: () => undefined },
+    speech: { ...m.host, whisper: undefined },
   });
   expect(await getJson("/api/speech")).toMatchObject({ engine: false, recognition: false });
 });
