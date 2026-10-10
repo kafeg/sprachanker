@@ -8,19 +8,12 @@ import {
   type SpeakingInput,
   structuredRequest,
 } from "@sprachanker/llm";
-import {
-  findExercise,
-  type LessonKey,
-  type LlmVerdictPayload,
-  type SpokenCheck,
-  type TypedEvent,
-} from "@sprachanker/schema";
-import { ulid } from "ulid";
+import { findExercise, type LessonKey, type TypedEvent } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunStore } from "./run-store.ts";
+import type { RunStore, Verdict } from "./run-store.ts";
 
 export interface SpeakingRequest {
   series: string;
@@ -33,14 +26,6 @@ export interface SpeakingRequest {
   /** The lesson run the answer was given in: the check is kept there. */
   runId: string;
   language: string;
-}
-
-export interface StoredSpokenCheck {
-  itemKey: string;
-  transcript: string;
-  result: SpokenCheck;
-  model: string;
-  ts: number;
 }
 
 export function createSpeaking(deps: {
@@ -56,20 +41,9 @@ export function createSpeaking(deps: {
   /** Answers being checked, by run, item and what was heard. */
   const checking = createInFlight<true>("speaking_busy");
 
-  const kept = (runId: string, itemKey?: string): StoredSpokenCheck[] =>
-    store.verdicts("speaking", { runIds: [runId], itemKey }).flatMap((v) =>
-      v.itemKey
-        ? [
-            {
-              itemKey: v.itemKey,
-              transcript: v.input,
-              result: v.result,
-              model: v.model,
-              ts: v.ts,
-            },
-          ]
-        : [],
-    );
+  /** Checks kept in a run (`input`: what was heard), newest first. */
+  const kept = (runId: string, itemKey?: string) =>
+    store.verdicts("speaking", { runIds: [runId], itemKey }).filter((v) => v.itemKey);
 
   /** The item asked about, checked: a speaking item of one's own in a run of the lesson. */
   async function itemOf(request: SpeakingRequest) {
@@ -113,42 +87,28 @@ export function createSpeaking(deps: {
     async check(
       request: SpeakingRequest,
     ): Promise<
-      StoredSpokenCheck & { /** The event kept, for the player's run. */ event?: TypedEvent }
+      Verdict<"speaking"> & { /** The event kept, for the player's run. */ event?: TypedEvent }
     > {
       const found = await itemOf(request);
       const itemKey = found.item.key;
       // A check kept for the same words is the answer, before anything is heard or asked.
-      const same = kept(request.runId, itemKey).find((c) => c.transcript === request.transcript);
+      const same = kept(request.runId, itemKey).find((c) => c.input === request.transcript);
       if (same) return same;
       return checking.run(`${request.runId}|${itemKey}|${request.transcript}`, true, async () => {
         const { input: task } = await input(request, found);
         const { result: check, model, latencyMs } = await llm.structured(checkSpeakingTask(task));
         const result = cleanCheck(check, request.transcript);
-        const id = ulid();
-        const payload: LlmVerdictPayload = {
-          task: "speaking",
-          input: request.transcript,
-          result,
-          model,
-          latencyMs,
-        };
-        const ts = store.append(request.runId, [{ id, type: "llm_verdict", itemKey, payload }], {
-          anyStatus: true,
-        });
-        const event = {
-          id,
-          runId: request.runId,
-          ts,
-          type: "llm_verdict" as const,
-          itemKey,
-          payload,
-        };
-        return { itemKey, transcript: request.transcript, result, model, ts, event };
+        const { event, verdict } = store.keepVerdict(
+          request.runId,
+          { task: "speaking", input: request.transcript, result, model, latencyMs },
+          { itemKey },
+        );
+        return { ...verdict, event };
       });
     },
 
     /** Checks kept in a lesson run, oldest first. */
-    list(lessonKey: LessonKey, runId: string): StoredSpokenCheck[] {
+    list(lessonKey: LessonKey, runId: string): Verdict<"speaking">[] {
       return deps.lessonRun(lessonKey, runId) ? kept(runId).reverse() : [];
     },
 

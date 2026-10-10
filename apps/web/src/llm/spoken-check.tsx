@@ -25,7 +25,7 @@ export function SpokenAnswerCheck({
   const ready = !!llm.data?.model;
   const key = itemKey(props.exerciseKey, props.index + 1);
   const saved = kept.data?.checks.findLast(
-    (c) => c.itemKey === key && c.transcript === props.transcript,
+    (c) => c.itemKey === key && c.input === props.transcript,
   );
   const request = { ...props, language: i18n.language };
   const ask = () => check.mutate(request, { onSuccess: ({ event }) => event && onStored(event) });
@@ -47,7 +47,7 @@ export function SpokenAnswerCheck({
     <div className="mt-2 rounded-xl border bg-muted/50 px-4 py-3" aria-live="polite">
       {saved ? (
         <SpokenCheckView
-          transcript={saved.transcript}
+          transcript={saved.input}
           check={saved.result}
           header={
             <>

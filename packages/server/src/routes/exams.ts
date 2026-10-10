@@ -1,12 +1,19 @@
 // /api/exams: the installed exams with the learner's standing, an exam's page, and its runs — started
 // (a mock exam or practice), opened, answered, handed in (09, Exams).
-import { EditionId, ExamItemKey, ExamKey, ExamMode, ExamModuleId, Ulid } from "@sprachanker/schema";
+import {
+  EditionId,
+  ExamItemKey,
+  ExamKey,
+  ExamMode,
+  ExamModuleId,
+  ExamRatedPayload,
+  Ulid,
+} from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
-
-const RunParam = z.object({ id: Ulid });
+import { EventsBody, RunParam } from "./params.ts";
 
 export function examRoutes() {
   return new Hono<ProfileEnv>()
@@ -34,29 +41,23 @@ export function examRoutes() {
     .get("/runs/:id", zod("param", RunParam), async (c) =>
       c.json(await c.var.s.exams.open(c.req.valid("param").id)),
     )
-    .post(
-      "/runs/:id/events",
-      zod("param", RunParam),
-      zod("json", z.object({ events: z.array(z.unknown()).max(200) })),
-      async (c) =>
-        c.json(
-          await c.var.s.exams.append(
-            c.req.valid("param").id,
-            c.req.valid("json").events,
-            c.var.deviceId,
-          ),
+    .post("/runs/:id/events", zod("param", RunParam), zod("json", EventsBody), async (c) =>
+      c.json(
+        await c.var.s.exams.append(
+          c.req.valid("param").id,
+          c.req.valid("json").events,
+          c.var.deviceId,
         ),
+      ),
     )
     .post(
       "/runs/:id/ratings",
       zod("param", RunParam),
       zod(
         "json",
-        z.object({
+        ExamRatedPayload.extend({
           id: Ulid,
           itemKey: ExamItemKey,
-          ratings: z.record(z.string(), z.number().nonnegative()),
-          by: z.enum(["self", "assistant"]),
           model: z.string().max(200).optional(),
         }),
       ),

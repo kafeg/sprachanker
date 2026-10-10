@@ -95,20 +95,12 @@ export function createExamples(deps: {
         const ctx = await context(request.cardId);
         const task = wordExampleTask(await input(request, ctx), (s) => usesWord(s, ctx.word));
         const { result, model, latencyMs } = await deps.llm.structured(task);
-        const ts = deps.store.append(deps.reviewRun(), [
-          {
-            type: "llm_verdict",
-            cardId: request.cardId,
-            payload: {
-              task: "example",
-              input: ctx.word.target,
-              result,
-              model,
-              latencyMs,
-            },
-          },
-        ]);
-        return shown({ ts, model, result }, ctx);
+        const { verdict } = store.keepVerdict(
+          deps.reviewRun(),
+          { task: "example", input: ctx.word.target, result, model, latencyMs },
+          { cardId: request.cardId },
+        );
+        return shown(verdict, ctx);
       });
     },
 

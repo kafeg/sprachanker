@@ -21,6 +21,7 @@ import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import { createMistakes } from "./mistakes.ts";
 import { createNotebook } from "./notebook.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
+import { createProgress } from "./progress.ts";
 import { createQwenTts, type QwenTts } from "./qwen-tts.ts";
 import { createReadAloud, type PiperHost, type ReadAloud } from "./read-aloud.ts";
 import { createRecordings } from "./recordings.ts";
@@ -85,14 +86,15 @@ function profileServices(
   const store = createRunStore({ db, now, appVersion: config.appVersion });
   const cardStore = createCardStore(db);
   const recordings = createRecordings(recordingFiles, now);
+  const progress = createProgress({ store, cards: cardStore, recordings });
   // Takes no answer of any run holds (recorded again, never answered with, not to be kept), a day old;
   // housekeeping never keeps the profile from opening.
   try {
-    recordings.removeUnused(new Set(store.recordingIds()), now() - DAY_MS);
+    recordings.removeUnused(progress.recordingsInUse(), now() - DAY_MS);
   } catch (error) {
     console.error("removing unused recordings:", error);
   }
-  const runs = createRuns({ store, cards: cardStore, content, recordings });
+  const runs = createRuns({ store, content });
   const exams = createExams({ store, content, settings, now });
   const cards = createCards({
     cards: cardStore,
@@ -159,6 +161,7 @@ function profileServices(
     qwenTts,
     recordings,
     runs,
+    progress,
     exams,
     cards,
     study,

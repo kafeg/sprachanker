@@ -72,7 +72,7 @@ test("speaking: an answer said aloud checked against the item and the source's a
   ).run.id;
 
   const checked = await sendJson("POST", "/api/llm/speaking", { ...request, runId });
-  expect(checked).toMatchObject({ itemKey: `${EXERCISE}#2`, transcript: "Hallo, gute Tag" });
+  expect(checked).toMatchObject({ itemKey: `${EXERCISE}#2`, input: "Hallo, gute Tag" });
   // The no-op correction is dropped.
   expect(checked.result.corrections).toHaveLength(1);
   const prompt = String(
@@ -89,7 +89,7 @@ test("speaking: an answer said aloud checked against the item and the source's a
   expect(m.bodies).toHaveLength(1);
   expect(m.heard).toHaveLength(1);
   const list = await getJson(`/api/llm/speaking?lessonKey=${LESSON}&runId=${runId}`);
-  expect(list.checks.map((c: { transcript: string }) => c.transcript)).toEqual(["Hallo, gute Tag"]);
+  expect(list.checks.map((c: { input: string }) => c.input)).toEqual(["Hallo, gute Tag"]);
 
   // A phrase to say is checked by the word diff, not the model.
   expect((await send("POST", "/api/llm/speaking", { ...request, runId, index: 0 })).status).toBe(

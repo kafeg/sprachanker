@@ -15,6 +15,7 @@ import { examRoutes } from "./routes/exams.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { notebookRoutes } from "./routes/notebook.ts";
 import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.ts";
+import { progressRoutes } from "./routes/progress.ts";
 import { recordingsRoutes } from "./routes/recordings.ts";
 import { runRoutes } from "./routes/runs.ts";
 import { settingsRoutes } from "./routes/settings.ts";
@@ -84,6 +85,7 @@ export function createApp(config: AppConfig) {
     .route("/", profileRoutes(svc))
     .route("/", courseRoutes())
     .route("/", runRoutes())
+    .route("/progress", progressRoutes())
     .route("/exams", examRoutes())
     .route("/settings", settingsRoutes())
     .route("/cards", cardRoutes())

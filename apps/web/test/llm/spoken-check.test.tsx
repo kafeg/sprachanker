@@ -19,7 +19,7 @@ const kept = {
   checks: [
     {
       itemKey: "s.x/c/00-01/ex-02#2",
-      transcript: "Hallo gute Tag",
+      input: "Hallo gute Tag",
       model: "google/gemma",
       ts: 2,
       result: {

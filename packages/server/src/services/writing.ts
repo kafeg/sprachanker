@@ -9,12 +9,12 @@ import {
   type WritingInput,
   writingTopic,
 } from "@sprachanker/llm";
-import type { LessonKey, Run, WritingCheck } from "@sprachanker/schema";
+import type { LessonKey, Run } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
+import { HISTORY_LIMIT, type RunStore, type Verdict } from "./run-store.ts";
 
 export interface WritingRequest {
   series: string;
@@ -22,13 +22,6 @@ export interface WritingRequest {
   edition: string;
   text: string;
   language: string;
-}
-
-export interface WritingAttempt {
-  ts: number;
-  text: string;
-  result: WritingCheck;
-  model: string;
 }
 
 export function createWriting(deps: {
@@ -44,10 +37,8 @@ export function createWriting(deps: {
 
   /** Writing checks of the lesson in all its runs, newest first; one stored in a shape that no longer
    *  reads is left out. */
-  const attempts = (lessonKey: LessonKey): WritingAttempt[] =>
-    store
-      .verdicts("writing", { kind: "lesson", about: lessonKey })
-      .map((v) => ({ ts: v.ts, text: v.input, result: v.result, model: v.model }));
+  const attempts = (lessonKey: LessonKey) =>
+    store.verdicts("writing", { kind: "lesson", about: lessonKey });
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
@@ -75,30 +66,20 @@ export function createWriting(deps: {
 
     /** Checks a text with the configured model and keeps the verdict in the lesson's run (also a
      *  finished one, as the lesson shows it). Runs to its end even when the page that asked is gone. */
-    check(request: WritingRequest): Promise<WritingAttempt> {
+    check(request: WritingRequest): Promise<Verdict<"writing">> {
       return checking.run(request.lessonKey, { text: request.text }, async () => {
         const session = await deps.session(request.lessonKey);
         if (!session) throw new ServiceError("no_lesson_run", 409);
         const task = checkWritingTask(await writingInput(request));
         const { result: check, model, latencyMs } = await deps.llm.structured(task);
         const result = cleanCheck(check, request.text);
-        const ts = store.append(
-          session.run.id,
-          [
-            {
-              type: "llm_verdict",
-              payload: {
-                task: "writing",
-                input: request.text,
-                result,
-                model,
-                latencyMs,
-              },
-            },
-          ],
-          { anyStatus: true },
-        );
-        return { ts, text: request.text, result, model };
+        return store.keepVerdict(session.run.id, {
+          task: "writing",
+          input: request.text,
+          result,
+          model,
+          latencyMs,
+        }).verdict;
       });
     },
 

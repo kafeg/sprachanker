@@ -15,9 +15,7 @@ import {
   stepsDone,
 } from "@sprachanker/engine";
 import {
-  type CourseKey,
   EventInput,
-  type ExamKey,
   findExercise,
   type ItemKey,
   type LessonKey,
@@ -31,9 +29,7 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
-import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
-import type { Recordings } from "./recordings.ts";
 import { headerOf, type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export const toRun = (r: RunRow): Run => ({
@@ -60,19 +56,7 @@ export interface LessonState {
   };
 }
 
-export function createRuns({
-  store,
-  cards,
-  content,
-  recordings,
-}: {
-  store: RunStore;
-  /** The cards a run made go with it when progress is reset. */
-  cards: CardStore;
-  content: Content;
-  /** And the recordings its answers hold. */
-  recordings: Pick<Recordings, "remove">;
-}) {
+export function createRuns({ store, content }: { store: RunStore; content: Content }) {
   /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
     const row = store.get(id, "lesson");
@@ -206,31 +190,6 @@ export function createRuns({
       return openState(row);
     },
 
-    /**
-     * Resets the learner's progress in a course, or in one of its lessons or exams: every run of it —
-     * lesson runs, tutor chats, writing checks, scenes, mock exams and practice — and their events are
-     * deleted, and so are the cards
-     * it made (the words first met there, by the lesson each card names — also when the run that made
-     * it is long gone) with their answers, and the recordings its answers hold. A card another lesson
-     * made stays. The only deletion of events besides removing a profile; the screen asks for
-     * confirmation (05).
-     */
-    reset(course: CourseKey, only?: { lesson: LessonKey } | { exam: ExamKey }) {
-      const { removed, recordingIds } = store.atomic(() => {
-        const scope = only ?? { course };
-        const runIds = store.idsOf(scope);
-        // An exam's runs make no cards.
-        const cardIds = "exam" in scope ? [] : cards.idsMetIn(scope);
-        const recordingIds = store.recordingIds(runIds);
-        const removed = store.remove(runIds, cardIds);
-        cards.remove(cardIds);
-        return { removed: { ...removed, cards: cardIds.length }, recordingIds };
-      });
-      // Files go once the rows are gone: a failed reset keeps both.
-      if (recordingIds.length) recordings.remove(recordingIds);
-      return removed;
-    },
-
     /** The active run of the lesson, or a new one; `restart` ends the active one first. Everything is
      *  checked before anything is written. */
     async start(series: string, lessonKey: LessonKey, edition: string, restart = false) {
@@ -283,11 +242,6 @@ export function createRuns({
           .payloads(runId, "page_shown")
           .flatMap((p) => (p.snapshot ? [p.snapshot.exercise.key as string] : [])),
       );
-      const outcomes: Record<string, Outcome> = {};
-      const attempts: Record<string, number> = {};
-      const answersOf = new Map<string, number>();
-      for (const a of store.eventsWhere({ types: ["answered"], runIds: [runId] }))
-        if (a.itemKey) answersOf.set(a.itemKey, (answersOf.get(a.itemKey) ?? 0) + 1);
       const list: NewEvent[] = [...parsed.values()].map((e): NewEvent => {
         const itemOf = (key: string) => {
           const { exercise: exKey, n } = parseItemKey(key as ItemKey);
@@ -304,15 +258,8 @@ export function createRuns({
             } catch {
               throw new ServiceError("answer_does_not_fit");
             }
-            outcomes[e.id] = outcome;
-            // One sent again is counted among those stored and keeps its number (onStored below).
-            let attempt = e.payload.attempt;
-            if (!store.event(e.id)) {
-              attempt = (answersOf.get(e.itemKey) ?? 0) + 1;
-              answersOf.set(e.itemKey, attempt);
-              attempts[e.id] = attempt;
-            }
-            return { ...e, payload: { ...e.payload, outcome, attempt } };
+            // Numbered by the store, after the item's answers the run holds.
+            return { ...e, payload: { ...e.payload, outcome } };
           }
           case "item_skipped":
             itemOf(e.itemKey);
@@ -331,16 +278,7 @@ export function createRuns({
             return e;
         }
       });
-      store.append(runId, list, {
-        deviceId,
-        onStored: (before) => {
-          if (before.type === "answered") {
-            outcomes[before.id] = before.payload.outcome;
-            attempts[before.id] = before.payload.attempt;
-          } else delete outcomes[before.id];
-        },
-      });
-      return { outcomes, attempts };
+      return store.appendAnswers(runId, list, { deviceId });
     },
 
     /** Finishes a run once every step of the plan is done or skipped; the result is the lesson score. */

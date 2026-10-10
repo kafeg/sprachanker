@@ -66,7 +66,7 @@ test("a proposal for a handed-in mock exam's note: kept on the question, asked o
   expect([closed.status, await closed.text()]).toEqual([400, '{"error":"no_such_item"}']);
 
   const proposed = await api.sendJson("POST", "/api/llm/exam-rating", body);
-  expect(proposed).toMatchObject({ itemKey: m("s3"), answer: note, result: PROPOSAL, model: "m" });
+  expect(proposed).toMatchObject({ itemKey: m("s3"), input: note, result: PROPOSAL, model: "m" });
   // The request: the task as set, the criteria by their titles and levels, the answer; the level
   // the first reply chose that the criterion does not have was asked again.
   const sent = ai.bodies[0]?.messages.map((x) => x.content).join("\n") ?? "";

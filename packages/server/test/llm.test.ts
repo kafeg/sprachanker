@@ -243,7 +243,7 @@ describe("explain a mistake", () => {
       {
         itemKey: `${EXPLAIN.exerciseKey}#1`,
         attempt: 1,
-        text: "Weil »Frau« weiblich ist.",
+        result: "Weil »Frau« weiblich ist.",
         model: "qwen3-8b",
       },
       { itemKey: `${EXPLAIN.exerciseKey}#1`, attempt: 2 },

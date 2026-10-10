@@ -77,8 +77,8 @@ function Passes({
                 {p.explanations
                   .filter((e) => e.attempt === a.attempt)
                   .map((e) => (
-                    <div key={e.text} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
-                      <RichText text={e.text} />
+                    <div key={e.id} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
+                      <RichText text={e.result} />
                     </div>
                   ))}
               </div>

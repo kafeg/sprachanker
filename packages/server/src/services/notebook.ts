@@ -109,17 +109,6 @@ export function createNotebook(deps: {
   const verdictCount = (events: ReadEvent[], task: VerdictTask) =>
     events.filter((e) => e.type === "llm_verdict" && e.payload.task === task).length;
 
-  /** Checks of answers said aloud (08), newest first: by item and the words heard. */
-  const spokenChecks = (where: Parameters<RunStore["verdicts"]>[1]) =>
-    store.verdicts("speaking", where).map((v) => ({
-      runId: v.runId,
-      itemKey: v.itemKey,
-      transcript: v.input,
-      result: v.result,
-      model: v.model,
-      ts: v.ts,
-    }));
-
   return {
     /**
      * The Notebook's first page: every study day with something done (oldest first, what each held)
@@ -285,13 +274,9 @@ export function createNotebook(deps: {
         events: store.events(runId),
         lesson: now?.lesson ?? null,
         locale: now?.locale ?? null,
-        explanations: store
-          .verdicts("explain", { runIds: [runId] })
-          .map((v) => ({ itemKey: v.itemKey, attempt: v.attempt, text: v.result, ts: v.ts })),
-        spoken: spokenChecks({ runIds: [runId] }),
-        writing: store
-          .verdicts("writing", { runIds: [runId] })
-          .map((v) => ({ ts: v.ts, text: v.input, verdict: v.result.verdict })),
+        explanations: store.verdicts("explain", { runIds: [runId] }),
+        spoken: store.verdicts("speaking", { runIds: [runId] }),
+        writing: store.verdicts("writing", { runIds: [runId] }),
         words: deps.cards.madeIn(runId).map((w) => w.display),
         chats: held?.chats ?? [],
         scenes: held?.scenes ?? [],
@@ -305,7 +290,7 @@ export function createNotebook(deps: {
       const where = { kind: "lesson" as const, about: lessonKey, itemKey };
       const answered = store.eventsWhere({ types: ["answered"], ascending: true, ...where });
       const explained = store.verdicts("explain", where);
-      const spoken = spokenChecks(where);
+      const spoken = store.verdicts("speaking", where);
       return store.list("lesson", lessonKey).flatMap((row) => {
         const answers = answered
           .filter((e) => e.runId === row.id)
@@ -316,10 +301,7 @@ export function createNotebook(deps: {
             runId: row.id,
             startedAt: row.startedAt,
             answers,
-            explanations: explained
-              .filter((v) => v.runId === row.id)
-              .map((v) => ({ attempt: v.attempt, text: v.result }))
-              .reverse(),
+            explanations: explained.filter((v) => v.runId === row.id).reverse(),
             spoken: spoken.filter((v) => v.runId === row.id),
           },
         ];

@@ -78,7 +78,7 @@ test("writing: the task, a check kept in the lesson's run and listed across its 
   await sendJson("POST", "/api/runs", { ...START, restart: true });
   await sendJson("POST", "/api/llm/writing", { ...REQUEST, text: "Ich heiße Lena." });
   const after = await getJson(`/api/llm/writing?${query}`);
-  expect(after.attempts.map((a: { text: string }) => a.text)).toEqual([
+  expect(after.attempts.map((a: { input: string }) => a.input)).toEqual([
     "Ich heiße Lena.",
     "Ich heisse Lena.",
   ]);

@@ -8,7 +8,7 @@ import { findExercise, type LessonKey } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
-import type { RunStore } from "./run-store.ts";
+import type { RunStore, Verdict } from "./run-store.ts";
 
 export interface ExplainRequest {
   series: string;
@@ -21,15 +21,6 @@ export interface ExplainRequest {
   /** Where the explanation is kept: the lesson run and the attempt it explains. */
   runId?: string;
   attempt?: number;
-}
-
-/** A stored explanation; the newest one of an attempt is the one shown. */
-export interface StoredExplanation {
-  itemKey: string;
-  attempt: number;
-  text: string;
-  model: string;
-  ts: number;
 }
 
 export function createExplain(deps: {
@@ -105,38 +96,29 @@ export function createExplain(deps: {
         // Reached only when the model finished: an explanation cut short is not kept.
         if (run && attempt && text.trim()) {
           // Kept with the lesson run, also a finished one.
-          store.append(
+          store.keepVerdict(
             run.id,
-            [
-              {
-                type: "llm_verdict",
-                itemKey,
-                payload: {
-                  task: "explain",
-                  input: "",
-                  result: text.trim(),
-                  model,
-                  latencyMs: elapsed(),
-                  attempt,
-                },
-              },
-            ],
-            { anyStatus: true },
+            {
+              task: "explain",
+              input: "",
+              result: text.trim(),
+              model,
+              latencyMs: elapsed(),
+              attempt,
+            },
+            { itemKey },
           );
         }
       })();
     },
 
-    /** Explanations kept in a lesson run, oldest first. */
-    list(lessonKey: LessonKey, runId: string): StoredExplanation[] {
+    /** Explanations kept in a lesson run (each on its item and attempt), oldest first; the newest
+     *  one of an attempt is the one shown. */
+    list(lessonKey: LessonKey, runId: string): Verdict<"explain">[] {
       if (!lessonRun(lessonKey, runId)) return [];
       return store
         .verdicts("explain", { runIds: [runId] })
-        .flatMap((v) =>
-          v.itemKey && v.attempt
-            ? [{ itemKey: v.itemKey, attempt: v.attempt, text: v.result, model: v.model, ts: v.ts }]
-            : [],
-        )
+        .filter((v) => v.itemKey && v.attempt)
         .reverse();
     },
 

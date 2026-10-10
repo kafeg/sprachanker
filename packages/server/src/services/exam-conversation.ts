@@ -10,7 +10,6 @@ import {
   structuredRequest,
 } from "@sprachanker/llm";
 import { examLang, type LlmTurnPayload, type TypedEvent } from "@sprachanker/schema";
-import { ulid } from "ulid";
 import { ServiceError } from "../errors.ts";
 import type { Exams } from "./exams.ts";
 import { createInFlight } from "./in-flight.ts";
@@ -77,40 +76,26 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
       return busy.run(`${request.runId}|${request.itemKey}`, true, async () => {
         const { task } = await input(request);
         const { result, model, latencyMs } = await llm.structured(examConversationTask(task));
-        const lines: Array<{ id: string; payload: LlmTurnPayload }> = [
-          ...(request.text
-            ? [{ id: ulid(), payload: { role: "user" as const, text: request.text.trim() } }]
-            : []),
+        const lines: LlmTurnPayload[] = [
+          ...(request.text ? [{ role: "user" as const, text: request.text.trim() }] : []),
           ...result.lines.map((line, i) => ({
-            id: ulid(),
-            payload: {
-              role: "assistant" as const,
-              text: line.text.trim(),
-              speaker: line.speaker,
-              model,
-              latencyMs,
-              ...(result.done && i === result.lines.length - 1 && { done: true }),
-            },
+            role: "assistant" as const,
+            text: line.text.trim(),
+            speaker: line.speaker,
+            model,
+            latencyMs,
+            ...(result.done && i === result.lines.length - 1 && { done: true }),
           })),
         ];
-        const ts = store.append(
+        const events = store.keep(
           request.runId,
-          lines.map((l) => ({ ...l, type: "llm_turn" as const, itemKey: request.itemKey })),
+          lines.map((payload) => ({
+            type: "llm_turn" as const,
+            itemKey: request.itemKey,
+            payload,
+          })),
         );
-        return {
-          events: lines.map(
-            (l) =>
-              ({
-                ...l,
-                runId: request.runId,
-                ts,
-                type: "llm_turn",
-                itemKey: request.itemKey,
-                cardId: null,
-              }) as TypedEvent,
-          ),
-          done: result.done,
-        };
+        return { events, done: result.done };
       });
     },
 

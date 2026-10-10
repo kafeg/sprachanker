@@ -5,6 +5,7 @@
 // never breaking the list it is in. Services keep their own rules; how runs and events are stored
 // lives here.
 import {
+  type AnsweredPayload,
   type CourseKey,
   EVENT_PAYLOADS,
   type EventPayload,
@@ -13,6 +14,7 @@ import {
   type ExamResult,
   type LessonKey,
   type LessonResult,
+  type Outcome,
   parseLessonKey,
   type RunEnd,
   type RunEndReason,
@@ -65,6 +67,24 @@ export const HISTORY_LIMIT = 20;
  *  the payload of the type the events were asked for). */
 export const payloadOf = <T>(e: ReadEvent): T & { ts: number } => ({
   ...(e.payload as T),
+  ts: e.ts,
+});
+
+/** A model's verdict as every history reads it (05: `llm_verdict`): its payload typed by its task,
+ *  with where and when it was given. One shape for the services that keep verdicts and the Notebook. */
+export type Verdict<T extends VerdictTask> = VerdictOf<T> & {
+  id: string;
+  runId: string;
+  itemKey: string | null;
+  cardId: string | null;
+  ts: number;
+};
+export const verdictOf = <T extends VerdictTask>(e: ReadEvent): Verdict<T> => ({
+  ...(e.payload as VerdictOf<T>),
+  id: e.id,
+  runId: e.runId,
+  itemKey: e.itemKey,
+  cardId: e.cardId ?? null,
   ts: e.ts,
 });
 
@@ -337,6 +357,76 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       return ts;
     },
 
+    /**
+     * Stores a run's events as `append` does, each new answer numbered after the answers its item
+     * has in the run (05: two devices answering in one run never give two answers the same number),
+     * and returns each answer's outcome and attempt — the stored ones for an answer sent again.
+     */
+    appendAnswers(runId: string, list: NewEvent[], options: { deviceId?: string } = {}) {
+      const count = new Map<string, number>();
+      for (const a of self.eventsWhere({ types: ["answered"], runIds: [runId] }))
+        if (a.itemKey) count.set(a.itemKey, (count.get(a.itemKey) ?? 0) + 1);
+      const outcomes: Record<string, Outcome> = {};
+      const attempts: Record<string, number> = {};
+      const numbered = list.map((e): NewEvent => {
+        if (e.type !== "answered" || !e.id || !e.itemKey) return e;
+        const payload = e.payload as AnsweredPayload;
+        let attempt = payload.attempt;
+        // One sent again keeps its own number (read back as it is stored, below).
+        if (!self.event(e.id)) {
+          attempt = (count.get(e.itemKey) ?? 0) + 1;
+          count.set(e.itemKey, attempt);
+        }
+        outcomes[e.id] = payload.outcome;
+        attempts[e.id] = attempt;
+        return { ...e, payload: { ...payload, attempt } };
+      });
+      self.append(runId, numbered, {
+        deviceId: options.deviceId,
+        onStored: (before) => {
+          if (before.type !== "answered") return;
+          outcomes[before.id] = before.payload.outcome;
+          attempts[before.id] = before.payload.attempt;
+        },
+      });
+      return { outcomes, attempts };
+    },
+
+    /**
+     * Stores what the server itself adds to a run — a model's verdict, a conversation's lines — as
+     * `append` does (`anyStatus`: also in an ended run), and gives the events back as read, for the
+     * page that shows the run.
+     */
+    keep(runId: string, list: NewEvent[], options: { anyStatus?: boolean } = {}): ReadEvent[] {
+      const named = list.map((e) => ({ ...e, id: e.id ?? id(now()) }));
+      const ts = self.append(runId, named, options);
+      return named.map(
+        (e) =>
+          ({
+            id: e.id,
+            runId,
+            ts,
+            type: e.type,
+            itemKey: e.itemKey ?? null,
+            cardId: e.cardId ?? null,
+            payload: e.payload,
+          }) as ReadEvent,
+      );
+    },
+
+    /** A model's verdict kept in a run, also an ended one (a check kept with a finished lesson run),
+     *  on an item or a card: the event, and the verdict as histories read it. */
+    keepVerdict<T extends VerdictTask>(
+      runId: string,
+      payload: VerdictOf<T>,
+      on: { itemKey?: string; cardId?: string } = {},
+    ) {
+      const [event] = self.keep(runId, [{ type: "llm_verdict", ...on, payload }], {
+        anyStatus: true,
+      }) as [ReadEvent];
+      return { event, verdict: verdictOf<T>(event) };
+    },
+
     /** One event by id. */
     event(eventId: string): ReadEvent | undefined {
       const row = db.select().from(events).where(eq(events.id, eventId)).get();
@@ -425,19 +515,11 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         cardId?: string;
       },
     ) {
-      return self.eventsWhere({ types: ["llm_verdict"], ...where }).flatMap((e) =>
-        e.type === "llm_verdict" && e.payload.task === task
-          ? [
-              {
-                ...(e.payload as VerdictOf<T>),
-                id: e.id,
-                runId: e.runId,
-                itemKey: e.itemKey,
-                ts: e.ts,
-              },
-            ]
-          : [],
-      );
+      return self
+        .eventsWhere({ types: ["llm_verdict"], ...where })
+        .flatMap((e) =>
+          e.type === "llm_verdict" && e.payload.task === task ? [verdictOf<T>(e)] : [],
+        );
     },
 
     /** The events of several runs, each run's in the order they were stored, of some types only when

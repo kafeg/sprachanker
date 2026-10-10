@@ -63,7 +63,7 @@ nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomne
 devices) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
 files: the profile list and signing in first, then the session check — the device's cookie names the
 profile and puts its services in the request's context (`c.var.s`) — then every profile route
-(`routes/{profiles,courses,runs,exams,cards,settings,notebook,recordings,speech,llm}.ts`), each thin:
+(`routes/{profiles,courses,runs,progress,exams,cards,settings,notebook,recordings,speech,llm}.ts`), each thin:
 validate, call a service, return its typed result or one of schema's `ERROR_CODES`. The web client
 gets the types through Hono RPC (`AppType`), no codegen.
 
@@ -71,7 +71,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   installs (one at a time, progress, resume after restart) through the providers' importers.
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`. Services build on them: `runs` (lesson runs,
-  progress, reset), `exams` (exam runs: mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
+  lesson progress), `progress` (reset over every module's runs, recordings in use), `exams` (exam runs: mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
   ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (study days, passes),
   `mistakes`, `settings`.
 - **AI**: `llm` (providers, LM Studio, prompt previews, `structured`: one path for a task's call and

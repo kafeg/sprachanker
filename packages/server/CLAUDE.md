@@ -28,15 +28,16 @@ src/
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
-                     # (courses, catalog, downloads, lesson content), runs (lesson runs, progress reset), exams,
+                     # (courses, catalog, downloads, lesson content), runs (lesson runs), progress (reset), exams,
                      # cards (/api/cards), settings, notebook, recordings, speech, llm (removable as a whole); env.ts: what a
                      # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, registration), devices (sign-in tokens), and
                      # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
-                     # progress); exams (exam runs: mock exams and practice, the learner's standing);
-                     # run-store (the one module on runs and events: start, replace, end, append, read,
-                     # remove); card-store (the one module on cards and card_state); cards
+                     # lesson progress); progress (the learner's progress over every module: reset for a
+                     # course, a lesson or an exam; the recordings answers hold); exams (exam runs: mock exams and practice, the learner's standing);
+                     # run-store (the one module on runs and events: start, replace, end, append, answers
+                     # numbered, what the server keeps — verdicts, lines —, read, remove); card-store (the one module on cards and card_state); cards
                      # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
                      # bury, suspend, flags, marks); words (My words, the word sheet); notebook (study
                      # days, passes, a pass in full, an item across passes, mock exams; read only); settings;
@@ -76,8 +77,9 @@ test/                # bun test; integration tests call createApp().request() �
   `server-tables-through-stores`). Event types and their payload schemas live in one registry
   (`EVENT_PAYLOADS`, schema `learner.ts`): checked when written and when read.
 - Histories read the same way everywhere: a run replaced by a new one through `store.replace` (ends
-  `abandoned` when unfinished, `finished` when complete as it is); verdicts through `store.verdicts`;
-  turns and payloads with their time (`payloadOf`); several runs' events in one query
+  `abandoned` when unfinished, `finished` when complete as it is); verdicts kept with `store.keepVerdict` and read with
+  `store.verdicts`, in one shape everywhere (`Verdict`: the payload with where and when); what the
+  server adds to a run otherwise with `store.keep`; answers numbered by `store.appendAnswers`; turns and payloads with their time (`payloadOf`); several runs' events in one query
   (`store.eventsOf`); lists newest first, at most `HISTORY_LIMIT`; a stored row or JSON column that no
   longer reads is left out and logged (`readStored`), never failing the list.
 - A model's stored answer records `model` and `latencyMs` (`stopwatch` in services/llm.ts).

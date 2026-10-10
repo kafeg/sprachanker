@@ -8,7 +8,6 @@ import { openLibrary } from "@sprachanker/course-kit";
 import type { LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
-import { createCardStore } from "../src/services/card-store.ts";
 import { createContent } from "../src/services/content.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import { createRunStore } from "../src/services/run-store.ts";
@@ -328,9 +327,7 @@ describe("runs", () => {
     );
     const runsNow = createRuns({
       store: createRunStore({ db: profile, now: Date.now, appVersion: "test" }),
-      cards: createCardStore(profile),
       content,
-      recordings: { remove: () => 0 },
     });
     expect((await runsNow.shown(LESSON as LessonKey))?.run.id).toBe(run.id);
     expect((await runsNow.progress())[LESSON]).toBeTruthy();

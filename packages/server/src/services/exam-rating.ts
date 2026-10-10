@@ -4,32 +4,18 @@
 // is an `llm_verdict` (`task: exam`) on the question in the exam run, for the answer it rated: asked
 // once per answer, shown again without asking. A mock exam is rated only once handed in.
 import { type ExamAnswerInput, rateExamAnswerTask, structuredRequest } from "@sprachanker/llm";
-import {
-  type ExamRatingProposal,
-  examLang,
-  type LlmVerdictPayload,
-  type TypedEvent,
-} from "@sprachanker/schema";
-import { ulid } from "ulid";
+import { examLang, type TypedEvent } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { Exams } from "./exams.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunStore } from "./run-store.ts";
+import type { RunStore, Verdict } from "./run-store.ts";
 
 export interface ExamRatingRequest {
   runId: string;
   itemKey: string;
   /** The language of the reasons. */
   language: string;
-}
-
-export interface StoredExamRating {
-  itemKey: string;
-  answer: string;
-  result: ExamRatingProposal;
-  model: string;
-  ts: number;
 }
 
 export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams }) {
@@ -75,14 +61,9 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
     return { task, text };
   }
 
-  const kept = (runId: string, itemKey?: string): StoredExamRating[] =>
-    store
-      .verdicts("exam", { runIds: [runId], itemKey })
-      .flatMap((v) =>
-        v.itemKey
-          ? [{ itemKey: v.itemKey, answer: v.input, result: v.result, model: v.model, ts: v.ts }]
-          : [],
-      );
+  /** Proposals kept in a run (`input`: the answer rated), newest first. */
+  const kept = (runId: string, itemKey: string) =>
+    store.verdicts("exam", { runIds: [runId], itemKey });
 
   return {
     /** The model's proposal for an answer, kept on its question in the run; one kept for the same
@@ -90,29 +71,19 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
     async propose(
       request: ExamRatingRequest,
     ): Promise<
-      StoredExamRating & { /** The event kept, for the run's page. */ event?: TypedEvent }
+      Verdict<"exam"> & { /** The event kept, for the run's page. */ event?: TypedEvent }
     > {
       const { task, text } = await input(request);
-      const same = kept(request.runId, request.itemKey).find((r) => r.answer === text);
+      const same = kept(request.runId, request.itemKey).find((r) => r.input === text);
       if (same) return same;
       return rating.run(`${request.runId}|${request.itemKey}|${text}`, true, async () => {
         const { result, model, latencyMs } = await llm.structured(rateExamAnswerTask(task));
-        const id = ulid();
-        const payload: LlmVerdictPayload = { task: "exam", input: text, result, model, latencyMs };
-        const ts = store.append(
+        const { event, verdict } = store.keepVerdict(
           request.runId,
-          [{ id, type: "llm_verdict", itemKey: request.itemKey, payload }],
-          { anyStatus: true },
+          { task: "exam", input: text, result, model, latencyMs },
+          { itemKey: request.itemKey },
         );
-        const event = {
-          id,
-          runId: request.runId,
-          ts,
-          type: "llm_verdict" as const,
-          itemKey: request.itemKey,
-          payload,
-        };
-        return { itemKey: request.itemKey, answer: text, result, model, ts, event };
+        return { ...verdict, event };
       });
     },
 

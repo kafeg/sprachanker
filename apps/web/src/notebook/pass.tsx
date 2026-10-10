@@ -130,7 +130,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
                             </div>
                             {explained.map((e) => (
                               <div key={e.ts} className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
-                                <RichText text={e.text} />
+                                <RichText text={e.result} />
                               </div>
                             ))}
                             <SpokenCheckNote
@@ -169,8 +169,10 @@ function More({ pass }: { pass: NotebookPass }) {
     <Panel title={t("notebook.alsoDone")} className="space-y-3">
       {writing.map((w) => (
         <p key={w.ts}>
-          <span className="text-muted-foreground">{t(`writing.verdict.${w.verdict}`)}: </span>
-          <span lang={parseEditionId(pass.run.edition ?? "ru-de").target}>{w.text}</span>
+          <span className="text-muted-foreground">
+            {t(`writing.verdict.${w.result.verdict}`)}:{" "}
+          </span>
+          <span lang={parseEditionId(pass.run.edition ?? "ru-de").target}>{w.input}</span>
         </p>
       ))}
       {scenes.map((s) => (

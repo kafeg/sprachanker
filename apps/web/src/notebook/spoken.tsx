@@ -3,9 +3,10 @@
 import type { SpokenCheck } from "@sprachanker/schema";
 import { SpokenCheckView } from "@/ui/checked-text.tsx";
 
+/** A check as kept: `input` is what was heard. */
 interface KeptCheck {
   itemKey: string | null;
-  transcript: string;
+  input: string;
   result: SpokenCheck;
 }
 
@@ -16,14 +17,14 @@ export const spokenCheckOf = <C extends KeptCheck>(
   answer: unknown,
 ) => {
   const heard = (answer as { transcript?: unknown } | undefined)?.transcript;
-  return checks.find((c) => c.itemKey === itemKey && c.transcript === heard);
+  return checks.find((c) => c.itemKey === itemKey && c.input === heard);
 };
 
 export function SpokenCheckNote({ check }: { check: KeptCheck | undefined }) {
   if (!check) return null;
   return (
     <div className="rounded-xl bg-muted/50 px-4 py-3 text-sm">
-      <SpokenCheckView transcript={check.transcript} check={check.result} />
+      <SpokenCheckView transcript={check.input} check={check.result} />
     </div>
   );
 }

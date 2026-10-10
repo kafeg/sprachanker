@@ -71,10 +71,10 @@ function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): 
       </div>
       <p>{r.feedback}</p>
       {r.corrections.length > 0 ? (
-        <CorrectedText text={attempt.text} corrected={r.corrected} />
+        <CorrectedText text={attempt.input} corrected={r.corrected} />
       ) : (
         <p lang={lang} className="text-lg leading-relaxed">
-          {attempt.text}
+          {attempt.input}
         </p>
       )}
       <Corrections corrections={r.corrections} />
@@ -123,7 +123,7 @@ function PastAttempts({
           </span>
           <span className="flex items-baseline gap-3">
             <span lang={lang} className="min-w-0 flex-1 truncate">
-              {a.text}
+              {a.input}
             </span>
             <span className="shrink-0 whitespace-nowrap text-sm text-muted-foreground">
               {when.format(a.ts)}
@@ -163,7 +163,7 @@ export function WritingTask({
   const request = { series, lessonKey, edition, text: text.trim(), language: i18n.language };
   // A text back in the editor, to fix it after the corrections and check it again.
   const rewrite = (attempt: WritingAttempt) => {
-    setText(attempt.text);
+    setText(attempt.input);
     editor.current?.focus();
     editor.current?.scrollIntoView({ block: "center" });
   };

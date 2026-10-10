@@ -72,7 +72,7 @@ export function ExplainMistake({
   }, [autoStart, ready, loaded]);
 
   if (!llm.data) return null;
-  const shown = text ?? saved?.text;
+  const shown = text ?? saved?.result;
   if (!ready && shown === undefined)
     return (
       <Link

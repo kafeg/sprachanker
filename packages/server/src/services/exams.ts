@@ -34,7 +34,7 @@ import {
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-import { headerOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
+import { headerOf, type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
 /** Answers a mock exam takes after its time is up: what was on its way when the time ran out. */
@@ -334,12 +334,7 @@ export function createExams({
       // Answers are checked in the language the exam is in (04).
       const lang = examLang(row.edition);
       const asked = new Set<string>(run.plan.items);
-      const answersOf = new Map<string, number>();
-      for (const a of store.eventsWhere({ types: ["answered"], runIds: [runId] }))
-        if (a.itemKey) answersOf.set(a.itemKey, (answersOf.get(a.itemKey) ?? 0) + 1);
-      const outcomes: Record<string, Outcome> = {};
-      const attempts: Record<string, number> = {};
-      const list = input.map((raw) => {
+      const list = input.map((raw): NewEvent => {
         const parsed = ExamEventInput.safeParse(raw);
         if (!parsed.success) throw new ServiceError("invalid_event");
         const e = parsed.data;
@@ -351,24 +346,10 @@ export function createExams({
         } catch {
           throw new ServiceError("answer_does_not_fit");
         }
-        // Numbered here, after the question's answers the run holds; one sent again keeps its own.
-        let attempt = e.payload.attempt;
-        if (!store.event(e.id)) {
-          attempt = (answersOf.get(e.itemKey) ?? 0) + 1;
-          answersOf.set(e.itemKey, attempt);
-        }
-        outcomes[e.id] = outcome;
-        attempts[e.id] = attempt;
-        return { ...e, payload: { ...e.payload, outcome, attempt } };
+        // Numbered by the store, after the question's answers the run holds.
+        return { ...e, payload: { ...e.payload, outcome } };
       });
-      store.append(runId, list, {
-        deviceId,
-        onStored: (before) => {
-          if (before.type !== "answered") return;
-          outcomes[before.id] = before.payload.outcome;
-          attempts[before.id] = before.payload.attempt;
-        },
-      });
+      const { outcomes, attempts } = store.appendAnswers(runId, list, { deviceId });
       return { outcomes: run.plan.mode === "practice" ? outcomes : {}, attempts };
     },
 
