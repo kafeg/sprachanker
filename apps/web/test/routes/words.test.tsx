@@ -25,22 +25,33 @@ const WORDS = [
   }),
   word("01K0000000000000000000000C", "gern", "gladly", { state: "learning", suspended: true }),
 ];
-const COURSES = [
-  {
-    series: "sprachanker.test",
-    course: "demo",
-    key: COURSE,
-    editions: ["en-de"],
-    titles: { "en-de": "Demo course" },
-  },
-];
+// The deck's title as the server gives it: the course's in the edition of its cards.
+const counts = { new: 1, learning: 1, review: 1 };
+const DECKS = {
+  decks: [
+    {
+      scope: "lang:de",
+      language: "de",
+      counts,
+      courses: [
+        {
+          scope: `course:${COURSE}`,
+          course: COURSE,
+          title: "Demo course",
+          editions: ["en-de"],
+          counts,
+        },
+      ],
+    },
+  ],
+};
 
 const page = () =>
   renderApp(<MyWords />, {
     path: "/review/words",
     data: [
       [["words"], { words: WORDS }],
-      [["courses"], COURSES],
+      [["decks"], DECKS],
     ],
   });
 const rows = (view: Awaited<ReturnType<typeof page>>) =>
@@ -49,6 +60,7 @@ const rows = (view: Awaited<ReturnType<typeof page>>) =>
 test("My words: every word with its state; search by word or translation", async () => {
   const view = await page();
   await waitFor(() => expect(rows(view)).toHaveLength(3));
+  expect(view.getByRole("button", { name: "Demo course" })).toBeTruthy();
   expect(rows(view)[1]).toContain("der Kaffee");
   expect(rows(view)[1]).toContain("Review");
   expect(rows(view)[2]).toContain("Suspended");
