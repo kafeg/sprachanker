@@ -63,6 +63,9 @@ export function decodeEntities(text: string): string {
 /** Comments of HTML, an editor's conditional markup in them too (Word's `<!--[if gte vml 1]>…`). */
 const COMMENT = /<!--[\s\S]*?-->/g;
 
+/** Characters of no width an editor left: a zero-width space, a byte-order mark (no text). */
+export const NO_WIDTH = /[\u200b\ufeff]/g;
+
 /** Text without tags, comments and entities, whitespace collapsed, NFC. */
 export function plainText(html: unknown): string {
   return (
@@ -71,9 +74,11 @@ export function plainText(html: unknown): string {
         .replace(COMMENT, " ")
         .replace(/<[^>]+>/g, " "),
     )
+      .replace(NO_WIDTH, "")
       .replace(/[\s ]+/g, " ")
       // Tags around words ("<span>bitte</span>.") leave a space before punctuation; adjacent tags
-      // ("<span>Appetit</span><span>auf</span>") must still separate words, so tags become spaces first.
+      // ("<span>Appetit</span><span>auf</span>") must still separate words, so tags become spaces first
+      // (a source whose inline tags sit inside words removes them before: Lingust's `flatText`).
       // Spaced ellipses ("Ja ... und") are the source's own.
       .replace(/ (?=[.,!?;:)\]])(?!\.\.)/g, "")
       .replace(/([([]) /g, "$1")

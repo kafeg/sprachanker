@@ -25,4 +25,6 @@ test("entities: references and known names decoded, unknown names kept", () => {
     "25 °C ¿Qué? زندگی\u200cنامه",
   );
   expect(plainText("these&emsp;–&emsp;those")).toBe("these – those");
+  // Characters of no width are no text: neither a space nor a part of a word.
+  expect(plainText("Mann: \u200b\u200bFalsch!\ufeff")).toBe("Mann: Falsch!");
 });

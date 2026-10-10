@@ -58,7 +58,6 @@ export interface LessonPlan {
 function courseHtml(html: string): string {
   const cleaned = html
     .replace(/\r\n?/g, "\n")
-    .replace(/[\u200b\ufeff]/g, "")
     .replace(/<p\b[^>]*>(?:(?!<\/p>)[\s\S])*?mailto:(?:(?!<\/p>)[\s\S])*<\/p>/gi, "")
     .replace(/<p\b[^>]*>[\s_ ]*<\/p>/gi, "")
     .replace(/<h[3-6]\b[^>]*>/gi, "<p><strong>")

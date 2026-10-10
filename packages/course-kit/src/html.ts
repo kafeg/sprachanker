@@ -1,6 +1,7 @@
 // HTML sanitiser for course texts (02, "Conventions": allow-list, images as media paths).
 import type { MediaPath } from "@sprachanker/schema";
 import sanitizeHtml from "sanitize-html";
+import { NO_WIDTH } from "./text.ts";
 
 const ALLOWED_TAGS = [
   "h3",
@@ -32,9 +33,10 @@ export interface SanitizeOptions {
   drop?(tag: string, attributes: Record<string, string>): boolean;
 }
 
-/** Keeps the allow-listed elements without attributes (images get `src` and `alt`); unwraps the rest. */
+/** Keeps the allow-listed elements without attributes (images get `src` and `alt`); unwraps the rest.
+ *  Characters of no width an editor left go. */
 export function sanitizeCourseHtml(html: string, options: SanitizeOptions): string {
-  const clean = sanitizeHtml(html, {
+  const clean = sanitizeHtml(html.replace(NO_WIDTH, ""), {
     allowedTags: ALLOWED_TAGS,
     allowedAttributes: { img: ["src", "alt"] },
     allowedSchemes: [],

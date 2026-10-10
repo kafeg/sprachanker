@@ -16,6 +16,12 @@ test("keeps allowed structure, strips attributes and scripts, unwraps the rest",
   );
 });
 
+test("characters of no width an editor left go", () => {
+  expect(sanitizeCourseHtml("<p>\ufeffSchneiden\u200b\u200b Sie</p>", options)).toBe(
+    "<p>Schneiden Sie</p>",
+  );
+});
+
 test("rewrites images to media paths and drops credits and unknown images", () => {
   const html = `<figure class="big"><img data-id="5" data-url="https://cdn/5_\${formatId}.jpg" alt="Zwei Leute" style="h">
 <figcaption>Gruß<small class="copyright">null DW</small></figcaption></figure><img src="https://other/x.png">`;
