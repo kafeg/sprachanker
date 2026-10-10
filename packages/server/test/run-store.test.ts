@@ -48,7 +48,7 @@ test("events are checked when written and stored all or nothing; a resent id is 
 test("answers numbered per item; one sent again keeps its number; an id stored as another event tells no answer", () => {
   const { store } = open();
   const run = store.start("lesson", LESSON, { edition: "ru-de" });
-  const outcome = { result: "correct" as const, score: 1, ruleIds: [], lexemes: [] };
+  const outcome = { result: "correct" as const, score: 1 };
   const answer = (id: string, itemKey = "k#1") => ({
     id,
     type: "answered" as const,
@@ -188,7 +188,7 @@ test("removing runs takes their events with them, in one go", () => {
 
 test("the recordings answers hold are found in runs of every kind, exams too", () => {
   const { store, sqlite } = open();
-  const outcome = { result: "unscored" as const, score: 0, ruleIds: [], lexemes: [] };
+  const outcome = { result: "unscored" as const, score: 0 };
   const answered = (itemKey: string, recording: string) => ({
     type: "answered" as const,
     itemKey,

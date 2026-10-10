@@ -32,8 +32,6 @@ const card = (outcome?: "wrong" | "correct") =>
           outcome && {
             result: outcome,
             score: outcome === "correct" ? 1 : 0,
-            ruleIds: [],
-            lexemes: [],
           }
         }
         url={(p) => `/library/x/${p}`}

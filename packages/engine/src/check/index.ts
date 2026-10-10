@@ -125,14 +125,13 @@ export function checkItem(
   answer: unknown,
   lang: string,
 ): Outcome {
-  const base = { ruleIds: exercise.ruleIds, lexemes: [] };
   const item = exercise.items[index];
   if (!item) throw new Error(`${exercise.key} has no item ${index + 1}`);
   switch (exercise.type) {
     case "single_choice": {
       const it = item as ItemOf<"single_choice">;
       const { optionId } = SingleChoiceAnswer.parse(answer);
-      return { ...base, ...binary(sameOption(it.options, optionId, it.answer.optionIds[0])) };
+      return { ...binary(sameOption(it.options, optionId, it.answer.optionIds[0])) };
     }
     case "multi_choice": {
       const it = item as ItemOf<"multi_choice">;
@@ -141,7 +140,6 @@ export function checkItem(
       const hits = [...chosen].filter((id) => want.has(id)).length;
       const wrong = chosen.size - hits;
       return {
-        ...base,
         ...(hits === want.size && !wrong ? binary(true) : graded((hits - wrong) / want.size)),
       };
     }
@@ -168,7 +166,7 @@ export function checkItem(
           !!groupOk.get(group(l)) || sameOption(it.right, chosen.get(l), r),
         ]),
       );
-      return { ...base, ...byParts(parts) };
+      return { ...byParts(parts) };
     }
     case "order": {
       const it = item as ItemOf<"order">;
@@ -179,7 +177,6 @@ export function checkItem(
       const ok = prefix === want.length && got.length === want.length;
       // Parts beyond the sequence cost as missing ones do.
       return {
-        ...base,
         ...(ok ? binary(true) : graded(prefix / Math.max(want.length, got.length))),
       };
     }
@@ -192,7 +189,7 @@ export function checkItem(
           correctOptions(want).some((w) => sameOption(it.gaps[gap]?.options ?? [], got[gap], w)),
         ]),
       );
-      return { ...base, ...byParts(parts) };
+      return { ...byParts(parts) };
     }
     case "gap_text": {
       const it = item as ItemOf<"gap_text">;
@@ -210,24 +207,23 @@ export function checkItem(
           ];
         }),
       );
-      return { ...base, ...byParts(parts) };
+      return { ...byParts(parts) };
     }
     case "dictation": {
       const it = item as ItemOf<"dictation">;
       return {
-        ...base,
         ...textOutcome(lang, it.answer.accepted, DictationAnswer.parse(answer).text, false),
       };
     }
     case "speech_repeat": {
       const it = item as ItemOf<"speech_repeat">;
       const { speech } = SpeechRepeatAnswer.parse(answer);
-      return { ...base, ...textOutcome(lang, [it.text], speech.transcript, true) };
+      return { ...textOutcome(lang, [it.text], speech.transcript, true) };
     }
     case "respond": {
       const it = item as ItemOf<"respond">;
       const { text, speech } = RespondAnswer.parse(answer);
-      return { ...base, ...rubric(it, text || speech?.transcript || "", lang), needsLlm: true };
+      return { ...rubric(it, text || speech?.transcript || "", lang) };
     }
     case "speech_selfrate": {
       // Recorded and, with recognition, heard: the words compared, still in no score (08).
@@ -235,9 +231,9 @@ export function checkItem(
       const { transcript } = SpeechSelfrateAnswer.parse(answer);
       const heard =
         it.text && transcript !== undefined ? spokenCheck(lang, it.text, transcript) : undefined;
-      return { ...base, result: "unscored", score: 0, ...(heard && { diff: heard.diff }) };
+      return { result: "unscored", score: 0, ...(heard && { diff: heard.diff }) };
     }
     case "unknown":
-      return { ...base, result: "unscored", score: 0 };
+      return { result: "unscored", score: 0 };
   }
 }

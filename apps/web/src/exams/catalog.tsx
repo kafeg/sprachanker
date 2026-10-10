@@ -138,9 +138,7 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
                         run=""
                         answer={exampleAnswer(item)}
                         outcome={
-                          item.type === "respond"
-                            ? undefined
-                            : { result: "correct", score: 1, ruleIds: [], lexemes: [] }
+                          item.type === "respond" ? undefined : { result: "correct", score: 1 }
                         }
                         url={(path) => mediaUrl(params.series, path)}
                       />

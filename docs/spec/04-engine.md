@@ -44,9 +44,6 @@ type Outcome = {
   result: "correct" | "partial" | "wrong" | "unscored";
   score: number;          // 0..1; partial = share of matched ids or words
   diff?: TokenDiff[];     // text and speech
-  ruleIds: string[];      // the exercise's ruleIds
-  lexemes: string[];      // always []: mistakes do not name their words yet (below)
-  needsLlm?: boolean;     // respond: deterministic part done, LLM verdict pending
   parts?: Record<string, boolean>;  // gaps by gap id, match pairs by left id: what the item marks
 };
 ```
@@ -75,8 +72,7 @@ the UI never re-checks an answer.
   bye" and the other way round); dictation compares how words are joined. Normalisation and the per-language case rule live in
   `packages/engine/src/text/normalise.ts`, the word diff in `packages/engine/src/text/diff.ts`.
 - `respond`: scored from the rubric's required groups (each a phrase said as whole words) if it has
-  them, otherwise `unscored`; the outcome
-  carries `needsLlm` and the reference is shown either way. An LLM verdict on top: plan, "Later".
+  them, otherwise `unscored`; the reference is shown either way. An LLM verdict on top: plan, "Later".
 - `unknown` is never rendered; the page shows "not supported yet".
 
 ## Learner model

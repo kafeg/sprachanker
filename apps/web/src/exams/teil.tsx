@@ -146,7 +146,7 @@ export function TeilHeader({
                   locale={null}
                   index={0}
                   answer={exampleAnswer(example)}
-                  outcome={{ result: "correct", score: 1, ruleIds: [], lexemes: [] }}
+                  outcome={{ result: "correct", score: 1 }}
                   url={url}
                 />
               </SourceOrder.Provider>

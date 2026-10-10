@@ -19,7 +19,7 @@ const ev = (
   itemKey: string | null,
   payload: unknown,
 ): TypedEvent => ({ id: `E${n}`, runId: "R", ts: n, type, itemKey, payload }) as TypedEvent;
-const outcome = (result: string, score: number) => ({ result, score, ruleIds: [], lexemes: [] });
+const outcome = (result: string, score: number) => ({ result, score });
 
 /** A lesson of exercises `key:type` (items are not needed by the progress functions). */
 const lessonOf = (...pages: string[]) =>

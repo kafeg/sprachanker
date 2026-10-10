@@ -88,7 +88,7 @@ const whole = (): Stored => ({
         answer: { optionId: "b" },
         attempt: 1,
         ms: 1,
-        outcome: { result: "wrong", score: 0, ruleIds: [], lexemes: [] },
+        outcome: { result: "wrong", score: 0 },
       },
       { item_key: ITEM },
     ),
@@ -328,7 +328,7 @@ test("each thing broken in an exam's runs is named", () => {
     broken((s) => {
       const e = s.events[1] as EventRow;
       const p = JSON.parse(e.payload_json);
-      p.outcome = { result: "correct", score: 1, ruleIds: [], lexemes: [] };
+      p.outcome = { result: "correct", score: 1 };
       e.payload_json = JSON.stringify(p);
     }),
   ).toContain(`${EX}/q-2: stored correct, the engine says wrong`);

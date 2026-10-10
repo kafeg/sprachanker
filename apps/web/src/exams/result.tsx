@@ -273,9 +273,7 @@ export function ExamResultView({
                   label={`${t("exams.question", { n: index + 1, total: items.length })}${given ? "" : ` · ${t("exams.notAnswered")}`}`}
                   run={run.id}
                   answer={given?.answer}
-                  outcome={
-                    given?.outcome ?? { result: "wrong", score: 0, ruleIds: [], lexemes: [] }
-                  }
+                  outcome={given?.outcome ?? { result: "wrong", score: 0 }}
                   url={(path) => mediaUrl(params.series, path)}
                 />
               </li>

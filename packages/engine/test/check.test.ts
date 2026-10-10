@@ -2,13 +2,13 @@ import { describe, expect, test } from "bun:test";
 import type { Exercise } from "@sprachanker/schema";
 import { checkItem, spokenCheck } from "../src/index.ts";
 
-const ex = (type: string, item: Record<string, unknown>, ruleIds: string[] = []) =>
+const ex = (type: string, item: Record<string, unknown>) =>
   ({
     key: "x.y/a1/00-01/ex-01",
     type,
     fingerprint: "0".repeat(64),
     newWords: [],
-    ruleIds,
+    ruleIds: [],
     items: [{ key: "x.y/a1/00-01/ex-01#1", ...item }],
   }) as unknown as Exercise;
 const result = (e: Exercise, answer: unknown): [string, number] => {
@@ -17,21 +17,17 @@ const result = (e: Exercise, answer: unknown): [string, number] => {
 };
 
 describe("single_choice", () => {
-  const e = ex(
-    "single_choice",
-    {
-      options: [
-        { id: "a", text: "Hi!" },
-        { id: "b", text: "Guten  Tag." },
-        { id: "c", text: "Guten Tag." },
-        { id: "d", text: "Guten Tag?" },
-        { id: "e", text: "" },
-        { id: "f", text: "" },
-      ],
-      answer: { optionIds: ["b"] },
-    },
-    ["de.greeting.du-sie"],
-  );
+  const e = ex("single_choice", {
+    options: [
+      { id: "a", text: "Hi!" },
+      { id: "b", text: "Guten  Tag." },
+      { id: "c", text: "Guten Tag." },
+      { id: "d", text: "Guten Tag?" },
+      { id: "e", text: "" },
+      { id: "f", text: "" },
+    ],
+    answer: { optionIds: ["b"] },
+  });
   // The same text (whitespace aside) is the same option; a question is not a statement; options
   // without text are told apart by picture or id.
   test.each<[unknown, [string, number]]>([
@@ -41,10 +37,6 @@ describe("single_choice", () => {
     [{ optionId: "d" }, ["wrong", 0]],
     [{ optionId: "e" }, ["wrong", 0]],
   ])("%j", (answer, out) => expect(result(e, answer)).toEqual(out));
-  test("carries rule ids", () =>
-    expect(checkItem(e, 0, { optionId: "a" }, "de").ruleIds).toEqual([
-      "de.greeting.du-sie",
-    ] as never));
 });
 
 describe("multi_choice", () => {
@@ -316,14 +308,14 @@ describe("speech and open answers", () => {
       "unscored",
       0,
     ]));
-  test("respond: rubric first, LLM verdict pending", () => {
+  test("respond: scored by the rubric's required groups", () => {
     const e = ex("respond", {
       input: "text",
       rubric: { required: [{ id: "drink", anyOf: ["Kaffee", "Tee"] }] },
       reference: ["Einen Kaffee, bitte."],
     });
     const o = checkItem(e, 0, { text: "Ich möchte einen Tee." }, "de");
-    expect([o.result, o.needsLlm]).toEqual(["correct", true]);
+    expect(o.result).toBe("correct");
     // Whole words only: "Tee" is not in "Teekanne", "ein" not in "Nein".
     expect(checkItem(e, 0, { text: "Eine Teekanne." }, "de").result).toBe("wrong");
     expect(

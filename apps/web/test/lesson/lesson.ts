@@ -68,8 +68,6 @@ export const answered = (item: string, optionId: string, attempt = 1): TypedEven
       outcome: {
         result: optionId === "a" ? "correct" : "wrong",
         score: optionId === "a" ? 1 : 0,
-        ruleIds: [],
-        lexemes: [],
       },
     },
   }) as TypedEvent;
