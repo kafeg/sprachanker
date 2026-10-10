@@ -12,7 +12,7 @@ import type {
   TypedEvent,
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Check, X } from "lucide-react";
+import { Check, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -22,7 +22,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDateFormat } from "@/ui/format.ts";
-import { EmptyState } from "@/ui/page.tsx";
+import { BackLink, EmptyState } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -101,13 +101,7 @@ export function ExamResultView({
 
   return (
     <div className="mx-auto max-w-3xl px-4 pt-6 pb-16 sm:px-6">
-      <button
-        type="button"
-        onClick={onLeave}
-        className="mb-4 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="size-4" /> {title}
-      </button>
+      <BackLink onClick={onLeave}>{title}</BackLink>
       <p className="text-sm text-muted-foreground">
         {t(practice ? "exams.mode.practice" : "exams.mode.test")} ·{" "}
         {date.format(run.finishedAt ?? run.startedAt)}
@@ -267,7 +261,7 @@ export function ExamResultView({
         <button
           type="button"
           onClick={() => setAll((v) => !v)}
-          className="text-sm font-medium underline"
+          className="inline-flex items-center text-sm font-medium underline pointer-coarse:min-h-11"
         >
           {all ? t("exams.onlyMistakes") : t("exams.showAll")}
         </button>

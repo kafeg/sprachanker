@@ -73,7 +73,7 @@ export function ExplainMistake({
       <Link
         to="/settings"
         hash="ai"
-        className="mt-2 inline-block text-sm text-muted-foreground underline"
+        className="mt-2 inline-flex items-center text-sm text-muted-foreground underline pointer-coarse:min-h-11"
       >
         {t("llm.setUpHint")}
       </Link>

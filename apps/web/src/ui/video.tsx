@@ -131,7 +131,9 @@ export function EpisodeVideo({
       </div>
       {textHtml && (
         <details className={cn(panelClass, "px-5 py-3")}>
-          <summary className="cursor-pointer font-semibold">{t("lesson.videoText")}</summary>
+          <summary className="cursor-pointer font-semibold pointer-coarse:min-h-11 pointer-coarse:content-center">
+            {t("lesson.videoText")}
+          </summary>
           <CourseHtml className="mt-3" html={textHtml} />
         </details>
       )}

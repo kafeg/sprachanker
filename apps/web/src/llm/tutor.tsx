@@ -262,7 +262,11 @@ function Chat({
     return (
       <div className="space-y-3 p-5">
         <p>{t("tutor.needsSetup")}</p>
-        <Link to="/settings" hash="ai" className="font-medium underline">
+        <Link
+          to="/settings"
+          hash="ai"
+          className="inline-flex items-center font-medium underline pointer-coarse:min-h-11"
+        >
           {t("tutor.openSettings")}
         </Link>
       </div>

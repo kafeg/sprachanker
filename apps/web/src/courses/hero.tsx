@@ -77,7 +77,7 @@ export function CourseHero(props: CourseHeroProps) {
                 href={source.url}
                 target="_blank"
                 rel="noreferrer"
-                className={cn(chip, "hover:bg-accent")}
+                className={cn(chip, "hover:bg-accent pointer-coarse:min-h-11")}
               >
                 {source.publisher} <ExternalLink className="size-3" />
               </a>
@@ -88,7 +88,7 @@ export function CourseHero(props: CourseHeroProps) {
             type="button"
             onClick={() => setOpen((o) => !o)}
             aria-expanded={open}
-            className={cn(chip, "hover:bg-accent", checkTone(r))}
+            className={cn(chip, "hover:bg-accent pointer-coarse:min-h-11", checkTone(r))}
           >
             <CheckState check={check} />
           </button>
@@ -211,7 +211,7 @@ export function CourseHero(props: CourseHeroProps) {
                 </p>
               )}
               <details>
-                <summary className="cursor-pointer text-muted-foreground">
+                <summary className="cursor-pointer text-muted-foreground pointer-coarse:min-h-11 pointer-coarse:content-center">
                   {t("download.log")}
                 </summary>
                 <pre className="mt-1 max-h-48 overflow-auto rounded-lg bg-background p-2 text-xs leading-relaxed">

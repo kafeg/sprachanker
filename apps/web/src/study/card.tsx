@@ -132,7 +132,7 @@ export function StudyCard({
             <Link
               to="/lesson/$series/$course/$lesson"
               params={{ series: display.series, course: lesson.courseId, lesson: lesson.name }}
-              className="text-xs text-muted-foreground underline"
+              className="inline-flex items-center text-xs text-muted-foreground underline pointer-coarse:min-h-11"
             >
               {t("study.fromLesson", { unit: lesson.unit, lesson: lesson.lesson })}
             </Link>

@@ -91,7 +91,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
                   <button
                     type="button"
                     onClick={() => open(deck.scope)}
-                    className="block max-w-full truncate text-left hover:underline"
+                    className="block max-w-full truncate text-left hover:underline pointer-coarse:py-2.5"
                   >
                     {name(deck.scope)}
                   </button>

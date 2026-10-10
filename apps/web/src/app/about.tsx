@@ -24,7 +24,7 @@ export function AboutSection() {
             href={REPOSITORY}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline"
+            className="inline-flex items-center gap-1 font-medium underline-offset-4 hover:underline pointer-coarse:min-h-11"
           >
             {t("about.source")} <ExternalLink className="size-3.5" />
           </a>
@@ -44,7 +44,7 @@ export function AboutLine() {
         href={REPOSITORY}
         target="_blank"
         rel="noreferrer"
-        className="inline-flex items-center gap-0.5 hover:text-foreground"
+        className="inline-flex items-center gap-0.5 hover:text-foreground pointer-coarse:min-h-11"
       >
         GitHub <ExternalLink className="size-3" />
       </a>

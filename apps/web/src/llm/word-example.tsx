@@ -45,7 +45,11 @@ export function WordExample({ cardId }: { cardId: string }) {
     );
   if (!ready && kept.isSuccess && !shown)
     return (
-      <Link to="/settings" hash="ai" className="text-sm text-muted-foreground underline">
+      <Link
+        to="/settings"
+        hash="ai"
+        className="inline-flex items-center text-sm text-muted-foreground underline pointer-coarse:min-h-11"
+      >
         {t("example.setUp")}
       </Link>
     );

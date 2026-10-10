@@ -54,7 +54,6 @@ export function EmptyState({
   );
 }
 
-/** A quiet link back to where the page was opened from (Review ↔ Decks ↔ My words). */
 /** The way back up from a page (Page's `back`): an arrow and where it leads. */
 export function BackLink({ onClick, children }: { onClick(): void; children: React.ReactNode }) {
   return (
@@ -79,7 +78,10 @@ export function NotInstalled() {
   return (
     <div className="m-6 space-y-2 rounded-xl border p-4">
       <p>{t("course.notInstalled")}</p>
-      <Link to="/catalog" className="font-semibold underline">
+      <Link
+        to="/catalog"
+        className="inline-flex items-center font-semibold underline pointer-coarse:min-h-11"
+      >
         {t("courses.tabs.available")}
       </Link>
     </div>
@@ -92,7 +94,11 @@ export function ErrorState({ error, onRetry }: { error: unknown; onRetry?: () =>
     <div className="m-6 rounded-xl border border-wrong/40 bg-wrong-soft p-4">
       <p>{errorText(t, error)}</p>
       {onRetry && (
-        <button type="button" className="mt-2 font-semibold underline" onClick={onRetry}>
+        <button
+          type="button"
+          className="mt-2 inline-flex items-center font-semibold underline pointer-coarse:min-h-11"
+          onClick={onRetry}
+        >
           {t("common.retry")}
         </button>
       )}

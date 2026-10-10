@@ -83,7 +83,9 @@ export function LessonOverview({
       {/* The recording's transcript under it (the script page of the lesson). */}
       {locale?.tabs.script && !lesson.media.video && lesson.media.audio && (
         <details className={cn(panelClass, "px-5 py-3")}>
-          <summary className="cursor-pointer font-semibold">{t("lesson.audioText")}</summary>
+          <summary className="cursor-pointer font-semibold pointer-coarse:min-h-11 pointer-coarse:content-center">
+            {t("lesson.audioText")}
+          </summary>
           <CourseHtml className="mt-3" html={locale.tabs.script.bodyHtml} />
         </details>
       )}

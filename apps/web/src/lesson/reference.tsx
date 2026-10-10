@@ -163,7 +163,7 @@ export function Reference({
                     href={url(d.path)}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-2 underline-offset-4 hover:underline"
+                    className="flex items-center gap-2 underline-offset-4 hover:underline pointer-coarse:min-h-11"
                   >
                     <FileText className="size-4" /> {d.title}
                   </a>

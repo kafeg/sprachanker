@@ -51,7 +51,10 @@ export function NoneHere({ text, link }: { text: string; link?: { to: string; la
     <EmptyState className="text-foreground">
       <p className="text-lg">{text}</p>
       {link && (
-        <Link to={link.to} className="mt-3 inline-block font-medium underline">
+        <Link
+          to={link.to}
+          className="mt-3 inline-flex items-center font-medium underline pointer-coarse:min-h-11"
+        >
           {link.label}
         </Link>
       )}

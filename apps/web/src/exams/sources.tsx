@@ -33,7 +33,7 @@ export function ExamSourcesPanel({ sources }: { sources: ExamSources }) {
                   href={d.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 underline-offset-4 hover:underline"
+                  className="inline-flex items-center gap-1 underline-offset-4 hover:underline pointer-coarse:min-h-11"
                 >
                   {d.title} <ExternalLink className="size-3 shrink-0" />
                 </a>
@@ -89,7 +89,7 @@ export function QuestionSources({ sources, itemKey }: { sources: ExamSources; it
                 href={doc.url}
                 target="_blank"
                 rel="noreferrer"
-                className="underline underline-offset-2"
+                className="inline-flex items-center underline underline-offset-2 pointer-coarse:min-h-11"
               >
                 {doc.title}
               </a>

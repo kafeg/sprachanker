@@ -147,7 +147,7 @@ export function PublisherLink({ source }: { source: CourseSource }) {
       target="_blank"
       rel="noreferrer"
       title={source.publisher}
-      className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline"
+      className="flex min-w-0 items-center gap-0.5 underline-offset-4 hover:underline pointer-coarse:min-h-11"
     >
       <span className="truncate">{source.publisher}</span>
       <ExternalLink className="size-3 shrink-0" />
