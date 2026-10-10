@@ -10,8 +10,8 @@ import { ulid } from "ulid";
 import { directoryAssets, fileAssets } from "../src/runtime/bun.ts";
 import { createContent } from "../src/services/content.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
+import { createLessons } from "../src/services/lessons.ts";
 import { createRunStore } from "../src/services/run-store.ts";
-import { createRuns } from "../src/services/runs.ts";
 import { setup } from "./setup.ts";
 
 const COURSE = { series: FIXTURE_SERIES, course: "demo", edition: "ru-de" };
@@ -328,7 +328,7 @@ describe("runs", () => {
     expect((await content.lesson(FIXTURE_SERIES, LESSON as LessonKey)).pages).toHaveLength(
       lesson.pages.length,
     );
-    const runsNow = createRuns({
+    const runsNow = createLessons({
       store: createRunStore({ db: profile, now: Date.now, appVersion: "test" }),
       content,
     });

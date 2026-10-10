@@ -11,12 +11,12 @@ import { cardRoutes } from "./routes/cards.ts";
 import { courseRoutes } from "./routes/courses.ts";
 import type { ProfileEnv } from "./routes/env.ts";
 import { examRoutes } from "./routes/exams.ts";
+import { lessonRoutes } from "./routes/lessons.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { notebookRoutes } from "./routes/notebook.ts";
 import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.ts";
 import { progressRoutes } from "./routes/progress.ts";
 import { recordingsRoutes } from "./routes/recordings.ts";
-import { runRoutes } from "./routes/runs.ts";
 import { settingsRoutes } from "./routes/settings.ts";
 import { speechRoutes } from "./routes/speech.ts";
 import { hostGuard } from "./security/host.ts";
@@ -86,7 +86,7 @@ export function createApp(config: AppConfig) {
     .use("*", requireSession(svc))
     .route("/", profileRoutes(svc))
     .route("/", courseRoutes())
-    .route("/", runRoutes())
+    .route("/", lessonRoutes())
     .route("/progress", progressRoutes())
     .route("/exams", examRoutes())
     .route("/settings", settingsRoutes())

@@ -57,7 +57,7 @@ export function createTutor(deps: {
   session: (lessonKey: LessonKey) => Promise<{ events: TypedEvent[] } | undefined>;
   llm: Llm;
   mistakes: Mistakes;
-  lessons: LessonContexts;
+  lessonContext: LessonContexts;
   tools: TutorTools;
   now: () => number;
 }) {
@@ -79,7 +79,7 @@ export function createTutor(deps: {
   /** What the tutor knows: the lesson context plus the learner's mistakes — in this lesson those of
    *  the run it shows (the ✕ in its plan), in other lessons the latest ones. */
   async function context(series: string, lessonKey: LessonKey, edition: string) {
-    const ctx = await deps.lessons.get(series, lessonKey, edition);
+    const ctx = await deps.lessonContext.get(series, lessonKey, edition);
     const session = await deps.session(lessonKey);
     const here = session ? mistakesOf([{ events: session.events }]) : [];
     const results = exerciseResults(session?.events ?? []);
@@ -94,8 +94,13 @@ export function createTutor(deps: {
         knownVocab: ctx.knownVocab,
         earlierLessons: ctx.earlierLessons,
         mistakes: {
-          lesson: await deps.lessons.mistakes(series, edition, here.slice(0, 15)),
-          earlier: await deps.lessons.mistakes(series, edition, others.slice(0, 10), ctx.titles),
+          lesson: await deps.lessonContext.mistakes(series, edition, here.slice(0, 15)),
+          earlier: await deps.lessonContext.mistakes(
+            series,
+            edition,
+            others.slice(0, 10),
+            ctx.titles,
+          ),
         },
       } satisfies Partial<ChatTurnInput>,
     };

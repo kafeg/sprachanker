@@ -26,13 +26,13 @@ export interface ExplainRequest {
 
 export function createExplain(deps: {
   llm: Llm;
-  lessons: LessonContexts;
+  lessonContext: LessonContexts;
   /** One of the lesson's runs (the runs service). */
   lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
   store: RunStore;
   now: () => number;
 }) {
-  const { llm, lessons, lessonRun, store, now } = deps;
+  const { llm, lessonContext, lessonRun, store, now } = deps;
 
   /**
    * What explain_mistake gets for one item: the item, the answers and the lesson's grammar. An
@@ -41,7 +41,7 @@ export function createExplain(deps: {
   async function input(request: ExplainRequest) {
     if (request.runId && !lessonRun(request.lessonKey, request.runId))
       throw new ServiceError("no_such_run", 404);
-    const { lesson, locale, target, info } = await lessons.get(
+    const { lesson, locale, target, info } = await lessonContext.get(
       request.series,
       request.lessonKey,
       request.edition,

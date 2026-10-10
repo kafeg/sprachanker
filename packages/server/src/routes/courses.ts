@@ -9,12 +9,12 @@ export const CourseRef = z.object({ series: SeriesKey, course: Slug });
 export function courseRoutes() {
   return (
     new Hono<ProfileEnv>()
-      .get("/courses", async (c) => c.json(await c.var.s.runs.courses()))
+      .get("/courses", async (c) => c.json(await c.var.s.lessons.courses()))
       .get("/course", zod("query", CourseRef.extend({ edition: EditionId })), async (c) => {
         const { series, course, edition } = c.req.valid("query");
         const map = await c.var.s.content.courseMap(series, course, edition);
         const lessons = lessonOrder(map.index);
-        return c.json({ ...map, lessons: await c.var.s.runs.lessonStates(lessons) });
+        return c.json({ ...map, lessons: await c.var.s.lessons.lessonStates(lessons) });
       })
       // A course's integrity and counts.
       .get("/course/check", zod("query", CourseRef), async (c) => {

@@ -133,7 +133,10 @@ module.exports = {
     ...[
       // Each learning module's services (a module and its declared sub-services); what they share —
       // the stores, content, settings, the model, lesson-context, in-flight — is no module's.
-      ["lessons", "runs|lesson-journal|mistakes|explain|writing|speaking|tutor|tutor-tools|scene"],
+      [
+        "lessons",
+        "lessons|lesson-journal|mistakes|explain|writing|speaking|tutor|tutor-tools|scene",
+      ],
       ["exams", "exams|exam-runs|exam-rating|exam-conversation"],
       ["review", "study|words|cards|examples"],
     ].map(([module, files], _, all) => ({

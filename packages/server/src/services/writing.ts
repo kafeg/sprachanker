@@ -30,7 +30,7 @@ export function createWriting(deps: {
   /** The run the lesson shows (the runs service). */
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
-  lessons: LessonContexts;
+  lessonContext: LessonContexts;
 }) {
   const { store } = deps;
   /** The text being checked, per lesson. */
@@ -42,7 +42,7 @@ export function createWriting(deps: {
     verdicts(store, "writing", { kind: "lesson", about: lessonKey });
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
-    const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
+    const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     return {
       language: request.language,
       target: ctx.target,
@@ -55,7 +55,7 @@ export function createWriting(deps: {
   return {
     /** The task (the lesson's topic and words) and earlier attempts, newest first. */
     async state(series: string, lessonKey: LessonKey, edition: string) {
-      const ctx = await deps.lessons.get(series, lessonKey, edition);
+      const ctx = await deps.lessonContext.get(series, lessonKey, edition);
       return {
         topic: writingTopic(ctx.info),
         words: ctx.info.vocab.map((v) => v.target),

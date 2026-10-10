@@ -64,7 +64,7 @@ export interface LessonState {
   };
 }
 
-export function createRuns({ store, content }: { store: RunStore; content: Content }) {
+export function createLessons({ store, content }: { store: RunStore; content: Content }) {
   /** A lesson run by id (the lesson endpoints take no other kind). */
   const getRun = (id: string) => {
     const row = store.get(id, "lesson");
@@ -373,4 +373,4 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     },
   };
 }
-export type Runs = ReturnType<typeof createRuns>;
+export type Lessons = ReturnType<typeof createLessons>;

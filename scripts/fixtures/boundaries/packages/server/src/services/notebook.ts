@@ -1,2 +1,2 @@
 // Violation: the Notebook reads a module's service instead of its standing.
-export { lessons } from "./runs.ts";
+export { lessons } from "./lessons.ts";

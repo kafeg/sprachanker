@@ -17,6 +17,7 @@ import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { createLessonJournal } from "./lesson-journal.ts";
+import { createLessons } from "./lessons.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
@@ -28,7 +29,6 @@ import { createQwenTts, type QwenTts } from "./qwen-tts.ts";
 import { createReadAloud, type PiperHost, type ReadAloud } from "./read-aloud.ts";
 import { createRecordings } from "./recordings.ts";
 import { createRunStore } from "./run-store.ts";
-import { createRuns } from "./runs.ts";
 import { createScenes } from "./scene.ts";
 import { createSettings } from "./settings.ts";
 import { createSpeaking } from "./speaking.ts";
@@ -99,38 +99,38 @@ function profileServices(
   } catch (error) {
     console.error("removing unused recordings:", error);
   }
-  const runs = createRuns({ store, content });
+  const lessons = createLessons({ store, content });
   const exams = createExams({ store, content, settings, now });
   const cards = createCards({
     cards: cardStore,
     store,
     content,
     settings,
-    session: runs.shown,
+    session: lessons.shown,
     myCourses: async () =>
-      new Set((await runs.courses()).filter((c) => c.started).map((c) => c.key)),
+      new Set((await lessons.courses()).filter((c) => c.started).map((c) => c.key)),
     now,
   });
   const study = createStudy({ cards: cardStore, store, content, settings, now });
   const words = createWords({ cards: cardStore, store });
   const mistakes = createMistakes(store);
-  const lessons = createLessonContext(content);
+  const lessonContext = createLessonContext(content);
   const tutor = createTutor({
     store,
-    session: runs.shown,
+    session: lessons.shown,
     llm,
     mistakes,
-    lessons,
-    tools: createTutorTools({ content, lessons, mistakes, progress: runs.progress }),
+    lessonContext,
+    tools: createTutorTools({ content, lessonContext, mistakes, progress: lessons.progress }),
     now,
   });
-  const writing = createWriting({ store, session: runs.shown, llm, lessons });
-  const scenes = createScenes({ store, llm, lessons });
-  const explain = createExplain({ llm, lessons, lessonRun: runs.lessonRun, store, now });
+  const writing = createWriting({ store, session: lessons.shown, llm, lessonContext });
+  const scenes = createScenes({ store, llm, lessonContext });
+  const explain = createExplain({ llm, lessonContext, lessonRun: lessons.lessonRun, store, now });
   const speaking = createSpeaking({
     llm,
-    lessons,
-    lessonRun: runs.lessonRun,
+    lessonContext,
+    lessonRun: lessons.lessonRun,
     store,
     hear: speechOfProfile.hearing({
       file: (series, path) => config.library.mediaFile(series, path),
@@ -141,7 +141,7 @@ function profileServices(
   const examConversation = createExamConversation({ llm, store, exams });
   const examples = createExamples({
     cards: cardStore,
-    lessons,
+    lessonContext,
     llm,
     store,
     reviewRun: study.reviewRun,
@@ -149,7 +149,7 @@ function profileServices(
   // Every module reports its standing the same way; the Notebook gathers them.
   const notebook = createNotebook({
     store,
-    modules: [study.standing, runs.standing, exams.standing],
+    modules: [study.standing, lessons.standing, exams.standing],
     dayStartHour: () => settings.value("srs.dayStartHour"),
     now,
   });
@@ -167,7 +167,7 @@ function profileServices(
     settings,
     speech: speechOfProfile,
     recordings,
-    runs,
+    lessons,
     progress,
     exams,
     cards,

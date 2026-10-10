@@ -31,7 +31,7 @@ export interface SpeakingRequest {
 
 export function createSpeaking(deps: {
   llm: Llm;
-  lessons: LessonContexts;
+  lessonContext: LessonContexts;
   /** One of the lesson's runs (the runs service). */
   lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
   store: RunStore;
@@ -50,7 +50,7 @@ export function createSpeaking(deps: {
   async function itemOf(request: SpeakingRequest) {
     if (!deps.lessonRun(request.lessonKey, request.runId))
       throw new ServiceError("no_such_run", 404);
-    const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
+    const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     const exercise = findExercise(ctx.lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
     // Only an answer of one's own: a phrase to say is checked by the word diff (08).

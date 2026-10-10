@@ -14,7 +14,7 @@ const number = (key: string) => {
 
 export function createTutorTools(deps: {
   content: Content;
-  lessons: LessonContexts;
+  lessonContext: LessonContexts;
   mistakes: Mistakes;
   progress: () => Promise<Record<string, LessonProgress>>;
 }) {
@@ -72,7 +72,7 @@ export function createTutorTools(deps: {
         async get_mistakes({ lesson }) {
           const key = lesson ? await find(lesson) : undefined;
           if (lesson && !key) return { error: `no lesson "${lesson}"` };
-          const list = await deps.lessons.mistakes(
+          const list = await deps.lessonContext.mistakes(
             series,
             edition,
             deps.mistakes.list({ lesson: key, limit: 15 }),
@@ -101,7 +101,7 @@ export function createTutorTools(deps: {
         async get_lesson({ lesson }) {
           const key = await find(lesson);
           if (!key) return { error: `no lesson "${lesson}"` };
-          const ctx = await deps.lessons.get(series, key, edition);
+          const ctx = await deps.lessonContext.get(series, key, edition);
           return {
             lesson: await title(key),
             goals: ctx.info.goals,

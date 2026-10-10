@@ -64,7 +64,7 @@ only the router and the settings page import the optional `llm/` folder.
 devices) and each profile's own services on first use (`of(id)`). `app.ts` mounts the route
 files: the profile list and signing in first, then the session check — the device's cookie names the
 profile and puts its services in the request's context (`c.var.s`) — then every profile route
-(`routes/{profiles,courses,runs,progress,exams,cards,settings,notebook,recordings,speech,llm}.ts`), each thin:
+(`routes/{profiles,courses,lessons,progress,exams,cards,settings,notebook,recordings,speech,llm}.ts`), each thin:
 validate, call a service, return its typed result or one of schema's `ERROR_CODES`. The web client
 gets the types through Hono RPC (`AppType`), no codegen.
 
@@ -72,7 +72,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   installs (one at a time, progress, resume after restart) through the providers' importers.
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`; over the run store, `answers` (numbered by
-  the server) and `verdicts` (a model's, kept and read one way). Services build on them: `runs` (lesson runs,
+  the server) and `verdicts` (a model's, kept and read one way). Services build on them: `lessons` (lesson runs,
   lesson progress), `progress` (reset over every module's runs, recordings in use), `exams` (the exams'
   standings) over `exam-runs` (mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
   ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (the study days and the

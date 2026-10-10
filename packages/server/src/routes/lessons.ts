@@ -7,14 +7,14 @@ import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 import { EventsBody, RunParam } from "./params.ts";
 
-export function runRoutes() {
+export function lessonRoutes() {
   return new Hono<ProfileEnv>()
     .get(
       "/runs/lesson",
       zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey })),
       async (c) => {
         const { series, lessonKey } = c.req.valid("query");
-        return c.json({ state: await c.var.s.runs.lessonState(series, lessonKey) });
+        return c.json({ state: await c.var.s.lessons.lessonState(series, lessonKey) });
       },
     )
     .post(
@@ -30,12 +30,12 @@ export function runRoutes() {
       ),
       async (c) => {
         const { series, lessonKey, edition, restart } = c.req.valid("json");
-        return c.json(await c.var.s.runs.start(series, lessonKey, edition, restart));
+        return c.json(await c.var.s.lessons.start(series, lessonKey, edition, restart));
       },
     )
     .post("/runs/:id/events", zod("param", RunParam), zod("json", EventsBody), async (c) =>
       c.json(
-        await c.var.s.runs.append(
+        await c.var.s.lessons.append(
           c.req.valid("param").id,
           c.req.valid("json").events,
           c.var.deviceId,
@@ -43,6 +43,6 @@ export function runRoutes() {
       ),
     )
     .post("/runs/:id/finish", zod("param", RunParam), async (c) =>
-      c.json(await c.var.s.runs.finish(c.req.valid("param").id)),
+      c.json(await c.var.s.lessons.finish(c.req.valid("param").id)),
     );
 }

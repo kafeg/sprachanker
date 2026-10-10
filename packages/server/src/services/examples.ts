@@ -24,7 +24,7 @@ const EARLIER = 5;
 
 export function createExamples(deps: {
   cards: CardStore;
-  lessons: LessonContexts;
+  lessonContext: LessonContexts;
   llm: Llm;
   store: RunStore;
   /** The day's review run (the study service's). */
@@ -38,7 +38,7 @@ export function createExamples(deps: {
     const note = deps.cards.note(cardId);
     const { display } = note;
     const edition = `${note.translationLang}-${note.lang}`;
-    const vocabulary = await deps.lessons
+    const vocabulary = await deps.lessonContext
       .vocabulary(display.series, display.lessonKey as LessonKey, edition)
       .catch(() => ({ upTo: [], later: [] }));
     const word: VocabWord = {

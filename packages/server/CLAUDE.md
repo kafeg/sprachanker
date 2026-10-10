@@ -34,13 +34,13 @@ src/
                      # routes/llm.ts answer it (and a request that does not validate)
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
-                     # (courses, catalog, downloads, lesson content), runs (lesson runs), progress (reset), exams,
+                     # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs), progress (reset), exams,
                      # cards (/api/cards), settings, notebook, recordings, speech, llm (removable as a whole); env.ts: what a
                      # profile's routes read (`c.var.s`, its services; `c.var.profileId`); params.ts:
                      # what several take alike (a run's id in the path, a batch of events)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, registration), devices (sign-in tokens), and
-                     # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
+                     # each profile's own services (`of(id)`, made on first use); content; lessons (lesson runs,
                      # lesson progress, the lessons' standing); lesson-journal (a lesson's passes, a pass in
                      # full, an item across passes); progress (the learner's progress over every module:
                      # reset for a course, a lesson or an exam; the recordings answers hold); exams (the

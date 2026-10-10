@@ -16,8 +16,8 @@ import {
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
+import { lessonTitle, toRun } from "./lessons.ts";
 import { payloadOf, type ReadEvent, type RunRow, type RunStore } from "./run-store.ts";
-import { lessonTitle, toRun } from "./runs.ts";
 import { verdicts } from "./verdicts.ts";
 
 /** A chat with the tutor about a lesson, as its history lists it. */

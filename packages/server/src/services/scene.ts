@@ -31,7 +31,7 @@ export interface SceneState {
   done: boolean;
 }
 
-export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonContexts }) {
+export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: LessonContexts }) {
   const { store } = deps;
   /** A scene being prepared, or the line being answered, per lesson. */
   const pending = createInFlight<{ preparing: true } | { line: string }>("scene_busy");
@@ -61,7 +61,7 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
     const state = run?.status === "active" ? stateOf(run) : undefined;
     if (!run || !state) throw new ServiceError("no_active_scene", 409);
     // A scene goes on in the edition it was set up in.
-    const ctx = await deps.lessons.get(
+    const ctx = await deps.lessonContext.get(
       request.series,
       request.lessonKey,
       run.edition ?? request.edition,
@@ -81,7 +81,7 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessons: LessonC
 
   /** Drafts a scene and stores it in place of the open one. */
   async function startScene(request: SceneRequest): Promise<SceneState> {
-    const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
+    const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     const {
       result: setup,
       model,
