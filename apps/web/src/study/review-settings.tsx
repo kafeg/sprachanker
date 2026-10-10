@@ -233,9 +233,6 @@ export function ReviewSettings() {
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.facesHint")}</p>
       </Panel>
-      <Panel title={t("reviewSettings.optimizer")}>
-        <p className="mt-1 text-sm text-muted-foreground">{t("reviewSettings.optimizerHint")}</p>
-      </Panel>
       <Button
         variant="outline"
         onClick={() => {

@@ -959,8 +959,6 @@
     "dayHint": "Reviews done after midnight still count for the evening before until this hour.",
     "faces": "Card types of a new word",
     "facesHint": "Which cards a new word gets. Words that have cards keep theirs.",
-    "optimizer": "Optimize",
-    "optimizerHint": "Later: FSRS fitted to your own answers, once there are a few hundred of them. Until then Anki's defaults are used.",
     "defaults": "Back to Anki's defaults"
   },
   "example": {

@@ -141,7 +141,7 @@ function Chat({
     return (
       <div className="space-y-3 p-5">
         <p>{t("tutor.needsSetup")}</p>
-        <Link to="/settings" className="font-medium underline">
+        <Link to="/settings" hash="ai" className="font-medium underline">
           {t("tutor.openSettings")}
         </Link>
       </div>

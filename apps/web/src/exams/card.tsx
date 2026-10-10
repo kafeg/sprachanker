@@ -8,6 +8,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Dumbbell, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ExamRow } from "@/api/exams.ts";
+import { DownloadState } from "@/courses/card.tsx";
 import { ResetProgress } from "@/courses/reset-progress.tsx";
 import { CourseUpkeep } from "@/courses/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -69,6 +70,7 @@ export function ExamCard({
         )}
       </div>
       <div className="flex flex-1 flex-col p-4">
+        <DownloadState series={exam.series} course={exam.course} />
         <Link to="/exam/$series/$course/$exam" params={params} className="flex items-center gap-3">
           <ProgressRing
             value={exam.readiness}

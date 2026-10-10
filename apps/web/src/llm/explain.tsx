@@ -75,7 +75,11 @@ export function ExplainMistake({
   const shown = text ?? saved?.text;
   if (!ready && shown === undefined)
     return (
-      <Link to="/settings" className="mt-2 inline-block text-sm text-muted-foreground underline">
+      <Link
+        to="/settings"
+        hash="ai"
+        className="mt-2 inline-block text-sm text-muted-foreground underline"
+      >
         {t("llm.setUpHint")}
       </Link>
     );

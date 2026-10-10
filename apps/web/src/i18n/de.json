@@ -959,8 +959,6 @@
     "dayHint": "Wiederholungen nach Mitternacht zählen bis zu dieser Stunde noch zum Vorabend.",
     "faces": "Kartentypen eines neuen Worts",
     "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre.",
-    "optimizer": "Optimieren",
-    "optimizerHint": "Später: FSRS, an deine eigenen Antworten angepasst, sobald es einige hundert sind. Bis dahin gelten Ankis Standardwerte.",
     "defaults": "Ankis Standardwerte"
   },
   "example": {

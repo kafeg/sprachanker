@@ -134,7 +134,7 @@ export function CourseCard({
 }
 
 /** A course's download on its card: progress while it runs; files missing with "Continue" after. */
-function DownloadState({ series, course }: { series: string; course: string }) {
+export function DownloadState({ series, course }: { series: string; course: string }) {
   const { t } = useTranslation();
   const { job } = useCourseDownload(series, course);
   const entry = useCatalog().data?.find((e) => e.series === series && e.course === course);
@@ -148,7 +148,7 @@ function DownloadState({ series, course }: { series: string; course: string }) {
       <Button
         size="sm"
         variant="outline"
-        disabled={start.isPending}
+        loading={start.isPending}
         onClick={() => start.mutate({ series, course })}
       >
         {t("download.continue")}

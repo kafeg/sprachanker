@@ -18,6 +18,12 @@ const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
   available: "/catalog",
 };
 
+/** The courses on offer not yet downloaded (exams are offered in the Exams section). */
+const courseOffers = <T extends { installed: boolean; kind?: string; series: string }>(
+  catalog: T[],
+  shown: ReturnType<typeof useShown>,
+) => catalog.filter((o) => !o.installed && o.kind !== "exam" && shown("courses", o.series));
+
 function useCourseList() {
   const courses = useCourses();
   const settings = useSettings();
@@ -35,10 +41,7 @@ export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t } = useTranslation();
   const shown = useShown();
   const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series));
-  // Exams are offered in the Exams section.
-  const offers = (useCatalog().data ?? []).filter(
-    (o) => !o.installed && o.kind !== "exam" && shown("courses", o.series),
-  );
+  const offers = courseOffers(useCatalog().data ?? [], shown);
   const count: Record<CoursesTab, number> = {
     mine: all.filter((c) => c.started).length,
     downloaded: all.reduce((n, c) => n + c.editions.length, 0),
@@ -144,17 +147,12 @@ function Available() {
   const list = useCourseList();
   const catalog = useCatalog();
   const shown = useShown();
-  const cards = (catalog.data ?? [])
-    .filter(
-      (offer) =>
-        !offer.installed && shown(offer.kind === "exam" ? "exams" : "courses", offer.series),
-    )
-    .map((offer) => ({
-      key: offer.key,
-      offer,
-      titles: [offer.title],
-      editions: [offer.edition],
-    }));
+  const cards = courseOffers(catalog.data ?? [], shown).map((offer) => ({
+    key: offer.key,
+    offer,
+    titles: [offer.title],
+    editions: [offer.edition],
+  }));
   const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
   if (!list.all) return list.state;
   if (catalog.isPending) return <Loading />;
