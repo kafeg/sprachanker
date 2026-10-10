@@ -5,17 +5,20 @@ import { useState } from "react";
 import { Panel } from "./panel.tsx";
 import { cn } from "./utils.ts";
 
-/** A row that opens something: `expanded` for one that unfolds in place; `chevron={false}` in a table. */
+/** A row that opens something: `expanded` for one that unfolds in place; `chevron={false}` in a table;
+ *  `flush` where nothing pads it (a table, a bordered box): its highlight stays inside. */
 export function ListRow({
   onClick,
   expanded,
   chevron = true,
+  flush = false,
   className,
   children,
 }: {
   onClick(): void;
   expanded?: boolean;
   chevron?: boolean;
+  flush?: boolean;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -26,8 +29,10 @@ export function ListRow({
       aria-expanded={expanded}
       onClick={onClick}
       className={cn(
-        // The highlight reaches past the text on both sides; the text stays in line with the panel's.
-        "-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-accent pointer-coarse:min-h-11",
+        "flex items-center gap-3 py-2.5 text-left hover:bg-accent pointer-coarse:min-h-11",
+        // In a panel the highlight reaches past the text on both sides, the text in line with the
+        // panel's; flush, it fills the row it is in.
+        flush ? "w-full px-4" : "-mx-3 w-[calc(100%+1.5rem)] rounded-xl px-3",
         className,
       )}
     >

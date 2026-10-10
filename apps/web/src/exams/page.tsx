@@ -186,8 +186,9 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
       </div>
 
       {/* The latest mock exam; the rest of what was done is the Notebook's. */}
-      <section className="rounded-2xl border bg-card">
+      <section className="overflow-hidden rounded-2xl border bg-card">
         <ListRow
+          flush
           onClick={() => void navigate({ to: "/notebook/exam/$series/$course/$exam", params })}
         >
           <span className="flex-1">

@@ -123,7 +123,7 @@ export function MyWords() {
             </Chip>
           ))}
         </div>
-        <div className="rounded-2xl border bg-card">
+        <div className="overflow-hidden rounded-2xl border bg-card">
           <div
             className={cn(row, "hidden border-b px-4 py-2 text-xs text-muted-foreground sm:grid")}
           >
@@ -138,12 +138,9 @@ export function MyWords() {
                 <li key={w.cardId}>
                   <ListRow
                     chevron={false}
+                    flush
                     onClick={() => setOpen(w.cardId)}
-                    className={cn(
-                      row,
-                      "items-baseline rounded-none px-4",
-                      w.suspended && "text-muted-foreground",
-                    )}
+                    className={cn(row, "items-baseline", w.suspended && "text-muted-foreground")}
                   >
                     <span className="truncate sm:order-1">
                       <TargetLang value={w.lang}>

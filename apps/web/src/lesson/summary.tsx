@@ -87,7 +87,7 @@ export function LessonSummary({
         </Button>
       )}
       {todo.length > 0 && (
-        <ul className="divide-y rounded-2xl border bg-card">
+        <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
           {todo.map((step) => {
             const state = stepState(step, lesson, results, done);
             const exercise =
@@ -96,11 +96,7 @@ export function LessonSummary({
             const scored = Object.values(r?.first ?? {}).filter((o) => o.result !== "unscored");
             return (
               <li key={stepId(step)}>
-                <ListRow
-                  chevron={false}
-                  onClick={() => go(stepId(step))}
-                  className="rounded-none px-4 py-2.5"
-                >
+                <ListRow chevron={false} flush onClick={() => go(stepId(step))}>
                   <StepDot
                     state={state === "done" && step.kind !== "exercise" ? "read" : state}
                     label={step.kind === "exercise" ? step.index + 1 : "·"}
