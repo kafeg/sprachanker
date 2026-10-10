@@ -7,7 +7,8 @@
 - TypeScript `strict` + `noUncheckedIndexedAccess`; no `any` without a comment explaining why.
 - Biome for formatting and linting; one config at the root.
 - `packages/schema` is the single source of types for data crossing module boundaries. JSON Schemas
-  are generated from it for library files, enrichment YAML, the rules registry and event payloads.
+  are generated from it for library files, enrichment YAML and the rules registry; event payloads
+  and run columns have their stored shapes on record instead (05).
 
 ## CI checks on data
 

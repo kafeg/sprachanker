@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "format": {
+      "type": "number",
+      "const": 1
+    },
+    "exam": {
+      "$ref": "#/$defs/ExamKey"
+    },
+    "read": {
+      "type": "integer",
+      "minimum": -9007199254740991,
+      "maximum": 9007199254740991
+    },
+    "documents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:[-_][a-z0-9]+)*$"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "raw": {
+            "type": "string",
+            "format": "starts_with",
+            "pattern": "^raw\\/.*"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "url"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "enum": [
+              "questions-complete",
+              "options-agree",
+              "answers-marked-twice",
+              "answers-matched",
+              "numbers-agree",
+              "recordings-placed",
+              "media-kept",
+              "criteria-read"
+            ]
+          },
+          "passed": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "of": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "passed",
+          "of"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "items": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/$defs/ExamItemKey"
+      },
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "document": {
+              "type": "string"
+            },
+            "at": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "document",
+            "at"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "required": [
+    "format",
+    "exam",
+    "read",
+    "documents",
+    "checks",
+    "items"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ExamKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamKey",
+      "description": "<course>/exam-<slug>"
+    },
+    "ExamItemKey": {
+      "type": "string",
+      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/[a-z0-9]+(?:-[a-z0-9]+)*\\/exam-[a-z0-9]+(?:-[a-z0-9]+)*\\/q-[a-z0-9]+(?:-[a-z0-9]+)*)$",
+      "title": "ExamItemKey",
+      "description": "<exam>/q-<id>"
+    }
+  }
+}
