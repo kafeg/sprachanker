@@ -1,7 +1,7 @@
 // The services, wired once per server and once per profile (app.ts mounts their routes): the library's
 // content and course downloads are shared; each profile has its own runs and histories, cards and study,
 // Notebook, settings and AI assistant, over its own database, made when it is first used.
-import type { LibraryView } from "@sprachanker/course-kit";
+import type { LibraryView } from "@sprachanker/course-kit/view";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { secretBox } from "../security/secrets.ts";

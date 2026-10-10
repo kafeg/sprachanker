@@ -1,7 +1,7 @@
 // Runtime-agnostic Hono app. apps/web imports `AppType` from here (type-only), so this module graph
 // must stay free of Bun/Node APIs; those live in src/runtime/.
 
-import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit";
+import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit/view";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";

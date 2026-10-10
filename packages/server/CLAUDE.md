@@ -101,7 +101,8 @@ test/                # bun test; integration tests call createApp().request() â€
 - Command-line LLM agents run through the `CliHost` interface (services/llm.ts); LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm.ts); app.ts
   never spawns processes itself.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
-- `src/app.ts` and everything it imports stay free of Bun and Node imports and globals (those live
+- `src/app.ts` and everything it imports stay free of Bun and Node imports and globals â€” of
+  course-kit only `@sprachanker/course-kit/view`, no course (dependency-cruiser; those live
   in `src/runtime/`, `config.ts`, `providers.ts` and `index.ts`): the web client type-checks that graph
   without Bun or Node types.
 - Speech: always pass an explicit language; never pass the reference text to the recogniser.

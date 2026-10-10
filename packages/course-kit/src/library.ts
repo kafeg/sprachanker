@@ -21,10 +21,10 @@ import {
   SeriesKey,
 } from "@sprachanker/schema";
 import type { z } from "zod";
-import type { LibraryView } from "./library-view.ts";
+import { type LibraryView, NotInstalledError } from "./library-view.ts";
 import { verifyCourse } from "./verify.ts";
 
-export type { InstalledCourse, LibraryView } from "./library-view.ts";
+export { type InstalledCourse, type LibraryView, NotInstalledError } from "./library-view.ts";
 
 const dirs = (path: string) =>
   existsSync(path)
@@ -32,9 +32,6 @@ const dirs = (path: string) =>
         .filter((d) => d.isDirectory())
         .map((d) => d.name)
     : [];
-
-/** A course, lesson or file that is not in the library (a stale link, a course removed). */
-export class NotInstalledError extends Error {}
 
 async function read<S extends z.ZodType>(schema: S, file: string): Promise<z.infer<S>> {
   if (!existsSync(file)) throw new NotInstalledError(file);

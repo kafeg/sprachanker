@@ -20,7 +20,8 @@ packages/course-kit/src/
   media-store.ts       # media files under readable names, one file per content
   files.ts             # atomic writes, temporary names, streamed hashes
   library.ts           # the library read from its folder, validated
-  library-view.ts      # LibraryView: what the app reads (courses, lessons, exams)
+  library-view.ts      # LibraryView: what the app reads (courses, lessons, exams), NotInstalledError;
+                       # no Node APIs: the server's app imports it alone (`@sprachanker/course-kit/view`)
   verify.ts            # a course's integrity and counts (LibraryView.check)
   canonical-json.ts    # canonical JSON (hashes) and library files' JSON
   fingerprint.ts       # exercise fingerprints

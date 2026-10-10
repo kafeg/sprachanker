@@ -25,6 +25,7 @@ test("boundary rules fire on deliberate violations and allow the type-only AppTy
     "nothing-imports-apps: packages/server/src/imports-app.ts -> apps/web/src/server-type.ts",
     "pure-modules-no-io: packages/engine/src/uses-fs.ts -> fs",
     "pure-modules-no-io: packages/llm/src/uses-fs.ts -> fs",
+    "server-app-reaches-course-kit-view-only: packages/server/src/services/uses-library.ts -> packages/course-kit/src/library.ts",
     "server-io-in-runtime-only: packages/server/src/services/uses-fs.ts -> fs",
     "server-tables-through-stores: packages/server/src/services/reads-events.ts -> packages/server/src/db/profile/schema.ts",
     "web-imports-server-types-only: apps/web/src/server-value.ts -> packages/server/src/index.ts",

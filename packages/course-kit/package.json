@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./view": "./src/library-view.ts"
   },
   "scripts": {
     "typecheck": "tsc -p . && tsc -p tsconfig.dev.json"

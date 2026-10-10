@@ -1,6 +1,6 @@
 // Installed course content for the API: course list, course map, lessons (cached while their files
 // stay the same).
-import type { LibraryView } from "@sprachanker/course-kit";
+import type { LibraryView } from "@sprachanker/course-kit/view";
 import type {
   CourseIndex,
   CourseSource,

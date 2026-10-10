@@ -1,4 +1,5 @@
-// What the app reads from the library (library.ts implements it over the data folder).
+// What the app reads from the library (library.ts implements it over the data folder). No Node APIs
+// here: the server's runtime-agnostic app imports this module alone (`@sprachanker/course-kit/view`).
 import type {
   CourseIndex,
   EditionId,
@@ -12,6 +13,10 @@ import type {
   LocaleLesson,
   MediaPath,
 } from "@sprachanker/schema";
+
+/** A course, lesson or file that is not in the library (a stale link, a course removed). */
+export class NotInstalledError extends Error {}
+
 export interface InstalledCourse {
   series: string;
   /** Course id inside the series (`a1`). */

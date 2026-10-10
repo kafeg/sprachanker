@@ -130,6 +130,20 @@ module.exports = {
       },
     },
     {
+      name: "server-app-reaches-course-kit-view-only",
+      comment:
+        "app.ts's graph is runtime-agnostic all the way down: of course-kit it imports only the node-free view (`@sprachanker/course-kit/view`; the barrel pulls node:fs in), and no course; types are erased, so type-only imports may name anything.",
+      severity: "error",
+      from: {
+        path: "^packages/server/src/",
+        pathNot: "^packages/server/src/(runtime/|index\\.ts$|config\\.ts$|providers\\.ts$)",
+      },
+      to: {
+        path: "^(packages/course-kit/src/(?!library-view\\.ts$)|courses/)",
+        dependencyTypesNot: ["type-only"],
+      },
+    },
+    {
       name: "server-io-in-runtime-only",
       comment:
         "app.ts and everything it imports stay runtime-agnostic (the web type-checks that graph): Node/Bun APIs only in src/runtime/ and the entry files that wire it (index, config, providers).",
