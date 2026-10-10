@@ -5,7 +5,8 @@
 // per tab. The open tab is kept in the URL hash; a section's own (#prompts, #about, #experimental) opens
 // its tab there, a folded one opened.
 import { useIsFetching } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSetting } from "@/api/hooks.ts";
 import { AboutSection } from "@/app/about.tsx";
@@ -27,10 +28,23 @@ const TABS = ["general", "profile", "review", "speech", "ai"] as const;
 type Tab = (typeof TABS)[number];
 /** Sections inside a tab that an address may name. */
 const SECTIONS: Record<string, Tab> = { prompts: "ai", about: "general", experimental: "general" };
-const tabOfHash = (): Tab => {
-  const hash = window.location.hash.slice(1);
-  return (TABS as readonly string[]).includes(hash) ? (hash as Tab) : (SECTIONS[hash] ?? "general");
-};
+const tabOf = (hash: string): Tab =>
+  (TABS as readonly string[]).includes(hash) ? (hash as Tab) : (SECTIONS[hash] ?? "general");
+
+/** Scrolls to a section a link named once what is above it has loaded (so it stays where it was
+ *  scrolled to), opening it when it is folded; mounted only while one is asked for. */
+function ScrollToSection({ id }: { id: string }) {
+  const fetching = useIsFetching();
+  const done = useRef(false);
+  useEffect(() => {
+    if (fetching || done.current) return;
+    done.current = true;
+    const element = document.getElementById(id);
+    if (element instanceof HTMLDetailsElement) element.open = true;
+    element?.scrollIntoView?.();
+  }, [id, fetching]);
+  return null;
+}
 
 function General() {
   const { t } = useTranslation();
@@ -59,37 +73,18 @@ function General() {
 
 export function SettingsPage() {
   const { t } = useTranslation();
-  const [tab, setTab] = useState(tabOfHash);
-  const [section, setSection] = useState<string>();
-  const fetching = useIsFetching();
-  // A link or Back/Forward that changes only the hash opens that tab; one naming a section inside a
-  // tab (#prompts) opens the tab there, and the section if it is folded.
-  useEffect(() => {
-    const follow = () => {
-      setTab(tabOfHash());
-      const hash = window.location.hash.slice(1);
-      setSection(SECTIONS[hash] ? hash : undefined);
-    };
-    follow();
-    window.addEventListener("hashchange", follow);
-    return () => window.removeEventListener("hashchange", follow);
-  }, []);
-  // Scrolled to once what is above it has loaded, so it stays where it was scrolled to.
-  useEffect(() => {
-    if (!section || fetching) return;
-    const element = document.getElementById(section);
-    if (element instanceof HTMLDetailsElement) element.open = true;
-    element?.scrollIntoView?.();
-    setSection(undefined);
-  }, [section, fetching]);
+  // The hash is the open tab: a link, Back/Forward or a tab chosen here changes it; one naming a
+  // section inside a tab (#prompts) opens the tab there, and the section if it is folded.
+  const hash = useLocation({ select: (l) => l.hash });
+  const navigate = useNavigate();
+  const tab = tabOf(hash);
+  const section = SECTIONS[hash] ? hash : undefined;
   return (
     <Page title={t("nav.settings")}>
+      {section && <ScrollToSection key={section} id={section} />}
       <Tabs
         value={tab}
-        onValueChange={(next) => {
-          setTab(next as Tab);
-          window.history.replaceState(null, "", `#${next}`);
-        }}
+        onValueChange={(next) => void navigate({ to: "/settings", hash: next, replace: true })}
         className="max-w-3xl gap-0"
       >
         <SectionTabList

@@ -935,8 +935,6 @@
     "limitsHint": "A word with two card types is two new cards. Each new card brings about 5–10 reviews in its first month.",
     "newIgnoresReviewLimit": "New cards ignore the review limit",
     "newIgnoresReviewLimitHint": "In Anki, new cards a day also count against the reviews a day: once the review limit is reached, no new cards are shown either. “Yes” shows new cards up to their own limit even then.",
-    "yes": "Yes",
-    "no": "No (Anki's default)",
     "retention": "Desired retention",
     "retentionHint": "How likely you still remember a card when it comes back. Higher means more reviews; 90% is Anki's default.",
     "steps": "Steps",

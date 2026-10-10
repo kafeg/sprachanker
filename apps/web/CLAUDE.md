@@ -12,7 +12,7 @@ apps/web/src/
                    # Downloaded, Available — /, /downloaded, /catalog), review (tabs Study, Decks with
                    # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
                    # My words), exams (tabs My, Downloaded, Available — /exams, /exams/downloaded,
-                   # /exams/catalog), course (its map), settings, storage (Settings → Storage)
+                   # /exams/catalog), course (its map), settings, storage (Settings → General's storage)
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
                    # the course page's hero (progress, source, stats, integrity, sync), upkeep (a course's
                    # check and sync, shared by the hero and the Downloaded cards), reset-progress

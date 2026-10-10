@@ -935,8 +935,6 @@
     "limitsHint": "Ein Wort mit zwei Kartentypen sind zwei neue Karten. Jede neue Karte bringt im ersten Monat etwa 5–10 Wiederholungen.",
     "newIgnoresReviewLimit": "Neue Karten zählen nicht zum Wiederholungslimit",
     "newIgnoresReviewLimitHint": "In Anki zählen neue Karten auch zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr. „Ja“ zeigt neue Karten bis zu ihrem eigenen Limit, auch wenn die Wiederholungen für heute aufgebraucht sind.",
-    "yes": "Ja",
-    "no": "Nein (wie in Anki)",
     "retention": "Gewünschte Behaltensquote",
     "retentionHint": "Wie wahrscheinlich du eine Karte noch weißt, wenn sie wiederkommt. Höher heißt mehr Wiederholungen; 90 % ist Ankis Wert.",
     "steps": "Schritte",

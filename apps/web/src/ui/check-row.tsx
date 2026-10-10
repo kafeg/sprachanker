@@ -1,5 +1,6 @@
 // A setting turned on or off: a checkbox with its name and, under it, what it does — the whole row
 // tappable.
+import { useId } from "react";
 import { Checkbox } from "./components/checkbox.tsx";
 import { cn } from "./utils.ts";
 
@@ -18,6 +19,8 @@ export function CheckRow({
   hint?: React.ReactNode;
   className?: string;
 }) {
+  // Its name is the title; the hint describes it.
+  const id = useId();
   return (
     // biome-ignore lint/a11y/noLabelWithoutControl: the control is inside
     <label
@@ -28,13 +31,21 @@ export function CheckRow({
       )}
     >
       <Checkbox
+        aria-labelledby={`${id}-title`}
+        aria-describedby={hint ? `${id}-hint` : undefined}
         checked={checked}
         disabled={disabled}
         onCheckedChange={(value) => onChange(value === true)}
       />
-      <span className="min-w-0">
-        <span className="font-medium">{title}</span>
-        {hint && <span className="block text-sm text-muted-foreground">{hint}</span>}
+      <span className={cn("min-w-0", disabled && "opacity-50")}>
+        <span id={`${id}-title`} className="font-medium">
+          {title}
+        </span>
+        {hint && (
+          <span id={`${id}-hint`} className="block text-sm text-muted-foreground">
+            {hint}
+          </span>
+        )}
       </span>
     </label>
   );

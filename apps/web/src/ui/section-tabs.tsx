@@ -29,6 +29,8 @@ export function SectionTabs({ label, tabs }: { label: string; tabs: SectionTab[]
         <Link
           key={tab.to}
           to={tab.to}
+          // The router marks a link current by prefix (/review under /review/decks): exactly, here.
+          activeOptions={{ exact: true, includeSearch: false }}
           aria-current={tab.current ? "page" : undefined}
           className={TAB}
         >

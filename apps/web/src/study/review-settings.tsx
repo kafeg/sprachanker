@@ -13,8 +13,8 @@ import {
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
+import { CheckRow } from "@/ui/check-row.tsx";
 import { Chip } from "@/ui/chip.tsx";
-import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { Slider } from "@/ui/components/slider.tsx";
@@ -208,20 +208,13 @@ export function ReviewSettings() {
             />
           </div>
         </Panel>
-        <Panel title={t("reviewSettings.newIgnoresReviewLimit")}>
-          <div className="mt-2 space-y-1.5">
-            <Choice
-              value={get("srs.newIgnoresReviewLimit") ? "yes" : "no"}
-              options={[
-                ["no", t("reviewSettings.no")],
-                ["yes", t("reviewSettings.yes")],
-              ]}
-              onChange={(v) => save("srs.newIgnoresReviewLimit", v === "yes")}
-            />
-            <p className="text-sm text-muted-foreground">
-              {t("reviewSettings.newIgnoresReviewLimitHint")}
-            </p>
-          </div>
+        <Panel>
+          <CheckRow
+            checked={!!get("srs.newIgnoresReviewLimit")}
+            onChange={(value) => save("srs.newIgnoresReviewLimit", value)}
+            title={t("reviewSettings.newIgnoresReviewLimit")}
+            hint={t("reviewSettings.newIgnoresReviewLimitHint")}
+          />
         </Panel>
         <Panel title={t("reviewSettings.day")}>
           <div className="mt-2 flex flex-wrap gap-1.5">

@@ -6,7 +6,6 @@ import { useTranslation } from "react-i18next";
 import { type CatalogRow, useCatalog, useSetSetting, useSetting } from "@/api/hooks.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Loading } from "@/ui/page.tsx";
-import { cn } from "@/ui/utils.ts";
 import { type ExperimentalSection, sectionOn, sourceId } from "./experimental.ts";
 
 const SECTIONS: ExperimentalSection[] = ["courses", "exams"];
@@ -63,7 +62,7 @@ export function ExperimentalSettings() {
                   hint={t(`experimental.sectionHint.${section}`)}
                 />
                 {sources.length > 0 ? (
-                  <div className={cn("divide-y border-t pl-8", !open && "opacity-50")}>
+                  <div className="divide-y border-t pl-8">
                     {sources.map((s) => (
                       <CheckRow
                         key={s.series}
