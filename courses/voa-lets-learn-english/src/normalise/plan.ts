@@ -60,8 +60,8 @@ function courseHtml(html: string): string {
     .replace(/\r\n?/g, "\n")
     .replace(/<p\b[^>]*>(?:(?!<\/p>)[\s\S])*?mailto:(?:(?!<\/p>)[\s\S])*<\/p>/gi, "")
     .replace(/<p\b[^>]*>[\s_ ]*<\/p>/gi, "")
-    .replace(/<h[3-6]\b[^>]*>/gi, "<p><strong>")
-    .replace(/<\/h[3-6]>/gi, "</strong></p>")
+    .replace(/<h[3-6]\b[^>]*>/gi, "<h3>")
+    .replace(/<\/h[3-6]>/gi, "</h3>")
     .replace(/<div\b[^>]*>/gi, "<p>")
     .replace(/<\/div>/gi, "</p>");
   const out = sanitizeCourseHtml(cleaned, { image: () => undefined });

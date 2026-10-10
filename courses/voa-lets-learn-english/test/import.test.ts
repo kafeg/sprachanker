@@ -106,6 +106,8 @@ const REVIEW = `<html><body><h1 class="title">Review of Lessons 1 - 3</h1>
 <h2 class="wsw__h2">Review of Lessons 1 -- 3</h2>
 <p><a href="/a/1.html">Lesson 1: Hi</a></p>
 <p><strong>Grammar focus: </strong>Simple present</p>
+<h4 class="sub">Questions</h4>
+<p>Do you like apples?</p>
 <h2 class="wsw__h2">Fun Video</h2>
 <div class="wsw__embed">${videoPlayer("902", "Extra", `${CDN}/extra`)}</div>
 </div></body></html>`;
@@ -430,6 +432,8 @@ test("normalisation: valid files, keys, exercises with answers, vocabulary, tabs
   expect(reviewLocale.tabs.grammar[0]?.bodyHtml).toContain(
     "<strong>Grammar focus: </strong>Simple present",
   );
+  // A sub-heading titles a section of the page, as in every course (02).
+  expect(reviewLocale.tabs.grammar[0]?.bodyHtml).toContain("<h3>Questions</h3>");
 });
 
 test("normalisation is deterministic", async () => {

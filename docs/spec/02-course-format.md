@@ -228,8 +228,8 @@ script, homework — tasks of the source without answers to check) are locale HT
 A grammar or culture page is one topic of the lesson (each becomes a step of its plan, 04): a provider
 joins the parts of a topic within a lesson and marks one continued from an earlier lesson with `part`
 (2, 3, …) instead of a number in the title. A page's sections are titled with `<h3>` where the source
-titles them (DW: a paragraph of bold text only, course-kit `boldLinesAsHeadings`; Lingust: its
-sub-headings); the app shows each
+titles them (DW: a paragraph of bold text only, course-kit `boldLinesAsHeadings`; Lingust and Let's
+Learn English: their sub-headings); the app shows each
 section as a card. An exercise's title is absent when the source has none,
 never empty.
 
