@@ -23,7 +23,7 @@ import { ActivityCalendar } from "@/ui/activity-calendar.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { LanguageFlag } from "@/ui/flags.tsx";
 import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
-import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
+import { ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { type EntryView, FigureTile, StandingSection } from "./standing.tsx";
@@ -175,7 +175,6 @@ export function NotebookPage() {
             view={views[m.module] ?? {}}
           />
         ))}
-        {modules.every((m) => !m.entries.length) && <EmptyState>{t("notebook.empty")}</EmptyState>}
       </div>
     </Page>
   );

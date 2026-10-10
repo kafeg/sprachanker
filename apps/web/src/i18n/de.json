@@ -625,7 +625,6 @@
     "title": "Notizbuch",
     "days": "Aktivität",
     "dayTitle": "{date}: {what}",
-    "empty": "Noch leer: Hier erscheinen die Lektionen, an denen du gearbeitet hast, mit jedem Durchgang.",
     "open": "läuft",
     "unfinished": "nicht beendet",
     "passes": "Durchgänge",
@@ -685,6 +684,11 @@
       "review": "Wiederholung",
       "lesson": "Lektionen",
       "exam": "Prüfungen"
+    },
+    "none": {
+      "review": "Noch keine Karten: Nimm unter „Wiederholen“ das Deck eines Kurses oder lerne die Wörter einer Lektion.",
+      "lesson": "Noch keine Lektion bearbeitet: Jede, an der du arbeitest, erscheint hier mit jedem Durchgang.",
+      "exam": "Noch nichts abgegeben: Deine Probeprüfungen und Übungen erscheinen hier."
     },
     "figure": {
       "review": {

@@ -137,12 +137,16 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   );
 });
 
-test("an empty Notebook says what will appear; nothing remembered yet is a dash", async () => {
+test("an empty Notebook says under each section what will appear; nothing remembered yet is a dash", async () => {
   const view = await renderApp(<NotebookPage />, {
     path: "/notebook",
     data: [[["notebook"], overview([], [], [], [])]],
   });
-  expect(await view.findByText(/Nothing yet/)).toBeTruthy();
+  for (const heading of ["Review", "Lessons", "Exams"])
+    expect(await view.findByRole("heading", { name: heading })).toBeTruthy();
+  expect(view.getByText(/No cards yet/)).toBeTruthy();
+  expect(view.getByText(/No lesson worked on yet/)).toBeTruthy();
+  expect(view.getByText(/Nothing handed in yet/)).toBeTruthy();
   expect(view.getByText("Remembered").parentElement?.firstChild?.textContent).toBe("—");
 });
 

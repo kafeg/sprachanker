@@ -6,6 +6,7 @@ import type { Figure, ModuleId, RunSummary, StandingEntry } from "@sprachanker/s
 import { useTranslation } from "react-i18next";
 import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
+import { EmptyState } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -49,7 +50,8 @@ function FigureGrid({ module, figures }: { module: ModuleId; figures: Figure[] }
   );
 }
 
-/** A module's section: its heading, then its entries by group, or each on its own. */
+/** A module's section: its heading, then its entries by group, or each on its own; none yet, what
+ *  will come here. */
 export function StandingSection({
   module,
   entries,
@@ -60,7 +62,6 @@ export function StandingSection({
   view: EntryView;
 }) {
   const { t } = useTranslation();
-  if (!entries.length) return null;
   // Groups in the order their first entry comes; an entry without one stands alone.
   const blocks: Array<{ key: string; title: string | null; entries: StandingEntry[] }> = [];
   for (const entry of entries) {
@@ -73,6 +74,10 @@ export function StandingSection({
   return (
     <>
       <h2 className="pt-2 text-lg font-semibold">{t(`notebook.section.${module}`)}</h2>
+      {/* Nothing yet: what comes here, so the page explains itself. */}
+      {!entries.length && (
+        <EmptyState className="p-5 text-sm">{t(`notebook.none.${module}`)}</EmptyState>
+      )}
       {blocks.map((b) =>
         b.entries[0]?.group ? (
           <Panel key={b.key} title={b.title ?? b.key}>

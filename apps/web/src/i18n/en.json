@@ -625,7 +625,6 @@
     "title": "Notebook",
     "days": "Activity",
     "dayTitle": "{date}: {what}",
-    "empty": "Nothing yet: the lessons you work on appear here, with every pass.",
     "open": "in progress",
     "unfinished": "not finished",
     "passes": "Passes",
@@ -685,6 +684,11 @@
       "review": "Review",
       "lesson": "Lessons",
       "exam": "Exams"
+    },
+    "none": {
+      "review": "No cards yet: take a course's deck in Review, or study a lesson's words.",
+      "lesson": "No lesson worked on yet: each one you work on appears here, with every pass.",
+      "exam": "Nothing handed in yet: your mock exams and practice appear here."
     },
     "figure": {
       "review": {
