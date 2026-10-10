@@ -15,8 +15,8 @@ never real third-party content). Our enrichment goes next to it (02).
   `refresh`, `log`, `progress`) and returns an `ImportReport`: failed media and, per "<course>
   <edition>", a `NormaliseResult` (lessons, unknown exercises, files that failed validation).
 - Each provider offers its courses as `CourseOffer`s (course, edition, title, source, approximate size
-  measured on a full download), known without the network: the catalogue lists them before anything
-  is downloaded.
+  measured on a full download; `kind: "exam"` for a course of exams, offered in the Exams section),
+  known without the network: the catalogue lists them before anything is downloaded.
 - Progress: pages read or fetched (`pageCounter`), media fetched of those missing with their bytes
   (`fetchMedia`), normalising.
 - Normalised files are `LibraryFile`s (path, schema, value) written by `writeLibraryFiles`, which
@@ -26,7 +26,8 @@ never real third-party content). Our enrichment goes next to it (02).
   download job uses (06).
 
 `course-kit` also supplies the polite HTTP client (`http.ts`: robots.txt, retries with backoff,
-identifiable User-Agent, stop on 403/429; no fixed rate limit, providers choose their concurrency),
+identifiable User-Agent, stop on 403/429; no fixed rate limit, providers choose their concurrency; a
+browsing session for a site run by forms — its cookies kept, forms posted, redirects followed),
 the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fingerprints and the
 library reader, and the helpers normalisers share: a lesson's vocabulary entries from headwords
 (`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping,
@@ -121,12 +122,41 @@ task or option of theirs that starts with such a run and does not end in punctua
 - **B1** lessons have no vocabulary: B1 has a German glossary (`GLOSSARY`, definitions instead of
   translations) not read yet (plan, "More sources").
 
-## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, edition `de-de`; planned: plan, "Exams")
+## 2. Leben in Deutschland (`bamf-lid` → `bamf.lid`, course `lid`, edition `de-de`)
 
-Official BAMF question catalogue (PDF): 300 general questions + 10 per federal state. A test has 33
-questions (30 general + 3 for the learner's state), 60 minutes; 15 correct passes the course test, 17 are
-needed for naturalisation — both shown. Questions are shown in German; translations only where the
-source has them (no machine translation: course content is not generated, 00).
+BAMF's question catalogue for the "Leben in Deutschland" test and the naturalisation test as one exam
+(`bamf.lid/lid/exam-test`; research `docs/research/exams.md`): 300 general questions and 10 for each
+federal state. A test has 33 questions (30 general, 3 of the learner's state), 60 minutes; 15 right pass
+the "Leben in Deutschland" test, 17 the naturalisation test — both shown. The catalogue is German only
+and shown as it is: no translation is made (content is never generated, 00). Offered in the Exams
+section (`kind: "exam"`), not among the courses.
+
+- **Fetch** (`courses/bamf-lid/src/import.ts`): the catalogue PDF stored as published
+  (`raw/de-de/lid/gesamtfragenkatalog.pdf`); then BAMF's online test centre (`oet.bamf.de`, an Oracle
+  APEX application) page by page through a browsing session (`fetcher.session()`: its cookies kept, its
+  forms posted as a browser posts them, one request every 500 ms): the general questions with one state
+  chosen, each state's 301–310 with that state chosen — about 470 pages, each kept as
+  `raw/de-de/lid/centre/<general|state>/<NNN>.html`. A page that is not the question asked stops the
+  import.
+- **Read** (`pdf.ts`, `catalogue.ts`, `centre.ts`): the PDF through pdf.js — text lines with their place,
+  pictures decoded with their box; sections by "Allgemeine Fragen" and "Fragen für das Bundesland …",
+  questions by "Aufgabe N", options by the box before each, a line after an option continuing it; the
+  number some stems repeat ("184.   …") dropped; pictures belong to the question above them on their
+  page, a row as many as the options being the options' pictures ("Bild 1" … "Bild 4", left to right),
+  a single one the question's; what is printed below a picture ("© …", "In Anlehnung an …") is its
+  `credit`. A test centre page gives its number and the right option, marked twice in the page (its row
+  and its radio button), which must agree.
+- **Pictures** (`png.ts`): each saved as a PNG (scaled to at most 1200 pixels on its longer side) through
+  `fetchMedia` with a URL naming the PDF's content and the question (`…pdf#pdf=<sha>&q=<id>&at=<place>`),
+  so a new catalogue's pictures are taken anew.
+- **Normalise** (`normalise.ts`): each question joined with its test centre page by part and number; its
+  options as the PDF prints them, the right one as the test centre marks it — only where both list the
+  same options word for word (the order of words inside an option aside: "Bürger/Bürgerin",
+  "Bürgerin / Bürger"); a question the sources disagree on, or whose page was not read, is left out and
+  reported. Keys `q-001` … `q-300`, `q-<state>-01` … `-10` (ISO 3166-2 codes); tags
+  `{ federalState }`; sections `s-general` (draw 30) and `s-state` (draw 3, filtered by the profile's
+  `exam.federalState`); pass marks `lid` 15 and `naturalisation` 17. The catalogue's date ("Stand: …")
+  is in the course's description; a catalogue without one is refused.
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 

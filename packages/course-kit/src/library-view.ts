@@ -2,9 +2,12 @@
 import type {
   CourseIndex,
   EditionId,
+  Exam,
+  ExamKey,
   Lesson,
   LessonKey,
   LocaleCourse,
+  LocaleExam,
   LocaleLesson,
   MediaPath,
 } from "@sprachanker/schema";
@@ -25,6 +28,10 @@ export interface LibraryView {
   /** What a lesson's file (with `edition`, its locale file) is now — its size and time of change, ""
    *  while there is none: a reading kept is good while this stays the same. */
   lessonStamp(series: string, key: LessonKey, edition?: string): string;
+  exam(series: string, key: ExamKey): Promise<Exam>;
+  localeExam(series: string, key: ExamKey, edition: string): Promise<LocaleExam | undefined>;
+  /** The same for an exam's file. */
+  examStamp(series: string, key: ExamKey, edition?: string): string;
   /** Absolute file of a media path, or undefined when it does not exist or leaves the media folder. */
   mediaFile(series: string, path: MediaPath | string): string | undefined;
   /** Verifies one installed course: integrity and counts (verify.ts). */
@@ -48,8 +55,10 @@ export interface CourseReport {
   editions: string[];
   units: number;
   lessons: number;
+  exams: number;
   /** Exercises by type. */
   exercises: Record<string, number>;
+  /** Items of the exercises and the exams' questions. */
   items: number;
   vocab: number;
   media: {

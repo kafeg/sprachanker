@@ -172,12 +172,13 @@ export function createRuns({
     /** The recordings the answers of every lesson run hold. */
     recordingsInUse: () => new Set(recordingsIn(store.all("lesson").map((r) => r.id))),
 
-    /** The installed courses with the learner's progress and the lesson to go on with, as its card
-     *  shows it (title and exercises worked). */
+    /** The installed courses (not the exams: the Exams section's) with the learner's progress and
+     *  the lesson to go on with, as its card shows it (title and exercises worked). */
     async courses() {
       const byLesson = await progress();
+      const courses = (await content.courses()).filter((c) => c.kind === "course");
       return Promise.all(
-        (await content.courses()).map(async ({ lessons, ...course }) => {
+        courses.map(async ({ lessons, exams: _, kind: __, ...course }) => {
           const at = courseProgress(lessons, byLesson);
           const next = at.next as LessonKey | null;
           const edition = course.editions[0];

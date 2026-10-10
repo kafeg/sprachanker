@@ -3,6 +3,7 @@
 // assistant's endpoints and prompts), so the generic route cannot change them. Values are checked
 // when written and parsed when read: a stored value that no longer fits is read as unset.
 import { z } from "zod";
+import { FederalState } from "./exam.ts";
 import { CourseSlug, SeriesKey } from "./keys.ts";
 import { EditionId, Lang } from "./lang.ts";
 import { CardFace } from "./learner.ts";
@@ -32,6 +33,9 @@ export const LEARNER_SETTINGS = {
    *  courses (set by the onboarding). */
   "learner.native": Lang,
   "learner.target": Lang,
+  /** The federal state whose questions the Leben in Deutschland test asks (unset: asked when the
+   *  exam starts). */
+  "exam.federalState": FederalState,
   theme: z.enum(["system", "light", "dark"]),
   /** Playback speed of course audio. */
   audioRate: z.number().min(0.25).max(2),

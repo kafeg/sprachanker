@@ -1,16 +1,21 @@
 // A tiny synthetic library for course-kit's own tests, written with course-kit's functions: one course,
-// one lesson with a choice and a recording, two editions. Course packages (courses/*) depend on
+// one lesson with a choice and a recording, an exam of three questions, two editions. Course packages (courses/*) depend on
 // course-kit, so its tests never import one of them.
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
   type CourseIndex,
   courseKey,
+  type Exam,
   type Exercise,
+  examItemKey,
+  examKey,
+  examSectionKey,
   exerciseKey,
   itemKey,
   type Lesson,
   type LocaleCourse,
+  type LocaleExam,
   type LocaleLesson,
   lessonKey,
   type MediaPath,
@@ -44,11 +49,68 @@ const choice: Exercise = draftExercise({
   ],
 });
 
+export const MINI_EXAM = examKey(COURSE, "quiz");
+const question = (
+  id: string,
+  state: string | null,
+  extra: Partial<Exam["items"][number]> = {},
+) => ({
+  key: examItemKey(MINI_EXAM, id),
+  type: "single_choice" as const,
+  tags: { federalState: state },
+  prompt: `Frage ${id}?`,
+  options: [
+    { id: "a", text: "ja" },
+    { id: "b", text: "nein" },
+  ],
+  answer: { optionIds: ["a"] },
+  ...extra,
+});
+const exam: Exam = {
+  format: 1,
+  key: MINI_EXAM,
+  timeLimitSec: 600,
+  sections: [
+    {
+      key: examSectionKey(MINI_EXAM, "general"),
+      pool: [examItemKey(MINI_EXAM, "001"), examItemKey(MINI_EXAM, "002")],
+      draw: 1,
+      filter: null,
+    },
+    {
+      key: examSectionKey(MINI_EXAM, "state"),
+      pool: [examItemKey(MINI_EXAM, "be-01")],
+      draw: 1,
+      filter: { tag: "federalState", setting: "exam.federalState" },
+    },
+  ],
+  items: [
+    question("001", null, {
+      media: { image: "media/image/frage.png" as MediaPath, credit: "© Mini" },
+    }),
+    question("002", null),
+    question("be-01", "be"),
+  ],
+  thresholds: [{ id: "pass", minPoints: 2 }],
+};
+const localeExam = (edition: string): LocaleExam => ({
+  format: 1,
+  edition: edition as LocaleExam["edition"],
+  exam: MINI_EXAM,
+  title: "Quiz",
+  sections: {
+    [examSectionKey(MINI_EXAM, "general")]: { title: "Allgemein" },
+    [examSectionKey(MINI_EXAM, "state")]: { title: "Land" },
+  },
+  thresholds: { pass: { title: "Bestanden" } },
+  items: {},
+});
+
 const index: CourseIndex = {
   format: 1,
   key: COURSE,
   units: [{ key: UNIT, lessons: [MINI_LESSON] }],
-  exams: [],
+  exams: [MINI_EXAM],
   goals: [],
 };
 
@@ -96,10 +158,13 @@ export async function writeMiniLibrary(libraryRoot: string): Promise<string> {
   };
   await put("canonical/basic/course.json", prettyJson(index));
   await put("canonical/basic/lessons/00-01.json", prettyJson(lesson));
+  await put("canonical/basic/exams/quiz.json", prettyJson(exam));
   for (const edition of Object.values(editions)) {
     await put(`locale/${edition}/basic/course.json`, prettyJson(localeCourse(edition)));
     await put(`locale/${edition}/basic/lessons/00-01.json`, prettyJson(localeLesson(edition)));
+    await put(`locale/${edition}/basic/exams/quiz.json`, prettyJson(localeExam(edition)));
   }
   await put(MINI_AUDIO, "sprachanker-mini:hallo");
+  await put("media/image/frage.png", "sprachanker-mini:frage");
   return series;
 }

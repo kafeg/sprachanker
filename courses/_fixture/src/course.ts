@@ -350,7 +350,7 @@ export const miniExam: Exam = {
       key: examSectionKey(EXAM, "state"),
       pool: [examItemKey(EXAM, "be-01"), examItemKey(EXAM, "by-01")],
       draw: 1,
-      filter: { setting: "federalState" },
+      filter: { tag: "federalState", setting: "exam.federalState" },
     },
   ],
   items: [

@@ -5,7 +5,8 @@ import { useCatalog, useCourses } from "@/api/hooks.ts";
 import { UI_LANGUAGES } from "@/i18n/index.ts";
 
 export function useLanguagePairs() {
-  const catalog = useCatalog().data ?? [];
+  // Exams teach no pair of their own (taken in the language learnt).
+  const catalog = (useCatalog().data ?? []).filter((c) => c.kind !== "exam");
   const courses = useCourses().data ?? [];
   return [...new Set([...catalog.map((c) => c.edition), ...courses.flatMap((c) => c.editions)])];
 }

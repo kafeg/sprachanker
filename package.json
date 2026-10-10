@@ -8,6 +8,7 @@
     "apps/web",
     "apps/cli",
     "courses/_fixture",
+    "courses/bamf-lid",
     "courses/dw",
     "courses/coerll-dib",
     "courses/lingust-english",

@@ -153,9 +153,26 @@ export function parseLessonKey(key: LessonKey | string): {
   };
 }
 
-/** The series a course, lesson, exercise or item key belongs to (every such key starts with it). */
-export const seriesOf = (key: CourseKey | LessonKey | ExerciseKey | ItemKey) =>
-  key.slice(0, key.indexOf("/")) as SeriesKey;
+/** The parts of an exam key: `bamf.lid/lid/exam-test` → course `bamf.lid/lid`, its id `lid`, the
+ *  exam's slug `test` (its file name and URL segment). */
+export function parseExamKey(key: ExamKey | string): {
+  course: CourseKey;
+  courseId: string;
+  slug: string;
+} {
+  const slash = key.lastIndexOf("/");
+  const course = key.slice(0, slash) as CourseKey;
+  return { course, courseId: courseIdOf(course), slug: key.slice(slash + 1).replace(/^exam-/, "") };
+}
+
+/** The exam an exam item belongs to: `…/exam-test/q-001` → `…/exam-test`. */
+export const examOfItem = (item: ExamItemKey) => item.slice(0, item.lastIndexOf("/")) as ExamKey;
+
+/** The series a course, lesson, exercise, item or exam key belongs to (every such key starts with
+ *  it). */
+export const seriesOf = (
+  key: CourseKey | LessonKey | ExerciseKey | ItemKey | ExamKey | ExamItemKey,
+) => key.slice(0, key.indexOf("/")) as SeriesKey;
 
 /** The lesson an exercise belongs to. */
 export const lessonOf = (exercise: ExerciseKey) =>

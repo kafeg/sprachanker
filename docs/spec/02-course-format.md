@@ -103,8 +103,15 @@ None is written: `media.json` records the media and the library is read from the
 folders. Planned: a series manifest with each edition's `contentVersion` (schema
 `packages/schema/src/manifest.ts`; plan, "Open items in built areas", Library).
 
-Exams of a course are listed in its course index (`exams`); a stand-alone exam (plan, "Exams") is a
-course with exams only.
+Exams of a course are listed in its course index (`exams`); a stand-alone exam is a course with exams
+only (no units), shown in the Exams section rather than among the courses. An exam is its questions
+(single-choice items keyed in the exam, with tags), sections drawing a number of them from a pool —
+filtered by a tag that must have the value of a profile setting (`{ tag: "federalState", setting:
+"exam.federalState" }`) — a time limit and pass marks; its locale file titles the exam, its sections
+and its pass marks. `verify` reads it as the app does and checks that its questions are its own and
+listed once, their answers name options they have, each pool lists questions of the exam and holds at
+least what it draws (for each value of a filtered section's tag), and no pass mark is above the
+questions asked.
 
 ## Canonical files (language-independent)
 
@@ -133,14 +140,19 @@ course with exams only.
 // canonical/<course>/exams/<slug>.json — the Leben in Deutschland test (03)
 { "format": 1, "key": "bamf.lid/lid/exam-test", "timeLimitSec": 3600,
   "sections": [ { "key": "…/s-general", "pool": ["…/q-001"], "draw": 30, "filter": null },
-                { "key": "…/s-state", "pool": ["…/q-be-01"], "draw": 3, "filter": { "setting": "federalState" } } ],
+                { "key": "…/s-state", "pool": ["…/q-be-01"], "draw": 3,
+                  "filter": { "tag": "federalState", "setting": "exam.federalState" } } ],
   "items": [ { "key": "…/q-001", "type": "single_choice", "tags": { "federalState": null },
-               "prompt": "…", "options": [ … ], "answer": { "optionIds": ["c"] } } ],
-  "thresholds": [ { "id": "course-test", "minPoints": 15 }, { "id": "naturalisation", "minPoints": 17 } ] }
+               "prompt": "…", "options": [ … ], "answer": { "optionIds": ["c"] } },
+             { "key": "…/q-055", "type": "single_choice", "tags": { "federalState": null }, "prompt": "…",
+               "media": { "image": "media/image/lid-055.png", "credit": "© …" }, "options": [ … ], … } ],
+  "thresholds": [ { "id": "lid", "minPoints": 15 }, { "id": "naturalisation", "minPoints": 17 } ] }
 ```
 
 Lesson `media`: `video` (`sd`, `hd`, `subtitled`, `subtitles`), `image`, and `audio` — a lesson-level
-recording (Deutschtrainer reads the lesson's words and phrases aloud); all optional.
+recording (Deutschtrainer reads the lesson's words and phrases aloud); all optional. Any `media` (a
+lesson's, an exercise's, an item's or an option's) may carry `credit`: whose picture or recording it
+is, as the source credits it, shown with it.
 
 ## Exercise types
 

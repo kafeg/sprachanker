@@ -34,6 +34,9 @@ export const Media = z
     image: MediaPath.optional(),
     audio: MediaPath.optional(),
     video: MediaPath.optional(),
+    /** Whose picture or recording it is, as the source credits it ("© Deutscher Bundestag/Achim
+     *  Melde"): shown with it. */
+    credit: z.string().min(1).optional(),
   })
   .meta({ id: "Media" });
 export type Media = z.infer<typeof Media>;

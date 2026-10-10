@@ -7,11 +7,15 @@ import {
   CourseIndex,
   CourseSlug,
   EditionId,
+  Exam,
+  type ExamKey,
   issuesText,
   Lesson,
   type LessonKey,
   LocaleCourse,
+  LocaleExam,
   LocaleLesson,
+  parseExamKey,
   parseLessonKey,
   SeriesKey,
 } from "@sprachanker/schema";
@@ -62,6 +66,19 @@ export function openLibrary(root: string): LibraryView {
           `${name}.json`,
         );
   };
+  /** An exam's canonical file, or with an edition its locale file. */
+  const examFile = (series: string, key: ExamKey, edition?: string) => {
+    const { courseId, slug } = parseExamKey(key);
+    const where =
+      edition === undefined
+        ? join(seriesDir(series), "canonical", courseId)
+        : join(seriesDir(series), "locale", named(EditionId, edition), courseId);
+    return join(where, "exams", `${slug}.json`);
+  };
+  const stamp = (file: string) => {
+    const stat = statSync(file, { throwIfNoEntry: false });
+    return stat ? `${stat.size}:${stat.mtimeMs}` : "";
+  };
   const view: LibraryView = {
     root,
     courses() {
@@ -105,10 +122,13 @@ export function openLibrary(root: string): LibraryView {
       const file = lessonFile(series, key, edition);
       return existsSync(file) ? read(LocaleLesson, file) : undefined;
     },
-    lessonStamp(series, key, edition) {
-      const stat = statSync(lessonFile(series, key, edition), { throwIfNoEntry: false });
-      return stat ? `${stat.size}:${stat.mtimeMs}` : "";
+    lessonStamp: (series, key, edition) => stamp(lessonFile(series, key, edition)),
+    exam: (series, key) => read(Exam, examFile(series, key)),
+    async localeExam(series, key, edition) {
+      const file = examFile(series, key, edition);
+      return existsSync(file) ? read(LocaleExam, file) : undefined;
     },
+    examStamp: (series, key, edition) => stamp(examFile(series, key, edition)),
     mediaFile(series, path) {
       if (!SeriesKey.safeParse(series).success) return undefined;
       const base = join(seriesDir(series), "media") + sep;

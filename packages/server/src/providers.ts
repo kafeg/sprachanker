@@ -4,6 +4,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rename, rm, stat, statfs, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import { LID_PROVIDER } from "@sprachanker/bamf-lid";
 import { DIB_PROVIDER } from "@sprachanker/coerll-dib";
 import {
   type CourseProvider,
@@ -36,6 +37,7 @@ export const PROVIDERS: CourseProvider[] = [
   LINGUST_PROVIDER,
   ENGLISH_USA_PROVIDER,
   LETS_LEARN_ENGLISH_PROVIDER,
+  LID_PROVIDER,
 ];
 const byId = new Map(PROVIDERS.map((p) => [p.id, p]));
 

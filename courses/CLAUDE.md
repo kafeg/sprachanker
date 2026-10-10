@@ -6,7 +6,8 @@ Research about sources: `docs/research/`.
 ## Layout
 
 ```
-packages/course-kit/   # library format (LibraryView), fetcher, media store + media.json fetching (media file
+packages/course-kit/   # library format (LibraryView: courses, lessons, exams), fetcher (with a browsing session
+                       # for sites run by forms), media store + media.json fetching (media file
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
                        # text of HTML and entity decoding; provider.ts: the
                        # provider contract (import options/report/progress, course offers, wanted,
@@ -33,6 +34,9 @@ courses/
                        # exercise, verbs), exercise.ts (source exercise → our types), normalise, import.ts
   voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
                        # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
+  bamf-lid/            # BAMF «Leben in Deutschland» (bamf.lid, de-de): an exam course; src/: catalog, pdf (pdf.js:
+                       # lines and pictures), catalogue (questions from the PDF), centre (BAMF's test centre:
+                       # pages read, walked as its APEX forms post), png (pictures saved), normalise, import.ts
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
                        # bold words, quiz answers from the result pages (GET), speaking videos as
                        # `speech_selfrate`; src/normalise/: media (renditions), vocab (bold words), plan
@@ -42,7 +46,6 @@ courses/
 ## Planned
 
 - `sa-starter-en/`: our authored course and an open-data importer (plan, "More sources").
-- `bamf-lid/`: the Leben in Deutschland exam (plan, "Exams").
 
 ## Rules
 

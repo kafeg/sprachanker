@@ -13,6 +13,7 @@ import {
   LocaleCourse,
   LocaleExam,
   LocaleLesson,
+  parseExamKey,
   parseLessonKey,
 } from "@sprachanker/schema";
 import type { z } from "zod";
@@ -73,6 +74,9 @@ export interface CourseProvider {
 export interface CourseOffer {
   course: string;
   edition: string;
+  /** An exam is offered in the Exams section, not among the courses (01: a course of kind exam has
+   *  exams only). */
+  kind?: "exam";
   title: string;
   source: CourseSource;
   /** Bytes on disk after a full download (pages and media), roughly. */
@@ -141,9 +145,9 @@ export const libraryFile = {
 };
 
 /** An exam's file under its course's folder: `<course>/exam-<slug>` → `<course id>/exams/<slug>.json`. */
-function examFile(key: string) {
-  const slash = key.lastIndexOf("/");
-  return `${courseIdOf(key.slice(0, slash))}/exams/${key.slice(slash + 1).replace(/^exam-/, "")}.json`;
+export function examFile(key: string) {
+  const { courseId, slug } = parseExamKey(key);
+  return `${courseId}/exams/${slug}.json`;
 }
 
 /** The course folder a library file belongs to: `canonical/<course>` or `locale/<edition>/<course>`. */

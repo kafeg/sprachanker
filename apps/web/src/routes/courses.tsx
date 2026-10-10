@@ -29,7 +29,8 @@ function useCourseList() {
 export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t } = useTranslation();
   const all = useCourses().data ?? [];
-  const offers = (useCatalog().data ?? []).filter((o) => !o.installed);
+  // Exams are offered in the Exams section.
+  const offers = (useCatalog().data ?? []).filter((o) => !o.installed && o.kind !== "exam");
   const count: Record<CoursesTab, number> = {
     mine: all.filter((c) => c.started).length,
     downloaded: all.reduce((n, c) => n + c.editions.length, 0),

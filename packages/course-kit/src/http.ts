@@ -50,7 +50,19 @@ export interface PoliteFetcher {
   text(url: string): Promise<string>;
   /** The body streamed into `target` (large media never sit in memory); retried like `bytes`. */
   file(url: string, target: string): Promise<{ contentType: string }>;
+  /** A browsing session for a site run by forms (a page posts back to its server): cookies kept,
+   *  redirects followed; the same politeness as every request. */
+  session(): BrowsingSession;
 }
+
+/** Pages read in one session: the site's cookies sent back, a form posted as a browser posts it. */
+export interface BrowsingSession {
+  /** A page by GET, or by POSTing `form` (url-encoded); its text and the URL it ended at. */
+  page(url: string, form?: Record<string, string>): Promise<{ text: string; url: string }>;
+}
+
+/** Redirects a session follows for one page. */
+const MAX_REDIRECTS = 5;
 
 /** Aborts after `ms` of silence; `alive()` restarts the count. */
 function silence(ms: number) {
@@ -146,6 +158,12 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
   async function request<T>(
     href: string,
     read: (res: Response, quiet: Quiet) => Promise<T>,
+    init: {
+      method?: string;
+      body?: string;
+      headers?: Record<string, string>;
+      manual?: boolean;
+    } = {},
   ): Promise<T> {
     const url = new URL(href);
     const status = refused.get(url.host);
@@ -156,9 +174,17 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
     for (let attempt = 0; ; attempt++) {
       const quiet = silence(idleMs);
       const res = await onHost(url.host, () =>
-        doFetch(url, { headers, signal: quiet.signal }),
+        doFetch(url, {
+          method: init.method ?? "GET",
+          headers: { ...headers, ...init.headers },
+          ...(init.body !== undefined && { body: init.body }),
+          ...(init.manual && { redirect: "manual" as const }),
+          signal: quiet.signal,
+        }),
       ).catch(() => null);
-      if (res?.ok) {
+      // A redirect the session follows itself (to keep the cookies it sets).
+      const redirected = !!init.manual && !!res && res.status >= 300 && res.status < 400;
+      if (res?.ok || redirected) {
         try {
           return await read(res, quiet);
         } catch {
@@ -189,7 +215,49 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
     return Buffer.concat(parts);
   };
 
+  function session(): BrowsingSession {
+    const cookies = new Map<string, string>();
+    const keep = (res: Response) => {
+      for (const line of res.headers.getSetCookie()) {
+        const pair = line.split(";")[0] ?? "";
+        const eq = pair.indexOf("=");
+        if (eq > 0) cookies.set(pair.slice(0, eq).trim(), pair.slice(eq + 1).trim());
+      }
+    };
+    return {
+      async page(href, form) {
+        let url = href;
+        let payload = form && new URLSearchParams(form).toString();
+        for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+          const sent: Record<string, string> = {};
+          if (cookies.size) sent.Cookie = [...cookies].map(([k, v]) => `${k}=${v}`).join("; ");
+          if (payload !== undefined) sent["Content-Type"] = "application/x-www-form-urlencoded";
+          const step = await request(
+            url,
+            async (res, quiet): Promise<{ location: string } | { text: string }> => {
+              keep(res);
+              const location = res.status >= 300 && res.headers.get("location");
+              if (location) return { location: new URL(location, url).href };
+              return { text: new TextDecoder().decode(await body(res, quiet)) };
+            },
+            {
+              manual: true,
+              headers: sent,
+              ...(payload !== undefined && { method: "POST", body: payload }),
+            },
+          );
+          if ("text" in step) return { text: step.text, url };
+          // A redirect after a post is read with GET, as a browser does.
+          url = step.location;
+          payload = undefined;
+        }
+        throw new FetchFailedError(href, "network");
+      },
+    };
+  }
+
   return {
+    session,
     bytes: (href) =>
       request(href, async (res, quiet) => ({
         bytes: new Uint8Array(await body(res, quiet)),

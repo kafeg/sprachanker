@@ -121,3 +121,35 @@ test("a body that goes silent is retried, then fails the URL", async () => {
   await expect(fetcher.text("https://b.test/x")).rejects.toThrow(FetchFailedError);
   expect(calls).toBe(2);
 });
+
+test("a session keeps the site's cookies, posts a form and follows its redirect with GET", async () => {
+  const seen: Array<{ url: string; method: string; cookie: string | null; body: string | null }> =
+    [];
+  const fetchFn = (async (input: URL | string, init?: RequestInit) => {
+    const url = String(input);
+    const headers = new Headers(init?.headers);
+    seen.push({
+      url,
+      method: init?.method ?? "GET",
+      cookie: headers.get("cookie"),
+      body: typeof init?.body === "string" ? init.body : null,
+    });
+    if (url.endsWith("/start"))
+      return new Response("form", { headers: { "Set-Cookie": "S=1; Path=/; HttpOnly" } });
+    if (url.endsWith("/accept"))
+      return new Response(null, {
+        status: 302,
+        headers: { Location: "/question", "Set-Cookie": "T=2; Path=/" },
+      });
+    return new Response(`question with ${headers.get("cookie")}`);
+  }) as typeof fetch;
+  const session = createPoliteFetcher(opts(fetchFn)).session();
+  expect((await session.page("https://b.test/start")).text).toBe("form");
+  const answer = await session.page("https://b.test/accept", { state: "4", note: "a b" });
+  expect(answer).toEqual({ text: "question with S=1; T=2", url: "https://b.test/question" });
+  expect(seen.map((s) => [s.method, s.url, s.cookie, s.body])).toEqual([
+    ["GET", "https://b.test/start", null, null],
+    ["POST", "https://b.test/accept", "S=1", "state=4&note=a+b"],
+    ["GET", "https://b.test/question", "S=1; T=2", null],
+  ]);
+});

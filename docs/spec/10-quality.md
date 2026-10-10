@@ -36,6 +36,7 @@ table in the same commit with the reason.
 | SRS | `ts-fsrs` |
 | YAML | `yaml` |
 | HTML sanitising (importers) | `sanitize-html` with the allow-list from 02 |
+| PDF reading (importers) | `pdfjs-dist` (pdf.js, legacy build, its parser in the importer's thread): text with its place, pictures decoded; PNG written with `node:zlib` |
 | Markdown rendering | `markdown-it` with `html: false` |
 | Zip | `fflate` (when first needed: profile export, `.apkg`) |
 | Logging | `pino` (when first needed: structured logs; today `console.error` for what is left out or fails) |

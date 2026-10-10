@@ -6,9 +6,12 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import {
   correctOptions,
+  type Exam,
+  type ExamKey,
   type Exercise,
   type Lesson,
   type LessonKey,
+  type LocaleExam,
   type LocaleLesson,
 } from "@sprachanker/schema";
 import { fingerprint } from "./fingerprint.ts";
@@ -34,11 +37,15 @@ function mediaPaths(value: unknown, out: Set<string>) {
     for (const v of Object.values(value)) mediaPaths(v, out);
 }
 
-/** Answers and gaps that point to options, parts or gaps the item does not have. */
-function answerProblems(exercise: Exercise): CourseProblem[] {
+/** Answers and gaps that point to options, parts or gaps the item does not have; `at` names an item
+ *  (an exercise's by its position, an exam's question by its key). */
+function answerProblems(
+  exercise: Exercise,
+  atOf = (i: number) => `${exercise.key}#${i + 1}`,
+): CourseProblem[] {
   const out: CourseProblem[] = [];
   exercise.items.forEach((item, i) => {
-    const at = `${exercise.key}#${i + 1}`;
+    const at = atOf(i);
     const missing = (ids: string[], known: Array<{ id: string }>, what: string) => {
       const have = new Set(known.map((o) => o.id));
       for (const id of ids)
@@ -137,6 +144,62 @@ function localeProblems(lesson: Lesson, locale: LocaleLesson, edition: string) {
   return { problems, notes };
 }
 
+/** An exam that does not hold together: questions of another exam or twice, answers to options a
+ *  question lacks, pools naming questions not there or drawing more than they hold (for each value of
+ *  a filtered section's tag), pass marks above the questions asked. */
+function examProblems(exam: Exam, key: string): CourseProblem[] {
+  const out: CourseProblem[] = [];
+  if (exam.key !== key) out.push(inconsistent(key, `the file holds ${exam.key}`));
+  const items = new Map(exam.items.map((i) => [i.key as string, i]));
+  if (items.size !== exam.items.length) out.push(inconsistent(key, "a question listed twice"));
+  for (const item of exam.items)
+    if (!item.key.startsWith(`${exam.key}/q-`))
+      out.push(inconsistent(item.key, `not a question of ${exam.key}`));
+  // The questions are single-choice items: checked as an exercise's are, each named by its key.
+  const asExercise = { key: exam.key, type: "single_choice", items: exam.items } as const;
+  out.push(...answerProblems(asExercise as unknown as Exercise, (i) => exam.items[i]?.key ?? key));
+  let asked = 0;
+  for (const section of exam.sections) {
+    asked += section.draw;
+    const pool = section.pool.flatMap((k) => {
+      const item = items.get(k);
+      if (!item) out.push(inconsistent(section.key, `pool names ${k}, not a question of the exam`));
+      return item ? [item] : [];
+    });
+    const groups = section.filter
+      ? Map.groupBy(pool, (i) => i.tags[section.filter?.tag ?? ""] ?? null)
+      : new Map([[null, pool]]);
+    for (const [value, group] of groups)
+      if (group.length < section.draw)
+        out.push(
+          inconsistent(
+            section.key,
+            `draws ${section.draw} of ${group.length} questions${value === null ? "" : ` (${value})`}`,
+          ),
+        );
+  }
+  for (const t of exam.thresholds)
+    if (t.minPoints > asked)
+      out.push(inconsistent(key, `pass mark ${t.id} is ${t.minPoints} of ${asked} questions`));
+  return out;
+}
+
+/** An exam's texts in one edition that do not match it. */
+function localeExamProblems(exam: Exam, locale: LocaleExam, edition: string): CourseProblem[] {
+  const out: CourseProblem[] = [];
+  const at = `${edition} ${exam.key}`;
+  if (locale.exam !== exam.key) out.push(inconsistent(at, `locale is for ${locale.exam}`));
+  for (const s of exam.sections)
+    if (!locale.sections[s.key]) out.push(inconsistent(at, `no title for ${s.key}`));
+  for (const t of exam.thresholds)
+    if (!locale.thresholds[t.id]) out.push(inconsistent(at, `no title for pass mark ${t.id}`));
+  const items = new Set(exam.items.map((i) => i.key as string));
+  for (const k of Object.keys(locale.items))
+    if (!items.has(k))
+      out.push(inconsistent(at, `locale texts for ${k}, not a question of the exam`));
+  return out;
+}
+
 export async function verifyLibrary(library: LibraryView): Promise<CourseReport[]> {
   const reports: CourseReport[] = [];
   for (const { series, course, editions } of library.courses())
@@ -157,6 +220,7 @@ export async function verifyCourse(
     editions,
     units: 0,
     lessons: 0,
+    exams: 0,
     exercises: {},
     items: 0,
     vocab: 0,
@@ -216,6 +280,24 @@ export async function verifyCourse(
         report.problems.push(...found.problems);
         report.notes.push(...found.notes);
       }
+    }
+  }
+  for (const key of index.exams) {
+    const exam = await guard(key, () => library.exam(series, key as ExamKey));
+    if (!exam) continue;
+    report.exams++;
+    report.items += exam.items.length;
+    mediaPaths(exam, media);
+    report.problems.push(...examProblems(exam, key));
+    for (const edition of editions) {
+      const locale = await guard(`${edition} ${key}`, () =>
+        library.localeExam(series, key as ExamKey, edition),
+      );
+      if (!locale) {
+        report.problems.push(problem("noLocale", `${edition} ${key}`, "no locale file"));
+        continue;
+      }
+      report.problems.push(...localeExamProblems(exam, locale, edition));
     }
   }
   for (const edition of editions) {

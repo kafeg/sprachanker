@@ -96,8 +96,10 @@ async function importCommand(args: string[]): Promise<void> {
     process.exitCode = 1;
   }
   for (const [course, r] of normalised) {
+    // An exam course reports its questions left out (sources that disagree) as unknown.
     log(
-      `${course}: ${r.lessons} lessons, ${r.unknown} unknown exercises, ${r.problems} invalid files`,
+      `${course}: ${r.lessons} lessons, ${r.unknown} unknown exercises or questions left out, ` +
+        `${r.problems} invalid files`,
     );
     if (r.problems) process.exitCode = 1;
   }
@@ -130,7 +132,8 @@ async function verifyCommand(args: string[]): Promise<void> {
       .join(", ");
     console.log(
       `${r.problems.length ? "✗" : "✓"} ${r.series}/${r.course} [${r.editions.join(", ")}]: ` +
-        `${r.units} units, ${r.lessons} lessons, ${r.items} items, ${r.vocab} words, ` +
+        `${r.units} units, ${r.lessons} lessons, ${r.exams ? `${r.exams} exams, ` : ""}` +
+        `${r.items} items, ${r.vocab} words, ` +
         `media ${r.media.referenced - r.media.missing}/${r.media.referenced}`,
     );
     if (types) console.log(`    exercises: ${types}`);

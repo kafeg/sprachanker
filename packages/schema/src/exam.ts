@@ -8,6 +8,29 @@ export const EXAM_FORMAT = 1;
 
 const ThresholdId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
+/** Germany's federal states by their ISO 3166-2 codes: the Leben in Deutschland test asks three
+ *  questions of the learner's state (profile setting `exam.federalState`). */
+export const FEDERAL_STATES = [
+  "bw",
+  "by",
+  "be",
+  "bb",
+  "hb",
+  "hh",
+  "he",
+  "mv",
+  "ni",
+  "nw",
+  "rp",
+  "sl",
+  "sn",
+  "st",
+  "sh",
+  "th",
+] as const;
+export const FederalState = z.enum(FEDERAL_STATES);
+export type FederalState = z.infer<typeof FederalState>;
+
 /** An exam question: a single_choice item keyed in the exam, with tags used by section filters. */
 export const ExamItem = SingleChoiceItem.extend({
   key: ExamItemKey,
@@ -27,8 +50,9 @@ export const Exam = z.strictObject({
       key: ExamSectionKey,
       pool: z.array(ExamItemKey).min(1),
       draw: z.number().int().positive(),
-      /** Draw only items whose tag equals the profile setting of the same name. */
-      filter: z.strictObject({ setting: z.string().min(1) }).nullable(),
+      /** Draw only items whose `tag` has the value of the profile setting `setting`
+       *  (`{ tag: "federalState", setting: "exam.federalState" }`). */
+      filter: z.strictObject({ tag: z.string().min(1), setting: z.string().min(1) }).nullable(),
     }),
   ),
   items: z.array(ExamItem).min(1),

@@ -18,6 +18,10 @@ export interface CourseSummary {
   titles: Record<string, string>;
   /** Lesson keys in course order. */
   lessons: string[];
+  /** Exam keys, in the course index's order. */
+  exams: string[];
+  /** A course of exams only is shown in the Exams section, not among the courses (01). */
+  kind: "course" | "exam";
   /** Where the course comes from (02). */
   source: CourseSource | null;
 }
@@ -91,6 +95,8 @@ export function createContent(library: LibraryView) {
               editions,
               titles,
               lessons,
+              exams: index.exams,
+              kind: !lessons.length && index.exams.length ? ("exam" as const) : ("course" as const),
               source: index.source ?? null,
             };
           } catch (error) {
