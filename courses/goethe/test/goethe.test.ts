@@ -7,8 +7,9 @@ import { moduleOf, normaliseLevel } from "../src/normalise.ts";
 import { optionFor } from "../src/options.ts";
 import { audioList, readLongdesc, readPage } from "../src/page.ts";
 import { readSolutions } from "../src/solutions.ts";
+import { readSpeaking } from "../src/speaking.ts";
 import { readWriting } from "../src/writing.ts";
-import { HOEREN, LESEN, SCHREIBEN, SCHREIBEN_L1, SOLUTIONS, ZETTEL } from "./pages.ts";
+import { HOEREN, LESEN, SCHREIBEN, SCHREIBEN_L1, SOLUTIONS, SPRECHEN, ZETTEL } from "./pages.ts";
 
 const LEVEL: Level = {
   course: "a1",
@@ -345,4 +346,110 @@ test("writing normalised: the form's gaps from its solution page, texts rated by
     { document: "schreiben", at: "Teil 1, (1)" },
     { document: "schreiben_l1", at: "Lösung 1" },
   ]);
+});
+
+test("speaking normalised: a part per number, the learner's cards, the partner's apart, the criteria", () => {
+  expect(readSpeaking(SPRECHEN).criteria).toEqual([
+    { parts: [2], title: "Erfüllung", max: 4 },
+    { parts: [1, 2, 3], title: "Aussprache", max: 6 },
+  ]);
+  const level: Level = {
+    ...LEVEL,
+    modules: ["sprechen"],
+    speaking: {
+      criteria: { 1: [{ title: "Sich vorstellen", levels: [3, 1.5, 0] }] },
+      bands: { 4: [4, 2, 0], 6: [6, 3, 0] },
+      voids: "Erfüllung",
+    },
+  };
+  const out = normaliseLevel(level, {
+    modules: [{ id: "sprechen", html: SPRECHEN }],
+    solution: () => undefined,
+    longdesc: (url) =>
+      url.endsWith("kal_a.html")
+        ? "Samstag: Kino"
+        : url.endsWith("kal_b.html")
+          ? "Samstag: Sport"
+          : undefined,
+    media: (url) => `media/image/${url.split("/").pop()}` as never,
+    readAt: 1_000,
+  });
+  expect(out.problems).toEqual([]);
+  const exam = Exam.parse(out.files.find((f) => f.path.includes("canonical/a1/exams"))?.value);
+  const locale = LocaleExam.parse(
+    out.files.find((f) => f.path.includes("locale/de-de/a1/exams"))?.value,
+  );
+  expect(exam.modules).toEqual([{ id: "sprechen", timeLimitSec: 720, scaleTo: 25 }]);
+  const section = (n: number) => exam.sections.find((s) => s.key.endsWith(`/s-sprechen-${n}`));
+  const item = (n: number) => exam.items.find((i) => i.key.endsWith(`/q-sprechen-${n}`));
+  expect(exam.sections).toHaveLength(3);
+  // The level's criteria where the page lists none for the part.
+  expect(item(1)).toMatchObject({
+    type: "respond",
+    input: "speech",
+    criteria: [{ id: "sich-vorstellen", levels: [3, 1.5, 0] }],
+  });
+  expect(locale.sections[section(1)?.key as never]?.instructions).toBe(
+    "Sich vorstellen.\nName?\nAlter?",
+  );
+  // The cards by theme as letters; candidate B's card is the partner's.
+  expect(section(2)?.letters).toEqual([
+    { letter: "1", text: "Essen: Brot", media: { image: "media/image/k1.gif" } },
+    { letter: "2", text: "Essen: Milch", media: { image: "media/image/k2.gif" } },
+  ]);
+  expect(item(2)).toMatchObject({
+    partner: "Wochenende?",
+    criteria: [{ id: "erfuellung", levels: [4, 2, 0], voids: true }],
+  });
+  // A and B of one part: one section, the calendar's text the learner's card, B's the partner's;
+  // a criterion of all parts with the last.
+  expect(section(3)?.letters).toEqual([
+    { letter: "1", text: "Samstag: Kino", media: { image: "media/image/ka.png" } },
+  ]);
+  expect(item(3)).toMatchObject({
+    partner: "Finden Sie einen Termin.\nSamstag: Sport",
+    criteria: [{ id: "aussprache", levels: [6, 3, 0] }],
+  });
+  expect(locale.sections[section(3)?.key as never]?.title).toBe("Teil 3");
+  expect(locale.items[item(3)?.key as never]?.criteria).toEqual({
+    aussprache: { title: "Aussprache (Aufgabe 1, 2, 3)" },
+  });
+});
+
+test("the regulations' pass marks when their modules are all there", () => {
+  const level: Level = {
+    ...LEVEL,
+    modules: ["sprechen"],
+    speaking: {
+      criteria: { 1: [{ title: "x", levels: [1, 0] }] },
+      bands: { 4: [4, 0], 6: [6, 0] },
+    },
+    marks: [
+      { id: "pass", minPoints: 15, title: "Gesamt" },
+      { id: "spoken", minPoints: 5, modules: ["sprechen"], title: "Mündlich" },
+    ],
+  };
+  const pages = {
+    modules: [{ id: "sprechen" as const, html: SPRECHEN }],
+    solution: () => undefined,
+    longdesc: () => "x",
+    media: () => undefined,
+    readAt: 1,
+  };
+  const exam = Exam.parse(
+    normaliseLevel(level, pages).files.find((f) => f.path.includes("canonical/a1/exams"))?.value,
+  );
+  expect(exam.thresholds).toEqual([
+    { id: "pass", minPoints: 15 },
+    { id: "spoken", minPoints: 5, modules: ["sprechen"] },
+  ]);
+  expect(exam.passWhen).toBe("all");
+  // A mark of a module not imported: 60 % of what there is.
+  const without = Exam.parse(
+    normaliseLevel(
+      { ...level, marks: [{ id: "w", minPoints: 1, modules: ["schreiben"], title: "W" }] },
+      pages,
+    ).files.find((f) => f.path.includes("canonical/a1/exams"))?.value,
+  );
+  expect(without.thresholds).toEqual([{ id: "pass", minPoints: 15 }]);
 });

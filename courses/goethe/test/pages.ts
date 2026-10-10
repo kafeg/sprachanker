@@ -184,3 +184,24 @@ export const SCHREIBEN_L1 = table([
   [1, "20 / zwanzig"],
   [2, "bar"],
 ]);
+
+/** A speaking module: questions to introduce oneself, cards by theme, candidate A's and B's cards with
+ *  a calendar's text page each, and a page listing the criteria' maxima (one for every part). */
+export const SPRECHEN = `<html><body><h1><a id="Inhalt"></a></h1>
+<p>Reguläre Prüfungszeit: 12 Minuten</p>
+<h3>Teil 1</h3><p>Sich vorstellen.</p><h4>Name?</h4><h4>Alter?</h4>
+<h3>Teil 2</h3><p>Fragen stellen.</p>
+<p><img src="../medien/x/k1.gif" alt="Karte mit Kopfbereich: Test, Thema Essen und Inhaltsbereich: Brot"/></p>
+<p><img src="../medien/x/k2.gif" alt="Karte mit Kopfbereich: Test, Thema Essen und Inhaltsbereich: Milch"/></p>
+<p>Prüfungsteilnehmer/-in B</p>
+<p><img src="../medien/x/kb.gif" alt="Karte B, Inhaltsbereich: Wochenende?"/></p>
+<p>...</p>
+<h3>Teil 3 - Prüfungsteilnehmer/-in A</h3><p>Finden Sie einen Termin.</p>
+<p><img src="../medien/x/ka.png" alt="Kalender A - Inhalt im folgenden Link"/></p><a href="../medien/x/kal_a.html">Text</a>
+<h3>Teil 3 - Prüfungsteilnehmer/-in B</h3><p>Finden Sie einen Termin.</p>
+<p><img src="../medien/x/kb.png" alt="Kalender B - Inhalt im folgenden Link"/></p><a href="../medien/x/kal_b.html">Text</a>
+<h3>Bewertung:</h3>
+<p>Aufgabe 2</p><ul><li>maximal 4 Punkte - Erfüllung</li></ul>
+<p>Aufgabe 1, 2, 3</p><ul><li>maximal 6 Punkte - Aussprache</li></ul>
+<p>Konzept/Koordination: niemand</p>
+</body></html>`;

@@ -33,6 +33,8 @@ import {
 import { optionFor } from "./options.ts";
 import { audioList, type Choice, type Picture, readPage } from "./page.ts";
 import { readSolutions, type Solution } from "./solutions.ts";
+import { readSpeaking } from "./speaking.ts";
+import { speakingSection } from "./speaking-exam.ts";
 import { type Module, type Question, readModule, type Teil } from "./teile.ts";
 import { readWriting } from "./writing.ts";
 import { writingSection } from "./writing-exam.ts";
@@ -61,6 +63,7 @@ export const MODULE_TITLES: Record<ModuleId, string> = {
   hoeren: "Hören",
   lesen: "Lesen",
   schreiben: "Schreiben",
+  sprechen: "Sprechen",
 };
 
 export const pageUrl = (level: Level, module: ModuleId) => `${levelUrl(level)}${module}.php`;
@@ -88,6 +91,13 @@ export function referencesOf(module: ModuleId, html: string, base: string) {
     media.add(absolute(p.src, base));
     if (p.longdesc) texts.add(absolute(p.longdesc, base));
   };
+  if (module === "sprechen") {
+    for (const p of readSpeaking(html).parts) {
+      for (const c of p.cards) picture(c.picture);
+      for (const link of p.links) texts.add(absolute(link.href, base));
+    }
+    return { solutions: [], media: [...media], texts: [...texts] };
+  }
   if (module === "schreiben") {
     for (const t of readWriting(html).teile) {
       const file = solutionFile(t.form?.action);
@@ -217,6 +227,55 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       return path;
     };
     const textOf = (href: string) => pages.longdesc(absolute(href, base));
+
+    if (module === "sprechen") {
+      const speaking = readSpeaking(html);
+      timed(module, speaking.intro.map(minutesIn).find((m) => !Number.isNaN(m)) ?? 0);
+      const numbers = [...new Set(speaking.parts.map((p) => p.number))];
+      for (const n of numbers) {
+        const parts = speaking.parts.filter((p) => p.number === n);
+        const sectionKey = examSectionKey(exam, `${module}-${n}`) as ExamSectionKey;
+        const own = speakingSection({
+          level,
+          exam,
+          module,
+          parts,
+          listed: speaking.criteria,
+          longdesc: textOf,
+          media: (href) => media(href),
+        });
+        problems.push(...own.problems);
+        checks.questions.of++;
+        checks.criteria.of += own.criteria.of;
+        checks.criteria.passed += own.criteria.passed;
+        if (!own.item) {
+          leftOut++;
+          continue;
+        }
+        checks.questions.passed++;
+        items.push(own.item);
+        itemLocales[own.item.key] = own.locale;
+        placed[own.item.key] = parts.map((p) => ({ document: module, at: p.title }));
+        sections.push({
+          key: sectionKey,
+          module,
+          pool: [own.item.key],
+          draw: 1,
+          filter: null,
+          ...(own.text && { text: own.text }),
+          ...(own.letters.length && { letters: own.letters }),
+        });
+        localeSections[sectionKey] = {
+          // One title for candidate A's and B's ("Teil 3", "Aufgabe 2 – Ein Thema präsentieren").
+          title:
+            parts[0]?.title
+              .replace(/\s*-\s*Prüfungsteilnehmer\/-in\s+[AB]$/, "")
+              .replace(/^(Aufgabe\s+\d+)\s+[AB]\b/, "$1") ?? "",
+          instructions: own.instructions.join("\n"),
+        };
+      }
+      continue;
+    }
 
     if (module === "schreiben") {
       const writing = readWriting(html);
@@ -470,13 +529,20 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
 
   const together = modules.reduce((n, m) => n + m.timeLimitSec, 0);
   const all = modules.map((m) => m.id as ModuleId);
-  const thresholds: Exam["thresholds"] = level.apart
-    ? modules.map((m) => ({
-        id: m.id,
-        minPoints: hundredths(0.6 * level.scaleTo),
-        modules: [m.id],
-      }))
-    : [{ id: "pass", minPoints: hundredths(0.6 * level.scaleTo * modules.length) }];
+  // The regulations' own marks when every module they name is here; else 60 % of each module (taken
+  // apart) or of all.
+  const marks = level.marks?.every((m) => (m.modules ?? []).every((id) => all.includes(id)))
+    ? level.marks
+    : undefined;
+  const thresholds: Exam["thresholds"] = marks
+    ? marks.map(({ title: _, ...m }) => m)
+    : level.apart
+      ? modules.map((m) => ({
+          id: m.id,
+          minPoints: hundredths(0.6 * level.scaleTo),
+          modules: [m.id],
+        }))
+      : [{ id: "pass", minPoints: hundredths(0.6 * level.scaleTo * modules.length) }];
   const examFile: Exam = {
     format: 1,
     key: exam,
@@ -486,7 +552,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     items,
     thresholds,
     ...(level.rounding === "total" && { roundTotal: true }),
-    ...(level.apart && { passWhen: "all" as const }),
+    ...((level.apart || marks) && { passWhen: "all" as const }),
   };
   const titles = Object.fromEntries(all.map((m) => [m, { title: MODULE_TITLES[m] }]));
   const localeExam: LocaleExam = {
@@ -500,9 +566,11 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       thresholds.map((t) => [
         t.id,
         {
-          title: level.apart
-            ? `${MODULE_TITLES[t.id as ModuleId]}: bestanden (60 von 100)`
-            : `Bestanden: 60 Prozent der Punkte`,
+          title:
+            marks?.find((m) => m.id === t.id)?.title ??
+            (level.apart
+              ? `${MODULE_TITLES[t.id as ModuleId]}: bestanden (60 von 100)`
+              : `Bestanden: 60 Prozent der Punkte`),
         },
       ]),
     ),
@@ -530,7 +598,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
         "de",
       ).format(
         all.map((m) => MODULE_TITLES[m]),
-      )}, mit allen Aufnahmen, Bildern und Lösungen und den Kriterien, nach denen geschrieben wird.`,
+      )}, mit allen Aufnahmen, Bildern und Lösungen und den Kriterien, nach denen Schreiben und Sprechen bewertet werden.`,
     )}</p>`,
     units: {},
     goals: {},

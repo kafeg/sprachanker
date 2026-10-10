@@ -165,9 +165,9 @@ section (`kind: "exam"`), not among the courses.
 
 Each level's Modellsatz from the Goethe-Institut's accessible online version (`bfu.goethe.de/a1_sd1/`,
 `a2_mod_2MX5/`, `b1_mod/`; research `docs/research/exams.md`) as one exam of modules
-(`goethe.zertifikat/<level>/exam-modellsatz`): Hören, Lesen and Schreiben, every Teil, question, option,
-picture, recording and right answer, and each writing task with the criteria it is rated by. German
-only and shown as it is. Offered in the Exams section. Sprechen: plan, 3b-3.
+(`goethe.zertifikat/<level>/exam-modellsatz`): Hören, Lesen, Schreiben and Sprechen, every Teil,
+question, option, picture, recording and right answer, and each writing and speaking task with the
+criteria it is rated by. German only and shown as it is. Offered in the Exams section.
 
 - **Fetch** (`courses/goethe/src/import.ts`): plain GET over HTTPS, one request every 300 ms: each
   module page (`raw/de-de/<level>/<module>.html`), the solution page each Teil's form names
@@ -217,8 +217,19 @@ only and shown as it is. Offered in the Exams section. Sprechen: plan, 3b-3.
   level's points as the page gives them, else the model test's score sheet's bands for the criterion's
   maximum (catalog: A2 5 / 3.5 / 2 / 0.5 / 0, its page naming no maximum; B1 10 / 7.5 / 5 / 2.5 / 0,
   6 / 4.5 / 3 / 1.5 / 0, 4 / 3 / 2 / 1 / 0, "Erfüllung" voiding), what each level means in the locale
-  where the page says it. Pass marks while Sprechen is not imported: A1 and A2 60 % of the points of
-  the modules there are; B1 each module 60 of 100, all needed.
+  where the page says it. Sprechen (`speaking.ts`, `speaking-exam.ts`): the page's parts ("Teil 3 -
+  Prüfungsteilnehmer/-in A", "Aufgabe 2 A – …"), each with its lines, cards or slides (a picture and
+  what its description says: a slide's text, a card's theme and word) and linked texts (A2's
+  calendars), candidate A's or B's where the page says so; a section per part number with one
+  `respond` item said aloud (`input: speech`, `q-sprechen-<n>`): the learner's (A's) cards as the
+  section's letters (a card shown only as a picture takes its linked text), B's lines, cards and texts
+  the item's `partner`; criteria as the page lists them (B1 "Bewertung:": each maximum at the score
+  sheet's bands, "Erfüllung" voiding, those of all three with the last), else the level's from its
+  score sheet and regulations (catalog: A1 Teil 1 3 / 1.5 / 0, Teile 2 and 3 four tasks of 1.5 /
+  0.75 / 0 — the full points, half or none; A2 Aufgabenerfüllung and Sprache 2 or 4 by Teil,
+  Aussprache 5 with Teil 3). Pass marks: the regulations' where the catalog has them and their
+  modules are all there (A2: 60 of 100, of them 45 of the written 75 and 15 of the spoken 25, all
+  needed), else A1 60 % of the points of all modules, B1 each module 60 of 100, all needed.
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 

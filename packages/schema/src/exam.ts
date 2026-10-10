@@ -60,6 +60,9 @@ const examQuestion = {
     )
     .min(1)
     .optional(),
+  /** What the partner has in a speaking task (target language: their card, their calendar, their
+   *  slides), for the assistant playing the partner; not shown to the learner. */
+  partner: z.string().optional(),
 };
 
 /** An exam question: an item of one of the kinds an exam asks, keyed in the exam. */
@@ -160,7 +163,7 @@ export const EXAM_CHECKS = [
   "recordings-placed",
   /** Pictures and recordings kept, of those the questions show. */
   "media-kept",
-  /** Open answers whose criteria the page gives with every level's points (Goethe Schreiben). */
+  /** Open answers whose criteria were read with every level's points (Goethe Schreiben, Sprechen). */
   "criteria-read",
 ] as const;
 export const ExamCheck = z.enum(EXAM_CHECKS);

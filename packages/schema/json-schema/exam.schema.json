@@ -235,6 +235,9 @@
                   "additionalProperties": false
                 }
               },
+              "partner": {
+                "type": "string"
+              },
               "type": {
                 "type": "string",
                 "const": "single_choice"
@@ -337,6 +340,9 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "partner": {
+                "type": "string"
               },
               "type": {
                 "type": "string",
@@ -486,6 +492,9 @@
                   ],
                   "additionalProperties": false
                 }
+              },
+              "partner": {
+                "type": "string"
               },
               "type": {
                 "type": "string",

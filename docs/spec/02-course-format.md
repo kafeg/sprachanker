@@ -108,7 +108,7 @@ only (no units), shown in the Exams section rather than among the courses. An ex
 (items of the kinds an exam asks — `single_choice`, `gap_text`, `respond` — keyed in the exam, with
 tags, optional `points` (1 when not given) and a `text` of their own; an open answer — writing,
 speaking — with its `criteria`, each with the points of its levels best first and `voids` where a 0
-makes the whole answer 0, their titles and what each level means in the locale item's `criteria`), sections drawing a number of
+makes the whole answer 0, their titles and what each level means in the locale item's `criteria`; a speaking task's `partner`: what the partner has — their card, calendar, slides — for the assistant playing them, never shown to the learner), sections drawing a number of
 them from a pool — filtered by a tag that must have the value of a profile setting (`{ tag:
 "federalState", setting: "exam.federalState" }`) — a time limit and pass marks. A language exam adds
 `modules` (`hoeren`, `lesen`, …: each timed, its points scaled to `scaleTo`, rounded to whole points
