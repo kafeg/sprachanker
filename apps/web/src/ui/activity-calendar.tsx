@@ -68,8 +68,12 @@ export function ActivityCalendar({
           {weeks.map((week, w) => {
             const first = week[0] as number;
             const before = weeks[w - 1]?.[0];
+            // A month's name over its first week, when two weeks are left for it to stand over (one
+            // at the end would stick out past the calendar).
             const starts =
-              before !== undefined && new Date(first).getMonth() !== new Date(before).getMonth();
+              before !== undefined &&
+              w < weeks.length - 2 &&
+              new Date(first).getMonth() !== new Date(before).getMonth();
             return (
               <div key={first} className="flex min-w-0 flex-1 flex-col gap-[3px]">
                 <span className="h-4 overflow-visible whitespace-nowrap text-[10px] leading-4 text-muted-foreground">

@@ -161,8 +161,9 @@
   .prose-course ol {
     @apply my-2 list-decimal ps-5;
   }
+  /* A table wider than the screen (a phone's) scrolls sideways on its own; the page stays put. */
   .prose-course table {
-    @apply my-3 border-collapse text-sm;
+    @apply my-3 block max-w-fit overflow-x-auto border-collapse text-sm;
   }
   .prose-course td,
   .prose-course th {

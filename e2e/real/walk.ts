@@ -136,8 +136,15 @@ async function goOn(page: Page) {
 }
 
 /** Walks the lesson from its overview to its summary; returns how many cards were rated. The words
- *  are gone through until none is left for now (each rated Good once), as the step asks. */
-export async function walkLesson(page: Page, url: string, exercises: Exercise[], rate = 500) {
+ *  are gone through until none is left for now (each rated Good once), as the step asks. Each
+ *  exercise is checked before moving on, its marks looked at whole too; with `shots` (a path's
+ *  start) each checked exercise is kept as a full-page screenshot, to look at. */
+export async function walkLesson(
+  page: Page,
+  url: string,
+  exercises: Exercise[],
+  { rate = 500, shots }: { rate?: number; shots?: string } = {},
+) {
   await page.goto(url);
   await page.getByRole("button", { name: en.lesson.start }).click();
   let rated = 0;
@@ -162,6 +169,17 @@ export async function walkLesson(page: Page, url: string, exercises: Exercise[],
       const cards = await page.locator("article ol > li").all();
       for (const card of cards) await answerItem(page, card, exercise?.type ?? "unknown");
       await expectWhole(page, `${step} answered`);
+      const { main } = bar(page);
+      if ((await main.textContent()) === en.lesson.check && (await main.isEnabled())) {
+        await main.click();
+        await page.waitForTimeout(300);
+        await expectWhole(page, `${step} checked`);
+        if (shots)
+          await page.screenshot({
+            path: `${shots}-${step.replace(":", "-")}.png`,
+            fullPage: true,
+          });
+      }
     }
     await goOn(page);
   }

@@ -11,10 +11,21 @@ to be checked before an importer is written. Nothing here is downloaded or impor
 - 300 questions for every state and 160 by state (10 per state); the test asks 33 (3 of the state),
   passed with 17 right, 60 minutes (to be confirmed on BAMF's test page).
 - Each question has four options; some show a picture (to be confirmed in the PDF).
-- **Open**: whether the PDF marks the right answers. The BAMF online test centre shows the right answer
-  after each question; if the PDF has none, the answers come from there — to be checked against its
-  terms. The usage terms of the catalogue (the page shows only "© BAMF") are to be read in its
-  "Hinweise" before anything is fetched.
+- The PDF is one file of about 9 MB, marked accessible ("barrierefrei"), at
+  `bamf.de/SharedDocs/Anlagen/DE/Integration/Einbuergerung/gesamtfragenkatalog-lebenindeutschland.pdf`.
+  Reading it needs a PDF text extractor — not among the fixed technical choices (10) yet.
+- The BAMF online test centre (`oet.bamf.de/ords/oetut/f?p=514`, an Oracle APEX application) shows
+  the whole catalogue: a state chosen first, then question by question ("Aufgabe Nr.", a list to jump
+  to one), one answer right, shown once one is marked. Pages are addressed by session, not by question:
+  reading it means walking its form, question by question, for each state.
+- Neither page states terms of use beyond "© BAMF" (the test centre: "Copyright © 2008"); the
+  Impressum names the BAMF as the owner of unmarked images.
+- The PDF ("Stand: 07.05.2025", 191 pages, tagged, made from Word) reads cleanly as text: "Teil I —
+  Allgemeine Fragen" (Aufgabe 1–300), then a "Teil II" per state; each question its text and four
+  options. **The right answers are not marked** (the options are unticked form boxes): they come only
+  from the test centre. Some questions show a picture, and a few have four pictures as their options
+  ("Bild 1" … "Bild 4"); the pictures are embedded images. A note says the wording may differ
+  slightly from the questions asked in the test.
 
 ## Goethe-Zertifikat A1–B1 (Goethe-Institut)
 

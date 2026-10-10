@@ -1,6 +1,7 @@
 // Run-throughs on real courses (10, "Run-throughs"): each chosen lesson walked through by its screens
 // in a profile of its own, then the profile's database read to check that what was done is stored as
-// it should be. `REAL=dw.nicos-weg/a1-ru bun run e2e:real` (scenarios.ts).
+// it should be. `REAL=dw.nicos-weg/a1-ru bun run e2e:real` (scenarios.ts); `REAL_SHOTS=<dir>` keeps
+// each checked exercise as a screenshot there.
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
@@ -22,7 +23,7 @@ for (const s of scenarios())
     const consoleErrors: string[] = [];
     page.on("pageerror", (e) => consoleErrors.push(e.message));
 
-    // A profile of its own, studying the lesson's pair in English.
+    // A profile of its own, studying the lesson's pair in English, its cards by all three faces.
     const made = await page.request.post("/api/profiles", {
       data: { name: s.key.slice(0, 40) },
       headers: { ...CLIENT_HEADERS },
@@ -33,7 +34,8 @@ for (const s of scenarios())
       ["uiLanguage", "en"],
       ["learner.native", native],
       ["learner.target", target],
-    ])
+      ["srs.faces", ["recognition", "production", "listening"]],
+    ] as const)
       await page.request.put("/api/settings", {
         data: { key, value },
         headers: { ...CLIENT_HEADERS },
@@ -48,6 +50,11 @@ for (const s of scenarios())
       page,
       `/lesson/${s.series}/${s.course}/${s.lesson}`,
       exercises,
+      {
+        shots:
+          process.env.REAL_SHOTS &&
+          join(process.env.REAL_SHOTS, `${test.info().project.name}-${s.key.replaceAll("/", "_")}`),
+      },
     );
     // Then a few of the lesson's cards in Review (learning steps fall due within Anki's learn-ahead).
     const reviewed = rated ? await reviewSome(page, 5) : 0;
