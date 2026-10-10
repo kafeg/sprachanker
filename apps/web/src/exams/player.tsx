@@ -15,7 +15,7 @@ import {
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Timer } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useExamPage, useExamRun, useKeepRunEvents } from "@/api/exams.ts";
@@ -32,6 +32,7 @@ import { type ListedQuestion, QuestionList } from "./navigator.tsx";
 import { inTeile, latestAnswers } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
+import { questionState, runTally, useQuestionPlace, useTimeLeft } from "./run-state.ts";
 import { useExamSlots } from "./slots.ts";
 import { QuestionCard, TeilHeader, TeilMaterial } from "./teil.tsx";
 
@@ -92,23 +93,6 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
   );
 }
 
-/** Where a run was left on this device (a reload comes back to its question). */
-const placeKey = (run: string) => `sprachanker.exam-place:${run}`;
-const readPlace = (run: string) => {
-  try {
-    return Number(sessionStorage.getItem(placeKey(run)) ?? Number.NaN);
-  } catch {
-    return Number.NaN;
-  }
-};
-const writePlace = (run: string, index: number) => {
-  try {
-    sessionStorage.setItem(placeKey(run), String(index));
-  } catch {
-    // Storage blocked: a reload starts at the first open question.
-  }
-};
-
 function Running({
   runId,
   title,
@@ -164,54 +148,10 @@ function Running({
   const url = (path: string) => mediaUrl(series, path);
   const moduleTitle = (m?: string) => (m ? (locale?.modules?.[m]?.title ?? m) : undefined);
 
-  // The question on screen: where this device left the run, else the first one not answered.
-  const [current, setCurrent] = useState(() => {
-    const kept = readPlace(runId);
-    if (kept >= 0 && kept < items.length) return kept;
-    const open = items.findIndex((i) => !answers.has(i.key));
-    return open < 0 ? 0 : open;
-  });
-  const shownAt = useRef(Date.now());
-  const go = (index: number) => {
-    const next = Math.max(0, Math.min(items.length - 1, index));
-    setCurrent(next);
-    writePlace(runId, next);
-    shownAt.current = Date.now();
-    window.scrollTo({ top: 0 });
-  };
-  // ← and → move between questions (not while typing an answer).
-  const moveBy = useRef((_: number) => {});
-  moveBy.current = (step: number) => go(current + step);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (
-        target?.closest("input, textarea, [contenteditable]") ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.altKey
-      )
-        return;
-      if (e.key === "ArrowRight") moveBy.current(1);
-      if (e.key === "ArrowLeft") moveBy.current(-1);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  const { current, go, shownAt } = useQuestionPlace(runId, items, answers);
 
-  const answered = items.filter((i) => answers.has(i.key)).length;
-  const right = items.filter((i) => answers.get(i.key)?.outcome?.result === "correct").length;
-  const wrong = items.filter((i) => {
-    const o = answers.get(i.key)?.outcome;
-    return o && o.result !== "correct" && o.result !== "unscored";
-  }).length;
-  const stateOf = (key: string) => {
-    const given = answers.get(key);
-    if (!given) return "open" as const;
-    if (mode === "practice" && given.outcome && given.outcome.result !== "unscored")
-      return given.outcome.result === "correct" ? ("right" as const) : ("wrong" as const);
-    return "answered" as const;
-  };
+  const { answered, right, wrong } = runTally(items, answers);
+  const stateOf = (key: string) => questionState(answers.get(key), mode);
   // The plan: every question with its Teil's title (a heading where it changes; practice goes in
   // order of need, so its Teile may come again).
   // biome-ignore lint/correctness/useExhaustiveDependencies: stateOf and moduleTitle read answers and locale
@@ -230,21 +170,14 @@ function Running({
     [teile, answers, mode, items, locale],
   );
 
-  // The time left, each second; at its end the exam is handed in as it is.
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    if (deadline === null) return;
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, [deadline]);
-  const left = deadline === null ? undefined : deadline - (now + skew);
+  // The time left; at its end the exam is handed in as it is.
   const handedIn = useRef(false);
-  useEffect(() => {
-    if (left !== undefined && left <= 0 && !handedIn.current) {
-      handedIn.current = true;
-      onFinish();
-    }
-  }, [left, onFinish]);
+  const handIn = () => {
+    if (handedIn.current) return;
+    handedIn.current = true;
+    onFinish();
+  };
+  const left = useTimeLeft(deadline, skew, handIn);
 
   const finishLabel = mode === "test" ? t("exams.handIn") : t("exams.endPractice");
   // Unanswered questions are asked about first; counted when pressed — a typed answer is taken as
@@ -253,10 +186,7 @@ function Running({
     const now = latestAnswers(eventsNow());
     const missing = items.filter((i) => !now.has(i.key)).length;
     if (mode === "test" && missing > 0) setConfirm(missing);
-    else {
-      handedIn.current = true;
-      onFinish();
-    }
+    else handIn();
   };
 
   const here = teile[current] ?? teile[0];
@@ -452,8 +382,7 @@ function Running({
         busy={finishing}
         onConfirm={() => {
           setConfirm(0);
-          handedIn.current = true;
-          onFinish();
+          handIn();
         }}
       />
     </>

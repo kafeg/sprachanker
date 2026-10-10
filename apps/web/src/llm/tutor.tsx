@@ -9,9 +9,10 @@ import { useLesson } from "@/api/hooks.ts";
 import type { SpokenPart } from "@/audio/speak.ts";
 import { useReadAtOnce } from "@/audio/speaker.ts";
 import { Button } from "@/ui/components/button.tsx";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
+import { Tabs, TabsContent } from "@/ui/components/tabs.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
+import { SectionTabList } from "@/ui/section-tabs.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import { cn } from "@/ui/utils.ts";
 import {
@@ -92,22 +93,11 @@ interface Starter {
   text: string;
 }
 
-function Chat({
-  ask,
-  starter,
-  onReply,
-  ...context
-}: Context & {
-  ask?: TutorAsk;
-  starter?: Starter;
-  /** A reply came in full. */
-  onReply?(): void;
-}) {
-  const { t, i18n } = useTranslation();
-  const llm = useLlm();
+/** The lesson's chat: its turns, the question on its way with the reply so far, and sending one
+ *  (`newChat`: the current chat goes to the history). */
+function useTutorChat(context: Context, onReply?: () => void) {
+  const { i18n } = useTranslation();
   const history = useTutorHistory(context.lessonKey);
-  const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
-  const reset = useResetTutor(context.lessonKey);
   const cache = useTutorCache(context.lessonKey);
   const [input, setInput] = useState("");
   /** The question on its way and the reply so far; `after`: how many turns came before it. */
@@ -115,39 +105,8 @@ function Chat({
   const [error, setError] = useState<unknown>();
   const request = useAbortable();
   const turns = history.data?.turns ?? [];
-  /** A reply read aloud in the learner's language, what it quotes in the language learnt. */
-  const sayReply = (text: string) =>
-    replyParts(text, i18n.language, parseEditionId(context.edition).target);
-  const last = turns.at(-1);
-  useReadAtOnce(
-    "tutor",
-    !!history.data,
-    last?.role === "assistant" ? `${context.lessonKey}:${turns.length}` : undefined,
-    last?.role === "assistant" ? sayReply(last.text) : [],
-  );
   // Shown until the turns hold it: never in the same frame as the stored pair.
   const shown = pending && turns.length <= pending.after ? pending : undefined;
-  const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
-
-  // An ask from outside is sent once, as soon as the chat is ready.
-  const sendLatest = useRef<(text: string, newChat?: boolean) => void>(undefined);
-  const asked = useRef<number>(undefined);
-  const ready = !!history.data && !!llm.data?.model;
-  useEffect(() => {
-    if (!ask || !ready || asked.current === ask.id) return;
-    asked.current = ask.id;
-    sendLatest.current?.(ask.text, ask.newChat);
-  }, [ask, ready]);
-
-  if (!llm.data?.model)
-    return (
-      <div className="space-y-3 p-5">
-        <p>{t("tutor.needsSetup")}</p>
-        <Link to="/settings" hash="ai" className="font-medium underline">
-          {t("tutor.openSettings")}
-        </Link>
-      </div>
-    );
 
   const send = (text: string, newChat = false) => {
     const question = text.trim();
@@ -191,15 +150,28 @@ function Chat({
         setPending(undefined);
       });
   };
+  return {
+    loaded: !!history.data,
+    turns,
+    shown,
+    pending: !!pending,
+    error,
+    input,
+    setInput,
+    send,
+    stop: request.stop,
+  };
+}
 
-  sendLatest.current = send;
-
-  // Ways into the lesson, offered where the lesson has the material for them.
+/** An empty chat's ways into the lesson, offered where the lesson has the material for them. Each is
+ *  a short label on its button and a fuller request to the model: the word and phrase ones go one at
+ *  a time and wait for the learner, not a list at once. */
+function Suggestions({ context, onAsk }: { context: Context; onAsk(text: string): void }) {
+  const { t } = useTranslation();
+  const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
   const words = !!lesson?.lesson.vocab.length;
   const grammar = !!lesson?.locale?.tabs.grammar.length;
   const script = !!lesson?.locale?.tabs.script;
-  // Each is a short label on its button and a fuller request to the model: the word and phrase ones go
-  // one at a time and wait for the learner, not a list at once.
   const suggestions = [
     ...(context.exerciseKey ? ["exercise"] : []),
     ...(words ? ["wordsQuiz", "wordsMemory", "examples"] : []),
@@ -207,16 +179,105 @@ function Chat({
     ...(script ? ["script"] : []),
     "dialogue",
   ];
+  return (
+    <div className="space-y-3 pt-2">
+      <p className="text-muted-foreground">{t("tutor.intro")}</p>
+      <div className="flex flex-wrap gap-2">
+        {suggestions.map((s) => (
+          <Button
+            key={s}
+            variant="outline"
+            className="h-auto min-h-11 whitespace-normal rounded-full text-left"
+            onClick={() => onAsk(t(`tutor.ask.${s}`))}
+          >
+            {t(`tutor.suggest.${s}`)}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
+/** The turns as bubbles: the learner's as typed, the tutor's as Markdown with what it looked up. */
+function Turns({ turns, say }: { turns: TutorTurn[]; say(text: string): SpokenPart[] }) {
+  return turns.map((turn, i) => (
+    <Bubble
+      // biome-ignore lint/suspicious/noArrayIndexKey: turns are append-only
+      key={i}
+      from={turn.role}
+      say={turn.role === "assistant" ? say(turn.text) : undefined}
+    >
+      {turn.role === "user" ? (
+        <p className="whitespace-pre-wrap">{turn.text}</p>
+      ) : (
+        <>
+          <RichText text={turn.text} />
+          {turn.tools?.length ? <ToolsUsed tools={turn.tools} /> : null}
+        </>
+      )}
+    </Bubble>
+  ));
+}
+
+function Chat({
+  ask,
+  starter,
+  onReply,
+  ...context
+}: Context & {
+  ask?: TutorAsk;
+  starter?: Starter;
+  /** A reply came in full. */
+  onReply?(): void;
+}) {
+  const { t, i18n } = useTranslation();
+  const llm = useLlm();
+  const reset = useResetTutor(context.lessonKey);
+  const chat = useTutorChat(context, onReply);
+  const { turns, shown } = chat;
+  /** A reply read aloud in the learner's language, what it quotes in the language learnt. */
+  const sayReply = (text: string) =>
+    replyParts(text, i18n.language, parseEditionId(context.edition).target);
+  const last = turns.at(-1);
+  useReadAtOnce(
+    "tutor",
+    chat.loaded,
+    last?.role === "assistant" ? `${context.lessonKey}:${turns.length}` : undefined,
+    last?.role === "assistant" ? sayReply(last.text) : [],
+  );
+  const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
+
+  // An ask from outside is sent once, as soon as the chat is ready.
+  const sendLatest = useRef(chat.send);
+  sendLatest.current = chat.send;
+  const asked = useRef<number>(undefined);
+  const ready = chat.loaded && !!llm.data?.model;
+  useEffect(() => {
+    if (!ask || !ready || asked.current === ask.id) return;
+    asked.current = ask.id;
+    sendLatest.current(ask.text, ask.newChat);
+  }, [ask, ready]);
+
+  if (!llm.data?.model)
+    return (
+      <div className="space-y-3 p-5">
+        <p>{t("tutor.needsSetup")}</p>
+        <Link to="/settings" hash="ai" className="font-medium underline">
+          {t("tutor.openSettings")}
+        </Link>
+      </div>
+    );
+
+  const empty = turns.length === 0 && !shown;
   return (
     <>
       <ChatHeader>
         <PromptButton
           request={() => ({
-            tutor: { ...context, message: input.trim(), language: i18n.language },
+            tutor: { ...context, message: chat.input.trim(), language: i18n.language },
           })}
         />
-        {turns.length > 0 && !pending && (
+        {turns.length > 0 && !chat.pending && (
           <Button variant="ghost" size="sm" onClick={() => reset.mutate()}>
             <RotateCcw className="size-4" /> {t("tutor.newChat")}
           </Button>
@@ -227,59 +288,27 @@ function Chat({
         turns={turns.length}
       />
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
-        {turns.length === 0 && !shown && starter && history.data && asked.current === ask?.id && (
+        {empty && starter && chat.loaded && asked.current === ask?.id && (
           <div className="pt-2">
             <StartPrompt
               intro={starter.intro}
               label={starter.label}
               icon={MessageCircle}
-              onStart={() => send(starter.text, true)}
+              onStart={() => chat.send(starter.text, true)}
             />
           </div>
         )}
-        {turns.length === 0 && !shown && !starter && (
-          <div className="space-y-3 pt-2">
-            <p className="text-muted-foreground">{t("tutor.intro")}</p>
-            <div className="flex flex-wrap gap-2">
-              {suggestions.map((s) => (
-                <Button
-                  key={s}
-                  variant="outline"
-                  className="h-auto min-h-11 whitespace-normal rounded-full text-left"
-                  onClick={() => send(t(`tutor.ask.${s}`))}
-                >
-                  {t(`tutor.suggest.${s}`)}
-                </Button>
-              ))}
-            </div>
-          </div>
-        )}
-        {turns.map((turn, i) => (
-          <Bubble
-            // biome-ignore lint/suspicious/noArrayIndexKey: turns are append-only
-            key={i}
-            from={turn.role}
-            say={turn.role === "assistant" ? sayReply(turn.text) : undefined}
-          >
-            {turn.role === "user" ? (
-              <p className="whitespace-pre-wrap">{turn.text}</p>
-            ) : (
-              <>
-                <RichText text={turn.text} />
-                {turn.tools?.length ? <ToolsUsed tools={turn.tools} /> : null}
-              </>
-            )}
-          </Bubble>
-        ))}
+        {empty && !starter && <Suggestions context={context} onAsk={(text) => chat.send(text)} />}
+        <Turns turns={turns} say={sayReply} />
         {shown && <PendingExchange question={shown.question} reply={shown.reply} />}
-        <ErrorLine error={error} provider={llm.data.provider ?? undefined} />
+        <ErrorLine error={chat.error} provider={llm.data.provider ?? undefined} />
         <div ref={end} />
       </div>
       <ChatComposer
-        value={input}
-        onChange={setInput}
-        onSend={() => send(input)}
-        onStop={pending ? request.stop : undefined}
+        value={chat.input}
+        onChange={chat.setInput}
+        onSend={() => chat.send(chat.input)}
+        onStop={chat.pending ? chat.stop : undefined}
         placeholder={t("tutor.placeholder")}
         speak={[parseEditionId(context.edition).target, i18n.language]}
       />
@@ -290,6 +319,7 @@ function Chat({
 export function LessonTutor(context: Context) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [tab, setTab] = useState("chat");
   return (
     <>
       <Button
@@ -303,11 +333,16 @@ export function LessonTutor(context: Context) {
       </Button>
       <SideSheet open={open} onOpenChange={setOpen} title={t("tutor.title")}>
         {open && (
-          <Tabs defaultValue="chat" className="flex min-h-0 flex-1 flex-col gap-0">
-            <TabsList className="mx-4 mb-2">
-              <TabsTrigger value="chat">{t("tutor.tabChat")}</TabsTrigger>
-              <TabsTrigger value="history">{t("tutor.tabHistory")}</TabsTrigger>
-            </TabsList>
+          <Tabs value={tab} onValueChange={setTab} className="flex min-h-0 flex-1 flex-col gap-0">
+            <SectionTabList
+              label={t("tutor.title")}
+              value={tab}
+              className="mx-4 mb-2"
+              tabs={[
+                { value: "chat", label: t("tutor.tabChat") },
+                { value: "history", label: t("tutor.tabHistory") },
+              ]}
+            />
             <TabsContent value="chat" className="flex min-h-0 flex-1 flex-col">
               <Chat {...context} />
             </TabsContent>

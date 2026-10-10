@@ -3,11 +3,12 @@ import { isChecked } from "@sprachanker/engine";
 import { type Exercise, type ItemOf, joinParts } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { MultiChoice, SingleChoice } from "./choice.tsx";
+import { Dictation } from "./dictation.tsx";
 import { GapChoice, GapText } from "./gaps.tsx";
 import { Match } from "./match.tsx";
 import { Order } from "./order.tsx";
 import { Respond } from "./respond.tsx";
-import { Dictation, SpeechRepeat, SpeechSelfrate } from "./speech.tsx";
+import { SpeechRepeat, SpeechSelfrate } from "./speech.tsx";
 import type { Answers, RendererProps } from "./types.ts";
 
 export type { Answers, RendererProps } from "./types.ts";

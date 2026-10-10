@@ -1,14 +1,21 @@
 // The lesson's first page (09): where it sits in the course, its synopsis and goals, the episode video
 // (when no exercise shows it) or its picture, a recording with its transcript, and the way in (start,
 // resume, or the result of a finished run).
-import type { Lesson, LocaleLesson } from "@sprachanker/schema";
+import type { Lesson, LessonKey, LocaleLesson } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
+import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ResetProgress } from "@/library/reset-progress.tsx";
+import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { EpisodeVideo, isEpisode } from "@/ui/video.tsx";
+import type { useLessonFlow } from "./use-flow.ts";
+import type { RunMode } from "./use-run.ts";
+
+type LessonFlow = ReturnType<typeof useLessonFlow>;
 
 export function LessonOverview({
   lesson,
@@ -88,5 +95,71 @@ export function LessonOverview({
       </div>
       {more && <div className="flex justify-end">{more}</div>}
     </section>
+  );
+}
+
+/** The way in: Start, or Resume an open run; a finished one's score with its summary and "Redo". */
+export function WayIn({ flow, mode }: { flow: LessonFlow; mode: RunMode }) {
+  const { t } = useTranslation();
+  const { result } = flow;
+  if (mode === "finished")
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-sm font-medium">
+          {result && result.scored > 0
+            ? t("lesson.doneScore", { score: result.score })
+            : t("lesson.done")}
+        </span>
+        <Button size="lg" variant="outline" onClick={() => flow.show("summary")}>
+          {t("lesson.summary")}
+        </Button>
+        <Button
+          size="lg"
+          className="text-base"
+          loading={flow.busy}
+          onClick={() => void flow.begin(true)}
+        >
+          {t("lesson.redo")}
+        </Button>
+      </div>
+    );
+  const active = mode === "active";
+  return (
+    <Button
+      size="lg"
+      className="text-base"
+      loading={flow.busy}
+      onClick={() =>
+        active ? flow.go(flow.resumeId ?? flow.ids[1] ?? "summary") : void flow.begin(false)
+      }
+    >
+      {active && flow.worked > 0 ? t("lesson.resume") : t("lesson.start")}
+    </Button>
+  );
+}
+
+/** "Reset lesson progress", asked first (05). */
+export function ResetLesson({
+  series,
+  course,
+  lesson,
+  title,
+  onDone,
+}: {
+  series: string;
+  course: string;
+  lesson: LessonKey;
+  title: string;
+  onDone(): void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <ResetProgress series={series} course={course} lesson={lesson} title={title} onDone={onDone}>
+      {(open) => (
+        <Button variant="ghost" size="sm" onClick={open} className="text-muted-foreground">
+          <RotateCcw className="size-4" /> {t("progress.resetLesson")}
+        </Button>
+      )}
+    </ResetProgress>
   );
 }

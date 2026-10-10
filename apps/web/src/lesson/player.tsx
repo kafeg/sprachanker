@@ -3,14 +3,11 @@
 // (use-flow.ts) inside the player's frame (frame.tsx); the pages are overview, words-step, steps
 // (reading), exercise-step, practice-step and summary; optional features come in as slots.
 import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
-import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseEdition } from "@/api/edition.ts";
 import { useCourseMap, useLesson } from "@/api/hooks.ts";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
-import { ResetProgress } from "@/library/reset-progress.tsx";
-import { Button } from "@/ui/components/button.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
@@ -18,7 +15,7 @@ import { Episode } from "@/ui/video.tsx";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { ExerciseStep } from "./exercise-step.tsx";
 import { PlayerFrame } from "./frame.tsx";
-import { LessonOverview } from "./overview.tsx";
+import { LessonOverview, ResetLesson, WayIn } from "./overview.tsx";
 import { Plan } from "./plan.tsx";
 import { PracticeStep } from "./practice-step.tsx";
 import type { LessonSlots } from "./slots.ts";
@@ -87,7 +84,6 @@ export function LessonPlayer({
   const { lesson, locale } = data.data;
   const context = { series, lessonKey: lesson.key, edition };
   const { go, next, back, mark, result } = flow;
-  const active = run.mode === "active";
   const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key) + 1];
   const exercise = step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
@@ -96,39 +92,6 @@ export function LessonPlayer({
     ...lesson.media.video,
     textHtml: locale?.tabs.script?.bodyHtml,
   };
-
-  const actions =
-    run.mode === "finished" ? (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium">
-          {result && result.scored > 0
-            ? t("lesson.doneScore", { score: result.score })
-            : t("lesson.done")}
-        </span>
-        <Button size="lg" variant="outline" onClick={() => flow.show("summary")}>
-          {t("lesson.summary")}
-        </Button>
-        <Button
-          size="lg"
-          className="text-base"
-          loading={flow.busy}
-          onClick={() => void flow.begin(true)}
-        >
-          {t("lesson.redo")}
-        </Button>
-      </div>
-    ) : (
-      <Button
-        size="lg"
-        className="text-base"
-        loading={flow.busy}
-        onClick={() =>
-          active ? go(flow.resumeId ?? flow.ids[1] ?? "summary") : void flow.begin(false)
-        }
-      >
-        {active && flow.worked > 0 ? t("lesson.resume") : t("lesson.start")}
-      </Button>
-    );
 
   return (
     <TargetLang value={parseEditionId(edition).target}>
@@ -167,10 +130,10 @@ export function LessonPlayer({
                 unitTitle={map.data?.locale?.units[lesson.unit]?.title}
                 goals={map.data?.locale?.goals ?? {}}
                 url={url}
-                actions={actions}
+                actions={<WayIn flow={flow} mode={run.mode} />}
                 more={
                   run.mode !== "none" && (
-                    <ResetProgress
+                    <ResetLesson
                       series={series}
                       course={course}
                       lesson={lesson.key}
@@ -179,18 +142,7 @@ export function LessonPlayer({
                         flow.forget();
                         run.reload();
                       }}
-                    >
-                      {(open) => (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={open}
-                          className="text-muted-foreground"
-                        >
-                          <RotateCcw className="size-4" /> {t("progress.resetLesson")}
-                        </Button>
-                      )}
-                    </ResetProgress>
+                    />
                   )
                 }
               />

@@ -52,11 +52,14 @@ export function SectionTabList({
   label,
   value,
   tabs,
+  className,
 }: {
   label: string;
   /** The open tab, scrolled into sight when the bar scrolls. */
   value: string;
   tabs: Array<{ value: string; label: string }>;
+  /** Its margins, when not a page's (`mb-6`). */
+  className?: string;
 }) {
   const bar = useRef<HTMLDivElement>(null);
   const labels = tabs.map((tab) => tab.label).join();
@@ -73,7 +76,7 @@ export function SectionTabList({
     void document.fonts?.ready.then(show);
   }, [value, labels]);
   return (
-    <TabsPrimitive.List ref={bar} className={BAR} aria-label={label}>
+    <TabsPrimitive.List ref={bar} className={cn(BAR, className)} aria-label={label}>
       {tabs.map((tab) => (
         <TabsPrimitive.Trigger key={tab.value} value={tab.value} className={TAB}>
           {tab.label}
