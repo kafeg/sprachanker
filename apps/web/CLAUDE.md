@@ -8,7 +8,7 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 ```
 apps/web/src/
   main.tsx         # the entry: query client, i18n, the router
-  fonts.css        # the faces bundled from @fontsource (woff2, Latin and Cyrillic subsets; spec 10)
+  fonts.css        # the faces bundled from @fontsource (woff2: Latin, Cyrillic, Greek subsets; spec 10)
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
                    # Exams loaded when first opened — page.tsx: lazy pages, a failed page's error): courses (/, /downloaded, /catalog), review (/review,
                    # /review/decks, /review/words — words.tsx), exams (/exams, /exams/downloaded,

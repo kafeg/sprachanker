@@ -1,5 +1,6 @@
 /* Fira Sans (UI, body) and Fira Sans Condensed (headings), bundled from @fontsource: woff2 only, the
-   subsets German, Russian and the other Latin-script languages need; each loads when a page uses it. */
+   subsets German, Russian, Greek (an el-de edition) and the other Latin-script languages need; each
+   loads when a page uses it. */
 @font-face {
   font-family: "Fira Sans";
   font-style: normal;
@@ -25,6 +26,14 @@
   font-weight: 400;
   src: url("@fontsource/fira-sans/files/fira-sans-cyrillic-400-normal.woff2") format("woff2");
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("@fontsource/fira-sans/files/fira-sans-greek-400-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
   font-family: "Fira Sans";
@@ -56,6 +65,14 @@
   font-family: "Fira Sans";
   font-style: normal;
   font-display: swap;
+  font-weight: 500;
+  src: url("@fontsource/fira-sans/files/fira-sans-greek-500-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-display: swap;
   font-weight: 600;
   src: url("@fontsource/fira-sans/files/fira-sans-latin-600-normal.woff2") format("woff2");
   unicode-range:
@@ -82,6 +99,14 @@
   font-family: "Fira Sans";
   font-style: normal;
   font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/fira-sans/files/fira-sans-greek-600-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("@fontsource/fira-sans/files/fira-sans-latin-700-normal.woff2") format("woff2");
   unicode-range:
@@ -103,6 +128,14 @@
   font-weight: 700;
   src: url("@fontsource/fira-sans/files/fira-sans-cyrillic-700-normal.woff2") format("woff2");
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Fira Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/fira-sans/files/fira-sans-greek-700-normal.woff2") format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
 @font-face {
   font-family: "Fira Sans Condensed";
@@ -137,6 +170,15 @@
   font-family: "Fira Sans Condensed";
   font-style: normal;
   font-display: swap;
+  font-weight: 600;
+  src: url("@fontsource/fira-sans-condensed/files/fira-sans-condensed-greek-600-normal.woff2")
+    format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+@font-face {
+  font-family: "Fira Sans Condensed";
+  font-style: normal;
+  font-display: swap;
   font-weight: 700;
   src: url("@fontsource/fira-sans-condensed/files/fira-sans-condensed-latin-700-normal.woff2")
     format("woff2");
@@ -161,4 +203,13 @@
   src: url("@fontsource/fira-sans-condensed/files/fira-sans-condensed-cyrillic-700-normal.woff2")
     format("woff2");
   unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: "Fira Sans Condensed";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 700;
+  src: url("@fontsource/fira-sans-condensed/files/fira-sans-condensed-greek-700-normal.woff2")
+    format("woff2");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
 }
