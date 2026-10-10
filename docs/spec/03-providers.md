@@ -108,7 +108,11 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   (`exercise.playAudio`), so every edition language is covered; image options keep only the image. An
 item's recordings are told apart by DW's own flag: its main content (`mainContent`) → `media.audio`,
 heard before answering; one that is not ("…_Loesungsaudio.mp3": most items' only recording, the answer
-read out) → `answerAudio`, offered once checked (a dictation's only recording is what it dictates). Vocabulary
+read out) → `answerAudio`, offered once checked (a dictation's only recording is what it dictates). The
+Arabic and Persian editions keep some texts in the order they are seen, closing punctuation first —
+German ("?Was trinkst du", "!(Ich mag (nicht") and their own (".با نه پاسخ بده"): a title, note, prompt,
+task or option of theirs that starts with such a run and does not end in punctuation is read as written
+("Was trinkst du?", "Ich mag (nicht)!"); one that opens with a bracket is the text's own. Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma. Grammar and culture pages: DW numbers the
   parts of a topic ("Spelling (2)", in the edition's own digits and brackets: "(۲)", "(२)", "（2）"; titles compared with full-width forms as plain ones and spaces ignored); the parts within a lesson are joined into one page, the number

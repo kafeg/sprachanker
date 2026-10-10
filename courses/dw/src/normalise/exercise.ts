@@ -38,10 +38,11 @@ interface Mapped {
   locale: LocaleItem;
 }
 
-/** Target-language text of a field, or undefined for empty fields and the page's player labels. */
-function german(state: ApolloState, value: unknown): string | undefined {
+/** Target-language text of a field, as written, or undefined for empty fields and the page's player
+ *  labels. */
+function german(ctx: Context, state: ApolloState, value: unknown): string | undefined {
   const text = plainText(value);
-  return text && !isUiLabel(text, labelsOf(state)) ? text : undefined;
+  return text && !isUiLabel(text, labelsOf(state)) ? ctx.written(text) : undefined;
 }
 
 /** The player labels of a page, read once per page state. */
@@ -55,7 +56,7 @@ function labelsOf(state: ApolloState) {
 }
 
 function option(ctx: Context, state: ApolloState, alt: Entity, i: number, image: boolean): Option {
-  if (!image) return { id: optionId(i), text: plainText(alt.alternativeText) };
+  if (!image) return { id: optionId(i), text: ctx.written(plainText(alt.alternativeText)) };
   const path = imagePath(ctx, state, refs(state, alt.images)[0]);
   if (!path) throw new Unmapped("option image not downloaded");
   return { id: optionId(i), media: { image: path } };
@@ -78,7 +79,7 @@ function segments(text: string, gaps: number) {
 function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   const subs = refs(state, q.subInquiries);
   // A prompt in the learner's language goes to the locale file (02, "Text language").
-  const prompt = german(state, q.inquiryText);
+  const prompt = german(ctx, state, q.inquiryText);
   const learnerPrompt = prompt && ctx.learnerText(prompt) ? prompt : undefined;
   const { audio, answerAudio } = itemAudioPaths(ctx, state, q);
   const base: Item = {
@@ -198,8 +199,8 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       throw new Unmapped(`cloze type ${String(kind)}`);
     }
     case "REPEAT": {
-      const text = german(state, subs[0]?.inquiryText);
-      const task = plainText(subs[0]?.inquiryDescription);
+      const text = german(ctx, state, subs[0]?.inquiryText);
+      const task = ctx.written(plainText(subs[0]?.inquiryDescription));
       return {
         type: "speech_selfrate",
         item: { ...base, ...(text ? { text } : {}) },
@@ -255,7 +256,7 @@ export function normaliseExercise(
   const locale: LocaleExercise = {
     sourceId: String(sourceId),
     // An exercise without a name gives no title (the player numbers it; "" would not validate).
-    ...(plainText(ex.name) ? { title: plainText(ex.name) } : {}),
+    ...(plainText(ex.name) ? { title: ctx.written(plainText(ex.name)) } : {}),
     ...(instructionHtml ? { instructionHtml } : {}),
     ...(textHtml ? { textHtml } : {}),
     items: {},

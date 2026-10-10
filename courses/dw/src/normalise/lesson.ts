@@ -166,7 +166,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
     refs(state, L.knowledges)
       .filter((k) => k.knowledgeType === "VOCABULARY")
       .map((k) => ({
-        head: parseHeadword(plainText(k.name), plainText(k.subTitle)),
+        head: parseHeadword(plainText(k.name), ctx.written(plainText(k.subTitle))),
         target: plainText(k.name),
         audio: audioPath(ctx, state, k),
         image: imagePath(ctx, state, k.mainContentImage),
@@ -229,7 +229,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       edition: src.edition,
       lesson: src.key,
       sourceId: String(src.sourceId),
-      title: plainText(L.name),
+      title: ctx.written(plainText(L.name)),
       ...(synopsisHtml ? { synopsisHtml } : {}),
       exercises: Object.fromEntries(exercises.map((e) => [e.exercise.key, e.locale])),
       vocab: translations,

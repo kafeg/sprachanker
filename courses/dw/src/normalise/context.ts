@@ -10,6 +10,7 @@ import {
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import { IMAGE_FORMAT, videoFiles } from "../media.ts";
+import { writtenOrder } from "./text.ts";
 
 export type Entity = Record<string, unknown>;
 
@@ -18,7 +19,13 @@ export interface Context {
   media(url: string | undefined): MediaPath | undefined;
   /** Whether a text of the page is in the edition's learner language (its locale file's), not German. */
   learnerText(text: string): boolean;
+  /** A text (a title, a note, a prompt, an option) as written: right-to-left editions keep some in
+   *  the order they are seen (`writtenOrder`). */
+  written(text: string): string;
 }
+
+/** Learner languages DW's right-to-left editions are in. */
+const RIGHT_TO_LEFT = new Set(["ar", "fa"]);
 
 /** `edition`: the course's language pair ("ru-de"): German taught in Russian. */
 export function createContext(index: MediaIndex, edition: EditionId): Context {
@@ -26,6 +33,7 @@ export function createContext(index: MediaIndex, edition: EditionId): Context {
   return {
     media: (url) => mediaPath(index, url),
     learnerText: (text) => inLearnerLanguage(text, target, source),
+    written: (text) => (RIGHT_TO_LEFT.has(source) ? writtenOrder(text) : text),
   };
 }
 

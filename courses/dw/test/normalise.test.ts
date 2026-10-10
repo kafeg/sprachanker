@@ -8,6 +8,7 @@ import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
 import { normaliseLesson, topicParts } from "../src/normalise/lesson.ts";
+import { writtenOrder } from "../src/normalise/text.ts";
 import { parseHeadword } from "../src/normalise/vocab.ts";
 
 test.each([
@@ -501,4 +502,26 @@ test("a question on the text in the learner's language: its prompt and options g
     ],
   });
   expect(locale.items["#2"]).toBeUndefined();
+});
+
+test.each([
+  ["?Was trinkst du", "Was trinkst du?"],
+  ["!(Ich mag (nicht", "Ich mag (nicht)!"],
+  ["?... Was passiert, wenn", "Was passiert, wenn ...?"],
+  ["… Ich habe kein", "Ich habe kein …"],
+  ["?Varianten: Wie geht's? / Wie geht's dir", "Varianten: Wie geht's? / Wie geht's dir?"],
+  // As written already: a continuation that ends in its own punctuation, a learner-language text.
+  ["… um 6 mit Nina.", "… um 6 mit Nina."],
+  ["Was trinkst du?", "Was trinkst du?"],
+  [".با نه پاسخ بده", "با نه پاسخ بده."],
+  ["؟چی می‌نوشی", "چی می‌نوشی؟"],
+  ["(etwas) studieren", "(etwas) studieren"],
+  ["(البيرة) صبَّ من البرميل", "(البيرة) صبَّ من البرميل"],
+])("a text a right-to-left edition keeps as seen is read as written: %p", (seen, written) => {
+  expect(writtenOrder(seen)).toBe(written);
+});
+
+test("only right-to-left editions are read that way: elsewhere a leading run is the text's own", () => {
+  expect(createContext({}, "fa-de").written("?Was trinkst du")).toBe("Was trinkst du?");
+  expect(createContext({}, "ru-de").written("… kommt")).toBe("… kommt");
 });

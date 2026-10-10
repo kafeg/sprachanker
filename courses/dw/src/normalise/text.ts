@@ -29,3 +29,33 @@ export function uiLabels(state: ApolloState): Set<string> {
 
 export const isUiLabel = (text: string, labels: Set<string>) =>
   labels.has(text.trim().toLocaleLowerCase());
+
+/** Brackets as seen from the other side. */
+const MIRROR: Record<string, string> = {
+  "(": ")",
+  ")": "(",
+  "[": "]",
+  "]": "[",
+  "«": "»",
+  "»": "«",
+};
+/** Closing punctuation (then spaces, more of it, brackets) before a text's first letter. */
+const LEADING = /^([?!.…؟][\s?!.…؟:;,()[\]«»"'„“]*)(?=\p{L})/u;
+
+/**
+ * A text as written, from one DW's right-to-left editions (Arabic, Persian) keep in the order it is
+ * seen: its closing punctuation typed first — German ("?Was trinkst du", "!(Ich mag (nicht", "?...
+ * Was passiert, wenn") and the edition's own (".با نه پاسخ بده"). That run goes back to the end,
+ * reversed and its brackets turned ("Was trinkst du?", "Ich mag (nicht)!"); a text that ends in
+ * punctuation already is left as it is ("… um 6 mit Nina."), and so is one that opens with a bracket
+ * ("(etwas) studieren").
+ */
+export function writtenOrder(text: string): string {
+  const run = LEADING.exec(text)?.[1];
+  if (!run || /[.?!…؟:;)\]»"“]$/.test(text.trimEnd())) return text;
+  const closing = [...run]
+    .reverse()
+    .map((c) => MIRROR[c] ?? c)
+    .join("");
+  return `${text.slice(run.length)}${closing}`;
+}

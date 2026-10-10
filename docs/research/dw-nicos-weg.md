@@ -113,6 +113,11 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
   `ASSOCIATION`, 2769 `CLOZE` and 685 `SORTING` items have only a `false` link — the answer, not a
   question to listen to; 805, 341 and 131 have both; 54 dictations have only a `true` one. Of 11 000
   `false` links, 10 834 are named "Loesungsaudio".
+- The Arabic and Persian editions store German lesson titles (and two vocabulary notes) in visual
+  order: "?Was trinkst du", "!(Ich mag (nicht", "?... Was passiert, wenn" for "Was trinkst du?",
+  "Ich mag (nicht)!", "Was passiert, wenn …?" (58 titles in Persian A1–A2, as many in Arabic, seen on
+  2026-10-10), and some texts of their own the same way (".با نه پاسخ بده": 22 speaking tasks in
+  Persian, 23 in Arabic; six Persian options); other editions write them as they are read.
 - Cloze texts mark gaps with `#p#`, `#ps#`, `#pm#`, `#pl#` (width hints); layout `CONTINUOUS_TEXT`
   (gaps in the inquiry `text`) or `SINGLE_SENTENCE` (one gap per sub-inquiry `inquiryText`).
 - Options with identical content occur (repeated letters in `MERGE`, "isst" twice in a conjugation
