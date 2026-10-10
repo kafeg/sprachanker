@@ -34,8 +34,8 @@ Specs: 09, 10.
 ### 3. The tutor on its own (owner, 2026-10-10)
 Specs: 07, 09.
 - A section of its own for talking with the AI outside any lesson: on any topic the learner asks
-  about (a grammar question, a text to go through, a conversation to practise), in the profile's
-  language pair, with what the learner has met in their courses as its context; chats kept and
+  about (a grammar question, a text to go through, a conversation to practise), in the interface
+  language and the language of the learner's courses, with what the learner has met in their courses as its context; chats kept and
   listed as the lesson tutor's are.
 - **Accept**: a chat started from the section, kept, continued later; read aloud as the tutor's.
 

@@ -2,18 +2,16 @@
 // teach — none installed yet: those the shown catalogue teaches — and the interface's.
 import { parseEditionId } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
-import { useCatalog, useCourses } from "@/api/hooks.ts";
+import { useCatalog } from "@/api/hooks.ts";
 import { useShown } from "@/app/experimental.ts";
 
 export function useReadLanguages(): string[] {
   const { i18n } = useTranslation();
-  const courses = useCourses().data ?? [];
-  const catalog = useCatalog().data ?? [];
   const { shown } = useShown();
-  const editions = courses.length
-    ? courses.flatMap((c) => c.editions)
-    : catalog
-        .filter((o) => shown(o.kind === "exam" ? "exams" : "courses", o.series))
-        .map((o) => o.edition);
+  const offered = (useCatalog().data ?? []).filter((o) =>
+    shown(o.kind === "exam" ? "exams" : "courses", o.series),
+  );
+  const here = offered.filter((o) => o.installed);
+  const editions = (here.length ? here : offered).map((o) => o.edition);
   return [...new Set([...editions.map((e) => parseEditionId(e).target), i18n.language])];
 }

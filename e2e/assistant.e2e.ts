@@ -202,7 +202,7 @@ test("read aloud: a scene's new line at once when asked, the speaker in its corn
   }
   await page.goto("/settings#speech");
   await expect(page.getByText("This device's voices")).toBeVisible();
-  // The profile's languages (this one has only its own set): the best voice of each.
+  // The languages read aloud (the courses' here and the interface's): the best voice of each.
   await expect(page.getByRole("combobox", { name: "Voice for English" })).toHaveText(
     "Automatic — Samantha",
   );

@@ -132,38 +132,38 @@ test("read at once: only a line that comes while the page is open, and only what
   expect(run("none", "scene")).toEqual([]);
 });
 
-/** Courses installed here, by the editions they are in. */
-const installed = (...editions: string[][]): [unknown[], unknown] => [
-  ["courses"],
-  editions.map((e) => ({ editions: e })),
+/** Courses and exams installed here, by their editions (the catalogue's rows). */
+const installed = (...editions: string[]): [unknown[], unknown] => [
+  ["catalog"],
+  editions.map((edition) => ({ series: "dw.nicos-weg", edition, installed: true })),
 ];
 
-test("the languages read aloud: those the courses here teach, else those the shown catalogue does; and the interface's", () => {
+test("the languages read aloud: those the courses and exams here teach, else those the shown catalogue does; and the interface's", () => {
   const langs = (data: Array<[unknown[], unknown]>) => {
-    const client = queryClient([[["courses"], []], ...data]);
+    const client = queryClient(data);
     return renderHook(() => useReadLanguages(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={client}>{children}</QueryClientProvider>
       ),
     }).result.current;
   };
-  const catalog: [unknown[], unknown] = [
-    ["catalog"],
-    [
-      { series: "dw.nicos-weg", edition: "ru-de" },
-      { series: "lid", edition: "de-de", kind: "exam" },
-      { series: "coerll.dib", edition: "en-fr", experimental: true },
-    ],
+  const offers = [
+    { series: "dw.nicos-weg", edition: "ru-de" },
+    { series: "lid", edition: "de-de", kind: "exam" },
+    { series: "coerll.dib", edition: "en-fr", experimental: true },
   ];
-  expect(langs([installed(["ru-de", "en-de"], ["en-ru"]), catalog])).toEqual(["de", "ru", "en"]);
-  expect(langs([catalog])).toEqual(["de", "en"]);
+  const here = [
+    { series: "dw.nicos-weg", edition: "en-ru", installed: true },
+    { series: "lid", edition: "de-pl", kind: "exam", installed: true },
+  ];
+  expect(langs([[["catalog"], [...offers, ...here]]])).toEqual(["ru", "pl", "en"]);
+  expect(langs([[["catalog"], offers]])).toEqual(["de", "en"]);
 });
 
 test("Settings: each language read aloud with its voice (automatic: the best one) and Listen", async () => {
   const view = await renderApp(<ReadAloud />, {
     data: [
-      installed(["en-de"], ["en-ru"]),
-      [["catalog"], []],
+      installed("en-de", "en-ru"),
       [["piper-voices"], { engine: false, voices: [] }],
       [["qwen-tts"], NO_QWEN],
     ],
@@ -245,8 +245,7 @@ test("Settings with Piper: each language's voices — the one reading, those to 
   const view = await renderApp(<ReadAloud />, {
     data: [
       [["settings"], { "speech.readEngine": "piper" }],
-      installed(["en-de"], ["en-ru"]),
-      [["catalog"], []],
+      installed("en-de", "en-ru"),
       [["piper-voices"], PIPER],
       [["qwen-tts"], NO_QWEN],
     ],
@@ -346,8 +345,7 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
   const view = await renderApp(<ReadAloud />, {
     data: [
       [["settings"], { "speech.readEngine": "qwen" }],
-      installed(["en-de"], ["en-ar"]),
-      [["catalog"], []],
+      installed("en-de", "en-ar"),
       [["piper-voices"], { engine: false, voices: [] }],
       [
         ["qwen-tts"],
