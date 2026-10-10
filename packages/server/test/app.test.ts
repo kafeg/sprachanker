@@ -156,6 +156,9 @@ describe("runs", () => {
     expect(again.run.id).not.toBe(run.id);
     expect(again.events).toEqual([]);
     expect((await getJson(`/api/runs/lesson?${q}`)).state.run.id).toBe(again.run.id);
+    // Started over with nothing done yet: the map shows the completed run, as the course counts it.
+    const before = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
+    expect(before.lessons[LESSON]).toMatchObject({ done: true, run: { status: "finished" } });
     const first = { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-01#1`, payload: {} };
     await sendJson("POST", `/api/runs/${again.run.id}/events`, { events: [first] });
     expect((await getJson(`/api/runs/lesson?${q}`)).state.run.id).toBe(again.run.id);

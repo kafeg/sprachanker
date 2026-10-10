@@ -184,7 +184,11 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     const progressOf = byLesson ?? (await progress());
     const out: Record<string, LessonState> = {};
     for (const key of lessons) {
-      const row = await shownRun(key);
+      let row = await shownRun(key);
+      // An active run nothing was done in yet (opened, or started over) is no progress, as the
+      // course counts it: the lesson shows its latest completed run, or none.
+      if (row?.status === "active" && progressOf[key]?.status !== "in_progress")
+        row = store.list("lesson", key).find(completed);
       if (!row) continue;
       const lesson = await lessonOf(row);
       if (!lesson) continue;
