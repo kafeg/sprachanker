@@ -7,10 +7,14 @@ import { readFileSync } from "node:fs";
 import { expect, type Locator, type Page } from "@playwright/test";
 import type { Exercise } from "@sprachanker/schema";
 
-/** The interface in English: the labels the screens are found by. */
+/** The interface language of the run (`REAL_UI`, English by default) and its labels, which the
+ *  screens are found by. */
+export const UI = process.env.REAL_UI ?? "en";
 const en = JSON.parse(
-  readFileSync(new URL("../../apps/web/src/i18n/en.json", import.meta.url), "utf8"),
+  readFileSync(new URL(`../../apps/web/src/i18n/${UI}.json`, import.meta.url), "utf8"),
 );
+/** A label's text before its first ICU argument ("Match for item {n}" → "Match for item"). */
+const labelStart = (message: string) => message.split("{")[0]?.trim() ?? message;
 
 /** Recordings play muted, one after another as the app plays them: playing is what counts as heard
  *  (09). */
@@ -45,7 +49,8 @@ export async function expectWhole(page: Page, where: string) {
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(wide, `${where}: the page is wider than the screen`).toBeLessThanOrEqual(1);
-  await expect(page.getByText("Something went wrong"), `${where}: an error page`).toHaveCount(0);
+  const failed = new RegExp(labelStart(en.error.other).replace(/[:.]$/, ""), "i");
+  await expect(page.getByText(failed), `${where}: an error page`).toHaveCount(0);
   await noteClipped(page, where);
 }
 
@@ -79,7 +84,9 @@ async function answerItem(page: Page, card: Locator, type: Exercise["type"]) {
       return;
     }
     case "match": {
-      const slots = await card.getByRole("button", { name: /^Match for item/ }).all();
+      const slots = await card
+        .getByRole("button", { name: new RegExp(`^${labelStart(en.ex.matchFor)}`) })
+        .all();
       for (const slot of slots) {
         await enabled(card.locator("fieldset button")).first().click();
         await slot.click();

@@ -9,7 +9,7 @@ import { REAL_DATA } from "./data.ts";
 import { readStore } from "./read-store.ts";
 import { lessonFiles, scenarios } from "./scenarios.ts";
 import { lessonProblems, storeProblems } from "./store.ts";
-import { clipped, notebookShows, reviewSome, walkLesson } from "./walk.ts";
+import { clipped, notebookShows, reviewSome, UI, walkLesson } from "./walk.ts";
 
 // Labels cut short, for a look: printed once all lessons ran.
 test.afterAll(() => {
@@ -23,7 +23,7 @@ for (const s of scenarios())
     const consoleErrors: string[] = [];
     page.on("pageerror", (e) => consoleErrors.push(e.message));
 
-    // A profile of its own, in English, its cards by all three faces.
+    // A profile of its own, in the run's interface language (REAL_UI), its cards by all three faces.
     const made = await page.request.post("/api/profiles", {
       data: { name: s.key.slice(0, 40) },
       headers: { ...CLIENT_HEADERS },
@@ -31,7 +31,7 @@ for (const s of scenarios())
     expect(made.ok()).toBe(true);
     const { profile } = (await made.json()) as { profile: { id: string } };
     for (const [key, value] of [
-      ["uiLanguage", "en"],
+      ["uiLanguage", UI],
       ["srs.faces", ["recognition", "production", "listening"]],
       // An experimental course is shown once turned on (Settings → General → Experimental).
       ["experimental.on", ["courses", `courses:${s.series}`]],
