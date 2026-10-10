@@ -120,10 +120,10 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
   return {
     offers: () =>
       PROVIDERS.flatMap((p) =>
-        p.offers.map(({ stable, ...o }) => ({
+        p.offers.map((o) => ({
           ...o,
           series: p.series,
-          ...(!stable && { experimental: true as const }),
+          ...(!p.stable && { experimental: true as const }),
         })),
       ),
 

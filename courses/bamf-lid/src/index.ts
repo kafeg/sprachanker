@@ -6,6 +6,7 @@ import { importLid } from "./import.ts";
 export const LID_PROVIDER: CourseProvider = {
   id: "bamf-lid",
   series: SERIES,
+  stable: true,
   offers: OFFERS,
   import: importLid,
 };

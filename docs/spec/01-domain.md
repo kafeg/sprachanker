@@ -31,7 +31,8 @@ Series      e.g. "dw.nicos-weg"         (<publisher>.<series>; a product that ma
 - **CourseOffer** (course-kit `provider.ts`): course, edition, title, source (publisher, URL, licence)
   and approximate size, declared by a provider without the network. Courses (Available, Downloaded)
   lists each as a **CatalogEntry** (`packages/server/src/services/downloads.ts`): the offer with its
-  series and key, whether it is installed, its state (`available`, `queued`, `downloading`,
+  series and key, `experimental` unless its provider is ready for learning (03), whether it is
+  installed, its state (`available`, `queued`, `downloading`,
   `incomplete`, `ready`) and the media missing (03, 06).
 
 ## Course content

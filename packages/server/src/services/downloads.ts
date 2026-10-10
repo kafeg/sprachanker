@@ -180,8 +180,8 @@ export function createDownloads(deps: {
 export type Downloads = ReturnType<typeof createDownloads>;
 
 /** A course as the server offers it: with its series folder, and `experimental` unless its provider
- *  declares it ready for learning (03). */
-export type OfferedCourse = Omit<CourseOffer, "stable"> & { series: string; experimental?: true };
+ *  is ready for learning (03). */
+export type OfferedCourse = CourseOffer & { series: string; experimental?: true };
 
 export interface CatalogEntry extends OfferedCourse {
   key: string;

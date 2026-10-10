@@ -8,6 +8,8 @@ export type { DwSeries } from "./catalog.ts";
 const dwProvider = (series: DwSeries): CourseProvider => ({
   id: `dw-${series}`,
   series: seriesId(series),
+  // Nicos Weg is ready for learning in every edition; Deutschtrainer is experimental.
+  ...(series === "nicos-weg" && { stable: true as const }),
   offers: offers(series),
   import: (options) => importDw(series, options),
 });

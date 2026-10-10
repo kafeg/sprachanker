@@ -114,6 +114,4 @@ export const offers = (series: DwSeries): CourseOffer[] =>
     title: `${NAMES[c.series]} ${c.course.toUpperCase()}`,
     source: SOURCE,
     approxBytes: c.approxBytes,
-    // Nicos Weg is ready for learning in every edition; Deutschtrainer is experimental.
-    ...(series === "nicos-weg" && { stable: true as const }),
   }));

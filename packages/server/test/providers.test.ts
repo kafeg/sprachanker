@@ -70,16 +70,10 @@ test("every provider keeps the contract: its own id and series, courses offered 
   }
 });
 
-test("what is ready for learning is declared by the providers: Nicos Weg in every edition and Leben in Deutschland, alike within a series", () => {
-  const offers = courseInstaller(mkdtempSync(join(tmpdir(), "sprachanker-offers-"))).offers();
+test("what is ready for learning is declared by the providers: Nicos Weg in every edition and Leben in Deutschland", () => {
+  const offers = courseInstaller("/nowhere").offers();
   const stable = new Set(offers.filter((o) => !o.experimental).map((o) => o.series));
   expect([...stable].sort()).toEqual(["bamf.lid", "dw.nicos-weg"]);
-  // The web turns a source on by its series: every offer of a series is alike.
-  for (const series of new Set(offers.map((o) => o.series)))
-    expect(
-      new Set(offers.filter((o) => o.series === series).map((o) => !!o.experimental)).size,
-    ).toBe(1);
-  expect(offers.some((o) => "stable" in o)).toBe(false);
 });
 
 test("a download's end: invalid files are an error, media missing leave it incomplete, else done", () => {

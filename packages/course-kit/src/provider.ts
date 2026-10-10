@@ -64,6 +64,9 @@ export function pageCounter(sink: ProgressSink | undefined): () => void {
 export interface CourseProvider {
   id: string;
   series: string;
+  /** Ready for learning (03): its courses are shown as they are. A provider without it is
+   *  experimental — shown only when the learner turns it on (Settings → Experimental). */
+  stable?: true;
   offers: CourseOffer[];
   import(options: ImportOptions): Promise<ImportReport>;
 }
@@ -82,9 +85,6 @@ export interface CourseOffer {
   source: CourseSource;
   /** Bytes on disk after a full download (pages and media), roughly. */
   approxBytes: number;
-  /** Ready for learning (03): shown as it is. An offer without it is experimental — shown only when
-   *  the learner turns it on (Settings → Experimental). */
-  stable?: true;
 }
 
 export interface NormaliseResult {

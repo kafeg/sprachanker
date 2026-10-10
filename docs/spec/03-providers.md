@@ -37,10 +37,11 @@ apart in one line (`CYRILLIC`, `latinLetters`, `splitAtCyrillic`).
 
 ## Offered in the app
 
-A provider declares which of its offers are ready for learning (`CourseOffer.stable`, alike within a
-series): DW Nicos Weg (`dw.nicos-weg`, every edition) and Leben in Deutschland (`bamf.lid`). Every other
-offer is experimental (owner, 2026-10-10): its catalogue entries say so (`experimental`), and its courses and exams are shown only once the learner turns on their section and
-the source in Settings → Experimental (09).
+A provider declares whether it is ready for learning (`CourseProvider.stable`): DW Nicos Weg
+(`dw.nicos-weg`, every edition) and Leben in Deutschland (`bamf.lid`). Every other provider is
+experimental (owner, 2026-10-10): its catalogue entries say so (`experimental`), and its courses and
+exams are shown only once the learner turns on their section and the source in Settings →
+Experimental (09).
 
 Every provider's courses are offered in Courses → Available (owner, 2026-10-08), unfiltered until the
 learner narrows them by pair or course (owner, 2026-10-10: nothing sets a filter for them). A course taken
