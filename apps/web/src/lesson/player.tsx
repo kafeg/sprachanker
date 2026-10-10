@@ -2,7 +2,7 @@
 // practice, summary. This file loads the lesson and its run and shows the step the flow is on
 // (use-flow.ts) inside the player's frame (frame.tsx); the pages are overview, words-step, steps
 // (reading), exercise-step, practice-step and summary; optional features come in as slots.
-import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
+import { lessonOrder, parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useCourseMap, useLesson } from "@/api/courses.ts";
@@ -84,7 +84,7 @@ export function LessonPlayer({
   const { lesson, locale } = data.data;
   const context = { series, lessonKey: lesson.key, edition };
   const { go, next, back, mark, result } = flow;
-  const allLessons = map.data?.index.units.flatMap((u) => u.lessons) ?? [];
+  const allLessons = map.data ? lessonOrder(map.data.index) : [];
   const nextLesson = allLessons[allLessons.indexOf(lesson.key) + 1];
   const exercise = step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
   // The episode with its text: an exercise showing it plays it, and then the overview does not.

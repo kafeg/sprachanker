@@ -1,6 +1,6 @@
 // Course map (09): the course head (course-info) over a timeline of units, each with its lesson cards
 // and their status.
-import { parseLessonKey } from "@sprachanker/schema";
+import { lessonOrder, parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { Check, CheckCircle2, CircleDot } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -83,7 +83,7 @@ export function CoursePage({ series, course }: { series: string; course: string 
   if (map.isPending) return <Loading />;
   if (map.isError) return <ErrorState error={map.error} onRetry={() => map.refetch()} />;
   const { index, locale, titles, lessons } = map.data;
-  const all = index.units.flatMap((u) => u.lessons);
+  const all = lessonOrder(index);
   const next = info?.next;
   return (
     <CourseMedia.Provider value={(path) => mediaUrl(series, path)}>

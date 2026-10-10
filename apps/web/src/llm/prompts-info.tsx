@@ -6,6 +6,7 @@ import { AI_PLACES, parseEditionId } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourses } from "@/api/courses.ts";
+import { useEdition } from "@/api/edition.ts";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -145,7 +146,8 @@ export function PromptsSettings() {
   // Prompts name the language being learnt: shown for the first started course (else the first one).
   const list = courses.data ?? [];
   const course = list.find((c) => c.started) ?? list[0];
-  const edition = course?.editions[0];
+  // The edition the course is shown in, as its page and lessons are.
+  const edition = useEdition(course?.series ?? "", course?.course ?? "", course?.editions);
   const target = edition ? parseEditionId(edition).target : undefined;
   const prompts = useTaskPrompts(i18n.language, target);
   const debug = useDebugPrompts();
