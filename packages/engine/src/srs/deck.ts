@@ -5,6 +5,7 @@
 import type { FaceState } from "@sprachanker/schema";
 import type { CardAnswer } from "./day.ts";
 import { type Stage, wordState } from "./index.ts";
+import { inReview, isNew } from "./state.ts";
 
 /** Anki's mature cards: scheduled three weeks or more ahead. */
 export const MATURE_DAYS = 21;
@@ -44,7 +45,7 @@ export function deckStanding(
       states.every((s) => s.scheduledDays >= MATURE_DAYS);
     counts[mature ? "mature" : stage]++;
     for (const f of w.faces) {
-      if (!f.state || f.suspended || f.state.state === 0) continue;
+      if (!f.state || f.suspended || isNew(f.state)) continue;
       if (f.state.due < today + DAY) due.today++;
       if (f.state.due < today + 2 * DAY) due.tomorrow++;
       if (f.state.due < today + 7 * DAY) due.week++;
@@ -52,7 +53,7 @@ export function deckStanding(
   }
   // The last 30 study days, today's included.
   const month = answers.filter((a) => a.ts >= today - 29 * DAY);
-  const recalled = month.filter((a) => a.review.stateBefore?.state === 2);
+  const recalled = month.filter((a) => inReview(a.review.stateBefore));
   return {
     words: counts,
     due,

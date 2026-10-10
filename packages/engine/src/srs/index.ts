@@ -12,6 +12,7 @@ import {
   type StepUnit,
   StrategyMode,
 } from "ts-fsrs";
+import { inReview, isFirstLearning, isLearning, isNew } from "./state.ts";
 
 /** Anki's defaults: its deck options as a profile reads them unset (schema `SETTING_DEFAULTS`), and
  *  the scheduler's own. */
@@ -187,19 +188,15 @@ export interface QueueLimits {
   relearningSteps?: readonly string[];
 }
 
-const isLearning = (s: FaceState) => s.state === 1 || s.state === 3;
-
-/** Never answered: no state, or FSRS's own "new" (an imported deck may carry one). */
-const isNew = (s: FaceState | null | undefined) => !s || s.state === 0;
-
 /** Answers a face still needs today if each is Good: a new face goes through every learning step, a
  *  (re)learning face through the steps it has left, a review is one answer. */
 function answersToGo(state: FaceState | null | undefined, limits: QueueLimits): number {
   const learning = limits.learningSteps ?? SRS_DEFAULTS.learningSteps;
   if (isNew(state)) return Math.max(1, learning.length);
-  if (!state || state.state === 2) return 1;
-  const steps =
-    state.state === 1 ? learning : (limits.relearningSteps ?? SRS_DEFAULTS.relearningSteps);
+  if (!state || inReview(state)) return 1;
+  const steps = isFirstLearning(state)
+    ? learning
+    : (limits.relearningSteps ?? SRS_DEFAULTS.relearningSteps);
   return Math.max(1, steps.length - state.learningSteps);
 }
 
@@ -245,7 +242,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
       (ignore ? 0 : (limits.newToday ?? 0)),
   );
   const reviews = active
-    .filter((f) => f.state?.state === 2 && f.state.due < nextDay)
+    .filter((f) => inReview(f.state) && f.state.due < nextDay)
     .map(
       (f): QueueEntry => ({
         cardId: f.cardId,
@@ -297,7 +294,7 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
     newWaiting: active.filter((f) => isNew(f.state)).length > fresh.length,
     /** Reviews due today held back by the review limit. */
     reviewsWaiting:
-      active.filter((f) => f.state?.state === 2 && f.state.due < nextDay).length > reviews.length,
+      active.filter((f) => inReview(f.state) && f.state.due < nextDay).length > reviews.length,
     buried: faces.filter((f) => f.buriedUntil && f.buriedUntil > now).length,
     /** About how many answers finish the day's study, if each is Good: changes as the learner answers
      *  (Again adds steps back). Learning faces due later today count too. */
@@ -315,7 +312,7 @@ export type Stage = "new" | "learning" | "review";
 
 /** A face as Anki counts it: new (never answered), learning (learning or relearning), or review. */
 export const faceStage = (state: FaceState | null | undefined): Stage =>
-  !state || state.state === 0 ? "new" : state.state === 2 ? "review" : "learning";
+  isNew(state) ? "new" : inReview(state) ? "review" : "learning";
 
 /** A word as the learner's words show it (04, "Lexeme state"): new until a face is answered, learning
  *  while a face is (re)learning, else review. */

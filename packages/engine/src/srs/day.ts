@@ -2,6 +2,7 @@
 // back (Undo takes back a deck's latest), what each deck has used of its daily limits, and the face just
 // taken back (shown next). Pure: the caller passes the day's card events.
 import type { CardFace, CardReviewPayload, TypedEvent } from "@sprachanker/schema";
+import { inReview } from "./state.ts";
 
 /** A `card_review` or `card_undo` event of the day (always about a card). */
 export type CardEvent = Extract<TypedEvent, { type: "card_review" | "card_undo" }> & {
@@ -49,7 +50,7 @@ export function cardDay(events: CardEvent[]) {
       for (const a of answers) {
         if (!cardIds.has(a.cardId)) continue;
         if (!a.review.stateBefore) fresh++;
-        else if (a.review.stateBefore.state === 2) reviews++;
+        else if (inReview(a.review.stateBefore)) reviews++;
       }
       return { fresh, reviews };
     },

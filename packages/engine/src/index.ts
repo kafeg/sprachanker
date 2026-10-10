@@ -8,6 +8,7 @@ export * from "./learner/progress.ts";
 export * from "./srs/day.ts";
 export * from "./srs/deck.ts";
 export * from "./srs/index.ts";
+export * from "./srs/state.ts";
 export * from "./text/diff.ts";
 export * from "./text/normalise.ts";
 export * from "./text/words.ts";

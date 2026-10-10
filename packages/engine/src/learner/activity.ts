@@ -12,6 +12,7 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { undoneReviews } from "../srs/day.ts";
+import { inReview } from "../srs/state.ts";
 
 /** What counts as work done in a lesson run: an answer, a skip, a step of the plan (words, a page read,
  *  practice). A run without any is only a lesson opened. An exam run's work is its answers. */
@@ -62,7 +63,7 @@ export function activityByDay(
       const day = at(e.ts);
       day.review++;
       if (!p.stateBefore) day.newCards++;
-      else if (p.stateBefore.state === 2) {
+      else if (inReview(p.stateBefore)) {
         day.recalled++;
         if (p.rating > 1) day.remembered++;
       }

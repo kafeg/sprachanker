@@ -18,7 +18,7 @@ src/
                   # question's line), a mock exam drawn, practice's order, each
                   # question's state, readiness, a question checked, a run's result
   srs/            # ts-fsrs wrapper, Anki's study queue (limits, the day's start hour, learn ahead),
-                  # interval text; day.ts: the day's card answers (limits used, undo, the face just taken back);
+                  # interval text; state.ts: a face's FSRS state by name (never its number); day.ts: the day's card answers (limits used, undo, the face just taken back);
                   # deck.ts: a deck's standing for the Notebook (words by state, due, the month's answers)
 ```
 

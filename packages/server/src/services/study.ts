@@ -7,6 +7,7 @@ import {
   cardDay,
   type DeckWord,
   deckStanding,
+  inReview,
   intervals,
   isLeech,
   lessonFace,
@@ -151,9 +152,7 @@ export function createStudy(deps: {
     const states = cards.states();
     const notes = cards.all();
     const faces = new Map(notes.map((n) => [n.id, cards.facesWithState(n, states)]));
-    const wordsKnown = notes.filter((n) =>
-      faces.get(n.id)?.every((f) => f.state?.state === 2),
-    ).length;
+    const wordsKnown = notes.filter((n) => faces.get(n.id)?.every((f) => inReview(f.state))).length;
     const today = dayOf(now()).start;
     const answers = cardDay(
       store.eventsWhere({ types: ["card_review", "card_undo"] }) as CardEvent[],
