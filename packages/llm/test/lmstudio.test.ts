@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { LlmError } from "../src/client.ts";
+import { LlmError } from "../src/errors.ts";
 import { lmStudioApi, recommendedLmStudioModel } from "../src/lmstudio.ts";
 
 /** LM Studio stand-in: its /api/v1 answers, recording calls. */

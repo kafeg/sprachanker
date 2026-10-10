@@ -1,11 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import {
-  type ChatMessage,
-  type ChatRequest,
-  chatBody,
-  LlmError,
-  openAiCompatible,
-} from "../src/client.ts";
+import { type ChatMessage, type ChatRequest, chatBody, openAiCompatible } from "../src/client.ts";
+import { LlmError } from "../src/errors.ts";
 import { stripThinking } from "../src/thinking.ts";
 
 /** A fake OpenAI-compatible server: records requests and answers with the given response. */

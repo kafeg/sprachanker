@@ -11,12 +11,10 @@ import {
   type LessonInfo,
   lessonWordsLine,
 } from "./lesson.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 import { TUTOR_TOOLS, TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tutor-tools.ts";
 
-export interface ChatTurnInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface ChatTurnInput extends RulesInput {
   /** Explanation language: the learner's interface language. */
   language: Lang;
   target: Lang;
@@ -116,7 +114,7 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
         B.exercise,
       )
     : undefined;
-  const system = `${input.rules ?? chatTurnRules(input.language, input.target)}\n${CHAT_TURN_FIXED}`;
+  const system = systemPrompt(input, chatTurnRules, CHAT_TURN_FIXED);
   const mistakes = mistakeLines(input.mistakes);
 
   const context = [

@@ -10,9 +10,11 @@ is the server's job. Web-standard APIs only (fetch, streams), no runtime-specifi
 src/
   cli.ts           # command-line providers (claude -p, codex exec): command lines, prompt, output parsing;
                    # the process itself is started by a CliRunner the server passes in
-  client.ts        # OpenAI-compatible endpoint: models() (modelInfo: chat models with their metadata),
-                   # streamed chat() with tool rounds, complete();
-                   # TimeLimit (to the first byte, then between chunks); errors as LlmError codes
+  client.ts        # OpenAI-compatible endpoint: models(), streamed chat() with tool rounds, complete();
+                   # TimeLimit (to the first byte, then between chunks)
+  models.ts        # modelInfo: the chat models of a `/models` list with their metadata
+  sse.ts           # a streamed reply's events: text deltas, tool calls; control tokens dropped
+  errors.ts        # LlmError and its codes
   providers.ts     # presets: lmstudio, openrouter, gemini, groq, custom, claude-code, codex (endpoint,
                    # key, CLI kind)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
@@ -21,6 +23,9 @@ src/
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
+    rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix
+    registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
+                       # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson) and its prompt lines: goals, words, grammar
     describe.ts        # an exercise as text: its header (instruction, texts) and items (task, correct,
                        # learner answer); a mistake as two lines naming lesson, exercise and item
@@ -46,7 +51,9 @@ test/              # fake endpoints (no network); fixture course from @sprachank
 - Prompts live next to their task; course text and learner input are delimited data in the prompt.
   The delimiting line (and "JSON only") is a fixed suffix after the rules, so the learner's own
   rules never remove it.
-- Each task exposes `<task>Request(input)` (what is sent), `<task>Rules()` (its system prompt) and its
-  context budgets; the real call and the prompt viewer use the same functions.
+- Each task exposes what is sent — `<task>Request(input)` for a streamed reply, `<task>Task(input)` (a
+  StructuredTask, its request inside) for a JSON one —, `<task>Rules()` (its standing system prompt,
+  through `systemPrompt`) and its context budgets, and is listed in `TASK_PROMPTS` when the learner
+  may rewrite its prompt; the real call and the prompt viewer use the same functions.
 - Explanations in the interface language (the request's `language`); target-language text stays in the target language.
 - No vendor SDK leaks outside the provider code.

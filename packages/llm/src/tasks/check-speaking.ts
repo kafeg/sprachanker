@@ -7,11 +7,9 @@ import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine } from "./lesson.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 
-export interface SpeakingInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface SpeakingInput extends RulesInput {
   language: Lang;
   target: Lang;
   lesson: LessonInfo;
@@ -78,7 +76,7 @@ function checkSpeakingRequest(input: SpeakingInput): TaskRequest {
     messages: [
       {
         role: "system",
-        content: `${input.rules ?? checkSpeakingRules(input.language, input.target)}\n${SPEAKING_FIXED}`,
+        content: systemPrompt(input, checkSpeakingRules, SPEAKING_FIXED),
       },
       { role: "user", content },
     ],

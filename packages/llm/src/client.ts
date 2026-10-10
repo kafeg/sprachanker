@@ -1,5 +1,11 @@
 // OpenAI-compatible chat endpoint (07, "Providers"): LM Studio, OpenRouter and any compatible URL.
 // Uses only web-standard APIs (fetch, streams), so it runs in Bun, Node and tests alike.
+import { LlmError } from "./errors.ts";
+import { type ModelInfo, modelInfo, type RawModel } from "./models.ts";
+import { SPECIAL_TOKEN, streamEvents, type ToolCall } from "./sse.ts";
+
+export type { ToolCall } from "./sse.ts";
+
 import { stripThinking } from "./thinking.ts";
 
 export interface ChatMessage {
@@ -11,87 +17,11 @@ export interface ChatMessage {
   tool_call_id?: string;
 }
 
-export interface ToolCall {
-  id: string;
-  type: "function";
-  function: { name: string; arguments: string };
-}
-
 /** A function the model may call (07, "Tools"); `parameters` is a JSON Schema. */
 export interface ToolDef {
   name: string;
   description: string;
   parameters: Record<string, unknown>;
-}
-
-/** A chat model and what its endpoint tells of it (OpenRouter tells much, most servers only the id). */
-export interface ModelInfo {
-  id: string;
-  name?: string;
-  /** Costs nothing (OpenRouter's free variants). */
-  free?: boolean;
-  /** Price in US dollars per million tokens read and written. */
-  price?: { input: number; output: number };
-  /** Tokens it takes in at once. */
-  contextLength?: number;
-  /** Answers in a JSON schema (structured outputs): writing checks and scenes need it. */
-  json?: boolean;
-  /** Calls tools (the tutor's). */
-  tools?: boolean;
-  /** Who made it ("anthropic" of "anthropic/claude-…"). */
-  publisher?: string;
-}
-
-interface RawModel {
-  id?: unknown;
-  name?: unknown;
-  context_length?: unknown;
-  /** Groq's name for the context length. */
-  context_window?: unknown;
-  /** Who serves it (Groq, Gemini); the publisher when the id does not name one. */
-  owned_by?: unknown;
-  pricing?: { prompt?: unknown; completion?: unknown };
-  architecture?: { output_modalities?: unknown };
-  supported_parameters?: unknown;
-}
-
-const perMillion = (value: unknown) => {
-  const n = typeof value === "string" ? Number(value) : typeof value === "number" ? value : NaN;
-  return Number.isFinite(n) && n >= 0 ? Math.round(n * 1e6 * 1000) / 1000 : undefined;
-};
-
-/**
- * A model of an OpenAI-compatible `/models` list with what the endpoint tells of it; undefined for one
- * that is no chat model: an embedding model, speech in or out, an image or video generator, a safety
- * classifier — by its id where the list does not say (Groq, Gemini) —, or one whose output is not
- * text alone.
- */
-const NOT_CHAT = /embed|whisper|tts|orpheus|guard|imagen|veo|image|audio|aqa/i;
-
-export function modelInfo(raw: RawModel): ModelInfo | undefined {
-  if (typeof raw.id !== "string" || NOT_CHAT.test(raw.id)) return undefined;
-  const output = raw.architecture?.output_modalities;
-  if (Array.isArray(output) && output.some((m) => m !== "text")) return undefined;
-  const input = perMillion(raw.pricing?.prompt);
-  const outputPrice = perMillion(raw.pricing?.completion);
-  const params = Array.isArray(raw.supported_parameters) ? raw.supported_parameters : undefined;
-  const slash = raw.id.indexOf("/");
-  return {
-    id: raw.id,
-    ...(typeof raw.name === "string" && { name: raw.name }),
-    ...((raw.id.endsWith(":free") || (input === 0 && outputPrice === 0)) && { free: true }),
-    ...(input !== undefined &&
-      outputPrice !== undefined && { price: { input, output: outputPrice } }),
-    ...(typeof raw.context_length === "number" && { contextLength: raw.context_length }),
-    ...(typeof raw.context_window === "number" && { contextLength: raw.context_window }),
-    ...(params && {
-      json: params.includes("response_format") || params.includes("structured_outputs"),
-      tools: params.includes("tools"),
-    }),
-    ...(slash > 0
-      ? { publisher: raw.id.slice(0, slash) }
-      : typeof raw.owned_by === "string" && raw.owned_by && { publisher: raw.owned_by }),
-  };
 }
 
 export interface ChatRequest {
@@ -168,28 +98,6 @@ export interface LlmClient {
   chat(request: ChatRequest): AsyncIterable<string>;
   /** The whole reply at once (structured output); reasoning output is dropped. */
   complete(request: ChatRequest): Promise<string>;
-}
-
-export type LlmErrorCode =
-  | "unreachable"
-  | "unauthorized"
-  | "model_not_found"
-  | "timeout"
-  | "bad_response"
-  /** The provider's limit is reached for now (429: free tiers limit requests per minute and day). */
-  | "rate_limited"
-  /** A structured reply stayed invalid after the repair attempt. */
-  | "invalid_output";
-
-export class LlmError extends Error {
-  constructor(
-    readonly code: LlmErrorCode,
-    message: string,
-    /** The HTTP status the provider answered with, when it answered. */
-    readonly status?: number,
-  ) {
-    super(message);
-  }
 }
 
 /** The provider refused the request as sent (400, 422): asking again without an option may help. */
@@ -468,90 +376,6 @@ export function openAiCompatible(
       throw last;
     },
   };
-}
-
-/** Control tokens some local models leak into the text (Gemma: "<audio|>", others: "<|im_end|>"). */
-const SPECIAL_TOKEN = /<\|?[a-z_]+\|>/g;
-
-/** Text deltas and, at the end, the tool calls of an OpenAI-style server-sent event stream. */
-async function* streamEvents(
-  res: Response,
-  /** Stops reading: the time limit or the learner (whatever the fetch implementation does). */
-  stop: AbortSignal,
-  onData: () => void,
-): AsyncIterable<{ text?: string; toolCalls?: ToolCall[] }> {
-  if (!res.body) throw new LlmError("bad_response", "empty response");
-  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
-  const cancel = () => void reader.cancel().catch(() => {});
-  stop.addEventListener("abort", cancel, { once: true });
-  // Tool calls arrive in pieces, by index: id and name first, then the arguments. A server that sends
-  // no index sends one call at a time: a delta with an id starts the next call.
-  const calls: ToolCall[] = [];
-  let buffer = "";
-  try {
-    reading: while (true) {
-      const { value, done } = await reader.read();
-      if (stop.aborted) throw stop.reason ?? new Error("stopped");
-      // The last line may come without a newline.
-      if (done) buffer += "\n";
-      else {
-        onData();
-        buffer += value;
-      }
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-      for (const line of lines) {
-        const data = line.startsWith("data:") ? line.slice(5).trim() : undefined;
-        if (!data) continue;
-        if (data === "[DONE]") break reading;
-        const chunk = parseChunk(data);
-        if (chunk.error) throw new LlmError("bad_response", chunk.error);
-        const text = chunk.text?.replace(SPECIAL_TOKEN, "");
-        if (text) yield { text };
-        for (const part of chunk.toolCalls ?? []) {
-          const index = part.index ?? (part.id || !calls.length ? calls.length : calls.length - 1);
-          calls[index] ??= {
-            id: part.id ?? `call_${index}`,
-            type: "function",
-            function: { name: "", arguments: "" },
-          };
-          const call = calls[index] as ToolCall;
-          if (part.id) call.id = part.id;
-          if (part.function?.name) call.function.name += part.function.name;
-          if (part.function?.arguments) call.function.arguments += part.function.arguments;
-        }
-      }
-      if (done) break;
-    }
-  } finally {
-    stop.removeEventListener("abort", cancel);
-    reader.releaseLock();
-  }
-  const complete = calls.filter((c) => c?.function.name);
-  if (complete.length) yield { toolCalls: complete };
-}
-
-interface ToolCallDelta {
-  index?: number;
-  id?: string;
-  function?: { name?: string; arguments?: string };
-}
-
-function parseChunk(data: string): { text?: string; toolCalls?: ToolCallDelta[]; error?: string } {
-  try {
-    const json = JSON.parse(data) as {
-      choices?: Array<{ delta?: { content?: unknown; tool_calls?: ToolCallDelta[] } }>;
-      error?: { message?: string };
-    };
-    if (json.error) return { error: json.error.message ?? "error" };
-    const delta = json.choices?.[0]?.delta;
-    return {
-      text: typeof delta?.content === "string" ? delta.content : undefined,
-      toolCalls: delta?.tool_calls,
-    };
-  } catch {
-    return {};
-  }
 }
 
 function errorMessage(body: string): string | undefined {

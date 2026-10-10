@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { modelInfo } from "../src/client.ts";
+import { modelInfo } from "../src/models.ts";
 import { openRouterKey } from "../src/openrouter.ts";
 
 test("a model's metadata as an OpenRouter-style list tells it; non-text models are left out", () => {

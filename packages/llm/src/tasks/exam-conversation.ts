@@ -7,16 +7,14 @@ import { ExamConversationTurn, type Lang } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageNames, newest } from "../text.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ConversationLine {
   speaker: "examiner" | "partner" | "learner";
   text: string;
 }
 
-export interface ExamConversationInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface ExamConversationInput extends RulesInput {
   language: Lang;
   target: Lang;
   /** The exam's title ("Goethe-Zertifikat A2"). */
@@ -69,7 +67,7 @@ function examConversationRequest(input: ExamConversationInput): TaskRequest {
     messages: [
       {
         role: "system",
-        content: `${input.rules ?? examConversationRules(input.language, input.target)}\n${FIXED}`,
+        content: systemPrompt(input, examConversationRules, FIXED),
       },
       { role: "user", content },
     ],

@@ -3,7 +3,8 @@
 // fails with `invalid_output`.
 import { issuesText } from "@sprachanker/schema";
 import { z } from "zod";
-import { type ChatMessage, type LlmClient, LlmError, type TaskRequest } from "./client.ts";
+import type { ChatMessage, LlmClient, TaskRequest } from "./client.ts";
+import { LlmError } from "./errors.ts";
 
 export interface StructuredTask<T> {
   request: TaskRequest;

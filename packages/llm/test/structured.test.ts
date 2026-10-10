@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { z } from "zod";
-import { type ChatRequest, type LlmClient, LlmError, openAiCompatible } from "../src/client.ts";
+import { type ChatRequest, type LlmClient, openAiCompatible } from "../src/client.ts";
+import { LlmError } from "../src/errors.ts";
 import { runStructured, structuredRequest } from "../src/structured.ts";
 
 const Verdict = z.object({ ok: z.boolean(), note: z.string() });

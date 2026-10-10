@@ -5,6 +5,7 @@ import { ExamRatingProposal, type Lang } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ExamCriterionInput {
   id: string;
@@ -16,10 +17,7 @@ export interface ExamCriterionInput {
   voids?: boolean;
 }
 
-export interface ExamAnswerInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface ExamAnswerInput extends RulesInput {
   language: Lang;
   target: Lang;
   /** The exam's title ("Goethe-Zertifikat A1: Start Deutsch 1"). */
@@ -83,7 +81,7 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
     messages: [
       {
         role: "system",
-        content: `${input.rules ?? rateExamAnswerRules(input.language, input.target)}\n${EXAM_FIXED}`,
+        content: systemPrompt(input, rateExamAnswerRules, EXAM_FIXED),
       },
       { role: "user", content },
     ],

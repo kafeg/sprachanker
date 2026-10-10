@@ -7,11 +7,9 @@ import { WordExample } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames, newest } from "../text.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 
-export interface WordExampleInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface WordExampleInput extends RulesInput {
   /** The learner's language: the translation's. */
   language: Lang;
   target: Lang;
@@ -64,7 +62,7 @@ function wordExampleRequest(input: WordExampleInput): TaskRequest {
     messages: [
       {
         role: "system",
-        content: `${input.rules ?? wordExampleRules(input.language, input.target)}\n${WORD_EXAMPLE_FIXED}`,
+        content: systemPrompt(input, wordExampleRules, WORD_EXAMPLE_FIXED),
       },
       { role: "user", content: context },
     ],

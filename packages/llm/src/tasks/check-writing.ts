@@ -5,11 +5,9 @@ import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { grammarNotes, type LessonInfo, lessonWordsLine } from "./lesson.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 
-export interface WritingInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface WritingInput extends RulesInput {
   language: Lang;
   target: Lang;
   lesson: LessonInfo;
@@ -84,7 +82,7 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
     messages: [
       {
         role: "system",
-        content: `${input.rules ?? checkWritingRules(input.language, input.target)}\n${WRITING_FIXED}`,
+        content: systemPrompt(input, checkWritingRules, WRITING_FIXED),
       },
       { role: "user", content: context },
     ],

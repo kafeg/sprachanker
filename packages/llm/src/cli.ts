@@ -2,7 +2,8 @@
 // "Providers"): Claude Code (`claude -p`) and Codex (`codex exec`). This module builds their command
 // lines and reads their output; starting the process is the server's (a CliRunner), so this package
 // stays free of runtime APIs. Their own tools stay off: the app gives all context in the prompt.
-import { type ChatMessage, type ChatRequest, type LlmClient, LlmError } from "./client.ts";
+import type { ChatMessage, ChatRequest, LlmClient } from "./client.ts";
+import { LlmError } from "./errors.ts";
 
 export type CliKind = "claude" | "codex";
 

@@ -4,11 +4,9 @@ import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { clip, htmlToText, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo } from "./lesson.ts";
+import { type RulesInput, systemPrompt } from "./rules.ts";
 
-export interface ExplainMistakeInput {
-  /** The learner's own system prompt for the task, filled in (settings); the standing rules otherwise. */
-  rules?: string;
-
+export interface ExplainMistakeInput extends RulesInput {
   exercise: Exercise;
   locale?: LocaleExercise;
   index: number;
@@ -55,7 +53,7 @@ export function explainMistakeMessages(input: ExplainMistakeInput): ChatMessage[
   const notes = grammarNotes(input, EXPLAIN_MISTAKE_BUDGETS.notes);
   const script =
     input.scriptHtml && clip(htmlToText(input.scriptHtml), EXPLAIN_MISTAKE_BUDGETS.script);
-  const system = `${input.rules ?? explainMistakeRules(input.language, input.target)}\n${EXPLAIN_FIXED}`;
+  const system = systemPrompt(input, explainMistakeRules, EXPLAIN_FIXED);
   const user = [
     "<exercise>",
     item.task,

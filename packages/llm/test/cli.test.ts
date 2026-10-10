@@ -1,7 +1,8 @@
 // The command-line backends against a fake runner: no process is started.
 import { expect, test } from "bun:test";
 import { type CliRun, cliClient, cliPrompt, cliRun } from "../src/cli.ts";
-import { chatBody, LlmError } from "../src/client.ts";
+import { chatBody } from "../src/client.ts";
+import { LlmError } from "../src/errors.ts";
 import { TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "../src/tasks/tutor-tools.ts";
 
 function fakeRunner(lines: string[]) {

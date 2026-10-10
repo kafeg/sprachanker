@@ -1,7 +1,8 @@
 // LM Studio's own REST API (v1, next to its OpenAI-compatible /v1): the models it has, loading one with
 // the context the tasks need, and downloads. LM Studio picks the engine and stores the files; the app
 // only asks (07, "LM Studio").
-import { endpointCaller, LlmError } from "./client.ts";
+import { endpointCaller } from "./client.ts";
+import { LlmError } from "./errors.ts";
 
 export interface LmStudioModel {
   /** The id chat requests use: "google/gemma-4-12b". */
