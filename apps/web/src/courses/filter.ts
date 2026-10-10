@@ -3,14 +3,14 @@
 
 /** No filter: every course, every pair. */
 export const ALL = "all";
-/** Where each page keeps its two filters (profile settings). */
+/** Where each page keeps its two filters (profile settings; nothing sets them but the bar). */
 export const CATALOG_FILTERS = { course: "catalog.course", pair: "catalog.pair" };
 export const MY_FILTERS = { course: "mine.course", pair: "mine.pair" };
 
 /**
  * The items a course title and a pair let through, and what each filter can still offer. A stored
- * value the list does not have (the onboarding's pair on a page without a course of it, a course
- * since downloaded) counts as no filter, so the page is never empty with a blank filter.
+ * value the list does not have (a pair whose courses have since gone, a course since downloaded)
+ * counts as no filter, so the page is never empty with a blank filter.
  */
 export function filterCourses<T extends { titles: string[]; editions: string[] }>(
   items: T[],

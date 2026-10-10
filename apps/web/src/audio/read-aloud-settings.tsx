@@ -1,5 +1,5 @@
 // Settings → Speech → Read aloud (08; 09): the engine as cards — the device's voices, Piper or Qwen3-TTS
-// on this computer — the voice of each of the profile's languages with "Listen" (automatic: the best one
+// on this computer — the voice of each language read aloud with "Listen" (automatic: the best one
 // there) and the text it reads (a phrase in that language, or the learner's own), Piper's voices to
 // download per language or Qwen3-TTS's models, the speed, and what is read at once.
 
@@ -40,6 +40,7 @@ import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { InUse } from "./in-use.tsx";
+import { useReadLanguages } from "./read-languages.ts";
 import { samplesOf } from "./samples.ts";
 import { bestVoice, speaks } from "./speak.ts";
 import { deviceVoice, read, stop, useDeviceVoices, voiceInfo } from "./speaker.ts";
@@ -468,7 +469,7 @@ function QwenLanguage({ lang, state }: { lang: string; state: QwenState }) {
 }
 
 export function ReadAloud() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const set = useSetSetting();
   const number = useNumber();
   const voices = useDeviceVoices();
@@ -477,10 +478,8 @@ export function ReadAloud() {
   const qwen = useQwenTts().data;
   const rate = useSetting("speech.readRate");
   const atOnce = useSetting("speech.readAtOnce");
-  const target = useSetting("learner.target");
-  const native = useSetting("learner.native") ?? i18n.language;
+  const langs = useReadLanguages();
   const [shownRate, setShownRate] = useState<number>();
-  const langs = [...new Set([target, native].filter((l): l is string => !!l))];
   const device = typeof speechSynthesis !== "undefined" && voices.length > 0;
   const piperReady = piper?.voices.filter((v) => v.installed).length ?? 0;
   const card = (

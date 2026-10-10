@@ -26,7 +26,7 @@ test("each filter offers only what fits the other, so the two never empty the pa
 });
 
 test("a stored value the list lacks counts as no filter: never an empty page with a blank filter", () => {
-  // The onboarding's pair where no course of it is offered (all downloaded already).
+  // A pair stored where no course of it is offered (all downloaded already).
   const gone = filterCourses(items, ALL, "de-en");
   expect([gone.pair, gone.active, gone.shown.length]).toEqual([ALL, false, 3]);
   // A pair the chosen course does not have: the course stays, the pair goes.

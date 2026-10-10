@@ -52,7 +52,7 @@ apps/web/src/
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
                    # profile chip — profile-chip), language-switch (the interface language, kept on the device),
                    # who-is-studying, onboarding (with tour; the AI step is a slot from
-                   # the router), profile-settings, pairs (language pairs offered), device-name, about,
+                   # the router), profile-settings, device-name, about,
                    # preferences (language, theme, playback speed), experimental (what is shown: stable sources
                    # always, experimental ones turned on), experimental-settings (Settings → Experimental)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
@@ -89,6 +89,8 @@ apps/web/src/
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
                    # read at once), speak-button, read-aloud-settings (engines, voices, downloads),
+                   # read-languages (the languages read aloud: the courses' here, else the catalogue's,
+                   # and the interface's),
                    # samples (what "Listen" reads: everyday sentences per language; pure); in-use (the mark of
                    # the model in use: Whisper's, Qwen3-TTS's)
   word/            # gender colouring

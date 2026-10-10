@@ -37,17 +37,14 @@ export const ALL_LANGS = "*";
 /** Preferences the learner sets (the settings route). */
 export const LEARNER_SETTINGS = {
   uiLanguage: Lang,
-  /** The learner's own language (explanations, translations) and the one learnt: they filter the
-   *  courses (set by the onboarding). */
-  "learner.native": Lang,
-  "learner.target": Lang,
   /** The federal state whose questions the Leben in Deutschland test asks (unset: asked when the
    *  exam starts). */
   "exam.federalState": FederalState,
   theme: z.enum(["system", "light", "dark"]),
   /** Playback speed of course audio. */
   audioRate: z.number().min(0.25).max(2),
-  /** The filters of All courses and My courses: a course title or a language pair, or "all". */
+  /** The filters of All courses and My courses, set only from their filter bar: a course title or a
+   *  language pair, or "all" (unset: everything). */
   "catalog.course": filter,
   "catalog.pair": filter,
   "mine.course": filter,

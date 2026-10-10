@@ -33,18 +33,7 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();
   await name.fill("Mila");
   await page.getByRole("button", { name: "Teal" }).click();
-  await page.getByRole("button", { name: "Next" }).click();
-  // Languages: own Russian, learn German (the fixture course teaches ru-de).
-  await expect(page.getByRole("heading", { name: "Your languages" })).toBeVisible();
-  await expect(page.getByText("Language of the app")).toHaveCount(0);
-  await page
-    .getByRole("group", { name: /Your language/ })
-    .getByRole("button", { name: /Russian|Русский/ })
-    .click();
-  await expect(
-    page.getByRole("group", { name: "Language to learn" }).getByRole("button", { name: /German/ }),
-  ).toHaveAttribute("aria-pressed", "true");
-  // No signing-in step: profiles are chosen, not unlocked.
+  // No signing-in step (profiles are chosen, not unlocked), no languages: the assistant next.
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "AI assistant" })).toBeVisible();
   await expect(page.getByRole("button", { name: /OpenRouter/ })).toBeVisible();
@@ -55,19 +44,19 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "Where things are" })).toBeVisible();
   await page.getByRole("button", { name: "Choose a course" }).click();
-  // Courses → Available, filtered by the pair chosen.
+  // Courses → Available, every course: no filter set.
   await expect(page).toHaveURL(/\/catalog$/);
   await expect(page.getByRole("link", { name: /Available/ })).toHaveAttribute(
     "aria-current",
     "page",
   );
-  // The pair filter never shows blank: the pair, or All when no course of it is offered here.
-  await expect(page.getByRole("combobox", { name: "Languages" })).not.toHaveText("");
+  const settings = (await (await page.request.get("/api/settings")).json()) as Record<
+    string,
+    unknown
+  >;
+  expect([settings["catalog.pair"], settings["mine.pair"]]).toEqual([undefined, undefined]);
   // The profile keeps the interface language: a reload stays in it.
-  expect(
-    ((await (await page.request.get("/api/settings")).json()) as Record<string, unknown>)
-      .uiLanguage,
-  ).toBe("en");
+  expect(settings.uiLanguage).toBe("en");
 
   // Deleted again from Settings, after asking: back to who is studying, where it is no more.
   await page.goto("/settings#profile");

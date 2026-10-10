@@ -797,12 +797,6 @@
       "sky": "Himmelblau",
       "lime": "Limette"
     },
-    "languages": {
-      "title": "Deine Sprachen",
-      "native": "Deine Sprache (Erklärungen, Übersetzungen)",
-      "target": "Sprache zum Lernen",
-      "none": "Noch kein Kurs erklärt in dieser Sprache."
-    },
     "assistant": {
       "title": "KI-Assistent",
       "text": "Ein Assistent erklärt Fehler, hilft in den Lektionen, prüft deine Texte und spielt Szenen. Wähle ihn jetzt oder später in den Einstellungen — die App funktioniert auch ohne."
@@ -824,9 +818,6 @@
   },
   "profile": {
     "who": "Name und Farbe",
-    "languages": "Sprachen",
-    "learner.native": "Deine Sprache",
-    "learner.target": "Sprache zum Lernen",
     "devices": "Angemeldete Geräte",
     "thisDevice": "dieses Gerät",
     "lastSeen": "zuletzt genutzt {date}",
@@ -1204,7 +1195,6 @@
     "failed": "Nicht bestanden",
     "state": "Bundesland",
     "chooseState": "Bundesland wählen",
-    "stateHint": "Für Leben in Deutschland: der Test stellt drei Fragen zu dem Bundesland, in dem du wohnst.",
     "states": {
       "bw": "Baden-Württemberg",
       "by": "Bayern",

@@ -1,5 +1,5 @@
-// The federal state whose questions an exam asks (the profile setting `exam.federalState`): on the
-// exam's page and in Settings → Profile.
+// The federal state whose questions an exam asks (the profile setting `exam.federalState`), chosen and
+// changed on the exam's page.
 import { FEDERAL_STATES, type FederalState } from "@sprachanker/schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";

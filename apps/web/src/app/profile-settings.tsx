@@ -1,10 +1,9 @@
-// Settings → Profile (06, "Profiles and access"; 09): the name and colour, the languages, the devices
-// signed in to it, switching profile, deleting it (asked to confirm).
-import { ProfileColour, settingOf } from "@sprachanker/schema";
+// Settings → Profile (06, "Profiles and access"; 09): the name and colour, the devices signed in to
+// it, switching profile, deleting it (asked to confirm).
+import { ProfileColour } from "@sprachanker/schema";
 import { LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSettings } from "@/api/hooks.ts";
 import {
   useDeleteProfile,
   useDevices,
@@ -13,10 +12,7 @@ import {
   useSignOut,
   useUpdateProfile,
 } from "@/api/session.ts";
-import { StateSelect } from "@/exams/state-select.tsx";
-import { languageName } from "@/i18n/index.ts";
 import { Avatar } from "@/ui/avatar.tsx";
-import { Chip } from "@/ui/chip.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
@@ -24,24 +20,19 @@ import { useDateFormat } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { deviceName } from "./device-name.ts";
-import { nativesOf, targetsOf, useLanguagePairs } from "./pairs.ts";
 
 export function ProfileSettings() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const profile = useSession().data?.profile;
   const update = useUpdateProfile();
-  const settings = useSettings().data;
-  const setSetting = useSetSetting();
   const signOut = useSignOut();
   const [name, setName] = useState(profile?.name ?? "");
-  const pairs = useLanguagePairs();
   if (!profile) return null;
   // An emptied name is not saved: the field shows the name kept again.
   const saveName = () => {
     if (!name.trim()) setName(profile.name);
     else if (name.trim() !== profile.name) update.mutate({ name: name.trim() });
   };
-  const lang = (key: "learner.native" | "learner.target") => settingOf(settings, key);
 
   return (
     <div className="space-y-6">
@@ -75,37 +66,6 @@ export function ProfileSettings() {
             </button>
           ))}
         </fieldset>
-      </Panel>
-      <Panel title={t("profile.languages")}>
-        {(["learner.native", "learner.target"] as const).map((key) => (
-          <fieldset
-            key={key}
-            className="mt-2 min-w-0 space-y-1.5 border-0 p-0"
-            aria-label={t(`profile.${key}`)}
-          >
-            <p className="text-sm font-medium">{t(`profile.${key}`)}</p>
-            <div className="flex flex-wrap gap-2">
-              {(key === "learner.native"
-                ? nativesOf(pairs, (l) => languageName(l, i18n.language))
-                : targetsOf(pairs, lang("learner.native") ?? i18n.language)
-              ).map((l) => (
-                <Chip
-                  key={l}
-                  on={lang(key) === l}
-                  onClick={() => setSetting.mutate({ key, value: l })}
-                >
-                  {languageName(l, i18n.language, true)}
-                </Chip>
-              ))}
-            </div>
-          </fieldset>
-        ))}
-        {/* Leben in Deutschland asks three questions of the learner's state. */}
-        <div className="mt-4 space-y-1.5">
-          <p className="text-sm font-medium">{t("exams.state")}</p>
-          <StateSelect className="max-w-xs" />
-          <p className="text-sm text-muted-foreground">{t("exams.stateHint")}</p>
-        </div>
       </Panel>
       <DevicesPanel />
       <Button

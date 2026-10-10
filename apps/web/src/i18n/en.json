@@ -797,12 +797,6 @@
       "sky": "Sky",
       "lime": "Lime"
     },
-    "languages": {
-      "title": "Your languages",
-      "native": "Your language (explanations, translations)",
-      "target": "Language to learn",
-      "none": "No course here teaches from this language yet."
-    },
     "assistant": {
       "title": "AI assistant",
       "text": "An assistant explains mistakes, tutors in lessons, checks your texts and plays scenes. Choose one now or later in Settings — the app works without one."
@@ -824,9 +818,6 @@
   },
   "profile": {
     "who": "Name and colour",
-    "languages": "Languages",
-    "learner.native": "Your language",
-    "learner.target": "Language to learn",
     "devices": "Devices signed in",
     "thisDevice": "this device",
     "lastSeen": "last used {date}",
@@ -1204,7 +1195,6 @@
     "failed": "Not passed",
     "state": "Federal state",
     "chooseState": "Choose a federal state",
-    "stateHint": "For Leben in Deutschland: the test asks three questions about the state you live in.",
     "states": {
       "bw": "Baden-Württemberg",
       "by": "Bavaria",

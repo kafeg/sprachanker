@@ -75,7 +75,7 @@ for (const s of examScenarios())
   test(`exam ${s.key} [${s.edition}]`, async ({ page }) => {
     const exam = examFile(s);
     const items = new Map(exam.items.map((i) => [i.key as string, i]));
-    const [native, target] = s.edition.split("-") as [string, string];
+    const target = s.edition.split("-")[1] as string;
     const consoleErrors: string[] = [];
     page.on("pageerror", (e) => consoleErrors.push(e.message));
 
@@ -87,8 +87,6 @@ for (const s of examScenarios())
     const { profile } = (await made.json()) as { profile: { id: string } };
     for (const [key, value] of [
       ["uiLanguage", "en"],
-      ["learner.native", native],
-      ["learner.target", target],
       // An experimental exam is shown once turned on (Settings → Experimental).
       ["experimental.on", ["exams", `exams:${s.series}`]],
     ] as const)

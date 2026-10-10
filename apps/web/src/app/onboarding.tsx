@@ -1,9 +1,7 @@
 // A new profile's onboarding (06, "Profiles and access"; 09): welcome with the interface language
-// (courses come straight from their publishers) → name (never empty) and colour → languages (own,
-// learnt: the pair filters the courses) → the AI assistant (a slot: the llm
-// folder's own settings) → speech (the microphone test, the recogniser's download) → a tour → the
-// courses, filtered by the pair. Every step but the tour can be
-// changed later in Settings.
+// (courses come straight from their publishers) → name (never empty) and colour → the AI assistant
+// (a slot: the llm folder's own settings) → speech (the microphone test, the recogniser's download) →
+// a tour → the courses. Every step but the tour can be changed later in Settings.
 
 import { ProfileColour } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
@@ -11,18 +9,14 @@ import { useTranslation } from "react-i18next";
 import { useSetSetting } from "@/api/hooks.ts";
 import { type SessionProfile, useUpdateProfile } from "@/api/session.ts";
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
-import { CATALOG_FILTERS, MY_FILTERS } from "@/courses/filter.ts";
-import { languageName, UI_LANGUAGES } from "@/i18n/index.ts";
 import { Avatar } from "@/ui/avatar.tsx";
-import { Chip } from "@/ui/chip.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { cn } from "@/ui/utils.ts";
 import { LanguageSwitch } from "./language-switch.tsx";
-import { nativesOf, targetsOf, useLanguagePairs } from "./pairs.ts";
 import { Tour } from "./tour.tsx";
 
-const STEPS = ["welcome", "name", "languages", "assistant", "speech", "tour"] as const;
+const STEPS = ["welcome", "name", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
 
 export function Onboarding({
@@ -47,27 +41,12 @@ export function Onboarding({
   const at = steps.indexOf(step);
   const update = useUpdateProfile();
   const setSetting = useSetSetting();
-  const pairs = useLanguagePairs();
   const [name, setName] = useState(profile.name);
   const [colour, setColour] = useState(profile.colour);
-  const [native, setNative] = useState<string>(
-    (UI_LANGUAGES as readonly string[]).includes(i18n.language) ? i18n.language : "en",
-  );
-  const targets = targetsOf(pairs, native);
-  const [target, setTarget] = useState<string>();
-  const learnt = target && targets.includes(target) ? target : targets[0];
 
   const next = async () => {
     if (step === "welcome") setSetting.mutate({ key: "uiLanguage", value: i18n.language });
     if (step === "name") update.mutate({ name: name.trim(), colour });
-    if (step === "languages" && learnt) {
-      setSetting.mutate({ key: "learner.native", value: native });
-      setSetting.mutate({ key: "learner.target", value: learnt });
-      // The courses open filtered by the pair (cleared from the filter bar).
-      if (pairs.includes(`${native}-${learnt}`))
-        for (const key of [CATALOG_FILTERS.pair, MY_FILTERS.pair])
-          setSetting.mutate({ key, value: `${native}-${learnt}` });
-    }
     const following = steps[at + 1];
     if (following) setStep(following);
     else {
@@ -130,25 +109,6 @@ export function Onboarding({
             </fieldset>
           </>
         )}
-        {step === "languages" && (
-          <>
-            <Choice
-              label={t("onboarding.languages.native")}
-              options={nativesOf(pairs, (l) => languageName(l, i18n.language))}
-              value={native}
-              onPick={setNative}
-            />
-            <Choice
-              label={t("onboarding.languages.target")}
-              options={targets}
-              value={learnt}
-              onPick={setTarget}
-            />
-            {!targets.length && (
-              <p className="text-sm text-muted-foreground">{t("onboarding.languages.none")}</p>
-            )}
-          </>
-        )}
         {step === "assistant" && (
           <>
             <p className="text-muted-foreground">{t("onboarding.assistant.text")}</p>
@@ -174,7 +134,7 @@ export function Onboarding({
         )}
         <Button
           size="lg"
-          disabled={(step === "languages" && !learnt) || (step === "name" && !name.trim())}
+          disabled={step === "name" && !name.trim()}
           loading={update.isPending && at === steps.length - 1}
           onClick={() => void next()}
         >
@@ -182,31 +142,5 @@ export function Onboarding({
         </Button>
       </div>
     </main>
-  );
-}
-
-function Choice({
-  label,
-  options,
-  value,
-  onPick,
-}: {
-  label: string;
-  options: string[];
-  value?: string;
-  onPick(lang: string): void;
-}) {
-  const { i18n } = useTranslation();
-  return (
-    <fieldset className="min-w-0 space-y-2 border-0 p-0" aria-label={label}>
-      <p className="font-medium">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {options.map((l) => (
-          <Chip key={l} on={l === value} onClick={() => onPick(l)}>
-            {languageName(l, i18n.language, true)}
-          </Chip>
-        ))}
-      </div>
-    </fieldset>
   );
 }

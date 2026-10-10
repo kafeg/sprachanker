@@ -2,6 +2,7 @@ import { afterEach, beforeEach, expect, test } from "bun:test";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { act, fireEvent, renderHook, waitFor, within } from "@testing-library/react";
 import { ReadAloud } from "../../src/audio/read-aloud-settings.tsx";
+import { useReadLanguages } from "../../src/audio/read-languages.ts";
 import { samplesOf } from "../../src/audio/samples.ts";
 import { SpeakButton } from "../../src/audio/speak-button.tsx";
 import { useReadAtOnce } from "../../src/audio/speaker.ts";
@@ -131,10 +132,38 @@ test("read at once: only a line that comes while the page is open, and only what
   expect(run("none", "scene")).toEqual([]);
 });
 
-test("Settings: the profile's languages with their voice (automatic: the best one) and Listen", async () => {
+/** Courses installed here, by the editions they are in. */
+const installed = (...editions: string[][]): [unknown[], unknown] => [
+  ["courses"],
+  editions.map((e) => ({ editions: e })),
+];
+
+test("the languages read aloud: those the courses here teach, else those the shown catalogue does; and the interface's", () => {
+  const langs = (data: Array<[unknown[], unknown]>) => {
+    const client = queryClient([[["courses"], []], ...data]);
+    return renderHook(() => useReadLanguages(), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={client}>{children}</QueryClientProvider>
+      ),
+    }).result.current;
+  };
+  const catalog: [unknown[], unknown] = [
+    ["catalog"],
+    [
+      { series: "dw.nicos-weg", edition: "ru-de" },
+      { series: "lid", edition: "de-de", kind: "exam" },
+      { series: "coerll.dib", edition: "en-fr", experimental: true },
+    ],
+  ];
+  expect(langs([installed(["ru-de", "en-de"], ["en-ru"]), catalog])).toEqual(["de", "ru", "en"]);
+  expect(langs([catalog])).toEqual(["de", "en"]);
+});
+
+test("Settings: each language read aloud with its voice (automatic: the best one) and Listen", async () => {
   const view = await renderApp(<ReadAloud />, {
     data: [
-      [["settings"], { "learner.target": "de", "learner.native": "ru" }],
+      installed(["en-de"], ["en-ru"]),
+      [["catalog"], []],
       [["piper-voices"], { engine: false, voices: [] }],
       [["qwen-tts"], NO_QWEN],
     ],
@@ -215,10 +244,9 @@ const PIPER = {
 test("Settings with Piper: each language's voices — the one reading, those to download, one coming", async () => {
   const view = await renderApp(<ReadAloud />, {
     data: [
-      [
-        ["settings"],
-        { "learner.target": "de", "learner.native": "ru", "speech.readEngine": "piper" },
-      ],
+      [["settings"], { "speech.readEngine": "piper" }],
+      installed(["en-de"], ["en-ru"]),
+      [["catalog"], []],
       [["piper-voices"], PIPER],
       [["qwen-tts"], NO_QWEN],
     ],
@@ -317,10 +345,9 @@ test("a piece the server cannot say is said by the device's voice", async () => 
 test("Settings with Qwen3-TTS: its models (the one in use), each language's speaker; a language it lacks said so", async () => {
   const view = await renderApp(<ReadAloud />, {
     data: [
-      [
-        ["settings"],
-        { "learner.target": "de", "learner.native": "ar", "speech.readEngine": "qwen" },
-      ],
+      [["settings"], { "speech.readEngine": "qwen" }],
+      installed(["en-de"], ["en-ar"]),
+      [["catalog"], []],
       [["piper-voices"], { engine: false, voices: [] }],
       [
         ["qwen-tts"],

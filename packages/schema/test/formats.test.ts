@@ -72,7 +72,7 @@ test("a preference reads as set, else its default; one without a default stays u
   expect(settingOf({}, "speech.recognition")).toBe(true);
   expect(settingOf({ "speech.recognition": false }, "speech.recognition")).toBe(false);
   expect(settingOf(undefined, "theme")).toBe("system");
-  expect(settingOf({}, "learner.target")).toBeUndefined();
+  expect(settingOf({}, "exam.federalState")).toBeUndefined();
   // Every default fits its key's schema.
   for (const [key, value] of Object.entries(SETTING_DEFAULTS))
     expect(LEARNER_SETTINGS[key as keyof typeof LEARNER_SETTINGS].safeParse(value).success).toBe(

@@ -19,11 +19,11 @@ test.afterAll(() => {
 for (const s of scenarios())
   test(`lesson ${s.key} [${s.edition}]`, async ({ page }) => {
     const { lesson, locale } = lessonFiles(s);
-    const [native, target] = s.edition.split("-") as [string, string];
+    const target = s.edition.split("-")[1] as string;
     const consoleErrors: string[] = [];
     page.on("pageerror", (e) => consoleErrors.push(e.message));
 
-    // A profile of its own, studying the lesson's pair in English, its cards by all three faces.
+    // A profile of its own, in English, its cards by all three faces.
     const made = await page.request.post("/api/profiles", {
       data: { name: s.key.slice(0, 40) },
       headers: { ...CLIENT_HEADERS },
@@ -32,8 +32,6 @@ for (const s of scenarios())
     const { profile } = (await made.json()) as { profile: { id: string } };
     for (const [key, value] of [
       ["uiLanguage", "en"],
-      ["learner.native", native],
-      ["learner.target", target],
       ["srs.faces", ["recognition", "production", "listening"]],
       // An experimental course is shown once turned on (Settings → Experimental).
       ["experimental.on", ["courses", `courses:${s.series}`]],

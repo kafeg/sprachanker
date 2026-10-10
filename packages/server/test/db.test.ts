@@ -187,6 +187,26 @@ test("server.sqlite without PINs: a profile with one and its device are kept, th
   expect(sqlite.query("SELECT id FROM devices").all()).toEqual([{ id: "d" }]);
 });
 
+test("profile.sqlite without the learner's languages: they and the pair filters go, other settings stay", () => {
+  const file = fresh();
+  const { db, sqlite, options } = runner(file);
+  migrate(db, migrations.slice(0, 1), options(1));
+  for (const [key, value] of [
+    ["learner.native", "ru"],
+    ["learner.target", "de"],
+    ["catalog.pair", "ru-de"],
+    ["mine.pair", "ru-de"],
+    ["catalog.course", "all"],
+    ["theme", "dark"],
+  ])
+    sqlite.exec(`INSERT INTO settings (key, value_json) VALUES ('${key}', '"${value}"')`);
+  expect(migrate(db, migrations.slice(0, 2), options(2))).toEqual(["0001_drop_learner_languages"]);
+  expect(sqlite.query("SELECT key, value_json FROM settings ORDER BY key").all()).toEqual([
+    { key: "catalog.course", value_json: '"all"' },
+    { key: "theme", value_json: '"dark"' },
+  ]);
+});
+
 test("a database waits for another connection's write instead of failing at once", () => {
   const dir = mkdtempSync(join(tmpdir(), "sprachanker-busy-"));
   const db = openProfileDb(join(dir, "profile.sqlite"));
