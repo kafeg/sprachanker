@@ -117,16 +117,6 @@
               "type": "string"
             }
           },
-          "gaps": {
-            "type": "object",
-            "propertyNames": {
-              "type": "string",
-              "pattern": "^g[1-9]\\d*$"
-            },
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
           "reference": {
             "type": "array",
             "items": {

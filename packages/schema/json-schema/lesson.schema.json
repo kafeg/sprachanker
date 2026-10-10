@@ -24,9 +24,6 @@
             "hd": {
               "$ref": "#/$defs/MediaPath"
             },
-            "subtitled": {
-              "$ref": "#/$defs/MediaPath"
-            },
             "subtitles": {
               "$ref": "#/$defs/MediaPath"
             }
@@ -1263,27 +1260,10 @@
                       ],
                       "additionalProperties": false
                     }
-                  },
-                  "criteria": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "id": {
-                          "type": "string",
-                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
-                        }
-                      },
-                      "required": [
-                        "id"
-                      ],
-                      "additionalProperties": false
-                    }
                   }
                 },
                 "required": [
-                  "required",
-                  "criteria"
+                  "required"
                 ],
                 "additionalProperties": false
               },

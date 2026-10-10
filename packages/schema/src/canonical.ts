@@ -72,8 +72,6 @@ export const Lesson = z
         .strictObject({
           sd: MediaPath.optional(),
           hd: MediaPath.optional(),
-          /** Variant with subtitles burned in. */
-          subtitled: MediaPath.optional(),
           /** Target-language subtitle track (WebVTT). */
           subtitles: MediaPath.optional(),
         })

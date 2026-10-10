@@ -11,8 +11,6 @@ export const RespondItem = ItemBase.extend({
     .strictObject({
       /** Groups of which the answer must contain at least one variant. */
       required: z.array(z.strictObject({ id: RubricId, anyOf: z.array(z.string().min(1)).min(1) })),
-      /** Criteria judged by the LLM; their texts live in the locale file. */
-      criteria: z.array(z.strictObject({ id: RubricId })),
     })
     .optional(),
   /** Model answers in the target language; a translation into the learner's language has its model

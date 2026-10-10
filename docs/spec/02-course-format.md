@@ -186,7 +186,7 @@ the exam has, and none is above the points it can give.
   "passWhen": "all" }
 ```
 
-Lesson `media`: `video` (`sd`, `hd`, `subtitled`, `subtitles`), `image`, and `audio` — a lesson-level
+Lesson `media`: `video` (`sd`, `hd`, `subtitles`), `image`, and `audio` — a lesson-level
 recording (Deutschtrainer reads the lesson's words and phrases aloud); all optional. Any `media` (a
 lesson's, an exercise's, an item's or an option's) may carry `credit`: whose picture or recording it
 is, as the source credits it, shown with it.
@@ -213,7 +213,7 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
 | `speech_selfrate` | `text?`, `media.audio?` (its `answerAudio` played after the first try) | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With `text`, what was heard gets a word diff; without, the AI checks it (08) |
-| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (an LLM verdict: plan, "Later"); without a rubric unscored, the model answers shown |
+| `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (an LLM verdict: plan, "Later"); without a rubric unscored, the model answers shown |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 
@@ -245,8 +245,8 @@ never empty.
 ```
 
 Items are referenced as `#<n>` within their exercise; an item may carry `prompt`, `hintHtml`, option
-texts (`options{id:text}`), image descriptions (`alt`), gap labels and learner-language model answers
-(`reference`). A vocab entry's `examples` (canonical, target language) have their translations in the
+texts (`options{id:text}`), image descriptions (`alt`), learner-language model answers (`reference`)
+and an exam's open answer's criteria named, with what each level means (`criteria`). A vocab entry's `examples` (canonical, target language) have their translations in the
 locale entry's `examples`, in the same order. Which source fields are learner
 language is decided by the provider per mechanic and field; a field the source fills in either
 language (DW's choice prompts and options — a question on what a text says —, Lingust's prompts and

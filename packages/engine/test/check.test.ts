@@ -319,7 +319,7 @@ describe("speech and open answers", () => {
   test("respond: rubric first, LLM verdict pending", () => {
     const e = ex("respond", {
       input: "text",
-      rubric: { required: [{ id: "drink", anyOf: ["Kaffee", "Tee"] }], criteria: [] },
+      rubric: { required: [{ id: "drink", anyOf: ["Kaffee", "Tee"] }] },
       reference: ["Einen Kaffee, bitte."],
     });
     const o = checkItem(e, 0, { text: "Ich möchte einen Tee." }, "de");

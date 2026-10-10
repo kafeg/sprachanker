@@ -317,10 +317,7 @@ export const speakingLesson: Lesson = {
       items: [
         {
           input: "text",
-          rubric: {
-            required: [{ id: "drink", anyOf: ["Kaffee", "Tee"] }],
-            criteria: [{ id: "polite" }],
-          },
+          rubric: { required: [{ id: "drink", anyOf: ["Kaffee", "Tee"] }] },
           reference: ["Einen Kaffee, bitte.", "Ich hätte gern einen Tee."],
         },
       ],

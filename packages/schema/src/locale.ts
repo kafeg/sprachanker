@@ -1,7 +1,7 @@
 // Learner-language texts of one edition, at the same key paths as the canonical files (02).
 import { z } from "zod";
 import { format, MediaPath } from "./common.ts";
-import { GapId, OptionId } from "./exercise/index.ts";
+import { OptionId } from "./exercise/index.ts";
 import {
   CourseKey,
   ExamItemKey,
@@ -32,7 +32,6 @@ export const LocaleItem = z.strictObject({
   options: z.record(OptionId, z.string()).optional(),
   /** Image descriptions for accessibility, by option id or `item`. */
   alt: z.record(z.string(), z.string()).optional(),
-  gaps: z.record(GapId, z.string()).optional(),
   /** `respond` answered in the learner's language: its model answers. */
   reference: z.array(z.string().min(1)).optional(),
   /** An exam's open answer: its criteria named, and what each level means (best first). */
