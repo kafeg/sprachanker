@@ -73,7 +73,11 @@ export function ErrorLine({
       {onRetry && (
         <>
           {" "}
-          <button type="button" className="underline pointer-coarse:min-h-11" onClick={onRetry}>
+          <button
+            type="button"
+            className="underline pointer-coarse:min-h-11 pointer-coarse:min-w-11"
+            onClick={onRetry}
+          >
             {t("common.retry")}
           </button>
         </>

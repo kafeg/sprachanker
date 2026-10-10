@@ -82,23 +82,23 @@ apps/web/src/
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, checked-text (a model's check: verdict, the text
-                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented), check-row (a setting on or off), option-card (one of a few options as a card: an engine, a provider), disclosure (folded: "Advanced"),
-                   # confirm (an action that cannot be undone), flags (a language's flag), error-text (an
-                   # API error in words), target-lang (`lang` of the course's language), window-title,
-                   # utils (cn)
+                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented),
+                   # check-row (a setting on or off), option-card (one of a few options as a card),
+                   # disclosure (folded: "Advanced"), confirm (an action that cannot be undone), flags,
+                   # error-text (an API error in words), target-lang (`lang` of the course's language),
+                   # window-title, utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
                    # context (the speech host the router provides: keep recordings, show the phrase,
-                   # save, src, recognition — renderers call no API; use-speech-host makes it), speech-
-                   # settings (Settings → Speech; SpeechSetup is also the onboarding's step),
+                   # save, src, recognition — renderers call no API; use-speech-host makes it),
+                   # speech-settings (Settings → Speech; SpeechSetup is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
-                   # read at once), speak-button, read-aloud-settings (the engines as cards, the speed)
-                   # with each engine's voices: device-voices, piper-voices, qwen-voices (voice-pick: a
-                   # language's voice and "Listen"); download-row (a model or voice the server
-                   # downloads), read-languages (the courses' here, else the catalogue's, and the
-                   # interface's), samples ("Listen"'s sentences; pure), in-use (the model in use's mark)
+                   # read at once), speak-button, read-aloud-settings (engine cards, speed) with each
+                   # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
+                   # "Listen"); download-row (a model or voice the server downloads), read-languages (the
+                   # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)

@@ -12,10 +12,10 @@ import {
   filterModels,
   groupModels,
   initialFilters,
-  type ListedModel,
   type ModelFilters,
   modelFacets,
 } from "./model-filter.ts";
+import type { ListedModel } from "./setup-api.ts";
 
 /** Publishers shown as filters before "more". */
 const TOP_PUBLISHERS = 6;

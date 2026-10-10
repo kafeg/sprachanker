@@ -2,8 +2,6 @@
 // the models a search and the filters let through, grouped by publisher. Pure.
 import type { ListedModel } from "./setup-api.ts";
 
-export type { ListedModel } from "./setup-api.ts";
-
 export interface ModelFilters {
   search: string;
   free: boolean;

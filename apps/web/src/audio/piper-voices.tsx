@@ -90,6 +90,7 @@ function PiperLanguage({ lang, state }: { lang: string; state: PiperState }) {
               title={nameOf(v)}
               item={v}
               removeLabel={t("speech.settings.removeVoice", { voice: nameOf(v) })}
+              starting={actions.download.isPending && actions.download.variables === v.id}
               onDownload={() => actions.download.mutate(v.id)}
               onRemove={() => actions.remove.mutate(v.id)}
             />

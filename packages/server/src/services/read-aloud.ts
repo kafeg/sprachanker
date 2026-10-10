@@ -75,8 +75,8 @@ export function createReadAloud(deps: { host?: PiperHost; readings?: ReadingCach
   }
 
   return {
-    /** The engine (built or not), every voice (each language's best first: installed, downloading,
-     *  failed) and the voice each language is read with unless the profile picks one. */
+    /** The engine (built or not), every voice (each language's best first: its region, then its
+     *  quality) and the voice each language is read with unless the profile picks one. */
     state() {
       const voices = PIPER_VOICES.map((v) => ({
         id: v.id,

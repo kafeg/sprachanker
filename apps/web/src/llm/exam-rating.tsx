@@ -26,14 +26,8 @@ export function ProposeRating({
   const ask = () => propose.mutate(request, { onSuccess: ({ event }) => event && onStored(event) });
   if (proposed && !propose.isPending) return null;
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={ask}
-        loading={propose.isPending}
-        aria-live="polite"
-      >
+    <div className="flex flex-wrap items-center gap-2 text-sm" aria-live="polite">
+      <Button variant="outline" size="sm" onClick={ask} loading={propose.isPending}>
         {!propose.isPending && <Sparkles className="size-4" />}
         {propose.isPending ? t("exams.rating.proposing") : t("exams.rating.propose")}
       </Button>

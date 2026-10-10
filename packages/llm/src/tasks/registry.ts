@@ -10,7 +10,7 @@ import type { TaskRules } from "./rules.ts";
 import { SCENE_BUDGETS, sceneSetupRules, sceneTurnRules } from "./scene.ts";
 import { WORD_EXAMPLE_BUDGETS, wordExampleRules } from "./word-example.ts";
 
-export interface TaskPrompt {
+export interface TaskPromptEntry {
   rules: TaskRules;
   budgets: Readonly<Record<string, number>>;
 }
@@ -28,7 +28,7 @@ export const TASK_PROMPTS = {
   },
   scene: { rules: sceneTurnRules, budgets: SCENE_BUDGETS },
   example: { rules: wordExampleRules, budgets: WORD_EXAMPLE_BUDGETS },
-} as const satisfies Record<string, TaskPrompt>;
+} as const satisfies Record<string, TaskPromptEntry>;
 
 export type PromptTask = keyof typeof TASK_PROMPTS;
 /** The tasks in the order the settings show them. */

@@ -3,10 +3,10 @@ import {
   filterModels,
   groupModels,
   initialFilters,
-  type ListedModel,
   modelFacets,
   NO_FILTERS,
 } from "../../src/llm/model-filter.ts";
+import type { ListedModel } from "../../src/llm/setup-api.ts";
 
 const models: ListedModel[] = [
   {

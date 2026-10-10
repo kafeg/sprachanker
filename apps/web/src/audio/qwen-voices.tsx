@@ -46,6 +46,7 @@ export function QwenVoices({ state, langs }: { state: QwenState; langs: string[]
               title={title}
               item={m}
               removeLabel={t("speech.settings.removeVoice", { voice: title })}
+              starting={actions.download.isPending && actions.download.variables === m.id}
               onDownload={() => actions.download.mutate(m.id)}
               onRemove={() => actions.remove.mutate(m.id)}
               marked={m.inUse}

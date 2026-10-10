@@ -27,7 +27,6 @@ import {
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
-type Ids = LessonSlotContext;
 type Turn = SceneState["turns"][number];
 type Action = ReturnType<typeof useSceneAction>;
 type Busy = { preparing: true } | { line: string } | null;
@@ -118,7 +117,7 @@ function CurrentScene({
   busy,
   onNew,
 }: {
-  ids: Ids;
+  ids: LessonSlotContext;
   scene: SceneState;
   action: Action;
   /** What the model is doing for the scene now (asked from here or before leaving the page). */
@@ -214,7 +213,7 @@ function PastScenes({ scenes }: { scenes: SceneState[] }) {
 
 /** The lesson's scene step: the latest scene (or a start), then the earlier ones; `onDone` once a
  *  scene was started. */
-export function SceneStep({ onDone, ...ids }: Ids & { onDone?(): void }) {
+export function SceneStep({ onDone, ...ids }: LessonSlotContext & { onDone?(): void }) {
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const scenes = useScenes(ids.lessonKey);

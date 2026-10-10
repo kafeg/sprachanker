@@ -1,6 +1,6 @@
 // Piper on this machine (08): sherpa-onnx's `sherpa-onnx-offline-tts` run once per text, its voices in
 // <data-root>/models/voices (each archive checked, unpacked by `tar`, put in place whole), a reading
-// written to a temporary folder and read back.
+// written to a temporary folder of its own and read back.
 import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -14,9 +14,6 @@ const RUN_MS = 60_000;
 export function piperHost(dataRoot: string): PiperHost {
   const voices = join(dataRoot, "models", "voices");
   removeParts(voices);
-  /** Piper's output while it is read back. */
-  const out = mkdtempSync(join(tmpdir(), "sprachanker-piper-"));
-  let runs = 0;
   return {
     binary: () => engineAt("piper"),
     voiceDir(id) {
@@ -51,7 +48,9 @@ export function piperHost(dataRoot: string): PiperHost {
       rmSync(join(voices, `${id}.tar.bz2.part`), { force: true });
     },
     async run({ binary, dir, id, text, lengthScale }) {
-      const wav = join(out, `${++runs}.wav`);
+      // A folder per reading, gone after it: nothing to lose to a temp cleaner, nothing left behind.
+      const out = mkdtempSync(join(tmpdir(), "sprachanker-piper-"));
+      const wav = join(out, "reading.wav");
       const proc = Bun.spawn(
         [
           binary,
@@ -71,7 +70,7 @@ export function piperHost(dataRoot: string): PiperHost {
         if (code !== 0 || !existsSync(wav)) throw new Error(`reading aloud failed (${code})`);
         return new Uint8Array(await Bun.file(wav).arrayBuffer());
       } finally {
-        rmSync(wav, { force: true });
+        rmSync(out, { recursive: true, force: true });
       }
     },
   };

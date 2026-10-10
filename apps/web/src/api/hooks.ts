@@ -397,7 +397,7 @@ function downloadable<S>(
   items: (state: S) => ReadonlyArray<{ downloaded?: number }>,
   change: { download(id: string): Promise<unknown>; remove(id: string): Promise<unknown> },
 ) {
-  const useState = (enabled = true) =>
+  const useQueryState = (enabled = true) =>
     useQuery({
       queryKey: [key],
       queryFn: get,
@@ -413,7 +413,7 @@ function downloadable<S>(
       remove: useMutation({ mutationFn: change.remove, onSuccess }),
     };
   }
-  return [useState, useActions] as const;
+  return [useQueryState, useActions] as const;
 }
 
 /** Recognition: the engine, its models, the profile's. */
