@@ -219,9 +219,16 @@ export function createExams({
     async page(key: ExamKey, edition: string) {
       const s = await standing(key);
       const locale = (await content.localeExam(seriesOf(key), key, edition)) ?? null;
+      // Where it was read and what was checked (none for an exam imported before they were kept).
+      const sources =
+        (await content.examSources(seriesOf(key), key).catch((error: unknown) => {
+          console.error(`${key}: its sources do not read; left out: ${String(error)}`);
+          return undefined;
+        })) ?? null;
       return {
         exam: s.exam,
         locale,
+        sources,
         readiness: s.readiness,
         needs: s.needs,
         stats: Object.fromEntries(s.stats),

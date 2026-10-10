@@ -9,6 +9,7 @@ import {
   EditionId,
   Exam,
   type ExamKey,
+  ExamSources,
   issuesText,
   Lesson,
   type LessonKey,
@@ -129,6 +130,17 @@ export function openLibrary(root: string): LibraryView {
       return existsSync(file) ? read(LocaleExam, file) : undefined;
     },
     examStamp: (series, key, edition) => stamp(examFile(series, key, edition)),
+    async examSources(series, key) {
+      const { courseId, slug } = parseExamKey(key);
+      const file = join(seriesDir(series), "canonical", courseId, "sources", `${slug}.json`);
+      return existsSync(file) ? read(ExamSources, file) : undefined;
+    },
+    rawFile(series, path) {
+      if (!SeriesKey.safeParse(series).success) return undefined;
+      const base = join(seriesDir(series), "raw") + sep;
+      const file = normalize(join(seriesDir(series), path));
+      return file.startsWith(base) && existsSync(file) ? file : undefined;
+    },
     mediaFile(series, path) {
       if (!SeriesKey.safeParse(series).success) return undefined;
       const base = join(seriesDir(series), "media") + sep;

@@ -8,12 +8,14 @@ import {
   correctOptions,
   type Exam,
   type ExamKey,
+  type ExamSources,
   type Exercise,
   type Lesson,
   type LessonKey,
   type LocaleExam,
   type LocaleLesson,
 } from "@sprachanker/schema";
+import { hashFile } from "./files.ts";
 import { fingerprint } from "./fingerprint.ts";
 import type { CourseProblem, CourseReport, LibraryView } from "./library-view.ts";
 
@@ -214,6 +216,43 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
   return out;
 }
 
+/**
+ * An exam's sources that do not hold (03): a question without its place in a document, a place in a
+ * document not listed, a kept copy missing or changed since it was read (its sha256), a check that did
+ * not pass for every question.
+ */
+async function sourcesProblems(
+  library: LibraryView,
+  series: string,
+  exam: Exam,
+  sources: ExamSources,
+): Promise<CourseProblem[]> {
+  const out: CourseProblem[] = [];
+  const at = `${exam.key} sources`;
+  if (sources.exam !== exam.key) out.push(inconsistent(at, `the file is for ${sources.exam}`));
+  const documents = new Set(sources.documents.map((d) => d.id));
+  for (const item of exam.items) {
+    const found = sources.items[item.key];
+    if (!found?.length) out.push(inconsistent(item.key, "no source"));
+    for (const f of found ?? [])
+      if (!documents.has(f.document))
+        out.push(inconsistent(item.key, `source ${f.document} is not one of the exam's documents`));
+  }
+  for (const d of sources.documents) {
+    if (!d.raw) continue;
+    const file = library.rawFile(series, d.raw);
+    if (!file) {
+      out.push(inconsistent(at, `the copy of ${d.id} (${d.raw}) is missing`));
+      continue;
+    }
+    if (d.sha256 && (await hashFile(file)).sha256 !== d.sha256)
+      out.push(inconsistent(at, `the copy of ${d.id} (${d.raw}) changed since it was read`));
+  }
+  for (const c of sources.checks)
+    if (c.passed !== c.of) out.push(inconsistent(at, `check ${c.id}: ${c.passed} of ${c.of}`));
+  return out;
+}
+
 /** An exam's texts in one edition that do not match it. */
 function localeExamProblems(exam: Exam, locale: LocaleExam, edition: string): CourseProblem[] {
   const out: CourseProblem[] = [];
@@ -321,6 +360,10 @@ export async function verifyCourse(
     report.items += exam.items.length;
     mediaPaths(exam, media);
     report.problems.push(...examProblems(exam, key));
+    const sources = await guard(`${key} sources`, () =>
+      library.examSources(series, key as ExamKey),
+    );
+    if (sources) report.problems.push(...(await sourcesProblems(library, series, exam, sources)));
     for (const edition of editions) {
       const locale = await guard(`${edition} ${key}`, () =>
         library.localeExam(series, key as ExamKey, edition),

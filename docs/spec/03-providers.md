@@ -156,7 +156,10 @@ section (`kind: "exam"`), not among the courses.
   reported. Keys `q-001` … `q-300`, `q-<state>-01` … `-10` (ISO 3166-2 codes); tags
   `{ federalState }`; sections `s-general` (draw 30) and `s-state` (draw 3, filtered by the profile's
   `exam.federalState`); pass marks `lid` 15 and `naturalisation` 17. The catalogue's date ("Stand: …")
-  is in the course's description; a catalogue without one is refused.
+  is in the course's description; a catalogue without one is refused. Its sources (02): the catalogue
+  (its copy's sha256) and the test centre, each question's place in both ("Saarland, Aufgabe 1";
+  "Frage 301 (Saarland)"), the checks: 460 questions read, options the same word for word,
+  answers marked twice, pictures kept.
 
 ## 2b. Goethe-Zertifikat model tests (`goethe` → `goethe.zertifikat`, courses `a1`, `a2`, `b1`, edition `de-de`)
 
@@ -197,7 +200,10 @@ Sprechen: plan, 3b-3.
   section's `letters`; the right one from the Teil's solution page by number (by order where a page numbers its own Teil
   from 1), matched by its text, its letter ("Bild c") or letter and text. A question no answer matches is
   left out and reported. Keys `q-<module>-<n>`, examples `q-<section>-bsp<n>`, sections
-  `s-<module>-<teil>`. Pass marks while Schreiben and Sprechen are not imported: A1 and A2 60 % of
+  `s-<module>-<teil>`. Its sources (02): every module and solution page with its copy's sha256, each
+  question's place ("Teil 1, Aufgabe 2") and its answer's ("Lösung 2"), the checks: questions read,
+  answers matched, numbers, recordings placed, media kept. Pass marks while Schreiben and Sprechen are
+  not imported: A1 and A2 60 % of
   the points of the modules there are; B1 each module 60 of 100, all needed.
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)

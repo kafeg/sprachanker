@@ -3,6 +3,7 @@
 // recording, how often it plays, its examples — and its questions as single-choice items whose right
 // option comes from the Teil's solution page. Pure: the pages, the pictures' texts and the media files
 // are given.
+import { createHash } from "node:crypto";
 import { escapeHtml, type LibraryFile, libraryFile } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
@@ -11,6 +12,7 @@ import {
   type ExamItem,
   type ExamItemKey,
   type ExamSectionKey,
+  type ExamSources,
   examItemKey,
   examSectionKey,
   type LocaleCourse,
@@ -40,7 +42,16 @@ export interface LevelPages {
   longdesc(url: string): string | undefined;
   /** A medium's file in the library by its address. */
   media(url: string): MediaPath | undefined;
+  /** When the pages were read (epoch ms: the newest copy kept). */
+  readAt: number;
 }
+
+/** Where the import keeps a page it read: a module page, a Teil's solution page (its name without
+ *  ".php"), a picture's text page. */
+export const rawPath = (level: Level, kind: "module" | "solution" | "text", name: string) =>
+  `raw/${EDITION}/${level.course}/${kind === "module" ? "" : kind === "solution" ? "solutions/" : "texts/"}${name}${kind === "text" ? "" : ".html"}`;
+
+const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
 export const MODULE_TITLES: Record<ModuleId, string> = { hoeren: "Hören", lesen: "Lesen" };
 
@@ -144,19 +155,50 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   const alt: Record<string, Record<string, string>> = {};
   const modules: NonNullable<Exam["modules"]> = [];
   let leftOut = 0;
+  // What the sources say of the exam (ExamSources): the documents read, each question's places, the
+  // checks' counts.
+  const documents: ExamSources["documents"] = [];
+  const placed: ExamSources["items"] = {};
+  const count = (): { passed: number; of: number } => ({ passed: 0, of: 0 });
+  const checks = {
+    questions: count(),
+    answers: count(),
+    numbers: count(),
+    recordings: count(),
+  };
+  const mediaReferenced = new Set<string>();
+  const mediaKept = new Set<string>();
 
   for (const { id: module, html } of pages.modules) {
+    documents.push({
+      id: module,
+      title: `${level.title}: ${MODULE_TITLES[module]}`,
+      url: pageUrl(level, module),
+      raw: rawPath(level, "module", module),
+      sha256: sha256(html),
+    });
     const base = pageUrl(level, module);
     const read = moduleOf(html);
     for (const note of read.notes) problems.push(`${level.course} ${module}: ${note}`);
     // Every player takes the list's next recording: a count that differs shifts them.
     const players = readPage(html).filter((b) => b.kind === "audio").length;
+    checks.recordings.of += audioList(html).length;
+    checks.recordings.passed += Math.max(
+      0,
+      audioList(html).length - Math.abs(players - audioList(html).length) - read.notes.length,
+    );
     if (players !== audioList(html).length)
       problems.push(
         `${level.course} ${module}: ${players} players for ${audioList(html).length} recordings`,
       );
-    const media = (href: string | undefined): MediaPath | undefined =>
-      href ? pages.media(absolute(href, base)) : undefined;
+    const media = (href: string | undefined): MediaPath | undefined => {
+      if (!href) return undefined;
+      const url = absolute(href, base);
+      const path = pages.media(url);
+      mediaReferenced.add(url);
+      if (path) mediaKept.add(url);
+      return path;
+    };
     const textOf = (href: string) => pages.longdesc(absolute(href, base));
     const minutes =
       read.intro.map(minutesIn).find((m) => !Number.isNaN(m)) ??
@@ -185,17 +227,31 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       const slug = `${module}-${teil.number}${/Text\s*\d/i.test(teil.title) ? `-${count}` : ""}`;
       const sectionKey = examSectionKey(exam, slug) as ExamSectionKey;
       const file = teil.form?.action.split("#")[0] ?? "";
-      const solutions = readSolutions(pages.solution(file) ?? "");
+      const solutionPage = pages.solution(file);
+      const solutionId = file.replace(/\.php$/, "");
+      if (solutionPage && !documents.some((d) => d.id === solutionId))
+        documents.push({
+          id: solutionId,
+          title: `${level.title}: Lösungen ${MODULE_TITLES[module]}, ${teil.title}`,
+          url: `${levelUrl(level)}${file}`,
+          raw: rawPath(level, "solution", solutionId),
+          sha256: sha256(solutionPage),
+        });
+      const solutions = readSolutions(solutionPage ?? "");
       if (!solutions.length)
         problems.push(`${level.course} ${slug}: no solutions (${file || "no form"})`);
       const scored = teil.questions.filter((q) => !q.example);
       const firstNumber = number + 1;
       const numbered = scored.map((q) => {
         number++;
-        if (q.number !== undefined && q.number !== number)
-          problems.push(`${level.course} ${slug}: question ${q.number} at place ${number}`);
+        if (q.number !== undefined) {
+          checks.numbers.of++;
+          if (q.number === number) checks.numbers.passed++;
+          else problems.push(`${level.course} ${slug}: question ${q.number} at place ${number}`);
+        }
         return { q, number };
       });
+      checks.questions.of += numbered.length;
       // By number; by order only on a page numbering its own Teil 1…k for its k questions (A1 Lesen 3).
       // A page missing a number is not shifted: that question is reported.
       const allByNumber = numbered.every(({ number: n }) => solutions.some((s) => s.number === n));
@@ -272,10 +328,18 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
           leftOut++;
           continue;
         }
-        const item = build(q, key, solutionOf(n));
+        const solution = solutionOf(n);
+        checks.answers.of++;
+        const item = build(q, key, solution);
         if (item) {
           items.push(item);
           pool.push(key);
+          checks.questions.passed++;
+          checks.answers.passed++;
+          placed[key] = [
+            { document: module, at: `${teil.title}, Aufgabe ${own}` },
+            ...(solution ? [{ document: solutionId, at: `Lösung ${solution.number}` }] : []),
+          ];
         } else leftOut++;
       }
       const examples: ExamItemKey[] = [];
@@ -287,6 +351,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
           if (item) {
             items.push(item);
             examples.push(key);
+            placed[key] = [{ document: module, at: `${teil.title}, Beispiel` }];
           }
         });
       if (!pool.length) {
@@ -402,6 +467,20 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   };
   return {
     files: [
+      libraryFile.examSources({
+        format: 1,
+        exam,
+        read: pages.readAt,
+        documents,
+        checks: [
+          { id: "questions-complete", ...checks.questions },
+          { id: "answers-matched", ...checks.answers },
+          { id: "numbers-agree", ...checks.numbers },
+          { id: "recordings-placed", ...checks.recordings },
+          { id: "media-kept", passed: mediaKept.size, of: mediaReferenced.size },
+        ],
+        items: placed,
+      }),
       libraryFile.course(index),
       libraryFile.localeCourse(localeCourse),
       libraryFile.exam(examFile),

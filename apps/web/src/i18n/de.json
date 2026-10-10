@@ -1227,6 +1227,26 @@
     "practiceTally": "{right, number} richtig · {wrong, number} falsch · von {total, number}",
     "lastResult": "Letzte Probeprüfung, {date}: {points, number} von {max, number}",
     "noResultYet": "Noch keine Probeprüfung",
-    "inNotebook": "Alles im Notizbuch"
+    "inNotebook": "Alles im Notizbuch",
+    "sources": {
+      "title": "Quellen und Prüfungen",
+      "allPassed": "alle Prüfungen bestanden",
+      "someFailed": "eine Prüfung nicht bestanden",
+      "statement": "Jede Frage, jedes Bild, jede Aufnahme und jede Lösung hier hat der Import auf diesem Computer aus den Dokumenten unten gelesen — nichts von Hand oder von einem Modell geschrieben — und wie aufgeführt geprüft. Eine Probeprüfung stellt dieselben Aufgaben und bewertet sie nach denselben Regeln wie der offizielle Modellsatz; sie zeigt, wie gut du vorbereitet bist, nicht, was die echte Prüfung ergibt.",
+      "documents": "Gelesen aus",
+      "copy": "Kopie gespeichert, SHA-256 {hash}…, gelesen am {date}",
+      "read": "gelesen am {date}",
+      "checks": "Prüfungen",
+      "from": "Quelle:"
+    },
+    "check": {
+      "questions-complete": "Gelesene Fragen von denen der Quelle",
+      "options-agree": "Antworten in beiden Quellen Wort für Wort gleich",
+      "answers-marked-twice": "Lösung in der Quelle zweimal gleich markiert",
+      "answers-matched": "Lösungen der Lösungsseiten den Antworten zugeordnet",
+      "numbers-agree": "Fragennummern wie auf den Seiten",
+      "recordings-placed": "Aufnahmen bei ihren Fragen",
+      "media-kept": "Bilder und Aufnahmen gespeichert"
+    }
   }
 }

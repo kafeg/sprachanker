@@ -434,3 +434,52 @@ test("a language exam's result: points by module as scaled, every pass mark need
   );
   expect(view.getByText("Bestanden").parentElement?.textContent).toContain("30 of 50");
 });
+
+test("an exam's sources and checks: the documents read with their copies, every check, a question's places", async () => {
+  const sources = {
+    format: 1,
+    exam: KEY,
+    read: Date.UTC(2026, 9, 10),
+    documents: [
+      {
+        id: "catalogue",
+        title: "Gesamtfragenkatalog",
+        url: "https://www.bamf.de/x.pdf",
+        raw: "raw/de-de/lid/x.pdf",
+        sha256: "a".repeat(64),
+      },
+      { id: "centre", title: "Online-Testcenter", url: "https://oet.bamf.de/" },
+    ],
+    checks: [
+      { id: "questions-complete", passed: 4, of: 4 },
+      { id: "options-agree", passed: 4, of: 4 },
+    ],
+    items: { [`${KEY}/q-001`]: [{ document: "catalogue", at: "Allgemeine Fragen, Aufgabe 1" }] },
+  };
+  const page = await renderApp(<ExamPage params={params} />, {
+    path: "/exam/bamf.lid/lid/test",
+    data: [
+      [["exams"], [row()]],
+      [["settings"], { "exam.federalState": "be" }],
+      [["exam", KEY, "de-de"], pageData({ sources })],
+    ],
+  });
+  expect(await page.findByText("Sources and checks")).toBeTruthy();
+  expect(page.getByText("every check passed")).toBeTruthy();
+  expect(page.getByRole("link", { name: /Gesamtfragenkatalog/ }).getAttribute("href")).toBe(
+    "https://www.bamf.de/x.pdf",
+  );
+  expect(page.getByText(/copy kept, SHA-256 aaaaaaaaaaaaaaaa…/)).toBeTruthy();
+  expect(page.getByText("Options the same word for word in both sources")).toBeTruthy();
+
+  const catalog = await renderApp(<ExamCatalog params={params} />, {
+    path: "/exam/bamf.lid/lid/test/catalog",
+    data: [
+      [["exams"], [row()]],
+      [["settings"], { "exam.federalState": "be" }],
+      [["exam", KEY, "de-de"], pageData({ sources })],
+    ],
+  });
+  fireEvent.click(await catalog.findByRole("button", { name: /Frage 001\?/ }));
+  expect(catalog.getByText(/Allgemeine Fragen, Aufgabe 1/)).toBeTruthy();
+});

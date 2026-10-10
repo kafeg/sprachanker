@@ -12,7 +12,8 @@ packages/course-kit/   # library format (LibraryView: courses, lessons, exams), 
                        # text of HTML and entity decoding; dom.ts: a tolerant HTML tree for broken pages;
                        # provider.ts: the
                        # provider contract (import options/report/progress, course offers, wanted,
-                       # libraryFile (a file by kind: path from its keys, its schema), libraryWriter /
+                       # libraryFile (a file by kind: path from its keys, its schema; an exam's sources
+                       # too), libraryWriter /
                        # writeLibraryFiles, storedPage, pageCounter, CourseProvider);
                        # exercise-draft.ts: draftExercise, Unmapped, unknownExercise; key-map.ts: keys
                        # kept by source id (`occurrences` for an id met twice); text.ts: plain text,

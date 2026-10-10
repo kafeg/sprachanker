@@ -51,7 +51,7 @@ mock exams, practice and the catalogue, Leben in Deutschland (`bamf-lid`; 03, 04
 the exam layer for language exams (modules of Teile with their material; 02, 04, 09); Goethe A1,
 A2, B1 Hören and Lesen (`goethe`; 03); a question at a time with the grid of numbers, practice
 checked at once, the catalogue as a compact list, statistics in the Notebook (09; owner's choices B,
-D, F, 2026-10-10).
+D, F, 2026-10-10); each exam's sources and checks, kept with it and shown (02, 03).
 - **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
   question, option, picture, recording and answer comes in through the provider's fetch and
   normaliser — never from a model, never by hand. Any tool may be used inside an importer; a browser
@@ -66,13 +66,9 @@ D, F, 2026-10-10).
     its pictures once, not under every question.
   - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
     run-throughs.
-- **3e. Proof that the exams are real** (owner, 2026-10-10: proof that the data is not invented and
-  that passing here means passing there). Per exam a source report, in the app and in `verify`: where
-  each question, picture, recording and answer was read (page, file), and the independent checks it
-  passed — LiD: the PDF against BAMF's test centre, and both against independent keys (460/460 agreed,
-  research); Goethe: each answer against its solution page and against the Modellsatz PDF's own key.
-  What a mock exam shows and what it does not (the same tasks, rules and scoring as the official
-  model test; not a promise of the real result) said plainly on the exam's page.
+- **Independent checks** (open, from 3e): an exam's answers against a second, independent key where
+  one is open — LiD against public answer lists (done once by hand: 460/460, research), Goethe A1
+  against telc's Start Deutsch 1 key (the same test) — as a check in its sources.
 - **3f. More exams** (owner, 2026-10-10): placement tests (Einstufungstest) for German and English;
   the German driving theory test (Führerschein, its questions in several languages) — research first:
   which sources are open, their terms, how an importer reads them.

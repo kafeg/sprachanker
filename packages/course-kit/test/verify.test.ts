@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openLibrary } from "../src/library.ts";
@@ -117,5 +118,54 @@ test("a lesson whose exercise key is met twice does not read: verify says so", a
   const [report] = await verifyLibrary(openLibrary(root));
   expect(report?.problems.map((p) => p.text).join("\n")).toContain(
     `exercise key ${page.exercise.key} met twice`,
+  );
+});
+
+test("an exam's sources: every question placed, the copies kept unchanged, every check passed", async () => {
+  const root = await fixture();
+  const series = join(root, "sprachanker.mini");
+  const exam = JSON.parse(readFileSync(join(series, "canonical/basic/exams/quiz.json"), "utf8"));
+  mkdirSync(join(series, "raw/de-de"), { recursive: true });
+  const page = "<html>the source page</html>";
+  writeFileSync(join(series, "raw/de-de/page.html"), page);
+  const sha256 = createHash("sha256").update(page).digest("hex");
+  const sources = {
+    format: 1,
+    exam: exam.key,
+    read: 1,
+    documents: [
+      {
+        id: "page",
+        title: "The page",
+        url: "https://example.test/page",
+        raw: "raw/de-de/page.html",
+        sha256,
+      },
+    ],
+    checks: [{ id: "answers-matched", passed: 3, of: 3 }],
+    items: Object.fromEntries(
+      exam.items.map((i: { key: string }) => [i.key, [{ document: "page", at: "Aufgabe 1" }]]),
+    ),
+  };
+  mkdirSync(join(series, "canonical/basic/sources"), { recursive: true });
+  const file = join(series, "canonical/basic/sources/quiz.json");
+  writeFileSync(file, JSON.stringify(sources));
+  const problems = async () =>
+    ((await verifyLibrary(openLibrary(root)))[0]?.problems ?? []).map((p) => p.text);
+  expect(await problems()).toEqual([]);
+
+  // A copy changed since it was read, a question without its source, a check not passed.
+  writeFileSync(join(series, "raw/de-de/page.html"), `${page} (edited)`);
+  const [first] = exam.items;
+  delete sources.items[first.key];
+  sources.checks = [{ id: "answers-matched", passed: 2, of: 3 }];
+  writeFileSync(file, JSON.stringify(sources));
+  const quiz = "sprachanker.mini/basic/exam-quiz";
+  expect(await problems()).toEqual(
+    expect.arrayContaining([
+      `${quiz} sources: the copy of page (raw/de-de/page.html) changed since it was read`,
+      `${first.key}: no source`,
+      `${quiz} sources: check answers-matched: 2 of 3`,
+    ]),
   );
 });

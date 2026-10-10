@@ -1,7 +1,7 @@
 // `sprachanker import bamf-lid`: the catalogue PDF and the test centre's question pages fetched once and
 // kept as they are (raw/), the pictures taken out of the PDF into media, then normalised offline (03).
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
@@ -133,6 +133,19 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
     catalogue,
     (a) => answerOf(a.state, a.number),
     (id) => pictures.get(id) ?? new Map(),
+    {
+      sha256: createHash("sha256").update(pdf).digest("hex"),
+      // When the newest copy was kept: the catalogue or a test centre page.
+      readAt: Math.round(
+        Math.max(
+          statSync(pdfFile).mtimeMs,
+          ...readdirSync(join(rawDir, "centre"), { recursive: true })
+            .map((f) => join(rawDir, "centre", String(f)))
+            .filter((f) => f.endsWith(".html"))
+            .map((f) => statSync(f).mtimeMs),
+        ),
+      ),
+    },
   );
   for (const line of found) log(`lid: ${line}`);
   const problems = await writeLibraryFiles(seriesDir, files, log);

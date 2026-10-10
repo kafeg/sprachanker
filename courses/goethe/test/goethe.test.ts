@@ -1,6 +1,7 @@
 // The model test pages read and normalised (synthetic pages shaped like the site's: test/pages.ts).
 import { expect, test } from "bun:test";
-import { Exam, type ExamItem, LocaleExam } from "@sprachanker/schema";
+import { createHash } from "node:crypto";
+import { Exam, type ExamItem, ExamSources, LocaleExam } from "@sprachanker/schema";
 import { examOf, type Level } from "../src/catalog.ts";
 import { moduleOf, normaliseLevel, optionFor } from "../src/normalise.ts";
 import { audioList, readLongdesc, readPage } from "../src/page.ts";
@@ -96,6 +97,7 @@ test("a level normalised: modules timed and scaled, Teile with their material, e
     longdesc: (url) => (url.endsWith("zettel.html") ? readLongdesc(ZETTEL) : undefined),
     media: (url) =>
       `media/${url.endsWith(".mp4") ? "audio" : "image"}/${url.split("/").pop()}` as never,
+    readAt: 1_000,
   });
   expect(out.problems).toEqual([]);
   expect(out.leftOut).toBe(0);
@@ -177,4 +179,31 @@ test("a level normalised: modules timed and scaled, Teile with their material, e
   expect(examples).toHaveLength(3);
   expect(exam.sections.some((s) => s.pool.some((k) => examples.includes(k)))).toBe(false);
   expect(item(`${examples[1]?.split("/q-")[1]}`).answer.optionIds).toEqual(["c"]);
+
+  // Where it all was read, and what was checked: every page with its copy's sha256, every question
+  // with its place and its answer's.
+  const sources = ExamSources.parse(
+    out.files.find((f) => f.path.endsWith("canonical/a1/sources/modellsatz.json"))?.value,
+  );
+  expect(sources.documents.map((d) => [d.id, d.raw])).toEqual([
+    ["hoeren", "raw/de-de/a1/hoeren.html"],
+    ["hoeren_l1", "raw/de-de/a1/solutions/hoeren_l1.html"],
+    ["hoeren_l2", "raw/de-de/a1/solutions/hoeren_l2.html"],
+    ["hoeren_l3", "raw/de-de/a1/solutions/hoeren_l3.html"],
+    ["lesen", "raw/de-de/a1/lesen.html"],
+    ["lesen_l1", "raw/de-de/a1/solutions/lesen_l1.html"],
+    ["lesen_l2", "raw/de-de/a1/solutions/lesen_l2.html"],
+  ]);
+  expect(sources.documents[0]?.sha256).toBe(createHash("sha256").update(HOEREN).digest("hex"));
+  expect(sources.checks.every((c) => c.passed === c.of)).toBe(true);
+  expect(sources.checks.find((c) => c.id === "answers-matched")).toEqual({
+    id: "answers-matched",
+    passed: 9,
+    of: 9,
+  });
+  expect(sources.items[item("hoeren-2").key]).toEqual([
+    { document: "hoeren", at: "Teil 1, Aufgabe 2" },
+    { document: "hoeren_l1", at: "Lösung 2" },
+  ]);
+  expect(Object.keys(sources.items)).toHaveLength(exam.items.length);
 });

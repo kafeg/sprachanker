@@ -1227,6 +1227,26 @@
     "practiceTally": "{right, number} right · {wrong, number} wrong · of {total, number}",
     "lastResult": "Last mock exam, {date}: {points, number} of {max, number}",
     "noResultYet": "No mock exam taken yet",
-    "inNotebook": "All in the Notebook"
+    "inNotebook": "All in the Notebook",
+    "sources": {
+      "title": "Sources and checks",
+      "allPassed": "every check passed",
+      "someFailed": "a check did not pass",
+      "statement": "Every question, picture, recording and answer here was read from the documents below by the importer on this computer — none written by hand or by a model — and checked as listed. A mock exam asks the same tasks and scores them by the same rules as the official model test; it shows how ready you are, not what the real exam will give.",
+      "documents": "Read from",
+      "copy": "copy kept, SHA-256 {hash}…, read {date}",
+      "read": "read {date}",
+      "checks": "Checks",
+      "from": "From"
+    },
+    "check": {
+      "questions-complete": "Questions read, of those the source has",
+      "options-agree": "Options the same word for word in both sources",
+      "answers-marked-twice": "Answers marked the same way twice in their source",
+      "answers-matched": "Answers from the solution pages matched to an option",
+      "numbers-agree": "Question numbers as the pages give them",
+      "recordings-placed": "Recordings placed with their questions",
+      "media-kept": "Pictures and recordings kept"
+    }
   }
 }

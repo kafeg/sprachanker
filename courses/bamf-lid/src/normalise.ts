@@ -7,6 +7,7 @@ import {
   type Exam,
   type ExamItem,
   type ExamItemKey,
+  type ExamSources,
   examItemKey,
   examSectionKey,
   type FederalState,
@@ -15,6 +16,8 @@ import {
   optionId,
 } from "@sprachanker/schema";
 import {
+  CATALOGUE_PDF,
+  COURSE,
   COURSE_KEY,
   EDITION,
   EXAM_KEY,
@@ -22,6 +25,7 @@ import {
   SOURCE,
   STATE_QUESTIONS,
   STATES,
+  TEST_CENTRE_START,
 } from "./catalog.ts";
 import type { Catalogue, CatalogueQuestion } from "./catalogue.ts";
 import type { CentreQuestion } from "./centre.ts";
@@ -129,13 +133,25 @@ export interface NormalisedExam {
   problems: string[];
 }
 
+/** Where the catalogue was kept (`raw/`) and when it and the test centre's pages were read. */
+export interface CatalogueCopy {
+  sha256: string;
+  readAt: number;
+}
+
+export const PDF_RAW = `raw/${EDITION}/${COURSE}/gesamtfragenkatalog.pdf`;
+
 export function normaliseExam(
   catalogue: Catalogue,
   answers: (address: CentreAddress) => CentreQuestion | undefined,
   pictures: (id: string) => PictureFiles,
+  copy: CatalogueCopy,
 ): NormalisedExam {
   const problems: string[] = [];
   const items: ExamItem[] = [];
+  // What the sources say (ExamSources): each question's places, the checks' counts.
+  const placed: ExamSources["items"] = {};
+  const read = { options: 0, optionsAgree: 0, marked: 0, markedTwice: 0, pictures: 0, kept: 0 };
   for (const q of catalogue.questions) {
     const { id, state, centre } = addressOf(q);
     const answer = answers(centre);
@@ -143,6 +159,7 @@ export function normaliseExam(
       problems.push(`${id}: the test centre's page was not read`);
       continue;
     }
+    read.options++;
     if (answer.options.length !== q.options.length) {
       problems.push(
         `${id}: ${q.options.length} options in the catalogue, ${answer.options.length} in the test centre`,
@@ -159,12 +176,17 @@ export function normaliseExam(
       );
       continue;
     }
+    read.optionsAgree++;
+    read.marked++;
     const right = answer.options.flatMap((o, i) => (o.right ? [i] : []));
+    if (right.length === 1) read.markedTwice++;
     if (right.length !== 1) {
       problems.push(`${id}: the test centre marks ${right.length} right options`);
       continue;
     }
     const files = pictures(id);
+    read.pictures += q.pictures.length;
+    read.kept += Math.min(q.pictures.length, files.size);
     const optionPictures = q.pictures.length === q.options.length && q.pictures.length > 1;
     const options: Option[] = q.options.map((text, i) =>
       optionPictures
@@ -182,6 +204,11 @@ export function normaliseExam(
       answer: { optionIds: [optionId(right[0] as number)] },
     };
     items.push(item);
+    const stateName = STATES.find((s) => s.code === state)?.name;
+    placed[item.key] = [
+      { document: "catalogue", at: `${stateName ?? "Allgemeine Fragen"}, Aufgabe ${q.number}` },
+      { document: "centre", at: `Frage ${centre.number}${stateName ? ` (${stateName})` : ""}` },
+    ];
   }
   const keysOf = (state: boolean) =>
     items.filter((i) => (i.tags.federalState !== null) === state).map((i) => i.key as ExamItemKey);
@@ -236,6 +263,32 @@ export function normaliseExam(
       goals: {},
     }),
     libraryFile.exam(exam),
+    libraryFile.examSources({
+      format: 1,
+      exam: EXAM_KEY,
+      read: copy.readAt,
+      documents: [
+        {
+          id: "catalogue",
+          title: `Gesamtfragenkatalog zum Test „Leben in Deutschland“ und zum Einbürgerungstest (Stand: ${day}.${month}.${year})`,
+          url: CATALOGUE_PDF,
+          raw: PDF_RAW,
+          sha256: copy.sha256,
+        },
+        {
+          id: "centre",
+          title: "BAMF: Online-Testcenter „Leben in Deutschland“",
+          url: TEST_CENTRE_START,
+        },
+      ],
+      checks: [
+        { id: "questions-complete", passed: items.length, of: expected },
+        { id: "options-agree", passed: read.optionsAgree, of: read.options },
+        { id: "answers-marked-twice", passed: read.markedTwice, of: read.marked },
+        { id: "media-kept", passed: read.kept, of: read.pictures },
+      ],
+      items: placed,
+    }),
     libraryFile.localeExam({
       format: 1,
       edition: EDITION,

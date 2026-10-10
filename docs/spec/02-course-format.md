@@ -118,7 +118,15 @@ section `alt`), how often a recording `plays`, and its `examples`:
 questions shown answered (in no pool, never scored). A pass mark may count only some modules'
 scaled points (`modules`), and `passWhen` says whether any mark passes the exam (LiD: course test or
 naturalisation) or all must be reached (Goethe A2: overall, written, spoken). The locale file titles
-the exam, its modules, its sections (with their instructions) and its pass marks. `verify` reads it as
+the exam, its modules, its sections (with their instructions) and its pass marks. Beside it,
+`canonical/<course>/sources/<slug>.json` (`ExamSources`) says where the exam was read (owner,
+2026-10-10: proof that the data is the source's): each document — its title, address and, for the
+copy kept in `raw/`, the copy's path and sha256 —, when they were read, the checks the import ran
+(`EXAM_CHECKS`: questions complete, options the same in two sources, answers marked twice, answers
+matched, numbers, recordings placed, media kept; each with how many passed of how many) and each
+question's places in the documents (its question, its answer). `verify` reports a question without a
+place, a place in an unknown document, a copy missing or changed since it was read, a check not
+passed. `verify` reads it as
 the app does and checks that its questions are its own and listed once, their answers fit their kind
 (options they have, gaps they have), each pool lists questions of the exam and holds at least what it
 draws (for each value of a filtered section's tag), every section is in a module of the exam when it

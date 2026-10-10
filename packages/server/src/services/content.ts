@@ -6,6 +6,7 @@ import type {
   CourseSource,
   Exam,
   ExamKey,
+  ExamSources,
   Lesson,
   LessonKey,
   LocaleCourse,
@@ -75,6 +76,12 @@ export function createContent(library: LibraryView) {
       library.examStamp(series, key, edition),
       () => library.localeExam(series, key, edition),
     );
+  // An exam's sources are written with its file: kept while the exam's file stays the same.
+  const examSourcesKept = new Map<string, Kept<ExamSources | undefined>>();
+  const examSources = (series: string, key: ExamKey) =>
+    cached(examSourcesKept, `${series}|${key}`, library.examStamp(series, key), () =>
+      library.examSources(series, key),
+    );
   const localeLesson = (series: string, key: LessonKey, edition: string) =>
     cached(locales, `${series}|${key}|${edition}`, library.lessonStamp(series, key, edition), () =>
       library.localeLesson(series, key, edition),
@@ -85,6 +92,7 @@ export function createContent(library: LibraryView) {
     localeLesson,
     exam,
     localeExam,
+    examSources,
     /** A lesson with its locale file of an edition (null when the edition has none). */
     async lessonWithLocale(series: string, key: LessonKey, edition: string) {
       const [l, locale] = await Promise.all([

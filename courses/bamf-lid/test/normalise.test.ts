@@ -1,6 +1,6 @@
 // The catalogue and the test centre joined into the exam, on invented questions.
 import { expect, test } from "bun:test";
-import { CourseIndex, Exam, LocaleExam, type MediaPath } from "@sprachanker/schema";
+import { CourseIndex, Exam, ExamSources, LocaleExam, type MediaPath } from "@sprachanker/schema";
 import { EXAM_KEY } from "../src/catalog.ts";
 import type { Catalogue, CatalogueQuestion } from "../src/catalogue.ts";
 import type { CentreQuestion } from "../src/centre.ts";
@@ -61,6 +61,7 @@ function run(
             ? [["item", "media/image/lid-sl-01.png" as MediaPath]]
             : [],
       ),
+    { sha256: "0".repeat(64), readAt: 1_000 },
   );
 }
 
@@ -107,6 +108,21 @@ test("the exam: every question keyed by part and number, the right option from t
   // The catalogue counts 460 questions; this one is a sample.
   expect(problems).toEqual(["the catalogue has 3 questions, not 460"]);
   expect([taken, leftOut]).toEqual([3, 0]);
+  // Where each question and its answer were read, and what was checked.
+  const sources = ExamSources.parse(files.find((f) => f.path.endsWith("sources/test.json"))?.value);
+  expect(sources.documents.map((d) => [d.id, d.raw])).toEqual([
+    ["catalogue", "raw/de-de/lid/gesamtfragenkatalog.pdf"],
+    ["centre", undefined],
+  ]);
+  expect(sources.items[`${EXAM_KEY}/q-sl-01` as never]).toEqual([
+    { document: "catalogue", at: "Saarland, Aufgabe 1" },
+    { document: "centre", at: "Frage 301 (Saarland)" },
+  ]);
+  expect(sources.checks.find((c) => c.id === "options-agree")).toEqual({
+    id: "options-agree",
+    passed: 3,
+    of: 3,
+  });
   const exam = Exam.parse(files.find((f) => f.path.endsWith("exams/test.json"))?.value);
   expect(exam.key).toBe(EXAM_KEY);
   // LiD's questions are all single choice.

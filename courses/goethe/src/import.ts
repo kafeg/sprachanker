@@ -1,6 +1,7 @@
 // `sprachanker import goethe`: each level's module pages, the solution page of each Teil and the
 // pages holding the pictures' texts fetched once and kept as they are (raw/), every recording and
 // picture fetched into media, then normalised offline (03).
+import { statSync } from "node:fs";
 import { join } from "node:path";
 import {
   createMediaStore,
@@ -19,7 +20,7 @@ import {
 } from "@sprachanker/course-kit";
 import type { MediaPath } from "@sprachanker/schema";
 import { EDITION, LEVELS, type Level, levelUrl, SERIES } from "./catalog.ts";
-import { moduleOf, normaliseLevel, pageUrl, referencesOf } from "./normalise.ts";
+import { moduleOf, normaliseLevel, pageUrl, rawPath, referencesOf } from "./normalise.ts";
 import { readLongdesc } from "./page.ts";
 
 /** Between two requests: one server answers every page of the site. */
@@ -36,8 +37,16 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
   const seriesDir = join(options.libraryRoot, SERIES);
   const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, intervalMs: INTERVAL_MS });
   const counted = pageCounter(options.progress);
+  /** A library path's file; a page kept there (read when it is not yet), the newest one's time. */
+  const at = (path: string) => join(seriesDir, path);
+  let readAt = 0;
   const page = (file: string, url: string) =>
-    storedPage(file, () => fetcher.text(url), options.refresh).finally(counted);
+    storedPage(file, () => fetcher.text(url), options.refresh)
+      .then((text) => {
+        readAt = Math.max(readAt, statSync(file).mtimeMs);
+        return text;
+      })
+      .finally(counted);
 
   const refs = new Map<string, MediaRef & { level: Level }>();
   const read: Array<{
@@ -47,12 +56,11 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
     texts: Map<string, string>;
   }> = [];
   for (const level of levels) {
-    const raw = join(seriesDir, "raw", EDITION, level.course);
     const modules = [];
     const solutions = new Map<string, string>();
     const texts = new Map<string, string>();
     for (const id of level.modules) {
-      const html = await page(join(raw, `${id}.html`), pageUrl(level, id));
+      const html = await page(at(rawPath(level, "module", id)), pageUrl(level, id));
       modules.push({ id, html });
       const module = moduleOf(html);
       // Each Teil's solution page, named by its form.
@@ -62,13 +70,13 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
         const name = file.replace(/\.php$/, "");
         solutions.set(
           file,
-          await page(join(raw, "solutions", `${name}.html`), `${levelUrl(level)}${file}`),
+          await page(at(rawPath(level, "solution", name)), `${levelUrl(level)}${file}`),
         );
       }
       const { media, texts: textPages } = referencesOf(module, pageUrl(level, id));
       for (const url of textPages) {
         const name = decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "");
-        texts.set(url, readLongdesc(await page(join(raw, "texts", name), url)));
+        texts.set(url, readLongdesc(await page(at(rawPath(level, "text", name)), url)));
       }
       for (const url of media)
         refs.set(url, {
@@ -106,6 +114,7 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
         const entry = index[url];
         return entry && "path" in entry ? (entry.path as MediaPath) : undefined;
       },
+      readAt: Math.round(readAt),
     });
     for (const line of out.problems) log(`goethe ${line}`);
     const problems = await writeLibraryFiles(seriesDir, out.files, log);

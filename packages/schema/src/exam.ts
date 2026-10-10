@@ -1,7 +1,7 @@
 // Exams with real exam rules: pools, draws, time limits, pass marks (02): one test of drawn questions
 // (Leben in Deutschland), or modules of Teile with their material (Goethe's Hören, Lesen, …).
 import { z } from "zod";
-import { format, Media } from "./common.ts";
+import { format, Media, Sha256 } from "./common.ts";
 import { GapTextItem, RespondItem, SingleChoiceItem } from "./exercise/index.ts";
 import { ExamItemKey, ExamKey, ExamSectionKey } from "./keys.ts";
 
@@ -127,3 +127,56 @@ export const Exam = z.strictObject({
   passWhen: z.enum(["any", "all"]).optional(),
 });
 export type Exam = z.infer<typeof Exam>;
+
+/** The checks an importer runs on an exam's sources (03; the app names each in its language). */
+export const EXAM_CHECKS = [
+  /** Questions read, of those the source has. */
+  "questions-complete",
+  /** Questions whose options two sources give word for word (LiD: the PDF and the test centre). */
+  "options-agree",
+  /** Answers marked the same way twice in their source (LiD: a test centre page's row and radio). */
+  "answers-marked-twice",
+  /** Answers from a solution page matched to an option of their question (Goethe). */
+  "answers-matched",
+  /** Questions whose number on the page is their place in the module (Goethe). */
+  "numbers-agree",
+  /** A page's recordings, each placed with its question or Teil (Goethe). */
+  "recordings-placed",
+  /** Pictures and recordings kept, of those the questions show. */
+  "media-kept",
+] as const;
+export const ExamCheck = z.enum(EXAM_CHECKS);
+export type ExamCheck = z.infer<typeof ExamCheck>;
+
+/**
+ * `canonical/<course>/sources/<slug>.json`: where an exam was read and what was checked (03; owner,
+ * 2026-10-10: proof that the data is the source's). Each document the importer read — its address and,
+ * for the copy it kept in `raw/`, the copy's path and sha256 (`verify` finds a copy changed since) —,
+ * the checks it ran, and where each question and its answer were found.
+ */
+export const ExamSources = z.strictObject({
+  format: format(EXAM_FORMAT),
+  exam: ExamKey,
+  /** When the documents were read (epoch ms: the newest copy kept). */
+  read: z.number().int(),
+  documents: z.array(
+    z.strictObject({
+      id: z.string().regex(/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/),
+      title: z.string().min(1),
+      url: z.string().url(),
+      /** The copy kept: a library path under `raw/`, and its sha256 as read. */
+      raw: z.string().startsWith("raw/").optional(),
+      sha256: Sha256.optional(),
+    }),
+  ),
+  checks: z.array(
+    z.strictObject({
+      id: ExamCheck,
+      passed: z.number().int().nonnegative(),
+      of: z.number().int().nonnegative(),
+    }),
+  ),
+  /** Where each question (and its answer) was found: a document and the place in it. */
+  items: z.record(ExamItemKey, z.array(z.strictObject({ document: z.string(), at: z.string() }))),
+});
+export type ExamSources = z.infer<typeof ExamSources>;

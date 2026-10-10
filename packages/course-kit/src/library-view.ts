@@ -4,6 +4,7 @@ import type {
   EditionId,
   Exam,
   ExamKey,
+  ExamSources,
   Lesson,
   LessonKey,
   LocaleCourse,
@@ -32,6 +33,11 @@ export interface LibraryView {
   localeExam(series: string, key: ExamKey, edition: string): Promise<LocaleExam | undefined>;
   /** The same for an exam's file. */
   examStamp(series: string, key: ExamKey, edition?: string): string;
+  /** Where an exam was read and what was checked (none for an exam imported without them). */
+  examSources(series: string, key: ExamKey): Promise<ExamSources | undefined>;
+  /** Absolute file of a kept source copy (`raw/…`), or undefined when it does not exist or leaves
+   *  the raw folder. */
+  rawFile(series: string, path: string): string | undefined;
   /** Absolute file of a media path, or undefined when it does not exist or leaves the media folder. */
   mediaFile(series: string, path: MediaPath | string): string | undefined;
   /** Verifies one installed course: integrity and counts (verify.ts). */

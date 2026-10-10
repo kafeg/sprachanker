@@ -16,6 +16,7 @@ import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@
 import { TargetLang } from "@/ui/target-lang.ts";
 import { type ExamParams, examKeyOf } from "./params.ts";
 import { exampleAnswer, inTeile } from "./questions.ts";
+import { QuestionSources } from "./sources.tsx";
 import { QuestionCard, TeilHeader } from "./teil.tsx";
 
 /** A question's number as the exam gives it: its id, without its module where the Teil names it. */
@@ -166,6 +167,9 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
                         }
                         url={(path) => mediaUrl(params.series, path)}
                       />
+                      {data.sources && (
+                        <QuestionSources sources={data.sources} itemKey={item.key} />
+                      )}
                     </div>
                   )}
                 </li>

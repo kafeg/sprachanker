@@ -21,6 +21,7 @@ import { BackLink, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import { type ExamParams, examKeyOf } from "./params.ts";
+import { ExamSourcesPanel } from "./sources.tsx";
 import { StateSelect } from "./state-select.tsx";
 
 export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMode }) {
@@ -201,6 +202,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
           <span className="text-sm font-medium text-muted-foreground">{t("exams.inNotebook")}</span>
         </ListRow>
       </section>
+      {data.sources && <ExamSourcesPanel sources={data.sources} />}
     </Page>
   );
 }
