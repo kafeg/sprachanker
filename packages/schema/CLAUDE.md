@@ -50,7 +50,8 @@ test/               # bun test (Bun types via tsconfig.dev.json; src has no runt
   dropped silently (02). Event payloads and API shapes are not strict. So a field leaves a library
   format only if no provider ever wrote it: files on disk with it would stop reading, and so would
   what embeds them — a page's snapshot (dropped when read) and a mock exam's plan (its run unread);
-  else bump the format. Removing an exercise field also changes every fingerprint.
+  else bump the format. Removing an exercise field changes the fingerprint of every exercise that carries it (enrichment
+  on them goes stale); the fixture is not a provider here (its library is made anew for each run).
 - Event payloads only grow (05): every stored shape is on record in `test/stored-events/` and must
   keep reading; a change that cannot be additive comes with an upgrade of the stored events. A field
   nothing reads, whose content the events hold elsewhere too, may go: old payloads read without it.

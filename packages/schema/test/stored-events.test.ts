@@ -13,7 +13,8 @@ for (const [type, shapes] of Object.entries(stored))
     for (const { since, payload } of shapes) {
       const read = EVENT_PAYLOADS[type as EventType].safeParse(payload);
       expect(read.success, `${type} stored since ${since}: ${read.error?.message}`).toBe(true);
-      // Read whole: nothing in a stored shape is dropped (a snapshot on record still reads).
+      // Read as parsed: only fields removed under 05's rule are dropped (a snapshot on record still
+      // reads).
       expect(readPayload(type as EventType, payload) as unknown).toEqual(read.data);
     }
   });

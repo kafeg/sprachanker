@@ -8,8 +8,8 @@ export const TokenDiff = z.object({
 });
 export type TokenDiff = z.infer<typeof TokenDiff>;
 
-/** Answers stored before 2026-10-10 also carry `ruleIds` (the exercise's), `lexemes` (always empty) and,
- *  for `respond`, `needsLlm`: nothing reads them, and they are dropped when read. */
+/** Stored answers may also carry `ruleIds`, `lexemes` (both written empty) and, for `respond`,
+ *  `needsLlm`: nothing reads them, and they are dropped when read (05). */
 export const Outcome = z.object({
   result: z.enum(["correct", "partial", "wrong", "unscored"]),
   /** 0..1; partial = share of matched ids or words. */

@@ -129,12 +129,13 @@ and only grow.
 | `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |
 | `exam_rated` | `ratings` (a level's points per criterion), `by` (`self` \| `assistant`: the assistant's proposal taken unchanged), `model?`: an exam's open answer rated, on its `itemKey`, in its run — also one handed in, whose result is then computed anew (`store.rescore`); the latest counts |
 
-Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type). **Payloads only
-grow**: a field is added (optional), never renamed or narrowed; every shape stored so far is
-on record in `packages/schema/test/stored-events/` and must keep reading. A field is removed only when
-nothing reads it and it holds nothing the events do not hold otherwise (payload schemas are not strict:
-a stored payload that carries it still reads, without it) — so an answer's `outcome` lost `ruleIds`
-(the exercise's, in its snapshot), `lexemes` (always empty) and `needsLlm`. A change that cannot be
+Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type). **Payloads keep
+reading**: a field is added (optional), never renamed or narrowed; every shape stored so far is
+on record in `packages/schema/test/stored-events/` and must keep reading. A field of a non-strict
+object (a payload, an `outcome`; not the library schemas a `page_shown` snapshot embeds) is removed
+only when nothing reads it and it holds nothing the events do not hold otherwise: a stored payload that
+carries it still reads, without it. So an answer's `outcome` lost `ruleIds` and `lexemes` (every
+provider wrote them empty) and `needsLlm` (always true for `respond`: the item's type says it). A change that cannot be
 additive comes with an upgrade of the stored events (a migration), not an edit of the record.
 
 Runs and events are written and read only through the run store (`packages/server/src/services/

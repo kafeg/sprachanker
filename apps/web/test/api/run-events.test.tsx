@@ -17,8 +17,8 @@ const answer = (id: string, attempt: number, outcome?: unknown) =>
   }) as TypedEvent;
 
 test("the server's outcome and attempt of each answer replace the local ones; a mock exam's attempt alone", () => {
-  const right = { result: "correct", score: 1, ruleIds: [], lexemes: [] };
-  const local = { result: "wrong", score: 0, ruleIds: [], lexemes: [] };
+  const right = { result: "correct", score: 1 };
+  const local = { result: "wrong", score: 0 };
   const events = [answer("a", 1, local), answer("b", 1), answer("c", 1, local)];
   const shown = withStored(events, { outcomes: { a: right as never }, attempts: { a: 2, b: 3 } });
   expect(
@@ -31,7 +31,7 @@ test("the server's outcome and attempt of each answer replace the local ones; a 
 });
 
 test("nothing told otherwise than shown: the same events, the cached state left as it is", () => {
-  const right = { result: "correct", score: 1, ruleIds: [], lexemes: [] };
+  const right = { result: "correct", score: 1 };
   const events = [answer("a", 1, right), answer("b", 2)];
   expect(withStored(events, { outcomes: { a: right as never }, attempts: { a: 1, b: 2 } })).toBe(
     events,

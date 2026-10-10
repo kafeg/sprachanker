@@ -97,6 +97,23 @@
           "lexemes": []
         }
       }
+    },
+    {
+      "since": "2026-10-08",
+      "payload": {
+        "answer": {
+          "text": "Ich heiße Anna."
+        },
+        "attempt": 1,
+        "ms": 5000,
+        "outcome": {
+          "result": "partial",
+          "score": 0.5,
+          "ruleIds": [],
+          "lexemes": [],
+          "needsLlm": true
+        }
+      }
     }
   ],
   "item_skipped": [
