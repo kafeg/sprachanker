@@ -30,8 +30,8 @@ import {
   STATES,
   TEST_CENTRE_START,
 } from "./catalog.ts";
-import type { Catalogue, CatalogueQuestion } from "./catalogue.ts";
 import type { CentreQuestion } from "./centre.ts";
+import type { Catalogue, CatalogueQuestion } from "./questions.ts";
 
 /** The test asks 33 questions in 60 minutes: 30 of the general part, 3 of the learner's state. */
 const TIME_LIMIT_SEC = 3600;

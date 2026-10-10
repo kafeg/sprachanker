@@ -2,9 +2,9 @@
 import { expect, test } from "bun:test";
 import { CourseIndex, Exam, ExamSources, LocaleExam, type MediaPath } from "@sprachanker/schema";
 import { EXAM_KEY } from "../src/catalog.ts";
-import type { Catalogue, CatalogueQuestion } from "../src/catalogue.ts";
 import type { CentreQuestion } from "../src/centre.ts";
 import { type CentreAddress, likeness, normaliseExam, unpaired } from "../src/normalise.ts";
+import type { Catalogue, CatalogueQuestion } from "../src/questions.ts";
 
 const pixels = { width: 1, height: 1, channels: 3 as const, data: new Uint8Array(3) };
 const image = { page: 1, x: 0, y: 0, width: 1, height: 1, pixels };

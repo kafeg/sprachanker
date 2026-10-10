@@ -147,7 +147,7 @@ section (`kind: "exam"`), not among the courses.
   chosen, each state's 301–310 with that state chosen — about 470 pages, each kept as
   `raw/de-de/lid/centre/<general|state>/<NNN>.html`. A page that is not the question asked stops the
   import.
-- **Read** (`pdf.ts`, `catalogue.ts`, `centre.ts`): the PDF through pdf.js — text lines with their place,
+- **Read** (`pdf.ts`, `questions.ts`, `centre.ts`): the PDF through pdf.js — text lines with their place,
   pictures decoded with their box; sections by "Allgemeine Fragen" and "Fragen für das Bundesland …",
   questions by "Aufgabe N", options by the box before each, a line after an option continuing it; the
   number some stems repeat ("184.   …") dropped; pictures belong to the question above them on their

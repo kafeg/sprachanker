@@ -38,14 +38,16 @@ courses/
   voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
                        # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
   bamf-lid/            # BAMF «Leben in Deutschland» (bamf.lid, de-de): an exam course; src/: catalog, pdf (pdf.js:
-                       # lines and pictures), catalogue (questions from the PDF), centre (BAMF's test centre:
+                       # lines and pictures), questions (the catalogue PDF's questions), centre (BAMF's test centre:
                        # pages read, walked as its APEX forms post), png (pictures saved), normalise, import.ts
   goethe/              # Goethe-Zertifikat model tests A1, A2, B1 (goethe.zertifikat): exams of modules; src/:
-                       # catalog (levels, score sheets' bands), page (a module page as blocks), teile
+                       # catalog (levels, score sheets' bands), page (a module page as blocks; a
+                       # Schreiben or Sprechen page as its parts), teile
                        # (Teile and questions), solutions (a Teil's solution page), options (an answer
                        # matched to its option), writing (the Schreiben page: tasks, forms, criteria),
                        # writing-exam (its Teile as sections), speaking (the Sprechen page: parts, cards,
-                       # candidate A's and B's), speaking-exam (its parts as sections), normalise,
+                       # candidate A's and B's), speaking-exam (its parts as sections), criteria (an open answer's rubric),
+                       # normalise,
                        # import.ts; test/pages.ts synthetic
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
                        # bold words, quiz answers from the result pages (GET), speaking videos as

@@ -10,8 +10,10 @@ import {
   type ExamSources,
   examItemKey,
   type LocaleItem,
+  optionId,
 } from "@sprachanker/schema";
 import type { Level } from "./catalog.ts";
+import { criterionId, rubric } from "./criteria.ts";
 import { optionFor } from "./options.ts";
 import type { Solution } from "./solutions.ts";
 import type { FormField, WritingCriterion, WritingTeil } from "./writing.ts";
@@ -31,18 +33,6 @@ export interface WritingSection {
   /** Questions made, of the gaps and texts the Teil asks. */
   questions: { passed: number; of: number };
 }
-
-/** A criterion's id from its title ("Kommunikative Gestaltung des Textes" → "kommunikative-…"). */
-export const criterionId = (title: string) =>
-  title
-    .toLowerCase()
-    .replace(/ä/g, "ae")
-    .replace(/ö/g, "oe")
-    .replace(/ü/g, "ue")
-    .replace(/ß/g, "ss")
-    .replace(/\(.*?\)/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 
 /** A line of the form as the candidate sees it: "Reisetermin: (5)", "PLZ: 78014". */
 const lineOf = (f: FormField) => {
@@ -91,7 +81,7 @@ export function writingSection(input: {
       const prompt = field.label;
       let item: ExamItem | undefined;
       if (field.choices) {
-        const options = field.choices.map((text, i) => ({ id: String.fromCharCode(97 + i), text }));
+        const options = field.choices.map((text, i) => ({ id: optionId(i), text }));
         const right = answers.map((a) => optionFor(a, options)).find(Boolean);
         if (right)
           item = {
@@ -133,8 +123,7 @@ export function writingSection(input: {
   }
   out.text = teil.links.flatMap((href) => input.longdesc(href) ?? []).join("\n\n") || undefined;
   // Each criterion with its levels' points: as the page says them, else the bands of its maximum.
-  const criteria: NonNullable<ExamItem["criteria"]> = [];
-  const named: NonNullable<LocaleItem["criteria"]> = {};
+  const { criteria, named, add } = rubric();
   let complete = teil.criteria.length > 0;
   for (const c of teil.criteria) {
     const given = c.levels.length > 1 && c.levels.every((l) => l.points !== undefined);
@@ -150,12 +139,8 @@ export function writingSection(input: {
       continue;
     }
     const texts = points.map((_, i) => c.levels[i]?.text ?? "");
-    const levels = texts.some(Boolean) ? { levels: texts } : {};
     const voids = c.voids || c.title === level.writing?.voids;
-    const own = (id: string, title: string) => {
-      criteria.push({ id, levels: points, ...(voids && { voids: true }) });
-      named[id] = { title, ...levels };
-    };
+    const own = (id: string, title: string) => add(id, title, points, voids, texts);
     if (perPoint(c) && teil.points.length)
       teil.points.forEach((point, i) => {
         own(`inhaltspunkt-${i + 1}`, `Inhaltspunkt ${i + 1}: ${point}`);

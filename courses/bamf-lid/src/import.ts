@@ -28,11 +28,11 @@ import {
   STATE_QUESTIONS,
   STATES,
 } from "./catalog.ts";
-import { type CatalogueQuestion, parseCatalogue } from "./catalogue.ts";
 import { type CentreQuestion, readQuestionPage, walkCentre } from "./centre.ts";
 import { addressOf, normaliseExam, PDF_RAW, type PictureFiles, pictureName } from "./normalise.ts";
 import { type PdfImage, readPdf } from "./pdf.ts";
 import { encodePng, shrink } from "./png.ts";
+import { type CatalogueQuestion, parseCatalogue } from "./questions.ts";
 
 /** Between two requests to the test centre: it is an application server, read gently. */
 const INTERVAL_MS = 500;

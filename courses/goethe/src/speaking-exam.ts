@@ -13,8 +13,8 @@ import {
   type MediaPath,
 } from "@sprachanker/schema";
 import type { Level } from "./catalog.ts";
+import { criterionId, rubric } from "./criteria.ts";
 import type { SpeakingModule, SpeakingPart } from "./speaking.ts";
-import { criterionId } from "./writing-exam.ts";
 
 type Letters = NonNullable<Exam["sections"][number]["letters"]>;
 
@@ -92,16 +92,13 @@ export function speakingSection(input: {
         voids: c.title === level.speaking?.voids,
       }))
     : (level.speaking?.criteria?.[number] ?? []);
-  const criteria: NonNullable<ExamItem["criteria"]> = [];
-  const named: NonNullable<LocaleItem["criteria"]> = {};
+  const { criteria, named, add } = rubric();
   for (const c of own) {
     if (!c.levels) {
       out.problems.push(`${where}: no points for "${c.title}"`);
       continue;
     }
-    const id = criterionId(c.title);
-    criteria.push({ id, levels: c.levels, ...(c.voids && { voids: true }) });
-    named[id] = { title: c.title };
+    add(criterionId(c.title), c.title, c.levels, !!c.voids);
   }
   if (!criteria.length) {
     out.problems.push(`${where}: no criteria`);

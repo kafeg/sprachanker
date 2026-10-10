@@ -23,6 +23,7 @@ import {
   type LocaleItem,
   type Media,
   type MediaPath,
+  optionId,
 } from "@sprachanker/schema";
 import {
   courseOf,
@@ -652,7 +653,7 @@ function optionsOf(
   none: string | undefined,
   media: (href: string | undefined) => MediaPath | undefined,
 ): ChoiceOptions {
-  const id = (i: number) => String.fromCharCode(97 + i);
+  const id = optionId;
   if (q.choices.length) {
     const pictures = optionPictures(q);
     return q.choices.map((c: Choice, i) => {

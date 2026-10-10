@@ -1,7 +1,7 @@
 // The catalogue parser on invented lines and pictures shaped like the PDF's (never its text).
 import { expect, test } from "bun:test";
-import { parseCatalogue } from "../src/catalogue.ts";
 import type { PdfImage, PdfLine } from "../src/pdf.ts";
+import { parseCatalogue } from "../src/questions.ts";
 
 const BOX = " ";
 let y = 700;

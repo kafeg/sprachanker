@@ -3,7 +3,7 @@
 // pictures, recordings (the n-th player is the page's n-th audio), forms and the questions in them —
 // a fieldset with its legend and its options, or a table of one-letter answers. The markup is not
 // well-formed, so it is read as a tolerant tree (course-kit `parseHtml`), never as XML.
-import { decodeEntities, type El, isEl, parseHtml } from "@sprachanker/course-kit";
+import { findAll as all, decodeEntities, type El, isEl, parseHtml } from "@sprachanker/course-kit";
 
 export interface Picture {
   src: string;
@@ -67,6 +67,35 @@ export function textOf(node: El): string {
   return decodeEntities(parts.join("")).replace(/\s+/g, " ").trim();
 }
 
+/** Blocks a leaf of text has none of. */
+const IN_TEXT = new Set(["p", "li", "div", "ul", "ol", "table", "form"]);
+
+/** A leaf of text: a paragraph or list item (or a heading below a part's, with `headings`) without
+ *  blocks inside. */
+export const isTextLeaf = (el: El, headings = false) =>
+  (el.tag === "p" || el.tag === "li" || (headings && /^h[4-6]$/.test(el.tag))) &&
+  !all(el, (e) => IN_TEXT.has(e.tag)).length;
+
+/**
+ * A page of parts (Schreiben, Sprechen): every element in document order, where each part's heading
+ * (`h3`) is — the test begins at the page's "Inhalt" anchor, the navigation is before it — and the
+ * page's lines before the first part (its time).
+ */
+export function pageParts(html: string): { all: El[]; heads: number[]; intro: string[] } {
+  const elements = all(parseHtml(html), () => true);
+  const start = Math.max(
+    0,
+    elements.findIndex((e) => e.attrs.id === "Inhalt"),
+  );
+  const heads = elements.flatMap((e, i) => (e.tag === "h3" && i > start ? [i] : []));
+  const intro = elements
+    .slice(start, heads[0] ?? elements.length)
+    .filter((e) => e.tag === "p" && isTextLeaf(e))
+    .map(textOf)
+    .filter((t) => t && !CHROME.test(t));
+  return { all: elements, heads, intro };
+}
+
 /** The page's audio files in player order (`var audio = ['…', …]`; the links beside the players are
  *  wrong on some pages). */
 export function audioList(html: string): string[] {
@@ -104,19 +133,6 @@ export const pictureOf = (img: El): Picture | undefined => {
     alt: decodeEntities(img.attrs.alt ?? "").trim(),
     ...(img.attrs.longdesc && { longdesc: img.attrs.longdesc }),
   };
-};
-
-const all = (el: El, test: (e: El) => boolean): El[] => {
-  const out: El[] = [];
-  const walk = (e: El) => {
-    for (const c of e.children)
-      if (isEl(c)) {
-        if (test(c)) out.push(c);
-        walk(c);
-      }
-  };
-  walk(el);
-  return out;
 };
 
 function readFieldset(fs: El): Fieldset {

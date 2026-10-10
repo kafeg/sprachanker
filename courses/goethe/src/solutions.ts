@@ -2,7 +2,7 @@
 // a list ("1 … Lösung: Neunzehn Euro fünfundneunzig Cent.") or, for answers typed, a table (number,
 // the candidate's answer, the right one, points). An answer is text as the page gives it; matching
 // it to an option is normalise.ts's.
-import { type El, isEl, parseHtml } from "@sprachanker/course-kit";
+import { type El, findAll, isEl, parseHtml } from "@sprachanker/course-kit";
 import { textOf } from "./page.ts";
 
 export interface Solution {
@@ -11,18 +11,7 @@ export interface Solution {
   answers: string[];
 }
 
-const elements = (root: El, tag: string): El[] => {
-  const out: El[] = [];
-  const walk = (e: El) => {
-    for (const c of e.children)
-      if (isEl(c)) {
-        if (c.tag === tag) out.push(c);
-        walk(c);
-      }
-  };
-  walk(root);
-  return out;
-};
+const elements = (root: El, tag: string): El[] => findAll(root, (e) => e.tag === tag);
 
 export function readSolutions(html: string): Solution[] {
   const root = parseHtml(html);

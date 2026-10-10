@@ -4,8 +4,15 @@
 // in (A1 Teil 1: gaps and a choice, the rest filled in already) or a box to write a text in, with the
 // criteria the raters judge it by as the page gives them: each level's points and meaning (A1), the
 // bands A–E with what each means (A2's table), or each criterion's maximum (B1).
-import { decodeEntities, type El, findAll, isEl, parseHtml } from "@sprachanker/course-kit";
-import { CHROME, type Picture, pictureOf, textOf } from "./page.ts";
+import { decodeEntities, type El, findAll, isEl } from "@sprachanker/course-kit";
+import {
+  CHROME,
+  isTextLeaf as isLeaf,
+  type Picture,
+  pageParts,
+  pictureOf,
+  textOf,
+} from "./page.ts";
 
 /** A line of a form: a field filled in already, a gap to fill (its number on the form), a choice. */
 export interface FormField {
@@ -63,11 +70,6 @@ const MAXIMUM = /^(.+?)\s*[-–]\s*maximal\s+(\d+(?:,\d+)?)\s+Punkte?$/;
 /** "Wird das Kriterium “Aufgabenerfüllung” mit E (0 Punkten) bewertet, ist die Punktzahl … 0". */
 const VOIDS = /Wird das Kriterium\s*[“"„]?\s*([^”"“]+?)\s*[”"“]?\s*mit E\b/;
 const number = (text: string) => Number(text.replace(",", "."));
-
-/** A leaf of text: a paragraph or list item without blocks inside. */
-const isLeaf = (el: El) =>
-  (el.tag === "p" || el.tag === "li") &&
-  !findAll(el, (e) => ["p", "li", "div", "ul", "ol", "table", "form"].includes(e.tag)).length;
 
 /** The form's lines: inputs by their labels, its own paragraphs, a choice's options. */
 function readForm(form: El): { heading?: string; fields: FormField[] } {
@@ -176,19 +178,7 @@ function readCriteria(after: El[]): WritingCriterion[] {
 }
 
 export function readWriting(html: string): WritingModule {
-  const root = parseHtml(html);
-  const all = ordered(root);
-  // The test begins at the page's "Inhalt" anchor (the navigation is before it).
-  const start = Math.max(
-    0,
-    all.findIndex((e) => e.attrs.id === "Inhalt"),
-  );
-  const heads = all.flatMap((e, i) => (e.tag === "h3" && i > start ? [i] : []));
-  const intro = all
-    .slice(start, heads[0] ?? all.length)
-    .filter((e) => e.tag === "p" && isLeaf(e))
-    .map(textOf)
-    .filter((t) => t && !CHROME.test(t));
+  const { all, heads, intro } = pageParts(html);
   const teile: WritingTeil[] = [];
   heads.forEach((at, h) => {
     const head = all[at] as El;

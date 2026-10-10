@@ -4,8 +4,8 @@
 // says: its description's content, a card's theme and word) and the pages holding a card's text (A2's
 // calendars) — each of candidate A's or B's where the page says so — and the criteria the page lists
 // ("Bewertung:" — B1's maxima per Aufgabe).
-import { findAll, parseHtml } from "@sprachanker/course-kit";
-import { CHROME, type Picture, pictureOf, textOf } from "./page.ts";
+import { findAll } from "@sprachanker/course-kit";
+import { CHROME, isTextLeaf, type Picture, pageParts, pictureOf, textOf } from "./page.ts";
 
 /** Whose a part of the page is: candidate A's (the learner's), B's (the partner's), or both. */
 export type Role = "A" | "B" | undefined;
@@ -55,29 +55,8 @@ export function cardText(alt: string): string {
   return /im folgenden Link/i.test(alt) ? "" : alt.trim();
 }
 
-const isLeaf = (tag: string) => tag === "p" || tag === "li" || /^h[4-6]$/.test(tag);
-
 export function readSpeaking(html: string): SpeakingModule {
-  const root = parseHtml(html);
-  const all = findAll(root, () => true);
-  const start = Math.max(
-    0,
-    all.findIndex((e) => e.attrs.id === "Inhalt"),
-  );
-  const heads = all.flatMap((e, i) => (e.tag === "h3" && i > start ? [i] : []));
-  const leaf = (i: number) => {
-    const el = all[i];
-    return (
-      !!el &&
-      isLeaf(el.tag) &&
-      !findAll(el, (e) => ["p", "li", "div", "ul", "ol", "table", "form"].includes(e.tag)).length
-    );
-  };
-  const intro = all
-    .slice(start, heads[0] ?? all.length)
-    .filter((e) => e.tag === "p" && leaf(all.indexOf(e)))
-    .map(textOf)
-    .filter((t) => t && !CHROME.test(t));
+  const { all, heads, intro } = pageParts(html);
   const parts: SpeakingPart[] = [];
   const criteria: SpeakingModule["criteria"] = [];
   heads.forEach((at, h) => {
@@ -87,7 +66,7 @@ export function readSpeaking(html: string): SpeakingModule {
       // "Aufgabe 1" / "Aufgabe 1, 2, 3", then its criteria with their maxima.
       let judged: number[] = [];
       for (const el of range) {
-        if (!leaf(all.indexOf(el))) continue;
+        if (!isTextLeaf(el, true)) continue;
         const text = textOf(el);
         const max = MAXIMUM.exec(text);
         if (max)
@@ -121,7 +100,7 @@ export function readSpeaking(html: string): SpeakingModule {
         if (picture?.alt) part.cards.push({ text: cardText(picture.alt), picture, role });
       } else if (el.tag === "a" && /^(?!https?:).*\.html?$/.test(el.attrs.href ?? ""))
         part.links.push({ href: el.attrs.href as string, role });
-      else if (leaf(all.indexOf(el))) {
+      else if (isTextLeaf(el, true)) {
         if (findAll(el, (e) => e.tag === "a").length) continue;
         const text = textOf(el);
         if (!text || CHROME.test(text) || NOT_THE_TEST.test(text) || /^Notizen\b/.test(text))
