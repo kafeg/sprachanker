@@ -149,6 +149,12 @@ test("Settings → Review: Anki's deck options, the rarer ones under Advanced, k
   page,
 }) => {
   await page.goto("/settings#review");
+  // Five tabs in one row, none narrower than its label (on a phone the bar scrolls instead).
+  const tabs = page.getByRole("tab");
+  await expect(tabs).toHaveCount(5);
+  await expect(page.getByRole("tab", { name: "Review" })).toHaveAttribute("aria-selected", "true");
+  for (const tab of await tabs.all())
+    expect(await tab.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
   const perDay = page.getByRole("textbox", { name: "New cards per day" });
   await expect(perDay).toHaveValue("20");
   await perDay.fill("15");
