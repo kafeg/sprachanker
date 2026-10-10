@@ -206,7 +206,8 @@ export function SpeechSelfrate({
   return (
     <div className="space-y-3">
       {item.text ? (
-        <div className="relative">
+        // "Show the text" over the blurred phrase itself.
+        <div className="relative w-fit max-w-full">
           <p
             lang={lang}
             aria-hidden={!textShown}
@@ -221,7 +222,7 @@ export function SpeechSelfrate({
             <button
               type="button"
               onClick={() => setReveal(true)}
-              className="absolute inset-0 grid place-items-center text-sm font-medium underline"
+              className="absolute inset-0 grid place-items-center text-sm font-medium whitespace-nowrap underline"
             >
               {t("speech.showText")}
             </button>

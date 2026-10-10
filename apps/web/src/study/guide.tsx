@@ -6,21 +6,38 @@ import { useTranslation } from "react-i18next";
 /** Remembering falls off with time; each review at the edge of forgetting makes the fall slower. */
 function ForgettingCurve() {
   const { t } = useTranslation();
-  // Retention over days for growing stabilities (FSRS: R = (1 + t/(9S))^-1).
-  const curve = (s: number, from: number) =>
-    Array.from({ length: 61 }, (_, i) => {
-      const day = from + i * 0.5;
+  // Retention over days for growing stabilities (FSRS: R = (1 + t/(9S))^-1), each from a review to
+  // the next: days 0–30 across the axis, 100 % at its top.
+  const curve = (s: number, from: number, to: number) =>
+    Array.from({ length: 41 }, (_, i) => {
+      const day = from + ((to - from) * i) / 40;
       const r = (1 + (day - from) / (9 * s)) ** -1;
-      return `${20 + day * 9},${20 + (1 - r) * 280}`;
+      return `${20 + day * 9},${20 + (1 - r) * 90}`;
     }).join(" ");
   return (
     <figure className="space-y-2">
       <svg viewBox="0 0 300 120" role="img" aria-label={t("guide.curveAlt")} className="w-full">
         <line x1="20" y1="20" x2="20" y2="110" className="stroke-border" />
         <line x1="20" y1="110" x2="290" y2="110" className="stroke-border" />
-        <polyline points={curve(1, 0)} className="fill-none stroke-wrong" strokeWidth="2" />
-        <polyline points={curve(4, 3)} className="fill-none stroke-amber-500" strokeWidth="2" />
-        <polyline points={curve(15, 10)} className="fill-none stroke-correct" strokeWidth="2" />
+        {/* The reviews: each brings the curve back to the top. */}
+        {[3, 10].map((day) => (
+          <line
+            key={day}
+            x1={20 + day * 9}
+            y1="20"
+            x2={20 + day * 9}
+            y2="110"
+            strokeDasharray="3 3"
+            className="stroke-border"
+          />
+        ))}
+        <polyline points={curve(0.3, 0, 3)} className="fill-none stroke-wrong" strokeWidth="2" />
+        <polyline
+          points={curve(1.2, 3, 10)}
+          className="fill-none stroke-amber-500"
+          strokeWidth="2"
+        />
+        <polyline points={curve(5, 10, 30)} className="fill-none stroke-correct" strokeWidth="2" />
         <text x="24" y="16" className="fill-muted-foreground text-[9px]">
           100%
         </text>

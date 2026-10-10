@@ -83,7 +83,7 @@ apps/web/src/
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
-                   # year of days as squares), stat-tile, checked-text (a model's check: verdict, the text
+                   # year of days as squares), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
                    # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented),
                    # check-row (a setting on or off), option-card (one of a few options as a card),
                    # disclosure (folded: "Advanced"), confirm (an action that cannot be undone), flags,

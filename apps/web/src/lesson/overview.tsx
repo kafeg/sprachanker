@@ -12,6 +12,7 @@ import { AudioPlayer } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { EpisodeVideo, isEpisode } from "@/ui/video.tsx";
+import { StepHeader } from "./steps.tsx";
 import type { useLessonFlow } from "./use-flow.ts";
 import type { RunMode } from "./use-run.ts";
 
@@ -48,11 +49,15 @@ export function LessonOverview({
   const video = shownInExercise ? undefined : lesson.media.video;
   return (
     <section className="space-y-5">
-      <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-        {t("lesson.unitLesson", parseLessonKey(lesson.key))}
-        {unitTitle && ` · ${unitTitle}`}
-      </p>
-      <h1 className="text-4xl font-bold">{locale?.title ?? lesson.key}</h1>
+      <StepHeader
+        label={
+          <>
+            {t("lesson.unitLesson", parseLessonKey(lesson.key))}
+            {unitTitle && ` · ${unitTitle}`}
+          </>
+        }
+        title={locale?.title ?? lesson.key}
+      />
       {locale?.synopsisHtml && (
         <CourseHtml className={cn(panelClass, "px-5 py-4 text-lg")} html={locale.synopsisHtml} />
       )}

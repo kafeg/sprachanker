@@ -9,7 +9,7 @@ import { useCourses, useSetSetting, useSetting } from "@/api/hooks.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
-import { panelClass } from "@/ui/panel.tsx";
+import { Panel, panelClass } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { useDebugPrompts } from "./prompt-view.tsx";
 import { DEBUG_PROMPTS, type PromptTaskId, useSetPrompt, useTaskPrompts } from "./setup-api.ts";
@@ -115,8 +115,7 @@ export function AiPlaces() {
   const set = useSetSetting();
   const off = useSetting("llm.offIn");
   return (
-    <section className={cn(panelClass, "px-4 py-3")}>
-      <h2 className="font-semibold">{t("prompt.places.title")}</h2>
+    <Panel title={t("prompt.places.title")}>
       <p className="text-sm text-muted-foreground">{t("prompt.places.hint")}</p>
       <div className="mt-1 divide-y">
         {AI_PLACES.map((place) => (
@@ -134,7 +133,7 @@ export function AiPlaces() {
           />
         ))}
       </div>
-    </section>
+    </Panel>
   );
 }
 

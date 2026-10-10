@@ -21,6 +21,7 @@ import { Choice } from "@/ui/choice.tsx";
 import { Tabs, TabsContent } from "@/ui/components/tabs.tsx";
 import { Disclosure } from "@/ui/disclosure.tsx";
 import { Page } from "@/ui/page.tsx";
+import { Panel } from "@/ui/panel.tsx";
 import { SectionTabList } from "@/ui/section-tabs.tsx";
 import { StorageSection } from "./storage.tsx";
 
@@ -51,19 +52,17 @@ function General() {
   const set = useSetSetting();
   const theme = useSetting("theme");
   return (
-    <div className="space-y-8">
-      <section className="space-y-2">
-        <h2 className="text-xl font-bold">{t("settings.uiLanguage")}</h2>
+    <div className="space-y-6">
+      <Panel title={t("settings.uiLanguage")} className="space-y-2">
         <LanguageSwitch keep />
-      </section>
-      <section className="space-y-2">
-        <h2 className="text-xl font-bold">{t("settings.themeLabel")}</h2>
+      </Panel>
+      <Panel title={t("settings.themeLabel")} className="space-y-2">
         <Choice
           value={theme}
           options={(["system", "light", "dark"] as const).map((v) => [v, t(`settings.theme.${v}`)])}
           onChange={(value) => set.mutate({ key: "theme", value })}
         />
-      </section>
+      </Panel>
       <StorageSection />
       <AboutSection />
       <ExperimentalSettings />

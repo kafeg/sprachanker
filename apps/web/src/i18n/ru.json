@@ -562,7 +562,7 @@
   },
   "storage": {
     "title": "Хранилище",
-    "intro": "Курсы, медиа и ваш прогресс лежат в этой папке на компьютере, где работает SprachAnker. Она задаётся при запуске сервера (--data или SPRACHANKER_DATA); в настольном приложении её можно будет сменить.",
+    "intro": "Курсы, медиа и ваш прогресс лежат в этой папке на компьютере, где работает SprachAnker. Она задаётся при запуске сервера (‑‑data или SPRACHANKER_DATA); в настольном приложении её можно будет сменить.",
     "total": "Всего",
     "used": "Курсы занимают {size}",
     "usedFree": "Курсы занимают {size} · свободно на диске {free}",
@@ -1264,7 +1264,7 @@
     "previous": "Назад",
     "questionsGrid": "Вопросы",
     "goTo": "Вопрос {n, number}",
-    "practiceTally": "верно {right, number} · ошибок {wrong, number} · из {total, number}",
+    "practiceTally": "верно {right, number} · ошибок {wrong, number} · {total, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}",
     "lastResult": "Последний пробный экзамен, {date}: {points, number} из {max, number}",
     "noResultYet": "Пробных экзаменов ещё не было",
     "inNotebook": "Всё в Тетради",

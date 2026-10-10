@@ -10,10 +10,10 @@ import { useDueText } from "@/study/time.ts";
 import { COUNT_TONE } from "@/study/tones.ts";
 import { WordSheet } from "@/study/word-sheet.tsx";
 import { Chip } from "@/ui/chip.tsx";
-import { Input } from "@/ui/components/input.tsx";
 import { ListRow } from "@/ui/history.tsx";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
+import { SearchField } from "@/ui/search-field.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -99,13 +99,11 @@ export function MyWords() {
   return (
     <div>
       <div className="max-w-4xl space-y-3">
-        <Input
-          type="search"
+        <SearchField
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("myWords.search")}
           aria-label={t("myWords.search")}
-          className="h-11 rounded-xl bg-card px-4 text-base md:text-base dark:bg-card"
         />
         <div className="flex flex-wrap gap-2">
           <Chip on={deck === "all"} onClick={() => setDeck("all")}>

@@ -246,11 +246,7 @@ export function MediaBlock({
   const episodeVideo = isEpisode(episode, media.video);
   return (
     <div className="my-3 space-y-3">
-      {media.video && episodeVideo && (
-        <div className="max-w-2xl">
-          <EpisodeVideo {...episode} url={url} onHeard={onHeard} />
-        </div>
-      )}
+      {media.video && episodeVideo && <EpisodeVideo {...episode} url={url} onHeard={onHeard} />}
       {media.video && !episodeVideo && (
         // biome-ignore lint/a11y/useMediaCaption: course clips come without separate captions
         <video
@@ -262,7 +258,7 @@ export function MediaBlock({
             onHeard?.();
           }}
           onError={onHeard}
-          className="w-full max-w-2xl rounded-xl bg-black"
+          className="w-full rounded-xl bg-black"
         />
       )}
       {media.image && <img src={url(media.image)} alt="" className="max-h-72 w-auto rounded-xl" />}

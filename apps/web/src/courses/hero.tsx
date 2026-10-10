@@ -16,6 +16,7 @@ import {
   chip,
   needsSync,
   ProblemList,
+  quietButton,
   SyncButton,
 } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -163,13 +164,13 @@ export function CourseHero(props: CourseHeroProps) {
           {started && (
             <ResetProgress series={series} course={course} title={title}>
               {(open) => (
-                <button
-                  type="button"
+                <Button
+                  variant="outline"
                   onClick={open}
-                  className="flex min-h-11 items-center gap-1.5 rounded-xl border border-dashed px-3 text-sm text-muted-foreground hover:bg-accent hover:text-wrong"
+                  className={cn(quietButton, "h-11 hover:text-wrong")}
                 >
-                  <RotateCcw className="size-4" /> {t("progress.resetCourse")}
-                </button>
+                  <RotateCcw /> {t("progress.resetCourse")}
+                </Button>
               )}
             </ResetProgress>
           )}

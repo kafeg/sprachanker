@@ -10,9 +10,9 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useSettings } from "@/api/hooks.ts";
 import { type ExamParams, questionId } from "@/library/exam-address.ts";
-import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, Page } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
+import { SearchField } from "@/ui/search-field.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { exampleAnswer, inTeile } from "./questions.ts";
@@ -64,13 +64,12 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
         }
       >
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <Input
-            type="search"
+          <SearchField
             value={words}
             onChange={(e) => setWords(e.target.value)}
             placeholder={t("exams.search")}
             aria-label={t("exams.search")}
-            className="h-10 max-w-sm flex-1 bg-card"
+            className="max-w-sm flex-1"
           />
           <span className="text-sm text-muted-foreground">
             {t("exams.questions", { count: shown.length })}

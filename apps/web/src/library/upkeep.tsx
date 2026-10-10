@@ -8,9 +8,11 @@ import { Button } from "@/ui/components/button.tsx";
 import { cn } from "@/ui/utils.ts";
 import { downloading } from "./download.tsx";
 
-// The check's and the sync's buttons: quiet (dashed) until the check finds something to mend.
-const upkeepButton = "rounded-xl px-3";
-const quiet = "border-dashed font-normal text-muted-foreground";
+// The course's own actions (check, sync, reset) as quiet dashed buttons; the sync marked when the
+// check finds something to mend.
+const upkeepButton = "rounded-xl px-3 shadow-none";
+const quiet = "border-dashed bg-transparent font-normal text-muted-foreground dark:bg-transparent";
+export const quietButton = cn(upkeepButton, quiet);
 
 export const chip = "inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 text-xs";
 
@@ -126,11 +128,7 @@ export function CourseUpkeep({ series, course }: { series: string; course: strin
             <CheckState check={check} />
           </button>
         ) : (
-          <Button
-            variant="outline"
-            onClick={() => setAsked(true)}
-            className={cn(upkeepButton, quiet)}
-          >
+          <Button variant="outline" onClick={() => setAsked(true)} className={quietButton}>
             <ShieldCheck /> {t("course.checkFiles")}
           </Button>
         )}

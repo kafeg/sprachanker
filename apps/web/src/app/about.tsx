@@ -2,6 +2,7 @@
 import { ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppInfo } from "@/api/hooks.ts";
+import { Panel } from "@/ui/panel.tsx";
 
 export const REPOSITORY = "https://github.com/kafeg/sprachanker";
 
@@ -9,9 +10,8 @@ export function AboutSection() {
   const { t } = useTranslation();
   const version = useAppInfo().data?.version;
   return (
-    <section id="about" className="space-y-2">
-      <h2 className="text-xl font-bold">{t("about.title")}</h2>
-      <p className="text-muted-foreground">{t("about.intro")}</p>
+    <Panel id="about" title={t("about.title")} className="space-y-2">
+      <p className="text-sm text-muted-foreground">{t("about.intro")}</p>
       <ul className="space-y-1 text-sm">
         {version && (
           <li>
@@ -30,7 +30,7 @@ export function AboutSection() {
           </a>
         </li>
       </ul>
-    </section>
+    </Panel>
   );
 }
 

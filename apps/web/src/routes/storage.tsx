@@ -4,6 +4,7 @@
 import { useTranslation } from "react-i18next";
 import { useCatalog, useStorage } from "@/api/hooks.ts";
 import { useBytes } from "@/ui/format.ts";
+import { Panel } from "@/ui/panel.tsx";
 
 export function StorageSection() {
   const { t } = useTranslation();
@@ -18,8 +19,7 @@ export function StorageSection() {
     return offers.length ? [...new Set(offers.map((o) => o.title))].join(", ") : series;
   };
   return (
-    <section className="space-y-2">
-      <h2 className="text-xl font-bold">{t("storage.title")}</h2>
+    <Panel title={t("storage.title")} className="space-y-2">
       <p className="text-sm text-muted-foreground">{t("storage.intro")}</p>
       <p className="break-all rounded-lg bg-muted px-3 py-2 font-mono text-sm">
         {storage.dataRoot}
@@ -66,6 +66,6 @@ export function StorageSection() {
           </li>
         </ul>
       )}
-    </section>
+    </Panel>
   );
 }
