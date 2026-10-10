@@ -1,13 +1,15 @@
-// The player's frame (09): the plan beside the step on desktop (a sheet on a phone), the header with the
-// steps worked, what optional features add there and the reference, and the reference panel.
+// The player's frame (09): the plan beside the step on desktop (a sheet on a phone; ui/side-layout),
+// the header with the steps worked, what optional features add there and the reference, and the
+// reference panel.
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft, BookOpenText, ListOrdered } from "lucide-react";
+import { ArrowLeft, BookOpenText } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
+import { SideLayout } from "@/ui/side-layout.tsx";
 import { Reference, type ReferenceTab, referenceTabs } from "./reference.tsx";
 
 export function PlayerFrame({
@@ -38,7 +40,6 @@ export function PlayerFrame({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation();
-  const [planOpen, setPlanOpen] = useState(false);
   const [reference, setReference] = useState<ReferenceTab>();
   const firstTab = referenceTabs(lesson, locale)[0];
   // The way back to the course, the lesson and its plan: beside the lesson on a wide screen, in the
@@ -60,22 +61,12 @@ export function PlayerFrame({
     </>
   );
   return (
-    <div className="lg:grid lg:grid-cols-[17rem_1fr]">
-      <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-r p-4 lg:block">
-        {side()}
-      </aside>
-      <div className="min-w-0">
-        <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-          <div className="mx-auto flex max-w-3xl items-center gap-2 px-4 py-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
-              aria-label={t("lesson.plan")}
-              onClick={() => setPlanOpen(true)}
-            >
-              <ListOrdered className="size-5" />
-            </Button>
+    <>
+      <SideLayout
+        side={side}
+        sideLabel={t("lesson.plan")}
+        bar={
+          <>
             {todo > 0 ? (
               <>
                 <Progress value={(worked / todo) * 100} className="h-2 flex-1" />
@@ -98,18 +89,11 @@ export function PlayerFrame({
                 <span className="hidden sm:inline">{t("lesson.reference")}</span>
               </Button>
             )}
-          </div>
-        </header>
-        <div className="mx-auto max-w-3xl px-4 py-6">{children}</div>
-      </div>
-      <Sheet open={planOpen} onOpenChange={setPlanOpen}>
-        <SheetContent side="left" className="w-80 overflow-y-auto p-4">
-          <SheetHeader className="sr-only p-0">
-            <SheetTitle>{t("lesson.plan")}</SheetTitle>
-          </SheetHeader>
-          {side(() => setPlanOpen(false))}
-        </SheetContent>
-      </Sheet>
+          </>
+        }
+      >
+        {children}
+      </SideLayout>
       <Sheet open={!!reference} onOpenChange={(open) => !open && setReference(undefined)}>
         <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-xl">
           <SheetHeader className="p-0">
@@ -126,6 +110,6 @@ export function PlayerFrame({
           )}
         </SheetContent>
       </Sheet>
-    </div>
+    </>
   );
 }

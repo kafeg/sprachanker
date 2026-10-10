@@ -54,3 +54,12 @@ export function inTeile(exam: Exam, items: ExamItem[], sectionOf: Record<string,
     return { item, section, opens };
   });
 }
+
+/** A question's line in a list: what it asks (a gap's text with "…", else its own text's first line). */
+export const questionLine = (item: ExamItem) =>
+  item.prompt ||
+  (item.type === "gap_text"
+    ? item.segments.map((p) => (typeof p === "string" ? p : "…")).join("")
+    : "") ||
+  item.text?.split("\n")[0] ||
+  "";

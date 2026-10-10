@@ -1,8 +1,20 @@
 // Exams on the fixture course's mini exam (two general questions, one of the learner's state; pass
 // marks 2 and 3): the Exams section, the state chosen, a mock exam drawn, answered, handed in, its
 // result and the Notebook; practice with each answer checked at once.
-import { expect, type Page, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import { put } from "./api.ts";
+
+/** The run's list of questions: beside it on a wide screen, in the sheet its button opens on a phone
+ *  (`done` closes the sheet again). */
+async function withQuestions(page: Page, use: (list: Locator, column: Locator) => Promise<void>) {
+  const open = page.getByRole("button", { name: "Questions", exact: true });
+  const phone = await open.isVisible();
+  if (phone) await open.click();
+  // The column: the phone's sheet, or the side beside the run.
+  const column = phone ? page.getByRole("dialog") : page.locator("aside");
+  await use(column.getByRole("navigation", { name: "Questions" }), column);
+  if (phone && (await column.isVisible())) await page.keyboard.press("Escape");
+}
 
 /** A quarter second of silence as a WAV (8 kHz, 8-bit mono): a recording a browser plays to its end
  *  (the fixture's media are markers, not sound). */
@@ -65,8 +77,7 @@ test("a mock exam: a question at a time, the grid above, nothing marked; handed 
   await openExam(page);
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page).toHaveURL(/\/exam\/sprachanker\.fixture\/demo\/mini\/run\//);
-  const grid = page.getByRole("navigation", { name: "Questions" });
-  await expect(grid.getByRole("button")).toHaveCount(3);
+  await withQuestions(page, (list) => expect(list.getByRole("button")).toHaveCount(3));
   const seen: string[] = [];
   for (let i = 0; i < 3; i++) {
     await expect(page.getByText(`Question ${i + 1} of 3`)).toBeVisible();
@@ -79,9 +90,11 @@ test("a mock exam: a question at a time, the grid above, nothing marked; handed 
   expect(seen.some((t) => t.includes("Was trinkt Lena?"))).toBe(false);
   // Nothing is marked before the exam is handed in; the grid shows all answered.
   await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toHaveCount(0);
-  await expect(page.getByText("Answered: 3 of 3")).toBeVisible();
-  // Back to the first through the grid: its answer kept.
-  await grid.getByRole("button", { name: "Question 1" }).click();
+  // Back to the first through the list (all answered there): its answer kept.
+  await withQuestions(page, async (list, column) => {
+    await expect(column.getByText("Answered: 3 of 3")).toBeVisible();
+    await list.getByRole("button", { name: "Question 1" }).click();
+  });
   await expect(page.getByText("Question 1 of 3")).toBeVisible();
   await expect(page.locator("main button[aria-pressed='true']")).toHaveCount(1);
   await button(page, "Hand in").click();
@@ -117,9 +130,11 @@ test("practice: a question at a time, each checked at once; ended early, scored 
       : undefined;
   if (wrong) await main.getByRole("button", { name: wrong }).click();
   else await main.locator("button:has(img[src*='kuchen'])").click();
-  // Checked at once: marked, the tally above, the grid square wrong.
+  // Checked at once: marked, the tally and the question wrong in the list.
   await expect(main.getByRole("status").filter({ hasText: /^Not quite$/ })).toBeAttached();
-  await expect(page.getByText(/0 right · 1 wrong/)).toBeVisible();
+  await withQuestions(page, (_, column) =>
+    expect(column.getByText(/0 right · 1 wrong/)).toBeVisible(),
+  );
   await button(page, "End practice").click();
   await expect(page.getByRole("heading", { name: "0 of 1 answer right" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "1 mistake" })).toBeVisible();
@@ -143,7 +158,9 @@ test("a language exam: a module alone, then the whole — each question with its
   await expect(page.getByText("3 questions in 3 minutes", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page).toHaveURL(/\/run\//);
-  await expect(page.getByText("Model test · Reading")).toBeVisible();
+  await withQuestions(page, (_, column) =>
+    expect(column.getByText("Model test · Reading")).toBeVisible(),
+  );
   // The Teil's instructions and letter with every one of its questions.
   for (const [i, answer] of (["Falsch", "um drei Uhr", "b"] as const).entries()) {
     await expect(page.getByText(`Question ${i + 1} of 3`)).toBeVisible();
@@ -165,8 +182,7 @@ test("a language exam: a module alone, then the whole — each question with its
   await page.getByRole("button", { name: "To the exam" }).click();
   await page.getByRole("button", { name: "Whole exam" }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
-  const grid = page.getByRole("navigation", { name: "Questions" });
-  await expect(grid.getByRole("button")).toHaveCount(10);
+  await withQuestions(page, (list) => expect(list.getByRole("button")).toHaveCount(10));
   await expect(page.getByRole("heading", { name: "Listening · Part 1" })).toBeVisible();
   await expect(page.getByText("Example")).toBeVisible();
   const answers: Array<(p: Page) => Promise<void>> = [

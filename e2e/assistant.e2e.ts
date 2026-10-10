@@ -359,7 +359,7 @@ test("a speaking part held as a conversation: the examiner opens, the learner an
   await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toBeVisible();
   await expect(page.getByText("The part is over.")).toBeVisible();
   // The conversation is the part's answer: handed in, it waits to be rated.
-  await expect(page.getByText("Answered: 1 of 1")).toBeVisible();
+  await expect(page.getByText("1/1", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
   await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
   await expect(page.getByText("Me: Was machst du am Wochenende?")).toBeVisible();

@@ -57,6 +57,18 @@ async function runOf(page: Page) {
 
 const visible = (l: Locator) => l.filter({ visible: true });
 
+/** The run's list of questions: beside it on a wide screen, in the sheet its button opens on a phone
+ *  (`done` closes the sheet again). */
+async function withQuestions(page: Page, use: (list: Locator, column: Locator) => Promise<void>) {
+  const open = page.getByRole("button", { name: "Questions", exact: true });
+  const phone = await open.isVisible();
+  if (phone) await open.click();
+  // The column: the phone's sheet, or the side beside the run.
+  const column = phone ? page.getByRole("dialog") : page.locator("aside");
+  await use(column.getByRole("navigation", { name: "Questions" }), column);
+  if (phone && (await column.isVisible())) await page.keyboard.press("Escape");
+}
+
 for (const s of examScenarios())
   test(`exam ${s.key} [${s.edition}]`, async ({ page }) => {
     const exam = examFile(s);
@@ -102,9 +114,8 @@ for (const s of examScenarios())
     const { run: test1 } = await runOf(page);
     const asked = test1.plan.snapshot ?? [];
     expect(asked.map((i) => i.key)).toEqual(test1.plan.items);
-    // A question at a time: the grid of all of them above; each answered on its screen, then on.
-    const grid = page.getByRole("navigation", { name: "Questions" });
-    await expect(grid.getByRole("button")).toHaveCount(asked.length);
+    // A question at a time: the list of all of them beside; each answered on its screen, then on.
+    await withQuestions(page, (list) => expect(list.getByRole("button")).toHaveCount(asked.length));
     const onScreen = (i: number, of: number) =>
       page.getByRole("region", { name: `Question ${i + 1} of ${of}` });
     const next = () =>
@@ -128,7 +139,9 @@ for (const s of examScenarios())
       await expect(onScreen(i, asked.length).getByRole("status")).toHaveCount(0);
       if (i < asked.length - 1) await next();
     }
-    await expect(page.getByText(`Answered: ${asked.length} of ${asked.length}`)).toBeVisible();
+    await withQuestions(page, (_, column) =>
+      expect(column.getByText(`Answered: ${asked.length} of ${asked.length}`)).toBeVisible(),
+    );
     await visible(page.getByRole("button", { name: "Hand in" }))
       .first()
       .click();

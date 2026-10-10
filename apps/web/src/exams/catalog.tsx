@@ -2,7 +2,7 @@
 // (the general ones and their state's) as a compact list by Teil, found by its words; a question
 // opened shows its Teil's material and its right answer.
 import { eligible, missingSettings } from "@sprachanker/engine";
-import { type ExamItem, parseEditionId } from "@sprachanker/schema";
+import { parseEditionId } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -15,7 +15,7 @@ import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { type ExamParams, examKeyOf } from "./params.ts";
-import { exampleAnswer, inTeile } from "./questions.ts";
+import { exampleAnswer, inTeile, questionLine } from "./questions.ts";
 import { QuestionSources } from "./sources.tsx";
 import { QuestionCard, TeilHeader } from "./teil.tsx";
 
@@ -24,15 +24,6 @@ const numberOf = (key: string, modules: boolean) => {
   const id = key.split("/q-")[1] ?? "";
   return modules ? id.replace(/^[a-z]+-/, "") : id;
 };
-
-/** A question's line in the list: what it asks. */
-const lineOf = (item: ExamItem) =>
-  item.prompt ||
-  (item.type === "gap_text"
-    ? item.segments.map((p) => (typeof p === "string" ? p : "…")).join("")
-    : "") ||
-  item.text?.split("\n")[0] ||
-  "";
 
 export function ExamCatalog({ params }: { params: ExamParams }) {
   const { t } = useTranslation();
@@ -134,7 +125,7 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
                       lang={edition ? parseEditionId(edition as never).target : "de"}
                       className="min-w-0 flex-1 truncate"
                     >
-                      {lineOf(item)}
+                      {questionLine(item)}
                     </span>
                     <ChevronDown
                       className={`size-4 shrink-0 transition ${isOpen ? "rotate-180" : ""}`}

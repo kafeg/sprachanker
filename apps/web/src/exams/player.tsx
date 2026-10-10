@@ -23,11 +23,12 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
+import { SideLayout } from "@/ui/side-layout.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
-import { type GridGroup, QuestionGrid } from "./navigator.tsx";
+import { type ListedQuestion, QuestionList } from "./navigator.tsx";
 import { type ExamParams, examKeyOf } from "./params.ts";
-import { inTeile, latestAnswers } from "./questions.ts";
+import { inTeile, latestAnswers, questionLine } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
 import { useExamSlots } from "./slots.ts";
@@ -216,22 +217,23 @@ function Running({
       return given.outcome.result === "correct" ? ("right" as const) : ("wrong" as const);
     return "answered" as const;
   };
-  // The grid by Teil: practice (in order of need) as one row.
+  // The plan: every question with its Teil's title (a heading where it changes; practice goes in
+  // order of need, so its Teile may come again).
   // biome-ignore lint/correctness/useExhaustiveDependencies: stateOf and moduleTitle read answers and locale
-  const groups: GridGroup[] = useMemo(() => {
-    if (mode === "practice")
-      return [{ questions: items.map((i, index) => ({ index, state: stateOf(i.key) })) }];
-    const out: GridGroup[] = [];
-    teile.forEach(({ item, section, opens }, index) => {
-      if (opens || !out.length) {
+  const listed: ListedQuestion[] = useMemo(
+    () =>
+      teile.map(({ item, section }, index) => {
         const teilTitle = section ? locale?.sections[section.key]?.title : undefined;
-        const label = [moduleTitle(section?.module), teilTitle].filter(Boolean).join(" · ");
-        out.push({ ...(teile.length > 1 && label && { label }), questions: [] });
-      }
-      out.at(-1)?.questions.push({ index, state: stateOf(item.key) });
-    });
-    return out;
-  }, [teile, answers, mode, items, locale]);
+        const group = [moduleTitle(section?.module), teilTitle].filter(Boolean).join(" · ");
+        return {
+          index,
+          state: stateOf(item.key),
+          line: questionLine(item),
+          ...(teile.length > 1 && group && { group }),
+        };
+      }),
+    [teile, answers, mode, items, locale],
+  );
 
   // The time left, each second; at its end the exam is handed in as it is.
   const [now, setNow] = useState(Date.now());
@@ -367,66 +369,84 @@ function Running({
     </>
   );
 
+  const side = (picked?: () => void) => (
+    <>
+      <button
+        type="button"
+        onClick={onLeave}
+        className="mr-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:mr-0"
+      >
+        <ArrowLeft className="size-4 shrink-0" />{" "}
+        <span className="truncate">{t("exams.leave")}</span>
+      </button>
+      <h2 className="mb-1 px-2 text-xl font-bold">
+        {title}
+        {module && ` · ${moduleTitle(module)}`}
+      </h2>
+      <p className="mb-3 px-2 text-sm text-muted-foreground">
+        {mode === "test"
+          ? t("exams.answered", { done: answered, total: items.length })
+          : t("exams.practiceTally", { right, wrong, total: items.length })}
+      </p>
+      <QuestionList
+        questions={listed}
+        current={current}
+        lang={lang}
+        onGo={(index) => {
+          go(index);
+          picked?.();
+        }}
+      />
+    </>
+  );
+
   return (
-    <div className="min-h-dvh">
-      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex min-h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
-          <button
-            type="button"
-            onClick={onLeave}
-            aria-label={t("exams.leave")}
-            className="-ml-1 p-2 text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-5" />
-          </button>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">
-              {title}
-              {module && ` · ${moduleTitle(module)}`}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {mode === "test"
-                ? t("exams.answered", { done: answered, total: items.length })
-                : t("exams.practiceTally", { right, wrong, total: items.length })}
-            </p>
-          </div>
-          {left !== undefined && (
-            <span className="flex items-center gap-1 font-heading text-lg font-bold tabular-nums">
-              <Timer className="size-4" /> {clock(left)}
+    <>
+      <SideLayout
+        side={side}
+        sideLabel={t("exams.questionsGrid")}
+        width={beside ? "max-w-6xl" : "max-w-3xl"}
+        bar={
+          <>
+            <Progress value={(answered / items.length) * 100} className="h-2 flex-1" />
+            <span className="text-sm tabular-nums text-muted-foreground">
+              {answered}/{items.length}
             </span>
-          )}
-          <Button size="sm" variant="outline" loading={finishing} onClick={askFinish}>
-            {finishLabel}
-          </Button>
-        </div>
-        {mode === "practice" && (
-          <Progress value={(answered / items.length) * 100} className="h-1 rounded-none" />
-        )}
-      </header>
-      <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:pb-12">
-        <QuestionGrid groups={groups} current={current} onGo={go} className="mb-5" />
-        {beside && section ? (
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* On a phone the question comes first, what it is about under it; on a wide screen the
-                material is beside it, on the left as on the paper. */}
-            <div className="order-2 lg:sticky lg:top-20 lg:order-1 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">
-              <TeilMaterial section={section} locale={locale} url={url} />
+            {left !== undefined && (
+              <span className="flex items-center gap-1 font-heading text-lg font-bold tabular-nums">
+                <Timer className="size-4" /> {clock(left)}
+              </span>
+            )}
+            <Button size="sm" variant="outline" loading={finishing} onClick={askFinish}>
+              {finishLabel}
+            </Button>
+          </>
+        }
+      >
+        <main className="pb-20 sm:pb-0">
+          {beside && section ? (
+            <div className="grid gap-6 xl:grid-cols-2">
+              {/* On a phone the question comes first, what it is about under it; on a wide screen the
+                  material is beside it, on the left as on the paper. */}
+              <div className="order-2 xl:sticky xl:top-20 xl:order-1 xl:max-h-[calc(100dvh-6rem)] xl:overflow-y-auto">
+                <TeilMaterial section={section} locale={locale} url={url} />
+              </div>
+              <div className="order-1 xl:order-2">
+                {header}
+                {question}
+                {rating}
+              </div>
             </div>
-            <div className="order-1 lg:order-2">
+          ) : (
+            <>
               {header}
               {question}
               {rating}
-            </div>
-          </div>
-        ) : (
-          <div className="mx-auto max-w-3xl">
-            {header}
-            {question}
-            {rating}
-          </div>
-        )}
-        <div className="mx-auto mt-6 hidden max-w-3xl justify-between gap-3 sm:flex">{moves}</div>
-      </main>
+            </>
+          )}
+          <div className="mt-6 hidden justify-between gap-3 sm:flex">{moves}</div>
+        </main>
+      </SideLayout>
       <footer className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
         {moves}
       </footer>
@@ -444,6 +464,6 @@ function Running({
           onFinish();
         }}
       />
-    </div>
+    </>
   );
 }

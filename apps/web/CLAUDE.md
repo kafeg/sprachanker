@@ -36,7 +36,7 @@ apps/web/src/
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the questions' map, runs), player
                    # (a run a question at a time: mock exam timed, practice checked at once), navigator
-                   # (the grid of a run's numbers), result, catalog (a compact list, a question opened
+                   # (the run's plan: its questions by Teil), result, catalog (a compact list, a question opened
                    # with its answer), state-select (the federal state), questions (a question as an
                    # exercise, the latest answers, questions by Teil), teil (a Teil's header and
                    # material; a question's card), recording (a mock exam's recording: plays limited),
@@ -68,7 +68,8 @@ apps/web/src/
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
-                   # (rows that open, lists of earlier items), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
+                   # (rows that open, lists of earlier items), side-layout (a page with a side column: the
+                   # lesson player's, an exam run's), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a

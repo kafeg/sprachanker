@@ -4,10 +4,9 @@
 import { type ExerciseResult, type LessonStep, stepId, stepState } from "@sprachanker/engine";
 import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
 import { BookOpen, Drama, Globe, Layers, PenLine, Play, SearchCheck, Star } from "lucide-react";
-import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { PlanHeading, PlanNav, PlanRow } from "@/ui/plan-list.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
-import { cn } from "@/ui/utils.ts";
 import { pageTitle } from "./reference.tsx";
 
 /** A step's title in the plan. */
@@ -77,18 +76,9 @@ export function Plan({
   go(id: string): void;
 }) {
   const { t } = useTranslation();
-  const nav = useRef<HTMLElement>(null);
-  // The step on screen stays in sight: the list scrolls gently when Next moves past its edge.
-  // biome-ignore lint/correctness/useExhaustiveDependencies: runs when the step on screen changes
-  useEffect(() => {
-    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    nav.current
-      ?.querySelector('[aria-current="step"]')
-      ?.scrollIntoView?.({ block: "nearest", behavior: reduced ? "auto" : "smooth" });
-  }, [current]);
   let section: string | undefined;
   return (
-    <nav ref={nav} className="space-y-0.5">
+    <PlanNav current={current}>
       {steps.map((step) => {
         const id = stepId(step);
         const state = stepState(step, lesson, results, done);
@@ -98,40 +88,33 @@ export function Plan({
         section = label ?? (step.kind === "summary" ? undefined : section);
         return (
           <div key={id}>
-            {header && (
-              <p className="px-2 pt-3 pb-0.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                {t(header)}
-              </p>
-            )}
-            <button
-              type="button"
+            {header && <PlanHeading>{t(header)}</PlanHeading>}
+            <PlanRow
+              current={current === id}
               onClick={() => go(id)}
-              aria-current={current === id ? "step" : undefined}
-              className={cn(
-                "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent pointer-coarse:min-h-11",
-                current === id && "bg-accent font-semibold",
-              )}
+              mark={
+                <StepDot
+                  state={
+                    state === "done" && step.kind !== "exercise"
+                      ? "read"
+                      : (state ??
+                        (current === id && step.kind === "exercise" ? "current" : undefined))
+                  }
+                  label={
+                    step.kind === "exercise" ? (
+                      step.index + 1
+                    ) : Icon ? (
+                      <Icon className="size-3" />
+                    ) : null
+                  }
+                />
+              }
             >
-              <StepDot
-                state={
-                  state === "done" && step.kind !== "exercise"
-                    ? "read"
-                    : (state ??
-                      (current === id && step.kind === "exercise" ? "current" : undefined))
-                }
-                label={
-                  step.kind === "exercise" ? (
-                    step.index + 1
-                  ) : Icon ? (
-                    <Icon className="size-3" />
-                  ) : null
-                }
-              />
               <span className="leading-snug">{stepTitle(step, lesson, locale, t)}</span>
-            </button>
+            </PlanRow>
           </div>
         );
       })}
-    </nav>
+    </PlanNav>
   );
 }

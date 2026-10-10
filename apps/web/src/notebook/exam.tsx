@@ -3,20 +3,19 @@
 // result; the map of the questions open to the learner (known, answered wrongly last time, not seen);
 // and the questions answered wrongly last time.
 import { eligible, examPassed } from "@sprachanker/engine";
-import { type ExamItem, parseEditionId } from "@sprachanker/schema";
+import { parseEditionId } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEdition } from "@/api/edition.ts";
 import { useExamPage, useExams } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
 import { type ExamParams, examKeyOf } from "@/exams/params.ts";
+import { questionLine } from "@/exams/questions.ts";
 import { useDateFormat } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
-
-const lineOf = (item: ExamItem) => item.prompt || item.text?.split("\n")[0] || item.key;
 
 export function ExamNotebook({ params }: { params: ExamParams }) {
   const { t } = useTranslation();
@@ -141,7 +140,7 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
                     {i.key.split("/q-")[1]}
                   </span>
                   <span lang={lang} className="min-w-0 flex-1">
-                    {lineOf(i)}
+                    {questionLine(i) || i.key}
                   </span>
                 </li>
               ))}
