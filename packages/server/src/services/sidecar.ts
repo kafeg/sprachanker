@@ -143,4 +143,3 @@ export function createSidecar(options: SidecarOptions) {
     stop: () => stop(),
   };
 }
-export type Sidecar = ReturnType<typeof createSidecar>;

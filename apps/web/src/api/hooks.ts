@@ -383,7 +383,6 @@ export function useDeleteRecordings() {
   });
 }
 
-export type SpeechState = Awaited<ReturnType<typeof fetchSpeech>>;
 const fetchSpeech = () => json(api.speech.$get());
 
 /** Recognition: the engine, its models (a download's progress polled while it runs), the profile's. */

@@ -115,7 +115,6 @@ export function useExplanationsKept(runId: string | undefined) {
 
 export type SpeakingRequest = Parameters<typeof api.llm.speaking.$post>[0]["json"];
 type SpokenChecks = Awaited<ReturnType<typeof fetchSpokenChecks>>;
-export type KeptSpokenCheck = SpokenChecks["checks"][number];
 const fetchSpokenChecks = (lessonKey: string, runId: string) =>
   json(api.llm.speaking.$get({ query: { lessonKey, runId } }));
 

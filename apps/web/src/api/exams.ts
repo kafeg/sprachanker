@@ -17,7 +17,6 @@ export const useExamPage = (exam: string, edition: string | undefined) =>
     enabled: !!edition,
     queryFn: () => json(api.exams.page.$get({ query: { exam, edition: edition as string } })),
   });
-export type ExamPageData = NonNullable<ReturnType<typeof useExamPage>["data"]>;
 
 /** What a run's page shows: the run, and its answers (a running mock exam's without outcomes); `skew`
  *  is how far the server's clock is ahead of this device's (ms), so the countdown keeps to the
@@ -169,8 +168,6 @@ export function useExamRun(runId: string) {
   return { query, answer, finish, eventsNow, pending: () => outbox.pending().length };
 }
 
-/** An open answer rated by its criteria (by the learner, or the assistant's proposal taken): the run
- *  comes back with its result computed anew. */
 /** Events kept elsewhere in the run (the assistant's proposal, a conversation's lines), shown with
  *  its events at once. */
 export function useKeepRunEvents(runId: string) {
@@ -185,6 +182,8 @@ export function useKeepRunEvents(runId: string) {
   };
 }
 
+/** An open answer rated by its criteria (by the learner, or the assistant's proposal taken): the run
+ *  comes back with its result computed anew. */
 export function useRateAnswer(runId: string) {
   const client = useQueryClient();
   return useMutation({

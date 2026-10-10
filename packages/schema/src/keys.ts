@@ -165,9 +165,6 @@ export function parseExamKey(key: ExamKey | string): {
   return { course, courseId: courseIdOf(course), slug: key.slice(slash + 1).replace(/^exam-/, "") };
 }
 
-/** The exam an exam item belongs to: `…/exam-test/q-001` → `…/exam-test`. */
-export const examOfItem = (item: ExamItemKey) => item.slice(0, item.lastIndexOf("/")) as ExamKey;
-
 /** The series a course, lesson, exercise, item or exam key belongs to (every such key starts with
  *  it). */
 export const seriesOf = (

@@ -97,8 +97,6 @@ export function plainLines(html: unknown): string {
 // element; Cyrillic vs Latin tells them apart).
 export const CYRILLIC = /\p{Script=Cyrillic}/u;
 export const hasCyrillic = (text: string) => CYRILLIC.test(text);
-/** Cyrillic letters in a text. */
-export const cyrillicLetters = (text: string) => text.match(/\p{Script=Cyrillic}/gu)?.length ?? 0;
 /** Latin letters in a text, accented ones too (how much of it is in a Latin-script language). */
 export const latinLetters = (text: string) => text.match(/\p{Script=Latin}/gu)?.length ?? 0;
 

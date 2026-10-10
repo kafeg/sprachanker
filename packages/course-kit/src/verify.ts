@@ -19,7 +19,7 @@ import { hashFile } from "./files.ts";
 import { fingerprint } from "./fingerprint.ts";
 import type { CourseProblem, CourseReport, LibraryView } from "./library-view.ts";
 
-export type { CourseProblem, CourseReport } from "./library-view.ts";
+export type { CourseReport } from "./library-view.ts";
 
 const problem = (kind: CourseProblem["kind"], at: string, text: string): CourseProblem => ({
   kind,

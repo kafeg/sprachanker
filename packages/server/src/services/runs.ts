@@ -227,7 +227,7 @@ export function createRuns({
         const runIds = store.idsOf(scope);
         // An exam's runs make no cards.
         const cardIds = "exam" in scope ? [] : cards.idsMetIn(scope);
-        const recordingIds = recordingsIn(runIds);
+        const recordingIds = store.recordingIds(runIds);
         const removed = store.remove(runIds, cardIds);
         cards.remove(cardIds);
         return { removed: { ...removed, cards: cardIds.length }, recordingIds };

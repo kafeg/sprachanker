@@ -166,4 +166,3 @@ export function useLessonFlow({
     forget: () => setFinished(undefined),
   };
 }
-export type LessonFlow = ReturnType<typeof useLessonFlow>;

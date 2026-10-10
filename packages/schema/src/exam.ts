@@ -72,7 +72,6 @@ export const ExamItem = z.discriminatedUnion("type", [
   RespondItem.extend({ ...examQuestion, type: z.literal("respond") }),
 ]);
 export type ExamItem = z.infer<typeof ExamItem>;
-export type ExamItemType = ExamItem["type"];
 
 /** `canonical/<course>/exams/<slug>.json` */
 export const Exam = z.strictObject({

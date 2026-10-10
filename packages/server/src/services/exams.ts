@@ -388,14 +388,14 @@ export function createExams({
       return open(runId);
     },
 
+    openAnswer,
+    speakingPart,
+
     /**
      * An open answer rated by its criteria (05): the points of a level of each, by the learner or as the
      * assistant proposed them. Taken while the run is active and after it is handed in — a finished
      * run's result is computed anew. Only an answer given in the run, rated whole.
      */
-    openAnswer,
-    speakingPart,
-
     async rate(
       runId: string,
       input: {
@@ -427,11 +427,6 @@ export function createExams({
       );
       if (row.status === "finished") store.rescore(runId, resultOf(exam, run));
       return open(runId);
-    },
-
-    /** The exams' runs, newest first, for the Notebook: the exam, its result. */
-    finishedTests(key: ExamKey) {
-      return runsOf(key).filter((r) => r.status === "finished" && r.plan.mode === "test");
     },
   };
 }
