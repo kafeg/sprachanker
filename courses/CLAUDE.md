@@ -14,7 +14,8 @@ packages/course-kit/   # library format (LibraryView: courses, lessons, exams), 
                        # provider contract (import options/report/progress, course offers, wanted,
                        # libraryFile (a file by kind: path from its keys, its schema; an exam's sources
                        # too), libraryWriter /
-                       # writeLibraryFiles, storedPage, pageCounter, CourseProvider);
+                       # writeLibraryFiles, CourseProvider); importing.ts: rawPages (raw pages
+                       # kept once, counted, their newest time), importReport / emptyReport;
                        # exercise-draft.ts: draftExercise, Unmapped, unknownExercise; key-map.ts: keys
                        # kept by source id (`occurrences` for an id met twice); text.ts: plain text,
                        # scripts told apart; files.ts: atomic
@@ -68,10 +69,10 @@ courses/
   Fixtures are hand-written and only shaped like the source.
 - `fetch` writes raw + media; `normalise` is offline and deterministic. Fixing a normaliser must not
   require re-downloading. A provider's offers carry a measured size; it reports progress
-  (`pageCounter`, `fetchMedia`'s `progress`).
+  (`rawPages`, `fetchMedia`'s `progress`).
 - Unknown source structures become `unknown` + report entries, never silent drops (words left out:
   `skippedWords`). Library files are made with `libraryFile` (never a path or schema of one's own)
-  and written through `libraryWriter` / `storedPage` / `fetchMedia` (atomic), never with a plain
+  and written through `libraryWriter` / `rawPages` / `fetchMedia` (atomic), never with a plain
   `writeFile` — the fixture course too.
 - Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
   provider never keeps its own copy: exercises are built with `draftExercise` (checked against their

@@ -1,25 +1,24 @@
 // `sprachanker import bamf-lid`: the catalogue PDF and the test centre's question pages fetched once and
 // kept as they are (raw/), the pictures taken out of the PDF into media, then normalised offline (03).
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
-  createMediaStore,
   createPoliteFetcher,
-  failedMedia,
+  emptyReport,
   fetchMedia,
-  goneMedia,
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
+  importReport,
   type MediaRef,
-  pageCounter,
+  mediaPath,
+  rawPages,
   wanted,
   writeFileAtomic,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
-import type { FederalState, MediaIndex, MediaPath } from "@sprachanker/schema";
+import { type FederalState, type MediaPath, optionId } from "@sprachanker/schema";
 import {
   CATALOGUE_PDF,
   COURSE,
@@ -31,7 +30,7 @@ import {
 } from "./catalog.ts";
 import { type CatalogueQuestion, parseCatalogue } from "./catalogue.ts";
 import { type CentreQuestion, readQuestionPage, walkCentre } from "./centre.ts";
-import { addressOf, normaliseExam, type PictureFiles, pictureName } from "./normalise.ts";
+import { addressOf, normaliseExam, PDF_RAW, type PictureFiles, pictureName } from "./normalise.ts";
 import { type PdfImage, readPdf } from "./pdf.ts";
 import { encodePng, shrink } from "./png.ts";
 
@@ -40,37 +39,33 @@ const INTERVAL_MS = 500;
 
 export async function importLid(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], goneMedia: [], normalised: {} };
+  if (!wanted(options, EDITION, COURSE)) return emptyReport();
   const seriesDir = join(options.libraryRoot, SERIES);
-  const rawDir = join(seriesDir, "raw", EDITION, COURSE);
   const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, intervalMs: INTERVAL_MS });
-  const counted = pageCounter(options.progress);
+  const pages = rawPages(seriesDir, options);
 
   // The catalogue, as published.
-  const pdfFile = join(rawDir, "gesamtfragenkatalog.pdf");
-  if (options.refresh || !existsSync(pdfFile)) {
-    const { bytes } = await fetcher.bytes(CATALOGUE_PDF);
-    await writeFileAtomic(pdfFile, bytes);
-  }
-  counted();
-  const pdf = new Uint8Array(await readFile(pdfFile));
+  const pdf = await pages.bytes(PDF_RAW, async () => (await fetcher.bytes(CATALOGUE_PDF)).bytes);
+  const pdfSha256 = createHash("sha256").update(pdf).digest("hex");
   const { lines, images } = await readPdf(pdf);
   const catalogue = parseCatalogue(lines, images);
   log(`lid: catalogue of ${catalogue.stand}, ${catalogue.questions.length} questions`);
 
   // The test centre's page of each question: the general part read with one state chosen, each
   // state's ten with that state chosen. Only pages not stored yet are fetched (all with `refresh`).
+  const pagePath = (state: FederalState | null, number: number) =>
+    `raw/${EDITION}/${COURSE}/centre/${state ?? "general"}/${String(number).padStart(3, "0")}.html`;
   const pageFile = (state: FederalState | null, number: number) =>
-    join(rawDir, "centre", state ?? "general", `${String(number).padStart(3, "0")}.html`);
+    join(seriesDir, pagePath(state, number));
   const session = fetcher.session();
   const walk = async (state: FederalState | null, numbers: number[]) => {
     const missing = numbers.filter((n) => options.refresh || !existsSync(pageFile(state, n)));
-    for (const n of numbers) if (!missing.includes(n)) counted();
+    for (const n of numbers) if (!missing.includes(n)) pages.kept(pagePath(state, n));
     // The general part is the same whichever state is chosen: Berlin's list is used.
     const centre = STATES.find((s) => s.code === (state ?? "be"))?.centre as string;
     await walkCentre(session, centre, missing, async (n, html) => {
       await writeFileAtomic(pageFile(state, n), html);
-      counted();
+      pages.kept(pagePath(state, n));
     });
   };
   const range = (from: number, count: number) => Array.from({ length: count }, (_, i) => from + i);
@@ -87,7 +82,7 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
 
   // The pictures: each one of a question saved as a PNG, named by the question and its place.
   // Named by the PDF's content too: a new catalogue's pictures are taken anew.
-  const pdfId = createHash("sha256").update(pdf).digest("hex").slice(0, 16);
+  const pdfId = pdfSha256.slice(0, 16);
   const pictureRefs: Array<MediaRef & { id: string; place: string; image: PdfImage }> =
     catalogue.questions.flatMap((q) =>
       picturesOf(q).map(({ place, image }) => {
@@ -102,10 +97,9 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
         };
       }),
     );
-  const index: MediaIndex = await fetchMedia({
+  const index = await fetchMedia({
     fetcher,
-    store: createMediaStore(seriesDir),
-    indexFile: join(seriesDir, "media.json"),
+    seriesDir,
     refs: pictureRefs,
     log,
     progress: options.progress,
@@ -118,10 +112,10 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
   options.progress?.({ phase: "normalise" });
   const pictures = new Map<string, PictureFiles>();
   for (const ref of pictureRefs) {
-    const entry = index[ref.url];
-    if (!entry || !("path" in entry)) continue;
+    const path = mediaPath(index, ref.url);
+    if (!path) continue;
     const files = pictures.get(ref.id) ?? new Map<string, MediaPath>();
-    files.set(ref.place, entry.path as MediaPath);
+    files.set(ref.place, path);
     pictures.set(ref.id, files);
   }
   const {
@@ -133,19 +127,8 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
     catalogue,
     (a) => answerOf(a.state, a.number),
     (id) => pictures.get(id) ?? new Map(),
-    {
-      sha256: createHash("sha256").update(pdf).digest("hex"),
-      // When the newest copy was kept: the catalogue or a test centre page.
-      readAt: Math.round(
-        Math.max(
-          statSync(pdfFile).mtimeMs,
-          ...readdirSync(join(rawDir, "centre"), { recursive: true })
-            .map((f) => join(rawDir, "centre", String(f)))
-            .filter((f) => f.endsWith(".html"))
-            .map((f) => statSync(f).mtimeMs),
-        ),
-      ),
-    },
+    // When the newest copy was kept: the catalogue or a test centre page.
+    { sha256: pdfSha256, readAt: pages.readAt() },
   );
   for (const line of found) log(`lid: ${line}`);
   const problems = await writeLibraryFiles(seriesDir, files, log);
@@ -153,19 +136,17 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
     `lid ${EDITION}: exam of ${questions} questions${leftOut ? `, ${leftOut} left out` : ""}` +
       `${problems ? `, ${problems} files failed validation` : ""}`,
   );
-  return {
-    failedMedia: failedMedia(index),
-    goneMedia: goneMedia(index),
-    // Questions left out count as content of an unknown structure.
-    normalised: { [`${COURSE} ${EDITION}`]: { lessons: 0, unknown: leftOut, problems } },
-  };
+  // Questions left out count as content of an unknown structure.
+  return importReport(index, {
+    [`${COURSE} ${EDITION}`]: { lessons: 0, unknown: leftOut, problems },
+  });
 }
 
 /** A question's pictures by place: a row as many as its options is theirs (`a`–`d`), a single one the
  *  question's (`item`). */
 function picturesOf(q: CatalogueQuestion): Array<{ place: string; image: PdfImage }> {
   if (q.pictures.length > 1 && q.pictures.length === q.options.length)
-    return q.pictures.map((image, i) => ({ place: String.fromCharCode(97 + i), image }));
+    return q.pictures.map((image, i) => ({ place: optionId(i), image }));
   if (q.pictures.length === 1) return [{ place: "item", image: q.pictures[0] as PdfImage }];
   if (q.pictures.length)
     throw new Error(

@@ -8,7 +8,7 @@ import { join } from "node:path";
 import { issuesText, MediaIndex, type MediaKind, type MediaPath } from "@sprachanker/schema";
 import { tempFile, writeFileAtomic } from "./files.ts";
 import { FetchFailedError, HostRefusedError, type PoliteFetcher } from "./http.ts";
-import type { MediaStore } from "./media-store.ts";
+import { createMediaStore } from "./media-store.ts";
 import type { ProgressSink } from "./provider.ts";
 
 export interface MediaRef {
@@ -21,10 +21,20 @@ export interface MediaRef {
 /** Requests in flight per host. */
 const WORKERS_PER_HOST = 8;
 
+/** A series' media index: `media.json` in its folder (02). */
+const indexFileOf = (seriesDir: string) => join(seriesDir, "media.json");
+
+/** A media reference of a URL, stored under its file name unless named otherwise. */
+export const mediaRef = (url: string, kind: MediaKind, name = urlFileName(url)): MediaRef => ({
+  url,
+  kind,
+  name,
+});
+
+/** Fetches a series' media into its media store and index (`media.json`); returns the index. */
 export async function fetchMedia<R extends MediaRef>(options: {
   fetcher: PoliteFetcher;
-  store: MediaStore;
-  indexFile: string;
+  seriesDir: string;
   refs: R[];
   log: (line: string) => void;
   /**
@@ -34,7 +44,9 @@ export async function fetchMedia<R extends MediaRef>(options: {
   download?: (ref: R, target: string) => Promise<{ mime: string }>;
   progress?: ProgressSink;
 }): Promise<MediaIndex> {
-  const { fetcher, store, indexFile, log, progress } = options;
+  const { fetcher, log, progress } = options;
+  const store = createMediaStore(options.seriesDir);
+  const indexFile = indexFileOf(options.seriesDir);
   const download =
     options.download ??
     (async (ref: R, target: string) => ({
@@ -45,7 +57,7 @@ export async function fetchMedia<R extends MediaRef>(options: {
   const incoming = store.file("media/.incoming" as MediaPath);
   await rm(incoming, { recursive: true, force: true });
   await mkdir(incoming, { recursive: true });
-  const index = await readMediaIndex(indexFile);
+  const index = await readMediaIndex(options.seriesDir);
   // One file per content: URLs whose files have the same content point to one of them (the first path
   // in order, so a run again gives the same), and content that comes again is not stored twice. Files
   // no URL points to any more stay: what was read before (a pass, a card) may still name them.
@@ -123,8 +135,9 @@ export async function fetchMedia<R extends MediaRef>(options: {
   return index;
 }
 
-/** The media index as stored so far (empty before the first fetch). */
-export async function readMediaIndex(indexFile: string): Promise<MediaIndex> {
+/** A series' media index as stored so far (empty before the first fetch). */
+export async function readMediaIndex(seriesDir: string): Promise<MediaIndex> {
+  const indexFile = indexFileOf(seriesDir);
   if (!existsSync(indexFile)) return {};
   const read = MediaIndex.safeParse(JSON.parse(await readFile(indexFile, "utf8")));
   if (!read.success) throw new Error(`${indexFile}: ${issuesText(read.error, 2)}`);

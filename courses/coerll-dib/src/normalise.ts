@@ -76,10 +76,14 @@ export const germanOf = (de: string) => de.replace(REMARK, "").trim();
 
 export const chapterPdfUrl = (pdf: string) => new URL(pdf, SITE).href;
 
-export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFile[] {
+export function normaliseDib(
+  chapters: Chapter[],
+  index: MediaIndex,
+): { files: LibraryFile[]; lessons: number } {
   const media = (url: string | undefined) => mediaPath(index, url);
   const course = courseKey(SERIES, COURSE);
   const files: LibraryFile[] = [];
+  let lessonCount = 0;
   const units: CourseIndex["units"] = [];
   const unitTitles: LocaleCourse["units"] = {};
   for (const chapter of chapters) {
@@ -90,6 +94,7 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
     for (const [i, section] of chapter.sections.entries()) {
       const key = lessonKey(course, chapter.k, section.n);
       lessons.push(key);
+      lessonCount++;
       const { vocab, translations, skipped } = vocabEntries(
         key,
         "de",
@@ -154,5 +159,5 @@ export function normaliseDib(chapters: Chapter[], index: MediaIndex): LibraryFil
       goals: {},
     }),
   );
-  return files;
+  return { files, lessons: lessonCount };
 }

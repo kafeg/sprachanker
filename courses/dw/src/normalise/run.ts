@@ -12,6 +12,7 @@ import {
 import { courseKey, type GoalKey, type LessonKey } from "@sprachanker/schema";
 import { type ApolloState, exerciseIds } from "../apollo.ts";
 import { type DwCourse, seriesId } from "../catalog.ts";
+import { rawDir as rawDirOf } from "../pages.ts";
 
 import { createContext, html } from "./context.ts";
 import { courseFiles, courseLessons } from "./course.ts";
@@ -23,11 +24,11 @@ export async function normaliseCourse(
   options: { log: (line: string) => void },
 ): Promise<NormaliseResult> {
   const { log } = options;
-  const rawDir = `raw/${dw.edition}/${dw.course}`;
+  const rawDir = rawDirOf(dw);
   const read = async (file: string): Promise<ApolloState> =>
     JSON.parse(await readFile(join(seriesDir, rawDir, file), "utf8"));
 
-  const ctx = createContext(await readMediaIndex(join(seriesDir, "media.json")), dw.edition);
+  const ctx = createContext(await readMediaIndex(seriesDir), dw.edition);
   const course = courseKey(seriesId(dw.series), dw.id);
   const writer = libraryWriter(seriesDir, log);
   const courseState = await read("course.json");

@@ -2,24 +2,19 @@
 // normalise (03).
 import { join } from "node:path";
 import {
-  createMediaStore,
   createPoliteFetcher,
-  failedMedia,
+  emptyReport,
   fetchMedia,
-  goneMedia,
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
-  type MediaRef,
-  pageCounter,
+  importReport,
+  mediaRef,
+  rawPages,
   runPool,
-  storedPage,
-  urlFileName,
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
-import type { MediaIndex } from "@sprachanker/schema";
-
 import {
   articleId,
   articleUrl,
@@ -38,7 +33,7 @@ const CONCURRENCY = 4;
 
 export async function importEnglishUsa(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
-  if (!wanted(options, EDITION, COURSE)) return { failedMedia: [], goneMedia: [], normalised: {} };
+  if (!wanted(options, EDITION, COURSE)) return emptyReport();
   const seriesDir = join(options.libraryRoot, SERIES);
   const rawPath = (id: string) => `raw/${EDITION}/${COURSE}/${id}.html`;
   const fetcher = createPoliteFetcher({
@@ -47,19 +42,11 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
   });
 
   // Fetch: one article per lesson, stored as it is.
+  const raw = rawPages(seriesDir, options);
   const pages = new Map<string, string>();
-  const counted = pageCounter(options.progress);
   await runPool([...LESSONS], CONCURRENCY, async ([, article]) => {
     const id = articleId(article);
-    pages.set(
-      id,
-      await storedPage(
-        join(seriesDir, rawPath(id)),
-        () => fetcher.text(articleUrl(article)),
-        options.refresh,
-      ),
-    );
-    counted();
+    pages.set(id, await raw.text(rawPath(id), () => fetcher.text(articleUrl(article))));
   });
   const lessons: SourceLesson[] = LESSONS.map(([label, article]) => {
     const id = articleId(article);
@@ -75,31 +62,17 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
     };
   });
 
-  const refs: MediaRef[] = lessons.flatMap((l) =>
-    l.audioUrl ? [{ url: l.audioUrl, kind: "audio" as const, name: urlFileName(l.audioUrl) }] : [],
-  );
-  const normalise = async (index: MediaIndex) => {
-    options.progress?.({ phase: "normalise" });
-    const { files, lessons: count, unmapped } = normaliseEnglishUsa(lessons, index);
-    return { count, unmapped, problems: await writeLibraryFiles(seriesDir, files, log) };
-  };
-  const indexFile = join(seriesDir, "media.json");
-  const index = await fetchMedia({
-    fetcher,
-    store: createMediaStore(seriesDir),
-    indexFile,
-    refs,
-    log,
-    progress: options.progress,
-  });
+  const refs = lessons.flatMap((l) => (l.audioUrl ? [mediaRef(l.audioUrl, "audio")] : []));
+  const index = await fetchMedia({ fetcher, seriesDir, refs, log, progress: options.progress });
 
-  const { count, unmapped, problems } = await normalise(index);
+  options.progress?.({ phase: "normalise" });
+  const { files, lessons: count, unmapped } = normaliseEnglishUsa(lessons, index);
+  const problems = await writeLibraryFiles(seriesDir, files, log);
   log(
     `${COURSE} ${EDITION}: ${count} lessons${unmapped ? `, ${unmapped} unmapped parts` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
   );
-  return {
-    failedMedia: failedMedia(index),
-    goneMedia: goneMedia(index),
-    normalised: { [`${COURSE} ${EDITION}`]: { lessons: count, unknown: unmapped, problems } },
-  };
+  // Its lessons have no exercises: none is unknown (unmapped parts are in the lessons and the log).
+  return importReport(index, {
+    [`${COURSE} ${EDITION}`]: { lessons: count, unknown: 0, problems },
+  });
 }

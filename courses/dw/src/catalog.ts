@@ -5,7 +5,6 @@ import type { CourseOffer } from "@sprachanker/course-kit";
 import { type CourseSource, type EditionId, seriesKey } from "@sprachanker/schema";
 
 export const SITE = "https://learngerman.dw.com";
-export { IMPORTER_USER_AGENT as USER_AGENT } from "@sprachanker/course-kit";
 
 export type DwSeries = "nicos-weg" | "deutschtrainer";
 

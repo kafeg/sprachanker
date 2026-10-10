@@ -62,22 +62,26 @@ test.each([
 });
 
 test("normalisation: chapters → units, sections → lessons, all files valid", () => {
-  const files = normaliseDib([{ k: 2, ...parseChapter(TOC), sections: parseVocabulary(VOC) }], {
-    "https://media.example/voc_02_01.mp3": {
-      kind: "audio",
-      path: "media/audio/voc_02_01.mp3",
-      sha256: "x",
-      size: 1,
-      mime: "audio/mpeg",
+  const { files, lessons } = normaliseDib(
+    [{ k: 2, ...parseChapter(TOC), sections: parseVocabulary(VOC) }],
+    {
+      "https://media.example/voc_02_01.mp3": {
+        kind: "audio",
+        path: "media/audio/voc_02_01.mp3",
+        sha256: "x",
+        size: 1,
+        mime: "audio/mpeg",
+      },
+      "https://coerll.utexas.edu/dib/pdfs/k_02.pdf": {
+        kind: "pdf",
+        path: "media/pdf/k_02.pdf",
+        sha256: "y",
+        size: 1,
+        mime: "application/pdf",
+      },
     },
-    "https://coerll.utexas.edu/dib/pdfs/k_02.pdf": {
-      kind: "pdf",
-      path: "media/pdf/k_02.pdf",
-      sha256: "y",
-      size: 1,
-      mime: "application/pdf",
-    },
-  });
+  );
+  expect(lessons).toBe(2);
   for (const f of files)
     expect([f.path, f.schema.safeParse(f.value).error?.issues]).toEqual([f.path, undefined]);
   const byPath = Object.fromEntries(files.map((f) => [f.path, f.value]));

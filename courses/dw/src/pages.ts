@@ -1,56 +1,47 @@
 // Fetch phase, pages: course page, lesson pages, download pages and exercise pages → raw JSON (03).
-import { join } from "node:path";
-import { FetchFailedError, type PoliteFetcher, runPool, storedPage } from "@sprachanker/course-kit";
+import {
+  FetchFailedError,
+  type PoliteFetcher,
+  type RawPages,
+  runPool,
+} from "@sprachanker/course-kit";
 import { type ApolloState, exerciseIds, extractState, lessonIds } from "./apollo.ts";
 import { type DwCourse, SITE } from "./catalog.ts";
 
 /** Pages fetched at the same time. */
 const CONCURRENCY = 8;
 
-/** `raw/<edition>/<course>/` of a series folder. */
-export const rawDir = (seriesDir: string, c: DwCourse) =>
-  join(seriesDir, "raw", c.edition, c.course);
-
-/** Fetches a page once; later runs read the stored state unless `refresh` asks for it again. */
-async function page(
-  fetcher: PoliteFetcher,
-  path: string,
-  file: string,
-  refresh = false,
-): Promise<ApolloState> {
-  const stored = await storedPage(
-    file,
-    async () => JSON.stringify(extractState(await fetcher.text(`${SITE}${path}`))),
-    refresh,
-  );
-  return JSON.parse(stored);
-}
+/** `raw/<edition>/<course>` of a series folder: a DW course's pages, kept as their page state. */
+export const rawDir = (c: DwCourse) => `raw/${c.edition}/${c.course}`;
 
 export async function fetchPages(
   fetcher: PoliteFetcher,
-  seriesDir: string,
+  pages: RawPages,
   c: DwCourse,
   log: (line: string) => void,
-  refresh = false,
-  /** Called once per page read or fetched (progress). */
-  counted: () => void = () => {},
 ): Promise<void> {
-  const dir = rawDir(seriesDir, c);
+  const dir = rawDir(c);
+  const page = async (path: string, file: string, refresh?: boolean): Promise<ApolloState> =>
+    JSON.parse(
+      await pages.text(
+        `${dir}/${file}`,
+        async () => JSON.stringify(extractState(await fetcher.text(`${SITE}${path}`))),
+        refresh,
+      ),
+    );
   /** A page; one stored without the entity it is for (DW answers an empty content now and then) is
    *  fetched once more. */
   const get = async (path: string, file: string, entity?: string) => {
-    let state = await page(fetcher, path, file, refresh);
-    if (entity && !state[entity] && !refresh) state = await page(fetcher, path, file, true);
-    counted();
-    return state;
+    const state = await page(path, file);
+    return entity && !state[entity] ? page(path, file, true) : state;
   };
   // Slugs in DW URLs are ignored by the server, so `x` stands in for them.
-  const course = await get(`/${c.lang}/x/c-${c.sourceId}`, join(dir, "course.json"));
+  const course = await get(`/${c.lang}/x/c-${c.sourceId}`, "course.json");
   const lessons = lessonIds(course);
   const exercises: Array<{ lesson: number; exercise: number }> = [];
   await runPool(lessons, CONCURRENCY, async (id) => {
-    const lesson = await get(`/${c.lang}/x/l-${id}`, join(dir, `l-${id}.json`), `Lesson:${id}`);
-    await get(`/${c.lang}/x/l-${id}/le`, join(dir, `le-${id}.json`));
+    const lesson = await get(`/${c.lang}/x/l-${id}`, `l-${id}.json`, `Lesson:${id}`);
+    await get(`/${c.lang}/x/l-${id}/le`, `le-${id}.json`);
     for (const exercise of exerciseIds(lesson, id)) exercises.push({ lesson: id, exercise });
   });
   log(
@@ -61,7 +52,7 @@ export async function fetchPages(
     try {
       await get(
         `/${c.lang}/x/l-${lesson}/e-${exercise}`,
-        join(dir, `e-${exercise}.json`),
+        `e-${exercise}.json`,
         `Exercise:${exercise}`,
       );
     } catch (error) {

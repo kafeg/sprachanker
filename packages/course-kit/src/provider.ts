@@ -1,7 +1,6 @@
 // The provider contract (03): what an importer gets, what it reports, and how normalised files are
 // written. Shared by every course provider so the server treats them alike.
-import { existsSync } from "node:fs";
-import { readdir, readFile, rm } from "node:fs/promises";
+import { readdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 import {
   CourseIndex,
@@ -49,12 +48,6 @@ export type ProgressSink = (progress: ImportProgress) => void;
 export const wanted = (options: ImportOptions, edition: string, ...names: string[]) =>
   (!options.courses || names.some((n) => options.courses?.includes(n))) &&
   (!options.editions || options.editions.includes(edition));
-
-/** Counts pages as an importer reads or fetches them; call the result once per page. */
-export function pageCounter(sink: ProgressSink | undefined): () => void {
-  let done = 0;
-  return () => sink?.({ phase: "pages", done: ++done });
-}
 
 /**
  * A content provider as the server sees it (03): its id (the CLI's and the downloads'), the series
@@ -235,17 +228,4 @@ export async function writeLibraryFiles(
   await writer.write(files);
   await writer.finish();
   return writer.problems;
-}
-
-/** A raw page fetched once and stored as `file`; later runs read the stored copy unless `refresh`. */
-export async function storedPage(
-  file: string,
-  fetchText: () => Promise<string>,
-  refresh = false,
-): Promise<string> {
-  if (!refresh && existsSync(file)) return readFile(file, "utf8");
-  const text = await fetchText();
-  // Whole or not at all: a page cut off by a crash would be taken as stored.
-  await writeFileAtomic(file, text);
-  return text;
 }

@@ -5,6 +5,7 @@ export * from "./files.ts";
 export * from "./fingerprint.ts";
 export * from "./html.ts";
 export * from "./http.ts";
+export * from "./importing.ts";
 export * from "./key-map.ts";
 export * from "./language.ts";
 export * from "./library.ts";

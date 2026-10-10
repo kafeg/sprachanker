@@ -3,24 +3,22 @@
 // result page (`page=2k`) shows question k with its answer, no answer is submitted.
 import { join } from "node:path";
 import {
-  createMediaStore,
   createPoliteFetcher,
+  emptyReport,
   FetchFailedError,
-  failedMedia,
   fetchMedia,
-  goneMedia,
   IMPORTER_USER_AGENT,
   type ImportOptions,
   type ImportReport,
+  importReport,
   openKeyMap,
   type PoliteFetcher,
-  pageCounter,
+  type RawPages,
+  rawPages,
   runPool,
-  storedPage,
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
-import type { MediaIndex } from "@sprachanker/schema";
 
 import { COURSES, type CourseDef, EDITION, HOST, SERIES, SITE } from "./catalog.ts";
 import { normaliseCourse } from "./normalise/course.ts";
@@ -40,40 +38,30 @@ const CONCURRENCY = 4;
 export async function importLetsLearnEnglish(options: ImportOptions): Promise<ImportReport> {
   const { log } = options;
   const seriesDir = join(options.libraryRoot, SERIES);
-  const report: ImportReport = { failedMedia: [], goneMedia: [], normalised: {} };
-  if (!wanted({ ...options, courses: undefined }, EDITION)) return report;
+  if (!wanted({ ...options, courses: undefined }, EDITION)) return emptyReport();
   const fetcher = createPoliteFetcher({ userAgent: IMPORTER_USER_AGENT, robotsHosts: [HOST] });
   const defs = COURSES.filter((c) => wanted(options, EDITION, c.id));
 
-  const counted = pageCounter(options.progress);
+  const pages = rawPages(seriesDir, options);
   const courses: FetchedCourse[] = [];
-  for (const def of defs)
-    courses.push(await fetchCourse(fetcher, seriesDir, def, { ...options, counted }));
-
-  // Keys stay by source id across normalisations (02): the series' key map, saved once written.
-  const keys = await openKeyMap(seriesDir);
-  const normalise = async (course: FetchedCourse, index: MediaIndex) => {
-    options.progress?.({ phase: "normalise" });
-    const result = normaliseCourse(course, index, keys);
-    const problems = await writeLibraryFiles(seriesDir, result.files, log);
-    await keys.save();
-    return { result, problems };
-  };
-  const indexFile = join(seriesDir, "media.json");
+  for (const def of defs) courses.push(await fetchCourse(fetcher, pages, def, log));
 
   const index = await fetchMedia({
     fetcher,
-    store: createMediaStore(seriesDir),
-    indexFile,
+    seriesDir,
     refs: courses.flatMap(mediaRefs),
     log,
     progress: options.progress,
   });
-  report.failedMedia = failedMedia(index);
-  report.goneMedia = goneMedia(index);
+  const report = importReport(index);
 
+  // Keys stay by source id across normalisations (02): the series' key map, saved once written.
+  const keys = await openKeyMap(seriesDir);
   for (const course of courses) {
-    const { result, problems } = await normalise(course, index);
+    options.progress?.({ phase: "normalise" });
+    const result = normaliseCourse(course, index, keys);
+    const problems = await writeLibraryFiles(seriesDir, result.files, log);
+    await keys.save();
     for (const line of result.unmapped) log(`unmapped: ${line}`);
     log(
       `${course.def.id} ${EDITION}: ${result.lessons} lessons, ${result.unknown} unknown exercises, ` +
@@ -90,30 +78,22 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
 
 async function fetchCourse(
   fetcher: PoliteFetcher,
-  seriesDir: string,
+  pages: RawPages,
   def: CourseDef,
-  options: ImportOptions & { counted: () => void },
+  log: (line: string) => void,
 ): Promise<FetchedCourse> {
   const rel = `raw/${EDITION}/${def.id}`;
-  const page = async (file: string, url: string) => {
-    const text = await storedPage(
-      join(seriesDir, rel, file),
-      () => fetcher.text(url),
-      options.refresh,
-    );
-    options.counted();
-    return text;
-  };
+  const page = (file: string, url: string) => pages.text(`${rel}/${file}`, () => fetcher.text(url));
   /** A page that may be missing at the source (documents, quizzes): undefined instead of failing. */
   const optionalPage = (file: string, url: string) =>
     page(file, url).catch((error) => {
       if (!(error instanceof FetchFailedError)) throw error;
-      options.log(`${url}: ${error.status}`);
+      log(`${url}: ${error.status}`);
       return undefined;
     });
 
   const landing = parseLanding(await page("landing.html", new URL(def.landing, SITE).href));
-  options.log(`${def.id}: ${landing.lessons.length} lessons`);
+  log(`${def.id}: ${landing.lessons.length} lessons`);
   const lessons: FetchedLesson[] = new Array(landing.lessons.length);
   await runPool([...landing.lessons.entries()], CONCURRENCY, async ([i, source]) => {
     lessons[i] = await fetchLesson(source, rel, page, optionalPage);

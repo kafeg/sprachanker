@@ -14,7 +14,6 @@ import { z } from "zod";
 import { writeFileAtomic } from "../src/files.ts";
 import { HostRefusedError, type PoliteFetcher } from "../src/http.ts";
 import { failedMedia, fetchMedia, goneMedia } from "../src/media-index.ts";
-import { createMediaStore } from "../src/media-store.ts";
 import { libraryFile, libraryWriter, writeLibraryFiles } from "../src/provider.ts";
 
 const dir = () => mkdtempSync(join(tmpdir(), "sprachanker-files-"));
@@ -64,18 +63,16 @@ function fetcherOf(fail: (url: string) => Error | undefined = () => undefined) {
 
 test("media: each URL once; a stored file gone from the disk is fetched again", async () => {
   const root = dir();
-  const store = createMediaStore(root);
-  const indexFile = join(root, "media.json");
   const ref = { url: "https://cdn.test/a.mp3", kind: "audio" as const, name: "a.mp3" };
   const { fetcher, asked } = fetcherOf();
-  await fetchMedia({ fetcher, store, indexFile, refs: [ref, ref], log: () => {} });
+  await fetchMedia({ fetcher, seriesDir: root, refs: [ref, ref], log: () => {} });
   expect(asked).toEqual([ref.url]);
-  await fetchMedia({ fetcher, store, indexFile, refs: [ref], log: () => {} });
+  await fetchMedia({ fetcher, seriesDir: root, refs: [ref], log: () => {} });
   expect(asked).toHaveLength(1);
   // Deleted by hand: fetched again; a download an import cut short left goes.
   await Bun.file(join(root, "media/audio/a.mp3")).delete();
   writeFileSync(join(root, "media/.incoming/b.mp3.tmp-1-0a1b2c3d"), "half");
-  await fetchMedia({ fetcher, store, indexFile, refs: [ref], log: () => {} });
+  await fetchMedia({ fetcher, seriesDir: root, refs: [ref], log: () => {} });
   expect(asked).toHaveLength(2);
   expect(readdirSync(join(root, "media/.incoming"))).toEqual([]);
 });
@@ -90,8 +87,7 @@ test("media: a host that refuses leaves every file of it recorded as not fetched
   const { fetcher } = fetcherOf(() => new HostRefusedError("cdn.test", 429));
   const index = await fetchMedia({
     fetcher,
-    store: createMediaStore(root),
-    indexFile: join(root, "media.json"),
+    seriesDir: root,
     refs,
     log: () => {},
   });
@@ -134,8 +130,7 @@ test("media: the same content from several URLs under other names is one file", 
   } as unknown as PoliteFetcher;
   const index = await fetchMedia({
     fetcher,
-    store: createMediaStore(root),
-    indexFile: join(root, "media.json"),
+    seriesDir: root,
     refs,
     log: () => {},
   });
@@ -171,8 +166,7 @@ test("media: URLs stored before as two files of the same content point to one af
     kind: "audio" as const,
     name: `${n}.mp3`,
   }));
-  const run = () =>
-    fetchMedia({ fetcher, store: createMediaStore(root), indexFile, refs, log: () => {} });
+  const run = () => fetchMedia({ fetcher, seriesDir: root, refs, log: () => {} });
   const index = await run();
   expect(asked).toEqual([]);
   expect(Object.values(index).map((e) => (e as { path: string }).path)).toEqual([
@@ -194,7 +188,7 @@ test("a media.json that does not read stops the fetch (taken as empty, it would 
   const { fetcher, asked } = fetcherOf();
   const ref = { url: "https://a.test/a.mp3", kind: "audio" as const, name: "a.mp3" };
   await expect(
-    fetchMedia({ fetcher, store: createMediaStore(root), indexFile, refs: [ref], log: () => {} }),
+    fetchMedia({ fetcher, seriesDir: root, refs: [ref], log: () => {} }),
   ).rejects.toThrow(/media\.json/);
   expect(asked).toEqual([]);
 });

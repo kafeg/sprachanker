@@ -17,10 +17,11 @@ never real third-party content). Our enrichment goes next to it (02).
 - Each provider offers its courses as `CourseOffer`s (course, edition, title, source, approximate size
   measured on a full download; `kind: "exam"` for a course of exams, offered in the Exams section),
   known without the network: the catalogue lists them before anything is downloaded.
-- Progress: pages read or fetched (`pageCounter`), media fetched of those missing with their bytes
+- Progress: pages read or fetched (`rawPages`), media fetched of those missing with their bytes
   (`fetchMedia`), normalising.
 - Normalised files are `LibraryFile`s (path, schema, value) written by `writeLibraryFiles`, which
-  validates each one; raw pages are fetched once through `storedPage`.
+  validates each one; raw pages are fetched once and kept through `rawPages` (`importing.ts`, with
+  the report: `importReport` from the media index, `emptyReport` when nothing was asked for).
 - `packages/server/src/providers.ts` lists the providers (`dw-nicos-weg`, `dw-deutschtrainer`,
   `coerll-dib`, …); `importCourse` runs one into `<data-root>/library`; `courseInstaller` is what the
   download job uses (06).

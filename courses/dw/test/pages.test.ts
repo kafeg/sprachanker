@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import { mkdtempSync, readdirSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createPoliteFetcher } from "@sprachanker/course-kit";
+import { createPoliteFetcher, rawPages } from "@sprachanker/course-kit";
 import type { DwCourse } from "../src/catalog.ts";
 import { fetchPages } from "../src/pages.ts";
 
@@ -54,7 +54,7 @@ test("fetches every page once, in parallel, and nothing on the next run", async 
     createPoliteFetcher({ userAgent: "test", robotsHosts: ["learngerman.dw.com"], fetch: fake });
   const seriesDir = mkdtempSync(join(tmpdir(), "sprachanker-dw-"));
 
-  await fetchPages(fetcher(), seriesDir, course, () => {});
+  await fetchPages(fetcher(), rawPages(seriesDir, {}), course, () => {});
   const files = readdirSync(join(seriesDir, "raw/ru-de/a1")).sort();
   expect(files).toEqual([
     "course.json",
@@ -69,7 +69,7 @@ test("fetches every page once, in parallel, and nothing on the next run", async 
   expect(requested.filter((p) => p !== "/robots.txt")).toHaveLength(8);
 
   requested.length = 0;
-  await fetchPages(fetcher(), seriesDir, course, () => {});
+  await fetchPages(fetcher(), rawPages(seriesDir, {}), course, () => {});
   expect(requested).toEqual([]);
 });
 
@@ -89,7 +89,7 @@ test("a page that came without its exercise is fetched once more", async () => {
   const seriesDir = mkdtempSync(join(tmpdir(), "sprachanker-dw-"));
   await fetchPages(
     createPoliteFetcher({ userAgent: "test", robotsHosts: ["learngerman.dw.com"], fetch: fake }),
-    seriesDir,
+    rawPages(seriesDir, {}),
     course,
     () => {},
   );
