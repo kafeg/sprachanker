@@ -3,16 +3,17 @@
 // exam as the real test runs it, practice with each answer checked at once, the catalogue of every
 // question with its answer — the map of the questions open to the learner (known, answered wrongly,
 // not seen), and the mock exams handed in.
-import { eligible, missingSettings } from "@sprachanker/engine";
+import { eligible, missingSettings, timeOf } from "@sprachanker/engine";
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useEdition } from "@/api/edition.ts";
 import { useExamPage, useExams, useStartExam } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
 import { PublisherLink } from "@/courses/card.tsx";
+import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
@@ -34,13 +35,15 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   const begin = useStartExam();
   const percent = usePercent();
   const date = useDateFormat("day");
+  // An exam of modules: the whole of it, or one module (Goethe B1's are taken apart).
+  const [module, setModule] = useState("");
 
   /** Begins a run and opens it; begun from a card's `?start=`, the run takes this page's place in
    *  the history, so Back does not begin another. */
   const go = (mode: ExamMode, replace = false) => {
     if (!edition) return;
     begin.mutate(
-      { exam: key, edition, mode },
+      { exam: key, edition, mode, ...(module && { module }) },
       {
         onSuccess: ({ run }) =>
           void navigate({
@@ -77,8 +80,10 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   const title = locale?.title ?? row.titles[edition ?? ""] ?? key;
   const open = eligible(exam, setting).flatMap(({ pool }) => pool);
   const known = open.filter((i) => stats[i.key]?.last === "right").length;
-  const asks = exam.sections.reduce((n, s) => n + s.draw, 0);
-  const minutes = Math.round(exam.timeLimitSec / 60);
+  const asks = exam.sections
+    .filter((s) => !module || s.module === module)
+    .reduce((n, s) => n + s.draw, 0);
+  const minutes = Math.round(timeOf(exam, module || undefined) / 60);
   const askedOfState = exam.sections.some((s) => s.filter?.setting === "exam.federalState");
   const tests = data.runs.filter((r) => r.plan.mode === "test");
   const passed = tests.filter((r) => r.result?.passed.length).length;
@@ -121,6 +126,21 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
         )}
       </section>
 
+      {exam.modules && (
+        <div className="mb-3">
+          <Choice
+            value={module}
+            options={[
+              ["", t("exams.wholeExam")],
+              ...exam.modules.map((m): [string, string] => [
+                m.id,
+                locale?.modules?.[m.id]?.title ?? m.id,
+              ]),
+            ]}
+            onChange={setModule}
+          />
+        </div>
+      )}
       <div className="mb-8 grid gap-3 sm:grid-cols-3">
         <ModeTile
           icon={<Timer className="size-5" />}

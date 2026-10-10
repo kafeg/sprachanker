@@ -40,11 +40,16 @@ export function shuffled<T>(items: T[], seed: string): T[] {
     .map((x) => x[1]);
 }
 
-/** Stable shuffled order for one item in the pass it is shown in. */
+/** Options in the source's order, never shuffled: an exam shows them as its paper does (a, b, c;
+ *  Richtig before Falsch; "0" last). */
+export const SourceOrder = createContext(false);
+
+/** Stable shuffled order for one item in the pass it is shown in (the source's within an exam). */
 export function useShuffled<T>(items: T[], seed: string): T[] {
   const pass = useContext(ShuffleSeed);
+  const keep = useContext(SourceOrder);
   // biome-ignore lint/correctness/useExhaustiveDependencies: reshuffle only for another item or pass
-  return useMemo(() => shuffled(items, `${pass}:${seed}`), [pass, seed]);
+  return useMemo(() => (keep ? items : shuffled(items, `${pass}:${seed}`)), [pass, seed, keep]);
 }
 
 /** An option checked: chosen and right, chosen and wrong, or right and not chosen (missed). */
@@ -73,8 +78,8 @@ export function OptionContent({
   fill?: boolean;
 }) {
   const lang = useTargetLang();
-  if (option.media?.image)
-    return (
+  if (option.media?.image) {
+    const picture = (
       <img
         src={url(option.media.image)}
         alt={option.alt ?? ""}
@@ -84,6 +89,17 @@ export function OptionContent({
         )}
       />
     );
+    // A picture with its own label (an exam's "a", "b", or a word under it): both shown.
+    if (option.text === undefined) return picture;
+    return (
+      <span className="flex flex-col items-center gap-1">
+        {picture}
+        <span lang={lang} className="text-base">
+          {option.text}
+        </span>
+      </span>
+    );
+  }
   // The learner's language is the page's: no `lang` of the target's on it.
   if (option.text === undefined && option.learnerText !== undefined)
     return <span>{option.learnerText}</span>;

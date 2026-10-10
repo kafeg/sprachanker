@@ -13,6 +13,7 @@ import {
   readiness,
   type SettingOf,
   sectionsOf,
+  timeOf,
 } from "@sprachanker/engine";
 import {
   type EditionId,
@@ -233,8 +234,10 @@ export function createExams({
     /** A run of the exam to take: a new one (`mode`), an active practice ending as abandoned; not
      *  while a mock exam runs (it is handed in, or its time runs out). A mock exam draws its
      *  questions and keeps them as shown; practice orders the open questions, the wrong ones first. */
-    async start(key: ExamKey, edition: string, mode: ExamMode) {
+    async start(key: ExamKey, edition: string, mode: ExamMode, module?: string) {
       const exam = await examOf(key);
+      if (module && !exam.modules?.some((m) => m.id === module))
+        throw new ServiceError("invalid_request");
       const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
       if (!course?.editions.includes(edition)) throw new ServiceError("not_installed", 404);
       if (missingSettings(exam, setting).length) throw new ServiceError("exam_needs_setting", 409);
@@ -242,13 +245,14 @@ export function createExams({
       if (activeOf(key)?.plan.mode === "test") throw new ServiceError("exam_test_running", 409);
       const items =
         mode === "test"
-          ? drawExam(exam, setting, random)
-          : practiceOrder(exam, setting, questionStats(answersIn(key)), random);
+          ? drawExam(exam, setting, random, module)
+          : practiceOrder(exam, setting, questionStats(answersIn(key)), random, module);
       const plan: ExamPlan = {
         mode,
         items,
         sections: sectionsOf(exam, items),
-        deadline: mode === "test" ? now() + exam.timeLimitSec * 1000 : null,
+        deadline: mode === "test" ? now() + timeOf(exam, module) * 1000 : null,
+        ...(module && { module }),
         ...(mode === "test" && {
           snapshot: items.flatMap((k) => exam.items.find((i) => i.key === k) ?? []),
         }),

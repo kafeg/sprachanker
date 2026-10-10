@@ -1,6 +1,8 @@
 // An exam run handed in (09, Exams; owner's choice 4B, 2026-10-10): the points and each pass mark
 // reached or not, the points by section, then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.
+
+import { marksOf } from "@sprachanker/engine";
 import type {
   Exam,
   ExamItem,
@@ -15,7 +17,6 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useStartExam } from "@/api/exams.ts";
-import { ItemCard } from "@/exercises/item-card.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { errorText } from "@/ui/error-text.ts";
@@ -23,7 +24,8 @@ import { useDateFormat } from "@/ui/format.ts";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import type { ExamParams } from "./params.ts";
-import { asExercise, latestAnswers } from "./questions.ts";
+import { latestAnswers } from "./questions.ts";
+import { QuestionCard } from "./teil.tsx";
 
 export function ExamResultView({
   title,
@@ -50,14 +52,34 @@ export function ExamResultView({
   const date = useDateFormat("dayTime");
   const [all, setAll] = useState(false);
   const answers = useMemo(() => latestAnswers(events), [events]);
-  const exercise = useMemo(() => asExercise(title, items), [title, items]);
   const result = run.result;
   const practice = run.plan.mode === "practice";
   // Practice is scored over the questions answered; a mock exam over all it asked.
   const asked = practice ? items.filter((i) => answers.has(i.key)) : items;
   const wrong = asked.filter((i) => answers.get(i.key)?.outcome?.result !== "correct");
   const shown = all ? asked : wrong;
-  const passed = !!result?.passed.length;
+  const modules = result?.modules ? Object.keys(result.modules) : [];
+  // The pass marks this run is judged by (a module alone: its own), and the verdict by the exam's
+  // rule; a module without a mark of its own gets none.
+  const marks = marksOf(exam, modules);
+  const judged = !practice && marks.length > 0;
+  const passed = result?.pass ?? !!result?.passed.length;
+  /** A section's title; with modules, its module's too ("Hören · Teil 1"). */
+  const sectionTitle = (key: string) => {
+    const title = locale?.sections[key as keyof typeof locale.sections]?.title ?? "";
+    const module = exam.sections.find((s) => s.key === key)?.module;
+    const named = module && (locale?.modules?.[module]?.title ?? module);
+    return named ? `${named} · ${title}` : title;
+  };
+  /** The most a pass mark's points can be: its modules' scaled points, or the questions'. */
+  const outOf = (th: Exam["thresholds"][number]) =>
+    exam.modules
+      ? (th.modules ?? modules).reduce(
+          (n, m) =>
+            n + (exam.modules?.find((x) => x.id === m)?.scaleTo ?? result?.modules?.[m]?.max ?? 0),
+          0,
+        )
+      : (result?.max ?? 0);
   const again = (mode: ExamMode) =>
     run.edition &&
     begin.mutate(
@@ -90,12 +112,16 @@ export function ExamResultView({
             <ProgressRing
               value={result.max ? result.points / result.max : 0}
               text={`${result.points}/${result.max}`}
-              tone={practice ? "primary" : passed ? "correct" : "wrong"}
+              tone={!judged ? "primary" : passed ? "correct" : "wrong"}
             />
             <div>
               {practice ? (
                 <h1 className="font-heading text-2xl font-bold">
                   {t("exams.practiceScore", { points: result.points, count: result.max })}
+                </h1>
+              ) : !judged ? (
+                <h1 className="font-heading text-2xl font-bold">
+                  {t("exams.points", { points: result.points, max: result.max })}
                 </h1>
               ) : (
                 <h1
@@ -112,9 +138,9 @@ export function ExamResultView({
               )}
             </div>
           </div>
-          {!practice && (
+          {judged && (
             <ul className="mt-4 space-y-1.5">
-              {exam.thresholds.map((th) => {
+              {marks.map((th) => {
                 const ok = result.passed.includes(th.id);
                 return (
                   <li key={th.id} className="flex items-center gap-2 text-sm">
@@ -125,7 +151,24 @@ export function ExamResultView({
                     )}
                     <span className="flex-1">{locale?.thresholds[th.id]?.title ?? th.id}</span>
                     <span className="tabular-nums text-muted-foreground">
-                      {t("exams.needed", { points: th.minPoints, max: result.max })}
+                      {t("exams.needed", { points: th.minPoints, max: outOf(th) })}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {!practice && result.modules && (
+            <ul className="mt-4 space-y-1.5">
+              {Object.entries(result.modules).map(([m, s]) => {
+                const scaleTo = exam.modules?.find((x) => x.id === m)?.scaleTo;
+                return (
+                  <li key={m} className="flex justify-between gap-2 text-sm font-medium">
+                    <span>{locale?.modules?.[m]?.title ?? m}</span>
+                    <span className="tabular-nums">
+                      {scaleTo
+                        ? t("exams.points", { points: s.scaled, max: scaleTo })
+                        : t("exams.points", { points: s.points, max: s.max })}
                     </span>
                   </li>
                 );
@@ -137,7 +180,7 @@ export function ExamResultView({
               {Object.entries(result.sections).map(([key, s]) => (
                 <div key={key}>
                   <div className="flex justify-between text-sm">
-                    <span>{locale?.sections[key as keyof typeof locale.sections]?.title}</span>
+                    <span>{sectionTitle(key)}</span>
                     <span className="tabular-nums">
                       {s.points}/{s.max}
                     </span>
@@ -188,14 +231,10 @@ export function ExamResultView({
             const given = answers.get(item.key);
             return (
               <li key={item.key}>
-                <p className="mb-1.5 text-sm text-muted-foreground">
-                  {t("exams.question", { n: index + 1, total: items.length })}
-                  {!given && ` · ${t("exams.notAnswered")}`}
-                </p>
-                <ItemCard
-                  exercise={exercise}
-                  locale={null}
-                  index={index}
+                <QuestionCard
+                  item={item}
+                  label={`${t("exams.question", { n: index + 1, total: items.length })}${given ? "" : ` · ${t("exams.notAnswered")}`}`}
+                  run={run.id}
                   answer={given?.answer}
                   outcome={
                     given?.outcome ?? { result: "wrong", score: 0, ruleIds: [], lexemes: [] }

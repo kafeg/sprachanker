@@ -10,14 +10,14 @@ import { mediaUrl } from "@/api/client.ts";
 import { useEdition } from "@/api/edition.ts";
 import { useExamPage, useExams } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
-import { ItemCard } from "@/exercises/item-card.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { type ExamParams, examKeyOf } from "./params.ts";
-import { asExercise } from "./questions.ts";
+import { exampleAnswer, inTeile } from "./questions.ts";
+import { QuestionCard, TeilHeader } from "./teil.tsx";
 
 const BATCH = 30;
 type Filter = "all" | "wrong" | "unseen" | "known";
@@ -45,7 +45,6 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
     () => (data ? eligible(data.exam, setting).flatMap(({ pool }) => pool) : []),
     [data, settings.data],
   );
-  const exercise = useMemo(() => asExercise(key, open), [key, open]);
 
   if (exams.isPending || (row && (!edition || page.isPending))) return <Loading />;
   if (exams.isError) return <ErrorState error={exams.error} onRetry={() => exams.refetch()} />;
@@ -60,7 +59,8 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
     if (filter === "unseen" && stat(i.key)) return false;
     if (filter === "known" && stat(i.key) !== "right") return false;
     if (!needle) return true;
-    const text = [i.prompt, ...i.options.map((o) => o.text ?? "")].join(" ").toLocaleLowerCase();
+    const options = i.type === "single_choice" ? i.options.map((o) => o.text ?? "") : [];
+    const text = [i.prompt, i.text, ...options].join(" ").toLocaleLowerCase();
     return text.includes(needle);
   });
   const title = data.locale?.title ?? key;
@@ -108,24 +108,36 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
         )}
         {shown.length ? (
           <ol className="space-y-6">
-            {shown.slice(0, count).map((item) => {
-              const index = open.indexOf(item);
-              return (
-                <li key={item.key}>
-                  <p className="mb-1.5 text-sm text-muted-foreground">
-                    {t("exams.number", { n: item.key.split("/q-")[1] ?? "" })}
-                  </p>
-                  <ItemCard
-                    exercise={exercise}
-                    locale={null}
-                    index={index}
-                    answer={{ optionId: item.answer.optionIds[0] }}
-                    outcome={{ result: "correct", score: 1, ruleIds: [], lexemes: [] }}
+            {inTeile(data.exam, shown.slice(0, count), {}).map(({ item, section, opens }) => (
+              <li key={item.key}>
+                {opens && section && (
+                  <TeilHeader
+                    section={section}
+                    locale={data.locale}
+                    example={
+                      section.example
+                        ? data.exam.items.find((i) => i.key === section.example)
+                        : undefined
+                    }
+                    limited={false}
+                    run=""
                     url={(path) => mediaUrl(params.series, path)}
                   />
-                </li>
-              );
-            })}
+                )}
+                <QuestionCard
+                  item={item}
+                  label={t("exams.number", { n: item.key.split("/q-")[1] ?? "" })}
+                  run=""
+                  answer={exampleAnswer(item)}
+                  outcome={
+                    item.type === "respond"
+                      ? undefined
+                      : { result: "correct", score: 1, ruleIds: [], lexemes: [] }
+                  }
+                  url={(path) => mediaUrl(params.series, path)}
+                />
+              </li>
+            ))}
           </ol>
         ) : (
           <EmptyState>{t("exams.noneMatch")}</EmptyState>

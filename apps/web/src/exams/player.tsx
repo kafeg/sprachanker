@@ -3,22 +3,29 @@
 // can be changed until it is handed in, nothing checked before (then the result, 4B); practice checks
 // each answer at once and brings the next questions on request.
 import { checkQuestion } from "@sprachanker/engine";
-import { type ExamItem, type Outcome, parseEditionId, type TypedEvent } from "@sprachanker/schema";
+import {
+  type Exam,
+  type ExamItem,
+  type LocaleExam,
+  type Outcome,
+  parseEditionId,
+  type TypedEvent,
+} from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, Timer } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useExamPage, useExamRun } from "@/api/exams.ts";
-import { ItemCard } from "@/exercises/item-card.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ExamParams, examKeyOf } from "./params.ts";
-import { asExercise, latestAnswers } from "./questions.ts";
+import { inTeile, latestAnswers } from "./questions.ts";
 import { ExamResultView } from "./result.tsx";
+import { QuestionCard, TeilHeader } from "./teil.tsx";
 
 /** Questions practice shows at a time; more on request. */
 const PRACTICE_BATCH = 10;
@@ -26,7 +33,7 @@ const PRACTICE_BATCH = 10;
 export function ExamPlayer({ params, runId }: { params: ExamParams; runId: string }) {
   const navigate = useNavigate();
   const key = examKeyOf(params);
-  const { query, answer, finish } = useExamRun(runId);
+  const { query, answer, finish, eventsNow } = useExamRun(runId);
   const run = query.data?.run;
   const page = useExamPage(key, run?.edition ?? undefined);
   const toExam = () => void navigate({ to: "/exam/$series/$course/$exam", params });
@@ -45,7 +52,12 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
     <TargetLang value={target}>
       {run.status === "active" ? (
         <Running
+          runId={run.id}
           title={title}
+          exam={exam}
+          locale={page.data.locale}
+          sectionOf={run.plan.sections}
+          module={run.plan.module}
           items={items}
           events={query.data?.events ?? []}
           mode={run.plan.mode}
@@ -54,11 +66,13 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
           sections={exam.sections.map((s) => ({
             key: s.key,
             title: page.data?.locale?.sections[s.key]?.title ?? "",
+            module: s.module && (page.data?.locale?.modules?.[s.module]?.title ?? s.module),
             items: s.pool,
           }))}
           series={params.series}
           lang={target}
           onAnswer={answer}
+          eventsNow={eventsNow}
           finishing={finish.isPending}
           onFinish={() => finish.mutate()}
           onLeave={toExam}
@@ -86,7 +100,12 @@ const clock = (ms: number) => {
 };
 
 function Running({
+  runId,
   title,
+  exam,
+  locale,
+  sectionOf,
+  module,
   items,
   events,
   mode,
@@ -96,21 +115,31 @@ function Running({
   series,
   lang,
   onAnswer,
+  eventsNow,
   finishing,
   onFinish,
   onLeave,
 }: {
+  runId: string;
   title: string;
+  exam: Exam;
+  locale: LocaleExam | null;
+  sectionOf: Record<string, string>;
+  /** The one module taken, if so. */
+  module?: string;
   items: ExamItem[];
   events: TypedEvent[];
   mode: "test" | "practice";
   deadline: number | null;
   /** The server's clock ahead of this device's (ms): the deadline is the server's. */
   skew: number;
-  sections: Array<{ key: string; title: string; items: string[] }>;
+  /** The Teile with their module's title (an exam of modules). */
+  sections: Array<{ key: string; title: string; module?: string; items: string[] }>;
   series: string;
   lang: string;
   onAnswer(itemKey: string, answer: unknown, ms: number, outcome?: Outcome): void;
+  /** The answers as they are when asked (a typed one taken as the page is left). */
+  eventsNow(): TypedEvent[];
   finishing: boolean;
   onFinish(): void;
   onLeave(): void;
@@ -118,8 +147,8 @@ function Running({
   const { t } = useTranslation();
   useWindowPlace(title);
   const answers = useMemo(() => latestAnswers(events), [events]);
-  const exercise = useMemo(() => asExercise(title, items), [title, items]);
-  const [confirm, setConfirm] = useState(false);
+  /** Questions left unanswered, asked about before handing in (0: not asking). */
+  const [confirm, setConfirm] = useState(0);
   const shownAt = useRef(Date.now());
   // Practice: the questions answered here stay, the next ones come in batches.
   const [batch, setBatch] = useState(PRACTICE_BATCH);
@@ -127,6 +156,24 @@ function Running({
   const shown =
     mode === "test" ? items : items.filter((i) => answers.has(i.key) || unanswered++ < batch);
   const answered = items.filter((i) => answers.has(i.key)).length;
+  // The questions by Teil; practice shows each with its Teil's material too (ordered by need, not
+  // by Teil, so each opens its own).
+  const teile = useMemo(
+    () =>
+      mode === "test"
+        ? inTeile(exam, items, sectionOf)
+        : inTeile(exam, items, sectionOf).map((t) => ({ ...t, opens: false })),
+    [exam, items, sectionOf, mode],
+  );
+  const moduleBefore = useMemo(() => {
+    const out = new Map<string, string | undefined>();
+    let last: string | undefined;
+    for (const { item, section } of teile) {
+      out.set(item.key, last);
+      last = section?.module ?? last;
+    }
+    return out;
+  }, [teile]);
 
   // The time left, each second; at its end the exam is handed in as it is.
   const [now, setNow] = useState(Date.now());
@@ -145,8 +192,14 @@ function Running({
   }, [left, onFinish]);
 
   const finishLabel = mode === "test" ? t("exams.handIn") : t("exams.endPractice");
-  const askFinish = () =>
-    mode === "test" && answered < items.length ? setConfirm(true) : onFinish();
+  // Unanswered questions are asked about first; counted when pressed — a typed answer is taken as
+  // its field is left, a moment before.
+  const askFinish = () => {
+    const now = latestAnswers(eventsNow());
+    const missing = items.filter((i) => !now.has(i.key)).length;
+    if (mode === "test" && missing > 0) setConfirm(missing);
+    else onFinish();
+  };
 
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
@@ -170,12 +223,20 @@ function Running({
           {sections
             .map((s) => ({ ...s, own: items.filter((i) => s.items.includes(i.key)) }))
             .filter((s) => s.own.length)
-            .map((s) => (
-              <li key={s.key} className="flex justify-between gap-2 rounded-lg px-2 py-1.5">
-                <span className="min-w-0 truncate">{s.title}</span>
-                <span className="tabular-nums text-muted-foreground">
-                  {s.own.filter((i) => answers.has(i.key)).length}/{s.own.length}
-                </span>
+            .map((s, i, all) => (
+              <li key={s.key}>
+                {/* A module's Teile under its title. */}
+                {s.module && s.module !== all[i - 1]?.module && (
+                  <p className="mt-2 px-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
+                    {s.module}
+                  </p>
+                )}
+                <div className="flex justify-between gap-2 rounded-lg px-2 py-1.5">
+                  <span className="min-w-0 truncate">{s.title}</span>
+                  <span className="tabular-nums text-muted-foreground">
+                    {s.own.filter((x) => answers.has(x.key)).length}/{s.own.length}
+                  </span>
+                </div>
               </li>
             ))}
         </ul>
@@ -211,44 +272,69 @@ function Running({
           <p className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
             {t(mode === "test" ? "exams.mode.test" : "exams.mode.practice")}
           </p>
-          <h1 className="mb-1 text-3xl font-bold">{title}</h1>
+          <h1 className="mb-1 text-3xl font-bold">
+            {title}
+            {module && ` · ${locale?.modules?.[module]?.title ?? module}`}
+          </h1>
           <p className="mb-6 text-muted-foreground">
             {t(mode === "test" ? "exams.testHint" : "exams.practiceHint")}
           </p>
           <ol aria-label={t("lesson.itemsList")} className="space-y-6">
-            {shown.map((item) => {
-              const index = items.indexOf(item);
-              const given = answers.get(item.key);
-              return (
-                <li key={item.key}>
-                  <p className="mb-1.5 text-sm text-muted-foreground">
-                    {t("exams.question", { n: index + 1, total: items.length })}
-                  </p>
-                  <ItemCard
-                    exercise={exercise}
-                    locale={null}
-                    index={index}
-                    answer={given?.answer}
-                    // Practice shows each answer checked; a mock exam none until handed in.
-                    outcome={mode === "practice" ? given?.outcome : undefined}
-                    url={(path) => mediaUrl(series, path)}
-                    onAnswer={
-                      mode === "practice" && given
-                        ? undefined
-                        : (value) => {
-                            const ms = Date.now() - shownAt.current;
-                            onAnswer(
-                              item.key,
-                              value,
-                              ms,
-                              mode === "practice" ? checkQuestion(item, value, lang) : undefined,
-                            );
-                          }
-                    }
-                  />
-                </li>
-              );
-            })}
+            {teile
+              .filter(({ item }) => shown.includes(item))
+              .map(({ item, section, opens }) => {
+                const index = items.indexOf(item);
+                const given = answers.get(item.key);
+                const startsModule =
+                  opens && section?.module && section.module !== moduleBefore.get(item.key);
+                return (
+                  <li key={item.key}>
+                    {opens && section && mode === "test" && (
+                      <TeilHeader
+                        section={section}
+                        locale={locale}
+                        module={
+                          startsModule
+                            ? (locale?.modules?.[section.module as string]?.title ?? section.module)
+                            : undefined
+                        }
+                        example={
+                          section.example
+                            ? exam.items.find((i) => i.key === section.example)
+                            : undefined
+                        }
+                        limited
+                        run={runId}
+                        url={(path) => mediaUrl(series, path)}
+                      />
+                    )}
+                    <QuestionCard
+                      item={item}
+                      label={t("exams.question", { n: index + 1, total: items.length })}
+                      plays={mode === "test" ? section?.plays : undefined}
+                      checkAtOnce={mode === "practice"}
+                      run={runId}
+                      answer={given?.answer}
+                      // Practice shows each answer checked; a mock exam none until handed in.
+                      outcome={mode === "practice" ? given?.outcome : undefined}
+                      url={(path) => mediaUrl(series, path)}
+                      onAnswer={
+                        mode === "practice" && given
+                          ? undefined
+                          : (value) => {
+                              const ms = Date.now() - shownAt.current;
+                              onAnswer(
+                                item.key,
+                                value,
+                                ms,
+                                mode === "practice" ? checkQuestion(item, value, lang) : undefined,
+                              );
+                            }
+                      }
+                    />
+                  </li>
+                );
+              })}
           </ol>
           {mode === "practice" && shown.length < items.length && (
             <Button
@@ -270,15 +356,15 @@ function Running({
         </footer>
       </div>
       <ConfirmDialog
-        open={confirm}
-        onOpenChange={setConfirm}
+        open={confirm > 0}
+        onOpenChange={(open) => !open && setConfirm(0)}
         title={t("exams.handInTitle")}
-        description={t("exams.handInUnanswered", { count: items.length - answered })}
+        description={t("exams.handInUnanswered", { count: confirm })}
         confirm={t("exams.handIn")}
         cancel={t("exams.goOn")}
         busy={finishing}
         onConfirm={() => {
-          setConfirm(false);
+          setConfirm(0);
           onFinish();
         }}
       />

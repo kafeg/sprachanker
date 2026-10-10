@@ -40,7 +40,7 @@ const withSkew = ({ now, run, events }: { now: number; run: ExamRun; events: unk
 export function useStartExam() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (input: { exam: ExamKey; edition: string; mode: ExamMode }) =>
+    mutationFn: (input: { exam: ExamKey; edition: string; mode: ExamMode; module?: string }) =>
       json(api.exams.runs.$post({ json: input })),
     onSuccess: (state) => {
       client.setQueryData<ExamRunState>(runKey(state.run.id), withSkew(state));
@@ -163,5 +163,8 @@ export function useExamRun(runId: string) {
     outbox.push([event]);
     void outbox.flush();
   };
-  return { query, answer, finish, pending: () => outbox.pending().length };
+  /** The run's events as they are this moment (an answer just recorded included, before the page
+   *  shows it). */
+  const eventsNow = () => client.getQueryData<ExamRunState>(runKey(runId))?.events ?? [];
+  return { query, answer, finish, eventsNow, pending: () => outbox.pending().length };
 }

@@ -1,7 +1,7 @@
 // Learner data stored in profile.sqlite: runs and their events (05, "Events").
 import { z } from "zod";
 import { Correction, SpokenCheck, WordExample, WritingCheck } from "./assistant.ts";
-import { ExamItem } from "./exam.ts";
+import { ExamItem, ExamModuleId } from "./exam.ts";
 import { Exercise } from "./exercise/index.ts";
 import { Outcome } from "./exercise/outcome.ts";
 import {
@@ -237,18 +237,27 @@ export const ExamPlan = z.object({
   /** Epoch ms: a mock exam's answers count until then (the time limit from its start). */
   deadline: z.number().int().nullable(),
   snapshot: z.array(ExamItem).optional(),
+  /** The one module taken (Goethe B1's are taken apart); none: the whole exam. */
+  module: ExamModuleId.optional(),
 });
 export type ExamPlan = z.infer<typeof ExamPlan>;
 
 /** An exam run's result (`runs.result_json`): points of the questions asked (each question's latest
  *  answer), by section, and the pass marks reached. */
 export const ExamResult = z.object({
-  points: z.number().int().nonnegative(),
-  max: z.number().int().nonnegative(),
+  points: z.number().nonnegative(),
+  max: z.number().nonnegative(),
   answered: z.number().int().nonnegative(),
-  sections: z.record(ExamSectionKey, z.object({ points: z.number().int(), max: z.number().int() })),
+  sections: z.record(ExamSectionKey, z.object({ points: z.number(), max: z.number() })),
+  /** With modules: each module's points, and as scaled (Goethe A1: out of 25). */
+  modules: z
+    .record(ExamModuleId, z.object({ points: z.number(), max: z.number(), scaled: z.number() }))
+    .optional(),
   /** Ids of the pass marks reached. */
   passed: z.array(z.string()),
+  /** The exam passed by its rule (any or all of its pass marks); none when no pass mark judges the
+   *  run (a module taken alone without one of its own). */
+  pass: z.boolean().optional(),
 });
 export type ExamResult = z.infer<typeof ExamResult>;
 

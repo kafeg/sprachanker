@@ -180,16 +180,21 @@ An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
   profile's setting (`exam.federalState`); an exam with a setting unset cannot be drawn
   (`missingSettings`), and its page asks for it first.
 - **Mock exam** (`drawExam`): each section draws its `draw` questions at random from its open pool, in
-  section order — as the real test does (LiD: 30 general, 3 of the state). Timed by the exam's limit;
+  section order — as the real test does (LiD: 30 general, 3 of the state); a section asking its whole
+  pool (a Teil) asks it in its order. Of the whole exam or of one module, timed by it (`timeOf`);
   answers can be changed until it is handed in; nothing is checked before.
-- **Practice** (`practiceOrder`): every open question, those answered wrongly last time first, then
-  those not seen, then those known, each group shuffled; each answer checked at once.
+- **Practice** (`practiceOrder`): every open question (of one module, when chosen), those answered
+  wrongly last time first, then those not seen, then those known, each group shuffled; each answer
+  checked at once.
 - **A question's state** (`questionStats`): its latest answer in any exam run, right or wrong, and how
-  often it was answered. **Readiness**: the share of the open questions whose latest answer was right.
-- **Checking**: a question is the single-choice item it is (`checkQuestion`, "Checking" above).
-- **Result** (`examResult`): each question's latest answer in the run scores its points (1 when
-  right), by the section the plan keeps for it (`sectionsOf`, when the run starts); a pass mark is
-  reached at its `minPoints`. A mock exam is scored over all it
+  often it was answered (an open answer no check scored says nothing). **Readiness**: the share of the open questions whose latest answer was right.
+- **Checking**: a question is the item of its kind it is (`checkQuestion`, "Checking" above).
+- **Result** (`examResult`): each question's latest answer in the run scores its points times its
+  outcome's score (a choice 0 or 1; an open answer its share), by the section the plan keeps for it
+  (`sectionsOf`, when the run starts) and, with modules, by module, scaled to the module's `scaleTo`.
+  The run is judged by the pass marks over the modules it took (`marksOf`: a module taken alone by its
+  own, none when it has none); a mark is reached at its `minPoints` (of the scaled points of its
+  modules, or of the points), and the exam is passed when any or all of them are (`passWhen`). A mock exam is scored over all it
   asked, unanswered ones as wrong; practice over the questions answered.
 
 ## Scenes

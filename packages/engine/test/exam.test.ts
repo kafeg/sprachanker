@@ -13,11 +13,13 @@ import {
   drawExam,
   eligible,
   examResult,
+  marksOf,
   missingSettings,
   practiceOrder,
   questionStats,
   readiness,
   sectionsOf,
+  timeOf,
 } from "../src/exam/index.ts";
 
 const EXAM = examKey("bamf.lid/lid" as never, "test");
@@ -127,6 +129,7 @@ test("a result counts each question's latest answer, by section, and the pass ma
       [examSectionKey(EXAM, "state")]: { points: 1, max: 1 },
     },
     passed: ["lid"],
+    pass: true,
   });
   // Scored by the sections the plan keeps: a catalogue changed since (a question gone from its pool)
   // leaves the result as it was.
@@ -153,4 +156,110 @@ test("the answers across runs make each question known, answered wrongly or not 
   expect(order[0]).toBe("002");
   expect(order.slice(1, 4).sort()).toEqual(["003", "004", "be-02"]);
   expect(order.slice(4).sort()).toEqual(["001", "be-01"]);
+});
+
+// A language exam: Hören (two questions, 15 → 25 points... here 2 → 25) and Lesen (a choice worth 1
+// and a typed gap worth 2), each Teil asked whole; passed only with 20 overall and 10 in Hören.
+const GOETHE = examKey("goethe.de/a1" as never, "modell");
+const choice = (id: string, right = "a"): ExamItem => ({
+  ...q(id, null, right),
+  key: examItemKey(GOETHE, id),
+  tags: {},
+});
+const gap: ExamItem = {
+  key: examItemKey(GOETHE, "l2"),
+  type: "gap_text",
+  tags: {},
+  points: 2,
+  segments: ["Name: ", { gap: "g1" }],
+  answer: { g1: { accepted: ["Eva", "Eva Kranz"] } },
+};
+const hoeren = [choice("h1"), choice("h2")];
+const lesen = [choice("l1"), gap];
+const modell: Exam = {
+  format: 1,
+  key: GOETHE,
+  timeLimitSec: 2700,
+  modules: [
+    { id: "hoeren", timeLimitSec: 1200, scaleTo: 25 },
+    { id: "lesen", timeLimitSec: 1500, scaleTo: 25 },
+  ],
+  sections: [
+    {
+      key: examSectionKey(GOETHE, "h1"),
+      module: "hoeren",
+      pool: hoeren.map((i) => i.key),
+      draw: 2,
+      filter: null,
+      plays: 2,
+    },
+    {
+      key: examSectionKey(GOETHE, "l1"),
+      module: "lesen",
+      pool: lesen.map((i) => i.key),
+      draw: 2,
+      filter: null,
+    },
+  ],
+  items: [...hoeren, ...lesen],
+  thresholds: [
+    { id: "overall", minPoints: 20 },
+    { id: "hoeren", minPoints: 10, modules: ["hoeren"] },
+  ],
+  passWhen: "all",
+};
+
+test("a language exam: a module taken alone or the whole, Teile in their order, timed by the module", () => {
+  const random = seq(0.99, 0, 0.5);
+  expect(drawExam(modell, () => undefined, random)).toEqual(
+    [...hoeren, ...lesen].map((i) => i.key),
+  );
+  expect(drawExam(modell, () => undefined, random, "lesen")).toEqual(lesen.map((i) => i.key));
+  expect(timeOf(modell, "lesen")).toBe(1500);
+  expect(timeOf(modell)).toBe(2700);
+});
+
+test("a language exam's result: points by question, by module scaled, pass marks over modules, all needed", () => {
+  const items = [...hoeren, ...lesen].map((i) => i.key);
+  const plan: ExamPlan = {
+    mode: "test",
+    items,
+    sections: sectionsOf(modell, items),
+    deadline: null,
+  };
+  const typed = (item: ExamItem, answer: unknown): TypedEvent =>
+    ({
+      id: `e${n++}`,
+      runId: "run",
+      ts: n,
+      type: "answered",
+      itemKey: item.key,
+      cardId: null,
+      payload: { answer, attempt: 1, ms: 1, outcome: checkQuestion(item, answer, "de") },
+    }) as TypedEvent;
+  const events = [
+    answered(hoeren[0] as ExamItem, "a"),
+    answered(hoeren[1] as ExamItem, "b"),
+    answered(lesen[0] as ExamItem, "a"),
+    typed(gap, { g1: "Eva Kranz" }),
+  ];
+  const result = examResult(modell, plan, events);
+  expect(result).toMatchObject({
+    points: 4,
+    max: 5,
+    modules: {
+      hoeren: { points: 1, max: 2, scaled: 12.5 },
+      lesen: { points: 3, max: 3, scaled: 25 },
+    },
+    passed: ["overall", "hoeren"],
+    pass: true,
+  });
+  // Hören alone: judged by its own mark only.
+  const alone = examResult(modell, { ...plan, items: items.slice(0, 2), module: "hoeren" }, events);
+  expect(marksOf(modell, ["hoeren"]).map((t) => t.id)).toEqual(["hoeren"]);
+  expect(alone).toMatchObject({ passed: ["hoeren"], pass: true });
+  // Hören answered wrongly after all: 25 overall reached, 10 in Hören not — so not passed.
+  const failed = examResult(modell, plan, [...events, answered(hoeren[0] as ExamItem, "b")]);
+  expect(failed.modules?.hoeren?.scaled).toBe(0);
+  expect(failed).toMatchObject({ passed: ["overall"], pass: false });
 });

@@ -1224,6 +1224,10 @@
       "known": "Gewusst"
     },
     "search": "In den Fragen suchen",
-    "showMore": "{count, plural, one {# weitere} other {# weitere}}"
+    "showMore": "{count, plural, one {# weitere} other {# weitere}}",
+    "playsLeft": "noch {left, number} von {plays, number}",
+    "plays": "{count, plural, one {Du hörst die Aufnahme einmal.} other {Du hörst die Aufnahme #-mal.}}",
+    "example": "Beispiel",
+    "wholeExam": "Ganze Prüfung"
   }
 }

@@ -11,7 +11,7 @@ import {
   lessonGoalKey,
   vocabKey,
 } from "@sprachanker/schema";
-import { CAFE, COURSE, EXAM, examItems, SPEAKING, UNIT } from "./course.ts";
+import { CAFE, COURSE, EXAM, examItems, MODELL, modellExam, SPEAKING, UNIT } from "./course.ts";
 import { pdf } from "./media.ts";
 
 type Text = { ru: string; en: string };
@@ -238,5 +238,53 @@ export function localeExam(lang: Lang): LocaleExam {
       excellent: { title: { ru: "Отлично", en: "Excellent" }[lang] },
     },
     items: Object.fromEntries(examItems.map((item) => [item.key, {}])),
+  };
+}
+
+/** The model test's texts: its modules, Teile with their instructions, pass marks. */
+export function localeModell(lang: Lang): LocaleExam {
+  const t = (ru: string, en: string) => ({ ru, en })[lang];
+  const section = (slug: string, title: string, instructions: string) => [
+    examSectionKey(MODELL, slug),
+    { title, instructions },
+  ];
+  return {
+    format: 1,
+    edition: EDITIONS[lang],
+    exam: MODELL,
+    title: t("Модельный тест", "Model test"),
+    modules: {
+      hoeren: { title: t("Аудирование", "Listening") },
+      lesen: { title: t("Чтение", "Reading") },
+      schreiben: { title: t("Письмо", "Writing") },
+    },
+    sections: Object.fromEntries([
+      section(
+        "h1",
+        t("Часть 1", "Part 1"),
+        t("Вы услышите два разговора. Каждый — дважды.", "You hear two conversations, each twice."),
+      ),
+      section(
+        "h2",
+        t("Часть 2", "Part 2"),
+        t("Вы услышите текст один раз.", "You hear a text once."),
+      ),
+      section("l1", t("Часть 1", "Part 1"), t("Прочитайте письмо.", "Read the letter.")),
+      section(
+        "l2",
+        t("Часть 2", "Part 2"),
+        t("Какое объявление подходит? Если никакое — «0».", "Which notice fits? None: 0."),
+      ),
+      section(
+        "s1",
+        t("Часть 1", "Part 1"),
+        t("Заполните формуляр за Тома.", "Fill in the form for Tom."),
+      ),
+    ]),
+    thresholds: {
+      pass: { title: t("Сдан: 45 из 75", "Passed: 45 of 75") },
+      written: { title: t("Письмо: не меньше 10", "Writing: at least 10") },
+    },
+    items: Object.fromEntries(modellExam.items.map((item) => [item.key, {}])),
   };
 }

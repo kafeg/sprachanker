@@ -105,13 +105,22 @@ folders. Planned: a series manifest with each edition's `contentVersion` (schema
 
 Exams of a course are listed in its course index (`exams`); a stand-alone exam is a course with exams
 only (no units), shown in the Exams section rather than among the courses. An exam is its questions
-(single-choice items keyed in the exam, with tags), sections drawing a number of them from a pool —
-filtered by a tag that must have the value of a profile setting (`{ tag: "federalState", setting:
-"exam.federalState" }`) — a time limit and pass marks; its locale file titles the exam, its sections
-and its pass marks. `verify` reads it as the app does and checks that its questions are its own and
-listed once, their answers name options they have, each pool lists questions of the exam and holds at
-least what it draws (for each value of a filtered section's tag), and no pass mark is above the
-questions asked.
+(items of the kinds an exam asks — `single_choice`, `gap_text`, `respond` — keyed in the exam, with
+tags, optional `points` (1 when not given) and a `text` of their own), sections drawing a number of
+them from a pool — filtered by a tag that must have the value of a profile setting (`{ tag:
+"federalState", setting: "exam.federalState" }`) — a time limit and pass marks. A language exam adds
+`modules` (`hoeren`, `lesen`, …: each timed, its points scaled to `scaleTo`; the exam's time is
+theirs together); its sections are the modules' Teile, each asking all its pool, with its material: a
+shared `text`, its `media` (recording or picture), how often a recording `plays`, and an `example`
+question shown answered (not in a pool, never scored). A pass mark may count only some modules'
+scaled points (`modules`), and `passWhen` says whether any mark passes the exam (LiD: course test or
+naturalisation) or all must be reached (Goethe A2: overall, written, spoken). The locale file titles
+the exam, its modules, its sections (with their instructions) and its pass marks. `verify` reads it as
+the app does and checks that its questions are its own and listed once, their answers fit their kind
+(options they have, gaps they have), each pool lists questions of the exam and holds at least what it
+draws (for each value of a filtered section's tag), every section is in a module of the exam when it
+has modules and their times add up, an example is a question of no pool, a pass mark names modules
+the exam has, and none is above the points it can give.
 
 ## Canonical files (language-independent)
 
@@ -147,6 +156,21 @@ questions asked.
              { "key": "…/q-055", "type": "single_choice", "tags": { "federalState": null }, "prompt": "…",
                "media": { "image": "media/image/lid-055.png", "credit": "© …" }, "options": [ … ], … } ],
   "thresholds": [ { "id": "lid", "minPoints": 15 }, { "id": "naturalisation", "minPoints": 17 } ] }
+
+// canonical/<course>/exams/<slug>.json — a language exam's model test (modules of Teile)
+{ "format": 1, "key": "goethe.a1/a1/exam-modell", "timeLimitSec": 2700,
+  "modules": [ { "id": "hoeren", "timeLimitSec": 1200, "scaleTo": 25 }, { "id": "lesen", … } ],
+  "sections": [ { "key": "…/s-h1", "module": "hoeren", "pool": ["…/q-h1", "…/q-h2"], "draw": 2,
+                  "filter": null, "plays": 2, "example": "…/q-h0" },
+                { "key": "…/s-l2", "module": "lesen", "pool": ["…/q-l6"], "draw": 1, "filter": null,
+                  "text": "a  Café Weber …\n\nb  Teeladen …" } ],
+  "items": [ { "key": "…/q-h1", "type": "single_choice", "tags": {}, "media": { "audio": "media/audio/….mp4" },
+               "prompt": "…", "options": [ { "id": "a", "text": "a", "media": { "image": "…" } }, … ], … },
+             { "key": "…/q-s1", "type": "gap_text", "tags": {}, "segments": ["Name: ", { "gap": "g1" }],
+               "answer": { "g1": { "accepted": ["4", "vier"] } } } ],
+  "thresholds": [ { "id": "pass", "minPoints": 60 },
+                  { "id": "written", "minPoints": 45, "modules": ["lesen", "hoeren", "schreiben"] } ],
+  "passWhen": "all" }
 ```
 
 Lesson `media`: `video` (`sd`, `hd`, `subtitled`, `subtitles`), `image`, and `audio` — a lesson-level

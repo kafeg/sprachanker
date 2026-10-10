@@ -49,10 +49,35 @@ test("an exam that does not hold together is reported", async () => {
       `${quiz}/q-002: answer names option "zz" it does not have`,
       `${quiz}/s-general: pool names ${quiz}/q-404, not a question of the exam`,
       `${quiz}/s-state: draws 2 of 1 questions (be)`,
-      `${quiz}: pass mark pass is 9 of 3 questions`,
+      `${quiz}: pass mark pass is 9 of 2 points`,
       "media/image/frage.png: missing media",
       `en-de ${quiz}: no title for ${quiz}/s-general`,
       `ru-de ${quiz}: no locale file`,
+    ]),
+  );
+});
+
+test("an exam's modules, examples and pass marks over modules are checked", async () => {
+  const root = await fixture();
+  const examFile = join(root, "sprachanker.mini/canonical/basic/exams/quiz.json");
+  const exam = JSON.parse(readFileSync(examFile, "utf8"));
+  const quiz = "sprachanker.mini/basic/exam-quiz";
+  exam.modules = [{ id: "hoeren", timeLimitSec: 60, scaleTo: 25 }];
+  exam.sections[0].module = "hoeren";
+  exam.sections[1].module = "lesen";
+  exam.sections[0].example = exam.sections[0].pool[0];
+  exam.thresholds = [{ id: "pass", minPoints: 30, modules: ["hoeren", "sprechen"] }];
+  writeFileSync(examFile, JSON.stringify(exam));
+  const [report] = await verifyLibrary(openLibrary(root));
+  const problems = report?.problems.map((p) => p.text) ?? [];
+  expect(problems).toEqual(
+    expect.arrayContaining([
+      `${quiz}: time ${exam.timeLimitSec} s, its modules' 60 s`,
+      `${quiz}/s-state: module lesen is not the exam's`,
+      `${quiz}/s-general: example ${exam.sections[0].pool[0]} is no question of its own`,
+      `${quiz}: pass mark pass names module sprechen`,
+      `${quiz}: pass mark pass is 30 of 25 points`,
+      `en-de ${quiz}: no title for module hoeren`,
     ]),
   );
 });

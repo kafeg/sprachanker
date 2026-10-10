@@ -108,7 +108,12 @@ export const LocaleExam = z.strictObject({
   edition: EditionId,
   exam: ExamKey,
   title: z.string().min(1),
-  sections: z.record(ExamSectionKey, z.strictObject({ title: z.string() })),
+  sections: z.record(
+    ExamSectionKey,
+    z.strictObject({ title: z.string(), instructions: z.string().optional() }),
+  ),
+  /** The modules' titles ("Hören"). */
+  modules: z.record(z.string(), z.strictObject({ title: z.string() })).optional(),
   thresholds: z.record(z.string(), z.strictObject({ title: z.string() })),
   items: z.record(ExamItemKey, LocaleItem),
 });

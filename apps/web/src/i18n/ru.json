@@ -1224,6 +1224,10 @@
       "known": "Знаю"
     },
     "search": "Найти в вопросах",
-    "showMore": "Ещё {count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}"
+    "showMore": "Ещё {count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}",
+    "playsLeft": "осталось {left, number} из {plays, number}",
+    "plays": "{count, plural, one {Запись звучит # раз.} few {Запись звучит # раза.} many {Запись звучит # раз.} other {Запись звучит # раза.}}",
+    "example": "Пример",
+    "wholeExam": "Весь экзамен"
   }
 }

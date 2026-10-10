@@ -109,16 +109,19 @@ test("the exam: every question keyed by part and number, the right option from t
   expect([taken, leftOut]).toEqual([3, 0]);
   const exam = Exam.parse(files.find((f) => f.path.endsWith("exams/test.json"))?.value);
   expect(exam.key).toBe(EXAM_KEY);
+  // LiD's questions are all single choice.
+  const choices = exam.items.flatMap((i) => (i.type === "single_choice" ? [i] : []));
+  expect(choices).toHaveLength(exam.items.length);
   expect(
-    exam.items.map((i) => [i.key.split("/q-")[1], i.tags.federalState, i.answer.optionIds]),
+    choices.map((i) => [i.key.split("/q-")[1], i.tags.federalState, i.answer.optionIds]),
   ).toEqual([
     ["001", null, ["b"]],
     ["002", null, ["b"]],
     ["sl-01", "sl", ["b"]],
   ]);
-  expect(exam.items[0]?.options[1]).toEqual({ id: "b", text: "Bürger/Bürgerin" });
+  expect(choices[0]?.options[1]).toEqual({ id: "b", text: "Bürger/Bürgerin" });
   // A row of pictures is the options; a single picture the question's, with its credit.
-  expect(exam.items[1]?.options.map((o) => o.media?.image)).toEqual([
+  expect(choices[1]?.options.map((o) => o.media?.image)).toEqual([
     "media/image/lid-002-a.png",
     "media/image/lid-002-b.png",
     "media/image/lid-002-c.png",

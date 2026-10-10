@@ -59,8 +59,9 @@ runs(
   course_key TEXT, edition TEXT, -- null when not tied to one course
   content_version TEXT,           -- null: contentVersion is not computed yet (02)
   app_version TEXT NOT NULL,      -- the app's version when the run started
-  plan_json TEXT,                 -- a scene's setup; an exam run's ExamPlan (mode, questions, deadline,
-                                  -- a mock exam's questions as shown); null otherwise
+  plan_json TEXT,                 -- a scene's setup; an exam run's ExamPlan (mode, questions with their
+                                  -- sections, deadline, a mock exam's questions as shown, the module
+                                  -- taken alone); null otherwise
   status TEXT NOT NULL,           -- active | finished | abandoned
   end_reason TEXT,                -- completed | timeout | content_updated | user
   started_at INTEGER NOT NULL, finished_at INTEGER,

@@ -1224,6 +1224,10 @@
       "known": "Known"
     },
     "search": "Find in the questions",
-    "showMore": "{count, plural, one {# more} other {# more}}"
+    "showMore": "{count, plural, one {# more} other {# more}}",
+    "playsLeft": "{left, number} of {plays, number} plays left",
+    "plays": "{count, plural, one {You hear the recording once.} other {You hear the recording # times.}}",
+    "example": "Example",
+    "wholeExam": "Whole exam"
   }
 }

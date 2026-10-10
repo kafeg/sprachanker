@@ -36,8 +36,9 @@ apps/web/src/
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the questions' map, runs), player
                    # (a run: mock exam timed, practice checked at once), result, catalog (every question
-                   # with its answer), state-select (the federal state), questions (a run's questions
-                   # as an exercise, the latest answers), params
+                   # with its answer), state-select (the federal state), questions (a question as an
+                   # exercise, the latest answers, questions by Teil), teil (a Teil's material; a
+                   # question's card), recording (a mock exam's recording: plays limited), params
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
                    # check under its item)

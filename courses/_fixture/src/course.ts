@@ -31,6 +31,8 @@ export const UNIT = unitKey(COURSE, 0);
 export const CAFE = lessonKey(COURSE, 0, 1);
 export const SPEAKING = lessonKey(COURSE, 0, 2);
 export const EXAM = examKey(COURSE, "mini");
+/** A language exam's model test: modules of Teile with their material (Goethe's shape). */
+export const MODELL = examKey(COURSE, "modell");
 
 const DU_SIE = ruleId("de", "greeting", "du-sie");
 const GENDER = ruleId("de", "noun", "gender");
@@ -406,11 +408,136 @@ export const miniExam: Exam = {
   ],
 };
 
+const choiceOf = (...texts: string[]) =>
+  texts.map((text, i) => ({ id: "abcdefgh"[i] as string, text }));
+const modellItem = (id: string, rest: Record<string, unknown>) =>
+  ({ key: examItemKey(MODELL, id), tags: {}, ...rest }) as Exam["items"][number];
+
+export const modellExam: Exam = {
+  format: 1,
+  key: MODELL,
+  timeLimitSec: 360,
+  modules: [
+    { id: "hoeren", timeLimitSec: 120, scaleTo: 25 },
+    { id: "lesen", timeLimitSec: 180, scaleTo: 25 },
+    { id: "schreiben", timeLimitSec: 60, scaleTo: 25 },
+  ],
+  sections: [
+    {
+      key: examSectionKey(MODELL, "h1"),
+      module: "hoeren",
+      pool: [examItemKey(MODELL, "h1"), examItemKey(MODELL, "h2")],
+      draw: 2,
+      filter: null,
+      plays: 2,
+      example: examItemKey(MODELL, "h0"),
+    },
+    {
+      key: examSectionKey(MODELL, "h2"),
+      module: "hoeren",
+      pool: [examItemKey(MODELL, "h3")],
+      draw: 1,
+      filter: null,
+      media: { audio: audio("im-cafe") },
+      plays: 1,
+    },
+    {
+      key: examSectionKey(MODELL, "l1"),
+      module: "lesen",
+      pool: [examItemKey(MODELL, "l1"), examItemKey(MODELL, "l2")],
+      draw: 2,
+      filter: null,
+      text: "Liebe Lena,\n\nich komme am Sonntag um drei Uhr ins Café. Bis dann!\n\nTom",
+    },
+    {
+      key: examSectionKey(MODELL, "l2"),
+      module: "lesen",
+      pool: [examItemKey(MODELL, "l3")],
+      draw: 1,
+      filter: null,
+      text: "a  Café Weber: Kuchen und Kaffee\n\nb  Teeladen am Markt: Tee aus aller Welt",
+    },
+    {
+      key: examSectionKey(MODELL, "s1"),
+      module: "schreiben",
+      pool: [examItemKey(MODELL, "s1"), examItemKey(MODELL, "s2")],
+      draw: 2,
+      filter: null,
+      media: { image: image("tom") },
+    },
+  ],
+  items: [
+    modellItem("h0", {
+      type: "single_choice",
+      prompt: "Was bestellt Lena?",
+      media: { audio: audio("ein-kaffee-bitte") },
+      options: choiceOf("einen Kaffee", "einen Tee"),
+      answer: { optionIds: ["a"] },
+    }),
+    modellItem("h1", {
+      type: "single_choice",
+      prompt: "Was bestellt Tom?",
+      media: { audio: audio("tom-bestellt") },
+      options: [
+        { id: "a", text: "Kaffee", media: { image: image("tasse") } },
+        { id: "b", text: "Kuchen", media: { image: image("kuchen") } },
+      ],
+      answer: { optionIds: ["a"] },
+    }),
+    modellItem("h2", {
+      type: "single_choice",
+      prompt: "Was trinkt Lena gern?",
+      media: { audio: audio("ich-trinke-gern-tee") },
+      options: choiceOf("Tee", "Kaffee", "Wasser"),
+      answer: { optionIds: ["a"] },
+    }),
+    modellItem("h3", {
+      type: "single_choice",
+      prompt: "Tom und Lena sind im Café.",
+      options: choiceOf("Richtig", "Falsch"),
+      answer: { optionIds: ["a"] },
+    }),
+    modellItem("l1", {
+      type: "single_choice",
+      prompt: "Tom kommt am Montag.",
+      options: choiceOf("Richtig", "Falsch"),
+      answer: { optionIds: ["b"] },
+    }),
+    modellItem("l2", {
+      type: "single_choice",
+      prompt: "Wann kommt Tom?",
+      options: choiceOf("um zwei Uhr", "um drei Uhr"),
+      answer: { optionIds: ["b"] },
+    }),
+    modellItem("l3", {
+      type: "single_choice",
+      prompt: "Sie möchten Tee kaufen.",
+      options: choiceOf("a", "b", "0"),
+      answer: { optionIds: ["b"] },
+    }),
+    modellItem("s1", {
+      type: "gap_text",
+      segments: ["Name: ", { gap: "g1" }],
+      answer: { g1: { accepted: ["Tom Weber"] } },
+    }),
+    modellItem("s2", {
+      type: "gap_text",
+      segments: ["Getränk: ", { gap: "g1" }],
+      answer: { g1: { accepted: ["Kaffee", "ein Kaffee"] } },
+    }),
+  ],
+  thresholds: [
+    { id: "pass", minPoints: 45 },
+    { id: "written", minPoints: 10, modules: ["schreiben"] },
+  ],
+  passWhen: "all",
+};
+
 export const courseIndex: CourseIndex = {
   format: 1,
   key: COURSE,
   units: [{ key: UNIT, lessons: [CAFE, SPEAKING] }],
-  exams: [EXAM],
+  exams: [EXAM, MODELL],
   goals: [
     { key: lessonGoalKey(CAFE, 1), lessons: [CAFE] },
     { key: lessonGoalKey(SPEAKING, 1), lessons: [SPEAKING] },
@@ -418,5 +545,5 @@ export const courseIndex: CourseIndex = {
 };
 
 export const lessons = [cafeLesson, speakingLesson];
-export const exams = [miniExam];
+export const exams = [miniExam, modellExam];
 export const examItems = miniExam.items;

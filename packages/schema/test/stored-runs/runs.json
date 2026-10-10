@@ -1,6 +1,13 @@
 {
   "lesson.result": [
-    { "since": "2026-10-06", "value": { "score": 0.75, "scored": 4, "answered": 5 } }
+    {
+      "since": "2026-10-06",
+      "value": {
+        "score": 0.75,
+        "scored": 4,
+        "answered": 5
+      }
+    }
   ],
   "scene.plan": [
     {
@@ -32,18 +39,64 @@
       "value": {
         "mode": "test",
         "items": ["s.x/c/exam-t/q-001"],
-        "sections": { "s.x/c/exam-t/q-001": "s.x/c/exam-t/s-general" },
+        "sections": {
+          "s.x/c/exam-t/q-001": "s.x/c/exam-t/s-general"
+        },
         "deadline": 1791633600000,
         "snapshot": [
           {
             "key": "s.x/c/exam-t/q-001",
             "type": "single_choice",
             "prompt": "Wie viele Tage hat eine Woche?",
-            "options": [{ "id": "a", "text": "fünf" }, { "id": "b", "text": "sieben" }],
-            "answer": { "optionIds": ["b"] },
-            "tags": { "federalState": null }
+            "options": [
+              {
+                "id": "a",
+                "text": "fünf"
+              },
+              {
+                "id": "b",
+                "text": "sieben"
+              }
+            ],
+            "answer": {
+              "optionIds": ["b"]
+            },
+            "tags": {
+              "federalState": null
+            }
           }
         ]
+      }
+    },
+    {
+      "since": "2026-10-10",
+      "value": {
+        "mode": "test",
+        "items": ["s.x/c/exam-m/q-l1"],
+        "sections": {
+          "s.x/c/exam-m/q-l1": "s.x/c/exam-m/s-l1"
+        },
+        "deadline": 1791633600000,
+        "snapshot": [
+          {
+            "key": "s.x/c/exam-m/q-l1",
+            "type": "gap_text",
+            "tags": {},
+            "points": 2,
+            "segments": [
+              "Name: ",
+              {
+                "gap": "g1"
+              }
+            ],
+            "answer": {
+              "g1": {
+                "accepted": ["Tom"]
+              }
+            }
+          }
+        ],
+        "module": "lesen"
       }
     }
   ],
@@ -54,8 +107,36 @@
         "points": 1,
         "max": 2,
         "answered": 2,
-        "sections": { "s.x/c/exam-t/s-general": { "points": 1, "max": 2 } },
+        "sections": {
+          "s.x/c/exam-t/s-general": {
+            "points": 1,
+            "max": 2
+          }
+        },
         "passed": []
+      }
+    },
+    {
+      "since": "2026-10-10",
+      "value": {
+        "points": 12.5,
+        "max": 15,
+        "answered": 15,
+        "sections": {
+          "s.x/c/exam-m/s-l1": {
+            "points": 12.5,
+            "max": 15
+          }
+        },
+        "modules": {
+          "lesen": {
+            "points": 12.5,
+            "max": 15,
+            "scaled": 20.83
+          }
+        },
+        "passed": ["pass"],
+        "pass": true
       }
     }
   ]

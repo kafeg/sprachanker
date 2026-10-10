@@ -29,10 +29,12 @@ export const missingSettings = (exam: Exam, setting: SettingOf): string[] => [
   ),
 ];
 
-/** Each section's questions open to this learner: its pool, filtered by its tag where it has one. */
-export function eligible(exam: Exam, setting: SettingOf) {
+/** Each section's questions open to this learner — of one module when it is given: its pool,
+ *  filtered by its tag where it has one. */
+export function eligible(exam: Exam, setting: SettingOf, module?: string) {
   const items = new Map(exam.items.map((i) => [i.key as string, i]));
-  return exam.sections.map((section) => {
+  const sections = module ? exam.sections.filter((s) => s.module === module) : exam.sections;
+  return sections.map((section) => {
     const wanted = section.filter ? setting(section.filter.setting) : undefined;
     const pool = section.pool.flatMap((k) => {
       const item = items.get(k);
@@ -54,15 +56,25 @@ function pick<T>(list: T[], n: number, random: () => number): T[] {
   return copy.slice(0, n);
 }
 
-/** A mock exam's questions: each section's draw from its open pool, sections in order. Throws when a
- *  setting it needs is unset. */
-export function drawExam(exam: Exam, setting: SettingOf, random: () => number): ExamItemKey[] {
+/** A mock exam's questions — of one module when it is given: each section's draw from its open
+ *  pool, sections in order; a section asking all its pool asks it in its order (a Teil). Throws when
+ *  a setting it needs is unset. */
+export function drawExam(
+  exam: Exam,
+  setting: SettingOf,
+  random: () => number,
+  module?: string,
+): ExamItemKey[] {
   const missing = missingSettings(exam, setting);
   if (missing.length) throw new Error(`the exam needs ${missing.join(", ")}`);
-  return eligible(exam, setting).flatMap(({ section, pool }) =>
-    pick(pool, section.draw, random).map((i) => i.key),
+  return eligible(exam, setting, module).flatMap(({ section, pool }) =>
+    (section.draw >= pool.length ? pool : pick(pool, section.draw, random)).map((i) => i.key),
   );
 }
+
+/** The time a mock exam has: its module's, or the whole exam's. */
+export const timeOf = (exam: Exam, module?: string) =>
+  exam.modules?.find((m) => m.id === module)?.timeLimitSec ?? exam.timeLimitSec;
 
 /** Each question's section: the first whose pool holds it (a run's plan keeps it). */
 export function sectionsOf(exam: Exam, keys: ExamItemKey[]): Record<ExamItemKey, ExamSectionKey> {
@@ -83,11 +95,12 @@ export interface QuestionStat {
 
 const right = (outcome: Outcome) => outcome.result === "correct";
 
-/** Each question's stat over the answers given in exam runs (oldest first: the latest counts). */
+/** Each question's stat over the answers given in exam runs (oldest first: the latest counts); an
+ *  open answer no check scored says nothing of it. */
 export function questionStats(events: TypedEvent[]): Map<string, QuestionStat> {
   const out = new Map<string, QuestionStat>();
   for (const e of events) {
-    if (e.type !== "answered" || !e.itemKey) continue;
+    if (e.type !== "answered" || !e.itemKey || e.payload.outcome.result === "unscored") continue;
     const ok = right(e.payload.outcome);
     const stat = out.get(e.itemKey) ?? { last: "wrong", right: 0, wrong: 0 };
     out.set(e.itemKey, {
@@ -106,8 +119,9 @@ export function practiceOrder(
   setting: SettingOf,
   stats: Map<string, QuestionStat>,
   random: () => number,
+  module?: string,
 ): ExamItemKey[] {
-  const open = eligible(exam, setting).flatMap(({ pool }) => pool);
+  const open = eligible(exam, setting, module).flatMap(({ pool }) => pool);
   const group = (test: (s: QuestionStat | undefined) => boolean) => {
     const keys = open.filter((i) => test(stats.get(i.key))).map((i) => i.key);
     return pick(keys, keys.length, random);
@@ -127,11 +141,11 @@ export function readiness(exam: Exam, setting: SettingOf, stats: Map<string, Que
   return open.filter((i) => stats.get(i.key)?.last === "right").length / open.length;
 }
 
-/** An exam question checked as the single-choice item it is (04), in the language the exam is in. */
+/** An exam question checked as the item of its kind it is (04), in the language the exam is in. */
 export function checkQuestion(item: ExamItem, answer: unknown, lang: string): Outcome {
   const asExercise = {
     key: item.key,
-    type: "single_choice",
+    type: item.type,
     fingerprint: "",
     newWords: [],
     ruleIds: [],
@@ -140,31 +154,80 @@ export function checkQuestion(item: ExamItem, answer: unknown, lang: string): Ou
   return checkItem(asExercise, 0, answer, lang);
 }
 
-/** A run's result: its questions' points (each question's latest answer), by the section the plan
- *  keeps for each (in the exam's order of sections), and the exam's pass marks reached. */
+/** The pass marks a run can be judged by: with modules, those over modules it took (a module
+ *  taken alone is judged by its own). */
+export function marksOf(exam: Exam, modules: string[]) {
+  if (!exam.modules) return exam.thresholds;
+  return exam.thresholds.filter((t) =>
+    (t.modules ?? exam.modules?.map((m) => m.id) ?? []).every((m) => modules.includes(m)),
+  );
+}
+
+const round2 = (n: number) => Math.round(n * 100) / 100;
+
+/**
+ * A run's result: each question's latest answer scores its points (its share of them: an open
+ * answer's score), by the section the plan keeps for it (in the exam's order of sections) and, with
+ * modules, by module, scaled as the exam scales it; the pass marks it can be judged by reached, and
+ * whether the exam is passed by its rule (any or all of them).
+ */
 export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): ExamResult {
   const latest = new Map<string, AnsweredPayload>();
   for (const e of events) if (e.type === "answered" && e.itemKey) latest.set(e.itemKey, e.payload);
+  const items = new Map<string, ExamItem>(
+    [...exam.items, ...(plan.snapshot ?? [])].map((i) => [i.key, i]),
+  );
   const order = exam.sections.map((s) => s.key as string);
   const rank = (k: string) => (order.includes(k) ? order.indexOf(k) : order.length);
-  const tally = new Map<string, { points: number; max: number }>();
+  const moduleOf = new Map(exam.sections.map((s) => [s.key as string, s.module]));
+  const bySection = new Map<string, { points: number; max: number }>();
+  const byModule = new Map<string, { points: number; max: number }>();
+  const add = (
+    map: Map<string, { points: number; max: number }>,
+    k: string,
+    p: number,
+    m: number,
+  ) => {
+    const t = map.get(k) ?? { points: 0, max: 0 };
+    map.set(k, { points: t.points + p, max: t.max + m });
+  };
   for (const k of plan.items) {
+    const worth = items.get(k)?.points ?? 1;
+    const outcome = latest.get(k)?.outcome;
+    const got = outcome && outcome.result !== "unscored" ? worth * outcome.score : 0;
     const section = plan.sections[k] ?? "";
-    const t = tally.get(section) ?? { points: 0, max: 0 };
-    const answer = latest.get(k);
-    t.max += 1;
-    if (answer !== undefined && right(answer.outcome)) t.points += 1;
-    tally.set(section, t);
+    add(bySection, section, got, worth);
+    const module = moduleOf.get(section);
+    if (module) add(byModule, module, got, worth);
   }
   const sections: ExamResult["sections"] = {};
-  for (const [k, t] of [...tally].sort(([a], [b]) => rank(a) - rank(b)))
-    if (k) sections[k as ExamSectionKey] = t;
-  const points = [...tally.values()].reduce((n, t) => n + t.points, 0);
+  for (const [k, t] of [...bySection].sort(([a], [b]) => rank(a) - rank(b)))
+    if (k) sections[k as ExamSectionKey] = { points: round2(t.points), max: t.max };
+  const points = round2([...bySection.values()].reduce((n, t) => n + t.points, 0));
+  const max = [...bySection.values()].reduce((n, t) => n + t.max, 0);
+
+  const modules: NonNullable<ExamResult["modules"]> = {};
+  for (const m of exam.modules ?? []) {
+    const t = byModule.get(m.id);
+    if (!t) continue;
+    const scaled = m.scaleTo && t.max ? (t.points * m.scaleTo) / t.max : t.points;
+    modules[m.id] = { points: round2(t.points), max: t.max, scaled: round2(scaled) };
+  }
+  const taken = Object.keys(modules);
+  const marks = marksOf(exam, taken);
+  const markPoints = (t: Exam["thresholds"][number]) =>
+    exam.modules ? (t.modules ?? taken).reduce((n, m) => n + (modules[m]?.scaled ?? 0), 0) : points;
+  const passed = marks.filter((t) => markPoints(t) >= t.minPoints).map((t) => t.id);
   return {
     points,
-    max: plan.items.length,
+    max,
     answered: plan.items.filter((k) => latest.has(k)).length,
     sections,
-    passed: exam.thresholds.filter((t) => points >= t.minPoints).map((t) => t.id),
+    ...(exam.modules && { modules }),
+    passed,
+    // A module taken alone without a pass mark of its own is not judged.
+    ...(marks.length > 0 && {
+      pass: exam.passWhen === "all" ? passed.length === marks.length : passed.length > 0,
+    }),
   };
 }

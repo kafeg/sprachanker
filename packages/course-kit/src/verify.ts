@@ -152,16 +152,31 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
   if (exam.key !== key) out.push(inconsistent(key, `the file holds ${exam.key}`));
   const items = new Map(exam.items.map((i) => [i.key as string, i]));
   if (items.size !== exam.items.length) out.push(inconsistent(key, "a question listed twice"));
-  for (const item of exam.items)
+  for (const item of exam.items) {
     if (!item.key.startsWith(`${exam.key}/q-`))
       out.push(inconsistent(item.key, `not a question of ${exam.key}`));
-  // The questions are single-choice items: checked as an exercise's are, each named by its key.
-  const asExercise = { key: exam.key, type: "single_choice", items: exam.items } as const;
-  out.push(...answerProblems(asExercise as unknown as Exercise, (i) => exam.items[i]?.key ?? key));
-  let asked = 0;
+    // Each question checked as an item of its kind is, named by its key.
+    const asExercise = { key: exam.key, type: item.type, items: [item] };
+    out.push(...answerProblems(asExercise as unknown as Exercise, () => item.key));
+  }
+  const modules = new Map((exam.modules ?? []).map((m) => [m.id, m]));
+  if (modules.size !== (exam.modules ?? []).length)
+    out.push(inconsistent(key, "a module listed twice"));
+  if (exam.modules) {
+    const together = exam.modules.reduce((n, m) => n + m.timeLimitSec, 0);
+    if (together !== exam.timeLimitSec)
+      out.push(inconsistent(key, `time ${exam.timeLimitSec} s, its modules' ${together} s`));
+  }
+  const worth = (k: string) => items.get(k)?.points ?? 1;
+  /** The most points each module (or the one test) can give: its sections' best draws. */
+  const best = new Map<string, number>();
+  const pooled = new Set<string>();
   for (const section of exam.sections) {
-    asked += section.draw;
+    if (exam.modules && !section.module) out.push(inconsistent(section.key, "in no module"));
+    if (section.module && !modules.has(section.module))
+      out.push(inconsistent(section.key, `module ${section.module} is not the exam's`));
     const pool = section.pool.flatMap((k) => {
+      pooled.add(k);
       const item = items.get(k);
       if (!item) out.push(inconsistent(section.key, `pool names ${k}, not a question of the exam`));
       return item ? [item] : [];
@@ -177,10 +192,24 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
             `draws ${section.draw} of ${group.length} questions${value === null ? "" : ` (${value})`}`,
           ),
         );
+    const top = pool
+      .map((i) => worth(i.key))
+      .sort((a, b) => b - a)
+      .slice(0, section.draw)
+      .reduce((n, p) => n + p, 0);
+    best.set(section.module ?? "", (best.get(section.module ?? "") ?? 0) + top);
   }
-  for (const t of exam.thresholds)
-    if (t.minPoints > asked)
-      out.push(inconsistent(key, `pass mark ${t.id} is ${t.minPoints} of ${asked} questions`));
+  for (const section of exam.sections)
+    if (section.example && (!items.has(section.example) || pooled.has(section.example)))
+      out.push(inconsistent(section.key, `example ${section.example} is no question of its own`));
+  for (const t of exam.thresholds) {
+    for (const m of t.modules ?? [])
+      if (!modules.has(m)) out.push(inconsistent(key, `pass mark ${t.id} names module ${m}`));
+    const over = exam.modules ? (t.modules ?? [...modules.keys()]) : [""];
+    const most = over.reduce((n, m) => n + (modules.get(m)?.scaleTo ?? best.get(m) ?? 0), 0);
+    if (t.minPoints > most)
+      out.push(inconsistent(key, `pass mark ${t.id} is ${t.minPoints} of ${most} points`));
+  }
   return out;
 }
 
@@ -191,6 +220,8 @@ function localeExamProblems(exam: Exam, locale: LocaleExam, edition: string): Co
   if (locale.exam !== exam.key) out.push(inconsistent(at, `locale is for ${locale.exam}`));
   for (const s of exam.sections)
     if (!locale.sections[s.key]) out.push(inconsistent(at, `no title for ${s.key}`));
+  for (const m of exam.modules ?? [])
+    if (!locale.modules?.[m.id]) out.push(inconsistent(at, `no title for module ${m.id}`));
   for (const t of exam.thresholds)
     if (!locale.thresholds[t.id]) out.push(inconsistent(at, `no title for pass mark ${t.id}`));
   const items = new Set(exam.items.map((i) => i.key as string));

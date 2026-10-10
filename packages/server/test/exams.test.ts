@@ -1,7 +1,7 @@
 // Exam runs through the API, on the fixture course's mini exam: two general questions and one of the
 // learner's state (Berlin or Bavaria), pass marks 2 and 3.
 import { expect, test } from "bun:test";
-import { EXAM } from "@sprachanker/course-fixture";
+import { EXAM, MODELL } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
 import { setup } from "./setup.ts";
 
@@ -90,6 +90,7 @@ test("a mock exam: drawn for the state, timed, its answers kept to itself until 
       [`${EXAM}/s-state`]: { points: 0, max: 1 },
     },
     passed: ["pass"],
+    pass: true,
   });
   // Handed in: every answer with its outcome.
   expect(
@@ -238,4 +239,73 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
   expect(
     exams[0].runs.map((r: { id: string; result: { points: number } }) => [r.id, r.result.points]),
   ).toEqual([[run.id, 1]]);
+});
+
+test("a language exam: one module taken alone, timed by it, its Teile whole; the whole exam judged by all its marks", async () => {
+  const api = await setup();
+  const m = (id: string) => `${MODELL}/q-${id}`;
+  const start = (module?: string) =>
+    api.sendJson("POST", "/api/exams/runs", {
+      exam: MODELL,
+      edition: "en-de",
+      mode: "test",
+      ...(module && { module }),
+    });
+  const { run: lesen, now } = await start("lesen");
+  expect(lesen.plan).toMatchObject({ module: "lesen", items: [m("l1"), m("l2"), m("l3")] });
+  expect(lesen.plan.deadline - now).toBeGreaterThan(170_000);
+  expect(lesen.plan.deadline - now).toBeLessThanOrEqual(180_000);
+  const answer = (id: string, value: unknown) => ({
+    id: ulid(),
+    type: "answered",
+    itemKey: m(id),
+    payload: { answer: value, attempt: 1, ms: 1 },
+  });
+  await api.sendJson("POST", `/api/exams/runs/${lesen.id}/events`, {
+    events: [answer("l1", { optionId: "b" }), answer("l2", { optionId: "b" })],
+  });
+  const { run: done } = await api.sendJson("POST", `/api/exams/runs/${lesen.id}/finish`, {});
+  // Reading alone: 2 of 3, 16.67 of 25; no pass mark of its own, so not judged.
+  expect(done.result).toMatchObject({
+    points: 2,
+    max: 3,
+    modules: { lesen: { points: 2, max: 3, scaled: 16.67 } },
+    passed: [],
+  });
+  expect(done.result.pass).toBeUndefined();
+  // A module the exam does not have is refused.
+  const unknown = await api.send("POST", "/api/exams/runs", {
+    exam: MODELL,
+    edition: "en-de",
+    mode: "test",
+    module: "sprechen",
+  });
+  expect(unknown.status).toBe(400);
+
+  // The whole exam: every Teil whole, the example never asked; typed answers checked.
+  const { run: whole } = await start();
+  expect(whole.plan.items).toEqual(["h1", "h2", "h3", "l1", "l2", "l3", "s1", "s2"].map(m));
+  await api.sendJson("POST", `/api/exams/runs/${whole.id}/events`, {
+    events: [
+      ...["h1", "h2", "h3"].map((id) => answer(id, { optionId: "a" })),
+      answer("l1", { optionId: "b" }),
+      answer("l2", { optionId: "b" }),
+      answer("l3", { optionId: "b" }),
+      answer("s1", { g1: "Tom Weber" }),
+      answer("s2", { g1: "Tee" }),
+    ],
+  });
+  const { run: all } = await api.sendJson("POST", `/api/exams/runs/${whole.id}/finish`, {});
+  // 25 + 25 + 12.5 = 62.5: over 45, writing over 10 — both marks, so passed.
+  expect(all.result).toMatchObject({
+    points: 7,
+    max: 8,
+    modules: {
+      hoeren: { scaled: 25 },
+      lesen: { scaled: 25 },
+      schreiben: { points: 1, max: 2, scaled: 12.5 },
+    },
+    passed: ["pass", "written"],
+    pass: true,
+  });
 });

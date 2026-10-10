@@ -273,3 +273,141 @@ test("the catalogue: the questions open to the learner with their answers, narro
   expect(view.getByText("1 question")).toBeTruthy();
   expect(view.getByText("Frage 002?")).toBeTruthy();
 });
+
+// A language exam: Lesen with a Teil's text and example, Schreiben with a typed form; passed only
+// with both pass marks.
+const GKEY = "goethe.a1/a1/exam-modell";
+const gq = (id: string, extra: object) => ({ key: `${GKEY}/q-${id}`, tags: {}, ...extra });
+const gItems = [
+  gq("l0", {
+    type: "single_choice",
+    prompt: "Beispiel: Wer schreibt?",
+    options: [
+      { id: "a", text: "Tom" },
+      { id: "b", text: "Eva" },
+    ],
+    answer: { optionIds: ["a"] },
+  }),
+  gq("l1", {
+    type: "single_choice",
+    prompt: "Tom kommt am Montag.",
+    options: [
+      { id: "a", text: "Richtig" },
+      { id: "b", text: "Falsch" },
+    ],
+    answer: { optionIds: ["b"] },
+  }),
+  gq("s1", {
+    type: "gap_text",
+    segments: ["Name: ", { gap: "g1" }],
+    answer: { g1: { accepted: ["Tom Weber"] } },
+  }),
+] as unknown as ExamItem[];
+const gExam = {
+  format: 1,
+  key: GKEY,
+  timeLimitSec: 240,
+  modules: [
+    { id: "lesen", timeLimitSec: 180, scaleTo: 25 },
+    { id: "schreiben", timeLimitSec: 60, scaleTo: 25 },
+  ],
+  sections: [
+    {
+      key: `${GKEY}/s-l1`,
+      module: "lesen",
+      pool: [`${GKEY}/q-l1`],
+      draw: 1,
+      filter: null,
+      text: "Liebe Lena,\n\nich komme am Sonntag.",
+      example: `${GKEY}/q-l0`,
+    },
+    { key: `${GKEY}/s-s1`, module: "schreiben", pool: [`${GKEY}/q-s1`], draw: 1, filter: null },
+  ],
+  items: gItems,
+  thresholds: [
+    { id: "pass", minPoints: 30 },
+    { id: "written", minPoints: 10, modules: ["schreiben"] },
+  ],
+  passWhen: "all",
+} as unknown as Exam;
+const gLocale = {
+  format: 1,
+  edition: "de-de",
+  exam: GKEY,
+  title: "Goethe-Zertifikat A1",
+  modules: { lesen: { title: "Lesen" }, schreiben: { title: "Schreiben" } },
+  sections: {
+    [`${GKEY}/s-l1`]: { title: "Teil 1", instructions: "Lies den Text." },
+    [`${GKEY}/s-s1`]: { title: "Teil 1", instructions: "Füll das Formular aus." },
+  },
+  thresholds: { pass: { title: "Bestanden" }, written: { title: "Schreiben: mindestens 10" } },
+  items: {},
+};
+const gParams = { series: "goethe.a1", course: "a1", exam: "modell" };
+
+test("a language exam's catalogue: each Teil with its instructions, its text and its example answered", async () => {
+  const view = await renderApp(<ExamCatalog params={gParams} />, {
+    path: "/exam/goethe.a1/a1/modell/catalog",
+    data: [
+      [
+        ["exams"],
+        [
+          row({
+            key: GKEY,
+            series: "goethe.a1",
+            course: "a1",
+            titles: { "de-de": "Goethe-Zertifikat A1" },
+          }),
+        ],
+      ],
+      [["exam", GKEY, "de-de"], pageData({ exam: gExam, locale: gLocale, stats: {} })],
+    ],
+  });
+  expect(await view.findByText("Lies den Text.")).toBeTruthy();
+  expect(view.getByText("ich komme am Sonntag.")).toBeTruthy();
+  expect(view.getByText("Example")).toBeTruthy();
+  expect(view.getByText("Beispiel: Wer schreibt?")).toBeTruthy();
+  expect(view.getByText("Füll das Formular aus.")).toBeTruthy();
+  // The example is no question of the catalogue's: two questions.
+  expect(view.getByText("2 questions")).toBeTruthy();
+});
+
+test("a language exam's result: points by module as scaled, every pass mark needed", async () => {
+  const run = {
+    ...finished(1, []),
+    exam: GKEY,
+    plan: { mode: "test", items: [`${GKEY}/q-l1`, `${GKEY}/q-s1`], sections: {}, deadline: 10 },
+    result: {
+      points: 1,
+      max: 2,
+      answered: 2,
+      sections: {},
+      modules: {
+        lesen: { points: 1, max: 1, scaled: 25 },
+        schreiben: { points: 0, max: 1, scaled: 0 },
+      },
+      passed: [],
+      pass: false,
+    },
+  } as unknown as ExamRun;
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ExamResultView
+        title="Goethe-Zertifikat A1"
+        params={gParams}
+        run={run}
+        exam={gExam}
+        locale={gLocale as never}
+        items={[gItems[1], gItems[2]] as ExamItem[]}
+        events={[]}
+        onLeave={() => {}}
+      />
+    </TargetLang>,
+  );
+  expect(view.getByRole("heading", { name: "Not passed" })).toBeTruthy();
+  expect(view.getByText("Lesen").parentElement?.textContent).toContain("25 of 25");
+  expect(view.getByText("Schreiben: mindestens 10").parentElement?.textContent).toContain(
+    "10 of 25",
+  );
+  expect(view.getByText("Bestanden").parentElement?.textContent).toContain("30 of 50");
+});

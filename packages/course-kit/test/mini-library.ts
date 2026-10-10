@@ -53,8 +53,8 @@ export const MINI_EXAM = examKey(COURSE, "quiz");
 const question = (
   id: string,
   state: string | null,
-  extra: Partial<Exam["items"][number]> = {},
-) => ({
+  extra: { media?: Exam["items"][number]["media"] } = {},
+): Exam["items"][number] => ({
   key: examItemKey(MINI_EXAM, id),
   type: "single_choice" as const,
   tags: { federalState: state },

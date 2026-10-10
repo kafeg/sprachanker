@@ -14,17 +14,31 @@ import { examProblems, storeProblems } from "./store.ts";
 /** Federal state the run-through takes the exam for. */
 const STATE = { code: "be", name: "Berlin" };
 
-/** The option of a question to choose: its right one, or the first other. */
-const optionOf = (item: ExamItem, right: boolean) =>
-  item.options.find((o) => item.answer.optionIds.includes(o.id) === right) ??
-  (item.options[0] as ExamItem["options"][number]);
+type Choice = Extract<ExamItem, { type: "single_choice" }>;
 
-/** Chooses an option in a question's card: by its text, or by its picture's file. */
-async function choose(card: Locator, option: ExamItem["options"][number]) {
-  const button = option.media?.image
-    ? card.locator(`button:has(img[src$="${option.media.image.split("/").pop()}"])`)
-    : card.getByRole("button", { name: option.text ?? "", exact: true });
-  await button.first().click();
+/** The option of a question to choose: its right one, or the first other. */
+const optionOf = (item: Choice, right: boolean) =>
+  item.options.find((o) => item.answer.optionIds.includes(o.id) === right) ??
+  (item.options[0] as Choice["options"][number]);
+
+/** Answers a question in its card, rightly or not: an option by its text or its picture's file; a
+ *  typed gap with an accepted text or another; an open answer with its model answer. */
+async function answer(card: Locator, item: ExamItem, right: boolean) {
+  if (item.type === "single_choice") {
+    const option = optionOf(item, right);
+    const button = option.media?.image
+      ? card.locator(`button:has(img[src$="${option.media.image.split("/").pop()}"])`)
+      : card.getByRole("button", { name: option.text ?? "", exact: true });
+    await button.first().click();
+  } else if (item.type === "gap_text") {
+    const boxes = card.getByRole("textbox");
+    for (const [i, { accepted }] of Object.values(item.answer).entries())
+      await boxes.nth(i).fill(right ? (accepted[0] ?? "") : "xyz");
+    await boxes.last().blur();
+  } else {
+    await card.getByRole("textbox").fill(item.reference[0] ?? "…");
+    await card.getByRole("textbox").blur();
+  }
 }
 
 /** The run open on the page, as the server gives it. */
@@ -90,7 +104,7 @@ for (const s of examScenarios())
     for (const [i, item] of asked.entries()) {
       const good = i % 3 !== 2;
       if (good) right++;
-      await choose(cards.nth(i), optionOf(item, good));
+      await answer(cards.nth(i), item, good);
     }
     // Nothing marked before it is handed in.
     await expect(page.getByRole("status").filter({ hasText: /^(Correct|Not quite)$/ })).toHaveCount(
@@ -119,7 +133,7 @@ for (const s of examScenarios())
     const fixed = Math.min(3, wrong);
     for (let i = 0; i < fixed; i++) {
       const item = items.get(practice.plan.items[i] as string) as ExamItem;
-      await choose(cards.nth(i), optionOf(item, true));
+      await answer(cards.nth(i), item, true);
       await expect(
         cards
           .nth(i)

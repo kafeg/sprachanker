@@ -1,6 +1,6 @@
 // /api/exams: the installed exams with the learner's standing, an exam's page, and its runs — started
 // (a mock exam or practice), opened, answered, handed in (09, Exams).
-import { EditionId, ExamKey, ExamMode, Ulid } from "@sprachanker/schema";
+import { EditionId, ExamKey, ExamMode, ExamModuleId, Ulid } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zod } from "../validate.ts";
@@ -17,10 +17,18 @@ export function examRoutes() {
     })
     .post(
       "/runs",
-      zod("json", z.object({ exam: ExamKey, edition: EditionId, mode: ExamMode })),
+      zod(
+        "json",
+        z.object({
+          exam: ExamKey,
+          edition: EditionId,
+          mode: ExamMode,
+          module: ExamModuleId.optional(),
+        }),
+      ),
       async (c) => {
-        const { exam, edition, mode } = c.req.valid("json");
-        return c.json(await c.var.s.exams.start(exam, edition, mode));
+        const { exam, edition, mode, module } = c.req.valid("json");
+        return c.json(await c.var.s.exams.start(exam, edition, mode, module));
       },
     )
     .get("/runs/:id", zod("param", RunParam), async (c) =>

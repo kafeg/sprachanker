@@ -14,6 +14,32 @@
       "exclusiveMinimum": 0,
       "maximum": 9007199254740991
     },
+    "modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "timeLimitSec": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "scaleTo": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "id",
+          "timeLimitSec"
+        ],
+        "additionalProperties": false
+      }
+    },
     "sections": {
       "type": "array",
       "items": {
@@ -58,6 +84,24 @@
                 "type": "null"
               }
             ]
+          },
+          "module": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "text": {
+            "type": "string"
+          },
+          "media": {
+            "$ref": "#/$defs/Media"
+          },
+          "plays": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "example": {
+            "$ref": "#/$defs/ExamItemKey"
           }
         },
         "required": [
@@ -73,70 +117,275 @@
       "minItems": 1,
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "key": {
-            "$ref": "#/$defs/ExamItemKey"
-          },
-          "media": {
-            "$ref": "#/$defs/Media"
-          },
-          "answerAudio": {
-            "$ref": "#/$defs/MediaPath"
-          },
-          "prompt": {
-            "type": "string"
-          },
-          "options": {
-            "minItems": 2,
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/Option"
-            }
-          },
-          "answer": {
+        "oneOf": [
+          {
             "type": "object",
             "properties": {
-              "optionIds": {
-                "minItems": 1,
-                "maxItems": 1,
+              "key": {
+                "$ref": "#/$defs/ExamItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "options": {
+                "minItems": 2,
                 "type": "array",
                 "items": {
-                  "type": "string",
-                  "pattern": "^[a-z]{1,2}$"
+                  "$ref": "#/$defs/Option"
                 }
+              },
+              "answer": {
+                "type": "object",
+                "properties": {
+                  "optionIds": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "pattern": "^[a-z]{1,2}$"
+                    }
+                  }
+                },
+                "required": [
+                  "optionIds"
+                ],
+                "additionalProperties": false
+              },
+              "tags": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "points": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "single_choice"
               }
             },
             "required": [
-              "optionIds"
+              "key",
+              "options",
+              "answer",
+              "tags",
+              "type"
             ],
             "additionalProperties": false
           },
-          "type": {
-            "type": "string",
-            "const": "single_choice"
-          },
-          "tags": {
+          {
             "type": "object",
-            "propertyNames": {
-              "type": "string"
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ExamItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "segments": {
+                "$ref": "#/$defs/Segments"
+              },
+              "answer": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string",
+                  "pattern": "^g[1-9]\\d*$"
+                },
+                "additionalProperties": {
+                  "type": "object",
+                  "properties": {
+                    "accepted": {
+                      "minItems": 1,
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "accepted"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "tags": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "points": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "gap_text"
+              }
             },
-            "additionalProperties": {
-              "type": [
-                "string",
-                "null"
-              ]
-            }
+            "required": [
+              "key",
+              "segments",
+              "answer",
+              "tags",
+              "type"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/ExamItemKey"
+              },
+              "media": {
+                "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
+              "prompt": {
+                "type": "string"
+              },
+              "input": {
+                "type": "string",
+                "enum": [
+                  "text",
+                  "speech"
+                ]
+              },
+              "rubric": {
+                "type": "object",
+                "properties": {
+                  "required": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        },
+                        "anyOf": {
+                          "minItems": 1,
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "anyOf"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "criteria": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ],
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "required": [
+                  "required",
+                  "criteria"
+                ],
+                "additionalProperties": false
+              },
+              "reference": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "answerIn": {
+                "type": "string",
+                "enum": [
+                  "target",
+                  "learner"
+                ]
+              },
+              "tags": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              },
+              "points": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "text": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "const": "respond"
+              }
+            },
+            "required": [
+              "key",
+              "input",
+              "reference",
+              "tags",
+              "type"
+            ],
+            "additionalProperties": false
           }
-        },
-        "required": [
-          "key",
-          "options",
-          "answer",
-          "type",
-          "tags"
-        ],
-        "additionalProperties": false
+        ]
       }
     },
     "thresholds": {
@@ -150,9 +399,15 @@
             "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
           },
           "minPoints": {
-            "type": "integer",
-            "exclusiveMinimum": 0,
-            "maximum": 9007199254740991
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+            }
           }
         },
         "required": [
@@ -161,6 +416,13 @@
         ],
         "additionalProperties": false
       }
+    },
+    "passWhen": {
+      "type": "string",
+      "enum": [
+        "any",
+        "all"
+      ]
     }
   },
   "required": [
@@ -240,6 +502,30 @@
         "id"
       ],
       "additionalProperties": false
+    },
+    "Segments": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "gap": {
+                "type": "string",
+                "pattern": "^g[1-9]\\d*$"
+              }
+            },
+            "required": [
+              "gap"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      }
     }
   }
 }

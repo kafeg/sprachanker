@@ -3,7 +3,7 @@
 import { join } from "node:path";
 import { libraryFile, writeFileAtomic, writeLibraryFiles } from "@sprachanker/course-kit";
 import { courseIndex, exams, lessons, SERIES } from "./course.ts";
-import { localeCourse, localeExam, localeLessons } from "./locales.ts";
+import { localeCourse, localeExam, localeLessons, localeModell } from "./locales.ts";
 import { FIXTURE_MEDIA } from "./media.ts";
 
 /** The fixture's series key as a plain string (tests compare with it). */
@@ -23,6 +23,7 @@ export async function writeFixtureLibrary(libraryRoot: string): Promise<string> 
         libraryFile.localeCourse(localeCourse(lang)),
         ...localeLessons(lang).map(libraryFile.localeLesson),
         libraryFile.localeExam(localeExam(lang)),
+        libraryFile.localeExam(localeModell(lang)),
       ]),
     ],
     (line) => problems.push(line),
