@@ -7,7 +7,9 @@ import type { LessonKey } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { z } from "zod";
 import { openProfileDb } from "../src/runtime/bun.ts";
+import { appendAnswers } from "../src/services/answers.ts";
 import { createRunStore, readStored } from "../src/services/run-store.ts";
+import { keepVerdict, verdicts } from "../src/services/verdicts.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01" as LessonKey;
 
@@ -39,10 +41,21 @@ test("events are checked when written and stored all or nothing; a resent id is 
     edition: "ru-de",
   });
   expect(() => store.append(other.id, [step])).toThrow("event_of_another_run");
-  const seen: string[] = [];
-  store.append(run.id, [step], { onStored: (e) => seen.push(e.id) });
-  expect(seen).toEqual([step.id]);
+  // Sent again: given back as it was stored, its time the first's.
+  const [first] = store.events(run.id);
+  expect(store.append(run.id, [step])).toEqual([first as never]);
   expect(store.events(run.id).map((e) => e.id)).toEqual([step.id]);
+});
+
+test("events are given back as stored, each with its own time", () => {
+  const { store } = open();
+  const run = store.start("chat", LESSON, { edition: "ru-de" });
+  const kept = store.append(run.id, [
+    { type: "llm_turn", payload: { role: "user", text: "1" } },
+    { type: "llm_turn", payload: { role: "assistant", text: "2" } },
+  ]);
+  expect(kept).toEqual(store.events(run.id));
+  expect(new Set(kept.map((e) => e.ts)).size).toBe(2);
 });
 
 test("answers numbered per item; one sent again keeps its number; an id stored as another event tells no answer", () => {
@@ -58,9 +71,12 @@ test("answers numbered per item; one sent again keeps its number; an id stored a
   const step = { id: ulid(), type: "step_done" as const, payload: { step: "words" as const } };
   store.append(run.id, [step]);
   const [a, b] = [ulid(), ulid()];
-  expect(store.appendAnswers(run.id, [answer(a), answer(b)]).attempts).toEqual({ [a]: 1, [b]: 2 });
+  expect(appendAnswers(store, run.id, [answer(a), answer(b)]).attempts).toEqual({
+    [a]: 1,
+    [b]: 2,
+  });
   // Sent again with an id the step has: the step stays, no answer of it is told.
-  const again = store.appendAnswers(run.id, [answer(b), answer(step.id)]);
+  const again = appendAnswers(store, run.id, [answer(b), answer(step.id)]);
   expect(again).toEqual({ outcomes: { [b]: outcome }, attempts: { [b]: 2 } });
 });
 
@@ -167,9 +183,14 @@ test("verdicts typed by their task, checked when written, newest first; events o
     ]),
   ).toThrow();
   expect(
-    store.verdicts("speaking", { kind: "lesson", about: LESSON }).map((v) => v.result.corrected),
+    verdicts(store, "speaking", { kind: "lesson", about: LESSON }).map((v) => v.result.corrected),
   ).toEqual(["Nein", "Ja"]);
-  expect(store.verdicts("explain", { runIds: [a.id], itemKey: "x#1" })).toHaveLength(1);
+  expect(verdicts(store, "explain", { runIds: [a.id], itemKey: "x#1" })).toHaveLength(1);
+  // Kept in an ended run too, given back as histories read it.
+  store.end(a.id, "finished", "completed");
+  const { verdict } = keepVerdict(store, a.id, why.payload, { itemKey: "x#3" });
+  expect(verdict).toMatchObject({ task: "explain", runId: a.id, itemKey: "x#3", cardId: null });
+  expect(verdicts(store, "explain", { runIds: [a.id] })[0]).toEqual(verdict);
   store.append(b.id, [{ type: "llm_turn", payload: { role: "user", text: "Hallo" } }]);
   const byRun = store.eventsOf([a.id, b.id], ["llm_turn"]);
   expect([byRun.get(a.id)?.length, byRun.get(b.id)?.map((e) => e.type)]).toEqual([0, ["llm_turn"]]);

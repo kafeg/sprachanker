@@ -43,11 +43,11 @@ src/
                      # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
                      # lesson progress, the lessons' standing); lesson-journal (a lesson's passes, a pass in
                      # full, an item across passes); progress (the learner's progress over every module:
-                     # reset for a course, a lesson or an exam; the recordings answers hold); exams (exam
-                     # runs: mock exams and practice, the standing in each, the exams' standing, an exam's
-                     # page in the Notebook);
-                     # run-store (the one module on runs and events: start, replace, end, append, answers
-                     # numbered, what the server keeps — verdicts, lines —, read, remove); card-store (the one module on cards and card_state); cards
+                     # reset for a course, a lesson or an exam; the recordings answers hold); exams (the
+                     # standing in each exam, the exams' standing, an exam's page in the Notebook) over
+                     # exam-runs (mock exams and practice taken; overdue ones handed in on reading);
+                     # run-store (the one module on runs and events: start, replace, end, append, read,
+                     # remove); answers (numbered); verdicts (kept, read); card-store (the one module on cards and card_state); cards
                      # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
                      # bury, suspend, flags, marks; review's standing); words (My words, the word sheet);
                      # notebook (the study days and every module's standing, gathered); settings;
@@ -94,11 +94,13 @@ test/                # bun test; integration tests call createApp().request() �
   `server-tables-through-stores`). Event types and their payload schemas live in one registry
   (`EVENT_PAYLOADS`, schema `learner.ts`): checked when written and when read.
 - Histories read the same way everywhere: a run replaced by a new one through `store.replace` (ends
-  `abandoned` when unfinished, `finished` when complete as it is); verdicts kept with `store.keepVerdict` and read with
-  `store.verdicts`, in one shape everywhere (`Verdict`: the payload with where and when); what the
-  server adds to a run otherwise with `store.keep`; answers numbered by `store.appendAnswers`; turns and payloads with their time (`payloadOf`); several runs' events in one query
-  (`store.eventsOf`); lists newest first, at most `HISTORY_LIMIT`; a stored row or JSON column that no
-  longer reads is left out and logged (`readStored`), never failing the list.
+  `abandoned` when unfinished, `finished` when complete as it is); `store.append` gives the events
+  back as stored (one sent again as it was); verdicts kept with `keepVerdict` and read with
+  `verdicts` (`services/verdicts.ts`), in one shape everywhere (`Verdict`: the payload with where and
+  when); answers numbered by `appendAnswers` (`services/answers.ts`); turns and payloads with their
+  time (`payloadOf`); several runs' events in one query (`store.eventsOf`); lists newest first, at
+  most `HISTORY_LIMIT`; a stored row or JSON column that no longer reads is left out and logged
+  (`readStored`), never failing the list.
 - A model's stored answer records `model` and `latencyMs` (`stopwatch` in services/llm.ts).
 - Events are append-only; never UPDATE or DELETE `events`. Only two things remove them (`store.remove`):
   deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat,

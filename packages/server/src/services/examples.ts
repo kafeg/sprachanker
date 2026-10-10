@@ -11,6 +11,7 @@ import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import type { RunStore } from "./run-store.ts";
+import { keepVerdict, verdicts } from "./verdicts.ts";
 
 export interface ExampleRequest {
   cardId: string;
@@ -48,7 +49,7 @@ export function createExamples(deps: {
     return { note, word, vocabulary };
   }
 
-  const stored = (cardId: string) => store.verdicts("example", { cardId });
+  const stored = (cardId: string) => verdicts(store, "example", { cardId });
 
   /** A sentence as shown: its words, the new ones marked with a translation where one is known. */
   const shown = (
@@ -95,7 +96,8 @@ export function createExamples(deps: {
         const ctx = await context(request.cardId);
         const task = wordExampleTask(await input(request, ctx), (s) => usesWord(s, ctx.word));
         const { result, model, latencyMs } = await deps.llm.structured(task);
-        const { verdict } = store.keepVerdict(
+        const { verdict } = keepVerdict(
+          store,
           deps.reviewRun(),
           { task: "example", input: ctx.word.target, result, model, latencyMs },
           { cardId: request.cardId },

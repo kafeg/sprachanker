@@ -87,7 +87,7 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
             ...(result.done && i === result.lines.length - 1 && { done: true }),
           })),
         ];
-        const events = store.keep(
+        const events = store.append(
           request.runId,
           lines.map((payload) => ({
             type: "llm_turn" as const,

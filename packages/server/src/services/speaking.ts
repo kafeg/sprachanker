@@ -13,7 +13,8 @@ import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunStore, Verdict } from "./run-store.ts";
+import type { RunStore } from "./run-store.ts";
+import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface SpeakingRequest {
   series: string;
@@ -43,7 +44,7 @@ export function createSpeaking(deps: {
 
   /** Checks kept in a run (`input`: what was heard), newest first. */
   const kept = (runId: string, itemKey?: string) =>
-    store.verdicts("speaking", { runIds: [runId], itemKey }).filter((v) => v.itemKey);
+    verdicts(store, "speaking", { runIds: [runId], itemKey }).filter((v) => v.itemKey);
 
   /** The item asked about, checked: a speaking item of one's own in a run of the lesson. */
   async function itemOf(request: SpeakingRequest) {
@@ -98,7 +99,8 @@ export function createSpeaking(deps: {
         const { input: task } = await input(request, found);
         const { result: check, model, latencyMs } = await llm.structured(checkSpeakingTask(task));
         const result = cleanCheck(check, request.transcript);
-        const { event, verdict } = store.keepVerdict(
+        const { event, verdict } = keepVerdict(
+          store,
           request.runId,
           { task: "speaking", input: request.transcript, result, model, latencyMs },
           { itemKey },

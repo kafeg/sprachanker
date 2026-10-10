@@ -9,7 +9,8 @@ import { ServiceError } from "../errors.ts";
 import type { Exams } from "./exams.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import type { RunStore, Verdict } from "./run-store.ts";
+import type { RunStore } from "./run-store.ts";
+import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface ExamRatingRequest {
   runId: string;
@@ -63,7 +64,7 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
 
   /** Proposals kept in a run (`input`: the answer rated), newest first. */
   const kept = (runId: string, itemKey: string) =>
-    store.verdicts("exam", { runIds: [runId], itemKey });
+    verdicts(store, "exam", { runIds: [runId], itemKey });
 
   return {
     /** The model's proposal for an answer, kept on its question in the run; one kept for the same
@@ -78,7 +79,8 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
       if (same) return same;
       return rating.run(`${request.runId}|${request.itemKey}|${text}`, true, async () => {
         const { result, model, latencyMs } = await llm.structured(rateExamAnswerTask(task));
-        const { event, verdict } = store.keepVerdict(
+        const { event, verdict } = keepVerdict(
+          store,
           request.runId,
           { task: "exam", input: text, result, model, latencyMs },
           { itemKey: request.itemKey },

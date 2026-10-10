@@ -30,6 +30,7 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import { appendAnswers } from "./answers.ts";
 import { type Content, courseTitle } from "./content.ts";
 import { headerOf, type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
@@ -350,7 +351,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
             return e;
         }
       });
-      return store.appendAnswers(runId, list, { deviceId });
+      return appendAnswers(store, runId, list, { deviceId });
     },
 
     /** Finishes a run once every step of the plan is done or skipped; the result is the lesson score. */

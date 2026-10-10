@@ -18,6 +18,7 @@ import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import { payloadOf, type ReadEvent, type RunRow, type RunStore } from "./run-store.ts";
 import { lessonTitle, toRun } from "./runs.ts";
+import { verdicts } from "./verdicts.ts";
 
 /** A chat with the tutor about a lesson, as its history lists it. */
 interface HeldChat {
@@ -139,9 +140,9 @@ export function createLessonJournal(deps: {
         events: store.events(runId),
         lesson: now?.lesson ?? null,
         locale: now?.locale ?? null,
-        explanations: store.verdicts("explain", { runIds: [runId] }),
-        spoken: store.verdicts("speaking", { runIds: [runId] }),
-        writing: store.verdicts("writing", { runIds: [runId] }),
+        explanations: verdicts(store, "explain", { runIds: [runId] }),
+        spoken: verdicts(store, "speaking", { runIds: [runId] }),
+        writing: verdicts(store, "writing", { runIds: [runId] }),
         words: deps.cards.madeIn(runId).map((w) => w.display),
         chats: held?.chats ?? [],
         scenes: held?.scenes ?? [],
@@ -154,8 +155,8 @@ export function createLessonJournal(deps: {
       const lessonKey = lessonOf(parseItemKey(itemKey).exercise);
       const where = { kind: "lesson" as const, about: lessonKey, itemKey };
       const answered = store.eventsWhere({ types: ["answered"], ascending: true, ...where });
-      const explained = store.verdicts("explain", where);
-      const spoken = store.verdicts("speaking", where);
+      const explained = verdicts(store, "explain", where);
+      const spoken = verdicts(store, "speaking", where);
       return store.list("lesson", lessonKey).flatMap((row) => {
         const answers = answered
           .filter((e) => e.runId === row.id)

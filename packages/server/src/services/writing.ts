@@ -14,7 +14,8 @@ import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import { HISTORY_LIMIT, type RunStore, type Verdict } from "./run-store.ts";
+import { HISTORY_LIMIT, type RunStore } from "./run-store.ts";
+import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface WritingRequest {
   series: string;
@@ -38,7 +39,7 @@ export function createWriting(deps: {
   /** Writing checks of the lesson in all its runs, newest first; one stored in a shape that no longer
    *  reads is left out. */
   const attempts = (lessonKey: LessonKey) =>
-    store.verdicts("writing", { kind: "lesson", about: lessonKey });
+    verdicts(store, "writing", { kind: "lesson", about: lessonKey });
 
   async function writingInput(request: WritingRequest): Promise<WritingInput> {
     const ctx = await deps.lessons.get(request.series, request.lessonKey, request.edition);
@@ -73,7 +74,7 @@ export function createWriting(deps: {
         const task = checkWritingTask(await writingInput(request));
         const { result: check, model, latencyMs } = await deps.llm.structured(task);
         const result = cleanCheck(check, request.text);
-        return store.keepVerdict(session.run.id, {
+        return keepVerdict(store, session.run.id, {
           task: "writing",
           input: request.text,
           result,

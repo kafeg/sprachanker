@@ -5,7 +5,6 @@
 // never breaking the list it is in. Services keep their own rules; how runs and events are stored
 // lives here.
 import {
-  type AnsweredPayload,
   type CourseKey,
   EVENT_PAYLOADS,
   type EventPayload,
@@ -14,7 +13,6 @@ import {
   type ExamResult,
   type LessonKey,
   type LessonResult,
-  type Outcome,
   parseLessonKey,
   type RunEnd,
   type RunEndReason,
@@ -23,8 +21,6 @@ import {
   readPayload,
   recordingOf,
   type TypedEvent,
-  type VerdictOf,
-  type VerdictTask,
 } from "@sprachanker/schema";
 import { and, asc, desc, eq, gte, inArray, isNull, max, or, type SQL } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
@@ -68,24 +64,6 @@ export const HISTORY_LIMIT = 20;
  *  the payload of the type the events were asked for). */
 export const payloadOf = <T>(e: ReadEvent): T & { ts: number } => ({
   ...(e.payload as T),
-  ts: e.ts,
-});
-
-/** A model's verdict as every history reads it (05: `llm_verdict`): its payload typed by its task,
- *  with where and when it was given. One shape for the services that keep verdicts and the Notebook. */
-export type Verdict<T extends VerdictTask> = VerdictOf<T> & {
-  id: string;
-  runId: string;
-  itemKey: string | null;
-  cardId: string | null;
-  ts: number;
-};
-export const verdictOf = <T extends VerdictTask>(e: ReadEvent): Verdict<T> => ({
-  ...(e.payload as VerdictOf<T>),
-  id: e.id,
-  runId: e.runId,
-  itemKey: e.itemKey,
-  cardId: e.cardId ?? null,
   ts: e.ts,
 });
 
@@ -306,122 +284,44 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     /**
      * Stores events of a run in one transaction: checked first, all or nothing; only while the run is
      * active (`anyStatus`: also an ended one — an explanation kept with a finished lesson run). An
-     * event whose id is stored already is left as it is (sent again) and passed to `onStored`.
-     * Returns the time of the last.
+     * event whose id is stored already is left as it is (sent again). Returns each event as stored —
+     * a new one as written, one sent again as it was stored before — for the page that shows the run.
      */
     append(
       runId: string,
       list: NewEvent[],
       options: {
         anyStatus?: boolean;
-        onStored?: (before: ReadEvent) => void;
         /** The device the learner did it on (05: `events.device_id`). */
         deviceId?: string;
       } = {},
-    ): number {
+    ): ReadEvent[] {
       const rows = list.map((e) => row(runId, e, now(), options.deviceId));
-      const ts = rows.at(-1)?.ts ?? now();
-      db.transaction((tx) => {
+      return db.transaction((tx) => {
         const run = tx.select({ status: runs.status }).from(runs).where(eq(runs.id, runId)).get();
         if (!run) throw new ServiceError("no_such_run", 404);
         if (!options.anyStatus && run.status !== "active")
           throw new ServiceError("run_not_active", 409);
-        const named = rows.map((r) => r.id);
         const before = new Map(
           tx
             .select()
             .from(events)
-            .where(inArray(events.id, named))
+            .where(
+              inArray(
+                events.id,
+                rows.map((r) => r.id),
+              ),
+            )
             .all()
             .map((e) => [e.id, e]),
         );
-        for (const r of rows) {
+        return rows.flatMap((r) => {
           const stored = before.get(r.id);
-          if (stored) {
-            if (stored.runId !== runId) throw new ServiceError("event_of_another_run", 409);
-            const read = toEvent(stored);
-            if (read) options.onStored?.(read);
-            continue;
-          }
-          tx.insert(events).values(r).run();
-        }
+          if (stored && stored.runId !== runId) throw new ServiceError("event_of_another_run", 409);
+          if (!stored) tx.insert(events).values(r).run();
+          return toEvent(stored ?? r) ?? [];
+        });
       });
-      return ts;
-    },
-
-    /**
-     * Stores a run's events as `append` does, each new answer numbered after the answers its item
-     * has in the run (05: two devices answering in one run never give two answers the same number),
-     * and returns each answer's outcome and attempt — the stored ones for an answer sent again.
-     */
-    appendAnswers(runId: string, list: NewEvent[], options: { deviceId?: string } = {}) {
-      const count = new Map<string, number>();
-      for (const a of self.eventsWhere({ types: ["answered"], runIds: [runId] }))
-        if (a.itemKey) count.set(a.itemKey, (count.get(a.itemKey) ?? 0) + 1);
-      const outcomes: Record<string, Outcome> = {};
-      const attempts: Record<string, number> = {};
-      const numbered = list.map((e): NewEvent => {
-        if (e.type !== "answered" || !e.id || !e.itemKey) return e;
-        const payload = e.payload as AnsweredPayload;
-        let attempt = payload.attempt;
-        // One sent again keeps its own number (read back as it is stored, below).
-        if (!self.event(e.id)) {
-          attempt = (count.get(e.itemKey) ?? 0) + 1;
-          count.set(e.itemKey, attempt);
-        }
-        outcomes[e.id] = payload.outcome;
-        attempts[e.id] = attempt;
-        return { ...e, payload: { ...payload, attempt } };
-      });
-      self.append(runId, numbered, {
-        deviceId: options.deviceId,
-        onStored: (before) => {
-          // Its id stored as another event: no answer of it to tell.
-          if (before.type !== "answered") {
-            delete outcomes[before.id];
-            delete attempts[before.id];
-            return;
-          }
-          outcomes[before.id] = before.payload.outcome;
-          attempts[before.id] = before.payload.attempt;
-        },
-      });
-      return { outcomes, attempts };
-    },
-
-    /**
-     * Stores what the server itself adds to a run — a model's verdict, a conversation's lines — as
-     * `append` does (`anyStatus`: also in an ended run), and gives the events back as read, for the
-     * page that shows the run.
-     */
-    keep(runId: string, list: NewEvent[], options: { anyStatus?: boolean } = {}): ReadEvent[] {
-      const named = list.map((e) => ({ ...e, id: e.id ?? id(now()) }));
-      const ts = self.append(runId, named, options);
-      return named.map(
-        (e) =>
-          ({
-            id: e.id,
-            runId,
-            ts,
-            type: e.type,
-            itemKey: e.itemKey ?? null,
-            cardId: e.cardId ?? null,
-            payload: e.payload,
-          }) as ReadEvent,
-      );
-    },
-
-    /** A model's verdict kept in a run, also an ended one (a check kept with a finished lesson run),
-     *  on an item or a card: the event, and the verdict as histories read it. */
-    keepVerdict<T extends VerdictTask>(
-      runId: string,
-      payload: VerdictOf<T>,
-      on: { itemKey?: string; cardId?: string } = {},
-    ) {
-      const [event] = self.keep(runId, [{ type: "llm_verdict", ...on, payload }], {
-        anyStatus: true,
-      }) as [ReadEvent];
-      return { event, verdict: verdictOf<T>(event) };
     },
 
     /** One event by id. */
@@ -495,28 +395,6 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
           .orderBy(...order)
           .all(),
       );
-    },
-
-    /**
-     * The model's verdicts of one task (05: `llm_verdict`), newest first: in some runs or in runs of
-     * a kind about a context, on one item when given; typed by the task (the payload was read with
-     * its schema, so one that no longer reads was left out and logged already).
-     */
-    verdicts<T extends VerdictTask>(
-      task: T,
-      where: {
-        runIds?: string[];
-        kind?: RunKind;
-        about?: Context;
-        itemKey?: string;
-        cardId?: string;
-      },
-    ) {
-      return self
-        .eventsWhere({ types: ["llm_verdict"], ...where })
-        .flatMap((e) =>
-          e.type === "llm_verdict" && e.payload.task === task ? [verdictOf<T>(e)] : [],
-        );
     },
 
     /** The events of several runs, each run's in the order they were stored, of some types only when

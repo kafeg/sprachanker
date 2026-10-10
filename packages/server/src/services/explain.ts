@@ -8,7 +8,8 @@ import { findExercise, type LessonKey } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import { type Llm, type PromptPreview, stopwatch } from "./llm.ts";
-import type { RunStore, Verdict } from "./run-store.ts";
+import type { RunStore } from "./run-store.ts";
+import { keepVerdict, type Verdict, verdicts } from "./verdicts.ts";
 
 export interface ExplainRequest {
   series: string;
@@ -96,7 +97,8 @@ export function createExplain(deps: {
         // Reached only when the model finished: an explanation cut short is not kept.
         if (run && attempt && text.trim()) {
           // Kept with the lesson run, also a finished one.
-          store.keepVerdict(
+          keepVerdict(
+            store,
             run.id,
             {
               task: "explain",
@@ -116,8 +118,7 @@ export function createExplain(deps: {
      *  one of an attempt is the one shown. */
     list(lessonKey: LessonKey, runId: string): Verdict<"explain">[] {
       if (!lessonRun(lessonKey, runId)) return [];
-      return store
-        .verdicts("explain", { runIds: [runId] })
+      return verdicts(store, "explain", { runIds: [runId] })
         .filter((v) => v.itemKey && v.attempt)
         .reverse();
     },

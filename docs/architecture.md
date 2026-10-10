@@ -71,8 +71,10 @@ gets the types through Hono RPC (`AppType`), no codegen.
 - **Content**: `content` reads the library through course-kit with a cache; `downloads` queues course
   installs (one at a time, progress, resume after restart) through the providers' importers.
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
-  `card-store` the only code on `cards` and `card_state`. Services build on them: `runs` (lesson runs,
-  lesson progress), `progress` (reset over every module's runs, recordings in use), `exams` (exam runs: mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
+  `card-store` the only code on `cards` and `card_state`; over the run store, `answers` (numbered by
+  the server) and `verdicts` (a model's, kept and read one way). Services build on them: `runs` (lesson runs,
+  lesson progress), `progress` (reset over every module's runs, recordings in use), `exams` (the exams'
+  standings) over `exam-runs` (mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
   ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (the study days and the
   modules' standings, gathered), `lesson-journal` (a lesson's passes, a pass in full, an item across
   passes), `mistakes`, `settings`.
