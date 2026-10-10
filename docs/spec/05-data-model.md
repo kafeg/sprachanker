@@ -155,7 +155,8 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   chats, writing checks and reviews, scenes — is deleted with its events, and so are the cards it made
   (the words first met there: the lesson each card names in its display, which outlives the run that
   made it) with their faces and every answer to them; a card made by another lesson stays (owner,
-  2026-10-07). The course stays installed. Deleting one tutor
+  2026-10-07). For one exam (it then leaves "My exams"): its mock exams and practice runs with their
+  events and recordings. The course stays installed. Deleting one tutor
   chat from the lesson's chat history, also confirmed, deletes that `chat` run with its events.
   Leaving a deck (04, "Decks to take"), also confirmed, deletes the answers to the cards it removes.
 - Snapshots make old runs readable after content changes or course removal.
