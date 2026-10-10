@@ -1,14 +1,10 @@
 // An answer said aloud as the model checked it (08), kept in the pass: shown under the item, for the
 // words the answer has.
-import type { SpokenCheck } from "@sprachanker/schema";
+import type { NotebookPass } from "@/api/hooks.ts";
 import { SpokenCheckView } from "@/ui/checked-text.tsx";
 
-/** A check as kept: `input` is what was heard. */
-interface KeptCheck {
-  itemKey: string | null;
-  input: string;
-  result: SpokenCheck;
-}
+/** A check as kept in a pass: `input` is what was heard. */
+type KeptCheck = NotebookPass["spoken"][number];
 
 /** The check of an item's answer, by the words heard (the newest for the same words). */
 export const spokenCheckOf = <C extends KeptCheck>(

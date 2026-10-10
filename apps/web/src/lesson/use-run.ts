@@ -5,14 +5,7 @@
 // recorded here — the same reading the server uses for progress. Outcomes are computed locally for
 // instant feedback with the same engine the server uses; the server stores its own (04).
 import { type ExerciseResult, exerciseResults, mistakesOf, stepsDone } from "@sprachanker/engine";
-import type {
-  LessonKey,
-  LessonResult,
-  Outcome,
-  Run,
-  StepId,
-  TypedEvent,
-} from "@sprachanker/schema";
+import type { LessonKey, LessonResult, Outcome, StepId, TypedEvent } from "@sprachanker/schema";
 import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ulid } from "ulid";
@@ -33,11 +26,12 @@ type Pending = {
 /** An event queued with the run it belongs to (none yet: the run being started). */
 type Queued = Pending & { runId?: string };
 
-interface Loaded {
-  run: Run;
-  events: TypedEvent[];
-  resumePage: number;
-}
+/** The lesson's run as the server gives it (`GET /runs/lesson`), with the events recorded here. */
+const fetchLoaded = (series: string, lessonKey: string) =>
+  json(api.runs.lesson.$get({ query: { series, lessonKey: lessonKey as LessonKey } }));
+type State = NonNullable<Awaited<ReturnType<typeof fetchLoaded>>["state"]>;
+/** Its events as the engine reads them: those recorded here join the stored ones. */
+type Loaded = Omit<State, "events"> & { events: TypedEvent[] };
 
 const NO_EVENTS: TypedEvent[] = [];
 /** An event as the server takes it: without the run it is queued for. */
@@ -76,9 +70,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     queryFn: async () => {
       // Events stored while the run is read may be stored after the server read it: they stay too.
       const mark = outbox.mark();
-      const loaded = (
-        await json(api.runs.lesson.$get({ query: { series, lessonKey: lessonKey as LessonKey } }))
-      ).state as Loaded | null;
+      const loaded = (await fetchLoaded(series, lessonKey)).state;
       if (!loaded) return loaded;
       const queued = new Set([...outbox.pending(), ...outbox.storedSince(mark)].map((e) => e.id));
       const stored = new Set(loaded.events.map((e) => e.id));
@@ -180,12 +172,12 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   const finish = useCallback(async (): Promise<LessonResult | null> => {
     await flush();
     if (!runId) return null;
-    const finished = (await json(api.runs[":id"].finish.$post({ param: { id: runId } })).catch(
+    const finished = await json(api.runs[":id"].finish.$post({ param: { id: runId } })).catch(
       (e) => {
         reload();
         throw e;
       },
-    )) as Run;
+    );
     update((s) => ({ ...s, run: finished }));
     refreshProgress();
     return finished.result;
@@ -209,7 +201,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
           json: { series, lessonKey: lessonKey as LessonKey, edition, restart },
         }),
       );
-      client.setQueryData(key, started as Loaded);
+      client.setQueryData<Loaded | null>(key, started);
       if (restart) refreshProgress();
     },
     pageShown: (pageIndex: number) =>

@@ -2,12 +2,7 @@
 // practice, summary. This file loads the lesson and its run and shows the step the flow is on
 // (use-flow.ts) inside the player's frame (frame.tsx); the pages are overview, words-step, steps
 // (reading), exercise-step, practice-step and summary; optional features come in as slots.
-import {
-  type Lesson,
-  type LocaleLesson,
-  parseEditionId,
-  parseLessonKey,
-} from "@sprachanker/schema";
+import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { RotateCcw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -57,8 +52,8 @@ export function LessonPlayer({
   const run = useRun(series, key, edition);
   const practice = slots.practice?.useKinds();
   const flow = useLessonFlow({
-    lesson: data.data?.lesson as Lesson | undefined,
-    locale: data.data?.locale as LocaleLesson | null | undefined,
+    lesson: data.data?.lesson,
+    locale: data.data?.locale,
     // The AI practice offered (none while no assistant is set up); `slots` is fixed for the player.
     practice: slots.practice ? practice : [],
     run,
@@ -67,7 +62,7 @@ export function LessonPlayer({
   });
   const url = (p: string) => mediaUrl(series, p);
   const step = flow.step;
-  const lessonData = data.data?.lesson as Lesson | undefined;
+  const lessonData = data.data?.lesson;
   useWindowPlace(
     !lessonData || !step
       ? undefined
@@ -89,7 +84,7 @@ export function LessonPlayer({
   )
     return <Loading />;
   if (data.isError) return <ErrorState error={data.error} onRetry={() => data.refetch()} />;
-  const { lesson, locale } = data.data as { lesson: Lesson; locale: LocaleLesson | null };
+  const { lesson, locale } = data.data;
   const context = { series, lessonKey: lesson.key, edition };
   const { go, next, back, mark, result } = flow;
   const active = run.mode === "active";

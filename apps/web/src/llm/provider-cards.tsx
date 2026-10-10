@@ -5,9 +5,7 @@ import { Cloud, Laptop, Network, Power, Sparkles, SquareTerminal, Zap } from "lu
 import { useTranslation } from "react-i18next";
 import { OptionCard } from "@/ui/option-card.tsx";
 import { setupProblem } from "./errors.ts";
-import type { LlmState, ProviderId } from "./setup-api.ts";
-
-type Provider = LlmState["providers"][number];
+import type { LlmState, Provider, ProviderId } from "./setup-api.ts";
 
 const ICON: Record<ProviderId | "off", typeof Cloud> = {
   off: Power,

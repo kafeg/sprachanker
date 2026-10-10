@@ -6,7 +6,8 @@ import { api, json } from "@/api/client.ts";
 import { STATIC, useSetting } from "@/api/hooks.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
-export type ProviderId = LlmState["providers"][number]["id"];
+export type Provider = LlmState["providers"][number];
+export type ProviderId = Provider["id"];
 
 const fetchState = () => json(api.llm.$get());
 

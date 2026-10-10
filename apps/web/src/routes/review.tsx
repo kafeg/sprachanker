@@ -36,7 +36,7 @@ const PATH: Record<ReviewTab, string> = {
 /** New cards one "more today" adds. */
 const MORE = 10;
 
-type Counts = { new: number; learning: number; review: number };
+type Counts = NonNullable<ReturnType<typeof useDecks>["data"]>["decks"][number]["counts"];
 
 function CountCells({ counts }: { counts: Counts }) {
   const cell = (n: number, tone: string) => (

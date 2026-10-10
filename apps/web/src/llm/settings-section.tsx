@@ -14,14 +14,13 @@ import { ModelList } from "./model-list.tsx";
 import { ProviderCards } from "./provider-cards.tsx";
 import {
   type LlmState,
+  type Provider,
   type ProviderId,
   useLlm,
   useModels,
   useSetProvider,
   useSetRoute,
 } from "./setup-api.ts";
-
-type Provider = LlmState["providers"][number];
 
 function Field({
   label,
