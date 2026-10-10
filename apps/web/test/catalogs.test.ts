@@ -111,6 +111,7 @@ const SAME_IN_GERMAN = new Set([
   "prompt.places.tutor.name",
   "prompt.button",
   "prompt.title",
+  "prompt.titleOf",
   "prompt.task.tutor",
   "player.pause",
   "player.position",

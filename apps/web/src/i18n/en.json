@@ -29,7 +29,7 @@
     "toCatalog": "Choose a course",
     "next": "Next",
     "nextWorked": "{worked, number} of {total, number} done",
-    "doneShort": "{done, number} / {total, number}",
+    "doneShort": "{done, number} / {total, number} · {share}",
     "tabs": {
       "mine": "My courses",
       "downloaded": "Downloaded",
@@ -372,6 +372,7 @@
   "prompt": {
     "button": "Prompt",
     "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
     "endpoint": "Endpoint",
     "size": "Size",
     "sizeValue": "{chars, plural, one {# character} other {# characters}} ≈ {tokens, plural, one {# token} other {# tokens}}",
@@ -473,6 +474,8 @@
     "check": "Check",
     "checking": "Checking…",
     "rewrite": "Fix it and check again",
+    "score": "{name}: {score, number} of {max, number}",
+    "points": "{score, number} of {max, number}",
     "past": "Earlier texts of this lesson",
     "verdict": {
       "good": "Correct",
@@ -562,7 +565,8 @@
     "intro": "Courses, media and your progress live in this folder on the computer running SprachAnker. It is chosen when the server starts (--data, or SPRACHANKER_DATA); the desktop app will let you change it.",
     "total": "Total",
     "used": "Courses take {size}",
-    "free": "{size} free on the disk"
+    "usedFree": "Courses take {size} · {free} free on the disk",
+    "seriesSize": "{name}: {size}"
   },
   "windowTitle": {
     "course": "Course",

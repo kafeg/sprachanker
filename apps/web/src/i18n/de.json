@@ -29,7 +29,7 @@
     "toCatalog": "Kurs auswählen",
     "next": "Weiter",
     "nextWorked": "{worked, number} von {total, number} erledigt",
-    "doneShort": "{done, number} / {total, number}",
+    "doneShort": "{done, number} / {total, number} · {share}",
     "tabs": {
       "mine": "Meine Kurse",
       "downloaded": "Heruntergeladen",
@@ -372,6 +372,7 @@
   "prompt": {
     "button": "Prompt",
     "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
     "endpoint": "Adresse",
     "size": "Größe",
     "sizeValue": "{chars, number} Zeichen ≈ {tokens, plural, one {# Token} other {# Tokens}}",
@@ -473,6 +474,8 @@
     "check": "Prüfen",
     "checking": "Wird geprüft…",
     "rewrite": "Verbessern und neu prüfen",
+    "score": "{name}: {score, number} von {max, number}",
+    "points": "{score, number} von {max, number}",
     "past": "Frühere Texte dieser Lektion",
     "verdict": {
       "good": "Richtig",
@@ -562,7 +565,8 @@
     "intro": "Kurse, Medien und dein Fortschritt liegen in diesem Ordner auf dem Computer, auf dem SprachAnker läuft. Er wird beim Start des Servers festgelegt (--data oder SPRACHANKER_DATA); in der Desktop-App lässt er sich ändern.",
     "total": "Gesamt",
     "used": "Kurse belegen {size}",
-    "free": "{size} frei auf dem Datenträger"
+    "usedFree": "Kurse belegen {size} · {free} frei auf dem Datenträger",
+    "seriesSize": "{name}: {size}"
   },
   "windowTitle": {
     "course": "Kurs",

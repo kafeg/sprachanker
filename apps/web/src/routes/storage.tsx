@@ -33,7 +33,7 @@ export function StorageSection() {
               .map((s, i) => (
                 <span
                   key={s.series}
-                  title={`${nameOf(s.series)} · ${bytes(s.bytes)}`}
+                  title={t("storage.seriesSize", { name: nameOf(s.series), size: bytes(s.bytes) })}
                   style={{ width: `${(s.bytes / (total + (storage.free ?? 0))) * 100}%` }}
                   className={
                     ["bg-primary", "bg-primary/70", "bg-primary/45", "bg-primary/30"][
@@ -44,8 +44,9 @@ export function StorageSection() {
               ))}
           </div>
           <p className="text-sm text-muted-foreground">
-            {t("storage.used", { size: bytes(total) })}
-            {storage.free !== null && ` · ${t("storage.free", { size: bytes(storage.free) })}`}
+            {storage.free === null
+              ? t("storage.used", { size: bytes(total) })
+              : t("storage.usedFree", { size: bytes(total), free: bytes(storage.free) })}
           </p>
         </div>
       )}

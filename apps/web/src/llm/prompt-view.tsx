@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useSetting } from "@/api/hooks.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
+import { SideSheet } from "@/ui/side-sheet.tsx";
 import { fetchPrompt, type PromptPreview, type PromptRequest } from "./api.ts";
 import { errorText } from "./errors.ts";
 import { DEBUG_PROMPTS } from "./setup-api.ts";
@@ -87,24 +87,29 @@ export function PromptButton({ request }: { request: PromptRequest | (() => Prom
       >
         <Braces className="size-4" />
       </Button>
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-2xl">
-          <SheetHeader className="p-0">
-            <SheetTitle>
-              {preview
-                ? `${t("prompt.title")} · ${t(`llm.provider.${preview.provider}`)} · ${preview.model}`
-                : t("prompt.title")}
-            </SheetTitle>
-          </SheetHeader>
+      <SideSheet
+        open={open}
+        onOpenChange={setOpen}
+        title={
+          preview
+            ? t("prompt.titleOf", {
+                provider: t(`llm.provider.${preview.provider}`),
+                model: preview.model,
+              })
+            : t("prompt.title")
+        }
+        className="overflow-y-auto sm:max-w-2xl"
+      >
+        <div className="px-4 pb-6">
           {preview ? (
             <Preview preview={preview} />
           ) : error ? (
             <p className="text-wrong">{errorText(t, error)}</p>
           ) : (
-            <LoaderCircle className="size-5 animate-spin" />
+            <LoaderCircle className="size-5 animate-spin motion-reduce:animate-none" />
           )}
-        </SheetContent>
-      </Sheet>
+        </div>
+      </SideSheet>
     </>
   );
 }

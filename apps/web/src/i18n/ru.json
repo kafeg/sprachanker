@@ -29,7 +29,7 @@
     "toCatalog": "Выбрать курс",
     "next": "Дальше",
     "nextWorked": "сделано {worked, number} из {total, number}",
-    "doneShort": "{done, number} / {total, number}",
+    "doneShort": "{done, number} / {total, number} · {share}",
     "tabs": {
       "mine": "Мои курсы",
       "downloaded": "Скачанные",
@@ -372,6 +372,7 @@
   "prompt": {
     "button": "Промпт",
     "title": "Промпт",
+    "titleOf": "Промпт · {provider} · {model}",
     "endpoint": "Адрес",
     "size": "Размер",
     "sizeValue": "{chars, plural, one {# символ} few {# символа} many {# символов} other {# символа}} ≈ {tokens, plural, one {# токен} few {# токена} many {# токенов} other {# токена}}",
@@ -473,6 +474,8 @@
     "check": "Проверить",
     "checking": "Проверяю…",
     "rewrite": "Исправить и проверить снова",
+    "score": "{name}: {score, number} из {max, number}",
+    "points": "{score, number} из {max, number}",
     "past": "Прошлые тексты этого урока",
     "verdict": {
       "good": "Верно",
@@ -562,7 +565,8 @@
     "intro": "Курсы, медиа и ваш прогресс лежат в этой папке на компьютере, где работает SprachAnker. Она задаётся при запуске сервера (--data или SPRACHANKER_DATA); в настольном приложении её можно будет сменить.",
     "total": "Всего",
     "used": "Курсы занимают {size}",
-    "free": "свободно на диске {size}"
+    "usedFree": "Курсы занимают {size} · свободно на диске {free}",
+    "seriesSize": "{name}: {size}"
   },
   "windowTitle": {
     "course": "Курс",

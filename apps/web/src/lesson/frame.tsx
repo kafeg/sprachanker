@@ -8,8 +8,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
 import { SIDE_BACK, SideHeader, SideLayout } from "@/ui/side-layout.tsx";
+import { SideSheet } from "@/ui/side-sheet.tsx";
 import { Reference, type ReferenceTab, referenceTabs } from "./reference.tsx";
 
 export function PlayerFrame({
@@ -93,12 +93,14 @@ export function PlayerFrame({
       >
         {children}
       </SideLayout>
-      <Sheet open={!!reference} onOpenChange={(open) => !open && setReference(undefined)}>
-        <SheetContent side="right" className="w-full overflow-y-auto p-5 sm:max-w-xl">
-          <SheetHeader className="p-0">
-            <SheetTitle>{t("lesson.reference")}</SheetTitle>
-          </SheetHeader>
-          {reference && (
+      <SideSheet
+        open={!!reference}
+        onOpenChange={(open) => !open && setReference(undefined)}
+        title={t("lesson.reference")}
+        className="overflow-y-auto sm:max-w-xl"
+      >
+        {reference && (
+          <div className="px-4 pb-6">
             <Reference
               lesson={lesson}
               locale={locale}
@@ -106,9 +108,9 @@ export function PlayerFrame({
               tab={reference}
               onTab={setReference}
             />
-          )}
-        </SheetContent>
-      </Sheet>
+          </div>
+        )}
+      </SideSheet>
     </>
   );
 }

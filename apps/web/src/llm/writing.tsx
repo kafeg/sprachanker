@@ -41,9 +41,9 @@ function Dots({ score }: { score: number }) {
 /** The three criteria as dots, named for screen readers. */
 function CriteriaDots({ criteria }: { criteria: Check["criteria"] }) {
   const { t } = useTranslation();
-  const scores = CRITERIA.map((k) => `${t(`writing.criteria.${k}`)} ${criteria[k].score}/2`).join(
-    ", ",
-  );
+  const scores = CRITERIA.map((k) =>
+    t("writing.score", { name: t(`writing.criteria.${k}`), score: criteria[k].score, max: 2 }),
+  ).join(", ");
   return (
     <span title={scores} className="shrink-0 whitespace-nowrap">
       <span className="sr-only">{scores}</span>
@@ -84,8 +84,10 @@ function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): 
           <div key={k} className="rounded-lg bg-muted px-3 py-2">
             <dt className="flex items-center justify-between font-medium">
               {t(`writing.criteria.${k}`)}
-              <span title={`${r.criteria[k].score}/2`}>
-                <span className="sr-only">{r.criteria[k].score}/2</span>
+              <span title={t("writing.points", { score: r.criteria[k].score, max: 2 })}>
+                <span className="sr-only">
+                  {t("writing.points", { score: r.criteria[k].score, max: 2 })}
+                </span>
                 <Dots score={r.criteria[k].score} />
               </span>
             </dt>

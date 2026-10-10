@@ -46,7 +46,11 @@ export function CourseCard({
       series={course.series}
       course={course.course}
       edition={edition}
-      figure={`${t("courses.doneShort", { done: course.done, total: course.lessons })} · ${percent(share)}`}
+      figure={t("courses.doneShort", {
+        done: course.done,
+        total: course.lessons,
+        share: percent(share),
+      })}
       share={share}
       remove={removable ? { title, label: t("progress.removeCourse") } : undefined}
     >
