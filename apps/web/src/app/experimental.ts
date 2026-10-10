@@ -3,7 +3,8 @@
 // Settings → General → Experimental. A source the catalogue does not know is shown; nothing is, until the
 // catalogue has loaded or failed (no experimental source shows for a moment).
 import { useMemo } from "react";
-import { useCatalog, useSetting } from "@/api/hooks.ts";
+import { useCatalog } from "@/api/courses.ts";
+import { useSetting } from "@/api/settings.ts";
 
 export type ExperimentalSection = "courses" | "exams";
 

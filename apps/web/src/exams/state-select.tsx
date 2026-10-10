@@ -3,7 +3,7 @@
 import { FEDERAL_STATES, type FederalState } from "@sprachanker/schema";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSettings } from "@/api/hooks.ts";
+import { useSetSetting, useSettings } from "@/api/settings.ts";
 import {
   Select,
   SelectContent,

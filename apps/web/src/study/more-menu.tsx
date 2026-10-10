@@ -2,7 +2,7 @@
 // flags — each with its key (study/reviewer-keys.ts), and the deck's buried cards back.
 import { Flag, MoreHorizontal } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import type { useStudy } from "@/api/hooks.ts";
+import type { useStudy } from "@/api/cards.ts";
 import { Button } from "@/ui/components/button.tsx";
 import {
   DropdownMenu,

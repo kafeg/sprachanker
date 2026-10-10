@@ -1,6 +1,6 @@
 // A deck's name (Review, Decks, My words): a course's title, or a language.
 import { useTranslation } from "react-i18next";
-import { useCourses } from "@/api/hooks.ts";
+import { useCourses } from "@/api/courses.ts";
 import { languageName } from "@/i18n/index.ts";
 
 export function useDeckName() {

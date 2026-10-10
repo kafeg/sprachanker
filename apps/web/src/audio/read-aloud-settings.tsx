@@ -4,7 +4,8 @@
 import { Cpu, Laptop, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { usePiperVoices, useQwenTts, useSetSetting, useSetting } from "@/api/hooks.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
+import { usePiperVoices, useQwenTts } from "@/api/speech.ts";
 import { Slider } from "@/ui/components/slider.tsx";
 import { useNumber } from "@/ui/format.ts";
 import { OptionCard } from "@/ui/option-card.tsx";

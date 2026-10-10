@@ -4,7 +4,7 @@
 import { headword } from "@sprachanker/engine";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { type MyWord, useWords } from "@/api/hooks.ts";
+import { type MyWord, useWords } from "@/api/cards.ts";
 import { useDeckName } from "@/study/decks.ts";
 import { useDueText } from "@/study/time.ts";
 import { COUNT_TONE } from "@/study/tones.ts";

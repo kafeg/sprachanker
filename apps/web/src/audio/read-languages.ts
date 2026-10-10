@@ -2,7 +2,7 @@
 // teach — none installed yet: those the shown catalogue teaches — and the interface's.
 import { parseEditionId } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
-import { useCatalog } from "@/api/hooks.ts";
+import { useCatalog } from "@/api/courses.ts";
 import { useShown } from "@/app/experimental.ts";
 
 export function useReadLanguages(): string[] {

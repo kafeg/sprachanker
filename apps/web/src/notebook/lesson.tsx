@@ -3,7 +3,7 @@
 import { type LessonKey, parseLessonKey } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { type NotebookPassSummary, useNotebookLesson } from "@/api/hooks.ts";
+import { type NotebookPassSummary, useNotebookLesson } from "@/api/notebook.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Checkbox } from "@/ui/components/checkbox.tsx";
 import { useDateFormat } from "@/ui/format.ts";

@@ -47,11 +47,12 @@ apps/web/src/
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check
-  api/             # Hono RPC client (hono/client) + TanStack Query hooks; exams.ts; outbox (events in
+  api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
+                   # (the app, the profile's settings), courses, downloads, cards, notebook, recordings,
+                   # speech, exams, session (profiles, signing in and out, devices); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
-                   # run's events over it: per profile, the server's outcomes, on page close); session.ts: profiles, signing
-                   # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
-                   # cache updates; no codegen
+                   # run's events over it: per profile, the server's outcomes, on page close); edition:
+                   # the edition a course is shown in; cache: pure cache updates
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
                    # profile chip — profile-chip), language-switch (the interface language: who-is-studying's,
                    # kept on the device; Settings → General's, kept in the profile), who-is-studying (tiles five to a page; "New profile" starts

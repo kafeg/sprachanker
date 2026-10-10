@@ -3,7 +3,7 @@
 // download or remove, the language's best first (the server's order).
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { usePiperVoiceActions, type usePiperVoices } from "@/api/hooks.ts";
+import { usePiperVoiceActions, type usePiperVoices } from "@/api/speech.ts";
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { DownloadRow } from "./download-row.tsx";

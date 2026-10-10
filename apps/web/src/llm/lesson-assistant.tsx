@@ -4,7 +4,7 @@
 // assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
-import { useSetting } from "@/api/hooks.ts";
+import { useSetting } from "@/api/settings.ts";
 import type { LessonSlots } from "@/lesson/slots.ts";
 import { ExplainMistake } from "./explain.tsx";
 import { SceneStep } from "./scene.tsx";

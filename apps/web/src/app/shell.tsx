@@ -3,7 +3,8 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { BookOpen, GraduationCap, Layers, NotebookPen, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useDecks, useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
+import { useDecks } from "@/api/cards.ts";
+import { useDownloads, useDownloadsWatch } from "@/api/downloads.ts";
 import { cn } from "@/ui/utils.ts";
 import { useWindowBusy } from "@/ui/window-title.ts";
 import { AboutLine } from "./about.tsx";

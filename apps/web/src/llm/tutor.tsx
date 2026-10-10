@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLesson } from "@/api/hooks.ts";
+import { useLesson } from "@/api/courses.ts";
 import type { SpokenPart } from "@/audio/speak.ts";
 import { useReadAtOnce } from "@/audio/speaker.ts";
 import { Button } from "@/ui/components/button.tsx";

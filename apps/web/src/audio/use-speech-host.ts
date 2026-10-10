@@ -2,14 +2,9 @@
 // recognition.
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
-import {
-  recordingUrl,
-  transcribe,
-  uploadRecording,
-  useSetting,
-  useSpeechState,
-  warmSpeech,
-} from "@/api/hooks.ts";
+import { recordingUrl, uploadRecording } from "@/api/recordings.ts";
+import { useSetting } from "@/api/settings.ts";
+import { transcribe, useSpeechState, warmSpeech } from "@/api/speech.ts";
 import type { SpeechHost } from "./context.ts";
 import { toWav16k } from "./wav.ts";
 

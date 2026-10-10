@@ -5,7 +5,8 @@
 import { AI_PLACES, parseEditionId } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCourses, useSetSetting, useSetting } from "@/api/hooks.ts";
+import { useCourses } from "@/api/courses.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";

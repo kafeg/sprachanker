@@ -2,7 +2,7 @@
 // the stored values, chooses with `filterCourses` (filter.ts) and draws the bar.
 import { parseEditionId } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
-import { useSetSetting } from "@/api/hooks.ts";
+import { useSetSetting } from "@/api/settings.ts";
 import {
   Select,
   SelectContent,

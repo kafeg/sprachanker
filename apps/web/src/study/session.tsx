@@ -8,7 +8,7 @@ import type { CardRating } from "@sprachanker/schema";
 import { Flag, Star, Undo2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCardActions, useStudy } from "@/api/hooks.ts";
+import { useCardActions, useStudy } from "@/api/cards.ts";
 import { Button } from "@/ui/components/button.tsx";
 import type { AudioControls } from "@/ui/media.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";

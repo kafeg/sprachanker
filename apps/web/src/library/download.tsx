@@ -1,7 +1,7 @@
 // A course download (06, 09): its progress as a line with a bar — queued, pages read, lessons being
 // prepared, media with files and bytes — shared by the course cards and the course page.
 import { useTranslation } from "react-i18next";
-import type { useDownloads } from "@/api/hooks.ts";
+import type { useDownloads } from "@/api/downloads.ts";
 import { Progress } from "@/ui/components/progress.tsx";
 import { useBytes } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";

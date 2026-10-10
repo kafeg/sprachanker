@@ -2,7 +2,7 @@
 import { Braces, Copy, LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetting } from "@/api/hooks.ts";
+import { useSetting } from "@/api/settings.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";

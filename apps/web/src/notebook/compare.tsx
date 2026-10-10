@@ -1,7 +1,7 @@
 // Two passes of a lesson side by side (09): each exercise's first-try count in both, and the totals.
 import { exerciseResults, firstTry, shownExercises } from "@sprachanker/engine";
 import { useTranslation } from "react-i18next";
-import { useNotebookPass } from "@/api/hooks.ts";
+import { useNotebookPass } from "@/api/notebook.ts";
 import { useDateFormat } from "@/ui/format.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";

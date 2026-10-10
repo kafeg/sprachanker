@@ -3,7 +3,7 @@
 import type { SettingValue } from "@sprachanker/schema";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSetting, useSettings } from "@/api/hooks.ts";
+import { useSetSetting, useSetting, useSettings } from "@/api/settings.ts";
 import { isUiLanguage, switchLanguage } from "@/i18n/index.ts";
 
 export type Theme = SettingValue<"theme">;

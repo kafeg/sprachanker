@@ -4,7 +4,7 @@
 // learner (known, answered wrongly last time, not seen); and the questions answered wrongly last time.
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { useNotebookExam } from "@/api/hooks.ts";
+import { useNotebookExam } from "@/api/notebook.ts";
 import { type ExamParams, examKeyOf, questionId } from "@/library/exam-address.ts";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";

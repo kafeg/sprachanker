@@ -2,7 +2,7 @@
 // choose it before a profile exists, kept on this device — and in Settings → General, where the profile
 // keeps it too (`keep`; preferences.ts applies it).
 import { useTranslation } from "react-i18next";
-import { useSetSetting } from "@/api/hooks.ts";
+import { useSetSetting } from "@/api/settings.ts";
 import { isUiLanguage, languageName, switchLanguage, UI_LANGUAGES } from "@/i18n/index.ts";
 import { Choice } from "@/ui/choice.tsx";
 

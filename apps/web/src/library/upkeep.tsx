@@ -3,7 +3,8 @@
 import { CircleCheck, CircleX, Download, LoaderCircle, RefreshCw, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useCatalog, useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
+import { useCatalog, useCourseCheck } from "@/api/courses.ts";
+import { useCourseDownload, useStartDownload } from "@/api/downloads.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { cn } from "@/ui/utils.ts";
 import { downloading } from "./download.tsx";

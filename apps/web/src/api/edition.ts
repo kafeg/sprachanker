@@ -3,7 +3,8 @@
 import { editionSetting } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { isUiLanguage } from "@/i18n/index.ts";
-import { useCourses, useSettings } from "./hooks.ts";
+import { useCourses } from "./courses.ts";
+import { useSettings } from "./settings.ts";
 
 /** The edition to show: the stored choice, else the one explaining in the UI language, else the first. */
 export function useEdition(

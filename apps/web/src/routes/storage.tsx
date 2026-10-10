@@ -2,7 +2,7 @@
 // SPRACHANKER_DATA, else the app-data folder) — and the space each source takes. Courses of one source
 // share their media, so space is shown per source.
 import { useTranslation } from "react-i18next";
-import { useCatalog, useStorage } from "@/api/hooks.ts";
+import { useCatalog, useStorage } from "@/api/courses.ts";
 import { useBytes } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 

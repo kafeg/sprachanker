@@ -3,7 +3,8 @@
 // the pair and course filters. A course teaches one language to speakers of one language (its edition);
 // another pair of the same source course is a course of its own.
 import { useTranslation } from "react-i18next";
-import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
+import { useCatalog, useCourses } from "@/api/courses.ts";
+import { useSettings } from "@/api/settings.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard } from "@/courses/card.tsx";
 import { FILTERS, useCourseFilters } from "@/courses/filters.tsx";

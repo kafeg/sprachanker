@@ -3,7 +3,8 @@
 // plainly at the top: an experiment, not a way to prepare.
 import { TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { type CatalogRow, useCatalog, useSetSetting, useSetting } from "@/api/hooks.ts";
+import { type CatalogRow, useCatalog } from "@/api/courses.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Loading } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";

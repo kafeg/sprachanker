@@ -4,7 +4,8 @@
 // with "Listen".
 import { ALL_LANGS } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
-import { useQwenModelActions, type useQwenTts, useSetSetting, useSetting } from "@/api/hooks.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
+import { useQwenModelActions, type useQwenTts } from "@/api/speech.ts";
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import {

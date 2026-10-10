@@ -5,6 +5,10 @@ import { hc } from "hono/client";
 /** Typed client for the server's JSON API (Hono RPC, same origin); mutations carry the client header. */
 export const api = hc<AppType>("/", { headers: { ...CLIENT_HEADERS } }).api;
 
+/** Queries whose data no learner action changes (content, the course's files, the app, the standing
+ *  prompts): a progress reset leaves them (their `meta`). */
+export const STATIC = { static: true } as const;
+
 /** URL of a library media file. */
 export const mediaUrl = (series: string, path: string) => `/library/${series}/${path}`;
 

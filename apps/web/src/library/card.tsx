@@ -5,7 +5,8 @@
 import type { CourseSource, ExamKey } from "@sprachanker/schema";
 import { CircleAlert, Download, ExternalLink, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useCatalog, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
+import { useCatalog } from "@/api/courses.ts";
+import { useCourseDownload, useStartDownload } from "@/api/downloads.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { PairFlags } from "@/ui/flags.tsx";

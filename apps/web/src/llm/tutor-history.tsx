@@ -5,7 +5,7 @@ import { type ExerciseKey, parseEditionId } from "@sprachanker/schema";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useLesson } from "@/api/hooks.ts";
+import { useLesson } from "@/api/courses.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { useDateFormat } from "@/ui/format.ts";

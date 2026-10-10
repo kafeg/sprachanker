@@ -8,7 +8,7 @@ import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useSettings } from "@/api/hooks.ts";
+import { useSettings } from "@/api/settings.ts";
 import { type ExamParams, questionId } from "@/library/exam-address.ts";
 import { BackLink, EmptyState, Page } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";

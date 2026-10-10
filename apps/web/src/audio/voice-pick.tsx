@@ -5,7 +5,7 @@ import type { SettingValue } from "@sprachanker/schema";
 import { RefreshCw, Volume2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSetting } from "@/api/hooks.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import {

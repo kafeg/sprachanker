@@ -6,7 +6,7 @@ import { STEP } from "@sprachanker/engine";
 import { CardFace, SETTING_DEFAULTS, type SettingValue, settingOf } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSettings } from "@/api/hooks.ts";
+import { useSetSetting, useSettings } from "@/api/settings.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { Button } from "@/ui/components/button.tsx";

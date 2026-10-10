@@ -5,8 +5,8 @@
 import { parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
+import { useCourseMap, useLesson } from "@/api/courses.ts";
 import { useCourseEdition } from "@/api/edition.ts";
-import { useCourseMap, useLesson } from "@/api/hooks.ts";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { CourseMedia } from "@/ui/course-html.tsx";
 import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";

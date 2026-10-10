@@ -1,6 +1,6 @@
 // An answer said aloud as the model checked it (08), kept in the pass: shown under the item, for the
 // words the answer has.
-import type { NotebookPass } from "@/api/hooks.ts";
+import type { NotebookPass } from "@/api/notebook.ts";
 import { SpokenCheckView } from "@/ui/checked-text.tsx";
 
 /** A check as kept in a pass: `input` is what was heard. */

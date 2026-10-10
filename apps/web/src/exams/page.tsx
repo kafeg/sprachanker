@@ -9,7 +9,7 @@ import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useStartExam } from "@/api/exams.ts";
-import { useSettings } from "@/api/hooks.ts";
+import { useSettings } from "@/api/settings.ts";
 import { PublisherLink } from "@/library/card.tsx";
 import type { ExamParams } from "@/library/exam-address.ts";
 import { LibraryHero } from "@/library/hero.tsx";

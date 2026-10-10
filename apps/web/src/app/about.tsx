@@ -1,7 +1,7 @@
 // About SprachAnker: what it is, its version, licence and source code (settings, sidebar footer).
 import { ExternalLink } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useAppInfo } from "@/api/hooks.ts";
+import { useAppInfo } from "@/api/settings.ts";
 import { Panel } from "@/ui/panel.tsx";
 
 export const REPOSITORY = "https://github.com/kafeg/sprachanker";

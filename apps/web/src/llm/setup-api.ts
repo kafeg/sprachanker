@@ -2,8 +2,8 @@
 // connection test), LM Studio, the tasks' system prompts and where the assistant is turned off.
 import type { AiPlace } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api, json } from "@/api/client.ts";
-import { STATIC, useSetting } from "@/api/hooks.ts";
+import { api, json, STATIC } from "@/api/client.ts";
+import { useSetting } from "@/api/settings.ts";
 
 export type LlmState = Awaited<ReturnType<typeof fetchState>>;
 export type Provider = LlmState["providers"][number];

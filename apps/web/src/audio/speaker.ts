@@ -4,7 +4,8 @@
 // What starts playing (a recording, a video) stops it, and it stops what plays; which text is being
 // read is shared by every speaker button, so one shows "stop" while the others show "listen".
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { sayOnServer, usePiperVoices, useQwenTts, useSetting, warmQwen } from "@/api/hooks.ts";
+import { useSetting } from "@/api/settings.ts";
+import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { asOneText, bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
 

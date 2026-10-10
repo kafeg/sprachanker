@@ -6,13 +6,8 @@ import { settingOf } from "@sprachanker/schema";
 import { HelpCircle, Play, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useDeckActions,
-  useDeckOffers,
-  useDecks,
-  useSetSetting,
-  useSettings,
-} from "@/api/hooks.ts";
+import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
+import { useSetSetting, useSettings } from "@/api/settings.ts";
 import { useDeckName } from "@/study/decks.ts";
 import { StudyGuide } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";

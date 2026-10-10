@@ -6,14 +6,9 @@
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  useDeleteRecordings,
-  useRecordingStats,
-  useSetSetting,
-  useSetting,
-  useSpeechModels,
-  useSpeechState,
-} from "@/api/hooks.ts";
+import { useDeleteRecordings, useRecordingStats } from "@/api/recordings.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
+import { useSpeechModels, useSpeechState } from "@/api/speech.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";

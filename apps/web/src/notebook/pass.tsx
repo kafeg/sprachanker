@@ -20,7 +20,7 @@ import { History } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { type NotebookPass, useNotebookPass } from "@/api/hooks.ts";
+import { type NotebookPass, useNotebookPass } from "@/api/notebook.ts";
 import { ItemCard } from "@/exercises/item-card.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";

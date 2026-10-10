@@ -8,7 +8,7 @@ import { useIsFetching } from "@tanstack/react-query";
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting, useSetting } from "@/api/hooks.ts";
+import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { AboutSection } from "@/app/about.tsx";
 import { ExperimentalSettings } from "@/app/experimental-settings.tsx";
 import { LanguageSwitch } from "@/app/language-switch.tsx";

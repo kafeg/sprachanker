@@ -3,7 +3,7 @@
 import type { ExamKey, LessonKey } from "@sprachanker/schema";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useResetProgress } from "@/api/hooks.ts";
+import { useResetProgress } from "@/api/courses.ts";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 
 export function ResetProgress({

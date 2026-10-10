@@ -8,13 +8,13 @@
 import { nextProfileColour, type ProfileColour } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting } from "@/api/hooks.ts";
 import {
   type SessionProfile,
   useCreateProfile,
   useProfiles,
   useUpdateProfile,
 } from "@/api/session.ts";
+import { useSetSetting } from "@/api/settings.ts";
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";

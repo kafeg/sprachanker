@@ -5,7 +5,7 @@
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useMakeCards } from "@/api/hooks.ts";
+import { useMakeCards } from "@/api/cards.ts";
 import { StudySession } from "@/study/session.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { StepBar, StepHeader } from "./steps.tsx";

@@ -2,7 +2,7 @@
 // and marked, with the explanations kept for it.
 import type { Exercise, LocaleExercise } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
-import { useItemHistory } from "@/api/hooks.ts";
+import { useItemHistory } from "@/api/notebook.ts";
 import { ItemCard } from "@/exercises/item-card.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { useDateFormat } from "@/ui/format.ts";

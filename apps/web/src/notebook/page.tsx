@@ -16,7 +16,7 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { type NotebookOverview, useNotebook } from "@/api/hooks.ts";
+import { type NotebookOverview, useNotebook } from "@/api/notebook.ts";
 import { languageName } from "@/i18n/index.ts";
 import { examParams } from "@/library/exam-address.ts";
 import { ActivityCalendar } from "@/ui/activity-calendar.tsx";
