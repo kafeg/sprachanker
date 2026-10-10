@@ -5,7 +5,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
-import { type Shown, useShown } from "@/app/experimental.ts";
+import { offersOf, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard, OfferCard } from "@/courses/card.tsx";
 import { CATALOG_FILTERS, MY_FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -17,12 +17,6 @@ const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
   downloaded: "/downloaded",
   available: "/catalog",
 };
-
-/** The courses on offer not yet downloaded (exams are offered in the Exams section). */
-const courseOffers = <T extends { installed: boolean; kind?: string; series: string }>(
-  catalog: T[],
-  shown: Shown,
-) => catalog.filter((o) => !o.installed && o.kind !== "exam" && shown("courses", o.series));
 
 function useCourseList() {
   const courses = useCourses();
@@ -39,9 +33,9 @@ function useCourseList() {
 
 export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t } = useTranslation();
-  const { shown } = useShown();
+  const { shown, ready } = useShown();
   const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series));
-  const offers = courseOffers(useCatalog().data ?? [], shown);
+  const offers = offersOf(useCatalog().data, "courses", shown);
   const count: Record<CoursesTab, number> = {
     mine: all.filter((c) => c.started).length,
     downloaded: all.reduce((n, c) => n + c.editions.length, 0),
@@ -54,7 +48,7 @@ export function CoursesPage({ tab }: { tab: CoursesTab }) {
         tabs={(["mine", "downloaded", "available"] as const).map((id) => ({
           to: PATH[id],
           label: t(`courses.tabs.${id}`),
-          count: count[id],
+          count: ready ? count[id] : undefined,
           current: tab === id,
         }))}
       />
@@ -147,7 +141,7 @@ function Available() {
   const list = useCourseList();
   const catalog = useCatalog();
   const { shown } = useShown();
-  const cards = courseOffers(catalog.data ?? [], shown).map((offer) => ({
+  const cards = offersOf(catalog.data, "courses", shown).map((offer) => ({
     key: offer.key,
     offer,
     titles: [offer.title],
@@ -155,7 +149,6 @@ function Available() {
   }));
   const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
   if (!list.all) return list.state;
-  if (catalog.isPending) return <Loading />;
   if (!cards.length)
     return (
       <EmptyState className="text-lg text-foreground">{t("courses.allDownloaded")}</EmptyState>

@@ -117,8 +117,8 @@ Order decided by the week of use.
   by link or as an `.apkg` file) and the profile's own; a downloaded deck is taken and left like a
   course's. Accept: an exported A1 deck opens in Anki with audio; an imported deck links matching words.
 - **Books** (owner, 2026-10-08): free books downloaded and read like courses — a library of books to
-  download (public-domain sources such as Project Gutenberg; the sources and their terms decided in the
-  item's plan), "My books" with the place read; a reader with the translation beside (by sentence or
+  download (public-domain sources such as Project Gutenberg; the sources and their terms decided
+  when it is built), "My books" with the place read; a reader with the translation beside (by sentence or
   paragraph), a word tapped opens its sheet (dictionary: the course's words, else the model) and goes
   to cards, the AI to explain a sentence or the grammar, and read aloud (the reading-aloud engines:
   a word or sentence heard, for its pronunciation). Accept: a German book downloaded, read on Mac and

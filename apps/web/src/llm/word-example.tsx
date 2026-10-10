@@ -1,6 +1,8 @@
 // AI examples for a word (04; 07): on request only — "Example" under a card's answer or in the word's
 // sheet shows the newest kept for the card, or asks the model when none is; "Another example" asks
 // again. The sentence marks words the learner has not met in the course yet, translated under it.
+
+import { Link } from "@tanstack/react-router";
 import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -41,7 +43,11 @@ export function WordExample({ cardId }: { cardId: string }) {
       </Button>
     );
   if (!ready && kept.isSuccess && !shown)
-    return <p className="text-sm text-muted-foreground">{t("example.setUp")}</p>;
+    return (
+      <Link to="/settings" hash="ai" className="text-sm text-muted-foreground underline">
+        {t("example.setUp")}
+      </Link>
+    );
 
   const fresh = make.data && make.data.ts === shown?.ts;
   const promptRequest = { example: { cardId, language: i18n.language } };

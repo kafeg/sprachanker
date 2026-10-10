@@ -4,6 +4,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { type CatalogRow, useCatalog, useSetSetting, useSetting } from "@/api/hooks.ts";
+import { Loading } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 import { type ExperimentalSection, sectionOn, sourceId } from "./experimental.ts";
 
@@ -28,12 +29,14 @@ export function ExperimentalSettings() {
   const { t } = useTranslation();
   const set = useSetSetting();
   const on = useSetting("experimental.on");
-  const catalog = useCatalog().data ?? [];
+  const query = useCatalog();
+  const catalog = query.data ?? [];
   const toggle = (id: string, value: boolean) =>
     set.mutate({
       key: "experimental.on",
       value: value ? [...new Set([...on, id])] : on.filter((x) => x !== id),
     });
+  if (query.isPending) return <Loading />;
   return (
     <div className="space-y-6">
       <div className="flex gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">

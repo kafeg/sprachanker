@@ -44,9 +44,11 @@ test("without a model and nothing kept: where to set one up", async () => {
       [["llm"], { ...llm, model: null }],
       [["examples", "c1"], { examples: [] }],
     ],
+    path: "/review",
   });
   fireEvent.click(view.getByRole("button", { name: "Example" }));
-  expect(await view.findByText(/Set up the AI assistant/)).toBeTruthy();
+  const link = await view.findByRole("link", { name: /Set up the AI assistant/ });
+  expect(link.getAttribute("href")).toBe("/settings#ai");
 });
 
 const display = {

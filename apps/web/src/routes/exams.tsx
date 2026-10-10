@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExams } from "@/api/exams.ts";
 import { useCatalog } from "@/api/hooks.ts";
-import { useShown } from "@/app/experimental.ts";
+import { offersOf, useShown } from "@/app/experimental.ts";
 import { OfferCard } from "@/courses/card.tsx";
 import { ExamCard } from "@/exams/card.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -24,9 +24,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
   const exams = useExams();
   const { shown, ready } = useShown();
   const all = (exams.data ?? []).filter((e) => shown("exams", e.series));
-  const offers = (useCatalog().data ?? []).filter(
-    (o) => !o.installed && o.kind === "exam" && shown("exams", o.series),
-  );
+  const offers = offersOf(useCatalog().data, "exams", shown);
   const count: Record<ExamsTab, number> = {
     mine: all.filter((e) => e.started).length,
     downloaded: all.length,
@@ -53,7 +51,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
         tabs={(["mine", "downloaded", "available"] as const).map((id) => ({
           to: PATH[id],
           label: t(`exams.tabs.${id}`),
-          count: count[id],
+          count: ready ? count[id] : undefined,
           current: tab === id,
         }))}
       />
@@ -81,7 +79,9 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
           </EmptyState>,
         )}
       {tab === "available" &&
-        (offers.length ? (
+        (!ready ? (
+          <Loading />
+        ) : offers.length ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {offers.map((o) => (
               <OfferCard key={o.key} offer={o} />
