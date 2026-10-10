@@ -72,7 +72,6 @@ draws (each section's number, the state's questions only), kept as shown with it
 only to the run's questions with the engine's outcome, each result what its answers give, one active
 run per exam. Against an APFS clone of the real library in a throwaway data root (never the owner's profiles); chosen by key prefix (`REAL=dw.nicos-weg/a1-ru bun run e2e:real`; default: the first lesson of each series' first course; `REAL_PER_COURSE`); asserts on structure, never on course text; not in CI. The checks are pure and caught on a store broken on purpose (`e2e/real/store.test.ts`) |
 | Speech round-trip (the Mac only) | `bun run speech:check`: the texts of `e2e/speech/corpus.json` — sentences in the language learnt and explanations quoting it, written once by the app's tutor in real lessons of three pairs (`e2e/speech/corpus.ts`), not taken from the courses — read by Qwen3-TTS and heard back by Whisper through the compiled binary (models an APFS clone of the real ones); each text's words scored by language (quoted words the language learnt) as the share heard; seeded, so it repeats. The bar: a median of 85% for what is in its own language, 60% for a quote. `SPEECH_KIND`, `SPEECH_LIMIT`, `SPEECH_MIXED_AS` to compare how a mixed text is asked for |
-| Manual | owner demo at the end of each plan item on the Mac (phones: plan, "Phones") |
 
 Third-party content never appears in fixtures.
 
@@ -88,8 +87,7 @@ Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/
 
 - `docs/spec/*` — what and why, at the level of detail described in `docs/spec/README.md`. Updated in
   the same commit as behaviour changes.
-- `docs/plan.md` — only the work left, in order; an item done is removed in the commit that finishes it
-  (the spec describes what is built). `docs/architecture.md` — the parts and how they fit; updated when
+- `docs/plan.md` — work not yet built. `docs/architecture.md` — the parts and how they fit; updated when
   a module, a dependency or a cross-cutting mechanism changes.
 - `CLAUDE.md` files — how to work in an area. Root file holds the module map and dependency rules;
   module files link to their spec and never repeat it. Max ≈150 lines each. No changelogs or progress
@@ -98,7 +96,6 @@ Repository-level checks (boundary rules test, CLAUDE.md paths) live in `scripts/
   paths starting with `packages/`, `apps/`, `courses/`, `native/`, `docs/`, `e2e/`, and every entry of
   a `## Layout` tree (relative to the CLAUDE.md's folder). What is not built yet goes in a `## Planned`
   list (not checked); lines marked "(planned)" and paths with `<placeholders>` are not checked either.
-- End of each plan item: sweep all CLAUDE.md and spec files; remove stale statements.
 - `docs/research/*` — facts about external sources; re-verified when importers change.
 
 ## Commits
@@ -109,5 +106,5 @@ Work goes straight to `main` in small commits; CI runs on every push.
 - Body: what problem, which modules, why this place, what was reused, what was deliberately not built.
 - Checklist: tests · `bun run check` green · spec/CLAUDE.md updated if structure or contracts changed ·
   no third-party content · strings in i18n catalogs · migration + test if stored data changed.
-- Review questions: Is anything built that the item does not need? Could an existing entity cover a
+- Review questions: Is anything built that the change does not need? Could an existing entity cover a
   new one? Is logic duplicated? Is every change in the module that owns it?

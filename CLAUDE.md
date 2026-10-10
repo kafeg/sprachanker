@@ -5,8 +5,8 @@ server with the web UI, used in the browser (a desktop window and phones are pla
 installed by importers into a local library and practised with spaced repetition, speech checks and
 any LLM the user connects.
 
-Read before working: `docs/architecture.md` (how the parts fit), `docs/plan.md` (what is left, in
-order, and how an item is run), `docs/spec/README.md` (index), then the spec file for the area you touch.
+Read before working: `docs/architecture.md` (how the parts fit), `docs/spec/README.md` (index), then
+the spec file for the area you touch. `docs/plan.md` lists work not yet built.
 The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *how to work here*.
 
 ## Repository map
@@ -70,8 +70,7 @@ alternatives without updating that table.
 ## Rules
 
 1. Spec first. If the code needs to diverge from the spec, update the spec in the same commit and say why.
-   The spec fixes only decisions that are expensive to change; the rest is decided in the item's plan
-   and written into the spec when built (`docs/spec/README.md`).
+   The spec fixes only decisions that are expensive to change (`docs/spec/README.md`).
 2. A new exercise type = schema + checker (engine) + renderer (`apps/web`) + tests. Never only one of them.
 3. Schema changes that touch stored data require a migration (05) and a migration test.
 4. Never commit third-party course content (texts, media, raw snapshots), not even in fixtures.
@@ -85,7 +84,6 @@ alternatives without updating that table.
 - Describe the current state only. No logs, no history, no "we did X".
 - Keep each file ≤ 150 lines. Link to the spec instead of repeating it.
 - When you change structure or contracts of an area, update its CLAUDE.md in the same commit.
-- At the end of every plan item: sweep all CLAUDE.md files, delete stale lines.
 - CI checks that what CLAUDE.md files name exists — backticked repository paths and every entry of a
   `## Layout` tree; what is not built yet goes in a `## Planned` list (10).
 
@@ -105,8 +103,3 @@ alternatives without updating that table.
 - `bun run cli -- import dw-nicos-weg --data ~/SprachAnker` · `bun run cli -- serve --data ~/SprachAnker`
 - `bun run cli -- verify --data ~/SprachAnker` — checks every installed course (run after an import)
 - `bun run build:desktop` (planned)
-
-## Current work
-
-See `docs/plan.md`. Work on one item at a time; stop at its acceptance criteria and report. Update the
-plan in the same commit when an item is done (remove it; what was built lives in the spec).

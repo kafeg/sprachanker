@@ -1,20 +1,7 @@
 # Plan
 
-What is left to build, in order. What is built is described by the spec (`docs/spec/`) and the code;
-how it fits together, by `docs/architecture.md`. Each item names the spec files it touches.
-
-## How we work
-
-1. **Plan** (before code): goals, modules touched, files, what is reused, risks, how acceptance is
-   checked, the details the spec leaves open. Larger than about three sessions → split it. The owner
-   approves. New screens or redesigns: rendered mockup options first, the owner picks.
-2. **Implement** in small commits to `main`, each with tests; `bun run check` and `bun run e2e` green
-   (check their exit codes, not a piped tail).
-3. **Demo**: commands to run, what to look at, on the Mac (phones: item "Phones").
-4. **Review checklist**: engineering principles (root CLAUDE.md) · boundaries · tests · spec, this plan
-   and CLAUDE.md current · no third-party content · i18n keys complete.
-5. **Stop and report after every item**: what was built, what was learned, open problems, an honest
-   view of direction and remaining scope, proposed spec/plan edits, the next item's plan.
+What is left to build. What is built is described by the spec (`docs/spec/`) and the code; how it
+fits together, by `docs/architecture.md`.
 
 ## Direction
 
