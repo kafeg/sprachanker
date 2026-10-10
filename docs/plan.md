@@ -48,19 +48,27 @@ Specs: 09, 10.
 ### 3. Exams (owner, 2026-10-08)
 Specs: 01, 02, 03, 04, 05, 06, 09, 10. Research: `docs/research/exams.md`. Built: the Exams section,
 mock exams, practice and the catalogue, Leben in Deutschland (`bamf-lid`; 03, 04 "Exams", 09).
-- **The exam layer grows for the language exams**: modules → parts → items of our exercise types,
-  time per part, how often a recording plays, points per item, the conversion and the pass rules
-  (overall, written and spoken minimums, per module, DTZ-style level bands); the player shows a
-  part's questions as today's list, the result by module and part.
 - **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
   question, option, picture, recording and answer comes in through the provider's fetch and
   normaliser — never from a model, never by hand. Any tool may be used inside an importer; a browser
   only if a source cannot be read otherwise. The whole of each exam: texts, pictures, audio,
   answers, attributions.
-- **3b. Goethe A1, A2, B1** (key for the owner): provider for the accessible online model tests
-  (`bfu.goethe.de`: HTML forms, answers as text, a recording per item), every module — Hören,
-  Lesen, Schreiben (`respond` with the exam's criteria), Sprechen (spoken answers). **Accept**: each
-  level's model test as the real one runs it, scored by its rules.
+- **3b. Goethe A1, A2, B1** (key for the owner), from the accessible online model tests
+  (`bfu.goethe.de`; research: plain GET, a solution page per Teil, audio per item or Teil). In steps:
+  - **3b-1. The exam layer for language exams**, additive to the format: modules (Hören, Lesen,
+    Schreiben, Sprechen) with their time and the points they are scaled to; a section is a Teil with
+    its material — instructions, a shared text, pictures, its recording and how often it plays — and
+    its example (shown answered, not scored); questions of more kinds (single choice, typed gaps,
+    open answers) with their points; pass marks over some modules (A2: written and spoken minimums)
+    and whether all must be reached. A mock exam of the whole exam or of one module (B1's are taken
+    apart), timed by it; the player shows a Teil's material above its questions (3B), a recording
+    played only as often as allowed; the result by module and Teil.
+  - **3b-2. Provider `goethe`**: Hören and Lesen of A1, A2, B1 and A1 Schreiben 1 (scored by their
+    keys), every recording, picture and text; checked against the solution pages.
+  - **3b-3. Schreiben and Sprechen**: the tasks as open answers with the exam's criteria; scored by
+    the learner against the criteria, or by the AI assistant when one is set up.
+  - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
+    run-throughs.
 - Later: telc, DTZ, ÖSD model tests (PDF + MP3, text answer keys); English exams with the English
   courses; the driving theory test only if its catalogue becomes public.
 

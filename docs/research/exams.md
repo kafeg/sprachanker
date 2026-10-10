@@ -78,14 +78,45 @@ imported. Nothing is imported yet; scratch parsers and saved pages were kept out
 ## Goethe-Zertifikat A1–B1 (Goethe-Institut)
 
 - **The online model tests are the source to start with.** Accessible ("barrierefrei") versions are
-  at `bfu.goethe.de/a1_sd1/`, `bfu.goethe.de/a2_mod_2MX5/` and `bfu.goethe.de/b1_mod/`.
-  - **Pages:** plain XHTML forms. One page per module (`hoeren.php`, `lesen.php`, `schreiben.php`,
-    `sprechen.php`), one form per Teil, one `<fieldset>` per item.
-  - **Items:** the question is the legend; the options are radio labels.
-  - **Media:** each item has its own audio. Picture options have `alt` text. Reading texts shown as
-    pictures link a `longdesc` page with the full text.
-  - **Answers:** a plain GET of a module's solution page (`hoeren_l1.php`, …) returns the answers as
-    text, with accepted alternatives ("4 / vier", "Sonntag / nächsten Sonntag").
+  at `bfu.goethe.de/a1_sd1/`, `bfu.goethe.de/a2_mod_2MX5/` and `bfu.goethe.de/b1_mod/` (read
+  2026-10-10, every page and solution page fetched):
+  - **Access:** plain GET over HTTPS (port 80 does not answer); no JavaScript, cookies, Referer or
+    browser User-Agent needed; no robots.txt (404); pages identical on every fetch; no ETag
+    (`no-store`): changes only by a content hash.
+  - **Pages:** one per module (`hoeren.php`, `lesen.php`, `schreiben.php`, `sprechen.php`). A Teil is
+    an `<h3>Teil N</h3>` ("Aufgabe N" in B1 Schreiben/Sprechen), its instructions in `<p>`, then one
+    `<form>`; an item is a heading "Aufgabe N" (h4/h5) and a `<fieldset>`, the question in the
+    `<legend>` (A2 Hören 1 and 4: in the heading), each option a radio in a `<label>`. The example
+    ("Beispiel 0") has `*_bsp*` inputs, disabled, the answer `checked`. Number items by heading or
+    order, not by input names (B1 Lesen 2 names `_6..11` for items 7–12). Module codes differ: A1/A2
+    01 Hören, 02 Lesen; B1 01 Lesen, 02 Hören.
+  - **Options:** text radios; pictures with alt text (with a label, or a letter only); Richtig/Falsch,
+    Ja/Nein; one-letter inputs matching items to a shared set (A2 Hören 2 pictures a–i; A2 Lesen 4
+    ads a–f, "X" none; B1 Lesen 3 ads a–j, "0" none); A1 Schreiben 1 a form with five gaps
+    (placeholders "(1)"…"(5)" to ignore).
+  - **Solutions: one page per Teil**, named by the form's `action` (A1 `hoeren_l1–3`, `lesen_l1–3`,
+    `schreiben_l1`; A2 `hoeren_l1–4`, `lesen_l1–4`; B1 `hoeren_l1–4`, `lesen_l1–5`). A list —
+    `<strong>N</strong>… Lösung: X`, X the option's text, a letter, "Bild c", Richtig/Falsch, ja/nein
+    (all 108 resolve to an option ignoring case and a final full stop) — or, for typed answers, a table
+    `<th>N</th>…<td>ANSWER</td>`, alternatives " / " ("4 / vier", A1 Schreiben 1 only). "maximal N
+    Punkte": one point per item. A1 `lesen_l3` numbers 1–5 for 11–15.
+  - **Structure:** A1 Hören 6/4/5 items (about 20 min; played twice/once/twice), Lesen 5/5/5 (25 min);
+    A2 Hören 5/5/5/5 (30 min; twice/once/once/twice), Lesen 5/5/5/5 (30 min); B1 Hören 10/5/7/8 (40
+    min; twice/once/once/twice, reading times 10 s and 60 s), Lesen 6/6/7/7/4 (65 min: 10/20/10/15/10
+    per Teil). How often a recording plays is only in the instructions.
+  - **Media:** all on `bfu.goethe.de/medien/{a1|a2_2005|b1_m}/`. Audio `.mp4` (AAC only), per item
+    (A1, A2 Teile 1 and 3), per Teil (A2 2 and 4, B1 2–4) or per text (B1 1); each file plays once (the
+    player repeats). Take URLs from the page's `var audio = [...]` arrays, not the fallback links (on
+    A2 two are swapped and the sign-language ones shifted; one B1 link has a trailing space).
+    Sign-language and lip-reading videos for every recording. Texts shown as pictures have a linked
+    text page (broken HTML fragments, some with a tracker script) or the whole text in the alt.
+  - **Schreiben, Sprechen:** tasks, word counts, times, cards and slides (pictures with alt), the
+    criteria (A1 Schreiben 2: 3/1.5/0 per content point + 1/0.5/0 form; A2 bands A–E; B1 Schreiben
+    40+40+20, Sprechen 28+40+16+16 pronunciation); no sample answers; only A1 Schreiben 1 is scorable
+    by its key. The writing boxes only post the text back.
+  - **Parsing:** not well-formed (undeclared `&nbsp;`, mismatched tags, duplicate ids): an HTML5
+    parser; UTF-8 throughout. Copy errors: B1 Lesen 1 "maximal 5 Punkte" for 6 items; B1 Hören 4's
+    instructions say "16 bis 22" for 23–30.
   - **Cross-check:** the A1 model test is the same as telc's "Start Deutsch 1 Übungstest 1".
   - www.goethe.de answers scripts with 403; the bfu pages, the PDFs and the audio CDN
     (`goethemp4s.akamaized.net`) do not.
