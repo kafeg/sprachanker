@@ -1,5 +1,6 @@
 // /api/notebook: the Notebook (09) — the study days and every module's standing; a lesson's journal (its
-// passes, a pass in full, one item across passes); an exam's page. Read only.
+// passes, a pass in full, one item across passes); an exam's page. Reads only, but for one thing: a
+// mock exam left past its time is handed in as the exams' standing or an exam's page is read.
 import { ExamKey, ItemKey, LessonKey } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";

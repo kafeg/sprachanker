@@ -33,7 +33,8 @@ src/
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), runs (lesson runs), progress (reset), exams,
                      # cards (/api/cards), settings, notebook, recordings, speech, llm (removable as a whole); env.ts: what a
-                     # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
+                     # profile's routes read (`c.var.s`, its services; `c.var.profileId`); params.ts:
+                     # what several take alike (a run's id in the path, a batch of events)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, registration), devices (sign-in tokens), and
                      # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
@@ -46,7 +47,7 @@ src/
                      # numbered, what the server keeps — verdicts, lines —, read, remove); card-store (the one module on cards and card_state); cards
                      # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
                      # bury, suspend, flags, marks; review's standing); words (My words, the word sheet);
-                     # notebook (the study days and every module's standing, gathered; read only); settings;
+                     # notebook (the study days and every module's standing, gathered); settings;
                      # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
                      # lesson); llm (providers, keys, the route's client, structured calls, prompt previews;
                      # llm-lmstudio: LM Studio's state, start, loads; llm-prompts: the learner's own

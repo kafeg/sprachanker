@@ -1,7 +1,8 @@
 // The Notebook's first page (09): the study days (the engine's activity, every event counted by its
 // run's module) and each module's standing, gathered the same way from every module (schema
 // `stats.ts`) — the Notebook knows no module's internals. A lesson's journal is the lessons module's
-// (lesson-journal), an exam's page the exams module's (`journal`). Read only.
+// (lesson-journal), an exam's page the exams module's (`journal`). Reads only (the exams' standing
+// hands in a mock exam left past its time).
 import { ACTIVITY_EVENTS, activityByDay, studyDay } from "@sprachanker/engine";
 import { MODULE_OF_KIND, type ModuleStanding } from "@sprachanker/schema";
 import type { RunStore } from "./run-store.ts";
