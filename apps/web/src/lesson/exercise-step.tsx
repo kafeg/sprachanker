@@ -202,7 +202,7 @@ export function ExerciseStep({
         })}
       </ol>
       {/* The action bar: at the bottom of the screen, its buttons always in the same places — the main one
-          (Check, then Next) on the right with a fixed width, under the finger or cursor. */}
+          (Check, then Next) on the right, at least a fixed width, under the finger or cursor. */}
       <StepBar
         onBack={onBack}
         onNext={primary}
@@ -230,6 +230,7 @@ export function ExerciseStep({
             <Button
               variant="outline"
               size="lg"
+              className="max-sm:px-3"
               onClick={() => {
                 ex.retry();
                 // Begun again from the top: the exercise's text and its first item.

@@ -290,7 +290,10 @@ function Running({
           {finishLabel}
         </StepNext>
       ) : (
-        <StepNext onClick={() => go(current + 1)}>{t("exams.next")}</StepNext>
+        // Outlined while the question has no answer: a cue that it is left unanswered.
+        <StepNext variant={given ? "default" : "outline"} onClick={() => go(current + 1)}>
+          {t("exams.next")}
+        </StepNext>
       )}
     </>
   );

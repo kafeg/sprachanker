@@ -57,7 +57,13 @@ export function StepBar({
           {note}
         </p>
       )}
-      <div className={cn("flex gap-1 sm:gap-2", note ? "ml-auto sm:ml-0" : "ml-auto")}>
+      {/* On a phone the buttons take the rest of the row, the main one's label wrapping if need be. */}
+      <div
+        className={cn(
+          "flex items-center justify-end gap-1 max-sm:min-w-0 max-sm:flex-1 sm:gap-2",
+          note ? "ml-auto sm:ml-0" : "ml-auto",
+        )}
+      >
         {extra}
         {onSkip && (
           <Button variant="ghost" size="lg" onClick={onSkip} className="max-sm:px-3">
