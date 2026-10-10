@@ -21,7 +21,7 @@ import { checkItem } from "../check/index.ts";
 export type SettingOf = (key: string) => string | undefined;
 
 /** The settings as an exam reads them (`get`: a setting's stored value): a text, else unset. */
-export const settingOf =
+export const examSettings =
   (get: (key: string) => unknown): SettingOf =>
   (key) => {
     const value = get(key);
@@ -47,9 +47,6 @@ export const examPassed = (
   if (result.pass !== undefined) return result.pass;
   return result.modules ? undefined : result.passed.length > 0;
 };
-
-/** How many questions an exam asks from: those of its pools (its examples are none). */
-export const questionCount = (exam: Exam) => new Set(exam.sections.flatMap((s) => s.pool)).size;
 
 /** Each section's questions open to this learner — of one module when it is given: its pool,
  *  filtered by its tag where it has one. */

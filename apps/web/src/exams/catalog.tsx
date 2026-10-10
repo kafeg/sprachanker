@@ -1,7 +1,7 @@
 // An exam's catalogue (09, Exams; owner's choice F, 2026-10-10): every question open to the learner
 // (the general ones and their state's) as a compact list by Teil, found by its words; a question
 // opened shows its Teil's material and its right answer.
-import { missingSettings, openQuestions, questionLine, settingOf } from "@sprachanker/engine";
+import { examSettings, missingSettings, openQuestions, questionLine } from "@sprachanker/engine";
 import { examLang } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
@@ -35,7 +35,7 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
   const [words, setWords] = useState("");
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
-  const setting = settingOf((k) => settings.data?.[k as keyof typeof settings.data]);
+  const setting = examSettings((k) => settings.data?.[k as keyof typeof settings.data]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: `setting` reads settings.data
   const open = useMemo(
     () => (exam.data ? openQuestions(exam.data.exam, setting) : []),

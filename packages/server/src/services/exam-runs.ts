@@ -8,12 +8,12 @@ import {
   checkQuestion,
   drawExam,
   examResult,
+  examSettings,
   missingSettings,
   practiceOrder,
   questionStats,
   ratingsFit,
   sectionsOf,
-  settingOf,
   timeOf,
 } from "@sprachanker/engine";
 import {
@@ -67,7 +67,7 @@ export function createExamRuns({
   settings: Settings;
   now: () => number;
 }) {
-  const setting = settingOf((key) => settings.get(key as SettingKey));
+  const setting = examSettings((key) => settings.get(key as SettingKey));
   /** The exam's run in progress, if any. */
   const activeOf = (exam: ExamKey) => {
     const row = store.active("exam", exam);
