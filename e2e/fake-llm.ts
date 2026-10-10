@@ -1,6 +1,7 @@
 // A fake OpenAI-compatible server for the e2e run: fixed replies, so the AI screens are tested without
 // a real model (LM Studio on the developer's machine is never used). Started by playwright.config.ts.
-export const FAKE_LLM_PORT = 4591;
+// Not 4591: that is e2e:real's server, which may run beside this run.
+export const FAKE_LLM_PORT = 4592;
 export const FAKE_TEXT = "FAKE: the verb ends in -e here.";
 
 const WRITING_CHECK = {
