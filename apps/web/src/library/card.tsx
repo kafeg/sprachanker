@@ -126,7 +126,7 @@ export function OfferCard({ offer }: { offer: CatalogEntry }) {
             <Button
               size="lg"
               className="w-full"
-              disabled={start.isPending}
+              loading={start.isPending}
               onClick={() => start.mutate({ series: offer.series, course: offer.course })}
             >
               <Download className="size-4" />

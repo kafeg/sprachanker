@@ -116,7 +116,7 @@ export function LessonPlayer({
         <Button
           size="lg"
           className="text-base"
-          disabled={flow.busy}
+          loading={flow.busy}
           onClick={() => void flow.begin(true)}
         >
           {t("lesson.redo")}
@@ -126,7 +126,7 @@ export function LessonPlayer({
       <Button
         size="lg"
         className="text-base"
-        disabled={flow.busy}
+        loading={flow.busy}
         onClick={() =>
           active ? go(flow.resumeId ?? flow.ids[1] ?? "summary") : void flow.begin(false)
         }

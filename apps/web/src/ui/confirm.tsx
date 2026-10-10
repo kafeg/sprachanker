@@ -41,7 +41,7 @@ export function ConfirmDialog({
             <Button
               variant="destructive"
               size="lg"
-              disabled={busy}
+              loading={busy}
               onClick={(e) => {
                 e.preventDefault();
                 onConfirm();

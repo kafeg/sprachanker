@@ -201,11 +201,20 @@ export function ExamResultView({
 
       <div className="mt-4 flex flex-wrap gap-2">
         {wrong.length > 0 && (
-          <Button onClick={() => again("practice")} loading={begin.isPending}>
+          <Button
+            onClick={() => again("practice")}
+            loading={begin.isPending && begin.variables?.mode === "practice"}
+            disabled={begin.isPending}
+          >
             {t("exams.practiseMistakes")}
           </Button>
         )}
-        <Button variant="outline" onClick={() => again("test")} disabled={begin.isPending}>
+        <Button
+          variant="outline"
+          onClick={() => again("test")}
+          loading={begin.isPending && begin.variables?.mode === "test"}
+          disabled={begin.isPending}
+        >
           {t("exams.tryAgain")}
         </Button>
         <Button variant="ghost" onClick={onLeave}>

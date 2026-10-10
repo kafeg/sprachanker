@@ -87,6 +87,7 @@ function TaskPrompt({ task, prompt }: { task: PromptTaskId; prompt: Prompt }) {
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
+            loading={save.isPending && save.variables?.template !== null}
             disabled={!changed || save.isPending}
             onClick={() => save.mutate({ task, template: text })}
           >
@@ -95,6 +96,7 @@ function TaskPrompt({ task, prompt }: { task: PromptTaskId; prompt: Prompt }) {
           {prompt.custom && (
             <Button
               variant="outline"
+              loading={save.isPending && save.variables?.template === null}
               disabled={save.isPending}
               onClick={() => save.mutate({ task, template: null })}
             >

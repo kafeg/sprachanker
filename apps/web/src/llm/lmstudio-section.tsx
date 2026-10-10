@@ -147,6 +147,12 @@ export function LmStudioSection({ state }: { state: LlmState }) {
                     <Button
                       className="mt-2"
                       onClick={() => action.mutate({ download: s.key })}
+                      loading={
+                        action.isPending &&
+                        !!action.variables &&
+                        "download" in action.variables &&
+                        action.variables.download === s.key
+                      }
                       disabled={action.isPending}
                     >
                       {t("lmstudio.download")}

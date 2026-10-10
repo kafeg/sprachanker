@@ -4,8 +4,13 @@ import { CircleCheck, CircleX, Download, LoaderCircle, RefreshCw, ShieldCheck } 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useCourseCheck, useCourseDownload, useStartDownload } from "@/api/hooks.ts";
+import { Button } from "@/ui/components/button.tsx";
 import { cn } from "@/ui/utils.ts";
 import { downloading } from "./download.tsx";
+
+// The check's and the sync's buttons: quiet (dashed) until the check finds something to mend.
+const upkeepButton = "rounded-xl px-3";
+const quiet = "border-dashed font-normal text-muted-foreground";
 
 export const chip = "inline-flex min-h-7 items-center gap-1 rounded-full border px-2.5 text-xs";
 
@@ -80,22 +85,20 @@ export function SyncButton({
   const start = useStartDownload();
   if (!available || downloading(job)) return null;
   return (
-    <button
-      type="button"
+    <Button
+      variant="outline"
       onClick={() => start.mutate({ series, course })}
-      disabled={start.isPending}
+      loading={start.isPending}
       title={t("download.sync")}
       className={cn(
-        "flex items-center gap-1.5 rounded-xl border px-3 text-sm",
-        short ? "min-h-9 pointer-coarse:min-h-11" : "min-h-11",
-        attention
-          ? "border-primary bg-primary/15 font-medium"
-          : "border-dashed text-muted-foreground hover:bg-accent",
+        upkeepButton,
+        !short && "h-11",
+        attention ? "border-primary bg-primary/15 hover:bg-primary/25" : quiet,
       )}
     >
-      {missing ? <Download className="size-4" /> : <RefreshCw className="size-4" />}
+      {!start.isPending && (missing ? <Download /> : <RefreshCw />)}
       {missing ? t("download.continue") : short ? t("download.syncShort") : t("download.sync")}
-    </button>
+    </Button>
   );
 }
 
@@ -123,13 +126,13 @@ export function CourseUpkeep({ series, course }: { series: string; course: strin
             <CheckState check={check} />
           </button>
         ) : (
-          <button
-            type="button"
+          <Button
+            variant="outline"
             onClick={() => setAsked(true)}
-            className="flex min-h-9 items-center gap-1.5 rounded-xl border border-dashed px-3 text-muted-foreground hover:bg-accent pointer-coarse:min-h-11"
+            className={cn(upkeepButton, quiet)}
           >
-            <ShieldCheck className="size-4" /> {t("course.checkFiles")}
-          </button>
+            <ShieldCheck /> {t("course.checkFiles")}
+          </Button>
         )}
         {/* Files known missing: the card's banner offers to go on with the download. */}
         {entry?.state !== "incomplete" && (
