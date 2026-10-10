@@ -98,6 +98,14 @@
         "@sprachanker/schema": "workspace:*",
       },
     },
+    "courses/goethe": {
+      "name": "@sprachanker/goethe",
+      "version": "0.0.0",
+      "dependencies": {
+        "@sprachanker/course-kit": "workspace:*",
+        "@sprachanker/schema": "workspace:*",
+      },
+    },
     "courses/lingust-english": {
       "name": "@sprachanker/lingust-english",
       "version": "0.0.0",
@@ -180,6 +188,7 @@
         "@sprachanker/course-kit": "workspace:*",
         "@sprachanker/dw": "workspace:*",
         "@sprachanker/engine": "workspace:*",
+        "@sprachanker/goethe": "workspace:*",
         "@sprachanker/lingust-english": "workspace:*",
         "@sprachanker/llm": "workspace:*",
         "@sprachanker/schema": "workspace:*",
@@ -510,6 +519,8 @@
     "@sprachanker/e2e": ["@sprachanker/e2e@workspace:e2e"],
 
     "@sprachanker/engine": ["@sprachanker/engine@workspace:packages/engine"],
+
+    "@sprachanker/goethe": ["@sprachanker/goethe@workspace:courses/goethe"],
 
     "@sprachanker/lingust-english": ["@sprachanker/lingust-english@workspace:courses/lingust-english"],
 

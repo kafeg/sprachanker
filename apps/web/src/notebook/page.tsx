@@ -2,7 +2,7 @@
 // as a calendar, with the totals of all time, 30 or 7 days (lesson work, cards answered, new cards,
 // the share remembered, AI practice); then the journal by lesson (owner's choice A, 2026-10-07): the
 // courses with the lessons worked on — passes, the best score, one still open — each opening its passes.
-import { activityTotals } from "@sprachanker/engine";
+import { activityTotals, examPassed } from "@sprachanker/engine";
 import { parseLessonKey, seriesOf } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
@@ -165,7 +165,7 @@ export function NotebookPage() {
               <Panel key={exam.key} title={exam.title ?? exam.key}>
                 <ul className="divide-y">
                   {exam.runs.map((run) => {
-                    const passed = !!run.result?.passed.length;
+                    const passed = examPassed(run.result);
                     return (
                       <li key={run.id}>
                         <ListRow

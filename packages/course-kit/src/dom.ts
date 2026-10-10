@@ -1,5 +1,6 @@
-// A small HTML tree for the site's server-rendered pages: enough structure to walk sections, lists
-// and players in order (the pages are hand-edited Joomla articles; regexes alone lose nesting).
+// A small HTML tree for server-rendered pages (03): enough structure to walk sections, lists, forms
+// and players in order on hand-edited or broken HTML (Lingust's Joomla articles, Goethe's test pages),
+// where regexes alone lose nesting.
 
 export interface El {
   type: "el";

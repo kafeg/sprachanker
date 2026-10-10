@@ -1,6 +1,5 @@
 // A lesson's vocabulary ("Словарь"): rows of headword, transcription, marks, forms and translation.
-import { plainText } from "@sprachanker/course-kit";
-import { type El, findAll, innerHtml } from "../dom.ts";
+import { type El, findAll, innerHtml, plainText } from "@sprachanker/course-kit";
 import { ipaOf, withoutIpa } from "../text.ts";
 
 export interface VocabRow {

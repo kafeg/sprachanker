@@ -1,6 +1,6 @@
 // A lesson page → data: explanation sections split at `<h2>` with their examples, then a vocabulary
 // ("Словарь") and numbered exercises ("Упражнение N").
-import { type El, findAll, hasClass } from "../dom.ts";
+import { type El, findAll, hasClass } from "@sprachanker/course-kit";
 import { parseExercise, type SourceExercise } from "./exercise.ts";
 import { articleElements, isHeading, playerSrc, textOf } from "./page.ts";
 import { type Snippet, snippets } from "./snippets.ts";

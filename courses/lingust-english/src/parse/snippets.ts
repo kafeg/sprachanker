@@ -1,5 +1,5 @@
 // Examples read aloud: each player of a page with the example lines it reads.
-import { type El, find, hasClass, innerHtml, isEl } from "../dom.ts";
+import { type El, find, hasClass, innerHtml, isEl } from "@sprachanker/course-kit";
 import { englishLine, flatText } from "../text.ts";
 import { isHeading, isPlayer, playerSrc, textOf } from "./page.ts";
 

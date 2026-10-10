@@ -2,6 +2,7 @@
 // with the language pair and the last mock exam's points, a ring with how ready the learner is, the
 // title and publisher, the last mock exam, and the ways in — a mock exam (continued while one runs) and
 // practice.
+import { examPassed } from "@sprachanker/engine";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Dumbbell } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -18,7 +19,7 @@ export function ExamCard({ exam, edition }: { exam: ExamRow; edition: string }) 
   const date = useDateFormat("day");
   const title = exam.titles[edition] ?? exam.courseTitles[edition] ?? exam.key;
   const last = exam.last?.result;
-  const passed = !!last?.passed.length;
+  const passed = examPassed(last);
   const params = examParams(exam.key);
   const testRunning = exam.active?.plan.mode === "test" ? exam.active : undefined;
   return (

@@ -89,8 +89,9 @@ export const Exam = z.strictObject({
       media: Media.optional(),
       /** How often a recording of the Teil — its own or a question's — may be played. */
       plays: z.number().int().positive().optional(),
-      /** A question shown answered as the example; not in the pool, never scored. */
-      example: ExamItemKey.optional(),
+      /** Questions shown answered as the example ("Beispiel 0"; B1 Hören has two); in no pool,
+       *  never scored. */
+      examples: z.array(ExamItemKey).optional(),
     }),
   ),
   items: z.array(ExamItem).min(1),

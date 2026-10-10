@@ -9,7 +9,8 @@ Research about sources: `docs/research/`.
 packages/course-kit/   # library format (LibraryView: courses, lessons, exams), fetcher (with a browsing session
                        # for sites run by forms), media store + media.json fetching (media file
                        # names of URLs), manifest, fingerprints, verify, HTML sanitiser and escaping, plain
-                       # text of HTML and entity decoding; provider.ts: the
+                       # text of HTML and entity decoding; dom.ts: a tolerant HTML tree for broken pages;
+                       # provider.ts: the
                        # provider contract (import options/report/progress, course offers, wanted,
                        # libraryFile (a file by kind: path from its keys, its schema), libraryWriter /
                        # writeLibraryFiles, storedPage, pageCounter, CourseProvider);
@@ -30,13 +31,16 @@ courses/
                        # src/: catalog, parse (HTML), normalise (pure), import.ts; test/
   lingust-english/      # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings
                        # as `speech_selfrate`, gap/respond exercises from the tooltip answer keys;
-                       # src/: dom.ts (HTML tree), parse/ (page, course-index, lesson, snippets, vocab,
+                       # src/: parse/ (page, course-index, lesson, snippets, vocab,
                        # exercise, verbs), exercise.ts (source exercise → our types), normalise, import.ts
   voa-english-usa/      # VOA «Так говорят в Америке» (golosameriki.com, ru → en): 106 lessons from a catalog of
                        # archive article paths (src/catalog.ts); dialogue, words, notes, lesson MP3
   bamf-lid/            # BAMF «Leben in Deutschland» (bamf.lid, de-de): an exam course; src/: catalog, pdf (pdf.js:
                        # lines and pictures), catalogue (questions from the PDF), centre (BAMF's test centre:
                        # pages read, walked as its APEX forms post), png (pictures saved), normalise, import.ts
+  goethe/              # Goethe-Zertifikat model tests A1, A2, B1 (goethe.zertifikat): exams of modules; src/:
+                       # catalog (levels), page (a module page as blocks), teile (Teile and questions),
+                       # solutions (a Teil's solution page), normalise, import.ts; test/pages.ts synthetic
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
                        # bold words, quiz answers from the result pages (GET), speaking videos as
                        # `speech_selfrate`; src/normalise/: media (renditions), vocab (bold words), plan

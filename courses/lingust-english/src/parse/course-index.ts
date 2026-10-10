@@ -1,5 +1,5 @@
 // The course index page → stages with their lessons.
-import { find, findAll, hasClass, parseHtml } from "../dom.ts";
+import { find, findAll, hasClass, parseHtml } from "@sprachanker/course-kit";
 import { textOf } from "./page.ts";
 
 export interface IndexLesson {

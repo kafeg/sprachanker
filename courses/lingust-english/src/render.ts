@@ -1,8 +1,7 @@
 // Explanation sections → locale page HTML: players and paid-audio notices removed, images dropped,
 // sub-headings as section titles (`<h3>`), tooltips shown (short ones — transcriptions — in place,
 // translations after their paragraph), two-column rows (English | Russian) as table rows.
-import { sanitizeCourseHtml } from "@sprachanker/course-kit";
-import { type El, hasClass, isEl, type Node } from "./dom.ts";
+import { type El, hasClass, isEl, type Node, sanitizeCourseHtml } from "@sprachanker/course-kit";
 
 const DROP = ["cplayer", "cplayer-lock", "audio-notice", "adw", "key"];
 const SKIP_TAGS = ["audio", "img", "input", "textarea", "select", "iframe", "caption"];

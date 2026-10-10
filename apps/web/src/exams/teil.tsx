@@ -35,7 +35,7 @@ export function TeilHeader({
   section,
   locale,
   module,
-  example,
+  examples = [],
   limited,
   run,
   url,
@@ -44,7 +44,7 @@ export function TeilHeader({
   locale: LocaleExam | null;
   /** The module's title, where a module begins. */
   module?: string;
-  example?: ExamItem;
+  examples?: ExamItem[];
   /** A mock exam: recordings played only as often as the Teil allows. */
   limited: boolean;
   run: string;
@@ -74,8 +74,8 @@ export function TeilHeader({
         <img src={url(section.media.image)} alt="" className="max-h-96 rounded-xl border" />
       )}
       {section.text && <ExamText text={section.text} />}
-      {example && (
-        <div>
+      {examples.map((example) => (
+        <div key={example.key}>
           <p className="mb-1.5 text-sm text-muted-foreground">{t("exams.example")}</p>
           <SourceOrder.Provider value>
             <ItemCard
@@ -88,7 +88,7 @@ export function TeilHeader({
             />
           </SourceOrder.Provider>
         </div>
-      )}
+      ))}
     </div>
   );
 }

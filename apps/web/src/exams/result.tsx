@@ -2,7 +2,7 @@
 // reached or not, the points by section, then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.
 
-import { marksOf } from "@sprachanker/engine";
+import { examPassed, marksOf } from "@sprachanker/engine";
 import type {
   Exam,
   ExamItem,
@@ -63,7 +63,7 @@ export function ExamResultView({
   // rule; a module without a mark of its own gets none.
   const marks = marksOf(exam, modules);
   const judged = !practice && marks.length > 0;
-  const passed = result?.pass ?? !!result?.passed.length;
+  const passed = examPassed(result);
   /** A section's title; with modules, its module's too ("Hören · Teil 1"). */
   const sectionTitle = (key: string) => {
     const title = locale?.sections[key as keyof typeof locale.sections]?.title ?? "";

@@ -4,6 +4,7 @@
 import {
   draftExercise,
   draftOrUnknown,
+  type El,
   escapeHtml,
   type Headword,
   type KeyMap,
@@ -12,6 +13,7 @@ import {
   libraryFile,
   mediaPath,
   occurrences,
+  parseHtml,
   shapeHeadword,
   skippedWords,
   Unmapped,
@@ -35,7 +37,6 @@ import {
   type VocabEntry,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SOURCE, TITLE } from "./catalog.ts";
-import { type El, parseHtml } from "./dom.ts";
 import { Homework, mapExercise, speechExercise } from "./exercise.ts";
 import type { IndexLesson } from "./parse/course-index.ts";
 import type { LessonPage } from "./parse/lesson.ts";

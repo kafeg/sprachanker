@@ -430,7 +430,7 @@ export const modellExam: Exam = {
       draw: 2,
       filter: null,
       plays: 2,
-      example: examItemKey(MODELL, "h0"),
+      examples: [examItemKey(MODELL, "h0")],
     },
     {
       key: examSectionKey(MODELL, "h2"),

@@ -200,8 +200,9 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
     best.set(section.module ?? "", (best.get(section.module ?? "") ?? 0) + top);
   }
   for (const section of exam.sections)
-    if (section.example && (!items.has(section.example) || pooled.has(section.example)))
-      out.push(inconsistent(section.key, `example ${section.example} is no question of its own`));
+    for (const example of section.examples ?? [])
+      if (!items.has(example) || pooled.has(example))
+        out.push(inconsistent(section.key, `example ${example} is no question of its own`));
   for (const t of exam.thresholds) {
     for (const m of t.modules ?? [])
       if (!modules.has(m)) out.push(inconsistent(key, `pass mark ${t.id} names module ${m}`));

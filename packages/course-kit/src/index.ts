@@ -1,4 +1,5 @@
 export * from "./canonical-json.ts";
+export * from "./dom.ts";
 export * from "./exercise-draft.ts";
 export * from "./files.ts";
 export * from "./fingerprint.ts";

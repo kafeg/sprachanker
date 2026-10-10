@@ -319,7 +319,7 @@ const gExam = {
       draw: 1,
       filter: null,
       text: "Liebe Lena,\n\nich komme am Sonntag.",
-      example: `${GKEY}/q-l0`,
+      examples: [`${GKEY}/q-l0`],
     },
     { key: `${GKEY}/s-s1`, module: "schreiben", pool: [`${GKEY}/q-s1`], draw: 1, filter: null },
   ],

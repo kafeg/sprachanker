@@ -13,6 +13,7 @@ import {
   type ProgressSink,
 } from "@sprachanker/course-kit";
 import { DW_PROVIDERS } from "@sprachanker/dw";
+import { GOETHE_PROVIDER } from "@sprachanker/goethe";
 import { LINGUST_PROVIDER } from "@sprachanker/lingust-english";
 import { DownloadMarker } from "@sprachanker/schema";
 import { ENGLISH_USA_PROVIDER } from "@sprachanker/voa-english-usa";
@@ -38,6 +39,7 @@ export const PROVIDERS: CourseProvider[] = [
   ENGLISH_USA_PROVIDER,
   LETS_LEARN_ENGLISH_PROVIDER,
   LID_PROVIDER,
+  GOETHE_PROVIDER,
 ];
 const byId = new Map(PROVIDERS.map((p) => [p.id, p]));
 

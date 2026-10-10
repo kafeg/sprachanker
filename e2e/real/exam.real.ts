@@ -26,9 +26,12 @@ const optionOf = (item: Choice, right: boolean) =>
 async function answer(card: Locator, item: ExamItem, right: boolean) {
   if (item.type === "single_choice") {
     const option = optionOf(item, right);
+    // The question's own buttons: an example above it is answered already (its buttons disabled).
     const button = option.media?.image
-      ? card.locator(`button:has(img[src$="${option.media.image.split("/").pop()}"])`)
-      : card.getByRole("button", { name: option.text ?? "", exact: true });
+      ? card.locator(
+          `button:not([disabled]):has(img[src$="${option.media.image.split("/").pop()}"])`,
+        )
+      : card.getByRole("button", { name: option.text ?? "", exact: true, disabled: false });
     await button.first().click();
   } else if (item.type === "gap_text") {
     const boxes = card.getByRole("textbox");
@@ -106,17 +109,24 @@ for (const s of examScenarios())
       if (good) right++;
       await answer(cards.nth(i), item, good);
     }
-    // Nothing marked before it is handed in.
-    await expect(page.getByRole("status").filter({ hasText: /^(Correct|Not quite)$/ })).toHaveCount(
-      0,
-    );
+    // Nothing marked before it is handed in — but the Teile's examples, shown answered.
+    const examples = exam.sections
+      .filter((x) => x.pool.some((k) => test1.plan.items.includes(k)))
+      .reduce((n, x) => n + (x.examples?.length ?? 0), 0);
+    await expect(page.getByRole("status").filter({ hasText: /^Not quite$/ })).toHaveCount(0);
+    await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toHaveCount(examples);
     await expect(
       visible(page.getByText(`Answered: ${asked.length} of ${asked.length}`)),
     ).toBeVisible();
     await visible(page.getByRole("button", { name: "Hand in" })).click();
 
-    // The result: the points, passed or not by the exam's first pass mark.
-    const passed = right >= (exam.thresholds[0]?.minPoints ?? Infinity);
+    // The result: the points, passed or not as the server judged it by the exam's rule (store checks
+    // below recompute it).
+    await expect(page.getByRole("heading", { name: /mistakes?$/ })).toBeVisible();
+    const handed = (await runOf(page)).run as unknown as {
+      result: { pass?: boolean; passed: string[] };
+    };
+    const passed = handed.result.pass ?? handed.result.passed.length > 0;
     await expect(
       page.getByRole("heading", { name: passed ? "Passed" : "Not passed" }),
     ).toBeVisible();

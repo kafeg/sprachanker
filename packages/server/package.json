@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@sprachanker/bamf-lid": "workspace:*",
+    "@sprachanker/goethe": "workspace:*",
     "@sprachanker/coerll-dib": "workspace:*",
     "@sprachanker/course-kit": "workspace:*",
     "@sprachanker/dw": "workspace:*",

@@ -111,8 +111,8 @@ them from a pool — filtered by a tag that must have the value of a profile set
 "federalState", setting: "exam.federalState" }`) — a time limit and pass marks. A language exam adds
 `modules` (`hoeren`, `lesen`, …: each timed, its points scaled to `scaleTo`; the exam's time is
 theirs together); its sections are the modules' Teile, each asking all its pool, with its material: a
-shared `text`, its `media` (recording or picture), how often a recording `plays`, and an `example`
-question shown answered (not in a pool, never scored). A pass mark may count only some modules'
+shared `text`, its `media` (recording or picture), how often a recording `plays`, and its `examples`:
+questions shown answered (in no pool, never scored). A pass mark may count only some modules'
 scaled points (`modules`), and `passWhen` says whether any mark passes the exam (LiD: course test or
 naturalisation) or all must be reached (Goethe A2: overall, written, spoken). The locale file titles
 the exam, its modules, its sections (with their instructions) and its pass marks. `verify` reads it as
@@ -161,7 +161,7 @@ the exam has, and none is above the points it can give.
 { "format": 1, "key": "goethe.a1/a1/exam-modell", "timeLimitSec": 2700,
   "modules": [ { "id": "hoeren", "timeLimitSec": 1200, "scaleTo": 25 }, { "id": "lesen", … } ],
   "sections": [ { "key": "…/s-h1", "module": "hoeren", "pool": ["…/q-h1", "…/q-h2"], "draw": 2,
-                  "filter": null, "plays": 2, "example": "…/q-h0" },
+                  "filter": null, "plays": 2, "examples": ["…/q-h0"] },
                 { "key": "…/s-l2", "module": "lesen", "pool": ["…/q-l6"], "draw": 1, "filter": null,
                   "text": "a  Café Weber …\n\nb  Teeladen …" } ],
   "items": [ { "key": "…/q-h1", "type": "single_choice", "tags": {}, "media": { "audio": "media/audio/….mp4" },

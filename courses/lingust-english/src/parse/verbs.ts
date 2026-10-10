@@ -1,6 +1,5 @@
 // The irregular verbs page (a bonus page) → its table rows.
-import { plainText } from "@sprachanker/course-kit";
-import { type El, findAll, hasClass, innerHtml, isEl } from "../dom.ts";
+import { type El, findAll, hasClass, innerHtml, isEl, plainText } from "@sprachanker/course-kit";
 import { articleElements } from "./page.ts";
 
 /** The irregular verbs table: infinitive, past, participle, translation. */

@@ -29,6 +29,14 @@ export const missingSettings = (exam: Exam, setting: SettingOf): string[] => [
   ),
 ];
 
+/** Whether a run's result passes the exam: by its rule where it says (`pass`), else any pass mark
+ *  reached (results stored before the rule was kept). */
+export const examPassed = (result: Pick<ExamResult, "pass" | "passed"> | null | undefined) =>
+  result?.pass ?? !!result?.passed.length;
+
+/** How many questions an exam asks from: those of its pools (its examples are none). */
+export const questionCount = (exam: Exam) => new Set(exam.sections.flatMap((s) => s.pool)).size;
+
 /** Each section's questions open to this learner — of one module when it is given: its pool,
  *  filtered by its tag where it has one. */
 export function eligible(exam: Exam, setting: SettingOf, module?: string) {

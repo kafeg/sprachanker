@@ -158,6 +158,45 @@ section (`kind: "exam"`), not among the courses.
   `exam.federalState`); pass marks `lid` 15 and `naturalisation` 17. The catalogue's date ("Stand: …")
   is in the course's description; a catalogue without one is refused.
 
+## 2b. Goethe-Zertifikat model tests (`goethe` → `goethe.zertifikat`, courses `a1`, `a2`, `b1`, edition `de-de`)
+
+Each level's Modellsatz from the Goethe-Institut's accessible online version (`bfu.goethe.de/a1_sd1/`,
+`a2_mod_2MX5/`, `b1_mod/`; research `docs/research/exams.md`) as one exam of modules
+(`goethe.zertifikat/<level>/exam-modellsatz`): Hören and Lesen, every Teil, question, option, picture,
+recording and right answer. German only and shown as it is. Offered in the Exams section. Schreiben and
+Sprechen: plan, 3b-3.
+
+- **Fetch** (`courses/goethe/src/import.ts`): plain GET over HTTPS, one request every 300 ms: each
+  module page (`raw/de-de/<level>/<module>.html`), the solution page each Teil's form names
+  (`raw/de-de/<level>/solutions/<name>.html`), the pages holding the text of a picture (`longdesc`,
+  `raw/de-de/<level>/texts/`); every recording (`.mp4`, sound only) and picture into media, named
+  `<level>-<file>`.
+- **Read** (`page.ts`, `teile.ts`, `solutions.ts`): a module page from its "Inhalt" anchor as a tolerant
+  tree (course-kit `parseHtml`; the markup is not well-formed) into blocks in document order — a Teil's
+  heading (`h3` "Teil N"), headings, paragraphs, pictures, recordings (the n-th audio player is the
+  page's n-th entry of its `var audio = [...]` list; the links beside the players are wrong on some
+  pages), forms, fieldsets (legend, options with their pictures, a one-letter answer box, tables written
+  out as text) and tables of one-letter answers. Teile are put together from them: instructions until
+  the first question or label heading ("Text - Teil 1", "Die Aufgaben 6 bis 10"); the material after a
+  label (a text, pictures, a recording, the letters a–j of ads or pictures answered by letter); a
+  question per item heading ("Aufgabe N", "Beispiel 0", "Situation N") or fieldset, an example being one
+  whose answer is marked already. A recording inside a question before its options is the question's,
+  one after a group of questions (B1) the group's — the Teil's when it is all of them. A form opened
+  before its Teil's heading belongs to that Teil; "Teil 2 Text 1/2" are two sections sharing a
+  solution page. A solution page is a list ("Lösung: …") or a table (number, the right answer,
+  alternatives by " / ").
+- **Normalise** (`normalise.ts`): a module per page — timed by the page ("Reguläre Prüfungszeit: …",
+  else its Teile's), scaled to 25 (A1, A2) or 100 (B1) — and a section per Teil with its instructions
+  in the locale, its text, recording or picture, how often its recordings play (its instructions:
+  "einmal", "zweimal") and its examples. Questions numbered in the module's order (a heading's own
+  number checked against it) as `single_choice` items: options as the page gives them (picture options
+  with their descriptions in the locale), or the Teil's letters with "X"/"0" for none where the Teil has
+  it; the right one from the Teil's solution page by number (by order where a page numbers its own Teil
+  from 1), matched by its text, its letter ("Bild c") or letter and text. A question no answer matches is
+  left out and reported. Keys `q-<module>-<n>`, examples `q-<section>-bsp<n>`, sections
+  `s-<module>-<teil>`. Pass marks while Schreiben and Sprechen are not imported: A1 and A2 60 % of
+  the points of the modules there are; B1 each module 60 of 100, all needed.
+
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 
 2nd edition (2017), **CC BY 4.0** only (the 2013 edition is CC BY-NC-ND and MUST NOT be used); the

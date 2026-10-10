@@ -1,7 +1,14 @@
 // Shared pieces of the site's pages: an element's text, players, and an article's own elements.
 // Lessons are hand-edited Joomla articles: a flat run of paragraphs, headings, rows and players.
-import { plainText } from "@sprachanker/course-kit";
-import { type El, find, hasClass, innerHtml, isEl, parseHtml } from "../dom.ts";
+import {
+  type El,
+  find,
+  hasClass,
+  innerHtml,
+  isEl,
+  parseHtml,
+  plainText,
+} from "@sprachanker/course-kit";
 
 export const textOf = (el: El) => plainText(innerHtml(el, true));
 

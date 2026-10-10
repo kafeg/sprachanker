@@ -1,7 +1,15 @@
 // A numbered exercise ("Упражнение N") of a lesson page → its questions, fields and answer keys. The
 // keys sit in tooltips (`data-tooltips-content`).
-import { plainText } from "@sprachanker/course-kit";
-import { type El, find, findAll, hasClass, innerHtml, isEl, type Node } from "../dom.ts";
+import {
+  type El,
+  find,
+  findAll,
+  hasClass,
+  innerHtml,
+  isEl,
+  type Node,
+  plainText,
+} from "@sprachanker/course-kit";
 import { isPlayer, playerSrc, textOf } from "./page.ts";
 import { type Snippet, snippetLines, snippets } from "./snippets.ts";
 

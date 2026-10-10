@@ -114,11 +114,9 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
                   <TeilHeader
                     section={section}
                     locale={data.locale}
-                    example={
-                      section.example
-                        ? data.exam.items.find((i) => i.key === section.example)
-                        : undefined
-                    }
+                    examples={(section.examples ?? []).flatMap(
+                      (k) => data.exam.items.find((i) => i.key === k) ?? [],
+                    )}
                     limited={false}
                     run=""
                     url={(path) => mediaUrl(params.series, path)}

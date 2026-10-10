@@ -3,7 +3,7 @@
 // exam as the real test runs it, practice with each answer checked at once, the catalogue of every
 // question with its answer — the map of the questions open to the learner (known, answered wrongly,
 // not seen), and the mock exams handed in.
-import { eligible, missingSettings, timeOf } from "@sprachanker/engine";
+import { eligible, examPassed, missingSettings, questionCount, timeOf } from "@sprachanker/engine";
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
@@ -86,7 +86,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   const minutes = Math.round(timeOf(exam, module || undefined) / 60);
   const askedOfState = exam.sections.some((s) => s.filter?.setting === "exam.federalState");
   const tests = data.runs.filter((r) => r.plan.mode === "test");
-  const passed = tests.filter((r) => r.result?.passed.length).length;
+  const passed = tests.filter((r) => examPassed(r.result)).length;
   const testRunning = data.active?.plan.mode === "test" ? data.active : undefined;
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });
@@ -182,7 +182,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
         <ModeTile
           icon={<BookOpenCheck className="size-5" />}
           title={t("exams.mode.catalog")}
-          text={t("exams.mode.catalogText", { count: exam.items.length })}
+          text={t("exams.mode.catalogText", { count: questionCount(exam) })}
         >
           <Button asChild variant="outline" className="w-full">
             <Link to="/exam/$series/$course/$exam/catalog" params={params}>
@@ -245,10 +245,10 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
                   <span
                     className={cn(
                       "w-24 text-right text-sm font-medium",
-                      r.result?.passed.length ? "text-correct" : "text-wrong",
+                      examPassed(r.result) ? "text-correct" : "text-wrong",
                     )}
                   >
-                    {t(r.result?.passed.length ? "exams.passed" : "exams.failed")}
+                    {t(examPassed(r.result) ? "exams.passed" : "exams.failed")}
                   </span>
                 </button>
               </li>

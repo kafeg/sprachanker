@@ -48,7 +48,8 @@ Specs: 09, 10.
 ### 3. Exams (owner, 2026-10-08)
 Specs: 01, 02, 03, 04, 05, 06, 09, 10. Research: `docs/research/exams.md`. Built: the Exams section,
 mock exams, practice and the catalogue, Leben in Deutschland (`bamf-lid`; 03, 04 "Exams", 09);
-the exam layer for language exams (modules of Teile with their material; 02, 04, 09).
+the exam layer for language exams (modules of Teile with their material; 02, 04, 09); Goethe A1,
+A2, B1 Hören and Lesen (`goethe`; 03).
 - **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
   question, option, picture, recording and answer comes in through the provider's fetch and
   normaliser — never from a model, never by hand. Any tool may be used inside an importer; a browser
@@ -56,10 +57,11 @@ the exam layer for language exams (modules of Teile with their material; 02, 04,
   answers, attributions.
 - **3b. Goethe A1, A2, B1** (key for the owner), from the accessible online model tests
   (`bfu.goethe.de`; research: plain GET, a solution page per Teil, audio per item or Teil). In steps:
-  - **3b-2. Provider `goethe`**: Hören and Lesen of A1, A2, B1 and A1 Schreiben 1 (scored by their
-    keys), every recording, picture and text; checked against the solution pages.
-  - **3b-3. Schreiben and Sprechen**: the tasks as open answers with the exam's criteria; scored by
-    the learner against the criteria, or by the AI assistant when one is set up.
+  - **3b-3. Schreiben and Sprechen**: the tasks as open answers with the exam's criteria (the A1 form
+    as typed gaps, its key on the solution page); scored by the learner against the criteria, or by the
+    AI assistant when one is set up; then the real pass marks (A2: written and spoken minimums) in
+    place of 60 % of the modules there are. A Teil answered by letter from pictures (A2 Hören 2) shows
+    its pictures once, not under every question.
   - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
     run-throughs.
 - Later: telc, DTZ, ÖSD model tests (PDF + MP3, text answer keys); English exams with the English

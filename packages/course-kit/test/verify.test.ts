@@ -65,7 +65,7 @@ test("an exam's modules, examples and pass marks over modules are checked", asyn
   exam.modules = [{ id: "hoeren", timeLimitSec: 60, scaleTo: 25 }];
   exam.sections[0].module = "hoeren";
   exam.sections[1].module = "lesen";
-  exam.sections[0].example = exam.sections[0].pool[0];
+  exam.sections[0].examples = [exam.sections[0].pool[0]];
   exam.thresholds = [{ id: "pass", minPoints: 30, modules: ["hoeren", "sprechen"] }];
   writeFileSync(examFile, JSON.stringify(exam));
   const [report] = await verifyLibrary(openLibrary(root));

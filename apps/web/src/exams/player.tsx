@@ -298,11 +298,9 @@ function Running({
                             ? (locale?.modules?.[section.module as string]?.title ?? section.module)
                             : undefined
                         }
-                        example={
-                          section.example
-                            ? exam.items.find((i) => i.key === section.example)
-                            : undefined
-                        }
+                        examples={(section.examples ?? []).flatMap(
+                          (k) => exam.items.find((i) => i.key === k) ?? [],
+                        )}
                         limited
                         run={runId}
                         url={(path) => mediaUrl(series, path)}
