@@ -2,12 +2,7 @@
 // ts-fsrs (learning steps 1m 10m, relearning 10m, fuzz), and Anki's study queue — learning cards first,
 // then reviews mixed with new cards within the day's limits, learning cards up to 20 minutes early when
 // nothing else is left. Pure: the caller passes the time and the day's boundaries.
-import {
-  type CardFace,
-  type CardRating,
-  type FaceState,
-  SETTING_DEFAULTS,
-} from "@sprachanker/schema";
+import { CardFace, type CardRating, type FaceState, SETTING_DEFAULTS } from "@sprachanker/schema";
 import {
   type AbstractScheduler,
   type Card,
@@ -34,13 +29,13 @@ export const SRS_DEFAULTS = {
   /** A card forgotten this many times is a leech. */
   leechLapses: 8,
 } as const;
-/** A note's card types in order: recognition is card 1, production card 2, listening card 3. */
-export const FACE_ORDER: CardFace[] = ["recognition", "production", "listening"];
+/** A face's place among a note's card types (schema `CardFace`: recognition is card 1). */
+const faceOrder = (face: CardFace) => CardFace.options.indexOf(face);
 
 /** The face a lesson's "Words" step studies a card by: recognition, or the card's first face in
  *  order when the learner's cards have none (04). */
 export const lessonFace = (faces: CardFace[]): CardFace | undefined =>
-  [...faces].sort((a, b) => FACE_ORDER.indexOf(a) - FACE_ORDER.indexOf(b))[0];
+  [...faces].sort((a, b) => faceOrder(a) - faceOrder(b))[0];
 
 /** The profile's scheduling options (its Review settings), Anki's defaults where unset. */
 export interface SrsParams {
@@ -271,12 +266,11 @@ export function studyQueue(faces: QueueFace[], limits: QueueLimits) {
           ignore ? Number.POSITIVE_INFINITY : reviewsLeft - reviews.length,
         ),
       );
-  const order = (f: CardFace) => FACE_ORDER.indexOf(f);
   const fresh = active
     .filter((f) => isNew(f.state))
-    .sort((a, b) => a.position - b.position || order(a.face) - order(b.face))
+    .sort((a, b) => a.position - b.position || faceOrder(a.face) - faceOrder(b.face))
     .slice(0, newLeft)
-    .sort((a, b) => order(a.face) - order(b.face) || a.position - b.position)
+    .sort((a, b) => faceOrder(a.face) - faceOrder(b.face) || a.position - b.position)
     .map((f): QueueEntry => ({ cardId: f.cardId, face: f.face, kind: "new", due: now }));
 
   // Anki's "mix with reviews": new cards spread evenly among the reviews.

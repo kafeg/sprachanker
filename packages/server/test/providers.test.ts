@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { CourseSlug, EditionId, SeriesKey } from "@sprachanker/schema";
+import { EditionId, SeriesKey, Slug } from "@sprachanker/schema";
 import {
   courseInstaller,
   downloadEnd,
@@ -63,7 +63,7 @@ test("every provider keeps the contract: its own id and series, courses offered 
     expect(new Set(courses).size, `${p.id}: a course offered twice`).toBe(courses.length);
     for (const o of p.offers) {
       const where = `${p.id} ${o.course}`;
-      expect(CourseSlug.safeParse(o.course).success, where).toBe(true);
+      expect(Slug.safeParse(o.course).success, where).toBe(true);
       expect(EditionId.safeParse(o.edition).success, where).toBe(true);
       expect(o.title && o.source.url && o.approxBytes > 0, where).toBeTruthy();
     }

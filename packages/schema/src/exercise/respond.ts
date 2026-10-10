@@ -1,16 +1,15 @@
 // respond: open answer (translation, short writing, answering a prompt), written or spoken.
 import { z } from "zod";
+import { Slug } from "../keys.ts";
 import { exerciseOf, ItemBase } from "./base.ts";
 import { SpokenAnswer } from "./speech.ts";
-
-const RubricId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
 export const RespondItem = ItemBase.extend({
   input: z.enum(["text", "speech"]),
   rubric: z
     .strictObject({
       /** Groups of which the answer must contain at least one variant. */
-      required: z.array(z.strictObject({ id: RubricId, anyOf: z.array(z.string().min(1)).min(1) })),
+      required: z.array(z.strictObject({ id: Slug, anyOf: z.array(z.string().min(1)).min(1) })),
     })
     .optional(),
   /** Model answers in the target language; a translation into the learner's language has its model

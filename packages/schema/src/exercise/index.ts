@@ -7,15 +7,21 @@ import { UnknownExercise } from "./other.ts";
 import { RespondExercise } from "./respond.ts";
 import { DictationExercise, SpeechRepeatExercise, SpeechSelfrateExercise } from "./speech.ts";
 
-export * from "./base.ts";
-export * from "./choice.ts";
-export * from "./gap.ts";
-export * from "./match.ts";
-export * from "./order.ts";
-export * from "./other.ts";
-export * from "./outcome.ts";
-export * from "./respond.ts";
-export * from "./speech.ts";
+// What other modules use: the exercise union, options and ids, stored answers and outcomes. Each
+// type's item and exercise schema stays inside (`ItemOf` types an item).
+export { GapId, Option, OptionId } from "./base.ts";
+export { MultiChoiceAnswer, SingleChoiceAnswer } from "./choice.ts";
+export { correctOptions, GapChoiceAnswer, GapTextAnswer } from "./gap.ts";
+export { MatchAnswer } from "./match.ts";
+export { joinParts, OrderAnswer } from "./order.ts";
+export { Outcome, TokenDiff } from "./outcome.ts";
+export { RespondAnswer } from "./respond.ts";
+export {
+  DictationAnswer,
+  recordingOf,
+  SpeechRepeatAnswer,
+  SpeechSelfrateAnswer,
+} from "./speech.ts";
 
 /** Every exercise type (02); adding one needs a checker, a renderer and a fixture item (root rule 2). */
 export const Exercise = z.discriminatedUnion("type", [

@@ -4,11 +4,11 @@ import {
   CardFace,
   CardRating,
   CourseKey,
-  CourseSlug,
   EditionId,
   Lang,
   LessonKey,
   SeriesKey,
+  Slug,
   Ulid,
 } from "@sprachanker/schema";
 import { Hono } from "hono";
@@ -39,7 +39,7 @@ export function cardRoutes() {
       .get("/decks/offers", async (c) => c.json({ offers: await c.var.s.cards.deckOffers() }))
       .post(
         "/decks/take",
-        zod("json", z.object({ series: SeriesKey, course: CourseSlug, edition: EditionId })),
+        zod("json", z.object({ series: SeriesKey, course: Slug, edition: EditionId })),
         async (c) => c.json(await c.var.s.cards.takeDeck(c.req.valid("json"))),
       )
       .post("/decks/leave", zod("json", z.object({ course: CourseKey, lang: Lang })), async (c) =>

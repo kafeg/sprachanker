@@ -10,16 +10,16 @@ src/
   lang.ts            # Lang, edition ids
   library-state.ts   # the importer's and server's own files beside a series: media.json, keys.json, a
                      # download's marker (checked when read, no `format`)
-  keys.ts            # key schemas (branded), builders, parsers, lemma slugs, part of speech, gender,
-                     # choice option ids
+  keys.ts            # key schemas (branded), builders, parsers, lemma slugs, Slug (the ids made of
+                     # one: a course's, a module's, a pass mark's), part of speech, gender, option ids
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
   canonical.ts       # course index, lesson, vocab entries, unmapped
   exam.ts            # exam, sections, pools, thresholds; a question as a one-item exercise, an exam's language
   locale.ts          # localised course/lesson/exam texts per edition (same key paths as canonical)
   exercise/          # item fields and stored answers per type, grouped by family; outcome.ts; index.ts (union,
-                     # ItemOf)
-  rules.ts           # grammar rules registry
-  enrichment.ts      # enrichment
+                     # ItemOf; exports what other modules use — a type's item and exercise schemas stay inside)
+  rules.ts           # grammar rules registry (courses/_shared/rules; the app reads none yet: planned)
+  enrichment.ts      # enrichment (planned: its format only, nothing writes or reads one)
   learner.ts         # runs (RunHeader: what every run is; lesson and exam runs extend it; status and end
                      # reason), event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed
                      # by its type; llm_verdict a union by task), step ids and AI practice kinds, cards

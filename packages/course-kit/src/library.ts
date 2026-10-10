@@ -5,7 +5,6 @@ import { readFile } from "node:fs/promises";
 import { join, normalize, sep } from "node:path";
 import {
   CourseIndex,
-  CourseSlug,
   EditionId,
   Exam,
   type ExamKey,
@@ -19,6 +18,7 @@ import {
   parseExamKey,
   parseLessonKey,
   SeriesKey,
+  Slug,
 } from "@sprachanker/schema";
 import type { z } from "zod";
 import { type LibraryView, NotInstalledError } from "./library-view.ts";
@@ -101,16 +101,13 @@ export function openLibrary(root: string): LibraryView {
         );
     },
     courseIndex: (series, course) =>
-      read(
-        CourseIndex,
-        join(seriesDir(series), "canonical", named(CourseSlug, course), "course.json"),
-      ),
+      read(CourseIndex, join(seriesDir(series), "canonical", named(Slug, course), "course.json")),
     async localeCourse(series, course, edition) {
       const file = join(
         seriesDir(series),
         "locale",
         named(EditionId, edition),
-        named(CourseSlug, course),
+        named(Slug, course),
         "course.json",
       );
       return existsSync(file) ? read(LocaleCourse, file) : undefined;

@@ -2,15 +2,17 @@
 // (Leben in Deutschland), or modules of Teile with their material (Goethe's Hören, Lesen, …).
 import { z } from "zod";
 import { format, Media, Sha256 } from "./common.ts";
-import { type Exercise, GapTextItem, RespondItem, SingleChoiceItem } from "./exercise/index.ts";
-import { ExamItemKey, ExamKey, ExamSectionKey } from "./keys.ts";
+import { SingleChoiceItem } from "./exercise/choice.ts";
+import { GapTextItem } from "./exercise/gap.ts";
+import type { Exercise } from "./exercise/index.ts";
+import { RespondItem } from "./exercise/respond.ts";
+import { ExamItemKey, ExamKey, ExamSectionKey, Slug } from "./keys.ts";
 import { type Lang, parseEditionId } from "./lang.ts";
 
 export const EXAM_FORMAT = 1;
 
-const ThresholdId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 /** A module of an exam: `hoeren`, `lesen`, `schreiben`, `sprechen`. */
-export const ExamModuleId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+export const ExamModuleId = Slug;
 export type ExamModuleId = z.infer<typeof ExamModuleId>;
 
 /** Germany's federal states by their ISO 3166-2 codes: the Leben in Deutschland test asks three
@@ -54,7 +56,7 @@ const examQuestion = {
   criteria: z
     .array(
       z.strictObject({
-        id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        id: Slug,
         levels: z.array(z.number().nonnegative()).min(2),
         voids: z.boolean().optional(),
       }),
@@ -149,7 +151,7 @@ export const Exam = z.strictObject({
   thresholds: z
     .array(
       z.strictObject({
-        id: ThresholdId,
+        id: Slug,
         minPoints: z.number().positive(),
         modules: z.array(ExamModuleId).optional(),
       }),

@@ -1,10 +1,10 @@
-import { CourseSlug, EditionId, LessonKey, SeriesKey } from "@sprachanker/schema";
+import { EditionId, LessonKey, SeriesKey, Slug } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
-export const CourseRef = z.object({ series: SeriesKey, course: CourseSlug });
+export const CourseRef = z.object({ series: SeriesKey, course: Slug });
 
 export function courseRoutes() {
   return (

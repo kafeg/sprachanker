@@ -4,7 +4,7 @@
 // when written and parsed when read: a stored value that no longer fits is read as unset.
 import { z } from "zod";
 import { FederalState } from "./exam.ts";
-import { CourseSlug, SeriesKey } from "./keys.ts";
+import { SeriesKey, Slug } from "./keys.ts";
 import { EditionId, Lang } from "./lang.ts";
 import { CardFace } from "./learner.ts";
 
@@ -174,11 +174,7 @@ export const settingOf = <K extends LearnerSettingKey>(
 export function learnerSettingSchema(key: string): z.ZodType | undefined {
   if (Object.hasOwn(LEARNER_SETTINGS, key)) return LEARNER_SETTINGS[key as keyof Learner];
   const edition = EDITION_KEY.exec(key);
-  if (
-    edition &&
-    SeriesKey.safeParse(edition[1]).success &&
-    CourseSlug.safeParse(edition[2]).success
-  )
+  if (edition && SeriesKey.safeParse(edition[1]).success && Slug.safeParse(edition[2]).success)
     return EditionId;
   return undefined;
 }

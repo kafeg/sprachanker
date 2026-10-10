@@ -196,8 +196,8 @@ export type VerdictTask = LlmVerdictPayload["task"];
 /** The verdict of one task, its result typed. */
 export type VerdictOf<T extends VerdictTask> = Extract<LlmVerdictPayload, { task: T }>;
 
-/** A card's sides (04, "Spaced repetition"): recognition (target → native), production (native →
- *  target), listening (audio → meaning). */
+/** A card's sides (04, "Spaced repetition"), in a note's card order: recognition (target → native)
+ *  is card 1, production (native → target) card 2, listening (audio → meaning) card 3. */
 export const CardFace = z.enum(["recognition", "production", "listening"]);
 export type CardFace = z.infer<typeof CardFace>;
 
