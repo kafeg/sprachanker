@@ -67,12 +67,11 @@ apps/web/src/
                    # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-example
                    # (the reviewer's slot); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
-                   # settings-section (Settings → AI assistant), lmstudio-section,
-                   # prompts-info (Settings → AI assistant: where it works; the prompts under Advanced), prompt-view (a request as sent), context-meter
+                   # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
+                   # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
-                   # bubbles, header, pending exchange, composer, start prompt, errors (with Retry);
-                   # api.ts (the tasks' requests), setup-api.ts (the route, providers, models, LM Studio,
-                   # the prompts)
+                   # bubbles, header, pending exchange, composer, start prompt, errors (with Retry); api.ts
+                   # (the tasks), setup-api.ts (the route, providers, models, LM Studio, the prompts)
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
@@ -91,18 +90,15 @@ apps/web/src/
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
                    # context (the speech host the router provides: keep recordings, show the phrase,
-                   # save, src, recognition — renderers call no API; use-speech-host makes it),
-                   # speech-settings (Settings → Speech;
-                   # SpeechSetup — microphone, recognition, reading aloud — is also the onboarding's step),
+                   # save, src, recognition — renderers call no API; use-speech-host makes it), speech-
+                   # settings (Settings → Speech; SpeechSetup is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
                    # read at once), speak-button, read-aloud-settings (the engines as cards, the speed)
                    # with each engine's voices: device-voices, piper-voices, qwen-voices (voice-pick: a
                    # language's voice and "Listen"); download-row (a model or voice the server
-                   # downloads: Whisper's, Piper's, Qwen3-TTS's),
-                   # read-languages (the languages read aloud: the courses' here, else the catalogue's,
-                   # and the interface's), samples (what "Listen" reads: everyday sentences per language; pure); in-use (the mark of
-                   # the model in use: Whisper's, Qwen3-TTS's)
+                   # downloads), read-languages (the courses' here, else the catalogue's, and the
+                   # interface's), samples ("Listen"'s sentences; pure), in-use (the model in use's mark)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
