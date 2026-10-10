@@ -6,6 +6,7 @@ import { useContext, useEffect, useImperativeHandle, useRef, useState } from "re
 import { useTranslation } from "react-i18next";
 import { Slider } from "./components/slider.tsx";
 import { clock } from "./format.ts";
+import { panelClass } from "./panel.tsx";
 import { claimPlayback, PlaybackRate, SpeedButton, useClip } from "./playback.tsx";
 import { cn } from "./utils.ts";
 import { Episode, EpisodeVideo, isEpisode } from "./video.tsx";
@@ -124,7 +125,8 @@ export function AudioPlayer({
       role="group"
       aria-label={label}
       className={cn(
-        "flex w-full items-center gap-3 rounded-2xl border bg-card",
+        panelClass,
+        "flex w-full items-center gap-3",
         compact ? "p-1.5 pr-1" : "p-3",
         className,
       )}

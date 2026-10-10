@@ -1,6 +1,8 @@
 // A short tour of the app's sections (09): each with its icon and one line — at the end of the
 // onboarding.
 import { useTranslation } from "react-i18next";
+import { panelClass } from "@/ui/panel.tsx";
+import { cn } from "@/ui/utils.ts";
 import { NAV } from "./shell.tsx";
 
 export function Tour() {
@@ -8,7 +10,7 @@ export function Tour() {
   return (
     <ul className="space-y-2">
       {NAV.map(({ to, key, icon: Icon }) => (
-        <li key={to} className="flex items-start gap-3 rounded-2xl border bg-card p-3">
+        <li key={to} className={cn(panelClass, "flex items-start gap-3 p-3")}>
           <Icon className="mt-0.5 size-5 shrink-0 text-muted-foreground" aria-hidden />
           <span>
             <span className="block font-semibold">{t(key)}</span>

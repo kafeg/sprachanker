@@ -10,6 +10,8 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes } from "@/ui/format.ts";
+import { panelClass } from "@/ui/panel.tsx";
+import { cn } from "@/ui/utils.ts";
 import { DownloadLine, downloading } from "./download.tsx";
 import { ResetProgress } from "./reset-progress.tsx";
 
@@ -37,7 +39,7 @@ export function LibraryCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border bg-card shadow-sm">
+    <div className={cn(panelClass, "flex flex-col overflow-hidden shadow-sm")}>
       <div className="flex min-h-14 items-center gap-3 bg-primary/15 px-4">
         <PairFlags edition={edition} size="md" />
         <span className="ml-auto text-sm tabular-nums text-muted-foreground">{figure}</span>

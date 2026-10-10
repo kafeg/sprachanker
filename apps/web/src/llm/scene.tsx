@@ -11,7 +11,7 @@ import { Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { HistoryList } from "@/ui/history.tsx";
-import { Panel } from "@/ui/panel.tsx";
+import { Panel, panelClass } from "@/ui/panel.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { type SceneState, useSceneAction, useScenes } from "./api.ts";
@@ -146,7 +146,7 @@ function CurrentScene({
       <Panel as="div">
         <Setup scene={scene} />
       </Panel>
-      <div className="rounded-2xl border bg-card">
+      <div className={panelClass}>
         <ChatHeader>
           {!scene.done && (
             <PromptButton request={() => ({ scene: { ...line, text: line.text || "…" } })} />

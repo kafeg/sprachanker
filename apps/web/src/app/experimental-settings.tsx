@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { type CatalogRow, useCatalog, useSetSetting, useSetting } from "@/api/hooks.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Loading } from "@/ui/page.tsx";
+import { panelClass } from "@/ui/panel.tsx";
+import { cn } from "@/ui/utils.ts";
 import { type ExperimentalSection, sectionOn, sourceId } from "./experimental.ts";
 
 const SECTIONS: ExperimentalSection[] = ["courses", "exams"];
@@ -54,7 +56,7 @@ export function ExperimentalSettings() {
             const sources = sourcesOf(catalog, section);
             const open = sectionOn(on, section);
             return (
-              <div key={section} className="rounded-2xl border bg-card px-4 py-1">
+              <div key={section} className={cn(panelClass, "px-4 py-1")}>
                 <CheckRow
                   checked={open}
                   onChange={(value) => toggle(section, value)}

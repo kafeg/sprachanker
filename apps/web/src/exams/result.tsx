@@ -22,6 +22,8 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDateFormat } from "@/ui/format.ts";
+import { EmptyState } from "@/ui/page.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import { latestAnswers } from "./questions.ts";
@@ -111,7 +113,7 @@ export function ExamResultView({
         {date.format(run.finishedAt ?? run.startedAt)}
       </p>
       {result && (
-        <section className="mt-3 rounded-2xl border bg-card p-5 shadow-sm">
+        <section className={cn(panelClass, "mt-3 p-5 shadow-sm")}>
           <div className="flex items-center gap-4">
             <ProgressRing
               value={result.max ? result.points / result.max : 0}
@@ -281,9 +283,7 @@ export function ExamResultView({
           })}
         </ol>
       ) : (
-        <p className="rounded-2xl border border-dashed p-6 text-center text-muted-foreground">
-          {t("exams.noMistakes")}
-        </p>
+        <EmptyState className="p-6">{t("exams.noMistakes")}</EmptyState>
       )}
     </div>
   );

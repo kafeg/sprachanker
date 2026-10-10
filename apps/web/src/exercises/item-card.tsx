@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
@@ -54,7 +55,8 @@ export function ItemCard({
     <div
       className={cn(
         // A run with no place to break ("Führerschein/Computerkenntnisse/…") wraps inside the card.
-        "rounded-2xl border bg-card p-4 break-words sm:p-5",
+        panelClass,
+        "p-4 break-words sm:p-5",
         marked && (ok ? "border-l-4 border-l-correct" : "border-l-4 border-l-wrong"),
         className,
       )}

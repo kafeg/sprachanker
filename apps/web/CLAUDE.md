@@ -129,7 +129,7 @@ to `@/ui`).
   a screen's test checks what it shows and what it asks for.
 - Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
-  `Panel`, side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`;
+  `Panel` (its look alone, for lists and folded sections: `panelClass`), side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`, a link that looks as a button `<Button asChild>`;
   a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), one of a few
   options shown as cards `OptionCard`, a model or voice the server downloads `DownloadRow` (audio/), what is rarely changed
   is under one `Disclosure` ("Advanced") per tab, tabs look as `SectionTabs`; text fields are the ui

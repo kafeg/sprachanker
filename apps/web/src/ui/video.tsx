@@ -6,6 +6,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
 import { CourseHtml } from "./course-html.tsx";
+import { panelClass } from "./panel.tsx";
 import { claimPlayback, PlaybackRate, SpeedButton } from "./playback.tsx";
 import { useRequiredTargetLang } from "./target-lang.ts";
 import { cn } from "./utils.ts";
@@ -129,7 +130,7 @@ export function EpisodeVideo({
         )}
       </div>
       {textHtml && (
-        <details className="rounded-2xl border bg-card px-5 py-3">
+        <details className={cn(panelClass, "px-5 py-3")}>
           <summary className="cursor-pointer font-semibold">{t("lesson.videoText")}</summary>
           <CourseHtml className="mt-3" html={textHtml} />
         </details>

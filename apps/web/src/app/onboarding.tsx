@@ -18,6 +18,7 @@ import {
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
+import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { NameAndColour } from "./name-colour.tsx";
 import { Tour } from "./tour.tsx";
@@ -105,10 +106,10 @@ export function Onboarding({
         {step === "profile" && (
           <>
             <p className="text-lg">{t("onboarding.profile.text")}</p>
-            <div className="space-y-2 rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+            <Panel as="div" className="space-y-2 text-sm text-muted-foreground">
               <p>{t("onboarding.profile.sources")}</p>
               <p>{t("onboarding.profile.experimental")}</p>
-            </div>
+            </Panel>
             <h2 className="pt-2 text-xl font-semibold">{t("onboarding.profile.name")}</h2>
             <NameAndColour
               name={name}

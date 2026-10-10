@@ -9,6 +9,7 @@ import { useEdition } from "@/api/edition.ts";
 import { type useCourses, useSetSetting } from "@/api/hooks.ts";
 import { LibraryCard, PublisherLink } from "@/library/card.tsx";
 import { CourseUpkeep } from "@/library/upkeep.tsx";
+import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
 
 export type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
@@ -80,24 +81,26 @@ export function CourseCard({
       )}
       <div className="mt-auto space-y-1 pt-4">
         {next && (
-          <Link
-            to="/lesson/$series/$course/$lesson"
-            params={{ series: course.series, course: course.course, lesson: next.name }}
-            onClick={choose}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            {course.started ? t("lesson.resume") : t("courses.start")}
-            <ArrowRight className="size-4" />
-          </Link>
+          <Button asChild size="lg" className="w-full">
+            <Link
+              to="/lesson/$series/$course/$lesson"
+              params={{ series: course.series, course: course.course, lesson: next.name }}
+              onClick={choose}
+            >
+              {course.started ? t("lesson.resume") : t("courses.start")}
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         )}
-        <Link
-          to="/course/$series/$course"
-          params={{ series: course.series, course: course.course }}
-          onClick={choose}
-          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
-        >
-          <BookOpen className="size-4" /> {t("courses.allLessons")}
-        </Link>
+        <Button asChild variant="ghost" size="lg" className="w-full text-muted-foreground">
+          <Link
+            to="/course/$series/$course"
+            params={{ series: course.series, course: course.course }}
+            onClick={choose}
+          >
+            <BookOpen className="size-4" /> {t("courses.allLessons")}
+          </Link>
+        </Button>
       </div>
     </LibraryCard>
   );

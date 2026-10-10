@@ -11,11 +11,14 @@ import {
 import type { Lesson, LessonResult, LocaleLesson, StepId } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
+import { ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
+import { cn } from "@/ui/utils.ts";
 import { stepTitle } from "./plan.tsx";
 
 export function LessonSummary({
@@ -87,7 +90,7 @@ export function LessonSummary({
         </Button>
       )}
       {todo.length > 0 && (
-        <ul className="divide-y overflow-hidden rounded-2xl border bg-card">
+        <ul className={cn(panelClass, "divide-y overflow-hidden")}>
           {todo.map((step) => {
             const state = stepState(step, lesson, results, done);
             const exercise =
@@ -118,21 +121,20 @@ export function LessonSummary({
         </ul>
       )}
       <div className="flex flex-wrap gap-2">
-        <Link
-          to="/course/$series/$course"
-          params={{ series, course }}
-          className="inline-flex min-h-11 items-center rounded-xl border px-4 font-medium hover:bg-accent"
-        >
-          {t("lesson.backToCourse")}
-        </Link>
-        {nextLesson && (
-          <Link
-            to="/lesson/$series/$course/$lesson"
-            params={{ series, course, lesson: parseLessonKey(nextLesson).name }}
-            className="inline-flex min-h-11 items-center rounded-xl bg-primary px-4 font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            {t("lesson.nextLesson")} →
+        <Button asChild variant="outline" size="lg">
+          <Link to="/course/$series/$course" params={{ series, course }}>
+            {t("lesson.backToCourse")}
           </Link>
+        </Button>
+        {nextLesson && (
+          <Button asChild size="lg">
+            <Link
+              to="/lesson/$series/$course/$lesson"
+              params={{ series, course, lesson: parseLessonKey(nextLesson).name }}
+            >
+              {t("lesson.nextLesson")} <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         )}
       </div>
     </section>

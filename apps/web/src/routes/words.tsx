@@ -12,6 +12,7 @@ import { Chip } from "@/ui/chip.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { ListRow } from "@/ui/history.tsx";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -125,7 +126,7 @@ export function MyWords() {
             </Chip>
           ))}
         </div>
-        <div className="overflow-hidden rounded-2xl border bg-card">
+        <div className={cn(panelClass, "overflow-hidden")}>
           <div
             className={cn(row, "hidden border-b px-4 py-2 text-xs text-muted-foreground sm:grid")}
           >

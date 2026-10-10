@@ -6,6 +6,8 @@ import { parseLessonKey } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer } from "@/ui/media.tsx";
+import { panelClass } from "@/ui/panel.tsx";
+import { cn } from "@/ui/utils.ts";
 import { EpisodeVideo, isEpisode } from "@/ui/video.tsx";
 
 export function LessonOverview({
@@ -45,10 +47,7 @@ export function LessonOverview({
       </p>
       <h1 className="text-4xl font-bold">{locale?.title ?? lesson.key}</h1>
       {locale?.synopsisHtml && (
-        <CourseHtml
-          className="rounded-2xl border bg-card px-5 py-4 text-lg"
-          html={locale.synopsisHtml}
-        />
+        <CourseHtml className={cn(panelClass, "px-5 py-4 text-lg")} html={locale.synopsisHtml} />
       )}
       {!!lesson.goals.length && (
         <div className="rounded-2xl bg-accent px-5 py-4">
@@ -76,7 +75,7 @@ export function LessonOverview({
       )}
       {/* The recording's transcript under it (the script page of the lesson). */}
       {locale?.tabs.script && !lesson.media.video && lesson.media.audio && (
-        <details className="rounded-2xl border bg-card px-5 py-3">
+        <details className={cn(panelClass, "px-5 py-3")}>
           <summary className="cursor-pointer font-semibold">{t("lesson.audioText")}</summary>
           <CourseHtml className="mt-3" html={locale.tabs.script.bodyHtml} />
         </details>

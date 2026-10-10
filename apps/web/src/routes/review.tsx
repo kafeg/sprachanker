@@ -21,7 +21,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { PairFlags, usePairName } from "@/ui/flags.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
-import { Panel } from "@/ui/panel.tsx";
+import { Panel, panelClass } from "@/ui/panel.tsx";
 import { SectionTabs } from "@/ui/section-tabs.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -67,7 +67,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
   const row =
     "grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem_2.25rem] items-center gap-2 px-4 sm:grid-cols-[minmax(0,1fr)_3rem_3rem_3rem]";
   return (
-    <div className="rounded-2xl border bg-card">
+    <div className={panelClass}>
       <div className={cn(row, "border-b py-2 text-xs text-muted-foreground")}>
         <span>{t("study.deck")}</span>
         <span className="text-right">{t("study.count.new")}</span>

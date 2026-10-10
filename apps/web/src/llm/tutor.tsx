@@ -10,8 +10,10 @@ import type { SpokenPart } from "@/audio/speak.ts";
 import { useReadAtOnce } from "@/audio/speaker.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
+import { cn } from "@/ui/utils.ts";
 import {
   streamTutor,
   type TutorRequest,
@@ -346,7 +348,7 @@ export function MistakesTutor({
       />
     );
   return (
-    <div className="flex h-[70dvh] min-h-96 flex-col overflow-hidden rounded-2xl border bg-card pt-2">
+    <div className={cn(panelClass, "flex h-[70dvh] min-h-96 flex-col overflow-hidden pt-2")}>
       <Chat {...context} ask={ask} starter={starter} onReply={onDone} />
     </div>
   );

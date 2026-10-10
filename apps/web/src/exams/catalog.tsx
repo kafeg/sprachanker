@@ -12,7 +12,9 @@ import { useSettings } from "@/api/hooks.ts";
 import { type ExamParams, questionId } from "@/library/exam-address.ts";
 import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, Page } from "@/ui/page.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
+import { cn } from "@/ui/utils.ts";
 import { exampleAnswer, inTeile } from "./questions.ts";
 import { QuestionSources } from "./sources.tsx";
 import { QuestionCard, TeilHeader } from "./teil.tsx";
@@ -80,7 +82,7 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
           </p>
         )}
         {shown.length ? (
-          <ol className="divide-y rounded-2xl border bg-card">
+          <ol className={cn(panelClass, "divide-y")}>
             {inTeile(data.exam, shown, {}).map(({ item, section, opens }) => {
               const isOpen = opened.has(item.key);
               const texts = section && data.locale?.sections[section.key];

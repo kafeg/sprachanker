@@ -2,7 +2,9 @@
 // the title, its chips (the pair, the source, …), a line under them, the way in beside, and what the
 // page adds below.
 import { usePercent } from "@/ui/format.ts";
+import { panelClass } from "@/ui/panel.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
+import { cn } from "@/ui/utils.ts";
 
 export function LibraryHero({
   share,
@@ -23,7 +25,7 @@ export function LibraryHero({
 }) {
   const percent = usePercent();
   return (
-    <section className="mb-6 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
+    <section className={cn(panelClass, "mb-6 p-5 shadow-sm sm:p-6")}>
       <div className="flex flex-wrap items-center gap-4 sm:gap-5">
         <div className="flex min-w-0 flex-1 basis-80 items-center gap-4 sm:gap-5">
           <ProgressRing value={share} text={percent(share)} />

@@ -12,6 +12,7 @@ import { said } from "@/audio/speak.ts";
 import { readingId, useSpeaker } from "@/audio/speaker.ts";
 import type { ConversationContext } from "@/exams/slots.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { useConversationTurn } from "./api.ts";
 import {
@@ -97,7 +98,7 @@ export function ExamConversation({
       </div>
     );
   return (
-    <div className="rounded-2xl border bg-card">
+    <div className={panelClass}>
       <ChatHeader>
         {!done && (
           <PromptButton request={() => ({ conversation: { ...request, text: text || "…" } })} />

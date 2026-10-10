@@ -19,6 +19,7 @@ import { errorText } from "@/ui/error-text.ts";
 import { useDateFormat } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { BackLink, Page } from "@/ui/page.tsx";
+import { panelClass } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { ExamSourcesPanel } from "./sources.tsx";
 import { StateSelect } from "./state-select.tsx";
@@ -174,7 +175,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
       </div>
 
       {/* The latest mock exam; the rest of what was done is the Notebook's. */}
-      <section className="overflow-hidden rounded-2xl border bg-card">
+      <section className={cn(panelClass, "overflow-hidden")}>
         <ListRow
           flush
           onClick={() => void navigate({ to: "/notebook/exam/$series/$course/$exam", params })}
@@ -210,12 +211,7 @@ function ModeTile({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className={cn(
-        "flex flex-col rounded-2xl border bg-card p-4",
-        primary && "border-2 border-primary",
-      )}
-    >
+    <div className={cn(panelClass, "flex flex-col p-4", primary && "border-2 border-primary")}>
       <h2 className="flex items-center gap-2 font-heading text-lg font-bold">
         {icon} {title}
       </h2>

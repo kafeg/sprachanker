@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
+import { Panel } from "@/ui/panel.tsx";
 import { errorText, setupProblem } from "./errors.ts";
 import { KeyState } from "./key-state.tsx";
 import { LmStudioSection } from "./lmstudio-section.tsx";
@@ -222,7 +223,7 @@ export function AssistantSetup() {
         }
       />
       {provider && (
-        <div className="space-y-5 rounded-2xl border bg-card p-4 sm:p-5">
+        <Panel as="div" className="space-y-5">
           <p className="text-sm text-muted-foreground">{t(`llm.about.${provider.id}`)}</p>
           {provider.installed === false && (
             <p className="flex items-start gap-1.5 text-sm">
@@ -238,7 +239,7 @@ export function AssistantSetup() {
           ) : (
             <ModelField state={state} provider={provider} />
           )}
-        </div>
+        </Panel>
       )}
     </div>
   );

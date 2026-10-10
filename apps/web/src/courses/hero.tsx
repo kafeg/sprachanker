@@ -108,14 +108,15 @@ export function CourseHero(props: CourseHeroProps) {
       action={
         next &&
         nextKey && (
-          <Link
-            to="/lesson/$series/$course/$lesson"
-            params={{ series, course, lesson: nextKey.name }}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-5 font-semibold text-primary-foreground hover:bg-primary/90"
-          >
-            {started ? t("lesson.resume") : t("courses.start")}
-            <ArrowRight className="size-4" />
-          </Link>
+          <Button asChild size="lg">
+            <Link
+              to="/lesson/$series/$course/$lesson"
+              params={{ series, course, lesson: nextKey.name }}
+            >
+              {started ? t("lesson.resume") : t("courses.start")}
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
         )
       }
     >
