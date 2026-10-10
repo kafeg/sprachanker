@@ -19,6 +19,7 @@ import {
   type UnitKey,
 } from "@sprachanker/schema";
 import { type ApolloState, entitiesOf, exerciseIds } from "../apollo.ts";
+import { downloadUrl, subtitledVideo } from "../media.ts";
 import {
   audioPath,
   type Context,
@@ -118,7 +119,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const L = state[`Lesson:${src.sourceId}`];
   if (!L) throw new Error(`lesson ${src.sourceId} missing in its page`);
 
-  const video = refs(state, L.videos).find((v) => !String(v.name ?? "").includes("Untertitel"));
+  const video = refs(state, L.videos).find((v) => !subtitledVideo(v));
   const { sd, hd } = videoPaths(ctx, video);
   const subtitleUrl = (video?.subtitles as Array<{ subtitleUrl?: string }> | undefined)?.[0]
     ?.subtitleUrl;
@@ -190,9 +191,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const downloads = entitiesOf(src.downloads, "ContentLink").flatMap((link) => {
     const target = deref(src.downloads, link.target);
     if (link.targetType !== "DOWNLOAD" || typeof target?.filename !== "string") return [];
-    const path = ctx.media(
-      `https://static.dw.com/downloads/${link.targetId}/${target.filename.toLowerCase()}`,
-    );
+    const path = ctx.media(downloadUrl(link.targetId, target.filename));
     return path ? [{ title: plainText(link.name), path }] : [];
   });
 

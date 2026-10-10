@@ -3,7 +3,7 @@
 import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
 import { dirname } from "node:path";
-import { FetchFailedError, type PoliteFetcher } from "@sprachanker/course-kit";
+import { FetchFailedError, IMPORTER_USER_AGENT, type PoliteFetcher } from "@sprachanker/course-kit";
 
 export interface StreamSource {
   /** HLS master playlist. */
@@ -31,7 +31,9 @@ export async function remuxStream(
   const variant = variantUrl(master, source.resolution);
   if (!variant) throw new FetchFailedError(source.master, "network");
   await mkdir(dirname(target), { recursive: true });
-  const args = ["-loglevel", "error", "-y", "-i", variant, "-c", "copy", "-bsf:a", "aac_adtstoasc"];
+  // The importer's identity, as every request of it (03).
+  const args = ["-loglevel", "error", "-y", "-user_agent", IMPORTER_USER_AGENT, "-i", variant];
+  args.push("-c", "copy", "-bsf:a", "aac_adtstoasc");
   // The target has no .mp4 extension (a temporary name): say the format.
   args.push("-movflags", "+faststart", "-f", "mp4", target);
   const ffmpeg = spawn("ffmpeg", args, { stdio: ["ignore", "ignore", "pipe"] });

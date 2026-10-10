@@ -3,11 +3,10 @@ import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
   FetchFailedError,
+  type MediaRef,
   type PoliteFetcher,
-  type MediaRef as StoredRef,
   urlFileName,
 } from "@sprachanker/course-kit";
-import type { MediaKind } from "@sprachanker/schema";
 
 import { type ApolloState, entitiesOf } from "./apollo.ts";
 import { remuxStream, type StreamSource } from "./stream.ts";
@@ -15,12 +14,23 @@ import { remuxStream, type StreamSource } from "./stream.ts";
 /** Image size used for every DW image (`static.dw.com/image/<id>_<format>`): 940×529. */
 export const IMAGE_FORMAT = "6";
 
-export interface MediaRef {
-  url: string;
-  kind: MediaKind;
+/** A DW image's URL template (`static.dw.com/image/<id>_${formatId}.<ext>`) in the size downloaded. */
+// biome-ignore lint/suspicious/noTemplateCurlyInString: DW's literal URL template placeholder.
+export const imageUrl = (template: string) => template.replace("${formatId}", IMAGE_FORMAT);
+
+/** A download's file (a lesson's PDF): DW names it by the link's target and its file name. */
+export const downloadUrl = (targetId: unknown, filename: string) =>
+  `https://static.dw.com/downloads/${targetId}/${filename.toLowerCase()}`;
+
+/** A video with burned-in subtitles: its name says so ("… mit Untertitel"). */
+export const subtitledVideo = (video: Record<string, unknown>) =>
+  String(video.name ?? "").includes("Untertitel");
+
+/** A medium a page refers to, before it is named (`mediaName`). */
+export type PageMedia = Omit<MediaRef, "name"> & {
   /** Videos: the HLS variant with the same content, used when the direct file is missing. */
   stream?: StreamSource;
-}
+};
 
 /** File name of a medium: the source's own name; images and subtitles by their DW id. */
 export function mediaName(ref: Pick<MediaRef, "url" | "kind">): string {
@@ -48,7 +58,7 @@ const VARIANTS = {
  * files (`videoResourceLinks`); lesson pages only give an HLS stream whose variants name the same files.
  */
 export function videoFiles(video: Record<string, unknown>): { sd?: string; hd?: string } {
-  if (String(video.name ?? "").includes("Untertitel")) return {};
+  if (subtitledVideo(video)) return {};
   const files = (video.videoResourceLinks ?? []) as Array<{ url: string; techFormat: string }>;
   const m = HLS.exec(String(video.hlsVideoSrc ?? ""));
   const streams = m ? (m[2] as string).split(",") : [];
@@ -67,17 +77,13 @@ export function videoFiles(video: Record<string, unknown>): { sd?: string; hd?: 
 }
 
 /** Media referenced by one page state. */
-export function mediaRefs(state: ApolloState): MediaRef[] {
-  const refs: MediaRef[] = [];
+export function mediaRefs(state: ApolloState): PageMedia[] {
+  const refs: PageMedia[] = [];
   const text = JSON.stringify(state);
   for (const m of text.matchAll(/"mp3Src":"(https:[^"]+)"/g))
     refs.push({ url: m[1] as string, kind: "audio" });
-  for (const m of text.matchAll(/https:\/\/static\.dw\.com\/image\/(\d+)_\$\{formatId\}\.(\w+)/g)) {
-    refs.push({
-      url: `https://static.dw.com/image/${m[1]}_${IMAGE_FORMAT}.${m[2]}`,
-      kind: "image",
-    });
-  }
+  for (const m of text.matchAll(/https:\/\/static\.dw\.com\/image\/\d+_\$\{formatId\}\.\w+/g))
+    refs.push({ url: imageUrl(m[0]), kind: "image" });
   for (const video of entitiesOf(state, "Video")) {
     const files = videoFiles(video);
     if (!files.sd && !files.hd) continue;
@@ -97,18 +103,15 @@ export function mediaRefs(state: ApolloState): MediaRef[] {
   for (const link of entitiesOf(state, "ContentLink")) {
     const target = link.target as { __typename?: string; filename?: string } | undefined;
     if (link.targetType === "DOWNLOAD" && target?.filename) {
-      refs.push({
-        url: `https://static.dw.com/downloads/${link.targetId}/${target.filename.toLowerCase()}`,
-        kind: "pdf",
-      });
+      refs.push({ url: downloadUrl(link.targetId, target.filename), kind: "pdf" });
     }
   }
   return refs;
 }
 
 /** Unique media of every raw page under `rawRoot`. */
-export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
-  const byUrl = new Map<string, MediaRef>();
+export async function collectMedia(rawRoot: string): Promise<PageMedia[]> {
+  const byUrl = new Map<string, PageMedia>();
   for (const file of await readdir(rawRoot, { recursive: true })) {
     if (!file.endsWith(".json")) continue;
     const state = JSON.parse(await readFile(join(rawRoot, file), "utf8")) as ApolloState;
@@ -119,7 +122,7 @@ export async function collectMedia(rawRoot: string): Promise<MediaRef[]> {
 
 /** The file at `ref.url` into `target`, or for a video whose direct file is missing, its remuxed HLS
  *  stream. */
-export async function download(fetcher: PoliteFetcher, ref: MediaRef & StoredRef, target: string) {
+export async function download(fetcher: PoliteFetcher, ref: PageMedia & MediaRef, target: string) {
   try {
     return { mime: (await fetcher.file(ref.url, target)).contentType };
   } catch (error) {

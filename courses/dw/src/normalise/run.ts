@@ -10,7 +10,7 @@ import {
   readMediaIndex,
 } from "@sprachanker/course-kit";
 import { courseKey, type GoalKey, type LessonKey } from "@sprachanker/schema";
-import { type ApolloState, exerciseIds } from "../apollo.ts";
+import { type ApolloState, entitiesOf, exerciseIds } from "../apollo.ts";
 import { type DwCourse, seriesId } from "../catalog.ts";
 import { rawDir as rawDirOf } from "../pages.ts";
 
@@ -69,7 +69,7 @@ export async function normaliseCourse(
     leftOut += out.lesson.unmapped.length;
     lessonsDone++;
   }
-  const courseEntity = Object.entries(courseState).find(([k]) => k.startsWith("Course:"))?.[1];
+  const courseEntity = entitiesOf(courseState, "Course")[0];
   const files = courseFiles(
     course,
     dw.edition,
