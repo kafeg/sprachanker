@@ -8,6 +8,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseDownload } from "@/api/hooks.ts";
 import { DownloadLine, downloading } from "@/library/download.tsx";
+import { LibraryHero } from "@/library/hero.tsx";
 import { ResetProgress } from "@/library/reset-progress.tsx";
 import {
   CheckState,
@@ -20,8 +21,7 @@ import {
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
-import { useBytes, usePercent } from "@/ui/format.ts";
-import { ProgressRing } from "@/ui/progress-ring.tsx";
+import { useBytes } from "@/ui/format.ts";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
 
@@ -54,7 +54,6 @@ export function CourseHero(props: CourseHeroProps) {
   const [open, setOpen] = useState(false);
   const check = useCourseCheck(series, course);
   const bytes = useBytes();
-  const percent = usePercent();
   const { available, job } = useCourseDownload(series, course);
   const running = downloading(job);
 
@@ -64,51 +63,51 @@ export function CourseHero(props: CourseHeroProps) {
   const nextKey = next && parseLessonKey(next.key);
 
   return (
-    <section className="mb-8 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
-      <div className="flex flex-wrap items-center gap-4 sm:gap-5">
-        <div className="flex min-w-0 flex-1 basis-80 items-center gap-4 sm:gap-5">
-          <ProgressRing value={share} text={percent(share)} />
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold sm:text-4xl">{title}</h1>
-            <div className="my-2 flex flex-wrap gap-1.5">
-              <span className={chip}>
-                <PairFlags edition={edition} />
-              </span>
-              {source && (
-                <>
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={cn(chip, "hover:bg-accent")}
-                  >
-                    {source.publisher} <ExternalLink className="size-3" />
-                  </a>
-                  <span className={chip}>{t(`course.licence.${source.licence}`)}</span>
-                </>
-              )}
-              <button
-                type="button"
-                onClick={() => setOpen((o) => !o)}
-                aria-expanded={open}
-                className={cn(chip, "hover:bg-accent", checkTone(r))}
+    <LibraryHero
+      share={share}
+      title={title}
+      chips={
+        <>
+          <span className={chip}>
+            <PairFlags edition={edition} />
+          </span>
+          {source && (
+            <>
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                className={cn(chip, "hover:bg-accent")}
               >
-                <CheckState check={check} />
-              </button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {t("courses.progress", { done, total: lessons })}
-              {next && nextKey && (
-                <>
-                  {" "}
-                  ·{" "}
-                  {t("course.next", { where: t("lesson.unitLesson", nextKey), title: next.title })}
-                </>
-              )}
-            </p>
-          </div>
-        </div>
-        {next && nextKey && (
+                {source.publisher} <ExternalLink className="size-3" />
+              </a>
+              <span className={chip}>{t(`course.licence.${source.licence}`)}</span>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => setOpen((o) => !o)}
+            aria-expanded={open}
+            className={cn(chip, "hover:bg-accent", checkTone(r))}
+          >
+            <CheckState check={check} />
+          </button>
+        </>
+      }
+      line={
+        <>
+          {t("courses.progress", { done, total: lessons })}
+          {next && nextKey && (
+            <>
+              {" "}
+              · {t("course.next", { where: t("lesson.unitLesson", nextKey), title: next.title })}
+            </>
+          )}
+        </>
+      }
+      action={
+        next &&
+        nextKey && (
           <Link
             to="/lesson/$series/$course/$lesson"
             params={{ series, course, lesson: nextKey.name }}
@@ -117,9 +116,9 @@ export function CourseHero(props: CourseHeroProps) {
             {started ? t("lesson.resume") : t("courses.start")}
             <ArrowRight className="size-4" />
           </Link>
-        )}
-      </div>
-
+        )
+      }
+    >
       {r && (
         <div className="mt-5 grid grid-cols-[repeat(auto-fill,minmax(5.5rem,1fr))] gap-2">
           <StatTile
@@ -229,6 +228,6 @@ export function CourseHero(props: CourseHeroProps) {
           html={descriptionHtml}
         />
       )}
-    </section>
+    </LibraryHero>
   );
 }

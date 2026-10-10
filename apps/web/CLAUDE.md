@@ -45,8 +45,8 @@ apps/web/src/
                    # lesson (passes), pass (in full), compare, exam (an exam's runs and questions as they
                    # stand), mark
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
-                   # tab-page (Courses' and Exams' tabs), download, upkeep (check and sync), reset-progress,
-                   # exam-address, item-history (an item across passes), spoken-check (under its item)
+                   # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
+                   # reset-progress, exam-address, item-history (an item across passes), spoken-check
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; exams.ts; outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
                    # run's events over it: per profile, the server's outcomes, on page close); session.ts: profiles, signing

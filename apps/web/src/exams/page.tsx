@@ -12,13 +12,13 @@ import { useStartExam } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
 import { PublisherLink } from "@/library/card.tsx";
 import type { ExamParams } from "@/library/exam-address.ts";
+import { LibraryHero } from "@/library/hero.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
-import { useDateFormat, usePercent } from "@/ui/format.ts";
+import { useDateFormat } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { BackLink, Page } from "@/ui/page.tsx";
-import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import { ExamSourcesPanel } from "./sources.tsx";
 import { StateSelect } from "./state-select.tsx";
@@ -31,7 +31,6 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   const { key, edition } = loaded;
   const settings = useSettings();
   const begin = useStartExam();
-  const percent = usePercent();
   const date = useDateFormat("day");
   // An exam of modules: the whole of it, or one module (Goethe B1's are taken apart).
   const [module, setModule] = useState("");
@@ -82,21 +81,20 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
     <Page
       back={<BackLink onClick={() => void navigate({ to: "/exams" })}>{t("nav.exams")}</BackLink>}
     >
-      <section className="mb-6 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
-        <div className="flex items-center gap-4 sm:gap-5">
-          <ProgressRing value={data.readiness} text={percent(data.readiness)} />
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold leading-tight sm:text-4xl">{title}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-              {row.source && (
-                <span className="flex min-w-0 max-w-full rounded-full border px-2.5 py-0.5 text-muted-foreground">
-                  <PublisherLink source={row.source} />
-                </span>
-              )}
-              {askedOfState && <StateSelect className="w-auto min-w-44 max-w-full rounded-full" />}
-            </div>
-          </div>
-        </div>
+      <LibraryHero
+        share={data.readiness}
+        title={title}
+        chips={
+          <>
+            {row.source && (
+              <span className="flex min-w-0 max-w-full rounded-full border px-2.5 py-0.5 text-muted-foreground">
+                <PublisherLink source={row.source} />
+              </span>
+            )}
+            {askedOfState && <StateSelect className="w-auto min-w-44 max-w-full rounded-full" />}
+          </>
+        }
+      >
         {needs.length > 0 && (
           <p role="status" className="mt-4 rounded-xl bg-accent px-4 py-3 text-sm">
             {t("exams.needsState")}
@@ -107,7 +105,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
             {errorText(t, begin.error)}
           </p>
         )}
-      </section>
+      </LibraryHero>
 
       {exam.modules && (
         <div className="mb-3">
