@@ -384,7 +384,12 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       self.append(runId, numbered, {
         deviceId: options.deviceId,
         onStored: (before) => {
-          if (before.type !== "answered") return;
+          // Its id stored as another event: no answer of it to tell.
+          if (before.type !== "answered") {
+            delete outcomes[before.id];
+            delete attempts[before.id];
+            return;
+          }
           outcomes[before.id] = before.payload.outcome;
           attempts[before.id] = before.payload.attempt;
         },

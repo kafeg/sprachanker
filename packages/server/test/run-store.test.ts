@@ -45,6 +45,25 @@ test("events are checked when written and stored all or nothing; a resent id is 
   expect(store.events(run.id).map((e) => e.id)).toEqual([step.id]);
 });
 
+test("answers numbered per item; one sent again keeps its number; an id stored as another event tells no answer", () => {
+  const { store } = open();
+  const run = store.start("lesson", LESSON, { edition: "ru-de" });
+  const outcome = { result: "correct" as const, score: 1, ruleIds: [], lexemes: [] };
+  const answer = (id: string, itemKey = "k#1") => ({
+    id,
+    type: "answered" as const,
+    itemKey,
+    payload: { answer: {}, attempt: 1, ms: 1, outcome },
+  });
+  const step = { id: ulid(), type: "step_done" as const, payload: { step: "words" as const } };
+  store.append(run.id, [step]);
+  const [a, b] = [ulid(), ulid()];
+  expect(store.appendAnswers(run.id, [answer(a), answer(b)]).attempts).toEqual({ [a]: 1, [b]: 2 });
+  // Sent again with an id the step has: the step stays, no answer of it is told.
+  const again = store.appendAnswers(run.id, [answer(b), answer(step.id)]);
+  expect(again).toEqual({ outcomes: { [b]: outcome }, attempts: { [b]: 2 } });
+});
+
 test("only an active run takes events and ends; an explanation may go to a finished one", () => {
   const { store } = open();
   const run = store.start("lesson", LESSON, { edition: "ru-de" });
