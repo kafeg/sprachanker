@@ -9,7 +9,7 @@ import { TakeButton } from "@/audio/take-button.tsx";
 import { clock } from "@/ui/format.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { SpecialLetters } from "./shared.tsx";
+import { ANSWER_BOX, SpecialLetters } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictation">) {
@@ -27,7 +27,7 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
         onChange={(e) => onAnswer({ text: e.target.value })}
         autoCapitalize="off"
         spellCheck={false}
-        className="w-full rounded-xl border-2 border-input bg-card p-3 text-xl"
+        className={ANSWER_BOX}
       />
       {!outcome && <SpecialLetters scope={scope} />}
       {outcome?.diff && (

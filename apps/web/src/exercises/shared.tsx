@@ -90,6 +90,11 @@ export function OptionContent({
   return <span lang={lang}>{option.text}</span>;
 }
 
+/** A written answer's box (dictation, respond): it grows with the text; once checked it reads as the
+ *  answer given, not as a field. */
+export const ANSWER_BOX =
+  "field-sizing-content min-h-20 w-full rounded-xl border-2 border-input bg-card p-3 text-xl disabled:resize-none disabled:border-transparent disabled:bg-muted/60";
+
 /** The right answer beside a wrong part (a gap, a slot), once checked: "→ kurz". */
 export function RightAnswer({ text, className }: { text: string; className?: string }) {
   const lang = useTargetLang();

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { DictateButton } from "@/audio/dictate.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
-import { SpecialLetters } from "./shared.tsx";
+import { ANSWER_BOX, SpecialLetters } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 export function Respond({ item, locale, answer, onAnswer, outcome }: RendererProps<"respond">) {
@@ -36,7 +36,7 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
           disabled={!!outcome}
           placeholder={t("ex.respondPlaceholder")}
           onChange={(e) => onAnswer({ ...answer, text: e.target.value })}
-          className="w-full rounded-xl border-2 border-input bg-card p-3 text-xl"
+          className={ANSWER_BOX}
         />
         {!outcome && lang && (
           <DictateButton lang={lang} onText={(heard, take) => void said(heard, take)} />
