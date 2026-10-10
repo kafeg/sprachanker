@@ -84,6 +84,8 @@ export interface NormaliseResult {
   lessons: number;
   /** Exercises of an unknown structure (`unknown` + report entry). */
   unknown: number;
+  /** An exam's questions left out (an answer not found, sources that disagree), reported. */
+  leftOut?: number;
   /** Files that failed validation. */
   problems: number;
 }

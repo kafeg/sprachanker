@@ -136,9 +136,8 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
     `lid ${EDITION}: exam of ${questions} questions${leftOut ? `, ${leftOut} left out` : ""}` +
       `${problems ? `, ${problems} files failed validation` : ""}`,
   );
-  // Questions left out count as content of an unknown structure.
   return importReport(index, {
-    [`${COURSE} ${EDITION}`]: { lessons: 0, unknown: leftOut, problems },
+    [`${COURSE} ${EDITION}`]: { lessons: 0, unknown: 0, leftOut, problems },
   });
 }
 

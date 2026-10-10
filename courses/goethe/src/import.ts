@@ -105,7 +105,8 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
     // that failed: such an import is not reported clean.
     report.normalised[`${level.course} ${EDITION}`] = {
       lessons: 0,
-      unknown: out.leftOut,
+      unknown: 0,
+      leftOut: out.leftOut,
       problems: problems + out.problems.length,
     };
   }

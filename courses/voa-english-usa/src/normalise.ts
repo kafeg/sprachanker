@@ -10,6 +10,7 @@ import {
   libraryFile,
   mediaPath,
   shapeHeadword,
+  skippedWords,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
@@ -116,7 +117,7 @@ function vocabulary(key: LessonKey, words: WordRow[]) {
         : {}),
     })),
   );
-  return { vocab, translations, skipped: skipped.map((s) => s.target) };
+  return { vocab, translations, skipped };
 }
 
 export interface Normalised {
@@ -156,9 +157,7 @@ export function normaliseEnglishUsa(lessons: SourceLesson[], index: MediaIndex):
         });
       }
       const { vocab, translations, skipped } = vocabulary(key, parsed?.words ?? []);
-      for (const word of skipped) {
-        lessonUnmapped.push({ path: source.raw, reason: `word without a headword: ${word}` });
-      }
+      lessonUnmapped.push(...skippedWords(source.raw, skipped));
       unmapped += lessonUnmapped.length;
       const goal = parsed?.goal ? lessonGoalKey(key, 1) : undefined;
       if (goal && parsed) {

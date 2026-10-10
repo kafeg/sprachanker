@@ -13,7 +13,8 @@ never real third-party content). Our enrichment goes next to it (02).
   server's test checks every one against the contract (unique ids and series, offers with valid keys).
 - An import function takes `ImportOptions` (library folder, optional `courses` / `editions` filters,
   `refresh`, `log`, `progress`) and returns an `ImportReport`: failed media and, per "<course>
-  <edition>", a `NormaliseResult` (lessons, unknown exercises, files that failed validation).
+  <edition>", a `NormaliseResult` (lessons, unknown exercises, an exam's questions left out, files
+  that failed validation).
 - Each provider offers its courses as `CourseOffer`s (course, edition, title, source, approximate size
   measured on a full download; `kind: "exam"` for a course of exams, offered in the Exams section),
   known without the network: the catalogue lists them before anything is downloaded.

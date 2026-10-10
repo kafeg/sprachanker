@@ -96,10 +96,9 @@ async function importCommand(args: string[]): Promise<void> {
     process.exitCode = 1;
   }
   for (const [course, r] of normalised) {
-    // An exam course reports its questions left out (sources that disagree) as unknown.
     log(
-      `${course}: ${r.lessons} lessons, ${r.unknown} unknown exercises or questions left out, ` +
-        `${r.problems} invalid files`,
+      `${course}: ${r.lessons} lessons, ${r.unknown} unknown exercises, ` +
+        `${r.leftOut ? `${r.leftOut} questions left out, ` : ""}${r.problems} invalid files`,
     );
     if (r.problems) process.exitCode = 1;
   }
