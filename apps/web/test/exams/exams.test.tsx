@@ -1,8 +1,9 @@
 import { expect, test } from "bun:test";
 import type { Exam, ExamItem, ExamRun } from "@sprachanker/schema";
-import { fireEvent } from "@testing-library/react";
+import { fireEvent, within } from "@testing-library/react";
 import { ExamCatalog } from "../../src/exams/catalog.tsx";
 import { ExamPage } from "../../src/exams/page.tsx";
+import { OpenAnswerRating } from "../../src/exams/rating.tsx";
 import { ExamResultView } from "../../src/exams/result.tsx";
 import { ExamNotebook } from "../../src/notebook/exam.tsx";
 import { ExamsPage } from "../../src/routes/exams.tsx";
@@ -305,6 +306,35 @@ test("a result: passed or not by each pass mark, the mistakes with their right a
   fireEvent.click(view.getByRole("button", { name: "Show all answers" }));
   expect(view.getByText("Frage 001?")).toBeTruthy();
   expect(view.getByRole("button", { name: "Practise the mistakes" })).toBeTruthy();
+});
+
+test("an open answer rated: a criterion that voids the answer, not rated yet, is told as what keeps it at 0", async () => {
+  const item = {
+    key: `${KEY}/q-w1`,
+    type: "respond",
+    criteria: [
+      { id: "task", levels: [0, 1, 2], voids: true },
+      { id: "form", levels: [0, 1] },
+    ],
+  } as unknown as ExamItem & { criteria: NonNullable<ExamItem["criteria"]> };
+  const view = await renderApp(
+    <OpenAnswerRating
+      runId="R"
+      item={item}
+      locale={{ criteria: { task: { title: "Erfüllung" } } } as never}
+      events={[]}
+      answer="Hallo"
+    />,
+  );
+  const level = (name: string, points: string) =>
+    within(view.getByRole("group", { name })).getByRole("button", { name: points });
+  fireEvent.click(level("form", "1"));
+  expect(view.getByText(/0 until “Erfüllung” is rated/)).toBeTruthy();
+  fireEvent.click(level("Erfüllung", "0"));
+  expect(view.getByText("the task not done: 0 for the whole answer")).toBeTruthy();
+  fireEvent.click(level("Erfüllung", "2"));
+  expect(view.getByText("3 of 3")).toBeTruthy();
+  expect(view.queryByText(/is rated|not done/)).toBeNull();
 });
 
 test("the catalogue: the questions open to the learner as a list, one opened with its answer, found by words", async () => {

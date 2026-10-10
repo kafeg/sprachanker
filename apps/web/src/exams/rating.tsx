@@ -125,6 +125,8 @@ function RatingPanel({
   const max = criteriaMax(criteria);
   const points = ratedPoints(criteria, chosen);
   const voided = criteria.some((c) => c.voids && chosen[c.id] === 0);
+  // A criterion that voids the answer, not rated yet: 0 until it is.
+  const unrated = criteria.find((c) => c.voids && chosen[c.id] === undefined);
   // Taken as proposed: the assistant's rating; changed anywhere: the learner's.
   const taken = !!proposal && criteria.every((c) => proposal.ratings[c.id] === chosen[c.id]);
   const changed = !rated || criteria.some((c) => rated[c.id] !== chosen[c.id]);
@@ -176,7 +178,15 @@ function RatingPanel({
       <div className="flex flex-wrap items-center justify-between gap-2 border-t pt-3">
         <span className="text-sm tabular-nums">
           {t("exams.points", { points, max })}
-          {voided && <span className="ml-2 text-muted-foreground">{t("exams.rating.voided")}</span>}
+          {(voided || unrated) && (
+            <span className="ml-2 text-muted-foreground">
+              {voided
+                ? t("exams.rating.voided")
+                : t("exams.rating.unrated", {
+                    criterion: (unrated && locale?.criteria?.[unrated.id]?.title) ?? unrated?.id,
+                  })}
+            </span>
+          )}
         </span>
         <Button
           size="sm"
