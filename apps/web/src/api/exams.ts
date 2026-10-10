@@ -62,8 +62,13 @@ interface Queued {
 const outboxOf = (client: QueryClient, runId: string) =>
   runOutbox<Queued>(client, runKey(runId), {
     runOf: () => runId,
-    post: (id, events) =>
-      json(api.exams.runs[":id"].events.$post({ param: { id }, json: { events } })),
+    post: (id, events, init) =>
+      json(
+        api.exams.runs[":id"].events.$post(
+          { param: { id }, json: { events: [...events] } },
+          init && { init },
+        ),
+      ),
   });
 
 /** A run with its answers; `answer` records one (shown at once, sent in order), `finish` hands the run
@@ -83,15 +88,7 @@ export function useExamRun(runId: string) {
     },
   });
   // Leaving or reloading the page: the answers still queued go out as the page closes.
-  const sendOnHide = useMemo(
-    () => (events: readonly Queued[]) =>
-      void api.exams.runs[":id"].events.$post(
-        { param: { id: runId }, json: { events: [...events] } },
-        { init: { keepalive: true } },
-      ),
-    [runId],
-  );
-  useRunOutbox(outbox, sendOnHide);
+  useRunOutbox(outbox);
   const finish = useMutation({
     mutationFn: async () => {
       await outbox.flush();
@@ -138,7 +135,7 @@ export function useExamRun(runId: string) {
   /** The run's events as they are this moment (an answer just recorded included, before the page
    *  shows it). */
   const eventsNow = () => client.getQueryData<ExamRunState>(runKey(runId))?.events ?? [];
-  return { query, answer, finish, eventsNow, pending: () => outbox.pending().length };
+  return { query, answer, finish, eventsNow };
 }
 
 /** Events kept elsewhere in the run (the assistant's proposal, a conversation's lines), shown with

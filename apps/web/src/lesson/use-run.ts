@@ -55,9 +55,12 @@ const outboxOf = (client: QueryClient, key: readonly unknown[]) =>
   runOutbox<Queued>(client, key, {
     batchKey: (e) => e.runId ?? "",
     runOf: (batch) => batch[0]?.runId ?? activeRun(client, key),
-    post: (id, batch) =>
+    post: (id, batch, init) =>
       json(
-        api.runs[":id"].events.$post({ param: { id }, json: { events: batch.map(withoutRun) } }),
+        api.runs[":id"].events.$post(
+          { param: { id }, json: { events: batch.map(withoutRun) } },
+          init && { init },
+        ),
       ),
   });
 
@@ -137,18 +140,7 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
   }, [flush]);
 
   // Leaving or reloading the page: what is still queued goes out as the page closes.
-  const sendOnHide = useMemo(
-    () =>
-      runId
-        ? (batch: readonly Queued[]) =>
-            void api.runs[":id"].events.$post(
-              { param: { id: batch[0]?.runId ?? runId }, json: { events: batch.map(withoutRun) } },
-              { init: { keepalive: true } },
-            )
-        : undefined,
-    [runId],
-  );
-  useRunOutbox(outbox, sendOnHide);
+  useRunOutbox(outbox);
 
   /** Queues events for the server and applies them here at once, answers with their local outcome. */
   const record = useCallback(

@@ -11,7 +11,7 @@ import { refusedByServer } from "./client.ts";
 import { createOutbox, type Outbox, type OutboxOptions } from "./outbox.ts";
 
 /** Events of no run: the run ended or was replaced before they went (dropped). */
-export class NoRun extends Error {}
+class NoRun extends Error {}
 /** Events of a profile not signed in now: they wait for it (another profile cannot store them). */
 class NotSignedIn extends Error {}
 
@@ -28,11 +28,14 @@ export interface Stored {
 /** A run's events with the server's outcome and attempt of each answer in place of the local ones
  *  (another device may have answered the item meanwhile; a mock exam tells no outcome). Pure. */
 export function withStored(events: TypedEvent[], stored: Stored): TypedEvent[] {
-  return events.map((e): TypedEvent => {
+  let changed = false;
+  const out = events.map((e): TypedEvent => {
     if (e.type !== "answered") return e;
     const outcome = stored.outcomes[e.id];
     const attempt = stored.attempts[e.id];
-    if (!outcome && attempt === undefined) return e;
+    const sameOutcome = !outcome || JSON.stringify(outcome) === JSON.stringify(e.payload.outcome);
+    if (sameOutcome && (attempt === undefined || attempt === e.payload.attempt)) return e;
+    changed = true;
     return {
       ...e,
       payload: {
@@ -42,70 +45,83 @@ export function withStored(events: TypedEvent[], stored: Stored): TypedEvent[] {
       },
     };
   });
+  // Nothing told otherwise than shown: the same array, so the cached state is left as it is.
+  return changed ? out : events;
 }
 
-const outboxes = new Map<string, Outbox<never>>();
+/** How a run's events are sent: `runOf` names the run a batch goes to (none: dropped), `post` sends
+ *  it (`init`: the request's options — `keepalive` as the page closes). */
+export interface RunPost<E> {
+  runOf(batch: readonly E[]): string | undefined;
+  post(runId: string, batch: readonly E[], init?: RequestInit): Promise<Stored>;
+}
+
+/** An outbox kept for its run: how many pages show the run now. */
+interface Entry {
+  outbox: Outbox<never>;
+  users: number;
+}
+const outboxes = new Map<string, Entry>();
+/** Each outbox's place in `outboxes` and how its events are sent. */
+const homeOf = new WeakMap<object, { id: string; sending: RunPost<never> }>();
 
 /**
- * The outbox of a run state cached under `key` (its `events` updated with what the server stored):
- * `runOf` names the run a batch goes to (none: dropped), `post` sends it.
+ * The outbox of a run state cached under `key` (its `events` updated with what the server stored),
+ * one per profile and key for as long as a page shows the run or events wait in it.
  */
 export function runOutbox<E extends { id: string }>(
   client: QueryClient,
   key: readonly unknown[],
-  options: {
-    runOf(batch: E[]): string | undefined;
-    post(runId: string, batch: E[]): Promise<Stored>;
-    batchKey?: OutboxOptions<E>["batchKey"];
-  },
+  options: RunPost<E> & { batchKey?: OutboxOptions<E>["batchKey"] },
 ): Outbox<E> {
   const profile = signedIn(client);
   const id = JSON.stringify([profile, ...key]);
-  let outbox = outboxes.get(id) as Outbox<E> | undefined;
-  if (!outbox) {
-    outbox = createOutbox<E>({
-      batchKey: options.batchKey,
-      async send(batch) {
-        if (signedIn(client) !== profile) throw new NotSignedIn();
-        const runId = options.runOf(batch);
-        if (!runId) throw new NoRun();
-        const stored = await options.post(runId, batch);
-        client.setQueryData<{ events: TypedEvent[] } | null>(key, (s) =>
-          s ? { ...s, events: withStored(s.events, stored) } : s,
-        );
-      },
-      // A lost session (401) or a request that reached the wrong host (421) is no refusal: the
-      // events wait for the learner to be back.
-      refused: (e) => e instanceof NoRun || refusedByServer(e),
-      // A batch refused: the run is read again.
-      onRefused: () => void client.invalidateQueries({ queryKey: key }),
-    });
-    outboxes.set(id, outbox as Outbox<never>);
-  }
+  const found = outboxes.get(id);
+  if (found) return found.outbox as unknown as Outbox<E>;
+  const outbox = createOutbox<E>({
+    batchKey: options.batchKey,
+    async send(batch) {
+      if (signedIn(client) !== profile) throw new NotSignedIn();
+      const runId = options.runOf(batch);
+      if (!runId) throw new NoRun();
+      const stored = await options.post(runId, batch);
+      const state = client.getQueryData<{ events: TypedEvent[] } | null>(key);
+      const events = state && withStored(state.events, stored);
+      if (state && events !== state.events) client.setQueryData(key, { ...state, events });
+    },
+    // A lost session (401) or a request that reached the wrong host (421) is no refusal: the
+    // events wait for the learner to be back.
+    refused: (e) => e instanceof NoRun || refusedByServer(e),
+    // A batch refused: the run is read again.
+    onRefused: () => void client.invalidateQueries({ queryKey: key }),
+  });
+  outboxes.set(id, { outbox: outbox as unknown as Outbox<never>, users: 0 });
+  homeOf.set(outbox, { id, sending: options as unknown as RunPost<never> });
   return outbox;
 }
 
-/** While a page shows a run: what is still queued goes out with `keepalive` as the page closes (it
- *  outlives the page; events are idempotent by id, so one also in flight is stored once); the
- *  outbox goes with the page once nothing waits in it. */
-export function useRunOutbox<E>(
-  outbox: Outbox<E>,
-  sendOnHide: ((batch: readonly E[]) => void) | undefined,
-) {
+/** While a page shows a run: its outbox is the run's (one released meanwhile — React's StrictMode
+ *  mounts a page twice — is put back); what is still queued goes out with `keepalive` as the page
+ *  closes (it outlives the page; events are idempotent by id, so one also in flight is stored once).
+ *  The outbox goes when no page shows its run and nothing waits in it. */
+export function useRunOutbox<E>(outbox: Outbox<E>) {
   useEffect(() => {
-    if (!sendOnHide) return;
+    const home = homeOf.get(outbox);
+    const entry = home && (outboxes.get(home.id) ?? { outbox: outbox as Outbox<never>, users: 0 });
+    // Another outbox took the run's place (this one was released and the run opened anew).
+    if (!home || !entry || entry.outbox !== (outbox as unknown)) return;
+    outboxes.set(home.id, entry);
+    entry.users++;
     const onHide = () => {
-      const batch = outbox.nextBatch();
-      if (batch.length) sendOnHide(batch);
+      const batch = outbox.nextBatch() as readonly never[];
+      const runId = batch.length ? home.sending.runOf(batch) : undefined;
+      if (runId) home.sending.post(runId, batch, { keepalive: true }).catch(() => {});
     };
     window.addEventListener("pagehide", onHide);
-    return () => window.removeEventListener("pagehide", onHide);
-  }, [outbox, sendOnHide]);
-  useEffect(
-    () => () => {
-      if (outbox.pending().length) return;
-      for (const [id, o] of outboxes) if (o === (outbox as unknown)) outboxes.delete(id);
-    },
-    [outbox],
-  );
+    return () => {
+      window.removeEventListener("pagehide", onHide);
+      entry.users--;
+      if (!entry.users && !outbox.pending().length) outboxes.delete(home.id);
+    };
+  }, [outbox]);
 }
