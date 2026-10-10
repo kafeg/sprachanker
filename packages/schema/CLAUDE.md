@@ -24,7 +24,7 @@ src/
   learner.ts         # runs, event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed by
                      # its type; llm_verdict a union by task), step ids and AI practice kinds, cards
   assistant.ts       # the AI's answers as kept: corrections, writing and spoken checks, word examples,
-                     # scene setups
+                     # scene setups, an exam answer's proposed rating, a speaking part's next lines
   settings.ts        # every setting key with its schema and owner (LEARNER_SETTINGS, SERVICE_SETTINGS),
                      # SETTING_DEFAULTS
   errors.ts          # ERROR_CODES: what the server refuses, shared with the web

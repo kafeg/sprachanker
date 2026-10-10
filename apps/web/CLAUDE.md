@@ -34,10 +34,10 @@ apps/web/src/
   exercises/       # one renderer per exercise type (index.tsx: the renderer of each type); dnd (placing
                    # chips by drag or tap); item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
-  exams/           # exams: card (the list's), page (an exam's: modes, the questions' map, runs), player
-                   # (a run a question at a time: mock exam timed, practice checked at once), navigator
-                   # (the run's plan: its questions by Teil), result, catalog (a compact list, a question opened
-                   # with its answer), state-select (the federal state), questions (a question as an
+  exams/           # exams: card (the list's), page (an exam's: modes, the latest mock exam, sources),
+                   # player (a run a question at a time: mock exam timed, practice checked at once),
+                   # navigator (the run's plan: its questions by Teil), result, catalog (a compact list,
+                   # a question opened with its answer), state-select (the federal state), questions (a question as an
                    # exercise, the latest answers, questions by Teil), teil (a Teil's header and
                    # material; a question's card), recording (a mock exam's recording: plays limited),
                    # rating (an open answer rated by its criteria, a proposal shown chosen), slots
