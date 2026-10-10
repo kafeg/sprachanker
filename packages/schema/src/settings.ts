@@ -12,6 +12,16 @@ import { CardFace } from "./learner.ts";
 export const ProfileColour = z.enum(["amber", "teal", "rose", "violet", "sky", "lime"]);
 export type ProfileColour = z.infer<typeof ProfileColour>;
 
+/** The longest a profile's name may be. */
+export const PROFILE_NAME_MAX = 40;
+
+/** A new profile's colour: the first one used least by the profiles there are (a freed colour first,
+ *  then round again). */
+export function nextProfileColour(used: readonly ProfileColour[]): ProfileColour {
+  const count = (c: ProfileColour) => used.filter((u) => u === c).length;
+  return ProfileColour.options.reduce((best, c) => (count(c) < count(best) ? c : best));
+}
+
 /** Where the AI assistant works (07), each of which the learner can turn off: "Why is this wrong?",
  *  the tutor (with the lesson's "Going over mistakes"), "Write it yourself", scenes, the check of an
  *  answer said aloud, a word's example, an exam's open answer rated by its criteria. */

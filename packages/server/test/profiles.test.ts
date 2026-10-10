@@ -88,6 +88,21 @@ test("a profile deletes itself with everything it holds; this device is signed o
   expect(state.state).not.toBeNull();
 });
 
+test("a new profile takes the first colour no profile uses: a deleted one's freed colour first", async () => {
+  const { anonymous } = await setup();
+  const make = async (name: string, colour?: string) => {
+    const made = await anonymous("POST", "/api/profiles", { name, colour });
+    return { ...(await read(made)).profile, cookie: cookieOf(made) };
+  };
+  const anna = await make("Anna");
+  expect(anna.colour).toBe("teal");
+  expect((await make("Boris")).colour).toBe("rose");
+  expect((await make("Chosen", "lime")).colour).toBe("lime");
+  await anonymous("DELETE", "/api/profile", {}, { cookie: anna.cookie });
+  expect((await make("Clara")).colour).toBe("teal");
+  expect((await make("Dora")).colour).toBe("violet");
+});
+
 test("devices: listed with the current one; one signed out; signing out ends the session", async () => {
   const { getJson, send, get, anonymous } = await setup();
   const other = cookieOf(await anonymous("POST", "/api/session", { profile: "local" }));

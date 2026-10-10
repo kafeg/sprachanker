@@ -3,7 +3,12 @@
 // chosen, not unlocked: profiles keep people's learning apart, they are no security boundary (owner,
 // 2026-10-08). Registration (open by default) is the server's own setting,
 // changed by the `sprachanker` command. Signing in is devices.ts.
-import { ProfileColour, SERVER_SETTINGS } from "@sprachanker/schema";
+import {
+  nextProfileColour,
+  PROFILE_NAME_MAX,
+  ProfileColour,
+  SERVER_SETTINGS,
+} from "@sprachanker/schema";
 import { eq } from "drizzle-orm";
 import { ulid } from "ulid";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -33,7 +38,6 @@ export interface RecordingFiles {
 
 /** The first profile's id: the folder the single profile had before there were several. */
 export const FIRST_PROFILE = "local";
-const COLOURS = ProfileColour.options;
 const FIRST_COLOUR: ProfileColour = "amber";
 /** A stored colour as a tile's (one no longer offered: the first). */
 const colourOf = (stored: string): ProfileColour => ProfileColour.catch(FIRST_COLOUR).parse(stored);
@@ -43,9 +47,9 @@ export type ProfileRow = typeof profiles.$inferSelect;
 export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: () => number }) {
   const { db, files, now } = deps;
   const row = (id: string) => db.select().from(profiles).where(eq(profiles.id, id)).get();
-  /** A name as kept: trimmed, at most 40 characters, never empty. */
+  /** A name as kept: trimmed, at most PROFILE_NAME_MAX characters, never empty. */
   const nameOf = (name: string) => {
-    const kept = name.trim().slice(0, 40);
+    const kept = name.trim().slice(0, PROFILE_NAME_MAX);
     if (!kept) throw new ServiceError("name_required");
     return kept;
   };
@@ -103,12 +107,12 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
       const any = db.select({ id: profiles.id }).from(profiles).get();
       if (any && !self.registrationOpen()) throw new ServiceError("registration_closed", 403);
       const id = any ? ulid(now()).toLowerCase() : FIRST_PROFILE;
-      const count = db.select({ id: profiles.id }).from(profiles).all().length;
+      const used = db.select({ colour: profiles.colour }).from(profiles).all();
       db.insert(profiles)
         .values({
           id,
           name,
-          colour: input.colour ?? (COLOURS[count % COLOURS.length] as ProfileColour),
+          colour: input.colour ?? nextProfileColour(used.map((r) => colourOf(r.colour))),
           createdAt: now(),
         })
         .run();

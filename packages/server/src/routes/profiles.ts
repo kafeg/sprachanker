@@ -3,7 +3,7 @@
 // the session check): the profile's name, colour and onboarding, and its devices.
 // Every profile is equal; server matters are the `sprachanker` command's.
 
-import { ProfileColour } from "@sprachanker/schema";
+import { PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
@@ -19,7 +19,7 @@ export const DEVICE_COOKIE = "sprachanker_device";
 
 const ProfileId = z.string().regex(/^[a-z0-9]{1,40}$/);
 /** A profile's name: never empty. */
-const Name = z.string().trim().min(1).max(40);
+const Name = z.string().trim().min(1).max(PROFILE_NAME_MAX);
 
 const https = (c: Context) =>
   new URL(c.req.url).protocol === "https:" || c.req.header("x-forwarded-proto") === "https";

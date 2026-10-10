@@ -119,9 +119,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
 Profiles are separation, not security (owner, 2026-10-07): **every profile is equal** in the app — no
 owner, no admin screens; server matters are the `sprachanker profiles` command's (below).
 
-- `server.sqlite` holds the profiles (name — never empty —, colour, onboarded), the
-  devices signed in to them, and the server's settings; each profile's learning data is its own file
-  `profiles/<id>/profile.sqlite`. The single profile from before (`profiles/local`) becomes the first
+- `server.sqlite` holds the profiles (name — never empty, at most 40 characters —, colour — a new
+  one's by default the first used least: a deleted profile's freed one first, round again when all
+  are used —, onboarded), the devices signed in to them, and the server's settings; each profile's
+  learning data is its own file `profiles/<id>/profile.sqlite`. The single profile from before (`profiles/local`) becomes the first
   profile, not yet onboarded (its data kept; it gets its name in the onboarding, which cannot end
   without one).
 - A device without a session sees **"Who is studying?"**: the interface language, the profiles and
