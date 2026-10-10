@@ -237,7 +237,6 @@ export function checkItem(
         it.text && transcript !== undefined ? spokenCheck(lang, it.text, transcript) : undefined;
       return { ...base, result: "unscored", score: 0, ...(heard && { diff: heard.diff }) };
     }
-    case "scene":
     case "unknown":
       return { ...base, result: "unscored", score: 0 };
   }

@@ -131,10 +131,6 @@ const SPEAKING_EXERCISES: ExerciseText[] = [
     },
   },
   {
-    title: { ru: "В кафе", en: "At the café" },
-    instruction: { ru: "Поговори с официантом.", en: "Talk to the waiter." },
-  },
-  {
     title: { ru: "Неизвестное упражнение", en: "Unknown exercise" },
     instruction: { ru: "Этот тип пока не поддерживается.", en: "This type is not supported yet." },
   },

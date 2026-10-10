@@ -27,13 +27,14 @@ is set up, so a lesson never depends on one. The reference tabs (vocabulary, gra
 homework, downloads) stay available at any time for looking things up.
 
 Planned: composing with enrichment — rule tags, contrastive notes for the edition's source language, extra
-exercises after the source's, scenes; stale entries skipped and reported (plan, "Enrichment and rules").
+exercises after the source's, authored scenes (on the lesson's scene step, not an exercise type);
+stale entries skipped and reported (plan, "Enrichment and rules").
 
 ## Checking
 
 Each exercise type (02) has a zod schema (schema), a checker (engine), a renderer (`apps/web`) and tests.
-Checkers (`packages/engine/src/check/index.ts`) exist for every scored type; renderers exist for every
-type but `scene` (authored scenes: plan, "Enrichment and rules"). What the player asks before checking
+Checkers (`packages/engine/src/check/index.ts`) exist for every scored type, renderers for every type
+but `unknown`. What the player asks before checking
 is the engine's too (`check/answers.ts`): whether an exercise is checked at all, whether an answer is
 complete enough to check, the words of an answer said aloud, a spoken answer the AI is to check
 (`spokenFreely`: a `speech_selfrate` item without text, 08).

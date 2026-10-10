@@ -214,7 +214,6 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
 | `speech_selfrate` | `text?`, `media.audio?` (its `answerAudio` played after the first try) | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With `text`, what was heard gets a word diff; without, the AI checks it (08) |
 | `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (an LLM verdict: plan, "Later"); without a rubric unscored, the model answers shown |
-| `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 
 Option ids are `a`, `b`, … and gap ids `g1`, `g2`, … in canonical order. No source has a categorisation

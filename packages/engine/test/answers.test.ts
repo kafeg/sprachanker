@@ -5,15 +5,11 @@ import { answerComplete, isChecked, spokenFreely } from "../src/index.ts";
 const ex = (type: string, items: unknown[]) =>
   ({ key: "s/c/00-01/ex-01", type, items }) as unknown as Exercise;
 
-test("checked: everything but speaking oneself, scenes and unknown mechanics", () => {
+test("checked: everything but speaking oneself and unknown mechanics", () => {
   expect(
     ["single_choice", "respond", "dictation", "speech_repeat"].map((t) => isChecked(t as never)),
   ).toEqual([true, true, true, true]);
-  expect(["speech_selfrate", "scene", "unknown"].map((t) => isChecked(t as never))).toEqual([
-    false,
-    false,
-    false,
-  ]);
+  expect(["speech_selfrate", "unknown"].map((t) => isChecked(t as never))).toEqual([false, false]);
 });
 
 test("complete enough to check: every pair and part, one typed gap, text typed", () => {

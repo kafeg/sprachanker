@@ -14,10 +14,10 @@ import type {
 } from "@sprachanker/schema";
 
 /** Whether the player checks an exercise (marks its items, or shows a model answer): everything but
- *  speaking oneself, scenes and exercises of an unknown mechanic. A checked item need not be scored
+ *  speaking oneself and exercises of an unknown mechanic. A checked item need not be scored
  *  (`itemScored`: a free answer without a rubric shows its model answer only). */
 export const isChecked = (type: Exercise["type"]) =>
-  type !== "speech_selfrate" && type !== "scene" && type !== "unknown";
+  type !== "speech_selfrate" && type !== "unknown";
 
 const gapsOf = (segments: Array<string | { gap: string }>) =>
   segments.flatMap((s) => (typeof s === "string" ? [] : [s.gap]));

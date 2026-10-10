@@ -19,7 +19,6 @@ import {
   lessonKey,
   lexemeKey,
   ruleId,
-  sceneKey,
   seriesKey,
   unitKey,
   type VocabEntry,
@@ -323,13 +322,8 @@ export const speakingLesson: Lesson = {
       ],
     }),
     exercise(SPEAKING, 5, {
-      type: "scene",
-      newWords: [LEUTE.key],
-      items: [{ scene: sceneKey(SERIES, "cafe-order") }],
-    }),
-    exercise(SPEAKING, 6, {
       type: "unknown",
-      items: [{ raw: "raw/ru-de/demo/00-02/ex-06.json", reason: "fixture: unmapped source type" }],
+      items: [{ raw: "raw/ru-de/demo/00-02/ex-05.json", reason: "fixture: unmapped source type" }],
     }),
   ].map((ex) => ({ exercise: ex })),
   vocab: [GUTEN_TAG, LEUTE],

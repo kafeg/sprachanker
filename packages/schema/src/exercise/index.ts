@@ -3,7 +3,7 @@ import { MultiChoiceExercise, SingleChoiceExercise } from "./choice.ts";
 import { GapChoiceExercise, GapTextExercise } from "./gap.ts";
 import { MatchExercise } from "./match.ts";
 import { OrderExercise } from "./order.ts";
-import { SceneExercise, UnknownExercise } from "./other.ts";
+import { UnknownExercise } from "./other.ts";
 import { RespondExercise } from "./respond.ts";
 import { DictationExercise, SpeechRepeatExercise, SpeechSelfrateExercise } from "./speech.ts";
 
@@ -29,7 +29,6 @@ export const Exercise = z.discriminatedUnion("type", [
   SpeechRepeatExercise,
   SpeechSelfrateExercise,
   RespondExercise,
-  SceneExercise,
   UnknownExercise,
 ]);
 export type Exercise = z.infer<typeof Exercise>;

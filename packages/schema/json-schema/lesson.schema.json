@@ -83,9 +83,6 @@
                 "$ref": "#/$defs/respond_exercise"
               },
               {
-                "$ref": "#/$defs/scene_exercise"
-              },
-              {
                 "$ref": "#/$defs/unknown_exercise"
               }
             ]
@@ -1300,84 +1297,6 @@
         "items"
       ],
       "additionalProperties": false
-    },
-    "scene_exercise": {
-      "type": "object",
-      "properties": {
-        "key": {
-          "$ref": "#/$defs/ExerciseKey"
-        },
-        "type": {
-          "type": "string",
-          "const": "scene"
-        },
-        "fingerprint": {
-          "type": "string",
-          "pattern": "^[0-9a-f]{64}$"
-        },
-        "media": {
-          "$ref": "#/$defs/Media"
-        },
-        "text": {
-          "type": "string"
-        },
-        "newWords": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/VocabKey"
-          }
-        },
-        "ruleIds": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/RuleId"
-          }
-        },
-        "items": {
-          "minItems": 1,
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "$ref": "#/$defs/ItemKey"
-              },
-              "media": {
-                "$ref": "#/$defs/Media"
-              },
-              "answerAudio": {
-                "$ref": "#/$defs/MediaPath"
-              },
-              "prompt": {
-                "type": "string"
-              },
-              "scene": {
-                "$ref": "#/$defs/SceneKey"
-              }
-            },
-            "required": [
-              "key",
-              "scene"
-            ],
-            "additionalProperties": false
-          }
-        }
-      },
-      "required": [
-        "key",
-        "type",
-        "fingerprint",
-        "newWords",
-        "ruleIds",
-        "items"
-      ],
-      "additionalProperties": false
-    },
-    "SceneKey": {
-      "type": "string",
-      "pattern": "^(?:[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+(?:-[a-z0-9]+)*\\/scene-[a-z0-9]+(?:-[a-z0-9]+)*)$",
-      "title": "SceneKey",
-      "description": "<series>/scene-<slug>"
     },
     "unknown_exercise": {
       "type": "object",
