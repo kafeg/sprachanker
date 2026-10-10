@@ -14,7 +14,7 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Timer } from "lucide-react";
+import { ArrowLeft, Timer } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
@@ -26,6 +26,7 @@ import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { clock } from "@/ui/format.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { SIDE_BACK, SideHeader, SideLayout } from "@/ui/side-layout.tsx";
+import { StepBack, StepNext } from "@/ui/step-buttons.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ListedQuestion, QuestionList } from "./navigator.tsx";
@@ -279,17 +280,17 @@ function Running({
   );
   const moves = (
     <>
-      <Button variant="outline" onClick={() => go(current - 1)} disabled={current === 0}>
-        <ArrowLeft className="size-4" /> {t("exams.previous")}
-      </Button>
+      <StepBack
+        label={t("exams.previous")}
+        onClick={() => go(current - 1)}
+        disabled={current === 0}
+      />
       {last ? (
-        <Button loading={finishing} onClick={askFinish}>
+        <StepNext loading={finishing} onClick={askFinish}>
           {finishLabel}
-        </Button>
+        </StepNext>
       ) : (
-        <Button variant={given ? "default" : "outline"} onClick={() => go(current + 1)}>
-          {t("exams.next")} <ArrowRight className="size-4" />
-        </Button>
+        <StepNext onClick={() => go(current + 1)}>{t("exams.next")}</StepNext>
       )}
     </>
   );

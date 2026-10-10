@@ -7,26 +7,34 @@ export function Choice({
   value,
   onChange,
   label,
+  lead = false,
 }: {
   options: Array<[string, React.ReactNode]>;
   value?: string;
   onChange(v: string): void;
   /** Names the group for assistive technology when no visible heading does. */
   label?: string;
+  /** The first option stands apart (an exam's whole beside its modules): on a phone it takes a row of
+   *  its own and the others go two to a row, so the rows come out even. */
+  lead?: boolean;
 }) {
   return (
     <fieldset
       aria-label={label}
-      className="inline-flex min-w-0 flex-wrap gap-1 rounded-xl border bg-card p-1"
+      className={cn(
+        "min-w-0 gap-1 rounded-xl border bg-card p-1",
+        lead ? "grid grid-cols-2 sm:inline-flex sm:flex-wrap" : "inline-flex flex-wrap",
+      )}
     >
-      {options.map(([v, text]) => (
+      {options.map(([v, text], i) => (
         <button
           type="button"
           key={v}
           aria-pressed={value === v}
           onClick={() => onChange(v)}
           className={cn(
-            "min-h-10 flex-auto rounded-lg px-4 pointer-coarse:min-h-11",
+            "min-h-10 flex-auto rounded-lg px-2.5 pointer-coarse:min-h-11 sm:px-4",
+            lead && i === 0 && "col-span-2",
             value === v ? "bg-primary font-semibold text-primary-foreground" : "hover:bg-accent",
           )}
         >

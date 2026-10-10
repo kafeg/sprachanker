@@ -7,8 +7,7 @@ import { type CatalogRow, useCatalog } from "@/api/courses.ts";
 import { useSetSetting, useSetting } from "@/api/settings.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Loading } from "@/ui/page.tsx";
-import { panelClass } from "@/ui/panel.tsx";
-import { cn } from "@/ui/utils.ts";
+import { Panel } from "@/ui/panel.tsx";
 import { type ExperimentalSection, sectionOn, sourceId } from "./experimental.ts";
 
 const SECTIONS: ExperimentalSection[] = ["courses", "exams"];
@@ -40,58 +39,59 @@ export function ExperimentalSettings() {
       value: value ? [...new Set([...on, id])] : on.filter((x) => x !== id),
     });
   return (
-    <section id="experimental" className="space-y-3">
-      <h2 className="text-xl font-bold">{t("settings.experimental")}</h2>
+    <Panel id="experimental" title={t("settings.experimental")}>
       {query.isPending ? (
         <Loading />
       ) : (
         <>
-          <div className="flex gap-3 rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <div className="mt-2 mb-1 flex gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
             <TriangleAlert className="mt-0.5 size-5 shrink-0 text-amber-600" aria-hidden />
             <div className="space-y-1">
               <p className="font-semibold">{t("experimental.disclaimerTitle")}</p>
               <p className="text-sm">{t("experimental.disclaimer")}</p>
             </div>
           </div>
-          {SECTIONS.map((section) => {
-            const sources = sourcesOf(catalog, section);
-            const open = sectionOn(on, section);
-            return (
-              <div key={section} className={cn(panelClass, "px-4 py-1")}>
-                <CheckRow
-                  checked={open}
-                  onChange={(value) => toggle(section, value)}
-                  title={t(`experimental.section.${section}`)}
-                  hint={t(`experimental.sectionHint.${section}`)}
-                />
-                {sources.length > 0 ? (
-                  <div className="divide-y border-t pl-8">
-                    {sources.map((s) => (
-                      <CheckRow
-                        key={s.series}
-                        disabled={!open}
-                        checked={on.includes(sourceId(section, s.series))}
-                        onChange={(value) => toggle(sourceId(section, s.series), value)}
-                        title={s.publisher}
-                        hint={
-                          s.titles.slice(0, 4).join(" · ") +
-                          (s.titles.length > 4
-                            ? ` · ${t("experimental.more", { count: s.titles.length - 4 })}`
-                            : "")
-                        }
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <p className="border-t py-2 pl-8 text-sm text-muted-foreground">
-                    {t("experimental.none")}
-                  </p>
-                )}
-              </div>
-            );
-          })}
+          <div className="mt-3 divide-y border-t">
+            {SECTIONS.map((section) => {
+              const sources = sourcesOf(catalog, section);
+              const open = sectionOn(on, section);
+              return (
+                <div key={section}>
+                  <CheckRow
+                    checked={open}
+                    onChange={(value) => toggle(section, value)}
+                    title={t(`experimental.section.${section}`)}
+                    hint={t(`experimental.sectionHint.${section}`)}
+                  />
+                  {sources.length > 0 ? (
+                    <div className="divide-y border-t pl-8">
+                      {sources.map((s) => (
+                        <CheckRow
+                          key={s.series}
+                          disabled={!open}
+                          checked={on.includes(sourceId(section, s.series))}
+                          onChange={(value) => toggle(sourceId(section, s.series), value)}
+                          title={s.publisher}
+                          hint={
+                            s.titles.slice(0, 4).join(" · ") +
+                            (s.titles.length > 4
+                              ? ` · ${t("experimental.more", { count: s.titles.length - 4 })}`
+                              : "")
+                          }
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="border-t py-2 pl-8 text-sm text-muted-foreground">
+                      {t("experimental.none")}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </>
       )}
-    </section>
+    </Panel>
   );
 }

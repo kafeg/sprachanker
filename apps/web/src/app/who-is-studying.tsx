@@ -47,7 +47,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
   const shown = list.slice(at * PROFILES_PER_PAGE, (at + 1) * PROFILES_PER_PAGE);
 
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-8 px-4 py-10">
+    <main className="mx-auto flex min-h-dvh w-full max-w-4xl flex-col justify-center gap-8 px-4 py-10">
       <div className="flex justify-center">
         <LanguageSwitch />
       </div>

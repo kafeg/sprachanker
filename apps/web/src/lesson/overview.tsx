@@ -111,8 +111,9 @@ export function WayIn({ flow, mode }: { flow: LessonFlow; mode: RunMode }) {
   const { result } = flow;
   if (mode === "finished")
     return (
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium">
+      // On a phone the score takes a row and the two buttons share the next one.
+      <div className="grid w-full grid-cols-2 items-center gap-2 sm:flex sm:w-auto sm:flex-wrap">
+        <span className="col-span-2 text-sm font-medium">
           {result && result.scored > 0
             ? t("lesson.doneScore", { score: result.score })
             : t("lesson.done")}

@@ -206,13 +206,34 @@ function ModelField({ state, provider }: { state: LlmState; provider: Provider }
 }
 
 /** The providers as cards and the chosen one's settings: Settings → AI assistant and onboarding. */
-export function AssistantSetup() {
+/** The providers as cards, then the chosen one's details: in a panel of their own (the onboarding's
+ *  step), or under a line inside the panel around them (`inPanel`: Settings). */
+export function AssistantSetup({ inPanel = false }: { inPanel?: boolean }) {
   const { t } = useTranslation();
   const llm = useLlm();
   const setRoute = useSetRoute();
   const state = llm.data;
   if (!state) return null;
   const provider = state.providers.find((p) => p.id === state.provider);
+  const details = provider && (
+    <>
+      <p className="text-sm text-muted-foreground">{t(`llm.about.${provider.id}`)}</p>
+      {provider.installed === false && (
+        <p className="flex items-start gap-1.5 text-sm">
+          <CircleX className="mt-0.5 size-4 shrink-0 text-wrong" />
+          {t(`llm.cliMissing.${provider.id}`)}
+        </p>
+      )}
+      {provider.editableUrl && <EndpointField provider={provider} />}
+      {provider.key !== "none" && <KeyField provider={provider} />}
+      {provider.id === "openrouter" && <KeyState provider={provider} />}
+      {provider.id === "lmstudio" ? (
+        <LmStudioSection state={state} />
+      ) : (
+        <ModelField state={state} provider={provider} />
+      )}
+    </>
+  );
   return (
     <div className="space-y-3">
       <ProviderCards
@@ -221,25 +242,14 @@ export function AssistantSetup() {
           setRoute.mutate({ provider: id, model: id === state.provider ? state.model : null })
         }
       />
-      {provider && (
-        <Panel as="div" className="space-y-5">
-          <p className="text-sm text-muted-foreground">{t(`llm.about.${provider.id}`)}</p>
-          {provider.installed === false && (
-            <p className="flex items-start gap-1.5 text-sm">
-              <CircleX className="mt-0.5 size-4 shrink-0 text-wrong" />
-              {t(`llm.cliMissing.${provider.id}`)}
-            </p>
-          )}
-          {provider.editableUrl && <EndpointField provider={provider} />}
-          {provider.key !== "none" && <KeyField provider={provider} />}
-          {provider.id === "openrouter" && <KeyState provider={provider} />}
-          {provider.id === "lmstudio" ? (
-            <LmStudioSection state={state} />
-          ) : (
-            <ModelField state={state} provider={provider} />
-          )}
-        </Panel>
-      )}
+      {details &&
+        (inPanel ? (
+          <div className="space-y-5 border-t pt-5">{details}</div>
+        ) : (
+          <Panel as="div" className="space-y-5">
+            {details}
+          </Panel>
+        ))}
     </div>
   );
 }
@@ -247,10 +257,9 @@ export function AssistantSetup() {
 export function LlmSettings() {
   const { t } = useTranslation();
   return (
-    <section className="space-y-2">
-      <h2 className="text-xl font-bold">{t("llm.title")}</h2>
-      <p className="text-sm text-muted-foreground">{t("llm.intro")}</p>
-      <AssistantSetup />
-    </section>
+    <Panel title={t("llm.title")}>
+      <p className="mb-4 text-sm text-muted-foreground">{t("llm.intro")}</p>
+      <AssistantSetup inPanel />
+    </Panel>
   );
 }

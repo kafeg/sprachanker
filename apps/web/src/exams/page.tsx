@@ -120,6 +120,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
               ]),
             ]}
             onChange={setModule}
+            lead
           />
         </div>
       )}

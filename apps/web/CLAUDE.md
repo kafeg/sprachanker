@@ -84,7 +84,8 @@ apps/web/src/
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
-                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented),
+                   # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
+                   # run's), avatar, choice (segmented),
                    # check-row (a setting on or off), option-card (one of a few options as a card),
                    # disclosure (folded: "Advanced"), confirm (an action that cannot be undone), flags,
                    # error-text (an API error in words), target-lang (`lang` of the course's language),

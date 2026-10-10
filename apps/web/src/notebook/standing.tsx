@@ -1,12 +1,11 @@
 // A module's standing as the Notebook shows every module's (schema `stats.ts`): its figures as tiles,
-// its entries — those listed under a group (a lesson under its course) as rows of the group's panel,
-// the others (an exam, a language's deck) each a panel of its own with its figures, its latest runs
-// and the way to it. What a module adds is its entries' titles and where they open (`EntryView`).
+// its entries in the module's panel — those listed under a group (a lesson under its course) as rows
+// under the group's title, the others (an exam, a language's deck) each under its own title with its
+// figures, its latest runs and the way to it. What a module adds is its entries' titles and where they open (`EntryView`).
 import type { Figure, ModuleId, RunSummary, StandingEntry } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
-import { EmptyState } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -50,8 +49,8 @@ function FigureGrid({ module, figures }: { module: ModuleId; figures: Figure[] }
   );
 }
 
-/** A module's section: its heading, then its entries by group, or each on its own; none yet, what
- *  will come here. */
+/** A module's section, a panel as the page's others: its title, then its entries by group, or each on
+ *  its own; none yet, what will come here. */
 export function StandingSection({
   module,
   entries,
@@ -72,28 +71,35 @@ export function StandingSection({
     else blocks.push({ key: entry.key, title: null, entries: [entry] });
   }
   return (
-    <>
-      <h2 className="pt-2 text-lg font-semibold">{t(`notebook.section.${module}`)}</h2>
+    <Panel title={t(`notebook.section.${module}`)}>
       {/* Nothing yet: what comes here, so the page explains itself. */}
       {!entries.length && (
-        <EmptyState className="p-5 text-sm">{t(`notebook.none.${module}`)}</EmptyState>
+        <p className="text-sm text-muted-foreground">{t(`notebook.none.${module}`)}</p>
       )}
-      {blocks.map((b) =>
-        b.entries[0]?.group ? (
-          <Panel key={b.key} title={b.title ?? b.key}>
-            <ul className="divide-y">
-              {b.entries.map((e) => (
-                <li key={e.key}>
-                  <EntryRow module={module} entry={e} view={view} />
-                </li>
-              ))}
-            </ul>
-          </Panel>
-        ) : (
-          b.entries.map((e) => <EntryPanel key={e.key} module={module} entry={e} view={view} />)
-        ),
-      )}
-    </>
+      {blocks.map((b) => (
+        <div
+          key={b.key}
+          className="mt-3 border-t pt-3 first-of-type:mt-1 first-of-type:border-t-0 first-of-type:pt-0"
+        >
+          {b.entries[0]?.group ? (
+            <>
+              <h4 className="mt-2 font-sans font-medium text-muted-foreground">
+                {b.title ?? b.key}
+              </h4>
+              <ul className="divide-y">
+                {b.entries.map((e) => (
+                  <li key={e.key}>
+                    <EntryRow module={module} entry={e} view={view} />
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            b.entries.map((e) => <EntryBlock key={e.key} module={module} entry={e} view={view} />)
+          )}
+        </div>
+      ))}
+    </Panel>
   );
 }
 
@@ -133,8 +139,8 @@ function EntryRow({
   );
 }
 
-/** An entry on its own: its figures, its latest runs, and the way to it. */
-function EntryPanel({
+/** An entry on its own: its title, its figures, its latest runs, and the way to it. */
+function EntryBlock({
   module,
   entry,
   view,
@@ -145,7 +151,10 @@ function EntryPanel({
 }) {
   const { t } = useTranslation();
   return (
-    <Panel title={view.title?.(entry) ?? entry.title ?? entry.key}>
+    <>
+      <h4 className="mt-2 font-sans font-medium text-muted-foreground">
+        {view.title?.(entry) ?? entry.title ?? entry.key}
+      </h4>
       <FigureGrid module={module} figures={entry.figures} />
       <ul className={cn("divide-y", entry.figures.length > 0 && "mt-2")}>
         {entry.runs.map((run) => (
@@ -163,7 +172,7 @@ function EntryPanel({
           </li>
         )}
       </ul>
-    </Panel>
+    </>
   );
 }
 
