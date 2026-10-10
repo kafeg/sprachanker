@@ -43,6 +43,10 @@ export const PROVIDERS: CourseProvider[] = [
 ];
 const byId = new Map(PROVIDERS.map((p) => [p.id, p]));
 
+/** The sources ready for learning (owner, 2026-10-10); every other one is experimental — offered and
+ *  shown only when the learner turns it on (Settings → Experimental). */
+export const STABLE_SERIES = new Set(["dw.nicos-weg", "bamf.lid"]);
+
 export const providerIds = () => PROVIDERS.map((p) => p.id);
 
 /**
@@ -118,7 +122,14 @@ export function courseInstaller(dataRoot: string, now: () => number = Date.now):
   const markerFile = (series: string, course: string) =>
     join(library, series, ".downloads", `${course}.json`);
   return {
-    offers: () => PROVIDERS.flatMap((p) => p.offers.map((o) => ({ ...o, series: p.series }))),
+    offers: () =>
+      PROVIDERS.flatMap((p) =>
+        p.offers.map((o) => ({
+          ...o,
+          series: p.series,
+          ...(!STABLE_SERIES.has(p.series) && { experimental: true }),
+        })),
+      ),
 
     async run(series, course, { log, progress }) {
       const provider = PROVIDERS.find((p) => p.series === series)?.id;

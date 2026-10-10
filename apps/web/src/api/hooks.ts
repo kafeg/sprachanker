@@ -171,6 +171,7 @@ export function useDownloadsWatch() {
 /** Every course the providers offer, with its state (available, downloading, incomplete, ready). */
 export const useCatalog = () =>
   useQuery({ queryKey: ["catalog"], meta: STATIC, queryFn: () => json(api.catalog.$get()) });
+export type CatalogRow = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
 
 /** Downloads a course, completes it or syncs it with its source (one idempotent job). */
 export function useStartDownload() {

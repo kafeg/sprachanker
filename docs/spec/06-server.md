@@ -29,7 +29,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `GET /api/course` (course map), `GET /api/lesson` (canonical + locale lesson),
   `GET /api/course/check` (the course verified: counts, media by kind and size, problems — each its
   kind, place and the finding in English: the app names the kind in the interface's language).
-- Courses on disk: `GET /api/catalog` (every course the providers offer, with its state: available,
+- Courses on disk: `GET /api/catalog` (every course the providers offer, `experimental` where it is (03), with its state: available,
   queued, downloading, incomplete, ready), `GET` / `POST /api/downloads` (the jobs with progress and
   log; queue a download — first download, completing one and syncing with the source are the same
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).

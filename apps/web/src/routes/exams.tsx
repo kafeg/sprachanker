@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExams } from "@/api/exams.ts";
 import { useCatalog } from "@/api/hooks.ts";
+import { useShown } from "@/app/experimental.ts";
 import { OfferCard } from "@/courses/card.tsx";
 import { ExamCard } from "@/exams/card.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -21,8 +22,11 @@ const PATH: Record<ExamsTab, "/exams" | "/exams/downloaded" | "/exams/catalog"> 
 export function ExamsPage({ tab }: { tab: ExamsTab }) {
   const { t } = useTranslation();
   const exams = useExams();
-  const all = exams.data ?? [];
-  const offers = (useCatalog().data ?? []).filter((o) => !o.installed && o.kind === "exam");
+  const shown = useShown();
+  const all = (exams.data ?? []).filter((e) => shown("exams", e.series));
+  const offers = (useCatalog().data ?? []).filter(
+    (o) => !o.installed && o.kind === "exam" && shown("exams", o.series),
+  );
   const count: Record<ExamsTab, number> = {
     mine: all.filter((e) => e.started).length,
     downloaded: all.length,

@@ -82,6 +82,8 @@ export interface CourseOffer {
   source: CourseSource;
   /** Bytes on disk after a full download (pages and media), roughly. */
   approxBytes: number;
+  /** Not ready for learning yet: shown only when the learner turns it on (the server says which). */
+  experimental?: boolean;
 }
 
 export interface NormaliseResult {

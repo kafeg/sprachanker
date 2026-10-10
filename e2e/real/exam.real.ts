@@ -89,6 +89,8 @@ for (const s of examScenarios())
       ["uiLanguage", "en"],
       ["learner.native", native],
       ["learner.target", target],
+      // An experimental exam is shown once turned on (Settings → Experimental).
+      ["experimental.on", ["exams", `exams:${s.series}`]],
     ] as const)
       await page.request.put("/api/settings", {
         data: { key, value },

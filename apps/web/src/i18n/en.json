@@ -211,7 +211,8 @@
       "about": "About",
       "profile": "Profile",
       "review": "Review",
-      "speech": "Speech"
+      "speech": "Speech",
+      "experimental": "Experimental"
     }
   },
   "llm": {
@@ -1299,5 +1300,19 @@
       "placeholder": "Your answer…",
       "end": "End the part"
     }
+  },
+  "experimental": {
+    "disclaimerTitle": "An experiment, not a way to prepare",
+    "disclaimer": "What you turn on here is being tried out: its content may be incomplete or read wrongly, its scoring may differ from the real thing. Don't rely on it to prepare for a course or an exam. DW Nicos Weg and Leben in Deutschland are always on.",
+    "section": {
+      "courses": "Courses",
+      "exams": "Exams"
+    },
+    "sectionHint": {
+      "courses": "Courses besides DW Nicos Weg, shown in Courses",
+      "exams": "Exams besides Leben in Deutschland, shown in Exams"
+    },
+    "none": "Nothing experimental here.",
+    "more": "{count, plural, one {# more} other {# more}}"
   }
 }

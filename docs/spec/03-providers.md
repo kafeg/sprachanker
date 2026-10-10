@@ -37,6 +37,11 @@ apart in one line (`CYRILLIC`, `latinLetters`, `splitAtCyrillic`).
 
 ## Offered in the app
 
+Ready for learning are DW Nicos Weg (`dw.nicos-weg`) and Leben in Deutschland (`bamf.lid`); every
+other source is experimental (owner, 2026-10-10; the server's `STABLE_SERIES`): its catalogue
+entries say so, and its courses and exams are shown only once the learner turns on their section and
+the source in Settings → Experimental (09).
+
 Every provider's courses are offered in Courses → Available (owner, 2026-10-08); the pair the
 onboarding sets as the course filters keeps a learner's own language pair in front. A course taken
 out of the library keeps working where it is remembered: its cards (their text is kept with them), its

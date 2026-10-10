@@ -5,6 +5,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
+import { useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard, OfferCard } from "@/courses/card.tsx";
 import { CATALOG_FILTERS, MY_FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -20,17 +21,24 @@ const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
 function useCourseList() {
   const courses = useCourses();
   const settings = useSettings();
+  const shown = useShown();
   if (courses.isPending || settings.isPending) return { state: <Loading /> };
   if (courses.isError)
     return { state: <ErrorState error={courses.error} onRetry={() => courses.refetch()} /> };
-  return { all: courses.data, settings: settings.data ?? {} };
+  return {
+    all: courses.data.filter((c) => shown("courses", c.series)),
+    settings: settings.data ?? {},
+  };
 }
 
 export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t } = useTranslation();
-  const all = useCourses().data ?? [];
+  const shown = useShown();
+  const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series));
   // Exams are offered in the Exams section.
-  const offers = (useCatalog().data ?? []).filter((o) => !o.installed && o.kind !== "exam");
+  const offers = (useCatalog().data ?? []).filter(
+    (o) => !o.installed && o.kind !== "exam" && shown("courses", o.series),
+  );
   const count: Record<CoursesTab, number> = {
     mine: all.filter((c) => c.started).length,
     downloaded: all.reduce((n, c) => n + c.editions.length, 0),
@@ -135,8 +143,12 @@ function Available() {
   const { t } = useTranslation();
   const list = useCourseList();
   const catalog = useCatalog();
+  const shown = useShown();
   const cards = (catalog.data ?? [])
-    .filter((offer) => !offer.installed)
+    .filter(
+      (offer) =>
+        !offer.installed && shown(offer.kind === "exam" ? "exams" : "courses", offer.series),
+    )
     .map((offer) => ({
       key: offer.key,
       offer,

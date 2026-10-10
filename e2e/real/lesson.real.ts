@@ -35,6 +35,8 @@ for (const s of scenarios())
       ["learner.native", native],
       ["learner.target", target],
       ["srs.faces", ["recognition", "production", "listening"]],
+      // An experimental course is shown once turned on (Settings → Experimental).
+      ["experimental.on", ["courses", `courses:${s.series}`]],
     ] as const)
       await page.request.put("/api/settings", {
         data: { key, value },

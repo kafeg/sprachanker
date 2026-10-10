@@ -53,7 +53,8 @@ apps/web/src/
                    # profile chip — profile-chip), language-switch (the interface language, kept on the device),
                    # who-is-studying, onboarding (with tour; the AI step is a slot from
                    # the router), profile-settings, pairs (language pairs offered), device-name, about,
-                   # preferences (language, theme, playback speed)
+                   # preferences (language, theme, playback speed), experimental (what is shown: stable sources
+                   # always, experimental ones turned on), experimental-settings (Settings → Experimental)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),

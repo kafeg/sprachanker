@@ -211,7 +211,8 @@
       "about": "Über",
       "profile": "Profil",
       "review": "Wiederholung",
-      "speech": "Sprechen"
+      "speech": "Sprechen",
+      "experimental": "Experimentell"
     }
   },
   "llm": {
@@ -1299,5 +1300,19 @@
       "placeholder": "Deine Antwort…",
       "end": "Teil beenden"
     }
+  },
+  "experimental": {
+    "disclaimerTitle": "Ein Experiment, keine Vorbereitung",
+    "disclaimer": "Was du hier einschaltest, wird erst erprobt: Inhalte können unvollständig oder falsch gelesen sein, die Bewertung kann von der echten abweichen. Verlass dich bei der Vorbereitung auf einen Kurs oder eine Prüfung nicht darauf. DW Nicos Weg und Leben in Deutschland sind immer an.",
+    "section": {
+      "courses": "Kurse",
+      "exams": "Prüfungen"
+    },
+    "sectionHint": {
+      "courses": "Kurse außer DW Nicos Weg, unter „Kurse“",
+      "exams": "Prüfungen außer Leben in Deutschland, unter „Prüfungen“"
+    },
+    "none": "Hier ist nichts experimentell.",
+    "more": "{count, plural, one {# weiterer} other {# weitere}}"
   }
 }

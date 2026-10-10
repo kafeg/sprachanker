@@ -45,36 +45,7 @@ Specs: 09, 10.
   script; the onboarding and the language switch offer them.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
-### 3. Exams (owner, 2026-10-08)
-Specs: 01, 02, 03, 04, 05, 06, 09, 10. Research: `docs/research/exams.md`. Built: the Exams section,
-mock exams, practice and the catalogue, Leben in Deutschland (`bamf-lid`; 03, 04 "Exams", 09);
-the exam layer for language exams (modules of Teile with their material; 02, 04, 09); Goethe A1,
-A2, B1 Hören and Lesen (`goethe`; 03); a question at a time with the grid of numbers, practice
-checked at once, the catalogue as a compact list, statistics in the Notebook (09; owner's choices B,
-D, F, 2026-10-10); each exam's sources and checks, kept with it and shown (02, 03).
-- **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
-  question, option, picture, recording and answer comes in through the provider's fetch and
-  normaliser — never from a model, never by hand. Any tool may be used inside an importer; a browser
-  only if a source cannot be read otherwise. The whole of each exam: texts, pictures, audio,
-  answers, attributions.
-- **3b. Goethe A1, A2, B1** (key for the owner), from the accessible online model tests
-  (`bfu.goethe.de`; research: plain GET, a solution page per Teil, audio per item or Teil). In steps:
-  - **3b-3. Schreiben and Sprechen**: rating open answers by their criteria (the learner's, the AI
-    assistant's proposal), Goethe's Schreiben and Sprechen with their criteria, A2's real pass
-    marks, and the speaking parts held as a conversation with the assistant are built (02, 03, 04,
-    07, 09); left: B1's levels described (only its PDF's criteria table says what each band means).
-  - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
-    run-throughs.
-- **Independent checks** (open, from 3e): an exam's answers against a second, independent key where
-  one is open — LiD against public answer lists (done once by hand: 460/460, research), Goethe A1
-  against telc's Start Deutsch 1 key (the same test) — as a check in its sources.
-- **3f. More exams** (owner, 2026-10-10): placement tests (Einstufungstest) for German and English;
-  the German driving theory test (Führerschein, its questions in several languages) — research first:
-  which sources are open, their terms, how an importer reads them.
-- Later: telc, DTZ, ÖSD model tests (PDF + MP3, text answer keys); English exams with the English
-  courses.
-
-### 4. The tutor on its own (owner, 2026-10-10)
+### 3. The tutor on its own (owner, 2026-10-10)
 Specs: 07, 09.
 - A section of its own for talking with the AI outside any lesson: on any topic the learner asks
   about (a grammar question, a text to go through, a conversation to practise), in the profile's
@@ -82,14 +53,14 @@ Specs: 07, 09.
   listed as the lesson tutor's are.
 - **Accept**: a chat started from the section, kept, continued later; read aloud as the tutor's.
 
-### 5. Notebook: more pictures (owner's request, 2026-10-07)
+### 4. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 6. Phones (owner, 2026-10-08: functionality first, phones after)
+### 5. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
   network (when the server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them
@@ -105,7 +76,7 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 7. Moving and keeping one's data (owner, 2026-10-10)
+### 6. Moving and keeping one's data (owner, 2026-10-10)
 Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
 - **Profile export/import** (first: the only data that cannot be fetched again): a file with the
   profile's database (made with `VACUUM INTO`, without secrets), its recordings and a manifest
@@ -125,7 +96,7 @@ Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
 - **Accept**: a profile moved to a second data root and studied on; a course and an exam moved as
   bundles and verified.
 
-### 8. A week of real use
+### 7. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
@@ -166,6 +137,20 @@ Order decided by the week of use.
   to cards, the AI to explain a sentence or the grammar, and read aloud (the reading-aloud engines:
   a word or sentence heard, for its pronunciation). Accept: a German book downloaded, read on Mac and
   iPhone with translation, words added to Review.
+- **Exams beyond Leben in Deutschland** (owner, 2026-10-10: set aside; experimental until then —
+  Settings → Experimental). Leben in Deutschland is the exam in use. Built for the rest (01–09): the
+  exam layer for language exams (modules of Teile with their material, scaling and rounding), Goethe
+  A1, A2, B1 — Hören, Lesen, Schreiben and Sprechen with their criteria — open answers rated by the
+  learner or as the assistant proposes, speaking parts held as a conversation with the assistant, A2's
+  real pass marks, each exam's sources and checks. Where it stopped and why: the owner has not taken
+  these exams and cannot yet say how they should feel; what is unverified — the speaking conversation
+  with a real model, A1 Sprechen's points per task (the regulations say only full, half or none),
+  B1's levels undescribed (only its PDF's criteria table says what each band means), whether the mock
+  exams match the real experience. Left as planned: independent checks (LiD against public answer
+  lists — done once by hand, 460/460; Goethe A1 against telc's Start Deutsch 1 key) as a check in the
+  sources; placement tests (German, English) and the German driving theory test (research first:
+  which sources are open, their terms, how an importer reads them); telc, DTZ, ÖSD model tests (PDF +
+  MP3, text answer keys); English exams with the English courses. Research: `docs/research/exams.md`.
 - **More sources**: B1 glossary, Deutsch im Blick interviews, Starter English (03).
 - **Desktop app** (06, 09): Tauri shell, first-run wizard (the data folder chosen there, LM Studio),
   network options with QR, the speech engines bundled (whisper-server, sherpa-onnx, tts-server),
