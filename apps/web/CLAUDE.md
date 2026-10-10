@@ -9,20 +9,19 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 apps/web/src/
   main.tsx         # the entry: query client, i18n, the router
   fonts.css        # the faces bundled from @fontsource (woff2, Latin and Cyrillic subsets; spec 10)
-  routes/          # router.tsx (code-based TanStack Router: the gate, then the pages): courses (tabs My,
-                   # Downloaded, Available — /, /downloaded, /catalog), review (tabs Study, Decks with
-                   # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
-                   # My words), exams (tabs My, Downloaded, Available — /exams, /exams/downloaded,
-                   # /exams/catalog), course (its map), settings, storage (Settings → General's storage)
+  routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
+                   # Exams loaded when first opened): courses (/, /downloaded, /catalog), review (/review,
+                   # /review/decks, /review/words — words.tsx), exams (/exams, /exams/downloaded,
+                   # /exams/catalog), course (its map), settings, storage (Settings → General's storage),
+                   # runs (the lesson and exam runs with the assistant's slots)
   courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the
                    # course page's hero (progress, source, stats, integrity, sync)
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
                    # header, reference), use-run (the run in the query cache + its events, sent through
-                   # api/run-events), plan, overview, words-step, steps
-                   # (reading pages, the step bar), exercise step (its rules in use-exercise, Enter in
-                   # enter-key), practice-step, mistakes-status,
-                   # summary, reference; slots.ts: what optional features add
+                   # api/run-events), plan, overview, words-step, steps (reading pages, the step bar),
+                   # exercise-step (its rules in use-exercise, Enter in enter-key), practice-step,
+                   # mistakes-status, summary, reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
                    # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
@@ -55,14 +54,13 @@ apps/web/src/
                    # run's events over it: per profile, the server's outcomes, on page close); edition:
                    # the edition a course is shown in; cache: pure cache updates
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
-                   # profile chip — profile-chip), language-switch (the interface language: who-is-studying's,
-                   # kept on the device; Settings → General's, kept in the profile), who-is-studying (tiles five to a page; "New profile" starts
-                   # the onboarding), onboarding (the profile's name and colour — made at its Next —, the AI
-                   # step a slot from the router, speech, tour; the router opens it again for the new
-                   # profile at the AI step), name-colour (a profile's name and colour: the onboarding's
-                   # and Settings → Profile's), profile-settings, device-name, about,
-                   # preferences (language, theme, playback speed), experimental (what is shown: stable sources
-                   # always, experimental ones turned on), experimental-settings (Settings → General → Experimental)
+                   # profile chip — profile-chip), language-switch (who-is-studying's, kept on the device;
+                   # Settings → General's, kept in the profile), who-is-studying (five tiles to a page; "New
+                   # profile" starts the onboarding), onboarding (name and colour — the profile made at its
+                   # Next —, the AI step a slot from the router, speech, tour — app/tour.tsx: the sections,
+                   # an icon and a line each), name-colour (the onboarding's and Settings → Profile's),
+                   # profile-settings, device-name, about, preferences (language, theme, playback speed),
+                   # experimental (stable sources always, experimental ones turned on), experimental-settings
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
@@ -72,8 +70,9 @@ apps/web/src/
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
-                   # bubbles, header, pending exchange, composer, start prompt, errors (with Retry); api.ts
-                   # (the tasks), setup-api.ts (the route, providers, models, LM Studio, the prompts)
+                   # bubbles, header, pending exchange, composer, start prompt, the answer box, errors (with
+                   # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
+                   # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
@@ -115,8 +114,7 @@ to `@/ui`).
 - No user-facing string outside i18n catalogs (`src/i18n/*.json`, nested keys, ICU messages);
   `test/catalogs.test.ts` fails on differing keys, invalid ICU, a key the code asks for that no
   catalog has, a key no code uses, a ru/de message left as the English text, or one taking other
-  arguments than the English one. Language names come from
-  `Intl.DisplayNames`, not catalogs.
+  arguments than the English one. Language names come from `Intl.DisplayNames`, not catalogs.
 - Catalog style: ru addresses the learner as «вы», de as "du"; counts use ICU `plural` with `#`, other
   numbers `{x, number}` or `Intl.NumberFormat` (never `toFixed` or `${n}%`).
 - The API client imports only `import type { AppType } from "@sprachanker/server/app"`.
@@ -143,10 +141,9 @@ to `@/ui`).
 - Screen key handlers leave Space and Enter to a focused button, link or slider.
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
-  folder can be removed with its mount points: the settings page and the router, which passes
-  `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots (header, explain, spoken, practice) and `wordAssistant`
-  (llm/word-example.tsx) as the reviewer's (study/slots.ts) and `examAssistant` (llm/exam-assistant.tsx)
-  as an exam run's (exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
+  folder can be removed with its mount points: the settings page, the router (`wordAssistant`, the
+  reviewer's: study/slots.ts) and routes/runs.tsx (`lessonAssistant` as the player's slots, `examAssistant`
+  as an exam run's: exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
 - Feature folders (`lesson/`, `exams/`, `study/`, `courses/`, `notebook/`) never import each other:
   what they share is in `ui/`, `api/`, `library/`, `exercises/`, `audio/` or `word/` (Anki's reviewer,
   `study/session.tsx`, is shared on purpose with the lesson's Words step); `api/` and `library/` import

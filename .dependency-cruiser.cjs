@@ -99,11 +99,12 @@ module.exports = {
     {
       name: "web-llm-mounted-only",
       comment:
-        "apps/web/src/llm is optional: only its mount points (the router and the settings page) import it.",
+        "apps/web/src/llm is optional: only its mount points (the router, the runs it loads and the settings page) import it.",
       severity: "error",
       from: {
         path: "^apps/web/src/",
-        pathNot: "^apps/web/src/(llm/|routes/router\\.tsx$|routes/settings\\.tsx$)",
+        pathNot:
+          "^apps/web/src/(llm/|routes/router\\.tsx$|routes/runs\\.tsx$|routes/settings\\.tsx$)",
       },
       to: { path: "^apps/web/src/llm/" },
     },

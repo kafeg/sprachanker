@@ -7,34 +7,47 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { type ComponentType, lazy, Suspense, useEffect, useState } from "react";
 import { useSession } from "@/api/session.ts";
-import { Onboarding } from "@/app/onboarding.tsx";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell } from "@/app/shell.tsx";
 import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { SpeechProvider } from "@/audio/context.ts";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
-import { ExamCatalog } from "@/exams/catalog.tsx";
-import { ExamPage } from "@/exams/page.tsx";
-import { ExamPlayer } from "@/exams/player.tsx";
-import { ExamSlotsProvider } from "@/exams/slots.ts";
-import { LessonPlayer } from "@/lesson/player.tsx";
-import { examAssistant } from "@/llm/exam-assistant.tsx";
-import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
-import { AssistantSetup } from "@/llm/settings-section.tsx";
-import { wordAssistant } from "@/llm/word-example.tsx";
-import { ExamNotebook } from "@/notebook/exam.tsx";
-import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
-import { NotebookPage } from "@/notebook/page.tsx";
+import type { LessonView } from "@/notebook/lesson.tsx";
 import { StudySlotsProvider } from "@/study/slots.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
-import { CoursePage } from "./course.tsx";
 import { CoursesPage } from "./courses.tsx";
 import { ExamsPage } from "./exams.tsx";
-import { ReviewPage, type ReviewTab } from "./review.tsx";
-import { SettingsPage } from "./settings.tsx";
+import type { ReviewTab } from "./review.tsx";
+
+/** A page loaded when it is first opened, a chunk of its own: the app's first load stays small. */
+function page<P extends object>(load: () => Promise<ComponentType<P>>) {
+  const Lazy = lazy(async () => ({ default: await load() }));
+  return (props: P) => (
+    <Suspense fallback={<Loading />}>
+      <Lazy {...props} />
+    </Suspense>
+  );
+}
+const CoursePage = page(() => import("./course.tsx").then((m) => m.CoursePage));
+const ReviewPage = page(() => import("./review.tsx").then((m) => m.ReviewPage));
+const SettingsPage = page(() => import("./settings.tsx").then((m) => m.SettingsPage));
+const ExamPage = page(() => import("@/exams/page.tsx").then((m) => m.ExamPage));
+const ExamCatalog = page(() => import("@/exams/catalog.tsx").then((m) => m.ExamCatalog));
+const NotebookPage = page(() => import("@/notebook/page.tsx").then((m) => m.NotebookPage));
+const ExamNotebook = page(() => import("@/notebook/exam.tsx").then((m) => m.ExamNotebook));
+const LessonNotebook = page(() => import("@/notebook/lesson.tsx").then((m) => m.LessonNotebook));
+const LessonRun = page(() => import("./runs.tsx").then((m) => m.LessonRun));
+const ExamRun = page(() => import("./runs.tsx").then((m) => m.ExamRun));
+const AssistantSetup = page(() =>
+  import("@/llm/settings-section.tsx").then((m) => m.AssistantSetup),
+);
+const Onboarding = page(() => import("@/app/onboarding.tsx").then((m) => m.Onboarding));
+// The reviewer's slot (an AI example under a card), loaded with the first card shown.
+const WordExample = page(() => import("@/llm/word-example.tsx").then((m) => m.wordAssistant.word));
+const wordAssistant = { word: (props: { cardId: string }) => <WordExample {...props} /> };
 
 /** The app of a signed-in, onboarded profile: its preferences applied. */
 function SignedIn() {
@@ -186,19 +199,15 @@ const examRun = createRoute({
   path: "/exam/$series/$course/$exam/run/$run",
 });
 examRun.update({
-  component: function ExamRun() {
+  component: function ExamRunPage() {
     const { run, ...params } = examRun.useParams();
-    return (
-      <ExamSlotsProvider value={examAssistant}>
-        <ExamPlayer key={run} params={params} runId={run} />
-      </ExamSlotsProvider>
-    );
+    return <ExamRun key={run} params={params} runId={run} />;
   },
 });
 const notebook = createRoute({
   getParentRoute: () => shell,
   path: "/notebook",
-  component: NotebookPage,
+  component: () => <NotebookPage />,
 });
 const notebookExam = createRoute({
   getParentRoute: () => shell,
@@ -235,7 +244,7 @@ notebookLesson.update({
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",
-  component: SettingsPage,
+  component: () => <SettingsPage />,
 });
 const lesson = createRoute({
   getParentRoute: () => root,
@@ -250,9 +259,8 @@ lesson.update({
     const { step } = lesson.useSearch();
     const navigate = lesson.useNavigate();
     return (
-      <LessonPlayer
+      <LessonRun
         key={`${params.series}/${params.course}/${params.lesson}`}
-        slots={lessonAssistant}
         step={step}
         // Replaced, not pushed: the browser's back still leaves the lesson.
         onStep={(id) => void navigate({ search: { step: id }, replace: true })}
