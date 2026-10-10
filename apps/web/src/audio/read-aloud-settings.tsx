@@ -1,7 +1,8 @@
 // Settings → Speech → Read aloud (08; 09): the engine as cards — the device's voices, Piper or Qwen3-TTS
 // on this computer — the voice of each language read aloud with "Listen" (automatic: the best one
 // there) and the text it reads (a phrase in that language, or the learner's own), Piper's voices to
-// download per language or Qwen3-TTS's models, the speed, and what is read at once.
+// download per language or Qwen3-TTS's models, and the speed (what is read at once: Settings → Speech →
+// Advanced).
 
 import { ALL_LANGS, type SettingValue } from "@sprachanker/schema";
 import {
@@ -25,7 +26,6 @@ import {
   useSetting,
 } from "@/api/hooks.ts";
 import { languageName } from "@/i18n/index.ts";
-import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import {
   Select,
@@ -477,7 +477,6 @@ export function ReadAloud() {
   const piper = usePiperVoices().data;
   const qwen = useQwenTts().data;
   const rate = useSetting("speech.readRate");
-  const atOnce = useSetting("speech.readAtOnce");
   const langs = useReadLanguages();
   const [shownRate, setShownRate] = useState<number>();
   const device = typeof speechSynthesis !== "undefined" && voices.length > 0;
@@ -590,17 +589,6 @@ export function ReadAloud() {
             />
           </div>
         )}
-        <div className="space-y-1.5">
-          <p className="text-sm font-medium">{t("speech.settings.atOnce")}</p>
-          <Choice
-            value={atOnce}
-            options={(["none", "scenes", "all"] as const).map((v) => [
-              v,
-              t(`speech.settings.atOnceOption.${v}`),
-            ])}
-            onChange={(value) => set.mutate({ key: "speech.readAtOnce", value })}
-          />
-        </div>
       </div>
     </Panel>
   );

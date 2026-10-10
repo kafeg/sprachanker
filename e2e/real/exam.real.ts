@@ -87,7 +87,7 @@ for (const s of examScenarios())
     const { profile } = (await made.json()) as { profile: { id: string } };
     for (const [key, value] of [
       ["uiLanguage", "en"],
-      // An experimental exam is shown once turned on (Settings → Experimental).
+      // An experimental exam is shown once turned on (Settings → General → Experimental).
       ["experimental.on", ["exams", `exams:${s.series}`]],
     ] as const)
       await page.request.put("/api/settings", {

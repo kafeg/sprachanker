@@ -48,7 +48,9 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-3xl flex-col justify-center gap-8 px-4 py-10">
-      <LanguageSwitch />
+      <div className="flex justify-center">
+        <LanguageSwitch />
+      </div>
       <div className="space-y-2 text-center">
         <img src="/favicon.svg" alt="" className="mx-auto size-14" />
         <h1 className="text-3xl font-bold">

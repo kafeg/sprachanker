@@ -6,14 +6,20 @@ export function Choice({
   options,
   value,
   onChange,
+  label,
 }: {
-  options: Array<[string, string]>;
+  options: Array<[string, React.ReactNode]>;
   value?: string;
   onChange(v: string): void;
+  /** Names the group for assistive technology when no visible heading does. */
+  label?: string;
 }) {
   return (
-    <div className="inline-flex flex-wrap gap-1 rounded-xl border bg-card p-1">
-      {options.map(([v, label]) => (
+    <fieldset
+      aria-label={label}
+      className="inline-flex min-w-0 flex-wrap gap-1 rounded-xl border bg-card p-1"
+    >
+      {options.map(([v, text]) => (
         <button
           type="button"
           key={v}
@@ -24,9 +30,9 @@ export function Choice({
             value === v ? "bg-primary font-semibold text-primary-foreground" : "hover:bg-accent",
           )}
         >
-          {label}
+          {text}
         </button>
       ))}
-    </div>
+    </fieldset>
   );
 }

@@ -106,7 +106,7 @@ const SAME_EVERYWHERE = new Set(
  *  it is translated or named here. */
 const SAME_IN_GERMAN = new Set([
   "settings.theme.system",
-  "settings.tabs.prompts",
+  "settings.prompts",
   "tutor.title",
   "prompt.places.tutor.name",
   "prompt.button",

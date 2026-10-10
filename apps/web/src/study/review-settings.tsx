@@ -1,6 +1,7 @@
-// Settings → Review (04; 09): Anki's deck options for the profile — daily limits, desired retention,
-// learning and relearning steps, when the day starts, whether new cards count against the review
-// limit, and the card types a new word gets. Each saved when changed; Anki's defaults one tap away.
+// Settings → Review (04; 09): Anki's deck options for the profile — daily limits and the card types a
+// new word gets; under Advanced desired retention, learning and relearning steps, whether new cards
+// count against the review limit, when the day starts. Each saved when changed; Anki's defaults one
+// tap away.
 import { SRS_DEFAULTS, STEP } from "@sprachanker/engine";
 import {
   CardFace,
@@ -17,6 +18,7 @@ import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { Slider } from "@/ui/components/slider.tsx";
+import { Disclosure } from "@/ui/disclosure.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 
@@ -147,70 +149,6 @@ export function ReviewSettings() {
           />
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.limitsHint")}</p>
-        <div className="mt-4 space-y-1.5">
-          <p className="text-sm font-medium">{t("reviewSettings.newIgnoresReviewLimit")}</p>
-          <Choice
-            value={get("srs.newIgnoresReviewLimit") ? "yes" : "no"}
-            options={[
-              ["no", t("reviewSettings.no")],
-              ["yes", t("reviewSettings.yes")],
-            ]}
-            onChange={(v) => save("srs.newIgnoresReviewLimit", v === "yes")}
-          />
-          <p className="text-sm text-muted-foreground">
-            {t("reviewSettings.newIgnoresReviewLimitHint")}
-          </p>
-        </div>
-      </Panel>
-      <Panel title={t("reviewSettings.retention")}>
-        <div className="mt-3 flex items-center gap-4">
-          <Slider
-            className="max-w-xs"
-            min={70}
-            max={99}
-            step={1}
-            value={[Math.round(shownRetention * 100)]}
-            aria-label={t("reviewSettings.retention")}
-            onValueChange={([v]) => setRetention((v ?? 90) / 100)}
-            onValueCommit={([v]) => {
-              save("srs.retention", (v ?? 90) / 100);
-              setRetention(undefined);
-            }}
-          />
-          <span className="w-14 font-semibold tabular-nums">{percent(shownRetention)}</span>
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.retentionHint")}</p>
-      </Panel>
-      <Panel title={t("reviewSettings.steps")}>
-        <div className="mt-2 flex flex-wrap gap-6">
-          <StepsField
-            label={t("reviewSettings.learningSteps")}
-            hint={t("reviewSettings.learningStepsHint")}
-            value={get("srs.learningSteps")}
-            onSave={(v) => save("srs.learningSteps", v)}
-          />
-          <StepsField
-            label={t("reviewSettings.relearningSteps")}
-            hint={t("reviewSettings.relearningStepsHint")}
-            value={get("srs.relearningSteps")}
-            allowNone
-            onSave={(v) => save("srs.relearningSteps", v)}
-          />
-        </div>
-      </Panel>
-      <Panel title={t("reviewSettings.day")}>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          {[0, 2, 3, 4, 5, 6].map((h) => (
-            <Chip
-              key={h}
-              on={get("srs.dayStartHour") === h}
-              onClick={() => save("srs.dayStartHour", h)}
-            >
-              {hour(h)}
-            </Chip>
-          ))}
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.dayHint")}</p>
       </Panel>
       <Panel title={t("reviewSettings.faces")}>
         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -233,6 +171,73 @@ export function ReviewSettings() {
         </div>
         <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.facesHint")}</p>
       </Panel>
+      <Disclosure title={t("settings.advanced")}>
+        <Panel title={t("reviewSettings.retention")}>
+          <div className="mt-3 flex items-center gap-4">
+            <Slider
+              className="max-w-xs"
+              min={70}
+              max={99}
+              step={1}
+              value={[Math.round(shownRetention * 100)]}
+              aria-label={t("reviewSettings.retention")}
+              onValueChange={([v]) => setRetention((v ?? 90) / 100)}
+              onValueCommit={([v]) => {
+                save("srs.retention", (v ?? 90) / 100);
+                setRetention(undefined);
+              }}
+            />
+            <span className="w-14 font-semibold tabular-nums">{percent(shownRetention)}</span>
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.retentionHint")}</p>
+        </Panel>
+        <Panel title={t("reviewSettings.steps")}>
+          <div className="mt-2 flex flex-wrap gap-6">
+            <StepsField
+              label={t("reviewSettings.learningSteps")}
+              hint={t("reviewSettings.learningStepsHint")}
+              value={get("srs.learningSteps")}
+              onSave={(v) => save("srs.learningSteps", v)}
+            />
+            <StepsField
+              label={t("reviewSettings.relearningSteps")}
+              hint={t("reviewSettings.relearningStepsHint")}
+              value={get("srs.relearningSteps")}
+              allowNone
+              onSave={(v) => save("srs.relearningSteps", v)}
+            />
+          </div>
+        </Panel>
+        <Panel title={t("reviewSettings.newIgnoresReviewLimit")}>
+          <div className="mt-2 space-y-1.5">
+            <Choice
+              value={get("srs.newIgnoresReviewLimit") ? "yes" : "no"}
+              options={[
+                ["no", t("reviewSettings.no")],
+                ["yes", t("reviewSettings.yes")],
+              ]}
+              onChange={(v) => save("srs.newIgnoresReviewLimit", v === "yes")}
+            />
+            <p className="text-sm text-muted-foreground">
+              {t("reviewSettings.newIgnoresReviewLimitHint")}
+            </p>
+          </div>
+        </Panel>
+        <Panel title={t("reviewSettings.day")}>
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            {[0, 2, 3, 4, 5, 6].map((h) => (
+              <Chip
+                key={h}
+                on={get("srs.dayStartHour") === h}
+                onClick={() => save("srs.dayStartHour", h)}
+              >
+                {hour(h)}
+              </Chip>
+            ))}
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">{t("reviewSettings.dayHint")}</p>
+        </Panel>
+      </Disclosure>
       <Button
         variant="outline"
         onClick={() => {

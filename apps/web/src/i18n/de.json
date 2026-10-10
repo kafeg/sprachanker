@@ -206,14 +206,14 @@
     },
     "tabs": {
       "general": "Allgemein",
-      "ai": "KI-Assistent",
-      "prompts": "Prompts",
-      "about": "Über",
       "profile": "Profil",
       "review": "Wiederholung",
       "speech": "Sprechen",
-      "experimental": "Experimentell"
-    }
+      "ai": "KI-Assistent"
+    },
+    "prompts": "Prompts",
+    "experimental": "Experimentell",
+    "advanced": "Erweitert"
   },
   "llm": {
     "title": "KI-Assistent",
@@ -783,7 +783,7 @@
       "title": "Willkommen",
       "text": "SprachAnker bringt echte Sprachkurse in einen Player, prüft deine Antworten, hält deine Wörter in verteilter Wiederholung und kann einen KI-Tutor einbinden. Alles bleibt auf diesem Computer.",
       "sources": "Kurse werden direkt von den Websites ihrer Herausgeber (Deutsche Welle und andere) für deinen persönlichen Gebrauch geladen. Beachte ihre Bedingungen; SprachAnker ist nicht mit ihnen verbunden.",
-      "experimental": "Kurse und Prüfungen, die noch erprobt werden, bleiben verborgen, bis du sie unter Einstellungen → Experimentell einschaltest.",
+      "experimental": "Kurse und Prüfungen, die noch erprobt werden, bleiben verborgen, bis du sie unter Einstellungen → Allgemein → Experimentell einschaltest.",
       "name": "Wie sollen wir dich nennen?"
     },
     "assistant": {

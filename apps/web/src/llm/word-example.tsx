@@ -115,7 +115,7 @@ export const wordAssistant = {
   word: ({ cardId }: { cardId: string }) => <WordSlot cardId={cardId} />,
 };
 
-/** A word's example, while its place is on (Settings → Prompts). */
+/** A word's example, while its place is on (Settings → AI assistant). */
 function WordSlot({ cardId }: { cardId: string }) {
   return useAiIn("example") ? <WordExample cardId={cardId} /> : null;
 }

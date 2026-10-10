@@ -44,7 +44,7 @@ export const languageName = (code: string) =>
   new Intl.DisplayNames(["en"], { type: "language" }).of(code) ?? code;
 
 /** The two languages as a task's rules name them: by their English names, or as placeholders for the
- *  learner's own prompt template (Settings → Prompts). */
+ *  learner's own prompt template (Settings → AI assistant → Advanced). */
 export const languageNames = (language: string, target: string) => ({
   language: languageName(language),
   target: languageName(target),

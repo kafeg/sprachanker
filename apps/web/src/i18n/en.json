@@ -206,14 +206,14 @@
     },
     "tabs": {
       "general": "General",
-      "ai": "AI assistant",
-      "prompts": "Prompts",
-      "about": "About",
       "profile": "Profile",
       "review": "Review",
       "speech": "Speech",
-      "experimental": "Experimental"
-    }
+      "ai": "AI assistant"
+    },
+    "prompts": "Prompts",
+    "experimental": "Experimental",
+    "advanced": "Advanced"
   },
   "llm": {
     "title": "AI assistant",
@@ -783,7 +783,7 @@
       "title": "Welcome",
       "text": "SprachAnker puts real language courses in one player, checks your answers, keeps your words in spaced repetition and can bring in an AI tutor. Everything stays on this computer.",
       "sources": "Courses are downloaded straight from their publishers' websites (Deutsche Welle and others) for your personal use. Respect their terms; SprachAnker is not affiliated with them.",
-      "experimental": "Courses and exams still being tried out stay hidden until you turn them on in Settings → Experimental.",
+      "experimental": "Courses and exams still being tried out stay hidden until you turn them on in Settings → General → Experimental.",
       "name": "What should we call you?"
     },
     "assistant": {

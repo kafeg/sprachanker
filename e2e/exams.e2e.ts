@@ -271,7 +271,7 @@ test("an exam removed from my exams: asked first, its runs gone, still downloade
   await expect(page.getByRole("link", { name: /Mini test|Model test/ }).first()).toBeVisible();
 });
 
-test("experimental exams: off until their section and source are turned on in Settings → Experimental", async ({
+test("experimental exams: off until their section and source are turned on in Settings → General → Experimental", async ({
   page,
   request,
 }) => {

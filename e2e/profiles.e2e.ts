@@ -25,7 +25,7 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   // Welcome: where the courses come from, experimental sources off; the name and colour.
   await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
   await expect(page.getByText(/downloaded straight from their publishers/)).toBeVisible();
-  await expect(page.getByText(/Settings → Experimental/)).toBeVisible();
+  await expect(page.getByText(/Settings → General → Experimental/)).toBeVisible();
   await expect(page.getByRole("group", { name: "Interface language" })).toHaveCount(0);
   const name = page.getByRole("textbox", { name: "Name or nickname" });
   await expect(page.getByRole("button", { name: "Next" })).toBeDisabled();

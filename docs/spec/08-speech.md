@@ -61,7 +61,7 @@ one's own** and **reading aloud** (below). The server's speech module (`services
   (`respond`, in the answer's language; the take kept as the spoken answer's recording when recordings
   are) and of the tutor and scenes (one per language — the learnt one and the learner's, "DE" / "RU"):
   what was heard goes into the box, joined to what is typed, read over and changed before it is sent.
-  Tap to start and stop, or hold while speaking (Settings → Speech). Shown only while recognition is
+  Tap to start and stop, or hold while speaking (Settings → Speech → Advanced). Shown only while recognition is
   on and ready.
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 

@@ -1,21 +1,29 @@
-// The interface language as chips, each in its own language (09), on "Who is studying?" — the only place
-// to choose it before a profile exists; kept on this device (a profile then keeps it: preferences.ts).
+// The interface language (09), each named in its own language: on "Who is studying?" — the only place to
+// choose it before a profile exists, kept on this device — and in Settings → General, where the profile
+// keeps it too (`keep`; preferences.ts applies it).
 import { useTranslation } from "react-i18next";
-import { languageName, switchLanguage, UI_LANGUAGES } from "@/i18n/index.ts";
-import { Chip } from "@/ui/chip.tsx";
+import { useSetSetting } from "@/api/hooks.ts";
+import { isUiLanguage, languageName, switchLanguage, UI_LANGUAGES } from "@/i18n/index.ts";
+import { Choice } from "@/ui/choice.tsx";
 
-export function LanguageSwitch() {
+export function LanguageSwitch({ keep = false }: { keep?: boolean }) {
   const { t, i18n } = useTranslation();
+  const set = useSetSetting();
   return (
-    <fieldset
-      className="flex min-w-0 flex-wrap justify-center gap-2 border-0 p-0"
-      aria-label={t("settings.uiLanguage")}
-    >
-      {UI_LANGUAGES.map((l) => (
-        <Chip key={l} on={i18n.language === l} onClick={() => switchLanguage(l)}>
-          <span lang={l}>{languageName(l, l, true)}</span>
-        </Chip>
-      ))}
-    </fieldset>
+    <Choice
+      label={t("settings.uiLanguage")}
+      value={i18n.language}
+      options={UI_LANGUAGES.map((l) => [
+        l,
+        <span key={l} lang={l}>
+          {languageName(l, l, true)}
+        </span>,
+      ])}
+      onChange={(l) => {
+        if (!isUiLanguage(l)) return;
+        switchLanguage(l);
+        if (keep) set.mutate({ key: "uiLanguage", value: l });
+      }}
+    />
   );
 }

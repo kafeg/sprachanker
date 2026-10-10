@@ -33,7 +33,7 @@ for (const s of scenarios())
     for (const [key, value] of [
       ["uiLanguage", "en"],
       ["srs.faces", ["recognition", "production", "listening"]],
-      // An experimental course is shown once turned on (Settings → Experimental).
+      // An experimental course is shown once turned on (Settings → General → Experimental).
       ["experimental.on", ["courses", `courses:${s.series}`]],
     ] as const)
       await page.request.put("/api/settings", {

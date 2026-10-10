@@ -1,7 +1,8 @@
 // Settings → Speech (08; 09): the microphone of this device (which one, a test with its level and the
-// take played back; why it cannot be used, if so), recognition (on or off, its models), whether
-// reading aloud (read-aloud-settings.tsx), whether recordings are kept, how the phrase to repeat is
-// shown, and the recordings kept — how many, their size, all deleted after asking.
+// take played back; why it cannot be used, if so), recognition (on or off, its models), reading aloud
+// (read-aloud-settings.tsx), whether recordings are kept and the recordings kept — how many, their
+// size, all deleted after asking; under Advanced: tap or hold to talk, how the phrase to repeat is
+// shown, what is read aloud at once.
 import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ import {
   useSpeechModels,
   useSpeechState,
 } from "@/api/hooks.ts";
+import { CheckRow } from "@/ui/check-row.tsx";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import {
@@ -23,6 +25,7 @@ import {
   SelectValue,
 } from "@/ui/components/select.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
+import { Disclosure } from "@/ui/disclosure.tsx";
 import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -131,7 +134,6 @@ function Recognition() {
   const bytes = useBytes();
   const percent = usePercent();
   const on = useSetting("speech.recognition");
-  const pushToTalk = useSetting("speech.pushToTalk");
   const data = state.data;
   return (
     <Panel title={t("speech.settings.recognition")}>
@@ -141,23 +143,11 @@ function Recognition() {
           <p className="text-sm">{t("speech.settings.noEngine")}</p>
         ) : (
           <>
-            <label className="flex min-h-11 items-center gap-3 text-sm">
-              <input
-                type="checkbox"
-                className="size-5 accent-primary"
-                checked={on}
-                onChange={(e) => set.mutate({ key: "speech.recognition", value: e.target.checked })}
-              />
-              {t("speech.settings.recognitionOn")}
-            </label>
-            <div className="space-y-1.5">
-              <p className="text-sm font-medium">{t("speech.settings.pushToTalk")}</p>
-              <Choice
-                value={pushToTalk}
-                options={(["tap", "hold"] as const).map((v) => [v, t(`speech.settings.talk.${v}`)])}
-                onChange={(value) => set.mutate({ key: "speech.pushToTalk", value })}
-              />
-            </div>
+            <CheckRow
+              checked={on}
+              onChange={(value) => set.mutate({ key: "speech.recognition", value })}
+              title={t("speech.settings.recognitionOn")}
+            />
             <ul className="space-y-2">
               {(data?.models ?? []).map((m) => {
                 const downloading = "downloaded" in m ? (m.downloaded as number) : undefined;
@@ -232,32 +222,15 @@ function Recordings() {
   const count = useNumber();
   const [asking, setAsking] = useState(false);
   const keep = useSetting("speech.keepRecordings");
-  const show = useSetting("speech.showText");
   return (
     <Panel title={t("speech.settings.recordings")}>
       <div className="mt-2 space-y-4">
-        <label className="flex min-h-11 items-center gap-3 text-sm">
-          <input
-            type="checkbox"
-            className="size-5 accent-primary"
-            checked={keep}
-            onChange={(e) => set.mutate({ key: "speech.keepRecordings", value: e.target.checked })}
-          />
-          <span>
-            {t("speech.settings.keep")}
-            <span className="block text-xs text-muted-foreground">
-              {t("speech.settings.keepHint")}
-            </span>
-          </span>
-        </label>
-        <div className="space-y-1.5">
-          <p className="text-sm font-medium">{t("speech.settings.showText")}</p>
-          <Choice
-            value={show}
-            options={(["after", "always"] as const).map((v) => [v, t(`speech.settings.show.${v}`)])}
-            onChange={(value) => set.mutate({ key: "speech.showText", value })}
-          />
-        </div>
+        <CheckRow
+          checked={keep}
+          onChange={(value) => set.mutate({ key: "speech.keepRecordings", value })}
+          title={t("speech.settings.keep")}
+          hint={t("speech.settings.keepHint")}
+        />
         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
           <span>
             {stats.data
@@ -301,12 +274,67 @@ export function SpeechSetup() {
   );
 }
 
-/** Settings → Speech: the setup, then the recordings kept. */
+/** What is rarely changed: how the microphone beside a text box listens, when the phrase to repeat is
+ *  shown, and what is read aloud at once. */
+function Advanced() {
+  const { t } = useTranslation();
+  const set = useSetSetting();
+  const pushToTalk = useSetting("speech.pushToTalk");
+  const show = useSetting("speech.showText");
+  const atOnce = useSetting("speech.readAtOnce");
+  const option = (label: string, choice: React.ReactNode) => (
+    <div className="space-y-1.5">
+      <p className="text-sm font-medium">{label}</p>
+      {choice}
+    </div>
+  );
+  return (
+    <Disclosure title={t("settings.advanced")}>
+      <Panel>
+        <div className="space-y-4">
+          {option(
+            t("speech.settings.pushToTalk"),
+            <Choice
+              value={pushToTalk}
+              options={(["tap", "hold"] as const).map((v) => [v, t(`speech.settings.talk.${v}`)])}
+              onChange={(value) => set.mutate({ key: "speech.pushToTalk", value })}
+            />,
+          )}
+          {option(
+            t("speech.settings.showText"),
+            <Choice
+              value={show}
+              options={(["after", "always"] as const).map((v) => [
+                v,
+                t(`speech.settings.show.${v}`),
+              ])}
+              onChange={(value) => set.mutate({ key: "speech.showText", value })}
+            />,
+          )}
+          {option(
+            t("speech.settings.atOnce"),
+            <Choice
+              value={atOnce}
+              options={(["none", "scenes", "all"] as const).map((v) => [
+                v,
+                t(`speech.settings.atOnceOption.${v}`),
+              ])}
+              onChange={(value) => set.mutate({ key: "speech.readAtOnce", value })}
+            />,
+          )}
+        </div>
+      </Panel>
+    </Disclosure>
+  );
+}
+
+/** Settings → Speech: the setup, the recordings kept, then what is rarely changed. */
 export function SpeechSettings() {
   return (
     <div className="space-y-6">
       <SpeechSetup />
       <Recordings />
+      <Advanced />
     </div>
   );
 }

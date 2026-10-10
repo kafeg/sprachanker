@@ -1,7 +1,7 @@
 // The AI assistant in the lesson player (09, 07): the tutor in the header, "Why is this wrong?" under a
 // wrong item, the check of an answer said aloud under it, and the practice steps of the plan — writing,
-// scene, and the tutor going through the run's mistakes — each where its place is on (Settings → Prompts). The router passes these slots to the player;
-// nothing in lesson/ imports llm/.
+// scene, and the tutor going through the run's mistakes — each where its place is on (Settings → AI
+// assistant). The router passes these slots to the player; nothing in lesson/ imports llm/.
 import { PRACTICE, type PracticeKind } from "@sprachanker/engine";
 import type { AiPlace } from "@sprachanker/schema";
 import { useSetting } from "@/api/hooks.ts";

@@ -50,14 +50,14 @@ apps/web/src/
                    # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
                    # cache updates; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
-                   # profile chip — profile-chip), language-switch (the interface language, kept on the device;
-                   # on who-is-studying only), who-is-studying (tiles five to a page; "New profile" starts
+                   # profile chip — profile-chip), language-switch (the interface language: who-is-studying's,
+                   # kept on the device; Settings → General's, kept in the profile), who-is-studying (tiles five to a page; "New profile" starts
                    # the onboarding), onboarding (the profile's name and colour — made at its Next —, the AI
                    # step a slot from the router, speech, tour; the router opens it again for the new
                    # profile at the AI step), name-colour (a profile's name and colour: the onboarding's
                    # and Settings → Profile's), profile-settings, device-name, about,
                    # preferences (language, theme, playback speed), experimental (what is shown: stable sources
-                   # always, experimental ones turned on), experimental-settings (Settings → Experimental)
+                   # always, experimental ones turned on), experimental-settings (Settings → General → Experimental)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
@@ -65,7 +65,7 @@ apps/web/src/
                    # (the reviewer's slot); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section,
-                   # prompts-info (Settings → Prompts), prompt-view (a request as sent), context-meter
+                   # prompts-info (Settings → AI assistant: where it works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
                    # bubbles, header, pending exchange, composer, start prompt, errors
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
@@ -73,12 +73,12 @@ apps/web/src/
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
                    # (rows that open, lists of earlier items), side-layout (a page with a side column: the
-                   # lesson player's, an exam run's), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
+                   # lesson player's, an exam run's), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, checked-text (a model's check: verdict, the text
-                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented),
+                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented), check-row (a setting on or off), disclosure (folded: "Advanced"),
                    # confirm (an action that cannot be undone), flags (a language's flag), error-text (an
                    # API error in words), target-lang (`lang` of the course's language), window-title,
                    # utils (cn)
@@ -128,6 +128,9 @@ to `@/ui`).
 - Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
   `Panel`, side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`;
+  a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), what is rarely changed
+  is under one `Disclosure` ("Advanced") per tab, tabs look as `SectionTabs`; text fields are the ui
+  `Input` and `Textarea` (a gap inside a sentence aside);
   cached lists take a new item through the pure updaters in `api/cache.ts` (tested).
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
   does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.

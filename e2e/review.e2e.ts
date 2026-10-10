@@ -145,7 +145,9 @@ test("review: the guide explains the method beside; the decks to take are offere
   await expect(guide.getByRole("img", { name: /forgetting curves/ })).toBeVisible();
 });
 
-test("Settings → Review: Anki's deck options, kept; back to Anki's defaults", async ({ page }) => {
+test("Settings → Review: Anki's deck options, the rarer ones under Advanced, kept; back to Anki's defaults", async ({
+  page,
+}) => {
   await page.goto("/settings#review");
   const perDay = page.getByRole("textbox", { name: "New cards per day" });
   await expect(perDay).toHaveValue("20");
@@ -153,6 +155,8 @@ test("Settings → Review: Anki's deck options, kept; back to Anki's defaults", 
   await perDay.press("Enter");
   await page.reload();
   await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("15");
+  // The steps, retention and the day's start are under Advanced.
+  await page.getByText("Advanced").click();
   await expect(page.getByRole("textbox", { name: "Learning steps", exact: true })).toHaveValue(
     "1m 10m",
   );
