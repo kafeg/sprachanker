@@ -58,6 +58,8 @@ export const ERROR_CODES = [
   "speaking_busy",
   "example_busy",
   "exam_rating_busy",
+  "exam_conversation_busy",
+  "exam_part_done",
   "llm_not_configured",
   "llm_no_endpoint",
   "llm_no_key",

@@ -18,7 +18,7 @@ import { ArrowLeft, ArrowRight, Timer } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useExamPage, useExamRun } from "@/api/exams.ts";
+import { useExamPage, useExamRun, useKeepRunEvents } from "@/api/exams.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
@@ -30,6 +30,7 @@ import { type ExamParams, examKeyOf } from "./params.ts";
 import { inTeile, latestAnswers } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
+import { useExamSlots } from "./slots.ts";
 import { QuestionCard, TeilHeader, TeilMaterial } from "./teil.tsx";
 
 export function ExamPlayer({ params, runId }: { params: ExamParams; runId: string }) {
@@ -157,6 +158,10 @@ function Running({
   const { t } = useTranslation();
   useWindowPlace(title);
   const answers = useMemo(() => latestAnswers(events), [events]);
+  // A speaking part held as a conversation while the assistant works here (exams/slots.ts).
+  const slots = useExamSlots();
+  const conversing = slots.conversation?.useOn() ?? false;
+  const keep = useKeepRunEvents(runId);
   /** Questions left unanswered, asked about before handing in (0: not asking). */
   const [confirm, setConfirm] = useState(0);
   const teile = useMemo(() => inTeile(exam, items, sectionOf), [exam, items, sectionOf]);
@@ -271,11 +276,42 @@ function Running({
       (!!section.text && !!section.media?.image) ||
       (section.letters?.length ?? 0) > 0);
 
-  const question = (
+  const send = (value: unknown) => {
+    // Nothing more once the exam is being handed in (a draft taken as the page goes).
+    if (handedIn.current || finishing) return;
+    onAnswer(
+      item.key,
+      value,
+      Date.now() - shownAt.current,
+      mode === "practice" ? checkQuestion(item, value, lang) : undefined,
+    );
+  };
+  const label = t("exams.question", { n: current + 1, total: items.length });
+  // Said aloud and not yet answered in practice: the conversation (a mock exam keeps it as the answer
+  // as it goes, practice once it is over).
+  const conversation =
+    conversing &&
+    item.type === "respond" &&
+    item.input === "speech" &&
+    !(mode === "practice" && given) &&
+    slots.conversation?.view({
+      runId,
+      itemKey: item.key,
+      events,
+      onStored: keep,
+      onAnswer: (text, final) => (mode === "test" || final ? send({ text }) : undefined),
+    });
+  const question = conversation ? (
+    <section key={item.key} aria-label={label}>
+      <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>
+      {item.prompt && <p className="mb-3 font-semibold">{item.prompt}</p>}
+      {conversation}
+    </section>
+  ) : (
     <QuestionCard
       key={item.key}
       item={item}
-      label={t("exams.question", { n: current + 1, total: items.length })}
+      label={label}
       plays={mode === "test" ? section?.plays : undefined}
       checkAtOnce={mode === "practice"}
       active
@@ -284,20 +320,7 @@ function Running({
       // Practice shows each answer checked; a mock exam none until handed in.
       outcome={mode === "practice" ? given?.outcome : undefined}
       url={url}
-      onAnswer={
-        mode === "practice" && given
-          ? undefined
-          : (value) => {
-              // Nothing more once the exam is being handed in (a draft taken as the page goes).
-              if (handedIn.current || finishing) return;
-              onAnswer(
-                item.key,
-                value,
-                Date.now() - shownAt.current,
-                mode === "practice" ? checkQuestion(item, value, lang) : undefined,
-              );
-            }
-      }
+      onAnswer={mode === "practice" && given ? undefined : send}
     />
   );
   // Practice rates an open answer once it is given (its criteria; the assistant's proposal later).

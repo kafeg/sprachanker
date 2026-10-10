@@ -109,7 +109,7 @@ export function createExams({
   /** A run's events as the learner may see them: a mock exam still running keeps its outcomes to
    *  itself (they would give the answers away). */
   const shownEvents = (run: ExamRun) => {
-    const list = store.events(run.id, ["answered", "exam_rated", "llm_verdict"]);
+    const list = store.events(run.id, ["answered", "exam_rated", "llm_verdict", "llm_turn"]);
     if (run.plan.mode === "practice" || run.status !== "active") return list;
     return list.map((e) => {
       if (e.type !== "answered") return e;
@@ -176,6 +176,25 @@ export function createExams({
       ? await content.localeExam(seriesOf(run.exam), run.exam, run.edition).catch(() => undefined)
       : undefined;
     return { row, run, exam, locale, item: { ...item, criteria: item.criteria }, text };
+  }
+
+  /** A speaking part of a run being taken: the question said aloud (in the run's plan), its section
+   *  and the exam's locale; refused once the run has ended or its time is up. */
+  async function speakingPart(runId: string, itemKey: string) {
+    const { row, run } = getRun(runId);
+    if (row.status !== "active") throw new ServiceError("run_not_active", 409);
+    if (run.plan.deadline !== null && now() > run.plan.deadline)
+      throw new ServiceError("exam_time_over", 409);
+    const exam = await examOf(run.exam);
+    const item = run.plan.items.includes(itemKey as ExamItemKey)
+      ? questionOf(exam, run, itemKey)
+      : undefined;
+    if (item?.type !== "respond" || item.input !== "speech") throw new ServiceError("no_such_item");
+    const section = exam.sections.find((s) => s.key === run.plan.sections[item.key]);
+    const locale = run.edition
+      ? await content.localeExam(seriesOf(run.exam), run.exam, run.edition).catch(() => undefined)
+      : undefined;
+    return { run, exam, locale, item, section };
   }
 
   /** The learner's standing in an exam: each question's stat, how ready, the runs. */
@@ -375,6 +394,7 @@ export function createExams({
      * run's result is computed anew. Only an answer given in the run, rated whole.
      */
     openAnswer,
+    speakingPart,
 
     async rate(
       runId: string,

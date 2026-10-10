@@ -1,0 +1,123 @@
+// An exam's speaking part held with the assistant (07, `exam_conversation`; 09, Exams; owner's choice
+// B, 2026-10-10): the configured model plays the examiner and the partner, the learner answers aloud.
+// Every line is an `llm_turn` on the question in the exam run — the learner's as `user`, the model's
+// as `assistant` with its `speaker` — so the run's page shows the conversation and its transcript
+// becomes the answer, rated afterwards by the part's criteria. One line answered at a time per part.
+import {
+  type ConversationLine,
+  type ExamConversationInput,
+  examConversationTask,
+  structuredRequest,
+} from "@sprachanker/llm";
+import { type LlmTurnPayload, parseEditionId, type TypedEvent } from "@sprachanker/schema";
+import { ulid } from "ulid";
+import { ServiceError } from "../errors.ts";
+import type { Exams } from "./exams.ts";
+import { createInFlight } from "./in-flight.ts";
+import type { Llm, PromptPreview } from "./llm.ts";
+import { payloadOf, type RunStore } from "./run-store.ts";
+
+export interface ConversationRequest {
+  runId: string;
+  itemKey: string;
+  /** The learner's line, as heard or typed; none to open the part. */
+  text?: string;
+  language: string;
+}
+
+export function createExamConversation(deps: { llm: Llm; store: RunStore; exams: Exams }) {
+  const { llm, store } = deps;
+  const busy = createInFlight<true>("exam_conversation_busy");
+
+  /** The part's lines so far, oldest first. */
+  const linesOf = (runId: string, itemKey: string) =>
+    store
+      .events(runId, ["llm_turn"])
+      .filter((e) => e.itemKey === itemKey)
+      .map((e) => payloadOf<LlmTurnPayload>(e));
+
+  async function input(request: ConversationRequest) {
+    const { run, exam, locale, item, section } = await deps.exams.speakingPart(
+      request.runId,
+      request.itemKey,
+    );
+    const said = linesOf(request.runId, request.itemKey);
+    if (said.some((l) => l.done)) throw new ServiceError("exam_part_done", 409);
+    // The examiner opens the part; after that every call answers a line of the learner's.
+    if (!said.length === !!request.text?.trim()) throw new ServiceError("invalid_request");
+    const sectionLocale = section ? locale?.sections[section.key] : undefined;
+    const target = run.edition ? parseEditionId(run.edition).target : "de";
+    const history: ConversationLine[] = said.map((l) => ({
+      speaker: l.role === "user" ? "learner" : (l.speaker ?? "examiner"),
+      text: l.text,
+    }));
+    if (request.text) history.push({ speaker: "learner", text: request.text.trim() });
+    const task: ExamConversationInput = {
+      language: request.language,
+      target,
+      rules: llm.rulesFor("conversation", request.language, target),
+      exam: locale?.title ?? exam.key,
+      part: sectionLocale?.title ?? section?.key ?? item.key,
+      task: [
+        sectionLocale?.instructions ?? "",
+        item.prompt ?? "",
+        section?.text ?? "",
+        ...(section?.letters ?? []).map((l) => `Karte ${l.letter}: ${l.text ?? ""}`),
+      ],
+      ...(item.partner && { partner: item.partner }),
+      history,
+    };
+    return { task };
+  }
+
+  return {
+    /** The examiner's and the partner's next lines (after the learner's, if given), kept in the run;
+     *  the events kept, for the run's page. */
+    turn(request: ConversationRequest): Promise<{ events: TypedEvent[]; done: boolean }> {
+      return busy.run(`${request.runId}|${request.itemKey}`, true, async () => {
+        const { task } = await input(request);
+        const { result, model, latencyMs } = await llm.structured(examConversationTask(task));
+        const lines: Array<{ id: string; payload: LlmTurnPayload }> = [
+          ...(request.text
+            ? [{ id: ulid(), payload: { role: "user" as const, text: request.text.trim() } }]
+            : []),
+          ...result.lines.map((line, i) => ({
+            id: ulid(),
+            payload: {
+              role: "assistant" as const,
+              text: line.text.trim(),
+              speaker: line.speaker,
+              model,
+              latencyMs,
+              ...(result.done && i === result.lines.length - 1 && { done: true }),
+            },
+          })),
+        ];
+        const ts = store.append(
+          request.runId,
+          lines.map((l) => ({ ...l, type: "llm_turn" as const, itemKey: request.itemKey })),
+        );
+        return {
+          events: lines.map(
+            (l) =>
+              ({
+                ...l,
+                runId: request.runId,
+                ts,
+                type: "llm_turn",
+                itemKey: request.itemKey,
+                cardId: null,
+              }) as TypedEvent,
+          ),
+          done: result.done,
+        };
+      });
+    },
+
+    /** The request it would send, without sending it. */
+    async prompt(request: ConversationRequest): Promise<PromptPreview> {
+      return llm.preview(structuredRequest(examConversationTask((await input(request)).task)));
+    },
+  };
+}
+export type ExamConversation = ReturnType<typeof createExamConversation>;

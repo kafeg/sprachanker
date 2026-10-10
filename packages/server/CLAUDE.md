@@ -46,7 +46,8 @@ src/
                      # writing ("Write it yourself": checks kept in the lesson run); speaking (an
                      # answer said aloud checked by the model, kept on the item in the lesson run);
                      # scene (`scene` runs); exam-rating (an exam's open answer
-                     # rated by the model: a proposal kept in the exam run);
+                     # rated by the model: a proposal kept in the exam run); exam-conversation (a
+                     # speaking part held with the model: its lines kept in the exam run);
                      # examples (AI examples of a card's word, kept on the card in the review run);
                      # recordings (the learner's audio in the profile's recordings folder); speech
                      # (whisper-server, its models: one engine for the server; course recordings

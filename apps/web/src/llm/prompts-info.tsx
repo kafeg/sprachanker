@@ -28,6 +28,7 @@ const PARTS = {
   writing: ["lesson", "lessonVocab", "grammar", "text"],
   speaking: ["lesson", "lessonVocab", "grammar", "item", "heard", "answer"],
   exam: ["exam", "criteria", "samples", "writtenAnswer"],
+  conversation: ["exam", "partner", "conversation"],
   sceneSetup: ["lesson", "lessonVocab", "knownVocab"],
   scene: ["lesson", "lessonVocab", "knownVocab", "history"],
   example: ["word", "courseVocab", "earlier"],

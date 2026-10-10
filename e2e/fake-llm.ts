@@ -56,6 +56,22 @@ const EXAM_RATING = {
   feedback: "FAKE: say who the cake is for.",
 };
 
+/** A speaking part: the examiner opens it; after the learner's first line the partner answers and
+ *  the examiner closes it. */
+const conversation = (prompt: string) =>
+  prompt.includes("Learner (A):")
+    ? {
+        lines: [
+          { speaker: "partner", text: "FAKE: Ich gehe schwimmen." },
+          { speaker: "examiner", text: "FAKE: Danke. Das war Teil 1." },
+        ],
+        done: true,
+      }
+    : {
+        lines: [{ speaker: "examiner", text: "FAKE: Bitte fragen Sie Ihren Partner." }],
+        done: false,
+      };
+
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = {
   scene_setup: SCENE_SETUP,
@@ -102,7 +118,9 @@ if (import.meta.main) {
           : JSON.stringify(
               task === "word_example"
                 ? wordExample(body.messages.at(-1)?.content ?? "")
-                : (STRUCTURED[task] ?? WRITING_CHECK),
+                : task === "exam_conversation"
+                  ? conversation(body.messages.at(-1)?.content ?? "")
+                  : (STRUCTURED[task] ?? WRITING_CHECK),
             );
         return Response.json({ choices: [{ message: { role: "assistant", content } }] });
       }

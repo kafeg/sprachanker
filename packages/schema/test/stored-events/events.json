@@ -202,7 +202,13 @@
         "task": "exam",
         "input": "Lieber Tom, ich komme um acht.",
         "result": {
-          "criteria": [{ "id": "wann", "points": 3, "reason": "Named." }],
+          "criteria": [
+            {
+              "id": "wann",
+              "points": 3,
+              "reason": "Named."
+            }
+          ],
           "feedback": "Add what you bring."
         },
         "model": "m",
@@ -235,6 +241,16 @@
             "args": {}
           }
         ]
+      }
+    },
+    {
+      "since": "2026-10-10",
+      "payload": {
+        "role": "assistant",
+        "text": "Guten Tag. Bitte beginnen Sie.",
+        "speaker": "examiner",
+        "model": "m",
+        "latencyMs": 10
       }
     }
   ],

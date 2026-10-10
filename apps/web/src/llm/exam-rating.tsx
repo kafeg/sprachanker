@@ -1,7 +1,7 @@
 // The AI assistant on an exam run's page (09, Exams; 07, `rate_exam_answer`; owner's choice K,
 // 2026-10-10): "Propose a rating" above an open answer's criteria — the model chooses a level of each
 // with its reason, kept in the run, and the page shows it chosen for the learner to take or change.
-// Shown while a model is set up and its place is on; the router provides it (exams/slots.ts).
+// Shown while a model is set up and its place is on (llm/exam-assistant.tsx).
 import { LoaderCircle, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ExamSlots } from "@/exams/slots.ts";
@@ -10,7 +10,7 @@ import { useAiIn, useLlm, useProposeRating } from "./api.ts";
 import { ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 
-function ProposeRating({
+export function ProposeRating({
   runId,
   itemKey,
   proposed,
@@ -45,7 +45,3 @@ function ProposeRating({
     </div>
   );
 }
-
-export const examAssistant: ExamSlots = {
-  propose: (context) => <ProposeRating {...context} />,
-};

@@ -41,7 +41,7 @@ apps/web/src/
                    # exercise, the latest answers, questions by Teil), teil (a Teil's header and
                    # material; a question's card), recording (a mock exam's recording: plays limited),
                    # rating (an open answer rated by its criteria, a proposal shown chosen), slots
-                   # (what optional features add: the AI's proposal), params
+                   # (what optional features add: the AI's proposal, the conversation), params
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
                    # check under its item)
@@ -58,7 +58,8 @@ apps/web/src/
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
                    # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-example
-                   # (the reviewer's slot), exam-rating (an exam run's slot: "Propose a rating");
+                   # (the reviewer's slot); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section,
                    # prompts-info (Settings → Prompts), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
@@ -127,5 +128,5 @@ to `@/ui`).
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
   folder can be removed with its mount points: the settings page and the router, which passes
   `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots (header, explain, spoken, practice) and `wordAssistant`
-  (llm/word-example.tsx) as the reviewer's (study/slots.ts) and `examAssistant` (llm/exam-rating.tsx)
+  (llm/word-example.tsx) as the reviewer's (study/slots.ts) and `examAssistant` (llm/exam-assistant.tsx)
   as an exam run's (exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.

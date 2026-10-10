@@ -67,6 +67,7 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
+| `exam_conversation` | an exam's title, the speaking part and its task as the learner has it (instructions, cards, texts), what the partner has (their card, calendar, slides), the conversation so far | JSON: lines[] (speaker `examiner` \| `partner`, text) up to the learner's turn, done |
 | `word_example` | a card's word with its translation, the course's words up to its lesson, the sentences given before | JSON: sentence (with the word: checked, one repair), translation, glossary[] (words beyond the given ones, translated) |
 
 "Propose a rating" above an exam's open answer (09, Exams; owner's choice K, 2026-10-10) →
@@ -74,6 +75,14 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 an `llm_verdict` (`task: exam`) on the question in the exam run, for that answer (asked once for the
 same answer); the page shows it chosen with its reasons, and nothing scores until the learner takes it
 (`exam_rated` `by: assistant` with the model) or changes it (`by: self`).
+A speaking part of an exam (09, Exams; owner's choice B, 2026-10-10) → `exam_conversation`: the
+model plays the examiner and the other candidate, the learner (candidate A) answers aloud — "Begin the
+part" opens it, each line said (heard by the recogniser) or typed gets the next lines, read aloud;
+never a hint or a correction. Every line is an `llm_turn` on the question in the exam run (in a mock
+exam too, while it runs); the conversation as text is the part's answer (a mock exam keeps it as it
+goes, practice once the part is over or the learner ends it), rated by the part's criteria like any
+open answer. Without an assistant (or its place off) the part is answered aloud or typed as any open
+answer.
 "Example" on a card or in the word sheet → `word_example`, kept as an `llm_verdict` (`task: example`)
 on the card (04, "AI examples"); "Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
 kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with the attempt it explains

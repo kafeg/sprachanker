@@ -171,14 +171,18 @@ export function useExamRun(runId: string) {
 
 /** An open answer rated by its criteria (by the learner, or the assistant's proposal taken): the run
  *  comes back with its result computed anew. */
-/** An event kept elsewhere in the run (the assistant's proposal), shown with its events at once. */
-export function useKeepRunEvent(runId: string) {
+/** Events kept elsewhere in the run (the assistant's proposal, a conversation's lines), shown with
+ *  its events at once. */
+export function useKeepRunEvents(runId: string) {
   const client = useQueryClient();
-  return (event: TypedEvent) =>
+  return (kept: TypedEvent | TypedEvent[]) => {
+    const list = Array.isArray(kept) ? kept : [kept];
+    const ids = new Set(list.map((e) => e.id));
     client.setQueryData<ExamRunState>(
       runKey(runId),
-      (s) => s && { ...s, events: [...s.events.filter((e) => e.id !== event.id), event] },
+      (s) => s && { ...s, events: [...s.events.filter((e) => !ids.has(e.id)), ...list] },
     );
+  };
 }
 
 export function useRateAnswer(runId: string) {

@@ -278,14 +278,16 @@ test("a language exam: one module taken alone, timed by it, its Teile whole; the
     exam: MODELL,
     edition: "en-de",
     mode: "test",
-    module: "sprechen",
+    module: "muendlich",
   });
   expect(unknown.status).toBe(400);
 
   // The whole exam: every Teil whole, the example never asked; typed answers checked; the writing
   // task rated after it is handed in.
   const { run: whole } = await start();
-  expect(whole.plan.items).toEqual(["h1", "h2", "h3", "l1", "l2", "l3", "s1", "s2", "s3"].map(m));
+  expect(whole.plan.items).toEqual(
+    ["h1", "h2", "h3", "l1", "l2", "l3", "s1", "s2", "s3", "p1"].map(m),
+  );
   await api.sendJson("POST", `/api/exams/runs/${whole.id}/events`, {
     events: [
       ...["h1", "h2", "h3"].map((id) => answer(id, { optionId: "a" })),

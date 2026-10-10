@@ -142,6 +142,10 @@ export const LlmTurnPayload = z.object({
   goalsMet: z.array(z.number().int().nonnegative()).optional(),
   /** Tutor: the tools the model called for this reply. */
   tools: z.array(z.object({ name: z.string(), args: z.unknown() })).optional(),
+  /** An exam's speaking part: who says an assistant turn — the examiner or the partner; `done` on
+   *  the examiner's line closing the part. */
+  speaker: z.enum(["examiner", "partner"]).optional(),
+  done: z.boolean().optional(),
 });
 export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 

@@ -6,7 +6,7 @@ import type { ExamItem, LocaleItem, TypedEvent } from "@sprachanker/schema";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useKeepRunEvent, useRateAnswer } from "@/api/exams.ts";
+import { useKeepRunEvents, useRateAnswer } from "@/api/exams.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useNumber } from "@/ui/format.ts";
@@ -63,7 +63,7 @@ export function OpenAnswerRating({
 }) {
   const { t } = useTranslation();
   const rate = useRateAnswer(runId);
-  const keep = useKeepRunEvent(runId);
+  const keep = useKeepRunEvents(runId);
   const { propose } = useExamSlots();
   const { rated, proposal, first } = ratingsOf(events, item.key, answer);
   return (

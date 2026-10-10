@@ -416,11 +416,12 @@ const modellItem = (id: string, rest: Record<string, unknown>) =>
 export const modellExam: Exam = {
   format: 1,
   key: MODELL,
-  timeLimitSec: 360,
+  timeLimitSec: 420,
   modules: [
     { id: "hoeren", timeLimitSec: 120, scaleTo: 25 },
     { id: "lesen", timeLimitSec: 180, scaleTo: 25 },
     { id: "schreiben", timeLimitSec: 60, scaleTo: 25 },
+    { id: "sprechen", timeLimitSec: 60, scaleTo: 25 },
   ],
   sections: [
     {
@@ -474,6 +475,14 @@ export const modellExam: Exam = {
       pool: [examItemKey(MODELL, "s3")],
       draw: 1,
       filter: null,
+    },
+    {
+      key: examSectionKey(MODELL, "p1"),
+      module: "sprechen",
+      pool: [examItemKey(MODELL, "p1")],
+      draw: 1,
+      filter: null,
+      letters: [{ letter: "1", text: "Wochenende?" }],
     },
   ],
   items: [
@@ -546,6 +555,18 @@ export const modellExam: Exam = {
         { id: "was", levels: [3, 1.5, 0] },
         { id: "form", levels: [1, 0.5, 0] },
       ],
+    }),
+    // A speaking part held with a partner: their own card is theirs alone.
+    modellItem("p1", {
+      type: "respond",
+      input: "speech",
+      reference: [],
+      prompt: "Fragen Sie Ihren Partner.",
+      criteria: [
+        { id: "aufgabe", levels: [4, 2, 0], voids: true },
+        { id: "sprache", levels: [4, 2, 0] },
+      ],
+      partner: "Am Wochenende gehe ich schwimmen.",
     }),
   ],
   thresholds: [

@@ -382,6 +382,7 @@
       "writing": "“Write it yourself”",
       "speaking": "Spoken answers",
       "exam": "Exam: rating an answer",
+      "conversation": "Exam: a speaking part",
       "sceneSetup": "Scene: the situation",
       "scene": "Scene",
       "example": "Example for a word"
@@ -410,7 +411,9 @@
       "exam": "the exam's title and the task as set: the part's instructions and text, the question",
       "criteria": "the criteria with their points and what each level means",
       "samples": "the exam's model answers, if it gives any",
-      "writtenAnswer": "your answer"
+      "writtenAnswer": "your answer",
+      "partner": "what the partner has: their card, calendar or slides (you don't see it)",
+      "conversation": "the conversation so far (the most recent lines)"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -448,7 +451,7 @@
       },
       "exam": {
         "name": "Exam answers",
-        "where": "“Propose a rating” above an answer's criteria in an exam"
+        "where": "“Propose a rating” above an answer's criteria, and the speaking parts held as a conversation"
       }
     },
     "about": {
@@ -457,6 +460,7 @@
       "writing": "Checks a short text you wrote in “Write it yourself”: corrections, the A1 criteria (task, communication, accuracy) and feedback.",
       "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",
       "exam": "Rates a written answer of an exam by the exam's own criteria: a level of each with its reason, and what would score more. Nothing counts until you take or change it.",
+      "conversation": "Holds a speaking part of an exam: plays the examiner and the other candidate, as the part prescribes, line by line with you; it never helps or corrects. Rated afterwards by the part's criteria.",
       "sceneSetup": "Starts a scene: invents the situation from the lesson's topic — who you are, who you talk to, where, and the goals to reach. Asked once per scene.",
       "scene": "Plays the scene: answers each of your lines as your partner, corrects your mistakes, gives a translation and ticks off the goals you reached.",
       "example": "Writes an example sentence with a card's word, using words you know where it can, with the new ones translated."
@@ -1090,6 +1094,8 @@
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",
     "example_busy": "An example for this word is being written. Wait for it.",
     "exam_rating_busy": "This answer is being rated. Wait for it.",
+    "exam_conversation_busy": "The partner is answering. Wait for it.",
+    "exam_part_done": "This part is over.",
     "invalid_event": "The app sent a record the server did not accept. Reload the lesson.",
     "invalid_request": "The app sent something the server did not accept. Reload the page.",
     "invalid_setting": "This value does not fit the setting.",
@@ -1270,6 +1276,16 @@
       "propose": "Propose a rating (AI)",
       "proposing": "The assistant is rating…",
       "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it."
+    },
+    "conversation": {
+      "you": "Me",
+      "partner": "Partner",
+      "examiner": "Examiner",
+      "intro": "The assistant plays the examiner and your partner. Answer aloud with the microphone (or type); the conversation is your answer.",
+      "start": "Begin the part",
+      "over": "The part is over.",
+      "placeholder": "Your answer…",
+      "end": "End the part"
     }
   }
 }

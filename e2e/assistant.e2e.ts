@@ -1,5 +1,6 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
-// going over mistakes, an example for a word, a rating proposed for an exam's written answer.
+// going over mistakes, an example for a word, a rating proposed for an exam's written answer, a
+// speaking part held as a conversation.
 import { expect, test } from "@playwright/test";
 import { MODELL } from "@sprachanker/course-fixture";
 import {
@@ -19,6 +20,7 @@ test.beforeEach(async ({ request }) => {
     baseUrl: `http://127.0.0.1:${FAKE_LLM_PORT}/v1`,
   });
   await put(request, "/api/llm/route", { provider: "custom", model: "fake-model" });
+  await put(request, "/api/settings", { key: "llm.offIn", value: [] });
   await freshLessonRun(request);
 });
 
@@ -339,4 +341,26 @@ test("a handed-in mock exam's note: the AI proposes its rating with reasons, the
   const state = await (await request.get(`/api/exams/runs/${run.id}`)).json();
   const rated = state.events.find((e: { type: string }) => e.type === "exam_rated");
   expect(rated.payload).toMatchObject({ by: "assistant", model: "fake-model" });
+});
+
+test("a speaking part held as a conversation: the examiner opens, the learner answers, the part closes", async ({
+  page,
+}) => {
+  await page.goto("/exams/downloaded");
+  await page.getByRole("link", { name: /Model test/ }).click();
+  await page.getByRole("button", { name: "Speaking" }).click();
+  await page.getByRole("button", { name: /^Begin/ }).click();
+  await expect(page).toHaveURL(/\/run\//);
+  await expect(page.getByText("Wochenende?")).toBeVisible();
+  await page.getByRole("button", { name: "Begin the part" }).click();
+  await expect(page.getByText("FAKE: Bitte fragen Sie Ihren Partner.")).toBeVisible();
+  await page.getByPlaceholder("Your answer…").fill("Was machst du am Wochenende?");
+  await page.getByPlaceholder("Your answer…").press("Enter");
+  await expect(page.getByText("FAKE: Ich gehe schwimmen.")).toBeVisible();
+  await expect(page.getByText("The part is over.")).toBeVisible();
+  // The conversation is the part's answer: handed in, it waits to be rated.
+  await expect(page.getByText("Answered: 1 of 1")).toBeVisible();
+  await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).first().click();
+  await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
+  await expect(page.getByText("Me: Was machst du am Wochenende?")).toBeVisible();
 });

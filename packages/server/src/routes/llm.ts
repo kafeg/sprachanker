@@ -49,6 +49,11 @@ const SpeakingBody = LessonRequest.extend({
 /** An exam's open answer to be rated by its criteria, the reasons in the learner's language. */
 const ExamRatingBody = z.object({ runId: Ulid, itemKey: ExamItemKey, language: Lang });
 
+/** A speaking part's next line: the learner's (none to open the part). */
+const ConversationBody = ExamRatingBody.extend({
+  text: z.string().trim().max(MESSAGE_MAX).optional(),
+});
+
 /** An example for a card's word, its translation in the learner's language. */
 const ExampleBody = z.object({ cardId: Ulid, language: Lang });
 
@@ -187,6 +192,13 @@ export function llmRoutes() {
       )
       .post("/exam-rating/prompt", zod("json", ExamRatingBody), async (c) =>
         c.json(await c.var.s.examRating.prompt(c.req.valid("json"))),
+      )
+      // An exam's speaking part held with the assistant: the next lines (kept in the exam run).
+      .post("/exam-conversation", zod("json", ConversationBody), async (c) =>
+        c.json(await c.var.s.examConversation.turn(c.req.valid("json"))),
+      )
+      .post("/exam-conversation/prompt", zod("json", ConversationBody), async (c) =>
+        c.json(await c.var.s.examConversation.prompt(c.req.valid("json"))),
       )
       // AI examples of a card's word: the kept ones (asked for), a new one, the prompt it would send.
       .get("/examples", zod("query", z.object({ cardId: Ulid })), async (c) =>

@@ -99,7 +99,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `GET key` (OpenRouter's key state); `GET lmstudio`, `POST lmstudio/start|download`; tasks —
   `explain` and `tutor` (streamed text), `speaking`, `examples`, `writing`, `scene/start|turn`,
   `exam-rating` (`{runId, itemKey, language}`: an exam's open answer, a mock exam's once handed in —
-  409 `exam_test_running` before; kept in the exam run, its events show it) (JSON),
+  409 `exam_test_running` before; kept in the exam run, its events show it), `exam-conversation`
+  (`{runId, itemKey, language, text?}`: a speaking part of a run being taken — opened without `text`,
+  then each learner's line answered; 409 `exam_part_done` once closed, `exam_time_over`, `run_not_active`)
+  (JSON),
   each with a `…/prompt` route (`scene/prompt`, `tutor/prompt`) that returns the exact request without
   sending it (07); what is kept — `GET explanations?lessonKey=&runId=`, `GET speaking?lessonKey=&runId=`,
   `GET examples?cardId=`, `GET writing`, `GET scene`, `GET tutor`; `POST tutor/context` (how full the

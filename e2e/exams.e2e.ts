@@ -2,6 +2,7 @@
 // marks 2 and 3): the Exams section, the state chosen, a mock exam drawn, answered, handed in, its
 // result and the Notebook; practice with each answer checked at once.
 import { expect, type Page, test } from "@playwright/test";
+import { put } from "./api.ts";
 
 /** A quarter second of silence as a WAV (8 kHz, 8-bit mono): a recording a browser plays to its end
  *  (the fixture's media are markers, not sound). */
@@ -126,7 +127,10 @@ test("practice: a question at a time, each checked at once; ended early, scored 
 
 test("a language exam: a module alone, then the whole — each question with its Teil's material, recordings played as often as allowed, a result by module", async ({
   page,
+  request,
 }) => {
+  // Without the assistant here: the speaking part is answered as any open answer (typed or said).
+  await put(request, "/api/settings", { key: "llm.offIn", value: ["exam"] });
   await page.route("**/media/audio/*.mp3", (route) =>
     route.fulfill({ body: silence(), contentType: "audio/wav" }),
   );
@@ -162,7 +166,7 @@ test("a language exam: a module alone, then the whole — each question with its
   await page.getByRole("button", { name: "Whole exam" }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
   const grid = page.getByRole("navigation", { name: "Questions" });
-  await expect(grid.getByRole("button")).toHaveCount(9);
+  await expect(grid.getByRole("button")).toHaveCount(10);
   await expect(page.getByRole("heading", { name: "Listening · Part 1" })).toBeVisible();
   await expect(page.getByText("Example")).toBeVisible();
   const answers: Array<(p: Page) => Promise<void>> = [
@@ -179,9 +183,14 @@ test("a language exam: a module alone, then the whole — each question with its
         .getByRole("textbox")
         .first()
         .fill("Lieber Tom, ich komme um drei und bringe Kuchen mit. Bis bald!"),
+    // The speaking part: its card, the answer said aloud — here typed.
+    async (p) => {
+      await expect(p.getByText("Wochenende?")).toBeVisible();
+      await question(p).getByRole("textbox").first().fill("Was machst du am Wochenende?");
+    },
   ];
   for (const [i, answer] of answers.entries()) {
-    await expect(page.getByText(`Question ${i + 1} of 9`)).toBeVisible();
+    await expect(page.getByText(`Question ${i + 1} of 10`)).toBeVisible();
     if (i === 2) {
       // Part 2's recording plays once.
       const once = page.getByRole("group", { name: "Part 2" });
@@ -194,8 +203,19 @@ test("a language exam: a module alone, then the whole — each question with its
     if (i < answers.length - 1) await button(page, "Next").click();
   }
   await button(page, "Hand in").click();
-  // The note not rated yet: under the writing mark, not passed.
+  // The note and the speaking part not rated yet: under the writing mark, not passed.
   await expect(page.getByRole("heading", { name: "Not passed" })).toBeVisible();
+  await expect(page.getByText("2 answers are not rated yet", { exact: false })).toBeVisible();
+  await page
+    .getByRole("group", { name: "The task" })
+    .getByRole("button", { name: "4", exact: true })
+    .click();
+  await page
+    .getByRole("group", { name: "Language" })
+    .getByRole("button", { name: "2", exact: true })
+    .click();
+  await expect(page.getByText("6 of 8")).toBeVisible();
+  await page.getByRole("button", { name: "Save rating" }).last().click();
   await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
   // Rated as the raters would: the result computed anew — passed.
   await page
@@ -213,5 +233,6 @@ test("a language exam: a module alone, then the whole — each question with its
   await expect(page.getByText("5.5 of 7")).toBeVisible();
   await page.getByRole("button", { name: "Save rating" }).click();
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Change rating" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Change rating" })).toHaveCount(2);
+  await put(request, "/api/settings", { key: "llm.offIn", value: [] });
 });

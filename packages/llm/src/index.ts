@@ -9,6 +9,7 @@ export * from "./tasks/check-speaking.ts";
 export * from "./tasks/check-writing.ts";
 export * from "./tasks/corrections.ts";
 export * from "./tasks/describe.ts";
+export * from "./tasks/exam-conversation.ts";
 export * from "./tasks/explain-mistake.ts";
 export * from "./tasks/lesson.ts";
 export * from "./tasks/rate-exam-answer.ts";

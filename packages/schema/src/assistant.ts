@@ -88,3 +88,15 @@ export const SceneSetup = z.object({
   opening: z.string(),
 });
 export type SceneSetup = z.infer<typeof SceneSetup>;
+
+/** The next lines of an exam's speaking part (`exam_conversation`): the examiner's and the partner's
+ *  up to the learner's turn, each kept as an `llm_turn` with its `speaker` on the question. */
+export const ExamConversationTurn = z.object({
+  lines: z
+    .array(z.object({ speaker: z.enum(["examiner", "partner"]), text: z.string() }))
+    .min(1)
+    .max(4),
+  /** The part is over (the examiner closed it). */
+  done: z.boolean(),
+});
+export type ExamConversationTurn = z.infer<typeof ExamConversationTurn>;
