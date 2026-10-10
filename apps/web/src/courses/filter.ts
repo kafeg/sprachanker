@@ -3,9 +3,12 @@
 
 /** No filter: every course, every pair. */
 export const ALL = "all";
-/** Where each page keeps its two filters (profile settings; nothing sets them but the bar). */
-export const CATALOG_FILTERS = { course: "catalog.course", pair: "catalog.pair" };
-export const MY_FILTERS = { course: "mine.course", pair: "mine.pair" };
+/** Where each Courses tab keeps its two filters (profile settings; nothing sets them but the bar). */
+export const FILTERS = {
+  mine: { course: "mine.course", pair: "mine.pair" },
+  downloaded: { course: "downloaded.course", pair: "downloaded.pair" },
+  available: { course: "catalog.course", pair: "catalog.pair" },
+} as const;
 
 /**
  * The items a course title and a pair let through, and what each filter can still offer. A stored

@@ -13,7 +13,7 @@ import {
 import { LanguageFlag, usePairName } from "@/ui/flags.tsx";
 import { ALL, filterCourses } from "./filter.ts";
 
-export { CATALOG_FILTERS, MY_FILTERS } from "./filter.ts";
+export { FILTERS } from "./filter.ts";
 
 function Filter({
   label,

@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard } from "@/courses/card.tsx";
-import { CATALOG_FILTERS, MY_FILTERS, useCourseFilters } from "@/courses/filters.tsx";
+import { FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { OfferCard } from "@/library/card.tsx";
 import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/tab-page.tsx";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
@@ -57,17 +57,8 @@ export function CoursesPage({ tab }: { tab: CoursesTab }) {
 function MyCourses() {
   const { t } = useTranslation();
   const list = useCourseList();
-  const mine = (list.all ?? []).filter((c) => c.started);
-  const filters = useCourseFilters(
-    mine.map((c) => ({
-      c,
-      titles: c.editions.map((e) => c.titles[e] || c.key),
-      editions: c.editions,
-    })),
-    MY_FILTERS,
-    list.settings ?? {},
-  );
   if (!list.all) return list.state;
+  const mine = list.all.filter((c) => c.started);
   if (!mine.length)
     return (
       <NoneHere
@@ -76,26 +67,26 @@ function MyCourses() {
       />
     );
   return (
-    <>
-      {(mine.length > 1 || filters.active) && filters.bar}
-      {filters.shown.length ? (
-        <CardGrid>
-          {filters.shown.map(({ c }) => (
-            <MyCourseCard key={c.key} course={c} />
-          ))}
-        </CardGrid>
-      ) : (
-        <EmptyState>{t("courses.noneMatch")}</EmptyState>
-      )}
-    </>
+    <FilteredCards
+      tab="mine"
+      settings={list.settings}
+      cards={mine.map((course) => ({
+        key: course.key,
+        course,
+        titles: course.editions.map((e) => course.titles[e] || course.key),
+        editions: course.editions,
+      }))}
+      card={(c) => <MyCourseCard key={c.key} course={c.course} />}
+    />
   );
 }
 
 function Downloaded() {
   const { t } = useTranslation();
   const list = useCourseList();
+  if (!list.all) return list.state;
   // Each edition of an installed course is a card of its own.
-  const cards = (list.all ?? []).flatMap((course) =>
+  const cards = list.all.flatMap((course) =>
     course.editions.map((edition) => ({
       key: `${course.key}:${edition}`,
       course,
@@ -104,8 +95,6 @@ function Downloaded() {
       editions: [edition],
     })),
   );
-  const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
-  if (!list.all) return list.state;
   if (!cards.length)
     return (
       <NoneHere
@@ -114,18 +103,12 @@ function Downloaded() {
       />
     );
   return (
-    <>
-      {filters.bar}
-      {filters.shown.length ? (
-        <CardGrid>
-          {filters.shown.map((c) => (
-            <CourseCard key={c.key} course={c.course} edition={c.edition} upkeep />
-          ))}
-        </CardGrid>
-      ) : (
-        <EmptyState>{t("courses.noneMatch")}</EmptyState>
-      )}
-    </>
+    <FilteredCards
+      tab="downloaded"
+      settings={list.settings}
+      cards={cards}
+      card={(c) => <CourseCard key={c.key} course={c.course} edition={c.edition} upkeep />}
+    />
   );
 }
 
@@ -134,24 +117,43 @@ function Available() {
   const list = useCourseList();
   const catalog = useCatalog();
   const { shown } = useShown();
+  if (!list.all) return list.state;
   const cards = offersOf(catalog.data, "courses", shown).map((offer) => ({
     key: offer.key,
     offer,
     titles: [offer.title],
     editions: [offer.edition],
   }));
-  const filters = useCourseFilters(cards, CATALOG_FILTERS, list.settings ?? {});
-  if (!list.all) return list.state;
   if (!cards.length) return <NoneHere text={t("courses.allDownloaded")} />;
   return (
+    <FilteredCards
+      tab="available"
+      settings={list.settings}
+      cards={cards}
+      card={(c) => <OfferCard key={c.key} offer={c.offer} />}
+    />
+  );
+}
+
+/** A tab's cards narrowed by its two filters; the bar shows while there is a choice or a filter set. */
+function FilteredCards<T extends { titles: string[]; editions: string[] }>({
+  tab,
+  cards,
+  settings,
+  card,
+}: {
+  tab: CoursesTab;
+  cards: T[];
+  settings: Record<string, unknown>;
+  card(item: T): React.ReactNode;
+}) {
+  const { t } = useTranslation();
+  const filters = useCourseFilters(cards, FILTERS[tab], settings);
+  return (
     <>
-      {filters.bar}
+      {(cards.length > 1 || filters.active) && filters.bar}
       {filters.shown.length ? (
-        <CardGrid>
-          {filters.shown.map((c) => (
-            <OfferCard key={c.key} offer={c.offer} />
-          ))}
-        </CardGrid>
+        <CardGrid>{filters.shown.map(card)}</CardGrid>
       ) : (
         <EmptyState>{t("courses.noneMatch")}</EmptyState>
       )}

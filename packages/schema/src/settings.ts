@@ -53,10 +53,12 @@ export const LEARNER_SETTINGS = {
   theme: z.enum(["system", "light", "dark"]),
   /** Playback speed of course audio. */
   audioRate: z.number().min(0.25).max(2),
-  /** The filters of All courses and My courses, set only from their filter bar: a course title or a
-   *  language pair, or "all" (unset: everything). */
+  /** The filters of each Courses tab (My courses: mine, Downloaded, Available: catalog), set only from
+   *  their filter bar: a course title or a language pair, or "all" (unset: everything). */
   "catalog.course": filter,
   "catalog.pair": filter,
+  "downloaded.course": filter,
+  "downloaded.pair": filter,
   "mine.course": filter,
   "mine.pair": filter,
   /** The deck Review opens on (a deck scope: `lang:de`, `course:…`). */
