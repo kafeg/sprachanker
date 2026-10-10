@@ -17,3 +17,18 @@ test("a card says which way it asks: card 1 the meaning, card 2 the word in the 
   expect(second.getByText("In German?")).toBeTruthy();
   expect(second.getByText("also")).toBeTruthy();
 });
+
+test("a listening card: the question is heard, not read; the answer shows the word once and its meaning", async () => {
+  const card = (side: "question" | "answer") =>
+    renderApp(
+      <TargetLang value="de">
+        <StudyCard display={display} face="listening" side={side} />
+      </TargetLang>,
+      // The answer links to its lesson.
+      { path: "/review" },
+    );
+  expect((await card("question")).queryByText("auch")).toBeNull();
+  const answer = await card("answer");
+  expect(answer.getAllByText("auch")).toHaveLength(1);
+  expect(answer.getByText("also")).toBeTruthy();
+});

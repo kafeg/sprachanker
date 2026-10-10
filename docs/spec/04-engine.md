@@ -164,7 +164,8 @@ actions behave as in Anki (v3 scheduler, FSRS), so the learner's habits and deck
   study day (Anki's custom study "increase today's new card limit"; a course's extra counts in its
   language deck too, and the review limit grows as much so it does not hold them back).
 - **"Words of the lesson"** is the same reviewer over the lesson's words in the edition's translation
-  language, recognition only and without the day's new limit (the learner chose to learn them now);
+  language, one face per word — recognition, or the card's first face when the learner's cards have
+none (engine `lessonFace`) — and without the day's new limit (the learner chose to learn them now);
   otherwise exactly Anki's reviewer: a new word goes through the learning steps (1m, 10m), shown again
   within the 20-minute learn-ahead (owner, 2026-10-07: identical to Anki everywhere). The step is done
   once nothing is left to study now; the learning faces go on in Review.

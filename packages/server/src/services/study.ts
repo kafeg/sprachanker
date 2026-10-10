@@ -7,6 +7,7 @@ import {
   cardDay,
   intervals,
   isLeech,
+  lessonFace,
   type QueueFace,
   review,
   SRS_DEFAULTS,
@@ -101,7 +102,7 @@ export function createStudy(deps: {
     const faces: QueueFace[] = notes.flatMap((note, position) =>
       cards
         .facesOf(note)
-        .filter((face) => !lesson || face === "recognition")
+        .filter((face, _, all) => !lesson || face === lessonFace(all))
         .map((face) => {
           const row = data.states.get(`${note.id}:${face}`);
           return {

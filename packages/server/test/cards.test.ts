@@ -163,6 +163,19 @@ test("limits: a lesson's own words ignore the new limit; the review limit holds 
   expect([held.counts.new, held.current, held.newWaiting]).toEqual([0, null, true]);
 });
 
+test("cards without recognition (the learner's choice): a lesson's words are studied by their first face", async () => {
+  const api = await setup();
+  await api.send("PUT", "/api/settings", { key: "srs.faces", value: ["listening"] });
+  await api.sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: LESSONS[0],
+    edition: "ru-de",
+  });
+  const lesson = await api.getJson(study(`lesson:ru-de:${LESSONS[0]}`));
+  expect(lesson.counts.new).toBe(4);
+  expect(lesson.current.face).toBe("listening");
+});
+
 test("a lesson's words as in Anki: Good and Again both keep a new word learning, shown again in the step", async () => {
   const { sendJson, getJson } = await withCards();
   const scope = study(`lesson:ru-de:${LESSONS[0]}`);

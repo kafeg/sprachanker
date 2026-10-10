@@ -31,6 +31,11 @@ export const SRS_DEFAULTS = {
 /** A note's card types in order: recognition is card 1, production card 2, listening card 3. */
 export const FACE_ORDER: CardFace[] = ["recognition", "production", "listening"];
 
+/** The face a lesson's "Words" step studies a card by: recognition, or the card's first face in
+ *  order when the learner's cards have none (04). */
+export const lessonFace = (faces: CardFace[]): CardFace | undefined =>
+  [...faces].sort((a, b) => FACE_ORDER.indexOf(a) - FACE_ORDER.indexOf(b))[0];
+
 /** The profile's scheduling options (its Review settings), Anki's defaults where unset. */
 export interface SrsParams {
   retention?: number;

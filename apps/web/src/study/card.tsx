@@ -19,8 +19,9 @@ import { useStudySlots } from "./slots.ts";
 export type Side = "question" | "answer";
 
 /** The card's face, the same on both sides. */
+/** The top padding keeps a long word clear of the recording's button in the corner. */
 const FACE =
-  "grid min-h-56 w-full place-items-center rounded-3xl border bg-card px-6 py-8 text-center max-sm:flex-1 sm:min-h-72";
+  "grid min-h-56 w-full place-items-center rounded-3xl border bg-card px-6 pt-16 pb-8 text-center max-sm:flex-1 sm:min-h-72";
 
 /** Which side of a face carries the word (and its recording). */
 const WORD_SIDE: Record<CardFace, Side> = {
@@ -88,7 +89,8 @@ export function StudyCard({
   const question =
     face === "production" ? (
       <span className="text-2xl">{display.translation}</span>
-    ) : face === "listening" && side === "question" ? (
+    ) : face === "listening" ? (
+      // Heard, not read: the word is in the answer.
       <span className="text-sm text-muted-foreground">{t("study.listen")}</span>
     ) : (
       <Word display={display} />

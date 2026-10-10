@@ -5,6 +5,7 @@ import {
   intervals,
   intervalText,
   isLeech,
+  lessonFace,
   type QueueFace,
   review,
   studyDay,
@@ -200,4 +201,10 @@ test("new cards ignoring the review limit (Anki's option): the review limit hold
     newIgnoresReviewLimit: true,
   });
   expect(ignoring.queue).toHaveLength(3);
+});
+
+test("a lesson's words are studied by recognition, else by the card's first face in order", () => {
+  expect(lessonFace(["production", "recognition"])).toBe("recognition");
+  expect(lessonFace(["listening", "production"])).toBe("production");
+  expect(lessonFace(["listening"])).toBe("listening");
 });
