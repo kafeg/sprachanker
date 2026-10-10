@@ -138,7 +138,8 @@ async function goOn(page: Page) {
 /** Walks the lesson from its overview to its summary; returns how many cards were rated. The words
  *  are gone through until none is left for now (each rated Good once), as the step asks. Each
  *  exercise is checked before moving on, its marks looked at whole too; with `shots` (a path's
- *  start) each checked exercise is kept as a full-page screenshot, to look at. */
+ *  start) each exercise checked (or answered, where nothing is checked) is kept as a full-page
+ *  screenshot, to look at. */
 export async function walkLesson(
   page: Page,
   url: string,
@@ -178,12 +179,10 @@ export async function walkLesson(
         await main.click();
         await page.waitForTimeout(300);
         await expectWhole(page, `${step} checked`);
-        if (shots)
-          await page.screenshot({
-            path: `${shots}-${step.replace(":", "-")}.png`,
-            fullPage: true,
-          });
       }
+      // Checked, or answered where nothing is checked (speaking).
+      if (shots)
+        await page.screenshot({ path: `${shots}-${step.replace(":", "-")}.png`, fullPage: true });
     }
     await goOn(page);
   }
