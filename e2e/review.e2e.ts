@@ -1,7 +1,7 @@
 // Review: tabs — Study straight on the cards, Decks (per language and course, as in Anki, and the decks
 // to take), My words — and the guide beside.
 import { expect, test } from "@playwright/test";
-import { beginCourse, post } from "./api.ts";
+import { beginCourse, post, put } from "./api.ts";
 
 test("review: the cards straight away, Decks to choose another, tap and keys, undo", async ({
   page,
@@ -149,7 +149,7 @@ test("Settings → Review: Anki's deck options, the rarer ones under Advanced, k
   page,
 }) => {
   await page.goto("/settings#review");
-  // Five tabs in one row, none narrower than its label (on a phone the bar scrolls instead).
+  // Five tabs in one row, none narrower than its label.
   const tabs = page.getByRole("tab");
   await expect(tabs).toHaveCount(5);
   await expect(page.getByRole("tab", { name: "Review" })).toHaveAttribute("aria-selected", "true");
@@ -168,4 +168,31 @@ test("Settings → Review: Anki's deck options, the rarer ones under Advanced, k
   );
   await page.getByRole("button", { name: "Back to Anki's defaults" }).click();
   await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("20");
+});
+
+test("Settings' five tabs fit a phone in every interface language, nothing scrolled sideways", async ({
+  page,
+  request,
+}) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  try {
+    for (const [lang, ai] of [
+      ["ru", "ИИ-помощник"],
+      ["de", "KI-Assistent"],
+      ["en", "AI assistant"],
+    ]) {
+      await put(request, "/api/settings", { key: "uiLanguage", value: lang });
+      await page.goto("/settings#ai");
+      await page.reload();
+      // The AI tab is short on a phone; its name stays whole.
+      await expect(page.getByRole("tab", { name: ai })).toHaveAttribute("aria-selected", "true");
+      await page.evaluate(() => document.fonts.ready);
+      const bar = page.getByRole("tablist");
+      expect(await bar.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
+      for (const tab of await bar.getByRole("tab").all())
+        expect(await tab.evaluate((e) => e.scrollWidth <= e.clientWidth)).toBe(true);
+    }
+  } finally {
+    await put(request, "/api/settings", { key: "uiLanguage", value: "en" });
+  }
 });

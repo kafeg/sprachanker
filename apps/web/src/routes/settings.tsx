@@ -89,7 +89,11 @@ export function SettingsPage() {
         <SectionTabList
           label={t("nav.settings")}
           value={tab}
-          tabs={TABS.map((id) => ({ value: id, label: t(`settings.tabs.${id}`) }))}
+          tabs={TABS.map((id) => ({
+            value: id,
+            label: t(`settings.tabs.${id}`),
+            short: id === "ai" ? t("settings.tabs.aiShort") : undefined,
+          }))}
         />
         <TabsContent value="general">
           <General />
