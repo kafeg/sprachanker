@@ -22,7 +22,7 @@ const PATH: Record<ExamsTab, "/exams" | "/exams/downloaded" | "/exams/catalog"> 
 export function ExamsPage({ tab }: { tab: ExamsTab }) {
   const { t } = useTranslation();
   const exams = useExams();
-  const shown = useShown();
+  const { shown, ready } = useShown();
   const all = (exams.data ?? []).filter((e) => shown("exams", e.series));
   const offers = (useCatalog().data ?? []).filter(
     (o) => !o.installed && o.kind === "exam" && shown("exams", o.series),
@@ -33,7 +33,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
     available: offers.length,
   };
   const list = (rows: ExamRow[], empty: React.ReactNode) =>
-    exams.isPending ? (
+    exams.isPending || !ready ? (
       <Loading />
     ) : exams.isError ? (
       <ErrorState error={exams.error} onRetry={() => exams.refetch()} />

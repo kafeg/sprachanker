@@ -72,5 +72,6 @@ export const OFFERS: CourseOffer[] = [
     title: "Leben in Deutschland",
     source: SOURCE,
     approxBytes: 0.06e9,
+    stable: true,
   },
 ];

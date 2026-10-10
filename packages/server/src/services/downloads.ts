@@ -14,7 +14,7 @@ import { ServiceError } from "../errors.ts";
 
 export interface CourseInstaller {
   /** Every course the providers offer, with the series folder it goes to. */
-  offers(): Array<CourseOffer & { series: string }>;
+  offers(): OfferedCourse[];
   /** Downloads one course (or what it misses) and normalises it. */
   run(
     series: string,
@@ -179,8 +179,11 @@ export function createDownloads(deps: {
 }
 export type Downloads = ReturnType<typeof createDownloads>;
 
-export interface CatalogEntry extends CourseOffer {
-  series: string;
+/** A course as the server offers it: with its series folder, and `experimental` unless its provider
+ *  declares it ready for learning (03). */
+export type OfferedCourse = Omit<CourseOffer, "stable"> & { series: string; experimental?: true };
+
+export interface CatalogEntry extends OfferedCourse {
   key: string;
   /** Its pages are normalised: it can be opened (media may still be coming). */
   installed: boolean;

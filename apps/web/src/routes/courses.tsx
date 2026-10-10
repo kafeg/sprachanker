@@ -5,7 +5,7 @@
 import { Link } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useCatalog, useCourses, useSettings } from "@/api/hooks.ts";
-import { useShown } from "@/app/experimental.ts";
+import { type Shown, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard, OfferCard } from "@/courses/card.tsx";
 import { CATALOG_FILTERS, MY_FILTERS, useCourseFilters } from "@/courses/filters.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -21,14 +21,14 @@ const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
 /** The courses on offer not yet downloaded (exams are offered in the Exams section). */
 const courseOffers = <T extends { installed: boolean; kind?: string; series: string }>(
   catalog: T[],
-  shown: ReturnType<typeof useShown>,
+  shown: Shown,
 ) => catalog.filter((o) => !o.installed && o.kind !== "exam" && shown("courses", o.series));
 
 function useCourseList() {
   const courses = useCourses();
   const settings = useSettings();
-  const shown = useShown();
-  if (courses.isPending || settings.isPending) return { state: <Loading /> };
+  const { shown, ready } = useShown();
+  if (courses.isPending || settings.isPending || !ready) return { state: <Loading /> };
   if (courses.isError)
     return { state: <ErrorState error={courses.error} onRetry={() => courses.refetch()} /> };
   return {
@@ -39,7 +39,7 @@ function useCourseList() {
 
 export function CoursesPage({ tab }: { tab: CoursesTab }) {
   const { t } = useTranslation();
-  const shown = useShown();
+  const { shown } = useShown();
   const all = (useCourses().data ?? []).filter((c) => shown("courses", c.series));
   const offers = courseOffers(useCatalog().data ?? [], shown);
   const count: Record<CoursesTab, number> = {
@@ -146,7 +146,7 @@ function Available() {
   const { t } = useTranslation();
   const list = useCourseList();
   const catalog = useCatalog();
-  const shown = useShown();
+  const { shown } = useShown();
   const cards = courseOffers(catalog.data ?? [], shown).map((offer) => ({
     key: offer.key,
     offer,

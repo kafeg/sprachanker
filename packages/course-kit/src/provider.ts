@@ -82,8 +82,9 @@ export interface CourseOffer {
   source: CourseSource;
   /** Bytes on disk after a full download (pages and media), roughly. */
   approxBytes: number;
-  /** Not ready for learning yet: shown only when the learner turns it on (the server says which). */
-  experimental?: boolean;
+  /** Ready for learning (03): shown as it is. An offer without it is experimental — shown only when
+   *  the learner turns it on (Settings → Experimental). */
+  stable?: true;
 }
 
 export interface NormaliseResult {
