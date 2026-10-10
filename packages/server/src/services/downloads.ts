@@ -32,7 +32,7 @@ export interface CourseInstaller {
   }>;
 }
 
-export interface DownloadProgress {
+interface DownloadProgress {
   phase: ImportProgress["phase"];
   /** Pages read or fetched so far. */
   pages: number;
@@ -181,7 +181,7 @@ export type Downloads = ReturnType<typeof createDownloads>;
 
 /** A course as the server offers it: with its series folder, and `experimental` unless its provider
  *  is ready for learning (03). */
-export type OfferedCourse = CourseOffer & { series: string; experimental?: true };
+type OfferedCourse = CourseOffer & { series: string; experimental?: true };
 
 export interface CatalogEntry extends OfferedCourse {
   key: string;

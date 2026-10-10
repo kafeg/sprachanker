@@ -18,7 +18,7 @@ import {
 import type { z } from "zod";
 import { clip, htmlToText } from "../text.ts";
 
-export interface ItemDescription {
+interface ItemDescription {
   task: string;
   correct: string;
   /** Undefined when the learner gave no answer. */

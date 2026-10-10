@@ -27,7 +27,7 @@ export interface TutorRequest {
 }
 
 /** A chat in the lesson's history: when, what it began with, which exercises it was about. */
-export interface ChatSummary {
+interface ChatSummary {
   id: string;
   current: boolean;
   startedAt: number;
@@ -39,7 +39,7 @@ export interface ChatSummary {
   exerciseKeys: string[];
 }
 
-export interface ContextUsage {
+interface ContextUsage {
   /** Estimated tokens of the request (system prompt with course context, history, message). */
   tokens: number;
   /** The model's context window, when known. */

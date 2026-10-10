@@ -7,7 +7,7 @@ import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
-export interface ExamCriterionInput {
+interface ExamCriterionInput {
   id: string;
   /** Its title in the exam's locale (the id when it has none). */
   title: string;
@@ -92,7 +92,7 @@ function rateExamAnswerRequest(input: ExamAnswerInput): TaskRequest {
 }
 
 /** What the schema cannot say: every criterion rated once, by one of its levels. */
-export function examRatingProblem(
+function examRatingProblem(
   criteria: ExamCriterionInput[],
   proposal: ExamRatingProposal,
 ): string | undefined {

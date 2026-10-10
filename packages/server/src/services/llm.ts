@@ -39,13 +39,13 @@ const ENDPOINTS = "llm.endpoints" as const;
 const DEFAULT_ROUTE = "default";
 
 /** The assistant cannot run as set up (no provider, key, model…): 409. */
-export class LlmSetupError extends ServiceError {
+class LlmSetupError extends ServiceError {
   constructor(code: ErrorCode) {
     super(code, 409);
   }
 }
 
-export interface ProviderState {
+interface ProviderState {
   id: ProviderId;
   baseUrl: string;
   defaultUrl: string;

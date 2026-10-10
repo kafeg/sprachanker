@@ -5,13 +5,13 @@ import { dirname, extname, join } from "node:path";
 import type { MediaPath } from "@sprachanker/schema";
 import { hashFile, tempFile } from "./files.ts";
 
-export interface StoredMedia {
+interface StoredMedia {
   path: MediaPath;
   sha256: string;
   size: number;
 }
 
-export interface MediaStore {
+interface MediaStore {
   /** Absolute file of a media path. */
   file(path: MediaPath): string;
   /**

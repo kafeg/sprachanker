@@ -34,7 +34,7 @@ const content = (o: Option | undefined) => {
   return o?.media?.image ? `i:${o.media.image}` : `id:${o?.id}`;
 };
 /** Options with identical content are interchangeable (04): ids with equal content compare equal. */
-export const sameOption = (options: Option[], a: string | undefined, b: string | undefined) =>
+const sameOption = (options: Option[], a: string | undefined, b: string | undefined) =>
   a === b ||
   (a !== undefined &&
     content(options.find((o) => o.id === a)) === content(options.find((o) => o.id === b)));
@@ -65,7 +65,7 @@ function textOutcome(lang: string, references: string[], actual: string, spoken:
 
 /** How a spoken phrase went (08): every word heard ("correct"), most of them — at least 80%,
  *  "partial" — or too few ("wrong"). Shown on a recorded speaking item, which counts in no score. */
-export type SpokenVerdict = "correct" | "partial" | "wrong";
+type SpokenVerdict = "correct" | "partial" | "wrong";
 
 /** What was heard against the phrase to say: the words matched and missed, and the verdict. */
 export function spokenCheck(lang: string, reference: string, transcript: string) {

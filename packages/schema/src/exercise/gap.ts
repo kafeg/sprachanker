@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { exerciseOf, GapId, ItemBase, Option, OptionId, Segments } from "./base.ts";
 
-export const GapChoiceItem = ItemBase.extend({
+const GapChoiceItem = ItemBase.extend({
   segments: Segments,
   gaps: z.record(GapId, z.strictObject({ options: z.array(Option).min(1) })),
   /** `bank`: one shared word bank, each word used once; `dropdown`: options per gap. */

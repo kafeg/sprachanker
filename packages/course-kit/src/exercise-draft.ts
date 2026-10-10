@@ -14,7 +14,7 @@ import { type ExerciseDraft, withFingerprint } from "./fingerprint.ts";
 export class Unmapped extends Error {}
 
 /** What every exercise of a lesson has besides its type and items. */
-export interface ExerciseCommon {
+interface ExerciseCommon {
   key: Exercise["key"];
   newWords?: Exercise["newWords"];
   ruleIds?: Exercise["ruleIds"];
@@ -31,7 +31,7 @@ export type MappedDraft = {
 } & Record<string, unknown>;
 
 /** An exercise as a mapping builds it: what every exercise has and what the mapping made. */
-export type LooseDraft = ExerciseCommon & MappedDraft;
+type LooseDraft = ExerciseCommon & MappedDraft;
 
 /**
  * An exercise checked against its type's schema; one that does not fit throws `Unmapped` with what

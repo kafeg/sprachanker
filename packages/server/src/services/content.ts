@@ -16,7 +16,7 @@ import {
 } from "@sprachanker/schema";
 import { createOnce } from "../once.ts";
 
-export interface CourseSummary {
+interface CourseSummary {
   series: string;
   course: string;
   key: string;
@@ -37,7 +37,7 @@ export interface CourseSummary {
 export const courseTitle = (course: CourseSummary, editions: readonly (string | null)[]) =>
   [...editions, ...course.editions].map((e) => e && course.titles[e]).find(Boolean) ?? null;
 
-export interface CourseMap {
+interface CourseMap {
   index: CourseIndex;
   locale: LocaleCourse | null;
   /** Lesson titles of the edition, by lesson key. */

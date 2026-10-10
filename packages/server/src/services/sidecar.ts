@@ -11,7 +11,7 @@ export interface SidecarProcess {
   kill(): void;
 }
 
-export interface SidecarOptions {
+interface SidecarOptions {
   /** Starts the process for a setup, listening on `port`. */
   spawn(setup: string, port: number): SidecarProcess;
   freePort(): Promise<number>;

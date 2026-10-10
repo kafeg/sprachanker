@@ -149,7 +149,7 @@ export const libraryFile = {
 };
 
 /** Where an exam's sources are: `<course id>/sources/<slug>.json` (beside its exams, not among them). */
-export function examSourcesFile(key: string) {
+function examSourcesFile(key: string) {
   const { courseId, slug } = parseExamKey(key);
   return `${courseId}/sources/${slug}.json`;
 }

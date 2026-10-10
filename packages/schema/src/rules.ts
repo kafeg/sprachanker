@@ -3,7 +3,7 @@ import { z } from "zod";
 import { LocalizedText } from "./common.ts";
 import { RuleId } from "./keys.ts";
 
-export const GrammarRule = z.strictObject({
+const GrammarRule = z.strictObject({
   id: RuleId,
   /** Short title per UI/learner language. */
   title: LocalizedText,
@@ -12,7 +12,6 @@ export const GrammarRule = z.strictObject({
   /** Target-language examples. */
   examples: z.array(z.string().min(1)),
 });
-export type GrammarRule = z.infer<typeof GrammarRule>;
 
 /** One registry file: the rules of one target language; ids are unique. */
 export const RulesRegistry = z.array(GrammarRule).superRefine((rules, ctx) => {

@@ -12,21 +12,21 @@ export const SpokenAnswer = z.strictObject({
   transcript: z.string().max(2000),
 });
 
-export const DictationItem = ItemBase.extend({
+const DictationItem = ItemBase.extend({
   media: z.strictObject({ audio: MediaPath }),
   answer: z.strictObject({ accepted: z.array(z.string().min(1)).min(1) }),
 });
 export const DictationAnswer = z.strictObject({ text: z.string() });
 export const DictationExercise = exerciseOf("dictation", DictationItem);
 
-export const SpeechRepeatItem = ItemBase.extend({ text: z.string().min(1) });
+const SpeechRepeatItem = ItemBase.extend({ text: z.string().min(1) });
 export const SpeechRepeatAnswer = z.strictObject({ speech: SpokenAnswer });
 export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem);
 
 /** Speaking oneself (the courses' "say it" exercises): listen, then record oneself; recorded is done.
  *  With a phrase (`text`), what was heard gets a word diff; without one, the AI checks it (08).
  *  Its `answerAudio` is played after the learner's first try. */
-export const SpeechSelfrateItem = ItemBase.extend({
+const SpeechSelfrateItem = ItemBase.extend({
   text: z.string().min(1).optional(),
 });
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when

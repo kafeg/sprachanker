@@ -18,7 +18,7 @@ import {
 import { checkItem } from "../check/index.ts";
 
 /** A profile setting's value by key (unset: undefined). */
-export type SettingOf = (key: string) => string | undefined;
+type SettingOf = (key: string) => string | undefined;
 
 /** The settings as an exam reads them (`get`: a setting's stored value): a text, else unset. */
 export const examSettings =
@@ -120,7 +120,7 @@ export function sectionsOf(exam: Exam, keys: ExamItemKey[]): Record<ExamItemKey,
 }
 
 /** What the learner's answers say of a question: its latest answer right or wrong, and how often. */
-export interface QuestionStat {
+interface QuestionStat {
   last: "right" | "wrong";
   right: number;
   wrong: number;

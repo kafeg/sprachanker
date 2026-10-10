@@ -10,7 +10,7 @@ import { goalsLine, knownWordsLine, type LessonInfo, lessonWordsLine } from "./l
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
 /** Scenes need the lesson's topic and words, not its grammar. */
-export type SceneLesson = Omit<LessonInfo, "grammarHtml">;
+type SceneLesson = Omit<LessonInfo, "grammarHtml">;
 
 export const SceneTurn = z.object({
   /** The partner's next line, in the target language. */

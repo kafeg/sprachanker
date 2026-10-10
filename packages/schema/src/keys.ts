@@ -9,7 +9,7 @@ const LANG = "[a-z]{2,3}";
 const LEMMA_PART = "[\\p{Ll}\\p{Lo}\\p{Lm}\\p{M}\\p{Nd}]+";
 const LEMMA = `${LEMMA_PART}(?:-${LEMMA_PART})*`;
 
-export const PARTS_OF_SPEECH = ["noun", "verb", "adj", "phrase", "word"] as const;
+const PARTS_OF_SPEECH = ["noun", "verb", "adj", "phrase", "word"] as const;
 export const PartOfSpeech = z.enum(PARTS_OF_SPEECH);
 export type PartOfSpeech = z.infer<typeof PartOfSpeech>;
 

@@ -15,7 +15,7 @@ import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
 /** The device's sign-in token (HttpOnly: scripts never see it). */
-export const DEVICE_COOKIE = "sprachanker_device";
+const DEVICE_COOKIE = "sprachanker_device";
 
 const ProfileId = z.string().regex(/^[a-z0-9]{1,40}$/);
 /** A profile's name: never empty. */

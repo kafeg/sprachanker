@@ -167,7 +167,7 @@ export const Exam = z.strictObject({
 export type Exam = z.infer<typeof Exam>;
 
 /** The checks an importer runs on an exam's sources (03; the app names each in its language). */
-export const EXAM_CHECKS = [
+const EXAM_CHECKS = [
   /** Questions read, of those the source has. */
   "questions-complete",
   /** Questions whose options two sources give word for word (LiD: the PDF and the test centre). */
@@ -185,8 +185,7 @@ export const EXAM_CHECKS = [
   /** Open answers whose criteria were read with every level's points (Goethe Schreiben, Sprechen). */
   "criteria-read",
 ] as const;
-export const ExamCheck = z.enum(EXAM_CHECKS);
-export type ExamCheck = z.infer<typeof ExamCheck>;
+const ExamCheck = z.enum(EXAM_CHECKS);
 
 /**
  * `canonical/<course>/sources/<slug>.json`: where an exam was read and what was checked (03; owner,

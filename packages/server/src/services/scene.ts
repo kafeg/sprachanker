@@ -15,7 +15,7 @@ import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
 import { HISTORY_LIMIT, payloadOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
-export interface SceneRequest {
+interface SceneRequest {
   series: string;
   lessonKey: LessonKey;
   edition: string;

@@ -6,7 +6,7 @@ export interface Migration {
 }
 
 /** The few SQL operations the migrator needs; implemented per runtime. */
-export interface SqlDatabase {
+interface SqlDatabase {
   exec(sql: string): void;
   tags(): string[];
   /** Consistent copy of the database file. */

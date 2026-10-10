@@ -2,7 +2,7 @@
 import { z } from "zod";
 import { exerciseOf, ItemBase, Option, OptionId } from "./base.ts";
 
-export const OrderItem = ItemBase.extend({
+const OrderItem = ItemBase.extend({
   parts: z.array(Option).min(2),
   /** How text parts are joined: words with spaces (punctuation attaches), letters without. */
   join: z.enum(["space", "none"]),

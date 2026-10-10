@@ -1,6 +1,6 @@
 // What goes wrong talking to a model (07): a code the server answers with as `llm_<code>`.
 
-export type LlmErrorCode =
+type LlmErrorCode =
   | "unreachable"
   | "unauthorized"
   | "model_not_found"

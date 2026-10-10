@@ -26,7 +26,7 @@ const ALLOWED_TAGS = [
   "img",
 ];
 
-export interface SanitizeOptions {
+interface SanitizeOptions {
   /** Media path for an image source of the provider (e.g. a URL template); undefined drops the image. */
   image(attributes: Record<string, string>): MediaPath | undefined;
   /** Elements to drop with their content, e.g. credit lines. */

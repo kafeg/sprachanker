@@ -103,7 +103,7 @@ export const LEARNER_SETTINGS = {
 } as const;
 
 /** Settings written only by the service that owns them. */
-export const SERVICE_SETTINGS = {
+const SERVICE_SETTINGS = {
   /** Endpoint URLs of the providers that let the learner set one, by provider id. */
   "llm.endpoints": z.record(z.string(), z.url()),
   /** The learner's own system prompts, by task. */

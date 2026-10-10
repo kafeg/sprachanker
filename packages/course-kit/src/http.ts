@@ -33,7 +33,7 @@ export class FetchFailedError extends Error {
   }
 }
 
-export interface PoliteFetcherOptions {
+interface PoliteFetcherOptions {
   userAgent: string;
   /** Minimum time between the starts of two requests to the same host; 0 (default) = no limit. */
   intervalMs?: number;

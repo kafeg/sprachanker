@@ -42,7 +42,7 @@ export function shapeHeadword(lang: Lang, text: string): Headword {
 }
 
 /** One word of a lesson as the source lists it. */
-export interface VocabSource {
+interface VocabSource {
   head: Headword;
   /** Headword as the source shows it. */
   target: string;

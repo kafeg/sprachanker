@@ -65,9 +65,9 @@ export const Run = RunHeader.extend({
 export type Run = z.infer<typeof Run>;
 
 /** What the learner saw on a page: the exercise with its learner-language texts (05). */
-export const PageSnapshot = z.object({ exercise: Exercise, locale: LocaleExercise.nullable() });
+const PageSnapshot = z.object({ exercise: Exercise, locale: LocaleExercise.nullable() });
 
-export const PageShownPayload = z.object({
+const PageShownPayload = z.object({
   pageIndex: z.number().int().nonnegative(),
   /** The exercise on that page (attached by the server): what the run resumes on and what its
    *  snapshot belongs to, wherever the page is after the lesson changed. */
@@ -76,10 +76,9 @@ export const PageShownPayload = z.object({
    *  that no longer reads (the exercise format changed since) is dropped when read (`readPayload`). */
   snapshot: PageSnapshot.optional(),
 });
-export type PageShownPayload = z.infer<typeof PageShownPayload>;
 
 /** An answer as the client sends it; an `outcome` sent by the client is dropped. */
-export const AnsweredInput = z.object({
+const AnsweredInput = z.object({
   answer: z.unknown(),
   /** 1 for the first attempt; only the first counts for scores (04). */
   attempt: z.number().int().positive(),
@@ -106,8 +105,7 @@ export const StepId = z
 export type StepId = z.infer<typeof StepId>;
 
 /** A step done (read, its cards made, the practice done) or skipped. */
-export const StepDonePayload = z.object({ step: StepId, skipped: z.boolean().optional() });
-export type StepDonePayload = z.infer<typeof StepDonePayload>;
+const StepDonePayload = z.object({ step: StepId, skipped: z.boolean().optional() });
 
 /** An event as the client sends it. */
 export const EventInput = z.discriminatedUnion("type", [
@@ -181,7 +179,7 @@ const verdict = <T extends string, R extends z.ZodType>(task: T, result: R) =>
   });
 
 /** One verdict's shape per task, its result typed: checked when written and when read. */
-export const LlmVerdictPayload = z.discriminatedUnion("task", [
+const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("explain", z.string()).extend({
     /** The attempt at the item it explains (1 = the first answer). */
     attempt: z.number().int().positive().optional(),
@@ -191,7 +189,7 @@ export const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("speaking", SpokenCheck),
   verdict("exam", ExamRatingProposal),
 ]);
-export type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
+type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 export type VerdictTask = LlmVerdictPayload["task"];
 /** The verdict of one task, its result typed. */
 export type VerdictOf<T extends VerdictTask> = Extract<LlmVerdictPayload, { task: T }>;
@@ -244,8 +242,7 @@ export const CardReviewPayload = z.object({
 export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 
 /** A review taken back (Anki: undo); the face's state is restored to the review's `stateBefore`. */
-export const CardUndoPayload = z.object({ review: Ulid });
-export type CardUndoPayload = z.infer<typeof CardUndoPayload>;
+const CardUndoPayload = z.object({ review: Ulid });
 
 /** How an exam is taken (09): a mock exam — drawn as the real test draws, timed, the answers checked
  *  when it is handed in — or practice: question by question, each checked at once, the ones answered
@@ -346,7 +343,7 @@ export function readPayload<T extends EventType>(
   return again.success ? (again.data as EventPayload<T>) : undefined;
 }
 
-export const StoredEvent = z.object({
+const StoredEvent = z.object({
   id: Ulid,
   runId: Ulid,
   ts: z.number().int(),
@@ -356,7 +353,7 @@ export const StoredEvent = z.object({
   cardId: z.string().nullable().optional(),
   payload: z.unknown(),
 });
-export type StoredEvent = z.infer<typeof StoredEvent>;
+type StoredEvent = z.infer<typeof StoredEvent>;
 
 /** A stored event with its payload typed by its type: what the run store reads back (each payload
  *  parsed with its type's schema), so readers narrow on `type` instead of casting. */

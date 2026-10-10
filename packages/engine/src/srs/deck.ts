@@ -8,7 +8,7 @@ import { type Stage, wordState } from "./index.ts";
 import { inReview, isNew } from "./state.ts";
 
 /** Anki's mature cards: scheduled three weeks or more ahead. */
-export const MATURE_DAYS = 21;
+const MATURE_DAYS = 21;
 const DAY = 86_400_000;
 
 export interface DeckWord {
@@ -64,4 +64,3 @@ export function deckStanding(
       : undefined,
   };
 }
-export type DeckStanding = ReturnType<typeof deckStanding>;

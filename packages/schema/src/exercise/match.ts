@@ -4,7 +4,7 @@ import { exerciseOf, ItemBase, Option, OptionId } from "./base.ts";
 
 const Pair = z.tuple([OptionId, OptionId]);
 
-export const MatchItem = ItemBase.extend({
+const MatchItem = ItemBase.extend({
   left: z.array(Option).min(2),
   right: z.array(Option).min(2),
   answer: z.strictObject({ pairs: z.array(Pair).min(1) }),

@@ -10,7 +10,7 @@ import type { TaskRules } from "./rules.ts";
 import { SCENE_BUDGETS, sceneSetupRules, sceneTurnRules } from "./scene.ts";
 import { WORD_EXAMPLE_BUDGETS, wordExampleRules } from "./word-example.ts";
 
-export interface TaskPromptEntry {
+interface TaskPromptEntry {
   rules: TaskRules;
   budgets: Readonly<Record<string, number>>;
 }

@@ -6,7 +6,7 @@ import { Exercise } from "./exercise/index.ts";
 import { ExerciseKey, LessonKey, LexemeKey, RuleId, SceneKey } from "./keys.ts";
 import { ItemRef } from "./locale.ts";
 
-export const ENRICHMENT_FORMAT = 1;
+const ENRICHMENT_FORMAT = 1;
 
 /** `courses/<provider>/enrichment/<course>/<NN>-<NN>.yaml` */
 export const Enrichment = z.strictObject({

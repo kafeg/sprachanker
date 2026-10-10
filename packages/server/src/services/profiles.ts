@@ -38,12 +38,12 @@ export interface RecordingFiles {
 }
 
 /** The first profile's id: the folder the single profile had before there were several. */
-export const FIRST_PROFILE = "local";
+const FIRST_PROFILE = "local";
 const FIRST_COLOUR: ProfileColour = "amber";
 /** A stored colour as a tile's (one no longer offered: the first). */
 const colourOf = (stored: string): ProfileColour => ProfileColour.catch(FIRST_COLOUR).parse(stored);
 
-export type ProfileRow = typeof profiles.$inferSelect;
+type ProfileRow = typeof profiles.$inferSelect;
 
 export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: () => number }) {
   const { db, files, now } = deps;

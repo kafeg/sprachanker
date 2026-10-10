@@ -9,7 +9,7 @@ export const MediaKind = z.enum(["audio", "image", "video", "subtitles", "pdf"])
 export type MediaKind = z.infer<typeof MediaKind>;
 
 /** A source URL's stored file (path, sha256 and size for integrity checks), or why it is not. */
-export const MediaIndexEntry = z.union([
+const MediaIndexEntry = z.union([
   z.strictObject({
     kind: MediaKind,
     path: MediaPath,
@@ -19,7 +19,6 @@ export const MediaIndexEntry = z.union([
   }),
   z.strictObject({ kind: MediaKind, error: z.string() }),
 ]);
-export type MediaIndexEntry = z.infer<typeof MediaIndexEntry>;
 
 /** `media.json`: every media URL a series references, by URL. */
 export const MediaIndex = z.record(z.string(), MediaIndexEntry);

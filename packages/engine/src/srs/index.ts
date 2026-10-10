@@ -102,7 +102,7 @@ export function review(
 }
 
 /** Due times by rating: again, hard, good, easy. */
-export type Intervals = Record<1 | 2 | 3 | 4, number>;
+type Intervals = Record<1 | 2 | 3 | 4, number>;
 
 /** When the face would be due after each rating (shown above the answer buttons). */
 export function intervals(
@@ -163,14 +163,14 @@ export interface QueueFace {
   buriedUntil?: number | null;
 }
 
-export interface QueueEntry {
+interface QueueEntry {
   cardId: string;
   face: CardFace;
   kind: "new" | "learning" | "review";
   due: number;
 }
 
-export interface QueueLimits {
+interface QueueLimits {
   now: number;
   /** When the learner's next day starts (reviews due before it are due today). */
   nextDay: number;
