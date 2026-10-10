@@ -330,7 +330,10 @@ export function LessonTutor(context: Context) {
         variant="outline"
         size="sm"
         aria-label={t("tutor.title")}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setTab("chat");
+          setOpen(true);
+        }}
       >
         <MessageCircle className="size-4" />{" "}
         <span className="hidden sm:inline">{t("tutor.title")}</span>

@@ -562,7 +562,7 @@
   },
   "storage": {
     "title": "Storage",
-    "intro": "Courses, media and your progress live in this folder on the computer running SprachAnker. It is chosen when the server starts (‑‑data, or SPRACHANKER_DATA); the desktop app will let you change it.",
+    "intro": "Courses, media and your progress live in this folder on the computer running SprachAnker. It is chosen when the server starts (--data, or SPRACHANKER_DATA); the desktop app will let you change it.",
     "total": "Total",
     "used": "Courses take {size}",
     "usedFree": "Courses take {size} · {free} free on the disk",

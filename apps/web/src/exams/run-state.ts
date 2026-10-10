@@ -91,6 +91,8 @@ export function useQuestionPlace(runId: string, items: ExamItem[], answers: Answ
  *  of this device's); `onEnd` is called once it runs out. */
 export function useTimeLeft(deadline: number | null, skew: number, onEnd: () => void) {
   const [now, setNow] = useState(Date.now());
+  const end = useRef(onEnd);
+  end.current = onEnd;
   useEffect(() => {
     if (deadline === null) return;
     const timer = setInterval(() => setNow(Date.now()), 1000);
@@ -98,7 +100,7 @@ export function useTimeLeft(deadline: number | null, skew: number, onEnd: () => 
   }, [deadline]);
   const left = deadline === null ? undefined : deadline - (now + skew);
   useEffect(() => {
-    if (left !== undefined && left <= 0) onEnd();
-  }, [left, onEnd]);
+    if (left !== undefined && left <= 0) end.current();
+  }, [left]);
   return left;
 }

@@ -20,7 +20,10 @@ export function StorageSection() {
   };
   return (
     <Panel title={t("storage.title")} className="space-y-2">
-      <p className="text-sm text-muted-foreground">{t("storage.intro")}</p>
+      {/* The font joins "--" into a dash: the flag stays two hyphens, as typed. */}
+      <p className="text-sm text-muted-foreground [font-variant-ligatures:none]">
+        {t("storage.intro")}
+      </p>
       <p className="break-all rounded-lg bg-muted px-3 py-2 font-mono text-sm">
         {storage.dataRoot}
       </p>

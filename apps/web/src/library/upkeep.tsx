@@ -95,7 +95,9 @@ export function SyncButton({
       className={cn(
         upkeepButton,
         !short && "h-11",
-        attention ? "border-primary bg-primary/15 hover:bg-primary/25" : quiet,
+        attention
+          ? "border-primary bg-primary/15 hover:bg-primary/25 dark:border-primary dark:bg-primary/15 dark:hover:bg-primary/25"
+          : quiet,
       )}
     >
       {!start.isPending && (missing ? <Download /> : <RefreshCw />)}

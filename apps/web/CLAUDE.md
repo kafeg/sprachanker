@@ -29,19 +29,17 @@ apps/web/src/
                    # word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: Anki's deck options); slots (what optional features add: AI examples)
-  exercises/       # one renderer per exercise type (index.tsx: the renderer of each type; speech: the
-                   # speaking ones); dnd (placing
-                   # chips by drag or tap); item-card (an item with its prompt, media and
-                   # renderer: answered in the player, read-only in the Notebook); no API calls
+  exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
+                   # placed by drag or tap); item-card (an item with its prompt, media and renderer:
+                   # answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the latest mock exam, sources),
                    # player (a run a question at a time: mock exam timed, practice checked at once;
                    # run-state: the questions' states and tally, the place kept, the time left),
-                   # navigator (the run's plan: its questions by Teil), result, catalog (a compact list,
-                   # a question opened with its answer), state-select (the federal state), questions (a question as an
-                   # exercise, the latest answers, questions by Teil), teil (a Teil's header and
-                   # material; a question's card), recording (a mock exam's recording: plays limited),
-                   # rating (an open answer rated by its criteria, a proposal shown chosen), slots
-                   # (what optional features add: the AI's proposal, the conversation), use-exam
+                   # navigator (the run's plan by Teil), result, catalog (a compact list, a question
+                   # opened with its answer), state-select, questions (a question as an exercise, the
+                   # latest answers, questions by Teil), teil (a Teil's header and material; a question's
+                   # card), recording (a mock exam's: plays limited), rating (an open answer by its
+                   # criteria, a proposal shown chosen), slots (the AI's proposal, the conversation), use-exam
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, every module's
                    # standing — standing.tsx shows them alike, a module adding only titles and links),
                    # lesson (passes), pass (in full), compare, exam (an exam's runs and questions as they

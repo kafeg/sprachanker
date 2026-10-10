@@ -11,7 +11,6 @@ import {
   missingSettings,
   openQuestions,
   practiceOrder,
-  questionCount,
   questionLine,
   questionStats,
   ratingsFit,
@@ -335,7 +334,8 @@ export function createExams({
             titles,
             courseTitles: course.titles,
             source: course.source,
-            questions: questionCount(s.exam),
+            // The questions open to the learner (their federal state's), as the exam's page counts them.
+            questions: openQuestions(s.exam, setting).length,
             asked: s.exam.sections.reduce((n, sec) => n + sec.draw, 0),
             timeLimitSec: s.exam.timeLimitSec,
             readiness: s.readiness,

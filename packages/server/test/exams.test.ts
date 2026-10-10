@@ -28,7 +28,8 @@ test("the exams installed, with what the learner still has to set and their stan
     key: EXAM,
     kind: "course",
     titles: { "ru-de": "Мини-тест", "en-de": "Mini test" },
-    questions: 4,
+    // Open to this learner: no federal state chosen yet, so the common questions only.
+    questions: 2,
     asked: 3,
     needs: ["exam.federalState"],
     readiness: 0,
