@@ -2,7 +2,7 @@
 // reached or not, the points by section, then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.
 
-import { examPassed, marksOf } from "@sprachanker/engine";
+import { examPassed, markMax, marksOf } from "@sprachanker/engine";
 import type {
   Exam,
   ExamItem,
@@ -76,15 +76,8 @@ export function ExamResultView({
     const named = module && (locale?.modules?.[module]?.title ?? module);
     return named ? `${named} · ${title}` : title;
   };
-  /** The most a pass mark's points can be: its modules' scaled points, or the questions'. */
-  const outOf = (th: Exam["thresholds"][number]) =>
-    exam.modules
-      ? (th.modules ?? modules).reduce(
-          (n, m) =>
-            n + (exam.modules?.find((x) => x.id === m)?.scaleTo ?? result?.modules?.[m]?.max ?? 0),
-          0,
-        )
-      : (result?.max ?? 0);
+  /** The most a pass mark's points can be (the engine's `markMax`). */
+  const outOf = (th: Exam["thresholds"][number]) => (result ? markMax(exam, th, result) : 0);
   const again = (mode: ExamMode) =>
     run.edition &&
     begin.mutate(

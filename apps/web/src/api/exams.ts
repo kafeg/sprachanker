@@ -2,10 +2,10 @@
 // page, and a run — started, read, answered (through an outbox, as a lesson's answers go), handed in.
 import type { ExamKey, ExamMode, ExamRun, Outcome, TypedEvent } from "@sprachanker/schema";
 import { type QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { ulid } from "ulid";
-import { createOutbox, type Outbox } from "@/lesson/outbox.ts";
-import { api, json, refusedByServer } from "./client.ts";
+import { api, json } from "./client.ts";
+import { runOutbox, useRunOutbox } from "./run-events.ts";
 
 export const useExams = () =>
   useQuery({ queryKey: ["exams"], queryFn: () => json(api.exams.$get()) });
@@ -57,37 +57,14 @@ interface Queued {
   payload: { answer: unknown; attempt: number; ms: number };
 }
 
-const outboxes = new Map<string, Outbox<Queued>>();
-function outboxOf(client: QueryClient, runId: string): Outbox<Queued> {
-  let outbox = outboxes.get(runId);
-  if (!outbox) {
-    outbox = createOutbox<Queued>({
-      async send(events) {
-        const { outcomes } = await json(
-          api.exams.runs[":id"].events.$post({ param: { id: runId }, json: { events } }),
-        );
-        // Practice: the server's outcomes are the ones stored.
-        if (Object.keys(outcomes).length)
-          client.setQueryData<ExamRunState>(
-            runKey(runId),
-            (s) =>
-              s && {
-                ...s,
-                events: s.events.map((e) =>
-                  e.type === "answered" && outcomes[e.id]
-                    ? { ...e, payload: { ...e.payload, outcome: outcomes[e.id] as Outcome } }
-                    : e,
-                ),
-              },
-          );
-      },
-      refused: refusedByServer,
-      onRefused: () => void client.invalidateQueries({ queryKey: runKey(runId) }),
-    });
-    outboxes.set(runId, outbox);
-  }
-  return outbox;
-}
+/** The run's outbox (api/run-events, as a lesson's): the server's outcomes (practice's) and
+ *  attempts take the place of the local ones. */
+const outboxOf = (client: QueryClient, runId: string) =>
+  runOutbox<Queued>(client, runKey(runId), {
+    runOf: () => runId,
+    post: (id, events) =>
+      json(api.exams.runs[":id"].events.$post({ param: { id }, json: { events } })),
+  });
 
 /** A run with its answers; `answer` records one (shown at once, sent in order), `finish` hands the run
  *  in once every answer is stored. */
@@ -105,20 +82,16 @@ export function useExamRun(runId: string) {
       return { ...state, events: [...state.events, ...pending] };
     },
   });
-  // Leaving or reloading the page: the answers still queued go out with `keepalive`, which outlives
-  // the page (idempotent by id, as a lesson's).
-  useEffect(() => {
-    const onHide = () => {
-      const events = outbox.nextBatch();
-      if (events.length)
-        void api.exams.runs[":id"].events.$post(
-          { param: { id: runId }, json: { events: [...events] } },
-          { init: { keepalive: true } },
-        );
-    };
-    window.addEventListener("pagehide", onHide);
-    return () => window.removeEventListener("pagehide", onHide);
-  }, [runId, outbox]);
+  // Leaving or reloading the page: the answers still queued go out as the page closes.
+  const sendOnHide = useMemo(
+    () => (events: readonly Queued[]) =>
+      void api.exams.runs[":id"].events.$post(
+        { param: { id: runId }, json: { events: [...events] } },
+        { init: { keepalive: true } },
+      ),
+    [runId],
+  );
+  useRunOutbox(outbox, sendOnHide);
   const finish = useMutation({
     mutationFn: async () => {
       await outbox.flush();

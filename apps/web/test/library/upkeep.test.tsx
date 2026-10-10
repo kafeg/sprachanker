@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { fireEvent } from "@testing-library/react";
-import { CourseUpkeep } from "../../src/courses/upkeep.tsx";
+import { CourseUpkeep } from "../../src/library/upkeep.tsx";
 import { renderApp } from "../render.tsx";
 
 const ready: Array<[unknown[], unknown]> = [

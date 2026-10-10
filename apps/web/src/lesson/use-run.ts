@@ -16,8 +16,8 @@ import type {
 import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ulid } from "ulid";
-import { api, json, refusedByServer } from "@/api/client.ts";
-import { createOutbox, type Outbox } from "./outbox.ts";
+import { api, json } from "@/api/client.ts";
+import { runOutbox, useRunOutbox } from "@/api/run-events.ts";
 
 export type { ExerciseResult } from "@sprachanker/engine";
 
@@ -40,19 +40,8 @@ interface Loaded {
 }
 
 const NO_EVENTS: TypedEvent[] = [];
-
-/** Events of no run: the lesson's run ended or was replaced before they went (dropped). */
-class NoRun extends Error {}
-/** Events of a profile not signed in now: they wait for it (another profile cannot store them). */
-class NotSignedIn extends Error {}
-
-/** The profile this device is signed in to, as the session query last read it. */
-const signedIn = (client: QueryClient) =>
-  client.getQueryData<{ profile: { id: string } | null }>(["session"])?.profile?.id ?? "";
-
-/** A refusal that sending again cannot change; a lost session (401) or a request that reached the
- *  wrong host (421) is not one — the events wait for the learner to be back. */
-const refused = (e: unknown) => e instanceof NoRun || refusedByServer(e);
+/** An event as the server takes it: without the run it is queued for. */
+const withoutRun = ({ runId: _, ...e }: Queued): Pending => e;
 
 /** The active run in a lesson's cached state. */
 const activeRun = (client: QueryClient, key: readonly unknown[]) => {
@@ -60,57 +49,17 @@ const activeRun = (client: QueryClient, key: readonly unknown[]) => {
   return run?.status === "active" ? run.id : undefined;
 };
 
-/** One outbox per profile and lesson for the page's life: a lesson opened again sends on after what
- *  it queued before, never beside it; a profile signed out keeps its events until it is back. */
-const outboxes = new Map<string, Outbox<Queued>>();
-function outboxOf(client: QueryClient, key: readonly unknown[]): Outbox<Queued> {
-  const profile = signedIn(client);
-  const id = JSON.stringify([profile, ...key]);
-  let outbox = outboxes.get(id);
-  if (!outbox) {
-    outbox = createOutbox<Queued>({
-      batchKey: (e) => e.runId ?? "",
-      async send(batch) {
-        if (signedIn(client) !== profile) throw new NotSignedIn();
-        // Queued before the run existed: it belongs to the run started since.
-        const runId = batch[0]?.runId ?? activeRun(client, key);
-        if (!runId) throw new NoRun();
-        const events = batch.map(({ runId: _, ...e }) => e);
-        const { outcomes, attempts } = await json(
-          api.runs[":id"].events.$post({ param: { id: runId }, json: { events } }),
-        );
-        // The server's outcome and attempt of an answer are the ones stored; they replace the local
-        // ones (another device may have answered the item meanwhile).
-        if (Object.keys(outcomes).length)
-          client.setQueryData<Loaded | null>(key, (s) =>
-            s
-              ? {
-                  ...s,
-                  events: s.events.map((e): TypedEvent => {
-                    const outcome = outcomes[e.id];
-                    return outcome && e.type === "answered"
-                      ? {
-                          ...e,
-                          payload: {
-                            ...e.payload,
-                            outcome,
-                            attempt: attempts[e.id] ?? e.payload.attempt,
-                          },
-                        }
-                      : e;
-                  }),
-                }
-              : s,
-          );
-      },
-      refused,
-      // A batch refused: the run is read again.
-      onRefused: () => void client.invalidateQueries({ queryKey: key }),
-    });
-    outboxes.set(id, outbox);
-  }
-  return outbox;
-}
+/** The lesson's outbox (api/run-events: one per profile and lesson): each event goes to the run it
+ *  was recorded in; one queued before the run existed, to the run started since. */
+const outboxOf = (client: QueryClient, key: readonly unknown[]) =>
+  runOutbox<Queued>(client, key, {
+    batchKey: (e) => e.runId ?? "",
+    runOf: (batch) => batch[0]?.runId ?? activeRun(client, key),
+    post: (id, batch) =>
+      json(
+        api.runs[":id"].events.$post({ param: { id }, json: { events: batch.map(withoutRun) } }),
+      ),
+  });
 
 export function useRun(series: string, lessonKey: string, edition: string | undefined) {
   const client = useQueryClient();
@@ -187,22 +136,19 @@ export function useRun(series: string, lessonKey: string, edition: string | unde
     void flush();
   }, [flush]);
 
-  // Leaving or reloading the page: what is still queued goes out with `keepalive`, which outlives the
-  // page (events are idempotent by id, so one also in flight is stored once).
-  useEffect(() => {
-    if (!runId) return;
-    const onHide = () => {
-      const batch = outbox.nextBatch();
-      const id = batch[0]?.runId ?? runId;
-      if (!batch.length) return;
-      void api.runs[":id"].events.$post(
-        { param: { id }, json: { events: batch.map(({ runId: _, ...e }) => e) } },
-        { init: { keepalive: true } },
-      );
-    };
-    window.addEventListener("pagehide", onHide);
-    return () => window.removeEventListener("pagehide", onHide);
-  }, [runId, outbox]);
+  // Leaving or reloading the page: what is still queued goes out as the page closes.
+  const sendOnHide = useMemo(
+    () =>
+      runId
+        ? (batch: readonly Queued[]) =>
+            void api.runs[":id"].events.$post(
+              { param: { id: batch[0]?.runId ?? runId }, json: { events: batch.map(withoutRun) } },
+              { init: { keepalive: true } },
+            )
+        : undefined,
+    [runId],
+  );
+  useRunOutbox(outbox, sendOnHide);
 
   /** Queues events for the server and applies them here at once, answers with their local outcome. */
   const record = useCallback(

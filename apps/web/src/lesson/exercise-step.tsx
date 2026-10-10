@@ -8,7 +8,7 @@ import { History, RotateCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ItemCard } from "@/exercises/item-card.tsx";
-import { ItemHistory } from "@/notebook/item-history.tsx";
+import { ItemHistory } from "@/library/item-history.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";

@@ -23,8 +23,9 @@ import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
+import { clock } from "@/ui/format.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
-import { SideLayout } from "@/ui/side-layout.tsx";
+import { SIDE_BACK, SideHeader, SideLayout } from "@/ui/side-layout.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ListedQuestion, QuestionList } from "./navigator.tsx";
@@ -90,12 +91,6 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
     </TargetLang>
   );
 }
-
-/** Minutes and seconds left ("41:12"). */
-const clock = (ms: number) => {
-  const s = Math.max(0, Math.ceil(ms / 1000));
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-};
 
 /** Where a run was left on this device (a reload comes back to its question). */
 const placeKey = (run: string) => `sprachanker.exam-place:${run}`;
@@ -371,23 +366,20 @@ function Running({
 
   const side = (picked?: () => void) => (
     <>
-      <button
-        type="button"
-        onClick={onLeave}
-        className="mr-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:mr-0"
-      >
-        <ArrowLeft className="size-4 shrink-0" />{" "}
-        <span className="truncate">{t("exams.leave")}</span>
-      </button>
-      <h2 className="mb-1 px-2 text-xl font-bold">
-        {title}
-        {module && ` · ${moduleTitle(module)}`}
-      </h2>
-      <p className="mb-3 px-2 text-sm text-muted-foreground">
-        {mode === "test"
-          ? t("exams.answered", { done: answered, total: items.length })
-          : t("exams.practiceTally", { right, wrong, total: items.length })}
-      </p>
+      <SideHeader
+        back={
+          <button type="button" onClick={onLeave} className={SIDE_BACK}>
+            <ArrowLeft className="size-4 shrink-0" />{" "}
+            <span className="truncate">{t("exams.leave")}</span>
+          </button>
+        }
+        title={module ? `${title} · ${moduleTitle(module)}` : title}
+        status={
+          mode === "test"
+            ? t("exams.answered", { done: answered, total: items.length })
+            : t("exams.practiceTally", { right, wrong, total: items.length })
+        }
+      />
       <QuestionList
         questions={listed}
         current={current}
@@ -414,7 +406,7 @@ function Running({
             </span>
             {left !== undefined && (
               <span className="flex items-center gap-1 font-heading text-lg font-bold tabular-nums">
-                <Timer className="size-4" /> {clock(left)}
+                <Timer className="size-4" /> {clock(Math.ceil(left / 1000))}
               </span>
             )}
             <Button size="sm" variant="outline" loading={finishing} onClick={askFinish}>

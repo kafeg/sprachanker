@@ -7,6 +7,16 @@ import { ArrowRight, CircleCheck, CircleX, ExternalLink, RotateCcw } from "lucid
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourseCheck, useCourseDownload } from "@/api/hooks.ts";
+import { DownloadLine, downloading } from "@/library/download.tsx";
+import { ResetProgress } from "@/library/reset-progress.tsx";
+import {
+  CheckState,
+  checkTone,
+  chip,
+  needsSync,
+  ProblemList,
+  SyncButton,
+} from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
@@ -14,9 +24,6 @@ import { useBytes, usePercent } from "@/ui/format.ts";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
-import { DownloadLine, downloading } from "./download.tsx";
-import { ResetProgress } from "./reset-progress.tsx";
-import { CheckState, checkTone, chip, needsSync, ProblemList, SyncButton } from "./upkeep.tsx";
 
 /** Media tiles in this order; kinds not listed come last. */
 const KINDS = ["video", "audio", "image", "subtitles", "pdf"];

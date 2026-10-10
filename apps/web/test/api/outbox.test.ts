@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { createOutbox } from "../../src/lesson/outbox.ts";
+import { createOutbox } from "../../src/api/outbox.ts";
 
 class Refused extends Error {}
 

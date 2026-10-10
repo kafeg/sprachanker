@@ -44,7 +44,8 @@ apps/web ──► packages/engine, packages/schema, and a type-only import of t
 Enforced by dependency-cruiser (`.dependency-cruiser.cjs`, proven by `scripts/boundaries.test.ts`):
 nothing imports `apps/*`; no cycles; `engine` is pure (no I/O, time and randomness are parameters);
 `llm` never imports `server`; `course-kit` never imports a course; in the web app `ui/` is presentational
-(no API, no features) and `lesson/` never imports the optional `llm/` folder.
+(no API, no features), feature folders never import each other, `api/` imports none of them, and
+only the router and the settings page import the optional `llm/` folder.
 
 | Module | Owns |
 |---|---|
@@ -112,7 +113,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
   their figures and latest runs) and the Notebook gathers them from `services/index.ts` without
   knowing a module; a module's own page in the Notebook (a lesson's passes, an exam's questions) is
   that module's. Resetting progress is the neutral `progress` service's. dependency-cruiser keeps the
-  server's modules apart (`server-*-apart`, `server-notebook-gathers`).
+  server's modules apart (`server-*-apart`, `server-notebook-gathers`) and the web's feature folders
+  (`web-features-apart`: what they share is in `library/`, `api/`, `ui/`, `exercises/`, `audio/`,
+  `word/`).
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
   `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`

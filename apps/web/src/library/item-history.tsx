@@ -9,7 +9,7 @@ import { useDateFormat } from "@/ui/format.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
-import { SpokenCheckNote, spokenCheckOf } from "./spoken.tsx";
+import { SpokenCheckNote, spokenCheckOf } from "./spoken-check.tsx";
 
 export function ItemHistory({
   itemKey,

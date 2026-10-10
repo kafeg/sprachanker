@@ -139,13 +139,15 @@ run-store.ts`): a run is ended once, only while active; events of one request ar
 transaction, all or nothing, each payload checked against its type's schema; events are read back
 parsed, and a stored row that no longer parses is left out (and logged), never breaking the list.
 
-- **Sending** (the web's outbox, `apps/web/src/lesson/outbox.ts`): a lesson's events go out in order,
-  one queue per lesson, each event to the run it was recorded in (a batch never mixes two), idempotent
+- **Sending** (the web's outbox, `apps/web/src/api/outbox.ts`, and a run's events over it,
+  `api/run-events.ts`, the same for a lesson's and an exam's): a run's events go out in order, one
+  queue per lesson or exam run, each event to the run it was recorded in (a batch never mixes two), idempotent
   by id. Not reached or a 5xx: sent again after 2 s, doubling up to a minute. A lost session (401), a
   wrong host (421), 408 and 429 keep the events for later. Any other 4xx, or a run no longer there to
   send to: the batch is sent again event by event (the server keeps a batch whole or not), an event
   refused alone is dropped and the run is read again. A new event while it waits to retry sends at
-  once. Each profile has its own queues: events of a profile signed out wait until it is back. A lesson
+  once. Each profile has its own queues: events of a profile signed out wait until it is back; the
+  server's outcome and attempt of each answer replace the local ones. A lesson
   opened again reads its run anew, keeping what is still on its way and what was stored meanwhile; a
   read that fails is tried again without dropping them.
 - Events are append-only: no UPDATE or DELETE. Deleting a recording removes the file; the event keeps

@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
-import { SideLayout } from "@/ui/side-layout.tsx";
+import { SIDE_BACK, SideHeader, SideLayout } from "@/ui/side-layout.tsx";
 import { Reference, type ReferenceTab, referenceTabs } from "./reference.tsx";
 
 export function PlayerFrame({
@@ -46,17 +46,16 @@ export function PlayerFrame({
   // plan's panel on a phone.
   const side = (onPick?: () => void) => (
     <>
-      <Link
-        to="/course/$series/$course"
-        params={{ series, course }}
-        className="mr-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:mr-0"
-      >
-        <ArrowLeft className="size-4 shrink-0" /> <span className="truncate">{courseTitle}</span>
-      </Link>
-      <h2 className="mb-1 px-2 text-xl font-bold">{locale?.title}</h2>
-      <p className="mb-3 px-2 text-sm text-muted-foreground">
-        {todo > 0 && t("lesson.stepsDone", { done: worked, total: todo })}
-      </p>
+      <SideHeader
+        back={
+          <Link to="/course/$series/$course" params={{ series, course }} className={SIDE_BACK}>
+            <ArrowLeft className="size-4 shrink-0" />{" "}
+            <span className="truncate">{courseTitle}</span>
+          </Link>
+        }
+        title={locale?.title}
+        status={todo > 0 && t("lesson.stepsDone", { done: worked, total: todo })}
+      />
       {plan(onPick)}
     </>
   );

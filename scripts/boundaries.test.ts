@@ -30,8 +30,11 @@ test("boundary rules fire on deliberate violations and allow the type-only AppTy
     "server-io-in-runtime-only: packages/server/src/services/uses-fs.ts -> fs",
     "server-notebook-gathers: packages/server/src/services/notebook.ts -> packages/server/src/services/runs.ts",
     "server-tables-through-stores: packages/server/src/services/reads-events.ts -> packages/server/src/db/profile/schema.ts",
+    "web-api-below-features: apps/web/src/api/uses-feature.ts -> apps/web/src/courses/card.ts",
+    "web-features-apart: apps/web/src/exams/uses-courses.ts -> apps/web/src/courses/card.ts",
     "web-imports-server-types-only: apps/web/src/server-value.ts -> packages/server/src/index.ts",
     "web-llm-mounted-only: apps/web/src/lesson/uses-llm.ts -> apps/web/src/llm/tutor.ts",
     "web-ui-presentational: apps/web/src/ui/uses-api.ts -> apps/web/src/api/hooks.ts",
+    "web-ui-presentational: apps/web/src/ui/uses-library.ts -> apps/web/src/library/shell.ts",
   ]);
 });

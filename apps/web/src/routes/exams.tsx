@@ -1,18 +1,17 @@
-// Exams (09; owner's choices from the mockups, 2026-10-10): one page in three tabs as Courses — My
-// exams (begun), Downloaded (installed: exam courses and the exams of courses) and Available (exams a
-// provider offers that are not here yet).
-import { Link } from "@tanstack/react-router";
+// Exams (09; owner's choices from the mockups, 2026-10-10): one page in three tabs as Courses (the
+// library's tab page) — My exams (begun), Downloaded (installed: exam courses and the exams of courses)
+// and Available (exams a provider offers that are not here yet).
 import { useTranslation } from "react-i18next";
 import { useEdition } from "@/api/edition.ts";
 import { type ExamRow, useExams } from "@/api/exams.ts";
 import { useCatalog } from "@/api/hooks.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
-import { OfferCard } from "@/courses/card.tsx";
 import { ExamCard } from "@/exams/card.tsx";
-import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
-import { SectionTabs } from "@/ui/section-tabs.tsx";
+import { OfferCard } from "@/library/card.tsx";
+import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/tab-page.tsx";
+import { ErrorState, Loading } from "@/ui/page.tsx";
 
-export type ExamsTab = "mine" | "downloaded" | "available";
+export type ExamsTab = LibraryTab;
 const PATH: Record<ExamsTab, "/exams" | "/exams/downloaded" | "/exams/catalog"> = {
   mine: "/exams",
   downloaded: "/exams/downloaded",
@@ -36,61 +35,55 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
     ) : exams.isError ? (
       <ErrorState error={exams.error} onRetry={() => exams.refetch()} />
     ) : rows.length ? (
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      <CardGrid>
         {rows.map((e) => (
           <EditionCard key={e.key} exam={e} tab={tab} />
         ))}
-      </div>
+      </CardGrid>
     ) : (
       empty
     );
   return (
-    <Page title={t("nav.exams")}>
-      <SectionTabs
-        label={t("nav.exams")}
-        tabs={(["mine", "downloaded", "available"] as const).map((id) => ({
-          to: PATH[id],
-          label: t(`exams.tabs.${id}`),
-          count: ready ? count[id] : undefined,
-          current: tab === id,
-        }))}
-      />
+    <LibraryTabPage
+      title={t("nav.exams")}
+      tab={tab}
+      paths={PATH}
+      label={(id) => t(`exams.tabs.${id}`)}
+      counts={ready ? count : undefined}
+    >
       {tab === "mine" &&
         list(
           all.filter((e) => e.started),
-          <EmptyState className="text-foreground">
-            <p className="text-lg">{t("exams.noneStarted")}</p>
-            <Link
-              to={all.length ? "/exams/downloaded" : "/exams/catalog"}
-              className="mt-3 inline-block font-medium underline"
-            >
-              {t(all.length ? "exams.toDownloaded" : "exams.toCatalog")}
-            </Link>
-          </EmptyState>,
+          <NoneHere
+            text={t("exams.noneStarted")}
+            link={
+              all.length
+                ? { to: "/exams/downloaded", label: t("exams.toDownloaded") }
+                : { to: "/exams/catalog", label: t("exams.toCatalog") }
+            }
+          />,
         )}
       {tab === "downloaded" &&
         list(
           all,
-          <EmptyState className="text-foreground">
-            <p className="text-lg">{t("exams.noneDownloaded")}</p>
-            <Link to="/exams/catalog" className="mt-3 inline-block font-medium underline">
-              {t("exams.toCatalog")}
-            </Link>
-          </EmptyState>,
+          <NoneHere
+            text={t("exams.noneDownloaded")}
+            link={{ to: "/exams/catalog", label: t("exams.toCatalog") }}
+          />,
         )}
       {tab === "available" &&
         (!ready ? (
           <Loading />
         ) : offers.length ? (
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          <CardGrid>
             {offers.map((o) => (
               <OfferCard key={o.key} offer={o} />
             ))}
-          </div>
+          </CardGrid>
         ) : (
-          <EmptyState className="text-lg text-foreground">{t("exams.allDownloaded")}</EmptyState>
+          <NoneHere text={t("exams.allDownloaded")} />
         ))}
-    </Page>
+    </LibraryTabPage>
   );
 }
 

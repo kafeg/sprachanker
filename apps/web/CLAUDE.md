@@ -13,14 +13,12 @@ apps/web/src/
                    # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
                    # My words), exams (tabs My, Downloaded, Available — /exams, /exams/downloaded,
                    # /exams/catalog), course (its map), settings, storage (Settings → General's storage)
-  courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
-                   # the course page's hero (progress, source, stats, integrity, sync), upkeep (a course's
-                   # check and sync, shared by the hero and the Downloaded cards), reset-progress
+  courses/         # course cards (on library/card), the pair and course filters (filterCourses, pure), the
+                   # course page's hero (progress, source, stats, integrity, sync)
   lesson/          # lesson player: player (loads the lesson and its run, shows the step), use-flow (the
                    # flow over the plan: steps, moving, starting, resuming, completing), frame (plan,
-                   # header, reference), use-run (the run in the query cache + its events), outbox (events sent in
-                   # order, each to its run, retried less often while failing, a refused batch dropped;
-                   # one per lesson, in use-run; tested), plan, overview, words-step, steps
+                   # header, reference), use-run (the run in the query cache + its events, sent through
+                   # api/run-events), plan, overview, words-step, steps
                    # (reading pages, the step bar), exercise step (its rules in use-exercise, Enter in
                    # enter-key), practice-step, mistakes-status,
                    # summary, reference; slots.ts: what optional features add
@@ -41,14 +39,17 @@ apps/web/src/
                    # exercise, the latest answers, questions by Teil), teil (a Teil's header and
                    # material; a question's card), recording (a mock exam's recording: plays limited),
                    # rating (an open answer rated by its criteria, a proposal shown chosen), slots
-                   # (what optional features add: the AI's proposal, the conversation)
+                   # (what optional features add: the AI's proposal, the conversation), use-exam
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, every module's
                    # standing — standing.tsx shows them alike, a module adding only titles and links),
                    # lesson (passes), pass (in full), compare, exam (an exam's runs and questions as they
-                   # stand), item-history, mark, spoken (a spoken answer's check under its item)
-  library/         # what the feature folders share of the library: exam-address (an exam's route params)
-  api/             # Hono RPC client (hono/client) + TanStack Query hooks; exams.ts: exams, a run's
-                   # answers through the lesson's outbox; session.ts: profiles, signing
+                   # stand), mark
+  library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
+                   # tab-page (Courses' and Exams' tabs), download, upkeep (check and sync), reset-progress,
+                   # exam-address, item-history (an item across passes), spoken-check (under its item)
+  api/             # Hono RPC client (hono/client) + TanStack Query hooks; exams.ts; outbox (events in
+                   # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
+                   # run's events over it: per profile, the server's outcomes, on page close); session.ts: profiles, signing
                    # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
                    # cache updates; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
@@ -75,7 +76,7 @@ apps/web/src/
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
                    # (rows that open, lists of earlier items), side-layout (a page with a side column: the
-                   # lesson player's, an exam run's), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
+                   # lesson player's, an exam run's; the column's head), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
@@ -143,3 +144,7 @@ to `@/ui`).
   `lessonAssistant` (llm/lesson-assistant.tsx) as the player's slots (header, explain, spoken, practice) and `wordAssistant`
   (llm/word-example.tsx) as the reviewer's (study/slots.ts) and `examAssistant` (llm/exam-assistant.tsx)
   as an exam run's (exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
+- Feature folders (`lesson/`, `exams/`, `study/`, `courses/`, `notebook/`) never import each other:
+  what they share is in `ui/`, `api/`, `library/`, `exercises/`, `audio/` or `word/` (Anki's reviewer,
+  `study/session.tsx`, is shared on purpose with the lesson's Words step); `api/` imports none of them
+  (dependency-cruiser `web-features-apart`, `web-api-below-features`).

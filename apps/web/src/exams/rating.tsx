@@ -2,6 +2,7 @@
 // its levels as the exam's raters give them (points; what a level means on hover or long press), the
 // points they make, saved — by the learner, or as the assistant proposed them (a proposal kept in the
 // run for this answer, asked through the page's slot: chosen until changed, its reasons under each).
+import { criteriaMax, ratedPoints } from "@sprachanker/engine";
 import type { ExamItem, LocaleItem, TypedEvent } from "@sprachanker/schema";
 import { Sparkles } from "lucide-react";
 import { useState } from "react";
@@ -120,9 +121,10 @@ function RatingPanel({
   const number = useNumber();
   const [chosen, setChosen] = useState<Record<string, number>>(() => first ?? {});
   const complete = criteria.every((c) => chosen[c.id] !== undefined);
-  const max = criteria.reduce((n, c) => n + Math.max(...c.levels), 0);
+  // As the result scores it (the engine's): a criterion that voids the answer, at 0, makes it 0.
+  const max = criteriaMax(criteria);
+  const points = ratedPoints(criteria, chosen);
   const voided = criteria.some((c) => c.voids && chosen[c.id] === 0);
-  const points = voided ? 0 : criteria.reduce((n, c) => n + (chosen[c.id] ?? 0), 0);
   // Taken as proposed: the assistant's rating; changed anywhere: the learner's.
   const taken = !!proposal && criteria.every((c) => proposal.ratings[c.id] === chosen[c.id]);
   const changed = !rated || criteria.some((c) => rated[c.id] !== chosen[c.id]);

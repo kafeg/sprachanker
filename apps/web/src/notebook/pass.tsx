@@ -23,6 +23,8 @@ import { mediaUrl } from "@/api/client.ts";
 import { type NotebookPass, useNotebookPass } from "@/api/hooks.ts";
 import { ItemCard } from "@/exercises/item-card.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
+import { ItemHistory } from "@/library/item-history.tsx";
+import { SpokenCheckNote, spokenCheckOf } from "@/library/spoken-check.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { ListRow, useSingleOpen } from "@/ui/history.tsx";
@@ -32,9 +34,7 @@ import { RichText } from "@/ui/rich-text.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
-import { ItemHistory } from "./item-history.tsx";
 import { usePassMark } from "./mark.ts";
-import { SpokenCheckNote, spokenCheckOf } from "./spoken.tsx";
 
 export function PassView({ id }: { id: string }) {
   const pass = useNotebookPass(id);

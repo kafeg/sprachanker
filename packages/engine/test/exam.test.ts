@@ -14,6 +14,7 @@ import {
   eligible,
   examPassed,
   examResult,
+  markMax,
   marksOf,
   missingSettings,
   practiceOrder,
@@ -177,6 +178,7 @@ const gap: ExamItem = {
 };
 const hoeren = [choice("h1"), choice("h2")];
 const lesen = [choice("l1"), gap];
+type Threshold = Exam["thresholds"][number];
 const modell: Exam = {
   format: 1,
   key: GOETHE,
@@ -259,6 +261,10 @@ test("a language exam's result: points by question, by module scaled, pass marks
   const alone = examResult(modell, { ...plan, items: items.slice(0, 2), module: "hoeren" }, events);
   expect(marksOf(modell, ["hoeren"]).map((t) => t.id)).toEqual(["hoeren"]);
   expect(alone).toMatchObject({ passed: ["hoeren"], pass: true });
+  // What each mark is out of: the scaled points of its modules (all those taken, by default).
+  const [overall, own] = modell.thresholds as [Threshold, Threshold];
+  expect([markMax(modell, overall, result), markMax(modell, own, result)]).toEqual([50, 25]);
+  expect(markMax(modell, overall, alone)).toBe(25);
   // Hören answered wrongly after all: 25 overall reached, 10 in Hören not — so not passed.
   const failed = examResult(modell, plan, [...events, answered(hoeren[0] as ExamItem, "b")]);
   expect(failed.modules?.hoeren?.scaled).toBe(0);

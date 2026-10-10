@@ -156,7 +156,28 @@ module.exports = {
       severity: "error",
       from: { path: "^apps/web/src/ui/" },
       to: {
-        path: "^apps/web/src/(api|app|exercises|lesson|llm|notebook|routes|study|word)/",
+        path: "^apps/web/src/(api|app|audio|courses|exams|exercises|lesson|library|llm|notebook|routes|study|word)/",
+      },
+    },
+    {
+      name: "web-features-apart",
+      comment:
+        "The web's feature folders (lesson, exams, study, courses, notebook) do not import each other: what they share lives in ui, api, library, exercises, audio or word. Study's session — Anki's reviewer — is shared on purpose: Review's and the lesson's Words step's.",
+      severity: "error",
+      from: { path: "^apps/web/src/(lesson|exams|study|courses|notebook)/" },
+      to: {
+        path: "^apps/web/src/(lesson|exams|study|courses|notebook)/",
+        pathNot: ["^apps/web/src/$1/", "^apps/web/src/study/session\\.tsx$"],
+      },
+    },
+    {
+      name: "web-api-below-features",
+      comment:
+        "apps/web/src/api is the client and its hooks: it imports no screen, feature or shared piece above it.",
+      severity: "error",
+      from: { path: "^apps/web/src/api/" },
+      to: {
+        path: "^apps/web/src/(app|audio|courses|exams|exercises|lesson|library|llm|notebook|routes|study|ui|word)/",
       },
     },
     {

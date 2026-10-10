@@ -7,6 +7,30 @@ import { Button } from "./components/button.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "./components/sheet.tsx";
 import { cn } from "./utils.ts";
 
+/** The way back out of the column's page (a link or a button: the caller's, given this class). */
+export const SIDE_BACK =
+  "mr-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:mr-0";
+
+/** The column's head: the way back, the title, how far it is. */
+export function SideHeader({
+  back,
+  title,
+  status,
+}: {
+  /** The way back, drawn with `SIDE_BACK`. */
+  back: React.ReactNode;
+  title: React.ReactNode;
+  status?: React.ReactNode;
+}) {
+  return (
+    <>
+      {back}
+      <h2 className="mb-1 px-2 text-xl font-bold">{title}</h2>
+      <p className="mb-3 px-2 text-sm text-muted-foreground">{status}</p>
+    </>
+  );
+}
+
 export function SideLayout({
   side,
   sideLabel,

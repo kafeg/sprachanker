@@ -8,30 +8,27 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useEdition } from "@/api/edition.ts";
-import { useExamPage, useExams, useStartExam } from "@/api/exams.ts";
+import { useStartExam } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
-import { PublisherLink } from "@/courses/card.tsx";
-import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
+import { PublisherLink } from "@/library/card.tsx";
+import type { ExamParams } from "@/library/exam-address.ts";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
-import { BackLink, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
+import { BackLink, Page } from "@/ui/page.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import { ExamSourcesPanel } from "./sources.tsx";
 import { StateSelect } from "./state-select.tsx";
+import { useExam } from "./use-exam.tsx";
 
 export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMode }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const key = examKeyOf(params);
-  const exams = useExams();
-  const row = exams.data?.find((e) => e.key === key);
-  const edition = useEdition(params.series, params.course, row?.editions);
-  const page = useExamPage(key, edition);
+  const loaded = useExam(params);
+  const { key, edition } = loaded;
   const settings = useSettings();
   const begin = useStartExam();
   const percent = usePercent();
@@ -57,22 +54,18 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   };
   const setting = settingOf((k) => settings.data?.[k as keyof typeof settings.data]);
   // The settings still to choose, read from the settings as they are now (a state just chosen).
-  const needs = page.data ? missingSettings(page.data.exam, setting) : [];
+  const needs = loaded.data ? missingSettings(loaded.data.exam, setting) : [];
   // Asked from a card (`?start=`): begun at once, unless the state is still to be chosen.
   const asked = useRef(false);
   useEffect(() => {
-    if (start && page.data && !needs.length && !asked.current) {
+    if (start && loaded.data && !needs.length && !asked.current) {
       asked.current = true;
       go(start, true);
     }
   });
 
-  if (exams.isPending || (row && (!edition || page.isPending))) return <Loading />;
-  if (exams.isError) return <ErrorState error={exams.error} onRetry={() => exams.refetch()} />;
-  if (!row) return <NotInstalled />;
-  if (page.isError) return <ErrorState error={page.error} onRetry={() => page.refetch()} />;
-  const data = page.data;
-  if (!data) return <Loading />;
+  if (!loaded.ready) return loaded.gate;
+  const { row, data } = loaded;
 
   const { exam, locale } = data;
   const title = locale?.title ?? row.titles[edition ?? ""] ?? key;

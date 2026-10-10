@@ -191,6 +191,20 @@ export function marksOf(exam: Exam, modules: string[]) {
   );
 }
 
+/** The most a pass mark's points can be in a run's result: its modules' scaled points (a module
+ *  not scaled: its points), or the questions' points without modules. */
+export function markMax(
+  exam: Exam,
+  mark: Exam["thresholds"][number],
+  result: Pick<ExamResult, "max" | "modules">,
+) {
+  if (!exam.modules) return result.max;
+  return (mark.modules ?? Object.keys(result.modules ?? {})).reduce(
+    (n, m) => n + (exam.modules?.find((x) => x.id === m)?.scaleTo ?? result.modules?.[m]?.max ?? 0),
+    0,
+  );
+}
+
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 type Criteria = NonNullable<ExamItem["criteria"]>;

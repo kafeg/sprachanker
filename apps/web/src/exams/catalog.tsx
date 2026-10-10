@@ -8,16 +8,15 @@ import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useEdition } from "@/api/edition.ts";
-import { useExamPage, useExams } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
-import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
+import type { ExamParams } from "@/library/exam-address.ts";
 import { Input } from "@/ui/components/input.tsx";
-import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
+import { BackLink, EmptyState, Page } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { exampleAnswer, inTeile } from "./questions.ts";
 import { QuestionSources } from "./sources.tsx";
 import { QuestionCard, TeilHeader } from "./teil.tsx";
+import { useExam } from "./use-exam.tsx";
 
 /** A question's number as the exam gives it: its id, without its module where the Teil names it. */
 const numberOf = (key: string, modules: boolean) => {
@@ -28,28 +27,21 @@ const numberOf = (key: string, modules: boolean) => {
 export function ExamCatalog({ params }: { params: ExamParams }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const key = examKeyOf(params);
-  const exams = useExams();
-  const row = exams.data?.find((e) => e.key === key);
-  const edition = useEdition(params.series, params.course, row?.editions);
-  const page = useExamPage(key, edition);
+  const exam = useExam(params);
+  const { key } = exam;
   const settings = useSettings();
   const [words, setWords] = useState("");
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
-  const data = page.data;
   const setting = settingOf((k) => settings.data?.[k as keyof typeof settings.data]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: `setting` reads settings.data
   const open = useMemo(
-    () => (data ? openQuestions(data.exam, setting) : []),
-    [data, settings.data],
+    () => (exam.data ? openQuestions(exam.data.exam, setting) : []),
+    [exam.data, settings.data],
   );
 
-  if (exams.isPending || (row && (!edition || page.isPending))) return <Loading />;
-  if (exams.isError) return <ErrorState error={exams.error} onRetry={() => exams.refetch()} />;
-  if (!row) return <NotInstalled />;
-  if (page.isError) return <ErrorState error={page.error} onRetry={() => page.refetch()} />;
-  if (!data) return <Loading />;
+  if (!exam.ready) return exam.gate;
+  const { edition, data } = exam;
 
   const needle = words.trim().toLocaleLowerCase();
   const shown = open.filter((i) => {
