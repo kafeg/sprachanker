@@ -300,7 +300,7 @@ test("an answer said aloud is checked by the AI from what was heard on request, 
   const kept = await (
     await request.get(`/api/llm/speaking?lessonKey=${lesson}&runId=${runs.state.run.id}`)
   ).json();
-  expect(kept.checks.map((c: { transcript: string }) => c.transcript)).toEqual(["Hallo gute Tag"]);
+  expect(kept.checks.map((c: { input: string }) => c.input)).toEqual(["Hallo gute Tag"]);
 });
 
 test("a handed-in mock exam's note: the AI proposes its rating with reasons, the learner takes it", async ({
