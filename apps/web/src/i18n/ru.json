@@ -116,6 +116,8 @@
       "read": "пройдено"
     },
     "correctAnswer": "Правильный ответ:",
+    "answerAudio": "Послушать ответ",
+    "itemsList": "Задания",
     "answerAll": "Ответьте на все задания · {done, number} из {total, number}",
     "listenFirst": "Сначала прослушайте запись",
     "listenItem": "Прослушайте запись в задании {n}",

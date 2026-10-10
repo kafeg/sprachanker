@@ -17,12 +17,12 @@ import {
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import {
-  answerAudioPath,
   audioPath,
   type Context,
   type Entity,
   html,
   imagePath,
+  itemAudioPaths,
   media,
   refs,
   videoPaths,
@@ -80,11 +80,13 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   // A prompt in the learner's language goes to the locale file (02, "Text language").
   const prompt = german(state, q.inquiryText);
   const learnerPrompt = prompt && ctx.learnerText(prompt) ? prompt : undefined;
+  const { audio, answerAudio } = itemAudioPaths(ctx, state, q);
   const base: Item = {
     ...(prompt && !learnerPrompt ? { prompt } : {}),
+    ...(answerAudio ? { answerAudio } : {}),
   };
   const itemMedia = media({
-    audio: audioPath(ctx, state, q),
+    audio,
     image: imagePath(ctx, state, q.mainContentImage ?? refs(state, q.images)[0]),
   });
   if (itemMedia) base.media = itemMedia;
@@ -198,21 +200,22 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     case "REPEAT": {
       const text = german(state, subs[0]?.inquiryText);
       const task = plainText(subs[0]?.inquiryDescription);
-      const answerAudio = answerAudioPath(ctx, state, q);
       return {
         type: "speech_selfrate",
-        item: { ...base, ...(text ? { text } : {}), ...(answerAudio ? { answerAudio } : {}) },
+        item: { ...base, ...(text ? { text } : {}) },
         locale: { ...locale, ...(task ? { prompt: task } : {}) },
       };
     }
     case "DICTATION": {
-      const audio = audioPath(ctx, state, q);
-      if (!audio) throw new Unmapped("dictation audio not downloaded");
+      // What is written down is what is heard: the main recording, else the only one.
+      const heard = audio ?? answerAudio;
+      if (!heard) throw new Unmapped("dictation audio not downloaded");
+      const { answerAudio: _, ...rest } = base;
       return {
         type: "dictation",
         item: {
-          ...base,
-          media: { ...(base.media as object), audio },
+          ...(audio ? base : rest),
+          media: { ...(base.media as object), audio: heard },
           answer: { accepted: [plainText(q.text)] },
         },
         locale,

@@ -108,6 +108,11 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
 | `SORTING` with images | 3 | `order` (image parts) |
 | `DICTATION` | 7 | `dictation` |
 
+- An item's audio links carry `mainContent`: `true` is what the item asks with, `false` the answer
+  read out ("…_Loesungsaudio.mp3"). Counted on 2026-10-10 over the ru-de and de-de pages: 3655
+  `ASSOCIATION`, 2769 `CLOZE` and 685 `SORTING` items have only a `false` link — the answer, not a
+  question to listen to; 805, 341 and 131 have both; 54 dictations have only a `true` one. Of 11 000
+  `false` links, 10 834 are named "Loesungsaudio".
 - Cloze texts mark gaps with `#p#`, `#ps#`, `#pm#`, `#pl#` (width hints); layout `CONTINUOUS_TEXT`
   (gaps in the inquiry `text`) or `SINGLE_SENTENCE` (one gap per sub-inquiry `inquiryText`).
 - Options with identical content occur (repeated letters in `MERGE`, "isst" twice in a conjugation

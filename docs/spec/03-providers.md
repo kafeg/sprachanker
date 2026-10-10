@@ -105,7 +105,10 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   order (`u00`…); the final test is a lesson in its own unit after the last one (A1: `19-01`).
   Learner-language fields are fixed per mechanic and field (research, "Which strings are learner
   language"); the player's "play audio" label is dropped — read from the page's own interface strings
-  (`exercise.playAudio`), so every edition language is covered; image options keep only the image. Vocabulary
+  (`exercise.playAudio`), so every edition language is covered; image options keep only the image. An
+item's recordings are told apart by DW's own flag: its main content (`mainContent`) → `media.audio`,
+heard before answering; one that is not ("…_Loesungsaudio.mp3": most items' only recording, the answer
+read out) → `answerAudio`, offered once checked (a dictation's only recording is what it dictates). Vocabulary
   headwords give part of speech, gender, plural and forms as in 02; valency in parentheses ("(etwas)
   studieren") stays in the headword and not in the lemma. Grammar and culture pages: DW numbers the
   parts of a topic ("Spelling (2)", in the edition's own digits and brackets: "(۲)", "(२)", "（2）"; titles compared with full-width forms as plain ones and spaces ignored); the parts within a lesson are joined into one page, the number

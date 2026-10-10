@@ -166,7 +166,11 @@ export async function walkLesson(
     if (step.startsWith("exercise:")) {
       const exercise = exercises[Number(step.slice("exercise:".length))];
       await playAll(page);
-      const cards = await page.locator("article ol > li").all();
+      // The items' own list (an exercise's text may hold lists too).
+      const cards = await page
+        .getByRole("list", { name: en.lesson.itemsList, exact: true })
+        .locator(":scope > li")
+        .all();
       for (const card of cards) await answerItem(page, card, exercise?.type ?? "unknown");
       await expectWhole(page, `${step} answered`);
       const { main } = bar(page);

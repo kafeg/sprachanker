@@ -55,13 +55,28 @@ function audioLinks(state: ApolloState, entity: Entity) {
   return refs(state, linkKey ? entity[linkKey] : []);
 }
 
-/** The audio of an entity's answer: the link besides its main one (a speaking exercise's
- *  "Lösungsaudio" after its question). */
-export function answerAudioPath(ctx: Context, state: ApolloState, entity: Entity) {
+/** An exercise item's recordings: what it asks with (its main content: `mainContent` not false)
+ *  and the source's answer, spoken (a link that is not main content: DW's "Lösungsaudio", most items'
+ *  only recording — heard before the item is answered, it gives the answer away). */
+export function itemAudioPaths(ctx: Context, state: ApolloState, entity: Entity) {
   const links = audioLinks(state, entity);
-  if (links.length < 2) return undefined;
-  const src = (links.find((l) => l.mainContent === false)?.target as Entity | undefined)?.mp3Src;
-  return typeof src === "string" ? ctx.media(src) : undefined;
+  const path = (link: Entity | undefined) => {
+    const src = (link?.target as Entity | undefined)?.mp3Src;
+    return typeof src === "string" ? ctx.media(src) : undefined;
+  };
+  return {
+    // Without links, its `audios` (as audioPath reads them).
+    audio: links.length
+      ? path(links.find((l) => l.mainContent !== false))
+      : audiosPath(ctx, state, entity),
+    answerAudio: path(links.find((l) => l.mainContent === false)),
+  };
+}
+
+function audiosPath(ctx: Context, state: ApolloState, entity: Entity) {
+  for (const audio of refs(state, entity.audios))
+    if (typeof audio.mp3Src === "string") return ctx.media(audio.mp3Src);
+  return undefined;
 }
 
 /** First audio linked from an entity (`contentLinks(... AUDIO)` or `audios`). */
@@ -70,10 +85,7 @@ export function audioPath(ctx: Context, state: ApolloState, entity: Entity): Med
     const src = (link.target as Entity | undefined)?.mp3Src;
     if (typeof src === "string") return ctx.media(src);
   }
-  for (const audio of refs(state, entity.audios)) {
-    if (typeof audio.mp3Src === "string") return ctx.media(audio.mp3Src);
-  }
-  return undefined;
+  return audiosPath(ctx, state, entity);
 }
 
 export function videoPaths(ctx: Context, video: Entity | undefined) {

@@ -145,8 +145,10 @@ recording (Deutschtrainer reads the lesson's words and phrases aloud); all optio
 ## Exercise types
 
 `docs/research/dw-nicos-weg.md` maps every DW mechanic to a type. All types share `key`, `type`, `fingerprint`, `items[]`, optional `media` (stimulus) and `text`
-(target-language stimulus), `newWords`, `ruleIds`. Items have `key`, optional `media` and `prompt`
-(target language; a learner-language prompt lives in the locale file). Answers are compared by
+(target-language stimulus), `newWords`, `ruleIds`. Items have `key`, optional `media` (what the item
+asks with: its recording is heard before answering), `answerAudio` (the source's answer, spoken: offered
+once the item is checked — before, it would give the answer away) and `prompt` (target language; a
+learner-language prompt lives in the locale file). Answers are compared by
 **ids**, never by display position; display order may be shuffled. Options with identical content
 are interchangeable (repeated letters in a word, the same form twice in a match). Open answers
 (translation, short writing, answering a prompt, spoken or written) are all `respond`.
@@ -161,7 +163,7 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `gap_text` | `segments`, `answer{gapId:{accepted[text]}}`; `""` = nothing belongs there (no article) | `{gapId:text}` | normalised text ∈ accepted; an empty or dash answer matches `""` |
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
-| `speech_selfrate` | `text?`, `media.audio?`, `answerAudio?` (the source's answer, spoken) | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With `text`, what was heard gets a word diff; without, the AI checks it (08) |
+| `speech_selfrate` | `text?`, `media.audio?` (its `answerAudio` played after the first try) | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With `text`, what was heard gets a word diff; without, the AI checks it (08) |
 | `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}], criteria[{id}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (an LLM verdict: plan, "Later"); without a rubric unscored, the model answers shown |
 | `scene` | `scene` key (enrichment) | — (conversation run) | scene goals met |
 | `unknown` | `raw` path, `reason` | — | not rendered |

@@ -75,11 +75,11 @@ export function SingleChoice({
       locked={!!outcome}
       selected={(id) => answer?.optionId === id}
       // The chosen option takes the outcome (an option with the same text as the right one is
-      // right too, 04); the right one is shown when the choice was wrong.
+      // right too, 04); the right one is shown, as missed, when the choice was wrong.
       mark={(id) => {
         if (!outcome) return undefined;
         if (id === answer?.optionId) return outcome.result === "correct" ? "correct" : "wrong";
-        return id === right && outcome.result !== "correct" ? "correct" : undefined;
+        return id === right && outcome.result !== "correct" ? "missed" : undefined;
       }}
       choose={(id) => onAnswer({ optionId: id })}
     />
@@ -118,7 +118,15 @@ export function MultiChoice({
         locked={!!outcome}
         selected={(id) => chosen.has(id)}
         mark={(id) =>
-          outcome ? (right.has(id) ? "correct" : chosen.has(id) ? "wrong" : undefined) : undefined
+          !outcome
+            ? undefined
+            : right.has(id)
+              ? chosen.has(id)
+                ? "correct"
+                : "missed"
+              : chosen.has(id)
+                ? "wrong"
+                : undefined
         }
         choose={toggle}
       />

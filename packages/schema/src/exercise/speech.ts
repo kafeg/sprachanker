@@ -25,11 +25,9 @@ export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem
 
 /** Speaking oneself (the courses' "say it" exercises): listen, then record oneself; recorded is done.
  *  With a phrase (`text`), what was heard gets a word diff; without one, the AI checks it (08).
- *  `answerAudio`: the source's own answer, spoken (DW's
- *  "Lösungsaudio"), played after the learner's first try. */
+ *  Its `answerAudio` is played after the learner's first try. */
 export const SpeechSelfrateItem = ItemBase.extend({
   text: z.string().min(1).optional(),
-  answerAudio: MediaPath.optional(),
 });
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when
  *  the learner keeps no recordings), and what the recogniser heard when it is on (08). `rating`: the

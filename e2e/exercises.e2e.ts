@@ -42,8 +42,9 @@ test("order: parts are added by tapping and moved along the line by dragging", a
   await drag(page, line.getByRole("button", { name: "e" }), line.getByRole("button").last());
   await expect(line.getByRole("button")).toHaveText(["T", "a", "s", "s", "e"]);
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  // The result is read out (the card shows it on its edge).
+  // The result is read out (the card shows it on its edge); the pool is gone.
   await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
+  await expect(pool).toHaveCount(0);
 });
 
 test("word bank: a tapped gap takes the next word; a word can be dragged onto a gap", async ({
@@ -57,11 +58,12 @@ test("word bank: a tapped gap takes the next word; a word can be dragged onto a 
   await drag(page, page.getByRole("button", { name: "heiße" }), gaps.first());
   await expect(gaps.first()).toHaveText("heiße");
   await page.getByRole("button", { name: "Check", exact: true }).click();
-  // The result is read out (the card shows it on its edge).
+  // The result is read out (the card shows it on its edge); the bank is gone.
   await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
+  await expect(page.getByRole("group", { name: "Words to place" })).toHaveCount(0);
 });
 
-test("choices: number keys answer the next item to answer; several choices count what is chosen", async ({
+test("choices: number keys answer the next item to answer; the answer spoken once checked; several choices count what is chosen", async ({
   page,
 }) => {
   await openStep(page, "Lena at the café");
@@ -72,6 +74,11 @@ test("choices: number keys answer the next item to answer; several choices count
   await page.keyboard.press("2");
   await expect(items.nth(1).locator("button[aria-pressed=true]")).toHaveCount(1);
   await expect(items.nth(0).locator("button[aria-pressed=true]")).toHaveCount(1);
+  // The answer, spoken, is offered once checked: before, it would give it away.
+  const hear = items.nth(0).getByRole("button", { name: "Hear the answer" });
+  await expect(hear).toHaveCount(0);
+  await page.getByRole("button", { name: "Check", exact: true }).click();
+  await expect(hear).toHaveCount(1);
 
   await goToStep(page, "Tom's order");
   await page.keyboard.press("1");

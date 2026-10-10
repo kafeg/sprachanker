@@ -1,8 +1,10 @@
 // One item of an exercise as a card (09): its recording, prompt and hint, its picture or video, the
-// renderer of its type, and the correct answer under a wrong one where the renderer does not show it.
+// renderer of its type, the correct answer under a wrong one where the renderer does not show it, and
+// once checked the source's answer, spoken.
 // The lesson player answers in it; the Notebook shows an answer given, read-only.
 import type { Exercise, LocaleExercise, Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
+import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
@@ -51,7 +53,8 @@ export function ItemCard({
     // answer's parts carry ✓/✕, and the result is read out.
     <div
       className={cn(
-        "rounded-2xl border bg-card p-4 sm:p-5",
+        // A run with no place to break ("Führerschein/Computerkenntnisse/…") wraps inside the card.
+        "rounded-2xl border bg-card p-4 break-words sm:p-5",
         marked && (ok ? "border-l-4 border-l-correct" : "border-l-4 border-l-wrong"),
         className,
       )}
@@ -118,6 +121,10 @@ export function ItemCard({
             {shown}
           </span>
         </p>
+      )}
+      {/* The source's answer, spoken, once checked (a speaking item plays it after the first try). */}
+      {outcome && item.answerAudio && exercise.type !== "speech_selfrate" && (
+        <TakeButton src={url(item.answerAudio)} label={t("lesson.answerAudio")} className="mt-3" />
       )}
     </div>
   );

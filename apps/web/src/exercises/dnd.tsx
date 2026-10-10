@@ -16,6 +16,7 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
+import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/ui/utils.ts";
 
@@ -166,7 +167,7 @@ export function Slot({
       disabled={disabled}
       onClick={onTap}
       className={cn(
-        "flex min-h-11 items-center justify-center rounded-xl border-2 px-3 text-lg",
+        "flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 px-3 text-lg",
         filled ? "border-solid bg-card" : "border-dashed text-muted-foreground",
         (isOver || active) && !mark && "border-primary bg-primary/10",
         mark === "correct" && "border-correct bg-correct-soft",
@@ -175,6 +176,9 @@ export function Slot({
       )}
     >
       {children}
+      {/* Checked: the mark beside the chip, as on choices (not by colour alone). */}
+      {mark === "correct" && <Check className="size-4 shrink-0 text-correct" aria-hidden />}
+      {mark === "wrong" && <X className="size-4 shrink-0 text-wrong" aria-hidden />}
     </button>
   );
 }

@@ -267,6 +267,9 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -417,6 +420,9 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -507,6 +513,9 @@
               },
               "media": {
                 "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
               },
               "prompt": {
                 "type": "string"
@@ -619,6 +628,9 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -717,6 +729,9 @@
               },
               "media": {
                 "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
               },
               "prompt": {
                 "type": "string"
@@ -867,6 +882,9 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -969,6 +987,9 @@
                 ],
                 "additionalProperties": false
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -1053,6 +1074,9 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -1123,15 +1147,15 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
               "text": {
                 "type": "string",
                 "minLength": 1
-              },
-              "answerAudio": {
-                "$ref": "#/$defs/MediaPath"
               }
             },
             "required": [
@@ -1194,6 +1218,9 @@
               },
               "media": {
                 "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
               },
               "prompt": {
                 "type": "string"
@@ -1334,6 +1361,9 @@
               "media": {
                 "$ref": "#/$defs/Media"
               },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
+              },
               "prompt": {
                 "type": "string"
               },
@@ -1408,6 +1438,9 @@
               },
               "media": {
                 "$ref": "#/$defs/Media"
+              },
+              "answerAudio": {
+                "$ref": "#/$defs/MediaPath"
               },
               "prompt": {
                 "type": "string"

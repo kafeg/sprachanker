@@ -76,6 +76,9 @@
           "media": {
             "$ref": "#/$defs/Media"
           },
+          "answerAudio": {
+            "$ref": "#/$defs/MediaPath"
+          },
           "prompt": {
             "type": "string"
           },

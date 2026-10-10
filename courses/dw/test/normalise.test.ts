@@ -183,6 +183,48 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
   expect(locale.items["#1"]?.prompt).toBe("Ja, ich ... / Nein, ich ...");
 });
 
+test("an item whose only recording is not main content (DW's Lösungsaudio) keeps it as its spoken answer, not its question", () => {
+  const solution = createContext(
+    {
+      "https://audio.test/a.mp3": {
+        kind: "audio",
+        path: "media/audio/a.mp3" as never,
+        sha256: "a".repeat(64),
+        size: 1,
+        mime: "audio/mpeg",
+      },
+    },
+    "ru-de",
+  );
+  const choice = {
+    "Exercise:9": { id: 9, name: "Wähle", inputType: "NONE", inquiries: [{ __ref: "Inquiry:1" }] },
+    "Inquiry:1": {
+      inquiryType: "ASSOCIATION",
+      selectionType: "SINGLE",
+      inquiryText: "Wie geht's?",
+      'contentLinks({"targetTypes":["AUDIO"]})': [{ __ref: "ContentLink:2" }],
+      subInquiries: [{ __ref: "Inquiry:11" }],
+    },
+    "ContentLink:2": { mainContent: false, target: { mp3Src: "https://audio.test/a.mp3" } },
+    "Inquiry:11": {
+      alternatives: [{ __ref: "Alternative:1" }, { __ref: "Alternative:2" }],
+    },
+    "Alternative:1": { alternativeText: "Gut.", isCorrect: true },
+    "Alternative:2": { alternativeText: "Danke.", isCorrect: false },
+  };
+  const { exercise, unmapped } = normaliseExercise(
+    solution,
+    choice as never,
+    9,
+    key,
+    "raw/ru-de/a1/e-9.json",
+  );
+  expect(unmapped).toBeUndefined();
+  const [item] = Exercise.parse(exercise).items as Array<Record<string, unknown>>;
+  expect(item?.media).toBeUndefined();
+  expect(item?.answerAudio).toBe("media/audio/a.mp3");
+});
+
 test("an unseen mechanic becomes unknown with a reason", () => {
   const odd = { ...state, "Inquiry:1": { ...state["Inquiry:1"], inquiryType: "PUZZLE" } };
   const { exercise, unmapped } = normaliseExercise(

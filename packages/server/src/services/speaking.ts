@@ -90,10 +90,7 @@ export function createSpeaking(deps: {
     const { locale } = ctx;
     const hear = (path: string | undefined) =>
       path ? deps.hear(request.series, path, ctx.target) : Promise.resolve(undefined);
-    const [question, sample] = await Promise.all([
-      hear(item.media?.audio),
-      hear("answerAudio" in item ? item.answerAudio : undefined),
-    ]);
+    const [question, sample] = await Promise.all([hear(item.media?.audio), hear(item.answerAudio)]);
     return {
       input: {
         language: request.language,

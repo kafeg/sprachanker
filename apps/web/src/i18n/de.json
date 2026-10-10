@@ -116,6 +116,8 @@
       "read": "erledigt"
     },
     "correctAnswer": "Lösung:",
+    "answerAudio": "Lösung anhören",
+    "itemsList": "Aufgaben",
     "answerAll": "Beantworte alle Aufgaben · {done, number} von {total, number}",
     "listenFirst": "Hör dir zuerst die Aufnahme an",
     "listenItem": "Hör dir die Aufnahme von Aufgabe {n} an",

@@ -7,6 +7,7 @@ import { Chip, DragBoard, Slot } from "./dnd.tsx";
 import {
   PickSelect,
   partRight,
+  RightAnswer,
   ShuffleSeed,
   SpecialLetters,
   shuffled,
@@ -23,13 +24,15 @@ const gapNumber = (segments: Segments, gap: string) =>
 function Text({ segments, gap }: { segments: Segments; gap(id: string): React.ReactNode }) {
   const lang = useTargetLang();
   return (
-    <p lang={lang} className="whitespace-pre-wrap text-xl leading-[2.6]">
+    // Lines keep the text's own spacing; a line with a gap grows around it (a long dialogue with a
+    // few gaps is not spread out over the screen).
+    <p lang={lang} className="whitespace-pre-wrap text-xl leading-relaxed">
       {segments.map((s, i) =>
         typeof s === "string" ? (
           // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
           <span key={i}>{s}</span>
         ) : (
-          <span key={s.gap} className="mx-1 inline-block align-baseline">
+          <span key={s.gap} className="mx-1 my-1 inline-block align-baseline">
             {gap(s.gap)}
           </span>
         ),
@@ -84,21 +87,24 @@ function WordBank({
   return (
     <DragBoard onDrop={(word, gap) => place(gap.slice(GAP.length), word.slice(WORD.length))}>
       <div className="space-y-4">
-        <fieldset className="flex flex-wrap gap-2">
-          <legend className="sr-only">{t("ex.chips")}</legend>
-          {bank.map((o) => (
-            <Chip
-              key={o.id}
-              id={`${WORD}${o.id}`}
-              label={o.text}
-              disabled={used.has(o.id) || !!outcome}
-              className={cn(used.has(o.id) && "opacity-30")}
-              onTap={() => active && place(active, o.id)}
-            >
-              <span lang={lang}>{o.text}</span>
-            </Chip>
-          ))}
-        </fieldset>
+        {/* Once checked, no bank: the text with its words and the right ones is what is left. */}
+        {!outcome && (
+          <fieldset className="flex flex-wrap gap-2">
+            <legend className="sr-only">{t("ex.chips")}</legend>
+            {bank.map((o) => (
+              <Chip
+                key={o.id}
+                id={`${WORD}${o.id}`}
+                label={o.text}
+                disabled={used.has(o.id)}
+                className={cn(used.has(o.id) && "opacity-30")}
+                onTap={() => active && place(active, o.id)}
+              >
+                <span lang={lang}>{o.text}</span>
+              </Chip>
+            ))}
+          </fieldset>
+        )}
         <Text
           segments={item.segments}
           gap={(gap) => (
@@ -119,11 +125,7 @@ function WordBank({
               >
                 <span lang={lang}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>
               </Slot>
-              {outcome && !ok(gap) && (
-                <span lang={lang} className="ml-2 text-base text-wrong">
-                  → {rightText(gap)}
-                </span>
-              )}
+              {outcome && !ok(gap) && <RightAnswer text={rightText(gap)} />}
             </>
           )}
         />
@@ -177,9 +179,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
             onChange={(id) => set(gap, id)}
             className={cn("inline-flex min-w-20 align-middle", fieldMark(outcome, ok(gap)))}
           />
-          {outcome && !ok(gap) && (
-            <span className="ml-1 text-base text-wrong">{rightText(gap)}</span>
-          )}
+          {outcome && !ok(gap) && <RightAnswer text={rightText(gap)} />}
         </>
       )}
     />
@@ -214,11 +214,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
                   fieldMark(outcome, ok),
                 )}
               />
-              {outcome && !ok && (
-                <span className="ml-1 text-base text-wrong">
-                  {accepted.map((a) => a || "—").join(" / ")}
-                </span>
-              )}
+              {outcome && !ok && <RightAnswer text={accepted.map((a) => a || "—").join(" / ")} />}
             </>
           );
         }}

@@ -47,7 +47,8 @@ export function useShuffled<T>(items: T[], seed: string): T[] {
   return useMemo(() => shuffled(items, `${pass}:${seed}`), [pass, seed]);
 }
 
-export type Mark = "correct" | "wrong" | undefined;
+/** An option checked: chosen and right, chosen and wrong, or right and not chosen (missed). */
+export type Mark = "correct" | "wrong" | "missed" | undefined;
 
 /** An option as shown: its target-language text, or its text in the learner's language (the locale
  *  file's), and its picture's description. */
@@ -89,6 +90,16 @@ export function OptionContent({
   return <span lang={lang}>{option.text}</span>;
 }
 
+/** The right answer beside a wrong part (a gap, a slot), once checked: "→ kurz". */
+export function RightAnswer({ text, className }: { text: string; className?: string }) {
+  const lang = useTargetLang();
+  return (
+    <span lang={lang} className={cn("ml-2 text-base text-wrong", className)}>
+      → {text}
+    </span>
+  );
+}
+
 /** Options that are all pictures are laid out as a grid of equal tiles. */
 export const allPictures = (options: Option[]) => options.every((o) => o.media?.image);
 
@@ -126,6 +137,7 @@ export function OptionButton({
         selected && "border-primary bg-accent",
         mark === "correct" && "border-correct bg-correct-soft",
         mark === "wrong" && "border-wrong bg-wrong-soft",
+        mark === "missed" && "border-dashed border-correct",
       )}
     >
       {multi && (
@@ -141,7 +153,9 @@ export function OptionButton({
         </span>
       )}
       <OptionContent option={option} url={url} fill={fill} />
-      {mark === "correct" && <Check className="size-5 shrink-0 text-correct" aria-hidden />}
+      {(mark === "correct" || mark === "missed") && (
+        <Check className="size-5 shrink-0 text-correct" aria-hidden />
+      )}
       {mark === "wrong" && <X className="size-5 shrink-0 text-wrong" aria-hidden />}
     </button>
   );

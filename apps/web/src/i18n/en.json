@@ -116,6 +116,8 @@
       "read": "done"
     },
     "correctAnswer": "Correct answer:",
+    "answerAudio": "Hear the answer",
+    "itemsList": "Items",
     "answerAll": "Answer every item · {done, number} of {total, number}",
     "listenFirst": "Play the recording first",
     "listenItem": "Play the recording of item {n}",

@@ -1,6 +1,6 @@
 // Parts shared by all exercise types (02, "Exercise types").
 import { z } from "zod";
-import { Media, Sha256 } from "../common.ts";
+import { Media, MediaPath, Sha256 } from "../common.ts";
 import { ExerciseKey, ItemKey, RuleId, VocabKey } from "../keys.ts";
 
 /** Option id inside an item: `a`, `b`, `c`… in canonical order. */
@@ -29,7 +29,11 @@ export const Segments = z
 
 export const ItemBase = z.strictObject({
   key: ItemKey,
+  /** What the item asks with: its recording is heard before it is answered. */
   media: Media.optional(),
+  /** The source's own answer, spoken (DW's "Lösungsaudio"): heard once the item is checked — before,
+   *  it would give the answer away. */
+  answerAudio: MediaPath.optional(),
   /** Target-language prompt or context line; a learner-language one lives in the locale file. */
   prompt: z.string().optional(),
 });

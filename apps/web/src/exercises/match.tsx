@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { Chip, DragBoard, Slot } from "./dnd.tsx";
-import { partRight, useShuffled } from "./shared.tsx";
+import { partRight, RightAnswer, useShuffled } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 const hasImage = (options: Option[]) => options.some((o) => o.media?.image);
@@ -62,9 +62,7 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
   };
   const correction = (slot: string) =>
     outcome && !right(slot) ? (
-      <span lang={lang} className="text-sm text-wrong">
-        → {textOf(wanted.get(slot))}
-      </span>
+      <RightAnswer text={textOf(wanted.get(slot)) ?? ""} className="ml-0 text-sm" />
     ) : null;
   const slotProps = (slot: Option, n: number) => ({
     id: slot.id,

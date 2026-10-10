@@ -142,7 +142,7 @@ export function ExerciseStep({
           </div>
         </div>
       )}
-      <ol className="space-y-6 pb-2">
+      <ol aria-label={t("lesson.itemsList")} className="space-y-6 pb-2">
         {exercise.items.map((item, i) => {
           const outcome = outcomes?.[i];
           const marked = outcome && outcome.result !== "unscored";

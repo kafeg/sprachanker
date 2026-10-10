@@ -38,7 +38,7 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
   return (
     <DragBoard onDrop={drop}>
       <div className="space-y-3">
-        <p className="text-sm text-muted-foreground">{t("ex.orderHint")}</p>
+        {!outcome && <p className="text-sm text-muted-foreground">{t("ex.orderHint")}</p>}
         <Zone
           id={LINE}
           label={t("ex.orderLine")}
@@ -62,23 +62,31 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
             </Chip>
           ))}
         </Zone>
-        <Zone id={POOL} label={t("ex.chips")} className="flex min-h-11 flex-wrap gap-2 rounded-xl">
-          {pool.map((p) => {
-            const used = sequence.includes(p.id);
-            return (
-              <Chip
-                key={p.id}
-                id={`${OUT}${p.id}`}
-                label={p.text}
-                disabled={used || !!outcome}
-                className={cn(used && "opacity-30", !used && !outcome && "hover:border-primary/60")}
-                onTap={() => set([...sequence, p.id])}
-              >
-                <OptionContent option={p} url={url} />
-              </Chip>
-            );
-          })}
-        </Zone>
+        {/* Once checked, the line and the right answer are what is left to read: no pool (as in
+            match and the word bank). */}
+        {!outcome && (
+          <Zone
+            id={POOL}
+            label={t("ex.chips")}
+            className="flex min-h-11 flex-wrap gap-2 rounded-xl"
+          >
+            {pool.map((p) => {
+              const used = sequence.includes(p.id);
+              return (
+                <Chip
+                  key={p.id}
+                  id={`${OUT}${p.id}`}
+                  label={p.text}
+                  disabled={used}
+                  className={cn(used ? "opacity-30" : "hover:border-primary/60")}
+                  onTap={() => set([...sequence, p.id])}
+                >
+                  <OptionContent option={p} url={url} />
+                </Chip>
+              );
+            })}
+          </Zone>
+        )}
         {!outcome && sequence.length > 0 && (
           <Button variant="ghost" size="sm" onClick={() => set([])}>
             {t("ex.reset")}

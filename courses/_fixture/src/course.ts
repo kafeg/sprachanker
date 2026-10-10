@@ -123,6 +123,8 @@ export const cafeLesson: Lesson = {
       items: [
         {
           prompt: "Wo ist Lena?",
+          // The answer, spoken: offered once the item is checked.
+          answerAudio: audio("im-cafe"),
           options: [
             { id: "a", text: "Im Café." },
             { id: "b", text: "Im Park." },
