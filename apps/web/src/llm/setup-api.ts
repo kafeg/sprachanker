@@ -67,7 +67,7 @@ export const useModels = (provider: ProviderId | null) =>
 /** A model as the server lists it. */
 export type ListedModel = NonNullable<ReturnType<typeof useModels>["data"]>["models"][number];
 
-export type LmStudioStatus = Awaited<ReturnType<typeof fetchLmStudio>>;
+type LmStudioStatus = Awaited<ReturnType<typeof fetchLmStudio>>;
 const fetchLmStudio = () => json(api.llm.lmstudio.$get());
 
 /** LM Studio's state; polled faster while it downloads something. */
@@ -81,7 +81,7 @@ export const useLmStudio = () =>
         : 10_000,
   });
 
-export type SuggestedModel = LmStudioStatus["suggestions"][number]["key"];
+type SuggestedModel = LmStudioStatus["suggestions"][number]["key"];
 
 export function useLmStudioAction() {
   const client = useQueryClient();

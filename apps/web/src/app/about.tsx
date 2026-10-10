@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAppInfo } from "@/api/settings.ts";
 import { Panel } from "@/ui/panel.tsx";
 
-export const REPOSITORY = "https://github.com/kafeg/sprachanker";
+const REPOSITORY = "https://github.com/kafeg/sprachanker";
 
 export function AboutSection() {
   const { t } = useTranslation();

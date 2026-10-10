@@ -17,7 +17,7 @@ export function claimPlayback(media: Playing) {
 }
 
 /** Speeds the speed button steps through: slower helps beginners. */
-export const PLAYBACK_RATES = [1, 0.75, 0.5] as const;
+const PLAYBACK_RATES = [1, 0.75, 0.5] as const;
 
 export const PlaybackRate = createContext<{ rate: number; setRate(rate: number): void }>({
   rate: 1,

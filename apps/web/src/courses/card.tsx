@@ -13,7 +13,7 @@ import { CourseUpkeep } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { usePercent } from "@/ui/format.ts";
 
-export type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
+type CourseRow = NonNullable<ReturnType<typeof useCourses>["data"]>[number];
 
 /** A course card: a band with the language pair and progress, the title and source, the lesson to go
  *  on with, and the way in. */

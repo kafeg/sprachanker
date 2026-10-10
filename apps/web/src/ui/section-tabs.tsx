@@ -15,7 +15,7 @@ const TAB = cn(
   "aria-selected:bg-background aria-selected:text-foreground aria-selected:shadow-sm",
 );
 
-export interface SectionTab {
+interface SectionTab {
   to: string;
   label: string;
   count?: number;

@@ -15,7 +15,7 @@ import { cn } from "@/ui/utils.ts";
 import { LanguageSwitch } from "./language-switch.tsx";
 
 /** Profile tiles on a page ("New profile" besides). */
-export const PROFILES_PER_PAGE = 5;
+const PROFILES_PER_PAGE = 5;
 
 const TILE =
   "flex h-full w-full flex-col items-center gap-2 rounded-2xl border p-4 hover:bg-accent/60";

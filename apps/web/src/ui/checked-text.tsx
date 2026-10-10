@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useRequiredTargetLang, useTargetLang } from "./target-lang.ts";
 import { cn } from "./utils.ts";
 
-export type CheckVerdict = SpokenCheck["verdict"];
+type CheckVerdict = SpokenCheck["verdict"];
 
 const VERDICT_TONE: Record<CheckVerdict, string> = {
   good: "bg-correct-soft text-correct",

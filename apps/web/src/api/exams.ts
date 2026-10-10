@@ -21,7 +21,7 @@ export const useExamPage = (exam: string, edition: string | undefined) =>
 /** What a run's page shows: the run, and its answers (a running mock exam's without outcomes); `skew`
  *  is how far the server's clock is ahead of this device's (ms), so the countdown keeps to the
  *  server's deadline. */
-export interface ExamRunState {
+interface ExamRunState {
   run: ExamRun;
   events: TypedEvent[];
   skew: number;
@@ -29,7 +29,8 @@ export interface ExamRunState {
 
 const runKey = (runId: string) => ["exam-run", runId] as const;
 
-/** A run as the server gives it, with this device's clock compared to the server's. */
+/** A run as the server gives it, with this device's clock compared to the server's. A running mock exam's
+ *  answers come without outcomes (kept by the server until it is handed in), read as events all the same. */
 const withSkew = ({ now, run, events }: { now: number; run: ExamRun; events: unknown[] }) => ({
   run,
   events: events as TypedEvent[],

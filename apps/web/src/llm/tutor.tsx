@@ -42,7 +42,7 @@ import { TutorHistory } from "./tutor-history.tsx";
 type Context = Omit<TutorRequest, "message" | "language" | "newChat">;
 
 /** A message to send on opening; `id` makes each ask new. */
-export interface TutorAsk {
+interface TutorAsk {
   text: string;
   id: number;
   /** Opens a new chat for it (the current one stays in the history). */

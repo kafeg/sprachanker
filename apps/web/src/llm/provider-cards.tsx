@@ -22,7 +22,7 @@ const LOCAL = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/;
 
 /** The line under a provider's name, as a message key and its values: what it lacks, else where it is
  *  or what it has. */
-export function providerLine(p: Provider): [string, Record<string, string>?] {
+function providerLine(p: Provider): [string, Record<string, string>?] {
   const problem = setupProblem(p);
   if (problem) return [`llm.cardState.${problem}`];
   if (p.installed) return ["llm.cardState.installed"];

@@ -71,7 +71,7 @@ export function LibraryCard({
 }
 
 /** A course's download on its card: progress while it runs; files missing with "Continue" after. */
-export function DownloadState({ series, course }: { series: string; course: string }) {
+function DownloadState({ series, course }: { series: string; course: string }) {
   const { t } = useTranslation();
   const { job } = useCourseDownload(series, course);
   const entry = useCatalog().data?.find((e) => e.series === series && e.course === course);

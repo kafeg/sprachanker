@@ -4,7 +4,7 @@
 // closes the part or the learner ends it. The conversation is the part's answer, rated afterwards by
 // its criteria. The router provides it to the exam run (exams/slots.ts); without an assistant the part
 // is answered aloud as any open answer.
-import type { LlmTurnPayload, TypedEvent } from "@sprachanker/schema";
+import type { LlmTurnPayload } from "@sprachanker/schema";
 import { Mic } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -63,19 +63,17 @@ export function ExamConversation({
       { ...request, ...(line && { text: line }) },
       {
         onSuccess: ({ events: kept, done: over }) => {
-          onStored(kept as TypedEvent[]);
+          onStored(kept);
           setText("");
           const all = [
             ...lines,
-            ...kept.flatMap((e) =>
-              e.type === "llm_turn" ? [{ ...(e.payload as LlmTurnPayload), id: e.id }] : [],
-            ),
+            ...kept.flatMap((e) => (e.type === "llm_turn" ? [{ ...e.payload, id: e.id }] : [])),
           ];
           onAnswer(transcript(all), over);
           // The examiner's and the partner's new lines, read aloud as they would be said.
           const parts = kept.flatMap((e) =>
-            e.type === "llm_turn" && (e.payload as LlmTurnPayload).role === "assistant"
-              ? said((e.payload as LlmTurnPayload).text, lang)
+            e.type === "llm_turn" && e.payload.role === "assistant"
+              ? said(e.payload.text, lang)
               : [],
           );
           if (parts.length) void say(readingId(parts), parts);

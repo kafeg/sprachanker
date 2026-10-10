@@ -11,7 +11,7 @@ import { OfferCard } from "@/library/card.tsx";
 import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/tab-page.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 
-export type ExamsTab = LibraryTab;
+type ExamsTab = LibraryTab;
 const PATH: Record<ExamsTab, "/exams" | "/exams/downloaded" | "/exams/catalog"> = {
   mine: "/exams",
   downloaded: "/exams/downloaded",

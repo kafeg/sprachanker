@@ -79,7 +79,7 @@ export function useCheckSpoken() {
   });
 }
 
-export type ExamRatingRequest = Parameters<(typeof api.llm)["exam-rating"]["$post"]>[0]["json"];
+type ExamRatingRequest = Parameters<(typeof api.llm)["exam-rating"]["$post"]>[0]["json"];
 
 /** The ratings of an exam's open answer proposed by the model, kept in the exam run (its page takes
  *  the event). */
@@ -89,9 +89,7 @@ export const useProposeRating = () =>
       json(api.llm["exam-rating"].$post({ json: request })),
   });
 
-export type ConversationRequest = Parameters<
-  (typeof api.llm)["exam-conversation"]["$post"]
->[0]["json"];
+type ConversationRequest = Parameters<(typeof api.llm)["exam-conversation"]["$post"]>[0]["json"];
 
 /** The next lines of an exam's speaking part (kept in the exam run; its page takes the events). */
 export const useConversationTurn = () =>
@@ -219,8 +217,8 @@ export const useTutorContext = (request: TutorPromptRequest, turns: number) =>
     queryFn: () => json(api.llm.tutor.context.$post({ json: request })),
   });
 
-export type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];
-export type WritingState = Awaited<ReturnType<typeof fetchWriting>>;
+type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];
+type WritingState = Awaited<ReturnType<typeof fetchWriting>>;
 export type WritingAttempt = WritingState["attempts"][number];
 const fetchWriting = (series: string, lessonKey: string, edition: string) =>
   json(api.llm.writing.$get({ query: { series, lessonKey, edition } }));
@@ -252,7 +250,7 @@ export function useCheckWriting(onChecked?: () => void) {
 }
 
 type SceneStartRequest = Parameters<typeof api.llm.scene.start.$post>[0]["json"];
-export type SceneLineRequest = Parameters<typeof api.llm.scene.turn.$post>[0]["json"];
+type SceneLineRequest = Parameters<typeof api.llm.scene.turn.$post>[0]["json"];
 export type SceneState = Awaited<ReturnType<typeof fetchScenes>>["scenes"][number];
 const fetchScenes = (lessonKey: LessonKey) => json(api.llm.scene.$get({ query: { lessonKey } }));
 
@@ -287,8 +285,8 @@ export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
   });
 }
 
-export type ExampleRequest = Parameters<typeof api.llm.examples.$post>[0]["json"];
-export type WordExampleShown = Awaited<ReturnType<typeof makeExample>>;
+type ExampleRequest = Parameters<typeof api.llm.examples.$post>[0]["json"];
+type WordExampleShown = Awaited<ReturnType<typeof makeExample>>;
 const makeExample = (request: ExampleRequest) => json(api.llm.examples.$post({ json: request }));
 
 /** A card's AI examples, newest first; read only once asked for (`enabled`). */

@@ -6,7 +6,7 @@ import en from "./en.json";
 import ru from "./ru.json";
 
 export const UI_LANGUAGES = ["en", "ru", "de"] as const;
-export type UiLanguage = (typeof UI_LANGUAGES)[number];
+type UiLanguage = (typeof UI_LANGUAGES)[number];
 
 export const isUiLanguage = (code: unknown): code is UiLanguage =>
   (UI_LANGUAGES as readonly unknown[]).includes(code);

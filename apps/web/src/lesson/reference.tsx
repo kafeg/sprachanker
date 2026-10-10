@@ -18,7 +18,7 @@ export const pageTitle = (
   return page.part ? `${page.title} · ${t("lesson.part", { n: page.part })}` : page.title;
 };
 
-export function VocabularyList({
+function VocabularyList({
   lesson,
   locale,
   url,

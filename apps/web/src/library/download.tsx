@@ -6,7 +6,7 @@ import { Progress } from "@/ui/components/progress.tsx";
 import { useBytes } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";
 
-export type DownloadJob = NonNullable<ReturnType<typeof useDownloads>["data"]>["jobs"][number];
+type DownloadJob = NonNullable<ReturnType<typeof useDownloads>["data"]>["jobs"][number];
 
 export const downloading = (job: DownloadJob | undefined) =>
   job?.status === "queued" || job?.status === "running";

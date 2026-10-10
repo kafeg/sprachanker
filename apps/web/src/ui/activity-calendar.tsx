@@ -7,7 +7,7 @@ import { useDateFormat } from "./format.ts";
 import { cn } from "./utils.ts";
 
 /** How many weeks the calendar shows. */
-export const CALENDAR_WEEKS = 53;
+const CALENDAR_WEEKS = 53;
 
 /** The days of the last `weeks` weeks by column, Monday first, up to today (a day's start). */
 export function calendarWeeks(today: number, weeks = CALENDAR_WEEKS): number[][] {

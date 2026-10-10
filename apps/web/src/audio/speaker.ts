@@ -21,7 +21,7 @@ const pieces = (text: string) =>
 type Device = { device: SpeechSynthesisVoice | undefined; rate: number };
 /** By the server (a Piper voice); `fallback`: the device's way, when the server cannot say it. */
 type Way = Device | { server: { voice?: string }; fallback?: Device };
-export interface ReadOptions {
+interface ReadOptions {
   /** How a language is read (undefined: it cannot be). */
   wayFor(lang: string): Way | undefined;
 }

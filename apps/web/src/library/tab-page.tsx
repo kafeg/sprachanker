@@ -5,7 +5,7 @@ import { Link } from "@tanstack/react-router";
 import { EmptyState, Page } from "@/ui/page.tsx";
 import { SectionTabs } from "@/ui/section-tabs.tsx";
 
-export const LIBRARY_TABS = ["mine", "downloaded", "available"] as const;
+const LIBRARY_TABS = ["mine", "downloaded", "available"] as const;
 export type LibraryTab = (typeof LIBRARY_TABS)[number];
 
 export function LibraryTabPage({

@@ -2,7 +2,7 @@
 // router provides the AI assistant's (llm/word-example.tsx), so llm/ can be removed with its mount points.
 import { createContext, type ReactNode, useContext } from "react";
 
-export interface StudySlots {
+interface StudySlots {
   /** Under a card's answer and in the word's sheet: more about the word (AI examples). */
   word?(card: { cardId: string }): ReactNode;
 }

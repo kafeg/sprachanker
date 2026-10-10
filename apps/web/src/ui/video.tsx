@@ -11,7 +11,7 @@ import { claimPlayback, PlaybackRate, SpeedButton } from "./playback.tsx";
 import { useRequiredTargetLang } from "./target-lang.ts";
 import { cn } from "./utils.ts";
 
-export type EpisodeFiles = {
+type EpisodeFiles = {
   sd?: string;
   hd?: string;
   subtitles?: string;

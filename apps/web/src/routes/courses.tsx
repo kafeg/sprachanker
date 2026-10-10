@@ -12,7 +12,7 @@ import { OfferCard } from "@/library/card.tsx";
 import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/tab-page.tsx";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
 
-export type CoursesTab = LibraryTab;
+type CoursesTab = LibraryTab;
 const PATH: Record<CoursesTab, "/" | "/downloaded" | "/catalog"> = {
   mine: "/",
   downloaded: "/downloaded",

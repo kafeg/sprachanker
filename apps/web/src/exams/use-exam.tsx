@@ -8,7 +8,7 @@ import { ErrorState, Loading, NotInstalled } from "@/ui/page.tsx";
 
 type PageData = NonNullable<ReturnType<typeof useExamPage>["data"]>;
 
-export type ExamData = { key: ReturnType<typeof examKeyOf>; edition?: string; data?: PageData } & (
+type ExamData = { key: ReturnType<typeof examKeyOf>; edition?: string; data?: PageData } & (
   | { ready: false; gate: React.ReactNode; row?: ExamRow }
   | { ready: true; row: ExamRow; edition: string; data: PageData }
 );

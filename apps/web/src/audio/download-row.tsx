@@ -7,7 +7,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";
 
-export interface Downloadable {
+interface Downloadable {
   installed: boolean;
   bytes: number;
   /** Bytes so far while it downloads. */

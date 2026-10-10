@@ -34,7 +34,7 @@ const kindRank = (kind: string) => {
   return i < 0 ? KINDS.length : i;
 };
 
-export type CourseHeroProps = {
+type CourseHeroProps = {
   series: string;
   course: string;
   title: string;

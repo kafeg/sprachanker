@@ -51,7 +51,7 @@ export function speakable(markdown: string): string {
 }
 
 /** The script a language is written in (`Latn`, `Cyrl`, …), as the browser knows it. */
-export function scriptOf(lang: string): string | undefined {
+function scriptOf(lang: string): string | undefined {
   try {
     const script = new Intl.Locale(lang).maximize().script;
     // Chinese: the property names the script Han whatever its form.

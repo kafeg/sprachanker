@@ -51,19 +51,19 @@ export function withStored(events: TypedEvent[], stored: Stored): TypedEvent[] {
 
 /** How a run's events are sent: `runOf` names the run a batch goes to (none: dropped), `post` sends
  *  it (`init`: the request's options — `keepalive` as the page closes). */
-export interface RunPost<E> {
+interface RunPost<E> {
   runOf(batch: readonly E[]): string | undefined;
   post(runId: string, batch: readonly E[], init?: RequestInit): Promise<Stored>;
 }
 
 /** An outbox kept for its run: how many pages show the run now. */
 interface Entry {
-  outbox: Outbox<never>;
+  outbox: Outbox<unknown>;
   users: number;
 }
 const outboxes = new Map<string, Entry>();
 /** Each outbox's place in `outboxes` and how its events are sent. */
-const homeOf = new WeakMap<object, { id: string; sending: RunPost<never> }>();
+const homeOf = new WeakMap<object, { id: string; sending: RunPost<unknown> }>();
 
 /**
  * The outbox of a run state cached under `key` (its `events` updated with what the server stored),
@@ -77,7 +77,8 @@ export function runOutbox<E extends { id: string }>(
   const profile = signedIn(client);
   const id = JSON.stringify([profile, ...key]);
   const found = outboxes.get(id);
-  if (found) return found.outbox as unknown as Outbox<E>;
+  // One key, one kind of run: the outbox found holds events of type E.
+  if (found) return found.outbox as Outbox<E>;
   const outbox = createOutbox<E>({
     batchKey: options.batchKey,
     async send(batch) {
@@ -95,8 +96,8 @@ export function runOutbox<E extends { id: string }>(
     // A batch refused: the run is read again.
     onRefused: () => void client.invalidateQueries({ queryKey: key }),
   });
-  outboxes.set(id, { outbox: outbox as unknown as Outbox<never>, users: 0 });
-  homeOf.set(outbox, { id, sending: options as unknown as RunPost<never> });
+  outboxes.set(id, { outbox, users: 0 });
+  homeOf.set(outbox, { id, sending: options });
   return outbox;
 }
 
@@ -107,13 +108,13 @@ export function runOutbox<E extends { id: string }>(
 export function useRunOutbox<E>(outbox: Outbox<E>) {
   useEffect(() => {
     const home = homeOf.get(outbox);
-    const entry = home && (outboxes.get(home.id) ?? { outbox: outbox as Outbox<never>, users: 0 });
+    const entry = home && (outboxes.get(home.id) ?? { outbox, users: 0 });
     // Another outbox took the run's place (this one was released and the run opened anew).
-    if (!home || !entry || entry.outbox !== (outbox as unknown)) return;
+    if (!home || !entry || entry.outbox !== outbox) return;
     outboxes.set(home.id, entry);
     entry.users++;
     const onHide = () => {
-      const batch = outbox.nextBatch() as readonly never[];
+      const batch = outbox.nextBatch();
       const runId = batch.length ? home.sending.runOf(batch) : undefined;
       if (runId) home.sending.post(runId, batch, { keepalive: true }).catch(() => {});
     };

@@ -58,7 +58,7 @@ function ItemControl({
   );
 }
 
-export interface StepProps {
+interface StepProps {
   exercise: Exercise;
   locale?: LocaleExercise;
   index: number;
