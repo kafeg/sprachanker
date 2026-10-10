@@ -252,6 +252,37 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
   expect(detail.entry.runs[0]).toMatchObject({ mode: "practice", points: 1 });
   expect(detail.entry.runs[0].passed).toBeUndefined();
   expect(typeof detail.entry.runs[1].passed).toBe("boolean");
+
+  // A run opened is open in the Notebook only once something is answered in it (as a lesson).
+  const { run: opened } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: EXAM,
+    edition: "en-de",
+    mode: "practice",
+  });
+  const openNow = async () => ({
+    entry: (await api.getJson("/api/notebook")).modules
+      .find((m: { module: string }) => m.module === "exam")
+      .entries.find((e: { key: string }) => e.key === EXAM).open,
+    page: (await api.getJson(`/api/notebook/exam?exam=${EXAM}`)).entry.open,
+  });
+  expect(await openNow()).toEqual({ entry: false, page: false });
+  await api.sendJson("POST", `/api/exams/runs/${opened.id}/events`, {
+    events: [answer("002", "a")],
+  });
+  expect(await openNow()).toEqual({ entry: true, page: true });
+  // A mock exam left past its time is handed in as the Notebook is read: not open, one more run.
+  const { run: left } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: EXAM,
+    edition: "en-de",
+    mode: "test",
+  });
+  await api.sendJson("POST", `/api/exams/runs/${left.id}/events`, { events: [answer("001", "b")] });
+  api.advance(left.plan.deadline - left.startedAt + 60_000);
+  expect(await openNow()).toEqual({ entry: false, page: false });
+  const after = (await api.getJson("/api/notebook")).modules.find(
+    (m: { module: string }) => m.module === "exam",
+  ).entries[0];
+  expect(after.runs[0]).toMatchObject({ id: left.id, endReason: "timeout" });
   expect(detail.lang).toBe("de");
   const states = Object.fromEntries(
     detail.items.map((i: { key: string; state: string }) => [i.key, i.state]),

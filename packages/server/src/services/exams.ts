@@ -147,6 +147,10 @@ export function createExams({
       if (now() > run.plan.deadline + GRACE_MS) await handIn(run.id, run);
   }
 
+  /** A run in progress with work in it (one only opened is none, as a lesson's). */
+  const worked = (run: ExamRun) =>
+    run.status === "active" && store.events(run.id, ["answered"]).length > 0;
+
   /** A run as the player opens it: the run, its answers (a running mock exam's without their
    *  outcomes) and the server's clock, which the countdown keeps to. */
   async function open(runId: string) {
@@ -241,8 +245,12 @@ export function createExams({
       : Promise.resolve(undefined);
 
   /** The exams' standing (schema `stats.ts`): each exam with a mock exam handed in — its latest
-   *  ones, newest first (practice is its questions' history) — the latest handed in first. */
+   *  ones, newest first (practice is its questions' history), open while a run with answers is in
+   *  progress — the latest handed in first. */
   async function standing(): Promise<ModuleStanding> {
+    // Mock exams left past their time are handed in first (one of an exam no longer installed stays).
+    for (const row of store.all("exam"))
+      if (row.status === "active") await settle(toExamRun(row)).catch(() => undefined);
     const byExam = new Map<ExamKey, ExamRun[]>();
     for (const row of store.all("exam")) {
       const run = toExamRun(row);
@@ -258,7 +266,7 @@ export function createExams({
             key,
             title: locale?.title ?? null,
             lastAt: latest.finishedAt ?? latest.startedAt,
-            open: runs.some((r) => r.status === "active"),
+            open: runs.some(worked),
             runCount: tests.length,
             figures: [],
             runs: tests.slice(0, STANDING_RUNS).map((r) => summaryOf(r, locale)),
@@ -276,7 +284,8 @@ export function createExams({
     const exam = await content.exam(seriesOf(key), key).catch(() => undefined);
     if (exam) await settle(activeOf(key));
     const stats = questionStats(answersIn(key));
-    const runs = runsOf(key).filter((r) => r.status === "finished");
+    const all = runsOf(key);
+    const runs = all.filter((r) => r.status === "finished");
     const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
     const edition = runs[0]?.edition ?? course?.editions[0] ?? null;
     const locale = await titleOf(key, edition);
@@ -290,7 +299,7 @@ export function createExams({
         key,
         title: locale?.title ?? course?.titles[edition ?? ""] ?? null,
         lastAt: runs[0]?.finishedAt ?? runs[0]?.startedAt ?? 0,
-        open: !!activeOf(key),
+        open: all.some(worked),
         runCount: runs.length,
         figures: [],
         runs: runs.map((r) => summaryOf(r, locale)),
