@@ -1,4 +1,4 @@
-import { EditionId, LessonKey, SeriesKey, Slug } from "@sprachanker/schema";
+import { EditionId, LessonKey, lessonOrder, SeriesKey, Slug } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zod } from "../validate.ts";
@@ -13,7 +13,7 @@ export function courseRoutes() {
       .get("/course", zod("query", CourseRef.extend({ edition: EditionId })), async (c) => {
         const { series, course, edition } = c.req.valid("query");
         const map = await c.var.s.content.courseMap(series, course, edition);
-        const lessons = map.index.units.flatMap((u) => u.lessons) as LessonKey[];
+        const lessons = lessonOrder(map.index);
         return c.json({ ...map, lessons: await c.var.s.runs.lessonStates(lessons) });
       })
       // A course's integrity and counts.

@@ -2,7 +2,7 @@
 // words and lessons, looked up when the model asks. Lessons are "unit.lesson" as the app shows them.
 import { headword, type LessonProgress, lessonDone } from "@sprachanker/engine";
 import { grammarNotes, lessonWords, mistakeLine } from "@sprachanker/llm";
-import { type LessonKey, parseEditionId, parseLessonKey } from "@sprachanker/schema";
+import { type LessonKey, lessonOrder, parseEditionId, parseLessonKey } from "@sprachanker/schema";
 import type { Content } from "./content.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Mistakes } from "./mistakes.ts";
@@ -26,7 +26,7 @@ export function createTutorTools(deps: {
       const course = parseLessonKey(lessonKey).courseId;
       const lang = parseEditionId(edition).target;
       const map = content.courseMap(series, course, edition);
-      const order = async () => (await map).index.units.flatMap((u) => u.lessons);
+      const order = async () => lessonOrder((await map).index);
       const title = async (key: string) => `${number(key)} ${(await map).titles[key] ?? ""}`.trim();
 
       async function find(query: unknown): Promise<LessonKey | undefined> {

@@ -8,6 +8,7 @@ import {
   type Lesson,
   type LessonKey,
   type LocaleLesson,
+  lessonOrder,
   parseEditionId,
   parseLessonKey,
 } from "@sprachanker/schema";
@@ -36,7 +37,7 @@ export function createLessonContext(content: Content) {
         content.lesson(series, lessonKey),
         content.localeLesson(series, lessonKey, edition),
       ]);
-      const order = map.index.units.flatMap((u) => u.lessons);
+      const order = lessonOrder(map.index);
       const earlier = order.slice(0, Math.max(0, order.indexOf(lessonKey)));
       const earlierVocab = await Promise.all(
         earlier.map(async (k) => (await content.lesson(series, k)).vocab.map((v) => v.target)),
@@ -65,7 +66,7 @@ export function createLessonContext(content: Content) {
     async vocabulary(series: string, lessonKey: LessonKey, edition: string) {
       const course = parseLessonKey(lessonKey).courseId;
       const map = await content.courseMap(series, course, edition);
-      const order = map.index.units.flatMap((u) => u.lessons);
+      const order = lessonOrder(map.index);
       const words = await Promise.all(
         order.map(async (key): Promise<VocabWord[]> => {
           const [lesson, locale] = await Promise.all([

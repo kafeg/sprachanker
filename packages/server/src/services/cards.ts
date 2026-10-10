@@ -10,6 +10,7 @@ import {
   type Lesson,
   type LessonKey,
   type LocaleLesson,
+  lessonOrder,
   parseEditionId,
 } from "@sprachanker/schema";
 import { monotonicFactory } from "ulid";
@@ -54,7 +55,7 @@ export function createCards(deps: {
   }
 
   /** Each word of a course in an edition, by lexeme: where it is first met, in course order. */
-  async function wordsOf(course: { series: string; lessons: string[] }, edition: string) {
+  async function wordsOf(course: { series: string; lessons: LessonKey[] }, edition: string) {
     const out = new Map<
       string,
       {
@@ -64,7 +65,7 @@ export function createCards(deps: {
         word: Lesson["vocab"][number];
       }
     >();
-    for (const key of course.lessons as LessonKey[]) {
+    for (const key of course.lessons) {
       const { lesson, locale } = await content.lessonWithLocale(course.series, key, edition);
       for (const word of lesson.vocab)
         if (!out.has(word.lexeme))
@@ -127,7 +128,7 @@ export function createCards(deps: {
      *  as new cards (Anki: a deck taken); words with a card already keep it. */
     async takeDeck(request: { series: string; course: string; edition: string }) {
       const map = await content.courseMap(request.series, request.course, request.edition);
-      const lessons = map.index.units.flatMap((u) => u.lessons) as LessonKey[];
+      const lessons = lessonOrder(map.index);
       const words = await Promise.all(
         lessons.map((key) => content.lessonWithLocale(request.series, key, request.edition)),
       );
@@ -207,7 +208,7 @@ export function createCards(deps: {
           const lang = parseEditionId(edition as EditionId).source;
           const lexemes = new Set<string>();
           try {
-            for (const key of c.lessons as LessonKey[])
+            for (const key of c.lessons)
               for (const v of (await content.lesson(c.series, key)).vocab) lexemes.add(v.lexeme);
           } catch (error) {
             // A lesson that does not read leaves its course out of the offers, not the others.

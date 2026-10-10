@@ -281,7 +281,7 @@ export function createExams({
     const stats = questionStats(answersIn(key));
     const all = runsOf(key);
     const runs = all.filter((r) => r.status === "finished");
-    const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
+    const course = (await content.courses()).find((c) => c.exams.includes(key));
     const edition = runs[0]?.edition ?? course?.editions[0] ?? null;
     const locale = await localeOf(key, edition);
     const items = (exam ? openQuestions(exam, setting) : []).map((item) => ({
@@ -312,7 +312,7 @@ export function createExams({
     async list() {
       const out = [];
       for (const course of await content.courses())
-        for (const key of course.exams as ExamKey[]) {
+        for (const key of course.exams) {
           const titles: Record<string, string> = {};
           for (const edition of course.editions) {
             const locale = await content
@@ -382,7 +382,7 @@ export function createExams({
       const exam = await examOf(key);
       if (module && !exam.modules?.some((m) => m.id === module))
         throw new ServiceError("invalid_request");
-      const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
+      const course = (await content.courses()).find((c) => c.exams.includes(key));
       if (!course?.editions.includes(edition)) throw new ServiceError("not_installed", 404);
       if (missingSettings(exam, setting).length) throw new ServiceError("exam_needs_setting", 409);
       await settle(activeOf(key));

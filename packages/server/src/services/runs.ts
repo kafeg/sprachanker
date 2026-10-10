@@ -155,8 +155,8 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     );
     const courses = [...new Set(lessons.map((l) => l.course))].map((key) => {
       const course = installed.find((c) => c.key === key);
-      const place = (k: string) => {
-        const i = course?.lessons.indexOf(k as LessonKey) ?? -1;
+      const place = (k: LessonKey) => {
+        const i = course?.lessons.indexOf(k) ?? -1;
         return i < 0 ? Number.MAX_SAFE_INTEGER : i;
       };
       const mine = lessons.filter((l) => l.course === key);

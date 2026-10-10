@@ -1,17 +1,18 @@
 // Installed course content for the API: course list, course map, lessons (cached while their files
 // stay the same).
 import type { LibraryView } from "@sprachanker/course-kit/view";
-import type {
-  CourseIndex,
-  CourseSource,
-  Exam,
-  ExamKey,
-  ExamSources,
-  Lesson,
-  LessonKey,
-  LocaleCourse,
-  LocaleExam,
-  LocaleLesson,
+import {
+  type CourseIndex,
+  type CourseSource,
+  type Exam,
+  type ExamKey,
+  type ExamSources,
+  type Lesson,
+  type LessonKey,
+  type LocaleCourse,
+  type LocaleExam,
+  type LocaleLesson,
+  lessonOrder,
 } from "@sprachanker/schema";
 import { createOnce } from "./once.ts";
 
@@ -22,9 +23,9 @@ export interface CourseSummary {
   editions: string[];
   titles: Record<string, string>;
   /** Lesson keys in course order. */
-  lessons: string[];
+  lessons: LessonKey[];
   /** Exam keys, in the course index's order. */
-  exams: string[];
+  exams: ExamKey[];
   /** A course of exams only is shown in the Exams section, not among the courses (01). */
   kind: "course" | "exam";
   /** Where the course comes from (02). */
@@ -106,7 +107,7 @@ export function createContent(library: LibraryView) {
               const locale = await library.localeCourse(series, course, edition);
               if (locale) titles[edition] = locale.title;
             }
-            const lessons = index.units.flatMap((u) => u.lessons);
+            const lessons = lessonOrder(index);
             return {
               series,
               course,
@@ -130,7 +131,7 @@ export function createContent(library: LibraryView) {
       const index = await library.courseIndex(series, course);
       const locale = (await library.localeCourse(series, course, edition)) ?? null;
       const titles: Record<string, string> = {};
-      for (const key of index.units.flatMap((u) => u.lessons)) {
+      for (const key of lessonOrder(index)) {
         const loc = await localeLesson(series, key, edition);
         if (loc) titles[key] = loc.title;
       }

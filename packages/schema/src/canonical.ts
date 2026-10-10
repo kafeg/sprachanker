@@ -36,6 +36,10 @@ export const CourseIndex = z.strictObject({
 });
 export type CourseIndex = z.infer<typeof CourseIndex>;
 
+/** A course's lessons in course order: its units in turn. */
+export const lessonOrder = (index: CourseIndex): LessonKey[] =>
+  index.units.flatMap((u) => u.lessons);
+
 /** A word or phrase introduced by a lesson; its translation lives in the locale file. */
 export const VocabEntry = z.strictObject({
   key: VocabKey,
