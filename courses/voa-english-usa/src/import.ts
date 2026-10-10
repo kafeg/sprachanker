@@ -11,6 +11,7 @@ import {
   importReport,
   mediaRef,
   rawPages,
+  reportKey,
   runPool,
   wanted,
   writeLibraryFiles,
@@ -73,6 +74,6 @@ export async function importEnglishUsa(options: ImportOptions): Promise<ImportRe
   );
   // Its lessons have no exercises: none is unknown (unmapped parts are in the lessons and the log).
   return importReport(index, {
-    [`${COURSE} ${EDITION}`]: { lessons: count, unknown: 0, problems },
+    [reportKey(COURSE, EDITION)]: { lessons: count, unknown: 0, problems },
   });
 }

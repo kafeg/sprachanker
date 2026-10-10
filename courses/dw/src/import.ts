@@ -9,6 +9,7 @@ import {
   importReport,
   type NormaliseResult,
   rawPages,
+  reportKey,
   wanted,
 } from "@sprachanker/course-kit";
 import { COURSES, type DwSeries, seriesId } from "./catalog.ts";
@@ -44,7 +45,7 @@ export async function importDw(series: DwSeries, options: ImportOptions): Promis
   const normalised: Record<string, NormaliseResult> = {};
   for (const course of selected) {
     options.progress?.({ phase: "normalise" });
-    normalised[`${course.id} ${course.edition}`] = await normaliseCourse(seriesDir, course, {
+    normalised[reportKey(course.id, course.edition)] = await normaliseCourse(seriesDir, course, {
       log: options.log,
     });
   }

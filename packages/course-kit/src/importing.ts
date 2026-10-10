@@ -11,8 +11,11 @@ import type { ImportOptions, ImportReport, NormaliseResult } from "./provider.ts
 /** The report of an import with nothing to do (no course of it asked for). */
 export const emptyReport = (): ImportReport => ({ failedMedia: [], goneMedia: [], normalised: {} });
 
+/** A course normalised in an edition as the report names it: "<course> <edition>". */
+export const reportKey = (course: string, edition: string) => `${course} ${edition}`;
+
 /** An import's report: the series' media not fetched (its media index) and each course normalised,
- *  by "<course> <edition>". */
+ *  by `reportKey`. */
 export const importReport = (
   index: MediaIndex,
   normalised: Record<string, NormaliseResult> = {},

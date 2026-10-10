@@ -14,6 +14,7 @@ import {
   type MediaRef,
   mediaPath,
   rawPages,
+  reportKey,
   wanted,
   writeFileAtomic,
   writeLibraryFiles,
@@ -137,7 +138,7 @@ export async function importLid(options: ImportOptions): Promise<ImportReport> {
       `${problems ? `, ${problems} files failed validation` : ""}`,
   );
   return importReport(index, {
-    [`${COURSE} ${EDITION}`]: { lessons: 0, unknown: 0, leftOut, problems },
+    [reportKey(COURSE, EDITION)]: { lessons: 0, unknown: 0, leftOut, problems },
   });
 }
 

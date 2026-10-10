@@ -15,6 +15,7 @@ import {
   type PoliteFetcher,
   type RawPages,
   rawPages,
+  reportKey,
   runPool,
   wanted,
   writeLibraryFiles,
@@ -67,7 +68,7 @@ export async function importLetsLearnEnglish(options: ImportOptions): Promise<Im
       `${course.def.id} ${EDITION}: ${result.lessons} lessons, ${result.unknown} unknown exercises, ` +
         `${result.unmapped.length} unmapped parts${problems ? `, ${problems} files failed validation` : ""}`,
     );
-    report.normalised[`${course.def.id} ${EDITION}`] = {
+    report.normalised[reportKey(course.def.id, EDITION)] = {
       lessons: result.lessons,
       unknown: result.unknown,
       problems,

@@ -10,6 +10,7 @@ import {
   importReport,
   mediaRef,
   rawPages,
+  reportKey,
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
@@ -48,5 +49,5 @@ export async function importDib(options: ImportOptions): Promise<ImportReport> {
   log(
     `dib ${EDITION}: ${lessons} lessons${problems ? `, ${problems} files failed validation` : ""}`,
   );
-  return importReport(index, { [`${COURSE} ${EDITION}`]: { lessons, unknown: 0, problems } });
+  return importReport(index, { [reportKey(COURSE, EDITION)]: { lessons, unknown: 0, problems } });
 }

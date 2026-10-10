@@ -14,6 +14,7 @@ import {
   mediaPath,
   mediaRef,
   rawPages,
+  reportKey,
   urlFileName,
   wanted,
   writeLibraryFiles,
@@ -103,7 +104,7 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
     );
     // What normalising found (a recording or an answer it could not place) counts with the files
     // that failed: such an import is not reported clean.
-    report.normalised[`${level.course} ${EDITION}`] = {
+    report.normalised[reportKey(level.course, EDITION)] = {
       lessons: 0,
       unknown: 0,
       leftOut: out.leftOut,

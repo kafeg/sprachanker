@@ -13,6 +13,7 @@ import {
   mediaRef,
   openKeyMap,
   rawPages,
+  reportKey,
   wanted,
   writeLibraryFiles,
 } from "@sprachanker/course-kit";
@@ -93,5 +94,5 @@ export async function importLingust(options: ImportOptions): Promise<ImportRepor
     `lingust ${EDITION}: ${lessons} lessons, ${unknown} unknown exercises` +
       (problems ? `, ${problems} files failed validation` : ""),
   );
-  return importReport(index, { [`${COURSE} ${EDITION}`]: { lessons, unknown, problems } });
+  return importReport(index, { [reportKey(COURSE, EDITION)]: { lessons, unknown, problems } });
 }

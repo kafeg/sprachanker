@@ -10,7 +10,8 @@ packages/course-kit/src/
   provider.ts          # the provider contract: import options, report, progress, course offers, wanted,
                        # CourseProvider; libraryFile (a file by kind: its path from its keys, its schema;
                        # an exam's sources too), libraryWriter / writeLibraryFiles
-  importing.ts         # rawPages (raw pages kept once, counted, their newest time), importReport / emptyReport
+  importing.ts         # rawPages (raw pages kept once, counted, their newest time), importReport / emptyReport,
+                       # reportKey ("<course> <edition>")
   http.ts              # the polite fetcher (robots.txt, retries, IMPORTER_USER_AGENT; a browsing session
                        # for sites run by forms)
   robots.ts            # robots.txt rules
