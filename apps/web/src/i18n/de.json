@@ -628,6 +628,7 @@
     "passOf": "Durchgang vom {date}",
     "attemptN": "Versuch {n, number}",
     "more": "Mehr",
+    "alsoDone": "Außerdem gemacht",
     "wordsAdded": "Zum Wiederholen hinzugefügte Wörter",
     "messages": "{count, plural, one {# Nachricht} other {# Nachrichten}}",
     "nothing": "nichts",
@@ -649,7 +650,7 @@
     },
     "tile": {
       "activeDays": "Lerntage",
-      "lesson": "Übungen und Schritte",
+      "lesson": "Antworten und Schritte",
       "review": "Karten beantwortet",
       "newCards": "Neue Karten",
       "remembered": "Gewusst",

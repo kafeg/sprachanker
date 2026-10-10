@@ -628,6 +628,7 @@
     "passOf": "Pass of {date}",
     "attemptN": "Attempt {n, number}",
     "more": "More",
+    "alsoDone": "Also done",
     "wordsAdded": "Words added to Review",
     "messages": "{count, plural, one {# message} other {# messages}}",
     "nothing": "nothing done",
@@ -649,7 +650,7 @@
     },
     "tile": {
       "activeDays": "Study days",
-      "lesson": "Exercises and steps",
+      "lesson": "Answers and steps",
       "review": "Cards answered",
       "newCards": "New cards",
       "remembered": "Remembered",

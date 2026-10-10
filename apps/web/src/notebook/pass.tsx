@@ -166,7 +166,7 @@ function More({ pass }: { pass: NotebookPass }) {
   const { writing, scenes, chats, words } = pass;
   if (!writing.length && !scenes.length && !chats.length && !words.length) return null;
   return (
-    <Panel title={t("notebook.more")} className="space-y-3">
+    <Panel title={t("notebook.alsoDone")} className="space-y-3">
       {writing.map((w) => (
         <p key={w.ts}>
           <span className="text-muted-foreground">{t(`writing.verdict.${w.verdict}`)}: </span>
