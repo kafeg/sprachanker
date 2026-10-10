@@ -13,6 +13,7 @@ import type {
   LocaleExam,
   LocaleLesson,
 } from "@sprachanker/schema";
+import { createOnce } from "./once.ts";
 
 export interface CourseSummary {
   series: string;
@@ -38,53 +39,40 @@ export interface CourseMap {
 }
 
 export function createContent(library: LibraryView) {
-  type Kept<T> = { stamp: string; value: Promise<T> };
-  const lessons = new Map<string, Kept<Lesson>>();
-  const locales = new Map<string, Kept<LocaleLesson | undefined>>();
-  /** Reads once and keeps the result while its file stays the same — replaced by a download, an import
-   *  from the command line or a series folder copied back, it is read again; a failed read is not
-   *  kept (asked again next time). */
-  const cached = <T>(
-    cache: Map<string, Kept<T>>,
-    id: string,
-    stamp: string,
-    read: () => Promise<T>,
-  ) => {
-    const kept = cache.get(id);
-    if (kept?.stamp === stamp) return kept.value;
-    const value = read();
-    cache.set(id, { stamp, value });
-    value.catch(() => {
-      if (cache.get(id)?.value === value) cache.delete(id);
-    });
-    return value;
-  };
-  const lesson = (series: string, key: LessonKey) =>
-    cached(lessons, `${series}|${key}`, library.lessonStamp(series, key), () =>
-      library.lesson(series, key),
-    );
-  const exams = new Map<string, Kept<Exam>>();
-  const localeExams = new Map<string, Kept<LocaleExam | undefined>>();
-  const exam = (series: string, key: ExamKey) =>
-    cached(exams, `${series}|${key}`, library.examStamp(series, key), () =>
-      library.exam(series, key),
-    );
-  const localeExam = (series: string, key: ExamKey, edition: string) =>
-    cached(
-      localeExams,
-      `${series}|${key}|${edition}`,
-      library.examStamp(series, key, edition),
-      () => library.localeExam(series, key, edition),
-    );
+  /** Each read once and kept while its file stays the same (its stamp) — replaced by a download, an
+   *  import from the command line or a series folder copied back, it is read again; a failed read is
+   *  not kept (asked again next time). */
+  const lessons = createOnce<Lesson>({ keep: true });
+  const locales = createOnce<LocaleLesson | undefined>({ keep: true });
+  const exams = createOnce<Exam>({ keep: true });
+  const localeExams = createOnce<LocaleExam | undefined>({ keep: true });
   // An exam's sources are written with its file: kept while the exam's file stays the same.
-  const examSourcesKept = new Map<string, Kept<ExamSources | undefined>>();
+  const examSourcesKept = createOnce<ExamSources | undefined>({ keep: true });
+  const lesson = (series: string, key: LessonKey) =>
+    lessons(
+      `${series}|${key}`,
+      () => library.lesson(series, key),
+      library.lessonStamp(series, key),
+    );
+  const exam = (series: string, key: ExamKey) =>
+    exams(`${series}|${key}`, () => library.exam(series, key), library.examStamp(series, key));
+  const localeExam = (series: string, key: ExamKey, edition: string) =>
+    localeExams(
+      `${series}|${key}|${edition}`,
+      () => library.localeExam(series, key, edition),
+      library.examStamp(series, key, edition),
+    );
   const examSources = (series: string, key: ExamKey) =>
-    cached(examSourcesKept, `${series}|${key}`, library.examStamp(series, key), () =>
-      library.examSources(series, key),
+    examSourcesKept(
+      `${series}|${key}`,
+      () => library.examSources(series, key),
+      library.examStamp(series, key),
     );
   const localeLesson = (series: string, key: LessonKey, edition: string) =>
-    cached(locales, `${series}|${key}|${edition}`, library.lessonStamp(series, key, edition), () =>
-      library.localeLesson(series, key, edition),
+    locales(
+      `${series}|${key}|${edition}`,
+      () => library.localeLesson(series, key, edition),
+      library.lessonStamp(series, key, edition),
     );
 
   return {

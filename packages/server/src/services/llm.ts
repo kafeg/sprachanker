@@ -51,6 +51,7 @@ import type { ProfileDb } from "../db/profile/db.ts";
 import { llmRoutes, secrets } from "../db/profile/schema.ts";
 import { ServiceError } from "../errors.ts";
 import type { SecretBox } from "../security/secrets.ts";
+import { createOnce } from "./once.ts";
 import type { Settings } from "./settings.ts";
 
 /** Settings key with custom endpoints by provider id. */
@@ -209,8 +210,8 @@ export function createLlm(deps: {
   const { db, settings, box } = deps;
   /** Downloads started from the app: model key → LM Studio job id. */
   const downloads = new Map<string, string>();
-  /** LM Studio loads in progress, by model key. */
-  const loading = new Map<string, Promise<void>>();
+  /** LM Studio loads in progress, by model key: two tasks at once load one copy. */
+  const loading = createOnce<void>();
   const endpoints = (): Partial<Record<ProviderId, string>> => settings.get(ENDPOINTS) ?? {};
   const customPrompts = (): Partial<Record<PromptTask, string>> => settings.get(PROMPTS) ?? {};
   const route = () => db.select().from(llmRoutes).where(eq(llmRoutes.task, DEFAULT_ROUTE)).get();
@@ -242,17 +243,9 @@ export function createLlm(deps: {
     const key = await apiKey(id);
     if (preset.key === "required" && !key) throw new LlmSetupError("llm_no_key");
     // LM Studio would load a model on its own with a small default window: load it ourselves, one
-    // load per model at a time (two tasks at once must not load two copies).
-    if (id === "lmstudio" && model) {
-      // Registered before any await, so a second task finds it.
-      const pending = loading.get(model) ?? studio().then((api) => api.ensureLoaded(model));
-      loading.set(model, pending);
-      try {
-        await pending;
-      } finally {
-        if (loading.get(model) === pending) loading.delete(model);
-      }
-    }
+    // load per model at a time.
+    if (id === "lmstudio" && model)
+      await loading(model, () => studio().then((api) => api.ensureLoaded(model)));
     return {
       client: openAiCompatible(
         { baseUrl: url, apiKey: key, noReasoning: preset.noReasoning },
