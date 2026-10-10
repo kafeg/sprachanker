@@ -220,11 +220,12 @@ export function createExams({
     };
   }
 
-  /** A run as a standing lists it: its points, passed or not, a mock exam or practice, the module
-   *  taken (by its title in `locale`, when given). */
+  /** A run as a standing lists it: its points, a mock exam or practice, the module taken (by its
+   *  title in `locale`, when given); passed or not for a mock exam only (practice is judged over the
+   *  questions answered, which no pass mark is for). */
   const summaryOf = (run: ExamRun, locale?: LocaleExam): RunSummary => {
     const { exam: _, plan, result, ...header } = run;
-    const passed = examPassed(result);
+    const passed = plan.mode === "test" ? examPassed(result) : undefined;
     return {
       ...header,
       mode: plan.mode,

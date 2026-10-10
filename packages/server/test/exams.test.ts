@@ -232,6 +232,9 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
     edition: "en-de",
     mode: "practice",
   });
+  await api.sendJson("POST", `/api/exams/runs/${practice.id}/events`, {
+    events: [answer("001", "b")],
+  });
   await api.sendJson("POST", `/api/exams/runs/${practice.id}/finish`, {});
   const { modules } = await api.getJson("/api/notebook");
   const exams = modules.find((m: { module: string }) => m.module === "exam").entries;
@@ -245,6 +248,10 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
   // The exam's page: the practice too, and each open question as it stands.
   const detail = await api.getJson(`/api/notebook/exam?exam=${EXAM}`);
   expect(detail.entry.runs.map((r: { id: string }) => r.id)).toEqual([practice.id, run.id]);
+  // Practice is not judged by the pass mark (it is over the questions answered); the mock exam is.
+  expect(detail.entry.runs[0]).toMatchObject({ mode: "practice", points: 1 });
+  expect(detail.entry.runs[0].passed).toBeUndefined();
+  expect(typeof detail.entry.runs[1].passed).toBe("boolean");
   expect(detail.lang).toBe("de");
   const states = Object.fromEntries(
     detail.items.map((i: { key: string; state: string }) => [i.key, i.state]),
