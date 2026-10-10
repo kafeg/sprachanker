@@ -8,6 +8,7 @@
 import { nextProfileColour, type ProfileColour } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSetSetting } from "@/api/hooks.ts";
 import {
   type SessionProfile,
   useCreateProfile,
@@ -39,7 +40,8 @@ export function Onboarding({
   /** Finished: where to go (All courses). */
   onDone(): void;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const setSetting = useSetSetting();
   const steps = STEPS.filter((s) => s !== "assistant" || assistant);
   // A named profile has been through the first step (the profile from before profiles has no name).
   const [step, setStep] = useState<Step>(steps[profile?.name ? 1 : 0] ?? "profile");
@@ -61,21 +63,27 @@ export function Onboarding({
     profile?.colour ??
     nextProfileColour(profiles.data?.profiles.map((p) => p.colour) ?? []);
 
+  const following = steps[at + 1];
   const next = () => {
     if (step === "profile") {
+      if (!name.trim() || create.isPending || update.isPending) return;
       const named = { name: name.trim(), colour };
       if (!profile) return create.mutate(named);
-      update.mutate(named);
+      // The name is kept before going on: a failure shows here, where it can be put right.
+      return update
+        .mutateAsync(named)
+        .then(() => following && setStep(following))
+        .catch(() => {});
     }
-    const following = steps[at + 1];
-    if (following) setStep(following);
+    if (following) return setStep(following);
+    // The interface language on screen is the profile's (it may have kept another one before).
+    setSetting.mutate({ key: "uiLanguage", value: i18n.language });
     // Awaited, not mutate's callback: the app replaces the onboarding before that would run; a failure
     // shows under the buttons.
-    else
-      update
-        .mutateAsync({ onboarded: true })
-        .then(onDone)
-        .catch(() => {});
+    update
+      .mutateAsync({ onboarded: true })
+      .then(onDone)
+      .catch(() => {});
   };
   const failed = create.error ?? update.error;
 
@@ -102,7 +110,14 @@ export function Onboarding({
               <p>{t("onboarding.profile.experimental")}</p>
             </div>
             <h2 className="pt-2 text-xl font-semibold">{t("onboarding.profile.name")}</h2>
-            <NameAndColour name={name} colour={colour} onName={setName} onColour={setPicked} />
+            <NameAndColour
+              name={name}
+              colour={colour}
+              onName={setName}
+              onColour={setPicked}
+              onSubmit={next}
+              autoFocus
+            />
           </>
         )}
         {step === "assistant" && (
@@ -137,7 +152,7 @@ export function Onboarding({
           <Button
             size="lg"
             disabled={step === "profile" && !name.trim()}
-            loading={create.isPending || (last && update.isPending)}
+            loading={create.isPending || ((last || step === "profile") && update.isPending)}
             onClick={next}
           >
             {last ? t("onboarding.finish") : t("onboarding.next")}

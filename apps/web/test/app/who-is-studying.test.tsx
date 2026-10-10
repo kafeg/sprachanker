@@ -15,7 +15,7 @@ const listOf = (n: number) =>
     { profiles: Array.from({ length: n }, (_, i) => profile(i + 1)), registration: true },
   ] as [unknown[], unknown];
 
-test("five profiles to a page, New profile after them; ← / → and the arrow keys page", async () => {
+test("five profiles to a page, New profile after them; ← / → and the arrow keys page round", async () => {
   let added = 0;
   const view = await renderApp(<WhoIsStudying onNew={() => added++} />, { data: [listOf(7)] });
   // Each tile's name (its initial on the avatar left out).
@@ -32,8 +32,11 @@ test("five profiles to a page, New profile after them; ← / → and the arrow k
     "New profile",
   ]);
   expect(view.getByText("1 of 2")).toBeTruthy();
-  const previous = view.getByRole("button", { name: "Previous profiles" });
-  expect(previous.hasAttribute("disabled")).toBe(true);
+  // From the first page back is the last one: the buttons stay enabled and keep their focus.
+  fireEvent.click(view.getByRole("button", { name: "Previous profiles" }));
+  expect(view.getByText("2 of 2")).toBeTruthy();
+  fireEvent.click(view.getByRole("button", { name: "More profiles" }));
+  expect(view.getByText("1 of 2")).toBeTruthy();
   fireEvent.click(view.getByRole("button", { name: "More profiles" }));
   expect(names()).toEqual(["Learner 6", "Learner 7", "New profile"]);
   fireEvent.keyDown(window, { key: "ArrowLeft" });

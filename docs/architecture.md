@@ -115,8 +115,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
 - **Optional AI in the web**: `apps/web/src/llm/` plugs into the player through slots
   (`lesson/slots.ts`) and into the onboarding as its AI step; removing the folder and its mount points
   (the router, the settings page) leaves a working app.
-- **The app's gate** (web `routes/router.tsx`): no session → "Who is studying?"; a profile not yet
-  onboarded → its onboarding; else the app. A 401 `no_session` anywhere returns to the gate.
+- **The app's gate** (web `routes/router.tsx`): no session → "Who is studying?" ("New profile" opens
+  the onboarding, which makes the profile at its first step); a profile not yet onboarded → its
+  onboarding; else the app. A 401 `no_session` anywhere returns to the gate.
 
 ## Tests
 

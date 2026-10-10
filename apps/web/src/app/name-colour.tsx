@@ -12,6 +12,8 @@ export function NameAndColour({
   onName,
   onColour,
   onNameDone,
+  onSubmit,
+  autoFocus,
 }: {
   name: string;
   colour: ProfileColour;
@@ -19,6 +21,9 @@ export function NameAndColour({
   onColour(colour: ProfileColour): void;
   /** The name's field left or Enter pressed in it. */
   onNameDone?(): void;
+  /** Enter pressed in the name's field (a form going on with it). */
+  onSubmit?(): void;
+  autoFocus?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -27,13 +32,14 @@ export function NameAndColour({
         <Avatar name={name || "?"} colour={colour} className="size-12 text-xl" />
         <Input
           className="h-11 max-w-xs"
+          autoFocus={autoFocus}
           maxLength={PROFILE_NAME_MAX}
           aria-label={t("profile.name")}
           placeholder={t("profile.name")}
           value={name}
           onChange={(e) => onName(e.target.value)}
           onBlur={onNameDone}
-          onKeyDown={(e) => e.key === "Enter" && onNameDone?.()}
+          onKeyDown={(e) => e.key === "Enter" && (onSubmit ?? onNameDone)?.()}
         />
       </div>
       <fieldset

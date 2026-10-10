@@ -28,7 +28,7 @@ Specs: 09, 10.
   Bosnian, Greek, Spanish, Persian, French, Hindi, Hungarian, Indonesian, Polish, Portuguese,
   Romanian, Swahili, Turkish, Ukrainian, Chinese, …): translated (model-assisted, then checked by the
   catalog tests: keys, ICU, plurals), right-to-left layout for Arabic and Persian, fonts for every
-  script; the onboarding and the language switch offer them.
+  script; the language switch and Settings offer them.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
 ### 3. The tutor on its own (owner, 2026-10-10)

@@ -28,7 +28,8 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
   const list = profiles.data?.profiles ?? [];
   const pages = Math.max(1, Math.ceil(list.length / PROFILES_PER_PAGE));
   const at = Math.min(page, pages - 1);
-  const go = (to: number) => setPage(Math.max(0, Math.min(pages - 1, to)));
+  // Round from the last page to the first and back: the buttons stay enabled, so keep their focus.
+  const go = (to: number) => setPage((to + pages) % pages);
   // biome-ignore lint/correctness/useExhaustiveDependencies: go reads at and pages
   useEffect(() => {
     if (pages < 2) return;
@@ -57,7 +58,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
       </div>
       <ul className="flex flex-wrap justify-center gap-3">
         {shown.map((p) => (
-          <li key={p.id} className="w-26">
+          <li key={p.id} className="w-32">
             <button
               type="button"
               onClick={() => signIn.mutate({ profile: p.id })}
@@ -71,7 +72,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
           </li>
         ))}
         {(profiles.data.registration || !list.length) && (
-          <li className="w-26">
+          <li className="w-32">
             <button
               type="button"
               onClick={onNew}
@@ -88,22 +89,18 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
           <Button
             variant="outline"
             size="icon-lg"
-            className="pointer-coarse:min-w-11"
             aria-label={t("profiles.previous")}
-            disabled={at === 0}
             onClick={() => go(at - 1)}
           >
             <ChevronLeft />
           </Button>
-          <span className="text-sm tabular-nums text-muted-foreground">
+          <span className="text-sm tabular-nums text-muted-foreground" aria-live="polite">
             {t("profiles.page", { n: at + 1, total: pages })}
           </span>
           <Button
             variant="outline"
             size="icon-lg"
-            className="pointer-coarse:min-w-11"
             aria-label={t("profiles.next")}
-            disabled={at === pages - 1}
             onClick={() => go(at + 1)}
           >
             <ChevronRight />
