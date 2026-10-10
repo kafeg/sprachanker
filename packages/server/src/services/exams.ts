@@ -52,7 +52,7 @@ const GRACE_MS = 30_000;
  *  WebCrypto: the same in every runtime). */
 const random = () => (crypto.getRandomValues(new Uint32Array(1))[0] as number) / 2 ** 32;
 
-export const toExamRun = (row: RunRow): ExamRun | undefined => {
+const toExamRun = (row: RunRow): ExamRun | undefined => {
   const plan = readStored(row.planJson, ExamPlan, `plan of run ${row.id}`);
   if (!plan) return undefined;
   return {
@@ -116,6 +116,12 @@ export function createExams({
       return { ...e, payload };
     });
   };
+  /** An exam's texts in an edition (its title, its modules', sections' and questions' texts), if it
+   *  is still installed. */
+  const localeOf = (key: ExamKey, edition: string | null): Promise<LocaleExam | undefined> =>
+    edition
+      ? content.localeExam(seriesOf(key), key, edition).catch(() => undefined)
+      : Promise.resolve(undefined);
   /** A question of the run: from its snapshot (a mock exam), else from the exam as installed. */
   const questionOf = (exam: Exam, run: ExamRun, key: string): ExamItem | undefined =>
     run.plan.snapshot?.find((i) => i.key === key) ?? exam.items.find((i) => i.key === key);
@@ -175,9 +181,7 @@ export function createExams({
     const text =
       answer?.type === "answered" ? (answer.payload.answer as { text?: unknown }).text : undefined;
     if (typeof text !== "string") throw new ServiceError("invalid_request");
-    const locale = run.edition
-      ? await content.localeExam(seriesOf(run.exam), run.exam, run.edition).catch(() => undefined)
-      : undefined;
+    const locale = await localeOf(run.exam, run.edition);
     return { row, run, exam, locale, item: { ...item, criteria: item.criteria }, text };
   }
 
@@ -194,9 +198,7 @@ export function createExams({
       : undefined;
     if (item?.type !== "respond" || item.input !== "speech") throw new ServiceError("no_such_item");
     const section = exam.sections.find((s) => s.key === run.plan.sections[item.key]);
-    const locale = run.edition
-      ? await content.localeExam(seriesOf(run.exam), run.exam, run.edition).catch(() => undefined)
-      : undefined;
+    const locale = await localeOf(run.exam, run.edition);
     return { run, exam, locale, item, section };
   }
 
@@ -238,12 +240,6 @@ export function createExams({
       ...(passed !== undefined && { passed }),
     };
   };
-  /** An exam's title in an edition, if it is still installed. */
-  const titleOf = (key: ExamKey, edition: string | null) =>
-    edition
-      ? content.localeExam(seriesOf(key), key, edition).catch(() => undefined)
-      : Promise.resolve(undefined);
-
   /** The exams' standing (schema `stats.ts`): each exam with a mock exam handed in — its latest
    *  ones, newest first (practice is its questions' history), open while a run with answers is in
    *  progress — the latest handed in first. */
@@ -262,7 +258,7 @@ export function createExams({
         const latest = tests[0];
         if (!latest) return [];
         return [
-          titleOf(key, latest.edition).then((locale) => ({
+          localeOf(key, latest.edition).then((locale) => ({
             key,
             title: locale?.title ?? null,
             lastAt: latest.finishedAt ?? latest.startedAt,
@@ -288,7 +284,7 @@ export function createExams({
     const runs = all.filter((r) => r.status === "finished");
     const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
     const edition = runs[0]?.edition ?? course?.editions[0] ?? null;
-    const locale = await titleOf(key, edition);
+    const locale = await localeOf(key, edition);
     const items = (exam ? openQuestions(exam, setting) : []).map((item) => ({
       key: item.key,
       state: stats.get(item.key)?.last ?? ("unseen" as const),

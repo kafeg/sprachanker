@@ -13,7 +13,7 @@ import { useBytes } from "@/ui/format.ts";
 import { DownloadLine, downloading } from "./download.tsx";
 import { ResetProgress } from "./reset-progress.tsx";
 
-export type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
+type CatalogEntry = NonNullable<ReturnType<typeof useCatalog>["data"]>[number];
 
 /** A course's or an exam's card: its band, then its download state and its body. */
 export function LibraryCard({

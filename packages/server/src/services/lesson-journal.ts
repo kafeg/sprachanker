@@ -3,7 +3,7 @@
 // added, chats and scenes held meanwhile), and one item across passes. Read only, through the run
 // store; the cards a pass made through the card store; the chats and scenes about the lesson are
 // handed in (the AI practice's own services).
-import { exerciseResults, lessonCoverage } from "@sprachanker/engine";
+import { exerciseResults, LESSON_WORK, lessonCoverage } from "@sprachanker/engine";
 import {
   type AnsweredPayload,
   type ItemKey,
@@ -17,7 +17,7 @@ import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import { payloadOf, type ReadEvent, type RunRow, type RunStore } from "./run-store.ts";
-import { lessonTitle, toRun, WORK_EVENTS } from "./runs.ts";
+import { lessonTitle, toRun } from "./runs.ts";
 
 /** A chat with the tutor about a lesson, as its history lists it. */
 interface HeldChat {
@@ -46,7 +46,7 @@ export function createLessonJournal(deps: {
 
   /** A lesson's passes with work in them (a lesson only opened is none), newest first. */
   function passes(lessonKey: LessonKey) {
-    const worked = store.lastActivity([...WORK_EVENTS]);
+    const worked = store.lastActivity([...LESSON_WORK]);
     return store
       .list("lesson", lessonKey)
       .filter((r) => worked.has(r.id))

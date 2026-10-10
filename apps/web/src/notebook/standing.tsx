@@ -38,7 +38,7 @@ export function FigureTile({ module, figure }: { module: ModuleId; figure: Figur
   );
 }
 
-export function FigureGrid({ module, figures }: { module: ModuleId; figures: Figure[] }) {
+function FigureGrid({ module, figures }: { module: ModuleId; figures: Figure[] }) {
   if (!figures.length) return null;
   return (
     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -162,8 +162,8 @@ function EntryPanel({
   );
 }
 
-/** A run in a list: when it ended, what kind it was and the part taken (when told), what it scored,
- *  passed or not. */
+/** A run in a list: when it ended, what kind it was and the part taken (when told), the points it
+ *  scored, passed or not. */
 export function RunRow({
   run,
   kind,
@@ -176,7 +176,6 @@ export function RunRow({
 }) {
   const { t } = useTranslation();
   const when = useDateFormat(kind ? "dayTime" : "day");
-  const percent = usePercent();
   return (
     <ListRow onClick={onOpen}>
       <span className="flex-1">
@@ -189,9 +188,7 @@ export function RunRow({
         )}
       </span>
       <span className="tabular-nums">
-        {run.points !== undefined
-          ? t("exams.points", { points: run.points, max: run.max ?? 0 })
-          : run.score !== undefined && percent(run.score)}
+        {run.points !== undefined && t("exams.points", { points: run.points, max: run.max ?? 0 })}
       </span>
       <span
         className={cn(

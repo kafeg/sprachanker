@@ -41,9 +41,6 @@ export const toRun = (r: RunRow): Run => ({
   result: readStored(r.resultJson, LessonResult, `result of run ${r.id}`) ?? null,
 });
 
-/** What counts as work done in a lesson run (the engine's `LESSON_WORK`). */
-export const WORK_EVENTS = LESSON_WORK;
-
 /** A lesson's title in an edition, if the lesson is still installed. */
 export const lessonTitle = (content: Content, lessonKey: LessonKey, edition: string | null) =>
   edition
@@ -114,7 +111,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
    *  as "in progress" only once something was answered, skipped or a step done in it. */
   const progress = async () => {
     // Work done in the run: an answer, a skip, or a step of the plan (words, a page read, practice).
-    const activity = store.lastActivity([...WORK_EVENTS]);
+    const activity = store.lastActivity([...LESSON_WORK]);
     const counted: Run[] = [];
     for (const row of store.all("lesson"))
       if (row.status === "active" || completed(row)) counted.push(toRun(row));
@@ -129,7 +126,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
    */
   async function standing(): Promise<ModuleStanding> {
     const byLesson = await progress();
-    const worked = store.lastActivity([...WORK_EVENTS]);
+    const worked = store.lastActivity([...LESSON_WORK]);
     const runsOf = new Map<LessonKey, RunRow[]>();
     for (const row of store.all("lesson")) {
       if (!worked.has(row.id)) continue;

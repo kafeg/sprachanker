@@ -50,11 +50,10 @@ export const Figure = z.object({
 });
 export type Figure = z.infer<typeof Figure>;
 
-/** A run as a standing lists it: when, how it ended, what it scored — a share (a lesson's score) or
- *  points (an exam's), passed or not where a pass mark judges it; `mode` and `part`: what kind of run
- *  it was in its module (a mock exam or practice) and the part taken (a module of an exam). */
+/** A run as a standing lists it: when, how it ended, the points it scored (an exam's), passed or not
+ *  where a pass mark judges it; `mode` and `part`: what kind of run it was in its module (a mock exam
+ *  or practice) and the part taken (a module of an exam). */
 export const RunSummary = RunHeader.extend({
-  score: z.number().min(0).max(1).optional(),
   points: z.number().optional(),
   max: z.number().optional(),
   passed: z.boolean().optional(),
