@@ -34,48 +34,33 @@ src/
                      # routes/llm.ts answer it (and a request that does not validate)
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
-                     # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs), progress (reset), exams,
-                     # cards (/api/cards), settings, notebook, recordings, speech, llm (removable as a whole); env.ts: what a
-                     # profile's routes read (`c.var.s`, its services; `c.var.profileId`); params.ts:
-                     # what several take alike (a run's id in the path, a batch of events)
-  services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
-                     # records, registration), devices (sign-in tokens), and
-                     # each profile's own services (`of(id)`, made on first use); content; lessons (lesson runs,
-                     # lesson progress, the lessons' standing); lesson-journal (a lesson's passes, a pass in
-                     # full, an item across passes); progress (the learner's progress over every module:
-                     # reset for a course, a lesson or an exam; the recordings answers hold); exams (the
-                     # standing in each exam, the exams' standing, an exam's page in the Notebook) over
-                     # exam-runs (mock exams and practice taken; overdue ones handed in on reading);
-                     # run-store (the one module on runs and events: start, replace, end, append, read,
-                     # remove); answers (numbered); verdicts (kept, read); card-store (the one module on cards and card_state); cards
-                     # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
-                     # bury, suspend, flags, marks; review's standing); words (My words, the word sheet);
-                     # notebook (the study days and every module's standing, gathered); settings;
-                     # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
-                     # lesson); llm (providers, keys, the route's client, structured calls, prompt previews;
-                     # llm-lmstudio: LM Studio's state, start, loads; llm-prompts: the learner's own
-                     # prompts over the llm package's TASK_PROMPTS); explain ("Why is this
-                     # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
-                     # writing ("Write it yourself": checks kept in the lesson run); speaking (an
-                     # answer said aloud checked by the model, kept on the item in the lesson run);
-                     # scene (`scene` runs); exam-rating (an exam's open answer
-                     # rated by the model: a proposal kept in the exam run); exam-conversation (a
-                     # speaking part held with the model: its lines kept in the exam run);
-                     # examples (AI examples of a card's word, kept on the card in the review run);
-                     # recordings (the learner's audio in the profile's recordings folder); speech
-                     # (whisper-server, its models: one engine for the server; course recordings
-                     # heard once per model); read-aloud (Piper's voices — piper-voices.json, written by
-                     # scripts/piper-voices.ts — downloads, a text read as a WAV); qwen-tts (Qwen3-TTS:
-                     # models, the engine on the supervisor, a text read by a speaker); local-engines
-                     # (what they share: SpeechHost, ReadingCache, an engine on the
-                     # supervisor); model-downloads (theirs: progress, failure, cancel);
-                     # profile-speech (a profile's choices applied: recognition, the
-                     # engine, voice and speed reading aloud); sidecar (the supervisor of local
-                     # engines: one start, idle stop, switching after requests in flight); stored
-                     # (a stored JSON value read with its schema: unset when it does not read);
-                     # in-flight (what a model is doing per lesson: structured calls outlive the page);
-                     # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
-                     # catalogue states, resume after restart; the installer is injected)
+                     # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
+                     # progress (reset), exams, cards, settings, notebook, recordings, speech, llm
+                     # (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
+                     # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
+                     # the path, a batch of events)
+  services/          # index.ts wires them: shared (content, downloads, profiles, devices) and each
+                     # profile's own (`of(id)`, made on first use; what one module needs of another is
+                     # a function handed in here). By area:
+                     # - stores: run-store (the only code on runs and events), card-store (on cards and
+                     #   card_state); over the run store answers (numbered) and verdicts (kept, read)
+                     # - lessons: lessons (lesson runs, progress, standing), lesson-journal (passes, a
+                     #   pass in full, an item across passes), mistakes
+                     # - exams: exams (the standing in each, the exams', an exam's Notebook page) over
+                     #   exam-runs (mock exams and practice taken; overdue ones handed in on reading)
+                     # - review: cards (from lesson words; decks taken, left; relinking), study (Anki's
+                     #   decks, queue, ratings, undo, bury, suspend, flags, marks; standing), words
+                     # - across modules: notebook (study days, the standings gathered), progress (resets;
+                     #   recordings in use), content, settings, stored (a JSON value read by its schema)
+                     # - AI (07), each task in the module whose run keeps its answers: llm (providers,
+                     #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,
+                     #   in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
+                     #   (+ tutor-tools), scene; exam-rating, exam-conversation; examples
+                     # - speech (08): speech (whisper-server), read-aloud (Piper; piper-voices.json from
+                     #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
+                     #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,
+                     #   recordings (the learner's audio)
+                     # - downloads: course installs (queue, progress, resume; the installer injected)
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
                      # headers), encoding.ts (base64url, SHA-256)
   media.ts           # Range responses for library media and profile recordings; audio body limits
@@ -105,10 +90,12 @@ test/                # bun test; integration tests call createApp().request() �
 - Events are append-only; never UPDATE or DELETE `events`. Only two things remove them (`store.remove`):
   deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat,
   leaving a deck: the answers to the cards that go).
-- Learning modules connect through common connectors only (docs/architecture.md): each gives its
-  `standing` in schema `stats.ts`'s shape, which index.ts hands to the Notebook; a module's services
-  never import another module's, nor the Notebook or progress (dependency-cruiser
-  `server-lessons-apart`, `server-exams-apart`, `server-review-apart`, `server-notebook-gathers`).
+- Learning modules (lessons, exams, review) connect through common connectors only
+  (docs/architecture.md): each gives its `standing` in schema `stats.ts`'s shape, which index.ts hands
+  to the Notebook; a module's services never import another module's, nor the Notebook or progress
+  (dependency-cruiser `server-lessons-apart`, `server-exams-apart`, `server-review-apart`,
+  `server-notebook-gathers`) — what one needs of another index.ts hands in as a function. The AI is
+  no module: each of its task services is in the group of the module whose runs it works in.
 - Any change to a Drizzle schema → new migration (`bun run db:generate`, hand-check the SQL) + a
   migration test that upgrades a database built by the earlier migrations, with rows in it.
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`

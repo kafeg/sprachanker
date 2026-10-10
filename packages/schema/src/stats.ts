@@ -1,11 +1,14 @@
 // How every module reports its statistics (05, "Derived state"; 09, Notebook): the learner's work is
-// counted per module — lessons, exams, review, the AI practice — by the kind of run it was done in, and
-// each module gives its standing in one shape the Notebook shows without knowing the module.
+// counted per module — lessons, exams, review, and the AI practice — and each learning module gives
+// its standing in one shape the Notebook shows without knowing the module.
 import { z } from "zod";
 import { Lang } from "./lang.ts";
 import { RunHeader, type RunKind } from "./learner.ts";
 
-/** The modules the learner works in: each has its runs, its counts and its standing. */
+/** What a study day counts the learner's work by. Lessons, exams and review are the learning
+ *  modules: each has its runs and its standing. The AI practice is counted only — the learner's
+ *  messages and the model's checks, in whichever run — and gives no standing: its services work in
+ *  the other modules' runs, besides its own chats and scenes (docs/architecture.md). */
 export const MODULES = ["lesson", "exam", "review", "ai"] as const;
 export const ModuleId = z.enum(MODULES);
 export type ModuleId = z.infer<typeof ModuleId>;
@@ -91,12 +94,11 @@ export type ModuleStanding = z.infer<typeof ModuleStanding>;
 
 /** One thing an entry asks of the learner (an exam's question) and how it stands: answered right
  *  last time, wrongly, or not seen; `line`: what it asks, in a list. */
-export const ItemStanding = z.object({
+const ItemStanding = z.object({
   key: z.string(),
   state: z.enum(["right", "wrong", "unseen"]),
   line: z.string(),
 });
-export type ItemStanding = z.infer<typeof ItemStanding>;
 
 /** An entry in full (its page in the Notebook): every run, and its items as they stand, in the
  *  language they are in. */

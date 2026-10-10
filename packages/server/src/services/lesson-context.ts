@@ -1,5 +1,6 @@
 // What the LLM tasks know about a lesson (07): the lesson in the learner's edition, earlier lessons as
-// words and titles, and mistakes with their exercises. Shared by the tutor, writing and scenes.
+// words and titles, and mistakes with their exercises; the course's vocabulary. Shared by the tutor
+// (and its tools), writing, scenes, explain, speaking and word examples.
 import type { VocabWord } from "@sprachanker/engine";
 import type { LessonInfo, TutorMistake } from "@sprachanker/llm";
 import {
@@ -15,7 +16,7 @@ import {
 import type { Content } from "./content.ts";
 import type { Mistake } from "./mistakes.ts";
 
-export interface LessonContext {
+interface LessonContext {
   lesson: Lesson;
   locale?: LocaleLesson;
   target: Lang;

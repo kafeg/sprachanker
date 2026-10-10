@@ -72,17 +72,20 @@ gets the types through Hono RPC (`AppType`), no codegen.
   installs (one at a time, progress, resume after restart) through the providers' importers.
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`; over the run store, `answers` (numbered by
-  the server) and `verdicts` (a model's, kept and read one way). Services build on them: `lessons` (lesson runs,
-  lesson progress), `progress` (reset over every module's runs, recordings in use), `exams` (the exams'
-  standings) over `exam-runs` (mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
-  ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (the study days and the
-  modules' standings, gathered), `lesson-journal` (a lesson's passes, a pass in full, an item across
-  passes), `mistakes`, `settings`.
-- **AI**: `llm` (providers, LM Studio, prompt previews, `structured`: one path for a task's call and
-  its timing), `explain`, `tutor` (+ `tutor-tools`), `writing`, `speaking` (an answer said aloud),
-  `scene`, `examples` (a card's word), `lesson-context` (what tasks know of a lesson). `in-flight`
-  keeps what a model is doing per lesson, so structured calls run to their end and a page opened
-  meanwhile shows them as waiting.
+  the server) and `verdicts` (a model's, kept and read one way). Services build on them — lessons:
+  `lessons` (lesson runs, progress, standing), `lesson-journal` (a lesson's passes, a pass in full, an
+  item across passes), `mistakes`; exams: `exams` (the standings) over `exam-runs` (mock exams and
+  practice taken); review: `cards` (cards from a lesson's words, decks taken and left, relinking),
+  `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
+  across them `notebook` (the study days and the modules' standings, gathered), `progress` (reset over
+  every module's runs, recordings in use), `settings`.
+- **AI** (a feature across the learning modules, below): `llm` (providers, LM Studio, prompt
+  previews, `structured`: one path for a task's call and its timing), `lesson-context` (what tasks
+  know of a lesson) and `in-flight` (what a model is doing, by lesson, card or answer, so structured
+  calls run to their end and a page opened meanwhile shows them as waiting) are shared; each task's
+  service belongs to the module whose runs it works in — lessons: `explain`, `writing`, `speaking`
+  (an answer said aloud), `tutor` (+ `tutor-tools`), `scene`; exams: `exam-rating`,
+  `exam-conversation`; review: `examples` (a card's word).
 - **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
   models) on `sidecar`, the supervisor of local engines (06, "Sidecars"); `read-aloud` (Piper's voices,
   a text read as a WAV); what they share in `local-engines` (the runtime's SpeechHost, the reading
@@ -107,17 +110,26 @@ gets the types through Hono RPC (`AppType`), no codegen.
   and scenes are runs; one-off model verdicts (explain, writing, speaking, word
   examples) are `llm_verdict` events, typed by task. Events are append-only and only grow; statistics
   are pure functions over `TypedEvent`s (engine). How histories are read: `packages/server/CLAUDE.md`.
-- **Learning modules and their connectors**: lessons, exams, review and the AI practice are modules
-  that share components and types but connect only through common connectors: the run store (every
-  module's runs and events, one `RunHeader`; the AI's verdicts and lines kept and read one way), the
-  study days (the engine counts every event by its run's module, schema `stats.ts`), and one
-  statistics contract — each module's service gives its `standing` (headline figures, entries with
-  their figures and latest runs) and the Notebook gathers them from `services/index.ts` without
-  knowing a module; a module's own page in the Notebook (a lesson's passes, an exam's questions) is
-  that module's. Resetting progress is the neutral `progress` service's. dependency-cruiser keeps the
-  server's modules apart (`server-*-apart`, `server-notebook-gathers`) and the web's feature folders
-  (`web-features-apart`: what they share is in `library/`, `api/`, `ui/`, `exercises/`, `audio/`,
-  `word/`).
+- **Learning modules and their connectors**: lessons, exams and review are modules that share
+  components and types but connect only through common connectors: the run store (every module's
+  runs and events, one `RunHeader`; the model's verdicts and lines kept and read one way), the study
+  days (the engine counts every event by its run's module, schema `stats.ts`), and one statistics
+  contract — each module's service gives its `standing` (headline figures, entries with their figures
+  and latest runs) and the Notebook gathers them from `services/index.ts` without knowing a module; a
+  module's own page in the Notebook (a lesson's passes, an exam's questions) is that module's.
+  Resetting progress is the neutral `progress` service's. What one module's service needs of another
+  is a function `services/index.ts` hands in, never an import: `cards` takes the run a lesson shows
+  (`lessons.shown`: the run its words' cards are made in) and the learner's courses
+  (`lessons.courses`: the decks to take); the lessons' AI services take `lessons.shown` and
+  `lessons.lessonRun`, the tutor's tools `lessons.progress`, word examples `study.reviewRun`.
+  dependency-cruiser keeps the server's modules apart (`server-*-apart`, `server-notebook-gathers`)
+  and the web's feature folders (`web-features-apart`: what they share is in `library/`, `api/`,
+  `ui/`, `exercises/`, `audio/`, `word/`).
+- **AI practice**: no module of its own — a feature plugged into the three: on the server each task's
+  service sits in the module whose runs it keeps its answers in (its group in dependency-cruiser), in
+  the web the optional `llm/` folder fills the modules' slots (below). Its own runs (tutor chats,
+  scenes) are about a lesson; its work — the learner's messages and the model's checks, in whichever
+  run — counts in the study days as `ai` (schema `stats.ts`), and it gives no standing.
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
   `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`

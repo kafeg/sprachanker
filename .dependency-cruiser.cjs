@@ -122,12 +122,12 @@ module.exports = {
     {
       name: "server-notebook-gathers",
       comment:
-        "The Notebook gathers every module's standing through one contract (schema stats.ts), handed in by services/index.ts: of the server it reads only the run store (the study days), content and errors — no module's service.",
+        "The Notebook gathers every module's standing through one contract (schema stats.ts), handed in by services/index.ts: of the server it reads only the run store (the study days) and errors — no module's service, nor content.",
       severity: "error",
       from: { path: "^packages/server/src/services/notebook\\.ts$" },
       to: {
         path: "^packages/server/src/",
-        pathNot: "^packages/server/src/(services/(run-store|content)|errors)\\.ts$",
+        pathNot: "^packages/server/src/(services/run-store|errors)\\.ts$",
       },
     },
     ...[
