@@ -42,7 +42,7 @@ table in the same commit with the reason.
 | Zip | `fflate` (when first needed: profile export, `.apkg`) |
 | Logging | `pino` (when first needed: structured logs; today `console.error` for what is left out or fails) |
 | Crypto | WebCrypto: AES-256-GCM (API keys), SHA-256 (device tokens) — runtime-agnostic, no adapter |
-| Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide; fonts bundled from `@fontsource` (no CDN); Motion when an animation needs more than CSS |
+| Web UI | React, Vite, Tailwind, shadcn/ui (Radix), Lucide; fonts bundled from `@fontsource` (no CDN): Fira Sans and Fira Sans Condensed, woff2 of the Latin, Latin Extended and Cyrillic subsets (`apps/web/src/fonts.css`; 2026-10-11: Barlow has no Cyrillic — Russian text mixed two fonts —; Sofia Sans set smaller, IBM Plex Sans Condensed has no Cyrillic on @fontsource); Motion when an animation needs more than CSS |
 | Drag and drop | `@dnd-kit/core` (mouse, touch and keyboard) with `@dnd-kit/utilities`; every drag also works by tap (pick, then place) |
 | Language flags | `country-flag-icons` (SVG React components, one module per flag; our language → flag table in `apps/web/src/ui/flags.tsx`) |
 | Routing / server state / UI state | TanStack Router / TanStack Query / React state and context (Zustand when shared client state outgrows them) |
