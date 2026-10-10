@@ -4,9 +4,12 @@ import type { LibraryView } from "@sprachanker/course-kit";
 import type {
   CourseIndex,
   CourseSource,
+  Exam,
+  ExamKey,
   Lesson,
   LessonKey,
   LocaleCourse,
+  LocaleExam,
   LocaleLesson,
 } from "@sprachanker/schema";
 
@@ -59,6 +62,19 @@ export function createContent(library: LibraryView) {
     cached(lessons, `${series}|${key}`, library.lessonStamp(series, key), () =>
       library.lesson(series, key),
     );
+  const exams = new Map<string, Kept<Exam>>();
+  const localeExams = new Map<string, Kept<LocaleExam | undefined>>();
+  const exam = (series: string, key: ExamKey) =>
+    cached(exams, `${series}|${key}`, library.examStamp(series, key), () =>
+      library.exam(series, key),
+    );
+  const localeExam = (series: string, key: ExamKey, edition: string) =>
+    cached(
+      localeExams,
+      `${series}|${key}|${edition}`,
+      library.examStamp(series, key, edition),
+      () => library.localeExam(series, key, edition),
+    );
   const localeLesson = (series: string, key: LessonKey, edition: string) =>
     cached(locales, `${series}|${key}|${edition}`, library.lessonStamp(series, key, edition), () =>
       library.localeLesson(series, key, edition),
@@ -67,6 +83,8 @@ export function createContent(library: LibraryView) {
   return {
     lesson,
     localeLesson,
+    exam,
+    localeExam,
     /** A lesson with its locale file of an edition (null when the edition has none). */
     async lessonWithLocale(series: string, key: LessonKey, edition: string) {
       const [l, locale] = await Promise.all([

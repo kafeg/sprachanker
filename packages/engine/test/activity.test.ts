@@ -8,7 +8,7 @@ const e = (id: string, day: number, type: string, payload: unknown = {}) =>
 const review = (id: string, day: number, rating: number, state: number | null) =>
   e(id, day, "card_review", { rating, stateBefore: state === null ? null : { state } });
 
-test("each study day: lesson work, reviews without the ones taken back, new cards, remembered, AI", () => {
+test("each study day: lesson work, exam answers, reviews without the ones taken back, new cards, remembered, AI", () => {
   const days = activityByDay(
     [
       e("a", 1, "answered"),
@@ -21,16 +21,29 @@ test("each study day: lesson work, reviews without the ones taken back, new card
       e("t", 3, "llm_turn", { role: "user" }),
       e("m", 3, "llm_turn", { role: "assistant" }),
       e("v", 3, "llm_verdict"),
+      // An exam run's answers: exam work, not a lesson's.
+      { ...e("x", 3, "answered"), runId: "X" },
     ],
     (ts) => Math.floor(ts / DAY) * DAY,
+    new Set(["X"]),
   );
   expect(days).toEqual([
-    { start: DAY, lesson: 2, review: 1, newCards: 1, recalled: 0, remembered: 0, ai: 0 },
-    { start: 3 * DAY, lesson: 0, review: 2, newCards: 0, recalled: 2, remembered: 1, ai: 2 },
+    { start: DAY, lesson: 2, exam: 0, review: 1, newCards: 1, recalled: 0, remembered: 0, ai: 0 },
+    {
+      start: 3 * DAY,
+      lesson: 0,
+      exam: 1,
+      review: 2,
+      newCards: 0,
+      recalled: 2,
+      remembered: 1,
+      ai: 2,
+    },
   ]);
   expect(activityTotals(days)).toEqual({
     activeDays: 2,
     lesson: 2,
+    exam: 1,
     review: 3,
     newCards: 1,
     ai: 2,

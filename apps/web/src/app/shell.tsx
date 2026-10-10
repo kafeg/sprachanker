@@ -1,7 +1,7 @@
 // The app's frame (09, "Layouts"): sidebar on desktop, bottom tab bar on phones, the cards due on the
 // Review entry, background downloads in the window title.
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { BookOpen, Layers, NotebookPen, Settings } from "lucide-react";
+import { BookOpen, GraduationCap, Layers, NotebookPen, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDecks, useDownloads, useDownloadsWatch } from "@/api/hooks.ts";
 import { cn } from "@/ui/utils.ts";
@@ -13,6 +13,7 @@ import { ProfileChip } from "./profile-chip.tsx";
 export const NAV = [
   { to: "/", key: "nav.courses", icon: BookOpen },
   { to: "/review", key: "nav.review", icon: Layers },
+  { to: "/exams", key: "nav.exams", icon: GraduationCap },
   { to: "/notebook", key: "nav.notebook", icon: NotebookPen },
   { to: "/settings", key: "nav.settings", icon: Settings },
 ] as const;
@@ -23,7 +24,9 @@ const COURSE_PATHS = ["/", "/downloaded", "/catalog"];
 export function AppShell() {
   const { t } = useTranslation();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  const active = (to: string) => (to === "/" ? COURSE_PATHS.includes(path) : path.startsWith(to));
+  // Exams is active on its tabs and on an exam's pages (`/exam/…`).
+  const active = (to: string) =>
+    to === "/" ? COURSE_PATHS.includes(path) : path.startsWith(to === "/exams" ? "/exam" : to);
   // Courses downloading in the background keep every screen current, and show in the window title.
   useDownloadsWatch();
   // Cards to study now (new, learning and review of every deck), on the Review entry.

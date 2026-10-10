@@ -171,6 +171,27 @@ none (engine `lessonFace`) — and without the day's new limit (the learner chos
   once nothing is left to study now; the learning faces go on in Review.
 - Planned: `.apkg` export and import, stored decks, word images (plan, "Anki decks and word images").
 
+## Exams
+
+An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
+`packages/engine/src/exam/`, randomness a parameter (the server passes WebCrypto's):
+
+- **Open questions**: each section's pool, narrowed by its filter to the questions tagged with the
+  profile's setting (`exam.federalState`); an exam with a setting unset cannot be drawn
+  (`missingSettings`), and its page asks for it first.
+- **Mock exam** (`drawExam`): each section draws its `draw` questions at random from its open pool, in
+  section order — as the real test does (LiD: 30 general, 3 of the state). Timed by the exam's limit;
+  answers can be changed until it is handed in; nothing is checked before.
+- **Practice** (`practiceOrder`): every open question, those answered wrongly last time first, then
+  those not seen, then those known, each group shuffled; each answer checked at once.
+- **A question's state** (`questionStats`): its latest answer in any exam run, right or wrong, and how
+  often it was answered. **Readiness**: the share of the open questions whose latest answer was right.
+- **Checking**: a question is the single-choice item it is (`checkQuestion`, "Checking" above).
+- **Result** (`examResult`): each question's latest answer in the run scores its points (1 when
+  right), by the section the plan keeps for it (`sectionsOf`, when the run starts); a pass mark is
+  reached at its `minPoints`. A mock exam is scored over all it
+  asked, unanswered ones as wrong; practice over the questions answered.
+
 ## Scenes
 
 `scene_setup` drafts a scene from the lesson's goals and words (title, situation, partner, 1–3 goals,

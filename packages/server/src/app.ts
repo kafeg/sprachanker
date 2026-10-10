@@ -11,6 +11,7 @@ import { blobResponse, type MediaBlob } from "./media.ts";
 import { cardRoutes } from "./routes/cards.ts";
 import { courseRoutes } from "./routes/courses.ts";
 import type { ProfileEnv } from "./routes/env.ts";
+import { examRoutes } from "./routes/exams.ts";
 import { llmRoutes } from "./routes/llm.ts";
 import { notebookRoutes } from "./routes/notebook.ts";
 import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.ts";
@@ -83,6 +84,7 @@ export function createApp(config: AppConfig) {
     .route("/", profileRoutes(svc))
     .route("/", courseRoutes())
     .route("/", runRoutes())
+    .route("/exams", examRoutes())
     .route("/settings", settingsRoutes())
     .route("/cards", cardRoutes())
     .route("/notebook", notebookRoutes())

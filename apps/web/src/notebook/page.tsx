@@ -8,6 +8,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type NotebookOverview, useNotebook } from "@/api/hooks.ts";
+import { examParams } from "@/exams/params.ts";
 import { ActivityCalendar } from "@/ui/activity-calendar.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
@@ -28,7 +29,7 @@ function useDescribeDay(days: Day[]) {
   return (start: number) => {
     const day = byStart.get(new Date(start).toDateString());
     const what = day
-      ? (["lesson", "review", "ai"] as const)
+      ? (["lesson", "exam", "review", "ai"] as const)
           .filter((k) => day[k])
           .map((k) => t(`notebook.kind.${k}`, { count: day[k] }))
           .join(", ")
@@ -70,7 +71,10 @@ function Progress({ overview }: { overview: NotebookOverview }) {
         <div className="mt-2">
           <ActivityCalendar
             today={overview.today}
-            days={overview.days.map((d) => ({ start: d.start, count: d.lesson + d.review + d.ai }))}
+            days={overview.days.map((d) => ({
+              start: d.start,
+              count: d.lesson + d.exam + d.review + d.ai,
+            }))}
             describe={describe}
           />
         </div>
@@ -84,6 +88,7 @@ function Progress({ overview }: { overview: NotebookOverview }) {
         <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
           <StatTile label={t("notebook.tile.activeDays")} value={count(totals.activeDays)} />
           <StatTile label={t("notebook.tile.lesson")} value={count(totals.lesson)} />
+          <StatTile label={t("notebook.tile.exam")} value={count(totals.exam)} />
           <StatTile label={t("notebook.tile.review")} value={count(totals.review)} />
           <StatTile label={t("notebook.tile.newCards")} value={count(totals.newCards)} />
           <StatTile
@@ -107,7 +112,7 @@ export function NotebookPage() {
   if (notebook.isPending) return <Loading />;
   if (notebook.isError)
     return <ErrorState error={notebook.error} onRetry={() => notebook.refetch()} />;
-  const { courses } = notebook.data;
+  const { courses, exams } = notebook.data;
   return (
     <Page title={t("notebook.title")}>
       <div className="max-w-3xl space-y-4">
@@ -152,6 +157,47 @@ export function NotebookPage() {
           ))
         ) : (
           <EmptyState>{t("notebook.empty")}</EmptyState>
+        )}
+        {exams.length > 0 && (
+          <>
+            <h2 className="pt-2 text-lg font-semibold">{t("notebook.exams")}</h2>
+            {exams.map((exam) => (
+              <Panel key={exam.key} title={exam.title ?? exam.key}>
+                <ul className="divide-y">
+                  {exam.runs.map((run) => {
+                    const passed = !!run.result?.passed.length;
+                    return (
+                      <li key={run.id}>
+                        <ListRow
+                          onClick={() =>
+                            void navigate({
+                              to: "/exam/$series/$course/$exam/run/$run",
+                              params: { ...examParams(exam.key), run: run.id },
+                            })
+                          }
+                        >
+                          <span className="flex-1">
+                            {when.format(run.finishedAt ?? run.startedAt)}
+                          </span>
+                          <span className="tabular-nums">
+                            {t("exams.points", {
+                              points: run.result?.points ?? 0,
+                              max: run.result?.max ?? 0,
+                            })}
+                          </span>
+                          <span
+                            className={`w-24 text-right text-sm font-medium ${passed ? "text-correct" : "text-wrong"}`}
+                          >
+                            {t(passed ? "exams.passed" : "exams.failed")}
+                          </span>
+                        </ListRow>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Panel>
+            ))}
+          </>
         )}
       </div>
     </Page>

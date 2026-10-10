@@ -85,7 +85,10 @@ test("a connection lost while reading the body is retried; for good it fails the
   });
   calls = 0;
   const always = createPoliteFetcher(opts(broken(99)));
-  await expect(always.bytes("https://b.test/img")).rejects.toBeInstanceOf(FetchFailedError);
+  // The failure says what broke.
+  await expect(always.bytes("https://b.test/img")).rejects.toThrow(
+    "https://b.test/img: network (ECONNRESET)",
+  );
 });
 
 test("robots.txt that cannot be read is asked again; a 403 on it stops the host", async () => {
@@ -118,7 +121,9 @@ test("a body that goes silent is retried, then fails the URL", async () => {
     );
   }) as unknown as typeof fetch;
   const fetcher = createPoliteFetcher({ ...opts(silent), robotsHosts: [], retries: 1, idleMs: 30 });
-  await expect(fetcher.text("https://b.test/x")).rejects.toThrow(FetchFailedError);
+  await expect(fetcher.text("https://b.test/x")).rejects.toThrow(
+    "network (the connection went silent)",
+  );
   expect(calls).toBe(2);
 });
 

@@ -6,7 +6,8 @@
     "courses": "Kurse",
     "settings": "Einstellungen",
     "review": "Wiederholen",
-    "notebook": "Notizbuch"
+    "notebook": "Notizbuch",
+    "exams": "Prüfungen"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -634,6 +635,7 @@
     "nothing": "nichts",
     "kind": {
       "lesson": "Lektionen {count, number}",
+      "exam": "Prüfungen {count, number}",
       "review": "Karten {count, number}",
       "ai": "KI {count, number}"
     },
@@ -651,13 +653,15 @@
     "tile": {
       "activeDays": "Lerntage",
       "lesson": "Antworten und Schritte",
+      "exam": "Antworten in Prüfungen",
       "review": "Karten beantwortet",
       "newCards": "Neue Karten",
       "remembered": "Gewusst",
       "rememberedHint": "der Karten in der Wiederholung",
       "ai": "Übung mit KI"
     },
-    "lessons": "Lektionen"
+    "lessons": "Lektionen",
+    "exams": "Prüfungen"
   },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",
@@ -784,7 +788,8 @@
     "courses": "Deine Kurse (dort, wo du aufgehört hast), die heruntergeladenen und alle Kurse zum Herunterladen — nach deinen Sprachen.",
     "review": "Deine Wörter in verteilter Wiederholung, wie in Anki: ein paar Minuten am Tag.",
     "notebook": "Jeder Durchgang jeder Lektion, deine Antworten und Fehler.",
-    "settings": "Dein Profil, deine Sprachen, der KI-Assistent und die App."
+    "settings": "Dein Profil, deine Sprachen, der KI-Assistent und die App.",
+    "exams": "Prüfungen zur Vorbereitung, etwa Leben in Deutschland: Probeprüfungen wie die echten, Training und der ganze Katalog mit den Antworten."
   },
   "profile": {
     "who": "Name und Farbe",
@@ -1120,6 +1125,105 @@
     "unknown_setting": "Diese Einstellung gibt es nicht (mehr).",
     "unsupported_audio": "Dieser Browser nimmt in einem Format auf, das die App nicht speichern kann.",
     "writing_busy": "Ein Text dieser Lektion wird gerade geprüft. Warte darauf.",
-    "other": "Etwas ist schiefgelaufen: {message}"
+    "other": "Etwas ist schiefgelaufen: {message}",
+    "exam_needs_setting": "Wähle zuerst dein Bundesland: die Prüfung stellt Fragen dazu.",
+    "exam_time_over": "Die Zeit dieser Probeprüfung ist um: sie wurde abgegeben, wie sie war.",
+    "exam_test_running": "Eine Probeprüfung läuft noch: gib sie zuerst ab."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Meine Prüfungen",
+      "downloaded": "Heruntergeladen",
+      "available": "Verfügbar"
+    },
+    "noneStarted": "Du hast noch keine Prüfung begonnen.",
+    "toDownloaded": "Zu den heruntergeladenen Prüfungen",
+    "toCatalog": "Prüfungen zum Herunterladen",
+    "noneDownloaded": "Noch keine Prüfung heruntergeladen.",
+    "allDownloaded": "Alle angebotenen Prüfungen sind heruntergeladen.",
+    "noneMatch": "Keine Frage passt.",
+    "questions": "{count, plural, one {# Frage} other {# Fragen}}",
+    "lastPoints": "zuletzt: {points, number} von {max, number}",
+    "ready": "Du kennst {percent} der Fragen",
+    "lastPassed": "Letzte Probeprüfung ({date}): bestanden",
+    "lastFailed": "Letzte Probeprüfung ({date}): nicht bestanden",
+    "continueTest": "Prüfung fortsetzen",
+    "mode": {
+      "test": "Probeprüfung",
+      "testText": "{count, plural, one {# Frage} other {# Fragen}} in {minutes, plural, one {# Minute} other {# Minuten}}, wie im echten Test; die Antworten werden bei der Abgabe geprüft.",
+      "practice": "Training",
+      "practiceText": "Frage für Frage, jede Antwort sofort geprüft: zuerst die falsch beantworteten, dann die noch nicht gesehenen.",
+      "catalog": "Katalog",
+      "catalogText": "Alle {count, plural, one {# Frage} other {# Fragen}} mit ihren Antworten."
+    },
+    "begin": "Beginnen",
+    "practise": "Trainieren",
+    "openCatalog": "Öffnen",
+    "known": "Du kennst {known, number} von {total, plural, one {# Frage} other {# Fragen}}",
+    "passedOf": "{passed, number} von {count, plural, one {# Probeprüfung} other {# Probeprüfungen}} bestanden",
+    "needsState": "Wähle dein Bundesland: der Test stellt drei Fragen dazu.",
+    "needsStateCatalog": "Wähle auf der Seite der Prüfung dein Bundesland, um auch seine Fragen zu sehen.",
+    "mapTitle": "Fragen",
+    "mapKnown": "gewusst",
+    "mapWrong": "zuletzt falsch",
+    "mapUnseen": "nicht gesehen",
+    "mapSummary": "Von {total, number} Fragen: {known, number} gewusst, {wrong, number} zuletzt falsch",
+    "results": "Probeprüfungen",
+    "points": "{points, number} von {max, number}",
+    "passed": "Bestanden",
+    "failed": "Nicht bestanden",
+    "state": "Bundesland",
+    "chooseState": "Bundesland wählen",
+    "stateHint": "Für Leben in Deutschland: der Test stellt drei Fragen zu dem Bundesland, in dem du wohnst.",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bayern",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hessen",
+      "mv": "Mecklenburg-Vorpommern",
+      "ni": "Niedersachsen",
+      "nw": "Nordrhein-Westfalen",
+      "rp": "Rheinland-Pfalz",
+      "sl": "Saarland",
+      "sn": "Sachsen",
+      "st": "Sachsen-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Thüringen"
+    },
+    "handIn": "Abgeben",
+    "endPractice": "Training beenden",
+    "handInTitle": "Prüfung abgeben?",
+    "handInUnanswered": "{count, plural, one {# Frage ist} other {# Fragen sind}} noch nicht beantwortet: unbeantwortete Fragen zählen als falsch.",
+    "goOn": "Weitermachen",
+    "leave": "Zurück zur Prüfung",
+    "answered": "Beantwortet: {done, number} von {total, number}",
+    "question": "Frage {n, number} von {total, number}",
+    "number": "Frage {n}",
+    "testHint": "Beantworte alle Fragen; eine Antwort lässt sich bis zur Abgabe ändern.",
+    "practiceHint": "Jede Antwort wird sofort geprüft.",
+    "moreQuestions": "Nächste Fragen",
+    "practiceScore": "{points, number} von {count, plural, one {# Antwort} other {# Antworten}} richtig",
+    "timeUp": "Die Zeit war um: es zählen die Antworten bis dahin.",
+    "needed": "{points, number} von {max, number} nötig",
+    "practiseMistakes": "Fehler trainieren",
+    "tryAgain": "Neue Probeprüfung",
+    "toExam": "Zur Prüfung",
+    "mistakes": "{count, plural, =0 {Keine Fehler} one {# Fehler} other {# Fehler}}",
+    "allAnswers": "Alle Antworten",
+    "onlyMistakes": "Nur die Fehler",
+    "showAll": "Alle Antworten zeigen",
+    "notAnswered": "nicht beantwortet",
+    "noMistakes": "Alles richtig.",
+    "filter": {
+      "all": "Alle",
+      "wrong": "Zuletzt falsch",
+      "unseen": "Nicht gesehen",
+      "known": "Gewusst"
+    },
+    "search": "In den Fragen suchen",
+    "showMore": "{count, plural, one {# weitere} other {# weitere}}"
   }
 }

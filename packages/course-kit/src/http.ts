@@ -26,8 +26,10 @@ export class FetchFailedError extends Error {
   constructor(
     readonly url: string,
     readonly status: number | "network" | "robots",
+    /** What broke the last attempt, when the network did ("the connection went silent"). */
+    readonly reason?: string,
   ) {
-    super(`${url}: ${status}`);
+    super(`${url}: ${status}${reason ? ` (${reason})` : ""}`);
   }
 }
 
@@ -171,7 +173,9 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
     if (!isAllowed(await rulesFor(url), safeDecode(url.pathname) + url.search)) {
       throw new FetchFailedError(href, "robots");
     }
+    const why = (e: unknown) => (e instanceof Error ? e.message : String(e));
     for (let attempt = 0; ; attempt++) {
+      let broke: string | undefined;
       const quiet = silence(idleMs);
       const res = await onHost(url.host, () =>
         doFetch(url, {
@@ -181,15 +185,18 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
           ...(init.manual && { redirect: "manual" as const }),
           signal: quiet.signal,
         }),
-      ).catch(() => null);
+      ).catch((e: unknown) => {
+        broke = why(e);
+        return null;
+      });
       // A redirect the session follows itself (to keep the cookies it sets).
       const redirected = !!init.manual && !!res && res.status >= 300 && res.status < 400;
       if (res?.ok || redirected) {
         try {
           return await read(res, quiet);
-        } catch {
+        } catch (e) {
           // The connection broke (or went silent) while reading the body: like a network failure.
-          if (attempt >= retries) throw new FetchFailedError(href, "network");
+          if (attempt >= retries) throw new FetchFailedError(href, "network", why(e));
           await sleep(2000 * 2 ** attempt);
           continue;
         } finally {
@@ -203,7 +210,7 @@ export function createPoliteFetcher(options: PoliteFetcherOptions): PoliteFetche
       }
       const retryable = !res || res.status >= 500;
       if (!retryable || attempt >= retries) {
-        throw new FetchFailedError(href, res ? res.status : "network");
+        throw new FetchFailedError(href, res ? res.status : "network", broke);
       }
       await sleep(2000 * 2 ** attempt);
     }

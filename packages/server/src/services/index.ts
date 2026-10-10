@@ -12,6 +12,7 @@ import { type Content, createContent } from "./content.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
 import { createExamples } from "./examples.ts";
+import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
 import { createLessonContext } from "./lesson-context.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
@@ -80,6 +81,7 @@ function profileServices(
   const cardStore = createCardStore(db);
   const recordings = createRecordings(recordingFiles, now);
   const runs = createRuns({ store, cards: cardStore, content, recordings });
+  const exams = createExams({ store, content, settings, now });
   const cards = createCards({
     cards: cardStore,
     store,
@@ -143,6 +145,7 @@ function profileServices(
     qwenTts,
     recordings,
     runs,
+    exams,
     cards,
     study,
     words,

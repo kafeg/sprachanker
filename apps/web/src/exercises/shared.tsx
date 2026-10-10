@@ -135,8 +135,9 @@ export function OptionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        // On a phone options that wrap share their row, so a list of long ones is not ragged.
-        "relative flex min-h-12 items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition max-sm:flex-auto",
+        // On a phone options that wrap share their row, so a list of long ones is not ragged; a
+        // word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
+        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition [overflow-wrap:anywhere] max-sm:flex-auto",
         fill && "flex-col items-stretch px-2",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",

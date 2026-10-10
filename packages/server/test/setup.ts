@@ -81,5 +81,9 @@ export async function setup(
   // biome-ignore lint/suspicious/noExplicitAny: test responses are inspected structurally.
   const sendJson = async (method: string, path: string, body: unknown): Promise<any> =>
     (await send(method, path, body)).json();
-  return { app, root, profile, profiles, cookie, get, send, getJson, sendJson, anonymous };
+  /** Moves the server's clock on (each reading of it still adds a second). */
+  const advance = (ms: number) => {
+    clock += ms;
+  };
+  return { app, root, profile, profiles, cookie, get, send, getJson, sendJson, anonymous, advance };
 }

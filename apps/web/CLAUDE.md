@@ -11,7 +11,8 @@ apps/web/src/
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages): courses (tabs My,
                    # Downloaded, Available — /, /downloaded, /catalog), review (tabs Study, Decks with
                    # the decks to take, My words — /review, /review/decks, /review/words; words.tsx is
-                   # My words), course (its map), settings, storage (Settings → Storage)
+                   # My words), exams (tabs My, Downloaded, Available — /exams, /exams/downloaded,
+                   # /exams/catalog), course (its map), settings, storage (Settings → Storage)
   courses/         # course cards and offers, the pair and course filters (filterCourses, pure), downloads,
                    # the course page's hero (progress, source, stats, integrity, sync), upkeep (a course's
                    # check and sync, shared by the hero and the Downloaded cards), reset-progress
@@ -33,10 +34,15 @@ apps/web/src/
   exercises/       # one renderer per exercise type (index.tsx: the renderer of each type); dnd (placing
                    # chips by drag or tap); item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
+  exams/           # exams: card (the list's), page (an exam's: modes, the questions' map, runs), player
+                   # (a run: mock exam timed, practice checked at once), result, catalog (every question
+                   # with its answer), state-select (the federal state), questions (a run's questions
+                   # as an exercise, the latest answers), params
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
                    # check under its item)
-  api/             # Hono RPC client (hono/client) + TanStack Query hooks; session.ts: profiles, signing
+  api/             # Hono RPC client (hono/client) + TanStack Query hooks; exams.ts: exams, a run's
+                   # answers through the lesson's outbox; session.ts: profiles, signing
                    # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
                    # cache updates; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
@@ -56,7 +62,7 @@ apps/web/src/
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
                    # empty states, back links), media, format (dates, percent, bytes), panel, history
-                   # (rows that open, lists of earlier items), side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
+                   # (rows that open, lists of earlier items), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a

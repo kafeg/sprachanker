@@ -6,7 +6,8 @@
     "courses": "Courses",
     "settings": "Settings",
     "review": "Review",
-    "notebook": "Notebook"
+    "notebook": "Notebook",
+    "exams": "Exams"
   },
   "common": {
     "loading": "Loading…",
@@ -634,6 +635,7 @@
     "nothing": "nothing done",
     "kind": {
       "lesson": "lessons {count, number}",
+      "exam": "exams {count, number}",
       "review": "cards {count, number}",
       "ai": "AI {count, number}"
     },
@@ -651,13 +653,15 @@
     "tile": {
       "activeDays": "Study days",
       "lesson": "Answers and steps",
+      "exam": "Exam answers",
       "review": "Cards answered",
       "newCards": "New cards",
       "remembered": "Remembered",
       "rememberedHint": "of the cards in review",
       "ai": "AI practice"
     },
-    "lessons": "Lessons"
+    "lessons": "Lessons",
+    "exams": "Exams"
   },
   "study": {
     "listen": "Listen and recall the meaning",
@@ -784,7 +788,8 @@
     "courses": "Your courses (where you left off), the ones downloaded, and every course you can download — filtered by your languages.",
     "review": "Your words in spaced repetition, as in Anki: a few minutes a day.",
     "notebook": "Every pass of every lesson, your answers and mistakes.",
-    "settings": "Your profile, languages, the AI assistant and the app."
+    "settings": "Your profile, languages, the AI assistant and the app.",
+    "exams": "Exams to prepare for, such as Leben in Deutschland: mock exams as the real ones run, practice, and the whole catalogue with its answers."
   },
   "profile": {
     "who": "Name and colour",
@@ -1120,6 +1125,105 @@
     "unknown_setting": "This setting does not exist (any more).",
     "unsupported_audio": "This browser records in a format the app cannot keep.",
     "writing_busy": "A text of this lesson is being checked. Wait for it.",
-    "other": "Something went wrong: {message}"
+    "other": "Something went wrong: {message}",
+    "exam_needs_setting": "Choose your federal state first: the exam asks questions about it.",
+    "exam_time_over": "The time of this mock exam is up: it was handed in as it was.",
+    "exam_test_running": "A mock exam is running: hand it in first."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "My exams",
+      "downloaded": "Downloaded",
+      "available": "Available"
+    },
+    "noneStarted": "You haven't begun an exam yet.",
+    "toDownloaded": "To the downloaded exams",
+    "toCatalog": "Exams to download",
+    "noneDownloaded": "No exam is downloaded yet.",
+    "allDownloaded": "Every exam on offer is downloaded.",
+    "noneMatch": "No question fits.",
+    "questions": "{count, plural, one {# question} other {# questions}}",
+    "lastPoints": "last: {points, number} of {max, number}",
+    "ready": "You know {percent} of the questions",
+    "lastPassed": "Last mock exam ({date}): passed",
+    "lastFailed": "Last mock exam ({date}): not passed",
+    "continueTest": "Continue the exam",
+    "mode": {
+      "test": "Mock exam",
+      "testText": "{count, plural, one {# question} other {# questions}} in {minutes, plural, one {# minute} other {# minutes}}, as in the real test; the answers are checked when you hand it in.",
+      "practice": "Practice",
+      "practiceText": "Question by question, each answer checked at once: the ones you got wrong first, then those you haven't seen.",
+      "catalog": "Catalogue",
+      "catalogText": "All {count, plural, one {# question} other {# questions}} with their answers."
+    },
+    "begin": "Begin",
+    "practise": "Practise",
+    "openCatalog": "Open",
+    "known": "You know {known, number} of {total, plural, one {# question} other {# questions}}",
+    "passedOf": "passed {passed, number} of {count, plural, one {# mock exam} other {# mock exams}}",
+    "needsState": "Choose your federal state: the test asks three questions about it.",
+    "needsStateCatalog": "Choose your federal state on the exam's page to see its questions too.",
+    "mapTitle": "Questions",
+    "mapKnown": "known",
+    "mapWrong": "wrong last time",
+    "mapUnseen": "not seen",
+    "mapSummary": "Of {total, number} questions: {known, number} known, {wrong, number} wrong last time",
+    "results": "Mock exams",
+    "points": "{points, number} of {max, number}",
+    "passed": "Passed",
+    "failed": "Not passed",
+    "state": "Federal state",
+    "chooseState": "Choose a federal state",
+    "stateHint": "For Leben in Deutschland: the test asks three questions about the state you live in.",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bavaria",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hesse",
+      "mv": "Mecklenburg-Western Pomerania",
+      "ni": "Lower Saxony",
+      "nw": "North Rhine-Westphalia",
+      "rp": "Rhineland-Palatinate",
+      "sl": "Saarland",
+      "sn": "Saxony",
+      "st": "Saxony-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Thuringia"
+    },
+    "handIn": "Hand in",
+    "endPractice": "End practice",
+    "handInTitle": "Hand in the exam?",
+    "handInUnanswered": "{count, plural, one {# question is} other {# questions are}} not answered yet: unanswered questions count as wrong.",
+    "goOn": "Go on",
+    "leave": "Back to the exam",
+    "answered": "Answered: {done, number} of {total, number}",
+    "question": "Question {n, number} of {total, number}",
+    "number": "Question {n}",
+    "testHint": "Answer every question; you can change an answer until you hand the exam in.",
+    "practiceHint": "Each answer is checked at once.",
+    "moreQuestions": "Next questions",
+    "practiceScore": "{points, number} of {count, plural, one {# answer} other {# answers}} right",
+    "timeUp": "The time was up: the answers given until then count.",
+    "needed": "{points, number} of {max, number} needed",
+    "practiseMistakes": "Practise the mistakes",
+    "tryAgain": "New mock exam",
+    "toExam": "To the exam",
+    "mistakes": "{count, plural, =0 {No mistakes} one {# mistake} other {# mistakes}}",
+    "allAnswers": "All answers",
+    "onlyMistakes": "Only the mistakes",
+    "showAll": "Show all answers",
+    "notAnswered": "not answered",
+    "noMistakes": "Everything right.",
+    "filter": {
+      "all": "All",
+      "wrong": "Wrong last time",
+      "unseen": "Not seen",
+      "known": "Known"
+    },
+    "search": "Find in the questions",
+    "showMore": "{count, plural, one {# more} other {# more}}"
   }
 }

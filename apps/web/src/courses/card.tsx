@@ -210,7 +210,7 @@ export function MyCourseCard({ course }: { course: CourseRow }) {
 }
 
 /** The course's publisher, linked to its site (cut to fit a card; hover shows it whole). */
-function PublisherLink({ source }: { source: CourseSource }) {
+export function PublisherLink({ source }: { source: CourseSource }) {
   return (
     <a
       href={source.url}

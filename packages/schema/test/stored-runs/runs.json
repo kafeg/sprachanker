@@ -1,0 +1,62 @@
+{
+  "lesson.result": [
+    { "since": "2026-10-06", "value": { "score": 0.75, "scored": 4, "answered": 5 } }
+  ],
+  "scene.plan": [
+    {
+      "since": "2026-10-06",
+      "value": {
+        "title": "In the café",
+        "situation": "You order a coffee.",
+        "partner": "A waiter",
+        "goals": ["Order a coffee"],
+        "opening": "Was darf es sein?"
+      }
+    }
+  ],
+  "exam.plan": [
+    {
+      "since": "2026-10-10",
+      "value": {
+        "mode": "practice",
+        "items": ["s.x/c/exam-t/q-002", "s.x/c/exam-t/q-001"],
+        "sections": {
+          "s.x/c/exam-t/q-001": "s.x/c/exam-t/s-general",
+          "s.x/c/exam-t/q-002": "s.x/c/exam-t/s-general"
+        },
+        "deadline": null
+      }
+    },
+    {
+      "since": "2026-10-10",
+      "value": {
+        "mode": "test",
+        "items": ["s.x/c/exam-t/q-001"],
+        "sections": { "s.x/c/exam-t/q-001": "s.x/c/exam-t/s-general" },
+        "deadline": 1791633600000,
+        "snapshot": [
+          {
+            "key": "s.x/c/exam-t/q-001",
+            "type": "single_choice",
+            "prompt": "Wie viele Tage hat eine Woche?",
+            "options": [{ "id": "a", "text": "fünf" }, { "id": "b", "text": "sieben" }],
+            "answer": { "optionIds": ["b"] },
+            "tags": { "federalState": null }
+          }
+        ]
+      }
+    }
+  ],
+  "exam.result": [
+    {
+      "since": "2026-10-10",
+      "value": {
+        "points": 1,
+        "max": 2,
+        "answered": 2,
+        "sections": { "s.x/c/exam-t/s-general": { "points": 1, "max": 2 } },
+        "passed": []
+      }
+    }
+  ]
+}

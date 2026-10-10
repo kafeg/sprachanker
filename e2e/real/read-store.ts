@@ -12,7 +12,9 @@ export function readStore(path: string): Stored {
     const all = <T>(sql: string) => db.prepare(sql).all() as T[];
     const recordings = join(dirname(path), "recordings");
     return {
-      runs: all<RunRow>("select id, kind, context_key, status, end_reason, finished_at from runs"),
+      runs: all<RunRow>(
+        "select id, kind, context_key, status, end_reason, finished_at, plan_json, result_json from runs",
+      ),
       events: all<EventRow>(
         "select id, ts, run_id, type, item_key, card_id, payload_json from events order by ts, id",
       ),

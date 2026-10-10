@@ -11,6 +11,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useBytes, usePercent } from "@/ui/format.ts";
+import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
 import { DownloadLine, downloading } from "./download.tsx";
@@ -23,32 +24,6 @@ const kindRank = (kind: string) => {
   const i = KINDS.indexOf(kind);
   return i < 0 ? KINDS.length : i;
 };
-
-/** Share of lessons done, 0..1, as a ring with the percentage inside. */
-function ProgressRing({ value }: { value: number }) {
-  const text = usePercent()(value);
-  const r = 30;
-  const length = 2 * Math.PI * r;
-  return (
-    <svg viewBox="0 0 76 76" className="size-16 shrink-0 sm:size-20" role="img" aria-label={text}>
-      <circle cx="38" cy="38" r={r} fill="none" strokeWidth="8" className="stroke-primary/20" />
-      <circle
-        cx="38"
-        cy="38"
-        r={r}
-        fill="none"
-        strokeWidth="8"
-        strokeLinecap="round"
-        strokeDasharray={`${value * length} ${length}`}
-        transform="rotate(-90 38 38)"
-        className="stroke-primary"
-      />
-      <text x="38" y="43" textAnchor="middle" className="fill-foreground text-[15px] font-semibold">
-        {text}
-      </text>
-    </svg>
-  );
-}
 
 export type CourseHeroProps = {
   series: string;
@@ -72,6 +47,7 @@ export function CourseHero(props: CourseHeroProps) {
   const [open, setOpen] = useState(false);
   const check = useCourseCheck(series, course);
   const bytes = useBytes();
+  const percent = usePercent();
   const { available, job } = useCourseDownload(series, course);
   const running = downloading(job);
 
@@ -84,7 +60,7 @@ export function CourseHero(props: CourseHeroProps) {
     <section className="mb-8 rounded-2xl border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex flex-wrap items-center gap-4 sm:gap-5">
         <div className="flex min-w-0 flex-1 basis-80 items-center gap-4 sm:gap-5">
-          <ProgressRing value={share} />
+          <ProgressRing value={share} text={percent(share)} />
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold sm:text-4xl">{title}</h1>
             <div className="my-2 flex flex-wrap gap-1.5">

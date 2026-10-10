@@ -16,7 +16,7 @@ import type {
 import { type QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { ulid } from "ulid";
-import { ApiError, api, json } from "@/api/client.ts";
+import { api, json, refusedByServer } from "@/api/client.ts";
 import { createOutbox, type Outbox } from "./outbox.ts";
 
 export type { ExerciseResult } from "@sprachanker/engine";
@@ -52,12 +52,7 @@ const signedIn = (client: QueryClient) =>
 
 /** A refusal that sending again cannot change; a lost session (401) or a request that reached the
  *  wrong host (421) is not one — the events wait for the learner to be back. */
-const refused = (e: unknown) =>
-  e instanceof NoRun ||
-  (e instanceof ApiError &&
-    !!e.status &&
-    e.status < 500 &&
-    ![401, 408, 421, 429].includes(e.status));
+const refused = (e: unknown) => e instanceof NoRun || refusedByServer(e);
 
 /** The active run in a lesson's cached state. */
 const activeRun = (client: QueryClient, key: readonly unknown[]) => {

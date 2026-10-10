@@ -1,5 +1,5 @@
 // A learner's study days (04, "Learner model"; 09, Notebook): what each day held, read from the event
-// log — lesson work (answers, skips, steps), card reviews (an answer taken back does not count), new
+// log — lesson work (answers, skips, steps), exam answers, card reviews (an answer taken back does not count), new
 // cards learnt, how many reviewed cards were remembered, and AI practice (the learner's messages and
 // checks) — and the totals of a span of days. Pure: the caller passes the events and the day boundary.
 import type { EventType, TypedEvent } from "@sprachanker/schema";
@@ -10,6 +10,8 @@ export interface DayActivity {
   start: number;
   /** Exercise answers, skips and steps done in lessons. */
   lesson: number;
+  /** Answers to exam questions (mock exams and practice). */
+  exam: number;
   /** Card answers not taken back. */
   review: number;
   /** Faces answered for the first time (new cards learnt). */
@@ -35,20 +37,36 @@ export const ACTIVITY_EVENTS = [
   "llm_verdict",
 ] as const satisfies EventType[];
 
-export function activityByDay(events: TypedEvent[], dayOf: (ts: number) => number): DayActivity[] {
+/** `examRuns`: the ids of exam runs, whose answers count as exam work, not lesson work. */
+export function activityByDay(
+  events: TypedEvent[],
+  dayOf: (ts: number) => number,
+  examRuns: ReadonlySet<string> = new Set(),
+): DayActivity[] {
   const undone = undoneReviews(events);
   const days = new Map<number, DayActivity>();
   const at = (ts: number) => {
     const start = dayOf(ts);
     let day = days.get(start);
     if (!day) {
-      day = { start, lesson: 0, review: 0, newCards: 0, recalled: 0, remembered: 0, ai: 0 };
+      day = {
+        start,
+        lesson: 0,
+        exam: 0,
+        review: 0,
+        newCards: 0,
+        recalled: 0,
+        remembered: 0,
+        ai: 0,
+      };
       days.set(start, day);
     }
     return day;
   };
   for (const e of events) {
-    if (LESSON.has(e.type)) at(e.ts).lesson++;
+    if (examRuns.has(e.runId)) {
+      if (e.type === "answered") at(e.ts).exam++;
+    } else if (LESSON.has(e.type)) at(e.ts).lesson++;
     else if (e.type === "card_review" && !undone.has(e.id)) {
       const p = e.payload;
       const day = at(e.ts);
@@ -70,8 +88,9 @@ export function activityTotals(days: DayActivity[], from = Number.NEGATIVE_INFIN
   const sum = (key: keyof Omit<DayActivity, "start">) => span.reduce((n, d) => n + d[key], 0);
   const recalled = sum("recalled");
   return {
-    activeDays: span.filter((d) => d.lesson + d.review + d.ai > 0).length,
+    activeDays: span.filter((d) => d.lesson + d.exam + d.review + d.ai > 0).length,
     lesson: sum("lesson"),
+    exam: sum("exam"),
     review: sum("review"),
     newCards: sum("newCards"),
     ai: sum("ai"),

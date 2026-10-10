@@ -54,6 +54,7 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
     {
       start: overview.today,
       lesson: 3,
+      exam: 0,
       review: 0,
       newCards: 0,
       recalled: 0,

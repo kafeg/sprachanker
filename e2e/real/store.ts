@@ -1,8 +1,24 @@
 // What a run-through checks in the profile's database after a lesson (10, "Run-throughs"; 05): the
 // rows (read by read-store.ts) checked by a pure function, so a store broken on purpose shows that
 // the checks catch it (store.test.ts).
-import { checkItem, itemScored } from "@sprachanker/engine";
-import { EVENT_PAYLOADS, type Lesson, type LocaleLesson } from "@sprachanker/schema";
+import { isDeepStrictEqual } from "node:util";
+import {
+  checkItem,
+  checkQuestion,
+  eligible,
+  examResult,
+  itemScored,
+  sectionsOf,
+} from "@sprachanker/engine";
+import {
+  EVENT_PAYLOADS,
+  type Exam,
+  ExamPlan,
+  ExamResult,
+  type Lesson,
+  type LocaleLesson,
+  type TypedEvent,
+} from "@sprachanker/schema";
 
 export interface RunRow {
   id: string;
@@ -11,6 +27,8 @@ export interface RunRow {
   status: string;
   end_reason: string | null;
   finished_at?: number | null;
+  plan_json?: string | null;
+  result_json?: string | null;
 }
 export interface EventRow {
   id?: string;
@@ -45,7 +63,7 @@ export interface Stored {
 /**
  * Problems with the profile's store as a whole, whatever was done (05): every event reads by its
  * type's schema and belongs to a run there, in time order within its run; one active run per lesson; a
- * finished run with its end; an item's answers numbered 1, 2, 3… with none twice; a card's faces
+ * finished run with its end; one active run per lesson and per exam; an item's answers numbered 1, 2, 3… with none twice; a card's faces
  * only reviewed and kept, each face's state the one its latest review (not taken back) left; a spoken answer's recording on disk.
  */
 export function storeProblems(stored: Stored): string[] {
@@ -68,7 +86,7 @@ export function storeProblems(stored: Stored): string[] {
   }
   const active = new Map<string, number>();
   for (const r of stored.runs) {
-    if (r.kind === "lesson" && r.status === "active" && r.context_key)
+    if ((r.kind === "lesson" || r.kind === "exam") && r.status === "active" && r.context_key)
       active.set(r.context_key, (active.get(r.context_key) ?? 0) + 1);
     if (r.status === "finished" && (!r.end_reason || r.finished_at === null))
       problems.push(`run ${r.id} finished without its end`);
@@ -212,5 +230,110 @@ export function lessonProblems(
       if (!r.card_id || !ids.has(r.card_id))
         problems.push(`a card review of an unknown card ${r.card_id}`);
   }
+  return problems;
+}
+
+/** What the run-through did in an exam. */
+export interface Taken {
+  /** The profile's federal state (the setting the exam's filtered sections read). */
+  state: string;
+  /** Mock exams handed in, and practice runs ended. */
+  tests: number;
+  practices: number;
+}
+
+/**
+ * Problems with how an exam taken is stored (05; 04, "Exams"): each run's plan reads — a mock exam's
+ * questions drawn as the real test draws them (each section's number, the state's questions only),
+ * kept as shown with their sections and a deadline; practice over every open question with none —;
+ * answers only to the run's own questions, each outcome the engine's; a run handed in with the result
+ * its answers give; as many mock exams and practices ended as were taken. Empty when all is as it
+ * should be.
+ */
+export function examProblems(stored: Stored, exam: Exam, lang: string, taken: Taken): string[] {
+  const problems: string[] = [];
+  const setting = (key: string) => (key === "exam.federalState" ? taken.state : undefined);
+  const open = eligible(exam, setting);
+  const items = new Map(exam.items.map((i) => [i.key as string, i]));
+  const runs = stored.runs.filter((r) => r.kind === "exam" && r.context_key === exam.key);
+  const ended = { test: 0, practice: 0 };
+  for (const run of runs) {
+    const plan = ExamPlan.safeParse(JSON.parse(run.plan_json ?? "null"));
+    if (!plan.success) {
+      problems.push(`run ${run.id}: its plan does not read`);
+      continue;
+    }
+    const { mode, items: asked, sections, deadline, snapshot } = plan.data;
+    if (new Set(asked).size !== asked.length)
+      problems.push(`run ${run.id}: a question asked twice`);
+    for (const k of asked)
+      if (!items.has(k)) problems.push(`run ${run.id}: ${k} is no question of the exam`);
+    if (!isDeepStrictEqual(sections, sectionsOf(exam, asked)))
+      problems.push(`run ${run.id}: its questions' sections are not their own`);
+    if (mode === "test") {
+      if (deadline === null) problems.push(`mock exam ${run.id} without a deadline`);
+      for (const { section, pool } of open) {
+        const own = new Set<string>(pool.map((i) => i.key));
+        const drawn = asked.filter((k) => own.has(k)).length;
+        if (drawn !== section.draw)
+          problems.push(`mock exam ${run.id}: ${drawn} of ${section.key}, not ${section.draw}`);
+      }
+      const others = asked.filter((k) => !open.some(({ pool }) => pool.some((i) => i.key === k)));
+      if (others.length)
+        problems.push(`mock exam ${run.id}: ${others.join(", ")} not open to the learner`);
+      if (
+        !isDeepStrictEqual(
+          snapshot,
+          asked.map((k) => items.get(k)),
+        )
+      )
+        problems.push(`mock exam ${run.id}: its questions not kept as shown`);
+    } else {
+      if (deadline !== null || snapshot)
+        problems.push(`practice ${run.id} with a deadline or snapshot`);
+      const all = open.flatMap(({ pool }) => pool.map((i) => i.key as string));
+      if ([...asked].sort().join() !== [...all].sort().join())
+        problems.push(`practice ${run.id}: not every open question`);
+    }
+
+    const answers = stored.events.filter((e) => e.run_id === run.id && e.type === "answered");
+    const typed: TypedEvent[] = [];
+    for (const a of answers) {
+      const p = JSON.parse(a.payload_json);
+      const item = a.item_key ? items.get(a.item_key) : undefined;
+      if (!item || !asked.includes(item.key)) {
+        problems.push(`run ${run.id}: an answer to ${a.item_key}, not one of its questions`);
+        continue;
+      }
+      const own = checkQuestion(item, p.answer, lang).result;
+      if (p.outcome?.result !== own)
+        problems.push(`${item.key}: stored ${p.outcome?.result}, the engine says ${own}`);
+      typed.push({
+        id: a.id ?? "",
+        runId: run.id,
+        ts: a.ts ?? 0,
+        type: "answered",
+        itemKey: a.item_key,
+        cardId: null,
+        payload: p,
+      } as TypedEvent);
+    }
+    if (run.status === "finished") {
+      ended[mode]++;
+      const result = ExamResult.safeParse(JSON.parse(run.result_json ?? "null"));
+      const given = new Set(typed.map((e) => e.itemKey));
+      const scored =
+        mode === "practice"
+          ? { ...plan.data, items: asked.filter((k) => given.has(k)) }
+          : plan.data;
+      if (!result.success) problems.push(`run ${run.id}: handed in without a result that reads`);
+      else if (!isDeepStrictEqual(result.data, examResult(exam, scored, typed)))
+        problems.push(`run ${run.id}: its result is not what its answers give`);
+    }
+  }
+  if (ended.test !== taken.tests)
+    problems.push(`${ended.test} mock exams handed in, not ${taken.tests}`);
+  if (ended.practice !== taken.practices)
+    problems.push(`${ended.practice} practices ended, not ${taken.practices}`);
   return problems;
 }

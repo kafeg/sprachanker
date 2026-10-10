@@ -117,6 +117,8 @@ const SAME_IN_GERMAN = new Set([
   "about.version",
   "myWords.dueIn",
   "study.flag.orange",
+  // Federal states whose German names English keeps.
+  ...["bw", "be", "bb", "hb", "hh", "sl", "sh"].map((s) => `exams.states.${s}`),
 ]);
 
 test("ru and de translate every message (none left as the English text)", () => {

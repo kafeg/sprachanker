@@ -13,6 +13,8 @@ src/
   text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
                   # met or new against a vocabulary)
   learner/        # mistakes, lesson progress, study days (activity); planned: rule mastery, can-do
+  exam/           # exams: the questions open to a learner, a mock exam drawn, practice's order, each
+                  # question's state, readiness, a question checked, a run's result
   srs/            # ts-fsrs wrapper, Anki's study queue (limits, the day's start hour, learn ahead),
                   # interval text; day.ts: the day's card answers (limits used, undo, the face just taken back)
 ```
@@ -26,6 +28,6 @@ src/
 
 - Every checker has table-driven tests including tricky normalisation (quotes, capitalisation that
   matters, accepted variants).
-- Derivations from events (learner/, srs/day.ts) are deterministic: same events → same result; they
+- Derivations from events (learner/, exam/, srs/day.ts) are deterministic: same events → same result; they
   read `TypedEvent`s and narrow on `type`, never casting a payload.
 - Keep functions small and pure; side effects belong to the server.

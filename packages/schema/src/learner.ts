@@ -1,9 +1,18 @@
 // Learner data stored in profile.sqlite: runs and their events (05, "Events").
 import { z } from "zod";
 import { Correction, SpokenCheck, WordExample, WritingCheck } from "./assistant.ts";
+import { ExamItem } from "./exam.ts";
 import { Exercise } from "./exercise/index.ts";
 import { Outcome } from "./exercise/outcome.ts";
-import { ExerciseKey, Gender, ItemKey, LessonKey } from "./keys.ts";
+import {
+  ExamItemKey,
+  ExamKey,
+  ExamSectionKey,
+  ExerciseKey,
+  Gender,
+  ItemKey,
+  LessonKey,
+} from "./keys.ts";
 import { EditionId } from "./lang.ts";
 import { LocaleExercise } from "./locale.ts";
 
@@ -211,6 +220,60 @@ export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 /** A review taken back (Anki: undo); the face's state is restored to the review's `stateBefore`. */
 export const CardUndoPayload = z.object({ review: Ulid });
 export type CardUndoPayload = z.infer<typeof CardUndoPayload>;
+
+/** How an exam is taken (09): a mock exam — drawn as the real test draws, timed, the answers checked
+ *  when it is handed in — or practice: question by question, each checked at once, the ones answered
+ *  wrongly and not yet seen first. */
+export const ExamMode = z.enum(["test", "practice"]);
+export type ExamMode = z.infer<typeof ExamMode>;
+
+/** An exam run's plan (`runs.plan_json`): its questions in order with the section each was drawn
+ *  from (so its result is the same whatever the catalogue becomes); a mock exam also its deadline and
+ *  the questions as they were shown. */
+export const ExamPlan = z.object({
+  mode: ExamMode,
+  items: z.array(ExamItemKey).min(1),
+  sections: z.record(ExamItemKey, ExamSectionKey),
+  /** Epoch ms: a mock exam's answers count until then (the time limit from its start). */
+  deadline: z.number().int().nullable(),
+  snapshot: z.array(ExamItem).optional(),
+});
+export type ExamPlan = z.infer<typeof ExamPlan>;
+
+/** An exam run's result (`runs.result_json`): points of the questions asked (each question's latest
+ *  answer), by section, and the pass marks reached. */
+export const ExamResult = z.object({
+  points: z.number().int().nonnegative(),
+  max: z.number().int().nonnegative(),
+  answered: z.number().int().nonnegative(),
+  sections: z.record(ExamSectionKey, z.object({ points: z.number().int(), max: z.number().int() })),
+  /** Ids of the pass marks reached. */
+  passed: z.array(z.string()),
+});
+export type ExamResult = z.infer<typeof ExamResult>;
+
+/** An exam run as the API gives it. */
+export const ExamRun = z.object({
+  id: Ulid,
+  exam: ExamKey,
+  edition: EditionId.nullable(),
+  status: RunStatus,
+  endReason: z.enum(["completed", "timeout", "content_updated", "user"]).nullable(),
+  startedAt: z.number().int(),
+  finishedAt: z.number().int().nullable(),
+  plan: ExamPlan,
+  result: ExamResult.nullable(),
+});
+export type ExamRun = z.infer<typeof ExamRun>;
+
+/** An exam run's event as the client sends it: an answer to one of its questions (05). */
+export const ExamEventInput = z.object({
+  id: Ulid,
+  type: z.literal("answered"),
+  itemKey: ExamItemKey,
+  payload: AnsweredInput,
+});
+export type ExamEventInput = z.infer<typeof ExamEventInput>;
 
 /** Every event type with the schema of its stored payload: written and read through these (05). */
 export const EVENT_PAYLOADS = {

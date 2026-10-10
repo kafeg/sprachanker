@@ -14,6 +14,9 @@ import { AppShell } from "@/app/shell.tsx";
 import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { SpeechProvider } from "@/audio/context.ts";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
+import { ExamCatalog } from "@/exams/catalog.tsx";
+import { ExamPage } from "@/exams/page.tsx";
+import { ExamPlayer } from "@/exams/player.tsx";
 import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AssistantSetup } from "@/llm/settings-section.tsx";
@@ -25,6 +28,7 @@ import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursePage } from "./course.tsx";
 import { CoursesPage } from "./courses.tsx";
+import { ExamsPage } from "./exams.tsx";
 import { ReviewPage, type ReviewTab } from "./review.tsx";
 import { SettingsPage } from "./settings.tsx";
 
@@ -121,6 +125,60 @@ const words = createRoute({
   path: "/review/words",
   component: () => <Review tab="words" />,
 });
+const exams = createRoute({
+  getParentRoute: () => shell,
+  path: "/exams",
+  component: () => <ExamsPage tab="mine" />,
+});
+const examsDownloaded = createRoute({
+  getParentRoute: () => shell,
+  path: "/exams/downloaded",
+  component: () => <ExamsPage tab="downloaded" />,
+});
+const examsCatalog = createRoute({
+  getParentRoute: () => shell,
+  path: "/exams/catalog",
+  component: () => <ExamsPage tab="available" />,
+});
+const exam = createRoute({
+  getParentRoute: () => shell,
+  path: "/exam/$series/$course/$exam",
+  // Asked from a card: begin a mock exam or practice at once (the state chosen first if need be).
+  validateSearch: (s: Record<string, unknown>): { start?: "test" | "practice" } =>
+    s.start === "test" || s.start === "practice" ? { start: s.start } : {},
+});
+exam.update({
+  component: function Exam() {
+    const params = exam.useParams();
+    const { start } = exam.useSearch();
+    return (
+      <ExamPage
+        key={`${params.series}/${params.course}/${params.exam}`}
+        params={params}
+        start={start}
+      />
+    );
+  },
+});
+const examCatalog = createRoute({
+  getParentRoute: () => shell,
+  path: "/exam/$series/$course/$exam/catalog",
+});
+examCatalog.update({
+  component: function Catalog() {
+    return <ExamCatalog params={examCatalog.useParams()} />;
+  },
+});
+const examRun = createRoute({
+  getParentRoute: () => root,
+  path: "/exam/$series/$course/$exam/run/$run",
+});
+examRun.update({
+  component: function ExamRun() {
+    const { run, ...params } = examRun.useParams();
+    return <ExamPlayer key={run} params={params} runId={run} />;
+  },
+});
 const notebook = createRoute({
   getParentRoute: () => shell,
   path: "/notebook",
@@ -189,11 +247,17 @@ export const router = createRouter({
       review,
       reviewDecks,
       words,
+      exams,
+      examsDownloaded,
+      examsCatalog,
+      exam,
+      examCatalog,
       notebook,
       notebookLesson,
       settings,
     ]),
     lesson,
+    examRun,
   ]),
   defaultPreload: "intent",
   // A new page opens at its top; Back returns to where the page was left (a long list of courses).

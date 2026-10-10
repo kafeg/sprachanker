@@ -15,6 +15,8 @@ import {
 
 import {
   type AnsweredPayload,
+  type ExamKey,
+  type ExamRun,
   type ItemKey,
   type LessonKey,
   lessonOf,
@@ -25,6 +27,7 @@ import {
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
+import { toExamRun } from "./exams.ts";
 import { payloadOf, type ReadEvent, type RunRow, type RunStore } from "./run-store.ts";
 import { toRun, WORK_EVENTS } from "./runs.ts";
 import type { Scenes } from "./scene.ts";
@@ -116,12 +119,17 @@ export function createNotebook(deps: {
     /**
      * The Notebook's first page: every study day with something done (oldest first, what each held)
      * and today's start; the words known (every face of the note in review) and the lessons done; the
-     * courses with the lessons worked on — passes, best score, one open, last work.
+     * courses with the lessons worked on — passes, best score, one open, last work; the mock exams
+     * handed in.
      */
     async overview() {
+      const examRuns = new Set(
+        store.eventsWhere({ types: ["answered"], kind: "exam" }).map((e) => e.runId),
+      );
       const days = activityByDay(
         store.eventsWhere({ types: [...ACTIVITY_EVENTS] }),
         (t) => dayOf(t).start,
+        examRuns,
       );
       const states = deps.cards.states();
       const wordsKnown = deps.cards
@@ -177,12 +185,29 @@ export function createNotebook(deps: {
           lessons: own,
         };
       });
+      // The mock exams handed in, by exam, newest first (practice is the questions' history).
+      const byExam = new Map<ExamKey, ExamRun[]>();
+      for (const row of store.all("exam")) {
+        const run = toExamRun(row);
+        if (run?.status !== "finished" || run.plan.mode !== "test") continue;
+        byExam.set(run.exam, [run, ...(byExam.get(run.exam) ?? [])]);
+      }
+      const exams = await Promise.all(
+        [...byExam].map(async ([key, runs]) => {
+          const edition = runs[0]?.edition;
+          const locale = edition
+            ? await content.localeExam(seriesOf(key), key, edition).catch(() => undefined)
+            : undefined;
+          return { key, title: locale?.title ?? null, runs };
+        }),
+      );
       return {
         days,
         today: dayOf(deps.now()).start,
         wordsKnown,
         lessonsDone,
         courses: courses.sort((a, b) => b.lastAt - a.lastAt),
+        exams: exams.sort((a, b) => (b.runs[0]?.finishedAt ?? 0) - (a.runs[0]?.finishedAt ?? 0)),
       };
     },
 

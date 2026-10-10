@@ -1,0 +1,156 @@
+import { expect, test } from "bun:test";
+import {
+  type Exam,
+  type ExamItem,
+  type ExamPlan,
+  examItemKey,
+  examKey,
+  examSectionKey,
+  type TypedEvent,
+} from "@sprachanker/schema";
+import {
+  checkQuestion,
+  drawExam,
+  eligible,
+  examResult,
+  missingSettings,
+  practiceOrder,
+  questionStats,
+  readiness,
+  sectionsOf,
+} from "../src/exam/index.ts";
+
+const EXAM = examKey("bamf.lid/lid" as never, "test");
+const q = (id: string, state: string | null, right = "a"): ExamItem => ({
+  key: examItemKey(EXAM, id),
+  type: "single_choice",
+  tags: { federalState: state },
+  prompt: `Frage ${id}?`,
+  options: [
+    { id: "a", text: "ja" },
+    { id: "b", text: "nein" },
+  ],
+  answer: { optionIds: [right] },
+});
+const general = ["001", "002", "003", "004"].map((id) => q(id, null));
+const states = [q("be-01", "be"), q("be-02", "be"), q("by-01", "by")];
+const exam: Exam = {
+  format: 1,
+  key: EXAM,
+  timeLimitSec: 3600,
+  sections: [
+    {
+      key: examSectionKey(EXAM, "general"),
+      pool: general.map((i) => i.key),
+      draw: 3,
+      filter: null,
+    },
+    {
+      key: examSectionKey(EXAM, "state"),
+      pool: states.map((i) => i.key),
+      draw: 1,
+      filter: { tag: "federalState", setting: "exam.federalState" },
+    },
+  ],
+  items: [...general, ...states],
+  thresholds: [
+    { id: "lid", minPoints: 2 },
+    { id: "naturalisation", minPoints: 4 },
+  ],
+};
+const berlin = (key: string) => (key === "exam.federalState" ? "be" : undefined);
+/** A sequence of "random" numbers, repeated. */
+const seq = (...values: number[]) => {
+  let i = 0;
+  return () => values[i++ % values.length] as number;
+};
+const id = (key: string) => key.split("/q-")[1];
+
+let n = 0;
+const answered = (item: ExamItem, optionId: string, runId = "run"): TypedEvent =>
+  ({
+    id: `e${n++}`,
+    runId,
+    ts: n,
+    type: "answered",
+    itemKey: item.key,
+    cardId: null,
+    payload: {
+      answer: { optionId },
+      attempt: 1,
+      ms: 1,
+      outcome: checkQuestion(item, { optionId }, "de"),
+    },
+  }) as TypedEvent;
+
+test("a filtered section is open only with its setting: the state's questions, none drawn without it", () => {
+  expect(missingSettings(exam, () => undefined)).toEqual(["exam.federalState"]);
+  expect(missingSettings(exam, berlin)).toEqual([]);
+  expect(eligible(exam, berlin).map(({ pool }) => pool.map((i) => id(i.key)))).toEqual([
+    ["001", "002", "003", "004"],
+    ["be-01", "be-02"],
+  ]);
+  expect(() => drawExam(exam, () => undefined, Math.random)).toThrow(/exam.federalState/);
+});
+
+test("a mock exam draws each section's number from its open pool, in section order, at random", () => {
+  const drawn = drawExam(exam, berlin, seq(0, 0, 0, 0.99));
+  expect(drawn.map(id)).toEqual(["001", "002", "003", "be-02"]);
+  const other = drawExam(exam, berlin, seq(0.99, 0.99, 0.99, 0));
+  expect(other.map(id)).toEqual(["004", "001", "002", "be-01"]);
+  expect(new Set(drawExam(exam, berlin, Math.random)).size).toBe(4);
+});
+
+test("a question is checked as a single-choice item", () => {
+  expect(checkQuestion(q("001", null, "b"), { optionId: "b" }, "de").result).toBe("correct");
+  expect(checkQuestion(q("001", null, "b"), { optionId: "a" }, "de").result).toBe("wrong");
+});
+
+test("a result counts each question's latest answer, by section, and the pass marks reached", () => {
+  const items = [general[0], general[1], general[2], states[0]].map((i) => (i as ExamItem).key);
+  const plan: ExamPlan = { mode: "test", items, sections: sectionsOf(exam, items), deadline: null };
+  const events = [
+    answered(general[0] as ExamItem, "b"),
+    // Changed before handing in: the latest answer counts.
+    answered(general[0] as ExamItem, "a"),
+    answered(general[1] as ExamItem, "b"),
+    answered(states[0] as ExamItem, "a"),
+    // A question not asked in this run does not count.
+    answered(general[3] as ExamItem, "a"),
+  ];
+  expect(examResult(exam, plan, events)).toEqual({
+    points: 2,
+    max: 4,
+    answered: 3,
+    sections: {
+      [examSectionKey(EXAM, "general")]: { points: 1, max: 3 },
+      [examSectionKey(EXAM, "state")]: { points: 1, max: 1 },
+    },
+    passed: ["lid"],
+  });
+  // Scored by the sections the plan keeps: a catalogue changed since (a question gone from its pool)
+  // leaves the result as it was.
+  const changed = {
+    ...exam,
+    sections: exam.sections.map((s) => ({ ...s, pool: s.pool.filter((k) => k !== items[1]) })),
+  };
+  expect(examResult(changed, plan, events)).toEqual(examResult(exam, plan, events));
+});
+
+test("the answers across runs make each question known, answered wrongly or not seen", () => {
+  const stats = questionStats([
+    answered(general[0] as ExamItem, "a", "r1"),
+    answered(general[1] as ExamItem, "a", "r1"),
+    answered(general[1] as ExamItem, "b", "r2"),
+    answered(states[0] as ExamItem, "a", "r2"),
+  ]);
+  expect(stats.get((general[0] as ExamItem).key)).toEqual({ last: "right", right: 1, wrong: 0 });
+  expect(stats.get((general[1] as ExamItem).key)).toEqual({ last: "wrong", right: 1, wrong: 1 });
+  // Known: 001 and be-01 of the six questions open to a learner in Berlin.
+  expect(readiness(exam, berlin, stats)).toBeCloseTo(2 / 6);
+  // Practice: the wrong one first, then those not seen, the known ones last.
+  const order = practiceOrder(exam, berlin, stats, seq(0)).map(id);
+  expect(order[0]).toBe("002");
+  expect(order.slice(1, 4).sort()).toEqual(["003", "004", "be-02"]);
+  expect(order.slice(4).sort()).toEqual(["001", "be-01"]);
+});

@@ -13,6 +13,7 @@ import {
   useSignOut,
   useUpdateProfile,
 } from "@/api/session.ts";
+import { StateSelect } from "@/exams/state-select.tsx";
 import { languageName } from "@/i18n/index.ts";
 import { Avatar } from "@/ui/avatar.tsx";
 import { Chip } from "@/ui/chip.tsx";
@@ -99,6 +100,12 @@ export function ProfileSettings() {
             </div>
           </fieldset>
         ))}
+        {/* Leben in Deutschland asks three questions of the learner's state. */}
+        <div className="mt-4 space-y-1.5">
+          <p className="text-sm font-medium">{t("exams.state")}</p>
+          <StateSelect className="max-w-xs" />
+          <p className="text-sm text-muted-foreground">{t("exams.stateHint")}</p>
+        </div>
       </Panel>
       <DevicesPanel />
       <Button

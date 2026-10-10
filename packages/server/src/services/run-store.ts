@@ -9,6 +9,8 @@ import {
   EVENT_PAYLOADS,
   type EventPayload,
   type EventType,
+  type ExamKey,
+  type ExamResult,
   type LessonKey,
   type LessonResult,
   parseLessonKey,
@@ -28,8 +30,9 @@ import { ServiceError } from "../errors.ts";
 export type RunRow = typeof runs.$inferSelect;
 export type EventRow = typeof events.$inferSelect;
 export type Kind = z.infer<typeof RunKind>;
-/** What a run is about: a lesson (lesson, chat and scene runs) or nothing (the day's review). */
-export type Context = LessonKey | null;
+/** What a run is about: a lesson (lesson, chat and scene runs), an exam (exam runs) or nothing (the
+ *  day's review). */
+export type Context = LessonKey | ExamKey | null;
 
 /** An event to store: its own id when the client named it (idempotency key), else one is made. */
 export interface NewEvent<T extends EventType = EventType> {
@@ -130,6 +133,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
           id: id(now()),
           kind,
           contextKey: about,
+          // A lesson's or an exam's course: both keys are `<course>/<name>`.
           courseKey: about ? parseLessonKey(about).course : null,
           edition: options.edition ?? null,
           appVersion: deps.appVersion,
@@ -149,7 +153,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       runId: string,
       status: "finished" | "abandoned",
       reason: "completed" | "user" | "timeout" | "content_updated",
-      result?: LessonResult,
+      result?: LessonResult | ExamResult,
     ): RunRow | undefined {
       return db
         .update(runs)
@@ -199,7 +203,8 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .all();
     },
 
-    /** Ids of every run, of any kind, about a lesson or in a course (resetting progress). */
+    /** Ids of every run, of any kind, about a lesson or in a course (resetting progress: a course's
+     *  lesson and exam runs alike). */
     idsOf(scope: { lesson: LessonKey } | { course: CourseKey }) {
       return db
         .select({ id: runs.id })

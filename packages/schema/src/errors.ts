@@ -30,6 +30,10 @@ export const ERROR_CODES = [
   "invalid_event",
   "event_of_another_run",
   "event_id_taken",
+  // Exam runs.
+  "exam_needs_setting",
+  "exam_time_over",
+  "exam_test_running",
   // Cards and review.
   "no_such_card",
   "card_changed",

@@ -18,6 +18,11 @@ export class ApiError extends Error {
   }
 }
 
+/** A refusal that sending again cannot change; a lost session (401), a request that reached the wrong
+ *  host (421), a timeout (408) or a busy server (429) is not one — the events wait to be sent again. */
+export const refusedByServer = (e: unknown) =>
+  e instanceof ApiError && !!e.status && e.status < 500 && ![401, 408, 421, 429].includes(e.status);
+
 /** What `json` reads of a response: its status and its body (a Hono RPC response is no more). */
 interface JsonResponse<T> {
   ok: boolean;

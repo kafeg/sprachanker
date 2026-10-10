@@ -2,7 +2,7 @@
 import { courseIndex, exams, lessons } from "./course.ts";
 import { EDITIONS, localeCourse, localeExam, localeLessons } from "./locales.ts";
 
-export { COURSE, SERIES } from "./course.ts";
+export { COURSE, EXAM, SERIES } from "./course.ts";
 export { FIXTURE_SERIES, writeFixtureLibrary } from "./library.ts";
 export { FIXTURE_MEDIA } from "./media.ts";
 

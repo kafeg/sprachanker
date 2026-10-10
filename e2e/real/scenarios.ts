@@ -4,7 +4,7 @@
 // first; "all" for every one).
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { Lesson, LocaleLesson } from "@sprachanker/schema";
+import type { Exam, Lesson, LocaleLesson } from "@sprachanker/schema";
 import { LIBRARY } from "./data.ts";
 
 export interface Scenario {
@@ -54,8 +54,10 @@ export function scenarios(): Scenario[] {
       : courses.slice(0, 1);
     for (const course of chosen) {
       const edition = editionOf(series, course);
-      if (!edition) continue;
-      const all = readdirSync(join(LIBRARY, series, "canonical", course, "lessons"))
+      const lessons = join(LIBRARY, series, "canonical", course, "lessons");
+      // An exam's course has none (examScenarios).
+      if (!edition || !existsSync(lessons)) continue;
+      const all = readdirSync(lessons)
         .filter((f) => f.endsWith(".json"))
         .map((f) => f.slice(0, -5))
         .sort();
@@ -78,3 +80,39 @@ export function lessonFiles(s: Scenario): { lesson: Lesson; locale: LocaleLesson
     ),
   };
 }
+
+/** An installed exam to take: its course, its slug ("test") and its key, its edition. */
+export interface ExamScenario {
+  series: string;
+  course: string;
+  exam: string;
+  key: string;
+  edition: string;
+}
+
+/** The installed exams, narrowed by `REAL` as lessons are (a series, a course or the exam's key). */
+export function examScenarios(): ExamScenario[] {
+  const prefixes = (process.env.REAL ?? "").split(",").filter(Boolean);
+  const out: ExamScenario[] = [];
+  for (const series of dirs(LIBRARY))
+    for (const course of dirs(join(LIBRARY, series, "canonical"))) {
+      const folder = join(LIBRARY, series, "canonical", course, "exams");
+      const edition = editionOf(series, course);
+      if (!existsSync(folder) || !edition) continue;
+      for (const file of readdirSync(folder)
+        .filter((f) => f.endsWith(".json"))
+        .sort()) {
+        const exam = file.slice(0, -5);
+        const key = `${series}/${course}/exam-${exam}`;
+        if (prefixes.length && !prefixes.some((p) => key.startsWith(p))) continue;
+        out.push({ series, course, exam, key, edition });
+      }
+    }
+  return out;
+}
+
+/** The exam's canonical file. */
+export const examFile = (s: ExamScenario): Exam =>
+  JSON.parse(
+    readFileSync(join(LIBRARY, s.series, "canonical", s.course, "exams", `${s.exam}.json`), "utf8"),
+  );

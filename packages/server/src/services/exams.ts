@@ -1,0 +1,335 @@
+// Exam runs (04, "Exams"; 05; 09, Exams): the installed exams with the learner's standing in each, an
+// exam's page, and its runs — a mock exam drawn as the real test draws (timed, its answers checked
+// only when handed in, so nothing gives them away before) or practice (each answer checked at once).
+// Storage goes through the run store: a run of kind `exam` about the exam, its plan in `plan_json`,
+// each answer an `answered` event on its question, the result in `result_json`.
+import {
+  checkQuestion,
+  drawExam,
+  examResult,
+  missingSettings,
+  practiceOrder,
+  questionStats,
+  readiness,
+  type SettingOf,
+  sectionsOf,
+} from "@sprachanker/engine";
+import {
+  type EditionId,
+  type Exam,
+  ExamEventInput,
+  type ExamItem,
+  type ExamKey,
+  type ExamMode,
+  ExamPlan,
+  ExamResult,
+  type ExamRun,
+  type Outcome,
+  parseEditionId,
+  type SettingKey,
+  seriesOf,
+} from "@sprachanker/schema";
+import { ServiceError } from "../errors.ts";
+import type { Content } from "./content.ts";
+import { type RunRow, type RunStore, readStored } from "./run-store.ts";
+import type { Settings } from "./settings.ts";
+
+/** Answers a mock exam takes after its time is up: what was on its way when the time ran out. */
+const GRACE_MS = 30_000;
+
+/** A random number in [0, 1) from the platform's cryptographic generator (a draw no one foresees;
+ *  WebCrypto: the same in every runtime). */
+const random = () => (crypto.getRandomValues(new Uint32Array(1))[0] as number) / 2 ** 32;
+
+export const toExamRun = (row: RunRow): ExamRun | undefined => {
+  const plan = readStored(row.planJson, ExamPlan, `plan of run ${row.id}`);
+  if (!plan) return undefined;
+  return {
+    id: row.id,
+    exam: row.contextKey as ExamKey,
+    edition: row.edition as ExamRun["edition"],
+    status: row.status as ExamRun["status"],
+    endReason: row.endReason as ExamRun["endReason"],
+    startedAt: row.startedAt,
+    finishedAt: row.finishedAt,
+    plan,
+    result: readStored(row.resultJson, ExamResult, `result of run ${row.id}`) ?? null,
+  };
+};
+
+export function createExams({
+  store,
+  content,
+  settings,
+  now,
+}: {
+  store: RunStore;
+  content: Content;
+  settings: Settings;
+  now: () => number;
+}) {
+  const setting: SettingOf = (key) => {
+    const value = settings.get(key as SettingKey);
+    return typeof value === "string" ? value : undefined;
+  };
+  /** The exam's run in progress, if any. */
+  const activeOf = (exam: ExamKey) => {
+    const row = store.active("exam", exam);
+    return row ? toExamRun(row) : undefined;
+  };
+  /** Every answer given in the exam's runs, oldest first — but a running mock exam's: what they say
+   *  of its questions shows only once it is handed in. */
+  const answersIn = (exam: ExamKey) => {
+    const running = activeOf(exam);
+    const hidden = running?.plan.mode === "test" ? running.id : undefined;
+    return store
+      .eventsWhere({ types: ["answered"], kind: "exam", about: exam, ascending: true })
+      .filter((e) => e.runId !== hidden);
+  };
+  /** The exam's runs, newest first, read whole (one whose plan no longer reads is left out). */
+  const runsOf = (exam: ExamKey) => store.list("exam", exam).flatMap((row) => toExamRun(row) ?? []);
+
+  const getRun = (runId: string) => {
+    const row = store.get(runId, "exam");
+    const run = row && toExamRun(row);
+    if (!row || !run) throw new ServiceError("no_such_run", 404);
+    return { row, run };
+  };
+  const examOf = async (key: ExamKey) => {
+    try {
+      return await content.exam(seriesOf(key), key);
+    } catch {
+      throw new ServiceError("not_installed", 404);
+    }
+  };
+  /** A run's events as the learner may see them: a mock exam still running keeps its outcomes to
+   *  itself (they would give the answers away). */
+  const shownEvents = (run: ExamRun) => {
+    const list = store.events(run.id, ["answered"]);
+    if (run.plan.mode === "practice" || run.status !== "active") return list;
+    return list.map((e) => {
+      if (e.type !== "answered") return e;
+      const { outcome: _, ...payload } = e.payload;
+      return { ...e, payload };
+    });
+  };
+  /** A question of the run: from its snapshot (a mock exam), else from the exam as installed. */
+  const questionOf = (exam: Exam, run: ExamRun, key: string): ExamItem | undefined =>
+    run.plan.snapshot?.find((i) => i.key === key) ?? exam.items.find((i) => i.key === key);
+
+  /** Ends the run with its result: a mock exam over its questions, practice over those answered;
+   *  one handed in after its time ends as `timeout`. */
+  async function handIn(runId: string, run: ExamRun) {
+    const exam = await examOf(run.exam);
+    const events = store.events(runId, ["answered"]);
+    const answered = new Set(events.flatMap((e) => (e.itemKey ? [e.itemKey] : [])));
+    const plan =
+      run.plan.mode === "practice"
+        ? { ...run.plan, items: run.plan.items.filter((k) => answered.has(k)) }
+        : run.plan;
+    const late = run.plan.deadline !== null && now() > run.plan.deadline;
+    store.end(runId, "finished", late ? "timeout" : "completed", examResult(exam, plan, events));
+  }
+  /** A mock exam left running past its time (and the grace for answers on their way) is handed in
+   *  as it stands — the learner closed the page, or never came back. */
+  async function settle(run: ExamRun | undefined) {
+    if (run?.status === "active" && run.plan.deadline !== null)
+      if (now() > run.plan.deadline + GRACE_MS) await handIn(run.id, run);
+  }
+
+  /** A run as the player opens it: the run, its answers (a running mock exam's without their
+   *  outcomes) and the server's clock, which the countdown keeps to. */
+  async function open(runId: string) {
+    await settle(getRun(runId).run);
+    const { run } = getRun(runId);
+    return { run, events: shownEvents(run), now: now() };
+  }
+
+  /** The learner's standing in an exam: each question's stat, how ready, the runs. */
+  async function standing(key: ExamKey) {
+    const exam = await examOf(key);
+    await settle(activeOf(key));
+    const stats = questionStats(answersIn(key));
+    const runs = runsOf(key);
+    const tests = runs.filter((r) => r.plan.mode === "test" && r.status === "finished");
+    const best = tests.reduce<ExamRun | undefined>(
+      (a, r) => (!a || (r.result?.points ?? 0) > (a.result?.points ?? 0) ? r : a),
+      undefined,
+    );
+    return {
+      exam,
+      stats,
+      readiness: readiness(exam, setting, stats),
+      needs: missingSettings(exam, setting),
+      active: runs.find((r) => r.status === "active") ?? null,
+      last: tests[0] ?? null,
+      best: best ?? null,
+      tests: tests.length,
+      started: runs.length > 0,
+    };
+  }
+
+  return {
+    /** The installed exams — of exam courses and of courses that have one — with the learner's
+     *  standing; titles by edition. */
+    async list() {
+      const out = [];
+      for (const course of await content.courses())
+        for (const key of course.exams as ExamKey[]) {
+          const titles: Record<string, string> = {};
+          for (const edition of course.editions) {
+            const locale = await content
+              .localeExam(course.series, key, edition)
+              .catch(() => undefined);
+            if (locale) titles[edition] = locale.title;
+          }
+          const s = await standing(key).catch((error: unknown) => {
+            console.error(`${key} does not read; left out: ${String(error)}`);
+            return undefined;
+          });
+          if (!s) continue;
+          out.push({
+            key,
+            series: course.series,
+            course: course.course,
+            kind: course.kind,
+            editions: course.editions,
+            titles,
+            courseTitles: course.titles,
+            source: course.source,
+            questions: s.exam.items.length,
+            asked: s.exam.sections.reduce((n, sec) => n + sec.draw, 0),
+            timeLimitSec: s.exam.timeLimitSec,
+            readiness: s.readiness,
+            needs: s.needs,
+            active: s.active,
+            last: s.last,
+            best: s.best,
+            tests: s.tests,
+            started: s.started,
+          });
+        }
+      return out;
+    },
+
+    /** An exam's page: the exam and its texts in an edition, the learner's standing, the stat of
+     *  each question answered. */
+    async page(key: ExamKey, edition: string) {
+      const s = await standing(key);
+      const locale = (await content.localeExam(seriesOf(key), key, edition)) ?? null;
+      return {
+        exam: s.exam,
+        locale,
+        readiness: s.readiness,
+        needs: s.needs,
+        stats: Object.fromEntries(s.stats),
+        active: s.active,
+        last: s.last,
+        best: s.best,
+        runs: runsOf(key).filter((r) => r.status === "finished"),
+      };
+    },
+
+    /** A run of the exam to take: a new one (`mode`), an active practice ending as abandoned; not
+     *  while a mock exam runs (it is handed in, or its time runs out). A mock exam draws its
+     *  questions and keeps them as shown; practice orders the open questions, the wrong ones first. */
+    async start(key: ExamKey, edition: string, mode: ExamMode) {
+      const exam = await examOf(key);
+      const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
+      if (!course?.editions.includes(edition)) throw new ServiceError("not_installed", 404);
+      if (missingSettings(exam, setting).length) throw new ServiceError("exam_needs_setting", 409);
+      await settle(activeOf(key));
+      if (activeOf(key)?.plan.mode === "test") throw new ServiceError("exam_test_running", 409);
+      const items =
+        mode === "test"
+          ? drawExam(exam, setting, random)
+          : practiceOrder(exam, setting, questionStats(answersIn(key)), random);
+      const plan: ExamPlan = {
+        mode,
+        items,
+        sections: sectionsOf(exam, items),
+        deadline: mode === "test" ? now() + exam.timeLimitSec * 1000 : null,
+        ...(mode === "test" && {
+          snapshot: items.flatMap((k) => exam.items.find((i) => i.key === k) ?? []),
+        }),
+      };
+      const row = store.replace(
+        "exam",
+        key,
+        { status: "abandoned", reason: "user" },
+        { edition, plan },
+      );
+      return { run: toExamRun(row) as ExamRun, events: [], now: now() };
+    },
+
+    open,
+
+    /**
+     * Answers to the run's questions, stored idempotently (by id) in one transaction; their outcomes
+     * computed here. Returned for practice only: a mock exam's are told when it is handed in. A mock
+     * exam's answers are taken until its time is up.
+     */
+    async append(runId: string, input: unknown[], deviceId?: string) {
+      const { row, run } = getRun(runId);
+      if (row.status !== "active") throw new ServiceError("run_not_active", 409);
+      // Its time is up: handed in as it stands, the answers come too late.
+      if (run.plan.deadline !== null && now() > run.plan.deadline + GRACE_MS) {
+        await handIn(runId, run);
+        throw new ServiceError("exam_time_over", 409);
+      }
+      const exam = await examOf(run.exam);
+      // Answers are checked in the language the exam is in (04).
+      const lang = row.edition ? parseEditionId(row.edition as EditionId).target : "de";
+      const asked = new Set<string>(run.plan.items);
+      const answersOf = new Map<string, number>();
+      for (const a of store.eventsWhere({ types: ["answered"], runIds: [runId] }))
+        if (a.itemKey) answersOf.set(a.itemKey, (answersOf.get(a.itemKey) ?? 0) + 1);
+      const outcomes: Record<string, Outcome> = {};
+      const attempts: Record<string, number> = {};
+      const list = input.map((raw) => {
+        const parsed = ExamEventInput.safeParse(raw);
+        if (!parsed.success) throw new ServiceError("invalid_event");
+        const e = parsed.data;
+        const question = asked.has(e.itemKey) ? questionOf(exam, run, e.itemKey) : undefined;
+        if (!question) throw new ServiceError("no_such_item");
+        let outcome: Outcome;
+        try {
+          outcome = checkQuestion(question, e.payload.answer, lang);
+        } catch {
+          throw new ServiceError("answer_does_not_fit");
+        }
+        // Numbered here, after the question's answers the run holds; one sent again keeps its own.
+        let attempt = e.payload.attempt;
+        if (!store.event(e.id)) {
+          attempt = (answersOf.get(e.itemKey) ?? 0) + 1;
+          answersOf.set(e.itemKey, attempt);
+        }
+        outcomes[e.id] = outcome;
+        attempts[e.id] = attempt;
+        return { ...e, payload: { ...e.payload, outcome, attempt } };
+      });
+      store.append(runId, list, {
+        deviceId,
+        onStored: (before) => {
+          if (before.type !== "answered") return;
+          outcomes[before.id] = before.payload.outcome;
+          attempts[before.id] = before.payload.attempt;
+        },
+      });
+      return { outcomes: run.plan.mode === "practice" ? outcomes : {}, attempts };
+    },
+
+    /** Hands the run in (`handIn`), then gives the run with every answer's outcome. */
+    async finish(runId: string) {
+      const { row, run } = getRun(runId);
+      if (row.status === "active") await handIn(runId, run);
+      return open(runId);
+    },
+
+    /** The exams' runs, newest first, for the Notebook: the exam, its result. */
+    finishedTests(key: ExamKey) {
+      return runsOf(key).filter((r) => r.status === "finished" && r.plan.mode === "test");
+    },
+  };
+}
+export type Exams = ReturnType<typeof createExams>;

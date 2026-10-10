@@ -28,17 +28,18 @@ src/
   errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
-                     # (courses, catalog, downloads, lesson content), runs (lesson runs, progress reset),
+                     # (courses, catalog, downloads, lesson content), runs (lesson runs, progress reset), exams,
                      # cards (/api/cards), settings, notebook, recordings, speech, llm (removable as a whole); env.ts: what a
                      # profile's routes read (`c.var.s`, its services; `c.var.profileId`)
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, registration), devices (sign-in tokens), and
                      # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
-                     # progress); run-store (the one module on runs and events: start, replace, end,
-                     # append, read, remove); card-store (the one module on cards and card_state); cards
+                     # progress); exams (exam runs: mock exams and practice, the learner's standing);
+                     # run-store (the one module on runs and events: start, replace, end, append, read,
+                     # remove); card-store (the one module on cards and card_state); cards
                      # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
                      # bury, suspend, flags, marks); words (My words, the word sheet); notebook (study
-                     # days, passes, a pass in full, an item across passes; read only); settings;
+                     # days, passes, a pass in full, an item across passes, mock exams; read only); settings;
                      # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
                      # lesson); llm (providers, LM Studio, prompt previews); explain ("Why is this
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);

@@ -14,6 +14,7 @@ const daysAgo = (n: number) => {
 const day = (n: number, fields: Partial<Record<string, number>>) => ({
   start: daysAgo(n),
   lesson: 0,
+  exam: 0,
   review: 0,
   newCards: 0,
   recalled: 0,
@@ -22,12 +23,13 @@ const day = (n: number, fields: Partial<Record<string, number>>) => ({
   ...fields,
 });
 
-const overview = (days: unknown[], courses: unknown[] = []) => ({
+const overview = (days: unknown[], courses: unknown[] = [], exams: unknown[] = []) => ({
   days,
   today: TODAY,
   wordsKnown: 42,
   lessonsDone: 3,
   courses,
+  exams,
 });
 
 test("the calendar: a year of weeks by column, Monday on top, up to today; shades by work done", () => {
@@ -111,4 +113,51 @@ test("an empty Notebook says what will appear; nothing remembered yet is a dash"
   });
   expect(await view.findByText(/Nothing yet/)).toBeTruthy();
   expect(view.getByText("Remembered").parentElement?.firstChild?.textContent).toBe("—");
+});
+
+test("the mock exams handed in, by exam: each its date, points and whether it passed; one opens its result", async () => {
+  const run = (id: string, points: number, passed: string[]) => ({
+    id,
+    exam: "bamf.lid/lid/exam-test",
+    edition: "de-de",
+    status: "finished",
+    endReason: "completed",
+    startedAt: TODAY,
+    finishedAt: TODAY,
+    plan: { mode: "test", items: ["bamf.lid/lid/exam-test/q-001"], deadline: TODAY },
+    result: { points, max: 33, answered: 33, sections: {}, passed },
+  });
+  const view = await renderApp(<NotebookPage />, {
+    path: "/notebook",
+    data: [
+      [
+        ["notebook"],
+        overview(
+          [],
+          [],
+          [
+            {
+              key: "bamf.lid/lid/exam-test",
+              title: "Leben in Deutschland",
+              runs: [
+                run("01JAAAAAAAAAAAAAAAAAAAAAAA", 29, ["lid", "naturalisation"]),
+                run("01JBBBBBBBBBBBBBBBBBBBBBBB", 12, []),
+              ],
+            },
+          ],
+        ),
+      ],
+    ],
+  });
+  expect(await view.findByText("Exams")).toBeTruthy();
+  const [best, worst] = view.getAllByRole("button", { name: /of 33/ });
+  expect(best?.textContent).toContain("29 of 33");
+  expect(best?.textContent).toContain("Passed");
+  expect(worst?.textContent).toContain("Not passed");
+  fireEvent.click(best as HTMLElement);
+  await waitFor(() =>
+    expect(view.router?.state.location.pathname).toBe(
+      "/exam/bamf.lid/lid/test/run/01JAAAAAAAAAAAAAAAAAAAAAAA",
+    ),
+  );
 });

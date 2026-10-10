@@ -20,8 +20,7 @@ how it fits together, by `docs/architecture.md`. Each item names the spec files 
 
 - Past the first version's scope (owner, 2026-10-08): the items below are what the owner wants next,
   in this order; anything else waits for "After the week of use".
-- Exams taken up now, ahead of items 1–2: Leben in Deutschland, then Goethe A1–B1 (owner,
-  2026-10-10).
+- Exams taken up now, ahead of items 1–2: Goethe A1–B1 next (owner, 2026-10-10).
 - German first (owner, 2026-10-07): the onboarding's language pair filters Courses; every provider is
   offered (03, "Offered in the app").
 - The desktop browser now; phones when convenient (item "Phones": Tailscale is known to work).
@@ -47,29 +46,17 @@ Specs: 09, 10.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
 ### 3. Exams (owner, 2026-10-08)
-Specs: 01, 02, 03, 05, 06, 09, 10. Research: `docs/research/exams.md`.
-- **An "Exams" section of its own** beside Courses, built like it and its other sections (owner's
-  choices from the mockups, 2026-10-10): the list as Courses' cards, with the last score and how
-  ready the learner is (1A); an exam's page with its modes as tiles — mock exam, practice, the
-  catalogue — and a map of its questions (known, wrong, not seen) (2A); the player shows a part's
-  questions as a list, as the lesson's exercises do, the timer above (3B); the result by part,
-  with the points and the pass marks (4B). An exam is got and installed from the interface like a
-  course; results in the Notebook.
-- **An exam layer** in the library format: modules → parts → items (our exercise types), time
-  limits, how often a recording plays, points per item, the conversion and the pass rules (overall,
-  written and spoken minimums, per module, DTZ-style level bands).
+Specs: 01, 02, 03, 04, 05, 06, 09, 10. Research: `docs/research/exams.md`. Built: the Exams section,
+mock exams, practice and the catalogue, Leben in Deutschland (`bamf-lid`; 03, 04 "Exams", 09).
+- **The exam layer grows for the language exams**: modules → parts → items of our exercise types,
+  time per part, how often a recording plays, points per item, the conversion and the pass rules
+  (overall, written and spoken minimums, per module, DTZ-style level bands); the player shows a
+  part's questions as today's list, the result by module and part.
 - **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
   question, option, picture, recording and answer comes in through the provider's fetch and
-  normaliser — never from a model, never by hand. Any tool may be used inside an importer (PDF
-  parsing too, added to 10's fixed choices); a browser only if a source cannot be read otherwise.
-  The whole of each exam: texts, pictures, audio, answers, attributions.
-- **3a. Leben in Deutschland** first: provider `bamf-lid` — questions, options, state sections and
-  pictures from BAMF's catalogue PDF; the right answers from BAMF's online test centre, read by the
-  importer (its APEX pages over plain HTTP if they can be replayed, else a headless browser), joined
-  by number and checked word by word. The terms: what BAMF states, the regulation (EinbTestV, §5
-  UrhG) and the pictures' credits — set out for the owner before the importer is offered.
-  **Accept**: a timed exam with Berlin questions end to end; practice of wrong answers; the whole
-  catalogue browsable; results in the Notebook; an exam in the run-throughs (`e2e/real`).
+  normaliser — never from a model, never by hand. Any tool may be used inside an importer; a browser
+  only if a source cannot be read otherwise. The whole of each exam: texts, pictures, audio,
+  answers, attributions.
 - **3b. Goethe A1, A2, B1** (key for the owner): provider for the accessible online model tests
   (`bfu.goethe.de`: HTML forms, answers as text, a recording per item), every module — Hören,
   Lesen, Schreiben (`respond` with the exam's criteria), Sprechen (spoken answers). **Accept**: each

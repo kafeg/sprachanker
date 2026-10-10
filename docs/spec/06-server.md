@@ -54,7 +54,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
 - Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
   the lessons worked on), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
   `GET /api/notebook/passes/:id` (a pass in full), `GET /api/notebook/item?itemKey=` (an item across
-  passes). Read only; a pass is a lesson run with work in it.
+  passes); the overview also lists the mock exams handed in, by exam. Read only; a pass is a lesson
+  run with work in it.
 - Cards (04): `POST /api/cards/lesson` (cards of a lesson's words), `GET /api/cards/decks` (each
   language with its courses and their counts), `GET /api/cards/decks/offers` (each installed course's
   words as a deck to take), `POST /api/cards/decks/take|leave` (a course's deck taken whole, or left),
@@ -73,6 +74,18 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `POST /api/runs/:id/events` (batched: checked whole, then stored in one transaction — all or
   nothing; idempotent by id, an event sent again returns its stored outcome; outcomes computed by the
   server), `POST /api/runs/:id/finish` (only an active run finishes). These take lesson runs only.
+- Exams (04, "Exams"): `GET /api/exams` (the installed exams with the learner's standing: how ready,
+  the settings still to choose, the active run, the last and best mock exams), `GET
+  /api/exams/page?exam=&edition=` (the exam with its texts, each question's last answer, the runs
+  handed in), `POST /api/exams/runs` (`{exam, edition, mode}`: a new run, an active practice abandoned; 409
+  `exam_needs_setting` while the federal state is not chosen, `exam_test_running` while a mock exam
+  runs), `GET /api/exams/runs/:id` (with the server's `now`: the countdown keeps to the server's
+  clock), `POST
+  /api/exams/runs/:id/events` (answers to the run's own questions only, batched and idempotent as a
+  lesson's; a mock exam's taken until 30 s after its deadline, then it is handed in and 409
+  `exam_time_over`), `POST
+  /api/exams/runs/:id/finish` (the result; late: `timeout`). A running mock exam's answers come back
+  without their outcomes; practice's with them.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
