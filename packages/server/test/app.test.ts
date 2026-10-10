@@ -131,6 +131,9 @@ describe("runs", () => {
 
     const body = { series: FIXTURE_SERIES, lessonKey: LESSON, edition: "ru-de" };
     const { run } = await sendJson("POST", "/api/runs", body);
+    // Opened, nothing done and no completed run: the course map leaves the lesson out.
+    const opened = await getJson(`/api/course?${new URLSearchParams(COURSE)}`);
+    expect(opened.lessons[LESSON]).toBeUndefined();
     const skipped = { id: ulid(), type: "item_skipped", itemKey: `${LESSON}/ex-01#2`, payload: {} };
     await sendJson("POST", `/api/runs/${run.id}/events`, { events: [skipped] });
     const active = (await getJson(`/api/runs/lesson?${q}`)).state;
