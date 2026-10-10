@@ -220,6 +220,17 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .all();
     },
 
+    /** Each run's kind, by id: what module an event belongs to (schema `MODULE_OF_KIND`). */
+    kinds(): Map<string, RunKind> {
+      return new Map(
+        db
+          .select({ id: runs.id, kind: runs.kind })
+          .from(runs)
+          .all()
+          .map((r) => [r.id, r.kind]),
+      );
+    },
+
     /** Every run of a kind (all lessons), oldest first. */
     all(kind: RunKind) {
       return db

@@ -2,7 +2,7 @@
 // its mock exams and practice runs, newest first — when, the points, passed or not — each opening its
 // result; the map of the questions open to the learner (known, answered wrongly last time, not seen);
 // and the questions answered wrongly last time.
-import { eligible, examPassed } from "@sprachanker/engine";
+import { examPassed, openQuestions, questionLine, settingOf } from "@sprachanker/engine";
 import { examLang } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -10,7 +10,6 @@ import { useEdition } from "@/api/edition.ts";
 import { useExamPage, useExams } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
 import { type ExamParams, examKeyOf } from "@/exams/params.ts";
-import { questionLine } from "@/exams/questions.ts";
 import { useDateFormat } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
@@ -35,11 +34,8 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
   const data = page.data;
   if (!data) return <Loading />;
 
-  const setting = (k: string) => {
-    const v = settings.data?.[k as keyof typeof settings.data];
-    return typeof v === "string" ? v : undefined;
-  };
-  const open = eligible(data.exam, setting).flatMap(({ pool }) => pool);
+  const setting = settingOf((k) => settings.data?.[k as keyof typeof settings.data]);
+  const open = openQuestions(data.exam, setting);
   const stat = (k: string) => data.stats[k]?.last;
   const known = open.filter((i) => stat(i.key) === "right").length;
   const wrong = open.filter((i) => stat(i.key) === "wrong");

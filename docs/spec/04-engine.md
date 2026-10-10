@@ -95,10 +95,12 @@ Pure functions over events and cards (05), read by the server per request:
 - **Mistakes** (`learner/mistakes.ts`): items whose first attempt in the latest run that answered them
   was wrong or partial — an answer said aloud without a phrase read by the model's check of it (08) —
   with the answer, the model's correction, and whether a later answer got it right.
-- **Study days** (`learner/activity.ts`): what each day held — lesson work (answers, skips, steps), card
-  answers (one taken back by undo does not count), new cards learnt, answers to cards in review and
-  those not "Again" (the share remembered), AI practice (the learner's messages, checks asked for) —
-  and the totals of a span of days. The day starts at the profile's hour (Spaced repetition, below).
+- **Study days** (`learner/activity.ts`): what each day held, counted by module (schema `stats.ts`:
+  lessons, exams, review, AI practice; a run's module is its kind's) — lesson work (answers, skips,
+  steps), exam answers, card answers (one taken back by undo does not count), new cards learnt, answers
+  to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
+  checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) — and the totals of a
+  span of days. The day starts at the profile's hour (Spaced repetition, below).
 
 The Notebook's words known (every face of the note in review) are counted by the server
 (`services/notebook.ts`). Planned: words by state — new, learning, known, as Anki counts its cards

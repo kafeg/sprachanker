@@ -20,6 +20,14 @@ import { checkItem } from "../check/index.ts";
 /** A profile setting's value by key (unset: undefined). */
 export type SettingOf = (key: string) => string | undefined;
 
+/** The settings as an exam reads them (`get`: a setting's stored value): a text, else unset. */
+export const settingOf =
+  (get: (key: string) => unknown): SettingOf =>
+  (key) => {
+    const value = get(key);
+    return typeof value === "string" ? value : undefined;
+  };
+
 /** The settings an exam needs before it can be drawn (a filtered section's setting unset). */
 export const missingSettings = (exam: Exam, setting: SettingOf): string[] => [
   ...new Set(
@@ -59,6 +67,20 @@ export function eligible(exam: Exam, setting: SettingOf, module?: string) {
     return { section, pool };
   });
 }
+
+/** The questions open to this learner in the sections' order — of one module when it is given. */
+export const openQuestions = (exam: Exam, setting: SettingOf, module?: string): ExamItem[] =>
+  eligible(exam, setting, module).flatMap(({ pool }) => pool);
+
+/** A question's line in a list: what it asks (a gap's text with "…", else its own text's first
+ *  line); empty when it has none. */
+export const questionLine = (item: ExamItem) =>
+  item.prompt ||
+  (item.type === "gap_text"
+    ? item.segments.map((p) => (typeof p === "string" ? p : "…")).join("")
+    : "") ||
+  item.text?.split("\n")[0] ||
+  "";
 
 /** `n` of `list` at random (a partial Fisher–Yates shuffle), in the order drawn. */
 function pick<T>(list: T[], n: number, random: () => number): T[] {
@@ -135,7 +157,7 @@ export function practiceOrder(
   random: () => number,
   module?: string,
 ): ExamItemKey[] {
-  const open = eligible(exam, setting, module).flatMap(({ pool }) => pool);
+  const open = openQuestions(exam, setting, module);
   const group = (test: (s: QuestionStat | undefined) => boolean) => {
     const keys = open.filter((i) => test(stats.get(i.key))).map((i) => i.key);
     return pick(keys, keys.length, random);
@@ -150,7 +172,7 @@ export function practiceOrder(
 /** How ready the learner is: the share of the questions open to them whose latest answer was right
  *  (0 when none is open). */
 export function readiness(exam: Exam, setting: SettingOf, stats: Map<string, QuestionStat>) {
-  const open = eligible(exam, setting).flatMap(({ pool }) => pool);
+  const open = openQuestions(exam, setting);
   if (!open.length) return 0;
   return open.filter((i) => stats.get(i.key)?.last === "right").length / open.length;
 }

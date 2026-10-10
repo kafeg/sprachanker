@@ -6,6 +6,8 @@
 import {
   ACTIVITY_EVENTS,
   activityByDay,
+  type CardEvent,
+  cardDay,
   type DeckWord,
   deckStanding,
   exerciseResults,
@@ -22,6 +24,7 @@ import {
   type ItemKey,
   type LessonKey,
   lessonOf,
+  MODULE_OF_KIND,
   parseItemKey,
   seriesOf,
   type VerdictTask,
@@ -125,13 +128,14 @@ export function createNotebook(deps: {
      * handed in.
      */
     async overview() {
-      const examRuns = new Set(
-        store.eventsWhere({ types: ["answered"], kind: "exam" }).map((e) => e.runId),
-      );
+      const kinds = store.kinds();
       const days = activityByDay(
         store.eventsWhere({ types: [...ACTIVITY_EVENTS] }),
         (t) => dayOf(t).start,
-        examRuns,
+        (runId) => {
+          const kind = kinds.get(runId);
+          return kind && MODULE_OF_KIND[kind];
+        },
       );
       const states = deps.cards.states();
       const wordsKnown = deps.cards
@@ -206,7 +210,9 @@ export function createNotebook(deps: {
       // Each language's deck: its words by state, what is due, its answers of the month.
       const today = dayOf(deps.now()).start;
       const notes = deps.cards.all();
-      const cardEvents = store.eventsWhere({ types: ["card_review", "card_undo"] });
+      const answers = cardDay(
+        store.eventsWhere({ types: ["card_review", "card_undo"] }) as CardEvent[],
+      ).answers;
       const decks = [...new Set(notes.map((n) => n.lang))].sort().map((language) => {
         const own = notes.filter((n) => n.lang === language);
         const ids = new Set(own.map((n) => n.id));
@@ -218,11 +224,8 @@ export function createNotebook(deps: {
             return { ...(state && { state }), suspended: !!row?.suspended };
           }),
         }));
-        const deckDays = activityByDay(
-          cardEvents.filter((e) => e.cardId && ids.has(e.cardId)),
-          (t) => dayOf(t).start,
-        );
-        return { language, ...deckStanding(words, deckDays, today) };
+        const deckAnswers = answers.filter((a) => ids.has(a.cardId));
+        return { language, ...deckStanding(words, deckAnswers, today) };
       });
       return {
         days,

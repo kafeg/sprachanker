@@ -1,7 +1,7 @@
 // An exam's catalogue (09, Exams; owner's choice F, 2026-10-10): every question open to the learner
 // (the general ones and their state's) as a compact list by Teil, found by its words; a question
 // opened shows its Teil's material and its right answer.
-import { eligible, missingSettings } from "@sprachanker/engine";
+import { missingSettings, openQuestions, questionLine, settingOf } from "@sprachanker/engine";
 import { examLang } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
@@ -15,7 +15,7 @@ import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { type ExamParams, examKeyOf } from "./params.ts";
-import { exampleAnswer, inTeile, questionLine } from "./questions.ts";
+import { exampleAnswer, inTeile } from "./questions.ts";
 import { QuestionSources } from "./sources.tsx";
 import { QuestionCard, TeilHeader } from "./teil.tsx";
 
@@ -38,13 +38,10 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
   const data = page.data;
-  const setting = (k: string) => {
-    const v = settings.data?.[k as keyof typeof settings.data];
-    return typeof v === "string" ? v : undefined;
-  };
+  const setting = settingOf((k) => settings.data?.[k as keyof typeof settings.data]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: `setting` reads settings.data
   const open = useMemo(
-    () => (data ? eligible(data.exam, setting).flatMap(({ pool }) => pool) : []),
+    () => (data ? openQuestions(data.exam, setting) : []),
     [data, settings.data],
   );
 

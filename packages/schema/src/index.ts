@@ -14,3 +14,4 @@ export * from "./locale.ts";
 export * from "./manifest.ts";
 export * from "./rules.ts";
 export * from "./settings.ts";
+export * from "./stats.ts";

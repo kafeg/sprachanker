@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import type { FaceState } from "@sprachanker/schema";
+import type { CardAnswer } from "../src/srs/day.ts";
 import { deckStanding } from "../src/srs/deck.ts";
 
 const DAY = 86_400_000;
@@ -13,6 +14,19 @@ const face = (state: number, due: number, scheduledDays = 1): FaceState => ({
   reps: 1,
   lapses: 0,
   state,
+});
+/** An answer to a card, rated `rating`, of a face `before` it in that state (null: new). */
+const answer = (ts: number, rating: number, before: number | null): CardAnswer => ({
+  id: String(ts),
+  ts,
+  cardId: "c",
+  face: "recognition",
+  review: {
+    face: "recognition",
+    rating,
+    stateBefore: before === null ? null : face(before, ts),
+    stateAfter: face(2, ts + DAY),
+  },
 });
 
 test("a deck's words by state, mature ones apart, what is due, the month's answers", () => {
@@ -46,26 +60,14 @@ test("a deck's words by state, mature ones apart, what is due, the month's answe
       { suspended: true, faces: [{ state: face(2, today - DAY), suspended: false }] },
     ],
     [
-      {
-        start: today - 40 * DAY,
-        lesson: 0,
-        exam: 0,
-        review: 9,
-        newCards: 0,
-        recalled: 9,
-        remembered: 0,
-        ai: 0,
-      },
-      {
-        start: today - DAY,
-        lesson: 0,
-        exam: 0,
-        review: 5,
-        newCards: 1,
-        recalled: 4,
-        remembered: 3,
-        ai: 0,
-      },
+      // Before the month: not counted.
+      ...Array.from({ length: 9 }, () => answer(today - 40 * DAY, 1, 2)),
+      // Yesterday: a new card, and of four in review three remembered.
+      answer(today - DAY, 3, null),
+      answer(today - DAY, 3, 2),
+      answer(today - DAY, 4, 2),
+      answer(today - DAY, 2, 2),
+      answer(today - DAY, 1, 2),
     ],
     today,
   );

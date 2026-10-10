@@ -4,7 +4,7 @@
 // as the real test does — the time left above, answers that can be changed until it is handed in,
 // nothing checked before (then the result, 4B); practice (D) checks each answer at once, its tally
 // above.
-import { checkQuestion } from "@sprachanker/engine";
+import { checkQuestion, questionLine } from "@sprachanker/engine";
 import {
   type Exam,
   type ExamItem,
@@ -28,7 +28,7 @@ import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
 import { type ListedQuestion, QuestionList } from "./navigator.tsx";
 import { type ExamParams, examKeyOf } from "./params.ts";
-import { inTeile, latestAnswers, questionLine } from "./questions.ts";
+import { inTeile, latestAnswers } from "./questions.ts";
 import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
 import { useExamSlots } from "./slots.ts";

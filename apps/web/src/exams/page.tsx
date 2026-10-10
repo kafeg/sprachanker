@@ -2,7 +2,7 @@
 // federal state its questions are asked of, the whole exam or one module, the three ways in as tiles —
 // a mock exam as the real test runs it, practice with each answer checked at once, the catalogue of
 // every question with its answer — and the latest mock exam, the way to the rest in the Notebook.
-import { missingSettings, questionCount, timeOf } from "@sprachanker/engine";
+import { missingSettings, questionCount, settingOf, timeOf } from "@sprachanker/engine";
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
@@ -55,10 +55,7 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
       },
     );
   };
-  const setting = (k: string) => {
-    const v = settings.data?.[k as keyof typeof settings.data];
-    return typeof v === "string" ? v : undefined;
-  };
+  const setting = settingOf((k) => settings.data?.[k as keyof typeof settings.data]);
   // The settings still to choose, read from the settings as they are now (a state just chosen).
   const needs = page.data ? missingSettings(page.data.exam, setting) : [];
   // Asked from a card (`?start=`): begun at once, unless the state is still to be chosen.

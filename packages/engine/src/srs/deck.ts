@@ -1,9 +1,9 @@
 // A deck's standing for the Notebook (04, "Spaced repetition"; 09): its words by state as My words
 // counts them, those whose every face is due no sooner than three weeks ("mature", as Anki says), the
 // faces due today, by tomorrow and within a week, and the answers of the last 30 days with the share
-// of reviewed cards remembered (activity.ts).
+// of reviewed cards remembered.
 import type { FaceState } from "@sprachanker/schema";
-import { activityTotals, type DayActivity } from "../learner/activity.ts";
+import type { CardAnswer } from "./day.ts";
 import { type Stage, wordState } from "./index.ts";
 
 /** Anki's mature cards: scheduled three weeks or more ahead. */
@@ -18,7 +18,8 @@ export interface DeckWord {
 
 export function deckStanding(
   words: DeckWord[],
-  days: DayActivity[],
+  /** The deck's answers not taken back (`cardDay`). */
+  answers: CardAnswer[],
   /** The start of today's study day. */
   today: number,
 ) {
@@ -49,13 +50,17 @@ export function deckStanding(
       if (f.state.due < today + 7 * DAY) due.week++;
     }
   }
-  const month = activityTotals(days, today - 29 * DAY);
+  // The last 30 study days, today's included.
+  const month = answers.filter((a) => a.ts >= today - 29 * DAY);
+  const recalled = month.filter((a) => a.review.stateBefore?.state === 2);
   return {
     words: counts,
     due,
     /** The last 30 days: answers, and the share of reviewed cards remembered. */
-    answers: month.review,
-    remembered: month.remembered,
+    answers: month.length,
+    remembered: recalled.length
+      ? recalled.filter((a) => a.review.rating > 1).length / recalled.length
+      : undefined,
   };
 }
 export type DeckStanding = ReturnType<typeof deckStanding>;

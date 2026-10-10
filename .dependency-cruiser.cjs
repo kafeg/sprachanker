@@ -38,6 +38,14 @@ module.exports = {
       "packages/engine",
       "packages/schema",
     ]),
+    {
+      name: "engine-folders-one-way",
+      comment:
+        "The engine's folders depend one way: learner/ (study days, progress) reads srs/ (the day's card answers), never the reverse — no cycle between folders, which no-circular sees only between files.",
+      severity: "error",
+      from: { path: "^packages/engine/src/srs/" },
+      to: { path: "^packages/engine/src/learner/" },
+    },
     onlyMayImport("course-kit-imports-schema-only", "^packages/course-kit/", [
       "packages/course-kit",
       "packages/schema",

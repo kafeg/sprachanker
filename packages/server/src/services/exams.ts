@@ -13,8 +13,8 @@ import {
   questionStats,
   ratingsFit,
   readiness,
-  type SettingOf,
   sectionsOf,
+  settingOf,
   timeOf,
 } from "@sprachanker/engine";
 import {
@@ -66,10 +66,7 @@ export function createExams({
   settings: Settings;
   now: () => number;
 }) {
-  const setting: SettingOf = (key) => {
-    const value = settings.get(key as SettingKey);
-    return typeof value === "string" ? value : undefined;
-  };
+  const setting = settingOf((key) => settings.get(key as SettingKey));
   /** The exam's run in progress, if any. */
   const activeOf = (exam: ExamKey) => {
     const row = store.active("exam", exam);
