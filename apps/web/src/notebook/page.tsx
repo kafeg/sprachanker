@@ -1,6 +1,6 @@
 // The Notebook (09): progress first — words known and lessons done; the study days of the last year
 // as a calendar, with the totals of all time, 30 or 7 days (lesson work, cards answered, new cards,
-// the share remembered, AI practice); then the journal by lesson (owner's choice A, 2026-10-07): the
+// the share remembered, AI practice); each language's review deck; then the journal by lesson (owner's choice A, 2026-10-07): the
 // courses with the lessons worked on — passes, the best score, one still open — each opening its passes.
 import { activityTotals, examPassed } from "@sprachanker/engine";
 import { parseLessonKey, seriesOf } from "@sprachanker/schema";
@@ -9,8 +9,10 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type NotebookOverview, useNotebook } from "@/api/hooks.ts";
 import { examParams } from "@/exams/params.ts";
+import { languageName } from "@/i18n/index.ts";
 import { ActivityCalendar } from "@/ui/activity-calendar.tsx";
 import { Chip } from "@/ui/chip.tsx";
+import { LanguageFlag } from "@/ui/flags.tsx";
 import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -103,6 +105,56 @@ function Progress({ overview }: { overview: NotebookOverview }) {
   );
 }
 
+type Deck = NotebookOverview["decks"][number];
+
+/** Review in the Notebook (owner, 2026-10-10: as lessons and exams have theirs): each language's deck —
+ *  its words by state, what is due, the month's answers and how many were remembered — opening the
+ *  decks. */
+function ReviewDeck({ deck }: { deck: Deck }) {
+  const { t, i18n } = useTranslation();
+  const count = useNumber();
+  const percent = usePercent();
+  const navigate = useNavigate();
+  const { words, due } = deck;
+  return (
+    <Panel
+      title={
+        <span className="flex items-center gap-2">
+          <LanguageFlag lang={deck.language} />
+          {languageName(deck.language, i18n.language, true)}
+        </span>
+      }
+    >
+      <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <StatTile label={t("myWords.state.new")} value={count(words.new)} />
+        <StatTile label={t("myWords.state.learning")} value={count(words.learning)} />
+        <StatTile label={t("myWords.state.review")} value={count(words.review)} />
+        <StatTile
+          label={t("notebook.review.mature")}
+          value={count(words.mature)}
+          note={t("notebook.review.matureHint")}
+        />
+        <StatTile label={t("myWords.state.suspended")} value={count(words.suspended)} />
+        <StatTile
+          label={t("notebook.review.remembered")}
+          value={deck.remembered === undefined ? "—" : percent(deck.remembered)}
+          note={t("notebook.review.month", { count: deck.answers })}
+        />
+      </div>
+      <p className="mt-3 text-sm text-muted-foreground">
+        {t("notebook.review.due", { today: due.today, tomorrow: due.tomorrow, week: due.week })}
+      </p>
+      <ul className="mt-2">
+        <li>
+          <ListRow onClick={() => void navigate({ to: "/review/decks" })}>
+            <span className="flex-1">{t("notebook.review.open")}</span>
+          </ListRow>
+        </li>
+      </ul>
+    </Panel>
+  );
+}
+
 export function NotebookPage() {
   const { t } = useTranslation();
   const notebook = useNotebook();
@@ -117,6 +169,14 @@ export function NotebookPage() {
     <Page title={t("notebook.title")}>
       <div className="max-w-3xl space-y-4">
         <Progress overview={notebook.data} />
+        {notebook.data.decks.length > 0 && (
+          <>
+            <h2 className="pt-2 text-lg font-semibold">{t("notebook.review.title")}</h2>
+            {notebook.data.decks.map((deck) => (
+              <ReviewDeck key={deck.language} deck={deck} />
+            ))}
+          </>
+        )}
         <h2 className="pt-2 text-lg font-semibold">{t("notebook.lessons")}</h2>
         {courses.length ? (
           courses.map((course) => (

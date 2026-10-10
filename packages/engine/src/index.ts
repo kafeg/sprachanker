@@ -6,6 +6,7 @@ export * from "./learner/activity.ts";
 export * from "./learner/mistakes.ts";
 export * from "./learner/progress.ts";
 export * from "./srs/day.ts";
+export * from "./srs/deck.ts";
 export * from "./srs/index.ts";
 export * from "./text/diff.ts";
 export * from "./text/normalise.ts";

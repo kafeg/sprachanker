@@ -6,6 +6,8 @@
 import {
   ACTIVITY_EVENTS,
   activityByDay,
+  type DeckWord,
+  deckStanding,
   exerciseResults,
   type LessonProgress,
   lessonCoverage,
@@ -201,9 +203,31 @@ export function createNotebook(deps: {
           return { key, title: locale?.title ?? null, runs };
         }),
       );
+      // Each language's deck: its words by state, what is due, its answers of the month.
+      const today = dayOf(deps.now()).start;
+      const notes = deps.cards.all();
+      const cardEvents = store.eventsWhere({ types: ["card_review", "card_undo"] });
+      const decks = [...new Set(notes.map((n) => n.lang))].sort().map((language) => {
+        const own = notes.filter((n) => n.lang === language);
+        const ids = new Set(own.map((n) => n.id));
+        const words: DeckWord[] = own.map((note) => ({
+          suspended: !!note.suspended,
+          faces: deps.cards.facesOf(note).map((face) => {
+            const row = states.get(`${note.id}:${face}`);
+            const state = deps.cards.stateOf(row);
+            return { ...(state && { state }), suspended: !!row?.suspended };
+          }),
+        }));
+        const deckDays = activityByDay(
+          cardEvents.filter((e) => e.cardId && ids.has(e.cardId)),
+          (t) => dayOf(t).start,
+        );
+        return { language, ...deckStanding(words, deckDays, today) };
+      });
       return {
         days,
-        today: dayOf(deps.now()).start,
+        today,
+        decks,
         wordsKnown,
         lessonsDone,
         courses: courses.sort((a, b) => b.lastAt - a.lastAt),

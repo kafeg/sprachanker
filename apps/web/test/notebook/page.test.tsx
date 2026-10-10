@@ -28,6 +28,15 @@ const overview = (days: unknown[], courses: unknown[] = [], exams: unknown[] = [
   today: TODAY,
   wordsKnown: 42,
   lessonsDone: 3,
+  decks: [
+    {
+      language: "de",
+      words: { new: 5, learning: 2, review: 7, mature: 4, suspended: 1 },
+      due: { today: 3, tomorrow: 6, week: 12 },
+      answers: 20,
+      remembered: 0.9,
+    },
+  ],
   courses,
   exams,
 });
@@ -80,6 +89,10 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   const tile = (label: string) => view.getByText(label).parentElement?.firstChild?.textContent;
   expect(await view.findByText("Words known")).toBeTruthy();
   expect([tile("Words known"), tile("Lessons done")]).toEqual(["42", "3"]);
+  // Each language's deck: its words by state, what is due, the month's answers.
+  expect([tile("Learnt"), tile("Remembered, 30 days")]).toEqual(["4", "90%"]);
+  expect(view.getByText("20 answers")).toBeTruthy();
+  expect(view.getByText("Due today: 3 · by tomorrow: 6 · within a week: 12")).toBeTruthy();
   // All time, then the last 7 days.
   expect([tile("Study days"), tile("Cards answered"), tile("Remembered")]).toEqual([
     "3",

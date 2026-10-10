@@ -682,7 +682,16 @@
     "examRuns": "Probeprüfungen und Training",
     "noExamRuns": "Noch nichts abgegeben.",
     "examWrong": "{count, plural, one {# Frage} other {# Fragen}} beim letzten Mal falsch",
-    "examAll": "Alles zu dieser Prüfung"
+    "examAll": "Alles zu dieser Prüfung",
+    "review": {
+      "title": "Wiederholung",
+      "mature": "Gelernt",
+      "matureHint": "jede Seite erst in drei Wochen oder später fällig",
+      "month": "{count, plural, one {# Antwort} other {# Antworten}}",
+      "due": "Fällig heute: {today, number} · bis morgen: {tomorrow, number} · in einer Woche: {week, number}",
+      "open": "Stapel öffnen",
+      "remembered": "Behalten in 30 Tagen"
+    }
   },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",

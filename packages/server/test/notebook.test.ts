@@ -76,7 +76,14 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
     });
   }
   await sendJson("POST", "/api/cards/undo", { scope: "course:sprachanker.fixture/demo" });
-  expect((await getJson("/api/notebook")).days[0]).toMatchObject({ review: 1, newCards: 1 });
+  const after = await getJson("/api/notebook");
+  expect(after.days[0]).toMatchObject({ review: 1, newCards: 1 });
+  // The German deck: one word learning, the rest new; the answer kept is the month's.
+  expect(after.decks).toHaveLength(1);
+  expect(after.decks[0]).toMatchObject({ language: "de", answers: 1 });
+  expect(after.decks[0].words.learning).toBe(1);
+  expect(after.decks[0].words.new).toBeGreaterThan(0);
+  expect(after.decks[0].due.today).toBeGreaterThanOrEqual(1);
   expect(overview.courses).toMatchObject([
     {
       key: "sprachanker.fixture/demo",
