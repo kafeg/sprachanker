@@ -14,8 +14,16 @@ export type ProfileColour = z.infer<typeof ProfileColour>;
 
 /** Where the AI assistant works (07), each of which the learner can turn off: "Why is this wrong?",
  *  the tutor (with the lesson's "Going over mistakes"), "Write it yourself", scenes, the check of an
- *  answer said aloud, a word's example. */
-export const AI_PLACES = ["explain", "tutor", "writing", "scene", "speaking", "example"] as const;
+ *  answer said aloud, a word's example, an exam's open answer rated by its criteria. */
+export const AI_PLACES = [
+  "explain",
+  "tutor",
+  "writing",
+  "scene",
+  "speaking",
+  "example",
+  "exam",
+] as const;
 export type AiPlace = (typeof AI_PLACES)[number];
 
 const filter = z.string().min(1).max(200);

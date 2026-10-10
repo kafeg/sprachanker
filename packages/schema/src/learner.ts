@@ -1,6 +1,12 @@
 // Learner data stored in profile.sqlite: runs and their events (05, "Events").
 import { z } from "zod";
-import { Correction, SpokenCheck, WordExample, WritingCheck } from "./assistant.ts";
+import {
+  Correction,
+  ExamRatingProposal,
+  SpokenCheck,
+  WordExample,
+  WritingCheck,
+} from "./assistant.ts";
 import { ExamItem, ExamModuleId } from "./exam.ts";
 import { Exercise } from "./exercise/index.ts";
 import { Outcome } from "./exercise/outcome.ts";
@@ -141,13 +147,14 @@ export type LlmTurnPayload = z.infer<typeof LlmTurnPayload>;
 
 /**
  * A model's verdict on the learner's work (05, "Events"): a writing check, a mistake explanation or a
- * spoken answer's check (on the item it is about), in the lesson run it was given in.
+ * spoken answer's check (on the item it is about), in the lesson run it was given in; an exam's open
+ * answer rated by its criteria, on the question in the exam run.
  */
 const verdict = <T extends string, R extends z.ZodType>(task: T, result: R) =>
   z.object({
     task: z.literal(task),
-    /** The learner's text (writing); the word (example); what was heard (speaking); empty for an
-     *  explanation. */
+    /** The learner's text (writing, an exam's open answer); the word (example); what was heard
+     *  (speaking); empty for an explanation. */
     input: z.string(),
     /** The task's result (07, schemas in assistant.ts); an explanation's text. */
     result,
@@ -164,6 +171,7 @@ export const LlmVerdictPayload = z.discriminatedUnion("task", [
   verdict("writing", WritingCheck),
   verdict("example", WordExample),
   verdict("speaking", SpokenCheck),
+  verdict("exam", ExamRatingProposal),
 ]);
 export type LlmVerdictPayload = z.infer<typeof LlmVerdictPayload>;
 export type VerdictTask = LlmVerdictPayload["task"];

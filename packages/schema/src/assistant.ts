@@ -45,6 +45,26 @@ export const SpokenCheck = z.object({
 });
 export type SpokenCheck = z.infer<typeof SpokenCheck>;
 
+/** The assistant's rating of an exam's open answer by the exam's criteria (`rate_exam_answer`), kept
+ *  as an `llm_verdict` (`task: exam`) on the question; the learner takes it or changes it (09). */
+export const ExamRatingProposal = z.object({
+  /** Each criterion once: the points of the level chosen (one of its levels) and why. */
+  criteria: z
+    .array(
+      z.object({
+        id: z.string(),
+        points: z.number().nonnegative(),
+        /** Why this level, in the learner's language. */
+        reason: z.string(),
+      }),
+    )
+    .min(1)
+    .max(12),
+  /** One or two concrete sentences in the learner's language: what would score more. */
+  feedback: z.string(),
+});
+export type ExamRatingProposal = z.infer<typeof ExamRatingProposal>;
+
 /** An example sentence for a card's word (`word_example`). */
 export const WordExample = z.object({
   sentence: z.string().min(1).max(300),

@@ -381,6 +381,7 @@
       "tutor": "Tutor",
       "writing": "“Write it yourself”",
       "speaking": "Spoken answers",
+      "exam": "Exam: rating an answer",
       "sceneSetup": "Scene: the situation",
       "scene": "Scene",
       "example": "Example for a word"
@@ -405,7 +406,11 @@
       "courseVocab": "the course's words up to the word's lesson (the most recent first)",
       "earlier": "the examples given for the word before, so a new one differs",
       "heard": "the question and the course's own answer, as the recogniser heard them in the course's recordings",
-      "answer": "what you said, as the recogniser heard it"
+      "answer": "what you said, as the recogniser heard it",
+      "exam": "the exam's title and the task as set: the part's instructions and text, the question",
+      "criteria": "the criteria with their points and what each level means",
+      "samples": "the exam's model answers, if it gives any",
+      "writtenAnswer": "your answer"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -416,7 +421,7 @@
     "restore": "Restore the standard prompt",
     "places": {
       "title": "Where the assistant works",
-      "hint": "A place turned off is not shown in lessons and cards. Lessons done stay done.",
+      "hint": "A place turned off is not shown in lessons, cards and exams. Lessons done stay done.",
       "explain": {
         "name": "“Why is this wrong?”",
         "where": "the button under a mistake"
@@ -440,6 +445,10 @@
       "example": {
         "name": "A word's example",
         "where": "on its card and in its sheet"
+      },
+      "exam": {
+        "name": "Exam answers",
+        "where": "“Propose a rating” above an answer's criteria in an exam"
       }
     },
     "about": {
@@ -447,6 +456,7 @@
       "tutor": "The lesson's tutor: answers your questions about the lesson, its words and grammar, and goes over your mistakes one by one in the “Going over mistakes” step.",
       "writing": "Checks a short text you wrote in “Write it yourself”: corrections, the A1 criteria (task, communication, accuracy) and feedback.",
       "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",
+      "exam": "Rates a written answer of an exam by the exam's own criteria: a level of each with its reason, and what would score more. Nothing counts until you take or change it.",
       "sceneSetup": "Starts a scene: invents the situation from the lesson's topic — who you are, who you talk to, where, and the goals to reach. Asked once per scene.",
       "scene": "Plays the scene: answers each of your lines as your partner, corrects your mistakes, gives a translation and ticks off the goals you reached.",
       "example": "Writes an example sentence with a card's word, using words you know where it can, with the new ones translated."
@@ -1079,6 +1089,7 @@
     "event_id_taken": "This answer was already recorded differently. Reload the page.",
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",
     "example_busy": "An example for this word is being written. Wait for it.",
+    "exam_rating_busy": "This answer is being rated. Wait for it.",
     "invalid_event": "The app sent a record the server did not accept. Reload the lesson.",
     "invalid_request": "The app sent something the server did not accept. Reload the page.",
     "invalid_setting": "This value does not fit the setting.",
@@ -1254,7 +1265,10 @@
       "hint": "Rated as the exam's raters do; change a rating whenever you like.",
       "voided": "the task not done: 0 for the whole answer",
       "save": "Save rating",
-      "change": "Change rating"
+      "change": "Change rating",
+      "propose": "Propose a rating (AI)",
+      "proposing": "The assistant is rating…",
+      "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it."
     }
   }
 }

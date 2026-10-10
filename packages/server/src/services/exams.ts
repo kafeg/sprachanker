@@ -109,7 +109,7 @@ export function createExams({
   /** A run's events as the learner may see them: a mock exam still running keeps its outcomes to
    *  itself (they would give the answers away). */
   const shownEvents = (run: ExamRun) => {
-    const list = store.events(run.id, ["answered", "exam_rated"]);
+    const list = store.events(run.id, ["answered", "exam_rated", "llm_verdict"]);
     if (run.plan.mode === "practice" || run.status !== "active") return list;
     return list.map((e) => {
       if (e.type !== "answered") return e;
@@ -154,6 +154,28 @@ export function createExams({
     await settle(getRun(runId).run);
     const { run } = getRun(runId);
     return { run, events: shownEvents(run), now: now() };
+  }
+
+  /** An open answer of a run, to be rated: the question (with criteria, in the run's plan) and the
+   *  learner's latest answer to it; the run's exam and its locale. */
+  async function openAnswer(runId: string, itemKey: string) {
+    const { row, run } = getRun(runId);
+    if (row.status === "abandoned") throw new ServiceError("run_not_active", 409);
+    const exam = await examOf(run.exam);
+    const item = run.plan.items.includes(itemKey as ExamItemKey)
+      ? questionOf(exam, run, itemKey)
+      : undefined;
+    if (!item?.criteria) throw new ServiceError("no_such_item");
+    const answer = store
+      .events(runId, ["answered"])
+      .findLast((e) => e.type === "answered" && e.itemKey === itemKey);
+    const text =
+      answer?.type === "answered" ? (answer.payload.answer as { text?: unknown }).text : undefined;
+    if (typeof text !== "string") throw new ServiceError("invalid_request");
+    const locale = run.edition
+      ? await content.localeExam(seriesOf(run.exam), run.exam, run.edition).catch(() => undefined)
+      : undefined;
+    return { row, run, exam, locale, item: { ...item, criteria: item.criteria }, text };
   }
 
   /** The learner's standing in an exam: each question's stat, how ready, the runs. */
@@ -352,6 +374,8 @@ export function createExams({
      * assistant proposed them. Taken while the run is active and after it is handed in — a finished
      * run's result is computed anew. Only an answer given in the run, rated whole.
      */
+    openAnswer,
+
     async rate(
       runId: string,
       input: {
@@ -363,16 +387,8 @@ export function createExams({
       },
       deviceId?: string,
     ) {
-      const { row, run } = getRun(runId);
-      if (row.status === "abandoned") throw new ServiceError("run_not_active", 409);
-      const exam = await examOf(run.exam);
-      const item = run.plan.items.includes(input.itemKey as ExamItemKey)
-        ? questionOf(exam, run, input.itemKey)
-        : undefined;
-      if (!item?.criteria) throw new ServiceError("no_such_item");
+      const { row, run, exam, item } = await openAnswer(runId, input.itemKey);
       if (!ratingsFit(item.criteria, input.ratings)) throw new ServiceError("invalid_request");
-      const answered = store.events(runId, ["answered"]).some((e) => e.itemKey === input.itemKey);
-      if (!answered) throw new ServiceError("invalid_request");
       store.append(
         runId,
         [

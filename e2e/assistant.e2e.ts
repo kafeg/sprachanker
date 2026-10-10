@@ -1,6 +1,7 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
-// going over mistakes, an example for a word.
+// going over mistakes, an example for a word, a rating proposed for an exam's written answer.
 import { expect, test } from "@playwright/test";
+import { MODELL } from "@sprachanker/course-fixture";
 import {
   answerPicture,
   DEMO_LESSON,
@@ -298,4 +299,44 @@ test("an answer said aloud is checked by the AI from what was heard on request, 
     await request.get(`/api/llm/speaking?lessonKey=${lesson}&runId=${runs.state.run.id}`)
   ).json();
   expect(kept.checks.map((c: { transcript: string }) => c.transcript)).toEqual(["Hallo gute Tag"]);
+});
+
+test("a handed-in mock exam's note: the AI proposes its rating with reasons, the learner takes it", async ({
+  page,
+  request,
+}) => {
+  const exam = MODELL;
+  const { run } = await post(request, "/api/exams/runs", {
+    exam,
+    edition: "en-de",
+    mode: "test",
+    module: "schreiben",
+  });
+  const answer = (id: string, value: unknown) => ({
+    // A ULID's form (the event's id).
+    id: crypto.randomUUID().replaceAll("-", "").slice(0, 26).toUpperCase(),
+    type: "answered",
+    itemKey: `${exam}/q-${id}`,
+    payload: { answer: value, attempt: 1, ms: 1 },
+  });
+  await post(request, `/api/exams/runs/${run.id}/events`, {
+    events: [
+      answer("s3", { text: "Lieber Tom, ich komme um drei und bringe Kuchen mit. Bis bald!" }),
+    ],
+  });
+  await post(request, `/api/exams/runs/${run.id}/finish`, {});
+
+  await page.goto(`/exam/sprachanker.fixture/demo/modell/run/${run.id}`);
+  await expect(page.getByText(/1 answer is not rated yet/)).toBeVisible();
+  await page.getByRole("button", { name: "Propose a rating (AI)" }).click();
+  await expect(page.getByText(/Proposed by the AI assistant/)).toBeVisible();
+  await expect(page.getByText("FAKE: say who the cake is for.")).toBeVisible();
+  await expect(page.getByText("FAKE: what, but not for whom.")).toBeVisible();
+  // The proposal chosen: taken as it is.
+  await expect(page.getByText("5.5 of 7")).toBeVisible();
+  await page.getByRole("button", { name: "Save rating" }).click();
+  await expect(page.getByText(/not rated yet/)).toBeHidden();
+  const state = await (await request.get(`/api/exams/runs/${run.id}`)).json();
+  const rated = state.events.find((e: { type: string }) => e.type === "exam_rated");
+  expect(rated.payload).toMatchObject({ by: "assistant", model: "fake-model" });
 });

@@ -55,7 +55,7 @@ sent when LM Studio requires one.
 All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
 turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
 this wrong?", the tutor (and with it "Going over mistakes"), "Write it yourself", scenes, spoken
-answers, a word's example — a place off is not shown (its button, its step of the lesson plan); a
+answers, a word's example, an exam's answers — a place off is not shown (its button, its step of the lesson plan); a
 lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
 
 | Task | Input | Output |
@@ -66,8 +66,14 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 | `check_speaking` | the lesson (title, words, grammar), a speaking item without a phrase (instruction, prompt, hint), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
+| `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
 | `word_example` | a card's word with its translation, the course's words up to its lesson, the sentences given before | JSON: sentence (with the word: checked, one repair), translation, glossary[] (words beyond the given ones, translated) |
 
+"Propose a rating" above an exam's open answer (09, Exams; owner's choice K, 2026-10-10) →
+`rate_exam_answer`, asked on request — in practice once answered, in a mock exam only once handed in:
+an `llm_verdict` (`task: exam`) on the question in the exam run, for that answer (asked once for the
+same answer); the page shows it chosen with its reasons, and nothing scores until the learner takes it
+(`exam_rated` `by: assistant` with the model) or changes it (`by: self`).
 "Example" on a card or in the word sheet → `word_example`, kept as an `llm_verdict` (`task: example`)
 on the card (04, "AI examples"); "Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
 kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with the attempt it explains

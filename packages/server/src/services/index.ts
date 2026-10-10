@@ -11,6 +11,7 @@ import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
+import { createExamRating } from "./exam-rating.ts";
 import { createExamples } from "./examples.ts";
 import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
@@ -118,6 +119,7 @@ function profileServices(
       blob: config.mediaBlob,
     }),
   });
+  const examRating = createExamRating({ llm, store, exams });
   const examples = createExamples({
     cards: cardStore,
     lessons,
@@ -153,6 +155,7 @@ function profileServices(
     llm,
     explain,
     speaking,
+    examRating,
     examples,
     tutor,
     writing,

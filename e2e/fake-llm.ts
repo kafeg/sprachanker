@@ -46,11 +46,22 @@ const SPOKEN_CHECK = {
   feedback: "FAKE: nearly there.",
 };
 
+/** The fixture exam's note rated by its criteria (when you come, what you bring, the form). */
+const EXAM_RATING = {
+  criteria: [
+    { id: "wann", points: 3, reason: "FAKE: the time is there." },
+    { id: "was", points: 1.5, reason: "FAKE: what, but not for whom." },
+    { id: "form", points: 1, reason: "FAKE: greeting and closing." },
+  ],
+  feedback: "FAKE: say who the cake is for.",
+};
+
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = {
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
   speaking_check: SPOKEN_CHECK,
+  exam_rating: EXAM_RATING,
 };
 
 const sse = (text: string) =>

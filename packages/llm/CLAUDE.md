@@ -30,6 +30,8 @@ src/
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
     corrections.ts     # cleanCheck: a check's corrections cleaned (writing, speaking)
+    rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
+                       # the reason (checked against the levels), feedback
     scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     word-example.ts    # word_example: a sentence with a card's word in the course's words so far

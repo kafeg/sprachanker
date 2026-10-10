@@ -195,6 +195,19 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-10",
+      "payload": {
+        "task": "exam",
+        "input": "Lieber Tom, ich komme um acht.",
+        "result": {
+          "criteria": [{ "id": "wann", "points": 3, "reason": "Named." }],
+          "feedback": "Add what you bring."
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
     }
   ],
   "llm_turn": [

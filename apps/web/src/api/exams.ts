@@ -171,6 +171,16 @@ export function useExamRun(runId: string) {
 
 /** An open answer rated by its criteria (by the learner, or the assistant's proposal taken): the run
  *  comes back with its result computed anew. */
+/** An event kept elsewhere in the run (the assistant's proposal), shown with its events at once. */
+export function useKeepRunEvent(runId: string) {
+  const client = useQueryClient();
+  return (event: TypedEvent) =>
+    client.setQueryData<ExamRunState>(
+      runKey(runId),
+      (s) => s && { ...s, events: [...s.events.filter((e) => e.id !== event.id), event] },
+    );
+}
+
 export function useRateAnswer(runId: string) {
   const client = useQueryClient();
   return useMutation({

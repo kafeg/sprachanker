@@ -11,6 +11,7 @@ export * from "./tasks/corrections.ts";
 export * from "./tasks/describe.ts";
 export * from "./tasks/explain-mistake.ts";
 export * from "./tasks/lesson.ts";
+export * from "./tasks/rate-exam-answer.ts";
 export * from "./tasks/scene.ts";
 export * from "./tasks/tutor-tools.ts";
 export * from "./tasks/word-example.ts";

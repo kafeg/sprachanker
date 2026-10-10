@@ -16,7 +16,7 @@ import { ArrowLeft, Check, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useRateAnswer, useStartExam } from "@/api/exams.ts";
+import { useStartExam } from "@/api/exams.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { errorText } from "@/ui/error-text.ts";
@@ -25,7 +25,7 @@ import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
 import type { ExamParams } from "./params.ts";
 import { latestAnswers } from "./questions.ts";
-import { RatingPanel } from "./rating.tsx";
+import { OpenAnswerRating } from "./rating.tsx";
 import { QuestionCard } from "./teil.tsx";
 
 export function ExamResultView({
@@ -62,13 +62,6 @@ export function ExamResultView({
   const wrong = asked.filter(
     (i) => !i.criteria && answers.get(i.key)?.outcome?.result !== "correct",
   );
-  const ratings = useMemo(() => {
-    const out = new Map<string, Record<string, number>>();
-    for (const e of events)
-      if (e.type === "exam_rated" && e.itemKey) out.set(e.itemKey, e.payload.ratings);
-    return out;
-  }, [events]);
-  const rate = useRateAnswer(run.id);
   const shown = all ? asked.filter((i) => !i.criteria) : wrong;
   const modules = result?.modules ? Object.keys(result.modules) : [];
   // The pass marks this run is judged by (a module alone: its own), and the verdict by the exam's
@@ -241,6 +234,7 @@ export function ExamResultView({
           <ol className="space-y-6">
             {open.map((item) => {
               const given = answers.get(item.key)?.answer as { text?: string } | undefined;
+              const criteria = item.criteria ?? [];
               return (
                 <li key={item.key} className="space-y-3">
                   <p className="text-sm text-muted-foreground">
@@ -248,22 +242,17 @@ export function ExamResultView({
                   </p>
                   {item.prompt && <p className="font-semibold">{item.prompt}</p>}
                   <p className="whitespace-pre-line rounded-xl bg-muted/60 p-4">{given?.text}</p>
-                  <RatingPanel
-                    criteria={item.criteria ?? []}
+                  <OpenAnswerRating
+                    runId={run.id}
+                    item={{ ...item, criteria }}
                     locale={locale?.items[item.key as keyof typeof locale.items]}
-                    rated={ratings.get(item.key)}
-                    busy={rate.isPending && rate.variables?.itemKey === item.key}
-                    onRate={(r) => rate.mutate({ itemKey: item.key, ratings: r, by: "self" })}
+                    events={events}
+                    answer={given?.text ?? ""}
                   />
                 </li>
               );
             })}
           </ol>
-          {rate.isError && (
-            <p role="alert" className="mt-2 text-sm text-destructive">
-              {errorText(t, rate.error)}
-            </p>
-          )}
         </section>
       )}
 

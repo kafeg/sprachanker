@@ -18,7 +18,7 @@ import { ArrowLeft, ArrowRight, Timer } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
-import { useExamPage, useExamRun, useRateAnswer } from "@/api/exams.ts";
+import { useExamPage, useExamRun } from "@/api/exams.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
@@ -28,7 +28,7 @@ import { useWindowPlace } from "@/ui/window-title.ts";
 import { type GridGroup, QuestionGrid } from "./navigator.tsx";
 import { type ExamParams, examKeyOf } from "./params.ts";
 import { inTeile, latestAnswers } from "./questions.ts";
-import { RatingPanel } from "./rating.tsx";
+import { OpenAnswerRating } from "./rating.tsx";
 import { ExamResultView } from "./result.tsx";
 import { QuestionCard, TeilHeader, TeilMaterial } from "./teil.tsx";
 
@@ -157,13 +157,6 @@ function Running({
   const { t } = useTranslation();
   useWindowPlace(title);
   const answers = useMemo(() => latestAnswers(events), [events]);
-  const rate = useRateAnswer(runId);
-  const ratedOf = (key: string) => {
-    let out: Record<string, number> | undefined;
-    for (const e of events)
-      if (e.type === "exam_rated" && e.itemKey === key) out = e.payload.ratings;
-    return out;
-  };
   /** Questions left unanswered, asked about before handing in (0: not asking). */
   const [confirm, setConfirm] = useState(0);
   const teile = useMemo(() => inTeile(exam, items, sectionOf), [exam, items, sectionOf]);
@@ -311,13 +304,13 @@ function Running({
   const rating = mode === "practice" && item.criteria && given && (
     <div className="mt-4">
       <p className="mb-2 text-sm font-medium">{t("exams.rating.title")}</p>
-      <RatingPanel
+      <OpenAnswerRating
         key={item.key}
-        criteria={item.criteria}
+        runId={runId}
+        item={{ ...item, criteria: item.criteria }}
         locale={locale?.items[item.key as keyof typeof locale.items]}
-        rated={ratedOf(item.key)}
-        busy={rate.isPending}
-        onRate={(r) => rate.mutate({ itemKey: item.key, ratings: r, by: "self" })}
+        events={events}
+        answer={(given.answer as { text?: string }).text ?? ""}
       />
     </div>
   );

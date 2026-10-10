@@ -97,7 +97,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,
   `GET key` (OpenRouter's key state); `GET lmstudio`, `POST lmstudio/start|download`; tasks —
-  `explain` and `tutor` (streamed text), `speaking`, `examples`, `writing`, `scene/start|turn` (JSON),
+  `explain` and `tutor` (streamed text), `speaking`, `examples`, `writing`, `scene/start|turn`,
+  `exam-rating` (`{runId, itemKey, language}`: an exam's open answer, a mock exam's once handed in —
+  409 `exam_test_running` before; kept in the exam run, its events show it) (JSON),
   each with a `…/prompt` route (`scene/prompt`, `tutor/prompt`) that returns the exact request without
   sending it (07); what is kept — `GET explanations?lessonKey=&runId=`, `GET speaking?lessonKey=&runId=`,
   `GET examples?cardId=`, `GET writing`, `GET scene`, `GET tutor`; `POST tutor/context` (how full the

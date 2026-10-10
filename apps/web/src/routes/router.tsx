@@ -17,7 +17,9 @@ import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
 import { ExamCatalog } from "@/exams/catalog.tsx";
 import { ExamPage } from "@/exams/page.tsx";
 import { ExamPlayer } from "@/exams/player.tsx";
+import { ExamSlotsProvider } from "@/exams/slots.ts";
 import { LessonPlayer } from "@/lesson/player.tsx";
+import { examAssistant } from "@/llm/exam-rating.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AssistantSetup } from "@/llm/settings-section.tsx";
 import { wordAssistant } from "@/llm/word-example.tsx";
@@ -177,7 +179,11 @@ const examRun = createRoute({
 examRun.update({
   component: function ExamRun() {
     const { run, ...params } = examRun.useParams();
-    return <ExamPlayer key={run} params={params} runId={run} />;
+    return (
+      <ExamSlotsProvider value={examAssistant}>
+        <ExamPlayer key={run} params={params} runId={run} />
+      </ExamSlotsProvider>
+    );
   },
 });
 const notebook = createRoute({

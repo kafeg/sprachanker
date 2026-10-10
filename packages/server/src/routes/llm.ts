@@ -3,6 +3,7 @@
 import { LlmError, LMSTUDIO_RECOMMENDED, ProviderId } from "@sprachanker/llm";
 import {
   EditionId,
+  ExamItemKey,
   Lang,
   LessonKey,
   MESSAGE_MAX,
@@ -44,6 +45,9 @@ const SpeakingBody = LessonRequest.extend({
   transcript: z.string().trim().min(1).max(2000),
   runId: Ulid,
 });
+
+/** An exam's open answer to be rated by its criteria, the reasons in the learner's language. */
+const ExamRatingBody = z.object({ runId: Ulid, itemKey: ExamItemKey, language: Lang });
 
 /** An example for a card's word, its translation in the learner's language. */
 const ExampleBody = z.object({ cardId: Ulid, language: Lang });
@@ -176,6 +180,13 @@ export function llmRoutes() {
       })
       .post("/speaking/prompt", zod("json", SpeakingBody), async (c) =>
         c.json(await c.var.s.speaking.prompt(c.req.valid("json"))),
+      )
+      // An exam's open answer: the ratings proposed (kept in the exam run), the prompt it would send.
+      .post("/exam-rating", zod("json", ExamRatingBody), async (c) =>
+        c.json(await c.var.s.examRating.propose(c.req.valid("json"))),
+      )
+      .post("/exam-rating/prompt", zod("json", ExamRatingBody), async (c) =>
+        c.json(await c.var.s.examRating.prompt(c.req.valid("json"))),
       )
       // AI examples of a card's word: the kept ones (asked for), a new one, the prompt it would send.
       .get("/examples", zod("query", z.object({ cardId: Ulid })), async (c) =>
