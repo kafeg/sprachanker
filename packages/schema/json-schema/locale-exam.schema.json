@@ -31,6 +31,15 @@
           },
           "instructions": {
             "type": "string"
+          },
+          "alt": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         },
         "required": [

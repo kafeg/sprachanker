@@ -1,7 +1,7 @@
 // Run-throughs of the installed exams (10, "Run-throughs"; 09, Exams): in a profile of its own, the
 // federal state chosen on the exam's page, a mock exam drawn, every question answered through the
 // screen — two of three right — and handed in; its result, then practice of the mistakes (each
-// checked at once), the catalogue narrowed to the wrong ones, the Notebook; then the profile's
+// checked at once), the catalogue with a question opened, the Notebook; then the profile's
 // database read to check that all of it is stored as it should be. `REAL=bamf.lid bun run e2e:real`.
 import { join } from "node:path";
 import { expect, type Locator, type Page, test } from "@playwright/test";
@@ -101,24 +101,28 @@ for (const s of examScenarios())
     const { run: test1 } = await runOf(page);
     const asked = test1.plan.snapshot ?? [];
     expect(asked.map((i) => i.key)).toEqual(test1.plan.items);
-    const cards = page.getByRole("list", { name: "Items" }).locator(":scope > li");
-    await expect(cards).toHaveCount(asked.length);
+    // A question at a time: the grid of all of them above; each answered on its screen, then on.
+    const grid = page.getByRole("navigation", { name: "Questions" });
+    await expect(grid.getByRole("button")).toHaveCount(asked.length);
+    const onScreen = (i: number, of: number) =>
+      page.getByRole("region", { name: `Question ${i + 1} of ${of}` });
+    const next = () =>
+      visible(page.getByRole("button", { name: "Next", exact: true }))
+        .first()
+        .click();
     let right = 0;
     for (const [i, item] of asked.entries()) {
       const good = i % 3 !== 2;
       if (good) right++;
-      await answer(cards.nth(i), item, good);
+      await answer(onScreen(i, asked.length), item, good);
+      // Nothing marked before it is handed in.
+      await expect(onScreen(i, asked.length).getByRole("status")).toHaveCount(0);
+      if (i < asked.length - 1) await next();
     }
-    // Nothing marked before it is handed in — but the Teile's examples, shown answered.
-    const examples = exam.sections
-      .filter((x) => x.pool.some((k) => test1.plan.items.includes(k)))
-      .reduce((n, x) => n + (x.examples?.length ?? 0), 0);
-    await expect(page.getByRole("status").filter({ hasText: /^Not quite$/ })).toHaveCount(0);
-    await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toHaveCount(examples);
-    await expect(
-      visible(page.getByText(`Answered: ${asked.length} of ${asked.length}`)),
-    ).toBeVisible();
-    await visible(page.getByRole("button", { name: "Hand in" })).click();
+    await expect(page.getByText(`Answered: ${asked.length} of ${asked.length}`)).toBeVisible();
+    await visible(page.getByRole("button", { name: "Hand in" }))
+      .first()
+      .click();
 
     // The result: the points, passed or not as the server judged it by the exam's rule (store checks
     // below recompute it).
@@ -143,27 +147,38 @@ for (const s of examScenarios())
     const fixed = Math.min(3, wrong);
     for (let i = 0; i < fixed; i++) {
       const item = items.get(practice.plan.items[i] as string) as ExamItem;
-      await answer(cards.nth(i), item, true);
-      await expect(
-        cards
-          .nth(i)
-          .getByRole("status")
-          .filter({ hasText: /^Correct$/ }),
-      ).toBeAttached();
+      const card = onScreen(i, practice.plan.items.length);
+      await answer(card, item, true);
+      await expect(card.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
+      if (i < fixed - 1) await next();
     }
-    await visible(page.getByRole("button", { name: "End practice" })).click();
+    await visible(page.getByRole("button", { name: "End practice" }))
+      .first()
+      .click();
     await expect(
       page.getByRole("heading", {
         name: `${fixed} of ${fixed} answer${fixed === 1 ? "" : "s"} right`,
       }),
     ).toBeVisible();
 
-    // The catalogue: every open question, those wrong last time the mistakes not yet put right.
+    // The catalogue: every open question as a line; one opened shows its right answer.
     await page.goto(`/exam/${s.series}/${s.course}/${s.exam}/catalog`);
-    await page.getByRole("button", { name: "Wrong last time" }).click();
+    const open = exam.sections.flatMap((x) =>
+      x.filter
+        ? x.pool.filter((k) => items.get(k)?.tags[x.filter?.tag ?? ""] === STATE.code)
+        : x.pool,
+    );
+    await expect(page.getByText(`${open.length} questions`, { exact: true })).toBeVisible();
+    const first = page.locator("ol > li button[aria-expanded]").first();
+    await first.click();
+    await expect(first).toHaveAttribute("aria-expanded", "true");
     await expect(
-      page.getByText(`${wrong - fixed} question${wrong - fixed === 1 ? "" : "s"}`, { exact: true }),
-    ).toBeVisible();
+      page
+        .locator("main")
+        .getByRole("status")
+        .filter({ hasText: /^Correct$/ })
+        .first(),
+    ).toBeAttached();
 
     // The Notebook lists the mock exam.
     await page.goto("/notebook");

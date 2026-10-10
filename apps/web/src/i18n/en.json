@@ -1201,10 +1201,6 @@
     "leave": "Back to the exam",
     "answered": "Answered: {done, number} of {total, number}",
     "question": "Question {n, number} of {total, number}",
-    "number": "Question {n}",
-    "testHint": "Answer every question; you can change an answer until you hand the exam in.",
-    "practiceHint": "Each answer is checked at once.",
-    "moreQuestions": "Next questions",
     "practiceScore": "{points, number} of {count, plural, one {# answer} other {# answers}} right",
     "timeUp": "The time was up: the answers given until then count.",
     "needed": "{points, number} of {max, number} needed",
@@ -1217,17 +1213,15 @@
     "showAll": "Show all answers",
     "notAnswered": "not answered",
     "noMistakes": "Everything right.",
-    "filter": {
-      "all": "All",
-      "wrong": "Wrong last time",
-      "unseen": "Not seen",
-      "known": "Known"
-    },
     "search": "Find in the questions",
-    "showMore": "{count, plural, one {# more} other {# more}}",
     "playsLeft": "{left, number} of {plays, number} plays left",
     "plays": "{count, plural, one {You hear the recording once.} other {You hear the recording # times.}}",
     "example": "Example",
-    "wholeExam": "Whole exam"
+    "wholeExam": "Whole exam",
+    "next": "Next",
+    "previous": "Back",
+    "questionsGrid": "Questions",
+    "goTo": "Question {n, number}",
+    "practiceTally": "{right, number} right · {wrong, number} wrong · of {total, number}"
   }
 }

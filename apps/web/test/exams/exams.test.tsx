@@ -250,7 +250,7 @@ test("a result: passed or not by each pass mark, the mistakes with their right a
   expect(view.getByRole("button", { name: "Practise the mistakes" })).toBeTruthy();
 });
 
-test("the catalogue: the questions open to the learner with their answers, narrowed by what the answers say", async () => {
+test("the catalogue: the questions open to the learner as a list, one opened with its answer, found by words", async () => {
   const view = await renderApp(<ExamCatalog params={params} />, {
     path: "/exam/bamf.lid/lid/test/catalog",
     data: [
@@ -263,10 +263,11 @@ test("the catalogue: the questions open to the learner with their answers, narro
   // Not Bavaria's.
   expect(view.queryByText("Frage by-01?")).toBeNull();
   expect(view.getByText("3 questions")).toBeTruthy();
-  fireEvent.click(view.getByRole("button", { name: "Wrong last time" }));
-  expect(view.getByText("1 question")).toBeTruthy();
-  expect(view.getByText("Frage be-01?")).toBeTruthy();
-  fireEvent.click(view.getByRole("button", { name: "All" }));
+  // Closed, a question shows only what it asks; opened, its options with the right one marked.
+  expect(view.queryByText("richtig 001")).toBeNull();
+  fireEvent.click(view.getByRole("button", { name: /Frage 001\?/ }));
+  expect(view.getByText("richtig 001")).toBeTruthy();
+  expect(view.getAllByRole("status").some((s) => s.textContent === "Correct")).toBe(true);
   fireEvent.change(view.getByRole("searchbox", { name: "Find in the questions" }), {
     target: { value: "richtig 002" },
   });
@@ -345,7 +346,7 @@ const gLocale = {
 };
 const gParams = { series: "goethe.a1", course: "a1", exam: "modell" };
 
-test("a language exam's catalogue: each Teil with its instructions, its text and its example answered", async () => {
+test("a language exam's catalogue: its Teile named, a question opened with its Teil's text and example", async () => {
   const view = await renderApp(<ExamCatalog params={gParams} />, {
     path: "/exam/goethe.a1/a1/modell/catalog",
     data: [
@@ -363,13 +364,14 @@ test("a language exam's catalogue: each Teil with its instructions, its text and
       [["exam", GKEY, "de-de"], pageData({ exam: gExam, locale: gLocale, stats: {} })],
     ],
   });
-  expect(await view.findByText("Lies den Text.")).toBeTruthy();
-  expect(view.getByText("ich komme am Sonntag.")).toBeTruthy();
-  expect(view.getByText("Example")).toBeTruthy();
-  expect(view.getByText("Beispiel: Wer schreibt?")).toBeTruthy();
-  expect(view.getByText("Füll das Formular aus.")).toBeTruthy();
+  expect(await view.findByText("Lesen · Teil 1")).toBeTruthy();
+  expect(view.getByText("Schreiben · Teil 1")).toBeTruthy();
   // The example is no question of the catalogue's: two questions.
   expect(view.getByText("2 questions")).toBeTruthy();
+  fireEvent.click(view.getByRole("button", { name: /Tom kommt am Montag/ }));
+  expect(view.getByText("Lies den Text.")).toBeTruthy();
+  expect(view.getByText("ich komme am Sonntag.")).toBeTruthy();
+  expect(view.getByText("Example")).toBeTruthy();
 });
 
 test("a language exam's result: points by module as scaled, every pass mark needed", async () => {

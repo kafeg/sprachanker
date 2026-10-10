@@ -112,7 +112,9 @@ them from a pool — filtered by a tag that must have the value of a profile set
 `modules` (`hoeren`, `lesen`, …: each timed, its points scaled to `scaleTo`, rounded to whole points
 where the exam's rules say (`round`); the exam's time is theirs together; `roundTotal`: the modules'
 sum rounded before the pass marks); its sections are the modules' Teile, each asking all its pool, with its material: a
-shared `text`, its `media` (recording or picture), how often a recording `plays`, and its `examples`:
+shared `text`, its `media` (recording or picture), the `letters` its questions are answered from (ads
+or pictures, each once: `{ letter, text?, media? }`; the pictures' descriptions in the locale's
+section `alt`), how often a recording `plays`, and its `examples`:
 questions shown answered (in no pool, never scored). A pass mark may count only some modules'
 scaled points (`modules`), and `passWhen` says whether any mark passes the exam (LiD: course test or
 naturalisation) or all must be reached (Goethe A2: overall, written, spoken). The locale file titles

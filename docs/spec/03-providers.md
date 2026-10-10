@@ -192,8 +192,9 @@ Sprechen: plan, 3b-3.
   in the locale, its text, recording or picture, how often its recordings play (its instructions:
   "einmal", "zweimal") and its examples. Questions numbered in the module's order (a heading's own
   number checked against it) as `single_choice` items: options as the page gives them (picture options
-  with their descriptions in the locale), or the Teil's letters with "X"/"0" for none where the Teil has
-  it; the right one from the Teil's solution page by number (by order where a page numbers its own Teil
+  with their descriptions in the locale), or for a Teil answered by letter the letters alone with
+  "X"/"0" for none where the Teil has it, its ads or pictures (and an ad's text page) once as the
+  section's `letters`; the right one from the Teil's solution page by number (by order where a page numbers its own Teil
   from 1), matched by its text, its letter ("Bild c") or letter and text. A question no answer matches is
   left out and reported. Keys `q-<module>-<n>`, examples `q-<section>-bsp<n>`, sections
   `s-<module>-<teil>`. Pass marks while Schreiben and Sprechen are not imported: A1 and A2 60 % of

@@ -89,6 +89,17 @@ export const Exam = z.strictObject({
       text: z.string().optional(),
       /** The Teil's recording or picture. */
       media: Media.optional(),
+      /** What its questions are answered from by letter, each shown once: ads, pictures (Goethe B1
+       *  Lesen 3: a–j; A2 Hören 2: pictures a–i). */
+      letters: z
+        .array(
+          z.strictObject({
+            letter: z.string().min(1).max(2),
+            text: z.string().optional(),
+            media: Media.optional(),
+          }),
+        )
+        .optional(),
       /** How often a recording of the Teil — its own or a question's — may be played. */
       plays: z.number().int().positive().optional(),
       /** Questions shown answered as the example ("Beispiel 0"; B1 Hören has two); in no pool,

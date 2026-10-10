@@ -1,7 +1,9 @@
-// An exam run (09, Exams; owner's choice 3B, 2026-10-10): its questions as one list, as a lesson's
-// exercise shows its items. A mock exam runs as the real test does — the time left above, answers that
-// can be changed until it is handed in, nothing checked before (then the result, 4B); practice checks
-// each answer at once and brings the next questions on request.
+// An exam run (09, Exams; owner's choice B, 2026-10-10): a question at a time as an online test shows
+// it, the grid of the run's numbers above (by Teil) to go to any, the Teil's material — its text,
+// recording, picture, example — with its every question (beside it on a wide screen). A mock exam runs
+// as the real test does — the time left above, answers that can be changed until it is handed in,
+// nothing checked before (then the result, 4B); practice (D) checks each answer at once, its tally
+// above.
 import { checkQuestion } from "@sprachanker/engine";
 import {
   type Exam,
@@ -12,23 +14,22 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, Timer } from "lucide-react";
+import { ArrowLeft, ArrowRight, Timer } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useExamPage, useExamRun } from "@/api/exams.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { Progress } from "@/ui/components/progress.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { useWindowPlace } from "@/ui/window-title.ts";
+import { type GridGroup, QuestionGrid } from "./navigator.tsx";
 import { type ExamParams, examKeyOf } from "./params.ts";
 import { inTeile, latestAnswers } from "./questions.ts";
 import { ExamResultView } from "./result.tsx";
-import { QuestionCard, TeilHeader } from "./teil.tsx";
-
-/** Questions practice shows at a time; more on request. */
-const PRACTICE_BATCH = 10;
+import { QuestionCard, TeilHeader, TeilMaterial } from "./teil.tsx";
 
 export function ExamPlayer({ params, runId }: { params: ExamParams; runId: string }) {
   const navigate = useNavigate();
@@ -63,12 +64,6 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
           mode={run.plan.mode}
           deadline={run.plan.deadline}
           skew={query.data?.skew ?? 0}
-          sections={exam.sections.map((s) => ({
-            key: s.key,
-            title: page.data?.locale?.sections[s.key]?.title ?? "",
-            module: s.module && (page.data?.locale?.modules?.[s.module]?.title ?? s.module),
-            items: s.pool,
-          }))}
           series={params.series}
           lang={target}
           onAnswer={answer}
@@ -99,6 +94,23 @@ const clock = (ms: number) => {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
 
+/** Where a run was left on this device (a reload comes back to its question). */
+const placeKey = (run: string) => `sprachanker.exam-place:${run}`;
+const readPlace = (run: string) => {
+  try {
+    return Number(sessionStorage.getItem(placeKey(run)) ?? Number.NaN);
+  } catch {
+    return Number.NaN;
+  }
+};
+const writePlace = (run: string, index: number) => {
+  try {
+    sessionStorage.setItem(placeKey(run), String(index));
+  } catch {
+    // Storage blocked: a reload starts at the first open question.
+  }
+};
+
 function Running({
   runId,
   title,
@@ -111,7 +123,6 @@ function Running({
   mode,
   deadline,
   skew,
-  sections,
   series,
   lang,
   onAnswer,
@@ -133,8 +144,6 @@ function Running({
   deadline: number | null;
   /** The server's clock ahead of this device's (ms): the deadline is the server's. */
   skew: number;
-  /** The Teile with their module's title (an exam of modules). */
-  sections: Array<{ key: string; title: string; module?: string; items: string[] }>;
   series: string;
   lang: string;
   onAnswer(itemKey: string, answer: unknown, ms: number, outcome?: Outcome): void;
@@ -149,32 +158,74 @@ function Running({
   const answers = useMemo(() => latestAnswers(events), [events]);
   /** Questions left unanswered, asked about before handing in (0: not asking). */
   const [confirm, setConfirm] = useState(0);
+  const teile = useMemo(() => inTeile(exam, items, sectionOf), [exam, items, sectionOf]);
+  const url = (path: string) => mediaUrl(series, path);
+  const moduleTitle = (m?: string) => (m ? (locale?.modules?.[m]?.title ?? m) : undefined);
+
+  // The question on screen: where this device left the run, else the first one not answered.
+  const [current, setCurrent] = useState(() => {
+    const kept = readPlace(runId);
+    if (kept >= 0 && kept < items.length) return kept;
+    const open = items.findIndex((i) => !answers.has(i.key));
+    return open < 0 ? 0 : open;
+  });
   const shownAt = useRef(Date.now());
-  // Practice: the questions answered here stay, the next ones come in batches.
-  const [batch, setBatch] = useState(PRACTICE_BATCH);
-  let unanswered = 0;
-  const shown =
-    mode === "test" ? items : items.filter((i) => answers.has(i.key) || unanswered++ < batch);
+  const go = (index: number) => {
+    const next = Math.max(0, Math.min(items.length - 1, index));
+    setCurrent(next);
+    writePlace(runId, next);
+    shownAt.current = Date.now();
+    window.scrollTo({ top: 0 });
+  };
+  // ← and → move between questions (not while typing an answer).
+  const moveBy = useRef((_: number) => {});
+  moveBy.current = (step: number) => go(current + step);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (
+        target?.closest("input, textarea, [contenteditable]") ||
+        e.metaKey ||
+        e.ctrlKey ||
+        e.altKey
+      )
+        return;
+      if (e.key === "ArrowRight") moveBy.current(1);
+      if (e.key === "ArrowLeft") moveBy.current(-1);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
   const answered = items.filter((i) => answers.has(i.key)).length;
-  // The questions shown with their Teile: its material before the first of them, and again where
-  // practice (in order of need, not of Teile) comes back to it.
-  const teile = useMemo(() => {
-    const list = inTeile(
-      exam,
-      items.filter((i) => shown.includes(i)),
-      sectionOf,
-    );
-    return list;
-  }, [exam, items, sectionOf, shown]);
-  const moduleBefore = useMemo(() => {
-    const out = new Map<string, string | undefined>();
-    let last: string | undefined;
-    for (const { item, section } of teile) {
-      out.set(item.key, last);
-      last = section?.module ?? last;
-    }
+  const right = items.filter((i) => answers.get(i.key)?.outcome?.result === "correct").length;
+  const wrong = items.filter((i) => {
+    const o = answers.get(i.key)?.outcome;
+    return o && o.result !== "correct" && o.result !== "unscored";
+  }).length;
+  const stateOf = (key: string) => {
+    const given = answers.get(key);
+    if (!given) return "open" as const;
+    if (mode === "practice" && given.outcome && given.outcome.result !== "unscored")
+      return given.outcome.result === "correct" ? ("right" as const) : ("wrong" as const);
+    return "answered" as const;
+  };
+  // The grid by Teil: practice (in order of need) as one row.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: stateOf and moduleTitle read answers and locale
+  const groups: GridGroup[] = useMemo(() => {
+    if (mode === "practice")
+      return [{ questions: items.map((i, index) => ({ index, state: stateOf(i.key) })) }];
+    const out: GridGroup[] = [];
+    teile.forEach(({ item, section, opens }, index) => {
+      if (opens || !out.length) {
+        const teilTitle = section ? locale?.sections[section.key]?.title : undefined;
+        const label = [moduleTitle(section?.module), teilTitle].filter(Boolean).join(" · ");
+        out.push({ ...(teile.length > 1 && label && { label }), questions: [] });
+      }
+      out.at(-1)?.questions.push({ index, state: stateOf(item.key) });
+    });
     return out;
-  }, [teile]);
+  }, [teile, answers, mode, items, locale]);
 
   // The time left, each second; at its end the exam is handed in as it is.
   const [now, setNow] = useState(Date.now());
@@ -205,159 +256,140 @@ function Running({
     }
   };
 
+  const here = teile[current] ?? teile[0];
+  if (!here) return null;
+  const { item, section } = here;
+  const given = answers.get(item.key);
+  const last = current === items.length - 1;
+  // A Teil's first question shows its example open; the others keep it folded.
+  const firstOfTeil = teile.findIndex((x) => x.section?.key === section?.key) === current;
+  // Long material (a text to read, the ads or pictures answered by letter) beside the question.
+  const beside =
+    !!section &&
+    ((section.text?.length ?? 0) > 400 ||
+      (!!section.text && !!section.media?.image) ||
+      (section.letters?.length ?? 0) > 0);
+
+  const question = (
+    <QuestionCard
+      key={item.key}
+      item={item}
+      label={t("exams.question", { n: current + 1, total: items.length })}
+      plays={mode === "test" ? section?.plays : undefined}
+      checkAtOnce={mode === "practice"}
+      active
+      run={runId}
+      answer={given?.answer}
+      // Practice shows each answer checked; a mock exam none until handed in.
+      outcome={mode === "practice" ? given?.outcome : undefined}
+      url={url}
+      onAnswer={
+        mode === "practice" && given
+          ? undefined
+          : (value) => {
+              // Nothing more once the exam is being handed in (a draft taken as the page goes).
+              if (handedIn.current || finishing) return;
+              onAnswer(
+                item.key,
+                value,
+                Date.now() - shownAt.current,
+                mode === "practice" ? checkQuestion(item, value, lang) : undefined,
+              );
+            }
+      }
+    />
+  );
+  const header = section && (
+    <TeilHeader
+      section={section}
+      locale={locale}
+      module={moduleTitle(section.module)}
+      examples={(section.examples ?? []).flatMap((k) => exam.items.find((i) => i.key === k) ?? [])}
+      examplesOpen={mode === "test" && firstOfTeil}
+      withMaterial={!beside}
+      limited={mode === "test"}
+      run={runId}
+      url={url}
+    />
+  );
+  const moves = (
+    <>
+      <Button variant="outline" onClick={() => go(current - 1)} disabled={current === 0}>
+        <ArrowLeft className="size-4" /> {t("exams.previous")}
+      </Button>
+      {last ? (
+        <Button loading={finishing} onClick={askFinish}>
+          {finishLabel}
+        </Button>
+      ) : (
+        <Button variant={given ? "default" : "outline"} onClick={() => go(current + 1)}>
+          {t("exams.next")} <ArrowRight className="size-4" />
+        </Button>
+      )}
+    </>
+  );
+
   return (
-    <div className="min-h-dvh lg:grid lg:grid-cols-[15rem_1fr]">
-      <aside className="sticky top-0 hidden h-dvh flex-col gap-2 border-r bg-sidebar p-4 lg:flex">
-        <button
-          type="button"
-          onClick={onLeave}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="size-4" /> {title}
-        </button>
-        <h2 className="mt-3 font-heading text-lg font-bold">
-          {t(mode === "test" ? "exams.mode.test" : "exams.mode.practice")}
-        </h2>
-        {left !== undefined && (
-          <p className="flex items-center gap-1.5 font-heading text-2xl font-bold tabular-nums">
-            <Timer className="size-5" /> {clock(left)}
-          </p>
-        )}
-        <ul className="mt-2 space-y-1 text-sm">
-          {sections
-            .map((s) => ({ ...s, own: items.filter((i) => s.items.includes(i.key)) }))
-            .filter((s) => s.own.length)
-            .map((s, i, all) => (
-              <li key={s.key}>
-                {/* A module's Teile under its title. */}
-                {s.module && s.module !== all[i - 1]?.module && (
-                  <p className="mt-2 px-2 text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                    {s.module}
-                  </p>
-                )}
-                <div className="flex justify-between gap-2 rounded-lg px-2 py-1.5">
-                  <span className="min-w-0 truncate">{s.title}</span>
-                  <span className="tabular-nums text-muted-foreground">
-                    {s.own.filter((x) => answers.has(x.key)).length}/{s.own.length}
-                  </span>
-                </div>
-              </li>
-            ))}
-        </ul>
-        <div className="mt-auto space-y-2">
-          <p className="text-sm text-muted-foreground">
-            {t("exams.answered", { done: answered, total: items.length })}
-          </p>
-          <Button className="w-full" loading={finishing} onClick={askFinish}>
-            {finishLabel}
-          </Button>
-        </div>
-      </aside>
-      <div className="min-w-0">
-        <header className="sticky top-0 z-10 flex min-h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur lg:hidden">
+    <div className="min-h-dvh">
+      <header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur">
+        <div className="mx-auto flex min-h-14 max-w-6xl items-center gap-3 px-4 sm:px-6">
           <button
             type="button"
             onClick={onLeave}
             aria-label={t("exams.leave")}
-            className="-ml-1 p-2"
+            className="-ml-1 p-2 text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="size-5" />
           </button>
-          <span className="text-sm tabular-nums text-muted-foreground">
-            {answered}/{items.length}
-          </span>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">
+              {title}
+              {module && ` · ${moduleTitle(module)}`}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {mode === "test"
+                ? t("exams.answered", { done: answered, total: items.length })
+                : t("exams.practiceTally", { right, wrong, total: items.length })}
+            </p>
+          </div>
           {left !== undefined && (
-            <span className="ml-auto flex items-center gap-1 font-heading text-lg font-bold tabular-nums">
+            <span className="flex items-center gap-1 font-heading text-lg font-bold tabular-nums">
               <Timer className="size-4" /> {clock(left)}
             </span>
           )}
-        </header>
-        <main className="mx-auto max-w-3xl px-4 pt-6 pb-28 sm:px-6 lg:pb-12">
-          <p className="text-sm font-medium tracking-wide text-muted-foreground uppercase">
-            {t(mode === "test" ? "exams.mode.test" : "exams.mode.practice")}
-          </p>
-          <h1 className="mb-1 text-3xl font-bold">
-            {title}
-            {module && ` · ${locale?.modules?.[module]?.title ?? module}`}
-          </h1>
-          <p className="mb-6 text-muted-foreground">
-            {t(mode === "test" ? "exams.testHint" : "exams.practiceHint")}
-          </p>
-          <ol aria-label={t("lesson.itemsList")} className="space-y-6">
-            {teile.map(({ item, section, opens }) => {
-              const index = items.indexOf(item);
-              const given = answers.get(item.key);
-              const startsModule =
-                opens && section?.module && section.module !== moduleBefore.get(item.key);
-              return (
-                <li key={item.key}>
-                  {opens && section && (
-                    <TeilHeader
-                      section={section}
-                      locale={locale}
-                      module={
-                        startsModule
-                          ? (locale?.modules?.[section.module as string]?.title ?? section.module)
-                          : undefined
-                      }
-                      examples={(section.examples ?? []).flatMap(
-                        (k) => exam.items.find((i) => i.key === k) ?? [],
-                      )}
-                      limited={mode === "test"}
-                      run={runId}
-                      url={(path) => mediaUrl(series, path)}
-                    />
-                  )}
-                  <QuestionCard
-                    item={item}
-                    label={t("exams.question", { n: index + 1, total: items.length })}
-                    plays={mode === "test" ? section?.plays : undefined}
-                    checkAtOnce={mode === "practice"}
-                    run={runId}
-                    answer={given?.answer}
-                    // Practice shows each answer checked; a mock exam none until handed in.
-                    outcome={mode === "practice" ? given?.outcome : undefined}
-                    url={(path) => mediaUrl(series, path)}
-                    onAnswer={
-                      mode === "practice" && given
-                        ? undefined
-                        : (value) => {
-                            // Nothing more once the exam is being handed in (a draft taken as
-                            // the page goes).
-                            if (handedIn.current || finishing) return;
-                            const ms = Date.now() - shownAt.current;
-                            onAnswer(
-                              item.key,
-                              value,
-                              ms,
-                              mode === "practice" ? checkQuestion(item, value, lang) : undefined,
-                            );
-                          }
-                    }
-                  />
-                </li>
-              );
-            })}
-          </ol>
-          {mode === "practice" && shown.length < items.length && (
-            <Button
-              variant="outline"
-              className="mt-6 w-full"
-              onClick={() => setBatch((n) => n + PRACTICE_BATCH)}
-            >
-              {t("exams.moreQuestions")}
-            </Button>
-          )}
-        </main>
-        <footer className="fixed inset-x-0 bottom-0 z-10 flex items-center gap-3 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur lg:hidden">
-          <span className="text-sm text-muted-foreground">
-            {t("exams.answered", { done: answered, total: items.length })}
-          </span>
-          <Button className="ml-auto" loading={finishing} onClick={askFinish}>
+          <Button size="sm" variant="outline" loading={finishing} onClick={askFinish}>
             {finishLabel}
           </Button>
-        </footer>
-      </div>
+        </div>
+        {mode === "practice" && (
+          <Progress value={(answered / items.length) * 100} className="h-1 rounded-none" />
+        )}
+      </header>
+      <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:pb-12">
+        <QuestionGrid groups={groups} current={current} onGo={go} className="mb-5" />
+        {beside && section ? (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* On a phone the question comes first, what it is about under it; on a wide screen the
+                material is beside it, on the left as on the paper. */}
+            <div className="order-2 lg:sticky lg:top-20 lg:order-1 lg:max-h-[calc(100dvh-6rem)] lg:overflow-y-auto">
+              <TeilMaterial section={section} locale={locale} url={url} />
+            </div>
+            <div className="order-1 lg:order-2">
+              {header}
+              {question}
+            </div>
+          </div>
+        ) : (
+          <div className="mx-auto max-w-3xl">
+            {header}
+            {question}
+          </div>
+        )}
+        <div className="mx-auto mt-6 hidden max-w-3xl justify-between gap-3 sm:flex">{moves}</div>
+      </main>
+      <footer className="fixed inset-x-0 bottom-0 z-10 flex items-center justify-between gap-3 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur sm:hidden">
+        {moves}
+      </footer>
       <ConfirmDialog
         open={confirm > 0}
         onOpenChange={(open) => !open && setConfirm(0)}

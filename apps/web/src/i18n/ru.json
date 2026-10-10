@@ -1201,10 +1201,6 @@
     "leave": "Назад к экзамену",
     "answered": "Отвечено: {done, number} из {total, number}",
     "question": "Вопрос {n, number} из {total, number}",
-    "number": "Вопрос {n}",
-    "testHint": "Ответьте на все вопросы; ответ можно изменить, пока вы не сдали экзамен.",
-    "practiceHint": "Каждый ответ проверяется сразу.",
-    "moreQuestions": "Следующие вопросы",
     "practiceScore": "Верно {points, number} из {count, plural, one {# ответа} few {# ответов} many {# ответов} other {# ответа}}",
     "timeUp": "Время вышло: засчитаны ответы, данные до этого.",
     "needed": "нужно {points, number} из {max, number}",
@@ -1217,17 +1213,15 @@
     "showAll": "Показать все ответы",
     "notAnswered": "без ответа",
     "noMistakes": "Всё верно.",
-    "filter": {
-      "all": "Все",
-      "wrong": "Ошибки",
-      "unseen": "Не видели",
-      "known": "Знаю"
-    },
     "search": "Найти в вопросах",
-    "showMore": "Ещё {count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}}",
     "playsLeft": "осталось {left, number} из {plays, number}",
     "plays": "{count, plural, one {Запись звучит # раз.} few {Запись звучит # раза.} many {Запись звучит # раз.} other {Запись звучит # раза.}}",
     "example": "Пример",
-    "wholeExam": "Весь экзамен"
+    "wholeExam": "Весь экзамен",
+    "next": "Дальше",
+    "previous": "Назад",
+    "questionsGrid": "Вопросы",
+    "goTo": "Вопрос {n, number}",
+    "practiceTally": "верно {right, number} · ошибок {wrong, number} · из {total, number}"
   }
 }

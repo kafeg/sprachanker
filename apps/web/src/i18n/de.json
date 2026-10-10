@@ -1201,10 +1201,6 @@
     "leave": "Zurück zur Prüfung",
     "answered": "Beantwortet: {done, number} von {total, number}",
     "question": "Frage {n, number} von {total, number}",
-    "number": "Frage {n}",
-    "testHint": "Beantworte alle Fragen; eine Antwort lässt sich bis zur Abgabe ändern.",
-    "practiceHint": "Jede Antwort wird sofort geprüft.",
-    "moreQuestions": "Nächste Fragen",
     "practiceScore": "{points, number} von {count, plural, one {# Antwort} other {# Antworten}} richtig",
     "timeUp": "Die Zeit war um: es zählen die Antworten bis dahin.",
     "needed": "{points, number} von {max, number} nötig",
@@ -1217,17 +1213,15 @@
     "showAll": "Alle Antworten zeigen",
     "notAnswered": "nicht beantwortet",
     "noMistakes": "Alles richtig.",
-    "filter": {
-      "all": "Alle",
-      "wrong": "Zuletzt falsch",
-      "unseen": "Nicht gesehen",
-      "known": "Gewusst"
-    },
     "search": "In den Fragen suchen",
-    "showMore": "{count, plural, one {# weitere} other {# weitere}}",
     "playsLeft": "noch {left, number} von {plays, number}",
     "plays": "{count, plural, one {Du hörst die Aufnahme einmal.} other {Du hörst die Aufnahme #-mal.}}",
     "example": "Beispiel",
-    "wholeExam": "Ganze Prüfung"
+    "wholeExam": "Ganze Prüfung",
+    "next": "Weiter",
+    "previous": "Zurück",
+    "questionsGrid": "Fragen",
+    "goTo": "Frage {n, number}",
+    "practiceTally": "{right, number} richtig · {wrong, number} falsch · von {total, number}"
   }
 }

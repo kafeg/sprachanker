@@ -1,17 +1,16 @@
-// An exam's catalogue (09, Exams): every question open to the learner (the general ones and their
-// state's) with its right answer marked, narrowed to those answered wrongly last time, not seen or
-// known, or found by their words; shown in batches.
+// An exam's catalogue (09, Exams; owner's choice F, 2026-10-10): every question open to the learner
+// (the general ones and their state's) as a compact list by Teil, found by its words; a question
+// opened shows its Teil's material and its right answer.
 import { eligible, missingSettings } from "@sprachanker/engine";
-import { parseEditionId } from "@sprachanker/schema";
+import { type ExamItem, parseEditionId } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
+import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useEdition } from "@/api/edition.ts";
 import { useExamPage, useExams } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
-import { Choice } from "@/ui/choice.tsx";
-import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
@@ -19,8 +18,20 @@ import { type ExamParams, examKeyOf } from "./params.ts";
 import { exampleAnswer, inTeile } from "./questions.ts";
 import { QuestionCard, TeilHeader } from "./teil.tsx";
 
-const BATCH = 30;
-type Filter = "all" | "wrong" | "unseen" | "known";
+/** A question's number as the exam gives it: its id, without its module where the Teil names it. */
+const numberOf = (key: string, modules: boolean) => {
+  const id = key.split("/q-")[1] ?? "";
+  return modules ? id.replace(/^[a-z]+-/, "") : id;
+};
+
+/** A question's line in the list: what it asks. */
+const lineOf = (item: ExamItem) =>
+  item.prompt ||
+  (item.type === "gap_text"
+    ? item.segments.map((p) => (typeof p === "string" ? p : "…")).join("")
+    : "") ||
+  item.text?.split("\n")[0] ||
+  "";
 
 export function ExamCatalog({ params }: { params: ExamParams }) {
   const { t } = useTranslation();
@@ -31,9 +42,8 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
   const edition = useEdition(params.series, params.course, row?.editions);
   const page = useExamPage(key, edition);
   const settings = useSettings();
-  const [filter, setFilter] = useState<Filter>("all");
   const [words, setWords] = useState("");
-  const [count, setCount] = useState(BATCH);
+  const [opened, setOpened] = useState<Set<string>>(new Set());
 
   const data = page.data;
   const setting = (k: string) => {
@@ -52,12 +62,8 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
   if (page.isError) return <ErrorState error={page.error} onRetry={() => page.refetch()} />;
   if (!data) return <Loading />;
 
-  const stat = (k: string) => data.stats[k]?.last;
   const needle = words.trim().toLocaleLowerCase();
   const shown = open.filter((i) => {
-    if (filter === "wrong" && stat(i.key) !== "wrong") return false;
-    if (filter === "unseen" && stat(i.key)) return false;
-    if (filter === "known" && stat(i.key) !== "right") return false;
     if (!needle) return true;
     const options = i.type === "single_choice" ? i.options.map((o) => o.text ?? "") : [];
     const text = [i.prompt, i.text, ...options].join(" ").toLocaleLowerCase();
@@ -75,27 +81,13 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
         }
       >
         <div className="mb-6 flex flex-wrap items-center gap-3">
-          <Choice
-            value={filter}
-            options={(["all", "wrong", "unseen", "known"] as const).map((f) => [
-              f,
-              t(`exams.filter.${f}`),
-            ])}
-            onChange={(f) => {
-              setFilter(f as Filter);
-              setCount(BATCH);
-            }}
-          />
           <Input
             type="search"
             value={words}
-            onChange={(e) => {
-              setWords(e.target.value);
-              setCount(BATCH);
-            }}
+            onChange={(e) => setWords(e.target.value)}
             placeholder={t("exams.search")}
             aria-label={t("exams.search")}
-            className="h-10 max-w-xs flex-1 bg-card"
+            className="h-10 max-w-sm flex-1 bg-card"
           />
           <span className="text-sm text-muted-foreground">
             {t("exams.questions", { count: shown.length })}
@@ -107,47 +99,81 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
           </p>
         )}
         {shown.length ? (
-          <ol className="space-y-6">
-            {inTeile(data.exam, shown.slice(0, count), {}).map(({ item, section, opens }) => (
-              <li key={item.key}>
-                {opens && section && (
-                  <TeilHeader
-                    section={section}
-                    locale={data.locale}
-                    examples={(section.examples ?? []).flatMap(
-                      (k) => data.exam.items.find((i) => i.key === k) ?? [],
-                    )}
-                    limited={false}
-                    run=""
-                    url={(path) => mediaUrl(params.series, path)}
-                  />
-                )}
-                <QuestionCard
-                  item={item}
-                  label={t("exams.number", { n: item.key.split("/q-")[1] ?? "" })}
-                  run=""
-                  answer={exampleAnswer(item)}
-                  outcome={
-                    item.type === "respond"
-                      ? undefined
-                      : { result: "correct", score: 1, ruleIds: [], lexemes: [] }
-                  }
-                  url={(path) => mediaUrl(params.series, path)}
-                />
-              </li>
-            ))}
+          <ol className="divide-y rounded-2xl border bg-card">
+            {inTeile(data.exam, shown, {}).map(({ item, section, opens }) => {
+              const isOpen = opened.has(item.key);
+              const texts = section && data.locale?.sections[section.key];
+              const module =
+                section?.module &&
+                (data.locale?.modules?.[section.module]?.title ?? section.module);
+              return (
+                <li key={item.key}>
+                  {/* A Teil's name where its questions begin (an exam of several). */}
+                  {opens && data.exam.sections.length > 1 && texts?.title && (
+                    <p className="bg-muted/50 px-4 py-2 text-xs font-medium text-muted-foreground">
+                      {[module, texts.title].filter(Boolean).join(" · ")}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    aria-expanded={isOpen}
+                    onClick={() =>
+                      setOpened((s) => {
+                        const next = new Set(s);
+                        if (!next.delete(item.key)) next.add(item.key);
+                        return next;
+                      })
+                    }
+                    className="flex min-h-12 w-full items-center gap-3 px-4 py-2 text-left hover:bg-accent pointer-coarse:min-h-14"
+                  >
+                    <span className="w-14 shrink-0 text-sm tabular-nums text-muted-foreground">
+                      {numberOf(item.key, !!data.exam.modules)}
+                    </span>
+                    <span
+                      lang={edition ? parseEditionId(edition as never).target : "de"}
+                      className="min-w-0 flex-1 truncate"
+                    >
+                      {lineOf(item)}
+                    </span>
+                    <ChevronDown
+                      className={`size-4 shrink-0 transition ${isOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-4 pt-1 pb-4">
+                      {section && (
+                        <TeilHeader
+                          section={section}
+                          locale={data.locale}
+                          examples={(section.examples ?? []).flatMap(
+                            (k) => data.exam.items.find((i) => i.key === k) ?? [],
+                          )}
+                          examplesOpen={false}
+                          limited={false}
+                          run=""
+                          url={(path) => mediaUrl(params.series, path)}
+                        />
+                      )}
+                      <QuestionCard
+                        item={item}
+                        label=""
+                        run=""
+                        answer={exampleAnswer(item)}
+                        outcome={
+                          item.type === "respond"
+                            ? undefined
+                            : { result: "correct", score: 1, ruleIds: [], lexemes: [] }
+                        }
+                        url={(path) => mediaUrl(params.series, path)}
+                      />
+                    </div>
+                  )}
+                </li>
+              );
+            })}
           </ol>
         ) : (
           <EmptyState>{t("exams.noneMatch")}</EmptyState>
-        )}
-        {shown.length > count && (
-          <Button
-            variant="outline"
-            className="mt-6 w-full"
-            onClick={() => setCount((n) => n + BATCH)}
-          >
-            {t("exams.showMore", { count: Math.min(BATCH, shown.length - count) })}
-          </Button>
         )}
       </Page>
     </TargetLang>

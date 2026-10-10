@@ -35,10 +35,12 @@ apps/web/src/
                    # chips by drag or tap); item-card (an item with its prompt, media and
                    # renderer: answered in the player, read-only in the Notebook); no API calls
   exams/           # exams: card (the list's), page (an exam's: modes, the questions' map, runs), player
-                   # (a run: mock exam timed, practice checked at once), result, catalog (every question
+                   # (a run a question at a time: mock exam timed, practice checked at once), navigator
+                   # (the grid of a run's numbers), result, catalog (a compact list, a question opened
                    # with its answer), state-select (the federal state), questions (a question as an
-                   # exercise, the latest answers, questions by Teil), teil (a Teil's material; a
-                   # question's card), recording (a mock exam's recording: plays limited), params
+                   # exercise, the latest answers, questions by Teil), teil (a Teil's header and
+                   # material; a question's card), recording (a mock exam's recording: plays limited),
+                   # params
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
                    # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
                    # check under its item)

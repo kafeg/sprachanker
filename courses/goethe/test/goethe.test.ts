@@ -121,9 +121,17 @@ test("a level normalised: modules timed and scaled, Teile with their material, e
     media: { audio: "media/audio/teil2.mp4" },
   });
   expect(section("lesen-1")?.text).toBe("Ein Brief\n\nLiebe Ute, ich komme morgen.");
-  expect(section("lesen-2")?.text).toBe(
-    "a\nwww.cafe.example\nKuchen und Kaffee.\n\nb\nwww.bad.example\nSchwimmen am See.",
-  );
+  // The ads answered by letter: each once in the Teil's material, the options their letters.
+  expect(section("lesen-2")?.text).toBeUndefined();
+  expect(section("lesen-2")?.letters).toEqual([
+    { letter: "a", text: "www.cafe.example\nKuchen und Kaffee." },
+    { letter: "b", text: "www.bad.example\nSchwimmen am See." },
+  ]);
+  expect(section("hoeren-2")?.letters?.map((l) => [l.letter, l.media?.image])).toEqual([
+    ["a", "media/image/pa.png"],
+    ["b", "media/image/pb.png"],
+    ["c", "media/image/pc.png"],
+  ]);
   expect(locale.sections[section("hoeren-1")?.key as never]).toEqual({
     title: "Teil 1",
     instructions: "Kreuzen Sie an. Sie hören jeden Text zweimal.",

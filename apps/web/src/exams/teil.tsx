@@ -31,20 +31,80 @@ function ExamText({ text, className }: { text: string; className?: string }) {
   );
 }
 
+/** A Teil's picture, text and the letters its questions are answered from (ads, pictures — each
+ *  once): what its questions are about (beside the question on a wide screen). */
+export function TeilMaterial({
+  section,
+  locale,
+  url,
+}: {
+  section: ExamSection;
+  locale?: LocaleExam | null;
+  url(path: string): string;
+}) {
+  const lang = useRequiredTargetLang();
+  const alt = locale?.sections[section.key]?.alt;
+  if (!section.media?.image && !section.text && !section.letters?.length) return null;
+  return (
+    <div className="space-y-3">
+      {section.media?.image && (
+        <img src={url(section.media.image)} alt="" className="max-h-96 rounded-xl border" />
+      )}
+      {section.text && <ExamText text={section.text} />}
+      {section.letters?.length ? (
+        <ul
+          className={cn(
+            "grid gap-2",
+            section.letters.some((l) => l.text)
+              ? "grid-cols-1"
+              : "grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]",
+          )}
+        >
+          {section.letters.map((l) => (
+            <li key={l.letter} className="flex gap-3 rounded-xl border bg-card p-3">
+              <span className="font-heading text-lg font-bold">{l.letter}</span>
+              <div className="min-w-0 flex-1 space-y-2">
+                {l.media?.image && (
+                  <img
+                    src={url(l.media.image)}
+                    alt={alt?.[l.letter] ?? ""}
+                    className="max-h-48 rounded-lg"
+                  />
+                )}
+                {l.text && (
+                  <p lang={lang} className="whitespace-pre-line text-sm leading-relaxed">
+                    {l.text}
+                  </p>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
+}
+
 export function TeilHeader({
   section,
   locale,
   module,
   examples = [],
+  examplesOpen = true,
+  withMaterial = true,
   limited,
   run,
   url,
 }: {
   section: ExamSection;
   locale: LocaleExam | null;
-  /** The module's title, where a module begins. */
+  /** The module's title, said with the Teil's ("Hören · Teil 2"). */
   module?: string;
   examples?: ExamItem[];
+  /** The examples shown open (the Teil's first question), else folded. */
+  examplesOpen?: boolean;
+  /** Its picture and text too; off where the page shows them apart (`TeilMaterial`). */
+  withMaterial?: boolean;
   /** A mock exam: recordings played only as often as the Teil allows. */
   limited: boolean;
   run: string;
@@ -52,11 +112,13 @@ export function TeilHeader({
 }) {
   const { t } = useTranslation();
   const texts = locale?.sections[section.key];
+  const title = [module, texts?.title].filter(Boolean).join(" · ");
   return (
-    <div className="mb-6 space-y-3 pt-2">
-      {module && <h2 className="font-heading text-2xl font-bold">{module}</h2>}
-      {texts?.title && <h3 className="font-heading text-lg font-bold">{texts.title}</h3>}
-      {texts?.instructions && <p className="text-muted-foreground">{texts.instructions}</p>}
+    <div className="mb-5 space-y-3">
+      {title && <h3 className="font-heading text-lg font-bold">{title}</h3>}
+      {texts?.instructions && (
+        <p className="whitespace-pre-line text-muted-foreground">{texts.instructions}</p>
+      )}
       {section.plays !== undefined && (
         <p className="text-sm text-muted-foreground">
           {t("exams.plays", { count: section.plays })}
@@ -70,25 +132,28 @@ export function TeilHeader({
           run={run}
         />
       )}
-      {section.media?.image && (
-        <img src={url(section.media.image)} alt="" className="max-h-96 rounded-xl border" />
+      {withMaterial && <TeilMaterial section={section} locale={locale} url={url} />}
+      {examples.length > 0 && (
+        <details open={examplesOpen} className="group">
+          <summary className="cursor-pointer text-sm text-muted-foreground pointer-coarse:min-h-11">
+            {t("exams.example")}
+          </summary>
+          <div className="mt-2 space-y-3">
+            {examples.map((example) => (
+              <SourceOrder.Provider key={example.key} value>
+                <ItemCard
+                  exercise={examExercise(example)}
+                  locale={null}
+                  index={0}
+                  answer={exampleAnswer(example)}
+                  outcome={{ result: "correct", score: 1, ruleIds: [], lexemes: [] }}
+                  url={url}
+                />
+              </SourceOrder.Provider>
+            ))}
+          </div>
+        </details>
       )}
-      {section.text && <ExamText text={section.text} />}
-      {examples.map((example) => (
-        <div key={example.key}>
-          <p className="mb-1.5 text-sm text-muted-foreground">{t("exams.example")}</p>
-          <SourceOrder.Provider value>
-            <ItemCard
-              exercise={examExercise(example)}
-              locale={null}
-              index={0}
-              answer={exampleAnswer(example)}
-              outcome={{ result: "correct", score: 1, ruleIds: [], lexemes: [] }}
-              url={url}
-            />
-          </SourceOrder.Provider>
-        </div>
-      ))}
     </div>
   );
 }
@@ -106,6 +171,7 @@ export function QuestionCard({
   outcome,
   onAnswer,
   checkAtOnce = false,
+  active = false,
   plays,
   run,
   url,
@@ -117,6 +183,8 @@ export function QuestionCard({
   onAnswer?(answer: unknown): void;
   /** Practice: a typed answer is checked when "Check" is pressed. */
   checkAtOnce?: boolean;
+  /** The question on screen: number keys choose its options. */
+  active?: boolean;
   /** How often its recording may be played (a mock exam); none: freely. */
   plays?: number;
   run: string;
@@ -151,8 +219,9 @@ export function QuestionCard({
     draft !== undefined &&
     Object.values(draft as Record<string, unknown>).some((v) => `${v ?? ""}`.trim());
   return (
-    <>
-      <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>
+    // A question's own region, named by its label (an example above is the Teil's, not its).
+    <section aria-label={label || undefined}>
+      {label && <p className="mb-1.5 text-sm text-muted-foreground">{label}</p>}
       {item.text && <ExamText text={item.text} className="mb-3" />}
       {item.media?.audio && (
         <ExamRecording
@@ -174,6 +243,7 @@ export function QuestionCard({
             outcome={outcome}
             url={url}
             onAnswer={change}
+            active={active}
           />
         </SourceOrder.Provider>
       </div>
@@ -182,6 +252,6 @@ export function QuestionCard({
           {t("lesson.check")}
         </Button>
       )}
-    </>
+    </section>
   );
 }

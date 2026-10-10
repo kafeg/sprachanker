@@ -455,7 +455,10 @@ export const modellExam: Exam = {
       pool: [examItemKey(MODELL, "l3")],
       draw: 1,
       filter: null,
-      text: "a  Café Weber: Kuchen und Kaffee\n\nb  Teeladen am Markt: Tee aus aller Welt",
+      letters: [
+        { letter: "a", text: "Café Weber: Kuchen und Kaffee" },
+        { letter: "b", text: "Teeladen am Markt: Tee aus aller Welt" },
+      ],
     },
     {
       key: examSectionKey(MODELL, "s1"),

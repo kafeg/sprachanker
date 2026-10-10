@@ -98,6 +98,29 @@
           "media": {
             "$ref": "#/$defs/Media"
           },
+          "letters": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "letter": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 2
+                },
+                "text": {
+                  "type": "string"
+                },
+                "media": {
+                  "$ref": "#/$defs/Media"
+                }
+              },
+              "required": [
+                "letter"
+              ],
+              "additionalProperties": false
+            }
+          },
           "plays": {
             "type": "integer",
             "exclusiveMinimum": 0,

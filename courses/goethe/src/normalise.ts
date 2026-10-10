@@ -293,15 +293,19 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
         problems.push(`${level.course} ${slug}: no question left`);
         continue;
       }
-      const text = [
-        ...teil.texts,
-        ...teil.letters
-          .filter((l) => l.texts.length || l.picture?.longdesc)
-          .map((l) => {
-            const own = l.picture?.longdesc ? textOf(l.picture.longdesc) : undefined;
-            return `${l.letter}\n${[...l.texts, ...(own ? [own] : [])].join("\n")}`;
-          }),
-      ].join("\n\n");
+      const text = teil.texts.join("\n\n");
+      // The letters answers are chosen from, each once with its text and picture (an ad's text
+      // page read).
+      const material = teil.letters.map((l) => {
+        const own = l.picture?.longdesc ? textOf(l.picture.longdesc) : undefined;
+        const lines = [...l.texts, ...(own ? [own] : [])].join("\n");
+        const image = media(l.picture?.src);
+        return {
+          letter: l.letter,
+          ...(lines && { text: lines }),
+          ...(image && { media: { image } }),
+        };
+      });
       const teilAudio = media(teil.audio);
       const teilImage = media(teil.pictures[0]?.src);
       if (teil.pictures.length > 1)
@@ -316,12 +320,17 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
         ...((teilAudio || teilImage) && {
           media: { ...(teilAudio && { audio: teilAudio }), ...(teilImage && { image: teilImage }) },
         }),
+        ...(material.length && { letters: material }),
         ...(plays !== undefined && { plays }),
         ...(examples.length && { examples }),
       });
+      const letterAlt = Object.fromEntries(
+        teil.letters.flatMap((l) => (l.picture?.alt ? [[l.letter, l.picture.alt]] : [])),
+      );
       localeSections[sectionKey] = {
         title: teil.title,
         instructions: teil.instructions.map(plainTime).join("\n"),
+        ...(Object.keys(letterAlt).length && { alt: letterAlt }),
       };
     }
   }
@@ -430,10 +439,8 @@ function optionsOf(
       return { id: id(i), text: c.label, ...(image && { media: { image } }) };
     });
   }
-  const letters = teil.letters.map((l, i) => {
-    const image = media(l.picture?.src);
-    return { id: id(i), text: l.letter, ...(image && { media: { image } }) };
-  });
+  // Answered by letter: the letters alone (each one's ad or picture is the Teil's material).
+  const letters = teil.letters.map((l, i) => ({ id: id(i), text: l.letter }));
   return none ? [...letters, { id: id(letters.length), text: none }] : letters;
 }
 

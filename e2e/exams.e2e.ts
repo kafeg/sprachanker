@@ -23,16 +23,28 @@ function silence(): Buffer {
   return b;
 }
 
-/** The right option of each of the mini exam's questions, by what it asks. */
+/** The page's visible button of that name (the header and the bar below can both have one). */
+const button = (page: Page, name: string | RegExp) =>
+  page
+    .getByRole("button", { name, exact: typeof name === "string" })
+    .filter({ visible: true })
+    .first();
+
+/** The question on screen: its card (an example above it is answered already, not to be touched). */
+const question = (page: Page) =>
+  page
+    .locator("main")
+    .getByText(/^Question \d+ of \d+$/)
+    .locator("..");
+
+/** Answers the mini exam's question on screen rightly. */
 async function answerRight(page: Page) {
-  const items = page.getByRole("list", { name: "Items" }).locator(":scope > li");
-  for (const item of await items.all()) {
-    const text = (await item.textContent()) ?? "";
-    if (text.includes("Wie viele Tage")) await item.getByRole("button", { name: "sieben" }).click();
-    else if (text.includes("Tasse")) await item.locator("button:has(img[src*='tasse'])").click();
-    else if (text.includes("Café")) await item.getByRole("button", { name: "rot" }).click();
-    else await item.getByRole("button", { name: "Tee" }).click();
-  }
+  const main = page.locator("main");
+  const text = (await main.textContent()) ?? "";
+  if (text.includes("Wie viele Tage")) await main.getByRole("button", { name: "sieben" }).click();
+  else if (text.includes("Tasse")) await main.locator("button:has(img[src*='tasse'])").click();
+  else if (text.includes("Café")) await main.getByRole("button", { name: "rot" }).click();
+  else await main.getByRole("button", { name: "Tee" }).click();
 }
 
 async function openExam(page: Page) {
@@ -46,22 +58,32 @@ async function openExam(page: Page) {
   await expect(page.getByRole("combobox", { name: "Federal state" })).toHaveText("Berlin");
 }
 
-test("a mock exam: drawn for the state, answered without marks, handed in; the result, then the Notebook", async ({
+test("a mock exam: a question at a time, the grid above, nothing marked; handed in; the result, then the Notebook", async ({
   page,
 }) => {
   await openExam(page);
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page).toHaveURL(/\/exam\/sprachanker\.fixture\/demo\/mini\/run\//);
-  const items = page.getByRole("list", { name: "Items" }).locator(":scope > li");
-  await expect(items).toHaveCount(3);
+  const grid = page.getByRole("navigation", { name: "Questions" });
+  await expect(grid.getByRole("button")).toHaveCount(3);
+  const seen: string[] = [];
+  for (let i = 0; i < 3; i++) {
+    await expect(page.getByText(`Question ${i + 1} of 3`)).toBeVisible();
+    seen.push((await page.locator("main").textContent()) ?? "");
+    await answerRight(page);
+    if (i < 2) await button(page, "Next").click();
+  }
   // Berlin's question, not Bavaria's.
-  await expect(page.getByText("Welche Farbe hat das Café im Bild?")).toBeVisible();
-  await expect(page.getByText("Was trinkt Lena?")).toHaveCount(0);
-  await answerRight(page);
-  // Nothing is marked before the exam is handed in.
+  expect(seen.some((t) => t.includes("Welche Farbe hat das Café im Bild?"))).toBe(true);
+  expect(seen.some((t) => t.includes("Was trinkt Lena?"))).toBe(false);
+  // Nothing is marked before the exam is handed in; the grid shows all answered.
   await expect(page.getByRole("status").filter({ hasText: /^Correct$/ })).toHaveCount(0);
-  await expect(page.getByText("Answered: 3 of 3").filter({ visible: true })).toBeVisible();
-  await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).click();
+  await expect(page.getByText("Answered: 3 of 3")).toBeVisible();
+  // Back to the first through the grid: its answer kept.
+  await grid.getByRole("button", { name: "Question 1" }).click();
+  await expect(page.getByText("Question 1 of 3")).toBeVisible();
+  await expect(page.locator("main button[aria-pressed='true']")).toHaveCount(1);
+  await button(page, "Hand in").click();
 
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
   await expect(page.getByRole("img", { name: "3/3" })).toBeVisible();
@@ -79,28 +101,30 @@ test("a mock exam: drawn for the state, answered without marks, handed in; the r
   await expect(page.getByRole("button", { name: /3 of 3\s*Passed/ }).first()).toBeVisible();
 });
 
-test("practice: each answer checked at once; handed in early, scored over the answers given", async ({
+test("practice: a question at a time, each checked at once; ended early, scored over the answers given", async ({
   page,
 }) => {
   await openExam(page);
   await page.getByRole("button", { name: "Practise" }).click();
   await expect(page).toHaveURL(/\/run\//);
-  const first = page.getByRole("list", { name: "Items" }).locator(":scope > li").first();
-  const wrong = (await first.textContent())?.includes("Wie viele Tage")
+  const main = page.locator("main");
+  const text = (await main.textContent()) ?? "";
+  const wrong = text.includes("Wie viele Tage")
     ? "fünf"
-    : (await first.textContent())?.includes("Café")
+    : text.includes("Café")
       ? "blau"
       : undefined;
-  if (wrong) await first.getByRole("button", { name: wrong }).click();
-  else await first.locator("button:has(img[src*='kuchen'])").click();
-  // Checked at once: marked, the right answer shown.
-  await expect(first.getByRole("status").filter({ hasText: /^Not quite$/ })).toBeAttached();
-  await page.getByRole("button", { name: "End practice" }).filter({ visible: true }).click();
+  if (wrong) await main.getByRole("button", { name: wrong }).click();
+  else await main.locator("button:has(img[src*='kuchen'])").click();
+  // Checked at once: marked, the tally above, the grid square wrong.
+  await expect(main.getByRole("status").filter({ hasText: /^Not quite$/ })).toBeAttached();
+  await expect(page.getByText(/0 right · 1 wrong/)).toBeVisible();
+  await button(page, "End practice").click();
   await expect(page.getByRole("heading", { name: "0 of 1 answer right" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "1 mistake" })).toBeVisible();
 });
 
-test("a language exam: a module alone, then the whole — Teile with their material, recordings played as often as allowed, a result by module", async ({
+test("a language exam: a module alone, then the whole — each question with its Teil's material, recordings played as often as allowed, a result by module", async ({
   page,
 }) => {
   await page.route("**/media/audio/*.mp3", (route) =>
@@ -115,43 +139,56 @@ test("a language exam: a module alone, then the whole — Teile with their mater
   await expect(page.getByText("3 questions in 3 minutes", { exact: false })).toBeVisible();
   await page.getByRole("button", { name: /^Begin/ }).click();
   await expect(page).toHaveURL(/\/run\//);
-  await expect(page.getByRole("heading", { name: "Model test · Reading" })).toBeVisible();
-  await expect(page.getByText("Read the letter.")).toBeVisible();
-  await expect(
-    page.getByText("ich komme am Sonntag um drei Uhr ins Café.", { exact: false }),
-  ).toBeVisible();
-  const items = page.getByRole("list", { name: "Items" }).locator(":scope > li");
-  await expect(items).toHaveCount(3);
-  await items.nth(0).getByRole("button", { name: "Falsch" }).click();
-  await items.nth(1).getByRole("button", { name: "um drei Uhr" }).click();
-  await items.nth(2).getByRole("button", { name: "b", exact: true }).click();
-  await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).click();
+  await expect(page.getByText("Model test · Reading")).toBeVisible();
+  // The Teil's instructions and letter with every one of its questions.
+  for (const [i, answer] of (["Falsch", "um drei Uhr", "b"] as const).entries()) {
+    await expect(page.getByText(`Question ${i + 1} of 3`)).toBeVisible();
+    if (i < 2) {
+      await expect(page.getByText("Read the letter.")).toBeVisible();
+      await expect(
+        page.getByText("ich komme am Sonntag um drei Uhr ins Café.", { exact: false }),
+      ).toBeVisible();
+    }
+    await question(page).getByRole("button", { name: answer, exact: true }).click();
+    if (i < 2) await button(page, "Next").click();
+  }
+  await button(page, "Hand in").click();
   await expect(page.getByRole("heading", { name: "3 of 3" })).toBeVisible();
   await expect(page.getByText("Reading", { exact: true }).locator("..")).toContainText("25 of 25");
 
-  // The whole exam: Listening's example answered, its recordings limited.
+  // The whole exam: Listening's example answered, a Teil's recording limited on every one of its
+  // questions.
   await page.getByRole("button", { name: "To the exam" }).click();
   await page.getByRole("button", { name: "Whole exam" }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
-  await expect(page.getByRole("heading", { name: "Listening" })).toBeVisible();
+  const grid = page.getByRole("navigation", { name: "Questions" });
+  await expect(grid.getByRole("button")).toHaveCount(8);
+  await expect(page.getByRole("heading", { name: "Listening · Part 1" })).toBeVisible();
   await expect(page.getByText("Example")).toBeVisible();
-  const once = page.getByRole("group", { name: "Part 2" });
-  await expect(once).toContainText("1 of 1 plays left");
-  await once.getByRole("button").click();
-  await expect(once).toContainText("0 of 1 plays left");
-  await expect(once.getByRole("button")).toBeDisabled();
-  const all = page.getByRole("list", { name: "Items" }).locator(":scope > li");
-  await expect(all).toHaveCount(8);
-  // The first answer of each (the example above the first is answered already, not to be touched).
-  for (const i of [0, 1])
-    await all.nth(i).locator("button[aria-pressed]:not([disabled])").first().click();
-  await all.nth(2).getByRole("button", { name: "Richtig" }).click();
-  await all.nth(3).getByRole("button", { name: "Falsch" }).click();
-  await all.nth(4).getByRole("button", { name: "um drei Uhr" }).click();
-  await all.nth(5).getByRole("button", { name: "b", exact: true }).click();
-  await all.nth(6).getByRole("textbox").fill("Tom Weber");
-  await all.nth(7).getByRole("textbox").fill("Kaffee");
-  await page.getByRole("button", { name: "Hand in" }).filter({ visible: true }).click();
+  const answers: Array<(p: Page) => Promise<void>> = [
+    (p) => question(p).locator("button[aria-pressed]").first().click(),
+    (p) => question(p).locator("button[aria-pressed]").first().click(),
+    (p) => question(p).getByRole("button", { name: "Richtig" }).click(),
+    (p) => question(p).getByRole("button", { name: "Falsch" }).click(),
+    (p) => question(p).getByRole("button", { name: "um drei Uhr" }).click(),
+    (p) => question(p).getByRole("button", { name: "b", exact: true }).click(),
+    (p) => question(p).getByRole("textbox").fill("Tom Weber"),
+    (p) => question(p).getByRole("textbox").fill("Kaffee"),
+  ];
+  for (const [i, answer] of answers.entries()) {
+    await expect(page.getByText(`Question ${i + 1} of 8`)).toBeVisible();
+    if (i === 2) {
+      // Part 2's recording plays once.
+      const once = page.getByRole("group", { name: "Part 2" });
+      await expect(once).toContainText("1 of 1 plays left");
+      await once.getByRole("button").click();
+      await expect(once).toContainText("0 of 1 plays left");
+      await expect(once.getByRole("button")).toBeDisabled();
+    }
+    await answer(page);
+    if (i < answers.length - 1) await button(page, "Next").click();
+  }
+  await button(page, "Hand in").click();
   // Writing, every mark: passed.
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
   await expect(page.getByText("Writing", { exact: true }).locator("..")).toContainText("25 of 25");
