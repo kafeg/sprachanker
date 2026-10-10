@@ -4,8 +4,7 @@ import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { homedir, totalmem } from "node:os";
 import { join } from "node:path";
-import { ServiceError } from "../errors.ts";
-import type { LmStudioHost } from "../services/llm.ts";
+import type { LmStudioHost } from "../services/llm-lmstudio.ts";
 
 const LMS = join(homedir(), ".lmstudio", "bin", process.platform === "win32" ? "lms.exe" : "lms");
 
@@ -19,23 +18,20 @@ export function lmStudioHost(lms = LMS): LmStudioHost {
         // It starts in seconds; one that hangs is given up (the setup says so).
         const timer = setTimeout(() => {
           child.kill();
-          reject(new ServiceError("llm_lmstudio_failed", 502));
+          reject(new Error("timed out"));
         }, 60_000);
         let err = "";
         child.stderr.setEncoding("utf8").on("data", (t: string) => {
           err = (err + t).slice(-1000);
         });
-        child.once("error", () => {
+        child.once("error", (error) => {
           clearTimeout(timer);
-          reject(new ServiceError("llm_lmstudio_failed", 502));
+          reject(error);
         });
         child.once("exit", (code) => {
           clearTimeout(timer);
           if (code === 0) resolve();
-          else {
-            console.error(`lms server start: ${err.trim()}`);
-            reject(new ServiceError("llm_lmstudio_failed", 502));
-          }
+          else reject(new Error(err.trim() || `exit code ${code}`));
         });
       }),
   };

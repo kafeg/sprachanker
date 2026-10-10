@@ -27,7 +27,8 @@ src/
     profile/         # Drizzle schema + migrations for profile.sqlite
     migrate.ts       # forward-only migrations, a copy before migrating (five kept), newer databases refused
   validate.ts        # request validation helper (input type for the client, output for the handler)
-  errors.ts          # ServiceError(code, status): what a service refuses, mapped in app.ts onError
+  errors.ts          # ServiceError(code, status): what a service refuses; errorResponse: how app.ts and
+                     # routes/llm.ts answer it (and a request that does not validate)
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), runs (lesson runs), progress (reset), exams,
@@ -47,7 +48,9 @@ src/
                      # bury, suspend, flags, marks; review's standing); words (My words, the word sheet);
                      # notebook (the study days and every module's standing, gathered; read only); settings;
                      # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
-                     # lesson); llm (providers, LM Studio, prompt previews); explain ("Why is this
+                     # lesson); llm (providers, keys, the route's client, structured calls, prompt previews;
+                     # llm-lmstudio: LM Studio's state, start, loads; llm-prompts: the learner's own
+                     # prompts over the llm package's TASK_PROMPTS); explain ("Why is this
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
                      # writing ("Write it yourself": checks kept in the lesson run); speaking (an
                      # answer said aloud checked by the model, kept on the item in the lesson run);
@@ -105,7 +108,7 @@ test/                # bun test; integration tests call createApp().request() �
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
   (outside the data root), read by `src/runtime/`.
 - Outgoing requests to LLM providers go through the injected `fetch` (`AppConfig.fetch`); tests fake it.
-- Command-line LLM agents run through the `CliHost` interface (services/llm.ts); LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm.ts); app.ts
+- Command-line LLM agents run through the `CliHost` interface (services/llm.ts); LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm-lmstudio.ts); app.ts
   never spawns processes itself.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
 - `src/app.ts` and everything it imports stay free of Bun and Node imports and globals — of

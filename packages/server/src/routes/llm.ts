@@ -1,6 +1,6 @@
 // /api/llm: provider setup, LM Studio, connection test, mistake explanations and the lesson tutor.
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
-import { LlmError, LMSTUDIO_RECOMMENDED, ProviderId } from "@sprachanker/llm";
+import { LlmError, LMSTUDIO_RECOMMENDED, PROMPT_TASKS, ProviderId } from "@sprachanker/llm";
 import {
   EditionId,
   ExamItemKey,
@@ -13,11 +13,9 @@ import {
   WRITING_MAX,
 } from "@sprachanker/schema";
 import { type Context, Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import { streamText } from "hono/streaming";
 import { z } from "zod";
-import { ServiceError } from "../errors.ts";
-import { PROMPT_TASKS } from "../services/llm.ts";
+import { errorResponse, ServiceError } from "../errors.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 
@@ -76,12 +74,15 @@ const Url = z
   .max(500)
   .regex(/^https?:\/\/\S+$/);
 
-/** LLM failures as responses: a service's own (setup: 409), provider problems 502. */
+/** Failures as responses: provider problems 502, the rest as the app answers them (a service's
+ *  own: setup 409); undefined for a server fault. */
 function failure(error: unknown) {
-  if (error instanceof ServiceError) return { status: error.status, error: error.code };
   if (error instanceof LlmError)
-    return { status: 502 as const, error: `llm_${error.code}`, message: error.message };
-  throw error;
+    return {
+      status: 502 as const,
+      body: { error: `llm_${error.code}`, message: error.message },
+    };
+  return errorResponse(error);
 }
 
 /**
@@ -98,8 +99,9 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
     first = await chunks.next();
     if (first.done) throw new LlmError("bad_response", "the model answered nothing");
   } catch (error) {
-    const { status, ...body } = failure(error);
-    return c.json(body, status);
+    const response = failure(error);
+    if (!response) throw error;
+    return c.json(response.body, response.status);
   }
   return streamText(c, async (stream) => {
     try {
@@ -109,11 +111,9 @@ async function streamReply(c: Context, start: () => Promise<AsyncIterable<string
       for (; !next.done && !stream.aborted; next = await chunks.next())
         await stream.write(next.value);
     } catch (error) {
-      if (!(error instanceof LlmError || error instanceof ServiceError)) console.error(error);
-      const body =
-        error instanceof LlmError || error instanceof ServiceError
-          ? (({ status: _, ...rest }) => rest)(failure(error))
-          : { error: "server_error" };
+      const response = failure(error);
+      if (!response) console.error(error);
+      const body = response?.body ?? { error: "server_error" };
       if (!stream.aborted) await stream.write(STREAM_ERROR + JSON.stringify(body));
     } finally {
       await chunks.return?.();
@@ -312,13 +312,9 @@ export function llmRoutes() {
       )
       // Setup and provider failures as their responses (the routes return their results only).
       .onError((error, c) => {
-        if (error instanceof HTTPException)
-          return c.json({ error: "invalid_request", detail: error.message }, error.status);
-        if (error instanceof ServiceError || error instanceof LlmError) {
-          const { status, ...body } = failure(error);
-          return c.json(body, status);
-        }
-        throw error;
+        const response = failure(error);
+        if (!response) throw error;
+        return c.json(response.body, response.status);
       })
   );
 }

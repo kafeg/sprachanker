@@ -4,9 +4,8 @@
 import { type LibraryView, NotInstalledError } from "@sprachanker/course-kit/view";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { Hono } from "hono";
-import { HTTPException } from "hono/http-exception";
 import type { ServerDb } from "./db/server/db.ts";
-import { ServiceError } from "./errors.ts";
+import { errorResponse } from "./errors.ts";
 import { blobResponse, type MediaBlob } from "./media.ts";
 import { cardRoutes } from "./routes/cards.ts";
 import { courseRoutes } from "./routes/courses.ts";
@@ -99,11 +98,9 @@ export function createApp(config: AppConfig) {
     // Input is checked by `zod()` and by the services (ServiceError); anything else, a ZodError on
     // stored data included, is a server fault.
     .onError((error, c) => {
-      if (error instanceof ServiceError) return c.json({ error: error.code }, error.status);
       if (error instanceof NotInstalledError) return c.json({ error: "not_installed" }, 404);
-      // A request that does not validate: the code, and what did not fit for whoever reads it.
-      if (error instanceof HTTPException)
-        return c.json({ error: "invalid_request", detail: error.message }, error.status);
+      const response = errorResponse(error);
+      if (response) return c.json(response.body, response.status);
       throw error;
     });
 

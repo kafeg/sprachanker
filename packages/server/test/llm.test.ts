@@ -646,6 +646,17 @@ describe("LM Studio", () => {
       409,
       "llm_lmstudio_missing",
     ]);
+
+    // `lms` failing is the service's to answer: 502.
+    const failing = await setup({
+      fetch: down,
+      lmStudio: { ...h, startServer: () => Promise.reject(new Error("no")) },
+    });
+    const failed = await failing.send("POST", "/api/llm/lmstudio/start", {});
+    expect([failed.status, ((await failed.json()) as { error: string }).error]).toEqual([
+      502,
+      "llm_lmstudio_failed",
+    ]);
   });
 
   test("lesson help loads the chosen model with the tutor's context first", async () => {
