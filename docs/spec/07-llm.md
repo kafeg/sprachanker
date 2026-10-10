@@ -60,7 +60,7 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 
 | Task | Input | Output |
 |---|---|---|
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the native language (streamed text) |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text) |
 | `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
 | `check_speaking` | the lesson (title, words, grammar), a speaking item without a phrase (instruction, prompt, hint), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
@@ -133,7 +133,7 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
 - Model output is Markdown without raw HTML, images or links: nothing in it makes the browser load or
   open another site.
 - Prompts: the learner's level and known vocabulary are context; target-language replies stay within
-  known material; explanations are in the native language. Course text and learner input are
+  known material; explanations are in the interface language. Course text and learner input are
   delimited data, never instructions.
 
 ## Transparency and debugging

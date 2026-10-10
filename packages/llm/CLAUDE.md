@@ -48,5 +48,5 @@ test/              # fake endpoints (no network); fixture course from @sprachank
   rules never remove it.
 - Each task exposes `<task>Request(input)` (what is sent), `<task>Rules()` (its system prompt) and its
   context budgets; the real call and the prompt viewer use the same functions.
-- Explanations in the learner's native language; target-language text stays in the target language.
+- Explanations in the interface language (the request's `language`); target-language text stays in the target language.
 - No vendor SDK leaks outside the provider code.

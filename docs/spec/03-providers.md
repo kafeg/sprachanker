@@ -42,8 +42,8 @@ series): DW Nicos Weg (`dw.nicos-weg`, every edition) and Leben in Deutschland (
 offer is experimental (owner, 2026-10-10): its catalogue entries say so (`experimental`), and its courses and exams are shown only once the learner turns on their section and
 the source in Settings → Experimental (09).
 
-Every provider's courses are offered in Courses → Available (owner, 2026-10-08); the pair the
-onboarding sets as the course filters keeps a learner's own language pair in front. A course taken
+Every provider's courses are offered in Courses → Available (owner, 2026-10-08), unfiltered until the
+learner narrows them by pair or course (owner, 2026-10-10: nothing sets a filter for them). A course taken
 out of the library keeps working where it is remembered: its cards (their text is kept with them), its
 runs (left out of progress), its pages say it is not installed.
 

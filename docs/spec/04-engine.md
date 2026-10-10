@@ -26,7 +26,7 @@ opened with every exercise worked and no mistakes). AI steps are in the plan onl
 is set up, so a lesson never depends on one. The reference tabs (vocabulary, grammar, culture, script,
 homework, downloads) stay available at any time for looking things up.
 
-Planned: composing with enrichment — rule tags, contrastive notes for the native language, extra
+Planned: composing with enrichment — rule tags, contrastive notes for the edition's source language, extra
 exercises after the source's, scenes; stale entries skipped and reported (plan, "Enrichment and rules").
 
 ## Checking

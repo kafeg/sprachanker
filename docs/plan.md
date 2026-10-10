@@ -8,8 +8,7 @@ fits together, by `docs/architecture.md`.
 - Past the first version's scope (owner, 2026-10-08): the items below are what the owner wants next,
   in this order; anything else waits for "After the week of use".
 - Exams taken up now, ahead of items 1–2: Goethe A1–B1 next (owner, 2026-10-10).
-- German first (owner, 2026-10-07): the onboarding's language pair filters Courses; every provider is
-  offered (03, "Offered in the app").
+- German first (owner, 2026-10-07): every provider is offered (03, "Offered in the app").
 - The desktop browser now; phones when convenient (item "Phones": Tailscale is known to work).
 
 ## Next, in order

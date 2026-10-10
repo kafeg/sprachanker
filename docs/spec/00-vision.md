@@ -35,7 +35,7 @@ SprachAnker is a self-hosted learning app that:
 2. **Daily review**: due cards, 10–15 minutes.
 3. **Speak**: short LLM scenes restricted to known material; corrections recorded.
 4. **Look back**: the Notebook shows every attempt, recordings and mistakes.
-5. **Free chat**: ask about grammar in the native language, chat in the target language, discuss recent
+5. **Free chat**: ask about grammar in the interface language, chat in the target language, discuss recent
    mistakes.
 6. **Prepare for tests**: the Nicos Weg final tests (lessons); exams such as Leben in Deutschland:
    plan, "Exams".

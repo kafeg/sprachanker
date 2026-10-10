@@ -5,7 +5,9 @@ Types live in `packages/schema`. Names below are the canonical names in code.
 ## Languages
 
 - `Lang` — BCP-47 primary tag: `de`, `en`, `ru`, …
-- A learner has a **native language** (language of explanations) and studies a **target language**.
+- A learner studies a **target language**; explanations and translations of the app's own (the AI's)
+  are in the **interface language**. A profile keeps no languages of its own (owner, 2026-10-10): what
+  it learns is the courses it takes.
   A course edition is described by `source → target`, e.g. `ru → de`; `de → de` is a monolingual edition.
 - **A language pair of a source course is a course of its own**: DW's Nicos Weg A1 for Russian
   speakers and for English speakers are separate courses (`a1-ru`, `a1-en`) with their own exercises
@@ -52,7 +54,7 @@ Series      e.g. "dw.nicos-weg"         (<publisher>.<series>; a product that ma
 
 ## Learner
 
-- **Profile**: display name, native and target languages, UI language, settings (incl. own
+- **Profile**: display name, UI language, settings (incl. own
   LLM and speech choices). Separate SQLite file per profile (05).
 - **Device**: a browser/PWA logged in to a profile (token).
 - **Run**: one pass of a lesson, exam, day of review, scene or chat (`kind`: `lesson`, `exam`,
