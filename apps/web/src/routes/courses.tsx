@@ -119,6 +119,9 @@ function Available() {
   const catalog = useCatalog();
   const { shown } = useShown();
   if (!list.all) return list.state;
+  // Not "all downloaded" when the catalogue failed (while it loads, the list waits: useShown).
+  if (catalog.isError)
+    return <ErrorState error={catalog.error} onRetry={() => catalog.refetch()} />;
   const cards = offersOf(catalog.data, "courses", shown).map((offer) => ({
     key: offer.key,
     offer,

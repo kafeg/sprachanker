@@ -23,7 +23,8 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
   const exams = useExams();
   const { shown, ready } = useShown();
   const all = (exams.data ?? []).filter((e) => shown("exams", e.series));
-  const offers = offersOf(useCatalog().data, "exams", shown);
+  const catalog = useCatalog();
+  const offers = offersOf(catalog.data, "exams", shown);
   const count: Record<ExamsTab, number> = {
     mine: all.filter((e) => e.started).length,
     downloaded: all.length,
@@ -74,6 +75,8 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
       {tab === "available" &&
         (!ready ? (
           <Loading />
+        ) : catalog.isError ? (
+          <ErrorState error={catalog.error} onRetry={() => catalog.refetch()} />
         ) : offers.length ? (
           <CardGrid>
             {offers.map((o) => (

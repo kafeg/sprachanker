@@ -12,23 +12,36 @@ import { render } from "@testing-library/react";
 import "../src/i18n/index.ts";
 import { TooltipProvider } from "../src/ui/components/tooltip.tsx";
 
-/** A query client whose cache holds `data` by query key; nothing goes stale, nothing is fetched. The
- *  profile's settings (read all over the app) start empty — the defaults — unless a test gives them. */
-export function queryClient(data: Array<[unknown[], unknown]> = []) {
+/** A query client whose cache holds `data` by query key, and `failed` queries' errors; nothing goes
+ *  stale, nothing is fetched (a failed query is not tried again). The profile's settings (read all
+ *  over the app) start empty — the defaults — unless a test gives them. */
+export function queryClient(
+  data: Array<[unknown[], unknown]> = [],
+  failed: Array<[unknown[], Error]> = [],
+) {
   const client = new QueryClient({
-    defaultOptions: { queries: { staleTime: Number.POSITIVE_INFINITY, retry: false } },
+    defaultOptions: {
+      queries: { staleTime: Number.POSITIVE_INFINITY, retry: false, retryOnMount: false },
+    },
   });
   client.setQueryData(["settings"], {});
   for (const [key, value] of data) client.setQueryData(key, value);
+  for (const [queryKey, error] of failed)
+    client.getQueryCache().build(client, { queryKey }).setState({ status: "error", error });
   return client;
 }
 
-/** Renders `ui` with the query cache filled; inside a router at `path` when links need one. */
+/** Renders `ui` with the query cache filled (and `failed` queries failed); inside a router at `path`
+ *  when links need one. */
 export async function renderApp(
   ui: React.ReactNode,
-  { data = [], path }: { data?: Array<[unknown[], unknown]>; path?: string } = {},
+  {
+    data = [],
+    failed = [],
+    path,
+  }: { data?: Array<[unknown[], unknown]>; failed?: Array<[unknown[], Error]>; path?: string } = {},
 ) {
-  const client = queryClient(data);
+  const client = queryClient(data, failed);
   if (path === undefined)
     return {
       client,
