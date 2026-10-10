@@ -92,7 +92,6 @@ export function createRuns({
     });
   };
 
-  /** The recordings the answers of some runs hold. */
   /**
    * A finished run is a completion by how it ended: the server ends a run `finished/completed` only
    * when its plan was done then (`finish`, `replace`). A lesson changed since — an exercise added when
@@ -163,7 +162,6 @@ export function createRuns({
   return {
     progress,
 
-    /** The recordings the answers of every lesson run hold. */
     /** The installed courses (not the exams: the Exams section's) with the learner's progress and
      *  the lesson to go on with, as its card shows it (title and exercises worked). */
     async courses() {

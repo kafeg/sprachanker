@@ -168,7 +168,7 @@ test("removing runs takes their events with them, in one go", () => {
 });
 
 test("the recordings answers hold are found in runs of every kind, exams too", () => {
-  const { store } = open();
+  const { store, sqlite } = open();
   const outcome = { result: "unscored" as const, score: 0, ruleIds: [], lexemes: [] };
   const answered = (itemKey: string, recording: string) => ({
     type: "answered" as const,
@@ -189,4 +189,10 @@ test("the recordings answers hold are found in runs of every kind, exams too", (
   expect(store.recordingIds().sort()).toEqual(["rec-exam", "rec-lesson"]);
   expect(store.recordingIds([exam.id])).toEqual(["rec-exam"]);
   expect(store.recordingIds([])).toEqual([]);
+  // An answer stored in a shape that no longer reads still holds its take: it is never swept.
+  sqlite.run(
+    "INSERT INTO events (id, run_id, ts, type, payload_json) VALUES (?, ?, ?, 'answered', ?)",
+    [ulid(), exam.id, 5000, JSON.stringify({ answer: { recording: "rec-old" }, attempt: "?" })],
+  );
+  expect(store.recordingIds([exam.id]).sort()).toEqual(["rec-exam", "rec-old"]);
 });

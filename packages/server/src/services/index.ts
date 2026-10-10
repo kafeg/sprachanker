@@ -54,10 +54,10 @@ export interface ServicesConfig {
   now: () => number;
 }
 
-/** A profile's services over its database; the content and downloads are the server's. */
 /** A take no answer holds goes once it is this old (one younger may be an answer still on its way). */
 const DAY_MS = 24 * 60 * 60_000;
 
+/** A profile's services over its database; the content and downloads are the server's. */
 function profileServices(
   config: ServicesConfig,
   shared: {
@@ -85,8 +85,13 @@ function profileServices(
   const store = createRunStore({ db, now, appVersion: config.appVersion });
   const cardStore = createCardStore(db);
   const recordings = createRecordings(recordingFiles, now);
-  // Takes no answer of any run holds (recorded again, never answered with, not to be kept), a day old.
-  recordings.removeUnused(new Set(store.recordingIds()), now() - DAY_MS);
+  // Takes no answer of any run holds (recorded again, never answered with, not to be kept), a day old;
+  // housekeeping never keeps the profile from opening.
+  try {
+    recordings.removeUnused(new Set(store.recordingIds()), now() - DAY_MS);
+  } catch (error) {
+    console.error("removing unused recordings:", error);
+  }
   const runs = createRuns({ store, cards: cardStore, content, recordings });
   const exams = createExams({ store, content, settings, now });
   const cards = createCards({
@@ -176,7 +181,6 @@ export type ProfileServices = ReturnType<typeof profileServices>;
  * The server's services: the shared content and downloads, the profiles and how devices sign in to
  * them, and each profile's own services (`of`), made on first use and kept.
  */
-
 export function createServices(config: ServicesConfig) {
   const { now } = config;
   const content = createContent(config.library);
