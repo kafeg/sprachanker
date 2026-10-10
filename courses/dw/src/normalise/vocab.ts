@@ -1,9 +1,7 @@
 // Part of speech, gender and forms from a DW vocabulary headword (02, research "Vocabulary").
-import { type Headword, shapeHeadword } from "@sprachanker/course-kit";
-import type { Gender } from "@sprachanker/schema";
+import { germanGender, type Headword, shapeHeadword } from "@sprachanker/course-kit";
 
 const ARTICLE = /^\(?(der|die|das)\)?\s+(.+)$/;
-const GENDER: Record<string, Gender> = { der: "m", die: "f", das: "n" };
 const VERB_FORMS = /^[^,]+, [^,]+, (hat|ist) \S.*$/;
 const COMPARISON = /\bam \S+sten\b/;
 
@@ -33,7 +31,7 @@ export function parseHeadword(name: string, subTitle: string): Headword {
     return {
       lemma: rest,
       pos: "noun",
-      gender: pluralOnly ? "pl" : GENDER[article[1] as string],
+      gender: pluralOnly ? "pl" : germanGender(article[1]),
       ...(plural ? { plural } : {}),
       ...(notes.length ? { note: notes.join("; ") } : {}),
     };

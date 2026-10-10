@@ -12,18 +12,20 @@ import {
   vocabKey,
 } from "@sprachanker/schema";
 
+/** The facts a headword may give, as its entry keeps them (`VocabEntry`). */
+const HEAD_FACTS = ["gender", "plural", "forms", "note", "ipa"] as const;
+
 /** What a provider reads from a headword: the lemma, its part of speech and the facts given with it. */
-export interface Headword {
-  lemma: string;
-  pos: PartOfSpeech;
-  gender?: Gender;
-  /** Plural form with article, when the source gives one. */
-  plural?: string;
-  forms?: string;
-  note?: string;
-  /** Pronunciation as the source writes it (IPA). */
-  ipa?: string;
-}
+export type Headword = { lemma: string; pos: PartOfSpeech } & Partial<
+  Pick<VocabEntry, (typeof HEAD_FACTS)[number]>
+>;
+
+const GERMAN_ARTICLES: Record<string, Gender> = { der: "m", die: "f", das: "n" };
+
+/** A German noun's gender by its definite article (`der` → m, `die` → f, `das` → n); none for another
+ *  word. */
+export const germanGender = (article: string | undefined): Gender | undefined =>
+  article ? GERMAN_ARTICLES[article.toLowerCase()] : undefined;
 
 /**
  * A headword the source states nothing more about, by its shape (02): a sentence or three words or
@@ -81,11 +83,9 @@ export function vocabEntries<S extends VocabSource>(
       key,
       lexeme: lexemeKey(lang, head.lemma, head.pos, head.gender),
       target: source.target,
-      ...(head.gender !== undefined ? { gender: head.gender } : {}),
-      ...(head.plural !== undefined ? { plural: head.plural } : {}),
-      ...(head.forms !== undefined ? { forms: head.forms } : {}),
-      ...(head.note !== undefined ? { note: head.note } : {}),
-      ...(head.ipa !== undefined ? { ipa: head.ipa } : {}),
+      ...Object.fromEntries(
+        HEAD_FACTS.flatMap((f) => (head[f] !== undefined ? [[f, head[f]]] : [])),
+      ),
       ...(source.examples?.length ? { examples: source.examples } : {}),
       ...(source.audio ? { audio: source.audio } : {}),
       ...(source.image ? { image: source.image } : {}),

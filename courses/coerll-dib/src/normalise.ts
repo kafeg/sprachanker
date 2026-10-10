@@ -2,6 +2,7 @@
 // Chapters become units; each vocabulary section a lesson with its words (German → English) and its
 // recording. The site has no interactive exercises (they are in the textbook PDF, kept as a download).
 import {
+  germanGender,
   type Headword,
   type LibraryFile,
   libraryFile,
@@ -14,7 +15,6 @@ import {
   CANONICAL_FORMAT,
   type CourseIndex,
   courseKey,
-  type Gender,
   type LessonKey,
   LOCALE_FORMAT,
   type LocaleCourse,
@@ -33,8 +33,6 @@ export interface Chapter {
   pdf?: string;
   sections: VocabSection[];
 }
-
-const ARTICLES: Record<string, Gender> = { der: "m", die: "f", das: "n" };
 
 /**
  * Part of speech, gender and plural from a headword as the book writes it: "der Apfel (Äpfel)",
@@ -55,13 +53,13 @@ export function headword(de: string): Headword {
     if (parens && /plural only|only plural/i.test(parens))
       return { lemma, pos: "noun", gender: "pl" };
     if (parens && /no plural/i.test(parens)) {
-      return { lemma, pos: "noun", gender: ARTICLES[noun[1] ?? ""], note: "nur Singular" };
+      return { lemma, pos: "noun", gender: germanGender(noun[1]), note: "nur Singular" };
     }
     const plural = parens?.replace(/^die /, "");
     return {
       lemma,
       pos: "noun",
-      gender: ARTICLES[noun[1] ?? ""],
+      gender: germanGender(noun[1]),
       ...(plural && !plural.includes(",") ? { plural: `die ${plural}` } : {}),
     };
   }

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { courseKey, lessonKey, seriesKey } from "@sprachanker/schema";
-import { shapeHeadword, vocabEntries } from "../src/vocab.ts";
+import { germanGender, shapeHeadword, vocabEntries } from "../src/vocab.ts";
 
 const lesson = lessonKey(courseKey(seriesKey("test", "series"), "a1"), 1, 2);
 
@@ -60,4 +60,15 @@ test("shapeHeadword: one rule for every provider (02)", () => {
   expect(shapeHeadword("en", "to go")).toEqual({ lemma: "go", pos: "verb" });
   expect(shapeHeadword("en", "to go out")).toEqual({ lemma: "to go out", pos: "phrase" });
   expect(shapeHeadword("de", "to")).toEqual({ lemma: "to", pos: "word" });
+});
+
+test("a German noun's gender by its article", () => {
+  expect(["der", "die", "das", "Die", "den", undefined].map(germanGender)).toEqual([
+    "m",
+    "f",
+    "n",
+    "f",
+    undefined,
+    undefined,
+  ]);
 });
