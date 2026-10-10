@@ -661,7 +661,11 @@
       "ai": "Практика с ИИ"
     },
     "lessons": "Уроки",
-    "exams": "Экзамены"
+    "exams": "Экзамены",
+    "examRuns": "Пробные экзамены и тренировки",
+    "noExamRuns": "Пока ничего не сдано.",
+    "examWrong": "{count, plural, one {# вопрос} few {# вопроса} many {# вопросов} other {# вопроса}} с ошибкой в прошлый раз",
+    "examAll": "Всё по этому экзамену"
   },
   "study": {
     "listen": "Послушайте и вспомните значение",
@@ -1160,7 +1164,6 @@
     "practise": "Тренироваться",
     "openCatalog": "Открыть",
     "known": "Вы знаете {known, number} из {total, plural, one {# вопроса} few {# вопросов} many {# вопросов} other {# вопроса}}",
-    "passedOf": "сдано {passed, number} из {count, plural, one {# пробного экзамена} few {# пробных экзаменов} many {# пробных экзаменов} other {# пробного экзамена}}",
     "needsState": "Выберите свою федеральную землю: тест задаёт о ней три вопроса.",
     "needsStateCatalog": "Выберите федеральную землю на странице экзамена, чтобы видеть и её вопросы.",
     "mapTitle": "Вопросы",
@@ -1168,7 +1171,6 @@
     "mapWrong": "ошиблись в прошлый раз",
     "mapUnseen": "не видели",
     "mapSummary": "Из {total, number} вопросов: знаете {known, number}, ошиблись в прошлый раз в {wrong, number}",
-    "results": "Пробные экзамены",
     "points": "{points, number} из {max, number}",
     "passed": "Сдан",
     "failed": "Не сдан",
@@ -1222,6 +1224,9 @@
     "previous": "Назад",
     "questionsGrid": "Вопросы",
     "goTo": "Вопрос {n, number}",
-    "practiceTally": "верно {right, number} · ошибок {wrong, number} · из {total, number}"
+    "practiceTally": "верно {right, number} · ошибок {wrong, number} · из {total, number}",
+    "lastResult": "Последний пробный экзамен, {date}: {points, number} из {max, number}",
+    "noResultYet": "Пробных экзаменов ещё не было",
+    "inNotebook": "Всё в Тетради"
   }
 }

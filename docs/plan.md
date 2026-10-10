@@ -49,7 +49,9 @@ Specs: 09, 10.
 Specs: 01, 02, 03, 04, 05, 06, 09, 10. Research: `docs/research/exams.md`. Built: the Exams section,
 mock exams, practice and the catalogue, Leben in Deutschland (`bamf-lid`; 03, 04 "Exams", 09);
 the exam layer for language exams (modules of Teile with their material; 02, 04, 09); Goethe A1,
-A2, B1 Hören and Lesen (`goethe`; 03).
+A2, B1 Hören and Lesen (`goethe`; 03); a question at a time with the grid of numbers, practice
+checked at once, the catalogue as a compact list, statistics in the Notebook (09; owner's choices B,
+D, F, 2026-10-10).
 - **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
   question, option, picture, recording and answer comes in through the provider's fetch and
   normaliser — never from a model, never by hand. Any tool may be used inside an importer; a browser
@@ -64,18 +66,6 @@ A2, B1 Hören and Lesen (`goethe`; 03).
     its pictures once, not under every question.
   - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
     run-throughs.
-- **3c. An exam taken as the real one is** (owner, 2026-10-10: the mock exam, practice and catalogue
-  are long pages of questions; the experience, layout and the way options are chosen should be close
-  to the real test). Rendered mockup options first, the owner chooses. Directions: a mock exam a Teil
-  at a time as the paper or the online test shows it (its material beside or above, its answer sheet
-  with boxes a/b/c, Richtig/Falsch, letters), moving between Teile with an overview of what is
-  answered, the recording player as in the room; practice a question at a time, each checked at once;
-  the catalogue compact (a question at a time, or collapsed, with search).
-- **3d. Statistics where they belong** (owner, 2026-10-10: the catalogue's statistics are unclear, the
-  section is overloaded). Exams already store as lessons do — runs of kind `exam` in `runs`, each
-  answer an `answered` event (05) — and the Notebook reads them; the Exams section keeps only what a
-  course card keeps (how far, the last result), the rest (passes, results, questions answered wrongly)
-  goes to the Notebook, as Courses leave it to the Notebook. Simpler, fewer numbers.
 - **3e. Proof that the exams are real** (owner, 2026-10-10: proof that the data is not invented and
   that passing here means passing there). Per exam a source report, in the app and in `verify`: where
   each question, picture, recording and answer was read (page, file), and the independent checks it

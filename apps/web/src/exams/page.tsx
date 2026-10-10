@@ -1,9 +1,8 @@
-// An exam's page (09, Exams; owner's choice 2A, 2026-10-10): how ready the learner is (a ring, the
-// questions known), the federal state its questions are asked of, the three ways in as tiles — a mock
-// exam as the real test runs it, practice with each answer checked at once, the catalogue of every
-// question with its answer — the map of the questions open to the learner (known, answered wrongly,
-// not seen), and the mock exams handed in.
-import { eligible, examPassed, missingSettings, questionCount, timeOf } from "@sprachanker/engine";
+// An exam's page (09, Exams; owner's choice 2A, 2026-10-10): how ready the learner is (a ring), the
+// federal state its questions are asked of, the whole exam or one module, the three ways in as tiles —
+// a mock exam as the real test runs it, practice with each answer checked at once, the catalogue of
+// every question with its answer — and the latest mock exam, the way to the rest in the Notebook.
+import { missingSettings, questionCount, timeOf } from "@sprachanker/engine";
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
@@ -17,6 +16,7 @@ import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
+import { ListRow } from "@/ui/history.tsx";
 import { BackLink, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -76,17 +76,13 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
   const data = page.data;
   if (!data) return <Loading />;
 
-  const { exam, locale, stats } = data;
+  const { exam, locale } = data;
   const title = locale?.title ?? row.titles[edition ?? ""] ?? key;
-  const open = eligible(exam, setting).flatMap(({ pool }) => pool);
-  const known = open.filter((i) => stats[i.key]?.last === "right").length;
   const asks = exam.sections
     .filter((s) => !module || s.module === module)
     .reduce((n, s) => n + s.draw, 0);
   const minutes = Math.round(timeOf(exam, module || undefined) / 60);
   const askedOfState = exam.sections.some((s) => s.filter?.setting === "exam.federalState");
-  const tests = data.runs.filter((r) => r.plan.mode === "test");
-  const passed = tests.filter((r) => examPassed(r.result)).length;
   const testRunning = data.active?.plan.mode === "test" ? data.active : undefined;
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });
@@ -108,10 +104,6 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
               )}
               {askedOfState && <StateSelect className="w-auto min-w-44 max-w-full rounded-full" />}
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {t("exams.known", { known, total: open.length })}
-              {tests.length > 0 && ` · ${t("exams.passedOf", { passed, count: tests.length })}`}
-            </p>
           </div>
         </div>
         {needs.length > 0 && (
@@ -192,71 +184,23 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
         </ModeTile>
       </div>
 
-      {open.length > 0 && (
-        <section className="mb-8 rounded-2xl border bg-card p-4 sm:p-5">
-          <h2 className="font-heading text-lg font-bold">{t("exams.mapTitle")}</h2>
-          <div className="mt-1 mb-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
-            <Legend className="bg-correct" label={t("exams.mapKnown")} />
-            <Legend className="bg-wrong" label={t("exams.mapWrong")} />
-            <Legend className="bg-muted" label={t("exams.mapUnseen")} />
-          </div>
-          <div
-            role="img"
-            aria-label={t("exams.mapSummary", {
-              known,
-              wrong: open.filter((i) => stats[i.key]?.last === "wrong").length,
-              total: open.length,
-            })}
-            className="grid grid-cols-[repeat(auto-fill,minmax(0.6rem,1fr))] gap-[3px]"
-          >
-            {open.map((i) => (
-              <span
-                key={i.key}
-                title={i.key.split("/q-")[1]}
-                className={cn(
-                  "aspect-square rounded-[3px]",
-                  stats[i.key]?.last === "right"
-                    ? "bg-correct"
-                    : stats[i.key]?.last === "wrong"
-                      ? "bg-wrong"
-                      : "bg-muted",
-                )}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {tests.length > 0 && (
-        <section>
-          <h2 className="mb-2 font-heading text-lg font-bold">{t("exams.results")}</h2>
-          <ul className="divide-y rounded-2xl border bg-card">
-            {tests.map((r) => (
-              <li key={r.id}>
-                <button
-                  type="button"
-                  onClick={() => toRun(r.id)}
-                  className="flex min-h-12 w-full items-center gap-3 px-4 py-2 text-left hover:bg-accent pointer-coarse:min-h-14"
-                >
-                  <span className="flex-1">{date.format(r.finishedAt ?? r.startedAt)}</span>
-                  <span className="tabular-nums">
-                    {t("exams.points", { points: r.result?.points ?? 0, max: r.result?.max ?? 0 })}
-                  </span>
-                  <span
-                    className={cn(
-                      "w-24 text-right text-sm font-medium",
-                      examPassed(r.result) ? "text-correct" : "text-wrong",
-                    )}
-                  >
-                    {examPassed(r.result) !== undefined &&
-                      t(examPassed(r.result) ? "exams.passed" : "exams.failed")}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      {/* The latest mock exam; the rest of what was done is the Notebook's. */}
+      <section className="rounded-2xl border bg-card">
+        <ListRow
+          onClick={() => void navigate({ to: "/notebook/exam/$series/$course/$exam", params })}
+        >
+          <span className="flex-1">
+            {data.last
+              ? t("exams.lastResult", {
+                  date: date.format(data.last.finishedAt ?? data.last.startedAt),
+                  points: data.last.result?.points ?? 0,
+                  max: data.last.result?.max ?? 0,
+                })
+              : t("exams.noResultYet")}
+          </span>
+          <span className="text-sm font-medium text-muted-foreground">{t("exams.inNotebook")}</span>
+        </ListRow>
+      </section>
     </Page>
   );
 }
@@ -287,13 +231,5 @@ function ModeTile({
       <p className="mt-1 mb-4 flex-1 text-sm text-muted-foreground">{text}</p>
       {children}
     </div>
-  );
-}
-
-function Legend({ className, label }: { className: string; label: string }) {
-  return (
-    <span className="flex items-center gap-1.5">
-      <span className={cn("size-2.5 rounded-[3px]", className)} /> {label}
-    </span>
   );
 }

@@ -21,6 +21,7 @@ import { LessonPlayer } from "@/lesson/player.tsx";
 import { lessonAssistant } from "@/llm/lesson-assistant.tsx";
 import { AssistantSetup } from "@/llm/settings-section.tsx";
 import { wordAssistant } from "@/llm/word-example.tsx";
+import { ExamNotebook } from "@/notebook/exam.tsx";
 import { LessonNotebook, type LessonView } from "@/notebook/lesson.tsx";
 import { NotebookPage } from "@/notebook/page.tsx";
 import { StudySlotsProvider } from "@/study/slots.ts";
@@ -184,6 +185,15 @@ const notebook = createRoute({
   path: "/notebook",
   component: NotebookPage,
 });
+const notebookExam = createRoute({
+  getParentRoute: () => shell,
+  path: "/notebook/exam/$series/$course/$exam",
+});
+notebookExam.update({
+  component: function NotebookExam() {
+    return <ExamNotebook params={notebookExam.useParams()} />;
+  },
+});
 const notebookLesson = createRoute({
   getParentRoute: () => shell,
   path: "/notebook/$series/$course/$lesson",
@@ -253,6 +263,7 @@ export const router = createRouter({
       exam,
       examCatalog,
       notebook,
+      notebookExam,
       notebookLesson,
       settings,
     ]),

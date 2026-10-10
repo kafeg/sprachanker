@@ -661,7 +661,11 @@
       "ai": "AI practice"
     },
     "lessons": "Lessons",
-    "exams": "Exams"
+    "exams": "Exams",
+    "examRuns": "Mock exams and practice",
+    "noExamRuns": "Nothing handed in yet.",
+    "examWrong": "{count, plural, one {# question} other {# questions}} answered wrongly last time",
+    "examAll": "Everything about this exam"
   },
   "study": {
     "listen": "Listen and recall the meaning",
@@ -1160,7 +1164,6 @@
     "practise": "Practise",
     "openCatalog": "Open",
     "known": "You know {known, number} of {total, plural, one {# question} other {# questions}}",
-    "passedOf": "passed {passed, number} of {count, plural, one {# mock exam} other {# mock exams}}",
     "needsState": "Choose your federal state: the test asks three questions about it.",
     "needsStateCatalog": "Choose your federal state on the exam's page to see its questions too.",
     "mapTitle": "Questions",
@@ -1168,7 +1171,6 @@
     "mapWrong": "wrong last time",
     "mapUnseen": "not seen",
     "mapSummary": "Of {total, number} questions: {known, number} known, {wrong, number} wrong last time",
-    "results": "Mock exams",
     "points": "{points, number} of {max, number}",
     "passed": "Passed",
     "failed": "Not passed",
@@ -1222,6 +1224,9 @@
     "previous": "Back",
     "questionsGrid": "Questions",
     "goTo": "Question {n, number}",
-    "practiceTally": "{right, number} right · {wrong, number} wrong · of {total, number}"
+    "practiceTally": "{right, number} right · {wrong, number} wrong · of {total, number}",
+    "lastResult": "Last mock exam, {date}: {points, number} of {max, number}",
+    "noResultYet": "No mock exam taken yet",
+    "inNotebook": "All in the Notebook"
   }
 }

@@ -661,7 +661,11 @@
       "ai": "Übung mit KI"
     },
     "lessons": "Lektionen",
-    "exams": "Prüfungen"
+    "exams": "Prüfungen",
+    "examRuns": "Probeprüfungen und Training",
+    "noExamRuns": "Noch nichts abgegeben.",
+    "examWrong": "{count, plural, one {# Frage} other {# Fragen}} beim letzten Mal falsch",
+    "examAll": "Alles zu dieser Prüfung"
   },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",
@@ -1160,7 +1164,6 @@
     "practise": "Trainieren",
     "openCatalog": "Öffnen",
     "known": "Du kennst {known, number} von {total, plural, one {# Frage} other {# Fragen}}",
-    "passedOf": "{passed, number} von {count, plural, one {# Probeprüfung} other {# Probeprüfungen}} bestanden",
     "needsState": "Wähle dein Bundesland: der Test stellt drei Fragen dazu.",
     "needsStateCatalog": "Wähle auf der Seite der Prüfung dein Bundesland, um auch seine Fragen zu sehen.",
     "mapTitle": "Fragen",
@@ -1168,7 +1171,6 @@
     "mapWrong": "zuletzt falsch",
     "mapUnseen": "nicht gesehen",
     "mapSummary": "Von {total, number} Fragen: {known, number} gewusst, {wrong, number} zuletzt falsch",
-    "results": "Probeprüfungen",
     "points": "{points, number} von {max, number}",
     "passed": "Bestanden",
     "failed": "Nicht bestanden",
@@ -1222,6 +1224,9 @@
     "previous": "Zurück",
     "questionsGrid": "Fragen",
     "goTo": "Frage {n, number}",
-    "practiceTally": "{right, number} richtig · {wrong, number} falsch · von {total, number}"
+    "practiceTally": "{right, number} richtig · {wrong, number} falsch · von {total, number}",
+    "lastResult": "Letzte Probeprüfung, {date}: {points, number} von {max, number}",
+    "noResultYet": "Noch keine Probeprüfung",
+    "inNotebook": "Alles im Notizbuch"
   }
 }

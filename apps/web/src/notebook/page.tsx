@@ -164,7 +164,8 @@ export function NotebookPage() {
             {exams.map((exam) => (
               <Panel key={exam.key} title={exam.title ?? exam.key}>
                 <ul className="divide-y">
-                  {exam.runs.map((run) => {
+                  {/* The latest three; the exam's page in the Notebook has them all. */}
+                  {exam.runs.slice(0, 3).map((run) => {
                     const passed = examPassed(run.result);
                     return (
                       <li key={run.id}>
@@ -195,6 +196,18 @@ export function NotebookPage() {
                       </li>
                     );
                   })}
+                  <li>
+                    <ListRow
+                      onClick={() =>
+                        void navigate({
+                          to: "/notebook/exam/$series/$course/$exam",
+                          params: examParams(exam.key),
+                        })
+                      }
+                    >
+                      <span className="flex-1 text-sm font-medium">{t("notebook.examAll")}</span>
+                    </ListRow>
+                  </li>
                 </ul>
               </Panel>
             ))}

@@ -4,6 +4,7 @@ import { fireEvent } from "@testing-library/react";
 import { ExamCatalog } from "../../src/exams/catalog.tsx";
 import { ExamPage } from "../../src/exams/page.tsx";
 import { ExamResultView } from "../../src/exams/result.tsx";
+import { ExamNotebook } from "../../src/notebook/exam.tsx";
 import { ExamsPage } from "../../src/routes/exams.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
@@ -154,28 +155,48 @@ const pageData = (extra: object = {}) => ({
   ...extra,
 });
 
-test("an exam's page: how ready, the state asked of, the three ways in, the questions' map, the mock exams", async () => {
+test("an exam's page: how ready, the state asked of, the three ways in, the latest mock exam and the way to the Notebook", async () => {
   const view = await renderApp(<ExamPage params={params} />, {
     path: "/exam/bamf.lid/lid/test",
+    data: [
+      [["exams"], [row()]],
+      [["settings"], { "exam.federalState": "be" }],
+      [
+        ["exam", KEY, "de-de"],
+        pageData({ last: finished(1, ["lid"]), runs: [finished(1, ["lid"])] }),
+      ],
+    ],
+  });
+  expect(await view.findByRole("heading", { name: "Leben in Deutschland" })).toBeTruthy();
+  expect(view.getByText(/1 question in 60 minutes|2 questions in 60 minutes/)).toBeTruthy();
+  expect(view.getByRole("button", { name: /Begin/ })).toBeTruthy();
+  expect(view.getByRole("link", { name: "Open" }).getAttribute("href")).toBe(
+    "/exam/bamf.lid/lid/test/catalog",
+  );
+  // No statistics here: the latest result, the rest in the Notebook.
+  expect(view.queryByRole("img", { name: /known/ })).toBeNull();
+  expect(
+    view.getByRole("button", { name: /Last mock exam, .*: 1 of 2\s*All in the Notebook/ }),
+  ).toBeTruthy();
+});
+
+test("an exam in the Notebook: its runs, the map of its questions, those answered wrongly last time", async () => {
+  const view = await renderApp(<ExamNotebook params={params} />, {
+    path: "/notebook/exam/bamf.lid/lid/test",
     data: [
       [["exams"], [row()]],
       [["settings"], { "exam.federalState": "be" }],
       [["exam", KEY, "de-de"], pageData({ runs: [finished(1, ["lid"])] })],
     ],
   });
-  expect(await view.findByRole("heading", { name: "Leben in Deutschland" })).toBeTruthy();
-  // Berlin's: the two general questions and Berlin's one, of which one known.
+  expect(await view.findByRole("button", { name: /Mock exam\s*1 of 2\s*Passed/ })).toBeTruthy();
+  // Berlin's: the two general questions and Berlin's one, of which one known, one wrong.
   expect(view.getByText(/You know 1 of 3 questions/)).toBeTruthy();
-  expect(view.getByText(/1 question in 60 minutes|2 questions in 60 minutes/)).toBeTruthy();
   expect(
     view.getByRole("img", { name: "Of 3 questions: 1 known, 1 wrong last time" }),
   ).toBeTruthy();
-  expect(view.getByRole("button", { name: /Begin/ })).toBeTruthy();
-  expect(view.getByRole("link", { name: "Open" }).getAttribute("href")).toBe(
-    "/exam/bamf.lid/lid/test/catalog",
-  );
-  const result = view.getByRole("button", { name: /1 of 2/ });
-  expect(result.textContent).toContain("Passed");
+  expect(view.getByText("1 question answered wrongly last time")).toBeTruthy();
+  expect(view.getByText("Frage be-01?")).toBeTruthy();
 });
 
 test("an exam asked of the learner's state cannot begin before it is chosen", async () => {
