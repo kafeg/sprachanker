@@ -2,7 +2,7 @@
 // federal state its questions are asked of, the whole exam or one module, the three ways in as tiles —
 // a mock exam as the real test runs it, practice with each answer checked at once, the catalogue of
 // every question with its answer — and the latest mock exam, the way to the rest in the Notebook.
-import { missingSettings, questionCount, settingOf, timeOf } from "@sprachanker/engine";
+import { missingSettings, openQuestions, settingOf, timeOf } from "@sprachanker/engine";
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
@@ -164,7 +164,8 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
         <ModeTile
           icon={<BookOpenCheck className="size-5" />}
           title={t("exams.mode.catalog")}
-          text={t("exams.mode.catalogText", { count: questionCount(exam) })}
+          // As many as the catalogue lists: those open to the learner (their state's, not others').
+          text={t("exams.mode.catalogText", { count: openQuestions(exam, setting).length })}
         >
           <Button asChild variant="outline" className="w-full">
             <Link to="/exam/$series/$course/$exam/catalog" params={params}>

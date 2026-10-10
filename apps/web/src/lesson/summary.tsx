@@ -3,6 +3,7 @@
 import {
   type ExerciseResult,
   firstAttempts,
+  firstTry,
   type LessonStep,
   planCoverage,
   stepId,
@@ -20,6 +21,7 @@ import { panelClass } from "@/ui/panel.tsx";
 import { StepDot } from "@/ui/step-dot.tsx";
 import { cn } from "@/ui/utils.ts";
 import { stepTitle } from "./plan.tsx";
+import { StepHeader } from "./steps.tsx";
 
 export function LessonSummary({
   series,
@@ -58,10 +60,7 @@ export function LessonSummary({
   const todo = steps.filter((s) => s.kind !== "overview" && s.kind !== "summary");
   return (
     <section className="space-y-6">
-      <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-        {t("lesson.summary")}
-      </p>
-      <h1 className="text-4xl font-bold">{locale?.title}</h1>
+      <StepHeader label={t("lesson.summary")} title={locale?.title} />
       {/* The score once something is scored; before that, no placeholder. */}
       {lesson.pages.length > 0 && result && (
         <div className="flex items-end gap-4">
@@ -95,24 +94,21 @@ export function LessonSummary({
             const state = stepState(step, lesson, results, done);
             const exercise =
               step.kind === "exercise" ? lesson.pages[step.index]?.exercise : undefined;
-            const r = exercise && results[exercise.key];
-            const scored = Object.values(r?.first ?? {}).filter((o) => o.result !== "unscored");
+            // Right at the first try of the items checked (a skipped one counted), as the Notebook.
+            const first = exercise && firstTry(exercise, results[exercise.key]);
+            // A page read or a step done besides the exercises is "done", not "answered".
+            const mark = state === "done" && step.kind !== "exercise" ? "read" : state;
             return (
               <li key={stepId(step)}>
                 <ListRow chevron={false} flush onClick={() => go(stepId(step))}>
-                  <StepDot
-                    state={state === "done" && step.kind !== "exercise" ? "read" : state}
-                    label={step.kind === "exercise" ? step.index + 1 : "·"}
-                  />
+                  <StepDot state={mark} label={step.kind === "exercise" ? step.index + 1 : "·"} />
                   <span className="flex-1">{stepTitle(step, lesson, locale, t)}</span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm tabular-nums text-muted-foreground">
                     {!state
                       ? t("lesson.notDone")
-                      : state === "skipped"
-                        ? t("lesson.skipped")
-                        : scored.length
-                          ? `${scored.filter((o) => o.result === "correct").length}/${scored.length}`
-                          : ""}
+                      : first?.scored
+                        ? `${first.correct}/${first.scored}`
+                        : t(`lesson.state.${mark}`)}
                   </span>
                 </ListRow>
               </li>
