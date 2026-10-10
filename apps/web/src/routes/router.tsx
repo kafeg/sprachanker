@@ -7,7 +7,7 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
-import { type ComponentType, lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSession } from "@/api/session.ts";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
 import { AppShell } from "@/app/shell.tsx";
@@ -20,17 +20,9 @@ import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursesPage } from "./courses.tsx";
 import { ExamsPage } from "./exams.tsx";
+import { opening, page, RouteError } from "./page.tsx";
 import type { ReviewTab } from "./review.tsx";
 
-/** A page loaded when it is first opened, a chunk of its own: the app's first load stays small. */
-function page<P extends object>(load: () => Promise<ComponentType<P>>) {
-  const Lazy = lazy(async () => ({ default: await load() }));
-  return (props: P) => (
-    <Suspense fallback={<Loading />}>
-      <Lazy {...props} />
-    </Suspense>
-  );
-}
 const CoursePage = page(() => import("./course.tsx").then((m) => m.CoursePage));
 const ReviewPage = page(() => import("./review.tsx").then((m) => m.ReviewPage));
 const SettingsPage = page(() => import("./settings.tsx").then((m) => m.SettingsPage));
@@ -45,8 +37,12 @@ const AssistantSetup = page(() =>
   import("@/llm/settings-section.tsx").then((m) => m.AssistantSetup),
 );
 const Onboarding = page(() => import("@/app/onboarding.tsx").then((m) => m.Onboarding));
-// The reviewer's slot (an AI example under a card), loaded with the first card shown.
-const WordExample = page(() => import("@/llm/word-example.tsx").then((m) => m.wordAssistant.word));
+// The reviewer's slot (an AI example under a card), loaded with the first answer shown; nothing in its
+// place meanwhile, so the card does not move.
+const WordExample = page(
+  () => import("@/llm/word-example.tsx").then((m) => m.wordAssistant.word),
+  null,
+);
 const wordAssistant = { word: (props: { cardId: string }) => <WordExample {...props} /> };
 
 /** The app of a signed-in, onboarded profile: its preferences applied. */
@@ -116,10 +112,10 @@ const catalog = createRoute({
 });
 const course = createRoute({ getParentRoute: () => shell, path: "/course/$series/$course" });
 course.update({
-  component: function Course() {
+  component: opening(CoursePage, function Course() {
     const params = course.useParams();
     return <CoursePage series={params.series} course={params.course} />;
-  },
+  }),
 });
 // Review in three tabs, each its own address.
 function Review({ tab }: { tab: ReviewTab }) {
@@ -138,17 +134,17 @@ function Review({ tab }: { tab: ReviewTab }) {
 const review = createRoute({
   getParentRoute: () => shell,
   path: "/review",
-  component: () => <Review tab="study" />,
+  component: opening(ReviewPage, () => <Review tab="study" />),
 });
 const reviewDecks = createRoute({
   getParentRoute: () => shell,
   path: "/review/decks",
-  component: () => <Review tab="decks" />,
+  component: opening(ReviewPage, () => <Review tab="decks" />),
 });
 const words = createRoute({
   getParentRoute: () => shell,
   path: "/review/words",
-  component: () => <Review tab="words" />,
+  component: opening(ReviewPage, () => <Review tab="words" />),
 });
 const exams = createRoute({
   getParentRoute: () => shell,
@@ -173,7 +169,7 @@ const exam = createRoute({
     s.start === "test" || s.start === "practice" ? { start: s.start } : {},
 });
 exam.update({
-  component: function Exam() {
+  component: opening(ExamPage, function Exam() {
     const params = exam.useParams();
     const { start } = exam.useSearch();
     return (
@@ -183,40 +179,40 @@ exam.update({
         start={start}
       />
     );
-  },
+  }),
 });
 const examCatalog = createRoute({
   getParentRoute: () => shell,
   path: "/exam/$series/$course/$exam/catalog",
 });
 examCatalog.update({
-  component: function Catalog() {
+  component: opening(ExamCatalog, function Catalog() {
     return <ExamCatalog params={examCatalog.useParams()} />;
-  },
+  }),
 });
 const examRun = createRoute({
   getParentRoute: () => root,
   path: "/exam/$series/$course/$exam/run/$run",
 });
 examRun.update({
-  component: function ExamRunPage() {
+  component: opening(ExamRun, function ExamRunPage() {
     const { run, ...params } = examRun.useParams();
     return <ExamRun key={run} params={params} runId={run} />;
-  },
+  }),
 });
 const notebook = createRoute({
   getParentRoute: () => shell,
   path: "/notebook",
-  component: () => <NotebookPage />,
+  component: NotebookPage,
 });
 const notebookExam = createRoute({
   getParentRoute: () => shell,
   path: "/notebook/exam/$series/$course/$exam",
 });
 notebookExam.update({
-  component: function NotebookExam() {
+  component: opening(ExamNotebook, function NotebookExam() {
     return <ExamNotebook params={notebookExam.useParams()} />;
-  },
+  }),
 });
 const notebookLesson = createRoute({
   getParentRoute: () => shell,
@@ -228,7 +224,7 @@ const notebookLesson = createRoute({
   }),
 });
 notebookLesson.update({
-  component: function NotebookLesson() {
+  component: opening(LessonNotebook, function NotebookLesson() {
     const params = notebookLesson.useParams();
     const search = notebookLesson.useSearch();
     const navigate = notebookLesson.useNavigate();
@@ -239,12 +235,12 @@ notebookLesson.update({
         go={(view) => void (view ? navigate({ search: view }) : navigate({ to: "/notebook" }))}
       />
     );
-  },
+  }),
 });
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",
-  component: () => <SettingsPage />,
+  component: SettingsPage,
 });
 const lesson = createRoute({
   getParentRoute: () => root,
@@ -254,7 +250,7 @@ const lesson = createRoute({
     typeof s.step === "string" ? { step: s.step } : {},
 });
 lesson.update({
-  component: function Lesson() {
+  component: opening(LessonRun, function Lesson() {
     const params = lesson.useParams();
     const { step } = lesson.useSearch();
     const navigate = lesson.useNavigate();
@@ -267,7 +263,7 @@ lesson.update({
         {...params}
       />
     );
-  },
+  }),
 });
 
 export const router = createRouter({
@@ -293,7 +289,10 @@ export const router = createRouter({
     lesson,
     examRun,
   ]),
+  // A page's chunk loaded ahead when a link to it is hovered or touched.
   defaultPreload: "intent",
+  // A page that fails: our ErrorState, its Retry loading the app again (not TanStack's English one).
+  defaultErrorComponent: RouteError,
   // A new page opens at its top; Back returns to where the page was left (a long list of courses).
   scrollRestoration: true,
 });
