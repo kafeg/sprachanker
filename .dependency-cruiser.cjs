@@ -181,6 +181,14 @@ module.exports = {
       },
     },
     {
+      name: "web-library-below-features",
+      comment:
+        "apps/web/src/library holds what feature folders share: it imports none of them, nor the screens above them.",
+      severity: "error",
+      from: { path: "^apps/web/src/library/" },
+      to: { path: "^apps/web/src/(app|courses|exams|lesson|llm|notebook|routes|study)/" },
+    },
+    {
       name: "server-app-reaches-course-kit-view-only",
       comment:
         "app.ts's graph is runtime-agnostic all the way down: of course-kit it imports only the node-free view (`@sprachanker/course-kit/view`; the barrel pulls node:fs in), and no course; types are erased, so type-only imports may name anything.",

@@ -5,7 +5,7 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useNotebookExam } from "@/api/hooks.ts";
-import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
+import { type ExamParams, examKeyOf, questionId } from "@/library/exam-address.ts";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -24,8 +24,6 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
   const { entry, items, lang } = detail.data;
   const known = items.filter((i) => i.state === "right").length;
   const wrong = items.filter((i) => i.state === "wrong");
-  /** A question's number in its exam ("Q-12" of its key). */
-  const numberOf = (k: string) => k.split("/q-")[1];
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });
 
@@ -79,7 +77,7 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
               {items.map((i) => (
                 <span
                   key={i.key}
-                  title={numberOf(i.key)}
+                  title={questionId(i.key)}
                   className={cn("aspect-square rounded-[3px]", SHADE[i.state])}
                 />
               ))}
@@ -93,7 +91,7 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
               {wrong.map((i) => (
                 <li key={i.key} className="flex gap-3 py-2 text-sm">
                   <span className="w-14 shrink-0 tabular-nums text-muted-foreground">
-                    {numberOf(i.key)}
+                    {questionId(i.key)}
                   </span>
                   <span lang={lang} className="min-w-0 flex-1">
                     {i.line || i.key}

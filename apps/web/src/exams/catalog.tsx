@@ -9,7 +9,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useSettings } from "@/api/hooks.ts";
-import type { ExamParams } from "@/library/exam-address.ts";
+import { type ExamParams, questionId } from "@/library/exam-address.ts";
 import { Input } from "@/ui/components/input.tsx";
 import { BackLink, EmptyState, Page } from "@/ui/page.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
@@ -20,7 +20,7 @@ import { useExam } from "./use-exam.tsx";
 
 /** A question's number as the exam gives it: its id, without its module where the Teil names it. */
 const numberOf = (key: string, modules: boolean) => {
-  const id = key.split("/q-")[1] ?? "";
+  const id = questionId(key);
   return modules ? id.replace(/^[a-z]+-/, "") : id;
 };
 

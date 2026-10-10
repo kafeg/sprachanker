@@ -146,5 +146,5 @@ to `@/ui`).
   as an exam run's (exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
 - Feature folders (`lesson/`, `exams/`, `study/`, `courses/`, `notebook/`) never import each other:
   what they share is in `ui/`, `api/`, `library/`, `exercises/`, `audio/` or `word/` (Anki's reviewer,
-  `study/session.tsx`, is shared on purpose with the lesson's Words step); `api/` imports none of them
-  (dependency-cruiser `web-features-apart`, `web-api-below-features`).
+  `study/session.tsx`, is shared on purpose with the lesson's Words step); `api/` and `library/` import
+  none of them (`web-features-apart`, `web-api-below-features`, `web-library-below-features`).
