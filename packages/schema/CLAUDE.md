@@ -48,9 +48,9 @@ test/               # bun test (Bun types via tsconfig.dev.json; src has no runt
 - Library formats (canonical, locale, exercises, exams, enrichment, rules) are
   `z.strictObject`: an unknown or misspelt field is an error where it is written and read, never
   dropped silently (02). Event payloads and API shapes are not strict. So a field leaves a library
-  format only if no provider ever wrote it: files on disk (and page snapshots, which embed the
-  exercise and its locale) with it would stop reading; else bump the format. Removing an exercise
-  field also changes every fingerprint.
+  format only if no provider ever wrote it: files on disk with it would stop reading, and so would
+  what embeds them — a page's snapshot (dropped when read) and a mock exam's plan (its run unread);
+  else bump the format. Removing an exercise field also changes every fingerprint.
 - Event payloads only grow (05): every stored shape is on record in `test/stored-events/` and must
   keep reading; a change that cannot be additive comes with an upgrade of the stored events. A field
   nothing reads, whose content the events hold elsewhere too, may go: old payloads read without it.
