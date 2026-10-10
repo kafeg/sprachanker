@@ -20,6 +20,8 @@ how it fits together, by `docs/architecture.md`. Each item names the spec files 
 
 - Past the first version's scope (owner, 2026-10-08): the items below are what the owner wants next,
   in this order; anything else waits for "After the week of use".
+- Exams taken up now, ahead of items 1–2: Leben in Deutschland, then Goethe A1–B1 (owner,
+  2026-10-10).
 - German first (owner, 2026-10-07): the onboarding's language pair filters Courses; every provider is
   offered (03, "Offered in the app").
 - The desktop browser now; phones when convenient (item "Phones": Tailscale is known to work).
@@ -45,20 +47,35 @@ Specs: 09, 10.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
 ### 3. Exams (owner, 2026-10-08)
-Specs: 02, 03, 06, 09.
-- **An "Exams" section of its own** beside Courses, built like it (tabs: mine, downloaded,
-  available; the pair filter): an exam is got and installed from the interface like a course, from
-  its provider, and practised in an exam player — pools, a timer, the test as the real one runs it,
-  practice of wrong answers, results in the Notebook.
-- **Leben in Deutschland** first: provider `bamf-lid` (BAMF's official question catalogue, PDF),
-  the federal state's questions (the profile's state).
-- **Find the other practice exams** for German at A1, A2, B1 (official free model tests — Goethe,
-  telc, ÖSD and others; which ones, from where and under what terms is the item's research) and add
-  those that can be imported; English exams later, with the English courses. The theory test of a
-  driving licence too, where its question catalogue is public (owner, 2026-10-10).
-- **Accept**: a timed Leben in Deutschland exam with Berlin questions end to end, from the Exams
-  section; at least one A1–B1 model test, if one is importable; results in the Notebook; an exam in
-  the run-throughs on real courses (`e2e/real`).
+Specs: 01, 02, 03, 05, 06, 09, 10. Research: `docs/research/exams.md`.
+- **An "Exams" section of its own** beside Courses, built like it and its other sections (owner's
+  choices from the mockups, 2026-10-10): the list as Courses' cards, with the last score and how
+  ready the learner is (1A); an exam's page with its modes as tiles — mock exam, practice, the
+  catalogue — and a map of its questions (known, wrong, not seen) (2A); the player shows a part's
+  questions as a list, as the lesson's exercises do, the timer above (3B); the result by part,
+  with the points and the pass marks (4B). An exam is got and installed from the interface like a
+  course; results in the Notebook.
+- **An exam layer** in the library format: modules → parts → items (our exercise types), time
+  limits, how often a recording plays, points per item, the conversion and the pass rules (overall,
+  written and spoken minimums, per module, DTZ-style level bands).
+- **Importers are code, deterministic, run on the learner's machine** (owner, 2026-10-10): every
+  question, option, picture, recording and answer comes in through the provider's fetch and
+  normaliser — never from a model, never by hand. Any tool may be used inside an importer (PDF
+  parsing too, added to 10's fixed choices); a browser only if a source cannot be read otherwise.
+  The whole of each exam: texts, pictures, audio, answers, attributions.
+- **3a. Leben in Deutschland** first: provider `bamf-lid` — questions, options, state sections and
+  pictures from BAMF's catalogue PDF; the right answers from BAMF's online test centre, read by the
+  importer (its APEX pages over plain HTTP if they can be replayed, else a headless browser), joined
+  by number and checked word by word. The terms: what BAMF states, the regulation (EinbTestV, §5
+  UrhG) and the pictures' credits — set out for the owner before the importer is offered.
+  **Accept**: a timed exam with Berlin questions end to end; practice of wrong answers; the whole
+  catalogue browsable; results in the Notebook; an exam in the run-throughs (`e2e/real`).
+- **3b. Goethe A1, A2, B1** (key for the owner): provider for the accessible online model tests
+  (`bfu.goethe.de`: HTML forms, answers as text, a recording per item), every module — Hören,
+  Lesen, Schreiben (`respond` with the exam's criteria), Sprechen (spoken answers). **Accept**: each
+  level's model test as the real one runs it, scored by its rules.
+- Later: telc, DTZ, ÖSD model tests (PDF + MP3, text answer keys); English exams with the English
+  courses; the driving theory test only if its catalogue becomes public.
 
 ### 4. The tutor on its own (owner, 2026-10-10)
 Specs: 07, 09.
@@ -91,7 +108,27 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 7. A week of real use
+### 7. Moving and keeping one's data (owner, 2026-10-10)
+Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
+- **Profile export/import** (first: the only data that cannot be fetched again): a file with the
+  profile's database (made with `VACUUM INTO`, without secrets), its recordings and a manifest
+  (format, app version, migration, the courses and content versions used, a hash per file).
+- **Course and exam bundles**: a downloaded course or exam as one file to move to another machine —
+  its library files, only the media it uses (stored as they are), a manifest with hashes (the series
+  manifest of 02); importing checks every hash and skips media already there. The library stays
+  unpacked on disk (served, normalised and backed up per file).
+- **Backups**: what to keep and where — profiles, `server.sqlite` and `secret.key` (outside the data
+  root: without it stored API keys cannot be read); the library can be fetched again, models and
+  cache are disposable.
+- Open questions for the owner: sharing bundles with other people or only one's own machines (the
+  sources' terms); `raw/` in a bundle by default; pruning media no course uses (1.56 GB today, after
+  checking what passes and cards name); file extensions; a profile import replacing a profile or
+  always a new one; a `backup` command or a documented list; free space checked first (the disk was
+  98 % full).
+- **Accept**: a profile moved to a second data root and studied on; a course and an exam moved as
+  bundles and verified.
+
+### 8. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".
@@ -103,7 +140,7 @@ Taken along when an item above touches the area, or on request.
   rule ids; content updated while a run is active ends the run (05). A word the source leaves without
   a translation in one lesson takes the translation its lexeme has elsewhere in the same edition (DW:
   Persian A1 "alt", German A2 "der Spinat"; seen in the 2026-10-08 audit of all Nicos Weg editions).
-- Server (05, 06): export/import of a profile, structured logs.
+- Server (05, 06): structured logs.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
   beside the "Write it yourself" box, as in free answers, scenes and the tutor.
