@@ -166,3 +166,27 @@ test("removing runs takes their events with them, in one go", () => {
   expect(store.remove([a.id])).toEqual({ runs: 1, events: 1 });
   expect(sqlite.query("SELECT run_id FROM events").all()).toEqual([{ run_id: b.id }]);
 });
+
+test("the recordings answers hold are found in runs of every kind, exams too", () => {
+  const { store } = open();
+  const outcome = { result: "unscored" as const, score: 0, ruleIds: [], lexemes: [] };
+  const answered = (itemKey: string, recording: string) => ({
+    type: "answered" as const,
+    itemKey,
+    payload: {
+      answer: { text: "", speech: { recording, transcript: "" } },
+      attempt: 1,
+      ms: 1,
+      outcome,
+    },
+  });
+  const lesson = store.start("lesson", LESSON, { edition: "ru-de" });
+  store.append(lesson.id, [answered(`${LESSON}/ex-01#1`, "rec-lesson")]);
+  const exam = store.start("exam", "sprachanker.fixture/demo/exams/modell" as never, {
+    edition: "ru-de",
+  });
+  store.append(exam.id, [answered("sprachanker.fixture/demo/exams/modell/q-1", "rec-exam")]);
+  expect(store.recordingIds().sort()).toEqual(["rec-exam", "rec-lesson"]);
+  expect(store.recordingIds([exam.id])).toEqual(["rec-exam"]);
+  expect(store.recordingIds([])).toEqual([]);
+});

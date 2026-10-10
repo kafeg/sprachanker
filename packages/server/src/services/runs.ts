@@ -15,7 +15,6 @@ import {
   stepsDone,
 } from "@sprachanker/engine";
 import {
-  type AnsweredPayload,
   type CourseKey,
   EventInput,
   type ExamKey,
@@ -27,7 +26,6 @@ import {
   parseEditionId,
   parseItemKey,
   type Run,
-  recordingOf,
   seriesOf,
   type TypedEvent,
 } from "@sprachanker/schema";
@@ -35,7 +33,7 @@ import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import type { Recordings } from "./recordings.ts";
-import { type NewEvent, payloadOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
+import { type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export const toRun = (r: RunRow): Run => ({
   id: r.id,
@@ -95,11 +93,6 @@ export function createRuns({
   };
 
   /** The recordings the answers of some runs hold. */
-  const recordingsIn = (runIds: string[]) =>
-    [...store.eventsOf(runIds, ["answered"]).values()].flatMap((list) =>
-      list.flatMap((e) => recordingOf(payloadOf<AnsweredPayload>(e).answer) ?? []),
-    );
-
   /**
    * A finished run is a completion by how it ended: the server ends a run `finished/completed` only
    * when its plan was done then (`finish`, `replace`). A lesson changed since — an exercise added when
@@ -171,8 +164,6 @@ export function createRuns({
     progress,
 
     /** The recordings the answers of every lesson run hold. */
-    recordingsInUse: () => new Set(recordingsIn(store.all("lesson").map((r) => r.id))),
-
     /** The installed courses (not the exams: the Exams section's) with the learner's progress and
      *  the lesson to go on with, as its card shows it (title and exercises worked). */
     async courses() {

@@ -5,6 +5,7 @@
 // never breaking the list it is in. Services keep their own rules; how runs and events are stored
 // lives here.
 import {
+  type AnsweredPayload,
   type CourseKey,
   EVENT_PAYLOADS,
   type EventPayload,
@@ -16,6 +17,7 @@ import {
   parseLessonKey,
   type RunKind,
   readPayload,
+  recordingOf,
   type TypedEvent,
   type VerdictOf,
   type VerdictTask,
@@ -420,6 +422,17 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .all();
       for (const e of read(rows)) out.get(e.runId)?.push(e);
       return out;
+    },
+
+    /** The learner's recordings the answers hold: of these runs, or of every run of every kind. */
+    recordingIds(runIds?: string[]): string[] {
+      if (runIds && !runIds.length) return [];
+      const rows = db
+        .select()
+        .from(events)
+        .where(and(eq(events.type, "answered"), runIds ? inArray(events.runId, runIds) : undefined))
+        .all();
+      return read(rows).flatMap((e) => recordingOf(payloadOf<AnsweredPayload>(e).answer) ?? []);
     },
 
     /** When each run last had an event of these types (runs without one are absent). */

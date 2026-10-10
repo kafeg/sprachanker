@@ -55,6 +55,9 @@ export interface ServicesConfig {
 }
 
 /** A profile's services over its database; the content and downloads are the server's. */
+/** A take no answer holds goes once it is this old (one younger may be an answer still on its way). */
+const DAY_MS = 24 * 60 * 60_000;
+
 function profileServices(
   config: ServicesConfig,
   shared: {
@@ -82,6 +85,8 @@ function profileServices(
   const store = createRunStore({ db, now, appVersion: config.appVersion });
   const cardStore = createCardStore(db);
   const recordings = createRecordings(recordingFiles, now);
+  // Takes no answer of any run holds (recorded again, never answered with, not to be kept), a day old.
+  recordings.removeUnused(new Set(store.recordingIds()), now() - DAY_MS);
   const runs = createRuns({ store, cards: cardStore, content, recordings });
   const exams = createExams({ store, content, settings, now });
   const cards = createCards({
@@ -171,8 +176,6 @@ export type ProfileServices = ReturnType<typeof profileServices>;
  * The server's services: the shared content and downloads, the profiles and how devices sign in to
  * them, and each profile's own services (`of`), made on first use and kept.
  */
-/** A take no answer holds goes once it is this old (one younger may be an answer still on its way). */
-const DAY_MS = 24 * 60 * 60_000;
 
 export function createServices(config: ServicesConfig) {
   const { now } = config;
@@ -224,8 +227,6 @@ export function createServices(config: ServicesConfig) {
         );
         open.set(profileId, s);
         void relink(s);
-        // Takes no answer holds (recorded again, never answered with, not to be kept), a day old.
-        s.recordings.removeUnused(s.runs.recordingsInUse(), now() - DAY_MS);
       }
       return s;
     },
