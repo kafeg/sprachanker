@@ -58,7 +58,7 @@ export interface CourseProvider {
   id: string;
   series: string;
   /** Ready for learning (03): its courses are shown as they are. A provider without it is
-   *  experimental — shown only when the learner turns it on (Settings → Experimental). */
+   *  experimental — shown only when the learner turns it on (Settings → General → Experimental). */
   stable?: true;
   offers: CourseOffer[];
   import(options: ImportOptions): Promise<ImportReport>;

@@ -20,6 +20,9 @@ test("characters of no width an editor left go", () => {
   expect(sanitizeCourseHtml("<p>\ufeffSchneiden\u200b\u200b Sie</p>", options)).toBe(
     "<p>Schneiden Sie</p>",
   );
+  expect(sanitizeCourseHtml("<p>Schneiden&#8203;&#xFEFF; Sie</p>", options)).toBe(
+    "<p>Schneiden Sie</p>",
+  );
 });
 
 test("rewrites images to media paths and drops credits and unknown images", () => {

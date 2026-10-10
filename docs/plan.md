@@ -124,7 +124,7 @@ Order decided by the week of use.
   a word or sentence heard, for its pronunciation). Accept: a German book downloaded, read on Mac and
   iPhone with translation, words added to Review.
 - **Exams beyond Leben in Deutschland** (owner, 2026-10-10: set aside; experimental until then —
-  Settings → Experimental). Leben in Deutschland is the exam in use. Built for the rest (01–09): the
+  Settings → General → Experimental). Leben in Deutschland is the exam in use. Built for the rest (01–09): the
   exam layer for language exams (modules of Teile with their material, scaling and rounding), Goethe
   A1, A2, B1 — Hören, Lesen, Schreiben and Sprechen with their criteria — open answers rated by the
   learner or as the assistant proposes, speaking parts held as a conversation with the assistant, A2's
