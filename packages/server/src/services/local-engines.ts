@@ -28,7 +28,7 @@ export interface ModelStore {
 }
 
 /** An engine built in native/ and run on a local port with its model files. */
-export interface LocalEngine<Files> {
+interface LocalEngine<Files> {
   /** Its program, if it was built. */
   binary(): string | undefined;
   spawn(binary: string, files: Files, port: number): SidecarProcess;

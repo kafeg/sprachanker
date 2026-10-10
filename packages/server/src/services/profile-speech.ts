@@ -9,7 +9,7 @@ import type { Settings } from "./settings.ts";
 import type { Speech } from "./speech.ts";
 
 /** The library's media files, for the course recordings the recogniser hears. */
-export interface CourseMedia {
+interface CourseMedia {
   file(series: string, path: string): string | undefined;
   blob(file: string): Blob;
 }
@@ -85,4 +85,3 @@ export function createProfileSpeech(deps: {
     },
   };
 }
-export type ProfileSpeech = ReturnType<typeof createProfileSpeech>;

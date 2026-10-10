@@ -17,7 +17,7 @@ import {
 } from "./local-engines.ts";
 
 /** The languages Qwen3-TTS speaks, by code, with the name its server takes. */
-export const QWEN_LANGUAGES: Record<string, string> = {
+const QWEN_LANGUAGES: Record<string, string> = {
   de: "German",
   en: "English",
   ru: "Russian",
@@ -30,7 +30,7 @@ export const QWEN_LANGUAGES: Record<string, string> = {
   ko: "Korean",
 };
 /** Its named speakers (the CustomVoice models); each speaks every language. */
-export const QWEN_SPEAKERS = [
+const QWEN_SPEAKERS = [
   "ryan",
   "aiden",
   "serena",
@@ -42,7 +42,7 @@ export const QWEN_SPEAKERS = [
   "sohee",
 ] as const;
 /** The speaker unless the learner picks one: one voice for every language, as a chosen one is. */
-export const DEFAULT_SPEAKER = "ryan";
+const DEFAULT_SPEAKER = "ryan";
 
 const CODEC: ModelFile = {
   id: "codec",
@@ -52,7 +52,7 @@ const CODEC: ModelFile = {
 };
 /** The models offered: the small one (about 3 GB of memory while it runs, reads twice as fast as it
  *  speaks on an M2 Pro) and the large one; the large is used when both are there. */
-export const QWEN_MODELS: ModelFile[] = [
+const QWEN_MODELS: ModelFile[] = [
   {
     id: "0.6b",
     file: "qwen-talker-0.6b-customvoice-Q8_0.gguf",

@@ -22,7 +22,7 @@ const QUALITY = ["x_low", "low", "medium", "high"];
 
 /** The voices offered, each language's best first: its main region (de-DE for German), then the
  *  highest quality. */
-export const PIPER_VOICES: PiperVoice[] = (() => {
+const PIPER_VOICES: PiperVoice[] = (() => {
   const main = new Map<string, string | undefined>();
   const regionOf = (lang: string) => {
     if (!main.has(lang)) main.set(lang, new Intl.Locale(lang).maximize().region);

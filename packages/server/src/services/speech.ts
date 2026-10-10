@@ -14,7 +14,7 @@ import { createOnce } from "./once.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
  *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */
-export const WHISPER_MODELS: ModelFile[] = [
+const WHISPER_MODELS: ModelFile[] = [
   {
     id: "large-v3-turbo-q5_0",
     file: "ggml-large-v3-turbo-q5_0.bin",
