@@ -824,10 +824,10 @@
     }
   },
   "tour": {
-    "courses": "Your courses (where you left off), the ones downloaded, and every course you can download — filtered by your languages.",
+    "courses": "Your courses (where you left off), the ones downloaded, and every course you can download; any list can be narrowed to a language pair.",
     "review": "Your words in spaced repetition, as in Anki: a few minutes a day.",
     "notebook": "Every pass of every lesson, your answers and mistakes.",
-    "settings": "Your profile, languages, the AI assistant and the app.",
+    "settings": "Your profile, review, speech, the AI assistant and the app.",
     "exams": "Exams to prepare for, such as Leben in Deutschland: mock exams as the real ones run, practice, and the whole catalogue with its answers."
   },
   "profile": {

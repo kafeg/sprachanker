@@ -3,14 +3,14 @@
 // "Explain again" asks anew.
 import { type ExerciseKey, itemKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { type ExplainRequest, streamExplain, useExplanations, useExplanationsKept } from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
-import { ErrorLine, useAbortable } from "./parts.tsx";
+import { AnswerBox, ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -90,32 +90,29 @@ export function ExplainMistake({
           <PromptButton request={promptRequest} />
         </div>
       ) : (
-        <div className="rounded-xl border bg-muted/50 px-4 py-3" aria-live="polite">
-          <div className="mb-1 flex flex-wrap items-center gap-1.5 text-sm font-medium text-muted-foreground">
-            <Sparkles className="size-4" /> {t("llm.explanation")}
-            {/* A kept explanation names the model that wrote it. */}
-            {text === undefined && saved ? (
-              <span className="font-normal">· {saved.model}</span>
-            ) : (
-              label && <span className="font-normal">· {label}</span>
-            )}
-            {busy && <LoaderCircle className="size-4 animate-spin" />}
-            <span className="ml-auto flex items-center gap-1">
+        <AnswerBox
+          title={t("llm.explanation")}
+          // A kept explanation names the model that wrote it.
+          model={text === undefined && saved ? saved.model : label}
+          busy={busy}
+          actions={
+            <>
               {!busy && ready && (
                 <Button variant="ghost" size="sm" className="h-8" onClick={ask}>
                   <RotateCcw className="size-3.5" /> {t("llm.explainAgain")}
                 </Button>
               )}
               <PromptButton request={promptRequest} />
-            </span>
-          </div>
+            </>
+          }
+        >
           {shown ? (
             <RichText text={shown} />
           ) : (
             busy && <p className="text-muted-foreground">{t("llm.thinking")}</p>
           )}
           <ErrorLine error={error} provider={llm.data.provider ?? undefined} onRetry={ask} />
-        </div>
+        </AnswerBox>
       )}
     </div>
   );

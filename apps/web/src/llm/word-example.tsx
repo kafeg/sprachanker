@@ -3,7 +3,7 @@
 // again. The sentence marks words the learner has not met in the course yet, translated under it.
 
 import { Link } from "@tanstack/react-router";
-import { LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { RotateCcw, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { said } from "@/audio/speak.ts";
@@ -12,7 +12,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { useExamples, useMakeExample } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
-import { ErrorLine } from "./parts.tsx";
+import { AnswerBox, ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useAiIn, useLlm } from "./setup-api.ts";
 
@@ -58,20 +58,22 @@ export function WordExample({ cardId }: { cardId: string }) {
   const promptRequest = { example: { cardId, language: i18n.language } };
   const newWords = (shown?.words ?? []).filter((w) => w.new && w.translation);
   return (
-    <div className="w-full rounded-xl border bg-muted/50 px-4 py-3 text-left" aria-live="polite">
-      <div className="mb-1 flex flex-wrap items-center gap-1.5 text-sm font-medium text-muted-foreground">
-        <Sparkles className="size-4" /> {t("example.title")}
-        {shown && <span className="font-normal">· {modelName(shown.model)}</span>}
-        {(make.isPending || kept.isPending) && <LoaderCircle className="size-4 animate-spin" />}
-        <span className="ml-auto flex items-center gap-1">
+    <AnswerBox
+      className="w-full text-left"
+      title={t("example.title")}
+      model={shown && modelName(shown.model)}
+      busy={make.isPending || kept.isPending}
+      actions={
+        <>
           {shown && ready && !make.isPending && (
             <Button variant="ghost" size="sm" className="h-8" onClick={ask}>
               <RotateCcw className="size-3.5" /> {t("example.another")}
             </Button>
           )}
           <PromptButton request={promptRequest} />
-        </span>
-      </div>
+        </>
+      }
+    >
       {shown ? (
         <div className={fresh ? "motion-safe:animate-in motion-safe:fade-in" : undefined}>
           <p lang={lang} className="text-lg">
@@ -110,7 +112,7 @@ export function WordExample({ cardId }: { cardId: string }) {
         provider={llm.data.provider ?? undefined}
         onRetry={ask}
       />
-    </div>
+    </AnswerBox>
   );
 }
 

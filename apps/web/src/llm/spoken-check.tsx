@@ -8,7 +8,7 @@ import { SpokenCheckView } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { type SpeakingRequest, useCheckSpoken, useSpokenChecks } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
-import { ErrorLine } from "./parts.tsx";
+import { AnswerBox, ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -48,7 +48,7 @@ export function SpokenAnswerCheck({
       </div>
     );
   return (
-    <div className="mt-2 rounded-xl border bg-muted/50 px-4 py-3" aria-live="polite">
+    <AnswerBox className="mt-2">
       {saved ? (
         <SpokenCheckView
           transcript={saved.input}
@@ -73,6 +73,6 @@ export function SpokenAnswerCheck({
           </span>
         </div>
       )}
-    </div>
+    </AnswerBox>
   );
 }

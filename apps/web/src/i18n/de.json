@@ -824,10 +824,10 @@
     }
   },
   "tour": {
-    "courses": "Deine Kurse (dort, wo du aufgehört hast), die heruntergeladenen und alle Kurse zum Herunterladen — nach deinen Sprachen.",
+    "courses": "Deine Kurse (dort, wo du aufgehört hast), die heruntergeladenen und alle Kurse zum Herunterladen; jede Liste lässt sich auf ein Sprachpaar eingrenzen.",
     "review": "Deine Wörter in verteilter Wiederholung, wie in Anki: ein paar Minuten am Tag.",
     "notebook": "Jeder Durchgang jeder Lektion, deine Antworten und Fehler.",
-    "settings": "Dein Profil, deine Sprachen, der KI-Assistent und die App.",
+    "settings": "Dein Profil, Wiederholung, Sprechen, der KI-Assistent und die App.",
     "exams": "Prüfungen zur Vorbereitung, etwa Leben in Deutschland: Probeprüfungen wie die echten, Training und der ganze Katalog mit den Antworten."
   },
   "profile": {

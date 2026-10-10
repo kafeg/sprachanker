@@ -2,7 +2,7 @@
 // exchange and the composer, a conversation's start, corrections, error lines, scrolling to the end,
 // and requests that can be stopped.
 import { MESSAGE_MAX } from "@sprachanker/schema";
-import { type LucideIcon, Send, Square } from "lucide-react";
+import { LoaderCircle, type LucideIcon, Send, Sparkles, Square } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { DictateButton } from "@/audio/dictate.tsx";
@@ -83,6 +83,38 @@ export function ErrorLine({
         </>
       )}
     </p>
+  );
+}
+
+/** The box an AI answer shows in (an explanation, an example, a spoken answer's check); with a `title`, a
+ *  head: the title, the model that answered, a spinner while it works, its actions on the right. */
+export function AnswerBox({
+  title,
+  model,
+  busy,
+  actions,
+  className,
+  children,
+}: {
+  title?: React.ReactNode;
+  model?: string;
+  busy?: boolean;
+  actions?: React.ReactNode;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("rounded-xl border bg-muted/50 px-4 py-3", className)} aria-live="polite">
+      {title && (
+        <div className="mb-1 flex flex-wrap items-center gap-1.5 text-sm font-medium text-muted-foreground">
+          <Sparkles className="size-4" /> {title}
+          {model && <span className="font-normal">· {model}</span>}
+          {busy && <LoaderCircle className="size-4 animate-spin" />}
+          <span className="ml-auto flex items-center gap-1">{actions}</span>
+        </div>
+      )}
+      {children}
+    </div>
   );
 }
 

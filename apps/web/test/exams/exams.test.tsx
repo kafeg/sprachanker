@@ -296,6 +296,7 @@ test("a result: passed or not by each pass mark, the mistakes with their right a
         onLeave={() => {}}
       />
     </TargetLang>,
+    { path: "/exam/run" },
   );
   expect(view.getByRole("heading", { name: "Passed" })).toBeTruthy();
   expect(view.getByText("Test bestanden")).toBeTruthy();
@@ -325,6 +326,7 @@ test("an open answer rated: a criterion that voids the answer, not rated yet, is
       events={[]}
       answer="Hallo"
     />,
+    { path: "/exam/run" },
   );
   const level = (name: string, points: string) =>
     within(view.getByRole("group", { name })).getByRole("button", { name: points });
@@ -492,6 +494,7 @@ test("a language exam's result: points by module as scaled, every pass mark need
         onLeave={() => {}}
       />
     </TargetLang>,
+    { path: "/exam/run" },
   );
   expect(view.getByRole("heading", { name: "Not passed" })).toBeTruthy();
   expect(view.getByText("Lesen").parentElement?.textContent).toContain("25 of 25");
