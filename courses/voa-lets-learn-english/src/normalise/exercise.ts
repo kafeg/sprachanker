@@ -1,11 +1,6 @@
 // A planned exercise → one of our types: a practice video as speech_selfrate, a quiz as single or
 // multiple choice; anything not available as unknown.
-import {
-  draftOrUnknown,
-  type LooseDraft,
-  mediaPath,
-  unknownExercise,
-} from "@sprachanker/course-kit";
+import { draftOrUnknown, type MappedDraft, mediaPath, Unmapped } from "@sprachanker/course-kit";
 import {
   type Exercise,
   type ExerciseKey,
@@ -23,21 +18,6 @@ interface Normalised {
   unknown: boolean;
 }
 
-function unknown(
-  key: ExerciseKey,
-  raw: string,
-  reason: string,
-  locale: LocaleExercise,
-): Normalised {
-  return { exercise: unknownExercise({ key }, raw, reason), locale, unknown: true };
-}
-
-/** A drafted exercise; one that does not fit its type stands as `unknown`. */
-function drafted(draft: LooseDraft, raw: string, locale: LocaleExercise): Normalised {
-  const { exercise, unmapped } = draftOrUnknown(draft, raw);
-  return { exercise, locale, unknown: !!unmapped };
-}
-
 export function normaliseExercise(
   ex: SpeechPlan | QuizPlan,
   key: ExerciseKey,
@@ -51,34 +31,30 @@ export function normaliseExercise(
     ...(ex.instructionHtml ? { instructionHtml: ex.instructionHtml } : {}),
     items: {},
   };
-  if (ex.kind === "speech") {
-    const video = mediaPath(index, ex.video);
-    if (!video) return unknown(key, raw, "practice video not downloaded", locale);
-    return drafted(
-      {
-        key,
-        type: "speech_selfrate",
-        // The video is the item's stimulus: an item with media and no text is "listen and repeat".
-        items: [{ key: itemKey(key, 1), media: { video } }],
-      },
-      raw,
-      locale,
-    );
-  }
-  if (!ex.questions.length) return unknown(key, raw, "quiz pages not available", locale);
+  // Anything not available stands as `unknown`.
+  const { exercise, unmapped } = draftOrUnknown({ key }, raw, () =>
+    ex.kind === "speech" ? speech(ex, key, index) : quiz(ex, key, index),
+  );
+  return { exercise, locale, unknown: unmapped !== undefined };
+}
+
+function speech(ex: SpeechPlan, key: ExerciseKey, index: MediaIndex): MappedDraft {
+  const video = mediaPath(index, ex.video);
+  if (!video) throw new Unmapped("practice video not downloaded");
+  return {
+    type: "speech_selfrate",
+    // The video is the item's stimulus: an item with media and no text is "listen and repeat".
+    items: [{ key: itemKey(key, 1), media: { video } }],
+  };
+}
+
+function quiz(ex: QuizPlan, key: ExerciseKey, index: MediaIndex): MappedDraft {
+  if (!ex.questions.length) throw new Unmapped("quiz pages not available");
   const total = ex.questions[0]?.total ?? 0;
-  if (ex.questions.length !== total) {
-    return unknown(
-      key,
-      raw,
-      `quiz incomplete: ${ex.questions.length} of ${total} questions`,
-      locale,
-    );
-  }
+  if (ex.questions.length !== total)
+    throw new Unmapped(`quiz incomplete: ${ex.questions.length} of ${total} questions`);
   const unanswered = ex.questions.find((q) => !q.options.some((o) => o.correct));
-  if (unanswered) {
-    return unknown(key, raw, `quiz question ${unanswered.index}: no answer marked`, locale);
-  }
+  if (unanswered) throw new Unmapped(`quiz question ${unanswered.index}: no answer marked`);
   const multiple = ex.questions.some(
     (q) => q.multiple || q.options.filter((o) => o.correct).length > 1,
   );
@@ -94,5 +70,5 @@ export function normaliseExercise(
       },
     };
   });
-  return drafted({ key, type: multiple ? "multi_choice" : "single_choice", items }, raw, locale);
+  return { type: multiple ? "multi_choice" : "single_choice", items };
 }

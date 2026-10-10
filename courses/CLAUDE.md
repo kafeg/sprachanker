@@ -16,7 +16,7 @@ packages/course-kit/   # library format (LibraryView: courses, lessons, exams), 
                        # too), libraryWriter /
                        # writeLibraryFiles, CourseProvider); importing.ts: rawPages (raw pages
                        # kept once, counted, their newest time), importReport / emptyReport;
-                       # exercise-draft.ts: draftExercise, Unmapped, unknownExercise; key-map.ts: keys
+                       # exercise-draft.ts: draftExercise, Unmapped, unknownExercise, draftOrUnknown; key-map.ts: keys
                        # kept by source id (`occurrences` for an id met twice); text.ts: plain text,
                        # scripts told apart; files.ts: atomic
                        # writes, temporary names, streamed hashes;
@@ -77,7 +77,7 @@ courses/
 - Helpers more than one provider needs live in `course-kit` (keys and option ids in `schema`); a
   provider never keeps its own copy: exercises are built with `draftExercise` (checked against their
   type's schema where they are made; `Unmapped` for what cannot be mapped, `unknownExercise` in its
-  place), keys that stay by source id with `openKeyMap`, two scripts told apart with `CYRILLIC`,
+  place — `draftOrUnknown` around a mapping does both), keys that stay by source id with `openKeyMap`, two scripts told apart with `CYRILLIC`,
   `latinLetters`, `splitAtCyrillic`.
 - Enrichment references keys and fingerprints only (its check, `enrich check`, is planned).
 - Crawling: respect robots.txt, identifiable User-Agent, stop on 403/429; no fixed rate limit. Allowed:

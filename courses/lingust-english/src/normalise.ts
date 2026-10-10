@@ -2,28 +2,26 @@
 // Stages of the index are units; each lesson keeps its explanation as grammar pages, its examples
 // with recordings as listen-and-repeat exercises, its vocabulary and its exercises (exercise.ts).
 import {
-  draftExercise,
   draftOrUnknown,
   type El,
   escapeHtml,
   type Headword,
   type KeyMap,
   type LibraryFile,
-  type LooseDraft,
   libraryFile,
+  type MappedDraft,
   mediaPath,
   occurrences,
   parseHtml,
   shapeHeadword,
   skippedWords,
-  Unmapped,
-  unknownExercise,
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
   type CourseIndex,
   courseKey,
   type Exercise,
+  type ExerciseKey,
   exerciseKey,
   type Lesson,
   type LessonKey,
@@ -37,7 +35,7 @@ import {
   type VocabEntry,
 } from "@sprachanker/schema";
 import { ATTRIBUTION_HTML, COURSE, EDITION, SERIES, SOURCE, TITLE } from "./catalog.ts";
-import { Homework, mapExercise, speechExercise } from "./exercise.ts";
+import { Homework, type Mapped, mapExercise, speechExercise } from "./exercise.ts";
 import type { IndexLesson } from "./parse/course-index.ts";
 import type { LessonPage } from "./parse/lesson.ts";
 import type { VerbRow } from "./parse/verbs.ts";
@@ -169,14 +167,15 @@ function buildLesson(
     pages.push({ exercise });
     exercises[exercise.key] = loc;
   };
-  /** A drafted exercise pushed; one that does not fit stands as `unknown`, its reason noted. */
-  const pushDraft = (draft: LooseDraft, loc: LocaleExercise) => {
-    const { exercise, unmapped: reason } = draftOrUnknown(draft, raw);
-    if (reason) {
+  /** An exercise mapped; one that cannot be stands as `unknown`, its reason noted as
+   *  `<what>: <reason>`. */
+  const mapped = (k: ExerciseKey, what: string, map: () => MappedDraft) => {
+    const result = draftOrUnknown({ key: k }, raw, map);
+    if (result.unmapped) {
       unknown++;
-      unmapped.push({ path: raw, reason: `${draft.key}: ${reason}` });
+      unmapped.push({ path: raw, reason: `${what}: ${result.unmapped}` });
     }
-    push(exercise, loc);
+    return result;
   };
   // Keys follow the source, never what the mapping made of it (02): a numbered task is ex-<its
   // number>, a section's examples ex-1<section>, the closing lines ex-300 — so a normaliser fix that
@@ -228,16 +227,13 @@ function buildLesson(
       const speech = speechExercise(k, section.snippets, media);
       if (!speech) continue;
       const allAudio = speech.items.every((i) => "media" in i);
-      pushDraft(
-        { key: k, type: "speech_selfrate", items: speech.items },
-        {
-          sourceId: `${src.info.slug}#examples-${s + 1}`,
-          // A section without a heading gives no title (the player numbers it).
-          ...(section.title && { title: section.title }),
-          instructionHtml: allAudio ? LISTEN : READ,
-          items: speech.locale,
-        },
-      );
+      push(mapped(k, k, () => ({ type: "speech_selfrate", items: speech.items })).exercise, {
+        sourceId: `${src.info.slug}#examples-${s + 1}`,
+        // A section without a heading gives no title (the player numbers it).
+        ...(section.title && { title: section.title }),
+        instructionHtml: allAudio ? LISTEN : READ,
+        items: speech.locale,
+      });
     }
     const labels = occurrences();
     for (const [i, ex] of page.exercises.entries()) {
@@ -256,37 +252,35 @@ function buildLesson(
       const instructionHtml = renderSection([paragraph(ex.instructionHtml)]);
       if (instructionHtml) loc.instructionHtml = instructionHtml;
       try {
-        const mapped = mapExercise(k, ex, media);
-        push(draftExercise({ key: k, ...mapped.draft }), { ...loc, items: mapped.items });
-        for (const s of mapped.skipped)
-          unmapped.push({ path: raw, reason: `${k} (${ex.label}) ${s}` });
-      } catch (error) {
-        if (error instanceof Homework) {
-          // Nothing to check: the task stays readable as the lesson's homework.
-          const bodyHtml = renderSection(
-            [ex.instructionHtml, ...ex.paragraphs].map((html) => paragraph(html)),
-          );
-          homework.push({ sourceId: loc.sourceId, title: ex.label, bodyHtml });
-          continue;
+        let source = undefined as Mapped | undefined;
+        const { exercise, unmapped: reason } = mapped(k, `${k} (${ex.label})`, () => {
+          source = mapExercise(k, ex, media);
+          return source.draft;
+        });
+        if (reason || !source) push(exercise, loc);
+        else {
+          push(exercise, { ...loc, items: source.items });
+          for (const s of source.skipped)
+            unmapped.push({ path: raw, reason: `${k} (${ex.label}) ${s}` });
         }
-        if (!(error instanceof Unmapped)) throw error;
-        unknown++;
-        push(unknownExercise({ key: k }, raw, error.message), loc);
-        unmapped.push({ path: raw, reason: `${k} (${ex.label}): ${error.message}` });
+      } catch (error) {
+        if (!(error instanceof Homework)) throw error;
+        // Nothing to check: the task stays readable as the lesson's homework.
+        const bodyHtml = renderSection(
+          [ex.instructionHtml, ...ex.paragraphs].map((html) => paragraph(html)),
+        );
+        homework.push({ sourceId: loc.sourceId, title: ex.label, bodyHtml });
       }
     }
     const epilogue = page.exercises.flatMap((e) => e.epilogue);
     const k = exerciseKey(key, CLOSING);
     const speech = speechExercise(k, epilogue, media);
     if (speech)
-      pushDraft(
-        { key: k, type: "speech_selfrate", items: speech.items },
-        {
-          sourceId: `${src.info.slug}#closing`,
-          instructionHtml: LISTEN,
-          items: speech.locale,
-        },
-      );
+      push(mapped(k, k, () => ({ type: "speech_selfrate", items: speech.items })).exercise, {
+        sourceId: `${src.info.slug}#closing`,
+        instructionHtml: LISTEN,
+        items: speech.locale,
+      });
   }
 
   return {

@@ -1,11 +1,5 @@
 // One DW exercise page → an exercise of our types + its learner-language texts (research, "Exercises").
-import {
-  draftExercise,
-  plainLines,
-  plainText,
-  Unmapped,
-  unknownExercise,
-} from "@sprachanker/course-kit";
+import { draftOrUnknown, plainLines, plainText, Unmapped } from "@sprachanker/course-kit";
 import {
   type Exercise,
   type ExerciseKey,
@@ -262,7 +256,7 @@ export function normaliseExercise(
     items: {},
   };
   const common = { key, newWords: [], ruleIds: [], ...(stimulus ? { media: stimulus } : {}) };
-  try {
+  const { exercise, unmapped } = draftOrUnknown(common, rawPath, () => {
     const mapped = refs(state, ex.inquiries).map((q) => mapItem(ctx, state, q));
     const types = new Set(mapped.map((m) => m.type));
     if (types.size !== 1) throw new Unmapped(`items of different types: ${[...types].join(", ")}`);
@@ -272,13 +266,7 @@ export function normaliseExercise(
     const items = mapped.map((m, i) => ({ key: itemKey(key, i + 1), ...m.item }));
     const type = mapped[0]?.type;
     if (!type) throw new Unmapped("no items");
-    return { exercise: draftExercise({ ...common, type, items }), locale };
-  } catch (error) {
-    if (!(error instanceof Unmapped)) throw error;
-    return {
-      exercise: unknownExercise(common, rawPath, error.message),
-      locale,
-      unmapped: error.message,
-    };
-  }
+    return { type, items };
+  });
+  return { exercise, locale, ...(unmapped !== undefined && { unmapped }) };
 }

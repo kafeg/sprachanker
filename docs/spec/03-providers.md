@@ -33,7 +33,8 @@ the media store and media index (`media-index.ts`, 02), the HTML sanitiser, fing
 library reader, and the helpers normalisers share: a lesson's vocabulary entries from headwords
 (`vocab.ts`: keys, numbered duplicates, translations), plain text and entity decoding, HTML escaping,
 exercises drafted and checked against their type's schema where they are made (`exercise-draft.ts`:
-`draftExercise`, `Unmapped`, `unknownExercise`), the key map (`key-map.ts`), and two scripts told
+`draftExercise`, `Unmapped`, `unknownExercise`; `draftOrUnknown` runs a mapping and stands an
+`unknown` one in for what it gives up on), the key map (`key-map.ts`), and two scripts told
 apart in one line (`CYRILLIC`, `latinLetters`, `splitAtCyrillic`).
 
 ## Offered in the app

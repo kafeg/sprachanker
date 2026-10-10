@@ -23,12 +23,15 @@ export interface ExerciseCommon {
 
 const NO_FINGERPRINT = "0".repeat(64);
 
-/** An exercise as a mapping builds it: what every exercise has, its type and items, and whatever
- *  else its type takes (a text, a display). */
-export type LooseDraft = ExerciseCommon & {
+/** What a mapping makes of a source exercise: its type and items, and whatever else its type takes
+ *  (a text, a display). */
+export type MappedDraft = {
   type: Exercise["type"];
   items: unknown[];
 } & Record<string, unknown>;
+
+/** An exercise as a mapping builds it: what every exercise has and what the mapping made. */
+export type LooseDraft = ExerciseCommon & MappedDraft;
 
 /**
  * An exercise checked against its type's schema; one that does not fit throws `Unmapped` with what
@@ -58,16 +61,17 @@ export function unknownExercise(common: ExerciseCommon, raw: string, reason: str
   });
 }
 
-/** An exercise drafted, or — when it does not fit its type — the `unknown` one standing for it, with
- *  why (for the lesson's unmapped list). */
+/** An exercise mapped and drafted, or — when the mapping throws `Unmapped` or what it made does not
+ *  fit its type — the `unknown` one standing for it, with why (for the lesson's unmapped list). */
 export function draftOrUnknown(
-  loose: LooseDraft,
+  common: ExerciseCommon,
   raw: string,
+  map: () => MappedDraft,
 ): { exercise: Exercise; unmapped?: string } {
   try {
-    return { exercise: draftExercise(loose) };
+    return { exercise: draftExercise({ ...common, ...map() }) };
   } catch (error) {
     if (!(error instanceof Unmapped)) throw error;
-    return { exercise: unknownExercise(loose, raw, error.message), unmapped: error.message };
+    return { exercise: unknownExercise(common, raw, error.message), unmapped: error.message };
   }
 }
