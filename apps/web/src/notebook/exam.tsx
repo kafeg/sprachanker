@@ -3,7 +3,7 @@
 // result; the map of the questions open to the learner (known, answered wrongly last time, not seen);
 // and the questions answered wrongly last time.
 import { eligible, examPassed } from "@sprachanker/engine";
-import { parseEditionId } from "@sprachanker/schema";
+import { examLang } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useEdition } from "@/api/edition.ts";
@@ -44,7 +44,7 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
   const known = open.filter((i) => stat(i.key) === "right").length;
   const wrong = open.filter((i) => stat(i.key) === "wrong");
   const title = data.locale?.title ?? row.titles[edition ?? ""] ?? key;
-  const lang = edition ? parseEditionId(edition as never).target : "de";
+  const lang = examLang(edition);
   const toRun = (run: string) =>
     void navigate({ to: "/exam/$series/$course/$exam/run/$run", params: { ...params, run } });
 

@@ -18,7 +18,6 @@ import {
   timeOf,
 } from "@sprachanker/engine";
 import {
-  type EditionId,
   type Exam,
   ExamEventInput,
   type ExamItem,
@@ -28,14 +27,14 @@ import {
   ExamPlan,
   ExamResult,
   type ExamRun,
+  examLang,
   type Outcome,
-  parseEditionId,
   type SettingKey,
   seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-import { type RunRow, type RunStore, readStored } from "./run-store.ts";
+import { headerOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
 /** Answers a mock exam takes after its time is up: what was on its way when the time ran out. */
@@ -49,13 +48,8 @@ export const toExamRun = (row: RunRow): ExamRun | undefined => {
   const plan = readStored(row.planJson, ExamPlan, `plan of run ${row.id}`);
   if (!plan) return undefined;
   return {
-    id: row.id,
+    ...headerOf(row),
     exam: row.contextKey as ExamKey,
-    edition: row.edition as ExamRun["edition"],
-    status: row.status as ExamRun["status"],
-    endReason: row.endReason as ExamRun["endReason"],
-    startedAt: row.startedAt,
-    finishedAt: row.finishedAt,
     plan,
     result: readStored(row.resultJson, ExamResult, `result of run ${row.id}`) ?? null,
   };
@@ -341,7 +335,7 @@ export function createExams({
       }
       const exam = await examOf(run.exam);
       // Answers are checked in the language the exam is in (04).
-      const lang = row.edition ? parseEditionId(row.edition as EditionId).target : "de";
+      const lang = examLang(row.edition);
       const asked = new Set<string>(run.plan.items);
       const answersOf = new Map<string, number>();
       for (const a of store.eventsWhere({ types: ["answered"], runIds: [runId] }))

@@ -2,7 +2,7 @@
 // (the general ones and their state's) as a compact list by Teil, found by its words; a question
 // opened shows its Teil's material and its right answer.
 import { eligible, missingSettings } from "@sprachanker/engine";
-import { parseEditionId } from "@sprachanker/schema";
+import { examLang } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -63,7 +63,7 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
   });
   const title = data.locale?.title ?? key;
   return (
-    <TargetLang value={edition ? parseEditionId(edition as never).target : "de"}>
+    <TargetLang value={examLang(edition)}>
       <Page
         title={t("exams.mode.catalog")}
         back={
@@ -121,10 +121,7 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
                     <span className="w-14 shrink-0 text-sm tabular-nums text-muted-foreground">
                       {numberOf(item.key, !!data.exam.modules)}
                     </span>
-                    <span
-                      lang={edition ? parseEditionId(edition as never).target : "de"}
-                      className="min-w-0 flex-1 truncate"
-                    >
+                    <span lang={examLang(edition)} className="min-w-0 flex-1 truncate">
                       {questionLine(item)}
                     </span>
                     <ChevronDown

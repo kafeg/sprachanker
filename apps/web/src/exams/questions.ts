@@ -1,22 +1,21 @@
 // An exam's questions as the item cards show them, the answers given to them, and how they group
 // into Teile.
-import type { Exam, ExamItem, Exercise, Outcome, TypedEvent } from "@sprachanker/schema";
-
-const withoutMedia = ({ media: _, ...rest }: ExamItem) => rest;
+import {
+  type Exam,
+  type ExamItem,
+  type Exercise,
+  type Outcome,
+  questionExercise,
+  type TypedEvent,
+} from "@sprachanker/schema";
 
 /** A question as an exercise of its one item (how an item card shows it); without its recording
  *  when the exam plays that itself (`ExamRecording`). */
 export const examExercise = (item: ExamItem, withAudio = true): Exercise => {
-  const { audio: _, ...rest } = item.media ?? {};
-  const media = withAudio || !item.media ? item.media : Object.keys(rest).length ? rest : undefined;
-  return {
-    key: item.key,
-    type: item.type,
-    fingerprint: "",
-    newWords: [],
-    ruleIds: [],
-    items: [media ? { ...item, media } : withoutMedia(item)],
-  } as unknown as Exercise;
+  if (withAudio || !item.media) return questionExercise(item);
+  const { audio: _, ...rest } = item.media;
+  const { media: __, ...bare } = item;
+  return questionExercise(Object.keys(rest).length ? { ...item, media: rest } : (bare as ExamItem));
 };
 
 /** The example's answer as given (the right one), to show it answered. */

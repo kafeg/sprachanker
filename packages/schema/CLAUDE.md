@@ -16,13 +16,15 @@ src/
   catalog.ts         # course kind, CEFR level, licence
   manifest.ts        # course.json
   canonical.ts       # course index, lesson, vocab entries, unmapped
-  exam.ts            # exam, sections, pools, thresholds
+  exam.ts            # exam, sections, pools, thresholds; a question as a one-item exercise, an exam's language
   locale.ts          # localised course/lesson/exam texts per edition (same key paths as canonical)
-  exercise/          # item fields and stored answers per type, grouped by family; outcome.ts; index.ts (union)
+  exercise/          # item fields and stored answers per type, grouped by family; outcome.ts; index.ts (union,
+                     # ItemOf)
   rules.ts           # grammar rules registry
   enrichment.ts      # enrichment
-  learner.ts         # runs, event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed by
-                     # its type; llm_verdict a union by task), step ids and AI practice kinds, cards
+  learner.ts         # runs (RunHeader: what every run is; lesson and exam runs extend it; status and end
+                     # reason), event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed
+                     # by its type; llm_verdict a union by task), step ids and AI practice kinds, cards
   assistant.ts       # the AI's answers as kept: corrections, writing and spoken checks, word examples,
                      # scene setups, an exam answer's proposed rating, a speaking part's next lines
   settings.ts        # every setting key with its schema and owner (LEARNER_SETTINGS, SERVICE_SETTINGS),

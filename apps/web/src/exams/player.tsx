@@ -8,9 +8,9 @@ import { checkQuestion } from "@sprachanker/engine";
 import {
   type Exam,
   type ExamItem,
+  examLang,
   type LocaleExam,
   type Outcome,
-  parseEditionId,
   type TypedEvent,
 } from "@sprachanker/schema";
 import { useNavigate } from "@tanstack/react-router";
@@ -46,7 +46,7 @@ export function ExamPlayer({ params, runId }: { params: ExamParams; runId: strin
   if (query.isError) return <ErrorState error={query.error} onRetry={() => query.refetch()} />;
   if (page.isError) return <ErrorState error={page.error} onRetry={() => page.refetch()} />;
   if (!run || !page.data) return <Loading />;
-  const target = run.edition ? parseEditionId(run.edition).target : "de";
+  const target = examLang(run.edition);
   const exam = page.data.exam;
   // A mock exam's questions as they were shown; practice's as installed now.
   const items =

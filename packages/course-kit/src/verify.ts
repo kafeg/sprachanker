@@ -10,10 +10,12 @@ import {
   type ExamKey,
   type ExamSources,
   type Exercise,
+  type ItemOf,
   type Lesson,
   type LessonKey,
   type LocaleExam,
   type LocaleLesson,
+  questionExercise,
 } from "@sprachanker/schema";
 import { hashFile } from "./files.ts";
 import { fingerprint } from "./fingerprint.ts";
@@ -57,12 +59,12 @@ function answerProblems(
     switch (exercise.type) {
       case "single_choice":
       case "multi_choice": {
-        const it = item as Extract<Exercise, { type: "single_choice" }>["items"][number];
+        const it = item as ItemOf<"single_choice">;
         missing(it.answer.optionIds, it.options, "option");
         break;
       }
       case "match": {
-        const it = item as Extract<Exercise, { type: "match" }>["items"][number];
+        const it = item as ItemOf<"match">;
         missing(
           it.answer.pairs.map((p) => p[0]),
           it.left,
@@ -76,7 +78,7 @@ function answerProblems(
         break;
       }
       case "order": {
-        const it = item as Extract<Exercise, { type: "order" }>["items"][number];
+        const it = item as ItemOf<"order">;
         missing(it.answer.sequence, it.parts, "part");
         if (it.answer.sequence.length !== it.parts.length)
           out.push(
@@ -89,7 +91,7 @@ function answerProblems(
       }
       case "gap_text":
       case "gap_choice": {
-        const it = item as Extract<Exercise, { type: "gap_text" }>["items"][number];
+        const it = item as ItemOf<"gap_text">;
         const gaps = it.segments.flatMap((s) => (typeof s === "string" ? [] : [s.gap]));
         const answered = Object.keys(it.answer);
         if (!gaps.length) out.push(inconsistent(at, "no gaps in the text"));
@@ -98,7 +100,7 @@ function answerProblems(
         for (const g of answered)
           if (!gaps.includes(g)) out.push(inconsistent(at, `answer for missing gap ${g}`));
         if (exercise.type === "gap_choice") {
-          const gc = item as Extract<Exercise, { type: "gap_choice" }>["items"][number];
+          const gc = item as ItemOf<"gap_choice">;
           for (const [g, want] of Object.entries(gc.answer))
             missing(correctOptions(want), gc.gaps[g]?.options ?? [], `option for ${g}`);
         }
@@ -158,8 +160,7 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
     if (!item.key.startsWith(`${exam.key}/q-`))
       out.push(inconsistent(item.key, `not a question of ${exam.key}`));
     // Each question checked as an item of its kind is, named by its key.
-    const asExercise = { key: exam.key, type: item.type, items: [item] };
-    out.push(...answerProblems(asExercise as unknown as Exercise, () => item.key));
+    out.push(...answerProblems(questionExercise(item), () => item.key));
     // An open answer's criteria: each once, its levels best first; its points their best together.
     if (item.criteria) {
       const ids = item.criteria.map((c) => c.id);

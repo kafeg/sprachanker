@@ -26,7 +26,26 @@ import { LocaleExercise } from "./locale.ts";
 export const Ulid = z.string().regex(/^[0-9A-HJKMNP-TV-Z]{26}$/);
 
 export const RunKind = z.enum(["lesson", "exam", "review", "scene", "chat"]);
+export type RunKind = z.infer<typeof RunKind>;
 export const RunStatus = z.enum(["active", "finished", "abandoned"]);
+export type RunStatus = z.infer<typeof RunStatus>;
+/** What an ended run is: never active again. */
+export type RunEnd = Exclude<RunStatus, "active">;
+/** Why a run ended (05, "Lifecycle"): its work done, its time up (a mock exam), its content changed,
+ *  or the learner's choice (started over, replaced). */
+export const RunEndReason = z.enum(["completed", "timeout", "content_updated", "user"]);
+export type RunEndReason = z.infer<typeof RunEndReason>;
+
+/** What every run is as the API gives it, whatever it is about (a lesson, an exam, a day of cards). */
+export const RunHeader = z.object({
+  id: Ulid,
+  edition: EditionId.nullable(),
+  status: RunStatus,
+  endReason: RunEndReason.nullable(),
+  startedAt: z.number().int(),
+  finishedAt: z.number().int().nullable(),
+});
+export type RunHeader = z.infer<typeof RunHeader>;
 
 export const LessonResult = z.object({
   /** Mean first-attempt score of scored items, 0..1 (05, "Lifecycle"). */
@@ -36,16 +55,11 @@ export const LessonResult = z.object({
 });
 export type LessonResult = z.infer<typeof LessonResult>;
 
-export const Run = z.object({
-  id: Ulid,
+/** A lesson's run (or any run read as one: a chat, a scene) as the API gives it. */
+export const Run = RunHeader.extend({
   kind: RunKind,
   contextKey: LessonKey.nullable(),
   courseKey: z.string().nullable(),
-  edition: EditionId.nullable(),
-  status: RunStatus,
-  endReason: z.enum(["completed", "timeout", "content_updated", "user"]).nullable(),
-  startedAt: z.number().int(),
-  finishedAt: z.number().int().nullable(),
   result: LessonResult.nullable(),
 });
 export type Run = z.infer<typeof Run>;
@@ -276,14 +290,8 @@ export const ExamResult = z.object({
 export type ExamResult = z.infer<typeof ExamResult>;
 
 /** An exam run as the API gives it. */
-export const ExamRun = z.object({
-  id: Ulid,
+export const ExamRun = RunHeader.extend({
   exam: ExamKey,
-  edition: EditionId.nullable(),
-  status: RunStatus,
-  endReason: z.enum(["completed", "timeout", "content_updated", "user"]).nullable(),
-  startedAt: z.number().int(),
-  finishedAt: z.number().int().nullable(),
   plan: ExamPlan,
   result: ExamResult.nullable(),
 });

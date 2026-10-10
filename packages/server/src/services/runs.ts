@@ -26,6 +26,7 @@ import {
   parseEditionId,
   parseItemKey,
   type Run,
+  type RunStatus,
   seriesOf,
   type TypedEvent,
 } from "@sprachanker/schema";
@@ -33,18 +34,13 @@ import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import type { Recordings } from "./recordings.ts";
-import { type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
+import { headerOf, type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export const toRun = (r: RunRow): Run => ({
-  id: r.id,
-  kind: r.kind as Run["kind"],
+  ...headerOf(r),
+  kind: r.kind,
   contextKey: r.contextKey as LessonKey | null,
   courseKey: r.courseKey,
-  edition: r.edition,
-  status: r.status as Run["status"],
-  endReason: r.endReason as Run["endReason"],
-  startedAt: r.startedAt,
-  finishedAt: r.finishedAt,
   result: readStored(r.resultJson, LessonResult, `result of run ${r.id}`) ?? null,
 });
 
@@ -55,7 +51,7 @@ export const WORK_EVENTS = LESSON_WORK;
 export interface LessonState {
   done: boolean;
   run?: {
-    status: "active" | "finished";
+    status: Exclude<RunStatus, "abandoned">;
     /** Exercises answered or skipped, of all the lesson's exercises. */
     worked: number;
     total: number;
@@ -149,7 +145,7 @@ export function createRuns({
       out[key] = {
         done: lessonDone(progressOf[key]),
         run: {
-          status: row.status as "active" | "finished",
+          status: row.status === "active" ? "active" : "finished",
           worked: coverage.worked,
           total: coverage.total,
           ...(result?.scored ? { score: result.score } : {}),

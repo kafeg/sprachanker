@@ -2,8 +2,9 @@
 // (Leben in Deutschland), or modules of Teile with their material (Goethe's Hören, Lesen, …).
 import { z } from "zod";
 import { format, Media, Sha256 } from "./common.ts";
-import { GapTextItem, RespondItem, SingleChoiceItem } from "./exercise/index.ts";
+import { type Exercise, GapTextItem, RespondItem, SingleChoiceItem } from "./exercise/index.ts";
 import { ExamItemKey, ExamKey, ExamSectionKey } from "./keys.ts";
+import { type Lang, parseEditionId } from "./lang.ts";
 
 export const EXAM_FORMAT = 1;
 
@@ -72,6 +73,23 @@ export const ExamItem = z.discriminatedUnion("type", [
   RespondItem.extend({ ...examQuestion, type: z.literal("respond") }),
 ]);
 export type ExamItem = z.infer<typeof ExamItem>;
+
+/** A question as an exercise of its one item: how it is checked and shown as the item of its kind
+ *  it is (04, "Exams"); the exercise's key is the question's. */
+export const questionExercise = (item: ExamItem): Exercise =>
+  ({
+    key: item.key,
+    type: item.type,
+    fingerprint: "",
+    newWords: [],
+    ruleIds: [],
+    items: [item],
+  }) as unknown as Exercise;
+
+/** The language an exam is in: its edition's target language; German for a run without an edition
+ *  (none is started so; every exam the library holds is German's). */
+export const examLang = (edition: string | null | undefined): Lang =>
+  edition ? parseEditionId(edition).target : "de";
 
 /** `canonical/<course>/exams/<slug>.json` */
 export const Exam = z.strictObject({

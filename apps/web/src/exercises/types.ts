@@ -1,8 +1,8 @@
 import type {
   DictationAnswer,
-  Exercise,
   GapChoiceAnswer,
   GapTextAnswer,
+  ItemOf,
   LocaleItem,
   MatchAnswer,
   MultiChoiceAnswer,
@@ -13,9 +13,6 @@ import type {
   SpeechRepeatAnswer,
   SpeechSelfrateAnswer,
 } from "@sprachanker/schema";
-
-export type ExerciseType = Exercise["type"];
-export type ItemOf<T extends ExerciseType> = Extract<Exercise, { type: T }>["items"][number];
 
 export interface Answers {
   single_choice: SingleChoiceAnswer;

@@ -14,6 +14,9 @@ import {
   type LessonKey,
   type LessonResult,
   parseLessonKey,
+  type RunEnd,
+  type RunEndReason,
+  type RunHeader,
   type RunKind,
   readPayload,
   recordingOf,
@@ -30,7 +33,15 @@ import { ServiceError } from "../errors.ts";
 
 export type RunRow = typeof runs.$inferSelect;
 export type EventRow = typeof events.$inferSelect;
-export type Kind = z.infer<typeof RunKind>;
+/** A run's header as the API gives it (every kind's: lesson, exam, review, chat, scene). */
+export const headerOf = (r: RunRow): RunHeader => ({
+  id: r.id,
+  edition: r.edition,
+  status: r.status,
+  endReason: r.endReason,
+  startedAt: r.startedAt,
+  finishedAt: r.finishedAt,
+});
 /** What a run is about: a lesson (lesson, chat and scene runs), an exam (exam runs) or nothing (the
  *  day's review). */
 export type Context = LessonKey | ExamKey | null;
@@ -127,7 +138,11 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     },
 
     /** Starts a run. */
-    start(kind: Kind, about: Context, options: { edition?: string | null; plan?: unknown } = {}) {
+    start(
+      kind: RunKind,
+      about: Context,
+      options: { edition?: string | null; plan?: unknown } = {},
+    ) {
       return db
         .insert(runs)
         .values({
@@ -152,8 +167,8 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
      */
     end(
       runId: string,
-      status: "finished" | "abandoned",
-      reason: "completed" | "user" | "timeout" | "content_updated",
+      status: RunEnd,
+      reason: RunEndReason,
       result?: LessonResult | ExamResult,
     ): RunRow | undefined {
       return db
@@ -181,7 +196,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     },
 
     /** A run by id, if it is of this kind (and about this context, when given). */
-    get(runId: string, kind?: Kind, about?: Context) {
+    get(runId: string, kind?: RunKind, about?: Context) {
       return db
         .select()
         .from(runs)
@@ -196,7 +211,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     },
 
     /** Runs of this kind about a context, newest first. */
-    list(kind: Kind, about: Context) {
+    list(kind: RunKind, about: Context) {
       return db
         .select()
         .from(runs)
@@ -206,7 +221,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     },
 
     /** Every run of a kind (all lessons), oldest first. */
-    all(kind: Kind) {
+    all(kind: RunKind) {
       return db
         .select()
         .from(runs)
@@ -233,12 +248,12 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     },
 
     /** The latest run of this kind about a context, any status. */
-    latest(kind: Kind, about: Context) {
+    latest(kind: RunKind, about: Context) {
       return self.list(kind, about)[0];
     },
 
     /** The active run of this kind about a context (a context has at most one). */
-    active(kind: Kind, about: Context) {
+    active(kind: RunKind, about: Context) {
       return db
         .select()
         .from(runs)
@@ -253,9 +268,9 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
      * a scene replaced), `finished` when it is complete as it is (a chat, a day of reviews).
      */
     replace(
-      kind: Kind,
+      kind: RunKind,
       about: Context,
-      end: { status: "finished" | "abandoned"; reason: "completed" | "user" },
+      end: { status: RunEnd; reason: RunEndReason },
       options: { edition?: string | null; plan?: unknown } = {},
     ) {
       return db.transaction(() => {
@@ -341,7 +356,7 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
     eventsWhere(filter: {
       types: EventType[];
       since?: number;
-      kind?: Kind;
+      kind?: RunKind;
       about?: Context;
       runIds?: string[];
       cardId?: string;
@@ -391,7 +406,13 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
      */
     verdicts<T extends VerdictTask>(
       task: T,
-      where: { runIds?: string[]; kind?: Kind; about?: Context; itemKey?: string; cardId?: string },
+      where: {
+        runIds?: string[];
+        kind?: RunKind;
+        about?: Context;
+        itemKey?: string;
+        cardId?: string;
+      },
     ) {
       return self.eventsWhere({ types: ["llm_verdict"], ...where }).flatMap((e) =>
         e.type === "llm_verdict" && e.payload.task === task

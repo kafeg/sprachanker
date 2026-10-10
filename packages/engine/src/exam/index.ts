@@ -3,17 +3,17 @@
 // federal state) — how a mock exam is scored (each question's latest answer), and what the learner's
 // answers across runs say of each question (known, answered wrongly, not seen). Pure: the caller
 // gives the settings, the randomness and the events.
-import type {
-  AnsweredPayload,
-  Exam,
-  ExamItem,
-  ExamItemKey,
-  ExamPlan,
-  ExamResult,
-  ExamSectionKey,
-  Exercise,
-  Outcome,
-  TypedEvent,
+import {
+  type AnsweredPayload,
+  type Exam,
+  type ExamItem,
+  type ExamItemKey,
+  type ExamPlan,
+  type ExamResult,
+  type ExamSectionKey,
+  type Outcome,
+  questionExercise,
+  type TypedEvent,
 } from "@sprachanker/schema";
 import { checkItem } from "../check/index.ts";
 
@@ -157,15 +157,7 @@ export function readiness(exam: Exam, setting: SettingOf, stats: Map<string, Que
 
 /** An exam question checked as the item of its kind it is (04), in the language the exam is in. */
 export function checkQuestion(item: ExamItem, answer: unknown, lang: string): Outcome {
-  const asExercise = {
-    key: item.key,
-    type: item.type,
-    fingerprint: "",
-    newWords: [],
-    ruleIds: [],
-    items: [item],
-  } as unknown as Exercise;
-  return checkItem(asExercise, 0, answer, lang);
+  return checkItem(questionExercise(item), 0, answer, lang);
 }
 
 /** The pass marks a run can be judged by: with modules, those over modules it took (a module

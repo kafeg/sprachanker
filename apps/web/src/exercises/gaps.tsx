@@ -1,4 +1,4 @@
-import { correctOptions, type Option, type Outcome } from "@sprachanker/schema";
+import { correctOptions, type ItemOf, type Option, type Outcome } from "@sprachanker/schema";
 import { useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
@@ -13,7 +13,7 @@ import {
   shuffled,
   useShuffled,
 } from "./shared.tsx";
-import type { ItemOf, RendererProps } from "./types.ts";
+import type { RendererProps } from "./types.ts";
 
 type Segments = ItemOf<"gap_text">["segments"];
 

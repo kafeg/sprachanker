@@ -9,7 +9,7 @@ import {
   examConversationTask,
   structuredRequest,
 } from "@sprachanker/llm";
-import { type LlmTurnPayload, parseEditionId, type TypedEvent } from "@sprachanker/schema";
+import { examLang, type LlmTurnPayload, type TypedEvent } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { ServiceError } from "../errors.ts";
 import type { Exams } from "./exams.ts";
@@ -46,7 +46,7 @@ export function createExamConversation(deps: { llm: Llm; store: RunStore; exams:
     // The examiner opens the part; after that every call answers a line of the learner's.
     if (!said.length === !!request.text?.trim()) throw new ServiceError("invalid_request");
     const sectionLocale = section ? locale?.sections[section.key] : undefined;
-    const target = run.edition ? parseEditionId(run.edition).target : "de";
+    const target = examLang(run.edition);
     const history: ConversationLine[] = said.map((l) => ({
       speaker: l.role === "user" ? "learner" : (l.speaker ?? "examiner"),
       text: l.text,

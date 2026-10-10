@@ -34,4 +34,6 @@ export const Exercise = z.discriminatedUnion("type", [
 ]);
 export type Exercise = z.infer<typeof Exercise>;
 export type ExerciseType = Exercise["type"];
+/** An item of an exercise of one type. */
+export type ItemOf<T extends ExerciseType> = Extract<Exercise, { type: T }>["items"][number];
 export const EXERCISE_TYPES = Exercise.options.map((o) => o.shape.type.value);

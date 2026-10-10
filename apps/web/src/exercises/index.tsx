@@ -1,6 +1,6 @@
 // Exercise renderers by type (root rule 2: every type has a renderer). No API calls here.
 import { isChecked } from "@sprachanker/engine";
-import { type Exercise, joinParts } from "@sprachanker/schema";
+import { type Exercise, type ItemOf, joinParts } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { MultiChoice, SingleChoice } from "./choice.tsx";
 import { GapChoice, GapText } from "./gaps.tsx";
@@ -8,7 +8,7 @@ import { Match } from "./match.tsx";
 import { Order } from "./order.tsx";
 import { Respond } from "./respond.tsx";
 import { Dictation, SpeechRepeat, SpeechSelfrate } from "./speech.tsx";
-import type { Answers, ItemOf, RendererProps } from "./types.ts";
+import type { Answers, RendererProps } from "./types.ts";
 
 export type { Answers, RendererProps } from "./types.ts";
 

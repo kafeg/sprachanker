@@ -1,4 +1,5 @@
 // profile.sqlite (05). Events are append-only: no UPDATE or DELETE.
+import type { RunEndReason, RunKind, RunStatus } from "@sprachanker/schema";
 import {
   index,
   integer,
@@ -17,15 +18,16 @@ export const runs = sqliteTable(
   "runs",
   {
     id: text("id").primaryKey(),
-    kind: text("kind").notNull(),
+    // Typed by schema's enums (TypeScript only: SQLite keeps text).
+    kind: text("kind").$type<RunKind>().notNull(),
     contextKey: text("context_key"),
     courseKey: text("course_key"),
     edition: text("edition"),
     contentVersion: text("content_version"),
     appVersion: text("app_version").notNull(),
     planJson: text("plan_json"),
-    status: text("status").notNull(),
-    endReason: text("end_reason"),
+    status: text("status").$type<RunStatus>().notNull(),
+    endReason: text("end_reason").$type<RunEndReason>(),
     startedAt: integer("started_at").notNull(),
     finishedAt: integer("finished_at"),
     resultJson: text("result_json"),

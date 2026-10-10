@@ -5,14 +5,13 @@ import type {
   Exercise,
   GapChoiceAnswer,
   GapTextAnswer,
+  ItemOf,
   MatchAnswer,
   MultiChoiceAnswer,
   OrderAnswer,
   SingleChoiceAnswer,
   SpeechRepeatAnswer,
 } from "@sprachanker/schema";
-
-type ItemOf<T extends Exercise["type"]> = Extract<Exercise, { type: T }>["items"][number];
 
 /** Whether the player checks an exercise (marks its items, or shows a model answer): everything but
  *  speaking oneself, scenes and exercises of an unknown mechanic. A checked item need not be scored

@@ -6,8 +6,8 @@
 import { type ExamAnswerInput, rateExamAnswerTask, structuredRequest } from "@sprachanker/llm";
 import {
   type ExamRatingProposal,
+  examLang,
   type LlmVerdictPayload,
-  parseEditionId,
   type TypedEvent,
 } from "@sprachanker/schema";
 import { ulid } from "ulid";
@@ -48,7 +48,7 @@ export function createExamRating(deps: { llm: Llm; store: RunStore; exams: Exams
     const section = exam.sections.find((s) => s.key === sectionKey);
     const sectionLocale = sectionKey ? locale?.sections[sectionKey] : undefined;
     const itemLocale = locale?.items[item.key];
-    const target = run.edition ? parseEditionId(run.edition).target : "de";
+    const target = examLang(run.edition);
     const task: ExamAnswerInput = {
       language: request.language,
       target,

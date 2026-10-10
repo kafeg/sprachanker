@@ -5,6 +5,7 @@ import {
   type Exercise,
   GapChoiceAnswer,
   GapTextAnswer,
+  type ItemOf,
   joinParts,
   type LocaleExercise,
   MatchAnswer,
@@ -24,7 +25,6 @@ export interface ItemDescription {
   learner?: string;
 }
 
-type ItemOf<T extends Exercise["type"]> = Extract<Exercise, { type: T }>["items"][number];
 type Segment = string | { gap: string };
 
 /** What applies to every item of an exercise: its instruction and text. */

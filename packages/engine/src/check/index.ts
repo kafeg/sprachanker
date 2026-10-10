@@ -6,6 +6,7 @@ import {
   type Exercise,
   GapChoiceAnswer,
   GapTextAnswer,
+  type ItemOf,
   MatchAnswer,
   MultiChoiceAnswer,
   type Option,
@@ -19,9 +20,6 @@ import {
 import { type WordDiff, wordDiff } from "../text/diff.ts";
 import { endsSentence, isEmptyGap, sameText, tokens } from "../text/normalise.ts";
 import { isChecked } from "./answers.ts";
-
-type Of<T extends Exercise["type"]> = Extract<Exercise, { type: T }>;
-type ItemOf<T extends Exercise["type"]> = Of<T>["items"][number];
 
 /** Share of reference words needed for `partial` in dictation and speech. */
 const PARTIAL_WORDS = 0.8;
