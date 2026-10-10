@@ -1,5 +1,5 @@
 // `sprachanker import goethe`: each level's module pages, the solution page of each Teil and the
-// pages holding the pictures' texts fetched once and kept as they are (raw/), every recording and
+// pages holding a picture's or a writing task's text fetched once and kept as they are (raw/), every recording and
 // picture fetched into media, then normalised offline (03).
 import { statSync } from "node:fs";
 import { join } from "node:path";
@@ -20,7 +20,7 @@ import {
 } from "@sprachanker/course-kit";
 import type { MediaPath } from "@sprachanker/schema";
 import { EDITION, LEVELS, type Level, levelUrl, SERIES } from "./catalog.ts";
-import { moduleOf, normaliseLevel, pageUrl, rawPath, referencesOf } from "./normalise.ts";
+import { normaliseLevel, pageUrl, rawPath, referencesOf } from "./normalise.ts";
 import { readLongdesc } from "./page.ts";
 
 /** Between two requests: one server answers every page of the site. */
@@ -48,7 +48,7 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
       })
       .finally(counted);
 
-  const refs = new Map<string, MediaRef & { level: Level }>();
+  const mediaRefs = new Map<string, MediaRef & { level: Level }>();
   const read: Array<{
     level: Level;
     modules: Array<{ id: Level["modules"][number]; html: string }>;
@@ -62,24 +62,22 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
     for (const id of level.modules) {
       const html = await page(at(rawPath(level, "module", id)), pageUrl(level, id));
       modules.push({ id, html });
-      const module = moduleOf(html);
+      const refs = referencesOf(id, html, pageUrl(level, id));
       // Each Teil's solution page, named by its form.
-      for (const teil of module.teile) {
-        const file = teil.form?.action.split("#")[0];
-        if (!file || solutions.has(file)) continue;
+      for (const file of refs.solutions) {
+        if (solutions.has(file)) continue;
         const name = file.replace(/\.php$/, "");
         solutions.set(
           file,
           await page(at(rawPath(level, "solution", name)), `${levelUrl(level)}${file}`),
         );
       }
-      const { media, texts: textPages } = referencesOf(module, pageUrl(level, id));
-      for (const url of textPages) {
+      for (const url of refs.texts) {
         const name = decodeURIComponent(new URL(url).pathname.split("/").pop() ?? "");
         texts.set(url, readLongdesc(await page(at(rawPath(level, "text", name)), url)));
       }
-      for (const url of media)
-        refs.set(url, {
+      for (const url of refs.media)
+        mediaRefs.set(url, {
           url,
           kind: /\.(mp4|mp3|m4a)$/i.test(url) ? "audio" : "image",
           name: mediaName(level, url),
@@ -94,7 +92,7 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
     fetcher,
     store: createMediaStore(seriesDir),
     indexFile: join(seriesDir, "media.json"),
-    refs: [...refs.values()],
+    refs: [...mediaRefs.values()],
     log,
     progress: options.progress,
   });

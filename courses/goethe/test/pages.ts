@@ -130,3 +130,57 @@ export const SOLUTIONS: Record<string, string> = {
     [2, "x"],
   ]),
 };
+
+/** A writing module: a form to fill in (a field filled in, gaps, a choice), a text judged per point
+ *  with each level's points (A1), one by bands A–E in a table with its voiding note (A2), and one by
+ *  maxima with a picture and its text page (B1). */
+export const SCHREIBEN = `<html><body><h1><a id="Inhalt"></a></h1>
+<p>Reguläre Prüfungszeit: circa 30 Minuten</p>
+<h3>Übersicht</h3><ul><li>Teil 1</li></ul>
+<div><h3>Teil 1</h3>
+<p>Tom bucht einen Kurs. Er zahlt bar.<br/>Helfen Sie Tom.</p>
+<form action="schreiben_l1.php#loesung22" method="post" id="t_03_1">
+  <h4>Kurs <br/><span>Anmeldung</span></h4>
+  <p><label for="t_bsp0">Name:</label></p><p><input name="t_bsp0" id="t_bsp0" value="Tom Weber" readonly="readonly"/> - <span>Beispiel (0)</span></p>
+  <p><label for="t_1">Alter:</label></p><p><input name="t_1" id="t_1" value="(1)" onblur="x"/></p>
+  <p>Der Kurs ist zu bezahlen.</p>
+  <p>Zahlung:&nbsp;&nbsp;(2)</p>
+  <p><label for="t_2_1"><input type="radio" name="t_2" id="t_2_1"/>&nbsp;Bar</label><br/>
+     <label for="t_2_2"><input type="radio" name="t_2" id="t_2_2"/>&nbsp;Karte</label></p>
+  <p>maximal 2 Punkte:<strong>0</strong></p>
+  <input type="submit" value="Zu den Lösungen - Teil 1"/>
+</form></div>
+<div><h3>Teil 2</h3>
+<p>Schreiben Sie an die Schule:</p>
+<ul><li>Warum schreiben Sie?</li><li>Fragen Sie: Preis?</li></ul>
+<p>Schreiben Sie auch eine Anrede und einen Gruß.</p></div>
+<form action="schreiben.php?#t2" method="post" id="t_03_2"><h4>Teil 2: <label for="t2">Eingabetextfeld</label></h4><textarea id="t2"></textarea></form>
+<div class="bewertung"><h4>Bewertung:</h4>
+<p><strong>Erfüllung der Aufgabenstellung (pro Inhaltspunkt)</strong></p>
+<ul><li><strong>3 Punkte</strong>&nbsp;-&nbsp;voll erfüllt</li><li><strong>1,5 Punkte</strong>&nbsp;-&nbsp;teilweise</li><li><strong>0 Punkte</strong>&nbsp;-&nbsp;nicht erfüllt</li></ul>
+<p><strong>Kommunikative Gestaltung des Textes</strong></p>
+<ul><li><strong>1 Punkt</strong> - angemessen</li><li><strong>0,5 Punkte</strong> - keine Anrede</li><li><strong>0 Punkte</strong> - unangemessen</li></ul></div>
+<p><a href="schreiben_p2.php"><img src="../medien/print.gif" alt="Druckersymbol"/>Teil 2 drucken</a></p>
+<h3>Teil 3</h3>
+<p>Schreiben Sie eine SMS.</p>
+<form action="schreiben.php?#t3" method="post" id="t_03_3"><h4>Teil 3: <label for="t3">Eingabetextfeld</label></h4><textarea id="t3"></textarea></form>
+<table><tr><th></th><th>A</th><th>B</th></tr>
+<tr><th>Aufgabenerfüllung* -<br/>Inhalt</th><td>alles</td><td>wenig</td></tr>
+<tr><th>Aufgabenerfüllung* -<br/>Register</th><td>passend</td></tr>
+<tr><th>Sprache -<br/>Spektrum: Wortschatz</th><td>reich</td><td>arm</td></tr></table>
+<p>*Wird das Kriterium “Aufgabenerfüllung” mit E (0 Punkten) bewertet, ist die Punktzahl 0 Punkte.</p>
+<h3>Aufgabe 4</h3>
+<p>Reguläre Prüfungszeit: 10 Minuten</p>
+<p>Im Forum lesen Sie:</p>
+<p><img src="../medien/x/forum.jpg" alt="Ein Forum. Text unter dem Link."/></p>
+<p><a href="../medien/x/forum.html"><strong>Textinhalt Forum</strong></a></p>
+<form action="schreiben.php?#t4" method="post" id="t_03_4"><h4>Aufgabe 4: <label for="t4">Ihre Meinung</label></h4><textarea id="t4"></textarea></form>
+<div><h4>Bewertet werden:</h4><ul><li><strong>Erfüllung</strong>&nbsp;-&nbsp;maximal 4 Punkte</li><li><strong>Wortschatz</strong> - maximal 6 Punkte</li></ul></div>
+<h3>Gesamtergebnis</h3><p>Konzept: niemand</p>
+</body></html>`;
+
+/** Its form's solution page: a table, alternatives with " / ". */
+export const SCHREIBEN_L1 = table([
+  [1, "20 / zwanzig"],
+  [2, "bar"],
+]);

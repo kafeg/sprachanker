@@ -60,10 +60,10 @@ D, F, 2026-10-10); each exam's sources and checks, kept with it and shown (02, 0
 - **3b. Goethe A1, A2, B1** (key for the owner), from the accessible online model tests
   (`bfu.goethe.de`; research: plain GET, a solution page per Teil, audio per item or Teil). In steps:
   - **3b-3. Schreiben and Sprechen**: rating an open answer by its criteria, by the learner or as
-    the AI assistant proposes, is built (02, 04, 07, 09); left: Goethe's writing tasks (the A1 form as typed gaps, its key on the solution page) and
+    the AI assistant proposes, and Goethe's Schreiben are built (02, 03, 04, 07, 09); left: the
     speaking tasks as open answers with the exam's criteria and points (pages and the model tests'
-    PDFs); then the real pass marks (A2: written and spoken minimums) in place of 60 % of the modules
-    there are.
+    PDFs); B1's levels described (only its PDF's criteria table says what each band means); then the
+    real pass marks (A2: written and spoken minimums) in place of 60 % of the modules there are.
   - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
     run-throughs.
 - **Independent checks** (open, from 3e): an exam's answers against a second, independent key where

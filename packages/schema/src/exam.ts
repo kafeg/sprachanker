@@ -160,6 +160,8 @@ export const EXAM_CHECKS = [
   "recordings-placed",
   /** Pictures and recordings kept, of those the questions show. */
   "media-kept",
+  /** Open answers whose criteria the page gives with every level's points (Goethe Schreiben). */
+  "criteria-read",
 ] as const;
 export const ExamCheck = z.enum(EXAM_CHECKS);
 export type ExamCheck = z.infer<typeof ExamCheck>;

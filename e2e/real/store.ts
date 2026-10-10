@@ -318,6 +318,17 @@ export function examProblems(stored: Stored, exam: Exam, lang: string, taken: Ta
         payload: p,
       } as TypedEvent);
     }
+    // The open answers' ratings count in the result as their latest says.
+    for (const r of stored.events.filter((e) => e.run_id === run.id && e.type === "exam_rated"))
+      typed.push({
+        id: r.id ?? "",
+        runId: run.id,
+        ts: r.ts ?? 0,
+        type: "exam_rated",
+        itemKey: r.item_key,
+        cardId: null,
+        payload: JSON.parse(r.payload_json),
+      } as TypedEvent);
     if (run.status === "finished") {
       ended[mode]++;
       const result = ExamResult.safeParse(JSON.parse(run.result_json ?? "null"));

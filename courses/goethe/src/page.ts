@@ -75,7 +75,7 @@ export function audioList(html: string): string[] {
 }
 
 /** Lines a page shows around the test that are not part of it. */
-const CHROME =
+export const CHROME =
   /^(maximal \d+ Punkte|Zurück zur |Zu den Aufgaben|Zu den Lösungen|Die Prüfungszeit für|Textinhalt (der|von)|Alternativ dazu|\(?Hörsequenz|Gebärdensprache|Lippenlese|Ihre Auswahl)/i;
 /** Player controls and decoration, not pictures of the test. */
 const NOT_A_PICTURE = /\/(play|pause|stop|Pfeil_links|GI_Logo|Leiste)[^/]*\.(gif|png|jpe?g)$/i;
@@ -96,7 +96,7 @@ const BLOCKS = new Set([
   "fieldset",
 ]);
 
-const pictureOf = (img: El): Picture | undefined => {
+export const pictureOf = (img: El): Picture | undefined => {
   const src = img.attrs.src ?? "";
   if (!src || NOT_A_PICTURE.test(src)) return undefined;
   return {

@@ -17,6 +17,7 @@ import {
   examSectionKey,
   type LocaleCourse,
   type LocaleExam,
+  type LocaleItem,
   type Media,
   type MediaPath,
 } from "@sprachanker/schema";
@@ -29,9 +30,12 @@ import {
   type ModuleId,
   sourceOf,
 } from "./catalog.ts";
+import { optionFor } from "./options.ts";
 import { audioList, type Choice, type Picture, readPage } from "./page.ts";
 import { readSolutions, type Solution } from "./solutions.ts";
 import { type Module, type Question, readModule, type Teil } from "./teile.ts";
+import { readWriting } from "./writing.ts";
+import { writingSection } from "./writing-exam.ts";
 
 export interface LevelPages {
   /** Each module's page as fetched. */
@@ -53,7 +57,11 @@ export const rawPath = (level: Level, kind: "module" | "solution" | "text", name
 
 const sha256 = (text: string) => createHash("sha256").update(text).digest("hex");
 
-export const MODULE_TITLES: Record<ModuleId, string> = { hoeren: "Hören", lesen: "Lesen" };
+export const MODULE_TITLES: Record<ModuleId, string> = {
+  hoeren: "Hören",
+  lesen: "Lesen",
+  schreiben: "Schreiben",
+};
 
 export const pageUrl = (level: Level, module: ModuleId) => `${levelUrl(level)}${module}.php`;
 /** An address on a page made absolute. */
@@ -62,16 +70,36 @@ export const absolute = (href: string, base: string) => new URL(href.trim(), bas
 /** A module page read: its Teile. */
 export const moduleOf = (html: string): Module => readModule(readPage(html));
 
-/** What a module page refers to that the import fetches: its media and the pictures' text pages. */
-export function referencesOf(module: Module, base: string) {
+/** A Teil's solution page by its form's action ("hoeren_l1.php#loesung22" → "hoeren_l1.php"); a form
+ *  posting back to its own page (a text to write) has none. */
+export const solutionFile = (action: string | undefined) => {
+  const file = action?.split("#")[0] ?? "";
+  return /_l\d+\.php$/.test(file) ? file : undefined;
+};
+
+/** What a module page refers to that the import fetches: its Teile's solution pages, its media and
+ *  the pages holding a picture's or a task's text. */
+export function referencesOf(module: ModuleId, html: string, base: string) {
   const media = new Set<string>();
   const texts = new Set<string>();
+  const solutions = new Set<string>();
   const picture = (p: Picture | undefined) => {
     if (!p) return;
     media.add(absolute(p.src, base));
     if (p.longdesc) texts.add(absolute(p.longdesc, base));
   };
-  for (const t of module.teile) {
+  if (module === "schreiben") {
+    for (const t of readWriting(html).teile) {
+      const file = solutionFile(t.form?.action);
+      if (file) solutions.add(file);
+      t.pictures.forEach(picture);
+      for (const link of t.links) texts.add(absolute(link, base));
+    }
+    return { solutions: [...solutions], media: [...media], texts: [...texts] };
+  }
+  for (const t of moduleOf(html).teile) {
+    const file = solutionFile(t.form?.action);
+    if (file) solutions.add(file);
     if (t.audio) media.add(absolute(t.audio, base));
     t.pictures.forEach(picture);
     for (const l of t.letters) picture(l.picture);
@@ -82,7 +110,7 @@ export function referencesOf(module: Module, base: string) {
       for (const link of q.links) texts.add(absolute(link, base));
     }
   }
-  return { media: [...media], texts: [...texts] };
+  return { solutions: [...solutions], media: [...media], texts: [...texts] };
 }
 
 /** The minutes a line states ("Reguläre Prüfungszeit: circa 20 Minuten"). */
@@ -109,33 +137,6 @@ const noneIn = (lines: string[], solutions: Solution[], letters: string[]) => {
     .map((a) => a.trim())
     .find((a) => a.length === 1 && !letters.includes(a.toLowerCase()));
 };
-
-/** An answer as compared: lower case, without a final full stop, "Bild c" as "c". */
-const comparable = (text: string) =>
-  text
-    .toLowerCase()
-    .replace(/^bild\s+/, "")
-    .replace(/[.\s]+$/, "")
-    .replace(/\s+/g, " ")
-    .trim();
-
-/** The option an answer names: its letter, its text, or its letter and text ("c sollen …"). */
-export function optionFor(
-  answer: string,
-  options: Array<{ id: string; text?: string }>,
-): string | undefined {
-  const want = comparable(answer);
-  const byText = options.find((o) => o.text !== undefined && comparable(o.text) === want);
-  if (byText) return byText.id;
-  if (want.length === 1)
-    return options.find((o) => o.id === want || comparable(o.text ?? "") === want)?.id;
-  // "c sollen …": the letter's option, only when its text says the same.
-  const [, letter, rest] = /^([a-j])\s+(.*)$/.exec(want) ?? [];
-  if (!letter) return undefined;
-  const option = options.find((o) => o.id === letter);
-  const text = comparable(option?.text ?? "").replace(/^[a-j]\s+/, "");
-  return option && text === rest ? option.id : undefined;
-}
 
 const hundredths = (n: number) => Math.round(n * 100) / 100;
 
@@ -165,9 +166,38 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     answers: count(),
     numbers: count(),
     recordings: count(),
+    criteria: count(),
   };
   const mediaReferenced = new Set<string>();
   const mediaKept = new Set<string>();
+
+  /** Item texts of the locale beyond pictures' descriptions: an open answer's criteria named. */
+  const itemLocales: Record<string, LocaleItem> = {};
+  /** A Teil's solution page, kept among the sources' documents once; its answers. */
+  const solutionsOf = (module: ModuleId, teil: string, action: string | undefined) => {
+    const file = solutionFile(action) ?? "";
+    const page = pages.solution(file);
+    const id = file.replace(/\.php$/, "");
+    if (page && !documents.some((d) => d.id === id))
+      documents.push({
+        id,
+        title: `${level.title}: Lösungen ${MODULE_TITLES[module]}, ${teil}`,
+        url: `${levelUrl(level)}${file}`,
+        raw: rawPath(level, "solution", id),
+        sha256: sha256(page),
+      });
+    return { file, id, solutions: readSolutions(page ?? "") };
+  };
+  /** A module timed as its page says, scaled as the exam scales it. */
+  const timed = (module: ModuleId, minutes: number) => {
+    if (!minutes) problems.push(`${level.course} ${module}: no time stated`);
+    modules.push({
+      id: module,
+      timeLimitSec: minutes * 60,
+      scaleTo: level.scaleTo,
+      ...(level.rounding === "modules" && { round: true }),
+    });
+  };
 
   for (const { id: module, html } of pages.modules) {
     documents.push({
@@ -178,6 +208,65 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       sha256: sha256(html),
     });
     const base = pageUrl(level, module);
+    const media = (href: string | undefined): MediaPath | undefined => {
+      if (!href) return undefined;
+      const url = absolute(href, base);
+      const path = pages.media(url);
+      mediaReferenced.add(url);
+      if (path) mediaKept.add(url);
+      return path;
+    };
+    const textOf = (href: string) => pages.longdesc(absolute(href, base));
+
+    if (module === "schreiben") {
+      const writing = readWriting(html);
+      timed(module, writing.intro.map(minutesIn).find((m) => !Number.isNaN(m)) ?? 0);
+      for (const teil of writing.teile) {
+        const slug = `${module}-${teil.number}`;
+        const sectionKey = examSectionKey(exam, slug) as ExamSectionKey;
+        const { file, id, solutions } = solutionsOf(module, teil.title, teil.form?.action);
+        if (teil.fields.length && !solutions.length)
+          problems.push(`${level.course} ${slug}: no solutions (${file || "no form"})`);
+        const own = writingSection({
+          level,
+          exam,
+          module,
+          teil,
+          solutions,
+          solutionId: id,
+          longdesc: textOf,
+        });
+        problems.push(...own.problems);
+        items.push(...own.items);
+        Object.assign(placed, own.placed);
+        Object.assign(itemLocales, own.locale);
+        for (const k of ["questions", "answers", "criteria"] as const) {
+          checks[k].of += own[k].of;
+          checks[k].passed += own[k].passed;
+        }
+        leftOut += own.questions.of - own.questions.passed;
+        if (!own.pool.length) {
+          problems.push(`${level.course} ${slug}: no question left`);
+          continue;
+        }
+        const image = media(teil.pictures[0]?.src);
+        sections.push({
+          key: sectionKey,
+          module,
+          pool: own.pool,
+          draw: own.pool.length,
+          filter: null,
+          ...(own.text && { text: own.text }),
+          ...(image && { media: { image } }),
+        });
+        localeSections[sectionKey] = {
+          title: teil.title,
+          instructions: teil.instructions.map(plainTime).join("\n"),
+        };
+      }
+      continue;
+    }
+
     const read = moduleOf(html);
     for (const note of read.notes) problems.push(`${level.course} ${module}: ${note}`);
     // Every player takes the list's next recording: a count that differs shifts them.
@@ -191,32 +280,18 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       problems.push(
         `${level.course} ${module}: ${players} players for ${audioList(html).length} recordings`,
       );
-    const media = (href: string | undefined): MediaPath | undefined => {
-      if (!href) return undefined;
-      const url = absolute(href, base);
-      const path = pages.media(url);
-      mediaReferenced.add(url);
-      if (path) mediaKept.add(url);
-      return path;
-    };
-    const textOf = (href: string) => pages.longdesc(absolute(href, base));
-    const minutes =
+    timed(
+      module,
       read.intro.map(minutesIn).find((m) => !Number.isNaN(m)) ??
-      read.teile
-        .flatMap((t) =>
-          t.instructions
-            .map(minutesIn)
-            .filter((m) => !Number.isNaN(m))
-            .slice(0, 1),
-        )
-        .reduce((a, b) => a + b, 0);
-    if (!minutes) problems.push(`${level.course} ${module}: no time stated`);
-    modules.push({
-      id: module,
-      timeLimitSec: minutes * 60,
-      scaleTo: level.scaleTo,
-      ...(level.rounding === "modules" && { round: true }),
-    });
+        read.teile
+          .flatMap((t) =>
+            t.instructions
+              .map(minutesIn)
+              .filter((m) => !Number.isNaN(m))
+              .slice(0, 1),
+          )
+          .reduce((a, b) => a + b, 0),
+    );
 
     let number = 0;
     const seen = new Map<string, number>();
@@ -226,18 +301,11 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       seen.set(String(teil.number), count);
       const slug = `${module}-${teil.number}${/Text\s*\d/i.test(teil.title) ? `-${count}` : ""}`;
       const sectionKey = examSectionKey(exam, slug) as ExamSectionKey;
-      const file = teil.form?.action.split("#")[0] ?? "";
-      const solutionPage = pages.solution(file);
-      const solutionId = file.replace(/\.php$/, "");
-      if (solutionPage && !documents.some((d) => d.id === solutionId))
-        documents.push({
-          id: solutionId,
-          title: `${level.title}: Lösungen ${MODULE_TITLES[module]}, ${teil.title}`,
-          url: `${levelUrl(level)}${file}`,
-          raw: rawPath(level, "solution", solutionId),
-          sha256: sha256(solutionPage),
-        });
-      const solutions = readSolutions(solutionPage ?? "");
+      const {
+        file,
+        id: solutionId,
+        solutions,
+      } = solutionsOf(module, teil.title, teil.form?.action);
       if (!solutions.length)
         problems.push(`${level.course} ${slug}: no solutions (${file || "no form"})`);
       const scored = teil.questions.filter((q) => !q.example);
@@ -439,7 +507,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
       ]),
     ),
     items: Object.fromEntries(
-      items.map((i) => [i.key, alt[i.key] ? { alt: alt[i.key] } : {}]),
+      items.map((i) => [i.key, { ...itemLocales[i.key], ...(alt[i.key] && { alt: alt[i.key] }) }]),
     ) as LocaleExam["items"],
   };
   const course = courseOf(level);
@@ -458,9 +526,11 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     sourceId: level.dir,
     title: level.title,
     descriptionHtml: `<p>${escapeHtml(
-      `Der Modellsatz in der barrierefreien Fassung des Goethe-Instituts: ${all
-        .map((m) => MODULE_TITLES[m])
-        .join(" und ")}, mit allen Aufnahmen, Bildern und Lösungen.`,
+      `Der Modellsatz in der barrierefreien Fassung des Goethe-Instituts: ${new Intl.ListFormat(
+        "de",
+      ).format(
+        all.map((m) => MODULE_TITLES[m]),
+      )}, mit allen Aufnahmen, Bildern und Lösungen und den Kriterien, nach denen geschrieben wird.`,
     )}</p>`,
     units: {},
     goals: {},
@@ -477,6 +547,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
           { id: "answers-matched", ...checks.answers },
           { id: "numbers-agree", ...checks.numbers },
           { id: "recordings-placed", ...checks.recordings },
+          ...(checks.criteria.of ? [{ id: "criteria-read" as const, ...checks.criteria }] : []),
           { id: "media-kept", passed: mediaKept.size, of: mediaReferenced.size },
         ],
         items: placed,

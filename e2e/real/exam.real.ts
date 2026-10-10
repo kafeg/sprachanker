@@ -1,8 +1,9 @@
 // Run-throughs of the installed exams (10, "Run-throughs"; 09, Exams): in a profile of its own, the
 // federal state chosen on the exam's page, a mock exam drawn, every question answered through the
-// screen — two of three right — and handed in; its result, then practice of the mistakes (each
-// checked at once), the catalogue with a question opened, the Notebook; then the profile's
-// database read to check that all of it is stored as it should be. `REAL=bamf.lid bun run e2e:real`.
+// screen — two of three right, an open answer written — and handed in; its result with the open
+// answers rated (each criterion at its best level), then practice of the mistakes (each checked at
+// once), the catalogue with a question opened, the Notebook; then the profile's database read to
+// check that all of it is stored as it should be. `REAL=bamf.lid bun run e2e:real`.
 import { join } from "node:path";
 import { expect, type Locator, type Page, test } from "@playwright/test";
 import { CLIENT_HEADERS, type ExamItem } from "@sprachanker/schema";
@@ -110,10 +111,18 @@ for (const s of examScenarios())
       visible(page.getByRole("button", { name: "Next", exact: true }))
         .first()
         .click();
+    // Open answers are rated after handing in, each at its best (their points all theirs); the
+    // others count a point each, two of three right.
+    const isOpen = (item: ExamItem) => !!item.criteria;
+    const best = (item: ExamItem) =>
+      (item.criteria ?? []).reduce((n, c) => n + Math.max(...c.levels), 0);
+    const opens = asked.filter(isOpen);
+    const rated = opens.reduce((n, i) => n + best(i), 0);
+    const closed = asked.length - opens.length;
     let right = 0;
     for (const [i, item] of asked.entries()) {
       const good = i % 3 !== 2;
-      if (good) right++;
+      if (good && !isOpen(item)) right++;
       await answer(onScreen(i, asked.length), item, good);
       // Nothing marked before it is handed in.
       await expect(onScreen(i, asked.length).getByRole("status")).toHaveCount(0);
@@ -124,9 +133,25 @@ for (const s of examScenarios())
       .first()
       .click();
 
-    // The result: the points, passed or not as the server judged it by the exam's rule (store checks
-    // below recompute it).
+    // The result: the open answers rated by their criteria, each at its best level; then the points,
+    // passed or not as the server judged it by the exam's rule (store checks below recompute it).
     await expect(page.getByRole("heading", { name: /mistakes?$/ })).toBeVisible();
+    if (opens.length) {
+      const rating = page.locator("section", {
+        has: page.getByRole("heading", { name: "Rate your answers" }),
+      });
+      const answers = rating.locator("ol > li");
+      await expect(answers).toHaveCount(opens.length);
+      for (let i = 0; i < opens.length; i++) {
+        const one = answers.nth(i);
+        const groups = one.getByRole("group");
+        for (let g = 0; g < (await groups.count()); g++)
+          await groups.nth(g).getByRole("button").first().click();
+        await one.getByRole("button", { name: "Save rating" }).click();
+        await expect(one.getByRole("button", { name: "Change rating" })).toBeVisible();
+      }
+      await expect(page.getByText(/not rated yet/)).toHaveCount(0);
+    }
     const handed = (await runOf(page)).run as unknown as {
       result: { pass?: boolean; passed: string[] };
     };
@@ -134,21 +159,26 @@ for (const s of examScenarios())
     await expect(
       page.getByRole("heading", { name: passed ? "Passed" : "Not passed" }),
     ).toBeVisible();
-    await expect(page.getByRole("img", { name: `${right}/${asked.length}` })).toBeVisible();
-    const wrong = asked.length - right;
+    const points = right + rated;
+    const max = closed + rated;
+    await expect(page.getByRole("img", { name: `${points}/${max}` })).toBeVisible();
+    const wrong = closed - right;
     await expect(page.getByRole("heading", { name: `${wrong} mistakes` })).toBeVisible();
 
     // Practice of the mistakes: the wrong ones come first, each checked at once.
     await page.getByRole("button", { name: "Practise the mistakes" }).click();
     await expect(page).not.toHaveURL(new RegExp(test1.id));
     const { run: practice } = await runOf(page);
-    const firstWrong = asked.filter((_, i) => i % 3 === 2).map((i) => i.key);
+    const firstWrong = asked.filter((x, i) => i % 3 === 2 && !isOpen(x)).map((i) => i.key);
     expect(new Set(practice.plan.items.slice(0, wrong))).toEqual(new Set(firstWrong));
     const fixed = Math.min(3, wrong);
     for (let i = 0; i < fixed; i++) {
       const item = items.get(practice.plan.items[i] as string) as ExamItem;
       const card = onScreen(i, practice.plan.items.length);
       await answer(card, item, true);
+      // A typed answer is checked with Check in practice.
+      if (item.type === "gap_text")
+        await card.getByRole("button", { name: "Check", exact: true }).click();
       await expect(card.getByRole("status").filter({ hasText: /^Correct$/ })).toBeAttached();
       if (i < fixed - 1) await next();
     }
@@ -185,7 +215,7 @@ for (const s of examScenarios())
     await expect(page.getByRole("heading", { name: "Exams" })).toBeVisible();
     await expect(
       page.getByRole("button", {
-        name: new RegExp(`${right} of ${asked.length}\\s*${passed ? "Passed" : "Not passed"}`),
+        name: new RegExp(`${points} of ${max}\\s*${passed ? "Passed" : "Not passed"}`),
       }),
     ).toBeVisible();
     const wide = await page.evaluate(

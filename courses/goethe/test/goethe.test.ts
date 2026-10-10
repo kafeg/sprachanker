@@ -3,10 +3,12 @@ import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { Exam, type ExamItem, ExamSources, LocaleExam } from "@sprachanker/schema";
 import { examOf, type Level } from "../src/catalog.ts";
-import { moduleOf, normaliseLevel, optionFor } from "../src/normalise.ts";
+import { moduleOf, normaliseLevel } from "../src/normalise.ts";
+import { optionFor } from "../src/options.ts";
 import { audioList, readLongdesc, readPage } from "../src/page.ts";
 import { readSolutions } from "../src/solutions.ts";
-import { HOEREN, LESEN, SOLUTIONS, ZETTEL } from "./pages.ts";
+import { readWriting } from "../src/writing.ts";
+import { HOEREN, LESEN, SCHREIBEN, SCHREIBEN_L1, SOLUTIONS, ZETTEL } from "./pages.ts";
 
 const LEVEL: Level = {
   course: "a1",
@@ -206,4 +208,141 @@ test("a level normalised: modules timed and scaled, Teile with their material, e
     { document: "hoeren_l1", at: "Lösung 2" },
   ]);
   expect(Object.keys(sources.items)).toHaveLength(exam.items.length);
+});
+
+test("a writing page: a form's lines, the task's points, criteria by levels, bands or maxima", () => {
+  const { intro, teile } = readWriting(SCHREIBEN);
+  expect(intro).toEqual(["Reguläre Prüfungszeit: circa 30 Minuten"]);
+  expect(teile.map((t) => t.title)).toEqual(["Teil 1", "Teil 2", "Teil 3", "Aufgabe 4"]);
+  const [form, perPoint, bands, maxima] = teile;
+  expect(form?.heading).toBe("Kurs Anmeldung");
+  expect(form?.fields).toEqual([
+    { label: "Name:", value: "Tom Weber" },
+    { label: "Alter:", gap: 1 },
+    { label: "Der Kurs ist zu bezahlen." },
+    { label: "Zahlung:", gap: 2, choices: ["Bar", "Karte"] },
+  ]);
+  expect(form?.criteria).toEqual([]);
+  expect(perPoint).toMatchObject({
+    points: ["Warum schreiben Sie?", "Fragen Sie: Preis?"],
+    box: "Eingabetextfeld",
+    form: { action: "schreiben.php?#t2" },
+  });
+  expect(perPoint?.instructions).toEqual([
+    "Schreiben Sie an die Schule:",
+    "• Warum schreiben Sie?",
+    "• Fragen Sie: Preis?",
+    "Schreiben Sie auch eine Anrede und einen Gruß.",
+  ]);
+  expect(perPoint?.criteria.map((c) => [c.title, c.levels.map((l) => l.points)])).toEqual([
+    ["Erfüllung der Aufgabenstellung (pro Inhaltspunkt)", [3, 1.5, 0]],
+    ["Kommunikative Gestaltung des Textes", [1, 0.5, 0]],
+  ]);
+  // A band table: a criterion's aspects together in each band; its note voids it.
+  expect(bands?.criteria).toEqual([
+    {
+      title: "Aufgabenerfüllung",
+      levels: [{ text: "Inhalt: alles; Register: passend" }, { text: "Inhalt: wenig" }],
+      voids: true,
+    },
+    {
+      title: "Sprache",
+      levels: [{ text: "Spektrum: reich" }, { text: "Spektrum: arm" }],
+      voids: false,
+    },
+  ]);
+  expect(maxima).toMatchObject({
+    pictures: [{ src: "../medien/x/forum.jpg" }],
+    links: ["../medien/x/forum.html"],
+    box: "Ihre Meinung",
+    criteria: [
+      { title: "Erfüllung", max: 4, levels: [] },
+      { title: "Wortschatz", max: 6, levels: [] },
+    ],
+  });
+  expect(maxima?.instructions).toEqual([
+    "Reguläre Prüfungszeit: 10 Minuten",
+    "Im Forum lesen Sie:",
+  ]);
+});
+
+test("writing normalised: the form's gaps from its solution page, texts rated by their criteria", () => {
+  const level: Level = {
+    ...LEVEL,
+    modules: ["schreiben"],
+    writing: { bands: { 5: [5, 2.5, 0], 4: [4, 2, 0], 6: [6, 3, 0] }, max: 5, voids: "Erfüllung" },
+  };
+  const out = normaliseLevel(level, {
+    modules: [{ id: "schreiben", html: SCHREIBEN }],
+    solution: (file) => (file === "schreiben_l1.php" ? SCHREIBEN_L1 : undefined),
+    longdesc: (url) => (url.endsWith("forum.html") ? "Ana: Ich chatte gern." : undefined),
+    media: (url) => `media/image/${url.split("/").pop()}` as never,
+    readAt: 1_000,
+  });
+  expect(out.problems).toEqual([]);
+  const exam = Exam.parse(out.files.find((f) => f.path.includes("canonical/a1/exams"))?.value);
+  const locale = LocaleExam.parse(
+    out.files.find((f) => f.path.includes("locale/de-de/a1/exams"))?.value,
+  );
+  expect(exam.modules).toEqual([{ id: "schreiben", timeLimitSec: 1800, scaleTo: 25 }]);
+  const item = (id: string) => exam.items.find((i) => i.key.endsWith(`/q-${id}`));
+  const section = (slug: string) => exam.sections.find((s) => s.key.endsWith(`/s-${slug}`));
+  // The form: its lines as the section's text, a gap typed, a choice ticked.
+  expect(section("schreiben-1")?.text).toBe(
+    "Kurs Anmeldung\nName: Tom Weber\nAlter: (1)\nDer Kurs ist zu bezahlen.\nZahlung: (2) Bar / Karte",
+  );
+  expect(item("schreiben-1-1")).toMatchObject({
+    type: "gap_text",
+    segments: ["Alter: ", { gap: "g1" }],
+    answer: { g1: { accepted: ["20", "zwanzig"] } },
+  });
+  expect(item("schreiben-1-2")).toMatchObject({
+    type: "single_choice",
+    prompt: "Zahlung:",
+    answer: { optionIds: ["a"] },
+  });
+  // Per point: a criterion of each point with the page's points; the form's own.
+  expect(item("schreiben-2")).toMatchObject({
+    type: "respond",
+    input: "text",
+    prompt: "Eingabetextfeld",
+    criteria: [
+      { id: "inhaltspunkt-1", levels: [3, 1.5, 0] },
+      { id: "inhaltspunkt-2", levels: [3, 1.5, 0] },
+      { id: "kommunikative-gestaltung-des-textes", levels: [1, 0.5, 0] },
+    ],
+  });
+  expect(locale.items[item("schreiben-2")?.key as never]?.criteria?.["inhaltspunkt-2"]).toEqual({
+    title: "Inhaltspunkt 2: Fragen Sie: Preis?",
+    levels: ["voll erfüllt", "teilweise", "nicht erfüllt"],
+  });
+  // Bands: the sheet's points for the page's maximum (none on the page: the level's).
+  expect(item("schreiben-3")?.criteria).toEqual([
+    { id: "aufgabenerfuellung", levels: [5, 2.5, 0], voids: true },
+    { id: "sprache", levels: [5, 2.5, 0] },
+  ]);
+  expect(item("schreiben-4")?.criteria).toEqual([
+    { id: "erfuellung", levels: [4, 2, 0], voids: true },
+    { id: "wortschatz", levels: [6, 3, 0] },
+  ]);
+  expect(section("schreiben-4")).toMatchObject({
+    text: "Ana: Ich chatte gern.",
+    media: { image: "media/image/forum.jpg" },
+  });
+  expect(locale.sections[section("schreiben-4")?.key as never]?.instructions).toBe(
+    "Prüfungszeit: 10 Minuten\nIm Forum lesen Sie:",
+  );
+  const sources = ExamSources.parse(
+    out.files.find((f) => f.path.includes("canonical/a1/sources"))?.value,
+  );
+  expect(sources.documents.map((d) => d.id)).toEqual(["schreiben", "schreiben_l1"]);
+  expect(sources.checks.find((c) => c.id === "criteria-read")).toEqual({
+    id: "criteria-read",
+    passed: 3,
+    of: 3,
+  });
+  expect(sources.items[item("schreiben-1-1")?.key as never]).toEqual([
+    { document: "schreiben", at: "Teil 1, (1)" },
+    { document: "schreiben_l1", at: "Lösung 1" },
+  ]);
 });

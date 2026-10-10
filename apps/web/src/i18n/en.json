@@ -1257,7 +1257,8 @@
       "answers-matched": "Answers from the solution pages matched to an option",
       "numbers-agree": "Question numbers as the pages give them",
       "recordings-placed": "Recordings placed with their questions",
-      "media-kept": "Pictures and recordings kept"
+      "media-kept": "Pictures and recordings kept",
+      "criteria-read": "Writing tasks' criteria read with every level's points"
     },
     "rating": {
       "title": "Rate your answers",

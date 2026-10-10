@@ -165,13 +165,14 @@ section (`kind: "exam"`), not among the courses.
 
 Each level's Modellsatz from the Goethe-Institut's accessible online version (`bfu.goethe.de/a1_sd1/`,
 `a2_mod_2MX5/`, `b1_mod/`; research `docs/research/exams.md`) as one exam of modules
-(`goethe.zertifikat/<level>/exam-modellsatz`): Hören and Lesen, every Teil, question, option, picture,
-recording and right answer. German only and shown as it is. Offered in the Exams section. Schreiben and
-Sprechen: plan, 3b-3.
+(`goethe.zertifikat/<level>/exam-modellsatz`): Hören, Lesen and Schreiben, every Teil, question, option,
+picture, recording and right answer, and each writing task with the criteria it is rated by. German
+only and shown as it is. Offered in the Exams section. Sprechen: plan, 3b-3.
 
 - **Fetch** (`courses/goethe/src/import.ts`): plain GET over HTTPS, one request every 300 ms: each
   module page (`raw/de-de/<level>/<module>.html`), the solution page each Teil's form names
-  (`raw/de-de/<level>/solutions/<name>.html`), the pages holding the text of a picture (`longdesc`,
+  (`raw/de-de/<level>/solutions/<name>.html`; a form posting back to its own page has none), the pages
+  holding the text of a picture (`longdesc`) or of a writing task (B1's guestbook link,
   `raw/de-de/<level>/texts/`); every recording (`.mp4`, sound only) and picture into media, named
   `<level>-<file>`.
 - **Read** (`page.ts`, `teile.ts`, `solutions.ts`): a module page from its "Inhalt" anchor as a tolerant
@@ -187,7 +188,13 @@ Sprechen: plan, 3b-3.
   one after a group of questions (B1) the group's — the Teil's when it is all of them. A form opened
   before its Teil's heading belongs to that Teil; "Teil 2 Text 1/2" are two sections sharing a
   solution page. A solution page is a list ("Lösung: …") or a table (number, the right answer,
-  alternatives by " / ").
+  alternatives by " / "). The Schreiben page is read on its own (`writing.ts`): per Teil ("Teil N",
+  B1 "Aufgabe N") the task before its form (paragraphs, the points to write about as "• …", a picture
+  and a linked text), then either a form to fill in — its lines in order: fields filled in, gaps
+  numbered "(n)", a choice under the line naming it — or a box to write in, and after the form the
+  criteria: levels with their points and meaning under each title (A1), a table of bands A–E whose
+  rows are a criterion's aspects (A2, the note "Wird das Kriterium … mit E … bewertet" voiding it), or
+  each criterion's maximum (B1).
 - **Normalise** (`normalise.ts`): a module per page — timed by the page ("Reguläre Prüfungszeit: …",
   else its Teile's), scaled as the regulations (Durchführungsbestimmungen) say: A1 each part × 1.66 and
   the sum rounded, A2 × 1.25, B1 to 100 rounded to whole points (its table: 29 → 97) — and a section
@@ -202,9 +209,16 @@ Sprechen: plan, 3b-3.
   left out and reported. Keys `q-<module>-<n>`, examples `q-<section>-bsp<n>`, sections
   `s-<module>-<teil>`. Its sources (02): every module and solution page with its copy's sha256, each
   question's place ("Teil 1, Aufgabe 2") and its answer's ("Lösung 2"), the checks: questions read,
-  answers matched, numbers, recordings placed, media kept. Pass marks while Schreiben and Sprechen are
-  not imported: A1 and A2 60 % of
-  the points of the modules there are; B1 each module 60 of 100, all needed.
+  answers matched, numbers, recordings placed, media kept, writing criteria read. Schreiben
+  (`writing-exam.ts`): a form's gaps as questions from its solution page (`gap_text` with the
+  alternatives, a choice as `single_choice`; keys `q-schreiben-<teil>-<n>`), the form's lines the
+  section's text; a text to write as a `respond` item (`q-schreiben-<teil>`) with criteria (02):
+  "pro Inhaltspunkt" one per point of the task (A1), else one per criterion (ids from titles); each
+  level's points as the page gives them, else the model test's score sheet's bands for the criterion's
+  maximum (catalog: A2 5 / 3.5 / 2 / 0.5 / 0, its page naming no maximum; B1 10 / 7.5 / 5 / 2.5 / 0,
+  6 / 4.5 / 3 / 1.5 / 0, 4 / 3 / 2 / 1 / 0, "Erfüllung" voiding), what each level means in the locale
+  where the page says it. Pass marks while Sprechen is not imported: A1 and A2 60 % of the points of
+  the modules there are; B1 each module 60 of 100, all needed.
 
 ## 3. COERLL — Deutsch im Blick (`coerll-dib` → `coerll.dib`, edition `en-de`)
 

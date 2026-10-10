@@ -40,8 +40,10 @@ courses/
                        # lines and pictures), catalogue (questions from the PDF), centre (BAMF's test centre:
                        # pages read, walked as its APEX forms post), png (pictures saved), normalise, import.ts
   goethe/              # Goethe-Zertifikat model tests A1, A2, B1 (goethe.zertifikat): exams of modules; src/:
-                       # catalog (levels), page (a module page as blocks), teile (Teile and questions),
-                       # solutions (a Teil's solution page), normalise, import.ts; test/pages.ts synthetic
+                       # catalog (levels, score sheets' bands), page (a module page as blocks), teile
+                       # (Teile and questions), solutions (a Teil's solution page), options (an answer
+                       # matched to its option), writing (the Schreiben page: tasks, forms, criteria),
+                       # writing-exam (its Teile as sections), normalise, import.ts; test/pages.ts synthetic
   voa-lets-learn-english/ # VOA Learning English «Let's Learn English» (en → en, levels 1–2): videos, transcript,
                        # bold words, quiz answers from the result pages (GET), speaking videos as
                        # `speech_selfrate`; src/normalise/: media (renditions), vocab (bold words), plan

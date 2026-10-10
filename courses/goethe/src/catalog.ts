@@ -10,7 +10,7 @@ export const SERIES = seriesKey("goethe", "zertifikat");
 export const EDITION = "de-de";
 export const SITE = "https://bfu.goethe.de/";
 
-export type ModuleId = "hoeren" | "lesen";
+export type ModuleId = "hoeren" | "lesen" | "schreiben";
 
 export interface Level {
   course: "a1" | "a2" | "b1";
@@ -27,6 +27,11 @@ export interface Level {
   /** How the regulations round (Durchführungsbestimmungen): B1 each module's result to whole points
    *  (its table: 29 → 97), A1 the parts' sum. */
   rounding: "modules" | "total" | "none";
+  /** How the writing criteria's bands A–E score where the page does not say (A1's page gives each
+   *  level's points): the points of the bands by a criterion's maximum, as the model test's score
+   *  sheet ("Schreiben – Bewertung") prints them; the maximum where the page gives none (A2); the
+   *  criterion whose E makes the task 0 where only the sheet's criteria say so (B1). */
+  writing?: { bands: Record<number, number[]>; max?: number; voids?: string };
   /** Its size in the library, measured on a full download. */
   approxBytes: number;
 }
@@ -36,7 +41,7 @@ export const LEVELS: Level[] = [
     course: "a1",
     dir: "a1_sd1",
     title: "Goethe-Zertifikat A1: Start Deutsch 1",
-    modules: ["hoeren", "lesen"],
+    modules: ["hoeren", "lesen", "schreiben"],
     scaleTo: 24.9,
     apart: false,
     rounding: "total",
@@ -46,20 +51,28 @@ export const LEVELS: Level[] = [
     course: "a2",
     dir: "a2_mod_2MX5",
     title: "Goethe-Zertifikat A2",
-    modules: ["hoeren", "lesen"],
+    modules: ["hoeren", "lesen", "schreiben"],
     scaleTo: 25,
     apart: false,
     rounding: "none",
+    // Modellsatz A2, p. 38 (Bewertungsbogen Schreiben): Aufgabenerfüllung and Sprache of each Teil.
+    writing: { bands: { 5: [5, 3.5, 2, 0.5, 0] }, max: 5 },
     approxBytes: 0.007e9,
   },
   {
     course: "b1",
     dir: "b1_mod",
     title: "Goethe-Zertifikat B1",
-    modules: ["lesen", "hoeren"],
+    modules: ["lesen", "hoeren", "schreiben"],
     scaleTo: 100,
     apart: true,
     rounding: "modules",
+    // Modellsatz B1, p. 43 (Schreiben – Bewertung) and p. 42 (Bewertungskriterien: "Erfüllung" E
+    // makes the task 0).
+    writing: {
+      bands: { 10: [10, 7.5, 5, 2.5, 0], 6: [6, 4.5, 3, 1.5, 0], 4: [4, 3, 2, 1, 0] },
+      voids: "Erfüllung",
+    },
     approxBytes: 0.017e9,
   },
 ];

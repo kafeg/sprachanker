@@ -1257,7 +1257,8 @@
       "answers-matched": "Lösungen der Lösungsseiten den Antworten zugeordnet",
       "numbers-agree": "Fragennummern wie auf den Seiten",
       "recordings-placed": "Aufnahmen bei ihren Fragen",
-      "media-kept": "Bilder und Aufnahmen gespeichert"
+      "media-kept": "Bilder und Aufnahmen gespeichert",
+      "criteria-read": "Kriterien der Schreibaufgaben mit den Punkten jeder Stufe gelesen"
     },
     "rating": {
       "title": "Bewerte deine Antworten",
