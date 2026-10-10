@@ -3,7 +3,7 @@ import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { cn } from "@/ui/utils.ts";
-import { useLlm } from "./api.ts";
+import { useLlm } from "./setup-api.ts";
 
 /** "google/gemma-4-12b" → "gemma-4-12b": the publisher adds nothing here. */
 export const modelName = (model: string) => model.slice(model.lastIndexOf("/") + 1);

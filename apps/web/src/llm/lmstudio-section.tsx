@@ -8,8 +8,8 @@ import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { useDecimal } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";
-import { type LlmState, useLmStudio, useLmStudioAction, useSetRoute } from "./api.ts";
 import { errorText } from "./errors.ts";
+import { type LlmState, useLmStudio, useLmStudioAction, useSetRoute } from "./setup-api.ts";
 
 export function LmStudioSection({ state }: { state: LlmState }) {
   const { t } = useTranslation();

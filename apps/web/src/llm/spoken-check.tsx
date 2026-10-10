@@ -2,14 +2,15 @@
 // with "Check with AI" under it (owner, 2026-10-09), once for the same words; kept in the lesson run
 // and shown again without asking. Nothing is shown while no assistant is set up.
 import { type ExerciseKey, itemKey, type TypedEvent } from "@sprachanker/schema";
-import { LoaderCircle, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SpokenCheckView } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
-import { type SpeakingRequest, useCheckSpoken, useLlm, useSpokenChecks } from "./api.ts";
+import { type SpeakingRequest, useCheckSpoken, useSpokenChecks } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
 import { ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { useLlm } from "./setup-api.ts";
 
 export function SpokenAnswerCheck({
   onStored,
@@ -34,11 +35,14 @@ export function SpokenAnswerCheck({
   const asked = check.variables?.transcript === props.transcript && !check.isIdle;
 
   if (!saved && (!ready || kept.isPending)) return null;
-  if (!saved && !asked)
+  // Asked and not failed: waiting for the check (or for it to be shown kept); the button says so.
+  const waiting = asked && !check.isError;
+  if (!saved && (!asked || waiting))
     return (
-      <div className="mt-2 flex items-center gap-1">
-        <Button variant="outline" size="sm" onClick={ask}>
-          <Sparkles className="size-4" /> {t("speech.aiCheck")}
+      <div className="mt-2 flex items-center gap-1" aria-live="polite">
+        <Button variant="outline" size="sm" onClick={ask} loading={waiting}>
+          {!waiting && <Sparkles className="size-4" />}
+          {waiting ? t("speech.aiChecking") : t("speech.aiCheck")}
         </Button>
         <PromptButton request={{ speaking: request }} />
       </div>
@@ -63,18 +67,7 @@ export function SpokenAnswerCheck({
       ) : (
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <Sparkles className="size-4" />
-          {check.isError ? (
-            <ErrorLine error={check.error} provider={llm.data?.provider ?? undefined}>
-              {" "}
-              <button type="button" className="underline" onClick={ask}>
-                {t("common.retry")}
-              </button>
-            </ErrorLine>
-          ) : (
-            <>
-              {t("speech.aiChecking")} <LoaderCircle className="size-4 animate-spin" />
-            </>
-          )}
+          <ErrorLine error={check.error} provider={llm.data?.provider ?? undefined} onRetry={ask} />
           <span className="ml-auto">
             <PromptButton request={{ speaking: request }} />
           </span>

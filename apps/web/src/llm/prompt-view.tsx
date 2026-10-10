@@ -6,8 +6,9 @@ import { useSetting } from "@/api/hooks.ts";
 import { Badge } from "@/ui/components/badge.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/ui/components/sheet.tsx";
-import { DEBUG_PROMPTS, fetchPrompt, type PromptPreview, type PromptRequest } from "./api.ts";
+import { fetchPrompt, type PromptPreview, type PromptRequest } from "./api.ts";
 import { errorText } from "./errors.ts";
+import { DEBUG_PROMPTS } from "./setup-api.ts";
 
 export const useDebugPrompts = () => useSetting(DEBUG_PROMPTS);
 

@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import { fireEvent } from "@testing-library/react";
-import type { LlmState } from "../../src/llm/api.ts";
 import { ModelList } from "../../src/llm/model-list.tsx";
 import { ProviderCards } from "../../src/llm/provider-cards.tsx";
+import type { LlmState } from "../../src/llm/setup-api.ts";
 import { renderApp } from "../render.tsx";
 
 const providers = [

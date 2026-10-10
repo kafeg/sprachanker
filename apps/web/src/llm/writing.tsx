@@ -16,10 +16,11 @@ import { HistoryList } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { useCheckWriting, useLlm, useWriting, type WritingAttempt } from "./api.ts";
+import { useCheckWriting, useWriting, type WritingAttempt } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
 import { ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { useLlm } from "./setup-api.ts";
 
 type Check = WritingAttempt["result"];
 const CRITERIA = ["task", "communication", "accuracy"] as const;

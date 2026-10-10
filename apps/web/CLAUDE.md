@@ -70,7 +70,9 @@ apps/web/src/
                    # settings-section (Settings → AI assistant), lmstudio-section,
                    # prompts-info (Settings → AI assistant: where it works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
-                   # bubbles, header, pending exchange, composer, start prompt, errors
+                   # bubbles, header, pending exchange, composer, start prompt, errors (with Retry);
+                   # api.ts (the tasks' requests), setup-api.ts (the route, providers, models, LM Studio,
+                   # the prompts)
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages,
@@ -81,24 +83,25 @@ apps/web/src/
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, checked-text (a model's check: verdict, the text
-                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented), check-row (a setting on or off), disclosure (folded: "Advanced"),
+                   # corrected, corrections), step-dot (an exercise's mark), avatar, choice (segmented), check-row (a setting on or off), option-card (one of a few options as a card: an engine, a provider), disclosure (folded: "Advanced"),
                    # confirm (an action that cannot be undone), flags (a language's flag), error-text (an
                    # API error in words), target-lang (`lang` of the course's language), window-title,
                    # utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
-                   # dictate (a microphone beside a text box: what was heard goes into it),
-                   # take-button, context (the speech
-                   # host the router provides: keep recordings, show the phrase, save, src, recognition —
-                   # renderers
-                   # call no API; use-speech-host makes it), speech-settings (Settings → Speech;
+                   # dictate (a microphone beside a text box: what was heard goes into it), take-button,
+                   # context (the speech host the router provides: keep recordings, show the phrase,
+                   # save, src, recognition — renderers call no API; use-speech-host makes it),
+                   # speech-settings (Settings → Speech;
                    # SpeechSetup — microphone, recognition, reading aloud — is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
-                   # read at once), speak-button, read-aloud-settings (engines, voices, downloads),
+                   # read at once), speak-button, read-aloud-settings (the engines as cards, the speed)
+                   # with each engine's voices: device-voices, piper-voices, qwen-voices (voice-pick: a
+                   # language's voice and "Listen"); download-row (a model or voice the server
+                   # downloads: Whisper's, Piper's, Qwen3-TTS's),
                    # read-languages (the languages read aloud: the courses' here, else the catalogue's,
-                   # and the interface's),
-                   # samples (what "Listen" reads: everyday sentences per language; pure); in-use (the mark of
+                   # and the interface's), samples (what "Listen" reads: everyday sentences per language; pure); in-use (the mark of
                    # the model in use: Whisper's, Qwen3-TTS's)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
@@ -131,7 +134,8 @@ to `@/ui`).
 - Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
   `Panel`, side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`;
-  a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), what is rarely changed
+  a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), one of a few
+  options shown as cards `OptionCard`, a model or voice the server downloads `DownloadRow` (audio/), what is rarely changed
   is under one `Disclosure` ("Advanced") per tab, tabs look as `SectionTabs`; text fields are the ui
   `Input` and `Textarea` (a gap inside a sentence aside);
   cached lists take a new item through the pure updaters in `api/cache.ts` (tested).

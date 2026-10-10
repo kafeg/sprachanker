@@ -16,7 +16,6 @@ import {
   streamTutor,
   type TutorRequest,
   type TutorTurn,
-  useLlm,
   useResetTutor,
   useTutorCache,
   useTutorHistory,
@@ -34,6 +33,7 @@ import {
   useScrollToEnd,
 } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { useLlm } from "./setup-api.ts";
 import { TutorHistory } from "./tutor-history.tsx";
 
 type Context = Omit<TutorRequest, "message" | "language" | "newChat">;

@@ -1,8 +1,8 @@
 import { expect, test } from "bun:test";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
-import { useAiIn } from "../../src/llm/api.ts";
 import { lessonAssistant } from "../../src/llm/lesson-assistant.tsx";
+import { useAiIn } from "../../src/llm/setup-api.ts";
 import { queryClient } from "../render.tsx";
 
 const MODEL = { provider: "custom", model: "m", providers: [] };

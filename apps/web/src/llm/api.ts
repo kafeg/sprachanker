@@ -1,71 +1,13 @@
-// LLM endpoints of the API: provider setup, connection test, streamed lesson help.
-import { type AiPlace, type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
+// The assistant's tasks in the API (07): explanations, the tutor, writing, spoken answers, scenes, word
+// examples, exam ratings and conversations, and the request each would send (the prompt viewer). Its
+// setup — providers, models, LM Studio, the prompts — is setup-api.ts.
+import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { withAttempt, withCheck, withExample, withScene, withTurns } from "@/api/cache.ts";
 import { ApiError, api, apiError, json } from "@/api/client.ts";
-import { STATIC, useSetting } from "@/api/hooks.ts";
-
-export type LlmState = Awaited<ReturnType<typeof fetchState>>;
-export type ProviderId = LlmState["providers"][number]["id"];
-
-const fetchState = () => json(api.llm.$get());
-
-export const useLlm = () => useQuery({ queryKey: ["llm"], queryFn: fetchState });
-
-/** Whether the assistant works in a place: a model set up and the place not turned off (Settings →
- *  Prompts); undefined while that is read. */
-export function useAiIn(place: AiPlace): boolean | undefined {
-  const llm = useLlm();
-  const off = useSetting("llm.offIn");
-  if (llm.isPending) return undefined;
-  return !!llm.data?.model && !off.includes(place);
-}
-
-export function useSetRoute() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (route: { provider: ProviderId | null; model: string | null }) =>
-      json(api.llm.route.$put({ json: route })),
-    onSuccess: (state) => client.setQueryData(["llm"], state),
-  });
-}
-
-export function useSetProvider() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({
-      id,
-      ...change
-    }: {
-      id: ProviderId;
-      baseUrl?: string | null;
-      apiKey?: string | null;
-    }) => json(api.llm.providers[":id"].$put({ param: { id }, json: change })),
-    onSuccess: (state) => client.setQueryData(["llm"], state as LlmState),
-  });
-}
-
-/** The state of a provider's key where it tells it (OpenRouter: free tier, credits, limits). */
-export const useKeyState = (provider: ProviderId, enabled: boolean) =>
-  useQuery({
-    queryKey: ["llm-key", provider],
-    enabled,
-    retry: false,
-    queryFn: () => json(api.llm.key.$get({ query: { provider } })),
-  });
-
-/** Model list of a provider; fetched on demand (it is also the connection test). */
-export const useModels = (provider: ProviderId | null) =>
-  useQuery({
-    queryKey: ["llm-models", provider],
-    enabled: false,
-    retry: false,
-    queryFn: () => json(api.llm.models.$get({ query: { provider: provider as ProviderId } })),
-  });
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
 
-/** Reads a streamed text response; `onText` receives the whole text so far. */
 /** What a streamed reply is read from: its status, its body, and its JSON when it failed. */
 type StreamedResponse = Pick<Response, "ok" | "status" | "body" | "json">;
 
@@ -240,37 +182,6 @@ export function useResetTutor(lessonKey: string) {
   });
 }
 
-export type LmStudioStatus = Awaited<ReturnType<typeof fetchLmStudio>>;
-const fetchLmStudio = () => json(api.llm.lmstudio.$get());
-
-/** LM Studio's state; polled faster while it downloads something. */
-export const useLmStudio = () =>
-  useQuery({
-    queryKey: ["lmstudio"],
-    queryFn: fetchLmStudio,
-    refetchInterval: (query) =>
-      query.state.data?.suggestions.some((m) => m.download?.status === "downloading")
-        ? 2000
-        : 10_000,
-  });
-
-export type SuggestedModel = LmStudioStatus["suggestions"][number]["key"];
-
-export function useLmStudioAction() {
-  const client = useQueryClient();
-  return useMutation({
-    // Error responses (409/502) become an ApiError in json(); success is the new status.
-    mutationFn: (action: { start: true } | { download: SuggestedModel }) =>
-      "start" in action
-        ? json(api.llm.lmstudio.start.$post())
-        : json(api.llm.lmstudio.download.$post({ json: { model: action.download } })),
-    onSuccess: (status) => client.setQueryData(["lmstudio"], status),
-  });
-}
-
-/** Settings key: show "Prompt" buttons next to AI answers. */
-export const DEBUG_PROMPTS = "llm.debugPrompts";
-
 export type PromptPreview = Awaited<ReturnType<typeof fetchExplainPrompt>>;
 const fetchExplainPrompt = (request: ExplainRequest) =>
   json(api.llm.explain.prompt.$post({ json: request }));
@@ -300,31 +211,6 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
     return json(api.llm["exam-conversation"].prompt.$post({ json: kind.conversation }));
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }
-
-/** The tasks' system prompts (standing or the learner's own) and context budgets, for the settings;
- *  none while no course is installed. */
-const fetchTaskPrompts = (language: string, target: string) =>
-  json(api.llm.prompts.$get({ query: { language, target } }));
-export const useTaskPrompts = (language: string, target: string | undefined) =>
-  useQuery({
-    queryKey: ["llm-prompts", language, target],
-    meta: STATIC,
-    enabled: !!target,
-    staleTime: Number.POSITIVE_INFINITY,
-    queryFn: () => fetchTaskPrompts(language, target as string),
-  });
-
-/** Saves the learner's own system prompt of a task ({language}, {target}); null restores the standing one. */
-export function useSetPrompt() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ task, template }: { task: PromptTaskId; template: string | null }) =>
-      json(api.llm.prompts[":task"].$put({ param: { task }, json: { template } })),
-    onSuccess: () => void client.invalidateQueries({ queryKey: ["llm-prompts"] }),
-  });
-}
-/** The tasks with a system prompt the learner may change (the server's list). */
-export type PromptTaskId = keyof Awaited<ReturnType<typeof fetchTaskPrompts>>;
 
 /** How full the tutor's next request is (refreshed after each turn). */
 export const useTutorContext = (request: TutorPromptRequest, turns: number) =>

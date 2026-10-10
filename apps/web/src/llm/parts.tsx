@@ -54,22 +54,30 @@ export function ChatBubble({
   );
 }
 
-/** A failed request in words (nothing when there is no error). */
+/** A failed request in words, with "Retry" when it can be asked again (nothing when there is no
+ *  error). */
 export function ErrorLine({
   error,
   provider,
-  children,
+  onRetry,
 }: {
   error: unknown;
   provider?: string;
-  children?: React.ReactNode;
+  onRetry?: () => void;
 }) {
   const { t } = useTranslation();
   if (!error) return null;
   return (
     <p className="text-sm text-wrong">
       {errorText(t, error, provider)}
-      {children}
+      {onRetry && (
+        <>
+          {" "}
+          <button type="button" className="underline pointer-coarse:min-h-11" onClick={onRetry}>
+            {t("common.retry")}
+          </button>
+        </>
+      )}
     </p>
   );
 }

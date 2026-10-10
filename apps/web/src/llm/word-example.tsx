@@ -10,10 +10,11 @@ import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
-import { useAiIn, useExamples, useLlm, useMakeExample } from "./api.ts";
+import { useExamples, useMakeExample } from "./api.ts";
 import { modelName } from "./assistant-label.tsx";
 import { ErrorLine } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { useAiIn, useLlm } from "./setup-api.ts";
 
 export function WordExample({ cardId }: { cardId: string }) {
   const { t, i18n } = useTranslation();
@@ -100,12 +101,11 @@ export function WordExample({ cardId }: { cardId: string }) {
       ) : (
         make.isPending && <p className="text-muted-foreground">{t("llm.thinking")}</p>
       )}
-      <ErrorLine error={make.error ?? kept.error} provider={llm.data.provider ?? undefined}>
-        {" "}
-        <button type="button" className="underline" onClick={ask}>
-          {t("common.retry")}
-        </button>
-      </ErrorLine>
+      <ErrorLine
+        error={make.error ?? kept.error}
+        provider={llm.data.provider ?? undefined}
+        onRetry={ask}
+      />
     </div>
   );
 }

@@ -164,7 +164,7 @@ test("Settings: each language read aloud with its voice (automatic: the best one
   const view = await renderApp(<ReadAloud />, {
     data: [
       installed("en-de", "en-ru"),
-      [["piper-voices"], { engine: false, voices: [] }],
+      [["piper-voices"], { engine: false, voices: [], auto: {} }],
       [["qwen-tts"], NO_QWEN],
     ],
   });
@@ -198,18 +198,12 @@ test("Settings: each language read aloud with its voice (automatic: the best one
 
 const NO_QWEN = { engine: false, models: [], languages: [], speakers: [], defaultSpeaker: "ryan" };
 
+/** Piper's state as the server gives it: each language's best voice first, and the one it reads
+ *  with unless the profile picks one. */
 const PIPER = {
   engine: true,
+  auto: { de: "de_DE-thorsten-medium" },
   voices: [
-    {
-      id: "de_DE-thorsten-medium",
-      lang: "de",
-      region: "DE",
-      name: "thorsten",
-      quality: "medium",
-      bytes: 67e6,
-      installed: true,
-    },
     {
       id: "de_DE-thorsten-high",
       lang: "de",
@@ -218,6 +212,15 @@ const PIPER = {
       quality: "high",
       bytes: 116e6,
       installed: false,
+    },
+    {
+      id: "de_DE-thorsten-medium",
+      lang: "de",
+      region: "DE",
+      name: "thorsten",
+      quality: "medium",
+      bytes: 67e6,
+      installed: true,
     },
     {
       id: "de_AT-hmm-low",
@@ -252,7 +255,7 @@ test("Settings with Piper: each language's voices — the one reading, those to 
   });
   expect(view.getByText("1 voice downloaded")).toBeTruthy();
   expect(view.getByText("Automatic — thorsten · Germany · medium quality")).toBeTruthy();
-  // Germany first, best quality first; a download in progress shows how far it is.
+  // In the server's order; a download in progress shows how far it is.
   const rows = view.getAllByRole("listitem").map((li) => li.textContent);
   expect(rows[0]).toContain("thorsten · Germany · high quality");
   expect(rows.some((r) => r?.includes("50 %") || r?.includes("50%"))).toBe(true);
@@ -346,7 +349,7 @@ test("Settings with Qwen3-TTS: its models (the one in use), each language's spea
     data: [
       [["settings"], { "speech.readEngine": "qwen" }],
       installed("en-de", "en-ar"),
-      [["piper-voices"], { engine: false, voices: [] }],
+      [["piper-voices"], { engine: false, voices: [], auto: {} }],
       [
         ["qwen-tts"],
         {

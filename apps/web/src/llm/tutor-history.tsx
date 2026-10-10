@@ -12,10 +12,17 @@ import { useDateFormat } from "@/ui/format.ts";
 import { HistoryList } from "@/ui/history.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
-import { type TutorChat, useDeleteChat, useTutorChat, useTutorChats } from "./api.ts";
+import {
+  type TutorChat,
+  type TutorRequest,
+  useDeleteChat,
+  useTutorChat,
+  useTutorChats,
+} from "./api.ts";
 import { ChatBubble, replyParts } from "./parts.tsx";
 
-type Ids = { series: string; lessonKey: string; edition: string };
+/** The lesson the chats are of, as the tutor is asked about it. */
+type Ids = Pick<TutorRequest, "series" | "lessonKey" | "edition">;
 
 /** An exercise's name in the lesson: its title, or its number. */
 function useExerciseLabel({ series, lessonKey, edition }: Ids) {

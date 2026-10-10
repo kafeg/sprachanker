@@ -6,6 +6,11 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
+import { errorText, setupProblem } from "./errors.ts";
+import { KeyState } from "./key-state.tsx";
+import { LmStudioSection } from "./lmstudio-section.tsx";
+import { ModelList } from "./model-list.tsx";
+import { ProviderCards } from "./provider-cards.tsx";
 import {
   type LlmState,
   type ProviderId,
@@ -13,12 +18,7 @@ import {
   useModels,
   useSetProvider,
   useSetRoute,
-} from "./api.ts";
-import { errorText, setupProblem } from "./errors.ts";
-import { KeyState } from "./key-state.tsx";
-import { LmStudioSection } from "./lmstudio-section.tsx";
-import { ModelList } from "./model-list.tsx";
-import { ProviderCards } from "./provider-cards.tsx";
+} from "./setup-api.ts";
 
 type Provider = LlmState["providers"][number];
 

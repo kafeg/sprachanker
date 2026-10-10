@@ -2,7 +2,6 @@
 import {
   type CardFace,
   type CardRating,
-  CLIENT_HEADERS,
   type ExamKey,
   type ItemKey,
   type LearnerSettingKey,
@@ -390,86 +389,70 @@ export function useDeleteRecordings() {
   });
 }
 
-const fetchSpeech = () => json(api.speech.$get());
-
-/** Recognition: the engine, its models (a download's progress polled while it runs), the profile's. */
-export const useSpeechState = () =>
-  useQuery({
-    queryKey: ["speech"],
-    queryFn: fetchSpeech,
-    refetchInterval: (q) => (q.state.data?.models.some((m) => "downloaded" in m) ? 1000 : false),
-  });
-
-export function useSpeechModels() {
-  const client = useQueryClient();
-  const done = () => client.invalidateQueries({ queryKey: ["speech"] });
-  return {
-    download: useMutation({
-      mutationFn: (id: string) => json(api.speech.models[":id"].$post({ param: { id } })),
-      onSuccess: done,
-    }),
-    remove: useMutation({
-      mutationFn: (id: string) => json(api.speech.models[":id"].$delete({ param: { id } })),
-      onSuccess: done,
-    }),
-  };
+/** What the server downloads for an engine (models, voices): its state, polled while a download runs,
+ *  and the download and removal of one, the state read again after each. */
+function downloadable<S>(
+  key: string,
+  get: () => Promise<S>,
+  items: (state: S) => ReadonlyArray<{ downloaded?: number }>,
+  change: { download(id: string): Promise<unknown>; remove(id: string): Promise<unknown> },
+) {
+  const useState = (enabled = true) =>
+    useQuery({
+      queryKey: [key],
+      queryFn: get,
+      enabled,
+      refetchInterval: (q) =>
+        q.state.data && items(q.state.data).some((m) => m.downloaded !== undefined) ? 1000 : false,
+    });
+  function useActions() {
+    const client = useQueryClient();
+    const onSuccess = () => client.invalidateQueries({ queryKey: [key] });
+    return {
+      download: useMutation({ mutationFn: change.download, onSuccess }),
+      remove: useMutation({ mutationFn: change.remove, onSuccess }),
+    };
+  }
+  return [useState, useActions] as const;
 }
 
-/** Piper's voices on the server: the engine (built or not), each voice (a download's progress polled
- *  while it runs). */
-export const usePiperVoices = (enabled = true) =>
-  useQuery({
-    queryKey: ["piper-voices"],
-    queryFn: () => json(api.speech.voices.$get()),
-    enabled,
-    refetchInterval: (q) => (q.state.data?.voices.some((v) => "downloaded" in v) ? 1000 : false),
-  });
+/** Recognition: the engine, its models, the profile's. */
+export const [useSpeechState, useSpeechModels] = downloadable(
+  "speech",
+  () => json(api.speech.$get()),
+  (s) => s.models,
+  {
+    download: (id) => json(api.speech.models[":id"].$post({ param: { id } })),
+    remove: (id) => json(api.speech.models[":id"].$delete({ param: { id } })),
+  },
+);
 
-export function usePiperVoiceActions() {
-  const client = useQueryClient();
-  const done = () => client.invalidateQueries({ queryKey: ["piper-voices"] });
-  return {
-    download: useMutation({
-      mutationFn: (id: string) => json(api.speech.voices[":id"].$post({ param: { id } })),
-      onSuccess: done,
-    }),
-    remove: useMutation({
-      mutationFn: (id: string) => json(api.speech.voices[":id"].$delete({ param: { id } })),
-      onSuccess: done,
-    }),
-  };
-}
+/** Piper's voices on the server: the engine (built or not), each voice, each language's automatic
+ *  one. */
+export const [usePiperVoices, usePiperVoiceActions] = downloadable(
+  "piper-voices",
+  () => json(api.speech.voices.$get()),
+  (s) => s.voices,
+  {
+    download: (id) => json(api.speech.voices[":id"].$post({ param: { id } })),
+    remove: (id) => json(api.speech.voices[":id"].$delete({ param: { id } })),
+  },
+);
 
-/** Qwen3-TTS on the server: the engine (built or not), its models (a download's progress polled while it
- *  runs), the languages it speaks and its speakers. */
-export const useQwenTts = (enabled = true) =>
-  useQuery({
-    queryKey: ["qwen-tts"],
-    queryFn: () => json(api.speech.qwen.$get()),
-    enabled,
-    refetchInterval: (q) => (q.state.data?.models.some((m) => "downloaded" in m) ? 1000 : false),
-  });
-
-export function useQwenModelActions() {
-  const client = useQueryClient();
-  const done = () => client.invalidateQueries({ queryKey: ["qwen-tts"] });
-  return {
-    download: useMutation({
-      mutationFn: (id: string) => json(api.speech.qwen.models[":id"].$post({ param: { id } })),
-      onSuccess: done,
-    }),
-    remove: useMutation({
-      mutationFn: (id: string) => json(api.speech.qwen.models[":id"].$delete({ param: { id } })),
-      onSuccess: done,
-    }),
-  };
-}
+/** Qwen3-TTS on the server: the engine (built or not), its models, the languages it speaks and its
+ *  speakers. */
+export const [useQwenTts, useQwenModelActions] = downloadable(
+  "qwen-tts",
+  () => json(api.speech.qwen.$get()),
+  (s) => s.models,
+  {
+    download: (id) => json(api.speech.qwen.models[":id"].$post({ param: { id } })),
+    remove: (id) => json(api.speech.qwen.models[":id"].$delete({ param: { id } })),
+  },
+);
 
 /** Starts Qwen3-TTS ahead of reading (loading its model takes seconds). */
-export const warmQwen = () =>
-  fetch("/api/speech/qwen/warm", { method: "POST", headers: { ...CLIENT_HEADERS } }).catch(
-    () => {},
-  );
+export const warmQwen = () => api.speech.qwen.warm.$post().catch(() => {});
 
 /** A text said by the server's voice for its language, as a WAV (the profile's voice and speed). */
 export async function sayOnServer(
@@ -495,5 +478,4 @@ export async function transcribe(wav: Uint8Array<ArrayBuffer>, lang: string): Pr
 }
 
 /** Starts the recogniser ahead of a recording. */
-export const warmSpeech = () =>
-  fetch("/api/speech/warm", { method: "POST", headers: { ...CLIENT_HEADERS } }).catch(() => {});
+export const warmSpeech = () => api.speech.warm.$post().catch(() => {});

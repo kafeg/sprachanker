@@ -26,9 +26,9 @@ import {
 } from "@/ui/components/select.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { Disclosure } from "@/ui/disclosure.tsx";
-import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
+import { useBytes, useNumber } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
-import { cn } from "@/ui/utils.ts";
+import { DownloadRow } from "./download-row.tsx";
 import { InUse } from "./in-use.tsx";
 import { MicButton, micProblem } from "./mic-button.tsx";
 import { ReadAloud } from "./read-aloud-settings.tsx";
@@ -131,8 +131,6 @@ function Recognition() {
   const set = useSetSetting();
   const state = useSpeechState();
   const models = useSpeechModels();
-  const bytes = useBytes();
-  const percent = usePercent();
   const on = useSetting("speech.recognition");
   const data = state.data;
   return (
@@ -150,59 +148,29 @@ function Recognition() {
             />
             <ul className="space-y-2">
               {(data?.models ?? []).map((m) => {
-                const downloading = "downloaded" in m ? (m.downloaded as number) : undefined;
                 const chosen = data?.model === m.id;
                 return (
-                  <li
+                  <DownloadRow
                     key={m.id}
-                    className={cn(
-                      "flex flex-wrap items-center gap-3 rounded-xl border p-3",
-                      m.installed && chosen && on && "border-primary",
-                    )}
+                    title={t(`speech.model.${m.id}`)}
+                    item={m}
+                    removeLabel={t("speech.settings.removeModel")}
+                    onDownload={() => models.download.mutate(m.id)}
+                    onRemove={() => models.remove.mutate(m.id)}
+                    starting={models.download.isPending && models.download.variables === m.id}
+                    marked={chosen && on}
                   >
-                    <span className="min-w-0 flex-1">
-                      <span className="block font-medium">{t(`speech.model.${m.id}`)}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {bytes(m.bytes)}
-                        {"error" in m && ` · ${t("speech.settings.downloadFailed")}`}
-                      </span>
-                    </span>
-                    {downloading !== undefined ? (
-                      <span className="text-sm tabular-nums text-muted-foreground">
-                        {percent(downloading / m.bytes)}
-                      </span>
-                    ) : m.installed ? (
-                      <>
-                        {chosen && on && <InUse />}
-                        {!chosen && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => set.mutate({ key: "speech.model", value: m.id })}
-                          >
-                            {t("speech.settings.use")}
-                          </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          aria-label={t("speech.settings.removeModel")}
-                          onClick={() => models.remove.mutate(m.id)}
-                        >
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </>
-                    ) : (
+                    {chosen && on && <InUse />}
+                    {!chosen && (
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => models.download.mutate(m.id)}
-                        loading={models.download.isPending && models.download.variables === m.id}
+                        onClick={() => set.mutate({ key: "speech.model", value: m.id })}
                       >
-                        {t("speech.settings.download")}
+                        {t("speech.settings.use")}
                       </Button>
                     )}
-                  </li>
+                  </DownloadRow>
                 );
               })}
             </ul>

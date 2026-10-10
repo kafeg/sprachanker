@@ -2,7 +2,7 @@
 // the rate limit — under the key field, so free use and its limits are seen before they bite.
 import { useTranslation } from "react-i18next";
 import { useDollars } from "@/ui/format.ts";
-import { type LlmState, useKeyState } from "./api.ts";
+import { type LlmState, useKeyState } from "./setup-api.ts";
 
 type Provider = LlmState["providers"][number];
 

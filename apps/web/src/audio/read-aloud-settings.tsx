@@ -1,472 +1,20 @@
-// Settings → Speech → Read aloud (08; 09): the engine as cards — the device's voices, Piper or Qwen3-TTS
-// on this computer — the voice of each language read aloud with "Listen" (automatic: the best one
-// there) and the text it reads (a phrase in that language, or the learner's own), Piper's voices to
-// download per language or Qwen3-TTS's models, and the speed (what is read at once: Settings → Speech →
-// Advanced).
-
-import { ALL_LANGS, type SettingValue } from "@sprachanker/schema";
-import {
-  Cpu,
-  Download,
-  Laptop,
-  LoaderCircle,
-  RefreshCw,
-  Sparkles,
-  Trash2,
-  Volume2,
-} from "lucide-react";
+// Settings → Speech → Read aloud (08; 09): the engine as cards — the device's voices, Piper or
+// Qwen3-TTS on this computer — the chosen engine's voices (device-voices, piper-voices, qwen-voices),
+// and the speed (what is read at once: Settings → Speech → Advanced).
+import { Cpu, Laptop, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  usePiperVoiceActions,
-  usePiperVoices,
-  useQwenModelActions,
-  useQwenTts,
-  useSetSetting,
-  useSetting,
-} from "@/api/hooks.ts";
-import { languageName } from "@/i18n/index.ts";
-import { Button } from "@/ui/components/button.tsx";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/components/select.tsx";
+import { usePiperVoices, useQwenTts, useSetSetting, useSetting } from "@/api/hooks.ts";
 import { Slider } from "@/ui/components/slider.tsx";
-import { Textarea } from "@/ui/components/textarea.tsx";
-import { useBytes, useNumber, usePercent } from "@/ui/format.ts";
+import { useNumber } from "@/ui/format.ts";
+import { OptionCard } from "@/ui/option-card.tsx";
 import { Panel } from "@/ui/panel.tsx";
-import { cn } from "@/ui/utils.ts";
-import { InUse } from "./in-use.tsx";
+import { DeviceVoices } from "./device-voices.tsx";
+import { PiperVoices } from "./piper-voices.tsx";
+import { QwenVoices } from "./qwen-voices.tsx";
 import { useReadLanguages } from "./read-languages.ts";
-import { samplesOf } from "./samples.ts";
-import { bestVoice, speaks } from "./speak.ts";
-import { deviceVoice, read, stop, useDeviceVoices, voiceInfo } from "./speaker.ts";
-
-const AUTO = "auto";
-type Engine = SettingValue<"speech.readEngine">;
-type QwenState = NonNullable<ReturnType<typeof useQwenTts>["data"]>;
-type PiperVoice = NonNullable<ReturnType<typeof usePiperVoices>["data"]>["voices"][number];
-const QUALITY = ["x_low", "low", "medium", "high"];
-/** A language's voices ranked: its main region first, then the best quality. */
-const ranked = (voices: PiperVoice[], lang: string) => {
-  let region: string | undefined;
-  try {
-    region = new Intl.Locale(lang).maximize().region;
-  } catch {}
-  return [...voices].sort(
-    (a, b) =>
-      Number(b.region === region) - Number(a.region === region) ||
-      QUALITY.indexOf(b.quality) - QUALITY.indexOf(a.quality) ||
-      a.name.localeCompare(b.name),
-  );
-};
-/** What "Listen" reads in a language: its phrases, else the language's name in it ("Deutsch"). */
-const samplesFor = (lang: string) => {
-  const phrases = samplesOf(lang);
-  return phrases.length ? phrases : [languageName(lang, lang, true)];
-};
-
-/** The voice a profile chose for a language, with an engine, and how to change it. */
-function useChoice(engine: Engine, lang: string) {
-  const set = useSetSetting();
-  const chosen = useSetting("speech.voices");
-  const own = chosen?.[engine] ?? {};
-  return {
-    own,
-    choose(id: string) {
-      const next = { ...own };
-      if (id === AUTO) delete next[lang];
-      else next[lang] = id;
-      set.mutate({ key: "speech.voices", value: { ...chosen, [engine]: next } });
-    },
-  };
-}
-
-/** A select of voices, automatic first, "Listen", and below them the text it reads: a phrase in the
- *  language (another one on request) or the learner's own; left empty, the phrase. */
-function VoicePick({
-  lang,
-  pick,
-  onListen,
-}: {
-  lang: string;
-  /** The voices to choose from for this language (none: one voice reads every language). */
-  pick?: {
-    options: Array<{ id: string; name: string }>;
-    value: string;
-    auto: string;
-    onChange(id: string): void;
-  };
-  onListen(text: string): void;
-}) {
-  const { t, i18n } = useTranslation();
-  const name = languageName(lang, i18n.language, true);
-  const phrases = samplesFor(lang);
-  const [shown, setShown] = useState(0);
-  const phrase = phrases[shown % phrases.length] ?? "";
-  const [text, setText] = useState(phrase);
-  const another = () => {
-    const next = (shown + 1) % phrases.length;
-    setShown(next);
-    setText(phrases[next] ?? "");
-  };
-  return (
-    <>
-      {pick && (
-        <Select value={pick.value} onValueChange={pick.onChange}>
-          <SelectTrigger
-            className="min-w-56 flex-1"
-            aria-label={t("speech.settings.voiceFor", { language: name })}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={AUTO}>
-              {t("speech.settings.voiceAuto", { name: pick.auto })}
-            </SelectItem>
-            {pick.options.map((v) => (
-              <SelectItem key={v.id} value={v.id}>
-                {v.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      <Button variant="outline" size="sm" onClick={() => onListen(text.trim() || phrase)}>
-        <Volume2 className="size-4" /> {t("speech.settings.listen")}
-      </Button>
-      <div className="basis-full space-y-1 sm:pl-31">
-        <Textarea
-          lang={lang}
-          dir="auto"
-          rows={2}
-          className="min-h-0"
-          aria-label={t("speech.settings.sampleFor", { language: name })}
-          placeholder={phrase}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        {phrases.length > 1 && (
-          <Button variant="link" size="sm" className="h-auto px-0 py-0" onClick={another}>
-            <RefreshCw className="size-3.5" /> {t("speech.settings.otherSample")}
-          </Button>
-        )}
-      </div>
-    </>
-  );
-}
-
-/** One language with the device's voices. */
-function DeviceVoiceRow({ lang }: { lang: string }) {
-  const { t, i18n } = useTranslation();
-  const voices = useDeviceVoices();
-  const rate = useSetting("speech.readRate");
-  const { own, choose } = useChoice("device", lang);
-  const mine = voices.filter((v) => speaks(voiceInfo(v), lang));
-  const name = languageName(lang, i18n.language, true);
-  const value = own[lang] && mine.some((v) => v.voiceURI === own[lang]) ? own[lang] : AUTO;
-  const listen = (text: string) => {
-    const voice = deviceVoice(voices, own, lang);
-    void read(`listen:${lang}`, [{ text, lang }], {
-      wayFor: () => ({ device: voice, rate }),
-    });
-  };
-  return (
-    <div className="flex flex-wrap items-center gap-3 border-t py-2 first:border-t-0">
-      <span className="w-28 text-sm font-medium">{name}</span>
-      {mine.length ? (
-        <VoicePick
-          lang={lang}
-          pick={{
-            value,
-            auto: bestVoice(mine.map(voiceInfo), lang)?.name ?? "",
-            options: mine.map((v) => ({ id: v.voiceURI, name: v.name })),
-            onChange: choose,
-          }}
-          onListen={listen}
-        />
-      ) : (
-        <span className="text-sm text-muted-foreground">
-          {t("speech.settings.noVoice", { language: name })}
-        </span>
-      )}
-    </div>
-  );
-}
-
-/** A Piper voice's name as the learner reads it: "thorsten · Germany · high quality". */
-function usePiperName() {
-  const { t, i18n } = useTranslation();
-  const regions = new Intl.DisplayNames([i18n.language], { type: "region" });
-  return (v: PiperVoice) =>
-    [
-      v.name.replace(/_/g, " "),
-      regions.of(v.region) ?? v.region,
-      t(`speech.settings.quality.${v.quality}`),
-    ].join(" · ");
-}
-
-/** One language with Piper: the voice to read with, and its voices to download or remove. */
-function PiperLanguage({ lang, voices }: { lang: string; voices: PiperVoice[] }) {
-  const { t, i18n } = useTranslation();
-  const actions = usePiperVoiceActions();
-  const bytes = useBytes();
-  const percent = usePercent();
-  const nameOf = usePiperName();
-  const { own, choose } = useChoice("piper", lang);
-  const [all, setAll] = useState(false);
-  const mine = ranked(
-    voices.filter((v) => v.lang === lang),
-    lang,
-  );
-  const installed = mine.filter((v) => v.installed);
-  const name = languageName(lang, i18n.language, true);
-  const value = own[lang] && installed.some((v) => v.id === own[lang]) ? own[lang] : AUTO;
-  const shown = all ? mine : mine.slice(0, 4);
-  const listen = (text: string) => {
-    const voice = value === AUTO ? installed[0]?.id : value;
-    void read(`listen:${lang}`, [{ text, lang }], {
-      wayFor: () => ({ server: { voice } }),
-    });
-  };
-  return (
-    <div className="space-y-2 border-t py-3 first:border-t-0">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="w-28 text-sm font-medium">{name}</span>
-        {installed.length ? (
-          <VoicePick
-            lang={lang}
-            pick={{
-              value,
-              auto: installed[0] ? nameOf(installed[0]) : "",
-              options: installed.map((v) => ({ id: v.id, name: nameOf(v) })),
-              onChange: choose,
-            }}
-            onListen={listen}
-          />
-        ) : (
-          <span className="text-sm text-muted-foreground">
-            {mine.length
-              ? t("speech.settings.piperNone", { language: name })
-              : t("speech.settings.piperNoLanguage", { language: name })}
-          </span>
-        )}
-      </div>
-      {shown.length > 0 && (
-        <ul className="space-y-1 pl-0 sm:pl-31">
-          {shown.map((v) => (
-            <li key={v.id} className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="min-w-0 flex-1">
-                {nameOf(v)}
-                <span className="text-muted-foreground"> · {bytes(v.bytes)}</span>
-                {"error" in v && v.error && (
-                  <span className="block text-xs text-wrong">
-                    {t("speech.settings.downloadFailed")}
-                  </span>
-                )}
-              </span>
-              {v.installed ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  aria-label={t("speech.settings.removeVoice", { voice: nameOf(v) })}
-                  onClick={() => actions.remove.mutate(v.id)}
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              ) : "downloaded" in v && v.downloaded !== undefined ? (
-                <span className="flex items-center gap-1.5 text-muted-foreground">
-                  <LoaderCircle className="size-4 animate-spin" />
-                  {percent(v.downloaded / v.bytes)}
-                </span>
-              ) : (
-                <Button variant="outline" size="sm" onClick={() => actions.download.mutate(v.id)}>
-                  <Download className="size-4" /> {t("speech.settings.download")}
-                </Button>
-              )}
-            </li>
-          ))}
-          {mine.length > shown.length && (
-            <li>
-              <Button variant="link" size="sm" className="px-0" onClick={() => setAll(true)}>
-                {t("speech.settings.allVoices", { count: mine.length })}
-              </Button>
-            </li>
-          )}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-/** A download in progress, or a button that starts or removes one. */
-function DownloadState({
-  item,
-  label,
-  onDownload,
-  onRemove,
-}: {
-  item: { installed: boolean; bytes: number; downloaded?: number; error?: string };
-  label: string;
-  onDownload(): void;
-  onRemove(): void;
-}) {
-  const { t } = useTranslation();
-  const percent = usePercent();
-  if (item.installed)
-    return (
-      <Button
-        variant="ghost"
-        size="sm"
-        aria-label={t("speech.settings.removeVoice", { voice: label })}
-        onClick={onRemove}
-      >
-        <Trash2 className="size-4" />
-      </Button>
-    );
-  if (item.downloaded !== undefined)
-    return (
-      <span className="flex items-center gap-1.5 text-muted-foreground">
-        <LoaderCircle className="size-4 animate-spin" />
-        {percent(item.downloaded / item.bytes)}
-      </span>
-    );
-  return (
-    <Button variant="outline" size="sm" onClick={onDownload}>
-      <Download className="size-4" /> {t("speech.settings.download")}
-    </Button>
-  );
-}
-
-/** Qwen3-TTS: its models to download, the one in use marked and another installed one to use instead
- *  (none chosen: the large one when it is there), the one voice it reads every language with, and a
- *  phrase of each language with "Listen". */
-function QwenSection({ state, langs }: { state: QwenState; langs: string[] }) {
-  const { t } = useTranslation();
-  const actions = useQwenModelActions();
-  const set = useSetSetting();
-  const bytes = useBytes();
-  const ready = state.models.some((m) => m.installed);
-  return (
-    <div className="space-y-3">
-      <ul className="space-y-2">
-        {state.models.map((m) => (
-          <li
-            key={m.id}
-            className={cn(
-              "flex flex-wrap items-center gap-3 rounded-xl border p-3",
-              m.inUse && "border-primary",
-            )}
-          >
-            <span className="min-w-0 flex-1">
-              <span className="block font-medium">
-                {t(`speech.settings.qwenModel.${m.id === "0.6b" ? "small" : "large"}`)}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {bytes(m.bytes)}
-                {"error" in m && m.error && ` · ${t("speech.settings.downloadFailed")}`}
-              </span>
-            </span>
-            {m.inUse ? (
-              <InUse />
-            ) : (
-              m.installed && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => set.mutate({ key: "speech.qwenModel", value: m.id })}
-                >
-                  {t("speech.settings.use")}
-                </Button>
-              )
-            )}
-            <DownloadState
-              item={m}
-              label={t(`speech.settings.qwenModel.${m.id === "0.6b" ? "small" : "large"}`)}
-              onDownload={() => actions.download.mutate(m.id)}
-              onRemove={() => actions.remove.mutate(m.id)}
-            />
-          </li>
-        ))}
-      </ul>
-      {ready && (
-        <div>
-          <QwenVoice state={state} />
-          {langs.map((lang) => (
-            <QwenLanguage key={lang} lang={lang} state={state} />
-          ))}
-        </div>
-      )}
-      <p className="text-xs text-muted-foreground">{t("speech.settings.qwenHint")}</p>
-    </div>
-  );
-}
-
-/** A Qwen3-TTS speaker's name as shown: "uncle_fu" → "Uncle fu". */
-const speakerName = (s: string) => s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
-
-/** Qwen3-TTS's voice: one speaker for every language (each speaks them all, and a text mixing them is
- *  read whole). */
-function QwenVoice({ state }: { state: QwenState }) {
-  const { t } = useTranslation();
-  const { own, choose } = useChoice("qwen", ALL_LANGS);
-  const value =
-    own[ALL_LANGS] && (state.speakers as readonly string[]).includes(own[ALL_LANGS])
-      ? own[ALL_LANGS]
-      : AUTO;
-  return (
-    <div className="space-y-1 py-2">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="w-28 text-sm font-medium">{t("speech.settings.qwenVoice")}</span>
-        <Select value={value} onValueChange={choose}>
-          <SelectTrigger className="min-w-56 flex-1" aria-label={t("speech.settings.qwenVoice")}>
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={AUTO}>
-              {t("speech.settings.voiceAuto", { name: speakerName(state.defaultSpeaker) })}
-            </SelectItem>
-            {state.speakers.map((s) => (
-              <SelectItem key={s} value={s}>
-                {speakerName(s)}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <p className="text-xs text-muted-foreground sm:pl-31">{t("speech.settings.qwenVoiceHint")}</p>
-    </div>
-  );
-}
-
-/** One language with Qwen3-TTS: a phrase and "Listen", in the voice chosen for all. */
-function QwenLanguage({ lang, state }: { lang: string; state: QwenState }) {
-  const { t, i18n } = useTranslation();
-  const own = useSetting("speech.voices")?.qwen ?? {};
-  const name = languageName(lang, i18n.language, true);
-  const speaks = state.languages.includes(lang);
-  const chosen = own[ALL_LANGS];
-  const voice =
-    chosen && (state.speakers as readonly string[]).includes(chosen) ? chosen : undefined;
-  const listen = (text: string) => {
-    void read(`listen:${lang}`, [{ text, lang }], { wayFor: () => ({ server: { voice } }) });
-  };
-  return (
-    <div className="flex flex-wrap items-center gap-3 border-t py-2 first:border-t-0">
-      <span className="w-28 text-sm font-medium">{name}</span>
-      {speaks ? (
-        <VoicePick lang={lang} onListen={listen} />
-      ) : (
-        <span className="text-sm text-muted-foreground">
-          {t("speech.settings.qwenNoLanguage", { language: name })}
-        </span>
-      )}
-    </div>
-  );
-}
+import { stop, useDeviceVoices } from "./speaker.ts";
+import type { Engine } from "./voice-pick.tsx";
 
 export function ReadAloud() {
   const { t } = useTranslation();
@@ -481,90 +29,62 @@ export function ReadAloud() {
   const [shownRate, setShownRate] = useState<number>();
   const device = typeof speechSynthesis !== "undefined" && voices.length > 0;
   const piperReady = piper?.voices.filter((v) => v.installed).length ?? 0;
-  const card = (
-    id: Engine,
-    icon: React.ReactNode,
-    title: string,
-    line: string,
-    usable: boolean,
-  ) => (
-    <button
-      type="button"
-      aria-pressed={engine === id}
-      disabled={!usable}
-      onClick={() => set.mutate({ key: "speech.readEngine", value: id })}
-      className={cn(
-        "flex flex-col items-start gap-1 rounded-2xl border bg-card p-3 text-left hover:bg-accent/60 disabled:cursor-not-allowed disabled:opacity-60",
-        engine === id && "border-2 border-primary bg-accent",
-      )}
-    >
-      <span className="flex items-center gap-1.5 font-medium">
-        {icon} {title}
-      </span>
-      <span className="text-xs text-muted-foreground">{line}</span>
-    </button>
-  );
+  const choose = (id: Engine) => () => set.mutate({ key: "speech.readEngine", value: id });
   return (
     <Panel title={t("speech.settings.read")}>
       <div className="mt-2 space-y-4">
         <p className="text-sm text-muted-foreground">{t("speech.settings.readHint")}</p>
         <div className="grid gap-2 sm:grid-cols-3">
-          {card(
-            "device",
-            <Laptop className="size-4" />,
-            t("speech.settings.engine.device"),
-            device
-              ? t("speech.settings.engine.deviceLine", {
-                  count: voices.length,
-                  n: number(voices.length),
-                })
-              : t("speech.settings.engine.deviceNone"),
-            true,
-          )}
-          {card(
-            "piper",
-            <Cpu className="size-4" />,
-            t("speech.settings.engine.piper"),
-            !piper?.engine
-              ? t("speech.settings.engine.piperMissing")
-              : t("speech.settings.engine.piperLine", {
-                  count: piperReady,
-                  n: number(piperReady),
-                }),
-            !!piper?.engine,
-          )}
-          {card(
-            "qwen",
-            <Sparkles className="size-4" />,
-            t("speech.settings.engine.qwen"),
-            !qwen?.engine
-              ? t("speech.settings.engine.qwenMissing")
-              : qwen.models.some((m) => m.installed)
-                ? t("speech.settings.engine.qwenReady")
-                : t("speech.settings.engine.qwenNoModel"),
-            !!qwen?.engine,
-          )}
+          <OptionCard
+            icon={Laptop}
+            title={t("speech.settings.engine.device")}
+            line={
+              device
+                ? t("speech.settings.engine.deviceLine", {
+                    count: voices.length,
+                    n: number(voices.length),
+                  })
+                : t("speech.settings.engine.deviceNone")
+            }
+            chosen={engine === "device"}
+            onChoose={choose("device")}
+          />
+          <OptionCard
+            icon={Cpu}
+            title={t("speech.settings.engine.piper")}
+            line={
+              !piper?.engine
+                ? t("speech.settings.engine.piperMissing")
+                : t("speech.settings.engine.piperLine", {
+                    count: piperReady,
+                    n: number(piperReady),
+                  })
+            }
+            chosen={engine === "piper"}
+            disabled={!piper?.engine}
+            onChoose={choose("piper")}
+          />
+          <OptionCard
+            icon={Sparkles}
+            title={t("speech.settings.engine.qwen")}
+            line={
+              !qwen?.engine
+                ? t("speech.settings.engine.qwenMissing")
+                : qwen.models.some((m) => m.installed)
+                  ? t("speech.settings.engine.qwenReady")
+                  : t("speech.settings.engine.qwenNoModel")
+            }
+            chosen={engine === "qwen"}
+            disabled={!qwen?.engine}
+            onChoose={choose("qwen")}
+          />
         </div>
         {engine === "qwen" && qwen?.engine ? (
-          <QwenSection state={qwen} langs={langs} />
+          <QwenVoices state={qwen} langs={langs} />
         ) : engine === "piper" && piper?.engine ? (
-          <div>
-            {langs.map((lang) => (
-              <PiperLanguage key={lang} lang={lang} voices={piper.voices} />
-            ))}
-            <p className="mt-1 text-xs text-muted-foreground">{t("speech.settings.piperHint")}</p>
-          </div>
+          <PiperVoices state={piper} langs={langs} />
         ) : (
-          device && (
-            <div>
-              {langs.map((lang) => (
-                <DeviceVoiceRow key={lang} lang={lang} />
-              ))}
-              <p className="mt-1 text-xs text-muted-foreground">
-                {t("speech.settings.betterVoices")}
-              </p>
-            </div>
-          )
+          device && <DeviceVoices langs={langs} />
         )}
         {/* Qwen3-TTS has no speed of its own: the setting is not shown with it. */}
         {!(engine === "qwen" && qwen?.engine) && (

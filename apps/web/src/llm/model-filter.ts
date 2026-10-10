@@ -1,17 +1,8 @@
 // A provider's models as the settings list them (07, "Providers"; 09): which filters its metadata allows,
 // the models a search and the filters let through, grouped by publisher. Pure.
+import type { ListedModel } from "./setup-api.ts";
 
-/** A model as the server lists it (`@sprachanker/llm` ModelInfo). */
-export interface ListedModel {
-  id: string;
-  name?: string;
-  free?: boolean;
-  price?: { input: number; output: number };
-  contextLength?: number;
-  json?: boolean;
-  tools?: boolean;
-  publisher?: string;
-}
+export type { ListedModel } from "./setup-api.ts";
 
 export interface ModelFilters {
   search: string;

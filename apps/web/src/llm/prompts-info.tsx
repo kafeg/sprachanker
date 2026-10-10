@@ -9,8 +9,8 @@ import { useCourses, useSetSetting, useSetting } from "@/api/hooks.ts";
 import { CheckRow } from "@/ui/check-row.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
-import { DEBUG_PROMPTS, type PromptTaskId, useSetPrompt, useTaskPrompts } from "./api.ts";
 import { useDebugPrompts } from "./prompt-view.tsx";
+import { DEBUG_PROMPTS, type PromptTaskId, useSetPrompt, useTaskPrompts } from "./setup-api.ts";
 
 /** What each task adds from the lesson, in prompt order; a part with a budget shows its limit. */
 const PARTS = {

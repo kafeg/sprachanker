@@ -1,12 +1,12 @@
 // Scenes, a practice step of the lesson, on the step's page: a role-play on the lesson's topic. The
 // partner speaks the target language (translation on demand), corrects the learner's lines and ticks
 // off the scene's goals; the lesson's earlier scenes are listed under it, each readable again.
-import type { LessonKey } from "@sprachanker/schema";
 import { Circle, CircleCheck, Languages } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { said } from "@/audio/speak.ts";
 import { useReadAtOnce } from "@/audio/speaker.ts";
+import type { LessonSlotContext } from "@/lesson/slots.ts";
 import { Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { useDateFormat } from "@/ui/format.ts";
@@ -14,7 +14,7 @@ import { HistoryList } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { type SceneState, useLlm, useSceneAction, useScenes } from "./api.ts";
+import { type SceneState, useSceneAction, useScenes } from "./api.ts";
 import {
   ChatBubble,
   ChatComposer,
@@ -25,8 +25,9 @@ import {
   useScrollToEnd,
 } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { useLlm } from "./setup-api.ts";
 
-type Ids = { series: string; lessonKey: LessonKey; edition: string };
+type Ids = LessonSlotContext;
 type Turn = SceneState["turns"][number];
 type Action = ReturnType<typeof useSceneAction>;
 type Busy = { preparing: true } | { line: string } | null;

@@ -3,9 +3,9 @@
 // onboarding's AI step.
 import { Cloud, Laptop, Network, Power, Sparkles, SquareTerminal, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { cn } from "@/ui/utils.ts";
-import type { LlmState, ProviderId } from "./api.ts";
+import { OptionCard } from "@/ui/option-card.tsx";
 import { setupProblem } from "./errors.ts";
+import type { LlmState, ProviderId } from "./setup-api.ts";
 
 type Provider = LlmState["providers"][number];
 
@@ -44,27 +44,17 @@ export function ProviderCards({
   onPick(provider: ProviderId | null): void;
 }) {
   const { t } = useTranslation();
-  const card = (id: ProviderId | "off", title: string, line: string, dim = false) => {
-    const Icon = ICON[id];
-    const chosen = (state.provider ?? "off") === id;
-    return (
-      <button
-        key={id}
-        type="button"
-        aria-pressed={chosen}
-        onClick={() => onPick(id === "off" ? null : id)}
-        className={cn(
-          "flex flex-col items-start gap-1 rounded-2xl border bg-card p-3 text-left hover:bg-accent/60",
-          chosen && "border-2 border-primary bg-accent",
-          dim && !chosen && "opacity-60",
-        )}
-      >
-        <Icon className="size-5 text-muted-foreground" aria-hidden />
-        <span className="font-semibold">{title}</span>
-        <span className="text-xs text-muted-foreground">{line}</span>
-      </button>
-    );
-  };
+  const card = (id: ProviderId | "off", title: string, line: string, dim = false) => (
+    <OptionCard
+      key={id}
+      icon={ICON[id]}
+      title={title}
+      line={line}
+      chosen={(state.provider ?? "off") === id}
+      dim={dim}
+      onChoose={() => onPick(id === "off" ? null : id)}
+    />
+  );
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
       {card("off", t("llm.off"), t("llm.cardState.off"))}

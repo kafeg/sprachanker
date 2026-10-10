@@ -8,16 +8,11 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
-import {
-  type ExplainRequest,
-  streamExplain,
-  useExplanations,
-  useExplanationsKept,
-  useLlm,
-} from "./api.ts";
+import { type ExplainRequest, streamExplain, useExplanations, useExplanationsKept } from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
 import { ErrorLine, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
+import { useLlm } from "./setup-api.ts";
 
 /** "Why is this wrong?" for one item. `autoStart`: asked when shown, unless one is kept already;
  *  `stored`: resolves once the run's answers are stored (the attempt explained is looked up there). */
@@ -119,12 +114,7 @@ export function ExplainMistake({
           ) : (
             busy && <p className="text-muted-foreground">{t("llm.thinking")}</p>
           )}
-          <ErrorLine error={error} provider={llm.data.provider ?? undefined}>
-            {" "}
-            <button type="button" className="underline" onClick={ask}>
-              {t("common.retry")}
-            </button>
-          </ErrorLine>
+          <ErrorLine error={error} provider={llm.data.provider ?? undefined} onRetry={ask} />
         </div>
       )}
     </div>
