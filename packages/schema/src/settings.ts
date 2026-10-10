@@ -134,7 +134,7 @@ export type SettingValue<K extends SettingKey> = K extends keyof Learner
     : never;
 
 /** What a preference is while the learner has not set it — the one place both the server and the web
- *  read it from (Anki's deck options: the engine's `SRS_DEFAULTS`). */
+ *  read it from (Anki's deck options among them, as Anki has them). */
 export const SETTING_DEFAULTS = {
   theme: "system",
   audioRate: 1,
@@ -149,6 +149,12 @@ export const SETTING_DEFAULTS = {
   "speech.readRate": 1,
   "speech.readAtOnce": "none",
   "srs.faces": ["recognition", "production"],
+  "srs.newPerDay": 20,
+  "srs.reviewsPerDay": 200,
+  "srs.retention": 0.9,
+  "srs.learningSteps": ["1m", "10m"],
+  "srs.relearningSteps": ["10m"],
+  "srs.dayStartHour": 4,
   "srs.newIgnoresReviewLimit": false,
 } as const satisfies { [K in keyof Learner]?: SettingValue<K> };
 export type LearnerSettingKey = keyof Learner;

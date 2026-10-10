@@ -61,7 +61,8 @@ src/
                      # supervisor); profile-speech (a profile's choices applied: recognition, the
                      # engine, voice and speed reading aloud); sidecar (the supervisor of local
                      # engines: one start, idle stop, switching after requests in flight); once (one
-                     # promise per key: a load, a reading, a hearing asked twice made once);
+                     # promise per key: a load, a reading, a hearing asked twice made once); stored
+                     # (a stored JSON value read with its schema: unset when it does not read);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,
                      # catalogue states, resume after restart; the installer is injected)

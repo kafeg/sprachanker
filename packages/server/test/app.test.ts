@@ -491,6 +491,11 @@ describe("settings and media", () => {
       .query("INSERT INTO settings (key, value_json) VALUES ('theme', '\"pink\"')")
       .run();
     expect(await getJson("/api/settings")).not.toHaveProperty("theme");
+    // So does one that is no JSON at all (a damaged row).
+    new Database(join(root, "profiles/local/profile.sqlite"))
+      .query("INSERT INTO settings (key, value_json) VALUES ('audioRate', '{not json')")
+      .run();
+    expect(await getJson("/api/settings")).not.toHaveProperty("audioRate");
   });
 
   test("only this machine's names are answered; security headers", async () => {

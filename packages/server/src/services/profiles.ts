@@ -16,6 +16,7 @@ import type { ServerDb } from "../db/server/db.ts";
 import { profiles, serverSettings } from "../db/server/schema.ts";
 import { ServiceError } from "../errors.ts";
 import type { MediaBlob } from "../media.ts";
+import { readJson } from "./stored.ts";
 
 /** The profiles' database files (runtime adapter): opened on first use, removed with the profile. */
 export interface ProfileFiles {
@@ -88,7 +89,7 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
         .where(eq(serverSettings.key, "registration"))
         .get();
       // A value that does not read is the default: open.
-      return r ? SERVER_SETTINGS.registration.catch(true).parse(JSON.parse(r.valueJson)) : true;
+      return (r && readJson(r.valueJson, SERVER_SETTINGS.registration)) ?? true;
     },
     setRegistration(open: boolean) {
       db.insert(serverSettings)

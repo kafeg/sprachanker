@@ -1,3 +1,4 @@
+import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { existsSync, mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -122,6 +123,11 @@ test("the server's matters: registration closed refuses new profiles; delete by 
   const refused = await anonymous("POST", "/api/profiles", { name: "Late" });
   expect([refused.status, await read(refused)]).toEqual([403, { error: "registration_closed" }]);
   expect((await read(anonymous("GET", "/api/profiles"))).registration).toBe(false);
+  // A damaged value reads as the default: open.
+  new Database(join(root, "server.sqlite"))
+    .query("UPDATE server_settings SET value_json = '{not json' WHERE key = 'registration'")
+    .run();
+  expect((await read(anonymous("GET", "/api/profiles"))).registration).toBe(true);
   admin.setRegistration(true);
   const late = (await read(anonymous("POST", "/api/profiles", { name: "Late" }))).profile;
   admin.remove(late.id);

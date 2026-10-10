@@ -1,5 +1,6 @@
 // Profile settings: small JSON values by key (05), each key with its schema (schema `settings.ts`).
-// Values are checked when written and parsed when read: one that no longer fits reads as unset.
+// Values are checked when written and parsed when read: one that no longer fits — or is no JSON at
+// all — reads as unset.
 import {
   type LearnerSettingKey,
   learnerSettingSchema,
@@ -13,12 +14,10 @@ import { eq } from "drizzle-orm";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { settings } from "../db/profile/schema.ts";
 import { ServiceError } from "../errors.ts";
+import { readJson } from "./stored.ts";
 
 export function createSettings(db: ProfileDb) {
-  const parsed = (key: string, valueJson: string) => {
-    const result = settingSchema(key)?.safeParse(JSON.parse(valueJson));
-    return result?.success ? result.data : undefined;
-  };
+  const parsed = (key: string, valueJson: string) => readJson(valueJson, settingSchema(key));
   const write = (key: string, value: unknown) => {
     const valueJson = JSON.stringify(value);
     db.insert(settings)

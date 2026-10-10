@@ -2,7 +2,6 @@
 // content and course downloads are shared; each profile has its own runs and histories, cards and study,
 // Notebook, settings and AI assistant, over its own database, made when it is first used.
 import type { LibraryView } from "@sprachanker/course-kit";
-import { SRS_DEFAULTS } from "@sprachanker/engine";
 import type { ProfileDb } from "../db/profile/db.ts";
 import type { ServerDb } from "../db/server/db.ts";
 import { secretBox } from "../security/secrets.ts";
@@ -153,7 +152,7 @@ function profileServices(
     tutor,
     scenes,
     progress: runs.progress,
-    dayStartHour: () => settings.get("srs.dayStartHour") ?? SRS_DEFAULTS.dayStartHour,
+    dayStartHour: () => settings.value("srs.dayStartHour"),
     now,
   });
   return {
