@@ -48,6 +48,8 @@ test("a lesson's words become cards, one per word, kept when met again; decks by
         {
           scope: `course:${COURSE}`,
           course: COURSE,
+          // The course's title in the deck's edition, not its first.
+          title: "Демо-курс",
           editions: ["ru-de"],
           counts: { new: 8, learning: 0, review: 0 },
         },

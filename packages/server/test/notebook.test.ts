@@ -103,7 +103,13 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
   expect(figure(deck.figures, "dueToday")?.value).toBeGreaterThanOrEqual(1);
   const lessons = moduleOf(overview, "lesson").entries;
   expect(lessons).toMatchObject([
-    { key: CAFE, group: { key: "sprachanker.fixture/demo" }, runCount: 2, open: true },
+    // The course's title in the edition of the runs (ru-de), not its first edition's.
+    {
+      key: CAFE,
+      group: { key: "sprachanker.fixture/demo", title: "Демо-курс" },
+      runCount: 2,
+      open: true,
+    },
   ]);
   expect(figure(lessons[0]?.figures ?? [], "best")?.value).toBeNull();
   expect(lessons[0]?.title).toBeTruthy();

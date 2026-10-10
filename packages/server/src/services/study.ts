@@ -28,7 +28,7 @@ import {
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { CardStore, Note } from "./card-store.ts";
-import type { Content } from "./content.ts";
+import { type Content, courseTitle } from "./content.ts";
 import type { RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
@@ -206,24 +206,31 @@ export function createStudy(deps: {
     },
 
     /** Decks: each language the cards teach, and under it each course with its language pairs (the
-     *  editions its cards translate into: `ru-de`), with Anki's three counts. */
+     *  editions its cards translate into: `ru-de`) and its title in the first of them, with Anki's
+     *  three counts. */
     async decks() {
       const data = studyData();
+      const installed = await content.courses();
       const out = [];
       for (const lang of [...new Set(data.notes.map((n) => n.lang))].sort()) {
         const own: Note[] = data.notes.filter((n) => n.lang === lang);
         const courses = [];
-        for (const course of [...new Set(own.map((n) => n.course))].sort())
+        for (const course of [...new Set(own.map((n) => n.course))].sort()) {
+          const editions = [
+            ...new Set(own.filter((n) => n.course === course).map((n) => n.translationLang)),
+          ]
+            .sort()
+            .map((from) => `${from}-${lang}`);
+          const summary = installed.find((c) => c.key === course);
           courses.push({
             scope: `course:${course}`,
             course,
-            editions: [
-              ...new Set(own.filter((n) => n.course === course).map((n) => n.translationLang)),
-            ]
-              .sort()
-              .map((from) => `${from}-${lang}`),
+            /** Null when the course is no longer installed. */
+            title: summary ? courseTitle(summary, editions) : null,
+            editions,
             counts: (await queueOf(`course:${course}`, data)).counts,
           });
+        }
         out.push({
           scope: `lang:${lang}`,
           language: lang,

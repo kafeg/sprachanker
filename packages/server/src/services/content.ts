@@ -31,6 +31,11 @@ export interface CourseSummary {
   source: CourseSource | null;
 }
 
+/** A course's title in the first of `editions` that has one (the edition its runs or cards are in),
+ *  else in its first edition that has one. */
+export const courseTitle = (course: CourseSummary, editions: readonly (string | null)[]) =>
+  [...editions, ...course.editions].map((e) => e && course.titles[e]).find(Boolean) ?? null;
+
 export interface CourseMap {
   index: CourseIndex;
   locale: LocaleCourse | null;

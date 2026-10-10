@@ -75,7 +75,7 @@ describe("courses and lessons", () => {
         next: "sprachanker.fixture/demo/00-01",
         nextStarted: false,
         started: false,
-        nextTitle: "Im Café",
+        nextTitles: { "en-de": "Im Café", "ru-de": "Im Café" },
         nextRun: null,
         source: null,
       },

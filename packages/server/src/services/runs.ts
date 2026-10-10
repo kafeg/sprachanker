@@ -30,7 +30,7 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
-import type { Content } from "./content.ts";
+import { type Content, courseTitle } from "./content.ts";
 import { headerOf, type NewEvent, type RunRow, type RunStore, readStored } from "./run-store.ts";
 
 export const toRun = (r: RunRow): Run => ({
@@ -140,6 +140,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
         const p = byLesson[key];
         return {
           course: latest.courseKey as string,
+          edition: latest.edition,
           entry: {
             key,
             title: (await lessonTitle(content, key, latest.edition)) ?? null,
@@ -158,9 +159,11 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
         const i = course?.lessons.indexOf(k as LessonKey) ?? -1;
         return i < 0 ? Number.MAX_SAFE_INTEGER : i;
       };
-      const group = { key, title: course?.titles[course.editions[0] ?? ""] ?? null };
-      const own = lessons
-        .filter((l) => l.course === key)
+      const mine = lessons.filter((l) => l.course === key);
+      // The course's title in the edition of its latest work.
+      const latest = mine.reduce((a, b) => (b.entry.lastAt > a.entry.lastAt ? b : a));
+      const group = { key, title: course ? courseTitle(course, [latest.edition]) : null };
+      const own = mine
         .map((l) => ({ ...l.entry, group }))
         .sort((a, b) => place(a.key) - place(b.key) || a.key.localeCompare(b.key));
       return { lastAt: Math.max(...own.map((l) => l.lastAt)), own };
@@ -205,7 +208,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     standing,
 
     /** The installed courses (not the exams: the Exams section's) with the learner's progress and
-     *  the lesson to go on with, as its card shows it (title and exercises worked). */
+     *  the lesson to go on with, as its card shows it (its title in each edition, exercises worked). */
     async courses() {
       const byLesson = await progress();
       const courses = (await content.courses()).filter((c) => c.kind === "course");
@@ -213,15 +216,18 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
         courses.map(async ({ lessons, exams: _, kind: __, ...course }) => {
           const at = courseProgress(lessons, byLesson);
           const next = at.next as LessonKey | null;
-          const edition = course.editions[0];
-          const locale =
-            next && edition && (await content.localeLesson(course.series, next, edition));
+          const nextTitles: Record<string, string> = {};
+          if (next)
+            for (const edition of course.editions) {
+              const locale = await content.localeLesson(course.series, next, edition);
+              if (locale) nextTitles[edition] = locale.title;
+            }
           const state = next && (await lessonStates([next], byLesson))[next];
           return {
             ...course,
             lessons: lessons.length,
             ...at,
-            nextTitle: locale ? locale.title : null,
+            nextTitles,
             nextRun: state?.run ?? null,
           };
         }),

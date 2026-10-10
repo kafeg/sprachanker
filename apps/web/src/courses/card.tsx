@@ -34,6 +34,7 @@ export function CourseCard({
   const set = useSetSetting();
   const chosen = useEdition(course.series, course.course, course.editions);
   const title = course.titles[edition] || course.key;
+  const nextTitle = course.nextTitles[edition];
   const next = course.next ? parseLessonKey(course.next) : undefined;
   const share = course.done / Math.max(1, course.lessons);
   // A course with several editions of the same content opens in the one of this card.
@@ -68,10 +69,10 @@ export function CourseCard({
         )}
       </p>
       {upkeep && <CourseUpkeep series={course.series} course={course.course} />}
-      {next && course.nextTitle && (
-        <p className="mt-3 line-clamp-2 text-sm" title={course.nextTitle}>
+      {next && nextTitle && (
+        <p className="mt-3 line-clamp-2 text-sm" title={nextTitle}>
           <span className="text-muted-foreground">{t("courses.next")}: </span>
-          {course.nextTitle}
+          {nextTitle}
           {course.nextRun?.status === "active" && (
             <span className="text-muted-foreground">
               {" · "}
