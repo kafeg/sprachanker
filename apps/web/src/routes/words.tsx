@@ -1,6 +1,7 @@
 // My words (09), under Decks: every word with cards as a table, like Anki's browser — search by word or
 // translation, filters by deck (a language, a course) and by state with their counts, columns sortable;
 // a row opens the word sheet. On a phone a row takes two lines.
+import { headword } from "@sprachanker/engine";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type MyWord, useWords } from "@/api/hooks.ts";
@@ -28,7 +29,7 @@ const inState = (w: MyWord, s: StateFilter) =>
 
 /** Sort keys; words without a due date go last. */
 const KEY: Record<Column, (w: MyWord) => string | number> = {
-  word: (w) => w.display.target.replace(/^(der|die|das)\s+/i, "").toLowerCase(),
+  word: (w) => headword(w.lang, w.display.target),
   translation: (w) => (w.display.translation ?? "").toLowerCase(),
   state: (w) => (w.suspended ? 3 : STAGE_ORDER[w.state]),
   due: (w) => w.due ?? Number.MAX_SAFE_INTEGER,
@@ -86,7 +87,7 @@ export function MyWords() {
     <button
       type="button"
       onClick={() => sortBy(by)}
-      className={cn("text-left hover:text-foreground", className)}
+      className={cn("text-left hover:text-foreground pointer-coarse:min-h-11", className)}
     >
       {label}
       {sort?.by === by && (sort.desc ? " ↓" : " ↑")}
