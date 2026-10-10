@@ -12,7 +12,6 @@ import {
   lessonFace,
   type QueueFace,
   review,
-  SRS_DEFAULTS,
   type SrsParams,
   studyDay,
   studyQueue,
@@ -50,13 +49,12 @@ export function createStudy(deps: {
   const { cards, store, content, settings, now } = deps;
   /** The profile's scheduling options (its Review settings). */
   const params = (): SrsParams => ({
-    retention: settings.get("srs.retention") ?? SRS_DEFAULTS.retention,
-    learningSteps: settings.get("srs.learningSteps") ?? SRS_DEFAULTS.learningSteps,
-    relearningSteps: settings.get("srs.relearningSteps") ?? SRS_DEFAULTS.relearningSteps,
+    retention: settings.value("srs.retention"),
+    learningSteps: settings.value("srs.learningSteps"),
+    relearningSteps: settings.value("srs.relearningSteps"),
   });
   /** The learner's day (Anki: next day starts at the profile's hour). */
-  const dayOf = (t: number) =>
-    studyDay(t, settings.get("srs.dayStartHour") ?? SRS_DEFAULTS.dayStartHour);
+  const dayOf = (t: number) => studyDay(t, settings.value("srs.dayStartHour"));
 
   /** The notes of a scope, in the order they were made (their position in the deck). */
   async function notesIn(scope: DeckScope, all = cards.all()) {
@@ -128,8 +126,8 @@ export function createStudy(deps: {
       newIgnoresReviewLimit: settings.value("srs.newIgnoresReviewLimit"),
       learningSteps: params().learningSteps,
       relearningSteps: params().relearningSteps,
-      newPerDay: (settings.get("srs.newPerDay") ?? SRS_DEFAULTS.newPerDay) + extra,
-      reviewsPerDay: (settings.get("srs.reviewsPerDay") ?? SRS_DEFAULTS.reviewsPerDay) + extra,
+      newPerDay: settings.value("srs.newPerDay") + extra,
+      reviewsPerDay: settings.value("srs.reviewsPerDay") + extra,
       newToday: done.fresh,
       reviewsToday: done.reviews,
       allNew: lesson,

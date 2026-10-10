@@ -2,7 +2,12 @@
 // ts-fsrs (learning steps 1m 10m, relearning 10m, fuzz), and Anki's study queue — learning cards first,
 // then reviews mixed with new cards within the day's limits, learning cards up to 20 minutes early when
 // nothing else is left. Pure: the caller passes the time and the day's boundaries.
-import type { CardFace, CardRating, FaceState } from "@sprachanker/schema";
+import {
+  type CardFace,
+  type CardRating,
+  type FaceState,
+  SETTING_DEFAULTS,
+} from "@sprachanker/schema";
 import {
   type AbstractScheduler,
   type Card,
@@ -13,16 +18,17 @@ import {
   StrategyMode,
 } from "ts-fsrs";
 
-/** Anki's defaults (deck options; desired retention for FSRS). */
+/** Anki's defaults: its deck options as a profile reads them unset (schema `SETTING_DEFAULTS`), and
+ *  the scheduler's own. */
 export const SRS_DEFAULTS = {
-  newPerDay: 20,
-  reviewsPerDay: 200,
-  retention: 0.9,
+  newPerDay: SETTING_DEFAULTS["srs.newPerDay"],
+  reviewsPerDay: SETTING_DEFAULTS["srs.reviewsPerDay"],
+  retention: SETTING_DEFAULTS["srs.retention"],
   /** Learning steps of a new face and relearning steps of a forgotten one ("1m", "10m", "1h", "1d"). */
-  learningSteps: ["1m", "10m"] as readonly string[],
-  relearningSteps: ["10m"] as readonly string[],
-  /** The learner's day starts at 4 AM (Anki's "next day starts at"). */
-  dayStartHour: 4,
+  learningSteps: SETTING_DEFAULTS["srs.learningSteps"] as readonly string[],
+  relearningSteps: SETTING_DEFAULTS["srs.relearningSteps"] as readonly string[],
+  /** The hour the learner's day starts (Anki's "next day starts at"). */
+  dayStartHour: SETTING_DEFAULTS["srs.dayStartHour"],
   /** Learning cards are shown this early when nothing else is due. */
   learnAheadMs: 20 * 60_000,
   /** A card forgotten this many times is a leech. */

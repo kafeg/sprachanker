@@ -2,14 +2,8 @@
 // new word gets; under Advanced desired retention, learning and relearning steps, whether new cards
 // count against the review limit, when the day starts. Each saved when changed; Anki's defaults one
 // tap away.
-import { SRS_DEFAULTS, STEP } from "@sprachanker/engine";
-import {
-  CardFace,
-  type LearnerSettingKey,
-  SETTING_DEFAULTS,
-  type SettingValue,
-  settingOf,
-} from "@sprachanker/schema";
+import { STEP } from "@sprachanker/engine";
+import { CardFace, SETTING_DEFAULTS, type SettingValue, settingOf } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetSetting, useSettings } from "@/api/hooks.ts";
@@ -22,19 +16,18 @@ import { Disclosure } from "@/ui/disclosure.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 
-type Option = Extract<LearnerSettingKey, `srs.${string}`> & keyof typeof DEFAULT_VALUES;
-/** Anki's defaults of every option here: the engine's for the scheduler, the schema's for the rest. */
-const DEFAULT_VALUES = {
-  "srs.newPerDay": SRS_DEFAULTS.newPerDay,
-  "srs.reviewsPerDay": SRS_DEFAULTS.reviewsPerDay,
-  "srs.retention": SRS_DEFAULTS.retention,
-  "srs.learningSteps": [...SRS_DEFAULTS.learningSteps],
-  "srs.relearningSteps": [...SRS_DEFAULTS.relearningSteps],
-  "srs.dayStartHour": SRS_DEFAULTS.dayStartHour,
-  "srs.newIgnoresReviewLimit": SETTING_DEFAULTS["srs.newIgnoresReviewLimit"],
-  "srs.faces": [...SETTING_DEFAULTS["srs.faces"]],
-} satisfies { [K in LearnerSettingKey]?: SettingValue<K> };
-const DEFAULTS: { [K in Option]: SettingValue<K> } = DEFAULT_VALUES;
+/** The deck options here, each with Anki's default (schema `SETTING_DEFAULTS`). */
+const OPTIONS = [
+  "srs.newPerDay",
+  "srs.reviewsPerDay",
+  "srs.retention",
+  "srs.learningSteps",
+  "srs.relearningSteps",
+  "srs.dayStartHour",
+  "srs.newIgnoresReviewLimit",
+  "srs.faces",
+] as const satisfies Array<keyof typeof SETTING_DEFAULTS>;
+type Option = (typeof OPTIONS)[number];
 
 /** Steps as typed ("1m 10m") into the stored list, or undefined while one does not read. */
 export function parseSteps(text: string, allowNone = false): string[] | undefined {
@@ -122,9 +115,9 @@ export function ReviewSettings() {
   const settings = useSettings().data ?? {};
   const set = useSetSetting();
   const percent = usePercent();
-  // SettingRead of a generic key does not narrow: as a value or unset.
+  // SettingRead of a generic key does not narrow: every option here has a default.
   const get = <K extends Option>(key: K): SettingValue<K> =>
-    (settingOf(settings, key) as SettingValue<K> | undefined) ?? DEFAULTS[key];
+    settingOf(settings, key) as SettingValue<K>;
   const save = <K extends Option>(key: K, value: SettingValue<K>) => set.mutate({ key, value });
   const [retention, setRetention] = useState<number>();
   const shownRetention = retention ?? get("srs.retention");
@@ -234,7 +227,7 @@ export function ReviewSettings() {
       <Button
         variant="outline"
         onClick={() => {
-          for (const [key, value] of Object.entries(DEFAULTS)) set.mutate({ key, value });
+          for (const key of OPTIONS) set.mutate({ key, value: SETTING_DEFAULTS[key] });
         }}
       >
         {t("reviewSettings.defaults")}

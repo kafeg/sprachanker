@@ -32,6 +32,7 @@ import type { z } from "zod";
 import type { ProfileDb } from "../db/profile/db.ts";
 import { events, runs } from "../db/profile/schema.ts";
 import { ServiceError } from "../errors.ts";
+import { parseJson, readJson } from "./stored.ts";
 
 export type RunRow = typeof runs.$inferSelect;
 export type EventRow = typeof events.$inferSelect;
@@ -88,15 +89,6 @@ export const verdictOf = <T extends VerdictTask>(e: ReadEvent): Verdict<T> => ({
   ts: e.ts,
 });
 
-/** Stored JSON read back; undefined when it is not JSON at all (the row is then left out). */
-function parseJson(text: string): unknown {
-  try {
-    return JSON.parse(text);
-  } catch {
-    return undefined;
-  }
-}
-
 /** A JSON column read with its schema (a run's plan or result); undefined, and logged, when it no
  *  longer reads — the row it belongs to is shown without it, never breaking a list. */
 export function readStored<T>(
@@ -105,8 +97,8 @@ export function readStored<T>(
   what: string,
 ): T | undefined {
   if (json === null) return undefined;
-  const parsed = schema.safeParse(parseJson(json));
-  if (parsed.success) return parsed.data;
+  const read = readJson(json, schema);
+  if (read !== undefined) return read;
   console.error(`${what} does not read as stored; left out`);
   return undefined;
 }
