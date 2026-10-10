@@ -5,6 +5,7 @@ import {
   examSectionKey,
   exerciseKey,
   type LessonKey,
+  LOCALE_FORMAT,
   type LocaleCourse,
   type LocaleExam,
   type LocaleItem,
@@ -158,7 +159,7 @@ const vocabOf = (lesson: LessonKey, lang: Lang) =>
 
 export function localeCourse(lang: Lang): LocaleCourse {
   return {
-    format: 1,
+    format: LOCALE_FORMAT,
     edition: EDITIONS[lang],
     course: COURSE,
     sourceId: lang === "ru" ? "9001" : "8001",
@@ -178,7 +179,7 @@ export function localeLessons(lang: Lang): LocaleLesson[] {
   const base = lang === "ru" ? 9100 : 8100;
   return [
     {
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITIONS[lang],
       lesson: CAFE,
       sourceId: String(base),
@@ -211,7 +212,7 @@ export function localeLessons(lang: Lang): LocaleLesson[] {
       ],
     },
     {
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITIONS[lang],
       lesson: SPEAKING,
       sourceId: String(base + 1),
@@ -226,7 +227,7 @@ export function localeLessons(lang: Lang): LocaleLesson[] {
 
 export function localeExam(lang: Lang): LocaleExam {
   return {
-    format: 1,
+    format: LOCALE_FORMAT,
     edition: EDITIONS[lang],
     exam: EXAM,
     title: { ru: "Мини-тест", en: "Mini test" }[lang],
@@ -269,7 +270,7 @@ export function localeModell(lang: Lang): LocaleExam {
     },
   };
   return {
-    format: 1,
+    format: LOCALE_FORMAT,
     edition: EDITIONS[lang],
     exam: MODELL,
     title: t("Модельный тест", "Model test"),

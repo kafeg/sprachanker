@@ -14,11 +14,13 @@ import {
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   type CourseIndex,
   courseKey,
   exerciseKey,
   type Lesson,
   type LessonKey,
+  LOCALE_FORMAT,
   type LocaleCourse,
   type LocaleLesson,
   lessonKey,
@@ -93,7 +95,7 @@ export function normaliseCourse(
       unmappedAll.push(...plan.unmapped.map((r) => `${lk}: ${r}`));
       files.push(
         libraryFile.lesson({
-          format: 1,
+          format: CANONICAL_FORMAT,
           key: lk,
           unit,
           media: {
@@ -113,7 +115,7 @@ export function normaliseCourse(
       const summary = lesson.page.summary;
       files.push(
         libraryFile.localeLesson({
-          format: 1,
+          format: LOCALE_FORMAT,
           edition: EDITION,
           lesson: lk,
           sourceId: lesson.source.id,
@@ -134,7 +136,7 @@ export function normaliseCourse(
   }
   files.push(
     libraryFile.course({
-      format: 1,
+      format: CANONICAL_FORMAT,
       key,
       source: sourceOf(course.def),
       units,
@@ -144,7 +146,7 @@ export function normaliseCourse(
   );
   files.push(
     libraryFile.localeCourse({
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITION,
       course: key,
       sourceId: course.sourceId,

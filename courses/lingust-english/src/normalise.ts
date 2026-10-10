@@ -18,6 +18,7 @@ import {
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   type CourseIndex,
   courseKey,
   type Exercise,
@@ -25,6 +26,7 @@ import {
   exerciseKey,
   type Lesson,
   type LessonKey,
+  LOCALE_FORMAT,
   type LocaleCourse,
   type LocaleExercise,
   type LocaleLesson,
@@ -285,7 +287,7 @@ function buildLesson(
 
   return {
     lesson: {
-      format: 1,
+      format: CANONICAL_FORMAT,
       key,
       unit,
       media: audio ? { audio } : {},
@@ -295,7 +297,7 @@ function buildLesson(
       unmapped,
     },
     locale: {
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITION,
       lesson: key,
       sourceId: src.info.slug,
@@ -340,7 +342,7 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: K
   }
   files.push(
     libraryFile.course({
-      format: 1,
+      format: CANONICAL_FORMAT,
       key: course,
       source: SOURCE,
       units: courseUnits,
@@ -350,7 +352,7 @@ export function normaliseLingust(units: UnitSource[], index: MediaIndex, keys: K
   );
   files.push(
     libraryFile.localeCourse({
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITION,
       course,
       sourceId: COURSE,

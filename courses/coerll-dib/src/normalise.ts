@@ -11,10 +11,12 @@ import {
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   type CourseIndex,
   courseKey,
   type Gender,
   type LessonKey,
+  LOCALE_FORMAT,
   type LocaleCourse,
   lessonKey,
   type MediaIndex,
@@ -110,7 +112,7 @@ export function normaliseDib(
       const audio = media(section.audio);
       files.push(
         libraryFile.lesson({
-          format: 1,
+          format: CANONICAL_FORMAT,
           key,
           unit,
           media: audio ? { audio } : {},
@@ -122,7 +124,7 @@ export function normaliseDib(
       );
       files.push(
         libraryFile.localeLesson({
-          format: 1,
+          format: LOCALE_FORMAT,
           edition: EDITION,
           lesson: key,
           sourceId: `${chapter.k}.${section.n}`,
@@ -139,7 +141,7 @@ export function normaliseDib(
   }
   files.push(
     libraryFile.course({
-      format: 1,
+      format: CANONICAL_FORMAT,
       key: course,
       source: SOURCE,
       units,
@@ -149,7 +151,7 @@ export function normaliseDib(
   );
   files.push(
     libraryFile.localeCourse({
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITION,
       course,
       sourceId: COURSE,

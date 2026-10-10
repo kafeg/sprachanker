@@ -2,8 +2,10 @@
 // All text here is our own; nothing is copied from a real course.
 import { type ExerciseDraft, withFingerprint } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   type CourseIndex,
   courseKey,
+  EXAM_FORMAT,
   type Exam,
   type Exercise,
   examItemKey,
@@ -113,7 +115,7 @@ const LEUTE = vocab(
 );
 
 export const cafeLesson: Lesson = {
-  format: 1,
+  format: CANONICAL_FORMAT,
   key: CAFE,
   unit: UNIT,
   media: { video: { sd: video("cafe-sd"), hd: video("cafe-hd") }, image: image("cafe") },
@@ -282,7 +284,7 @@ export const cafeLesson: Lesson = {
 };
 
 export const speakingLesson: Lesson = {
-  format: 1,
+  format: CANONICAL_FORMAT,
   key: SPEAKING,
   unit: UNIT,
   media: { audio: audio("guten-morgen") },
@@ -338,7 +340,7 @@ export const speakingLesson: Lesson = {
 };
 
 export const miniExam: Exam = {
-  format: 1,
+  format: EXAM_FORMAT,
   key: EXAM,
   timeLimitSec: 300,
   sections: [
@@ -414,7 +416,7 @@ const modellItem = (id: string, rest: Record<string, unknown>) =>
   ({ key: examItemKey(MODELL, id), tags: {}, ...rest }) as Exam["items"][number];
 
 export const modellExam: Exam = {
-  format: 1,
+  format: EXAM_FORMAT,
   key: MODELL,
   timeLimitSec: 420,
   modules: [
@@ -577,7 +579,7 @@ export const modellExam: Exam = {
 };
 
 export const courseIndex: CourseIndex = {
-  format: 1,
+  format: CANONICAL_FORMAT,
   key: COURSE,
   units: [{ key: UNIT, lessons: [CAFE, SPEAKING] }],
   exams: [EXAM, MODELL],

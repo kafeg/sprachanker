@@ -6,8 +6,10 @@
 import { createHash } from "node:crypto";
 import { escapeHtml, type LibraryFile, libraryFile } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   type CourseIndex,
   type EditionId,
+  EXAM_FORMAT,
   type Exam,
   type ExamItem,
   type ExamItemKey,
@@ -15,6 +17,7 @@ import {
   type ExamSources,
   examItemKey,
   examSectionKey,
+  LOCALE_FORMAT,
   type LocaleCourse,
   type LocaleExam,
   type LocaleItem,
@@ -544,7 +547,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
         }))
       : [{ id: "pass", minPoints: hundredths(0.6 * level.scaleTo * modules.length) }];
   const examFile: Exam = {
-    format: 1,
+    format: EXAM_FORMAT,
     key: exam,
     timeLimitSec: together,
     modules,
@@ -556,7 +559,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   };
   const titles = Object.fromEntries(all.map((m) => [m, { title: MODULE_TITLES[m] }]));
   const localeExam: LocaleExam = {
-    format: 1,
+    format: LOCALE_FORMAT,
     edition: EDITION as EditionId,
     exam,
     title: `${level.title} — Modellsatz`,
@@ -580,7 +583,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   };
   const course = courseOf(level);
   const index: CourseIndex = {
-    format: 1,
+    format: CANONICAL_FORMAT,
     key: course,
     source: sourceOf(level),
     units: [],
@@ -588,7 +591,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     goals: [],
   };
   const localeCourse: LocaleCourse = {
-    format: 1,
+    format: LOCALE_FORMAT,
     edition: EDITION as EditionId,
     course,
     sourceId: level.dir,
@@ -606,7 +609,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   return {
     files: [
       libraryFile.examSources({
-        format: 1,
+        format: EXAM_FORMAT,
         exam,
         read: pages.readAt,
         documents,

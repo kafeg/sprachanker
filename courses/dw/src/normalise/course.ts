@@ -3,10 +3,12 @@
 // (the key map), so one DW inserts shifts no other.
 import type { KeyMap } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   type CourseIndex,
   type CourseKey,
   type GoalKey,
   type LessonKey,
+  LOCALE_FORMAT,
   type LocaleCourse,
   lessonKey,
   type UnitKey,
@@ -80,7 +82,7 @@ export function courseFiles(
   );
   return {
     index: {
-      format: 1,
+      format: CANONICAL_FORMAT,
       key: course,
       source: SOURCE,
       units: [...units].map(([key, unit]) => ({ key, lessons: unit.lessons })),
@@ -88,7 +90,7 @@ export function courseFiles(
       goals: goalEntries.map((g) => ({ key: g.key, lessons: [g.lesson] })),
     },
     locale: {
-      format: 1,
+      format: LOCALE_FORMAT,
       edition,
       course,
       sourceId: String(entity.id ?? ""),

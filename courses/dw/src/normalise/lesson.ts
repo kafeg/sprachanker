@@ -7,10 +7,12 @@ import {
   vocabEntries,
 } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
   exerciseKey,
   type GoalKey,
   type Lesson,
   type LessonKey,
+  LOCALE_FORMAT,
   type LocaleLesson,
   lessonGoalKey,
   type Tab,
@@ -197,7 +199,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   const synopsisHtml = html(ctx, L.description);
   return {
     lesson: {
-      format: 1,
+      format: CANONICAL_FORMAT,
       key: src.key,
       unit: src.unit,
       media: {
@@ -225,7 +227,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
       ],
     },
     locale: {
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: src.edition,
       lesson: src.key,
       sourceId: String(src.sourceId),

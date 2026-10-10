@@ -4,6 +4,8 @@
 // order, each reading most like its counterpart (`unpaired`).
 import { type LibraryFile, libraryFile } from "@sprachanker/course-kit";
 import {
+  CANONICAL_FORMAT,
+  EXAM_FORMAT,
   type Exam,
   type ExamItem,
   type ExamItemKey,
@@ -11,6 +13,7 @@ import {
   examItemKey,
   examSectionKey,
   type FederalState,
+  LOCALE_FORMAT,
   type MediaPath,
   type Option,
   optionId,
@@ -213,7 +216,7 @@ export function normaliseExam(
   const keysOf = (state: boolean) =>
     items.filter((i) => (i.tags.federalState !== null) === state).map((i) => i.key as ExamItemKey);
   const exam: Exam = {
-    format: 1,
+    format: EXAM_FORMAT,
     key: EXAM_KEY,
     timeLimitSec: TIME_LIMIT_SEC,
     sections: [
@@ -242,7 +245,7 @@ export function normaliseExam(
   const [year, month, day] = catalogue.stand.split("-");
   const files: LibraryFile[] = [
     libraryFile.course({
-      format: 1,
+      format: CANONICAL_FORMAT,
       key: COURSE_KEY,
       source: SOURCE,
       units: [],
@@ -250,7 +253,7 @@ export function normaliseExam(
       goals: [],
     }),
     libraryFile.localeCourse({
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITION,
       course: COURSE_KEY,
       sourceId: "gesamtfragenkatalog",
@@ -264,7 +267,7 @@ export function normaliseExam(
     }),
     libraryFile.exam(exam),
     libraryFile.examSources({
-      format: 1,
+      format: EXAM_FORMAT,
       exam: EXAM_KEY,
       read: copy.readAt,
       documents: [
@@ -290,7 +293,7 @@ export function normaliseExam(
       items: placed,
     }),
     libraryFile.localeExam({
-      format: 1,
+      format: LOCALE_FORMAT,
       edition: EDITION,
       exam: EXAM_KEY,
       title: "Leben in Deutschland",
