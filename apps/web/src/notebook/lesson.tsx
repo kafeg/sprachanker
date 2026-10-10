@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type NotebookPassSummary, useNotebookLesson } from "@/api/hooks.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { Checkbox } from "@/ui/components/checkbox.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
@@ -79,12 +80,11 @@ export function LessonNotebook({
               {passes.map((p) => (
                 <li key={p.id} className="flex items-center gap-2">
                   {passes.length > 1 && (
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       aria-label={t("notebook.choose", { date: when.format(p.startedAt) })}
                       checked={chosen.includes(p.id)}
-                      onChange={() => toggle(p.id)}
-                      className="size-5 shrink-0 accent-primary pointer-coarse:size-6"
+                      onCheckedChange={() => toggle(p.id)}
+                      className="pointer-coarse:size-6"
                     />
                   )}
                   <ListRow onClick={() => go({ pass: p.id })}>

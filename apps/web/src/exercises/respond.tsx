@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useSpeechHost } from "@/audio/context.ts";
 import { DictateButton } from "@/audio/dictate.tsx";
+import { Textarea } from "@/ui/components/textarea.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { ANSWER_BOX, SpecialLetters } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
@@ -29,7 +30,7 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
   return (
     <div ref={scope} className="space-y-3">
       <div className="flex items-start gap-2">
-        <textarea
+        <Textarea
           rows={2}
           lang={lang}
           value={answer?.text ?? ""}

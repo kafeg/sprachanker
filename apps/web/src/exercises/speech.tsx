@@ -6,6 +6,7 @@ import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
 import { type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
+import { Textarea } from "@/ui/components/textarea.tsx";
 import { clock } from "@/ui/format.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -18,7 +19,7 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
   const scope = useRef<HTMLDivElement>(null);
   return (
     <div ref={scope} className="space-y-3">
-      <textarea
+      <Textarea
         rows={2}
         lang={lang}
         value={answer?.text ?? ""}
