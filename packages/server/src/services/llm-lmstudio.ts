@@ -10,7 +10,7 @@ import {
   recommendedLmStudioModel,
 } from "@sprachanker/llm";
 import { ServiceError } from "../errors.ts";
-import { createOnce } from "./once.ts";
+import { createOnce } from "../once.ts";
 
 /** What the server can do with an LM Studio on its own machine (src/runtime/lmstudio.ts). */
 export interface LmStudioHost {

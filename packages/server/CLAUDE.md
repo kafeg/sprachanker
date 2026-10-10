@@ -14,7 +14,8 @@ src/
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per
-                     # data root: server.pid); lmstudio.ts (detect, `lms server start`);
+                     # data root: server.pid); process-name.ts (`ps` names a pid: ours or not);
+                     # lmstudio.ts (detect, `lms server start`);
                      # speech engines: engines.ts (the engines built in native/ — also read by the
                      # build scripts —, where each is, their processes going with the server),
                      # model-files.ts (checked downloads into <data-root>/models), speech.ts
@@ -26,6 +27,8 @@ src/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
     migrate.ts       # forward-only migrations, a copy before migrating (five kept), newer databases refused
+  once.ts            # one promise per key: a load, a reading, a hearing asked twice made once (services
+                     # and runtime alike)
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses; errorResponse: how app.ts and
                      # routes/llm.ts answer it (and a request that does not validate)
@@ -64,11 +67,11 @@ src/
                      # heard once per model); read-aloud (Piper's voices — piper-voices.json, written by
                      # scripts/piper-voices.ts — downloads, a text read as a WAV); qwen-tts (Qwen3-TTS:
                      # models, the engine on the supervisor, a text read by a speaker); local-engines
-                     # (what they share: SpeechHost, ReadingCache, model downloads, an engine on the
-                     # supervisor); profile-speech (a profile's choices applied: recognition, the
+                     # (what they share: SpeechHost, ReadingCache, an engine on the
+                     # supervisor); model-downloads (theirs: progress, failure, cancel);
+                     # profile-speech (a profile's choices applied: recognition, the
                      # engine, voice and speed reading aloud); sidecar (the supervisor of local
-                     # engines: one start, idle stop, switching after requests in flight); once (one
-                     # promise per key: a load, a reading, a hearing asked twice made once); stored
+                     # engines: one start, idle stop, switching after requests in flight); stored
                      # (a stored JSON value read with its schema: unset when it does not read);
                      # in-flight (what a model is doing per lesson: structured calls outlive the page);
                      # tutor-tools (the tutor's tools on the learner's data); downloads (queue, progress,

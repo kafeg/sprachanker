@@ -6,15 +6,14 @@
 import { ServiceError } from "../errors.ts";
 import { sha256 } from "../security/encoding.ts";
 import {
-  createModelDownloads,
   engineSidecar,
   keptIn,
   type ModelFile,
   offered,
   type ReadingCache,
   type SpeechHost,
-  untilAborted,
 } from "./local-engines.ts";
+import { createModelDownloads, untilAborted } from "./model-downloads.ts";
 
 /** The languages Qwen3-TTS speaks, by code, with the name its server takes. */
 const QWEN_LANGUAGES: Record<string, string> = {

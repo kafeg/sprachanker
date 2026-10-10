@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { createOnce } from "../src/services/once.ts";
+import { createOnce } from "../src/once.ts";
 
 const tick = () => new Promise((r) => setTimeout(r, 0));
 

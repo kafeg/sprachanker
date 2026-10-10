@@ -14,7 +14,7 @@ import {
   type LocaleLesson,
   lessonOrder,
 } from "@sprachanker/schema";
-import { createOnce } from "./once.ts";
+import { createOnce } from "../once.ts";
 
 export interface CourseSummary {
   series: string;

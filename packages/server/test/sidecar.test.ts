@@ -106,3 +106,35 @@ test("a request failing with the engine's own failure replaces the engine for th
   await sidecar.use("a", async () => {});
   expect(spawned).toHaveLength(2);
 });
+
+test("an engine without a host: speech_unavailable, nothing started; with one, spawned on it", async () => {
+  const { engineSidecar } = await import("../src/services/local-engines.ts");
+  const options = {
+    fetch: (async () => new Response(null)) as unknown as typeof fetch,
+    startMs: 300,
+    idleMs: 60_000,
+  };
+  const none = engineSidecar(undefined, {
+    ...options,
+    spawn: () => {
+      throw new Error("not to be spawned");
+    },
+  });
+  await expect(none.use("a", async () => {})).rejects.toMatchObject({
+    code: "speech_unavailable",
+    status: 409,
+  });
+  const host = { freePort: async () => 9100, models: {} as never };
+  const spawned: string[] = [];
+  const engine = engineSidecar(host, {
+    ...options,
+    spawn: (h, setup, port) => {
+      expect(h).toBe(host);
+      spawned.push(`${setup}:${port}`);
+      return { exited: new Promise<number>(() => {}), kill() {} };
+    },
+  });
+  expect(await engine.use("a", async (url) => url)).toBe("http://127.0.0.1:9100");
+  expect(spawned).toEqual(["a:9100"]);
+  engine.stop();
+});

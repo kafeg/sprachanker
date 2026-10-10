@@ -3,14 +3,9 @@
 // checked against their sha256. One server-wide engine: each profile chooses whether to use it and
 // which installed model (settings, profile-speech.ts); a transcription has a time limit.
 import { ServiceError } from "../errors.ts";
-import {
-  createModelDownloads,
-  engineSidecar,
-  type ModelFile,
-  offered,
-  type SpeechHost,
-} from "./local-engines.ts";
-import { createOnce } from "./once.ts";
+import { createOnce } from "../once.ts";
+import { engineSidecar, type ModelFile, offered, type SpeechHost } from "./local-engines.ts";
+import { createModelDownloads } from "./model-downloads.ts";
 
 /** The models offered, best first: the large turbo model (quantised), and a small one for slower
  *  machines. From ggerganov/whisper.cpp on Hugging Face at a fixed commit. */

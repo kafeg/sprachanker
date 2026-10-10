@@ -4,7 +4,8 @@
 // engine for the server: each profile picks Piper or its device's voices, and a voice per language.
 import { ServiceError } from "../errors.ts";
 import { sha256 } from "../security/encoding.ts";
-import { createModelDownloads, keptIn, offered, type ReadingCache } from "./local-engines.ts";
+import { keptIn, offered, type ReadingCache } from "./local-engines.ts";
+import { createModelDownloads } from "./model-downloads.ts";
 import VOICES from "./piper-voices.json" with { type: "json" };
 
 export interface PiperVoice {

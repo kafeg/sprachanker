@@ -4,6 +4,7 @@
 // SprachAnker any more: a pid the system gave another program after a restart — is stale.
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { processName } from "./process-name.ts";
 
 const pidFile = (dataRoot: string) => join(dataRoot, "server.pid");
 
@@ -19,8 +20,7 @@ export function sprachAnkerRuns(pid: number): boolean {
     if ((error as NodeJS.ErrnoException).code !== "EPERM") return false;
   }
   if (process.platform === "win32") return true;
-  const name = Bun.spawnSync(["ps", "-p", String(pid), "-o", "comm="]).stdout.toString();
-  return /sprachanker|\bbun\b/i.test(name);
+  return /sprachanker|\bbun\b/i.test(processName(pid) ?? "");
 }
 
 /** The pid of the server running on this data folder, if one does (not this process). */

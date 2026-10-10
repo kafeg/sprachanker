@@ -5,6 +5,7 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { dirname, join } from "node:path";
+import { processName } from "./process-name.ts";
 
 /** This machine's target triple: an engine built for it is `<program>-<triple>`. */
 export const triple = `${process.arch === "arm64" ? "aarch64" : "x86_64"}-${
@@ -91,10 +92,9 @@ function stopLeftOver(file: string) {
     .filter((n) => Number.isInteger(n) && n > 0);
   for (const pid of pids) {
     try {
-      // `ps` names the process (POSIX); elsewhere the pid alone is not trusted enough to stop it.
-      if (process.platform === "win32") continue;
-      const name = Bun.spawnSync(["ps", "-p", String(pid), "-o", "comm="]).stdout.toString();
-      if (name.includes(ENGINES.whisper.program) || name.includes(ENGINES.qwen.program))
+      // Without its name (Windows) the pid alone is not trusted enough to stop it.
+      const name = processName(pid);
+      if (name && (name.includes(ENGINES.whisper.program) || name.includes(ENGINES.qwen.program)))
         process.kill(pid);
     } catch {
       // Gone meanwhile, or not ours to stop.

@@ -3,7 +3,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { profileAdmin } from "../src/index.ts";
-import { holdDataRoot, serverOn } from "../src/runtime/data-root.ts";
+import { holdDataRoot, serverOn, sprachAnkerRuns } from "../src/runtime/data-root.ts";
 
 /** Another live SprachAnker (Bun running it), for as long as the test needs it. */
 const another = () => Bun.spawn(["bun", "-e", "setTimeout(() => {}, 60_000)"]);
@@ -26,6 +26,14 @@ test("one server per data folder; a stale pid file is taken over", () => {
   other.kill();
   holdDataRoot(root);
   expect(readFileSync(join(root, "server.pid"), "utf8")).toBe(String(process.pid));
+});
+
+test("a SprachAnker runs: this process (Bun), not a gone pid nor another program", () => {
+  expect(sprachAnkerRuns(process.pid)).toBe(true);
+  expect(sprachAnkerRuns(999_999)).toBe(false);
+  const other = Bun.spawn(["sleep", "60"]);
+  expect(sprachAnkerRuns(other.pid)).toBe(false);
+  other.kill();
 });
 
 test("a profile is not deleted from the command line while a server holds the folder", () => {

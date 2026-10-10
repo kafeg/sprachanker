@@ -1,6 +1,6 @@
 // What the speech engines on this machine share (08): what the runtime does for them (SpeechHost:
 // their programs, model files, readings kept), the supervisor of one run on a local port, a model or
-// voice looked up by id, and their downloads (progress, failure, cancel).
+// voice looked up by id. Their downloads: model-downloads.ts.
 import type { ErrorCode } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createSidecar, type SidecarProcess } from "./sidecar.ts";
@@ -92,64 +92,3 @@ export function engineSidecar(
     idleMs: options.idleMs,
   });
 }
-
-interface Download {
-  /** Bytes so far. */
-  done: number;
-  /** All it fetches, when that is more than the model's own size (a model with its codec). */
-  total?: number;
-  controller: AbortController;
-  error?: string;
-}
-
-/** Downloads of models or voices by id: one at a time each; a finished one is forgotten, a failed one
- *  kept with its error ("cancelled" when stopped) until it is started again or removed. */
-export function createModelDownloads() {
-  const downloads = new Map<string, Download>();
-  const going = (id: string) => {
-    const d = downloads.get(id);
-    return d && !d.error ? d : undefined;
-  };
-  return {
-    /** Whether a download of `id` is under way. */
-    going: (id: string) => !!going(id),
-    /** Starts `job` for `id` unless one is under way; it tells the bytes so far through `progress`. */
-    start(
-      id: string,
-      job: (progress: (bytes: number) => void, signal: AbortSignal) => Promise<void>,
-      total?: number,
-    ) {
-      if (going(id)) return;
-      const entry: Download = { done: 0, total, controller: new AbortController() };
-      downloads.set(id, entry);
-      const { signal } = entry.controller;
-      job((n) => (entry.done = n), signal)
-        .then(() => {
-          if (downloads.get(id) === entry) downloads.delete(id);
-        })
-        .catch((error: unknown) => {
-          entry.error = signal.aborted ? "cancelled" : String(error).slice(0, 200);
-        });
-    },
-    /** Stops a download of `id` and forgets it. */
-    cancel(id: string) {
-      downloads.get(id)?.controller.abort();
-      downloads.delete(id);
-    },
-    /** What the state shows of `id`: the bytes so far while it goes, or why it failed. */
-    of(id: string): { downloaded?: number; error?: string } {
-      const d = downloads.get(id);
-      if (!d) return {};
-      return d.error ? { error: d.error } : { downloaded: d.done };
-    },
-    /** All a download under way fetches, when it was given. */
-    total: (id: string) => going(id)?.total,
-  };
-}
-
-/** Waits for `promise`, or rejects once `signal` aborts (what it waits for goes on). */
-export const untilAborted = <T>(promise: Promise<T>, signal: AbortSignal) =>
-  new Promise<T>((resolve, reject) => {
-    promise.then(resolve, reject);
-    signal.addEventListener("abort", () => reject(new Error("cancelled")), { once: true });
-  });
