@@ -99,8 +99,13 @@ test("Exams in tabs as Courses: begun ones, downloaded with how ready and the la
 
   const view = await renderApp(<ExamsPage tab="downloaded" />, {
     path: "/exams/downloaded",
-    data: lists([row({ started: true, tests: 1, last: finished(2, ["lid"]) })]),
+    data: [
+      ...lists([row({ started: true, tests: 1, last: finished(2, ["lid"]) })]),
+      [["downloads"], { available: true, jobs: [] }],
+    ],
   });
+  // Its course's check and sync, as a downloaded course's.
+  expect(view.getByRole("button", { name: "Check" })).toBeTruthy();
   expect(view.getByText("last: 2 of 2")).toBeTruthy();
   expect(view.getByText("You know 50% of the questions")).toBeTruthy();
   expect(view.getByText(/Last mock exam .*: passed/).className).toContain("text-correct");

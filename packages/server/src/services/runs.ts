@@ -18,6 +18,7 @@ import {
   type AnsweredPayload,
   type CourseKey,
   EventInput,
+  type ExamKey,
   findExercise,
   type ItemKey,
   type LessonKey,
@@ -221,18 +222,20 @@ export function createRuns({
     },
 
     /**
-     * Resets the learner's progress in a course, or in one of its lessons: every run of it — lesson
-     * runs, tutor chats, writing checks, scenes — and their events are deleted, and so are the cards
+     * Resets the learner's progress in a course, or in one of its lessons or exams: every run of it —
+     * lesson runs, tutor chats, writing checks, scenes, mock exams and practice — and their events are
+     * deleted, and so are the cards
      * it made (the words first met there, by the lesson each card names — also when the run that made
      * it is long gone) with their answers, and the recordings its answers hold. A card another lesson
      * made stays. The only deletion of events besides removing a profile; the screen asks for
      * confirmation (05).
      */
-    reset(course: CourseKey, lesson?: LessonKey) {
+    reset(course: CourseKey, only?: { lesson: LessonKey } | { exam: ExamKey }) {
       const { removed, recordingIds } = store.atomic(() => {
-        const scope = lesson ? { lesson } : { course };
+        const scope = only ?? { course };
         const runIds = store.idsOf(scope);
-        const cardIds = cards.idsMetIn(scope);
+        // An exam's runs make no cards.
+        const cardIds = "exam" in scope ? [] : cards.idsMetIn(scope);
         const recordingIds = recordingsIn(runIds);
         const removed = store.remove(runIds, cardIds);
         cards.remove(cardIds);

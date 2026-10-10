@@ -3,6 +3,7 @@ import {
   type CardFace,
   type CardRating,
   CLIENT_HEADERS,
+  type ExamKey,
   type ItemKey,
   type LearnerSettingKey,
   type LessonKey,
@@ -192,7 +193,7 @@ export const useStorage = () =>
 export function useResetProgress() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (target: { series: string; course: string; lesson?: LessonKey }) =>
+    mutationFn: (target: { series: string; course: string; lesson?: LessonKey; exam?: ExamKey }) =>
       json(api.progress.reset.$post({ json: target })),
     // Progress shows in many places (course list and map, tutor, reviews): read it all again — not
     // the course content and its file check, which a reset does not change.

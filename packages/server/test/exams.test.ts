@@ -328,3 +328,33 @@ test("a language exam: one module taken alone, timed by it, its Teile whole; the
   expect(rated.run.result.pending).toBeUndefined();
   expect(rated.events.some((e: { type: string }) => e.type === "exam_rated")).toBe(true);
 });
+
+test("an exam reset: its mock exams and practice go, the course's other exam keeps its own", async () => {
+  const api = await inBerlin();
+  const { run } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: EXAM,
+    edition: "ru-de",
+    mode: "test",
+  });
+  await api.sendJson("POST", `/api/exams/runs/${run.id}/events`, {
+    events: run.plan.items.map((k: string) => answer(k.split("/q-")[1] as string, "a")),
+  });
+  await api.sendJson("POST", `/api/exams/runs/${run.id}/finish`, {});
+  const { run: other } = await api.sendJson("POST", "/api/exams/runs", {
+    exam: MODELL,
+    edition: "en-de",
+    mode: "practice",
+  });
+  const course = { series: "sprachanker.fixture", course: "demo" };
+  // Only an exam of this course.
+  expect(
+    (await api.send("POST", "/api/progress/reset", { ...course, course: "other", exam: EXAM }))
+      .status,
+  ).toBe(400);
+  const removed = await api.sendJson("POST", "/api/progress/reset", { ...course, exam: EXAM });
+  expect(removed.runs).toBe(1);
+  const [mini] = await api.getJson("/api/exams");
+  expect(mini).toMatchObject({ key: EXAM, last: null, tests: 0, active: null });
+  expect((await api.send("GET", `/api/exams/runs/${run.id}`, undefined)).status).toBe(404);
+  expect((await api.getJson(`/api/exams/runs/${other.id}`)).run.status).toBe("active");
+});

@@ -534,7 +534,10 @@
     "courseBody": "Alle Antworten und Lektionsdurchgänge dieses Kurses werden gelöscht, dazu die Gespräche mit dem Tutor, Schreibprüfungen und Szenen dazu sowie die Wortkarten seiner Lektionen mit ihren Wiederholungen. Der Kurs verschwindet aus „Meine Kurse“, bleibt aber installiert. Das lässt sich nicht rückgängig machen.",
     "lessonTitle": "Deinen Fortschritt in „{title}“ zurücksetzen?",
     "lessonBody": "Alle Antworten und Durchgänge dieser Lektion werden gelöscht, dazu ihr Tutor-Gespräch, Schreibprüfungen und Szenen sowie die Wortkarten, die sie angelegt hat, mit ihren Wiederholungen (Wörter aus anderen Lektionen bleiben). Das lässt sich nicht rückgängig machen.",
-    "confirm": "Zurücksetzen"
+    "confirm": "Zurücksetzen",
+    "removeExam": "Aus meinen Prüfungen entfernen",
+    "examTitle": "„{title}“ aus deinen Prüfungen entfernen?",
+    "examBody": "Seine Probeprüfungen und Übungen werden mit allen Antworten und Bewertungen gelöscht. Die Prüfung bleibt heruntergeladen."
   },
   "download": {
     "queued": "In der Warteschlange – gerade lädt ein anderer Kurs",

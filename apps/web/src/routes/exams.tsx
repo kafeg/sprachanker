@@ -36,7 +36,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
     ) : rows.length ? (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {rows.map((e) => (
-          <EditionCard key={e.key} exam={e} />
+          <EditionCard key={e.key} exam={e} tab={tab} />
         ))}
       </div>
     ) : (
@@ -91,7 +91,14 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
 }
 
 /** An exam's card in the edition it is shown in. */
-function EditionCard({ exam }: { exam: ExamRow }) {
+function EditionCard({ exam, tab }: { exam: ExamRow; tab: string }) {
   const edition = useEdition(exam.series, exam.course, exam.editions);
-  return edition ? <ExamCard exam={exam} edition={edition} /> : null;
+  return edition ? (
+    <ExamCard
+      exam={exam}
+      edition={edition}
+      removable={tab === "mine"}
+      upkeep={tab === "downloaded"}
+    />
+  ) : null;
 }

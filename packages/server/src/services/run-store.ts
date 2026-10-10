@@ -216,12 +216,16 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
 
     /** Ids of every run, of any kind, about a lesson or in a course (resetting progress: a course's
      *  lesson and exam runs alike). */
-    idsOf(scope: { lesson: LessonKey } | { course: CourseKey }) {
+    idsOf(scope: { lesson: LessonKey } | { exam: ExamKey } | { course: CourseKey }) {
       return db
         .select({ id: runs.id })
         .from(runs)
         .where(
-          "lesson" in scope ? eq(runs.contextKey, scope.lesson) : eq(runs.courseKey, scope.course),
+          "lesson" in scope
+            ? eq(runs.contextKey, scope.lesson)
+            : "exam" in scope
+              ? eq(runs.contextKey, scope.exam)
+              : eq(runs.courseKey, scope.course),
         )
         .all()
         .map((r) => r.id);

@@ -8,6 +8,8 @@ import { put } from "./api.ts";
  *  (`done` closes the sheet again). */
 async function withQuestions(page: Page, use: (list: Locator, column: Locator) => Promise<void>) {
   const open = page.getByRole("button", { name: "Questions", exact: true });
+  // The page is there: the list beside the run, or its button on a phone.
+  await open.or(page.locator("aside").getByRole("navigation")).first().waitFor();
   const phone = await open.isVisible();
   if (phone) await open.click();
   // The column: the phone's sheet, or the side beside the run.
@@ -251,4 +253,20 @@ test("a language exam: a module alone, then the whole — each question with its
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Change rating" })).toHaveCount(2);
   await put(request, "/api/settings", { key: "llm.offIn", value: [] });
+});
+
+test("an exam removed from my exams: asked first, its runs gone, still downloaded", async ({
+  page,
+}) => {
+  await page.goto("/exams");
+  const cards = page.getByRole("button", { name: "Remove from my exams" });
+  await expect(cards.first()).toBeVisible();
+  const before = await cards.count();
+  expect(before).toBeGreaterThan(0);
+  await cards.first().click();
+  await expect(page.getByRole("alertdialog")).toContainText("mock exams and practice are deleted");
+  await page.getByRole("alertdialog").getByRole("button", { name: "Reset" }).click();
+  await expect(cards).toHaveCount(before - 1);
+  await page.goto("/exams/downloaded");
+  await expect(page.getByRole("link", { name: /Mini test|Model test/ }).first()).toBeVisible();
 });

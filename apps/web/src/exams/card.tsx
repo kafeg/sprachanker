@@ -1,19 +1,34 @@
 // An installed exam on "My exams" and "Downloaded" (09, Exams; owner's choice 1A, 2026-10-10): a band
 // with the language pair and the last mock exam's points, a ring with how ready the learner is, the
 // title and publisher, the last mock exam, and the ways in — a mock exam (continued while one runs) and
-// practice.
+// practice; on "My exams" its removal (its runs deleted), on "Downloaded" its course's check and sync.
 import { examPassed } from "@sprachanker/engine";
+import type { ExamKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { ArrowRight, Dumbbell } from "lucide-react";
+import { ArrowRight, Dumbbell, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { ExamRow } from "@/api/exams.ts";
+import { ResetProgress } from "@/courses/reset-progress.tsx";
+import { CourseUpkeep } from "@/courses/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { examParams } from "./params.ts";
 
-export function ExamCard({ exam, edition }: { exam: ExamRow; edition: string }) {
+export function ExamCard({
+  exam,
+  edition,
+  removable,
+  upkeep,
+}: {
+  exam: ExamRow;
+  edition: string;
+  /** In "My exams": the exam can be removed from there (its mock exams and practice deleted). */
+  removable?: boolean;
+  /** In "Downloaded": its course's check and sync. */
+  upkeep?: boolean;
+}) {
   const { t } = useTranslation();
   const percent = usePercent();
   const date = useDateFormat("day");
@@ -31,6 +46,27 @@ export function ExamCard({ exam, edition }: { exam: ExamRow; edition: string }) 
             ? t("exams.lastPoints", { points: last.points, max: last.max })
             : t("exams.questions", { count: exam.questions })}
         </span>
+        {removable && (
+          <ResetProgress
+            series={exam.series}
+            course={exam.course}
+            exam={exam.key as ExamKey}
+            title={title}
+          >
+            {(open) => (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={open}
+                aria-label={t("progress.removeExam")}
+                title={t("progress.removeExam")}
+                className="-mr-2 text-muted-foreground"
+              >
+                <X className="size-4" />
+              </Button>
+            )}
+          </ResetProgress>
+        )}
       </div>
       <div className="flex flex-1 flex-col p-4">
         <Link to="/exam/$series/$course/$exam" params={params} className="flex items-center gap-3">
@@ -46,6 +82,7 @@ export function ExamCard({ exam, edition }: { exam: ExamRow; edition: string }) 
             </span>
           </span>
         </Link>
+        {upkeep && <CourseUpkeep series={exam.series} course={exam.course} />}
         <p className="mt-3 text-sm text-muted-foreground">
           {t("exams.ready", { percent: percent(exam.readiness) })}
         </p>

@@ -33,7 +33,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   queued, downloading, incomplete, ready), `GET` / `POST /api/downloads` (the jobs with progress and
   log; queue a download — first download, completing one and syncing with the source are the same
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
-- Progress: `POST /api/progress/reset` (a course or one lesson, 05).
+- Progress: `POST /api/progress/reset` (a course, one lesson, or one exam — its mock exams and practice, 05).
 - Profiles (without a session): `GET` / `POST /api/profiles` (who is studying and registration; a new
   profile, signed in), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
   choosing; signing out). With a session: `PUT /api/profile` (name, colour, onboarded), `DELETE

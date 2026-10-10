@@ -61,6 +61,8 @@ const visible = (l: Locator) => l.filter({ visible: true });
  *  (`done` closes the sheet again). */
 async function withQuestions(page: Page, use: (list: Locator, column: Locator) => Promise<void>) {
   const open = page.getByRole("button", { name: "Questions", exact: true });
+  // The page is there: the list beside the run, or its button on a phone.
+  await open.or(page.locator("aside").getByRole("navigation")).first().waitFor();
   const phone = await open.isVisible();
   if (phone) await open.click();
   // The column: the phone's sheet, or the side beside the run.
