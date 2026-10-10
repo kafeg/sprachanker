@@ -27,7 +27,7 @@ export interface WritingRequest {
 
 export function createWriting(deps: {
   store: RunStore;
-  /** The run the lesson shows (the runs service). */
+  /** The run the lesson shows (the lessons service). */
   session: (lessonKey: LessonKey) => Promise<{ run: Run } | undefined>;
   llm: Llm;
   lessonContext: LessonContexts;

@@ -53,7 +53,7 @@ interface ContextUsage {
 
 export function createTutor(deps: {
   store: RunStore;
-  /** The lesson run the lesson shows, with its events (the runs service). */
+  /** The lesson run the lesson shows, with its events (the lessons service). */
   session: (lessonKey: LessonKey) => Promise<{ events: TypedEvent[] } | undefined>;
   llm: Llm;
   mistakes: Mistakes;

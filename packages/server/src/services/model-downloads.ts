@@ -61,7 +61,11 @@ export function createModelDownloads() {
 export const untilAborted = <T>(promise: Promise<T>, signal: AbortSignal) =>
   new Promise<T>((resolve, reject) => {
     const abort = () => reject(new Error("cancelled"));
-    if (signal.aborted) return abort();
+    if (signal.aborted) {
+      // What it waits for goes on: its failure is nobody's to see now.
+      promise.catch(() => {});
+      return abort();
+    }
     signal.addEventListener("abort", abort, { once: true });
     promise.then(resolve, reject).finally(() => signal.removeEventListener("abort", abort));
   });

@@ -32,7 +32,7 @@ export interface SpeakingRequest {
 export function createSpeaking(deps: {
   llm: Llm;
   lessonContext: LessonContexts;
-  /** One of the lesson's runs (the runs service). */
+  /** One of the lesson's runs (the lessons service). */
   lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
   store: RunStore;
   /** What a course recording says, heard with the profile's recogniser; undefined without one. */

@@ -25,7 +25,7 @@ export function createCards(deps: {
   store: Pick<RunStore, "remove">;
   content: Content;
   settings: Settings;
-  /** The run the lesson shows (the runs service): the run a lesson's cards are made in. */
+  /** The run the lesson shows (the lessons service): the run a lesson's cards are made in. */
   session: (lessonKey: LessonKey) => Promise<{ run: { id: string } } | undefined>;
   /** The courses the learner has started (My courses, by course key): the decks offered. */
   myCourses: () => Promise<Set<string>>;

@@ -157,7 +157,7 @@ export function createExamRuns({
 
   /**
    * Hands in every mock exam left past its time (06): what reads exam runs — the exams' list and
-   * page, a run opened, the Notebook — calls it first, so each reads them handed in. The one write a
+   * page, the Notebook — calls it first, so each reads them handed in (a run opened settles itself). The one write a
    * reading request makes; one of an exam no longer installed stays as it is.
    */
   async function settleOverdue() {

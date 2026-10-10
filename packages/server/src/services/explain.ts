@@ -27,7 +27,7 @@ export interface ExplainRequest {
 export function createExplain(deps: {
   llm: Llm;
   lessonContext: LessonContexts;
-  /** One of the lesson's runs (the runs service). */
+  /** One of the lesson's runs (the lessons service). */
   lessonRun: (lessonKey: LessonKey, runId: string) => { id: string } | undefined;
   store: RunStore;
   now: () => number;

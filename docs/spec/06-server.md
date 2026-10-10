@@ -58,9 +58,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   passes), `GET /api/notebook/exam?exam=` (an exam's runs and its questions as they stand). Read
   only (but for handing in an overdue mock exam, below); a pass is a lesson run with work in it.
 - One write on reading: a mock exam left past its time (and the 30 s grace) is handed in as it stands
-  by whatever reads exam runs first — `GET /api/exams`, `/api/exams/page`, `/api/exams/runs/:id`,
-  `/api/notebook`, `/api/notebook/exam` (`settleOverdue` in `services/exam-runs.ts`) — so every view
-  reads it handed in; no timer runs for it.
+  by whatever reads exam runs first — `GET /api/exams`, `/api/exams/page`, `/api/notebook`,
+  `/api/notebook/exam` (`settleOverdue` in `services/exam-runs.ts`); a run opened
+  (`/api/exams/runs/:id`) settles itself — so every view reads it handed in; no timer runs for it.
 - Cards (04): `POST /api/cards/lesson` (cards of a lesson's words), `GET /api/cards/decks` (each
   language with its courses and their counts), `GET /api/cards/decks/offers` (each installed course's
   words as a deck to take), `POST /api/cards/decks/take|leave` (a course's deck taken whole, or left),

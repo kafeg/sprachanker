@@ -331,7 +331,7 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
             } catch {
               throw new ServiceError("answer_does_not_fit");
             }
-            // Numbered by the store, after the item's answers the run holds.
+            // Numbered by appendAnswers, after the item's answers the run holds.
             return { ...e, payload: { ...e.payload, outcome } };
           }
           case "item_skipped":
