@@ -1,10 +1,10 @@
-// The interface language as chips, each in its own language (09): first thing on "Who is studying?"
-// and in the onboarding's welcome, so the app speaks the learner's language from the start.
+// The interface language as chips, each in its own language (09), on "Who is studying?" — the only place
+// to choose it before a profile exists; kept on this device (a profile then keeps it: preferences.ts).
 import { useTranslation } from "react-i18next";
-import { languageName, switchLanguage, UI_LANGUAGES, type UiLanguage } from "@/i18n/index.ts";
+import { languageName, switchLanguage, UI_LANGUAGES } from "@/i18n/index.ts";
 import { Chip } from "@/ui/chip.tsx";
 
-export function LanguageSwitch({ onPick }: { onPick?(language: UiLanguage): void }) {
+export function LanguageSwitch() {
   const { t, i18n } = useTranslation();
   return (
     <fieldset
@@ -12,14 +12,7 @@ export function LanguageSwitch({ onPick }: { onPick?(language: UiLanguage): void
       aria-label={t("settings.uiLanguage")}
     >
       {UI_LANGUAGES.map((l) => (
-        <Chip
-          key={l}
-          on={i18n.language === l}
-          onClick={() => {
-            switchLanguage(l);
-            onPick?.(l);
-          }}
-        >
+        <Chip key={l} on={i18n.language === l} onClick={() => switchLanguage(l)}>
           <span lang={l}>{languageName(l, l, true)}</span>
         </Chip>
       ))}

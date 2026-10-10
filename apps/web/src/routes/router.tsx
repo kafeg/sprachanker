@@ -7,6 +7,7 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useSession } from "@/api/session.ts";
 import { Onboarding } from "@/app/onboarding.tsx";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
@@ -49,22 +50,30 @@ function SignedIn() {
   );
 }
 
-// No profile on this device: who is studying; a profile not yet onboarded: its onboarding (with the
-// AI assistant's settings as a step); else the app.
+// No profile on this device: who is studying, or a new profile's onboarding — its first step names it
+// and makes it; a profile not yet onboarded: its onboarding (opened again for the new profile, at the
+// step after naming it; with the AI assistant's settings as a step); else the app.
 const root = createRootRoute({
   component: function Root() {
     const session = useSession();
     const navigate = useNavigate();
+    const [adding, setAdding] = useState(false);
+    const profile = session.data?.profile;
+    // Signed in, the new profile is made: signed out later, the device shows who is studying again.
+    useEffect(() => {
+      if (profile) setAdding(false);
+    }, [profile]);
     if (session.isPending) return <Loading />;
     if (session.isError)
       return <ErrorState error={session.error} onRetry={() => session.refetch()} />;
-    const profile = session.data.profile;
-    if (!profile) return <WhoIsStudying />;
-    if (!profile.onboarded)
+    if (!profile && !adding) return <WhoIsStudying onNew={() => setAdding(true)} />;
+    if (!profile?.onboarded)
       return (
         <Onboarding
-          profile={profile}
+          key={profile?.id ?? "new"}
+          profile={profile ?? null}
           assistant={<AssistantSetup />}
+          onBack={profile ? undefined : () => setAdding(false)}
           onDone={() => void navigate({ to: "/catalog" })}
         />
       );

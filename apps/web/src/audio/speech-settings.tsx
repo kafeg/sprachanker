@@ -289,22 +289,23 @@ function Recordings() {
   );
 }
 
-/** The onboarding's speech step: the microphone test and recognition (the rest stays in Settings). */
+/** Hearing and speaking: the microphone, recognition and reading aloud — the onboarding's speech step
+ *  and the head of Settings → Speech. */
 export function SpeechSetup() {
   return (
     <div className="space-y-6">
       <Microphone />
       <Recognition />
+      <ReadAloud />
     </div>
   );
 }
 
+/** Settings → Speech: the setup, then the recordings kept. */
 export function SpeechSettings() {
   return (
     <div className="space-y-6">
-      <Microphone />
-      <Recognition />
-      <ReadAloud />
+      <SpeechSetup />
       <Recordings />
     </div>
   );

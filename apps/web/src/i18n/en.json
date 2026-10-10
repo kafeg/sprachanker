@@ -770,32 +770,21 @@
     "firstHint": "Make your profile to start: a few short steps.",
     "unnamed": "No name yet",
     "new": "New profile",
-    "cancel": "Cancel",
-    "nameIt": "What is your name?",
-    "create": "Create"
+    "previous": "Previous profiles",
+    "next": "More profiles",
+    "page": "{n, number} of {total, number}"
   },
   "onboarding": {
     "progress": "Step {n} of {total}",
     "back": "Back",
     "next": "Next",
     "finish": "Choose a course",
-    "welcome": {
+    "profile": {
       "title": "Welcome",
       "text": "SprachAnker puts real language courses in one player, checks your answers, keeps your words in spaced repetition and can bring in an AI tutor. Everything stays on this computer.",
-      "sources": "Courses are downloaded straight from their publishers' websites (Deutsche Welle and others) for your personal use. Respect their terms; SprachAnker is not affiliated with them."
-    },
-    "name": {
-      "title": "What should we call you?",
-      "label": "Name or nickname",
-      "colour": "Colour"
-    },
-    "colour": {
-      "amber": "Amber",
-      "teal": "Teal",
-      "rose": "Rose",
-      "violet": "Violet",
-      "sky": "Sky",
-      "lime": "Lime"
+      "sources": "Courses are downloaded straight from their publishers' websites (Deutsche Welle and others) for your personal use. Respect their terms; SprachAnker is not affiliated with them.",
+      "experimental": "Courses and exams still being tried out stay hidden until you turn them on in Settings → Experimental.",
+      "name": "What should we call you?"
     },
     "assistant": {
       "title": "AI assistant",
@@ -806,7 +795,7 @@
     },
     "speech": {
       "title": "Speaking",
-      "text": "Say the courses' phrases yourself: test your microphone, and download the speech recogniser (once) so the app hears what you said. Everything stays on this computer; both can be done later in Settings → Speech."
+      "text": "Say the courses' phrases yourself and hear any text read aloud: test your microphone, download the speech recogniser (once) so the app hears what you said, and choose a voice for each language. Everything stays on this computer; all of it can be changed later in Settings → Speech."
     }
   },
   "tour": {
@@ -827,7 +816,17 @@
     "delete": "Delete profile…",
     "deleteTitle": "Delete the profile “{name}”?",
     "deleteBody": "Its progress, words and cards, recordings, AI chats and devices signed in to it are deleted for good. Other profiles and the courses stay.",
-    "deleteConfirm": "Delete for good"
+    "deleteConfirm": "Delete for good",
+    "name": "Name or nickname",
+    "colour": "Colour",
+    "colours": {
+      "amber": "Amber",
+      "teal": "Teal",
+      "rose": "Rose",
+      "violet": "Violet",
+      "sky": "Sky",
+      "lime": "Lime"
+    }
   },
   "decks": {
     "tabs": {

@@ -126,8 +126,9 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   profile, not yet onboarded (its data kept; it gets its name in the onboarding, which cannot end
   without one).
 - A device without a session sees **"Who is studying?"**: the interface language, the profiles and
-  "+ New profile" while registration is open (on by default). A new profile is named first, then made,
-  signed in at once and taken through the onboarding (09).
+  "+ New profile" while registration is open (on by default). "New profile" opens the onboarding,
+  whose first step names the profile: only then is it made, signed in at once and taken through the
+  rest (09).
 - **Signing in**: a profile opens when chosen. No PINs, passwords or passkeys (owner, 2026-10-08:
   profiles keep people's learning apart; on a home server they need no lock).
 - **Devices**: a 256-bit random token in an HttpOnly cookie, its SHA-256 in `devices` (not a JWT: one

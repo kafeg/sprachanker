@@ -35,7 +35,8 @@ export function useSignIn() {
 export function useCreateProfile() {
   const signedIn = useSignedIn();
   return useMutation({
-    mutationFn: (input: { name: string }) => json(api.profiles.$post({ json: input })),
+    mutationFn: (input: Parameters<typeof api.profiles.$post>[0]["json"]) =>
+      json(api.profiles.$post({ json: input })),
     onSuccess: ({ profile }) => signedIn(profile),
   });
 }

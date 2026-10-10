@@ -1,6 +1,5 @@
 // Settings → Profile (06, "Profiles and access"; 09): the name and colour, the devices signed in to
 // it, switching profile, deleting it (asked to confirm).
-import { ProfileColour } from "@sprachanker/schema";
 import { LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,14 +11,12 @@ import {
   useSignOut,
   useUpdateProfile,
 } from "@/api/session.ts";
-import { Avatar } from "@/ui/avatar.tsx";
 import { Button } from "@/ui/components/button.tsx";
-import { Input } from "@/ui/components/input.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
-import { cn } from "@/ui/utils.ts";
 import { deviceName } from "./device-name.ts";
+import { NameAndColour } from "./name-colour.tsx";
 
 export function ProfileSettings() {
   const { t } = useTranslation();
@@ -37,35 +34,15 @@ export function ProfileSettings() {
   return (
     <div className="space-y-6">
       <Panel title={t("profile.who")}>
-        <div className="mt-2 flex flex-wrap items-center gap-3">
-          <Avatar name={name || "?"} colour={profile.colour} className="size-12 text-xl" />
-          <Input
-            className="h-11 max-w-xs"
-            maxLength={40}
-            aria-label={t("onboarding.name.label")}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onBlur={saveName}
-            onKeyDown={(e) => e.key === "Enter" && saveName()}
+        <div className="mt-2">
+          <NameAndColour
+            name={name}
+            colour={profile.colour}
+            onName={setName}
+            onNameDone={saveName}
+            onColour={(colour) => update.mutate({ colour })}
           />
         </div>
-        <fieldset
-          className="mt-3 flex min-w-0 flex-wrap gap-2 border-0 p-0"
-          aria-label={t("onboarding.name.colour")}
-        >
-          {ProfileColour.options.map((c) => (
-            <button
-              key={c}
-              type="button"
-              aria-pressed={profile.colour === c}
-              aria-label={t(`onboarding.colour.${c}`)}
-              onClick={() => update.mutate({ colour: c })}
-              className={cn("rounded-full p-0.5", profile.colour === c && "ring-2 ring-primary")}
-            >
-              <Avatar name={name || "?"} colour={c} className="size-9" />
-            </button>
-          ))}
-        </fieldset>
       </Panel>
       <DevicesPanel />
       <Button

@@ -1,59 +1,83 @@
-// A new profile's onboarding (06, "Profiles and access"; 09): welcome with the interface language
-// (courses come straight from their publishers) → name (never empty) and colour → the AI assistant
-// (a slot: the llm folder's own settings) → speech (the microphone test, the recogniser's download) →
-// a tour → the courses. Every step but the tour can be changed later in Settings.
+// A profile's onboarding (06, "Profiles and access"; 09): the profile — welcome, where the courses come
+// from, experimental sources off until turned on, name (never empty) and colour — → the AI assistant
+// (a slot: the llm folder's own settings) → speech (as Settings → Speech: the microphone, recognition,
+// reading aloud) → a tour → the courses. A new profile is made by the first step's Next and signed in;
+// the router then opens the onboarding again for it, at the step after the named profile's. Every
+// step but the tour can be changed later in Settings.
 
-import { ProfileColour } from "@sprachanker/schema";
+import { nextProfileColour, type ProfileColour } from "@sprachanker/schema";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSetSetting } from "@/api/hooks.ts";
-import { type SessionProfile, useUpdateProfile } from "@/api/session.ts";
+import {
+  type SessionProfile,
+  useCreateProfile,
+  useProfiles,
+  useUpdateProfile,
+} from "@/api/session.ts";
 import { SpeechSetup } from "@/audio/speech-settings.tsx";
-import { Avatar } from "@/ui/avatar.tsx";
 import { Button } from "@/ui/components/button.tsx";
-import { Input } from "@/ui/components/input.tsx";
+import { errorText } from "@/ui/error-text.ts";
 import { cn } from "@/ui/utils.ts";
-import { LanguageSwitch } from "./language-switch.tsx";
+import { NameAndColour } from "./name-colour.tsx";
 import { Tour } from "./tour.tsx";
 
-const STEPS = ["welcome", "name", "assistant", "speech", "tour"] as const;
+const STEPS = ["profile", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
 
 export function Onboarding({
   profile,
   assistant,
+  onBack,
   onDone,
 }: {
-  profile: SessionProfile;
+  /** The profile onboarded; none while a new one is still to be named. */
+  profile: SessionProfile | null;
   /** The AI assistant's settings, when the app has an assistant. */
   assistant?: React.ReactNode;
+  /** Back from the first step (before the profile exists: to "Who is studying?"). */
+  onBack?(): void;
   /** Finished: where to go (All courses). */
   onDone(): void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const steps = STEPS.filter((s) => s !== "assistant" || assistant);
-  const [step, setStep] = useState<Step>("welcome");
+  // A named profile has been through the first step (the profile from before profiles has no name).
+  const [step, setStep] = useState<Step>(steps[profile?.name ? 1 : 0] ?? "profile");
   // Each step opens at its top (a long one, Speech, is scrolled to its end to go on).
   // biome-ignore lint/correctness/useExhaustiveDependencies: on every change of step
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [step]);
   const at = steps.indexOf(step);
+  const last = at === steps.length - 1;
+  const create = useCreateProfile();
   const update = useUpdateProfile();
-  const setSetting = useSetSetting();
-  const [name, setName] = useState(profile.name);
-  const [colour, setColour] = useState(profile.colour);
+  const profiles = useProfiles();
+  const [name, setName] = useState(profile?.name ?? "");
+  const [picked, setPicked] = useState<ProfileColour>();
+  // A new profile's colour: the first no profile uses (the server's default too).
+  const colour =
+    picked ??
+    profile?.colour ??
+    nextProfileColour(profiles.data?.profiles.map((p) => p.colour) ?? []);
 
-  const next = async () => {
-    if (step === "welcome") setSetting.mutate({ key: "uiLanguage", value: i18n.language });
-    if (step === "name") update.mutate({ name: name.trim(), colour });
+  const next = () => {
+    if (step === "profile") {
+      const named = { name: name.trim(), colour };
+      if (!profile) return create.mutate(named);
+      update.mutate(named);
+    }
     const following = steps[at + 1];
     if (following) setStep(following);
-    else {
-      await update.mutateAsync({ onboarded: true });
-      onDone();
-    }
+    // Awaited, not mutate's callback: the app replaces the onboarding before that would run; a failure
+    // shows under the buttons.
+    else
+      update
+        .mutateAsync({ onboarded: true })
+        .then(onDone)
+        .catch(() => {});
   };
+  const failed = create.error ?? update.error;
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-4 pt-8">
@@ -70,43 +94,15 @@ export function Onboarding({
       </ol>
       <h1 className="text-3xl font-bold">{t(`onboarding.${step}.title`)}</h1>
       <div className="flex-1 space-y-4">
-        {step === "welcome" && (
+        {step === "profile" && (
           <>
-            <LanguageSwitch onPick={(value) => setSetting.mutate({ key: "uiLanguage", value })} />
-            <p className="text-lg">{t("onboarding.welcome.text")}</p>
-            <p className="rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
-              {t("onboarding.welcome.sources")}
-            </p>
-          </>
-        )}
-        {step === "name" && (
-          <>
-            <Input
-              className="h-12 text-lg"
-              autoFocus
-              maxLength={40}
-              aria-label={t("onboarding.name.label")}
-              placeholder={t("onboarding.name.label")}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-            />
-            <fieldset
-              className="flex min-w-0 flex-wrap gap-2 border-0 p-0"
-              aria-label={t("onboarding.name.colour")}
-            >
-              {ProfileColour.options.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  aria-pressed={colour === c}
-                  aria-label={t(`onboarding.colour.${c}`)}
-                  onClick={() => setColour(c)}
-                  className={cn("rounded-full p-0.5", colour === c && "ring-2 ring-primary")}
-                >
-                  <Avatar name={name || "?"} colour={c} className="size-12 text-xl" />
-                </button>
-              ))}
-            </fieldset>
+            <p className="text-lg">{t("onboarding.profile.text")}</p>
+            <div className="space-y-2 rounded-2xl border bg-card p-4 text-sm text-muted-foreground">
+              <p>{t("onboarding.profile.sources")}</p>
+              <p>{t("onboarding.profile.experimental")}</p>
+            </div>
+            <h2 className="pt-2 text-xl font-semibold">{t("onboarding.profile.name")}</h2>
+            <NameAndColour name={name} colour={colour} onName={setName} onColour={setPicked} />
           </>
         )}
         {step === "assistant" && (
@@ -124,22 +120,29 @@ export function Onboarding({
         {step === "tour" && <Tour />}
       </div>
       {/* Back and Next stay at the bottom of the screen, a long step scrolling under them. */}
-      <div className="sticky bottom-0 -mx-4 flex items-center justify-between gap-3 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
-        {at > 0 ? (
-          <Button variant="ghost" size="lg" onClick={() => setStep(steps[at - 1] ?? "welcome")}>
-            {t("onboarding.back")}
+      <div className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
+        {failed && <p className="pb-2 text-sm text-wrong">{errorText(t, failed)}</p>}
+        <div className="flex items-center justify-between gap-3">
+          {at > 0 || onBack ? (
+            <Button
+              variant="ghost"
+              size="lg"
+              onClick={() => (at > 0 ? setStep(steps[at - 1] ?? "profile") : onBack?.())}
+            >
+              {t("onboarding.back")}
+            </Button>
+          ) : (
+            <span />
+          )}
+          <Button
+            size="lg"
+            disabled={step === "profile" && !name.trim()}
+            loading={create.isPending || (last && update.isPending)}
+            onClick={next}
+          >
+            {last ? t("onboarding.finish") : t("onboarding.next")}
           </Button>
-        ) : (
-          <span />
-        )}
-        <Button
-          size="lg"
-          disabled={step === "name" && !name.trim()}
-          loading={update.isPending && at === steps.length - 1}
-          onClick={() => void next()}
-        >
-          {at === steps.length - 1 ? t("onboarding.finish") : t("onboarding.next")}
-        </Button>
+        </div>
       </div>
     </main>
   );

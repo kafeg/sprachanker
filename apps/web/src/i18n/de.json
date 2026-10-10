@@ -770,32 +770,21 @@
     "firstHint": "Leg dein Profil an: ein paar kurze Schritte.",
     "unnamed": "Noch ohne Namen",
     "new": "Neues Profil",
-    "cancel": "Abbrechen",
-    "nameIt": "Wie heißt du?",
-    "create": "Anlegen"
+    "previous": "Vorige Profile",
+    "next": "Weitere Profile",
+    "page": "{n, number} von {total, number}"
   },
   "onboarding": {
     "progress": "Schritt {n} von {total}",
     "back": "Zurück",
     "next": "Weiter",
     "finish": "Kurs wählen",
-    "welcome": {
+    "profile": {
       "title": "Willkommen",
       "text": "SprachAnker bringt echte Sprachkurse in einen Player, prüft deine Antworten, hält deine Wörter in verteilter Wiederholung und kann einen KI-Tutor einbinden. Alles bleibt auf diesem Computer.",
-      "sources": "Kurse werden direkt von den Websites ihrer Herausgeber (Deutsche Welle und andere) für deinen persönlichen Gebrauch geladen. Beachte ihre Bedingungen; SprachAnker ist nicht mit ihnen verbunden."
-    },
-    "name": {
-      "title": "Wie sollen wir dich nennen?",
-      "label": "Name oder Spitzname",
-      "colour": "Farbe"
-    },
-    "colour": {
-      "amber": "Bernstein",
-      "teal": "Petrol",
-      "rose": "Rosa",
-      "violet": "Violett",
-      "sky": "Himmelblau",
-      "lime": "Limette"
+      "sources": "Kurse werden direkt von den Websites ihrer Herausgeber (Deutsche Welle und andere) für deinen persönlichen Gebrauch geladen. Beachte ihre Bedingungen; SprachAnker ist nicht mit ihnen verbunden.",
+      "experimental": "Kurse und Prüfungen, die noch erprobt werden, bleiben verborgen, bis du sie unter Einstellungen → Experimentell einschaltest.",
+      "name": "Wie sollen wir dich nennen?"
     },
     "assistant": {
       "title": "KI-Assistent",
@@ -806,7 +795,7 @@
     },
     "speech": {
       "title": "Sprechen",
-      "text": "Sprich die Sätze der Kurse selbst: teste dein Mikrofon und lade die Spracherkennung herunter (einmal), damit die App hört, was du gesagt hast. Alles bleibt auf diesem Computer; beides geht auch später unter Einstellungen → Sprechen."
+      "text": "Sprich die Sätze der Kurse selbst und lass dir jeden Text vorlesen: teste dein Mikrofon, lade die Spracherkennung herunter (einmal), damit die App hört, was du gesagt hast, und wähle für jede Sprache eine Stimme. Alles bleibt auf diesem Computer; alles lässt sich später unter Einstellungen → Sprechen ändern."
     }
   },
   "tour": {
@@ -827,7 +816,17 @@
     "delete": "Profil löschen…",
     "deleteTitle": "Das Profil „{name}“ löschen?",
     "deleteBody": "Fortschritt, Wörter und Karten, Aufnahmen, Gespräche mit der KI und die angemeldeten Geräte werden endgültig gelöscht. Andere Profile und die Kurse bleiben.",
-    "deleteConfirm": "Endgültig löschen"
+    "deleteConfirm": "Endgültig löschen",
+    "name": "Name oder Spitzname",
+    "colour": "Farbe",
+    "colours": {
+      "amber": "Bernstein",
+      "teal": "Petrol",
+      "rose": "Rosa",
+      "violet": "Violett",
+      "sky": "Himmelblau",
+      "lime": "Limette"
+    }
   },
   "decks": {
     "tabs": {

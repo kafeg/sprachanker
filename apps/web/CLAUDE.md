@@ -50,9 +50,12 @@ apps/web/src/
                    # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure
                    # cache updates; no codegen
   app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
-                   # profile chip — profile-chip), language-switch (the interface language, kept on the device),
-                   # who-is-studying, onboarding (with tour; the AI step is a slot from
-                   # the router), profile-settings, device-name, about,
+                   # profile chip — profile-chip), language-switch (the interface language, kept on the device;
+                   # on who-is-studying only), who-is-studying (tiles five to a page; "New profile" starts
+                   # the onboarding), onboarding (the profile's name and colour — made at its Next —, the AI
+                   # step a slot from the router, speech, tour; the router opens it again for the new
+                   # profile at the AI step), name-colour (a profile's name and colour: the onboarding's
+                   # and Settings → Profile's), profile-settings, device-name, about,
                    # preferences (language, theme, playback speed), experimental (what is shown: stable sources
                    # always, experimental ones turned on), experimental-settings (Settings → Experimental)
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
@@ -85,7 +88,8 @@ apps/web/src/
                    # take-button, context (the speech
                    # host the router provides: keep recordings, show the phrase, save, src, recognition —
                    # renderers
-                   # call no API; use-speech-host makes it), speech-settings (Settings → Speech),
+                   # call no API; use-speech-host makes it), speech-settings (Settings → Speech;
+                   # SpeechSetup — microphone, recognition, reading aloud — is also the onboarding's step),
                    # reading aloud: speak.ts (what is said, by which voice; pure), speaker.ts (each part by
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a time,
                    # read at once), speak-button, read-aloud-settings (engines, voices, downloads),
