@@ -13,8 +13,6 @@ src/
   keys.ts            # key schemas (branded), builders, parsers, lemma slugs, part of speech, gender,
                      # choice option ids
   common.ts          # sha256, media paths, media, library paths, localized text, `format` literal
-  catalog.ts         # course kind, CEFR level, licence
-  manifest.ts        # course.json
   canonical.ts       # course index, lesson, vocab entries, unmapped
   exam.ts            # exam, sections, pools, thresholds; a question as a one-item exercise, an exam's language
   locale.ts          # localised course/lesson/exam texts per edition (same key paths as canonical)
@@ -47,7 +45,7 @@ test/               # bun test (Bun types via tsconfig.dev.json; src has no runt
 - Adding an exercise type: add it to its family file in `exercise/` and to the union in
   `exercise/index.ts`, then checker in engine, renderer in `apps/web` and a fixture item (root rule 2).
 - Changing a stored format: bump its version constant; add a migration (server) or re-normaliser path.
-- Library formats (canonical, locale, exercises, exams, manifest, enrichment, rules) are
+- Library formats (canonical, locale, exercises, exams, enrichment, rules) are
   `z.strictObject`: an unknown or misspelt field is an error where it is written and read, never
   dropped silently (02). Event payloads and API shapes are not strict.
 - Event payloads only grow (05): every stored shape is on record in `test/stored-events/` and must

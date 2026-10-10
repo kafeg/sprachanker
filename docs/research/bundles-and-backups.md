@@ -33,8 +33,8 @@ media (MP4, MP3, JPG) is already compressed, so archives gain nothing by compres
 - **Already close to content-addressed.**
   - `media.json` maps each URL to path, sha256, size and MIME.
   - The media store keeps one file per sha256.
-  - The planned series manifest (`packages/schema/src/manifest.ts`) has
-    `files: path → {sha256, size, mime, sourceUrl}` and a `contentVersion` per edition.
+  - The planned series manifest (02, "Manifest") is to hold a hash per file and a
+    `contentVersion` per edition.
 
 ## Options
 

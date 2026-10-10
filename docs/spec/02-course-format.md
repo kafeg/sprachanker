@@ -12,11 +12,11 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 | Hashes | sha256, lowercase hex; canonical JSON for hashing = RFC 8785 (JCS) |
 | Generated ids (learner data) | ULID |
 | Edition id | `<source>-<target>` (`ru-de`, `en-de`, `de-de`) |
-| Time | durations in seconds; timestamps in DB Unix ms, in files ISO 8601 UTC |
+| Time | durations in seconds; timestamps Unix ms (in the databases and in files) |
 | Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL; one file per content in a series — URLs whose files are the same (by sha256) point to one, the first path in order (each fetch makes it so, stored ones too; files no URL points to any more stay, as passes and cards may name them) |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path. Every text is the source's: a provider makes up none (a page the source gives no title has none, and the app names it by its kind) |
 | HTML | only in fields named `*Html`, sanitised to an allow-list: h3 (a section title — outside tables, lists and figures; one inside them is a bold paragraph), p, br, b, strong, i, em, small, ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept); no attributes otherwise; unknown elements are unwrapped to their text, comments dropped; emphasis around nothing but spaces, an empty paragraph, caption or title, and a no-break space between two letters (a plain space; one keeping a number with its unit stays) and characters of no width (a zero-width space, a byte-order mark) are an editor's leftovers. Plain text from a source's HTML drops its comments (an editor's markup in them) and characters of no width |
-| Format versions | integer `format` in every content file type (canonical, locale, manifest, enrichment, exams); bumped on breaking change; additive optional fields do not bump it. The importer's own state (`media.json`, `keys.json`) has none: it is checked when read, and one that does not read stops the import |
+| Format versions | integer `format` in every content file type (canonical, locale, exams, enrichment); bumped on breaking change; additive optional fields do not bump it. The importer's own state (`media.json`, `keys.json`) has none: it is checked when read, and one that does not read stops the import |
 
 ## Library layout
 
@@ -100,8 +100,8 @@ moved, or restored by copying.
 ## Manifest
 
 None is written: `media.json` records the media and the library is read from the canonical and locale
-folders. Planned: a series manifest with each edition's `contentVersion` (schema
-`packages/schema/src/manifest.ts`; plan, "Open items in built areas", Library).
+folders. Planned: a series manifest — each edition's `contentVersion`, a hash per file — with course
+bundles (plan, item 6, and "Open items in built areas", Library); its format is fixed when it is built.
 
 Exams of a course are listed in its course index (`exams`); a stand-alone exam is a course with exams
 only (no units), shown in the Exams section rather than among the courses. An exam is its questions

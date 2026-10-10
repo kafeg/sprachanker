@@ -1,6 +1,5 @@
 export * from "./assistant.ts";
 export * from "./canonical.ts";
-export * from "./catalog.ts";
 export * from "./common.ts";
 export * from "./enrichment.ts";
 export * from "./errors.ts";
@@ -11,7 +10,6 @@ export * from "./lang.ts";
 export * from "./learner.ts";
 export * from "./library-state.ts";
 export * from "./locale.ts";
-export * from "./manifest.ts";
 export * from "./rules.ts";
 export * from "./settings.ts";
 export * from "./stats.ts";

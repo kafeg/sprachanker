@@ -10,13 +10,11 @@ import {
   LocaleCourse,
   LocaleExam,
   LocaleLesson,
-  Manifest,
   RulesRegistry,
 } from "../src/index.ts";
 
 /** File name → schema of every stored file format. */
 const FORMATS: Record<string, z.ZodType> = {
-  "manifest.schema.json": Manifest,
   "course-index.schema.json": CourseIndex,
   "lesson.schema.json": Lesson,
   "exam.schema.json": Exam,

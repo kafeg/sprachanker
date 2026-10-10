@@ -5,9 +5,6 @@ import { Lang } from "./lang.ts";
 /** Lowercase hex sha256. */
 export const Sha256 = z.string().regex(/^[0-9a-f]{64}$/);
 
-/** ISO 8601 UTC timestamp, as written in files. */
-export const Timestamp = z.iso.datetime();
-
 /** A path inside a series folder, `/`-separated, never leaving it. */
 export const LibraryPath = z
   .string()
