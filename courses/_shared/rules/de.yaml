@@ -1,5 +1,5 @@
 # Grammar rules registry for German (spec 02). The only place rules are defined.
-# Content is authored in stage 9a; these entries are what the fixture course needs.
+# These entries are what the fixture course needs.
 
 - id: de.greeting.du-sie
   title:

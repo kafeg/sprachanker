@@ -1,5 +1,5 @@
 // Synthetic media of the fixture course: short marker texts under readable names; the fixture
-// provider writes them into a library (stage 2).
+// provider writes them into a library (library.ts).
 import type { MediaPath } from "@sprachanker/schema";
 
 export const FIXTURE_MEDIA = new Map<MediaPath, { content: string; mime: string }>();
