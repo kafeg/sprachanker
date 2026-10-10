@@ -19,11 +19,14 @@ export interface Level {
   title: string;
   /** Its modules in the order the exam takes them (the pages' module codes 01, 02). */
   modules: ModuleId[];
-  /** A module's points scaled as the exam scales them (A1: each part out of 15 → 25; A2: 20 → 25;
-   *  B1: 30 → 100). */
+  /** A module's points scaled as the exam scales them (Durchführungsbestimmungen): A1 each part's 15
+   *  points × 1.66; A2 20 × 1.25 = 25; B1 30 → 100. */
   scaleTo: number;
   /** B1's modules are taken and passed apart (60 of 100 each); A1's and A2's together. */
   apart: boolean;
+  /** How the regulations round (Durchführungsbestimmungen): B1 each module's result to whole points
+   *  (its table: 29 → 97), A1 the parts' sum. */
+  rounding: "modules" | "total" | "none";
   /** Its size in the library, measured on a full download. */
   approxBytes: number;
 }
@@ -34,8 +37,9 @@ export const LEVELS: Level[] = [
     dir: "a1_sd1",
     title: "Goethe-Zertifikat A1: Start Deutsch 1",
     modules: ["hoeren", "lesen"],
-    scaleTo: 25,
+    scaleTo: 24.9,
     apart: false,
+    rounding: "total",
     approxBytes: 0.006e9,
   },
   {
@@ -45,6 +49,7 @@ export const LEVELS: Level[] = [
     modules: ["hoeren", "lesen"],
     scaleTo: 25,
     apart: false,
+    rounding: "none",
     approxBytes: 0.007e9,
   },
   {
@@ -54,6 +59,7 @@ export const LEVELS: Level[] = [
     modules: ["lesen", "hoeren"],
     scaleTo: 100,
     apart: true,
+    rounding: "modules",
     approxBytes: 0.017e9,
   },
 ];

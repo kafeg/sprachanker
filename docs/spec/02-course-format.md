@@ -109,8 +109,9 @@ only (no units), shown in the Exams section rather than among the courses. An ex
 tags, optional `points` (1 when not given) and a `text` of their own), sections drawing a number of
 them from a pool — filtered by a tag that must have the value of a profile setting (`{ tag:
 "federalState", setting: "exam.federalState" }`) — a time limit and pass marks. A language exam adds
-`modules` (`hoeren`, `lesen`, …: each timed, its points scaled to `scaleTo`; the exam's time is
-theirs together); its sections are the modules' Teile, each asking all its pool, with its material: a
+`modules` (`hoeren`, `lesen`, …: each timed, its points scaled to `scaleTo`, rounded to whole points
+where the exam's rules say (`round`); the exam's time is theirs together; `roundTotal`: the modules'
+sum rounded before the pass marks); its sections are the modules' Teile, each asking all its pool, with its material: a
 shared `text`, its `media` (recording or picture), how often a recording `plays`, and its `examples`:
 questions shown answered (in no pool, never scored). A pass mark may count only some modules'
 scaled points (`modules`), and `passWhen` says whether any mark passes the exam (LiD: course test or

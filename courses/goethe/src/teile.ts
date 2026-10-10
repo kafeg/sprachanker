@@ -48,6 +48,8 @@ export interface Module {
   /** The page's lines before its first Teil (its time). */
   intro: string[];
   teile: Teil[];
+  /** What could not be placed (a second recording where one is already): reported by the import. */
+  notes: string[];
 }
 
 /** A heading that opens a question: its kind, number and the rest. */
@@ -84,6 +86,12 @@ const tail = (rest: string) =>
 export function readModule(blocks: Block[]): Module {
   const intro: string[] = [];
   const teile: Teil[] = [];
+  const notes: string[] = [];
+  /** Sets a recording where none is yet; another one there is noted, not lost silently. */
+  const place = (owner: { audio?: string }, src: string, where: string) => {
+    if (owner.audio && owner.audio !== src) notes.push(`${where}: a second recording ${src}`);
+    else owner.audio = src;
+  };
   let teil: Teil | undefined;
   let question: Question | undefined;
   /** Questions since the last recording: a recording after them is theirs. */
@@ -100,7 +108,7 @@ export function readModule(blocks: Block[]): Module {
     // A question that never got its options was a label for what followed: its recording and texts
     // are the Teil's.
     if (question && teil && !answered(question)) {
-      if (question.audio) teil.audio ??= question.audio;
+      if (question.audio) place(teil, question.audio, teil.title);
       teil.texts.push(
         ...question.texts,
         ...(question.heading && !LABEL.test(question.heading) ? [question.heading] : []),
@@ -136,7 +144,8 @@ export function readModule(blocks: Block[]): Module {
     q.links.push(...f.links);
     q.texts.push(...f.tables);
     if (f.typed[0]) q.typed = f.typed[0];
-    q.example ||= f.disabled || f.choices.some((c) => c.checked);
+    // The example's inputs cannot be changed; a page pre-selecting an option does not make one.
+    q.example ||= f.disabled;
   };
   const table = (t: AnswerTable) => {
     if (!teil) return;
@@ -239,14 +248,14 @@ export function readModule(blocks: Block[]): Module {
         else teil.pictures.push(b.picture);
         break;
       case "audio":
-        if (question && !answered(question)) question.audio = b.src;
+        if (question && !answered(question)) place(question, b.src, teil.title);
         else if (group.length) {
           // After its questions (B1): theirs — kept on the first, or the Teil's when they are all.
           const first = group[0] as Question;
-          first.audio ??= b.src;
+          place(first, b.src, teil.title);
           after.set(first, group);
           group = [];
-        } else teil.audio ??= b.src;
+        } else place(teil, b.src, teil.title);
         break;
       case "fieldset":
         fieldset(b.fieldset);
@@ -265,7 +274,11 @@ export function readModule(blocks: Block[]): Module {
     for (const q of t.questions) {
       const owners = after.get(q);
       if (owners && scored.length && scored.every((s) => owners.includes(s)) && q.audio) {
-        t.audio ??= q.audio;
+        if (t.audio && t.audio !== q.audio) {
+          notes.push(`${t.title}: a second recording ${q.audio}`);
+          continue;
+        }
+        t.audio = q.audio;
         delete q.audio;
       }
     }
@@ -285,5 +298,5 @@ export function readModule(blocks: Block[]): Module {
       }));
       t.pictures = [];
     }
-  return { intro, teile };
+  return { intro, teile, notes };
 }

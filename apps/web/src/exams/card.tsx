@@ -49,7 +49,7 @@ export function ExamCard({ exam, edition }: { exam: ExamRow; edition: string }) 
         <p className="mt-3 text-sm text-muted-foreground">
           {t("exams.ready", { percent: percent(exam.readiness) })}
         </p>
-        {exam.last?.finishedAt && (
+        {exam.last?.finishedAt && passed !== undefined && (
           <p className={`text-sm ${passed ? "text-correct" : "text-wrong"}`}>
             {t(passed ? "exams.lastPassed" : "exams.lastFailed", {
               date: date.format(exam.last.finishedAt),

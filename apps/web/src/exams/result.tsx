@@ -63,7 +63,7 @@ export function ExamResultView({
   // rule; a module without a mark of its own gets none.
   const marks = marksOf(exam, modules);
   const judged = !practice && marks.length > 0;
-  const passed = examPassed(result);
+  const passed = !!examPassed(result);
   /** A section's title; with modules, its module's too ("Hören · Teil 1"). */
   const sectionTitle = (key: string) => {
     const title = locale?.sections[key as keyof typeof locale.sections]?.title ?? "";
@@ -83,7 +83,13 @@ export function ExamResultView({
   const again = (mode: ExamMode) =>
     run.edition &&
     begin.mutate(
-      { exam: run.exam, edition: run.edition, mode },
+      // Again of what was taken: the module alone, or the whole exam.
+      {
+        exam: run.exam,
+        edition: run.edition,
+        mode,
+        ...(run.plan.module && { module: run.plan.module }),
+      },
       {
         onSuccess: ({ run: next }) =>
           void navigate({

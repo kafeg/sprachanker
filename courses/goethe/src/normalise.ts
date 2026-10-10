@@ -27,7 +27,7 @@ import {
   type ModuleId,
   sourceOf,
 } from "./catalog.ts";
-import { type Choice, type Picture, readPage } from "./page.ts";
+import { audioList, type Choice, type Picture, readPage } from "./page.ts";
 import { readSolutions, type Solution } from "./solutions.ts";
 import { type Module, type Question, readModule, type Teil } from "./teile.ts";
 
@@ -118,10 +118,15 @@ export function optionFor(
   if (byText) return byText.id;
   if (want.length === 1)
     return options.find((o) => o.id === want || comparable(o.text ?? "") === want)?.id;
-  const letter = /^([a-j])\s/.exec(want)?.[1];
-  if (letter) return options.find((o) => o.id === letter)?.id;
-  return undefined;
+  // "c sollen …": the letter's option, only when its text says the same.
+  const [, letter, rest] = /^([a-j])\s+(.*)$/.exec(want) ?? [];
+  if (!letter) return undefined;
+  const option = options.find((o) => o.id === letter);
+  const text = comparable(option?.text ?? "").replace(/^[a-j]\s+/, "");
+  return option && text === rest ? option.id : undefined;
 }
+
+const hundredths = (n: number) => Math.round(n * 100) / 100;
 
 export interface Normalised {
   files: LibraryFile[];
@@ -143,6 +148,13 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   for (const { id: module, html } of pages.modules) {
     const base = pageUrl(level, module);
     const read = moduleOf(html);
+    for (const note of read.notes) problems.push(`${level.course} ${module}: ${note}`);
+    // Every player takes the list's next recording: a count that differs shifts them.
+    const players = readPage(html).filter((b) => b.kind === "audio").length;
+    if (players !== audioList(html).length)
+      problems.push(
+        `${level.course} ${module}: ${players} players for ${audioList(html).length} recordings`,
+      );
     const media = (href: string | undefined): MediaPath | undefined =>
       href ? pages.media(absolute(href, base)) : undefined;
     const textOf = (href: string) => pages.longdesc(absolute(href, base));
@@ -157,7 +169,12 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
         )
         .reduce((a, b) => a + b, 0);
     if (!minutes) problems.push(`${level.course} ${module}: no time stated`);
-    modules.push({ id: module, timeLimitSec: minutes * 60, scaleTo: level.scaleTo });
+    modules.push({
+      id: module,
+      timeLimitSec: minutes * 60,
+      scaleTo: level.scaleTo,
+      ...(level.rounding === "modules" && { round: true }),
+    });
 
     let number = 0;
     const seen = new Map<string, number>();
@@ -179,10 +196,15 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
           problems.push(`${level.course} ${slug}: question ${q.number} at place ${number}`);
         return { q, number };
       });
-      // By number; a page numbering its own Teil from 1 (A1 Lesen 3) by order.
-      const byNumber = numbered.every(({ number: n }) => solutions.some((s) => s.number === n));
+      // By number; by order only on a page numbering its own Teil 1…k for its k questions (A1 Lesen 3).
+      // A page missing a number is not shifted: that question is reported.
+      const allByNumber = numbered.every(({ number: n }) => solutions.some((s) => s.number === n));
+      const ownCount =
+        !allByNumber &&
+        solutions.length === numbered.length &&
+        solutions.every((s, i) => s.number === i + 1);
       const solutionOf = (n: number) =>
-        byNumber ? solutions.find((s) => s.number === n) : solutions[n - firstNumber];
+        ownCount ? solutions[n - firstNumber] : solutions.find((s) => s.number === n);
       const plays = module === "hoeren" ? playsIn(teil.instructions) : undefined;
       const letters = teil.letters.map((l) => l.letter);
       const none = letters.length ? noneIn(teil.instructions, solutions, letters) : undefined;
@@ -241,7 +263,15 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
 
       const pool: ExamItemKey[] = [];
       for (const { q, number: n } of numbered) {
-        const key = examItemKey(exam, `${module}-${n}`);
+        // Keyed by the number the page gives the question (stable if what counts as an example or how
+        // a Teil splits ever changes), by its place where it gives none.
+        const own = q.number !== undefined && q.number > 0 ? q.number : n;
+        const key = examItemKey(exam, `${module}-${own}`);
+        if (items.some((i) => i.key === key)) {
+          problems.push(`${level.course} ${slug}: question ${own} twice`);
+          leftOut++;
+          continue;
+        }
         const item = build(q, key, solutionOf(n));
         if (item) {
           items.push(item);
@@ -299,8 +329,12 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
   const together = modules.reduce((n, m) => n + m.timeLimitSec, 0);
   const all = modules.map((m) => m.id as ModuleId);
   const thresholds: Exam["thresholds"] = level.apart
-    ? modules.map((m) => ({ id: m.id, minPoints: 0.6 * level.scaleTo, modules: [m.id] }))
-    : [{ id: "pass", minPoints: 0.6 * level.scaleTo * modules.length }];
+    ? modules.map((m) => ({
+        id: m.id,
+        minPoints: hundredths(0.6 * level.scaleTo),
+        modules: [m.id],
+      }))
+    : [{ id: "pass", minPoints: hundredths(0.6 * level.scaleTo * modules.length) }];
   const examFile: Exam = {
     format: 1,
     key: exam,
@@ -309,6 +343,7 @@ export function normaliseLevel(level: Level, pages: LevelPages): Normalised {
     sections,
     items,
     thresholds,
+    ...(level.rounding === "total" && { roundTotal: true }),
     ...(level.apart && { passWhen: "all" as const }),
   };
   const titles = Object.fromEntries(all.map((m) => [m, { title: MODULE_TITLES[m] }]));

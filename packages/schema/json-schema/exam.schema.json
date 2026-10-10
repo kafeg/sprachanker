@@ -31,6 +31,9 @@
           "scaleTo": {
             "type": "number",
             "exclusiveMinimum": 0
+          },
+          "round": {
+            "type": "boolean"
           }
         },
         "required": [
@@ -419,6 +422,9 @@
         ],
         "additionalProperties": false
       }
+    },
+    "roundTotal": {
+      "type": "boolean"
     },
     "passWhen": {
       "type": "string",

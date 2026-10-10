@@ -69,6 +69,8 @@ export const Exam = z.strictObject({
         id: ExamModuleId,
         timeLimitSec: z.number().int().positive(),
         scaleTo: z.number().positive().optional(),
+        /** Its scaled points rounded to whole points (Goethe B1: 29 → 97). */
+        round: z.boolean().optional(),
       }),
     )
     .optional(),
@@ -106,6 +108,9 @@ export const Exam = z.strictObject({
       }),
     )
     .min(1),
+  /** The modules' scaled points together rounded to whole points before the pass marks are
+   *  applied (Goethe A1). */
+  roundTotal: z.boolean().optional(),
   /** Passed when any pass mark is reached (each its own purpose: LiD's course test and
    *  naturalisation), or only when all are (Goethe A2: overall, written and spoken). */
   passWhen: z.enum(["any", "all"]).optional(),

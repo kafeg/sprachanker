@@ -156,15 +156,16 @@ function Running({
   const shown =
     mode === "test" ? items : items.filter((i) => answers.has(i.key) || unanswered++ < batch);
   const answered = items.filter((i) => answers.has(i.key)).length;
-  // The questions by Teil; practice shows each with its Teil's material too (ordered by need, not
-  // by Teil, so each opens its own).
-  const teile = useMemo(
-    () =>
-      mode === "test"
-        ? inTeile(exam, items, sectionOf)
-        : inTeile(exam, items, sectionOf).map((t) => ({ ...t, opens: false })),
-    [exam, items, sectionOf, mode],
-  );
+  // The questions shown with their Teile: its material before the first of them, and again where
+  // practice (in order of need, not of Teile) comes back to it.
+  const teile = useMemo(() => {
+    const list = inTeile(
+      exam,
+      items.filter((i) => shown.includes(i)),
+      sectionOf,
+    );
+    return list;
+  }, [exam, items, sectionOf, shown]);
   const moduleBefore = useMemo(() => {
     const out = new Map<string, string | undefined>();
     let last: string | undefined;
@@ -198,7 +199,10 @@ function Running({
     const now = latestAnswers(eventsNow());
     const missing = items.filter((i) => !now.has(i.key)).length;
     if (mode === "test" && missing > 0) setConfirm(missing);
-    else onFinish();
+    else {
+      handedIn.current = true;
+      onFinish();
+    }
   };
 
   return (
@@ -280,59 +284,60 @@ function Running({
             {t(mode === "test" ? "exams.testHint" : "exams.practiceHint")}
           </p>
           <ol aria-label={t("lesson.itemsList")} className="space-y-6">
-            {teile
-              .filter(({ item }) => shown.includes(item))
-              .map(({ item, section, opens }) => {
-                const index = items.indexOf(item);
-                const given = answers.get(item.key);
-                const startsModule =
-                  opens && section?.module && section.module !== moduleBefore.get(item.key);
-                return (
-                  <li key={item.key}>
-                    {opens && section && mode === "test" && (
-                      <TeilHeader
-                        section={section}
-                        locale={locale}
-                        module={
-                          startsModule
-                            ? (locale?.modules?.[section.module as string]?.title ?? section.module)
-                            : undefined
-                        }
-                        examples={(section.examples ?? []).flatMap(
-                          (k) => exam.items.find((i) => i.key === k) ?? [],
-                        )}
-                        limited
-                        run={runId}
-                        url={(path) => mediaUrl(series, path)}
-                      />
-                    )}
-                    <QuestionCard
-                      item={item}
-                      label={t("exams.question", { n: index + 1, total: items.length })}
-                      plays={mode === "test" ? section?.plays : undefined}
-                      checkAtOnce={mode === "practice"}
-                      run={runId}
-                      answer={given?.answer}
-                      // Practice shows each answer checked; a mock exam none until handed in.
-                      outcome={mode === "practice" ? given?.outcome : undefined}
-                      url={(path) => mediaUrl(series, path)}
-                      onAnswer={
-                        mode === "practice" && given
-                          ? undefined
-                          : (value) => {
-                              const ms = Date.now() - shownAt.current;
-                              onAnswer(
-                                item.key,
-                                value,
-                                ms,
-                                mode === "practice" ? checkQuestion(item, value, lang) : undefined,
-                              );
-                            }
+            {teile.map(({ item, section, opens }) => {
+              const index = items.indexOf(item);
+              const given = answers.get(item.key);
+              const startsModule =
+                opens && section?.module && section.module !== moduleBefore.get(item.key);
+              return (
+                <li key={item.key}>
+                  {opens && section && (
+                    <TeilHeader
+                      section={section}
+                      locale={locale}
+                      module={
+                        startsModule
+                          ? (locale?.modules?.[section.module as string]?.title ?? section.module)
+                          : undefined
                       }
+                      examples={(section.examples ?? []).flatMap(
+                        (k) => exam.items.find((i) => i.key === k) ?? [],
+                      )}
+                      limited={mode === "test"}
+                      run={runId}
+                      url={(path) => mediaUrl(series, path)}
                     />
-                  </li>
-                );
-              })}
+                  )}
+                  <QuestionCard
+                    item={item}
+                    label={t("exams.question", { n: index + 1, total: items.length })}
+                    plays={mode === "test" ? section?.plays : undefined}
+                    checkAtOnce={mode === "practice"}
+                    run={runId}
+                    answer={given?.answer}
+                    // Practice shows each answer checked; a mock exam none until handed in.
+                    outcome={mode === "practice" ? given?.outcome : undefined}
+                    url={(path) => mediaUrl(series, path)}
+                    onAnswer={
+                      mode === "practice" && given
+                        ? undefined
+                        : (value) => {
+                            // Nothing more once the exam is being handed in (a draft taken as
+                            // the page goes).
+                            if (handedIn.current || finishing) return;
+                            const ms = Date.now() - shownAt.current;
+                            onAnswer(
+                              item.key,
+                              value,
+                              ms,
+                              mode === "practice" ? checkQuestion(item, value, lang) : undefined,
+                            );
+                          }
+                    }
+                  />
+                </li>
+              );
+            })}
           </ol>
           {mode === "practice" && shown.length < items.length && (
             <Button
@@ -363,6 +368,7 @@ function Running({
         busy={finishing}
         onConfirm={() => {
           setConfirm(0);
+          handedIn.current = true;
           onFinish();
         }}
       />

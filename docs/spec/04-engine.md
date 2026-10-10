@@ -191,7 +191,8 @@ An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
 - **Checking**: a question is the item of its kind it is (`checkQuestion`, "Checking" above).
 - **Result** (`examResult`): each question's latest answer in the run scores its points times its
   outcome's score (a choice 0 or 1; an open answer its share), by the section the plan keeps for it
-  (`sectionsOf`, when the run starts) and, with modules, by module, scaled to the module's `scaleTo`.
+  (`sectionsOf`, when the run starts) and, with modules, by module, scaled to the module's `scaleTo`
+  (rounded to whole points where the module says; the sum rounded where the exam says).
   The run is judged by the pass marks over the modules it took (`marksOf`: a module taken alone by its
   own, none when it has none); a mark is reached at its `minPoints` (of the scaled points of its
   modules, or of the points), and the exam is passed when any or all of them are (`passWhen`). A mock exam is scored over all it

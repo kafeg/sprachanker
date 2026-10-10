@@ -14,6 +14,7 @@ const LEVEL: Level = {
   modules: ["hoeren", "lesen"],
   scaleTo: 25,
   apart: false,
+  rounding: "total",
   approxBytes: 0,
 };
 

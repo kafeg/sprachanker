@@ -64,8 +64,30 @@ A2, B1 Hören and Lesen (`goethe`; 03).
     its pictures once, not under every question.
   - **Accept**: each level's model test as the real one runs it, scored by its rules; in the
     run-throughs.
+- **3c. An exam taken as the real one is** (owner, 2026-10-10: the mock exam, practice and catalogue
+  are long pages of questions; the experience, layout and the way options are chosen should be close
+  to the real test). Rendered mockup options first, the owner chooses. Directions: a mock exam a Teil
+  at a time as the paper or the online test shows it (its material beside or above, its answer sheet
+  with boxes a/b/c, Richtig/Falsch, letters), moving between Teile with an overview of what is
+  answered, the recording player as in the room; practice a question at a time, each checked at once;
+  the catalogue compact (a question at a time, or collapsed, with search).
+- **3d. Statistics where they belong** (owner, 2026-10-10: the catalogue's statistics are unclear, the
+  section is overloaded). Exams already store as lessons do — runs of kind `exam` in `runs`, each
+  answer an `answered` event (05) — and the Notebook reads them; the Exams section keeps only what a
+  course card keeps (how far, the last result), the rest (passes, results, questions answered wrongly)
+  goes to the Notebook, as Courses leave it to the Notebook. Simpler, fewer numbers.
+- **3e. Proof that the exams are real** (owner, 2026-10-10: proof that the data is not invented and
+  that passing here means passing there). Per exam a source report, in the app and in `verify`: where
+  each question, picture, recording and answer was read (page, file), and the independent checks it
+  passed — LiD: the PDF against BAMF's test centre, and both against independent keys (460/460 agreed,
+  research); Goethe: each answer against its solution page and against the Modellsatz PDF's own key.
+  What a mock exam shows and what it does not (the same tasks, rules and scoring as the official
+  model test; not a promise of the real result) said plainly on the exam's page.
+- **3f. More exams** (owner, 2026-10-10): placement tests (Einstufungstest) for German and English;
+  the German driving theory test (Führerschein, its questions in several languages) — research first:
+  which sources are open, their terms, how an importer reads them.
 - Later: telc, DTZ, ÖSD model tests (PDF + MP3, text answer keys); English exams with the English
-  courses; the driving theory test only if its catalogue becomes public.
+  courses.
 
 ### 4. The tutor on its own (owner, 2026-10-10)
 Specs: 07, 09.

@@ -29,10 +29,16 @@ export const missingSettings = (exam: Exam, setting: SettingOf): string[] => [
   ),
 ];
 
-/** Whether a run's result passes the exam: by its rule where it says (`pass`), else any pass mark
- *  reached (results stored before the rule was kept). */
-export const examPassed = (result: Pick<ExamResult, "pass" | "passed"> | null | undefined) =>
-  result?.pass ?? !!result?.passed.length;
+/** Whether a run's result passes the exam: by its rule where it says (`pass`); none when no pass mark
+ *  judges it (a module taken alone without one of its own); else any pass mark reached (results
+ *  stored before the rule was kept). */
+export const examPassed = (
+  result: Pick<ExamResult, "pass" | "passed" | "modules"> | null | undefined,
+): boolean | undefined => {
+  if (!result) return undefined;
+  if (result.pass !== undefined) return result.pass;
+  return result.modules ? undefined : result.passed.length > 0;
+};
 
 /** How many questions an exam asks from: those of its pools (its examples are none). */
 export const questionCount = (exam: Exam) => new Set(exam.sections.flatMap((s) => s.pool)).size;
@@ -219,12 +225,19 @@ export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): Ex
     const t = byModule.get(m.id);
     if (!t) continue;
     const scaled = m.scaleTo && t.max ? (t.points * m.scaleTo) / t.max : t.points;
-    modules[m.id] = { points: round2(t.points), max: t.max, scaled: round2(scaled) };
+    modules[m.id] = {
+      points: round2(t.points),
+      max: t.max,
+      scaled: m.round ? Math.round(scaled) : round2(scaled),
+    };
   }
   const taken = Object.keys(modules);
   const marks = marksOf(exam, taken);
-  const markPoints = (t: Exam["thresholds"][number]) =>
-    exam.modules ? (t.modules ?? taken).reduce((n, m) => n + (modules[m]?.scaled ?? 0), 0) : points;
+  const markPoints = (t: Exam["thresholds"][number]) => {
+    if (!exam.modules) return points;
+    const sum = (t.modules ?? taken).reduce((n, m) => n + (modules[m]?.scaled ?? 0), 0);
+    return exam.roundTotal ? Math.round(sum) : sum;
+  };
   const passed = marks.filter((t) => markPoints(t) >= t.minPoints).map((t) => t.id);
   return {
     points,

@@ -136,9 +136,9 @@ export function QuestionCard({
       setDraft(undefined);
     }
   };
-  // Leaving the page: what was typed is taken.
+  // Leaving a mock exam's page: what was typed is taken (practice takes only what "Check" sends).
   // biome-ignore lint/correctness/useExhaustiveDependencies: runs once, reads the latest through a ref
-  useEffect(() => () => commit(), []);
+  useEffect(() => () => (checkAtOnce ? undefined : commit()), []);
   const change =
     onAnswer &&
     ((a: unknown) => {

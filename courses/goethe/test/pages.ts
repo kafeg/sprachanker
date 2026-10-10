@@ -123,10 +123,10 @@ export const SOLUTIONS: Record<string, string> = {
     [5, "Falsch"],
     [6, "b froh."],
   ]),
-  // A page numbering its own Teil from 1.
-  "lesen_l1.php": list([[7, "b der Freund."]]),
+  "lesen_l1.php": list([[1, "b der Freund."]]),
+  // A page numbering its own Teil from 1 (its questions are 2 and 3).
   "lesen_l2.php": table([
-    [2, "a"],
-    [3, "x"],
+    [1, "a"],
+    [2, "x"],
   ]),
 };

@@ -12,6 +12,7 @@ import {
   checkQuestion,
   drawExam,
   eligible,
+  examPassed,
   examResult,
   marksOf,
   missingSettings,
@@ -262,4 +263,38 @@ test("a language exam's result: points by question, by module scaled, pass marks
   const failed = examResult(modell, plan, [...events, answered(hoeren[0] as ExamItem, "b")]);
   expect(failed.modules?.hoeren?.scaled).toBe(0);
   expect(failed).toMatchObject({ passed: ["overall"], pass: false });
+});
+
+test("rounding as the regulations say: each module's result (B1), or the modules' sum (A1)", () => {
+  const items = [...hoeren, ...lesen].map((i) => i.key);
+  const plan: ExamPlan = {
+    mode: "test",
+    items,
+    sections: sectionsOf(modell, items),
+    deadline: null,
+  };
+  // Hören 1 of 2, Lesen 1 of 3 (the gap wrong): 12.5 and 8.33.
+  const events = [answered(hoeren[0] as ExamItem, "a"), answered(lesen[0] as ExamItem, "a")];
+  const rounded = {
+    ...modell,
+    modules: modell.modules?.map((m) => ({ ...m, round: true })),
+  };
+  expect(examResult(rounded, plan, events).modules).toMatchObject({
+    hoeren: { scaled: 13 },
+    lesen: { scaled: 8 },
+  });
+  // 12.5 + 8.33 = 20.83: a mark of 21 is reached only when the sum is rounded.
+  const at21 = { ...modell, thresholds: [{ id: "pass", minPoints: 21 }], passWhen: undefined };
+  expect(examResult(at21, plan, events).passed).toEqual([]);
+  expect(examResult({ ...at21, roundTotal: true }, plan, events).passed).toEqual(["pass"]);
+});
+
+test("a run passes by the exam's rule; a module alone without a mark of its own is not judged", () => {
+  expect(examPassed({ pass: false, passed: ["overall"] })).toBe(false);
+  expect(
+    examPassed({ passed: [], modules: { lesen: { points: 2, max: 3, scaled: 16.67 } } }),
+  ).toBeUndefined();
+  // Results stored before the rule was kept: any pass mark reached.
+  expect(examPassed({ passed: ["lid"] })).toBe(true);
+  expect(examPassed(null)).toBeUndefined();
 });

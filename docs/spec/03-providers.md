@@ -186,7 +186,9 @@ Sprechen: plan, 3b-3.
   solution page. A solution page is a list ("Lösung: …") or a table (number, the right answer,
   alternatives by " / ").
 - **Normalise** (`normalise.ts`): a module per page — timed by the page ("Reguläre Prüfungszeit: …",
-  else its Teile's), scaled to 25 (A1, A2) or 100 (B1) — and a section per Teil with its instructions
+  else its Teile's), scaled as the regulations (Durchführungsbestimmungen) say: A1 each part × 1.66 and
+  the sum rounded, A2 × 1.25, B1 to 100 rounded to whole points (its table: 29 → 97) — and a section
+  per Teil with its instructions
   in the locale, its text, recording or picture, how often its recordings play (its instructions:
   "einmal", "zweimal") and its examples. Questions numbered in the module's order (a heading's own
   number checked against it) as `single_choice` items: options as the page gives them (picture options

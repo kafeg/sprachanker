@@ -188,7 +188,8 @@ export function NotebookPage() {
                           <span
                             className={`w-24 text-right text-sm font-medium ${passed ? "text-correct" : "text-wrong"}`}
                           >
-                            {t(passed ? "exams.passed" : "exams.failed")}
+                            {/* A module taken alone without a pass mark of its own: its points only. */}
+                            {passed !== undefined && t(passed ? "exams.passed" : "exams.failed")}
                           </span>
                         </ListRow>
                       </li>

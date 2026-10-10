@@ -113,10 +113,12 @@ export async function importGoethe(options: ImportOptions): Promise<ImportReport
       `goethe ${level.course} ${EDITION}: exam of ${out.questions} questions` +
         `${out.leftOut ? `, ${out.leftOut} left out` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
     );
+    // What normalising found (a recording or an answer it could not place) counts with the files
+    // that failed: such an import is not reported clean.
     report.normalised[`${level.course} ${EDITION}`] = {
       lessons: 0,
       unknown: out.leftOut,
-      problems,
+      problems: problems + out.problems.length,
     };
   }
   return report;

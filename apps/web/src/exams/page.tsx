@@ -248,7 +248,8 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
                       examPassed(r.result) ? "text-correct" : "text-wrong",
                     )}
                   >
-                    {t(examPassed(r.result) ? "exams.passed" : "exams.failed")}
+                    {examPassed(r.result) !== undefined &&
+                      t(examPassed(r.result) ? "exams.passed" : "exams.failed")}
                   </span>
                 </button>
               </li>

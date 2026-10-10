@@ -61,6 +61,8 @@ function Limited({
   const { t } = useTranslation();
   const { rate } = useContext(PlaybackRate);
   const audio = useRef<HTMLAudioElement>(null);
+  /** A play this player began (its button); one begun elsewhere (the system's media keys) is not. */
+  const begun = useRef(false);
   const key = playsKey(run, src);
   const [used, setUsed] = useState(() => readPlays(key));
   const [playing, setPlaying] = useState(false);
@@ -72,6 +74,7 @@ function Limited({
   const start = () => {
     const a = audio.current;
     if (!a || playing || !left) return;
+    begun.current = true;
     a.currentTime = 0;
     a.playbackRate = rate;
     void a.play().catch(() => setFailed(true));
@@ -92,6 +95,12 @@ function Limited({
         src={src}
         preload="metadata"
         onPlay={(e) => {
+          // Only a play from the start, begun here, while plays are left: no resuming from elsewhere.
+          if (!begun.current) {
+            e.currentTarget.pause();
+            return;
+          }
+          begun.current = false;
           claimPlayback(e.currentTarget);
           setPlaying(true);
           // A play counts once begun: as in the room, it is not taken back.
