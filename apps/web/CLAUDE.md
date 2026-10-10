@@ -41,10 +41,12 @@ apps/web/src/
                    # exercise, the latest answers, questions by Teil), teil (a Teil's header and
                    # material; a question's card), recording (a mock exam's recording: plays limited),
                    # rating (an open answer rated by its criteria, a proposal shown chosen), slots
-                   # (what optional features add: the AI's proposal, the conversation), params
-  notebook/        # the Notebook: page (progress, the study days' calendar with totals, lessons), lesson
-                   # (passes), pass (in full), compare, item-history, mark, spoken (a spoken answer's
-                   # check under its item)
+                   # (what optional features add: the AI's proposal, the conversation)
+  notebook/        # the Notebook: page (progress, the study days' calendar with totals, every module's
+                   # standing — standing.tsx shows them alike, a module adding only titles and links),
+                   # lesson (passes), pass (in full), compare, exam (an exam's runs and questions as they
+                   # stand), item-history, mark, spoken (a spoken answer's check under its item)
+  library/         # what the feature folders share of the library: exam-address (an exam's route params)
   api/             # Hono RPC client (hono/client) + TanStack Query hooks; exams.ts: exams, a run's
                    # answers through the lesson's outbox; session.ts: profiles, signing
                    # in and out, devices; edition.ts: the edition a course is shown in; cache.ts: pure

@@ -6,10 +6,13 @@
 import {
   checkQuestion,
   drawExam,
+  examPassed,
   examResult,
   missingSettings,
+  openQuestions,
   practiceOrder,
   questionCount,
+  questionLine,
   questionStats,
   ratingsFit,
   readiness,
@@ -18,6 +21,7 @@ import {
   timeOf,
 } from "@sprachanker/engine";
 import {
+  type EntryDetail,
   type Exam,
   ExamEventInput,
   type ExamItem,
@@ -28,8 +32,12 @@ import {
   ExamResult,
   type ExamRun,
   examLang,
+  type LocaleExam,
+  type ModuleStanding,
   type Outcome,
+  type RunSummary,
   type SettingKey,
+  STANDING_RUNS,
   seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
@@ -189,7 +197,7 @@ export function createExams({
   }
 
   /** The learner's standing in an exam: each question's stat, how ready, the runs. */
-  async function standing(key: ExamKey) {
+  async function standingIn(key: ExamKey) {
     const exam = await examOf(key);
     await settle(activeOf(key));
     const stats = questionStats(answersIn(key));
@@ -212,7 +220,88 @@ export function createExams({
     };
   }
 
+  /** A run as a standing lists it: its points, passed or not, a mock exam or practice, the module
+   *  taken (by its title in `locale`, when given). */
+  const summaryOf = (run: ExamRun, locale?: LocaleExam): RunSummary => {
+    const { exam: _, plan, result, ...header } = run;
+    const passed = examPassed(result);
+    return {
+      ...header,
+      mode: plan.mode,
+      ...(plan.module && { part: locale?.modules?.[plan.module]?.title ?? plan.module }),
+      ...(result && { points: result.points, max: result.max }),
+      ...(passed !== undefined && { passed }),
+    };
+  };
+  /** An exam's title in an edition, if it is still installed. */
+  const titleOf = (key: ExamKey, edition: string | null) =>
+    edition
+      ? content.localeExam(seriesOf(key), key, edition).catch(() => undefined)
+      : Promise.resolve(undefined);
+
+  /** The exams' standing (schema `stats.ts`): each exam with a mock exam handed in — its latest
+   *  ones, newest first (practice is its questions' history) — the latest handed in first. */
+  async function standing(): Promise<ModuleStanding> {
+    const byExam = new Map<ExamKey, ExamRun[]>();
+    for (const row of store.all("exam")) {
+      const run = toExamRun(row);
+      if (run) byExam.set(run.exam, [run, ...(byExam.get(run.exam) ?? [])]);
+    }
+    const entries = await Promise.all(
+      [...byExam].flatMap(([key, runs]) => {
+        const tests = runs.filter((r) => r.status === "finished" && r.plan.mode === "test");
+        const latest = tests[0];
+        if (!latest) return [];
+        return [
+          titleOf(key, latest.edition).then((locale) => ({
+            key,
+            title: locale?.title ?? null,
+            lastAt: latest.finishedAt ?? latest.startedAt,
+            open: runs.some((r) => r.status === "active"),
+            runCount: tests.length,
+            figures: [],
+            runs: tests.slice(0, STANDING_RUNS).map((r) => summaryOf(r, locale)),
+          })),
+        ];
+      }),
+    );
+    return { module: "exam", figures: [], entries: entries.sort((a, b) => b.lastAt - a.lastAt) };
+  }
+
+  /** An exam in the Notebook: every mock exam and practice handed in, newest first, and the
+   *  questions open to the learner as they stand (known, answered wrongly last time, not seen). */
+  async function journal(key: ExamKey): Promise<EntryDetail> {
+    // An exam no longer installed still has its runs; its questions are gone with it.
+    const exam = await content.exam(seriesOf(key), key).catch(() => undefined);
+    if (exam) await settle(activeOf(key));
+    const stats = questionStats(answersIn(key));
+    const runs = runsOf(key).filter((r) => r.status === "finished");
+    const course = (await content.courses()).find((c) => (c.exams as string[]).includes(key));
+    const edition = runs[0]?.edition ?? course?.editions[0] ?? null;
+    const locale = await titleOf(key, edition);
+    const items = (exam ? openQuestions(exam, setting) : []).map((item) => ({
+      key: item.key,
+      state: stats.get(item.key)?.last ?? ("unseen" as const),
+      line: questionLine(item),
+    }));
+    return {
+      entry: {
+        key,
+        title: locale?.title ?? course?.titles[edition ?? ""] ?? null,
+        lastAt: runs[0]?.finishedAt ?? runs[0]?.startedAt ?? 0,
+        open: !!activeOf(key),
+        runCount: runs.length,
+        figures: [],
+        runs: runs.map((r) => summaryOf(r, locale)),
+      },
+      items,
+      lang: examLang(edition),
+    };
+  }
+
   return {
+    standing,
+    journal,
     /** The installed exams — of exam courses and of courses that have one — with the learner's
      *  standing; titles by edition. */
     async list() {
@@ -226,7 +315,7 @@ export function createExams({
               .catch(() => undefined);
             if (locale) titles[edition] = locale.title;
           }
-          const s = await standing(key).catch((error: unknown) => {
+          const s = await standingIn(key).catch((error: unknown) => {
             console.error(`${key} does not read; left out: ${String(error)}`);
             return undefined;
           });
@@ -258,7 +347,7 @@ export function createExams({
     /** An exam's page: the exam and its texts in an edition, the learner's standing, the stat of
      *  each question answered. */
     async page(key: ExamKey, edition: string) {
-      const s = await standing(key);
+      const s = await standingIn(key);
       const locale = (await content.localeExam(seriesOf(key), key, edition)) ?? null;
       // Where it was read and what was checked (none for an exam imported before they were kept).
       const sources =

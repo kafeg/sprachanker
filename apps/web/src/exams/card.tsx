@@ -11,11 +11,11 @@ import type { ExamRow } from "@/api/exams.ts";
 import { DownloadState } from "@/courses/card.tsx";
 import { ResetProgress } from "@/courses/reset-progress.tsx";
 import { CourseUpkeep } from "@/courses/upkeep.tsx";
+import { examParams } from "@/library/exam-address.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { PairFlags } from "@/ui/flags.tsx";
 import { useDateFormat, usePercent } from "@/ui/format.ts";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
-import { examParams } from "./params.ts";
 
 export function ExamCard({
   exam,

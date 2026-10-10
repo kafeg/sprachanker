@@ -20,6 +20,7 @@ import {
   type ItemKey,
   type LessonKey,
   LessonResult,
+  type ModuleStanding,
   type Outcome,
   parseEditionId,
   parseItemKey,
@@ -42,6 +43,15 @@ export const toRun = (r: RunRow): Run => ({
 
 /** What counts as work done in a lesson run (the engine's `LESSON_WORK`). */
 export const WORK_EVENTS = LESSON_WORK;
+
+/** A lesson's title in an edition, if the lesson is still installed. */
+export const lessonTitle = (content: Content, lessonKey: LessonKey, edition: string | null) =>
+  edition
+    ? content
+        .localeLesson(seriesOf(lessonKey), lessonKey, edition)
+        .then((l) => l?.title)
+        .catch(() => undefined)
+    : Promise.resolve(undefined);
 
 /** A lesson on the course map: whether it counts as done, and the run it opens as the lesson shows it. */
 export interface LessonState {
@@ -111,6 +121,60 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
     return Object.fromEntries(lessonProgress(counted, activity));
   };
 
+  /**
+   * The lessons' standing (schema `stats.ts`): how many are done, and each lesson worked on (a run
+   * with work in it; a lesson only opened is none) under its course — its passes, its best score, a
+   * pass open, its last work. Courses by their last work; a course's lessons in its order (its index:
+   * a key kept through a reorder says nothing of where the lesson is now), one no longer in it last.
+   */
+  async function standing(): Promise<ModuleStanding> {
+    const byLesson = await progress();
+    const worked = store.lastActivity([...WORK_EVENTS]);
+    const runsOf = new Map<LessonKey, RunRow[]>();
+    for (const row of store.all("lesson")) {
+      if (!worked.has(row.id)) continue;
+      const key = row.contextKey as LessonKey;
+      runsOf.set(key, [...(runsOf.get(key) ?? []), row]);
+    }
+    const installed = await content.courses();
+    const lessons = await Promise.all(
+      [...runsOf].map(async ([key, rows]) => {
+        const latest = rows.at(-1) as RunRow;
+        const p = byLesson[key];
+        return {
+          course: latest.courseKey as string,
+          entry: {
+            key,
+            title: (await lessonTitle(content, key, latest.edition)) ?? null,
+            lastAt: Math.max(...rows.map((r) => worked.get(r.id) as number)),
+            open: p?.status === "in_progress",
+            runCount: rows.length,
+            figures: [{ id: "best", value: p?.bestScore ?? null, share: true }],
+            runs: [],
+          },
+        };
+      }),
+    );
+    const courses = [...new Set(lessons.map((l) => l.course))].map((key) => {
+      const course = installed.find((c) => c.key === key);
+      const place = (k: string) => {
+        const i = course?.lessons.indexOf(k as LessonKey) ?? -1;
+        return i < 0 ? Number.MAX_SAFE_INTEGER : i;
+      };
+      const group = { key, title: course?.titles[course.editions[0] ?? ""] ?? null };
+      const own = lessons
+        .filter((l) => l.course === key)
+        .map((l) => ({ ...l.entry, group }))
+        .sort((a, b) => place(a.key) - place(b.key) || a.key.localeCompare(b.key));
+      return { lastAt: Math.max(...own.map((l) => l.lastAt)), own };
+    });
+    return {
+      module: "lesson",
+      figures: [{ id: "lessonsDone", value: Object.values(byLesson).filter(lessonDone).length }],
+      entries: courses.sort((a, b) => b.lastAt - a.lastAt).flatMap((c) => c.own),
+    };
+  }
+
   /** Each lesson's state for the course map, read like the player reads it. `byLesson` is
    *  `progress()` when the caller has it already. */
   const lessonStates = async (
@@ -141,6 +205,7 @@ export function createRuns({ store, content }: { store: RunStore; content: Conte
 
   return {
     progress,
+    standing,
 
     /** The installed courses (not the exams: the Exams section's) with the learner's progress and
      *  the lesson to go on with, as its card shows it (title and exercises worked). */

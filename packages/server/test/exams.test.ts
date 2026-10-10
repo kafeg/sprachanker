@@ -218,7 +218,7 @@ test("a running mock exam: no other run meanwhile, its answers kept out of the s
   expect(mini.last).toMatchObject({ status: "finished", endReason: "timeout" });
 });
 
-test("the Notebook lists the mock exams handed in, newest first, with their results", async () => {
+test("the Notebook lists the mock exams handed in, newest first, with their results; the exam's page has every run and its questions as they stand", async () => {
   const api = await inBerlin();
   const { run } = await api.sendJson("POST", "/api/exams/runs", {
     exam: EXAM,
@@ -233,12 +233,25 @@ test("the Notebook lists the mock exams handed in, newest first, with their resu
     mode: "practice",
   });
   await api.sendJson("POST", `/api/exams/runs/${practice.id}/finish`, {});
-  const { exams } = await api.getJson("/api/notebook");
+  const { modules } = await api.getJson("/api/notebook");
+  const exams = modules.find((m: { module: string }) => m.module === "exam").entries;
   expect(exams).toHaveLength(1);
-  expect(exams[0]).toMatchObject({ key: EXAM, title: "Mini test" });
-  expect(
-    exams[0].runs.map((r: { id: string; result: { points: number } }) => [r.id, r.result.points]),
-  ).toEqual([[run.id, 1]]);
+  expect(exams[0]).toMatchObject({ key: EXAM, title: "Mini test", runCount: 1, open: false });
+  expect(exams[0].runs.map((r: { id: string; points: number }) => [r.id, r.points])).toEqual([
+    [run.id, 1],
+  ]);
+  expect(exams[0].runs[0]).toMatchObject({ mode: "test", status: "finished" });
+
+  // The exam's page: the practice too, and each open question as it stands.
+  const detail = await api.getJson(`/api/notebook/exam?exam=${EXAM}`);
+  expect(detail.entry.runs.map((r: { id: string }) => r.id)).toEqual([practice.id, run.id]);
+  expect(detail.lang).toBe("de");
+  const states = Object.fromEntries(
+    detail.items.map((i: { key: string; state: string }) => [i.key, i.state]),
+  );
+  expect(states[q("001")]).toBe("right");
+  expect(Object.values(states)).toContain("unseen");
+  expect(detail.items.every((i: { line: string }) => typeof i.line === "string")).toBe(true);
 });
 
 test("a language exam: one module taken alone, timed by it, its Teile whole; the whole exam judged by all its marks", async () => {

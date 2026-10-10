@@ -47,6 +47,14 @@ export function createCardStore(db: ProfileDb) {
     stateOf: (row: StateRow | undefined) =>
       readStored(row?.fsrsJson ?? null, FaceState, `state of card ${row?.cardId}:${row?.face}`),
 
+    /** A note's faces as they stand: each with its row (suspended, flag) and its FSRS state (none:
+     *  never answered), read from `states` (`states()`). */
+    facesWithState: (note: CardRow, states: Map<string, StateRow>) =>
+      self.facesOf(note).map((face) => {
+        const row = states.get(`${note.id}:${face}`);
+        return { face, row, state: self.stateOf(row) };
+      }),
+
     /** One note by id; 404 when there is none. */
     note(cardId: string): Note {
       const row = db.select().from(cards).where(eq(cards.id, cardId)).get();

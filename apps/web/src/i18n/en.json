@@ -622,7 +622,6 @@
     "days": "Activity",
     "dayTitle": "{date}: {what}",
     "empty": "Nothing yet: the lessons you work on appear here, with every pass.",
-    "passesCount": "{count, plural, one {# pass} other {# passes}}",
     "open": "in progress",
     "unfinished": "not finished",
     "passes": "Passes",
@@ -660,9 +659,6 @@
     "less": "Less",
     "calendar": "Study days over the last year",
     "progress": "Progress",
-    "wordsKnown": "Words known",
-    "wordsKnownHint": "every card of the word is in review",
-    "lessonsDone": "Lessons done",
     "range": {
       "all": "All time",
       "month": "30 days",
@@ -678,20 +674,41 @@
       "rememberedHint": "of the cards in review",
       "ai": "AI practice"
     },
-    "lessons": "Lessons",
-    "exams": "Exams",
     "examRuns": "Mock exams and practice",
     "noExamRuns": "Nothing handed in yet.",
     "examWrong": "{count, plural, one {# question} other {# questions}} answered wrongly last time",
-    "examAll": "Everything about this exam",
-    "review": {
-      "title": "Review",
-      "mature": "Learnt",
-      "matureHint": "every side due in three weeks or more",
-      "month": "{count, plural, one {# answer} other {# answers}}",
-      "due": "Due today: {today, number} · by tomorrow: {tomorrow, number} · within a week: {week, number}",
-      "open": "Open the decks",
-      "remembered": "Remembered, 30 days"
+    "section": {
+      "review": "Review",
+      "lesson": "Lessons",
+      "exam": "Exams"
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Words known",
+        "wordsKnownHint": "every card of the word is in review",
+        "new": "New",
+        "learning": "Learning",
+        "review": "Review",
+        "mature": "Learnt",
+        "matureHint": "every side due in three weeks or more",
+        "suspended": "Suspended",
+        "remembered": "Remembered, 30 days",
+        "rememberedHint": "{count, plural, one {# answer} other {# answers}}",
+        "dueToday": "Due today",
+        "dueTomorrow": "Due by tomorrow",
+        "dueWeek": "Due within a week"
+      },
+      "lesson": {
+        "lessonsDone": "Lessons done",
+        "best": "Best score"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {# pass} other {# passes}}"
+    },
+    "openEntry": {
+      "review": "Open the decks",
+      "exam": "Everything about this exam"
     }
   },
   "study": {

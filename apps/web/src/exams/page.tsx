@@ -12,6 +12,7 @@ import { useEdition } from "@/api/edition.ts";
 import { useExamPage, useExams, useStartExam } from "@/api/exams.ts";
 import { useSettings } from "@/api/hooks.ts";
 import { PublisherLink } from "@/courses/card.tsx";
+import { type ExamParams, examKeyOf } from "@/library/exam-address.ts";
 import { Choice } from "@/ui/choice.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
@@ -20,7 +21,6 @@ import { ListRow } from "@/ui/history.tsx";
 import { BackLink, ErrorState, Loading, NotInstalled, Page } from "@/ui/page.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
 import { cn } from "@/ui/utils.ts";
-import { type ExamParams, examKeyOf } from "./params.ts";
 import { ExamSourcesPanel } from "./sources.tsx";
 import { StateSelect } from "./state-select.tsx";
 

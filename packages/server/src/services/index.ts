@@ -16,6 +16,7 @@ import { createExamples } from "./examples.ts";
 import { createExams } from "./exams.ts";
 import { createExplain } from "./explain.ts";
 import { createLessonContext } from "./lesson-context.ts";
+import { createLessonJournal } from "./lesson-journal.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
@@ -145,15 +146,19 @@ function profileServices(
     store,
     reviewRun: study.reviewRun,
   });
+  // Every module reports its standing the same way; the Notebook gathers them.
   const notebook = createNotebook({
+    store,
+    modules: [study.standing, runs.standing, exams.standing],
+    dayStartHour: () => settings.value("srs.dayStartHour"),
+    now,
+  });
+  const lessonJournal = createLessonJournal({
     store,
     content,
     cards: cardStore,
-    tutor,
-    scenes,
-    progress: runs.progress,
-    dayStartHour: () => settings.value("srs.dayStartHour"),
-    now,
+    chats: (lessonKey) => tutor.chats(lessonKey, Number.POSITIVE_INFINITY),
+    scenes: (lessonKey) => scenes.list(lessonKey, Number.POSITIVE_INFINITY),
   });
   return {
     library: config.library,
@@ -169,6 +174,7 @@ function profileServices(
     study,
     words,
     notebook,
+    lessonJournal,
     llm,
     explain,
     speaking,

@@ -12,12 +12,10 @@ export function createWords(deps: { cards: CardStore; store: RunStore }) {
   const wordOf = (note: Note, states: Map<string, StateRow>) => {
     const byFace: Partial<Record<CardFace, FaceState>> = {};
     const dues: number[] = [];
-    for (const f of cards.facesOf(note)) {
-      const row = states.get(`${note.id}:${f}`);
-      const s = cards.stateOf(row);
-      if (!s) continue;
-      byFace[f] = s;
-      if (!row?.suspended) dues.push(s.due);
+    for (const { face, row, state } of cards.facesWithState(note, states)) {
+      if (!state) continue;
+      byFace[face] = state;
+      if (!row?.suspended) dues.push(state.due);
     }
     return {
       cardId: note.id,
@@ -47,9 +45,7 @@ export function createWords(deps: { cards: CardStore; store: RunStore }) {
     word(cardId: string) {
       const note = cards.note(cardId);
       const states = cards.states([cardId]);
-      const faces = cards.facesOf(note).map((face) => {
-        const row = states.get(`${cardId}:${face}`);
-        const s = cards.stateOf(row);
+      const faces = cards.facesWithState(note, states).map(({ face, row, state: s }) => {
         return {
           face,
           stage: faceStage(s),

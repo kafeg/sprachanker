@@ -6,6 +6,16 @@ import { setup } from "./setup.ts";
 const CAFE = "sprachanker.fixture/demo/00-01";
 const ITEM = `${CAFE}/ex-01#1`;
 
+interface Standing {
+  module: string;
+  figures: Array<{ id: string; value: number | null; count?: number }>;
+  entries: Array<Record<string, unknown> & { figures: Standing["figures"] }>;
+}
+/** A module's standing in the overview, and one of its figures. */
+const moduleOf = (overview: { modules: Standing[] }, module: string) =>
+  overview.modules.find((m) => m.module === module) as Standing;
+const figure = (figures: Standing["figures"], id: string) => figures.find((f) => f.id === id);
+
 test("the Notebook: study days, lessons with their passes, a pass in full, an item across passes", async () => {
   const { sendJson, getJson, send } = await setup();
   const start = async (restart = false) =>
@@ -31,7 +41,11 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
 
   // An empty Notebook: no study days, nothing known, nothing worked on yet.
   const empty = await getJson("/api/notebook");
-  expect(empty).toMatchObject({ days: [], wordsKnown: 0, lessonsDone: 0, courses: [] });
+  expect(empty.days).toEqual([]);
+  expect(empty.modules.map((m: Standing) => m.module)).toEqual(["review", "lesson", "exam"]);
+  expect(figure(moduleOf(empty, "review").figures, "wordsKnown")?.value).toBe(0);
+  expect(figure(moduleOf(empty, "lesson").figures, "lessonsDone")?.value).toBe(0);
+  expect(moduleOf(empty, "lesson").entries).toEqual([]);
   expect(empty.today).toBeLessThanOrEqual(Date.now());
 
   // A lesson opened and started over without any work is no pass.
@@ -56,13 +70,13 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
       lesson: 3,
       exam: 0,
       review: 0,
+      ai: 0,
       newCards: 0,
       recalled: 0,
       remembered: 0,
-      ai: 0,
     },
   ]);
-  expect(overview).toMatchObject({ wordsKnown: 0, lessonsDone: 0 });
+  expect(figure(moduleOf(overview, "lesson").figures, "lessonsDone")?.value).toBe(0);
 
   // Two cards answered and one answer taken back: one review, one new card learnt.
   const scope = `/api/cards/study?scope=${encodeURIComponent("course:sprachanker.fixture/demo")}`;
@@ -79,18 +93,20 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
   const after = await getJson("/api/notebook");
   expect(after.days[0]).toMatchObject({ review: 1, newCards: 1 });
   // The German deck: one word learning, the rest new; the answer kept is the month's.
-  expect(after.decks).toHaveLength(1);
-  expect(after.decks[0]).toMatchObject({ language: "de", answers: 1 });
-  expect(after.decks[0].words.learning).toBe(1);
-  expect(after.decks[0].words.new).toBeGreaterThan(0);
-  expect(after.decks[0].due.today).toBeGreaterThanOrEqual(1);
-  expect(overview.courses).toMatchObject([
-    {
-      key: "sprachanker.fixture/demo",
-      lessons: [{ key: CAFE, passes: 2, best: null, open: true }],
-    },
+  const decks = moduleOf(after, "review").entries;
+  expect(decks).toHaveLength(1);
+  const deck = decks[0] as Standing["entries"][number];
+  expect(deck.key).toBe("de");
+  expect(figure(deck.figures, "remembered")?.count).toBe(1);
+  expect(figure(deck.figures, "learning")?.value).toBe(1);
+  expect(figure(deck.figures, "new")?.value).toBeGreaterThan(0);
+  expect(figure(deck.figures, "dueToday")?.value).toBeGreaterThanOrEqual(1);
+  const lessons = moduleOf(overview, "lesson").entries;
+  expect(lessons).toMatchObject([
+    { key: CAFE, group: { key: "sprachanker.fixture/demo" }, runCount: 2, open: true },
   ]);
-  expect(overview.courses[0].lessons[0].title).toBeTruthy();
+  expect(figure(lessons[0]?.figures ?? [], "best")?.value).toBeNull();
+  expect(lessons[0]?.title).toBeTruthy();
 
   const lesson = await getJson(`/api/notebook/lesson?lessonKey=${CAFE}`);
   expect(lesson.passes.map((p: { id: string }) => p.id)).toEqual([second, first]);

@@ -5,6 +5,8 @@
 import {
   type CardEvent,
   cardDay,
+  type DeckWord,
+  deckStanding,
   intervals,
   isLeech,
   lessonFace,
@@ -20,7 +22,9 @@ import {
   type CardRating,
   type EditionId,
   type LessonKey,
+  type ModuleStanding,
   parseEditionId,
+  type StandingEntry,
   seriesOf,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
@@ -140,8 +144,58 @@ export function createStudy(deps: {
     return store.replace("review", null, { status: "finished", reason: "completed" }).id;
   }
 
+  /**
+   * Review's standing (schema `stats.ts`): the words known (every face of the note in review), and
+   * each language's deck — its words by state, what is due today, by tomorrow and within a week, its
+   * answers of the last 30 days and the share of reviewed cards remembered.
+   */
+  function standing(): ModuleStanding {
+    const states = cards.states();
+    const notes = cards.all();
+    const faces = new Map(notes.map((n) => [n.id, cards.facesWithState(n, states)]));
+    const wordsKnown = notes.filter((n) =>
+      faces.get(n.id)?.every((f) => f.state?.state === 2),
+    ).length;
+    const today = dayOf(now()).start;
+    const answers = cardDay(
+      store.eventsWhere({ types: ["card_review", "card_undo"] }) as CardEvent[],
+    ).answers;
+    const languages = [...new Set(notes.map((n) => n.lang))].sort();
+    const entries = languages.map((language): StandingEntry => {
+      const own = notes.filter((n) => n.lang === language);
+      const ids = new Set(own.map((n) => n.id));
+      const deckAnswers = answers.filter((a) => ids.has(a.cardId));
+      const words: DeckWord[] = own.map((note) => ({
+        suspended: !!note.suspended,
+        faces: (faces.get(note.id) ?? []).map(({ row, state }) => ({
+          ...(state && { state }),
+          suspended: !!row?.suspended,
+        })),
+      }));
+      const deck = deckStanding(words, deckAnswers, today);
+      const count = (id: string, value: number) => ({ id, value });
+      return {
+        key: language,
+        title: null,
+        lastAt: deckAnswers[0]?.ts ?? 0,
+        open: false,
+        runCount: 0,
+        figures: [
+          ...Object.entries(deck.words).map(([id, n]) => count(id, n)),
+          { id: "remembered", value: deck.remembered ?? null, share: true, count: deck.answers },
+          count("dueToday", deck.due.today),
+          count("dueTomorrow", deck.due.tomorrow),
+          count("dueWeek", deck.due.week),
+        ],
+        runs: [],
+      };
+    });
+    return { module: "review", figures: [{ id: "wordsKnown", value: wordsKnown }], entries };
+  }
+
   return {
     reviewRun,
+    standing,
 
     /** Adds `count` new cards to today's limit of a deck (Anki: Custom Study → increase today's new
      *  card limit). */

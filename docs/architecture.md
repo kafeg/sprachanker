@@ -72,8 +72,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`. Services build on them: `runs` (lesson runs,
   lesson progress), `progress` (reset over every module's runs, recordings in use), `exams` (exam runs: mock exams and practice), `cards` (cards from a lesson's words, relinking), `study` (Anki's decks, queue,
-  ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (study days, passes),
-  `mistakes`, `settings`.
+  ratings, undo, bury, suspend, flags, marks), `words` (My words), `notebook` (the study days and the
+  modules' standings, gathered), `lesson-journal` (a lesson's passes, a pass in full, an item across
+  passes), `mistakes`, `settings`.
 - **AI**: `llm` (providers, LM Studio, prompt previews, `structured`: one path for a task's call and
   its timing), `explain`, `tutor` (+ `tutor-tools`), `writing`, `speaking` (an answer said aloud),
   `scene`, `examples` (a card's word), `lesson-context` (what tasks know of a lesson). `in-flight`
@@ -103,6 +104,15 @@ gets the types through Hono RPC (`AppType`), no codegen.
   and scenes are runs; one-off model verdicts (explain, writing, speaking, word
   examples) are `llm_verdict` events, typed by task. Events are append-only and only grow; statistics
   are pure functions over `TypedEvent`s (engine). How histories are read: `packages/server/CLAUDE.md`.
+- **Learning modules and their connectors**: lessons, exams, review and the AI practice are modules
+  that share components and types but connect only through common connectors: the run store (every
+  module's runs and events, one `RunHeader`; the AI's verdicts and lines kept and read one way), the
+  study days (the engine counts every event by its run's module, schema `stats.ts`), and one
+  statistics contract — each module's service gives its `standing` (headline figures, entries with
+  their figures and latest runs) and the Notebook gathers them from `services/index.ts` without
+  knowing a module; a module's own page in the Notebook (a lesson's passes, an exam's questions) is
+  that module's. Resetting progress is the neutral `progress` service's. dependency-cruiser keeps the
+  server's modules apart (`server-*-apart`, `server-notebook-gathers`).
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
   `page_shown` (with the exercise's key: resume and snapshots follow the exercise) / `step_done`

@@ -51,11 +51,12 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   /api/speech/qwen/models/:id`, `POST /api/speech/qwen/warm`.
 - Recordings (08): `GET /api/recordings` (count and size), `POST /api/recordings` (the audio as the
   body, its type in Content-Type), `GET /api/recordings/:id` (with ranges), `DELETE /api/recordings`.
-- Notebook (09): `GET /api/notebook` (the last study days with how much was done, the courses with
-  the lessons worked on), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
+- Notebook (09): `GET /api/notebook` (the study days with how much each module did, and every
+  module's standing in one shape — schema `stats.ts`: review's decks, the lessons worked on by course,
+  the exams with their latest mock exams), `GET /api/notebook/lesson?lessonKey=` (a lesson's passes),
   `GET /api/notebook/passes/:id` (a pass in full), `GET /api/notebook/item?itemKey=` (an item across
-  passes); the overview also lists the mock exams handed in, by exam. Read only; a pass is a lesson
-  run with work in it.
+  passes), `GET /api/notebook/exam?exam=` (an exam's runs and its questions as they stand). Read
+  only; a pass is a lesson run with work in it.
 - Cards (04): `POST /api/cards/lesson` (cards of a lesson's words), `GET /api/cards/decks` (each
   language with its courses and their counts), `GET /api/cards/decks/offers` (each installed course's
   words as a deck to take), `POST /api/cards/decks/take|leave` (a course's deck taken whole, or left),

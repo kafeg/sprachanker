@@ -330,10 +330,17 @@ export function useCardActions() {
   return { rate, undo, bury, unbury, suspend, flag, mark };
 }
 
-/** The Notebook (09): the study days and the lessons worked on. */
+/** The Notebook (09): the study days and every module's standing. */
 export const useNotebook = () =>
   useQuery({ queryKey: ["notebook"], queryFn: () => json(api.notebook.$get()) });
 export type NotebookOverview = NonNullable<ReturnType<typeof useNotebook>["data"]>;
+
+/** An exam in the Notebook: every run handed in, its questions as they stand. */
+export const useNotebookExam = (exam: string) =>
+  useQuery({
+    queryKey: ["notebook", "exam", exam],
+    queryFn: () => json(api.notebook.exam.$get({ query: { exam: exam as ExamKey } })),
+  });
 
 /** A lesson's passes, newest first. */
 export const useNotebookLesson = (lessonKey: string) =>

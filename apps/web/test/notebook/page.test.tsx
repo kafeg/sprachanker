@@ -23,22 +23,41 @@ const day = (n: number, fields: Partial<Record<string, number>>) => ({
   ...fields,
 });
 
-const overview = (days: unknown[], courses: unknown[] = [], exams: unknown[] = []) => ({
+const count = (id: string, value: number) => ({ id, value });
+/** The German deck: its words by state, what is due, the month's answers. */
+const DECK = {
+  key: "de",
+  title: null,
+  lastAt: TODAY,
+  open: false,
+  runCount: 0,
+  runs: [],
+  figures: [
+    count("new", 5),
+    count("learning", 2),
+    count("review", 7),
+    count("mature", 4),
+    count("suspended", 1),
+    { id: "remembered", value: 0.9, share: true, count: 20 },
+    count("dueToday", 3),
+    count("dueTomorrow", 6),
+    count("dueWeek", 12),
+  ],
+};
+/** Every module's standing as the server gives it. */
+const overview = (
+  days: unknown[],
+  lessons: unknown[] = [],
+  exams: unknown[] = [],
+  decks = [DECK],
+) => ({
   days,
   today: TODAY,
-  wordsKnown: 42,
-  lessonsDone: 3,
-  decks: [
-    {
-      language: "de",
-      words: { new: 5, learning: 2, review: 7, mature: 4, suspended: 1 },
-      due: { today: 3, tomorrow: 6, week: 12 },
-      answers: 20,
-      remembered: 0.9,
-    },
+  modules: [
+    { module: "review", figures: [count("wordsKnown", 42)], entries: decks },
+    { module: "lesson", figures: [count("lessonsDone", 3)], entries: lessons },
+    { module: "exam", figures: [], entries: exams },
   ],
-  courses,
-  exams,
 });
 
 test("the calendar: a year of weeks by column, Monday on top, up to today; shades by work done", () => {
@@ -66,20 +85,14 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
           ],
           [
             {
-              key: "sprachanker.test/demo",
-              title: "Demo course",
+              key: "sprachanker.test/demo/00-01",
+              title: "Hallo",
+              group: { key: "sprachanker.test/demo", title: "Demo course" },
               lastAt: TODAY,
-              lessons: [
-                {
-                  key: "sprachanker.test/demo/00-01",
-                  course: "sprachanker.test/demo",
-                  title: "Hallo",
-                  passes: 2,
-                  best: 0.75,
-                  open: false,
-                  lastAt: TODAY,
-                },
-              ],
+              open: false,
+              runCount: 2,
+              figures: [{ id: "best", value: 0.75, share: true }],
+              runs: [],
             },
           ],
         ),
@@ -92,7 +105,12 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   // Each language's deck: its words by state, what is due, the month's answers.
   expect([tile("Learnt"), tile("Remembered, 30 days")]).toEqual(["4", "90%"]);
   expect(view.getByText("20 answers")).toBeTruthy();
-  expect(view.getByText("Due today: 3 · by tomorrow: 6 · within a week: 12")).toBeTruthy();
+  expect([tile("Due today"), tile("Due by tomorrow"), tile("Due within a week")]).toEqual([
+    "3",
+    "6",
+    "12",
+  ]);
+  expect(view.getByText("Demo course")).toBeTruthy();
   // All time, then the last 7 days.
   expect([tile("Study days"), tile("Cards answered"), tile("Remembered")]).toEqual([
     "3",
@@ -122,23 +140,24 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
 test("an empty Notebook says what will appear; nothing remembered yet is a dash", async () => {
   const view = await renderApp(<NotebookPage />, {
     path: "/notebook",
-    data: [[["notebook"], overview([])]],
+    data: [[["notebook"], overview([], [], [], [])]],
   });
   expect(await view.findByText(/Nothing yet/)).toBeTruthy();
   expect(view.getByText("Remembered").parentElement?.firstChild?.textContent).toBe("—");
 });
 
 test("the mock exams handed in, by exam: each its date, points and whether it passed; one opens its result", async () => {
-  const run = (id: string, points: number, passed: string[]) => ({
+  const run = (id: string, points: number, passed: boolean) => ({
     id,
-    exam: "bamf.lid/lid/exam-test",
     edition: "de-de",
     status: "finished",
     endReason: "completed",
     startedAt: TODAY,
     finishedAt: TODAY,
-    plan: { mode: "test", items: ["bamf.lid/lid/exam-test/q-001"], deadline: TODAY },
-    result: { points, max: 33, answered: 33, sections: {}, passed },
+    mode: "test",
+    points,
+    max: 33,
+    passed,
   });
   const view = await renderApp(<NotebookPage />, {
     path: "/notebook",
@@ -152,9 +171,13 @@ test("the mock exams handed in, by exam: each its date, points and whether it pa
             {
               key: "bamf.lid/lid/exam-test",
               title: "Leben in Deutschland",
+              lastAt: TODAY,
+              open: false,
+              runCount: 2,
+              figures: [],
               runs: [
-                run("01JAAAAAAAAAAAAAAAAAAAAAAA", 29, ["lid", "naturalisation"]),
-                run("01JBBBBBBBBBBBBBBBBBBBBBBB", 12, []),
+                run("01JAAAAAAAAAAAAAAAAAAAAAAA", 29, true),
+                run("01JBBBBBBBBBBBBBBBBBBBBBBB", 12, false),
               ],
             },
           ],

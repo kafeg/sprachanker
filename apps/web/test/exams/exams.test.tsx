@@ -189,13 +189,44 @@ test("an exam in the Notebook: its runs, the map of its questions, those answere
   const view = await renderApp(<ExamNotebook params={params} />, {
     path: "/notebook/exam/bamf.lid/lid/test",
     data: [
-      [["exams"], [row()]],
-      [["settings"], { "exam.federalState": "be" }],
-      [["exam", KEY, "de-de"], pageData({ runs: [finished(1, ["lid"])] })],
+      [
+        ["notebook", "exam", KEY],
+        {
+          entry: {
+            key: KEY,
+            title: "Leben in Deutschland",
+            lastAt: 2,
+            open: false,
+            runCount: 1,
+            figures: [],
+            runs: [
+              {
+                id: "01JAAAAAAAAAAAAAAAAAAAAAAA",
+                edition: "de-de",
+                status: "finished",
+                endReason: "completed",
+                startedAt: 1,
+                finishedAt: 2,
+                mode: "test",
+                points: 1,
+                max: 2,
+                passed: true,
+              },
+            ],
+          },
+          // Berlin's: the two general questions and Berlin's one, of which one known, one wrong.
+          items: [
+            { key: `${KEY}/q-001`, state: "right", line: "Frage 001?" },
+            { key: `${KEY}/q-002`, state: "unseen", line: "Frage 002?" },
+            { key: `${KEY}/q-be-01`, state: "wrong", line: "Frage be-01?" },
+          ],
+          lang: "de",
+        },
+      ],
     ],
   });
-  expect(await view.findByRole("button", { name: /Mock exam\s*1 of 2\s*Passed/ })).toBeTruthy();
-  // Berlin's: the two general questions and Berlin's one, of which one known, one wrong.
+  expect(await view.findByRole("heading", { name: "Leben in Deutschland" })).toBeTruthy();
+  expect(view.getByRole("button", { name: /Mock exam\s*1 of 2\s*Passed/ })).toBeTruthy();
   expect(view.getByText(/You know 1 of 3 questions/)).toBeTruthy();
   expect(
     view.getByRole("img", { name: "Of 3 questions: 1 known, 1 wrong last time" }),

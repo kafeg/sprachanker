@@ -36,13 +36,16 @@ src/
   services/          # index.ts wires them: the shared content and downloads, profiles (server.sqlite:
                      # records, registration), devices (sign-in tokens), and
                      # each profile's own services (`of(id)`, made on first use); content; runs (lesson runs,
-                     # lesson progress); progress (the learner's progress over every module: reset for a
-                     # course, a lesson or an exam; the recordings answers hold); exams (exam runs: mock exams and practice, the learner's standing);
+                     # lesson progress, the lessons' standing); lesson-journal (a lesson's passes, a pass in
+                     # full, an item across passes); progress (the learner's progress over every module:
+                     # reset for a course, a lesson or an exam; the recordings answers hold); exams (exam
+                     # runs: mock exams and practice, the standing in each, the exams' standing, an exam's
+                     # page in the Notebook);
                      # run-store (the one module on runs and events: start, replace, end, append, answers
                      # numbered, what the server keeps — verdicts, lines —, read, remove); card-store (the one module on cards and card_state); cards
                      # (cards from lesson words, relinking); study (Anki's decks, queue, ratings, undo,
-                     # bury, suspend, flags, marks); words (My words, the word sheet); notebook (study
-                     # days, passes, a pass in full, an item across passes, mock exams; read only); settings;
+                     # bury, suspend, flags, marks; review's standing); words (My words, the word sheet);
+                     # notebook (the study days and every module's standing, gathered; read only); settings;
                      # mistakes (derived from lesson runs); lesson-context (what LLM tasks know of a
                      # lesson); llm (providers, LM Studio, prompt previews); explain ("Why is this
                      # wrong?", kept per attempt in the lesson run); tutor (lesson chats as `chat` runs);
@@ -93,6 +96,10 @@ test/                # bun test; integration tests call createApp().request() �
 - Events are append-only; never UPDATE or DELETE `events`. Only two things remove them (`store.remove`):
   deleting a profile, and the learner's confirmed request (resetting progress, deleting a tutor chat,
   leaving a deck: the answers to the cards that go).
+- Learning modules connect through common connectors only (docs/architecture.md): each gives its
+  `standing` in schema `stats.ts`'s shape, which index.ts hands to the Notebook; a module's services
+  never import another module's, nor the Notebook or progress (dependency-cruiser
+  `server-lessons-apart`, `server-exams-apart`, `server-review-apart`, `server-notebook-gathers`).
 - Any change to a Drizzle schema → new migration (`bun run db:generate`, hand-check the SQL) + a
   migration test that upgrades a database built by the earlier migrations, with rows in it.
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`

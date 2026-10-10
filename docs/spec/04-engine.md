@@ -102,9 +102,11 @@ Pure functions over events and cards (05), read by the server per request:
   checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) — and the totals of a
   span of days. The day starts at the profile's hour (Spaced repetition, below).
 
-The Notebook's words known (every face of the note in review) are counted by the server
-(`services/notebook.ts`). Planned: words by state — new, learning, known, as Anki counts its cards
-(plan, "Notebook: more pictures"); mistakes by rule and lexeme, rule mastery, weak spots,
+Every module reports what the Notebook shows of it the same way (schema `stats.ts`: its headline
+figures, its entries with their figures and latest runs; the server's modules each give their
+`standing`): the words known (every face of the note in review) and each deck (`srs/deck.ts`) are
+review's, the lessons done and worked on the lessons', the mock exams handed in the exams'. Planned:
+mistakes by rule and lexeme, rule mastery, weak spots,
 "Practise this", the can-do list (plan, "Enrichment and rules").
 
 ## Spaced repetition
