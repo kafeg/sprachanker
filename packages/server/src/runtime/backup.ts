@@ -4,7 +4,7 @@
 import { Database } from "bun:sqlite";
 import { existsSync, readdirSync, renameSync, rmSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
-import { BUSY_MS } from "./bun.ts";
+import { BUSY_MS, profileDbFile, vacuumInto } from "./bun.ts";
 
 const DAYS_KEPT = 7;
 const EVERY_MS = 6 * 3_600_000;
@@ -14,9 +14,7 @@ function databases(dataRoot: string) {
   const profiles = join(dataRoot, "profiles");
   return [
     join(dataRoot, "server.sqlite"),
-    ...(existsSync(profiles) ? readdirSync(profiles) : []).map((id) =>
-      join(profiles, id, "profile.sqlite"),
-    ),
+    ...(existsSync(profiles) ? readdirSync(profiles) : []).map((id) => profileDbFile(dataRoot, id)),
   ].filter((file) => existsSync(file));
 }
 
@@ -36,7 +34,7 @@ export function backUpToday(dataRoot: string, now: Date) {
         const db = new Database(file);
         try {
           db.exec(`PRAGMA busy_timeout = ${BUSY_MS}`);
-          db.exec(`VACUUM INTO '${part.replace(/'/g, "''")}'`);
+          vacuumInto(db, part);
         } finally {
           db.close();
         }

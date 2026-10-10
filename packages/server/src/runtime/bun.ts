@@ -48,9 +48,18 @@ export function fileAssets(files: Record<string, string>): WebAssets {
   };
 }
 
-/** Opens (creating if needed) a profile database in WAL mode and applies pending migrations. */
+/** A profile's database file under the data root. */
+export const profileDbFile = (dataRoot: string, id: string) =>
+  join(dataRoot, "profiles", id, "profile.sqlite");
+
+/** Opens (creating if needed) a profile database in WAL mode and applies pending migrations; `close`
+ *  lets it go. */
+function openProfile(file: string, now: number) {
+  const sqlite = openSqlite(file, migrations, now);
+  return { db: drizzle(sqlite, { schema }) as ProfileDb, close: () => sqlite.close() };
+}
 export const openProfileDb = (file: string, now = Date.now()): ProfileDb =>
-  drizzle(openSqlite(file, migrations, now), { schema });
+  openProfile(file, now).db;
 
 /** Opens (creating if needed) the server database (profiles, devices). */
 export const openServerDb = (file: string, now = Date.now()): ServerDb =>
@@ -60,15 +69,13 @@ export const openServerDb = (file: string, now = Date.now()): ServerDb =>
  *  connection per profile) and closed when the profile is removed. */
 export function profileFiles(dataRoot: string): ProfileFiles {
   const folder = (id: string) => join(dataRoot, "profiles", id);
-  const opened = new Map<string, { db: ProfileDb; close(): void }>();
+  const opened = new Map<string, ReturnType<typeof openProfile>>();
   return {
-    exists: (id) =>
-      statSync(join(folder(id), "profile.sqlite"), { throwIfNoEntry: false }) !== undefined,
+    exists: (id) => statSync(profileDbFile(dataRoot, id), { throwIfNoEntry: false }) !== undefined,
     open(id) {
       let entry = opened.get(id);
       if (!entry) {
-        const sqlite = openSqlite(join(folder(id), "profile.sqlite"), migrations, Date.now());
-        entry = { db: drizzle(sqlite, { schema }), close: () => sqlite.close() };
+        entry = openProfile(profileDbFile(dataRoot, id), Date.now());
         opened.set(id, entry);
       }
       return entry.db;
@@ -106,6 +113,10 @@ function recordingFiles(dir: string): RecordingFiles {
 /** How long a statement waits for another connection's write before it fails (SQLITE_BUSY). */
 export const BUSY_MS = 5000;
 
+/** A whole copy of the database written to `target` (a backup before migrating, a daily copy). */
+export const vacuumInto = (sqlite: Database, target: string) =>
+  sqlite.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`);
+
 /** A SQLite file in WAL mode with its migrations applied (backed up first, 05). */
 function openSqlite(file: string, list: Migration[], now: number) {
   mkdirSync(dirname(file), { recursive: true });
@@ -123,7 +134,7 @@ function openSqlite(file: string, list: Migration[], now: number) {
           .query<{ tag: string }, []>("SELECT tag FROM _migrations")
           .all()
           .map((r) => r.tag),
-      backup: (target) => sqlite.exec(`VACUUM INTO '${target.replace(/'/g, "''")}'`),
+      backup: (target) => vacuumInto(sqlite, target),
       transaction: (fn) => sqlite.transaction(fn)(),
       foreignKeyViolations: () => sqlite.query("PRAGMA foreign_key_check").all().length,
     },
