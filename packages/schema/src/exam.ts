@@ -44,6 +44,22 @@ const examQuestion = {
   points: z.number().positive().optional(),
   /** A text of this question's own above it (target language; paragraphs by blank lines). */
   text: z.string().optional(),
+  /**
+   * An open answer's criteria (writing, speaking), as the exam's raters judge it: each with the points
+   * of its levels from best to worst (Goethe A1 Schreiben 2: a content point 3, 1.5 or 0); `voids`: a
+   * 0 there makes the whole answer 0 ("Erfüllung" E). The answer scores the levels chosen — by the
+   * learner, or proposed by the assistant and taken (`exam_rated`, 05); their titles in the locale.
+   */
+  criteria: z
+    .array(
+      z.strictObject({
+        id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+        levels: z.array(z.number().nonnegative()).min(2),
+        voids: z.boolean().optional(),
+      }),
+    )
+    .min(1)
+    .optional(),
 };
 
 /** An exam question: an item of one of the kinds an exam asks, keyed in the exam. */

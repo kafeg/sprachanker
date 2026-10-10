@@ -168,6 +168,17 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .get();
     },
 
+    /** A finished run's result computed anew (an exam's open answer rated after it was handed in):
+     *  derived from its events, so it is set again, never only on the first end. */
+    rescore(runId: string, result: ExamResult): RunRow | undefined {
+      return db
+        .update(runs)
+        .set({ resultJson: JSON.stringify(result) })
+        .where(and(eq(runs.id, runId), eq(runs.status, "finished")))
+        .returning()
+        .get();
+    },
+
     /** A run by id, if it is of this kind (and about this context, when given). */
     get(runId: string, kind?: Kind, about?: Context) {
       return db

@@ -160,6 +160,18 @@ function examProblems(exam: Exam, key: string): CourseProblem[] {
     // Each question checked as an item of its kind is, named by its key.
     const asExercise = { key: exam.key, type: item.type, items: [item] };
     out.push(...answerProblems(asExercise as unknown as Exercise, () => item.key));
+    // An open answer's criteria: each once, its levels best first; its points their best together.
+    if (item.criteria) {
+      const ids = item.criteria.map((c) => c.id);
+      if (new Set(ids).size !== ids.length)
+        out.push(inconsistent(item.key, "a criterion listed twice"));
+      for (const c of item.criteria)
+        if (c.levels.some((l, i) => i > 0 && l >= (c.levels[i - 1] as number)))
+          out.push(inconsistent(item.key, `criterion ${c.id}: levels not from best to worst`));
+      const most = item.criteria.reduce((n, c) => n + Math.max(...c.levels), 0);
+      if (item.points !== undefined && item.points !== most)
+        out.push(inconsistent(item.key, `${item.points} points, its criteria give ${most}`));
+    }
   }
   const modules = new Map((exam.modules ?? []).map((m) => [m.id, m]));
   if (modules.size !== (exam.modules ?? []).length)

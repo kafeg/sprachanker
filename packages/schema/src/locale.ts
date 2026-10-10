@@ -35,6 +35,13 @@ export const LocaleItem = z.strictObject({
   gaps: z.record(GapId, z.string()).optional(),
   /** `respond` answered in the learner's language: its model answers. */
   reference: z.array(z.string().min(1)).optional(),
+  /** An exam's open answer: its criteria named, and what each level means (best first). */
+  criteria: z
+    .record(
+      z.string(),
+      z.strictObject({ title: z.string(), levels: z.array(z.string()).optional() }),
+    )
+    .optional(),
 });
 
 export const LocaleExercise = z.strictObject({

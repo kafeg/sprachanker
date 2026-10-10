@@ -282,9 +282,10 @@ test("a language exam: one module taken alone, timed by it, its Teile whole; the
   });
   expect(unknown.status).toBe(400);
 
-  // The whole exam: every Teil whole, the example never asked; typed answers checked.
+  // The whole exam: every Teil whole, the example never asked; typed answers checked; the writing
+  // task rated after it is handed in.
   const { run: whole } = await start();
-  expect(whole.plan.items).toEqual(["h1", "h2", "h3", "l1", "l2", "l3", "s1", "s2"].map(m));
+  expect(whole.plan.items).toEqual(["h1", "h2", "h3", "l1", "l2", "l3", "s1", "s2", "s3"].map(m));
   await api.sendJson("POST", `/api/exams/runs/${whole.id}/events`, {
     events: [
       ...["h1", "h2", "h3"].map((id) => answer(id, { optionId: "a" })),
@@ -293,19 +294,35 @@ test("a language exam: one module taken alone, timed by it, its Teile whole; the
       answer("l3", { optionId: "b" }),
       answer("s1", { g1: "Tom Weber" }),
       answer("s2", { g1: "Tee" }),
+      answer("s3", { text: "Lieber Tom, ich komme um drei und bringe Kuchen mit. Bis bald!" }),
     ],
   });
-  const { run: all } = await api.sendJson("POST", `/api/exams/runs/${whole.id}/finish`, {});
-  // 25 + 25 + 12.5 = 62.5: over 45, writing over 10 — both marks, so passed.
-  expect(all.result).toMatchObject({
-    points: 7,
-    max: 8,
-    modules: {
-      hoeren: { scaled: 25 },
-      lesen: { scaled: 25 },
-      schreiben: { points: 1, max: 2, scaled: 12.5 },
-    },
+  const { run: handed } = await api.sendJson("POST", `/api/exams/runs/${whole.id}/finish`, {});
+  // Writing: the form 1 of 2, the note not rated yet — 1 of 9 points, under the writing mark.
+  expect(handed.result).toMatchObject({
+    pending: 1,
+    modules: { schreiben: { points: 1, max: 9 } },
+    passed: ["pass"],
+    pass: false,
+  });
+  const rate = (ratings: Record<string, number>) =>
+    api.send("POST", `/api/exams/runs/${whole.id}/ratings`, {
+      id: ulid(),
+      itemKey: m("s3"),
+      ratings,
+      by: "self",
+    });
+  // A level the criterion does not have, or a criterion left out, is refused.
+  expect((await rate({ wann: 2, was: 3, form: 1 })).status).toBe(400);
+  expect((await rate({ wann: 3, was: 3 })).status).toBe(400);
+  // biome-ignore lint/suspicious/noExplicitAny: a response read as the client reads it
+  const rated: any = await (await rate({ wann: 3, was: 1.5, form: 1 })).json();
+  // 1 + 5.5 of 9 = 18.06 of 25: over 10, both marks — passed, nothing pending.
+  expect(rated.run.result).toMatchObject({
+    modules: { schreiben: { points: 6.5, max: 9, scaled: 18.06 } },
     passed: ["pass", "written"],
     pass: true,
   });
+  expect(rated.run.result.pending).toBeUndefined();
+  expect(rated.events.some((e: { type: string }) => e.type === "exam_rated")).toBe(true);
 });

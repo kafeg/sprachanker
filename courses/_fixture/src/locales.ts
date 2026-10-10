@@ -280,11 +280,32 @@ export function localeModell(lang: Lang): LocaleExam {
         t("Часть 1", "Part 1"),
         t("Заполните формуляр за Тома.", "Fill in the form for Tom."),
       ),
+      section("s2", t("Часть 2", "Part 2"), t("Напишите Тому записку.", "Write Tom a note.")),
     ]),
     thresholds: {
       pass: { title: t("Сдан: 45 из 75", "Passed: 45 of 75") },
       written: { title: t("Письмо: не меньше 10", "Writing: at least 10") },
     },
-    items: Object.fromEntries(modellExam.items.map((item) => [item.key, {}])),
+    items: Object.fromEntries(
+      modellExam.items.map((item) => [
+        item.key,
+        item.key.endsWith("/q-s3")
+          ? {
+              criteria: {
+                wann: {
+                  title: t("Когда вы придёте", "When you come"),
+                  levels: [
+                    t("сказано ясно", "said clearly"),
+                    t("неясно", "unclear"),
+                    t("нет", "missing"),
+                  ],
+                },
+                was: { title: t("Что принесёте", "What you bring") },
+                form: { title: t("Обращение и прощание", "Greeting and closing") },
+              },
+            }
+          : {},
+      ]),
+    ),
   };
 }

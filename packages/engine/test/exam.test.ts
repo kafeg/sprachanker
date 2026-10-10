@@ -298,3 +298,71 @@ test("a run passes by the exam's rule; a module alone without a mark of its own 
   expect(examPassed({ passed: ["lid"] })).toBe(true);
   expect(examPassed(null)).toBeUndefined();
 });
+
+test("an open answer scores the levels it is rated at: pending until rated, the latest rating, nothing when its task is missed", () => {
+  const writing: ExamItem = {
+    key: examItemKey(GOETHE, "s2"),
+    type: "respond",
+    tags: {},
+    input: "text",
+    reference: [],
+    criteria: [
+      { id: "task", levels: [3, 1.5, 0], voids: true },
+      { id: "form", levels: [1, 0.5, 0] },
+    ],
+  };
+  const exam: Exam = {
+    ...modell,
+    sections: [
+      {
+        key: examSectionKey(GOETHE, "s1"),
+        module: "lesen",
+        pool: [writing.key],
+        draw: 1,
+        filter: null,
+      },
+    ],
+    items: [writing],
+    thresholds: [{ id: "overall", minPoints: 10 }],
+  };
+  const plan: ExamPlan = {
+    mode: "test",
+    items: [writing.key],
+    sections: sectionsOf(exam, [writing.key]),
+    deadline: null,
+  };
+  const event = (type: string, payload: unknown): TypedEvent =>
+    ({
+      id: `e${n++}`,
+      runId: "run",
+      ts: n,
+      type,
+      itemKey: writing.key,
+      cardId: null,
+      payload,
+    }) as TypedEvent;
+  const answer = event("answered", {
+    answer: { text: "Liebe Eva, …" },
+    attempt: 1,
+    ms: 1,
+    outcome: checkQuestion(writing, { text: "Liebe Eva, …" }, "de"),
+  });
+  // Answered, not rated: nothing yet, one pending.
+  expect(examResult(exam, plan, [answer])).toMatchObject({ points: 0, max: 4, pending: 1 });
+  const rated = (ratings: Record<string, number>) => event("exam_rated", { ratings, by: "self" });
+  expect(examResult(exam, plan, [answer, rated({ task: 3, form: 0.5 })])).toMatchObject({
+    points: 3.5,
+    max: 4,
+  });
+  expect(examResult(exam, plan, [answer, rated({ task: 3, form: 0.5 })]).pending).toBeUndefined();
+  // Rated again: the latest counts; the task missed makes it nothing.
+  expect(
+    examResult(exam, plan, [answer, rated({ task: 3, form: 0.5 }), rated({ task: 0, form: 1 })])
+      .points,
+  ).toBe(0);
+  // A rating that does not fit the criteria (a level they do not have) does not count.
+  expect(examResult(exam, plan, [answer, rated({ task: 2, form: 1 })])).toMatchObject({
+    points: 0,
+    pending: 1,
+  });
+});

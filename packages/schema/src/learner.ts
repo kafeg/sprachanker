@@ -255,6 +255,8 @@ export const ExamResult = z.object({
     .optional(),
   /** Ids of the pass marks reached. */
   passed: z.array(z.string()),
+  /** Open answers not rated yet (scored 0 until they are). */
+  pending: z.number().int().nonnegative().optional(),
   /** The exam passed by its rule (any or all of its pass marks); none when no pass mark judges the
    *  run (a module taken alone without one of its own). */
   pass: z.boolean().optional(),
@@ -285,6 +287,16 @@ export const ExamEventInput = z.object({
 export type ExamEventInput = z.infer<typeof ExamEventInput>;
 
 /** Every event type with the schema of its stored payload: written and read through these (05). */
+/** An exam's open answer rated by its criteria (exam runs, also handed in): the points of the level
+ *  chosen for each, by the learner or as the assistant proposed them and the learner took them. */
+export const ExamRatedPayload = z.object({
+  ratings: z.record(z.string(), z.number().nonnegative()),
+  by: z.enum(["self", "assistant"]),
+  /** The model whose proposal was taken. */
+  model: z.string().optional(),
+});
+export type ExamRatedPayload = z.infer<typeof ExamRatedPayload>;
+
 export const EVENT_PAYLOADS = {
   page_shown: PageShownPayload,
   answered: AnsweredPayload,
@@ -294,6 +306,7 @@ export const EVENT_PAYLOADS = {
   llm_turn: LlmTurnPayload,
   card_review: CardReviewPayload,
   card_undo: CardUndoPayload,
+  exam_rated: ExamRatedPayload,
 } as const;
 export type EventType = keyof typeof EVENT_PAYLOADS;
 export type EventPayload<T extends EventType> = z.infer<(typeof EVENT_PAYLOADS)[T]>;

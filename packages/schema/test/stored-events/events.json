@@ -1,6 +1,11 @@
 {
   "page_shown": [
-    { "since": "2026-10-06", "payload": { "pageIndex": 0 } },
+    {
+      "since": "2026-10-06",
+      "payload": {
+        "pageIndex": 0
+      }
+    },
     {
       "since": "2026-10-06",
       "payload": {
@@ -15,8 +20,19 @@
             "items": [
               {
                 "key": "s.x/c/00-01/ex-02#1",
-                "options": [{ "id": "a", "text": "Ja" }, { "id": "b", "text": "Nein" }],
-                "answer": { "optionIds": ["a"] }
+                "options": [
+                  {
+                    "id": "a",
+                    "text": "Ja"
+                  },
+                  {
+                    "id": "b",
+                    "text": "Nein"
+                  }
+                ],
+                "answer": {
+                  "optionIds": ["a"]
+                }
               }
             ]
           },
@@ -24,41 +40,85 @@
         }
       }
     },
-    { "since": "2026-10-08", "payload": { "pageIndex": 2, "exerciseKey": "s.x/c/00-01/ex-03" } }
+    {
+      "since": "2026-10-08",
+      "payload": {
+        "pageIndex": 2,
+        "exerciseKey": "s.x/c/00-01/ex-03"
+      }
+    }
   ],
   "answered": [
     {
       "since": "2026-10-06",
       "payload": {
-        "answer": { "optionId": "a" },
+        "answer": {
+          "optionId": "a"
+        },
         "attempt": 1,
         "ms": 1200,
-        "outcome": { "result": "correct", "score": 1, "ruleIds": [], "lexemes": [] }
+        "outcome": {
+          "result": "correct",
+          "score": 1,
+          "ruleIds": [],
+          "lexemes": []
+        }
       }
     },
     {
       "since": "2026-10-07",
       "payload": {
-        "answer": { "rating": "good" },
+        "answer": {
+          "rating": "good"
+        },
         "attempt": 1,
         "ms": 900,
-        "outcome": { "result": "unscored", "score": 0, "ruleIds": [], "lexemes": [] }
+        "outcome": {
+          "result": "unscored",
+          "score": 0,
+          "ruleIds": [],
+          "lexemes": []
+        }
       }
     },
     {
       "since": "2026-10-08",
       "payload": {
-        "answer": { "recording": "01K00000000000000000000000", "transcript": "Hallo" },
+        "answer": {
+          "recording": "01K00000000000000000000000",
+          "transcript": "Hallo"
+        },
         "attempt": 1,
         "ms": 4000,
-        "outcome": { "result": "unscored", "score": 0, "ruleIds": [], "lexemes": [] }
+        "outcome": {
+          "result": "unscored",
+          "score": 0,
+          "ruleIds": [],
+          "lexemes": []
+        }
       }
     }
   ],
-  "item_skipped": [{ "since": "2026-10-06", "payload": {} }],
+  "item_skipped": [
+    {
+      "since": "2026-10-06",
+      "payload": {}
+    }
+  ],
   "step_done": [
-    { "since": "2026-10-06", "payload": { "step": "words" } },
-    { "since": "2026-10-07", "payload": { "step": "grammar:1", "skipped": true } }
+    {
+      "since": "2026-10-06",
+      "payload": {
+        "step": "words"
+      }
+    },
+    {
+      "since": "2026-10-07",
+      "payload": {
+        "step": "grammar:1",
+        "skipped": true
+      }
+    }
   ],
   "llm_verdict": [
     {
@@ -80,11 +140,26 @@
         "result": {
           "verdict": "minor_errors",
           "corrected": "Ich heiße Lena.",
-          "corrections": [{ "wrong": "heisse", "right": "heiße", "explanation": "ß" }],
+          "corrections": [
+            {
+              "wrong": "heisse",
+              "right": "heiße",
+              "explanation": "ß"
+            }
+          ],
           "criteria": {
-            "task": { "score": 2, "comment": "" },
-            "communication": { "score": 2, "comment": "" },
-            "accuracy": { "score": 1, "comment": "" }
+            "task": {
+              "score": 2,
+              "comment": ""
+            },
+            "communication": {
+              "score": 2,
+              "comment": ""
+            },
+            "accuracy": {
+              "score": 1,
+              "comment": ""
+            }
           },
           "feedback": "Gut."
         },
@@ -125,7 +200,11 @@
   "llm_turn": [
     {
       "since": "2026-10-06",
-      "payload": { "role": "user", "text": "Warum?", "exerciseKey": "s.x/c/00-01/ex-02" }
+      "payload": {
+        "role": "user",
+        "text": "Warum?",
+        "exerciseKey": "s.x/c/00-01/ex-02"
+      }
     },
     {
       "since": "2026-10-07",
@@ -137,7 +216,12 @@
         "translation": "Sure.",
         "corrections": [],
         "goalsMet": [0],
-        "tools": [{ "name": "get_mistakes", "args": {} }]
+        "tools": [
+          {
+            "name": "get_mistakes",
+            "args": {}
+          }
+        ]
       }
     }
   ],
@@ -162,5 +246,34 @@
       }
     }
   ],
-  "card_undo": [{ "since": "2026-10-07", "payload": { "review": "01K00000000000000000000000" } }]
+  "card_undo": [
+    {
+      "since": "2026-10-07",
+      "payload": {
+        "review": "01K00000000000000000000000"
+      }
+    }
+  ],
+  "exam_rated": [
+    {
+      "since": "2026-10-10",
+      "payload": {
+        "ratings": {
+          "task-1": 3,
+          "form": 0.5
+        },
+        "by": "self"
+      }
+    },
+    {
+      "since": "2026-10-10",
+      "payload": {
+        "ratings": {
+          "erfuellung": 7.5
+        },
+        "by": "assistant",
+        "model": "claude-x"
+      }
+    }
+  ]
 }

@@ -1247,6 +1247,14 @@
       "numbers-agree": "Fragennummern wie auf den Seiten",
       "recordings-placed": "Aufnahmen bei ihren Fragen",
       "media-kept": "Bilder und Aufnahmen gespeichert"
+    },
+    "rating": {
+      "title": "Bewerte deine Antworten",
+      "pending": "{count, plural, one {# Antwort ist} other {# Antworten sind}} noch nicht bewertet: bis dahin 0 Punkte.",
+      "hint": "Bewerte wie die Prüfenden; du kannst die Bewertung jederzeit ändern.",
+      "voided": "Aufgabe nicht erfüllt: 0 für die ganze Antwort",
+      "save": "Bewertung speichern",
+      "change": "Bewertung ändern"
     }
   }
 }

@@ -11,6 +11,7 @@ import {
   practiceOrder,
   questionCount,
   questionStats,
+  ratingsFit,
   readiness,
   type SettingOf,
   sectionsOf,
@@ -21,6 +22,7 @@ import {
   type Exam,
   ExamEventInput,
   type ExamItem,
+  type ExamItemKey,
   type ExamKey,
   type ExamMode,
   ExamPlan,
@@ -107,7 +109,7 @@ export function createExams({
   /** A run's events as the learner may see them: a mock exam still running keeps its outcomes to
    *  itself (they would give the answers away). */
   const shownEvents = (run: ExamRun) => {
-    const list = store.events(run.id, ["answered"]);
+    const list = store.events(run.id, ["answered", "exam_rated"]);
     if (run.plan.mode === "practice" || run.status !== "active") return list;
     return list.map((e) => {
       if (e.type !== "answered") return e;
@@ -119,19 +121,26 @@ export function createExams({
   const questionOf = (exam: Exam, run: ExamRun, key: string): ExamItem | undefined =>
     run.plan.snapshot?.find((i) => i.key === key) ?? exam.items.find((i) => i.key === key);
 
-  /** Ends the run with its result: a mock exam over its questions, practice over those answered;
-   *  one handed in after its time ends as `timeout`. */
-  async function handIn(runId: string, run: ExamRun) {
-    const exam = await examOf(run.exam);
-    const events = store.events(runId, ["answered"]);
-    const answered = new Set(events.flatMap((e) => (e.itemKey ? [e.itemKey] : [])));
+  /** A run's result over its answers and ratings: a mock exam over its questions, practice over those
+   *  answered. */
+  function resultOf(exam: Exam, run: ExamRun) {
+    const events = store.events(run.id, ["answered", "exam_rated"]);
+    const answered = new Set(
+      events.flatMap((e) => (e.type === "answered" && e.itemKey ? [e.itemKey] : [])),
+    );
     const plan =
       run.plan.mode === "practice"
         ? { ...run.plan, items: run.plan.items.filter((k) => answered.has(k)) }
         : run.plan;
-    const late = run.plan.deadline !== null && now() > run.plan.deadline;
-    store.end(runId, "finished", late ? "timeout" : "completed", examResult(exam, plan, events));
+    return examResult(exam, plan, events);
   }
+  /** Ends the run with its result; one handed in after its time ends as `timeout`. */
+  async function handIn(runId: string, run: ExamRun) {
+    const exam = await examOf(run.exam);
+    const late = run.plan.deadline !== null && now() > run.plan.deadline;
+    store.end(runId, "finished", late ? "timeout" : "completed", resultOf(exam, run));
+  }
+
   /** A mock exam left running past its time (and the grace for answers on their way) is handed in
    *  as it stands — the learner closed the page, or never came back. */
   async function settle(run: ExamRun | undefined) {
@@ -335,6 +344,52 @@ export function createExams({
     async finish(runId: string) {
       const { row, run } = getRun(runId);
       if (row.status === "active") await handIn(runId, run);
+      return open(runId);
+    },
+
+    /**
+     * An open answer rated by its criteria (05): the points of a level of each, by the learner or as the
+     * assistant proposed them. Taken while the run is active and after it is handed in — a finished
+     * run's result is computed anew. Only an answer given in the run, rated whole.
+     */
+    async rate(
+      runId: string,
+      input: {
+        id: string;
+        itemKey: string;
+        ratings: Record<string, number>;
+        by: "self" | "assistant";
+        model?: string;
+      },
+      deviceId?: string,
+    ) {
+      const { row, run } = getRun(runId);
+      if (row.status === "abandoned") throw new ServiceError("run_not_active", 409);
+      const exam = await examOf(run.exam);
+      const item = run.plan.items.includes(input.itemKey as ExamItemKey)
+        ? questionOf(exam, run, input.itemKey)
+        : undefined;
+      if (!item?.criteria) throw new ServiceError("no_such_item");
+      if (!ratingsFit(item.criteria, input.ratings)) throw new ServiceError("invalid_request");
+      const answered = store.events(runId, ["answered"]).some((e) => e.itemKey === input.itemKey);
+      if (!answered) throw new ServiceError("invalid_request");
+      store.append(
+        runId,
+        [
+          {
+            id: input.id,
+            type: "exam_rated",
+            itemKey: input.itemKey,
+            payload: {
+              ratings: input.ratings,
+              by: input.by,
+              ...(input.model && { model: input.model }),
+            },
+          },
+        ],
+        { deviceId, anyStatus: true },
+      );
+      if (row.status === "finished") store.rescore(runId, resultOf(exam, run));
       return open(runId);
     },
 

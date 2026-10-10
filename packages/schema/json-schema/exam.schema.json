@@ -206,6 +206,35 @@
               "text": {
                 "type": "string"
               },
+              "criteria": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    },
+                    "levels": {
+                      "minItems": 2,
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "voids": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "levels"
+                  ],
+                  "additionalProperties": false
+                }
+              },
               "type": {
                 "type": "string",
                 "const": "single_choice"
@@ -279,6 +308,35 @@
               },
               "text": {
                 "type": "string"
+              },
+              "criteria": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    },
+                    "levels": {
+                      "minItems": 2,
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "voids": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "levels"
+                  ],
+                  "additionalProperties": false
+                }
               },
               "type": {
                 "type": "string",
@@ -399,6 +457,35 @@
               },
               "text": {
                 "type": "string"
+              },
+              "criteria": {
+                "minItems": 1,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+                    },
+                    "levels": {
+                      "minItems": 2,
+                      "type": "array",
+                      "items": {
+                        "type": "number",
+                        "minimum": 0
+                      }
+                    },
+                    "voids": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "levels"
+                  ],
+                  "additionalProperties": false
+                }
               },
               "type": {
                 "type": "string",

@@ -1247,6 +1247,14 @@
       "numbers-agree": "Question numbers as the pages give them",
       "recordings-placed": "Recordings placed with their questions",
       "media-kept": "Pictures and recordings kept"
+    },
+    "rating": {
+      "title": "Rate your answers",
+      "pending": "{count, plural, one {# answer is} other {# answers are}} not rated yet: counted as 0 until you rate {count, plural, one {it} other {them}}.",
+      "hint": "Rated as the exam's raters do; change a rating whenever you like.",
+      "voided": "the task not done: 0 for the whole answer",
+      "save": "Save rating",
+      "change": "Change rating"
     }
   }
 }

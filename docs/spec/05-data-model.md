@@ -127,6 +127,7 @@ and only grow.
 | `llm_turn` | `role`, `text`, `model?` and `latencyMs?` (assistant), `exerciseKey?` (tutor: the exercise on screen), `tools?[{name,args}]` (tutor: tools called for the reply); scenes add `translation`, `corrections[{wrong,right,explanation}]`, `goalsMet[]` |
 | `card_review` | `face`, `rating` (1–4), `stateBefore` (null for a new face), `stateAfter` (FSRS state, times in ms) on its `card_id`, in the day's `review` run (a new one each study day, 04) |
 | `card_undo` | `review` (the `card_review` event taken back): the face is as before it; the day's counts leave it out |
+| `exam_rated` | `ratings` (a level's points per criterion), `by` (`self` \| `assistant`: the assistant's proposal taken unchanged), `model?`: an exam's open answer rated, on its `itemKey`, in its run — also one handed in, whose result is then computed anew (`store.rescore`); the latest counts |
 
 Payload schemas: `packages/schema/src/learner.ts` (`EVENT_PAYLOADS`, one per type). **Payloads only
 grow**: a field is added (optional), never renamed, narrowed or removed; every shape stored so far is

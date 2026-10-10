@@ -179,6 +179,23 @@ export function marksOf(exam: Exam, modules: string[]) {
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
+type Criteria = NonNullable<ExamItem["criteria"]>;
+
+/** The most an open answer's criteria give: each one's best level. */
+export const criteriaMax = (criteria: Criteria) =>
+  criteria.reduce((n, c) => n + Math.max(...c.levels), 0);
+
+/** Whether ratings give every criterion one of its levels. */
+export const ratingsFit = (criteria: Criteria, ratings: Record<string, number>) =>
+  criteria.every((c) => c.levels.includes(ratings[c.id] as number)) &&
+  Object.keys(ratings).every((id) => criteria.some((c) => c.id === id));
+
+/** The points ratings give an open answer: their sum, 0 when a criterion that voids it is at 0. */
+export function ratedPoints(criteria: Criteria, ratings: Record<string, number>) {
+  if (criteria.some((c) => c.voids && (ratings[c.id] ?? 0) === 0)) return 0;
+  return criteria.reduce((n, c) => n + (ratings[c.id] ?? 0), 0);
+}
+
 /**
  * A run's result: each question's latest answer scores its points (its share of them: an open
  * answer's score), by the section the plan keeps for it (in the exam's order of sections) and, with
@@ -187,7 +204,12 @@ const round2 = (n: number) => Math.round(n * 100) / 100;
  */
 export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): ExamResult {
   const latest = new Map<string, AnsweredPayload>();
-  for (const e of events) if (e.type === "answered" && e.itemKey) latest.set(e.itemKey, e.payload);
+  const rated = new Map<string, Record<string, number>>();
+  for (const e of events) {
+    if (e.type === "answered" && e.itemKey) latest.set(e.itemKey, e.payload);
+    if (e.type === "exam_rated" && e.itemKey) rated.set(e.itemKey, e.payload.ratings);
+  }
+  let pending = 0;
   const items = new Map<string, ExamItem>(
     [...exam.items, ...(plan.snapshot ?? [])].map((i) => [i.key, i]),
   );
@@ -206,9 +228,20 @@ export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): Ex
     map.set(k, { points: t.points + p, max: t.max + m });
   };
   for (const k of plan.items) {
-    const worth = items.get(k)?.points ?? 1;
-    const outcome = latest.get(k)?.outcome;
-    const got = outcome && outcome.result !== "unscored" ? worth * outcome.score : 0;
+    const item = items.get(k);
+    const criteria = item?.criteria;
+    const worth = item?.points ?? (criteria ? criteriaMax(criteria) : 1);
+    let got = 0;
+    if (criteria) {
+      // An open answer scores the levels it was rated at; answered and not rated yet, nothing so far.
+      const ratings = rated.get(k);
+      if (latest.has(k) && ratings && ratingsFit(criteria, ratings))
+        got = (worth * ratedPoints(criteria, ratings)) / criteriaMax(criteria);
+      else if (latest.has(k)) pending++;
+    } else {
+      const outcome = latest.get(k)?.outcome;
+      got = outcome && outcome.result !== "unscored" ? worth * outcome.score : 0;
+    }
     const section = plan.sections[k] ?? "";
     add(bySection, section, got, worth);
     const module = moduleOf.get(section);
@@ -243,6 +276,7 @@ export function examResult(exam: Exam, plan: ExamPlan, events: TypedEvent[]): Ex
     points,
     max,
     answered: plan.items.filter((k) => latest.has(k)).length,
+    ...(pending > 0 && { pending }),
     sections,
     ...(exam.modules && { modules }),
     passed,

@@ -468,6 +468,13 @@ export const modellExam: Exam = {
       filter: null,
       media: { image: image("tom") },
     },
+    {
+      key: examSectionKey(MODELL, "s2"),
+      module: "schreiben",
+      pool: [examItemKey(MODELL, "s3")],
+      draw: 1,
+      filter: null,
+    },
   ],
   items: [
     modellItem("h0", {
@@ -527,6 +534,18 @@ export const modellExam: Exam = {
       type: "gap_text",
       segments: ["Getränk: ", { gap: "g1" }],
       answer: { g1: { accepted: ["Kaffee", "ein Kaffee"] } },
+    }),
+    // An open answer rated by its criteria: two content points (a 0 in the first voids it) and form.
+    modellItem("s3", {
+      type: "respond",
+      input: "text",
+      reference: [],
+      prompt: "Schreiben Sie Tom: Wann kommen Sie? Was bringen Sie mit?",
+      criteria: [
+        { id: "wann", levels: [3, 1.5, 0], voids: true },
+        { id: "was", levels: [3, 1.5, 0] },
+        { id: "form", levels: [1, 0.5, 0] },
+      ],
     }),
   ],
   thresholds: [

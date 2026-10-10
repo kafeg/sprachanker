@@ -168,3 +168,29 @@ export function useExamRun(runId: string) {
   const eventsNow = () => client.getQueryData<ExamRunState>(runKey(runId))?.events ?? [];
   return { query, answer, finish, eventsNow, pending: () => outbox.pending().length };
 }
+
+/** An open answer rated by its criteria (by the learner, or the assistant's proposal taken): the run
+ *  comes back with its result computed anew. */
+export function useRateAnswer(runId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      itemKey: string;
+      ratings: Record<string, number>;
+      by: "self" | "assistant";
+      model?: string;
+    }) =>
+      json(
+        api.exams.runs[":id"].ratings.$post({
+          param: { id: runId },
+          json: { id: ulid(), ...input },
+        }),
+      ),
+    onSuccess: (state) => {
+      client.setQueryData<ExamRunState>(runKey(runId), withSkew(state));
+      void client.invalidateQueries({ queryKey: ["exams"] });
+      void client.invalidateQueries({ queryKey: ["exam"] });
+      void client.invalidateQueries({ queryKey: ["notebook"] });
+    },
+  });
+}

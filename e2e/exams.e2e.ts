@@ -162,7 +162,7 @@ test("a language exam: a module alone, then the whole — each question with its
   await page.getByRole("button", { name: "Whole exam" }).click();
   await page.getByRole("button", { name: /^Begin/ }).click();
   const grid = page.getByRole("navigation", { name: "Questions" });
-  await expect(grid.getByRole("button")).toHaveCount(8);
+  await expect(grid.getByRole("button")).toHaveCount(9);
   await expect(page.getByRole("heading", { name: "Listening · Part 1" })).toBeVisible();
   await expect(page.getByText("Example")).toBeVisible();
   const answers: Array<(p: Page) => Promise<void>> = [
@@ -174,9 +174,14 @@ test("a language exam: a module alone, then the whole — each question with its
     (p) => question(p).getByRole("button", { name: "b", exact: true }).click(),
     (p) => question(p).getByRole("textbox").fill("Tom Weber"),
     (p) => question(p).getByRole("textbox").fill("Kaffee"),
+    (p) =>
+      question(p)
+        .getByRole("textbox")
+        .first()
+        .fill("Lieber Tom, ich komme um drei und bringe Kuchen mit. Bis bald!"),
   ];
   for (const [i, answer] of answers.entries()) {
-    await expect(page.getByText(`Question ${i + 1} of 8`)).toBeVisible();
+    await expect(page.getByText(`Question ${i + 1} of 9`)).toBeVisible();
     if (i === 2) {
       // Part 2's recording plays once.
       const once = page.getByRole("group", { name: "Part 2" });
@@ -189,7 +194,24 @@ test("a language exam: a module alone, then the whole — each question with its
     if (i < answers.length - 1) await button(page, "Next").click();
   }
   await button(page, "Hand in").click();
-  // Writing, every mark: passed.
+  // The note not rated yet: under the writing mark, not passed.
+  await expect(page.getByRole("heading", { name: "Not passed" })).toBeVisible();
+  await expect(page.getByText("1 answer is not rated yet", { exact: false })).toBeVisible();
+  // Rated as the raters would: the result computed anew — passed.
+  await page
+    .getByRole("group", { name: "When you come" })
+    .getByRole("button", { name: "3", exact: true })
+    .click();
+  await page
+    .getByRole("group", { name: "What you bring" })
+    .getByRole("button", { name: "1.5", exact: true })
+    .click();
+  await page
+    .getByRole("group", { name: "Greeting and closing" })
+    .getByRole("button", { name: "1", exact: true })
+    .click();
+  await expect(page.getByText("5.5 of 7")).toBeVisible();
+  await page.getByRole("button", { name: "Save rating" }).click();
   await expect(page.getByRole("heading", { name: "Passed" })).toBeVisible();
-  await expect(page.getByText("Writing", { exact: true }).locator("..")).toContainText("25 of 25");
+  await expect(page.getByRole("button", { name: "Change rating" })).toBeVisible();
 });

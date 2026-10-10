@@ -84,7 +84,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   /api/exams/runs/:id/events` (answers to the run's own questions only, batched and idempotent as a
   lesson's; a mock exam's taken until 30 s after its deadline, then it is handed in and 409
   `exam_time_over`), `POST
-  /api/exams/runs/:id/finish` (the result; late: `timeout`). A running mock exam's answers come back
+  /api/exams/runs/:id/finish` (the result; late: `timeout`), `POST /api/exams/runs/:id/ratings`
+  (`{id, itemKey, ratings, by, model?}`: an open answer given in the run, rated whole by levels its
+  criteria have; a handed-in run's result computed anew). A running mock exam's answers come back
   without their outcomes; practice's with them.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
