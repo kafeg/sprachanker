@@ -144,6 +144,7 @@ the exam has, and none is above the points it can give.
   "source": { "publisher": "Deutsche Welle", "url": "https://learngerman.dw.com/de", "licence": "free-access" },
   "units": [ { "key": "dw.nicos-weg/a1-ru/u00", "lessons": ["dw.nicos-weg/a1-ru/00-01"] } ],
   "exams": [],
+  // The course's can-do statements in order with their lessons (read by its can-do list: planned).
   "goals": [ { "key": "dw.nicos-weg/a1-ru/00-01/goal-1", "lessons": ["dw.nicos-weg/a1-ru/00-01"] } ] }
 
 // canonical/<course>/lessons/00-01.json
@@ -194,7 +195,9 @@ is, as the source credits it, shown with it.
 ## Exercise types
 
 `docs/research/dw-nicos-weg.md` maps every DW mechanic to a type. All types share `key`, `type`, `fingerprint`, `items[]`, optional `media` (stimulus) and `text`
-(target-language stimulus), `newWords`, `ruleIds`. Items have `key`, optional `media` (what the item
+(target-language stimulus), `newWords`, `ruleIds` (both written empty by every provider — only the
+fixture fills them —, read by nothing yet: rule ids come with enrichment, plan "Enrichment and rules";
+they stay, as every library file and page snapshot holds them). Items have `key`, optional `media` (what the item
 asks with: its recording is heard before answering), `answerAudio` (the source's answer, spoken: offered
 once the item is checked — before, it would give the answer away) and `prompt` (target language; a
 learner-language prompt lives in the locale file). Answers are compared by
@@ -261,7 +264,8 @@ The locale course file holds the course title, unit titles and goal texts in the
 
 ## Grammar rules registry (ours)
 
-`courses/_shared/rules/<lang>.yaml` — the only place rules are defined.
+`courses/_shared/rules/<lang>.yaml` — the only place rules are defined. A start of German's is there,
+checked with the fixture's rule ids (10); the app reads none yet (plan, "Enrichment and rules").
 
 ```yaml
 - id: de.greeting.du-sie

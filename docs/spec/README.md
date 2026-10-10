@@ -4,7 +4,7 @@
 |---|---|
 | [00-vision.md](00-vision.md) | Goals, users, scenarios, scope, non-goals, legal position |
 | [01-domain.md](01-domain.md) | Domain model: catalog, course, lesson, exercise, card, profile, run, event |
-| [02-course-format.md](02-course-format.md) | Library layout, manifest, keys, canonical/locale/enrichment formats |
+| [02-course-format.md](02-course-format.md) | Library layout, keys, canonical/locale/exam formats, rules registry, enrichment (planned) |
 | [03-providers.md](03-providers.md) | Importers: DW (Nicos Weg in 19 languages, Deutschtrainer), COERLL Deutsch im Blick, Lingust, VOA (two courses); the provider contract; Leben in Deutschland planned |
 | [04-engine.md](04-engine.md) | Lesson composition, exercise checking, learner model, SRS |
 | [05-data-model.md](05-data-model.md) | Data root, SQLite schemas, event log, migrations, export |

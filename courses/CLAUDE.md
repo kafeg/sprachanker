@@ -34,7 +34,8 @@ packages/course-kit/src/
   dom.ts               # a tolerant HTML tree for broken pages (findAll, innerHtml)
   language.ts          # which of a course's two languages a text is in
 courses/
-  _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02)
+  _shared/rules/       # grammar rules registry (<lang>.yaml) — the only place rules are defined (spec 02);
+                       # checked by the fixture's test, read by the app: planned
   _fixture/            # invented course covering every exercise type, two editions (tests, e2e); src/:
                        # course, locales, media (synthetic), library (written as an import would)
   dw/                  # DW Learn German (series dw.nicos-weg, dw.deutschtrainer; CLI ids dw-<series>), a course

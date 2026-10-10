@@ -15,7 +15,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 |---|---|---|---|
 | `packages/schema` | Domain types and file formats (zod → JSON Schema). Depends on nothing. | 01, 02 | `packages/schema/CLAUDE.md` |
 | `packages/course-kit` | Library format (read/write), fetcher, raw pages, media store, fingerprints, verify. | 02, 03 | `courses/CLAUDE.md` |
-| `courses/<provider>` | One folder per content source: provider (importer + normaliser), enrichment, tests. `courses/_shared/rules` — grammar rules registry. | 02, 03 | `courses/CLAUDE.md` |
+| `courses/<provider>` | One folder per content source: provider (importer + normaliser), tests; enrichment planned. `courses/_shared/rules` — grammar rules registry (read by the app: planned). | 02, 03 | `courses/CLAUDE.md` |
 | `packages/engine` | Pure logic: lesson composition, exercise checking, learner model, FSRS. No I/O. | 04 | `packages/engine/CLAUDE.md` |
 | `packages/server` | HTTP API, SQLite, media, profiles, course downloads, sidecar supervision, speech recognition and reading aloud. | 05, 06, 08 | `packages/server/CLAUDE.md` |
 | `packages/llm` | LLM gateway, providers, tasks, prompts, structured outputs. | 07 | `packages/llm/CLAUDE.md` |
