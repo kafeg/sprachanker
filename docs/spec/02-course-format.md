@@ -352,7 +352,8 @@ raw/…                               # only the copies an exam's sources name (
   name). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
   library file read by its schema (strict), where its own keys put it (`libraryFile`), of the
   bundle's course and editions, the index and each edition's course file there, each media file one
-  the files name, each source copy one an exam's sources name. Only then, under the series' import
+  the files name, each source copy one an exam's sources name, the content versions those of its
+  files. Only then, under the series' import
   lock (03): media and copies moved into place, the lines of `media.json` it lacks added, the course's
   scopes of `keys.json` set, and the course's canonical folder and each edition's folder replaced
   whole where their content version differs (the old one aside in the transfer until the new one is

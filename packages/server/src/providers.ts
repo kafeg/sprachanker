@@ -53,23 +53,41 @@ export const providerOf = (series: string) =>
 export const downloadMarker = (libraryRoot: string, series: string, course: string) =>
   join(libraryRoot, series, ".downloads", `${course}.json`);
 
+/** The series folders this process holds or waits for, each the end of its queue. */
+const heldHere = new Map<string, Promise<void>>();
+
 /**
- * Work that writes a series' shared files (media.json, keys.json): one at a time per series, across
- * processes (the CLI and a server's download job, an import of a course bundle) — a lock folder with
- * the owner's pid; a lock whose process is gone (or is no SprachAnker) is taken over.
+ * Work that writes a series' shared files (media.json, keys.json): one at a time per series — in
+ * this process, in turn (a course bundle installed while a download of its series runs waits for
+ * it); across processes (the CLI beside a server) a lock folder with the owner's pid, a lock whose
+ * process is gone (or is no SprachAnker) taken over.
  */
 export async function withSeriesLock<T>(
   libraryRoot: string,
   series: string,
   work: () => Promise<T>,
 ): Promise<T> {
-  const lock = join(libraryRoot, series, ".import-lock");
-  await mkdir(join(libraryRoot, series), { recursive: true });
-  await takeLock(lock, series);
+  const folder = join(libraryRoot, series);
+  const before = heldHere.get(folder) ?? Promise.resolve();
+  let release = () => {};
+  const mine = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const queue = before.then(() => mine);
+  heldHere.set(folder, queue);
+  await before;
   try {
-    return await work();
+    const lock = join(folder, ".import-lock");
+    await mkdir(folder, { recursive: true });
+    await takeLock(lock, series);
+    try {
+      return await work();
+    } finally {
+      await rm(lock, { recursive: true, force: true });
+    }
   } finally {
-    await rm(lock, { recursive: true, force: true });
+    release();
+    if (heldHere.get(folder) === queue) heldHere.delete(folder);
   }
 }
 

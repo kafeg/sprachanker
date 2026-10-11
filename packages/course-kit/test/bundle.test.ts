@@ -268,9 +268,15 @@ test("a bundle's files are checked before anything is installed: schemas, places
         sha256: "0".repeat(64),
       });
     }),
-  ).toEqual([
+  ).toContain(
     "canonical/basic/lessons/00-02.json: not where its keys put it in sprachanker.mini/basic",
-  ]);
+  );
+  // Content versions that are not its files': "the same" would be believed wrongly.
+  expect(
+    await problemsOf((b) => {
+      b.manifest.content.canonical = "0".repeat(64);
+    }),
+  ).toEqual(["manifest: content versions not those of its files"]);
   // Another course's bundle claiming to be this one.
   expect(
     await problemsOf((b) => {

@@ -347,6 +347,15 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
   for (const scope of Object.keys(manifest.keys))
     if (!scope.startsWith(`${manifest.course}/`))
       problems.push(`keys.json ${scope}: not a scope of ${manifest.course}`);
+  // Its content versions are those of its files (each hashed as it was unpacked): "the same" is
+  // believed only so.
+  const versions = contentVersions(courseId, manifest.editions, manifest.files);
+  if (
+    versions.canonical !== manifest.content.canonical ||
+    Object.keys(manifest.content.editions).sort().join() !== [...manifest.editions].sort().join() ||
+    manifest.editions.some((e) => versions.editions[e] !== manifest.content.editions[e])
+  )
+    problems.push("manifest: content versions not those of its files");
   return problems.slice(0, 20);
 }
 
