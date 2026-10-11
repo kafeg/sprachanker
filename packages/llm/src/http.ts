@@ -102,7 +102,11 @@ export function endpointCaller(
     )
       throw new LlmError("unauthorized", message, res.status);
     if (res.status === 404) throw new LlmError("model_not_found", message, res.status);
-    if (res.status === 429) throw new LlmError("rate_limited", message, res.status);
+    const wait = Number(res.headers.get("retry-after") ?? Number.NaN);
+    const retryAfter = Number.isFinite(wait) && wait > 0 ? wait : undefined;
+    if (res.status === 429) throw new LlmError("rate_limited", message, res.status, retryAfter);
+    // Anthropic: overloaded for now.
+    if (res.status === 529) throw new LlmError("overloaded", message, res.status, retryAfter);
     throw new LlmError("bad_response", message, res.status);
   };
 }

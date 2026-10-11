@@ -2,6 +2,7 @@
 // "key saved", "not installed", "address not set" — so all of them are seen at once. Also the
 // onboarding's AI step.
 import {
+  Asterisk,
   BrainCircuit,
   Cloud,
   Laptop,
@@ -21,6 +22,7 @@ const ICON: Record<ProviderId | "off", typeof Cloud> = {
   lmstudio: Laptop,
   openrouter: Cloud,
   openai: BrainCircuit,
+  anthropic: Asterisk,
   gemini: Sparkles,
   groq: Zap,
   custom: Network,

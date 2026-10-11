@@ -100,7 +100,11 @@ function failure(error: unknown) {
   if (error instanceof LlmError)
     return {
       status: 502 as const,
-      body: { error: `llm_${error.code}`, message: error.message },
+      body: {
+        error: `llm_${error.code}`,
+        message: error.message,
+        ...(error.retryAfter !== undefined && { retryAfter: error.retryAfter }),
+      },
     };
   return errorResponse(error);
 }

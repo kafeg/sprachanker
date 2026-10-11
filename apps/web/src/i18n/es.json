@@ -236,6 +236,7 @@
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
       "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Servidor en la red",
@@ -272,6 +273,7 @@
       "lmstudio": "LM Studio en esta computadora: SprachAnker inicia su servidor, carga el modelo elegido y puede descargar en él los modelos sugeridos. Gratis, y nada sale de la computadora. Si LM Studio funciona en otra computadora, elige «Servidor en la red».",
       "openrouter": "OpenRouter en la nube: cientos de modelos de muchos fabricantes con una sola clave, algunos gratis (con límites diarios). El contenido de las lecciones y tus respuestas van a OpenRouter y al proveedor del modelo.",
       "openai": "Los modelos de OpenAI (GPT-5, GPT-4.1, la serie o y otros) en la nube a través de su API, de pago por uso — no es una suscripción a ChatGPT: para eso, elige Codex. El contenido de las lecciones y tus respuestas van a OpenAI.",
+      "anthropic": "Los modelos Claude de Anthropic en la nube a través de su API, de pago por uso — no es una suscripción a Claude: para eso, elige Claude Code. El contenido de las lecciones y tus respuestas van a Anthropic.",
       "gemini": "Los modelos Gemini de Google en la nube, con una clave de Google AI Studio. El nivel gratuito no pide tarjeta y tiene límites por minuto y por día; algunos modelos requieren facturación. En el nivel gratuito, Google puede usar lo que se envía para mejorar sus productos: el contenido de las lecciones y tus respuestas van a Google.",
       "groq": "Modelos abiertos (Llama, Qwen, GPT-OSS y otros) en el hardware rápido de Groq en la nube. El nivel gratuito no pide tarjeta y tiene límites por minuto y por día para cada modelo. El contenido de las lecciones y tus respuestas van a Groq.",
       "custom": "Cualquier servidor con una API compatible con OpenAI en otra computadora: LM Studio, Ollama, llama.cpp, vLLM y otros. Indica su dirección (terminada en /v1) y una clave si la pide.",
@@ -313,6 +315,7 @@
     "keyHintFor": {
       "openrouter": "Crea una clave en openrouter.ai/keys. Se guarda cifrada en esta computadora y no se vuelve a mostrar.",
       "openai": "Crea una clave en platform.openai.com/api-keys. Se guarda cifrada en esta computadora y no se vuelve a mostrar.",
+      "anthropic": "Crea una clave en platform.claude.com/settings/keys. Se guarda cifrada en esta computadora y no se vuelve a mostrar.",
       "gemini": "Crea una clave en aistudio.google.com/apikey. Se guarda cifrada en esta computadora y no se vuelve a mostrar.",
       "groq": "Crea una clave en console.groq.com/keys. Se guarda cifrada en esta computadora y no se vuelve a mostrar."
     }
@@ -1251,6 +1254,7 @@
     "llm_no_endpoint": "Escribe la dirección del servidor.",
     "llm_no_key": "Escribe la clave de API.",
     "llm_not_configured": "Elige un modelo en Ajustes → Asistente de IA.",
+    "llm_overloaded": "El proveedor está saturado en este momento. Inténtalo de nuevo en un rato.",
     "llm_rate_limited": "Por ahora se alcanzó el límite del proveedor (los niveles gratuitos limitan las solicitudes por minuto y por día). Inténtalo más tarde o elige otro modelo en Ajustes → Asistente de IA.",
     "llm_timeout": "El modelo tardó demasiado en responder.",
     "llm_unauthorized": "No se aceptó la clave de API.",

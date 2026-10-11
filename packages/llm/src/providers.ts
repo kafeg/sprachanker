@@ -1,6 +1,7 @@
-// Provider presets (07, "Providers"): servers speaking the OpenAI-compatible chat API, and command-line
-// agents run with the user's own subscription (cli.ts).
+// Provider presets (07, "Providers"): servers speaking the OpenAI-compatible chat API, Anthropic's
+// Messages API (anthropic.ts), and command-line agents run with the user's own subscription (cli.ts).
 import { z } from "zod";
+import { anthropic, anthropicBody } from "./anthropic.ts";
 import type { CliKind } from "./cli.ts";
 import {
   type ApiQuirks,
@@ -15,6 +16,7 @@ export const ProviderId = z.enum([
   "lmstudio",
   "openrouter",
   "openai",
+  "anthropic",
   "gemini",
   "groq",
   "custom",
@@ -24,7 +26,7 @@ export const ProviderId = z.enum([
 export type ProviderId = z.infer<typeof ProviderId>;
 
 /** The API a provider speaks; `cli`: a command-line agent on this machine. */
-export type ProviderKind = "openai-compatible" | "cli";
+export type ProviderKind = "openai-compatible" | "anthropic" | "cli";
 
 export interface ProviderPreset extends ApiQuirks {
   id: ProviderId;
@@ -75,6 +77,17 @@ export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
     notChat:
       /instruct|davinci|babbage|dall-e|moderation|realtime|transcribe|search|sora|codex|computer-use|deep-research|-pro\b/,
   },
+  // Anthropic's own API (anthropic.ts). Thinking is not asked for; newer models (Opus 4.5 on, 4.6 and
+  // 5 families) take an effort, and think unless told otherwise: "low" for fast replies, with room.
+  anthropic: {
+    id: "anthropic",
+    kind: "anthropic",
+    baseUrl: "https://api.anthropic.com/v1",
+    key: "required",
+    editableUrl: false,
+    noReasoning: { output_config: { effort: "low" } },
+    reasoners: /claude-(opus-4-[5-9]|[a-z]+-4-[6-9]|[a-z]+-[5-9])/,
+  },
   // Google's Gemini API through its OpenAI-compatible layer: a free tier with limits (AI Studio key).
   // Reasoning stays on: newer Gemini models refuse to turn it off.
   gemini: {
@@ -122,18 +135,35 @@ export function providerClient(
   endpoint: ProviderEndpoint,
   fetchFn: typeof fetch,
 ): LlmClient {
-  return openAiCompatible({ ...preset, ...endpoint }, fetchFn);
+  return preset.kind === "anthropic"
+    ? anthropic({ ...preset, ...endpoint }, fetchFn)
+    : openAiCompatible({ ...preset, ...endpoint }, fetchFn);
 }
 
 /** The request an HTTP provider gets, without sending it (the prompt viewer, 07 "Debugging"): its URL
- *  and its body, the messages as role and text. */
+ *  and its body, the messages as role and text (Anthropic's system prompt as the first). */
 export function providerRequest(
   preset: ProviderPreset,
   baseUrl: string,
   request: Omit<ChatRequest, "signal" | "runTool">,
 ): { url: string; body: { messages: ChatMessage[] } & Record<string, unknown> } {
+  const base = baseUrl.replace(/\/+$/, "");
+  if (preset.kind !== "anthropic")
+    return { url: `${base}/chat/completions`, body: chatBody(request, preset) };
+  const { system, messages, ...rest } = anthropicBody(request, preset);
   return {
-    url: `${baseUrl.replace(/\/+$/, "")}/chat/completions`,
-    body: chatBody(request, preset),
+    url: `${base}/messages`,
+    body: {
+      ...rest,
+      messages: [
+        ...(system ? [{ role: "system" as const, content: system }] : []),
+        ...messages.map((m) => ({
+          role: m.role,
+          content: m.content
+            .map((b) => (b.type === "text" ? b.text : b.type === "tool_result" ? b.content : ""))
+            .join("\n\n"),
+        })),
+      ],
+    },
   };
 }

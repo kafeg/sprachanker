@@ -6,15 +6,18 @@ tasks, never vendor APIs.
 ## Providers
 
 Configured **per profile**: each learner picks their own provider and model (05). HTTP providers speak
-the OpenAI-compatible chat API (`packages/llm/src/client.ts`); command-line providers run an agent
-installed on the machine with the user's own subscription (`packages/llm/src/cli.ts`, started by
-`packages/server/src/runtime/cli.ts`). Presets live in `packages/llm/src/providers.ts`.
+the OpenAI-compatible chat API (`packages/llm/src/client.ts`) or, Anthropic, its Messages API
+(`packages/llm/src/anthropic.ts`) — a preset's `kind`; tasks never know which. Command-line
+providers run an agent installed on the machine with the user's own subscription
+(`packages/llm/src/cli.ts`, started by `packages/server/src/runtime/cli.ts`). Presets live in
+`packages/llm/src/providers.ts`.
 
 | Provider | Endpoint | API key | Notes |
 |---|---|---|---|
 | `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | "LM Studio on this computer": integrated through LM Studio's own API (below) |
 | `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models; the key's state from its `/key` (`packages/llm/src/openrouter.ts`) |
 | `openai` | `https://api.openai.com/v1` | required (paid per use, not a ChatGPT subscription: that is `codex`) | OpenAI's own API, below |
+| `anthropic` | `https://api.anthropic.com/v1` | required (paid per use, not a Claude subscription: that is `claude-code`) | Anthropic's Messages API, below |
 | `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai` | required (Google AI Studio) | free tier with limits, no card; on it Google may use what is sent (the card says so); reasoning left on (newer Gemini models refuse to turn it off) |
 | `groq` | `https://api.groq.com/openai/v1` | required | open models, free tier with limits per model, no card |
 | `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | "Server on the network": LM Studio, Ollama, llama.cpp, vLLM on another machine |
@@ -28,6 +31,24 @@ for fast replies (one that refuses it keeps its default) and 4096 tokens of room
 limit, since their reasoning counts in it; its model list leaves out what chat completions do not
 serve (Responses-only `-pro`, `codex`, `deep-research`, `computer-use`; realtime, transcription,
 search, moderation, image, video and legacy completion models).
+
+**Anthropic** is reached through its Messages API with fetch alone, no SDK (owner 2026-10-11):
+`POST /messages` with `x-api-key` and `anthropic-version: 2023-06-01`. The chat is put in its shape:
+system messages as the top-level `system`; turns alternating, same-role turns merged, starting and
+ending with the learner's (`(begin)` / `(go on)` said for them where the app has none: no assistant
+prefill); `max_tokens` the task's limit (4096 where it sets none). No temperature and no `thinking`
+are sent; models that take an effort (Opus 4.5 on, the 4.6 and 5 families — newer ones think unless
+told otherwise) get `output_config.effort: "low"` for fast replies (one refusing it is asked again
+without) and the same room as OpenAI's reasoning models. A streamed reply's events (`content_block_*`
+with text, `input_json_delta` and thinking deltas, `message_delta`, `message_stop`, `ping`, `error`)
+become the client's text and tool calls; a tool round sends the reply's blocks back as they came
+(thinking with its signature, text, `tool_use`) and the results as `tool_result` blocks of the
+learner's next turn (the note to answer now in the same turn); the round without tools still names
+them, with `tool_choice: none`. Structured outputs put the JSON Schema in the system prompt (no forced
+tool: newer models refuse it), the reply read whole, then the same zod check and one repair. The
+model list is `GET /models`, read page by page (`after_id`), with `display_name` and
+`max_input_tokens`; every Claude model calls tools. The prompt viewer shows the body with the system
+prompt as its first message.
 
 Command-line providers run each request in a fresh empty folder with our system prompt and without the
 agent's own tools, MCP servers, settings or saved session: only the lesson context goes out. Structured
@@ -128,8 +149,10 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   when it is busy or failing (429, 5xx); the option the refusal names goes first (a model refusing
   `temperature` is asked again without it, and the next tool round goes without it too).
   A 429 is `rate_limited` (free tiers limit requests per minute and day: the learner is told to try
-  later or choose another model); a wrong key is `unauthorized` (401, 403, or Gemini's 400 saying so).
-  Inline `<think>…</think>` output is stripped.
+  later or choose another model); Anthropic's 529 (or an `overloaded_error` in its stream) is
+  `overloaded` (try again in a moment); the provider's `retry-after`, when given, goes with either
+  (`retryAfter`, seconds, in the 502 body); a wrong key is `unauthorized` (401, 403, or Gemini's 400
+  saying so). Inline `<think>…</think>` output is stripped.
 - **Time limits**: a request may take 180 s to its first byte (a local server may load the model
   first), then 60 s of silence between chunks of a streamed reply, so a slow model writing a long
   reply is never cut off; a limit run out is `timeout`, a connection dropped mid-reply `unreachable`.

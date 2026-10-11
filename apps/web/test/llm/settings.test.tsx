@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { fireEvent } from "@testing-library/react";
 import { ModelList } from "../../src/llm/model-list.tsx";
 import { ProviderCards } from "../../src/llm/provider-cards.tsx";
+import { AssistantSetup } from "../../src/llm/settings-section.tsx";
 import type { LlmState } from "../../src/llm/setup-api.ts";
 import { renderApp } from "../render.tsx";
 
@@ -28,6 +29,14 @@ const providers = [
     defaultUrl: "https://api.openai.com/v1",
     key: "required",
     hasKey: false,
+    editableUrl: false,
+  },
+  {
+    id: "anthropic",
+    baseUrl: "https://api.anthropic.com/v1",
+    defaultUrl: "https://api.anthropic.com/v1",
+    key: "required",
+    hasKey: true,
     editableUrl: false,
   },
   {
@@ -78,14 +87,35 @@ test("providers as cards, each saying what it lacks or where it is; a card picks
   expect(card(/LM Studio/).textContent).toContain("on this computer");
   expect(card(/OpenRouter/).textContent).toContain("needs a key");
   expect(card(/OpenAI/).textContent).toContain("needs a key");
+  expect(card(/Anthropic/).textContent).toContain("key saved");
   expect(card(/Server on the network/).textContent).toContain("at 192.168.1.5:8080");
   expect(card(/Server on the network/).getAttribute("aria-pressed")).toBe("true");
   expect(card(/Codex/).textContent).toContain("not installed");
   expect(card(/Groq/).textContent).toContain("key saved");
   fireEvent.click(card(/OpenRouter/));
+  fireEvent.click(card(/Anthropic/));
   fireEvent.click(card(/Off/));
-  expect(picked).toEqual(["openrouter", null]);
+  expect(picked).toEqual(["openrouter", "anthropic", null]);
 });
+
+test.each([
+  ["openai", /OpenAI's models/, "platform.openai.com/api-keys"],
+  ["anthropic", /Anthropic's Claude models/, "platform.claude.com/settings/keys"],
+])(
+  "%s chosen: what it is, where its key is made, a fixed address, the key asked for first",
+  async (id, about, keys) => {
+    const state = {
+      provider: id,
+      model: null,
+      providers: providers.map((p) => (p.id === id ? { ...p, hasKey: false } : p)),
+    };
+    const view = await renderApp(<AssistantSetup />, { data: [[["llm"], state]] });
+    expect(view.getByText(about)).toBeTruthy();
+    expect(view.getByText(new RegExp(keys.replaceAll(".", "\\.")))).toBeTruthy();
+    expect(view.queryByText("Server address")).toBeNull();
+    expect(view.getByRole("status").textContent).toContain("Enter the API key.");
+  },
+);
 
 test("the model list: free and JSON on where told; filters toggle; a pick reports the model", async () => {
   const picked: string[] = [];

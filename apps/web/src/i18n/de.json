@@ -236,6 +236,7 @@
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
       "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server im Netzwerk",
@@ -272,6 +273,7 @@
       "lmstudio": "LM Studio auf diesem Computer: SprachAnker startet seinen Server, lädt das gewählte Modell und kann empfohlene Modelle hineinladen. Kostenlos, und nichts verlässt den Computer. Läuft LM Studio auf einem anderen Computer, wähle „Server im Netzwerk“.",
       "openrouter": "OpenRouter in der Cloud: Hunderte Modelle vieler Hersteller mit einem Schlüssel, einige davon kostenlos (mit Tageslimits). Lektionsinhalte und deine Antworten gehen an OpenRouter und den Anbieter des Modells.",
       "openai": "Die Modelle von OpenAI (GPT-5, GPT-4.1, die o-Reihe und andere) in der Cloud über die API, bezahlt nach Nutzung — kein ChatGPT-Abo: dafür wähle Codex. Lektionsinhalte und deine Antworten gehen an OpenAI.",
+      "anthropic": "Die Claude-Modelle von Anthropic in der Cloud über die API, bezahlt nach Nutzung — kein Claude-Abo: dafür wähle Claude Code. Lektionsinhalte und deine Antworten gehen an Anthropic.",
       "gemini": "Googles Gemini-Modelle in der Cloud mit einem Schlüssel aus Google AI Studio. Die kostenlose Stufe braucht keine Karte und hat Grenzen pro Minute und Tag; manche Modelle brauchen ein Abrechnungskonto. In der kostenlosen Stufe darf Google Gesendetes zur Verbesserung seiner Produkte nutzen: Lektionsinhalte und deine Antworten gehen an Google.",
       "groq": "Offene Modelle (Llama, Qwen, GPT-OSS und andere) auf Groqs schneller Hardware in der Cloud. Die kostenlose Stufe braucht keine Karte und hat Grenzen pro Minute und Tag für jedes Modell. Lektionsinhalte und deine Antworten gehen an Groq.",
       "custom": "Jeder Server mit OpenAI-kompatibler API auf einem anderen Computer: LM Studio, Ollama, llama.cpp, vLLM und andere. Gib seine Adresse an (endet auf /v1) und einen Schlüssel, falls er einen verlangt.",
@@ -313,6 +315,7 @@
     "keyHintFor": {
       "openrouter": "Einen Schlüssel erstellst du auf openrouter.ai/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
       "openai": "Einen Schlüssel erstellst du auf platform.openai.com/api-keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
+      "anthropic": "Einen Schlüssel erstellst du auf platform.claude.com/settings/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
       "gemini": "Erstelle einen Schlüssel auf aistudio.google.com/apikey. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
       "groq": "Erstelle einen Schlüssel auf console.groq.com/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt."
     }
@@ -1251,6 +1254,7 @@
     "llm_no_endpoint": "Gib die Serveradresse ein.",
     "llm_no_key": "Gib den API-Schlüssel ein.",
     "llm_not_configured": "Wähle ein Modell unter Einstellungen → KI-Assistent.",
+    "llm_overloaded": "Der Anbieter ist gerade überlastet. Versuch es gleich noch einmal.",
     "llm_rate_limited": "Das Limit des Anbieters ist gerade erreicht (kostenlose Stufen begrenzen Anfragen pro Minute und Tag). Versuche es später oder wähle ein anderes Modell unter Einstellungen → KI-Assistent.",
     "llm_timeout": "Das Modell braucht zu lange.",
     "llm_unauthorized": "Der API-Schlüssel wurde nicht akzeptiert.",
