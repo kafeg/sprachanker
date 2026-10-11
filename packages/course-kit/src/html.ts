@@ -33,16 +33,32 @@ interface SanitizeOptions {
   drop?(tag: string, attributes: Record<string, string>): boolean;
 }
 
-/** Keeps the allow-listed elements without attributes (images get `src` and `alt`); unwraps the rest.
- *  Characters of no width an editor left go. */
+/** A cell's span kept when it is one (2–99): a table's shape, not its look. */
+const span = (tagName: string, attribs: sanitizeHtml.Attributes): sanitizeHtml.Tag => ({
+  tagName,
+  attribs: Object.fromEntries(
+    ["rowspan", "colspan"].flatMap((a) =>
+      /^(?:[2-9]|[1-9]\d)$/.test(attribs[a] ?? "") ? [[a, attribs[a] as string]] : [],
+    ),
+  ),
+});
+
+/** Keeps the allow-listed elements without attributes (images get `src` and `alt`, cells their
+ *  `rowspan` and `colspan`); unwraps the rest. Characters of no width an editor left go. */
 export function sanitizeCourseHtml(html: string, options: SanitizeOptions): string {
   const clean = sanitizeHtml(html, {
     allowedTags: ALLOWED_TAGS,
-    allowedAttributes: { img: ["src", "alt"] },
+    allowedAttributes: {
+      img: ["src", "alt"],
+      td: ["rowspan", "colspan"],
+      th: ["rowspan", "colspan"],
+    },
     allowedSchemes: [],
     allowedSchemesAppliedToAttributes: [],
     allowProtocolRelative: false,
     transformTags: {
+      td: span,
+      th: span,
       img: (tagName, attribs): sanitizeHtml.Tag => {
         const src = options.image(attribs);
         return src
@@ -54,8 +70,21 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
       frame.tag === "drop-image" || (options.drop?.(frame.tag, frame.attribs) ?? false),
   });
   // After sanitising: an entity (`&#8203;`) is a character by then.
-  return nestedHeadingsAsBold(withoutEmpty(breakable(clean.replace(NO_WIDTH, "")))).trim();
+  return nestedHeadingsAsBold(
+    withoutEmpty(oneCellLabels(breakable(clean.replace(NO_WIDTH, "")))),
+  ).trim();
 }
+
+/** A table of one cell with a line of text in it is a label (a case's name over its table): a bold
+ *  paragraph, not a box. One holding paragraphs or lists (a framed note) stays a table. */
+const oneCellLabels = (html: string) =>
+  html.replace(
+    /<table>\s*(?:<tbody>\s*)?<tr>\s*<t([dh])>((?:(?!<\/?(?:table|tr|td|th|p|ul|ol|li|figure|h3|br)\b)[\s\S])*)<\/t\1>\s*<\/tr>\s*(?:<\/tbody>\s*)?<\/table>/g,
+    (_, _cell, text: string) => {
+      const line = text.trim().replace(/^<(strong|b)>([\s\S]*)<\/\1>$/, "$2");
+      return line ? `<p><strong>${line}</strong></p>` : "";
+    },
+  );
 
 /** A no-break space between two letters is an editor's leftover ("und\u00a0leckeren", whole sentences
  *  so joined): a plain space, so the text wraps. One that keeps a number with its unit ("25\u00a0°C") or

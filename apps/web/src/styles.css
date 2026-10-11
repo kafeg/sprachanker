@@ -160,6 +160,13 @@
   .prose-course table {
     @apply my-3 block max-w-fit overflow-x-auto border-collapse text-sm;
   }
+  /* More of it past the edge (a phone's): that edge fades, so it reads as one to scroll, not cut. */
+  .prose-course table[data-more] {
+    mask-image: linear-gradient(to right, #000 calc(100% - 3rem), transparent);
+  }
+  .prose-course table[data-more]:dir(rtl) {
+    mask-image: linear-gradient(to left, #000 calc(100% - 3rem), transparent);
+  }
   .prose-course td,
   .prose-course th {
     @apply border px-2 py-1 align-top;

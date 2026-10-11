@@ -37,11 +37,33 @@ const options = {
 
 test("keeps allowed structure, strips attributes and scripts, unwraps the rest", () => {
   const html = `<p style="x">Hallo <span class="placeholder" data-id="1">Frau</span>!</p>
-<script>alert(1)</script><table border="1"><tbody><tr><td onclick="x">a</td></tr></tbody></table>
+<script>alert(1)</script><table border="1"><tbody><tr><td onclick="x">a</td><td>b</td></tr></tbody></table>
 <a href="https://x.test">link</a><p></p>`;
   expect(sanitizeCourseHtml(html, options)).toBe(
-    "<p>Hallo Frau!</p>\n<table><tbody><tr><td>a</td></tr></tbody></table>\nlink",
+    "<p>Hallo Frau!</p>\n<table><tbody><tr><td>a</td><td>b</td></tr></tbody></table>\nlink",
   );
+});
+
+test("a cell keeps its span; a table of one line of text is a bold label", () => {
+  const none = { image: () => undefined };
+  expect(
+    sanitizeCourseHtml(
+      '<table><tr><th colspan="2" style="x">Kasus</th></tr><tr><td rowspan="3x">a</td><td rowspan="1">b</td></tr><tr><td rowspan="2">c</td></tr></table>',
+      none,
+    ),
+  ).toBe(
+    '<table><tr><th colspan="2">Kasus</th></tr><tr><td>a</td><td>b</td></tr><tr><td rowspan="2">c</td></tr></table>',
+  );
+  // A case's name in a box of its own over its table: a label; an empty one goes.
+  expect(
+    sanitizeCourseHtml(
+      "<table>\n<tbody>\n<tr>\n<td><strong>Nominativ</strong></td>\n</tr>\n</tbody>\n</table><table><tr><td>&#160;</td></tr></table><table><tr><td>a</td><td>b</td></tr></table>",
+      none,
+    ),
+  ).toBe("<p><strong>Nominativ</strong></p><table><tr><td>a</td><td>b</td></tr></table>");
+  // A framed note of paragraphs stays a table.
+  const note = "<table><tr><td><p>eins</p><p>zwei</p></td></tr></table>";
+  expect(sanitizeCourseHtml(note, none)).toBe(note);
 });
 
 test("characters of no width an editor left go", () => {
