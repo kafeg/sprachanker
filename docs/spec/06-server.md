@@ -205,7 +205,12 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
   `tailscale serve reset` stops it). The tailnet needs MagicDNS and HTTPS certificates turned on. A
   phone in the tailnet then opens `https://<machine>.<tailnet>.ts.net`: a secure context (the
   microphone works), the server still listening on 127.0.0.1 only; serve's `X-Forwarded-Proto` makes
-  the device cookie `Secure`.
+  the device cookie `Secure`. **Never `tailscale funnel`**: it opens the name to the whole internet,
+  and profiles have no PINs — while Funnel is on for the machine's tailnet name (`AllowFunnel` in
+  `tailscale serve status --json`, any port) the server refuses that name (421) and lists no HTTPS
+  address for it; a request carrying `Tailscale-Funnel-Request` (the header Tailscale's serve sets on
+  what Funnel brings in, named in Tailscale's source; not seen from a live Funnel here) is refused
+  whatever its name.
 - Plain HTTP on the LAN (`--host 0.0.0.0`) works without a secure context: no microphone (the UI
   says why, 08).
 - **The addresses the app is reached at** (`GET /api/addresses`, schema `network.ts`; behind the
@@ -305,7 +310,10 @@ profiles with device tokens (above).
   five seconds is killed (SIGKILL) and taken as no answer. A read without an answer changes nothing
   (the name known stays known; tried again after five seconds); none while Tailscale, answering, says
   it is stopped or logged out. Never any
-  `*.ts.net`: another tailnet's name could be rebound to this server. No CORS (same-origin only).
+  `*.ts.net`: another tailnet's name could be rebound to this server. With the name,
+  `tailscale serve status --json` is read too: while Funnel is on for the name it is refused (above,
+  "Network and HTTPS"); a name accepted is read again in the background once a minute has passed, so
+  Funnel turned on later is seen. No CORS (same-origin only).
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
   header `X-SprachAnker: 1`.
 - **Tokens**: device tokens 256-bit random, stored hashed (SHA-256), revocable.

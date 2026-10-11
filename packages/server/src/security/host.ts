@@ -20,6 +20,9 @@ function hostAllowed(name: string, extra: readonly string[]): boolean {
   );
 }
 
+/** Set by Tailscale's serve on a request Funnel brought in (Tailscale's source: `?1`). */
+const FUNNEL_HEADER = "tailscale-funnel-request";
+
 const CSP = [
   "default-src 'self'",
   "img-src 'self' data: blob:",
@@ -40,6 +43,8 @@ export function hostGuard(
 ): MiddlewareHandler {
   return async (c, next) => {
     const name = new URL(c.req.url).hostname.toLowerCase().replace(/\.$/, "");
+    // Tailscale marks what Funnel brings in from the internet: never answered.
+    if (c.req.header(FUNNEL_HEADER)) return c.json({ error: "unknown_host" }, 421);
     if (!hostAllowed(name, extraHosts) && !(await known?.(name)))
       return c.json({ error: "unknown_host" }, 421);
     await next();

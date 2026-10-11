@@ -53,6 +53,8 @@ const ServeConfig = z.object({
       }),
     )
     .optional(),
+  /** `<name>:<port>` → true: Funnel opens that port to the internet. */
+  AllowFunnel: z.record(z.string(), z.boolean()).optional(),
 });
 /** Serve's configuration; one `tailscale serve` runs in the foreground is kept by its session. */
 const ServeStatus = ServeConfig.extend({
@@ -64,6 +66,10 @@ interface Tailnet {
   name: string;
   /** Its addresses on the tailnet: not the local network's. */
   ips: string[];
+  /** Where `tailscale serve` serves this server over HTTPS under the name. */
+  https?: string;
+  /** Funnel is on for the name: anyone on the internet reaches what is served under it. */
+  funnel: boolean;
 }
 
 /** This machine on its tailnet: only while Tailscale runs here, logged in. */
@@ -74,7 +80,7 @@ function tailnetOf(raw: unknown): Tailnet | undefined {
   const given =
     Self.DNSName || (Self.HostName && MagicDNSSuffix && `${Self.HostName}.${MagicDNSSuffix}`);
   const name = (given || "").toLowerCase().replace(/\.$/, "");
-  return DNS_NAME.test(name) ? { name, ips: Self.TailscaleIPs ?? [] } : undefined;
+  return DNS_NAME.test(name) ? { name, ips: Self.TailscaleIPs ?? [], funnel: false } : undefined;
 }
 
 /** Whether serve's proxy target is this server's port on this machine. */
@@ -89,21 +95,31 @@ function proxiesTo(proxy: string | undefined, port: number): boolean {
   }
 }
 
-/** The HTTPS address `tailscale serve` serves this server at under the tailnet's name: its root
- *  proxied to the port, on a port of serve's taken as HTTPS. */
-function servedAt(raw: unknown, name: string, port: number): string | undefined {
+/** `<name>:<port>` split, the name as compared. */
+function nameAndPort(at: string) {
+  const colon = at.lastIndexOf(":");
+  return { name: at.slice(0, colon).toLowerCase().replace(/\.$/, ""), port: at.slice(colon + 1) };
+}
+
+/** What `tailscale serve` does under the tailnet's name: the HTTPS address it serves this server at
+ *  (its root proxied to the port, on a port taken as HTTPS), and whether Funnel is on for the name on
+ *  any port — then the name is not this server's to answer. Undefined: not serve's answer. */
+function serveOf(raw: unknown, name: string, port: number) {
   const parsed = ServeStatus.safeParse(raw);
   if (!parsed.success) return undefined;
+  let https: string | undefined;
+  let funnel = false;
   for (const config of [parsed.data, ...Object.values(parsed.data.Foreground ?? {})]) {
+    for (const [at, on] of Object.entries(config.AllowFunnel ?? {}))
+      if (on && nameAndPort(at).name === name) funnel = true;
     for (const [at, web] of Object.entries(config.Web ?? {})) {
-      const colon = at.lastIndexOf(":");
-      const httpsPort = at.slice(colon + 1);
-      if (at.slice(0, colon).toLowerCase().replace(/\.$/, "") !== name) continue;
-      if (config.TCP?.[httpsPort]?.HTTPS && proxiesTo(web.Handlers?.["/"]?.Proxy, port))
-        return httpsPort === "443" ? `https://${name}` : `https://${name}:${httpsPort}`;
+      const served = nameAndPort(at);
+      if (served.name !== name || https) continue;
+      if (config.TCP?.[served.port]?.HTTPS && proxiesTo(web.Handlers?.["/"]?.Proxy, port))
+        https = served.port === "443" ? `https://${name}` : `https://${name}:${served.port}`;
     }
   }
-  return undefined;
+  return { https, funnel };
 }
 
 /** What a promise gives, or undefined once it fails or `ms` pass without an answer. */
@@ -121,6 +137,12 @@ const address = (host: string, port: number): ServerAddress => ({
   url: `http://${host.includes(":") && !host.startsWith("[") ? `[${host}]` : host}:${port}`,
   secure: LOOPBACK.test(host),
 });
+
+/** The tailnet in the addresses: no HTTPS address while Funnel is on (the name is refused). */
+const tailnetAddress = (t: Tailnet): NonNullable<ServerAddresses["tailnet"]> =>
+  t.funnel
+    ? { name: t.name, funnel: true }
+    : { name: t.name, ...(t.https ? { https: { url: t.https, secure: true } } : {}) };
 
 export function createNetwork(config: {
   host?: NetworkHost;
@@ -140,10 +162,12 @@ export function createNetwork(config: {
   const read = () =>
     once("status", async () => {
       const status = await tailscale("status");
-      if (status === undefined) failedAt = now();
+      const found = status === undefined ? undefined : tailnetOf(status);
+      const serve = found && serveOf(await tailscale("serve"), found.name, listensOn.port);
+      if (status === undefined || (found && !serve)) failedAt = now();
       else {
         readAt = now();
-        tailnet = tailnetOf(status);
+        tailnet = found && { ...found, ...serve };
       }
       return tailnet;
     });
@@ -153,12 +177,18 @@ export function createNetwork(config: {
 
   return {
     /** Whether a name the fixed rules refuse is this machine's on its tailnet — never another
-     *  tailnet's (a page there could rebind its name to this server). */
+     *  tailnet's (a page there could rebind its name to this server), nor while Funnel opens it to
+     *  the internet. A name known is read again in the background once a minute has passed, so
+     *  Funnel turned on later is seen. */
     async knows(name: string): Promise<boolean> {
       await started;
-      if (tailnet?.name === name) return true;
+      if (tailnet?.name === name && !tailnet.funnel) {
+        if (due()) void read();
+        return true;
+      }
       if (!TAILNET_NAME.test(name) || !due()) return false;
-      return (await read())?.name === name;
+      const t = await read();
+      return t?.name === name && !t.funnel;
     },
 
     /** The addresses the app is reached at, Tailscale asked afresh. */
@@ -172,14 +202,11 @@ export function createNetwork(config: {
         : everywhere
           ? (host?.ipv4() ?? []).filter((ip) => !t?.ips.includes(ip))
           : [hostname];
-      const https = t && servedAt(await tailscale("serve"), t.name, port);
       return {
         machine: local || everywhere ? address("localhost", port) : address(hostname, port),
         network: network.map((ip) => address(ip, port)),
         ...(localName && !local ? { localName: address(localName, port) } : {}),
-        ...(t
-          ? { tailnet: { name: t.name, ...(https ? { https: { url: https, secure: true } } : {}) } }
-          : {}),
+        ...(t ? { tailnet: tailnetAddress(t) } : {}),
       };
     },
   };

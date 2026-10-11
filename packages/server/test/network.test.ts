@@ -40,7 +40,7 @@ function fakeHost(state: {
       asked[command]++;
       if (state.status === "fails") throw new Error("no tailscale");
       if (state.status === "hangs") return new Promise(() => {});
-      return command === "status" ? state.status : state.serve;
+      return command === "status" ? state.status : (state.serve ?? {});
     },
   };
   return { host, asked };
@@ -127,6 +127,51 @@ describe("the Host check and the tailnet", () => {
     expect(await net.knows(NAME)).toBe(true);
     expect(await net.knows("other-mac.tail9999.ts.net")).toBe(false);
     expect(asked.status).toBe(3);
+  });
+});
+
+describe("Funnel", () => {
+  const funnelled = { ...serving("4580"), AllowFunnel: { [`${NAME}:443`]: true } };
+
+  test("on for the tailnet name: the name refused, no HTTPS address", async () => {
+    const network = fakeHost({ status: running(), serve: funnelled }).host;
+    const { app, getJson } = await setup({ network });
+    expect((await app.request(`http://${NAME}/api/health`)).status).toBe(421);
+    expect((await getJson("/api/addresses")).tailnet).toEqual({ name: NAME, funnel: true });
+    // Another name's Funnel is not this one's.
+    const other = { ...serving("4580"), AllowFunnel: { "other-mac.tail0000.ts.net:443": true } };
+    const { app: app2 } = await setup({
+      network: fakeHost({ status: running(), serve: other }).host,
+    });
+    expect((await app2.request(`http://${NAME}/api/health`)).status).toBe(200);
+  });
+
+  test("turned on later: seen within a minute", async () => {
+    const state: { status?: unknown; serve?: unknown } = { status: running(), serve: {} };
+    const { net, advance } = network(fakeHost(state).host);
+    expect(await net.knows(NAME)).toBe(true);
+    state.serve = { Foreground: { "1a2b": funnelled } };
+    expect(await net.knows(NAME)).toBe(true);
+    advance(TAILNET_REREAD_MS);
+    await net.knows(NAME);
+    await Bun.sleep(1);
+    expect(await net.knows(NAME)).toBe(false);
+    // Turned off again: answered once it is read again.
+    state.serve = {};
+    advance(TAILNET_REREAD_MS);
+    expect(await net.knows(NAME)).toBe(true);
+  });
+
+  test("a request Tailscale marks as Funnel's is refused, whatever its name", async () => {
+    const { app } = await setup({ network: fakeHost({ status: running() }).host });
+    for (const host of [NAME, "localhost"])
+      expect(
+        (
+          await app.request(`http://${host}/api/health`, {
+            headers: { "tailscale-funnel-request": "?1" },
+          })
+        ).status,
+      ).toBe(421);
   });
 });
 

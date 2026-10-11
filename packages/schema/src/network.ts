@@ -9,11 +9,14 @@ export type ServerAddress = z.infer<typeof ServerAddress>;
 
 /** This machine; the local network — each address of the machine, and its `.local` name — only
  *  while the server listens beyond 127.0.0.1 (`--host`); the tailnet when Tailscale runs here: its
- *  name, and `https` once `tailscale serve` serves this server over HTTPS (absent: not served). */
+ *  name, and `https` once `tailscale serve` serves this server over HTTPS (absent: not served);
+ *  `funnel`: Funnel opens the name to the internet, so the server refuses it (no `https`). */
 export const ServerAddresses = z.object({
   machine: ServerAddress,
   network: z.array(ServerAddress),
   localName: ServerAddress.optional(),
-  tailnet: z.object({ name: z.string(), https: ServerAddress.optional() }).optional(),
+  tailnet: z
+    .object({ name: z.string(), https: ServerAddress.optional(), funnel: z.boolean().optional() })
+    .optional(),
 });
 export type ServerAddresses = z.infer<typeof ServerAddresses>;
