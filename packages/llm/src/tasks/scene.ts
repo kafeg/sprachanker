@@ -9,17 +9,19 @@ import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames, recentTurns } from "../text.ts";
 import {
   goalsLine,
+  grammarNotes,
   knownWordsLine,
   type LessonInfo,
   lessonWordsLine,
   levelLine,
+  levelText,
   placeLine,
   topicsLine,
 } from "./lesson.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
-/** A Dialogue needs the lesson's topic, words and what is known by it, not its grammar pages. */
-type SceneLesson = Omit<LessonInfo, "grammarHtml">;
+/** A Dialogue takes the lesson's topic, words, grammar and what is known by it. */
+type SceneLesson = LessonInfo;
 
 /** The setup as the model must give it: with the partner's information and the opening's
  *  translation (stored scenes before the Dialogue have neither). */
@@ -54,8 +56,32 @@ export const SCENE_BUDGETS = {
   lessonVocab: 1500,
   knownVocab: 1500,
   topics: 400,
+  grammar: 1200,
   history: 4000,
 } as const;
+
+/** What a goal asks of a learner at each CEFR level (07): with the data, so the rules assume none. */
+const GOAL_KINDS: Record<string, string> = {
+  A1: "ask for and give simple facts (a time, a price, a place, a name, a number)",
+  A2: "arrange or ask for something (a meeting, a ticket, a room, the way), with the facts it needs",
+  B1: "give an opinion with a reason, compare, complain or ask for a solution",
+  B2: "argue a point, weigh options, negotiate",
+  C1: "persuade, handle a delicate request tactfully, discuss implications",
+  C2: "discuss nuance, irony and implication; handle any register",
+};
+
+/** The goal kinds of the learner's level: each level the course names (a range: both ends), a
+ *  beginner's (A1, A2) when it names none. */
+export function goalKindsLine({ level }: Pick<LessonInfo, "level">) {
+  const levels = [...new Set(levelText(level).match(/[ABC][12]/g) ?? [])];
+  return `Goals at this level: ${levels.map((l) => `${l} — ${GOAL_KINDS[l]}`).join("; ")}`;
+}
+
+/** This lesson's grammar notes, for goals that need them and lines checked against them. */
+const grammarLine = (lesson: SceneLesson) =>
+  lesson.grammarHtml.length
+    ? `This lesson's grammar:\n${grammarNotes(lesson, SCENE_BUDGETS.grammar)}`
+    : undefined;
 
 /** What the learner knows by now (07): the level, the lesson's and earlier words, grammar met. */
 const known = (lesson: SceneLesson) =>
@@ -64,9 +90,14 @@ const known = (lesson: SceneLesson) =>
     lessonWordsLine(lesson, SCENE_BUDGETS.lessonVocab),
     knownWordsLine(lesson, SCENE_BUDGETS.knownVocab),
     topicsLine(lesson, SCENE_BUDGETS.topics),
+    grammarLine(lesson),
   ]
     .filter(Boolean)
     .join("\n");
+
+/** Said in every Dialogue rule set: the learner's gender is never assumed. */
+const NEUTRAL =
+  "The learner's gender is unknown: wherever a language would mark it (a translation, an explanation, feedback, your lines), choose wording that does not.";
 
 export function sceneSetupRules(
   language: Lang,
@@ -77,10 +108,12 @@ export function sceneSetupRules(
   return [
     `You design a short spoken dialogue for a learner of ${t} who speaks ${l}, at the learner's level given with the lesson.`,
     "Base it on the lesson below: an everyday situation where the learner does what the lesson's goals say, with the words they know.",
+    "The partner is a new person made up for this dialogue — never a character of the course — and the setup states nothing about the course's characters.",
     "Make an information gap: the partner knows 2–4 concrete facts the learner does not (a time, a price, a place, a name, a number) and must ask for.",
-    `Write title, situation, partner and goals in ${l}. "goals" are the learner's goal card: 2–3 concrete things to say or find out; at least one asks for a fact the partner holds, without giving the fact away.`,
+    `Write title, situation, partner and goals in ${l}, whatever language the lesson's texts are in. "goals" are the learner's goal card: 2–3 concrete things to say or find out, of the kinds given for the learner's level; at least one asks for a fact the partner holds, without giving the fact away; at least one needs this lesson's grammar to say.`,
     `"partnerInfo": the partner's facts as short sentences in ${t}; the learner does not see them.`,
-    `"opening" is the partner's first line in ${t} within the learner's level, using words they know; it does not give away the facts. "openingTranslation": the opening in ${l}.`,
+    `"opening" is the partner's first line in ${t} within the learner's level, using words they know; it does not give away the facts and asks nothing the learner cannot know (only about themselves, their wishes or the situation). "openingTranslation": the opening in ${l}.`,
+    NEUTRAL,
   ].join("\n");
 }
 
@@ -98,7 +131,9 @@ export function sceneSetupTask(
     placeLine(input.lesson),
     goalsLine(input.lesson),
     known(input.lesson),
+    goalKindsLine(input.lesson),
     "</lesson>",
+    `Remember: title, situation, partner and goals in ${languageName(input.language)}.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -142,14 +177,17 @@ export function sceneTurnRules(
   const { language: l, target: t } = names;
   return [
     `You play a role in a short spoken dialogue with a learner of ${t} who speaks ${l}, at the learner's level given in <scene>. Stay in role.`,
-    `- "reply": your next line in ${t} only, within the learner's level — one or two short sentences with words they know. Move the dialogue towards the learner's goals; give a fact of "You know" only when the learner asks for it.`,
+    `- "reply": your next line in ${t} only, within the learner's level — one or two short sentences with words they know, in correct ${t}. React to what the learner says.`,
+    `- The goals are the learner's to reach: never ask the learner's goal questions yourself, never offer or hint at a fact of "You know" before the learner asks for it. If the learner drifts, answer briefly and ask a short neutral question (whether there is anything else) without naming a goal.`,
     `- If the learner speaks ${l} or is stuck, still answer in ${t}, more simply.`,
+    `- Never correct the learner inside "reply" (you stay in role); corrections go only in "corrections".`,
     `- "translation": your reply in ${l}.`,
     `- A line inside <line said> was said aloud and written down by a speech recogniser: take it as a listener would have understood it. Its punctuation, capitals and numbers written as digits are the recogniser's, never errors; a word clearly misheard for a right one is not an error.`,
     `- "understood": would a ${t} speaker have understood the learner's new line? "fits": does it answer you or move towards a goal?`,
-    `- "corrections": at most two real errors in the learner's new line (the one inside <line>) that matter most — never errors of earlier lines (wrong → right, a short explanation in ${l}); none if it is correct.`,
+    `- "corrections": at most two real errors in the learner's new line (the one inside <line>) that matter most — never errors of earlier lines. "wrong": the words as the learner said them; "right": only those words corrected, in ${t}, nothing else; "explanation": short, in ${l}. Check word order (also in subordinate and relative clauses), endings and agreement, and this lesson's grammar. Never correct what is correct, never style or a word choice that is correct; none if the line is correct.`,
     '- "goalsMet": 0-based indices of the goals the learner has reached so far in the whole dialogue.',
     '- "done": true when all goals are reached and the dialogue can end; then say goodbye in role.',
+    `- ${NEUTRAL}`,
   ].join("\n");
 }
 
@@ -210,34 +248,86 @@ const bare = (text: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-/** Corrections that quote one of `lines` and change more than case or punctuation, at most two. */
-function ofLines<C extends Correction>(corrections: C[], lines: string[]) {
+/** The two languages of a Dialogue: the learner's (explanations) and the one learnt. */
+export interface SceneLangs {
+  language: Lang;
+  target: Lang;
+}
+
+/** Writing systems a correction is checked against. */
+const SCRIPTS = [
+  "Latin",
+  "Cyrillic",
+  "Greek",
+  "Armenian",
+  "Georgian",
+  "Hebrew",
+  "Arabic",
+  "Devanagari",
+  "Bengali",
+  "Thai",
+  "Hangul",
+  "Hiragana",
+  "Katakana",
+  "Han",
+].map((name) => ({ name, letter: new RegExp(`\\p{Script=${name}}`, "u") }));
+
+const scriptsOf = (text: string) => SCRIPTS.filter((s) => s.letter.test(text)).map((s) => s.name);
+
+/** A language's writing systems, as its own name for itself shows them ("Deutsch", "Русский"). */
+const ownScripts = (lang: string) =>
+  scriptsOf(new Intl.DisplayNames([lang], { type: "language" }).of(lang) ?? "");
+
+/** Scripts of the learner's language that the learnt one does not use: a `right` written in them is
+ *  the model's remark ("правильно"), not the line corrected. */
+function foreignScripts({ language, target }: SceneLangs) {
+  const [learner, learnt] = [ownScripts(language), ownScripts(target)];
+  return SCRIPTS.filter((s) => learner.includes(s.name) && !learnt.includes(s.name));
+}
+
+/** A `right` that is no corrected wording: a remark in the learner's script, alternatives offered
+ *  ("a / b"), or an arrow of the model's own ("x -> y"). */
+const isRemark = (right: string, foreign: typeof SCRIPTS) =>
+  foreign.some((s) => s.letter.test(right)) || /->|→|\s\/\s/.test(right);
+
+/** Corrections that quote one of `lines`, change more than case or punctuation and give the right
+ *  words in the learnt language, at most two. */
+function ofLines<C extends Correction>(corrections: C[], lines: string[], langs: SceneLangs) {
   const said = lines.map(bare);
+  const foreign = foreignScripts(langs);
   return corrections
     .filter((c) => {
       const wrong = bare(c.wrong);
-      return !!wrong && wrong !== bare(c.right) && said.some((line) => line.includes(wrong));
+      return (
+        !!wrong &&
+        !!bare(c.right) &&
+        wrong !== bare(c.right) &&
+        !isRemark(c.right, foreign) &&
+        said.some((line) => line.includes(wrong))
+      );
     })
     .slice(0, CORRECTIONS_KEPT);
 }
 
 /**
  * Keeps the model honest where small models slip: corrections must quote the learner's new line (no
- * repeats of earlier ones, no no-ops), at most two; goals are valid indices and never "unmet" again;
- * it is done only when every goal is met (a model's early `done` is ignored).
+ * repeats of earlier ones, no no-ops, no remarks in place of the right words), at most two; goals
+ * are valid indices and never "unmet" again; it is done only when every goal is met (a model's early
+ * `done` is ignored).
  */
 export function cleanSceneTurn(
   turn: SceneTurn,
   message: string,
   goals: number,
   metBefore: number[],
+  langs: SceneLangs,
 ): SceneTurn {
   const goalsMet = [...new Set([...metBefore, ...turn.goalsMet])]
     .filter((i) => i < goals)
     .sort((a, b) => a - b);
   return {
     ...turn,
-    corrections: ofLines(turn.corrections, [message]),
+    corrections: ofLines(turn.corrections, [message], langs),
     goalsMet,
     done: goalsMet.length === goals,
   };
@@ -269,9 +359,10 @@ export function sceneSummaryRules(
   const { language: l, target: t } = names;
   return [
     `You sum up a short spoken dialogue in ${t} that a learner who speaks ${l} has just held, at the learner's level given in <scene>.`,
-    `- "corrections": the one or two errors of the learner's lines that matter most for them now (wrong → right, a short explanation in ${l}); "model" is that whole line of the learner's said well in ${t}, as a ${t} speaker would say it at the learner's level. No errors: an empty list.`,
+    `- "corrections": the one or two errors of the learner's lines that matter most for them now ("wrong": the words as said; "right": only those words corrected, in ${t}; a short explanation in ${l}). Never correct what is correct (word order included) or style. "model" is that whole line of the learner's with every error in it fixed — not only this one —, in ${t}, as a ${t} speaker would say it at the learner's level. No errors: an empty list.`,
     "- The learner's lines were said aloud and written down by a speech recogniser: punctuation, capitals and digits are never errors.",
-    `- "feedback": one or two encouraging, concrete sentences in ${l} — what went well, what to practise next.`,
+    `- "feedback": one or two encouraging, concrete sentences in ${l} — what went well, what to practise next; no remarks on what was right as if it were wrong.`,
+    `- ${NEUTRAL}`,
   ].join("\n");
 }
 
@@ -313,14 +404,31 @@ export function sceneSummaryTask(input: SceneSummaryInput): StructuredTask<Dialo
   };
 }
 
+const literal = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/** A model line that still says the error (the wrong words there, the right ones not) gets the
+ *  correction made in it; one that cannot take it is the right words alone. */
+function modelLine(c: Correction & { model: string }) {
+  const model = c.model.trim();
+  if (!model) return c.right;
+  const repeats = bare(model).includes(bare(c.wrong)) && !bare(model).includes(bare(c.right));
+  if (!repeats) return model;
+  const at = new RegExp(literal(c.wrong.trim()), "iu");
+  return at.test(model) ? model.replace(at, c.right.trim()) : c.right;
+}
+
 /** A summary as kept: corrections of the learner's lines that change something, at most two, each
- *  with a model line (the right line, else the line with the correction made). */
-export function cleanSceneSummary(summary: DialogueSummary, learnerLines: string[]) {
+ *  with a model line that does not repeat its error. */
+export function cleanSceneSummary(
+  summary: DialogueSummary,
+  learnerLines: string[],
+  langs: SceneLangs,
+) {
   return {
     ...summary,
-    corrections: ofLines(summary.corrections, learnerLines).map((c) => ({
+    corrections: ofLines(summary.corrections, learnerLines, langs).map((c) => ({
       ...c,
-      model: c.model.trim() || c.right,
+      model: modelLine(c),
     })),
   };
 }
