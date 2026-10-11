@@ -1010,7 +1010,7 @@
     "more": "{count, plural, one {# tarjeta nueva más hoy} other {# tarjetas nuevas más hoy}}",
     "leave": "Dejar el mazo…",
     "offers": "Mazos disponibles",
-    "offersHint": "Las palabras de cada uno de tus cursos, y de cada mazo importado aquí, forman un mazo: al tomarlo entero, las añade como tarjetas nuevas en su orden, dentro del límite diario o más con «más nuevas hoy». Una palabra de la que ya tienes tarjeta la conserva.",
+    "offersHint": "Las palabras de cada uno de tus cursos, y de cada mazo importado aquí, forman un mazo: al tomarlo entero, las añade como tarjetas nuevas en su orden, dentro del límite diario o más con «más nuevas hoy». Una palabra de la que ya tienes tarjeta la conserva. Aquí también se crean el audio y los ejemplos de todas las palabras de un mazo, tomadas o no.",
     "words": "{words, plural, one {# palabra} other {# palabras}} · {mine, number} ya tuyas",
     "take": "Tomar el mazo",
     "takeRest": "Añadir las otras {count, number}",

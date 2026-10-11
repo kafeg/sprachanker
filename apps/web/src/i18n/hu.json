@@ -1010,7 +1010,7 @@
     "more": "{count, plural, one {Még # új kártya ma} other {Még # új kártya ma}}",
     "leave": "Pakli elhagyása…",
     "offers": "Felvehető paklik",
-    "offersHint": "Minden kurzusod szavai és minden ide importált pakli szavai egy-egy paklit alkotnak: ha egészben felveszed, új kártyaként adja hozzá őket a saját sorrendjében — a napi korláton belül, vagy többet a „több új ma” gombbal. Ha egy szóhoz már van kártyád, az megmarad.",
+    "offersHint": "Minden kurzusod szavai és minden ide importált pakli szavai egy-egy paklit alkotnak: ha egészben felveszed, új kártyaként adja hozzá őket a saját sorrendjében — a napi korláton belül, vagy többet a „több új ma” gombbal. Ha egy szóhoz már van kártyád, az megmarad. Itt készül a hang és a példák is a pakli minden szavához, akár felvetted már, akár nem.",
     "words": "{words, plural, one {# szó} other {# szó}} · ebből {mine, number} már a tiéd",
     "take": "Pakli felvétele",
     "takeRest": "A többi {count, number} hozzáadása",

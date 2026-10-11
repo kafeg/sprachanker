@@ -1010,7 +1010,7 @@
     "more": "{count, plural, one {Kadi # mpya zaidi leo} other {Kadi # mpya zaidi leo}}",
     "leave": "Acha seti…",
     "offers": "Seti za kuchukua",
-    "offersHint": "Maneno ya kila kozi yako, na ya kila seti iliyoingizwa hapa, ni seti: ikichukuliwa yote, huyaongeza kama kadi mpya kwa mpangilio wake — ndani ya kikomo cha siku, au zaidi kwa “mpya zaidi leo”. Neno ambalo tayari una kadi yake linaibakiza.",
+    "offersHint": "Maneno ya kila kozi yako, na ya kila seti iliyoingizwa hapa, ni seti: ikichukuliwa yote, huyaongeza kama kadi mpya kwa mpangilio wake — ndani ya kikomo cha siku, au zaidi kwa “mpya zaidi leo”. Neno ambalo tayari una kadi yake linaibakiza. Hapa pia sauti na mifano hutengenezwa kwa maneno yote ya seti, yawe yamechukuliwa au la.",
     "words": "{words, plural, one {neno #} other {maneno #}} · {mine, number} tayari ni yako",
     "take": "Chukua seti",
     "takeRest": "Ongeza mengine {count, number}",

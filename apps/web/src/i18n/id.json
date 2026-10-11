@@ -1010,7 +1010,7 @@
     "more": "{count, plural, other {# kartu baru lagi hari ini}}",
     "leave": "Tinggalkan dek…",
     "offers": "Dek yang bisa diambil",
-    "offersHint": "Kosakata dari setiap kursus kamu, dan dari setiap dek yang diimpor ke sini, adalah sebuah dek: jika diambil utuh, kata-katanya ditambahkan sebagai kartu baru sesuai urutannya — dalam batas harian, atau lebih dengan “kartu baru lagi hari ini”. Kata yang sudah punya kartu tetap memakai kartunya.",
+    "offersHint": "Kosakata dari setiap kursus kamu, dan dari setiap dek yang diimpor ke sini, adalah sebuah dek: jika diambil utuh, kata-katanya ditambahkan sebagai kartu baru sesuai urutannya — dalam batas harian, atau lebih dengan “kartu baru lagi hari ini”. Kata yang sudah punya kartu tetap memakai kartunya. Di sini juga audio dan contoh dibuat untuk semua kata sebuah dek, sudah diambil atau belum.",
     "words": "{words, plural, other {# kata}} · {mine, number} sudah kamu punya",
     "take": "Ambil dek",
     "takeRest": "Tambahkan {count, number} lainnya",
