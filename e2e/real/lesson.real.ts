@@ -9,11 +9,12 @@ import { REAL_DATA } from "./data.ts";
 import { readStore } from "./read-store.ts";
 import { lessonFiles, scenarios } from "./scenarios.ts";
 import { lessonProblems, storeProblems } from "./store.ts";
-import { clipped, notebookShows, reviewSome, UI, walkLesson } from "./walk.ts";
+import { clipped, notebookShows, reviewSome, UI, unanswered, walkLesson } from "./walk.ts";
 
-// Labels cut short, for a look: printed once all lessons ran.
+// Labels cut short, for a look, and exercises not answered: printed once all lessons ran.
 test.afterAll(() => {
   if (clipped.length) console.log(`\nlabels cut short:\n${[...new Set(clipped)].join("\n")}`);
+  if (unanswered.length) console.log(`\nexercises not answered:\n${unanswered.join("\n")}`);
 });
 
 for (const s of scenarios())
@@ -46,6 +47,7 @@ for (const s of scenarios())
     });
 
     const exercises = lesson.pages.map((p) => p.exercise);
+    const unansweredBefore = unanswered.length;
     const { rated } = await walkLesson(
       page,
       `/lesson/${s.series}/${s.course}/${s.lesson}`,
@@ -72,4 +74,5 @@ for (const s of scenarios())
     expect(problems, `stored for ${s.key}`).toEqual([]);
     expect(storeProblems(stored), "the store as a whole").toEqual([]);
     expect(consoleErrors, "errors in the page").toEqual([]);
+    expect(unanswered.slice(unansweredBefore), "exercises the walk could not answer").toEqual([]);
   });

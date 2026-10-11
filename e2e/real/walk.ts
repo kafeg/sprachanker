@@ -2,7 +2,8 @@
 // Walking a lesson through as a learner does (10, "Run-throughs"), by its screens only: the words
 // rated, the reading pages read, every exercise answered and checked (any complete answer — what is
 // checked is that it is stored as the engine marks it), speaking items recorded with the browser's fake
-// microphone, and the summary reached. After each step: nothing past the screen's width, no error page.
+// microphone, and the summary reached (an exercise it could not answer is reported: `unanswered`).
+// After each step: nothing past the screen's width, no error page.
 import { readFileSync } from "node:fs";
 import { expect, type Locator, type Page } from "@playwright/test";
 import type { Exercise } from "@sprachanker/schema";
@@ -42,6 +43,10 @@ async function noteClipped(page: Page, where: string) {
   for (const text of cut) clipped.push(`${where}: ${text}`);
 }
 
+/** Exercises the walk could not answer completely (Check stayed disabled; it went on with Skip): each
+ *  test fails on them once its lesson is walked through. */
+export const unanswered: string[] = [];
+
 /** The screen is whole: nothing wider than it, no error page. */
 export async function expectWhole(page: Page, where: string) {
   // The layout's width, not the window's: a phone's window grows with content that sticks out.
@@ -54,34 +59,40 @@ export async function expectWhole(page: Page, where: string) {
   await noteClipped(page, where);
 }
 
-/** A complete answer for one item, given through its card. */
-async function answerItem(page: Page, card: Locator, type: Exercise["type"]) {
+/** A complete answer for one item, given through its card; false when it could not be given. */
+async function answerItem(page: Page, card: Locator, type: Exercise["type"]): Promise<boolean> {
   const enabled = (l: Locator) => l.and(page.locator(":enabled"));
   switch (type) {
     case "single_choice":
     case "multi_choice":
       await card.locator("button[aria-pressed]").first().click();
-      return;
+      return true;
     case "gap_text":
       for (const field of await card.getByRole("textbox").all()) await field.fill("a");
-      return;
+      return true;
     case "dictation":
     case "respond":
       await card.locator("textarea").first().fill("a");
-      return;
+      return true;
     case "gap_choice": {
       const selects = await card.getByRole("combobox").all();
       if (selects.length) {
         for (const select of selects) {
-          await select.click();
-          await page.getByRole("option").first().click();
+          // A touch screen's is the system's picker (a native select), a mouse's the app's list.
+          if ((await select.evaluate((e) => e.tagName)) === "SELECT") {
+            await select.tap();
+            await select.selectOption({ index: 1 });
+          } else {
+            await select.click();
+            await page.getByRole("option").first().click();
+          }
         }
-        return;
+        return true;
       }
       // A word bank: each tap fills the next empty gap.
       const words = enabled(card.locator("fieldset button"));
       while (await words.count()) await words.first().click();
-      return;
+      return true;
     }
     case "match": {
       const slots = await card
@@ -91,25 +102,27 @@ async function answerItem(page: Page, card: Locator, type: Exercise["type"]) {
         await enabled(card.locator("fieldset button")).first().click();
         await slot.click();
       }
-      return;
+      return true;
     }
     case "order": {
       // A part used stays in the pool, disabled.
       const pool = enabled(card.getByRole("group", { name: en.ex.chips }).getByRole("button"));
       while (await pool.count()) await pool.first().click();
-      return;
+      return true;
     }
     case "speech_selfrate":
     case "speech_repeat": {
       const mic = card.getByRole("button", { name: en.speech.record });
-      if (!(await mic.isEnabled())) return;
+      if (!(await mic.isEnabled())) return false;
       await mic.click();
       await page.waitForTimeout(1200);
       await card.getByRole("button", { name: en.speech.stop }).click();
-      return;
+      // The take is kept once the recorder has stopped (a moment): the microphone is back.
+      await expect(mic, "the microphone back after a take").toBeVisible();
+      return true;
     }
     default:
-      return;
+      return true;
   }
 }
 
@@ -156,10 +169,21 @@ export async function walkLesson(
   await page.goto(url);
   await page.getByRole("button", { name: en.lesson.start }).click();
   let rated = 0;
+  const shot = new Set<string>();
   for (let guard = 0; guard < 200; guard++) {
     await page.waitForLoadState("networkidle");
     const step = new URL(page.url()).searchParams.get("step") ?? "";
     await expectWhole(page, step);
+    // Reading pages and the words (their first card) kept too, once each.
+    if (shots && step && !step.startsWith("exercise:") && !shot.has(step)) {
+      shot.add(step);
+      if (step === "words")
+        await page
+          .getByRole("button", { name: en.study.show })
+          .waitFor({ timeout: 3000 })
+          .catch(() => undefined);
+      await page.screenshot({ path: `${shots}-${step.replace(/\W+/g, "-")}.png`, fullPage: true });
+    }
     if (step === "summary") break;
     if (step === "words")
       for (let i = 0; i < rate; i++) {
@@ -179,17 +203,37 @@ export async function walkLesson(
         .getByRole("list", { name: en.lesson.itemsList, exact: true })
         .locator(":scope > li")
         .all();
-      for (const card of cards) await answerItem(page, card, exercise?.type ?? "unknown");
+      for (const [i, card] of cards.entries())
+        if (!(await answerItem(page, card, exercise?.type ?? "unknown")))
+          unanswered.push(`${url} ${step} (${exercise?.type}): item ${i + 1} not answered`);
       await expectWhole(page, `${step} answered`);
       const { main } = bar(page);
-      if ((await main.textContent()) === en.lesson.check && (await main.isEnabled())) {
-        await main.click();
-        await page.waitForTimeout(300);
-        await expectWhole(page, `${step} checked`);
+      if ((await main.textContent()) === en.lesson.check) {
+        if (!(await main.isEnabled())) await playAll(page);
+        if (await main.isEnabled()) {
+          await main.click();
+          await page.waitForTimeout(300);
+          await expectWhole(page, `${step} checked`);
+        } else {
+          // What the bar says it waits for ("Answer every item · 1 of 4").
+          const notes = [en.lesson.answerAll, en.lesson.listenFirst, en.lesson.listenItem].map(
+            (m: string) => labelStart(m).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+          );
+          const waits = await page
+            .getByText(new RegExp(`^(${notes.join("|")})`))
+            .first()
+            .textContent()
+            .catch(() => null);
+          unanswered.push(`${url} ${step} (${exercise?.type}): ${waits ?? "Check stays disabled"}`);
+        }
       }
       // Checked, or answered where nothing is checked (speaking).
-      if (shots)
+      if (shots) {
+        // No hover left on what the last tap was over; transitions (colours, the blur) ended.
+        await page.mouse.move(0, 0);
+        await page.waitForTimeout(400);
         await page.screenshot({ path: `${shots}-${step.replace(":", "-")}.png`, fullPage: true });
+      }
     }
     await goOn(page);
   }
