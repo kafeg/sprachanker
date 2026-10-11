@@ -784,7 +784,7 @@
     "deck": "Pakli",
     "count": {
       "new": "Új",
-      "learning": "Tanul",
+      "learning": "Tanulás",
       "review": "Esedékes"
     },
     "due": "{count, plural, one {# kártya} other {# kártya}} vár tanulásra",
@@ -897,7 +897,7 @@
       "name": "Név",
       "lang": "A szavak nyelve",
       "translationLang": "A fordítások nyelve",
-      "words": "{words, plural, one {# szó} other {# szó}} · {audio, plural, =0 {nincs hang} one {# hanggal} other {# hanggal}} · {examples, plural, =0 {nincs példa} one {# példákkal} other {# példákkal}}",
+      "words": "{words, plural, one {# szó} other {# szó}} · {audio, plural, =0 {nincs hang} one {# szónak van hangja} other {# szónak van hangja}} · {examples, plural, =0 {nincs példa} one {# szónak van példája} other {# szónak van példája}}",
       "submit": "Importálás",
       "updates": "Ez a fájl frissíti az itt lévő paklit ({deck}): a szavai e fájl szavai lesznek, és a belőlük készült kártyák követik őket. Más nyelveken ez önálló pakli.",
       "left": "{count, plural, one {# szó nélküli jegyzet kimarad.} other {# szó nélküli jegyzet kimarad.}}",
@@ -1089,7 +1089,7 @@
       "voiceFor": "Hang ehhez a nyelvhez: {language}",
       "voiceAuto": "Automatikus — {name}",
       "noVoice": "Ezen az eszközön nincs hang ehhez a nyelvhez: {language}.",
-      "betterVoices": "Macen a jobb hangokat (Premium, Enhanced) itt töltheted le: System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "betterVoices": "Macen a jobb hangokat (Premium, Enhanced) itt töltheted le: Rendszerbeállítások → Kisegítő lehetőségek → Felolvasott tartalom → Rendszerhang → Hangok kezelése.",
       "readRate": "Sebesség: {rate}×",
       "readRateLabel": "Felolvasási sebesség",
       "piperNone": "Ehhez a nyelvhez még nincs hang: {language}. Tölts le egyet lent.",

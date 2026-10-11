@@ -784,7 +784,7 @@
     "deck": "Колода",
     "count": {
       "new": "Новые",
-      "learning": "Учу",
+      "learning": "Изуч.",
       "review": "Повт."
     },
     "due": "{count, plural, one {# карточка} few {# карточки} many {# карточек} other {# карточки}} к занятию",

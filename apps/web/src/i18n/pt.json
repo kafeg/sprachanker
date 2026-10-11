@@ -784,7 +784,7 @@
     "deck": "Baralho",
     "count": {
       "new": "Novos",
-      "learning": "Aprender",
+      "learning": "Aprendendo",
       "review": "A revisar"
     },
     "due": "{count, plural, =0 {# cartões} one {# cartão} other {# cartões}} para estudar",

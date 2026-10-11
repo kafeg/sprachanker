@@ -784,7 +784,7 @@
     "deck": "卡组",
     "count": {
       "new": "新",
-      "learning": "学习",
+      "learning": "学习中",
       "review": "到期"
     },
     "due": "待学{count, plural, other {#张卡片}}",

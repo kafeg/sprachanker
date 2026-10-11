@@ -767,9 +767,9 @@
     "show": "Pokaż odpowiedź",
     "rating": {
       "again": "Jeszcze raz",
-      "hard": "Trudne",
+      "hard": "Trudno",
       "good": "Dobrze",
-      "easy": "Łatwe"
+      "easy": "Łatwo"
     },
     "more": "Więcej",
     "replay": "Odtwórz ponownie",
@@ -784,7 +784,7 @@
     "deck": "Talia",
     "count": {
       "new": "Nowe",
-      "learning": "Nauka",
+      "learning": "W nauce",
       "review": "Powt."
     },
     "due": "{count, plural, one {# fiszka} few {# fiszki} many {# fiszek} other {# fiszki}} do nauki",
@@ -951,7 +951,7 @@
         "text": "nie pamiętasz albo źle: fiszka wróci za minutę"
       },
       "hard": {
-        "name": "Trudne",
+        "name": "Trudno",
         "text": "pamiętasz z wysiłkiem: krótszy odstęp"
       },
       "good": {
@@ -959,7 +959,7 @@
         "text": "pamiętasz: zwykły wybór (Spacja lub Enter)"
       },
       "easy": {
-        "name": "Łatwe",
+        "name": "Łatwo",
         "text": "za łatwe: wróci dużo później"
       }
     },

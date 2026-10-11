@@ -30,7 +30,7 @@
     "nextWorked": "{worked, number} dari {total, number} selesai",
     "doneShort": "{done, number} / {total, number} · {share}",
     "tabs": {
-      "mine": "Kursus saya",
+      "mine": "Kursusku",
       "downloaded": "Diunduh",
       "available": "Tersedia"
     },
@@ -539,14 +539,14 @@
   },
   "progress": {
     "resetCourse": "Atur ulang progres kursus",
-    "removeCourse": "Hapus dari kursus saya",
+    "removeCourse": "Hapus dari kursusku",
     "resetLesson": "Atur ulang progres pelajaran",
     "courseTitle": "Atur ulang progres kamu di “{title}”?",
-    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegan terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursus saya”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
+    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegan terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursusku”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
     "lessonTitle": "Atur ulang progres kamu di “{title}”?",
     "lessonBody": "Semua jawaban dan putaran pelajaran ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegannya, serta kartu kata yang dibuatnya beserta pengulangannya (kata dari pelajaran lain tetap ada). Tindakan ini tidak bisa dibatalkan.",
     "confirm": "Atur ulang",
-    "removeExam": "Hapus dari ujian saya",
+    "removeExam": "Hapus dari ujianku",
     "examTitle": "Hapus “{title}” dari ujian kamu?",
     "examBody": "Simulasi ujian dan latihannya akan dihapus beserta semua jawaban dan penilaiannya. Ujiannya tetap terunduh."
   },
@@ -784,7 +784,7 @@
     "deck": "Dek",
     "count": {
       "new": "Baru",
-      "learning": "Belajar",
+      "learning": "Dipelajari",
       "review": "Ulang"
     },
     "due": "{count, plural, other {# kartu}} untuk dipelajari",
@@ -876,7 +876,7 @@
     "tabs": {
       "study": "Belajar",
       "decks": "Dek",
-      "words": "Kata saya"
+      "words": "Kataku"
     },
     "studying": "Sedang dipelajari: {deck}",
     "more": "{count, plural, other {# kartu baru lagi hari ini}}",
@@ -998,7 +998,7 @@
       },
       "flag": {
         "name": "Bendera (Ctrl+1–7)",
-        "text": "tanda warna untuk menemukan kartu nanti di Kata saya"
+        "text": "tanda warna untuk menemukan kartu nanti di Kataku"
       },
       "mark": {
         "name": "Tandai (*)",
@@ -1216,7 +1216,7 @@
   },
   "exams": {
     "tabs": {
-      "mine": "Ujian saya",
+      "mine": "Ujianku",
       "downloaded": "Diunduh",
       "available": "Tersedia"
     },

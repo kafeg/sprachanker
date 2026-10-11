@@ -188,7 +188,7 @@
     "orderLine": "Tvoj redoslijed",
     "dnd": {
       "item": "kartica",
-      "instructions": "Da podigneš karticu, pritisni Space ili Enter. Pomjeraj je strelicama, pa pritisni Space ili Enter da je spustiš ili Escape da je vratiš.",
+      "instructions": "Da podigneš karticu, pritisni razmaknicu ili Enter. Pomjeraj je strelicama, pa pritisni razmaknicu ili Enter da je spustiš ili Escape da je vratiš.",
       "start": "Podignuto: {item}.",
       "over": "{item} — iznad „{place}“.",
       "away": "{item} — nije iznad nijednog mjesta.",
@@ -261,7 +261,7 @@
     "otherModel": "Drugi model…",
     "modelName": "Naziv modela",
     "explainAgain": "Objasni ponovo",
-    "changeInSettings": "Model se bira u Postavke → AI asistent",
+    "changeInSettings": "Model se bira u Postavkama → AI asistent",
     "about": {
       "lmstudio": "LM Studio na ovom računaru: SprachAnker pokreće njegov server, učitava izabrani model i može u njega preuzeti predložene modele. Besplatno, i ništa ne napušta računar. Ako LM Studio radi na drugom računaru, izaberi „Server u mreži“.",
       "openrouter": "OpenRouter u oblaku: stotine modela mnogih proizvođača preko jednog ključa, neki od njih besplatni (s dnevnim ograničenjima). Sadržaj lekcija i tvoji odgovori idu OpenRouteru i dobavljaču modela.",
@@ -504,7 +504,7 @@
     "items": "{count, plural, one {zadatak} few {zadaci} other {zadaci}} {items}",
     "fixed": "{count, plural, one {# kasnije ispravljen} few {# kasnije ispravljena} other {# kasnije ispravljeno}}",
     "none": "U ovom prolazu nema grešaka.",
-    "notYet": "Još ništa nije odgovoreno: prvo uradi vježbe.",
+    "notYet": "Još nema odgovora: prvo uradi vježbe.",
     "tutorIntro": "Tutor prolazi kroz tvoje greške jednu po jednu: šta nije bilo dobro, koje pravilo stoji iza toga i kratak novi primjer za provjeru.",
     "start": "Prođi kroz moje greške s tutorom",
     "message": "Molim te, prođi sa mnom kroz moje greške u ovoj lekciji."
@@ -763,7 +763,7 @@
     "leech": "teška kartica",
     "undo": "Poništi",
     "undoKeys": "Poništi (U, Ctrl+Z)",
-    "showKeys": "Space ili Enter",
+    "showKeys": "Razmaknica ili Enter",
     "show": "Prikaži odgovor",
     "rating": {
       "again": "Ponovo",
@@ -779,7 +779,7 @@
     "suspendNote": "Pauziraj riječ",
     "mark": "Označi riječ",
     "unmark": "Ukloni oznaku s riječi",
-    "keys": "Space ili Enter: prikaži odgovor, zatim Dobro · 1–4: ocjena · R: ponovo pusti · U: poništi",
+    "keys": "Razmaknica ili Enter: prikaži odgovor, zatim Dobro · 1–4: ocjena · R: ponovo pusti · U: poništi",
     "noCards": "Još nema kartica: dolaze iz koraka „Riječi lekcije“ u lekcijama.",
     "deck": "Špil",
     "count": {
@@ -826,7 +826,7 @@
       "title": "Dobro došli",
       "text": "SprachAnker stavlja prave jezičke kurseve u jedan plejer, provjerava tvoje odgovore, čuva tvoje riječi u ponavljanju s razmacima i može uključiti AI tutora. Sve ostaje na ovom računaru.",
       "sources": "Kursevi se preuzimaju direktno s web-stranica njihovih izdavača (Deutsche Welle i drugi) za tvoju ličnu upotrebu. Poštuj njihove uslove; SprachAnker nije povezan s njima.",
-      "experimental": "Kursevi i ispiti koji se još isprobavaju ostaju skriveni dok ih ne uključiš u Postavke → Opće → Eksperimentalno.",
+      "experimental": "Kursevi i ispiti koji se još isprobavaju ostaju skriveni dok ih ne uključiš u Postavkama → Opće → Eksperimentalno.",
       "name": "Kako da te zovemo?"
     },
     "assistant": {
@@ -838,7 +838,7 @@
     },
     "speech": {
       "title": "Govor",
-      "text": "Izgovaraj fraze iz kurseva i slušaj bilo koji tekst naglas: testiraj mikrofon, preuzmi prepoznavač govora (jednom) da aplikacija čuje tvoj izgovor, i izaberi glas za svaki jezik. Sve ostaje na ovom računaru; sve se kasnije može promijeniti u Postavke → Govor."
+      "text": "Izgovaraj fraze iz kurseva i slušaj bilo koji tekst naglas: testiraj mikrofon, preuzmi prepoznavač govora (jednom) da aplikacija čuje tvoj izgovor, i izaberi glas za svaki jezik. Sve ostaje na ovom računaru; sve se kasnije može promijeniti u Postavkama → Govor."
     },
     "cancel": "Otkaži"
   },
@@ -913,7 +913,7 @@
       "reading": "Čitam {done, number} od {total, number}…",
       "stop": "Zaustavi",
       "all": "Sve riječi imaju audio",
-      "install": "Za to instaliraj glas za jezik „{language}“ u Postavke → Govor",
+      "install": "Za to instaliraj glas za jezik „{language}“ u Postavkama → Govor",
       "failed": "{count, plural, one {# riječ se nije mogla pročitati naglas} few {# riječi se nisu mogle pročitati naglas} other {# riječi se nije moglo pročitati naglas}}",
       "voice": "Čita {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
       "chooseVoice": "Izaberi glas"
@@ -956,7 +956,7 @@
       },
       "good": {
         "name": "Dobro",
-        "text": "zapamćeno: uobičajen izbor (Space ili Enter)"
+        "text": "zapamćeno: uobičajen izbor (razmaknica ili Enter)"
       },
       "easy": {
         "name": "Lako",
@@ -1007,7 +1007,7 @@
     },
     "keys": {
       "title": "Tipke",
-      "text": "Space ili Enter prikazuje odgovor, zatim ocjenjuje Dobro; 1–4 ocjenjuju; U ili Ctrl+Z vraća zadnji odgovor; R ponovo pušta."
+      "text": "Razmaknica ili Enter prikazuje odgovor, zatim ocjenjuje Dobro; 1–4 ocjenjuju; U ili Ctrl+Z vraća zadnji odgovor; R ponovo pušta."
     },
     "fsrs": {
       "title": "FSRS",
@@ -1131,7 +1131,7 @@
     "notHeardShort": "Nije se moglo prepoznati. Pokušaj ponovo.",
     "answerSample": "Uzorak",
     "aiChecking": "AI provjerava tvoj odgovor…",
-    "needsRecognition": "Za izgovaranje fraze potrebno je prepoznavanje govora: uključi ga u Postavke → Govor.",
+    "needsRecognition": "Za izgovaranje fraze potrebno je prepoznavanje govora: uključi ga u Postavkama → Govor.",
     "languageUnknown": "Jezik ovog kursa nije poznat, pa se ne može čuti šta govoriš.",
     "read": {
       "listen": "Čitaj naglas: {what}",
@@ -1156,15 +1156,15 @@
     "lesson_not_in_series": "Ova lekcija nije dio kursa. Ponovo učitaj stranicu.",
     "llm_bad_response": "Server je vratio grešku.",
     "llm_cli_missing": "Asistent za komandnu liniju nije instaliran na ovom računaru.",
-    "llm_invalid_output": "Model nije mogao dati upotrebljiv odgovor. Pokušaj ponovo ili izaberi veći model u Postavke → AI asistent.",
+    "llm_invalid_output": "Model nije mogao dati upotrebljiv odgovor. Pokušaj ponovo ili izaberi veći model u Postavkama → AI asistent.",
     "llm_lmstudio_failed": "Server LM Studija se nije pokrenuo. Otvori LM Studio i pokreni ga tamo.",
     "llm_lmstudio_missing": "LM Studio nije instaliran na ovom računaru.",
     "llm_lmstudio_remote": "LM Studio radi na drugom računaru: tamo pokreni njegov server.",
     "llm_model_not_found": "Model nije pronađen na serveru.",
     "llm_no_endpoint": "Unesi adresu servera.",
     "llm_no_key": "Unesi API ključ.",
-    "llm_not_configured": "Izaberi model u Postavke → AI asistent.",
-    "llm_rate_limited": "Ograničenje dobavljača je za sada dostignuto (besplatni nivoi ograničavaju zahtjeve po minuti i po danu). Pokušaj kasnije ili izaberi drugi model u Postavke → AI asistent.",
+    "llm_not_configured": "Izaberi model u Postavkama → AI asistent.",
+    "llm_rate_limited": "Ograničenje dobavljača je za sada dostignuto (besplatni nivoi ograničavaju zahtjeve po minuti i po danu). Pokušaj kasnije ili izaberi drugi model u Postavkama → AI asistent.",
     "llm_timeout": "Model je predugo odgovarao.",
     "llm_unauthorized": "API ključ nije prihvaćen.",
     "llm_unreachable": "Server ne odgovara. Provjeri adresu.",
@@ -1290,11 +1290,11 @@
     "allAnswers": "Svi odgovori",
     "onlyMistakes": "Samo greške",
     "showAll": "Prikaži sve odgovore",
-    "notAnswered": "nije odgovoreno",
+    "notAnswered": "bez odgovora",
     "noMistakes": "Sve tačno.",
     "search": "Traži u pitanjima",
     "playsLeft": "Preostalo slušanja: {left, number} od {plays, number}",
-    "plays": "{count, plural, one {Snimak čuješ jednom.} few {Snimak čuješ # puta.} other {Snimak čuješ # puta.}}",
+    "plays": "{count, plural, =1 {Snimak čuješ jednom.} one {Snimak čuješ # put.} few {Snimak čuješ # puta.} other {Snimak čuješ # puta.}}",
     "example": "Primjer",
     "wholeExam": "Cijeli ispit",
     "next": "Dalje",

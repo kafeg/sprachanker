@@ -784,7 +784,7 @@
     "deck": "Mazo",
     "count": {
       "new": "Nuevas",
-      "learning": "Aprender",
+      "learning": "En aprendizaje",
       "review": "Pendientes"
     },
     "due": "{count, plural, one {# tarjeta} other {# tarjetas}} por estudiar",
@@ -823,7 +823,7 @@
     "next": "Siguiente",
     "finish": "Elegir un curso",
     "profile": {
-      "title": "Bienvenida",
+      "title": "Te damos la bienvenida",
       "text": "SprachAnker reúne cursos de idiomas reales en un solo reproductor, comprueba tus respuestas, guarda tus palabras en repetición espaciada y puede sumar un tutor de IA. Todo se queda en esta computadora.",
       "sources": "Los cursos se descargan directamente de los sitios web de sus editores (Deutsche Welle y otros) para tu uso personal. Respeta sus condiciones; SprachAnker no tiene relación con ellos.",
       "experimental": "Los cursos y exámenes que aún están en pruebas permanecen ocultos hasta que los actives en Ajustes → General → Experimental.",

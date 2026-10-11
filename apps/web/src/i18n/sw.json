@@ -132,7 +132,7 @@
     "videoText": "Maandishi ya video",
     "audioText": "Maandishi ya rekodi",
     "step": {
-      "overview": "Muhtasari wa somo",
+      "overview": "Utangulizi",
       "words": "Maneno ya somo",
       "wordsCount": "Maneno ya somo · {count, number}",
       "grammar": "Sarufi",
@@ -743,12 +743,12 @@
     "buried": "Kadi moja au zaidi zimeahirishwa, na zitaonyeshwa kesho.",
     "unbury": "Rejesha zilizoahirishwa",
     "unit": {
-      "s": "s",
-      "m": "dk",
-      "h": "saa",
-      "d": "siku",
-      "mo": "mwezi",
-      "y": "mwaka"
+      "s": " s",
+      "m": " dk",
+      "h": " saa",
+      "d": " siku",
+      "mo": " mwezi",
+      "y": " mwaka"
     },
     "flag": {
       "red": "Nyekundu",
@@ -784,7 +784,7 @@
     "deck": "Seti",
     "count": {
       "new": "Mpya",
-      "learning": "Jifunza",
+      "learning": "Inajifunzwa",
       "review": "Rudia"
     },
     "due": "{count, plural, one {Kadi # ya kusoma} other {Kadi # za kusoma}}",

@@ -61,6 +61,11 @@ test("interval text as in Anki", () => {
   expect(intervalText(4 * DAY, u)).toBe("4d");
   expect(intervalText(36 * DAY, u)).toBe("1.2mo");
   expect(intervalText(400 * DAY, u)).toBe("1.1y");
+  // In the language's digits and decimal sign, a unit that is a word apart from the number.
+  const fa = new Intl.NumberFormat("fa", { maximumFractionDigits: 1 });
+  const faUnits = { ...u, d: " روز", mo: " ماه" };
+  expect(intervalText(4 * DAY, faUnits, fa.format)).toBe("۴ روز");
+  expect(intervalText(36 * DAY, faUnits, fa.format)).toBe("۱٫۲ ماه");
 });
 
 test("the study day starts at 4 AM", () => {
