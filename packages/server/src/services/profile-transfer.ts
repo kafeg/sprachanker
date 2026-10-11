@@ -13,8 +13,10 @@ import {
 } from "@sprachanker/schema";
 import { ulid } from "ulid";
 import { ServiceError } from "../errors.ts";
+import { createOnce } from "../once.ts";
 import type { CardStore } from "./card-store.ts";
 import { type Content, courseTitle } from "./content.ts";
+import { EDITABLE_ENDPOINTS } from "./llm.ts";
 import type { Profiles } from "./profiles.ts";
 import type { RunStore } from "./run-store.ts";
 
@@ -36,13 +38,15 @@ export interface TransferFiles {
   /** Transfers an hour old go: an export never downloaded, an import cut short. */
   sweep(): void;
   /** A consistent copy of a profile in a new transfer: its database (`VACUUM INTO`, the secrets
-   *  emptied) and its recordings, each file with its size and hash; the migrations the copy has and
-   *  the providers whose API keys were emptied. */
+   *  emptied, a user name or password taken out of an endpoint's address) and its recordings, each
+   *  file with its size and hash; the migrations the copy has, the providers whose API keys were
+   *  emptied and those whose endpoint lost its login. */
   snapshot(profileId: string): Promise<{
     id: string;
     files: ProfileFileEntry[];
     migrations: string[];
     apiKeys: string[];
+    endpointLogins: string[];
   }>;
   /** A snapshot as a profile file: `manifest.json` first, then its files in the order given (stored
    *  entries); the transfer goes when the stream ends or is cancelled. */
@@ -51,14 +55,9 @@ export interface TransferFiles {
   save(stream: ReadableStream<Uint8Array>, file: string, bytes: number): Promise<void>;
   /** A new, empty transfer. */
   begin(): string;
-  /** A profile file received into the transfer, streamed to disk; false past `max` bytes. `announced`
-   *  (its length, when told) is checked against the free space first. */
-  receive(
-    id: string,
-    body: AsyncIterable<Uint8Array>,
-    max: number,
-    announced?: number,
-  ): Promise<boolean>;
+  /** A profile file of `length` bytes received into the transfer, streamed to disk, the free space
+   *  checked for it first; false when more comes. */
+  receive(id: string, body: AsyncIterable<Uint8Array>, length: number): Promise<boolean>;
   /** A profile file read by its zip directory — the one received, or `file` on disk: its manifest's
    *  text and the other files' paths and sizes; undefined when it is no zip of stored entries with a
    *  manifest and allowed paths only, each once. */
@@ -66,14 +65,24 @@ export interface TransferFiles {
     id: string,
     file?: string,
   ): { manifest: string; entries: Array<{ path: string; size: number }> } | undefined;
-  /** Its files unpacked into the transfer, streamed, each with its size and hash as unpacked. */
-  unpack(id: string, file?: string): Promise<ProfileFileEntry[]>;
-  /** The unpacked database made ready: a sound SQLite database (integrity, references) with no
-   *  migration this app does not know, migrated forward (the usual copy before), its secrets emptied,
-   *  its schema this app's own. */
-  settle(id: string): "ok" | "newer" | "damaged";
+  /** Its files unpacked into the transfer, streamed and hashed on the way; false at the first that is
+   *  not as `listed` (by path: its size and hash). */
+  unpack(
+    id: string,
+    listed: ReadonlyMap<string, Omit<ProfileFileEntry, "path">>,
+    file?: string,
+  ): Promise<boolean>;
+  /** The unpacked database made ready, apart from the server's work: its schema exactly what this
+   *  app's migrations make (before anything of it is read), sound (integrity, references), its
+   *  migrations those, migrated forward (the usual copy before), its secrets emptied. "newer" when it
+   *  has a migration this app does not know; "damaged" also when it takes too long. Only the
+   *  endpoints of the providers in `endpoints` are kept (the others' would not count). */
+  settle(id: string, endpoints: readonly string[]): Promise<"ok" | "newer" | "damaged">;
+  /** At the start: a profile's folder an import moved into place but whose row was never made (the
+   *  process stopped in between: a mark left in it) goes; one `known` keeps it, without the mark. */
+  unfinished(known: (profileId: string) => boolean): void;
   /** The unpacked profile moved into place as `profiles/<profileId>` and `register`ed; moved back
-   *  into the transfer when that fails. */
+   *  into the transfer when that fails. Marked until registered (`unfinished`). */
   adopt<T>(id: string, profileId: string, register: () => T): T;
   discard(id: string): void;
 }
@@ -106,8 +115,8 @@ export function contentUsed(store: Pick<RunStore, "all">, cards: Pick<CardStore,
 }
 export type ContentKeys = ReturnType<typeof contentUsed>;
 
-/** An export prepared and not yet downloaded goes after an hour (its transfer swept). */
-const PREPARED_MS = 60 * 60_000;
+/** An export prepared and not yet downloaded goes after an hour, its transfer with it. */
+export const PREPARED_MS = 60 * 60_000;
 
 /** A zip's bytes as fflate writes it: each entry's local header, data and descriptor, the directory. */
 const zipBytes = (names: string[], sizes: number) =>
@@ -136,10 +145,22 @@ export function createProfileTransfer(deps: {
       paths: string[];
       fileName: string;
       bytes: number;
-      at: number;
+      /** Lets it go after PREPARED_MS. */
+      timer: ReturnType<typeof setTimeout>;
     }
   >();
+  /** Forgets a prepared export: downloaded (its stream has the transfer now), or let go with it. */
+  const forget = (id: string, discard: boolean) => {
+    const p = prepared.get(id);
+    if (!p) return;
+    clearTimeout(p.timer);
+    prepared.delete(id);
+    if (discard) files.discard(id);
+  };
+  // At the start: a stopped server's transfers, and its imports cut short between moving a profile's
+  // folder into place and making its row.
   files.sweep();
+  files.unfinished((id) => profiles.list().some((p) => p.id === id));
 
   /** A full disk as the learner's error; anything else as it is. */
   async function guarded<T>(work: () => Promise<T>): Promise<T> {
@@ -217,13 +238,9 @@ export function createProfileTransfer(deps: {
       listed.size === read.entries.length &&
       listed.has("profile.sqlite") &&
       read.entries.every((e) => listed.get(e.path)?.size === e.size);
-    if (!sameFiles) throw new ServiceError("profile_file_damaged", 422);
-    const unpacked = await files.unpack(id, file);
-    const asListed = (f: ProfileFileEntry) =>
-      listed.get(f.path)?.sha256 === f.sha256 && listed.get(f.path)?.size === f.size;
-    if (unpacked.length !== listed.size || !unpacked.every(asListed))
+    if (!sameFiles || !(await files.unpack(id, listed, file)))
       throw new ServiceError("profile_file_damaged", 422);
-    const settled = files.settle(id);
+    const settled = await files.settle(id, EDITABLE_ENDPOINTS);
     if (settled === "newer") throw new ServiceError("profile_from_newer_app", 422);
     if (settled === "damaged") throw new ServiceError("profile_file_damaged", 422);
     const profileId = ulid(now()).toLowerCase();
@@ -237,49 +254,87 @@ export function createProfileTransfer(deps: {
     };
   }
 
-  const self = {
-    /** A profile's file made ready to download: its name, size and what it leaves out. */
-    async prepare(profileId: string) {
-      const profile = profiles.get(profileId);
-      if (!profile.name) throw new ServiceError("name_required");
-      for (const [id, p] of prepared) if (now() - p.at > PREPARED_MS) prepared.delete(id);
-      files.sweep();
-      const snap = await guarded(() => files.snapshot(profileId));
-      try {
-        const paths = snap.files.map((f) => f.path);
-        const manifest = JSON.stringify({
-          format: PROFILE_FILE_FORMAT,
-          version: PROFILE_FILE_VERSION,
-          appVersion: deps.appVersion,
-          exportedAt: now(),
-          profile: { name: profile.name, colour: profile.colour },
-          migrations: snap.migrations,
-          content: await titled(deps.used(profileId)),
-          leftOut: { apiKeys: snap.apiKeys },
-          files: snap.files,
-        } satisfies ProfileManifest);
-        const bytes = zipBytes(
-          ["manifest.json", ...paths],
-          new TextEncoder().encode(manifest).length + snap.files.reduce((n, f) => n + f.size, 0),
-        );
-        if (bytes > PROFILE_FILE_MAX_BYTES) throw new ServiceError("profile_file_too_large", 422);
-        const day = new Date(now()).toISOString().slice(0, 10);
-        // A name a file system takes: no separators or characters reserved on Windows.
-        const base = profile.name.replace(/[\\/:*?"<>|\p{Cc}]+/gu, "-").replace(/^[.\s]+/, "");
-        const fileName = `${base || "profile"}-${day}${PROFILE_FILE_EXTENSION}`;
-        prepared.set(snap.id, { profileId, manifest, paths, fileName, bytes, at: now() });
-        return { id: snap.id, fileName, bytes, leftOut: { apiKeys: snap.apiKeys } };
-      } catch (error) {
-        files.discard(snap.id);
-        throw error;
-      }
-    },
+  /** A profile's export not yet downloaded let go (a new one replaces it: one a profile at most). */
+  const letGo = (profileId: string) => {
+    for (const [id, p] of prepared) if (p.profileId === profileId) forget(id, true);
+  };
+  /** A prepare asked for again while it runs gets the same one: one snapshot a profile at a time. */
+  const preparing = createOnce<Awaited<ReturnType<typeof make>>>();
+  /** Whether an import runs (one at a time: each needs the room of its file twice and more). */
+  let importing = false;
+  /** An import, the only one while it runs (409 `profile_import_busy` beside it). */
+  async function alone<T>(work: () => Promise<T>) {
+    if (importing) throw new ServiceError("profile_import_busy", 409);
+    importing = true;
+    try {
+      return await work();
+    } finally {
+      importing = false;
+    }
+  }
 
-    /** A prepared export as a stream, once (404 when it is not this profile's, gone or downloaded). */
-    download(profileId: string, id: string) {
+  async function make(profileId: string) {
+    const profile = profiles.get(profileId);
+    if (!profile.name) throw new ServiceError("name_required");
+    letGo(profileId);
+    files.sweep();
+    const snap = await guarded(() => files.snapshot(profileId));
+    try {
+      const paths = snap.files.map((f) => f.path);
+      const manifest = JSON.stringify({
+        format: PROFILE_FILE_FORMAT,
+        version: PROFILE_FILE_VERSION,
+        appVersion: deps.appVersion,
+        exportedAt: now(),
+        profile: { name: profile.name, colour: profile.colour },
+        migrations: snap.migrations,
+        content: await titled(deps.used(profileId)),
+        leftOut: { apiKeys: snap.apiKeys, endpointLogins: snap.endpointLogins },
+        files: snap.files,
+      } satisfies ProfileManifest);
+      const bytes = zipBytes(
+        ["manifest.json", ...paths],
+        new TextEncoder().encode(manifest).length + snap.files.reduce((n, f) => n + f.size, 0),
+      );
+      if (bytes > PROFILE_FILE_MAX_BYTES) throw new ServiceError("profile_file_too_large", 422);
+      const day = new Date(now()).toISOString().slice(0, 10);
+      // A name a file system takes: no separators or characters reserved on Windows.
+      const base = profile.name.replace(/[\\/:*?"<>|\p{Cc}]+/gu, "-").replace(/^[.\s]+/, "");
+      const fileName = `${base || "profile"}-${day}${PROFILE_FILE_EXTENSION}`;
+      const timer = setTimeout(() => forget(snap.id, true), PREPARED_MS);
+      // Never what keeps the process (the command line) running.
+      (timer as { unref?: () => void }).unref?.();
+      prepared.set(snap.id, { profileId, manifest, paths, fileName, bytes, timer });
+      return {
+        id: snap.id,
+        fileName,
+        bytes,
+        leftOut: { apiKeys: snap.apiKeys, endpointLogins: snap.endpointLogins },
+      };
+    } catch (error) {
+      files.discard(snap.id);
+      throw error;
+    }
+  }
+
+  const self = {
+    /** A profile's file made ready to download: its name, size and what it leaves out. The one made
+     *  before and not downloaded goes. */
+    prepare: (profileId: string) => preparing(profileId, () => make(profileId)),
+
+    /** A prepared export still there to download: its file's name and size (404 when it is not this
+     *  profile's, gone or downloaded). Nothing taken: asked before a download starts. */
+    ready(profileId: string, id: string) {
       const p = prepared.get(id);
       if (!p || p.profileId !== profileId) throw new ServiceError("profile_export_gone", 404);
-      prepared.delete(id);
+      return { fileName: p.fileName, bytes: p.bytes };
+    },
+
+    /** A prepared export as a stream, once (404 as `ready`). */
+    download(profileId: string, id: string) {
+      self.ready(profileId, id);
+      const p = prepared.get(id) as NonNullable<ReturnType<typeof prepared.get>>;
+      forget(id, false);
       return {
         stream: files.stream(id, p.manifest, p.paths),
         fileName: p.fileName,
@@ -304,33 +359,38 @@ export function createProfileTransfer(deps: {
 
     /** A profile file uploaded (from "Who is studying?": registration open, or no profile yet) and
      *  imported as a new profile. */
-    async importUpload(body: AsyncIterable<Uint8Array>, announced?: number) {
+    async importUpload(body: AsyncIterable<Uint8Array> | null, length: number | undefined) {
+      // Before a byte of it is read: whether a profile may be made here, and its length told.
       if (profiles.list().length && !profiles.registrationOpen())
         throw new ServiceError("registration_closed", 403);
-      if (announced !== undefined && announced > PROFILE_FILE_MAX_BYTES)
-        throw new ServiceError("profile_file_too_large", 413);
-      files.sweep();
-      const id = files.begin();
-      try {
-        return await guarded(async () => {
-          if (!(await files.receive(id, body, PROFILE_FILE_MAX_BYTES, announced)))
-            throw new ServiceError("profile_file_too_large", 413);
-          return await settle(id);
-        });
-      } finally {
-        files.discard(id);
-      }
+      if (length === undefined) throw new ServiceError("length_required", 411);
+      if (length > PROFILE_FILE_MAX_BYTES) throw new ServiceError("profile_file_too_large", 413);
+      if (!body) throw new ServiceError("not_a_profile_file", 422);
+      return alone(async () => {
+        files.sweep();
+        const id = files.begin();
+        try {
+          return await guarded(async () => {
+            if (!(await files.receive(id, body, length)))
+              throw new ServiceError("profile_file_too_large", 413);
+            return await settle(id);
+          });
+        } finally {
+          files.discard(id);
+        }
+      });
     },
 
     /** A profile file on disk imported as a new profile (the command line). */
-    async importFile(file: string) {
-      const id = files.begin();
-      try {
-        return await guarded(() => settle(id, file));
-      } finally {
-        files.discard(id);
-      }
-    },
+    importFile: (file: string) =>
+      alone(async () => {
+        const id = files.begin();
+        try {
+          return await guarded(() => settle(id, file));
+        } finally {
+          files.discard(id);
+        }
+      }),
   };
   return self;
 }

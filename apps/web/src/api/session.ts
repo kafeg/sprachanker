@@ -98,6 +98,17 @@ export const prepareExport = () => json(api.profile.export.$post());
 /** Where a prepared export is downloaded (once). */
 export const exportUrl = (id: string) => `/api/profile/export/${id}`;
 
+/** Whether a prepared export is still there to download (a HEAD: nothing taken); an ApiError when it
+ *  is not — a download started then would save the server's answer as the file. */
+export async function exportReady(id: string) {
+  const res = await fetch(exportUrl(id), { method: "HEAD" });
+  if (!res.ok)
+    throw new ApiError(
+      res.status === 404 ? "profile_export_gone" : `HTTP ${res.status}`,
+      res.status,
+    );
+}
+
 /**
  * A profile file sent to the server and imported as a new profile; `onProgress` hears how much of it
  * was sent (0–1: an XMLHttpRequest, as fetch tells nothing of an upload). The server's refusal is an

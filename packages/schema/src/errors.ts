@@ -9,6 +9,7 @@ export const ERROR_CODES = [
   "not_found",
   "invalid_request",
   "request_too_large",
+  "length_required",
   "server_error",
   // Profiles.
   "no_such_profile",
@@ -22,6 +23,7 @@ export const ERROR_CODES = [
   "profile_file_too_large",
   "profile_from_newer_app",
   "not_enough_space",
+  "profile_import_busy",
   // Courses and downloads.
   "not_installed",
   "not_offered",
@@ -82,6 +84,7 @@ export const ERROR_CODES = [
   "llm_not_configured",
   "llm_no_endpoint",
   "llm_no_key",
+  "llm_url_with_login",
   "llm_cli_missing",
   "llm_lmstudio_missing",
   "llm_lmstudio_remote",

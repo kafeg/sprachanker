@@ -5,8 +5,7 @@
 import { DeckId, Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
-import { limitedBody } from "../media.ts";
-import { DECK_MAX_BYTES } from "../services/decks.ts";
+import { announcedLength } from "../media.ts";
 import { zod } from "../validate.ts";
 import type { ProfileEnv } from "./env.ts";
 import { TakenDeck } from "./params.ts";
@@ -17,8 +16,8 @@ export function deckRoutes() {
   return (
     new Hono<ProfileEnv>()
       .get("/", (c) => c.json({ decks: c.var.s.decks.list() }))
-      .post("/preview", limitedBody(DECK_MAX_BYTES, "deck_too_large"), async (c) =>
-        c.json(await c.var.s.decks.preview(c.req.raw.body)),
+      .post("/preview", async (c) =>
+        c.json(await c.var.s.decks.preview(c.req.raw.body, announcedLength(c.req.raw.headers))),
       )
       .post(
         "/import",

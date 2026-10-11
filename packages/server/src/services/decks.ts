@@ -192,10 +192,13 @@ export function createDecks(deps: {
         .map(summary)
         .sort((a, b) => a.title.localeCompare(b.title)),
 
-    /** Keeps an uploaded package and says what it holds (its upload's id imports it). */
-    async preview(body: ReadableStream<Uint8Array> | null) {
+    /** Keeps an uploaded package of `length` bytes (as announced: never held in memory to be counted)
+     *  and says what it holds (its upload's id imports it). */
+    async preview(body: ReadableStream<Uint8Array> | null, length: number | undefined) {
+      if (length === undefined) throw new ServiceError("length_required", 411);
+      if (length > DECK_MAX_BYTES) throw new ServiceError("deck_too_large", 413);
       if (!body) throw new ServiceError("not_a_deck", 422);
-      const upload = await files.stage(body, DECK_MAX_BYTES);
+      const upload = await files.stage(body, length);
       if (!upload) throw new ServiceError("deck_too_large", 413);
       try {
         return previewOf(upload, open(upload));

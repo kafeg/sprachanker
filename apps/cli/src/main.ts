@@ -46,6 +46,9 @@ The data root holds library/ and profiles/: --data, else $SPRACHANKER_DATA, else
 export interface Embedded {
   /** URL path → embedded file path of the built web app (set by the compiled binary's entry). */
   webFiles: Record<string, string>;
+  /** The Worker that makes an imported profile's database ready: an entry of the binary of its own,
+   *  named as the build gives it. */
+  profileDbWorker?: string;
 }
 
 const list = (value: string | undefined) =>
@@ -80,9 +83,9 @@ export function serveOptions(args: string[]) {
   return { hostname: values.host, port, dataRoot: resolveDataRoot(values.data), allowHosts };
 }
 
-function serve(args: string[], webAssets: WebAssets): void {
+function serve(args: string[], webAssets: WebAssets, profileDbWorker?: string): void {
   const options = serveOptions(args);
-  const server = startServer({ ...options, webAssets, appVersion: pkg.version });
+  const server = startServer({ ...options, webAssets, appVersion: pkg.version, profileDbWorker });
   console.log(`SprachAnker is running at ${server.url} (data: ${options.dataRoot})`);
 }
 
@@ -174,6 +177,7 @@ const PROFILE_FILE_ERRORS: Record<string, string> = {
   profile_from_newer_app:
     "this profile comes from a newer version of SprachAnker: update it here first",
   not_enough_space: "there is not enough free space on the disk",
+  profile_import_busy: "another profile file is being imported: try again when it is done",
   name_required: "the profile has no name yet: finish its onboarding in the app first",
 };
 const inWords = (error: unknown) =>
@@ -183,13 +187,15 @@ const inWords = (error: unknown) =>
 
 const megabytes = (bytes: number) => `${(bytes / 1e6).toFixed(1)} MB`;
 
-async function profilesCommand(args: string[]): Promise<void> {
+async function profilesCommand(args: string[], embedded?: Embedded): Promise<void> {
   const { values, positionals } = parseArgs({
     args,
     allowPositionals: true,
     options: { data: { type: "string" }, to: { type: "string" } },
   });
-  const profiles = profileAdmin(resolveDataRoot(values.data), pkg.version);
+  const profiles = profileAdmin(resolveDataRoot(values.data), pkg.version, {
+    profileDbWorker: embedded?.profileDbWorker,
+  });
   const [action, arg] = positionals;
   switch (action) {
     case undefined:
@@ -224,6 +230,10 @@ async function profilesCommand(args: string[]): Promise<void> {
       console.log(`${profile.name}: exported to ${done.file} (${megabytes(done.bytes)})`);
       if (done.leftOut.apiKeys.length)
         console.log(`  not included: the API keys of ${done.leftOut.apiKeys.join(", ")}`);
+      if (done.leftOut.endpointLogins.length)
+        console.log(
+          `  not included: the user name and password in the address of ${done.leftOut.endpointLogins.join(", ")}`,
+        );
       return;
     }
     case "import": {
@@ -238,6 +248,10 @@ async function profilesCommand(args: string[]): Promise<void> {
       if (leftOut.apiKeys.length)
         console.log(
           `  not included: the API keys of ${leftOut.apiKeys.join(", ")} (enter them again in Settings → AI assistant)`,
+        );
+      if (leftOut.endpointLogins.length)
+        console.log(
+          `  not included: the user name and password in the address of ${leftOut.endpointLogins.join(", ")} (enter the key again in Settings → AI assistant)`,
         );
       const named = (c: { key: string; title: string | null; editions: string[] }) =>
         `${c.title ?? c.key}${c.editions.length ? ` (${c.editions.join(", ")})` : ""}`;
@@ -260,6 +274,9 @@ function backupCommand(args: string[]): void {
   const dataRoot = resolveDataRoot(values.data);
   const { folder, bytes } = backupData(dataRoot, values.to);
   console.log(`backed up ${dataRoot} to ${folder} (${megabytes(bytes)})`);
+  console.log(
+    "  it holds secret.key, which opens the stored API keys, and everyone's learning: keep it private",
+  );
   console.log(
     "  to restore: server.sqlite, profiles/ and decks/ into a data root, secret.key into the app-data folder, no server running",
   );
@@ -285,6 +302,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
         embedded
           ? fileAssets(embedded.webFiles)
           : directoryAssets(resolve(import.meta.dir, "../../web/dist")),
+        embedded?.profileDbWorker,
       );
       break;
     case "import":
@@ -294,7 +312,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       await verifyCommand(rest);
       break;
     case "profiles":
-      await profilesCommand(rest);
+      await profilesCommand(rest, embedded);
       break;
     case "backup":
       backupCommand(rest);

@@ -48,8 +48,12 @@ export const ProfileManifest = z.object({
   /** The migrations its database has, in the order applied (05, "Migrations"). */
   migrations: z.array(z.string().min(1).max(200)).max(10_000),
   content: ContentUsed,
-  /** What the file does not hold: the providers whose API keys were stored (06, "Secrets"). */
-  leftOut: z.object({ apiKeys: z.array(z.string().max(40)).max(100) }),
+  /** What the file does not hold: the providers whose API keys were stored (06, "Secrets"), and those
+   *  whose endpoint's address held a user name or password (taken out of it). */
+  leftOut: z.object({
+    apiKeys: z.array(z.string().max(40)).max(100),
+    endpointLogins: z.array(z.string().max(40)).max(100).default([]),
+  }),
   /** Every file but the manifest, each once. */
   files: z
     .array(

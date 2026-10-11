@@ -1,5 +1,5 @@
 // Range responses for media (video seeking, audio): runtime-agnostic over Blob; request bodies limited
-// (audio, deck packages).
+// (JSON, audio) or announced (files: deck packages, profile files).
 import type { ErrorCode } from "@sprachanker/schema";
 import { bodyLimit } from "hono/body-limit";
 
@@ -34,10 +34,20 @@ export function blobResponse(blob: MediaBlob, range: string | undefined): Respon
   });
 }
 
-/** A request body up to `max` bytes: refused with 413 and `error` before it is read when announced
- *  larger, and while it streams when it is not announced. */
+/** A small request body up to `max` bytes: refused with 413 and `error` before it is read when
+ *  announced larger; one not announced is held in memory while it is counted, so never for a file
+ *  (those take `announcedLength`). */
 export const limitedBody = (max: number, error: ErrorCode) =>
   bodyLimit({ maxSize: max, onError: (c) => c.json({ error }, 413) });
+
+/** A file's body length as the request announces it (Content-Length, no Transfer-Encoding); undefined
+ *  when it does not: the file is then refused (411 `length_required`), never held to be counted. */
+export function announcedLength(headers: Headers) {
+  const length = headers.get("content-length");
+  return length && /^\d{1,16}$/.test(length) && !headers.has("transfer-encoding")
+    ? Number(length)
+    : undefined;
+}
 
 /** The largest body of a request that sends JSON (every API route but those taking files). */
 export const JSON_BODY_MAX = 1024 * 1024;

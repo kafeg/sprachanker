@@ -891,7 +891,8 @@
       "done": "“{name}”已导入。",
       "noKeys": "文件中没有 API 密钥：请在“设置 → AI助手”中重新输入。",
       "missing": "这台电脑上还没有以下内容——下载后即可看到其课程；单词已在复习中：",
-      "open": "打开“{name}”"
+      "open": "打开“{name}”",
+      "noEndpointLogins": "AI 服务器地址中的用户名和密码不在文件中：请在“设置 → AI助手”中重新输入密钥。"
     }
   },
   "onboarding": {
@@ -1303,7 +1304,10 @@
     "deck_upload_gone": "上传的卡组文件已不在：请重新选择。",
     "deck_unpacked_too_large": "此卡组文件解压后的内容超出了一次可读取的上限。",
     "deck_same_languages": "单词和翻译需要使用两种不同的语言。",
-    "examples_without_word": "模型生成的句子没有用到该单词。"
+    "examples_without_word": "模型生成的句子没有用到该单词。",
+    "length_required": "文件发送时没有附带其大小。请重试，或换一个浏览器。",
+    "profile_import_busy": "正在导入另一个个人资料文件。请在其完成后重试。",
+    "llm_url_with_login": "请勿在地址中写入用户名和密码：请在 API 密钥栏中输入密钥。"
   },
   "exams": {
     "tabs": {

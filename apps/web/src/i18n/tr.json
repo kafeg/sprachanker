@@ -891,7 +891,8 @@
       "done": "“{name}” burada.",
       "noKeys": "API anahtarları dosyada yok: onları Ayarlar → Yapay zekâ asistanı bölümünde yeniden gir.",
       "missing": "Henüz bu bilgisayarda yok — dersleri indirilince görünür; kelimeler zaten Tekrar'da:",
-      "open": "“{name}” profilini aç"
+      "open": "“{name}” profilini aç",
+      "noEndpointLogins": "Yapay zekâ sunucu adreslerindeki kullanıcı adları ve parolalar dosyada yok: anahtarları Ayarlar → Yapay zekâ asistanı bölümünde yeniden gir."
     }
   },
   "onboarding": {
@@ -1303,7 +1304,10 @@
     "deck_upload_gone": "Yüklenen deste dosyası artık burada yok: yeniden seç.",
     "deck_unpacked_too_large": "Bu deste dosyası açıldığında bir seferde okunabilecek olandan daha büyük oluyor.",
     "deck_same_languages": "Kelimeler ve çevirileri için iki farklı dil gerekir.",
-    "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı."
+    "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı.",
+    "length_required": "Dosya boyutu belirtilmeden gönderildi. Yeniden dene ya da başka bir tarayıcıda dene.",
+    "profile_import_busy": "Şu anda başka bir profil dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
+    "llm_url_with_login": "Kullanıcı adını ve parolayı adrese yazma: anahtarı API anahtarı alanına gir."
   },
   "exams": {
     "tabs": {

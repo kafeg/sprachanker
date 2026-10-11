@@ -891,7 +891,8 @@
       "done": "„{name}” itt van.",
       "noKeys": "Az API-kulcsok nincsenek a fájlban: add meg őket újra itt: Beállítások → MI-asszisztens.",
       "missing": "Még nincs ezen a számítógépen — a leckéik a letöltés után jelennek meg; a szavak már az Ismétlésben vannak:",
-      "open": "„{name}” megnyitása"
+      "open": "„{name}” megnyitása",
+      "noEndpointLogins": "Az MI-szerverek címeiben lévő felhasználónevek és jelszavak nincsenek a fájlban: add meg újra a kulcsokat a Beállítások → MI-asszisztens alatt."
     }
   },
   "onboarding": {
@@ -1303,7 +1304,10 @@
     "deck_upload_gone": "A feltöltött paklifájl már nincs itt: válaszd ki újra.",
     "deck_unpacked_too_large": "Ez a paklifájl kicsomagolva több, mint amennyi egyszerre beolvasható.",
     "deck_same_languages": "A szavakhoz és a fordításaikhoz két különböző nyelv kell.",
-    "examples_without_word": "A modell mondataiban nem szerepelt a szó."
+    "examples_without_word": "A modell mondataiban nem szerepelt a szó.",
+    "length_required": "A fájl a mérete nélkül érkezett. Próbáld újra, vagy egy másik böngészőben.",
+    "profile_import_busy": "Épp egy másik profilfájl importálása folyik. Próbáld újra, ha végzett.",
+    "llm_url_with_login": "A felhasználónevet és a jelszót hagyd ki a címből: a kulcsot az API-kulcs mezőbe írd."
   },
   "exams": {
     "tabs": {

@@ -1,6 +1,14 @@
 import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { backUpTo, backUpToday } from "../src/runtime/backup.ts";
@@ -47,9 +55,13 @@ test("a backup on request: the databases, recordings, imported decks and the key
   const key = join(root, "app-data-secret.key");
   writeFileSync(key, new Uint8Array(32));
   const to = mkdtempSync(join(tmpdir(), "sprachanker-backups-"));
+  // One an earlier run left half-made: it goes.
+  mkdirSync(join(to, "sprachanker-backup-20261010-120000.part/profiles"), { recursive: true });
   const { folder } = backUpTo(root, to, key, new Date("2026-10-11T08:30:05Z"));
   expect(folder).toBe(join(to, "sprachanker-backup-20261011-083005"));
   expect(readdirSync(to)).toEqual(["sprachanker-backup-20261011-083005"]);
+  // Its owner's only: it holds the key.
+  expect(statSync(folder).mode & 0o777).toBe(0o700);
   expect(readdirSync(folder).sort()).toEqual([
     "app-data-secret.key",
     "decks",
@@ -66,4 +78,11 @@ test("a backup on request: the databases, recordings, imported decks and the key
   expect(copy.query("SELECT x FROM t").all()).toEqual([{ x: 1 }]);
   // The same second again: refused, the first left as it was.
   expect(() => backUpTo(root, to, key, new Date("2026-10-11T08:30:05Z"))).toThrow(/exists/);
+  // Never into the data folder it copies (by any path to it), nor a folder in it not made yet.
+  for (const inside of [root, join(root, "backups"), join(root, "profiles/../backups/new")])
+    expect(() => backUpTo(root, inside, key)).toThrow(/inside the data folder/);
+  const link = join(to, "link-to-data");
+  symlinkSync(root, link);
+  expect(() => backUpTo(root, join(link, "b"), key)).toThrow(/inside the data folder/);
+  expect(existsSync(join(root, "backups"))).toBe(false);
 });

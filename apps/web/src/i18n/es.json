@@ -891,7 +891,8 @@
       "done": "«{name}» ya está aquí.",
       "noKeys": "Las claves de API no están en el archivo: vuelve a introducirlas en Ajustes → Asistente de IA.",
       "missing": "Aún no está en este ordenador — sus lecciones aparecen al descargarlo; las palabras ya están en Repaso:",
-      "open": "Abrir «{name}»"
+      "open": "Abrir «{name}»",
+      "noEndpointLogins": "Los usuarios y contraseñas de las direcciones de los servidores de IA no están en el archivo: vuelve a escribir las claves en Ajustes → Asistente de IA."
     }
   },
   "onboarding": {
@@ -1303,7 +1304,10 @@
     "deck_upload_gone": "El archivo de mazo subido ya no está aquí: vuelve a elegirlo.",
     "deck_unpacked_too_large": "Este archivo de mazo, descomprimido, es más grande de lo que se puede leer de una vez.",
     "deck_same_languages": "Las palabras y sus traducciones necesitan dos idiomas distintos.",
-    "examples_without_word": "Las frases del modelo no usaron la palabra."
+    "examples_without_word": "Las frases del modelo no usaron la palabra.",
+    "length_required": "El archivo se envió sin su tamaño. Inténtalo de nuevo o en otro navegador.",
+    "profile_import_busy": "Se está importando otro archivo de perfil. Inténtalo de nuevo cuando termine.",
+    "llm_url_with_login": "Deja el usuario y la contraseña fuera de la dirección: escribe la clave en el campo de la clave API."
   },
   "exams": {
     "tabs": {

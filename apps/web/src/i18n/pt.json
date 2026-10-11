@@ -891,7 +891,8 @@
       "done": "“{name}” está aqui.",
       "noKeys": "As chaves de API não estão no arquivo: insira-as de novo em Configurações → Assistente de IA.",
       "missing": "Ainda não está neste computador — as lições aparecem depois de baixar; as palavras já estão na Revisão:",
-      "open": "Abrir “{name}”"
+      "open": "Abrir “{name}”",
+      "noEndpointLogins": "Usuários e senhas dos endereços dos servidores de IA não estão no arquivo: digite as chaves de novo em Configurações → Assistente de IA."
     }
   },
   "onboarding": {
@@ -1303,7 +1304,10 @@
     "deck_upload_gone": "O arquivo de baralho enviado não está mais aqui: escolha-o de novo.",
     "deck_unpacked_too_large": "Este arquivo de baralho, descompactado, é maior do que dá para ler de uma vez.",
     "deck_same_languages": "As palavras e as traduções precisam de dois idiomas diferentes.",
-    "examples_without_word": "As frases do modelo não usaram a palavra."
+    "examples_without_word": "As frases do modelo não usaram a palavra.",
+    "length_required": "O arquivo foi enviado sem o seu tamanho. Tente de novo, ou em outro navegador.",
+    "profile_import_busy": "Outro arquivo de perfil está sendo importado. Tente de novo quando terminar.",
+    "llm_url_with_login": "Não coloque usuário e senha no endereço: digite a chave no campo da chave de API."
   },
   "exams": {
     "tabs": {

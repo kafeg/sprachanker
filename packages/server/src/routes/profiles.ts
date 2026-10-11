@@ -4,13 +4,13 @@
 // devices, and its export as a file.
 // Every profile is equal; server matters are the `sprachanker` command's.
 
-import { PROFILE_FILE_MAX_BYTES, PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
+import { PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
-import { limitedBody } from "../media.ts";
+import { announcedLength } from "../media.ts";
 import { DEVICE_LIFETIME_MS } from "../services/devices.ts";
 import type { Services } from "../services/index.ts";
 import { zod } from "../validate.ts";
@@ -60,20 +60,13 @@ export function sessionRoutes(svc: Services) {
       )
       // A profile file imported as a new profile (while registration is open, as a new one is made);
       // the device signs in to it by choosing it.
-      .post(
-        "/profiles/import",
-        limitedBody(PROFILE_FILE_MAX_BYTES, "profile_file_too_large"),
-        async (c) => {
-          const body = c.req.raw.body;
-          if (!body) throw new ServiceError("not_a_profile_file", 422);
-          const length = Number(c.req.header("content-length"));
-          return c.json(
-            await svc.profileTransfer.importUpload(
-              body,
-              Number.isFinite(length) ? length : undefined,
-            ),
-          );
-        },
+      .post("/profiles/import", async (c) =>
+        c.json(
+          await svc.profileTransfer.importUpload(
+            c.req.raw.body,
+            announcedLength(c.req.raw.headers),
+          ),
+        ),
       )
       .get("/session", async (c) => {
         const device = await devices.resolve(getCookie(c, DEVICE_COOKIE));
@@ -138,14 +131,20 @@ export function profileRoutes(svc: Services) {
       .post("/profile/export", async (c) =>
         c.json(await svc.profileTransfer.prepare(c.var.profileId)),
       )
+      // A HEAD (Hono answers it with this GET) asks whether the file is still there — the web, before
+      // its download starts, so a gone one is never saved as the file —: nothing is taken.
       .get("/profile/export/:id", zod("param", z.object({ id: z.uuid() })), (c) => {
-        const file = svc.profileTransfer.download(c.var.profileId, c.req.valid("param").id);
-        return c.body(file.stream, 200, {
+        const { id } = c.req.valid("param");
+        const headers = (file: { fileName: string; bytes: number }) => ({
           "content-type": "application/zip",
           "content-length": String(file.bytes),
           "content-disposition": `attachment; filename="${file.fileName.replace(/[^\x20-\x7e]|["\\]/g, "_")}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
           "cache-control": "no-store",
         });
+        if (c.req.method === "HEAD")
+          return c.body(null, 200, headers(svc.profileTransfer.ready(c.var.profileId, id)));
+        const file = svc.profileTransfer.download(c.var.profileId, id);
+        return c.body(file.stream, 200, headers(file));
       })
       .get("/profile/devices", (c) =>
         c.json({

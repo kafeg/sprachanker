@@ -32,6 +32,7 @@ import { parseJson } from "./services/stored.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
 export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
+export { PROFILE_DB_WORKER } from "./runtime/profile-transfer.ts";
 
 export interface ServerConfig {
   hostname: string;
@@ -43,6 +44,9 @@ export interface ServerConfig {
   /** More names the Host check accepts (`--allow-host`): a name this machine is reached by that it
    *  cannot know itself, as a reverse proxy's. */
   allowHosts?: string[];
+  /** The Worker that makes an imported profile's database ready, as the compiled binary embeds it;
+   *  from sources the server finds its own (PROFILE_DB_WORKER). */
+  profileDbWorker?: string;
 }
 
 /** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. */
@@ -56,7 +60,7 @@ export function startServer(config: ServerConfig): Listening {
     mediaBlob,
     decks: deckFiles(config.dataRoot),
     apkg: apkgRuntime,
-    transfers: profileTransferFiles(config.dataRoot),
+    transfers: profileTransferFiles(config.dataRoot, { worker: config.profileDbWorker }),
     appVersion: config.appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),
@@ -90,7 +94,11 @@ export const verifyData = (dataRoot: string) =>
  * list them, open or close registration, delete one, export one to a file or import one from a file
  * (05, "Profile file"). Not in the app.
  */
-export function profileAdmin(dataRoot: string, appVersion = "") {
+export function profileAdmin(
+  dataRoot: string,
+  appVersion = "",
+  options: Pick<ServerConfig, "profileDbWorker"> = {},
+) {
   const files = profileFiles(dataRoot);
   const profiles = createProfiles({
     db: openServerDb(join(dataRoot, "server.sqlite")),
@@ -100,7 +108,11 @@ export function profileAdmin(dataRoot: string, appVersion = "") {
   profiles.adoptFirst();
   const decks = deckFiles(dataRoot);
   const transfer = createProfileTransfer({
-    files: profileTransferFiles(dataRoot),
+    files: profileTransferFiles(dataRoot, {
+      worker: options.profileDbWorker,
+      // A server running on the data root keeps its transfers: they are its to sweep.
+      sweeps: () => !serverOn(dataRoot),
+    }),
     profiles,
     used: (id) => {
       const db = files.open(id);

@@ -3,7 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { Download } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { type ExportedProfile, exportUrl, prepareExport } from "@/api/session.ts";
+import { type ExportedProfile, exportReady, exportUrl, prepareExport } from "@/api/session.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useBytes } from "@/ui/format.ts";
@@ -21,16 +21,23 @@ function startDownload(url: string, fileName: string) {
 
 export function ProfileExport({
   prepare = prepareExport,
+  check = exportReady,
   download = startDownload,
 }: {
-  /** Tests give their own: the file made ready, and downloaded. */
+  /** Tests give their own: the file made ready, still there, and downloaded. */
   prepare?: () => Promise<ExportedProfile>;
+  check?: (id: string) => Promise<void>;
   download?: (url: string, fileName: string) => void;
 }) {
   const { t } = useTranslation();
   const bytes = useBytes();
   const exported = useMutation({
-    mutationFn: prepare,
+    mutationFn: async () => {
+      const ready = await prepare();
+      // One gone meanwhile is an error here, never the server's answer saved as the file.
+      await check(ready.id);
+      return ready;
+    },
     onSuccess: (ready) => download(exportUrl(ready.id), ready.fileName),
   });
   return (

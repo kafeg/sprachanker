@@ -891,7 +891,8 @@
       "done": "„{name}” jest tutaj.",
       "noKeys": "Kluczy API nie ma w pliku: wpisz je ponownie w Ustawieniach → Asystent AI.",
       "missing": "Jeszcze nie ma tego na tym komputerze — lekcje pojawią się po pobraniu; słowa są już w Powtórkach:",
-      "open": "Otwórz „{name}”"
+      "open": "Otwórz „{name}”",
+      "noEndpointLogins": "Nazw użytkowników i haseł z adresów serwerów AI nie ma w pliku: wpisz klucze ponownie w Ustawieniach → Asystent AI."
     }
   },
   "onboarding": {
@@ -1303,7 +1304,10 @@
     "deck_upload_gone": "Przesłanego pliku talii już tu nie ma: wybierz go ponownie.",
     "deck_unpacked_too_large": "Ten plik talii po rozpakowaniu jest większy, niż da się odczytać naraz.",
     "deck_same_languages": "Słowa i ich tłumaczenia muszą być w dwóch różnych językach.",
-    "examples_without_word": "Zdania modelu nie zawierały tego słowa."
+    "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
+    "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce.",
+    "profile_import_busy": "Trwa import innego pliku profilu. Spróbuj ponownie, gdy się skończy.",
+    "llm_url_with_login": "Nie wpisuj nazwy użytkownika ani hasła w adresie: wpisz klucz w polu klucza API."
   },
   "exams": {
     "tabs": {

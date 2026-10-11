@@ -23,7 +23,8 @@ src/
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day; a backup on request into a folder);
                      # profile-transfer.ts (profile files in profiles/.transfers: a snapshot streamed as a
-                     # zip — fflate —, a file read by its zip directory, unpacked, its database checked);
+                     # zip — fflate —, a file read by its zip directory, unpacked, its database checked
+                     # in a Worker: profile-db-worker.ts over profile-db.ts — the exact schema first);
                      # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
                      # and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
@@ -88,7 +89,8 @@ src/
   security/          # secrets.ts (AES-GCM sealing of API keys), host.ts (Host check, CSP and security
                      # headers), encoding.ts (base64url, SHA-256)
   media.ts           # Range responses for library and deck folders' media and profile recordings; body limits
-                     # (JSON 1 MB — app.ts, every route but those taking a file —, audio, deck files)
+                     # (JSON 1 MB — app.ts, every route but those taking a file —, audio); a large file's
+                     # length as announced (deck packages, profile files: none, no file)
 test/                # bun test; integration tests call createApp().request() — setup.ts signs a profile in
                      # and sends its cookie (`anonymous` sends none)
 ```
