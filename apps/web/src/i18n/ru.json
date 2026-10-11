@@ -1428,6 +1428,7 @@
     "mapUnseen": "не видели",
     "mapSummary": "Из {total, number} вопросов: знаете {known, number}, ошиблись в прошлый раз в {wrong, number}",
     "points": "{points, number} из {max, number}",
+    "taskPoints": "за задания: {points, number} из {max, number}",
     "passed": "Сдан",
     "failed": "Не сдан",
     "state": "Федеральная земля",

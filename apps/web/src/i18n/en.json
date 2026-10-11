@@ -1428,6 +1428,7 @@
     "mapUnseen": "not seen",
     "mapSummary": "Of {total, number} questions: {known, number} known, {wrong, number} wrong last time",
     "points": "{points, number} of {max, number}",
+    "taskPoints": "tasks: {points, number} of {max, number}",
     "passed": "Passed",
     "failed": "Not passed",
     "state": "Federal state",

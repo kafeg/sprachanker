@@ -3,7 +3,7 @@
 // the learner is, the title and publisher, the last mock exam, and the ways in — a mock exam (continued
 // while one runs) and practice; on "My exams" its removal (its runs deleted), on "Downloaded" its
 // course's check, sync and export to a file.
-import { examPassed } from "@sprachanker/engine";
+import { examPassed, examScore } from "@sprachanker/engine";
 import type { ExamKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Dumbbell } from "lucide-react";
@@ -45,7 +45,7 @@ export function ExamCard({
       edition={edition}
       figure={
         last
-          ? t("exams.lastPoints", { points: last.points, max: last.max })
+          ? t("exams.lastPoints", examScore(last, "test"))
           : t("exams.questions", { count: exam.questions })
       }
       remove={

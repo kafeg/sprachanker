@@ -1428,6 +1428,7 @@
     "mapUnseen": "niewidziane",
     "mapSummary": "Z {total, number} pytań: znane {known, number}, ostatnio źle {wrong, number}",
     "points": "{points, number} z {max, number}",
+    "taskPoints": "zadania: {points, number} z {max, number}",
     "passed": "Zdany",
     "failed": "Niezdany",
     "state": "Kraj związkowy",

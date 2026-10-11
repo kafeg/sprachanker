@@ -321,6 +321,9 @@ export const ExamResult = z.object({
   modules: z
     .record(ExamModuleId, z.object({ points: z.number(), max: z.number(), scaled: z.number() }))
     .optional(),
+  /** With modules: the result on the exam's own scale — the modules' scaled points together, as its
+   *  pass marks count them (Goethe A1: out of 99.6, the total rounded). Kept before it: none. */
+  score: z.object({ points: z.number(), max: z.number() }).optional(),
   /** Ids of the pass marks reached. */
   passed: z.array(z.string()),
   /** Open answers not rated yet (scored 0 until they are). */

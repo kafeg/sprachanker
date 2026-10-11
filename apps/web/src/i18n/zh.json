@@ -1428,6 +1428,7 @@
     "mapUnseen": "未见过",
     "mapSummary": "共{total, number}道题：已掌握{known, number}道，上次答错{wrong, number}道",
     "points": "{points, number}/{max, number}",
+    "taskPoints": "题目得分：{points, number}/{max, number}",
     "passed": "通过",
     "failed": "未通过",
     "state": "联邦州",

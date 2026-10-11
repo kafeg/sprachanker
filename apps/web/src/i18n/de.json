@@ -1428,6 +1428,7 @@
     "mapUnseen": "nicht gesehen",
     "mapSummary": "Von {total, number} Fragen: {known, number} gewusst, {wrong, number} zuletzt falsch",
     "points": "{points, number} von {max, number}",
+    "taskPoints": "Aufgaben: {points, number} von {max, number}",
     "passed": "Bestanden",
     "failed": "Nicht bestanden",
     "state": "Bundesland",

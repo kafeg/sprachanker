@@ -1428,6 +1428,7 @@
     "mapUnseen": "nem látott",
     "mapSummary": "{total, number} kérdésből: {known, number} tudott, {wrong, number} legutóbb hibás",
     "points": "{points, number}/{max, number}",
+    "taskPoints": "feladatok: {points, number}/{max, number}",
     "passed": "Sikeres",
     "failed": "Sikertelen",
     "state": "Szövetségi tartomány",

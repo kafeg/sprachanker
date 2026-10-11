@@ -1428,6 +1428,7 @@
     "mapUnseen": "neviđeno",
     "mapSummary": "Od {total, number} pitanja: {known, number} poznato, {wrong, number} pogrešno prošli put",
     "points": "{points, number} od {max, number}",
+    "taskPoints": "zadaci: {points, number} od {max, number}",
     "passed": "Položen",
     "failed": "Nije položen",
     "state": "Savezna pokrajina",

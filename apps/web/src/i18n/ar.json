@@ -1428,6 +1428,7 @@
     "mapUnseen": "لم تُرَ",
     "mapSummary": "من أصل {total, number} سؤال: {known, number} معروفة، و{wrong, number} خاطئة في المرة الأخيرة",
     "points": "{points, number} من {max, number}",
+    "taskPoints": "المهام: {points, number} من {max, number}",
     "passed": "ناجح",
     "failed": "غير ناجح",
     "state": "الولاية",

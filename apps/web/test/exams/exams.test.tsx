@@ -479,6 +479,7 @@ test("a language exam's result: points by module as scaled, every pass mark need
         lesen: { points: 1, max: 1, scaled: 25 },
         schreiben: { points: 0, max: 1, scaled: 0 },
       },
+      score: { points: 25, max: 50 },
       passed: [],
       pass: false,
     },
@@ -499,7 +500,11 @@ test("a language exam's result: points by module as scaled, every pass mark need
     { path: "/exam/run" },
   );
   expect(view.getByRole("heading", { name: "Not passed" })).toBeTruthy();
+  // One scale: the result as its pass marks count it, the ring its share; the tasks' points as detail.
+  expect(view.getByText("25 of 50")).toBeTruthy();
+  expect(view.getByRole("img", { name: "50%" })).toBeTruthy();
   expect(view.getByText("Lesen").parentElement?.textContent).toContain("25 of 25");
+  expect(view.getByText("Lesen").parentElement?.textContent).toContain("tasks: 1 of 1");
   expect(view.getByText("Schreiben: mindestens 10").parentElement?.textContent).toContain(
     "10 of 25",
   );

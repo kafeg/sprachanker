@@ -1428,6 +1428,7 @@
     "mapUnseen": "hujayaona",
     "mapSummary": "Kati ya maswali {total, number}: {known, number} unayajua, {wrong, number} ulikosea mara ya mwisho",
     "points": "{points, number} kati ya {max, number}",
+    "taskPoints": "kazi: {points, number} kati ya {max, number}",
     "passed": "Umefaulu",
     "failed": "Hukufaulu",
     "state": "Jimbo",

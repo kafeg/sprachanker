@@ -1428,6 +1428,7 @@
     "mapUnseen": "görülmedi",
     "mapSummary": "{total, number} sorudan: {known, number} biliniyor, {wrong, number} geçen sefer yanlış",
     "points": "{points, number} / {max, number}",
+    "taskPoints": "görevler: {points, number} / {max, number}",
     "passed": "Geçti",
     "failed": "Geçemedi",
     "state": "Eyalet",

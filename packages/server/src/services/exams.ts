@@ -4,6 +4,7 @@
 // exams left past their time first (`settleOverdue`).
 import {
   examPassed,
+  examScore,
   missingSettings,
   openQuestions,
   questionLine,
@@ -26,9 +27,12 @@ import { createExamRuns } from "./exam-runs.ts";
 import type { RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
-/** A run as a standing lists it: its points, a mock exam or practice, the module taken (by its title
- *  in `locale`, when given); passed or not for a mock exam only (practice is judged over the questions
- *  answered, which no pass mark is for). */
+/** A mock exam's points on the exam's own scale (engine `examScore`). */
+const score = (run: ExamRun) => (run.result ? examScore(run.result, "test").points : 0);
+
+/** A run as a standing lists it: its points (a mock exam's on the exam's own scale), a mock exam or
+ *  practice, the module taken (by its title in `locale`, when given); passed or not for a mock exam
+ *  only (practice is judged over the questions answered, which no pass mark is for). */
 const summaryOf = (run: ExamRun, locale?: LocaleExam): RunSummary => {
   const { exam: _, plan, result, ...header } = run;
   const passed = plan.mode === "test" ? examPassed(result) : undefined;
@@ -36,7 +40,7 @@ const summaryOf = (run: ExamRun, locale?: LocaleExam): RunSummary => {
     ...header,
     mode: plan.mode,
     ...(plan.module && { part: locale?.modules?.[plan.module]?.title ?? plan.module }),
-    ...(result && { points: result.points, max: result.max }),
+    ...(result && examScore(result, plan.mode)),
     ...(passed !== undefined && { passed }),
   };
 };
@@ -58,7 +62,7 @@ export function createExams(deps: {
     const all = runsOf(key);
     const tests = all.filter((r) => r.plan.mode === "test" && r.status === "finished");
     const best = tests.reduce<ExamRun | undefined>(
-      (a, r) => (!a || (r.result?.points ?? 0) > (a.result?.points ?? 0) ? r : a),
+      (a, r) => (!a || score(r) > score(a) ? r : a),
       undefined,
     );
     return {

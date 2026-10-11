@@ -2,7 +2,13 @@
 // federal state its questions are asked of, the whole exam or one module, the three ways in as tiles —
 // a mock exam as the real test runs it, practice with each answer checked at once, the catalogue of
 // every question with its answer — and the latest mock exam, the way to the rest in the Notebook.
-import { examSettings, missingSettings, openQuestions, timeOf } from "@sprachanker/engine";
+import {
+  examScore,
+  examSettings,
+  missingSettings,
+  openQuestions,
+  timeOf,
+} from "@sprachanker/engine";
 import type { ExamMode } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, BookOpenCheck, Dumbbell, Timer } from "lucide-react";
@@ -186,8 +192,9 @@ export function ExamPage({ params, start }: { params: ExamParams; start?: ExamMo
             {data.last
               ? t("exams.lastResult", {
                   date: date.format(data.last.finishedAt ?? data.last.startedAt),
-                  points: data.last.result?.points ?? 0,
-                  max: data.last.result?.max ?? 0,
+                  ...(data.last.result
+                    ? examScore(data.last.result, "test")
+                    : { points: 0, max: 0 }),
                 })
               : t("exams.noResultYet")}
           </span>

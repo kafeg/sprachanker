@@ -1428,6 +1428,7 @@
     "mapUnseen": "دیده‌نشده",
     "mapSummary": "از {total, number} پرسش: {known, number} بلد، {wrong, number} دفعه قبل نادرست",
     "points": "{points, number} از {max, number}",
+    "taskPoints": "تکالیف: {points, number} از {max, number}",
     "passed": "قبول",
     "failed": "مردود",
     "state": "ایالت",

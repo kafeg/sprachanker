@@ -1428,6 +1428,7 @@
     "mapUnseen": "नहीं देखे",
     "mapSummary": "{total, number} प्रश्नों में से: {known, number} आते हैं, {wrong, number} पिछली बार गलत",
     "points": "{max, number} में से {points, number}",
+    "taskPoints": "कार्य: {max, number} में से {points, number}",
     "passed": "पास",
     "failed": "पास नहीं",
     "state": "राज्य",

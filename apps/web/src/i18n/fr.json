@@ -1428,6 +1428,7 @@
     "mapUnseen": "pas vues",
     "mapSummary": "Sur {total, number} questions : {known, number} connues, {wrong, number} ratées la dernière fois",
     "points": "{points, number} sur {max, number}",
+    "taskPoints": "tâches : {points, number} sur {max, number}",
     "passed": "Réussi",
     "failed": "Pas réussi",
     "state": "Land",

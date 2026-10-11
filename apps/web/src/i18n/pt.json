@@ -1428,6 +1428,7 @@
     "mapUnseen": "não vistas",
     "mapSummary": "De {total, number} perguntas: {known, number} sabidas, {wrong, number} erradas da última vez",
     "points": "{points, number} de {max, number}",
+    "taskPoints": "tarefas: {points, number} de {max, number}",
     "passed": "Aprovado",
     "failed": "Reprovado",
     "state": "Estado",

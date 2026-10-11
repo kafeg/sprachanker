@@ -2,7 +2,7 @@
 // reached or not, the points by section, then the questions answered wrongly or not at all with the
 // right answer (all of them on request), and the ways on: practise the mistakes, try again, back.
 
-import { examPassed, markMax, marksOf } from "@sprachanker/engine";
+import { examPassed, examScore, markMax, marksOf } from "@sprachanker/engine";
 import type {
   Exam,
   ExamItem,
@@ -21,7 +21,7 @@ import type { ExamParams } from "@/library/exam-address.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Progress } from "@/ui/components/progress.tsx";
 import { errorText } from "@/ui/error-text.ts";
-import { useDateFormat } from "@/ui/format.ts";
+import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
 import { BackLink, EmptyState } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { ProgressRing } from "@/ui/progress-ring.tsx";
@@ -53,6 +53,8 @@ export function ExamResultView({
   const navigate = useNavigate();
   const begin = useStartExam();
   const date = useDateFormat("dayTime");
+  const number = useNumber();
+  const percent = usePercent();
   const [all, setAll] = useState(false);
   const answers = useMemo(() => latestAnswers(events), [events]);
   const result = run.result;
@@ -71,6 +73,8 @@ export function ExamResultView({
   const marks = marksOf(exam, modules);
   const judged = !practice && marks.length > 0;
   const passed = !!examPassed(result);
+  // A mock exam on the exam's own scale (Goethe A1: the modules' scaled points), as its marks count.
+  const score = result ? examScore(result, run.plan.mode) : { points: 0, max: 0 };
   /** A section's title; with modules, its module's too ("Hören · Teil 1"). */
   const sectionTitle = (key: string) => {
     const title = locale?.sections[key as keyof typeof locale.sections]?.title ?? "";
@@ -110,28 +114,29 @@ export function ExamResultView({
         <section className={cn(panelClass, "mt-3 p-5 shadow-sm")}>
           <div className="flex items-center gap-4">
             <ProgressRing
-              value={result.max ? result.points / result.max : 0}
-              text={`${result.points}/${result.max}`}
+              value={score.max ? score.points / score.max : 0}
+              text={percent(score.max ? score.points / score.max : 0)}
               tone={!judged ? "primary" : passed ? "correct" : "wrong"}
             />
             <div>
               {practice ? (
                 <h1 className="font-heading text-2xl font-bold">
-                  {t("exams.practiceScore", { points: result.points, count: result.max })}
+                  {t("exams.practiceScore", { points: score.points, count: score.max })}
                 </h1>
               ) : !judged ? (
-                <h1 className="font-heading text-2xl font-bold">
-                  {t("exams.points", { points: result.points, max: result.max })}
-                </h1>
+                <h1 className="font-heading text-2xl font-bold">{t("exams.points", score)}</h1>
               ) : (
-                <h1
-                  className={cn(
-                    "font-heading text-3xl font-bold",
-                    passed ? "text-correct" : "text-wrong",
-                  )}
-                >
-                  {t(passed ? "exams.passed" : "exams.failed")}
-                </h1>
+                <>
+                  <h1
+                    className={cn(
+                      "font-heading text-3xl font-bold",
+                      passed ? "text-correct" : "text-wrong",
+                    )}
+                  >
+                    {t(passed ? "exams.passed" : "exams.failed")}
+                  </h1>
+                  <p className="font-medium tabular-nums">{t("exams.points", score)}</p>
+                </>
               )}
               {run.endReason === "timeout" && (
                 <p className="text-sm text-muted-foreground">{t("exams.timeUp")}</p>
@@ -163,12 +168,20 @@ export function ExamResultView({
               {Object.entries(result.modules).map(([m, s]) => {
                 const scaleTo = exam.modules?.find((x) => x.id === m)?.scaleTo;
                 return (
-                  <li key={m} className="flex justify-between gap-2 text-sm font-medium">
-                    <span>{locale?.modules?.[m]?.title ?? m}</span>
-                    <span className="tabular-nums">
-                      {scaleTo
-                        ? t("exams.points", { points: s.scaled, max: scaleTo })
-                        : t("exams.points", { points: s.points, max: s.max })}
+                  <li key={m} className="flex flex-wrap justify-between gap-x-2 text-sm">
+                    <span className="font-medium">{locale?.modules?.[m]?.title ?? m}</span>
+                    <span className="ms-auto text-end tabular-nums">
+                      <span className="font-medium">
+                        {scaleTo
+                          ? t("exams.points", { points: s.scaled, max: scaleTo })
+                          : t("exams.points", { points: s.points, max: s.max })}
+                      </span>
+                      {/* Scaled: the tasks' own points as the detail. */}
+                      {scaleTo && (
+                        <span className="block text-xs text-muted-foreground">
+                          {t("exams.taskPoints", { points: s.points, max: s.max })}
+                        </span>
+                      )}
                     </span>
                   </li>
                 );
@@ -182,7 +195,7 @@ export function ExamResultView({
                   <div className="flex justify-between text-sm">
                     <span>{sectionTitle(key)}</span>
                     <span className="tabular-nums">
-                      {s.points}/{s.max}
+                      {number(s.points)}/{number(s.max)}
                     </span>
                   </div>
                   <Progress value={s.max ? (s.points / s.max) * 100 : 0} className="mt-1 h-2" />

@@ -1428,6 +1428,7 @@
     "mapUnseen": "nevăzute",
     "mapSummary": "Întrebări: {total, number}; știute {known, number}, greșite data trecută {wrong, number}",
     "points": "{points, number} din {max, number}",
+    "taskPoints": "sarcini: {points, number} din {max, number}",
     "passed": "Promovat",
     "failed": "Nepromovat",
     "state": "Land",

@@ -1428,6 +1428,7 @@
     "mapUnseen": "δεν τις έχεις δει",
     "mapSummary": "Από {total, number} ερωτήσεις: {known, number} γνωστές, {wrong, number} λάθος την τελευταία φορά",
     "points": "{points, number} από {max, number}",
+    "taskPoints": "εργασίες: {points, number} από {max, number}",
     "passed": "Επιτυχία",
     "failed": "Αποτυχία",
     "state": "Ομόσπονδο κρατίδιο",

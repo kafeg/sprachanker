@@ -1428,6 +1428,7 @@
     "mapUnseen": "belum dilihat",
     "mapSummary": "Dari {total, number} pertanyaan: {known, number} dikuasai, {wrong, number} salah terakhir kali",
     "points": "{points, number} dari {max, number}",
+    "taskPoints": "tugas: {points, number} dari {max, number}",
     "passed": "Lulus",
     "failed": "Tidak lulus",
     "state": "Negara bagian",
