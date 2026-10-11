@@ -23,7 +23,8 @@ src/
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day; a backup on request into a folder);
                      # profile-transfer.ts (profile files in profiles/.transfers: a snapshot streamed as a
-                     # zip — fflate —, a file read by its zip directory, unpacked, its database checked);
+                     # zip — fflate —, a file read by its zip directory, unpacked, its database checked
+                     # in a Worker: profile-db-worker.ts over profile-db.ts — the exact schema first);
                      # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
                      # and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);

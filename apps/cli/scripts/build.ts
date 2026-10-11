@@ -3,7 +3,7 @@
 // Usage: bun apps/cli/scripts/build.ts   (after `bun run build:web`)
 import { copyFileSync, existsSync, rmSync } from "node:fs";
 import { join, relative, resolve } from "node:path";
-import { speechEngines, targetTriple } from "@sprachanker/server";
+import { PROFILE_DB_WORKER, speechEngines, targetTriple } from "@sprachanker/server";
 import { Glob } from "bun";
 
 const cliDir = resolve(import.meta.dir, "..");
@@ -19,6 +19,9 @@ if (!existsSync(join(webDist, "index.html"))) {
 // Each file is imported `with { type: "file" }`, which embeds it in the binary; the map gives the
 // server URL path → embedded path. Bun adds a hash to embedded names, so paths are never guessed.
 const files = (await Array.fromAsync(new Glob("**/*").scan({ cwd: webDist }))).sort();
+// The Worker that makes an imported profile's database ready is an entry of its own (Bun bundles a
+// Worker only so); in the binary it is named by its path from `root`, the repository.
+const root = resolve(cliDir, "../..");
 const source = [
   'import { main } from "../src/main.ts";',
   ...files.map(
@@ -29,6 +32,7 @@ const source = [
   "  webFiles: {",
   ...files.map((file, i) => `    ${JSON.stringify(`/${file}`)}: f${i},`),
   "  },",
+  `  profileDbWorker: ${JSON.stringify(`./${relative(root, PROFILE_DB_WORKER)}`)},`,
   "});",
   "",
 ].join("\n");
@@ -38,7 +42,12 @@ await Bun.write(entry, source);
 // every compile: build from the output folder and remove it there.
 const workingDir = process.cwd();
 process.chdir(outDir);
-const result = await Bun.build({ entrypoints: [entry], compile: { outfile }, minify: true });
+const result = await Bun.build({
+  entrypoints: [entry, PROFILE_DB_WORKER],
+  root,
+  compile: { outfile },
+  minify: true,
+});
 for (const leftover of new Glob(".*.bun-build").scanSync({ cwd: outDir, dot: true })) {
   rmSync(join(outDir, leftover));
 }

@@ -279,10 +279,16 @@ recordings/<ulid>.<ext>
      and `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a
      migration this app does not know: 422 `profile_from_newer_app`; the files exactly those listed,
      each unpacked streaming and its size and sha256 as listed — else 422 `profile_file_damaged`;
-  3. the database: sound (`integrity_check`, its references), no migration this app does not know
-     (also when the manifest does not say so), migrated forward by the usual migrations (with the
-     usual copy before, Migrations), its `secrets` emptied, and its schema this app's own — tables,
-     indexes and nothing more, no trigger — else `profile_file_damaged`.
+  3. the database, apart from the server's work (a Worker; one not done in 30 minutes is refused): the
+     file is untrusted, and views, triggers, CHECK constraints and indexed expressions are SQL of its
+     own that runs when it is read or written. So, opened read-only with `trusted_schema` off, nothing
+     is read of it but `sqlite_master`, which must be exactly — whitespace aside — what this app's
+     migrations make after one or more of them (each such schema made once in memory): its tables and
+     indexes, nothing more (no view, trigger, virtual table, `sqlite_stat*`). Only then: sound
+     (`integrity_check`, its references); its `_migrations` exactly those that make that schema —
+     a migration this app does not know is `profile_from_newer_app` (also when the manifest does not
+     say so) —; migrated forward by the usual migrations (with the usual copy before, Migrations); its
+     `secrets` emptied. Anything else: `profile_file_damaged`.
   The result: the new profile, what the file left out, and the content it used that is not here
   (courses or editions not installed, exams, imported decks): imported all the same — its runs read
   by their snapshots and its cards by their display, as after a course is removed (Lifecycle); the

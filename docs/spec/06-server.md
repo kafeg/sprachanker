@@ -292,7 +292,9 @@ migration, a bad option) is one line, `sprachanker: <message>`, never a stack tr
 
 **Binary build.** `bun run build:cli` builds the speech engines (08; they are part of the app, owner
 2026-10-11) and the web app, generates an entry that imports every web
-file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary. Embedded
+file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary — with the
+Worker that makes an imported profile's database ready as a second entry (Bun bundles a Worker only
+so), named by its path from the repository (`root`) and handed to the server by the entry. Embedded
 files live under `/$bunfs/root/` and are found through the import values (URL path → embedded path),
 so the binary works from any folder; e2e runs it from a temp folder. Migrations are bundled as text
 imports (`packages/server/src/db/profile/migrations/index.ts`,

@@ -46,6 +46,9 @@ The data root holds library/ and profiles/: --data, else $SPRACHANKER_DATA, else
 export interface Embedded {
   /** URL path → embedded file path of the built web app (set by the compiled binary's entry). */
   webFiles: Record<string, string>;
+  /** The Worker that makes an imported profile's database ready: an entry of the binary of its own,
+   *  named as the build gives it. */
+  profileDbWorker?: string;
 }
 
 const list = (value: string | undefined) =>
@@ -80,9 +83,9 @@ export function serveOptions(args: string[]) {
   return { hostname: values.host, port, dataRoot: resolveDataRoot(values.data), allowHosts };
 }
 
-function serve(args: string[], webAssets: WebAssets): void {
+function serve(args: string[], webAssets: WebAssets, profileDbWorker?: string): void {
   const options = serveOptions(args);
-  const server = startServer({ ...options, webAssets, appVersion: pkg.version });
+  const server = startServer({ ...options, webAssets, appVersion: pkg.version, profileDbWorker });
   console.log(`SprachAnker is running at ${server.url} (data: ${options.dataRoot})`);
 }
 
@@ -183,13 +186,15 @@ const inWords = (error: unknown) =>
 
 const megabytes = (bytes: number) => `${(bytes / 1e6).toFixed(1)} MB`;
 
-async function profilesCommand(args: string[]): Promise<void> {
+async function profilesCommand(args: string[], embedded?: Embedded): Promise<void> {
   const { values, positionals } = parseArgs({
     args,
     allowPositionals: true,
     options: { data: { type: "string" }, to: { type: "string" } },
   });
-  const profiles = profileAdmin(resolveDataRoot(values.data), pkg.version);
+  const profiles = profileAdmin(resolveDataRoot(values.data), pkg.version, {
+    profileDbWorker: embedded?.profileDbWorker,
+  });
   const [action, arg] = positionals;
   switch (action) {
     case undefined:
@@ -285,6 +290,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
         embedded
           ? fileAssets(embedded.webFiles)
           : directoryAssets(resolve(import.meta.dir, "../../web/dist")),
+        embedded?.profileDbWorker,
       );
       break;
     case "import":
@@ -294,7 +300,7 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       await verifyCommand(rest);
       break;
     case "profiles":
-      await profilesCommand(rest);
+      await profilesCommand(rest, embedded);
       break;
     case "backup":
       backupCommand(rest);

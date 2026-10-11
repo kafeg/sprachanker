@@ -24,13 +24,8 @@ import { dirname, join } from "node:path";
 import { ProfileFilePath } from "@sprachanker/schema";
 import { Zip, ZipPassThrough } from "fflate";
 import type { ProfileFileEntry, TransferFiles } from "../services/profile-transfer.ts";
-import {
-  BUSY_MS,
-  openProfileSqlite,
-  profileDbFile,
-  profileMigrationTags,
-  vacuumInto,
-} from "./bun.ts";
+import { BUSY_MS, profileDbFile, profileMigrationTags, vacuumInto } from "./bun.ts";
+import type { Settled } from "./profile-db.ts";
 
 const MANIFEST = "manifest.json";
 /** A manifest is small: a line per file. */
@@ -41,6 +36,11 @@ const KEPT_MS = 60 * 60_000;
 /** Room kept free beyond what a transfer writes. */
 const MARGIN = 16 * 1024 * 1024;
 const RECORDING = /^[0-9A-HJKMNP-TV-Z]{26}\.[a-z0-9]{1,8}$/;
+/** A database made ready for longer than this is refused (a 4 GB one takes minutes). */
+const SETTLE_MS = 30 * 60_000;
+/** The Worker that makes an imported database ready, from sources; the compiled binary names its own
+ *  (apps/cli/scripts/build.ts adds it as an entry). */
+export const PROFILE_DB_WORKER = join(import.meta.dir, "profile-db-worker.ts");
 
 /** A full disk, found before writing: the same error a write that runs out of room gives. */
 const noSpace = () => Object.assign(new Error("not enough free space"), { code: "ENOSPC" });
@@ -132,17 +132,14 @@ function zipEntries(file: string) {
   }
 }
 
-/** A database's tables, indexes and triggers as their SQL. */
-const schemaOf = (sqlite: Database) =>
-  sqlite
-    .query<{ type: string; name: string; sql: string | null }, []>(
-      "SELECT type, name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%' ORDER BY type, name",
-    )
-    .all();
-
 export function profileTransferFiles(
   dataRoot: string,
-  options: { free?: (dir: string) => number | null } = {},
+  options: {
+    free?: (dir: string) => number | null;
+    /** The Worker of profile-db-worker.ts: the compiled binary's own, else PROFILE_DB_WORKER. */
+    worker?: string;
+    settleMs?: number;
+  } = {},
 ): TransferFiles {
   const free = options.free ?? diskFree;
   const root = join(dataRoot, "profiles", ".transfers");
@@ -350,42 +347,20 @@ export function profileTransferFiles(
     },
     settle(id) {
       const file = join(unpacked(id), "profile.sqlite");
-      let tags: string[];
-      try {
-        const db = new Database(file, { readonly: true });
-        try {
-          const sound =
-            db.query<{ integrity_check: string }, []>("PRAGMA integrity_check").all()[0]
-              ?.integrity_check === "ok" && !db.query("PRAGMA foreign_key_check").all().length;
-          if (!sound) return "damaged";
-          tags = db
-            .query<{ tag: string }, []>("SELECT tag FROM _migrations")
-            .all()
-            .map((r) => r.tag);
-        } finally {
-          db.close();
-        }
-      } catch {
-        // Not a database, or one without the migrations' table.
-        return "damaged";
-      }
-      if (tags.some((tag) => !profileMigrationTags.includes(tag))) return "newer";
-      let sqlite: Database | undefined;
-      const fresh = openProfileSqlite(":memory:");
-      try {
-        // Forward, with the usual copy beside it first (05, "Migrations").
-        sqlite = openProfileSqlite(file);
-        sqlite.exec("DELETE FROM secrets");
-        // Nothing but this app's own tables, indexes and triggers.
-        return JSON.stringify(schemaOf(sqlite)) === JSON.stringify(schemaOf(fresh))
-          ? "ok"
-          : "damaged";
-      } catch {
-        return "damaged";
-      } finally {
-        sqlite?.close();
-        fresh.close();
-      }
+      const worker = new Worker(options.worker ?? PROFILE_DB_WORKER);
+      return new Promise<Settled>((resolve) => {
+        const done = (settled: Settled) => {
+          clearTimeout(timer);
+          // A worker held inside SQLite itself is not stopped by this; nothing of the file's own SQL
+          // runs there (profile-db.ts), so only a fault of SQLite's could hold it.
+          void worker.terminate();
+          resolve(settled);
+        };
+        const timer = setTimeout(() => done("damaged"), options.settleMs ?? SETTLE_MS);
+        worker.onmessage = (event: MessageEvent<Settled>) => done(event.data);
+        worker.onerror = () => done("damaged");
+        worker.postMessage({ file });
+      });
     },
     adopt(id, profileId, register) {
       const target = join(dataRoot, "profiles", profileId);

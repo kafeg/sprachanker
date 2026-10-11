@@ -77,10 +77,10 @@ export const profileDbFile = (dataRoot: string, id: string) =>
 /** The migrations a profile database may have: this app's, in order. */
 export const profileMigrationTags = migrations.map((m) => m.tag);
 
-/** A profile database opened (created if needed) in WAL mode with pending migrations applied: the
- *  SQLite handle itself (a profile file's import checks it). */
-export const openProfileSqlite = (file: string, now = Date.now()) =>
-  openSqlite(file, migrations, now);
+/** A profile database opened (created if needed) in WAL mode with pending migrations applied — the
+ *  first `upTo` of them —: the SQLite handle itself (a profile file's import checks it). */
+export const openProfileSqlite = (file: string, now = Date.now(), upTo = migrations.length) =>
+  openSqlite(file, migrations.slice(0, upTo), now);
 
 /** Opens (creating if needed) a profile database in WAL mode and applies pending migrations; `close`
  *  lets it go. */

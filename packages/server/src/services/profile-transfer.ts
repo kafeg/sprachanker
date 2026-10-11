@@ -68,10 +68,11 @@ export interface TransferFiles {
   ): { manifest: string; entries: Array<{ path: string; size: number }> } | undefined;
   /** Its files unpacked into the transfer, streamed, each with its size and hash as unpacked. */
   unpack(id: string, file?: string): Promise<ProfileFileEntry[]>;
-  /** The unpacked database made ready: a sound SQLite database (integrity, references) with no
-   *  migration this app does not know, migrated forward (the usual copy before), its secrets emptied,
-   *  its schema this app's own. */
-  settle(id: string): "ok" | "newer" | "damaged";
+  /** The unpacked database made ready, apart from the server's work: its schema exactly what this
+   *  app's migrations make (before anything of it is read), sound (integrity, references), its
+   *  migrations those, migrated forward (the usual copy before), its secrets emptied. "newer" when it
+   *  has a migration this app does not know; "damaged" also when it takes too long. */
+  settle(id: string): Promise<"ok" | "newer" | "damaged">;
   /** The unpacked profile moved into place as `profiles/<profileId>` and `register`ed; moved back
    *  into the transfer when that fails. */
   adopt<T>(id: string, profileId: string, register: () => T): T;
@@ -223,7 +224,7 @@ export function createProfileTransfer(deps: {
       listed.get(f.path)?.sha256 === f.sha256 && listed.get(f.path)?.size === f.size;
     if (unpacked.length !== listed.size || !unpacked.every(asListed))
       throw new ServiceError("profile_file_damaged", 422);
-    const settled = files.settle(id);
+    const settled = await files.settle(id);
     if (settled === "newer") throw new ServiceError("profile_from_newer_app", 422);
     if (settled === "damaged") throw new ServiceError("profile_file_damaged", 422);
     const profileId = ulid(now()).toLowerCase();

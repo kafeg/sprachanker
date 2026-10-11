@@ -302,6 +302,86 @@ test("a file that is no profile file, or one changed after it was made, is refus
   );
 });
 
+test("a database with SQL of its own is refused before any of it runs: a view, triggers, an indexed expression, statistics", async () => {
+  const { bytes } = await exported(await studied());
+  // Each import's database as it was left once settled, before its transfer goes.
+  const after: Array<{ fired: unknown[]; secrets: number; copies: string[] }> = [];
+  const b = await setup({
+    transfers: (root): TransferFiles => {
+      const real = profileTransferFiles(root);
+      return {
+        ...real,
+        async settle(id) {
+          const settled = await real.settle(id);
+          const folder = join(root, "profiles", ".transfers", id, "profile");
+          const db = new Database(join(folder, "profile.sqlite"), { readonly: true });
+          try {
+            const has = (table: string) =>
+              !!db.query("SELECT 1 FROM sqlite_master WHERE name = ?").get(table);
+            after.push({
+              fired: has("fired") ? db.query("SELECT * FROM fired").all() : [],
+              secrets: has("secrets") ? db.query("SELECT * FROM secrets").all().length : 0,
+              copies: readdirSync(folder).filter((n) => n.includes(".bak-")),
+            });
+          } finally {
+            db.close();
+          }
+          return settled;
+        },
+      };
+    },
+  });
+  const refused = async (body: Uint8Array) => {
+    const started = Date.now();
+    const res = await importInto(b, body);
+    expect([res.status, await read(res)]).toEqual([422, { error: "profile_file_damaged" }]);
+    expect(Date.now() - started).toBeLessThan(3000);
+    await nothingLeft(b);
+  };
+  // A view in the migrations' place that never ends when read.
+  await refused(
+    repack(bytes, {
+      sql: `DROP TABLE _migrations;
+        CREATE VIEW _migrations AS WITH RECURSIVE n(x) AS (SELECT 1 UNION ALL SELECT x + 1 FROM n)
+        SELECT '0000_init' AS tag, 0 AS applied_at FROM n WHERE x = 0;`,
+    }),
+  );
+  // Triggers that a migration and emptying the secrets would fire: neither ran.
+  await refused(
+    repack(bytes, {
+      sql: `INSERT INTO secrets (provider_id, value_encrypted) VALUES ('openrouter', 'sealed');
+        CREATE TABLE fired (what TEXT);
+        CREATE TRIGGER on_secrets BEFORE DELETE ON secrets BEGIN INSERT INTO fired VALUES ('secrets'); END;
+        CREATE TRIGGER on_migrations AFTER INSERT ON _migrations BEGIN INSERT INTO fired VALUES ('migrated'); END;
+        DELETE FROM _migrations WHERE tag = '0001_deck_source_keys';`,
+      manifest: (m) => {
+        m.migrations = ["0000_init"];
+      },
+    }),
+  );
+  expect(after.at(-1)).toEqual({ fired: [], secrets: 1, copies: [] });
+  // An index on an expression, all else as it was: the schema alone refuses it.
+  await refused(repack(bytes, { sql: "CREATE INDEX cards_abs ON cards (abs(suspended))" }));
+  // The statistics ANALYZE leaves (sqlite_stat1).
+  const analysed = repack(bytes, { sql: "ANALYZE" });
+  const stat = join(mkdtempSync(join(tmpdir(), "sprachanker-stat-")), "profile.sqlite");
+  writeFileSync(stat, unzipSync(analysed)["profile.sqlite"] as Uint8Array);
+  expect(
+    new Database(stat, { readonly: true })
+      .query("SELECT name FROM sqlite_master WHERE name = 'sqlite_stat1'")
+      .all(),
+  ).toEqual([{ name: "sqlite_stat1" }]);
+  await refused(analysed);
+});
+
+test("a database made ready for too long is refused", async () => {
+  const { bytes } = await exported(await studied());
+  const slow = await setup({ transfers: (root) => profileTransferFiles(root, { settleMs: 1 }) });
+  const res = await importInto(slow, bytes);
+  expect([res.status, await read(res)]).toEqual([422, { error: "profile_file_damaged" }]);
+  await nothingLeft(slow);
+});
+
 test("a profile from a newer app is refused; one from an older app is migrated forward with a copy", async () => {
   const { bytes } = await exported(await studied());
   const b = await setup();
