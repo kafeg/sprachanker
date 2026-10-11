@@ -1,9 +1,14 @@
-// respond: a free answer (a translation, a sentence of one's own), typed: it is writing practice, so
-// no microphone (owner, 2026-10-11; an answer said earlier keeps its recording). Without a rubric it is not scored:
+// respond: a free answer (a translation, a sentence of one's own), typed; one to be said (`input:
+// "speech"`, an exam's speaking part) also by voice in the language learnt (08: what was heard goes
+// into the box, the take kept with the answer) — never a written one (owner, 2026-10-11). Without a
+// rubric it is not scored:
 // after checking, the model answer(s) of the course are shown to compare with. A translation into the
 // learner's language (`answerIn: "learner"`) has its model answers in the locale item.
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useSpeechHost } from "@/audio/context.ts";
+import { DictateButton } from "@/audio/dictate.tsx";
+import type { Take } from "@/audio/recorder.ts";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { ANSWER_BOX, SpecialLetters } from "./shared.tsx";
@@ -16,17 +21,28 @@ export function Respond({ item, locale, answer, onAnswer, outcome }: RendererPro
   const lang = learner ? i18n.language : target;
   const reference = [...item.reference, ...(locale?.reference ?? [])];
   const scope = useRef<HTMLDivElement>(null);
+  const host = useSpeechHost();
+  // Said: the words heard join what is typed; the take is kept as the spoken answer.
+  const said = async (heard: string, take: Take) => {
+    const text = answer?.text.trim() ? `${answer.text.trimEnd()} ${heard}` : heard;
+    const recording = host ? await host.save(take).catch(() => undefined) : undefined;
+    onAnswer({ text, ...(recording && { speech: { recording, transcript: heard } }) });
+  };
+  const spoken = item.input === "speech" && !learner && !outcome && !!lang;
   return (
     <div ref={scope} className="space-y-3">
-      <Textarea
-        rows={2}
-        lang={lang}
-        value={answer?.text ?? ""}
-        disabled={!!outcome}
-        placeholder={t("ex.respondPlaceholder")}
-        onChange={(e) => onAnswer({ ...answer, text: e.target.value })}
-        className={ANSWER_BOX}
-      />
+      <div className="flex items-start gap-2">
+        <Textarea
+          rows={2}
+          lang={lang}
+          value={answer?.text ?? ""}
+          disabled={!!outcome}
+          placeholder={t("ex.respondPlaceholder")}
+          onChange={(e) => onAnswer({ ...answer, text: e.target.value })}
+          className={ANSWER_BOX}
+        />
+        {spoken && <DictateButton lang={lang} onText={(heard, take) => void said(heard, take)} />}
+      </div>
       {!outcome && !learner && <SpecialLetters scope={scope} />}
       {outcome && reference.length > 0 && (
         <div className="rounded-xl bg-muted px-4 py-3">

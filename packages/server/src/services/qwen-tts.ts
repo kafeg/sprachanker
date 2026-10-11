@@ -40,7 +40,7 @@ const QWEN_SPEAKERS = [
   "ono_anna",
   "sohee",
 ] as const;
-/** The speaker unless the learner picks one: one voice for every language, as a chosen one is. */
+/** The speaker of a language the learner picked none for. */
 const DEFAULT_SPEAKER = "ryan";
 /** The speaker chosen, else the default one. */
 const speakerOf = (choice: unknown) => QWEN_SPEAKERS.find((s) => s === choice) ?? DEFAULT_SPEAKER;

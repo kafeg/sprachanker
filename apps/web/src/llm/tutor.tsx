@@ -45,7 +45,7 @@ interface TutorAsk {
   newChat?: boolean;
 }
 
-/** A chat turn's bubble: the learner's ("user") or the tutor's (read aloud from its corner). */
+/** A chat turn's bubble: the learner's ("user") or the tutor's. */
 function Bubble({ from, children }: { from: "user" | "assistant"; children: React.ReactNode }) {
   return <ChatBubble from={from === "user" ? "learner" : "other"}>{children}</ChatBubble>;
 }

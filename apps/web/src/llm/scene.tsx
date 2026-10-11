@@ -171,7 +171,6 @@ function CurrentScene({
             onChange={setText}
             onSend={send}
             placeholder={t("scene.placeholder")}
-            speak={lang ? [lang] : []}
           />
         )}
         <div ref={end} />

@@ -39,7 +39,7 @@ Specs: 07, 09.
   about (a grammar question, a text to go through, a conversation to practise), in the interface
   language and the language of the learner's courses, with what the learner has met in their courses as its context; chats kept and
   listed as the lesson tutor's are.
-- **Accept**: a chat started from the section, kept, continued later; read aloud as the tutor's.
+- **Accept**: a chat started from the section, kept, continued later.
 
 ### 4. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
@@ -99,6 +99,14 @@ Specs: 04, 07, 08, 09.
 - Texts read aloud only in one language, given explicitly: no reading of texts mixing languages (the
   tutor's replies are not read); no dictation where the task is writing (owner, 2026-10-11).
 - **Accept**: a speaking practice held by voice end to end in a lesson, its verdicts shown and kept.
+
+### 9. AI practice by the four skills (owner, 2026-10-11)
+Specs: 04, 07, 08, 09.
+- Every AI practice step reviewed together with the owner and brought to one standard by the skill it
+  trains — reading, listening, writing, speaking — what each is today (explanations, the tutor,
+  "Write it yourself", scenes, going over mistakes, word examples, exam conversations) and what it
+  should become; voice only where the skill is listening or speaking, typing only where it is writing.
+- **Accept**: the agreed list of practices per skill written into spec 04/07, then built step by step.
 
 ## Open items in built areas
 Taken along when an item above touches the area, or on request.

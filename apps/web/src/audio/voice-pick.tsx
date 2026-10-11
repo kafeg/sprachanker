@@ -50,8 +50,8 @@ export function VoicePick({
   onListen,
 }: {
   lang: string;
-  /** The voices to choose from for this language (none: one voice reads every language). */
-  pick?: {
+  /** The voices to choose from for this language. */
+  pick: {
     options: Array<{ id: string; name: string }>;
     value: string;
     /** The name of the voice "automatic" reads with. */
@@ -73,26 +73,24 @@ export function VoicePick({
   };
   return (
     <>
-      {pick && (
-        <Select value={pick.value} onValueChange={pick.onChange}>
-          <SelectTrigger
-            className="min-w-56 flex-1"
-            aria-label={t("speech.settings.voiceFor", { language: name })}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={AUTO}>
-              {t("speech.settings.voiceAuto", { name: pick.auto })}
+      <Select value={pick.value} onValueChange={pick.onChange}>
+        <SelectTrigger
+          className="min-w-56 flex-1"
+          aria-label={t("speech.settings.voiceFor", { language: name })}
+        >
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={AUTO}>
+            {t("speech.settings.voiceAuto", { name: pick.auto })}
+          </SelectItem>
+          {pick.options.map((v) => (
+            <SelectItem key={v.id} value={v.id}>
+              {v.name}
             </SelectItem>
-            {pick.options.map((v) => (
-              <SelectItem key={v.id} value={v.id}>
-                {v.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+          ))}
+        </SelectContent>
+      </Select>
       <Button variant="outline" size="sm" onClick={() => onListen(text.trim() || phrase)}>
         <Volume2 className="size-4" /> {t("speech.settings.listen")}
       </Button>

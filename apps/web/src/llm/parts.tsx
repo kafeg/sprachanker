@@ -180,7 +180,7 @@ export function StartPrompt({
 }
 
 /** The message box under a conversation: Enter sends, Shift+Enter breaks the line; with `speak`, a
- *  microphone per language says it instead of typing (the text heard goes into the box). */
+ *  microphone says it in that language instead of typing (the text heard goes into the box). */
 export function ChatComposer({
   value,
   onChange,
@@ -188,7 +188,7 @@ export function ChatComposer({
   onStop,
   placeholder,
   lang,
-  speak = [],
+  speak,
 }: {
   value: string;
   onChange(value: string): void;
@@ -197,11 +197,10 @@ export function ChatComposer({
   onStop?: () => void;
   placeholder: string;
   lang?: string;
-  /** Languages one may speak the message in (the learnt one first). */
-  speak?: string[];
+  /** The language one may speak the message in (the one learnt). */
+  speak?: string;
 }) {
   const { t } = useTranslation();
-  const languages = [...new Set(speak)];
   return (
     <form
       className="flex items-end gap-2 border-t p-3"
@@ -225,14 +224,12 @@ export function ChatComposer({
           }
         }}
       />
-      {languages.map((l) => (
+      {speak && (
         <DictateButton
-          key={l}
-          lang={l}
-          short={languages.length > 1}
+          lang={speak}
           onText={(heard) => onChange(value.trim() ? `${value.trimEnd()} ${heard}` : heard)}
         />
-      ))}
+      )}
       {onStop ? (
         <Button
           type="button"

@@ -130,7 +130,7 @@ export function ExamConversation({
             onChange={setText}
             onSend={() => text.trim() && send(text.trim())}
             placeholder={t("exams.conversation.placeholder")}
-            speak={lang ? [lang] : []}
+            speak={lang}
           />
           <div className="flex justify-end px-3 pb-3">
             <Button variant="ghost" size="sm" onClick={() => onAnswer(transcript(lines), true)}>

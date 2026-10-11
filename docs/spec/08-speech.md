@@ -59,11 +59,12 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   (without it the item says so and is left to skip).
 - ASR "autocorrects" learner errors: show "heard: …" literally; speech results are practice feedback,
   not pronunciation grading (sounds: a phoneme recogniser, set aside — plan, "Later").
-- **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of a scene's line
-  and of an exam's speaking part, in the language learnt only: what was heard goes into the box,
-  joined to what is typed, read over and changed before it is sent. Tap to start and stop. Shown only
-  while recognition is on and ready. Never where the task is writing — a free answer (`respond`), the
-  tutor, "Write it yourself" (owner, 2026-10-11).
+- **Saying instead of typing** (`audio/dictate.tsx`): a microphone beside the box of an answer that
+  is to be said — an exam's speaking part (its conversation, or its `respond` item with `input:
+  "speech"`) — in the language learnt only: what was heard goes into the box, joined to what is typed,
+  read over and changed before it is sent; a `respond` item keeps the take as its spoken answer. Tap
+  to start and stop. Shown only while recognition is on and ready. Never where the task is writing — a
+  free answer, the tutor, "Write it yourself", a scene's line (owner, 2026-10-11).
 - Target: median server-side transcription ≤ 1.5 s for 3–5 s utterances on the owner's Mac.
 
 ## Reading aloud (TTS)

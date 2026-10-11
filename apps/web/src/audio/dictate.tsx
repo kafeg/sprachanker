@@ -1,5 +1,5 @@
 // Saying instead of typing (08): a small microphone beside a text box — a tap records, another stops
-// (or held down, by the setting), and what was heard in the language given goes into the box to be
+// and what was heard in the language given goes into the box to be
 // read over and changed before it is sent. Shown only while recognition is on and ready.
 import { LoaderCircle, Mic, Square } from "lucide-react";
 import { useState } from "react";
@@ -13,17 +13,12 @@ import { micState, type Take, useRecorder } from "./recorder.ts";
 export function DictateButton({
   lang,
   onText,
-  onTake,
-  short,
   className,
 }: {
   /** The language spoken (never detected, 08). */
   lang: string;
+  /** What was heard, with the take (kept as a spoken answer's recording where there is one). */
   onText(text: string, take: Take): void;
-  /** The take itself too (kept as a spoken answer's recording). */
-  onTake?(take: Take): void;
-  /** A short label on the button ("DE"), when there is one per language. */
-  short?: boolean;
   className?: string;
 }) {
   const { t, i18n } = useTranslation();
@@ -33,7 +28,6 @@ export function DictateButton({
   const recorder = useRecorder({
     onTake: (take) => {
       if (!host) return;
-      onTake?.(take);
       setBusy(true);
       setFailed(false);
       host
@@ -67,11 +61,6 @@ export function DictateButton({
             <LoaderCircle className="size-4 animate-spin" />
           ) : recording ? (
             <Square className="size-3.5 fill-current" />
-          ) : short ? (
-            <span className="flex items-center gap-0.5">
-              <Mic className="size-3.5" />
-              {lang.toUpperCase()}
-            </span>
           ) : (
             <Mic className="size-4" />
           )}

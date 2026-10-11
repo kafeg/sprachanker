@@ -38,10 +38,6 @@ export type AiPlace = (typeof AI_PLACES)[number];
 
 const filter = z.string().min(1).max(200);
 
-/** In `speech.voices`, the voice an engine reads every language with (Qwen3-TTS: each of its speakers
- *  speaks them all, so one is chosen for all). */
-export const ALL_LANGS = "*";
-
 /** Preferences the learner sets (the settings route). */
 export const LEARNER_SETTINGS = {
   uiLanguage: Lang,

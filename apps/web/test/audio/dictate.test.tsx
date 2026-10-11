@@ -1,6 +1,9 @@
 import { afterEach, expect, test } from "bun:test";
+import type { ItemOf } from "@sprachanker/schema";
 import { type SpeechHost, SpeechProvider } from "../../src/audio/context.ts";
+import { Respond } from "../../src/exercises/respond.tsx";
 import { ChatComposer } from "../../src/llm/parts.tsx";
+import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
 const saved = {
@@ -29,22 +32,35 @@ const host = (recognition: boolean): SpeechHost => ({
 });
 const composer = (recognition: boolean) => (
   <SpeechProvider value={host(recognition)}>
-    <ChatComposer
-      value=""
-      onChange={() => {}}
-      onSend={() => {}}
-      placeholder="…"
-      speak={["de", "ru", "de"]}
-    />
+    <ChatComposer value="" onChange={() => {}} onSend={() => {}} placeholder="…" speak="de" />
   </SpeechProvider>
 );
 
-test("a microphone per language beside the message box while recognition is on", async () => {
+test("a microphone in the language learnt beside the message box while recognition is on", async () => {
   microphoneHere();
   const view = await renderApp(composer(true));
-  expect(view.getByRole("button", { name: "Say it in German" }).textContent).toContain("DE");
-  expect(view.getByRole("button", { name: "Say it in Russian" })).toBeTruthy();
-  expect(view.getAllByRole("button", { name: /^Say it in/ })).toHaveLength(2);
+  expect(
+    view.getAllByRole("button", { name: /^Say it in/ }).map((b) => b.getAttribute("aria-label")),
+  ).toEqual(["Say it in German"]);
+});
+
+test("a free answer: a microphone only where it is to be said, never where it is written", async () => {
+  microphoneHere();
+  const item = (input: "text" | "speech") =>
+    ({ key: "s/c/00-01/x-01#1", input, reference: [] }) as unknown as ItemOf<"respond">;
+  for (const input of ["speech", "text"] as const) {
+    const view = await renderApp(
+      <SpeechProvider value={host(true)}>
+        <TargetLang value="de">
+          <Respond item={item(input)} answer={undefined} onAnswer={() => {}} url={(p) => p} />
+        </TargetLang>
+      </SpeechProvider>,
+    );
+    expect(view.queryAllByRole("button", { name: "Say it in German" })).toHaveLength(
+      input === "speech" ? 1 : 0,
+    );
+    view.unmount();
+  }
 });
 
 test("no microphone while recognition is off", async () => {
