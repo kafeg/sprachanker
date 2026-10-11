@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Stell Fragen zu dieser Lektion: Grammatik, Wörter, die Übung auf dem Bildschirm – oder übe einen kurzen Dialog. Die Antworten bleiben beim bisher Gelernten.",
+    "intro": "Stell Fragen zu dieser Lektion: Grammatik, Wörter, die Übung auf dem Bildschirm. Die Antworten bleiben beim bisher Gelernten.",
     "needsSetup": "Der Tutor braucht ein KI-Modell.",
     "openSettings": "KI-Assistent einrichten",
     "placeholder": "Stell eine Frage…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Erklär mir die Grammatik dieser Lektion",
       "examples": "Gib mir mehr Beispiele mit den neuen Wörtern",
-      "dialogue": "Lass uns einen kurzen Dialog üben",
       "exercise": "Gib mir einen Tipp zu dieser Übung",
-      "wordsQuiz": "Frag mich die neuen Wörter der Lektion ab",
-      "wordsMemory": "Hilf mir, die neuen Wörter zu behalten",
-      "grammarDrill": "Gib mir eine kurze Übung zur Grammatik der Lektion",
       "script": "Geh den Lektionstext Satz für Satz mit mir durch"
     },
     "context": "Kontext ≈ {used} von {window} Tokens",
@@ -360,13 +356,9 @@
     "deleteTitle": "Dieses Gespräch löschen?",
     "deleteBody": "Seine Nachrichten werden endgültig gelöscht.",
     "ask": {
-      "grammar": "Erklär die Grammatik dieser Lektion kurz mit 2–3 Beispielen aus der Lektion. Frag dann, ob alles klar ist.",
-      "examples": "Gib 3 kurze Beispiele mit den neuen Wörtern der Lektion, mit Übersetzung. Bitte mich dann, mit einem davon einen eigenen Satz zu bilden.",
-      "dialogue": "Lass uns einen kurzen Dialog zum Thema der Lektion üben. Du beginnst mit einem Satz und wartest auf meine Antwort; korrigiere meine Fehler unterwegs.",
+      "grammar": "Erklär die Grammatik dieser Lektion kurz mit 2–3 Beispielen aus der Lektion.",
+      "examples": "Gib 3 kurze Beispiele mit den neuen Wörtern der Lektion, mit Übersetzung.",
       "exercise": "Gib mir einen Hinweis zu dieser Übung, nicht die Lösung.",
-      "wordsQuiz": "Frag mich die neuen Wörter der Lektion ab, ein Wort nach dem anderen. Frag ein Wort, warte auf meine Antwort, sag, ob sie stimmt, und geh erst dann zum nächsten.",
-      "wordsMemory": "Hilf mir, die neuen Wörter der Lektion einzeln zu behalten: nimm ein Wort, gib mir eine Merkhilfe (ein ähnlicher Klang, ein Bild, der Stamm) und ein kurzes Beispiel, dann bitte mich, es zu wiederholen oder zu benutzen. Das nächste Wort erst nach meiner Antwort.",
-      "grammarDrill": "Gib mir eine kurze Übung zur Grammatik der Lektion: eine Aufgabe nach der anderen, warte auf meine Antwort, prüfe sie und erklär Fehler.",
       "script": "Gehen wir den Text der Lektion Satz für Satz durch: zeig den ersten Satz, übersetze ihn und erklär, was neu daran ist. Den nächsten Satz erst, wenn ich „weiter“ sage."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Erklärt eine falsche Antwort unter der Übung („Warum ist das falsch?“): was der Fehler ist und welche Regel dahintersteht, in deiner Sprache.",
-      "tutor": "Der Tutor der Lektion: beantwortet deine Fragen zur Lektion, ihren Wörtern und ihrer Grammatik und geht im Schritt „Fehler durchgehen“ deine Fehler einzeln durch.",
+      "tutor": "Der Tutor der Lektion: beantwortet deine Fragen zur Lektion, ihren Wörtern und ihrer Grammatik und erklärt – zur Übung auf dem Bildschirm zuerst mit Hinweisen. Geübt wird in den KI-Schritten der Lektion.",
       "tutorSection": "Der Tutor für sich, im Bereich „Tutor“: beantwortet außerhalb einer Lektion alles, was du fragst – eine Grammatikfrage, einen Text zum Durchgehen, ein Gespräch zum Üben – und weiß dabei, was du in deinen Kursen gelernt hast.",
       "writing": "Prüft einen kurzen Text aus „Schreib selbst“: Korrekturen, die A1-Kriterien (Aufgabe, Kommunikation, Richtigkeit) und eine Rückmeldung.",
       "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",

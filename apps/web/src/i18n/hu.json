@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Kérdezz erről a leckéről: nyelvtan, szavak, a képernyőn lévő feladat — vagy gyakorolj egy rövid párbeszédet. A válaszok nem lépik túl azt, amit eddig tanultál.",
+    "intro": "Kérdezz erről a leckéről: nyelvtan, szavak, a képernyőn lévő feladat. A válaszok nem lépik túl azt, amit eddig tanultál.",
     "needsSetup": "A tutorhoz MI-modell kell.",
     "openSettings": "MI-asszisztens beállítása",
     "placeholder": "Tegyél fel egy kérdést…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Magyarázd el a lecke nyelvtanát",
       "examples": "Adj még példákat az új szavakkal",
-      "dialogue": "Gyakoroljunk egy rövid párbeszédet",
       "exercise": "Adj egy tippet ehhez a feladathoz",
-      "wordsQuiz": "Kérdezz ki a lecke új szavaiból",
-      "wordsMemory": "Segíts megjegyezni az új szavakat",
-      "grammarDrill": "Adj egy rövid gyakorlatot a lecke nyelvtanából",
       "script": "Menjünk végig a lecke szövegén részletről részletre"
     },
     "context": "Kontextus ≈ {used} / {window} token",
@@ -360,13 +356,9 @@
     "deleteTitle": "Törlöd ezt a beszélgetést?",
     "deleteBody": "Az üzenetei véglegesen törlődnek.",
     "ask": {
-      "grammar": "Magyarázd el röviden a lecke nyelvtanát 2–3 példával a leckéből. Aztán kérdezd meg, hogy érthető-e.",
-      "examples": "Adj 3 rövid példát a lecke új szavaival, fordítással. Aztán kérd meg, hogy írjak egy saját mondatot valamelyikkel.",
-      "dialogue": "Gyakoroljunk egy rövid párbeszédet a lecke témájában. Te kezdesz egy mondattal, és megvárod a válaszomat; menet közben javítsd a hibáimat.",
+      "grammar": "Magyarázd el röviden a lecke nyelvtanát 2–3 példával a leckéből.",
+      "examples": "Adj 3 rövid példát a lecke új szavaival, fordítással.",
       "exercise": "Adj egy tippet ehhez a feladathoz, de ne a választ.",
-      "wordsQuiz": "Kérdezz ki a lecke új szavaiból, egyszerre egy szót. Kérdezz rá egy szóra, várd meg a válaszomat, mondd meg, hogy helyes-e, és csak utána lépj a következőre.",
-      "wordsMemory": "Segíts megjegyezni a lecke új szavait egyenként: vegyél egy szót, adj hozzá emlékeztetőt (hasonló hangzású szót, képet, szótövet) és egy rövid példát, aztán kérd, hogy ismételjem el vagy használjam. A következő szó csak a válaszom után jöjjön.",
-      "grammarDrill": "Adj egy rövid gyakorlatot a lecke nyelvtanából: egyszerre egy feladatot, várd meg a válaszomat, ellenőrizd, és magyarázd el a hibákat.",
       "script": "Menjünk végig a lecke szövegén részletről részletre: mutasd az első részletet, fordítsd le, és magyarázd el, mi új benne. A következő részlet csak akkor jöjjön, ha azt mondom: „tovább”."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Elmagyarázza a feladat alatt a hibás választ („Miért hibás?”): mi a hiba, és milyen szabály áll mögötte, a te nyelveden.",
-      "tutor": "A lecke tutora: válaszol a kérdéseidre a leckéről, a szavairól és a nyelvtanáról, és a „Hibák átnézése” lépésben egyenként végigmegy veled a hibáidon.",
+      "tutor": "A lecke tutora: válaszol a kérdéseidre a leckéről, a szavairól és a nyelvtanáról, és magyaráz — a képernyőn lévő feladathoz először tippekkel. Gyakorolni a lecke MI-lépéseiben lehet.",
       "tutorSection": "A tutor önállóan, a „Tutor” szakaszban: leckén kívül bármire válaszol – nyelvtani kérdésre, átnézendő szövegre, gyakorolni való beszélgetésre –, és tudja, mit tanultál a kurzusaidban.",
       "writing": "Ellenőrzi a rövid szöveget, amelyet az „Írj saját szöveget” lépésben írtál: javítások, az A1-es szempontok (feladat, kommunikáció, pontosság) és visszajelzés.",
       "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",

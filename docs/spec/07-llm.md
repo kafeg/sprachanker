@@ -115,7 +115,7 @@ rules.
 
 | Task | Input | Output |
 |---|---|---|
-| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level; the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text) |
+| `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level, the grammar topics met so far each with the lesson that taught it (the snapshot); the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text): what is wrong (never a guess at why it was chosen; a tendency said as one, not as a rule), the rule, where its topic was taught ("this is X from lesson 1.2") |
 | `chat_turn` | the lesson tutor: lesson context, the course's level and the lesson's place, known words, grammar topics met, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the course's level, the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), writing criteria at the course's level as CEFR writing exams rate them — Goethe's Schreiben for German, said with the data — (task, communication, accuracy: 0–2 + comment), feedback |
@@ -259,7 +259,11 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   command-line providers, nor when a server refused the tools). Each learner turn records the
   exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·
   Title]` where that changed, so earlier turns about other exercises are not read as about the current
-  one. The "Going over mistakes" step opens a new chat with the request to go through the mistakes.
+  one. Its rules (walkthrough, 2026-10-12): questions and explanations only (practice is the lesson's
+  steps, 04); hints first only for the exercise on screen — any other question, "how do I say X"
+  too, answered at once; about 150 words, no headings or emoji, no question at the end unless
+  something is unclear; only the interface language and the language learnt; no rule assumes the
+  learner's gender.
 - **The tutor on its own** (`section_chat_turn`, the Tutor section of 09; owner, 2026-10-10): chats
   about no lesson, on whatever the learner asks (a grammar question, a text to go through, a
   conversation to practise). They are the lesson tutor's chats with another context — one model: a

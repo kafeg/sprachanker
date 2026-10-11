@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutore",
-    "intro": "Întreabă despre această lecție: gramatică, cuvinte, exercițiul de pe ecran — sau exersează un dialog scurt. Răspunsurile rămân în limitele a ceea ce ai învățat până acum.",
+    "intro": "Întreabă despre această lecție: gramatică, cuvinte, exercițiul de pe ecran. Răspunsurile rămân în limitele a ceea ce ai învățat până acum.",
     "needsSetup": "Tutorele are nevoie de un model AI.",
     "openSettings": "Configurează asistentul AI",
     "placeholder": "Pune o întrebare…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Explică gramatica acestei lecții",
       "examples": "Dă-mi mai multe exemple cu cuvintele noi",
-      "dialogue": "Hai să exersăm un dialog scurt",
       "exercise": "Dă-mi un indiciu pentru acest exercițiu",
-      "wordsQuiz": "Verifică-mă la cuvintele noi ale acestei lecții",
-      "wordsMemory": "Ajută-mă să rețin cuvintele noi",
-      "grammarDrill": "Dă-mi un exercițiu scurt pe gramatica acestei lecții",
       "script": "Parcurge textul lecției frază cu frază"
     },
     "context": "Context ≈ {used} din {window} tokeni",
@@ -360,13 +356,9 @@
     "deleteTitle": "Ștergi această conversație?",
     "deleteBody": "Mesajele ei se șterg definitiv.",
     "ask": {
-      "grammar": "Explică pe scurt gramatica acestei lecții, cu 2–3 exemple din lecție. Apoi întreabă-mă dacă e clar.",
-      "examples": "Dă-mi 3 exemple scurte cu cuvintele noi ale lecției, cu traducere. Apoi cere-mi să fac o propoziție proprie cu unul dintre ele.",
-      "dialogue": "Hai să exersăm un dialog scurt pe tema lecției. Începi tu cu o replică și aștepți răspunsul meu; corectează-mi greșelile pe parcurs.",
+      "grammar": "Explică pe scurt gramatica acestei lecții, cu 2–3 exemple din lecție.",
+      "examples": "Dă-mi 3 exemple scurte cu cuvintele noi ale lecției, cu traducere.",
       "exercise": "Dă-mi un indiciu pentru acest exercițiu, nu răspunsul.",
-      "wordsQuiz": "Verifică-mă la cuvintele noi ale lecției, câte un cuvânt pe rând. Întreabă un cuvânt, așteaptă răspunsul meu, spune-mi dacă e corect și abia apoi treci la următorul.",
-      "wordsMemory": "Ajută-mă să rețin cuvintele noi ale lecției pe rând: ia un cuvânt, dă-mi un truc de memorare (un cuvânt care sună la fel, o imagine, rădăcina) și un exemplu scurt, apoi cere-mi să-l repet sau să-l folosesc. Următorul cuvânt doar după răspunsul meu.",
-      "grammarDrill": "Dă-mi un exercițiu scurt pe gramatica lecției: câte o sarcină pe rând, așteaptă răspunsul meu, verifică-l și explică orice greșeală.",
       "script": "Hai să parcurgem textul lecției frază cu frază: arată prima frază, tradu-o și explică ce e nou în ea. Următoarea frază doar când spun „mai departe”."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Explică un răspuns greșit sub exercițiu („De ce e greșit?”): care e greșeala și regula din spatele ei, în limba ta.",
-      "tutor": "Tutorele lecției: răspunde la întrebările tale despre lecție, cuvintele și gramatica ei și îți analizează greșelile una câte una la pasul „Analiza greșelilor”.",
+      "tutor": "Tutorele lecției: răspunde la întrebările tale despre lecție, cuvintele și gramatica ei și explică — la exercițiul de pe ecran mai întâi prin indicii. Exersarea e în pașii AI ai lecției.",
       "tutorSection": "Tutorele de sine stătător, în secțiunea „Tutore”: răspunde la orice întrebi în afara unei lecții — o întrebare de gramatică, un text de parcurs, o conversație de exersat — știind ce ai învățat în cursurile tale.",
       "writing": "Verifică un text scurt scris la „Scrie tu”: corecturi, criteriile A1 (sarcină, comunicare, corectitudine) și feedback.",
       "speaking": "Verifică un răspuns spus cu voce tare (ce a auzit recunoașterea vorbirii) față de întrebare și răspunsul cursului, când apeși „Verifică cu AI”.",

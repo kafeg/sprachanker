@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Ask about this lesson: grammar, words, the exercise on screen — or practise a short dialogue. Answers stay within what you have learnt so far.",
+    "intro": "Ask about this lesson: grammar, words, the exercise on screen. Answers stay within what you have learnt so far.",
     "needsSetup": "The tutor needs an AI model.",
     "openSettings": "Set up the AI assistant",
     "placeholder": "Ask a question…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Explain the grammar of this lesson",
       "examples": "Give me more examples with the new words",
-      "dialogue": "Let's practise a short dialogue",
       "exercise": "Give me a hint for this exercise",
-      "wordsQuiz": "Quiz me on the new words of this lesson",
-      "wordsMemory": "Help me remember the new words",
-      "grammarDrill": "Give me a short exercise on this lesson's grammar",
       "script": "Go through the lesson text phrase by phrase"
     },
     "context": "Context ≈ {used} of {window} tokens",
@@ -360,13 +356,9 @@
     "deleteTitle": "Delete this chat?",
     "deleteBody": "Its messages are deleted for good.",
     "ask": {
-      "grammar": "Explain this lesson's grammar briefly with 2–3 examples from the lesson. Then ask whether it is clear.",
-      "examples": "Give 3 short examples with the lesson's new words, with translations. Then ask me to make my own sentence with one of them.",
-      "dialogue": "Let's practise a short dialogue on the lesson's topic. You start with one line and wait for my answer; correct my mistakes as we go.",
+      "grammar": "Explain this lesson's grammar briefly with 2–3 examples from the lesson.",
+      "examples": "Give 3 short examples with the lesson's new words, with translations.",
       "exercise": "Give me a hint for this exercise, not the answer.",
-      "wordsQuiz": "Quiz me on the lesson's new words, one word at a time. Ask a word, wait for my answer, tell me whether it is right, and only then go on to the next.",
-      "wordsMemory": "Help me remember the lesson's new words one at a time: take one word, give me a memory hook (a sound-alike, an image, the root) and a short example, then ask me to repeat or use it. The next word only after my answer.",
-      "grammarDrill": "Give me a short drill on the lesson's grammar: one task at a time, wait for my answer, check it and explain any mistake.",
       "script": "Let's go through the lesson's text one phrase at a time: show the first phrase, translate it and explain what is new in it. The next phrase only when I say \"next\"."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Explains a wrong answer under the exercise (“Why is this wrong?”): what the mistake is and the rule behind it, in your language.",
-      "tutor": "The lesson's tutor: answers your questions about the lesson, its words and grammar, and goes over your mistakes one by one in the “Going over mistakes” step.",
+      "tutor": "The lesson's tutor: answers your questions about the lesson, its words and grammar, and explains — hints first for the exercise on screen. Practice is in the lesson's AI steps.",
       "tutorSection": "The tutor on its own, in the Tutor section: answers whatever you ask outside a lesson — a grammar question, a text to go through, a conversation to practise — knowing what you have met in your courses.",
       "writing": "Checks a short text you wrote in “Write it yourself”: corrections, the A1 criteria (task, communication, accuracy) and feedback.",
       "speaking": "Checks an answer you said aloud (what the recogniser heard) against the question and the course's answer, when you press “Check with AI”.",

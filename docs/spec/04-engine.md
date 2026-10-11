@@ -325,12 +325,13 @@ out. What is not built yet is marked *planned*.
 Inside a lesson, at any time:
 
 1. **"Why is this wrong?"** under a wrong item: that one mistake explained (`explain_mistake`, 07), at
-   the course's level; *planned*: with where its topic was met (the lesson and grammar page that
-   teach it, from the snapshot).
+   the course's level, with where its topic was taught when it is a grammar topic met so far ("this
+   is X from lesson 1.2", from the snapshot); what is wrong, never a guess at why it was chosen.
 2. **"Check with AI"** under an answer said aloud to one of the course's own speaking items without
    a line to say (`check_speaking`, 08): built.
-3. **The lesson tutor**: questions and explanations only; *planned (third phase)*: its practice
-   presets go — practice is the exercises below.
+3. **The lesson tutor**: questions and explanations only — its ways into an empty chat explain (the
+   lesson's grammar, examples with its words, a hint for the exercise on screen, its text phrase by
+   phrase); practice is the exercises below.
 
 The step "AI practice" at the lesson's end — its exercises, each a step of the plan under one
 label and each skippable as any step:

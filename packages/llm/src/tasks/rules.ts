@@ -22,3 +22,14 @@ export interface RulesInput {
 /** The system prompt as sent: the learner's rules or the standing ones, then the fixed suffix. */
 export const systemPrompt = (input: RulesInput, standing: TaskRules, fixed: string) =>
   `${input.rules ?? standing(input.language, input.target)}\n${fixed}`;
+
+/** Said in every rule set that addresses the learner or writes about them: their gender is never
+ *  assumed. */
+export const NEUTRAL =
+  "The learner's gender is unknown: wherever a language would mark it (a translation, an explanation, feedback, your lines), choose wording that does not.";
+
+/** Said in every rule set whose replies the learner reads: no third language slips in. */
+export const ONLY_TWO = (language: string, target: string) =>
+  language === target
+    ? `Write only in ${target}.`
+    : `Write only in ${language} and ${target}: no word of another language.`;

@@ -208,8 +208,8 @@ export function Suggestions({
   );
 }
 
-/** An empty chat's ways into the lesson, offered where the lesson has the material for them: the word
- *  and phrase ones go one at a time and wait for the learner, not a list at once. */
+/** An empty chat's ways into the lesson — explanations only (practice is the lesson's AI steps, 04) —,
+ *  offered where the lesson has the material for them. */
 function LessonSuggestions({ context, onAsk }: { context: Context; onAsk(text: string): void }) {
   const { t } = useTranslation();
   const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
@@ -218,10 +218,9 @@ function LessonSuggestions({ context, onAsk }: { context: Context; onAsk(text: s
   const script = !!lesson?.locale?.tabs.script;
   const suggestions = [
     ...(context.exerciseKey ? ["exercise"] : []),
-    ...(words ? ["wordsQuiz", "wordsMemory", "examples"] : []),
-    ...(grammar ? ["grammar", "grammarDrill"] : []),
+    ...(grammar ? ["grammar"] : []),
+    ...(words ? ["examples"] : []),
     ...(script ? ["script"] : []),
-    "dialogue",
   ];
   return (
     <Suggestions

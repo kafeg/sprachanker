@@ -18,7 +18,7 @@ import { DEBUG_PROMPTS, type PromptTaskId, useSetPrompt, useTaskPrompts } from "
 
 /** What each task adds from the lesson, in prompt order; a part with a budget shows its limit. */
 const PARTS = {
-  explain: ["level", "item", "script", "notes"],
+  explain: ["level", "item", "script", "topics", "notes"],
   tutor: [
     "lesson",
     "level",

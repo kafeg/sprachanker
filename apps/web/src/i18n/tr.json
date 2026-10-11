@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Öğretmen",
-    "intro": "Bu dersle ilgili sor: dil bilgisi, kelimeler, ekrandaki alıştırma — ya da kısa bir diyalog çalış. Cevaplar şimdiye kadar öğrendiklerinin sınırında kalır.",
+    "intro": "Bu dersle ilgili sor: dil bilgisi, kelimeler, ekrandaki alıştırma. Cevaplar şimdiye kadar öğrendiklerinin sınırında kalır.",
     "needsSetup": "Öğretmen için bir yapay zekâ modeli gerekli.",
     "openSettings": "Yapay zekâ asistanını kur",
     "placeholder": "Bir soru sor…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Bu dersin dil bilgisini açıkla",
       "examples": "Yeni kelimelerle bana daha fazla örnek ver",
-      "dialogue": "Kısa bir diyalog çalışalım",
       "exercise": "Bu alıştırma için bana bir ipucu ver",
-      "wordsQuiz": "Bu dersin yeni kelimelerinden beni sına",
-      "wordsMemory": "Yeni kelimeleri aklımda tutmama yardım et",
-      "grammarDrill": "Bu dersin dil bilgisi üzerine bana kısa bir alıştırma ver",
       "script": "Dersin metnini cümle cümle inceleyelim"
     },
     "context": "Bağlam ≈ {used} / {window} token",
@@ -360,13 +356,9 @@
     "deleteTitle": "Bu sohbet silinsin mi?",
     "deleteBody": "Mesajları kalıcı olarak silinir.",
     "ask": {
-      "grammar": "Bu dersin dil bilgisini dersten 2–3 örnekle kısaca açıkla. Sonra anlaşılır olup olmadığını sor.",
-      "examples": "Dersin yeni kelimeleriyle, çevirileriyle birlikte 3 kısa örnek ver. Sonra bunlardan biriyle kendi cümlemi kurmamı iste.",
-      "dialogue": "Dersin konusu üzerine kısa bir diyalog çalışalım. Sen bir cümleyle başla ve cevabımı bekle; ilerledikçe hatalarımı düzelt.",
+      "grammar": "Bu dersin dil bilgisini dersten 2–3 örnekle kısaca açıkla.",
+      "examples": "Dersin yeni kelimeleriyle, çevirileriyle birlikte 3 kısa örnek ver.",
       "exercise": "Bu alıştırma için bana cevabı değil, bir ipucu ver.",
-      "wordsQuiz": "Dersin yeni kelimelerinden beni sına, her seferinde bir kelime. Bir kelime sor, cevabımı bekle, doğru olup olmadığını söyle ve ancak ondan sonra bir sonrakine geç.",
-      "wordsMemory": "Dersin yeni kelimelerini teker teker aklımda tutmama yardım et: bir kelime al, bana bir hafıza ipucu (sesçe benzeyen bir kelime, bir imge, kökü) ve kısa bir örnek ver, sonra onu tekrar etmemi ya da kullanmamı iste. Bir sonraki kelimeye ancak cevabımdan sonra geç.",
-      "grammarDrill": "Dersin dil bilgisi üzerine bana kısa bir alıştırma ver: her seferinde bir görev, cevabımı bekle, kontrol et ve her hatayı açıkla.",
       "script": "Dersin metnini cümle cümle inceleyelim: ilk cümleyi göster, çevir ve içinde neyin yeni olduğunu açıkla. Bir sonraki cümleye ancak “devam” dediğimde geç."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Alıştırmanın altında yanlış bir cevabı açıklar (“Bu neden yanlış?”): hatanın ne olduğunu ve arkasındaki kuralı, senin dilinde.",
-      "tutor": "Dersin öğretmeni: ders, kelimeleri ve dil bilgisi hakkındaki sorularını cevaplar ve “Hataların üzerinden geç” adımında hatalarını tek tek ele alır.",
+      "tutor": "Dersin öğretmeni: ders, kelimeleri ve dil bilgisi hakkındaki sorularını cevaplar ve açıklar — ekrandaki alıştırma için önce ipucu verir. Pratik, dersin yapay zekâ adımlarındadır.",
       "tutorSection": "Tek başına öğretmen, “Öğretmen” bölümünde: ders dışında ne sorarsan yanıtlar — bir dil bilgisi sorusu, birlikte geçilecek bir metin, pratik yapılacak bir konuşma — ve kurslarında gördüklerini bilir.",
       "writing": "“Kendin yaz” bölümünde yazdığın kısa bir metni kontrol eder: düzeltmeler, A1 ölçütleri (görev, iletişim, doğruluk) ve geri bildirim.",
       "speaking": "“Yapay zekâ ile kontrol et”e bastığında sesli söylediğin bir cevabı (konuşma tanımanın duyduğunu) soruya ve kursun cevabına göre kontrol eder.",

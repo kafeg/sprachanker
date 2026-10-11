@@ -67,7 +67,7 @@ const LESSON = {
   level: "A2",
   place: { n: 5, of: 40 },
   knownWords: [{ target: "der Morgen", translation: "утро" }],
-  topics: ["Zahlen"],
+  topics: [{ title: "Zahlen", lesson: "1.1" }],
 };
 
 test("the text's length follows the level: the first of a span, a beginner's without one", () => {

@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Pytaj o tę lekcję: gramatykę, słowa, ćwiczenie na ekranie — albo przećwicz krótki dialog. Odpowiedzi trzymają się tego, co już znasz.",
+    "intro": "Pytaj o tę lekcję: gramatykę, słowa, ćwiczenie na ekranie. Odpowiedzi trzymają się tego, co już znasz.",
     "needsSetup": "Tutor potrzebuje modelu AI.",
     "openSettings": "Skonfiguruj asystenta AI",
     "placeholder": "Zadaj pytanie…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Wyjaśnij gramatykę tej lekcji",
       "examples": "Daj mi więcej przykładów z nowymi słowami",
-      "dialogue": "Przećwiczmy krótki dialog",
       "exercise": "Daj mi wskazówkę do tego ćwiczenia",
-      "wordsQuiz": "Przepytaj mnie z nowych słów tej lekcji",
-      "wordsMemory": "Pomóż mi zapamiętać nowe słowa",
-      "grammarDrill": "Daj mi krótkie ćwiczenie z gramatyki tej lekcji",
       "script": "Przejdźmy przez tekst lekcji zdanie po zdaniu"
     },
     "context": "Kontekst ≈ {used} z {window} tokenów",
@@ -360,13 +356,9 @@
     "deleteTitle": "Usunąć tę rozmowę?",
     "deleteBody": "Jej wiadomości zostaną usunięte na zawsze.",
     "ask": {
-      "grammar": "Wyjaśnij krótko gramatykę tej lekcji na 2–3 przykładach z lekcji. Potem zapytaj, czy wszystko jest jasne.",
-      "examples": "Podaj 3 krótkie przykłady z nowymi słowami tej lekcji, z tłumaczeniem. Potem poproś mnie o własne zdanie z jednym z nich.",
-      "dialogue": "Przećwiczmy krótki dialog na temat lekcji. Zacznij jedną kwestią i poczekaj na moją odpowiedź; poprawiaj moje błędy na bieżąco.",
+      "grammar": "Wyjaśnij krótko gramatykę tej lekcji na 2–3 przykładach z lekcji.",
+      "examples": "Podaj 3 krótkie przykłady z nowymi słowami tej lekcji, z tłumaczeniem.",
       "exercise": "Daj mi wskazówkę do tego ćwiczenia, ale nie odpowiedź.",
-      "wordsQuiz": "Przepytaj mnie z nowych słów tej lekcji, po jednym słowie. Zapytaj o słowo, poczekaj na moją odpowiedź, powiedz, czy jest dobra, i dopiero wtedy przejdź do następnego.",
-      "wordsMemory": "Pomóż mi zapamiętać nowe słowa tej lekcji, po jednym: weź jedno słowo, daj mi skojarzenie (podobnie brzmiące słowo, obraz, rdzeń) i krótki przykład, a potem poproś mnie, żeby je powtórzyć lub użyć w zdaniu. Następne słowo dopiero po mojej odpowiedzi.",
-      "grammarDrill": "Daj mi krótki trening z gramatyki tej lekcji: jedno zadanie naraz, poczekaj na moją odpowiedź, sprawdź ją i wyjaśnij każdy błąd.",
       "script": "Przejdźmy przez tekst lekcji po jednym zdaniu: pokaż pierwsze zdanie, przetłumacz je i wyjaśnij, co jest w nim nowego. Następne zdanie dopiero, gdy napiszę „dalej”."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Wyjaśnia błędną odpowiedź pod ćwiczeniem („Dlaczego to błąd?”): na czym polega błąd i jaka reguła za nim stoi, w twoim języku.",
-      "tutor": "Tutor lekcji: odpowiada na twoje pytania o lekcję, jej słowa i gramatykę, a w kroku „Omówienie błędów” omawia twoje błędy jeden po drugim.",
+      "tutor": "Tutor lekcji: odpowiada na twoje pytania o lekcję, jej słowa i gramatykę i wyjaśnia — przy ćwiczeniu na ekranie najpierw podpowiedziami. Ćwiczenia są w krokach AI lekcji.",
       "tutorSection": "Tutor osobno, w sekcji „Tutor”: odpowiada poza lekcją na wszystko, o co zapytasz — pytanie o gramatykę, tekst do omówienia, rozmowę do przećwiczenia — i zna materiał twoich kursów.",
       "writing": "Sprawdza krótki tekst napisany w kroku „Napisz własny tekst”: poprawki, kryteria A1 (zadanie, komunikacja, poprawność) i komentarz.",
       "speaking": "Sprawdza odpowiedź powiedzianą na głos (to, co usłyszało rozpoznawanie mowy) względem pytania i odpowiedzi z kursu, gdy naciśniesz „Sprawdź z AI”.",

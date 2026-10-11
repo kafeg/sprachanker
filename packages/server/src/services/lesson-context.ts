@@ -86,11 +86,18 @@ export function createLessonContext(content: Content) {
         files.flatMap((f) => wordsOf(f.lesson, f.locale)),
         (w) => w.target,
       );
+      // Each topic where it was first taught: "unit.lesson" as the app names lessons, and the title.
       const topics = once(
-        [...files.map((f) => f.locale), locale].flatMap(
-          (loc) => loc?.tabs.grammar.flatMap((t) => t.title?.trim() || []) ?? [],
-        ),
-        (t) => t,
+        [...files.map((f) => f.locale), locale].flatMap((loc, i) => {
+          const key = [...earlier, lessonKey][i] as LessonKey;
+          const { unit, lesson: n } = parseLessonKey(key);
+          return (loc?.tabs.grammar ?? []).flatMap((t) =>
+            t.title?.trim()
+              ? [{ title: t.title.trim(), lesson: `${unit}.${n}`, lessonTitle: map.titles[key] }]
+              : [],
+          );
+        }),
+        (t) => t.title,
       );
       const unit = map.index.units.find((u) => u.lessons.includes(lessonKey));
       const level = levelOf(course);

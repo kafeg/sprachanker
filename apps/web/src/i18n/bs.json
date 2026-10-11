@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Pitaj o ovoj lekciji: gramatika, riječi, vježba na ekranu — ili vježbaj kratki dijalog. Odgovori ostaju u okviru onoga što je dosad obrađeno.",
+    "intro": "Pitaj o ovoj lekciji: gramatika, riječi, vježba na ekranu. Odgovori ostaju u okviru onoga što je dosad obrađeno.",
     "needsSetup": "Tutoru treba AI model.",
     "openSettings": "Podesi AI asistenta",
     "placeholder": "Postavi pitanje…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Objasni gramatiku ove lekcije",
       "examples": "Daj mi još primjera s novim riječima",
-      "dialogue": "Hajde da vježbamo kratki dijalog",
       "exercise": "Daj mi nagovještaj za ovu vježbu",
-      "wordsQuiz": "Ispitaj me nove riječi ove lekcije",
-      "wordsMemory": "Pomozi mi zapamtiti nove riječi",
-      "grammarDrill": "Daj mi kratku vježbu iz gramatike ove lekcije",
       "script": "Prođi sa mnom tekst lekcije frazu po frazu"
     },
     "context": "Kontekst ≈ {used} od {window} tokena",
@@ -360,13 +356,9 @@
     "deleteTitle": "Obrisati ovaj razgovor?",
     "deleteBody": "Njegove poruke se brišu zauvijek.",
     "ask": {
-      "grammar": "Ukratko objasni gramatiku ove lekcije s 2–3 primjera iz lekcije. Zatim pitaj da li je jasno.",
-      "examples": "Daj 3 kratka primjera s novim riječima lekcije, s prijevodima. Zatim me zamoli da napravim svoju rečenicu s jednom od njih.",
-      "dialogue": "Hajde da vježbamo kratki dijalog na temu lekcije. Ti počni jednom replikom i sačekaj moj odgovor; usput ispravljaj moje greške.",
+      "grammar": "Ukratko objasni gramatiku ove lekcije s 2–3 primjera iz lekcije.",
+      "examples": "Daj 3 kratka primjera s novim riječima lekcije, s prijevodima.",
       "exercise": "Daj mi nagovještaj za ovu vježbu, ne odgovor.",
-      "wordsQuiz": "Ispituj me nove riječi lekcije, jednu po jednu. Pitaj riječ, sačekaj moj odgovor, reci mi da li je tačan i tek onda pređi na sljedeću.",
-      "wordsMemory": "Pomozi mi zapamtiti nove riječi lekcije jednu po jednu: uzmi jednu riječ, daj mi asocijaciju za pamćenje (riječ sličnog zvuka, sliku, korijen) i kratak primjer, pa me zamoli da je ponovim ili upotrijebim. Sljedeća riječ tek nakon mog odgovora.",
-      "grammarDrill": "Daj mi kratku vježbu iz gramatike lekcije: jedan zadatak odjednom, sačekaj moj odgovor, provjeri ga i objasni svaku grešku.",
       "script": "Hajde da prođemo tekst lekcije frazu po frazu: pokaži prvu frazu, prevedi je i objasni šta je u njoj novo. Sljedeću frazu tek kad kažem „dalje“."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Objašnjava pogrešan odgovor ispod vježbe („Zašto je ovo pogrešno?“): u čemu je greška i koje pravilo stoji iza nje, na tvom jeziku.",
-      "tutor": "Tutor lekcije: odgovara na tvoja pitanja o lekciji, njenim riječima i gramatici, i u koraku „Pregled grešaka“ prolazi s tobom kroz greške jednu po jednu.",
+      "tutor": "Tutor lekcije: odgovara na tvoja pitanja o lekciji, njenim riječima i gramatici i objašnjava — za vježbu na ekranu prvo daje nagovještaje. Vježbanje je u AI koracima lekcije.",
       "tutorSection": "Tutor sam za sebe, u odjeljku „Tutor“: odgovara na sve što pitaš izvan lekcije — pitanje o gramatici, tekst koji želiš proći, razgovor za vježbu — i zna gradivo tvojih kurseva.",
       "writing": "Provjerava tvoj kratki tekst iz koraka „Napiši svoj tekst“: ispravke, kriteriji za A1 (zadatak, komunikacija, tačnost) i povratna informacija.",
       "speaking": "Provjerava tvoj izgovoreni odgovor (ono što je prepoznavač čuo) u odnosu na pitanje i odgovor kursa, kad pritisneš „Provjeri s AI“.",

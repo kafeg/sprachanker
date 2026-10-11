@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Mkufunzi",
-    "intro": "Uliza kuhusu somo hili: sarufi, maneno, zoezi lililo kwenye skrini — au jizoeze mazungumzo mafupi. Majibu hayavuki yale uliyojifunza hadi sasa.",
+    "intro": "Uliza kuhusu somo hili: sarufi, maneno, zoezi lililo kwenye skrini. Majibu hayavuki yale uliyojifunza hadi sasa.",
     "needsSetup": "Mkufunzi anahitaji modeli ya AI.",
     "openSettings": "Weka msaidizi wa AI",
     "placeholder": "Uliza swali…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Nieleze sarufi ya somo hili",
       "examples": "Nipe mifano zaidi kwa maneno mapya",
-      "dialogue": "Tujizoeze mazungumzo mafupi",
       "exercise": "Nipe dokezo la zoezi hili",
-      "wordsQuiz": "Nijaribu kwa maneno mapya ya somo hili",
-      "wordsMemory": "Nisaidie kukumbuka maneno mapya",
-      "grammarDrill": "Nipe zoezi fupi la sarufi ya somo hili",
       "script": "Pitia maandishi ya somo sentensi kwa sentensi"
     },
     "context": "Muktadha ≈ {used} kati ya tokeni {window}",
@@ -360,13 +356,9 @@
     "deleteTitle": "Ufute mazungumzo haya?",
     "deleteBody": "Jumbe zake zitafutwa kabisa.",
     "ask": {
-      "grammar": "Nieleze kwa ufupi sarufi ya somo hili kwa mifano 2–3 kutoka kwenye somo. Kisha niulize kama imeeleweka.",
-      "examples": "Nipe mifano 3 mifupi kwa maneno mapya ya somo, pamoja na tafsiri. Kisha niombe nitunge sentensi yangu mwenyewe kwa mojawapo.",
-      "dialogue": "Tujizoeze mazungumzo mafupi kuhusu mada ya somo. Wewe anza kwa sentensi moja na usubiri jibu langu; sahihisha makosa yangu tunapoendelea.",
+      "grammar": "Nieleze kwa ufupi sarufi ya somo hili kwa mifano 2–3 kutoka kwenye somo.",
+      "examples": "Nipe mifano 3 mifupi kwa maneno mapya ya somo, pamoja na tafsiri.",
       "exercise": "Nipe dokezo la zoezi hili, si jibu.",
-      "wordsQuiz": "Nijaribu kwa maneno mapya ya somo, neno moja baada ya jingine. Niulize neno, usubiri jibu langu, uniambie kama ni sahihi, na hapo tu uendelee na linalofuata.",
-      "wordsMemory": "Nisaidie kukumbuka maneno mapya ya somo moja baada ya jingine: chukua neno moja, nipe kidokezo cha kukumbuka (neno linalofanana kwa sauti, picha, mzizi) na mfano mfupi, kisha niombe nilirudie au nilitumie. Neno linalofuata baada ya jibu langu tu.",
-      "grammarDrill": "Nipe zoezi fupi la sarufi ya somo: kazi moja kwa wakati, subiri jibu langu, likague na ueleze kosa lolote.",
       "script": "Tupitie maandishi ya somo sentensi moja kwa wakati: onyesha sentensi ya kwanza, itafsiri na ueleze kilicho kipya ndani yake. Sentensi inayofuata pale tu nitakaposema \"inayofuata\"."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Hueleza jibu lisilo sahihi chini ya zoezi (“Kwa nini si sahihi?”): kosa ni nini na kanuni iliyo nyuma yake, kwa lugha yako.",
-      "tutor": "Mkufunzi wa somo: hujibu maswali yako kuhusu somo, maneno na sarufi yake, na hupitia makosa yako moja baada ya jingine katika hatua ya “Kupitia makosa”.",
+      "tutor": "Mkufunzi wa somo: hujibu maswali yako kuhusu somo, maneno na sarufi yake na hueleza — kwa zoezi lililo kwenye skrini, vidokezo kwanza. Mazoezi yako katika hatua za AI za somo.",
       "tutorSection": "Mkufunzi peke yake, katika sehemu ya “Mkufunzi”: hujibu chochote unachouliza nje ya somo — swali la sarufi, maandishi ya kupitia, mazungumzo ya kujizoeza — akijua yale uliyojifunza katika kozi zako.",
       "writing": "Hukagua maandishi mafupi uliyoandika katika “Andika mwenyewe”: masahihisho, vigezo vya A1 (kazi, mawasiliano, usahihi) na maoni.",
       "speaking": "Hukagua jibu ulilotamka (kile kitambuzi kilichosikia) dhidi ya swali na jibu la kozi, unapobonyeza “Kagua kwa AI”.",

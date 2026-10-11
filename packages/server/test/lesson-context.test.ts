@@ -66,7 +66,12 @@ describe("the knowledge snapshot", () => {
         { target: "der Kaffee", translation: "ru:der Kaffee" },
         { target: "hallo", translation: "ru:hallo" },
       ],
-      topics: ["Begrüßung", "Verb an Position 2", "Modalverben"],
+      // Each topic with the lesson that taught it first ("unit.lesson", as the app names it).
+      topics: [
+        { title: "Begrüßung", lesson: "1.1", lessonTitle: "Hallo!" },
+        { title: "Verb an Position 2", lesson: "1.2", lessonTitle: "Kaffee" },
+        { title: "Modalverben", lesson: "1.3", lessonTitle: "Zahlen, bitte" },
+      ],
     });
     expect(ctx.earlierLessons).toEqual(["Hallo!", "Kaffee"]);
   });
@@ -75,7 +80,7 @@ describe("the knowledge snapshot", () => {
     const ctx = await createLessonContext(content()).get("s", key(1), "ru-de");
     expect(ctx.info.place).toEqual({ n: 1, of: 3 });
     expect(ctx.info.knownWords).toEqual([]);
-    expect(ctx.info.topics).toEqual(["Begrüßung"]);
+    expect(ctx.info.topics).toEqual([{ title: "Begrüßung", lesson: "1.1", lessonTitle: "Hallo!" }]);
   });
 
   test("the level a course's id or a deck's name says", () => {

@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tutor",
-    "intro": "Pregunta sobre esta lección: gramática, palabras, el ejercicio en pantalla… o practica un diálogo corto. Las respuestas se limitan a lo que ya has aprendido.",
+    "intro": "Pregunta sobre esta lección: gramática, palabras, el ejercicio en pantalla. Las respuestas se limitan a lo que ya has aprendido.",
     "needsSetup": "El tutor necesita un modelo de IA.",
     "openSettings": "Configurar el asistente de IA",
     "placeholder": "Haz una pregunta…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Explícame la gramática de esta lección",
       "examples": "Dame más ejemplos con las palabras nuevas",
-      "dialogue": "Practiquemos un diálogo corto",
       "exercise": "Dame una pista para este ejercicio",
-      "wordsQuiz": "Pregúntame las palabras nuevas de esta lección",
-      "wordsMemory": "Ayúdame a recordar las palabras nuevas",
-      "grammarDrill": "Dame un ejercicio corto sobre la gramática de esta lección",
       "script": "Repasemos el texto de la lección frase por frase"
     },
     "context": "Contexto ≈ {used} de {window} tokens",
@@ -360,13 +356,9 @@
     "deleteTitle": "¿Eliminar esta conversación?",
     "deleteBody": "Sus mensajes se eliminarán para siempre.",
     "ask": {
-      "grammar": "Explica brevemente la gramática de esta lección con 2 o 3 ejemplos de la lección. Luego pregúntame si ha quedado claro.",
-      "examples": "Dame 3 ejemplos cortos con las palabras nuevas de la lección, con traducción. Luego pídeme que forme una frase propia con una de ellas.",
-      "dialogue": "Practiquemos un diálogo corto sobre el tema de la lección. Tú empiezas con una frase y esperas mi respuesta; corrige mis errores sobre la marcha.",
+      "grammar": "Explica brevemente la gramática de esta lección con 2 o 3 ejemplos de la lección.",
+      "examples": "Dame 3 ejemplos cortos con las palabras nuevas de la lección, con traducción.",
       "exercise": "Dame una pista para este ejercicio, no la respuesta.",
-      "wordsQuiz": "Pregúntame las palabras nuevas de la lección, de una en una. Di una palabra, espera mi respuesta, dime si es correcta y solo entonces pasa a la siguiente.",
-      "wordsMemory": "Ayúdame a recordar las palabras nuevas de la lección de una en una: toma una palabra, dame un truco para recordarla (algo que suene parecido, una imagen, la raíz) y un ejemplo corto, y pídeme que la repita o la use. La siguiente palabra, solo después de mi respuesta.",
-      "grammarDrill": "Dame un ejercicio corto sobre la gramática de la lección: una tarea cada vez, espera mi respuesta, corrígela y explica cualquier error.",
       "script": "Repasemos el texto de la lección frase por frase: muestra la primera frase, tradúcela y explica lo que tiene de nuevo. La siguiente frase, solo cuando yo diga «siguiente»."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Explica una respuesta incorrecta bajo el ejercicio («¿Por qué está mal?»): cuál es el error y la regla que hay detrás, en tu idioma.",
-      "tutor": "El tutor de la lección: responde a tus preguntas sobre la lección, sus palabras y su gramática, y repasa tus errores uno a uno en el paso «Repaso de errores».",
+      "tutor": "El tutor de la lección: responde a tus preguntas sobre la lección, sus palabras y su gramática, y explica; para el ejercicio en pantalla, primero con pistas. La práctica está en los pasos de IA de la lección.",
       "tutorSection": "El tutor por su cuenta, en la sección «Tutor»: responde a lo que preguntes fuera de una lección —una duda de gramática, un texto que repasar, una conversación que practicar— sabiendo lo que has visto en tus cursos.",
       "writing": "Corrige un texto corto que escribiste en «Escribe tú»: correcciones, los criterios del A1 (tarea, comunicación, corrección) y comentarios.",
       "speaking": "Comprueba una respuesta que dijiste en voz alta (lo que oyó el reconocedor) frente a la pregunta y la respuesta del curso, cuando pulsas «Comprobar con IA».",

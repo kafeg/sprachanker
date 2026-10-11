@@ -32,7 +32,8 @@ src/
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
   text.ts          # course HTML → plain text for prompts
   tasks/
-    rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix
+    rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix;
+                       # the lines every rule set shares (NEUTRAL: no gender assumed; ONLY_TWO: two languages)
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,

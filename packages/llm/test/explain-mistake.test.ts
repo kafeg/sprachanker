@@ -73,6 +73,30 @@ describe("explainMistakeMessages", () => {
     expect(user?.content).toContain("Learner's answer: Guten Tag, [Herr] Weber.");
     expect(user?.content).toContain("<lesson_notes>\nFrau = Mrs\n\n- Herr\n</lesson_notes>");
   });
+
+  test("what is wrong, never why it was chosen; tendencies no rules; where its topic was taught", () => {
+    const [ex, loc] = exercise(6);
+    const [system, user] = explainMistakeMessages({
+      exercise: ex,
+      locale: loc,
+      index: 0,
+      answer: { g1: "a" },
+      grammarHtml: ["<p>Frau = <b>Mrs</b></p>"],
+      topics: [
+        { title: "Begrüßung", lesson: "0.1", lessonTitle: "Hallo!" },
+        { title: "Herr und Frau", lesson: "0.2" },
+      ],
+      language: "ru",
+      target: "de",
+    });
+    expect(system?.content).toContain("never guess why they chose it");
+    expect(system?.content).toContain('a tendency ("usually", "often") is no rule');
+    expect(system?.content).toContain("This is X from lesson 1.2 «title»");
+    expect(system?.content).toContain("Write only in Russian and German");
+    expect(user?.content).toContain(
+      "<lesson_notes>\nGrammar topics met so far, each with the lesson that taught it: Begrüßung — lesson 0.1 «Hallo!»; Herr und Frau — lesson 0.2\nFrau = Mrs\n</lesson_notes>",
+    );
+  });
 });
 
 test("htmlToText", () => {

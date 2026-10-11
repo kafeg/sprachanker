@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { fixture } from "@sprachanker/course-fixture";
-import { type ChatTurnInput, chatTurnMessages } from "../src/tasks/chat-turn.ts";
+import { type ChatTurnInput, chatTurnMessages, chatTurnRules } from "../src/tasks/chat-turn.ts";
 import { recentTurns } from "../src/text.ts";
 
 const lesson = fixture.lessons[0];
@@ -15,7 +15,10 @@ const lessonOf = (extra: Partial<ChatTurnInput["lesson"]> = {}): ChatTurnInput["
   level: "A1",
   place: { n: 2, of: 40, unit: "Hallo!" },
   knownWords: [{ target: "hallo", translation: "привет" }, { target: "tschüss" }],
-  topics: ["Begrüßung", "Verb an Position 2"],
+  topics: [
+    { title: "Begrüßung", lesson: "1.1", lessonTitle: "Hallo!" },
+    { title: "Verb an Position 2", lesson: "1.2" },
+  ],
   ...extra,
 });
 
@@ -128,7 +131,6 @@ test("mistakes: this lesson's first, then earlier ones, each with the correct an
     "In earlier lessons:\n- [Hallo! · item 1] Prompt: Herr oder Frau?",
   );
   expect(system?.content).toContain("learner: (no answer)");
-  expect(system?.content).toContain("review mistakes");
 });
 
 test("history: the learner's turns say where the exercise on screen changed", () => {
@@ -171,6 +173,27 @@ test("history: the learner's turns say where the exercise on screen changed", ()
   // The first message of a chat needs no marker: the exercise on screen is in the context.
   const [, first] = chatTurnMessages(input({ exercise: { exercise, label: "Exercise 6 · B" } }));
   expect(first?.content).toBe("Объясни грамматику");
+});
+
+test("the rules (walkthrough): explanations, the phrase asked for given, hints only for the exercise on screen, two languages, no headings or emoji, no question at the end", () => {
+  const rules = chatTurnRules("ru", "de");
+  for (const part of [
+    "you answer questions and explain",
+    "About the exercise on screen: give hints first",
+    "Any other question gets its answer at once.",
+    '"How do I say …?": give the German phrase at once',
+    "Write only in Russian and German: no word of another language.",
+    "no headings, no tables, no emoji",
+    "no question or offer at the end",
+    "The learner's gender is unknown",
+    "At most about 150 words",
+  ])
+    expect(rules).toContain(part);
+  // Practice lives in the lesson's steps: no dialogue run in the chat, no walk-through of mistakes.
+  expect(rules).not.toContain("run a short dialogue");
+  expect(rules).not.toContain("one at a time");
+  // A language learnt in itself: only that one.
+  expect(chatTurnRules("de", "de")).toContain("Write only in German.");
 });
 
 test("the learner's own rules replace the standing ones; the data stays delimited", () => {

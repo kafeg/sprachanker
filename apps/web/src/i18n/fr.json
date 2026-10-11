@@ -323,7 +323,7 @@
   },
   "tutor": {
     "title": "Tuteur",
-    "intro": "Pose tes questions sur cette leçon : grammaire, mots, l’exercice à l’écran — ou entraîne-toi à un court dialogue. Les réponses restent dans les limites de ce que tu as déjà appris.",
+    "intro": "Pose tes questions sur cette leçon : grammaire, mots, l’exercice à l’écran. Les réponses restent dans les limites de ce que tu as déjà appris.",
     "needsSetup": "Le tuteur a besoin d’un modèle d’IA.",
     "openSettings": "Configurer l’assistant IA",
     "placeholder": "Pose une question…",
@@ -333,11 +333,7 @@
     "suggest": {
       "grammar": "Explique la grammaire de cette leçon",
       "examples": "Donne-moi d’autres exemples avec les mots nouveaux",
-      "dialogue": "Entraînons-nous à un court dialogue",
       "exercise": "Donne-moi un indice pour cet exercice",
-      "wordsQuiz": "Interroge-moi sur les mots nouveaux de cette leçon",
-      "wordsMemory": "Aide-moi à retenir les mots nouveaux",
-      "grammarDrill": "Donne-moi un petit exercice sur la grammaire de cette leçon",
       "script": "Parcours le texte de la leçon phrase par phrase"
     },
     "context": "Contexte ≈ {used} sur {window} tokens",
@@ -360,13 +356,9 @@
     "deleteTitle": "Supprimer cette discussion ?",
     "deleteBody": "Ses messages seront supprimés définitivement.",
     "ask": {
-      "grammar": "Explique brièvement la grammaire de cette leçon avec 2–3 exemples tirés de la leçon. Puis demande-moi si c’est clair.",
-      "examples": "Donne 3 exemples courts avec les mots nouveaux de la leçon, avec leur traduction. Puis demande-moi de faire ma propre phrase avec l’un d’eux.",
-      "dialogue": "Entraînons-nous à un court dialogue sur le thème de la leçon. Tu commences par une réplique et tu attends ma réponse ; corrige mes erreurs au fur et à mesure.",
+      "grammar": "Explique brièvement la grammaire de cette leçon avec 2–3 exemples tirés de la leçon.",
+      "examples": "Donne 3 exemples courts avec les mots nouveaux de la leçon, avec leur traduction.",
       "exercise": "Donne-moi un indice pour cet exercice, pas la réponse.",
-      "wordsQuiz": "Interroge-moi sur les mots nouveaux de la leçon, un mot à la fois. Demande un mot, attends ma réponse, dis-moi si elle est juste, et seulement ensuite passe au suivant.",
-      "wordsMemory": "Aide-moi à retenir les mots nouveaux de la leçon un par un : prends un mot, donne-moi un moyen mnémotechnique (un mot qui sonne pareil, une image, la racine) et un court exemple, puis demande-moi de le répéter ou de l’utiliser. Le mot suivant seulement après ma réponse.",
-      "grammarDrill": "Donne-moi un petit exercice sur la grammaire de la leçon : une tâche à la fois, attends ma réponse, vérifie-la et explique chaque erreur.",
       "script": "Parcourons le texte de la leçon une phrase à la fois : montre la première phrase, traduis-la et explique ce qu’elle a de nouveau. La phrase suivante seulement quand je dis « suivante »."
     }
   },
@@ -498,7 +490,7 @@
     },
     "about": {
       "explain": "Explique une réponse fausse sous l’exercice (« Pourquoi est-ce faux ? ») : en quoi consiste l’erreur et la règle qui est derrière, dans ta langue.",
-      "tutor": "Le tuteur de la leçon : répond à tes questions sur la leçon, ses mots et sa grammaire, et revoit tes erreurs une par une à l’étape « Revoir ses erreurs ».",
+      "tutor": "Le tuteur de la leçon : répond à tes questions sur la leçon, ses mots et sa grammaire, et explique — d’abord par des indices pour l’exercice à l’écran. L’entraînement se fait dans les étapes IA de la leçon.",
       "tutorSection": "Le tuteur à part, dans la section « Tuteur » : répond à tout ce que tu demandes hors d’une leçon — une question de grammaire, un texte à parcourir, une conversation à pratiquer — en sachant ce que tu as vu dans tes cours.",
       "writing": "Corrige un court texte écrit dans « À toi d’écrire » : corrections, critères A1 (tâche, communication, correction) et commentaire.",
       "speaking": "Vérifie une réponse dite à voix haute (ce que la reconnaissance vocale a entendu) par rapport à la question et à la réponse du cours, quand tu appuies sur « Vérifier avec l’IA ».",
