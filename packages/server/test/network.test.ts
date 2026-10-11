@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { commandOutput } from "../src/runtime/network.ts";
 import {
   createNetwork,
   type ListensOn,
@@ -37,6 +38,7 @@ function fakeHost(state: {
     async tailscale(command) {
       asked[command]++;
       if (state.status === "fails") throw new Error("no tailscale");
+      if (state.status === "hangs") return new Promise(() => {});
       return command === "status" ? state.status : state.serve;
     },
   };
@@ -48,7 +50,7 @@ function network(
   listensOn: ListensOn = { hostname: "127.0.0.1", port: 4580 },
 ) {
   let clock = 0;
-  const net = createNetwork({ host, listensOn, now: () => clock });
+  const net = createNetwork({ host, listensOn, now: () => clock, askMs: 20 });
   return { net, advance: (ms: number) => (clock += ms) };
 }
 
@@ -76,6 +78,27 @@ describe("the Host check and the tailnet", () => {
     }
     const { net } = network(undefined);
     expect(await net.knows(NAME)).toBe(false);
+  });
+
+  test("Tailscale that never answers is given up", async () => {
+    const host = {
+      ...fakeHost({ status: "hangs" }).host,
+      localName: () => new Promise<never>(() => {}),
+    };
+    const { net } = network(host, { hostname: "0.0.0.0", port: 4580 });
+    expect(await net.knows(NAME)).toBe(false);
+    expect(await net.addresses()).toEqual({
+      machine: { url: "http://localhost:4580", secure: true },
+      network: [],
+    });
+  });
+
+  test("a command that ignores SIGTERM is killed and given up", async () => {
+    const started = Date.now();
+    expect(await commandOutput("/bin/sh", ["-c", "trap '' TERM; sleep 30"], 100)).toBeUndefined();
+    expect(Date.now() - started).toBeLessThan(5000);
+    expect(await commandOutput("/bin/sh", ["-c", "echo ok"])).toBe("ok\n");
+    expect(await commandOutput("/nonexistent/tailscale", [])).toBeUndefined();
   });
 
   test("the name given as host name and MagicDNS suffix when there is no DNS name", async () => {

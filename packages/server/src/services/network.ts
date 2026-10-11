@@ -24,6 +24,8 @@ export interface ListensOn {
 /** A refused name that looks like a tailnet's has Tailscale asked again at most this often: the
  *  tailnet may come up after the server. */
 export const TAILNET_REREAD_MS = 60_000;
+/** A question to the machine left unanswered this long is taken as unanswered. */
+const ASK_MS = 6000;
 const TAILNET_NAME = /\.ts\.net$/;
 const DNS_NAME = /^[a-z0-9-]+(\.[a-z0-9-]+)+$/;
 const LOOPBACK = /^(localhost|127(\.\d{1,3}){3}|::1|\[::1\])$/;
@@ -102,6 +104,17 @@ function servedAt(raw: unknown, name: string, port: number): string | undefined 
   return undefined;
 }
 
+/** What a promise gives, or undefined once it fails or `ms` pass without an answer. */
+const within = <T>(promise: Promise<T> | undefined, ms: number) =>
+  new Promise<T | undefined>((resolve) => {
+    const timer = setTimeout(() => resolve(undefined), ms);
+    const settle = (value: T | undefined) => {
+      clearTimeout(timer);
+      resolve(value);
+    };
+    (promise ?? Promise.resolve(undefined)).then(settle, () => settle(undefined));
+  });
+
 const address = (host: string, port: number): ServerAddress => ({
   url: `http://${host.includes(":") && !host.startsWith("[") ? `[${host}]` : host}:${port}`,
   secure: LOOPBACK.test(host),
@@ -111,14 +124,17 @@ export function createNetwork(config: {
   host?: NetworkHost;
   listensOn: ListensOn;
   now: () => number;
+  /** How long a question to the machine may take (tests shorten it). */
+  askMs?: number;
 }) {
-  const { host, listensOn, now } = config;
+  const { host, listensOn, now, askMs = ASK_MS } = config;
+  const tailscale = (command: "status" | "serve") => within(host?.tailscale(command), askMs);
   const once = createOnce<Tailnet | undefined>();
   let readAt = Number.NEGATIVE_INFINITY;
   const read = () =>
     once("status", async () => {
       readAt = now();
-      return tailnetOf(await host?.tailscale("status").catch(() => undefined));
+      return tailnetOf(await tailscale("status"));
     });
   // Read at the start: the first request through the tailnet finds its name known.
   let tailnet = read();
@@ -137,7 +153,7 @@ export function createNetwork(config: {
     async addresses(): Promise<ServerAddresses> {
       const { hostname, port } = listensOn;
       tailnet = read();
-      const [t, localName] = await Promise.all([tailnet, host?.localName()]);
+      const [t, localName] = await Promise.all([tailnet, within(host?.localName(), askMs)]);
       const local = LOOPBACK.test(hostname);
       const everywhere = ANY.has(hostname);
       const network = local
@@ -145,8 +161,7 @@ export function createNetwork(config: {
         : everywhere
           ? (host?.ipv4() ?? []).filter((ip) => !t?.ips.includes(ip))
           : [hostname];
-      const https =
-        t && servedAt(await host?.tailscale("serve").catch(() => undefined), t.name, port);
+      const https = t && servedAt(await tailscale("serve"), t.name, port);
       return {
         machine: local || everywhere ? address("localhost", port) : address(hostname, port),
         network: network.map((ip) => address(ip, port)),

@@ -298,10 +298,12 @@ profiles with device tokens (above).
   reached by — `localhost`, an IP address, a `.local` name, its host name, the address it listens on,
   the names given by `serve --allow-host <name>` (repeatable: a reverse proxy's name), and this
   machine's own tailnet name — else 421 (DNS-rebinding protection: a page on another site cannot
-  rebind its name to this server). The tailnet name is `Self.DNSName` of `tailscale status --json`
-  (else `Self.HostName` with `MagicDNSSuffix`), read at the start and, on a refused `*.ts.net` name,
-  again at most once a minute (Tailscale may come up after the server); the macOS app's binary or
-  `tailscale` on the PATH; none while Tailscale is absent, stopped or logged out. Never any
+  rebind its name to this server). The tailnet name is `Self.DNSName` of
+  `tailscale status --json --peers=false` (else `Self.HostName` with `MagicDNSSuffix`), read at the
+  start and, on a refused `*.ts.net` name, again at most once a minute (Tailscale may come up after
+  the server); the macOS app's binary, else `tailscale` looked up on the PATH; a command not done in
+  five seconds is killed (SIGKILL) and taken as no answer; none while Tailscale is absent, stopped or
+  logged out. Never any
   `*.ts.net`: another tailnet's name could be rebound to this server. No CORS (same-origin only).
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
   header `X-SprachAnker: 1`.
