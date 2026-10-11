@@ -51,14 +51,9 @@ export interface TransferFiles {
   save(stream: ReadableStream<Uint8Array>, file: string, bytes: number): Promise<void>;
   /** A new, empty transfer. */
   begin(): string;
-  /** A profile file received into the transfer, streamed to disk; false past `max` bytes. `announced`
-   *  (its length, when told) is checked against the free space first. */
-  receive(
-    id: string,
-    body: AsyncIterable<Uint8Array>,
-    max: number,
-    announced?: number,
-  ): Promise<boolean>;
+  /** A profile file of `length` bytes received into the transfer, streamed to disk, the free space
+   *  checked for it first; false when more comes. */
+  receive(id: string, body: AsyncIterable<Uint8Array>, length: number): Promise<boolean>;
   /** A profile file read by its zip directory — the one received, or `file` on disk: its manifest's
    *  text and the other files' paths and sizes; undefined when it is no zip of stored entries with a
    *  manifest and allowed paths only, each once. */
@@ -305,16 +300,18 @@ export function createProfileTransfer(deps: {
 
     /** A profile file uploaded (from "Who is studying?": registration open, or no profile yet) and
      *  imported as a new profile. */
-    async importUpload(body: AsyncIterable<Uint8Array>, announced?: number) {
+    async importUpload(body: AsyncIterable<Uint8Array> | null, length: number | undefined) {
+      // Before a byte of it is read: whether a profile may be made here, and its length told.
       if (profiles.list().length && !profiles.registrationOpen())
         throw new ServiceError("registration_closed", 403);
-      if (announced !== undefined && announced > PROFILE_FILE_MAX_BYTES)
-        throw new ServiceError("profile_file_too_large", 413);
+      if (length === undefined) throw new ServiceError("length_required", 411);
+      if (length > PROFILE_FILE_MAX_BYTES) throw new ServiceError("profile_file_too_large", 413);
+      if (!body) throw new ServiceError("not_a_profile_file", 422);
       files.sweep();
       const id = files.begin();
       try {
         return await guarded(async () => {
-          if (!(await files.receive(id, body, PROFILE_FILE_MAX_BYTES, announced)))
+          if (!(await files.receive(id, body, length)))
             throw new ServiceError("profile_file_too_large", 413);
           return await settle(id);
         });

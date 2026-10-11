@@ -1303,7 +1303,8 @@
     "deck_upload_gone": "Otpremljena datoteka špila više nije ovdje: izaberi je ponovo.",
     "deck_unpacked_too_large": "Ova datoteka špila se raspakuje u više nego što se odjednom može pročitati.",
     "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
-    "examples_without_word": "Rečenice modela nisu koristile tu riječ."
+    "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
+    "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku."
   },
   "exams": {
     "tabs": {

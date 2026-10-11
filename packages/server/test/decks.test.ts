@@ -60,6 +60,27 @@ test("a package previewed, imported as a deck with its audio; its media served f
     413,
     "deck_too_large",
   ]);
+  // Sent in chunks without its length: refused before it is read, never held to be counted.
+  let pulled = false;
+  const chunked = await api.app.request("/api/decks/preview", {
+    method: "POST",
+    headers: { cookie: api.cookie, ...CLIENT_HEADERS, "content-type": "application/octet-stream" },
+    body: new ReadableStream<Uint8Array>(
+      {
+        pull(controller) {
+          pulled = true;
+          controller.enqueue(deck());
+          controller.close();
+        },
+      },
+      { highWaterMark: 0 },
+    ),
+  });
+  expect([chunked.status, ((await chunked.json()) as { error: string }).error, pulled]).toEqual([
+    411,
+    "length_required",
+    false,
+  ]);
   const bad = await upload("/api/decks/preview", new Uint8Array([1, 2, 3]));
   expect([bad.status, ((await bad.json()) as { error: string }).error]).toEqual([
     422,

@@ -273,8 +273,8 @@ recordings/<ulid>.<ext>
   another profile has it; its colour; onboarded. All or nothing — everything happens in
   `profiles/.transfers/<id>/`, moved into `profiles/<new id>` only once checked, then the profile is
   made; any failure removes the transfer, and nothing of it is left:
-  1. the file streamed to disk (an upload; room for it twice — the file and what it unpacks to —
-     checked first when its length is known; 413 `profile_file_too_large` past 4 GB);
+  1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and
+     what it unpacks to — checked first; 413 `profile_file_too_large` past 4 GB);
   2. read by its zip directory: a manifest that reads, stored entries only, only `profile.sqlite`
      and `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a
      migration this app does not know: 422 `profile_from_newer_app`; the files exactly those listed,

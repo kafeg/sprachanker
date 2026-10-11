@@ -39,6 +39,8 @@ export async function withDecks(options: Parameters<typeof setup>[0] = {}) {
         cookie: api.cookie,
         ...CLIENT_HEADERS,
         "content-type": "application/octet-stream",
+        // Its length told, as the web client's upload tells it.
+        "content-length": String(body.length),
       },
       body,
     });

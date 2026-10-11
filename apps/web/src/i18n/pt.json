@@ -1303,7 +1303,8 @@
     "deck_upload_gone": "O arquivo de baralho enviado não está mais aqui: escolha-o de novo.",
     "deck_unpacked_too_large": "Este arquivo de baralho, descompactado, é maior do que dá para ler de uma vez.",
     "deck_same_languages": "As palavras e as traduções precisam de dois idiomas diferentes.",
-    "examples_without_word": "As frases do modelo não usaram a palavra."
+    "examples_without_word": "As frases do modelo não usaram a palavra.",
+    "length_required": "O arquivo foi enviado sem o seu tamanho. Tente de novo, ou em outro navegador."
   },
   "exams": {
     "tabs": {

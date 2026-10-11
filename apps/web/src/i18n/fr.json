@@ -1303,7 +1303,8 @@
     "deck_upload_gone": "Le fichier de paquet envoyé n’est plus là : choisis-le à nouveau.",
     "deck_unpacked_too_large": "Une fois décompressé, ce fichier de paquet est trop gros pour être lu d’un coup.",
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
-    "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot."
+    "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
+    "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur."
   },
   "exams": {
     "tabs": {

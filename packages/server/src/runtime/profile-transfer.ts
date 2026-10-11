@@ -307,10 +307,10 @@ export function profileTransferFiles(
         throw error;
       }
     },
-    async receive(id, body, max, announced) {
+    async receive(id, body, length) {
       // The file and what it unpacks to.
-      if (announced !== undefined) room(root, 2 * announced);
-      return (await writeChunks(received(id), body, max)) !== undefined;
+      room(root, 2 * length);
+      return (await writeChunks(received(id), body, length)) !== undefined;
     },
     read(id, file = received(id)) {
       const entries = entriesOf(file);

@@ -79,13 +79,35 @@ async function exported(api: Awaited<ReturnType<typeof setup>>) {
   return { ready, res, bytes };
 }
 
-/** A file imported into a data root from a device signed in to nothing. */
+/** A file imported into a data root from a device signed in to nothing, its length told (as the web
+ *  client's upload tells it). */
 const importInto = (api: Awaited<ReturnType<typeof setup>>, body: Uint8Array) =>
   api.app.request("/api/profiles/import", {
     method: "POST",
-    headers: { "content-type": "application/octet-stream", ...CLIENT_HEADERS },
+    headers: {
+      "content-type": "application/octet-stream",
+      "content-length": String(body.length),
+      ...CLIENT_HEADERS,
+    },
     body,
   });
+
+/** A body that notes whether anything read it. */
+function watched(bytes: Uint8Array) {
+  const seen = { read: false };
+  const body = new ReadableStream<Uint8Array>(
+    {
+      pull(controller) {
+        seen.read = true;
+        controller.enqueue(bytes);
+        controller.close();
+      },
+    },
+    // Nothing pulled before a read asks.
+    { highWaterMark: 0 },
+  );
+  return { body, seen };
+}
 
 /** Rows of a profile database's tables, as stored. */
 function rowsOf(file: string, tables = TABLES) {
@@ -488,19 +510,40 @@ test("importing needs registration open, a file within the limit; downloading, t
   await b.sendJson("POST", "/api/profiles", { name: "Other" });
   const { profileAdmin } = await import("../src/index.ts");
   profileAdmin(b.root).setRegistration(false);
-  const closed = await importInto(b, bytes);
+  // Refused before a byte of it is read, its length told or not.
+  const send = (body: ReadableStream<Uint8Array>, headers: Record<string, string> = {}) =>
+    b.app.request("/api/profiles/import", {
+      method: "POST",
+      headers: { "content-type": "application/octet-stream", ...CLIENT_HEADERS, ...headers },
+      body,
+    });
+  const unasked = watched(bytes);
+  const closed = await send(unasked.body);
   expect([closed.status, await read(closed)]).toEqual([403, { error: "registration_closed" }]);
+  expect(unasked.seen.read).toBe(false);
   profileAdmin(b.root).setRegistration(true);
-  const large = await b.app.request("/api/profiles/import", {
-    method: "POST",
-    headers: {
-      "content-type": "application/octet-stream",
-      "content-length": "5000000000",
-      ...CLIENT_HEADERS,
-    },
-    body: bytes,
+  // Sent in chunks without its length: never held to be counted, refused at once.
+  for (const headers of [{}, { "transfer-encoding": "chunked", "content-length": "10" }] as Array<
+    Record<string, string>
+  >) {
+    const chunked = watched(bytes);
+    const res = await send(chunked.body, headers);
+    expect([res.status, await read(res)]).toEqual([411, { error: "length_required" }]);
+    expect(chunked.seen.read).toBe(false);
+  }
+  const large = watched(bytes);
+  const tooLarge = await send(large.body, { "content-length": "5000000000" });
+  expect([tooLarge.status, await read(tooLarge)]).toEqual([
+    413,
+    { error: "profile_file_too_large" },
+  ]);
+  expect(large.seen.read).toBe(false);
+  // More than it announced: refused once past it.
+  const longer = await send(watched(bytes).body, { "content-length": String(bytes.length - 1) });
+  expect([longer.status, await read(longer)]).toEqual([413, { error: "profile_file_too_large" }]);
+  await expect(read(importInto(b, bytes))).resolves.toMatchObject({
+    profile: { name: "Test (2)" },
   });
-  expect([large.status, await read(large)]).toEqual([413, { error: "profile_file_too_large" }]);
   // A prepared export is downloaded only by its profile, and needs a session.
   const ready = await read(a.send("POST", "/api/profile/export", {}));
   expect((await a.anonymous("GET", `/api/profile/export/${ready.id}`)).status).toBe(401);

@@ -1303,7 +1303,8 @@
     "deck_upload_gone": "Przesłanego pliku talii już tu nie ma: wybierz go ponownie.",
     "deck_unpacked_too_large": "Ten plik talii po rozpakowaniu jest większy, niż da się odczytać naraz.",
     "deck_same_languages": "Słowa i ich tłumaczenia muszą być w dwóch różnych językach.",
-    "examples_without_word": "Zdania modelu nie zawierały tego słowa."
+    "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
+    "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce."
   },
   "exams": {
     "tabs": {

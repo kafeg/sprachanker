@@ -1303,7 +1303,8 @@
     "deck_upload_gone": "上传的卡组文件已不在：请重新选择。",
     "deck_unpacked_too_large": "此卡组文件解压后的内容超出了一次可读取的上限。",
     "deck_same_languages": "单词和翻译需要使用两种不同的语言。",
-    "examples_without_word": "模型生成的句子没有用到该单词。"
+    "examples_without_word": "模型生成的句子没有用到该单词。",
+    "length_required": "文件发送时没有附带其大小。请重试，或换一个浏览器。"
   },
   "exams": {
     "tabs": {

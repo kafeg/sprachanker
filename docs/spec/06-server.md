@@ -35,8 +35,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
 - Progress: `POST /api/progress/reset` (a course, one lesson, or one exam — its mock exams and practice, 05).
 - Profiles (without a session): `GET` / `POST /api/profiles` (who is studying and registration; a new
-  profile, signed in), `POST /api/profiles/import` (a profile file as the body, streamed, at most 4 GB
-  — 413 `profile_file_too_large` —, while registration is open or no profile exists: the new profile
+  profile, signed in), `POST /api/profiles/import` (a profile file as the body, with its
+  `Content-Length` — 411 `length_required` without —, streamed, at most 4 GB — 413
+  `profile_file_too_large` —, while registration is open or no profile exists — checked before a byte
+  is read —: the new profile
   — not signed in: the device chooses it —, the API keys left out, the content missing here; 422
   `not_a_profile_file`, `profile_file_damaged`, `profile_from_newer_app`; 507 `not_enough_space`; 05,
   "Profile file"), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
@@ -82,7 +84,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   face's review count as shown (a face rated meanwhile on another device is refused: 409 `card_changed`).
 - Imported decks (04, "Decks"; server-wide, as the library): `GET /api/decks` (each with its languages,
   words, how many have audio and examples), `POST /api/decks/preview` (a deck file `.apkg` as the body,
-  at most 512 MB, streamed to `decks/.uploads/`: the upload's id, its deck's name, words, the notes
+  with its `Content-Length` — 411 `length_required` without —, at most 512 MB, streamed to
+  `decks/.uploads/`: the upload's id, its deck's name, words, the notes
   left out (without a word), the languages its fields are named by, the first words with their
   translation in each — read from the same notes —, the decks here it would update, each with its
   languages), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or
@@ -142,7 +145,10 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   without their outcomes; practice's with them.
 - Bodies: every API route takes at most 1 MB (413 `request_too_large`) but those taking a file, each
   with its own limit — a recording (`recording_too_large`), audio to transcribe, a deck file
-  (`deck_too_large`), a profile file (`profile_file_too_large`).
+  (`deck_too_large`), a profile file (`profile_file_too_large`). A body without `Content-Length` is
+  counted as it comes, held in memory, so the large files — a deck file, a profile file — are taken only
+  with their length announced (`Content-Length`, no `Transfer-Encoding`; else 411 `length_required`,
+  before a byte is read; the web client's uploads send it) and streamed to disk up to that length.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
@@ -150,7 +156,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
   (a deck file that does not read, unpacks too large or has no words; a profile file that is none,
   damaged or from a newer app), 421
-  (a host name this machine is not reached by), 502 (the LLM provider, the speech engine), 507 (no room
+  (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 502 (the LLM provider, the speech engine), 507 (no room
   on the disk for a profile file, `not_enough_space`); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,

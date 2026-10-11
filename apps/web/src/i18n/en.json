@@ -1303,7 +1303,8 @@
     "deck_upload_gone": "The uploaded deck file is no longer here: choose it again.",
     "deck_unpacked_too_large": "This deck file unpacks to more than can be read at once.",
     "deck_same_languages": "The words and their translations need two different languages.",
-    "examples_without_word": "The model's sentences did not use the word."
+    "examples_without_word": "The model's sentences did not use the word.",
+    "length_required": "The file was sent without its size. Try again, or in another browser."
   },
   "exams": {
     "tabs": {
