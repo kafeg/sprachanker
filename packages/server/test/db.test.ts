@@ -183,3 +183,38 @@ test("a database waits for another connection's write instead of failing at once
   const db = openProfileDb(join(dir, "profile.sqlite"));
   expect(db.all(sql`PRAGMA busy_timeout`)).toEqual([{ timeout: BUSY_MS }]);
 });
+
+test("0001: a card of an imported deck's word gets the deck in its source key; other cards keep theirs", () => {
+  const file = fresh();
+  const { db, options, sqlite } = runner(file);
+  migrate(db, migrations.slice(0, 1), options(1));
+  const insert = sqlite.prepare(
+    "INSERT INTO cards (id, kind, lexeme_key, translation_lang, source_key, faces, display_cache_json, created_at) VALUES (?, 'lexeme', ?, 'ru', ?, 'recognition', ?, 1)",
+  );
+  insert.run(
+    "c1",
+    "lex:de:kaffee:noun:m",
+    "n1",
+    JSON.stringify({ target: "x", deck: "mein-abc123" }),
+  );
+  insert.run(
+    "c2",
+    "lex:de:leute:noun:pl",
+    "s/c/00-02#v1",
+    JSON.stringify({ target: "x", series: "s" }),
+  );
+  insert.run("c3", "lex:de:apfel:noun:m", "n3", "not json");
+  insert.run(
+    "c4",
+    "lex:de:tisch:noun:m",
+    null,
+    JSON.stringify({ target: "x", deck: "mein-abc123" }),
+  );
+  expect(migrate(db, migrations, options(2))).toEqual(["0001_deck_source_keys"]);
+  expect(sqlite.query("SELECT id, source_key AS key FROM cards ORDER BY id").all()).toEqual([
+    { id: "c1", key: "deck:mein-abc123/n1" },
+    { id: "c2", key: "s/c/00-02#v1" },
+    { id: "c3", key: "n3" },
+    { id: "c4", key: null },
+  ]);
+});

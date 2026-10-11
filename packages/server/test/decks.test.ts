@@ -445,6 +445,63 @@ test("an update that drops a word: its card keeps what it showed and its audio",
   expect(new Uint8Array(await audio.arrayBuffer())).toEqual(SOUND);
 });
 
+test("two decks sharing a note keep their own cards; one left, a word the other has moves there", async () => {
+  const { importDeck, getJson, sendJson } = await withDecks();
+  const fields = ["Wort", "Übersetzung"];
+  // The note "t" is der Tisch in one deck and der Stuhl in the other; der Tisch is in both.
+  const a = await importDeck(
+    buildApkg({
+      deck: "A",
+      fields,
+      notes: [
+        { guid: "t", fields: ["der Tisch", "стол"] },
+        { guid: "a2", fields: ["die Lampe", "лампа"] },
+        { guid: "a3", fields: ["das Bett", "кровать"] },
+      ],
+    }),
+    "A",
+  );
+  const b = await importDeck(
+    buildApkg({
+      deck: "B",
+      fields,
+      notes: [
+        { guid: "t", fields: ["der Stuhl", "стул"] },
+        { guid: "bt", fields: ["der Tisch", "стол (B)"] },
+        { guid: "b3", fields: ["die Tür", "дверь"] },
+      ],
+    }),
+    "B",
+  );
+  await sendJson("POST", "/api/cards/decks/take", { deck: a.id });
+  expect((await sendJson("POST", "/api/cards/decks/take", { deck: b.id })).created).toBe(2);
+  const cards = async () =>
+    Object.fromEntries(
+      (await getJson("/api/cards")).words.map(
+        (w: { lexemeKey: string; deck: string; display: { translation: string } }) => [
+          w.lexemeKey.split(":")[2],
+          [w.deck, w.display.translation],
+        ],
+      ),
+    );
+  expect(await cards()).toEqual({
+    tisch: [`deck:${a.id}`, "стол"],
+    lampe: [`deck:${a.id}`, "лампа"],
+    bett: [`deck:${a.id}`, "кровать"],
+    stuhl: [`deck:${b.id}`, "стул"],
+    tür: [`deck:${b.id}`, "дверь"],
+  });
+  // A left: der Tisch, which B has too, moves to B with B's translation; the others go.
+  expect(
+    await sendJson("POST", "/api/cards/decks/leave", { scope: `deck:${a.id}`, lang: "de" }),
+  ).toEqual({ removed: 2, moved: 1 });
+  expect(await cards()).toEqual({
+    tisch: [`deck:${b.id}`, "стол (B)"],
+    stuhl: [`deck:${b.id}`, "стул"],
+    tür: [`deck:${b.id}`, "дверь"],
+  });
+});
+
 test("an import asked again — at once or after it ended — answers with the deck it made", async () => {
   const { preview, sendJson, getJson } = await withDecks();
   const { upload } = await preview(deck());

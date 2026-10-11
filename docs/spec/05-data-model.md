@@ -93,7 +93,7 @@ cards(
   lexeme_key TEXT,                -- unique with translation_lang (04, "Spaced repetition")
   translation_lang TEXT NOT NULL, -- the edition's source language its translation is in
   source_key TEXT,                -- vocab occurrence or item key where it was met; an imported deck's
-                                  -- word: its note's guid
+                                  -- word: deck:<id>/<its note's guid> (schema `deckSourceKey`)
   origin_run_id TEXT,             -- the run it was created in, if any: the lesson run of its "Words"
                                   -- step; set null when deleted
   faces TEXT NOT NULL,            -- enabled faces

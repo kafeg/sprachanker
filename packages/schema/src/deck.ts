@@ -12,6 +12,10 @@ export const DECK_FORMAT = 1;
 export const DeckId = Slug.max(80).brand<"DeckId">();
 export type DeckId = z.infer<typeof DeckId>;
 
+/** A card's source key for a deck's word: the deck and the note's guid (`deck:<id>/<guid>`), so two
+ *  decks sharing a note never share a card's source. */
+export const deckSourceKey = (deck: DeckId, key: string) => `deck:${deck}/${key}`;
+
 /** A file inside a deck's folder: its own media (`media/<name>`). */
 export const DeckMediaPath = z.string().regex(/^media\/[^/\\]+$/);
 

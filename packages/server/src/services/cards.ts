@@ -9,6 +9,7 @@ import {
   type Deck,
   type DeckId,
   type DeckWord,
+  deckSourceKey,
   type EditionId,
   type Lesson,
   type LessonKey,
@@ -94,7 +95,10 @@ export function createCards(deps: {
     const out = new Map<string, Home>();
     for (const w of deck.words)
       if (!out.has(w.lexeme))
-        out.set(w.lexeme, { sourceKey: w.key, display: deckDisplay(deck, w) });
+        out.set(w.lexeme, {
+          sourceKey: deckSourceKey(deck.id, w.key),
+          display: deckDisplay(deck, w),
+        });
     return out;
   }
 
@@ -172,7 +176,7 @@ export function createCards(deps: {
         const deck = deckOrFail(request.deck);
         const words = deck.words.map((w) => ({
           lexeme: w.lexeme,
-          sourceKey: w.key,
+          sourceKey: deckSourceKey(deck.id, w.key),
           display: deckDisplay(deck, w),
         }));
         return { created: cards.atomic(() => make(deck.translationLang, words, null)) };
@@ -300,15 +304,30 @@ export function createCards(deps: {
      */
     async relink(): Promise<number> {
       let changed = 0;
+      /** Each deck's words by their cards' source key (read once per relinking). */
+      const decksRead = new Map<string, { deck: Deck; words: Map<string, DeckWord> } | undefined>();
+      const deckWords = (id: string) => {
+        if (!decksRead.has(id)) {
+          const deck = decks.deck(id);
+          decksRead.set(
+            id,
+            deck && {
+              deck,
+              words: new Map(deck.words.map((w) => [deckSourceKey(deck.id, w.key), w])),
+            },
+          );
+        }
+        return decksRead.get(id);
+      };
       for (const row of cards.rows()) {
         if (!row.sourceKey) continue;
         const display = readStored(row.displayCacheJson, CardDisplay, `card ${row.id}`);
         if (!display) continue;
         const current = await (async () => {
           if ("deck" in display) {
-            const deck = decks.deck(display.deck);
-            const word = deck?.words.find((w) => w.key === row.sourceKey);
-            return deck && word && { lexeme: word.lexeme, display: deckDisplay(deck, word) };
+            const read = deckWords(display.deck);
+            const word = read?.words.get(row.sourceKey as string);
+            return read && word && { lexeme: word.lexeme, display: deckDisplay(read.deck, word) };
           }
           const lesson = await content
             .lesson(display.series, display.lessonKey as LessonKey)
