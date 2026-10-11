@@ -9,10 +9,12 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { createApp } from "../src/app.ts";
 import { mediaBlob, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
+import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
 import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts";
 import type { ListensOn, NetworkHost } from "../src/services/network.ts";
+import type { TransferFiles } from "../src/services/profile-transfer.ts";
 import type { PiperHost } from "../src/services/read-aloud.ts";
 
 const files: Record<string, Blob> = {
@@ -34,6 +36,8 @@ export async function setup(
     listensOn?: ListensOn;
     /** Names given by `--allow-host`. */
     allowHosts?: string[];
+    /** Profile files exported and imported: the runtime's over the data root unless given. */
+    transfers?: (dataRoot: string) => TransferFiles;
     /** Changes the fixture library before the app opens it (an item the fixture course lacks). */
     editLibrary?: (libraryRoot: string) => void;
   } = {},
@@ -51,6 +55,7 @@ export async function setup(
     mediaBlob,
     decks: deckFiles(root),
     apkg: apkgRuntime,
+    transfers: options.transfers?.(root) ?? profileTransferFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     fetch: options.fetch,

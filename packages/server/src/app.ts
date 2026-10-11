@@ -29,6 +29,7 @@ import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
 import type { ReadingCache, SpeechHost } from "./services/local-engines.ts";
 import type { ListensOn, NetworkHost } from "./services/network.ts";
+import type { TransferFiles } from "./services/profile-transfer.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
 import type { PiperHost } from "./services/read-aloud.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
@@ -47,6 +48,8 @@ export interface AppConfig {
    *  runtime: SQLite from bytes, zstd. */
   decks: DeckFiles;
   apkg: ApkgRuntime;
+  /** Profile files exported and imported (runtime adapter: `profiles/.transfers`). */
+  transfers: TransferFiles;
   appVersion: string;
   /** 32-byte key that seals the profiles' API keys (06, "Secrets"). */
   secretKey: Uint8Array;
@@ -76,8 +79,9 @@ export interface AppConfig {
   network?: NetworkHost;
 }
 
-/** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file. */
-const FILE_ROUTES = /^\/api\/(recordings|speech\/transcribe|decks\/preview)$/;
+/** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file,
+ *  a profile file. */
+const FILE_ROUTES = /^\/api\/(recordings|speech\/transcribe|decks\/preview|profiles\/import)$/;
 const jsonBody = limitedBody(JSON_BODY_MAX, "request_too_large");
 
 export function createApp(config: AppConfig) {

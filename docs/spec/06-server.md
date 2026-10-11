@@ -35,12 +35,19 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   idempotent import), `GET /api/storage` (the data folder, the space per series, the free space on the disk).
 - Progress: `POST /api/progress/reset` (a course, one lesson, or one exam — its mock exams and practice, 05).
 - Profiles (without a session): `GET` / `POST /api/profiles` (who is studying and registration; a new
-  profile, signed in), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
+  profile, signed in), `POST /api/profiles/import` (a profile file as the body, streamed, at most 4 GB
+  — 413 `profile_file_too_large` —, while registration is open or no profile exists: the new profile
+  — not signed in: the device chooses it —, the API keys left out, the content missing here; 422
+  `not_a_profile_file`, `profile_file_damaged`, `profile_from_newer_app`; 507 `not_enough_space`; 05,
+  "Profile file"), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
   choosing; signing out). With a session: `PUT /api/profile` (name, colour, onboarded), `DELETE
   /api/profile` (the profile with its database and daily copies, recordings and devices; this device
   signed out),
   `GET /api/profile/devices`,
-  `DELETE /api/profile/devices/:id`.
+  `DELETE /api/profile/devices/:id`, `POST /api/profile/export` (the profile's file made ready: its id,
+  file name, size and the API keys it leaves out; 507 `not_enough_space`), `GET
+  /api/profile/export/:id` (that file, streamed as a download with its length, once, by its profile
+  only; 404 `profile_export_gone`).
 - Speech (08): `GET /api/speech` (the engine, its models with downloads, the profile's recognition and
   model), `POST` / `DELETE /api/speech/models/:id`, `POST /api/speech/warm`,
   `POST /api/speech/transcribe?lang=` (a 16 kHz WAV as the body); reading aloud: `GET
@@ -86,7 +93,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   let go unimported: its sheet closed), `DELETE /api/decks/:id` (409 `deck_in_use` while any profile
   has cards made from it; the offers name them: `studiedBy`, the profiles' names). An import asked again with its upload's id — at once, or after it ended
   (within a day) — answers with the deck it made, so a retry after a dropped connection gets it. Bun
-  takes bodies up to a deck file's size; the preview and the import wait as long as they take, every
+  takes bodies up to a profile file's size (the largest); the deck's preview and import, a profile
+  file's import and download wait as long as they take, every
   other request up to 255 s of silence (Bun's most: a local model's first words, 07; `runtime/bun.ts`).
   A deck's earlier audio is linked into its update, copied where the disk has no hard links.
 - A deck's words read aloud (04, "Decks"; a course's or an imported deck's, `scope` as Review names
@@ -134,14 +142,16 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   without their outcomes; practice's with them.
 - Bodies: every API route takes at most 1 MB (413 `request_too_large`) but those taking a file, each
   with its own limit — a recording (`recording_too_large`), audio to transcribe, a deck file
-  (`deck_too_large`).
+  (`deck_too_large`), a profile file (`profile_file_too_large`).
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
   (`not_installed` for a course, lesson or file that is not in the library; unknown ids), 409 (state:
   a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
-  (a deck file that does not read, unpacks too large or has no words), 421
-  (a host name this machine is not reached by), 502 (the LLM provider, the speech engine); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
+  (a deck file that does not read, unpacks too large or has no words; a profile file that is none,
+  damaged or from a newer app), 421
+  (a host name this machine is not reached by), 502 (the LLM provider, the speech engine), 507 (no room
+  on the disk for a profile file, `not_enough_space`); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,
   `GET key` (OpenRouter's key state); `GET lmstudio`, `POST lmstudio/start|download`; tasks —
@@ -193,7 +203,8 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
 - Every `/api` route but health, the profile list and signing in needs a session (401 `no_session`);
   the session check names the profile, whose services (opened on first use) the routes then use.
 - **The command** `sprachanker profiles`: list them; `registration on|off`; `delete <id>` (the profile
-  with its data).
+  with its data); `export <name|id> --to <file|folder>` and `import <file>` (05, "Profile file"; also
+  while a server runs on the data root: the copy is consistent, the new profile appears in its list).
 
 ## Network and HTTPS
 
@@ -266,7 +277,11 @@ it, so headless `serve` has every feature.
 
 Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]...` ·
 `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [--data] [--notes]` (02).
-`profiles` (above). Planned: `normalise <series>`, profile export and import, `enrich check` (plan).
+`profiles` (above) · `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
+`profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
+imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder,
+written as `….part` and renamed when whole, the disk's free space checked first). Planned:
+`normalise <series>`, `enrich check` (plan).
 
 The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is
 idempotent: stored pages and media are not fetched again (`--refresh` re-reads pages), then every
@@ -326,7 +341,7 @@ profiles with device tokens (above).
   Mutating requests require the header `X-SprachAnker: 1`.
 - **Tokens**: device tokens 256-bit random, stored hashed (SHA-256), revocable.
 - **Secrets**: AES-256-GCM with a key file (`0600`, `<app-data>/secret.key`); write-only through the API;
-  never logged.
+  never logged; never in a profile file (emptied from its copy of the database, 05).
 - **Content**: course HTML sanitised at normalisation; markdown rendered with raw HTML disabled. Every
   response has a CSP that loads scripts, styles, images, media and connections from this server only
   (images also `data:`/`blob:`, media `blob:`; inline styles allowed, `style-src 'unsafe-inline'`),

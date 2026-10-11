@@ -3,7 +3,7 @@ import { expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { backUpToday } from "../src/runtime/backup.ts";
+import { backUpTo, backUpToday } from "../src/runtime/backup.ts";
 
 test("a copy of every database a day, readable; a week's kept", () => {
   const root = mkdtempSync(join(tmpdir(), "sprachanker-backup-"));
@@ -26,4 +26,44 @@ test("a copy of every database a day, readable; a week's kept", () => {
   expect(readdirSync(root).filter((f) => f.endsWith(".part"))).toEqual([]);
   const copy = new Database(join(root, "profiles/local/profile.sqlite.day-2026-10-09"));
   expect(copy.query("SELECT x FROM t").all()).toEqual([{ x: 1 }]);
+});
+
+test("a backup on request: the databases, recordings, imported decks and the key, in a folder of its own", () => {
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-backup-"));
+  mkdirSync(join(root, "profiles/local/recordings"), { recursive: true });
+  for (const file of ["server.sqlite", "profiles/local/profile.sqlite"]) {
+    const db = new Database(join(root, file));
+    db.exec("PRAGMA journal_mode = WAL; CREATE TABLE t (x); INSERT INTO t VALUES (1);");
+    db.close();
+  }
+  writeFileSync(join(root, "profiles/local/recordings/01K00000000000000000000000.webm"), "take");
+  writeFileSync(join(root, "profiles/local/profile.sqlite.day-2026-10-01"), "a day's copy");
+  mkdirSync(join(root, "profiles/.transfers/x"), { recursive: true });
+  mkdirSync(join(root, "decks/my-deck/media"), { recursive: true });
+  writeFileSync(join(root, "decks/my-deck/deck.json"), "{}");
+  mkdirSync(join(root, "decks/.uploads"), { recursive: true });
+  writeFileSync(join(root, "decks/.uploads/u.apkg"), "upload");
+  mkdirSync(join(root, "library/x"), { recursive: true });
+  const key = join(root, "app-data-secret.key");
+  writeFileSync(key, new Uint8Array(32));
+  const to = mkdtempSync(join(tmpdir(), "sprachanker-backups-"));
+  const { folder } = backUpTo(root, to, key, new Date("2026-10-11T08:30:05Z"));
+  expect(folder).toBe(join(to, "sprachanker-backup-20261011-083005"));
+  expect(readdirSync(to)).toEqual(["sprachanker-backup-20261011-083005"]);
+  expect(readdirSync(folder).sort()).toEqual([
+    "app-data-secret.key",
+    "decks",
+    "profiles",
+    "server.sqlite",
+  ]);
+  expect(readdirSync(join(folder, "profiles"))).toEqual(["local"]);
+  expect(readdirSync(join(folder, "profiles/local")).sort()).toEqual([
+    "profile.sqlite",
+    "recordings",
+  ]);
+  expect(readdirSync(join(folder, "decks"))).toEqual(["my-deck"]);
+  const copy = new Database(join(folder, "profiles/local/profile.sqlite"));
+  expect(copy.query("SELECT x FROM t").all()).toEqual([{ x: 1 }]);
+  // The same second again: refused, the first left as it was.
+  expect(() => backUpTo(root, to, key, new Date("2026-10-11T08:30:05Z"))).toThrow(/exists/);
 });

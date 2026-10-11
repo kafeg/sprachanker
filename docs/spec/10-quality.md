@@ -39,7 +39,7 @@ table in the same commit with the reason.
 | HTML sanitising (importers) | `sanitize-html` with the allow-list from 02 |
 | PDF reading (importers) | `pdfjs-dist` (pdf.js, legacy build, its parser in the importer's thread): text with its place, pictures decoded; PNG written with `node:zlib` |
 | Markdown rendering | `markdown-it` with `html: false` |
-| Zip | `fflate` (`.apkg` packages: `packages/anki-export`; profile export when built) |
+| Zip | `fflate` (`.apkg` packages read: `packages/anki-export`; a profile file written with its streaming `Zip`, stored entries: `packages/server/src/runtime/profile-transfer.ts`). A profile file is read by its zip directory there, not by fflate's streaming `Unzip`: that finds the end of a stored entry written with a data descriptor (as fflate's `Zip` writes them) by scanning its data for a signature, which a recording may hold (2026-10-11) |
 | zstd, SQLite from bytes (`.apkg`) | the runtime's: `zstdDecompressSync` (`node:zlib`, its output capped), `Database.deserialize` (`packages/server/src/runtime/decks.ts`) |
 | Logging | `pino` (when first needed: structured logs; today `console.error` for what is left out or fails) |
 | Crypto | WebCrypto: AES-256-GCM (API keys), SHA-256 (device tokens) — runtime-agnostic, no adapter |

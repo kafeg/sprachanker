@@ -12,6 +12,7 @@ export * from "./learner.ts";
 export * from "./library-state.ts";
 export * from "./locale.ts";
 export * from "./network.ts";
+export * from "./profile-file.ts";
 export * from "./rules.ts";
 export * from "./settings.ts";
 export * from "./stats.ts";

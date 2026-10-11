@@ -21,7 +21,9 @@ src/
                      # model-files.ts (checked downloads into <data-root>/models), speech.ts
                      # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
-                     # backup.ts (a copy of each database a day);
+                     # backup.ts (a copy of each database a day; a backup on request into a folder);
+                     # profile-transfer.ts (profile files in profiles/.transfers: a snapshot streamed as a
+                     # zip — fflate —, a file read by its zip directory, unpacked, its database checked);
                      # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
                      # and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
@@ -38,7 +40,8 @@ src/
   errors.ts          # ServiceError(code, status): what a service refuses; errorResponse: how app.ts and
                      # routes/llm.ts answer it (and a request that does not validate)
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
-                     # out — before the session check; the profile itself — after it), courses
+                     # out, a profile file imported — before the session check; the profile itself, its
+                     # export — after it), courses
                      # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
                      # progress (reset), exams, cards (a card's examples too), decks (imported: list,
                      # preview, import, an upload let go, delete; any deck's words read aloud or given
@@ -68,7 +71,9 @@ src/
                      #   deck-examples (its words given examples by a model handed in: five a call, a
                      #   sentence without its word dropped, a word left without any asked again)
                      # - across modules: notebook (study days, each span's bars, the standings gathered), progress (resets;
-                     #   recordings in use), content, settings, stored (a JSON value read by its schema)
+                     #   recordings in use), content, settings, stored (a JSON value read by its schema),
+                     #   profile-transfer (a profile exported to a file, a file imported as a new profile:
+                     #   the manifest, the checks, the content used and missing; the files: TransferFiles)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,
                      #   in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
@@ -130,4 +135,5 @@ test/                # bun test; integration tests call createApp().request() �
   in `src/runtime/`, `config.ts`, `providers.ts` and `index.ts`): the web client type-checks that graph
   without Bun or Node types.
 - Speech: always pass an explicit language; never pass the reference text to the recogniser.
-- Exports a programmatic API used by `apps/cli` (serve, import).
+- Exports a programmatic API used by `apps/cli` (serve, import, verify, profiles — `profileAdmin` with
+  export and import —, backup).
