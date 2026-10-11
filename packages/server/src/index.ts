@@ -108,7 +108,11 @@ export function profileAdmin(
   profiles.adoptFirst();
   const decks = deckFiles(dataRoot);
   const transfer = createProfileTransfer({
-    files: profileTransferFiles(dataRoot, { worker: options.profileDbWorker }),
+    files: profileTransferFiles(dataRoot, {
+      worker: options.profileDbWorker,
+      // A server running on the data root keeps its transfers: they are its to sweep.
+      sweeps: () => !serverOn(dataRoot),
+    }),
     profiles,
     used: (id) => {
       const db = files.open(id);

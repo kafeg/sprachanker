@@ -1,5 +1,12 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  utimesSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { profileAdmin } from "../src/index.ts";
@@ -43,4 +50,21 @@ test("a profile is not deleted from the command line while a server holds the fo
   writeFileSync(join(root, "server.pid"), String(server.pid));
   expect(() => admin.remove("local")).toThrow(/stop it first/);
   server.kill();
+});
+
+test("the command line sweeps no transfer while a server runs on the folder: they are the server's", async () => {
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-root-"));
+  const left = join(root, "profiles", ".transfers", crypto.randomUUID());
+  mkdirSync(left, { recursive: true });
+  const old = new Date(Date.now() - 2 * 3_600_000);
+  utimesSync(left, old, old);
+  const server = another();
+  writeFileSync(join(root, "server.pid"), String(server.pid));
+  profileAdmin(root);
+  expect(existsSync(left)).toBe(true);
+  server.kill();
+  await server.exited;
+  // No server: an hour-old transfer is a stopped one's, and goes.
+  profileAdmin(root);
+  expect(existsSync(left)).toBe(false);
 });

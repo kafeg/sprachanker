@@ -18,6 +18,7 @@ import {
   rmSync,
   statfsSync,
   statSync,
+  utimesSync,
 } from "node:fs";
 import { open } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -33,6 +34,8 @@ const MANIFEST_MAX = 64 * 1024 * 1024;
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** A transfer left this long (an export never downloaded, an import cut short) goes. */
 const KEPT_MS = 60 * 60_000;
+/** How often a transfer in use marks its folder's time (another process's sweep goes by it). */
+const TOUCH_MS = 60_000;
 /** Room a transfer leaves free on the data root's disk beyond what it writes: the larger of 1 GB and
  *  5 % of the disk (the server and the learners' own work go on beside it). */
 const dataRootMargin = (diskBytes: number) => Math.max(1024 ** 3, 0.05 * diskBytes);
@@ -192,9 +195,25 @@ export function profileTransferFiles(
     /** The Worker of profile-db-worker.ts: the compiled binary's own, else PROFILE_DB_WORKER. */
     worker?: string;
     settleMs?: number;
+    /** Whether this process may sweep: not the command line while a server runs on the data root
+     *  (its transfers are the server's). */
+    sweeps?: () => boolean;
   } = {},
 ): TransferFiles {
   const diskAt = options.disk ?? diskOf;
+  /** This process's transfers in use: never swept. */
+  const active = new Set<string>();
+  /** A transfer's folder marked as in use for another process's sweep (its time), at most a minute
+   *  apart. */
+  const touched = new Map<string, number>();
+  const touch = (id: string) => {
+    if (Date.now() - (touched.get(id) ?? 0) < TOUCH_MS) return;
+    touched.set(id, Date.now());
+    const now = new Date();
+    try {
+      utimesSync(folder(id), now, now);
+    } catch {}
+  };
   const root = join(dataRoot, "profiles", ".transfers");
   const folder = (id: string) => {
     if (!ID.test(id)) throw new Error(`bad transfer id ${id}`);
@@ -207,7 +226,11 @@ export function profileTransferFiles(
     const disk = diskAt(dir);
     if (disk && disk.free < bytes + margin(disk.size)) throw noSpace();
   };
-  const discard = (id: string) => rmSync(folder(id), { recursive: true, force: true });
+  const discard = (id: string) => {
+    rmSync(folder(id), { recursive: true, force: true });
+    active.delete(id);
+    touched.delete(id);
+  };
   /** The entries of a profile file, its manifest apart; each name allowed and once. */
   const entriesOf = (file: string) => {
     const entries = zipEntries(file);
@@ -228,7 +251,9 @@ export function profileTransferFiles(
   const self: TransferFiles = {
     migrations: profileMigrationTags,
     sweep() {
+      if (options.sweeps && !options.sweeps()) return;
       for (const name of statSync(root, { throwIfNoEntry: false }) ? readdirSync(root) : []) {
+        if (active.has(name)) continue;
         const at = statSync(join(root, name), { throwIfNoEntry: false })?.mtimeMs;
         if (at !== undefined && Date.now() - at > KEPT_MS)
           rmSync(join(root, name), { recursive: true, force: true });
@@ -237,6 +262,7 @@ export function profileTransferFiles(
     begin() {
       const id = randomUUID();
       mkdirSync(folder(id), { recursive: true });
+      active.add(id);
       return id;
     },
     async snapshot(profileId) {
@@ -313,6 +339,9 @@ export function profileTransferFiles(
     },
     stream(id, manifest, paths) {
       const base = unpacked(id);
+      // In use from now (a download that has begun), whatever its age.
+      touched.delete(id);
+      touch(id);
       async function* chunks() {
         const queue: Uint8Array[] = [];
         let failed: Error | undefined;
@@ -333,6 +362,7 @@ export function profileTransferFiles(
             const entry = new ZipPassThrough(path);
             zip.add(entry);
             for await (const chunk of Bun.file(join(base, path)).stream()) {
+              touch(id);
               entry.push(chunk);
               yield* take();
             }
@@ -377,7 +407,13 @@ export function profileTransferFiles(
     async receive(id, body, length) {
       // The file and what it unpacks to.
       room(root, 2 * length);
-      return (await writeChunks(received(id), body, length)) !== undefined;
+      async function* touching() {
+        for await (const chunk of body) {
+          touch(id);
+          yield chunk;
+        }
+      }
+      return (await writeChunks(received(id), touching(), length)) !== undefined;
     },
     read(id, file = received(id)) {
       const entries = entriesOf(file);

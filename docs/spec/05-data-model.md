@@ -305,6 +305,10 @@ recordings/<ulid>.<ext>
   by their snapshots and its cards by their display, as after a course is removed (Lifecycle); the
   lessons show once the course is downloaded.
 - A transfer folder is no profile: the daily copies and backups pass over `profiles/.*`.
+- Transfers left behind (a process stopped) go when an export or import begins, by their folder's
+  time: an hour old. Never one this process is using (it knows its own); a download or an upload
+  under way marks its folder's time at least once a minute, for another process's sweep; and the
+  command line sweeps nothing while a server runs on the data root (they are the server's).
 
 ## Lifecycle
 

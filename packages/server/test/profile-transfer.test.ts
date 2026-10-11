@@ -4,7 +4,16 @@
 import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  utimesSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
@@ -712,6 +721,30 @@ test("one import at a time; one export a profile, a new one replacing the one no
   copied();
   const [one, two] = await Promise.all(asked.map((res) => read(res)));
   expect([snapshots, one.id]).toEqual([1, two.id]);
+});
+
+test("a transfer in use is never swept: an export not yet downloaded, one downloading", async () => {
+  const a = await studied();
+  const transfers = join(a.root, "profiles", ".transfers");
+  const age = (id: string, hours: number) => {
+    const then = new Date(Date.now() - hours * 3_600_000);
+    utimesSync(join(transfers, id), then, then);
+  };
+  const ready = await read(a.send("POST", "/api/profile/export", {}));
+  // Its folder an hour old (a slow download, a clock moved on); and one a stopped server left.
+  age(ready.id, 2);
+  const stopped = crypto.randomUUID();
+  mkdirSync(join(transfers, stopped));
+  age(stopped, 2);
+  // A sweep (an import begins with one): the export is this server's, in use.
+  await importInto(a, new Uint8Array(10));
+  expect(readdirSync(transfers)).toEqual([ready.id]);
+  // Another process's sweep goes by the folder's time: a download starting marks it.
+  const res = await a.get(`/api/profile/export/${ready.id}`);
+  profileTransferFiles(a.root).sweep();
+  expect(readdirSync(transfers)).toEqual([ready.id]);
+  expect((await res.arrayBuffer()).byteLength).toBe(ready.bytes);
+  expect(readdirSync(transfers)).toEqual([]);
 });
 
 test("a profile moved into place but not made (its row failed): moved back, nothing left", async () => {
