@@ -177,6 +177,7 @@ const PROFILE_FILE_ERRORS: Record<string, string> = {
   profile_from_newer_app:
     "this profile comes from a newer version of SprachAnker: update it here first",
   not_enough_space: "there is not enough free space on the disk",
+  profile_import_busy: "another profile file is being imported: try again when it is done",
   name_required: "the profile has no name yet: finish its onboarding in the app first",
 };
 const inWords = (error: unknown) =>

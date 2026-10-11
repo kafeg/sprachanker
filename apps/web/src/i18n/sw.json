@@ -1304,7 +1304,8 @@
     "deck_unpacked_too_large": "Faili hili la seti likifunguliwa ni kubwa kuliko kinachoweza kusomwa kwa mara moja.",
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
-    "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine."
+    "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
+    "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika."
   },
   "exams": {
     "tabs": {

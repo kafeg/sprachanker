@@ -40,7 +40,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `profile_file_too_large` —, while registration is open or no profile exists — checked before a byte
   is read —: the new profile
   — not signed in: the device chooses it —, the API keys left out, the content missing here; 422
-  `not_a_profile_file`, `profile_file_damaged`, `profile_from_newer_app`; 507 `not_enough_space`; 05,
+  `not_a_profile_file`, `profile_file_damaged`, `profile_from_newer_app`; 409 `profile_import_busy`
+  while another is imported; 507 `not_enough_space`; 05,
   "Profile file"), `GET` / `POST` / `DELETE /api/session` (this device's profile; signing in by
   choosing; signing out). With a session: `PUT /api/profile` (name, colour, onboarded), `DELETE
   /api/profile` (the profile with its database and daily copies, recordings and devices; this device

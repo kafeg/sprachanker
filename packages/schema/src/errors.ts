@@ -23,6 +23,7 @@ export const ERROR_CODES = [
   "profile_file_too_large",
   "profile_from_newer_app",
   "not_enough_space",
+  "profile_import_busy",
   // Courses and downloads.
   "not_installed",
   "not_offered",

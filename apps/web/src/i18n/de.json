@@ -1304,7 +1304,8 @@
     "deck_unpacked_too_large": "Diese Stapeldatei entpackt sich zu mehr, als auf einmal gelesen werden kann.",
     "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen.",
     "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht.",
-    "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser."
+    "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser.",
+    "profile_import_busy": "Gerade wird eine andere Profildatei importiert. Versuch es noch einmal, wenn sie fertig ist."
   },
   "exams": {
     "tabs": {

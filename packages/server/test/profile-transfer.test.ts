@@ -564,17 +564,32 @@ test("a profile from a newer app is refused; one from an older app is migrated f
 });
 
 test("a full disk: the export and the import say so and leave nothing behind", async () => {
-  const full = (root: string) => profileTransferFiles(root, { free: () => 1000 });
+  const GB = 1024 ** 3;
   const a = await studied();
   const { bytes } = await exported(a);
-  const tight = await setup({ transfers: full });
-  const refused = await tight.send("POST", "/api/profile/export", {});
-  expect([refused.status, await read(refused)]).toEqual([507, { error: "not_enough_space" }]);
-  expect(readdirSync(join(tight.root, "profiles", ".transfers"))).toEqual([]);
-  // Announced too large for the disk before it is received.
-  const res = await importInto(tight, bytes);
-  expect([res.status, await read(res)]).toEqual([507, { error: "not_enough_space" }]);
-  await nothingLeft(tight);
+  // Room is what a transfer writes and a margin: the larger of 1 GB and 5 % of the disk.
+  for (const disk of [
+    { free: 1000, size: 10 * GB },
+    { free: 0.99 * GB, size: 10 * GB },
+    { free: 4.9 * GB, size: 100 * GB },
+  ]) {
+    const tight = await setup({
+      transfers: (root) => profileTransferFiles(root, { disk: () => disk }),
+    });
+    const refused = await tight.send("POST", "/api/profile/export", {});
+    expect([refused.status, await read(refused)]).toEqual([507, { error: "not_enough_space" }]);
+    expect(readdirSync(join(tight.root, "profiles", ".transfers"))).toEqual([]);
+    // Announced too large for the disk before it is received.
+    const res = await importInto(tight, bytes);
+    expect([res.status, await read(res)]).toEqual([507, { error: "not_enough_space" }]);
+    await nothingLeft(tight);
+  }
+  const roomy = await setup({
+    transfers: (root) =>
+      profileTransferFiles(root, { disk: () => ({ free: 5.1 * GB, size: 100 * GB }) }),
+  });
+  expect((await roomy.send("POST", "/api/profile/export", {})).status).toBe(200);
+  expect((await importInto(roomy, bytes)).status).toBe(200);
 
   // The disk filling up while the file is unpacked.
   const filling = await setup({
@@ -594,6 +609,73 @@ test("a full disk: the export and the import say so and leave nothing behind", a
   const cut = await importInto(filling, bytes);
   expect([cut.status, await read(cut)]).toEqual([507, { error: "not_enough_space" }]);
   await nothingLeft(filling);
+});
+
+test("one import at a time; one export a profile, a new one replacing the one not downloaded", async () => {
+  const a = await studied();
+  const { bytes } = await exported(a);
+  const b = await setup();
+  // An import still receiving its file.
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const slow = b.app.request("/api/profiles/import", {
+    method: "POST",
+    headers: {
+      "content-type": "application/octet-stream",
+      "content-length": String(bytes.length),
+      ...CLIENT_HEADERS,
+    },
+    body: new ReadableStream<Uint8Array>({
+      async start(controller) {
+        controller.enqueue(bytes.subarray(0, 100));
+        await held;
+        controller.enqueue(bytes.subarray(100));
+        controller.close();
+      },
+    }),
+  });
+  await Bun.sleep(50);
+  const beside = await importInto(b, bytes);
+  expect([beside.status, await read(beside)]).toEqual([409, { error: "profile_import_busy" }]);
+  release();
+  expect((await slow).status).toBe(200);
+  expect((await importInto(b, bytes)).status).toBe(200);
+
+  const first = await read(a.send("POST", "/api/profile/export", {}));
+  const second = await read(a.send("POST", "/api/profile/export", {}));
+  expect(readdirSync(join(a.root, "profiles", ".transfers"))).toEqual([second.id]);
+  expect((await a.get(`/api/profile/export/${first.id}`)).status).toBe(404);
+  expect((await a.get(`/api/profile/export/${second.id}`)).status).toBe(200);
+
+  // Asked again while its copy is being made: made once.
+  let snapshots = 0;
+  let copied = () => {};
+  const copying = new Promise<void>((resolve) => {
+    copied = resolve;
+  });
+  const c = await setup({
+    transfers: (root): TransferFiles => {
+      const real = profileTransferFiles(root);
+      return {
+        ...real,
+        async snapshot(profileId) {
+          snapshots++;
+          await copying;
+          return real.snapshot(profileId);
+        },
+      };
+    },
+  });
+  const asked = [
+    c.send("POST", "/api/profile/export", {}),
+    c.send("POST", "/api/profile/export", {}),
+  ];
+  await Bun.sleep(50);
+  copied();
+  const [one, two] = await Promise.all(asked.map((res) => read(res)));
+  expect([snapshots, one.id]).toEqual([1, two.id]);
 });
 
 test("a profile moved into place but not made (its row failed): moved back, nothing left", async () => {

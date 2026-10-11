@@ -266,11 +266,14 @@ recordings/<ulid>.<ext>
 - **Export** (Settings → Profile, `profiles export`): the database copied and the recordings linked
   (copied where the disk has no hard links) into `profiles/.transfers/<id>/`, each file hashed, then
   streamed as the zip; the transfer goes when the file is written or the download ends or stops (one
-  never downloaded, after an hour). The disk is checked for room for the copy first (507
+  never downloaded, after an hour). One a profile: a new one replaces the one not yet downloaded, and
+  asked for again while it is made it is the same one. The disk is checked for room for the copy
+  first, with a margin left free — the larger of 1 GB and 5 % of the disk, for imports too — (507
   `not_enough_space`; a disk that fills up meanwhile gives the same).
 - **Import** (who is studying, `profiles import`) always makes a **new** profile (owner, 2026-10-11:
   never replacing one; default, owner may change): its name kept, or "Name (2)", "Name (3)"… while
-  another profile has it; its colour; onboarded. All or nothing — everything happens in
+  another profile has it; its colour; onboarded. One at a time (409 `profile_import_busy` beside it).
+  All or nothing — everything happens in
   `profiles/.transfers/<id>/`, moved into `profiles/<new id>` only once checked, then the profile is
   made; any failure removes the transfer, and nothing of it is left:
   1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and

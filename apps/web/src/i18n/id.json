@@ -1304,7 +1304,8 @@
     "deck_unpacked_too_large": "Isi berkas dek ini terlalu besar untuk dibaca sekaligus.",
     "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
     "examples_without_word": "Kalimat dari model tidak memakai kata tersebut.",
-    "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain."
+    "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain.",
+    "profile_import_busy": "Berkas profil lain sedang diimpor. Coba lagi setelah selesai."
   },
   "exams": {
     "tabs": {

@@ -1304,7 +1304,8 @@
     "deck_unpacked_too_large": "Une fois décompressé, ce fichier de paquet est trop gros pour être lu d’un coup.",
     "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
     "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot.",
-    "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur."
+    "length_required": "Le fichier a été envoyé sans sa taille. Réessaie, ou dans un autre navigateur.",
+    "profile_import_busy": "Un autre fichier de profil est en cours d’import. Réessaie quand il sera terminé."
   },
   "exams": {
     "tabs": {

@@ -33,8 +33,11 @@ const MANIFEST_MAX = 64 * 1024 * 1024;
 const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** A transfer left this long (an export never downloaded, an import cut short) goes. */
 const KEPT_MS = 60 * 60_000;
-/** Room kept free beyond what a transfer writes. */
-const MARGIN = 16 * 1024 * 1024;
+/** Room a transfer leaves free on the data root's disk beyond what it writes: the larger of 1 GB and
+ *  5 % of the disk (the server and the learners' own work go on beside it). */
+const dataRootMargin = (diskBytes: number) => Math.max(1024 ** 3, 0.05 * diskBytes);
+/** Room left free beyond a file written elsewhere (a profile file saved where the command was told). */
+const FILE_MARGIN = 16 * 1024 * 1024;
 const RECORDING = /^[0-9A-HJKMNP-TV-Z]{26}\.[a-z0-9]{1,8}$/;
 /** A database made ready for longer than this is refused (a 4 GB one takes minutes). */
 const SETTLE_MS = 30 * 60_000;
@@ -45,15 +48,16 @@ export const PROFILE_DB_WORKER = join(import.meta.dir, "profile-db-worker.ts");
 /** A full disk, found before writing: the same error a write that runs out of room gives. */
 const noSpace = () => Object.assign(new Error("not enough free space"), { code: "ENOSPC" });
 
-/** Bytes free for this user on the disk of `dir`; null when the system does not say. */
-function diskFree(dir: string): number | null {
+/** The disk of `dir`: the bytes free for this user, and its size; null when the system does not say. */
+function diskOf(dir: string): Disk | null {
   try {
     const disk = statfsSync(dir);
-    return disk.bavail * disk.bsize;
+    return { free: disk.bavail * disk.bsize, size: disk.blocks * disk.bsize };
   } catch {
     return null;
   }
 }
+type Disk = { free: number; size: number };
 
 /** A file's sha256 and size, read as a stream. */
 async function hashOf(file: string) {
@@ -184,13 +188,13 @@ function zipEntries(file: string) {
 export function profileTransferFiles(
   dataRoot: string,
   options: {
-    free?: (dir: string) => number | null;
+    disk?: (dir: string) => Disk | null;
     /** The Worker of profile-db-worker.ts: the compiled binary's own, else PROFILE_DB_WORKER. */
     worker?: string;
     settleMs?: number;
   } = {},
 ): TransferFiles {
-  const free = options.free ?? diskFree;
+  const diskAt = options.disk ?? diskOf;
   const root = join(dataRoot, "profiles", ".transfers");
   const folder = (id: string) => {
     if (!ID.test(id)) throw new Error(`bad transfer id ${id}`);
@@ -198,9 +202,10 @@ export function profileTransferFiles(
   };
   const unpacked = (id: string) => join(folder(id), "profile");
   const received = (id: string) => join(folder(id), "received");
-  const room = (dir: string, bytes: number) => {
-    const left = free(dir);
-    if (left !== null && left < bytes + MARGIN) throw noSpace();
+  /** Room for `bytes` more on the disk of `dir` (the data root's, unless `margin` says otherwise). */
+  const room = (dir: string, bytes: number, margin = dataRootMargin) => {
+    const disk = diskAt(dir);
+    if (disk && disk.free < bytes + margin(disk.size)) throw noSpace();
   };
   const discard = (id: string) => rmSync(folder(id), { recursive: true, force: true });
   /** The entries of a profile file, its manifest apart; each name allowed and once. */
@@ -346,7 +351,7 @@ export function profileTransferFiles(
       });
     },
     async save(stream, file, bytes) {
-      room(dirname(file), bytes);
+      room(dirname(file), bytes, () => FILE_MARGIN);
       const part = `${file}.part`;
       try {
         await writeChunks(part, stream);

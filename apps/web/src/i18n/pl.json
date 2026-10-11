@@ -1304,7 +1304,8 @@
     "deck_unpacked_too_large": "Ten plik talii po rozpakowaniu jest większy, niż da się odczytać naraz.",
     "deck_same_languages": "Słowa i ich tłumaczenia muszą być w dwóch różnych językach.",
     "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
-    "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce."
+    "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce.",
+    "profile_import_busy": "Trwa import innego pliku profilu. Spróbuj ponownie, gdy się skończy."
   },
   "exams": {
     "tabs": {

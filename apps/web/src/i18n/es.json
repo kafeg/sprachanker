@@ -1304,7 +1304,8 @@
     "deck_unpacked_too_large": "Este archivo de mazo, descomprimido, es más grande de lo que se puede leer de una vez.",
     "deck_same_languages": "Las palabras y sus traducciones necesitan dos idiomas distintos.",
     "examples_without_word": "Las frases del modelo no usaron la palabra.",
-    "length_required": "El archivo se envió sin su tamaño. Inténtalo de nuevo o en otro navegador."
+    "length_required": "El archivo se envió sin su tamaño. Inténtalo de nuevo o en otro navegador.",
+    "profile_import_busy": "Se está importando otro archivo de perfil. Inténtalo de nuevo cuando termine."
   },
   "exams": {
     "tabs": {
