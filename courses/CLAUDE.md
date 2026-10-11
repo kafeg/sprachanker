@@ -18,8 +18,8 @@ packages/course-kit/src/
   pool.ts              # runPool: work with a bounded number in flight
   media-index.ts       # fetchMedia (a series' media.json and media store), mediaRef, urlFileName, mediaPath,
                        # failed and gone media
-  media-store.ts       # media files under readable names, one file per content
-  files.ts             # atomic writes, temporary names, streamed hashes
+  media-store.ts       # media files under readable names, one file per content (storableMedia: a kind's extensions)
+  files.ts             # atomic writes, temporary names, streamed hashes, a hard link (a copy) never over a file
   zip.ts               # zips of stored entries (profile files, course bundles): written with sizes and
                        # CRC-32 known (ZIP64 where needed), read by a directory checked before believed
   library.ts           # the library read from its folder, validated
