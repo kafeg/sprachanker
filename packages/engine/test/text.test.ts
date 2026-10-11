@@ -71,6 +71,12 @@ describe("word diff", () => {
     expect(score).toBe(2 / 3);
   });
 
+  test("words as written: the final mark kept to show, not graded", () => {
+    const { diff, score } = wordDiff("de", "Ich lerne Deutsch.", "ich lerne Deutsch");
+    expect(diff.at(-1)).toEqual({ op: "equal", expected: "Deutsch.", actual: "Deutsch" });
+    expect(score).toBe(1);
+  });
+
   test("typed: how words are joined counts", () => {
     const { diff } = wordDiff("en", "Good bye", "Goodbye");
     expect(diff.some((d) => d.op !== "equal")).toBe(true);
