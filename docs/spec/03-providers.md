@@ -136,7 +136,7 @@ them: a chip meeting a word gets its space back, except inside a word (a compoun
 noun: "Weihnachts<chip>bräuche</chip>"; a word's beginning: "<chip>wiede</chip>r"; a hyphen it touches:
 "<chip>Wellness</chip>-Hotel", "<chip>Hin</chip>- und"). A chip on a compound's head
 ("<chip>Lamm</chip>fleisch") has the markup of one whose space was left out ("<chip>Garage</chip>haben
-wir nicht", ten times as common): it gets the space, as DW shows it. In course HTML a chip's word is a `<mark>` (DW shows the new words so, and its tasks point at them: "обращая особое внимание на новые слова"); one inside a word is not. Course HTML is
+wir nicht", ten times as common): it gets the space, as DW shows it. In course HTML a chip's word is a `<mark>` (DW shows the new words so, and its tasks point at them: "обращая особое внимание на новые слова"): exactly the chip's own letters, inside a word too ("Weihnachts<mark>bräuche</mark>", "<mark>Hin</mark>- und <mark>Rückfahrt</mark>"). Course HTML is
 spaced as written (`tidySpacing`: one space; none before a `. , ! ? ; : ) ]` that closes the word before
 it — not before a smiley, an ellipsis or a right-to-left text kept as seen —, French keeping its own
 before `! ? ; :`; none inside „ “ where they open and close as in German). The

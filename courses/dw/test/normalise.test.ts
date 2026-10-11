@@ -609,66 +609,78 @@ const wrapped = (inner: string) => `<span class="invalid_placeholder">${inner}</
 const titled = (title: string, word: string) =>
   `<span class="editable placeholder" data-title="${title}" data-type="VOCABULARY">${word}</span>`;
 
+// Course HTML marks each chip's word (exactly its own letters), its spaces outside the mark.
 test.each([
-  [`<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`, "<p>Wir lernen Deutsch.</p>"],
-  [`<p>Wir machen eine${chip("Pause")} .</p>`, "<p>Wir machen eine Pause.</p>"],
+  [`<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`, "<p>Wir <mark>lernen</mark> Deutsch.</p>"],
+  [`<p>Wir machen eine${chip("Pause")} .</p>`, "<p>Wir machen eine <mark>Pause</mark>.</p>"],
   [
     `<p>Wir ${wrapped(`${chip("hören")}&nbsp;`)}${chip("&nbsp;Bilder")}.</p>`,
-    "<p>Wir hören Bilder.</p>",
+    "<p>Wir <mark>hören</mark> <mark>Bilder</mark>.</p>",
   ],
-  [`<p>${chip("Haus")}${chip("Tür")}</p>`, "<p>Haus Tür</p>"],
-  [`<p>Betreff: ${wrapped(chip("Reise"))}&ndash; Nina</p>`, "<p>Betreff: Reise – Nina</p>"],
-  [`<p>Mann:${chip("Hallo")}, &quot;${chip("Tag")}&quot;</p>`, `<p>Mann: Hallo, "Tag"</p>`],
-  [`<p>(${chip("Tisch")}), „${chip("Stuhl")}“</p>`, "<p>(Tisch), „Stuhl“</p>"],
+  [`<p>${chip("Haus")}${chip("Tür")}</p>`, "<p><mark>Haus</mark> <mark>Tür</mark></p>"],
+  [
+    `<p>Betreff: ${wrapped(chip("Reise"))}&ndash; Nina</p>`,
+    "<p>Betreff: <mark>Reise</mark> – Nina</p>",
+  ],
+  [
+    `<p>Mann:${chip("Hallo")}, &quot;${chip("Tag")}&quot;</p>`,
+    `<p>Mann: <mark>Hallo</mark>, "<mark>Tag</mark>"</p>`,
+  ],
+  [
+    `<p>(${chip("Tisch")}), „${chip("Stuhl")}“</p>`,
+    "<p>(<mark>Tisch</mark>), „<mark>Stuhl</mark>“</p>",
+  ],
   // Not inside a word: a compound's tail (its headword a noun), a word's beginning.
   [
     `<p>Viele Winter${titled("der Mantel, die Mäntel", "mäntel")}.</p>`,
-    "<p>Viele Wintermäntel.</p>",
+    "<p>Viele Winter<mark>mäntel</mark>.</p>",
   ],
-  [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon wieder da.</p>"],
-  [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann beginnt er?</p>"],
-  // A hyphen it touches keeps a chip in its word.
-  [`<p>Ein ${chip("Massage")}-${chip("Gutschein")}.</p>`, "<p>Ein Massage-Gutschein.</p>"],
-  [`<p>Ein ${wrapped(chip("Wellness"))}-Hotel.</p>`, "<p>Ein Wellness-Hotel.</p>"],
-  [`<p>${chip("Hin")}- und Rückfahrt</p>`, "<p>Hin- und Rückfahrt</p>"],
+  [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon <mark>wiede</mark>r da.</p>"],
+  [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann <mark>beginnt</mark> er?</p>"],
+  // A hyphen it touches keeps a chip in its word; the mark stays on the chip's own letters (its
+  // span, left unpaired, closes nothing).
+  [
+    `<p>Ein ${chip("Massage")}-${chip("Gutschein")}.</p>`,
+    "<p>Ein <mark>Massage</mark>-<mark>Gutschein</mark>.</p>",
+  ],
+  [`<p>Ein ${wrapped(chip("Wellness"))}-Hotel.</p>`, "<p>Ein <mark>Wellness</mark>-Hotel.</p>"],
+  [`<p>${chip("Hin")}- und Rückfahrt</p>`, "<p><mark>Hin</mark>- und Rückfahrt</p>"],
+  [
+    `<p>${chip("Hin")}- und ${chip("Rückfahrt")} kosten 50 Euro.</span></p>`,
+    "<p><mark>Hin</mark>- und <mark>Rückfahrt</mark> kosten 50 Euro.</p>",
+  ],
   // A lowercase word right after a noun chip is a word of its own: an infinitive, a participle, a
   // possessive, a verb after a sentence's first word. A chip on a compound's head looks the same
   // in the markup, so it gets the space too (DW shows it apart).
-  [`<p>Ich will ${chip("Kaffee")}trinken.</p>`, "<p>Ich will Kaffee trinken.</p>"],
-  [`<p>Ich habe ${chip("Pizza")}gegessen.</p>`, "<p>Ich habe Pizza gegessen.</p>"],
-  [`<p>Die ${chip("Birnen")}meiner Schwester.</p>`, "<p>Die Birnen meiner Schwester.</p>"],
-  [`<p>${chip("Damals")}waren wir jung.</p>`, "<p>Damals waren wir jung.</p>"],
-  [`<p>Eine ${wrapped(chip("Garage"))}haben wir nicht.</p>`, "<p>Eine Garage haben wir nicht.</p>"],
+  [`<p>Ich will ${chip("Kaffee")}trinken.</p>`, "<p>Ich will <mark>Kaffee</mark> trinken.</p>"],
+  [`<p>Ich habe ${chip("Pizza")}gegessen.</p>`, "<p>Ich habe <mark>Pizza</mark> gegessen.</p>"],
   [
-    `<p>Die ${wrapped(`${chip("Schüler")}\u200b\u200b`)}schreiben.</p>`,
-    "<p>Die Schüler schreiben.</p>",
+    `<p>Die ${chip("Birnen")}meiner Schwester.</p>`,
+    "<p>Die <mark>Birnen</mark> meiner Schwester.</p>",
   ],
-  [`<p>Ich esse ${chip("Lamm")}fleisch.</p>`, "<p>Ich esse Lamm fleisch.</p>"],
+  [`<p>${chip("Damals")}waren wir jung.</p>`, "<p><mark>Damals</mark> waren wir jung.</p>"],
+  [
+    `<p>Eine ${wrapped(chip("Garage"))}haben wir nicht.</p>`,
+    "<p>Eine <mark>Garage</mark> haben wir nicht.</p>",
+  ],
+  [
+    `<p>Die ${wrapped(`${chip("Schüler")}​​`)}schreiben.</p>`,
+    "<p>Die <mark>Schüler</mark> schreiben.</p>",
+  ],
+  [`<p>Ich esse ${chip("Lamm")}fleisch.</p>`, "<p>Ich esse <mark>Lamm</mark> fleisch.</p>"],
   [
     `<p>Das ${chip("Brot")}isst er, das ${chip("Dorf")}kommt.</p>`,
-    "<p>Das Brot isst er, das Dorf kommt.</p>",
+    "<p>Das <mark>Brot</mark> isst er, das <mark>Dorf</mark> kommt.</p>",
   ],
-  [`<p>Am ${chip("Montag&nbsp;")}gehe ich.</p>`, "<p>Am Montag gehe ich.</p>"],
-])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
-  // Course HTML marks the chips (below): their spacing is what is checked here.
-  expect(html(ctx, source)?.replace(/<\/?mark>/g, "")).toBe(expected);
-  // Plain text (prompts, options, cloze texts) reads them so too (tags there are spaces: straight
-  // quotes around a chip are not its concern).
-  if (!source.includes("&quot;")) expect(plain(source)).toBe(expected.replace(/<\/?p>/g, ""));
-});
-
-test("course HTML marks a vocabulary chip's word, its spaces outside the mark; plain text has no marks", () => {
-  expect(html(ctx, `<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`)).toBe(
-    "<p>Wir <mark>lernen</mark> Deutsch.</p>",
-  );
-  expect(html(ctx, `<p>Wir ${wrapped(`${chip("hören")}&nbsp;`)}${chip("&nbsp;Bilder")}.</p>`)).toBe(
-    "<p>Wir <mark>hören</mark> <mark>Bilder</mark>.</p>",
-  );
-  // A chip on a compound's tail is part of the word: the word stays whole, unmarked.
-  expect(html(ctx, `<p>Viele Winter${titled("der Mantel, die Mäntel", "mäntel")}.</p>`)).toBe(
-    "<p>Viele Wintermäntel.</p>",
-  );
-  expect(plain(`Wir ${chip("lernen")}Deutsch.`)).toBe("Wir lernen Deutsch.");
+  [`<p>Am ${chip("Montag&nbsp;")}gehe ich.</p>`, "<p>Am <mark>Montag</mark> gehe ich.</p>"],
+  // A chip inside another: one mark.
+  [`<p>Ein ${chip(`schönes ${chip("Haus")}`)}.</p>`, "<p>Ein <mark>schönes Haus</mark>.</p>"],
+])("a vocabulary chip is kept apart from the words it meets and marked: %p", (source, expected) => {
+  expect(html(ctx, source)).toBe(expected);
+  // Plain text (prompts, options, cloze texts) reads them so too, unmarked (tags there are spaces:
+  // straight quotes around a chip are not its concern).
+  if (!source.includes("&quot;"))
+    expect(plain(source)).toBe(expected.replace(/<\/?(?:p|mark)>/g, ""));
 });
 
 test("course HTML is spaced as written: one space, none before marks or inside quotes, none at a block's edges", () => {

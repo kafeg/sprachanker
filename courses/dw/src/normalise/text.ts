@@ -47,12 +47,18 @@ const EDGE = "\ue000";
  *  tags, characters of no width and other edges between (two chips side by side give two spaces:
  *  `tidySpacing` makes them one). */
 const WORD_EDGE =
-  /(?<=(?:[\p{L}\p{N}\u2013\u2014,:!?]|(?<!&#?\w+);|&[nm]dash;)(?:<[^>]*>|[\ue000\u200b\ufeff])*)\ue000(?=(?:<[^>]*>|[\ue000\u200b\ufeff])*(?:[\p{L}\p{N}\u2013\u2014]|&[nm]dash;))/gu;
+  /(?<=(?:[\p{L}\p{N}\u2013\u2014,:!?]|(?<!&#?\w+);|&[nm]dash;)(?:<[^>]*>|[\ue000\ue002\ue003\u200b\ufeff])*)\ue000(?=(?:<[^>]*>|[\ue000\ue002\ue003\u200b\ufeff])*(?:[\p{L}\p{N}\u2013\u2014]|&[nm]dash;))/gu;
 /** Marks a chip's edge inside a word (a hyphenated one too: "<chip>Wellness</chip>-Hotel"); its span
  *  tags there go, so that no reading of the text (plain text makes tags spaces) splits the word. */
 const INSIDE = "\ue001";
 const IN_WORD =
-  /(?<=[\p{L}\u2010\u2011-])(?:<\/?span\b[^>]*>)*\ue001(?:<\/?span\b[^>]*>)*(?=[\p{L}\u2010\u2011-])/gu;
+  /(?<=[\p{L}\u2010\u2011-][\ue002\ue003]*)(?:<\/?span\b[^>]*>)*\ue001(?:<\/?span\b[^>]*>)*(?=[\ue002\ue003]*[\p{L}\u2010\u2011-])/gu;
+/** Where a chip's mark opens and closes (`spaceChips` with `mark`) until the spaces are decided. */
+const MARK_OPEN = "\ue002";
+const MARK_CLOSE = "\ue003";
+/** Spaces (and characters of no width) at a mark's inner edge: they go outside it. */
+const SPACES_OPENING = /\ue002((?:\s|&nbsp;|&#160;|[\u200b\ufeff])+)/gu;
+const SPACES_CLOSING = /((?:\s|&nbsp;|&#160;|[\u200b\ufeff])+)\ue003/gu;
 /** A hyphen right at a chip's edge, only tags between. */
 const HYPHEN_BEFORE = /[\u2010\u2011-](?:<[^>]*>)*$/u;
 const HYPHEN_AFTER = /^[\u2010\u2011-]/u;
@@ -68,28 +74,14 @@ function closingSpan(html: string, start: number) {
   return undefined;
 }
 
-/** Spaces at a marked word's edges, kept outside its mark. */
-const EDGE_SPACES = /^((?:\s|&nbsp;|&#160;)*)([\s\S]*?)((?:\s|&nbsp;|&#160;)*)$/;
-
-/**
- * DW's vocabulary chips as marked words (`<mark>`, 02): DW shows them so, and its tasks point at them
- * ("обращая особое внимание на новые слова"). After `spaceChips`: a chip it took into a word has lost
- * its opening tag and stays unmarked; the spaces it put back stay outside the mark.
- */
-export function markChips(html: string): string {
-  let out = "";
-  let last = 0;
-  for (const open of html.matchAll(CHIP)) {
-    const at = open.index ?? 0;
-    const start = at + open[0].length;
-    const close = closingSpan(html, start);
-    // A chip inside one already marked, or never closed: as it is (the sanitiser unwraps it).
-    if (at < last || !close) continue;
-    const [, before, word, after] = EDGE_SPACES.exec(html.slice(start, close.at)) ?? [];
-    out += `${html.slice(last, at)}${before}${word ? `<mark>${word}</mark>` : ""}${after}`;
-    last = close.at + close.length;
-  }
-  return out + html.slice(last);
+/** A chip's marks as `<mark>`: of chips inside one another, the outermost only. */
+function marks(html: string): string {
+  let depth = 0;
+  return html.replace(/[]/gu, (m) => {
+    depth += m === MARK_OPEN ? 1 : -1;
+    if (m === MARK_OPEN) return depth === 1 ? "<mark>" : "";
+    return depth === 0 ? "</mark>" : "";
+  });
 }
 
 const textOf = (html: string) => plainText(html).toLocaleLowerCase();
@@ -110,9 +102,12 @@ const headOf = (title: string) =>
  * "<chip>Hin</chip>- und"). A chip on a compound's head ("<chip>Lamm</chip>fleisch") is not told from
  * one whose space was left out ("<chip>Garage</chip>haben wir nicht"): the markup is the same, and DW
  * shows both apart, so both get the space. Other spacing is `tidySpacing`'s.
+ * `mark`: each chip's word becomes a `<mark>` (02: DW shows them so, and its tasks point at them —
+ * "обращая особое внимание на новые слова"): exactly the chip's own letters, inside a word too
+ * ("Winter<mark>mäntel</mark>", "<mark>Hin</mark>- und"), the spaces put back outside it.
  */
-export function spaceChips(html: string): string {
-  const edges: Array<{ at: number; mark: string }> = [];
+export function spaceChips(html: string, { mark = false }: { mark?: boolean } = {}): string {
+  const edges: Array<{ at: number; sign: string }> = [];
   for (const open of html.matchAll(CHIP)) {
     const start = (open.index ?? 0) + open[0].length;
     const end = closingSpan(html, start)?.at;
@@ -122,27 +117,34 @@ export function spaceChips(html: string): string {
     const hyphened = HYPHEN_BEFORE.test(
       html.slice(Math.max(0, (open.index ?? 0) - 200), open.index),
     );
-    edges.push({ at: start, mark: tail || hyphened ? INSIDE : EDGE });
+    // A chip never closed is spaced, not marked.
+    const opens = mark && end !== undefined ? MARK_OPEN : "";
+    edges.push({ at: start, sign: (tail || hyphened ? INSIDE : EDGE) + opens });
     if (end === undefined) continue;
     const after = html.slice(end, end + 200).replace(/^(?:<[^>]*>)+/, "");
     const next = /^\p{L}+/u.exec(after)?.[0];
     const words = new Set(textOf(head).split(/[^\p{L}]+/u));
     const begun = next && words.has(`${textOf(word).split(" ").pop()}${next.toLocaleLowerCase()}`);
-    edges.push({ at: end, mark: begun || HYPHEN_AFTER.test(after) ? INSIDE : EDGE });
+    const closes = mark ? MARK_CLOSE : "";
+    edges.push({ at: end, sign: closes + (begun || HYPHEN_AFTER.test(after) ? INSIDE : EDGE) });
   }
   if (!edges.length) return html;
   let marked = "";
   let last = 0;
-  for (const { at, mark } of edges.sort((a, b) => a.at - b.at)) {
-    marked += html.slice(last, at) + mark;
+  for (const { at, sign } of edges.sort((a, b) => a.at - b.at)) {
+    marked += html.slice(last, at) + sign;
     last = at;
   }
   marked += html.slice(last);
-  return marked
+  const spaced = marked
     .replace(IN_WORD, "")
     .replaceAll(INSIDE, "")
     .replace(WORD_EDGE, " ")
     .replaceAll(EDGE, "");
+  if (!mark) return spaced;
+  return marks(
+    spaced.replace(SPACES_OPENING, `$1${MARK_OPEN}`).replace(SPACES_CLOSING, `${MARK_CLOSE}$1`),
+  );
 }
 
 const chipsSpaced = (value: unknown) =>
