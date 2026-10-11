@@ -10,7 +10,8 @@
 ├── library/                     # installed courses (02)
 ├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words with
 │                                # the deck's own examples, their languages, the file it came from) and media/
-│                                # (the audio the .apkg brought); a folder written whole (beside, then renamed
+│                                # (the audio the .apkg brought, `<slug>-<hash of its name>.<ext>`; an update
+│                                # keeps the earlier files); a folder written whole (beside, then renamed
 │                                # into place). Planned beside deck.json: extras.json (by word key: audio read
 │                                # aloud, AI examples), and folders for course decks (`course~<series>~…`)
 ├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported (a day at most)

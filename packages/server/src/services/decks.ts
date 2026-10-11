@@ -18,6 +18,7 @@ import {
 import { DECK_FORMAT, Deck, DeckId, DeckWord, type Lang } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { MediaBlob } from "../media.ts";
+import { sha256Hex } from "../security/encoding.ts";
 import { readStored } from "./run-store.ts";
 
 /** The decks' folders (`<data-root>/decks/<id>/`) and the packages uploaded to be imported. */
@@ -26,7 +27,8 @@ export interface DeckFiles {
   /** A deck's deck.json as text; undefined when there is none. */
   read(id: string): string | undefined;
   /** Writes a deck's folder anew, whole or not at all: its media by path, a batch at a time (each
-   *  read when the one before is written), then deck.json as `deck` gives it. */
+   *  read when the one before is written), then deck.json as `deck` gives it. Media of the deck as it
+   *  was that this import does not bring stay (a card of a word an update drops keeps its audio). */
   write(id: string, media: Iterable<Map<string, Uint8Array>>, deck: () => string): Promise<void>;
   remove(id: string): void;
   /** A file of the deck's own (`media/<name>`); undefined when there is none. */
@@ -189,18 +191,20 @@ export function createDecks(deps: {
     }) {
       const apkg = open(request.upload);
       const notes = noteWords(apkg.notes, request);
-      const paths = new Map<string, string>();
-      const taken = new Set<string>();
-      /** Where a sound the words use is kept in the deck's folder (an audio file only). */
+      // Where each audio file the notes name is kept in the deck's folder; those the words use.
+      const named = notes.flatMap((n) => [n.sound, ...(n.examples ?? []).map((e) => e.sound)]);
+      const paths = new Map(
+        await Promise.all(
+          [...new Set(named)]
+            .filter((s): s is string => !!s && AUDIO.test(s))
+            .map(async (s) => [s, await mediaPath(s)] as const),
+        ),
+      );
+      const used = new Set<string>();
       const pathOf = (sound: string | undefined) => {
-        if (!sound || !AUDIO.test(sound)) return undefined;
-        let path = paths.get(sound);
-        if (!path) {
-          path = mediaPath(sound, taken);
-          taken.add(path);
-          paths.set(sound, path);
-        }
-        return path;
+        const path = sound && paths.get(sound);
+        if (path) used.add(sound);
+        return path || undefined;
       };
       const words: DeckWord[] = [];
       const keys = new Set<string>();
@@ -232,7 +236,7 @@ export function createDecks(deps: {
       }
       if (!words.length) throw new ServiceError("deck_without_words", 422);
       // Paths of sounds the package does not hold are dropped from the words.
-      const sounds = [...paths.keys()];
+      const sounds = [...used];
       const held = new Set<string>();
       function* media() {
         for (let i = 0; i < sounds.length; i += MEDIA_BATCH) {
@@ -320,20 +324,21 @@ function withHeld(word: DeckWord, held: Set<string>): DeckWord {
   };
 }
 
-/** A media file's path in the deck's folder: its name in letters, digits, `.`, `_` and `-`, made
- *  unique among those taken. */
-function mediaPath(name: string, taken: Set<string>) {
-  const safe =
-    name
+/** A media file's path in the deck's folder, the same for its name in every import: the name in
+ *  lowercase letters and digits, and a hash of the name as the package gives it — so names that differ
+ *  only in case (one file on a case-insensitive disk) or in what the slug drops never share a path. */
+async function mediaPath(name: string) {
+  const dot = name.lastIndexOf(".");
+  const slug = (text: string) =>
+    text
       .normalize("NFC")
-      .replace(/[^\p{L}\p{N}._-]+/gu, "_")
-      .replace(/^[.]+/, "") || "audio";
-  const dot = safe.lastIndexOf(".");
-  const [stem, ext] = dot > 0 ? [safe.slice(0, dot), safe.slice(dot)] : [safe, ""];
-  for (let n = 1; ; n++) {
-    const path = `media/${n === 1 ? safe : `${stem}-${n}${ext}`}`;
-    if (!taken.has(path)) return path;
-  }
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 60);
+  const stem = slug(dot > 0 ? name.slice(0, dot) : name) || "audio";
+  const ext = dot > 0 ? `.${slug(name.slice(dot + 1))}` : "";
+  return `media/${stem}-${await sha256Hex(name, 12)}${ext}`;
 }
 
 /** A new deck's id: its title's slug and a short hash of its notes (`deutsch-a1-3f9c2a`). */
@@ -346,10 +351,7 @@ async function newId(title: string, keys: string[], taken: string[]) {
       .replace(/^-+|-+$/g, "")
       .slice(0, 40)
       .replace(/-+$/, "") || "deck";
-  const digest = new Uint8Array(
-    await crypto.subtle.digest("SHA-256", new TextEncoder().encode(keys.sort().join("\n"))),
-  );
-  const hash = [...digest.slice(0, 3)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const hash = await sha256Hex(keys.sort().join("\n"), 6);
   for (let n = 1; ; n++) {
     const id = DeckId.parse(`${slug}-${hash}${n === 1 ? "" : `-${n}`}`);
     if (!taken.includes(id)) return id;

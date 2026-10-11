@@ -3,7 +3,15 @@
 // streamed to `decks/.uploads/`; and what reading an .apkg needs of the runtime: SQLite from bytes, zstd.
 import { Database } from "bun:sqlite";
 import { randomUUID } from "node:crypto";
-import { mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync } from "node:fs";
+import {
+  linkSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  renameSync,
+  rmSync,
+  statSync,
+} from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { zstdDecompressSync } from "node:zlib";
@@ -48,6 +56,12 @@ export function deckFiles(dataRoot: string): DeckFiles {
         await writeFile(join(fresh, "deck.json"), deck());
         const old = `${fresh}.old`;
         const had = !!statSync(target, { throwIfNoEntry: false });
+        // The deck's earlier media stay, linked: the deck as it was is untouched until swapped.
+        const earlier = join(target, "media");
+        if (had && statSync(earlier, { throwIfNoEntry: false })?.isDirectory())
+          for (const name of readdirSync(earlier))
+            if (!statSync(join(fresh, "media", name), { throwIfNoEntry: false }))
+              linkSync(join(earlier, name), join(fresh, "media", name));
         if (had) renameSync(target, old);
         try {
           renameSync(fresh, target);

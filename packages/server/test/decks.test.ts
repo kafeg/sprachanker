@@ -1,4 +1,6 @@
 import { expect, test } from "bun:test";
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
@@ -8,6 +10,9 @@ import { setup } from "./setup.ts";
 const COURSE = "sprachanker.fixture/demo";
 const SOUND = new Uint8Array([0x49, 0x44, 0x33, 4, 0, 0, 0, 0, 0, 0, 9, 9, 9]);
 const study = (scope: string) => `/api/cards/study?scope=${encodeURIComponent(scope)}`;
+/** A media file's path in a deck's folder: its name's slug and a hash of the name. */
+const mediaPath = (slug: string, ext = "mp3") =>
+  expect.stringMatching(new RegExp(`^media/${slug}-[0-9a-f]{12}\\.${ext}$`));
 
 /** A synthetic deck: a word of the course's first lesson (Kaffee), one of its second (Leute), two of
  *  none. */
@@ -51,11 +56,20 @@ async function withDecks() {
       file: "mein.apkg",
     })) as { id: string; words: number; withAudio: number; withExamples: number; title: string };
   };
-  return { ...api, upload, preview, importDeck };
+  /** A deck's words as its deck.json keeps them, by key. */
+  const wordsOf = (
+    id: string,
+  ): Record<string, { audio?: string; examples?: Array<{ audio?: string }> }> =>
+    Object.fromEntries(
+      JSON.parse(readFileSync(join(api.root, "decks", id, "deck.json"), "utf8")).words.map(
+        (w: { key: string }) => [w.key, w],
+      ),
+    );
+  return { ...api, upload, preview, importDeck, wordsOf };
 }
 
 test("a package previewed, imported as a deck with its audio; its media served from its folder alone", async () => {
-  const { upload, preview, importDeck, getJson, get, sendJson } = await withDecks();
+  const { upload, preview, importDeck, getJson, get, sendJson, wordsOf } = await withDecks();
   const seen = await preview(deck());
   expect(seen).toEqual({
     upload: expect.stringMatching(/^[0-9a-f-]{36}$/),
@@ -95,9 +109,11 @@ test("a package previewed, imported as a deck with its audio; its media served f
       file: "mein.apkg",
     }),
   ]);
-  const audio = await get(`/decks/${summary.id}/media/kaffee.mp3`);
+  const kaffee = wordsOf(summary.id).n1?.audio as string;
+  expect(kaffee).toEqual(mediaPath("kaffee"));
+  const audio = await get(`/decks/${summary.id}/${kaffee}`);
   expect(new Uint8Array(await audio.arrayBuffer())).toEqual(SOUND);
-  const part = await get(`/decks/${summary.id}/media/kaffee.mp3`, {
+  const part = await get(`/decks/${summary.id}/${kaffee}`, {
     headers: { range: "bytes=0-2" },
   });
   expect(part.status).toBe(206);
@@ -135,7 +151,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
 });
 
 test("fields named by language: the translation in the language chosen, the deck's examples with their audio on the card", async () => {
-  const { preview, importDeck, getJson, sendJson, get } = await withDecks();
+  const { preview, importDeck, getJson, sendJson, get, wordsOf } = await withDecks();
   const fields = [
     "id",
     "part_of_speech",
@@ -195,16 +211,17 @@ test("fields named by language: the translation in the language chosen, the deck
     target: "die Zeit",
     gender: "f",
     translation: "время",
-    audio: "media/die-zeit.mp3",
+    audio: mediaPath("die-zeit"),
     examples: [
       {
         sentence: "Ich habe Zeit.",
         translation: "У меня есть время.",
-        audio: "media/ich-habe-zeit.mp3",
+        audio: mediaPath("ich-habe-zeit"),
       },
     ],
   });
-  expect((await get(`/decks/${summary.id}/media/ich-habe-zeit.mp3`)).status).toBe(200);
+  const example = wordsOf(summary.id).c1?.examples?.[0];
+  expect((await get(`/decks/${summary.id}/${example?.audio}`)).status).toBe(200);
   // In English: its own deck, the English translations.
   const english = await importDeck(core, "Core (en)", "en");
   expect(english.id).not.toBe(summary.id);
@@ -252,7 +269,7 @@ test("a deck taken as a course's: a word with a card keeps it, the deck studies 
       gender: "m",
       plural: "die Kaffees",
       translation: "кофе",
-      audio: "media/kaffee.mp3",
+      audio: mediaPath("kaffee"),
       deck: id,
     },
   });
@@ -305,4 +322,59 @@ test("a deck taken as a course's: a word with a card keeps it, the deck studies 
   expect((await sendJson("POST", "/api/cards/decks/take", { deck: id })).error).toBe(
     "no_such_deck",
   );
+});
+
+test("media named apart whatever their case, kept inside the deck's folder whatever their name", async () => {
+  const { importDeck, get, wordsOf, root } = await withDecks();
+  const sound = (n: number) => new Uint8Array([0x49, 0x44, 0x33, n]);
+  const names = ["Abend.mp3", "abend.mp3", "ABEND.MP3", "../evil.mp3", "/tmp/abs.mp3", "a\\b.mp3"];
+  const cases = (translation: string) =>
+    buildApkg({
+      deck: "Fälle",
+      fields: ["Wort", "Übersetzung"],
+      notes: names.map((name, i) => ({
+        guid: `g${i}`,
+        fields: [`Wort${i} [sound:${name}]`, translation],
+      })),
+      media: Object.fromEntries(names.map((name, i) => [name, sound(i)])),
+    });
+  const { id } = await importDeck(cases("x"), "Fälle");
+  const paths = names.map((_, i) => wordsOf(id)[`g${i}`]?.audio as string);
+  expect(new Set(paths.map((p) => p.toLowerCase())).size).toBe(names.length);
+  for (const [i, path] of paths.entries()) {
+    expect(path).toMatch(/^media\/[a-z0-9-]+-[0-9a-f]{12}\.mp3$/);
+    const audio = await get(`/decks/${id}/${path}`);
+    expect(new Uint8Array(await audio.arrayBuffer())).toEqual(sound(i));
+  }
+  expect(readdirSync(join(root, "decks", id, "media"))).toHaveLength(names.length);
+  expect(readdirSync(join(root, "decks")).sort()).toEqual([".uploads", id]);
+  // The same file again: the same names.
+  await importDeck(cases("y"), "Fälle");
+  expect(names.map((_, i) => wordsOf(id)[`g${i}`]?.audio)).toEqual(paths);
+});
+
+test("an update that drops a word: its card keeps what it showed and its audio", async () => {
+  const { importDeck, getJson, sendJson, get } = await withDecks();
+  const { id } = await importDeck();
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  const card = async () =>
+    (await getJson("/api/cards")).words.find(
+      (w: { lexemeKey: string }) => w.lexemeKey === "lex:de:kaffee:noun:m",
+    );
+  const before = await card();
+  const dropped = buildApkg({
+    deck: "Mein Deck",
+    fields: ["Wort", "Plural", "Übersetzung", "Wortart"],
+    notes: [
+      { guid: "n2", fields: ["die Leute", "nur Plural", "люди", "Nomen"] },
+      { guid: "n3", fields: ["der Apfel", "die Äpfel", "яблоко", "Nomen"] },
+      { guid: "n4", fields: ["antworten", "", "отвечать", "Verb"] },
+    ],
+  });
+  expect((await importDeck(dropped)).id).toBe(id);
+  await Bun.sleep(50);
+  const after = await card();
+  expect(after.display).toEqual(before.display);
+  const audio = await get(`/decks/${id}/${after.display.audio}`);
+  expect(new Uint8Array(await audio.arrayBuffer())).toEqual(SOUND);
 });
