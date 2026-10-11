@@ -72,8 +72,9 @@ export interface TransferFiles {
    *  migration this app does not know, migrated forward (the usual copy before), its secrets emptied,
    *  its schema this app's own. */
   settle(id: string): "ok" | "newer" | "damaged";
-  /** The unpacked profile moved into place as `profiles/<profileId>`. */
-  adopt(id: string, profileId: string): void;
+  /** The unpacked profile moved into place as `profiles/<profileId>` and `register`ed; moved back
+   *  into the transfer when that fails. */
+  adopt<T>(id: string, profileId: string, register: () => T): T;
   discard(id: string): void;
 }
 
@@ -226,8 +227,9 @@ export function createProfileTransfer(deps: {
     if (settled === "newer") throw new ServiceError("profile_from_newer_app", 422);
     if (settled === "damaged") throw new ServiceError("profile_file_damaged", 422);
     const profileId = ulid(now()).toLowerCase();
-    files.adopt(id, profileId);
-    const profile = profiles.adopt({ id: profileId, ...manifest.profile });
+    const profile = files.adopt(id, profileId, () =>
+      profiles.adopt({ id: profileId, ...manifest.profile }),
+    );
     return {
       profile,
       leftOut: manifest.leftOut,

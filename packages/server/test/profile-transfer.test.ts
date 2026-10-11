@@ -377,6 +377,30 @@ test("a full disk: the export and the import say so and leave nothing behind", a
   await nothingLeft(filling);
 });
 
+test("a profile moved into place but not made (its row failed): moved back, nothing left", async () => {
+  const { bytes } = await exported(await studied());
+  const failing = await setup({
+    transfers: (root): TransferFiles => {
+      const real = profileTransferFiles(root);
+      return {
+        ...real,
+        adopt: (id, profileId) =>
+          real.adopt(id, profileId, () => {
+            throw new Error("the server database is locked");
+          }),
+      };
+    },
+  });
+  const error = console.error;
+  console.error = () => {};
+  try {
+    expect((await importInto(failing, bytes)).status).toBe(500);
+  } finally {
+    console.error = error;
+  }
+  await nothingLeft(failing);
+});
+
 test("importing needs registration open, a file within the limit; downloading, the export's own profile", async () => {
   const a = await studied();
   const { bytes } = await exported(a);

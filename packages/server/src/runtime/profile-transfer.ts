@@ -387,10 +387,17 @@ export function profileTransferFiles(
         fresh.close();
       }
     },
-    adopt(id, profileId) {
+    adopt(id, profileId, register) {
       const target = join(dataRoot, "profiles", profileId);
       if (statSync(target, { throwIfNoEntry: false })) throw new Error(`${target} exists`);
       renameSync(unpacked(id), target);
+      try {
+        return register();
+      } catch (error) {
+        // Back into the transfer, which goes with it.
+        renameSync(target, unpacked(id));
+        throw error;
+      }
     },
     discard,
   };
