@@ -1,7 +1,9 @@
 // Run-throughs on real courses (10, "Run-throughs"): each chosen lesson walked through by its screens
 // in a profile of its own, then the profile's database read to check that what was done is stored as
 // it should be. `REAL=dw.nicos-weg/a1-ru bun run e2e:real` (scenarios.ts); `REAL_SHOTS=<dir>` keeps
-// each checked exercise as a screenshot there.
+// each checked exercise, reading page and the words step as a screenshot there. A lesson with an
+// exercise the walk could not answer fails (all listed at the end); a speaking item held back by design
+// (it needs speech recognition) is only listed.
 import { join } from "node:path";
 import { expect, test } from "@playwright/test";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
@@ -9,12 +11,14 @@ import { REAL_DATA } from "./data.ts";
 import { readStore } from "./read-store.ts";
 import { lessonFiles, scenarios } from "./scenarios.ts";
 import { lessonProblems, storeProblems } from "./store.ts";
-import { clipped, notebookShows, reviewSome, UI, unanswered, walkLesson } from "./walk.ts";
+import { blocked, clipped, notebookShows, reviewSome, UI, unanswered, walkLesson } from "./walk.ts";
 
-// Labels cut short, for a look, and exercises not answered: printed once all lessons ran.
+// Labels cut short, for a look, exercises not answered and speaking items left: printed once all
+// lessons ran.
 test.afterAll(() => {
   if (clipped.length) console.log(`\nlabels cut short:\n${[...new Set(clipped)].join("\n")}`);
   if (unanswered.length) console.log(`\nexercises not answered:\n${unanswered.join("\n")}`);
+  if (blocked.length) console.log(`\nspeaking items left (no recognition):\n${blocked.join("\n")}`);
 });
 
 for (const s of scenarios())

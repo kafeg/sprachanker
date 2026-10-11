@@ -2,7 +2,9 @@
 // Walking a lesson through as a learner does (10, "Run-throughs"), by its screens only: the words
 // rated, the reading pages read, every exercise answered and checked (any complete answer — what is
 // checked is that it is stored as the engine marks it), speaking items recorded with the browser's fake
-// microphone, and the summary reached (an exercise it could not answer is reported: `unanswered`).
+// microphone, and the summary reached. An exercise it could not answer fails the lesson (`unanswered`);
+// a speaking item that cannot be recorded here by design (it needs recognition, off) is only listed
+// (`blocked`). With `REAL_SHOTS` each checked exercise, reading page and the words step is kept.
 // After each step: nothing past the screen's width, no error page.
 import { readFileSync } from "node:fs";
 import { type CDPSession, expect, type Locator, type Page } from "@playwright/test";
@@ -47,6 +49,10 @@ async function noteClipped(page: Page, where: string) {
  *  test fails on them once its lesson is walked through. */
 export const unanswered: string[] = [];
 
+/** Speaking items the walk left by design: their microphone waits for speech recognition, which the
+ *  run has not (listed at the end, no failure). */
+export const blocked: string[] = [];
+
 /** The screen is whole: nothing wider than it, no error page. */
 export async function expectWhole(page: Page, where: string) {
   // The layout's width, not the window's: a phone's window grows with content that sticks out.
@@ -59,8 +65,13 @@ export async function expectWhole(page: Page, where: string) {
   await noteClipped(page, where);
 }
 
-/** A complete answer for one item, given through its card; false when it could not be given. */
-async function answerItem(page: Page, card: Locator, type: Exercise["type"]): Promise<boolean> {
+/** A complete answer for one item, given through its card; false when it could not be given,
+ *  "blocked" when the app holds it back by design (a phrase to say needs recognition). */
+async function answerItem(
+  page: Page,
+  card: Locator,
+  type: Exercise["type"],
+): Promise<boolean | "blocked"> {
   const enabled = (l: Locator) => l.and(page.locator(":enabled"));
   switch (type) {
     case "single_choice":
@@ -116,7 +127,8 @@ async function answerItem(page: Page, card: Locator, type: Exercise["type"]): Pr
     case "speech_selfrate":
     case "speech_repeat": {
       const mic = card.getByRole("button", { name: en.speech.record });
-      if (!(await mic.isEnabled())) return false;
+      if (!(await mic.isEnabled()))
+        return (await card.getByText(en.speech.needsRecognition).count()) ? "blocked" : false;
       await mic.click();
       await page.waitForTimeout(1200);
       await card.getByRole("button", { name: en.speech.stop }).click();
@@ -223,9 +235,15 @@ export async function walkLesson(
         .getByRole("list", { name: en.lesson.itemsList, exact: true })
         .locator(":scope > li")
         .all();
-      for (const [i, card] of cards.entries())
-        if (!(await answerItem(page, card, exercise?.type ?? "unknown")))
-          unanswered.push(`${url} ${step} (${exercise?.type}): item ${i + 1} not answered`);
+      let held = false;
+      for (const [i, card] of cards.entries()) {
+        const done = await answerItem(page, card, exercise?.type ?? "unknown");
+        const where = `${url} ${step} (${exercise?.type}): item ${i + 1}`;
+        if (done === "blocked") {
+          blocked.push(`${where} needs speech recognition`);
+          held = true;
+        } else if (!done) unanswered.push(`${where} not answered`);
+      }
       await expectWhole(page, `${step} answered`);
       const { main } = bar(page);
       if ((await main.textContent()) === en.lesson.check) {
@@ -244,7 +262,11 @@ export async function walkLesson(
             .first()
             .textContent({ timeout: 1000 })
             .catch(() => null);
-          unanswered.push(`${url} ${step} (${exercise?.type}): ${waits ?? "Check stays disabled"}`);
+          // An item held back by design is listed already (`blocked`).
+          if (!held)
+            unanswered.push(
+              `${url} ${step} (${exercise?.type}): ${waits ?? "Check stays disabled"}`,
+            );
         }
       }
       // Checked, or answered where nothing is checked (speaking).
