@@ -23,11 +23,15 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
                             ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
-                            └─ profiles/<id>/             each learner's profile.sqlite (runs, events,
-                                                          cards, settings) and recordings/
+                            ├─ profiles/<id>/             each learner's profile.sqlite (runs, events,
+                            │                             cards, settings) and recordings/
+                            └─ profiles/.transfers/       a profile file being exported or imported
 ```
 
-Each database is copied beside itself once a day (a week kept) and before a migration.
+Each database is copied beside itself once a day (a week kept) and before a migration. A profile
+moves between one's machines as one file (`.sprachanker-profile`: its database without its API keys,
+its recordings, a manifest with a hash per file), imported as a new profile; `sprachanker backup`
+copies what cannot be fetched again (05, "Backups").
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app

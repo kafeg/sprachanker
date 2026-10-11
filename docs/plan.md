@@ -41,23 +41,24 @@ Specs: 06, 09.
 
 ### 5. Moving and keeping one's data (owner, 2026-10-10)
 Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
-- **Profile export/import** (first: the only data that cannot be fetched again): a file with the
-  profile's database (made with `VACUUM INTO`, without secrets), its recordings and a manifest
-  (format, app version, migration, the courses and content versions used, a hash per file).
+- Done, described in 05 ("Backups, export, import", "Profile file"), 06 and 09: a profile exported
+  (Settings → Profile, `profiles export`) and imported as a new one (who is studying, `profiles
+  import`), its API keys left out, the content it used that is not here named; what to keep listed
+  and `sprachanker backup`. The owner's open questions decided by default, each marked "default,
+  owner may change" in 05: one's own machines only; an import always a new profile; the extension
+  `.sprachanker-profile`; a documented list and a `backup` command; free space checked first.
+- Remaining: the content versions in a profile file's manifest (with the series manifest below; the
+  courses are named by key and edition today). An imported deck is named by its id, which another
+  machine's import of the same `.apkg` does not share: its cards there keep their display but not
+  their audio (with the deck bundles below).
 - **Course and exam bundles**: a downloaded course or exam as one file to move to another machine —
   its library files, only the media it uses (stored as they are), a manifest with hashes (the series
   manifest of 02); importing checks every hash and skips media already there. The library stays
   unpacked on disk (served, normalised and backed up per file).
-- **Backups**: what to keep and where — profiles, `server.sqlite` and `secret.key` (outside the data
-  root: without it stored API keys cannot be read); the library can be fetched again, models and
-  cache are disposable.
-- Open questions for the owner: sharing bundles with other people or only one's own machines (the
-  sources' terms); `raw/` in a bundle by default; pruning media no course uses (1.56 GB today, after
-  checking what passes and cards name); file extensions; a profile import replacing a profile or
-  always a new one; a `backup` command or a documented list; free space checked first (the disk was
-  98 % full).
-- **Accept**: a profile moved to a second data root and studied on; a course and an exam moved as
-  bundles and verified.
+- Open questions for the owner (bundles): `raw/` in a bundle by default; pruning media no course uses
+  (1.56 GB today, after checking what passes and cards name); a bundle's file extension.
+- **Accept**: a profile moved to a second data root and studied on (`e2e/profile-transfer.e2e.ts`;
+  on the owner's machines to do); a course and an exam moved as bundles and verified.
 
 ### 6. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
