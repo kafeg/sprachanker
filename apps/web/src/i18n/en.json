@@ -796,6 +796,11 @@
         "en": "English",
         "ru": "Russian"
       }
+    },
+    "deckLink": {
+      "audio": "Read the deck aloud",
+      "examples": "Make the deck's examples",
+      "both": "Read the deck aloud, make examples"
     }
   },
   "profiles": {
@@ -1356,8 +1361,6 @@
     "more": "{count, plural, one {# more} other {# more}}"
   },
   "examples": {
-    "none": "No examples for this word yet.",
-    "toDecks": "Make them for its deck in Decks",
     "newWords": "New here:",
     "by": "Examples by the AI · {model}"
   }

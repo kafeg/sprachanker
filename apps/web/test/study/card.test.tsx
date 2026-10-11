@@ -83,3 +83,36 @@ test("a word without its own recording plays the one read aloud for its deck, fr
   );
   expect(cardAudioUrl(display)).toBeUndefined();
 });
+
+test("a word without a recording is never read on the fly: no play button; with the answer, the way to its deck", async () => {
+  const card = (side: "question" | "answer") =>
+    renderApp(
+      <TargetLang value="de">
+        <StudyCard display={display} face="recognition" side={side} />
+      </TargetLang>,
+      { path: "/review" },
+    );
+  const question = await card("question");
+  expect(question.queryByRole("button", { name: /^(Play|Read aloud):/ })).toBeNull();
+  expect(question.queryByRole("link")).toBeNull();
+  question.unmount();
+  const answer = await card("answer");
+  expect(answer.queryByRole("button", { name: /auch|Read aloud/ })).toBeNull();
+  expect(answer.getByRole("link", { name: "Read the deck aloud" }).getAttribute("href")).toBe(
+    "/review/decks#deck-course-x-c",
+  );
+  answer.unmount();
+  // Read for its deck: it plays that, and the corner has nothing more to say.
+  const read = await renderApp(
+    <TargetLang value="de">
+      <StudyCard
+        display={{ ...display, readAudio: "course~x~c/media/read-0123456789ab.wav" }}
+        face="recognition"
+        side="answer"
+      />
+    </TargetLang>,
+    { path: "/review" },
+  );
+  expect(read.getByRole("button", { name: /auch/ })).toBeTruthy();
+  expect(read.queryByRole("link", { name: "Read the deck aloud" })).toBeNull();
+});

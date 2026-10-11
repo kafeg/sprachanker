@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from "bun:test";
 import { fireEvent, waitFor } from "@testing-library/react";
-import { CardExamples, DeckExamplesRow } from "../../src/llm/word-examples.tsx";
+import { CardCorner, CardExamples, DeckExamplesRow } from "../../src/llm/word-examples.tsx";
 import { StudyCard } from "../../src/study/card.tsx";
 import { StudySlotsProvider } from "../../src/study/slots.ts";
 import { renderApp } from "../render.tsx";
@@ -62,35 +62,39 @@ test("a card's examples made for its deck: each with its translation, the words 
   expect(view.getByText("Examples by the AI · gemma-4-12b")).toBeTruthy();
 });
 
-test("a card whose deck has none for it: the way to Decks while the AI works here; nothing when its word has its own, or the place is off", async () => {
-  const none = await renderApp(<CardExamples cardId="c1" />, {
+test("a card's corner: the way to its deck for what it has yet to make — its audio, its examples (none of its own, the AI working here)", async () => {
+  const none = { scope, own: false, model: null, examples: [] };
+  const corner = async (audio: boolean, shown: unknown, model: unknown = llm, settings = {}) => {
+    const view = await renderApp(<CardCorner cardId="c1" scope={scope} audio={audio} />, {
+      data: [
+        [["llm"], model],
+        [["settings"], settings],
+        [["card-examples", "c1"], shown],
+      ],
+      path: "/review",
+    });
+    const text = view.container.textContent;
+    const href = view.queryByRole("link")?.getAttribute("href");
+    view.unmount();
+    return [text, href];
+  };
+  const to = "/review/decks#deck-course-dw-nicos-weg-a1-ru";
+  expect(await corner(false, none)).toEqual(["Make the deck's examples", to]);
+  expect(await corner(true, none)).toEqual(["Read the deck aloud, make examples", to]);
+  expect(await corner(true, { ...none, own: true })).toEqual(["Read the deck aloud", to]);
+  expect(await corner(false, made)).toEqual(["", undefined]);
+  // Without a model, or the place off: only what the deck's audio lacks.
+  expect(await corner(true, none, { ...llm, model: null })).toEqual(["Read the deck aloud", to]);
+  expect(await corner(false, none, llm, { "llm.offIn": ["example"] })).toEqual(["", undefined]);
+  // A card's examples shown none: nothing under the answer (the corner says it).
+  const empty = await renderApp(<CardExamples cardId="c1" />, {
     data: [
       [["llm"], llm],
-      [["card-examples", "c1"], { scope, own: false, model: null, examples: [] }],
-    ],
-    path: "/review",
-  });
-  expect(none.getByText(/No examples for this word yet/)).toBeTruthy();
-  expect(
-    none.getByRole("link", { name: "Make them for its deck in Decks" }).getAttribute("href"),
-  ).toBe("/review/decks");
-  none.unmount();
-  const own = await renderApp(<CardExamples cardId="c1" />, {
-    data: [
-      [["llm"], llm],
-      [["card-examples", "c1"], { scope, own: true, model: null, examples: [] }],
+      [["card-examples", "c1"], none],
     ],
   });
-  expect(own.container.textContent).toBe("");
-  own.unmount();
-  const noModel = await renderApp(<CardExamples cardId="c1" />, {
-    data: [
-      [["llm"], { ...llm, model: null }],
-      [["card-examples", "c1"], { scope, own: false, model: null, examples: [] }],
-    ],
-  });
-  expect(noModel.container.textContent).toBe("");
-  noModel.unmount();
+  expect(empty.container.textContent).toBe("");
+  empty.unmount();
   // Turned off: not shown, not asked for.
   const asked = server(made);
   const off = await renderApp(<CardExamples cardId="c2" />, {

@@ -796,6 +796,11 @@
         "en": "Englisch",
         "ru": "Russisch"
       }
+    },
+    "deckLink": {
+      "audio": "Stapel vorlesen lassen",
+      "examples": "Beispiele für den Stapel erstellen",
+      "both": "Stapel vorlesen lassen, Beispiele erstellen"
     }
   },
   "profiles": {
@@ -1356,8 +1361,6 @@
     "more": "{count, plural, one {# weiterer} other {# weitere}}"
   },
   "examples": {
-    "none": "Zu diesem Wort gibt es noch keine Beispiele.",
-    "toDecks": "Für seinen Stapel unter „Stapel“ erstellen",
     "newWords": "Neu hier:",
     "by": "Beispiele von der KI · {model}"
   }

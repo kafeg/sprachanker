@@ -4,14 +4,16 @@
 // (a slot); the decks to take — each of My courses' words and each imported deck —, a deck file
 // imported, an imported deck deleted) and My words (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
+import { useLocation } from "@tanstack/react-router";
 import { Play, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
 import { useDeleteDeck } from "@/api/decks.ts";
 import { useSetSetting, useSettings } from "@/api/settings.ts";
 import { DeckAudio } from "@/study/deck-audio.tsx";
 import { DeckImport } from "@/study/deck-import.tsx";
+import { deckAnchor } from "@/study/deck-link.tsx";
 import { useDeckName } from "@/study/decks.ts";
 import { GuideButton } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
@@ -57,14 +59,30 @@ function CountCells({ counts }: { counts: Counts }) {
 function MyDecks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
   const decks = useDecks();
+  if (decks.isPending) return <Loading />;
+  if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
+  if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
+  return <DeckRows decks={decks.data.decks} open={open} />;
+}
+
+/** The decks' rows; a deck named by the address's hash (a card's way to its deck) in sight. */
+function DeckRows({
+  decks,
+  open,
+}: {
+  decks: NonNullable<ReturnType<typeof useDecks>["data"]>["decks"];
+  open(scope: string): void;
+}) {
+  const { t } = useTranslation();
   const name = useDeckName();
   const pairName = usePairName();
   const actions = useDeckActions();
   const slots = useStudySlots();
   const [leaving, setLeaving] = useState<{ scope: string; lang: string; title: string }>();
-  if (decks.isPending) return <Loading />;
-  if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
-  if (!decks.data.decks.length) return <EmptyState>{t("study.noCards")}</EmptyState>;
+  const hash = useLocation({ select: (l) => l.hash });
+  useEffect(() => {
+    if (hash) document.getElementById(hash)?.scrollIntoView({ block: "start" });
+  }, [hash]);
   // Narrower counts on a phone, so the deck's name keeps its room.
   const row =
     "grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem_2.25rem] items-center gap-2 px-4 sm:grid-cols-[minmax(0,1fr)_3rem_3rem_3rem]";
@@ -76,13 +94,17 @@ function MyDecks({ open }: { open(scope: string): void }) {
         <span className="text-right">{t("study.count.learning")}</span>
         <span className="text-right">{t("study.count.review")}</span>
       </div>
-      {decks.data.decks.map((lang) => (
+      {decks.map((lang) => (
         <div key={lang.scope} className="border-b last:border-b-0">
           {[
             { ...lang, child: false, editions: [] as string[] },
             ...lang.decks.map((d) => ({ ...d, child: true })),
           ].map((deck) => (
-            <div key={deck.scope} className={cn("py-2", deck.child && "border-t border-dashed")}>
+            <div
+              key={deck.scope}
+              id={deckAnchor(deck.scope)}
+              className={cn("scroll-mt-20 py-2", deck.child && "border-t border-dashed")}
+            >
               <div className={row}>
                 <span className={cn("min-w-0", deck.child ? "pl-5" : "font-semibold")}>
                   <button

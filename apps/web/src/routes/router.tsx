@@ -43,12 +43,17 @@ const CardExamples = page(
   () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.word),
   null,
 );
+const CardCorner = page(
+  () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.corner),
+  null,
+);
 const DeckExamples = page(
   () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.deck),
   null,
 );
 const examplesAssistant = {
   word: (props: { cardId: string }) => <CardExamples {...props} />,
+  corner: (props: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...props} />,
   deck: (props: { scope: string; className?: string }) => <DeckExamples {...props} />,
 };
 

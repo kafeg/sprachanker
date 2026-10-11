@@ -158,7 +158,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   forms, and a form differing only by an ending: `text/words.ts`); the others are marked new,
   translated by the model's glossary for that sentence, else by the deck's later words of one word
   (a phrase's translation is not its words'); a new word without a translation is not marked. A card whose word has none
-  (and none of its own) says so, while the assistant works there, with the way to Decks. The
+  (and none of its own) has the way to its deck in Decks in its corner, while the assistant works
+  there (09). The
   examples a card asked for one at a time in earlier versions are no longer shown (their events
   still read, 05).
 - **Imported decks** (plan, "Anki decks and word images"): an `.apkg` file (`packages/anki-export`:
@@ -215,7 +216,7 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   imported deck imported again (before its folder is written and once it is) or deleted stops it, and
   what it read then is not kept. When it ends, every open profile's cards follow (relinking): a card's
   display has its word's own audio, else the reading of its deck's folder for its lexeme and text
-  (`readAudio`, served from the folder), else the device's voice as before. A course's folder goes when
+  (`readAudio`, served from the folder), else nothing: a card's word is never read on the fly (08). A course's folder goes when
   the course is no longer here (at the server's start).
 - **A deck's words given examples** (owner, 2026-10-09; `services/deck-examples.ts`): any deck the
   learner has, on request from Review → Decks: the words of the learner's cards in it that bring no

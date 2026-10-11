@@ -1,14 +1,16 @@
 // A deck's words given examples by the AI (04, "A deck's words given examples"; 07; 09): under a card's
 // answer and in the word's sheet the examples made for its deck — the words not met yet marked and
-// translated, each sentence read aloud on request —, or, while there are none (and the assistant
-// works here), the way to Decks to make them; under a deck in Review → Decks how many of its words
-// have none, "Make examples", its progress with Stop. The reviewer's and Decks' slots (study/slots.ts).
+// translated, each sentence read aloud on request —; in its corner, while there are none (and the
+// assistant works here), the way to Decks to make them, with its audio's; under a deck in Review →
+// Decks how many of its words have none, "Make examples", its progress with Stop. The reviewer's and
+// Decks' slots (study/slots.ts).
 import { Link } from "@tanstack/react-router";
 import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSetting } from "@/api/settings.ts";
 import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
+import { DeckLink } from "@/study/deck-link.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDuration } from "@/ui/format.ts";
@@ -30,19 +32,10 @@ export function CardExamples({ cardId }: { cardId: string }) {
   const { t } = useTranslation();
   const lang = useTargetLang();
   const off = useOff();
-  const ready = !!useLlm().data?.model;
   const shown = useCardExamples(cardId, !off);
   if (off || !shown.data) return null;
-  const { examples, own, model } = shown.data;
-  if (!examples.length)
-    return !own && ready ? (
-      <p className="text-sm text-muted-foreground">
-        {t("examples.none")}{" "}
-        <Link to="/review/decks" className={LINK}>
-          {t("examples.toDecks")}
-        </Link>
-      </p>
-    ) : null;
+  const { examples, model } = shown.data;
+  if (!examples.length) return null;
   const newWords = new Map<string, string>();
   for (const e of examples)
     for (const w of e.words) if (w.new && w.translation) newWords.set(w.text, w.translation);
@@ -92,6 +85,24 @@ export function CardExamples({ cardId }: { cardId: string }) {
       )}
     </section>
   );
+}
+
+/** A card's corner: the way to its deck for what it has yet to make for the word — its audio, its
+ *  examples (none, none of its own, and the assistant working here). */
+export function CardCorner({
+  cardId,
+  scope,
+  audio,
+}: {
+  cardId: string;
+  scope: string;
+  audio: boolean;
+}) {
+  const off = useOff();
+  const ready = !!useLlm().data?.model;
+  const shown = useCardExamples(cardId, !off && ready);
+  const examples = !off && ready && !!shown.data && !shown.data.own && !shown.data.examples.length;
+  return <DeckLink scope={scope} audio={audio} examples={examples} />;
 }
 
 /** Under a deck in Review → Decks: its words without examples, made by the AI on request. */
@@ -171,6 +182,7 @@ function DeckExamplesJob({ scope, className }: { scope: string; className?: stri
 /** The reviewer's, the word sheet's and Decks' slots (study/slots.ts). */
 export const examplesAssistant = {
   word: ({ cardId }: { cardId: string }) => <CardExamples cardId={cardId} />,
+  corner: (card: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...card} />,
   deck: ({ scope, className }: { scope: string; className?: string }) => (
     <DeckExamplesRow scope={scope} className={className} />
   ),
