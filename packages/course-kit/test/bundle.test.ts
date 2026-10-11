@@ -294,3 +294,49 @@ test("a bundle's files are checked before anything is installed: schemas, places
     `keys.json ${MINI_SERIES}/other/u00: not a scope of ${COURSE}`,
   ]);
 });
+
+test("a bundle's lines of media.json say what it holds: its file, of that kind, size and content, of a web address", async () => {
+  const { root } = await library();
+  const problemsOf = async (change: (b: Awaited<ReturnType<typeof bundled>>) => void) => {
+    const b = await bundled(root, ["ru-de"]);
+    change(b);
+    return checkBundle(b.files, b.manifest);
+  };
+  const url = "https://example.org/hallo.mp3";
+  const line = (b: Awaited<ReturnType<typeof bundled>>) =>
+    b.manifest.media[url] as { sha256: string; size: number; kind: string };
+  const refused = [`media.json ${url}: not a media file of the bundle as listed`];
+  expect(await problemsOf((b) => (line(b).sha256 = "0".repeat(64)))).toEqual(refused);
+  expect(await problemsOf((b) => (line(b).size += 1))).toEqual(refused);
+  expect(await problemsOf((b) => (line(b).kind = "image"))).toEqual(refused);
+  expect(
+    await problemsOf((b) => {
+      b.manifest.media["javascript:alert(1)"] = b.manifest.media[url] as never;
+    }),
+  ).toEqual(["media.json javascript:alert(1): not a media file of the bundle as listed"]);
+});
+
+test("the same content under another name is linked only when that file holds it now, not as the index says", async () => {
+  const { root } = await library();
+  const bundle = await bundled(root, ["ru-de"]);
+  const other = dir();
+  const otherSeries = join(other, MINI_SERIES);
+  const audio = bundle.manifest.files.find((f) => f.path === MINI_AUDIO);
+  // The index says hallo-2.mp3 holds the recording; the file holds something else of its size.
+  put(join(otherSeries, "media/audio/hallo-2.mp3"), "x".repeat(audio?.size ?? 0));
+  put(
+    join(otherSeries, "media.json"),
+    JSON.stringify({
+      "https://example.org/elsewhere.mp3": {
+        kind: "audio",
+        path: "media/audio/hallo-2.mp3",
+        sha256: audio?.sha256,
+        size: audio?.size,
+        mime: "audio/mpeg",
+      },
+    }),
+  );
+  const plan = await planBundle(other, bundle.manifest);
+  expect([...plan.link]).toEqual([]);
+  expect(plan.unpack.has(MINI_AUDIO)).toBe(true);
+});

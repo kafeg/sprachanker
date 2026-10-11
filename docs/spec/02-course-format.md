@@ -348,14 +348,18 @@ raw/…                               # only the copies an exam's sources name (
   a media file only of its kind's extensions — "Media references") and each once, its
   manifest read by its schema; its files exactly those listed. A media file or source copy the
   library holds already is not unpacked: the same name and content skipped, the same content under
-  another name of `media.json` linked (copied where the disk has no hard links); a media file there
+  another name of `media.json` linked (that file hashed first: the index says what it held when
+  fetched; copied where the disk has no hard links); a media file there
   under the same name with other content stops it (the two machines fetched different files under one
   name). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
   library file read by its schema (strict), where its own keys put it (`libraryFile`), of the
   bundle's course and editions, the index and each edition's course file there, each media file one
-  the files name, each source copy one an exam's sources name, the content versions those of its
+  the files name, each source copy one an exam's sources name, each line of its `media.json` one
+  of its media files with that file's kind, size and sha256 for an http(s) address (a URL stored is
+  never fetched again by the next download: a line is believed), the content versions those of its
   files. Only then, under the series' import
-  lock (03): media and copies moved into place, the lines of `media.json` it lacks added, the course's
+  lock (03): media and copies moved into place, the lines of `media.json` it lacks added (a URL
+  the library has stored keeps its own line), the course's
   scopes of `keys.json` set, and the course's canonical folder and each edition's folder replaced
   whole where their content version differs (the old one aside in the transfer until the new one is
   in place; put back if the process stopped in between). The course installed: `verify` runs on it

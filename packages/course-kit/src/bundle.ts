@@ -247,8 +247,10 @@ export async function planBundle(
       plan.clash.push(f.path);
       continue;
     }
+    // The file linked to is hashed: the index says what it held when it was fetched, and a link
+    // makes the bundle's name hold whatever it holds now.
     const other = isMedia ? byHash.get(f.sha256) : undefined;
-    if (other && (await holds(join(seriesDir, other), f, f.sha256))) plan.link.set(f.path, other);
+    if (other && (await holds(join(seriesDir, other), f))) plan.link.set(f.path, other);
     else plan.unpack.add(f.path);
   }
   return plan;
@@ -341,9 +343,22 @@ export async function checkBundle(files: string, manifest: CourseBundleManifest)
     if (path.startsWith("raw/") && !raw.has(path))
       problems.push(`${path}: a copy no exam's sources name`);
   }
-  for (const [url, entry] of Object.entries(manifest.media))
-    if (!("path" in entry) || !paths.has(entry.path))
-      problems.push(`media.json ${url}: not a media file of the bundle`);
+  // A line of media.json is believed by the next download of the series (a URL stored is not
+  // fetched again): each says what the bundle holds — its file, of its kind, size and content — of
+  // an address on the web.
+  const listed = new Map(manifest.files.map((f) => [f.path, f]));
+  for (const [url, entry] of Object.entries(manifest.media)) {
+    const file = "path" in entry ? listed.get(entry.path) : undefined;
+    if (
+      !("path" in entry) ||
+      !file ||
+      !entry.path.startsWith(`media/${entry.kind}/`) ||
+      entry.sha256 !== file.sha256 ||
+      entry.size !== file.size ||
+      !/^https?:$/.test(URL.parse(url)?.protocol ?? "")
+    )
+      problems.push(`media.json ${url}: not a media file of the bundle as listed`);
+  }
   for (const scope of Object.keys(manifest.keys))
     if (!scope.startsWith(`${manifest.course}/`))
       problems.push(`keys.json ${scope}: not a scope of ${manifest.course}`);
@@ -387,15 +402,16 @@ export async function installBundle(options: {
   const courseId = courseIdOf(manifest.course);
   const listed = new Map(manifest.files.map((f) => [f.path, f]));
   // What must hold, checked again before anything changes: the files the plan found still there, of
-  // their size (their content was found then; a stored name keeps its content, 02).
-  const still = (path: string, file: string) => {
+  // their size (their content was found then; a stored name keeps its content, 02) — a file linked
+  // to hashed again (`hashed`).
+  const still = (path: string, file: string, hashed = false) => {
     const want = listed.get(path) as { sha256: string; size: number };
-    return holds(join(seriesDir, file), want, want.sha256);
+    return holds(join(seriesDir, file), want, hashed ? undefined : want.sha256);
   };
   for (const path of plan.skip)
     if (!(await still(path, path))) throw new Error(`${path} changed in the library meanwhile`);
   for (const [path, from] of plan.link)
-    if (existsSync(join(seriesDir, path)) || !(await still(path, from)))
+    if (existsSync(join(seriesDir, path)) || !(await still(path, from, true)))
       throw new Error(`${path} changed in the library meanwhile`);
   for (const path of plan.unpack)
     if (path.startsWith("media/") && existsSync(join(seriesDir, path)))
