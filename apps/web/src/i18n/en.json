@@ -1017,7 +1017,7 @@
       "otherSample": "Another phrase",
       "recognition": "Recognition",
       "recognitionHint": "Your speech is recognised on this computer (Whisper): what you said is compared with the phrase. It hears words, not sounds, and is lenient. Nothing leaves the computer.",
-      "noEngine": "This build has no recognition engine: the app was built without its speech engines (bun run build:cli builds them).",
+      "noEngine": "This build has no recognition engine.",
       "recognitionOn": "Recognise my speech",
       "inUse": "In use",
       "downloadFailed": "download failed",

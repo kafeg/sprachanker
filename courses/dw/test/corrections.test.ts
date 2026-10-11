@@ -68,6 +68,17 @@ test("a correction applies where its text is found; the rest are reported stale"
   });
 });
 
+test("a correction whose fix holds its phrase is not made twice: a source fixed the same way is stale", () => {
+  const run = courseCorrections(course, [
+    fix({ exercise: first, field: "title", from: "Суп", to: "Суп дня" }),
+  ]);
+  const out = locale();
+  run.lesson(out);
+  expect(out.exercises[first]?.title).toBe("Суп дня из морковки");
+  run.lesson(out);
+  expect(out.exercises[first]?.title).toBe("Суп дня из морковки");
+});
+
 test("another course's corrections are not its own: no report", () => {
   const other = courseKey(seriesKey("test", "series"), "c2");
   const run = courseCorrections(other, [

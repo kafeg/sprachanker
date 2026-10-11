@@ -67,11 +67,15 @@ const root = createRootRoute({
     const session = useSession();
     const navigate = useNavigate();
     const [adding, setAdding] = useState(false);
+    /** The profile made by this onboarding: the one its Cancel may delete. */
+    const [madeHere, setMadeHere] = useState<string>();
     const profile = session.data?.profile;
     // Signed in, the new profile is made: signed out later, the device shows who is studying again.
     useEffect(() => {
-      if (profile) setAdding(false);
-    }, [profile]);
+      if (!profile) return;
+      if (adding) setMadeHere(profile.id);
+      setAdding(false);
+    }, [profile, adding]);
     if (session.isPending) return <Loading />;
     if (session.isError)
       return <ErrorState error={session.error} onRetry={() => session.refetch()} />;
@@ -83,6 +87,7 @@ const root = createRootRoute({
           profile={profile ?? null}
           assistant={<AssistantSetup />}
           onBack={profile ? undefined : () => setAdding(false)}
+          madeHere={!!profile && profile.id === madeHere}
           onDone={(to) => void navigate({ to })}
         />
       );

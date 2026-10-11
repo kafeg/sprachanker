@@ -40,7 +40,9 @@ function correct(locale: LocaleLesson, corrections: readonly Correction[]): Corr
       | Record<string, unknown>
       | undefined;
     const text = owner?.[c.field];
+    // Not there, or already as corrected (a `to` that holds its `from` is not applied twice).
     if (!owner || typeof text !== "string" || !text.includes(c.from)) return false;
+    if (c.to?.includes(c.from) && text.includes(c.to)) return false;
     if (c.to !== null) owner[c.field] = text.replaceAll(c.from, c.to);
     else delete owner[c.field];
     if ("item" in c && exercise && !Object.keys(owner).length) delete exercise.items[c.item];

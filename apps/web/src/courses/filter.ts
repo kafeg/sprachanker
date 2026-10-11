@@ -32,7 +32,13 @@ export function filterCourses<T extends { titles: string[]; editions: string[] }
   uiLanguage?: string,
 ) {
   const title = items.some((i) => i.titles.includes(storedTitle)) ? storedTitle : ALL;
-  const wanted = storedPair ?? (uiLanguage ? fromLang(uiLanguage) : ALL);
+  // The interface language's default: its one pair, or all of its pairs.
+  const ownPairs = [...new Set(items.flatMap((i) => i.editions))].filter(
+    (e) => parseEditionId(e).source === uiLanguage,
+  );
+  const wanted =
+    storedPair ??
+    (ownPairs.length === 1 ? (ownPairs[0] as string) : uiLanguage ? fromLang(uiLanguage) : ALL);
   const pair = items.some(
     (i) => (title === ALL || i.titles.includes(title)) && i.editions.some((e) => passes(wanted, e)),
   )
@@ -47,10 +53,15 @@ export function filterCourses<T extends { titles: string[]; editions: string[] }
     titles: [...new Set(items.filter(fitsPair).flatMap((i) => i.titles))].sort((a, b) =>
       a.localeCompare(b),
     ),
-    /** Each language courses are explained in (when it has more than one pair), then each pair. */
+    /** Each language courses are explained in (when it has more than one pair, or is the filter in
+     *  force), then each pair. */
     pairs: [
       ...sources
-        .filter((s) => editions.filter((e) => parseEditionId(e).source === s).length > 1)
+        .filter(
+          (s) =>
+            pair === fromLang(s) ||
+            editions.filter((e) => parseEditionId(e).source === s).length > 1,
+        )
         .map(fromLang),
       ...editions,
     ],

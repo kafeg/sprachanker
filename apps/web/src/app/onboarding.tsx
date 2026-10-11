@@ -7,7 +7,7 @@
 // profile is made, the profile deleted after. Every step but the tour can be changed later in Settings.
 
 import { nextProfileColour, type ProfileColour } from "@sprachanker/schema";
-import { type RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourses } from "@/api/courses.ts";
 import {
@@ -30,14 +30,16 @@ import { Tour } from "./tour.tsx";
 const STEPS = ["profile", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
 
-/** The tour, and where finishing goes: the courses downloaded (those shown), else those to download. */
-function TourStep({ target }: { target: RefObject<"/downloaded" | "/catalog"> }) {
+/** The tour, and where finishing goes once the courses are known: those downloaded (shown), else
+ *  those to download (also when they cannot be read). */
+function TourStep({ onTarget }: { onTarget(to: "/downloaded" | "/catalog"): void }) {
   const { shown, ready } = useShown();
   const courses = useCourses();
-  const downloaded = ready && (courses.data ?? []).some((c) => shown("courses", c.series));
+  const known = ready && (courses.isSuccess || courses.isError);
+  const downloaded = (courses.data ?? []).some((c) => shown("courses", c.series));
   useEffect(() => {
-    target.current = downloaded ? "/downloaded" : "/catalog";
-  }, [downloaded, target]);
+    if (known) onTarget(downloaded ? "/downloaded" : "/catalog");
+  }, [known, downloaded, onTarget]);
   return <Tour />;
 }
 
@@ -45,6 +47,7 @@ export function Onboarding({
   profile,
   assistant,
   onBack,
+  madeHere,
   onDone,
 }: {
   /** The profile onboarded; none while a new one is still to be named. */
@@ -53,6 +56,8 @@ export function Onboarding({
   assistant?: React.ReactNode;
   /** Cancel on the first step before the profile exists: to "Who is studying?". */
   onBack?(): void;
+  /** The profile was made by this onboarding: Cancel deletes it (never one that was there before). */
+  madeHere?: boolean;
   /** Finished: where to go — the courses downloaded, or those to download when there are none. */
   onDone(to: "/downloaded" | "/catalog"): void;
 }) {
@@ -72,10 +77,11 @@ export function Onboarding({
   const update = useUpdateProfile();
   const remove = useDeleteProfile();
   // Where finishing goes, known on the last step (the profile exists by then: its courses can be read).
-  const target = useRef<"/downloaded" | "/catalog">("/catalog");
-  // Cancelled on the first step: a profile already made here (named) is deleted; the one from before
-  // profiles (no name) has nothing to cancel.
-  const cancel = profile ? (profile.name ? () => remove.mutate() : undefined) : onBack;
+  const [target, setTarget] = useState<"/downloaded" | "/catalog">();
+  // Cancelled on the first step: before the profile is made, back; the one made here is deleted; one
+  // that was there before (from before profiles, or made elsewhere) is never deleted from here.
+  const cancel = profile ? (madeHere ? () => remove.mutate() : undefined) : onBack;
+  const busy = create.isPending || update.isPending || remove.isPending;
   const profiles = useProfiles();
   const [name, setName] = useState(profile?.name ?? "");
   const [picked, setPicked] = useState<ProfileColour>();
@@ -88,7 +94,7 @@ export function Onboarding({
   const following = steps[at + 1];
   const next = () => {
     if (step === "profile") {
-      if (!name.trim() || create.isPending || update.isPending) return;
+      if (!name.trim() || busy) return;
       const named = { name: name.trim(), colour };
       if (!profile) return create.mutate(named);
       // The name is kept before going on: a failure shows here, where it can be put right.
@@ -104,7 +110,7 @@ export function Onboarding({
     // shows under the buttons.
     update
       .mutateAsync({ onboarded: true })
-      .then(() => onDone(target.current))
+      .then(() => onDone(target ?? "/catalog"))
       .catch(() => {});
   };
   const failed = create.error ?? update.error ?? remove.error;
@@ -154,7 +160,7 @@ export function Onboarding({
             <SpeechSetup />
           </>
         )}
-        {step === "tour" && <TourStep target={target} />}
+        {step === "tour" && <TourStep onTarget={setTarget} />}
       </div>
       {/* Back and Next stay at the bottom of the screen, a long step scrolling under them. */}
       <div className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
@@ -165,7 +171,13 @@ export function Onboarding({
               {t("onboarding.back")}
             </Button>
           ) : cancel ? (
-            <Button variant="ghost" size="lg" loading={remove.isPending} onClick={cancel}>
+            <Button
+              variant="ghost"
+              size="lg"
+              disabled={busy}
+              loading={remove.isPending}
+              onClick={cancel}
+            >
               {t("onboarding.cancel")}
             </Button>
           ) : (
@@ -173,7 +185,7 @@ export function Onboarding({
           )}
           <Button
             size="lg"
-            disabled={step === "profile" && !name.trim()}
+            disabled={(step === "profile" && !name.trim()) || remove.isPending || (last && !target)}
             loading={create.isPending || ((last || step === "profile") && update.isPending)}
             onClick={next}
           >

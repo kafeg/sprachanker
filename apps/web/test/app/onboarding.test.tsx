@@ -61,3 +61,16 @@ test("a named profile goes on at the assistant; one adopted without a name start
   expect(first.queryByRole("button", { name: "Back" })).toBeNull();
   expect(first.queryByRole("button", { name: "Cancel" })).toBeNull();
 });
+
+test("Cancel deletes only a profile this onboarding made: one there before (named since) has none", async () => {
+  const named = { id: "local", name: "Mila", colour: "rose" as const, onboarded: false };
+  for (const madeHere of [false, true]) {
+    const view = await renderApp(
+      <Onboarding profile={named} madeHere={madeHere} assistant={<p>slot</p>} onDone={() => {}} />,
+      { data: [others] },
+    );
+    fireEvent.click(view.getByRole("button", { name: "Back" }));
+    expect(view.queryByRole("button", { name: "Cancel" }) !== null).toBe(madeHere);
+    view.unmount();
+  }
+});

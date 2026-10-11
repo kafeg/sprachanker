@@ -39,8 +39,16 @@ test("a stored value the list lacks counts as no filter: never an empty page wit
 });
 
 test("unset, the pair is the interface language's: every course explained in it, while there is one", () => {
+  // One pair in that language: that pair.
   const ru = filterCourses(items, ALL, undefined, "ru");
-  expect([ru.pair, ru.active, ru.shown.map((i) => i.name)]).toEqual(["from:ru", true, ["a", "c"]]);
+  expect([ru.pair, ru.active, ru.shown.map((i) => i.name)]).toEqual(["ru-de", true, ["a", "c"]]);
+  // Several: all of them, offered as a choice.
+  const more = [...items, { name: "d", titles: ["X"], editions: ["ru-en"] }];
+  const both = filterCourses(more, ALL, undefined, "ru");
+  expect([both.pair, both.shown.map((i) => i.name)]).toEqual(["from:ru", ["a", "c", "d"]]);
+  expect(both.pairs).toContain("from:ru");
+  // A title narrowing the language to one pair keeps the filter offered.
+  expect(filterCourses(more, "X", "from:ru").pairs).toEqual(["from:ru", "ru-en"]);
   // A language with more than one pair is offered as a whole; one with a single pair is that pair.
   expect(
     filterCourses([...items, { name: "d", titles: ["X"], editions: ["ru-en"] }], ALL, ALL).pairs,

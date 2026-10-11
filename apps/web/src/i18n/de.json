@@ -1017,7 +1017,7 @@
       "otherSample": "Anderer Satz",
       "recognition": "Erkennung",
       "recognitionHint": "Deine Sprache wird auf diesem Computer erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt den Computer.",
-      "noEngine": "Dieser Build hat keine Spracherkennung: die App wurde ohne ihre Sprach-Engines gebaut (bun run build:cli baut sie).",
+      "noEngine": "Dieser Build hat keine Spracherkennung.",
       "recognitionOn": "Meine Sprache erkennen",
       "inUse": "In Gebrauch",
       "downloadFailed": "Download fehlgeschlagen",
