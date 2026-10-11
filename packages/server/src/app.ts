@@ -65,9 +65,11 @@ export interface AppConfig {
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;
-  /** Names this machine is reached by besides localhost, IPs and `.local` (its host name, those
-   *  given by `--allow-host`); its tailnet name is read through `network`. */
+  /** Names this machine is reached by besides localhost, IPs and `.local` (its host name, the address
+   *  it listens on); its tailnet name is read through `network`. */
   hosts?: string[];
+  /** Names given by `--allow-host`: a proxy's of ours, whose `X-Forwarded-Proto` is believed. */
+  allowHosts?: string[];
   /** Where the server listens: the addresses the app is reached at are worked out from it. */
   listensOn: ListensOn;
   /** This machine's networks and Tailscale; without it, no tailnet and no local network addresses. */
@@ -127,7 +129,10 @@ export function createApp(config: AppConfig) {
 
   return (
     new Hono()
-      .use("*", hostGuard(config.hosts, svc.network.knows))
+      .use(
+        "*",
+        hostGuard({ hosts: config.hosts, proxies: config.allowHosts, known: svc.network.knows }),
+      )
       .route("/api", api)
       .all("/api/*", (c) => c.json({ error: "not_found" }, 404))
       .get("/library/:series/*", (c) => {
