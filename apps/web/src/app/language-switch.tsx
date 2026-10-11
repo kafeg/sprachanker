@@ -20,8 +20,9 @@ export function LanguageSwitch({ keep = false }: { keep?: boolean }) {
       value={i18n.language}
       onValueChange={(l) => {
         if (!isUiLanguage(l)) return;
-        void switchLanguage(l);
-        if (keep) set.mutate({ key: "uiLanguage", value: l });
+        void switchLanguage(l).then((shown) => {
+          if (shown && keep) set.mutate({ key: "uiLanguage", value: l });
+        });
       }}
     >
       <SelectTrigger className="h-11 w-full bg-card sm:w-64" aria-label={t("settings.uiLanguage")}>

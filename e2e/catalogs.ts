@@ -2,16 +2,9 @@
 // language: each language's code, direction and a plain message by key.
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { languageDir } from "@sprachanker/schema";
 
 const I18N = join(import.meta.dirname, "../apps/web/src/i18n");
-
-/** Right to left where Intl says so (as the app's `languageDir`). */
-const direction = (lang: string) =>
-  (
-    new Intl.Locale(lang) as Intl.Locale & { getTextInfo?(): { direction?: string } }
-  ).getTextInfo?.().direction === "rtl" || ["ar", "fa", "he", "ur"].includes(lang)
-    ? "rtl"
-    : "ltr";
 
 export const catalogs = readdirSync(I18N)
   .filter((name) => name.endsWith(".json"))
@@ -23,5 +16,5 @@ export const catalogs = readdirSync(I18N)
       String(
         key.split(".").reduce<unknown>((node, k) => (node as Record<string, unknown>)[k], catalog),
       );
-    return { lang, dir: direction(lang), msg };
+    return { lang, dir: languageDir(lang), msg };
   });

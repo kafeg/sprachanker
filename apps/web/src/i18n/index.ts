@@ -1,3 +1,4 @@
+import { languageDir } from "@sprachanker/schema";
 import i18n from "i18next";
 import ICU from "i18next-icu";
 import { initReactI18next } from "react-i18next";
@@ -27,23 +28,8 @@ export const UI_LANGUAGES: readonly string[] = ["en", ...loaders.keys()].sort((a
 export const isUiLanguage = (code: unknown): code is string =>
   typeof code === "string" && (UI_LANGUAGES as readonly string[]).includes(code);
 
-/** Scripts written right to left, where Intl cannot tell (no `Intl.Locale` text info). */
-const RIGHT_TO_LEFT = new Set(["ar", "fa", "he", "ur", "ps", "sd", "yi", "dv", "ckb", "ug"]);
-
-/** The direction a language is written in: from Intl where it knows, else the list above. */
-export function languageDir(code: string): "ltr" | "rtl" {
-  try {
-    const locale = new Intl.Locale(code) as Intl.Locale & {
-      getTextInfo?(): { direction?: string };
-      textInfo?: { direction?: string };
-    };
-    const direction = (locale.getTextInfo?.() ?? locale.textInfo)?.direction;
-    if (direction === "ltr" || direction === "rtl") return direction;
-  } catch {
-    // Not a language tag: the list.
-  }
-  return RIGHT_TO_LEFT.has(code.split("-")[0] ?? "") ? "rtl" : "ltr";
-}
+/** The direction a language is written in (schema's, so the e2e tests share it). */
+export { languageDir };
 
 /** Where this device keeps the interface language chosen last (before any profile is signed in, and
  *  so a reload starts in it); the profile keeps its own (`uiLanguage`). */
@@ -61,35 +47,64 @@ function startLanguage(): string {
   return codes.find(isUiLanguage) ?? "en";
 }
 
-/** A language's catalog, loaded; none for English (always there) or one that fails to load (offline
- *  before its chunk was cached): English stands in. */
+/** Set when the page reloaded for a catalog that did not load; cleared once one loads. */
+const RELOADED = "sprachanker.catalogReload";
+
+/** A language's catalog, loaded; none for English (always there) or one whose chunk does not load
+ *  (offline before it was cached, or the app upgraded under this open page). */
 async function readCatalog(language: string) {
-  try {
-    return await loaders.get(language)?.();
-  } catch {
-    return undefined;
-  }
+  const catalog = await loaders
+    .get(language)?.()
+    .catch(() => undefined);
+  if (catalog)
+    try {
+      sessionStorage.removeItem(RELOADED);
+    } catch {
+      // Storage blocked: nothing was kept.
+    }
+  return catalog;
 }
 
-async function loadCatalog(language: string) {
-  if (i18n.hasResourceBundle(language, "translation")) return;
+/** Whether a language's catalog is there, loaded first when it is not. */
+async function loadCatalog(language: string): Promise<boolean> {
+  if (language === "en" || i18n.hasResourceBundle(language, "translation")) return true;
   const catalog = await readCatalog(language);
   if (catalog) i18n.addResourceBundle(language, "translation", catalog);
+  return !!catalog;
+}
+
+/** A catalog's chunk that does not load most likely went with an upgrade of the app under this open
+ *  page: the page reloads once for the new build's; not again until a catalog has loaded. */
+function reloadOnce() {
+  try {
+    if (sessionStorage.getItem(RELOADED)) return;
+    sessionStorage.setItem(RELOADED, "1");
+  } catch {
+    return; // Storage blocked: no guard against reloading again and again.
+  }
+  location.reload();
 }
 
 /** The language asked for last: a slower catalog arriving after a later choice does not win. */
 let wanted = "";
 
-/** Switches the interface language once its catalog is loaded, and remembers it on this device. */
-export async function switchLanguage(language: string) {
+/** Switches the interface language once its catalog is loaded, and remembers it on this device;
+ *  whether it switched. A catalog that does not load changes nothing (the page reloads once). */
+export async function switchLanguage(language: string): Promise<boolean> {
   wanted = language;
+  const loaded = await loadCatalog(language);
+  if (wanted !== language) return false;
+  if (!loaded) {
+    reloadOnce();
+    return false;
+  }
   try {
     localStorage.setItem(DEVICE_LANGUAGE, language);
   } catch {
     // Storage blocked: the profile setting still keeps it.
   }
-  await loadCatalog(language);
-  if (wanted === language) await i18n.changeLanguage(language);
+  await i18n.changeLanguage(language);
+  return true;
 }
 
 const showLanguage = (language: string) => {
@@ -98,9 +113,10 @@ const showLanguage = (language: string) => {
 };
 i18n.on("languageChanged", showLanguage);
 
-// The start language's catalog is there before the first render.
-const start = startLanguage();
-const startCatalog = await readCatalog(start);
+// The start language's catalog is there before the first render; one that did not load, English.
+const wish = startLanguage();
+const startCatalog = await readCatalog(wish);
+const start = startCatalog ? wish : "en";
 await i18n
   .use(ICU)
   .use(initReactI18next)
