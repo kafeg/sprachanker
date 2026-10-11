@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Cours",
+    "settings": "Réglages",
+    "review": "Révision",
+    "notebook": "Carnet",
+    "exams": "Examens"
+  },
+  "common": {
+    "loading": "Chargement…",
+    "retry": "Réessayer",
+    "close": "Fermer",
+    "cancel": "Annuler"
+  },
+  "courses": {
+    "lessons": "{count, plural, one {# leçon} many {# de leçons} other {# leçons}}",
+    "progress": "{done, number} sur {total, number} faites",
+    "start": "Commencer",
+    "allLessons": "Toutes les leçons",
+    "languages": "{from} → {to}",
+    "any": "Toutes",
+    "noneStarted": "Aucun cours commencé pour l’instant.",
+    "noneMatch": "Aucun cours pour ces langues.",
+    "course": "Cours",
+    "pair": "Langues",
+    "next": "Suite",
+    "nextWorked": "{worked, number} sur {total, number} faits",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Mes cours",
+      "downloaded": "Téléchargés",
+      "available": "Disponibles"
+    },
+    "noneDownloaded": "Aucun cours téléchargé pour l’instant.",
+    "allDownloaded": "Tous les cours proposés sont téléchargés.",
+    "choose": "Choisir un cours",
+    "anyLanguage": "toutes"
+  },
+  "course": {
+    "unit": "Unité {number}",
+    "status": {
+      "new": "Pas commencée",
+      "in_progress": "En cours · {worked, number} sur {total, number}",
+      "done": "Terminée · {score, number, percent}",
+      "next": "À suivre",
+      "finished": "Terminée"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "domaine public",
+      "free-access": "accès libre (sans licence ouverte)"
+    },
+    "stats": {
+      "lessons": "{count, plural, one {leçon} many {leçons} other {leçons}}",
+      "exercises": "{count, plural, one {exercice} many {exercices} other {exercices}}",
+      "words": "{count, plural, one {mot} many {mots} other {mots}}",
+      "audio": "{count, plural, one {enregistrement} many {enregistrements} other {enregistrements}}",
+      "video": "{count, plural, one {vidéo} many {vidéos} other {vidéos}}",
+      "image": "{count, plural, one {image} many {images} other {images}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, one {fichier de sous-titres} many {fichiers de sous-titres} other {fichiers de sous-titres}}",
+      "size": "sur le disque"
+    },
+    "checking": "Vérification des fichiers du cours…",
+    "missing": "{count, number} manquants",
+    "problems": "{count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}}",
+    "intact": "Tous les fichiers sont là et cohérents.",
+    "checkAgain": "Vérifier à nouveau",
+    "complete": "Tout est téléchargé",
+    "next": "suite : {where} — {title}",
+    "notInstalled": "Ce cours n’est pas (ou plus) installé.",
+    "checkFiles": "Vérifier",
+    "problem": {
+      "missingMedia": "Fichier manquant : {at}",
+      "unreadable": "Fichier illisible : {at}",
+      "noLocale": "Pas de textes de la leçon dans cette langue : {at}",
+      "noEdition": "Aucune édition linguistique installée",
+      "inconsistent": "Les données du cours ne concordent pas : {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Unité {unit} · Leçon {lesson}",
+    "goals": "Dans cette leçon, tu vas apprendre :",
+    "counts": "{exercises, plural, =0 {} one {# exercice · } many {# d’exercices · } other {# exercices · }}{words, plural, one {# mot nouveau} many {# de mots nouveaux} other {# mots nouveaux}}",
+    "start": "Commencer la leçon",
+    "resume": "Reprendre la leçon",
+    "exerciseOf": "Exercice {n} sur {total}",
+    "check": "Vérifier",
+    "next": "Suivant",
+    "toSummary": "Vers le bilan",
+    "skip": "Passer",
+    "retry": "Réessayer",
+    "previous": "Retour",
+    "correct": "Correct",
+    "partial": "En partie correct",
+    "wrong": "Pas tout à fait",
+    "summary": "Bilan",
+    "score": "Juste du premier coup : {correct, number} sur {scored, number}. Le pourcentage compte aussi les réponses en partie justes.",
+    "skipped": "passé",
+    "notDone": "pas fait",
+    "backToCourse": "Retour au cours",
+    "nextLesson": "Leçon suivante",
+    "reference": "Référence",
+    "plan": "Plan de la leçon",
+    "audio": "Écouter la leçon",
+    "itemAudio": "Audio de l’élément {n}",
+    "redo": "Recommencer",
+    "done": "Terminé",
+    "doneScore": "Terminé · {score, number, percent} de juste",
+    "state": {
+      "correct": "juste",
+      "wrong": "avec des erreurs",
+      "done": "répondu",
+      "skipped": "passé",
+      "read": "fait",
+      "partial": "en partie juste"
+    },
+    "correctAnswer": "Bonne réponse :",
+    "answerAudio": "Écouter la réponse",
+    "itemsList": "Éléments",
+    "answerAll": "Réponds à chaque élément · {done, number} sur {total, number}",
+    "listenFirst": "Écoute d’abord l’enregistrement",
+    "listenItem": "Écouter l’enregistrement de l’élément {n}",
+    "answerAgain": "Répondre à nouveau",
+    "exerciseN": "Exercice {n}",
+    "stepsDone": "{done} étapes faites sur {total}",
+    "stepsLeft": "{count, plural, one {Il reste # étape à faire.} many {Il reste # d’étapes à faire.} other {Il reste # étapes à faire.}}",
+    "toStep": "Aller à : {title}",
+    "videoText": "Texte de la vidéo",
+    "audioText": "Texte de l’enregistrement",
+    "step": {
+      "overview": "Aperçu",
+      "words": "Mots de la leçon",
+      "wordsCount": "Mots de la leçon · {count}",
+      "grammar": "Grammaire",
+      "culture": "Culture",
+      "writing": "À toi d’écrire",
+      "scene": "Scène",
+      "mistakes": "Revoir ses erreurs",
+      "summary": "Bilan"
+    },
+    "section": {
+      "grammar": "Grammaire",
+      "exercises": "Exercices",
+      "culture": "Culture",
+      "practice": "S’entraîner avec l’IA"
+    },
+    "continued": "suite",
+    "why": "Pourquoi est-ce faux ?"
+  },
+  "ref": {
+    "vocabulary": "Vocabulaire",
+    "grammar": "Grammaire",
+    "culture": "Culture",
+    "script": "Transcription",
+    "downloads": "PDF",
+    "none": "Rien dans cette leçon.",
+    "homework": "Devoirs"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Sous-titres"
+  },
+  "ex": {
+    "chooseSeveral": "Plusieurs réponses peuvent être justes.",
+    "orderHint": "Touche ou fais glisser les morceaux dans la ligne, dans l’ordre ; fais-en glisser un dans la ligne pour le déplacer, touche-le pour le retirer.",
+    "reset": "Réinitialiser",
+    "dictationPlaceholder": "Écris ce que tu entends",
+    "rate": {
+      "good": "Bien",
+      "fair": "Moyen",
+      "poor": "À revoir"
+    },
+    "unknown": "Ce type d’exercice n’est pas encore pris en charge.",
+    "respondPlaceholder": "Ta réponse…",
+    "reference": "{count, plural, one {Réponse modèle} many {Réponses modèles} other {Réponses modèles}}",
+    "gap": "Trou {n}",
+    "partRight": "juste",
+    "partWrong": "faux",
+    "nothing": "— (rien)",
+    "matchFor": "Correspondance de l’élément {n}",
+    "dropHere": "dépose ou touche ici",
+    "chips": "Mots à placer",
+    "orderLine": "Ton ordre",
+    "dnd": {
+      "item": "la carte",
+      "instructions": "Pour prendre une carte, appuie sur Espace ou Entrée. Déplace-la avec les flèches, puis appuie sur Espace ou Entrée pour la déposer, ou sur Échap pour la remettre en place.",
+      "start": "Prise : {item}.",
+      "over": "{item} — au-dessus de « {place} ».",
+      "away": "{item} — hors de tout emplacement.",
+      "end": "{item} — déposée sur « {place} ».",
+      "cancel": "{item} — remise en place."
+    },
+    "chosen": "{count, plural, one {# choisie} many {# choisies} other {# choisies}}",
+    "specialLetters": "Lettres à taper",
+    "inPlace": "à sa place",
+    "notInPlace": "pas à sa place"
+  },
+  "word": {
+    "plural": "pl. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Langue de l’interface",
+    "themeLabel": "Thème",
+    "theme": {
+      "system": "Système",
+      "light": "Clair",
+      "dark": "Sombre"
+    },
+    "tabs": {
+      "general": "Général",
+      "profile": "Profil",
+      "review": "Révision",
+      "speech": "Parole",
+      "ai": "Assistant IA",
+      "aiShort": "IA"
+    },
+    "prompts": "Prompts",
+    "experimental": "Expérimental",
+    "advanced": "Avancé"
+  },
+  "llm": {
+    "title": "Assistant IA",
+    "intro": "Il explique les erreurs, sert de tuteur dans les leçons, corrige les textes et joue des scènes. Choisis un modèle sur cet ordinateur, sur un serveur de ton réseau, dans le cloud (OpenRouter) ou un agent en ligne de commande avec ton abonnement. Le contenu des leçons et tes réponses ne vont qu’au fournisseur que tu choisis.",
+    "off": "Désactivé",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Serveur sur le réseau",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Adresse du serveur",
+    "endpointInvalid": "Saisis une adresse comme http://localhost:1234/v1",
+    "apiKey": "Clé API",
+    "keyHint": "Seulement si le serveur en demande une. Elle est stockée chiffrée et n’est plus jamais affichée.",
+    "keySaved": "Enregistrée — saisis-en une nouvelle pour la remplacer",
+    "save": "Enregistrer",
+    "removeKey": "Supprimer",
+    "check": "Tester la connexion",
+    "checking": "Connexion…",
+    "connected": "Connecté · {count, plural, =0 {aucun modèle} one {# modèle} many {# de modèles} other {# modèles}} · {ms} ms",
+    "model": "Modèle",
+    "setUpHint": "Besoin d’une explication ? Configure l’assistant IA",
+    "explanation": "Explication",
+    "thinking": "Réflexion…",
+    "error": {
+      "lmstudioDown": "LM Studio ne répond pas. Son serveur local est-il lancé ?"
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code n’est pas installé ici. Installe-le depuis claude.com/claude-code et connecte-toi une fois en lançant `claude`.",
+      "codex": "La CLI Codex n’est pas installée ici. Installe-la (npm i -g @openai/codex) et connecte-toi une fois avec `codex login`."
+    },
+    "modelTypeHint": "Saisis le nom du modèle.",
+    "otherModel": "Autre modèle…",
+    "modelName": "Nom du modèle",
+    "explainAgain": "Expliquer à nouveau",
+    "changeInSettings": "Le modèle se choisit dans Réglages → Assistant IA",
+    "about": {
+      "lmstudio": "LM Studio sur cet ordinateur : SprachAnker démarre son serveur, charge le modèle choisi et peut y télécharger les modèles suggérés. Gratuit, et rien ne quitte l’ordinateur. Si LM Studio tourne sur un autre ordinateur, choisis « Serveur sur le réseau ».",
+      "openrouter": "OpenRouter dans le cloud : des centaines de modèles de nombreux éditeurs avec une seule clé, certains gratuits (avec des limites quotidiennes). Le contenu des leçons et tes réponses vont à OpenRouter et au fournisseur du modèle.",
+      "gemini": "Les modèles Gemini de Google dans le cloud, avec une clé de Google AI Studio. L’offre gratuite ne demande pas de carte et a des limites par minute et par jour ; certains modèles exigent la facturation. Avec l’offre gratuite, Google peut utiliser ce qui est envoyé pour améliorer ses produits : le contenu des leçons et tes réponses vont à Google.",
+      "groq": "Des modèles ouverts (Llama, Qwen, GPT-OSS et d’autres) sur le matériel rapide de Groq, dans le cloud. L’offre gratuite ne demande pas de carte et a des limites par minute et par jour pour chaque modèle. Le contenu des leçons et tes réponses vont à Groq.",
+      "custom": "Tout serveur avec une API compatible OpenAI sur un autre ordinateur : LM Studio, Ollama, llama.cpp, vLLM et d’autres. Indique son adresse (se terminant par /v1) et une clé s’il en demande une.",
+      "claude-code": "Utilise Claude Code installé sur cet ordinateur (`claude -p`) avec ton abonnement Claude. Ses propres outils sont désactivés : les données de la leçon passent dans le prompt. Chaque réponse lance la commande, les réponses prennent donc quelques secondes de plus.",
+      "codex": "Utilise la CLI Codex installée sur cet ordinateur (`codex exec`) avec ton abonnement ChatGPT, en lecture seule et sans ses outils. Chaque réponse lance la commande, les réponses prennent donc quelques secondes de plus."
+    },
+    "cardState": {
+      "off": "pas d’assistant",
+      "llm_cli_missing": "pas installé",
+      "llm_no_endpoint": "adresse non définie",
+      "llm_no_key": "clé requise",
+      "installed": "installé",
+      "keySaved": "clé enregistrée",
+      "here": "sur cet ordinateur",
+      "at": "sur {host}"
+    },
+    "list": {
+      "search": "Rechercher : gemma, claude, deepseek…",
+      "free": "Gratuits ({count, number})",
+      "json": "Répondent en JSON ({count, number})",
+      "context": "Contexte ≥ {size}",
+      "more": "Plus…",
+      "fewer": "Moins",
+      "jsonHint": "« Répondent en JSON » : des modèles capables de renvoyer les corrections de textes et les scènes sous la forme que l’appli sait lire.",
+      "none": "Aucun modèle ne correspond à la recherche et aux filtres.",
+      "freeTag": "gratuit",
+      "price": "{input} / {output} par million de tokens",
+      "shown": "{shown, number} modèles sur {total, number}",
+      "backToList": "Retour à la liste"
+    },
+    "key": {
+      "freeTier": "Offre gratuite",
+      "credits": "Crédits",
+      "used": "{used} utilisés",
+      "usedOf": "{used} utilisés sur {limit}",
+      "rate": "{requests, number} requêtes par {interval}",
+      "freeModels": "Les modèles gratuits ont une limite quotidienne de requêtes fixée par OpenRouter (plus élevée une fois des crédits achetés)."
+    },
+    "keyHintFor": {
+      "openrouter": "Crée une clé sur openrouter.ai/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
+      "gemini": "Crée une clé sur aistudio.google.com/apikey. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée.",
+      "groq": "Crée une clé sur console.groq.com/keys. Elle est stockée chiffrée sur cet ordinateur et n’est plus jamais affichée."
+    }
+  },
+  "tutor": {
+    "title": "Tuteur",
+    "intro": "Pose tes questions sur cette leçon : grammaire, mots, l’exercice à l’écran — ou entraîne-toi à un court dialogue. Les réponses restent dans les limites de ce que tu as déjà appris.",
+    "needsSetup": "Le tuteur a besoin d’un modèle d’IA.",
+    "openSettings": "Configurer l’assistant IA",
+    "placeholder": "Pose une question…",
+    "send": "Envoyer",
+    "stop": "Arrêter",
+    "newChat": "Nouvelle discussion",
+    "suggest": {
+      "grammar": "Explique la grammaire de cette leçon",
+      "examples": "Donne-moi d’autres exemples avec les mots nouveaux",
+      "dialogue": "Entraînons-nous à un court dialogue",
+      "exercise": "Donne-moi un indice pour cet exercice",
+      "wordsQuiz": "Interroge-moi sur les mots nouveaux de cette leçon",
+      "wordsMemory": "Aide-moi à retenir les mots nouveaux",
+      "grammarDrill": "Donne-moi un petit exercice sur la grammaire de cette leçon",
+      "script": "Parcours le texte de la leçon phrase par phrase"
+    },
+    "context": "Contexte ≈ {used} sur {window} tokens",
+    "contextSize": "Requête ≈ {used} tokens",
+    "remembers": "retient {kept, number} sur {total, plural, one {# message} many {# de messages} other {# messages}}",
+    "contextFull": "Le contexte est presque plein : les premiers messages n’atteignent plus le modèle. Lance une nouvelle discussion pour un nouveau sujet.",
+    "contextHint": "Taille de la prochaine requête : le contexte de la leçon, la conversation et ton message, plus la place pour la réponse.",
+    "toolsUsed": "Consulté : {tools}",
+    "tool": {
+      "find_word": "le mot « {word} »",
+      "get_progress": "ta progression",
+      "get_mistakes": "tes erreurs",
+      "get_lesson": "la leçon {lesson}"
+    },
+    "tabChat": "Conversation",
+    "tabHistory": "Historique",
+    "noHistory": "Pas encore d’anciennes discussions dans cette leçon.",
+    "current": "en cours",
+    "delete": "Supprimer la discussion",
+    "deleteTitle": "Supprimer cette discussion ?",
+    "deleteBody": "Ses messages seront supprimés définitivement.",
+    "ask": {
+      "grammar": "Explique brièvement la grammaire de cette leçon avec 2–3 exemples tirés de la leçon. Puis demande-moi si c’est clair.",
+      "examples": "Donne 3 exemples courts avec les mots nouveaux de la leçon, avec leur traduction. Puis demande-moi de faire ma propre phrase avec l’un d’eux.",
+      "dialogue": "Entraînons-nous à un court dialogue sur le thème de la leçon. Tu commences par une réplique et tu attends ma réponse ; corrige mes erreurs au fur et à mesure.",
+      "exercise": "Donne-moi un indice pour cet exercice, pas la réponse.",
+      "wordsQuiz": "Interroge-moi sur les mots nouveaux de la leçon, un mot à la fois. Demande un mot, attends ma réponse, dis-moi si elle est juste, et seulement ensuite passe au suivant.",
+      "wordsMemory": "Aide-moi à retenir les mots nouveaux de la leçon un par un : prends un mot, donne-moi un moyen mnémotechnique (un mot qui sonne pareil, une image, la racine) et un court exemple, puis demande-moi de le répéter ou de l’utiliser. Le mot suivant seulement après ma réponse.",
+      "grammarDrill": "Donne-moi un petit exercice sur la grammaire de la leçon : une tâche à la fois, attends ma réponse, vérifie-la et explique chaque erreur.",
+      "script": "Parcourons le texte de la leçon une phrase à la fois : montre la première phrase, traduis-la et explique ce qu’elle a de nouveau. La phrase suivante seulement quand je dis « suivante »."
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio est lancé.",
+    "notRunning": "Le serveur de LM Studio n’est pas lancé.",
+    "notInstalled": "LM Studio n’est pas installé sur cet ordinateur. Télécharge-le sur lmstudio.ai, puis reviens ici.",
+    "needsToken": "LM Studio demande un jeton d’API : saisis-le ci-dessus (LM Studio → Developer → Server settings).",
+    "start": "Démarrer LM Studio",
+    "models": "Modèles dans LM Studio",
+    "noModels": "LM Studio n’a encore aucun modèle. Télécharges-en un ci-dessous.",
+    "loaded": "en mémoire",
+    "use": "Utiliser",
+    "inUse": "Utilisé",
+    "suggested": "Modèles suggérés",
+    "suggestedHint": "LM Studio télécharge la meilleure version pour cet ordinateur ({memory} Go de mémoire) et la conserve.",
+    "recommended": "Recommandé",
+    "size": "environ {size} Go · nécessite environ {ram} Go de mémoire",
+    "progress": "{done} sur {total} Go",
+    "download": "Télécharger dans LM Studio",
+    "gb": "Go"
+  },
+  "prompt": {
+    "button": "Prompt",
+    "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
+    "endpoint": "Adresse",
+    "size": "Taille",
+    "sizeValue": "{chars, plural, one {# caractère} many {# de caractères} other {# caractères}} ≈ {tokens, plural, one {# token} many {# de tokens} other {# tokens}}",
+    "copy": "Copier la requête en JSON",
+    "infoIntro": "Chaque requête envoie des règles fixes (le prompt système) et les données de la leçon en cours. Les parties longues sont coupées aux limites ci-dessous pour que les petits modèles locaux suivent.",
+    "task": {
+      "explain": "« Pourquoi est-ce faux ? »",
+      "tutor": "Tuteur",
+      "writing": "« À toi d’écrire »",
+      "speaking": "Réponses orales",
+      "exam": "Examen : noter une réponse",
+      "conversation": "Examen : une épreuve orale",
+      "sceneSetup": "Scène : la situation",
+      "scene": "Scène",
+      "examples": "Exemples pour les mots d’un paquet"
+    },
+    "contextIntro": "Ajouté depuis la leçon :",
+    "systemIntro": "Prompt système :",
+    "part": {
+      "item": "l’élément de l’exercice : consigne, options ou trous, la bonne réponse et ta réponse",
+      "notes": "les notes de grammaire de la leçon",
+      "lesson": "le titre et les objectifs de la leçon",
+      "lessonVocab": "les mots de la leçon avec leur traduction",
+      "knownVocab": "les mots des leçons précédentes (les plus récents d’abord)",
+      "earlierLessons": "les titres des leçons précédentes",
+      "grammar": "les notes de grammaire de la leçon",
+      "exercise": "l’exercice à l’écran avec ses réponses et tes réponses vérifiées (le tuteur donne d’abord des indices)",
+      "history": "les derniers messages de la conversation, chacun des tiens marqué de l’exercice sur lequel tu l’as écrit",
+      "mistakes": "tes erreurs : dans cette leçon celles du passage en cours, puis les dernières des leçons précédentes (celles corrigées sont marquées)",
+      "tools": "sur demande (outils) : ta progression, tes erreurs dans n’importe quelle leçon, où un mot est enseigné, ce que couvre une leçon",
+      "text": "ton texte",
+      "script": "la transcription de la leçon, quand l’élément porte sur son audio ou sa vidéo",
+      "heard": "la question et la réponse du cours, telles que la reconnaissance vocale les a entendues dans les enregistrements du cours",
+      "answer": "ce que tu as dit, tel que la reconnaissance vocale l’a entendu",
+      "exam": "le titre de l’examen et la tâche telle qu’elle est posée : la consigne et le texte de l’épreuve, la question",
+      "criteria": "les critères avec leurs points et ce que signifie chaque niveau",
+      "samples": "les réponses modèles de l’examen, s’il en donne",
+      "writtenAnswer": "ta réponse",
+      "partner": "ce qu’a le partenaire : sa carte, son agenda ou ses diapositives (tu ne les vois pas)",
+      "conversation": "la conversation jusqu’ici (les répliques les plus récentes)",
+      "level": "le niveau du cours ou du paquet quand son nom l’indique (A1, A2…), sinon débutant",
+      "words": "cinq mots du paquet avec leur traduction, leur nature et leur genre"
+    },
+    "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
+    "debug": "Afficher les boutons « Prompt »",
+    "debugHint": "À côté des explications et dans le tuteur : la requête exacte avec tous les messages, pour le débogage.",
+    "custom": "modifié",
+    "placeholders": "'{language}' est remplacé par la langue des réponses, '{target}' par la langue que tu apprends.",
+    "save": "Enregistrer",
+    "restore": "Rétablir le prompt standard",
+    "places": {
+      "title": "Où l’assistant intervient",
+      "hint": "Un emplacement désactivé n’apparaît pas dans les leçons, les cartes et les examens. Les leçons faites restent faites.",
+      "explain": {
+        "name": "« Pourquoi est-ce faux ? »",
+        "where": "le bouton sous une erreur"
+      },
+      "tutor": {
+        "name": "Tuteur",
+        "where": "le bouton dans une leçon et l’étape « Revoir ses erreurs »"
+      },
+      "writing": {
+        "name": "« À toi d’écrire »",
+        "where": "une étape de la leçon"
+      },
+      "scene": {
+        "name": "Scènes",
+        "where": "une étape de la leçon"
+      },
+      "speaking": {
+        "name": "Réponses orales",
+        "where": "« Vérifier avec l’IA » sous une réponse dite à voix haute"
+      },
+      "example": {
+        "name": "Exemples d’un mot",
+        "where": "sur sa carte et dans sa fiche ; créés pour un paquet dans Révision → Paquets"
+      },
+      "exam": {
+        "name": "Réponses d’examen",
+        "where": "« Proposer une note » au-dessus des critères d’une réponse, et les épreuves orales menées en conversation"
+      }
+    },
+    "about": {
+      "explain": "Explique une réponse fausse sous l’exercice (« Pourquoi est-ce faux ? ») : en quoi consiste l’erreur et la règle qui est derrière, dans ta langue.",
+      "tutor": "Le tuteur de la leçon : répond à tes questions sur la leçon, ses mots et sa grammaire, et revoit tes erreurs une par une à l’étape « Revoir ses erreurs ».",
+      "writing": "Corrige un court texte écrit dans « À toi d’écrire » : corrections, critères A1 (tâche, communication, correction) et commentaire.",
+      "speaking": "Vérifie une réponse dite à voix haute (ce que la reconnaissance vocale a entendu) par rapport à la question et à la réponse du cours, quand tu appuies sur « Vérifier avec l’IA ».",
+      "exam": "Note une réponse écrite d’examen selon les critères de l’examen lui-même : un niveau pour chacun avec sa raison, et ce qui rapporterait plus. Rien ne compte tant que tu ne l’as pas accepté ou modifié.",
+      "conversation": "Mène une épreuve orale d’examen : joue l’examinateur et l’autre candidat, comme l’épreuve le prévoit, réplique après réplique avec toi ; n’aide ni ne corrige jamais. Notée ensuite selon les critères de l’épreuve.",
+      "sceneSetup": "Lance une scène : invente la situation à partir du thème de la leçon — qui tu es, à qui tu parles, où, et les objectifs à atteindre. Demandé une fois par scène.",
+      "scene": "Joue la scène : répond à chacune de tes répliques en tant que partenaire, corrige tes erreurs, donne une traduction et coche les objectifs atteints.",
+      "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits."
+    }
+  },
+  "writing": {
+    "task": "Écris 3 à 5 phrases en {language} sur le thème de la leçon : {topic}. Utilise les mots nouveaux.",
+    "placeholder": "Ton texte…",
+    "check": "Vérifier",
+    "checking": "Vérification…",
+    "rewrite": "Corrige et vérifie à nouveau",
+    "score": "{name} : {score, number} sur {max, number}",
+    "points": "{score, number} sur {max, number}",
+    "past": "Textes précédents de cette leçon",
+    "verdict": {
+      "good": "Correct",
+      "minor_errors": "Petites erreurs",
+      "major_errors": "Beaucoup d’erreurs",
+      "off_task": "Hors sujet"
+    },
+    "criteria": {
+      "task": "Tâche",
+      "communication": "Communication",
+      "accuracy": "Correction"
+    }
+  },
+  "mistakes": {
+    "exercises": "Exercices faits",
+    "firstTry": "Justes du premier coup",
+    "ofTotal": "{n, number} sur {total, number}",
+    "list": "Erreurs par exercice",
+    "items": "{count, plural, one {élément} many {éléments} other {éléments}} {items}",
+    "fixed": "{count, plural, one {# corrigée ensuite} many {# corrigées ensuite} other {# corrigées ensuite}}",
+    "none": "Aucune erreur dans ce passage.",
+    "notYet": "Aucune réponse pour l’instant : fais d’abord les exercices.",
+    "tutorIntro": "Le tuteur revoit tes erreurs une par une : ce qui n’allait pas, la règle qui est derrière, et un court exemple nouveau pour vérifier.",
+    "start": "Revoir mes erreurs avec le tuteur",
+    "message": "Revois avec moi mes erreurs dans cette leçon, s’il te plaît."
+  },
+  "scene": {
+    "intro": "Entraîne-toi à la leçon dans un court jeu de rôle : le partenaire parle la langue du cours, te corrige et coche tes objectifs.",
+    "start": "Lancer une scène",
+    "preparing": "Préparation…",
+    "partner": "Ton partenaire : {partner}",
+    "translate": "Traduction",
+    "placeholder": "Ta réplique…",
+    "done": "Tous les objectifs sont atteints — bravo !",
+    "new": "Nouvelle scène",
+    "past": "Scènes précédentes de cette leçon",
+    "goals": "Objectifs : {met, number} sur {total, number}",
+    "ended": "Scène terminée."
+  },
+  "player": {
+    "play": "Lire : {what}",
+    "pause": "Pause",
+    "back": "Reculer de 5 secondes",
+    "speed": "Vitesse de lecture {rate}×",
+    "position": "Position",
+    "unavailable": "L’audio n’a pas pu être chargé."
+  },
+  "about": {
+    "title": "À propos de SprachAnker",
+    "intro": "Un tuteur de langues auto-hébergé et local : de vrais cours dans un seul lecteur, ta progression et ta voix sur ton propre ordinateur, le modèle d’IA de ton choix. Gratuit et open source.",
+    "version": "Version",
+    "licence": "Licence : MIT",
+    "source": "Code source sur GitHub"
+  },
+  "progress": {
+    "resetCourse": "Réinitialiser la progression du cours",
+    "removeCourse": "Retirer de mes cours",
+    "resetLesson": "Réinitialiser la progression de la leçon",
+    "courseTitle": "Réinitialiser ta progression dans « {title} » ?",
+    "courseBody": "Toutes les réponses et tous les passages des leçons de ce cours sont supprimés, avec les discussions avec le tuteur, les corrections de textes et les scènes qui s’y rapportent, ainsi que les cartes de mots créées par ses leçons et leurs révisions. Le cours quitte « Mes cours » mais reste installé. Action irréversible.",
+    "lessonTitle": "Réinitialiser ta progression dans « {title} » ?",
+    "lessonBody": "Toutes les réponses et tous les passages de cette leçon sont supprimés, avec sa discussion avec le tuteur, ses corrections de textes et ses scènes, ainsi que les cartes de mots qu’elle a créées et leurs révisions (les mots d’autres leçons restent). Action irréversible.",
+    "confirm": "Réinitialiser",
+    "removeExam": "Retirer de mes examens",
+    "examTitle": "Retirer « {title} » de tes examens ?",
+    "examBody": "Ses examens blancs et ses entraînements sont supprimés avec toutes leurs réponses et notes. L’examen reste téléchargé."
+  },
+  "download": {
+    "queued": "En attente — un autre cours est en téléchargement",
+    "pages": "{count, plural, one {# page lue} many {# de pages lues} other {# pages lues}}",
+    "preparing": "Préparation des leçons…",
+    "media": "Médias : {done, number} fichiers sur {total, number} · {size}",
+    "downloadSize": "Télécharger · ≈ {size}",
+    "continue": "Reprendre le téléchargement",
+    "sync": "Synchroniser avec la source",
+    "notDownloaded": "Pas téléchargé",
+    "incomplete": "{count, plural, =0 {Téléchargement pas terminé} one {# fichier manquant} many {# de fichiers manquants} other {# fichiers manquants}}",
+    "openSoon": "Le cours pourra être commencé une fois entièrement téléchargé.",
+    "failed": "Échec du téléchargement : {error}",
+    "done": "Téléchargé. {failed, plural, =0 {Tous les médias sont là.} one {# fichier n’a pas pu être téléchargé.} many {# de fichiers n’ont pas pu être téléchargés.} other {# fichiers n’ont pas pu être téléchargés.}}",
+    "hint": "Le téléchargement récupère ce qui manque depuis la source (les pages et médias déjà stockés sont conservés) et prépare à nouveau le cours ; ta progression reste.",
+    "log": "Journal du téléchargement",
+    "syncShort": "Synchroniser"
+  },
+  "storage": {
+    "title": "Stockage",
+    "intro": "Les cours, les médias et ta progression se trouvent dans ce dossier, sur l’ordinateur où tourne SprachAnker. Il est choisi au démarrage du serveur (--data ou SPRACHANKER_DATA) ; l’appli de bureau permettra de le changer.",
+    "total": "Total",
+    "used": "Les cours occupent {size}",
+    "usedFree": "Les cours occupent {size} · {free} libres sur le disque",
+    "seriesSize": "{name} : {size}",
+    "recordings": "Tes enregistrements",
+    "recordingsKept": "{count, plural, =0 {aucun conservé} one {{n} enregistrement · {size}} many {{n} enregistrements · {size}} other {{n} enregistrements · {size}}}",
+    "deleteRecordings": "Tout supprimer",
+    "deleteRecordingsTitle": "Supprimer tous les enregistrements ?",
+    "deleteRecordingsBody": "Tes enregistrements seront supprimés de cet ordinateur. Tes réponses et ta progression restent. Action irréversible."
+  },
+  "windowTitle": {
+    "course": "Cours",
+    "lesson": "Leçon {unit}.{lesson}",
+    "exercise": "Ex. {n}/{total}",
+    "summary": "Bilan",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Mots",
+    "grammar": "Grammaire",
+    "culture": "Culture",
+    "writing": "Écriture",
+    "scene": "Scène",
+    "mistakes": "Erreurs"
+  },
+  "words": {
+    "intro": "Les mots de la leçon en cartes : souviens-toi, affiche la réponse, évalue-toi. Quand il ne reste rien pour l’instant, ils continuent dans Révision.",
+    "learnt": "Les mots de la leçon sont étudiés pour l’instant.",
+    "goOn": "{count, plural, =0 {Ils reviendront dans Révision quand ils seront à réviser.} one {# carte en apprentissage revient bientôt dans Révision.} many {# de cartes en apprentissage reviennent bientôt dans Révision.} other {# cartes en apprentissage reviennent bientôt dans Révision.}}"
+  },
+  "myWords": {
+    "search": "Chercher un mot ou une traduction",
+    "allDecks": "Tous les paquets",
+    "all": "Tous",
+    "state": {
+      "new": "Nouveau",
+      "learning": "En apprentissage",
+      "review": "À réviser",
+      "suspended": "Suspendu",
+      "marked": "Marqué"
+    },
+    "column": {
+      "word": "Mot",
+      "translation": "Traduction",
+      "state": "État",
+      "due": "Prochaine"
+    },
+    "dueNow": "maintenant",
+    "dueIn": "dans {interval}",
+    "nothing": "Aucun mot ne correspond.",
+    "sheet": "Mot",
+    "toLesson": "Leçon {unit}.{lesson}",
+    "cards": "Cartes",
+    "answers": "Réponses",
+    "noAnswers": "Pas encore de réponse.",
+    "face": {
+      "recognition": "Mot → sens",
+      "production": "Sens → mot",
+      "listening": "Écoute"
+    },
+    "lapses": "{count, plural, one {oublié # fois} many {oublié # de fois} other {oublié # fois}}",
+    "suspend": "Suspendre",
+    "unsuspend": "Réactiver",
+    "fromDeck": "Du paquet {deck}"
+  },
+  "notebook": {
+    "title": "Carnet",
+    "days": "Activité",
+    "dayTitle": "{date} : {what}",
+    "open": "en cours",
+    "unfinished": "pas terminé",
+    "passes": "Passages",
+    "noPasses": "Aucun passage de cette leçon pour l’instant.",
+    "choose": "Choisir le passage du {date} à comparer",
+    "compare": "Comparer",
+    "compareHint": "Coche deux passages pour les voir côte à côte.",
+    "minutes": "{count, plural, one {# min} many {# min} other {# min}}",
+    "worked": "{worked, number} exercices sur {total, number}",
+    "workedSome": "{count, plural, one {# exercice} many {# d’exercices} other {# exercices}}",
+    "explanations": "{count, plural, one {# explication} many {# d’explications} other {# explications}}",
+    "writing": "{count, plural, one {# texte} many {# de textes} other {# textes}}",
+    "scenes": "{count, plural, one {# scène} many {# de scènes} other {# scènes}}",
+    "chats": "{count, plural, one {# discussion} many {# de discussions} other {# discussions}}",
+    "words": "{count, plural, one {# mot} many {# de mots} other {# mots}}",
+    "exercises": "Exercices",
+    "exercise": "Exercice",
+    "total": "Total",
+    "attempts": "{count, plural, one {# essai} many {# d’essais} other {# essais}}",
+    "rightAt": "juste à l’essai {n, number}",
+    "itemHistory": "Historique de l’élément",
+    "passOf": "Passage du {date}",
+    "attemptN": "Essai {n, number}",
+    "more": "Plus",
+    "alsoDone": "Fait aussi",
+    "wordsAdded": "Mots ajoutés à Révision",
+    "messages": "{count, plural, one {# message} many {# de messages} other {# messages}}",
+    "nothing": "rien de fait",
+    "kind": {
+      "lesson": "leçons {count, number}",
+      "exam": "examens {count, number}",
+      "review": "cartes {count, number}",
+      "ai": "IA {count, number}"
+    },
+    "less": "Moins",
+    "calendar": "Jours d’étude sur la dernière année",
+    "progress": "Progression",
+    "range": {
+      "all": "Depuis le début",
+      "month": "30 jours",
+      "week": "7 jours"
+    },
+    "tile": {
+      "activeDays": "Jours d’étude",
+      "lesson": "Réponses et étapes",
+      "exam": "Réponses d’examen",
+      "review": "Cartes répondues",
+      "newCards": "Nouvelles cartes",
+      "remembered": "Retenues",
+      "rememberedHint": "des cartes en révision",
+      "ai": "Entraînement avec l’IA"
+    },
+    "examRuns": "Examens blancs et entraînement",
+    "noExamRuns": "Rien de rendu pour l’instant.",
+    "examWrong": "{count, plural, one {# question ratée} many {# de questions ratées} other {# questions ratées}} la dernière fois",
+    "section": {
+      "review": "Révision",
+      "lesson": "Leçons",
+      "exam": "Examens"
+    },
+    "none": {
+      "review": "Pas encore de cartes : prends le paquet d’un cours dans Révision, ou étudie les mots d’une leçon.",
+      "lesson": "Aucune leçon travaillée pour l’instant : chacune apparaît ici, avec tous ses passages.",
+      "exam": "Rien de rendu pour l’instant : tes examens blancs et tes entraînements apparaissent ici."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Mots connus",
+        "wordsKnownHint": "toutes les cartes du mot sont en révision",
+        "new": "Nouvelles",
+        "learning": "En apprentissage",
+        "review": "En révision",
+        "mature": "Acquises",
+        "matureHint": "chaque face prévue dans trois semaines ou plus",
+        "suspended": "Suspendues",
+        "remembered": "Retenues, 30 jours",
+        "rememberedHint": "{count, plural, one {# réponse} many {# de réponses} other {# réponses}}",
+        "dueToday": "À réviser aujourd’hui",
+        "dueTomorrow": "À réviser d’ici demain",
+        "dueWeek": "À réviser dans la semaine"
+      },
+      "lesson": {
+        "lessonsDone": "Leçons faites",
+        "best": "Meilleur score"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {# passage} many {# de passages} other {# passages}}"
+    },
+    "openEntry": {
+      "review": "Ouvrir les paquets",
+      "exam": "Tout sur cet examen"
+    }
+  },
+  "study": {
+    "listen": "Écoute et retrouve le sens",
+    "fromLesson": "leçon {unit}.{lesson}",
+    "countsTitle": "Nouvelles {new}, en apprentissage {learning}, à réviser {review}",
+    "finished": "Félicitations ! Tu as terminé ce paquet pour le moment.",
+    "nextLearning": "{minutes, plural, one {La prochaine carte en apprentissage sera prête dans # minute.} many {La prochaine carte en apprentissage sera prête dans # de minutes.} other {La prochaine carte en apprentissage sera prête dans # minutes.}}",
+    "reviewLimit": "La limite de révisions du jour est atteinte, mais des cartes attendent encore d’être révisées.",
+    "newLimit": "D’autres nouvelles cartes sont disponibles, mais la limite du jour est atteinte.",
+    "buried": "Une ou plusieurs cartes ont été enfouies et seront montrées demain.",
+    "unbury": "Désenfouir",
+    "unit": {
+      "s": "s",
+      "m": "min",
+      "h": "h",
+      "d": "j",
+      "mo": "mois",
+      "y": "a"
+    },
+    "flag": {
+      "red": "Rouge",
+      "orange": "Orange",
+      "green": "Vert",
+      "blue": "Bleu",
+      "pink": "Rose",
+      "turquoise": "Turquoise",
+      "purple": "Violet"
+    },
+    "marked": "Marquée",
+    "leech": "sangsue",
+    "undo": "Annuler",
+    "undoKeys": "Annuler (U, Ctrl+Z)",
+    "showKeys": "Espace ou Entrée",
+    "show": "Afficher la réponse",
+    "rating": {
+      "again": "À revoir",
+      "hard": "Difficile",
+      "good": "Correct",
+      "easy": "Facile"
+    },
+    "more": "Plus",
+    "replay": "Rejouer l’audio",
+    "buryCard": "Enfouir la carte",
+    "buryNote": "Enfouir la note",
+    "suspendCard": "Suspendre la carte",
+    "suspendNote": "Suspendre la note",
+    "mark": "Marquer la note",
+    "unmark": "Retirer la marque",
+    "keys": "Espace ou Entrée : afficher la réponse, puis Correct · 1–4 : évaluer · R : réécouter · U : annuler",
+    "noCards": "Pas encore de cartes : elles viennent de l’étape « Mots de la leçon » des leçons.",
+    "deck": "Paquet",
+    "count": {
+      "new": "Nouv.",
+      "learning": "Appr.",
+      "review": "Rév."
+    },
+    "due": "{count, plural, one {# carte} many {# de cartes} other {# cartes}} à étudier",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, one {réponse restante} many {réponses restantes} other {réponses restantes}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Réponses restantes si chacune est Correct : une nouvelle carte passe par deux étapes d’apprentissage, une carte en apprentissage par ses étapes restantes, une révision prend une réponse. À revoir rajoute des étapes.",
+    "asks": {
+      "recognition": "Qu’est-ce que ça veut dire ?",
+      "production": "En {in} ?",
+      "in": {
+        "de": "allemand",
+        "en": "anglais",
+        "ru": "russe"
+      }
+    },
+    "deckLink": {
+      "audio": "Lire le paquet à voix haute",
+      "examples": "Créer les exemples du paquet",
+      "both": "Lire le paquet à voix haute, créer des exemples"
+    }
+  },
+  "profiles": {
+    "who": "Qui étudie ?",
+    "welcome": "Bienvenue dans SprachAnker",
+    "firstHint": "Crée ton profil pour commencer : quelques étapes rapides.",
+    "unnamed": "Pas encore de nom",
+    "new": "Nouveau profil",
+    "previous": "Profils précédents",
+    "next": "Autres profils",
+    "page": "{n, number} sur {total, number}"
+  },
+  "onboarding": {
+    "progress": "Étape {n} sur {total}",
+    "back": "Retour",
+    "next": "Suivant",
+    "finish": "Choisir un cours",
+    "profile": {
+      "title": "Bienvenue",
+      "text": "SprachAnker réunit de vrais cours de langue dans un seul lecteur, vérifie tes réponses, fait revenir tes mots par répétition espacée et peut faire appel à un tuteur IA. Tout reste sur cet ordinateur.",
+      "sources": "Les cours sont téléchargés directement depuis les sites de leurs éditeurs (Deutsche Welle et d’autres), pour ton usage personnel. Respecte leurs conditions ; SprachAnker n’est pas lié à eux.",
+      "experimental": "Les cours et examens encore à l’essai restent masqués tant que tu ne les actives pas dans Réglages → Général → Expérimental.",
+      "name": "Comment veux-tu qu’on t’appelle ?"
+    },
+    "assistant": {
+      "title": "Assistant IA",
+      "text": "Un assistant explique les erreurs, sert de tuteur dans les leçons, corrige tes textes et joue des scènes. Choisis-en un maintenant ou plus tard dans Réglages — l’appli fonctionne sans."
+    },
+    "tour": {
+      "title": "Où trouver quoi"
+    },
+    "speech": {
+      "title": "Parler",
+      "text": "Dis toi-même les phrases des cours et fais lire n’importe quel texte à voix haute : teste ton micro, télécharge la reconnaissance vocale (une seule fois) pour que l’appli entende ce que tu dis, et choisis une voix pour chaque langue. Tout reste sur cet ordinateur ; tout se modifie plus tard dans Réglages → Parole."
+    },
+    "cancel": "Annuler"
+  },
+  "tour": {
+    "courses": "Tes cours (là où tu t’es arrêté), ceux téléchargés, et tous les cours que tu peux télécharger ; chaque liste peut être filtrée par paire de langues.",
+    "review": "Tes mots en répétition espacée : quelques minutes par jour.",
+    "notebook": "Chaque passage de chaque leçon, tes réponses et tes erreurs.",
+    "settings": "Ton profil, la révision, la parole, l’assistant IA et l’appli.",
+    "exams": "Des examens à préparer, comme Leben in Deutschland : des examens blancs comme le vrai, de l’entraînement, et le catalogue complet avec ses réponses."
+  },
+  "profile": {
+    "who": "Nom et couleur",
+    "devices": "Appareils connectés",
+    "thisDevice": "cet appareil",
+    "lastSeen": "dernière utilisation {date}",
+    "signOutDevice": "Déconnecter",
+    "switch": "Changer de profil",
+    "open": "Profil",
+    "delete": "Supprimer le profil…",
+    "deleteTitle": "Supprimer le profil « {name} » ?",
+    "deleteBody": "Sa progression, ses mots et ses cartes, ses enregistrements, ses discussions avec l’IA et les appareils connectés à ce profil sont supprimés définitivement. Les autres profils et les cours restent.",
+    "deleteConfirm": "Supprimer définitivement",
+    "name": "Nom ou pseudo",
+    "colour": "Couleur",
+    "colours": {
+      "amber": "Ambre",
+      "teal": "Sarcelle",
+      "rose": "Rose",
+      "violet": "Violet",
+      "sky": "Ciel",
+      "lime": "Citron vert"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Étudier",
+      "decks": "Paquets",
+      "words": "Mes mots"
+    },
+    "studying": "Étude : {deck}",
+    "more": "{count, plural, one {# nouvelle carte de plus aujourd’hui} many {# de nouvelles cartes de plus aujourd’hui} other {# nouvelles cartes de plus aujourd’hui}}",
+    "leave": "Quitter le paquet…",
+    "offers": "Paquets à prendre",
+    "offersHint": "Les mots de chacun de tes cours, et de chaque paquet importé ici, forment un paquet : pris en entier, il les ajoute comme nouvelles cartes, dans son ordre — dans la limite quotidienne, ou plus avec « de plus aujourd’hui ». Un mot dont tu as déjà une carte la garde.",
+    "words": "{words, plural, one {# mot} many {# de mots} other {# mots}} · {mine, number} déjà à toi",
+    "take": "Prendre le paquet",
+    "takeRest": "Ajouter les {count, number} autres",
+    "study": "Étudier",
+    "leaveTitle": "Quitter le paquet {deck} ?",
+    "leaveBody": "Ses cartes disparaissent, avec leur progression. Les mots qu’un autre de tes paquets contient y passent, avec leur progression.",
+    "moreShort": "{count, plural, one {+# nouvelle} many {+# de nouvelles} other {+# nouvelles}}",
+    "import": {
+      "button": "Importer un fichier de paquet (.apkg)",
+      "title": "Importer un paquet",
+      "hint": "Ses mots deviennent un paquet que chaque profil de cet ordinateur peut prendre, comme celui d’un cours ; son audio les accompagne.",
+      "name": "Nom",
+      "lang": "Langue des mots",
+      "translationLang": "Langue des traductions",
+      "words": "{words, plural, one {# mot} many {# de mots} other {# mots}} · {audio, plural, =0 {sans audio} one {# avec audio} many {# avec audio} other {# avec audio}} · {examples, plural, =0 {sans exemples} one {# avec exemples} many {# avec exemples} other {# avec exemples}}",
+      "submit": "Importer",
+      "updates": "Ce fichier met à jour le paquet {deck} déjà présent : ses mots deviennent ceux de ce fichier, et les cartes qui en sont issues les suivent. Dans d’autres langues, c’est un paquet à part.",
+      "left": "{count, plural, one {# note sans mot est laissée de côté.} many {# de notes sans mot sont laissées de côté.} other {# notes sans mot sont laissées de côté.}}",
+      "unusable": "{count, plural, one {# note dont le mot est illisible est laissée de côté.} many {# de notes dont les mots sont illisibles sont laissées de côté.} other {# notes dont les mots sont illisibles sont laissées de côté.}}",
+      "done": "{deck} importé : {words, plural, one {# mot} many {# de mots} other {# mots}}."
+    },
+    "remove": "Supprimer le paquet",
+    "removeTitle": "Supprimer le paquet {deck} ?",
+    "removeBody": "Le paquet, ses mots et son audio seront supprimés de cet ordinateur pour tous les profils. Action irréversible.",
+    "audio": {
+      "missing": "{count, plural, one {# mot sans audio} many {# de mots sans audio} other {# mots sans audio}}",
+      "generate": "Générer l’audio",
+      "reading": "Lecture : {done, number} sur {total, number}…",
+      "stop": "Arrêter",
+      "all": "Tous les mots ont un audio",
+      "install": "Pour le générer, installe une voix en {language} dans Réglages → Parole",
+      "failed": "{count, plural, one {# mot n’a pas pu être lu à voix haute} many {# de mots n’ont pas pu être lus à voix haute} other {# mots n’ont pas pu être lus à voix haute}}",
+      "voice": "Lu par {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Choisir une voix"
+    },
+    "left": "encore environ {time}",
+    "why": "Raison : {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# mot sans exemples} many {# de mots sans exemples} other {# mots sans exemples}}",
+      "make": "Créer des exemples",
+      "writing": "Rédaction des exemples : {done, number} sur {total, number}…",
+      "all": "Tous les mots ont des exemples",
+      "failed": "{count, plural, one {# mot n’a pas reçu d’exemples} many {# de mots n’ont pas reçu d’exemples} other {# mots n’ont pas reçu d’exemples}}",
+      "setUp": "Pour créer des exemples, configure l’assistant IA dans Réglages"
+    },
+    "removeStudied": "{count, plural, one {Le profil {profiles} étudie ce paquet.} many {Les profils {profiles} étudient ce paquet.} other {Les profils {profiles} étudient ce paquet.}} Il pourra être supprimé quand tous les profils l’auront quitté : Révision → Paquets → Quitter le paquet…."
+  },
+  "guide": {
+    "open": "Comment ça marche",
+    "title": "Comment fonctionne la révision",
+    "curveAlt": "Trois courbes d’oubli, chacune plus plate que la précédente",
+    "days": "jours",
+    "curveCaption": "La mémoire s’efface si on ne s’en sert pas : chaque révision au bord de l’oubli aplatit la courbe, et la suivante peut attendre plus longtemps.",
+    "method": {
+      "title": "Répétition espacée",
+      "text": "Chaque carte revient juste avant que tu ne l’oublies. Les intervalles s’allongent à chaque bonne réponse : des minutes, puis des jours, des semaines, des mois. L’idée remonte à la courbe de l’oubli d’Ebbinghaus (1885)."
+    },
+    "recall": {
+      "title": "D’abord se souvenir, ensuite regarder",
+      "text": "Essaie de retrouver la réponse avant de l’afficher. C’est l’effort de rappel qui renforce la mémoire — relire la réponse fait bien moins. Puis évalue-toi honnêtement."
+    },
+    "buttons": {
+      "title": "Les quatre boutons",
+      "again": {
+        "name": "À revoir",
+        "text": "pas retenue, ou fausse : la carte revient dans une minute"
+      },
+      "hard": {
+        "name": "Difficile",
+        "text": "retenue avec effort : un intervalle plus court"
+      },
+      "good": {
+        "name": "Correct",
+        "text": "retenue : le choix habituel (Espace ou Entrée)"
+      },
+      "easy": {
+        "name": "Facile",
+        "text": "trop facile : elle revient bien plus tard"
+      }
+    },
+    "counts": {
+      "title": "Les trois nombres",
+      "text": "Les nouvelles cartes encore à apprendre aujourd’hui, les cartes en apprentissage (qui reviennent dans quelques minutes) et les cartes à réviser. Le nombre souligné indique d’où vient la carte à l’écran. « Réponses restantes » estime combien de réponses terminent la séance si chacune est Correct."
+    },
+    "faces": {
+      "title": "Les cartes d’un mot",
+      "recognition": {
+        "name": "Carte 1",
+        "text": "le mot → ce qu’il veut dire (comprendre)"
+      },
+      "production": {
+        "name": "Carte 2",
+        "text": "le sens → le mot (parler) ; elle vient après la carte 1"
+      },
+      "listening": {
+        "name": "Carte 3",
+        "text": "le mot entendu → ce qu’il veut dire (écouter)"
+      }
+    },
+    "more": {
+      "title": "Sous « … »",
+      "replay": {
+        "name": "Réécouter (R)",
+        "text": "entendre le mot à nouveau"
+      },
+      "bury": {
+        "name": "Enfouir (- ou =)",
+        "text": "pas aujourd’hui : la carte ou le mot entier revient demain"
+      },
+      "suspend": {
+        "name": "Suspendre (@ ou !)",
+        "text": "hors de la révision jusqu’à ce que tu le réactives — un mot que tu connais ou dont tu n’as pas besoin"
+      },
+      "flag": {
+        "name": "Drapeaux (Ctrl+1–7)",
+        "text": "des marques de couleur pour retrouver des cartes plus tard dans Mes mots"
+      },
+      "mark": {
+        "name": "Marquer (*)",
+        "text": "une étoile sur le mot, pour y revenir"
+      }
+    },
+    "keys": {
+      "title": "Touches",
+      "text": "Espace ou Entrée affiche la réponse, puis évalue Correct ; 1–4 évaluent ; U ou Ctrl+Z annule la dernière réponse ; R rejoue l’audio."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Le planning suit FSRS, un modèle ouvert de répétition espacée : il estime la stabilité de chaque souvenir et le moment où tu l’oublierais, en visant le taux de rétention souhaité (90 % par défaut). Les limites, la rétention et les types de cartes se trouvent dans les Réglages."
+    },
+    "schedule": {
+      "title": "Les étapes et la journée",
+      "steps": "Une nouvelle carte évaluée Correct revient au bout de 10 minutes (après À revoir, au bout d’une minute), puis au bout de quelques jours ; une carte oubliée revient au bout de 10 minutes, puis son intervalle s’allonge de nouveau.",
+      "day": "Une nouvelle journée commence à {time} : les révisions faites entre minuit et cette heure comptent pour la veille.",
+      "limit": "Les nouvelles cartes comptent dans le maximum de révisions : une fois atteint, plus aucune nouvelle carte n’est montrée ce jour-là."
+    }
+  },
+  "reviewSettings": {
+    "intro": "Répétition espacée de tes cartes : un mot revient quand tu es sur le point de l’oublier. Les valeurs par défaut conviennent à la plupart des apprenants.",
+    "limits": "Limites quotidiennes",
+    "newPerDay": "Nouvelles cartes par jour",
+    "reviewsPerDay": "Révisions par jour au maximum",
+    "limitsHint": "Un mot avec deux types de cartes compte pour deux nouvelles cartes. Chaque nouvelle carte entraîne environ 5 à 10 révisions le premier mois.",
+    "retention": "Rétention souhaitée",
+    "retentionHint": "La probabilité que tu te souviennes encore d’une carte quand elle revient. Plus haut veut dire plus de révisions ; 90 % par défaut.",
+    "faces": "Types de cartes d’un nouveau mot",
+    "facesHint": "Les cartes que reçoit un nouveau mot. Les mots qui ont déjà des cartes gardent les leurs."
+  },
+  "speech": {
+    "record": "T’enregistrer",
+    "stop": "Arrêter l’enregistrement",
+    "showText": "Afficher le texte",
+    "answerHeard": "Écoute, puis dis-le à voix haute comme le demande la consigne.",
+    "answerFree": "Dis-le à voix haute comme le demande la consigne.",
+    "answerLine": "Ta réponse",
+    "mine": "Moi",
+    "mineFor": "Moi · {time}",
+    "recordedNotKept": "Enregistré (non conservé)",
+    "listenFirst": "Écoute d’abord l’enregistrement.",
+    "recording": "Enregistrement… touche à nouveau pour arrêter.",
+    "saving": "Sauvegarde…",
+    "notSaved": "L’enregistrement n’a pas pu être sauvegardé ; il compte quand même.",
+    "again": "Écoute les deux. Enregistre-toi à nouveau pour le remplacer.",
+    "howTo": "Touche le micro, parle, touche à nouveau.",
+    "mic": {
+      "insecure": "Le micro ne fonctionne qu’à une adresse sécurisée (https), comme celle que Tailscale donne à cet ordinateur.",
+      "unsupported": "Ce navigateur ne peut pas enregistrer de son.",
+      "denied": "L’accès au micro a été refusé. Autorise-le dans les réglages du site du navigateur.",
+      "failed": "Le micro n’a pas pu être démarré."
+    },
+    "settings": {
+      "mic": "Micro",
+      "device": "Micro à utiliser",
+      "defaultDevice": "Celui du système par défaut",
+      "unnamedDevice": "Micro",
+      "testing": "Dis quelque chose…",
+      "testHint": "Test : trois secondes, puis réécoute-toi. Choisi sur cet appareil.",
+      "listen": "Écouter",
+      "sampleFor": "Texte à écouter en {language}",
+      "otherSample": "Une autre phrase",
+      "recognition": "Reconnaissance",
+      "recognitionHint": "Ta voix est reconnue sur cet ordinateur (Whisper) : ce que tu as dit est comparé à la phrase. Elle entend des mots, pas des sons, et elle est indulgente. Rien ne quitte l’ordinateur.",
+      "noEngine": "Cette version n’a pas de moteur de reconnaissance.",
+      "recognitionOn": "Reconnaître ma voix",
+      "inUse": "Utilisé",
+      "downloadFailed": "échec du téléchargement",
+      "use": "Utiliser",
+      "removeModel": "Supprimer le modèle",
+      "download": "Télécharger",
+      "read": "Lecture à voix haute",
+      "readHint": "Une voix lit les textes dans une langue : les répliques des scènes, l’exemple d’un mot et les mots sans enregistrement. Chaque langue a sa propre voix.",
+      "engine": {
+        "device": "Voix de cet appareil",
+        "deviceLine": "{count, plural, one {# voix} many {# de voix} other {# voix}}, rien à installer",
+        "deviceNone": "Ce navigateur n’a aucune voix pour lire.",
+        "piper": "Piper sur cet ordinateur",
+        "piperMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
+        "piperLine": "{count, plural, =0 {pas encore de voix : télécharges-en une ci-dessous} one {# voix téléchargée} many {# de voix téléchargées} other {# voix téléchargées}}",
+        "qwen": "Qwen3-TTS sur cet ordinateur",
+        "qwenMissing": "Absent de cette version : l’appli a été compilée sans ses moteurs vocaux",
+        "qwenReady": "Prêt : un modèle téléchargé",
+        "qwenNoModel": "Pas encore de modèle : télécharges-en un ci-dessous"
+      },
+      "voiceFor": "Voix en {language}",
+      "voiceAuto": "Automatique — {name}",
+      "noVoice": "Cet appareil n’a pas de voix en {language}.",
+      "betterVoices": "Sur un Mac, de meilleures voix (Premium, Améliorée) se téléchargent dans Réglages Système → Accessibilité → Contenu énoncé → Voix du système → Gérer les voix.",
+      "readRate": "Vitesse : {rate}×",
+      "readRateLabel": "Vitesse de lecture",
+      "piperNone": "Pas encore de voix en {language} : télécharges-en une ci-dessous.",
+      "piperNoLanguage": "Piper n’a pas de voix en {language} : les voix de l’appareil s’en chargent.",
+      "piperHint": "Les voix de Piper font environ 60 à 120 Mo chacune et restent sur cet ordinateur ; une langue sans voix Piper est lue par les voix de l’appareil.",
+      "removeVoice": "Supprimer la voix {voice}",
+      "allVoices": "Toutes les voix ({count, number})",
+      "quality": {
+        "x_low": "qualité minimale",
+        "low": "qualité basse",
+        "medium": "qualité moyenne",
+        "high": "haute qualité"
+      },
+      "qwenModel": {
+        "small": "Petit modèle (0.6B) : plus rapide",
+        "large": "Grand modèle (1.7B) : plus naturel, plus lent"
+      },
+      "qwenHint": "Une voix neuronale qui lit 10 langues (allemand, anglais, russe, français, espagnol, italien, portugais, chinois, japonais, coréen) avec neuf locuteurs. Pendant qu’elle tourne, elle occupe environ 3 Go de mémoire (plus pour le grand modèle) et s’arrête après 10 minutes sans lecture ; la lecture suivante attend alors environ 20 s le temps du chargement. Les langues qu’elle ne parle pas sont lues par les voix de l’appareil.",
+      "qwenNoLanguage": "Qwen3-TTS ne parle pas {language} : les voix de l’appareil s’en chargent.",
+      "howMic": "Là où une réponse se dit à voix haute (l’épreuve orale d’un examen), un micro : touche pour lancer l’enregistrement, touche à nouveau pour l’arrêter. Là où la tâche est écrite, il n’y en a pas.",
+      "howPhrase": "La phrase à répéter reste masquée jusqu’à ton premier essai ; tu peux l’afficher avant.",
+      "howRecordings": "Tes enregistrements sont conservés sur cet ordinateur pour les réécouter dans le Carnet ; supprime-les dans Général → Stockage.",
+      "how": "Comment ça marche"
+    },
+    "listening": "Écoute en cours…",
+    "notHeard": "Rien n’a pu être reconnu ; l’enregistrement compte quand même.",
+    "heard": "Entendu :",
+    "heardNothing": "rien",
+    "verdict": {
+      "correct": "Tu l’as dit",
+      "partial": "Presque : il manque quelques mots",
+      "wrong": "Réessaie : écoute et redis-le"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — précis (recommandé)",
+      "small-q5_1": "Whisper small — plus rapide, moins précis"
+    },
+    "sayIn": "Dis-le en {language}",
+    "notHeardShort": "Rien n’a pu être reconnu. Réessaie.",
+    "answerSample": "Modèle",
+    "aiChecking": "L’IA vérifie ta réponse…",
+    "needsRecognition": "Dire une phrase nécessite la reconnaissance vocale : active-la dans Réglages → Parole.",
+    "languageUnknown": "La langue de ce cours n’est pas connue, ce que tu dis ne peut donc pas être entendu.",
+    "read": {
+      "listen": "Lire à voix haute : {what}",
+      "stop": "Arrêter la lecture"
+    },
+    "aiCheck": "Vérifier avec l’IA"
+  },
+  "error": {
+    "answer_does_not_fit": "La réponse ne correspond pas à cet exercice. Recharge la leçon.",
+    "card_changed": "Cette carte a changé sur un autre appareil. Elle est affichée à nouveau.",
+    "downloads_unavailable": "Les cours ne peuvent pas être téléchargés ici.",
+    "empty_recording": "L’enregistrement est vide. Réessaie.",
+    "event_id_taken": "Cette réponse a déjà été enregistrée autrement. Recharge la page.",
+    "event_of_another_run": "Cet enregistrement appartient à un autre passage. Recharge la leçon.",
+    "exam_rating_busy": "Cette réponse est en cours de notation. Patiente.",
+    "exam_conversation_busy": "Le partenaire est en train de répondre. Patiente.",
+    "exam_part_done": "Cette épreuve est terminée.",
+    "invalid_event": "L’appli a envoyé une donnée que le serveur n’a pas acceptée. Recharge la leçon.",
+    "invalid_request": "L’appli a envoyé quelque chose que le serveur n’a pas accepté. Recharge la page.",
+    "request_too_large": "Cette requête est trop volumineuse.",
+    "invalid_setting": "Cette valeur ne convient pas à ce réglage.",
+    "lesson_not_in_series": "Cette leçon ne fait pas partie du cours. Recharge la page.",
+    "llm_bad_response": "Le serveur a renvoyé une erreur.",
+    "llm_cli_missing": "L’assistant en ligne de commande n’est pas installé sur cet ordinateur.",
+    "llm_invalid_output": "Le modèle n’a pas pu donner de réponse exploitable. Réessaie, ou choisis un modèle plus grand dans Réglages → Assistant IA.",
+    "llm_lmstudio_failed": "Le serveur de LM Studio n’a pas démarré. Ouvre LM Studio et démarre-le depuis l’appli.",
+    "llm_lmstudio_missing": "LM Studio n’est pas installé sur cet ordinateur.",
+    "llm_lmstudio_remote": "LM Studio tourne sur un autre ordinateur : démarre son serveur là-bas.",
+    "llm_model_not_found": "Le modèle est introuvable sur le serveur.",
+    "llm_no_endpoint": "Saisis l’adresse du serveur.",
+    "llm_no_key": "Saisis la clé API.",
+    "llm_not_configured": "Choisis un modèle dans Réglages → Assistant IA.",
+    "llm_rate_limited": "La limite du fournisseur est atteinte pour l’instant (les offres gratuites limitent les requêtes par minute et par jour). Réessaie plus tard, ou choisis un autre modèle dans Réglages → Assistant IA.",
+    "llm_timeout": "Le modèle a mis trop de temps à répondre.",
+    "llm_unauthorized": "La clé API n’a pas été acceptée.",
+    "llm_unreachable": "Le serveur ne répond pas. Vérifie l’adresse.",
+    "missing_client_header": "La requête ne vient pas de l’appli. Recharge la page.",
+    "name_required": "Saisis un nom.",
+    "no_active_scene": "Cette scène est terminée. Lances-en une nouvelle.",
+    "no_device": "Cet appareil n’est plus connecté.",
+    "no_lesson_run": "Commence d’abord la leçon : une correction est conservée avec son passage.",
+    "no_session": "Cet appareil est déconnecté. Choisis à nouveau ton profil.",
+    "no_such_attempt": "Cette réponse n’est plus dans le passage de la leçon. Recharge la leçon.",
+    "no_such_card": "Cette carte n’existe plus.",
+    "no_such_chat": "Cette discussion n’existe plus.",
+    "no_such_item": "Cet exercice a changé. Recharge la leçon.",
+    "no_such_model": "Ce modèle n’est pas proposé.",
+    "no_such_profile": "Ce profil n’existe plus.",
+    "no_such_recording": "Cet enregistrement n’existe plus.",
+    "no_such_run": "Ce passage de la leçon n’existe plus (sa progression a été réinitialisée). Recharge la leçon.",
+    "not_found": "Introuvable. Recharge la page.",
+    "not_installed": "Ce cours n’est pas (ou plus) installé.",
+    "not_offered": "Ce cours n’est pas (ou plus) proposé.",
+    "nothing_to_undo": "Rien à annuler.",
+    "recording_too_large": "L’enregistrement est trop long.",
+    "registration_closed": "Impossible de créer de nouveaux profils sur ce serveur.",
+    "run_incomplete": "La leçon n’est pas encore terminée.",
+    "run_not_active": "Ce passage de la leçon est terminé. Recharge la leçon.",
+    "run_without_edition": "Ce passage n’a pas de version linguistique. Recommence la leçon.",
+    "scene_busy": "La scène est encore en train de répondre. Patiente.",
+    "server_error": "Une erreur s’est produite sur le serveur.",
+    "speaking_busy": "Cette réponse est en cours de vérification. Patiente.",
+    "speech_engine_failed": "La reconnaissance vocale n’a pas répondu. Réessaie.",
+    "speech_unavailable": "La reconnaissance vocale n’est pas configurée. Voir Réglages → Parole.",
+    "unknown_host": "Le serveur ne connaît pas cette adresse. Ouvre-le à l’adresse qu’il affiche.",
+    "unknown_setting": "Ce réglage n’existe pas (ou plus).",
+    "unsupported_audio": "Ce navigateur enregistre dans un format que l’appli ne peut pas conserver.",
+    "writing_busy": "Un texte de cette leçon est en cours de vérification. Patiente.",
+    "other": "Une erreur s’est produite : {message}",
+    "exam_needs_setting": "Choisis d’abord ton Land : l’examen pose des questions sur ce Land.",
+    "exam_time_over": "Le temps de cet examen blanc est écoulé : il a été rendu tel quel.",
+    "exam_test_running": "Un examen blanc est en cours : rends-le d’abord.",
+    "no_such_deck": "Ce paquet n’est pas (ou plus) ici.",
+    "not_a_deck": "Ce fichier n’est pas un fichier de paquet (.apkg) lisible.",
+    "deck_without_words": "Ce paquet n’a aucun mot à apprendre.",
+    "deck_too_large": "Ce fichier de paquet est trop volumineux (512 Mo au maximum).",
+    "deck_in_use": "Un profil étudie ce paquet : il pourra être supprimé quand plus personne ne l’étudiera.",
+    "deck_upload_gone": "Le fichier de paquet envoyé n’est plus là : choisis-le à nouveau.",
+    "deck_unpacked_too_large": "Une fois décompressé, ce fichier de paquet est trop gros pour être lu d’un coup.",
+    "deck_same_languages": "Les mots et leurs traductions doivent être dans deux langues différentes.",
+    "examples_without_word": "Les phrases du modèle n’utilisaient pas le mot."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Mes examens",
+      "downloaded": "Téléchargés",
+      "available": "Disponibles"
+    },
+    "noneStarted": "Tu n’as pas encore commencé d’examen.",
+    "noneDownloaded": "Aucun examen téléchargé pour l’instant.",
+    "allDownloaded": "Tous les examens proposés sont téléchargés.",
+    "noneMatch": "Aucune question ne correspond.",
+    "questions": "{count, plural, one {# question} many {# de questions} other {# questions}}",
+    "lastPoints": "dernier : {points, number} sur {max, number}",
+    "ready": "Tu connais {percent} des questions",
+    "lastPassed": "Dernier examen blanc ({date}) : réussi",
+    "lastFailed": "Dernier examen blanc ({date}) : pas réussi",
+    "continueTest": "Reprendre l’examen",
+    "mode": {
+      "test": "Examen blanc",
+      "testText": "{count, plural, one {# question} many {# de questions} other {# questions}} en {minutes, plural, one {# minute} many {# de minutes} other {# minutes}}, comme au vrai test ; les réponses sont vérifiées quand tu le rends.",
+      "practice": "Entraînement",
+      "practiceText": "Question par question, chaque réponse vérifiée aussitôt : d’abord celles que tu as ratées, puis celles que tu n’as pas encore vues.",
+      "catalog": "Catalogue",
+      "catalogText": "{count, plural, one {La # question avec sa réponse.} many {Les # de questions avec leurs réponses.} other {Les # questions avec leurs réponses.}}"
+    },
+    "begin": "Commencer",
+    "practise": "S’entraîner",
+    "openCatalog": "Ouvrir",
+    "known": "Tu connais {known, number} sur {total, plural, one {# question} many {# de questions} other {# questions}}",
+    "needsState": "Choisis ton Land : le test pose trois questions sur ce Land.",
+    "needsStateCatalog": "Choisis ton Land sur la page de l’examen pour voir aussi ses questions.",
+    "mapTitle": "Questions",
+    "mapKnown": "connues",
+    "mapWrong": "ratées la dernière fois",
+    "mapUnseen": "pas vues",
+    "mapSummary": "Sur {total, number} questions : {known, number} connues, {wrong, number} ratées la dernière fois",
+    "points": "{points, number} sur {max, number}",
+    "passed": "Réussi",
+    "failed": "Pas réussi",
+    "state": "Land",
+    "chooseState": "Choisir un Land",
+    "states": {
+      "bw": "Bade-Wurtemberg",
+      "by": "Bavière",
+      "be": "Berlin",
+      "bb": "Brandebourg",
+      "hb": "Brême",
+      "hh": "Hambourg",
+      "he": "Hesse",
+      "mv": "Mecklembourg-Poméranie-Occidentale",
+      "ni": "Basse-Saxe",
+      "nw": "Rhénanie-du-Nord-Westphalie",
+      "rp": "Rhénanie-Palatinat",
+      "sl": "Sarre",
+      "sn": "Saxe",
+      "st": "Saxe-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Thuringe"
+    },
+    "handIn": "Rendre",
+    "endPractice": "Terminer l’entraînement",
+    "handInTitle": "Rendre l’examen ?",
+    "handInUnanswered": "{count, plural, one {# question n’a pas encore de réponse} many {# de questions n’ont pas encore de réponse} other {# questions n’ont pas encore de réponse}} : les questions sans réponse comptent comme fausses.",
+    "goOn": "Continuer",
+    "leave": "Retour à l’examen",
+    "answered": "Répondu : {done, number} sur {total, number}",
+    "question": "Question {n, number} sur {total, number}",
+    "practiceScore": "{points, number} sur {count, plural, one {# réponse} many {# de réponses} other {# réponses}} justes",
+    "timeUp": "Le temps était écoulé : les réponses données jusque-là comptent.",
+    "needed": "{points, number} sur {max, number} requis",
+    "practiseMistakes": "Retravailler les erreurs",
+    "tryAgain": "Nouvel examen blanc",
+    "toExam": "Vers l’examen",
+    "mistakes": "{count, plural, =0 {Aucune erreur} one {# erreur} many {# d’erreurs} other {# erreurs}}",
+    "allAnswers": "Toutes les réponses",
+    "onlyMistakes": "Seulement les erreurs",
+    "showAll": "Afficher toutes les réponses",
+    "notAnswered": "sans réponse",
+    "noMistakes": "Tout est juste.",
+    "search": "Chercher dans les questions",
+    "playsLeft": "{left, number} écoutes restantes sur {plays, number}",
+    "plays": "{count, plural, one {Tu entends l’enregistrement une fois.} many {Tu entends l’enregistrement # de fois.} other {Tu entends l’enregistrement # fois.}}",
+    "example": "Exemple",
+    "wholeExam": "Examen complet",
+    "next": "Suivant",
+    "previous": "Retour",
+    "questionsGrid": "Questions",
+    "goTo": "Question {n, number}",
+    "practiceTally": "{right, number} justes · {wrong, number} fausses · {total, plural, one {# question} many {# de questions} other {# questions}}",
+    "lastResult": "Dernier examen blanc, {date} : {points, number} sur {max, number}",
+    "noResultYet": "Aucun examen blanc passé pour l’instant",
+    "inNotebook": "Tout dans le Carnet",
+    "sources": {
+      "title": "Sources et vérifications",
+      "allPassed": "toutes les vérifications réussies",
+      "someFailed": "une vérification a échoué",
+      "statement": "Chaque question, image, enregistrement et réponse présent ici a été lu dans les documents ci-dessous par l’importateur sur cet ordinateur — rien n’a été écrit à la main ni par un modèle — et vérifié comme indiqué. Un examen blanc pose les mêmes tâches et les note selon les mêmes règles que le test modèle officiel ; il montre à quel point tu es prêt, pas ce que donnera le vrai examen.",
+      "documents": "Lu dans",
+      "copy": "copie conservée, SHA-256 {hash}…, lue le {date}",
+      "read": "lu le {date}",
+      "checks": "Vérifications",
+      "from": "Source"
+    },
+    "check": {
+      "questions-complete": "Questions lues, parmi celles de la source",
+      "options-agree": "Options identiques mot pour mot dans les deux sources",
+      "answers-marked-twice": "Réponses marquées de la même façon deux fois dans leur source",
+      "answers-matched": "Réponses des pages de solutions associées à une option",
+      "numbers-agree": "Numéros des questions tels que les pages les donnent",
+      "recordings-placed": "Enregistrements placés avec leurs questions",
+      "media-kept": "Images et enregistrements conservés",
+      "criteria-read": "Critères d’écrit et d’oral lus avec les points de chaque niveau"
+    },
+    "rating": {
+      "title": "Note tes réponses",
+      "pending": "{count, plural, one {# réponse n’est pas encore notée : elle compte 0 tant que tu ne la notes pas.} many {# de réponses ne sont pas encore notées : elles comptent 0 tant que tu ne les notes pas.} other {# réponses ne sont pas encore notées : elles comptent 0 tant que tu ne les notes pas.}}",
+      "hint": "Noté comme le font les correcteurs de l’examen ; modifie une note quand tu veux.",
+      "voided": "tâche non réalisée : 0 pour toute la réponse",
+      "unrated": "0 tant que « {criterion} » n’est pas noté : ce critère décide si la réponse compte",
+      "save": "Enregistrer la note",
+      "change": "Modifier la note",
+      "propose": "Proposer une note (IA)",
+      "proposing": "L’assistant note…",
+      "proposed": "Proposé par l’assistant IA ({model}) : accepte-le tel quel ou modifie-le."
+    },
+    "conversation": {
+      "you": "Moi",
+      "partner": "Partenaire",
+      "examiner": "Examinateur",
+      "intro": "L’assistant joue l’examinateur et ton partenaire. Réponds à voix haute avec le micro (ou écris) ; la conversation est ta réponse.",
+      "start": "Commencer l’épreuve",
+      "over": "L’épreuve est terminée.",
+      "placeholder": "Ta réponse…",
+      "end": "Terminer l’épreuve"
+    },
+    "choose": "Choisir un examen"
+  },
+  "experimental": {
+    "disclaimerTitle": "Une expérience, pas un moyen de se préparer",
+    "disclaimer": "Ce que tu actives ici est à l’essai : son contenu peut être incomplet ou mal lu, sa notation peut différer de la réalité. Ne compte pas dessus pour préparer un cours ou un examen.",
+    "section": {
+      "courses": "Cours",
+      "exams": "Examens"
+    },
+    "sectionHint": {
+      "courses": "D’autres cours à télécharger, affichés dans Cours",
+      "exams": "D’autres examens à télécharger, affichés dans Examens"
+    },
+    "none": "Rien d’expérimental ici.",
+    "more": "{count, plural, one {# de plus} many {# de plus} other {# de plus}}"
+  },
+  "examples": {
+    "newWords": "Nouveau ici :",
+    "by": "Exemples de l’IA · {model}"
+  }
+}

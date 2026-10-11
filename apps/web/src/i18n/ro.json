@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Cursuri",
+    "settings": "Setări",
+    "review": "Recapitulare",
+    "notebook": "Caiet",
+    "exams": "Examene"
+  },
+  "common": {
+    "loading": "Se încarcă…",
+    "retry": "Încearcă din nou",
+    "close": "Închide",
+    "cancel": "Anulează"
+  },
+  "courses": {
+    "lessons": "{count, plural, one {# lecție} few {# lecții} other {# de lecții}}",
+    "progress": "{done, number} din {total, number} făcute",
+    "start": "Începe",
+    "allLessons": "Toate lecțiile",
+    "languages": "{from} → {to}",
+    "any": "Toate",
+    "noneStarted": "Niciun curs început încă.",
+    "noneMatch": "Niciun curs pentru aceste limbi.",
+    "course": "Curs",
+    "pair": "Limbi",
+    "next": "Urmează",
+    "nextWorked": "{worked, number} din {total, number} făcute",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Cursurile mele",
+      "downloaded": "Descărcate",
+      "available": "Disponibile"
+    },
+    "noneDownloaded": "Niciun curs descărcat încă.",
+    "allDownloaded": "Toate cursurile oferite sunt descărcate.",
+    "choose": "Alege un curs",
+    "anyLanguage": "oricare"
+  },
+  "course": {
+    "unit": "Unitatea {number}",
+    "status": {
+      "new": "Neîncepută",
+      "in_progress": "În curs · {worked, number} din {total, number}",
+      "done": "Terminată · {score, number, percent}",
+      "next": "Urmează",
+      "finished": "Terminată"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "domeniu public",
+      "free-access": "acces gratuit (fără licență deschisă)"
+    },
+    "stats": {
+      "lessons": "{count, plural, one {lecție} few {lecții} other {lecții}}",
+      "exercises": "{count, plural, one {exercițiu} few {exerciții} other {exerciții}}",
+      "words": "{count, plural, one {cuvânt} few {cuvinte} other {cuvinte}}",
+      "audio": "{count, plural, one {înregistrare} few {înregistrări} other {înregistrări}}",
+      "video": "{count, plural, one {videoclip} few {videoclipuri} other {videoclipuri}}",
+      "image": "{count, plural, one {imagine} few {imagini} other {imagini}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, one {fișier de subtitrări} few {fișiere de subtitrări} other {fișiere de subtitrări}}",
+      "size": "pe disc"
+    },
+    "checking": "Se verifică fișierele cursului…",
+    "missing": "{count, number} lipsă",
+    "problems": "{count, plural, one {# problemă găsită} few {# probleme găsite} other {# de probleme găsite}}",
+    "intact": "Toate fișierele sunt la locul lor și coerente.",
+    "checkAgain": "Verifică din nou",
+    "complete": "Totul descărcat",
+    "next": "urmează: {where} — {title}",
+    "notInstalled": "Acest curs nu este (sau nu mai este) instalat.",
+    "checkFiles": "Verifică",
+    "problem": {
+      "missingMedia": "Fișier lipsă: {at}",
+      "unreadable": "Fișierul nu poate fi citit: {at}",
+      "noLocale": "Nu există textele lecției în această limbă: {at}",
+      "noEdition": "Nicio ediție lingvistică instalată",
+      "inconsistent": "Datele cursului nu concordă: {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Unitatea {unit} · Lecția {lesson}",
+    "goals": "În această lecție înveți:",
+    "counts": "{exercises, plural, =0 {} one {# exercițiu · } few {# exerciții · } other {# de exerciții · }}{words, plural, one {# cuvânt nou} few {# cuvinte noi} other {# de cuvinte noi}}",
+    "start": "Începe lecția",
+    "resume": "Continuă lecția",
+    "exerciseOf": "Exercițiul {n} din {total}",
+    "check": "Verifică",
+    "next": "Mai departe",
+    "toSummary": "La rezumat",
+    "skip": "Sari peste",
+    "retry": "Încearcă din nou",
+    "previous": "Înapoi",
+    "correct": "Corect",
+    "partial": "Parțial corect",
+    "wrong": "Nu chiar",
+    "summary": "Rezumat",
+    "score": "Corect din prima încercare: {correct, number} din {scored, number}. Procentul ține cont și de răspunsurile parțial corecte.",
+    "skipped": "sărit",
+    "notDone": "nefăcut",
+    "backToCourse": "Înapoi la curs",
+    "nextLesson": "Lecția următoare",
+    "reference": "Materiale",
+    "plan": "Planul lecției",
+    "audio": "Ascultă lecția",
+    "itemAudio": "Audio pentru itemul {n}",
+    "redo": "Ia de la capăt",
+    "done": "Gata",
+    "doneScore": "Gata · {score, number, percent} corect",
+    "state": {
+      "correct": "corect",
+      "wrong": "cu greșeli",
+      "done": "răspuns",
+      "skipped": "sărit",
+      "read": "făcut",
+      "partial": "parțial corect"
+    },
+    "correctAnswer": "Răspunsul corect:",
+    "answerAudio": "Ascultă răspunsul",
+    "itemsList": "Itemi",
+    "answerAll": "Răspunde la fiecare item · {done, number} din {total, number}",
+    "listenFirst": "Ascultă mai întâi înregistrarea",
+    "listenItem": "Ascultă înregistrarea itemului {n}",
+    "answerAgain": "Răspunde din nou",
+    "exerciseN": "Exercițiul {n}",
+    "stepsDone": "Pași făcuți: {done} din {total}",
+    "stepsLeft": "{count, plural, one {Mai ai # pas de făcut.} few {Mai ai # pași de făcut.} other {Mai ai # de pași de făcut.}}",
+    "toStep": "Mergi la: {title}",
+    "videoText": "Textul videoclipului",
+    "audioText": "Textul înregistrării",
+    "step": {
+      "overview": "Prezentare",
+      "words": "Cuvintele lecției",
+      "wordsCount": "Cuvintele lecției · {count}",
+      "grammar": "Gramatică",
+      "culture": "Cultură",
+      "writing": "Scrie tu",
+      "scene": "Scenă",
+      "mistakes": "Analiza greșelilor",
+      "summary": "Rezumat"
+    },
+    "section": {
+      "grammar": "Gramatică",
+      "exercises": "Exerciții",
+      "culture": "Cultură",
+      "practice": "Exersează cu AI"
+    },
+    "continued": "continuare",
+    "why": "De ce e greșit?"
+  },
+  "ref": {
+    "vocabulary": "Vocabular",
+    "grammar": "Gramatică",
+    "culture": "Cultură",
+    "script": "Transcriere",
+    "downloads": "PDF",
+    "none": "Nimic în această lecție.",
+    "homework": "Temă"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Subtitrări"
+  },
+  "ex": {
+    "chooseSeveral": "Pot fi corecte mai multe răspunsuri.",
+    "orderHint": "Atinge sau trage bucățile în rând, în ordine; trage una în interiorul rândului ca s-o muți, atinge-o ca s-o scoți.",
+    "reset": "Resetează",
+    "dictationPlaceholder": "Scrie ce auzi",
+    "rate": {
+      "good": "Bine",
+      "fair": "Așa și așa",
+      "poor": "Din nou"
+    },
+    "unknown": "Acest tip de exercițiu nu este încă acceptat.",
+    "respondPlaceholder": "Răspunsul tău…",
+    "reference": "{count, plural, one {Răspuns model} few {Răspunsuri model} other {Răspunsuri model}}",
+    "gap": "Spațiul {n}",
+    "partRight": "corect",
+    "partWrong": "greșit",
+    "nothing": "— (nimic)",
+    "matchFor": "Perechea pentru itemul {n}",
+    "dropHere": "plasează sau atinge aici",
+    "chips": "Cuvinte de plasat",
+    "orderLine": "Ordinea ta",
+    "dnd": {
+      "item": "cardul",
+      "instructions": "Ca să iei un card, apasă Space sau Enter. Mută-l cu săgețile, apoi apasă Space sau Enter ca să-l plasezi, sau Escape ca să-l pui înapoi.",
+      "start": "Luat: {item}.",
+      "over": "{item} — deasupra „{place}”.",
+      "away": "{item} — nu e deasupra niciunui loc.",
+      "end": "{item} — plasat pe „{place}”.",
+      "cancel": "{item} — pus înapoi."
+    },
+    "chosen": "{count, plural, one {# variantă aleasă} few {# variante alese} other {# de variante alese}}",
+    "specialLetters": "Litere de tastat",
+    "inPlace": "la locul lui",
+    "notInPlace": "nu e la locul lui"
+  },
+  "word": {
+    "plural": "pl. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Limba interfeței",
+    "themeLabel": "Temă",
+    "theme": {
+      "system": "Sistem",
+      "light": "Luminoasă",
+      "dark": "Întunecată"
+    },
+    "tabs": {
+      "general": "General",
+      "profile": "Profil",
+      "review": "Recapitulare",
+      "speech": "Vorbire",
+      "ai": "Asistent AI",
+      "aiShort": "AI"
+    },
+    "prompts": "Prompturi",
+    "experimental": "Experimental",
+    "advanced": "Avansat"
+  },
+  "llm": {
+    "title": "Asistent AI",
+    "intro": "Explică greșelile, te ajută ca tutore în lecții, verifică texte și joacă scene. Alege un model pe acest computer, pe un server din rețeaua ta, în cloud (OpenRouter) sau un agent în linia de comandă cu abonamentul tău. Conținutul lecțiilor și răspunsurile tale ajung doar la furnizorul pe care îl alegi.",
+    "off": "Dezactivat",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Server în rețea",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Adresa serverului",
+    "endpointInvalid": "Introdu o adresă de forma http://localhost:1234/v1",
+    "apiKey": "Cheie API",
+    "keyHint": "Doar dacă serverul cere una. Se păstrează criptată și nu mai este afișată niciodată.",
+    "keySaved": "Salvată — introdu una nouă ca s-o înlocuiești",
+    "save": "Salvează",
+    "removeKey": "Elimină",
+    "check": "Verifică conexiunea",
+    "checking": "Se conectează…",
+    "connected": "Conectat · {count, plural, =0 {niciun model} one {# model} few {# modele} other {# de modele}} · {ms} ms",
+    "model": "Model",
+    "setUpHint": "Vrei o explicație? Configurează asistentul AI",
+    "explanation": "Explicație",
+    "thinking": "Se gândește…",
+    "error": {
+      "lmstudioDown": "LM Studio nu răspunde. Serverul său local e pornit?"
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code nu este instalat aici. Instalează-l de pe claude.com/claude-code și autentifică-te o dată rulând `claude`.",
+      "codex": "Codex CLI nu este instalat aici. Instalează-l (npm i -g @openai/codex) și autentifică-te o dată cu `codex login`."
+    },
+    "modelTypeHint": "Scrie numele modelului.",
+    "otherModel": "Alt model…",
+    "modelName": "Numele modelului",
+    "explainAgain": "Explică din nou",
+    "changeInSettings": "Modelul se alege în Setări → Asistent AI",
+    "about": {
+      "lmstudio": "LM Studio pe acest computer: SprachAnker îi pornește serverul, încarcă modelul ales și poate descărca în el modelele sugerate. Gratuit, și nimic nu părăsește computerul. Dacă LM Studio rulează pe alt computer, alege „Server în rețea”.",
+      "openrouter": "OpenRouter în cloud: sute de modele de la mulți producători cu o singură cheie, unele gratuite (cu limite zilnice). Conținutul lecțiilor și răspunsurile tale ajung la OpenRouter și la furnizorul modelului.",
+      "gemini": "Modelele Gemini de la Google în cloud, cu o cheie din Google AI Studio. Nivelul gratuit nu cere card și are limite pe minut și pe zi; unele modele necesită facturare. Pe nivelul gratuit, Google poate folosi ce se trimite pentru a-și îmbunătăți produsele: conținutul lecțiilor și răspunsurile tale ajung la Google.",
+      "groq": "Modele deschise (Llama, Qwen, GPT-OSS și altele) pe hardware-ul rapid al Groq, în cloud. Nivelul gratuit nu cere card și are limite pe minut și pe zi pentru fiecare model. Conținutul lecțiilor și răspunsurile tale ajung la Groq.",
+      "custom": "Orice server cu un API compatibil OpenAI pe alt computer: LM Studio, Ollama, llama.cpp, vLLM și altele. Indică adresa lui (care se termină în /v1) și o cheie, dacă cere una.",
+      "claude-code": "Rulează Claude Code instalat pe acest computer (`claude -p`) cu abonamentul tău Claude. Uneltele lui proprii sunt dezactivate: datele lecției merg în prompt. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult.",
+      "codex": "Rulează Codex CLI instalat pe acest computer (`codex exec`) cu abonamentul tău ChatGPT, doar în citire și fără uneltele sale. Fiecare răspuns pornește comanda, așa că răspunsurile durează cu câteva secunde mai mult."
+    },
+    "cardState": {
+      "off": "fără asistent",
+      "llm_cli_missing": "neinstalat",
+      "llm_no_endpoint": "adresa nu e setată",
+      "llm_no_key": "necesită o cheie",
+      "installed": "instalat",
+      "keySaved": "cheie salvată",
+      "here": "pe acest computer",
+      "at": "la {host}"
+    },
+    "list": {
+      "search": "Caută: gemma, claude, deepseek…",
+      "free": "Gratuite ({count, number})",
+      "json": "Răspund în JSON ({count, number})",
+      "context": "Context ≥ {size}",
+      "more": "Mai multe…",
+      "fewer": "Mai puține",
+      "jsonHint": "„Răspund în JSON”: modele care pot returna verificări de texte și scene în forma pe care o citește aplicația.",
+      "none": "Niciun model nu se potrivește căutării și filtrelor.",
+      "freeTag": "gratuit",
+      "price": "{input} / {output} per 1M tokeni",
+      "shown": "Modele: {shown, number} din {total, number}",
+      "backToList": "Înapoi la listă"
+    },
+    "key": {
+      "freeTier": "Nivel gratuit",
+      "credits": "Credite",
+      "used": "folosit {used}",
+      "usedOf": "folosit {used} din {limit}",
+      "rate": "{requests, number} cereri pe {interval}",
+      "freeModels": "Modelele gratuite au o limită zilnică de cereri stabilită de OpenRouter (mai mare după ce ai cumpărat credite)."
+    },
+    "keyHintFor": {
+      "openrouter": "Creează o cheie pe openrouter.ai/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
+      "gemini": "Creează o cheie pe aistudio.google.com/apikey. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
+      "groq": "Creează o cheie pe console.groq.com/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată."
+    }
+  },
+  "tutor": {
+    "title": "Tutore",
+    "intro": "Întreabă despre această lecție: gramatică, cuvinte, exercițiul de pe ecran — sau exersează un dialog scurt. Răspunsurile rămân în limitele a ceea ce ai învățat până acum.",
+    "needsSetup": "Tutorele are nevoie de un model AI.",
+    "openSettings": "Configurează asistentul AI",
+    "placeholder": "Pune o întrebare…",
+    "send": "Trimite",
+    "stop": "Oprește",
+    "newChat": "Conversație nouă",
+    "suggest": {
+      "grammar": "Explică gramatica acestei lecții",
+      "examples": "Dă-mi mai multe exemple cu cuvintele noi",
+      "dialogue": "Hai să exersăm un dialog scurt",
+      "exercise": "Dă-mi un indiciu pentru acest exercițiu",
+      "wordsQuiz": "Verifică-mă la cuvintele noi ale acestei lecții",
+      "wordsMemory": "Ajută-mă să rețin cuvintele noi",
+      "grammarDrill": "Dă-mi un exercițiu scurt pe gramatica acestei lecții",
+      "script": "Parcurge textul lecției frază cu frază"
+    },
+    "context": "Context ≈ {used} din {window} tokeni",
+    "contextSize": "Cerere ≈ {used} tokeni",
+    "remembers": "reține {kept, number} din {total, plural, one {# mesaj} few {# mesaje} other {# de mesaje}}",
+    "contextFull": "Contextul e aproape plin: primele mesaje nu mai ajung la model. Începe o conversație nouă pentru un subiect nou.",
+    "contextHint": "Mărimea următoarei cereri: contextul lecției, conversația și mesajul tău, plus loc pentru răspuns.",
+    "toolsUsed": "A consultat: {tools}",
+    "tool": {
+      "find_word": "cuvântul „{word}”",
+      "get_progress": "progresul tău",
+      "get_mistakes": "greșelile tale",
+      "get_lesson": "lecția {lesson}"
+    },
+    "tabChat": "Conversație",
+    "tabHistory": "Istoric",
+    "noHistory": "Încă nu există conversații anterioare în această lecție.",
+    "current": "curentă",
+    "delete": "Șterge conversația",
+    "deleteTitle": "Ștergi această conversație?",
+    "deleteBody": "Mesajele ei se șterg definitiv.",
+    "ask": {
+      "grammar": "Explică pe scurt gramatica acestei lecții, cu 2–3 exemple din lecție. Apoi întreabă-mă dacă e clar.",
+      "examples": "Dă-mi 3 exemple scurte cu cuvintele noi ale lecției, cu traducere. Apoi cere-mi să fac o propoziție proprie cu unul dintre ele.",
+      "dialogue": "Hai să exersăm un dialog scurt pe tema lecției. Începi tu cu o replică și aștepți răspunsul meu; corectează-mi greșelile pe parcurs.",
+      "exercise": "Dă-mi un indiciu pentru acest exercițiu, nu răspunsul.",
+      "wordsQuiz": "Verifică-mă la cuvintele noi ale lecției, câte un cuvânt pe rând. Întreabă un cuvânt, așteaptă răspunsul meu, spune-mi dacă e corect și abia apoi treci la următorul.",
+      "wordsMemory": "Ajută-mă să rețin cuvintele noi ale lecției pe rând: ia un cuvânt, dă-mi un truc de memorare (un cuvânt care sună la fel, o imagine, rădăcina) și un exemplu scurt, apoi cere-mi să-l repet sau să-l folosesc. Următorul cuvânt doar după răspunsul meu.",
+      "grammarDrill": "Dă-mi un exercițiu scurt pe gramatica lecției: câte o sarcină pe rând, așteaptă răspunsul meu, verifică-l și explică orice greșeală.",
+      "script": "Hai să parcurgem textul lecției frază cu frază: arată prima frază, tradu-o și explică ce e nou în ea. Următoarea frază doar când spun „mai departe”."
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio rulează.",
+    "notRunning": "Serverul LM Studio nu rulează.",
+    "notInstalled": "LM Studio nu este instalat pe acest computer. Descarcă-l de pe lmstudio.ai, apoi revino aici.",
+    "needsToken": "LM Studio cere un token API: introdu-l mai sus (LM Studio → Developer → Server settings).",
+    "start": "Pornește LM Studio",
+    "models": "Modele în LM Studio",
+    "noModels": "LM Studio nu are încă niciun model. Descarcă unul mai jos.",
+    "loaded": "în memorie",
+    "use": "Folosește",
+    "inUse": "În uz",
+    "suggested": "Modele sugerate",
+    "suggestedHint": "LM Studio descarcă cea mai bună variantă pentru acest computer ({memory} GB de memorie) și o păstrează.",
+    "recommended": "Recomandat",
+    "size": "circa {size} GB · necesită circa {ram} GB de memorie",
+    "progress": "{done} din {total} GB",
+    "download": "Descarcă în LM Studio",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "Prompt",
+    "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
+    "endpoint": "Adresă",
+    "size": "Mărime",
+    "sizeValue": "{chars, plural, one {# caracter} few {# caractere} other {# de caractere}} ≈ {tokens, plural, one {# token} few {# tokeni} other {# de tokeni}}",
+    "copy": "Copiază cererea ca JSON",
+    "infoIntro": "Fiecare cerere trimite reguli fixe (promptul de sistem) și datele cursului din lecția curentă. Părțile lungi sunt tăiate la limitele de mai jos, ca modelele locale mici să facă față.",
+    "task": {
+      "explain": "„De ce e greșit?”",
+      "tutor": "Tutore",
+      "writing": "„Scrie tu”",
+      "speaking": "Răspunsuri orale",
+      "exam": "Examen: evaluarea unui răspuns",
+      "conversation": "Examen: o probă orală",
+      "sceneSetup": "Scenă: situația",
+      "scene": "Scenă",
+      "examples": "Exemple pentru cuvintele unui pachet"
+    },
+    "contextIntro": "Adăugat din lecție:",
+    "systemIntro": "Promptul de sistem:",
+    "part": {
+      "item": "itemul exercițiului: cerința, variantele sau spațiile, răspunsul corect și răspunsul tău",
+      "notes": "notițele de gramatică ale lecției",
+      "lesson": "titlul și obiectivele lecției",
+      "lessonVocab": "cuvintele lecției cu traducerile lor",
+      "knownVocab": "cuvinte din lecțiile anterioare (cele mai recente primele)",
+      "earlierLessons": "titlurile lecțiilor anterioare",
+      "grammar": "notițele de gramatică ale lecției",
+      "exercise": "exercițiul de pe ecran cu răspunsurile lui și răspunsurile tale verificate (tutorele dă mai întâi indicii)",
+      "history": "ultimele mesaje ale conversației, fiecare dintre ale tale marcat cu exercițiul la care l-ai scris",
+      "mistakes": "greșelile tale: în această lecție cele din parcurgerea curentă, apoi cele mai recente din lecțiile anterioare (cele corectate sunt marcate)",
+      "tools": "la cerere (unelte): progresul tău, greșelile din orice lecție, unde se predă un cuvânt, ce cuprinde o lecție",
+      "text": "textul tău",
+      "script": "transcrierea lecției, când itemul se referă la audio sau video",
+      "heard": "întrebarea și răspunsul cursului, așa cum le-a auzit recunoașterea vorbirii în înregistrările cursului",
+      "answer": "ce ai spus, așa cum a auzit recunoașterea vorbirii",
+      "exam": "titlul examenului și sarcina așa cum e dată: cerința și textul probei, întrebarea",
+      "criteria": "criteriile cu punctajele lor și ce înseamnă fiecare nivel",
+      "samples": "răspunsurile model ale examenului, dacă are",
+      "writtenAnswer": "răspunsul tău",
+      "partner": "ce are partenerul: cartonașul, calendarul sau slide-urile lui (tu nu le vezi)",
+      "conversation": "conversația de până acum (cele mai recente replici)",
+      "level": "nivelul cursului sau al pachetului, când reiese din nume (A1, A2…), altfel începător",
+      "words": "cinci cuvinte din pachet cu traducerea, partea de vorbire și genul lor"
+    },
+    "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
+    "debug": "Arată butoanele „Prompt”",
+    "debugHint": "Lângă explicații și în tutore: cererea exactă cu toate mesajele, pentru depanare.",
+    "custom": "modificat",
+    "placeholders": "'{language}' se înlocuiește cu limba răspunsurilor, '{target}' cu limba pe care o înveți.",
+    "save": "Salvează",
+    "restore": "Restabilește promptul standard",
+    "places": {
+      "title": "Unde lucrează asistentul",
+      "hint": "Un loc dezactivat nu apare în lecții, carduri și examene. Lecțiile terminate rămân terminate.",
+      "explain": {
+        "name": "„De ce e greșit?”",
+        "where": "butonul de sub o greșeală"
+      },
+      "tutor": {
+        "name": "Tutore",
+        "where": "butonul dintr-o lecție și pasul „Analiza greșelilor”"
+      },
+      "writing": {
+        "name": "„Scrie tu”",
+        "where": "un pas al lecției"
+      },
+      "scene": {
+        "name": "Scene",
+        "where": "un pas al lecției"
+      },
+      "speaking": {
+        "name": "Răspunsuri orale",
+        "where": "„Verifică cu AI” sub un răspuns spus cu voce tare"
+      },
+      "example": {
+        "name": "Exemplele unui cuvânt",
+        "where": "pe cardul lui și în fișa lui; create pentru un pachet în Recapitulare → Pachete"
+      },
+      "exam": {
+        "name": "Răspunsuri la examen",
+        "where": "„Propune o notă” deasupra criteriilor unui răspuns și probele orale purtate ca o conversație"
+      }
+    },
+    "about": {
+      "explain": "Explică un răspuns greșit sub exercițiu („De ce e greșit?”): care e greșeala și regula din spatele ei, în limba ta.",
+      "tutor": "Tutorele lecției: răspunde la întrebările tale despre lecție, cuvintele și gramatica ei și îți analizează greșelile una câte una la pasul „Analiza greșelilor”.",
+      "writing": "Verifică un text scurt scris la „Scrie tu”: corecturi, criteriile A1 (sarcină, comunicare, corectitudine) și feedback.",
+      "speaking": "Verifică un răspuns spus cu voce tare (ce a auzit recunoașterea vorbirii) față de întrebare și răspunsul cursului, când apeși „Verifică cu AI”.",
+      "exam": "Notează un răspuns scris la examen după criteriile examenului: un nivel pentru fiecare, cu motivul, și ce ar aduce mai multe puncte. Nimic nu contează până nu îl accepți sau îl modifici.",
+      "conversation": "Poartă o probă orală de examen: joacă examinatorul și celălalt candidat, așa cum cere proba, replică cu replică împreună cu tine; nu ajută și nu corectează niciodată. Evaluată apoi după criteriile probei.",
+      "sceneSetup": "Pornește o scenă: inventează situația pornind de la tema lecției — cine ești, cu cine vorbești, unde și obiectivele de atins. Cerut o dată pe scenă.",
+      "scene": "Joacă scena: răspunde la fiecare replică a ta ca partener, îți corectează greșelile, dă o traducere și bifează obiectivele atinse.",
+      "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse."
+    }
+  },
+  "writing": {
+    "task": "Scrie 3–5 propoziții în {language} pe tema lecției: {topic}. Folosește cuvintele noi.",
+    "placeholder": "Textul tău…",
+    "check": "Verifică",
+    "checking": "Se verifică…",
+    "rewrite": "Corectează și verifică din nou",
+    "score": "{name}: {score, number} din {max, number}",
+    "points": "{score, number} din {max, number}",
+    "past": "Texte anterioare din această lecție",
+    "verdict": {
+      "good": "Corect",
+      "minor_errors": "Greșeli mici",
+      "major_errors": "Multe greșeli",
+      "off_task": "În afara subiectului"
+    },
+    "criteria": {
+      "task": "Sarcină",
+      "communication": "Comunicare",
+      "accuracy": "Corectitudine"
+    }
+  },
+  "mistakes": {
+    "exercises": "Exerciții lucrate",
+    "firstTry": "Corecte din prima încercare",
+    "ofTotal": "{n, number} din {total, number}",
+    "list": "Greșeli pe exerciții",
+    "items": "{count, plural, one {itemul} few {itemii} other {itemii}} {items}",
+    "fixed": "{count, plural, one {# corectat ulterior} few {# corectați ulterior} other {# corectați ulterior}}",
+    "none": "Nicio greșeală în această parcurgere.",
+    "notYet": "Încă nu ai răspuns la nimic: fă mai întâi exercițiile.",
+    "tutorIntro": "Tutorele îți analizează greșelile una câte una: ce n-a mers, regula din spate și un exemplu nou și scurt ca să verifici.",
+    "start": "Analizează greșelile mele cu tutorele",
+    "message": "Te rog, analizează cu mine greșelile din această lecție."
+  },
+  "scene": {
+    "intro": "Exersează lecția într-un scurt joc de rol: partenerul vorbește limba cursului, te corectează și îți bifează obiectivele.",
+    "start": "Începe o scenă",
+    "preparing": "Se pregătește…",
+    "partner": "Partenerul tău: {partner}",
+    "translate": "Traducere",
+    "placeholder": "Replica ta…",
+    "done": "Toate obiectivele atinse — bravo!",
+    "new": "Scenă nouă",
+    "past": "Scene anterioare din această lecție",
+    "goals": "Obiective: {met, number} din {total, number}",
+    "ended": "Scena s-a încheiat."
+  },
+  "player": {
+    "play": "Redă: {what}",
+    "pause": "Pauză",
+    "back": "Înapoi 5 secunde",
+    "speed": "Viteza de redare {rate}×",
+    "position": "Poziție",
+    "unavailable": "Audio nu a putut fi încărcat."
+  },
+  "about": {
+    "title": "Despre SprachAnker",
+    "intro": "Un profesor de limbi găzduit de tine, care funcționează local: cursuri reale într-un singur player, progresul și vocea ta pe propriul computer, orice model AI conectezi. Gratuit și open source.",
+    "version": "Versiune",
+    "licence": "Licență: MIT",
+    "source": "Codul sursă pe GitHub"
+  },
+  "progress": {
+    "resetCourse": "Resetează progresul cursului",
+    "removeCourse": "Scoate din cursurile mele",
+    "resetLesson": "Resetează progresul lecției",
+    "courseTitle": "Resetezi progresul din „{title}”?",
+    "courseBody": "Toate răspunsurile și parcurgerile lecțiilor acestui curs se șterg, împreună cu conversațiile cu tutorele, verificările de texte și scenele legate de el, precum și cardurile de cuvinte create de lecțiile lui, cu recapitulările lor. Cursul iese din „Cursurile mele”, dar rămâne instalat. Acțiunea nu poate fi anulată.",
+    "lessonTitle": "Resetezi progresul din „{title}”?",
+    "lessonBody": "Toate răspunsurile și parcurgerile acestei lecții se șterg, împreună cu conversația cu tutorele, verificările de texte și scenele ei, precum și cardurile de cuvinte create de ea, cu recapitulările lor (cuvintele din alte lecții rămân). Acțiunea nu poate fi anulată.",
+    "confirm": "Resetează",
+    "removeExam": "Scoate din examenele mele",
+    "examTitle": "Scoți „{title}” din examenele tale?",
+    "examBody": "Simulările și exersările lui se șterg cu toate răspunsurile și notele lor. Examenul rămâne descărcat."
+  },
+  "download": {
+    "queued": "În așteptare — se descarcă alt curs",
+    "pages": "{count, plural, one {# pagină citită} few {# pagini citite} other {# de pagini citite}}",
+    "preparing": "Se pregătesc lecțiile…",
+    "media": "Fișiere media: {done, number} din {total, number} · {size}",
+    "downloadSize": "Descarcă · ≈ {size}",
+    "continue": "Continuă descărcarea",
+    "sync": "Sincronizează cu sursa",
+    "notDownloaded": "Nedescărcat",
+    "incomplete": "{count, plural, =0 {Descărcare neterminată} one {# fișier lipsă} few {# fișiere lipsă} other {# de fișiere lipsă}}",
+    "openSoon": "Cursul poate fi început după ce se descarcă complet.",
+    "failed": "Descărcarea a eșuat: {error}",
+    "done": "Descărcat. {failed, plural, =0 {Toate fișierele media sunt la locul lor.} one {# fișier nu a putut fi descărcat.} few {# fișiere nu au putut fi descărcate.} other {# de fișiere nu au putut fi descărcate.}}",
+    "hint": "Descărcarea aduce din sursă ce lipsește (paginile și fișierele media stocate se păstrează) și pregătește din nou cursul; progresul tău rămâne.",
+    "log": "Jurnalul descărcării",
+    "syncShort": "Sincronizează"
+  },
+  "storage": {
+    "title": "Stocare",
+    "intro": "Cursurile, fișierele media și progresul tău stau în acest dosar, pe computerul care rulează SprachAnker. Se alege la pornirea serverului (--data sau SPRACHANKER_DATA); aplicația desktop te va lăsa să-l schimbi.",
+    "total": "Total",
+    "used": "Cursurile ocupă {size}",
+    "usedFree": "Cursurile ocupă {size} · {free} liber pe disc",
+    "seriesSize": "{name}: {size}",
+    "recordings": "Înregistrările tale",
+    "recordingsKept": "{count, plural, =0 {niciuna păstrată} one {{n} înregistrare · {size}} few {{n} înregistrări · {size}} other {{n} de înregistrări · {size}}}",
+    "deleteRecordings": "Șterge tot",
+    "deleteRecordingsTitle": "Ștergi toate înregistrările?",
+    "deleteRecordingsBody": "Înregistrările tale vor fi șterse de pe acest computer. Răspunsurile și progresul tău rămân. Acțiunea nu poate fi anulată."
+  },
+  "windowTitle": {
+    "course": "Curs",
+    "lesson": "Lecția {unit}.{lesson}",
+    "exercise": "Ex. {n}/{total}",
+    "summary": "Rezumat",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Cuvinte",
+    "grammar": "Gramatică",
+    "culture": "Cultură",
+    "writing": "Scriere",
+    "scene": "Scenă",
+    "mistakes": "Greșeli"
+  },
+  "words": {
+    "intro": "Cuvintele lecției sub formă de carduri: amintește-ți, arată răspunsul, evaluează-te. Când nu mai rămâne nimic deocamdată, continuă în Recapitulare.",
+    "learnt": "Cuvintele lecției sunt studiate deocamdată.",
+    "goOn": "{count, plural, =0 {Revin în Recapitulare când le vine rândul.} one {# card în învățare revine curând în Recapitulare.} few {# carduri în învățare revin curând în Recapitulare.} other {# de carduri în învățare revin curând în Recapitulare.}}"
+  },
+  "myWords": {
+    "search": "Caută un cuvânt sau o traducere",
+    "allDecks": "Toate pachetele",
+    "all": "Toate",
+    "state": {
+      "new": "Nou",
+      "learning": "În învățare",
+      "review": "De recapitulat",
+      "suspended": "Suspendat",
+      "marked": "Marcat"
+    },
+    "column": {
+      "word": "Cuvânt",
+      "translation": "Traducere",
+      "state": "Stare",
+      "due": "Următoarea"
+    },
+    "dueNow": "acum",
+    "dueIn": "peste {interval}",
+    "nothing": "Niciun cuvânt nu se potrivește.",
+    "sheet": "Cuvânt",
+    "toLesson": "Lecția {unit}.{lesson}",
+    "cards": "Carduri",
+    "answers": "Răspunsuri",
+    "noAnswers": "Încă fără răspuns.",
+    "face": {
+      "recognition": "Cuvânt → sens",
+      "production": "Sens → cuvânt",
+      "listening": "Ascultare"
+    },
+    "lapses": "{count, plural, one {uitat o dată} few {uitat de # ori} other {uitat de # de ori}}",
+    "suspend": "Suspendă",
+    "unsuspend": "Reactivează",
+    "fromDeck": "Din pachetul {deck}"
+  },
+  "notebook": {
+    "title": "Caiet",
+    "days": "Activitate",
+    "dayTitle": "{date}: {what}",
+    "open": "în curs",
+    "unfinished": "neterminat",
+    "passes": "Parcurgeri",
+    "noPasses": "Nicio parcurgere a acestei lecții încă.",
+    "choose": "Alege parcurgerea din {date} pentru comparare",
+    "compare": "Compară",
+    "compareHint": "Bifează două parcurgeri ca să le vezi una lângă alta.",
+    "minutes": "{count, plural, one {# min} few {# min} other {# min}}",
+    "worked": "Exerciții: {worked, number} din {total, number}",
+    "workedSome": "{count, plural, one {# exercițiu} few {# exerciții} other {# de exerciții}}",
+    "explanations": "{count, plural, one {# explicație} few {# explicații} other {# de explicații}}",
+    "writing": "{count, plural, one {# text} few {# texte} other {# de texte}}",
+    "scenes": "{count, plural, one {# scenă} few {# scene} other {# de scene}}",
+    "chats": "{count, plural, one {# conversație} few {# conversații} other {# de conversații}}",
+    "words": "{count, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}",
+    "exercises": "Exerciții",
+    "exercise": "Exercițiu",
+    "total": "Total",
+    "attempts": "{count, plural, one {# încercare} few {# încercări} other {# de încercări}}",
+    "rightAt": "corect la încercarea {n, number}",
+    "itemHistory": "Istoricul itemului",
+    "passOf": "Parcurgerea din {date}",
+    "attemptN": "Încercarea {n, number}",
+    "more": "Mai mult",
+    "alsoDone": "Ai mai făcut",
+    "wordsAdded": "Cuvinte adăugate în Recapitulare",
+    "messages": "{count, plural, one {# mesaj} few {# mesaje} other {# de mesaje}}",
+    "nothing": "nimic făcut",
+    "kind": {
+      "lesson": "lecții {count, number}",
+      "exam": "examene {count, number}",
+      "review": "carduri {count, number}",
+      "ai": "AI {count, number}"
+    },
+    "less": "Mai puțin",
+    "calendar": "Zile de studiu în ultimul an",
+    "progress": "Progres",
+    "range": {
+      "all": "Tot timpul",
+      "month": "30 de zile",
+      "week": "7 zile"
+    },
+    "tile": {
+      "activeDays": "Zile de studiu",
+      "lesson": "Răspunsuri și pași",
+      "exam": "Răspunsuri la examene",
+      "review": "Carduri răspunse",
+      "newCards": "Carduri noi",
+      "remembered": "Reținute",
+      "rememberedHint": "din cardurile în recapitulare",
+      "ai": "Exersare cu AI"
+    },
+    "examRuns": "Simulări și exersare",
+    "noExamRuns": "Nimic predat încă.",
+    "examWrong": "{count, plural, one {# întrebare greșită} few {# întrebări greșite} other {# de întrebări greșite}} data trecută",
+    "section": {
+      "review": "Recapitulare",
+      "lesson": "Lecții",
+      "exam": "Examene"
+    },
+    "none": {
+      "review": "Încă nu ai carduri: ia pachetul unui curs în Recapitulare sau studiază cuvintele unei lecții.",
+      "lesson": "Nicio lecție lucrată încă: fiecare lecție la care lucrezi apare aici, cu toate parcurgerile ei.",
+      "exam": "Nimic predat încă: simulările și exersările tale apar aici."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Cuvinte știute",
+        "wordsKnownHint": "toate cardurile cuvântului sunt în recapitulare",
+        "new": "Noi",
+        "learning": "În învățare",
+        "review": "În recapitulare",
+        "mature": "Învățate",
+        "matureHint": "fiecare față programată peste trei săptămâni sau mai mult",
+        "suspended": "Suspendate",
+        "remembered": "Reținute, 30 de zile",
+        "rememberedHint": "{count, plural, one {# răspuns} few {# răspunsuri} other {# de răspunsuri}}",
+        "dueToday": "De recapitulat azi",
+        "dueTomorrow": "De recapitulat până mâine",
+        "dueWeek": "De recapitulat într-o săptămână"
+      },
+      "lesson": {
+        "lessonsDone": "Lecții terminate",
+        "best": "Cel mai bun scor"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {# parcurgere} few {# parcurgeri} other {# de parcurgeri}}"
+    },
+    "openEntry": {
+      "review": "Deschide pachetele",
+      "exam": "Totul despre acest examen"
+    }
+  },
+  "study": {
+    "listen": "Ascultă și amintește-ți sensul",
+    "fromLesson": "lecția {unit}.{lesson}",
+    "countsTitle": "Noi {new}, în învățare {learning}, de recapitulat {review}",
+    "finished": "Felicitări! Ai terminat acest pachet deocamdată.",
+    "nextLearning": "{minutes, plural, one {Următorul card în învățare va fi gata peste # minut.} few {Următorul card în învățare va fi gata peste # minute.} other {Următorul card în învățare va fi gata peste # de minute.}}",
+    "reviewLimit": "Limita de recapitulări pe azi a fost atinsă, dar mai sunt carduri care așteaptă să fie recapitulate.",
+    "newLimit": "Mai sunt carduri noi disponibile, dar limita zilnică a fost atinsă.",
+    "buried": "Unul sau mai multe carduri au fost amânate și vor fi arătate mâine.",
+    "unbury": "Anulează amânarea",
+    "unit": {
+      "s": "s",
+      "m": "min",
+      "h": "h",
+      "d": "z",
+      "mo": "l",
+      "y": "a"
+    },
+    "flag": {
+      "red": "Roșu",
+      "orange": "Portocaliu",
+      "green": "Verde",
+      "blue": "Albastru",
+      "pink": "Roz",
+      "turquoise": "Turcoaz",
+      "purple": "Mov"
+    },
+    "marked": "Marcată",
+    "leech": "lipitoare",
+    "undo": "Anulează",
+    "undoKeys": "Anulează (U, Ctrl+Z)",
+    "showKeys": "Space sau Enter",
+    "show": "Arată răspunsul",
+    "rating": {
+      "again": "Din nou",
+      "hard": "Greu",
+      "good": "Bine",
+      "easy": "Ușor"
+    },
+    "more": "Mai mult",
+    "replay": "Redă din nou",
+    "buryCard": "Amână cardul",
+    "buryNote": "Amână nota",
+    "suspendCard": "Suspendă cardul",
+    "suspendNote": "Suspendă nota",
+    "mark": "Marchează nota",
+    "unmark": "Demarchează nota",
+    "keys": "Space sau Enter: arată răspunsul, apoi Bine · 1–4: evaluează · R: redă din nou · U: anulează",
+    "noCards": "Încă nu ai carduri: ele vin din pasul „Cuvintele lecției” al lecțiilor.",
+    "deck": "Pachet",
+    "count": {
+      "new": "Noi",
+      "learning": "Înv.",
+      "review": "Recap."
+    },
+    "due": "{count, plural, one {# card} few {# carduri} other {# de carduri}} de studiat",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, one {răspuns rămas} few {răspunsuri rămase} other {de răspunsuri rămase}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Răspunsuri rămase dacă fiecare e Bine: un card nou trece prin doi pași de învățare, un card în învățare prin pașii rămași, o recapitulare ia un răspuns. Din nou adaugă pași înapoi.",
+    "asks": {
+      "recognition": "Ce înseamnă?",
+      "production": "În {in}?",
+      "in": {
+        "de": "germană",
+        "en": "engleză",
+        "ru": "rusă"
+      }
+    },
+    "deckLink": {
+      "audio": "Citește pachetul cu voce tare",
+      "examples": "Creează exemplele pachetului",
+      "both": "Citește pachetul cu voce tare, creează exemple"
+    }
+  },
+  "profiles": {
+    "who": "Cine învață?",
+    "welcome": "Bine ai venit în SprachAnker",
+    "firstHint": "Creează-ți profilul ca să începi: câțiva pași scurți.",
+    "unnamed": "Încă fără nume",
+    "new": "Profil nou",
+    "previous": "Profilurile anterioare",
+    "next": "Alte profiluri",
+    "page": "{n, number} din {total, number}"
+  },
+  "onboarding": {
+    "progress": "Pasul {n} din {total}",
+    "back": "Înapoi",
+    "next": "Mai departe",
+    "finish": "Alege un curs",
+    "profile": {
+      "title": "Bine ai venit",
+      "text": "SprachAnker adună cursuri reale de limbi străine într-un singur player, îți verifică răspunsurile, îți repetă cuvintele prin repetiție spațiată și poate aduce un tutore AI. Totul rămâne pe acest computer.",
+      "sources": "Cursurile se descarcă direct de pe site-urile editorilor lor (Deutsche Welle și alții), pentru uzul tău personal. Respectă condițiile lor; SprachAnker nu este afiliat cu ei.",
+      "experimental": "Cursurile și examenele aflate încă în probă rămân ascunse până le activezi în Setări → General → Experimental.",
+      "name": "Cum să-ți spunem?"
+    },
+    "assistant": {
+      "title": "Asistent AI",
+      "text": "Un asistent explică greșelile, te ajută ca tutore în lecții, îți verifică textele și joacă scene. Alege unul acum sau mai târziu în Setări — aplicația funcționează și fără."
+    },
+    "tour": {
+      "title": "Unde găsești ce"
+    },
+    "speech": {
+      "title": "Vorbire",
+      "text": "Spune singur frazele din cursuri și ascultă orice text citit cu voce tare: testează-ți microfonul, descarcă recunoașterea vorbirii (o singură dată) ca aplicația să audă ce ai spus și alege o voce pentru fiecare limbă. Totul rămâne pe acest computer; totul se poate schimba mai târziu în Setări → Vorbire."
+    },
+    "cancel": "Anulează"
+  },
+  "tour": {
+    "courses": "Cursurile tale (unde ai rămas), cele descărcate și toate cursurile pe care le poți descărca; orice listă se poate filtra după o pereche de limbi.",
+    "review": "Cuvintele tale în repetiție spațiată: câteva minute pe zi.",
+    "notebook": "Fiecare parcurgere a fiecărei lecții, răspunsurile și greșelile tale.",
+    "settings": "Profilul tău, recapitularea, vorbirea, asistentul AI și aplicația.",
+    "exams": "Examene pentru care să te pregătești, cum ar fi Leben in Deutschland: simulări ca examenul real, exersare și tot catalogul cu răspunsurile lui."
+  },
+  "profile": {
+    "who": "Nume și culoare",
+    "devices": "Dispozitive conectate",
+    "thisDevice": "acest dispozitiv",
+    "lastSeen": "folosit ultima dată {date}",
+    "signOutDevice": "Deconectează",
+    "switch": "Schimbă profilul",
+    "open": "Profil",
+    "delete": "Șterge profilul…",
+    "deleteTitle": "Ștergi profilul „{name}”?",
+    "deleteBody": "Progresul, cuvintele și cardurile, înregistrările, conversațiile cu AI-ul și dispozitivele conectate la el se șterg definitiv. Celelalte profiluri și cursurile rămân.",
+    "deleteConfirm": "Șterge definitiv",
+    "name": "Nume sau poreclă",
+    "colour": "Culoare",
+    "colours": {
+      "amber": "Chihlimbar",
+      "teal": "Petrol",
+      "rose": "Roz",
+      "violet": "Violet",
+      "sky": "Bleu",
+      "lime": "Verde crud"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Studiu",
+      "decks": "Pachete",
+      "words": "Cuvintele mele"
+    },
+    "studying": "Studiezi: {deck}",
+    "more": "{count, plural, one {încă # card nou azi} few {încă # carduri noi azi} other {încă # de carduri noi azi}}",
+    "leave": "Părăsește pachetul…",
+    "offers": "Pachete de luat",
+    "offersHint": "Cuvintele fiecăruia dintre cursurile tale și ale fiecărui pachet importat aici formează un pachet: luat întreg, le adaugă drept carduri noi, în ordinea lui — în limita zilnică sau mai multe cu „încă … azi”. Un cuvânt pentru care ai deja un card îl păstrează.",
+    "words": "{words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}} · {mine, number} deja ale tale",
+    "take": "Ia pachetul",
+    "takeRest": "Adaugă celelalte {count, number}",
+    "study": "Studiază",
+    "leaveTitle": "Părăsești pachetul {deck}?",
+    "leaveBody": "Cardurile lui dispar, cu tot cu progres. Cuvintele pe care le are și alt pachet al tău trec acolo, cu progres cu tot.",
+    "moreShort": "{count, plural, one {+# nou} few {+# noi} other {+# noi}}",
+    "import": {
+      "button": "Importă un fișier de pachet (.apkg)",
+      "title": "Importă un pachet",
+      "hint": "Cuvintele lui devin un pachet pe care orice profil de pe acest computer îl poate lua, ca pe al unui curs; audio vine odată cu ele.",
+      "name": "Nume",
+      "lang": "Limba cuvintelor",
+      "translationLang": "Limba traducerilor",
+      "words": "{words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}} · {audio, plural, =0 {fără audio} one {# cu audio} few {# cu audio} other {# cu audio}} · {examples, plural, =0 {fără exemple} one {# cu exemple} few {# cu exemple} other {# cu exemple}}",
+      "submit": "Importă",
+      "updates": "Acest fișier actualizează pachetul {deck} de aici: cuvintele lui devin cele din fișier, iar cardurile create din ele le urmează. În alte limbi este un pachet separat.",
+      "left": "{count, plural, one {# notă fără cuvânt este omisă.} few {# note fără cuvânt sunt omise.} other {# de note fără cuvânt sunt omise.}}",
+      "unusable": "{count, plural, one {# notă al cărei cuvânt nu poate fi citit este omisă.} few {# note ale căror cuvinte nu pot fi citite sunt omise.} other {# de note ale căror cuvinte nu pot fi citite sunt omise.}}",
+      "done": "{deck} importat: {words, plural, one {# cuvânt} few {# cuvinte} other {# de cuvinte}}."
+    },
+    "remove": "Șterge pachetul",
+    "removeTitle": "Ștergi pachetul {deck}?",
+    "removeBody": "Pachetul, cuvintele și audio-ul lui vor fi șterse de pe acest computer pentru toate profilurile. Acțiunea nu poate fi anulată.",
+    "audio": {
+      "missing": "{count, plural, one {# cuvânt fără audio} few {# cuvinte fără audio} other {# de cuvinte fără audio}}",
+      "generate": "Generează audio",
+      "reading": "Se citește {done, number} din {total, number}…",
+      "stop": "Oprește",
+      "all": "Toate cuvintele au audio",
+      "install": "Ca să-l generezi, instalează o voce pentru {language} în Setări → Vorbire",
+      "failed": "{count, plural, one {# cuvânt nu a putut fi citit cu voce tare} few {# cuvinte nu au putut fi citite cu voce tare} other {# de cuvinte nu au putut fi citite cu voce tare}}",
+      "voice": "Citit de {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Alege o voce"
+    },
+    "left": "mai durează circa {time}",
+    "why": "Motiv: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# cuvânt fără exemple} few {# cuvinte fără exemple} other {# de cuvinte fără exemple}}",
+      "make": "Creează exemple",
+      "writing": "Se scriu exemplele {done, number} din {total, number}…",
+      "all": "Toate cuvintele au exemple",
+      "failed": "{count, plural, one {# cuvânt nu a primit exemple} few {# cuvinte nu au primit exemple} other {# de cuvinte nu au primit exemple}}",
+      "setUp": "Ca să creezi exemple, configurează asistentul AI în Setări"
+    },
+    "removeStudied": "{count, plural, one {Profilul {profiles} studiază acest pachet.} few {Profilurile {profiles} studiază acest pachet.} other {Profilurile {profiles} studiază acest pachet.}} Poate fi șters după ce toate profilurile l-au părăsit: Recapitulare → Pachete → Părăsește pachetul…."
+  },
+  "guide": {
+    "open": "Cum funcționează",
+    "title": "Cum funcționează recapitularea",
+    "curveAlt": "Trei curbe ale uitării, fiecare mai plată decât cea dinainte",
+    "days": "zile",
+    "curveCaption": "Memoria se estompează dacă nu e folosită: fiecare recapitulare la limita uitării face curba mai plată, așa că următoarea poate aștepta mai mult.",
+    "method": {
+      "title": "Repetiție spațiată",
+      "text": "Fiecare card revine chiar înainte să-l uiți. Intervalele cresc cu fiecare răspuns bun: minute, apoi zile, săptămâni, luni. Ideea pornește de la curba uitării a lui Ebbinghaus (1885)."
+    },
+    "recall": {
+      "title": "Întâi amintește-ți, apoi uită-te",
+      "text": "Încearcă să-ți amintești răspunsul înainte să-l afișezi. Efortul de a-ți aminti este cel care întărește memoria — recitirea răspunsului ajută mult mai puțin. Apoi evaluează-te sincer."
+    },
+    "buttons": {
+      "title": "Cele patru butoane",
+      "again": {
+        "name": "Din nou",
+        "text": "nu ți-ai amintit sau ai greșit: cardul revine peste un minut"
+      },
+      "hard": {
+        "name": "Greu",
+        "text": "ți-ai amintit cu efort: un interval mai scurt"
+      },
+      "good": {
+        "name": "Bine",
+        "text": "ți-ai amintit: alegerea obișnuită (Space sau Enter)"
+      },
+      "easy": {
+        "name": "Ușor",
+        "text": "prea ușor: revine mult mai târziu"
+      }
+    },
+    "counts": {
+      "title": "Cele trei numere",
+      "text": "Cardurile noi de învățat azi, cardurile în învățare (care revin în câteva minute) și cardurile de recapitulat. Cel subliniat arată de unde vine cardul de pe ecran. „Răspunsuri rămase” estimează câte răspunsuri încheie sesiunea dacă fiecare e Bine."
+    },
+    "faces": {
+      "title": "Cardurile unui cuvânt",
+      "recognition": {
+        "name": "Cardul 1",
+        "text": "cuvântul → ce înseamnă (înțelegere)"
+      },
+      "production": {
+        "name": "Cardul 2",
+        "text": "sensul → cuvântul (vorbire); vine după cardul 1"
+      },
+      "listening": {
+        "name": "Cardul 3",
+        "text": "cuvântul auzit → ce înseamnă (ascultare)"
+      }
+    },
+    "more": {
+      "title": "Sub „…”",
+      "replay": {
+        "name": "Redă din nou (R)",
+        "text": "ascultă cuvântul încă o dată"
+      },
+      "bury": {
+        "name": "Amână (- sau =)",
+        "text": "nu azi: cardul sau tot cuvântul revine mâine"
+      },
+      "suspend": {
+        "name": "Suspendă (@ sau !)",
+        "text": "scos din recapitulare până îl readuci — un cuvânt pe care îl știi sau de care nu ai nevoie"
+      },
+      "flag": {
+        "name": "Steaguri (Ctrl+1–7)",
+        "text": "marcaje colorate ca să găsești cardurile mai târziu în Cuvintele mele"
+      },
+      "mark": {
+        "name": "Marchează (*)",
+        "text": "o stea pe cuvânt, ca să revii la el"
+      }
+    },
+    "keys": {
+      "title": "Taste",
+      "text": "Space sau Enter arată răspunsul, apoi evaluează Bine; 1–4 evaluează; U sau Ctrl+Z anulează ultimul răspuns; R redă din nou."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Programarea folosește FSRS, un model deschis de repetiție spațiată: estimează cât de stabilă e fiecare amintire și când ai uita-o, țintind rata de reținere dorită (90% implicit). Limitele, reținerea și tipurile de carduri sunt în Setări."
+    },
+    "schedule": {
+      "title": "Pașii și ziua",
+      "steps": "Un card nou evaluat Bine revine după 10 minute (după Din nou, într-un minut), apoi după câteva zile; unul uitat revine după 10 minute, iar intervalul lui crește din nou.",
+      "day": "O zi nouă începe la {time}: recapitulările dintre miezul nopții și ora aceea contează pentru ziua dinainte.",
+      "limit": "Cardurile noi intră în numărul maxim de recapitulări: odată atins, în ziua aceea nu se mai arată carduri noi."
+    }
+  },
+  "reviewSettings": {
+    "intro": "Repetiția spațiată a cardurilor tale: un cuvânt revine când ești pe punctul de a-l uita. Valorile implicite se potrivesc majorității celor care învață.",
+    "limits": "Limite zilnice",
+    "newPerDay": "Carduri noi pe zi",
+    "reviewsPerDay": "Recapitulări pe zi, maximum",
+    "limitsHint": "Un cuvânt cu două tipuri de carduri înseamnă două carduri noi. Fiecare card nou aduce circa 5–10 recapitulări în prima lună.",
+    "retention": "Reținerea dorită",
+    "retentionHint": "Cât de probabil îți amintești încă un card când revine. Mai mare înseamnă mai multe recapitulări; 90% implicit.",
+    "faces": "Tipurile de carduri ale unui cuvânt nou",
+    "facesHint": "Ce carduri primește un cuvânt nou. Cuvintele care au deja carduri le păstrează."
+  },
+  "speech": {
+    "record": "Înregistrează-te",
+    "stop": "Oprește înregistrarea",
+    "showText": "Arată textul",
+    "answerHeard": "Ascultă, apoi spune cu voce tare, cum cere sarcina.",
+    "answerFree": "Spune cu voce tare, cum cere sarcina.",
+    "answerLine": "Răspunsul tău",
+    "mine": "Eu",
+    "mineFor": "Eu · {time}",
+    "recordedNotKept": "Înregistrat (nepăstrat)",
+    "listenFirst": "Ascultă mai întâi înregistrarea.",
+    "recording": "Se înregistrează… atinge din nou ca să oprești.",
+    "saving": "Se salvează…",
+    "notSaved": "Înregistrarea nu a putut fi salvată; contează oricum.",
+    "again": "Ascultă-le pe amândouă. Înregistrează-te din nou ca s-o înlocuiești.",
+    "howTo": "Atinge microfonul, vorbește, atinge din nou.",
+    "mic": {
+      "insecure": "Microfonul funcționează doar la o adresă securizată (https), cum e cea pe care Tailscale o dă acestui computer.",
+      "unsupported": "Acest browser nu poate înregistra audio.",
+      "denied": "Accesul la microfon a fost refuzat. Permite-l în setările site-ului din browser.",
+      "failed": "Microfonul nu a putut fi pornit."
+    },
+    "settings": {
+      "mic": "Microfon",
+      "device": "Microfonul folosit",
+      "defaultDevice": "Cel implicit al sistemului",
+      "unnamedDevice": "Microfon",
+      "testing": "Spune ceva…",
+      "testHint": "Test: trei secunde, apoi te asculți. Ales pe acest dispozitiv.",
+      "listen": "Ascultă",
+      "sampleFor": "Text de ascultat în {language}",
+      "otherSample": "Altă frază",
+      "recognition": "Recunoaștere",
+      "recognitionHint": "Vorbirea ta este recunoscută pe acest computer (Whisper): ce ai spus se compară cu fraza. Aude cuvinte, nu sunete, și e îngăduitoare. Nimic nu părăsește computerul.",
+      "noEngine": "Această versiune nu are motor de recunoaștere.",
+      "recognitionOn": "Recunoaște-mi vorbirea",
+      "inUse": "În uz",
+      "downloadFailed": "descărcarea a eșuat",
+      "use": "Folosește",
+      "removeModel": "Elimină modelul",
+      "download": "Descarcă",
+      "read": "Citire cu voce tare",
+      "readHint": "O voce citește textele într-o limbă: replicile scenelor, exemplul unui cuvânt și cuvintele fără înregistrare. Fiecare limbă are vocea ei.",
+      "engine": {
+        "device": "Vocile acestui dispozitiv",
+        "deviceLine": "{count, plural, one {# voce} few {# voci} other {# de voci}}, nimic de instalat",
+        "deviceNone": "Acest browser nu are voci cu care să citească.",
+        "piper": "Piper pe acest computer",
+        "piperMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
+        "piperLine": "{count, plural, =0 {încă nicio voce: descarcă una mai jos} one {# voce descărcată} few {# voci descărcate} other {# de voci descărcate}}",
+        "qwen": "Qwen3-TTS pe acest computer",
+        "qwenMissing": "Nu e în această versiune: aplicația a fost compilată fără motoarele de vorbire",
+        "qwenReady": "Gata: un model descărcat",
+        "qwenNoModel": "Încă niciun model: descarcă unul mai jos"
+      },
+      "voiceFor": "Voce pentru {language}",
+      "voiceAuto": "Automat — {name}",
+      "noVoice": "Acest dispozitiv nu are nicio voce pentru {language}.",
+      "betterVoices": "Pe un Mac, voci mai bune (Premium, Îmbunătățită) se descarcă în Configurări sistem → Accesibilitate → Conținut vorbit → Voce sistem → Gestionează vocile.",
+      "readRate": "Viteză: {rate}×",
+      "readRateLabel": "Viteza de citire",
+      "piperNone": "Încă nicio voce pentru {language}: descarcă una mai jos.",
+      "piperNoLanguage": "Piper nu are nicio voce pentru {language}: o citesc vocile dispozitivului.",
+      "piperHint": "Vocile Piper au circa 60–120 MB fiecare și rămân pe acest computer; o limbă fără voce Piper este citită de vocile dispozitivului.",
+      "removeVoice": "Elimină vocea {voice}",
+      "allVoices": "Toate vocile ({count, number})",
+      "quality": {
+        "x_low": "calitate minimă",
+        "low": "calitate scăzută",
+        "medium": "calitate medie",
+        "high": "calitate înaltă"
+      },
+      "qwenModel": {
+        "small": "Model mic (0.6B): mai rapid",
+        "large": "Model mare (1.7B): mai natural, mai lent"
+      },
+      "qwenHint": "O voce neuronală care citește 10 limbi (germană, engleză, rusă, franceză, spaniolă, italiană, portugheză, chineză, japoneză, coreeană) cu nouă vorbitori. Cât rulează, ocupă circa 3 GB de memorie (mai mult pentru modelul mare) și se oprește după 10 minute fără citire; prima citire după aceea așteaptă circa 20 s cât se încarcă. Limbile pe care nu le vorbește sunt citite de vocile dispozitivului.",
+      "qwenNoLanguage": "Qwen3-TTS nu vorbește {language}: o citesc vocile dispozitivului.",
+      "howMic": "Acolo unde un răspuns se spune cu voce tare (proba orală a unui examen), un microfon: atinge ca să începi înregistrarea, atinge din nou ca s-o oprești. Unde sarcina e scrisă, nu există.",
+      "howPhrase": "Fraza de repetat e ascunsă până la prima ta încercare; o poți afișa și mai devreme.",
+      "howRecordings": "Înregistrările tale se păstrează pe acest computer ca să le reasculți în Caiet; le ștergi în General → Stocare.",
+      "how": "Cum funcționează"
+    },
+    "listening": "Se ascultă…",
+    "notHeard": "Nu s-a putut recunoaște nimic; înregistrarea contează oricum.",
+    "heard": "Auzit:",
+    "heardNothing": "nimic",
+    "verdict": {
+      "correct": "Ai spus-o",
+      "partial": "Aproape: lipsesc câteva cuvinte",
+      "wrong": "Încearcă din nou: ascultă și spune încă o dată"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precis (recomandat)",
+      "small-q5_1": "Whisper small — mai rapid, mai puțin precis"
+    },
+    "sayIn": "Spune în {language}",
+    "notHeardShort": "Nu s-a putut recunoaște. Încearcă din nou.",
+    "answerSample": "Model",
+    "aiChecking": "AI-ul îți verifică răspunsul…",
+    "needsRecognition": "Ca să spui o frază ai nevoie de recunoașterea vorbirii: activeaz-o în Setări → Vorbire.",
+    "languageUnknown": "Limba acestui curs nu e cunoscută, așa că ce spui nu poate fi auzit.",
+    "read": {
+      "listen": "Citește cu voce tare: {what}",
+      "stop": "Oprește citirea"
+    },
+    "aiCheck": "Verifică cu AI"
+  },
+  "error": {
+    "answer_does_not_fit": "Răspunsul nu se potrivește cu acest exercițiu. Reîncarcă lecția.",
+    "card_changed": "Acest card s-a schimbat pe alt dispozitiv. E afișat din nou.",
+    "downloads_unavailable": "Cursurile nu pot fi descărcate aici.",
+    "empty_recording": "Înregistrarea e goală. Încearcă din nou.",
+    "event_id_taken": "Acest răspuns a fost deja înregistrat altfel. Reîncarcă pagina.",
+    "event_of_another_run": "Această înregistrare aparține altei parcurgeri. Reîncarcă lecția.",
+    "exam_rating_busy": "Acest răspuns este în curs de notare. Așteaptă.",
+    "exam_conversation_busy": "Partenerul răspunde. Așteaptă.",
+    "exam_part_done": "Această probă s-a încheiat.",
+    "invalid_event": "Aplicația a trimis o înregistrare pe care serverul nu a acceptat-o. Reîncarcă lecția.",
+    "invalid_request": "Aplicația a trimis ceva ce serverul nu a acceptat. Reîncarcă pagina.",
+    "request_too_large": "Această cerere este prea mare.",
+    "invalid_setting": "Această valoare nu se potrivește setării.",
+    "lesson_not_in_series": "Această lecție nu face parte din curs. Reîncarcă pagina.",
+    "llm_bad_response": "Serverul a returnat o eroare.",
+    "llm_cli_missing": "Asistentul în linia de comandă nu este instalat pe acest computer.",
+    "llm_invalid_output": "Modelul nu a putut da un răspuns utilizabil. Încearcă din nou sau alege un model mai mare în Setări → Asistent AI.",
+    "llm_lmstudio_failed": "Serverul LM Studio nu a pornit. Deschide LM Studio și pornește-l de acolo.",
+    "llm_lmstudio_missing": "LM Studio nu este instalat pe acest computer.",
+    "llm_lmstudio_remote": "LM Studio rulează pe alt computer: pornește-i serverul acolo.",
+    "llm_model_not_found": "Modelul nu a fost găsit pe server.",
+    "llm_no_endpoint": "Introdu adresa serverului.",
+    "llm_no_key": "Introdu cheia API.",
+    "llm_not_configured": "Alege un model în Setări → Asistent AI.",
+    "llm_rate_limited": "Limita furnizorului a fost atinsă deocamdată (nivelurile gratuite limitează cererile pe minut și pe zi). Încearcă mai târziu sau alege alt model în Setări → Asistent AI.",
+    "llm_timeout": "Modelul a întârziat prea mult cu răspunsul.",
+    "llm_unauthorized": "Cheia API nu a fost acceptată.",
+    "llm_unreachable": "Serverul nu răspunde. Verifică adresa.",
+    "missing_client_header": "Cererea nu a venit din aplicație. Reîncarcă pagina.",
+    "name_required": "Introdu un nume.",
+    "no_active_scene": "Această scenă s-a încheiat. Începe una nouă.",
+    "no_device": "Acest dispozitiv nu mai este conectat.",
+    "no_lesson_run": "Începe mai întâi lecția: o verificare se păstrează împreună cu parcurgerea ei.",
+    "no_session": "Acest dispozitiv a fost deconectat. Alege-ți din nou profilul.",
+    "no_such_attempt": "Acest răspuns nu mai este în parcurgerea lecției. Reîncarcă lecția.",
+    "no_such_card": "Acest card nu mai există.",
+    "no_such_chat": "Această conversație nu mai există.",
+    "no_such_item": "Acest exercițiu s-a schimbat. Reîncarcă lecția.",
+    "no_such_model": "Acest model nu este oferit.",
+    "no_such_profile": "Acest profil nu mai există.",
+    "no_such_recording": "Această înregistrare nu mai există.",
+    "no_such_run": "Această parcurgere a lecției nu mai există (progresul ei a fost resetat). Reîncarcă lecția.",
+    "not_found": "Negăsit. Reîncarcă pagina.",
+    "not_installed": "Acest curs nu este (sau nu mai este) instalat.",
+    "not_offered": "Acest curs nu este (sau nu mai este) oferit.",
+    "nothing_to_undo": "Nimic de anulat.",
+    "recording_too_large": "Înregistrarea este prea lungă.",
+    "registration_closed": "Pe acest server nu se pot crea profiluri noi.",
+    "run_incomplete": "Lecția nu este încă terminată.",
+    "run_not_active": "Această parcurgere a lecției s-a încheiat. Reîncarcă lecția.",
+    "run_without_edition": "Această parcurgere nu are versiune lingvistică. Începe lecția din nou.",
+    "scene_busy": "Scena încă răspunde. Așteaptă.",
+    "server_error": "Ceva n-a mers bine pe server.",
+    "speaking_busy": "Acest răspuns este în curs de verificare. Așteaptă.",
+    "speech_engine_failed": "Recunoașterea vorbirii nu a răspuns. Încearcă din nou.",
+    "speech_unavailable": "Recunoașterea vorbirii nu este configurată. Vezi Setări → Vorbire.",
+    "unknown_host": "Serverul nu cunoaște această adresă. Deschide-l la adresa pe care o afișează.",
+    "unknown_setting": "Această setare nu există (sau nu mai există).",
+    "unsupported_audio": "Acest browser înregistrează într-un format pe care aplicația nu îl poate păstra.",
+    "writing_busy": "Un text din această lecție este în curs de verificare. Așteaptă.",
+    "other": "Ceva n-a mers bine: {message}",
+    "exam_needs_setting": "Alege mai întâi landul tău: examenul pune întrebări despre el.",
+    "exam_time_over": "Timpul acestei simulări a expirat: a fost predată așa cum era.",
+    "exam_test_running": "O simulare este în desfășurare: pred-o mai întâi.",
+    "no_such_deck": "Acest pachet nu este (sau nu mai este) aici.",
+    "not_a_deck": "Acest fișier nu este un fișier de pachet (.apkg) care poate fi citit.",
+    "deck_without_words": "Acest pachet nu are cuvinte de învățat.",
+    "deck_too_large": "Acest fișier de pachet este prea mare (maximum 512 MB).",
+    "deck_in_use": "Un profil studiază acest pachet: poate fi șters când nu-l mai studiază nimeni.",
+    "deck_upload_gone": "Fișierul de pachet încărcat nu mai este aici: alege-l din nou.",
+    "deck_unpacked_too_large": "Dezarhivat, acest fișier de pachet e prea mare ca să fie citit dintr-odată.",
+    "deck_same_languages": "Cuvintele și traducerile lor trebuie să fie în două limbi diferite.",
+    "examples_without_word": "Propozițiile modelului nu au folosit cuvântul."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Examenele mele",
+      "downloaded": "Descărcate",
+      "available": "Disponibile"
+    },
+    "noneStarted": "Nu ai început încă niciun examen.",
+    "noneDownloaded": "Niciun examen descărcat încă.",
+    "allDownloaded": "Toate examenele oferite sunt descărcate.",
+    "noneMatch": "Nicio întrebare nu se potrivește.",
+    "questions": "{count, plural, one {# întrebare} few {# întrebări} other {# de întrebări}}",
+    "lastPoints": "ultima: {points, number} din {max, number}",
+    "ready": "Știi {percent} din întrebări",
+    "lastPassed": "Ultima simulare ({date}): promovată",
+    "lastFailed": "Ultima simulare ({date}): nepromovată",
+    "continueTest": "Continuă examenul",
+    "mode": {
+      "test": "Simulare",
+      "testText": "{count, plural, one {# întrebare} few {# întrebări} other {# de întrebări}} în {minutes, plural, one {# minut} few {# minute} other {# de minute}}, ca la testul real; răspunsurile se verifică atunci când îl predai.",
+      "practice": "Exersare",
+      "practiceText": "Întrebare cu întrebare, fiecare răspuns verificat imediat: întâi cele greșite, apoi cele pe care nu le-ai văzut.",
+      "catalog": "Catalog",
+      "catalogText": "{count, plural, one {# întrebare, cu răspunsul ei.} few {Toate cele # întrebări, cu răspunsurile lor.} other {Toate cele # de întrebări, cu răspunsurile lor.}}"
+    },
+    "begin": "Începe",
+    "practise": "Exersează",
+    "openCatalog": "Deschide",
+    "known": "Știi {known, number} din {total, plural, one {# întrebare} few {# întrebări} other {# de întrebări}}",
+    "needsState": "Alege-ți landul: testul pune trei întrebări despre el.",
+    "needsStateCatalog": "Alege-ți landul pe pagina examenului ca să vezi și întrebările lui.",
+    "mapTitle": "Întrebări",
+    "mapKnown": "știute",
+    "mapWrong": "greșite data trecută",
+    "mapUnseen": "nevăzute",
+    "mapSummary": "Întrebări: {total, number}; știute {known, number}, greșite data trecută {wrong, number}",
+    "points": "{points, number} din {max, number}",
+    "passed": "Promovat",
+    "failed": "Nepromovat",
+    "state": "Land",
+    "chooseState": "Alege un land",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bavaria",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hessa",
+      "mv": "Mecklenburg-Pomerania Inferioară",
+      "ni": "Saxonia Inferioară",
+      "nw": "Renania de Nord-Westfalia",
+      "rp": "Renania-Palatinat",
+      "sl": "Saarland",
+      "sn": "Saxonia",
+      "st": "Saxonia-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Turingia"
+    },
+    "handIn": "Predă",
+    "endPractice": "Încheie exersarea",
+    "handInTitle": "Predai examenul?",
+    "handInUnanswered": "{count, plural, one {# întrebare nu are încă răspuns} few {# întrebări nu au încă răspuns} other {# de întrebări nu au încă răspuns}}: întrebările fără răspuns contează ca greșite.",
+    "goOn": "Continuă",
+    "leave": "Înapoi la examen",
+    "answered": "Răspunse: {done, number} din {total, number}",
+    "question": "Întrebarea {n, number} din {total, number}",
+    "practiceScore": "{points, number} din {count, plural, one {# răspuns} few {# răspunsuri} other {# de răspunsuri}} corecte",
+    "timeUp": "Timpul a expirat: contează răspunsurile date până atunci.",
+    "needed": "necesar: {points, number} din {max, number}",
+    "practiseMistakes": "Exersează greșelile",
+    "tryAgain": "Simulare nouă",
+    "toExam": "La examen",
+    "mistakes": "{count, plural, =0 {Nicio greșeală} one {# greșeală} few {# greșeli} other {# de greșeli}}",
+    "allAnswers": "Toate răspunsurile",
+    "onlyMistakes": "Doar greșelile",
+    "showAll": "Arată toate răspunsurile",
+    "notAnswered": "fără răspuns",
+    "noMistakes": "Totul corect.",
+    "search": "Caută în întrebări",
+    "playsLeft": "Audieri rămase: {left, number} din {plays, number}",
+    "plays": "{count, plural, one {Asculți înregistrarea o singură dată.} few {Asculți înregistrarea de # ori.} other {Asculți înregistrarea de # de ori.}}",
+    "example": "Exemplu",
+    "wholeExam": "Tot examenul",
+    "next": "Mai departe",
+    "previous": "Înapoi",
+    "questionsGrid": "Întrebări",
+    "goTo": "Întrebarea {n, number}",
+    "practiceTally": "corecte {right, number} · greșite {wrong, number} · {total, plural, one {# întrebare} few {# întrebări} other {# de întrebări}}",
+    "lastResult": "Ultima simulare, {date}: {points, number} din {max, number}",
+    "noResultYet": "Nicio simulare dată încă",
+    "inNotebook": "Totul în Caiet",
+    "sources": {
+      "title": "Surse și verificări",
+      "allPassed": "toate verificările trecute",
+      "someFailed": "o verificare nu a trecut",
+      "statement": "Fiecare întrebare, imagine, înregistrare și răspuns de aici a fost citit din documentele de mai jos de importatorul de pe acest computer — nimic scris de mână sau de un model — și verificat așa cum se arată. O simulare pune aceleași sarcini și le punctează după aceleași reguli ca testul model oficial; arată cât de pregătit ești, nu ce va da examenul real.",
+      "documents": "Citit din",
+      "copy": "copie păstrată, SHA-256 {hash}…, citită la {date}",
+      "read": "citit la {date}",
+      "checks": "Verificări",
+      "from": "Sursa"
+    },
+    "check": {
+      "questions-complete": "Întrebări citite, din cele pe care le are sursa",
+      "options-agree": "Variante identice cuvânt cu cuvânt în ambele surse",
+      "answers-marked-twice": "Răspunsuri marcate la fel de două ori în sursa lor",
+      "answers-matched": "Răspunsuri din paginile de soluții potrivite cu o variantă",
+      "numbers-agree": "Numerele întrebărilor așa cum le dau paginile",
+      "recordings-placed": "Înregistrări puse la întrebările lor",
+      "media-kept": "Imagini și înregistrări păstrate",
+      "criteria-read": "Criteriile de scris și vorbit citite cu punctajul fiecărui nivel"
+    },
+    "rating": {
+      "title": "Notează-ți răspunsurile",
+      "pending": "{count, plural, one {# răspuns nu e încă notat: contează 0 până îl notezi.} few {# răspunsuri nu sunt încă notate: contează 0 până le notezi.} other {# de răspunsuri nu sunt încă notate: contează 0 până le notezi.}}",
+      "hint": "Notat cum o fac evaluatorii examenului; schimbă o notă oricând vrei.",
+      "voided": "sarcina nu a fost îndeplinită: 0 pentru tot răspunsul",
+      "unrated": "0 până când „{criterion}” e notat: el decide dacă răspunsul contează",
+      "save": "Salvează nota",
+      "change": "Schimbă nota",
+      "propose": "Propune o notă (AI)",
+      "proposing": "Asistentul notează…",
+      "proposed": "Propusă de asistentul AI ({model}): accept-o așa cum e sau schimb-o."
+    },
+    "conversation": {
+      "you": "Eu",
+      "partner": "Partener",
+      "examiner": "Examinator",
+      "intro": "Asistentul joacă examinatorul și partenerul tău. Răspunde cu voce tare la microfon (sau scrie); conversația este răspunsul tău.",
+      "start": "Începe proba",
+      "over": "Proba s-a încheiat.",
+      "placeholder": "Răspunsul tău…",
+      "end": "Încheie proba"
+    },
+    "choose": "Alege un examen"
+  },
+  "experimental": {
+    "disclaimerTitle": "Un experiment, nu o metodă de pregătire",
+    "disclaimer": "Ce activezi aici e în probă: conținutul poate fi incomplet sau citit greșit, iar punctajul poate diferi de cel real. Nu te baza pe el ca să te pregătești pentru un curs sau un examen.",
+    "section": {
+      "courses": "Cursuri",
+      "exams": "Examene"
+    },
+    "sectionHint": {
+      "courses": "Mai multe cursuri de descărcat, afișate în Cursuri",
+      "exams": "Mai multe examene de descărcat, afișate în Examene"
+    },
+    "none": "Nimic experimental aici.",
+    "more": "{count, plural, one {încă #} few {încă #} other {încă #}}"
+  },
+  "examples": {
+    "newWords": "Nou aici:",
+    "by": "Exemple de la AI · {model}"
+  }
+}
