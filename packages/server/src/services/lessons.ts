@@ -134,7 +134,8 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
   };
 
   /**
-   * The lessons' standing (schema `stats.ts`): how many are done, and each lesson worked on (a run
+   * The lessons' standing (schema `stats.ts`): how many lessons and installed courses are done (each
+   * with when it was first done: the figure over time), and each lesson worked on (a run
    * with work in it; a lesson only opened is none) under its course — its passes, its best score, a
    * pass open, its last work. Courses by their last work; a course's lessons in its order (its index:
    * a key kept through a reorder says nothing of where the lesson is now), one no longer in it last.
@@ -183,9 +184,22 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
         .sort((a, b) => place(a.key) - place(b.key) || a.key.localeCompare(b.key));
       return { lastAt: Math.max(...own.map((l) => l.lastAt)), own };
     });
+    const when = (at: Array<number | undefined>) =>
+      at.flatMap((t) => (t === undefined ? [] : [t])).sort((a, b) => a - b);
+    const lessonsAt = when(
+      Object.values(byLesson).map((p) => (lessonDone(p) ? p.doneAt : undefined)),
+    );
+    const coursesAt = when(
+      installed
+        .filter((c) => c.kind === "course")
+        .map((c) => courseProgress(c.lessons, byLesson).doneAt),
+    );
     return {
       module: "lesson",
-      figures: [{ id: "lessonsDone", value: Object.values(byLesson).filter(lessonDone).length }],
+      figures: [
+        { id: "lessonsDone", value: lessonsAt.length, at: lessonsAt },
+        { id: "coursesDone", value: coursesAt.length, at: coursesAt },
+      ],
       entries: courses.sort((a, b) => b.lastAt - a.lastAt).flatMap((c) => c.own),
     };
   }

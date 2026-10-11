@@ -5,6 +5,7 @@ export * from "./exam/index.ts";
 export * from "./learner/activity.ts";
 export * from "./learner/mistakes.ts";
 export * from "./learner/progress.ts";
+export * from "./learner/series.ts";
 export * from "./srs/day.ts";
 export * from "./srs/deck.ts";
 export * from "./srs/index.ts";

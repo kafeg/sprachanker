@@ -11,6 +11,8 @@ export type CardEvent = Extract<TypedEvent, { type: "card_review" | "card_undo" 
 
 export interface CardAnswer {
   id: string;
+  /** The day's review run it is in. */
+  runId: string;
   ts: number;
   cardId: string;
   face: CardFace;
@@ -26,7 +28,16 @@ export function cardDay(events: CardEvent[]) {
   const undone = undoneReviews(events);
   const answers: CardAnswer[] = events.flatMap((e) =>
     e.type === "card_review" && !undone.has(e.id)
-      ? [{ id: e.id, ts: e.ts, cardId: e.cardId, face: e.payload.face, review: e.payload }]
+      ? [
+          {
+            id: e.id,
+            runId: e.runId,
+            ts: e.ts,
+            cardId: e.cardId,
+            face: e.payload.face,
+            review: e.payload,
+          },
+        ]
       : [],
   );
   const latest = events[0];

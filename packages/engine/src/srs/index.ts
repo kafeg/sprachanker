@@ -29,7 +29,14 @@ export const SRS_DEFAULTS = {
   learnAheadMs: 20 * 60_000,
   /** A card forgotten this many times is a leech. */
   leechLapses: 8,
+  /** The longest an answer counts as taking (Anki's "maximum answer seconds"). */
+  maxAnswerMs: 60_000,
 } as const;
+
+/** How long a face was on screen before it was rated, as kept: at most a minute, so a card left open
+ *  in an idle tab counts a minute, not hours (Anki's cap). */
+export const answerMs = (ms: number) =>
+  Math.min(Math.max(0, Math.round(ms)), SRS_DEFAULTS.maxAnswerMs);
 /** A face's place among a note's card types (schema `CardFace`: recognition is card 1). */
 const faceOrder = (face: CardFace) => CardFace.options.indexOf(face);
 

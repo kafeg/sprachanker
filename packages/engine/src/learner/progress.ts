@@ -22,6 +22,8 @@ export interface LessonProgress {
   status: "new" | "in_progress" | "done";
   /** Completed runs; more than 0 means the lesson counts as done for the course. */
   finishedRuns: number;
+  /** When it was first done: the earliest end of a completed run. */
+  doneAt?: number;
   /** Best score of finished runs that scored any item, 0..1; absent when none did (e.g. a lesson of
    *  words only). */
   bestScore?: number;
@@ -224,6 +226,8 @@ export function lessonProgress(
     const p = out.get(run.contextKey) ?? { status: "new", finishedRuns: 0 };
     if (run.status === "finished") {
       p.finishedRuns++;
+      const at = run.finishedAt ?? run.startedAt;
+      p.doneAt = Math.min(p.doneAt ?? at, at);
       if (run.result?.scored) p.bestScore = Math.max(p.bestScore ?? 0, run.result.score);
     } else if (run.status === "active" && activity.has(run.id)) {
       p.activeRunId = run.id;
@@ -250,6 +254,11 @@ export function courseProgress(
   const done = lessons.filter((k) => lessonDone(progress[k])).length;
   return {
     done,
+    /** When the course was done: its last lesson first done, once every one is. */
+    doneAt:
+      lessons.length && done === lessons.length
+        ? Math.max(...lessons.map((k) => progress[k]?.doneAt ?? 0))
+        : undefined,
     next: next ?? null,
     nextStarted: !!active,
     /** The course is begun (it belongs in "My courses"): a lesson done, or one in progress. */

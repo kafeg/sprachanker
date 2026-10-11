@@ -20,6 +20,7 @@ const day = (n: number, fields: Partial<Record<string, number>>) => ({
   recalled: 0,
   remembered: 0,
   ai: 0,
+  time: { lesson: 0, exam: 0, review: 0, ai: 0 },
   ...fields,
 });
 

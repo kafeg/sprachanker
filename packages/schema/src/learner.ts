@@ -256,6 +256,9 @@ export const CardReviewPayload = z.object({
   rating: CardRating,
   stateBefore: FaceState.nullable(),
   stateAfter: FaceState,
+  /** How long the face was on screen before it was rated (ms), at most a minute (engine
+   *  `answerMs`); answers from before it was measured have none. */
+  ms: z.number().int().nonnegative().optional(),
 });
 export type CardReviewPayload = z.infer<typeof CardReviewPayload>;
 

@@ -73,16 +73,23 @@ export function cardRoutes() {
         zod("param", CardParam),
         zod(
           "json",
-          z.object({ id: Ulid, face: CardFace, rating: CardRating, reps: z.number().int().min(0) }),
+          z.object({
+            id: Ulid,
+            face: CardFace,
+            rating: CardRating,
+            reps: z.number().int().min(0),
+            /** How long the face was on screen before the rating (ms). */
+            ms: z.number().nonnegative().optional(),
+          }),
         ),
         (c) => {
-          const { id, face, rating, reps } = c.req.valid("json");
+          const { id, face, rating, reps, ms } = c.req.valid("json");
           return c.json({
             state: c.var.s.study.rate(
               c.req.valid("param").id,
               face,
               rating,
-              { id, reps },
+              { id, reps, ms },
               c.var.deviceId,
             ),
           });

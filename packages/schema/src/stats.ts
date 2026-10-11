@@ -26,7 +26,8 @@ const Count = z.number().int().nonnegative();
 
 /** What a study day held (04, "Learner model"): each module's work counted — lesson work (answers,
  *  skips, steps), exam answers, card answers not taken back, the learner's messages and the checks
- *  asked of the model — and of the cards, the new ones learnt and those in review remembered. */
+ *  asked of the model —, of the cards, the new ones learnt and those in review remembered, and the
+ *  time each module took. */
 export const DayActivity = z.object({
   /** When the study day starts. */
   start: z.number().int(),
@@ -39,6 +40,12 @@ export const DayActivity = z.object({
   /** Answers to faces already in review, and of them those not "Again". */
   recalled: Count,
   remembered: Count,
+  /** Time spent (ms) by module where it is known: the cards' measured answers, the gaps between a
+   *  run's events elsewhere (engine `timeSpent`). */
+  time: z.object({ lesson: Count, exam: Count, review: Count, ai: Count } satisfies Record<
+    ModuleId,
+    typeof Count
+  >),
 });
 export type DayActivity = z.infer<typeof DayActivity>;
 
@@ -50,6 +57,9 @@ export const Figure = z.object({
   value: z.number().nullable(),
   share: z.boolean().optional(),
   count: Count.optional(),
+  /** When each thing it counts came to count (a lesson first done), oldest first: the figure over
+   *  time. */
+  at: z.array(z.number().int()).optional(),
 });
 export type Figure = z.infer<typeof Figure>;
 
@@ -62,6 +72,8 @@ export const RunSummary = RunHeader.extend({
   passed: z.boolean().optional(),
   mode: z.string().optional(),
   part: z.string().optional(),
+  /** What it holds where that is its measure (a review day's card answers). */
+  count: Count.optional(),
 });
 export type RunSummary = z.infer<typeof RunSummary>;
 

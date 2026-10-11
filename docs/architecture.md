@@ -124,7 +124,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   days (the engine counts every event by its run's module, schema `stats.ts`), and one statistics
   contract — each module's service gives its `standing` (headline figures, entries with their figures
   and latest runs) and the Notebook gathers them from `services/index.ts` without knowing a module; a
-  module's own page in the Notebook (a lesson's passes, an exam's questions) is that module's.
+  module's own page in the Notebook (a lesson's passes, an exam's questions, a review day's answers)
+  is that module's.
   Resetting progress is the neutral `progress` service's. What one module's service needs of another
   is a function `services/index.ts` hands in, never an import: `cards` takes the run a lesson shows
   (`lessons.shown`: the run its words' cards are made in) and the learner's courses

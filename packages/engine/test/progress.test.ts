@@ -105,6 +105,8 @@ test("lesson status and best score over runs", () => {
     activeRunId: "3",
     activeAt: 30,
     finishedRuns: 2,
+    // First done when its first completed run ended.
+    doneAt: 1,
   });
   expect(progress.get("x/a1/00-02")).toEqual({
     status: "in_progress",
@@ -114,7 +116,7 @@ test("lesson status and best score over runs", () => {
   });
   expect(progress.get("x/a1/00-03")).toBeUndefined();
   // A lesson with nothing to score (words only) is done without a score.
-  expect(progress.get("x/a1/00-04")).toEqual({ status: "done", finishedRuns: 1 });
+  expect(progress.get("x/a1/00-04")).toEqual({ status: "done", finishedRuns: 1, doneAt: 5 });
   // Opened, nothing worked: not progress.
   expect(progress.get("x/a1/00-05")).toEqual({ status: "new", finishedRuns: 0 });
 });
