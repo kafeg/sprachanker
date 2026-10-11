@@ -2,7 +2,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, rename, rm, writeFile } from "node:fs/promises";
 import { dirname, extname, join } from "node:path";
-import type { MediaPath } from "@sprachanker/schema";
+import { type MediaPath, storableMedia } from "@sprachanker/schema";
 import { hashFile, tempFile } from "./files.ts";
 
 interface StoredMedia {
@@ -15,7 +15,9 @@ interface MediaStore {
   /** Absolute file of a media path. */
   file(path: MediaPath): string;
   /**
-   * Stores a downloaded file (moved, not copied) as `media/<wanted>`, `wanted` being `<kind>/<name>`.
+   * Stores a downloaded file (moved, not copied) as `media/<wanted>`, `wanted` being `<kind>/<name>`
+   * (its extension lower-cased; refused unless `storableMedia`: a portable name, an extension of its
+   * kind — never HTML, SVG, a script).
    * The same content is stored once, under whatever name it came first (one known to the store, or
    * stored by it); different content whose name is taken gets `-2`, `-3`… before the extension.
    */
@@ -26,8 +28,11 @@ interface MediaStore {
   put(wanted: string, bytes: Uint8Array): Promise<StoredMedia>;
 }
 
-/** A media name from a source: one plain file name under a kind's folder, nothing that walks out. */
-const SAFE = /^(audio|image|video|subtitles|pdf)\/(?!\.\.?$)[^/\\\p{Cc}]+$/u;
+/** A media name from a source as stored: its extension in lower case. */
+const lowerExtension = (wanted: string) => {
+  const ext = extname(wanted);
+  return `${wanted.slice(0, wanted.length - ext.length)}${ext.toLowerCase()}`;
+};
 
 export function createMediaStore(seriesDir: string): MediaStore {
   const file = (path: string) => join(seriesDir, path);
@@ -37,7 +42,7 @@ export function createMediaStore(seriesDir: string): MediaStore {
   const byHash = new Map<string, Promise<StoredMedia>>();
 
   async function place(wanted: string, downloaded: string): Promise<StoredMedia> {
-    if (!SAFE.test(wanted)) {
+    if (!storableMedia(wanted)) {
       await rm(downloaded, { force: true });
       throw new Error(`unsafe media name: ${JSON.stringify(wanted)}`);
     }
@@ -83,7 +88,8 @@ export function createMediaStore(seriesDir: string): MediaStore {
     know(stored) {
       if (!byHash.has(stored.sha256)) byHash.set(stored.sha256, Promise.resolve(stored));
     },
-    putFile(wanted, downloaded) {
+    putFile(name, downloaded) {
+      const wanted = lowerExtension(name);
       const turn = (busy.get(wanted) ?? Promise.resolve())
         .catch(() => {})
         .then(() => place(wanted, downloaded));
@@ -92,8 +98,9 @@ export function createMediaStore(seriesDir: string): MediaStore {
         if (busy.get(wanted) === turn) busy.delete(wanted);
       });
     },
-    async put(wanted, bytes) {
-      if (!SAFE.test(wanted)) throw new Error(`unsafe media name: ${JSON.stringify(wanted)}`);
+    async put(name, bytes) {
+      const wanted = lowerExtension(name);
+      if (!storableMedia(wanted)) throw new Error(`unsafe media name: ${JSON.stringify(wanted)}`);
       const tmp = tempFile(file(`media/${wanted.replace(/[/\\]/g, "_")}`));
       await mkdir(dirname(tmp), { recursive: true });
       await writeFile(tmp, bytes);

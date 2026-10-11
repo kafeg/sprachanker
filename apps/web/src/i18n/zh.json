@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "局域网服务器",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "本机上的LM Studio：SprachAnker会启动它的服务器、加载所选模型，还能把推荐的模型下载到其中。免费，且所有数据都不会离开本机。如果LM Studio运行在另一台电脑上，请选择“局域网服务器”。",
       "openrouter": "云端的OpenRouter：一个密钥即可使用众多厂商的数百个模型，其中部分免费（有每日限额）。各课内容和你的答案会发送给OpenRouter及模型服务商。",
+      "openai": "通过API使用云端的OpenAI模型（GPT-5、GPT-4.1、o系列等），按用量付费——这不是ChatGPT订阅：订阅请选择Codex。各课内容和你的答案会发送给OpenAI。",
+      "anthropic": "通过API使用云端的Anthropic Claude模型，按用量付费——这不是Claude订阅：订阅请选择Claude Code。各课内容和你的答案会发送给Anthropic。",
       "gemini": "云端的Google Gemini模型，需使用Google AI Studio的密钥。免费层级无需绑定银行卡，但有每分钟和每日限额；部分模型需要开通付费。使用免费层级时，Google可能会用发送的内容改进其产品：各课内容和你的答案会发送给Google。",
       "groq": "在Groq云端高速硬件上运行的开放模型（Llama、Qwen、GPT-OSS等）。免费层级无需绑定银行卡，每个模型都有每分钟和每日限额。各课内容和你的答案会发送给Groq。",
       "custom": "另一台电脑上任何提供OpenAI兼容API的服务器：LM Studio、Ollama、llama.cpp、vLLM等。请填写其地址（以/v1结尾），如有需要再填写密钥。",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "请在openrouter.ai/keys创建密钥。密钥会加密保存在本机，且不再显示。",
+      "openai": "请在platform.openai.com/api-keys创建密钥。密钥会加密保存在本机，且不再显示。",
+      "anthropic": "请在platform.claude.com/settings/keys创建密钥。密钥会加密保存在本机，且不再显示。",
       "gemini": "请在aistudio.google.com/apikey创建密钥。密钥会加密保存在本机，且不再显示。",
       "groq": "请在console.groq.com/keys创建密钥。密钥会加密保存在本机，且不再显示。"
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "请输入服务器地址。",
     "llm_no_key": "请输入API密钥。",
     "llm_not_configured": "请在“设置 → AI助手”中选择模型。",
+    "llm_overloaded": "服务商当前负载过高，请稍后再试。",
     "llm_rate_limited": "已暂时达到服务商的限额（免费层级会限制每分钟和每天的请求数）。请稍后重试，或在“设置 → AI助手”中选择其他模型。",
     "llm_timeout": "模型回答超时。",
     "llm_unauthorized": "API密钥未被接受。",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "本课尚未完成。",
     "run_not_active": "本课的这一轮学习已结束。请重新加载本课。",
     "run_without_edition": "这一轮学习没有语言版本。请重新开始本课。",
-    "scene_busy": "对话仍在回复中，请稍候。",
+    "scene_busy": "对方仍在回复，或对话正在准备中。",
     "server_error": "服务器出错了。",
     "speaking_busy": "正在检查此答案。请稍候。",
     "speech_engine_failed": "语音识别器没有响应。请重试。",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "单词和翻译需要使用两种不同的语言。",
     "examples_without_word": "模型生成的句子没有用到该单词。",
     "length_required": "文件发送时没有附带其大小。请重试，或换一个浏览器。",
+    "upload_stalled": "文件停止传输了。请检查网络连接后重试。",
     "profile_import_busy": "正在导入另一个个人资料文件。请在其完成后重试。",
     "llm_url_with_login": "请勿在地址中写入用户名和密码：请在 API 密钥栏中输入密钥。",
     "course_export_gone": "此导出已不在：请重新导出课程。",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "此课程文件来自更新版本的 SprachAnker：请先更新这里的应用。",
     "course_bundle_clash": "这台电脑上已有与此课程媒体文件同名的其他文件：请改为在这里下载课程。",
     "course_import_busy": "正在导入另一个课程文件。请在其完成后重试。",
+    "series_busy": "此来源的课程正在下载或导入。请在完成后重试。",
     "understanding_busy": "正在为本课写一篇文本。请稍候。"
   },
   "exams": {

@@ -84,6 +84,8 @@ describe("llm setup", () => {
     expect(state.providers.map((p: { id: string; baseUrl: string }) => [p.id, p.baseUrl])).toEqual([
       ["lmstudio", "http://localhost:1234/v1"],
       ["openrouter", "https://openrouter.ai/api/v1"],
+      ["openai", "https://api.openai.com/v1"],
+      ["anthropic", "https://api.anthropic.com/v1"],
       ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai"],
       ["groq", "https://api.groq.com/openai/v1"],
       ["custom", ""],
@@ -196,6 +198,97 @@ describe("llm setup", () => {
     expect(fake.calls[0]?.headers.authorization).toBe("Bearer sk-or-secret");
     const route = await sendJson("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
     expect([route.provider, route.model]).toEqual(["lmstudio", "m"]);
+  });
+
+  test("OpenAI: a key, its chat models checked, an answer with its API's fields; the viewer shows them", async () => {
+    const calls: Array<{ url: string; headers: Record<string, string>; body?: unknown }> = [];
+    const { send, sendJson, get, getJson } = await setup({
+      fetch: (async (url: string, init: RequestInit) => {
+        const body = init.body ? JSON.parse(init.body as string) : undefined;
+        calls.push({ url, headers: init.headers as Record<string, string>, body });
+        if (url.endsWith("/models"))
+          return Response.json({ data: [{ id: "gpt-5-mini" }, { id: "whisper-1" }] });
+        return new Response(
+          `data: ${JSON.stringify({ choices: [{ delta: { content: "Weil." } }] })}\n\ndata: [DONE]\n\n`,
+        );
+      }) as typeof fetch,
+    });
+    expect((await get("/api/llm/models?provider=openai")).status).toBe(409);
+    const state = await sendJson("PUT", "/api/llm/providers/openai", { apiKey: "sk-proj-x" });
+    expect(byId(state, "openai")).toMatchObject({ hasKey: true, editableUrl: false });
+    expect((await getJson("/api/llm/models?provider=openai")).models).toEqual([
+      { id: "gpt-5-mini" },
+    ]);
+    expect(calls[0]?.headers.authorization).toBe("Bearer sk-proj-x");
+    await send("PUT", "/api/llm/route", { provider: "openai", model: "gpt-5-mini" });
+    expect(await (await send("POST", "/api/llm/explain", EXPLAIN)).text()).toBe("Weil.");
+    const sent = calls[1]?.body as Record<string, unknown>;
+    expect(calls[1]?.url).toBe("https://api.openai.com/v1/chat/completions");
+    expect(sent).toMatchObject({ model: "gpt-5-mini", reasoning_effort: "minimal" });
+    expect(sent.max_completion_tokens).toBeGreaterThan(0);
+    expect(sent).not.toHaveProperty("temperature");
+    const preview = await sendJson("POST", "/api/llm/explain/prompt", EXPLAIN);
+    expect(preview.url).toBe("https://api.openai.com/v1/chat/completions");
+    expect(preview.body.max_completion_tokens).toBe(sent.max_completion_tokens);
+  });
+
+  test("Anthropic: a key, its models checked, an answer through the Messages API; the viewer shows it; overloaded and rate limits said", async () => {
+    const calls: Array<{ url: string; headers: Record<string, string>; body?: unknown }> = [];
+    let busy: Response | undefined;
+    const { send, sendJson, get, getJson } = await setup({
+      fetch: (async (url: string, init: RequestInit) => {
+        const body = init.body ? JSON.parse(init.body as string) : undefined;
+        calls.push({ url, headers: init.headers as Record<string, string>, body });
+        if (busy) return busy;
+        if (url.includes("/models"))
+          return Response.json({
+            data: [{ id: "claude-haiku-4-5", display_name: "Claude Haiku 4.5" }],
+            has_more: false,
+          });
+        const events = [
+          { type: "message_start", message: { role: "assistant", content: [] } },
+          { type: "content_block_start", index: 0, content_block: { type: "text", text: "" } },
+          { type: "content_block_delta", index: 0, delta: { type: "text_delta", text: "Weil." } },
+          { type: "content_block_stop", index: 0 },
+          { type: "message_delta", delta: { stop_reason: "end_turn" } },
+          { type: "message_stop" },
+        ];
+        return new Response(
+          events.map((e) => `event: ${e.type}\ndata: ${JSON.stringify(e)}\n\n`).join(""),
+        );
+      }) as typeof fetch,
+    });
+    expect((await get("/api/llm/models?provider=anthropic")).status).toBe(409);
+    await sendJson("PUT", "/api/llm/providers/anthropic", { apiKey: "sk-ant-x" });
+    expect((await getJson("/api/llm/models?provider=anthropic")).models).toEqual([
+      { id: "claude-haiku-4-5", name: "Claude Haiku 4.5", tools: true },
+    ]);
+    expect(calls[0]?.headers["x-api-key"]).toBe("sk-ant-x");
+    await send("PUT", "/api/llm/route", { provider: "anthropic", model: "claude-haiku-4-5" });
+    expect(await (await send("POST", "/api/llm/explain", EXPLAIN)).text()).toBe("Weil.");
+    const sent = calls[1]?.body as { system: string; messages: Array<{ role: string }> };
+    expect(calls[1]?.url).toBe("https://api.anthropic.com/v1/messages");
+    expect(sent.system).toContain("Explain in Russian");
+    expect(sent.messages.map((m) => m.role)).toEqual(["user"]);
+    const preview = await sendJson("POST", "/api/llm/explain/prompt", EXPLAIN);
+    expect(preview.url).toBe("https://api.anthropic.com/v1/messages");
+    expect(preview.body.messages.map((m: { role: string }) => m.role)).toEqual(["system", "user"]);
+    busy = Response.json(
+      { type: "error", error: { type: "overloaded_error", message: "Overloaded" } },
+      { status: 529 },
+    );
+    const overloaded = await send("POST", "/api/llm/explain", EXPLAIN);
+    const said = (await overloaded.json()) as { error: string };
+    expect([overloaded.status, said.error]).toEqual([502, "llm_overloaded"]);
+    busy = Response.json(
+      { type: "error", error: { type: "rate_limit_error", message: "slow down" } },
+      { status: 429, headers: { "retry-after": "12" } },
+    );
+    const limited = await send("POST", "/api/llm/explain", EXPLAIN);
+    expect([limited.status, await limited.json()]).toEqual([
+      502,
+      { error: "llm_rate_limited", message: "slow down", retryAfter: 12 },
+    ]);
   });
 
   test("an unreachable server is a 502 with a code", async () => {

@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Serwer w sieci",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio na tym komputerze: SprachAnker uruchamia jego serwer, wczytuje wybrany model i może pobrać do niego proponowane modele. Za darmo i nic nie opuszcza komputera. Jeśli LM Studio działa na innym komputerze, wybierz „Serwer w sieci”.",
       "openrouter": "OpenRouter w chmurze: setki modeli od wielu twórców za jednym kluczem, niektóre za darmo (z dziennymi limitami). Treść lekcji i twoje odpowiedzi trafiają do OpenRouter i do dostawcy modelu.",
+      "openai": "Modele OpenAI (GPT-5, GPT-4.1, seria o i inne) w chmurze przez jej API, płatne za użycie — to nie subskrypcja ChatGPT: do niej wybierz Codex. Treść lekcji i twoje odpowiedzi trafiają do OpenAI.",
+      "anthropic": "Modele Claude od Anthropic w chmurze przez jej API, płatne za użycie — to nie subskrypcja Claude: do niej wybierz Claude Code. Treść lekcji i twoje odpowiedzi trafiają do Anthropic.",
       "gemini": "Modele Gemini od Google w chmurze, z kluczem z Google AI Studio. Plan darmowy nie wymaga karty i ma limity na minutę i na dzień; niektóre modele wymagają płatności. W planie darmowym Google może wykorzystywać przesłane dane do ulepszania swoich produktów: treść lekcji i twoje odpowiedzi trafiają do Google.",
       "groq": "Otwarte modele (Llama, Qwen, GPT-OSS i inne) na szybkim sprzęcie Groq w chmurze. Plan darmowy nie wymaga karty i ma limity na minutę i na dzień dla każdego modelu. Treść lekcji i twoje odpowiedzi trafiają do Groq.",
       "custom": "Dowolny serwer z API zgodnym z OpenAI na innym komputerze: LM Studio, Ollama, llama.cpp, vLLM i inne. Podaj jego adres (zakończony na /v1) i klucz, jeśli serwer go wymaga.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Utwórz klucz na openrouter.ai/keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
+      "openai": "Utwórz klucz na platform.openai.com/api-keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
+      "anthropic": "Utwórz klucz na platform.claude.com/settings/keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
       "gemini": "Utwórz klucz na aistudio.google.com/apikey. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
       "groq": "Utwórz klucz na console.groq.com/keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Wpisz adres serwera.",
     "llm_no_key": "Wpisz klucz API.",
     "llm_not_configured": "Wybierz model w Ustawieniach → Asystent AI.",
+    "llm_overloaded": "Dostawca jest teraz przeciążony. Spróbuj ponownie za chwilę.",
     "llm_rate_limited": "Limit dostawcy jest na razie wyczerpany (plany darmowe ograniczają zapytania na minutę i na dzień). Spróbuj później albo wybierz inny model w Ustawieniach → Asystent AI.",
     "llm_timeout": "Model odpowiadał zbyt długo.",
     "llm_unauthorized": "Klucz API nie został przyjęty.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "Lekcja nie jest jeszcze ukończona.",
     "run_not_active": "To podejście do lekcji się zakończyło. Wczytaj lekcję ponownie.",
     "run_without_edition": "To podejście nie ma wersji językowej. Zacznij lekcję od nowa.",
-    "scene_busy": "Dialog jeszcze odpowiada. Poczekaj.",
+    "scene_busy": "Rozmówca jeszcze odpowiada albo dialog jest przygotowywany.",
     "server_error": "Coś poszło nie tak na serwerze.",
     "speaking_busy": "Ta odpowiedź jest właśnie sprawdzana. Poczekaj.",
     "speech_engine_failed": "Rozpoznawanie mowy nie odpowiedziało. Spróbuj ponownie.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "Słowa i ich tłumaczenia muszą być w dwóch różnych językach.",
     "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
     "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce.",
+    "upload_stalled": "Plik przestał docierać. Sprawdź połączenie i spróbuj ponownie.",
     "profile_import_busy": "Trwa import innego pliku profilu. Spróbuj ponownie, gdy się skończy.",
     "llm_url_with_login": "Nie wpisuj nazwy użytkownika ani hasła w adresie: wpisz klucz w polu klucza API.",
     "course_export_gone": "Tego eksportu już nie ma: wyeksportuj kurs jeszcze raz.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Ten plik kursu pochodzi z nowszej wersji SprachAnker: najpierw zaktualizuj tu aplikację.",
     "course_bundle_clash": "Na tym komputerze pod nazwami plików multimedialnych tego kursu są inne pliki: pobierz kurs tutaj.",
     "course_import_busy": "Trwa import innego pliku kursu. Spróbuj ponownie, gdy się skończy.",
+    "series_busy": "Kursy z tego źródła są właśnie pobierane lub importowane. Spróbuj ponownie, gdy to się skończy.",
     "understanding_busy": "Tekst do tej lekcji jest właśnie pisany. Poczekaj."
   },
   "exams": {

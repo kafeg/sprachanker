@@ -202,7 +202,7 @@ export const ExamSources = z.strictObject({
     z.strictObject({
       id: z.string().regex(/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/),
       title: z.string().min(1),
-      url: z.url(),
+      url: z.httpUrl(),
       /** The copy kept: a library path under `raw/`, and its sha256 as read. */
       raw: z.string().startsWith("raw/").optional(),
       sha256: Sha256.optional(),

@@ -9,7 +9,9 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 
 - **Capture** in the browser (`apps/web/src/audio/recorder.ts`): MediaRecorder in the browser's own
   format (Safari MP4/AAC, Chrome WebM/Opus), at most 30 s a take, the loudness shown while it records;
-  the microphone chosen per device (Settings → Speech). Only in a secure context (HTTPS or this
+  the microphone chosen per device (Settings → Speech). A take starting stops whatever plays — a line
+  read aloud (a Dialogue's partner, an exam conversation's examiner), a recording, a video —, so the
+  microphone never hears it. Only in a secure context (HTTPS or this
   computer, 06): elsewhere the microphone button is disabled and says why (a tooltip; on a phone a line
   under it); so is a browser without MediaRecorder or a denied permission.
 - **Kept** in `profiles/<id>/recordings/<ulid>.<ext>` (`POST /api/recordings` with the audio as the
@@ -73,7 +75,8 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
   free answer, the tutor, "Write it yourself" (owner, 2026-10-11).
 - **A Dialogue held by voice** (04, "AI practice in courses"; 09): the learner's line is a take — the
   microphone tapped, tapped again — kept in `recordings/` and heard in the language learnt; what was
-  heard is shown ("Heard: …") and sent as heard ("Send"), or the line said again ("Say it again"),
+  heard is shown ("Heard: …") and sent as heard ("Send"; kept until it is stored, so a send that
+  failed is sent again), or the line said again ("Say it again"),
   never edited: what the recogniser made of it is what a listener would have understood, so its
   normalisation (punctuation, capitals, numbers as digits) is taken as it is (owner, 2026-10-11).
   Recognition warmed when the step opens. A take nothing was heard in says so and is said again.

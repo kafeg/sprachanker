@@ -89,7 +89,7 @@ apps/web/src/
                    # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
                    # picker on touch), job-row (a server's job: progress, Stop, why it failed), direction, utils (cn)
-  audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
+  audio/           # recording oneself (08): recorder (MediaRecorder — what plays stopped as a take starts —, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
                    # context (the speech host the router provides: save, src, recognition —

@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server di jaringan",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio di komputer ini: SprachAnker menjalankan servernya, memuat model yang dipilih, dan bisa mengunduh model yang disarankan ke dalamnya. Gratis, dan tidak ada data yang keluar dari komputer. Jika LM Studio berjalan di komputer lain, pilih “Server di jaringan”.",
       "openrouter": "OpenRouter di cloud: ratusan model dari banyak pembuat lewat satu kunci, sebagian gratis (dengan batas harian). Isi pelajaran dan jawaban kamu dikirim ke OpenRouter dan penyedia modelnya.",
+      "openai": "Model-model OpenAI (GPT-5, GPT-4.1, seri o, dan lainnya) di cloud lewat API-nya, bayar sesuai pemakaian — bukan langganan ChatGPT: untuk itu, pilih Codex. Isi pelajaran dan jawaban kamu dikirim ke OpenAI.",
+      "anthropic": "Model Claude dari Anthropic di cloud lewat API-nya, bayar sesuai pemakaian — bukan langganan Claude: untuk itu, pilih Claude Code. Isi pelajaran dan jawaban kamu dikirim ke Anthropic.",
       "gemini": "Model Gemini dari Google di cloud dengan kunci dari Google AI Studio. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari; beberapa model memerlukan penagihan. Pada paket gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya: isi pelajaran dan jawaban kamu dikirim ke Google.",
       "groq": "Model terbuka (Llama, Qwen, GPT-OSS, dan lainnya) di perangkat keras Groq yang cepat di cloud. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari untuk setiap model. Isi pelajaran dan jawaban kamu dikirim ke Groq.",
       "custom": "Server apa pun dengan API yang kompatibel dengan OpenAI di komputer lain: LM Studio, Ollama, llama.cpp, vLLM, dan lainnya. Masukkan alamatnya (berakhiran /v1) dan kunci jika diminta.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Buat kunci di openrouter.ai/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "openai": "Buat kunci di platform.openai.com/api-keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "anthropic": "Buat kunci di platform.claude.com/settings/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
       "gemini": "Buat kunci di aistudio.google.com/apikey. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
       "groq": "Buat kunci di console.groq.com/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Masukkan alamat server.",
     "llm_no_key": "Masukkan kunci API.",
     "llm_not_configured": "Pilih model di Pengaturan → Asisten AI.",
+    "llm_overloaded": "Penyedia sedang kelebihan beban. Coba lagi sebentar lagi.",
     "llm_rate_limited": "Batas penyedia sudah tercapai untuk saat ini (paket gratis membatasi permintaan per menit dan per hari). Coba lagi nanti, atau pilih model lain di Pengaturan → Asisten AI.",
     "llm_timeout": "Model terlalu lama menjawab.",
     "llm_unauthorized": "Kunci API tidak diterima.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "Pelajaran belum selesai.",
     "run_not_active": "Putaran pelajaran ini sudah berakhir. Muat ulang pelajaran.",
     "run_without_edition": "Putaran ini tidak punya versi bahasa. Mulai pelajaran lagi.",
-    "scene_busy": "Dialog masih menjawab. Tunggu sebentar.",
+    "scene_busy": "Lawan bicara Anda masih menjawab, atau dialog sedang disiapkan.",
     "server_error": "Terjadi kesalahan di server.",
     "speaking_busy": "Jawaban ini sedang diperiksa. Tunggu sebentar.",
     "speech_engine_failed": "Pengenal ucapan tidak merespons. Coba lagi.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
     "examples_without_word": "Kalimat dari model tidak memakai kata tersebut.",
     "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain.",
+    "upload_stalled": "File berhenti terkirim. Periksa koneksi dan coba lagi.",
     "profile_import_busy": "Berkas profil lain sedang diimpor. Coba lagi setelah selesai.",
     "llm_url_with_login": "Jangan sertakan nama pengguna dan kata sandi di alamat: masukkan kunci di kolom kunci API.",
     "course_export_gone": "Ekspor ini sudah tidak ada: ekspor kursus lagi.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Berkas kursus ini berasal dari versi SprachAnker yang lebih baru: perbarui dulu aplikasinya di sini.",
     "course_bundle_clash": "Komputer ini punya berkas lain dengan nama berkas media kursus ini: unduh saja kursusnya di sini.",
     "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai.",
+    "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai.",
     "understanding_busy": "Sebuah teks untuk pelajaran ini sedang ditulis. Tunggu sebentar."
   },
   "exams": {

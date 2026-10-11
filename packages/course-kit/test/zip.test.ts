@@ -10,10 +10,11 @@ import {
   type ZipSource,
   zipEntries,
   zipLength,
+  zipLimits,
   zipStream,
 } from "../src/zip.ts";
 
-const LIMITS = { fieldMax: 256, directoryMax: 1024 * 1024 };
+const LIMITS = { countMax: 1000, fieldMax: 256, directoryMax: 1024 * 1024 };
 const dir = () => mkdtempSync(join(tmpdir(), "sprachanker-zip-"));
 const text = (s: string) => new TextEncoder().encode(s);
 
@@ -76,6 +77,15 @@ test("an entry whose file changed size meanwhile fails the zip", async () => {
   const sums = await fileSums(media);
   writeFileSync(media, "longer now");
   await expect(written([fileEntry("clip.mp3", media, sums)])).rejects.toThrow(/changed/);
+});
+
+test("more entries than a zip may hold, or a directory larger than they need, refused before it is read", async () => {
+  const entries = ["a", "b", "c"].map((n) => bytesEntry(`${n}.txt`, text(n)));
+  const { file } = await written(entries);
+  expect(zipEntries(file, { ...LIMITS, countMax: 3 })).toHaveLength(3);
+  expect(zipEntries(file, { ...LIMITS, countMax: 2 })).toBeUndefined();
+  expect(zipEntries(file, zipLimits(3, 256, 5))).toHaveLength(3);
+  expect(zipEntries(file, { ...LIMITS, directoryMax: 3 * 46 })).toBeUndefined();
 });
 
 test("a zip is believed only as far as it is checked", async () => {

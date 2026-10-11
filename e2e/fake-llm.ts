@@ -22,6 +22,7 @@ const SCENE_SETUP = {
   partner: "FAKE: the waiter",
   goals: ["Order a coffee", "Pay"],
   opening: "FAKE: Guten Tag! Was möchten Sie?",
+  openingTranslation: "FAKE: Hello! What would you like?",
   partnerInfo: ["FAKE: Ein Kaffee kostet 2,50 Euro."],
 };
 const SCENE_TURN = {

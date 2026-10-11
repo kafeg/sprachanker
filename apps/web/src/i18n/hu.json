@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Szerver a hálózaton",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio ezen a számítógépen: a SprachAnker elindítja a szerverét, betölti a kiválasztott modellt, és letöltheti bele a javasolt modelleket. Ingyenes, és semmi sem hagyja el a számítógépet. Ha az LM Studio egy másik számítógépen fut, válaszd a „Szerver a hálózaton” lehetőséget.",
       "openrouter": "OpenRouter a felhőben: több száz modell sok gyártótól egyetlen kulccsal, némelyik ingyenes (napi korlátokkal). A lecke tartalma és a válaszaid az OpenRouterhez és a modell szolgáltatójához kerülnek.",
+      "openai": "Az OpenAI modelljei (GPT-5, GPT-4.1, az o-sorozat és mások) a felhőben, az API-ján keresztül, használat szerinti fizetéssel — ez nem ChatGPT-előfizetés: ahhoz válaszd a Codexet. A lecke tartalma és a válaszaid az OpenAI-hoz kerülnek.",
+      "anthropic": "Az Anthropic Claude-modelljei a felhőben, az API-ján keresztül, használat szerinti fizetéssel — ez nem Claude-előfizetés: ahhoz válaszd a Claude Code-ot. A lecke tartalma és a válaszaid az Anthropichoz kerülnek.",
       "gemini": "A Google Gemini modelljei a felhőben, a Google AI Studióban létrehozott kulccsal. Az ingyenes csomaghoz nem kell bankkártya, és percenkénti és napi korlátai vannak; egyes modellekhez fizetős fiók kell. Az ingyenes csomagban a Google a beküldött adatokat termékei fejlesztésére használhatja: a lecke tartalma és a válaszaid a Google-hoz kerülnek.",
       "groq": "Nyílt modellek (Llama, Qwen, GPT-OSS és mások) a Groq gyors hardverén, a felhőben. Az ingyenes csomaghoz nem kell bankkártya, és minden modellre percenkénti és napi korlátok vonatkoznak. A lecke tartalma és a válaszaid a Groqhoz kerülnek.",
       "custom": "Bármely OpenAI-kompatibilis API-val rendelkező szerver egy másik számítógépen: LM Studio, Ollama, llama.cpp, vLLM és mások. Add meg a címét (/v1-re végződik), és a kulcsot, ha kér.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Kulcsot az openrouter.ai/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "openai": "Kulcsot a platform.openai.com/api-keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "anthropic": "Kulcsot a platform.claude.com/settings/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
       "gemini": "Kulcsot az aistudio.google.com/apikey oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
       "groq": "Kulcsot a console.groq.com/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Add meg a szerver címét.",
     "llm_no_key": "Add meg az API-kulcsot.",
     "llm_not_configured": "Válassz modellt itt: Beállítások → MI-asszisztens.",
+    "llm_overloaded": "A szolgáltató most túlterhelt. Próbáld újra egy kicsit később.",
     "llm_rate_limited": "A szolgáltató korlátját egyelőre elérted (az ingyenes csomagok percenként és naponta korlátozzák a kéréseket). Próbáld később, vagy válassz másik modellt itt: Beállítások → MI-asszisztens.",
     "llm_timeout": "A modell túl sokáig válaszolt.",
     "llm_unauthorized": "Az API-kulcsot nem fogadták el.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "A lecke még nincs kész.",
     "run_not_active": "A lecke e köre véget ért. Töltsd be újra a leckét.",
     "run_without_edition": "Ennek a körnek nincs nyelvi változata. Kezdd újra a leckét.",
-    "scene_busy": "A párbeszéd még válaszol. Várj rá.",
+    "scene_busy": "A beszélgetőtársad még válaszol, vagy a párbeszéd készül.",
     "server_error": "Hiba történt a szerveren.",
     "speaking_busy": "Ennek a válasznak az ellenőrzése folyamatban van. Várj egy kicsit.",
     "speech_engine_failed": "A beszédfelismerő nem válaszolt. Próbáld újra.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "A szavakhoz és a fordításaikhoz két különböző nyelv kell.",
     "examples_without_word": "A modell mondataiban nem szerepelt a szó.",
     "length_required": "A fájl a mérete nélkül érkezett. Próbáld újra, vagy egy másik böngészőben.",
+    "upload_stalled": "A fájl érkezése megakadt. Ellenőrizd a kapcsolatot, és próbáld újra.",
     "profile_import_busy": "Épp egy másik profilfájl importálása folyik. Próbáld újra, ha végzett.",
     "llm_url_with_login": "A felhasználónevet és a jelszót hagyd ki a címből: a kulcsot az API-kulcs mezőbe írd.",
     "course_export_gone": "Ez az exportálás már nincs meg: exportáld újra a kurzust.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Ez a kurzusfájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
     "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
     "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
+    "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett.",
     "understanding_busy": "Épp készül egy szöveg ehhez a leckéhez. Várj egy kicsit."
   },
   "exams": {

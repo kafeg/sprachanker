@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Lesson } from "@sprachanker/schema";
 import { z } from "zod";
-import { writeFileAtomic } from "../src/files.ts";
+import { linkOrCopy, writeFileAtomic } from "../src/files.ts";
 import { HostRefusedError, type PoliteFetcher } from "../src/http.ts";
 import { failedMedia, fetchMedia, goneMedia } from "../src/media-index.ts";
 import { libraryFile, libraryWriter, writeLibraryFiles } from "../src/provider.ts";
@@ -213,4 +213,16 @@ test("library files by kind: each path from its keys, each checked against its k
   expect(
     await writeLibraryFiles(root, [libraryFile.lesson(lesson), libraryFile.lesson(bad)], () => {}),
   ).toBe(1);
+});
+
+test("a link never goes over a file there: copied only where the disk has no hard links", () => {
+  const root = dir();
+  writeFileSync(join(root, "a.mp3"), "a");
+  writeFileSync(join(root, "b.mp3"), "b");
+  expect(() => linkOrCopy(join(root, "a.mp3"), join(root, "b.mp3"))).toThrow(
+    expect.objectContaining({ code: "EEXIST" }),
+  );
+  expect(readFileSync(join(root, "b.mp3"), "utf8")).toBe("b");
+  linkOrCopy(join(root, "a.mp3"), join(root, "c.mp3"));
+  expect(readFileSync(join(root, "c.mp3"), "utf8")).toBe("a");
 });

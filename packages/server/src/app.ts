@@ -147,14 +147,16 @@ export function createApp(config: AppConfig) {
         const series = c.req.param("series");
         const path = safeDecode(c.req.path.slice(`/library/${series}/`.length));
         const file = path && config.library.mediaFile(series, path);
-        return file ? blobResponse(config.mediaBlob(file), c.req.header("range")) : c.notFound();
+        return file && path
+          ? blobResponse(config.mediaBlob(file), c.req.header("range"), path)
+          : c.notFound();
       })
       // A deck folder's media: an imported deck's own, and what was read aloud for a deck's words.
       .get("/decks/:id/*", (c) => {
         const id = c.req.param("id");
         const path = safeDecode(c.req.path.slice(`/decks/${id}/`.length));
         const file = path && svc.decks.media(id, path);
-        return file ? blobResponse(file, c.req.header("range")) : c.notFound();
+        return file && path ? blobResponse(file, c.req.header("range"), path) : c.notFound();
       })
       .get("*", serveWeb(config.webAssets))
   );

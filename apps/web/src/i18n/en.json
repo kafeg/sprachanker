@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server on the network",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio on this computer: SprachAnker starts its server, loads the chosen model and can download suggested models into it. Free, and nothing leaves the computer. If LM Studio runs on another computer, choose “Server on the network”.",
       "openrouter": "OpenRouter in the cloud: hundreds of models from many makers through one key, some of them free (with daily limits). Lesson content and your answers go to OpenRouter and the model's provider.",
+      "openai": "OpenAI's models (GPT-5, GPT-4.1, the o-series and others) in the cloud through its API, paid per use — not a ChatGPT subscription: for that, choose Codex. Lesson content and your answers go to OpenAI.",
+      "anthropic": "Anthropic's Claude models in the cloud through its API, paid per use — not a Claude subscription: for that, choose Claude Code. Lesson content and your answers go to Anthropic.",
       "gemini": "Google's Gemini models in the cloud with a key from Google AI Studio. The free tier needs no card and has limits per minute and per day; some models need billing. On the free tier Google may use what is sent to improve its products: lesson content and your answers go to Google.",
       "groq": "Open models (Llama, Qwen, GPT-OSS and others) on Groq's fast hardware in the cloud. The free tier needs no card and has limits per minute and per day for each model. Lesson content and your answers go to Groq.",
       "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Create a key at openrouter.ai/keys. It is stored encrypted on this computer and never shown again.",
+      "openai": "Create a key at platform.openai.com/api-keys. It is stored encrypted on this computer and never shown again.",
+      "anthropic": "Create a key at platform.claude.com/settings/keys. It is stored encrypted on this computer and never shown again.",
       "gemini": "Create a key at aistudio.google.com/apikey. It is stored encrypted on this computer and never shown again.",
       "groq": "Create a key at console.groq.com/keys. It is stored encrypted on this computer and never shown again."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Enter the server address.",
     "llm_no_key": "Enter the API key.",
     "llm_not_configured": "Choose a model in Settings → AI assistant.",
+    "llm_overloaded": "The provider is overloaded right now. Try again in a moment.",
     "llm_rate_limited": "The provider's limit is reached for now (free tiers limit requests per minute and per day). Try again later, or choose another model in Settings → AI assistant.",
     "llm_timeout": "The model took too long to answer.",
     "llm_unauthorized": "The API key was not accepted.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "The lesson is not finished yet.",
     "run_not_active": "This pass of the lesson has ended. Reload the lesson.",
     "run_without_edition": "This pass has no language version. Start the lesson again.",
-    "scene_busy": "The dialogue is still answering. Wait for it.",
+    "scene_busy": "Your partner is still answering, or the dialogue is being prepared.",
     "server_error": "Something went wrong on the server.",
     "speaking_busy": "This answer is being checked. Wait for it.",
     "speech_engine_failed": "The speech recogniser did not answer. Try again.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "The words and their translations need two different languages.",
     "examples_without_word": "The model's sentences did not use the word.",
     "length_required": "The file was sent without its size. Try again, or in another browser.",
+    "upload_stalled": "The file stopped arriving. Check the connection and try again.",
     "profile_import_busy": "Another profile file is being imported. Try again when it is done.",
     "llm_url_with_login": "Leave the user name and password out of the address: enter the key in the API key field.",
     "course_export_gone": "This export is no longer here: export the course again.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "This course file comes from a newer version of SprachAnker: update the app here first.",
     "course_bundle_clash": "This computer has other files under the names of this course's media: download the course here instead.",
     "course_import_busy": "Another course file is being imported. Try again when it is done.",
+    "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done.",
     "understanding_busy": "A text for this lesson is being written. Wait for it."
   },
   "exams": {

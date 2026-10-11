@@ -8,6 +8,7 @@ import { ulid } from "ulid";
 import { deckFiles } from "../src/runtime/decks.ts";
 import { DECK_MAX_BYTES } from "../src/services/decks.ts";
 import { COURSE, deck, mediaPath, SOUND, study, withDecks } from "./deck-setup.ts";
+import { until } from "./until.ts";
 
 test("a package previewed, imported as a deck with its audio; its media served from its folder alone", async () => {
   const api = await withDecks();
@@ -102,6 +103,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
   expect(kaffee).toEqual(mediaPath("kaffee"));
   const audio = await get(`/decks/${summary.id}/${kaffee}`);
   expect(new Uint8Array(await audio.arrayBuffer())).toEqual(SOUND);
+  expect(audio.headers.get("content-security-policy")).toContain("sandbox");
   const part = await get(`/decks/${summary.id}/${kaffee}`, {
     headers: { range: "bytes=0-2" },
   });
@@ -331,7 +333,7 @@ test("a deck taken as a course's: a word with a card keeps it, the deck studies 
     (await getJson("/api/cards")).words.find(
       (w: { lexemeKey: string }) => w.lexemeKey === "lex:de:apfel:noun:m",
     ).display.translation;
-  for (let i = 0; i < 20 && (await apfel()) !== "der Apfel: яблоко"; i++) await Bun.sleep(25);
+  await until(async () => (await apfel()) === "der Apfel: яблоко");
   expect(await apfel()).toBe("der Apfel: яблоко");
 
   // In use: not deleted.

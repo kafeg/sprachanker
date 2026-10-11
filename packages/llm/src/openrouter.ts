@@ -1,6 +1,6 @@
 // OpenRouter's own API beside the OpenAI-compatible one (07, "Providers"): the state of the learner's
 // key — free tier or credits, what is used and left, the rate limit — as far as OpenRouter tells it.
-import { endpointCaller } from "./client.ts";
+import { bearer, endpointCaller } from "./http.ts";
 
 export interface OpenRouterKey {
   /** The account has bought no credits: free models only, with the free tier's daily limit. */
@@ -23,7 +23,7 @@ export async function openRouterKey(
   fetchFn = fetch,
   signal?: AbortSignal,
 ): Promise<OpenRouterKey> {
-  const call = endpointCaller(endpoint.baseUrl, endpoint.apiKey, fetchFn);
+  const call = endpointCaller(endpoint.baseUrl, bearer(endpoint.apiKey), fetchFn);
   const res = await call("/key", { method: "GET" }, QUICK_MS, signal);
   const body = (await res.json().catch(() => null)) as { data?: Record<string, unknown> } | null;
   const d = body?.data ?? {};

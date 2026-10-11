@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server u mreži",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio na ovom računaru: SprachAnker pokreće njegov server, učitava izabrani model i može u njega preuzeti predložene modele. Besplatno, i ništa ne napušta računar. Ako LM Studio radi na drugom računaru, izaberi „Server u mreži“.",
       "openrouter": "OpenRouter u oblaku: stotine modela mnogih proizvođača preko jednog ključa, neki od njih besplatni (s dnevnim ograničenjima). Sadržaj lekcija i tvoji odgovori idu OpenRouteru i dobavljaču modela.",
+      "openai": "OpenAI-jevi modeli (GPT-5, GPT-4.1, o-serija i drugi) u oblaku preko njihovog API-ja, plaćanje po korištenju — nije ChatGPT pretplata: za nju izaberi Codex. Sadržaj lekcija i tvoji odgovori idu OpenAI-ju.",
+      "anthropic": "Anthropicovi Claude modeli u oblaku preko njihovog API-ja, plaćanje po korištenju — nije Claude pretplata: za nju izaberi Claude Code. Sadržaj lekcija i tvoji odgovori idu Anthropicu.",
       "gemini": "Googleovi Gemini modeli u oblaku, s ključem iz Google AI Studija. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu; neki modeli traže plaćanje. Na besplatnom nivou Google može koristiti poslane podatke za poboljšanje svojih proizvoda: sadržaj lekcija i tvoji odgovori idu Googleu.",
       "groq": "Otvoreni modeli (Llama, Qwen, GPT-OSS i drugi) na Groqovom brzom hardveru u oblaku. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu za svaki model. Sadržaj lekcija i tvoji odgovori idu Groqu.",
       "custom": "Bilo koji server s API-jem kompatibilnim s OpenAI na drugom računaru: LM Studio, Ollama, llama.cpp, vLLM i drugi. Unesi njegovu adresu (završava na /v1) i ključ ako ga traži.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Napravi ključ na openrouter.ai/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
+      "openai": "Napravi ključ na platform.openai.com/api-keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
+      "anthropic": "Napravi ključ na platform.claude.com/settings/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
       "gemini": "Napravi ključ na aistudio.google.com/apikey. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
       "groq": "Napravi ključ na console.groq.com/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Unesi adresu servera.",
     "llm_no_key": "Unesi API ključ.",
     "llm_not_configured": "Izaberi model u Postavkama → AI asistent.",
+    "llm_overloaded": "Dobavljač je trenutno preopterećen. Pokušaj ponovo za trenutak.",
     "llm_rate_limited": "Ograničenje dobavljača je za sada dostignuto (besplatni nivoi ograničavaju zahtjeve po minuti i po danu). Pokušaj kasnije ili izaberi drugi model u Postavkama → AI asistent.",
     "llm_timeout": "Model je predugo odgovarao.",
     "llm_unauthorized": "API ključ nije prihvaćen.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "Lekcija još nije završena.",
     "run_not_active": "Ovaj prolaz lekcije je završen. Ponovo učitaj lekciju.",
     "run_without_edition": "Ovaj prolaz nema jezičku verziju. Ponovo počni lekciju.",
-    "scene_busy": "Dijalog još odgovara. Sačekaj.",
+    "scene_busy": "Sagovornik još odgovara ili se dijalog priprema.",
     "server_error": "Nešto nije u redu na serveru.",
     "speaking_busy": "Ovaj odgovor se upravo provjerava. Sačekaj.",
     "speech_engine_failed": "Prepoznavač govora nije odgovorio. Pokušaj ponovo.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",
+    "upload_stalled": "Datoteka je prestala stizati. Provjeri vezu i pokušaj ponovo.",
     "profile_import_busy": "Upravo se uvozi druga datoteka profila. Pokušaj ponovo kad se završi.",
     "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ.",
     "course_export_gone": "Ovog izvoza više nema: izvezi kurs ponovo.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
     "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
     "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
+    "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi.",
     "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj."
   },
   "exams": {

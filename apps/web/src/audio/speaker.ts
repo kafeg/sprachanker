@@ -5,7 +5,7 @@
 // What starts playing (a recording, a video) stops it, and it stops what plays; which text is being
 // read is shared by every speaker button, so one shows "stop" while the others show "listen".
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { useSetting } from "@/api/settings.ts";
+import { useSetting, useSettings } from "@/api/settings.ts";
 import { sayOnServer, usePiperVoices, useQwenTts, warmQwen } from "@/api/speech.ts";
 import { claimPlayback } from "@/ui/playback.tsx";
 import { bestVoice, type SpokenPart, speaks, type VoiceInfo } from "./speak.ts";
@@ -201,11 +201,14 @@ export function deviceVoice(
  *  read/stop. */
 export function useSpeaker() {
   const voices = useDeviceVoices();
+  const settings = useSettings();
   const engine = useSetting("speech.readEngine");
   const chosen = useSetting("speech.voices");
   const rate = useSetting("speech.readRate");
-  const piper = usePiperVoices(engine === "piper").data;
-  const qwen = useQwenTts(engine === "qwen").data;
+  const piperQuery = usePiperVoices(engine === "piper");
+  const qwenQuery = useQwenTts(engine === "qwen");
+  const piper = piperQuery.data;
+  const qwen = qwenQuery.data;
   // Qwen3-TTS takes seconds to load: started as soon as something here may read with it.
   useEffect(() => {
     if (engine === "qwen" && Date.now() - qwenWarmedAt > WARM_AGAIN_MS) {
@@ -279,6 +282,12 @@ export function useSpeaker() {
     /** Whether a language can be read (by Piper or a device voice). */
     canRead: (lang: string) => !!wayFor(lang),
     readBy,
+    /** The profile's engine, or what the server's reads, still being asked: who reads is not known
+     *  yet. */
+    asking:
+      settings.isPending ||
+      (engine === "piper" && piperQuery.isPending) ||
+      (engine === "qwen" && qwenQuery.isPending),
     reading: current,
     say,
     stop,

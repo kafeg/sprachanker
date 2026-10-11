@@ -13,7 +13,7 @@ locale files, rules registry, enrichment, and the normalisation contract every p
 | Generated ids (learner data) | ULID |
 | Edition id | `<source>-<target>` (`ru-de`, `en-de`, `de-de`) |
 | Time | durations in seconds; timestamps Unix ms (in the databases and in files) |
-| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL; one file per content in a series — URLs whose files are the same (by sha256) point to one, the first path in order (each fetch makes it so, stored ones too; files no URL points to any more stay, as passes and cards may name them) |
+| Media references | path inside the series folder, `media/<kind>/<name>` (readable source names; `-2`, `-3` on clashes; a name any disk takes — no `<>:"|?*`, control character, trailing dot or space, device name, at most 255 bytes — with an extension of its kind, lower case: audio mp3, m4a, aac, ogg, opus, wav, mp4; image jpg, jpeg, png, webp, gif; video mp4, webm, m4v; subtitles vtt, srt; pdf — never HTML, SVG or a script: the media store refuses any other, schema `storableMedia`); sha256, size and MIME are recorded in `<series>/media.json`, keyed by source URL; one file per content in a series — URLs whose files are the same (by sha256) point to one, the first path in order (each fetch makes it so, stored ones too; files no URL points to any more stay, as passes and cards may name them) |
 | Text language | target-language strings live in **canonical** files; learner-language strings only in **locale** files, at the same key path — except where the provider cannot tell the two apart (an edition whose languages share a script: a text that may be either stays canonical — DW's speaking descriptions join `prompt`, 03; "Which source fields are learner language" below). Every text is the source's: a provider makes up none (a page the source gives no title has none, and the app names it by its kind) |
 | HTML | only in fields named `*Html`, sanitised to an allow-list: h3 (a section title — outside tables, lists and figures; one inside them is a bold paragraph), p, br, b, strong, i, em, small, mark (a word the source marks for itself: DW's new words, shown underlined), ul, ol, li, table, thead, tbody, tr, th, td, figure, figcaption, img (`src` rewritten to a media path, `alt` kept), a cell's `rowspan` and `colspan` (2–99); no attributes otherwise; a table of one cell holding a line of text (a label over the next table) is that text as a bold paragraph, one holding paragraphs (a framed note) stays; unknown elements are unwrapped to their text, comments dropped; emphasis around nothing but spaces, an empty paragraph, caption or title, and a no-break space between two letters (a plain space; one keeping a number with its unit stays) and characters of no width (a zero-width space, a byte-order mark), a line break at a block's start or end and a second one in a row are an editor's leftovers; a paragraph of plain lines, two or more of them "- item", is those lines as a list (the other lines paragraphs around it). Plain text from a source's HTML drops its comments (an editor's markup in them) and characters of no width |
 | Format versions | integer `format` in every content file type (canonical, locale, exams, enrichment); bumped on breaking change; additive optional fields do not bump it. The importer's own state (`media.json`, `keys.json`) has none: it is checked when read, and one that does not read stops the import |
@@ -335,29 +335,46 @@ canonical/<course>/…                # the course's files: index, lessons, exam
 locale/<edition>/<course>/…         # each edition carried (a Downloaded card's: its own; the CLI's: all, or
                                     # those asked)
 media/<kind>/<name>                 # only the media those files name that are on disk, as stored
-raw/…                               # only the copies an exam's sources name (verify checks them)
+raw/<edition>/<course>/…            # only the copies an exam's sources name (verify checks them), in the
+                                    # course's own folder (any edition: canonical sources serve them all)
 ```
 
 - Not in it: the rest of `raw/` (a source's pages can be fetched again, and are the larger part:
   3.5 GB of Nicos Weg's), media no file of it names, other courses' lines of `media.json` and
   `keys.json`, learner data (05).
+- **Export** (`courses export`, a Downloaded card, 06): the course's files linked into a transfer
+  under the series' import lock — not waited for: while a download or import of the series runs it
+  is 409 `series_busy` —, so a course normalised meanwhile is never taken half old, half new; hashed
+  after, the lock let go. One export of a course at a time: asked again while it waits to be
+  downloaded (an hour at most), the same editions are that one, other editions replace it.
 - **Import** (`courses import`, Courses/Exams → Downloaded, 06): all or nothing, one at a time, in a
   transfer folder (`library/.transfers/<id>/`, swept as a profile's, 05). The file (its length
   announced; room for it, then for what of it is unpacked) read by its zip directory as a profile file is (05, step 2), its names
-  only paths of the format above (`CourseBundlePath`: no `..`, no other folder) and each once, its
+  only paths of the format above (`CourseBundlePath`: no `..`, no other folder, every name portable,
+  a media file only of its kind's extensions — "Media references") and each once — also to a disk
+  that does not tell case or Unicode forms apart (NFC, lower case: APFS, NTFS) —, its
   manifest read by its schema; its files exactly those listed. A media file or source copy the
   library holds already is not unpacked: the same name and content skipped, the same content under
-  another name of `media.json` linked (copied where the disk has no hard links); a media file there
-  under the same name with other content stops it (the two machines fetched different files under one
-  name). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
+  another name of `media.json` linked (that file hashed first: the index says what it held when
+  fetched; copied only where the disk has no hard links, never over a file there); a media file or
+  source copy there under the same name with other content stops it (the two machines fetched
+  different files under one name; a bundle replaces nothing of the library but its course's folders). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
   library file read by its schema (strict), where its own keys put it (`libraryFile`), of the
   bundle's course and editions, the index and each edition's course file there, each media file one
-  the files name, each source copy one an exam's sources name, the content versions those of its
-  files. Only then, under the series' import
-  lock (03): media and copies moved into place, the lines of `media.json` it lacks added, the course's
-  scopes of `keys.json` set, and the course's canonical folder and each edition's folder replaced
-  whole where their content version differs (the old one aside in the transfer until the new one is
-  in place; put back if the process stopped in between). The course installed: `verify` runs on it
+  the files name, each source copy one an exam's sources name, each line of its `media.json` one
+  of its media files with that file's kind, size and sha256 for an http(s) address (a URL stored is
+  never fetched again by the next download: a line is believed), the content versions those of its
+  files. A name the disk refuses (too long, a file where a folder would be) is the file's damage
+  (422), and a series another process is importing 409 `series_busy`. Only then, under the series' import
+  lock (03), all or nothing: media and copies moved into place, the course's canonical folder and
+  each edition's folder replaced whole where their content version differs, then the lines of
+  `media.json` it lacks added (a URL the library has stored keeps its own line) and the course's
+  scopes of `keys.json` replaced by the bundle's (wholesale: a scope of the course the bundle lacks
+  goes — the bundle's key map is the course's as its files were numbered). What it changes is
+  written in the transfer first (`install.json`), the old folders and files kept beside it: an
+  error undoes it at once; a process stopped midway is undone at the next start, whatever the
+  transfer's age, under the series' lock (one another process holds is that process's install,
+  running). The course installed: `verify` runs on it
   and its result is said; a download marker it ends is removed when no media is missing.
 - **The same course installed**: a bundle with the same content versions changes nothing ("already
   here"; media it lacked are added); one that differs replaces the folders that differ (owner may

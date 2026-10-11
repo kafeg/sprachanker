@@ -421,16 +421,21 @@ export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
           : "end" in action
             ? json(api.llm.scene.end.$post({ json: action.end }))
             : json(api.llm.scene.summary.$post({ json: action.summary })),
-    // Shown at once: the scene first; a start ends the one that was open.
+    // Shown at once: the scene first; a start ends the one that was open (read again: what its
+    // partner knew comes with it ended); the line that ended one is summed up next (polled).
     onSuccess: (scene, action) => {
+      const summing = "turn" in action && scene.done && !scene.summary;
       client.setQueryData(
         ["scenes", lessonKey],
         (old: { scenes: SceneState[]; pending: unknown } | undefined) => ({
           ...withScene(old, scene, "start" in action),
-          pending: null,
+          pending: summing ? { summing: true } : null,
         }),
       );
-      if ("start" in action) onStarted?.();
+      if ("start" in action) {
+        void client.invalidateQueries({ queryKey: ["scenes", lessonKey] });
+        onStarted?.();
+      }
     },
   });
 }

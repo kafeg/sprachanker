@@ -40,12 +40,41 @@ export function diskOf(dir: string): Disk | null {
 
 /** A full disk, found before writing: the same error a write that runs out of room gives. */
 const noSpace = () => Object.assign(new Error("not enough free space"), { code: "ENOSPC" });
+/** An upload that sends nothing this long has stalled (a phone put away, a network gone): it ends, and
+ *  the import it holds lets the next one in. */
+const UPLOAD_IDLE_MS = 2 * 60_000;
+const stalled = () => Object.assign(new Error("the upload stalled"), { code: "ETIMEDOUT" });
+
+/** Chunks passed on while each comes within `ms` of the one before; else a stall (ETIMEDOUT). */
+async function* timely<T>(chunks: AsyncIterable<T>, ms: number): AsyncGenerator<T> {
+  const it = chunks[Symbol.asyncIterator]();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    for (;;) {
+      const next = await Promise.race([
+        it.next(),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(stalled()), ms);
+        }),
+      ]);
+      clearTimeout(timer);
+      if (next.done) return;
+      yield next.value;
+    }
+  } finally {
+    clearTimeout(timer);
+    // Not waited for: a stream's return waits for the read that stalled.
+    it.return?.()?.catch(() => {});
+  }
+}
 
 export interface TransferOptions {
   disk?: (dir: string) => Disk | null;
   /** Whether this process may sweep: not the command line while a server runs on the data root
    *  (its transfers are the server's). */
   sweeps?: () => boolean;
+  /** How long an upload may send nothing (tests: shorter). */
+  uploadIdleMs?: number;
 }
 
 /** `beforeRemove`: what a transfer swept leaves to mend first (a course folder an install put aside). */
@@ -60,6 +89,8 @@ export function transferFolders(
   /** A transfer's folder marked as in use for another process's sweep (its time), at most a minute
    *  apart. */
   const touched = new Map<string, number>();
+  /** What was worked out of a transfer's file (its zip directory: read, then unpacked), by file. */
+  const known = new Map<string, { file: string; value: unknown }>();
   const folder = (id: string) => {
     if (!ID.test(id)) throw new Error(`bad transfer id ${id}`);
     return join(root, id);
@@ -98,6 +129,15 @@ export function transferFolders(
       rmSync(folder(id), { recursive: true, force: true });
       active.delete(id);
       touched.delete(id);
+      known.delete(id);
+    },
+    /** `make` of a transfer's `file`, worked out once until the transfer goes. */
+    once<T>(id: string, file: string, make: () => T): T {
+      const had = known.get(id);
+      if (had?.file === file) return had.value as T;
+      const value = make();
+      known.set(id, { file, value });
+      return value;
     },
     /** Marks a transfer in use now (a download that has begun), whatever its age. */
     inUse(id: string) {
@@ -127,7 +167,11 @@ export function transferFolders(
     ) {
       self.room(root, need);
       return (
-        (await writeChunks(join(folder(id), file), self.touching(id, body), length)) !== undefined
+        (await writeChunks(
+          join(folder(id), file),
+          self.touching(id, timely(body, options.uploadIdleMs ?? UPLOAD_IDLE_MS)),
+          length,
+        )) !== undefined
       );
     },
     /** A stream written whole to a file — its owner's only — (beside it, then renamed), its disk

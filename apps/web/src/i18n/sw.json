@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Seva kwenye mtandao",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio kwenye kompyuta hii: SprachAnker huanzisha seva yake, hupakia modeli uliyochagua na inaweza kupakua ndani yake modeli zinazopendekezwa. Ni bure, na hakuna kinachotoka kwenye kompyuta. Ikiwa LM Studio inaendeshwa kwenye kompyuta nyingine, chagua “Seva kwenye mtandao”.",
       "openrouter": "OpenRouter mtandaoni: mamia ya modeli kutoka kwa watengenezaji wengi kwa ufunguo mmoja, baadhi yake bure (kwa vikomo vya kila siku). Maudhui ya somo na majibu yako huenda kwa OpenRouter na kwa mtoa huduma wa modeli.",
+      "openai": "Modeli za OpenAI (GPT-5, GPT-4.1, mfululizo wa o na nyinginezo) mtandaoni kupitia API yake, kwa kulipia matumizi — si usajili wa ChatGPT: kwa huo, chagua Codex. Maudhui ya somo na majibu yako huenda kwa OpenAI.",
+      "anthropic": "Modeli za Claude za Anthropic mtandaoni kupitia API yake, kwa kulipia matumizi — si usajili wa Claude: kwa huo, chagua Claude Code. Maudhui ya somo na majibu yako huenda kwa Anthropic.",
       "gemini": "Modeli za Gemini za Google mtandaoni kwa ufunguo kutoka Google AI Studio. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku; baadhi ya modeli zinahitaji malipo. Katika kiwango cha bure Google inaweza kutumia kinachotumwa kuboresha bidhaa zake: maudhui ya somo na majibu yako huenda kwa Google.",
       "groq": "Modeli huria (Llama, Qwen, GPT-OSS na nyinginezo) kwenye vifaa vya kasi vya Groq mtandaoni. Kiwango cha bure hakihitaji kadi na kina vikomo kwa dakika na kwa siku kwa kila modeli. Maudhui ya somo na majibu yako huenda kwa Groq.",
       "custom": "Seva yoyote yenye API inayooana na OpenAI kwenye kompyuta nyingine: LM Studio, Ollama, llama.cpp, vLLM na nyinginezo. Weka anwani yake (inayoishia na /v1) na ufunguo ikiwa inauomba.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Tengeneza ufunguo kwenye openrouter.ai/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
+      "openai": "Tengeneza ufunguo kwenye platform.openai.com/api-keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
+      "anthropic": "Tengeneza ufunguo kwenye platform.claude.com/settings/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
       "gemini": "Tengeneza ufunguo kwenye aistudio.google.com/apikey. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena.",
       "groq": "Tengeneza ufunguo kwenye console.groq.com/keys. Huhifadhiwa kwa usimbaji fiche kwenye kompyuta hii na hauonyeshwi tena."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Weka anwani ya seva.",
     "llm_no_key": "Weka ufunguo wa API.",
     "llm_not_configured": "Chagua modeli katika Mipangilio → Msaidizi wa AI.",
+    "llm_overloaded": "Mtoa huduma ana mzigo mkubwa sasa hivi. Jaribu tena baada ya muda mfupi.",
     "llm_rate_limited": "Kikomo cha mtoa huduma kimefikiwa kwa sasa (viwango vya bure hupunguza maombi kwa dakika na kwa siku). Jaribu tena baadaye, au chagua modeli nyingine katika Mipangilio → Msaidizi wa AI.",
     "llm_timeout": "Modeli ilichukua muda mrefu mno kujibu.",
     "llm_unauthorized": "Ufunguo wa API haukukubaliwa.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "Somo bado halijakamilika.",
     "run_not_active": "Mzunguko huu wa somo umekwisha. Pakia somo upya.",
     "run_without_edition": "Mzunguko huu hauna toleo la lugha. Anza somo tena.",
-    "scene_busy": "Mazungumzo bado yanajibu. Subiri.",
+    "scene_busy": "Mwenzako bado anajibu, au mazungumzo yanaandaliwa.",
     "server_error": "Hitilafu imetokea kwenye seva.",
     "speaking_busy": "Jibu hili linakaguliwa. Subiri.",
     "speech_engine_failed": "Kitambuzi cha sauti hakikujibu. Jaribu tena.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
+    "upload_stalled": "Faili limeacha kufika. Angalia muunganisho kisha ujaribu tena.",
     "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika.",
     "llm_url_with_login": "Usiweke jina la mtumiaji na nenosiri kwenye anwani: weka ufunguo kwenye sehemu ya ufunguo wa API.",
     "course_export_gone": "Uhamishaji huu haupo tena: hamisha kozi tena.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Faili hili la kozi limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
     "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
     "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
+    "series_busy": "Kozi kutoka chanzo hiki zinapakuliwa au kuingizwa sasa hivi. Jaribu tena itakapokamilika.",
     "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri."
   },
   "exams": {

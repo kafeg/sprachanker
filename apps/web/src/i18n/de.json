@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server im Netzwerk",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio auf diesem Computer: SprachAnker startet seinen Server, lädt das gewählte Modell und kann empfohlene Modelle hineinladen. Kostenlos, und nichts verlässt den Computer. Läuft LM Studio auf einem anderen Computer, wähle „Server im Netzwerk“.",
       "openrouter": "OpenRouter in der Cloud: Hunderte Modelle vieler Hersteller mit einem Schlüssel, einige davon kostenlos (mit Tageslimits). Lektionsinhalte und deine Antworten gehen an OpenRouter und den Anbieter des Modells.",
+      "openai": "Die Modelle von OpenAI (GPT-5, GPT-4.1, die o-Reihe und andere) in der Cloud über die API, bezahlt nach Nutzung — kein ChatGPT-Abo: dafür wähle Codex. Lektionsinhalte und deine Antworten gehen an OpenAI.",
+      "anthropic": "Die Claude-Modelle von Anthropic in der Cloud über die API, bezahlt nach Nutzung — kein Claude-Abo: dafür wähle Claude Code. Lektionsinhalte und deine Antworten gehen an Anthropic.",
       "gemini": "Googles Gemini-Modelle in der Cloud mit einem Schlüssel aus Google AI Studio. Die kostenlose Stufe braucht keine Karte und hat Grenzen pro Minute und Tag; manche Modelle brauchen ein Abrechnungskonto. In der kostenlosen Stufe darf Google Gesendetes zur Verbesserung seiner Produkte nutzen: Lektionsinhalte und deine Antworten gehen an Google.",
       "groq": "Offene Modelle (Llama, Qwen, GPT-OSS und andere) auf Groqs schneller Hardware in der Cloud. Die kostenlose Stufe braucht keine Karte und hat Grenzen pro Minute und Tag für jedes Modell. Lektionsinhalte und deine Antworten gehen an Groq.",
       "custom": "Jeder Server mit OpenAI-kompatibler API auf einem anderen Computer: LM Studio, Ollama, llama.cpp, vLLM und andere. Gib seine Adresse an (endet auf /v1) und einen Schlüssel, falls er einen verlangt.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Einen Schlüssel erstellst du auf openrouter.ai/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
+      "openai": "Einen Schlüssel erstellst du auf platform.openai.com/api-keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
+      "anthropic": "Einen Schlüssel erstellst du auf platform.claude.com/settings/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
       "gemini": "Erstelle einen Schlüssel auf aistudio.google.com/apikey. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt.",
       "groq": "Erstelle einen Schlüssel auf console.groq.com/keys. Er wird verschlüsselt auf diesem Computer gespeichert und nie wieder angezeigt."
     }
@@ -565,7 +571,7 @@
     "sumUp": "Zusammenfassen",
     "end": "Dialog beenden",
     "noRecognition": "Die Spracherkennung ist aus oder nicht installiert (Einstellungen → Sprechen).",
-    "typeInstead": "Tippe deinen Satz stattdessen.",
+    "typeInstead": "Tippe deinen Satz stattdessen ein.",
     "again": "Noch einmal sagen",
     "waitPartner": "Warte auf die Antwort deines Gegenübers."
   },
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Gib die Serveradresse ein.",
     "llm_no_key": "Gib den API-Schlüssel ein.",
     "llm_not_configured": "Wähle ein Modell unter Einstellungen → KI-Assistent.",
+    "llm_overloaded": "Der Anbieter ist gerade überlastet. Versuch es gleich noch einmal.",
     "llm_rate_limited": "Das Limit des Anbieters ist gerade erreicht (kostenlose Stufen begrenzen Anfragen pro Minute und Tag). Versuche es später oder wähle ein anderes Modell unter Einstellungen → KI-Assistent.",
     "llm_timeout": "Das Modell braucht zu lange.",
     "llm_unauthorized": "Der API-Schlüssel wurde nicht akzeptiert.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "Die Lektion ist noch nicht fertig.",
     "run_not_active": "Dieser Durchgang der Lektion ist beendet. Lade die Lektion neu.",
     "run_without_edition": "Diesem Durchgang fehlt die Sprachversion. Starte die Lektion neu.",
-    "scene_busy": "Der Dialog antwortet noch. Warte darauf.",
+    "scene_busy": "Dein Gesprächspartner antwortet noch, oder der Dialog wird vorbereitet.",
     "server_error": "Auf dem Server ist etwas schiefgelaufen.",
     "speaking_busy": "Diese Antwort wird gerade geprüft. Warte darauf.",
     "speech_engine_failed": "Die Spracherkennung hat nicht geantwortet. Versuch es noch einmal.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen.",
     "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht.",
     "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser.",
+    "upload_stalled": "Die Datei kam nicht mehr an. Prüf die Verbindung und versuch es noch einmal.",
     "profile_import_busy": "Gerade wird eine andere Profildatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
     "llm_url_with_login": "Lass Benutzername und Passwort aus der Adresse weg: gib den Schlüssel im Feld für den API-Schlüssel ein.",
     "course_export_gone": "Dieser Export ist nicht mehr da: Exportiere den Kurs noch einmal.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Diese Kursdatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
     "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
     "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
+    "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist.",
     "understanding_busy": "Ein Text für diese Lektion wird gerade geschrieben. Warte darauf."
   },
   "exams": {

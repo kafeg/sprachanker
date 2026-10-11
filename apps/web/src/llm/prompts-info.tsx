@@ -40,8 +40,8 @@ const PARTS = {
   conversation: ["exam", "partner", "conversation"],
   understanding: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "length"],
   understandingCheck: ["readText", "textQuestions"],
-  sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics"],
-  scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "history"],
+  sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "grammar"],
+  scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "grammar", "history"],
   sceneSummary: ["level", "dialogueGoals", "dialogue"],
   examples: ["level", "knownVocab", "words"],
 } as const;

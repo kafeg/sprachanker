@@ -236,6 +236,8 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server în rețea",
@@ -271,6 +273,8 @@
     "about": {
       "lmstudio": "LM Studio pe acest computer: SprachAnker îi pornește serverul, încarcă modelul ales și poate descărca în el modelele sugerate. Gratuit, și nimic nu părăsește computerul. Dacă LM Studio rulează pe alt computer, alege „Server în rețea”.",
       "openrouter": "OpenRouter în cloud: sute de modele de la mulți producători cu o singură cheie, unele gratuite (cu limite zilnice). Conținutul lecțiilor și răspunsurile tale ajung la OpenRouter și la furnizorul modelului.",
+      "openai": "Modelele OpenAI (GPT-5, GPT-4.1, seria o și altele) în cloud prin API-ul său, plătite după utilizare — nu un abonament ChatGPT: pentru acesta, alege Codex. Conținutul lecțiilor și răspunsurile tale ajung la OpenAI.",
+      "anthropic": "Modelele Claude de la Anthropic în cloud prin API-ul său, plătite după utilizare — nu un abonament Claude: pentru acesta, alege Claude Code. Conținutul lecțiilor și răspunsurile tale ajung la Anthropic.",
       "gemini": "Modelele Gemini de la Google în cloud, cu o cheie din Google AI Studio. Nivelul gratuit nu cere card și are limite pe minut și pe zi; unele modele necesită facturare. Pe nivelul gratuit, Google poate folosi ce se trimite pentru a-și îmbunătăți produsele: conținutul lecțiilor și răspunsurile tale ajung la Google.",
       "groq": "Modele deschise (Llama, Qwen, GPT-OSS și altele) pe hardware-ul rapid al Groq, în cloud. Nivelul gratuit nu cere card și are limite pe minut și pe zi pentru fiecare model. Conținutul lecțiilor și răspunsurile tale ajung la Groq.",
       "custom": "Orice server cu un API compatibil OpenAI pe alt computer: LM Studio, Ollama, llama.cpp, vLLM și altele. Indică adresa lui (care se termină în /v1) și o cheie, dacă cere una.",
@@ -311,6 +315,8 @@
     },
     "keyHintFor": {
       "openrouter": "Creează o cheie pe openrouter.ai/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
+      "openai": "Creează o cheie pe platform.openai.com/api-keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
+      "anthropic": "Creează o cheie pe platform.claude.com/settings/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
       "gemini": "Creează o cheie pe aistudio.google.com/apikey. Se păstrează criptată pe acest computer și nu mai este afișată niciodată.",
       "groq": "Creează o cheie pe console.groq.com/keys. Se păstrează criptată pe acest computer și nu mai este afișată niciodată."
     }
@@ -1287,6 +1293,7 @@
     "llm_no_endpoint": "Introdu adresa serverului.",
     "llm_no_key": "Introdu cheia API.",
     "llm_not_configured": "Alege un model în Setări → Asistent AI.",
+    "llm_overloaded": "Furnizorul este supraîncărcat acum. Încearcă din nou peste puțin timp.",
     "llm_rate_limited": "Limita furnizorului a fost atinsă deocamdată (nivelurile gratuite limitează cererile pe minut și pe zi). Încearcă mai târziu sau alege alt model în Setări → Asistent AI.",
     "llm_timeout": "Modelul a întârziat prea mult cu răspunsul.",
     "llm_unauthorized": "Cheia API nu a fost acceptată.",
@@ -1323,7 +1330,7 @@
     "run_incomplete": "Lecția nu este încă terminată.",
     "run_not_active": "Această parcurgere a lecției s-a încheiat. Reîncarcă lecția.",
     "run_without_edition": "Această parcurgere nu are versiune lingvistică. Începe lecția din nou.",
-    "scene_busy": "Dialogul încă răspunde. Așteaptă.",
+    "scene_busy": "Partenerul tău încă răspunde sau dialogul se pregătește.",
     "server_error": "Ceva n-a mers bine pe server.",
     "speaking_busy": "Acest răspuns este în curs de verificare. Așteaptă.",
     "speech_engine_failed": "Recunoașterea vorbirii nu a răspuns. Încearcă din nou.",
@@ -1346,6 +1353,7 @@
     "deck_same_languages": "Cuvintele și traducerile lor trebuie să fie în două limbi diferite.",
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",
+    "upload_stalled": "Fișierul a încetat să mai sosească. Verifică conexiunea și încearcă din nou.",
     "profile_import_busy": "Se importă deja alt fișier de profil. Încearcă din nou după ce se termină.",
     "llm_url_with_login": "Lasă numele de utilizator și parola în afara adresei: introdu cheia în câmpul pentru cheia API.",
     "course_export_gone": "Acest export nu mai este aici: exportă cursul din nou.",
@@ -1355,6 +1363,7 @@
     "course_bundle_from_newer_app": "Acest fișier de curs vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
     "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
     "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină.",
+    "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină.",
     "understanding_busy": "Se scrie un text pentru această lecție. Așteaptă."
   },
   "exams": {
