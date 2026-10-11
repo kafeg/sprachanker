@@ -30,7 +30,7 @@
     "nextWorked": "{worked, number} dari {total, number} selesai",
     "doneShort": "{done, number} / {total, number} · {share}",
     "tabs": {
-      "mine": "Kursus saya",
+      "mine": "Kursusku",
       "downloaded": "Diunduh",
       "available": "Tersedia"
     },
@@ -40,7 +40,7 @@
     "anyLanguage": "semua"
   },
   "course": {
-    "unit": "Bab {number}",
+    "unit": "Bab {number, number}",
     "status": {
       "new": "Belum dimulai",
       "in_progress": "Sedang berjalan · {worked, number} dari {total, number}",
@@ -66,7 +66,7 @@
     },
     "checking": "Memeriksa berkas kursus…",
     "missing": "{count, number} hilang",
-    "problems": "{count, plural, other {# masalah}} ditemukan",
+    "problems": "{count, plural, other {# masalah ditemukan}}",
     "intact": "Semua berkas lengkap dan konsisten.",
     "checkAgain": "Periksa lagi",
     "complete": "Semua sudah diunduh",
@@ -82,12 +82,12 @@
     }
   },
   "lesson": {
-    "unitLesson": "Bab {unit} · Pelajaran {lesson}",
+    "unitLesson": "Bab {unit, number} · Pelajaran {lesson, number}",
     "goals": "Di pelajaran ini kamu akan belajar:",
     "counts": "{exercises, plural, =0 {} other {# latihan · }}{words, plural, other {# kata baru}}",
     "start": "Mulai pelajaran",
     "resume": "Lanjutkan pelajaran",
-    "exerciseOf": "Latihan {n} dari {total}",
+    "exerciseOf": "Latihan {n, number} dari {total, number}",
     "check": "Periksa",
     "next": "Lanjut",
     "toSummary": "Ke ringkasan",
@@ -106,7 +106,7 @@
     "reference": "Referensi",
     "plan": "Rencana pelajaran",
     "audio": "Dengarkan pelajaran",
-    "itemAudio": "Audio untuk soal {n}",
+    "itemAudio": "Audio untuk soal {n, number}",
     "redo": "Mulai ulang",
     "done": "Selesai",
     "doneScore": "Selesai · {score, number, percent} benar",
@@ -123,18 +123,18 @@
     "itemsList": "Soal",
     "answerAll": "Jawab semua soal · {done, number} dari {total, number}",
     "listenFirst": "Putar rekamannya dulu",
-    "listenItem": "Putar rekaman soal {n}",
+    "listenItem": "Putar rekaman soal {n, number}",
     "answerAgain": "Jawab lagi",
-    "exerciseN": "Latihan {n}",
-    "stepsDone": "{done} dari {total} langkah selesai",
-    "stepsLeft": "Masih ada {count, plural, other {# langkah}} lagi.",
+    "exerciseN": "Latihan {n, number}",
+    "stepsDone": "{done, number} dari {total, number} langkah selesai",
+    "stepsLeft": "{count, plural, other {Masih ada # langkah lagi.}}",
     "toStep": "Ke: {title}",
     "videoText": "Teks video",
     "audioText": "Teks rekaman",
     "step": {
       "overview": "Ikhtisar",
       "words": "Kosakata pelajaran",
-      "wordsCount": "Kosakata pelajaran · {count}",
+      "wordsCount": "Kosakata pelajaran · {count, number}",
       "grammar": "Tata bahasa",
       "culture": "Budaya",
       "writing": "Tulis sendiri",
@@ -178,11 +178,11 @@
     "unknown": "Jenis latihan ini belum didukung.",
     "respondPlaceholder": "Jawaban kamu…",
     "reference": "{count, plural, other {Contoh jawaban}}",
-    "gap": "Rumpang {n}",
+    "gap": "Rumpang {n, number}",
     "partRight": "benar",
     "partWrong": "salah",
     "nothing": "— (kosong)",
-    "matchFor": "Pasangan untuk soal {n}",
+    "matchFor": "Pasangan untuk soal {n, number}",
     "dropHere": "letakkan atau ketuk di sini",
     "chips": "Kata untuk ditempatkan",
     "orderLine": "Urutan kamu",
@@ -245,7 +245,7 @@
     "removeKey": "Hapus",
     "check": "Periksa koneksi",
     "checking": "Menghubungkan…",
-    "connected": "Terhubung · {count, plural, =0 {tidak ada model} other {# model}} · {ms} ms",
+    "connected": "Terhubung · {count, plural, =0 {tidak ada model} other {# model}} · {ms, number} ms",
     "model": "Model",
     "setUpHint": "Mau penjelasan? Siapkan asisten AI",
     "explanation": "Penjelasan",
@@ -370,9 +370,9 @@
     "use": "Pakai",
     "inUse": "Dipakai",
     "suggested": "Model yang disarankan",
-    "suggestedHint": "LM Studio mengunduh versi terbaik untuk komputer ini ({memory} GB memori) dan menyimpannya.",
+    "suggestedHint": "LM Studio mengunduh versi terbaik untuk komputer ini ({memory, number} GB memori) dan menyimpannya.",
     "recommended": "Direkomendasikan",
-    "size": "sekitar {size} GB · perlu sekitar {ram} GB memori",
+    "size": "sekitar {size} GB · perlu sekitar {ram, number} GB memori",
     "progress": "{done} dari {total} GB",
     "download": "Unduh di LM Studio",
     "gb": "GB"
@@ -526,7 +526,7 @@
     "play": "Putar: {what}",
     "pause": "Jeda",
     "back": "Mundur 5 detik",
-    "speed": "Kecepatan putar {rate}×",
+    "speed": "Kecepatan putar {rate, number}×",
     "position": "Posisi",
     "unavailable": "Audio tidak bisa dimuat."
   },
@@ -539,14 +539,14 @@
   },
   "progress": {
     "resetCourse": "Atur ulang progres kursus",
-    "removeCourse": "Hapus dari kursus saya",
+    "removeCourse": "Hapus dari kursusku",
     "resetLesson": "Atur ulang progres pelajaran",
     "courseTitle": "Atur ulang progres kamu di “{title}”?",
-    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegan terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursus saya”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
+    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegan terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursusku”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
     "lessonTitle": "Atur ulang progres kamu di “{title}”?",
     "lessonBody": "Semua jawaban dan putaran pelajaran ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegannya, serta kartu kata yang dibuatnya beserta pengulangannya (kata dari pelajaran lain tetap ada). Tindakan ini tidak bisa dibatalkan.",
     "confirm": "Atur ulang",
-    "removeExam": "Hapus dari ujian saya",
+    "removeExam": "Hapus dari ujianku",
     "examTitle": "Hapus “{title}” dari ujian kamu?",
     "examBody": "Simulasi ujian dan latihannya akan dihapus beserta semua jawaban dan penilaiannya. Ujiannya tetap terunduh."
   },
@@ -582,8 +582,8 @@
   },
   "windowTitle": {
     "course": "Kursus",
-    "lesson": "Pelajaran {unit}.{lesson}",
-    "exercise": "Lat. {n}/{total}",
+    "lesson": "Pelajaran {unit, number}.{lesson, number}",
+    "exercise": "Lat. {n, number}/{total, number}",
     "summary": "Ringkasan",
     "download": "↓ {percent, number, percent}",
     "downloading": "↓ …",
@@ -620,7 +620,7 @@
     "dueIn": "dalam {interval}",
     "nothing": "Tidak ada kata yang cocok.",
     "sheet": "Kata",
-    "toLesson": "Pelajaran {unit}.{lesson}",
+    "toLesson": "Pelajaran {unit, number}.{lesson, number}",
     "cards": "Kartu",
     "answers": "Jawaban",
     "noAnswers": "Belum dijawab.",
@@ -692,7 +692,7 @@
     },
     "examRuns": "Simulasi ujian dan latihan",
     "noExamRuns": "Belum ada yang diserahkan.",
-    "examWrong": "{count, plural, other {# pertanyaan}} dijawab salah terakhir kali",
+    "examWrong": "{count, plural, other {# pertanyaan dijawab salah terakhir kali}}",
     "section": {
       "review": "Pengulangan",
       "lesson": "Pelajaran",
@@ -734,8 +734,8 @@
   },
   "study": {
     "listen": "Dengarkan dan ingat artinya",
-    "fromLesson": "pelajaran {unit}.{lesson}",
-    "countsTitle": "Baru {new}, dipelajari {learning}, untuk diulang {review}",
+    "fromLesson": "pelajaran {unit, number}.{lesson, number}",
+    "countsTitle": "Baru {new, number}, dipelajari {learning, number}, untuk diulang {review, number}",
     "finished": "Selamat! Kamu sudah menyelesaikan dek ini untuk sekarang.",
     "nextLearning": "{minutes, plural, other {Kartu berikutnya yang sedang dipelajari siap dalam # menit.}}",
     "reviewLimit": "Batas pengulangan hari ini sudah tercapai, tetapi masih ada kartu yang menunggu untuk diulang.",
@@ -784,7 +784,7 @@
     "deck": "Dek",
     "count": {
       "new": "Baru",
-      "learning": "Belajar",
+      "learning": "Dipelajari",
       "review": "Ulang"
     },
     "due": "{count, plural, other {# kartu}} untuk dipelajari",
@@ -818,7 +818,7 @@
     "page": "{n, number} dari {total, number}"
   },
   "onboarding": {
-    "progress": "Langkah {n} dari {total}",
+    "progress": "Langkah {n, number} dari {total, number}",
     "back": "Kembali",
     "next": "Lanjut",
     "finish": "Pilih kursus",
@@ -876,7 +876,7 @@
     "tabs": {
       "study": "Belajar",
       "decks": "Dek",
-      "words": "Kata saya"
+      "words": "Kataku"
     },
     "studying": "Sedang dipelajari: {deck}",
     "more": "{count, plural, other {# kartu baru lagi hari ini}}",
@@ -998,7 +998,7 @@
       },
       "flag": {
         "name": "Bendera (Ctrl+1–7)",
-        "text": "tanda warna untuk menemukan kartu nanti di Kata saya"
+        "text": "tanda warna untuk menemukan kartu nanti di Kataku"
       },
       "mark": {
         "name": "Tandai (*)",
@@ -1216,7 +1216,7 @@
   },
   "exams": {
     "tabs": {
-      "mine": "Ujian saya",
+      "mine": "Ujianku",
       "downloaded": "Diunduh",
       "available": "Tersedia"
     },
@@ -1236,7 +1236,7 @@
       "practice": "Latihan",
       "practiceText": "Pertanyaan demi pertanyaan, setiap jawaban langsung diperiksa: yang dulu kamu jawab salah lebih dulu, lalu yang belum pernah kamu lihat.",
       "catalog": "Katalog",
-      "catalogText": "Semua {count, plural, other {# pertanyaan}} beserta jawabannya."
+      "catalogText": "{count, plural, =1 {# pertanyaan beserta jawabannya.} other {Semua # pertanyaan beserta jawabannya.}}"
     },
     "begin": "Mulai",
     "practise": "Berlatih",
@@ -1275,12 +1275,12 @@
     "handIn": "Serahkan",
     "endPractice": "Akhiri latihan",
     "handInTitle": "Serahkan ujian?",
-    "handInUnanswered": "{count, plural, other {# pertanyaan}} belum dijawab: pertanyaan yang tidak dijawab dihitung salah.",
+    "handInUnanswered": "{count, plural, other {# pertanyaan belum dijawab: pertanyaan yang tidak dijawab dihitung salah.}}",
     "goOn": "Lanjutkan",
     "leave": "Kembali ke ujian",
     "answered": "Dijawab: {done, number} dari {total, number}",
     "question": "Pertanyaan {n, number} dari {total, number}",
-    "practiceScore": "{points, number} dari {count, plural, other {# jawaban}} benar",
+    "practiceScore": "{count, plural, other {{points, number} dari # jawaban benar}}",
     "timeUp": "Waktunya sudah habis: jawaban yang diberikan sampai saat itu yang dihitung.",
     "needed": "{points, number} dari {max, number} diperlukan",
     "practiseMistakes": "Latih kesalahan",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "Nilai jawaban kamu",
-      "pending": "{count, plural, other {# jawaban}} belum dinilai: dihitung 0 sampai kamu menilainya.",
+      "pending": "{count, plural, other {# jawaban belum dinilai: dihitung 0 sampai kamu menilainya.}}",
       "hint": "Dinilai seperti cara penilai ujian; ubah penilaian kapan saja.",
       "voided": "tugas tidak dikerjakan: 0 untuk seluruh jawaban",
       "unrated": "0 sampai “{criterion}” dinilai: kriteria ini menentukan apakah jawaban dihitung",

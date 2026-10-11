@@ -40,7 +40,7 @@
     "anyLanguage": "dowolny"
   },
   "course": {
-    "unit": "Rozdział {number}",
+    "unit": "Rozdział {number, number}",
     "status": {
       "new": "Nierozpoczęta",
       "in_progress": "W toku · {worked, number} z {total, number}",
@@ -82,12 +82,12 @@
     }
   },
   "lesson": {
-    "unitLesson": "Rozdział {unit} · Lekcja {lesson}",
+    "unitLesson": "Rozdział {unit, number} · Lekcja {lesson, number}",
     "goals": "Z tej lekcji nauczysz się:",
     "counts": "{exercises, plural, =0 {} one {# ćwiczenie · } few {# ćwiczenia · } many {# ćwiczeń · } other {# ćwiczenia · }}{words, plural, one {# nowe słowo} few {# nowe słowa} many {# nowych słów} other {# nowego słowa}}",
     "start": "Zacznij lekcję",
     "resume": "Kontynuuj lekcję",
-    "exerciseOf": "Ćwiczenie {n} z {total}",
+    "exerciseOf": "Ćwiczenie {n, number} z {total, number}",
     "check": "Sprawdź",
     "next": "Dalej",
     "toSummary": "Do podsumowania",
@@ -106,7 +106,7 @@
     "reference": "Materiały",
     "plan": "Plan lekcji",
     "audio": "Posłuchaj lekcji",
-    "itemAudio": "Nagranie do zadania {n}",
+    "itemAudio": "Nagranie do zadania {n, number}",
     "redo": "Zacznij od nowa",
     "done": "Gotowe",
     "doneScore": "Gotowe · {score, number, percent} dobrze",
@@ -123,10 +123,10 @@
     "itemsList": "Zadania",
     "answerAll": "Odpowiedz na wszystkie zadania · {done, number} z {total, number}",
     "listenFirst": "Najpierw odtwórz nagranie",
-    "listenItem": "Odtwórz nagranie do zadania {n}",
+    "listenItem": "Odtwórz nagranie do zadania {n, number}",
     "answerAgain": "Odpowiedz ponownie",
-    "exerciseN": "Ćwiczenie {n}",
-    "stepsDone": "Ukończone kroki: {done} z {total}",
+    "exerciseN": "Ćwiczenie {n, number}",
+    "stepsDone": "Ukończone kroki: {done, number} z {total, number}",
     "stepsLeft": "{count, plural, one {Został jeszcze # krok.} few {Zostały jeszcze # kroki.} many {Zostało jeszcze # kroków.} other {Zostało jeszcze # kroku.}}",
     "toStep": "Przejdź do: {title}",
     "videoText": "Tekst filmu",
@@ -134,7 +134,7 @@
     "step": {
       "overview": "Przegląd",
       "words": "Słówka lekcji",
-      "wordsCount": "Słówka lekcji · {count}",
+      "wordsCount": "Słówka lekcji · {count, number}",
       "grammar": "Gramatyka",
       "culture": "Kultura",
       "writing": "Napisz własny tekst",
@@ -178,11 +178,11 @@
     "unknown": "Ten typ ćwiczenia nie jest jeszcze obsługiwany.",
     "respondPlaceholder": "Twoja odpowiedź…",
     "reference": "{count, plural, one {Przykładowa odpowiedź} few {Przykładowe odpowiedzi} many {Przykładowe odpowiedzi} other {Przykładowe odpowiedzi}}",
-    "gap": "Luka {n}",
+    "gap": "Luka {n, number}",
     "partRight": "dobrze",
     "partWrong": "źle",
     "nothing": "— (nic)",
-    "matchFor": "Para do zadania {n}",
+    "matchFor": "Para do zadania {n, number}",
     "dropHere": "upuść lub stuknij tutaj",
     "chips": "Słowa do wstawienia",
     "orderLine": "Twoja kolejność",
@@ -245,7 +245,7 @@
     "removeKey": "Usuń",
     "check": "Sprawdź połączenie",
     "checking": "Łączenie…",
-    "connected": "Połączono · {count, plural, =0 {brak modeli} one {# model} few {# modele} many {# modeli} other {# modelu}} · {ms} ms",
+    "connected": "Połączono · {count, plural, =0 {brak modeli} one {# model} few {# modele} many {# modeli} other {# modelu}} · {ms, number} ms",
     "model": "Model",
     "setUpHint": "Chcesz wyjaśnienia? Skonfiguruj asystenta AI",
     "explanation": "Wyjaśnienie",
@@ -370,9 +370,9 @@
     "use": "Użyj",
     "inUse": "W użyciu",
     "suggested": "Proponowane modele",
-    "suggestedHint": "LM Studio pobierze wersję najlepszą dla tego komputera ({memory} GB pamięci) i ją zachowa.",
+    "suggestedHint": "LM Studio pobierze wersję najlepszą dla tego komputera ({memory, number} GB pamięci) i ją zachowa.",
     "recommended": "Polecany",
-    "size": "ok. {size} GB · wymaga ok. {ram} GB pamięci",
+    "size": "ok. {size} GB · wymaga ok. {ram, number} GB pamięci",
     "progress": "{done} z {total} GB",
     "download": "Pobierz w LM Studio",
     "gb": "GB"
@@ -526,7 +526,7 @@
     "play": "Odtwórz: {what}",
     "pause": "Pauza",
     "back": "5 sekund wstecz",
-    "speed": "Prędkość odtwarzania {rate}×",
+    "speed": "Prędkość odtwarzania {rate, number}×",
     "position": "Pozycja",
     "unavailable": "Nie udało się wczytać nagrania."
   },
@@ -582,8 +582,8 @@
   },
   "windowTitle": {
     "course": "Kurs",
-    "lesson": "Lekcja {unit}.{lesson}",
-    "exercise": "Ćw. {n}/{total}",
+    "lesson": "Lekcja {unit, number}.{lesson, number}",
+    "exercise": "Ćw. {n, number}/{total, number}",
     "summary": "Podsumowanie",
     "download": "↓ {percent, number, percent}",
     "downloading": "↓ …",
@@ -620,7 +620,7 @@
     "dueIn": "za {interval}",
     "nothing": "Brak pasujących słów.",
     "sheet": "Słowo",
-    "toLesson": "Lekcja {unit}.{lesson}",
+    "toLesson": "Lekcja {unit, number}.{lesson, number}",
     "cards": "Fiszki",
     "answers": "Odpowiedzi",
     "noAnswers": "Jeszcze bez odpowiedzi.",
@@ -692,7 +692,7 @@
     },
     "examRuns": "Egzaminy próbne i treningi",
     "noExamRuns": "Jeszcze nic nie oddano.",
-    "examWrong": "{count, plural, one {# pytanie} few {# pytania} many {# pytań} other {# pytania}} z błędną odpowiedzią ostatnim razem",
+    "examWrong": "{count, plural, one {# pytanie z błędną odpowiedzią ostatnim razem} few {# pytania z błędną odpowiedzią ostatnim razem} many {# pytań z błędną odpowiedzią ostatnim razem} other {# pytania z błędną odpowiedzią ostatnim razem}}",
     "section": {
       "review": "Powtórki",
       "lesson": "Lekcje",
@@ -734,8 +734,8 @@
   },
   "study": {
     "listen": "Posłuchaj i przypomnij sobie znaczenie",
-    "fromLesson": "lekcja {unit}.{lesson}",
-    "countsTitle": "Nowe {new}, w nauce {learning}, do powtórki {review}",
+    "fromLesson": "lekcja {unit, number}.{lesson, number}",
+    "countsTitle": "Nowe {new, number}, w nauce {learning, number}, do powtórki {review, number}",
     "finished": "Gratulacje! Na razie ta talia jest ukończona.",
     "nextLearning": "{minutes, plural, one {Następna fiszka w nauce będzie gotowa za # minutę.} few {Następna fiszka w nauce będzie gotowa za # minuty.} many {Następna fiszka w nauce będzie gotowa za # minut.} other {Następna fiszka w nauce będzie gotowa za # minuty.}}",
     "reviewLimit": "Dzisiejszy limit powtórek został osiągnięty, ale wciąż czekają fiszki do powtórki.",
@@ -767,9 +767,9 @@
     "show": "Pokaż odpowiedź",
     "rating": {
       "again": "Jeszcze raz",
-      "hard": "Trudne",
+      "hard": "Trudno",
       "good": "Dobrze",
-      "easy": "Łatwe"
+      "easy": "Łatwo"
     },
     "more": "Więcej",
     "replay": "Odtwórz ponownie",
@@ -784,7 +784,7 @@
     "deck": "Talia",
     "count": {
       "new": "Nowe",
-      "learning": "Nauka",
+      "learning": "W nauce",
       "review": "Powt."
     },
     "due": "{count, plural, one {# fiszka} few {# fiszki} many {# fiszek} other {# fiszki}} do nauki",
@@ -818,7 +818,7 @@
     "page": "{n, number} z {total, number}"
   },
   "onboarding": {
-    "progress": "Krok {n} z {total}",
+    "progress": "Krok {n, number} z {total, number}",
     "back": "Wstecz",
     "next": "Dalej",
     "finish": "Wybierz kurs",
@@ -951,7 +951,7 @@
         "text": "nie pamiętasz albo źle: fiszka wróci za minutę"
       },
       "hard": {
-        "name": "Trudne",
+        "name": "Trudno",
         "text": "pamiętasz z wysiłkiem: krótszy odstęp"
       },
       "good": {
@@ -959,7 +959,7 @@
         "text": "pamiętasz: zwykły wybór (Spacja lub Enter)"
       },
       "easy": {
-        "name": "Łatwe",
+        "name": "Łatwo",
         "text": "za łatwe: wróci dużo później"
       }
     },
@@ -1236,7 +1236,7 @@
       "practice": "Trening",
       "practiceText": "Pytanie po pytaniu, każda odpowiedź sprawdzana od razu: najpierw te z błędną odpowiedzią, potem jeszcze niewidziane.",
       "catalog": "Katalog",
-      "catalogText": "{count, plural, one {# pytanie} few {Wszystkie # pytania} many {Wszystkie # pytań} other {Wszystkie # pytania}} z odpowiedziami."
+      "catalogText": "{count, plural, one {# pytanie z odpowiedzią.} few {Wszystkie # pytania z odpowiedziami.} many {Wszystkie # pytań z odpowiedziami.} other {Wszystkie # pytania z odpowiedziami.}}"
     },
     "begin": "Zacznij",
     "practise": "Trenuj",
@@ -1275,12 +1275,12 @@
     "handIn": "Oddaj",
     "endPractice": "Zakończ trening",
     "handInTitle": "Oddać egzamin?",
-    "handInUnanswered": "{count, plural, one {# pytanie nie ma jeszcze odpowiedzi} few {# pytania nie mają jeszcze odpowiedzi} many {# pytań nie ma jeszcze odpowiedzi} other {# pytania nie ma jeszcze odpowiedzi}}: pytania bez odpowiedzi liczą się jako błędne.",
+    "handInUnanswered": "{count, plural, one {# pytanie nie ma jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.} few {# pytania nie mają jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.} many {# pytań nie ma jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.} other {# pytania nie ma jeszcze odpowiedzi: pytania bez odpowiedzi liczą się jako błędne.}}",
     "goOn": "Kontynuuj",
     "leave": "Wróć do egzaminu",
     "answered": "Odpowiedziano: {done, number} z {total, number}",
     "question": "Pytanie {n, number} z {total, number}",
-    "practiceScore": "{points, number} z {count, plural, one {# odpowiedzi} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}} dobrze",
+    "practiceScore": "{count, plural, one {{points, number} z # odpowiedzi dobrze} few {{points, number} z # odpowiedzi dobrze} many {{points, number} z # odpowiedzi dobrze} other {{points, number} z # odpowiedzi dobrze}}",
     "timeUp": "Czas minął: liczą się odpowiedzi udzielone do tego momentu.",
     "needed": "wymagane {points, number} z {max, number}",
     "practiseMistakes": "Przećwicz błędy",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "Oceń swoje odpowiedzi",
-      "pending": "{count, plural, one {# odpowiedź nie jest jeszcze oceniona} few {# odpowiedzi nie są jeszcze ocenione} many {# odpowiedzi nie jest jeszcze ocenionych} other {# odpowiedzi nie jest jeszcze ocenione}}: liczy się jako 0, dopóki {count, plural, one {jej nie ocenisz} few {ich nie ocenisz} many {ich nie ocenisz} other {ich nie ocenisz}}.",
+      "pending": "{count, plural, one {# odpowiedź nie jest jeszcze oceniona: liczy się jako 0, dopóki jej nie ocenisz.} few {# odpowiedzi nie są jeszcze ocenione: liczą się jako 0, dopóki ich nie ocenisz.} many {# odpowiedzi nie jest jeszcze ocenionych: liczą się jako 0, dopóki ich nie ocenisz.} other {# odpowiedzi nie jest jeszcze ocenione: liczą się jako 0, dopóki ich nie ocenisz.}}",
       "hint": "Oceniaj tak, jak robią to egzaminatorzy; ocenę możesz zmienić w każdej chwili.",
       "voided": "zadanie niewykonane: 0 za całą odpowiedź",
       "unrated": "0, dopóki „{criterion}” nie zostanie ocenione: od tego zależy, czy odpowiedź się liczy",

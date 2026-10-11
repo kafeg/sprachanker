@@ -40,7 +40,7 @@
     "anyLanguage": "οποιαδήποτε"
   },
   "course": {
-    "unit": "Κεφάλαιο {number}",
+    "unit": "Κεφάλαιο {number, number}",
     "status": {
       "new": "Δεν ξεκίνησε",
       "in_progress": "Σε εξέλιξη · {worked, number} από {total, number}",
@@ -82,12 +82,12 @@
     }
   },
   "lesson": {
-    "unitLesson": "Κεφάλαιο {unit} · Ενότητα {lesson}",
+    "unitLesson": "Κεφάλαιο {unit, number} · Ενότητα {lesson, number}",
     "goals": "Σε αυτή την ενότητα θα μάθεις:",
     "counts": "{exercises, plural, =0 {} one {# άσκηση · } other {# ασκήσεις · }}{words, plural, one {# νέα λέξη} other {# νέες λέξεις}}",
     "start": "Ξεκίνα την ενότητα",
     "resume": "Συνέχισε την ενότητα",
-    "exerciseOf": "Άσκηση {n} από {total}",
+    "exerciseOf": "Άσκηση {n, number} από {total, number}",
     "check": "Έλεγχος",
     "next": "Επόμενο",
     "toSummary": "Στη σύνοψη",
@@ -106,7 +106,7 @@
     "reference": "Υλικό",
     "plan": "Πλάνο ενότητας",
     "audio": "Άκου την ενότητα",
-    "itemAudio": "Ήχος για το ερώτημα {n}",
+    "itemAudio": "Ήχος για το ερώτημα {n, number}",
     "redo": "Από την αρχή",
     "done": "Ολοκληρώθηκε",
     "doneScore": "Ολοκληρώθηκε · {score, number, percent} σωστά",
@@ -123,18 +123,18 @@
     "itemsList": "Ερωτήματα",
     "answerAll": "Απάντησε σε όλα τα ερωτήματα · {done, number} από {total, number}",
     "listenFirst": "Άκου πρώτα την ηχογράφηση",
-    "listenItem": "Άκου την ηχογράφηση του ερωτήματος {n}",
+    "listenItem": "Άκου την ηχογράφηση του ερωτήματος {n, number}",
     "answerAgain": "Απάντησε ξανά",
-    "exerciseN": "Άσκηση {n}",
-    "stepsDone": "{done} από {total} βήματα ολοκληρώθηκαν",
-    "stepsLeft": "{count, plural, one {Απομένει ακόμη # βήμα} other {Απομένουν ακόμη # βήματα}}.",
+    "exerciseN": "Άσκηση {n, number}",
+    "stepsDone": "{done, number} από {total, number} βήματα ολοκληρώθηκαν",
+    "stepsLeft": "{count, plural, one {Απομένει ακόμη # βήμα.} other {Απομένουν ακόμη # βήματα.}}",
     "toStep": "Μετάβαση: {title}",
     "videoText": "Κείμενο του βίντεο",
     "audioText": "Κείμενο της ηχογράφησης",
     "step": {
       "overview": "Επισκόπηση",
       "words": "Λέξεις της ενότητας",
-      "wordsCount": "Λέξεις της ενότητας · {count}",
+      "wordsCount": "Λέξεις της ενότητας · {count, number}",
       "grammar": "Γραμματική",
       "culture": "Πολιτισμός",
       "writing": "Γράψε κι εσύ",
@@ -178,17 +178,17 @@
     "unknown": "Αυτός ο τύπος άσκησης δεν υποστηρίζεται ακόμη.",
     "respondPlaceholder": "Η απάντησή σου…",
     "reference": "{count, plural, one {Υποδειγματική απάντηση} other {Υποδειγματικές απαντήσεις}}",
-    "gap": "Κενό {n}",
+    "gap": "Κενό {n, number}",
     "partRight": "σωστό",
     "partWrong": "λάθος",
     "nothing": "— (τίποτα)",
-    "matchFor": "Αντιστοίχιση για το ερώτημα {n}",
+    "matchFor": "Αντιστοίχιση για το ερώτημα {n, number}",
     "dropHere": "άφησε ή πάτησε εδώ",
     "chips": "Λέξεις για τοποθέτηση",
     "orderLine": "Η σειρά σου",
     "dnd": {
       "item": "η κάρτα",
-      "instructions": "Για να πιάσεις μια κάρτα, πάτησε Space ή Enter. Μετακίνησέ τη με τα βελάκια και μετά πάτησε Space ή Enter για να την αφήσεις ή Escape για να την επιστρέψεις.",
+      "instructions": "Για να πιάσεις μια κάρτα, πάτησε το πλήκτρο διαστήματος ή το Enter. Μετακίνησέ τη με τα βελάκια και μετά πάτησε το πλήκτρο διαστήματος ή το Enter για να την αφήσεις ή το Escape για να την επιστρέψεις.",
       "start": "Πιάστηκε: {item}.",
       "over": "{item} — πάνω από «{place}».",
       "away": "{item} — όχι πάνω από κάποια θέση.",
@@ -245,7 +245,7 @@
     "removeKey": "Αφαίρεση",
     "check": "Έλεγχος σύνδεσης",
     "checking": "Σύνδεση…",
-    "connected": "Συνδέθηκε · {count, plural, =0 {κανένα μοντέλο} one {# μοντέλο} other {# μοντέλα}} · {ms} ms",
+    "connected": "Συνδέθηκε · {count, plural, =0 {κανένα μοντέλο} one {# μοντέλο} other {# μοντέλα}} · {ms, number} ms",
     "model": "Μοντέλο",
     "setUpHint": "Θέλεις εξήγηση; Ρύθμισε τον βοηθό AI",
     "explanation": "Εξήγηση",
@@ -370,9 +370,9 @@
     "use": "Χρήση",
     "inUse": "Σε χρήση",
     "suggested": "Προτεινόμενα μοντέλα",
-    "suggestedHint": "Το LM Studio κατεβάζει την καλύτερη έκδοση για αυτόν τον υπολογιστή ({memory} GB μνήμης) και την κρατά.",
+    "suggestedHint": "Το LM Studio κατεβάζει την καλύτερη έκδοση για αυτόν τον υπολογιστή ({memory, number} GB μνήμης) και την κρατά.",
     "recommended": "Συνιστάται",
-    "size": "περίπου {size} GB · χρειάζεται περίπου {ram} GB μνήμης",
+    "size": "περίπου {size} GB · χρειάζεται περίπου {ram, number} GB μνήμης",
     "progress": "{done} από {total} GB",
     "download": "Λήψη στο LM Studio",
     "gb": "GB"
@@ -526,7 +526,7 @@
     "play": "Αναπαραγωγή: {what}",
     "pause": "Παύση",
     "back": "5 δευτερόλεπτα πίσω",
-    "speed": "Ταχύτητα αναπαραγωγής {rate}×",
+    "speed": "Ταχύτητα αναπαραγωγής {rate, number}×",
     "position": "Θέση",
     "unavailable": "Δεν ήταν δυνατή η φόρτωση του ήχου."
   },
@@ -582,8 +582,8 @@
   },
   "windowTitle": {
     "course": "Μάθημα",
-    "lesson": "Ενότητα {unit}.{lesson}",
-    "exercise": "Άσκ. {n}/{total}",
+    "lesson": "Ενότητα {unit, number}.{lesson, number}",
+    "exercise": "Άσκ. {n, number}/{total, number}",
     "summary": "Σύνοψη",
     "download": "↓ {percent, number, percent}",
     "downloading": "↓ …",
@@ -620,7 +620,7 @@
     "dueIn": "σε {interval}",
     "nothing": "Καμία λέξη δεν ταιριάζει.",
     "sheet": "Λέξη",
-    "toLesson": "Ενότητα {unit}.{lesson}",
+    "toLesson": "Ενότητα {unit, number}.{lesson, number}",
     "cards": "Κάρτες",
     "answers": "Απαντήσεις",
     "noAnswers": "Δεν έχει απαντηθεί ακόμη.",
@@ -692,7 +692,7 @@
     },
     "examRuns": "Δοκιμαστικές εξετάσεις και εξάσκηση",
     "noExamRuns": "Δεν έχεις παραδώσει ακόμη τίποτα.",
-    "examWrong": "{count, plural, one {# ερώτηση απαντήθηκε λάθος} other {# ερωτήσεις απαντήθηκαν λάθος}} την τελευταία φορά",
+    "examWrong": "{count, plural, one {# ερώτηση απαντήθηκε λάθος την τελευταία φορά} other {# ερωτήσεις απαντήθηκαν λάθος την τελευταία φορά}}",
     "section": {
       "review": "Επανάληψη",
       "lesson": "Ενότητες",
@@ -734,8 +734,8 @@
   },
   "study": {
     "listen": "Άκου και θυμήσου τη σημασία",
-    "fromLesson": "ενότητα {unit}.{lesson}",
-    "countsTitle": "Νέες {new}, σε εκμάθηση {learning}, για επανάληψη {review}",
+    "fromLesson": "ενότητα {unit, number}.{lesson, number}",
+    "countsTitle": "Νέες {new, number}, σε εκμάθηση {learning, number}, για επανάληψη {review, number}",
     "finished": "Συγχαρητήρια! Τελείωσες αυτή την τράπουλα για την ώρα.",
     "nextLearning": "{minutes, plural, one {Η επόμενη κάρτα εκμάθησης θα είναι έτοιμη σε # λεπτό.} other {Η επόμενη κάρτα εκμάθησης θα είναι έτοιμη σε # λεπτά.}}",
     "reviewLimit": "Το σημερινό όριο επαναλήψεων συμπληρώθηκε, αλλά υπάρχουν ακόμη κάρτες που περιμένουν επανάληψη.",
@@ -743,12 +743,12 @@
     "buried": "Μία ή περισσότερες κάρτες αναβλήθηκαν και θα εμφανιστούν αύριο.",
     "unbury": "Άρση αναβολής",
     "unit": {
-      "s": "δ",
-      "m": "λ",
-      "h": "ώ",
-      "d": "ημ",
-      "mo": "μήν",
-      "y": "έτ"
+      "s": " δευτ.",
+      "m": " λεπ.",
+      "h": " ώρ.",
+      "d": " ημ.",
+      "mo": " μήν.",
+      "y": " έτ."
     },
     "flag": {
       "red": "Κόκκινη",
@@ -763,7 +763,7 @@
     "leech": "βδέλλα",
     "undo": "Αναίρεση",
     "undoKeys": "Αναίρεση (U, Ctrl+Z)",
-    "showKeys": "Space ή Enter",
+    "showKeys": "Διάστημα ή Enter",
     "show": "Εμφάνιση απάντησης",
     "rating": {
       "again": "Ξανά",
@@ -779,12 +779,12 @@
     "suspendNote": "Αναστολή σημείωσης",
     "mark": "Σήμανση σημείωσης",
     "unmark": "Αφαίρεση σήμανσης",
-    "keys": "Space ή Enter: εμφάνιση απάντησης, μετά «Καλό» · 1–4: βαθμολογία · R: ξανά ο ήχος · U: αναίρεση",
+    "keys": "Διάστημα ή Enter: εμφάνιση απάντησης, μετά «Καλό» · 1–4: βαθμολογία · R: ξανά ο ήχος · U: αναίρεση",
     "noCards": "Δεν υπάρχουν ακόμη κάρτες: προέρχονται από το βήμα «Λέξεις της ενότητας».",
     "deck": "Τράπουλα",
     "count": {
       "new": "Νέες",
-      "learning": "Μάθηση",
+      "learning": "Σε εκμάθηση",
       "review": "Επανάληψη"
     },
     "due": "{count, plural, one {# κάρτα} other {# κάρτες}} για μελέτη",
@@ -818,7 +818,7 @@
     "page": "{n, number} από {total, number}"
   },
   "onboarding": {
-    "progress": "Βήμα {n} από {total}",
+    "progress": "Βήμα {n, number} από {total, number}",
     "back": "Πίσω",
     "next": "Επόμενο",
     "finish": "Επίλεξε μάθημα",
@@ -956,7 +956,7 @@
       },
       "good": {
         "name": "Καλό",
-        "text": "το θυμήθηκες: η συνηθισμένη επιλογή (Space ή Enter)"
+        "text": "το θυμήθηκες: η συνηθισμένη επιλογή (Διάστημα ή Enter)"
       },
       "easy": {
         "name": "Εύκολο",
@@ -1007,7 +1007,7 @@
     },
     "keys": {
       "title": "Πλήκτρα",
-      "text": "Το Space ή το Enter δείχνει την απάντηση και μετά βαθμολογεί «Καλό»· τα 1–4 βαθμολογούν· το U ή το Ctrl+Z αναιρεί την τελευταία απάντηση· το R παίζει ξανά τον ήχο."
+      "text": "Το πλήκτρο διαστήματος ή το Enter δείχνει την απάντηση και μετά βαθμολογεί «Καλό»· τα 1–4 βαθμολογούν· το U ή το Ctrl+Z αναιρεί την τελευταία απάντηση· το R παίζει ξανά τον ήχο."
     },
     "fsrs": {
       "title": "FSRS",
@@ -1275,12 +1275,12 @@
     "handIn": "Παράδοση",
     "endPractice": "Τέλος εξάσκησης",
     "handInTitle": "Παράδοση της εξέτασης;",
-    "handInUnanswered": "{count, plural, one {# ερώτηση δεν έχει απαντηθεί ακόμη} other {# ερωτήσεις δεν έχουν απαντηθεί ακόμη}}: οι αναπάντητες ερωτήσεις μετράνε ως λάθος.",
+    "handInUnanswered": "{count, plural, one {# ερώτηση δεν έχει απαντηθεί ακόμη: οι αναπάντητες ερωτήσεις μετράνε ως λάθος.} other {# ερωτήσεις δεν έχουν απαντηθεί ακόμη: οι αναπάντητες ερωτήσεις μετράνε ως λάθος.}}",
     "goOn": "Συνέχεια",
     "leave": "Πίσω στην εξέταση",
     "answered": "Απαντήθηκαν: {done, number} από {total, number}",
     "question": "Ερώτηση {n, number} από {total, number}",
-    "practiceScore": "{points, number} από {count, plural, one {# απάντηση} other {# απαντήσεις}} σωστές",
+    "practiceScore": "{count, plural, one {{points, number} από # απάντηση σωστή} other {{points, number} από # απαντήσεις σωστές}}",
     "timeUp": "Ο χρόνος τελείωσε: μετράνε οι απαντήσεις που δόθηκαν ως τότε.",
     "needed": "χρειάζονται {points, number} από {max, number}",
     "practiseMistakes": "Εξάσκηση στα λάθη",

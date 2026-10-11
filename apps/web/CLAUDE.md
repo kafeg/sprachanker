@@ -8,7 +8,7 @@ May use `schema`, `engine`, and a type-only import of the server's `AppType` (Ho
 ```
 apps/web/src/
   main.tsx         # the entry: query client, i18n, the router
-  fonts.css        # the faces bundled from @fontsource (Fira: Latin, Cyrillic, Greek; Arabic, Devanagari; spec 10)
+  fonts.css        # the faces bundled from @fontsource (Fira: Latin, Cyrillic, Greek; Arabic, Devanagari; Chinese: the system's; spec 10)
   routes/          # router.tsx (code-based TanStack Router: the gate, then the pages, each but Courses and
                    # Exams loaded when first opened — page.tsx: lazy pages, a failed page's error): courses (/, /downloaded, /catalog), review (/review,
                    # /review/decks, /review/words — words.tsx), exams (/exams, /exams/downloaded,
@@ -74,7 +74,7 @@ apps/web/src/
                    # bubbles, header, pending exchange, composer, start prompt, the answer box, errors (with
                    # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
-  i18n/            # catalogs <code>.json (ICU; en bundled, the others found by catalogs.ts, loaded when chosen)
+  i18n/            # catalogs <code>.json (ICU; en bundled, the others by catalogs.ts, loaded when chosen; one not loading: no change, a reload; 09)
   ui/              # presentational only (no API, no features): design tokens in styles.css, line-breaks (where course text may break), shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages, empty states, back
                    # links), media, format (dates, numbers, durations), panel, history
@@ -134,7 +134,7 @@ to `@/ui`).
   default is not a setting (say it in a line instead), tabs look as `SectionTabs`; text fields are the ui
   `Input` and `Textarea` (a gap inside a sentence aside);
   cached lists take a new item through the pure updaters in `api/cache.ts` (tested).
-- Right to left (09): logical utilities only (`ms`, `pe`, `start`, `text-end`; `test/ui/logical.test.ts`), icons
+- Right to left (09): logical utilities and styles only (`ms`, `pe`, `start`, `text-end`; `test/ui/logical.test.ts`), icons
   along the reading direction `rtl:-scale-x-100`, `arrowStep`, a course's language `{...inLang(lang)}`.
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
   does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.

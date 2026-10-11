@@ -113,20 +113,22 @@ export function intervals(
 /**
  * An interval as Anki writes it above the answer buttons: seconds, minutes and days whole, hours,
  * months and years with one decimal; "<" before an interval under the 20-minute learn-ahead limit
- * ("<1m", "<10m", "4d", "1.2mo"). `units` are the localised unit letters.
+ * ("<1m", "<10m", "4d", "1.2mo"). `units` are the localised unit letters, `number` writes a number
+ * (the language's digits and decimal sign).
  */
 export function intervalText(
   ms: number,
   units: Record<"s" | "m" | "h" | "d" | "mo" | "y", string>,
+  number: (n: number) => string = String,
 ) {
   const s = Math.max(0, ms / 1000);
   const less = ms < SRS_DEFAULTS.learnAheadMs ? "<" : "";
-  const one = (n: number) => (Math.round(n * 10) / 10).toString();
-  if (s < 60) return `${less}${Math.round(s)}${units.s}`;
-  if (s < 3600) return `${less}${Math.round(s / 60)}${units.m}`;
+  const one = (n: number) => number(Math.round(n * 10) / 10);
+  if (s < 60) return `${less}${number(Math.round(s))}${units.s}`;
+  if (s < 3600) return `${less}${number(Math.round(s / 60))}${units.m}`;
   if (s < 86_400) return `${one(s / 3600)}${units.h}`;
   const days = s / 86_400;
-  if (days < 365 / 12) return `${Math.round(days)}${units.d}`;
+  if (days < 365 / 12) return `${number(Math.round(days))}${units.d}`;
   if (days < 365) return `${one(days / (365 / 12))}${units.mo}`;
   return `${one(days / 365)}${units.y}`;
 }

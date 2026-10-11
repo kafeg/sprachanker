@@ -99,19 +99,23 @@ type Element = {
 };
 /** intl-messageformat's element types used here. */
 const LITERAL = 0;
+const ARGUMENT = 1;
 const PLURAL = 6;
 const POUND = 7;
 
-/** An ICU message's parts: the arguments it takes, its words outside them (plural branches in), and
- *  each plural's kind and categories. */
+/** An ICU message's parts: the arguments it takes, those it prints as they are (`{x}`: a string; a
+ *  number there keeps Latin digits where Intl writes Persian ones), its words outside them (plural
+ *  branches in), and each plural's kind and categories. */
 function partsOf(message: string, lang: string) {
   const args = new Set<string>();
+  const plain = new Set<string>();
   const plurals: Array<{ arg: string; type: "cardinal" | "ordinal"; categories: string[] }> = [];
   let text = "";
   const walk = (elements: unknown[]) => {
     for (const el of elements as Element[]) {
       if (el.type === LITERAL) text += String(el.value);
       else if (el.type !== POUND && typeof el.value === "string") args.add(el.value);
+      if (el.type === ARGUMENT) plain.add(String(el.value));
       if (el.type === PLURAL)
         plurals.push({
           arg: String(el.value),
@@ -123,7 +127,7 @@ function partsOf(message: string, lang: string) {
     }
   };
   walk(new IntlMessageFormat(message, lang).getAst() as unknown[]);
-  return { args: [...args].sort(), text, plurals };
+  return { args: [...args].sort(), plain: [...plain].sort(), text, plurals };
 }
 
 test("every plural has `other` and only categories its language has (exact `=n` cases aside)", () => {
@@ -316,13 +320,13 @@ test("every catalog translates every message (none left as the English text)", (
   }
 });
 
-test("every catalog's messages take the same arguments as the English ones", () => {
+test("every catalog's messages take the same arguments as the English ones, as they are only those it prints so", () => {
+  const shape = (message: unknown, lang: string) => {
+    const { args, plain } = partsOf(String(message), lang);
+    return JSON.stringify({ args, plain });
+  };
   for (const [lang, flat] of others) {
-    const differ = keys.filter(
-      (k) =>
-        JSON.stringify(partsOf(String(flat[k]), lang).args) !==
-        JSON.stringify(partsOf(String(english[k]), "en").args),
-    );
+    const differ = keys.filter((k) => shape(flat[k], lang) !== shape(english[k], "en"));
     expect(differ, lang).toEqual([]);
   }
 });

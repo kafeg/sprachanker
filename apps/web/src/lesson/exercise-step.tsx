@@ -12,7 +12,7 @@ import { ItemHistory } from "@/library/item-history.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
-import { inLang } from "@/ui/direction.tsx";
+import { inLang, useDir } from "@/ui/direction.tsx";
 import { MediaBlock } from "@/ui/media.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -37,6 +37,8 @@ function ItemControl({
   pressed?: boolean;
   children: React.ReactNode;
 }) {
+  // Towards the card: on its left, or its right when the page runs right to left.
+  const side = useDir() === "rtl" ? "right" : "left";
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -54,7 +56,7 @@ function ItemControl({
           {children}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="left">{label}</TooltipContent>
+      <TooltipContent side={side}>{label}</TooltipContent>
     </Tooltip>
   );
 }

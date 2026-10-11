@@ -40,7 +40,7 @@
     "anyLanguage": "هر زبانی"
   },
   "course": {
-    "unit": "بخش {number}",
+    "unit": "بخش {number, number}",
     "status": {
       "new": "شروع‌نشده",
       "in_progress": "در حال یادگیری · {worked, number} از {total, number}",
@@ -82,12 +82,12 @@
     }
   },
   "lesson": {
-    "unitLesson": "بخش {unit} · درس {lesson}",
+    "unitLesson": "بخش {unit, number} · درس {lesson, number}",
     "goals": "در این درس یاد می‌گیری که:",
     "counts": "{exercises, plural, =0 {} one {# تمرین · } other {# تمرین · }}{words, plural, one {# واژه تازه} other {# واژه تازه}}",
     "start": "شروع درس",
     "resume": "ادامه درس",
-    "exerciseOf": "تمرین {n} از {total}",
+    "exerciseOf": "تمرین {n, number} از {total, number}",
     "check": "بررسی",
     "next": "بعدی",
     "toSummary": "به جمع‌بندی",
@@ -106,7 +106,7 @@
     "reference": "مرجع",
     "plan": "برنامه درس",
     "audio": "به درس گوش کن",
-    "itemAudio": "صدای مورد {n}",
+    "itemAudio": "صدای مورد {n, number}",
     "redo": "از نو شروع کن",
     "done": "تمام",
     "doneScore": "تمام · {score, number, percent} درست",
@@ -123,10 +123,10 @@
     "itemsList": "موردها",
     "answerAll": "به همه موردها پاسخ بده · {done, number} از {total, number}",
     "listenFirst": "اول فایل صوتی را پخش کن",
-    "listenItem": "فایل صوتی مورد {n} را پخش کن",
+    "listenItem": "فایل صوتی مورد {n, number} را پخش کن",
     "answerAgain": "دوباره پاسخ بده",
-    "exerciseN": "تمرین {n}",
-    "stepsDone": "{done} از {total} مرحله انجام شده",
+    "exerciseN": "تمرین {n, number}",
+    "stepsDone": "{done, number} از {total, number} مرحله انجام شده",
     "stepsLeft": "{count, plural, one {# مرحله هنوز مانده است.} other {# مرحله هنوز مانده است.}}",
     "toStep": "برو به: {title}",
     "videoText": "متن ویدیو",
@@ -134,7 +134,7 @@
     "step": {
       "overview": "نگاه کلی",
       "words": "واژه‌های درس",
-      "wordsCount": "واژه‌های درس · {count}",
+      "wordsCount": "واژه‌های درس · {count, number}",
       "grammar": "دستور زبان",
       "culture": "فرهنگ",
       "writing": "خودت بنویس",
@@ -178,11 +178,11 @@
     "unknown": "این نوع تمرین هنوز پشتیبانی نمی‌شود.",
     "respondPlaceholder": "پاسخ تو…",
     "reference": "{count, plural, one {پاسخ نمونه} other {پاسخ‌های نمونه}}",
-    "gap": "جای خالی {n}",
+    "gap": "جای خالی {n, number}",
     "partRight": "درست",
     "partWrong": "نادرست",
     "nothing": "— (هیچ)",
-    "matchFor": "جفتِ مورد {n}",
+    "matchFor": "جفتِ مورد {n, number}",
     "dropHere": "اینجا رها کن یا لمس کن",
     "chips": "واژه‌هایی برای جای‌گذاری",
     "orderLine": "ترتیب تو",
@@ -220,7 +220,7 @@
       "aiShort": "هوش مصنوعی"
     },
     "prompts": "پرامپت‌ها",
-    "experimental": "آزمایشی",
+    "experimental": "در دست آزمایش",
     "advanced": "پیشرفته"
   },
   "llm": {
@@ -245,7 +245,7 @@
     "removeKey": "حذف",
     "check": "بررسی اتصال",
     "checking": "در حال اتصال…",
-    "connected": "متصل · {count, plural, =0 {بدون مدل} one {# مدل} other {# مدل}} · {ms} میلی‌ثانیه",
+    "connected": "متصل · {count, plural, =0 {بدون مدل} one {# مدل} other {# مدل}} · {ms, number} میلی‌ثانیه",
     "model": "مدل",
     "setUpHint": "توضیح می‌خواهی؟ دستیار هوش مصنوعی را راه‌اندازی کن",
     "explanation": "توضیح",
@@ -370,9 +370,9 @@
     "use": "استفاده",
     "inUse": "در حال استفاده",
     "suggested": "مدل‌های پیشنهادی",
-    "suggestedHint": "LM Studio بهترین نسخه را برای این رایانه ({memory} گیگابایت حافظه) دانلود و نگه‌داری می‌کند.",
+    "suggestedHint": "LM Studio بهترین نسخه را برای این رایانه ({memory, number} گیگابایت حافظه) دانلود و نگه‌داری می‌کند.",
     "recommended": "توصیه‌شده",
-    "size": "حدود {size} گیگابایت · به حدود {ram} گیگابایت حافظه نیاز دارد",
+    "size": "حدود {size} گیگابایت · به حدود {ram, number} گیگابایت حافظه نیاز دارد",
     "progress": "{done} از {total} گیگابایت",
     "download": "دانلود در LM Studio",
     "gb": "گیگابایت"
@@ -526,7 +526,7 @@
     "play": "پخش: {what}",
     "pause": "مکث",
     "back": "۵ ثانیه عقب",
-    "speed": "سرعت پخش {rate}×",
+    "speed": "سرعت پخش {rate, number}×",
     "position": "موقعیت",
     "unavailable": "صدا بارگذاری نشد."
   },
@@ -582,8 +582,8 @@
   },
   "windowTitle": {
     "course": "دوره",
-    "lesson": "درس {unit}.{lesson}",
-    "exercise": "تمرین {n}/{total}",
+    "lesson": "درس {unit, number}.{lesson, number}",
+    "exercise": "تمرین {n, number}/{total, number}",
     "summary": "جمع‌بندی",
     "download": "↓ {percent, number, percent}",
     "downloading": "↓ …",
@@ -620,7 +620,7 @@
     "dueIn": "{interval} دیگر",
     "nothing": "هیچ واژه‌ای پیدا نشد.",
     "sheet": "واژه",
-    "toLesson": "درس {unit}.{lesson}",
+    "toLesson": "درس {unit, number}.{lesson, number}",
     "cards": "کارت‌ها",
     "answers": "پاسخ‌ها",
     "noAnswers": "هنوز پاسخی داده نشده.",
@@ -692,7 +692,7 @@
     },
     "examRuns": "آزمون‌های آزمایشی و تمرین",
     "noExamRuns": "هنوز چیزی تحویل نداده‌ای.",
-    "examWrong": "{count, plural, one {# پرسش} other {# پرسش}} دفعه قبل نادرست پاسخ داده شد",
+    "examWrong": "{count, plural, one {# پرسش دفعه قبل نادرست پاسخ داده شد} other {# پرسش دفعه قبل نادرست پاسخ داده شد}}",
     "section": {
       "review": "مرور",
       "lesson": "درس‌ها",
@@ -734,8 +734,8 @@
   },
   "study": {
     "listen": "گوش کن و معنی را به یاد بیاور",
-    "fromLesson": "درس {unit}.{lesson}",
-    "countsTitle": "تازه {new}، در حال یادگیری {learning}، برای مرور {review}",
+    "fromLesson": "درس {unit, number}.{lesson, number}",
+    "countsTitle": "تازه {new, number}، در حال یادگیری {learning, number}، برای مرور {review, number}",
     "finished": "آفرین! فعلاً این دسته را تمام کرده‌ای.",
     "nextLearning": "کارت یادگیری بعدی {minutes, plural, one {# دقیقه} other {# دقیقه}} دیگر آماده می‌شود.",
     "reviewLimit": "به سقف مرور امروز رسیده‌ای، اما هنوز کارت‌هایی منتظر مرورند.",
@@ -743,12 +743,12 @@
     "buried": "یک یا چند کارت به تعویق افتادند و فردا نشان داده می‌شوند.",
     "unbury": "لغو تعویق",
     "unit": {
-      "s": "ث",
-      "m": "د",
-      "h": "س",
-      "d": "ر",
-      "mo": "ماه",
-      "y": "سال"
+      "s": " ثانیه",
+      "m": " دقیقه",
+      "h": " ساعت",
+      "d": " روز",
+      "mo": " ماه",
+      "y": " سال"
     },
     "flag": {
       "red": "قرمز",
@@ -784,7 +784,7 @@
     "deck": "دسته",
     "count": {
       "new": "تازه",
-      "learning": "یادگیری",
+      "learning": "در حال یادگیری",
       "review": "نوبت"
     },
     "due": "{count, plural, one {# کارت} other {# کارت}} برای مطالعه",
@@ -818,7 +818,7 @@
     "page": "{n, number} از {total, number}"
   },
   "onboarding": {
-    "progress": "مرحله {n} از {total}",
+    "progress": "مرحله {n, number} از {total, number}",
     "back": "قبلی",
     "next": "بعدی",
     "finish": "یک دوره انتخاب کن",
@@ -826,7 +826,7 @@
       "title": "خوش آمدی",
       "text": "SprachAnker دوره‌های واقعی زبان را در یک پخش‌کننده جمع می‌کند، پاسخ‌هایت را بررسی می‌کند، واژه‌هایت را با تکرار فاصله‌دار نگه می‌دارد و می‌تواند یک معلم هوش مصنوعی هم کنارت بیاورد. همه چیز روی همین رایانه می‌ماند.",
       "sources": "دوره‌ها مستقیماً از وب‌سایت ناشرانشان (Deutsche Welle و دیگران) برای استفاده شخصی تو دانلود می‌شوند. شرایط آن‌ها را رعایت کن؛ SprachAnker وابسته به آن‌ها نیست.",
-      "experimental": "دوره‌ها و آزمون‌هایی که هنوز در حال آزمایش‌اند پنهان می‌مانند تا وقتی آن‌ها را در تنظیمات ← عمومی ← آزمایشی روشن کنی.",
+      "experimental": "دوره‌ها و آزمون‌هایی که هنوز در حال آزمایش‌اند پنهان می‌مانند تا وقتی آن‌ها را در تنظیمات ← عمومی ← در دست آزمایش روشن کنی.",
       "name": "تو را چه صدا کنیم؟"
     },
     "assistant": {
@@ -965,7 +965,7 @@
     },
     "counts": {
       "title": "سه عدد",
-      "text": "کارت‌های تازه‌ای که امروز هنوز باید یاد بگیری، کارت‌های در حال یادگیری (که ظرف چند دقیقه برمی‌گردند)، و کارت‌هایی که نوبت مرورشان رسیده. عددی که زیرش خط دارد نشان می‌دهد کارتِ روی صفحه از کدام دسته است. «پاسخ مانده» تخمین می‌زند اگر همه پاسخ‌ها «خوب» باشند، با چند پاسخ جلسه تمام می‌شود."
+      "text": "کارت‌های تازه‌ای که امروز هنوز باید یاد بگیری، کارت‌های در حال یادگیری (که ظرف چند دقیقه برمی‌گردند)، و کارت‌هایی که نوبت مرورشان رسیده. عددی که زیرش خط دارد نشان می‌دهد کارتِ روی صفحه از کدام گروه است. «پاسخ مانده» تخمین می‌زند اگر همه پاسخ‌ها «خوب» باشند، با چند پاسخ جلسه تمام می‌شود."
     },
     "faces": {
       "title": "کارت‌های یک واژه",
@@ -1236,7 +1236,7 @@
       "practice": "تمرین",
       "practiceText": "پرسش به پرسش، و هر پاسخ بلافاصله بررسی می‌شود: اول پرسش‌هایی که اشتباه جواب دادی، بعد آن‌هایی که هنوز ندیده‌ای.",
       "catalog": "بانک سؤالات",
-      "catalogText": "همه {count, plural, one {# پرسش} other {# پرسش}} با پاسخ‌هایشان."
+      "catalogText": "{count, plural, one {# پرسش با پاسخش.} other {همه‌ی # پرسش با پاسخ‌هایشان.}}"
     },
     "begin": "شروع",
     "practise": "تمرین کن",
@@ -1275,12 +1275,12 @@
     "handIn": "تحویل",
     "endPractice": "پایان تمرین",
     "handInTitle": "آزمون تحویل داده شود؟",
-    "handInUnanswered": "{count, plural, one {# پرسش هنوز پاسخ داده نشده} other {# پرسش هنوز پاسخ داده نشده‌اند}}: پرسش‌های بی‌پاسخ نادرست حساب می‌شوند.",
+    "handInUnanswered": "{count, plural, one {# پرسش هنوز پاسخ داده نشده: پرسش‌های بی‌پاسخ نادرست حساب می‌شوند.} other {# پرسش هنوز پاسخ داده نشده‌اند: پرسش‌های بی‌پاسخ نادرست حساب می‌شوند.}}",
     "goOn": "ادامه",
     "leave": "بازگشت به آزمون",
     "answered": "پاسخ‌داده‌شده: {done, number} از {total, number}",
     "question": "پرسش {n, number} از {total, number}",
-    "practiceScore": "{points, number} از {count, plural, one {# پاسخ} other {# پاسخ}} درست",
+    "practiceScore": "{count, plural, one {{points, number} از # پاسخ درست} other {{points, number} از # پاسخ درست}}",
     "timeUp": "وقت تمام شد: پاسخ‌هایی که تا آن لحظه داده شده بودند حساب می‌شوند.",
     "needed": "{points, number} از {max, number} لازم است",
     "practiseMistakes": "تمرین اشتباه‌ها",
@@ -1328,7 +1328,7 @@
     },
     "rating": {
       "title": "پاسخ‌هایت را ارزیابی کن",
-      "pending": "{count, plural, one {# پاسخ هنوز ارزیابی نشده} other {# پاسخ هنوز ارزیابی نشده‌اند}}: تا وقتی {count, plural, one {ارزیابی‌اش} other {ارزیابی‌شان}} نکنی، ۰ حساب می‌شود.",
+      "pending": "{count, plural, one {# پاسخ هنوز ارزیابی نشده: تا وقتی ارزیابی‌اش نکنی، ۰ حساب می‌شود.} other {# پاسخ هنوز ارزیابی نشده‌اند: تا وقتی ارزیابی‌شان نکنی، ۰ حساب می‌شوند.}}",
       "hint": "همان‌طور که ارزیاب‌های آزمون ارزیابی می‌کنند؛ هر وقت خواستی ارزیابی را تغییر بده.",
       "voided": "تکلیف انجام نشده: ۰ برای کل پاسخ",
       "unrated": "۰ تا وقتی «{criterion}» ارزیابی نشود: همین تعیین می‌کند پاسخ حساب شود یا نه",
@@ -1361,7 +1361,7 @@
       "courses": "دوره‌های بیشتر برای دانلود، در «دوره‌ها» نشان داده می‌شوند",
       "exams": "آزمون‌های بیشتر برای دانلود، در «آزمون‌ها» نشان داده می‌شوند"
     },
-    "none": "اینجا چیز آزمایشی‌ای نیست.",
+    "none": "اینجا چیزی در دست آزمایش نیست.",
     "more": "{count, plural, one {# مورد دیگر} other {# مورد دیگر}}"
   },
   "examples": {

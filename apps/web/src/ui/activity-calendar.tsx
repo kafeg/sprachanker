@@ -1,18 +1,19 @@
-// A year of study days as GitHub shows contributions (09, Notebook): a column a week, Monday on top,
-// each day shaded by how much was done; the months above, the legend below. Wide on a phone: it
+// A year of study days as GitHub shows contributions (09, Notebook): a column a week, the language's
+// first day of the week on top (Monday, Sunday or Saturday), each day shaded by how much was done; the months above, the legend below. Wide on a phone: it
 // scrolls sideways and opens on today.
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useDateFormat } from "./format.ts";
+import { firstDayOfWeek, useDateFormat } from "./format.ts";
 import { cn } from "./utils.ts";
 
 /** How many weeks the calendar shows. */
 const CALENDAR_WEEKS = 53;
 
-/** The days of the last `weeks` weeks by column, Monday first, up to today (a day's start). */
-export function calendarWeeks(today: number, weeks = CALENDAR_WEEKS): number[][] {
+/** The days of the last `weeks` weeks by column, each from `firstDay` (0 Sunday … 6 Saturday; Monday
+ *  by default), up to today (a day's start). */
+export function calendarWeeks(today: number, firstDay = 1, weeks = CALENDAR_WEEKS): number[][] {
   const first = new Date(today);
-  first.setDate(first.getDate() - ((first.getDay() + 6) % 7) - 7 * (weeks - 1));
+  first.setDate(first.getDate() - ((first.getDay() - firstDay + 7) % 7) - 7 * (weeks - 1));
   return Array.from({ length: weeks }, (_, w) =>
     Array.from({ length: 7 }, (_, d) => {
       const day = new Date(first);
@@ -39,7 +40,7 @@ export function ActivityCalendar({
   /** A day as its title says it. */
   describe(start: number, count: number): string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const month = useDateFormat("month");
   const weekday = useDateFormat("weekday");
   const scroller = useRef<HTMLDivElement>(null);
@@ -50,7 +51,7 @@ export function ActivityCalendar({
       el.scrollLeft = document.documentElement.dir === "rtl" ? -el.scrollWidth : el.scrollWidth;
   }, []);
   const counts = new Map(days.map((d) => [dayKey(d.start), d.count]));
-  const weeks = calendarWeeks(today);
+  const weeks = calendarWeeks(today, firstDayOfWeek(i18n.language));
   const cell = "size-3 shrink-0 rounded-sm";
   return (
     <div>

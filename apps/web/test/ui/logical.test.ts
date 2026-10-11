@@ -30,3 +30,25 @@ test("no physical left/right utilities: the logical ones (ms/me, ps/pe, start/en
   }
   expect(found).toEqual([]);
 });
+
+/** A side in an inline style's property: `left`, `marginRight`, `paddingLeft`… (`insetInlineStart`,
+ *  `marginInlineEnd` and the like are the logical ones). */
+const PHYSICAL_STYLE = /\b(?:left|right|(?:margin|padding|border)(?:Left|Right)\w*)\s*:/g;
+/** Inline styles kept physical on purpose, as `file:property` (none yet). */
+const KEPT_STYLE: string[] = [];
+
+test("no physical left/right in inline styles (`style={{ … }}`)", () => {
+  const found: string[] = [];
+  for (const path of files(SRC).filter((p) => p.endsWith(".tsx"))) {
+    const file = path.slice(SRC.length);
+    for (const [, style = ""] of readFileSync(path, "utf8").matchAll(/style=\{\{([\s\S]*?)\}\}/g))
+      for (const [m] of style.matchAll(PHYSICAL_STYLE)) {
+        const property = m.replace(/\s*:$/, "");
+        if (!KEPT_STYLE.includes(`${file}:${property}`)) found.push(`${file} ${property}`);
+      }
+  }
+  expect(found).toEqual([]);
+  // The pattern itself: physical sides found, logical ones and words in values not.
+  const probe = `style={{ marginLeft: 4, insetInlineStart: 0, right: 2, width: "left" }}`;
+  expect([...probe.matchAll(PHYSICAL_STYLE)].map(([m]) => m)).toEqual(["marginLeft:", "right:"]);
+});
