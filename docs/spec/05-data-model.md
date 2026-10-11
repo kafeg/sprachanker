@@ -277,8 +277,9 @@ recordings/<ulid>.<ext>
   never replacing one; default, owner may change): its name kept, or "Name (2)", "Name (3)"… while
   another profile has it; its colour; onboarded. One at a time (409 `profile_import_busy` beside it).
   All or nothing — everything happens in
-  `profiles/.transfers/<id>/`, moved into `profiles/<new id>` only once checked, then the profile is
-  made; any failure removes the transfer, and nothing of it is left:
+  `profiles/.transfers/<id>/`, moved into `profiles/<new id>` only once checked (marked `.importing`
+  until its row is made: a process stopped in between, the folder goes at the next start), then the
+  profile is made; any failure removes the transfer, and nothing of it is left:
   1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and
      what it unpacks to — checked first; 413 `profile_file_too_large` past 4 GB);
   2. read by its zip directory, believed only as far as it is checked: the directory right before the

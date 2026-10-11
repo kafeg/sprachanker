@@ -2,7 +2,7 @@
 // another — its runs, events, cards, settings and recordings as they were, its API keys left out —,
 // and every file that is not one refused with nothing left behind.
 import { Database } from "bun:sqlite";
-import { expect, test } from "bun:test";
+import { expect, jest, test } from "bun:test";
 import { createHash } from "node:crypto";
 import {
   existsSync,
@@ -21,7 +21,7 @@ import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
 import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
-import type { TransferFiles } from "../src/services/profile-transfer.ts";
+import { PREPARED_MS, type TransferFiles } from "../src/services/profile-transfer.ts";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
@@ -745,6 +745,46 @@ test("a transfer in use is never swept: an export not yet downloaded, one downlo
   expect(readdirSync(transfers)).toEqual([ready.id]);
   expect((await res.arrayBuffer()).byteLength).toBe(ready.bytes);
   expect(readdirSync(transfers)).toEqual([]);
+});
+
+test("an import stopped between moving the profile into place and making its row: undone at the next start", async () => {
+  const { profileAdmin } = await import("../src/index.ts");
+  const root = mkdtempSync(join(tmpdir(), "sprachanker-data-"));
+  const mila = profileAdmin(root).create({ name: "Mila" });
+  const profiles = join(root, "profiles");
+  // A folder moved into place, the process gone before its row; and one whose row was made.
+  const orphan = ulid().toLowerCase();
+  mkdirSync(join(profiles, orphan));
+  writeFileSync(join(profiles, orphan, "profile.sqlite"), "");
+  writeFileSync(join(profiles, orphan, ".importing"), "");
+  writeFileSync(join(profiles, mila.id, ".importing"), "");
+  profileAdmin(root);
+  expect(
+    readdirSync(profiles)
+      .filter((n) => !n.startsWith("."))
+      .sort(),
+  ).toEqual([mila.id]);
+  expect(existsSync(join(profiles, mila.id, ".importing"))).toBe(false);
+  // An import that went through leaves no mark.
+  const { bytes } = await exported(await studied());
+  const b = await setup();
+  const result = await read(importInto(b, bytes));
+  expect(readdirSync(join(b.root, "profiles", result.profile.id))).not.toContain(".importing");
+});
+
+test("an export not downloaded within the hour goes, its transfer with it", async () => {
+  const a = await studied();
+  jest.useFakeTimers();
+  try {
+    const ready = await read(a.send("POST", "/api/profile/export", {}));
+    const transfers = join(a.root, "profiles", ".transfers");
+    expect(readdirSync(transfers)).toEqual([ready.id]);
+    jest.advanceTimersByTime(PREPARED_MS + 1);
+    expect(readdirSync(transfers)).toEqual([]);
+    expect((await a.get(`/api/profile/export/${ready.id}`)).status).toBe(404);
+  } finally {
+    jest.useRealTimers();
+  }
 });
 
 test("a profile moved into place but not made (its row failed): moved back, nothing left", async () => {

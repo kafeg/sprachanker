@@ -78,8 +78,11 @@ export interface TransferFiles {
    *  has a migration this app does not know; "damaged" also when it takes too long. Only the
    *  endpoints of the providers in `endpoints` are kept (the others' would not count). */
   settle(id: string, endpoints: readonly string[]): Promise<"ok" | "newer" | "damaged">;
+  /** At the start: a profile's folder an import moved into place but whose row was never made (the
+   *  process stopped in between: a mark left in it) goes; one `known` keeps it, without the mark. */
+  unfinished(known: (profileId: string) => boolean): void;
   /** The unpacked profile moved into place as `profiles/<profileId>` and `register`ed; moved back
-   *  into the transfer when that fails. */
+   *  into the transfer when that fails. Marked until registered (`unfinished`). */
   adopt<T>(id: string, profileId: string, register: () => T): T;
   discard(id: string): void;
 }
@@ -112,8 +115,8 @@ export function contentUsed(store: Pick<RunStore, "all">, cards: Pick<CardStore,
 }
 export type ContentKeys = ReturnType<typeof contentUsed>;
 
-/** An export prepared and not yet downloaded goes after an hour (its transfer swept). */
-const PREPARED_MS = 60 * 60_000;
+/** An export prepared and not yet downloaded goes after an hour, its transfer with it. */
+export const PREPARED_MS = 60 * 60_000;
 
 /** A zip's bytes as fflate writes it: each entry's local header, data and descriptor, the directory. */
 const zipBytes = (names: string[], sizes: number) =>
@@ -142,10 +145,22 @@ export function createProfileTransfer(deps: {
       paths: string[];
       fileName: string;
       bytes: number;
-      at: number;
+      /** Lets it go after PREPARED_MS. */
+      timer: ReturnType<typeof setTimeout>;
     }
   >();
+  /** Forgets a prepared export: downloaded (its stream has the transfer now), or let go with it. */
+  const forget = (id: string, discard: boolean) => {
+    const p = prepared.get(id);
+    if (!p) return;
+    clearTimeout(p.timer);
+    prepared.delete(id);
+    if (discard) files.discard(id);
+  };
+  // At the start: a stopped server's transfers, and its imports cut short between moving a profile's
+  // folder into place and making its row.
   files.sweep();
+  files.unfinished((id) => profiles.list().some((p) => p.id === id));
 
   /** A full disk as the learner's error; anything else as it is. */
   async function guarded<T>(work: () => Promise<T>): Promise<T> {
@@ -241,11 +256,7 @@ export function createProfileTransfer(deps: {
 
   /** A profile's export not yet downloaded let go (a new one replaces it: one a profile at most). */
   const letGo = (profileId: string) => {
-    for (const [id, p] of prepared)
-      if (p.profileId === profileId) {
-        prepared.delete(id);
-        files.discard(id);
-      }
+    for (const [id, p] of prepared) if (p.profileId === profileId) forget(id, true);
   };
   /** A prepare asked for again while it runs gets the same one: one snapshot a profile at a time. */
   const preparing = createOnce<Awaited<ReturnType<typeof make>>>();
@@ -265,7 +276,6 @@ export function createProfileTransfer(deps: {
   async function make(profileId: string) {
     const profile = profiles.get(profileId);
     if (!profile.name) throw new ServiceError("name_required");
-    for (const [id, p] of prepared) if (now() - p.at > PREPARED_MS) prepared.delete(id);
     letGo(profileId);
     files.sweep();
     const snap = await guarded(() => files.snapshot(profileId));
@@ -291,7 +301,10 @@ export function createProfileTransfer(deps: {
       // A name a file system takes: no separators or characters reserved on Windows.
       const base = profile.name.replace(/[\\/:*?"<>|\p{Cc}]+/gu, "-").replace(/^[.\s]+/, "");
       const fileName = `${base || "profile"}-${day}${PROFILE_FILE_EXTENSION}`;
-      prepared.set(snap.id, { profileId, manifest, paths, fileName, bytes, at: now() });
+      const timer = setTimeout(() => forget(snap.id, true), PREPARED_MS);
+      // Never what keeps the process (the command line) running.
+      (timer as { unref?: () => void }).unref?.();
+      prepared.set(snap.id, { profileId, manifest, paths, fileName, bytes, timer });
       return {
         id: snap.id,
         fileName,
@@ -313,7 +326,7 @@ export function createProfileTransfer(deps: {
     download(profileId: string, id: string) {
       const p = prepared.get(id);
       if (!p || p.profileId !== profileId) throw new ServiceError("profile_export_gone", 404);
-      prepared.delete(id);
+      forget(id, false);
       return {
         stream: files.stream(id, p.manifest, p.paths),
         fileName: p.fileName,

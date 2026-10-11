@@ -19,6 +19,7 @@ import {
   statfsSync,
   statSync,
   utimesSync,
+  writeFileSync,
 } from "node:fs";
 import { open } from "node:fs/promises";
 import { dirname, join } from "node:path";
@@ -36,6 +37,8 @@ const ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 const KEPT_MS = 60 * 60_000;
 /** How often a transfer in use marks its folder's time (another process's sweep goes by it). */
 const TOUCH_MS = 60_000;
+/** In a profile's folder moved into place by an import, until its row is made. */
+const ADOPTING = ".importing";
 /** Room a transfer leaves free on the data root's disk beyond what it writes: the larger of 1 GB and
  *  5 % of the disk (the server and the learners' own work go on beside it). */
 const dataRootMargin = (diskBytes: number) => Math.max(1024 ** 3, 0.05 * diskBytes);
@@ -466,17 +469,33 @@ export function profileTransferFiles(
         worker.postMessage({ file, endpoints });
       });
     },
+    unfinished(known) {
+      if (options.sweeps && !options.sweeps()) return;
+      const profiles = join(dataRoot, "profiles");
+      for (const name of statSync(profiles, { throwIfNoEntry: false })
+        ? readdirSync(profiles)
+        : []) {
+        const mark = join(profiles, name, ADOPTING);
+        if (name.startsWith(".") || !statSync(mark, { throwIfNoEntry: false })) continue;
+        rmSync(known(name) ? mark : join(profiles, name), { recursive: true, force: true });
+      }
+    },
     adopt(id, profileId, register) {
       const target = join(dataRoot, "profiles", profileId);
       if (statSync(target, { throwIfNoEntry: false })) throw new Error(`${target} exists`);
+      // Marked until its row exists: a process stopped in between leaves no profile without one.
+      writeFileSync(join(unpacked(id), ADOPTING), "");
       renameSync(unpacked(id), target);
+      let made: ReturnType<typeof register>;
       try {
-        return register();
+        made = register();
       } catch (error) {
         // Back into the transfer, which goes with it.
         renameSync(target, unpacked(id));
         throw error;
       }
+      rmSync(join(target, ADOPTING), { force: true });
+      return made;
     },
     discard,
   };
