@@ -7,7 +7,8 @@
     "settings": "Configurações",
     "review": "Revisão",
     "notebook": "Caderno",
-    "exams": "Exames"
+    "exams": "Exames",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Carregando…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Novas aqui:",
     "by": "Exemplos da IA · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pergunte ao tutor o que quiser fora de uma lição — uma dúvida de gramática, um texto para estudar, uma conversa para praticar. Ele sabe o que você já viu nos seus cursos e explica no seu idioma.",
+    "empty": "Ainda não há conversas: comece uma com “Nova conversa”.",
+    "needsCourse": "O tutor fala sobre o conteúdo dos seus cursos: comece um curso primeiro.",
+    "off": "O tutor está desativado: ative-o em Configurações → Assistente de IA.",
+    "all": "Todas as conversas",
+    "suggest": {
+      "grammar": "Tenho uma dúvida de gramática",
+      "text": "Estude um texto comigo",
+      "conversation": "Vamos praticar uma conversa"
+    },
+    "ask": {
+      "grammar": "Tenho uma dúvida de gramática. Pergunte qual é e depois explique brevemente com exemplos do que eu já aprendi.",
+      "text": "Quero estudar um texto com você. Peça para eu colá-lo e depois vá frase por frase: traduza, explique o que é novo e espere por mim antes da próxima.",
+      "conversation": "Vamos praticar uma conversa. Sugira uma situação do dia a dia com base no que aprendi, comece com uma fala e espere a minha resposta; corrija meus erros ao longo da conversa."
+    }
   }
 }

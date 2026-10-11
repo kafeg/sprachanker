@@ -7,13 +7,15 @@ import {
   Outlet,
   useNavigate,
 } from "@tanstack/react-router";
+import { MessageCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSession } from "@/api/session.ts";
 import { usePlaybackRate, usePreferences } from "@/app/preferences.ts";
-import { AppShell } from "@/app/shell.tsx";
+import { AppShell, type ExtraSection } from "@/app/shell.tsx";
 import { WhoIsStudying } from "@/app/who-is-studying.tsx";
 import { SpeechProvider } from "@/audio/context.ts";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
+import { useAiIn } from "@/llm/setup-api.ts";
 import type { LessonView } from "@/notebook/lesson.tsx";
 import { StudySlotsProvider } from "@/study/slots.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
@@ -36,6 +38,15 @@ const ExamRun = page(() => import("./runs.tsx").then((m) => m.ExamRun));
 const AssistantSetup = page(() =>
   import("@/llm/settings-section.tsx").then((m) => m.AssistantSetup),
 );
+const TutorSection = page(() => import("@/llm/tutor-section.tsx").then((m) => m.TutorSection));
+const SectionChat = page(() => import("@/llm/tutor-section.tsx").then((m) => m.SectionChatPage));
+/** The Tutor section in the navigation, while the assistant works there (09). */
+const tutorSection: ExtraSection = {
+  to: "/tutor",
+  key: "nav.tutor",
+  icon: MessageCircle,
+  useShown: () => useAiIn("tutor"),
+};
 const Onboarding = page(() => import("@/app/onboarding.tsx").then((m) => m.Onboarding));
 // The reviewer's and Decks' slots (a deck's AI examples, on a card and under the deck), loaded when
 // first shown; nothing in their place meanwhile, so the card does not move.
@@ -109,7 +120,7 @@ const root = createRootRoute({
 const shell = createRoute({
   getParentRoute: () => root,
   id: "shell",
-  component: AppShell,
+  component: () => <AppShell extra={tutorSection} />,
 });
 // Courses in three tabs, each its own address (Available keeps the old "/catalog").
 const courses = createRoute({
@@ -254,6 +265,18 @@ notebookLesson.update({
     );
   }),
 });
+// The Tutor section: its chats, and a chat (`new`: one not begun).
+const tutor = createRoute({
+  getParentRoute: () => shell,
+  path: "/tutor",
+  component: TutorSection,
+});
+const tutorChat = createRoute({ getParentRoute: () => shell, path: "/tutor/$chat" });
+tutorChat.update({
+  component: opening(SectionChat, function TutorChat() {
+    return <SectionChat chat={tutorChat.useParams().chat} />;
+  }),
+});
 const settings = createRoute({
   getParentRoute: () => shell,
   path: "/settings",
@@ -301,6 +324,8 @@ export const router = createRouter({
       notebook,
       notebookExam,
       notebookLesson,
+      tutor,
+      tutorChat,
       settings,
     ]),
     lesson,

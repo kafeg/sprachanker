@@ -7,7 +7,8 @@
     "settings": "Einstellungen",
     "review": "Wiederholen",
     "notebook": "Notizbuch",
-    "exams": "Prüfungen"
+    "exams": "Prüfungen",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Neu hier:",
     "by": "Beispiele von der KI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Frag den Tutor außerhalb einer Lektion alles – eine Grammatikfrage, einen Text zum Durchgehen, ein Gespräch zum Üben. Er weiß, was du in deinen Kursen gelernt hast, und erklärt in deiner Sprache.",
+    "empty": "Noch keine Gespräche: Beginne eines mit „Neues Gespräch“.",
+    "needsCourse": "Der Tutor spricht über den Stoff deiner Kurse: Beginne zuerst einen Kurs.",
+    "off": "Der Tutor ist ausgeschaltet: Schalte ihn unter Einstellungen → KI-Assistent ein.",
+    "all": "Alle Gespräche",
+    "suggest": {
+      "grammar": "Ich habe eine Grammatikfrage",
+      "text": "Geh mit mir einen Text durch",
+      "conversation": "Lass uns ein Gespräch üben"
+    },
+    "ask": {
+      "grammar": "Ich habe eine Grammatikfrage. Frag mich, worum es geht, und erkläre es dann kurz mit Beispielen aus dem, was ich gelernt habe.",
+      "text": "Ich möchte mit dir einen Text durchgehen. Bitte mich, ihn einzufügen, und nimm ihn dann Satz für Satz: übersetze, erkläre, was neu ist, und warte auf mich, bevor du weitermachst.",
+      "conversation": "Lass uns ein Gespräch üben. Schlag eine Alltagssituation aus dem vor, was ich gelernt habe, beginne dann mit einem Satz und warte auf meine Antwort; korrigiere meine Fehler unterwegs."
+    }
   }
 }

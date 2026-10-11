@@ -7,7 +7,8 @@
     "settings": "Beállítások",
     "review": "Ismétlés",
     "notebook": "Füzet",
-    "exams": "Vizsgák"
+    "exams": "Vizsgák",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Betöltés…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Új itt:",
     "by": "Példák az MI-től · {model}"
+  },
+  "tutorSection": {
+    "intro": "Kérdezz bármit a tutortól leckén kívül – nyelvtani kérdést, átnézendő szöveget, gyakorolni való beszélgetést. Tudja, mit tanultál a kurzusaidban, és a te nyelveden magyaráz.",
+    "empty": "Még nincs beszélgetés: kezdj egyet az „Új beszélgetés” gombbal.",
+    "needsCourse": "A tutor a kurzusaid anyagáról beszél: előbb kezdj el egy kurzust.",
+    "off": "A tutor ki van kapcsolva: kapcsold be itt: Beállítások → MI-asszisztens.",
+    "all": "Összes beszélgetés",
+    "suggest": {
+      "grammar": "Nyelvtani kérdésem van",
+      "text": "Nézz át velem egy szöveget",
+      "conversation": "Gyakoroljunk egy beszélgetést"
+    },
+    "ask": {
+      "grammar": "Nyelvtani kérdésem van. Kérdezd meg, mi az, aztán magyarázd el röviden példákkal abból, amit már tanultam.",
+      "text": "Szeretnék veled átnézni egy szöveget. Kérd meg, hogy másoljam be, aztán haladj mondatról mondatra: fordítsd le, magyarázd el, mi új benne, és várj meg a következő előtt.",
+      "conversation": "Gyakoroljunk egy beszélgetést. Javasolj egy hétköznapi helyzetet abból, amit tanultam, kezdj egy mondattal, és várd meg a válaszomat; menet közben javítsd a hibáimat."
+    }
   }
 }

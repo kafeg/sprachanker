@@ -7,7 +7,8 @@
     "settings": "Pengaturan",
     "review": "Pengulangan",
     "notebook": "Buku catatan",
-    "exams": "Ujian"
+    "exams": "Ujian",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Memuat…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Baru di sini:",
     "by": "Contoh dari AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Tanyakan apa saja kepada tutor di luar pelajaran — pertanyaan tata bahasa, teks untuk dibahas, percakapan untuk dilatih. Tutor tahu apa yang sudah kamu pelajari di kursus-kursusmu dan menjelaskan dalam bahasamu.",
+    "empty": "Belum ada obrolan: mulai satu dengan “Obrolan baru”.",
+    "needsCourse": "Tutor membahas materi kursus-kursusmu: mulai kursus dulu.",
+    "off": "Tutor dimatikan: nyalakan di Pengaturan → Asisten AI.",
+    "all": "Semua obrolan",
+    "suggest": {
+      "grammar": "Aku punya pertanyaan tata bahasa",
+      "text": "Bahas sebuah teks bersamaku",
+      "conversation": "Ayo latihan percakapan"
+    },
+    "ask": {
+      "grammar": "Aku punya pertanyaan tata bahasa. Tanyakan dulu apa pertanyaannya, lalu jelaskan singkat dengan contoh dari yang sudah kupelajari.",
+      "text": "Aku ingin membahas sebuah teks bersamamu. Minta aku menempelkannya, lalu bahas kalimat demi kalimat: terjemahkan, jelaskan yang baru, dan tunggu aku sebelum lanjut.",
+      "conversation": "Ayo latihan percakapan. Usulkan situasi sehari-hari dari yang sudah kupelajari, mulai dengan satu kalimat dan tunggu jawabanku; koreksi kesalahanku sambil jalan."
+    }
   }
 }

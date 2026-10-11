@@ -1,5 +1,6 @@
-// The lesson tutor: the chat of this lesson, in a side panel opened from the header, and inline on the
-// "Going over mistakes" step, which opens it with a request to go through the run's mistakes.
+// The tutor's chat view, and the lesson tutor: the chat of this lesson in a side panel opened from the
+// header, and inline on the "Going over mistakes" step, which opens it with a request to go through the
+// run's mistakes. The Tutor section's chats (tutor-section.tsx) are shown by the same view.
 import { Link } from "@tanstack/react-router";
 import { MessageCircle, RotateCcw, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -13,6 +14,8 @@ import { SectionTabList } from "@/ui/section-tabs.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import { cn } from "@/ui/utils.ts";
 import {
+  type ContextRequest,
+  type PromptRequest,
   streamTutor,
   type TutorRequest,
   type TutorTurn,
@@ -77,18 +80,33 @@ interface Starter {
   text: string;
 }
 
-/** The lesson's chat: its turns, the question on its way with the reply so far, and sending one
- *  (`newChat`: the current chat goes to the history). */
-function useTutorChat(context: Context, onReply?: () => void) {
-  const { i18n } = useTranslation();
-  const history = useTutorHistory(context.lessonKey);
-  const cache = useTutorCache(context.lessonKey);
+/** What a chat is read from and sent to: its stored turns (undefined while they are read), a pair
+ *  stored shown at once, a message sent with its reply streamed (`newChat`: it opens a new chat, the
+ *  turns there were leaving the screen at once — `clear`). */
+export interface ChatSource {
+  turns: TutorTurn[] | undefined;
+  refetch(): Promise<unknown>;
+  add(turns: TutorTurn[]): void;
+  clear?(): void;
+  send(
+    message: string,
+    newChat: boolean,
+    onText: (reply: string) => void,
+    signal: AbortSignal,
+  ): Promise<string>;
+  /** The exercise on screen, which the learner's turn records. */
+  exerciseKey?: string;
+}
+
+/** A chat: its turns, the question on its way with the reply so far, and sending one. `onReply`: a
+ *  reply came in full. */
+export function useChat(source: ChatSource, onReply?: () => void) {
   const [input, setInput] = useState("");
   /** The question on its way and the reply so far; `after`: how many turns came before it. */
   const [pending, setPending] = useState<{ question: string; reply: string; after: number }>();
   const [error, setError] = useState<unknown>();
   const request = useAbortable();
-  const turns = history.data?.turns ?? [];
+  const turns = source.turns ?? [];
   // Shown until the turns hold it: never in the same frame as the stored pair.
   const shown = pending && turns.length <= pending.after ? pending : undefined;
 
@@ -99,23 +117,20 @@ function useTutorChat(context: Context, onReply?: () => void) {
     setInput("");
     setError(undefined);
     // A new chat: the current one leaves the screen at once (the server ends it with this message).
-    if (newChat) cache.clear();
+    if (newChat) source.clear?.();
     const after = newChat ? 0 : turns.length;
     setPending({ question, reply: "", after });
-    streamTutor(
-      { ...context, message: question, language: i18n.language, newChat },
-      (reply) => setPending({ question, reply, after }),
-      controller.signal,
-    )
+    source
+      .send(question, newChat, (reply) => setPending({ question, reply, after }), controller.signal)
       .then((reply) => {
         // The pair as the server stored it, shown at once in place of the pending one; the stored
         // turns follow.
         const ts = Date.now();
-        cache.add([
+        source.add([
           {
             role: "user",
             text: question,
-            exerciseKey: context.exerciseKey as TutorTurn["exerciseKey"],
+            exerciseKey: source.exerciseKey as TutorTurn["exerciseKey"],
             ts,
           },
           { role: "assistant", text: reply.trim(), ts },
@@ -130,12 +145,12 @@ function useTutorChat(context: Context, onReply?: () => void) {
         setInput(question);
       })
       .finally(async () => {
-        await history.refetch();
+        await source.refetch();
         setPending(undefined);
       });
   };
   return {
-    loaded: !!history.data,
+    loaded: source.turns !== undefined,
     turns,
     shown,
     pending: !!pending,
@@ -146,11 +161,56 @@ function useTutorChat(context: Context, onReply?: () => void) {
     stop: request.stop,
   };
 }
+type Chat = ReturnType<typeof useChat>;
 
-/** An empty chat's ways into the lesson, offered where the lesson has the material for them. Each is
- *  a short label on its button and a fuller request to the model: the word and phrase ones go one at
- *  a time and wait for the learner, not a list at once. */
-function Suggestions({ context, onAsk }: { context: Context; onAsk(text: string): void }) {
+/** The lesson's chat as the tutor's panel and the mistakes step show it. */
+function useLessonSource(context: Context): ChatSource {
+  const { i18n } = useTranslation();
+  const history = useTutorHistory(context.lessonKey);
+  const cache = useTutorCache(context.lessonKey);
+  return {
+    turns: history.data?.turns,
+    refetch: history.refetch,
+    add: cache.add,
+    clear: cache.clear,
+    send: (message, newChat, onText, signal) =>
+      streamTutor({ ...context, message, language: i18n.language, newChat }, onText, signal),
+    exerciseKey: context.exerciseKey,
+  };
+}
+
+/** Ways into an empty chat: each a short label on its button and a fuller request to the model. */
+export function Suggestions({
+  intro,
+  items,
+  onAsk,
+}: {
+  intro: string;
+  items: Array<{ key: string; label: string; text: string }>;
+  onAsk(text: string): void;
+}) {
+  return (
+    <div className="space-y-3 pt-2">
+      <p className="text-muted-foreground">{intro}</p>
+      <div className="flex flex-wrap gap-2">
+        {items.map((s) => (
+          <Button
+            key={s.key}
+            variant="outline"
+            className="h-auto min-h-11 whitespace-normal rounded-full text-start"
+            onClick={() => onAsk(s.text)}
+          >
+            {s.label}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/** An empty chat's ways into the lesson, offered where the lesson has the material for them: the word
+ *  and phrase ones go one at a time and wait for the learner, not a list at once. */
+function LessonSuggestions({ context, onAsk }: { context: Context; onAsk(text: string): void }) {
   const { t } = useTranslation();
   const lesson = useLesson(context.series, context.lessonKey, context.edition).data;
   const words = !!lesson?.lesson.vocab.length;
@@ -164,21 +224,15 @@ function Suggestions({ context, onAsk }: { context: Context; onAsk(text: string)
     "dialogue",
   ];
   return (
-    <div className="space-y-3 pt-2">
-      <p className="text-muted-foreground">{t("tutor.intro")}</p>
-      <div className="flex flex-wrap gap-2">
-        {suggestions.map((s) => (
-          <Button
-            key={s}
-            variant="outline"
-            className="h-auto min-h-11 whitespace-normal rounded-full text-start"
-            onClick={() => onAsk(t(`tutor.ask.${s}`))}
-          >
-            {t(`tutor.suggest.${s}`)}
-          </Button>
-        ))}
-      </div>
-    </div>
+    <Suggestions
+      intro={t("tutor.intro")}
+      items={suggestions.map((s) => ({
+        key: s,
+        label: t(`tutor.suggest.${s}`),
+        text: t(`tutor.ask.${s}`),
+      }))}
+      onAsk={onAsk}
+    />
   );
 }
 
@@ -199,7 +253,70 @@ function Turns({ turns }: { turns: TutorTurn[] }) {
   ));
 }
 
-function Chat({
+/** Without a model the tutor says so, with the way to set one up. */
+export function NeedsSetup() {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-3 p-5">
+      <p>{t("tutor.needsSetup")}</p>
+      <Link
+        to="/settings"
+        hash="ai"
+        className="inline-flex items-center font-medium underline pointer-coarse:min-h-11"
+      >
+        {t("tutor.openSettings")}
+      </Link>
+    </div>
+  );
+}
+
+/** A chat's view: who answers with the {} button and `actions`, how full the context is, the turns
+ *  (`empty`: what an empty chat offers), the reply on its way, an error, the message box. */
+export function ChatFrame({
+  chat,
+  prompt,
+  meter,
+  actions,
+  empty,
+}: {
+  chat: Chat;
+  /** The request the {} button shows. */
+  prompt(): PromptRequest;
+  /** The request the context gauge measures. */
+  meter: ContextRequest;
+  actions?: React.ReactNode;
+  empty?: React.ReactNode;
+}) {
+  const { t } = useTranslation();
+  const llm = useLlm();
+  const { turns, shown } = chat;
+  const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
+  return (
+    <>
+      <ChatHeader>
+        <PromptButton request={prompt} />
+        {actions}
+      </ChatHeader>
+      <ContextMeter request={meter} turns={turns.length} />
+      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
+        {turns.length === 0 && !shown && empty}
+        <Turns turns={turns} />
+        {shown && <PendingExchange question={shown.question} reply={shown.reply} />}
+        <ErrorLine error={chat.error} provider={llm.data?.provider ?? undefined} />
+        <div ref={end} />
+      </div>
+      <ChatComposer
+        value={chat.input}
+        onChange={chat.setInput}
+        onSend={() => chat.send(chat.input)}
+        onStop={chat.pending ? chat.stop : undefined}
+        placeholder={t("tutor.placeholder")}
+      />
+    </>
+  );
+}
+
+function LessonChat({
   ask,
   starter,
   onReply,
@@ -213,9 +330,7 @@ function Chat({
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const reset = useResetTutor(context.lessonKey);
-  const chat = useTutorChat(context, onReply);
-  const { turns, shown } = chat;
-  const end = useScrollToEnd(`${turns.length}:${shown?.reply}`);
+  const chat = useChat(useLessonSource(context), onReply);
 
   // An ask from outside is sent once, as soon as the chat is ready.
   const sendLatest = useRef(chat.send);
@@ -228,64 +343,40 @@ function Chat({
     sendLatest.current(ask.text, ask.newChat);
   }, [ask, ready]);
 
-  if (!llm.data?.model)
-    return (
-      <div className="space-y-3 p-5">
-        <p>{t("tutor.needsSetup")}</p>
-        <Link
-          to="/settings"
-          hash="ai"
-          className="inline-flex items-center font-medium underline pointer-coarse:min-h-11"
-        >
-          {t("tutor.openSettings")}
-        </Link>
-      </div>
-    );
-
-  const empty = turns.length === 0 && !shown;
+  if (!llm.data?.model) return <NeedsSetup />;
   return (
-    <>
-      <ChatHeader>
-        <PromptButton
-          request={() => ({
-            tutor: { ...context, message: chat.input.trim(), language: i18n.language },
-          })}
-        />
-        {turns.length > 0 && !chat.pending && (
+    <ChatFrame
+      chat={chat}
+      prompt={() => ({
+        tutor: { ...context, message: chat.input.trim(), language: i18n.language },
+      })}
+      meter={{ ...context, message: "", language: i18n.language }}
+      actions={
+        chat.turns.length > 0 &&
+        !chat.pending && (
           <Button variant="ghost" size="sm" onClick={() => reset.mutate()}>
             <RotateCcw className="size-4" /> {t("tutor.newChat")}
           </Button>
-        )}
-      </ChatHeader>
-      <ContextMeter
-        request={{ ...context, message: "", language: i18n.language }}
-        turns={turns.length}
-      />
-      <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
-        {empty && starter && chat.loaded && asked.current === ask?.id && (
-          <div className="pt-2">
-            <StartPrompt
-              intro={starter.intro}
-              label={starter.label}
-              icon={MessageCircle}
-              onStart={() => chat.send(starter.text, true)}
-            />
-          </div>
-        )}
-        {empty && !starter && <Suggestions context={context} onAsk={(text) => chat.send(text)} />}
-        <Turns turns={turns} />
-        {shown && <PendingExchange question={shown.question} reply={shown.reply} />}
-        <ErrorLine error={chat.error} provider={llm.data.provider ?? undefined} />
-        <div ref={end} />
-      </div>
-      <ChatComposer
-        value={chat.input}
-        onChange={chat.setInput}
-        onSend={() => chat.send(chat.input)}
-        onStop={chat.pending ? chat.stop : undefined}
-        placeholder={t("tutor.placeholder")}
-      />
-    </>
+        )
+      }
+      empty={
+        starter ? (
+          chat.loaded &&
+          asked.current === ask?.id && (
+            <div className="pt-2">
+              <StartPrompt
+                intro={starter.intro}
+                label={starter.label}
+                icon={MessageCircle}
+                onStart={() => chat.send(starter.text, true)}
+              />
+            </div>
+          )
+        ) : (
+          <LessonSuggestions context={context} onAsk={(text) => chat.send(text)} />
+        )
+      }
+    />
   );
 }
 
@@ -320,7 +411,7 @@ export function LessonTutor(context: Context) {
               ]}
             />
             <TabsContent value="chat" className="flex min-h-0 flex-1 flex-col">
-              <Chat {...context} />
+              <LessonChat {...context} />
             </TabsContent>
             <TabsContent value="history" className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
               <TutorHistory {...context} />
@@ -331,6 +422,9 @@ export function LessonTutor(context: Context) {
     </>
   );
 }
+
+/** The box a chat shows in on a page of its own (the mistakes step, the Tutor section). */
+export const chatBoxClass = cn(panelClass, "flex h-[70dvh] min-h-96 flex-col overflow-hidden pt-2");
 
 /**
  * The tutor going through the run's mistakes one at a time, in the lesson's chat shown on the step page.
@@ -359,8 +453,8 @@ export function MistakesTutor({
       />
     );
   return (
-    <div className={cn(panelClass, "flex h-[70dvh] min-h-96 flex-col overflow-hidden pt-2")}>
-      <Chat {...context} ask={ask} starter={starter} onReply={onDone} />
+    <div className={chatBoxClass}>
+      <LessonChat {...context} ask={ask} starter={starter} onReply={onDone} />
     </div>
   );
 }

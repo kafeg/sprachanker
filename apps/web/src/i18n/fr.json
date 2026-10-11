@@ -7,7 +7,8 @@
     "settings": "Réglages",
     "review": "Révision",
     "notebook": "Carnet",
-    "exams": "Examens"
+    "exams": "Examens",
+    "tutor": "Tuteur"
   },
   "common": {
     "loading": "Chargement…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Nouveau ici :",
     "by": "Exemples de l’IA · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pose au tuteur toutes tes questions hors d’une leçon : une question de grammaire, un texte à parcourir, une conversation à pratiquer. Il sait ce que tu as vu dans tes cours et explique dans ta langue.",
+    "empty": "Pas encore de discussion : commences-en une avec « Nouvelle discussion ».",
+    "needsCourse": "Le tuteur parle de ce que tu as vu dans tes cours : commence d’abord un cours.",
+    "off": "Le tuteur est désactivé : active-le dans Réglages → Assistant IA.",
+    "all": "Toutes les discussions",
+    "suggest": {
+      "grammar": "J’ai une question de grammaire",
+      "text": "Parcours un texte avec moi",
+      "conversation": "Entraînons-nous à une conversation"
+    },
+    "ask": {
+      "grammar": "J’ai une question de grammaire. Demande-moi laquelle, puis explique-la brièvement avec des exemples tirés de ce que j’ai appris.",
+      "text": "J’aimerais parcourir un texte avec toi. Demande-moi de le coller, puis avance phrase par phrase : traduis-la, explique ce qui est nouveau et attends-moi avant la suivante.",
+      "conversation": "Entraînons-nous à une conversation. Propose une situation de tous les jours tirée de ce que j’ai appris, commence par une réplique et attends ma réponse ; corrige mes erreurs au fur et à mesure."
+    }
   }
 }

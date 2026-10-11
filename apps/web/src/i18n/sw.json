@@ -7,7 +7,8 @@
     "settings": "Mipangilio",
     "review": "Marudio",
     "notebook": "Daftari",
-    "exams": "Mitihani"
+    "exams": "Mitihani",
+    "tutor": "Mkufunzi"
   },
   "common": {
     "loading": "Inapakia…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Mapya hapa:",
     "by": "Mifano ya AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Muulize mkufunzi chochote nje ya somo — swali la sarufi, maandishi ya kupitia, mazungumzo ya kujizoeza. Anajua yale uliyojifunza katika kozi zako na hueleza kwa lugha yako.",
+    "empty": "Bado hakuna mazungumzo: anza moja kwa “Mazungumzo mapya”.",
+    "needsCourse": "Mkufunzi huzungumzia yale uliyojifunza katika kozi zako: anza kozi kwanza.",
+    "off": "Mkufunzi amezimwa: mwashe katika Mipangilio → Msaidizi wa AI.",
+    "all": "Mazungumzo yote",
+    "suggest": {
+      "grammar": "Nina swali la sarufi",
+      "text": "Pitia maandishi pamoja nami",
+      "conversation": "Tujizoeze mazungumzo"
+    },
+    "ask": {
+      "grammar": "Nina swali la sarufi. Niulize ni lipi, kisha lieleze kwa ufupi kwa mifano kutoka yale niliyojifunza.",
+      "text": "Ningependa kupitia maandishi pamoja nawe. Niombe niyabandike, kisha chukua sentensi moja moja: itafsiri, eleza kilicho kipya na unisubiri kabla ya inayofuata.",
+      "conversation": "Tujizoeze mazungumzo. Pendekeza hali ya kila siku kutoka yale niliyojifunza, anza kwa sentensi moja na usubiri jibu langu; sahihisha makosa yangu tunapoendelea."
+    }
   }
 }

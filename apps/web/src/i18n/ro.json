@@ -7,7 +7,8 @@
     "settings": "Setări",
     "review": "Recapitulare",
     "notebook": "Caiet",
-    "exams": "Examene"
+    "exams": "Examene",
+    "tutor": "Tutore"
   },
   "common": {
     "loading": "Se încarcă…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Nou aici:",
     "by": "Exemple de la AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Întreabă-l pe tutore orice în afara unei lecții — o întrebare de gramatică, un text de parcurs, o conversație de exersat. Știe ce ai învățat în cursurile tale și explică în limba ta.",
+    "empty": "Încă nu există conversații: începe una cu „Conversație nouă”.",
+    "needsCourse": "Tutorele vorbește despre materia cursurilor tale: începe mai întâi un curs.",
+    "off": "Tutorele este oprit: pornește-l din Setări → Asistent AI.",
+    "all": "Toate conversațiile",
+    "suggest": {
+      "grammar": "Am o întrebare de gramatică",
+      "text": "Parcurge un text cu mine",
+      "conversation": "Hai să exersăm o conversație"
+    },
+    "ask": {
+      "grammar": "Am o întrebare de gramatică. Întreabă-mă care este, apoi explic-o pe scurt cu exemple din ce am învățat.",
+      "text": "Aș vrea să parcurg un text cu tine. Cere-mi să-l lipesc, apoi ia-l propoziție cu propoziție: tradu, explică ce e nou și așteaptă-mă înainte de următoarea.",
+      "conversation": "Hai să exersăm o conversație. Propune o situație de zi cu zi din ce am învățat, începe cu o replică și așteaptă răspunsul meu; corectează-mi greșelile pe parcurs."
+    }
   }
 }

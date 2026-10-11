@@ -55,8 +55,8 @@ apps/web/src/
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
                    # run's events over it: per profile, the server's outcomes, on page close); edition:
                    # the edition a course is shown in; cache: pure cache updates
-  app/             # the app around the screens, with data: shell (navigation, cards due, downloads, the
-                   # profile chip — profile-chip), language-switch (who-is-studying's, kept on the device;
+  app/             # the app around the screens, with data: shell (navigation — an optional feature's section
+                   # after the modules —, cards due, downloads, the profile chip — profile-chip), language-switch (who-is-studying's, kept on the device;
                    # Settings → General's, kept in the profile), who-is-studying (five tiles to a page; "New
                    # profile" starts the onboarding), onboarding (name and colour — the profile made at its
                    # Next —, the AI step a slot from the router, speech, tour — app/tour.tsx: the sections,
@@ -64,9 +64,9 @@ apps/web/src/
                    # profile-settings, device-name, about, preferences (language, theme, playback speed),
                    # experimental (stable sources always, experimental ones turned on), experimental-settings
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
-                   # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
-                   # panel with Conversation and History — tutor-history —, inline on the mistakes step),
-                   # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # pure model-filter; LM Studio), "Why is this wrong?", tutor (the chat view; the lesson's
+                   # header panel — History: tutor-history —, the mistakes step), tutor-section (the Tutor
+                   # section: its chats, a chat), writing, scenes, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
@@ -142,7 +142,7 @@ to `@/ui`).
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
   folder can be removed with its mount points: the settings page, the router (`examplesAssistant`, the
-  reviewer's and Decks': study/slots.ts) and routes/runs.tsx (`lessonAssistant` as the player's slots, `examAssistant`
+  reviewer's and Decks': study/slots.ts; the Tutor section's pages and the shell's `extra` entry) and routes/runs.tsx (`lessonAssistant` as the player's slots, `examAssistant`
   as an exam run's: exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
 - Feature folders (`lesson/`, `exams/`, `study/`, `courses/`, `notebook/`) never import each other:
   what they share is in `ui/`, `api/`, `library/`, `exercises/`, `audio/` or `word/` (Anki's reviewer,

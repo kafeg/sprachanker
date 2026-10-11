@@ -7,7 +7,8 @@
     "settings": "Ajustes",
     "review": "Repaso",
     "notebook": "Cuaderno",
-    "exams": "Exámenes"
+    "exams": "Exámenes",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Cargando…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Nuevas aquí:",
     "by": "Ejemplos de la IA · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pregúntale al tutor lo que quieras fuera de una lección: una duda de gramática, un texto que repasar, una conversación que practicar. Sabe lo que has visto en tus cursos y explica en tu idioma.",
+    "empty": "Aún no hay conversaciones: empieza una con «Nueva conversación».",
+    "needsCourse": "El tutor habla de lo que has visto en tus cursos: empieza primero un curso.",
+    "off": "El tutor está desactivado: actívalo en Ajustes → Asistente de IA.",
+    "all": "Todas las conversaciones",
+    "suggest": {
+      "grammar": "Tengo una duda de gramática",
+      "text": "Repasa un texto conmigo",
+      "conversation": "Practiquemos una conversación"
+    },
+    "ask": {
+      "grammar": "Tengo una duda de gramática. Pregúntame cuál es y luego explícamela brevemente con ejemplos de lo que he aprendido.",
+      "text": "Quiero repasar un texto contigo. Pídeme que lo pegue y luego ve frase por frase: tradúcela, explica lo nuevo y espérame antes de la siguiente.",
+      "conversation": "Practiquemos una conversación. Propón una situación cotidiana de lo que he aprendido, empieza con una frase y espera mi respuesta; corrige mis errores sobre la marcha."
+    }
   }
 }

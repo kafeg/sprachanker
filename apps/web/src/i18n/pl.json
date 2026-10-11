@@ -7,7 +7,8 @@
     "settings": "Ustawienia",
     "review": "Powtórki",
     "notebook": "Zeszyt",
-    "exams": "Egzaminy"
+    "exams": "Egzaminy",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Ładowanie…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Nowe tutaj:",
     "by": "Przykłady od AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pytaj tutora o wszystko poza lekcją — pytanie o gramatykę, tekst do omówienia, rozmowę do przećwiczenia. Zna materiał twoich kursów i tłumaczy w twoim języku.",
+    "empty": "Nie ma jeszcze rozmów: zacznij pierwszą przyciskiem „Nowa rozmowa”.",
+    "needsCourse": "Tutor rozmawia o materiale twoich kursów: najpierw zacznij kurs.",
+    "off": "Tutor jest wyłączony: włącz go w Ustawieniach → Asystent AI.",
+    "all": "Wszystkie rozmowy",
+    "suggest": {
+      "grammar": "Mam pytanie o gramatykę",
+      "text": "Omów ze mną tekst",
+      "conversation": "Przećwiczmy rozmowę"
+    },
+    "ask": {
+      "grammar": "Mam pytanie o gramatykę. Zapytaj, o co chodzi, a potem wyjaśnij krótko na przykładach z przerobionego materiału.",
+      "text": "Chcę omówić z tobą tekst. Poproś mnie o wklejenie go, a potem idź zdanie po zdaniu: przetłumacz, wyjaśnij, co nowe, i poczekaj na mnie przed następnym.",
+      "conversation": "Przećwiczmy rozmowę. Zaproponuj codzienną sytuację z przerobionego materiału, zacznij jedną kwestią i poczekaj na moją odpowiedź; poprawiaj moje błędy na bieżąco."
+    }
   }
 }

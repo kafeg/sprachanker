@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next";
 import { Progress } from "@/ui/components/progress.tsx";
 import { useCompact } from "@/ui/format.ts";
 import { cn } from "@/ui/utils.ts";
-import { type TutorPromptRequest, useTutorContext } from "./api.ts";
+import { type ContextRequest, useTutorContext } from "./api.ts";
 
-export function ContextMeter({ request, turns }: { request: TutorPromptRequest; turns: number }) {
+export function ContextMeter({ request, turns }: { request: ContextRequest; turns: number }) {
   const { t } = useTranslation();
   const compact = useCompact();
   const usage = useTutorContext(request, turns).data;

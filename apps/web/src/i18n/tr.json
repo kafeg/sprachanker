@@ -7,7 +7,8 @@
     "settings": "Ayarlar",
     "review": "Tekrar",
     "notebook": "Defter",
-    "exams": "Sınavlar"
+    "exams": "Sınavlar",
+    "tutor": "Öğretmen"
   },
   "common": {
     "loading": "Yükleniyor…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "Burada yeni:",
     "by": "Yapay zekâ örnekleri · {model}"
+  },
+  "tutorSection": {
+    "intro": "Ders dışında öğretmene her şeyi sor — bir dil bilgisi sorusu, birlikte geçilecek bir metin, pratik yapılacak bir konuşma. Kurslarında gördüklerini bilir ve senin dilinde açıklar.",
+    "empty": "Henüz sohbet yok: “Yeni sohbet” ile bir tane başlat.",
+    "needsCourse": "Öğretmen kurslarında gördüklerin hakkında konuşur: önce bir kursa başla.",
+    "off": "Öğretmen kapalı: Ayarlar → Yapay zekâ asistanı bölümünden aç.",
+    "all": "Tüm sohbetler",
+    "suggest": {
+      "grammar": "Bir dil bilgisi sorum var",
+      "text": "Benimle bir metnin üzerinden geç",
+      "conversation": "Bir konuşma çalışalım"
+    },
+    "ask": {
+      "grammar": "Bir dil bilgisi sorum var. Önce ne olduğunu sor, sonra öğrendiklerimden örneklerle kısaca açıkla.",
+      "text": "Seninle bir metnin üzerinden geçmek istiyorum. Metni yapıştırmamı iste, sonra cümle cümle ilerle: çevir, yeni olanı açıkla ve sonrakine geçmeden beni bekle.",
+      "conversation": "Bir konuşma çalışalım. Öğrendiklerimden günlük bir durum öner, bir cümleyle başla ve cevabımı bekle; ilerledikçe hatalarımı düzelt."
+    }
   }
 }

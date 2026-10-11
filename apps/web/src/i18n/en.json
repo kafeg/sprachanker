@@ -7,7 +7,8 @@
     "settings": "Settings",
     "review": "Review",
     "notebook": "Notebook",
-    "exams": "Exams"
+    "exams": "Exams",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Loading…",
@@ -1377,5 +1378,22 @@
   "examples": {
     "newWords": "New here:",
     "by": "Examples by the AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Ask the tutor anything outside a lesson — a grammar question, a text to go through, a conversation to practise. It knows what you have met in your courses and explains in your language.",
+    "empty": "No chats yet: begin one with “New chat”.",
+    "needsCourse": "The tutor talks about what you have met in your courses: begin a course first.",
+    "off": "The tutor is turned off: turn it on in Settings → AI assistant.",
+    "all": "All chats",
+    "suggest": {
+      "grammar": "I have a grammar question",
+      "text": "Go through a text with me",
+      "conversation": "Let's practise a conversation"
+    },
+    "ask": {
+      "grammar": "I have a grammar question. Ask me what it is, then explain it briefly with examples from what I have learnt.",
+      "text": "I'd like to go through a text with you. Ask me to paste it, then take it one sentence at a time: translate it, explain what is new and wait for me before the next.",
+      "conversation": "Let's practise a conversation. Suggest an everyday situation from what I have learnt, then start with one line and wait for my answer; correct my mistakes as we go."
+    }
   }
 }
