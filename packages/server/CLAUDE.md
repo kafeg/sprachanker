@@ -24,7 +24,7 @@ src/
                      # backup.ts (a copy of each database a day);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
                      # decks.ts (imported decks' folders, written whole; packages uploaded, streamed to
-                     # decks/.uploads; SQLite from bytes and zstd for reading an .apkg)
+                     # decks/.uploads; swept at the start; SQLite from bytes and zstd for reading an .apkg)
   db/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
@@ -37,8 +37,8 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
-                     # progress (reset), exams, cards, decks (imported: list, preview, import, delete),
-                     # settings, notebook, recordings, speech, llm
+                     # progress (reset), exams, cards, decks (imported: list, preview, import, an upload
+                     # let go, delete), settings, notebook, recordings, speech, llm
                      # (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
                      # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
                      # the path, a batch of events)

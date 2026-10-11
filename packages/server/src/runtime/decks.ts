@@ -25,6 +25,8 @@ const MEDIA = /^media\/(?!\.\.?$)[^/\\]+$/;
 const UPLOAD = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /** An upload not imported within a day goes. */
 const UPLOAD_KEPT_MS = 24 * 60 * 60_000;
+/** A deck folder being written (`.<id>.tmp-<x>`), and the one it replaces (`… .old`). */
+const WRITING = /^\.(.+)\.tmp-[0-9a-f]{8}(\.old)?$/;
 
 export function deckFiles(dataRoot: string): DeckFiles {
   const root = join(dataRoot, "decks");
@@ -36,6 +38,14 @@ export function deckFiles(dataRoot: string): DeckFiles {
   const uploaded = (upload: string, ext = "apkg") =>
     UPLOAD.test(upload) ? join(uploads, `${upload}.${ext}`) : "";
   const isFile = (path: string) => !!path && !!statSync(path, { throwIfNoEntry: false })?.isFile();
+  /** Uploads a day old go (one gone meanwhile is no matter). */
+  const sweepUploads = () => {
+    for (const name of statSync(uploads, { throwIfNoEntry: false }) ? readdirSync(uploads) : []) {
+      const path = join(uploads, name);
+      const at = statSync(path, { throwIfNoEntry: false })?.mtimeMs;
+      if (at !== undefined && Date.now() - at > UPLOAD_KEPT_MS) rmSync(path, { force: true });
+    }
+  };
   return {
     ids: () =>
       statSync(root, { throwIfNoEntry: false })?.isDirectory()
@@ -85,10 +95,7 @@ export function deckFiles(dataRoot: string): DeckFiles {
     },
     async stage(body, max) {
       mkdirSync(uploads, { recursive: true });
-      for (const name of readdirSync(uploads)) {
-        const path = join(uploads, name);
-        if (Date.now() - statSync(path).mtimeMs > UPLOAD_KEPT_MS) rmSync(path, { force: true });
-      }
+      sweepUploads();
       const upload = randomUUID();
       const file = uploaded(upload);
       const sink = Bun.file(file).writer();
@@ -120,6 +127,17 @@ export function deckFiles(dataRoot: string): DeckFiles {
       if (!uploaded(upload)) return;
       if (deck) writeFileSync(uploaded(upload, "deck"), deck);
       rmSync(uploaded(upload), { force: true });
+    },
+    sweep() {
+      sweepUploads();
+      for (const name of statSync(root, { throwIfNoEntry: false }) ? readdirSync(root) : []) {
+        const [, id, old] = WRITING.exec(name) ?? [];
+        if (!id) continue;
+        // A deck left only as the folder it was replaced by (stopped between the renames) is back.
+        if (old && ID.test(id) && !statSync(join(root, id), { throwIfNoEntry: false }))
+          renameSync(join(root, name), join(root, id));
+        else rmSync(join(root, name), { recursive: true, force: true });
+      }
     },
     made(upload) {
       const note = uploaded(upload, "deck");

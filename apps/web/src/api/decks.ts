@@ -15,6 +15,11 @@ export type DeckPreview = InferResponseType<typeof api.decks.preview.$post, 200>
 export const previewDeck = (file: File) =>
   sendBinary<DeckPreview>("/api/decks/preview", file, "application/octet-stream");
 
+/** An uploaded deck file let go unimported (its sheet closed); a failure is no matter (a day later the
+ *  server lets it go itself). */
+export const discardDeckUpload = (upload: string) =>
+  json(api.decks.uploads[":upload"].$delete({ param: { upload } })).catch(() => undefined);
+
 /** An uploaded deck file imported; the decks and the decks to take read anew. */
 export function useImportDeck() {
   const client = useQueryClient();

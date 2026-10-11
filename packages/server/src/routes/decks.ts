@@ -1,6 +1,6 @@
 // /api/decks: imported decks (04, "Decks"), the server's as the library is — the list, a package
-// uploaded and previewed (the .apkg as the request body, kept until imported), its import, a deck
-// deleted. Taking and leaving one is a profile's: /api/cards/decks.
+// uploaded and previewed (the .apkg as the request body, kept until imported or let go), its import,
+// a deck deleted. Taking and leaving one is a profile's: /api/cards/decks.
 import { DeckId, Lang } from "@sprachanker/schema";
 import { Hono } from "hono";
 import { z } from "zod";
@@ -29,6 +29,10 @@ export function deckRoutes() {
       ),
       async (c) => c.json(await c.var.s.decks.import(c.req.valid("json"))),
     )
+    .delete("/uploads/:upload", zod("param", z.object({ upload: z.uuid() })), (c) => {
+      c.var.s.decks.discard(c.req.valid("param").upload);
+      return c.json({ ok: true as const });
+    })
     .delete("/:id", zod("param", z.object({ id: DeckId })), (c) => {
       c.var.s.decks.remove(c.req.valid("param").id);
       return c.json({ ok: true as const });

@@ -6,7 +6,7 @@ import { Upload } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDecks } from "@/api/cards.ts";
-import { type DeckPreview, previewDeck, useImportDeck } from "@/api/decks.ts";
+import { type DeckPreview, discardDeckUpload, previewDeck, useImportDeck } from "@/api/decks.ts";
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
@@ -128,7 +128,12 @@ export function DeckImportSheet({
   return (
     <SideSheet
       open
-      onOpenChange={(open) => !open && onClose()}
+      onOpenChange={(open) => {
+        // Closed unimported: the uploaded file goes.
+        if (open) return;
+        void discardDeckUpload(preview.upload);
+        onClose();
+      }}
       title={t("decks.import.title")}
       className="overflow-y-auto sm:max-w-md"
     >

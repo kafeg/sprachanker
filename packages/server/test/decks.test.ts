@@ -1,10 +1,11 @@
 import { expect, test } from "bun:test";
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdirSync, readdirSync, readFileSync, utimesSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { ulid } from "ulid";
+import { deckFiles } from "../src/runtime/decks.ts";
 import { DECK_MAX_BYTES } from "../src/services/decks.ts";
 import { setup } from "./setup.ts";
 
@@ -455,4 +456,34 @@ test("an import asked again — at once or after it ended — answers with the d
   expect(again).toEqual(first);
   expect(await sendJson("POST", "/api/decks/import", request)).toEqual(first);
   expect((await getJson("/api/decks")).decks).toHaveLength(1);
+});
+
+test("an upload let go: the sheet closed, or a day old; what a stopped import left goes, a deck left replaced is back", async () => {
+  const { preview, send, sendJson, root } = await withDecks();
+  const uploads = join(root, "decks", ".uploads");
+  const { upload } = await preview(deck());
+  expect((await send("DELETE", `/api/decks/uploads/${upload}`, {})).status).toBe(200);
+  expect(readdirSync(uploads)).toEqual([]);
+  const request = { upload, title: "x", lang: "de", translationLang: "ru", file: "x.apkg" };
+  expect((await sendJson("POST", "/api/decks/import", request)).error).toBe("deck_upload_gone");
+
+  // A day later the server lets an upload and the note of the deck one made go itself; at its start
+  // a folder being written goes, and a deck stopped between its renames is back.
+  const kept = (await preview(deck())).upload;
+  const old = (await preview(deck())).upload;
+  const dayAgo = new Date(Date.now() - 25 * 60 * 60_000);
+  utimesSync(join(uploads, `${old}.apkg`), dayAgo, dayAgo);
+  const note = join(uploads, `${crypto.randomUUID()}.deck`);
+  writeFileSync(note, "gone-abc123");
+  utimesSync(note, dayAgo, dayAgo);
+  const decks = join(root, "decks");
+  mkdirSync(join(decks, ".half-abc123.tmp-0a1b2c3d", "media"), { recursive: true });
+  mkdirSync(join(decks, ".back-abc123.tmp-1a2b3c4d.old"));
+  writeFileSync(join(decks, ".back-abc123.tmp-1a2b3c4d.old", "deck.json"), "{}");
+  mkdirSync(join(decks, ".both-abc123.tmp-2a3b4c5d.old"));
+  mkdirSync(join(decks, "both-abc123"));
+  deckFiles(root).sweep();
+  expect(readdirSync(uploads)).toEqual([`${kept}.apkg`]);
+  expect(readdirSync(decks).sort()).toEqual([".uploads", "back-abc123", "both-abc123"]);
+  expect(readFileSync(join(decks, "back-abc123", "deck.json"), "utf8")).toBe("{}");
 });

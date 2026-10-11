@@ -43,6 +43,9 @@ export interface DeckFiles {
   unstage(upload: string, deck?: string): void;
   /** The deck an upload made; undefined when it made none (or it was long ago). */
   made(upload: string): string | undefined;
+  /** At the start: uploads a day old and folders a stopped import left go; a deck left only as the
+   *  folder an import replaced (stopped between its renames) is back. */
+  sweep(): void;
 }
 
 /** The largest package taken. */
@@ -67,6 +70,7 @@ export function createDecks(deps: {
   const { files } = deps;
   const read = new Map<string, Deck | undefined>();
   const importing = createOnce<ReturnType<typeof summary>>();
+  files.sweep();
 
   /** A deck as stored; undefined when there is none or it no longer reads (logged). */
   function deckOf(id: string): Deck | undefined {
@@ -290,6 +294,9 @@ export function createDecks(deps: {
         return summary(deck as Deck);
       });
     },
+
+    /** Lets an uploaded package go unimported (the sheet closed). */
+    discard: (upload: string) => files.unstage(upload),
 
     /** Deletes a deck with its files; refused while a profile has its cards (they leave it first). */
     remove(id: DeckId) {
