@@ -143,11 +143,9 @@ export function ItemCard({
   const right = correctAnswer(exercise, index, outcome);
   const shown = marked && outcome.result !== "correct" ? right : undefined;
   const ok = outcome?.result === "correct";
-  // A speaking item shows its texts in the renderer, in order — the question heard, the line to say,
-  // the hint —; only a task in the learner's language without a question stays above. The prompt
-  // shown above the items is in neither.
+  // A speaking item's prompts are what it asks, above as any item's; its hint comes after the line to
+  // say, in the renderer. The prompt shown above the items is in neither.
   const speaking = exercise.type === "speech_selfrate";
-  const cueFirst = speaking && "text" in item && !!item.text;
   const rendered = promptAbove && loc ? { ...loc, prompt: undefined } : loc;
   const renderedItem = promptAbove ? { ...item, prompt: undefined } : item;
   return (
@@ -183,12 +181,12 @@ export function ItemCard({
         />
       )}
       <div className="mb-3 empty:hidden">
-        {item.prompt && !promptAbove && !speaking && (
+        {item.prompt && !promptAbove && (
           <p lang={lang} className="whitespace-pre-line text-lg font-semibold text-balance">
             {numberedLines(keptTogether(item.prompt))}
           </p>
         )}
-        {loc?.prompt && !promptAbove && !cueFirst && (
+        {loc?.prompt && !promptAbove && (
           <p className="text-lg font-semibold text-balance">{keptTogether(loc.prompt)}</p>
         )}
         {loc?.hintHtml && !speaking && (
