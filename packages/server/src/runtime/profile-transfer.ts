@@ -76,10 +76,16 @@ async function hashOf(file: string) {
   return { sha256: hash.digest("hex"), size };
 }
 
-/** Chunks written to a file (made anew), hashed on the way; past `max` bytes it stops: false. */
-async function writeChunks(file: string, chunks: AsyncIterable<Uint8Array>, max = Infinity) {
+/** Chunks written to a file (made anew, with `mode`), hashed on the way; past `max` bytes it stops:
+ *  undefined. */
+async function writeChunks(
+  file: string,
+  chunks: AsyncIterable<Uint8Array>,
+  max = Infinity,
+  mode = 0o666,
+) {
   mkdirSync(dirname(file), { recursive: true });
-  const handle = await open(file, "w");
+  const handle = await open(file, "w", mode);
   const hash = createHash("sha256");
   let size = 0;
   try {
@@ -400,7 +406,9 @@ export function profileTransferFiles(
       room(dirname(file), bytes, () => FILE_MARGIN);
       const part = `${file}.part`;
       try {
-        await writeChunks(part, stream);
+        // Its owner's only: one's whole learning (a part left from before is made anew).
+        rmSync(part, { force: true });
+        await writeChunks(part, stream, Infinity, 0o600);
         renameSync(part, file);
       } catch (error) {
         rmSync(part, { force: true });
@@ -437,9 +445,11 @@ export function profileTransferFiles(
     async unpack(id, listed, file = received(id)) {
       const entries = entriesOf(file);
       if (!entries) return false;
+      // Its files, and the copy of its database made before it is migrated.
+      const database = entries.others.find((e) => e.name === "profile.sqlite")?.size ?? 0;
       room(
         root,
-        entries.others.reduce((n, e) => n + e.size, 0),
+        entries.others.reduce((n, e) => n + e.size, database),
       );
       for (const e of entries.others) {
         const stream = Bun.file(file)

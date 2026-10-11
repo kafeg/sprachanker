@@ -268,8 +268,8 @@ recordings/<ulid>.<ext>
   02).
 - **Export** (Settings → Profile, `profiles export`): the database copied and the recordings linked
   (copied where the disk has no hard links) into `profiles/.transfers/<id>/`, each file hashed, then
-  streamed as the zip; the transfer goes when the file is written or the download ends or stops (one
-  never downloaded, after an hour). One a profile: a new one replaces the one not yet downloaded, and
+  streamed as the zip — the command line's file its owner's only (0600) —; the transfer goes when the
+  file is written or the download ends or stops (one never downloaded, after an hour). One a profile: a new one replaces the one not yet downloaded, and
   asked for again while it is made it is the same one. The disk is checked for room for the copy
   first, with a margin left free — the larger of 1 GB and 5 % of the disk, for imports too — (507
   `not_enough_space`; a disk that fills up meanwhile gives the same).
@@ -288,8 +288,8 @@ recordings/<ulid>.<ext>
      another; a manifest that reads, stored entries only, only `profile.sqlite` and
      `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a
      migration this app does not know: 422 `profile_from_newer_app`; the files exactly those listed,
-     each unpacked streaming and hashed, the first whose size or sha256 is not as listed ending it —
-     422 `profile_file_damaged`;
+     each unpacked streaming and hashed (room for them and the copy made before migrating checked
+     first), the first whose size or sha256 is not as listed ending it — 422 `profile_file_damaged`;
   3. the database, apart from the server's work (a Worker; one not done in 30 minutes is refused): the
      file is untrusted, and views, triggers, CHECK constraints and indexed expressions are SQL of its
      own that runs when it is read or written. So, opened read-only with `trusted_schema` off, nothing

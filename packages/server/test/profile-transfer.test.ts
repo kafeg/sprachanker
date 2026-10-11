@@ -656,6 +656,30 @@ test("a full disk: the export and the import say so and leave nothing behind", a
   await nothingLeft(filling);
 });
 
+test("unpacking needs room for the files and the copy made before migrating", async () => {
+  const { bytes } = await exported(await studied());
+  const file = join(mkdtempSync(join(tmpdir(), "sprachanker-file-")), "p.sprachanker-profile");
+  writeFileSync(file, bytes);
+  const files = unzipSync(bytes);
+  delete files["manifest.json"];
+  const listed = new Map(
+    Object.entries(files).map(([path, data]) => [
+      path,
+      { size: data.length, sha256: sha256(data) },
+    ]),
+  );
+  const all = [...listed.values()].reduce((n, f) => n + f.size, 0);
+  const needed = all + (listed.get("profile.sqlite")?.size ?? 0) + 1024 ** 3;
+  const unpack = (free: number) => {
+    const transfers = profileTransferFiles(mkdtempSync(join(tmpdir(), "sprachanker-data-")), {
+      disk: () => ({ free, size: 10 * 1024 ** 3 }),
+    });
+    return transfers.unpack(transfers.begin(), listed, file);
+  };
+  await expect(unpack(needed - 1)).rejects.toMatchObject({ code: "ENOSPC" });
+  await expect(unpack(needed)).resolves.toBe(true);
+});
+
 test("one import at a time; one export a profile, a new one replacing the one not downloaded", async () => {
   const a = await studied();
   const { bytes } = await exported(a);

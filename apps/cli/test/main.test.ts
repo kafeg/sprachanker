@@ -1,5 +1,5 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
-import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { profileAdmin } from "@sprachanker/server";
@@ -73,6 +73,8 @@ test("profiles export and import: a profile moved to another data root as a file
   const [file] = readdirSync(files);
   expect(file).toMatch(/^Mila-\d{4}-\d{2}-\d{2}\.sprachanker-profile$/);
   expect(exported.out).toStartWith(`Mila: exported to ${join(files, file as string)} (`);
+  // Its owner's only: one's whole learning.
+  expect(statSync(join(files, file as string)).mode & 0o777).toBe(0o600);
   // Never over a file there.
   const again = await cli("profiles", "export", "Mila", "--data", from, "--to", files);
   expect([again.out, again.code]).toEqual([
