@@ -6,6 +6,7 @@ import type { Exercise, ItemOf, LocaleExercise, Outcome } from "@sprachanker/sch
 import { useTranslation } from "react-i18next";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { keptTogether } from "@/ui/line-breaks.ts";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
@@ -95,7 +96,7 @@ function SharedLines({
   return (
     <>
       {shared.target && (
-        <p lang={lang} className="text-lg font-semibold text-balance">
+        <p {...inLang(lang)} className="text-lg font-semibold text-balance">
           {keptTogether(shared.target)}
         </p>
       )}
@@ -163,7 +164,7 @@ export function ItemCard({
         // A run with no place to break ("Führerschein/Computerkenntnisse/…") wraps inside the card.
         panelClass,
         "p-4 break-words sm:p-5",
-        marked && (ok ? "border-l-4 border-l-correct" : "border-l-4 border-l-wrong"),
+        marked && (ok ? "border-s-4 border-s-correct" : "border-s-4 border-s-wrong"),
         className,
       )}
     >
@@ -189,7 +190,7 @@ export function ItemCard({
       )}
       <div className="mb-3 empty:hidden">
         {item.prompt && !promptAbove && (
-          <p lang={lang} className="whitespace-pre-line text-lg font-semibold text-balance">
+          <p {...inLang(lang)} className="whitespace-pre-line text-lg font-semibold text-balance">
             {numberedLines(keptTogether(item.prompt))}
           </p>
         )}
@@ -238,7 +239,7 @@ export function ItemCard({
       {shown && (
         <p className="mt-3 text-sm">
           <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>
-          <span lang={lang} className="font-medium whitespace-pre-line">
+          <span {...inLang(lang)} className="font-medium whitespace-pre-line">
             {shown}
           </span>
         </p>

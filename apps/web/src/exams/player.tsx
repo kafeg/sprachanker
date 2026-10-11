@@ -303,7 +303,7 @@ function Running({
       <SideHeader
         back={
           <button type="button" onClick={onLeave} className={SIDE_BACK}>
-            <ArrowLeft className="size-4 shrink-0" />{" "}
+            <ArrowLeft className="rtl:-scale-x-100 size-4 shrink-0" />{" "}
             <span className="truncate">{t("exams.leave")}</span>
           </button>
         }

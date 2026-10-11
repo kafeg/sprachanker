@@ -125,7 +125,7 @@ export function Chip({
         "inline-flex min-h-11 touch-none items-center rounded-xl border-2 bg-card px-3 text-lg",
         "cursor-grab select-none active:cursor-grabbing disabled:cursor-default",
         selected && "border-primary bg-primary/15",
-        drop.isOver && !isDragging && "border-l-primary border-l-4",
+        drop.isOver && !isDragging && "border-s-primary border-s-4",
         isDragging && "relative z-20 shadow-lg",
         className,
       )}
@@ -174,7 +174,7 @@ export function Slot({
         // A chip in it reads from the left, its lines even (no word alone on the last), the mark at
         // the end; an empty one says where to drop, centred.
         filled
-          ? "justify-between border-solid bg-card text-left text-balance"
+          ? "justify-between border-solid bg-card text-start text-balance"
           : "justify-center border-dashed text-muted-foreground",
         (isOver || active) && !mark && "border-primary bg-primary/10",
         mark === "correct" && "border-correct bg-correct-soft",

@@ -59,7 +59,7 @@ export function PlanRow({
       aria-current={current ? "step" : undefined}
       aria-label={label}
       className={cn(
-        "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-left text-[15px] hover:bg-accent pointer-coarse:min-h-11",
+        "flex w-full items-start gap-2.5 rounded-lg px-2 py-1.5 text-start text-[15px] hover:bg-accent pointer-coarse:min-h-11",
         current && "bg-accent font-semibold",
       )}
     >

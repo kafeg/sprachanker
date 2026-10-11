@@ -10,6 +10,7 @@ import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { cardAudioUrl } from "@/api/client.ts";
 import { languageName } from "@/i18n/index.ts";
+import { inLang } from "@/ui/direction.tsx";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -108,7 +109,7 @@ export function StudyCard({
         {face === "listening" && <Word display={display} />}
         <span className="text-xl">{display.translation}</span>
         {display.example && (
-          <span lang={lang} className="text-sm italic text-muted-foreground">
+          <span {...inLang(lang)} className="text-sm italic text-muted-foreground">
             {display.example}
           </span>
         )}
@@ -147,13 +148,13 @@ export function StudyCard({
           </div>
         </div>
       )}
-      {marks && <div className="absolute top-3 left-3 flex items-center gap-1.5">{marks}</div>}
+      {marks && <div className="absolute top-3 start-3 flex items-center gap-1.5">{marks}</div>}
       {/* In the card's corner: the recording, so a word without one keeps the same layout; with the
           answer, the way to its deck for what it has yet to make for the word (no recording: nothing
           plays, R does nothing). */}
       <div
         data-card-corner
-        className="absolute top-3 right-3 flex max-w-[60%] flex-row-reverse items-center gap-2 text-right"
+        className="absolute top-3 end-3 flex max-w-[60%] flex-row-reverse items-center gap-2 text-end"
       >
         {src && wordShown && (
           <AudioButton ref={sound} src={src} label={display.target} className="size-11" />

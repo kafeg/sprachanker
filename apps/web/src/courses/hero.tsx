@@ -116,7 +116,7 @@ export function CourseHero(props: CourseHeroProps) {
               params={{ series, course, lesson: nextKey.name }}
             >
               {started ? t("lesson.resume") : t("courses.start")}
-              <ArrowRight className="size-4" />
+              <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Link>
           </Button>
         )

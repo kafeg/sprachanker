@@ -1,5 +1,6 @@
 // A German word with its grammatical gender colour (der blue, die red, das green, plural neutral).
 import type { Gender } from "@sprachanker/schema";
+import { inLang } from "@/ui/direction.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 
@@ -27,7 +28,7 @@ export function GenderWord({
   // What goes with the word before it ("(auf etwas) an|stoßen"): small, the word the headword.
   const optional = /^(\([^)]*\))\s+(\S[\s\S]*)$/.exec(text);
   return (
-    <span lang={lang} className={cn("font-semibold", gender && COLOUR[gender], className)}>
+    <span {...inLang(lang)} className={cn("font-semibold", gender && COLOUR[gender], className)}>
       {optional ? (
         <>
           <span className="text-[0.6em] font-normal text-muted-foreground">{optional[1]}</span>{" "}

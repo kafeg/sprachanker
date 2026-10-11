@@ -58,7 +58,7 @@ export function SpokenAnswerCheck({
               <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 <Sparkles className="size-4" /> {modelName(saved.model)}
               </span>
-              <span className="ml-auto">
+              <span className="ms-auto">
                 <PromptButton request={{ speaking: request }} />
               </span>
             </>
@@ -68,7 +68,7 @@ export function SpokenAnswerCheck({
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <Sparkles className="size-4" />
           <ErrorLine error={check.error} provider={llm.data?.provider ?? undefined} onRetry={ask} />
-          <span className="ml-auto">
+          <span className="ms-auto">
             <PromptButton request={{ speaking: request }} />
           </span>
         </div>

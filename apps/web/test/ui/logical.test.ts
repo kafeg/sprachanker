@@ -1,0 +1,32 @@
+// The layout is set in logical terms, so a right-to-left interface mirrors it (spec 09, "Writing
+// direction"): no left/right utility in the code but those kept physical on purpose.
+import { expect, test } from "bun:test";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+const SRC = join(import.meta.dir, "../../src");
+const files = (dir: string): string[] =>
+  readdirSync(dir).flatMap((name) => {
+    const path = join(dir, name);
+    return statSync(path).isDirectory() ? files(path) : /\.(tsx?|css)$/.test(name) ? [path] : [];
+  });
+
+/** A utility with a side in it, after any variants (`sm:`, `data-[x]:`). */
+const PHYSICAL =
+  /(?<=^|[\s"'`:])(?:-?(?:m[lr]|p[lr]|left|right|scroll-[mp][lr])-[\w./[\]%-]+|(?:border-[lr]|rounded-(?:[lr]|[tb][lr]))(?:-[\w./[\]%-]+)?|(?:text|float)-(?:left|right))(?=$|[\s"'`])/g;
+/** Kept physical on purpose: a dialog centred by its left edge (symmetric either way). */
+const KEPT = ["left-1/2"];
+
+test("no physical left/right utilities: the logical ones (ms/me, ps/pe, start/end, text-start…)", () => {
+  const found: string[] = [];
+  for (const path of files(SRC)) {
+    readFileSync(path, "utf8")
+      .split("\n")
+      .forEach((line, i) => {
+        if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;
+        for (const [m] of line.matchAll(PHYSICAL))
+          if (!KEPT.includes(m)) found.push(`${path.slice(SRC.length)}:${i + 1} ${m}`);
+      });
+  }
+  expect(found).toEqual([]);
+});

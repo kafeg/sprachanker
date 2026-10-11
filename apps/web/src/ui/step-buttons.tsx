@@ -24,7 +24,7 @@ export function StepBack({
       aria-label={label}
       className="max-sm:px-3"
     >
-      <ArrowLeft className="size-5 sm:hidden" />
+      <ArrowLeft className="rtl:-scale-x-100 size-5 sm:hidden" />
       <span className="max-sm:sr-only">{label}</span>
     </Button>
   );

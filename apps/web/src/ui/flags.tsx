@@ -112,7 +112,7 @@ export function PairFlags({
       className={cn("inline-flex items-center gap-1.5", className)}
     >
       <LanguageFlag lang={source} size={size} />
-      <ArrowRight className="size-3.5 opacity-60" aria-hidden="true" />
+      <ArrowRight className="rtl:-scale-x-100 size-3.5 opacity-60" aria-hidden="true" />
       <LanguageFlag lang={target} size={size} />
     </span>
   );

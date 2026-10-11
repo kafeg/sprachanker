@@ -65,7 +65,7 @@ export function LessonOverview({
       {!!lesson.goals.length && (
         <div className="rounded-2xl bg-accent px-5 py-4">
           <p className="font-semibold">{t("lesson.goals")}</p>
-          <ul className="mt-1 list-disc pl-5">
+          <ul className="mt-1 list-disc ps-5">
             {lesson.goals.map((g) => (
               <li key={g}>{goals[g]?.text}</li>
             ))}

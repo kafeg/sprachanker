@@ -22,7 +22,7 @@ export function ProfileChip() {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="flex w-full items-center gap-2 rounded-lg p-2 text-left hover:bg-accent"
+          className="flex w-full items-center gap-2 rounded-lg p-2 text-start hover:bg-accent"
         >
           <Avatar name={profile.name || "?"} colour={profile.colour} className="size-8 text-sm" />
           <span className="truncate font-medium">{profile.name || t("profiles.unnamed")}</span>
@@ -35,7 +35,7 @@ export function ProfileChip() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={() => signOut.mutate()}>
-          <LogOut /> {t("profile.switch")}
+          <LogOut className="rtl:-scale-x-100" /> {t("profile.switch")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

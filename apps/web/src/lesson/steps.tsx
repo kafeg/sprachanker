@@ -53,7 +53,7 @@ export function StepBar({
     <div className="sticky bottom-0 z-10 -mx-4 mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 border-t bg-background/95 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
       <StepBack label={t("lesson.previous")} onClick={onBack} />
       {note && (
-        <p className="order-first w-full text-center text-xs text-muted-foreground sm:order-none sm:ml-auto sm:w-auto sm:text-right sm:text-sm">
+        <p className="order-first w-full text-center text-xs text-muted-foreground sm:order-none sm:ms-auto sm:w-auto sm:text-end sm:text-sm">
           {note}
         </p>
       )}
@@ -61,7 +61,7 @@ export function StepBar({
       <div
         className={cn(
           "flex items-center justify-end gap-1 max-sm:min-w-0 max-sm:flex-1 sm:gap-2",
-          note ? "ml-auto sm:ml-0" : "ml-auto",
+          note ? "ms-auto sm:ms-0" : "ms-auto",
         )}
       >
         {extra}

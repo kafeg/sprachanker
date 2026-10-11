@@ -43,7 +43,7 @@ export function DeckLink({
         : audio
           ? t("study.deckLink.audio")
           : t("study.deckLink.examples")}
-      <ArrowRight className="size-3 shrink-0" />
+      <ArrowRight className="rtl:-scale-x-100 size-3 shrink-0" />
     </Link>
   );
 }

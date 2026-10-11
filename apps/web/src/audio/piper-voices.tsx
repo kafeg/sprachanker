@@ -82,7 +82,7 @@ function PiperLanguage({ lang, state }: { lang: string; state: PiperState }) {
         )}
       </div>
       {shown.length > 0 && (
-        <ul className="space-y-1 pl-0 sm:pl-31">
+        <ul className="space-y-1 ps-0 sm:ps-31">
           {shown.map((v) => (
             <DownloadRow
               key={v.id}

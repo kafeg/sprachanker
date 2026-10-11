@@ -94,7 +94,7 @@ export function CourseCard({
               onClick={choose}
             >
               {course.started ? t("lesson.resume") : t("courses.start")}
-              <ArrowRight className="size-4" />
+              <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Link>
           </Button>
         )}

@@ -2,6 +2,7 @@
 // question on screen (kept per run across a reload; ← and → move), and the time left.
 import type { ExamItem } from "@sprachanker/schema";
 import { useEffect, useRef, useState } from "react";
+import { arrowStep } from "@/ui/direction.tsx";
 import type { QuestionState } from "./navigator.tsx";
 import type { latestAnswers } from "./questions.ts";
 
@@ -78,8 +79,8 @@ export function useQuestionPlace(runId: string, items: ExamItem[], answers: Answ
         e.altKey
       )
         return;
-      if (e.key === "ArrowRight") moveBy.current(1);
-      if (e.key === "ArrowLeft") moveBy.current(-1);
+      const step = arrowStep(e.key);
+      if (step) moveBy.current(step);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

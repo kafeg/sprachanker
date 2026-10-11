@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { useSettings } from "@/api/settings.ts";
 import { type ExamParams, questionId } from "@/library/exam-address.ts";
+import { inLang } from "@/ui/direction.tsx";
 import { BackLink, EmptyState, Page } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { SearchField } from "@/ui/search-field.tsx";
@@ -106,12 +107,12 @@ export function ExamCatalog({ params }: { params: ExamParams }) {
                         return next;
                       })
                     }
-                    className="flex min-h-12 w-full items-center gap-3 px-4 py-2 text-left hover:bg-accent pointer-coarse:min-h-14"
+                    className="flex min-h-12 w-full items-center gap-3 px-4 py-2 text-start hover:bg-accent pointer-coarse:min-h-14"
                   >
                     <span className="w-14 shrink-0 text-sm tabular-nums text-muted-foreground">
                       {numberOf(item.key, !!data.exam.modules)}
                     </span>
-                    <span lang={examLang(edition)} className="min-w-0 flex-1 truncate">
+                    <span {...inLang(examLang(edition))} className="min-w-0 flex-1 truncate">
                       {questionLine(item)}
                     </span>
                     <ChevronDown

@@ -88,7 +88,7 @@ export function LmStudioSection({ state }: { state: LlmState }) {
                       .join(" · ")}
                   </span>
                   {m.loaded.length > 0 && <Badge variant="secondary">{t("lmstudio.loaded")}</Badge>}
-                  <span className="ml-auto">
+                  <span className="ms-auto">
                     {inUse ? (
                       <Badge>{t("lmstudio.inUse")}</Badge>
                     ) : (

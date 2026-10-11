@@ -94,7 +94,7 @@ export function VoicePick({
       <Button variant="outline" size="sm" onClick={() => onListen(text.trim() || phrase)}>
         <Volume2 className="size-4" /> {t("speech.settings.listen")}
       </Button>
-      <div className="basis-full space-y-1 sm:pl-31">
+      <div className="basis-full space-y-1 sm:ps-31">
         <Textarea
           lang={lang}
           dir="auto"

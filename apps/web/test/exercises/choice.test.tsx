@@ -58,7 +58,7 @@ test("text options each have their row, long or short, and keep it once checked"
   const marks = [...checked.container.querySelectorAll("button[aria-pressed] svg")];
   expect(marks.length).toBe(2);
   for (const m of marks) expect(m.getAttribute("class")).toContain("absolute");
-  expect(layout(checked).every((c) => c.includes("w-full pr-11"))).toBe(true);
+  expect(layout(checked).every((c) => c.includes("w-full pe-11"))).toBe(true);
 });
 
 test("a multiple choice says several can be right once above, or not when it says how many are", async () => {

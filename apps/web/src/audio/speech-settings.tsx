@@ -174,7 +174,7 @@ function HowSpeaking() {
   const { t } = useTranslation();
   return (
     <Panel title={t("speech.settings.how")}>
-      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+      <ul className="mt-2 list-disc space-y-1 ps-5 text-sm text-muted-foreground">
         {(["howMic", "howPhrase", "howRecordings"] as const).map((k) => (
           <li key={k}>{t(`speech.settings.${k}`)}</li>
         ))}

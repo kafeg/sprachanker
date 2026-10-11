@@ -8,6 +8,7 @@ import { said } from "@/audio/speak.ts";
 import type { LessonSlotContext } from "@/lesson/slots.ts";
 import { Corrections } from "@/ui/checked-text.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { HistoryList } from "@/ui/history.tsx";
 import { Panel, panelClass } from "@/ui/panel.tsx";
@@ -36,7 +37,7 @@ function PartnerLine({ turn }: { turn: Turn }) {
   const [shown, setShown] = useState(false);
   return (
     <ChatBubble from="other" say={said(turn.text, lang)}>
-      <p lang={lang} className="text-lg">
+      <p {...inLang(lang)} className="text-lg">
         {turn.text}
       </p>
       {turn.translation &&
@@ -58,11 +59,11 @@ function PartnerLine({ turn }: { turn: Turn }) {
 function LearnerLine({ turn }: { turn: Turn }) {
   const lang = useTargetLang();
   return (
-    <div className="ml-auto max-w-[92%] space-y-1">
+    <div className="ms-auto max-w-[92%] space-y-1">
       <ChatBubble from="learner" lang={lang} className="max-w-none text-lg">
         {turn.text}
       </ChatBubble>
-      <Corrections corrections={turn.corrections ?? []} className="text-right" />
+      <Corrections corrections={turn.corrections ?? []} className="text-end" />
     </div>
   );
 }
@@ -137,7 +138,7 @@ function CurrentScene({
   return (
     <>
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto text-xl font-bold">{scene.setup.title}</h2>
+        <h2 className="me-auto text-xl font-bold">{scene.setup.title}</h2>
         <Button variant="outline" loading={starting} disabled={!!busy} onClick={onNew}>
           {starting ? t("scene.preparing") : t("scene.new")}
         </Button>

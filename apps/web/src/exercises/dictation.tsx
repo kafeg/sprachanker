@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { ANSWER_BOX, SpecialLetters } from "./shared.tsx";
@@ -16,7 +17,7 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
     <div ref={scope} className="space-y-3">
       <Textarea
         rows={2}
-        lang={lang}
+        {...inLang(lang)}
         value={answer?.text ?? ""}
         disabled={!!outcome}
         placeholder={t("ex.dictationPlaceholder")}
@@ -28,7 +29,7 @@ export function Dictation({ answer, onAnswer, outcome }: RendererProps<"dictatio
       {!outcome && <SpecialLetters scope={scope} />}
       {outcome?.diff && (
         // Words as wrapping chips: spans side by side with no space between have nowhere to break.
-        <p lang={lang} className="flex flex-wrap gap-x-1.5 gap-y-1 text-xl leading-relaxed">
+        <p {...inLang(lang)} className="flex flex-wrap gap-x-1.5 gap-y-1 text-xl leading-relaxed">
           {outcome.diff.map((d, i) => (
             <span
               // biome-ignore lint/suspicious/noArrayIndexKey: a diff is static

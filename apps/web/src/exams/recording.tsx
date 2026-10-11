@@ -85,7 +85,7 @@ function Limited({
     <div
       role="group"
       aria-label={label}
-      className={cn(panelClass, "flex w-full items-center gap-3 p-1.5 pr-3", className)}
+      className={cn(panelClass, "flex w-full items-center gap-3 p-1.5 pe-3", className)}
     >
       {/* biome-ignore lint/a11y/useMediaCaption: exam recordings come without captions */}
       <audio

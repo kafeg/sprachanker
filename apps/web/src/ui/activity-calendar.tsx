@@ -44,7 +44,10 @@ export function ActivityCalendar({
   const weekday = useDateFormat("weekday");
   const scroller = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (scroller.current) scroller.current.scrollLeft = scroller.current.scrollWidth;
+    // The latest weeks in sight: the end, on the left when the page runs right to left.
+    const el = scroller.current;
+    if (el)
+      el.scrollLeft = document.documentElement.dir === "rtl" ? -el.scrollWidth : el.scrollWidth;
   }, []);
   const counts = new Map(days.map((d) => [dayKey(d.start), d.count]));
   const weeks = calendarWeeks(today);
@@ -57,7 +60,7 @@ export function ActivityCalendar({
           role="img"
           aria-label={t("notebook.calendar")}
         >
-          <div className="sticky left-0 z-10 flex flex-col gap-[3px] bg-card pr-1 text-[10px] text-muted-foreground">
+          <div className="sticky start-0 z-10 flex flex-col gap-[3px] bg-card pe-1 text-[10px] text-muted-foreground">
             <span className="h-4" />
             {(weeks[1] ?? []).map((d, i) => (
               <span key={d} className="flex flex-1 items-center">
@@ -95,11 +98,11 @@ export function ActivityCalendar({
         </div>
       </div>
       <div className="mt-1 flex items-center justify-end gap-[3px] text-xs text-muted-foreground">
-        <span className="mr-1">{t("notebook.less")}</span>
+        <span className="me-1">{t("notebook.less")}</span>
         {SHADES.map((s) => (
           <span key={s} className={cn(cell, s)} />
         ))}
-        <span className="ml-1">{t("notebook.more")}</span>
+        <span className="ms-1">{t("notebook.more")}</span>
       </div>
     </div>
   );

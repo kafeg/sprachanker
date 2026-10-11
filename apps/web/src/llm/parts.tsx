@@ -10,6 +10,7 @@ import type { SpokenPart } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { cn } from "@/ui/utils.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
@@ -34,16 +35,16 @@ export function ChatBubble({
 }) {
   return (
     <div
-      lang={lang}
+      {...inLang(lang)}
       className={cn(
         "max-w-[92%] rounded-2xl px-4 py-2.5",
         from === "learner"
-          ? cn("ml-auto text-primary-foreground", pending ? "bg-primary/60" : "bg-primary")
+          ? cn("ms-auto text-primary-foreground", pending ? "bg-primary/60" : "bg-primary")
           : "bg-muted",
         className,
       )}
     >
-      {say && <SpeakButton parts={say} className="float-right -mt-1 -mr-2 ml-1" />}
+      {say && <SpeakButton parts={say} className="float-end -mt-1 -me-2 ms-1" />}
       {children}
     </div>
   );
@@ -105,7 +106,7 @@ export function AnswerBox({
           <Sparkles className="size-4" /> {title}
           {model && <span className="font-normal">· {model}</span>}
           {busy && <LoaderCircle className="size-4 animate-spin" />}
-          <span className="ml-auto flex items-center gap-1">{actions}</span>
+          <span className="ms-auto flex items-center gap-1">{actions}</span>
         </div>
       )}
       {children}
@@ -117,7 +118,7 @@ export function AnswerBox({
 export function ChatHeader({ children }: { children?: React.ReactNode }) {
   return (
     <div className="flex min-h-11 items-center gap-1 border-b px-4 py-1">
-      <AssistantLabel className="mr-auto" />
+      <AssistantLabel className="me-auto" />
       {children}
     </div>
   );
@@ -210,7 +211,7 @@ export function ChatComposer({
       }}
     >
       <Textarea
-        lang={lang}
+        {...inLang(lang)}
         className="max-h-40 min-h-11 resize-none text-base"
         rows={1}
         placeholder={placeholder}
@@ -243,7 +244,7 @@ export function ChatComposer({
         </Button>
       ) : (
         <Button type="submit" size="icon" className="size-11" aria-label={t("tutor.send")}>
-          <Send className="size-4" />
+          <Send className="rtl:-scale-x-100 size-4" />
         </Button>
       )}
     </form>

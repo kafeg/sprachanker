@@ -9,7 +9,7 @@ import { cn } from "./utils.ts";
 
 /** The way back out of the column's page (a link or a button: the caller's, given this class). */
 export const SIDE_BACK =
-  "mr-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:mr-0";
+  "me-8 mb-3 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11 lg:me-0";
 
 /** The column's head: the way back, the title, how far it is. */
 export function SideHeader({
@@ -51,7 +51,7 @@ export function SideLayout({
   const [open, setOpen] = useState(false);
   return (
     <div className="lg:grid lg:grid-cols-[17rem_1fr]">
-      <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-r p-4 lg:block">
+      <aside className="sticky top-0 hidden h-dvh overflow-y-auto border-e p-4 lg:block">
         {side()}
       </aside>
       <div className="min-w-0">
@@ -72,7 +72,7 @@ export function SideLayout({
         <div className={cn("mx-auto px-4 py-6", width)}>{children}</div>
       </div>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-80 overflow-y-auto p-4">
+        <SheetContent side="start" className="w-80 overflow-y-auto p-4">
           <SheetHeader className="sr-only p-0">
             <SheetTitle>{sideLabel}</SheetTitle>
           </SheetHeader>

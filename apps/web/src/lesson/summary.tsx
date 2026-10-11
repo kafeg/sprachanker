@@ -131,7 +131,7 @@ export function LessonSummary({
               to="/lesson/$series/$course/$lesson"
               params={{ series, course, lesson: parseLessonKey(nextLesson).name }}
             >
-              {t("lesson.nextLesson")} <ArrowRight className="size-4" />
+              {t("lesson.nextLesson")} <ArrowRight className="rtl:-scale-x-100 size-4" />
             </Link>
           </Button>
         )}

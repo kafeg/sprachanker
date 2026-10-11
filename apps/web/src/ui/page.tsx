@@ -62,7 +62,7 @@ export function BackLink({ onClick, children }: { onClick(): void; children: Rea
       onClick={onClick}
       className="mb-2 flex min-h-9 items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground pointer-coarse:min-h-11"
     >
-      <ArrowLeft className="size-4" /> {children}
+      <ArrowLeft className="rtl:-scale-x-100 size-4" /> {children}
     </button>
   );
 }

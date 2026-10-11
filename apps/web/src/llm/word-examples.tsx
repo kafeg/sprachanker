@@ -12,6 +12,7 @@ import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { DeckLink } from "@/study/deck-link.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDuration } from "@/ui/format.ts";
 import { JobRow } from "@/ui/job-row.tsx";
@@ -40,7 +41,7 @@ export function CardExamples({ cardId }: { cardId: string }) {
   for (const e of examples)
     for (const w of e.words) if (w.new && w.translation) newWords.set(w.text, w.translation);
   return (
-    <section className="grid w-full max-w-md gap-2 text-left text-sm">
+    <section className="grid w-full max-w-md gap-2 text-start text-sm">
       <ul className="grid gap-2">
         {examples.map((e, i) => (
           <li
@@ -54,7 +55,7 @@ export function CardExamples({ cardId }: { cardId: string }) {
               className="size-9 shrink-0 pointer-coarse:size-11"
             />
             <span className="grid gap-0.5">
-              <span lang={lang}>
+              <span {...inLang(lang)}>
                 {/* A word not met yet is marked where it has a translation to show. */}
                 {e.words.map((w, i) =>
                   w.new && w.translation ? (

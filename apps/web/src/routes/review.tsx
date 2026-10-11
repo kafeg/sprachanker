@@ -42,7 +42,7 @@ type Counts = NonNullable<ReturnType<typeof useDecks>["data"]>["decks"][number][
 
 function CountCells({ counts }: { counts: Counts }) {
   const cell = (n: number, tone: string) => (
-    <span className={cn("text-right tabular-nums", n ? tone : "text-muted-foreground")}>{n}</span>
+    <span className={cn("text-end tabular-nums", n ? tone : "text-muted-foreground")}>{n}</span>
   );
   return (
     <>
@@ -90,9 +90,9 @@ function DeckRows({
     <div className={panelClass}>
       <div className={cn(row, "border-b py-2 text-xs text-muted-foreground")}>
         <span>{t("study.deck")}</span>
-        <span className="text-right">{t("study.count.new")}</span>
-        <span className="text-right">{t("study.count.learning")}</span>
-        <span className="text-right">{t("study.count.review")}</span>
+        <span className="text-end">{t("study.count.new")}</span>
+        <span className="text-end">{t("study.count.learning")}</span>
+        <span className="text-end">{t("study.count.review")}</span>
       </div>
       {decks.map((lang) => (
         <div key={lang.scope} className="border-b last:border-b-0">
@@ -106,11 +106,11 @@ function DeckRows({
               className={cn("scroll-mt-20 py-2", deck.child && "border-t border-dashed")}
             >
               <div className={row}>
-                <span className={cn("min-w-0", deck.child ? "pl-5" : "font-semibold")}>
+                <span className={cn("min-w-0", deck.child ? "ps-5" : "font-semibold")}>
                   <button
                     type="button"
                     onClick={() => open(deck.scope)}
-                    className="block max-w-full truncate text-left hover:underline pointer-coarse:py-2.5"
+                    className="block max-w-full truncate text-start hover:underline pointer-coarse:py-2.5"
                   >
                     {name(deck.scope)}
                   </button>
@@ -127,7 +127,7 @@ function DeckRows({
                 </span>
                 <CountCells counts={deck.counts} />
               </div>
-              <div className={cn("mt-1.5 flex flex-wrap gap-2 px-4", deck.child && "pl-9")}>
+              <div className={cn("mt-1.5 flex flex-wrap gap-2 px-4", deck.child && "ps-9")}>
                 <Button variant="outline" size="sm" onClick={() => open(deck.scope)}>
                   <Play className="size-3.5" /> {t("decks.study")}
                 </Button>
@@ -157,8 +157,8 @@ function DeckRows({
                   </Button>
                 )}
               </div>
-              {deck.child && <DeckAudio scope={deck.scope} className="mt-1.5 px-4 pl-9" />}
-              {deck.child && slots.deck?.({ scope: deck.scope, className: "mt-1.5 px-4 pl-9" })}
+              {deck.child && <DeckAudio scope={deck.scope} className="mt-1.5 px-4 ps-9" />}
+              {deck.child && slots.deck?.({ scope: deck.scope, className: "mt-1.5 px-4 ps-9" })}
             </div>
           ))}
         </div>

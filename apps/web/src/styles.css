@@ -181,7 +181,7 @@
   }
   /* A header cell the source marks as one reads as a header. */
   .prose-course th {
-    @apply bg-muted text-left font-semibold;
+    @apply bg-muted text-start font-semibold;
   }
   .prose-course img {
     @apply my-2 max-h-80 rounded-lg;

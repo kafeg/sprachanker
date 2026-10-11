@@ -26,6 +26,7 @@ import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { SpokenCheckNote, spokenCheckOf } from "@/library/spoken-check.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { useDateFormat } from "@/ui/format.ts";
 import { ListRow, useSingleOpen } from "@/ui/history.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
@@ -175,7 +176,7 @@ function More({ pass }: { pass: NotebookPass }) {
           <span className="text-muted-foreground">
             {t(`writing.verdict.${w.result.verdict}`)}:{" "}
           </span>
-          <span lang={parseEditionId(pass.run.edition ?? "ru-de").target}>{w.input}</span>
+          <span {...inLang(parseEditionId(pass.run.edition ?? "ru-de").target)}>{w.input}</span>
         </p>
       ))}
       {scenes.map((s) => (

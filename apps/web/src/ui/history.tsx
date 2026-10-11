@@ -29,7 +29,7 @@ export function ListRow({
       aria-expanded={expanded}
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 py-2.5 text-left hover:bg-accent pointer-coarse:min-h-11",
+        "flex items-center gap-3 py-2.5 text-start hover:bg-accent pointer-coarse:min-h-11",
         // In a panel the highlight reaches past the text on both sides, the text in line with the
         // panel's; flush, it fills the row it is in.
         flush ? "w-full px-4" : "-mx-3 w-[calc(100%+1.5rem)] rounded-xl px-3",
@@ -42,6 +42,7 @@ export function ListRow({
           className={cn(
             "size-4 shrink-0 text-muted-foreground transition-transform motion-reduce:transition-none",
             expanded && "rotate-180",
+            expanded === undefined && "rtl:-scale-x-100",
           )}
         />
       )}

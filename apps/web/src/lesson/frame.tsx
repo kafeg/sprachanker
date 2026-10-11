@@ -52,7 +52,7 @@ export function PlayerFrame({
       <SideHeader
         back={
           <Link to="/course/$series/$course" params={{ series, course }} className={SIDE_BACK}>
-            <ArrowLeft className="size-4 shrink-0" />{" "}
+            <ArrowLeft className="rtl:-scale-x-100 size-4 shrink-0" />{" "}
             <span className="truncate">{courseTitle}</span>
           </Link>
         }
@@ -72,7 +72,7 @@ export function PlayerFrame({
             {todo > 0 ? (
               <>
                 <Progress value={(reached / todo) * 100} className="h-2 flex-1" />
-                <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
+                <span className="w-14 text-end text-sm tabular-nums text-muted-foreground">
                   {reached}/{todo}
                 </span>
               </>

@@ -44,7 +44,7 @@ export function CompareView({ ids }: { ids: [string, string] }) {
       <div className={cn(grid, "border-b text-xs text-muted-foreground")}>
         <span>{t("notebook.exercise")}</span>
         {passes.map((p) => (
-          <span key={p.run.id} className="text-right">
+          <span key={p.run.id} className="text-end">
             {when.format(p.run.startedAt)}
           </span>
         ))}
@@ -59,15 +59,15 @@ export function CompareView({ ids }: { ids: [string, string] }) {
               <span className="line-clamp-2">
                 {shown?.locale?.title || t("lesson.exerciseN", { n: (shown?.pageIndex ?? 0) + 1 })}
               </span>
-              <span className="text-right tabular-nums">{cell(0, key)}</span>
-              <span className="text-right tabular-nums">{cell(1, key)}</span>
+              <span className="text-end tabular-nums">{cell(0, key)}</span>
+              <span className="text-end tabular-nums">{cell(1, key)}</span>
             </li>
           );
         })}
         <li className={cn(grid, "font-semibold")}>
           <span>{t("notebook.total")}</span>
           {passes.map((p) => (
-            <span key={p.run.id} className="text-right tabular-nums">
+            <span key={p.run.id} className="text-end tabular-nums">
               {mark(p.run)}
             </span>
           ))}

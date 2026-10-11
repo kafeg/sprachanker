@@ -33,7 +33,7 @@ function Recordings() {
           : "…"}
       </span>
       {!!stats.data?.count && (
-        <Button variant="outline" size="sm" className="ml-auto" onClick={() => setAsking(true)}>
+        <Button variant="outline" size="sm" className="ms-auto" onClick={() => setAsking(true)}>
           <Trash2 className="size-4" /> {t("storage.deleteRecordings")}
         </Button>
       )}

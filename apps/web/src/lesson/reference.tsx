@@ -4,6 +4,7 @@ import { FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/components/tabs.tsx";
 import { CourseSections } from "@/ui/course-html.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { AudioButton } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
@@ -41,7 +42,7 @@ function VocabularyList({
           )}
           <div className="min-w-0 flex-1">
             <GenderWord text={v.target} gender={v.gender} className="text-lg" />
-            {v.ipa && <span className="ml-2 text-sm text-muted-foreground">{v.ipa}</span>}
+            {v.ipa && <span className="ms-2 text-sm text-muted-foreground">{v.ipa}</span>}
             {(v.forms || v.note) && (
               <div className="text-sm text-muted-foreground">
                 {[v.forms, v.note].filter(Boolean).join(" · ")}
@@ -49,7 +50,7 @@ function VocabularyList({
             )}
             {v.examples?.map((example, i) => (
               <div key={example} className="text-sm">
-                <span lang={lang} className="italic">
+                <span {...inLang(lang)} className="italic">
                   {example}
                 </span>
                 {locale?.vocab[v.key]?.examples?.[i] && (
@@ -66,7 +67,7 @@ function VocabularyList({
               </div>
             )}
           </div>
-          <div className="max-w-[45%] text-right text-[15px]">
+          <div className="max-w-[45%] text-end text-[15px]">
             {locale?.vocab[v.key]?.translation}
           </div>
           {v.image && (

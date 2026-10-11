@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useProfiles, useSignIn } from "@/api/session.ts";
 import { Avatar } from "@/ui/avatar.tsx";
 import { Button } from "@/ui/components/button.tsx";
+import { arrowStep } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -35,8 +36,8 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
     if (pages < 2) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
-      if (e.key === "ArrowLeft") go(at - 1);
-      if (e.key === "ArrowRight") go(at + 1);
+      const step = arrowStep(e.key);
+      if (step) go(at + step);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -94,7 +95,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
             aria-label={t("profiles.previous")}
             onClick={() => go(at - 1)}
           >
-            <ChevronLeft />
+            <ChevronLeft className="rtl:-scale-x-100" />
           </Button>
           <span className="text-sm tabular-nums text-muted-foreground" aria-live="polite">
             {t("profiles.page", { n: at + 1, total: pages })}
@@ -105,7 +106,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
             aria-label={t("profiles.next")}
             onClick={() => go(at + 1)}
           >
-            <ChevronRight />
+            <ChevronRight className="rtl:-scale-x-100" />
           </Button>
         </div>
       )}

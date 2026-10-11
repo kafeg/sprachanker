@@ -4,6 +4,7 @@
 import { wordDiff } from "@sprachanker/engine";
 import type { SpokenCheck } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
+import { inLang } from "@/ui/direction.tsx";
 import { useRequiredTargetLang, useTargetLang } from "./target-lang.ts";
 import { cn } from "./utils.ts";
 
@@ -45,7 +46,7 @@ export function CorrectedText({
   const lang = useRequiredTargetLang();
   const { diff } = wordDiff(lang, corrected, text);
   return (
-    <p lang={lang} className={cn("text-lg leading-relaxed", className)}>
+    <p {...inLang(lang)} className={cn("text-lg leading-relaxed", className)}>
       {diff.map((d, i) => {
         const key = `${i}-${d.op}`;
         if (d.op === "equal") return <span key={key}>{d.expected} </span>;
@@ -75,7 +76,7 @@ export function Corrections({
     <ul className={cn("space-y-1.5 text-sm", className)}>
       {corrections.map((c) => (
         <li key={`${c.wrong}→${c.right}`}>
-          <span lang={lang}>
+          <span {...inLang(lang)}>
             <s className="text-wrong">{c.wrong}</s> →{" "}
             <strong className="text-correct">{c.right}</strong>
           </span>

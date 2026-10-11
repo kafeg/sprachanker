@@ -64,7 +64,7 @@ export function ExperimentalSettings() {
                     hint={t(`experimental.sectionHint.${section}`)}
                   />
                   {sources.length > 0 ? (
-                    <div className="divide-y border-t pl-8">
+                    <div className="divide-y border-t ps-8">
                       {sources.map((s) => (
                         <CheckRow
                           key={s.series}
@@ -82,7 +82,7 @@ export function ExperimentalSettings() {
                       ))}
                     </div>
                   ) : (
-                    <p className="border-t py-2 pl-8 text-sm text-muted-foreground">
+                    <p className="border-t py-2 ps-8 text-sm text-muted-foreground">
                       {t("experimental.none")}
                     </p>
                   )}

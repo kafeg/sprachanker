@@ -105,7 +105,7 @@ export function AudioPlayer({
     <p className="flex-1 text-sm text-muted-foreground">{t("player.unavailable")}</p>
   ) : (
     <div className="flex min-w-0 flex-1 items-center gap-2.5 text-xs tabular-nums text-muted-foreground">
-      <span className="w-9 text-right">{clock(shown)}</span>
+      <span className="w-9 text-end">{clock(shown)}</span>
       <Slider
         aria-label={t("player.position")}
         value={[Math.min(shown, max)]}
@@ -138,7 +138,7 @@ export function AudioPlayer({
       className={cn(
         panelClass,
         "flex w-full items-center gap-3",
-        compact ? "p-1.5 pr-1" : "p-3",
+        compact ? "p-1.5 pe-1" : "p-3",
         className,
       )}
     >
@@ -175,7 +175,7 @@ export function AudioPlayer({
         // A caption above: the controls beside it, the timeline under them.
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
-            <p className="mr-auto truncate text-sm font-medium">{title}</p>
+            <p className="me-auto truncate text-sm font-medium">{title}</p>
             {back}
             {speed}
           </div>

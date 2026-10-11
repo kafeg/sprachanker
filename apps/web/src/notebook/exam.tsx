@@ -6,6 +6,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 import { useNotebookExam } from "@/api/notebook.ts";
 import { type ExamParams, examKeyOf, questionId } from "@/library/exam-address.ts";
+import { inLang } from "@/ui/direction.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
@@ -93,7 +94,7 @@ export function ExamNotebook({ params }: { params: ExamParams }) {
                   <span className="w-14 shrink-0 tabular-nums text-muted-foreground">
                     {questionId(i.key)}
                   </span>
-                  <span lang={lang} className="min-w-0 flex-1">
+                  <span {...inLang(lang)} className="min-w-0 flex-1">
                     {i.line || i.key}
                   </span>
                 </li>

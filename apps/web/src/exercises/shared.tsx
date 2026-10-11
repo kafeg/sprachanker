@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
+import { inLang } from "@/ui/direction.tsx";
 import { keptTogether } from "@/ui/line-breaks.ts";
 import { useCoarsePointer } from "@/ui/pointer.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
@@ -139,7 +140,7 @@ export function OptionContent({
     return (
       <span className="flex flex-col items-center gap-1">
         {picture}
-        <span lang={lang} className="text-base">
+        <span {...inLang(lang)} className="text-base">
           {keptTogether(option.text)}
         </span>
       </span>
@@ -148,7 +149,7 @@ export function OptionContent({
   // The learner's language is the page's: no `lang` of the target's on it.
   if (option.text === undefined && option.learnerText !== undefined)
     return <span>{keptTogether(option.learnerText)}</span>;
-  return <span lang={lang}>{option.text && keptTogether(option.text)}</span>;
+  return <span {...inLang(lang)}>{option.text && keptTogether(option.text)}</span>;
 }
 
 /** A written answer's box (dictation, respond) over the ui Textarea: large type, it grows with the
@@ -161,7 +162,7 @@ export const ANSWER_BOX =
 export function RightAnswer({ text, className }: { text: string; className?: string }) {
   const lang = useTargetLang();
   return (
-    <span lang={lang} className={cn("ml-2 text-base text-wrong", className)}>
+    <span {...inLang(lang)} className={cn("ms-2 text-base text-wrong", className)}>
       {`→\u00a0${text}`}
     </span>
   );
@@ -173,7 +174,7 @@ export function CheckedField({ text, ok }: { text: string | undefined; ok: boole
   const { t, i18n } = useTranslation();
   return (
     <span
-      lang={lang}
+      {...inLang(lang)}
       className={cn(
         "inline-flex min-h-11 max-w-full items-center gap-2 rounded-lg border-2 px-3 text-lg",
         ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft",
@@ -203,9 +204,9 @@ export const TILE =
   "min-w-0 shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
 
 /** A tile's mark in its corner: no row of its own under the picture. */
-const MARK_CORNER = "absolute top-2 right-2 box-content rounded-full bg-card p-0.5";
+const MARK_CORNER = "absolute top-2 end-2 box-content rounded-full bg-card p-0.5";
 /** A text option's mark at its right edge, in the room it keeps for it. */
-const MARK_END = "absolute top-1/2 right-4 -translate-y-1/2";
+const MARK_END = "absolute top-1/2 end-4 -translate-y-1/2";
 
 export function OptionButton({
   option,
@@ -235,9 +236,9 @@ export function OptionButton({
       onClick={onClick}
       className={cn(
         // A word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
-        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg text-pretty transition [overflow-wrap:anywhere]",
+        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-start text-lg text-pretty transition [overflow-wrap:anywhere]",
         // A text option has its row and keeps room for its mark: checking moves nothing.
-        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "w-full pr-11",
+        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "w-full pe-11",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",
         mark === "correct" && "border-correct bg-correct-soft",
@@ -250,7 +251,7 @@ export function OptionButton({
           aria-hidden
           className={cn(
             "grid size-5 shrink-0 place-items-center rounded-[5px] border-2",
-            fill && "absolute top-2 left-2",
+            fill && "absolute top-2 start-2",
             // On a picture an empty box has a ground of its own; a ticked one keeps its fill.
             selected
               ? "border-primary bg-primary text-primary-foreground"
@@ -343,7 +344,7 @@ export function SpecialLetters({ scope }: { scope: React.RefObject<HTMLElement |
         <button
           type="button"
           key={letter}
-          lang={lang}
+          {...inLang(lang)}
           // Keeps the cursor in the field.
           onMouseDown={(e) => e.preventDefault()}
           onClick={(e) => type(e.shiftKey ? capital(letter, lang) : letter)}
@@ -382,12 +383,12 @@ export function PickSelect({
       <span className={cn("relative inline-flex max-w-full", className)}>
         <select
           aria-label={label}
-          lang={lang}
+          {...inLang(lang)}
           value={value ?? ""}
           onChange={(e) => onChange(e.target.value)}
           className={cn(
             field,
-            "min-w-0 grow appearance-none truncate pr-9 pl-3 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
+            "min-w-0 grow appearance-none truncate pe-9 ps-3 outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
             !value && "text-muted-foreground",
           )}
         >
@@ -402,7 +403,7 @@ export function PickSelect({
         </select>
         <ChevronDown
           aria-hidden
-          className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 opacity-50"
+          className="pointer-events-none absolute top-1/2 end-3 size-4 -translate-y-1/2 opacity-50"
         />
       </span>
     );
@@ -416,7 +417,7 @@ export function PickSelect({
       </SelectTrigger>
       <SelectContent>
         {options.map((o) => (
-          <SelectItem key={o.id} value={o.id} className="text-lg" lang={lang}>
+          <SelectItem key={o.id} value={o.id} className="text-lg" {...inLang(lang)}>
             {o.text}
           </SelectItem>
         ))}
