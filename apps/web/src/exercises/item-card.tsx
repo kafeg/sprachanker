@@ -5,6 +5,7 @@
 import type { Exercise, ItemOf, LocaleExercise, Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { TakeButton } from "@/audio/take-button.tsx";
+import { languageDir } from "@/i18n/index.ts";
 import { CourseHtml } from "@/ui/course-html.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { keptTogether } from "@/ui/line-breaks.ts";
@@ -221,19 +222,23 @@ export function ItemCard({
         }
       >
         <SeveralSaid.Provider value={severalAbove}>
-          <ExerciseItem
-            type={exercise.type}
-            item={renderedItem as never}
-            locale={rendered}
-            answer={answer as never}
-            onAnswer={(a: unknown) => onAnswer?.(a)}
-            outcome={outcome}
-            url={url}
-            active={active && !!onAnswer}
-            listen={toHear(exercise, index).length > 0}
-            heard={heard}
-            readOnly={!onAnswer}
-          />
+          {/* Laid out in the course language's direction: German's chips, gaps and options run left
+              to right in an Arabic interface too (09, "Writing direction"). */}
+          <div dir={languageDir(lang)}>
+            <ExerciseItem
+              type={exercise.type}
+              item={renderedItem as never}
+              locale={rendered}
+              answer={answer as never}
+              onAnswer={(a: unknown) => onAnswer?.(a)}
+              outcome={outcome}
+              url={url}
+              active={active && !!onAnswer}
+              listen={toHear(exercise, index).length > 0}
+              heard={heard}
+              readOnly={!onAnswer}
+            />
+          </div>
         </SeveralSaid.Provider>
       </GapRoom.Provider>
       {shown && (

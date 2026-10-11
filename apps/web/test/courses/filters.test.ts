@@ -57,3 +57,16 @@ test("unset, the pair is the interface language's: every course explained in it,
   expect(filterCourses(items, ALL, undefined, "fr").pair).toBe(ALL);
   expect(filterCourses(items, ALL, ALL, "ru").shown).toHaveLength(3);
 });
+
+test("every interface language defaults to its own courses: Arabic, Chinese, Persian alike", () => {
+  const many = [
+    ...items,
+    { name: "ar", titles: ["Nicos Weg A1"], editions: ["ar-de"] },
+    { name: "zh", titles: ["Nicos Weg A1", "Nicos Weg A2"], editions: ["zh-de"] },
+    { name: "fa", titles: ["Nicos Weg A2"], editions: ["fa-de"] },
+  ];
+  for (const lang of ["ar", "zh", "fa"]) {
+    const own = filterCourses(many, ALL, undefined, lang);
+    expect([own.pair, own.shown.map((i) => i.name)], lang).toEqual([`${lang}-de`, [lang]]);
+  }
+});

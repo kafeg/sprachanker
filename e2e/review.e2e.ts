@@ -3,6 +3,7 @@
 import { expect, test } from "@playwright/test";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { beginCourse, post, put } from "./api.ts";
+import { catalogs } from "./catalogs.ts";
 import { E2E_DECK } from "./paths.ts";
 
 test("review: the cards straight away, Decks to choose another, tap and keys, undo", async ({
@@ -236,11 +237,10 @@ test("Settings' five tabs fit a phone in every interface language, nothing scrol
 }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   try {
-    for (const [lang, ai] of [
-      ["ru", "ИИ-помощник"],
-      ["de", "KI-Assistent"],
-      ["en", "AI assistant"],
-    ]) {
+    // Every catalog there is, English last (where the profile stays).
+    const last = (c: { lang: string }) => c.lang === "en";
+    for (const { lang, msg } of [...catalogs.filter((c) => !last(c)), ...catalogs.filter(last)]) {
+      const ai = msg("settings.tabs.ai");
       await put(request, "/api/settings", { key: "uiLanguage", value: lang });
       await page.goto("/settings#ai");
       await page.reload();
