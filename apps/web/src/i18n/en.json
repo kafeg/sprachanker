@@ -905,9 +905,13 @@
       "reading": "Reading {done, number} of {total, number}…",
       "stop": "Stop",
       "all": "All words have audio",
-      "install": "To make it, install a voice for {language} in Settings → Speech",
-      "failed": "{count, plural, one {# word could not be read aloud} other {# words could not be read aloud}}"
-    }
+      "install": "To generate it, install a voice for {language} in Settings → Speech",
+      "failed": "{count, plural, one {# word could not be read aloud} other {# words could not be read aloud}}",
+      "voice": "Read by {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Choose a voice"
+    },
+    "left": "about {time} left",
+    "why": "Reason: {reason}"
   },
   "guide": {
     "open": "How it works",

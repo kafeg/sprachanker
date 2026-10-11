@@ -18,12 +18,10 @@ import {
 import { DownloadRow } from "./download-row.tsx";
 import { InUse } from "./in-use.tsx";
 import { read } from "./speaker.ts";
+import { speakerName } from "./voice-names.ts";
 import { AUTO, useChoice, VoicePick } from "./voice-pick.tsx";
 
 type QwenState = NonNullable<ReturnType<typeof useQwenTts>["data"]>;
-
-/** A Qwen3-TTS speaker's name as shown: "uncle_fu" → "Uncle fu". */
-const speakerName = (s: string) => s.replace(/_/g, " ").replace(/^./, (c) => c.toUpperCase());
 
 /** The speaker the profile chose for every language, while Qwen3-TTS has it. */
 const chosenSpeaker = (state: QwenState, own: Record<string, string>) => {

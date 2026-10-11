@@ -27,7 +27,7 @@ apps/web/src/
                    # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
                    # deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
-                   # without audio, read aloud by the server: generate, progress, stop), examples (a deck's own), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # without audio, read aloud by the server: who reads them, generate, progress, stop), examples (a deck's own), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: AI examples)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
@@ -86,11 +86,11 @@ apps/web/src/
                    # sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
-                   # run's), avatar, choice (segmented),
-                   # check-row (a setting on or off), option-card (one of a few options as a card),
-                   # disclosure (folded: "Advanced"), confirm (an action that cannot be undone), flags,
-                   # error-text (an API error in words), target-lang (`lang` of the course's language),
-                   # window-title, pointer (a finger or a mouse: the system's picker on touch), utils (cn)
+                   # run's), avatar, choice (segmented), check-row (a setting on or off), option-card (one
+                   # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
+                   # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
+                   # the course's language), window-title, pointer (a finger or a mouse: the system's
+                   # picker on touch), job-row (a server's job: progress, Stop, why it failed), utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
@@ -101,7 +101,7 @@ apps/web/src/
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
                    # time), speak-button, read-aloud-settings (engine cards, speed) with each
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
-                   # "Listen"); download-row (a model or voice the server downloads), read-languages (the
+                   # "Listen"; voice-names: a server voice's name, pure); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest

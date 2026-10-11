@@ -905,9 +905,13 @@
       "reading": "{done, number} von {total, number} vorgelesen …",
       "stop": "Anhalten",
       "all": "Alle Wörter haben Audio",
-      "install": "Dafür installiere eine Stimme für {language} unter Einstellungen → Sprechen",
-      "failed": "{count, plural, one {# Wort konnte nicht vorgelesen werden} other {# Wörter konnten nicht vorgelesen werden}}"
-    }
+      "install": "Installiere dafür eine Stimme für {language} unter Einstellungen → Sprechen",
+      "failed": "{count, plural, one {# Wort konnte nicht vorgelesen werden} other {# Wörter konnten nicht vorgelesen werden}}",
+      "voice": "Gelesen von {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Stimme wählen"
+    },
+    "left": "noch etwa {time}",
+    "why": "Grund: {reason}"
   },
   "guide": {
     "open": "So funktioniert's",

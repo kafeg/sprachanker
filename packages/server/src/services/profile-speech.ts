@@ -29,6 +29,8 @@ export function createProfileSpeech(deps: {
       : undefined;
   /** The Qwen3-TTS model the profile chose (none: the large one when it is there). */
   const qwenModel = () => settings.get("speech.qwenModel");
+  /** The Qwen3-TTS speaker the profile chose to read `lang` with (none: the default one). */
+  const qwenSpeaker = (_lang: string) => settings.value("speech.voices")?.qwen?.[ALL_LANGS];
 
   return {
     /** The server's engines, shared by the profiles: their models and voices (download, remove). */
@@ -104,7 +106,7 @@ export function createProfileSpeech(deps: {
               read: (text: string) => readAloud.say(text, lang, voice, 1, false),
             };
         } else {
-          const voice = qwenTts.voice(lang, own?.qwen?.[ALL_LANGS], qwenModel());
+          const voice = qwenTts.voice(lang, qwenSpeaker(lang), qwenModel());
           if (voice)
             return {
               engine,
