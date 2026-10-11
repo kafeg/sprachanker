@@ -19,7 +19,7 @@
     "lessons": "{count, plural, other {#节课}}",
     "progress": "已完成{done, number}/{total, number}",
     "start": "开始",
-    "allLessons": "全部课程",
+    "allLessons": "各课一览",
     "languages": "{from} → {to}",
     "any": "全部",
     "noneStarted": "还没有开始任何课程。",
@@ -104,7 +104,7 @@
     "backToCourse": "返回课程",
     "nextLesson": "下一课",
     "reference": "参考资料",
-    "plan": "课程安排",
+    "plan": "本课安排",
     "audio": "收听本课",
     "itemAudio": "第{n, number}题的音频",
     "redo": "从头开始",
@@ -225,7 +225,7 @@
   },
   "llm": {
     "title": "AI助手",
-    "intro": "讲解错误、在课程中辅导、批改文本、演绎情景对话。可选择本机上的模型、局域网服务器上的模型、云端模型（OpenRouter），或使用你订阅的命令行智能体。课程内容和你的答案只会发送给你选择的服务商。",
+    "intro": "讲解错误、在课上辅导、批改文本、演绎情景对话。可选择本机上的模型、局域网服务器上的模型、云端模型（OpenRouter），或使用你订阅的命令行智能体。各课内容和你的答案只会发送给你选择的服务商。",
     "off": "关闭",
     "provider": {
       "lmstudio": "LM Studio",
@@ -264,11 +264,11 @@
     "changeInSettings": "模型在“设置 → AI助手”中选择",
     "about": {
       "lmstudio": "本机上的LM Studio：SprachAnker会启动它的服务器、加载所选模型，还能把推荐的模型下载到其中。免费，且所有数据都不会离开本机。如果LM Studio运行在另一台电脑上，请选择“局域网服务器”。",
-      "openrouter": "云端的OpenRouter：一个密钥即可使用众多厂商的数百个模型，其中部分免费（有每日限额）。课程内容和你的答案会发送给OpenRouter及模型服务商。",
-      "gemini": "云端的Google Gemini模型，需使用Google AI Studio的密钥。免费层级无需绑定银行卡，但有每分钟和每日限额；部分模型需要开通付费。使用免费层级时，Google可能会用发送的内容改进其产品：课程内容和你的答案会发送给Google。",
-      "groq": "在Groq云端高速硬件上运行的开放模型（Llama、Qwen、GPT-OSS等）。免费层级无需绑定银行卡，每个模型都有每分钟和每日限额。课程内容和你的答案会发送给Groq。",
+      "openrouter": "云端的OpenRouter：一个密钥即可使用众多厂商的数百个模型，其中部分免费（有每日限额）。各课内容和你的答案会发送给OpenRouter及模型服务商。",
+      "gemini": "云端的Google Gemini模型，需使用Google AI Studio的密钥。免费层级无需绑定银行卡，但有每分钟和每日限额；部分模型需要开通付费。使用免费层级时，Google可能会用发送的内容改进其产品：各课内容和你的答案会发送给Google。",
+      "groq": "在Groq云端高速硬件上运行的开放模型（Llama、Qwen、GPT-OSS等）。免费层级无需绑定银行卡，每个模型都有每分钟和每日限额。各课内容和你的答案会发送给Groq。",
       "custom": "另一台电脑上任何提供OpenAI兼容API的服务器：LM Studio、Ollama、llama.cpp、vLLM等。请填写其地址（以/v1结尾），如有需要再填写密钥。",
-      "claude-code": "运行本机安装的Claude Code（`claude -p`），使用你的Claude订阅。其自带工具处于关闭状态：课程数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
+      "claude-code": "运行本机安装的Claude Code（`claude -p`），使用你的Claude订阅。其自带工具处于关闭状态：本课数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
       "codex": "运行本机安装的Codex CLI（`codex exec`），使用你的ChatGPT订阅，只读且不使用其工具。每次回答都要启动该命令，因此回复会慢几秒。"
     },
     "cardState": {
@@ -332,7 +332,7 @@
     "contextSize": "请求约{used}个token",
     "remembers": "记得{total, plural, other {#条消息}}中的{kept, number}条",
     "contextFull": "上下文快满了：最早的消息已无法发送给模型。如要换个话题，请开始新对话。",
-    "contextHint": "下一次请求的大小：课程上下文、对话和你的消息，再加上为回复预留的空间。",
+    "contextHint": "下一次请求的大小：本课上下文、对话和你的消息，再加上为回复预留的空间。",
     "toolsUsed": "已查询：{tools}",
     "tool": {
       "find_word": "单词“{word}”",
@@ -385,7 +385,7 @@
     "size": "大小",
     "sizeValue": "{chars, plural, other {#个字符}}≈{tokens, plural, other {#个token}}",
     "copy": "以JSON格式复制请求",
-    "infoIntro": "每次请求都会发送固定规则（系统提示词）和当前课程的数据。较长的部分会按下方限制截断，以便小型本地模型也能跟上。",
+    "infoIntro": "每次请求都会发送固定规则（系统提示词）和当前这一课的课程数据。较长的部分会按下方限制截断，以便小型本地模型也能跟上。",
     "task": {
       "explain": "“为什么错了？”",
       "tutor": "辅导老师",
@@ -397,22 +397,22 @@
       "scene": "情景对话",
       "examples": "卡组单词的例句"
     },
-    "contextIntro": "从课程中添加：",
+    "contextIntro": "从本课添加：",
     "systemIntro": "系统提示词：",
     "part": {
       "item": "练习题目：题干、选项或填空、正确答案和你的答案",
       "notes": "本课的语法说明",
       "lesson": "本课的标题和学习目标",
       "lessonVocab": "本课单词及其翻译",
-      "knownVocab": "以前课程中的单词（最近的在前）",
-      "earlierLessons": "以前课程的标题",
+      "knownVocab": "前几课的单词（最近的在前）",
+      "earlierLessons": "前几课的标题",
       "grammar": "本课的语法说明",
       "exercise": "屏幕上的练习及其答案和你已检查过的答案（辅导老师会先给提示）",
       "history": "对话中最近的消息，你的每条消息都标明了你写它时所在的练习",
-      "mistakes": "你的错误：本课中为当前这一轮的错误，然后是以前课程中最近的错误（已改正的会标出）",
+      "mistakes": "你的错误：本课中为当前这一轮的错误，然后是前几课中最近的错误（已改正的会标出）",
       "tools": "按需查询（工具）：你的进度、任意一课中的错误、某个单词在哪一课学、某一课的内容",
       "text": "你的文本",
-      "script": "当题目涉及课程的音频或视频时，附上本课台词",
+      "script": "当题目涉及本课的音频或视频时，附上本课台词",
       "heard": "语音识别器从课程录音中听到的问题和课程自带的答案",
       "answer": "语音识别器听到的你说的话",
       "exam": "考试名称和题目原文：该部分的说明和文本、问题",
@@ -433,22 +433,22 @@
     "restore": "恢复默认提示词",
     "places": {
       "title": "助手在哪里工作",
-      "hint": "关闭的功能不会出现在课程、卡片和考试中。已完成的课程仍保持完成状态。",
+      "hint": "关闭的功能不会出现在各课、卡片和考试中。已完成的课仍保持完成状态。",
       "explain": {
         "name": "“为什么错了？”",
         "where": "错误下方的按钮"
       },
       "tutor": {
         "name": "辅导老师",
-        "where": "课程中的按钮和“回顾错误”步骤"
+        "where": "课中的按钮和“回顾错误”步骤"
       },
       "writing": {
         "name": "“动笔写一写”",
-        "where": "课程中的一个步骤"
+        "where": "课中的一个步骤"
       },
       "scene": {
         "name": "情景对话",
-        "where": "课程中的一个步骤"
+        "where": "课中的一个步骤"
       },
       "speaking": {
         "name": "口头回答",
@@ -542,9 +542,9 @@
     "removeCourse": "从我的课程中移除",
     "resetLesson": "重置本课进度",
     "courseTitle": "重置你在“{title}”中的进度？",
-    "courseBody": "此课程的所有答案和学习轮次都会被删除，与之相关的辅导对话、写作批改和情景对话，以及由其课程生成的单词卡片和复习记录也会一并删除。该课程会从“我的课程”中移除，但仍保持安装。此操作无法撤销。",
+    "courseBody": "此课程的所有答案和学习轮次都会被删除，与之相关的辅导对话、写作批改和情景对话，以及由其各课生成的单词卡片和复习记录也会一并删除。该课程会从“我的课程”中移除，但仍保持安装。此操作无法撤销。",
     "lessonTitle": "重置你在“{title}”中的进度？",
-    "lessonBody": "本课的所有答案和学习轮次都会被删除，连同其辅导对话、写作批改和情景对话，以及由本课生成的单词卡片和复习记录（其他课程的单词保留）。此操作无法撤销。",
+    "lessonBody": "本课的所有答案和学习轮次都会被删除，连同其辅导对话、写作批改和情景对话，以及由本课生成的单词卡片和复习记录（其他课的单词保留）。此操作无法撤销。",
     "confirm": "重置",
     "removeExam": "从我的考试中移除",
     "examTitle": "将“{title}”从你的考试中移除？",
@@ -553,7 +553,7 @@
   "download": {
     "queued": "排队中——正在下载另一门课程",
     "pages": "{count, plural, other {已读取#个页面}}",
-    "preparing": "正在准备课程…",
+    "preparing": "正在准备各课…",
     "media": "媒体：{done, number}/{total, number}个文件 · {size}",
     "downloadSize": "下载 · 约{size}",
     "continue": "继续下载",
@@ -667,7 +667,7 @@
     "messages": "{count, plural, other {#条消息}}",
     "nothing": "没有学习",
     "kind": {
-      "lesson": "课程：{count, number}",
+      "lesson": "课：{count, number}",
       "exam": "考试：{count, number}",
       "review": "卡片：{count, number}",
       "ai": "AI：{count, number}"
@@ -695,7 +695,7 @@
     "examWrong": "{count, plural, other {上次答错了#道题}}",
     "section": {
       "review": "复习",
-      "lesson": "课程",
+      "lesson": "各课",
       "exam": "考试"
     },
     "none": {
@@ -720,7 +720,7 @@
         "dueWeek": "一周内到期"
       },
       "lesson": {
-        "lessonsDone": "已完成课程",
+        "lessonsDone": "已完成的课",
         "best": "最好成绩"
       }
     },
@@ -780,7 +780,7 @@
     "mark": "标记笔记",
     "unmark": "取消标记笔记",
     "keys": "空格键或回车键：显示答案，再按一次为“良好” · 1–4：评分 · R：重播 · U：撤销",
-    "noCards": "还没有卡片：卡片来自课程中的“本课单词”步骤。",
+    "noCards": "还没有卡片：卡片来自各课的“本课单词”步骤。",
     "deck": "卡组",
     "count": {
       "new": "新",
@@ -831,7 +831,7 @@
     },
     "assistant": {
       "title": "AI助手",
-      "text": "助手可以讲解错误、在课程中辅导、批改你的文本、演绎情景对话。现在选择或稍后在“设置”中选择都可以——没有助手，应用也能正常使用。"
+      "text": "助手可以讲解错误、在课上辅导、批改你的文本、演绎情景对话。现在选择或稍后在“设置”中选择都可以——没有助手，应用也能正常使用。"
     },
     "tour": {
       "title": "功能在哪里"
