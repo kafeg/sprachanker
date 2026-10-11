@@ -188,10 +188,11 @@ the exam has, and none is above the points it can give.
   "passWhen": "all" }
 ```
 
-Lesson `media`: `video` (`sd`, `hd`, `subtitles`), `image`, and `audio` — a lesson-level
-recording (Deutschtrainer reads the lesson's words and phrases aloud); all optional. Any `media` (a
-lesson's, an exercise's, an item's or an option's) may carry `credit`: whose picture or recording it
-is, as the source credits it, shown with it.
+Lesson `media`: `video` (`sd`, `hd`, `subtitles`, `poster` — the episode's own still), `image`, and
+`audio` — a lesson-level recording (Deutschtrainer reads the lesson's words and phrases aloud); all
+optional. Any `media` (a lesson's, an exercise's, an item's or an option's) may carry `credit`: whose
+picture or recording it is, as the source credits it, shown with it; one with a `video` its `poster`,
+the video's own still.
 
 ## Exercise types
 

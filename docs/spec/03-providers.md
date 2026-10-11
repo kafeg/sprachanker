@@ -110,6 +110,7 @@ Source facts: `docs/research/dw-nicos-weg.md`; DW's own content errors in A1:
 - **Media** (`courses/dw/src/media.ts`): every MP3 the pages link (items, vocabulary, lessons); images
   in format 6 (940×529); episode videos as direct MP4s in SD and HD (from the download page, else
   remuxed from the HLS stream), not the variant with burned-in subtitles; the German subtitle track;
+  every video's own still (`posterImageUrl`: the episode's and each clip's poster);
   the lesson PDFs. Hosts refusing requests are reported.
 - **Normalise**: the mechanics table in `docs/research/dw-nicos-weg.md` maps every DW mechanic to a
   type (02); an unseen combination → `unknown` + report. Units are the course's lesson groups in

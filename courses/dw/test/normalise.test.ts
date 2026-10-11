@@ -597,6 +597,13 @@ test("a clip on the items: one clip for all is the exercise's video; different c
     {
       "https://tvdownloaddw-a.akamaihd.net/downloads/clips/c1_sd.mp4": video("c1"),
       "https://tvdownloaddw-a.akamaihd.net/downloads/clips/c2_sd.mp4": video("c2"),
+      "https://static.dw.com/image/1_605.webp": {
+        kind: "image",
+        path: "media/image/1_605.webp" as never,
+        sha256: "b".repeat(64),
+        size: 1,
+        mime: "image/webp",
+      },
     },
     "ru-de",
   );
@@ -607,8 +614,15 @@ test("a clip on the items: one clip for all is the exercise's video; different c
       inputType: "NONE",
       inquiries: [{ __ref: "Inquiry:1" }, { __ref: "Inquiry:2" }],
     },
-    "Video:1": { hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c1_,sd,.mp4.csmil/master.m3u8" },
-    "Video:2": { hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c2_,sd,.mp4.csmil/master.m3u8" },
+    "Video:1": {
+      hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c1_,sd,.mp4.csmil/master.m3u8",
+      posterImageUrl: "https://static.dw.com/image/1_605.webp",
+    },
+    // A still not downloaded: none.
+    "Video:2": {
+      hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c2_,sd,.mp4.csmil/master.m3u8",
+      posterImageUrl: "https://static.dw.com/image/2_605.webp",
+    },
     ...Object.fromEntries(
       [1, 2].map((n) => [
         `Inquiry:${n}`,
@@ -626,7 +640,10 @@ test("a clip on the items: one clip for all is the exercise's video; different c
     "Alt:2": { alternativeText: "Lisa", isCorrect: false },
   });
   const shared = normaliseExercise(clips, page("Video:1") as never, 9, key, "e-9.json").exercise;
-  expect(Exercise.parse(shared).media).toEqual({ video: "media/video/c1_sd.mp4" } as never);
+  expect(Exercise.parse(shared).media).toEqual({
+    video: "media/video/c1_sd.mp4",
+    poster: "media/image/1_605.webp",
+  } as never);
   expect(shared.items.map((it) => (it as { media?: unknown }).media)).toEqual([
     undefined,
     undefined,
@@ -634,7 +651,7 @@ test("a clip on the items: one clip for all is the exercise's video; different c
   const own = normaliseExercise(clips, page("Video:2") as never, 9, key, "e-9.json").exercise;
   expect(Exercise.parse(own).media).toBeUndefined();
   expect(own.items.map((it) => (it as { media?: unknown }).media)).toEqual([
-    { video: "media/video/c1_sd.mp4" },
+    { video: "media/video/c1_sd.mp4", poster: "media/image/1_605.webp" },
     { video: "media/video/c2_sd.mp4" },
   ]);
 });

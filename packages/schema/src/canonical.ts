@@ -78,6 +78,8 @@ export const Lesson = z
           hd: MediaPath.optional(),
           /** Target-language subtitle track (WebVTT). */
           subtitles: MediaPath.optional(),
+          /** The episode's own still, shown until it plays. */
+          poster: MediaPath.optional(),
         })
         .optional(),
       image: MediaPath.optional(),

@@ -14,7 +14,7 @@ import {
   parseEditionId,
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
-import { imageUrl, videoFiles } from "../media.ts";
+import { imageUrl, posterUrl, videoFiles } from "../media.ts";
 import { spaceChips, writtenOrder } from "./text.ts";
 
 export type Entity = Record<string, unknown>;
@@ -101,9 +101,12 @@ export function audioPath(ctx: Context, state: ApolloState, entity: Entity): Med
   return audiosPath(ctx, state, entity);
 }
 
+/** A video's files and its own still (none for one without files). */
 export function videoPaths(ctx: Context, video: Entity | undefined) {
   const files = video ? videoFiles(video) : {};
-  return { sd: ctx.media(files.sd), hd: ctx.media(files.hd) };
+  const sd = ctx.media(files.sd);
+  const hd = ctx.media(files.hd);
+  return { sd, hd, poster: video && (sd || hd) ? ctx.media(posterUrl(video)) : undefined };
 }
 
 /** Media object without empty fields. */

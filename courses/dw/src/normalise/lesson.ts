@@ -120,7 +120,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
   if (!L) throw new Error(`lesson ${src.sourceId} missing in its page`);
 
   const video = refs(state, L.videos).find((v) => !subtitledVideo(v));
-  const { sd, hd } = videoPaths(ctx, video);
+  const { sd, hd, poster } = videoPaths(ctx, video);
   const subtitleUrl = (video?.subtitles as Array<{ subtitleUrl?: string }> | undefined)?.[0]
     ?.subtitleUrl;
   const subtitles = ctx.media(subtitleUrl);
@@ -208,6 +208,7 @@ export function normaliseLesson(ctx: Context, src: LessonSource): NormalisedLess
                 ...(sd ? { sd } : {}),
                 ...(hd ? { hd } : {}),
                 ...(subtitles ? { subtitles } : {}),
+                ...(poster ? { poster } : {}),
               },
             }
           : {}),

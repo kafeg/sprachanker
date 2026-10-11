@@ -85,7 +85,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     audio,
     image: imagePath(ctx, state, q.mainContentImage ?? refs(state, q.images)[0]),
     // The clip an item is about (an exercise of type NONE or TEXT: "watch the clip again").
-    video: videoPaths(ctx, refs(state, q.videos)[0]).sd,
+    ...clip(ctx, refs(state, q.videos)[0]),
   });
   if (itemMedia) base.media = itemMedia;
   const hintHtml = html(ctx, q.inquiryDescription);
@@ -232,12 +232,19 @@ function sharedVideo(items: Item[], stimulus: Media | undefined): { media?: Medi
   const videos = new Set(items.map((it) => (it.media as Media | undefined)?.video));
   const [video] = videos;
   if (videos.size !== 1 || !video || stimulus?.video) return {};
+  const { poster } = (items[0]?.media ?? {}) as Media;
   for (const it of items) {
-    const { video: _, ...rest } = it.media as Media;
+    const { video: _, poster: __, ...rest } = it.media as Media;
     if (Object.keys(rest).length) it.media = rest;
     else delete it.media;
   }
-  return { media: { ...stimulus, video } };
+  return { media: { ...stimulus, video, ...(poster ? { poster } : {}) } };
+}
+
+/** A clip's SD file (exercises show it small) and its own still. */
+function clip(ctx: Context, video: Entity | undefined): Pick<Media, "video" | "poster"> {
+  const { sd, poster } = videoPaths(ctx, video);
+  return sd ? { video: sd, ...(poster ? { poster } : {}) } : {};
 }
 
 export interface NormalisedExercise {
@@ -257,7 +264,7 @@ export function normaliseExercise(
   const ex = state[`Exercise:${sourceId}`];
   if (!ex) throw new Error(`exercise ${sourceId} missing in its page`);
   const stimulus = media({
-    video: ex.inputType === "VIDEO" ? videoPaths(ctx, refs(state, ex.videos)[0]).sd : undefined,
+    ...(ex.inputType === "VIDEO" ? clip(ctx, refs(state, ex.videos)[0]) : {}),
     image:
       ex.inputType === "IMAGE"
         ? imagePath(ctx, state, ex.mainContentImage ?? refs(state, ex.images)[0])

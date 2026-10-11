@@ -253,12 +253,14 @@ export function MediaBlock({
           controls
           preload="metadata"
           src={url(media.video)}
+          // Its own still, else a frame a moment in (`peek`).
+          poster={media.poster && url(media.poster)}
           onPlay={(e) => {
             peek.play(e.currentTarget);
             claimPlayback(e.currentTarget);
             onHeard?.();
           }}
-          onLoadedMetadata={(e) => peek.loaded(e.currentTarget)}
+          onLoadedMetadata={(e) => !media.poster && peek.loaded(e.currentTarget)}
           onSeeked={(e) => peek.seeked(e.currentTarget)}
           onError={onHeard}
           className="w-full rounded-xl bg-black"

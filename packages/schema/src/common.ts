@@ -31,6 +31,8 @@ export const Media = z
     image: MediaPath.optional(),
     audio: MediaPath.optional(),
     video: MediaPath.optional(),
+    /** The video's own still, shown until it plays. */
+    poster: MediaPath.optional(),
     /** Whose picture or recording it is, as the source credits it ("© Deutscher Bundestag/Achim
      *  Melde"): shown with it. */
     credit: z.string().min(1).optional(),

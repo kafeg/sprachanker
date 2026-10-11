@@ -26,6 +26,9 @@
             },
             "subtitles": {
               "$ref": "#/$defs/MediaPath"
+            },
+            "poster": {
+              "$ref": "#/$defs/MediaPath"
             }
           },
           "additionalProperties": false
@@ -328,6 +331,9 @@
           "$ref": "#/$defs/MediaPath"
         },
         "video": {
+          "$ref": "#/$defs/MediaPath"
+        },
+        "poster": {
           "$ref": "#/$defs/MediaPath"
         },
         "credit": {
