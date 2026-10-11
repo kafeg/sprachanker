@@ -235,6 +235,7 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server di jaringan",
@@ -270,6 +271,7 @@
     "about": {
       "lmstudio": "LM Studio di komputer ini: SprachAnker menjalankan servernya, memuat model yang dipilih, dan bisa mengunduh model yang disarankan ke dalamnya. Gratis, dan tidak ada data yang keluar dari komputer. Jika LM Studio berjalan di komputer lain, pilih “Server di jaringan”.",
       "openrouter": "OpenRouter di cloud: ratusan model dari banyak pembuat lewat satu kunci, sebagian gratis (dengan batas harian). Isi pelajaran dan jawaban kamu dikirim ke OpenRouter dan penyedia modelnya.",
+      "openai": "Model-model OpenAI (GPT-5, GPT-4.1, seri o, dan lainnya) di cloud lewat API-nya, bayar sesuai pemakaian — bukan langganan ChatGPT: untuk itu, pilih Codex. Isi pelajaran dan jawaban kamu dikirim ke OpenAI.",
       "gemini": "Model Gemini dari Google di cloud dengan kunci dari Google AI Studio. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari; beberapa model memerlukan penagihan. Pada paket gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya: isi pelajaran dan jawaban kamu dikirim ke Google.",
       "groq": "Model terbuka (Llama, Qwen, GPT-OSS, dan lainnya) di perangkat keras Groq yang cepat di cloud. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari untuk setiap model. Isi pelajaran dan jawaban kamu dikirim ke Groq.",
       "custom": "Server apa pun dengan API yang kompatibel dengan OpenAI di komputer lain: LM Studio, Ollama, llama.cpp, vLLM, dan lainnya. Masukkan alamatnya (berakhiran /v1) dan kunci jika diminta.",
@@ -310,6 +312,7 @@
     },
     "keyHintFor": {
       "openrouter": "Buat kunci di openrouter.ai/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "openai": "Buat kunci di platform.openai.com/api-keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
       "gemini": "Buat kunci di aistudio.google.com/apikey. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
       "groq": "Buat kunci di console.groq.com/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi."
     }

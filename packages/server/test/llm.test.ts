@@ -84,6 +84,7 @@ describe("llm setup", () => {
     expect(state.providers.map((p: { id: string; baseUrl: string }) => [p.id, p.baseUrl])).toEqual([
       ["lmstudio", "http://localhost:1234/v1"],
       ["openrouter", "https://openrouter.ai/api/v1"],
+      ["openai", "https://api.openai.com/v1"],
       ["gemini", "https://generativelanguage.googleapis.com/v1beta/openai"],
       ["groq", "https://api.groq.com/openai/v1"],
       ["custom", ""],
@@ -196,6 +197,38 @@ describe("llm setup", () => {
     expect(fake.calls[0]?.headers.authorization).toBe("Bearer sk-or-secret");
     const route = await sendJson("PUT", "/api/llm/route", { provider: "lmstudio", model: "m" });
     expect([route.provider, route.model]).toEqual(["lmstudio", "m"]);
+  });
+
+  test("OpenAI: a key, its chat models checked, an answer with its API's fields; the viewer shows them", async () => {
+    const calls: Array<{ url: string; headers: Record<string, string>; body?: unknown }> = [];
+    const { send, sendJson, get, getJson } = await setup({
+      fetch: (async (url: string, init: RequestInit) => {
+        const body = init.body ? JSON.parse(init.body as string) : undefined;
+        calls.push({ url, headers: init.headers as Record<string, string>, body });
+        if (url.endsWith("/models"))
+          return Response.json({ data: [{ id: "gpt-5-mini" }, { id: "whisper-1" }] });
+        return new Response(
+          `data: ${JSON.stringify({ choices: [{ delta: { content: "Weil." } }] })}\n\ndata: [DONE]\n\n`,
+        );
+      }) as typeof fetch,
+    });
+    expect((await get("/api/llm/models?provider=openai")).status).toBe(409);
+    const state = await sendJson("PUT", "/api/llm/providers/openai", { apiKey: "sk-proj-x" });
+    expect(byId(state, "openai")).toMatchObject({ hasKey: true, editableUrl: false });
+    expect((await getJson("/api/llm/models?provider=openai")).models).toEqual([
+      { id: "gpt-5-mini" },
+    ]);
+    expect(calls[0]?.headers.authorization).toBe("Bearer sk-proj-x");
+    await send("PUT", "/api/llm/route", { provider: "openai", model: "gpt-5-mini" });
+    expect(await (await send("POST", "/api/llm/explain", EXPLAIN)).text()).toBe("Weil.");
+    const sent = calls[1]?.body as Record<string, unknown>;
+    expect(calls[1]?.url).toBe("https://api.openai.com/v1/chat/completions");
+    expect(sent).toMatchObject({ model: "gpt-5-mini", reasoning_effort: "minimal" });
+    expect(sent.max_completion_tokens).toBeGreaterThan(0);
+    expect(sent).not.toHaveProperty("temperature");
+    const preview = await sendJson("POST", "/api/llm/explain/prompt", EXPLAIN);
+    expect(preview.url).toBe("https://api.openai.com/v1/chat/completions");
+    expect(preview.body.max_completion_tokens).toBe(sent.max_completion_tokens);
   });
 
   test("an unreachable server is a 502 with a code", async () => {

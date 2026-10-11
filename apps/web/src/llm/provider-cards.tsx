@@ -1,7 +1,16 @@
 // The AI assistant's providers as cards (07; 09): each with its icon and what it needs or has —
 // "key saved", "not installed", "address not set" — so all of them are seen at once. Also the
 // onboarding's AI step.
-import { Cloud, Laptop, Network, Power, Sparkles, SquareTerminal, Zap } from "lucide-react";
+import {
+  BrainCircuit,
+  Cloud,
+  Laptop,
+  Network,
+  Power,
+  Sparkles,
+  SquareTerminal,
+  Zap,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { OptionCard } from "@/ui/option-card.tsx";
 import { setupProblem } from "./errors.ts";
@@ -11,6 +20,7 @@ const ICON: Record<ProviderId | "off", typeof Cloud> = {
   off: Power,
   lmstudio: Laptop,
   openrouter: Cloud,
+  openai: BrainCircuit,
   gemini: Sparkles,
   groq: Zap,
   custom: Network,

@@ -57,30 +57,67 @@ export interface ChatRequest {
 export type TaskRequest = Omit<ChatRequest, "model" | "signal" | "runTool">;
 
 /**
+ * What sets one provider's API apart from the plain OpenAI-compatible one (07, "Providers"): how its
+ * reasoning is turned off, which models reason, what its model list holds that is no chat model.
+ */
+export interface ApiQuirks {
+  /** Request fields that turn a model's reasoning off, in this provider's dialect. */
+  noReasoning?: Record<string, unknown>;
+  /** The models that reason (OpenAI: o-series, gpt-5…): only they get the switch; they take no
+   *  temperature, and their reasoning counts in the token limit, so it gets room. Unset: every model
+   *  gets the switch and a temperature. */
+  reasoners?: RegExp;
+  /** The limit is `max_completion_tokens` (OpenAI: newer models refuse `max_tokens`). */
+  completionTokens?: boolean;
+  /** Models of the list that are no chat models, beyond the usual ones (models.ts). */
+  notChat?: RegExp;
+}
+
+/** Tokens a reasoning model may think before it answers, on top of the task's limit. */
+export const REASONING_ROOM = 4096;
+
+/** Whether a request turns reasoning off with the provider's switch. */
+export const sendsSwitch = (request: { model: string; reasoning?: boolean }, quirks: ApiQuirks) =>
+  request.reasoning === false &&
+  !!quirks.noReasoning &&
+  (!quirks.reasoners || quirks.reasoners.test(request.model));
+
+/** What a request may go without when the provider refuses it (http.ts `relaxing`). */
+interface BodyOptions {
+  switchOff: boolean;
+  temperature: boolean;
+  /** The schema with `strict: true` (OpenAI and others refuse a schema strict mode cannot take). */
+  strict: boolean;
+}
+
+/**
  * The JSON body of a chat request exactly as it is posted — also shown in the prompt viewer (07,
- * "Debugging"). `noReasoning` are the provider's fields that turn reasoning off.
+ * "Debugging"), with every option on.
  */
 export function chatBody(
   request: Omit<ChatRequest, "signal" | "runTool">,
-  noReasoning?: Record<string, unknown>,
+  quirks: ApiQuirks = {},
+  options: Partial<BodyOptions> = {},
 ) {
+  const { switchOff = sendsSwitch(request, quirks), temperature = true, strict = true } = options;
+  const reasoner = !!quirks.reasoners?.test(request.model);
+  const maxTokens =
+    request.maxTokens !== undefined && reasoner
+      ? request.maxTokens + REASONING_ROOM
+      : request.maxTokens;
   return {
     model: request.model,
     messages: request.tools?.length
       ? withToolNotes(request.messages, request.toolNotes)
       : request.messages,
-    temperature: request.temperature ?? 0.3,
-    max_tokens: request.maxTokens,
+    ...(temperature && !reasoner && { temperature: request.temperature ?? 0.3 }),
+    ...(quirks.completionTokens ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }),
     // Structured answers are read whole; text is streamed.
     stream: !request.jsonSchema,
     ...(request.jsonSchema && {
       response_format: {
         type: "json_schema",
-        json_schema: {
-          name: request.jsonSchema.name,
-          strict: true,
-          schema: request.jsonSchema.schema,
-        },
+        json_schema: { name: request.jsonSchema.name, strict, schema: request.jsonSchema.schema },
       },
     }),
     ...(request.tools?.length && {
@@ -89,7 +126,7 @@ export function chatBody(
         function: { name: t.name, description: t.description, parameters: t.parameters },
       })),
     }),
-    ...(request.reasoning === false ? noReasoning : undefined),
+    ...(switchOff ? quirks.noReasoning : undefined),
   };
 }
 
@@ -111,12 +148,17 @@ export interface LlmClient {
   complete(request: ChatRequest): Promise<string>;
 }
 
-export interface Endpoint {
+export interface Endpoint extends ApiQuirks {
   baseUrl: string;
   apiKey?: string;
-  /** Extra request fields that turn reasoning off (see ProviderPreset). */
-  noReasoning?: Record<string, unknown>;
 }
+
+/** A refusal that names what it refused: that option goes first. */
+const NAMED = {
+  switchOff: /reasoning/i,
+  temperature: /temperature/i,
+  strict: /schema|response_format/i,
+};
 
 export function openAiCompatible(
   endpoint: Endpoint,
@@ -127,34 +169,44 @@ export function openAiCompatible(
   const base = endpoint.baseUrl.replace(/\/+$/, "");
   const post = (body: unknown, limit: TimeLimit, signal?: AbortSignal) =>
     call("/chat/completions", { method: "POST", body: JSON.stringify(body) }, limit, signal);
-  /** The reasoning switch is sent where the request asks for it and the provider has one. */
-  const switchOff = (request: ChatRequest) => request.reasoning === false && !!endpoint.noReasoning;
 
   return {
     async models(signal) {
       const res = await call("/models", { method: "GET" }, MODELS_TIMEOUT_MS, signal);
       const body = (await res.json().catch(() => null)) as { data?: RawModel[] } | null;
       if (!Array.isArray(body?.data)) throw new LlmError("bad_response", "no model list");
-      return body.data.flatMap((m) => modelInfo(m) ?? []);
+      return body.data.flatMap((m) =>
+        typeof m.id === "string" && endpoint.notChat?.test(m.id) ? [] : (modelInfo(m) ?? []),
+      );
     },
     chat(request) {
+      const on = { switchOff: sendsSwitch(request, endpoint), temperature: true };
       return stripThinking(
         toolRounds<ChatMessage>(
           request,
           {
             messages: request.messages,
-            // Models that always reason reject the switch, some servers reject tools: asked again
-            // without.
+            // Models that always reason reject the switch, reasoning models a temperature, some
+            // servers tools: asked again without.
             open: (messages, tools, limit) =>
-              relaxing({ switchOff: switchOff(request), tools }, ["switchOff", "tools"], (on) =>
-                post(
-                  chatBody(
-                    { ...request, messages, tools: on.tools ? request.tools : undefined },
-                    on.switchOff ? endpoint.noReasoning : undefined,
-                  ),
-                  limit,
-                  request.signal,
-                ).then((res) => ({ res, tools: on.tools })),
+              relaxing(
+                { ...on, tools },
+                ["switchOff", "tools"],
+                (now) =>
+                  post(
+                    chatBody(
+                      { ...request, messages, tools: now.tools ? request.tools : undefined },
+                      endpoint,
+                      now,
+                    ),
+                    limit,
+                    request.signal,
+                  ).then((res) => {
+                    // A later round goes without what this one was refused.
+                    Object.assign(on, { switchOff: now.switchOff, temperature: now.temperature });
+                    return { res, tools: now.tools };
+                  }),
+                NAMED,
               ),
             events: streamEvents,
             answered: (messages, round, results, note) => [
@@ -175,15 +227,21 @@ export function openAiCompatible(
       );
     },
     async complete(request) {
-      // Fallbacks: without the reasoning switch, then without the schema (the prompt still asks for
-      // JSON), for servers that reject either.
+      // Fallbacks: without the reasoning switch or a temperature, then the schema not strict, then
+      // without it (the prompt still asks for JSON), for servers that reject any of them.
       return relaxing(
-        { switchOff: switchOff(request), schema: !!request.jsonSchema },
-        ["switchOff", "schema"],
+        {
+          switchOff: sendsSwitch(request, endpoint),
+          temperature: true,
+          strict: !!request.jsonSchema,
+          schema: !!request.jsonSchema,
+        },
+        ["switchOff", "strict", "schema"],
         async (on) => {
           const body = chatBody(
             { ...request, jsonSchema: on.schema ? request.jsonSchema : undefined },
-            on.switchOff ? endpoint.noReasoning : undefined,
+            endpoint,
+            on,
           );
           const limit = new TimeLimit(limits.firstMs);
           try {
@@ -201,6 +259,7 @@ export function openAiCompatible(
             limit.clear();
           }
         },
+        NAMED,
       );
     },
   };

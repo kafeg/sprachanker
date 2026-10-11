@@ -19,8 +19,8 @@ src/
   sse.ts           # server-sent events: any stream's data lines (sseData); an OpenAI-compatible reply's
                    # text deltas and tool calls, control tokens dropped
   errors.ts        # LlmError and its codes
-  providers.ts     # presets: lmstudio, openrouter, gemini, groq, custom, claude-code, codex (endpoint,
-                   # key, CLI kind)
+  providers.ts     # presets: lmstudio, openrouter, openai, gemini, groq, custom, claude-code, codex (kind,
+                   # endpoint, key, API quirks, CLI kind); providerClient, providerRequest (the viewer)
   lmstudio.ts      # LM Studio's own API: its models, load with 8k context, downloads; suggested models
   openrouter.ts    # OpenRouter's own API: the key's state (free tier, usage, limit, rate limit)
   structured.ts    # JSON outputs: schema in the request, zod validation and the task's check, one repair

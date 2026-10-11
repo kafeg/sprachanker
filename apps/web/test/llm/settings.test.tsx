@@ -23,6 +23,14 @@ const providers = [
     editableUrl: false,
   },
   {
+    id: "openai",
+    baseUrl: "https://api.openai.com/v1",
+    defaultUrl: "https://api.openai.com/v1",
+    key: "required",
+    hasKey: false,
+    editableUrl: false,
+  },
+  {
     id: "groq",
     baseUrl: "https://api.groq.com/openai/v1",
     defaultUrl: "https://api.groq.com/openai/v1",
@@ -69,6 +77,7 @@ test("providers as cards, each saying what it lacks or where it is; a card picks
   const card = (name: RegExp) => view.getByRole("button", { name });
   expect(card(/LM Studio/).textContent).toContain("on this computer");
   expect(card(/OpenRouter/).textContent).toContain("needs a key");
+  expect(card(/OpenAI/).textContent).toContain("needs a key");
   expect(card(/Server on the network/).textContent).toContain("at 192.168.1.5:8080");
   expect(card(/Server on the network/).getAttribute("aria-pressed")).toBe("true");
   expect(card(/Codex/).textContent).toContain("not installed");

@@ -235,6 +235,7 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Szerver a hálózaton",
@@ -270,6 +271,7 @@
     "about": {
       "lmstudio": "LM Studio ezen a számítógépen: a SprachAnker elindítja a szerverét, betölti a kiválasztott modellt, és letöltheti bele a javasolt modelleket. Ingyenes, és semmi sem hagyja el a számítógépet. Ha az LM Studio egy másik számítógépen fut, válaszd a „Szerver a hálózaton” lehetőséget.",
       "openrouter": "OpenRouter a felhőben: több száz modell sok gyártótól egyetlen kulccsal, némelyik ingyenes (napi korlátokkal). A lecke tartalma és a válaszaid az OpenRouterhez és a modell szolgáltatójához kerülnek.",
+      "openai": "Az OpenAI modelljei (GPT-5, GPT-4.1, az o-sorozat és mások) a felhőben, az API-ján keresztül, használat szerinti fizetéssel — ez nem ChatGPT-előfizetés: ahhoz válaszd a Codexet. A lecke tartalma és a válaszaid az OpenAI-hoz kerülnek.",
       "gemini": "A Google Gemini modelljei a felhőben, a Google AI Studióban létrehozott kulccsal. Az ingyenes csomaghoz nem kell bankkártya, és percenkénti és napi korlátai vannak; egyes modellekhez fizetős fiók kell. Az ingyenes csomagban a Google a beküldött adatokat termékei fejlesztésére használhatja: a lecke tartalma és a válaszaid a Google-hoz kerülnek.",
       "groq": "Nyílt modellek (Llama, Qwen, GPT-OSS és mások) a Groq gyors hardverén, a felhőben. Az ingyenes csomaghoz nem kell bankkártya, és minden modellre percenkénti és napi korlátok vonatkoznak. A lecke tartalma és a válaszaid a Groqhoz kerülnek.",
       "custom": "Bármely OpenAI-kompatibilis API-val rendelkező szerver egy másik számítógépen: LM Studio, Ollama, llama.cpp, vLLM és mások. Add meg a címét (/v1-re végződik), és a kulcsot, ha kér.",
@@ -310,6 +312,7 @@
     },
     "keyHintFor": {
       "openrouter": "Kulcsot az openrouter.ai/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "openai": "Kulcsot a platform.openai.com/api-keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
       "gemini": "Kulcsot az aistudio.google.com/apikey oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
       "groq": "Kulcsot a console.groq.com/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg."
     }

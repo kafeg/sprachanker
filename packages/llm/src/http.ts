@@ -128,11 +128,11 @@ const refused = (error: unknown): error is LlmError =>
  * or failing), again without one of them: the one its message names (`named`), else the next on in
  * `order`. Models that always reason reject the switch, some servers reject tools or a schema.
  */
-export async function relaxing<K extends string, T>(
-  on: Record<K, boolean>,
-  order: readonly K[],
-  send: (on: Record<K, boolean>) => Promise<T>,
-  named: Partial<Record<K, RegExp>> = {},
+export async function relaxing<O extends Record<string, boolean>, T>(
+  on: O,
+  order: readonly (keyof O & string)[],
+  send: (on: O) => Promise<T>,
+  named: Partial<Record<string, RegExp>> = {},
 ): Promise<T> {
   let current = { ...on };
   for (;;) {
@@ -140,7 +140,7 @@ export async function relaxing<K extends string, T>(
       return await send(current);
     } catch (error) {
       if (!refused(error)) throw error;
-      const keys = Object.keys(current) as K[];
+      const keys = Object.keys(current) as (keyof O & string)[];
       const drop =
         keys.find((k) => current[k] && named[k]?.test(error.message)) ??
         order.find((k) => current[k]);

@@ -152,7 +152,7 @@ test("every plural has `other` and only categories its language has (exact `=n` 
 
 /** Words the same in every language: names, abbreviations, keys. */
 const SAME_EVERYWHERE = new Set(
-  "PDF FSRS Ctrl JSON SprachAnker OpenRouter Groq Codex Gemini Google Claude Code Studio Tailscale".split(
+  "PDF FSRS Ctrl JSON SprachAnker OpenRouter OpenAI Anthropic Groq Codex Gemini Google Claude Code Studio Tailscale".split(
     " ",
   ),
 );

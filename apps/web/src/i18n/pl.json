@@ -235,6 +235,7 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Serwer w sieci",
@@ -270,6 +271,7 @@
     "about": {
       "lmstudio": "LM Studio na tym komputerze: SprachAnker uruchamia jego serwer, wczytuje wybrany model i może pobrać do niego proponowane modele. Za darmo i nic nie opuszcza komputera. Jeśli LM Studio działa na innym komputerze, wybierz „Serwer w sieci”.",
       "openrouter": "OpenRouter w chmurze: setki modeli od wielu twórców za jednym kluczem, niektóre za darmo (z dziennymi limitami). Treść lekcji i twoje odpowiedzi trafiają do OpenRouter i do dostawcy modelu.",
+      "openai": "Modele OpenAI (GPT-5, GPT-4.1, seria o i inne) w chmurze przez jej API, płatne za użycie — to nie subskrypcja ChatGPT: do niej wybierz Codex. Treść lekcji i twoje odpowiedzi trafiają do OpenAI.",
       "gemini": "Modele Gemini od Google w chmurze, z kluczem z Google AI Studio. Plan darmowy nie wymaga karty i ma limity na minutę i na dzień; niektóre modele wymagają płatności. W planie darmowym Google może wykorzystywać przesłane dane do ulepszania swoich produktów: treść lekcji i twoje odpowiedzi trafiają do Google.",
       "groq": "Otwarte modele (Llama, Qwen, GPT-OSS i inne) na szybkim sprzęcie Groq w chmurze. Plan darmowy nie wymaga karty i ma limity na minutę i na dzień dla każdego modelu. Treść lekcji i twoje odpowiedzi trafiają do Groq.",
       "custom": "Dowolny serwer z API zgodnym z OpenAI na innym komputerze: LM Studio, Ollama, llama.cpp, vLLM i inne. Podaj jego adres (zakończony na /v1) i klucz, jeśli serwer go wymaga.",
@@ -310,6 +312,7 @@
     },
     "keyHintFor": {
       "openrouter": "Utwórz klucz na openrouter.ai/keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
+      "openai": "Utwórz klucz na platform.openai.com/api-keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
       "gemini": "Utwórz klucz na aistudio.google.com/apikey. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany.",
       "groq": "Utwórz klucz na console.groq.com/keys. Jest przechowywany w postaci zaszyfrowanej na tym komputerze i nie zostanie już pokazany."
     }

@@ -235,6 +235,7 @@
     "provider": {
       "lmstudio": "LM Studio",
       "openrouter": "OpenRouter",
+      "openai": "OpenAI",
       "gemini": "Google Gemini",
       "groq": "Groq",
       "custom": "Server on the network",
@@ -270,6 +271,7 @@
     "about": {
       "lmstudio": "LM Studio on this computer: SprachAnker starts its server, loads the chosen model and can download suggested models into it. Free, and nothing leaves the computer. If LM Studio runs on another computer, choose “Server on the network”.",
       "openrouter": "OpenRouter in the cloud: hundreds of models from many makers through one key, some of them free (with daily limits). Lesson content and your answers go to OpenRouter and the model's provider.",
+      "openai": "OpenAI's models (GPT-5, GPT-4.1, the o-series and others) in the cloud through its API, paid per use — not a ChatGPT subscription: for that, choose Codex. Lesson content and your answers go to OpenAI.",
       "gemini": "Google's Gemini models in the cloud with a key from Google AI Studio. The free tier needs no card and has limits per minute and per day; some models need billing. On the free tier Google may use what is sent to improve its products: lesson content and your answers go to Google.",
       "groq": "Open models (Llama, Qwen, GPT-OSS and others) on Groq's fast hardware in the cloud. The free tier needs no card and has limits per minute and per day for each model. Lesson content and your answers go to Groq.",
       "custom": "Any server with an OpenAI-compatible API on another computer: LM Studio, Ollama, llama.cpp, vLLM and others. Give its address (ending in /v1) and a key if it asks for one.",
@@ -310,6 +312,7 @@
     },
     "keyHintFor": {
       "openrouter": "Create a key at openrouter.ai/keys. It is stored encrypted on this computer and never shown again.",
+      "openai": "Create a key at platform.openai.com/api-keys. It is stored encrypted on this computer and never shown again.",
       "gemini": "Create a key at aistudio.google.com/apikey. It is stored encrypted on this computer and never shown again.",
       "groq": "Create a key at console.groq.com/keys. It is stored encrypted on this computer and never shown again."
     }

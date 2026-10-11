@@ -2,36 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { type ChatMessage, type ChatRequest, chatBody, openAiCompatible } from "../src/client.ts";
 import { LlmError } from "../src/errors.ts";
 import { stripThinking } from "../src/thinking.ts";
+import { collect, fakeFetch, sse } from "./fake-http.ts";
 
-/** A fake OpenAI-compatible server: records requests and answers with the given response. */
-function fakeFetch(respond: (url: string, init: RequestInit) => Response | Promise<Response>) {
-  const calls: Array<{ url: string; init: RequestInit }> = [];
-  const fn = (async (url: string, init: RequestInit) => {
-    calls.push({ url, init });
-    return respond(url, init);
-  }) as unknown as typeof fetch;
-  return { fn, calls };
-}
-
-const sse = (chunks: string[]) =>
-  new Response(
-    new ReadableStream({
-      start(controller) {
-        const enc = new TextEncoder();
-        for (const c of chunks) controller.enqueue(enc.encode(c));
-        controller.close();
-      },
-    }),
-    { headers: { "content-type": "text/event-stream" } },
-  );
 const delta = (content: string) =>
   `data: ${JSON.stringify({ choices: [{ delta: { content } }] })}\n\n`;
-
-async function collect(stream: AsyncIterable<string>) {
-  let out = "";
-  for await (const chunk of stream) out += chunk;
-  return out;
-}
 
 async function* chunks(...parts: string[]) {
   yield* parts;
@@ -240,14 +214,16 @@ test("chatBody: the posted JSON, with the provider's reasoning switch only when 
     messages: [{ role: "user" as const, content: "hi" }],
     maxTokens: 9,
   };
-  expect(chatBody(request, { reasoning_effort: "none" })).toEqual({
+  expect(chatBody(request, { noReasoning: { reasoning_effort: "none" } })).toEqual({
     model: "m",
     messages: [{ role: "user", content: "hi" }],
     temperature: 0.3,
     max_tokens: 9,
     stream: true,
   });
-  expect(chatBody({ ...request, reasoning: false }, { reasoning_effort: "none" })).toMatchObject({
+  expect(
+    chatBody({ ...request, reasoning: false }, { noReasoning: { reasoning_effort: "none" } }),
+  ).toMatchObject({
     reasoning_effort: "none",
   });
 });

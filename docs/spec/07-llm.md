@@ -14,11 +14,20 @@ installed on the machine with the user's own subscription (`packages/llm/src/cli
 |---|---|---|---|
 | `lmstudio` | `http://localhost:1234/v1`, editable | optional (only when LM Studio requires a token) | "LM Studio on this computer": integrated through LM Studio's own API (below) |
 | `openrouter` | `https://openrouter.ai/api/v1` | required | cloud models; the key's state from its `/key` (`packages/llm/src/openrouter.ts`) |
+| `openai` | `https://api.openai.com/v1` | required (paid per use, not a ChatGPT subscription: that is `codex`) | OpenAI's own API, below |
 | `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai` | required (Google AI Studio) | free tier with limits, no card; on it Google may use what is sent (the card says so); reasoning left on (newer Gemini models refuse to turn it off) |
 | `groq` | `https://api.groq.com/openai/v1` | required | open models, free tier with limits per model, no card |
 | `custom` | any OpenAI-compatible URL (LAN, tailnet, cloud) | optional | "Server on the network": LM Studio, Ollama, llama.cpp, vLLM on another machine |
 | `claude-code` | `claude -p` on the server's machine | none (Claude subscription, signed in once with `claude`) | models by alias (`sonnet`, `opus`, `haiku`) |
 | `codex` | `codex exec` on the server's machine | none (ChatGPT subscription, `codex login`) | read-only sandbox |
+
+**OpenAI** speaks the OpenAI-compatible API with what sets it apart (`ApiQuirks` on its preset, owner
+2026-10-11): the limit is `max_completion_tokens` (newer models refuse `max_tokens`); its reasoning
+models (ids starting `o<digit>` or `gpt-5`) are sent no temperature, get `reasoning_effort: "minimal"`
+for fast replies (one that refuses it keeps its default) and 4096 tokens of room on top of the task's
+limit, since their reasoning counts in it; its model list leaves out what chat completions do not
+serve (Responses-only `-pro`, `codex`, `deep-research`, `computer-use`; realtime, transcription,
+search, moderation, image, video and legacy completion models).
 
 Command-line providers run each request in a fresh empty folder with our system prompt and without the
 agent's own tools, MCP servers, settings or saved session: only the lesson context goes out. Structured
@@ -114,8 +123,10 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
   `reasoning: { enabled: false }`); a model that always reasons rejects that and is asked again without.
-  Asking again without an option (the reasoning switch, tools, the response schema) happens only when
-  the server refused the request as sent (400, 422) — never when it is busy or failing (429, 5xx).
+  Asking again without an option (the reasoning switch, a temperature, tools, the schema's strict
+  mode, then the schema) happens only when the server refused the request as sent (400, 422) — never
+  when it is busy or failing (429, 5xx); the option the refusal names goes first (a model refusing
+  `temperature` is asked again without it, and the next tool round goes without it too).
   A 429 is `rate_limited` (free tiers limit requests per minute and day: the learner is told to try
   later or choose another model); a wrong key is `unauthorized` (401, 403, or Gemini's 400 saying so).
   Inline `<think>…</think>` output is stripped.
