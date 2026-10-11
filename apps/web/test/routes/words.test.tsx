@@ -54,7 +54,7 @@ const page = () =>
     ],
   });
 const rows = (view: Awaited<ReturnType<typeof page>>) =>
-  view.getAllByRole("listitem").map((li) => li.textContent ?? "");
+  view.getAllByRole("listitem").map((li) => (li.textContent ?? "").replace(/\u00a0/g, " "));
 
 test("My words: every word with its state; search by word or translation", async () => {
   const view = await page();
@@ -101,7 +101,7 @@ test("a word opens its sheet: each card and the answers given", async () => {
     ],
     answers: [{ ts: Date.now(), face: "recognition", rating: 3 }],
   });
-  fireEvent.click(view.getByRole("button", { name: /der Kaffee/ }));
+  fireEvent.click(view.getByRole("button", { name: /der\sKaffee/ }));
   const sheet = within(await view.findByRole("dialog"));
   // The card type, and the answer given to it.
   expect(sheet.getAllByText("Word → meaning")).toHaveLength(2);
