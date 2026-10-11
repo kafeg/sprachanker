@@ -1,6 +1,7 @@
 // OpenAI's own API through the OpenAI-compatible client: what sets it apart (07, "Providers").
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { chatBody, REASONING_ROOM } from "../src/client.ts";
+import type { LlmError } from "../src/errors.ts";
 import { PROVIDERS, providerClient, providerRequest } from "../src/providers.ts";
 import { bodies, collect, fakeFetch, sse } from "./fake-http.ts";
 
@@ -189,6 +190,45 @@ describe("OpenAI", () => {
       [false, true],
       [false, true],
     ]);
+  });
+
+  test("a refusal is refused; a reply cut at its limit keeps its text, never runs its calls, and is logged", async () => {
+    const declined = await providerClient(
+      openai,
+      endpoint,
+      fakeFetch(() =>
+        Response.json({
+          choices: [{ message: { content: null, refusal: "I can't help with that." } }],
+        }),
+      ).fn,
+    )
+      .complete({ model: "gpt-4.1", messages: [{ role: "user", content: "?" }] })
+      .catch((e: LlmError) => e);
+    expect((declined as LlmError).code).toBe("refused");
+    const warn = spyOn(console, "warn").mockImplementation(() => {});
+    const ran: unknown[] = [];
+    const cut = await collect(
+      providerClient(
+        openai,
+        endpoint,
+        fakeFetch(() =>
+          sse([
+            delta("Ich schaue "),
+            toolDelta({ index: 0, id: "c1", function: { name: "find", arguments: '{"wo' } }),
+            `data: ${JSON.stringify({ choices: [{ delta: {}, finish_reason: "length" }] })}\n\n`,
+            "data: [DONE]\n\n",
+          ]),
+        ).fn,
+      ).chat({
+        model: "gpt-4.1",
+        messages: [{ role: "user", content: "?" }],
+        tools: [{ name: "find", description: "d", parameters: { type: "object" } }],
+        runTool: async () => ran.push(1),
+      }),
+    );
+    expect([cut, ran]).toEqual(["Ich schaue ", []]);
+    expect(String(warn.mock.calls[0]?.[0])).toContain("gpt-4.1's reply reached its token limit");
+    warn.mockRestore();
   });
 
   test("a schema strict mode cannot take is sent again not strict, before going without", async () => {

@@ -1282,6 +1282,7 @@
     "llm_not_configured": "Wybierz model w Ustawieniach → Asystent AI.",
     "llm_overloaded": "Dostawca jest teraz przeciążony. Spróbuj ponownie za chwilę.",
     "llm_rate_limited": "Limit dostawcy jest na razie wyczerpany (plany darmowe ograniczają zapytania na minutę i na dzień). Spróbuj później albo wybierz inny model w Ustawieniach → Asystent AI.",
+    "llm_refused": "Model odmówił odpowiedzi na to.",
     "llm_timeout": "Model odpowiadał zbyt długo.",
     "llm_unauthorized": "Klucz API nie został przyjęty.",
     "llm_unreachable": "Serwer nie odpowiada. Sprawdź adres.",

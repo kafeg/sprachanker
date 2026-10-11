@@ -1282,6 +1282,7 @@
     "llm_not_configured": "Chagua modeli katika Mipangilio → Msaidizi wa AI.",
     "llm_overloaded": "Mtoa huduma ana mzigo mkubwa sasa hivi. Jaribu tena baada ya muda mfupi.",
     "llm_rate_limited": "Kikomo cha mtoa huduma kimefikiwa kwa sasa (viwango vya bure hupunguza maombi kwa dakika na kwa siku). Jaribu tena baadaye, au chagua modeli nyingine katika Mipangilio → Msaidizi wa AI.",
+    "llm_refused": "Modeli imekataa kujibu hili.",
     "llm_timeout": "Modeli ilichukua muda mrefu mno kujibu.",
     "llm_unauthorized": "Ufunguo wa API haukukubaliwa.",
     "llm_unreachable": "Seva haijibu. Kagua anwani.",

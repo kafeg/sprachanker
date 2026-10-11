@@ -1,5 +1,5 @@
 // Anthropic's Messages API (07, "Providers") against a fake server: no request leaves the test.
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { z } from "zod";
 import { anthropicMessages } from "../src/anthropic.ts";
 import { REASONING_ROOM } from "../src/client.ts";
@@ -335,6 +335,42 @@ describe("Anthropic", () => {
         ],
       },
     ]);
+  });
+
+  test("a reply the model declined is refused, streamed or whole; one cut at its limit keeps its text, never runs its calls, and is logged", async () => {
+    const ask = (respond: () => Response, runTool?: () => Promise<unknown>) =>
+      collect(
+        client(respond).client.chat({
+          model: "claude-haiku-4-5",
+          messages: [{ role: "user", content: "?" }],
+          ...(runTool && { tools: TOOLS, runTool }),
+        }),
+      ).catch((e: LlmError) => e);
+    expect(((await ask(() => reply(textBlock(0, "Ich"), end("refusal")))) as LlmError).code).toBe(
+      "refused",
+    );
+    const whole = await client(() =>
+      Response.json({ content: [{ type: "text", text: "" }], stop_reason: "refusal" }),
+    )
+      .client.complete({ model: "claude-haiku-4-5", messages: [{ role: "user", content: "?" }] })
+      .catch((e: LlmError) => e);
+    expect((whole as LlmError).code).toBe("refused");
+    const warn = spyOn(console, "warn").mockImplementation(() => {});
+    const ran: unknown[] = [];
+    const cut = await ask(
+      () =>
+        reply(
+          textBlock(0, "Ich schaue "),
+          toolBlock(1, "toolu_1", "get_progress", '{"less'),
+          end("max_tokens"),
+        ),
+      async () => ran.push(1),
+    );
+    expect([cut, ran]).toEqual(["Ich schaue ", []]);
+    expect(String(warn.mock.calls[0]?.[0])).toContain(
+      "claude-haiku-4-5's reply reached its token limit",
+    );
+    warn.mockRestore();
   });
 
   test("a stream ending before message_stop broke off: unreachable, its tool call never run", async () => {

@@ -1282,6 +1282,7 @@
     "llm_not_configured": "Ayarlar → Yapay zekâ asistanı bölümünden bir model seç.",
     "llm_overloaded": "Sağlayıcı şu anda aşırı yüklü. Birazdan tekrar dene.",
     "llm_rate_limited": "Sağlayıcının sınırına şimdilik ulaşıldı (ücretsiz katmanlar dakika ve gün başına istekleri sınırlar). Daha sonra tekrar dene ya da Ayarlar → Yapay zekâ asistanı bölümünden başka bir model seç.",
+    "llm_refused": "Model buna yanıt vermeyi reddetti.",
     "llm_timeout": "Modelin cevap vermesi çok uzun sürdü.",
     "llm_unauthorized": "API anahtarı kabul edilmedi.",
     "llm_unreachable": "Sunucu cevap vermiyor. Adresi kontrol et.",

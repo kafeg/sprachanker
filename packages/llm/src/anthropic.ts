@@ -16,10 +16,12 @@ import {
 import { LlmError } from "./errors.ts";
 import {
   CHAT_LIMITS,
+  cutShort,
   endpointCaller,
   type Limits,
   MODELS_TIMEOUT_MS,
   readJson,
+  refusal,
   relaxing,
   TimeLimit,
 } from "./http.ts";
@@ -203,6 +205,7 @@ type StreamEvent = {
     partial_json?: string;
     thinking?: string;
     signature?: string;
+    stop_reason?: string | null;
   };
   error?: { type?: string; message?: string };
 };
@@ -213,16 +216,19 @@ const KEPT = new Set(["text", "tool_use", "thinking", "redacted_thinking"]);
 /**
  * A streamed reply's text as it comes and, at the end, its tool calls with the reply's blocks
  * (thinking included: a model that thought before calling a tool is shown its thinking again). A
- * stream that ends before `message_stop` broke off: `unreachable`, its tool calls never run.
+ * stream that ends before `message_stop` broke off: `unreachable`, its tool calls never run; a
+ * reply the model declined is `refused`; one cut at its token limit keeps its text, not its calls.
  */
 export async function* anthropicEvents(
   res: Response,
   stop: AbortSignal,
   onData: () => void,
+  onCut: () => void = () => {},
 ): AsyncIterable<RoundEvent> {
   const blocks: AnthropicBlock[] = [];
   const inputs: string[] = [];
   let ended = false;
+  let stopReason: string | null | undefined;
   for await (const data of sseData(res, stop, onData)) {
     let event: StreamEvent;
     try {
@@ -237,7 +243,8 @@ export async function* anthropicEvents(
       ended = true;
       break;
     }
-    if (event.type === "content_block_start" && event.content_block) {
+    if (event.type === "message_delta") stopReason = event.delta?.stop_reason ?? stopReason;
+    else if (event.type === "content_block_start" && event.content_block) {
       blocks[i] = { ...event.content_block };
       inputs[i] = "";
     } else if (event.type === "content_block_delta" && block && event.delta) {
@@ -254,6 +261,8 @@ export async function* anthropicEvents(
       block.input = toolInput(inputs[i] ?? "");
   }
   if (!ended) throw new LlmError("unreachable", "the reply broke off before its end");
+  if (stopReason === "refusal") throw refusal();
+  if (stopReason === "max_tokens") return onCut();
   const turn = blocks.filter((b) => b && KEPT.has(b.type) && !(b.type === "text" && !b.text));
   const calls: ToolCall[] = turn.flatMap((b) =>
     b.type === "tool_use"
@@ -346,7 +355,8 @@ export function anthropic(
               NAMED,
             );
           },
-          events: anthropicEvents,
+          events: (res, stop, onData) =>
+            anthropicEvents(res, stop, onData, () => cutShort(base, request.model)),
           answered: (messages, round, results, note) =>
             append(
               append(messages, {
@@ -400,9 +410,12 @@ export function anthropic(
             );
             const json = await readJson<{
               content?: AnthropicBlock[];
+              stop_reason?: string | null;
               error?: { type?: string; message?: string };
             }>(res, base, limit, request.signal);
             if (json?.error) throw apiError(json.error);
+            if (json?.stop_reason === "refusal") throw refusal();
+            if (json?.stop_reason === "max_tokens") cutShort(base, request.model);
             if (!Array.isArray(json?.content)) throw new LlmError("bad_response", "no reply");
             return json.content
               .flatMap((b) => (b.type === "text" ? [b.text] : []))

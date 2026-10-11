@@ -50,6 +50,13 @@ export function readFailure(error: unknown, base: string, limit: TimeLimit, sign
   return new LlmError("unreachable", `${base}: the connection broke off`);
 }
 
+/** A reply cut at its token limit is kept as it came (a reply carries no mark of it): the log says so. */
+export const cutShort = (base: string, model: string) =>
+  console.warn(`${base}: ${model}'s reply reached its token limit`);
+
+/** The model declined to answer. */
+export const refusal = () => new LlmError("refused", "the model declined to answer");
+
 /** The usual key header: `Authorization: Bearer <key>` (none without a key). */
 export const bearer = (apiKey: string | undefined): Record<string, string> =>
   apiKey ? { authorization: `Bearer ${apiKey}` } : {};

@@ -51,17 +51,20 @@ export async function* sseData(
 
 /**
  * Text deltas and, at the end, the tool calls of an OpenAI-style server-sent event stream. A stream
- * that ends before `[DONE]` or a `finish_reason` broke off: `unreachable`, its tool calls never run.
+ * that ends before `[DONE]` or a `finish_reason` broke off: `unreachable`, its tool calls never run;
+ * one cut at its token limit (`length`) keeps its text, not its calls.
  */
 export async function* streamEvents(
   res: Response,
   stop: AbortSignal,
   onData: () => void,
+  onCut: () => void = () => {},
 ): AsyncIterable<{ text?: string; toolCalls?: ToolCall[] }> {
   // Tool calls arrive in pieces, by index: id and name first, then the arguments. A server that sends
   // no index sends one call at a time: a delta with an id starts the next call.
   const calls: ToolCall[] = [];
   let ended = false;
+  let cut = false;
   for await (const data of sseData(res, stop, onData)) {
     if (data === "[DONE]") {
       ended = true;
@@ -69,7 +72,8 @@ export async function* streamEvents(
     }
     const chunk = parseChunk(data);
     if (chunk.error) throw new LlmError("bad_response", chunk.error);
-    if (chunk.finished) ended = true;
+    if (chunk.finish) ended = true;
+    if (chunk.finish === "length") cut = true;
     const text = chunk.text?.replace(SPECIAL_TOKEN, "");
     if (text) yield { text };
     for (const part of chunk.toolCalls ?? []) {
@@ -86,6 +90,7 @@ export async function* streamEvents(
     }
   }
   if (!ended) throw new LlmError("unreachable", "the reply broke off before its end");
+  if (cut) return onCut();
   const complete = calls.filter((c) => c?.function.name);
   if (complete.length) yield { toolCalls: complete };
 }
@@ -100,8 +105,8 @@ function parseChunk(data: string): {
   text?: string;
   toolCalls?: ToolCallDelta[];
   error?: string;
-  /** The choice's `finish_reason` came: the reply is whole. */
-  finished?: boolean;
+  /** The choice's `finish_reason`, when it came: the reply is whole. */
+  finish?: string;
 } {
   try {
     const json = JSON.parse(data) as {
@@ -117,7 +122,7 @@ function parseChunk(data: string): {
     return {
       text: typeof delta?.content === "string" ? delta.content : undefined,
       toolCalls: delta?.tool_calls,
-      finished: !!choice?.finish_reason,
+      finish: choice?.finish_reason ?? undefined,
     };
   } catch {
     return {};

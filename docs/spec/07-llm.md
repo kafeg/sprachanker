@@ -187,7 +187,10 @@ most three corrections and a model text (third phase).
   later or choose another model); Anthropic's 529 (or an `overloaded_error` in its stream) is
   `overloaded` (try again in a moment); the provider's `retry-after`, when given, goes with either
   (`retryAfter`, seconds, in the 502 body); a wrong key is `unauthorized` (401, 403, or Gemini's 400
-  saying so). Inline `<think>…</think>` output is stripped.
+  saying so). A reply the model declined (Anthropic's `stop_reason: "refusal"`, OpenAI's `refusal`)
+  is `refused`; one cut at its token limit (`max_tokens`, `finish_reason: "length"`) keeps its text,
+  noted in the server's log (a reply carries no mark of it), and never runs its tool calls. Inline
+  `<think>…</think>` output is stripped.
 - **Time limits**: a request may take 180 s to its first byte (a local server may load the model
   first), then 60 s of silence between chunks of a streamed reply, so a slow model writing a long
   reply is never cut off; a limit run out is `timeout`, a connection dropped mid-reply `unreachable` —

@@ -1282,6 +1282,7 @@
     "llm_not_configured": "Choose a model in Settings → AI assistant.",
     "llm_overloaded": "The provider is overloaded right now. Try again in a moment.",
     "llm_rate_limited": "The provider's limit is reached for now (free tiers limit requests per minute and per day). Try again later, or choose another model in Settings → AI assistant.",
+    "llm_refused": "The model declined to answer this.",
     "llm_timeout": "The model took too long to answer.",
     "llm_unauthorized": "The API key was not accepted.",
     "llm_unreachable": "The server does not answer. Check the address.",

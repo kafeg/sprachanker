@@ -4,10 +4,12 @@ import { LlmError } from "./errors.ts";
 import {
   bearer,
   CHAT_LIMITS,
+  cutShort,
   endpointCaller,
   type Limits,
   MODELS_TIMEOUT_MS,
   readJson,
+  refusal,
   relaxing,
   TimeLimit,
 } from "./http.ts";
@@ -256,7 +258,8 @@ export function openAiCompatible(
                   }),
                 NAMED,
               ),
-            events: streamEvents,
+            events: (res, stop, onData) =>
+              streamEvents(res, stop, onData, () => cutShort(base, request.model)),
             answered: (messages, round, results, note) => [
               ...messages,
               { role: "assistant", content: round.text, tool_calls: round.calls },
@@ -295,9 +298,16 @@ export function openAiCompatible(
           try {
             const res = await post({ ...body, stream: false }, limit, request.signal);
             const json = await readJson<{
-              choices?: Array<{ message?: { content?: unknown } }>;
+              choices?: Array<{
+                message?: { content?: unknown; refusal?: unknown };
+                finish_reason?: string | null;
+              }>;
             }>(res, base, limit, request.signal);
-            const content = json?.choices?.[0]?.message?.content;
+            const choice = json?.choices?.[0];
+            if (typeof choice?.message?.refusal === "string" && choice.message.refusal)
+              throw refusal();
+            if (choice?.finish_reason === "length") cutShort(base, request.model);
+            const content = choice?.message?.content;
             if (typeof content !== "string") throw new LlmError("bad_response", "no reply");
             return content
               .replace(/<think>[\s\S]*?<\/think>/g, "")
