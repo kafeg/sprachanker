@@ -9,7 +9,7 @@ import {
   shownOptions,
   TILES,
   useNumberKeys,
-  useShuffled,
+  useOptionOrder,
 } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
@@ -65,7 +65,7 @@ export function SingleChoice({
   active,
   locale,
 }: RendererProps<"single_choice">) {
-  const options = useShuffled(shownOptions(item.options, locale), item.key);
+  const options = useOptionOrder(shownOptions(item.options, locale), item.key);
   const right = item.answer.optionIds[0];
   return (
     <Options
@@ -96,7 +96,7 @@ export function MultiChoice({
   locale,
 }: RendererProps<"multi_choice">) {
   const { t } = useTranslation();
-  const options = useShuffled(shownOptions(item.options, locale), item.key);
+  const options = useOptionOrder(shownOptions(item.options, locale), item.key);
   const chosen = new Set(answer?.optionIds ?? []);
   const right = new Set(item.answer.optionIds);
   const toggle = (id: string) => {

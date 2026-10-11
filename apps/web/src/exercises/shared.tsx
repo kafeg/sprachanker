@@ -53,6 +53,32 @@ export function useShuffled<T>(items: T[], seed: string): T[] {
   return useMemo(() => (keep ? items : shuffled(items, `${pass}:${seed}`)), [pass, seed, keep]);
 }
 
+/** What tells an option apart in its order: its text, else its picture, else its id. */
+const optionName = (o: ShownOption) => o.text ?? o.learnerText ?? o.media?.image ?? o.id;
+
+/**
+ * A choice's options in the order shown in a pass: shuffled, one order for every item of the exercise
+ * with the same options (Richtig/Falsch keep their places from item to item), a sequence — every
+ * option a number ("1", "8 Uhr") — in its own order. Pure.
+ */
+export function optionOrder(options: ShownOption[], itemKey: string, pass: string): ShownOption[] {
+  if (options.every((o) => /^\s*\d/.test(optionName(o)))) return options;
+  const byName = [...options].sort((a, b) => optionName(a).localeCompare(optionName(b)));
+  const exercise = itemKey.split("#")[0];
+  return shuffled(byName, `${pass}:${exercise}:${byName.map(optionName).join("|")}`);
+}
+
+/** `optionOrder` in the pass shown (the source's order within an exam). */
+export function useOptionOrder(options: ShownOption[], itemKey: string): ShownOption[] {
+  const pass = useContext(ShuffleSeed);
+  const keep = useContext(SourceOrder);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reordered only for another item or pass
+  return useMemo(
+    () => (keep ? options : optionOrder(options, itemKey, pass)),
+    [pass, itemKey, keep],
+  );
+}
+
 /** An option checked: chosen and right, chosen and wrong, or right and not chosen (missed). */
 export type Mark = "correct" | "wrong" | "missed" | undefined;
 
