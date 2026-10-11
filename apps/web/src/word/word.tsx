@@ -24,9 +24,18 @@ export function GenderWord({
   className?: string;
 }) {
   const lang = useTargetLang();
+  // What goes with the word before it ("(auf etwas) an|stoßen"): small, the word the headword.
+  const optional = /^(\([^)]*\))\s+(\S[\s\S]*)$/.exec(text);
   return (
     <span lang={lang} className={cn("font-semibold", gender && COLOUR[gender], className)}>
-      {articlesKept(text)}
+      {optional ? (
+        <>
+          <span className="text-[0.6em] font-normal text-muted-foreground">{optional[1]}</span>{" "}
+          {articlesKept(optional[2] ?? "")}
+        </>
+      ) : (
+        articlesKept(text)
+      )}
     </span>
   );
 }

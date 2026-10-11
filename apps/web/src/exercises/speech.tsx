@@ -11,6 +11,7 @@ import { TakeButton } from "@/audio/take-button.tsx";
 import { clock } from "@/ui/format.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { keptTogether } from "./shared.tsx";
 import type { RendererProps } from "./types.ts";
 
 /** What the recogniser heard (08): against the phrase to say, its words matched and missed with a
@@ -217,7 +218,7 @@ export function SpeechSelfrate({
               !textShown && "select-none blur-md",
             )}
           >
-            {item.text}
+            {keptTogether(item.text)}
           </p>
           {!textShown && (
             <button
@@ -235,7 +236,7 @@ export function SpeechSelfrate({
         <div>
           <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
           <p dir="auto" className="whitespace-pre-line text-lg font-medium">
-            {locale.prompt}
+            {keptTogether(locale.prompt)}
           </p>
         </div>
       )}
@@ -329,7 +330,7 @@ export function SpeechRepeat({
         lang={lang}
         className="whitespace-pre-line font-heading text-2xl font-semibold text-balance"
       >
-        {item.text}
+        {keptTogether(item.text)}
       </p>
       {!readOnly && !outcome && (
         <div className="flex flex-wrap items-start justify-center gap-4">

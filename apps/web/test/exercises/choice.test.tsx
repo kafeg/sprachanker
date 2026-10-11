@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { ItemCard } from "../../src/exercises/item-card.tsx";
-import { TILE } from "../../src/exercises/shared.tsx";
+import { keptTogether, TILE } from "../../src/exercises/shared.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -62,4 +62,11 @@ test("text options each have their row, long or short, and keep it once checked"
 
 test("a tile is one width whatever its text: it never grows past its share of the row", () => {
   expect(TILE).toContain("min-w-0");
+});
+
+test("an ellipsis stays with the word before it, a number with its short unit", () => {
+  expect(keptTogether("wissen Sie vielleicht, ...?")).toBe("wissen Sie vielleicht, ...?");
+  expect(keptTogether("Ich komme aus …")).toBe("Ich komme aus …");
+  expect(keptTogether("… kommst du?")).toBe("… kommst du?");
+  expect(keptTogether("2 KM weit, 10 % mehr, 3 Kinder")).toBe("2 KM weit, 10 % mehr, 3 Kinder");
 });

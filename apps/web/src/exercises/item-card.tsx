@@ -12,6 +12,7 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GapRoom, gapRoom } from "./gaps.tsx";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
+import { keptTogether } from "./shared.tsx";
 
 /** The prompt every item of an exercise has alike (two items or more), to show once above them
  *  instead of in each card; else none. The data keeps it per item. */
@@ -41,10 +42,12 @@ export function SharedPrompt({
     <div className={className}>
       {shared.target && (
         <p lang={lang} className="text-lg font-semibold text-balance">
-          {shared.target}
+          {keptTogether(shared.target)}
         </p>
       )}
-      {shared.learner && <p className="text-lg font-semibold text-balance">{shared.learner}</p>}
+      {shared.learner && (
+        <p className="text-lg font-semibold text-balance">{keptTogether(shared.learner)}</p>
+      )}
     </div>
   );
 }
@@ -128,11 +131,11 @@ export function ItemCard({
       <div className="mb-3 empty:hidden">
         {item.prompt && !promptAbove && (
           <p lang={lang} className="text-lg font-semibold text-balance">
-            {item.prompt}
+            {keptTogether(item.prompt)}
           </p>
         )}
         {loc?.prompt && !promptAbove && !cueFirst && (
-          <p className="text-lg font-semibold text-balance">{loc.prompt}</p>
+          <p className="text-lg font-semibold text-balance">{keptTogether(loc.prompt)}</p>
         )}
         {loc?.hintHtml && (
           <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />

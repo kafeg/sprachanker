@@ -68,6 +68,13 @@ export const shownOptions = (options: Option[], locale: LocaleItem | undefined):
     ...(locale?.alt?.[o.id] !== undefined && { alt: locale.alt[o.id] }),
   }));
 
+/** An exercise's line with no break where a lone piece would be left: an ellipsis stays with the
+ *  word before it ("vielleicht, …?"), a number with its short unit ("2 km"). Pure. */
+export const keptTogether = (text: string) =>
+  text
+    .replace(/(?<=\S)[ \t]+(?=\.\.\.|…)/g, " ")
+    .replace(/(?<=\d) (?=(?:[\p{L}]{1,3}|[%°€$])(?![\p{L}]))/gu, " ");
+
 export function OptionContent({
   option,
   url,
@@ -97,15 +104,15 @@ export function OptionContent({
       <span className="flex flex-col items-center gap-1">
         {picture}
         <span lang={lang} className="text-base">
-          {option.text}
+          {keptTogether(option.text)}
         </span>
       </span>
     );
   }
   // The learner's language is the page's: no `lang` of the target's on it.
   if (option.text === undefined && option.learnerText !== undefined)
-    return <span>{option.learnerText}</span>;
-  return <span lang={lang}>{option.text}</span>;
+    return <span>{keptTogether(option.learnerText)}</span>;
+  return <span lang={lang}>{option.text && keptTogether(option.text)}</span>;
 }
 
 /** A written answer's box (dictation, respond) over the ui Textarea: large type, it grows with the
@@ -192,7 +199,7 @@ export function OptionButton({
       onClick={onClick}
       className={cn(
         // A word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
-        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition [overflow-wrap:anywhere]",
+        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg text-pretty transition [overflow-wrap:anywhere]",
         // A text option has its row and keeps room for its mark: checking moves nothing.
         fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "w-full pr-11",
         !disabled && "hover:border-primary/60",
