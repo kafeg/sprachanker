@@ -6,8 +6,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type MyWord, useWords } from "@/api/cards.ts";
 import { useDeckName } from "@/study/decks.ts";
-import { useDueText } from "@/study/time.ts";
-import { COUNT_TONE } from "@/study/tones.ts";
 import { WordSheet } from "@/study/word-sheet.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { ListRow } from "@/ui/history.tsx";
@@ -16,6 +14,8 @@ import { panelClass } from "@/ui/panel.tsx";
 import { SearchField } from "@/ui/search-field.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { useDueText } from "@/word/time.ts";
+import { COUNT_TONE } from "@/word/tones.ts";
 import { GenderWord } from "@/word/word.tsx";
 
 const STATES = ["all", "new", "learning", "review", "suspended", "marked"] as const;

@@ -697,7 +697,9 @@
       "newCards": "Нових карток",
       "remembered": "Пригадано",
       "rememberedHint": "із карток на повторенні",
-      "ai": "Практика з ШІ"
+      "ai": "Практика з ШІ",
+      "time": "Час навчання",
+      "timeHint": "перерва рахується не більше ніж 5 хвилин"
     },
     "examRuns": "Пробні іспити й тренування",
     "noExamRuns": "Ще нічого не здано.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Пройдено уроків",
-        "best": "Найкращий результат"
+        "best": "Найкращий результат",
+        "coursesDone": "Пройдено курсів"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Відкрити колоди",
       "exam": "Усе про цей іспит"
+    },
+    "answers": "{count, plural, one {# відповідь} few {# відповіді} many {# відповідей} other {# відповіді}}",
+    "reviewDay": "Повторення {date}",
+    "dayAnswers": "Відповіді",
+    "noAnswers": "За цей день відповідей не лишилося: скасовані відповіді не зберігаються.",
+    "cardGone": "картки вже немає",
+    "intervalHint": "Коли картка повернеться після цієї відповіді",
+    "tookHint": "Скільки картка була на екрані до відповіді (не більше хвилини)",
+    "earlierDay": "Попередній день",
+    "laterDay": "Наступний день",
+    "chart": {
+      "by": {
+        "day": "по днях",
+        "week": "по тижнях",
+        "month": "по місяцях"
+      },
+      "weekOf": "тиждень від {date}",
+      "seen": "Повторні",
+      "cardsTitle": "{when}: {count, plural, one {# картка} few {# картки} many {# карток} other {# картки}}, нових {fresh, number}",
+      "noneRecalled": "{when}: відповідей на картки на повторенні немає",
+      "rememberedTitle": "{when}: {share} з {count, plural, one {# відповіді} few {# відповідей} many {# відповідей} other {# відповіді}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "уроки {time}",
+        "exam": "іспити {time}",
+        "review": "картки {time}",
+        "ai": "ШІ {time}"
+      },
+      "doneTitle": "{when}: пройдено {count, plural, one {# урок} few {# уроки} many {# уроків} other {# уроку}}, усього {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Слова за станом: {parts}"
     }
   },
   "study": {

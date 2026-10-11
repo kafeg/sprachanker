@@ -55,7 +55,7 @@ src/
                      #   exam-runs (mock exams and practice taken; overdue ones handed in on reading)
                      # - review: cards (from lesson words or an imported deck; decks taken, left;
                      #   relinking), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
-                     #   marks; standing), words, decks (imported .apkg decks, server-wide: preview,
+                     #   marks; standing, a review day in full), words, decks (imported .apkg decks, server-wide: preview,
                      #   import — the same deck again updated —, list, delete while no profile uses it),
                      #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
                      #   extras.json read once, a job per deck and kind, sweeping course folders),

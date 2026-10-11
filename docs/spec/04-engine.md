@@ -96,13 +96,25 @@ Pure functions over events and cards (05), read by the server per request:
   lessons, exams, review, AI practice; a run's module is its kind's) — lesson work (answers, skips,
   steps), exam answers, card answers (one taken back by undo does not count), new cards learnt, answers
   to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
-  checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) — and the totals of a
-  span of days. The day starts at 4 AM (Spaced repetition, below).
+  checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) —, the time each
+  module took, and the totals of a span of days. The day starts at 4 AM (Spaced repetition, below).
+  Time spent (owner, 2026-10-07): a card answer's own, measured from the card shown to its rating and
+  kept at most a minute (Anki's maximum answer time: a card left open in an idle tab is a minute,
+  not hours; answers from before it was measured count none); in every other run, from each event to
+  the run's next, at most five minutes (`IDLE_MS`: the learner away longer counts that much),
+  on the later event's day.
+- **Over time** (`learner/series.ts`, the Notebook's pictures): a span — the last 7 or 30 days by day;
+  all time from the first study day by week (by day while that is within 30 days, by month past 26
+  weeks; a week from the language's first day, 09) — cut into bars, each with its days' totals
+  (cards, new cards, the share remembered, time), and how many lessons and courses had been done by
+  each bar's end (a lesson's first completion; a course's when its last lesson is first done).
 
 Every module reports what the Notebook shows of it the same way (schema `stats.ts`: its headline
 figures, its entries with their figures and latest runs; the server's modules each give their
-`standing`): the words known (every face of the note in review) and each deck (`srs/deck.ts`) are
-review's, the lessons done and worked on the lessons', the mock exams handed in the exams'. Planned:
+`standing`): the words known (every face of the note in review) and each deck (`srs/deck.ts`) with
+the review days it was studied on are review's, the lessons and courses done (each with when it was
+first done: a figure over time) and the lessons worked on the lessons', the mock exams handed in the
+exams'. Planned:
 mistakes by rule and lexeme, rule mastery, weak spots,
 "Practise this", the can-do list (plan, "Enrichment and rules").
 
@@ -128,7 +140,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
 - **Counts** as in Anki: new · learning · to review, the current card's queue underlined.
 - **The reviewer**: the question; Show answer (Space, Enter, a tap) shows the question and the answer
   under a line; Again, Hard, Good, Easy (1–4; Space/Enter is Good) with the next interval on each.
-  Undo (U, Ctrl+Z) takes back today's latest answer in the deck being studied (one in another deck
+  How long the card was shown before its rating goes with the answer (at most a minute, Learner
+  model). Undo (U, Ctrl+Z) takes back today's latest answer in the deck being studied (one in another deck
   is not this one's: a lesson's "Words" step never takes back the morning's review) and shows that
   card next. The More menu: replay audio (R, F5), bury card or note until tomorrow (-, =), suspend card or note (@, !), mark the note (*),
   seven flags (Ctrl+1–7). The word's recording plays by itself on the side that holds it. A deck's

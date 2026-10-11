@@ -3,6 +3,8 @@
 // and day; each rating is a `card_review` event in the day's `review` run, written together with the
 // face's state; undo, bury, suspend, flag and mark as in Anki's reviewer.
 import {
+  activityByDay,
+  answerMs,
   type CardEvent,
   cardDay,
   type DeckWord,
@@ -24,6 +26,7 @@ import {
   type LessonKey,
   type ModuleStanding,
   parseEditionId,
+  STANDING_RUNS,
   type StandingEntry,
   seriesOf,
 } from "@sprachanker/schema";
@@ -31,7 +34,7 @@ import { ServiceError } from "../errors.ts";
 import type { CardStore, Note } from "./card-store.ts";
 import { type Content, courseTitle } from "./content.ts";
 import type { Decks } from "./decks.ts";
-import type { RunStore } from "./run-store.ts";
+import { headerOf, type RunStore } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
 
 /**
@@ -149,7 +152,8 @@ export function createStudy(deps: {
   /**
    * Review's standing (schema `stats.ts`): the words known (every face of the note in review), and
    * each language's deck — its words by state, what is due today, by tomorrow and within a week, its
-   * answers of the last 30 days and the share of reviewed cards remembered.
+   * answers of the last 30 days and the share of reviewed cards remembered, and the review days it
+   * was studied on (the latest first, each with its answers in it), each opening the day in full.
    */
   function standing(): ModuleStanding {
     const states = cards.states();
@@ -160,6 +164,7 @@ export function createStudy(deps: {
     const answers = cardDay(
       store.eventsWhere({ types: ["card_review", "card_undo"] }) as CardEvent[],
     ).answers;
+    const days = new Map(store.all("review").map((r) => [r.id, r]));
     const languages = [...new Set(notes.map((n) => n.lang))].sort();
     const entries = languages.map((language): StandingEntry => {
       const own = notes.filter((n) => n.lang === language);
@@ -174,12 +179,19 @@ export function createStudy(deps: {
       }));
       const deck = deckStanding(words, deckAnswers, today);
       const count = (id: string, value: number) => ({ id, value });
+      // The review days with answers in this deck, the latest first, each with how many.
+      const perDay = new Map<string, number>();
+      for (const a of deckAnswers) perDay.set(a.runId, (perDay.get(a.runId) ?? 0) + 1);
+      const studied = [...perDay].flatMap(([id, n]) => {
+        const row = days.get(id);
+        return row ? [{ ...headerOf(row), count: n }] : [];
+      });
       return {
         key: language,
         title: null,
         lastAt: deckAnswers[0]?.ts ?? 0,
         open: false,
-        runCount: 0,
+        runCount: studied.length,
         figures: [
           ...Object.entries(deck.words).map(([id, n]) => count(id, n)),
           { id: "remembered", value: deck.remembered ?? null, share: true, count: deck.answers },
@@ -187,15 +199,66 @@ export function createStudy(deps: {
           count("dueTomorrow", deck.due.tomorrow),
           count("dueWeek", deck.due.week),
         ],
-        runs: [],
+        runs: studied.slice(0, STANDING_RUNS),
       };
     });
     return { module: "review", figures: [{ id: "wordsKnown", value: wordsKnown }], entries };
   }
 
+  /**
+   * A review day in full (the Notebook's page of it, as a lesson's pass): its answers not taken back,
+   * oldest first — each card as it shows now (none when it is gone), the side, the rating, the
+   * interval it gave and how long it took (where measured) —, what the day held (engine
+   * `activityByDay`), and the review days with answers before and after it.
+   */
+  function reviewDay(runId: string) {
+    const row = store.get(runId, "review");
+    if (!row) throw new ServiceError("no_such_run", 404);
+    const events = store.events(runId, ["card_review", "card_undo"]) as CardEvent[];
+    const answers = cardDay(events).answers;
+    const notes = new Map(cards.all().map((n) => [n.id, n]));
+    const studied = store.lastActivity(["card_review"]);
+    const days = store.all("review").filter((r) => studied.has(r.id));
+    const at = days.findIndex((r) => r.id === runId);
+    const day = activityByDay(
+      events,
+      () => row.startedAt,
+      () => "review",
+    )[0];
+    return {
+      run: headerOf(row),
+      answers: answers.map((a) => {
+        const note = notes.get(a.cardId);
+        return {
+          id: a.id,
+          ts: a.ts,
+          cardId: a.cardId,
+          face: a.face,
+          rating: a.review.rating,
+          /** From the answer to the side's next due. */
+          interval: a.review.stateAfter.due - a.ts,
+          ms: a.review.ms ?? null,
+          card: note ? { display: note.display, lang: note.lang } : null,
+        };
+      }),
+      day: day
+        ? {
+            answers: day.review,
+            newCards: day.newCards,
+            recalled: day.recalled,
+            remembered: day.recalled ? day.remembered / day.recalled : null,
+            ms: day.time.review,
+          }
+        : null,
+      earlier: (at > 0 && days[at - 1]?.id) || null,
+      later: (at >= 0 && days[at + 1]?.id) || null,
+    };
+  }
+
   return {
     reviewRun,
     standing,
+    reviewDay,
 
     /** Adds `count` new cards to today's limit of a deck (Anki: Custom Study → increase today's new
      *  card limit). */
@@ -293,14 +356,15 @@ export function createStudy(deps: {
 
     /**
      * Rates a face: its new state and the review event are written together. The client names the
-     * event (`id`) and says how many reviews the face had when it was shown (`reps`): a rating sent
-     * again is not applied twice, and a face rated meanwhile elsewhere (another device) is refused.
+     * event (`id`), says how many reviews the face had when it was shown (`reps`) and how long it was
+     * on screen (`ms`, kept at most a minute: engine `answerMs`): a rating sent again is not applied
+     * twice, and a face rated meanwhile elsewhere (another device) is refused.
      */
     rate(
       cardId: string,
       face: CardFace,
       rating: CardRating,
-      answer: { id: string; reps: number },
+      answer: { id: string; reps: number; ms?: number },
       deviceId?: string,
     ) {
       cards.checkFace(cards.note(cardId), face);
@@ -321,7 +385,13 @@ export function createStudy(deps: {
               id: answer.id,
               type: "card_review",
               cardId,
-              payload: { face, rating, stateBefore: before, stateAfter: after },
+              payload: {
+                face,
+                rating,
+                stateBefore: before,
+                stateAfter: after,
+                ...(answer.ms !== undefined && { ms: answerMs(answer.ms) }),
+              },
             },
           ],
           { deviceId },

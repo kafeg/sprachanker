@@ -697,7 +697,9 @@
       "newCards": "新卡片",
       "remembered": "记住率",
       "rememberedHint": "复习中的卡片",
-      "ai": "AI练习"
+      "ai": "AI练习",
+      "time": "学习时长",
+      "timeHint": "每次停顿最多计5分钟"
     },
     "examRuns": "模拟考试和练习",
     "noExamRuns": "还没有交卷。",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "已完成的课",
-        "best": "最好成绩"
+        "best": "最好成绩",
+        "coursesDone": "已完成的课程"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "打开卡组",
       "exam": "关于此考试的一切"
+    },
+    "answers": "{count, plural, other {#次作答}}",
+    "reviewDay": "{date}的复习",
+    "dayAnswers": "作答记录",
+    "noAnswers": "这一天没有保留的作答：撤销的作答不会保留。",
+    "cardGone": "卡片已不存在",
+    "intervalHint": "这次作答后卡片何时再出现",
+    "tookHint": "作答前卡片显示了多久（最多一分钟）",
+    "earlierDay": "前一天",
+    "laterDay": "后一天",
+    "chart": {
+      "by": {
+        "day": "按天",
+        "week": "按周",
+        "month": "按月"
+      },
+      "weekOf": "{date}起的一周",
+      "seen": "已见过",
+      "cardsTitle": "{when}：{count, plural, other {#张卡片}}，其中新卡片{fresh, number}张",
+      "noneRecalled": "{when}：没有复习中的卡片作答",
+      "rememberedTitle": "{when}：{count, plural, other {#次作答}}中记住{share}",
+      "timeTitle": "{when}：{time}（{what}）",
+      "timeOf": {
+        "lesson": "课{time}",
+        "exam": "考试{time}",
+        "review": "卡片{time}",
+        "ai": "AI{time}"
+      },
+      "doneTitle": "{when}：完成{count, plural, other {#课}}，累计{total, number}课",
+      "part": "{label}：{n, number}",
+      "words": "单词状态：{parts}"
     }
   },
   "study": {

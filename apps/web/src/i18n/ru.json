@@ -697,7 +697,9 @@
       "newCards": "Новых карточек",
       "remembered": "Вспомнено",
       "rememberedHint": "из карточек на повторении",
-      "ai": "Практика с ИИ"
+      "ai": "Практика с ИИ",
+      "time": "Время занятий",
+      "timeHint": "перерыв считается не больше 5 минут"
     },
     "examRuns": "Пробные экзамены и тренировки",
     "noExamRuns": "Пока ничего не сдано.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Уроков пройдено",
-        "best": "Лучший результат"
+        "best": "Лучший результат",
+        "coursesDone": "Курсов пройдено"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Открыть колоды",
       "exam": "Всё по этому экзамену"
+    },
+    "answers": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
+    "reviewDay": "Повторение {date}",
+    "dayAnswers": "Ответы",
+    "noAnswers": "За этот день ответов не осталось: отменённые ответы не сохраняются.",
+    "cardGone": "карточки больше нет",
+    "intervalHint": "Когда карточка вернётся после этого ответа",
+    "tookHint": "Сколько карточка была на экране до ответа (не больше минуты)",
+    "earlierDay": "Предыдущий день",
+    "laterDay": "Следующий день",
+    "chart": {
+      "by": {
+        "day": "по дням",
+        "week": "по неделям",
+        "month": "по месяцам"
+      },
+      "weekOf": "неделя с {date}",
+      "seen": "Повторные",
+      "cardsTitle": "{when}: {count, plural, one {# карточка} few {# карточки} many {# карточек} other {# карточки}}, новых {fresh, number}",
+      "noneRecalled": "{when}: ответов на карточки на повторении нет",
+      "rememberedTitle": "{when}: {share} из {count, plural, one {# ответа} few {# ответов} many {# ответов} other {# ответа}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "уроки {time}",
+        "exam": "экзамены {time}",
+        "review": "карточки {time}",
+        "ai": "ИИ {time}"
+      },
+      "doneTitle": "{when}: пройдено {count, plural, one {# урок} few {# урока} many {# уроков} other {# урока}}, всего {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Слова по состояниям: {parts}"
     }
   },
   "study": {

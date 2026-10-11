@@ -697,7 +697,9 @@
       "newCards": "Kartu baru",
       "remembered": "Diingat",
       "rememberedHint": "dari kartu yang diulang",
-      "ai": "Latihan dengan AI"
+      "ai": "Latihan dengan AI",
+      "time": "Waktu belajar",
+      "timeHint": "jeda dihitung paling lama 5 menit"
     },
     "examRuns": "Simulasi ujian dan latihan",
     "noExamRuns": "Belum ada yang diserahkan.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Pelajaran selesai",
-        "best": "Skor terbaik"
+        "best": "Skor terbaik",
+        "coursesDone": "Kursus selesai"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Buka dek",
       "exam": "Semua tentang ujian ini"
+    },
+    "answers": "{count, plural, other {# jawaban}}",
+    "reviewDay": "Pengulangan {date}",
+    "dayAnswers": "Jawaban",
+    "noAnswers": "Tidak ada jawaban yang tersimpan untuk hari ini: jawaban yang dibatalkan tidak disimpan.",
+    "cardGone": "kartu yang sudah tidak ada",
+    "intervalHint": "Kapan kartu kembali setelah jawaban ini",
+    "tookHint": "Berapa lama kartu ditampilkan sebelum dijawab (paling lama satu menit)",
+    "earlierDay": "Hari sebelumnya",
+    "laterDay": "Hari berikutnya",
+    "chart": {
+      "by": {
+        "day": "per hari",
+        "week": "per minggu",
+        "month": "per bulan"
+      },
+      "weekOf": "minggu mulai {date}",
+      "seen": "Pernah dilihat",
+      "cardsTitle": "{when}: {count, plural, other {# kartu}}, {fresh, number} baru",
+      "noneRecalled": "{when}: tidak ada kartu yang diulang",
+      "rememberedTitle": "{when}: {share} dari {count, plural, other {# jawaban}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "pelajaran {time}",
+        "exam": "ujian {time}",
+        "review": "kartu {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, other {# pelajaran selesai}}, total {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Kata menurut status: {parts}"
     }
   },
   "study": {

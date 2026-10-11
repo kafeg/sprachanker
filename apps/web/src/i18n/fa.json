@@ -697,7 +697,9 @@
       "newCards": "کارت‌های تازه",
       "remembered": "به یاد مانده",
       "rememberedHint": "از کارت‌های در حال مرور",
-      "ai": "تمرین با هوش مصنوعی"
+      "ai": "تمرین با هوش مصنوعی",
+      "time": "زمان صرف‌شده",
+      "timeHint": "هر مکث حداکثر ۵ دقیقه حساب می‌شود"
     },
     "examRuns": "آزمون‌های آزمایشی و تمرین",
     "noExamRuns": "هنوز چیزی تحویل نداده‌ای.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "درس‌های تمام‌شده",
-        "best": "بهترین نتیجه"
+        "best": "بهترین نتیجه",
+        "coursesDone": "دوره‌های تمام‌شده"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "باز کردن دسته‌ها",
       "exam": "همه چیز درباره این آزمون"
+    },
+    "answers": "{count, plural, one {# پاسخ} other {# پاسخ}}",
+    "reviewDay": "مرورِ {date}",
+    "dayAnswers": "پاسخ‌ها",
+    "noAnswers": "برای این روز پاسخی نمانده: پاسخِ بازگردانده نگه داشته نمی‌شود.",
+    "cardGone": "کارتی که دیگر نیست",
+    "intervalHint": "کارت پس از این پاسخ کی برمی‌گردد",
+    "tookHint": "کارت پیش از پاسخ چه مدت نمایش داده شد (حداکثر یک دقیقه)",
+    "earlierDay": "روز قبل",
+    "laterDay": "روز بعد",
+    "chart": {
+      "by": {
+        "day": "روزانه",
+        "week": "هفتگی",
+        "month": "ماهانه"
+      },
+      "weekOf": "هفتهٔ {date}",
+      "seen": "دیده‌شده",
+      "cardsTitle": "{when}: {count, plural, one {# کارت} other {# کارت}}، {fresh, number} تازه",
+      "noneRecalled": "{when}: پاسخی به کارت‌های در حال مرور نیست",
+      "rememberedTitle": "{when}: {share} از {count, plural, one {# پاسخ} other {# پاسخ}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "درس‌ها {time}",
+        "exam": "آزمون‌ها {time}",
+        "review": "کارت‌ها {time}",
+        "ai": "هوش مصنوعی {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# درس تمام شد} other {# درس تمام شد}}، روی هم {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "واژه‌ها بر پایهٔ وضعیت: {parts}"
     }
   },
   "study": {

@@ -18,6 +18,7 @@ const face = (state: number, due: number, scheduledDays = 1): FaceState => ({
 /** An answer to a card, rated `rating`, of a face `before` it in that state (null: new). */
 const answer = (ts: number, rating: number, before: number | null): CardAnswer => ({
   id: String(ts),
+  runId: "R",
   ts,
   cardId: "c",
   face: "recognition",

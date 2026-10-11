@@ -23,13 +23,6 @@ Specs: 09, 10.
 - **Accept**: catalog tests over every language; RTL screens in e2e (`e2e/rtl.e2e.ts`, run once
   `ar.json` is there).
 
-### 3. Notebook: more pictures (owner's request, 2026-10-07)
-Specs: 04, 05, 09.
-- Reviews and new cards per day, the share remembered over time, words by state (new, learning,
-  known), lessons and courses done; a review day opens to its answers as a lesson pass does.
-- Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
-- **Accept**: engine tests of the derivations; e2e on desktop and phone.
-
 ### 4. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
@@ -108,7 +101,9 @@ Taken along when an item above touches the area, or on request.
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
   beside the "Write it yourself" box, as in free answers, scenes and the tutor.
 - Notebook (09): a lesson's page opened without passes (a link) has no title — the server names it by
-  the edition of a pass.
+  the edition of a pass. Time spent outside cards is read from the gaps between a run's events (04),
+  a pass's "how long" is still from its start to its end (or last work); words known over time
+  (when each word's last side came into review) when the owner asks for it.
 - Review (09): the course map's can-do list; a word anywhere in a lesson opens its sheet (09, "word
   sheet": forms, translation, audio, examples from lessons met, answers, "add to cards").
 - Reading aloud (08): Qwen3-TTS's voice cloning and voice design (the engine has both; a voice of the

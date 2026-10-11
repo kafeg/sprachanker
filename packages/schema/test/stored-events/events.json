@@ -290,6 +290,26 @@
           "lastReview": 1791404924598
         }
       }
+    },
+    {
+      "since": "2026-10-11",
+      "payload": {
+        "face": "production",
+        "rating": 1,
+        "stateBefore": null,
+        "stateAfter": {
+          "due": 1791405524598,
+          "stability": 0.4,
+          "difficulty": 6.4,
+          "scheduledDays": 0,
+          "learningSteps": 0,
+          "reps": 1,
+          "lapses": 0,
+          "state": 1,
+          "lastReview": 1791404924598
+        },
+        "ms": 4200
+      }
     }
   ],
   "card_undo": [

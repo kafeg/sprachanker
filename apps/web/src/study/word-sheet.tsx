@@ -15,13 +15,13 @@ import { ErrorState, Loading } from "@/ui/page.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { useDueText } from "@/word/time.ts";
+import { COUNT_TONE, ratingOf } from "@/word/tones.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { DeckLink, deckOf } from "./deck-link.tsx";
 import { useDeckName } from "./decks.ts";
 import { DeckExamples } from "./examples.tsx";
 import { useStudySlots } from "./slots.ts";
-import { useDueText } from "./time.ts";
-import { COUNT_TONE, ratingOf } from "./tones.ts";
 
 /** The sheet of `word` (the list's latest copy of it, so suspend and mark show at once). */
 export function WordSheet({ word, onClose }: { word: MyWord | undefined; onClose(): void }) {

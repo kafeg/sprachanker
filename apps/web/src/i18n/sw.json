@@ -697,7 +697,9 @@
       "newCards": "Kadi mpya",
       "remembered": "Yaliyokumbukwa",
       "rememberedHint": "ya kadi zilizo katika marudio",
-      "ai": "Mazoezi na AI"
+      "ai": "Mazoezi na AI",
+      "time": "Muda uliotumika",
+      "timeHint": "pumziko halihesabiwi zaidi ya dakika 5"
     },
     "examRuns": "Mitihani ya majaribio na mazoezi",
     "noExamRuns": "Bado hakuna kilichowasilishwa.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Masomo yaliyokamilika",
-        "best": "Alama bora"
+        "best": "Alama bora",
+        "coursesDone": "Kozi zilizokamilika"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Fungua seti",
       "exam": "Kila kitu kuhusu mtihani huu"
+    },
+    "answers": "{count, plural, one {jibu #} other {majibu #}}",
+    "reviewDay": "Marudio ya {date}",
+    "dayAnswers": "Majibu",
+    "noAnswers": "Hakuna majibu yaliyohifadhiwa kwa siku hii: jibu lililotenduliwa halihifadhiwi.",
+    "cardGone": "kadi ambayo haipo tena",
+    "intervalHint": "Kadi itarudi lini baada ya jibu hili",
+    "tookHint": "Muda kadi ilionyeshwa kabla ya kujibu (isiyozidi dakika moja)",
+    "earlierDay": "Siku iliyotangulia",
+    "laterDay": "Siku inayofuata",
+    "chart": {
+      "by": {
+        "day": "kwa siku",
+        "week": "kwa wiki",
+        "month": "kwa mwezi"
+      },
+      "weekOf": "wiki ya {date}",
+      "seen": "Zilizoonekana awali",
+      "cardsTitle": "{when}: {count, plural, one {kadi #} other {kadi #}}, mpya {fresh, number}",
+      "noneRecalled": "{when}: hakuna kadi za marudio zilizojibiwa",
+      "rememberedTitle": "{when}: {share} ya {count, plural, one {jibu #} other {majibu #}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "masomo {time}",
+        "exam": "mitihani {time}",
+        "review": "kadi {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {somo # limekamilika} other {masomo # yamekamilika}}, jumla {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Maneno kwa hali: {parts}"
     }
   },
   "study": {

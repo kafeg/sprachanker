@@ -1,9 +1,9 @@
 // A learner's study days (04, "Learner model"; 09, Notebook): what each day held, read from the event
 // log and counted by module (schema `stats.ts`) — lesson work (answers, skips, steps), exam answers,
 // card reviews (an answer taken back does not count), new cards learnt, how many reviewed cards were
-// remembered, and AI practice (the learner's messages and the model's checks, in whichever run) — and
-// the totals of a span of days. Pure: the caller passes the events, the day boundary and each run's
-// module.
+// remembered, and AI practice (the learner's messages and the model's checks, in whichever run) —, the
+// time each module took, and the totals of a span of days. Pure: the caller passes the events, the
+// day boundary and each run's module.
 import {
   type DayActivity,
   type EventType,
@@ -12,6 +12,7 @@ import {
   type TypedEvent,
 } from "@sprachanker/schema";
 import { undoneReviews } from "../srs/day.ts";
+import { answerMs } from "../srs/index.ts";
 import { inReview } from "../srs/state.ts";
 
 /** What counts as work done in a lesson run: an answer, a skip, a step of the plan (words, a page read,
@@ -37,15 +38,32 @@ const empty = (start: number): DayActivity => ({
   newCards: 0,
   recalled: 0,
   remembered: 0,
+  time: { lesson: 0, exam: 0, review: 0, ai: 0 },
 });
+
+/** The longest pause between two events of a run that still counts as time spent in it: away longer,
+ *  the learner is counted this much. */
+export const IDLE_MS = 5 * 60_000;
+
+/** An event as time is read from it: its run and when it was stored. */
+export interface Moment {
+  runId: string;
+  ts: number;
+}
 
 /** The study days with something done, oldest first. `moduleOf`: the module of the run an event is in
  *  (by its kind, `MODULE_OF_KIND`) — a lesson's work and an exam's answers are told apart by it; the
- *  model's checks and the learner's messages are AI practice in whichever run they are. */
+ *  model's checks and the learner's messages are AI practice in whichever run they are.
+ *  Time spent: a card answer's own (`ms`, measured from shown to rated; none before it was measured);
+ *  in every other run, from each of its events (`moments`: every event of every run, each run's in
+ *  the order stored) to its next, at most `IDLE_MS`, counted on the later one's day in the run's
+ *  module — a page read, an exercise answered, a chat's reply waited for and the next message
+ *  written. */
 export function activityByDay(
   events: TypedEvent[],
   dayOf: (ts: number) => number,
   moduleOf: (runId: string) => ModuleId | undefined,
+  moments: ReadonlyArray<Moment> = [],
 ): DayActivity[] {
   const undone = undoneReviews(events);
   const days = new Map<number, DayActivity>();
@@ -62,6 +80,7 @@ export function activityByDay(
       const p = e.payload;
       const day = at(e.ts);
       day.review++;
+      if (p.ms) day.time.review += answerMs(p.ms);
       if (!p.stateBefore) day.newCards++;
       else if (inReview(p.stateBefore)) {
         day.recalled++;
@@ -73,13 +92,29 @@ export function activityByDay(
       else if (module === "exam" && e.type === "answered") at(e.ts).exam++;
     }
   }
+  let previous: Moment | undefined;
+  for (const m of moments) {
+    const module = previous?.runId === m.runId ? moduleOf(m.runId) : undefined;
+    const gap = previous ? Math.min(m.ts - previous.ts, IDLE_MS) : 0;
+    if (module && module !== "review" && gap > 0) at(m.ts).time[module] += gap;
+    previous = m;
+  }
   return [...days.values()].sort((a, b) => a.start - b.start);
 }
 
-/** The totals of the days from `from` on (all of them without it). */
-export function activityTotals(days: DayActivity[], from = Number.NEGATIVE_INFINITY) {
-  const span = days.filter((d) => d.start >= from);
-  const sum = (key: keyof Omit<DayActivity, "start">) => span.reduce((n, d) => n + d[key], 0);
+/** A day's time spent, every module's together (ms). */
+export const dayTime = (day: Pick<DayActivity, "time">) =>
+  MODULES.reduce((n, m) => n + day.time[m], 0);
+
+/** The totals of the days from `from` on, before `to` (all of them without them). */
+export function activityTotals(
+  days: DayActivity[],
+  from = Number.NEGATIVE_INFINITY,
+  to = Number.POSITIVE_INFINITY,
+) {
+  const span = days.filter((d) => d.start >= from && d.start < to);
+  const sum = (key: keyof Omit<DayActivity, "start" | "time">) =>
+    span.reduce((n, d) => n + d[key], 0);
   const recalled = sum("recalled");
   return {
     activeDays: span.filter((d) => MODULES.some((m) => d[m] > 0)).length,
@@ -88,7 +123,14 @@ export function activityTotals(days: DayActivity[], from = Number.NEGATIVE_INFIN
     review: sum("review"),
     newCards: sum("newCards"),
     ai: sum("ai"),
+    /** Answers to cards in review: what the share remembered is of. */
+    recalled,
     /** The share of reviewed cards remembered; undefined without any. */
     remembered: recalled ? sum("remembered") / recalled : undefined,
+    /** Time spent by module (ms), and all of it. */
+    time: Object.fromEntries(
+      MODULES.map((m) => [m, span.reduce((n, d) => n + d.time[m], 0)]),
+    ) as DayActivity["time"],
+    timeAll: span.reduce((n, d) => n + dayTime(d), 0),
   };
 }

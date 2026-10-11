@@ -33,6 +33,7 @@ const ExamCatalog = page(() => import("@/exams/catalog.tsx").then((m) => m.ExamC
 const NotebookPage = page(() => import("@/notebook/page.tsx").then((m) => m.NotebookPage));
 const ExamNotebook = page(() => import("@/notebook/exam.tsx").then((m) => m.ExamNotebook));
 const LessonNotebook = page(() => import("@/notebook/lesson.tsx").then((m) => m.LessonNotebook));
+const ReviewDay = page(() => import("@/notebook/review-day.tsx").then((m) => m.ReviewDay));
 const LessonRun = page(() => import("./runs.tsx").then((m) => m.LessonRun));
 const ExamRun = page(() => import("./runs.tsx").then((m) => m.ExamRun));
 const AssistantSetup = page(() =>
@@ -242,6 +243,28 @@ notebookExam.update({
     return <ExamNotebook params={notebookExam.useParams()} />;
   }),
 });
+// A review day in full; its neighbours open in its place, the Notebook going back.
+const notebookReview = createRoute({
+  getParentRoute: () => shell,
+  path: "/notebook/review/$run",
+});
+notebookReview.update({
+  component: opening(ReviewDay, function NotebookReviewDay() {
+    const { run } = notebookReview.useParams();
+    const navigate = notebookReview.useNavigate();
+    return (
+      <ReviewDay
+        key={run}
+        id={run}
+        go={(next) =>
+          void (next
+            ? navigate({ to: "/notebook/review/$run", params: { run: next } })
+            : navigate({ to: "/notebook" }))
+        }
+      />
+    );
+  }),
+});
 const notebookLesson = createRoute({
   getParentRoute: () => shell,
   path: "/notebook/$series/$course/$lesson",
@@ -323,6 +346,7 @@ export const router = createRouter({
       examCatalog,
       notebook,
       notebookExam,
+      notebookReview,
       notebookLesson,
       tutor,
       tutorChat,

@@ -1,6 +1,6 @@
 // Anki's ratings and counts in our own hues (the gender hues mean gender only, 09): Again and Learning
 // as wrong, Good and Review as correct, Easy and New as new cards. One place for the reviewer, the
-// decks, My words and the word sheet.
+// decks, My words, the word sheet and the Notebook.
 /** The four ratings: their names, their text hue, and their button's colour (as in AnkiDroid). */
 export const RATINGS = [
   {

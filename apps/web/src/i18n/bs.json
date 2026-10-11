@@ -697,7 +697,9 @@
       "newCards": "Nove kartice",
       "remembered": "Zapamćeno",
       "rememberedHint": "od kartica u ponavljanju",
-      "ai": "Vježbanje s AI"
+      "ai": "Vježbanje s AI",
+      "time": "Utrošeno vrijeme",
+      "timeHint": "pauza se računa najviše 5 minuta"
     },
     "examRuns": "Probni ispiti i vježbanje",
     "noExamRuns": "Još ništa nije predano.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Završene lekcije",
-        "best": "Najbolji rezultat"
+        "best": "Najbolji rezultat",
+        "coursesDone": "Završeni kursevi"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Otvori špilove",
       "exam": "Sve o ovom ispitu"
+    },
+    "answers": "{count, plural, one {# odgovor} few {# odgovora} other {# odgovora}}",
+    "reviewDay": "Ponavljanje od {date}",
+    "dayAnswers": "Odgovori",
+    "noAnswers": "Za ovaj dan nema sačuvanih odgovora: povučeni odgovor se ne čuva.",
+    "cardGone": "kartica više ne postoji",
+    "intervalHint": "Kada se kartica vraća nakon ovog odgovora",
+    "tookHint": "Koliko je kartica bila prikazana prije odgovora (najviše minut)",
+    "earlierDay": "Raniji dan",
+    "laterDay": "Kasniji dan",
+    "chart": {
+      "by": {
+        "day": "po danima",
+        "week": "po sedmicama",
+        "month": "po mjesecima"
+      },
+      "weekOf": "sedmica od {date}",
+      "seen": "Viđene ranije",
+      "cardsTitle": "{when}: {count, plural, one {# kartica} few {# kartice} other {# kartica}}, novih {fresh, number}",
+      "noneRecalled": "{when}: nema odgovora na kartice u ponavljanju",
+      "rememberedTitle": "{when}: {share} od {count, plural, one {# odgovora} few {# odgovora} other {# odgovora}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "lekcije {time}",
+        "exam": "ispiti {time}",
+        "review": "kartice {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: završeno {count, plural, one {# lekcija} few {# lekcije} other {# lekcija}}, ukupno {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Riječi po stanju: {parts}"
     }
   },
   "study": {

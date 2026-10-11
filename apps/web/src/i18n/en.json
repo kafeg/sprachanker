@@ -697,7 +697,9 @@
       "newCards": "New cards",
       "remembered": "Remembered",
       "rememberedHint": "of the cards in review",
-      "ai": "AI practice"
+      "ai": "AI practice",
+      "time": "Time spent",
+      "timeHint": "a pause counts 5 minutes at most"
     },
     "examRuns": "Mock exams and practice",
     "noExamRuns": "Nothing handed in yet.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Lessons done",
-        "best": "Best score"
+        "best": "Best score",
+        "coursesDone": "Courses done"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Open the decks",
       "exam": "Everything about this exam"
+    },
+    "answers": "{count, plural, one {# answer} other {# answers}}",
+    "reviewDay": "Review of {date}",
+    "dayAnswers": "Answers",
+    "noAnswers": "No answers kept for this day: an answer taken back is not kept.",
+    "cardGone": "a card no longer here",
+    "intervalHint": "When the card comes back after this answer",
+    "tookHint": "How long the card was shown before the answer (a minute at most)",
+    "earlierDay": "Earlier day",
+    "laterDay": "Later day",
+    "chart": {
+      "by": {
+        "day": "by day",
+        "week": "by week",
+        "month": "by month"
+      },
+      "weekOf": "week of {date}",
+      "seen": "Seen before",
+      "cardsTitle": "{when}: {count, plural, one {# card} other {# cards}}, {fresh, number} new",
+      "noneRecalled": "{when}: no cards in review answered",
+      "rememberedTitle": "{when}: {share} of {count, plural, one {# answer} other {# answers}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "lessons {time}",
+        "exam": "exams {time}",
+        "review": "cards {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# lesson} other {# lessons}} done, {total, number} in all",
+      "part": "{label}: {n, number}",
+      "words": "Words by state: {parts}"
     }
   },
   "study": {

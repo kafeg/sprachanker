@@ -11,7 +11,7 @@ const daysAgo = (n: number) => {
   d.setDate(d.getDate() - n);
   return d.getTime();
 };
-const day = (n: number, fields: Partial<Record<string, number>>) => ({
+const day = (n: number, fields: Partial<Record<string, unknown>>) => ({
   start: daysAgo(n),
   lesson: 0,
   exam: 0,
@@ -20,6 +20,7 @@ const day = (n: number, fields: Partial<Record<string, number>>) => ({
   recalled: 0,
   remembered: 0,
   ai: 0,
+  time: { lesson: 0, exam: 0, review: 0, ai: 0 },
   ...fields,
 });
 
@@ -30,8 +31,19 @@ const DECK = {
   title: null,
   lastAt: TODAY,
   open: false,
-  runCount: 0,
-  runs: [],
+  runCount: 1,
+  // The review days it was studied on, each with its answers in the deck.
+  runs: [
+    {
+      id: "01JRRRRRRRRRRRRRRRRRRRRRRR",
+      edition: null,
+      status: "active",
+      endReason: null,
+      startedAt: TODAY,
+      finishedAt: null,
+      count: 25,
+    },
+  ],
   figures: [
     count("new", 5),
     count("learning", 2),
@@ -55,7 +67,14 @@ const overview = (
   today: TODAY,
   modules: [
     { module: "review", figures: [count("wordsKnown", 42)], entries: decks },
-    { module: "lesson", figures: [count("lessonsDone", 3)], entries: lessons },
+    {
+      module: "lesson",
+      figures: [
+        { id: "lessonsDone", value: 3, at: [daysAgo(40), daysAgo(2), daysAgo(2)] },
+        { id: "coursesDone", value: 0, at: [] },
+      ],
+      entries: lessons,
+    },
     { module: "exam", figures: [], entries: exams },
   ],
 });
@@ -80,7 +99,14 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
         overview(
           [
             day(40, { lesson: 10, review: 20, newCards: 5, recalled: 4, remembered: 4 }),
-            day(2, { review: 8, recalled: 8, remembered: 6, ai: 2 }),
+            day(2, {
+              review: 8,
+              recalled: 8,
+              remembered: 6,
+              ai: 2,
+              time: { lesson: 0, exam: 0, review: 240_000, ai: 60_000 },
+            }),
+            day(1, { time: { lesson: 60_000, exam: 0, review: 0, ai: 0 } }),
             day(0, { lesson: 3 }),
           ],
           [
@@ -99,9 +125,15 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
       ],
     ],
   });
-  const tile = (label: string) => view.getByText(label).parentElement?.firstChild?.textContent;
+  // A tile's value by its label (a picture's heading may say the same).
+  const tile = (label: string) =>
+    view.getAllByText(label, { selector: "p" })[0]?.parentElement?.firstChild?.textContent;
   expect(await view.findByText("Words known")).toBeTruthy();
-  expect([tile("Words known"), tile("Lessons done")]).toEqual(["42", "3"]);
+  expect([tile("Words known"), tile("Lessons done"), tile("Courses done")]).toEqual([
+    "42",
+    "3",
+    "0",
+  ]);
   // Each language's deck: its words by state, what is due, the month's answers.
   expect([tile("Learnt"), tile("Remembered, 30 days")]).toEqual(["4", "90%"]);
   expect(view.getByText("20 answers")).toBeTruthy();
@@ -111,12 +143,30 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
     "12",
   ]);
   expect(view.getByText("Demo course")).toBeTruthy();
+  // Its words by state as one bar, each state named with its count.
+  expect(
+    view.getByRole("img", {
+      name: "Words by state: New 5, Learning 2, Review 7, Learnt 4, Suspended 1",
+    }),
+  ).toBeTruthy();
   // All time, then the last 7 days.
-  expect([tile("Study days"), tile("Cards answered"), tile("Remembered")]).toEqual([
-    "3",
-    "28",
-    "83%",
-  ]);
+  expect([
+    tile("Study days"),
+    tile("Cards answered"),
+    tile("Remembered"),
+    tile("Time spent"),
+  ]).toEqual(["3", "28", "83%", "6 minutes"]);
+  // All time began 40 days ago: the pictures go by week, the cards answered with the new ones apart.
+  expect(view.getAllByText(/by week/)).toHaveLength(4);
+  const cards = view.getByRole("img", { name: "Cards answered" });
+  expect(cards.children).toHaveLength(7);
+  expect(view.getAllByTitle(/^week of .*: 20 cards, 5 new$/)).toHaveLength(1);
+  expect(view.getAllByTitle(/: 75% of 8 answers$/)).toHaveLength(1);
+  expect(
+    view.getAllByTitle(/: 6 minutes \(lessons 1 minute, cards 4 minutes, AI 1 minute\)$/),
+  ).toHaveLength(1);
+  // Lessons done by the end of each week: one, then three.
+  expect(view.getAllByTitle(/: 2 lessons done, 3 in all$/)).toHaveLength(1);
   fireEvent.click(view.getByRole("button", { name: "7 days" }));
   expect([
     tile("Study days"),
@@ -124,9 +174,21 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
     tile("New cards"),
     tile("AI practice"),
   ]).toEqual(["2", "8", "0", "2"]);
+  // Seven days, a bar each.
+  expect(view.getAllByText(/by day/)).toHaveLength(4);
+  expect(view.getByRole("img", { name: "Cards answered" }).children).toHaveLength(7);
   // Each day of the calendar says what it held.
   expect(view.getAllByTitle(/: cards 8, AI 2$/)).toHaveLength(1);
   expect(view.getAllByTitle(/: nothing done$/).length).toBeGreaterThan(300);
+
+  // A review day of the deck opens its answers.
+  const reviewDay = view.getByRole("button", { name: /25 answers/ });
+  fireEvent.click(reviewDay);
+  await waitFor(() =>
+    expect(view.router?.state.location.pathname).toBe(
+      "/notebook/review/01JRRRRRRRRRRRRRRRRRRRRRRR",
+    ),
+  );
 
   const lesson = view.getByRole("button", { name: /0\.1 Hallo/ });
   expect(lesson.textContent).toContain("2 passes");

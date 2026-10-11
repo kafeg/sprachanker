@@ -697,7 +697,9 @@
       "newCards": "Nowe fiszki",
       "remembered": "Zapamiętane",
       "rememberedHint": "z fiszek w powtórkach",
-      "ai": "Trening z AI"
+      "ai": "Trening z AI",
+      "time": "Czas nauki",
+      "timeHint": "przerwa liczy się najwyżej 5 minut"
     },
     "examRuns": "Egzaminy próbne i treningi",
     "noExamRuns": "Jeszcze nic nie oddano.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Ukończone lekcje",
-        "best": "Najlepszy wynik"
+        "best": "Najlepszy wynik",
+        "coursesDone": "Ukończone kursy"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Otwórz talie",
       "exam": "Wszystko o tym egzaminie"
+    },
+    "answers": "{count, plural, one {# odpowiedź} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}}",
+    "reviewDay": "Powtórki z {date}",
+    "dayAnswers": "Odpowiedzi",
+    "noAnswers": "Z tego dnia nie ma odpowiedzi: cofnięte odpowiedzi nie są zachowywane.",
+    "cardGone": "fiszki już nie ma",
+    "intervalHint": "Kiedy fiszka wróci po tej odpowiedzi",
+    "tookHint": "Jak długo fiszka była widoczna przed odpowiedzią (najwyżej minutę)",
+    "earlierDay": "Poprzedni dzień",
+    "laterDay": "Następny dzień",
+    "chart": {
+      "by": {
+        "day": "dziennie",
+        "week": "tygodniowo",
+        "month": "miesięcznie"
+      },
+      "weekOf": "tydzień od {date}",
+      "seen": "Znane wcześniej",
+      "cardsTitle": "{when}: {count, plural, one {# fiszka} few {# fiszki} many {# fiszek} other {# fiszki}}, nowe: {fresh, number}",
+      "noneRecalled": "{when}: brak odpowiedzi na fiszki w powtórkach",
+      "rememberedTitle": "{when}: {share} z {count, plural, one {# odpowiedzi} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "lekcje {time}",
+        "exam": "egzaminy {time}",
+        "review": "fiszki {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: ukończone {count, plural, one {# lekcja} few {# lekcje} many {# lekcji} other {# lekcji}}, łącznie {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "Słowa według stanu: {parts}"
     }
   },
   "study": {

@@ -1,4 +1,6 @@
+import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
+import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { ulid } from "ulid";
 import { setup } from "./setup.ts";
@@ -64,7 +66,7 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
 
   const overview = await getJson("/api/notebook");
   // Today: three lesson answers; the words added are new cards, none known yet.
-  expect(overview.days).toEqual([
+  expect(overview.days).toMatchObject([
     {
       start: overview.today,
       lesson: 3,
@@ -74,8 +76,11 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
       newCards: 0,
       recalled: 0,
       remembered: 0,
+      time: { exam: 0, review: 0, ai: 0 },
     },
   ]);
+  // The time between a pass's events (the test's clock moves a second at each reading).
+  expect(overview.days[0].time.lesson).toBeGreaterThan(0);
   expect(figure(moduleOf(overview, "lesson").figures, "lessonsDone")?.value).toBe(0);
 
   // Two cards answered and one answer taken back: one review, one new card learnt.
@@ -145,4 +150,116 @@ test("the Notebook: study days, lessons with their passes, a pass in full, an it
   expect(item.passes[1].answers[0].outcome.result).toBe("wrong");
 
   expect((await send("GET", `/api/notebook/passes/${ulid()}`, undefined)).status).toBe(404);
+});
+
+test("a card answer's time kept (at most a minute; an answer from before it was measured reads without it), the review day in full, lessons and courses done over time", async () => {
+  const api = await setup();
+  const { sendJson, getJson, send, root } = api;
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: CAFE,
+    edition: "ru-de",
+  });
+  const scope = `/api/cards/study?scope=${encodeURIComponent("course:sprachanker.fixture/demo")}`;
+  const rate = async (rating: number, ms?: number) => {
+    const { current } = await getJson(scope);
+    await sendJson("POST", `/api/cards/${current.cardId}/review`, {
+      id: ulid(),
+      reps: current.reps,
+      face: current.face,
+      rating,
+      ...(ms !== undefined && { ms }),
+    });
+    return current.cardId as string;
+  };
+  await rate(3, 4_200);
+  await rate(1, 3_600_000);
+  const untimed = await rate(4);
+
+  const sqlite = new Database(join(root, "profiles/local/profile.sqlite"));
+  const stored = sqlite
+    .query("SELECT payload_json AS p FROM events WHERE type = 'card_review' ORDER BY ts")
+    .all()
+    .map((r) => JSON.parse((r as { p: string }).p).ms);
+  expect(stored).toEqual([4_200, 60_000, undefined]);
+
+  const overview = await getJson("/api/notebook");
+  expect(overview.days[0]).toMatchObject({ review: 3, newCards: 3 });
+  expect(overview.days[0].time.review).toBe(64_200);
+  // The deck's review days: today's, with its three answers, opening in full.
+  const deck = moduleOf(overview, "review").entries[0] as Standing["entries"][number] & {
+    runs: Array<{ id: string; count: number }>;
+  };
+  expect(deck.runCount).toBe(1);
+  expect(deck.runs.map((r) => r.count)).toEqual([3]);
+  const day = await getJson(`/api/notebook/review/${deck.runs[0]?.id}`);
+  expect(day.answers.map((a: { rating: number; ms: number | null }) => [a.rating, a.ms])).toEqual([
+    [3, 4_200],
+    [1, 60_000],
+    [4, null],
+  ]);
+  expect(day.answers[2].cardId).toBe(untimed);
+  expect(day.answers[0].card.display.target).toBeTruthy();
+  expect(day.answers[0].card.lang).toBe("de");
+  // Again on a new card brings it back within minutes; Easy, days later.
+  expect(day.answers[1].interval).toBeLessThan(3_600_000);
+  expect(day.answers[2].interval).toBeGreaterThan(86_400_000);
+  expect(day.day).toEqual({
+    answers: 3,
+    newCards: 3,
+    recalled: 0,
+    remembered: null,
+    ms: 64_200,
+  });
+  expect([day.earlier, day.later]).toEqual([null, null]);
+  // A run that is no review day is not one.
+  expect((await send("GET", `/api/notebook/review/${ulid()}`, undefined)).status).toBe(404);
+
+  // A day later, another review day: the two link to each other.
+  api.advance(86_400_000);
+  await rate(3, 1_000);
+  const next = moduleOf(await getJson("/api/notebook"), "review").entries[0] as typeof deck;
+  expect(next.runs.map((r) => r.count)).toEqual([1, 3]);
+  const later = await getJson(`/api/notebook/review/${next.runs[0]?.id}`);
+  expect([later.earlier, later.later]).toEqual([deck.runs[0]?.id, null]);
+  expect((await getJson(`/api/notebook/review/${deck.runs[0]?.id}`)).later).toBe(next.runs[0]?.id);
+
+  // A lesson done: the figure with when, oldest first; no course done yet (the fixture has two lessons).
+  const run = (
+    await sendJson("POST", "/api/runs", {
+      series: FIXTURE_SERIES,
+      lessonKey: CAFE,
+      edition: "ru-de",
+    })
+  ).run.id as string;
+  const { lesson } = await getJson(
+    `/api/lesson?${new URLSearchParams({ series: FIXTURE_SERIES, key: CAFE, edition: "ru-de" })}`,
+  );
+  const events = [
+    ...lesson.pages.flatMap((p: { exercise: { items: Array<{ key: string }> } }) =>
+      p.exercise.items.map((item) => ({
+        id: ulid(),
+        type: "item_skipped",
+        itemKey: item.key,
+        payload: {},
+      })),
+    ),
+    ...["words", "grammar:0", "culture:0"].map((step) => ({
+      id: ulid(),
+      type: "step_done",
+      payload: { step },
+    })),
+  ];
+  await sendJson("POST", `/api/runs/${run}/events`, { events });
+  const finished = await sendJson("POST", `/api/runs/${run}/finish`, {});
+  const lessons = moduleOf(await getJson("/api/notebook"), "lesson").figures as Array<{
+    id: string;
+    value: number;
+    at: number[];
+  }>;
+  expect(lessons.find((f) => f.id === "lessonsDone")).toMatchObject({
+    value: 1,
+    at: [finished.finishedAt],
+  });
+  expect(lessons.find((f) => f.id === "coursesDone")).toMatchObject({ value: 0, at: [] });
 });

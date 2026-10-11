@@ -1,7 +1,8 @@
 // A module's standing as the Notebook shows every module's (schema `stats.ts`): its figures as tiles,
 // its entries in the module's panel — those listed under a group (a lesson under its course) as rows
 // under the group's title, the others (an exam, a language's deck) each under its own title with its
-// figures, its latest runs and the way to it. What a module adds is its entries' titles and where they open (`EntryView`).
+// figures, its latest runs and the way to it. What a module adds is its entries' titles, pictures and
+// where they open (`EntryView`), and pictures of the whole section above them.
 import type { Figure, ModuleId, RunSummary, StandingEntry } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { useDateFormat, useNumber, usePercent } from "@/ui/format.ts";
@@ -10,10 +11,11 @@ import { Panel } from "@/ui/panel.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
 import { cn } from "@/ui/utils.ts";
 
-/** What a module adds to its entries: a title (else the entry's own), where an entry and one of its
- *  runs open. */
+/** What a module adds to its entries: a title (else the entry's own), a picture over its figures,
+ *  where an entry and one of its runs open. */
 export interface EntryView {
   title?(entry: StandingEntry): React.ReactNode;
+  picture?(entry: StandingEntry): React.ReactNode;
   open?(entry: StandingEntry): void;
   openRun?(entry: StandingEntry, run: RunSummary): void;
 }
@@ -55,10 +57,13 @@ export function StandingSection({
   module,
   entries,
   view,
+  children,
 }: {
   module: ModuleId;
   entries: StandingEntry[];
   view: EntryView;
+  /** The section's pictures, above its entries (while it has any). */
+  children?: React.ReactNode;
 }) {
   const { t } = useTranslation();
   // Groups in the order their first entry comes; an entry without one stands alone.
@@ -76,6 +81,7 @@ export function StandingSection({
       {!entries.length && (
         <p className="text-sm text-muted-foreground">{t(`notebook.none.${module}`)}</p>
       )}
+      {entries.length > 0 && children && <div className="mb-4 mt-2 space-y-4">{children}</div>}
       {blocks.map((b) => (
         <div
           key={b.key}
@@ -155,6 +161,7 @@ function EntryBlock({
       <h4 className="mt-2 font-sans font-medium text-muted-foreground">
         {view.title?.(entry) ?? entry.title ?? entry.key}
       </h4>
+      {view.picture?.(entry)}
       <FigureGrid module={module} figures={entry.figures} />
       <ul className={cn("divide-y", entry.figures.length > 0 && "mt-2")}>
         {entry.runs.map((run) => (
@@ -176,8 +183,8 @@ function EntryBlock({
   );
 }
 
-/** A run in a list: when it ended, what kind it was and the part taken (when told), the points it
- *  scored, passed or not. */
+/** A run in a list: when it ended, what kind it was and the part taken (when told), what it holds (a
+ *  review day's answers), the points it scored, passed or not. */
 export function RunRow({
   run,
   kind,
@@ -201,18 +208,25 @@ export function RunRow({
           </span>
         )}
       </span>
+      {run.count !== undefined && (
+        <span className="text-sm text-muted-foreground tabular-nums">
+          {t("notebook.answers", { count: run.count })}
+        </span>
+      )}
       <span className="tabular-nums">
         {run.points !== undefined && t("exams.points", { points: run.points, max: run.max ?? 0 })}
       </span>
-      <span
-        className={cn(
-          "w-24 text-end text-sm font-medium",
-          run.passed ? "text-correct" : "text-wrong",
-        )}
-      >
-        {/* A run no pass mark judges (a module taken alone without one): its points only. */}
-        {run.passed !== undefined && t(run.passed ? "exams.passed" : "exams.failed")}
-      </span>
+      {run.count === undefined && (
+        <span
+          className={cn(
+            "w-24 text-end text-sm font-medium",
+            run.passed ? "text-correct" : "text-wrong",
+          )}
+        >
+          {/* A run no pass mark judges (a module taken alone without one): its points only. */}
+          {run.passed !== undefined && t(run.passed ? "exams.passed" : "exams.failed")}
+        </span>
+      )}
     </ListRow>
   );
 }

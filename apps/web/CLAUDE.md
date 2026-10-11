@@ -24,9 +24,8 @@ apps/web/src/
                    # mistakes-status, summary, reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
                    # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
-                   # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
-                   # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
-                   # deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
+                   # at a time; a rating with the time its card was shown), reviewer-keys (Anki's keys: a
+                   # pure mapping, tested), more-menu; decks (deck names), deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
                    # without audio, read aloud by the server: who reads them, generate, progress, stop), examples (a deck's own), deck-link (a card's way to its deck: audio, examples to make), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
@@ -42,9 +41,9 @@ apps/web/src/
                    # card), recording (a mock exam's: plays limited), rating (an open answer by its
                    # criteria, a proposal shown chosen), slots (the AI's proposal, the conversation), use-exam
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, every module's
-                   # standing — standing.tsx shows them alike, a module adding only titles and links),
-                   # lesson (passes), pass (in full), compare, exam (an exam's runs and questions as they
-                   # stand), mark
+                   # standing — standing.tsx shows them alike, a module adding only titles, links and
+                   # pictures: pictures.tsx, bars over the span), lesson (passes), pass (in full), compare,
+                   # exam (an exam's runs and questions as they stand), review-day (its answers), mark
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check
@@ -82,7 +81,7 @@ apps/web/src/
                    # lesson player's, an exam run's; the column's head), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's sections; CourseSections in course-html shows them as cards), activity-calendar (a
-                   # year of days as squares), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
+                   # year of days as squares), bar-chart (bars over time, a bar across), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
                    # run's), avatar, choice (segmented), check-row (a setting on or off), option-card (one
                    # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
@@ -101,7 +100,8 @@ apps/web/src/
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
                    # "Listen"; voice-names: a server voice's name, pure); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
-  word/            # gender colouring
+  word/            # a word as shown: gender colouring; tones (ratings and counts in our hues), time
+                   # (intervals, next due)
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
 apps/web/scripts/  # icons.ts: renders the PNG icons from favicon.svg (needs rsvg-convert)
 ```

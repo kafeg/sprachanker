@@ -433,6 +433,16 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       });
     },
 
+    /** Every event's run and time, each run's in the order stored, without payloads: the time spent
+     *  read from them (engine `activityByDay`). */
+    moments(): Array<{ runId: string; ts: number }> {
+      return db
+        .select({ runId: events.runId, ts: events.ts })
+        .from(events)
+        .orderBy(asc(events.runId), asc(events.ts), asc(events.id))
+        .all();
+    },
+
     /** When each run last had an event of these types (runs without one are absent). */
     lastActivity(types: EventType[]): Map<string, number> {
       return new Map(

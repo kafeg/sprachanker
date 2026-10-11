@@ -697,7 +697,9 @@
       "newCards": "Carduri noi",
       "remembered": "Reținute",
       "rememberedHint": "din cardurile în recapitulare",
-      "ai": "Exersare cu AI"
+      "ai": "Exersare cu AI",
+      "time": "Timp de studiu",
+      "timeHint": "o pauză contează cel mult 5 minute"
     },
     "examRuns": "Simulări și exersare",
     "noExamRuns": "Nimic predat încă.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "Lecții terminate",
-        "best": "Cel mai bun scor"
+        "best": "Cel mai bun scor",
+        "coursesDone": "Cursuri terminate"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "Deschide pachetele",
       "exam": "Totul despre acest examen"
+    },
+    "answers": "{count, plural, one {# răspuns} few {# răspunsuri} other {# de răspunsuri}}",
+    "reviewDay": "Recapitularea din {date}",
+    "dayAnswers": "Răspunsuri",
+    "noAnswers": "Niciun răspuns păstrat pentru această zi: un răspuns anulat nu se păstrează.",
+    "cardGone": "un card care nu mai există",
+    "intervalHint": "Când revine cardul după acest răspuns",
+    "tookHint": "Cât timp a fost afișat cardul înainte de răspuns (cel mult un minut)",
+    "earlierDay": "Ziua anterioară",
+    "laterDay": "Ziua următoare",
+    "chart": {
+      "by": {
+        "day": "pe zi",
+        "week": "pe săptămână",
+        "month": "pe lună"
+      },
+      "weekOf": "săptămâna din {date}",
+      "seen": "Văzute deja",
+      "cardsTitle": "{when}: {count, plural, one {# card} few {# carduri} other {# de carduri}}, {fresh, number} noi",
+      "noneRecalled": "{when}: niciun card în recapitulare",
+      "rememberedTitle": "{when}: {share} din {count, plural, one {# răspuns} few {# răspunsuri} other {# de răspunsuri}}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "lecții {time}",
+        "exam": "examene {time}",
+        "review": "carduri {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# lecție terminată} few {# lecții terminate} other {# de lecții terminate}}, {total, number} în total",
+      "part": "{label}: {n, number}",
+      "words": "Cuvinte după stare: {parts}"
     }
   },
   "study": {

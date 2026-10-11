@@ -86,12 +86,19 @@ export function useCardActions() {
     onSuccess,
     // Refused (rated meanwhile on another device): the queue as it is now.
     onError: onSuccess,
-    mutationFn: (r: { cardId: string; face: CardFace; rating: CardRating; reps: number }) =>
+    mutationFn: (r: {
+      cardId: string;
+      face: CardFace;
+      rating: CardRating;
+      reps: number;
+      /** How long the card was on screen before the rating. */
+      ms: number;
+    }) =>
       json(
         api.cards[":id"].review.$post({
           ...id(r.cardId),
           // The answer's own id: sent again after a lost response, it is not applied twice.
-          json: { id: ulid(), face: r.face, rating: r.rating, reps: r.reps },
+          json: { id: ulid(), face: r.face, rating: r.rating, reps: r.reps, ms: r.ms },
         }),
       ),
   });

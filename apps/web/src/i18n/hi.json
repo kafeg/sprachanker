@@ -697,7 +697,9 @@
       "newCards": "नए कार्ड",
       "remembered": "याद रहे",
       "rememberedHint": "दोहराव वाले कार्डों में से",
-      "ai": "AI प्रैक्टिस"
+      "ai": "AI प्रैक्टिस",
+      "time": "लगा समय",
+      "timeHint": "कोई भी विराम ज़्यादा से ज़्यादा 5 मिनट गिना जाता है"
     },
     "examRuns": "मॉक टेस्ट और प्रैक्टिस",
     "noExamRuns": "अभी तक कुछ जमा नहीं किया.",
@@ -730,7 +732,8 @@
       },
       "lesson": {
         "lessonsDone": "पूरे हुए पाठ",
-        "best": "सबसे अच्छा स्कोर"
+        "best": "सबसे अच्छा स्कोर",
+        "coursesDone": "पूरे हुए कोर्स"
       }
     },
     "runs": {
@@ -739,6 +742,37 @@
     "openEntry": {
       "review": "डेक खोलो",
       "exam": "इस परीक्षा के बारे में सब कुछ"
+    },
+    "answers": "{count, plural, one {# उत्तर} other {# उत्तर}}",
+    "reviewDay": "{date} का दोहराव",
+    "dayAnswers": "उत्तर",
+    "noAnswers": "इस दिन का कोई उत्तर नहीं बचा: वापस लिया गया उत्तर नहीं रखा जाता।",
+    "cardGone": "कार्ड जो अब नहीं है",
+    "intervalHint": "इस उत्तर के बाद कार्ड कब लौटेगा",
+    "tookHint": "उत्तर से पहले कार्ड कितनी देर दिखा (ज़्यादा से ज़्यादा एक मिनट)",
+    "earlierDay": "पिछला दिन",
+    "laterDay": "अगला दिन",
+    "chart": {
+      "by": {
+        "day": "दिन के हिसाब से",
+        "week": "हफ्ते के हिसाब से",
+        "month": "महीने के हिसाब से"
+      },
+      "weekOf": "{date} से शुरू हफ्ता",
+      "seen": "पहले देखे गए",
+      "cardsTitle": "{when}: {count, plural, one {# कार्ड} other {# कार्ड}}, {fresh, number} नए",
+      "noneRecalled": "{when}: दोहराव वाले किसी कार्ड का उत्तर नहीं",
+      "rememberedTitle": "{when}: {count, plural, one {# उत्तर} other {# उत्तरों}} में से {share}",
+      "timeTitle": "{when}: {time} ({what})",
+      "timeOf": {
+        "lesson": "पाठ {time}",
+        "exam": "परीक्षाएं {time}",
+        "review": "कार्ड {time}",
+        "ai": "AI {time}"
+      },
+      "doneTitle": "{when}: {count, plural, one {# पाठ पूरा} other {# पाठ पूरे}}, कुल {total, number}",
+      "part": "{label}: {n, number}",
+      "words": "स्थिति के अनुसार शब्द: {parts}"
     }
   },
   "study": {
