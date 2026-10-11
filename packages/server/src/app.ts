@@ -15,6 +15,7 @@ import type { ProfileEnv } from "./routes/env.ts";
 import { examRoutes } from "./routes/exams.ts";
 import { lessonRoutes } from "./routes/lessons.ts";
 import { llmRoutes } from "./routes/llm.ts";
+import { networkRoutes } from "./routes/network.ts";
 import { notebookRoutes } from "./routes/notebook.ts";
 import { profileRoutes, requireSession, sessionRoutes } from "./routes/profiles.ts";
 import { progressRoutes } from "./routes/progress.ts";
@@ -27,6 +28,7 @@ import type { CourseInstaller } from "./services/downloads.ts";
 import { createServices } from "./services/index.ts";
 import type { CliHost, LmStudioHost } from "./services/llm.ts";
 import type { ReadingCache, SpeechHost } from "./services/local-engines.ts";
+import type { ListensOn, NetworkHost } from "./services/network.ts";
 import type { ProfileFiles } from "./services/profiles.ts";
 import type { PiperHost } from "./services/read-aloud.ts";
 import { serveWeb, type WebAssets } from "./web.ts";
@@ -63,8 +65,13 @@ export interface AppConfig {
   /** Downloads courses (the runtime passes the providers in); without it, nothing can be downloaded. */
   installer?: CourseInstaller;
   now?: () => number;
-  /** Names this machine is reached by besides localhost, IPs and `.local` (its host name). */
+  /** Names this machine is reached by besides localhost, IPs and `.local` (its host name, those
+   *  given by `--allow-host`); its tailnet name is read through `network`. */
   hosts?: string[];
+  /** Where the server listens: the addresses the app is reached at are worked out from it. */
+  listensOn: ListensOn;
+  /** This machine's networks and Tailscale; without it, no tailnet and no local network addresses. */
+  network?: NetworkHost;
 }
 
 /** The routes that take a file, each with its own body limit: a recording, audio to hear, a deck file. */
@@ -97,6 +104,7 @@ export function createApp(config: AppConfig) {
     // Everything after it is a profile's: the device's session names it (401 without one).
     .use("*", requireSession(svc))
     .route("/", profileRoutes(svc))
+    .route("/", networkRoutes(svc))
     .route("/", courseRoutes())
     .route("/", lessonRoutes())
     .route("/progress", progressRoutes())
@@ -119,7 +127,7 @@ export function createApp(config: AppConfig) {
 
   return (
     new Hono()
-      .use("*", hostGuard(config.hosts))
+      .use("*", hostGuard(config.hosts, svc.network.knows))
       .route("/api", api)
       .all("/api/*", (c) => c.json({ error: "not_found" }, 404))
       .get("/library/:series/*", (c) => {

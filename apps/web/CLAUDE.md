@@ -48,7 +48,7 @@ apps/web/src/
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
-                   # (the app, the profile's settings), courses, downloads, cards, decks (imported; a deck's
+                   # (the app and its addresses, the profile's settings), courses, downloads, cards, decks (imported; a deck's
                    # words read aloud, polled while read), notebook,
                    # recordings, speech, exams, session (profiles, signing in and out, devices); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's

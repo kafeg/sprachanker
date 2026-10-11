@@ -21,7 +21,7 @@ const USAGE = `Usage: sprachanker <command>
 Commands:
   serve  [--data <dir>] [--host <address>] [--port <number>] [--allow-host <name>]...
          start the server (default 127.0.0.1:${DEFAULT_PORT}); it answers to this machine's names
-         (localhost, IPs, .local, its host name) and to each --allow-host
+         (localhost, IPs, .local, its host name, its tailnet name) and to each --allow-host
   import <provider> [--data <dir>] [--courses a1,a2] [--editions ru-de,en-de] [--refresh]
          download and normalise a course; re-running fetches only what is missing
          providers: ${providerIds().join(", ")}

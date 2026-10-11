@@ -7,7 +7,7 @@ shows the parts, their dependencies and the mechanisms that cross them. The rema
 ## Runtime
 
 ```
-browser ──localhost or a LAN name (phones over Tailscale: planned)──┐
+browser ──localhost, a LAN name, the tailnet (tailscale serve)──────┐
                                                                    ▼
               sprachanker serve  (apps/cli, one compiled Bun binary with the web build inside)
                  ├─ Hono app: /api/* routes → services   (packages/server)

@@ -28,6 +28,7 @@ import { createLessons } from "./lessons.ts";
 import { type CliHost, createLlm, type LmStudioHost } from "./llm.ts";
 import type { ReadingCache, SpeechHost } from "./local-engines.ts";
 import { createMistakes } from "./mistakes.ts";
+import { createNetwork, type ListensOn, type NetworkHost } from "./network.ts";
 import { createNotebook } from "./notebook.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
@@ -66,6 +67,9 @@ export interface ServicesConfig {
   apkg: ApkgRuntime;
   /** Reads a library media file (runtime adapter): course recordings the recogniser hears. */
   mediaBlob(file: string): Blob;
+  /** Where the server listens, and this machine's networks and Tailscale (runtime adapter). */
+  listensOn: ListensOn;
+  network?: NetworkHost;
   now: () => number;
 }
 
@@ -296,6 +300,7 @@ export function createServices(config: ServicesConfig) {
     decks,
     downloads,
     speech,
+    network: createNetwork({ host: config.network, listensOn: config.listensOn, now }),
     profiles,
     devices: createDevices({ db: config.server, now }),
     /** Deletes a profile with all it holds — its database and its daily copies, recordings, devices —

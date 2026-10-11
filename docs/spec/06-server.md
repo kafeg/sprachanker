@@ -198,9 +198,25 @@ owner, no admin screens; server matters are the `sprachanker profiles` command's
 ## Network and HTTPS
 
 - Default: listen on `127.0.0.1:4580` (`--host`, `--port`).
-- Only local host names are accepted (Security, "Host check"): a `*.ts.net` Host is refused with 421.
-  Phones over HTTPS through `tailscale serve`: plan, "Phones".
-- Plain HTTP on the LAN works without a secure context: no microphone (the UI says why, 08).
+- Only this machine's names are accepted (Security, "Host check"), its tailnet name among them.
+- **Phones over HTTPS through Tailscale**: on the server's machine `tailscale serve --bg 4580` (HTTPS
+  on 443 of the machine's tailnet name, proxied to `http://127.0.0.1:4580`; the syntax changes between
+  Tailscale versions — check `tailscale serve --help`; `tailscale serve status` shows it,
+  `tailscale serve reset` stops it). The tailnet needs MagicDNS and HTTPS certificates turned on. A
+  phone in the tailnet then opens `https://<machine>.<tailnet>.ts.net`: a secure context (the
+  microphone works), the server still listening on 127.0.0.1 only; serve's `X-Forwarded-Proto` makes
+  the device cookie `Secure`.
+- Plain HTTP on the LAN (`--host 0.0.0.0`) works without a secure context: no microphone (the UI
+  says why, 08).
+- **The addresses the app is reached at** (`GET /api/addresses`, schema `network.ts`; behind the
+  session check like every route but choosing a profile: only a signed-in device is told the
+  machine's addresses, and only a profile's screens show them): this machine
+  (`http://localhost:<port>`); the local network while the server listens beyond 127.0.0.1 — each
+  IPv4 address of the machine (the tailnet's left out) and its `.local` name, `http://<address>:<port>`;
+  the tailnet while Tailscale runs here — its name, and `https://<name>` once `tailscale serve`
+  proxies HTTPS to this port (from `tailscale serve status --json`), else the name alone (not
+  served). Each says whether it is a secure context (HTTPS or localhost). Where the app shows them:
+  plan, "Phones".
 - The PWA is installable (manifest, icons). No offline use: a request that fails shows its error with
   "Try again"; a lesson's unsent events stay in memory and are sent again (05, "Sending").
 
@@ -280,9 +296,13 @@ profiles with device tokens (above).
 
 - **Host check** (`src/security/host.ts`): requests are accepted only for the names this machine is
   reached by — `localhost`, an IP address, a `.local` name, its host name, the address it listens on,
-  the names given by `serve --allow-host <name>` (repeatable: a reverse proxy's name) — else 421
-  (DNS-rebinding protection: a page on another site cannot rebind its name to this server).
-  The tailnet's name: plan, "Phones". No CORS (same-origin only).
+  the names given by `serve --allow-host <name>` (repeatable: a reverse proxy's name), and this
+  machine's own tailnet name — else 421 (DNS-rebinding protection: a page on another site cannot
+  rebind its name to this server). The tailnet name is `Self.DNSName` of `tailscale status --json`
+  (else `Self.HostName` with `MagicDNSSuffix`), read at the start and, on a refused `*.ts.net` name,
+  again at most once a minute (Tailscale may come up after the server); the macOS app's binary or
+  `tailscale` on the PATH; none while Tailscale is absent, stopped or logged out. Never any
+  `*.ts.net`: another tailnet's name could be rebound to this server. No CORS (same-origin only).
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
   header `X-SprachAnker: 1`.
 - **Tokens**: device tokens 256-bit random, stored hashed (SHA-256), revocable.

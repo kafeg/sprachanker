@@ -22,6 +22,8 @@ src/
                      # (whisper-server and Qwen3-TTS's tts-server), piper.ts (Piper's voices and
                      # runs), readings.ts (what was read aloud, kept in cache/tts);
                      # backup.ts (a copy of each database a day);
+                     # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
+                     # and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
                      # decks.ts (imported decks' folders, written whole; a deck folder's extras.json and
                      # media read aloud — an imported deck's or a course's; packages uploaded, streamed to
@@ -41,10 +43,12 @@ src/
                      # progress (reset), exams, cards (a card's examples too), decks (imported: list,
                      # preview, import, an upload let go, delete; any deck's words read aloud or given
                      # examples), settings, notebook, recordings,
-                     # speech, llm (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
+                     # speech, llm (removable as a whole), network (the addresses the app is reached at);
+                     # env.ts: what a profile's routes read (`c.var.s`, its
                      # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
                      # the path, a batch of events, a deck taken)
-  services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices) and each
+  services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices, network —
+                     # this machine's tailnet name for the Host check, the addresses) and each
                      # profile's own (`of(id)`, made on first use; what one module needs of another is
                      # a function handed in here). By area:
                      # - stores: run-store (the only code on runs and events), card-store (on cards and
@@ -117,8 +121,9 @@ test/                # bun test; integration tests call createApp().request() �
 - Secrets are write-only through the API and never logged. The key file is `<app-data>/secret.key`
   (outside the data root), read by `src/runtime/`.
 - Outgoing requests to LLM providers go through the injected `fetch` (`AppConfig.fetch`); tests fake it.
-- Command-line LLM agents run through the `CliHost` interface (services/llm.ts); LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm-lmstudio.ts); app.ts
-  never spawns processes itself.
+- Command-line LLM agents run through the `CliHost` interface (services/llm.ts); LM Studio on this machine is reached through the `LmStudioHost` interface (services/llm-lmstudio.ts); the
+  machine's networks and Tailscale through `NetworkHost` (services/network.ts); app.ts never spawns
+  processes itself.
 - Keep Bun-specific APIs behind `src/runtime/` so a Node fallback stays possible.
 - `src/app.ts` and everything it imports stay free of Bun and Node imports and globals — of
   course-kit only `@sprachanker/course-kit/view`, no course (dependency-cruiser; those live

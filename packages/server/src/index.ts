@@ -17,6 +17,7 @@ import { cliHost } from "./runtime/cli.ts";
 import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
 import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
+import { networkHost } from "./runtime/network.ts";
 import { piperHost } from "./runtime/piper.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
@@ -58,8 +59,10 @@ export function startServer(config: ServerConfig): Listening {
     piper: piperHost(config.dataRoot),
     readings: readingCache(config.dataRoot),
     // The machine's own names: its host name, the one the server was told to listen on, those it was
-    // given (`--allow-host`).
+    // given (`--allow-host`); its tailnet name is read from Tailscale (`network`).
     hosts: [hostname(), `${hostname()}.local`, config.hostname, ...(config.allowHosts ?? [])],
+    listensOn: { hostname: config.hostname, port: config.port },
+    network: networkHost(),
   });
   // After the app: its databases exist and are migrated.
   startDailyBackups(config.dataRoot);
