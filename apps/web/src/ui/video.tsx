@@ -19,6 +19,27 @@ type EpisodeFiles = {
   textHtml?: string;
 };
 
+const PEEK_AT = 0.5;
+
+/** A clip that opens on a black frame is never a black box: until it is first played it shows a
+ *  frame a moment in, then plays from its beginning (unless the learner moved it meanwhile). The
+ *  `<video>`'s loadedmetadata, seeked and play call these. */
+export const peek = {
+  loaded(video: HTMLVideoElement) {
+    if (video.currentTime !== 0 || !video.paused || !(video.duration > PEEK_AT * 2)) return;
+    video.dataset.peek = "seeking";
+    video.currentTime = PEEK_AT;
+  },
+  seeked(video: HTMLVideoElement) {
+    if (video.dataset.peek === "seeking") video.dataset.peek = "shown";
+    else delete video.dataset.peek;
+  },
+  play(video: HTMLVideoElement) {
+    if (video.dataset.peek === "shown") video.currentTime = 0;
+    delete video.dataset.peek;
+  },
+};
+
 /** The lesson's episode, set by the player: an exercise video that is one of its files plays as it. */
 export const Episode = createContext<EpisodeFiles | undefined>(undefined);
 
@@ -74,12 +95,15 @@ export function EpisodeVideo({
         controls
         preload="metadata"
         onPlay={(e) => {
+          peek.play(e.currentTarget);
           claimPlayback(e.currentTarget);
           onHeard?.();
         }}
         onLoadedMetadata={(e) => {
           e.currentTarget.playbackRate = rate;
+          peek.loaded(e.currentTarget);
         }}
+        onSeeked={(e) => peek.seeked(e.currentTarget)}
         onError={onHeard}
         className="aspect-video w-full rounded-2xl bg-black"
         src={url(src)}

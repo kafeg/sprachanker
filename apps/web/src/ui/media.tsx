@@ -9,7 +9,7 @@ import { clock } from "./format.ts";
 import { panelClass } from "./panel.tsx";
 import { claimPlayback, PlaybackRate, SpeedButton, useClip } from "./playback.tsx";
 import { cn } from "./utils.ts";
-import { Episode, EpisodeVideo, isEpisode } from "./video.tsx";
+import { Episode, EpisodeVideo, isEpisode, peek } from "./video.tsx";
 
 /**
  * Audio with play/pause, a timeline to drag or click, elapsed and remaining time and the speed; the
@@ -254,9 +254,12 @@ export function MediaBlock({
           preload="metadata"
           src={url(media.video)}
           onPlay={(e) => {
+            peek.play(e.currentTarget);
             claimPlayback(e.currentTarget);
             onHeard?.();
           }}
+          onLoadedMetadata={(e) => peek.loaded(e.currentTarget)}
+          onSeeked={(e) => peek.seeked(e.currentTarget)}
           onError={onHeard}
           className="w-full rounded-xl bg-black"
         />
