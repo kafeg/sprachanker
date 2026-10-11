@@ -23,14 +23,6 @@ Specs: 09, 10.
 - **Accept**: catalog tests over every language; RTL screens in e2e (`e2e/rtl.e2e.ts`, run once
   `ar.json` is there).
 
-### 2. The tutor on its own (owner, 2026-10-10)
-Specs: 07, 09.
-- A section of its own for talking with the AI outside any lesson: on any topic the learner asks
-  about (a grammar question, a text to go through, a conversation to practise), in the interface
-  language and the language of the learner's courses, with what the learner has met in their courses as its context; chats kept and
-  listed as the lesson tutor's are.
-- **Accept**: a chat started from the section, kept, continued later.
-
 ### 3. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
@@ -109,6 +101,9 @@ Taken along when an item above touches the area, or on request.
   revision in the course data, read by `verify` and the course page (a library normalised before
   speaking items had `reference` still diffs a spoken answer against the question it answers).
 - Server (05, 06): structured logs.
+- Tutor section (07): no tools yet — what it knows is the summary of the courses; the lesson tutor's
+  tools across every course of the chat's language (where a word is taught, what a lesson covers,
+  the mistakes of one lesson) when a summary proves too little.
 - Lesson (09): the lesson's review back, together with going over mistakes — one analysis across the
   exercises (answers, speech verdicts, writing, scenes, mistakes) (owner, 2026-10-08). The microphone
   beside the "Write it yourself" box, as in free answers, scenes and the tutor.
