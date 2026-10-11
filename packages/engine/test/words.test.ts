@@ -61,3 +61,34 @@ test("new words are marked, with the translation of the first glossary that has 
   ]);
   expect(segments.map((s) => s.text).join("")).toBe("Ich wohne in Berlin, Frau Klein.");
 });
+
+test("a new word's translation: as written before a form of it; never by an article or an auxiliary", () => {
+  const glossary = [
+    { target: "die Haut", translation: "кожа" },
+    { target: "das Haus, die Häuser", translation: "дом" },
+    { target: "das Wort", translation: "слово" },
+    { target: "studieren", forms: "studiert, studierte, hat studiert", translation: "учиться" },
+  ];
+  const marked = (sentence: string) =>
+    markWords(sentence, [{ target: "ich" }], glossary).filter((s) => s.new);
+  expect(marked("Das Haus hat Häuser.")).toEqual([
+    { text: "Das", new: true },
+    { text: "Haus", new: true, translation: "дом" },
+    { text: "hat", new: true },
+    { text: "Häuser", new: true, translation: "дом" },
+  ]);
+  // A short stem gives no translation: "Haut" is not "Haus", "Wand" not "wann".
+  expect(
+    markWords(
+      "Wann ist das Haus da?",
+      [],
+      [
+        { target: "die Haut", translation: "кожа" },
+        { target: "die Wand", translation: "стена" },
+      ],
+    ).filter((s) => s.translation),
+  ).toEqual([]);
+  expect(marked("Ich studierte.")).toEqual([
+    { text: "studierte", new: true, translation: "учиться" },
+  ]);
+});

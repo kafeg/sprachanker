@@ -157,7 +157,9 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   the words before the card's (a course's up to its lesson, an imported deck's up to the word: their
   forms, and a form differing only by an ending: `text/words.ts`); the others are marked new,
   translated by the model's glossary for that sentence, else by the deck's later words of one word
-  (a phrase's translation is not its words'); a new word without a translation is not marked. A card whose word has none
+  (a phrase's translation is not its words') — as written first, else a form of it on a stem of four
+  letters or more (not "Haut" for "Haus"); never by an article or an auxiliary of a headword; a new
+  word without a translation is not marked. A card whose word has none
   (and none of its own) has the way to its deck in Decks in its corner, while the assistant works
   there (09). The
   examples a card asked for one at a time in earlier versions are no longer shown (their events
