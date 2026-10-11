@@ -386,15 +386,16 @@ export async function installBundle(options: {
   const seriesDir = join(options.libraryRoot, courseSeries(manifest));
   const courseId = courseIdOf(manifest.course);
   const listed = new Map(manifest.files.map((f) => [f.path, f]));
-  // What must hold, checked again before anything changes.
+  // What must hold, checked again before anything changes: the files the plan found still there, of
+  // their size (their content was found then; a stored name keeps its content, 02).
+  const still = (path: string, file: string) => {
+    const want = listed.get(path) as { sha256: string; size: number };
+    return holds(join(seriesDir, file), want, want.sha256);
+  };
   for (const path of plan.skip)
-    if (!(await holds(join(seriesDir, path), listed.get(path) as { sha256: string; size: number })))
-      throw new Error(`${path} changed in the library meanwhile`);
+    if (!(await still(path, path))) throw new Error(`${path} changed in the library meanwhile`);
   for (const [path, from] of plan.link)
-    if (
-      existsSync(join(seriesDir, path)) ||
-      !(await holds(join(seriesDir, from), listed.get(path) as { sha256: string; size: number }))
-    )
+    if (existsSync(join(seriesDir, path)) || !(await still(path, from)))
       throw new Error(`${path} changed in the library meanwhile`);
   for (const path of plan.unpack)
     if (path.startsWith("media/") && existsSync(join(seriesDir, path)))
