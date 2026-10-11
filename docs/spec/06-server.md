@@ -238,7 +238,7 @@ it, so headless `serve` has every feature.
 
 ## CLI (`apps/cli`)
 
-Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port]` ·
+Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]...` ·
 `import <provider> [--data] [--courses] [--editions] [--refresh]` · `verify [--data] [--notes]` (02).
 `profiles` (above). Planned: `normalise <series>`, profile export and import, `enrich check` (plan).
 
@@ -279,8 +279,9 @@ headers and CSP, sealed secrets, sanitised course HTML, Markdown without raw HTM
 profiles with device tokens (above).
 
 - **Host check** (`src/security/host.ts`): requests are accepted only for the names this machine is
-  reached by — `localhost`, an IP address, a `.local` name, its host name, the address it listens on —
-  else 421 (DNS-rebinding protection: a page on another site cannot rebind its name to this server).
+  reached by — `localhost`, an IP address, a `.local` name, its host name, the address it listens on,
+  the names given by `serve --allow-host <name>` (repeatable: a reverse proxy's name) — else 421
+  (DNS-rebinding protection: a page on another site cannot rebind its name to this server).
   The tailnet's name: plan, "Phones". No CORS (same-origin only).
 - **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
   header `X-SprachAnker: 1`.

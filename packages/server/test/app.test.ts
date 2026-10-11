@@ -509,6 +509,10 @@ describe("settings and media", () => {
     expect((await app.request("http://rebound.example/api/health")).status).toBe(421);
     for (const host of ["127.0.0.1", "192.168.1.20", "[::1]", "mac.local", "localhost"])
       expect((await app.request(`http://${host}:4580/api/health`)).status).toBe(200);
+    // The names given by `serve --allow-host`.
+    const allowing = await setup({ hosts: ["study.example"] });
+    expect((await allowing.app.request("http://study.example/api/health")).status).toBe(200);
+    expect((await allowing.app.request("http://other.example/api/health")).status).toBe(421);
     const index = await get("/");
     expect(index.headers.get("x-frame-options")).toBe("DENY");
     expect(index.headers.get("content-security-policy")).toContain("img-src 'self' data: blob:");

@@ -2,7 +2,7 @@ import { afterEach, expect, spyOn, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { main } from "../src/main.ts";
+import { main, serveOptions } from "../src/main.ts";
 
 /** Runs the CLI; returns what it printed and its exit code. */
 async function cli(...argv: string[]) {
@@ -39,6 +39,25 @@ test("a failure is one line and exit code 1, not a stack trace", async () => {
   expect([port.out, port.code]).toEqual(["sprachanker: invalid --port: ", 1]);
   const option = await cli("verify", "--nope");
   expect([option.out.startsWith("sprachanker: "), option.code]).toEqual([true, 1]);
+});
+
+test("serve answers to the names given by --allow-host, each a host name", async () => {
+  const data = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  const options = serveOptions([
+    "--data",
+    data,
+    "--allow-host",
+    "Study.Example.",
+    "--allow-host",
+    "phone-proxy.example",
+  ]);
+  expect(options.allowHosts).toEqual(["study.example", "phone-proxy.example"]);
+  expect(serveOptions(["--data", data]).allowHosts).toEqual([]);
+  const bad = await cli("serve", "--data", data, "--allow-host", "https://study.example:443");
+  expect([bad.out, bad.code]).toEqual([
+    "sprachanker: invalid --allow-host: https://study.example:443 (a host name only)",
+    1,
+  ]);
 });
 
 test("an unknown command prints the usage and fails; help succeeds", async () => {

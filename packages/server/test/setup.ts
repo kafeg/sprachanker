@@ -28,6 +28,8 @@ export async function setup(
     speech?: SpeechHost;
     piper?: PiperHost;
     readings?: ReadingCache;
+    /** Names given by `--allow-host`. */
+    hosts?: string[];
     /** Changes the fixture library before the app opens it (an item the fixture course lacks). */
     editLibrary?: (libraryRoot: string) => void;
   } = {},
@@ -54,6 +56,7 @@ export async function setup(
     speech: options.speech,
     piper: options.piper,
     readings: options.readings,
+    hosts: options.hosts,
     now: () => (clock += 1000),
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };

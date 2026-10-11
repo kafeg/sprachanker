@@ -19,8 +19,9 @@ const DEFAULT_PORT = 4580;
 const USAGE = `Usage: sprachanker <command>
 
 Commands:
-  serve  [--data <dir>] [--host <address>] [--port <number>]
-         start the server (default 127.0.0.1:${DEFAULT_PORT})
+  serve  [--data <dir>] [--host <address>] [--port <number>] [--allow-host <name>]...
+         start the server (default 127.0.0.1:${DEFAULT_PORT}); it answers to this machine's names
+         (localhost, IPs, .local, its host name) and to each --allow-host
   import <provider> [--data <dir>] [--courses a1,a2] [--editions ru-de,en-de] [--refresh]
          download and normalise a course; re-running fetches only what is missing
          providers: ${providerIds().join(", ")}
@@ -45,28 +46,35 @@ const list = (value: string | undefined) =>
     .filter(Boolean);
 const log = (line: string) => console.log(`${new Date().toTimeString().slice(0, 8)} ${line}`);
 
-function serve(args: string[], webAssets: WebAssets): void {
+const HOST_NAME = /^[a-z0-9-]+(\.[a-z0-9-]+)*$/;
+
+/** What `serve` is told: where to listen, the data root, the names it also answers to. */
+export function serveOptions(args: string[]) {
   const { values } = parseArgs({
     args,
     options: {
       data: { type: "string" },
       host: { type: "string", default: "127.0.0.1" },
       port: { type: "string", default: String(DEFAULT_PORT) },
+      "allow-host": { type: "string", multiple: true, default: [] },
     },
   });
   const port = Number(values.port);
   if (!/^\d+$/.test(values.port) || port > 65535) {
     throw new Error(`invalid --port: ${values.port}`);
   }
-  const dataRoot = resolveDataRoot(values.data);
-  const server = startServer({
-    hostname: values.host,
-    port,
-    webAssets,
-    dataRoot,
-    appVersion: pkg.version,
+  const allowHosts = values["allow-host"].map((name) => {
+    const host = name.trim().toLowerCase().replace(/\.$/, "");
+    if (!HOST_NAME.test(host)) throw new Error(`invalid --allow-host: ${name} (a host name only)`);
+    return host;
   });
-  console.log(`SprachAnker is running at ${server.url} (data: ${dataRoot})`);
+  return { hostname: values.host, port, dataRoot: resolveDataRoot(values.data), allowHosts };
+}
+
+function serve(args: string[], webAssets: WebAssets): void {
+  const options = serveOptions(args);
+  const server = startServer({ ...options, webAssets, appVersion: pkg.version });
+  console.log(`SprachAnker is running at ${server.url} (data: ${options.dataRoot})`);
 }
 
 async function importCommand(args: string[]): Promise<void> {

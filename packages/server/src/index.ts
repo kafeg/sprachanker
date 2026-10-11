@@ -32,6 +32,9 @@ export interface ServerConfig {
   /** Data root (05): library/, decks/ and profiles/. */
   dataRoot: string;
   appVersion: string;
+  /** More names the Host check accepts (`--allow-host`): a name this machine is reached by that it
+   *  cannot know itself, as a reverse proxy's. */
+  allowHosts?: string[];
 }
 
 /** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. */
@@ -54,8 +57,9 @@ export function startServer(config: ServerConfig): Listening {
     speech: speechHost(config.dataRoot),
     piper: piperHost(config.dataRoot),
     readings: readingCache(config.dataRoot),
-    // The machine's own names: its host name, and the one the server was told to listen on.
-    hosts: [hostname(), `${hostname()}.local`, config.hostname],
+    // The machine's own names: its host name, the one the server was told to listen on, those it was
+    // given (`--allow-host`).
+    hosts: [hostname(), `${hostname()}.local`, config.hostname, ...(config.allowHosts ?? [])],
   });
   // After the app: its databases exist and are migrated.
   startDailyBackups(config.dataRoot);
