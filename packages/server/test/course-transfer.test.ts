@@ -23,6 +23,7 @@ import { ulid } from "ulid";
 import { withSeriesLock } from "../src/providers.ts";
 import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { setup } from "./setup.ts";
+import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 const COURSE = "sprachanker.fixture/demo";
@@ -306,15 +307,17 @@ test("one export of a course at a time: the same asked again is that one, anothe
 test("an export does not wait for a download of its series: it says so", async () => {
   const a = await setup();
   let release = () => {};
+  let locked = false;
   const held = withSeriesLock(
     join(a.root, "library"),
     FIXTURE_SERIES,
     () =>
       new Promise<void>((resolve) => {
+        locked = true;
         release = resolve;
       }),
   );
-  await Bun.sleep(10);
+  await until(() => locked);
   const busy = await a.send("POST", "/api/courses/export", {
     series: FIXTURE_SERIES,
     course: "demo",
@@ -482,7 +485,9 @@ test("one import at a time", async () => {
     }),
     bytes.length,
   );
-  await Bun.sleep(20);
+  // Under way: its transfer begun (inside the one import let in).
+  const transfers = join(b.root, "library", ".transfers");
+  await until(() => existsSync(transfers) && readdirSync(transfers).length > 0);
   const busy = await importInto(b, bytes);
   expect([busy.status, await read(busy)]).toEqual([409, { error: "course_import_busy" }]);
   release();
