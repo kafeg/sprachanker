@@ -125,6 +125,15 @@ export function deckFiles(dataRoot: string): DeckFiles {
       if (!MEDIA.test(path)) throw new Error(`bad deck media path ${path}`);
       writeWhole(join(folder(id), path), bytes);
     },
+    removeMedia(id, path) {
+      if (MEDIA.test(path)) rmSync(join(folder(id), path), { force: true });
+    },
+    folders: () =>
+      statSync(root, { throwIfNoEntry: false })?.isDirectory()
+        ? readdirSync(root).filter(
+            (name) => ID.test(name) && statSync(join(root, name)).isDirectory(),
+          )
+        : [],
     async stage(body, max) {
       mkdirSync(uploads, { recursive: true });
       sweepUploads();

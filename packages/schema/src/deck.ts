@@ -87,8 +87,8 @@ export const DeckReadAudio = z.strictObject({
 });
 export type DeckReadAudio = z.infer<typeof DeckReadAudio>;
 
-/** `decks/<folder>/extras.json`: what the server made for a deck's words, by word key — an imported
- *  deck's note guid, a course's lexeme key (a course's cards are one per lexeme). */
+/** `decks/<folder>/extras.json`: what the server made for a deck's words, by lexeme key (a deck's
+ *  cards are one per lexeme). */
 export const DeckExtras = z.strictObject({
   format: format(DECK_EXTRAS_FORMAT),
   words: z.record(z.string().min(1).max(200), z.strictObject({ audio: DeckReadAudio.optional() })),

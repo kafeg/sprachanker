@@ -11,6 +11,7 @@ import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
 import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
+import { createDeckExtras } from "./deck-extras.ts";
 import { createDecks, type DeckFiles, type Decks } from "./decks.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
@@ -176,8 +177,10 @@ function profileServices(
     decks,
     // A deck's words read aloud with the engine and voice this profile reads them with.
     deckAudio: {
-      state: (scope: string) => deckAudio.state(scope, speechOfProfile.deckReader),
-      start: (scope: string) => deckAudio.start(scope, speechOfProfile.deckReader),
+      state: (scope: string) =>
+        deckAudio.state(scope, cards.deckNotes(scope), speechOfProfile.deckReader),
+      start: (scope: string) =>
+        deckAudio.start(scope, cards.deckNotes(scope), speechOfProfile.deckReader),
       stop: deckAudio.stop,
     },
     downloads,
@@ -243,14 +246,17 @@ export function createServices(config: ServicesConfig) {
     onImport: () => {
       for (const s of open.values()) void relink(s);
     },
-    onReplace: (id) => deckAudio.forget(id),
+    onReplace: (id) => deckExtras.forget(id),
     now,
   });
+  // What the server makes for a deck's words (audio read aloud, examples), kept beside the deck; the
+  // folders of courses no longer here go.
+  const deckExtras = createDeckExtras({ files: config.decks, decks, content, now });
+  deckExtras.sweep().catch((error: unknown) => console.error("sweeping deck folders:", error));
   // Cards take the audio read aloud for their decks' words.
   const deckAudio = createDeckAudio({
+    extras: deckExtras,
     files: config.decks,
-    decks,
-    content,
     onRead: async () => {
       await Promise.all([...open.values()].map(relink));
     },

@@ -56,8 +56,10 @@ src/
                      #   relinking), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
                      #   marks; standing), words, decks (imported .apkg decks, server-wide: preview,
                      #   import — the same deck again updated —, list, delete while no profile uses it),
-                     #   deck-audio (a deck's words without audio read aloud into its folder: a job per
-                     #   deck, the engine and voice handed in by index.ts from profile-speech)
+                     #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
+                     #   extras.json read once, a job per deck and kind, sweeping course folders),
+                     #   deck-audio (its words without audio read aloud: the engine and voice handed in by
+                     #   index.ts from profile-speech, the words from the profile's cards in the deck)
                      # - across modules: notebook (study days, the standings gathered), progress (resets;
                      #   recordings in use), content, settings, stored (a JSON value read by its schema)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,

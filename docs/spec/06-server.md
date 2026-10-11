@@ -94,7 +94,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   words, with audio of their own, read aloud, without; the engine and voice the profile's settings read
   them with — null when nothing here reads that language —; the deck's job, running or the latest:
   status `running` | `stopping` (the words under way still read) | `done` | `stopped` | `failed`, words read of all it set out to read, failures, the
-  word being read, the latest failure's code), `POST /api/decks/audio` (`{scope}`: the job started —
+  word being read, the latest failure's code, `leftMs`: about how long the rest takes); the words are
+  those of the profile's cards in the deck, counted by lexeme, `POST /api/decks/audio` (`{scope}`: the job started —
   once; a job running goes on — and the state; 409 `speech_unavailable` when nothing reads the
   language), `DELETE /api/decks/audio?scope=` (the job stopped, what it read kept); 404
   `no_such_deck` for a deck or course not here. A job is the server's (any profile sees it), in

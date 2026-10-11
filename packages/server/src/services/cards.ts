@@ -24,6 +24,7 @@ import { monotonicFactory } from "ulid";
 import { ServiceError } from "../errors.ts";
 import type { CardStore } from "./card-store.ts";
 import type { Content } from "./content.ts";
+import type { DeckNote } from "./deck-extras.ts";
 import type { Decks } from "./decks.ts";
 import { type RunStore, readStored } from "./run-store.ts";
 import type { Settings } from "./settings.ts";
@@ -42,8 +43,9 @@ export function createCards(deps: {
   session: (lessonKey: LessonKey) => Promise<{ run: { id: string } } | undefined>;
   /** The courses the learner has started (My courses, by course key): the decks offered. */
   myCourses: () => Promise<Set<string>>;
-  /** A word's audio read aloud for its deck (deck-audio.ts): `<folder>/media/<file>`. */
-  readAudio: (folder: string, key: string, text: string) => string | undefined;
+  /** A word's audio read aloud for its deck (deck-audio.ts) by its lexeme, while it is of the word
+   *  as shown: `<folder>/media/<file>`. */
+  readAudio: (folder: string, lexeme: string, target: string) => string | undefined;
   now: () => number;
 }) {
   const { cards, content, decks, settings, now } = deps;
@@ -74,10 +76,10 @@ export function createCards(deps: {
     };
   }
 
-  /** A word's own audio, else the audio read aloud for its deck (by its key there). */
-  const readAloud = (audio: string | undefined, folder: string, key: string, text: string) => {
+  /** A word's own audio, else the audio read aloud for its deck (by its lexeme there). */
+  const readAloud = (audio: string | undefined, folder: string, lexeme: string, target: string) => {
     if (audio) return { audio };
-    const read = deps.readAudio(folder, key, text);
+    const read = deps.readAudio(folder, lexeme, target);
     return read ? { readAudio: read } : {};
   };
 
@@ -87,7 +89,7 @@ export function createCards(deps: {
     ...(w.gender && { gender: w.gender }),
     ...(w.plural && { plural: w.plural }),
     ...(w.translation && { translation: w.translation }),
-    ...readAloud(w.audio, deck.id, w.key, w.target),
+    ...readAloud(w.audio, deck.id, w.lexeme, w.target),
     ...(w.examples?.length && { examples: w.examples }),
     deck: deck.id,
   });
@@ -262,6 +264,23 @@ export function createCards(deps: {
         cards.remove(gone);
       });
       return { removed: gone.length, moved: moves.length };
+    },
+
+    /** The learner's cards made in a deck (`course:<key>`, `deck:<id>`), in the order they were
+     *  made: the words its extras are made for (audio read aloud, examples). */
+    deckNotes(scope: string): DeckNote[] {
+      return cards.all().flatMap((n) =>
+        n.deck === scope && n.lexemeKey
+          ? [
+              {
+                lexeme: n.lexemeKey,
+                lang: n.lang,
+                translationLang: n.translationLang,
+                display: n.display,
+              },
+            ]
+          : [],
+      );
     },
 
     /** Decks to take: the learner's courses (My courses), each course and language pair, and the

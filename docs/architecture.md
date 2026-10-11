@@ -81,8 +81,9 @@ gets the types through Hono RPC (`AppType`), no codegen.
   item across passes), `mistakes`; exams: `exams` (the standings) over `exam-runs` (mock exams and
   practice taken); review: `cards` (cards from a lesson's words, decks taken and left, relinking),
   `decks` (imported `.apkg` decks, the server's: preview, import, list, delete; their folders through
-  `runtime/decks.ts`), `deck-audio` (a deck's words without audio read aloud by the server's
-  engine, kept in its folder; a job per deck), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
+  `runtime/decks.ts`), `deck-extras` (what is made for a deck's words, kept in its folder:
+  extras.json read once, a job per deck and kind), `deck-audio` (a deck's words without audio read
+  aloud by the server's engine), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
   across them `notebook` (the study days and the modules' standings, gathered), `progress` (reset over
   every module's runs, recordings in use), `settings`.
 - **AI** (a feature across the learning modules, below): `llm` (providers, LM Studio, prompt
