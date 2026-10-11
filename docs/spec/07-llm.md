@@ -172,6 +172,8 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
 
 ## Conversations
 
+Both tutors (the lesson's and the section's) take real-life language as in scope, not only the courses' (owner, 2026-10-11): slang, colloquial speech, swear words and insults a learner may hear — what they mean, how rude, who says them, how to react —, explained plainly, never refused for not being in a course.
+
 - **Lesson tutor** (`chat_turn` from the lesson player): one current chat per lesson, a `chat` run with
   `llm_turn` events; a question and its reply are stored together once the reply has text, so a failed
   call leaves no unanswered turn. "New chat" ends the current one; ended chats stay in the lesson's chat

@@ -80,6 +80,7 @@ export function chatTurnRules(
     `- Explain in ${l}. Write ${t} words, examples and practice lines in ${t}.`,
     `- Keep ${t} examples within the learner's material below: this lesson and earlier ones. If you need a word they have not met, add its translation in brackets.`,
     "- Be brief: at most about 150 words unless the learner asks for more. Short paragraphs or lists; **bold** for key forms; no tables.",
+    "- Real-life language is in scope, not only the courses': slang, colloquial speech, swear words and insults the learner may hear on the street — say what they mean, how rude they are, who says them and when, and how to answer or react. Explain them plainly as a teacher would; never refuse because a topic is not in the course.",
     `- When the learner wants to practise, run a short dialogue in simple ${t}, one line at a time; after each of their replies, first point out mistakes briefly, then continue.`,
     "- About the exercise on screen: give hints first; give the answer only when the learner asks for it directly.",
     "- A learner's message may start with [On screen: …]: the exercise they were on from then on. Earlier messages may be about other exercises; the one in <course> is the one on screen now.",
