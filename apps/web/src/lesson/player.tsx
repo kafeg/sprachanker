@@ -48,6 +48,7 @@ export function LessonPlayer({
   const map = useCourseMap(series, course, edition);
   const run = useRun(series, key, edition);
   const practice = slots.practice?.useKinds();
+  const explains = slots.explain?.useOn() ?? false;
   const flow = useLessonFlow({
     lesson: data.data?.lesson,
     locale: data.data?.locale,
@@ -193,18 +194,19 @@ export function LessonPlayer({
                   onBack={back}
                   onNext={next}
                   explain={
-                    slots.explain &&
-                    ((index, answer) =>
-                      slots.explain?.({
-                        ...context,
-                        exerciseKey: exercise.key,
-                        index,
-                        answer,
-                        // Kept with the run and the attempt it explains (the latest answer).
-                        runId: run.run?.id,
-                        attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
-                        stored: run.flush,
-                      }))
+                    explains
+                      ? (index, answer) =>
+                          slots.explain?.view({
+                            ...context,
+                            exerciseKey: exercise.key,
+                            index,
+                            answer,
+                            // Kept with the run and the attempt it explains (the latest answer).
+                            runId: run.run?.id,
+                            attempt: run.attempts(exercise.items[index]?.key ?? "") || undefined,
+                            stored: run.flush,
+                          })
+                      : undefined
                   }
                   spoken={
                     slots.spoken && run.run

@@ -34,11 +34,11 @@ export const lessonAssistant: LessonSlots = {
       <LessonTutor {...context} />
     </In>
   ),
-  explain: (context) => (
-    <In place="explain">
-      <ExplainMistake autoStart {...context} />
-    </In>
-  ),
+  explain: {
+    // Its button only while it can answer: a model set up and its place on.
+    useOn: () => !!useAiIn("explain"),
+    view: (context) => <ExplainMistake autoStart {...context} />,
+  },
   spoken: (context) => (
     <In place="speaking">
       <SpokenAnswerCheck {...context} />
