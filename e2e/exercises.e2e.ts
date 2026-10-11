@@ -133,7 +133,7 @@ test("typed gaps: the letter row types at the cursor; Enter goes to the next gap
   await first.fill("Kaffee");
   await first.press("Enter");
   await expect(second).toBeFocused();
-  // A gap grows with what is typed beyond the room its answer has.
+  // A gap grows with what is typed beyond the room its exercise gives.
   const before = await second.evaluate((e) => e.getBoundingClientRect().width);
   await second.pressSequentially("Milch mit Zucker");
   expect(await second.evaluate((e) => e.getBoundingClientRect().width)).toBeGreaterThan(before);

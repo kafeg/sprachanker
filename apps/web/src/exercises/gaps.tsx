@@ -1,5 +1,5 @@
 import { correctOptions, type ItemOf, type Option } from "@sprachanker/schema";
-import { useContext, useRef, useState } from "react";
+import { createContext, useContext, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -10,6 +10,7 @@ import {
   partRight,
   RightAnswer,
   ShuffleSeed,
+  SourceOrder,
   SpecialLetters,
   shuffled,
   useShuffled,
@@ -22,9 +23,12 @@ type Segments = ItemOf<"gap_text">["segments"];
 const gapNumber = (segments: Segments, gap: string) =>
   segments.filter((s) => typeof s !== "string").findIndex((s) => s.gap === gap) + 1;
 
-/** Closing punctuation right after a gap: it stays on the gap's line, a space before a full stop or a
- *  comma dropped ("[gap] ." reads "[gap]."; an opening quote after a space is not taken). */
-const TAIL = /^[ \u00a0]*[.,!?;:…][.,!?;:…)\]»“”"'’]*|^[)\]»“”"'’]+[.,!?;:…]*/u;
+/**
+ * What follows a gap and stays on its line: closing punctuation touching it, a full stop or comma after
+ * a space too (the space dropped: "[gap] ." reads "[gap]."), and an apostrophe with its letters
+ * ("[gap]'s"). An ellipsis or an opening quote after a space stays apart (" …und", ' "Max"').
+ */
+const TAIL = /^(?:[ \u00a0]*[.,]|[!?;:…)\]»“”"])[.,!?;:…)\]»“”"]*|^['’]\p{L}*[.,!?;:…]*/u;
 
 /** A gap as shown: its field and, once checked and wrong, the right answer beside it. */
 type ShownGap = { field: React.ReactNode; right?: string };
@@ -67,14 +71,30 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
   );
 }
 
-/** A typed gap's width in `ch`: room for the longest accepted answer, rounded up to a step of four
- *  (it tells only roughly how long the answer is), and for what is typed. Pure. */
-export const gapWidth = (accepted: string[], typed = "") =>
-  Math.max(
-    6,
-    Math.ceil((Math.max(0, ...accepted.map((a) => a.length)) + 2) / 4) * 4,
-    typed.length + 2,
+/** The room of an exam's typed gaps in `ch`: all alike, whatever the answer (an exam tells nothing). */
+export const EXAM_GAP_ROOM = 16;
+
+/**
+ * The room every typed gap of an exercise has, in `ch`: the longest accepted answer of any of its gaps,
+ * rounded up to a step of four, at least eight — one width for all its gaps, so a gap's width says
+ * nothing of its own answer ("du" and "ich" alike). Pure.
+ */
+export const gapRoom = (items: Array<ItemOf<"gap_text">>) => {
+  const longest = Math.max(
+    0,
+    ...items
+      .flatMap((item) => Object.values(item.answer).flatMap((a) => a.accepted))
+      .map((a) => a.length),
   );
+  return Math.max(8, Math.ceil((longest + 2) / 4) * 4);
+};
+
+/** The room its exercise gives a typed gap (`gapRoom`, set by the item's card; an exam's
+ *  `EXAM_GAP_ROOM`); without one, its own item's. */
+export const GapRoom = createContext<number | undefined>(undefined);
+
+/** A typed gap's width in `ch`: its room, and more as what is typed outgrows it. Pure. */
+export const gapWidth = (room: number, typed = "") => Math.max(room, typed.length + 2);
 
 const WORD = "bank:word:";
 const GAP = "bank:gap:";
@@ -223,6 +243,9 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
   const { t } = useTranslation();
   const values = answer ?? {};
   const scope = useRef<HTMLDivElement>(null);
+  const exam = useContext(SourceOrder);
+  const given = useContext(GapRoom);
+  const room = exam ? EXAM_GAP_ROOM : (given ?? gapRoom([item]));
   return (
     <div ref={scope} className="space-y-2">
       <Text
@@ -241,7 +264,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
                 autoComplete="off"
                 spellCheck={false}
                 onChange={(e) => onAnswer({ ...values, [gap]: e.target.value })}
-                style={{ width: `calc(${gapWidth(accepted, values[gap])}ch + 1.25rem)` }}
+                style={{ width: `calc(${gapWidth(room, values[gap])}ch + 1.25rem)` }}
                 className="h-11 max-w-full rounded-lg border-2 border-input bg-card px-2 text-lg"
               />
             ),

@@ -177,6 +177,8 @@
     "respondPlaceholder": "Ваш ответ…",
     "reference": "{count, plural, one {Пример ответа} other {Примеры ответов}}",
     "gap": "Пропуск {n}",
+    "partRight": "верно",
+    "partWrong": "неверно",
     "matchFor": "Место для пары {n}",
     "dropHere": "перетащите или нажмите",
     "chips": "Слова для расстановки",

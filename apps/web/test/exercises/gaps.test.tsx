@@ -1,7 +1,8 @@
 import { expect, test } from "bun:test";
-import type { Exercise, Outcome } from "@sprachanker/schema";
-import { gapWidth } from "../../src/exercises/gaps.tsx";
+import type { Exercise, ItemOf, Outcome } from "@sprachanker/schema";
+import { EXAM_GAP_ROOM, gapRoom, gapWidth } from "../../src/exercises/gaps.tsx";
 import { ItemCard } from "../../src/exercises/item-card.tsx";
+import { SourceOrder } from "../../src/exercises/shared.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -33,11 +34,62 @@ const card = (ex: Exercise, answer: unknown, outcome?: Outcome) =>
     </TargetLang>,
   );
 
-test("a typed gap has room for its longest answer, rounded up, and grows with what is typed", () => {
-  expect(gapWidth(["Touristeninformation"])).toBe(24);
-  expect(gapWidth(["Milch", "Zucker"])).toBe(8);
-  expect(gapWidth(["ja"])).toBe(6);
-  expect(gapWidth(["ja"], "Ich weiß es nicht")).toBe(19);
+const gapItem = (...answers: string[][]) =>
+  ({
+    answer: Object.fromEntries(answers.map((accepted, i) => [`g${i + 1}`, { accepted }])),
+  }) as unknown as ItemOf<"gap_text">;
+
+test("every typed gap of an exercise has one room — its longest answer, rounded up — and grows with typing", () => {
+  // Short answers say nothing apart: "du" and "ich", "wo" and "wie" have the floor alike.
+  expect(gapRoom([gapItem(["du"], ["ich"])])).toBe(8);
+  expect(gapRoom([gapItem(["wo"]), gapItem(["wie"])])).toBe(8);
+  // The longest answer of any gap of any item sets it for all.
+  expect(gapRoom([gapItem(["ja"]), gapItem(["Touristeninformation"])])).toBe(24);
+  expect(gapWidth(8)).toBe(8);
+  expect(gapWidth(8, "Ich weiß es nicht")).toBe(19);
+});
+
+test("two gaps with answers of different length are fields of one width; an exam's are all alike", async () => {
+  const ex = exercise("gap_text", {
+    segments: [{ gap: "g1" }, " wohnst in Köln, ", { gap: "g2" }, " wohne in Bonn."],
+    answer: { g1: { accepted: ["Du"] }, g2: { accepted: ["Ich"] } },
+  });
+  const view = await card(ex, {});
+  const widths = view.getAllByRole("textbox").map((f) => (f as HTMLInputElement).style.width);
+  expect(widths).toEqual(["calc(8ch + 1.25rem)", "calc(8ch + 1.25rem)"]);
+  view.unmount();
+  const inExam = await renderApp(
+    <SourceOrder.Provider value>
+      <TargetLang value="de">
+        <ItemCard
+          exercise={typed}
+          locale={null}
+          index={0}
+          answer={{}}
+          url={(p) => p}
+          onAnswer={() => undefined}
+        />
+      </TargetLang>
+    </SourceOrder.Provider>,
+  );
+  expect((inExam.getByRole("textbox") as HTMLInputElement).style.width).toBe(
+    `calc(${EXAM_GAP_ROOM}ch + 1.25rem)`,
+  );
+});
+
+test("an ellipsis after a space stays apart; a 's after a gap goes with it", async () => {
+  const ex = exercise("gap_text", {
+    segments: ["Das ist ", { gap: "g1" }, "’s Auto, ", { gap: "g2" }, " …und weiter."],
+    answer: { g1: { accepted: ["Nico"] }, g2: { accepted: ["ja"] } },
+  });
+  const view = await card(ex, { g1: "Tom", g2: "nein" }, {
+    result: "wrong",
+    score: 0,
+    parts: { g1: false, g2: false },
+  } as Outcome);
+  expect(view.getByText("→ Nico", RAW).parentElement?.textContent).toBe("→ Nico’s");
+  expect(view.getByText(/Auto/).textContent).toBe(" Auto, ");
+  expect(view.getByText(/und weiter/).textContent).toBe(" …und weiter.");
 });
 
 const typed = exercise("gap_text", {
@@ -102,4 +154,6 @@ test("a checked drop-down gap shows the choice as text with its mark, no greyed 
   expect(view.queryByRole("combobox")).toBeNull();
   expect(view.getByText("Herr")).toBeTruthy();
   expect(view.getByText("→\u00a0Frau", RAW)).toBeTruthy();
+  // The mark in words too, for screen readers.
+  expect(view.getByText("wrong").className).toContain("sr-only");
 });

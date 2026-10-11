@@ -177,6 +177,8 @@
     "respondPlaceholder": "Your answer…",
     "reference": "{count, plural, one {Model answer} other {Model answers}}",
     "gap": "Gap {n}",
+    "partRight": "right",
+    "partWrong": "wrong",
     "matchFor": "Match for item {n}",
     "dropHere": "drop or tap here",
     "chips": "Words to place",

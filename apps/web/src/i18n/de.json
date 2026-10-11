@@ -177,6 +177,8 @@
     "respondPlaceholder": "Deine Antwort…",
     "reference": "{count, plural, one {Musterlösung} other {Musterlösungen}}",
     "gap": "Lücke {n}",
+    "partRight": "richtig",
+    "partWrong": "falsch",
     "matchFor": "Platz für Paar {n}",
     "dropHere": "hierher ziehen oder tippen",
     "chips": "Wörter zum Zuordnen",

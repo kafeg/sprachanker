@@ -34,10 +34,13 @@ export const peek = {
     if (video.dataset.peek === "seeking") video.dataset.peek = "shown";
     else delete video.dataset.peek;
   },
+  // Played while the frame is shown or still being sought: from the beginning.
   play(video: HTMLVideoElement) {
-    if (video.dataset.peek === "shown") video.currentTime = 0;
+    if (video.dataset.peek !== undefined) video.currentTime = 0;
     delete video.dataset.peek;
   },
+  /** Where the clip really is: its beginning while the frame is shown. */
+  time: (video: HTMLVideoElement) => (video.dataset.peek !== undefined ? 0 : video.currentTime),
 };
 
 /** The lesson's episode, set by the player: an exercise video that is one of its files plays as it. */
@@ -77,7 +80,7 @@ export function EpisodeVideo({
   if (!src) return null;
   const switchTo = (q: "sd" | "hd") => {
     const video = ref.current;
-    const time = video?.currentTime ?? 0;
+    const time = video ? peek.time(video) : 0;
     const playing = video ? !video.paused : false;
     setQuality(q);
     requestAnimationFrame(() => {

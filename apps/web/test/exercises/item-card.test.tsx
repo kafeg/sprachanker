@@ -136,3 +136,41 @@ test("options in the learner's language come from the locale file, without the t
   expect(view.getByText("хорошо знакомы.").getAttribute("lang")).toBeNull();
   expect(view.getByText("Ja, gern.").getAttribute("lang")).toBe("de");
 });
+
+test("a picture tile chosen among several keeps its ticked box filled", async () => {
+  const pictures = {
+    key: "sprachanker.test/demo/00-01/ex-06",
+    type: "multi_choice",
+    fingerprint: "x",
+    newWords: [],
+    ruleIds: [],
+    items: [
+      {
+        key: "sprachanker.test/demo/00-01/ex-06#1",
+        options: [
+          { id: "a", media: { image: "media/image/a.jpg" } },
+          { id: "b", media: { image: "media/image/b.jpg" } },
+        ],
+        answer: { optionIds: ["a"] },
+      },
+    ],
+  } as unknown as Exercise;
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={pictures}
+        locale={null}
+        index={0}
+        answer={{ optionIds: ["a"] }}
+        url={(p) => p}
+        onAnswer={() => undefined}
+      />
+    </TargetLang>,
+  );
+  const box = (pressed: string) =>
+    view.container.querySelector(`button[aria-pressed="${pressed}"] > span[aria-hidden]`)
+      ?.className ?? "";
+  expect(box("true")).toContain("bg-primary");
+  expect(box("true")).not.toContain("bg-card");
+  expect(box("false")).toContain("bg-card");
+});

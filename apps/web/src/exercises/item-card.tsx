@@ -2,7 +2,7 @@
 // renderer of its type, the correct answer under a wrong one where the renderer does not show it, and
 // once checked the source's answer, spoken.
 // The lesson player answers in it; the Notebook shows an answer given, read-only.
-import type { Exercise, LocaleExercise, Outcome } from "@sprachanker/schema";
+import type { Exercise, ItemOf, LocaleExercise, Outcome } from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
@@ -10,6 +10,7 @@ import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
+import { GapRoom, gapRoom } from "./gaps.tsx";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
 
 /** The prompt every item of an exercise has alike (two items or more), to show once above them
@@ -142,19 +143,28 @@ export function ItemCard({
           onHeard={onHeard}
         />
       )}
-      <ExerciseItem
-        type={exercise.type}
-        item={item as never}
-        locale={loc}
-        answer={answer as never}
-        onAnswer={(a: unknown) => onAnswer?.(a)}
-        outcome={outcome}
-        url={url}
-        active={active && !!onAnswer}
-        listen={toHear(exercise, index).length > 0}
-        heard={heard}
-        readOnly={!onAnswer}
-      />
+      {/* Every typed gap of the exercise has one room (gaps.tsx). */}
+      <GapRoom.Provider
+        value={
+          exercise.type === "gap_text"
+            ? gapRoom(exercise.items as Array<ItemOf<"gap_text">>)
+            : undefined
+        }
+      >
+        <ExerciseItem
+          type={exercise.type}
+          item={item as never}
+          locale={loc}
+          answer={answer as never}
+          onAnswer={(a: unknown) => onAnswer?.(a)}
+          outcome={outcome}
+          url={url}
+          active={active && !!onAnswer}
+          listen={toHear(exercise, index).length > 0}
+          heard={heard}
+          readOnly={!onAnswer}
+        />
+      </GapRoom.Provider>
       {shown && (
         <p className="mt-3 text-sm">
           <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>

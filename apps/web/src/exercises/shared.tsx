@@ -127,6 +127,7 @@ export function RightAnswer({ text, className }: { text: string; className?: str
 /** A gap once checked: the answer given as text in its frame — not a greyed field — with ✓ or ✕. */
 export function CheckedField({ text, ok }: { text: string | undefined; ok: boolean }) {
   const lang = useTargetLang();
+  const { t, i18n } = useTranslation();
   return (
     <span
       lang={lang}
@@ -141,6 +142,10 @@ export function CheckedField({ text, ok }: { text: string | undefined; ok: boole
       ) : (
         <X className="size-4 shrink-0 text-wrong" aria-hidden />
       )}
+      {/* The mark in words for screen readers, in the learner's language. */}
+      <span className="sr-only" lang={i18n.language}>
+        {` ${t(ok ? "ex.partRight" : "ex.partWrong")}`}
+      </span>
     </span>
   );
 }
@@ -200,8 +205,11 @@ export function OptionButton({
           aria-hidden
           className={cn(
             "grid size-5 shrink-0 place-items-center rounded-[5px] border-2",
-            selected ? "border-primary bg-primary text-primary-foreground" : "border-input",
-            fill && "absolute top-2 left-2 bg-card",
+            fill && "absolute top-2 left-2",
+            // On a picture an empty box has a ground of its own; a ticked one keeps its fill.
+            selected
+              ? "border-primary bg-primary text-primary-foreground"
+              : cn("border-input", fill && "bg-card"),
           )}
         >
           {selected && <Check className="size-3.5" strokeWidth={3} />}
