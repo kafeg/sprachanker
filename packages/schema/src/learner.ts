@@ -8,6 +8,7 @@ import {
   UnderstandingText,
   WordExample,
   WritingCheck,
+  WritingTask,
 } from "./assistant.ts";
 import { ExamItem, ExamModuleId } from "./exam.ts";
 import { Exercise } from "./exercise/index.ts";
@@ -196,7 +197,11 @@ const LlmVerdictPayload = z.discriminatedUnion("task", [
     /** The attempt at the item it explains (1 = the first answer). */
     attempt: z.number().int().positive().optional(),
   }),
-  verdict("writing", WritingCheck),
+  verdict("writing", WritingCheck).extend({
+    /** The task the text was written on; texts on the lesson's topic, before tasks, have none. */
+    writingTask: WritingTask.optional(),
+  }),
+  verdict("writing_task", WritingTask),
   verdict("example", WordExample),
   verdict("speaking", SpokenCheck),
   verdict("exam", ExamRatingProposal),

@@ -306,6 +306,75 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "writing_task",
+        "input": "",
+        "result": {
+          "situation": "You meet Lena at the café. Write her a message.",
+          "points": ["Say you will be late.", "Say why.", "Say when you will be there."],
+          "words": 30
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
+    },
+    {
+      "since": "2026-10-12",
+      "payload": {
+        "task": "writing",
+        "input": "Hallo Lena, ich komme spät.",
+        "result": {
+          "verdict": "minor_errors",
+          "corrected": "Hallo Lena, ich komme später.",
+          "corrections": [
+            {
+              "wrong": "spät",
+              "right": "später",
+              "explanation": "Later."
+            }
+          ],
+          "criteria": {
+            "task": {
+              "score": 1,
+              "comment": ""
+            },
+            "communication": {
+              "score": 2,
+              "comment": ""
+            },
+            "accuracy": {
+              "score": 1,
+              "comment": ""
+            }
+          },
+          "points": [
+            {
+              "score": 2,
+              "comment": ""
+            },
+            {
+              "score": 0,
+              "comment": "Not said."
+            },
+            {
+              "score": 0,
+              "comment": "Not said."
+            }
+          ],
+          "modelText": "Hallo Lena, ich komme später. Ich muss noch arbeiten. Ich bin um fünf da.",
+          "feedback": "Say why and when."
+        },
+        "writingTask": {
+          "situation": "You meet Lena at the café. Write her a message.",
+          "points": ["Say you will be late.", "Say why.", "Say when you will be there."],
+          "words": 30
+        },
+        "model": "m",
+        "latencyMs": 10
+      }
     }
   ],
   "llm_turn": [

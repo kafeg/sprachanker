@@ -14,6 +14,7 @@ import { z } from "zod";
 import type { StructuredTask } from "../structured.ts";
 import { languageName, languageNames } from "../text.ts";
 import {
+  cefrOf,
   goalsLine,
   knownWordsLine,
   type LessonInfo,
@@ -49,8 +50,7 @@ const WORDS: Record<string, [number, number]> = {
 /** The length of a text at the course's level — the first of a span ("A1–A2"), a beginner's when
  *  the course names none. */
 export function textLength(level: string | undefined): [number, number] {
-  const first = /[ABC][12]/.exec(level ?? "")?.[0] ?? "A1";
-  return WORDS[first] ?? [40, 70];
+  return WORDS[cefrOf(level)] ?? [40, 70];
 }
 
 /** How a language's exams write true and false: said with the data. */

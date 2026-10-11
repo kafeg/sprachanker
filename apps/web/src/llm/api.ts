@@ -262,7 +262,7 @@ export type PromptRequest =
   | { tutor: TutorPromptRequest }
   | { section: SectionPromptRequest }
   | { understanding: UnderstandingRequest }
-  | { writing: WritingRequest }
+  | { writing: WritingPromptRequest }
   | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
   | { deckExamples: { scope: string } }
@@ -307,21 +307,39 @@ export const useTutorContext = (request: ContextRequest, turns: number) =>
   });
 
 type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];
+type WritingPromptRequest = Parameters<typeof api.llm.writing.prompt.$post>[0]["json"];
+type WritingTaskRequest = Parameters<typeof api.llm.writing.task.$post>[0]["json"];
 type WritingState = Awaited<ReturnType<typeof fetchWriting>>;
 export type WritingAttempt = WritingState["attempts"][number];
+export type WritingTaskShown = NonNullable<WritingState["task"]>;
 const fetchWriting = (series: string, lessonKey: string, edition: string) =>
   json(api.llm.writing.$get({ query: { series, lessonKey, edition } }));
 
-/** The lesson's writing task and earlier attempts. */
-/** While the server checks a text (asked from here or before), asked again until its result is in. */
+/** While the server checks a text or writes a task (asked from here or before), asked again until
+ *  its result is in. */
 const WHILE_BUSY = 1500;
 
+/** The lesson's writing task, its words and earlier attempts. */
 export const useWriting = (series: string, lessonKey: string, edition: string) =>
   useQuery({
     queryKey: ["writing", lessonKey, edition],
     queryFn: () => fetchWriting(series, lessonKey, edition),
-    refetchInterval: (query) => (query.state.data?.checking ? WHILE_BUSY : false),
+    refetchInterval: (query) =>
+      query.state.data?.checking || query.state.data?.preparing ? WHILE_BUSY : false,
   });
+
+/** Writes a new task for the lesson (shown at once, also when the page that asked is gone). */
+export function useWritingTask() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (request: WritingTaskRequest) =>
+      json(api.llm.writing.task.$post({ json: request })),
+    onSuccess: (task, request) =>
+      client.setQueryData(["writing", request.lessonKey, request.edition], (old: WritingState) =>
+        old ? { ...old, task, preparing: false } : old,
+      ),
+  });
+}
 
 /** `onChecked` runs once the check is stored, also when the page that asked is gone meanwhile. */
 export function useCheckWriting(onChecked?: () => void) {

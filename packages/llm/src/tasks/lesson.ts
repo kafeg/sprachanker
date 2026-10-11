@@ -40,6 +40,10 @@ export interface TopicMet {
 /** The level as the prompts say it: the course's, else a beginner's. */
 export const levelText = (level: string | undefined) => level ?? "beginner (A1–A2)";
 
+/** The level a task sizes its work by: the first of a span ("A1–A2" → A1), a beginner's (A1) when
+ *  the course names none. */
+export const cefrOf = (level: string | undefined) => /[ABC][12]/.exec(level ?? "")?.[0] ?? "A1";
+
 export const levelLine = (lesson: Pick<LessonInfo, "level">) =>
   `Learner's level: ${levelText(lesson.level)}`;
 

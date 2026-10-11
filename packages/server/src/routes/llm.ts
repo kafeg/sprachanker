@@ -69,7 +69,11 @@ const UnderstandingAnswer = LessonRequest.extend({
 });
 
 // The model checks this much of a text: a longer one would be marked wrong past the cut.
-const WritingBody = LessonRequest.extend({ text: z.string().trim().min(1).max(WRITING_MAX) });
+const WritingBody = LessonRequest.extend({
+  /** The task written on: its verdict. */
+  taskId: Ulid,
+  text: z.string().trim().min(1).max(WRITING_MAX),
+});
 
 const TutorBody = LessonRequest.extend({
   exerciseKey: z.string().max(300).optional(),
@@ -298,7 +302,8 @@ export function llmRoutes() {
       .post("/understanding/prompt", zod("json", LessonRequest), async (c) =>
         c.json(await c.var.s.understanding.prompt(c.req.valid("json"))),
       )
-      // Writing task of a lesson: the task and attempts; a check stores its verdict.
+      // Writing: the lesson's task and attempts; a task written, a text on it checked (each kept as
+      // a verdict), the request either would send.
       .get(
         "/writing",
         zod("query", z.object({ series: SeriesKey, lessonKey: LessonKey, edition: EditionId })),
@@ -307,12 +312,18 @@ export function llmRoutes() {
           return c.json(await c.var.s.writing.state(series, lessonKey, edition));
         },
       )
+      .post("/writing/task", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.writing.task(c.req.valid("json"))),
+      )
       .post("/writing", zod("json", WritingBody), async (c) =>
         c.json(await c.var.s.writing.check(c.req.valid("json"))),
       )
       .post(
         "/writing/prompt",
-        zod("json", WritingBody.extend({ text: z.string().max(WRITING_MAX) })),
+        zod(
+          "json",
+          WritingBody.extend({ taskId: Ulid.optional(), text: z.string().max(WRITING_MAX) }),
+        ),
         async (c) => c.json(await c.var.s.writing.prompt(c.req.valid("json"))),
       )
       .get("/tutor", zod("query", z.object({ lessonKey: LessonKey })), (c) =>

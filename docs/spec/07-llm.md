@@ -118,7 +118,8 @@ rules.
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages, the course's level, the grammar topics met so far each with the lesson that taught it (the snapshot); the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text): what is wrong (never a guess at why it was chosen; a tendency said as one, not as a rule), the rule, where its topic was taught ("this is X from lesson 1.2") |
 | `chat_turn` | the lesson tutor: lesson context, the course's level and the lesson's place, known words, grammar topics met, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
-| `check_writing` | the lesson (title, goals, words, grammar), the course's level, the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), writing criteria at the course's level as CEFR writing exams rate them — Goethe's Schreiben for German, said with the data — (task, communication, accuracy: 0–2 + comment), feedback |
+| `writing_task` | the lesson (title, goals, its place, words, grammar notes) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and what a text at the level needs, with the data; how the target language's exam sets the task (Goethe's Schreiben for German) | JSON: situation, points (exactly three), both in the learner's language — the length added by the app (04, "Writing") |
+| `check_writing` | the lesson (title, words, earlier words, grammar), the course's level, the task (situation, its three points, the length), the learner's text; what a text at the level needs and the exam that rates it (Goethe's Schreiben for German) with the data | JSON: verdict, corrected text, corrections[] (wrong, right, explanation; at most three kept, the most important first), points[] (each of the task's: 0–2 + comment), criteria (task, communication, accuracy: 0–2 + comment), modelText (the task done well at the level, in words known), feedback — comments only on what the task and the level ask |
 | `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
 | `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated), questions (target language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed) — checked: every question askable, at least three, a text heard with questions by ear |
 | `understanding_check` | the text written and its questions without their keys | JSON: answers[] (n, the option's letter or the answer typed, ambiguous) — the questions answered otherwise than their key (an answer typed checked by the engine, as the learner's), ambiguous or not answered are left out (`settledQuestions`) |
@@ -149,11 +150,11 @@ examples, kept beside the deck (04, "A deck's words given examples"; earlier ver
 kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with the attempt it explains
 (the answer explained is read from that attempt in the run, not taken from the request), and shown
 again from there ("Explain again" asks anew; the newest is shown); "ask about this exercise"
-and the lesson tutor → `chat_turn`; "Write it yourself", a step of the plan (3–5 sentences on the
-lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson run the lesson shows (05); the
-step shows the latest check under the task and the lesson's earlier texts under it (verdict, the three
-criteria, when), each readable in full, and any text goes back into the editor to be fixed and checked
-again (owner, 2026-10-07);
+and the lesson tutor → `chat_turn`; "Write it yourself", a step of the plan → `writing_task` on request ("Get a task", "New task"),
+then `check_writing` for a text on it, each an `llm_verdict` in the lesson run the lesson shows (05;
+the check with its task); the step shows the task, the latest check under it and the lesson's
+earlier texts under that (verdict, the three criteria, when), each readable in full with the task it
+answered, and any text goes back into the editor to be fixed and checked again (owner, 2026-10-07);
 an answer said aloud to a speaking item without a line to say (08) → `check_speaking` on request ("Check
 with AI" under what was heard; owner, 2026-10-09): an `llm_verdict`
 (`task: speaking`) on the item in the lesson run, for the words heard — asked once for the same words,
@@ -170,9 +171,7 @@ left: `invalid_output`, nothing kept): the text an `llm_verdict` (`task: underst
 lesson run the lesson shows, its answers `practice_answered` events checked by the engine (04, 05).
 
 Planned tasks of the AI practice in courses (04): `mistake_items` (third phase: the
-pass's mistakes by type, an explanation per type, two or three new items of each type), and
-`check_writing` on a task of three content points, its length and criteria by the course's level, at
-most three corrections and a model text (third phase).
+pass's mistakes by type, an explanation per type, two or three new items of each type).
 
 - Fast replies: tasks that answer the learner directly (`explain_mistake`, turns) ask for no reasoning
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
@@ -217,7 +216,7 @@ most three corrections and a model text (third phase).
   provider · model, with a hint that it is chosen in the settings — not a link, so a lesson is not
   left by a tap on it.
 - Settings → AI assistant → Advanced: each task's system prompt and the context parts it adds, with
-  their character limits (each task's `*_BUDGETS`): explanations, the tutor, the Tutor section, writing and spoken
+  their character limits (each task's `*_BUDGETS`): explanations, the tutor, the Tutor section, a writing task, writing and spoken
   checks, Understanding's text and its second reading, a Dialogue's setup, its lines and its summary,
   a deck's words given examples.
 - The learner can replace a task's system prompt with their own (Settings → AI assistant → Advanced,

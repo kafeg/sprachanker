@@ -64,13 +64,23 @@ test("explain a mistake, ask the tutor, check a text", async ({ page, request })
   await tutor.getByRole("tab", { name: "Conversation" }).click();
   await page.keyboard.press("Escape");
 
-  // With an assistant the plan has the AI practice steps.
+  // With an assistant the plan has the AI practice steps. Writing: a task asked for — a situation,
+  // three points, the length of the course's level (the fixture names none: a beginner's) —, a text
+  // on it checked: each point rated, the corrections, a model text.
   await goToStep(page, "Write it yourself");
+  await page.getByRole("button", { name: "Get a task" }).click();
+  await expect(page.getByText("FAKE: You are meeting Lena at the café.")).toBeVisible();
+  await expect(page.getByText("FAKE: say when you come")).toBeVisible();
+  await expect(page.getByText("About 30 words.")).toBeVisible();
   const writing = page.getByPlaceholder("Your text…");
   await writing.fill("Ich heisse Lena.");
+  await expect(page.getByText("3 words of about 30")).toBeVisible();
   await page.getByRole("button", { name: "Check", exact: true }).click();
   await expect(page.getByText("FAKE: a good start.")).toBeVisible();
   await expect(page.getByText("FAKE: ß after a long vowel.")).toBeVisible();
+  await expect(page.getByText("FAKE: no reason given.")).toBeVisible();
+  await expect(page.getByText("Model text")).toBeVisible();
+  await expect(page.getByText("FAKE: Hallo Lena, ich heiße Anna.")).toBeVisible();
   // A checked text marks the writing step done in the run (the event goes out from a queue).
   const steps = async () => {
     const res = await request.get(

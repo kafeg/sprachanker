@@ -342,10 +342,9 @@ label and each skippable as any step:
    opens for reading and a second question is asked. A reading-type text (a menu, a notice, a
    timetable) is shown to read instead. Questions: true/false, a/b/c, numbers (prices, times) —
    items of the existing closed types, checked by the engine, never by the model.
-5. **Writing** (built as "Write it yourself"; *planned, third phase*: a task with three content
-   points, as Goethe's Schreiben sets one, its length and criteria by the course's level — `check_writing`
-   gives at most three corrections and a model text). Typed only: no dictation where the task is
-   writing (08).
+5. **Writing** ("Write it yourself"; below): a task with three content points, as Goethe's Schreiben
+   sets one, its length and criteria by the course's level; the check rates each point and gives at
+   most three corrections and a model text. Typed only: no dictation where the task is writing (08).
 6. **Dialogue** (built; plan, item 8): a conversation held by voice on a goal card with an
    information gap — the partner holds facts the learner must ask for. The partner's lines are read
    aloud in the language learnt; the learner answers by voice, sees what was heard and sends it as
@@ -381,6 +380,20 @@ The text is an `llm_verdict` (`task: understanding`) in the lesson run the lesso
 check is; each answer a `practice_answered` event on it, checked by the server, one per question
 (05). Answers are not in the lesson's score nor its mistakes: AI practice, as the Dialogue's lines;
 *planned (third phase)*: Going over mistakes takes the wrong ones in (owner, 2026-10-12).
+
+**Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
+model sets the task from the lesson's goals and the snapshot — a situation (who the learner writes to
+and why) and three content points, in the learner's language; a goal of learning about something is
+no task, it becomes a situation where the learner tells, asks for or arranges something; a lesson
+without goals takes its situation from its title and grammar. Its length is the level's, set by the
+app (A1 about 30 words, A2 40, B1 80; with the data), and what a text at the level needs (the CEFR
+writing exams' criteria, Goethe's Schreiben named for German) goes with the data to both calls. A
+task is asked for once ("Get a task") and kept; "New task" sets another. A text on it is checked:
+each point rated (covered, partly, not), task · communication · accuracy, at most three corrections —
+the most important first, never a requirement the task does not make —, the text corrected, a model
+text at the level from the words known, a line of feedback. Both are `llm_verdict`s in the lesson
+run the lesson shows (`writing_task`, `writing` with the task it answered; 05); a check counts in no
+score.
 
 **Dialogue** (`scene_setup`, `scene_turn`, `scene_summary`; 07): a `scene` run as scenes were (05)
 — the step and its place keep the id `scene`. Setup from the lesson's goals and the snapshot: a

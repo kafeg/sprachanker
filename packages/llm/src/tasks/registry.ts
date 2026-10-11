@@ -21,6 +21,7 @@ import {
   understandingTextRules,
 } from "./understanding.ts";
 import { WORD_EXAMPLES_BUDGETS, wordExamplesRules } from "./word-examples.ts";
+import { WRITING_TASK_BUDGETS, writingTaskRules } from "./writing-task.ts";
 
 interface TaskPromptEntry {
   rules: TaskRules;
@@ -31,6 +32,7 @@ export const TASK_PROMPTS = {
   explain: { rules: explainMistakeRules, budgets: EXPLAIN_MISTAKE_BUDGETS },
   tutor: { rules: chatTurnRules, budgets: CHAT_TURN_BUDGETS },
   tutorSection: { rules: sectionChatRules, budgets: SECTION_CHAT_BUDGETS },
+  writingTask: { rules: writingTaskRules, budgets: WRITING_TASK_BUDGETS },
   writing: { rules: checkWritingRules, budgets: CHECK_WRITING_BUDGETS },
   speaking: { rules: checkSpeakingRules, budgets: CHECK_SPEAKING_BUDGETS },
   exam: { rules: rateExamAnswerRules, budgets: RATE_EXAM_ANSWER_BUDGETS },

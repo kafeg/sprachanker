@@ -22,16 +22,37 @@ export const WritingCheck = z.object({
   verdict: z.enum(["good", "minor_errors", "major_errors", "off_task"]),
   /** The learner's text with the errors corrected, changed as little as possible. */
   corrected: z.string(),
+  /** The most important first; at most three kept (older checks may hold more). */
   corrections: z.array(Correction).max(12),
   criteria: z.object({
     task: WritingCriterion,
     communication: WritingCriterion,
     accuracy: WritingCriterion,
   }),
+  /** Each content point of the task, in its order: covered (2 fully, 1 partly, 0 not), and why.
+   *  Checks of a text on the lesson's topic, before tasks had points, have none. */
+  points: z.array(WritingCriterion).max(5).optional(),
+  /** The task done well at the learner's level, with words they know, in the language learnt.
+   *  Older checks have none. */
+  modelText: z.string().max(3000).optional(),
   /** One or two encouraging, concrete sentences in the learner's language. */
   feedback: z.string(),
 });
 export type WritingCheck = z.infer<typeof WritingCheck>;
+
+/** A writing task (`writing_task`; 04, "AI practice in courses"): a situation from the lesson and
+ *  three content points to cover, as a language exam's writing part sets one (Goethe's Schreiben),
+ *  in the learner's language; kept as an `llm_verdict` (`task: writing_task`) in the lesson run, the
+ *  texts written on it checked against it. */
+export const WritingTask = z.object({
+  /** Who the learner writes to and why, one or two sentences. */
+  situation: z.string().min(1).max(400),
+  /** The three things the text must do ("say why you are late"). */
+  points: z.array(z.string().min(1).max(200)).length(3),
+  /** About how many words, by the course's level (the app's, not the model's). */
+  words: z.number().int().positive(),
+});
+export type WritingTask = z.infer<typeof WritingTask>;
 
 /** A model's check of an answer said aloud without a phrase to say (08, "Checking speech"), from what
  *  the recogniser heard; kept as an `llm_verdict` (`task: speaking`) on the item. */

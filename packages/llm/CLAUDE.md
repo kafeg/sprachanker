@@ -44,7 +44,10 @@ src/
     explain-mistake.ts # explain_mistake: prompt + call
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
     section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
-    check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
+    writing-task.ts    # writing_task: a situation and three content points from the lesson; the length
+                       # and what a text needs at a level (data), the exam that sets and rates it (German)
+    check-writing.ts   # check_writing: a text on the task → each point rated, at most three corrections,
+                       # the level's criteria, a model text
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
     corrections.ts     # cleanCheck: a check's corrections cleaned (writing, speaking)

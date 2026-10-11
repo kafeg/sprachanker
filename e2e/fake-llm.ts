@@ -4,6 +4,12 @@
 export const FAKE_LLM_PORT = 4593;
 export const FAKE_TEXT = "FAKE: the verb ends in -e here.";
 
+/** A writing task: a situation and its three points (the length is the app's). */
+const WRITING_TASK = {
+  situation: "FAKE: You are meeting Lena at the café. Write her a message.",
+  points: ["FAKE: say who you are", "FAKE: say why you write", "FAKE: say when you come"],
+};
+/** A text on it checked: each point rated, a correction, a model text. */
 const WRITING_CHECK = {
   verdict: "minor_errors",
   corrected: "Ich heiße Lena.",
@@ -13,6 +19,12 @@ const WRITING_CHECK = {
     communication: { score: 2, comment: "ok" },
     accuracy: { score: 1, comment: "one spelling mistake" },
   },
+  points: [
+    { score: 2, comment: "FAKE: said who." },
+    { score: 0, comment: "FAKE: no reason given." },
+    { score: 0, comment: "FAKE: no time given." },
+  ],
+  modelText: "FAKE: Hallo Lena, ich heiße Anna. Ich komme um fünf.",
   feedback: "FAKE: a good start.",
 };
 
@@ -148,6 +160,7 @@ const conversation = (prompt: string) =>
 
 /** Structured replies by the task's schema name; the writing check otherwise. */
 const STRUCTURED: Record<string, unknown> = {
+  writing_task: WRITING_TASK,
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
   scene_summary: SCENE_SUMMARY,

@@ -1,9 +1,12 @@
-// "Write it yourself", a practice step of the lesson, on the step's page: a short text on the lesson's
-// topic, checked by the model (verdict, corrected text, corrections, Goethe A1 writing criteria). The
-// latest check is shown under the task; earlier texts of the lesson are listed with their criteria, each
-// readable again; any text can be taken back into the editor to fix it and check it again.
-import { type LessonKey, WRITING_MAX } from "@sprachanker/schema";
-import { PenLine } from "lucide-react";
+// "Write it yourself", a practice step of the lesson (04, "AI practice in courses"; 09): a task the model
+// sets from the lesson — a situation and three content points, about as many words as the level asks —
+// and a text written on it, checked by the model (verdict, the points covered, at most three
+// corrections, the level's criteria, a model text). The latest check is shown under the task; earlier
+// texts of the lesson are listed with their criteria, each readable again with the task it answered;
+// any text can be taken back into the editor to fix it and check it again; "New task" sets another.
+import { wordCount } from "@sprachanker/engine";
+import { type LessonKey, type WritingTask as Task, WRITING_MAX } from "@sprachanker/schema";
+import { NotebookPen, PenLine, RefreshCw } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { languageName } from "@/i18n/index.ts";
@@ -17,16 +20,16 @@ import { HistoryList } from "@/ui/history.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
-import { useCheckWriting, useWriting, type WritingAttempt } from "./api.ts";
+import { useCheckWriting, useWriting, useWritingTask, type WritingAttempt } from "./api.ts";
 import { AssistantLabel, modelName } from "./assistant-label.tsx";
-import { ErrorLine } from "./parts.tsx";
+import { ErrorLine, StartPrompt } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
 type Check = WritingAttempt["result"];
 const CRITERIA = ["task", "communication", "accuracy"] as const;
 
-/** A criterion's score, 0–2, as two dots. */
+/** A score, 0–2, as two dots. */
 function Dots({ score }: { score: number }) {
   return [0, 1].map((i) => (
     <span
@@ -37,6 +40,18 @@ function Dots({ score }: { score: number }) {
       )}
     />
   ));
+}
+
+/** A score with its words for screen readers and on pointing at it. */
+function Score({ score }: { score: number }) {
+  const { t } = useTranslation();
+  const words = t("writing.points", { score, max: 2 });
+  return (
+    <span title={words} className="shrink-0 whitespace-nowrap">
+      <span className="sr-only">{words}</span>
+      <Dots score={score} />
+    </span>
+  );
 }
 
 /** The three criteria as dots, named for screen readers. */
@@ -57,12 +72,30 @@ function CriteriaDots({ criteria }: { criteria: Check["criteria"] }) {
   );
 }
 
-/** A check in full: the verdict, feedback, the text with its corrections and the criteria. */
+/** A task as set: the situation, its numbered points, the length. */
+function TaskText({ task }: { task: Task }) {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-2">
+      <p>{task.situation}</p>
+      <ol className="list-decimal space-y-0.5 ps-6">
+        {task.points.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
+      </ol>
+      <p className="text-sm text-muted-foreground">{t("writing.length", { words: task.words })}</p>
+    </div>
+  );
+}
+
+/** A check in full: the verdict, feedback, the text with its corrections, the task's points as
+ *  covered, the criteria, the model text. */
 function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): void }) {
   const lang = useRequiredTargetLang();
   const { t } = useTranslation();
   const when = useDateFormat("dayTime");
   const r = attempt.result;
+  const task = attempt.writingTask;
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
@@ -80,22 +113,48 @@ function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): 
         </p>
       )}
       <Corrections corrections={r.corrections} />
+      {task && r.points && (
+        <div>
+          <h3 className="mb-1 font-semibold">{t("writing.pointsTitle")}</h3>
+          <ol className="space-y-1.5 text-sm">
+            {task.points.map((point, i) => {
+              const rated = r.points?.[i];
+              return (
+                <li key={point} className="rounded-lg bg-muted px-3 py-2">
+                  <span className="flex items-start justify-between gap-2 font-medium">
+                    <span>
+                      {i + 1}. {point}
+                    </span>
+                    {rated && <Score score={rated.score} />}
+                  </span>
+                  {rated?.comment && (
+                    <span className="block text-muted-foreground">{rated.comment}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+      )}
       <dl className="grid gap-1.5 text-sm sm:grid-cols-3">
         {CRITERIA.map((k) => (
           <div key={k} className="rounded-lg bg-muted px-3 py-2">
             <dt className="flex items-center justify-between font-medium">
               {t(`writing.criteria.${k}`)}
-              <span title={t("writing.points", { score: r.criteria[k].score, max: 2 })}>
-                <span className="sr-only">
-                  {t("writing.points", { score: r.criteria[k].score, max: 2 })}
-                </span>
-                <Dots score={r.criteria[k].score} />
-              </span>
+              <Score score={r.criteria[k].score} />
             </dt>
             <dd className="text-muted-foreground">{r.criteria[k].comment}</dd>
           </div>
         ))}
       </dl>
+      {r.modelText && (
+        <div>
+          <h3 className="mb-1 font-semibold">{t("writing.modelText")}</h3>
+          <p {...inLang(lang)} className="whitespace-pre-line rounded-lg bg-muted px-3 py-2">
+            {r.modelText}
+          </p>
+        </div>
+      )}
       <Button variant="outline" onClick={onRewrite}>
         <PenLine className="size-4" /> {t("writing.rewrite")}
       </Button>
@@ -103,7 +162,8 @@ function Result({ attempt, onRewrite }: { attempt: WritingAttempt; onRewrite(): 
   );
 }
 
-/** Earlier texts of the lesson, newest first, each with its criteria; one opens in full. */
+/** Earlier texts of the lesson, newest first, each with its criteria; one opens in full with the
+ *  task it answered. */
 function PastAttempts({
   attempts,
   onRewrite,
@@ -135,7 +195,16 @@ function PastAttempts({
           </span>
         </span>
       )}
-      detail={(a) => <Result attempt={a} onRewrite={() => onRewrite(a)} />}
+      detail={(a) => (
+        <div className="space-y-3">
+          {a.writingTask && (
+            <div className="rounded-lg border px-3 py-2 text-sm">
+              <TaskText task={a.writingTask} />
+            </div>
+          )}
+          <Result attempt={a} onRewrite={() => onRewrite(a)} />
+        </div>
+      )}
     />
   );
 }
@@ -156,66 +225,108 @@ export function WritingTask({
   const { t, i18n } = useTranslation();
   const llm = useLlm();
   const state = useWriting(series, lessonKey, edition);
+  const newTask = useWritingTask();
   const check = useCheckWriting(onDone);
   const [text, setText] = useState("");
   const editor = useRef<HTMLTextAreaElement>(null);
   if (!llm.data?.model || !state.data) return null;
-  const { topic, words, attempts } = state.data;
+  const { task, words, attempts } = state.data;
   const [latest, ...past] = attempts;
-  // Asked from here, or still being checked on the server since before this page was opened.
+  const ids = { series, lessonKey, edition, language: i18n.language };
+  // Asked from here, or still running on the server since before this page was opened.
   const checking = check.isPending ? check.variables.text : state.data.checking;
-  const request = { series, lessonKey, edition, text: text.trim(), language: i18n.language };
+  const preparing = newTask.isPending || state.data.preparing;
+  const write = () => {
+    if (!preparing && !checking) newTask.mutate(ids);
+  };
   // A text back in the editor, to fix it after the corrections and check it again.
   const rewrite = (attempt: WritingAttempt) => {
     setText(attempt.input);
     editor.current?.focus();
     editor.current?.scrollIntoView({ block: "center" });
   };
+  const count = wordCount(text);
 
   return (
     <div className="space-y-4">
-      <Panel className="space-y-4">
-        <p>
-          {t("writing.task", {
-            topic: topic.join("; "),
-            language: lang && languageName(lang, i18n.language),
-          })}
-        </p>
-        {words.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {words.slice(0, 14).map((w) => (
-              <Badge key={w} variant="secondary" {...inLang(lang)}>
-                {w.split(",")[0]}
-              </Badge>
-            ))}
+      {task ? (
+        <Panel className="space-y-4">
+          <div className="flex flex-wrap items-start gap-2">
+            <p className="me-auto font-medium">
+              {t("writing.task", { language: languageName(lang, i18n.language) })}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              loading={preparing}
+              disabled={preparing || !!checking}
+              onClick={write}
+            >
+              {!preparing && <RefreshCw className="size-4" />}
+              {preparing ? t("writing.preparing") : t("writing.newTask")}
+            </Button>
           </div>
-        )}
-        <Textarea
-          ref={editor}
-          {...inLang(lang)}
-          className="min-h-28 text-base"
-          placeholder={t("writing.placeholder")}
-          maxLength={WRITING_MAX}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-        />
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            size="lg"
-            loading={!!checking}
-            disabled={!request.text}
-            onClick={() =>
-              // The text is in the result now; "Fix it and check again" brings it back.
-              check.mutate(request, { onSuccess: () => setText("") })
-            }
-          >
-            {checking ? t("writing.checking") : t("writing.check")}
-          </Button>
-          <PromptButton request={() => ({ writing: { ...request, text: request.text || "…" } })} />
-          <AssistantLabel className="ms-auto" />
-        </div>
-        <ErrorLine error={check.error} />
-      </Panel>
+          <TaskText task={task.result} />
+          {words.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {words.slice(0, 14).map((w) => (
+                <Badge key={w} variant="secondary" {...inLang(lang)}>
+                  {w.split(",")[0]}
+                </Badge>
+              ))}
+            </div>
+          )}
+          <Textarea
+            ref={editor}
+            {...inLang(lang)}
+            className="min-h-28 text-base"
+            placeholder={t("writing.placeholder")}
+            aria-label={t("writing.placeholder")}
+            maxLength={WRITING_MAX}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              size="lg"
+              loading={!!checking}
+              disabled={!text.trim() || preparing}
+              onClick={() =>
+                // The text is in the result now; "Fix it and check again" brings it back.
+                check.mutate(
+                  { ...ids, taskId: task.id, text: text.trim() },
+                  { onSuccess: () => setText("") },
+                )
+              }
+            >
+              {checking ? t("writing.checking") : t("writing.check")}
+            </Button>
+            <span className="text-sm text-muted-foreground tabular-nums" aria-live="polite">
+              {t("writing.count", { count, words: task.result.words })}
+            </span>
+            <PromptButton
+              request={() => ({ writing: { ...ids, taskId: task.id, text: text.trim() } })}
+            />
+            <AssistantLabel className="ms-auto" />
+          </div>
+          <ErrorLine error={check.error ?? newTask.error} />
+        </Panel>
+      ) : (
+        <Panel className="space-y-3">
+          <StartPrompt
+            intro={t("writing.intro")}
+            label={preparing ? t("writing.preparing") : t("writing.start")}
+            icon={NotebookPen}
+            loading={preparing}
+            onStart={write}
+          />
+          <div className="flex flex-wrap items-center gap-2">
+            <PromptButton request={() => ({ writing: { ...ids, text: "" } })} />
+            <AssistantLabel className="ms-auto" />
+          </div>
+          <ErrorLine error={newTask.error} onRetry={preparing ? undefined : write} />
+        </Panel>
+      )}
       {latest && (
         <Panel>
           <Result attempt={latest} onRewrite={() => rewrite(latest)} />
