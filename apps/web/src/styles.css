@@ -75,11 +75,11 @@
 
 @theme inline {
   --font-sans:
-    "Fira Sans", "Vazirmatn Variable", "Noto Sans Devanagari Variable", "Noto Sans SC Variable",
-    ui-sans-serif, system-ui, sans-serif;
+    "Fira Sans", "Vazirmatn Variable", "Noto Sans Devanagari Variable", ui-sans-serif, system-ui,
+    sans-serif;
   --font-heading:
     "Fira Sans Condensed", "Fira Sans", "Vazirmatn Variable", "Noto Sans Devanagari Variable",
-    "Noto Sans SC Variable", ui-sans-serif, system-ui, sans-serif;
+    ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
