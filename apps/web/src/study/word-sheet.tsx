@@ -76,7 +76,7 @@ function WordDetails({ word }: { word: MyWord }) {
           </p>
         )}
         <DeckExamples display={d} lang={word.lang} className="pt-1" />
-        <div className="-ms-2">{slots.word?.({ cardId: word.cardId })}</div>
+        <div className="-ms-2">{slots.word?.({ cardId: word.cardId, deck: deckOf(d) })}</div>
         {lesson ? (
           <Link
             to="/lesson/$series/$course/$lesson"

@@ -8,7 +8,8 @@ import { piper } from "./speech-fakes.ts";
 import { until } from "./until.ts";
 
 const FOLDER = "course~sprachanker.fixture~demo";
-const examplesOf = (scope: string) => `/api/decks/examples?scope=${encodeURIComponent(scope)}`;
+const examplesOf = (scope: string, edition?: string) =>
+  `/api/decks/examples?scope=${encodeURIComponent(scope)}${edition ? `&edition=${edition}` : ""}`;
 
 type Body = { messages: Array<{ content: string }>; response_format?: unknown };
 type Job = { status: string; total: number; done: number; failed: number; error?: string };
@@ -79,10 +80,14 @@ function model(
   };
 }
 
-async function settled(getJson: (path: string) => Promise<unknown>, scope: string) {
+async function settled(
+  getJson: (path: string) => Promise<unknown>,
+  scope: string,
+  edition?: string,
+) {
   let state: State | undefined;
   await until(async () => {
-    state = (await getJson(examplesOf(scope))) as State;
+    state = (await getJson(examplesOf(scope, edition))) as State;
     return !["running", "stopping"].includes(state.job?.status ?? "");
   });
   return state as State;
@@ -109,16 +114,18 @@ test("a course's deck: its words given examples five a call with the words met s
   const api = await withDecks({ fetch: m.fetch });
   const { send, sendJson, getJson, root } = api;
   const scope = `course:${COURSE}`;
+  const ru = { scope, edition: "ru-de" };
   await sendJson("POST", "/api/cards/lesson", lesson("ru-de"));
-  expect(await getJson(examplesOf(scope))).toEqual({
-    words: 4,
+  // The course's words across its lessons in an edition, met yet or not.
+  expect(await getJson(examplesOf(scope, "ru-de"))).toEqual({
+    words: 6,
     own: 0,
     made: 0,
-    missing: 4,
+    missing: 6,
     job: null,
   });
   // Without a model: refused, nothing started.
-  const refused = await send("POST", "/api/decks/examples", { scope });
+  const refused = await send("POST", "/api/decks/examples", ru);
   expect([refused.status, ((await refused.json()) as { error: string }).error]).toEqual([
     409,
     "llm_not_configured",
@@ -126,23 +133,25 @@ test("a course's deck: its words given examples five a call with the words met s
   await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
 
-  const started = await sendJson("POST", "/api/decks/examples", { scope });
-  expect(started.job).toMatchObject({ status: "running", total: 4 });
-  expect(await settled(getJson, scope)).toMatchObject({
-    made: 4,
+  const started = await sendJson("POST", "/api/decks/examples", ru);
+  expect(started.job).toMatchObject({ status: "running", total: 6 });
+  expect(await settled(getJson, scope, "ru-de")).toMatchObject({
+    made: 6,
     missing: 0,
-    job: { status: "done", done: 4, failed: 0 },
+    job: { status: "done", done: 6, failed: 0 },
   });
-  // One call for the four, one more for "gern" alone (its sentences did not use it).
+  // Five a call in course order, one more for "gern" alone (its sentences did not use it), then the
+  // sixth.
   expect(m.bodies.map(wordsAsked)).toEqual([
-    ["der Kaffee, die Kaffees", "die Tasse, die Tassen", "(etwas) bestellen", "gern"],
+    ["der Kaffee, die Kaffees", "die Tasse, die Tassen", "(etwas) bestellen", "gern", "Guten Tag."],
     ["gern"],
+    ["die Leute"],
   ]);
   const asked = m.bodies[0]?.messages.at(-1)?.content ?? "";
   expect(asked).toContain("1. der Kaffee, die Kaffees — кофе (noun, masculine)");
-  // The course's words up to the lesson; no level in its name: beginners'.
+  // The course's words up to the lesson of the last; no level in its name: beginners'.
   expect(asked).toContain("<known>der Kaffee, die Kaffees; die Tasse, die Tassen;");
-  expect(asked).not.toContain("Leute");
+  expect(m.bodies[1]?.messages.at(-1)?.content).not.toContain("Leute");
   expect(asked).toContain("<level>beginner (A1–A2)</level>");
   expect(asked).toContain("the translations in Russian");
 
@@ -172,75 +181,90 @@ test("a course's deck: its words given examples five a call with the words met s
     { text: "heute", new: true, translation: "сегодня" },
   ]);
   // Started again: nothing left.
-  expect((await sendJson("POST", "/api/decks/examples", { scope })).job).toMatchObject({
+  expect((await sendJson("POST", "/api/decks/examples", ru)).job).toMatchObject({
     total: 0,
   });
-  await settled(getJson, scope);
-  expect(m.bodies).toHaveLength(2);
+  await settled(getJson, scope, "ru-de");
+  expect(m.bodies).toHaveLength(3);
 
   // The request the next call would send, and the task's prompt in the settings.
-  const prompt = await sendJson("POST", "/api/decks/examples/prompt", { scope });
+  const prompt = await sendJson("POST", "/api/decks/examples/prompt", ru);
   expect(JSON.stringify(prompt.body)).toContain("word_examples");
   const prompts = await getJson("/api/llm/prompts?language=ru&target=de");
   expect(prompts.examples.system).toContain("example sentences in German");
+
+  // Removed: none left in its language, the card shows none; made again, every word asked anew.
+  expect(await sendJson("POST", "/api/decks/examples/remove", ru)).toMatchObject({
+    made: 0,
+    missing: 6,
+    job: null,
+  });
+  const after = JSON.parse(readFileSync(join(root, "decks", FOLDER, "extras.json"), "utf8"));
+  expect(after.words).toEqual({});
+  expect((await getJson(`/api/cards/${kaffee}/examples`)).examples).toEqual([]);
+  await sendJson("POST", "/api/decks/examples", ru);
+  expect(await settled(getJson, scope, "ru-de")).toMatchObject({ made: 6 });
+  // Regenerated: what was made goes first, all six asked again.
+  await sendJson("POST", "/api/decks/examples", { ...ru, again: true });
+  expect(await settled(getJson, scope, "ru-de")).toMatchObject({
+    made: 6,
+    job: { status: "done", total: 6, done: 6 },
+  });
+  expect(m.bodies).toHaveLength(7);
 });
 
-test("a job stopped keeps the words written; started again it writes only the rest; a course's cards in two languages get examples in each", async () => {
+test("a job stopped keeps the words written; started again it writes only the rest; each edition's words get examples in its language", async () => {
   const m = model();
   const { sendJson, getJson } = await withModel(m);
   const scope = `course:${COURSE}`;
-  await sendJson("POST", "/api/cards/decks/take", {
-    series: FIXTURE_SERIES,
-    course: "demo",
-    edition: "ru-de",
-  });
-  await sendJson("POST", "/api/cards/lesson", lesson("en-de"));
-  // Six words in Russian, four of them in English too: a card each.
-  expect(await getJson(examplesOf(scope))).toMatchObject({ words: 10, missing: 10 });
+  const ru = { scope, edition: "ru-de" };
+  // The course's six words, taken or not, in each edition.
+  expect(await getJson(examplesOf(scope, "ru-de"))).toMatchObject({ words: 6, missing: 6 });
   m.hold();
-  await sendJson("POST", "/api/decks/examples", { scope });
+  await sendJson("POST", "/api/decks/examples", ru);
   await until(() => m.held() > 0);
-  const stopping = await sendJson("DELETE", examplesOf(scope), {});
-  expect(stopping.job).toMatchObject({ status: "stopping", total: 10, done: 0 });
+  const stopping = await sendJson("DELETE", examplesOf(scope, "ru-de"), {});
+  expect(stopping.job).toMatchObject({ status: "stopping", total: 6, done: 0 });
   m.release();
-  expect(await settled(getJson, scope)).toMatchObject({
+  expect(await settled(getJson, scope, "ru-de")).toMatchObject({
     made: 5,
-    missing: 5,
+    missing: 1,
     job: { status: "stopped", done: 5 },
   });
-  await sendJson("POST", "/api/decks/examples", { scope });
-  expect(await settled(getJson, scope)).toMatchObject({
-    made: 10,
+  await sendJson("POST", "/api/decks/examples", ru);
+  expect(await settled(getJson, scope, "ru-de")).toMatchObject({
+    made: 6,
     missing: 0,
-    job: { status: "done", total: 5, done: 5 },
+    job: { status: "done", total: 1, done: 1 },
   });
-  // Each call in one language: the Russian deck's five, then its sixth, then the English four.
-  expect(m.bodies.map((b) => wordsAsked(b).length)).toEqual([5, 1, 4]);
+  // English: its own, each call in one language.
+  expect(await getJson(examplesOf(scope, "en-de"))).toMatchObject({ made: 0, missing: 6 });
+  await sendJson("POST", "/api/decks/examples", { scope, edition: "en-de" });
+  expect(await settled(getJson, scope, "en-de")).toMatchObject({ made: 6, missing: 0 });
+  expect(m.bodies.map((b) => wordsAsked(b).length)).toEqual([5, 1, 5, 1]);
   expect(m.bodies[2]?.messages.at(-1)?.content).toContain("the translations in English");
   expect(m.bodies[2]?.messages.at(-1)?.content).toContain("— coffee");
+  // An edition the course has not: no such deck.
+  expect((await sendJson("POST", "/api/decks/examples", { scope, edition: "fr-de" })).error).toBe(
+    "no_such_deck",
+  );
 });
 
 test("each call's examples are written at once: the next call under way, the earlier ones' are on disk", async () => {
   const m = model();
   const { sendJson, getJson, root } = await withModel(m);
   const scope = `course:${COURSE}`;
-  await sendJson("POST", "/api/cards/decks/take", {
-    series: FIXTURE_SERIES,
-    course: "demo",
-    edition: "ru-de",
-  });
-  await sendJson("POST", "/api/cards/lesson", lesson("en-de"));
-  // The Russian five, then the sixth alone; the English four held.
-  m.hold(2);
-  await sendJson("POST", "/api/decks/examples", { scope });
+  // The first five, then the sixth held.
+  m.hold(1);
+  await sendJson("POST", "/api/decks/examples", { scope, edition: "ru-de" });
   await until(() => m.held() > 0);
   const extras = JSON.parse(readFileSync(join(root, "decks", FOLDER, "extras.json"), "utf8"));
   const inRussian = Object.values(extras.words).filter(
     (w) => (w as { examples?: { ru?: unknown } }).examples?.ru,
   );
-  expect(inRussian).toHaveLength(6);
+  expect(inRussian).toHaveLength(5);
   m.release();
-  expect(await settled(getJson, scope)).toMatchObject({ made: 10, missing: 0 });
+  expect(await settled(getJson, scope, "ru-de")).toMatchObject({ made: 6, missing: 0 });
 });
 
 test("a model that cannot answer usefully: three calls in a row, and the job ends with why", async () => {
@@ -325,16 +349,16 @@ test("the words left asked again in a second call that fails: the first call's w
   const m = model({ skip: ["gern"], failAfter: 1 });
   const { sendJson, getJson } = await withModel(m);
   const scope = `course:${COURSE}`;
-  await sendJson("POST", "/api/cards/lesson", lesson("ru-de"));
-  await sendJson("POST", "/api/decks/examples", { scope });
-  const state = await settled(getJson, scope);
+  await sendJson("POST", "/api/decks/examples", { scope, edition: "ru-de" });
+  const state = await settled(getJson, scope, "ru-de");
+  // The first call's four kept; "gern" asked again and the sixth word's call both fail.
   expect(state).toMatchObject({
-    made: 3,
-    missing: 1,
-    job: { status: "done", done: 3, failed: 1 },
+    made: 4,
+    missing: 2,
+    job: { status: "done", done: 4, failed: 2 },
   });
   expect(state.job?.error).toStartWith("llm_");
-  expect(m.bodies.map(wordsAsked).at(-1)).toEqual(["gern"]);
+  expect(m.bodies.map(wordsAsked)[1]).toEqual(["gern"]);
 });
 
 test("a deck imported again or deleted while its examples are written: the job is dropped, nothing written into its folder", async () => {

@@ -119,21 +119,27 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   them with — null when nothing here reads that language —; the deck's job, running or the latest:
   status `running` | `stopping` (the words under way still read) | `done` | `stopped` | `failed`, words read of all it set out to read, failures, the
   word being read, the latest failure's code, `leftMs`: about how long the rest takes; the words are
-  those of the profile's cards in the deck, counted by lexeme), `POST /api/decks/audio` (`{scope}`: the job started —
-  once; a job running goes on — and the state; 409 `speech_unavailable` when nothing reads the
-  language), `DELETE /api/decks/audio?scope=` (the job stopped, what it read kept); 404
-  `no_such_deck` for a deck or course not here. A job is the server's (any profile sees it), in
+  the deck's, taken or not — a course's across its lessons —, counted by lexeme), `POST
+  /api/decks/audio` (`{scope, again?}`: the job started — once; a job running goes on; `again`: what
+  was read removed first — and the state; 409 `speech_unavailable` when nothing reads the language),
+  `DELETE /api/decks/audio?scope=` (the job stopped, what it read kept), `POST
+  /api/decks/audio/remove` (`{scope}`: what was read removed, never the deck's own; 409
+  `deck_job_running` while it reads; the state); 404 `no_such_deck` for a deck or course not here. A job is the server's (any profile sees it), in
   memory: a server stopped stops it, and it is started again by asking.
-- A deck's words given examples by the AI (04, "A deck's words given examples"; `scope` as above):
-  `GET /api/decks/examples?scope=` (how many words — the profile's cards in it, by lexeme and
-  translation language —, with examples of their own, given examples, without; the deck's job as the
+- A deck's words given examples by the AI (04, "A deck's words given examples"; `scope` as above,
+  `edition`: the language pair — a course's, its first when none is named; an imported deck's own):
+  `GET /api/decks/examples?scope=&edition=` (how many words — the deck's in that pair, taken or not,
+  by lexeme —, with examples of their own, given examples, without; the deck's job as the
   audio's: status, words done of all, failures, the words under way, the latest failure's code,
-  `leftMs`), `POST /api/decks/examples` (`{scope}`: started with this profile's model — 409
-  `llm_not_configured` without one — and the state), `DELETE /api/decks/examples?scope=` (stopped,
-  what was written kept), `POST /api/decks/examples/prompt` (`{scope}`: the request its next call would
-  send, 07). A card's: `GET /api/cards/:id/examples` (its deck's scope, whether its word brings its
-  own, the model, each example's sentence in pieces — the words not met yet marked, with their
-  translation where known — and translation).
+  `leftMs`), `POST /api/decks/examples` (`{scope, edition?, again?}`: started with this profile's
+  model — 409 `llm_not_configured` without one; `again`: those made removed first — and the state),
+  `DELETE /api/decks/examples?scope=&edition=` (stopped, what was written kept), `POST
+  /api/decks/examples/remove` (`{scope, edition?}`: those made in the pair's translation language
+  removed; 409 `deck_job_running` while the deck's job writes), `POST /api/decks/examples/prompt`
+  (`{scope, edition?}`: the request its next call would send, 07). A card's: `GET
+  /api/cards/:id/examples?deck=` (`deck`: the deck it is shown in, whose entry of the word it shows —
+  else its own; that deck's scope, whether its word brings its own, the model, each example's sentence
+  in pieces — the words not met yet marked, with their translation where known — and translation).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.

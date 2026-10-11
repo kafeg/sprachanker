@@ -84,6 +84,44 @@ test("state filters count the words and narrow the table; a column sorts it", as
   expect(rows(view).map((r) => r.slice(0, 7))).toEqual(["gernSus", "der Kaf", "die Tas"]);
 });
 
+test("a row's button plays its word's audio — its recording, else the one read for its deck — never by itself; none without", async () => {
+  const played: string[] = [];
+  const real = HTMLMediaElement.prototype.play;
+  HTMLMediaElement.prototype.play = function (this: HTMLMediaElement) {
+    played.push(this.src);
+    return Promise.resolve();
+  };
+  try {
+    const withAudio = [
+      { ...WORDS[0], display: { ...WORDS[0]?.display, audio: "media/audio/tasse.mp3" } },
+      {
+        ...WORDS[1],
+        display: { ...WORDS[1]?.display, readAudio: "course~x~y/media/read-0123456789ab.wav" },
+      },
+      WORDS[2],
+    ];
+    const view = await renderApp(<MyWords />, {
+      path: "/review/words",
+      data: [
+        [["words"], { words: withAudio }],
+        [["decks"], DECKS],
+      ],
+    });
+    await waitFor(() => expect(rows(view)).toHaveLength(3));
+    expect(played).toEqual([]);
+    expect(
+      view.getAllByRole("button", { name: /^Play: / }).map((b) => b.getAttribute("aria-label")),
+    ).toEqual(["Play: die Tasse", "Play: der Kaffee"]);
+    fireEvent.click(view.getByRole("button", { name: "Play: der Kaffee" }));
+    await waitFor(() => expect(played).toHaveLength(1));
+    expect(played[0]).toEndWith("/decks/course~x~y/media/read-0123456789ab.wav");
+    // The row itself still opens the sheet; the button does not.
+    expect(view.queryByRole("dialog")).toBeNull();
+  } finally {
+    HTMLMediaElement.prototype.play = real;
+  }
+});
+
 test("a word opens its sheet: each card and the answers given", async () => {
   const view = await page();
   await waitFor(() => expect(rows(view)).toHaveLength(3));

@@ -141,13 +141,18 @@ export function cardRoutes() {
         },
       )
       // My words: the learner's words, and one word for its sheet.
-      .get("/", (c) => c.json({ words: c.var.s.words.list() }))
-      .get("/:id", zod("param", CardParam), (c) =>
-        c.json(c.var.s.words.word(c.req.valid("param").id)),
+      .get("/", async (c) => c.json({ words: await c.var.s.words.list() }))
+      .get("/:id", zod("param", CardParam), async (c) =>
+        c.json(await c.var.s.words.word(c.req.valid("param").id)),
       )
       // A card's examples made by the AI for its deck, as shown.
-      .get("/:id/examples", zod("param", CardParam), async (c) =>
-        c.json(await c.var.s.examples.ofCard(c.req.valid("param").id)),
+      // `deck`: the deck the card is shown in (its entry of the word there).
+      .get(
+        "/:id/examples",
+        zod("param", CardParam),
+        zod("query", z.object({ deck: z.string().pipe(TakenDeck).optional() })),
+        async (c) =>
+          c.json(await c.var.s.examples.ofCard(c.req.valid("param").id, c.req.valid("query").deck)),
       )
   );
 }

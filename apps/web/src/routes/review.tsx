@@ -1,8 +1,9 @@
 // Review (09): tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
 // profile's decks as Anki lists them, each language and its courses and imported decks with New,
-// Learning and To review; more new cards today, leaving a deck, its words read aloud or given examples
-// (a slot); the decks to take — each of My courses' words and each imported deck —, a deck file
-// imported, an imported deck deleted) and My words (words.tsx). "How it works" opens the guide beside.
+// Learning and To review; more new cards today, leaving a deck, how its audio and examples stand; the
+// decks to take — each of My courses' words and each imported deck —, all their words read aloud or
+// given examples (a slot), what was made removed or made again, a deck file imported, an imported deck
+// deleted) and My words (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
 import { useLocation } from "@tanstack/react-router";
 import { Play, Trash2 } from "lucide-react";
@@ -55,7 +56,8 @@ function CountCells({ counts }: { counts: Counts }) {
 
 /** The profile's decks as Anki lists them, a course's or an imported one's with its language pair;
  *  under each deck what it does, at hand: study it, more new cards today, and for a course's or an
- *  imported one, leave it (after asking) and its words without audio read aloud. */
+ *  imported one, leave it (after asking) and how its audio and examples stand (made under the deck to
+ *  take). */
 function MyDecks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
   const decks = useDecks();
@@ -65,7 +67,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
   return <DeckRows decks={decks.data.decks} open={open} />;
 }
 
-/** The decks' rows; a deck named by the address's hash (a card's way to its deck) in sight. */
+/** The decks' rows. */
 function DeckRows({
   decks,
   open,
@@ -79,10 +81,6 @@ function DeckRows({
   const actions = useDeckActions();
   const slots = useStudySlots();
   const [leaving, setLeaving] = useState<{ scope: string; lang: string; title: string }>();
-  const hash = useLocation({ select: (l) => l.hash });
-  useEffect(() => {
-    if (hash) document.getElementById(hash)?.scrollIntoView({ block: "start" });
-  }, [hash]);
   // Narrower counts on a phone, so the deck's name keeps its room.
   const row =
     "grid grid-cols-[minmax(0,1fr)_2.25rem_2.25rem_2.25rem] items-center gap-2 px-4 sm:grid-cols-[minmax(0,1fr)_3rem_3rem_3rem]";
@@ -100,11 +98,7 @@ function DeckRows({
             { ...lang, child: false, editions: [] as string[] },
             ...lang.decks.map((d) => ({ ...d, child: true })),
           ].map((deck) => (
-            <div
-              key={deck.scope}
-              id={deckAnchor(deck.scope)}
-              className={cn("scroll-mt-20 py-2", deck.child && "border-t border-dashed")}
-            >
+            <div key={deck.scope} className={cn("py-2", deck.child && "border-t border-dashed")}>
               <div className={row}>
                 <span className={cn("min-w-0", deck.child ? "ps-5" : "font-semibold")}>
                   <button
@@ -157,8 +151,15 @@ function DeckRows({
                   </Button>
                 )}
               </div>
-              {deck.child && <DeckAudio scope={deck.scope} className="mt-1.5 px-4 ps-9" />}
-              {deck.child && slots.deck?.({ scope: deck.scope, className: "mt-1.5 px-4 ps-9" })}
+              {deck.child && <DeckAudio scope={deck.scope} status className="mt-1.5 px-4 ps-9" />}
+              {deck.child &&
+                deck.editions[0] &&
+                slots.deck?.({
+                  scope: deck.scope,
+                  edition: deck.editions[0],
+                  status: true,
+                  className: "mt-1.5 px-4 ps-9",
+                })}
             </div>
           ))}
         </div>
@@ -184,13 +185,21 @@ function DeckRows({
 }
 
 /** The decks to take: each of My courses' words and each imported deck, with how many are cards
- *  already; an imported deck deleted (after asking); a deck file imported. */
+ *  already; all their words read aloud and given examples (what was made removed or made again); an
+ *  imported deck deleted (after asking); a deck file imported. A deck named by the address's hash (a
+ *  card's way to its deck) in sight. */
 function DeckOffers() {
   const { t, i18n } = useTranslation();
   const offers = useDeckOffers();
   const actions = useDeckActions();
   const remove = useDeleteDeck();
   const pairName = usePairName();
+  const slots = useStudySlots();
+  const hash = useLocation({ select: (l) => l.hash });
+  const loaded = !!offers.data;
+  useEffect(() => {
+    if (hash && loaded) document.getElementById(hash)?.scrollIntoView({ block: "start" });
+  }, [hash, loaded]);
   const list = new Intl.ListFormat(i18n.language, { type: "conjunction" });
   const [removing, setRemoving] = useState<{
     id: string;
@@ -205,8 +214,9 @@ function DeckOffers() {
       deck: undefined,
     })),
     ...(offers.data?.imported ?? []).map((o) => ({ ...o, take: { deck: o.deck } })),
-    // An imported deck stays listed while it is here, so it can be deleted.
-  ].filter((o) => o.mine < o.words || o.deck);
+    // Every deck stays listed, taken whole or not: what is made for its words is made here (and an
+    // imported deck deleted).
+  ];
   const taking = actions.take.isPending ? actions.take.variables : undefined;
   const takingThis = (o: (typeof open)[number]) =>
     !!taking &&
@@ -217,41 +227,47 @@ function DeckOffers() {
     <Panel title={t("decks.offers")}>
       <p className="mb-3 text-sm text-muted-foreground">{t("decks.offersHint")}</p>
       <ul className="mb-3 space-y-2 empty:hidden">
-        {open.map((o) => (
+        {open.map((o, i) => (
           <li
             key={`${o.scope}:${o.edition}`}
-            className="flex flex-wrap items-center gap-3 rounded-xl border p-3"
+            // A course in two pairs: its first is where a card's way to its deck lands.
+            id={open.findIndex((p) => p.scope === o.scope) === i ? deckAnchor(o.scope) : undefined}
+            className="scroll-mt-20 space-y-2 rounded-xl border p-3"
           >
-            <span className="min-w-0 flex-1">
-              <span className="block font-semibold">{o.title}</span>
-              <span className="text-sm text-muted-foreground">
-                {pairName(o.edition)} · {t("decks.words", { words: o.words, mine: o.mine })}
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold">{o.title}</span>
+                <span className="text-sm text-muted-foreground">
+                  {pairName(o.edition)} · {t("decks.words", { words: o.words, mine: o.mine })}
+                </span>
               </span>
-            </span>
-            {o.mine < o.words && (
-              <Button
-                variant="outline"
-                loading={takingThis(o)}
-                onClick={() => actions.take.mutate(o.take)}
-              >
-                {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
-              </Button>
-            )}
-            {o.deck && (
-              <Button
-                variant="outline"
-                aria-label={t("decks.remove")}
-                onClick={() =>
-                  setRemoving({
-                    id: o.deck,
-                    title: o.title,
-                    studiedBy: "studiedBy" in o ? o.studiedBy : [],
-                  })
-                }
-              >
-                <Trash2 />
-              </Button>
-            )}
+              {o.mine < o.words && (
+                <Button
+                  variant="outline"
+                  loading={takingThis(o)}
+                  onClick={() => actions.take.mutate(o.take)}
+                >
+                  {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
+                </Button>
+              )}
+              {o.deck && (
+                <Button
+                  variant="outline"
+                  aria-label={t("decks.remove")}
+                  onClick={() =>
+                    setRemoving({
+                      id: o.deck,
+                      title: o.title,
+                      studiedBy: "studiedBy" in o ? o.studiedBy : [],
+                    })
+                  }
+                >
+                  <Trash2 />
+                </Button>
+              )}
+            </div>
+            <DeckAudio scope={o.scope} title={o.title} />
+            {slots.deck?.({ scope: o.scope, edition: o.edition, title: o.title })}
           </li>
         ))}
       </ul>

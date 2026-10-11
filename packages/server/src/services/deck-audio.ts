@@ -1,8 +1,8 @@
 // Audio read aloud for a deck's words without their own (04, "A deck's words read aloud"; 08): the
-// words of the learner's cards in a deck — an imported deck's or a course's —, read by the server's
+// words of a deck, taken or not — an imported deck's notes, a course's words —, read by the server's
 // engine (Piper or Qwen3-TTS) a word at a time and kept in the deck's folder by lexeme (deck-extras.ts),
 // so cards play it on any device. A word read is not read again unless its text changed; the file
-// its earlier reading was in goes then.
+// its earlier reading was in goes then; what was read is removed on request (never the deck's own).
 import type { DeckReadAudio } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { sha256Hex } from "../security/encoding.ts";
@@ -91,7 +91,7 @@ export function createDeckAudio(deps: {
       return audio && `${folder}/${audio.path}`;
     },
 
-    /** A deck's words (of the learner's cards in it) — with audio of their own, read aloud, without —
+    /** A deck's words (taken or not) — with audio of their own, read aloud, without —
      *  the engine that would read them (none: nothing here reads their language) and the deck's job,
      *  running or the latest. */
     async state(
@@ -116,16 +116,19 @@ export function createDeckAudio(deps: {
       };
     },
 
-    /** Starts reading a deck's words without audio (once: a job running goes on). */
+    /** Starts reading a deck's words without audio (once: a job running goes on); `again`: what was
+     *  read for them goes first, every word read anew. */
     async start(
       scope: string,
       notes: DeckNote[],
       readerOf: (lang: string) => DeckReader | undefined,
+      again = false,
     ) {
       const folder = await extras.folderOf(scope);
       if (extras.going("audio", folder)) return;
       const reader = notes[0] && readerOf(notes[0].lang);
       if (!reader) throw new ServiceError("speech_unavailable", 409);
+      if (again && extras.clear("audio", folder)) await deps.onRead();
       const todo = wordsOf(notes).filter((w) => !w.own && !readingOf(folder, w.key, w.text));
       extras.start("audio", folder, {
         steps: todo.map((w) => [w]),
@@ -141,6 +144,12 @@ export function createDeckAudio(deps: {
     /** Stops a deck's job: the words read so far are kept. */
     async stop(scope: string) {
       extras.stop("audio", await extras.folderOf(scope));
+    },
+
+    /** Removes the audio read for a deck's words (never its own recordings); the cards follow.
+     *  Refused while its job reads. */
+    async remove(scope: string) {
+      if (extras.clear("audio", await extras.folderOf(scope))) await deps.onRead();
     },
   };
 }

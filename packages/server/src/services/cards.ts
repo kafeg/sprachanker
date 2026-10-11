@@ -3,7 +3,7 @@
 // a course of the learner's own or an imported deck as a deck to take (all its words at once, in its
 // order) or leave (its cards removed, those of words another of the learner's decks has moving there);
 // and notes that follow their words when a course is normalised, a deck imported again or its words
-// read aloud. Studying them
+// read aloud; what a card shows where it is studied (a deck's own entry of its word). Studying them
 // is study.ts; listing them, words.ts.
 import {
   CardDisplay,
@@ -15,14 +15,17 @@ import {
   type EditionId,
   type Lesson,
   type LessonKey,
+  type LexemeKey,
   type LocaleLesson,
   lessonOrder,
   parseEditionId,
   parseLessonKey,
+  parseLexemeKey,
+  seriesOf,
 } from "@sprachanker/schema";
 import { monotonicFactory } from "ulid";
 import { ServiceError } from "../errors.ts";
-import type { CardStore } from "./card-store.ts";
+import type { CardStore, Note } from "./card-store.ts";
 import type { Content } from "./content.ts";
 import type { DeckNote } from "./deck-extras.ts";
 import type { Decks } from "./decks.ts";
@@ -31,6 +34,13 @@ import type { Settings } from "./settings.ts";
 
 /** A word as a card shows it, and the word it is of (its source key). */
 type Home = { sourceKey: string; display: CardDisplay };
+/** A course's word where it is first met in an edition: its lesson and its translation there. */
+type Entry = {
+  series: string;
+  lesson: Lesson;
+  translation: string | undefined;
+  word: Lesson["vocab"][number];
+};
 
 export function createCards(deps: {
   cards: CardStore;
@@ -54,12 +64,14 @@ export function createCards(deps: {
   // Monotonic: cards made in one call keep the order of the words.
   const id = monotonicFactory();
 
-  /** What a card of a lesson's word shows: the word, its translation in the edition, its recording. */
+  /** What a card of a lesson's word shows: the word, its translation in the edition, its recording
+   *  (`read`: else the audio read aloud for its deck). */
   function displayOf(
     series: string,
     lesson: Lesson,
     translation: string | undefined,
     v: Lesson["vocab"][number],
+    read = true,
   ): CardDisplay {
     return {
       target: v.target,
@@ -72,42 +84,98 @@ export function createCards(deps: {
         courseDeckFolder(parseLessonKey(lesson.key).course),
         v.lexeme,
         v.target,
+        read,
       ),
       series,
       lessonKey: lesson.key,
     };
   }
 
-  /** A word's own audio, else the audio read aloud for its deck (by its lexeme there). */
-  const readAloud = (audio: string | undefined, folder: string, lexeme: string, target: string) => {
+  /** A word's own audio, else (`read`) the audio read aloud for its deck (by its lexeme there). */
+  const readAloud = (
+    audio: string | undefined,
+    folder: string,
+    lexeme: string,
+    target: string,
+    read: boolean,
+  ) => {
     if (audio) return { audio };
-    const read = deps.readAudio(folder, lexeme, target);
-    return read ? { readAudio: read } : {};
+    const made = read ? deps.readAudio(folder, lexeme, target) : undefined;
+    return made ? { readAudio: made } : {};
   };
 
   /** What a card of an imported deck's word shows. */
-  const deckDisplay = (deck: Deck, w: DeckWord): CardDisplay => ({
+  const deckDisplay = (deck: Deck, w: DeckWord, read = true): CardDisplay => ({
     target: w.target,
     ...(w.gender && { gender: w.gender }),
     ...(w.plural && { plural: w.plural }),
     ...(w.translation && { translation: w.translation }),
-    ...readAloud(w.audio, deck.id, w.lexeme, w.target),
+    ...readAloud(w.audio, deck.id, w.lexeme, w.target, read),
     ...(w.examples?.length && { examples: w.examples }),
     deck: deck.id,
   });
 
-  /** Each word of a course in an edition, by lexeme: where it is first met, in course order. */
-  async function wordsOf(course: { series: string; lessons: LessonKey[] }, edition: string) {
-    const out = new Map<string, Home>();
-    for (const key of course.lessons) {
-      const { lesson, locale } = await content.lessonWithLocale(course.series, key, edition);
-      for (const word of lesson.vocab)
-        if (!out.has(word.lexeme))
-          out.set(word.lexeme, {
-            sourceKey: word.key,
-            display: displayOf(course.series, lesson, locale?.vocab[word.key]?.translation, word),
-          });
+  /** Each course's words in an edition by lexeme, where each is first met, in course order: read
+   *  once, and anew when cards are relinked (a course installed or normalised again). */
+  const entries = new Map<string, Promise<Map<string, Entry>>>();
+  function entriesOf(
+    course: { key: string; series: string; lessons: LessonKey[] },
+    edition: string,
+  ) {
+    const key = `${course.key} ${edition}`;
+    let found = entries.get(key);
+    if (!found) {
+      found = (async () => {
+        const out = new Map<string, Entry>();
+        for (const lessonKey of course.lessons) {
+          const { lesson, locale } = await content.lessonWithLocale(
+            course.series,
+            lessonKey,
+            edition,
+          );
+          for (const word of lesson.vocab)
+            if (!out.has(word.lexeme))
+              out.set(word.lexeme, {
+                series: course.series,
+                lesson,
+                translation: locale?.vocab[word.key]?.translation,
+                word,
+              });
+        }
+        return out;
+      })();
+      entries.set(key, found);
+      // A course that does not read is read again next time.
+      found.catch(() => entries.delete(key));
     }
+    return found;
+  }
+
+  /** A course's entry of a word in an edition (the course by its deck, `course:<key>`); none when the
+   *  course is not here, not in that edition, or without the word. */
+  async function courseEntry(scope: string, edition: string, lexeme: string) {
+    // Read once: the courses listed only for one not read yet (My words asks for many words).
+    const known = entries.get(`${scope.slice("course:".length)} ${edition}`);
+    const course = known
+      ? undefined
+      : (await content.courses()).find((c) => `course:${c.key}` === scope);
+    if (!known && !course?.editions.includes(edition)) return undefined;
+    const read = known ?? entriesOf(course as NonNullable<typeof course>, edition);
+    const entry = (await read.catch(() => undefined))?.get(lexeme);
+    return entry && displayOf(entry.series, entry.lesson, entry.translation, entry.word);
+  }
+
+  /** Each word of a course in an edition, by lexeme: where it is first met, in course order. */
+  async function wordsOf(
+    course: { key: string; series: string; lessons: LessonKey[] },
+    edition: string,
+  ) {
+    const out = new Map<string, Home>();
+    for (const [lexeme, e] of await entriesOf(course, edition))
+      out.set(lexeme, {
+        sourceKey: e.word.key,
+        display: displayOf(e.series, e.lesson, e.translation, e.word),
+      });
     return out;
   }
 
@@ -268,21 +336,91 @@ export function createCards(deps: {
       return { removed: gone.length, moved: moves.length };
     },
 
-    /** The learner's cards made in a deck (`course:<key>`, `deck:<id>`), in the order they were
-     *  made: the words its extras are made for (audio read aloud, examples). */
-    deckNotes(scope: string): DeckNote[] {
-      return cards.all().flatMap((n) =>
-        n.deck === scope && n.lexemeKey
-          ? [
-              {
-                lexeme: n.lexemeKey,
-                lang: n.lang,
-                translationLang: n.translationLang,
-                display: n.display,
-              },
-            ]
-          : [],
+    /**
+     * A deck's words, taken or not, as what is made for them takes them (04: audio read aloud,
+     * examples): an imported deck's notes, or a course's words across its lessons in an edition (its
+     * first when none is named) — one per lexeme, where each is first met, in the deck's order, as a
+     * card would show it without the audio read for it. 404 when the deck or edition is not here.
+     */
+    async sourceNotes(scope: string, edition?: string): Promise<DeckNote[]> {
+      const note = (lexeme: string, translationLang: string, display: CardDisplay): DeckNote => ({
+        lexeme,
+        lang: parseLexemeKey(lexeme as LexemeKey).lang,
+        translationLang,
+        display,
+      });
+      if (scope.startsWith("deck:")) {
+        const deck = deckOrFail(scope.slice("deck:".length));
+        if (edition && edition !== `${deck.translationLang}-${deck.lang}`)
+          throw new ServiceError("no_such_deck", 404);
+        const seen = new Set<string>();
+        return deck.words.flatMap((w) => {
+          if (seen.has(w.lexeme)) return [];
+          seen.add(w.lexeme);
+          return [note(w.lexeme, deck.translationLang, deckDisplay(deck, w, false))];
+        });
+      }
+      const course = (await content.courses()).find((c) => `course:${c.key}` === scope);
+      const chosen = edition ?? course?.editions[0];
+      if (!course || !chosen || !course.editions.includes(chosen))
+        throw new ServiceError("no_such_deck", 404);
+      const translationLang = parseEditionId(chosen as EditionId).source;
+      return [...(await entriesOf(course, chosen))].map(([lexeme, e]) =>
+        note(lexeme, translationLang, displayOf(e.series, e.lesson, e.translation, e.word, false)),
       );
+    },
+
+    /**
+     * What a card shows where it is studied (04, "Decks"): in a deck — an imported deck's, a course's,
+     * a lesson's Words step — that deck's own entry of its word (its recording, else the audio read
+     * aloud for that deck), else what the card was made with; in a language's queue, every deck's,
+     * My words and the word sheet, a course's entry over an imported deck's — the card's own course,
+     * else the first of the learner's courses (by deck, in its language pair) that has the word —,
+     * else the card's own. `notes`: the learner's cards, when they are read already.
+     */
+    async shown(note: Note, scope: string, notes?: Note[]): Promise<CardDisplay> {
+      const lexeme = note.lexemeKey;
+      if (!lexeme) return note.display;
+      const edition = `${note.translationLang}-${note.lang}`;
+      if (scope.startsWith("deck:")) {
+        const deck = decks.deck(scope.slice("deck:".length));
+        const word =
+          deck?.translationLang === note.translationLang
+            ? deck.words.find((w) => w.lexeme === lexeme)
+            : undefined;
+        return deck && word ? deckDisplay(deck, word) : note.display;
+      }
+      if (scope.startsWith("lesson:")) {
+        const [, lessonEdition = "", key = ""] = scope.split(":");
+        const series = seriesOf(key as LessonKey);
+        const read = await content
+          .lessonWithLocale(series, key as LessonKey, lessonEdition)
+          .catch(() => undefined);
+        const word = read?.lesson.vocab.find((v) => v.lexeme === lexeme);
+        return read && word
+          ? displayOf(series, read.lesson, read.locale?.vocab[word.key]?.translation, word)
+          : note.display;
+      }
+      if (scope.startsWith("course:"))
+        return note.deck === scope
+          ? note.display
+          : ((await courseEntry(scope, edition, lexeme)) ?? note.display);
+      if (note.deck.startsWith("course:")) return note.display;
+      const courses = new Set(
+        (notes ?? cards.all())
+          .filter(
+            (n) =>
+              n.deck.startsWith("course:") &&
+              n.lang === note.lang &&
+              n.translationLang === note.translationLang,
+          )
+          .map((n) => n.deck),
+      );
+      for (const course of [...courses].sort()) {
+        const entry = await courseEntry(course, edition, lexeme);
+        if (entry) return entry;
+      }
+      return note.display;
     },
 
     /** Decks to take: the learner's courses (My courses), each course and language pair, and the
@@ -344,6 +482,8 @@ export function createCards(deps: {
      */
     async relink(): Promise<number> {
       let changed = 0;
+      // The courses as installed now.
+      entries.clear();
       /** Each deck's words by their cards' source key (read once per relinking). */
       const decksRead = new Map<string, { deck: Deck; words: Map<string, DeckWord> } | undefined>();
       const deckWords = (id: string) => {

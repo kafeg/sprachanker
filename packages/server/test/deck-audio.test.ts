@@ -13,7 +13,7 @@ const audio = (scope: string) => `/api/decks/audio?scope=${encodeURIComponent(sc
 
 type Job = { status: string; total: number; done: number; failed: number; error?: string };
 type AudioState = { words: number; own: number; read: number; missing: number; job: Job | null };
-type Shown = { lexemeKey: string; display: Record<string, string> };
+type Shown = { cardId: string; lexemeKey: string; display: Record<string, string> };
 
 /** Waits until a deck's job is no longer running; its state then. */
 async function settled(getJson: (path: string) => Promise<unknown>, scope: string) {
@@ -58,9 +58,7 @@ test("an imported deck's words without audio read by Piper into its folder by le
   const { importDeck, getJson, get, send, sendJson, root } = api;
   const { id } = await importDeck();
   const scope = `deck:${id}`;
-  // Before it is taken, the deck has none of the learner's words.
-  expect(await getJson(audio(scope))).toMatchObject({ words: 0, missing: 0 });
-  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  // Its words, taken or not (04: what is made is the deck's).
   expect(await getJson(audio(scope))).toEqual({
     lang: "de",
     words: 4,
@@ -94,7 +92,9 @@ test("an imported deck's words without audio read by Piper into its folder by le
   const apfelReading = extras.words["lex:de:apfel:noun:m"].audio;
   expect(apfelReading.path).toMatch(/^media\/read-[0-9a-f]{12}\.wav$/);
   expect(apfelReading).toMatchObject({ engine: "piper", voice: VOICE, text: "der Apfel" });
-  // The card shows its word's audio read aloud, served from the deck's folder; one with its own keeps it.
+  // Taken now, the card shows its word's audio read aloud, served from the deck's folder; one with its
+  // own keeps it.
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
   const words = await cardsOf(getJson);
   const apfel = words.find((w) => w.lexemeKey === "lex:de:apfel:noun:m")?.display;
   expect(apfel?.readAudio).toBe(`${id}/${apfelReading.path}`);
@@ -172,7 +172,7 @@ test("a job stopped keeps what it read; started again it reads only the rest; on
   expect(new Set(p.said.map((s) => s.text)).size).toBe(3);
 });
 
-test("a course's deck: the words of its cards read into its own folder; a word's cards follow the deck they belong to", async () => {
+test("a course's deck: all its words, met yet or not, read into its own folder; a word's cards follow the deck they belong to", async () => {
   const p = piper([VOICE]);
   const { importDeck, getJson, get, sendJson, root } = await withDecks({ piper: p.host });
   const scope = `course:${COURSE}`;
@@ -185,14 +185,21 @@ test("a course's deck: the words of its cards read into its own folder; a word's
   // the deck's card).
   const { id } = await importDeck();
   await sendJson("POST", "/api/cards/decks/take", { deck: id });
-  // The course's cards: four words of its first lesson, two with their recording.
-  expect(await getJson(audio(scope))).toMatchObject({ lang: "de", words: 4, own: 2, missing: 2 });
-  expect(await getJson(audio(`deck:${id}`))).toMatchObject({ words: 3, own: 0, missing: 3 });
+  // The course's words across its lessons (04: the whole deck, not the cards made yet), two with their
+  // recording; the deck's four, Kaffee with its own.
+  expect(await getJson(audio(scope))).toMatchObject({ lang: "de", words: 6, own: 2, missing: 4 });
+  expect(await getJson(audio(`deck:${id}`))).toMatchObject({ words: 4, own: 1, missing: 3 });
   await sendJson("POST", "/api/decks/audio", { scope });
-  expect(await settled(getJson, scope)).toMatchObject({ read: 2, missing: 0 });
-  expect(p.said.map((s) => s.text).sort()).toEqual(["(etwas) bestellen", "gern"]);
-  // By lexeme in the course's folder: its cards are one per lexeme, whichever lesson made them.
+  expect(await settled(getJson, scope)).toMatchObject({ read: 4, missing: 0 });
+  expect(p.said.map((s) => s.text).sort()).toEqual([
+    "(etwas) bestellen",
+    "Guten Tag.",
+    "die Leute (Plural)",
+    "gern",
+  ]);
+  // By lexeme in the course's folder, a word of a lesson not done yet too.
   expect(Object.keys(extrasOf(root, COURSE_FOLDER).words)).toContain("lex:de:gern:word");
+  expect(Object.keys(extrasOf(root, COURSE_FOLDER).words)).toContain("lex:de:leute:noun:pl");
   // Cards follow at the job's end: their display takes the reading, the recordings stay theirs.
   const words = await cardsOf(getJson);
   const gern = words.find((w) => w.lexemeKey === "lex:de:gern:word")?.display;
@@ -203,7 +210,18 @@ test("a course's deck: the words of its cards read into its own folder; a word's
   await sendJson("POST", "/api/decks/audio", { scope: `deck:${id}` });
   expect(await settled(getJson, `deck:${id}`)).toMatchObject({ read: 3, missing: 0 });
   const leute = (await cardsOf(getJson)).find((w) => w.lexemeKey === "lex:de:leute:noun:pl");
-  expect(leute?.display.readAudio).toStartWith(`${id}/media/read-`);
+  // My words and the sheet show the course's entry (it has Leute: 04) with the course's reading;
+  // studied in the deck, Kaffee — the course's card — is the deck's word with its recording, and Leute
+  // plays the deck's reading.
+  expect(leute?.display.readAudio).toStartWith(`${COURSE_FOLDER}/media/read-`);
+  const stored = await getJson(`/api/cards/${leute?.cardId}`);
+  expect(stored.display.lessonKey).toBe(`${COURSE}/00-02`);
+  const inDeck = await getJson(study(`deck:${id}`));
+  expect(inDeck.current.display).toMatchObject({ target: "der Kaffee" });
+  await sendJson("POST", `/api/cards/${inDeck.current.cardId}/bury`, {});
+  expect((await getJson(study(`deck:${id}`))).current.display.readAudio).toStartWith(
+    `${id}/media/read-`,
+  );
   // Nothing but a deck folder's media is served.
   expect((await get(`/decks/${COURSE_FOLDER}/extras.json`)).status).toBe(404);
   expect((await get("/decks/course~..~x/media/a.wav")).status).toBe(404);
@@ -358,4 +376,118 @@ test("cards studied play the reading of a word without audio of its own", async 
   const next = (await getJson(study(`deck:${id}`))).current.display;
   expect(next.audio).toBeUndefined();
   expect(next.readAudio).toStartWith(`${id}/media/read-`);
+});
+
+test("the audio read removed — never the deck's own — and read again; refused while the deck is read", async () => {
+  const g = gate(3);
+  const p = piper([VOICE], true, g.say);
+  const { importDeck, getJson, sendJson, send, root, wordsOf } = await withDecks({ piper: p.host });
+  const { id } = await importDeck();
+  const scope = `deck:${id}`;
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  await sendJson("POST", "/api/decks/audio", { scope });
+  expect(await settled(getJson, scope)).toMatchObject({ read: 3, missing: 0 });
+  const read = Object.values(extrasOf(root, id).words).map(
+    (w) => (w as { audio: { path: string } }).audio.path,
+  );
+  const own = wordsOf(id).n1?.audio as string;
+  // Removed: its files and entries go, the deck's own recording stays; the cards follow.
+  expect(await sendJson("POST", "/api/decks/audio/remove", { scope })).toMatchObject({
+    own: 1,
+    read: 0,
+    missing: 3,
+    job: null,
+  });
+  expect(extrasOf(root, id).words).toEqual({});
+  for (const path of read) expect(existsSync(join(root, "decks", id, path))).toBe(false);
+  expect(existsSync(join(root, "decks", id, own))).toBe(true);
+  const shown = (await cardsOf(getJson)).map((w) => w.display);
+  expect(shown.filter((d) => d.readAudio)).toEqual([]);
+  expect(shown.filter((d) => d.audio)).toHaveLength(1);
+  // Read again: each word anew.
+  await sendJson("POST", "/api/decks/audio", { scope });
+  await g.held(2);
+  // While it reads, nothing is removed.
+  const refused = await send("POST", "/api/decks/audio/remove", { scope });
+  expect([refused.status, ((await refused.json()) as { error: string }).error]).toEqual([
+    409,
+    "deck_job_running",
+  ]);
+  g.release();
+  await g.held(1);
+  g.release();
+  expect(await settled(getJson, scope)).toMatchObject({ read: 3, missing: 0 });
+  expect(p.said).toHaveLength(6);
+  // Regenerated in one go: what was read goes first, all three read again.
+  await sendJson("POST", "/api/decks/audio", { scope, again: true });
+  await g.held(2);
+  g.release();
+  await g.held(1);
+  g.release();
+  expect(await settled(getJson, scope)).toMatchObject({
+    read: 3,
+    job: { status: "done", total: 3, done: 3 },
+  });
+  expect(p.said).toHaveLength(9);
+});
+
+test("a word taken first from an imported deck: a course's lesson shows the course's word and recording; the deck its own", async () => {
+  // The owner's case (2026-10-11): an imported deck taken and read aloud, then a course's lesson
+  // whose Words step meets a word the deck's card holds.
+  const { importDeck, getJson, sendJson } = await withDecks({ piper: piper([VOICE]).host });
+  const bytes = buildApkg({
+    deck: "Deutsch A1",
+    model: "Vokabel (de–ru)",
+    fields: ["Wort", "Plural", "Übersetzung", "Wortart"],
+    notes: [
+      { guid: "k", fields: ["der Kaffee", "die Kaffees", "кофе (напиток)", "Nomen"] },
+      { guid: "a", fields: ["antworten", "", "отвечать", "Verb"] },
+    ],
+  });
+  const { id } = await importDeck(bytes, "Deutsch A1");
+  const deckScope = `deck:${id}`;
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  await sendJson("POST", "/api/decks/audio", { scope: deckScope });
+  expect(await settled(getJson, deckScope)).toMatchObject({ read: 2 });
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: `${COURSE}/00-01`,
+    edition: "ru-de",
+  });
+  const kaffee = (await cardsOf(getJson)).find(
+    (w) => w.lexemeKey === "lex:de:kaffee:noun:m",
+  ) as Shown & { deck: string };
+  // One card per word: still the deck's.
+  expect(kaffee.deck).toBe(deckScope);
+  /** Kaffee as a scope's queue shows it (the cards before it buried, then brought back). */
+  const shownIn = async (scope: string) => {
+    for (let i = 0; i < 10; i++) {
+      const current = (await getJson(study(scope))).current;
+      if (current.cardId === kaffee.cardId) {
+        await sendJson("POST", "/api/cards/unbury", { scope: "lang:de" });
+        return current.display;
+      }
+      await sendJson("POST", `/api/cards/${current.cardId}/bury`, {});
+    }
+  };
+  const course = {
+    target: "der Kaffee, die Kaffees",
+    translation: "кофе",
+    audio: "media/audio/kaffee.mp3",
+    lessonKey: `${COURSE}/00-01`,
+  };
+  // The lesson's Words step: the course's word with its recording, not the deck's reading.
+  const inLesson = await shownIn(`lesson:ru-de:${COURSE}/00-01`);
+  expect(inLesson).toMatchObject(course);
+  expect(inLesson.readAudio).toBeUndefined();
+  // The language's queue and My words: a course's entry over an imported deck's.
+  expect(await shownIn("lang:de")).toMatchObject(course);
+  expect(kaffee.display).toMatchObject(course);
+  // The deck: its own word, with the audio read for it.
+  const inDeck = await shownIn(deckScope);
+  expect(inDeck).toMatchObject({ target: "der Kaffee", translation: "кофе (напиток)", deck: id });
+  expect(inDeck.readAudio).toStartWith(`${id}/media/read-`);
+  // The deck left, the card moves to the course: shown there as before.
+  await sendJson("POST", "/api/cards/decks/leave", { scope: deckScope, lang: "de" });
+  expect(await shownIn(`lesson:ru-de:${COURSE}/00-01`)).toMatchObject(course);
 });

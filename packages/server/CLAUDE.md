@@ -66,13 +66,13 @@ src/
                      # - exams: exams (the standing in each, the exams', an exam's Notebook page) over
                      #   exam-runs (mock exams and practice taken; overdue ones handed in on reading)
                      # - review: cards (from lesson words or an imported deck; decks taken, left;
-                     #   relinking), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
+                     #   relinking; what a card shows in a deck: `shown`), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
                      #   marks; standing, a review day in full), words, decks (imported .apkg decks, server-wide: preview,
                      #   import — the same deck again updated —, list, delete while no profile uses it),
                      #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
-                     #   extras.json read once, a job per deck and kind, sweeping course folders),
+                     #   extras.json read once, a job per deck and kind, what was made removed, sweeping),
                      #   deck-audio (its words without audio read aloud: the engine and voice handed in by
-                     #   index.ts from profile-speech, the words from the profile's cards in the deck),
+                     #   index.ts from profile-speech, the deck's words — taken or not — from cards.ts),
                      #   deck-examples (its words given examples by a model handed in: five a call, a
                      #   sentence without its word dropped, a word left without any asked again)
                      # - across modules: notebook (study days, each span's bars, the standings gathered), progress (resets;

@@ -1,14 +1,18 @@
 // My words (09), under Decks: every word with cards as a table, like Anki's browser — search by word or
 // translation, filters by deck (a language, a course, an imported deck) and by state with their counts,
-// columns sortable; a row opens the word sheet. On a phone a row takes two lines.
+// columns sortable; a row opens the word sheet, its button before it plays the word's audio (as a
+// language's queue shows the word: the server's display) — never by itself. On a phone a row takes two
+// lines.
 import { headword } from "@sprachanker/engine";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { type MyWord, useWords } from "@/api/cards.ts";
+import { cardAudioUrl } from "@/api/client.ts";
 import { useDeckName } from "@/study/decks.ts";
 import { WordSheet } from "@/study/word-sheet.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { ListRow } from "@/ui/history.tsx";
+import { AudioButton } from "@/ui/media.tsx";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { SearchField } from "@/ui/search-field.tsx";
@@ -124,7 +128,11 @@ export function MyWords() {
         </div>
         <div className={cn(panelClass, "overflow-hidden")}>
           <div
-            className={cn(row, "hidden border-b px-4 py-2 text-xs text-muted-foreground sm:grid")}
+            className={cn(
+              row,
+              // In line with the rows' words, past their play button.
+              "hidden border-b py-2 ps-13 pe-4 text-xs text-muted-foreground sm:grid pointer-coarse:ps-15",
+            )}
           >
             {heading("word", t("myWords.column.word"))}
             {heading("translation", t("myWords.column.translation"))}
@@ -133,37 +141,53 @@ export function MyWords() {
           </div>
           {shown.length ? (
             <ul className="divide-y">
-              {shown.map((w) => (
-                <li key={w.cardId}>
-                  <ListRow
-                    chevron={false}
-                    flush
-                    onClick={() => setOpen(w.cardId)}
-                    className={cn(row, "items-baseline", w.suspended && "text-muted-foreground")}
-                  >
-                    <span className="truncate sm:order-1">
-                      <TargetLang value={w.lang}>
-                        <GenderWord text={w.display.target} gender={w.display.gender} />
-                      </TargetLang>
-                      {w.marked && <span className="ms-1 text-amber-500">★</span>}
+              {shown.map((w) => {
+                const audio = cardAudioUrl(w.display);
+                return (
+                  <li key={w.cardId} className="flex items-center">
+                    <span className="ms-2 flex w-9 shrink-0 justify-center pointer-coarse:w-11">
+                      {audio && (
+                        <AudioButton
+                          src={audio}
+                          label={t("myWords.play", { word: w.display.target })}
+                          className="size-9 pointer-coarse:size-11"
+                        />
+                      )}
                     </span>
-                    <span
+                    <ListRow
+                      chevron={false}
+                      flush
+                      onClick={() => setOpen(w.cardId)}
                       className={cn(
-                        "text-end text-sm sm:order-3 sm:text-start",
-                        !w.suspended && COUNT_TONE[w.state],
+                        row,
+                        "min-w-0 flex-1 items-baseline ps-2",
+                        w.suspended && "text-muted-foreground",
                       )}
                     >
-                      {w.suspended ? t("myWords.state.suspended") : t(`myWords.state.${w.state}`)}
-                    </span>
-                    <span className="truncate text-sm text-muted-foreground sm:order-2 sm:text-base sm:text-foreground">
-                      {w.display.translation}
-                    </span>
-                    <span className="text-end text-sm text-muted-foreground sm:order-4">
-                      {w.suspended ? "—" : due(w.due, now)}
-                    </span>
-                  </ListRow>
-                </li>
-              ))}
+                      <span className="truncate sm:order-1">
+                        <TargetLang value={w.lang}>
+                          <GenderWord text={w.display.target} gender={w.display.gender} />
+                        </TargetLang>
+                        {w.marked && <span className="ms-1 text-amber-500">★</span>}
+                      </span>
+                      <span
+                        className={cn(
+                          "text-end text-sm sm:order-3 sm:text-start",
+                          !w.suspended && COUNT_TONE[w.state],
+                        )}
+                      >
+                        {w.suspended ? t("myWords.state.suspended") : t(`myWords.state.${w.state}`)}
+                      </span>
+                      <span className="truncate text-sm text-muted-foreground sm:order-2 sm:text-base sm:text-foreground">
+                        {w.display.translation}
+                      </span>
+                      <span className="text-end text-sm text-muted-foreground sm:order-4">
+                        {w.suspended ? "—" : due(w.due, now)}
+                      </span>
+                    </ListRow>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p className="p-6 text-center text-muted-foreground">{t("myWords.nothing")}</p>

@@ -265,7 +265,7 @@ export type PromptRequest =
   | { writing: WritingRequest }
   | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
-  | { deckExamples: { scope: string } }
+  | { deckExamples: { scope: string; edition: string } }
   | { exam: ExamRatingRequest }
   | { conversation: ConversationRequest };
 
@@ -446,13 +446,14 @@ export const writing = (state: DeckExamplesState | undefined) =>
 
 export type DeckExamplesState = InferResponseType<typeof api.decks.examples.$get, 200>;
 
-/** A deck's words given examples (`scope`: `course:<key>` or `deck:<id>`): how many have them, the
- *  job — polled while it runs; when it ends, the cards' examples are read anew. */
-export function useDeckExamples(scope: string) {
+/** A deck's words in a language pair given examples (`scope`: `course:<key>` or `deck:<id>`; `edition`:
+ *  the pair): how many have them, the job — polled while it runs; when it ends, the cards' examples
+ *  are read anew. */
+export function useDeckExamples(scope: string, edition: string) {
   const client = useQueryClient();
   const query = useQuery({
-    queryKey: ["deck-examples", scope],
-    queryFn: () => json(api.decks.examples.$get({ query: { scope } })),
+    queryKey: ["deck-examples", scope, edition],
+    queryFn: () => json(api.decks.examples.$get({ query: { scope, edition } })),
     refetchInterval: (q) => (writing(q.state.data) ? 2000 : false),
   });
   const going = writing(query.data);
@@ -464,28 +465,42 @@ export function useDeckExamples(scope: string) {
   return query;
 }
 
-/** A deck's examples job started (with this profile's model) or stopped; the state the server
- *  answers with is shown. */
-export function useDeckExamplesActions(scope: string) {
+/** A deck's examples job started (with this profile's model; `again`: those made removed first) or
+ *  stopped, those made removed (the cards' examples read anew); the state the server answers with is
+ *  shown. */
+export function useDeckExamplesActions(scope: string, edition: string) {
   const client = useQueryClient();
   const onSuccess = (state: DeckExamplesState) =>
-    client.setQueryData(["deck-examples", scope], state);
+    client.setQueryData(["deck-examples", scope, edition], state);
+  const cardsAgain = () => client.invalidateQueries({ queryKey: ["card-examples"] });
   return {
     start: useMutation({
-      mutationFn: () => json(api.decks.examples.$post({ json: { scope } })),
-      onSuccess,
+      mutationFn: (again?: boolean) =>
+        json(api.decks.examples.$post({ json: { scope, edition, ...(again && { again }) } })),
+      onSuccess: (state: DeckExamplesState, again) => {
+        onSuccess(state);
+        if (again) void cardsAgain();
+      },
     }),
     stop: useMutation({
-      mutationFn: () => json(api.decks.examples.$delete({ query: { scope } })),
+      mutationFn: () => json(api.decks.examples.$delete({ query: { scope, edition } })),
       onSuccess,
+    }),
+    remove: useMutation({
+      mutationFn: () => json(api.decks.examples.remove.$post({ json: { scope, edition } })),
+      onSuccess: (state: DeckExamplesState) => {
+        onSuccess(state);
+        void cardsAgain();
+      },
     }),
   };
 }
 
-/** A card's examples made for its deck, as shown; read once its answer is (`enabled`). */
-export const useCardExamples = (cardId: string, enabled = true) =>
+/** A card's examples made for a deck (`deck`: the one whose entry of the word it shows), as shown;
+ *  read once its answer is (`enabled`). */
+export const useCardExamples = (cardId: string, deck: string, enabled = true) =>
   useQuery({
-    queryKey: ["card-examples", cardId],
+    queryKey: ["card-examples", cardId, deck],
     enabled,
-    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId } })),
+    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId }, query: { deck } })),
   });
