@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Kurslar",
+    "settings": "Ayarlar",
+    "review": "Tekrar",
+    "notebook": "Defter",
+    "exams": "Sınavlar"
+  },
+  "common": {
+    "loading": "Yükleniyor…",
+    "retry": "Tekrar dene",
+    "close": "Kapat",
+    "cancel": "İptal"
+  },
+  "courses": {
+    "lessons": "{count, plural, one {# ders} other {# ders}}",
+    "progress": "{done, number} / {total, number} tamamlandı",
+    "start": "Başla",
+    "allLessons": "Tüm dersler",
+    "languages": "{from} → {to}",
+    "any": "Tümü",
+    "noneStarted": "Henüz başladığın bir kurs yok.",
+    "noneMatch": "Bu diller için kurs yok.",
+    "course": "Kurs",
+    "pair": "Diller",
+    "next": "Sıradaki",
+    "nextWorked": "{worked, number} / {total, number} tamamlandı",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Kurslarım",
+      "downloaded": "İndirilenler",
+      "available": "Mevcut"
+    },
+    "noneDownloaded": "Henüz indirilmiş kurs yok.",
+    "allDownloaded": "Sunulan tüm kurslar indirildi.",
+    "choose": "Bir kurs seç",
+    "anyLanguage": "herhangi biri"
+  },
+  "course": {
+    "unit": "Ünite {number}",
+    "status": {
+      "new": "Başlanmadı",
+      "in_progress": "Devam ediyor · {worked, number} / {total, number}",
+      "done": "Tamamlandı · {score, number, percent}",
+      "next": "Sıradaki",
+      "finished": "Tamamlandı"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "kamu malı",
+      "free-access": "ücretsiz erişim (açık lisans yok)"
+    },
+    "stats": {
+      "lessons": "{count, plural, one {ders} other {ders}}",
+      "exercises": "{count, plural, one {alıştırma} other {alıştırma}}",
+      "words": "{count, plural, one {kelime} other {kelime}}",
+      "audio": "{count, plural, one {ses kaydı} other {ses kaydı}}",
+      "video": "{count, plural, one {video} other {video}}",
+      "image": "{count, plural, one {resim} other {resim}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, one {altyazı dosyası} other {altyazı dosyası}}",
+      "size": "diskte"
+    },
+    "checking": "Kurs dosyaları kontrol ediliyor…",
+    "missing": "{count, number} eksik",
+    "problems": "{count, plural, one {# sorun bulundu} other {# sorun bulundu}}",
+    "intact": "Tüm dosyalar yerinde ve tutarlı.",
+    "checkAgain": "Yeniden kontrol et",
+    "complete": "Tamamı indirildi",
+    "next": "sıradaki: {where} — {title}",
+    "notInstalled": "Bu kurs (artık) yüklü değil.",
+    "checkFiles": "Kontrol et",
+    "problem": {
+      "missingMedia": "Eksik dosya: {at}",
+      "unreadable": "Dosya okunamıyor: {at}",
+      "noLocale": "Dersin bu dilde metinleri yok: {at}",
+      "noEdition": "Yüklü dil sürümü yok",
+      "inconsistent": "Kurs verileri birbiriyle uyuşmuyor: {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Ünite {unit} · Ders {lesson}",
+    "goals": "Bu derste şunları öğreneceksin:",
+    "counts": "{exercises, plural, =0 {} one {# alıştırma · } other {# alıştırma · }}{words, plural, one {# yeni kelime} other {# yeni kelime}}",
+    "start": "Derse başla",
+    "resume": "Derse devam et",
+    "exerciseOf": "Alıştırma {n} / {total}",
+    "check": "Kontrol et",
+    "next": "İleri",
+    "toSummary": "Özete geç",
+    "skip": "Atla",
+    "retry": "Tekrar dene",
+    "previous": "Geri",
+    "correct": "Doğru",
+    "partial": "Kısmen doğru",
+    "wrong": "Tam değil",
+    "summary": "Özet",
+    "score": "İlk denemede doğru: {correct, number} / {scored, number}. Yüzde, kısmen doğru cevapları da sayar.",
+    "skipped": "atlandı",
+    "notDone": "yapılmadı",
+    "backToCourse": "Kursa dön",
+    "nextLesson": "Sonraki ders",
+    "reference": "Kaynaklar",
+    "plan": "Ders planı",
+    "audio": "Dersi dinle",
+    "itemAudio": "{n}. maddenin sesi",
+    "redo": "Baştan başla",
+    "done": "Tamamlandı",
+    "doneScore": "Tamamlandı · {score, number, percent} doğru",
+    "state": {
+      "correct": "doğru",
+      "wrong": "hatalı",
+      "done": "cevaplandı",
+      "skipped": "atlandı",
+      "read": "tamamlandı",
+      "partial": "kısmen doğru"
+    },
+    "correctAnswer": "Doğru cevap:",
+    "answerAudio": "Cevabı dinle",
+    "itemsList": "Maddeler",
+    "answerAll": "Tüm maddeleri cevapla · {done, number} / {total, number}",
+    "listenFirst": "Önce kaydı dinle",
+    "listenItem": "{n}. maddenin kaydını dinle",
+    "answerAgain": "Yeniden cevapla",
+    "exerciseN": "Alıştırma {n}",
+    "stepsDone": "{done} / {total} adım tamamlandı",
+    "stepsLeft": "{count, plural, one {Yapılacak # adım daha var} other {Yapılacak # adım daha var}}.",
+    "toStep": "Git: {title}",
+    "videoText": "Videonun metni",
+    "audioText": "Kaydın metni",
+    "step": {
+      "overview": "Genel bakış",
+      "words": "Dersin kelimeleri",
+      "wordsCount": "Dersin kelimeleri · {count}",
+      "grammar": "Dil bilgisi",
+      "culture": "Kültür",
+      "writing": "Kendin yaz",
+      "scene": "Sahne",
+      "mistakes": "Hataların üzerinden geç",
+      "summary": "Özet"
+    },
+    "section": {
+      "grammar": "Dil bilgisi",
+      "exercises": "Alıştırmalar",
+      "culture": "Kültür",
+      "practice": "Yapay zekâ ile pratik"
+    },
+    "continued": "devamı",
+    "why": "Bu neden yanlış?"
+  },
+  "ref": {
+    "vocabulary": "Kelime hazinesi",
+    "grammar": "Dil bilgisi",
+    "culture": "Kültür",
+    "script": "Metin",
+    "downloads": "PDF",
+    "none": "Bu derste içerik yok.",
+    "homework": "Ödev"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Altyazılar"
+  },
+  "ex": {
+    "chooseSeveral": "Birden fazla cevap doğru olabilir.",
+    "orderHint": "Parçalara dokun ya da onları sırayla satıra sürükle; yerini değiştirmek için satırdaki bir parçayı sürükle, geri almak için ona dokun.",
+    "reset": "Sıfırla",
+    "dictationPlaceholder": "Duyduğunu yaz",
+    "rate": {
+      "good": "İyi",
+      "fair": "Orta",
+      "poor": "Yeniden"
+    },
+    "unknown": "Bu alıştırma türü henüz desteklenmiyor.",
+    "respondPlaceholder": "Cevabın…",
+    "reference": "{count, plural, one {Örnek cevap} other {Örnek cevaplar}}",
+    "gap": "Boşluk {n}",
+    "partRight": "doğru",
+    "partWrong": "yanlış",
+    "nothing": "— (hiçbir şey)",
+    "matchFor": "{n}. madde için eşleşme",
+    "dropHere": "buraya bırak ya da dokun",
+    "chips": "Yerleştirilecek kelimeler",
+    "orderLine": "Senin sıralaman",
+    "dnd": {
+      "item": "kart",
+      "instructions": "Bir kartı almak için Space ya da Enter tuşuna bas. Ok tuşlarıyla taşı, sonra bırakmak için Space ya da Enter, geri koymak için Escape tuşuna bas.",
+      "start": "Alındı: {item}.",
+      "over": "{item} — “{place}” üzerinde.",
+      "away": "{item} — bir yerin üzerinde değil.",
+      "end": "{item} — “{place}” üzerine bırakıldı.",
+      "cancel": "{item} — geri konuldu."
+    },
+    "chosen": "{count, plural, one {# seçildi} other {# seçildi}}",
+    "specialLetters": "Yazılacak harfler",
+    "inPlace": "yerinde",
+    "notInPlace": "yerinde değil"
+  },
+  "word": {
+    "plural": "çoğ. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Arayüz dili",
+    "themeLabel": "Tema",
+    "theme": {
+      "system": "Sistem",
+      "light": "Açık",
+      "dark": "Koyu"
+    },
+    "tabs": {
+      "general": "Genel",
+      "profile": "Profil",
+      "review": "Tekrar",
+      "speech": "Konuşma",
+      "ai": "Yapay zekâ asistanı",
+      "aiShort": "YZ"
+    },
+    "prompts": "İstemler",
+    "experimental": "Deneysel",
+    "advanced": "Gelişmiş"
+  },
+  "llm": {
+    "title": "Yapay zekâ asistanı",
+    "intro": "Hataları açıklar, derslerde öğretmenlik yapar, metinleri kontrol eder ve sahneleri canlandırır. Bu bilgisayarda, ağındaki bir sunucuda ya da bulutta (OpenRouter) çalışan bir model veya aboneliğinle kullandığın bir komut satırı ajanı seç. Ders içeriği ve cevapların yalnızca seçtiğin sağlayıcıya gider.",
+    "off": "Kapalı",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Ağdaki sunucu",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Sunucu adresi",
+    "endpointInvalid": "http://localhost:1234/v1 gibi bir adres gir",
+    "apiKey": "API anahtarı",
+    "keyHint": "Yalnızca sunucu istiyorsa. Şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+    "keySaved": "Kaydedildi — değiştirmek için yenisini gir",
+    "save": "Kaydet",
+    "removeKey": "Kaldır",
+    "check": "Bağlantıyı kontrol et",
+    "checking": "Bağlanılıyor…",
+    "connected": "Bağlandı · {count, plural, =0 {model yok} one {# model} other {# model}} · {ms} ms",
+    "model": "Model",
+    "setUpHint": "Açıklama mı istiyorsun? Yapay zekâ asistanını kur",
+    "explanation": "Açıklama",
+    "thinking": "Düşünüyor…",
+    "error": {
+      "lmstudioDown": "LM Studio cevap vermiyor. Yerel sunucusu çalışıyor mu?"
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code burada yüklü değil. claude.com/claude-code adresinden yükle ve `claude` komutunu çalıştırarak bir kez oturum aç.",
+      "codex": "Codex CLI burada yüklü değil. Yükle (npm i -g @openai/codex) ve `codex login` ile bir kez oturum aç."
+    },
+    "modelTypeHint": "Model adını yaz.",
+    "otherModel": "Başka bir model…",
+    "modelName": "Model adı",
+    "explainAgain": "Yeniden açıkla",
+    "changeInSettings": "Model, Ayarlar → Yapay zekâ asistanı bölümünde seçilir",
+    "about": {
+      "lmstudio": "Bu bilgisayardaki LM Studio: SprachAnker sunucusunu başlatır, seçilen modeli yükler ve önerilen modelleri LM Studio’ya indirebilir. Ücretsizdir ve hiçbir şey bilgisayardan dışarı çıkmaz. LM Studio başka bir bilgisayarda çalışıyorsa “Ağdaki sunucu” seçeneğini seç.",
+      "openrouter": "Bulutta OpenRouter: birçok üreticinin yüzlerce modeli tek bir anahtarla, bazıları ücretsiz (günlük sınırlarla). Ders içeriği ve cevapların OpenRouter’a ve modelin sağlayıcısına gider.",
+      "gemini": "Google’ın buluttaki Gemini modelleri, Google AI Studio’dan alınan bir anahtarla. Ücretsiz katman kart gerektirmez; dakika ve gün başına sınırları vardır. Bazı modeller faturalandırma ister. Ücretsiz katmanda Google gönderilenleri ürünlerini geliştirmek için kullanabilir: ders içeriği ve cevapların Google’a gider.",
+      "groq": "Groq’un buluttaki hızlı donanımında açık modeller (Llama, Qwen, GPT-OSS ve diğerleri). Ücretsiz katman kart gerektirmez; her model için dakika ve gün başına sınırları vardır. Ders içeriği ve cevapların Groq’a gider.",
+      "custom": "Başka bir bilgisayarda, OpenAI uyumlu API sunan herhangi bir sunucu: LM Studio, Ollama, llama.cpp, vLLM ve diğerleri. Adresini (/v1 ile biten) ve istiyorsa bir anahtar gir.",
+      "claude-code": "Bu bilgisayarda yüklü Claude Code’u (`claude -p`) Claude aboneliğinle çalıştırır. Kendi araçları kapalıdır: ders verileri isteme eklenir. Her cevapta komut yeniden başlatılır, bu yüzden yanıtlar birkaç saniye daha uzun sürer.",
+      "codex": "Bu bilgisayarda yüklü Codex CLI’ı (`codex exec`) ChatGPT aboneliğinle, salt okunur ve araçları olmadan çalıştırır. Her cevapta komut yeniden başlatılır, bu yüzden yanıtlar birkaç saniye daha uzun sürer."
+    },
+    "cardState": {
+      "off": "asistan yok",
+      "llm_cli_missing": "yüklü değil",
+      "llm_no_endpoint": "adres girilmedi",
+      "llm_no_key": "anahtar gerekli",
+      "installed": "yüklü",
+      "keySaved": "anahtar kaydedildi",
+      "here": "bu bilgisayarda",
+      "at": "{host} üzerinde"
+    },
+    "list": {
+      "search": "Ara: gemma, claude, deepseek…",
+      "free": "Ücretsiz ({count, number})",
+      "json": "JSON ile cevaplar ({count, number})",
+      "context": "Bağlam ≥ {size}",
+      "more": "Daha fazla…",
+      "fewer": "Daha az",
+      "jsonHint": "“JSON ile cevaplar”: yazı kontrollerini ve sahneleri uygulamanın okuyabildiği biçimde döndürebilen modeller.",
+      "none": "Aramaya ve filtrelere uyan model yok.",
+      "freeTag": "ücretsiz",
+      "price": "1M token başına {input} / {output}",
+      "shown": "{shown, number} / {total, number} model",
+      "backToList": "Listeye dön"
+    },
+    "key": {
+      "freeTier": "Ücretsiz katman",
+      "credits": "Krediler",
+      "used": "{used} kullanıldı",
+      "usedOf": "{used} / {limit} kullanıldı",
+      "rate": "{interval} başına {requests, number} istek",
+      "freeModels": "Ücretsiz modellerin OpenRouter’ın belirlediği günlük bir istek sınırı vardır (kredi satın alındıysa daha yüksektir)."
+    },
+    "keyHintFor": {
+      "openrouter": "openrouter.ai/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "gemini": "aistudio.google.com/apikey adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez.",
+      "groq": "console.groq.com/keys adresinde bir anahtar oluştur. Bu bilgisayarda şifrelenmiş olarak saklanır ve bir daha gösterilmez."
+    }
+  },
+  "tutor": {
+    "title": "Öğretmen",
+    "intro": "Bu dersle ilgili sor: dil bilgisi, kelimeler, ekrandaki alıştırma — ya da kısa bir diyalog çalış. Cevaplar şimdiye kadar öğrendiklerinin sınırında kalır.",
+    "needsSetup": "Öğretmen için bir yapay zekâ modeli gerekli.",
+    "openSettings": "Yapay zekâ asistanını kur",
+    "placeholder": "Bir soru sor…",
+    "send": "Gönder",
+    "stop": "Durdur",
+    "newChat": "Yeni sohbet",
+    "suggest": {
+      "grammar": "Bu dersin dil bilgisini açıkla",
+      "examples": "Yeni kelimelerle bana daha fazla örnek ver",
+      "dialogue": "Kısa bir diyalog çalışalım",
+      "exercise": "Bu alıştırma için bana bir ipucu ver",
+      "wordsQuiz": "Bu dersin yeni kelimelerinden beni sına",
+      "wordsMemory": "Yeni kelimeleri aklımda tutmama yardım et",
+      "grammarDrill": "Bu dersin dil bilgisi üzerine bana kısa bir alıştırma ver",
+      "script": "Dersin metnini cümle cümle inceleyelim"
+    },
+    "context": "Bağlam ≈ {used} / {window} token",
+    "contextSize": "İstek ≈ {used} token",
+    "remembers": "{total, plural, one {# mesajın} other {# mesajın}} {kept, number} tanesini hatırlıyor",
+    "contextFull": "Bağlam neredeyse dolu: ilk mesajlar artık modele ulaşmıyor. Yeni bir konu için yeni bir sohbet başlat.",
+    "contextHint": "Bir sonraki isteğin boyutu: dersin bağlamı, sohbet ve mesajın, artı cevap için ayrılan yer.",
+    "toolsUsed": "Bakılanlar: {tools}",
+    "tool": {
+      "find_word": "“{word}” kelimesi",
+      "get_progress": "ilerlemen",
+      "get_mistakes": "hataların",
+      "get_lesson": "ders {lesson}"
+    },
+    "tabChat": "Sohbet",
+    "tabHistory": "Geçmiş",
+    "noHistory": "Bu derste henüz önceki bir sohbet yok.",
+    "current": "güncel",
+    "delete": "Sohbeti sil",
+    "deleteTitle": "Bu sohbet silinsin mi?",
+    "deleteBody": "Mesajları kalıcı olarak silinir.",
+    "ask": {
+      "grammar": "Bu dersin dil bilgisini dersten 2–3 örnekle kısaca açıkla. Sonra anlaşılır olup olmadığını sor.",
+      "examples": "Dersin yeni kelimeleriyle, çevirileriyle birlikte 3 kısa örnek ver. Sonra bunlardan biriyle kendi cümlemi kurmamı iste.",
+      "dialogue": "Dersin konusu üzerine kısa bir diyalog çalışalım. Sen bir cümleyle başla ve cevabımı bekle; ilerledikçe hatalarımı düzelt.",
+      "exercise": "Bu alıştırma için bana cevabı değil, bir ipucu ver.",
+      "wordsQuiz": "Dersin yeni kelimelerinden beni sına, her seferinde bir kelime. Bir kelime sor, cevabımı bekle, doğru olup olmadığını söyle ve ancak ondan sonra bir sonrakine geç.",
+      "wordsMemory": "Dersin yeni kelimelerini teker teker aklımda tutmama yardım et: bir kelime al, bana bir hafıza ipucu (sesçe benzeyen bir kelime, bir imge, kökü) ve kısa bir örnek ver, sonra onu tekrar etmemi ya da kullanmamı iste. Bir sonraki kelimeye ancak cevabımdan sonra geç.",
+      "grammarDrill": "Dersin dil bilgisi üzerine bana kısa bir alıştırma ver: her seferinde bir görev, cevabımı bekle, kontrol et ve her hatayı açıkla.",
+      "script": "Dersin metnini cümle cümle inceleyelim: ilk cümleyi göster, çevir ve içinde neyin yeni olduğunu açıkla. Bir sonraki cümleye ancak “devam” dediğimde geç."
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio çalışıyor.",
+    "notRunning": "LM Studio’nun sunucusu çalışmıyor.",
+    "notInstalled": "LM Studio bu bilgisayarda yüklü değil. lmstudio.ai adresinden indir, sonra buraya dön.",
+    "needsToken": "LM Studio bir API token’ı istiyor: yukarıya gir (LM Studio → Developer → Server settings).",
+    "start": "LM Studio’yu başlat",
+    "models": "LM Studio’daki modeller",
+    "noModels": "LM Studio’da henüz model yok. Aşağıdan bir tane indir.",
+    "loaded": "bellekte",
+    "use": "Kullan",
+    "inUse": "Kullanımda",
+    "suggested": "Önerilen modeller",
+    "suggestedHint": "LM Studio, bu bilgisayar ({memory} GB bellek) için en uygun sürümü indirir ve saklar.",
+    "recommended": "Önerilen",
+    "size": "yaklaşık {size} GB · yaklaşık {ram} GB bellek gerekir",
+    "progress": "{done} / {total} GB",
+    "download": "LM Studio’da indir",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "İstem",
+    "title": "İstem",
+    "titleOf": "İstem · {provider} · {model}",
+    "endpoint": "Uç nokta",
+    "size": "Boyut",
+    "sizeValue": "{chars, plural, one {# karakter} other {# karakter}} ≈ {tokens, plural, one {# token} other {# token}}",
+    "copy": "İsteği JSON olarak kopyala",
+    "infoIntro": "Her istek sabit kuralları (sistem istemi) ve geçerli dersin kurs verilerini gönderir. Küçük yerel modeller de baş edebilsin diye uzun bölümler aşağıdaki sınırlara göre kısaltılır.",
+    "task": {
+      "explain": "“Bu neden yanlış?”",
+      "tutor": "Öğretmen",
+      "writing": "“Kendin yaz”",
+      "speaking": "Sözlü cevaplar",
+      "exam": "Sınav: bir cevabı puanlama",
+      "conversation": "Sınav: konuşma bölümü",
+      "sceneSetup": "Sahne: durum",
+      "scene": "Sahne",
+      "examples": "Bir destenin kelimeleri için örnekler"
+    },
+    "contextIntro": "Dersten eklenenler:",
+    "systemIntro": "Sistem istemi:",
+    "part": {
+      "item": "alıştırmanın maddesi: görev, seçenekler ya da boşluklar, doğru cevap ve senin cevabın",
+      "notes": "dersin dil bilgisi notları",
+      "lesson": "dersin başlığı ve hedefleri",
+      "lessonVocab": "dersin kelimeleri ve çevirileri",
+      "knownVocab": "önceki derslerin kelimeleri (en yeniler önce)",
+      "earlierLessons": "önceki derslerin başlıkları",
+      "grammar": "dersin dil bilgisi notları",
+      "exercise": "ekrandaki alıştırma, cevapları ve senin kontrol edilmiş cevaplarınla (öğretmen önce ipucu verir)",
+      "history": "sohbetin son mesajları; her mesajın, yazdığın alıştırmayla işaretli",
+      "mistakes": "hataların: bu derste geçerli turdakiler, sonra önceki derslerin en yenileri (düzeltilenler işaretli)",
+      "tools": "istek üzerine (araçlar): ilerlemen, herhangi bir dersteki hataların, bir kelimenin nerede öğretildiği, bir dersin neleri kapsadığı",
+      "text": "senin metnin",
+      "script": "madde dersin sesi ya da videosuyla ilgiliyse dersin metni",
+      "heard": "soru ve kursun kendi cevabı, konuşma tanıma bunları kursun kayıtlarında nasıl duyduysa",
+      "answer": "söylediğin, konuşma tanımanın duyduğu şekliyle",
+      "exam": "sınavın başlığı ve verildiği hâliyle görev: bölümün yönergeleri ve metni, soru",
+      "criteria": "puanlarıyla birlikte ölçütler ve her seviyenin ne anlama geldiği",
+      "samples": "varsa sınavın örnek cevapları",
+      "writtenAnswer": "senin cevabın",
+      "partner": "konuşma partnerinin elindekiler: kartı, takvimi ya da slaytları (sen bunları görmezsin)",
+      "conversation": "şimdiye kadarki konuşma (en son replikler)",
+      "level": "adında belirtiliyorsa kursun ya da destenin seviyesi (A1, A2…), yoksa başlangıç seviyesi",
+      "words": "destenin beş kelimesi, çevirileri, sözcük türü ve cinsiyetiyle"
+    },
+    "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
+    "debug": "“İstem” düğmelerini göster",
+    "debugHint": "Açıklamaların yanında ve öğretmende: hata ayıklama için tüm mesajlarıyla tam istek.",
+    "custom": "değiştirildi",
+    "placeholders": "'{language}' yerine cevapların dili, '{target}' yerine öğrendiğin dil gelir.",
+    "save": "Kaydet",
+    "restore": "Standart istemi geri yükle",
+    "places": {
+      "title": "Asistanın çalıştığı yerler",
+      "hint": "Kapatılan bir yer derslerde, kartlarda ve sınavlarda gösterilmez. Tamamlanan dersler tamamlanmış kalır.",
+      "explain": {
+        "name": "“Bu neden yanlış?”",
+        "where": "bir hatanın altındaki düğme"
+      },
+      "tutor": {
+        "name": "Öğretmen",
+        "where": "derslerdeki düğme ve “Hataların üzerinden geç” adımı"
+      },
+      "writing": {
+        "name": "“Kendin yaz”",
+        "where": "dersin bir adımı"
+      },
+      "scene": {
+        "name": "Sahneler",
+        "where": "dersin bir adımı"
+      },
+      "speaking": {
+        "name": "Sözlü cevaplar",
+        "where": "sesli söylenen bir cevabın altındaki “Yapay zekâ ile kontrol et”"
+      },
+      "example": {
+        "name": "Bir kelimenin örnekleri",
+        "where": "kartında ve kelime sayfasında; bir deste için Tekrar → Desteler’de oluşturulur"
+      },
+      "exam": {
+        "name": "Sınav cevapları",
+        "where": "bir cevabın ölçütlerinin üstündeki “Puan öner” ve konuşma şeklinde yürütülen sözlü bölümler"
+      }
+    },
+    "about": {
+      "explain": "Alıştırmanın altında yanlış bir cevabı açıklar (“Bu neden yanlış?”): hatanın ne olduğunu ve arkasındaki kuralı, senin dilinde.",
+      "tutor": "Dersin öğretmeni: ders, kelimeleri ve dil bilgisi hakkındaki sorularını cevaplar ve “Hataların üzerinden geç” adımında hatalarını tek tek ele alır.",
+      "writing": "“Kendin yaz” bölümünde yazdığın kısa bir metni kontrol eder: düzeltmeler, A1 ölçütleri (görev, iletişim, doğruluk) ve geri bildirim.",
+      "speaking": "“Yapay zekâ ile kontrol et”e bastığında sesli söylediğin bir cevabı (konuşma tanımanın duyduğunu) soruya ve kursun cevabına göre kontrol eder.",
+      "exam": "Bir sınavın yazılı cevabını sınavın kendi ölçütlerine göre puanlar: her biri için gerekçesiyle bir seviye ve daha yüksek puan için ne gerektiği. Sen kabul edene ya da değiştirene kadar hiçbir şey sayılmaz.",
+      "conversation": "Sınavın bir konuşma bölümünü yürütür: bölümün öngördüğü şekilde sınav görevlisini ve diğer adayı oynar, seninle replik replik ilerler; asla yardım etmez ya da düzeltmez. Sonrasında bölümün ölçütlerine göre puanlanır.",
+      "sceneSetup": "Bir sahne başlatır: dersin konusundan durumu kurgular — kim olduğun, kiminle konuştuğun, nerede olduğun ve ulaşılacak hedefler. Her sahne için bir kez istenir.",
+      "scene": "Sahneyi oynar: her replikine partnerin olarak cevap verir, hatalarını düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
+      "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir."
+    }
+  },
+  "writing": {
+    "task": "Dersin konusu üzerine {language} 3–5 cümle yaz: {topic}. Yeni kelimeleri kullan.",
+    "placeholder": "Metnin…",
+    "check": "Kontrol et",
+    "checking": "Kontrol ediliyor…",
+    "rewrite": "Düzelt ve yeniden kontrol et",
+    "score": "{name}: {score, number} / {max, number}",
+    "points": "{score, number} / {max, number}",
+    "past": "Bu dersin önceki metinleri",
+    "verdict": {
+      "good": "Doğru",
+      "minor_errors": "Küçük hatalar",
+      "major_errors": "Çok hata",
+      "off_task": "Konu dışı"
+    },
+    "criteria": {
+      "task": "Görev",
+      "communication": "İletişim",
+      "accuracy": "Doğruluk"
+    }
+  },
+  "mistakes": {
+    "exercises": "Yapılan alıştırmalar",
+    "firstTry": "İlk denemede doğru",
+    "ofTotal": "{n, number} / {total, number}",
+    "list": "Alıştırmalara göre hatalar",
+    "items": "{count, plural, one {madde} other {maddeler}} {items}",
+    "fixed": "{count, plural, one {# tanesi sonra düzeltildi} other {# tanesi sonra düzeltildi}}",
+    "none": "Bu turda hata yok.",
+    "notYet": "Henüz hiçbir şey cevaplanmadı: önce alıştırmaları yap.",
+    "tutorIntro": "Öğretmen hatalarını tek tek ele alır: neyin yanlış gittiğini, arkasındaki kuralı ve kontrol için kısa yeni bir örneği.",
+    "start": "Hatalarımın üzerinden öğretmenle geç",
+    "message": "Lütfen bu dersteki hatalarımın üzerinden geç."
+  },
+  "scene": {
+    "intro": "Dersi kısa bir canlandırmayla çalış: partner kursun dilini konuşur, seni düzeltir ve hedeflerini işaretler.",
+    "start": "Sahne başlat",
+    "preparing": "Hazırlanıyor…",
+    "partner": "Partnerin: {partner}",
+    "translate": "Çeviri",
+    "placeholder": "Repliğin…",
+    "done": "Tüm hedeflere ulaştın — aferin!",
+    "new": "Yeni sahne",
+    "past": "Bu dersin önceki sahneleri",
+    "goals": "Hedefler: {met, number} / {total, number}",
+    "ended": "Sahne bitti."
+  },
+  "player": {
+    "play": "Oynat: {what}",
+    "pause": "Duraklat",
+    "back": "5 saniye geri",
+    "speed": "Oynatma hızı {rate}×",
+    "position": "Konum",
+    "unavailable": "Ses yüklenemedi."
+  },
+  "about": {
+    "title": "SprachAnker hakkında",
+    "intro": "Kendi bilgisayarında çalışan, yerel öncelikli bir dil öğretmeni: gerçek kurslar tek bir oynatıcıda, ilerleme ve konuşma kendi bilgisayarında, bağladığın herhangi bir yapay zekâ modeli. Ücretsiz ve açık kaynak.",
+    "version": "Sürüm",
+    "licence": "Lisans: MIT",
+    "source": "GitHub’da kaynak kodu"
+  },
+  "progress": {
+    "resetCourse": "Kurs ilerlemesini sıfırla",
+    "removeCourse": "Kurslarımdan kaldır",
+    "resetLesson": "Ders ilerlemesini sıfırla",
+    "courseTitle": "“{title}” içindeki ilerlemen sıfırlansın mı?",
+    "courseBody": "Bu kursun tüm cevapları ve ders turları; öğretmen sohbetleri, yazı kontrolleri ve sahneleriyle, derslerinin oluşturduğu kelime kartları da tekrarlarıyla birlikte silinir. Kurs “Kurslarım”dan çıkar ama yüklü kalır. Bu işlem geri alınamaz.",
+    "lessonTitle": "“{title}” içindeki ilerlemen sıfırlansın mı?",
+    "lessonBody": "Bu dersin tüm cevapları ve turları; öğretmen sohbeti, yazı kontrolleri ve sahneleriyle, oluşturduğu kelime kartları da tekrarlarıyla birlikte silinir (diğer derslerin kelimeleri kalır). Bu işlem geri alınamaz.",
+    "confirm": "Sıfırla",
+    "removeExam": "Sınavlarımdan kaldır",
+    "examTitle": "“{title}”, sınavlarından kaldırılsın mı?",
+    "examBody": "Deneme sınavları ve pratikleri, tüm cevapları ve puanlarıyla birlikte silinir. Sınav indirilmiş olarak kalır."
+  },
+  "download": {
+    "queued": "Sırada — başka bir kurs indiriliyor",
+    "pages": "{count, plural, one {# sayfa okundu} other {# sayfa okundu}}",
+    "preparing": "Dersler hazırlanıyor…",
+    "media": "Medya: {done, number} / {total, number} dosya · {size}",
+    "downloadSize": "İndir · ≈ {size}",
+    "continue": "İndirmeye devam et",
+    "sync": "Kaynakla eşitle",
+    "notDownloaded": "İndirilmedi",
+    "incomplete": "{count, plural, =0 {İndirme tamamlanmadı} one {# dosya eksik} other {# dosya eksik}}",
+    "openSoon": "Kurs, tamamen indirildiğinde başlatılabilir.",
+    "failed": "İndirme başarısız oldu: {error}",
+    "done": "İndirildi. {failed, plural, =0 {Tüm medya dosyaları yerinde.} one {# dosya indirilemedi.} other {# dosya indirilemedi.}}",
+    "hint": "İndirme, eksik olanları kaynaktan getirir (kaydedilmiş sayfalar ve medya korunur) ve kursu yeniden hazırlar; ilerlemen kalır.",
+    "log": "İndirme günlüğü",
+    "syncShort": "Eşitle"
+  },
+  "storage": {
+    "title": "Depolama",
+    "intro": "Kurslar, medya ve ilerlemen, SprachAnker’ın çalıştığı bilgisayardaki bu klasörde durur. Klasör sunucu başlarken seçilir (--data ya da SPRACHANKER_DATA); masaüstü uygulamasında değiştirilebilecek.",
+    "total": "Toplam",
+    "used": "Kurslar {size} yer kaplıyor",
+    "usedFree": "Kurslar {size} yer kaplıyor · diskte {free} boş",
+    "seriesSize": "{name}: {size}",
+    "recordings": "Kayıtların",
+    "recordingsKept": "{count, plural, =0 {saklanan kayıt yok} one {{n} kayıt · {size}} other {{n} kayıt · {size}}}",
+    "deleteRecordings": "Tümünü sil",
+    "deleteRecordingsTitle": "Tüm kayıtlar silinsin mi?",
+    "deleteRecordingsBody": "Kayıtların bu bilgisayardan silinecek. Cevapların ve ilerlemen kalır. Bu işlem geri alınamaz."
+  },
+  "windowTitle": {
+    "course": "Kurs",
+    "lesson": "Ders {unit}.{lesson}",
+    "exercise": "Alşt. {n}/{total}",
+    "summary": "Özet",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Kelimeler",
+    "grammar": "Dil bilgisi",
+    "culture": "Kültür",
+    "writing": "Yazma",
+    "scene": "Sahne",
+    "mistakes": "Hatalar"
+  },
+  "words": {
+    "intro": "Dersin kelimeleri kart olarak: hatırla, cevabı göster, değerlendir. Şimdilik bir şey kalmayınca Tekrar bölümünde devam ederler.",
+    "learnt": "Dersin kelimeleri şimdilik çalışıldı.",
+    "goOn": "{count, plural, =0 {Zamanı geldiğinde Tekrar bölümüne geri gelirler.} one {Öğrenmedeki # kart yakında Tekrar bölümüne geri gelir.} other {Öğrenmedeki # kart yakında Tekrar bölümüne geri gelir.}}"
+  },
+  "myWords": {
+    "search": "Kelime ya da çeviri bul",
+    "allDecks": "Tüm desteler",
+    "all": "Tümü",
+    "state": {
+      "new": "Yeni",
+      "learning": "Öğreniliyor",
+      "review": "Tekrarda",
+      "suspended": "Askıda",
+      "marked": "İşaretli"
+    },
+    "column": {
+      "word": "Kelime",
+      "translation": "Çeviri",
+      "state": "Durum",
+      "due": "Sıradaki"
+    },
+    "dueNow": "şimdi",
+    "dueIn": "{interval} sonra",
+    "nothing": "Eşleşen kelime yok.",
+    "sheet": "Kelime",
+    "toLesson": "Ders {unit}.{lesson}",
+    "cards": "Kartlar",
+    "answers": "Cevaplar",
+    "noAnswers": "Henüz cevaplanmadı.",
+    "face": {
+      "recognition": "Kelime → anlam",
+      "production": "Anlam → kelime",
+      "listening": "Dinleme"
+    },
+    "lapses": "{count, plural, one {# kez unutuldu} other {# kez unutuldu}}",
+    "suspend": "Askıya al",
+    "unsuspend": "Askıdan çıkar",
+    "fromDeck": "{deck} destesinden"
+  },
+  "notebook": {
+    "title": "Defter",
+    "days": "Etkinlik",
+    "dayTitle": "{date}: {what}",
+    "open": "devam ediyor",
+    "unfinished": "bitmedi",
+    "passes": "Turlar",
+    "noPasses": "Bu dersin henüz turu yok.",
+    "choose": "Karşılaştırmak için {date} turunu seç",
+    "compare": "Karşılaştır",
+    "compareHint": "Yan yana görmek için iki tur işaretle.",
+    "minutes": "{count, plural, one {# dk} other {# dk}}",
+    "worked": "{worked, number} / {total, number} alıştırma",
+    "workedSome": "{count, plural, one {# alıştırma} other {# alıştırma}}",
+    "explanations": "{count, plural, one {# açıklama} other {# açıklama}}",
+    "writing": "{count, plural, one {# metin} other {# metin}}",
+    "scenes": "{count, plural, one {# sahne} other {# sahne}}",
+    "chats": "{count, plural, one {# sohbet} other {# sohbet}}",
+    "words": "{count, plural, one {# kelime} other {# kelime}}",
+    "exercises": "Alıştırmalar",
+    "exercise": "Alıştırma",
+    "total": "Toplam",
+    "attempts": "{count, plural, one {# deneme} other {# deneme}}",
+    "rightAt": "{n, number}. denemede doğru",
+    "itemHistory": "Madde geçmişi",
+    "passOf": "{date} turu",
+    "attemptN": "{n, number}. deneme",
+    "more": "Daha fazla",
+    "alsoDone": "Ayrıca yapılanlar",
+    "wordsAdded": "Tekrar’a eklenen kelimeler",
+    "messages": "{count, plural, one {# mesaj} other {# mesaj}}",
+    "nothing": "hiçbir şey yapılmadı",
+    "kind": {
+      "lesson": "dersler {count, number}",
+      "exam": "sınavlar {count, number}",
+      "review": "kartlar {count, number}",
+      "ai": "YZ {count, number}"
+    },
+    "less": "Daha az",
+    "calendar": "Son bir yıldaki çalışma günleri",
+    "progress": "İlerleme",
+    "range": {
+      "all": "Tüm zamanlar",
+      "month": "30 gün",
+      "week": "7 gün"
+    },
+    "tile": {
+      "activeDays": "Çalışma günleri",
+      "lesson": "Cevaplar ve adımlar",
+      "exam": "Sınav cevapları",
+      "review": "Cevaplanan kartlar",
+      "newCards": "Yeni kartlar",
+      "remembered": "Hatırlanan",
+      "rememberedHint": "tekrardaki kartlardan",
+      "ai": "Yapay zekâ ile pratik"
+    },
+    "examRuns": "Deneme sınavları ve pratik",
+    "noExamRuns": "Henüz hiçbir şey teslim edilmedi.",
+    "examWrong": "Geçen sefer {count, plural, one {# soru} other {# soru}} yanlış cevaplandı",
+    "section": {
+      "review": "Tekrar",
+      "lesson": "Dersler",
+      "exam": "Sınavlar"
+    },
+    "none": {
+      "review": "Henüz kart yok: Tekrar bölümünde bir kursun destesini al ya da bir dersin kelimelerini çalış.",
+      "lesson": "Henüz çalışılan ders yok: üzerinde çalıştığın her ders, tüm turlarıyla burada görünür.",
+      "exam": "Henüz hiçbir şey teslim edilmedi: deneme sınavların ve pratiklerin burada görünür."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Bilinen kelimeler",
+        "wordsKnownHint": "kelimenin tüm kartları tekrarda",
+        "new": "Yeni",
+        "learning": "Öğreniliyor",
+        "review": "Tekrarda",
+        "mature": "Öğrenildi",
+        "matureHint": "her yüzü üç hafta ya da daha sonra geliyor",
+        "suspended": "Askıda",
+        "remembered": "Hatırlanan, 30 gün",
+        "rememberedHint": "{count, plural, one {# cevap} other {# cevap}}",
+        "dueToday": "Bugün sırası gelen",
+        "dueTomorrow": "Yarına kadar",
+        "dueWeek": "Bir hafta içinde"
+      },
+      "lesson": {
+        "lessonsDone": "Tamamlanan dersler",
+        "best": "En iyi sonuç"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {# tur} other {# tur}}"
+    },
+    "openEntry": {
+      "review": "Desteleri aç",
+      "exam": "Bu sınavla ilgili her şey"
+    }
+  },
+  "study": {
+    "listen": "Dinle ve anlamını hatırla",
+    "fromLesson": "ders {unit}.{lesson}",
+    "countsTitle": "Yeni {new}, öğrenmede {learning}, tekrar edilecek {review}",
+    "finished": "Tebrikler! Bu desteyi şimdilik bitirdin.",
+    "nextLearning": "{minutes, plural, one {Sıradaki öğrenme kartı # dakika sonra hazır olacak.} other {Sıradaki öğrenme kartı # dakika sonra hazır olacak.}}",
+    "reviewLimit": "Bugünkü tekrar sınırına ulaşıldı, ancak tekrar edilmeyi bekleyen kartlar hâlâ var.",
+    "newLimit": "Başka yeni kartlar da var, ancak günlük sınıra ulaşıldı.",
+    "buried": "Bir ya da daha fazla kart ertelendi; yarın gösterilecek.",
+    "unbury": "Ertelemeyi kaldır",
+    "unit": {
+      "s": "sn",
+      "m": "dk",
+      "h": "sa",
+      "d": "g",
+      "mo": "ay",
+      "y": "y"
+    },
+    "flag": {
+      "red": "Kırmızı",
+      "orange": "Turuncu",
+      "green": "Yeşil",
+      "blue": "Mavi",
+      "pink": "Pembe",
+      "turquoise": "Turkuaz",
+      "purple": "Mor"
+    },
+    "marked": "İşaretli",
+    "leech": "sülük",
+    "undo": "Geri al",
+    "undoKeys": "Geri al (U, Ctrl+Z)",
+    "showKeys": "Space ya da Enter",
+    "show": "Cevabı göster",
+    "rating": {
+      "again": "Yeniden",
+      "hard": "Zor",
+      "good": "İyi",
+      "easy": "Kolay"
+    },
+    "more": "Daha fazla",
+    "replay": "Sesi tekrar çal",
+    "buryCard": "Kartı ertele",
+    "buryNote": "Notu ertele",
+    "suspendCard": "Kartı askıya al",
+    "suspendNote": "Notu askıya al",
+    "mark": "Notu işaretle",
+    "unmark": "İşareti kaldır",
+    "keys": "Space ya da Enter: cevabı göster, sonra İyi · 1–4: değerlendir · R: sesi tekrar çal · U: geri al",
+    "noCards": "Henüz kart yok: kartlar derslerin “Dersin kelimeleri” adımından gelir.",
+    "deck": "Deste",
+    "count": {
+      "new": "Yeni",
+      "learning": "Öğrenme",
+      "review": "Tekrar"
+    },
+    "due": "Çalışılacak {count, plural, one {# kart} other {# kart}}",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, one {cevap kaldı} other {cevap kaldı}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Her cevap İyi olursa kalan cevap sayısı: yeni bir kart iki öğrenme adımından geçer, öğrenmedeki bir kart kalan adımlarından, bir tekrar tek cevap alır. Yeniden, adımları geri ekler.",
+    "asks": {
+      "recognition": "Ne anlama geliyor?",
+      "production": "{in} karşılığı?",
+      "in": {
+        "de": "Almanca",
+        "en": "İngilizce",
+        "ru": "Rusça"
+      }
+    },
+    "deckLink": {
+      "audio": "Desteyi seslendir",
+      "examples": "Destenin örneklerini oluştur",
+      "both": "Desteyi seslendir, örnek oluştur"
+    }
+  },
+  "profiles": {
+    "who": "Kim çalışıyor?",
+    "welcome": "SprachAnker’a hoş geldin",
+    "firstHint": "Başlamak için profilini oluştur: birkaç kısa adım.",
+    "unnamed": "Henüz adı yok",
+    "new": "Yeni profil",
+    "previous": "Önceki profiller",
+    "next": "Diğer profiller",
+    "page": "{n, number} / {total, number}"
+  },
+  "onboarding": {
+    "progress": "Adım {n} / {total}",
+    "back": "Geri",
+    "next": "İleri",
+    "finish": "Bir kurs seç",
+    "profile": {
+      "title": "Hoş geldin",
+      "text": "SprachAnker gerçek dil kurslarını tek bir oynatıcıda toplar, cevaplarını kontrol eder, kelimelerini aralıklı tekrarla çalıştırır ve bir yapay zekâ öğretmenini de devreye alabilir. Her şey bu bilgisayarda kalır.",
+      "sources": "Kurslar doğrudan yayıncılarının web sitelerinden (Deutsche Welle ve diğerleri) kişisel kullanımın için indirilir. Onların kullanım koşullarına uy; SprachAnker’ın onlarla bir bağlantısı yoktur.",
+      "experimental": "Hâlâ denenmekte olan kurslar ve sınavlar, Ayarlar → Genel → Deneysel bölümünden açana kadar gizli kalır.",
+      "name": "Sana nasıl hitap edelim?"
+    },
+    "assistant": {
+      "title": "Yapay zekâ asistanı",
+      "text": "Bir asistan hataları açıklar, derslerde öğretmenlik yapar, metinlerini kontrol eder ve sahneleri canlandırır. Şimdi ya da daha sonra Ayarlar’dan birini seç — uygulama asistan olmadan da çalışır."
+    },
+    "tour": {
+      "title": "Neler nerede"
+    },
+    "speech": {
+      "title": "Konuşma",
+      "text": "Kurslardaki cümleleri kendin söyle ve her metni sesli dinle: mikrofonunu test et, uygulamanın söylediklerini duyabilmesi için konuşma tanımayı (bir kez) indir ve her dil için bir ses seç. Her şey bu bilgisayarda kalır; hepsi daha sonra Ayarlar → Konuşma bölümünden değiştirilebilir."
+    },
+    "cancel": "İptal"
+  },
+  "tour": {
+    "courses": "Kursların (kaldığın yerden), indirilenler ve indirebileceğin tüm kurslar; her liste bir dil çiftine göre daraltılabilir.",
+    "review": "Aralıklı tekrardaki kelimelerin: günde birkaç dakika.",
+    "notebook": "Her dersin her turu, cevapların ve hataların.",
+    "settings": "Profilin, tekrar, konuşma, yapay zekâ asistanı ve uygulama.",
+    "exams": "Hazırlanabileceğin sınavlar, örneğin Leben in Deutschland: gerçeğindeki gibi işleyen deneme sınavları, pratik ve cevaplarıyla birlikte tüm katalog."
+  },
+  "profile": {
+    "who": "Ad ve renk",
+    "devices": "Oturum açık cihazlar",
+    "thisDevice": "bu cihaz",
+    "lastSeen": "son kullanım: {date}",
+    "signOutDevice": "Oturumu kapat",
+    "switch": "Profil değiştir",
+    "open": "Profil",
+    "delete": "Profili sil…",
+    "deleteTitle": "“{name}” profili silinsin mi?",
+    "deleteBody": "Profilin ilerlemesi, kelimeleri ve kartları, kayıtları, yapay zekâ sohbetleri ve bu profilde oturum açık cihazlar kalıcı olarak silinir. Diğer profiller ve kurslar kalır.",
+    "deleteConfirm": "Kalıcı olarak sil",
+    "name": "Ad ya da takma ad",
+    "colour": "Renk",
+    "colours": {
+      "amber": "Kehribar",
+      "teal": "Camgöbeği",
+      "rose": "Gül",
+      "violet": "Menekşe",
+      "sky": "Gök mavisi",
+      "lime": "Limon yeşili"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Çalış",
+      "decks": "Desteler",
+      "words": "Kelimelerim"
+    },
+    "studying": "Çalışılan: {deck}",
+    "more": "{count, plural, one {Bugün # yeni kart daha} other {Bugün # yeni kart daha}}",
+    "leave": "Desteden ayrıl…",
+    "offers": "Alınabilecek desteler",
+    "offersHint": "Her kursunun ve buraya içe aktarılan her destenin kelimeleri bir deste oluşturur: desteyi bütün olarak aldığında kelimeler kendi sırasıyla yeni kart olarak eklenir — günlük sınır içinde ya da “bugün daha fazla yeni” ile daha fazlası. Zaten kartı olan bir kelime kartını korur.",
+    "words": "{words, plural, one {# kelime} other {# kelime}} · {mine, number} tanesi zaten senin",
+    "take": "Desteyi al",
+    "takeRest": "Kalan {count, number} kelimeyi ekle",
+    "study": "Çalış",
+    "leaveTitle": "{deck} destesinden ayrılmak istiyor musun?",
+    "leaveBody": "Kartları ilerlemeleriyle birlikte gider. Başka bir destende de olan kelimeler, ilerlemeleriyle birlikte oraya taşınır.",
+    "moreShort": "{count, plural, one {+# yeni} other {+# yeni}}",
+    "import": {
+      "button": "Deste dosyası içe aktar (.apkg)",
+      "title": "Deste içe aktar",
+      "hint": "Dosyanın kelimeleri, bu bilgisayardaki her profilin bir kursun destesi gibi alabileceği bir deste olur; sesleri de birlikte gelir.",
+      "name": "Ad",
+      "lang": "Kelimelerin dili",
+      "translationLang": "Çevirilerin dili",
+      "words": "{words, plural, one {# kelime} other {# kelime}} · {audio, plural, =0 {ses yok} one {# tanesi sesli} other {# tanesi sesli}} · {examples, plural, =0 {örnek yok} one {# tanesi örnekli} other {# tanesi örnekli}}",
+      "submit": "İçe aktar",
+      "updates": "Bu dosya buradaki {deck} destesini günceller: destenin kelimeleri bu dosyadakiler olur ve ondan oluşturulan kartlar onları izler. Başka dillerde ayrı bir destedir.",
+      "left": "{count, plural, one {Kelimesi olmayan # not dışarıda bırakıldı.} other {Kelimesi olmayan # not dışarıda bırakıldı.}}",
+      "unusable": "{count, plural, one {Kelimesi okunamayan # not dışarıda bırakıldı.} other {Kelimeleri okunamayan # not dışarıda bırakıldı.}}",
+      "done": "{deck} içe aktarıldı: {words, plural, one {# kelime} other {# kelime}}."
+    },
+    "remove": "Desteyi sil",
+    "removeTitle": "{deck} destesi silinsin mi?",
+    "removeBody": "Deste, kelimeleri ve sesleri tüm profiller için bu bilgisayardan silinecek. Bu işlem geri alınamaz.",
+    "audio": {
+      "missing": "{count, plural, one {# kelimenin sesi yok} other {# kelimenin sesi yok}}",
+      "generate": "Ses oluştur",
+      "reading": "Seslendiriliyor: {done, number} / {total, number}…",
+      "stop": "Durdur",
+      "all": "Tüm kelimelerin sesi var",
+      "install": "Ses oluşturmak için Ayarlar → Konuşma bölümünden {language} için bir ses yükle",
+      "failed": "{count, plural, one {# kelime seslendirilemedi} other {# kelime seslendirilemedi}}",
+      "voice": "Seslendiren: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Bir ses seç"
+    },
+    "left": "yaklaşık {time} kaldı",
+    "why": "Neden: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# kelimenin örneği yok} other {# kelimenin örneği yok}}",
+      "make": "Örnek oluştur",
+      "writing": "Örnekler yazılıyor: {done, number} / {total, number}…",
+      "all": "Tüm kelimelerin örnekleri var",
+      "failed": "{count, plural, one {# kelime için örnek oluşturulamadı} other {# kelime için örnek oluşturulamadı}}",
+      "setUp": "Örnek oluşturmak için Ayarlar’da yapay zekâ asistanını kur"
+    },
+    "removeStudied": "{count, plural, one {{profiles} profili bu desteyi çalışıyor.} other {{profiles} profilleri bu desteyi çalışıyor.}} Tüm profiller desteden ayrıldığında silinebilir: Tekrar → Desteler → Desteden ayrıl…"
+  },
+  "guide": {
+    "open": "Nasıl çalışır?",
+    "title": "Tekrar nasıl çalışır?",
+    "curveAlt": "Her biri bir öncekinden daha yatık üç unutma eğrisi",
+    "days": "gün",
+    "curveCaption": "Kullanılmayan bilgi zamanla silinir: unutmanın eşiğindeki her tekrar eğriyi yatıklaştırır, böylece bir sonraki tekrar daha uzun bekleyebilir.",
+    "method": {
+      "title": "Aralıklı tekrar",
+      "text": "Her kart, onu unutmak üzereyken geri gelir. Aralıklar her iyi cevapla uzar: dakikalar, sonra günler, haftalar, aylar. Fikir, Ebbinghaus’un unutma eğrisine (1885) dayanır."
+    },
+    "recall": {
+      "title": "Önce hatırla, sonra bak",
+      "text": "Cevabı göstermeden önce hatırlamaya çalış. Belleği güçlendiren şey hatırlama çabasıdır — cevabı yeniden okumak çok daha az işe yarar. Sonra kendini dürüstçe değerlendir."
+    },
+    "buttons": {
+      "title": "Dört düğme",
+      "again": {
+        "name": "Yeniden",
+        "text": "hatırlamadın ya da yanlış: kart bir dakika sonra geri gelir"
+      },
+      "hard": {
+        "name": "Zor",
+        "text": "zorlanarak hatırladın: daha kısa bir aralık"
+      },
+      "good": {
+        "name": "İyi",
+        "text": "hatırladın: olağan seçim (Space ya da Enter)"
+      },
+      "easy": {
+        "name": "Kolay",
+        "text": "fazla kolay: çok daha sonra geri gelir"
+      }
+    },
+    "counts": {
+      "title": "Üç sayı",
+      "text": "Bugün öğrenilecek yeni kartlar, öğrenmedeki kartlar (birkaç dakika içinde geri gelir) ve tekrar sırası gelen kartlar. Altı çizili olan, ekrandaki kartın nereden geldiğini gösterir. “Cevap kaldı”, her cevap İyi olursa oturumu bitirmek için kaç cevap gerektiğini tahmin eder."
+    },
+    "faces": {
+      "title": "Bir kelimenin kartları",
+      "recognition": {
+        "name": "Kart 1",
+        "text": "kelime → anlamı (anlama)"
+      },
+      "production": {
+        "name": "Kart 2",
+        "text": "anlam → kelime (konuşma); kart 1’den sonra gelir"
+      },
+      "listening": {
+        "name": "Kart 3",
+        "text": "duyulan kelime → anlamı (dinleme)"
+      }
+    },
+    "more": {
+      "title": "“…” altında",
+      "replay": {
+        "name": "Tekrar çal (R)",
+        "text": "kelimeyi yeniden dinle"
+      },
+      "bury": {
+        "name": "Ertele (- ya da =)",
+        "text": "bugün değil: kart ya da kelimenin tamamı yarın geri gelir"
+      },
+      "suspend": {
+        "name": "Askıya al (@ ya da !)",
+        "text": "sen geri getirene kadar tekrarın dışında — bildiğin ya da ihtiyacın olmayan bir kelime için"
+      },
+      "flag": {
+        "name": "Bayraklar (Ctrl+1–7)",
+        "text": "kartları daha sonra Kelimelerim’de bulmak için renkli işaretler"
+      },
+      "mark": {
+        "name": "İşaretle (*)",
+        "text": "kelimeye geri dönmek için ona bir yıldız"
+      }
+    },
+    "keys": {
+      "title": "Tuşlar",
+      "text": "Space ya da Enter cevabı gösterir, sonra İyi olarak değerlendirir; 1–4 değerlendirir; U ya da Ctrl+Z son cevabı geri alır; R sesi tekrar çalar."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Zamanlama, açık bir aralıklı tekrar modeli olan FSRS’e dayanır: her bilginin ne kadar sağlam olduğunu ve onu ne zaman unutacağını tahmin eder, hedeflenen hatırlama oranını (varsayılan %90) gözetir. Sınırlar, hatırlama oranı ve kart türleri Ayarlar’dadır."
+    },
+    "schedule": {
+      "title": "Adımlar ve gün",
+      "steps": "İyi cevaplanan yeni bir kart 10 dakika sonra (Yeniden’den sonra bir dakika sonra), ardından günler sonra geri gelir; unutulan bir kart 10 dakika sonra gelir ve aralığı yeniden uzar.",
+      "day": "Yeni gün saat {time} itibarıyla başlar: gece yarısından o saate kadarki tekrarlar önceki güne sayılır.",
+      "limit": "Yeni kartlar günlük en fazla tekrar sayısına dahildir: bu sınıra ulaşıldığında o gün yeni kart gösterilmez."
+    }
+  },
+  "reviewSettings": {
+    "intro": "Kartlarının aralıklı tekrarı: bir kelime, onu unutmak üzereyken geri gelir. Varsayılanlar çoğu öğrenciye uygundur.",
+    "limits": "Günlük sınırlar",
+    "newPerDay": "Günlük yeni kart",
+    "reviewsPerDay": "Günlük en fazla tekrar",
+    "limitsHint": "İki kart türü olan bir kelime iki yeni karttır. Her yeni kart ilk ayında yaklaşık 5–10 tekrar getirir.",
+    "retention": "Hedeflenen hatırlama oranı",
+    "retentionHint": "Bir kart geri geldiğinde onu hâlâ hatırlama olasılığın. Daha yüksek oran daha fazla tekrar demektir; varsayılan %90.",
+    "faces": "Yeni bir kelimenin kart türleri",
+    "facesHint": "Yeni bir kelimenin hangi kartları alacağı. Kartı olan kelimeler kendi kartlarını korur."
+  },
+  "speech": {
+    "record": "Kendini kaydet",
+    "stop": "Kaydı durdur",
+    "showText": "Metni göster",
+    "answerHeard": "Dinle, sonra görevin istediği gibi sesli söyle.",
+    "answerFree": "Görevin istediği gibi sesli söyle.",
+    "answerLine": "Cevabın",
+    "mine": "Kaydım",
+    "mineFor": "Kaydım · {time}",
+    "recordedNotKept": "Kaydedildi (saklanmadı)",
+    "listenFirst": "Önce kaydı dinle.",
+    "recording": "Kaydediliyor… durdurmak için yeniden dokun.",
+    "saving": "Kaydediliyor…",
+    "notSaved": "Kayıt saklanamadı; yine de sayılır.",
+    "again": "İkisini de dinle. Değiştirmek için yeniden kaydet.",
+    "howTo": "Mikrofona dokun, söyle, yeniden dokun.",
+    "mic": {
+      "insecure": "Mikrofon yalnızca güvenli bir adreste (https) çalışır; örneğin Tailscale’in bu bilgisayara verdiği adreste.",
+      "unsupported": "Bu tarayıcı ses kaydedemiyor.",
+      "denied": "Mikrofon erişimi reddedildi. Tarayıcının site ayarlarından izin ver.",
+      "failed": "Mikrofon başlatılamadı."
+    },
+    "settings": {
+      "mic": "Mikrofon",
+      "device": "Kullanılacak mikrofon",
+      "defaultDevice": "Sistem varsayılanı",
+      "unnamedDevice": "Mikrofon",
+      "testing": "Bir şey söyle…",
+      "testHint": "Test: üç saniye, sonra kendini dinle. Bu cihaz için seçilir.",
+      "listen": "Dinle",
+      "sampleFor": "Dinlenecek {language} metin",
+      "otherSample": "Başka bir cümle",
+      "recognition": "Tanıma",
+      "recognitionHint": "Konuşman bu bilgisayarda tanınır (Whisper): söylediğin, cümleyle karşılaştırılır. Sesleri değil kelimeleri duyar ve hoşgörülüdür. Hiçbir şey bilgisayardan çıkmaz.",
+      "noEngine": "Bu sürümde tanıma motoru yok.",
+      "recognitionOn": "Konuşmamı tanı",
+      "inUse": "Kullanımda",
+      "downloadFailed": "indirme başarısız oldu",
+      "use": "Kullan",
+      "removeModel": "Modeli kaldır",
+      "download": "İndir",
+      "read": "Sesli okuma",
+      "readHint": "Bir ses, tek bir dildeki metinleri okur: sahne replikleri, bir kelimenin örneği ve kaydı olmayan kelimeler. Her dilin kendi sesi vardır.",
+      "engine": {
+        "device": "Bu cihazın sesleri",
+        "deviceLine": "{count, plural, one {# ses} other {# ses}}, yükleme gerekmez",
+        "deviceNone": "Bu tarayıcıda okuma için ses yok.",
+        "piper": "Bu bilgisayarda Piper",
+        "piperMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
+        "piperLine": "{count, plural, =0 {henüz ses yok: aşağıdan bir tane indir} one {# ses indirildi} other {# ses indirildi}}",
+        "qwen": "Bu bilgisayarda Qwen3-TTS",
+        "qwenMissing": "Bu sürümde yok: uygulama konuşma motorları olmadan derlenmiş",
+        "qwenReady": "Hazır: bir model indirildi",
+        "qwenNoModel": "Henüz model yok: aşağıdan bir tane indir"
+      },
+      "voiceFor": "{language} için ses",
+      "voiceAuto": "Otomatik — {name}",
+      "noVoice": "Bu cihazda {language} için ses yok.",
+      "betterVoices": "Mac’te daha iyi sesler (Premium, Gelişmiş) Sistem Ayarları → Erişilebilirlik → Konuşulan İçerik → Sistem Sesi → Sesleri Yönet bölümünden indirilir.",
+      "readRate": "Hız: {rate}×",
+      "readRateLabel": "Okuma hızı",
+      "piperNone": "Henüz {language} için ses yok: aşağıdan bir tane indir.",
+      "piperNoLanguage": "Piper’da {language} için ses yok: bu dili cihazın sesleri okur.",
+      "piperHint": "Piper seslerinin her biri yaklaşık 60–120 MB’tır ve bu bilgisayarda kalır; sesi olmayan bir dili cihazın sesleri okur.",
+      "removeVoice": "{voice} sesini kaldır",
+      "allVoices": "Tüm sesler ({count, number})",
+      "quality": {
+        "x_low": "en düşük kalite",
+        "low": "düşük kalite",
+        "medium": "orta kalite",
+        "high": "yüksek kalite"
+      },
+      "qwenModel": {
+        "small": "Küçük model (0.6B): daha hızlı",
+        "large": "Büyük model (1.7B): daha doğal, daha yavaş"
+      },
+      "qwenHint": "10 dili (Almanca, İngilizce, Rusça, Fransızca, İspanyolca, İtalyanca, Portekizce, Çince, Japonca, Korece) dokuz konuşmacıyla okuyan bir sinir ağı sesi. Çalışırken yaklaşık 3 GB bellek kullanır (büyük modelde daha fazla) ve 10 dakika okuma yapılmazsa durur; sonrasındaki ilk okuma, model yüklenirken yaklaşık 20 sn bekler. Konuşmadığı dilleri cihazın sesleri okur.",
+      "qwenNoLanguage": "Qwen3-TTS {language} konuşmuyor: bu dili cihazın sesleri okur.",
+      "howMic": "Cevabın sözlü verildiği yerlerde (bir sınavın konuşma bölümü) bir mikrofon vardır: kayda başlamak için dokun, durdurmak için yeniden dokun. Görevin yazılı olduğu yerlerde mikrofon yoktur.",
+      "howPhrase": "Tekrar edilecek cümle ilk denemene kadar gizlidir; daha önce de gösterebilirsin.",
+      "howRecordings": "Kayıtların, Defter’de yeniden dinleyebilmen için bu bilgisayarda saklanır; onları Genel → Depolama bölümünden silebilirsin.",
+      "how": "Nasıl çalışır?"
+    },
+    "listening": "Dinleniyor…",
+    "notHeard": "Tanınamadı; kayıt yine de sayılır.",
+    "heard": "Duyulan:",
+    "heardNothing": "hiçbir şey",
+    "verdict": {
+      "correct": "Doğru söyledin",
+      "partial": "Neredeyse: birkaç kelime eksik",
+      "wrong": "Tekrar dene: dinle ve bir kez daha söyle"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — doğru (önerilen)",
+      "small-q5_1": "Whisper small — daha hızlı, daha az doğru"
+    },
+    "sayIn": "{language} söyle",
+    "notHeardShort": "Tanınamadı. Tekrar dene.",
+    "answerSample": "Örnek",
+    "aiChecking": "Yapay zekâ cevabını kontrol ediyor…",
+    "needsRecognition": "Bir cümleyi söylemek için konuşma tanıma gerekir: Ayarlar → Konuşma bölümünden aç.",
+    "languageUnknown": "Bu kursun dili bilinmiyor, bu yüzden söylediklerin duyulamıyor.",
+    "read": {
+      "listen": "Sesli oku: {what}",
+      "stop": "Okumayı durdur"
+    },
+    "aiCheck": "Yapay zekâ ile kontrol et"
+  },
+  "error": {
+    "answer_does_not_fit": "Cevap bu alıştırmaya uymuyor. Dersi yeniden yükle.",
+    "card_changed": "Bu kart başka bir cihazda değişti. Yeniden gösteriliyor.",
+    "downloads_unavailable": "Burada kurs indirilemez.",
+    "empty_recording": "Kayıt boş. Tekrar dene.",
+    "event_id_taken": "Bu cevap zaten farklı şekilde kaydedilmiş. Sayfayı yeniden yükle.",
+    "event_of_another_run": "Bu kayıt başka bir tura ait. Dersi yeniden yükle.",
+    "exam_rating_busy": "Bu cevap puanlanıyor. Biraz bekle.",
+    "exam_conversation_busy": "Partner cevap veriyor. Biraz bekle.",
+    "exam_part_done": "Bu bölüm bitti.",
+    "invalid_event": "Uygulama, sunucunun kabul etmediği bir kayıt gönderdi. Dersi yeniden yükle.",
+    "invalid_request": "Uygulama, sunucunun kabul etmediği bir şey gönderdi. Sayfayı yeniden yükle.",
+    "request_too_large": "Bu istek çok büyük.",
+    "invalid_setting": "Bu değer ayara uymuyor.",
+    "lesson_not_in_series": "Bu ders kursa ait değil. Sayfayı yeniden yükle.",
+    "llm_bad_response": "Sunucu bir hata döndürdü.",
+    "llm_cli_missing": "Komut satırı asistanı bu bilgisayarda yüklü değil.",
+    "llm_invalid_output": "Model kullanılabilir bir cevap veremedi. Tekrar dene ya da Ayarlar → Yapay zekâ asistanı bölümünden daha büyük bir model seç.",
+    "llm_lmstudio_failed": "LM Studio’nun sunucusu başlamadı. LM Studio’yu aç ve sunucuyu oradan başlat.",
+    "llm_lmstudio_missing": "LM Studio bu bilgisayarda yüklü değil.",
+    "llm_lmstudio_remote": "LM Studio başka bir bilgisayarda çalışıyor: sunucusunu orada başlat.",
+    "llm_model_not_found": "Model sunucuda bulunamadı.",
+    "llm_no_endpoint": "Sunucu adresini gir.",
+    "llm_no_key": "API anahtarını gir.",
+    "llm_not_configured": "Ayarlar → Yapay zekâ asistanı bölümünden bir model seç.",
+    "llm_rate_limited": "Sağlayıcının sınırına şimdilik ulaşıldı (ücretsiz katmanlar dakika ve gün başına istekleri sınırlar). Daha sonra tekrar dene ya da Ayarlar → Yapay zekâ asistanı bölümünden başka bir model seç.",
+    "llm_timeout": "Modelin cevap vermesi çok uzun sürdü.",
+    "llm_unauthorized": "API anahtarı kabul edilmedi.",
+    "llm_unreachable": "Sunucu cevap vermiyor. Adresi kontrol et.",
+    "missing_client_header": "İstek uygulamadan gelmedi. Sayfayı yeniden yükle.",
+    "name_required": "Bir ad gir.",
+    "no_active_scene": "Bu sahne bitti. Yeni bir sahne başlat.",
+    "no_device": "Bu cihazda artık oturum açık değil.",
+    "no_lesson_run": "Önce derse başla: kontroller dersin turuyla birlikte saklanır.",
+    "no_session": "Bu cihazda oturum kapatıldı. Profilini yeniden seç.",
+    "no_such_attempt": "Bu cevap artık ders turunda yok. Dersi yeniden yükle.",
+    "no_such_card": "Bu kart artık yok.",
+    "no_such_chat": "Bu sohbet artık yok.",
+    "no_such_item": "Bu alıştırma değişti. Dersi yeniden yükle.",
+    "no_such_model": "Bu model sunulmuyor.",
+    "no_such_profile": "Bu profil artık yok.",
+    "no_such_recording": "Bu kayıt artık yok.",
+    "no_such_run": "Bu ders turu artık yok (ilerlemesi sıfırlandı). Dersi yeniden yükle.",
+    "not_found": "Bulunamadı. Sayfayı yeniden yükle.",
+    "not_installed": "Bu kurs (artık) yüklü değil.",
+    "not_offered": "Bu kurs (artık) sunulmuyor.",
+    "nothing_to_undo": "Geri alınacak bir şey yok.",
+    "recording_too_large": "Kayıt çok uzun.",
+    "registration_closed": "Bu sunucuda yeni profil oluşturulamaz.",
+    "run_incomplete": "Ders henüz bitmedi.",
+    "run_not_active": "Dersin bu turu bitti. Dersi yeniden yükle.",
+    "run_without_edition": "Bu turun dil sürümü yok. Derse yeniden başla.",
+    "scene_busy": "Sahne hâlâ cevap veriyor. Biraz bekle.",
+    "server_error": "Sunucuda bir şeyler ters gitti.",
+    "speaking_busy": "Bu cevap kontrol ediliyor. Biraz bekle.",
+    "speech_engine_failed": "Konuşma tanıma cevap vermedi. Tekrar dene.",
+    "speech_unavailable": "Konuşma tanıma kurulmamış. Ayarlar → Konuşma bölümüne bak.",
+    "unknown_host": "Sunucu bu adresi tanımıyor. Sunucunun gösterdiği adresle aç.",
+    "unknown_setting": "Bu ayar (artık) yok.",
+    "unsupported_audio": "Bu tarayıcı, uygulamanın saklayamadığı bir biçimde kayıt yapıyor.",
+    "writing_busy": "Bu dersin bir metni kontrol ediliyor. Biraz bekle.",
+    "other": "Bir şeyler ters gitti: {message}",
+    "exam_needs_setting": "Önce eyaletini seç: sınav onunla ilgili sorular soruyor.",
+    "exam_time_over": "Bu deneme sınavının süresi doldu: olduğu gibi teslim edildi.",
+    "exam_test_running": "Bir deneme sınavı devam ediyor: önce onu teslim et.",
+    "no_such_deck": "Bu deste (artık) burada yok.",
+    "not_a_deck": "Bu dosya okunabilir bir deste dosyası (.apkg) değil.",
+    "deck_without_words": "Bu destede öğrenilecek kelime yok.",
+    "deck_too_large": "Bu deste dosyası çok büyük (en fazla 512 MB).",
+    "deck_in_use": "Bir profil bu desteyi çalışıyor: kimse çalışmadığında silinebilir.",
+    "deck_upload_gone": "Yüklenen deste dosyası artık burada yok: yeniden seç.",
+    "deck_unpacked_too_large": "Bu deste dosyası açıldığında bir seferde okunabilecek olandan daha büyük oluyor.",
+    "deck_same_languages": "Kelimeler ve çevirileri için iki farklı dil gerekir.",
+    "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Sınavlarım",
+      "downloaded": "İndirilenler",
+      "available": "Mevcut"
+    },
+    "noneStarted": "Henüz bir sınava başlamadın.",
+    "noneDownloaded": "Henüz indirilmiş sınav yok.",
+    "allDownloaded": "Sunulan tüm sınavlar indirildi.",
+    "noneMatch": "Uyan soru yok.",
+    "questions": "{count, plural, one {# soru} other {# soru}}",
+    "lastPoints": "son: {points, number} / {max, number}",
+    "ready": "Soruların {percent} kadarını biliyorsun",
+    "lastPassed": "Son deneme sınavı ({date}): geçti",
+    "lastFailed": "Son deneme sınavı ({date}): geçemedi",
+    "continueTest": "Sınava devam et",
+    "mode": {
+      "test": "Deneme sınavı",
+      "testText": "Gerçek sınavdaki gibi {minutes, plural, one {# dakikada} other {# dakikada}} {count, plural, one {# soru} other {# soru}}; cevaplar teslim ettiğinde kontrol edilir.",
+      "practice": "Pratik",
+      "practiceText": "Soru soru, her cevap hemen kontrol edilir: önce yanlış cevapladıkların, sonra henüz görmediklerin.",
+      "catalog": "Katalog",
+      "catalogText": "Cevaplarıyla birlikte {count, plural, one {# sorunun tamamı} other {# sorunun tamamı}}."
+    },
+    "begin": "Başla",
+    "practise": "Pratik yap",
+    "openCatalog": "Aç",
+    "known": "{total, plural, one {# sorudan} other {# sorudan}} {known, number} tanesini biliyorsun",
+    "needsState": "Eyaletini seç: test onunla ilgili üç soru soruyor.",
+    "needsStateCatalog": "Onunla ilgili soruları da görmek için sınavın sayfasında eyaletini seç.",
+    "mapTitle": "Sorular",
+    "mapKnown": "biliniyor",
+    "mapWrong": "geçen sefer yanlış",
+    "mapUnseen": "görülmedi",
+    "mapSummary": "{total, number} sorudan: {known, number} biliniyor, {wrong, number} geçen sefer yanlış",
+    "points": "{points, number} / {max, number}",
+    "passed": "Geçti",
+    "failed": "Geçemedi",
+    "state": "Eyalet",
+    "chooseState": "Bir eyalet seç",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bavyera",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hessen",
+      "mv": "Mecklenburg-Batı Pomeranya",
+      "ni": "Aşağı Saksonya",
+      "nw": "Kuzey Ren-Vestfalya",
+      "rp": "Rheinland-Pfalz",
+      "sl": "Saarland",
+      "sn": "Saksonya",
+      "st": "Saksonya-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Thüringen"
+    },
+    "handIn": "Teslim et",
+    "endPractice": "Pratiği bitir",
+    "handInTitle": "Sınav teslim edilsin mi?",
+    "handInUnanswered": "{count, plural, one {# soru henüz cevaplanmadı} other {# soru henüz cevaplanmadı}}: cevaplanmayan sorular yanlış sayılır.",
+    "goOn": "Devam et",
+    "leave": "Sınava dön",
+    "answered": "Cevaplanan: {done, number} / {total, number}",
+    "question": "Soru {n, number} / {total, number}",
+    "practiceScore": "{count, plural, one {# cevaptan} other {# cevaptan}} {points, number} tanesi doğru",
+    "timeUp": "Süre doldu: o ana kadar verilen cevaplar sayılır.",
+    "needed": "{max, number} puandan {points, number} puan gerekli",
+    "practiseMistakes": "Hatalar üzerinde pratik yap",
+    "tryAgain": "Yeni deneme sınavı",
+    "toExam": "Sınava git",
+    "mistakes": "{count, plural, =0 {Hata yok} one {# hata} other {# hata}}",
+    "allAnswers": "Tüm cevaplar",
+    "onlyMistakes": "Yalnızca hatalar",
+    "showAll": "Tüm cevapları göster",
+    "notAnswered": "cevaplanmadı",
+    "noMistakes": "Her şey doğru.",
+    "search": "Sorularda ara",
+    "playsLeft": "{plays, number} dinleme hakkından {left, number} tanesi kaldı",
+    "plays": "{count, plural, one {Kaydı bir kez dinlersin.} other {Kaydı # kez dinlersin.}}",
+    "example": "Örnek",
+    "wholeExam": "Sınavın tamamı",
+    "next": "İleri",
+    "previous": "Geri",
+    "questionsGrid": "Sorular",
+    "goTo": "Soru {n, number}",
+    "practiceTally": "{right, number} doğru · {wrong, number} yanlış · {total, plural, one {# soru} other {# soru}}",
+    "lastResult": "Son deneme sınavı, {date}: {points, number} / {max, number}",
+    "noResultYet": "Henüz deneme sınavına girilmedi",
+    "inNotebook": "Hepsi Defter’de",
+    "sources": {
+      "title": "Kaynaklar ve kontroller",
+      "allPassed": "tüm kontroller geçti",
+      "someFailed": "bir kontrol geçmedi",
+      "statement": "Buradaki her soru, resim, kayıt ve cevap, bu bilgisayardaki içe aktarıcı tarafından aşağıdaki belgelerden okundu — hiçbiri elle ya da bir model tarafından yazılmadı — ve listelendiği gibi kontrol edildi. Deneme sınavı, resmî örnek testle aynı görevleri sorar ve aynı kurallarla puanlar; ne kadar hazır olduğunu gösterir, gerçek sınavda ne çıkacağını değil.",
+      "documents": "Okunan belgeler",
+      "copy": "kopyası saklandı, SHA-256 {hash}…, okunma: {date}",
+      "read": "okunma: {date}",
+      "checks": "Kontroller",
+      "from": "Kaynak"
+    },
+    "check": {
+      "questions-complete": "Kaynaktakiler arasından okunan sorular",
+      "options-agree": "İki kaynakta kelimesi kelimesine aynı olan seçenekler",
+      "answers-marked-twice": "Kaynağında iki kez aynı şekilde işaretlenmiş cevaplar",
+      "answers-matched": "Çözüm sayfalarındaki cevapların bir seçenekle eşleştirilmesi",
+      "numbers-agree": "Sayfalardaki gibi soru numaraları",
+      "recordings-placed": "Sorularına yerleştirilmiş kayıtlar",
+      "media-kept": "Saklanan resimler ve kayıtlar",
+      "criteria-read": "Her seviyenin puanlarıyla okunan yazma ve konuşma ölçütleri"
+    },
+    "rating": {
+      "title": "Cevaplarını puanla",
+      "pending": "{count, plural, one {# cevap henüz puanlanmadı} other {# cevap henüz puanlanmadı}}: {count, plural, one {onu} other {onları}} puanlayana kadar 0 sayılır.",
+      "hint": "Sınavın puanlayıcıları gibi puanla; bir puanı istediğin zaman değiştir.",
+      "voided": "görev yapılmadı: cevabın tamamı için 0",
+      "unrated": "“{criterion}” puanlanana kadar 0: cevabın sayılıp sayılmayacağını o belirler",
+      "save": "Puanı kaydet",
+      "change": "Puanı değiştir",
+      "propose": "Puan öner (YZ)",
+      "proposing": "Asistan puanlıyor…",
+      "proposed": "Yapay zekâ asistanının önerisi ({model}): olduğu gibi kabul et ya da değiştir."
+    },
+    "conversation": {
+      "you": "Ben",
+      "partner": "Partner",
+      "examiner": "Sınav görevlisi",
+      "intro": "Asistan, sınav görevlisini ve partnerini oynar. Mikrofonla sesli cevap ver (ya da yaz); konuşma senin cevabındır.",
+      "start": "Bölüme başla",
+      "over": "Bölüm bitti.",
+      "placeholder": "Cevabın…",
+      "end": "Bölümü bitir"
+    },
+    "choose": "Bir sınav seç"
+  },
+  "experimental": {
+    "disclaimerTitle": "Bir deney, hazırlık yolu değil",
+    "disclaimer": "Burada açtığın şeyler deneme aşamasında: içerikleri eksik ya da hatalı okunmuş olabilir, puanlamaları gerçeğinden farklı olabilir. Bir kursa ya da sınava hazırlanmak için bunlara güvenme.",
+    "section": {
+      "courses": "Kurslar",
+      "exams": "Sınavlar"
+    },
+    "sectionHint": {
+      "courses": "İndirilebilecek daha fazla kurs, Kurslar’da gösterilir",
+      "exams": "İndirilebilecek daha fazla sınav, Sınavlar’da gösterilir"
+    },
+    "none": "Burada deneysel bir şey yok.",
+    "more": "{count, plural, one {# tane daha} other {# tane daha}}"
+  },
+  "examples": {
+    "newWords": "Burada yeni:",
+    "by": "Yapay zekâ örnekleri · {model}"
+  }
+}
