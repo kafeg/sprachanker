@@ -40,7 +40,8 @@ src/
                        # the reason (checked against the levels), feedback
     scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
-    word-example.ts    # word_example: a sentence with a card's word in the course's words so far
+    word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
+                       # words known up to them, at the level when known
 test/              # fake endpoints (no network); fixture course from @sprachanker/course-fixture
 ```
 

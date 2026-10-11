@@ -1,19 +1,19 @@
 // A card face as Anki shows it (09): the question; with the answer, the question stays and the answer
 // follows under a line. The word's recording sits in the card's corner on the side whose field holds it
 // and plays by itself as in Anki: the question's on the question side, the answer's on the answer side
-// (not the question's again).
+// (not the question's again). A word without one is never read on the fly: the answer's corner has the
+// way to its deck in Decks, where its words are read aloud (and given examples) at once.
 import type { CardDisplay, CardFace } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { cardAudioUrl } from "@/api/client.ts";
-import { said } from "@/audio/speak.ts";
-import { SpeakButton } from "@/audio/speak-button.tsx";
 import { languageName } from "@/i18n/index.ts";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
+import { DeckLink, deckOf } from "./deck-link.tsx";
 import { DeckExamples } from "./examples.tsx";
 import { useStudySlots } from "./slots.ts";
 
@@ -148,24 +148,20 @@ export function StudyCard({
         </div>
       )}
       {marks && <div className="absolute top-3 left-3 flex items-center gap-1.5">{marks}</div>}
-      {/* In the card's corner, so a word without a recording keeps the same layout. */}
-      {src && wordShown && (
-        <AudioButton
-          ref={sound}
-          src={src}
-          label={display.target}
-          className="absolute top-3 right-3 size-11"
-        />
-      )}
-      {/* No recording: the word read by the device's voice, replayed and autoplayed the same way. */}
-      {!src && wordShown && (
-        <SpeakButton
-          ref={sound}
-          parts={said(display.target, lang)}
-          label={display.target}
-          className="absolute top-3 right-3 size-11 border bg-card text-foreground"
-        />
-      )}
+      {/* In the card's corner: the recording, so a word without one keeps the same layout; with the
+          answer, the way to its deck for what it has yet to make for the word (no recording: nothing
+          plays, R does nothing). */}
+      <div className="absolute top-3 right-3 flex max-w-[60%] flex-col items-end gap-1 text-right">
+        {src && wordShown && (
+          <AudioButton ref={sound} src={src} label={display.target} className="size-11" />
+        )}
+        {side === "answer" &&
+          (cardId && slots.corner ? (
+            slots.corner({ cardId, scope: deckOf(display), audio: !src })
+          ) : (
+            <DeckLink scope={deckOf(display)} audio={!src} />
+          ))}
+      </div>
     </div>
   );
 }

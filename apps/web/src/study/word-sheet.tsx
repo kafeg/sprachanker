@@ -15,6 +15,7 @@ import { SideSheet } from "@/ui/side-sheet.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GenderWord } from "@/word/word.tsx";
+import { DeckLink, deckOf } from "./deck-link.tsx";
 import { useDeckName } from "./decks.ts";
 import { DeckExamples } from "./examples.tsx";
 import { useStudySlots } from "./slots.ts";
@@ -58,6 +59,14 @@ function WordDetails({ word }: { word: MyWord }) {
         <div className="flex items-start justify-between gap-3">
           <GenderWord text={d.target} gender={d.gender} className="text-2xl" />
           {audio && <AudioButton src={audio} label={d.target} className="size-11" />}
+          {/* What its deck has yet to make for it: the way to Decks (never read on the fly). */}
+          <span className="text-right">
+            {slots.corner ? (
+              slots.corner({ cardId: word.cardId, scope: deckOf(d), audio: !audio })
+            ) : (
+              <DeckLink scope={deckOf(d)} audio={!audio} />
+            )}
+          </span>
         </div>
         {d.translation && <p className="text-lg">{d.translation}</p>}
         {d.example && (

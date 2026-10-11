@@ -28,6 +28,8 @@ export function createProfileSpeech(deps: {
       : undefined;
   /** The Qwen3-TTS model the profile chose (none: the large one when it is there). */
   const qwenModel = () => settings.get("speech.qwenModel");
+  /** The Qwen3-TTS speaker the profile chose to read `lang` with (none: the default one). */
+  const qwenSpeaker = (lang: string) => settings.value("speech.voices")?.qwen?.[lang];
 
   return {
     /** The server's engines, shared by the profiles: their models and voices (download, remove). */
@@ -82,7 +84,8 @@ export function createProfileSpeech(deps: {
 
     /** The engine on this computer that reads a deck's words in `lang`, with its voice: the profile's
      *  (Piper or Qwen3-TTS) when it reads the language, else Piper with a voice for it, else
-     *  Qwen3-TTS; none when neither can. Read at the speed recorded: the audio is every profile's. */
+     *  Qwen3-TTS; none when neither can. Read at the speed recorded (the audio is every profile's) and
+     *  kept in the deck's folder alone, never in the readings' cache. */
     deckReader(lang: string) {
       const own = settings.value("speech.voices");
       const engines =
@@ -93,14 +96,19 @@ export function createProfileSpeech(deps: {
         if (engine === "piper") {
           const voice = readAloud.voice(lang, own?.piper?.[lang]);
           if (voice)
-            return { engine, voice, read: (text: string) => readAloud.say(text, lang, voice, 1) };
+            return {
+              engine,
+              voice,
+              read: (text: string) => readAloud.say(text, lang, voice, 1, false),
+            };
         } else {
-          const voice = qwenTts.voice(lang, own?.qwen?.[lang], qwenModel());
+          const voice = qwenTts.voice(lang, qwenSpeaker(lang), qwenModel());
           if (voice)
             return {
               engine,
               voice: `${voice.model}/${voice.speaker}`,
-              read: (text: string) => qwenTts.say(text, lang, voice.speaker, voice.model),
+              read: (text: string) =>
+                qwenTts.say(text, lang, voice.speaker, voice.model, { keep: false }),
             };
         }
       }

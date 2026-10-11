@@ -138,5 +138,9 @@ export function cardRoutes() {
       .get("/:id", zod("param", CardParam), (c) =>
         c.json(c.var.s.words.word(c.req.valid("param").id)),
       )
+      // A card's examples made by the AI for its deck, as shown.
+      .get("/:id/examples", zod("param", CardParam), async (c) =>
+        c.json(await c.var.s.examples.ofCard(c.req.valid("param").id)),
+      )
   );
 }

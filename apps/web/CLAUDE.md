@@ -27,9 +27,9 @@ apps/web/src/
                    # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
                    # deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
-                   # without audio, read aloud by the server: generate, progress, stop), examples (a deck's own), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # without audio, read aloud by the server: who reads them, generate, progress, stop), examples (a deck's own), deck-link (a card's way to its deck: audio, examples to make), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
-                   # Review: daily limits, retention, card types, how it works); slots (what optional features add: AI examples)
+                   # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
                    # placed by drag or tap); item-card (an item with its prompt, media and renderer:
                    # answered in the player, read-only in the Notebook); no API calls
@@ -66,8 +66,7 @@ apps/web/src/
   llm/             # AI assistant: settings (AssistantSetup: provider-cards, key-state, model-list over the
                    # pure model-filter; LM Studio), "Why is this wrong?", tutor (header
                    # panel with Conversation and History — tutor-history —, inline on the mistakes step),
-                   # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-example
-                   # (the reviewer's slot); exam-assistant (an exam run's slots): exam-rating ("Propose a
+                   # writing, scenes, spoken-check (the AI's check under an answer said aloud), word-examples (a deck's: on a card, under a deck — the slots); exam-assistant (an exam run's slots): exam-rating ("Propose a
                    # rating"), exam-conversation (a speaking part held as a conversation);
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
@@ -77,20 +76,19 @@ apps/web/src/
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
   ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
-                   # components (ui/components), rich-text (model Markdown), page (pages,
-                   # empty states, back links), media, format (dates, percent, bytes), panel, history
+                   # components (ui/components), rich-text (model Markdown), page (pages, empty states, back
+                   # links), media, format (dates, numbers, durations), panel, history
                    # (rows that open, lists of earlier items), side-layout (a page with a side column: the
                    # lesson player's, an exam run's; the column's head), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
-                   # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's
-                   # sections; CourseSections in course-html shows them as cards), activity-calendar (a
+                   # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
-                   # run's), avatar, choice (segmented),
-                   # check-row (a setting on or off), option-card (one of a few options as a card),
-                   # disclosure (folded: "Advanced"), confirm (an action that cannot be undone), flags,
-                   # error-text (an API error in words), target-lang (`lang` of the course's language),
-                   # window-title, pointer (a finger or a mouse: the system's picker on touch), utils (cn)
+                   # run's), avatar, choice (segmented), check-row (a setting on or off), option-card (one
+                   # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
+                   # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
+                   # the course's language), window-title, pointer (a finger or a mouse: the system's
+                   # picker on touch), job-row (a server's job: progress, Stop, why it failed), utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its
                    # loudness), wav (a take as 16 kHz WAV), mic-button (disabled with the reason),
                    # dictate (a microphone beside a text box: what was heard goes into it), take-button,
@@ -101,7 +99,7 @@ apps/web/src/
                    # the server's engine — Piper or Qwen3-TTS — or the device's voices, one text at a
                    # time), speak-button, read-aloud-settings (engine cards, speed) with each
                    # engine's voices: device-, piper-, qwen-voices (voice-pick: a language's voice and
-                   # "Listen"); download-row (a model or voice the server downloads), read-languages (the
+                   # "Listen"; voice-names: a server voice's name, pure); download-row (a model or voice the server downloads), read-languages (the
                    # languages read aloud), samples ("Listen"'s sentences; pure), in-use (the in-use mark)
   word/            # gender colouring
 apps/web/public/   # favicon.svg (the icon master: speech bubble with an anchor), PNG icons, manifest
@@ -143,8 +141,8 @@ to `@/ui`).
 - Screen key handlers leave Space and Enter to a focused button, link or slider.
 - Model output is Markdown rendered with markdown-it (`html: false`), never raw HTML.
 - Optional features (today: `llm/`) live in their own folder; screens receive them as props/slots, so the
-  folder can be removed with its mount points: the settings page, the router (`wordAssistant`, the
-  reviewer's: study/slots.ts) and routes/runs.tsx (`lessonAssistant` as the player's slots, `examAssistant`
+  folder can be removed with its mount points: the settings page, the router (`examplesAssistant`, the
+  reviewer's and Decks': study/slots.ts) and routes/runs.tsx (`lessonAssistant` as the player's slots, `examAssistant`
   as an exam run's: exams/slots.ts). Nothing in `lesson/`, `study/` or `exams/` imports `llm/`.
 - Feature folders (`lesson/`, `exams/`, `study/`, `courses/`, `notebook/`) never import each other:
   what they share is in `ui/`, `api/`, `library/`, `exercises/`, `audio/` or `word/` (Anki's reviewer,

@@ -1,10 +1,11 @@
 // The AI screens against the fake model (fake-llm.ts): "Why is this wrong?", the tutor, a writing check,
-// going over mistakes, an example for a word, a rating proposed for an exam's written answer, a
+// going over mistakes, a deck's words given examples, a rating proposed for an exam's written answer, a
 // speaking part held as a conversation.
 import { expect, test } from "@playwright/test";
 import { MODELL } from "@sprachanker/course-fixture";
 import {
   answerPicture,
+  beginCourse,
   DEMO_LESSON,
   fakeMicrophone,
   freshLessonRun,
@@ -218,39 +219,46 @@ test("AI settings: providers as cards, the chosen one's model list without non-t
   await expect(page.getByRole("button", { name: /OpenRouter/ })).toContainText("needs a key");
 });
 
-test("an example for a word: asked for in its sheet, kept, another on request", async ({
+test("a deck's words given examples in Decks; a card and the word's sheet show them", async ({
   page,
   request,
 }) => {
-  await post(request, "/api/cards/lesson", {
+  await beginCourse(request);
+  await post(request, "/api/cards/decks/take", {
     series: "sprachanker.fixture",
-    lessonKey: DEMO_LESSON,
+    course: "demo",
     edition: "en-de",
   });
+  await page.goto("/review/decks");
+  // The course's deck, made by the fake model (an earlier project may have made them already).
+  const make = page.getByRole("button", { name: "Make examples" });
+  const all = page.getByText("All words have examples");
+  await expect(make.or(all).first()).toBeVisible();
+  if (await make.isVisible()) {
+    await expect(page.getByText(/\d+ words? without examples/).first()).toBeVisible();
+    await make.click();
+  }
+  await expect(all).toBeVisible();
+
+  // The word's sheet: its examples, "heute" not met in the course — marked, translated under them.
   await page.goto("/review/words");
   await page.getByPlaceholder("Find a word or translation").fill("kaffee");
   await page.getByRole("button", { name: /der Kaffee/ }).click();
   const sheet = page.getByRole("dialog");
-  await sheet.getByRole("button", { name: "Example" }).click();
-  // The word is known; "heute" is not met in the course: marked, its translation under the sentence.
   await expect(sheet.getByText("Hier ist der Kaffee heute.")).toBeVisible();
-  await expect(sheet.getByText("FAKE: Here it is today.").first()).toBeVisible();
-  await expect(sheet.getByText("heute — today")).toBeVisible();
-  await expect(sheet.locator("span[title=today]")).toHaveText("heute");
-
-  // Kept: the sheet opened again shows it when asked, without asking the model; another on request.
-  let made = 0;
-  page.on("request", (r) => {
-    if (r.method() === "POST" && r.url().endsWith("/api/llm/examples")) made++;
-  });
+  await expect(sheet.getByText("FAKE: Here it is today.")).toBeVisible();
+  await expect(sheet.getByText("New here: heute — today")).toBeVisible();
+  await expect(sheet.locator("span[title=today]").first()).toHaveText("heute");
+  await expect(sheet.getByText("Examples by the AI · fake-model")).toBeVisible();
   await page.keyboard.press("Escape");
-  await page.getByRole("button", { name: /der Kaffee/ }).click();
-  await sheet.getByRole("button", { name: "Example" }).click();
-  await expect(sheet.getByText("Hier ist der Kaffee heute.")).toBeVisible();
-  expect(made).toBe(0);
-  await sheet.getByRole("button", { name: "Another example" }).click();
-  await expect.poll(() => made).toBe(1);
-  await expect(sheet.getByRole("button", { name: "Another example" })).toBeVisible();
+
+  // A card of the deck shows them under its answer.
+  await page.goto("/review/decks");
+  await page.getByRole("button", { name: "Demo course", exact: true }).first().click();
+  await page.getByRole("button", { name: "Show answer" }).click();
+  const answer = page.locator("[data-study-card]").first();
+  await expect(answer.getByText("FAKE: Here it is today.")).toBeVisible();
+  await expect(answer.getByText("Examples by the AI · fake-model")).toBeVisible();
 });
 
 test("an answer said aloud is checked by the AI from what was heard on request, kept in the run", async ({

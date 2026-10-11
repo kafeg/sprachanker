@@ -1,5 +1,5 @@
 // A model's verdicts (05: `llm_verdict` events), kept and read one way over the run store: explain,
-// writing and spoken checks, word examples, an exam answer's proposed rating.
+// writing and spoken checks, an exam answer's proposed rating (and word examples of earlier versions).
 import type { RunKind, VerdictOf, VerdictTask } from "@sprachanker/schema";
 import type { Context, ReadEvent, RunStore } from "./run-store.ts";
 

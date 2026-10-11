@@ -11,6 +11,8 @@ import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
 import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
+import { createDeckExamples, type DeckExamples } from "./deck-examples.ts";
+import { createDeckExtras, type DeckExtrasStore } from "./deck-extras.ts";
 import { createDecks, type DeckFiles, type Decks } from "./decks.ts";
 import { createDevices } from "./devices.ts";
 import { type CourseInstaller, createDownloads, type Downloads } from "./downloads.ts";
@@ -76,6 +78,8 @@ function profileServices(
     content: Content;
     decks: Decks;
     deckAudio: DeckAudio;
+    deckExtras: DeckExtrasStore;
+    deckExamples: DeckExamples;
     downloads: Downloads;
     speech: Speech;
     readAloud: ReadAloud;
@@ -85,7 +89,8 @@ function profileServices(
   recordingFiles: RecordingFiles,
 ) {
   const { now } = config;
-  const { content, decks, deckAudio, downloads, speech, readAloud, qwenTts } = shared;
+  const { content, decks, deckAudio, deckExtras, deckExamples, downloads } = shared;
+  const { speech, readAloud, qwenTts } = shared;
   const settings = createSettings(db);
   const speechOfProfile = createProfileSpeech({ speech, readAloud, qwenTts, settings });
   const llm = createLlm({
@@ -153,10 +158,12 @@ function profileServices(
   const examConversation = createExamConversation({ llm, store, exams });
   const examples = createExamples({
     cards: cardStore,
+    deckNotes: cards.deckNotes,
+    decks,
+    extras: deckExtras,
+    deckExamples,
     lessonContext,
     llm,
-    store,
-    reviewRun: study.reviewRun,
   });
   // Every module reports its standing the same way; the Notebook gathers them.
   const notebook = createNotebook({
@@ -177,8 +184,10 @@ function profileServices(
     decks,
     // A deck's words read aloud with the engine and voice this profile reads them with.
     deckAudio: {
-      state: (scope: string) => deckAudio.state(scope, speechOfProfile.deckReader),
-      start: (scope: string) => deckAudio.start(scope, speechOfProfile.deckReader),
+      state: (scope: string) =>
+        deckAudio.state(scope, cards.deckNotes(scope), speechOfProfile.deckReader),
+      start: (scope: string) =>
+        deckAudio.start(scope, cards.deckNotes(scope), speechOfProfile.deckReader),
       stop: deckAudio.stop,
     },
     downloads,
@@ -247,19 +256,24 @@ export function createServices(config: ServicesConfig) {
     onImport: () => {
       for (const s of open.values()) void relink(s);
     },
-    onReplace: (id) => deckAudio.forget(id),
+    onReplace: (id) => deckExtras.forget(id),
     now,
   });
+  // What the server makes for a deck's words (audio read aloud, examples), kept beside the deck; the
+  // folders of courses no longer here go.
+  const deckExtras = createDeckExtras({ files: config.decks, decks, content, now });
+  deckExtras.sweep().catch((error: unknown) => console.error("sweeping deck folders:", error));
   // Cards take the audio read aloud for their decks' words.
   const deckAudio = createDeckAudio({
+    extras: deckExtras,
     files: config.decks,
-    decks,
-    content,
     onRead: async () => {
       await Promise.all([...open.values()].map(relink));
     },
     now,
   });
+  // Examples for decks' words, made with the model of the profile that asks.
+  const deckExamples = createDeckExamples({ extras: deckExtras, now });
   // Downloads a restart interrupted go on.
   downloads.resume().catch((error: unknown) => console.error("resuming downloads:", error));
   const speech = createSpeech({ host: config.speech, fetch: config.fetch });
@@ -289,7 +303,17 @@ export function createServices(config: ServicesConfig) {
       if (!s) {
         s = profileServices(
           config,
-          { content, decks, deckAudio, downloads, speech, readAloud, qwenTts },
+          {
+            content,
+            decks,
+            deckAudio,
+            deckExtras,
+            deckExamples,
+            downloads,
+            speech,
+            readAloud,
+            qwenTts,
+          },
           config.profiles.open(profileId),
           config.profiles.recordings(profileId),
         );

@@ -38,8 +38,9 @@ src/
   routes/            # one file per API area, mounted by app.ts: profiles (who is studying, signing in and
                      # out — before the session check; the profile itself — after it), courses
                      # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
-                     # progress (reset), exams, cards, decks (imported: list, preview, import, an upload
-                     # let go, delete; any deck's words read aloud), settings, notebook, recordings,
+                     # progress (reset), exams, cards (a card's examples too), decks (imported: list,
+                     # preview, import, an upload let go, delete; any deck's words read aloud or given
+                     # examples), settings, notebook, recordings,
                      # speech, llm (removable as a whole); env.ts: what a profile's routes read (`c.var.s`, its
                      # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
                      # the path, a batch of events, a deck taken)
@@ -56,14 +57,19 @@ src/
                      #   relinking), study (Anki's decks, queue, ratings, undo, bury, suspend, flags,
                      #   marks; standing), words, decks (imported .apkg decks, server-wide: preview,
                      #   import — the same deck again updated —, list, delete while no profile uses it),
-                     #   deck-audio (a deck's words without audio read aloud into its folder: a job per
-                     #   deck, the engine and voice handed in by index.ts from profile-speech)
+                     #   deck-extras (what is made for a deck's words, kept in its folder by lexeme:
+                     #   extras.json read once, a job per deck and kind, sweeping course folders),
+                     #   deck-audio (its words without audio read aloud: the engine and voice handed in by
+                     #   index.ts from profile-speech, the words from the profile's cards in the deck),
+                     #   deck-examples (its words given examples by a model handed in: five a call, a
+                     #   sentence without its word dropped, a word left without any asked again)
                      # - across modules: notebook (study days, the standings gathered), progress (resets;
                      #   recordings in use), content, settings, stored (a JSON value read by its schema)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,
                      #   in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
-                     #   (+ tutor-tools), scene; exam-rating, exam-conversation; examples
+                     #   (+ tutor-tools), scene; exam-rating, exam-conversation; examples (a deck's job
+                     #   with the profile's model and context, a card's examples marked)
                      # - speech (08): speech (whisper-server), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
                      #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,

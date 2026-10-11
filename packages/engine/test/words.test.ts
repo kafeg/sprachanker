@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { markWords, sameWord, usesWord, wordForms } from "../src/text/words.ts";
+import { hasForm, markWords, sameWord, usesWord, wordForms } from "../src/text/words.ts";
 
 test("a word's forms: headword, plural and forms, without what is in brackets", () => {
   expect(wordForms({ target: "die Frau, die Frauen" })).toEqual(["die", "frau", "frauen"]);
@@ -27,6 +27,15 @@ test("a sentence uses the word by its main part, not by its article", () => {
   expect(usesWord("Ich bin hier.", { target: "ich" })).toBe(true);
 });
 
+test("a form no ending rule finds: each of its words in the sentence, case aside", () => {
+  expect(usesWord("Er ist zu Hause.", { target: "sein" })).toBe(false);
+  expect(hasForm("Er ist zu Hause.", "ist")).toBe(true);
+  expect(hasForm("Er lädt mich heute ein.", "lädt ein")).toBe(true);
+  expect(hasForm("Er lädt mich heute.", "lädt ein")).toBe(false);
+  expect(hasForm("Er kann schwimmen.", "kannst")).toBe(false);
+  expect(hasForm("Er kann schwimmen.", "")).toBe(false);
+});
+
 test("new words are marked, with the translation of the first glossary that has them", () => {
   const segments = markWords(
     "Ich wohne in Berlin, Frau Klein.",
@@ -51,4 +60,35 @@ test("new words are marked, with the translation of the first glossary that has 
     { text: "." },
   ]);
   expect(segments.map((s) => s.text).join("")).toBe("Ich wohne in Berlin, Frau Klein.");
+});
+
+test("a new word's translation: as written before a form of it; never by an article or an auxiliary", () => {
+  const glossary = [
+    { target: "die Haut", translation: "кожа" },
+    { target: "das Haus, die Häuser", translation: "дом" },
+    { target: "das Wort", translation: "слово" },
+    { target: "studieren", forms: "studiert, studierte, hat studiert", translation: "учиться" },
+  ];
+  const marked = (sentence: string) =>
+    markWords(sentence, [{ target: "ich" }], glossary).filter((s) => s.new);
+  expect(marked("Das Haus hat Häuser.")).toEqual([
+    { text: "Das", new: true },
+    { text: "Haus", new: true, translation: "дом" },
+    { text: "hat", new: true },
+    { text: "Häuser", new: true, translation: "дом" },
+  ]);
+  // A short stem gives no translation: "Haut" is not "Haus", "Wand" not "wann".
+  expect(
+    markWords(
+      "Wann ist das Haus da?",
+      [],
+      [
+        { target: "die Haut", translation: "кожа" },
+        { target: "die Wand", translation: "стена" },
+      ],
+    ).filter((s) => s.translation),
+  ).toEqual([]);
+  expect(marked("Ich studierte.")).toEqual([
+    { text: "studierte", new: true, translation: "учиться" },
+  ]);
 });

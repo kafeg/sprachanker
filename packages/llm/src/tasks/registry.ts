@@ -8,7 +8,7 @@ import { EXPLAIN_MISTAKE_BUDGETS, explainMistakeRules } from "./explain-mistake.
 import { RATE_EXAM_ANSWER_BUDGETS, rateExamAnswerRules } from "./rate-exam-answer.ts";
 import type { TaskRules } from "./rules.ts";
 import { SCENE_BUDGETS, sceneSetupRules, sceneTurnRules } from "./scene.ts";
-import { WORD_EXAMPLE_BUDGETS, wordExampleRules } from "./word-example.ts";
+import { WORD_EXAMPLES_BUDGETS, wordExamplesRules } from "./word-examples.ts";
 
 interface TaskPromptEntry {
   rules: TaskRules;
@@ -27,7 +27,7 @@ export const TASK_PROMPTS = {
     budgets: { lessonVocab: SCENE_BUDGETS.lessonVocab, knownVocab: SCENE_BUDGETS.knownVocab },
   },
   scene: { rules: sceneTurnRules, budgets: SCENE_BUDGETS },
-  example: { rules: wordExampleRules, budgets: WORD_EXAMPLE_BUDGETS },
+  examples: { rules: wordExamplesRules, budgets: WORD_EXAMPLES_BUDGETS },
 } as const satisfies Record<string, TaskPromptEntry>;
 
 export type PromptTask = keyof typeof TASK_PROMPTS;

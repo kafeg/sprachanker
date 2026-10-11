@@ -42,6 +42,10 @@ export interface DeckFiles {
   writeExtras(folder: string, text: string): void;
   /** Writes a file into a deck folder's media, whole. */
   writeMedia(folder: string, path: string, bytes: Uint8Array): void;
+  /** Removes a file of a deck folder's media (one not there is no matter). */
+  removeMedia(folder: string, path: string): void;
+  /** Every deck folder's name: the imported decks' and the courses' (`course~…`). */
+  folders(): string[];
   /** Keeps an uploaded package — the request's body streamed to a file — until it is imported (one
    *  a day old goes); its id, or undefined past `max` bytes. */
   stage(body: ReadableStream<Uint8Array>, max: number): Promise<string | undefined>;
@@ -74,7 +78,7 @@ export function createDecks(deps: {
   studiedBy(id: DeckId): string[];
   /** After an import: cards follow their words (relinking). */
   onImport?(): void;
-  /** A deck's folder about to be written anew or removed: what writes into it stops. */
+  /** A deck's folder about to be written anew or removed, and once it is: what writes into it stops. */
   onReplace?(id: DeckId): void;
   now: () => number;
 }) {
@@ -310,12 +314,17 @@ export function createDecks(deps: {
         let deck: Deck | undefined;
         deps.onReplace?.(id);
         // deck.json last, once the files its words name are known to be there.
-        await refused(() =>
-          files.write(id, media(), () => {
-            deck = deckOfWords();
-            return `${JSON.stringify(deck, null, 2)}\n`;
-          }),
-        );
+        try {
+          await refused(() =>
+            files.write(id, media(), () => {
+              deck = deckOfWords();
+              return `${JSON.stringify(deck, null, 2)}\n`;
+            }),
+          );
+        } finally {
+          // And again once swapped: what started meanwhile wrote into the folder replaced.
+          deps.onReplace?.(id);
+        }
         files.unstage(request.upload, id);
         read.delete(id);
         deps.onImport?.();

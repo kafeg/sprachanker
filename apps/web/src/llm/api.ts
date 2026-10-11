@@ -1,9 +1,11 @@
-// The assistant's tasks in the API (07): explanations, the tutor, writing, spoken answers, scenes, word
-// examples, exam ratings and conversations, and the request each would send (the prompt viewer). Its
+// The assistant's tasks in the API (07): explanations, the tutor, writing, spoken answers, scenes, a
+// deck's words given examples (and a card's), exam ratings and conversations, and the request each would send (the prompt viewer). Its
 // setup — providers, models, LM Studio, the prompts — is setup-api.ts.
 import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { withAttempt, withCheck, withExample, withScene, withTurns } from "@/api/cache.ts";
+import type { InferResponseType } from "hono/client";
+import { useEffect, useRef } from "react";
+import { withAttempt, withCheck, withScene, withTurns } from "@/api/cache.ts";
 import { ApiError, api, apiError, json } from "@/api/client.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
@@ -193,7 +195,7 @@ export type PromptRequest =
   | { writing: WritingRequest }
   | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
-  | { example: ExampleRequest }
+  | { deckExamples: { scope: string } }
   | { exam: ExamRatingRequest }
   | { conversation: ConversationRequest };
 
@@ -203,7 +205,8 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
   if ("speaking" in kind) return json(api.llm.speaking.prompt.$post({ json: kind.speaking }));
-  if ("example" in kind) return json(api.llm.examples.prompt.$post({ json: kind.example }));
+  if ("deckExamples" in kind)
+    return json(api.decks.examples.prompt.$post({ json: kind.deckExamples }));
   if ("exam" in kind) return json(api.llm["exam-rating"].prompt.$post({ json: kind.exam }));
   if ("conversation" in kind)
     return json(api.llm["exam-conversation"].prompt.$post({ json: kind.conversation }));
@@ -285,27 +288,52 @@ export function useSceneAction(lessonKey: LessonKey, onStarted?: () => void) {
   });
 }
 
-type ExampleRequest = Parameters<typeof api.llm.examples.$post>[0]["json"];
-type WordExampleShown = Awaited<ReturnType<typeof makeExample>>;
-const makeExample = (request: ExampleRequest) => json(api.llm.examples.$post({ json: request }));
+/** Whether a deck's examples job is working (or finishing the words under way once stopped). */
+export const writing = (state: DeckExamplesState | undefined) =>
+  state?.job?.status === "running" || state?.job?.status === "stopping";
 
-/** A card's AI examples, newest first; read only once asked for (`enabled`). */
-export const useExamples = (cardId: string, enabled: boolean) =>
-  useQuery({
-    queryKey: ["examples", cardId],
-    enabled,
-    queryFn: () => json(api.llm.examples.$get({ query: { cardId } })),
-  });
+export type DeckExamplesState = InferResponseType<typeof api.decks.examples.$get, 200>;
 
-/** A new example of the card's word, on top of the kept ones. */
-export function useMakeExample(cardId: string) {
+/** A deck's words given examples (`scope`: `course:<key>` or `deck:<id>`): how many have them, the
+ *  job — polled while it runs; when it ends, the cards' examples are read anew. */
+export function useDeckExamples(scope: string) {
   const client = useQueryClient();
-  return useMutation({
-    mutationFn: (language: string) => makeExample({ cardId, language }),
-    onSuccess: (made) =>
-      client.setQueryData(
-        ["examples", cardId],
-        (old: { examples: WordExampleShown[] } | undefined) => withExample(old, made),
-      ),
+  const query = useQuery({
+    queryKey: ["deck-examples", scope],
+    queryFn: () => json(api.decks.examples.$get({ query: { scope } })),
+    refetchInterval: (q) => (writing(q.state.data) ? 2000 : false),
   });
+  const going = writing(query.data);
+  const before = useRef(going);
+  useEffect(() => {
+    if (before.current && !going) void client.invalidateQueries({ queryKey: ["card-examples"] });
+    before.current = going;
+  }, [going, client]);
+  return query;
 }
+
+/** A deck's examples job started (with this profile's model) or stopped; the state the server
+ *  answers with is shown. */
+export function useDeckExamplesActions(scope: string) {
+  const client = useQueryClient();
+  const onSuccess = (state: DeckExamplesState) =>
+    client.setQueryData(["deck-examples", scope], state);
+  return {
+    start: useMutation({
+      mutationFn: () => json(api.decks.examples.$post({ json: { scope } })),
+      onSuccess,
+    }),
+    stop: useMutation({
+      mutationFn: () => json(api.decks.examples.$delete({ query: { scope } })),
+      onSuccess,
+    }),
+  };
+}
+
+/** A card's examples made for its deck, as shown; read once its answer is (`enabled`). */
+export const useCardExamples = (cardId: string, enabled = true) =>
+  useQuery({
+    queryKey: ["card-examples", cardId],
+    enabled,
+    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId } })),
+  });

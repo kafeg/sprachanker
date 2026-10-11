@@ -30,13 +30,29 @@ const SCENE_TURN = {
   goalsMet: [0],
   done: false,
 };
-/** An example for the word in <word> ("der Kaffee, die Kaffees (coffee)" → "der Kaffee"). */
-const wordExample = (prompt: string) => {
-  const word = (/<word>([^,(<]+)/.exec(prompt)?.[1] ?? "").trim();
+/** Three examples for each word numbered in <words> ("1. der Kaffee, die Kaffees — coffee (noun)" →
+ *  "Hier ist der Kaffee heute."). */
+const wordExamples = (prompt: string) => {
+  const lines = /<words>\n([\s\S]*?)\n<\/words>/.exec(prompt)?.[1]?.split("\n") ?? [];
   return {
-    sentence: `Hier ist ${word} heute.`,
-    translation: "FAKE: Here it is today.",
-    glossary: [{ word: "heute", translation: "today" }],
+    words: lines.map((line, i) => {
+      // The word as learnt, without what is in brackets: "(etwas) bestellen" → "bestellen".
+      const asked = /^\d+\. (.+?)(?: — |$)/.exec(line)?.[1] ?? "";
+      const word =
+        asked
+          .replace(/\([^)]*\)/g, "")
+          .split(",")[0]
+          ?.trim() ?? "";
+      return {
+        n: i + 1,
+        examples: ["heute", "hier", "dort"].map((where, k) => ({
+          sentence: k ? `${word} ist ${where}.` : `Hier ist ${word} heute.`,
+          translation: `FAKE: Here it is ${k ? where : "today"}.`,
+          form: word,
+          glossary: [{ word: "heute", translation: "today" }],
+        })),
+      };
+    }),
   };
 };
 
@@ -117,8 +133,8 @@ if (import.meta.main) {
         const content = !body.response_format
           ? FAKE_TEXT
           : JSON.stringify(
-              task === "word_example"
-                ? wordExample(body.messages.at(-1)?.content ?? "")
+              task === "word_examples"
+                ? wordExamples(body.messages.at(-1)?.content ?? "")
                 : task === "exam_conversation"
                   ? conversation(body.messages.at(-1)?.content ?? "")
                   : (STRUCTURED[task] ?? WRITING_CHECK),

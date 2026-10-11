@@ -92,3 +92,19 @@ export const clock = (seconds: number) => {
   const s = Math.max(0, Math.round(seconds));
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 };
+
+/** About how long something takes: whole minutes (at least one), hours from 90 minutes on ("5
+ *  minutes", "2 hours"). */
+export function useDuration() {
+  const { i18n } = useTranslation();
+  return useMemo(() => {
+    const unit = (u: "minute" | "hour") =>
+      new Intl.NumberFormat(i18n.language, { style: "unit", unit: u, unitDisplay: "long" });
+    const minutes = unit("minute");
+    const hours = unit("hour");
+    return (ms: number) => {
+      const m = Math.max(1, Math.round(ms / 60_000));
+      return m < 90 ? minutes.format(m) : hours.format(Math.round(m / 60));
+    };
+  }, [i18n.language]);
+}

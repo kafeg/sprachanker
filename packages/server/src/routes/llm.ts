@@ -52,9 +52,6 @@ const ConversationBody = ExamRatingBody.extend({
   text: z.string().trim().max(MESSAGE_MAX).optional(),
 });
 
-/** An example for a card's word, its translation in the learner's language. */
-const ExampleBody = z.object({ cardId: Ulid, language: Lang });
-
 const SceneLine = LessonRequest.extend({ text: z.string().trim().min(1).max(MESSAGE_MAX) });
 
 // The model checks this much of a text: a longer one would be marked wrong past the cut.
@@ -199,16 +196,6 @@ export function llmRoutes() {
       )
       .post("/exam-conversation/prompt", zod("json", ConversationBody), async (c) =>
         c.json(await c.var.s.examConversation.prompt(c.req.valid("json"))),
-      )
-      // AI examples of a card's word: the kept ones (asked for), a new one, the prompt it would send.
-      .get("/examples", zod("query", z.object({ cardId: Ulid })), async (c) =>
-        c.json({ examples: await c.var.s.examples.list(c.req.valid("query").cardId) }),
-      )
-      .post("/examples", zod("json", ExampleBody), async (c) =>
-        c.json(await c.var.s.examples.make(c.req.valid("json"))),
-      )
-      .post("/examples/prompt", zod("json", ExampleBody), async (c) =>
-        c.json(await c.var.s.examples.prompt(c.req.valid("json"))),
       )
       .get("/prompts", zod("query", z.object({ language: Lang, target: Lang })), (c) => {
         const { language, target } = c.req.valid("query");

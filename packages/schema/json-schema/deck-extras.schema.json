@@ -52,6 +52,78 @@
               "made"
             ],
             "additionalProperties": false
+          },
+          "examples": {
+            "type": "object",
+            "propertyNames": {
+              "type": "string",
+              "pattern": "^[a-z]{2,3}$",
+              "description": "BCP-47 primary language subtag"
+            },
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "items": {
+                  "minItems": 1,
+                  "maxItems": 5,
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "sentence": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "translation": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "glossary": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "word": {
+                              "type": "string"
+                            },
+                            "translation": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "word",
+                            "translation"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "form": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "sentence",
+                      "translation"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "model": {
+                  "type": "string"
+                },
+                "made": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "items",
+                "model",
+                "made"
+              ],
+              "additionalProperties": false
+            }
           }
         },
         "additionalProperties": false

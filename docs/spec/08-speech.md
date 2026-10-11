@@ -72,8 +72,10 @@ off, its model, the engine, voice and speed reading aloud) are applied by `servi
 Course audio is used whenever there is some; reading aloud is for what has none — mostly what the AI
 writes (owner, 2026-10-08).
 - **Where**: a speaker in the corner of a scene's partner lines, an exam conversation's examiner and
-  a word's AI example — texts in one language; in a card's corner for a word without a
-  recording (replayed with R and autoplayed like a recording). A second tap stops; one text is read at
+  beside each of a word's AI examples — texts in one language, by the voice chosen for it. A card's
+  word is never read on the fly (owner, 2026-10-11): it plays its recording or the one read for its
+  deck (04, "A deck's words read aloud"), else nothing plays (R does nothing) and the card's answer has
+  the way to its deck in Decks, where the deck's words are read at once. A second tap stops; one text is read at
   a time, and a recording or video starting stops it (and it stops them, `ui/playback.tsx`).
 - **A deck's words, read ahead** (04, "A deck's words read aloud"): on request from Review → Decks,
   every word of a deck without a recording is read by Piper or Qwen3-TTS on this computer and kept as

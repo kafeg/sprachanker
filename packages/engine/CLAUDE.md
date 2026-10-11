@@ -11,7 +11,7 @@ src/
   check/          # index.ts: checkItem(exercise, item, answer) → Outcome (+ diff, parts), one case per
                   # type; itemScored; answers.ts: checked or not, an answer complete, the words said
   text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
-                  # met or new against a vocabulary)
+                  # met or new against a vocabulary; whether it uses a word, or a form given)
   learner/        # mistakes, lesson progress, study days (activity: counted by module, the run's kind);
                   # planned: rule mastery, can-do
   exam/           # exams: the settings as an exam reads them, the questions open to a learner (a

@@ -22,6 +22,7 @@ const running = {
     done: 120,
     failed: 0,
     current: "der Abend",
+    leftMs: 9 * 60_000,
   },
 };
 
@@ -48,11 +49,19 @@ test("a deck's words without audio: how many, and Generate audio asks the server
   const asked = server(running);
   const view = await renderApp(<DeckAudio scope={scope} />, {
     data: [[["deck-audio", scope], state]],
+    path: "/review/decks",
   });
   expect(view.getByText("744 words without audio")).toBeTruthy();
+  // Who reads them, and where another voice is chosen.
+  expect(view.getByText(/^Read by Piper · thorsten \(German\)/)).toBeTruthy();
+  expect(view.getByRole("link", { name: "Choose a voice" }).getAttribute("href")).toBe(
+    "/settings#speech",
+  );
   fireEvent.click(view.getByRole("button", { name: "Generate audio" }));
-  // While it reads: its progress and Stop.
-  await waitFor(() => expect(view.getByRole("status").textContent).toBe("Reading 120 of 744…"));
+  // While it reads: its progress, about how long the rest takes, and Stop.
+  await waitFor(() =>
+    expect(view.getByRole("status").textContent).toBe("Reading 120 of 744… · about 9 minutes left"),
+  );
   expect(asked).toEqual([`POST /api/decks/audio {"scope":"${scope}"}`]);
   expect(view.queryByRole("button", { name: "Generate audio" })).toBeNull();
   fireEvent.click(view.getByRole("button", { name: "Stop" }));
@@ -67,7 +76,7 @@ test("nothing here reads the words' language: where to install a voice instead o
   });
   expect(view.queryByRole("button", { name: "Generate audio" })).toBeNull();
   const link = view.getByRole("link", {
-    name: "To make it, install a voice for German in Settings → Speech",
+    name: "To generate it, install a voice for German in Settings → Speech",
   });
   expect(link.getAttribute("href")).toBe("/settings#speech");
 });
@@ -75,6 +84,7 @@ test("nothing here reads the words' language: where to install a voice instead o
 test("every word with audio: a quiet line once some were read, nothing when all are the deck's own; words that failed said", async () => {
   const all = await renderApp(<DeckAudio scope={scope} />, {
     data: [[["deck-audio", scope], { ...state, read: 774, missing: 0 }]],
+    path: "/review/decks",
   });
   expect(all.getByText("All words have audio")).toBeTruthy();
   all.unmount();
@@ -91,11 +101,20 @@ test("every word with audio: a quiet line once some were read, nothing when all 
           ...state,
           read: 771,
           missing: 3,
-          job: { status: "failed", engine: "piper", total: 744, done: 741, failed: 3 },
+          job: {
+            status: "failed",
+            engine: "piper",
+            total: 744,
+            done: 741,
+            failed: 3,
+            error: "speech_unavailable",
+          },
         },
       ],
     ],
+    path: "/review/decks",
   });
-  expect(failed.getByText("3 words could not be read aloud")).toBeTruthy();
+  // How many, and why.
+  expect(failed.getByText(/^3 words could not be read aloud Reason: /)).toBeTruthy();
   expect(failed.getByRole("button", { name: "Generate audio" })).toBeTruthy();
 });
