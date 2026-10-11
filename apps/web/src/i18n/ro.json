@@ -1307,6 +1307,7 @@
     "deck_same_languages": "Cuvintele și traducerile lor trebuie să fie în două limbi diferite.",
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",
+    "upload_stalled": "Fișierul a încetat să mai sosească. Verifică conexiunea și încearcă din nou.",
     "profile_import_busy": "Se importă deja alt fișier de profil. Încearcă din nou după ce se termină.",
     "llm_url_with_login": "Lasă numele de utilizator și parola în afara adresei: introdu cheia în câmpul pentru cheia API.",
     "course_export_gone": "Acest export nu mai este aici: exportă cursul din nou.",

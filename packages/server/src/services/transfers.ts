@@ -7,15 +7,17 @@ import { ServiceError } from "../errors.ts";
 /** An export prepared and not yet downloaded goes after an hour, its transfer with it. */
 export const PREPARED_MS = 60 * 60_000;
 
-/** A full disk, found before writing or while writing. */
-const noSpace = (error: unknown) => (error as { code?: string } | null)?.code === "ENOSPC";
+/** A system error's code (ENOSPC: a full disk, found before writing or while writing). */
+const codeOf = (error: unknown) => (error as { code?: string } | null)?.code;
 
-/** A full disk as the learner's error (507 `not_enough_space`); anything else as it is. */
+/** A full disk as the learner's error (507 `not_enough_space`), an upload that stalled too (408
+ *  `upload_stalled`); anything else as it is. */
 export async function guarded<T>(work: () => Promise<T>): Promise<T> {
   try {
     return await work();
   } catch (error) {
-    if (noSpace(error)) throw new ServiceError("not_enough_space", 507);
+    if (codeOf(error) === "ENOSPC") throw new ServiceError("not_enough_space", 507);
+    if (codeOf(error) === "ETIMEDOUT") throw new ServiceError("upload_stalled", 408);
     throw error;
   }
 }

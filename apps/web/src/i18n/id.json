@@ -1307,6 +1307,7 @@
     "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
     "examples_without_word": "Kalimat dari model tidak memakai kata tersebut.",
     "length_required": "Berkas dikirim tanpa ukurannya. Coba lagi, atau di peramban lain.",
+    "upload_stalled": "File berhenti terkirim. Periksa koneksi dan coba lagi.",
     "profile_import_busy": "Berkas profil lain sedang diimpor. Coba lagi setelah selesai.",
     "llm_url_with_login": "Jangan sertakan nama pengguna dan kata sandi di alamat: masukkan kunci di kolom kunci API.",
     "course_export_gone": "Ekspor ini sudah tidak ada: ekspor kursus lagi.",

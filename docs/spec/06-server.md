@@ -162,7 +162,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   (`course_bundle_too_large`). A body without `Content-Length` is counted as it comes, held in memory,
   so the large files — a deck file, a profile file, a course bundle — are taken only
   with their length announced (`Content-Length`, no `Transfer-Encoding`; else 411 `length_required`,
-  before a byte is read; the web client's uploads send it) and streamed to disk up to that length.
+  before a byte is read; the web client's uploads send it) and streamed to disk up to that length;
+  a profile file's or course bundle's upload that sends nothing for two minutes ends (408
+  `upload_stalled`), so the one import at a time it holds lets the next in.
 - Errors: `{error: <code>}`, the code one of `ERROR_CODES` (`schema/src/errors.ts`; the web has words
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
@@ -170,7 +172,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
   (a deck file that does not read, unpacks too large or has no words; a profile file or a course
   bundle that is none, damaged or from a newer app), 421
-  (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 502 (the LLM provider, the speech engine), 507 (no room
+  (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 408
+  (`upload_stalled`), 502 (the LLM provider, the speech engine), 507 (no room
   on the disk for a profile file or a course bundle, `not_enough_space`); services raise `ServiceError(code, status)` (`src/errors.ts`). Anything else, a
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,

@@ -1307,6 +1307,7 @@
     "deck_same_languages": "The words and their translations need two different languages.",
     "examples_without_word": "The model's sentences did not use the word.",
     "length_required": "The file was sent without its size. Try again, or in another browser.",
+    "upload_stalled": "The file stopped arriving. Check the connection and try again.",
     "profile_import_busy": "Another profile file is being imported. Try again when it is done.",
     "llm_url_with_login": "Leave the user name and password out of the address: enter the key in the API key field.",
     "course_export_gone": "This export is no longer here: export the course again.",

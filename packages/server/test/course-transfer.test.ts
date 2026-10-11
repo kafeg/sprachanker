@@ -375,6 +375,26 @@ test("a full disk: the export and the import say so and leave nothing behind", a
   expect([absent.status, await read(absent)]).toEqual([404, { error: "not_installed" }]);
 });
 
+test("an upload that stalls ends: the next import is let in", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({
+    empty: true,
+    courseTransfers: (root) => courseTransferFiles(root, { uploadIdleMs: 50 }),
+  });
+  const stalled = await importInto(
+    b,
+    new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(bytes.slice(0, 100));
+      },
+    }),
+    bytes.length,
+  );
+  expect([stalled.status, await read(stalled)]).toEqual([408, { error: "upload_stalled" }]);
+  expect((await read(importInto(b, bytes))).status).toBe("added");
+});
+
 test("one import at a time", async () => {
   const a = await setup();
   const { bytes } = await exported(a);

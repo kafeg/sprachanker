@@ -1307,6 +1307,7 @@
     "deck_same_languages": "A szavakhoz és a fordításaikhoz két különböző nyelv kell.",
     "examples_without_word": "A modell mondataiban nem szerepelt a szó.",
     "length_required": "A fájl a mérete nélkül érkezett. Próbáld újra, vagy egy másik böngészőben.",
+    "upload_stalled": "A fájl érkezése megakadt. Ellenőrizd a kapcsolatot, és próbáld újra.",
     "profile_import_busy": "Épp egy másik profilfájl importálása folyik. Próbáld újra, ha végzett.",
     "llm_url_with_login": "A felhasználónevet és a jelszót hagyd ki a címből: a kulcsot az API-kulcs mezőbe írd.",
     "course_export_gone": "Ez az exportálás már nincs meg: exportáld újra a kurzust.",

@@ -10,6 +10,7 @@ export const ERROR_CODES = [
   "invalid_request",
   "request_too_large",
   "length_required",
+  "upload_stalled",
   "server_error",
   // Profiles.
   "no_such_profile",

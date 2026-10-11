@@ -1307,6 +1307,7 @@
     "deck_same_languages": "Maneno na tafsiri zake yanahitaji lugha mbili tofauti.",
     "examples_without_word": "Sentensi za modeli hazikutumia neno hilo.",
     "length_required": "Faili ilitumwa bila ukubwa wake. Jaribu tena, au kwenye kivinjari kingine.",
+    "upload_stalled": "Faili limeacha kufika. Angalia muunganisho kisha ujaribu tena.",
     "profile_import_busy": "Faili nyingine ya wasifu inaingizwa sasa. Jaribu tena itakapokamilika.",
     "llm_url_with_login": "Usiweke jina la mtumiaji na nenosiri kwenye anwani: weka ufunguo kwenye sehemu ya ufunguo wa API.",
     "course_export_gone": "Uhamishaji huu haupo tena: hamisha kozi tena.",

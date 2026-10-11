@@ -40,12 +40,41 @@ export function diskOf(dir: string): Disk | null {
 
 /** A full disk, found before writing: the same error a write that runs out of room gives. */
 const noSpace = () => Object.assign(new Error("not enough free space"), { code: "ENOSPC" });
+/** An upload that sends nothing this long has stalled (a phone put away, a network gone): it ends, and
+ *  the import it holds lets the next one in. */
+const UPLOAD_IDLE_MS = 2 * 60_000;
+const stalled = () => Object.assign(new Error("the upload stalled"), { code: "ETIMEDOUT" });
+
+/** Chunks passed on while each comes within `ms` of the one before; else a stall (ETIMEDOUT). */
+async function* timely<T>(chunks: AsyncIterable<T>, ms: number): AsyncGenerator<T> {
+  const it = chunks[Symbol.asyncIterator]();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    for (;;) {
+      const next = await Promise.race([
+        it.next(),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(stalled()), ms);
+        }),
+      ]);
+      clearTimeout(timer);
+      if (next.done) return;
+      yield next.value;
+    }
+  } finally {
+    clearTimeout(timer);
+    // Not waited for: a stream's return waits for the read that stalled.
+    it.return?.()?.catch(() => {});
+  }
+}
 
 export interface TransferOptions {
   disk?: (dir: string) => Disk | null;
   /** Whether this process may sweep: not the command line while a server runs on the data root
    *  (its transfers are the server's). */
   sweeps?: () => boolean;
+  /** How long an upload may send nothing (tests: shorter). */
+  uploadIdleMs?: number;
 }
 
 /** `beforeRemove`: what a transfer swept leaves to mend first (a course folder an install put aside). */
@@ -138,7 +167,11 @@ export function transferFolders(
     ) {
       self.room(root, need);
       return (
-        (await writeChunks(join(folder(id), file), self.touching(id, body), length)) !== undefined
+        (await writeChunks(
+          join(folder(id), file),
+          self.touching(id, timely(body, options.uploadIdleMs ?? UPLOAD_IDLE_MS)),
+          length,
+        )) !== undefined
       );
     },
     /** A stream written whole to a file — its owner's only — (beside it, then renamed), its disk

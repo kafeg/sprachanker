@@ -1307,6 +1307,7 @@
     "deck_same_languages": "Kelimeler ve çevirileri için iki farklı dil gerekir.",
     "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı.",
     "length_required": "Dosya boyutu belirtilmeden gönderildi. Yeniden dene ya da başka bir tarayıcıda dene.",
+    "upload_stalled": "Dosyanın gelişi durdu. Bağlantıyı kontrol et ve yeniden dene.",
     "profile_import_busy": "Şu anda başka bir profil dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
     "llm_url_with_login": "Kullanıcı adını ve parolayı adrese yazma: anahtarı API anahtarı alanına gir.",
     "course_export_gone": "Bu dışa aktarma artık burada değil: kursu yeniden dışa aktar.",
