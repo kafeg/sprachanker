@@ -80,7 +80,10 @@ describe("structured outputs", () => {
       const body = JSON.parse(init.body as string);
       bodies.push(body);
       if (body.response_format)
-        return Response.json({ error: { message: "unsupported" } }, { status: 400 });
+        return Response.json(
+          { error: { message: "response_format is not supported" } },
+          { status: 400 },
+        );
       return Response.json({
         choices: [{ message: { content: '<think>x</think>{"ok":true,"note":"n"}' } }],
       });

@@ -10,6 +10,8 @@ type LlmErrorCode =
   | "rate_limited"
   /** The provider has no room for the request now (Anthropic's 529): it may be asked again shortly. */
   | "overloaded"
+  /** The model declined to answer (Anthropic's `refusal` stop, OpenAI's `refusal`). */
+  | "refused"
   /** A structured reply stayed invalid after the repair attempt. */
   | "invalid_output";
 

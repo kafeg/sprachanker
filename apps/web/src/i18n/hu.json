@@ -259,7 +259,8 @@
     "explanation": "Magyarázat",
     "thinking": "Gondolkodik…",
     "error": {
-      "lmstudioDown": "Az LM Studio nem válaszol. Fut a helyi szervere?"
+      "lmstudioDown": "Az LM Studio nem válaszol. Fut a helyi szervere?",
+      "retryIn": "Próbáld újra {wait} múlva."
     },
     "cliMissing": {
       "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a `claude` futtatásával.",
@@ -1312,6 +1313,7 @@
     "llm_not_configured": "Válassz modellt itt: Beállítások → MI-asszisztens.",
     "llm_overloaded": "A szolgáltató most túlterhelt. Próbáld újra egy kicsit később.",
     "llm_rate_limited": "A szolgáltató korlátját egyelőre elérted (az ingyenes csomagok percenként és naponta korlátozzák a kéréseket). Próbáld később, vagy válassz másik modellt itt: Beállítások → MI-asszisztens.",
+    "llm_refused": "A modell nem volt hajlandó válaszolni erre.",
     "llm_timeout": "A modell túl sokáig válaszolt.",
     "llm_unauthorized": "Az API-kulcsot nem fogadták el.",
     "llm_unreachable": "A szerver nem válaszol. Ellenőrizd a címet.",

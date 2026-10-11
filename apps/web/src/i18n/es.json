@@ -259,7 +259,8 @@
     "explanation": "Explicación",
     "thinking": "Pensando…",
     "error": {
-      "lmstudioDown": "LM Studio no responde. ¿Está activo su servidor local?"
+      "lmstudioDown": "LM Studio no responde. ¿Está activo su servidor local?",
+      "retryIn": "Inténtalo de nuevo en {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code no está instalado aquí. Instálalo desde claude.com/claude-code e inicia sesión una vez ejecutando `claude`.",
@@ -1312,6 +1313,7 @@
     "llm_not_configured": "Elige un modelo en Ajustes → Asistente de IA.",
     "llm_overloaded": "El proveedor está saturado en este momento. Inténtalo de nuevo en un rato.",
     "llm_rate_limited": "Por ahora se alcanzó el límite del proveedor (los niveles gratuitos limitan las solicitudes por minuto y por día). Inténtalo más tarde o elige otro modelo en Ajustes → Asistente de IA.",
+    "llm_refused": "El modelo se negó a responder a esto.",
     "llm_timeout": "El modelo tardó demasiado en responder.",
     "llm_unauthorized": "No se aceptó la clave de API.",
     "llm_unreachable": "El servidor no responde. Comprueba la dirección.",

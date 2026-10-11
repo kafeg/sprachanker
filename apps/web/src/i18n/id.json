@@ -259,7 +259,8 @@
     "explanation": "Penjelasan",
     "thinking": "Berpikir…",
     "error": {
-      "lmstudioDown": "LM Studio tidak merespons. Apakah server lokalnya sudah berjalan?"
+      "lmstudioDown": "LM Studio tidak merespons. Apakah server lokalnya sudah berjalan?",
+      "retryIn": "Coba lagi dalam {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code belum terpasang di sini. Pasang dari claude.com/claude-code, lalu masuk sekali dengan menjalankan `claude`.",
@@ -1312,6 +1313,7 @@
     "llm_not_configured": "Pilih model di Pengaturan → Asisten AI.",
     "llm_overloaded": "Penyedia sedang kelebihan beban. Coba lagi sebentar lagi.",
     "llm_rate_limited": "Batas penyedia sudah tercapai untuk saat ini (paket gratis membatasi permintaan per menit dan per hari). Coba lagi nanti, atau pilih model lain di Pengaturan → Asisten AI.",
+    "llm_refused": "Model menolak menjawab ini.",
     "llm_timeout": "Model terlalu lama menjawab.",
     "llm_unauthorized": "Kunci API tidak diterima.",
     "llm_unreachable": "Server tidak merespons. Periksa alamatnya.",

@@ -1,5 +1,5 @@
 // Anthropic's Messages API (07, "Providers") against a fake server: no request leaves the test.
-import { describe, expect, test } from "bun:test";
+import { describe, expect, spyOn, test } from "bun:test";
 import { z } from "zod";
 import { anthropicMessages } from "../src/anthropic.ts";
 import { REASONING_ROOM } from "../src/client.ts";
@@ -123,6 +123,29 @@ describe("Anthropic", () => {
     ).toEqual([true, false]);
   });
 
+  test("a refusal naming no option (a credit balance too low) is not asked again", async () => {
+    const { client: c, calls } = client(() =>
+      Response.json(
+        {
+          type: "error",
+          error: {
+            type: "invalid_request_error",
+            message: "Your credit balance is too low to access the Anthropic API.",
+          },
+        },
+        { status: 400 },
+      ),
+    );
+    const error = await collect(
+      c.chat({
+        model: "claude-opus-4-5",
+        messages: [{ role: "user", content: "?" }],
+        reasoning: false,
+      }),
+    ).catch((e: LlmError) => e);
+    expect([(error as LlmError).code, calls.length]).toEqual(["bad_response", 1]);
+  });
+
   test("tool use: the call assembled from its JSON pieces, run, and answered with the turn's blocks and a tool_result", async () => {
     const { client: c, calls } = client(() =>
       calls.length === 1
@@ -222,6 +245,174 @@ describe("Anthropic", () => {
     ).at(-1);
     expect(last?.role).toBe("user");
     expect(last?.content.map((b) => b.type)).toEqual(["tool_result", "text"]);
+  });
+
+  test("a thinking model's chat keeps one system prompt in every round, the round without tools and the one told to answer too", async () => {
+    const thinking = (index: number) => [
+      event({
+        type: "content_block_start",
+        index,
+        content_block: { type: "thinking", thinking: "", signature: "" },
+      }),
+      event({
+        type: "content_block_delta",
+        index,
+        delta: { type: "signature_delta", signature: "s" },
+      }),
+      event({ type: "content_block_stop", index }),
+    ];
+    const ask = async (answer: (body: Record<string, unknown>, n: number) => Response) => {
+      const { client: c, calls } = client((_, init) =>
+        answer(JSON.parse(init.body as string), calls.length),
+      );
+      const text = await collect(
+        c.chat({
+          model: "claude-opus-5-5",
+          messages: [
+            { role: "system", content: "Tutor" },
+            { role: "user", content: "?" },
+          ],
+          tools: TOOLS,
+          toolNotes: ["Call tools for the learner's data."],
+          runTool: async () => ({ done: 1 }),
+        }),
+      );
+      return { text, systems: bodies(calls).map((b) => b.system) };
+    };
+    const called = (n: number) =>
+      reply(thinking(0), toolBlock(1, `toolu_${n}`, "get_progress", "{}"), end("tool_use"));
+    // Tools in every round it may: the last one goes without them (tool_choice none).
+    const keeps = await ask((body, n) =>
+      body.tool_choice ? reply(thinking(0), textBlock(1, "Fertig."), end("end_turn")) : called(n),
+    );
+    // Tool results, then nothing: told to answer now, without tools.
+    const silent = await ask((body, n) =>
+      n === 1
+        ? called(n)
+        : body.tool_choice
+          ? reply(textBlock(0, "Fertig."), end("end_turn"))
+          : reply(thinking(0), end("end_turn")),
+    );
+    for (const { text, systems } of [keeps, silent]) {
+      expect(text).toBe("Fertig.");
+      expect(systems.length).toBeGreaterThan(2);
+      expect(new Set(systems)).toEqual(new Set(["Tutor\n\nCall tools for the learner's data."]));
+    }
+  });
+
+  test("a tool that fails answers with is_error; the model's own blank text is sent back as it came, the app's dropped", async () => {
+    const { client: c, calls } = client(() =>
+      calls.length === 1
+        ? reply(
+            textBlock(0, "\n\n"),
+            toolBlock(1, "toolu_1", "get_progress", "{}"),
+            toolBlock(2, "toolu_2", "get_mistakes", "{}"),
+            toolBlock(3, "toolu_3", "find_word", "{}"),
+            end("tool_use"),
+          )
+        : reply(textBlock(0, "Gut."), end("end_turn")),
+    );
+    await collect(
+      c.chat({
+        model: "claude-haiku-4-5",
+        messages: [
+          { role: "user", content: "Wo bin ich?" },
+          { role: "assistant", content: " \n" },
+          { role: "user", content: "  " },
+        ],
+        tools: TOOLS,
+        runTool: async (name) => {
+          if (name === "get_progress") throw new Error("database closed");
+          return name === "get_mistakes" ? { error: "no lesson" } : { found: 1 };
+        },
+      }),
+    );
+    const messages = bodies(calls)[1]?.messages as Array<{ role: string; content: unknown[] }>;
+    expect(messages).toEqual([
+      { role: "user", content: [{ type: "text", text: "Wo bin ich?" }] },
+      {
+        role: "assistant",
+        content: [
+          { type: "text", text: "\n\n" },
+          { type: "tool_use", id: "toolu_1", name: "get_progress", input: {} },
+          { type: "tool_use", id: "toolu_2", name: "get_mistakes", input: {} },
+          { type: "tool_use", id: "toolu_3", name: "find_word", input: {} },
+        ],
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: "toolu_1",
+            content: '{"error":"database closed"}',
+            is_error: true,
+          },
+          {
+            type: "tool_result",
+            tool_use_id: "toolu_2",
+            content: '{"error":"no lesson"}',
+            is_error: true,
+          },
+          { type: "tool_result", tool_use_id: "toolu_3", content: '{"found":1}' },
+        ],
+      },
+    ]);
+  });
+
+  test("a reply the model declined is refused, streamed or whole; one cut at its limit keeps its text, never runs its calls, and is logged", async () => {
+    const ask = (respond: () => Response, runTool?: () => Promise<unknown>) =>
+      collect(
+        client(respond).client.chat({
+          model: "claude-haiku-4-5",
+          messages: [{ role: "user", content: "?" }],
+          ...(runTool && { tools: TOOLS, runTool }),
+        }),
+      ).catch((e: LlmError) => e);
+    expect(((await ask(() => reply(textBlock(0, "Ich"), end("refusal")))) as LlmError).code).toBe(
+      "refused",
+    );
+    const whole = await client(() =>
+      Response.json({ content: [{ type: "text", text: "" }], stop_reason: "refusal" }),
+    )
+      .client.complete({ model: "claude-haiku-4-5", messages: [{ role: "user", content: "?" }] })
+      .catch((e: LlmError) => e);
+    expect((whole as LlmError).code).toBe("refused");
+    const warn = spyOn(console, "warn").mockImplementation(() => {});
+    const ran: unknown[] = [];
+    const cut = await ask(
+      () =>
+        reply(
+          textBlock(0, "Ich schaue "),
+          toolBlock(1, "toolu_1", "get_progress", '{"less'),
+          end("max_tokens"),
+        ),
+      async () => ran.push(1),
+    );
+    expect([cut, ran]).toEqual(["Ich schaue ", []]);
+    expect(String(warn.mock.calls[0]?.[0])).toContain(
+      "claude-haiku-4-5's reply reached its token limit",
+    );
+    warn.mockRestore();
+  });
+
+  test("a stream ending before message_stop broke off: unreachable, its tool call never run", async () => {
+    const ran: string[] = [];
+    const { client: c } = client(() =>
+      reply(textBlock(0, "Ich schaue "), toolBlock(1, "toolu_1", "get_progress", '{"less')),
+    );
+    const error = await collect(
+      c.chat({
+        model: "claude-haiku-4-5",
+        messages: [{ role: "user", content: "?" }],
+        tools: TOOLS,
+        runTool: async (name) => {
+          ran.push(name);
+          return {};
+        },
+      }),
+    ).catch((e: LlmError) => e);
+    expect([(error as LlmError).code, ran]).toEqual(["unreachable", []]);
   });
 
   test("structured output: the schema in the system prompt, read whole, one repair", async () => {

@@ -4,10 +4,12 @@ import { LlmError } from "./errors.ts";
 import {
   bearer,
   CHAT_LIMITS,
+  cutShort,
   endpointCaller,
   type Limits,
   MODELS_TIMEOUT_MS,
   readJson,
+  refusal,
   relaxing,
   TimeLimit,
 } from "./http.ts";
@@ -64,8 +66,9 @@ export type TaskRequest = Omit<ChatRequest, "model" | "signal" | "runTool">;
  * reasoning is turned off, which models reason, what its model list holds that is no chat model.
  */
 export interface ApiQuirks {
-  /** Request fields that turn a model's reasoning off, in this provider's dialect. */
-  noReasoning?: Record<string, unknown>;
+  /** Request fields that turn a model's reasoning off, in this provider's dialect; by model where
+   *  its families take different ones (undefined: the model has none). */
+  noReasoning?: Record<string, unknown> | ((model: string) => Record<string, unknown> | undefined);
   /** The models that reason (OpenAI: o-series, gpt-5…): only they get the switch; they take no
    *  temperature, and their reasoning counts in the token limit, so it gets room. Unset: every model
    *  gets the switch and a temperature. */
@@ -79,10 +82,14 @@ export interface ApiQuirks {
 /** Tokens a reasoning model may think before it answers, on top of the task's limit. */
 export const REASONING_ROOM = 4096;
 
+/** The fields that turn this model's reasoning off, where the provider has them. */
+export const reasoningSwitch = (quirks: ApiQuirks, model: string) =>
+  typeof quirks.noReasoning === "function" ? quirks.noReasoning(model) : quirks.noReasoning;
+
 /** Whether a request turns reasoning off with the provider's switch. */
 export const sendsSwitch = (request: { model: string; reasoning?: boolean }, quirks: ApiQuirks) =>
   request.reasoning === false &&
-  !!quirks.noReasoning &&
+  !!reasoningSwitch(quirks, request.model) &&
   (!quirks.reasoners || quirks.reasoners.test(request.model));
 
 /** What a request may go without when the provider refuses it (http.ts `relaxing`). */
@@ -120,7 +127,11 @@ export function chatBody(
     ...(request.jsonSchema && {
       response_format: {
         type: "json_schema",
-        json_schema: { name: request.jsonSchema.name, strict, schema: request.jsonSchema.schema },
+        json_schema: {
+          name: request.jsonSchema.name,
+          strict,
+          schema: strict ? strictSchema(request.jsonSchema.schema) : request.jsonSchema.schema,
+        },
       },
     }),
     ...(request.tools?.length && {
@@ -129,8 +140,47 @@ export function chatBody(
         function: { name: t.name, description: t.description, parameters: t.parameters },
       })),
     }),
-    ...(switchOff ? quirks.noReasoning : undefined),
+    ...(switchOff ? reasoningSwitch(quirks, request.model) : undefined),
   };
+}
+
+/** Keywords strict mode refuses (OpenAI); the reply is still checked against them by zod. */
+const NOT_STRICT = new Set([
+  "minLength",
+  "maxLength",
+  "patternProperties",
+  "unevaluatedProperties",
+  "propertyNames",
+  "minProperties",
+  "maxProperties",
+  "unevaluatedItems",
+  "contains",
+  "minContains",
+  "maxContains",
+  "uniqueItems",
+]);
+/** Where a schema's keys are names (of properties, of definitions), not keywords. */
+const NAMED_SCHEMAS = new Set(["properties", "$defs", "definitions"]);
+/** Where a schema holds values, not schemas. */
+const VALUES = new Set(["enum", "const", "default", "examples"]);
+
+/** A JSON Schema without the keywords strict mode refuses, at every depth. */
+export const strictSchema = (schema: Record<string, unknown>) =>
+  withoutUnstrict(schema) as Record<string, unknown>;
+
+function withoutUnstrict(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(withoutUnstrict);
+  if (!node || typeof node !== "object") return node;
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (NOT_STRICT.has(key)) continue;
+    out[key] = VALUES.has(key)
+      ? value
+      : NAMED_SCHEMAS.has(key) && value && typeof value === "object"
+        ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, withoutUnstrict(v)]))
+        : withoutUnstrict(value);
+  }
+  return out;
 }
 
 /** The messages with the tool notes at the end of the first system message. */
@@ -156,11 +206,13 @@ export interface Endpoint extends ApiQuirks {
   apiKey?: string;
 }
 
-/** A refusal that names what it refused: that option goes first. */
+/** What a refusal names when it refuses an option (strict mode before the schema itself). */
 const NAMED = {
   switchOff: /reasoning/i,
   temperature: /temperature/i,
+  tools: /tool|function/i,
   strict: /schema|response_format/i,
+  schema: /schema|response_format|json/i,
 };
 
 export function openAiCompatible(
@@ -190,11 +242,10 @@ export function openAiCompatible(
           {
             messages: request.messages,
             // Models that always reason reject the switch, reasoning models a temperature, some
-            // servers tools: asked again without.
+            // servers tools: asked again without the one the refusal names.
             open: (messages, tools, limit) =>
               relaxing(
                 { ...on, tools },
-                ["switchOff", "tools"],
                 (now) =>
                   post(
                     chatBody(
@@ -211,7 +262,8 @@ export function openAiCompatible(
                   }),
                 NAMED,
               ),
-            events: streamEvents,
+            events: (res, stop, onData) =>
+              streamEvents(res, stop, onData, () => cutShort(base, request.model)),
             answered: (messages, round, results, note) => [
               ...messages,
               { role: "assistant", content: round.text, tool_calls: round.calls },
@@ -230,8 +282,8 @@ export function openAiCompatible(
       );
     },
     async complete(request) {
-      // Fallbacks: without the reasoning switch or a temperature, then the schema not strict, then
-      // without it (the prompt still asks for JSON), for servers that reject any of them.
+      // Fallbacks: without the reasoning switch or a temperature, the schema not strict, then without
+      // it (the prompt still asks for JSON), for servers that reject any of them.
       return relaxing(
         {
           switchOff: sendsSwitch(request, endpoint),
@@ -239,7 +291,6 @@ export function openAiCompatible(
           strict: !!request.jsonSchema,
           schema: !!request.jsonSchema,
         },
-        ["switchOff", "strict", "schema"],
         async (on) => {
           const body = chatBody(
             { ...request, jsonSchema: on.schema ? request.jsonSchema : undefined },
@@ -250,9 +301,16 @@ export function openAiCompatible(
           try {
             const res = await post({ ...body, stream: false }, limit, request.signal);
             const json = await readJson<{
-              choices?: Array<{ message?: { content?: unknown } }>;
+              choices?: Array<{
+                message?: { content?: unknown; refusal?: unknown };
+                finish_reason?: string | null;
+              }>;
             }>(res, base, limit, request.signal);
-            const content = json?.choices?.[0]?.message?.content;
+            const choice = json?.choices?.[0];
+            if (typeof choice?.message?.refusal === "string" && choice.message.refusal)
+              throw refusal();
+            if (choice?.finish_reason === "length") cutShort(base, request.model);
+            const content = choice?.message?.content;
             if (typeof content !== "string") throw new LlmError("bad_response", "no reply");
             return content
               .replace(/<think>[\s\S]*?<\/think>/g, "")

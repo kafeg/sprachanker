@@ -50,6 +50,13 @@ export function readFailure(error: unknown, base: string, limit: TimeLimit, sign
   return new LlmError("unreachable", `${base}: the connection broke off`);
 }
 
+/** A reply cut at its token limit is kept as it came (a reply carries no mark of it): the log says so. */
+export const cutShort = (base: string, model: string) =>
+  console.warn(`${base}: ${model}'s reply reached its token limit`);
+
+/** The model declined to answer. */
+export const refusal = () => new LlmError("refused", "the model declined to answer");
+
 /** The usual key header: `Authorization: Bearer <key>` (none without a key). */
 export const bearer = (apiKey: string | undefined): Record<string, string> =>
   apiKey ? { authorization: `Bearer ${apiKey}` } : {};
@@ -84,6 +91,8 @@ export function endpointCaller(
       res = await fetchFn(`${base}${path}`, {
         ...init,
         headers,
+        // A redirect would carry the key to another origin: none is followed.
+        redirect: "error",
         signal: signal ? AbortSignal.any([signal, time.signal]) : time.signal,
       });
     } catch (error) {
@@ -105,8 +114,9 @@ export function endpointCaller(
     const wait = Number(res.headers.get("retry-after") ?? Number.NaN);
     const retryAfter = Number.isFinite(wait) && wait > 0 ? wait : undefined;
     if (res.status === 429) throw new LlmError("rate_limited", message, res.status, retryAfter);
-    // Anthropic: overloaded for now.
-    if (res.status === 529) throw new LlmError("overloaded", message, res.status, retryAfter);
+    // Anthropic's 529, anyone's 503 (OpenAI, Gemini: overloaded, unavailable): no room for now.
+    if (res.status === 529 || res.status === 503)
+      throw new LlmError("overloaded", message, res.status, retryAfter);
     throw new LlmError("bad_response", message, res.status);
   };
 }
@@ -129,14 +139,14 @@ const refused = (error: unknown): error is LlmError =>
 
 /**
  * Sends with the options on, and while the provider refuses the request as sent (not when it is busy
- * or failing), again without one of them: the one its message names (`named`), else the next on in
- * `order`. Models that always reason reject the switch, some servers reject tools or a schema.
+ * or failing) naming one of them (`named`: what its message says), again without that one. Models
+ * that always reason reject the switch, some servers reject tools or a schema; a refusal naming
+ * none of them (a credit balance too low) is the error it is.
  */
 export async function relaxing<O extends Record<string, boolean>, T>(
   on: O,
-  order: readonly (keyof O & string)[],
   send: (on: O) => Promise<T>,
-  named: Partial<Record<string, RegExp>> = {},
+  named: Partial<Record<keyof O & string, RegExp>>,
 ): Promise<T> {
   let current = { ...on };
   for (;;) {
@@ -145,9 +155,7 @@ export async function relaxing<O extends Record<string, boolean>, T>(
     } catch (error) {
       if (!refused(error)) throw error;
       const keys = Object.keys(current) as (keyof O & string)[];
-      const drop =
-        keys.find((k) => current[k] && named[k]?.test(error.message)) ??
-        order.find((k) => current[k]);
+      const drop = keys.find((k) => current[k] && named[k]?.test(error.message));
       if (!drop) throw error;
       current = { ...current, [drop]: false };
     }

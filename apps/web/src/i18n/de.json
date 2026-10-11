@@ -259,7 +259,8 @@
     "explanation": "Erklärung",
     "thinking": "Denkt nach…",
     "error": {
-      "lmstudioDown": "LM Studio antwortet nicht. Läuft der lokale Server?"
+      "lmstudioDown": "LM Studio antwortet nicht. Läuft der lokale Server?",
+      "retryIn": "Versuch es in {wait} noch einmal."
     },
     "cliMissing": {
       "claude-code": "Claude Code ist hier nicht installiert. Installiere es von claude.com/claude-code und melde dich einmal mit `claude` an.",
@@ -1312,6 +1313,7 @@
     "llm_not_configured": "Wähle ein Modell unter Einstellungen → KI-Assistent.",
     "llm_overloaded": "Der Anbieter ist gerade überlastet. Versuch es gleich noch einmal.",
     "llm_rate_limited": "Das Limit des Anbieters ist gerade erreicht (kostenlose Stufen begrenzen Anfragen pro Minute und Tag). Versuche es später oder wähle ein anderes Modell unter Einstellungen → KI-Assistent.",
+    "llm_refused": "Das Modell hat abgelehnt, darauf zu antworten.",
     "llm_timeout": "Das Modell braucht zu lange.",
     "llm_unauthorized": "Der API-Schlüssel wurde nicht akzeptiert.",
     "llm_unreachable": "Der Server antwortet nicht. Prüfe die Adresse.",

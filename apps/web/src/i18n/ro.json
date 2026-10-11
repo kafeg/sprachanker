@@ -259,7 +259,8 @@
     "explanation": "Explicație",
     "thinking": "Se gândește…",
     "error": {
-      "lmstudioDown": "LM Studio nu răspunde. Serverul său local e pornit?"
+      "lmstudioDown": "LM Studio nu răspunde. Serverul său local e pornit?",
+      "retryIn": "Încearcă din nou peste {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code nu este instalat aici. Instalează-l de pe claude.com/claude-code și autentifică-te o dată rulând `claude`.",
@@ -1312,6 +1313,7 @@
     "llm_not_configured": "Alege un model în Setări → Asistent AI.",
     "llm_overloaded": "Furnizorul este supraîncărcat acum. Încearcă din nou peste puțin timp.",
     "llm_rate_limited": "Limita furnizorului a fost atinsă deocamdată (nivelurile gratuite limitează cererile pe minut și pe zi). Încearcă mai târziu sau alege alt model în Setări → Asistent AI.",
+    "llm_refused": "Modelul a refuzat să răspundă la asta.",
     "llm_timeout": "Modelul a întârziat prea mult cu răspunsul.",
     "llm_unauthorized": "Cheia API nu a fost acceptată.",
     "llm_unreachable": "Serverul nu răspunde. Verifică adresa.",

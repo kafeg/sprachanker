@@ -259,7 +259,8 @@
     "explanation": "Objašnjenje",
     "thinking": "Razmišljam…",
     "error": {
-      "lmstudioDown": "LM Studio ne odgovara. Da li je njegov lokalni server pokrenut?"
+      "lmstudioDown": "LM Studio ne odgovara. Da li je njegov lokalni server pokrenut?",
+      "retryIn": "Pokušaj ponovo za {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem `claude`.",
@@ -1312,6 +1313,7 @@
     "llm_not_configured": "Izaberi model u Postavkama → AI asistent.",
     "llm_overloaded": "Dobavljač je trenutno preopterećen. Pokušaj ponovo za trenutak.",
     "llm_rate_limited": "Ograničenje dobavljača je za sada dostignuto (besplatni nivoi ograničavaju zahtjeve po minuti i po danu). Pokušaj kasnije ili izaberi drugi model u Postavkama → AI asistent.",
+    "llm_refused": "Model je odbio odgovoriti na ovo.",
     "llm_timeout": "Model je predugo odgovarao.",
     "llm_unauthorized": "API ključ nije prihvaćen.",
     "llm_unreachable": "Server ne odgovara. Provjeri adresu.",

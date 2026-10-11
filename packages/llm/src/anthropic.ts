@@ -9,16 +9,19 @@ import {
   type Endpoint,
   type LlmClient,
   REASONING_ROOM,
+  reasoningSwitch,
   sendsSwitch,
   withToolNotes,
 } from "./client.ts";
 import { LlmError } from "./errors.ts";
 import {
   CHAT_LIMITS,
+  cutShort,
   endpointCaller,
   type Limits,
   MODELS_TIMEOUT_MS,
   readJson,
+  refusal,
   relaxing,
   TimeLimit,
 } from "./http.ts";
@@ -38,7 +41,7 @@ const GO_ON = "(go on)";
 export type AnthropicBlock =
   | { type: "text"; text: string }
   | { type: "tool_use"; id: string; name: string; input: unknown }
-  | { type: "tool_result"; tool_use_id: string; content: string }
+  | { type: "tool_result"; tool_use_id: string; content: string; is_error?: boolean }
   | { type: "thinking"; thinking: string; signature: string }
   | { type: "redacted_thinking"; data: string };
 
@@ -56,7 +59,9 @@ function append(messages: AnthropicMessage[], next: AnthropicMessage): Anthropic
   return [...messages.slice(0, -1), { ...last, content: [...last.content, ...next.content] }];
 }
 
-const text = (t: string): AnthropicBlock[] => (t ? [{ type: "text", text: t }] : []);
+/** Text the app adds as a block; none when blank (the API refuses a text block of whitespace). The
+ *  model's own blocks are sent back as they came. */
+const text = (t: string): AnthropicBlock[] => (t.trim() ? [{ type: "text", text: t }] : []);
 
 function toolInput(args: string): unknown {
   try {
@@ -108,10 +113,11 @@ export function anthropicMessages(chat: ChatMessage[]): {
   return { system, messages };
 }
 
-/** The system prompt as sent: the tool notes when the tools go, the schema a JSON reply must match. */
-function systemOf(request: Omit<ChatRequest, "signal" | "runTool">, tools: boolean): string {
+/** The system prompt as sent: the tool notes when the chat offers tools, the schema a JSON reply
+ *  must match. */
+function systemOf(request: Omit<ChatRequest, "signal" | "runTool">, notes: boolean): string {
   const { system } = anthropicMessages(
-    tools ? withToolNotes(request.messages, request.toolNotes) : request.messages,
+    notes ? withToolNotes(request.messages, request.toolNotes) : request.messages,
   );
   if (!request.jsonSchema) return system;
   return `${system}\n\nReply with one JSON object matching this JSON Schema, and nothing else:\n${JSON.stringify(request.jsonSchema.schema)}`;
@@ -123,6 +129,9 @@ interface Sent {
   /** The tools offered; without them, a conversation that already used tools still names them
    *  (the API asks for it) with `tool_choice: none`. */
   tools: boolean;
+  /** The tool notes in the system prompt: as the chat's first round had them, in every round alike
+   *  (a thinking model's replayed thinking is bound to the system prompt it was made under). */
+  notes: boolean;
   stream: boolean;
 }
 
@@ -135,7 +144,7 @@ function body(
   const reasoner = !!quirks.reasoners?.test(request.model);
   const usedTools = messages.some((m) => m.content.some((b) => b.type === "tool_use"));
   const tools = request.tools?.length && (sent.tools || usedTools) ? request.tools : undefined;
-  const system = systemOf(request, sent.tools);
+  const system = systemOf(request, sent.notes);
   return {
     model: request.model,
     // Room to think for a model that may (newer Claude models think unless told otherwise).
@@ -151,7 +160,7 @@ function body(
       })),
       ...(!sent.tools && { tool_choice: { type: "none" } }),
     }),
-    ...(sent.switchOff ? quirks.noReasoning : undefined),
+    ...(sent.switchOff ? reasoningSwitch(quirks, request.model) : undefined),
   };
 }
 
@@ -163,6 +172,7 @@ export function anthropicBody(
   return body(request, anthropicMessages(request.messages).messages, quirks, {
     switchOff: sendsSwitch(request, quirks),
     tools: !!request.tools?.length,
+    notes: !!request.tools?.length,
     stream: !request.jsonSchema,
   });
 }
@@ -195,6 +205,7 @@ type StreamEvent = {
     partial_json?: string;
     thinking?: string;
     signature?: string;
+    stop_reason?: string | null;
   };
   error?: { type?: string; message?: string };
 };
@@ -204,15 +215,20 @@ const KEPT = new Set(["text", "tool_use", "thinking", "redacted_thinking"]);
 
 /**
  * A streamed reply's text as it comes and, at the end, its tool calls with the reply's blocks
- * (thinking included: a model that thought before calling a tool is shown its thinking again).
+ * (thinking included: a model that thought before calling a tool is shown its thinking again). A
+ * stream that ends before `message_stop` broke off: `unreachable`, its tool calls never run; a
+ * reply the model declined is `refused`; one cut at its token limit keeps its text, not its calls.
  */
 export async function* anthropicEvents(
   res: Response,
   stop: AbortSignal,
   onData: () => void,
+  onCut: () => void = () => {},
 ): AsyncIterable<RoundEvent> {
   const blocks: AnthropicBlock[] = [];
   const inputs: string[] = [];
+  let ended = false;
+  let stopReason: string | null | undefined;
   for await (const data of sseData(res, stop, onData)) {
     let event: StreamEvent;
     try {
@@ -223,8 +239,12 @@ export async function* anthropicEvents(
     const i = event.index ?? 0;
     const block = blocks[i];
     if (event.type === "error") throw apiError(event.error);
-    if (event.type === "message_stop") break;
-    if (event.type === "content_block_start" && event.content_block) {
+    if (event.type === "message_stop") {
+      ended = true;
+      break;
+    }
+    if (event.type === "message_delta") stopReason = event.delta?.stop_reason ?? stopReason;
+    else if (event.type === "content_block_start" && event.content_block) {
       blocks[i] = { ...event.content_block };
       inputs[i] = "";
     } else if (event.type === "content_block_delta" && block && event.delta) {
@@ -240,6 +260,9 @@ export async function* anthropicEvents(
     } else if (event.type === "content_block_stop" && block?.type === "tool_use")
       block.input = toolInput(inputs[i] ?? "");
   }
+  if (!ended) throw new LlmError("unreachable", "the reply broke off before its end");
+  if (stopReason === "refusal") throw refusal();
+  if (stopReason === "max_tokens") return onCut();
   const turn = blocks.filter((b) => b && KEPT.has(b.type) && !(b.type === "text" && !b.text));
   const calls: ToolCall[] = turn.flatMap((b) =>
     b.type === "tool_use"
@@ -304,19 +327,21 @@ export function anthropic(
     },
     chat(request) {
       let switchOff = sendsSwitch(request, endpoint);
+      let notes: boolean | undefined;
       return toolRounds<AnthropicMessage>(
         request,
         {
           messages: anthropicMessages(request.messages).messages,
-          open: (messages, tools, limit) =>
-            relaxing(
+          open: (messages, tools, limit) => {
+            notes ??= tools;
+            return relaxing(
               { switchOff },
-              ["switchOff"],
               (on) =>
                 post(
                   body(request, messages, endpoint, {
                     switchOff: on.switchOff,
                     tools,
+                    notes: !!notes,
                     stream: true,
                   }),
                   limit,
@@ -327,8 +352,10 @@ export function anthropic(
                   return { res, tools };
                 }),
               NAMED,
-            ),
-          events: anthropicEvents,
+            );
+          },
+          events: (res, stop, onData) =>
+            anthropicEvents(res, stop, onData, () => cutShort(base, request.model)),
           answered: (messages, round, results, note) =>
             append(
               append(messages, {
@@ -350,6 +377,7 @@ export function anthropic(
                     type: "tool_result" as const,
                     tool_use_id: r.call.id,
                     content: r.content,
+                    ...(r.failed && { is_error: true }),
                   })),
                   ...text(note ?? ""),
                 ],
@@ -365,7 +393,6 @@ export function anthropic(
       const { messages } = anthropicMessages(request.messages);
       return relaxing(
         { switchOff: sendsSwitch(request, endpoint) },
-        ["switchOff"],
         async (on) => {
           const limit = new TimeLimit(limits.firstMs);
           try {
@@ -373,6 +400,7 @@ export function anthropic(
               body(request, messages, endpoint, {
                 switchOff: on.switchOff,
                 tools: false,
+                notes: false,
                 stream: false,
               }),
               limit,
@@ -380,9 +408,12 @@ export function anthropic(
             );
             const json = await readJson<{
               content?: AnthropicBlock[];
+              stop_reason?: string | null;
               error?: { type?: string; message?: string };
             }>(res, base, limit, request.signal);
             if (json?.error) throw apiError(json.error);
+            if (json?.stop_reason === "refusal") throw refusal();
+            if (json?.stop_reason === "max_tokens") cutShort(base, request.model);
             if (!Array.isArray(json?.content)) throw new LlmError("bad_response", "no reply");
             return json.content
               .flatMap((b) => (b.type === "text" ? [b.text] : []))
