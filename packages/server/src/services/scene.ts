@@ -189,7 +189,10 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       keepVerdict(store, run.id, {
         task: "dialogue",
         input: "",
-        result: cleanSceneSummary(result, learner),
+        result: cleanSceneSummary(result, learner, {
+          language: request.language,
+          target: ctx.target,
+        }),
         model,
         latencyMs,
       });
@@ -203,7 +206,13 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
   async function answerLine(request: SceneLine): Promise<SceneState> {
     const { run, state, input } = await turnInput(request);
     const { result, model, latencyMs } = await deps.llm.structured(sceneTurnTask(input));
-    const turn = cleanSceneTurn(result, request.text, state.setup.goals.length, state.goalsMet);
+    const turn = cleanSceneTurn(
+      result,
+      request.text,
+      state.setup.goals.length,
+      state.goalsMet,
+      input,
+    );
     // Stored only while this Dialogue is still active (not ended or replaced during the call).
     store.atomic(() => {
       store.append(run.id, [

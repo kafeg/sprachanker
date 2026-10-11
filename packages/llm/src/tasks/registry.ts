@@ -36,6 +36,7 @@ export const TASK_PROMPTS = {
       lessonVocab: SCENE_BUDGETS.lessonVocab,
       knownVocab: SCENE_BUDGETS.knownVocab,
       topics: SCENE_BUDGETS.topics,
+      grammar: SCENE_BUDGETS.grammar,
     },
   },
   scene: { rules: sceneTurnRules, budgets: SCENE_BUDGETS },
