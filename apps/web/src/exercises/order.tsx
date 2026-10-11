@@ -1,6 +1,7 @@
 // order: put the parts in order. A tap adds a part to the line, a tap in the line takes it back; or drag
 // a part into the line, onto a part in it (it goes there) or back to the pool (dnd.tsx).
-import { joinParts, type Option } from "@sprachanker/schema";
+import { joinParts, type Option, partsAreSentences } from "@sprachanker/schema";
+import { Check, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/ui/components/button.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
@@ -16,6 +17,16 @@ const AT = "order:at:";
 const IN = "order:in:";
 const OUT = "order:out:";
 
+/** A part's place, once checked: in place, or not (in words too, for screen readers). */
+function Mark({ right }: { right: boolean }) {
+  const { t } = useTranslation();
+  return right ? (
+    <Check className="size-5 shrink-0 text-correct" aria-label={t("ex.inPlace")} />
+  ) : (
+    <X className="size-5 shrink-0 text-wrong" aria-label={t("ex.notInPlace")} />
+  );
+}
+
 export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"order">) {
   const { t } = useTranslation();
   const pool = useShuffled(item.parts, item.key);
@@ -23,13 +34,14 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
   const byId = (id: string) => item.parts.find((p) => p.id === id) as Option;
   const set = (next: string[]) => onAnswer({ sequence: next });
   const lang = useTargetLang();
+  const texts = sequence.map((id) => byId(id).text);
+  const plain = !!outcome && sequence.length > 0 && !item.parts.some((p) => p.media);
+  // Checked: sentences as a numbered list, each marked in place or not; a sentence's words read as
+  // the sentence when right, else as their chips, each marked (a wrong order is no sentence).
+  const asList = plain && partsAreSentences(texts);
   const sentence =
-    outcome && sequence.length && !item.parts.some((p) => p.media)
-      ? joinParts(
-          sequence.map((id) => byId(id).text),
-          item.join,
-        )
-      : undefined;
+    plain && !asList && outcome?.result === "correct" ? joinParts(texts, item.join) : undefined;
+  const inPlace = (id: string, i: number) => item.answer.sequence[i] === id;
 
   const drop = (dragged: string, target: string) => {
     const chip = dragged.slice((dragged.startsWith(IN) ? IN : OUT).length);
@@ -59,7 +71,17 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
         >
           {/* Checked, a line of words reads as the sentence given: no space before a "." or "?"
               that was a part of its own. */}
-          {sentence !== undefined ? (
+          {asList ? (
+            <ol lang={lang} className="w-full space-y-1 px-1 text-lg">
+              {sequence.map((id, i) => (
+                <li key={id} className="flex gap-2">
+                  <span className="tabular-nums text-muted-foreground">{i + 1}.</span>
+                  <span className="flex-1">{byId(id).text}</span>
+                  <Mark right={inPlace(id, i)} />
+                </li>
+              ))}
+            </ol>
+          ) : sentence !== undefined ? (
             <p lang={lang} className="px-1 text-xl leading-relaxed">
               {sentence}
             </p>
@@ -71,7 +93,10 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
                 label={byId(id).text}
                 dropId={`${AT}${id}`}
                 disabled={!!outcome}
-                className="border-primary"
+                className={cn(
+                  "border-primary",
+                  outcome && (inPlace(id, i) ? "border-correct" : "border-wrong"),
+                )}
                 onTap={() => set(sequence.filter((_, j) => j !== i))}
               >
                 <OptionContent option={byId(id)} url={url} />

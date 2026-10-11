@@ -168,7 +168,7 @@ export function ItemCard({
       {shown && (
         <p className="mt-3 text-sm">
           <span className="text-muted-foreground">{t("lesson.correctAnswer")} </span>
-          <span lang={lang} className="font-medium">
+          <span lang={lang} className="font-medium whitespace-pre-line">
             {shown}
           </span>
         </p>

@@ -13,7 +13,7 @@ export { GapId, Option, OptionId } from "./base.ts";
 export { MultiChoiceAnswer, SingleChoiceAnswer } from "./choice.ts";
 export { correctOptions, GapChoiceAnswer, GapTextAnswer } from "./gap.ts";
 export { MatchAnswer } from "./match.ts";
-export { joinParts, OrderAnswer } from "./order.ts";
+export { joinParts, OrderAnswer, partsAreSentences } from "./order.ts";
 export { Outcome, TokenDiff } from "./outcome.ts";
 export { RespondAnswer } from "./respond.ts";
 export {

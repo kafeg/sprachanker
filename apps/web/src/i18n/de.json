@@ -194,7 +194,9 @@
       "cancel": "{item} — zurückgelegt."
     },
     "chosen": "{count, plural, one {# gewählt} other {# gewählt}}",
-    "specialLetters": "Buchstaben zum Tippen"
+    "specialLetters": "Buchstaben zum Tippen",
+    "inPlace": "an seiner Stelle",
+    "notInPlace": "nicht an seiner Stelle"
   },
   "word": {
     "plural": "Pl. {plural}"

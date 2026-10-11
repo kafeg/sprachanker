@@ -1,6 +1,12 @@
 // Exercise renderers by type (root rule 2: every type has a renderer). No API calls here.
 import { isChecked } from "@sprachanker/engine";
-import { type Exercise, type ItemOf, joinParts, type Outcome } from "@sprachanker/schema";
+import {
+  type Exercise,
+  type ItemOf,
+  joinParts,
+  type Outcome,
+  partsAreSentences,
+} from "@sprachanker/schema";
 import { useTranslation } from "react-i18next";
 import { MultiChoice, SingleChoice } from "./choice.tsx";
 import { Dictation } from "./dictation.tsx";
@@ -68,12 +74,12 @@ export function correctAnswer(
   switch (exercise.type) {
     case "order": {
       const it = item as ItemOf<"order">;
-      return it.parts.some((p) => p.media)
-        ? undefined
-        : joinParts(
-            it.answer.sequence.map((id) => it.parts.find((p) => p.id === id)?.text ?? ""),
-            it.join,
-          );
+      if (it.parts.some((p) => p.media)) return undefined;
+      const texts = it.answer.sequence.map((id) => it.parts.find((p) => p.id === id)?.text ?? "");
+      // Sentences one per line, numbered; a sentence's words as the sentence.
+      return partsAreSentences(texts)
+        ? `\n${texts.map((x, i) => `${i + 1}. ${x}`).join("\n")}`
+        : joinParts(texts, it.join);
     }
     case "dictation":
       return outcome?.diff ? undefined : (item as ItemOf<"dictation">).answer.accepted[0];

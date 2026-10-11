@@ -194,7 +194,9 @@
       "cancel": "{item} — put back."
     },
     "chosen": "{count, plural, one {# chosen} other {# chosen}}",
-    "specialLetters": "Letters to type"
+    "specialLetters": "Letters to type",
+    "inPlace": "in its place",
+    "notInPlace": "not in its place"
   },
   "word": {
     "plural": "pl. {plural}"

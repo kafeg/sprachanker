@@ -194,7 +194,9 @@
       "cancel": "{item} — возвращено на место."
     },
     "chosen": "{count, plural, one {выбран #} few {выбрано #} many {выбрано #} other {выбрано #}}",
-    "specialLetters": "Буквы для ввода"
+    "specialLetters": "Буквы для ввода",
+    "inPlace": "на своём месте",
+    "notInPlace": "не на своём месте"
   },
   "word": {
     "plural": "мн. {plural}"
