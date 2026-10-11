@@ -16,6 +16,7 @@ import {
   type MediaIndex,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
+import { createOnce } from "../once.ts";
 import { guarded, oneAtATime, preparedExports } from "./transfers.ts";
 
 /** A file of a bundle besides its manifest, as listed in the manifest. */
@@ -165,6 +166,11 @@ export function createCourseTransfer(deps: {
     };
   }
 
+  /** The export made ready of each course (`<series>/<course>`), as asked (its editions, or "" for
+   *  all): one a course, while it waits to be downloaded. */
+  const byCourse = new Map<string, { asked: string; ready: ReturnType<typeof keep> }>();
+  const staging = createOnce<ReturnType<typeof keep>>();
+
   /** A staged course made a prepared export: its manifest, file name and size. */
   function keep(staged: StagedCourse) {
     const paths = staged.files.map((f) => f.path);
@@ -199,13 +205,24 @@ export function createCourseTransfer(deps: {
     async prepare(series: string, course: string, editions?: string[]) {
       files.sweep();
       await recovered;
-      const staged = await guarded(() => files.stage(series, course, editions));
-      try {
-        return keep(staged);
-      } catch (error) {
-        files.discard(staged.id);
-        throw error;
-      }
+      const key = `${series}/${course}`;
+      const asked = editions ? [...editions].sort().join("+") : "";
+      return staging(`${key} ${asked}`, async () => {
+        // One export of a course at a time: the same asked again while it waits is that one.
+        const had = byCourse.get(key);
+        if (had?.asked === asked && prepared.waiting(SERVER, had.ready.id)) return had.ready;
+        if (had) prepared.drop(had.ready.id);
+        byCourse.delete(key);
+        const staged = await guarded(() => files.stage(series, course, editions));
+        try {
+          const ready = keep(staged);
+          byCourse.set(key, { asked, ready });
+          return ready;
+        } catch (error) {
+          files.discard(staged.id);
+          throw error;
+        }
+      });
     },
 
     /** A prepared export still there to download: its file's name and size (404 when it is gone or

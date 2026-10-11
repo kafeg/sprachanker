@@ -86,6 +86,10 @@ export function preparedExports<T extends { fileName: string; bytes: number }>(
       forget(id, false);
       return value;
     },
+    /** Whether one is still there to download, `owner`'s. */
+    waiting: (owner: string, id: string) => prepared.get(id)?.owner === owner,
+    /** One not downloaded let go (its transfer with it). */
+    drop: (id: string) => forget(id, true),
     /** Every one of `owner`'s not downloaded let go. */
     letGo(owner: string) {
       for (const [id, p] of prepared) if (p.owner === owner) forget(id, true);

@@ -284,6 +284,25 @@ test("names the disk refuses (a file where a folder would be) are the bundle's d
   nothingLeft(b, {});
 });
 
+test("one export of a course at a time: the same asked again is that one, another edition replaces it", async () => {
+  const a = await setup();
+  const exportOf = async (edition?: string) =>
+    read(
+      a.send("POST", "/api/courses/export", { series: FIXTURE_SERIES, course: "demo", edition }),
+    );
+  const transfers = () => readdirSync(join(a.root, "library", ".transfers"));
+  const first = await exportOf();
+  expect((await exportOf()).id).toBe(first.id);
+  expect(transfers()).toEqual([first.id]);
+  const ru = await exportOf("ru-de");
+  expect(ru.id).not.toBe(first.id);
+  expect((await a.get(`/api/courses/export/${first.id}`, { method: "HEAD" })).status).toBe(404);
+  expect(transfers()).toEqual([ru.id]);
+  // Downloaded: the next is made anew.
+  await (await a.get(`/api/courses/export/${ru.id}`)).arrayBuffer();
+  expect((await exportOf("ru-de")).id).not.toBe(ru.id);
+});
+
 test("an export does not wait for a download of its series: it says so", async () => {
   const a = await setup();
   let release = () => {};

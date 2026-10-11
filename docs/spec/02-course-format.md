@@ -345,7 +345,8 @@ raw/<edition>/<course>/…            # only the copies an exam's sources name (
 - **Export** (`courses export`, a Downloaded card, 06): the course's files linked into a transfer
   under the series' import lock — not waited for: while a download or import of the series runs it
   is 409 `series_busy` —, so a course normalised meanwhile is never taken half old, half new; hashed
-  after, the lock let go.
+  after, the lock let go. One export of a course at a time: asked again while it waits to be
+  downloaded (an hour at most), the same editions are that one, other editions replace it.
 - **Import** (`courses import`, Courses/Exams → Downloaded, 06): all or nothing, one at a time, in a
   transfer folder (`library/.transfers/<id>/`, swept as a profile's, 05). The file (its length
   announced; room for it, then for what of it is unpacked) read by its zip directory as a profile file is (05, step 2), its names
