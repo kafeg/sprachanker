@@ -8,7 +8,11 @@
     "review": "Повторення",
     "notebook": "Зошит",
     "exams": "Іспити",
-    "tutor": "Репетитор"
+    "tutor": "Репетитор",
+    "short": {
+      "review": "Повтор",
+      "settings": "Опції"
+    }
   },
   "common": {
     "loading": "Завантаження…",

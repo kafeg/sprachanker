@@ -8,7 +8,11 @@
     "review": "Pengulangan",
     "notebook": "Buku catatan",
     "exams": "Ujian",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Kartu",
+      "settings": "Setelan"
+    }
   },
   "common": {
     "loading": "Memuat…",

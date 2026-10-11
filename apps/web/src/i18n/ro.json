@@ -8,7 +8,11 @@
     "review": "Recapitulare",
     "notebook": "Caiet",
     "exams": "Examene",
-    "tutor": "Tutore"
+    "tutor": "Tutore",
+    "short": {
+      "review": "Carduri",
+      "settings": "Setări"
+    }
   },
   "common": {
     "loading": "Se încarcă…",

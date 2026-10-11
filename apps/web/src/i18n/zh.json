@@ -8,7 +8,11 @@
     "review": "复习",
     "notebook": "学习记录",
     "exams": "考试",
-    "tutor": "辅导老师"
+    "tutor": "辅导老师",
+    "short": {
+      "review": "复习",
+      "settings": "设置"
+    }
   },
   "common": {
     "loading": "加载中…",

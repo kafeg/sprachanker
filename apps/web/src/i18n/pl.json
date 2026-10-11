@@ -8,7 +8,11 @@
     "review": "Powtórki",
     "notebook": "Zeszyt",
     "exams": "Egzaminy",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Powtórki",
+      "settings": "Opcje"
+    }
   },
   "common": {
     "loading": "Ładowanie…",

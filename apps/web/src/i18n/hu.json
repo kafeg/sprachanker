@@ -8,7 +8,11 @@
     "review": "Ismétlés",
     "notebook": "Füzet",
     "exams": "Vizsgák",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Ismétlés",
+      "settings": "Opciók"
+    }
   },
   "common": {
     "loading": "Betöltés…",

@@ -8,7 +8,11 @@
     "review": "Revisão",
     "notebook": "Caderno",
     "exams": "Exames",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Revisão",
+      "settings": "Ajustes"
+    }
   },
   "common": {
     "loading": "Carregando…",

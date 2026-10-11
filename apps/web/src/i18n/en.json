@@ -8,7 +8,11 @@
     "review": "Review",
     "notebook": "Notebook",
     "exams": "Exams",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Review",
+      "settings": "Settings"
+    }
   },
   "common": {
     "loading": "Loading…",

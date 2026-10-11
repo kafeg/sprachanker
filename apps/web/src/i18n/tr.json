@@ -8,7 +8,11 @@
     "review": "Tekrar",
     "notebook": "Defter",
     "exams": "Sınavlar",
-    "tutor": "Öğretmen"
+    "tutor": "Öğretmen",
+    "short": {
+      "review": "Tekrar",
+      "settings": "Ayarlar"
+    }
   },
   "common": {
     "loading": "Yükleniyor…",

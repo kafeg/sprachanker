@@ -8,7 +8,11 @@
     "review": "Wiederholen",
     "notebook": "Notizbuch",
     "exams": "Prüfungen",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Karten",
+      "settings": "Optionen"
+    }
   },
   "common": {
     "loading": "Wird geladen…",

@@ -8,7 +8,11 @@
     "review": "مرور",
     "notebook": "دفترچه",
     "exams": "آزمون‌ها",
-    "tutor": "معلم"
+    "tutor": "معلم",
+    "short": {
+      "review": "مرور",
+      "settings": "تنظیمات"
+    }
   },
   "common": {
     "loading": "در حال بارگذاری…",

@@ -8,7 +8,11 @@
     "review": "Marudio",
     "notebook": "Daftari",
     "exams": "Mitihani",
-    "tutor": "Mkufunzi"
+    "tutor": "Mkufunzi",
+    "short": {
+      "review": "Marudio",
+      "settings": "Mipangilio"
+    }
   },
   "common": {
     "loading": "Inapakia…",

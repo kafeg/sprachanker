@@ -8,7 +8,11 @@
     "review": "Ponavljanje",
     "notebook": "Sveska",
     "exams": "Ispiti",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Kartice",
+      "settings": "Postavke"
+    }
   },
   "common": {
     "loading": "Učitavanje…",

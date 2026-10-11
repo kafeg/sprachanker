@@ -8,7 +8,11 @@
     "review": "Επανάληψη",
     "notebook": "Τετράδιο",
     "exams": "Εξετάσεις",
-    "tutor": "Δάσκαλος"
+    "tutor": "Δάσκαλος",
+    "short": {
+      "review": "Κάρτες",
+      "settings": "Ρυθμίσεις"
+    }
   },
   "common": {
     "loading": "Φόρτωση…",

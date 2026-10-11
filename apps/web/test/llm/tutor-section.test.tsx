@@ -1,8 +1,9 @@
 import { afterEach, expect, test } from "bun:test";
 import { CHAT_ID_HEADER } from "@sprachanker/schema";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, waitFor, within } from "@testing-library/react";
 import { MessageCircle } from "lucide-react";
 import { AppShell } from "../../src/app/shell.tsx";
+import { switchLanguage } from "../../src/i18n/index.ts";
 import { useAiIn } from "../../src/llm/setup-api.ts";
 import { SectionChatPage, TutorSection } from "../../src/llm/tutor-section.tsx";
 import { renderApp } from "../render.tsx";
@@ -343,29 +344,31 @@ test("the tutor's place off or no model: the section says how to turn it on, wit
   expect(noModel.getByText("The tutor needs an AI model.")).toBeTruthy();
 });
 
+/** The app's frame with the Tutor section's entry, the tutor's place off in `offIn`. */
+const shell = (offIn: string[]) =>
+  renderApp(
+    <AppShell
+      extra={{
+        to: "/tutor",
+        key: "nav.tutor",
+        icon: MessageCircle,
+        useShown: () => useAiIn("tutor"),
+      }}
+    />,
+    {
+      path: "/",
+      data: [
+        [["llm"], MODEL],
+        [["settings"], { "llm.offIn": offIn }],
+        [["decks"], { decks: [] }],
+        [["downloads"], { jobs: [] }],
+        [["session"], { profile: null }],
+        [["health"], { version: "1" }],
+      ],
+    },
+  );
+
 test("the navigation: Tutor after Exams while the assistant works there, absent otherwise", async () => {
-  const shell = (offIn: string[]) =>
-    renderApp(
-      <AppShell
-        extra={{
-          to: "/tutor",
-          key: "nav.tutor",
-          icon: MessageCircle,
-          useShown: () => useAiIn("tutor"),
-        }}
-      />,
-      {
-        path: "/",
-        data: [
-          [["llm"], MODEL],
-          [["settings"], { "llm.offIn": offIn }],
-          [["decks"], { decks: [] }],
-          [["downloads"], { jobs: [] }],
-          [["session"], { profile: null }],
-          [["health"], { version: "1" }],
-        ],
-      },
-    );
   const on = await shell([]);
   const sidebar = on.container.querySelector("aside") as HTMLElement;
   const names = [...sidebar.querySelectorAll("a")].map((a) => a.textContent?.trim());
@@ -380,4 +383,23 @@ test("the navigation: Tutor after Exams while the assistant works there, absent 
   on.unmount();
   const off = await shell(["tutor"]);
   expect(off.queryAllByRole("link", { name: "Tutor" })).toEqual([]);
+});
+
+test("the phone's tab bar of six: a short label where the language's own does not fit, the full one its name", async () => {
+  expect(await switchLanguage("de")).toBe(true);
+  try {
+    const view = await shell([]);
+    const bar = within(view.container.querySelector("nav") as HTMLElement);
+    const review = bar.getByRole("link", { name: "Wiederholen" });
+    expect([...review.querySelectorAll("span:not(.relative)")].map((s) => s.textContent)).toEqual([
+      "Karten",
+      "Wiederholen",
+    ]);
+    expect(bar.getByRole("link", { name: "Einstellungen" }).textContent).toContain("Optionen");
+    // A label that fits is shown as it is.
+    const tutor = bar.getByRole("link", { name: "Tutor" });
+    expect([tutor.getAttribute("aria-label"), tutor.textContent]).toEqual([null, "Tutor"]);
+  } finally {
+    await switchLanguage("en");
+  }
 });
