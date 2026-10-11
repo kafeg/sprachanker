@@ -32,8 +32,9 @@ const gapNumber = (segments: Segments, gap: string) =>
 const TAIL =
   /^(?:[ \u00a0]*[.,]|[!?;:…)\]»“”"])[.,!?;:…)\]»“”"]*|^['’\p{L}\p{N}]+[.,!?;:…)\]»“”"]*/u;
 
-/** What touches a gap before it and stays with it: a word's stem ("mein[em]"), a quote ("„[gap]"). */
-const HEAD = /\S+$/u;
+/** What stays with a gap before it: what touches it — a word's stem ("mein[em]"), a quote
+ *  ("„[gap]") —, or an article and its space ("die [gap]": never "die" alone at a line's end). */
+const HEAD = /\S+$|(?<!\p{L})(?:der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines) $/iu;
 
 /** A run of a gap text: words between gaps, or a gap with what touches it on either side. */
 export type Run = { text: string } | { gap: string; head: string; tail: string };
@@ -92,8 +93,14 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
               run.head ? "mr-1" : "mx-1",
             )}
           >
-            {run.head && <span>{run.head}</span>}
-            <span className={cn("inline-flex min-w-0 flex-col items-start", run.head && "ml-0.5")}>
+            {run.head && <span>{run.head.trimEnd()}</span>}
+            <span
+              className={cn(
+                "inline-flex min-w-0 flex-col items-start",
+                // An article's space as a margin (a space at a flex item's end may not show).
+                run.head && (run.head.endsWith(" ") ? "ml-[0.3em]" : "ml-0.5"),
+              )}
+            >
               {field}
               {right !== undefined && <RightAnswer text={right} className="ml-0 text-sm" />}
             </span>

@@ -159,6 +159,17 @@ test("a checked drop-down gap shows the choice as text with its mark, no greyed 
 });
 
 test("what touches a gap goes with it: a stem, an opening quote, the punctuation after it", () => {
+  // An article before a gap stays with it, its space kept; another word before a space does not.
+  expect(
+    runs(["Ich mag die ", { gap: "g1" }, " und Ein ", { gap: "g2" }, ", nicht ", { gap: "g3" }]),
+  ).toEqual([
+    { text: "Ich mag " },
+    { gap: "g1", head: "die ", tail: "" },
+    { text: " und " },
+    { gap: "g2", head: "Ein ", tail: "," },
+    { text: " nicht " },
+    { gap: "g3", head: "", tail: "" },
+  ]);
   // An ending after its stem: "mein[em] Vater", never "mein / [em]".
   expect(runs(["Dativ: mit mein", { gap: "g1" }, " Vater"])).toEqual([
     { text: "Dativ: mit " },
