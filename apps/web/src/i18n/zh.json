@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "课程",
+    "settings": "设置",
+    "review": "复习",
+    "notebook": "学习记录",
+    "exams": "考试"
+  },
+  "common": {
+    "loading": "加载中…",
+    "retry": "重试",
+    "close": "关闭",
+    "cancel": "取消"
+  },
+  "courses": {
+    "lessons": "{count, plural, other {#节课}}",
+    "progress": "已完成{done, number}/{total, number}",
+    "start": "开始",
+    "allLessons": "全部课程",
+    "languages": "{from} → {to}",
+    "any": "全部",
+    "noneStarted": "还没有开始任何课程。",
+    "noneMatch": "没有适合这些语言的课程。",
+    "course": "课程",
+    "pair": "语言",
+    "next": "下一课",
+    "nextWorked": "已完成{worked, number}/{total, number}",
+    "doneShort": "{done, number}/{total, number} · {share}",
+    "tabs": {
+      "mine": "我的课程",
+      "downloaded": "已下载",
+      "available": "可下载"
+    },
+    "noneDownloaded": "还没有下载任何课程。",
+    "allDownloaded": "所有课程均已下载。",
+    "choose": "选择课程",
+    "anyLanguage": "任意"
+  },
+  "course": {
+    "unit": "第{number}单元",
+    "status": {
+      "new": "未开始",
+      "in_progress": "进行中 · {worked, number}/{total, number}",
+      "done": "已完成 · {score, number, percent}",
+      "next": "下一课",
+      "finished": "已完成"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "公有领域",
+      "free-access": "免费访问（非开放许可）"
+    },
+    "stats": {
+      "lessons": "{count, plural, other {节课}}",
+      "exercises": "{count, plural, other {个练习}}",
+      "words": "{count, plural, other {个单词}}",
+      "audio": "{count, plural, other {段录音}}",
+      "video": "{count, plural, other {个视频}}",
+      "image": "{count, plural, other {张图片}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, other {个字幕文件}}",
+      "size": "占用空间"
+    },
+    "checking": "正在检查课程文件…",
+    "missing": "缺少{count, number}个",
+    "problems": "发现{count, plural, other {#个问题}}",
+    "intact": "所有文件齐全且一致。",
+    "checkAgain": "重新检查",
+    "complete": "已全部下载",
+    "next": "下一课：{where}——{title}",
+    "notInstalled": "此课程未安装（或已被移除）。",
+    "checkFiles": "检查",
+    "problem": {
+      "missingMedia": "文件缺失：{at}",
+      "unreadable": "文件无法读取：{at}",
+      "noLocale": "此语言下没有该课的文本：{at}",
+      "noEdition": "未安装任何语言版本",
+      "inconsistent": "课程数据不一致：{at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "第{unit}单元 · 第{lesson}课",
+    "goals": "在这节课中，你将学会：",
+    "counts": "{exercises, plural, =0 {} other {#个练习 · }}{words, plural, other {#个新单词}}",
+    "start": "开始本课",
+    "resume": "继续本课",
+    "exerciseOf": "练习{n}/{total}",
+    "check": "检查",
+    "next": "下一步",
+    "toSummary": "查看总结",
+    "skip": "跳过",
+    "retry": "重试",
+    "previous": "上一步",
+    "correct": "正确",
+    "partial": "部分正确",
+    "wrong": "不太对",
+    "summary": "总结",
+    "score": "第一次就答对：{correct, number}/{scored, number}。百分比也计入部分正确的答案。",
+    "skipped": "已跳过",
+    "notDone": "未完成",
+    "backToCourse": "返回课程",
+    "nextLesson": "下一课",
+    "reference": "参考资料",
+    "plan": "课程安排",
+    "audio": "收听本课",
+    "itemAudio": "第{n}题的音频",
+    "redo": "从头开始",
+    "done": "完成",
+    "doneScore": "已完成 · 正确率{score, number, percent}",
+    "state": {
+      "correct": "正确",
+      "wrong": "有错误",
+      "done": "已作答",
+      "skipped": "已跳过",
+      "read": "已完成",
+      "partial": "部分正确"
+    },
+    "correctAnswer": "正确答案：",
+    "answerAudio": "听答案",
+    "itemsList": "题目",
+    "answerAll": "请回答所有题目 · {done, number}/{total, number}",
+    "listenFirst": "请先播放录音",
+    "listenItem": "播放第{n}题的录音",
+    "answerAgain": "重新作答",
+    "exerciseN": "练习{n}",
+    "stepsDone": "已完成{done}/{total}个步骤",
+    "stepsLeft": "还有{count, plural, other {#个步骤}}未完成。",
+    "toStep": "前往：{title}",
+    "videoText": "视频文本",
+    "audioText": "录音文本",
+    "step": {
+      "overview": "概览",
+      "words": "本课单词",
+      "wordsCount": "本课单词 · {count}",
+      "grammar": "语法",
+      "culture": "文化",
+      "writing": "动笔写一写",
+      "scene": "情景对话",
+      "mistakes": "回顾错误",
+      "summary": "总结"
+    },
+    "section": {
+      "grammar": "语法",
+      "exercises": "练习",
+      "culture": "文化",
+      "practice": "AI练习"
+    },
+    "continued": "续",
+    "why": "为什么错了？"
+  },
+  "ref": {
+    "vocabulary": "词汇",
+    "grammar": "语法",
+    "culture": "文化",
+    "script": "台词",
+    "downloads": "PDF",
+    "none": "本课没有此内容。",
+    "homework": "作业"
+  },
+  "video": {
+    "hd": "高清",
+    "sd": "标清",
+    "subtitles": "字幕"
+  },
+  "ex": {
+    "chooseSeveral": "可能有多个正确答案。",
+    "orderHint": "按顺序点按或拖动各部分到横线上；在横线上拖动可调整位置，点按可将其取回。",
+    "reset": "重置",
+    "dictationPlaceholder": "写下你听到的内容",
+    "rate": {
+      "good": "很好",
+      "fair": "一般",
+      "poor": "再来"
+    },
+    "unknown": "暂不支持此练习类型。",
+    "respondPlaceholder": "你的答案…",
+    "reference": "{count, plural, other {参考答案}}",
+    "gap": "第{n}空",
+    "partRight": "正确",
+    "partWrong": "错误",
+    "nothing": "——（无）",
+    "matchFor": "第{n}题的匹配项",
+    "dropHere": "拖放或点按到这里",
+    "chips": "待放置的单词",
+    "orderLine": "你的排序",
+    "dnd": {
+      "item": "卡片",
+      "instructions": "按空格键或回车键拿起卡片。用方向键移动，再按空格键或回车键放下，或按Esc键放回原处。",
+      "start": "已拿起：{item}。",
+      "over": "{item}——位于“{place}”上方。",
+      "away": "{item}——不在任何位置上方。",
+      "end": "{item}——已放到“{place}”。",
+      "cancel": "{item}——已放回。"
+    },
+    "chosen": "{count, plural, other {已选#个}}",
+    "specialLetters": "特殊字母",
+    "inPlace": "位置正确",
+    "notInPlace": "位置不对"
+  },
+  "word": {
+    "plural": "复数：{plural}"
+  },
+  "settings": {
+    "uiLanguage": "界面语言",
+    "themeLabel": "主题",
+    "theme": {
+      "system": "跟随系统",
+      "light": "浅色",
+      "dark": "深色"
+    },
+    "tabs": {
+      "general": "通用",
+      "profile": "个人资料",
+      "review": "复习",
+      "speech": "语音",
+      "ai": "AI助手",
+      "aiShort": "AI"
+    },
+    "prompts": "提示词",
+    "experimental": "实验功能",
+    "advanced": "高级"
+  },
+  "llm": {
+    "title": "AI助手",
+    "intro": "讲解错误、在课程中辅导、批改文本、演绎情景对话。可选择本机上的模型、局域网服务器上的模型、云端模型（OpenRouter），或使用你订阅的命令行智能体。课程内容和你的答案只会发送给你选择的服务商。",
+    "off": "关闭",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "局域网服务器",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "服务器地址",
+    "endpointInvalid": "请输入类似http://localhost:1234/v1的地址",
+    "apiKey": "API密钥",
+    "keyHint": "仅在服务器需要时填写。密钥会加密保存，且不再显示。",
+    "keySaved": "已保存——输入新密钥即可替换",
+    "save": "保存",
+    "removeKey": "移除",
+    "check": "检查连接",
+    "checking": "正在连接…",
+    "connected": "已连接 · {count, plural, =0 {没有模型} other {#个模型}} · {ms}毫秒",
+    "model": "模型",
+    "setUpHint": "想看讲解？请设置AI助手",
+    "explanation": "讲解",
+    "thinking": "思考中…",
+    "error": {
+      "lmstudioDown": "LM Studio没有响应。它的本地服务器是否已启动？"
+    },
+    "cliMissing": {
+      "claude-code": "本机未安装Claude Code。请从claude.com/claude-code安装，并运行`claude`登录一次。",
+      "codex": "本机未安装Codex CLI。请安装（npm i -g @openai/codex），并运行`codex login`登录一次。"
+    },
+    "modelTypeHint": "请输入模型名称。",
+    "otherModel": "其他模型…",
+    "modelName": "模型名称",
+    "explainAgain": "重新讲解",
+    "changeInSettings": "模型在“设置 → AI助手”中选择",
+    "about": {
+      "lmstudio": "本机上的LM Studio：SprachAnker会启动它的服务器、加载所选模型，还能把推荐的模型下载到其中。免费，且所有数据都不会离开本机。如果LM Studio运行在另一台电脑上，请选择“局域网服务器”。",
+      "openrouter": "云端的OpenRouter：一个密钥即可使用众多厂商的数百个模型，其中部分免费（有每日限额）。课程内容和你的答案会发送给OpenRouter及模型服务商。",
+      "gemini": "云端的Google Gemini模型，需使用Google AI Studio的密钥。免费层级无需绑定银行卡，但有每分钟和每日限额；部分模型需要开通付费。使用免费层级时，Google可能会用发送的内容改进其产品：课程内容和你的答案会发送给Google。",
+      "groq": "在Groq云端高速硬件上运行的开放模型（Llama、Qwen、GPT-OSS等）。免费层级无需绑定银行卡，每个模型都有每分钟和每日限额。课程内容和你的答案会发送给Groq。",
+      "custom": "另一台电脑上任何提供OpenAI兼容API的服务器：LM Studio、Ollama、llama.cpp、vLLM等。请填写其地址（以/v1结尾），如有需要再填写密钥。",
+      "claude-code": "运行本机安装的Claude Code（`claude -p`），使用你的Claude订阅。其自带工具处于关闭状态：课程数据直接写入提示词。每次回答都要启动该命令，因此回复会慢几秒。",
+      "codex": "运行本机安装的Codex CLI（`codex exec`），使用你的ChatGPT订阅，只读且不使用其工具。每次回答都要启动该命令，因此回复会慢几秒。"
+    },
+    "cardState": {
+      "off": "未使用助手",
+      "llm_cli_missing": "未安装",
+      "llm_no_endpoint": "未设置地址",
+      "llm_no_key": "需要密钥",
+      "installed": "已安装",
+      "keySaved": "密钥已保存",
+      "here": "在本机",
+      "at": "位于{host}"
+    },
+    "list": {
+      "search": "搜索：gemma、claude、deepseek…",
+      "free": "免费（{count, number}）",
+      "json": "支持JSON（{count, number}）",
+      "context": "上下文≥{size}",
+      "more": "更多…",
+      "fewer": "收起",
+      "jsonHint": "“支持JSON”：能按本应用可读取的格式返回写作批改和情景对话的模型。",
+      "none": "没有符合搜索和筛选条件的模型。",
+      "freeTag": "免费",
+      "price": "每百万token：{input} / {output}",
+      "shown": "{shown, number}/{total, number}个模型",
+      "backToList": "返回列表"
+    },
+    "key": {
+      "freeTier": "免费层级",
+      "credits": "额度",
+      "used": "已用{used}",
+      "usedOf": "已用{used}，共{limit}",
+      "rate": "每{interval}{requests, number}次请求",
+      "freeModels": "免费模型有OpenRouter设定的每日请求限额（购买过额度后会更高）。"
+    },
+    "keyHintFor": {
+      "openrouter": "请在openrouter.ai/keys创建密钥。密钥会加密保存在本机，且不再显示。",
+      "gemini": "请在aistudio.google.com/apikey创建密钥。密钥会加密保存在本机，且不再显示。",
+      "groq": "请在console.groq.com/keys创建密钥。密钥会加密保存在本机，且不再显示。"
+    }
+  },
+  "tutor": {
+    "title": "辅导老师",
+    "intro": "可以问本课的任何问题：语法、单词、屏幕上的练习——也可以练习一段简短对话。回答只会用到你目前学过的内容。",
+    "needsSetup": "辅导老师需要AI模型。",
+    "openSettings": "设置AI助手",
+    "placeholder": "提个问题…",
+    "send": "发送",
+    "stop": "停止",
+    "newChat": "新对话",
+    "suggest": {
+      "grammar": "讲解本课的语法",
+      "examples": "用新单词多举几个例子",
+      "dialogue": "我们来练一段简短对话吧",
+      "exercise": "给我这道练习的提示",
+      "wordsQuiz": "考考我本课的新单词",
+      "wordsMemory": "帮我记住新单词",
+      "grammarDrill": "出一道本课语法的小练习",
+      "script": "逐句讲解本课文本"
+    },
+    "context": "上下文约{used}/{window}个token",
+    "contextSize": "请求约{used}个token",
+    "remembers": "记得{total, plural, other {#条消息}}中的{kept, number}条",
+    "contextFull": "上下文快满了：最早的消息已无法发送给模型。如要换个话题，请开始新对话。",
+    "contextHint": "下一次请求的大小：课程上下文、对话和你的消息，再加上为回复预留的空间。",
+    "toolsUsed": "已查询：{tools}",
+    "tool": {
+      "find_word": "单词“{word}”",
+      "get_progress": "你的进度",
+      "get_mistakes": "你的错误",
+      "get_lesson": "第{lesson}课"
+    },
+    "tabChat": "对话",
+    "tabHistory": "历史",
+    "noHistory": "本课还没有以前的对话。",
+    "current": "当前",
+    "delete": "删除对话",
+    "deleteTitle": "删除此对话？",
+    "deleteBody": "其中的消息将被永久删除。",
+    "ask": {
+      "grammar": "请简要讲解本课的语法，并用本课的2–3个例子说明。然后问我是否理解了。",
+      "examples": "请用本课的新单词举3个简短例句，并附上翻译。然后让我用其中一个单词自己造句。",
+      "dialogue": "我们围绕本课主题练习一段简短对话吧。你先说一句，然后等我回答；对话中随时纠正我的错误。",
+      "exercise": "请给我这道练习的提示，不要直接告诉我答案。",
+      "wordsQuiz": "请逐个考我本课的新单词。每次问一个词，等我回答，告诉我对不对，然后再问下一个。",
+      "wordsMemory": "请帮我逐个记住本课的新单词：每次取一个词，给我一个记忆线索（谐音、画面或词根）和一个简短例句，然后让我复述或用它造句。等我回答后再讲下一个词。",
+      "grammarDrill": "请出一组本课语法的简短练习：每次一道题，等我回答，检查后讲解其中的错误。",
+      "script": "我们逐句学习本课的文本吧：先展示第一句，翻译并讲解其中的新内容。等我说“下一句”时再讲下一句。"
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio正在运行。",
+    "notRunning": "LM Studio的服务器未运行。",
+    "notInstalled": "本机未安装LM Studio。请从lmstudio.ai下载，然后再回到这里。",
+    "needsToken": "LM Studio要求提供API令牌：请在上方输入（LM Studio → Developer → Server settings）。",
+    "start": "启动LM Studio",
+    "models": "LM Studio中的模型",
+    "noModels": "LM Studio中还没有模型。请从下方下载一个。",
+    "loaded": "已载入内存",
+    "use": "使用",
+    "inUse": "使用中",
+    "suggested": "推荐模型",
+    "suggestedHint": "LM Studio会为这台电脑（{memory}GB内存）下载最合适的版本并保存。",
+    "recommended": "推荐",
+    "size": "约{size}GB · 需要约{ram}GB内存",
+    "progress": "{done}/{total}GB",
+    "download": "在LM Studio中下载",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "提示词",
+    "title": "提示词",
+    "titleOf": "提示词 · {provider} · {model}",
+    "endpoint": "端点",
+    "size": "大小",
+    "sizeValue": "{chars, plural, other {#个字符}}≈{tokens, plural, other {#个token}}",
+    "copy": "以JSON格式复制请求",
+    "infoIntro": "每次请求都会发送固定规则（系统提示词）和当前课程的数据。较长的部分会按下方限制截断，以便小型本地模型也能跟上。",
+    "task": {
+      "explain": "“为什么错了？”",
+      "tutor": "辅导老师",
+      "writing": "“动笔写一写”",
+      "speaking": "口头回答",
+      "exam": "考试：答案评分",
+      "conversation": "考试：口语部分",
+      "sceneSetup": "情景对话：设定情境",
+      "scene": "情景对话",
+      "examples": "卡组单词的例句"
+    },
+    "contextIntro": "从课程中添加：",
+    "systemIntro": "系统提示词：",
+    "part": {
+      "item": "练习题目：题干、选项或填空、正确答案和你的答案",
+      "notes": "本课的语法说明",
+      "lesson": "本课的标题和学习目标",
+      "lessonVocab": "本课单词及其翻译",
+      "knownVocab": "以前课程中的单词（最近的在前）",
+      "earlierLessons": "以前课程的标题",
+      "grammar": "本课的语法说明",
+      "exercise": "屏幕上的练习及其答案和你已检查过的答案（辅导老师会先给提示）",
+      "history": "对话中最近的消息，你的每条消息都标明了你写它时所在的练习",
+      "mistakes": "你的错误：本课中为当前这一轮的错误，然后是以前课程中最近的错误（已改正的会标出）",
+      "tools": "按需查询（工具）：你的进度、任意一课中的错误、某个单词在哪一课学、某一课的内容",
+      "text": "你的文本",
+      "script": "当题目涉及课程的音频或视频时，附上本课台词",
+      "heard": "语音识别器从课程录音中听到的问题和课程自带的答案",
+      "answer": "语音识别器听到的你说的话",
+      "exam": "考试名称和题目原文：该部分的说明和文本、问题",
+      "criteria": "评分标准及其分值和各等级的含义",
+      "samples": "考试提供的参考答案（如有）",
+      "writtenAnswer": "你的答案",
+      "partner": "搭档手中的材料：卡片、日程表或幻灯片（你看不到）",
+      "conversation": "目前为止的对话（最近的几句）",
+      "level": "课程或卡组名称中标明的级别（A1、A2…），否则按初学者水平",
+      "words": "卡组中的五个单词及其翻译、词性和名词的性"
+    },
+    "upTo": "最多{chars, plural, other {#个字符}}",
+    "debug": "显示“提示词”按钮",
+    "debugHint": "在讲解旁和辅导老师中显示：包含全部消息的完整请求，用于调试。",
+    "custom": "已修改",
+    "placeholders": "'{language}'会被替换为回答所用的语言，'{target}'会被替换为你所学的语言。",
+    "save": "保存",
+    "restore": "恢复默认提示词",
+    "places": {
+      "title": "助手在哪里工作",
+      "hint": "关闭的功能不会出现在课程、卡片和考试中。已完成的课程仍保持完成状态。",
+      "explain": {
+        "name": "“为什么错了？”",
+        "where": "错误下方的按钮"
+      },
+      "tutor": {
+        "name": "辅导老师",
+        "where": "课程中的按钮和“回顾错误”步骤"
+      },
+      "writing": {
+        "name": "“动笔写一写”",
+        "where": "课程中的一个步骤"
+      },
+      "scene": {
+        "name": "情景对话",
+        "where": "课程中的一个步骤"
+      },
+      "speaking": {
+        "name": "口头回答",
+        "where": "口头回答下方的“用AI检查”"
+      },
+      "example": {
+        "name": "单词例句",
+        "where": "在单词卡片和单词详情中；在“复习 → 卡组”中为卡组生成"
+      },
+      "exam": {
+        "name": "考试答案",
+        "where": "答案评分标准上方的“AI建议评分”，以及以对话形式进行的口语部分"
+      }
+    },
+    "about": {
+      "explain": "在练习下方讲解错误的答案（“为什么错了？”）：错在哪里、背后的规则是什么，用你的语言讲解。",
+      "tutor": "本课的辅导老师：回答你关于本课、本课单词和语法的问题，并在“回顾错误”步骤中逐一讲解你的错误。",
+      "writing": "批改你在“动笔写一写”中写的短文：修改、A1评分标准（任务完成、交际、准确性）和反馈。",
+      "speaking": "当你点按“用AI检查”时，对照问题和课程答案检查你的口头回答（以语音识别器听到的内容为准）。",
+      "exam": "按考试自身的评分标准为考试的书面答案评分：每项标准的等级及理由，以及怎样能得更高分。在你采纳或修改之前，评分不会生效。",
+      "conversation": "主持考试的口语部分：按该部分的要求扮演考官和另一位考生，与你逐句对话；从不提示也不纠错。结束后按该部分的评分标准评分。",
+      "sceneSetup": "开始情景对话：根据本课主题设定情境——你是谁、和谁说话、在哪里，以及要达成的目标。每个情景只生成一次。",
+      "scene": "演绎情景对话：作为你的搭档回应你的每一句话，纠正你的错误，给出翻译，并勾选你已达成的目标。",
+      "examples": "为卡组中没有自带例句的每个单词写三到五个例句，每次五个单词（“复习 → 卡组”，“生成例句”），尽量使用你认识的单词，并翻译新单词。"
+    }
+  },
+  "writing": {
+    "task": "用{language}围绕本课主题写3–5句话：{topic}。请使用新单词。",
+    "placeholder": "你的文本…",
+    "check": "检查",
+    "checking": "正在检查…",
+    "rewrite": "修改后重新检查",
+    "score": "{name}：{score, number}/{max, number}",
+    "points": "{score, number}/{max, number}",
+    "past": "本课以前写的文本",
+    "verdict": {
+      "good": "正确",
+      "minor_errors": "小错误",
+      "major_errors": "错误较多",
+      "off_task": "偏离主题"
+    },
+    "criteria": {
+      "task": "任务完成",
+      "communication": "交际",
+      "accuracy": "准确性"
+    }
+  },
+  "mistakes": {
+    "exercises": "已做练习",
+    "firstTry": "第一次就答对",
+    "ofTotal": "{n, number}/{total, number}",
+    "list": "按练习查看错误",
+    "items": "{count, plural, other {题目}}{items}",
+    "fixed": "{count, plural, other {后来改正了#个}}",
+    "none": "这一轮没有错误。",
+    "notYet": "还没有作答：请先做练习。",
+    "tutorIntro": "辅导老师会逐一讲解你的错误：哪里错了、背后的规则，再出一个简短的新例子来检验。",
+    "start": "和辅导老师一起回顾我的错误",
+    "message": "请帮我逐一回顾本课中的错误。"
+  },
+  "scene": {
+    "intro": "在简短的角色扮演中练习本课内容：搭档用课程语言和你对话，纠正你的错误，并勾选你达成的目标。",
+    "start": "开始情景对话",
+    "preparing": "准备中…",
+    "partner": "你的搭档：{partner}",
+    "translate": "翻译",
+    "placeholder": "你的台词…",
+    "done": "所有目标均已达成——太棒了！",
+    "new": "新情景",
+    "past": "本课以前的情景对话",
+    "goals": "目标：{met, number}/{total, number}",
+    "ended": "情景对话已结束。"
+  },
+  "player": {
+    "play": "播放：{what}",
+    "pause": "暂停",
+    "back": "后退5秒",
+    "speed": "播放速度{rate}×",
+    "position": "播放位置",
+    "unavailable": "无法加载音频。"
+  },
+  "about": {
+    "title": "关于SprachAnker",
+    "intro": "自托管、本地优先的语言学习助手：真实课程集于一个播放器，进度和语音都留在你自己的电脑上，可接入任何AI模型。免费开源。",
+    "version": "版本",
+    "licence": "许可证：MIT",
+    "source": "GitHub上的源代码"
+  },
+  "progress": {
+    "resetCourse": "重置课程进度",
+    "removeCourse": "从我的课程中移除",
+    "resetLesson": "重置本课进度",
+    "courseTitle": "重置你在“{title}”中的进度？",
+    "courseBody": "此课程的所有答案和学习轮次都会被删除，与之相关的辅导对话、写作批改和情景对话，以及由其课程生成的单词卡片和复习记录也会一并删除。该课程会从“我的课程”中移除，但仍保持安装。此操作无法撤销。",
+    "lessonTitle": "重置你在“{title}”中的进度？",
+    "lessonBody": "本课的所有答案和学习轮次都会被删除，连同其辅导对话、写作批改和情景对话，以及由本课生成的单词卡片和复习记录（其他课程的单词保留）。此操作无法撤销。",
+    "confirm": "重置",
+    "removeExam": "从我的考试中移除",
+    "examTitle": "将“{title}”从你的考试中移除？",
+    "examBody": "其模拟考试和练习连同所有答案和评分都会被删除。考试本身仍保持已下载。"
+  },
+  "download": {
+    "queued": "排队中——正在下载另一门课程",
+    "pages": "{count, plural, other {已读取#个页面}}",
+    "preparing": "正在准备课程…",
+    "media": "媒体：{done, number}/{total, number}个文件 · {size}",
+    "downloadSize": "下载 · 约{size}",
+    "continue": "继续下载",
+    "sync": "与来源同步",
+    "notDownloaded": "未下载",
+    "incomplete": "{count, plural, =0 {下载未完成} other {缺少#个文件}}",
+    "openSoon": "课程完全下载后即可开始学习。",
+    "failed": "下载失败：{error}",
+    "done": "已下载。{failed, plural, =0 {所有媒体文件均已就位。} other {有#个文件无法下载。}}",
+    "hint": "下载会从来源获取缺少的内容（已保存的页面和媒体会保留），并重新准备课程；你的进度不受影响。",
+    "log": "下载日志",
+    "syncShort": "同步"
+  },
+  "storage": {
+    "title": "存储",
+    "intro": "课程、媒体和你的进度都保存在运行SprachAnker的电脑上的这个文件夹中。它在服务器启动时指定（--data或SPRACHANKER_DATA）；桌面应用将支持更改此位置。",
+    "total": "合计",
+    "used": "课程占用{size}",
+    "usedFree": "课程占用{size} · 磁盘剩余{free}",
+    "seriesSize": "{name}：{size}",
+    "recordings": "你的录音",
+    "recordingsKept": "{count, plural, =0 {未保存录音} other {{n}段录音 · {size}}}",
+    "deleteRecordings": "全部删除",
+    "deleteRecordingsTitle": "删除所有录音？",
+    "deleteRecordingsBody": "你的录音将从这台电脑上删除。你的答案和进度会保留。此操作无法撤销。"
+  },
+  "windowTitle": {
+    "course": "课程",
+    "lesson": "第{unit}.{lesson}课",
+    "exercise": "练习{n}/{total}",
+    "summary": "总结",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "单词",
+    "grammar": "语法",
+    "culture": "文化",
+    "writing": "写作",
+    "scene": "情景",
+    "mistakes": "错误"
+  },
+  "words": {
+    "intro": "以卡片形式学习本课单词：先回想，再显示答案，然后评分。当前没有卡片时，它们会在“复习”中继续。",
+    "learnt": "本课单词暂时学完了。",
+    "goOn": "{count, plural, =0 {到期后它们会在“复习”中再次出现。} other {#张学习中的卡片很快会在“复习”中再次出现。}}"
+  },
+  "myWords": {
+    "search": "查找单词或翻译",
+    "allDecks": "所有卡组",
+    "all": "全部",
+    "state": {
+      "new": "新卡片",
+      "learning": "学习中",
+      "review": "复习中",
+      "suspended": "已暂停",
+      "marked": "已标记"
+    },
+    "column": {
+      "word": "单词",
+      "translation": "翻译",
+      "state": "状态",
+      "due": "下次"
+    },
+    "dueNow": "现在",
+    "dueIn": "{interval}后",
+    "nothing": "没有匹配的单词。",
+    "sheet": "单词",
+    "toLesson": "第{unit}.{lesson}课",
+    "cards": "卡片",
+    "answers": "答题记录",
+    "noAnswers": "还没有作答。",
+    "face": {
+      "recognition": "单词 → 词义",
+      "production": "词义 → 单词",
+      "listening": "听力"
+    },
+    "lapses": "{count, plural, other {遗忘#次}}",
+    "suspend": "暂停",
+    "unsuspend": "取消暂停",
+    "fromDeck": "来自卡组{deck}"
+  },
+  "notebook": {
+    "title": "学习记录",
+    "days": "学习动态",
+    "dayTitle": "{date}：{what}",
+    "open": "进行中",
+    "unfinished": "未完成",
+    "passes": "学习轮次",
+    "noPasses": "本课还没有学习轮次。",
+    "choose": "选择{date}那一轮进行对比",
+    "compare": "对比",
+    "compareHint": "勾选两轮即可并排查看。",
+    "minutes": "{count, plural, other {#分钟}}",
+    "worked": "{worked, number}/{total, number}个练习",
+    "workedSome": "{count, plural, other {#个练习}}",
+    "explanations": "{count, plural, other {#次讲解}}",
+    "writing": "{count, plural, other {#篇文本}}",
+    "scenes": "{count, plural, other {#个情景对话}}",
+    "chats": "{count, plural, other {#次对话}}",
+    "words": "{count, plural, other {#个单词}}",
+    "exercises": "练习",
+    "exercise": "练习",
+    "total": "合计",
+    "attempts": "{count, plural, other {#次尝试}}",
+    "rightAt": "第{n, number}次答对",
+    "itemHistory": "题目历史",
+    "passOf": "{date}的一轮",
+    "attemptN": "第{n, number}次尝试",
+    "more": "更多",
+    "alsoDone": "其他已完成",
+    "wordsAdded": "已加入复习的单词",
+    "messages": "{count, plural, other {#条消息}}",
+    "nothing": "没有学习",
+    "kind": {
+      "lesson": "课程：{count, number}",
+      "exam": "考试：{count, number}",
+      "review": "卡片：{count, number}",
+      "ai": "AI：{count, number}"
+    },
+    "less": "收起",
+    "calendar": "过去一年的学习天数",
+    "progress": "进度",
+    "range": {
+      "all": "全部时间",
+      "month": "30天",
+      "week": "7天"
+    },
+    "tile": {
+      "activeDays": "学习天数",
+      "lesson": "答题和步骤",
+      "exam": "考试答题",
+      "review": "已答卡片",
+      "newCards": "新卡片",
+      "remembered": "记住率",
+      "rememberedHint": "复习中的卡片",
+      "ai": "AI练习"
+    },
+    "examRuns": "模拟考试和练习",
+    "noExamRuns": "还没有交卷。",
+    "examWrong": "上次答错了{count, plural, other {#道题}}",
+    "section": {
+      "review": "复习",
+      "lesson": "课程",
+      "exam": "考试"
+    },
+    "none": {
+      "review": "还没有卡片：在“复习”中添加课程的卡组，或学习某一课的单词。",
+      "lesson": "还没有学习任何一课：你学过的每一课都会出现在这里，包括每一轮。",
+      "exam": "还没有交卷：你的模拟考试和练习会出现在这里。"
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "已掌握单词",
+        "wordsKnownHint": "该单词的所有卡片都已进入复习",
+        "new": "新卡片",
+        "learning": "学习中",
+        "review": "复习中",
+        "mature": "已牢记",
+        "matureHint": "每一面的下次复习都在三周或更久之后",
+        "suspended": "已暂停",
+        "remembered": "记住率（30天）",
+        "rememberedHint": "{count, plural, other {#次作答}}",
+        "dueToday": "今天到期",
+        "dueTomorrow": "明天前到期",
+        "dueWeek": "一周内到期"
+      },
+      "lesson": {
+        "lessonsDone": "已完成课程",
+        "best": "最好成绩"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, other {#轮}}"
+    },
+    "openEntry": {
+      "review": "打开卡组",
+      "exam": "关于此考试的一切"
+    }
+  },
+  "study": {
+    "listen": "听音并回想词义",
+    "fromLesson": "第{unit}.{lesson}课",
+    "countsTitle": "新卡片{new}，学习中{learning}，待复习{review}",
+    "finished": "恭喜！你已暂时学完这个卡组。",
+    "nextLearning": "{minutes, plural, other {下一张学习中的卡片将在#分钟后就绪。}}",
+    "reviewLimit": "今天的复习上限已达到，但仍有卡片等待复习。",
+    "newLimit": "还有更多新卡片，但已达到每日上限。",
+    "buried": "有一张或多张卡片已被搁置，将于明天显示。",
+    "unbury": "取消搁置",
+    "unit": {
+      "s": "秒",
+      "m": "分",
+      "h": "时",
+      "d": "天",
+      "mo": "月",
+      "y": "年"
+    },
+    "flag": {
+      "red": "红色",
+      "orange": "橙色",
+      "green": "绿色",
+      "blue": "蓝色",
+      "pink": "粉色",
+      "turquoise": "青绿色",
+      "purple": "紫色"
+    },
+    "marked": "已标记",
+    "leech": "难记",
+    "undo": "撤销",
+    "undoKeys": "撤销（U、Ctrl+Z）",
+    "showKeys": "空格键或回车键",
+    "show": "显示答案",
+    "rating": {
+      "again": "重来",
+      "hard": "困难",
+      "good": "良好",
+      "easy": "简单"
+    },
+    "more": "更多",
+    "replay": "重播音频",
+    "buryCard": "搁置卡片",
+    "buryNote": "搁置笔记",
+    "suspendCard": "暂停卡片",
+    "suspendNote": "暂停笔记",
+    "mark": "标记笔记",
+    "unmark": "取消标记笔记",
+    "keys": "空格键或回车键：显示答案，再按一次为“良好” · 1–4：评分 · R：重播 · U：撤销",
+    "noCards": "还没有卡片：卡片来自课程中的“本课单词”步骤。",
+    "deck": "卡组",
+    "count": {
+      "new": "新",
+      "learning": "学习",
+      "review": "到期"
+    },
+    "due": "待学{count, plural, other {#张卡片}}",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, other {剩余作答次数}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "假设每次都选“良好”时剩余的作答次数：新卡片要经过两个学习步骤，学习中的卡片要走完剩余步骤，复习卡片只需作答一次。选“重来”会增加步骤。",
+    "asks": {
+      "recognition": "这是什么意思？",
+      "production": "用{in}怎么说？",
+      "in": {
+        "de": "德语",
+        "en": "英语",
+        "ru": "俄语"
+      }
+    },
+    "deckLink": {
+      "audio": "朗读卡组",
+      "examples": "为卡组生成例句",
+      "both": "朗读卡组并生成例句"
+    }
+  },
+  "profiles": {
+    "who": "谁在学习？",
+    "welcome": "欢迎使用SprachAnker",
+    "firstHint": "创建你的个人资料即可开始：只需几个简单步骤。",
+    "unnamed": "尚未命名",
+    "new": "新建个人资料",
+    "previous": "上一页",
+    "next": "下一页",
+    "page": "{n, number}/{total, number}"
+  },
+  "onboarding": {
+    "progress": "第{n}步，共{total}步",
+    "back": "上一步",
+    "next": "下一步",
+    "finish": "选择课程",
+    "profile": {
+      "title": "欢迎",
+      "text": "SprachAnker把真实的语言课程集中在一个播放器里，检查你的答案，用间隔重复帮你记住单词，还可以引入AI辅导老师。所有数据都留在这台电脑上。",
+      "sources": "课程直接从出版方网站（德国之声等）下载，仅供你个人使用。请遵守其使用条款；SprachAnker与它们没有任何关联。",
+      "experimental": "仍在试验中的课程和考试默认隐藏，可在“设置 → 通用 → 实验功能”中开启。",
+      "name": "我们该怎么称呼你？"
+    },
+    "assistant": {
+      "title": "AI助手",
+      "text": "助手可以讲解错误、在课程中辅导、批改你的文本、演绎情景对话。现在选择或稍后在“设置”中选择都可以——没有助手，应用也能正常使用。"
+    },
+    "tour": {
+      "title": "功能在哪里"
+    },
+    "speech": {
+      "title": "口语",
+      "text": "亲口说出课程中的句子，并让任何文本朗读给你听：测试麦克风，下载语音识别器（只需一次）让应用听懂你说的话，再为每种语言选择一个声音。所有数据都留在这台电脑上；以后都可以在“设置 → 语音”中更改。"
+    },
+    "cancel": "取消"
+  },
+  "tour": {
+    "courses": "你的课程（从上次停下的地方继续）、已下载的课程，以及所有可下载的课程；每个列表都可以按语言组合筛选。",
+    "review": "用间隔重复记单词：每天几分钟。",
+    "notebook": "每一课的每一轮学习，以及你的答案和错误。",
+    "settings": "你的个人资料、复习、语音、AI助手和应用设置。",
+    "exams": "备考的考试，例如Leben in Deutschland：与真实考试流程一致的模拟考试、练习，以及附答案的完整题库。"
+  },
+  "profile": {
+    "who": "名字和颜色",
+    "devices": "已登录的设备",
+    "thisDevice": "本设备",
+    "lastSeen": "上次使用：{date}",
+    "signOutDevice": "退出登录",
+    "switch": "切换个人资料",
+    "open": "个人资料",
+    "delete": "删除个人资料…",
+    "deleteTitle": "删除个人资料“{name}”？",
+    "deleteBody": "其进度、单词和卡片、录音、AI对话以及登录该资料的设备都会被永久删除。其他个人资料和课程不受影响。",
+    "deleteConfirm": "永久删除",
+    "name": "名字或昵称",
+    "colour": "颜色",
+    "colours": {
+      "amber": "琥珀色",
+      "teal": "蓝绿色",
+      "rose": "玫瑰色",
+      "violet": "紫罗兰色",
+      "sky": "天蓝色",
+      "lime": "青柠色"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "学习",
+      "decks": "卡组",
+      "words": "我的单词"
+    },
+    "studying": "正在学习：{deck}",
+    "more": "{count, plural, other {今天再学#张新卡片}}",
+    "leave": "退出卡组…",
+    "offers": "可添加的卡组",
+    "offersHint": "你的每门课程的单词，以及在这里导入的每个卡组的单词，都构成一个卡组：整体添加后，会按顺序把它们作为新卡片加入——在每日上限之内，或通过“今天多学新卡片”加入更多。已有卡片的单词保留原卡片。",
+    "words": "{words, plural, other {#个单词}} · 其中{mine, number}个已有",
+    "take": "添加卡组",
+    "takeRest": "添加其余{count, number}个",
+    "study": "学习",
+    "leaveTitle": "退出卡组{deck}？",
+    "leaveBody": "其卡片连同进度都会移除。你的其他卡组中也有的单词会连同进度一并转移过去。",
+    "moreShort": "{count, plural, other {+#张新卡片}}",
+    "import": {
+      "button": "导入卡组文件（.apkg）",
+      "title": "导入卡组",
+      "hint": "其中的单词会成为这台电脑上每个个人资料都能添加的卡组，就像课程卡组一样；音频也会一并导入。",
+      "name": "名称",
+      "lang": "单词语言",
+      "translationLang": "翻译语言",
+      "words": "{words, plural, other {#个单词}} · {audio, plural, =0 {没有音频} other {#个有音频}} · {examples, plural, =0 {没有例句} other {#个有例句}}",
+      "submit": "导入",
+      "updates": "此文件会更新这里的卡组{deck}：其单词将替换为此文件中的单词，由其生成的卡片也会随之更新。在其他语言下，它是一个独立的卡组。",
+      "left": "{count, plural, other {#条没有单词的笔记已略过。}}",
+      "unusable": "{count, plural, other {#条单词无法读取的笔记已略过。}}",
+      "done": "已导入{deck}：{words, plural, other {#个单词}}。"
+    },
+    "remove": "删除卡组",
+    "removeTitle": "删除卡组{deck}？",
+    "removeBody": "该卡组及其单词和音频将从这台电脑上删除，所有个人资料都无法再使用。此操作无法撤销。",
+    "audio": {
+      "missing": "{count, plural, other {#个单词没有音频}}",
+      "generate": "生成音频",
+      "reading": "正在朗读{done, number}/{total, number}…",
+      "stop": "停止",
+      "all": "所有单词都有音频",
+      "install": "要生成音频，请在“设置 → 语音”中安装{language}的声音",
+      "failed": "{count, plural, other {#个单词无法朗读}}",
+      "voice": "朗读：{engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice}（{language}）",
+      "chooseVoice": "选择声音"
+    },
+    "left": "剩余约{time}",
+    "why": "原因：{reason}",
+    "examples": {
+      "missing": "{count, plural, other {#个单词没有例句}}",
+      "make": "生成例句",
+      "writing": "正在编写例句{done, number}/{total, number}…",
+      "all": "所有单词都有例句",
+      "failed": "{count, plural, other {#个单词未能生成例句}}",
+      "setUp": "要生成例句，请在“设置”中设置AI助手"
+    },
+    "removeStudied": "{count, plural, other {个人资料{profiles}正在学习此卡组。}}所有个人资料都退出后才能删除：复习 → 卡组 → 退出卡组…。"
+  },
+  "guide": {
+    "open": "使用说明",
+    "title": "复习的原理",
+    "curveAlt": "三条遗忘曲线，一条比一条平缓",
+    "days": "天",
+    "curveCaption": "记忆不用就会消退：每次在快要遗忘时复习，都会让曲线更平缓，下次复习就可以间隔更久。",
+    "method": {
+      "title": "间隔重复",
+      "text": "每张卡片都会在你快要忘记之前再次出现。每答好一次，间隔就会变长：从几分钟到几天、几周、几个月。这一思路源自艾宾浩斯的遗忘曲线（1885年）。"
+    },
+    "recall": {
+      "title": "先回想，再看答案",
+      "text": "在显示答案之前，先试着回想。正是回想的努力加强了记忆——再读一遍答案的效果要差得多。然后诚实地给自己评分。"
+    },
+    "buttons": {
+      "title": "四个按钮",
+      "again": {
+        "name": "重来",
+        "text": "没记住或答错了：卡片一分钟后再次出现"
+      },
+      "hard": {
+        "name": "困难",
+        "text": "费力才想起来：间隔较短"
+      },
+      "good": {
+        "name": "良好",
+        "text": "记住了：最常用的选择（空格键或回车键）"
+      },
+      "easy": {
+        "name": "简单",
+        "text": "太简单了：很久以后才会再次出现"
+      }
+    },
+    "counts": {
+      "title": "三个数字",
+      "text": "今天还要学习的新卡片、学习中的卡片（几分钟内会再次出现），以及到期待复习的卡片。带下划线的数字表示当前卡片来自哪一类。“剩余作答次数”估算的是：如果每次都选“良好”，还需作答多少次才能完成本次学习。"
+    },
+    "faces": {
+      "title": "一个单词的卡片",
+      "recognition": {
+        "name": "卡片1",
+        "text": "单词 → 词义（理解）"
+      },
+      "production": {
+        "name": "卡片2",
+        "text": "词义 → 单词（表达）；在卡片1之后出现"
+      },
+      "listening": {
+        "name": "卡片3",
+        "text": "听到的单词 → 词义（听力）"
+      }
+    },
+    "more": {
+      "title": "在“…”中",
+      "replay": {
+        "name": "重播（R）",
+        "text": "再听一遍单词"
+      },
+      "bury": {
+        "name": "搁置（-或=）",
+        "text": "今天不学：这张卡片或整个单词明天再出现"
+      },
+      "suspend": {
+        "name": "暂停（@或!）",
+        "text": "移出复习，直到你恢复它——适用于已经会了或不需要的单词"
+      },
+      "flag": {
+        "name": "旗标（Ctrl+1–7）",
+        "text": "彩色标记，方便以后在“我的单词”中查找卡片"
+      },
+      "mark": {
+        "name": "标记（*）",
+        "text": "给单词加星标，方便以后回头再看"
+      }
+    },
+    "keys": {
+      "title": "快捷键",
+      "text": "空格键或回车键显示答案，再按一次评为“良好”；1–4评分；U或Ctrl+Z撤销上一次作答；R重播。"
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "复习安排采用FSRS，一种开放的间隔重复模型：它估算每条记忆的稳定程度以及你会在何时遗忘，以达到你期望的记忆保持率（默认90%）为目标。上限、保持率和卡片类型都在“设置”中。"
+    },
+    "schedule": {
+      "title": "学习步骤与每日开始时间",
+      "steps": "新卡片答“良好”后会在10分钟后再次出现（答“重来”则是一分钟后），之后间隔数天；遗忘的卡片在10分钟后再次出现，然后间隔重新逐渐变长。",
+      "day": "新的一天从{time}开始：午夜到该时间之间的复习计入前一天。",
+      "limit": "新卡片计入每日最大复习量：一旦达到上限，当天就不再显示新卡片。"
+    }
+  },
+  "reviewSettings": {
+    "intro": "对你的卡片进行间隔重复：单词会在你快要忘记时再次出现。默认设置适合大多数学习者。",
+    "limits": "每日上限",
+    "newPerDay": "每天新卡片数",
+    "reviewsPerDay": "每天最大复习量",
+    "limitsHint": "一个单词有两种卡片类型时，就算两张新卡片。每张新卡片在第一个月内大约带来5–10次复习。",
+    "retention": "期望保持率",
+    "retentionHint": "卡片再次出现时你仍记得它的概率。越高，复习越多；默认90%。",
+    "faces": "新单词的卡片类型",
+    "facesHint": "新单词会生成哪些卡片。已有卡片的单词保留原有卡片。"
+  },
+  "speech": {
+    "record": "录下自己的声音",
+    "stop": "停止录音",
+    "showText": "显示文本",
+    "answerHeard": "先听，再按题目要求大声说出来。",
+    "answerFree": "按题目要求大声说出来。",
+    "answerLine": "你的答案",
+    "mine": "我的",
+    "mineFor": "我的 · {time}",
+    "recordedNotKept": "已录音（未保存）",
+    "listenFirst": "请先听录音。",
+    "recording": "录音中…再点一次停止。",
+    "saving": "保存中…",
+    "notSaved": "录音无法保存；但仍计入作答。",
+    "again": "两段都听一听。重新录音可替换你的录音。",
+    "howTo": "点按麦克风，说出来，再点一次。",
+    "mic": {
+      "insecure": "麦克风只能在安全地址（https）下使用，例如Tailscale为这台电脑分配的地址。",
+      "unsupported": "此浏览器无法录音。",
+      "denied": "麦克风访问被拒绝。请在浏览器的网站设置中允许访问。",
+      "failed": "无法启动麦克风。"
+    },
+    "settings": {
+      "mic": "麦克风",
+      "device": "使用的麦克风",
+      "defaultDevice": "系统默认",
+      "unnamedDevice": "麦克风",
+      "testing": "说点什么…",
+      "testHint": "测试：录三秒，然后听自己的声音。仅对本设备生效。",
+      "listen": "试听",
+      "sampleFor": "{language}试听文本",
+      "otherSample": "换一句",
+      "recognition": "语音识别",
+      "recognitionHint": "你的语音在这台电脑上识别（Whisper）：将你说的话与句子进行比较。它识别的是单词而不是发音，且判定较宽松。所有数据都不会离开这台电脑。",
+      "noEngine": "此版本没有语音识别引擎。",
+      "recognitionOn": "识别我的语音",
+      "inUse": "使用中",
+      "downloadFailed": "下载失败",
+      "use": "使用",
+      "removeModel": "移除模型",
+      "download": "下载",
+      "read": "朗读",
+      "readHint": "一个声音朗读一种语言的文本：情景对话的台词、单词的例句以及没有录音的单词。每种语言都有自己的声音。",
+      "engine": {
+        "device": "本设备的声音",
+        "deviceLine": "{count, plural, other {#个声音}}，无需安装",
+        "deviceNone": "此浏览器没有可用于朗读的声音。",
+        "piper": "本机上的Piper",
+        "piperMissing": "此版本中没有：应用构建时未包含语音引擎",
+        "piperLine": "{count, plural, =0 {还没有声音：请从下方下载} other {已下载#个声音}}",
+        "qwen": "本机上的Qwen3-TTS",
+        "qwenMissing": "此版本中没有：应用构建时未包含语音引擎",
+        "qwenReady": "就绪：已下载模型",
+        "qwenNoModel": "还没有模型：请从下方下载"
+      },
+      "voiceFor": "{language}的声音",
+      "voiceAuto": "自动：{name}",
+      "noVoice": "本设备没有{language}的声音。",
+      "betterVoices": "在Mac上，可以在“系统设置 → 辅助功能 → 朗读内容 → 系统声音 → 管理声音”中下载更好的声音（优化音质、高音质）。",
+      "readRate": "语速：{rate}×",
+      "readRateLabel": "朗读语速",
+      "piperNone": "还没有{language}的声音：请从下方下载。",
+      "piperNoLanguage": "Piper没有{language}的声音：将由设备的声音朗读。",
+      "piperHint": "Piper的每个声音约60–120MB，保存在这台电脑上；没有Piper声音的语言由设备的声音朗读。",
+      "removeVoice": "移除声音{voice}",
+      "allVoices": "所有声音（{count, number}）",
+      "quality": {
+        "x_low": "最低音质",
+        "low": "低音质",
+        "medium": "中等音质",
+        "high": "高音质"
+      },
+      "qwenModel": {
+        "small": "小模型（0.6B）：更快",
+        "large": "大模型（1.7B）：更自然，较慢"
+      },
+      "qwenHint": "一种神经网络语音，可朗读10种语言（德语、英语、俄语、法语、西班牙语、意大利语、葡萄牙语、中文、日语、韩语），有九位说话人。运行时约占用3GB内存（大模型更多），10分钟无朗读后自动停止；之后第一次朗读需等待约20秒加载。它不支持的语言由设备的声音朗读。",
+      "qwenNoLanguage": "Qwen3-TTS不支持{language}：将由设备的声音朗读。",
+      "howMic": "需要口头回答的地方（考试的口语部分）会有麦克风：点按开始录音，再点一次停止。需要书面作答的地方则没有麦克风。",
+      "howPhrase": "要复述的句子在你第一次尝试之前是隐藏的；你也可以提前显示。",
+      "howRecordings": "你的录音保存在这台电脑上，可以在“学习记录”中重听；在“通用 → 存储”中删除。",
+      "how": "使用说明"
+    },
+    "listening": "正在识别…",
+    "notHeard": "无法识别；但录音仍计入作答。",
+    "heard": "识别结果：",
+    "heardNothing": "无",
+    "verdict": {
+      "correct": "说对了",
+      "partial": "差一点：漏了几个词",
+      "wrong": "再试一次：听一听，再说一遍"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo——准确（推荐）",
+      "small-q5_1": "Whisper small——更快，准确度较低"
+    },
+    "sayIn": "用{language}说",
+    "notHeardShort": "无法识别。请再试一次。",
+    "answerSample": "示例",
+    "aiChecking": "AI正在检查你的答案…",
+    "needsRecognition": "说句子需要语音识别：请在“设置 → 语音”中开启。",
+    "languageUnknown": "此课程的语言未知，因此无法识别你说的话。",
+    "read": {
+      "listen": "朗读：{what}",
+      "stop": "停止朗读"
+    },
+    "aiCheck": "用AI检查"
+  },
+  "error": {
+    "answer_does_not_fit": "答案与此练习不符。请重新加载本课。",
+    "card_changed": "此卡片已在另一台设备上更改，现重新显示。",
+    "downloads_unavailable": "此处无法下载课程。",
+    "empty_recording": "录音为空。请重试。",
+    "event_id_taken": "此答案已以不同方式记录。请重新加载页面。",
+    "event_of_another_run": "此记录属于另一轮学习。请重新加载本课。",
+    "exam_rating_busy": "正在为此答案评分。请稍候。",
+    "exam_conversation_busy": "搭档正在回答。请稍候。",
+    "exam_part_done": "此部分已结束。",
+    "invalid_event": "应用发送的记录未被服务器接受。请重新加载本课。",
+    "invalid_request": "应用发送的内容未被服务器接受。请重新加载页面。",
+    "request_too_large": "此请求过大。",
+    "invalid_setting": "此值不适用于该设置。",
+    "lesson_not_in_series": "此课不属于该课程。请重新加载页面。",
+    "llm_bad_response": "服务器返回了错误。",
+    "llm_cli_missing": "本机未安装命令行助手。",
+    "llm_invalid_output": "模型未能给出可用的回答。请重试，或在“设置 → AI助手”中选择更大的模型。",
+    "llm_lmstudio_failed": "LM Studio的服务器未能启动。请打开LM Studio并在其中启动。",
+    "llm_lmstudio_missing": "本机未安装LM Studio。",
+    "llm_lmstudio_remote": "LM Studio运行在另一台电脑上：请在那台电脑上启动其服务器。",
+    "llm_model_not_found": "服务器上找不到该模型。",
+    "llm_no_endpoint": "请输入服务器地址。",
+    "llm_no_key": "请输入API密钥。",
+    "llm_not_configured": "请在“设置 → AI助手”中选择模型。",
+    "llm_rate_limited": "已暂时达到服务商的限额（免费层级会限制每分钟和每天的请求数）。请稍后重试，或在“设置 → AI助手”中选择其他模型。",
+    "llm_timeout": "模型回答超时。",
+    "llm_unauthorized": "API密钥未被接受。",
+    "llm_unreachable": "服务器没有响应。请检查地址。",
+    "missing_client_header": "请求并非来自本应用。请重新加载页面。",
+    "name_required": "请输入名字。",
+    "no_active_scene": "此情景对话已结束。请开始新的情景对话。",
+    "no_device": "此设备已不再处于登录状态。",
+    "no_lesson_run": "请先开始本课：检查结果会保存在学习轮次中。",
+    "no_session": "此设备已退出登录。请重新选择你的个人资料。",
+    "no_such_attempt": "此答案已不在本轮学习中。请重新加载本课。",
+    "no_such_card": "此卡片已不存在。",
+    "no_such_chat": "此对话已不存在。",
+    "no_such_item": "此练习已更改。请重新加载本课。",
+    "no_such_model": "不提供此模型。",
+    "no_such_profile": "此个人资料已不存在。",
+    "no_such_recording": "此录音已不存在。",
+    "no_such_run": "这一轮学习已不存在（其进度已被重置）。请重新加载本课。",
+    "not_found": "未找到。请重新加载页面。",
+    "not_installed": "此课程未安装（或已被移除）。",
+    "not_offered": "此课程不再提供。",
+    "nothing_to_undo": "没有可撤销的操作。",
+    "recording_too_large": "录音太长。",
+    "registration_closed": "此服务器上无法创建新的个人资料。",
+    "run_incomplete": "本课尚未完成。",
+    "run_not_active": "本课的这一轮学习已结束。请重新加载本课。",
+    "run_without_edition": "这一轮学习没有语言版本。请重新开始本课。",
+    "scene_busy": "情景对话仍在回复中。请稍候。",
+    "server_error": "服务器出错了。",
+    "speaking_busy": "正在检查此答案。请稍候。",
+    "speech_engine_failed": "语音识别器没有响应。请重试。",
+    "speech_unavailable": "尚未设置语音识别。请前往“设置 → 语音”。",
+    "unknown_host": "服务器不认识此地址。请使用服务器显示的地址打开。",
+    "unknown_setting": "此设置不存在（或已被移除）。",
+    "unsupported_audio": "此浏览器录音所用的格式本应用无法保存。",
+    "writing_busy": "本课的一篇文本正在批改中。请稍候。",
+    "other": "出错了：{message}",
+    "exam_needs_setting": "请先选择你所在的联邦州：考试中有关于该州的问题。",
+    "exam_time_over": "这次模拟考试的时间已到：已按当前状态交卷。",
+    "exam_test_running": "有一场模拟考试正在进行：请先交卷。",
+    "no_such_deck": "此卡组不在这里（或已被移除）。",
+    "not_a_deck": "此文件不是可读取的卡组文件（.apkg）。",
+    "deck_without_words": "此卡组没有可学习的单词。",
+    "deck_too_large": "此卡组文件太大（最大512MB）。",
+    "deck_in_use": "有个人资料正在学习此卡组：没人学习后才能删除。",
+    "deck_upload_gone": "上传的卡组文件已不在：请重新选择。",
+    "deck_unpacked_too_large": "此卡组文件解压后的内容超出了一次可读取的上限。",
+    "deck_same_languages": "单词和翻译需要使用两种不同的语言。",
+    "examples_without_word": "模型生成的句子没有用到该单词。"
+  },
+  "exams": {
+    "tabs": {
+      "mine": "我的考试",
+      "downloaded": "已下载",
+      "available": "可下载"
+    },
+    "noneStarted": "你还没有开始任何考试。",
+    "noneDownloaded": "还没有下载任何考试。",
+    "allDownloaded": "所有考试均已下载。",
+    "noneMatch": "没有符合条件的问题。",
+    "questions": "{count, plural, other {#道题}}",
+    "lastPoints": "上次：{points, number}/{max, number}",
+    "ready": "你已掌握{percent}的题目",
+    "lastPassed": "上次模拟考试（{date}）：通过",
+    "lastFailed": "上次模拟考试（{date}）：未通过",
+    "continueTest": "继续考试",
+    "mode": {
+      "test": "模拟考试",
+      "testText": "{minutes, plural, other {#分钟}}内完成{count, plural, other {#道题}}，与真实考试相同；交卷后检查答案。",
+      "practice": "练习",
+      "practiceText": "逐题练习，每题作答后立即检查：先练之前答错的题，再练没见过的题。",
+      "catalog": "题库",
+      "catalogText": "全部{count, plural, other {#道题}}及答案。"
+    },
+    "begin": "开始",
+    "practise": "练习",
+    "openCatalog": "打开",
+    "known": "你已掌握{total, plural, other {#道题}}中的{known, number}道",
+    "needsState": "请选择你所在的联邦州：考试中有三道关于该州的问题。",
+    "needsStateCatalog": "在考试页面选择你所在的联邦州，即可同时查看该州的问题。",
+    "mapTitle": "题目",
+    "mapKnown": "已掌握",
+    "mapWrong": "上次答错",
+    "mapUnseen": "未见过",
+    "mapSummary": "共{total, number}道题：已掌握{known, number}道，上次答错{wrong, number}道",
+    "points": "{points, number}/{max, number}",
+    "passed": "通过",
+    "failed": "未通过",
+    "state": "联邦州",
+    "chooseState": "选择联邦州",
+    "states": {
+      "bw": "巴登-符腾堡州",
+      "by": "巴伐利亚州",
+      "be": "柏林",
+      "bb": "勃兰登堡州",
+      "hb": "不来梅",
+      "hh": "汉堡",
+      "he": "黑森州",
+      "mv": "梅克伦堡-前波美拉尼亚州",
+      "ni": "下萨克森州",
+      "nw": "北莱茵-威斯特法伦州",
+      "rp": "莱茵兰-普法尔茨州",
+      "sl": "萨尔州",
+      "sn": "萨克森州",
+      "st": "萨克森-安哈尔特州",
+      "sh": "石勒苏益格-荷尔斯泰因州",
+      "th": "图林根州"
+    },
+    "handIn": "交卷",
+    "endPractice": "结束练习",
+    "handInTitle": "确定交卷？",
+    "handInUnanswered": "还有{count, plural, other {#道题}}未作答：未作答的题目按答错计算。",
+    "goOn": "继续",
+    "leave": "返回考试",
+    "answered": "已作答：{done, number}/{total, number}",
+    "question": "第{n, number}题，共{total, number}题",
+    "practiceScore": "{count, plural, other {#次作答}}中答对{points, number}次",
+    "timeUp": "时间已到：在此之前作答的答案计入成绩。",
+    "needed": "需要{points, number}/{max, number}",
+    "practiseMistakes": "练习错题",
+    "tryAgain": "新的模拟考试",
+    "toExam": "前往考试",
+    "mistakes": "{count, plural, =0 {没有错误} other {#处错误}}",
+    "allAnswers": "全部答案",
+    "onlyMistakes": "只看错题",
+    "showAll": "显示全部答案",
+    "notAnswered": "未作答",
+    "noMistakes": "全部正确。",
+    "search": "在题目中查找",
+    "playsLeft": "剩余播放次数：{left, number}/{plays, number}",
+    "plays": "{count, plural, other {录音可播放#次。}}",
+    "example": "示例",
+    "wholeExam": "整场考试",
+    "next": "下一题",
+    "previous": "上一题",
+    "questionsGrid": "题目",
+    "goTo": "第{n, number}题",
+    "practiceTally": "答对{right, number} · 答错{wrong, number} · {total, plural, other {共#道题}}",
+    "lastResult": "上次模拟考试，{date}：{points, number}/{max, number}",
+    "noResultYet": "还没有参加过模拟考试",
+    "inNotebook": "全部记录见“学习记录”",
+    "sources": {
+      "title": "来源与检查",
+      "allPassed": "所有检查均已通过",
+      "someFailed": "有检查未通过",
+      "statement": "此处的每道题、每张图片、每段录音和每个答案，都是由这台电脑上的导入程序从下列文件中读取的——没有任何内容由人工或模型编写——并按所列项目进行了检查。模拟考试的题目和评分规则与官方样题相同；它反映的是你的准备程度，而不是真实考试会出什么题。",
+      "documents": "读取自",
+      "copy": "已保存副本，SHA-256 {hash}…，读取于{date}",
+      "read": "读取于{date}",
+      "checks": "检查项",
+      "from": "来源"
+    },
+    "check": {
+      "questions-complete": "已读取的题目数（相对于来源中的题目）",
+      "options-agree": "两个来源中的选项逐字一致",
+      "answers-marked-twice": "答案在其来源中两次标注一致",
+      "answers-matched": "答案页中的答案已与选项对应",
+      "numbers-agree": "题号与页面上的一致",
+      "recordings-placed": "录音已与对应题目匹配",
+      "media-kept": "图片和录音已保存",
+      "criteria-read": "已读取写作和口语评分标准及各等级分值"
+    },
+    "rating": {
+      "title": "为你的答案评分",
+      "pending": "{count, plural, other {#个答案}}尚未评分：在你评分之前按0分计算。",
+      "hint": "按考试评分员的方式评分；评分可以随时修改。",
+      "voided": "未完成任务：整个答案计0分",
+      "unrated": "在“{criterion}”评分之前计0分：它决定该答案是否有效",
+      "save": "保存评分",
+      "change": "修改评分",
+      "propose": "建议评分（AI）",
+      "proposing": "助手正在评分…",
+      "proposed": "由AI助手（{model}）建议：可直接采纳或修改。"
+    },
+    "conversation": {
+      "you": "我",
+      "partner": "搭档",
+      "examiner": "考官",
+      "intro": "助手扮演考官和你的搭档。用麦克风口头回答（或打字）；整段对话就是你的答案。",
+      "start": "开始这一部分",
+      "over": "这一部分已结束。",
+      "placeholder": "你的回答…",
+      "end": "结束这一部分"
+    },
+    "choose": "选择考试"
+  },
+  "experimental": {
+    "disclaimerTitle": "这是实验，不是备考方式",
+    "disclaimer": "在此开启的内容仍在试验中：内容可能不完整或读取有误，评分也可能与真实情况不同。请勿依赖它来准备课程或考试。",
+    "section": {
+      "courses": "课程",
+      "exams": "考试"
+    },
+    "sectionHint": {
+      "courses": "更多可下载的课程，显示在“课程”中",
+      "exams": "更多可下载的考试，显示在“考试”中"
+    },
+    "none": "这里没有实验内容。",
+    "more": "{count, plural, other {另有#个}}"
+  },
+  "examples": {
+    "newWords": "新单词：",
+    "by": "AI生成的例句 · {model}"
+  }
+}
