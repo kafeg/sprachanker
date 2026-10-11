@@ -322,10 +322,18 @@ export function createProfileTransfer(deps: {
      *  before and not downloaded goes. */
     prepare: (profileId: string) => preparing(profileId, () => make(profileId)),
 
-    /** A prepared export as a stream, once (404 when it is not this profile's, gone or downloaded). */
-    download(profileId: string, id: string) {
+    /** A prepared export still there to download: its file's name and size (404 when it is not this
+     *  profile's, gone or downloaded). Nothing taken: asked before a download starts. */
+    ready(profileId: string, id: string) {
       const p = prepared.get(id);
       if (!p || p.profileId !== profileId) throw new ServiceError("profile_export_gone", 404);
+      return { fileName: p.fileName, bytes: p.bytes };
+    },
+
+    /** A prepared export as a stream, once (404 as `ready`). */
+    download(profileId: string, id: string) {
+      self.ready(profileId, id);
+      const p = prepared.get(id) as NonNullable<ReturnType<typeof prepared.get>>;
       forget(id, false);
       return {
         stream: files.stream(id, p.manifest, p.paths),

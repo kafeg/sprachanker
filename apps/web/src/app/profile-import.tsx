@@ -46,7 +46,9 @@ export function ProfileImport({ upload = uploadProfile }: { upload?: typeof uplo
       <input
         ref={input}
         type="file"
-        accept=".sprachanker-profile"
+        // Its own extension alone would grey the file out on iOS (a type it does not know): a zip,
+        // and any file — the server checks what it is.
+        accept=".sprachanker-profile,application/zip,application/octet-stream"
         className="hidden"
         aria-label={t("profiles.import.button")}
         onChange={(e) => void choose(e.target.files?.[0])}

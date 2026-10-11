@@ -17,6 +17,7 @@ test("Export profile: the file made ready on the server, then downloaded under i
         bytes: 2_500_000,
         leftOut: { apiKeys: ["openrouter"], endpointLogins: [] },
       })}
+      check={async () => {}}
       download={(url, name) => void downloads.push([url, name])}
     />,
   );
@@ -47,6 +48,25 @@ test("Export profile: a full disk said in words, nothing downloaded", async () =
   await waitFor(() =>
     expect(view.getByText("There is not enough free space on the disk.")).toBeTruthy(),
   );
+  expect(downloads).toEqual([]);
+});
+
+test("Export profile: one gone before its download said in words, never saved as the file", async () => {
+  const downloads: string[] = [];
+  const view = await renderApp(
+    <ProfileExport
+      prepare={async () => ({
+        id: "6f1c2a40-0000-4000-8000-000000000001",
+        fileName: "Mila-2026-10-11.sprachanker-profile",
+        bytes: 2_500_000,
+        leftOut: { apiKeys: [], endpointLogins: [] },
+      })}
+      check={() => Promise.reject(new ApiError("profile_export_gone", 404))}
+      download={(url) => void downloads.push(url)}
+    />,
+  );
+  fireEvent.click(view.getByRole("button", { name: "Export profile" }));
+  await waitFor(() => expect(view.getByText(/This export is no longer here/)).toBeTruthy());
   expect(downloads).toEqual([]);
 });
 

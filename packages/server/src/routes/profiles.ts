@@ -131,14 +131,20 @@ export function profileRoutes(svc: Services) {
       .post("/profile/export", async (c) =>
         c.json(await svc.profileTransfer.prepare(c.var.profileId)),
       )
+      // A HEAD (Hono answers it with this GET) asks whether the file is still there — the web, before
+      // its download starts, so a gone one is never saved as the file —: nothing is taken.
       .get("/profile/export/:id", zod("param", z.object({ id: z.uuid() })), (c) => {
-        const file = svc.profileTransfer.download(c.var.profileId, c.req.valid("param").id);
-        return c.body(file.stream, 200, {
+        const { id } = c.req.valid("param");
+        const headers = (file: { fileName: string; bytes: number }) => ({
           "content-type": "application/zip",
           "content-length": String(file.bytes),
           "content-disposition": `attachment; filename="${file.fileName.replace(/[^\x20-\x7e]|["\\]/g, "_")}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
           "cache-control": "no-store",
         });
+        if (c.req.method === "HEAD")
+          return c.body(null, 200, headers(svc.profileTransfer.ready(c.var.profileId, id)));
+        const file = svc.profileTransfer.download(c.var.profileId, id);
+        return c.body(file.stream, 200, headers(file));
       })
       .get("/profile/devices", (c) =>
         c.json({

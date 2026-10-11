@@ -50,7 +50,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   `DELETE /api/profile/devices/:id`, `POST /api/profile/export` (the profile's file made ready: its id,
   file name, size and the API keys it leaves out; 507 `not_enough_space`), `GET
   /api/profile/export/:id` (that file, streamed as a download with its length, once, by its profile
-  only; 404 `profile_export_gone`).
+  only; 404 `profile_export_gone`; a `HEAD` says whether it is still there and takes nothing — the web
+  asks before its download starts, so a gone one is an error in words, never saved as the file).
 - Speech (08): `GET /api/speech` (the engine, its models with downloads, the profile's recognition and
   model), `POST` / `DELETE /api/speech/models/:id`, `POST /api/speech/warm`,
   `POST /api/speech/transcribe?lang=` (a 16 kHz WAV as the body); reading aloud: `GET

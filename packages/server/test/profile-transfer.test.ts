@@ -881,4 +881,13 @@ test("importing needs registration open, a file within the limit; downloading, t
   expect((await a.anonymous("GET", `/api/profile/export/${ready.id}`)).status).toBe(401);
   expect((await a.get(`/api/profile/export/${ulid().toLowerCase()}`)).status).toBe(400);
   expect((await a.get(`/api/profile/export/${crypto.randomUUID()}`)).status).toBe(404);
+  // Asked whether it is still there (a HEAD): told, nothing taken; downloaded, it is gone.
+  const head = () => a.get(`/api/profile/export/${ready.id}`, { method: "HEAD" });
+  const there = await head();
+  expect([there.status, Number(there.headers.get("content-length"))]).toEqual([200, ready.bytes]);
+  expect((await head()).status).toBe(200);
+  const res = await a.get(`/api/profile/export/${ready.id}`);
+  expect((await res.arrayBuffer()).byteLength).toBe(ready.bytes);
+  expect((await head()).status).toBe(404);
+  expect(readdirSync(join(a.root, "profiles", ".transfers"))).toEqual([]);
 });
