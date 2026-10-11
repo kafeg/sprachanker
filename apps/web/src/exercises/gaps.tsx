@@ -61,8 +61,14 @@ export function runs(segments: Segments): Run[] {
   return out;
 }
 
-/** A gap as shown: its field and, once checked and wrong, the right answer under it. */
-type ShownGap = { field: React.ReactNode; right?: string };
+/** The text's mark after a gap whose answer ends with that same mark: once ("Bin schon da." + "."
+ *  reads "da.", not "da.."). Shown so only; the answer stays as given. Pure. */
+export const tailAfter = (tail: string, shown = "") =>
+  /^[.!?…]/.test(tail) && shown.trimEnd().endsWith(tail.charAt(0)) ? tail.slice(1) : tail;
+
+/** A gap as shown: its field (`shown`: its text) and, once checked and wrong, the right answer
+ *  under it. */
+type ShownGap = { field: React.ReactNode; shown?: string; right?: string };
 
 function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap }) {
   const lang = useTargetLang();
@@ -73,7 +79,8 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
       {runs(segments).map((run, i) => {
         // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
         if ("text" in run) return <span key={i}>{run.text}</span>;
-        const { field, right } = gap(run.gap);
+        const { field, shown, right } = gap(run.gap);
+        const tail = tailAfter(run.tail, shown);
         return (
           // The gap with what touches it is one unit that never breaks — the stem or quote before
           // it, the punctuation after it; the right answer sits under the gap, not between them.
@@ -89,7 +96,7 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
               {field}
               {right !== undefined && <RightAnswer text={right} className="ml-0 text-sm" />}
             </span>
-            {run.tail && <span>{run.tail}</span>}
+            {tail && <span>{tail}</span>}
           </span>
         );
       })}
@@ -121,6 +128,9 @@ export const GapRoom = createContext<number | undefined>(undefined);
 
 /** A typed gap's width in `ch`: its room, and more as what is typed outgrows it. Pure. */
 export const gapWidth = (room: number, typed = "") => Math.max(room, typed.length + 2);
+
+/** An option that is only a dash: no word in the gap. */
+const NOTHING = /^\s*[-–—]\s*$/;
 
 const WORD = "bank:word:";
 const GAP = "bank:gap:";
@@ -156,6 +166,7 @@ function WordBank({
       ? chosen
       : gaps.find((g) => !values[g]);
   const used = new Set(Object.values(values));
+  const room = Math.max(4, ...bank.map((o) => o.text?.length ?? 0));
   const place = (gap: string, word: string) => {
     // A word sits in one gap at a time.
     const rest = Object.fromEntries(Object.entries(values).filter(([, w]) => w !== word));
@@ -199,11 +210,14 @@ function WordBank({
                   if (values[gap]) onAnswer(rest);
                   setChosen(gap);
                 }}
-                className="inline-flex min-w-24 align-baseline"
+                // Every slot of the text one width: the longest word of the bank and its mark.
+                style={{ width: `calc(${room}ch + 3.25rem)` }}
+                className="inline-flex max-w-full align-baseline"
               >
                 <span lang={lang}>{textOf(gap, values[gap]) ?? "\u00a0"}</span>
               </Slot>
             ),
+            shown: textOf(gap, values[gap]),
             right: outcome && !ok(gap) ? rightText(gap) : undefined,
           })}
         />
@@ -217,14 +231,20 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
   const values = answer ?? {};
   const set = (gap: string, id: string) => onAnswer({ ...values, [gap]: id });
   const textOf = (gap: string, id?: string) =>
-    item.gaps[gap]?.options.find((o) => o.id === id)?.text;
+    shownOption(item.gaps[gap]?.options.find((o) => o.id === id)?.text);
   const right = (gap: string) => correctOptions(item.answer[gap]);
   const ok = (gap: string) => partRight(outcome, gap);
   const rightText = (gap: string) =>
     right(gap)
       .map((id) => textOf(gap, id))
       .join(" / ");
-  const bank = useShuffled(Object.values(item.gaps)[0]?.options ?? [], item.key);
+  // An option of only a dash is "no word here": said so.
+  const shownOption = (text?: string) =>
+    text !== undefined && NOTHING.test(text) ? t("ex.nothing") : text;
+  const bank = useShuffled(Object.values(item.gaps)[0]?.options ?? [], item.key).map((o) => ({
+    ...o,
+    text: shownOption(o.text),
+  }));
   const pass = useContext(ShuffleSeed);
 
   if (item.display === "bank")
@@ -251,7 +271,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
           <PickSelect
             value={values[gap]}
             options={shuffled(item.gaps[gap]?.options ?? [], `${pass}:${item.key}:${gap}`).map(
-              (o) => ({ id: o.id, text: o.text ?? "" }),
+              (o) => ({ id: o.id, text: shownOption(o.text) ?? "" }),
             )}
             placeholder="…"
             label={t("ex.gap", { n: gapNumber(item.segments, gap) })}
@@ -259,6 +279,7 @@ export function GapChoice({ item, answer, onAnswer, outcome }: RendererProps<"ga
             className="min-w-20"
           />
         ),
+        shown: textOf(gap, values[gap]),
         right: outcome && !ok(gap) ? rightText(gap) : undefined,
       })}
     />
@@ -294,6 +315,7 @@ export function GapText({ item, answer, onAnswer, outcome }: RendererProps<"gap_
                 className="h-11 max-w-full rounded-lg border-2 border-input bg-card px-2 text-lg"
               />
             ),
+            shown: values[gap],
             right: outcome && !ok ? accepted.map((a) => a || "—").join(" / ") : undefined,
           };
         }}

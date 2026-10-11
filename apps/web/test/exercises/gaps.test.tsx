@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Exercise, ItemOf, Outcome } from "@sprachanker/schema";
-import { EXAM_GAP_ROOM, gapRoom, gapWidth, runs } from "../../src/exercises/gaps.tsx";
+import { EXAM_GAP_ROOM, gapRoom, gapWidth, runs, tailAfter } from "../../src/exercises/gaps.tsx";
 import { ItemCard } from "../../src/exercises/item-card.tsx";
 import { SourceOrder } from "../../src/exercises/shared.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
@@ -207,4 +207,40 @@ test("a checked ending gap stays on its stem, the right answer under it", async 
   expect(right.previousSibling?.textContent).toContain("en");
   expect(right.parentElement?.previousSibling?.textContent).toBe("mein");
   expect(view.getByText(/mit/).textContent).toBe("mit ");
+});
+
+test("an answer ending with the mark that follows the gap shows it once", () => {
+  expect(tailAfter(".", "Bin schon da.")).toBe("");
+  expect(tailAfter("?“", "Wie bitte?")).toBe("“");
+  expect(tailAfter(".", "da")).toBe(".");
+  expect(tailAfter(",", "ja,")).toBe(",");
+});
+
+const dash = exercise("gap_choice", {
+  segments: ["Ich wasche ", { gap: "g1" }, " die Hände."],
+  gaps: {
+    g1: {
+      options: [
+        { id: "a", text: "mir" },
+        { id: "b", text: "-" },
+      ],
+    },
+  },
+  display: "bank",
+  answer: { g1: "a" },
+});
+
+test("an option of only a dash says it is no word; every slot of a bank has one width", async () => {
+  const open = await card(dash, {});
+  expect(open.getByText("— (nothing)")).toBeTruthy();
+  open.unmount();
+  const view = await card(dash, { g1: "b" }, {
+    result: "wrong",
+    score: 0,
+    parts: { g1: false },
+  } as Outcome);
+  // The answer given read as no word; the slot as wide as the longest option and its mark.
+  const slot = view.getByRole("button", { name: "Gap 1" });
+  expect(slot.textContent).toContain("— (nothing)");
+  expect(slot.style.width).toBe("calc(11ch + 3.25rem)");
 });

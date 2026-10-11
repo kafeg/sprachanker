@@ -136,7 +136,7 @@ export function CheckedField({ text, ok }: { text: string | undefined; ok: boole
         ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft",
       )}
     >
-      <span className="min-w-0">{text || "\u00a0"}</span>
+      <span className="min-w-0 text-balance">{text || "\u00a0"}</span>
       {ok ? (
         <Check className="size-4 shrink-0 text-correct" aria-hidden />
       ) : (
