@@ -5,6 +5,7 @@
 // it —, its progress in memory; stopped, the work under way is finished and kept, and started again
 // it does only the rest.
 
+import type { LibraryView } from "@sprachanker/course-kit/view";
 import { LlmError } from "@sprachanker/llm";
 import {
   type CardDisplay,
@@ -14,7 +15,6 @@ import {
   LexemeKey,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
-import type { Content } from "./content.ts";
 import type { DeckFiles, Decks } from "./decks.ts";
 import { readStored } from "./run-store.ts";
 
@@ -85,13 +85,17 @@ export function failureOf(error: unknown): string {
 export function createDeckExtras(deps: {
   files: Pick<DeckFiles, "extras" | "writeExtras" | "media" | "folders" | "remove">;
   decks: Pick<Decks, "deck">;
-  content: Pick<Content, "courses">;
+  /** The installed courses as the library lists them (a course whose files do not read is here too). */
+  library: Pick<LibraryView, "courses">;
   now(): number;
 }) {
   const { files } = deps;
   const books = new Map<string, DeckExtras>();
   const jobs = new Map<string, Job>();
   const jobKey = (kind: DeckJobKind, folder: string) => `${kind} ${folder}`;
+  /** The folders of the courses installed, by their place in the library (none read). */
+  const courseFolders = () =>
+    new Set(deps.library.courses().map((c) => courseDeckFolder(`${c.series}/${c.course}`)));
 
   /** A folder's extras as kept (entries an earlier version keyed by note are left out: made again,
    *  the files they name are found there). */
@@ -196,10 +200,9 @@ export function createDeckExtras(deps: {
         if (!deck) throw new ServiceError("no_such_deck", 404);
         return deck.id as string;
       }
-      const key = scope.slice("course:".length);
-      if (!(await deps.content.courses()).some((c) => c.key === key))
-        throw new ServiceError("no_such_deck", 404);
-      return courseDeckFolder(key);
+      const folder = courseDeckFolder(scope.slice("course:".length));
+      if (!courseFolders().has(folder)) throw new ServiceError("no_such_deck", 404);
+      return folder;
     },
 
     /** A deck's job of a kind, running or the latest; `leftMs`: about how long the rest takes. */
@@ -251,9 +254,10 @@ export function createDeckExtras(deps: {
 
     forget,
 
-    /** Course folders whose course is no longer here go (at the start). */
-    async sweep() {
-      const here = new Set((await deps.content.courses()).map((c) => courseDeckFolder(c.key)));
+    /** Course folders whose course is no longer installed go (at the start); a course whose files
+     *  do not read keeps its folder. */
+    sweep() {
+      const here = courseFolders();
       for (const folder of files.folders())
         if (folder.startsWith("course~") && !here.has(folder)) {
           forget(folder);

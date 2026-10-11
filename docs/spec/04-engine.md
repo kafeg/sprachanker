@@ -219,7 +219,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   what it read then is not kept. When it ends, every open profile's cards follow (relinking): a card's
   display has its word's own audio, else the reading of its deck's folder for its lexeme and text
   (`readAudio`, served from the folder), else nothing: a card's word is never read on the fly (08). A course's folder goes when
-  the course is no longer here (at the server's start).
+  the course is no longer installed (at the server's start, by the library's folders: a course whose
+  files do not read keeps it).
 - **A deck's words given examples** (owner, 2026-10-09; `services/deck-examples.ts`): any deck the
   learner has, on request from Review → Decks: the words of the learner's cards in it that bring no
   example of their own (an imported deck's sentences, a course's) get three to five sentences each
