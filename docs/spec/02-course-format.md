@@ -217,7 +217,7 @@ are interchangeable (repeated letters in a word, the same form twice in a match)
 | `gap_text` | `segments`, `answer{gapId:{accepted[text]}}`; `""` = nothing belongs there (no article) | `{gapId:text}` | normalised text ∈ accepted; an empty or dash answer matches `""` |
 | `dictation` | `media.audio`, `answer.accepted[text]` | `{text}` | word diff = 0 |
 | `speech_repeat` | `text`, `media.audio?` | `{speech}` | word diff = 0 |
-| `speech_selfrate` | `text?`, `media.audio?` (its `answerAudio` played after the first try) | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With `text`, what was heard gets a word diff; without, the AI checks it (08) |
+| `speech_selfrate` | `text?` (a phrase to repeat after its recording), `reference?[text]` (the source's answer to say: a line, alternatives split by " / ", or its frame "Ich trinke …"), `media.audio?` (its `answerAudio` played after the first try); `prompt` is what it asks | `{recording?, transcript?}` (08; old stored answers may carry `rating`) | not scored; recorded is done. With a line to say (`reference`, else `text`; not a frame — an ellipsis, a gap, words in brackets), what was heard gets a word diff; without, the AI checks it (08) |
 | `respond` | `input` (`text`\|`speech`), `rubric?{required[{id,anyOf[text]}]}`, `reference[text]` (target), `answerIn?` (`target`\|`learner`: a translation into the learner's language keeps its model answers in the locale item's `reference`) | `{text, speech?}` | rubric (an LLM verdict: plan, "Later"); without a rubric unscored, the model answers shown |
 | `unknown` | `raw` path, `reason` | — | not rendered |
 

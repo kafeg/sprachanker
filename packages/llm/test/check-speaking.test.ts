@@ -67,3 +67,16 @@ test("a check's no-op corrections are dropped and an empty correction filled; a 
   expect(line).toContain("Answer aloud.");
   expect(line).toContain("correct: Guten Tag!; learner: Tschüss");
 });
+
+test("check_speaking: an item's question and the source's written answer (a frame) are the model's", () => {
+  const framed = {
+    ...exercise,
+    items: [{ key: `${exercise.key}#1`, prompt: "Hast du Geschwister?", reference: ["Ja, ich …"] }],
+  } as typeof exercise;
+  const user = String(
+    checkSpeakingTask({ ...input, exercise: framed, locale: undefined, index: 0 }).request
+      .messages[1]?.content,
+  );
+  expect(user).toContain("Prompt: Hast du Geschwister?");
+  expect(user).toContain("Answer aloud. The source's answer: Ja, ich …");
+});

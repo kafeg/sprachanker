@@ -154,6 +154,15 @@ export function describeItem(
     case "speech_selfrate": {
       const it = item as ItemOf<"speech_selfrate">;
       const heard = parse(SpeechSelfrateAnswer)?.transcript;
+      // The source's answer is one good answer (a frame with "…" to complete); a phrase is said as it is.
+      if (it.reference) {
+        const source = it.reference.join(" | ");
+        return {
+          task: task([`Answer aloud. The source's answer: ${source}`]),
+          correct: `${source} (or any fitting answer)`,
+          learner: heard,
+        };
+      }
       return it.text
         ? { task: task([`Say: ${it.text}`]), correct: it.text, learner: heard }
         : { task: task(["Answer aloud."]), correct: "(any fitting answer)", learner: heard };

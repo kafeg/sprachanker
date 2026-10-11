@@ -1,6 +1,6 @@
 // Speaking exercises (08, 09): SpeechSelfrate (saying it oneself after the original, one's take beside
 // it) and SpeechRepeat (a phrase said and checked by the words heard); their takes and what was heard.
-import { spokenCheck } from "@sprachanker/engine";
+import { linesToSay, spokenCheck } from "@sprachanker/engine";
 import { Check, CircleDot, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,15 +15,15 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { RendererProps } from "./types.ts";
 
-/** What the recogniser heard (08): against the phrase to say, its words matched and missed with a
- *  verdict; for a free answer, just the words heard. In no score. */
+/** What the recogniser heard (08): against the line to say (the closest of its alternatives), its
+ *  words matched and missed with a verdict; for a free answer, just the words heard. In no score. */
 function Heard({
   lang,
   reference,
   transcript,
 }: {
   lang?: string;
-  reference?: string;
+  reference?: string | string[];
   transcript: string;
 }) {
   const { t } = useTranslation();
@@ -293,7 +293,7 @@ export function SpeechSelfrate({
         </div>
       )}
       {answer?.transcript !== undefined && !saving && (
-        <Heard lang={lang} reference={item.text} transcript={answer.transcript} />
+        <Heard lang={lang} reference={linesToSay(item)} transcript={answer.transcript} />
       )}
       {!readOnly && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
     </div>

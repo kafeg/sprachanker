@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Exercise } from "@sprachanker/schema";
-import { answerComplete, isChecked, spokenFreely } from "../src/index.ts";
+import { answerComplete, isChecked, linesToSay, spokenFreely } from "../src/index.ts";
 
 const ex = (type: string, items: unknown[]) =>
   ({ key: "s/c/00-01/ex-01", type, items }) as unknown as Exercise;
@@ -40,4 +40,27 @@ test("what was heard of an answer said aloud with no phrase to say", () => {
   expect(spokenFreely(speaking, 1, { transcript: " " })).toBeUndefined();
   expect(spokenFreely(speaking, 0, { transcript: "Guten Tag" })).toBeUndefined();
   expect(spokenFreely(ex("respond", [{}]), 0, { transcript: "Hallo" })).toBeUndefined();
+});
+
+test("a speaking item's line to say: the source's answer, else its phrase; a frame leaves it open", () => {
+  // The source's answer, not the question heard; its alternatives each a line.
+  expect(
+    linesToSay({
+      text: "Warst du schon in Berlin?",
+      reference: ["Ja, ich war schon in Berlin. / Nein, ich war noch nie in Berlin."],
+    }),
+  ).toEqual(["Ja, ich war schon in Berlin.", "Nein, ich war noch nie in Berlin."]);
+  expect(linesToSay({ text: "Guten Tag!" })).toEqual(["Guten Tag!"]);
+  // A frame, words to use, nothing: the answer is the learner's own.
+  for (const reference of ["Ja, ich … / Nein, ich …", "Ich trinke ...", "(seit – zwei Monate)"])
+    expect(linesToSay({ reference: [reference] })).toBeUndefined();
+  expect(linesToSay({})).toBeUndefined();
+  const speaking = ex("speech_selfrate", [
+    { reference: ["Ja, ich habe ..."] },
+    { reference: ["Ich habe zwei Brüder."] },
+  ]);
+  expect(spokenFreely(speaking, 0, { transcript: "Ja, ich habe eine Schwester" })).toBe(
+    "Ja, ich habe eine Schwester",
+  );
+  expect(spokenFreely(speaking, 1, { transcript: "Ich habe zwei Brüder" })).toBeUndefined();
 });

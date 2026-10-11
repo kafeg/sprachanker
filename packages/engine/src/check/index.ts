@@ -19,7 +19,7 @@ import {
 } from "@sprachanker/schema";
 import { type WordDiff, wordDiff } from "../text/diff.ts";
 import { endsSentence, isEmptyGap, sameText, tokens } from "../text/normalise.ts";
-import { isChecked } from "./answers.ts";
+import { isChecked, linesToSay } from "./answers.ts";
 
 /** Share of reference words needed for `partial` in dictation and speech. */
 const PARTIAL_WORDS = 0.8;
@@ -67,9 +67,11 @@ function textOutcome(lang: string, references: string[], actual: string, spoken:
  *  "partial" — or too few ("wrong"). Shown on a recorded speaking item, which counts in no score. */
 type SpokenVerdict = "correct" | "partial" | "wrong";
 
-/** What was heard against the phrase to say: the words matched and missed, and the verdict. */
-export function spokenCheck(lang: string, reference: string, transcript: string) {
-  const { diff, result } = textOutcome(lang, [reference], transcript, true);
+/** What was heard against the line to say (or the closest of its alternatives): the words matched
+ *  and missed, and the verdict. */
+export function spokenCheck(lang: string, reference: string | string[], transcript: string) {
+  const references = typeof reference === "string" ? [reference] : reference;
+  const { diff, result } = textOutcome(lang, references, transcript, true);
   return { diff, verdict: result as SpokenVerdict };
 }
 
@@ -226,11 +228,12 @@ export function checkItem(
       return { ...rubric(it, text || speech?.transcript || "", lang) };
     }
     case "speech_selfrate": {
-      // Recorded and, with recognition, heard: the words compared, still in no score (08).
-      const it = item as ItemOf<"speech_selfrate">;
+      // Recorded and, with recognition, heard: the words compared with the line to say, still in no
+      // score (08).
+      const lines = linesToSay(item as ItemOf<"speech_selfrate">);
       const { transcript } = SpeechSelfrateAnswer.parse(answer);
       const heard =
-        it.text && transcript !== undefined ? spokenCheck(lang, it.text, transcript) : undefined;
+        lines && transcript !== undefined ? spokenCheck(lang, lines, transcript) : undefined;
       return { result: "unscored", score: 0, ...(heard && { diff: heard.diff }) };
     }
     case "unknown":

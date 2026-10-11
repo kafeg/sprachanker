@@ -63,7 +63,7 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text) |
 | `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
-| `check_speaking` | the lesson (title, words, grammar), a speaking item without a phrase (instruction, prompt, hint), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
+| `check_speaking` | the lesson (title, words, grammar), a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
@@ -95,7 +95,7 @@ lesson's goals) → `check_writing`, each attempt an `llm_verdict` in the lesson
 step shows the latest check under the task and the lesson's earlier texts under it (verdict, the three
 criteria, when), each readable in full, and any text goes back into the editor to be fixed and checked
 again (owner, 2026-10-07);
-an answer said aloud to a speaking item without a phrase to say → `check_speaking` on request ("Check
+an answer said aloud to a speaking item without a line to say (08) → `check_speaking` on request ("Check
 with AI" under what was heard; owner, 2026-10-09): an `llm_verdict`
 (`task: speaking`) on the item in the lesson run, for the words heard — asked once for the same words,
 shown under the item and in the Notebook; its verdict makes it a mistake of the lesson (minor errors
