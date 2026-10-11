@@ -8,7 +8,11 @@
     "review": "Review",
     "notebook": "Notebook",
     "exams": "Exams",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Review",
+      "settings": "Settings"
+    }
   },
   "common": {
     "loading": "Loading…",
@@ -1419,6 +1423,7 @@
     "needsCourse": "The tutor talks about what you have met in your courses: begin a course first.",
     "off": "The tutor is turned off: turn it on in Settings → AI assistant.",
     "all": "All chats",
+    "more": "Show more",
     "suggest": {
       "grammar": "I have a grammar question",
       "text": "Go through a text with me",

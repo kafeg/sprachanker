@@ -190,17 +190,29 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   `chat` run whose context is a lesson or none (05), so they are kept, listed, read and deleted by the
   same code, and a question and its reply are stored together once the reply has text. The section
   has no current chat: nothing on its screen picks one (a lesson's tutor opens on the lesson's), so
-  every chat stays open and any of them is continued; "New chat" starts one. **Language**: a new chat
+  every chat stays open and any of them is continued; "New chat" starts one. The section lists its
+  chats a page of twenty at a time by their last message, each titled by the first message the
+  learner typed (a way in sent for them — its turn marked `start` — titles it only until then),
+  counted and ordered in one query. A reply the learner stops is kept as far as it came (the lesson
+  tutor's too); a new chat is named to the client as soon as its reply begins, so one stopped is
+  still continued. One chat continued from two places at once keeps both pairs in the order they
+  end — each a question with its own reply —, as the lesson tutor's current chat. **Language**: a new chat
   practises the language the course studied most recently teaches (the course with the latest
   lesson work), and keeps it — its run's edition is that course's edition then —, so a chat continued
   later stays in its language; explanations are in the interface language of each message, as the
   lesson tutor's. Without a course begun there is nothing to talk about yet: a new chat is refused
   (409 `no_course_studied`) and the section says to begin one. **Context** (`courses-context` on the
-  server, the courses of the chat's language; each part within `SECTION_CHAT_BUDGETS`): the courses,
-  latest first — title, lessons done of all, the lessons worked on (latest first); the words of those
-  lessons with translations and their grammar topics (the pages' titles), the latest lesson's first;
-  the latest mistakes in those courses, each named by lesson, exercise and item, fixed ones marked;
-  then the most recent turns within the history budget. No exercise on screen and no tools: the
+  server, the courses of the chat's language, each read in the chat's edition where the course has it
+  — translations and titles in the chat's language —, else in the one it is studied in; each part
+  within `SECTION_CHAT_BUDGETS`): the courses, latest first — title, lessons done of all, its latest
+  eight lessons worked on (latest first), each course an equal share of the budget, titles whole; the
+  words of the latest twelve lessons worked on across them with translations and their grammar topics
+  (the pages' titles), the latest lesson's first; the latest mistakes in those lessons (only their
+  runs read), each named by lesson, exercise and item, fixed ones marked; then the most recent turns
+  within the history budget. A list cut short ends with "…", only whole entries before it. When no
+  course of the chat's language is begun any more (removed, started over), the chat goes on and its
+  context says nothing is known of what the learner has met. The courses begun are read once per
+  request (a message, the context gauge, the {} preview). No exercise on screen and no tools: the
   summary is what it knows. Its system prompt is its own (Settings → AI assistant → Advanced, "Tutor
   section"), so the lesson tutor's rules stay about the lesson.
 - **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted

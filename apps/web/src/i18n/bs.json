@@ -8,7 +8,11 @@
     "review": "Ponavljanje",
     "notebook": "Sveska",
     "exams": "Ispiti",
-    "tutor": "Tutor"
+    "tutor": "Tutor",
+    "short": {
+      "review": "Kartice",
+      "settings": "Postavke"
+    }
   },
   "common": {
     "loading": "Učitavanje…",
@@ -1419,6 +1423,7 @@
     "needsCourse": "Tutor govori o gradivu tvojih kurseva: prvo započni kurs.",
     "off": "Tutor je isključen: uključi ga u Postavkama → AI asistent.",
     "all": "Svi razgovori",
+    "more": "Prikaži više",
     "suggest": {
       "grammar": "Imam pitanje o gramatici",
       "text": "Prođi sa mnom kroz jedan tekst",

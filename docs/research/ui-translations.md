@@ -11,6 +11,10 @@ English where macOS has no such localisation), the short interval units of the r
 a unit that is a word starts with a no-break space: "4 روز"), the profile and flag colour names. A
 sentence whose words agree with a count is whole in each plural branch (`exams.rating.pending`); the
 learning count (`study.count.learning`) is the state word the file uses elsewhere, never a verb.
+The phone's tab bar names Review and Settings short where the language's word does not fit a sixth
+of 375 px (`nav.short`): de Karten / Optionen, ru Повтор / Опции, uk Повтор / Опції, hu Opciók, pl
+Opcje, pt Ajustes, bs Kartice, el Κάρτες, ro Carduri, id Kartu / Setelan — the cards for Review where
+no short form of the word reads well.
 
 | Lang | Register | Check first |
 |---|---|---|

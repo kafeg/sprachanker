@@ -8,7 +8,11 @@
     "review": "Tekrar",
     "notebook": "Defter",
     "exams": "Sınavlar",
-    "tutor": "Öğretmen"
+    "tutor": "Öğretmen",
+    "short": {
+      "review": "Tekrar",
+      "settings": "Ayarlar"
+    }
   },
   "common": {
     "loading": "Yükleniyor…",
@@ -1419,6 +1423,7 @@
     "needsCourse": "Öğretmen kurslarında gördüklerin hakkında konuşur: önce bir kursa başla.",
     "off": "Öğretmen kapalı: Ayarlar → Yapay zekâ asistanı bölümünden aç.",
     "all": "Tüm sohbetler",
+    "more": "Daha fazla göster",
     "suggest": {
       "grammar": "Bir dil bilgisi sorum var",
       "text": "Benimle bir metnin üzerinden geç",

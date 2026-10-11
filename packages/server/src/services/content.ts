@@ -1,5 +1,5 @@
-// Installed course content for the API: course list, course map, lessons (cached while their files
-// stay the same).
+// Installed course content for the API: course list, course map, lessons (each file's reading cached
+// while the file stays the same).
 import type { LibraryView } from "@sprachanker/course-kit/view";
 import {
   type CourseIndex,
@@ -54,6 +54,20 @@ export function createContent(library: LibraryView) {
   const localeExams = createOnce<LocaleExam | undefined>({ keep: true });
   // An exam's sources are written with its file: kept while the exam's file stays the same.
   const examSourcesKept = createOnce<ExamSources | undefined>({ keep: true });
+  const indexes = createOnce<CourseIndex>({ keep: true });
+  const localeCourses = createOnce<LocaleCourse | undefined>({ keep: true });
+  const courseIndex = (series: string, course: string) =>
+    indexes(
+      `${series}|${course}`,
+      () => library.courseIndex(series, course),
+      library.courseStamp(series, course),
+    );
+  const localeCourse = (series: string, course: string, edition: string) =>
+    localeCourses(
+      `${series}|${course}|${edition}`,
+      () => library.localeCourse(series, course, edition),
+      library.courseStamp(series, course, edition),
+    );
   const lesson = (series: string, key: LessonKey) =>
     lessons(
       `${series}|${key}`,
@@ -84,6 +98,8 @@ export function createContent(library: LibraryView) {
   return {
     lesson,
     localeLesson,
+    courseIndex,
+    localeCourse,
     exam,
     localeExam,
     examSources,
@@ -101,10 +117,10 @@ export function createContent(library: LibraryView) {
       const all = await Promise.all(
         library.courses().map(async ({ series, course, editions }) => {
           try {
-            const index = await library.courseIndex(series, course);
+            const index = await courseIndex(series, course);
             const titles: Record<string, string> = {};
             for (const edition of editions) {
-              const locale = await library.localeCourse(series, course, edition);
+              const locale = await localeCourse(series, course, edition);
               if (locale) titles[edition] = locale.title;
             }
             const lessons = lessonOrder(index);
@@ -128,8 +144,8 @@ export function createContent(library: LibraryView) {
       return all.filter((c) => c !== undefined);
     },
     async courseMap(series: string, course: string, edition: string): Promise<CourseMap> {
-      const index = await library.courseIndex(series, course);
-      const locale = (await library.localeCourse(series, course, edition)) ?? null;
+      const index = await courseIndex(series, course);
+      const locale = (await localeCourse(series, course, edition)) ?? null;
       const titles: Record<string, string> = {};
       for (const key of lessonOrder(index)) {
         const loc = await localeLesson(series, key, edition);

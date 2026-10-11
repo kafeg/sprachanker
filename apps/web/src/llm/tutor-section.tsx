@@ -1,11 +1,11 @@
 // The Tutor section (09, 07): the tutor on its own — the chats about no lesson, the one written in last
 // first, each continued with a tap and deleted after asking; a new chat with a few ways to start. A
 // chat is shown by the lesson tutor's view. Without a model or with the tutor's place off it says how
-// to turn it on; before a course is begun, that one is needed.
+// to turn it on; before a course is begun (as the server says), that one is needed.
 import { parseEditionId } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Plus, Trash2 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useCourses } from "@/api/courses.ts";
 import { languageName } from "@/i18n/index.ts";
@@ -22,9 +22,10 @@ import {
   streamSection,
   type TutorChat,
   useDeleteChat,
+  useReadSectionChat,
   useSectionCache,
+  useSectionChats,
   useTutorChat,
-  useTutorChats,
 } from "./api.ts";
 import { useAiIn, useLlm } from "./setup-api.ts";
 import { ChatFrame, type ChatSource, chatBoxClass, Suggestions, useChat } from "./tutor.tsx";
@@ -37,11 +38,8 @@ const STARTS = ["grammar", "text", "conversation"] as const;
 
 const LINK = "mt-2 inline-flex items-center font-medium underline pointer-coarse:min-h-11";
 
-/** Whether a course is begun (what the tutor talks about); undefined while that is read. */
-function useCourseBegun() {
-  const courses = useCourses();
-  return courses.data && { begun: courses.data.some((c) => c.started), any: !!courses.data.length };
-}
+/** How long a chat stopped at once is looked for again (the server keeping what came of it). */
+const KEPT_AFTER_MS = 500;
 
 /** Where the tutor cannot work: no model, or its place turned off — the way to the settings. */
 function Unavailable() {
@@ -57,9 +55,11 @@ function Unavailable() {
   );
 }
 
-/** No course begun: what the tutor needs, and the way to a course. */
-function NeedsCourse({ any }: { any: boolean }) {
+/** No course begun (as the server says: a new chat cannot begin): what the tutor needs, and the way
+ *  to a course — Downloaded while there are courses (or while that is read), else Available. */
+function NeedsCourse() {
   const { t } = useTranslation();
+  const any = useCourses().data?.length !== 0;
   return (
     <EmptyState>
       <p>{t("tutorSection.needsCourse")}</p>
@@ -86,19 +86,22 @@ function ChatLanguage({ chat }: { chat: TutorChat }) {
 function ChatList() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const chats = useTutorChats(SECTION);
-  const course = useCourseBegun();
+  const chats = useSectionChats();
   const when = useDateFormat("dayTime");
   const remove = useDeleteChat(SECTION);
   const [asking, setAsking] = useState<string>();
-  if (chats.isPending || !course) return <Loading />;
+  if (chats.isPending) return <Loading />;
   if (chats.isError) return <ErrorState error={chats.error} onRetry={() => chats.refetch()} />;
-  const list = chats.data.chats;
+  // Pages read at different times may share a chat that moved up meanwhile: listed once.
+  const seen = new Set<string>();
+  const list = chats.data.pages
+    .flatMap((p) => p.chats)
+    .filter((c) => !seen.has(c.id) && !!seen.add(c.id));
   if (!list.length)
-    return course.begun ? (
-      <EmptyState>{t("tutorSection.empty")}</EmptyState>
+    return chats.data.pages[0]?.cannotStart ? (
+      <NeedsCourse />
     ) : (
-      <NeedsCourse any={course.any} />
+      <EmptyState>{t("tutorSection.empty")}</EmptyState>
     );
   return (
     <>
@@ -131,6 +134,16 @@ function ChatList() {
           </li>
         ))}
       </ul>
+      {chats.hasNextPage && (
+        <Button
+          variant="outline"
+          className="mt-3 w-full"
+          loading={chats.isFetchingNextPage}
+          onClick={() => void chats.fetchNextPage()}
+        >
+          {t("tutorSection.more")}
+        </Button>
+      )}
       <ConfirmDialog
         open={!!asking}
         onOpenChange={(open) => !open && setAsking(undefined)}
@@ -168,8 +181,20 @@ export function TutorSection() {
   );
 }
 
-/** A chat of the section (`chatId`), or a new one: once its first reply is in, `onStarted` with the
- *  chat the server made. */
+/** Whether the component is still on screen (a reply ending after the page was left). */
+function useOnScreen() {
+  const on = useRef(true);
+  useEffect(() => {
+    on.current = true;
+    return () => {
+      on.current = false;
+    };
+  }, []);
+  return on;
+}
+
+/** A chat of the section (`chatId`), or a new one: once the server keeps its first message — the
+ *  reply in full, or as far as it came when stopped — `onStarted` with the chat it made. */
 function SectionChat({
   chatId,
   onStarted,
@@ -178,30 +203,67 @@ function SectionChat({
   onStarted(id: string): void;
 }) {
   const { t, i18n } = useTranslation();
-  const history = useTutorChat(SECTION, chatId);
+  const onScreen = useOnScreen();
+  /** The chat a new chat's first message made, as soon as the server names it (`made` for the
+   *  callbacks of a message on its way, `started` for what is shown). */
+  const made = useRef<string>(undefined);
+  const [started, setStarted] = useState<string>();
+  // A new chat's turns are shown from the cache, where its first pair goes at once: never read before
+  // the server keeps it, never empty for a frame between the reply and the chat's own address.
+  const history = useTutorChat(SECTION, chatId ?? started, !!chatId);
   const addToCache = useSectionCache();
-  /** The chat a new chat's first message made. */
-  const started = useRef<string>(undefined);
+  const readChat = useReadSectionChat();
+  /** The next message is a way in sent for the learner; some of the reply came. */
+  const starting = useRef(false);
+  const replied = useRef(false);
+
+  /** After a new chat's first message: the chat kept goes to its own address; one never kept (the
+   *  reply failed, or stopped before any text) leaves this a new chat. */
+  const settle = async () => {
+    const id = made.current;
+    if (!id) return;
+    let kept = await readChat(id);
+    if (!kept && replied.current) {
+      await new Promise((resolve) => setTimeout(resolve, KEPT_AFTER_MS));
+      kept = await readChat(id);
+    }
+    if (!kept) {
+      made.current = undefined;
+      setStarted(undefined);
+    } else if (onScreen.current) onStarted(id);
+  };
+
   const source: ChatSource = {
-    turns: chatId ? history.data?.turns : [],
-    refetch: () => (chatId ? history.refetch() : Promise.resolve()),
+    turns: chatId ? history.data?.turns : (history.data?.turns ?? []),
+    refetch: () => (chatId ? history.refetch() : settle()),
     add: (turns) => {
-      const id = chatId ?? started.current;
+      const id = chatId ?? made.current;
       if (id) addToCache(id, turns);
     },
-    send: async (message, _newChat, onText, signal) => {
-      const sent = await streamSection(
-        { chatId, message, language: i18n.language },
-        onText,
+    send: (message, _newChat, onText, signal) => {
+      const start = starting.current;
+      starting.current = false;
+      replied.current = false;
+      return streamSection(
+        {
+          chatId: chatId ?? made.current,
+          message,
+          language: i18n.language,
+          ...(start && { start }),
+        },
+        (text) => {
+          replied.current ||= !!text.trim();
+          onText(text);
+        },
         signal,
+        (id) => {
+          made.current = id;
+          setStarted(id);
+        },
       );
-      started.current = sent.chatId;
-      return sent.reply;
     },
   };
-  const chat = useChat(source, () => {
-    if (!chatId && started.current) onStarted(started.current);
-  });
+  const chat = useChat(source);
   if (history.isError)
     return <ErrorState error={history.error} onRetry={() => history.refetch()} />;
   return (
@@ -217,7 +279,10 @@ function SectionChat({
             label: t(`tutorSection.suggest.${s}`),
             text: t(`tutorSection.ask.${s}`),
           }))}
-          onAsk={(text) => chat.send(text)}
+          onAsk={(text) => {
+            starting.current = true;
+            chat.send(text);
+          }}
         />
       }
     />
@@ -229,19 +294,23 @@ export function SectionChatPage({ chat }: { chat: string }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const on = useAiIn("tutor");
-  const course = useCourseBegun();
   const chatId = chat === NEW_CHAT ? undefined : chat;
+  // Whether a new chat can begin, as the server says (the section's list); a chat begun needs no word.
+  const chats = useSectionChats(!chatId);
   const back = (
     <BackLink onClick={() => void navigate({ to: "/tutor" })}>{t("tutorSection.all")}</BackLink>
   );
   const body =
-    on === undefined || !course ? (
+    on === undefined || (!chatId && chats.isPending) ? (
       <Loading />
     ) : !on ? (
       <Unavailable />
-    ) : !chatId && !course.begun ? (
-      <NeedsCourse any={course.any} />
+    ) : !chatId && chats.isError ? (
+      <ErrorState error={chats.error} onRetry={() => chats.refetch()} />
+    ) : !chatId && chats.data?.pages[0]?.cannotStart ? (
+      <NeedsCourse />
     ) : (
+      // One element for a new chat and the chat it becomes: what it shows stays as its address changes.
       <div className={chatBoxClass}>
         <SectionChat
           chatId={chatId}

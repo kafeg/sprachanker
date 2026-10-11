@@ -29,6 +29,8 @@ export interface LibraryView {
   courses(): InstalledCourse[];
   courseIndex(series: string, course: string): Promise<CourseIndex>;
   localeCourse(series: string, course: string, edition: string): Promise<LocaleCourse | undefined>;
+  /** The same as `lessonStamp` for a course's file (`course.json`; with `edition`, its locale one). */
+  courseStamp(series: string, course: string, edition?: string): string;
   lesson(series: string, key: LessonKey): Promise<Lesson>;
   localeLesson(series: string, key: LessonKey, edition: string): Promise<LocaleLesson | undefined>;
   /** What a lesson's file (with `edition`, its locale file) is now — its size and time of change, ""

@@ -269,6 +269,14 @@
         "model": "m",
         "latencyMs": 10
       }
+    },
+    {
+      "since": "2026-10-11",
+      "payload": {
+        "role": "user",
+        "text": "Let's practise a conversation.",
+        "start": true
+      }
     }
   ],
   "card_review": [

@@ -4,6 +4,7 @@
 import { exerciseResults, mistakesOf } from "@sprachanker/engine";
 import {
   type ChatTurnInput,
+  type CoursesInfo,
   chatTurn,
   chatTurnRequest,
   estimateTokens,
@@ -44,7 +45,12 @@ export interface SectionRequest {
   chatId?: string;
   message: string;
   language: string;
+  /** Sent for the learner: one of the ways into a new chat (its title is then the first turn typed). */
+  start?: boolean;
 }
+
+/** A page of the Tutor section's chats (`offset`: how many come before it). */
+export const SECTION_PAGE = HISTORY_LIMIT;
 
 /** A chat in a history: when, what it began with, which exercises it was about. */
 interface ChatSummary {
@@ -54,7 +60,7 @@ interface ChatSummary {
   edition: string | null;
   startedAt: number;
   lastAt: number;
-  /** The learner's first message. */
+  /** The learner's first message (in the Tutor section, the first they typed). */
   title: string;
   turns: number;
   /** Exercises on screen when the learner wrote, in order of first mention. */
@@ -185,6 +191,9 @@ export function createTutor(deps: {
     total,
   });
 
+  /** A chat's title: what the learner wrote first, cut to a list's line. */
+  const titleOf = (text: string) => (text.length > 120 ? `${text.slice(0, 119)}…` : text);
+
   /** A run's chat as a history lists it; undefined while nothing was asked in it. */
   const summary = (run: RunRow, events: TypedEvent[]): ChatSummary | undefined => {
     const list = events.map((e) => payloadOf<LlmTurnPayload>(e));
@@ -196,34 +205,35 @@ export function createTutor(deps: {
       edition: run.edition,
       startedAt: run.startedAt,
       lastAt: list.at(-1)?.ts ?? run.startedAt,
-      title: first.text.length > 120 ? `${first.text.slice(0, 119)}…` : first.text,
+      title: titleOf(first.text),
       turns: list.length,
       exerciseKeys: [...new Set(list.flatMap((t) => (t.exerciseKey ? [t.exerciseKey] : [])))],
     };
   };
 
-  /** The Tutor section's chat a message continues (none: a new one) and the pair it is held in — a
-   *  new chat's is the one the course studied last is in (none begun: refused). */
+  /** The Tutor section's chat a message continues (none: a new one) and what it knows — the pair it
+   *  is held in (a new chat's: the one the course studied last is in; none begun: refused) and the
+   *  learner's courses of its language —, read once for the request. */
   async function sectionChatOf(request: SectionRequest) {
     const chat = request.chatId ? store.get(request.chatId, "chat", null) : undefined;
     if (request.chatId && !chat?.edition) throw new ServiceError("no_such_chat", 404);
-    const edition = chat?.edition ?? (await deps.courses.latestEdition());
-    if (!edition) throw new ServiceError("no_course_studied", 409);
-    return { chat, edition };
+    const known = await deps.courses.get(chat?.edition ?? undefined);
+    if (!known) throw new ServiceError("no_course_studied", 409);
+    return { chat, ...known };
   }
 
   /** What section_chat_turn gets for a message: what the learner has met, the chat's turns. */
-  async function sectionInput(
+  function sectionInput(
     request: SectionRequest,
-    edition: string,
+    { edition, courses }: { edition: string; courses: CoursesInfo },
     history: LlmTurnPayload[],
-  ): Promise<SectionChatInput> {
+  ): SectionChatInput {
     const target = parseEditionId(edition).target;
     return {
       language: request.language,
       target,
       rules: deps.llm.rulesFor("tutorSection", request.language, target),
-      courses: await deps.courses.get(edition),
+      courses,
       history: history.map((t) => ({ role: t.role, text: t.text })),
       message: request.message,
     };
@@ -252,17 +262,34 @@ export function createTutor(deps: {
       return run ? turns(run.id) : [];
     },
 
-    /** The chats with something in them about a lesson, or the Tutor section's (`null`): a lesson's
-     *  newest first, the section's by their last message. */
-    chats(about: LessonKey | null, limit = HISTORY_LIMIT): ChatSummary[] {
+    /** The chats with something in them about a lesson, newest first. */
+    chats(about: LessonKey, limit = HISTORY_LIMIT): ChatSummary[] {
       const runs = store.list("chat", about);
       const byRun = store.eventsOf(
         runs.map((r) => r.id),
         ["llm_turn"],
       );
-      const list = runs.flatMap((run) => summary(run, byRun.get(run.id) ?? []) ?? []);
-      if (about === null) list.sort((a, b) => b.lastAt - a.lastAt);
-      return list.slice(0, limit);
+      return runs.flatMap((run) => summary(run, byRun.get(run.id) ?? []) ?? []).slice(0, limit);
+    },
+
+    /** A page of the Tutor section's chats, the one written in last first (`more`: a later page has
+     *  any), and why a new one cannot begin (`no_course_studied`), if it cannot. */
+    async sectionChats(offset = 0) {
+      const page = store.conversations("chat", null, { limit: SECTION_PAGE, offset });
+      const chats = page.list.map(
+        ({ run, lastAt, turns, first }): ChatSummary => ({
+          id: run.id,
+          current: run.status === "active",
+          edition: run.edition,
+          startedAt: run.startedAt,
+          lastAt,
+          title: titleOf(first?.text ?? ""),
+          turns,
+          exerciseKeys: [],
+        }),
+      );
+      const cannotStart = (await deps.courses.begun()) ? null : ("no_course_studied" as const);
+      return { chats, more: page.more, cannotStart };
     },
 
     /** The turns of one of the chats about a lesson (the section's: `null`); undefined when there is
@@ -298,7 +325,7 @@ export function createTutor(deps: {
         return tool(name, args);
       };
       const reply = chatTurn(client, model, input, runTool, signal);
-      return keptWhenAnswered(reply, (text) =>
+      return keptWhenAnswered(reply, signal, (text) =>
         // One transaction: a new chat replaces the current one only together with its turns. A reply
         // to a chat that was reset or replaced meanwhile is not kept (it answered another history).
         store.atomic(() => {
@@ -330,16 +357,15 @@ export function createTutor(deps: {
 
     /** How full the Tutor section's next request would be (as `usage`). */
     async sectionUsage(request: SectionRequest): Promise<ContextUsage> {
-      const { chat, edition } = await sectionChatOf(request);
+      const { chat, ...known } = await sectionChatOf(request);
       const history = chat ? turns(chat.id) : [];
-      const input = await sectionInput(request, edition, history);
-      return usageOf(sectionChatRequest(input), history.length);
+      return usageOf(sectionChatRequest(sectionInput(request, known, history)), history.length);
     },
 
     /** The request a message in the Tutor section would send now, without sending it. */
     async sectionPrompt(request: SectionRequest): Promise<PromptPreview> {
-      const { chat, edition } = await sectionChatOf(request);
-      const input = await sectionInput(request, edition, chat ? turns(chat.id) : []);
+      const { chat, ...known } = await sectionChatOf(request);
+      const input = sectionInput(request, known, chat ? turns(chat.id) : []);
       return deps.llm.preview(sectionChatRequest(input));
     },
 
@@ -353,22 +379,28 @@ export function createTutor(deps: {
       signal?: AbortSignal,
     ): Promise<{ id: string; reply: AsyncIterable<string> }> {
       allowed();
-      const { chat, edition } = await sectionChatOf(request);
+      const { chat, ...known } = await sectionChatOf(request);
       const { client, model } = await deps.llm.model();
-      const input = await sectionInput(request, edition, chat ? turns(chat.id) : []);
+      const input = sectionInput(request, known, chat ? turns(chat.id) : []);
+      const { edition } = known;
       const elapsed = stopwatch(now);
       const id = chat?.id ?? store.newId();
       const reply = sectionChat(client, model, input, signal);
       return {
         id,
-        reply: keptWhenAnswered(reply, (text) =>
+        reply: keptWhenAnswered(reply, signal, (text) =>
           store.atomic(() => {
-            // A chat deleted meanwhile is not started again by its reply.
+            // A chat deleted meanwhile is not started again by its reply. One continued from two
+            // places at once keeps both pairs in the order they end: each is a question with its own
+            // reply, as the lesson tutor's current chat (only a chat gone is checked, there too).
             if (chat && !store.get(chat.id)) return;
             const run = chat ?? store.start("chat", null, { id, edition });
             store.append(
               run.id,
-              pair({ text: request.message }, { text, model, latencyMs: elapsed() }),
+              pair(
+                { text: request.message, ...(request.start && { start: true as const }) },
+                { text, model, latencyMs: elapsed() },
+              ),
             );
           }),
         ),
@@ -391,11 +423,12 @@ const pair = (question: Turn, reply: Turn) =>
 
 /**
  * A streamed reply passed on as it comes, kept (`keep`, its text trimmed) once it is over — also one
- * the learner cut short (the stream is closed, not failed) —, never one the provider broke off, nor
- * anything when the model never answered.
+ * the learner cut short (the stream closed, or the request's `signal` aborted while the model was
+ * still writing) —, never one the provider broke off, nor anything when the model never answered.
  */
 function keptWhenAnswered(
   reply: AsyncIterable<string>,
+  signal: AbortSignal | undefined,
   keep: (text: string) => void,
 ): AsyncIterable<string> {
   return (async function* () {
@@ -407,7 +440,7 @@ function keptWhenAnswered(
         yield chunk;
       }
     } catch (error) {
-      failed = true;
+      failed = !signal?.aborted;
       throw error;
     } finally {
       if (!failed && text.trim()) keep(text.trim());

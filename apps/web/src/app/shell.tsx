@@ -18,13 +18,14 @@ import { useWindowBusy } from "@/ui/window-title.ts";
 import { AboutLine } from "./about.tsx";
 import { ProfileChip } from "./profile-chip.tsx";
 
-/** The app's sections, in the sidebar and the tab bar (and the onboarding's tour). */
+/** The app's sections, in the sidebar and the tab bar (and the onboarding's tour); `short`: the
+ *  label on a phone's tab bar, where the full one does not fit some languages' share of it. */
 export const NAV = [
   { to: "/", key: "nav.courses", icon: BookOpen },
-  { to: "/review", key: "nav.review", icon: Layers },
+  { to: "/review", key: "nav.review", short: "nav.short.review", icon: Layers },
   { to: "/exams", key: "nav.exams", icon: GraduationCap },
   { to: "/notebook", key: "nav.notebook", icon: NotebookPen },
-  { to: "/settings", key: "nav.settings", icon: Settings },
+  { to: "/settings", key: "nav.settings", short: "nav.short.settings", icon: Settings },
 ] as const;
 
 /** A section an optional feature adds (the router's: the Tutor), shown while `useShown` says so. */
@@ -97,24 +98,38 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
         <Outlet />
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
-        {sections.map(({ to, key, icon: Icon }) => (
-          <Link
-            key={to}
-            to={to}
-            aria-current={active(to) ? "page" : undefined}
-            // A label wider than its share wraps (hyphenated where the language allows), never spills.
-            className={cn(
-              "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-center text-xs leading-tight text-muted-foreground hyphens-auto [overflow-wrap:anywhere]",
-              active(to) && "font-semibold text-foreground",
-            )}
-          >
-            <span className="relative">
-              <Icon className="size-5" />
-              {to === "/review" && due > 0 && <DueBadge count={due} corner />}
-            </span>
-            {t(key)}
-          </Link>
-        ))}
+        {sections.map((section) => {
+          const { to, key, icon: Icon } = section;
+          const label = t(key);
+          const short = "short" in section && section.short ? t(section.short) : label;
+          return (
+            <Link
+              key={to}
+              to={to}
+              aria-current={active(to) ? "page" : undefined}
+              aria-label={short !== label ? label : undefined}
+              // Each label fits its sixth of a 375 px phone (09): the short one there where the full
+              // one does not; on a narrower screen it wraps, hyphenated where the language allows.
+              className={cn(
+                "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-px text-center text-xs leading-tight text-muted-foreground hyphens-auto [overflow-wrap:anywhere]",
+                active(to) && "font-semibold text-foreground",
+              )}
+            >
+              <span className="relative">
+                <Icon className="size-5" />
+                {to === "/review" && due > 0 && <DueBadge count={due} corner />}
+              </span>
+              {short !== label ? (
+                <>
+                  <span className="sm:hidden">{short}</span>
+                  <span className="max-sm:hidden">{label}</span>
+                </>
+              ) : (
+                label
+              )}
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );

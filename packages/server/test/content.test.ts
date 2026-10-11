@@ -31,6 +31,7 @@ test("a course whose files do not read is left out of the list; the others still
       if (course === "broken") throw new Error("course.json: format 2 is not known");
       return { key: "a.b/good", units: [{ lessons: ["a.b/good/01-01"] }] };
     },
+    courseStamp: () => "1",
   } as unknown as LibraryView;
   const courses = await createContent(library).courses();
   expect(courses.map((c) => c.key)).toEqual(["a.b/good"]);
@@ -48,6 +49,26 @@ test("a lesson kept is read again once its file changed (an import from the comm
   const title = async () =>
     ((await content.lesson("a.b", key)) as unknown as { title: string }).title;
   expect([await title(), await title()]).toEqual(["read 1", "read 1"]);
+  stamp = "2";
+  expect(await title()).toBe("read 2");
+});
+
+test("the course list reads each course's files once while they stay the same; again once one changed", async () => {
+  let stamp = "1";
+  let reads = 0;
+  const library = {
+    courses: () => [{ series: "a.b", course: "c", editions: ["ru-de"] }],
+    courseIndex: async () => {
+      reads++;
+      return { key: "a.b/c", units: [{ lessons: [] }], exams: [] };
+    },
+    localeCourse: async () => ({ title: `read ${reads}` }),
+    courseStamp: () => stamp,
+  } as unknown as LibraryView;
+  const content = createContent(library);
+  const title = async () => (await content.courses())[0]?.titles["ru-de"];
+  expect([await title(), await title()]).toEqual(["read 1", "read 1"]);
+  expect(reads).toBe(1);
   stamp = "2";
   expect(await title()).toBe("read 2");
 });

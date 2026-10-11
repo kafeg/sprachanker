@@ -72,7 +72,8 @@ profile and puts its services in the request's context (`c.var.s`) — then ever
 validate, call a service, return its typed result or one of schema's `ERROR_CODES`. The web client
 gets the types through Hono RPC (`AppType`), no codegen.
 
-- **Content**: `content` reads the library through course-kit with a cache; `downloads` queues course
+- **Content**: `content` reads the library through course-kit, each file read once and kept while it
+  stays the same (its size and time of change: a download or an import replaces it); `downloads` queues course
   installs (one at a time, progress, resume after restart) through the providers' importers.
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`; over the run store, `answers` (numbered by

@@ -43,3 +43,15 @@ test("a lesson file's stamp: what it is now, another once it is replaced, empty 
   writeFileSync(file, `${readFileSync(file, "utf8")}\n`);
   expect(lib.lessonStamp(series, MINI_LESSON)).not.toBe(before);
 });
+
+test("a course file's stamp: its index's and each edition's, another once one is replaced", async () => {
+  const lib = await library();
+  const series = "sprachanker.mini";
+  const before = lib.courseStamp(series, "basic");
+  expect(before).not.toBe("");
+  expect(lib.courseStamp(series, "basic", "ru-de")).not.toBe("");
+  expect(lib.courseStamp(series, "basic", "fr-de")).toBe("");
+  const file = join(lib.root, series, "canonical/basic/course.json");
+  writeFileSync(file, `${readFileSync(file, "utf8")}\n`);
+  expect(lib.courseStamp(series, "basic")).not.toBe(before);
+});

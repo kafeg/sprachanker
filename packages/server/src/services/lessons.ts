@@ -122,11 +122,14 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
     return { run: toRun(row), events: list, resumePage: resumePage(list, lesson) };
   };
 
+  /** When each lesson run last had work done in it: an answer, a skip, or a step of the plan (words,
+   *  a page read, practice). */
+  const lessonWork = () => store.lastActivity([...LESSON_WORK]);
+
   /** Lesson progress of every lesson with runs, over active and completed runs. An active run counts
-   *  as "in progress" only once something was answered, skipped or a step done in it. */
-  const progress = async () => {
-    // Work done in the run: an answer, a skip, or a step of the plan (words, a page read, practice).
-    const activity = store.lastActivity([...LESSON_WORK]);
+   *  as "in progress" only once something was answered, skipped or a step done in it (`activity`:
+   *  `lessonWork()` when the caller has it already). */
+  const progress = async (activity = lessonWork()) => {
     const counted: Run[] = [];
     for (const row of store.all("lesson"))
       if (row.status === "active" || completed(row)) counted.push(toRun(row));
@@ -141,8 +144,8 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
    * a key kept through a reorder says nothing of where the lesson is now), one no longer in it last.
    */
   async function standing(): Promise<ModuleStanding> {
-    const byLesson = await progress();
-    const worked = store.lastActivity([...LESSON_WORK]);
+    const worked = lessonWork();
+    const byLesson = await progress(worked);
     const runsOf = new Map<LessonKey, RunRow[]>();
     for (const row of store.all("lesson")) {
       if (!worked.has(row.id)) continue;
@@ -242,8 +245,8 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
    * Tutor section talks about (07).
    */
   async function studied(): Promise<StudiedCourse[]> {
-    const byLesson = await progress();
-    const worked = store.lastActivity([...LESSON_WORK]);
+    const worked = lessonWork();
+    const byLesson = await progress(worked);
     const latest = new Map<LessonKey, { row: RunRow; at: number }>();
     for (const row of store.all("lesson")) {
       const key = row.contextKey as LessonKey;
