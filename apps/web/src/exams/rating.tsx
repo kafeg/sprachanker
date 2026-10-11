@@ -1,7 +1,9 @@
 // An open answer rated by its criteria (09, Exams; owner's choice K, 2026-10-10): each criterion with
 // its levels as the exam's raters give them (points; what a level means on hover or long press), the
 // points they make, saved — by the learner, or as the assistant proposed them (a proposal kept in the
-// run for this answer, asked through the page's slot: chosen until changed, its reasons under each).
+// run for this answer, asked through the page's slot: chosen until changed, its reasons under each;
+// until accepted it scores nothing, the result counting the rating saved before — "Accept the
+// proposal" or "Keep mine").
 import { criteriaMax, ratedPoints } from "@sprachanker/engine";
 import type { ExamItem, LocaleItem, TypedEvent } from "@sprachanker/schema";
 import { Sparkles } from "lucide-react";
@@ -24,7 +26,8 @@ interface Proposal {
 }
 
 /** The latest rating saved for a question, the latest proposal for this answer, and what is chosen
- *  first: the later of the two (a proposal asked for after rating is shown chosen). */
+ *  first: the later of the two (a proposal asked for after rating is shown chosen — `pending` until
+ *  it is accepted or the learner keeps theirs). */
 function ratingsOf(events: TypedEvent[], itemKey: string, answer: string) {
   let rated: Record<string, number> | undefined;
   let proposal: (Proposal & { id: string }) | undefined;
@@ -44,7 +47,7 @@ function ratingsOf(events: TypedEvent[], itemKey: string, answer: string) {
       first = proposal.ratings;
     }
   }
-  return { rated, proposal, first };
+  return { rated, proposal, first, pending: !!proposal && first === proposal.ratings };
 }
 
 /** An open answer of a run rated: the assistant's proposal asked for (when it works here), the
@@ -66,7 +69,7 @@ export function OpenAnswerRating({
   const rate = useRateAnswer(runId);
   const keep = useKeepRunEvents(runId);
   const { propose } = useExamSlots();
-  const { rated, proposal, first } = ratingsOf(events, item.key, answer);
+  const { rated, proposal, first, pending } = ratingsOf(events, item.key, answer);
   return (
     <div className="space-y-2">
       {propose?.({ runId, itemKey: item.key, proposed: !!proposal, onStored: keep })}
@@ -78,6 +81,7 @@ export function OpenAnswerRating({
         rated={rated}
         first={first}
         proposal={proposal}
+        pending={pending}
         busy={rate.isPending}
         onRate={(ratings, taken) =>
           rate.mutate({
@@ -103,6 +107,7 @@ function RatingPanel({
   rated,
   first,
   proposal,
+  pending,
   busy,
   onRate,
 }: {
@@ -114,6 +119,8 @@ function RatingPanel({
   first?: Record<string, number>;
   /** Ratings proposed (the assistant's), with a reason per criterion: chosen until changed. */
   proposal?: Proposal;
+  /** The proposal not accepted yet (nor the learner's own kept): it scores nothing so far. */
+  pending: boolean;
   busy: boolean;
   onRate(ratings: Record<string, number>, taken: boolean): void;
 }) {
@@ -130,6 +137,8 @@ function RatingPanel({
   // Taken as proposed: the assistant's rating; changed anywhere: the learner's.
   const taken = !!proposal && criteria.every((c) => proposal.ratings[c.id] === chosen[c.id]);
   const changed = !rated || criteria.some((c) => rated[c.id] !== chosen[c.id]);
+  // The proposal shown as it came, not accepted yet: accepted, or the learner's own kept.
+  const offered = pending && taken;
   return (
     <div className="space-y-3 rounded-xl border bg-card p-4">
       {proposal && (
@@ -188,15 +197,41 @@ function RatingPanel({
             </span>
           )}
         </span>
-        <Button
-          size="sm"
-          disabled={!complete || !changed}
-          loading={busy}
-          onClick={() => onRate(chosen, taken)}
-        >
-          {rated ? t("exams.rating.change") : t("exams.rating.save")}
-        </Button>
+        {offered ? (
+          <span className="flex flex-wrap gap-2">
+            {rated && (
+              <Button
+                size="sm"
+                variant="outline"
+                disabled={busy}
+                onClick={() => onRate(rated, false)}
+              >
+                {t("exams.rating.keepMine")}
+              </Button>
+            )}
+            <Button size="sm" loading={busy} onClick={() => onRate(chosen, true)}>
+              {t("exams.rating.accept")}
+            </Button>
+          </span>
+        ) : (
+          <Button
+            size="sm"
+            disabled={!complete || !changed}
+            loading={busy}
+            onClick={() => onRate(chosen, taken)}
+          >
+            {rated ? t("exams.rating.change") : t("exams.rating.save")}
+          </Button>
+        )}
       </div>
+      {pending && (
+        <p className="text-sm text-muted-foreground">
+          {t("exams.rating.notTaken", {
+            points: rated ? ratedPoints(criteria, rated) : 0,
+            max,
+          })}
+        </p>
+      )}
     </div>
   );
 }

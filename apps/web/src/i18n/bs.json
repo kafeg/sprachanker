@@ -1516,7 +1516,10 @@
       "change": "Promijeni ocjenu",
       "propose": "Predloži ocjenu (AI)",
       "proposing": "Asistent ocjenjuje…",
-      "proposed": "Predložio AI asistent ({model}): prihvati kako jeste ili promijeni."
+      "proposed": "Predložio AI asistent ({model}): prihvati kako jeste ili promijeni.",
+      "accept": "Prihvati prijedlog",
+      "keepMine": "Zadrži moju",
+      "notTaken": "Još nije prihvaćeno: rezultat računa {points, number} od {max, number}."
     },
     "conversation": {
       "partner": "Partner",

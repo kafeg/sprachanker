@@ -1516,7 +1516,10 @@
       "change": "修改评分",
       "propose": "建议评分（AI）",
       "proposing": "助手正在评分…",
-      "proposed": "由AI助手（{model}）建议：可直接采纳或修改。"
+      "proposed": "由AI助手（{model}）建议：可直接采纳或修改。",
+      "accept": "采纳建议",
+      "keepMine": "保留我的评分",
+      "notTaken": "尚未采纳：结果按 {points, number}/{max, number} 计算。"
     },
     "conversation": {
       "partner": "搭档",

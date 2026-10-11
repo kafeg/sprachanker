@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Exam, ExamItem, ExamRun } from "@sprachanker/schema";
-import { fireEvent, within } from "@testing-library/react";
+import { fireEvent, waitFor, within } from "@testing-library/react";
 import { ExamCatalog } from "../../src/exams/catalog.tsx";
 import { ExamPage } from "../../src/exams/page.tsx";
 import { OpenAnswerRating } from "../../src/exams/rating.tsx";
@@ -378,6 +378,63 @@ test("an open answer rated: a criterion that voids the answer, not rated yet, is
   fireEvent.click(level("Erfüllung", "2"));
   expect(view.getByText("3 of 3")).toBeTruthy();
   expect(view.queryByText(/is rated|not done/)).toBeNull();
+});
+
+test("the AI's proposal after one's own rating: not counted until accepted — accept it or keep one's own", async () => {
+  const item = {
+    key: `${KEY}/q-w1`,
+    type: "respond",
+    criteria: [
+      { id: "task", levels: [0, 1, 2], voids: true },
+      { id: "form", levels: [0, 1] },
+    ],
+  } as unknown as ExamItem & { criteria: NonNullable<ExamItem["criteria"]> };
+  const event = (n: number, type: string, payload: unknown) => ({
+    id: `E${n}`,
+    runId: "R",
+    ts: n,
+    type,
+    itemKey: item.key,
+    payload,
+  });
+  const events = [
+    event(1, "exam_rated", { ratings: { task: 2, form: 0 }, by: "self" }),
+    event(2, "llm_verdict", {
+      task: "exam",
+      input: "Hallo",
+      result: {
+        criteria: [
+          { id: "task", points: 1, reason: "Teilweise." },
+          { id: "form", points: 1, reason: "Gruß da." },
+        ],
+        feedback: "Mehr Details.",
+      },
+      model: "m",
+      latencyMs: 1,
+    }),
+  ];
+  const sent: unknown[] = [];
+  const real = globalThis.fetch;
+  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+    const request = input instanceof Request ? input : new Request(String(input), init);
+    sent.push(await request.json());
+    return Response.json({ run: {}, events: [] });
+  }) as typeof fetch;
+  try {
+    const view = await renderApp(
+      <OpenAnswerRating runId="R" item={item} events={events as never} answer="Hallo" />,
+      { path: "/exam/run" },
+    );
+    expect(view.getByText("Not accepted yet: the result counts 2 of 3.")).toBeTruthy();
+    fireEvent.click(view.getByRole("button", { name: "Keep mine" }));
+    await waitFor(() => expect(sent).toHaveLength(1));
+    expect(sent[0]).toMatchObject({ ratings: { task: 2, form: 0 }, by: "self" });
+    fireEvent.click(view.getByRole("button", { name: "Accept the proposal" }));
+    await waitFor(() => expect(sent).toHaveLength(2));
+    expect(sent[1]).toMatchObject({ ratings: { task: 1, form: 1 }, by: "assistant", model: "m" });
+  } finally {
+    globalThis.fetch = real;
+  }
 });
 
 test("the catalogue: the questions open to the learner as a list, one opened with its answer, found by words", async () => {

@@ -1516,7 +1516,10 @@
       "change": "Puanı değiştir",
       "propose": "Puan öner (YZ)",
       "proposing": "Asistan puanlıyor…",
-      "proposed": "Yapay zekâ asistanının önerisi ({model}): olduğu gibi kabul et ya da değiştir."
+      "proposed": "Yapay zekâ asistanının önerisi ({model}): olduğu gibi kabul et ya da değiştir.",
+      "accept": "Öneriyi kabul et",
+      "keepMine": "Benimkini koru",
+      "notTaken": "Henüz kabul edilmedi: sonuç {points, number} / {max, number} sayıyor."
     },
     "conversation": {
       "partner": "Partner",

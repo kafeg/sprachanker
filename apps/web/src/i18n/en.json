@@ -1516,7 +1516,10 @@
       "change": "Change rating",
       "propose": "Propose a rating (AI)",
       "proposing": "The assistant is rating…",
-      "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it."
+      "proposed": "Proposed by the AI assistant ({model}): take it as it is or change it.",
+      "accept": "Accept the proposal",
+      "keepMine": "Keep mine",
+      "notTaken": "Not accepted yet: the result counts {points, number} of {max, number}."
     },
     "conversation": {
       "partner": "Partner",

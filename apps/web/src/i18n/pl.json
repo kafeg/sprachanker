@@ -1516,7 +1516,10 @@
       "change": "Zmień ocenę",
       "propose": "Zaproponuj ocenę (AI)",
       "proposing": "Asystent ocenia…",
-      "proposed": "Zaproponowane przez asystenta AI ({model}): przyjmij bez zmian albo zmień."
+      "proposed": "Zaproponowane przez asystenta AI ({model}): przyjmij bez zmian albo zmień.",
+      "accept": "Przyjmij propozycję",
+      "keepMine": "Zostaw moją",
+      "notTaken": "Jeszcze nie przyjęte: wynik liczy {points, number} z {max, number}."
     },
     "conversation": {
       "partner": "Partner",
