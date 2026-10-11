@@ -21,9 +21,12 @@ import { type RulesInput, systemPrompt } from "./rules.ts";
 /** A Dialogue needs the lesson's topic, words and what is known by it, not its grammar pages. */
 type SceneLesson = Omit<LessonInfo, "grammarHtml">;
 
-/** The setup as the model must give it: with the partner's information (stored scenes before the
- *  Dialogue have none). */
-const DialogueSetup = SceneSetup.extend({ partnerInfo: z.array(z.string()).min(1).max(5) });
+/** The setup as the model must give it: with the partner's information and the opening's
+ *  translation (stored scenes before the Dialogue have neither). */
+const DialogueSetup = SceneSetup.extend({
+  partnerInfo: z.array(z.string()).min(1).max(5),
+  openingTranslation: z.string(),
+});
 
 export const SceneTurn = z.object({
   /** The partner's next line, in the target language. */
@@ -38,7 +41,8 @@ export const SceneTurn = z.object({
   corrections: z.array(Correction).max(5),
   /** Indices (0-based) of the goals reached so far in the whole conversation. */
   goalsMet: z.array(z.number().int().min(0)),
-  /** The Dialogue has come to a natural end. */
+  /** The model's view that the Dialogue has come to its end; the app ends it only once every goal
+   *  is met (`cleanSceneTurn`). */
   done: z.boolean(),
 });
 export type SceneTurn = z.infer<typeof SceneTurn>;
@@ -76,7 +80,7 @@ export function sceneSetupRules(
     "Make an information gap: the partner knows 2–4 concrete facts the learner does not (a time, a price, a place, a name, a number) and must ask for.",
     `Write title, situation, partner and goals in ${l}. "goals" are the learner's goal card: 2–3 concrete things to say or find out; at least one asks for a fact the partner holds, without giving the fact away.`,
     `"partnerInfo": the partner's facts as short sentences in ${t}; the learner does not see them.`,
-    `"opening" is the partner's first line in ${t} within the learner's level, using words they know; it does not give away the facts.`,
+    `"opening" is the partner's first line in ${t} within the learner's level, using words they know; it does not give away the facts. "openingTranslation": the opening in ${l}.`,
   ].join("\n");
 }
 
@@ -198,17 +202,29 @@ export const sceneTurnTask = (input: SceneTurnInput): StructuredTask<SceneTurn> 
   request: sceneTurnRequest(input),
 });
 
-const norm = (text: string) => text.toLowerCase().replace(/\s+/g, " ").trim();
+/** Text as compared: without case, punctuation and extra spaces (a recogniser's own, never errors). */
+const bare = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[\p{P}\p{S}]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-/** Corrections that quote `line` and change something, at most two. */
-const ofLine = <C extends Correction>(corrections: C[], line: string) =>
-  corrections
-    .filter((c) => norm(c.wrong) !== norm(c.right) && line.includes(norm(c.wrong)))
+/** Corrections that quote one of `lines` and change more than case or punctuation, at most two. */
+function ofLines<C extends Correction>(corrections: C[], lines: string[]) {
+  const said = lines.map(bare);
+  return corrections
+    .filter((c) => {
+      const wrong = bare(c.wrong);
+      return !!wrong && wrong !== bare(c.right) && said.some((line) => line.includes(wrong));
+    })
     .slice(0, CORRECTIONS_KEPT);
+}
 
 /**
  * Keeps the model honest where small models slip: corrections must quote the learner's new line (no
- * repeats of earlier ones, no no-ops), at most two; goals are valid indices and never "unmet" again.
+ * repeats of earlier ones, no no-ops), at most two; goals are valid indices and never "unmet" again;
+ * it is done only when every goal is met (a model's early `done` is ignored).
  */
 export function cleanSceneTurn(
   turn: SceneTurn,
@@ -221,9 +237,9 @@ export function cleanSceneTurn(
     .sort((a, b) => a - b);
   return {
     ...turn,
-    corrections: ofLine(turn.corrections, norm(message)),
+    corrections: ofLines(turn.corrections, [message]),
     goalsMet,
-    done: turn.done || goalsMet.length === goals,
+    done: goalsMet.length === goals,
   };
 }
 
@@ -300,10 +316,9 @@ export function sceneSummaryTask(input: SceneSummaryInput): StructuredTask<Dialo
 /** A summary as kept: corrections of the learner's lines that change something, at most two, each
  *  with a model line (the right line, else the line with the correction made). */
 export function cleanSceneSummary(summary: DialogueSummary, learnerLines: string[]) {
-  const said = norm(learnerLines.join("\n"));
   return {
     ...summary,
-    corrections: ofLine(summary.corrections, said).map((c) => ({
+    corrections: ofLines(summary.corrections, learnerLines).map((c) => ({
       ...c,
       model: c.model.trim() || c.right,
     })),

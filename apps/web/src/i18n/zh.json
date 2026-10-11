@@ -1317,7 +1317,7 @@
     "run_incomplete": "本课尚未完成。",
     "run_not_active": "本课的这一轮学习已结束。请重新加载本课。",
     "run_without_edition": "这一轮学习没有语言版本。请重新开始本课。",
-    "scene_busy": "对话仍在回复中，请稍候。",
+    "scene_busy": "对方仍在回复，或对话正在准备中。",
     "server_error": "服务器出错了。",
     "speaking_busy": "正在检查此答案。请稍候。",
     "speech_engine_failed": "语音识别器没有响应。请重试。",

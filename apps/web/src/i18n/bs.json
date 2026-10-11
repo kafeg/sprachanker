@@ -1317,7 +1317,7 @@
     "run_incomplete": "Lekcija još nije završena.",
     "run_not_active": "Ovaj prolaz lekcije je završen. Ponovo učitaj lekciju.",
     "run_without_edition": "Ovaj prolaz nema jezičku verziju. Ponovo počni lekciju.",
-    "scene_busy": "Dijalog još odgovara. Sačekaj.",
+    "scene_busy": "Sagovornik još odgovara ili se dijalog priprema.",
     "server_error": "Nešto nije u redu na serveru.",
     "speaking_busy": "Ovaj odgovor se upravo provjerava. Sačekaj.",
     "speech_engine_failed": "Prepoznavač govora nije odgovorio. Pokušaj ponovo.",

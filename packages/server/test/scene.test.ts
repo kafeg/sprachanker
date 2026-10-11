@@ -4,6 +4,7 @@
 import { expect, test } from "bun:test";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { setup } from "./setup.ts";
+import { until } from "./until.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
 const SETUP = {
@@ -12,6 +13,7 @@ const SETUP = {
   partner: "Официант",
   goals: ["Поздороваться", "Узнать цену кофе"],
   opening: "Guten Tag! Was möchten Sie?",
+  openingTranslation: "Здравствуйте! Что желаете?",
   partnerInfo: ["Ein Kaffee kostet 2,50 Euro."],
 };
 const SUMMARY = {
@@ -88,6 +90,12 @@ test("a Dialogue held by voice: setup with a hidden information gap, lines heard
   expect(started.setup.partnerInfo).toBeUndefined();
   expect(started.setup.goals).toEqual(SETUP.goals);
   expect([started.turns.length, started.summary]).toEqual([1, null]);
+  // The opening with its translation: "Translate" works on the first line too.
+  expect(started.turns[0]).toMatchObject({
+    role: "assistant",
+    text: SETUP.opening,
+    translation: SETUP.openingTranslation,
+  });
 
   const first = await sendJson("POST", "/api/llm/scene/turn", {
     ...base,
@@ -112,19 +120,24 @@ test("a Dialogue held by voice: setup with a hidden information gap, lines heard
 
   const prompt = await sendJson("POST", "/api/llm/scene/prompt", { ...base, text: "Was kostet" });
   expect(prompt.body.messages.at(-1).content).toBe("<line>Was kostet</line>");
-  expect(prompt.body.messages[0].content).toContain("You know: Ein Kaffee kostet 2,50 Euro.");
+  // The prompt viewer is the learner's: what the partner knows stays hidden there too.
+  expect(prompt.body.messages[0].content).toContain("You know: (hidden until the end)");
+  expect(prompt.body.messages[0].content).not.toContain("2,50");
 
   const last = await sendJson("POST", "/api/llm/scene/turn", {
     ...base,
     text: "Was kostet der Kaffee?",
   });
   // Typed (no microphone): no take, not marked spoken; the repeated correction is dropped; goals
-  // accumulate; all met → done, then summed up at once.
+  // accumulate; all met → done, the final line back at once, its summary the next step.
   expect(last.turns.at(-2).spoken).toBeUndefined();
   expect(last.turns.at(-2)).toMatchObject({ corrections: [], fits: false });
-  expect([last.goalsMet, last.done]).toEqual([[0, 1], true]);
+  expect([last.goalsMet, last.done, last.summary]).toEqual([[0, 1], true, null]);
+  expect(last.turns.at(-1).text).toBe("2,50 Euro. Tschüss!");
   expect(last.setup.partnerInfo).toEqual(SETUP.partnerInfo);
-  expect(last.summary).toEqual({
+  await until(async () => (await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).pending === null);
+  const [summed] = (await getJson(`/api/llm/scene?lessonKey=${LESSON}`)).scenes;
+  expect(summed.summary).toEqual({
     corrections: [SUMMARY.corrections[0]],
     feedback: "Gut gemacht.",
     model: "m",

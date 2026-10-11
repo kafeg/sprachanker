@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import { createDeckExtras } from "../src/services/deck-extras.ts";
+import { until } from "./until.ts";
 
 /** Deck folders in memory: each folder's extras.json as text. */
 function folders(extras: Record<string, string | undefined>) {
@@ -86,7 +87,7 @@ test("extras.json read entry by entry: one that does not read (a newer version's
       return { done: 1, failed: 0 };
     },
   });
-  for (let i = 0; i < 100 && extras.going("audio", folder); i++) await Bun.sleep(1);
+  await until(() => !extras.going("audio", folder));
   expect(JSON.parse(files.extras(folder) as string).words).toEqual({
     "lex:de:tisch:noun:m": newer,
     "lex:de:apfel:noun:m": { audio: audio("Apfel") },

@@ -1317,7 +1317,7 @@
     "run_incomplete": "The lesson is not finished yet.",
     "run_not_active": "This pass of the lesson has ended. Reload the lesson.",
     "run_without_edition": "This pass has no language version. Start the lesson again.",
-    "scene_busy": "The dialogue is still answering. Wait for it.",
+    "scene_busy": "Your partner is still answering, or the dialogue is being prepared.",
     "server_error": "Something went wrong on the server.",
     "speaking_busy": "This answer is being checked. Wait for it.",
     "speech_engine_failed": "The speech recogniser did not answer. Try again.",

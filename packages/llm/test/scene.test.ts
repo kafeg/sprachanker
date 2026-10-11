@@ -29,6 +29,7 @@ const SETUP = {
   partner: "Кассир",
   goals: ["Узнать, когда идёт поезд", "Узнать цену"],
   opening: "Guten Tag! Wohin möchten Sie?",
+  openingTranslation: "Здравствуйте! Куда вы хотите?",
   partnerInfo: ["Der Zug nach Berlin fährt um 14:30.", "Das Ticket kostet 29 Euro."],
 };
 
@@ -48,7 +49,9 @@ test("cleanSceneTurn: only corrections of the new line, at most two; goals accum
         { wrong: "Max", right: "Max", explanation: "no-op" },
         // Capitals alone are no error (a spoken line's are the recogniser's).
         { wrong: "max.", right: "Max.", explanation: "case" },
-        { wrong: "heisst max", right: "heißt Max", explanation: "second" },
+        // Nor is punctuation: a quote compared without it, a change of it alone dropped.
+        { wrong: "Das ist Max", right: "Das ist Max!", explanation: "punctuation" },
+        { wrong: "Heisst Max?", right: "heißt Max", explanation: "second" },
         { wrong: "das ist", right: "dies ist", explanation: "third: one too many" },
       ],
       goalsMet: [1, 7],
@@ -61,6 +64,13 @@ test("cleanSceneTurn: only corrections of the new line, at most two; goals accum
   expect(cleaned.goalsMet).toEqual([0, 1]);
   expect(cleaned.done).toBe(true);
   expect([cleaned.understood, cleaned.fits]).toEqual([true, true]);
+});
+
+test("cleanSceneTurn: the model's `done` does not end a Dialogue whose goals are not all met", () => {
+  const early = cleanSceneTurn(turn({ done: true, goalsMet: [0] }), "Hallo", 2, []);
+  expect([early.goalsMet, early.done]).toEqual([[0], false]);
+  const met = cleanSceneTurn(turn({ done: false, goalsMet: [1] }), "Hallo", 2, [0]);
+  expect(met.done).toBe(true);
 });
 
 test("sceneTurnRequest: user first, the opening kept, the partner's facts in the scene, a spoken line marked", () => {

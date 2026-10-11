@@ -1317,7 +1317,7 @@
     "run_incomplete": "Lecția nu este încă terminată.",
     "run_not_active": "Această parcurgere a lecției s-a încheiat. Reîncarcă lecția.",
     "run_without_edition": "Această parcurgere nu are versiune lingvistică. Începe lecția din nou.",
-    "scene_busy": "Dialogul încă răspunde. Așteaptă.",
+    "scene_busy": "Partenerul tău încă răspunde sau dialogul se pregătește.",
     "server_error": "Ceva n-a mers bine pe server.",
     "speaking_busy": "Acest răspuns este în curs de verificare. Așteaptă.",
     "speech_engine_failed": "Recunoașterea vorbirii nu a răspuns. Încearcă din nou.",

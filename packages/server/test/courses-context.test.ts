@@ -75,4 +75,15 @@ describe("the language a Tutor section's chat practises", () => {
     expect((await courses.get({ edition: "en-fr" }))?.edition).toBe("en-fr");
     expect((await context([]).get({ edition: "ru-de" }))?.edition).toBe("ru-de");
   });
+
+  test("the level the chat's courses say: their range; none said, none given", async () => {
+    const levelled = context([
+      course("nicos-weg-b1-ru", "ru-de", 3),
+      course("english-c1", "ru-en", 2),
+      course("nicos-weg-a1-ru", "ru-de", 1),
+    ]);
+    expect((await levelled.get({ target: "de" }))?.courses.level).toBe("A1–B1");
+    expect((await levelled.get({ target: "en" }))?.courses.level).toBe("C1");
+    expect((await courses.get({ target: "de" }))?.courses.level).toBeUndefined();
+  });
 });

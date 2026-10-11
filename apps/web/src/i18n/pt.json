@@ -1317,7 +1317,7 @@
     "run_incomplete": "A lição ainda não foi concluída.",
     "run_not_active": "Esta rodada da lição terminou. Recarregue a lição.",
     "run_without_edition": "Esta rodada não tem versão de idioma. Comece a lição de novo.",
-    "scene_busy": "O diálogo ainda está respondendo. Aguarde.",
+    "scene_busy": "Seu interlocutor ainda está respondendo ou o diálogo está sendo preparado.",
     "server_error": "Algo deu errado no servidor.",
     "speaking_busy": "Esta resposta está sendo verificada. Aguarde.",
     "speech_engine_failed": "O reconhecedor de fala não respondeu. Tente de novo.",

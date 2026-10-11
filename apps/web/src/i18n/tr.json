@@ -1317,7 +1317,7 @@
     "run_incomplete": "Ders henüz bitmedi.",
     "run_not_active": "Dersin bu turu bitti. Dersi yeniden yükle.",
     "run_without_edition": "Bu turun dil sürümü yok. Derse yeniden başla.",
-    "scene_busy": "Diyalog hâlâ cevap veriyor. Bekle.",
+    "scene_busy": "Konuşma partnerin hâlâ cevap veriyor ya da diyalog hazırlanıyor.",
     "server_error": "Sunucuda bir şeyler ters gitti.",
     "speaking_busy": "Bu cevap kontrol ediliyor. Biraz bekle.",
     "speech_engine_failed": "Konuşma tanıma cevap vermedi. Tekrar dene.",

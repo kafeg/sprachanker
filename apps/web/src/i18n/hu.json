@@ -1317,7 +1317,7 @@
     "run_incomplete": "A lecke még nincs kész.",
     "run_not_active": "A lecke e köre véget ért. Töltsd be újra a leckét.",
     "run_without_edition": "Ennek a körnek nincs nyelvi változata. Kezdd újra a leckét.",
-    "scene_busy": "A párbeszéd még válaszol. Várj rá.",
+    "scene_busy": "A beszélgetőtársad még válaszol, vagy a párbeszéd készül.",
     "server_error": "Hiba történt a szerveren.",
     "speaking_busy": "Ennek a válasznak az ellenőrzése folyamatban van. Várj egy kicsit.",
     "speech_engine_failed": "A beszédfelismerő nem válaszolt. Próbáld újra.",

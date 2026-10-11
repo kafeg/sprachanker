@@ -6,7 +6,7 @@ import type { CoursesInfo, TutorMistake } from "@sprachanker/llm";
 import { type LessonKey, lessonOrder, parseEditionId } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { Content } from "./content.ts";
-import type { LessonContexts } from "./lesson-context.ts";
+import { type LessonContexts, levelOf } from "./lesson-context.ts";
 import type { StudiedCourse } from "./lessons.ts";
 import type { Mistakes } from "./mistakes.ts";
 
@@ -106,7 +106,8 @@ export function createCoursesContext(deps: {
         mistakes.push(...(await deps.lessonContext.mistakes(c.series, c.edition, [m], titles)));
     }
 
-    return { courses: listed, words: dedupe(words), grammar, mistakes };
+    const level = levelOf(courses.map((c) => c.course).join(" "));
+    return { ...(level && { level }), courses: listed, words: dedupe(words), grammar, mistakes };
   }
 
   return {

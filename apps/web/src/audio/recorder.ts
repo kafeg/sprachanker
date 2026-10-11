@@ -3,6 +3,7 @@
 // stop with the take as the browser encoded it (Safari MP4/AAC, Chrome WebM/Opus), its loudness while
 // it records. Nothing here talks to the server.
 import { useCallback, useEffect, useRef, useState } from "react";
+import { stopPlayback } from "@/ui/playback.tsx";
 
 export type MicState = "ready" | "insecure" | "unsupported";
 
@@ -95,6 +96,8 @@ export function useRecorder({
 
   const start = useCallback(async () => {
     if (session.current) return;
+    // Nothing plays into the take: a line read aloud, a recording, a video.
+    stopPlayback();
     setState("starting");
     try {
       const device = micDevice.get();

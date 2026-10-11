@@ -1317,7 +1317,7 @@
     "run_incomplete": "Lekcja nie jest jeszcze ukończona.",
     "run_not_active": "To podejście do lekcji się zakończyło. Wczytaj lekcję ponownie.",
     "run_without_edition": "To podejście nie ma wersji językowej. Zacznij lekcję od nowa.",
-    "scene_busy": "Dialog jeszcze odpowiada. Poczekaj.",
+    "scene_busy": "Rozmówca jeszcze odpowiada albo dialog jest przygotowywany.",
     "server_error": "Coś poszło nie tak na serwerze.",
     "speaking_busy": "Ta odpowiedź jest właśnie sprawdzana. Poczekaj.",
     "speech_engine_failed": "Rozpoznawanie mowy nie odpowiedziało. Spróbuj ponownie.",
