@@ -342,6 +342,10 @@ raw/<edition>/<course>/…            # only the copies an exam's sources name (
 - Not in it: the rest of `raw/` (a source's pages can be fetched again, and are the larger part:
   3.5 GB of Nicos Weg's), media no file of it names, other courses' lines of `media.json` and
   `keys.json`, learner data (05).
+- **Export** (`courses export`, a Downloaded card, 06): the course's files linked into a transfer
+  under the series' import lock — not waited for: while a download or import of the series runs it
+  is 409 `series_busy` —, so a course normalised meanwhile is never taken half old, half new; hashed
+  after, the lock let go.
 - **Import** (`courses import`, Courses/Exams → Downloaded, 06): all or nothing, one at a time, in a
   transfer folder (`library/.transfers/<id>/`, swept as a profile's, 05). The file (its length
   announced; room for it, then for what of it is unpacked) read by its zip directory as a profile file is (05, step 2), its names
@@ -359,7 +363,8 @@ raw/<edition>/<course>/…            # only the copies an exam's sources name (
   the files name, each source copy one an exam's sources name, each line of its `media.json` one
   of its media files with that file's kind, size and sha256 for an http(s) address (a URL stored is
   never fetched again by the next download: a line is believed), the content versions those of its
-  files. Only then, under the series' import
+  files. A name the disk refuses (too long, a file where a folder would be) is the file's damage
+  (422), and a series another process is importing 409 `series_busy`. Only then, under the series' import
   lock (03), all or nothing: media and copies moved into place, the course's canonical folder and
   each edition's folder replaced whole where their content version differs, then the lines of
   `media.json` it lacks added (a URL the library has stored keeps its own line) and the course's

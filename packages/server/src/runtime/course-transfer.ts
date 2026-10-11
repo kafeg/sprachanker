@@ -19,6 +19,7 @@ import {
   installBundle,
   installing,
   linkOrCopy,
+  NotInstalledError,
   openLibrary,
   planBundle,
   undoInstall,
@@ -27,7 +28,12 @@ import {
   zipLength,
   zipLimits,
 } from "@sprachanker/course-kit";
-import { COURSE_BUNDLE_MAX_FILES, CourseBundlePath, courseIdOf } from "@sprachanker/schema";
+import {
+  COURSE_BUNDLE_MAX_FILES,
+  CourseBundlePath,
+  courseIdOf,
+  SeriesKey,
+} from "@sprachanker/schema";
 import { downloadMarker, providerOf, withSeriesLock } from "../providers.ts";
 import type { BundleFileEntry, CourseTransferFiles } from "../services/course-transfer.ts";
 import { type TransferOptions, transferFolders } from "./transfers.ts";
@@ -109,18 +115,32 @@ export function courseTransferFiles(
       }
     },
     async stage(series, course, editions) {
-      const content = await courseBundleContent(libraryRoot, series, course, editions);
+      if (!SeriesKey.safeParse(series).success || !existsSync(join(libraryRoot, series)))
+        throw new NotInstalledError(`${series}/${course}`);
       const id = t.begin();
       try {
+        // Its files as they are while no import changes them (an import replaces a course's files
+        // one by one): linked under the series' lock — not waited for: a download holds it for
+        // long —, so a file replaced later stays as it was here. Copied where the disk has no hard
+        // links, the room for it checked first. Hashed after, the lock let go.
+        const content = await withSeriesLock(
+          libraryRoot,
+          series,
+          async () => {
+            const content = await courseBundleContent(libraryRoot, series, course, editions);
+            for (const f of content.files) {
+              const to = join(filesOf(id), f.path);
+              mkdirSync(dirname(to), { recursive: true });
+              linkOrCopy(f.file, to, () => t.room(root, statSync(f.file).size));
+            }
+            return content;
+          },
+          { wait: false },
+        );
         const files: BundleFileEntry[] = [];
         const summed = new Map<string, { size: number; crc32: number }>();
         for (const f of content.files) {
-          const to = join(filesOf(id), f.path);
-          mkdirSync(dirname(to), { recursive: true });
-          // Linked: a file replaced in the library meanwhile stays as it was here. Copied where the
-          // disk has no hard links, the room for it checked first.
-          linkOrCopy(f.file, to, () => t.room(root, statSync(f.file).size));
-          const { sha256, size, crc32 } = await fileSums(to);
+          const { sha256, size, crc32 } = await fileSums(join(filesOf(id), f.path));
           files.push({ path: f.path, size, sha256 });
           summed.set(f.path, { size, crc32 });
         }

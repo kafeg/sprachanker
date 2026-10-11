@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Diese Kursdatei ist zu groß (höchstens 16 GB).",
     "course_bundle_from_newer_app": "Diese Kursdatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
     "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
-    "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist."
+    "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
+    "series_busy": "Kurse aus dieser Quelle werden gerade heruntergeladen oder importiert. Versuch es noch einmal, wenn das fertig ist."
   },
   "exams": {
     "tabs": {

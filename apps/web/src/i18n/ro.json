@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Acest fișier de curs este prea mare (cel mult 16 GB).",
     "course_bundle_from_newer_app": "Acest fișier de curs vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
     "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
-    "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină."
+    "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină.",
+    "series_busy": "Cursuri din această sursă se descarcă sau se importă chiar acum. Încearcă din nou după ce se termină."
   },
   "exams": {
     "tabs": {

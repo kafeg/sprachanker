@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Ce fichier de cours est trop volumineux (16 Go au plus).",
     "course_bundle_from_newer_app": "Ce fichier de cours vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
     "course_bundle_clash": "Cet ordinateur a d’autres fichiers sous les noms des médias de ce cours : télécharge plutôt le cours ici.",
-    "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé."
+    "course_import_busy": "Un autre fichier de cours est en cours d’import. Réessaie quand il sera terminé.",
+    "series_busy": "Des cours de cette source sont en cours de téléchargement ou d'import. Réessaie quand ce sera fini."
   },
   "exams": {
     "tabs": {

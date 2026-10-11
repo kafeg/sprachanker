@@ -322,7 +322,7 @@ export function createProfileTransfer(deps: {
             if (!(await files.receive(id, body, length)))
               throw new ServiceError("profile_file_too_large", 413);
             return await settle(id);
-          });
+          }, "profile_file_damaged");
         } finally {
           files.discard(id);
         }
@@ -334,7 +334,7 @@ export function createProfileTransfer(deps: {
       alone(async () => {
         const id = files.begin();
         try {
-          return await guarded(() => settle(id, file));
+          return await guarded(() => settle(id, file), "profile_file_damaged");
         } finally {
           files.discard(id);
         }

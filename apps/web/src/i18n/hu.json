@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Ez a kurzusfájl túl nagy (legfeljebb 16 GB).",
     "course_bundle_from_newer_app": "Ez a kurzusfájl a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
     "course_bundle_clash": "Ezen a számítógépen a kurzus médiafájljainak nevén más fájlok vannak: töltsd le inkább itt a kurzust.",
-    "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett."
+    "course_import_busy": "Épp egy másik kurzusfájl importálása folyik. Próbáld újra, ha végzett.",
+    "series_busy": "Ebből a forrásból éppen kurzusok letöltése vagy importálása folyik. Próbáld újra, ha végzett."
   },
   "exams": {
     "tabs": {

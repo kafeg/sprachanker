@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Ova datoteka kursa je prevelika (najviše 16 GB).",
     "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
     "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
-    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi."
+    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
+    "series_busy": "Kursevi iz ovog izvora se upravo preuzimaju ili uvoze. Pokušaj ponovo kad se to završi."
   },
   "exams": {
     "tabs": {

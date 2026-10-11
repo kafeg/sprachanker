@@ -38,6 +38,7 @@ export const ERROR_CODES = [
   "course_bundle_from_newer_app",
   "course_bundle_clash",
   "course_import_busy",
+  "series_busy",
   // Lesson runs and their events.
   "no_such_run",
   "run_not_active",

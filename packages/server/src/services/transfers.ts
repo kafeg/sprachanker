@@ -10,14 +10,24 @@ export const PREPARED_MS = 60 * 60_000;
 /** A system error's code (ENOSPC: a full disk, found before writing or while writing). */
 const codeOf = (error: unknown) => (error as { code?: string } | null)?.code;
 
-/** A full disk as the learner's error (507 `not_enough_space`), an upload that stalled too (408
- *  `upload_stalled`); anything else as it is. */
-export async function guarded<T>(work: () => Promise<T>): Promise<T> {
+/** What a file of untrusted names may make the disk refuse: a name too long, a file where its folder
+ *  would be (or the other way), a name taken (another case of it). */
+const REFUSED_NAMES = new Set(["ENAMETOOLONG", "ENOTDIR", "EISDIR", "EEXIST"]);
+
+/**
+ * A full disk as the learner's error (507 `not_enough_space`), an upload that stalled (408
+ * `upload_stalled`), a series another import holds (409 `series_busy`), and — with `damaged`, for a
+ * file imported — names the disk refuses as that file's damage (422); anything else as it is.
+ */
+export async function guarded<T>(work: () => Promise<T>, damaged?: ErrorCode): Promise<T> {
   try {
     return await work();
   } catch (error) {
-    if (codeOf(error) === "ENOSPC") throw new ServiceError("not_enough_space", 507);
-    if (codeOf(error) === "ETIMEDOUT") throw new ServiceError("upload_stalled", 408);
+    const code = codeOf(error) ?? "";
+    if (code === "ENOSPC") throw new ServiceError("not_enough_space", 507);
+    if (code === "ETIMEDOUT") throw new ServiceError("upload_stalled", 408);
+    if (code === "SERIES_BUSY") throw new ServiceError("series_busy", 409);
+    if (damaged && REFUSED_NAMES.has(code)) throw new ServiceError(damaged, 422);
     throw error;
   }
 }

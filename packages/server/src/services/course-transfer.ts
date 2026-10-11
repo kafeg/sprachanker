@@ -260,7 +260,7 @@ export function createCourseTransfer(deps: {
             if (!(await files.receive(id, body, length)))
               throw new ServiceError("course_bundle_too_large", 413);
             return await settle(id);
-          });
+          }, "course_bundle_damaged");
         } finally {
           files.discard(id);
         }
@@ -274,7 +274,7 @@ export function createCourseTransfer(deps: {
         await recovered;
         const id = files.begin();
         try {
-          return await guarded(() => settle(id, file));
+          return await guarded(() => settle(id, file), "course_bundle_damaged");
         } finally {
           files.discard(id);
         }

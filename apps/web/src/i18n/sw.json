@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Faili hili la kozi ni kubwa mno (GB 16 kwa zaidi).",
     "course_bundle_from_newer_app": "Faili hili la kozi limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
     "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
-    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika."
+    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
+    "series_busy": "Kozi kutoka chanzo hiki zinapakuliwa au kuingizwa sasa hivi. Jaribu tena itakapokamilika."
   },
   "exams": {
     "tabs": {

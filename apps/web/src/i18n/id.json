@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "Berkas kursus ini terlalu besar (paling besar 16 GB).",
     "course_bundle_from_newer_app": "Berkas kursus ini berasal dari versi SprachAnker yang lebih baru: perbarui dulu aplikasinya di sini.",
     "course_bundle_clash": "Komputer ini punya berkas lain dengan nama berkas media kursus ini: unduh saja kursusnya di sini.",
-    "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai."
+    "course_import_busy": "Berkas kursus lain sedang diimpor. Coba lagi setelah selesai.",
+    "series_busy": "Kursus dari sumber ini sedang diunduh atau diimpor. Coba lagi setelah selesai."
   },
   "exams": {
     "tabs": {

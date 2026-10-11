@@ -169,7 +169,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   for each, tested), with 400 (input; a request that does not validate is `invalid_request` with a
   `detail`, the AI's routes included), 403 (`missing_client_header`, `registration_closed`), 404
   (`not_installed` for a course, lesson or file that is not in the library; unknown ids), 409 (state:
-  a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
+  a series being imported, `series_busy`; a run not active, an assistant not set up, a model already busy with the same thing), 413, 415, 422
   (a deck file that does not read, unpacks too large or has no words; a profile file or a course
   bundle that is none, damaged or from a newer app), 421
   (a host name this machine is not reached by), 411 (`length_required`: a file without its length), 408

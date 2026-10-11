@@ -20,6 +20,7 @@ import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
 import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
 import { ulid } from "ulid";
+import { withSeriesLock } from "../src/providers.ts";
 import { courseTransferFiles } from "../src/runtime/course-transfer.ts";
 import { setup } from "./setup.ts";
 
@@ -263,6 +264,53 @@ test("a file that is no sound bundle is refused before anything is installed: no
     422,
     "course_bundle_from_newer_app",
   );
+});
+
+test("names the disk refuses (a file where a folder would be) are the bundle's damage, not the server's fault", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({ empty: true });
+  const res = await importInto(
+    b,
+    repack(bytes, {
+      files: (f) =>
+        Object.assign(f, {
+          "raw/ru-de/demo/x.html": strToU8("x"),
+          "raw/ru-de/demo/x.html/y.html": strToU8("y"),
+        }),
+    }),
+  );
+  expect([res.status, await read(res)]).toEqual([422, { error: "course_bundle_damaged" }]);
+  nothingLeft(b, {});
+});
+
+test("an export does not wait for a download of its series: it says so", async () => {
+  const a = await setup();
+  let release = () => {};
+  const held = withSeriesLock(
+    join(a.root, "library"),
+    FIXTURE_SERIES,
+    () =>
+      new Promise<void>((resolve) => {
+        release = resolve;
+      }),
+  );
+  await Bun.sleep(10);
+  const busy = await a.send("POST", "/api/courses/export", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+  });
+  expect([busy.status, await read(busy)]).toEqual([409, { error: "series_busy" }]);
+  release();
+  await held;
+  expect(
+    (await a.send("POST", "/api/courses/export", { series: FIXTURE_SERIES, course: "demo" }))
+      .status,
+  ).toBe(200);
+  // A series that is not one: not installed, and no folder made for it.
+  const absent = await a.send("POST", "/api/courses/export", { series: "no.such", course: "demo" });
+  expect(absent.status).toBe(404);
+  expect(existsSync(join(a.root, "library", "no.such"))).toBe(false);
 });
 
 test("a zip's directory is believed only as far as it is checked: entries overlapping", async () => {

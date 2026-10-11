@@ -1316,7 +1316,8 @@
     "course_bundle_too_large": "This course file is too large (16 GB at most).",
     "course_bundle_from_newer_app": "This course file comes from a newer version of SprachAnker: update the app here first.",
     "course_bundle_clash": "This computer has other files under the names of this course's media: download the course here instead.",
-    "course_import_busy": "Another course file is being imported. Try again when it is done."
+    "course_import_busy": "Another course file is being imported. Try again when it is done.",
+    "series_busy": "Courses from this source are being downloaded or imported right now. Try again when that is done."
   },
   "exams": {
     "tabs": {

@@ -53,6 +53,13 @@ export const providerOf = (series: string) =>
 export const downloadMarker = (libraryRoot: string, series: string, course: string) =>
   join(libraryRoot, series, ".downloads", `${course}.json`);
 
+/** A series another import holds (SERIES_BUSY: the transfers' 409 `series_busy`). */
+const seriesBusy = (series: string, pid?: number) =>
+  Object.assign(
+    new Error(`${series} is being imported${pid ? ` by another process (pid ${pid})` : ""}`),
+    { code: "SERIES_BUSY" },
+  );
+
 /** The series folders this process holds or waits for, each the end of its queue. */
 const heldHere = new Map<string, Promise<void>>();
 
@@ -60,14 +67,18 @@ const heldHere = new Map<string, Promise<void>>();
  * Work that writes a series' shared files (media.json, keys.json): one at a time per series — in
  * this process, in turn (a course bundle installed while a download of its series runs waits for
  * it); across processes (the CLI beside a server) a lock folder with the owner's pid, a lock whose
- * process is gone (or is no SprachAnker) taken over.
+ * process is gone (or is no SprachAnker) taken over. A lock another process holds is an error of
+ * code SERIES_BUSY, and so is one held here when `wait` is false (a course's export: not
+ * kept waiting while a download runs).
  */
 export async function withSeriesLock<T>(
   libraryRoot: string,
   series: string,
   work: () => Promise<T>,
+  options: { wait?: boolean } = {},
 ): Promise<T> {
   const folder = join(libraryRoot, series);
+  if (options.wait === false && heldHere.has(folder)) throw seriesBusy(series);
   const before = heldHere.get(folder) ?? Promise.resolve();
   let release = () => {};
   const mine = new Promise<void>((resolve) => {
@@ -119,7 +130,7 @@ async function takeLock(lock: string, series: string) {
       const owner = Number(await readFile(join(lock, "pid"), "utf8").catch(() => "0"));
       if (owner && owner !== process.pid && sprachAnkerRuns(owner)) {
         await rm(mine, { recursive: true, force: true });
-        throw new Error(`${series} is being imported by another process (pid ${owner})`);
+        throw seriesBusy(series, owner);
       }
       if (attempt > 2) {
         await rm(mine, { recursive: true, force: true });
