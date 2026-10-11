@@ -46,7 +46,6 @@ test("sceneTurnRequest: user first, the opening kept, the new line marked", () =
     language: "ru",
     target: "de",
     lesson: { title: "L", goals: [], vocab: [] },
-    knownVocab: [],
     setup,
     message: "Ich heiße Vitaly.",
   };
@@ -59,15 +58,26 @@ test("sceneTurnRequest: user first, the opening kept, the new line marked", () =
   expect(fresh.messages[0]?.content).toContain("0. a; 1. b");
 });
 
-test("sceneSetupTask: of many earlier words the most recent are kept", () => {
-  const knownVocab = Array.from({ length: 2000 }, (_, i) => `wort${i}`);
+test("sceneSetupTask: the level and place with the data; of many earlier words the most recent are kept", () => {
+  const knownWords = Array.from({ length: 2000 }, (_, i) => ({ target: `wort${i}` }));
   const task = sceneSetupTask({
     language: "ru",
     target: "de",
-    lesson: { title: "Im Café", goals: [], vocab: [] },
-    knownVocab,
+    lesson: {
+      title: "Im Café",
+      goals: [],
+      vocab: [],
+      level: "A2",
+      place: { n: 3, of: 30 },
+      knownWords,
+      topics: ["Modalverben"],
+    },
   });
-  const data = String(task.request.messages[1]?.content);
+  const [system, data] = task.request.messages.map((m) => String(m.content));
   expect(data).toContain("wort1999");
   expect(data).not.toContain("wort0;");
+  expect(data).toContain("Learner's level: A2");
+  expect(data).toContain("Place in the course: lesson 3 of 30");
+  expect(data).toContain("Grammar met so far: Modalverben");
+  expect(system).not.toContain("A1");
 });

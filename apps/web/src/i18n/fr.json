@@ -434,7 +434,9 @@
       "metWords": "les mots de ces leçons avec leurs traductions (les leçons les plus récentes d’abord)",
       "metGrammar": "leurs points de grammaire (les leçons les plus récentes d’abord)",
       "courseMistakes": "tes dernières erreurs dans ces cours (celles corrigées sont marquées)",
-      "chatHistory": "les derniers messages de la conversation"
+      "chatHistory": "les derniers messages de la conversation",
+      "place": "la place de la leçon dans le cours : son numéro et son unité",
+      "topics": "les points de grammaire vus jusqu’ici dans le cours"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",

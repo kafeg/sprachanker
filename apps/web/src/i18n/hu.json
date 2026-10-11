@@ -434,7 +434,9 @@
       "metWords": "e leckék szavai fordítással (a legutóbbi leckék elöl)",
       "metGrammar": "nyelvtani témáik (a legutóbbi leckék elöl)",
       "courseMistakes": "legutóbbi hibáid ezekben a kurzusokban (a javítottak megjelölve)",
-      "chatHistory": "a beszélgetés legutóbbi üzenetei"
+      "chatHistory": "a beszélgetés legutóbbi üzenetei",
+      "place": "hol tart a lecke a kurzusban: a száma és a fejezete",
+      "topics": "a kurzusban eddig vett nyelvtani témák"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",

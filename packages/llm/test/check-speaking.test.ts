@@ -16,7 +16,13 @@ const locale = fixture.locales["ru-de"]?.lessons.find((l) => l.lesson === lesson
 const input = {
   language: "ru",
   target: "de",
-  lesson: { title: "Begrüßung", goals: [], grammarHtml: [], vocab: [{ target: "Guten Tag" }] },
+  lesson: {
+    title: "Begrüßung",
+    goals: [],
+    grammarHtml: [],
+    vocab: [{ target: "Guten Tag" }],
+    level: "B1",
+  },
   exercise,
   locale,
   index: 1,
@@ -32,6 +38,8 @@ test("check_speaking: the item, the question and the source's answer as heard, t
   expect(system).toContain("speech recogniser");
   expect(system).toContain("in Russian");
   expect(system).toEndWith("Reply with the JSON object only.");
+  expect(system).not.toMatch(/A1|beginner/);
+  expect(user).toContain("Learner's level: B1");
   expect(user).toContain("Prompt (learner's language): Поздоровайся с соседом.");
   expect(user).toContain("Question heard: Wie begrüßt du deinen Nachbarn?");
   expect(user).toContain("The source's answer, heard: Hallo! Guten Tag!");

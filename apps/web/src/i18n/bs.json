@@ -434,7 +434,9 @@
       "metWords": "riječi tih lekcija s prevodima (najnovije lekcije prvo)",
       "metGrammar": "njihove gramatičke teme (najnovije lekcije prvo)",
       "courseMistakes": "tvoje najnovije greške u tim kursevima (ispravljene označene)",
-      "chatHistory": "posljednje poruke razgovora"
+      "chatHistory": "posljednje poruke razgovora",
+      "place": "gdje je lekcija u kursu: njen broj i cjelina",
+      "topics": "gramatičke teme do sada pređene u kursu"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",

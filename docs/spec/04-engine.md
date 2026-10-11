@@ -14,8 +14,8 @@ scored.
 The lesson flow (the plan's steps, `lessonSteps` in `packages/engine/src/compose/steps.ts`; owner
 2026-10-06): overview (synopsis, goals, the video or recording with its transcript under it) → "Words
 of the lesson" (cards; when it has words) → one "Grammar" step per grammar page (a page is one topic) → the exercises →
-one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07): "Write it yourself",
-scene, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
+one "Culture" step per culture page → AI practice when an assistant is set up and its place is on (07;
+"AI practice in courses" below): "Write it yourself", Dialogue, "Going over mistakes" (owner 2026-10-07: the run's status counted by the app — exercises
 worked, scored items right at the first attempt, mistakes by exercise — then the tutor goes through
 the mistakes one at a time in the lesson's chat, inline on the step) → summary of all of it. The steps
 come from what the provider's normaliser put into the canonical and locale files, the same way for
@@ -311,8 +311,60 @@ An installed exam (02) is taken in runs of kind `exam` (05). Pure functions in
   modules, or of the points), and the exam is passed when any or all of them are (`passWhen`). A mock exam is scored over all it
   asked, unanswered ones as wrong; practice over the questions answered.
 
-## Scenes
+## AI practice in courses
 
-`scene_setup` drafts a scene from the lesson's goals and words (title, situation, partner, 1–3 goals,
-opening line); `scene_turn` runs it (`packages/llm/src/tasks/scene.ts`, 07). Authored scenes in
-enrichment: plan, "Enrichment and rules".
+Seven exercises with the assistant in a course's lessons (owner, 2026-10-11; not in exams, whose
+parts are the exam's own). Each works from what the learner knows by the lesson — the knowledge
+snapshot (07): the course's level, the words and grammar topics met so far, the lesson's goals and
+its place in the course. Built in phases (plan, item 9): **this phase** — the snapshot and the
+Dialogue; **next** — Understanding; **then** — Writing, Going over mistakes and the tutor's practice
+presets taken out. What is not built yet is marked *planned*.
+
+Inside a lesson, at any time:
+
+1. **"Why is this wrong?"** under a wrong item: that one mistake explained (`explain_mistake`, 07), at
+   the course's level; *planned*: with where its topic was met (the lesson and grammar page that
+   teach it, from the snapshot).
+2. **"Check with AI"** under an answer said aloud to one of the course's own speaking items without
+   a line to say (`check_speaking`, 08): built.
+3. **The lesson tutor**: questions and explanations only; *planned (third phase)*: its practice
+   presets go — practice is the exercises below.
+
+The step "AI practice" at the lesson's end — its exercises, each a step of the plan under one
+label and each skippable as any step:
+
+4. **Understanding** (*planned, next phase*): listening first. A text or dialogue the AI writes from
+   the words known (`understanding_text`), heard through reading aloud in the language learnt only
+   (08; the engine and voice that read it named, as the model is) and answered by ear; then the text
+   opens for reading and a second question is asked. A reading-type text (a menu, a notice, a
+   timetable) is shown to read instead. Questions: true/false, a/b/c, numbers (prices, times) —
+   items of the existing closed types, checked by the engine, never by the model.
+5. **Writing** (built as "Write it yourself"; *planned, third phase*: a task with three content
+   points, as Goethe's Schreiben sets one, its length and criteria by the course's level — `check_writing`
+   gives at most three corrections and a model text). Typed only: no dictation where the task is
+   writing (08).
+6. **Dialogue** (built; plan, item 8): a conversation held by voice on a goal card with an
+   information gap — the partner holds facts the learner must ask for. The partner's lines are read
+   aloud in the language learnt; the learner answers by voice, sees what was heard and sends it as
+   heard (or says it again); each line judged — understood, fitting, at most two corrections of that
+   line —; done when the goals are met; then a summary: the goals met and one or two key corrections,
+   each with a model line. Typing only as a fallback where there is no microphone or no recognition
+   (09, the step says why). Replaces the typed scene (its runs read on as Dialogues).
+7. **Going over mistakes** (built as the tutor's walk-through; *planned, third phase*): the pass's
+   mistakes by type, a short explanation per type and two or three new items of the same type
+   (`mistake_items`, items of the existing closed types), checked by the engine.
+
+Owner's rules for all of them: a text is read aloud only in one language, given explicitly (never
+detected, never a mix; 08); no dictation where the task is writing; the tutor's replies are not read
+aloud; recognised speech is taken as a person would understand it — the recogniser's normalisation
+(punctuation, capitals, numbers written as digits) is accepted, never an error.
+
+**Dialogue** (`scene_setup`, `scene_turn`, `scene_summary`; 07): a `scene` run as scenes were (05)
+— the step and its place keep the id `scene`. Setup from the lesson's goals and the snapshot: a
+title, the situation, the partner, the learner's goal card (1–3 goals, at least one asking for
+what the partner holds) and the partner's hidden information, shown only once the Dialogue is over,
+and the opening line. Each learner line goes with whether it was said (recognised) or typed and the
+take's recording; the app keeps the model honest (`cleanSceneTurn`): corrections quote the line,
+at most two; met goals only accumulate; all met ends it. The summary is asked once the Dialogue
+ends (its goals met, or ended by the learner) and kept in its run. Authored dialogues in enrichment:
+plan, "Enrichment and rules".

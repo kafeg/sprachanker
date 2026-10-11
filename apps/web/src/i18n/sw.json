@@ -434,7 +434,9 @@
       "metWords": "maneno ya masomo hayo pamoja na tafsiri (masomo ya karibuni kwanza)",
       "metGrammar": "mada zake za sarufi (masomo ya karibuni kwanza)",
       "courseMistakes": "makosa yako ya karibuni katika kozi hizo (yaliyosahihishwa yamewekwa alama)",
-      "chatHistory": "jumbe za karibuni za mazungumzo"
+      "chatHistory": "jumbe za karibuni za mazungumzo",
+      "place": "mahali somo lilipo katika kozi: namba yake na kitengo chake",
+      "topics": "mada za sarufi zilizokwisha kujitokeza katika kozi"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",

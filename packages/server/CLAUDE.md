@@ -41,8 +41,7 @@ src/
     server/          # Drizzle schema + migrations for server.sqlite
     profile/         # Drizzle schema + migrations for profile.sqlite
     migrate.ts       # forward-only migrations, a copy before migrating (five kept), newer databases refused
-  once.ts            # one promise per key: a load, a reading, a hearing asked twice made once (services
-                     # and runtime alike)
+  once.ts            # one promise per key: a load, a reading, a hearing asked twice made once
   validate.ts        # request validation helper (input type for the client, output for the handler)
   errors.ts          # ServiceError(code, status): what a service refuses; errorResponse: how app.ts and
                      # routes/llm.ts answer it (and a request that does not validate)
@@ -52,11 +51,10 @@ src/
                      # (courses, catalog, downloads, lesson content), lessons (lesson runs: /api/runs),
                      # progress (reset), exams, cards (a card's examples too), decks (imported: list,
                      # preview, import, an upload let go, delete; any deck's words read aloud or given
-                     # examples), settings, notebook, recordings,
-                     # speech, llm (removable as a whole), network (the addresses the app is reached at);
-                     # env.ts: what a profile's routes read (`c.var.s`, its
-                     # services; `c.var.profileId`); params.ts: what several take alike (a run's id in
-                     # the path, a batch of events, a deck taken)
+                     # examples), settings, notebook, recordings, speech, llm (removable as a whole),
+                     # network (the addresses the app is reached at); env.ts: what a profile's routes
+                     # read (`c.var.s`, its services; `c.var.profileId`); params.ts: what several take
+                     # alike (a run's id in the path, a batch of events, a deck taken)
   services/          # index.ts wires them: shared (content, decks, downloads, profiles, devices, network —
                      # this machine's tailnet name for the Host check, the addresses) and each
                      # profile's own (`of(id)`, made on first use; what one module needs of another is
@@ -85,8 +83,9 @@ src/
                      #   its checks, the course installed; the files: CourseTransferFiles), transfers
                      #   (what both share: exports made ready once, one import at a time, a full disk)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
-                     #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,
-                     #   in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
+                     #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context
+                     #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
+                     #   words and topics met), in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
                      #   (+ tutor-tools; courses-context: what the Tutor section's chats know, the
                      #   languages a new one can practise), scene;
                      #   exam-rating, exam-conversation; examples (a deck's job with the profile's model

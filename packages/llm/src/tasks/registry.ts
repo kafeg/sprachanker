@@ -26,7 +26,11 @@ export const TASK_PROMPTS = {
   conversation: { rules: examConversationRules, budgets: EXAM_CONVERSATION_BUDGETS },
   sceneSetup: {
     rules: sceneSetupRules,
-    budgets: { lessonVocab: SCENE_BUDGETS.lessonVocab, knownVocab: SCENE_BUDGETS.knownVocab },
+    budgets: {
+      lessonVocab: SCENE_BUDGETS.lessonVocab,
+      knownVocab: SCENE_BUDGETS.knownVocab,
+      topics: SCENE_BUDGETS.topics,
+    },
   },
   scene: { rules: sceneTurnRules, budgets: SCENE_BUDGETS },
   examples: { rules: wordExamplesRules, budgets: WORD_EXAMPLES_BUDGETS },

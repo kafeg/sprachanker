@@ -13,6 +13,7 @@ const input: WritingInput = {
     goals: ["sich vorstellen"],
     grammarHtml: [],
     vocab: [{ target: "heißen" }],
+    level: "A1",
   },
   text: "  Ich heisse Anna. Ich komme aus Polen.  ",
 };
@@ -21,9 +22,11 @@ test("check_writing: the task from the lesson's goals, the text as data, the lea
   const { name, request } = checkWritingTask(input);
   expect(name).toBe("writing_check");
   const [system, user] = request.messages.map((m) => String(m.content));
-  expect(system).toContain("level A1");
-  expect(system).toContain("Goethe A1");
+  expect(system).toContain("CEFR writing exams of that level");
+  expect(system).not.toContain("A1");
   expect(system).toContain("in Russian");
+  expect(user).toContain("Learner's level: A1");
+  expect(user).toContain("Goethe-Zertifikat's Schreiben");
   expect(system).toEndWith("Reply with the JSON object only.");
   expect(user).toContain(
     "Task: Write 3–5 sentences in the target language on this lesson's topic (sich vorstellen).",
@@ -41,5 +44,6 @@ test("German spelling is said with the text, so it holds under the learner's own
   const english = checkWritingTask({ ...input, target: "en" as const }).request.messages[1]
     ?.content;
   expect(String(english)).not.toContain("Spelling is");
-  expect(checkWritingRules("ru", "en")).toContain("CEFR A1");
+  expect(String(english)).not.toContain("Goethe");
+  expect(checkWritingRules("ru", "de")).not.toContain("Goethe");
 });

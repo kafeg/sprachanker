@@ -10,6 +10,9 @@ import {
   knownWordsLine,
   type LessonInfo,
   lessonWordsLine,
+  levelLine,
+  placeLine,
+  topicsLine,
 } from "./lesson.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 import { TUTOR_TOOLS, TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tutor-tools.ts";
@@ -18,9 +21,8 @@ export interface ChatTurnInput extends RulesInput {
   /** Explanation language: the learner's interface language. */
   language: Lang;
   target: Lang;
+  /** The lesson with what the learner knows by now (07): earlier words, topics, level, place. */
   lesson: LessonInfo;
-  /** Headwords of earlier lessons, oldest first. */
-  knownVocab: string[];
   /** Titles of earlier lessons, oldest first. */
   earlierLessons: string[];
   /**
@@ -48,6 +50,7 @@ export const CHAT_TURN_BUDGETS = {
   grammar: 3500,
   lessonVocab: 1500,
   knownVocab: 2500,
+  topics: 600,
   earlierLessons: 800,
   exercise: 1500,
   mistakes: 2500,
@@ -76,7 +79,7 @@ export function chatTurnRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You are a friendly ${t} tutor inside a course app. The learner speaks ${l} and is a beginner.`,
+    `You are a friendly ${t} tutor inside a course app. The learner speaks ${l}; their level is given in <course>.`,
     `- Explain in ${l}. Write ${t} words, examples and practice lines in ${t}.`,
     `- Keep ${t} examples within the learner's material below: this lesson and earlier ones. If you need a word they have not met, add its translation in brackets.`,
     "- Be brief: at most about 150 words unless the learner asks for more. Short paragraphs or lists; **bold** for key forms; no tables.",
@@ -121,12 +124,15 @@ export function chatTurnMessages(input: ChatTurnInput): ChatMessage[] {
   const context = [
     "<course>",
     `Current lesson: ${lesson.title}`,
+    levelLine(lesson),
+    placeLine(lesson),
     goalsLine(lesson),
     input.earlierLessons.length
       ? `Earlier lessons: ${newest(input.earlierLessons, B.earlierLessons, "; ")}`
       : "This is the first lesson.",
     lessonWordsLine(lesson, B.lessonVocab),
-    knownWordsLine(input.knownVocab, B.knownVocab),
+    knownWordsLine(lesson, B.knownVocab),
+    topicsLine(lesson, B.topics),
     lesson.grammarHtml.length
       ? `Grammar notes of this lesson:\n${grammarNotes(lesson, B.grammar)}`
       : undefined,

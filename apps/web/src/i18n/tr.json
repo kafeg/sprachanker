@@ -434,7 +434,9 @@
       "metWords": "bu derslerin kelimeleri ve çevirileri (en yeni dersler önce)",
       "metGrammar": "dil bilgisi konuları (en yeni dersler önce)",
       "courseMistakes": "bu kurslardaki son hataların (düzeltilenler işaretli)",
-      "chatHistory": "sohbetin son mesajları"
+      "chatHistory": "sohbetin son mesajları",
+      "place": "dersin kurstaki yeri: numarası ve ünitesi",
+      "topics": "kursta şimdiye kadar görülen dil bilgisi konuları"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",

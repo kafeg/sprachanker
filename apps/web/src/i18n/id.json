@@ -434,7 +434,9 @@
       "metWords": "kata-kata dari pelajaran itu beserta terjemahannya (pelajaran terbaru dulu)",
       "metGrammar": "topik tata bahasanya (pelajaran terbaru dulu)",
       "courseMistakes": "kesalahan terbarumu di kursus-kursus itu (yang sudah diperbaiki ditandai)",
-      "chatHistory": "pesan-pesan terbaru dalam percakapan"
+      "chatHistory": "pesan-pesan terbaru dalam percakapan",
+      "place": "letak pelajaran dalam kursus: nomor dan unitnya",
+      "topics": "topik tata bahasa yang sudah dipelajari dalam kursus"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",

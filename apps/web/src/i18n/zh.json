@@ -434,7 +434,9 @@
       "metWords": "这些课的单词及翻译（最近的课在前）",
       "metGrammar": "这些课的语法主题（最近的课在前）",
       "courseMistakes": "你在这些课程中最近的错误（已改正的会标出）",
-      "chatHistory": "对话中最近的消息"
+      "chatHistory": "对话中最近的消息",
+      "place": "这一课在课程中的位置：课号和单元",
+      "topics": "到目前为止课程中学过的语法主题"
     },
     "upTo": "最多{chars, plural, other {#个字符}}",
     "debug": "显示“提示词”按钮",

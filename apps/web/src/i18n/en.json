@@ -434,7 +434,9 @@
       "metWords": "the words of those lessons with translations (the latest lessons first)",
       "metGrammar": "their grammar topics (the latest lessons first)",
       "courseMistakes": "your latest mistakes in those courses (fixed ones marked)",
-      "chatHistory": "the latest messages of the conversation"
+      "chatHistory": "the latest messages of the conversation",
+      "place": "where the lesson is in the course: its number and unit",
+      "topics": "the grammar topics met so far in the course"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",

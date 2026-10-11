@@ -142,7 +142,7 @@ test("a course's deck: its words given examples five a call with the words met s
   // The course's words up to the lesson; no level in its name: beginners'.
   expect(asked).toContain("<known>der Kaffee, die Kaffees; die Tasse, die Tassen;");
   expect(asked).not.toContain("Leute");
-  expect(asked).toContain("<level>A1–A2</level>");
+  expect(asked).toContain("<level>beginner (A1–A2)</level>");
   expect(asked).toContain("the translations in Russian");
 
   // Kept beside the course's deck by lexeme and language.

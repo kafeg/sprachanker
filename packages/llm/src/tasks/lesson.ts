@@ -1,6 +1,13 @@
-// The lesson as the tasks see it, and the lines of it that go into their prompts. One place, so every
-// task shows the lesson the same way.
+// The lesson as the tasks see it — with what the learner knows by now (07, the knowledge snapshot) —
+// and the lines of it that go into their prompts. One place, so every task shows the lesson the same
+// way.
 import { clip, htmlToText, newest } from "../text.ts";
+
+/** A word as the tasks see it: headword and translation. */
+export interface LessonWord {
+  target: string;
+  translation?: string;
+}
 
 /** What the tasks know of a lesson (the server's lesson context fills it). */
 export interface LessonInfo {
@@ -10,11 +17,31 @@ export interface LessonInfo {
   /** Grammar pages of the lesson (course HTML). */
   grammarHtml: string[];
   /** Words of this lesson: headword and translation. */
-  vocab: Array<{ target: string; translation?: string }>;
+  vocab: LessonWord[];
+  /** The course's CEFR level ("A1", "A1–A2"); undefined when the course does not say. */
+  level?: string;
+  /** Where the lesson is: its number in course order, of how many, and its unit's title. */
+  place?: { n: number; of: number; unit?: string };
+  /** Words of the earlier lessons with translations, in course order (the latest kept). */
+  knownWords?: LessonWord[];
+  /** Grammar topics met so far — the earlier lessons' and this one's —, in course order. */
+  topics?: string[];
 }
 
+/** The level as the prompts say it: the course's, else a beginner's. */
+export const levelText = (level: string | undefined) => level ?? "beginner (A1–A2)";
+
+export const levelLine = (lesson: Pick<LessonInfo, "level">) =>
+  `Learner's level: ${levelText(lesson.level)}`;
+
+/** "Lesson 12 of 40 (unit: Im Café)". */
+export const placeLine = ({ place }: Pick<LessonInfo, "place">) =>
+  place
+    ? `Place in the course: lesson ${place.n} of ${place.of}${place.unit ? ` (unit: ${place.unit})` : ""}`
+    : undefined;
+
 /** "der Kaffee (coffee)". */
-const wordWithTranslation = (v: LessonInfo["vocab"][number]) =>
+const wordWithTranslation = (v: LessonWord) =>
   v.translation ? `${v.target} (${v.translation})` : v.target;
 
 export const goalsLine = (lesson: Pick<LessonInfo, "goals">) =>
@@ -27,9 +54,16 @@ export const lessonWords = (lesson: Pick<LessonInfo, "vocab">, max: number) =>
 export const lessonWordsLine = (lesson: Pick<LessonInfo, "vocab">, max: number) =>
   lesson.vocab.length ? `Words of this lesson: ${lessonWords(lesson, max)}` : undefined;
 
-/** Headwords of earlier lessons (oldest first): the most recent within `max` characters. */
-export const knownWordsLine = (knownVocab: string[], max: number) =>
-  knownVocab.length ? `Words from earlier lessons: ${newest(knownVocab, max, "; ")}` : undefined;
+/** Words of earlier lessons with translations (oldest first): the most recent within `max`
+ *  characters. */
+export const knownWordsLine = ({ knownWords = [] }: Pick<LessonInfo, "knownWords">, max: number) =>
+  knownWords.length
+    ? `Words from earlier lessons: ${newest(knownWords.map(wordWithTranslation), max, "; ")}`
+    : undefined;
+
+/** The grammar topics met so far (oldest first): the most recent within `max` characters. */
+export const topicsLine = ({ topics = [] }: Pick<LessonInfo, "topics">, max: number) =>
+  topics.length ? `Grammar met so far: ${newest(topics, max, "; ")}` : undefined;
 
 /** The lesson's grammar notes as plain text within `max` characters. */
 export const grammarNotes = (lesson: Pick<LessonInfo, "grammarHtml">, max: number) =>

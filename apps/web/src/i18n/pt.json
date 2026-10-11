@@ -434,7 +434,9 @@
       "metWords": "as palavras dessas lições com traduções (as lições mais recentes primeiro)",
       "metGrammar": "seus tópicos de gramática (as lições mais recentes primeiro)",
       "courseMistakes": "seus erros mais recentes nesses cursos (os corrigidos marcados)",
-      "chatHistory": "as mensagens mais recentes da conversa"
+      "chatHistory": "as mensagens mais recentes da conversa",
+      "place": "onde a lição está no curso: o número e a unidade",
+      "topics": "os temas de gramática vistos até agora no curso"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",

@@ -1,10 +1,11 @@
 // Task `check_writing` (07, `check_answer` for free writing): a short text the learner wrote on the
-// lesson's topic, checked against the task and the lesson, scored on the A1 writing criteria (Goethe A1 "Schreiben" for German).
+// lesson's topic, checked against the task and the lesson, scored on the writing criteria of the
+// course's level (07; Goethe's "Schreiben" for German, said with the data).
 import { type Lang, WRITING_MAX, WritingCheck } from "@sprachanker/schema";
 import type { TaskRequest } from "../client.ts";
 import type { StructuredTask } from "../structured.ts";
 import { clip, languageName, languageNames } from "../text.ts";
-import { grammarNotes, type LessonInfo, lessonWordsLine } from "./lesson.ts";
+import { grammarNotes, type LessonInfo, lessonWordsLine, levelLine } from "./lesson.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface WritingInput extends RulesInput {
@@ -39,13 +40,12 @@ export function checkWritingRules(
   names = languageNames(language, target),
 ): string {
   const { language: l, target: t } = names;
-  const german = target === "de";
   return [
-    `You are a ${t} teacher checking a short text by a beginner (level A1) who speaks ${l}.`,
-    `Judge it against the task and the lesson below, the way ${german ? "the Goethe A1 exam rates" : "CEFR A1 writing exams rate"} writing:`,
+    `You are a ${t} teacher checking a short text by a learner of ${t} who speaks ${l}, at the learner's level given with the lesson.`,
+    "Judge it against the task and the lesson below, the way CEFR writing exams of that level rate writing:",
     "- task: are the points of the task covered (2 all, 1 some, 0 none or off topic);",
     "- communication: is it a coherent message for the situation, with fitting greetings or connectors where the task needs them (2/1/0);",
-    "- accuracy: grammar and spelling at A1 level; errors that block understanding weigh most (2 few or none, 1 several, 0 many).",
+    "- accuracy: grammar and spelling for the level; errors that block understanding weigh most (2 few or none, 1 several, 0 many).",
     `Rules: correct only real errors, changing as little as possible; keep the learner's ideas. Words the lesson has not taught are fine if correct. Ignore missing final punctuation.`,
     `List each error once in "corrections"; never list text that needs no change. No errors: an empty list.`,
     `Write "corrected", "wrong" and "right" in ${t}. Write every "comment", "explanation" and "feedback" in ${l} — not in ${t} — briefly. "feedback" is one or two encouraging, concrete sentences.`,
@@ -59,12 +59,18 @@ const SPELLING: Partial<Record<Lang, string>> = {
   de: 'Spelling is the standard of Germany, as the course teaches it: ß and umlauts where they belong (heiße, not heisse; Grüße, not Grüsse) — "ss" where German writes "ß" is an error to correct.',
 };
 
+/** The exam whose writing criteria a language's learners know: said with the data, as the spelling. */
+const EXAM: Partial<Record<Lang, string>> = {
+  de: "Rate it as the Goethe-Zertifikat's Schreiben does at that level.",
+};
+
 function checkWritingRequest(input: WritingInput): TaskRequest {
   const B = CHECK_WRITING_BUDGETS;
   const { lesson } = input;
   const context = [
     "<lesson>",
     `Lesson: ${lesson.title}`,
+    levelLine(lesson),
     `Task: ${writingTaskText(writingTopic(lesson))}`,
     lessonWordsLine(lesson, B.lessonVocab),
     lesson.grammarHtml.length ? `Grammar notes:\n${grammarNotes(lesson, B.grammar)}` : undefined,
@@ -72,6 +78,7 @@ function checkWritingRequest(input: WritingInput): TaskRequest {
     "<text>",
     clip(input.text.trim(), B.text),
     "</text>",
+    EXAM[input.target],
     // Small models follow the last lines best: what they most often get wrong.
     SPELLING[input.target],
     `Remember: comments, explanations and feedback in ${languageName(input.language)}.`,

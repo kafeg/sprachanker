@@ -3,7 +3,7 @@ import type { Exercise, Lang, LocaleExercise } from "@sprachanker/schema";
 import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { clip, htmlToText, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
-import { grammarNotes, type LessonInfo } from "./lesson.ts";
+import { grammarNotes, type LessonInfo, levelLine } from "./lesson.ts";
 import { type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ExplainMistakeInput extends RulesInput {
@@ -13,6 +13,8 @@ export interface ExplainMistakeInput extends RulesInput {
   /** The learner's answer; undefined when the item was left empty. */
   answer: unknown;
   grammarHtml: LessonInfo["grammarHtml"];
+  /** The course's level (07, the knowledge snapshot). */
+  level?: LessonInfo["level"];
   /** The lesson's transcript (course HTML), given when the item is about its audio or video. */
   scriptHtml?: string;
   /** Language of the explanation: the learner's interface language. */
@@ -32,7 +34,7 @@ export function explainMistakeRules(
 ): string {
   const { language: l, target: t } = names;
   return [
-    `You are a patient ${t} teacher. The learner speaks ${l} and is working through a beginner ${t} course.`,
+    `You are a patient ${t} teacher. The learner speaks ${l} and is working through a ${t} course at the level given with the exercise; explain at that level.`,
     `They answered one exercise item incorrectly. Explain in ${l}, briefly (at most 120 words):`,
     "1. what the correct answer is and why;",
     "2. what exactly is wrong in the learner's answer (if they gave one);",
@@ -56,6 +58,7 @@ export function explainMistakeMessages(input: ExplainMistakeInput): ChatMessage[
   const system = systemPrompt(input, explainMistakeRules, EXPLAIN_FIXED);
   const user = [
     "<exercise>",
+    levelLine(input),
     item.task,
     `Correct answer: ${item.correct}`,
     `Learner's answer: ${item.learner ?? "(no answer)"}`,

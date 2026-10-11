@@ -71,7 +71,6 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       target: ctx.target,
       rules: deps.llm.rulesFor("scene", request.language, ctx.target),
       lesson: ctx.info,
-      knownVocab: ctx.knownVocab,
       setup: state.setup,
       history: state.turns.map((t) => ({ role: t.role, text: t.text })),
       message,
@@ -92,7 +91,6 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
         language: request.language,
         target: ctx.target,
         lesson: ctx.info,
-        knownVocab: ctx.knownVocab,
       }),
     );
     const run = store.atomic(() => {

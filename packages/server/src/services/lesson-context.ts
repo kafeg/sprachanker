@@ -20,17 +20,45 @@ interface LessonContext {
   lesson: Lesson;
   locale?: LocaleLesson;
   target: Lang;
-  /** The `lesson` part of the tasks' inputs. */
+  /** The `lesson` part of the tasks' inputs, with what the learner knows by now (07). */
   info: LessonInfo;
-  /** Headwords and titles of the lessons before this one, in course order. */
-  knownVocab: string[];
+  /** Titles of the lessons before this one, in course order. */
   earlierLessons: string[];
   /** Lesson titles of the edition, by key. */
   titles: Record<string, string>;
 }
 
+/** Earlier words kept in a snapshot: the latest; every task's budget takes fewer. */
+const KNOWN_WORDS = 800;
+
+/** The CEFR level a course's id or a deck's name says ("a1-ru" → A1, "a1-a2-ru" → A1–A2, "Deutsch
+ *  A2", "слова_b1"); undefined when it says none. */
+export function levelOf(name: string): string | undefined {
+  const levels = [...name.matchAll(/(?:^|[^a-z0-9])([abc][12])(?![0-9])/gi)].map((m) =>
+    (m[1] as string).toUpperCase(),
+  );
+  const [first, last] = [levels[0], levels.at(-1)];
+  return first && last && last !== first ? `${first}–${last}` : first;
+}
+
+/** A word as the tasks see it, in an edition. */
+const wordsOf = (lesson: Lesson | undefined, locale: LocaleLesson | undefined) =>
+  (lesson?.vocab ?? []).map((v) => ({
+    target: v.target,
+    translation: locale?.vocab[v.key]?.translation,
+  }));
+
+/** Each once, where it came first. */
+const once = <T>(list: T[], key: (t: T) => string) => {
+  const seen = new Set<string>();
+  return list.filter((t) => !seen.has(key(t)) && seen.add(key(t)));
+};
+
 export function createLessonContext(content: Content) {
   return {
+    /** The lesson in the edition with the knowledge snapshot (07, "What the learner knows by
+     *  now"): the course's level, the lesson's place, its goals and words, the earlier lessons'
+     *  words with translations and the grammar topics met so far. */
     async get(series: string, lessonKey: LessonKey, edition: string): Promise<LessonContext> {
       const course = parseLessonKey(lessonKey).courseId;
       const [map, lesson, locale] = await Promise.all([
@@ -39,10 +67,29 @@ export function createLessonContext(content: Content) {
         content.localeLesson(series, lessonKey, edition),
       ]);
       const order = lessonOrder(map.index);
-      const earlier = order.slice(0, Math.max(0, order.indexOf(lessonKey)));
-      const earlierVocab = await Promise.all(
-        earlier.map(async (k) => (await content.lesson(series, k)).vocab.map((v) => v.target)),
+      const at = order.indexOf(lessonKey);
+      const earlier = order.slice(0, Math.max(0, at));
+      const files = await Promise.all(
+        earlier.map(async (k) => {
+          const [l, loc] = await Promise.all([
+            content.lesson(series, k).catch(() => undefined),
+            content.localeLesson(series, k, edition).catch(() => undefined),
+          ]);
+          return { lesson: l, locale: loc };
+        }),
       );
+      const known = once(
+        files.flatMap((f) => wordsOf(f.lesson, f.locale)),
+        (w) => w.target,
+      );
+      const topics = once(
+        [...files.map((f) => f.locale), locale].flatMap(
+          (loc) => loc?.tabs.grammar.flatMap((t) => t.title?.trim() || []) ?? [],
+        ),
+        (t) => t,
+      );
+      const unit = map.index.units.find((u) => u.lessons.includes(lessonKey));
+      const level = levelOf(course);
       return {
         lesson,
         locale,
@@ -51,12 +98,21 @@ export function createLessonContext(content: Content) {
           title: locale?.title ?? lessonKey,
           goals: lesson.goals.flatMap((g) => map.locale?.goals[g]?.text ?? []),
           grammarHtml: locale?.tabs.grammar.map((t) => t.bodyHtml) ?? [],
-          vocab: lesson.vocab.map((v) => ({
-            target: v.target,
-            translation: locale?.vocab[v.key]?.translation,
-          })),
+          vocab: wordsOf(lesson, locale),
+          ...(level && { level }),
+          ...(at >= 0 && {
+            place: {
+              n: at + 1,
+              of: order.length,
+              ...(unit &&
+                map.locale?.units[unit.key]?.title && {
+                  unit: map.locale.units[unit.key]?.title,
+                }),
+            },
+          }),
+          knownWords: known.slice(-KNOWN_WORDS),
+          topics,
         },
-        knownVocab: [...new Set(earlierVocab.flat())],
         earlierLessons: earlier.map((k) => map.titles[k] ?? k),
         titles: map.titles,
       };

@@ -434,7 +434,9 @@
       "metWords": "cuvintele acelor lecții cu traduceri (cele mai recente lecții întâi)",
       "metGrammar": "temele lor de gramatică (cele mai recente lecții întâi)",
       "courseMistakes": "cele mai recente greșeli ale tale din acele cursuri (cele corectate marcate)",
-      "chatHistory": "cele mai recente mesaje ale conversației"
+      "chatHistory": "cele mai recente mesaje ale conversației",
+      "place": "locul lecției în curs: numărul și unitatea ei",
+      "topics": "temele de gramatică întâlnite până acum în curs"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",

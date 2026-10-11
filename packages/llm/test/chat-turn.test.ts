@@ -7,16 +7,22 @@ const lesson = fixture.lessons[0];
 const exercise = lesson?.pages[5]?.exercise;
 if (!exercise) throw new Error("fixture exercise missing");
 
+const lessonOf = (extra: Partial<ChatTurnInput["lesson"]> = {}): ChatTurnInput["lesson"] => ({
+  title: "Im Café",
+  goals: ["etwas bestellen"],
+  grammarHtml: ["<p>Verb an Position 2</p>"],
+  vocab: [{ target: "der Kaffee", translation: "кофе" }, { target: "gern" }],
+  level: "A1",
+  place: { n: 2, of: 40, unit: "Hallo!" },
+  knownWords: [{ target: "hallo", translation: "привет" }, { target: "tschüss" }],
+  topics: ["Begrüßung", "Verb an Position 2"],
+  ...extra,
+});
+
 const input = (extra: Partial<ChatTurnInput> = {}): ChatTurnInput => ({
   language: "ru",
   target: "de",
-  lesson: {
-    title: "Im Café",
-    goals: ["etwas bestellen"],
-    grammarHtml: ["<p>Verb an Position 2</p>"],
-    vocab: [{ target: "der Kaffee", translation: "кофе" }, { target: "gern" }],
-  },
-  knownVocab: ["hallo", "tschüss"],
+  lesson: lessonOf(),
   earlierLessons: ["Hallo!"],
   history: [],
   message: "Объясни грамматику",
@@ -32,10 +38,13 @@ test("system message: rules, course context as data, exercise with answers", () 
   for (const part of [
     "<course>",
     "Current lesson: Im Café",
+    "Learner's level: A1",
+    "Place in the course: lesson 2 of 40 (unit: Hallo!)",
     "Goals: etwas bestellen",
     "Earlier lessons: Hallo!",
     "Words of this lesson: der Kaffee (кофе); gern",
-    "Words from earlier lessons: hallo; tschüss",
+    "Words from earlier lessons: hallo (привет); tschüss",
+    "Grammar met so far: Begrüßung; Verb an Position 2",
     "Grammar notes of this lesson:\nVerb an Position 2",
     "Exercise on screen:\nExercise 6 · Herr oder Frau?\n\nItem 1:",
     "Answer: Guten Tag, [Frau] Weber.",
@@ -43,10 +52,19 @@ test("system message: rules, course context as data, exercise with answers", () 
     expect(system?.content).toContain(part);
   }
   expect(user).toEqual({ role: "user", content: "Объясни грамматику" });
+  // The level is the course's, never assumed in the rules.
+  expect(system?.content).not.toContain("beginner");
+});
+
+test("a course that names no level: a beginner's said with the data", () => {
+  const [system] = chatTurnMessages(input({ lesson: lessonOf({ level: undefined }) }));
+  expect(system?.content).toContain("Learner's level: beginner (A1–A2)");
 });
 
 test("first lesson, no exercise: no empty sections", () => {
-  const [system] = chatTurnMessages(input({ earlierLessons: [], knownVocab: [] }));
+  const [system] = chatTurnMessages(
+    input({ earlierLessons: [], lesson: lessonOf({ knownWords: [], topics: [] }) }),
+  );
   expect(system?.content).toContain("This is the first lesson.");
   expect(system?.content).not.toContain("Exercise on screen");
   expect(system?.content).not.toContain("Words from earlier lessons");
@@ -74,8 +92,8 @@ test("history: the most recent turns within budget, starting with a user turn", 
 });
 
 test("known vocabulary keeps the most recent words when it is too long", () => {
-  const words = Array.from({ length: 2000 }, (_, i) => `wort${i}`);
-  const [system] = chatTurnMessages(input({ knownVocab: words }));
+  const words = Array.from({ length: 2000 }, (_, i) => ({ target: `wort${i}` }));
+  const [system] = chatTurnMessages(input({ lesson: lessonOf({ knownWords: words }) }));
   expect(system?.content).toContain("wort1999");
   expect(system?.content).not.toContain("wort0;");
   expect(system?.content).toContain("Words from earlier lessons: … ");
