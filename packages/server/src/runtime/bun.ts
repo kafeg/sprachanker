@@ -3,7 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { writeFileAtomic } from "@sprachanker/course-kit";
-import { PROFILE_FILE_MAX_BYTES } from "@sprachanker/schema";
+import { COURSE_BUNDLE_MAX_BYTES, PROFILE_FILE_MAX_BYTES } from "@sprachanker/schema";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { type Migration, migrate } from "../db/migrate.ts";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -19,7 +19,8 @@ import type { WebAssets } from "../web.ts";
 
 /** The routes that answer only once a file is read or written: a deck package's (routes/decks.ts), a
  *  profile file's (routes/profiles.ts). */
-const UNTIMED = /^\/api\/(decks\/(preview|import)|profiles\/import|profile\/export\/[^/]+)$/;
+const UNTIMED =
+  /^\/api\/(decks\/(preview|import)|profiles\/import|profile\/export\/[^/]+|courses\/(import|export\/[^/]+))$/;
 
 export interface Listening {
   url: string;
@@ -43,9 +44,10 @@ export function listen(
     // Bun's most: a local model may take minutes to its first token (07: 180 s), a speech engine to
     // load; Bun's default 10 s would cut them.
     idleTimeout: 255,
-    // A profile file is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
+    // A course bundle is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
     // limit below it (app.ts).
-    maxRequestBodySize: Math.max(DECK_MAX_BYTES, PROFILE_FILE_MAX_BYTES) + 1024 * 1024,
+    maxRequestBodySize:
+      Math.max(DECK_MAX_BYTES, PROFILE_FILE_MAX_BYTES, COURSE_BUNDLE_MAX_BYTES) + 1024 * 1024,
   });
   return { url: server.url.href, stop: () => server.stop() };
 }

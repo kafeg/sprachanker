@@ -17,7 +17,9 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
                  │  binary), started on demand by the supervisor, stopped when idle
                  └─ Piper (sherpa-onnx-offline-tts), run once per text read aloud
                         │
-<data root> (~/SprachAnker) ── library/<series>/…         courses (02), written only by the importers
+<data root> (~/SprachAnker) ── library/<series>/…         courses (02), written by the importers and
+                            │                             course bundles installed
+                            ├─ library/.transfers/        a course bundle being exported or imported
                             ├─ decks/<id>/                imported .apkg decks: deck.json, extras.json, media/ (05)
                             ├─ decks/course~<s>~<c>/      a course deck's words read aloud: extras.json, media/
                             ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
@@ -31,7 +33,10 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
 Each database is copied beside itself once a day (a week kept) and before a migration. A profile
 moves between one's machines as one file (`.sprachanker-profile`: its database without its API keys,
 its recordings, a manifest with a hash per file), imported as a new profile; `sprachanker backup`
-copies what cannot be fetched again (05, "Backups").
+copies what cannot be fetched again (05, "Backups"). A downloaded course or exam moves the same way
+(`.sprachanker-course`: its files of the editions carried, the media they use, a manifest with a hash
+per file and its content versions), installed only once every file is checked, media already there
+not unpacked again (02, "Course bundle").
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
@@ -57,14 +62,14 @@ only the router and the settings page import the optional `llm/` folder.
 | Module | Owns |
 |---|---|
 | `packages/schema` | zod schemas of every stored format and API payload, keys (`keys.ts`), event payloads |
-| `packages/course-kit` | library read/write, fetcher, media store, the provider contract (`CourseProvider`), exercises drafted and checked, the key map, `verify`, vocab rules |
+| `packages/course-kit` | library read/write, fetcher, media store, the provider contract (`CourseProvider`), exercises drafted and checked, the key map, `verify`, vocab rules, course bundles (what one holds, checked and installed), zips of stored entries |
 | `courses/<provider>` | fetch a source politely into `raw/`, normalise deterministically into canonical + locale |
 | `packages/engine` | checking answers, text normalisation and diff, the lesson's steps and progress, mistakes, FSRS and Anki's study queue |
 | `packages/llm` | providers, streamed and structured calls, time limits, prompts and tasks, tutor tools |
 | `packages/anki-export` | `.apkg` packages read (SQLite and zstd from the runtime), notes as a deck's words with lexemes by the courses' rules |
 | `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engines and their supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
-| `apps/cli` | `serve`, `import`, `verify`, `profiles` (with a profile's export and import), `backup` |
+| `apps/cli` | `serve`, `import`, `verify`, `profiles` (with a profile's export and import), `courses` (a course's export and import), `backup` |
 
 ## Server inside
 
@@ -78,7 +83,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
 
 - **Content**: `content` reads the library through course-kit, each file read once and kept while it
   stays the same (its size and time of change: a download or an import replaces it); `downloads` queues course
-  installs (one at a time, progress, resume after restart) through the providers' importers.
+  installs (one at a time, progress, resume after restart) through the providers' importers;
+  `course-transfer` moves a course as a bundle (course-kit `bundle.ts` checks and installs it).
 - **Learner data**: one module per table group — `run-store` is the only code on `runs` and `events`,
   `card-store` the only code on `cards` and `card_state`; over the run store, `answers` (numbered by
   the server) and `verdicts` (a model's, kept and read one way). Services build on them — lessons:

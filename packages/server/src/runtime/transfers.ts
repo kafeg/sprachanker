@@ -48,7 +48,12 @@ export interface TransferOptions {
   sweeps?: () => boolean;
 }
 
-export function transferFolders(root: string, options: TransferOptions = {}) {
+/** `beforeRemove`: what a transfer swept leaves to mend first (a course folder an install put aside). */
+export function transferFolders(
+  root: string,
+  options: TransferOptions = {},
+  beforeRemove?: (folder: string) => void,
+) {
   const diskAt = options.disk ?? diskOf;
   /** This process's transfers in use: never swept. */
   const active = new Set<string>();
@@ -77,8 +82,9 @@ export function transferFolders(root: string, options: TransferOptions = {}) {
       for (const name of statSync(root, { throwIfNoEntry: false }) ? readdirSync(root) : []) {
         if (active.has(name)) continue;
         const at = statSync(join(root, name), { throwIfNoEntry: false })?.mtimeMs;
-        if (at !== undefined && Date.now() - at > KEPT_MS)
-          rmSync(join(root, name), { recursive: true, force: true });
+        if (at === undefined || Date.now() - at <= KEPT_MS) continue;
+        beforeRemove?.(join(root, name));
+        rmSync(join(root, name), { recursive: true, force: true });
       }
     },
     /** A new, empty transfer. */
@@ -98,6 +104,13 @@ export function transferFolders(root: string, options: TransferOptions = {}) {
       touched.delete(id);
       touch(id);
     },
+    /** Chunks passed on, the transfer marked in use while they come. */
+    async *touching(id: string, chunks: AsyncIterable<Uint8Array>) {
+      for await (const chunk of chunks) {
+        touch(id);
+        yield chunk;
+      }
+    },
     /** Room for `bytes` more on the disk of `dir` — the data root's margin left free —, else ENOSPC. */
     room(dir: string, bytes: number, margin = dataRootMargin) {
       const disk = diskAt(dir);
@@ -113,13 +126,9 @@ export function transferFolders(root: string, options: TransferOptions = {}) {
       need: number,
     ) {
       self.room(root, need);
-      async function* touching() {
-        for await (const chunk of body) {
-          touch(id);
-          yield chunk;
-        }
-      }
-      return (await writeChunks(join(folder(id), file), touching(), length)) !== undefined;
+      return (
+        (await writeChunks(join(folder(id), file), self.touching(id, body), length)) !== undefined
+      );
     },
     /** A stream written whole to a file — its owner's only — (beside it, then renamed), its disk
      *  checked for `bytes` first. */

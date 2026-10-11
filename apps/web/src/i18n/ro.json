@@ -1308,7 +1308,14 @@
     "examples_without_word": "Propozițiile modelului nu au folosit cuvântul.",
     "length_required": "Fișierul a fost trimis fără dimensiunea lui. Încearcă din nou sau în alt browser.",
     "profile_import_busy": "Se importă deja alt fișier de profil. Încearcă din nou după ce se termină.",
-    "llm_url_with_login": "Lasă numele de utilizator și parola în afara adresei: introdu cheia în câmpul pentru cheia API."
+    "llm_url_with_login": "Lasă numele de utilizator și parola în afara adresei: introdu cheia în câmpul pentru cheia API.",
+    "course_export_gone": "Acest export nu mai este aici: exportă cursul din nou.",
+    "not_a_course_bundle": "Acest fișier nu este un fișier de curs SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Acest fișier de curs este deteriorat sau a fost modificat după export.",
+    "course_bundle_too_large": "Acest fișier de curs este prea mare (cel mult 16 GB).",
+    "course_bundle_from_newer_app": "Acest fișier de curs vine dintr-o versiune mai nouă a SprachAnker: actualizează mai întâi aplicația aici.",
+    "course_bundle_clash": "Pe acest calculator există alte fișiere cu numele fișierelor media ale acestui curs: descarcă mai bine cursul aici.",
+    "course_import_busy": "Se importă deja alt fișier de curs. Încearcă din nou după ce se termină."
   },
   "exams": {
     "tabs": {

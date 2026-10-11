@@ -19,6 +19,7 @@ import { type Content, courseTitle } from "./content.ts";
 import { EDITABLE_ENDPOINTS } from "./llm.ts";
 import type { Profiles } from "./profiles.ts";
 import type { RunStore } from "./run-store.ts";
+import { guarded, oneAtATime, preparedExports } from "./transfers.ts";
 
 /** A file of a profile file besides its manifest, as listed in the manifest. */
 export interface ProfileFileEntry {
@@ -117,12 +118,6 @@ export function contentUsed(store: Pick<RunStore, "all">, cards: Pick<CardStore,
 }
 export type ContentKeys = ReturnType<typeof contentUsed>;
 
-/** An export prepared and not yet downloaded goes after an hour, its transfer with it. */
-export const PREPARED_MS = 60 * 60_000;
-
-/** A full disk, found before writing or while writing. */
-const noSpace = (error: unknown) => (error as { code?: string } | null)?.code === "ENOSPC";
-
 export function createProfileTransfer(deps: {
   files: TransferFiles;
   profiles: Profiles;
@@ -135,40 +130,17 @@ export function createProfileTransfer(deps: {
   now: () => number;
 }) {
   const { files, profiles, content, now } = deps;
-  const prepared = new Map<
-    string,
-    {
-      profileId: string;
-      manifest: string;
-      paths: string[];
-      fileName: string;
-      bytes: number;
-      /** Lets it go after PREPARED_MS. */
-      timer: ReturnType<typeof setTimeout>;
-    }
-  >();
-  /** Forgets a prepared export: downloaded (its stream has the transfer now), or let go with it. */
-  const forget = (id: string, discard: boolean) => {
-    const p = prepared.get(id);
-    if (!p) return;
-    clearTimeout(p.timer);
-    prepared.delete(id);
-    if (discard) files.discard(id);
-  };
+  /** Exports made ready, each its profile's. */
+  const prepared = preparedExports<{
+    manifest: string;
+    paths: string[];
+    fileName: string;
+    bytes: number;
+  }>(files.discard, "profile_export_gone");
   // At the start: a stopped server's transfers, and its imports cut short between moving a profile's
   // folder into place and making its row.
   files.sweep();
   files.unfinished((id) => profiles.list().some((p) => p.id === id));
-
-  /** A full disk as the learner's error; anything else as it is. */
-  async function guarded<T>(work: () => Promise<T>): Promise<T> {
-    try {
-      return await work();
-    } catch (error) {
-      if (noSpace(error)) throw new ServiceError("not_enough_space", 507);
-      throw error;
-    }
-  }
 
   /** The content used with the titles it has here (null: not installed here). */
   async function titled(keys: ContentKeys): Promise<ContentUsed> {
@@ -252,29 +224,16 @@ export function createProfileTransfer(deps: {
     };
   }
 
-  /** A profile's export not yet downloaded let go (a new one replaces it: one a profile at most). */
-  const letGo = (profileId: string) => {
-    for (const [id, p] of prepared) if (p.profileId === profileId) forget(id, true);
-  };
   /** A prepare asked for again while it runs gets the same one: one snapshot a profile at a time. */
   const preparing = createOnce<Awaited<ReturnType<typeof make>>>();
-  /** Whether an import runs (one at a time: each needs the room of its file twice and more). */
-  let importing = false;
-  /** An import, the only one while it runs (409 `profile_import_busy` beside it). */
-  async function alone<T>(work: () => Promise<T>) {
-    if (importing) throw new ServiceError("profile_import_busy", 409);
-    importing = true;
-    try {
-      return await work();
-    } finally {
-      importing = false;
-    }
-  }
+  /** An import, the only one while it runs (each needs the room of its file twice and more). */
+  const alone = oneAtATime("profile_import_busy");
 
   async function make(profileId: string) {
     const profile = profiles.get(profileId);
     if (!profile.name) throw new ServiceError("name_required");
-    letGo(profileId);
+    // A new one replaces the one not yet downloaded: one a profile at most.
+    prepared.letGo(profileId);
     files.sweep();
     const snap = await guarded(() => files.snapshot(profileId));
     try {
@@ -296,10 +255,7 @@ export function createProfileTransfer(deps: {
       // A name a file system takes: no separators or characters reserved on Windows.
       const base = profile.name.replace(/[\\/:*?"<>|\p{Cc}]+/gu, "-").replace(/^[.\s]+/, "");
       const fileName = `${base || "profile"}-${day}${PROFILE_FILE_EXTENSION}`;
-      const timer = setTimeout(() => forget(snap.id, true), PREPARED_MS);
-      // Never what keeps the process (the command line) running.
-      (timer as { unref?: () => void }).unref?.();
-      prepared.set(snap.id, { profileId, manifest, paths, fileName, bytes, timer });
+      prepared.keep(snap.id, profileId, { manifest, paths, fileName, bytes });
       return {
         id: snap.id,
         fileName,
@@ -320,16 +276,13 @@ export function createProfileTransfer(deps: {
     /** A prepared export still there to download: its file's name and size (404 when it is not this
      *  profile's, gone or downloaded). Nothing taken: asked before a download starts. */
     ready(profileId: string, id: string) {
-      const p = prepared.get(id);
-      if (!p || p.profileId !== profileId) throw new ServiceError("profile_export_gone", 404);
-      return { fileName: p.fileName, bytes: p.bytes };
+      const { fileName, bytes } = prepared.ready(profileId, id);
+      return { fileName, bytes };
     },
 
     /** A prepared export as a stream, once (404 as `ready`). */
     download(profileId: string, id: string) {
-      self.ready(profileId, id);
-      const p = prepared.get(id) as NonNullable<ReturnType<typeof prepared.get>>;
-      forget(id, false);
+      const p = prepared.take(profileId, id);
       return {
         stream: files.stream(id, p.manifest, p.paths),
         fileName: p.fileName,

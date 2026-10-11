@@ -1308,7 +1308,14 @@
     "examples_without_word": "Rečenice modela nisu koristile tu riječ.",
     "length_required": "Datoteka je poslana bez svoje veličine. Pokušaj ponovo ili u drugom pregledniku.",
     "profile_import_busy": "Upravo se uvozi druga datoteka profila. Pokušaj ponovo kad se završi.",
-    "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ."
+    "llm_url_with_login": "Izostavi korisničko ime i lozinku iz adrese: unesi ključ u polje za API ključ.",
+    "course_export_gone": "Ovog izvoza više nema: izvezi kurs ponovo.",
+    "not_a_course_bundle": "Ova datoteka nije SprachAnker datoteka kursa (.sprachanker-course).",
+    "course_bundle_damaged": "Ova datoteka kursa je oštećena ili je izmijenjena nakon izvoza.",
+    "course_bundle_too_large": "Ova datoteka kursa je prevelika (najviše 16 GB).",
+    "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
+    "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
+    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi."
   },
   "exams": {
     "tabs": {

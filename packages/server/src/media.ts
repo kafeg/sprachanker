@@ -49,6 +49,15 @@ export function announcedLength(headers: Headers) {
     : undefined;
 }
 
+/** The headers of a file downloaded under its own name (a zip: a profile file, a course bundle), its
+ *  length known before it is streamed. */
+export const attachment = (file: { fileName: string; bytes: number }) => ({
+  "content-type": "application/zip",
+  "content-length": String(file.bytes),
+  "content-disposition": `attachment; filename="${file.fileName.replace(/[^\x20-\x7e]|["\\]/g, "_")}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+  "cache-control": "no-store",
+});
+
 /** The largest body of a request that sends JSON (every API route but those taking files). */
 export const JSON_BODY_MAX = 1024 * 1024;
 

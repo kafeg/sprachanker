@@ -10,7 +10,8 @@ courses/*, llm, anki-export.
 src/
   index.ts           # startServer(config), importCourse(): called by `apps/cli` (`serve`, `import`)
   config.ts          # app-data folder, data root (--data, $SPRACHANKER_DATA, <app-data>/data)
-  providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk)
+  providers.ts       # content providers: offers, import, the installer behind downloads (marks on disk),
+                     # the series' import lock (withSeriesLock: an import, a course bundle installed)
   app.ts             # createApp + AppType (runtime-agnostic; apps/web type-checks it via `@sprachanker/server/app`)
   web.ts             # serving the built web app: SPA fallback, cache headers
   runtime/           # Bun/Node adapters: listen, web assets, sqlite, secret key, data-root.ts (one server per
@@ -26,7 +27,10 @@ src/
                      # saved, a zip streamed — course-kit's zip.ts); profile-transfer.ts (profile files
                      # in profiles/.transfers: a snapshot streamed as a zip, a file read by its zip
                      # directory, unpacked, its database checked in a Worker: profile-db-worker.ts over
-                     # profile-db.ts — the exact schema first);
+                     # profile-db.ts — the exact schema first); course-transfer.ts (course bundles in
+                     # library/.transfers: a course's files linked and streamed as a zip, a bundle read,
+                     # what the library lacks unpacked, checked and installed by course-kit's bundle.ts
+                     # under the series' import lock, then verified);
                      # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
                      # and `tailscale serve status` as JSON);
                      # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
@@ -76,7 +80,10 @@ src/
                      # - across modules: notebook (study days, each span's bars, the standings gathered), progress (resets;
                      #   recordings in use), content, settings, stored (a JSON value read by its schema),
                      #   profile-transfer (a profile exported to a file, a file imported as a new profile:
-                     #   the manifest, the checks, the content used and missing; the files: TransferFiles)
+                     #   the manifest, the checks, the content used and missing; the files: TransferFiles),
+                     #   course-transfer (a course exported to a file, a file imported: the manifest and
+                     #   its checks, the course installed; the files: CourseTransferFiles), transfers
+                     #   (what both share: exports made ready once, one import at a time, a full disk)
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context,
                      #   in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
@@ -141,4 +148,4 @@ test/                # bun test; integration tests call createApp().request() �
   without Bun or Node types.
 - Speech: always pass an explicit language; never pass the reference text to the recogniser.
 - Exports a programmatic API used by `apps/cli` (serve, import, verify, profiles — `profileAdmin` with
-  export and import —, backup).
+  export and import —, courses — `courseAdmin`: list, export, import —, backup).

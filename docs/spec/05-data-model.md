@@ -8,6 +8,8 @@
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
 ├── library/                     # installed courses (02)
+├── library/.transfers/<id>/     # a course bundle being exported or imported (02, "Course bundle"); swept
+│                                # as a profile file's transfer, a course folder an install put aside back
 ├── decks/<deck-id>/             # imported decks (04, "Decks"): deck.json (schema `deck.ts`: the words with
 │                                # the deck's own examples, their languages, the file it came from) and media/
 │                                # (the audio the .apkg brought, `<slug>-<hash of its name>.<ext>`; an update

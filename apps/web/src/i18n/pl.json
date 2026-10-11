@@ -1308,7 +1308,14 @@
     "examples_without_word": "Zdania modelu nie zawierały tego słowa.",
     "length_required": "Plik został wysłany bez swojego rozmiaru. Spróbuj ponownie lub w innej przeglądarce.",
     "profile_import_busy": "Trwa import innego pliku profilu. Spróbuj ponownie, gdy się skończy.",
-    "llm_url_with_login": "Nie wpisuj nazwy użytkownika ani hasła w adresie: wpisz klucz w polu klucza API."
+    "llm_url_with_login": "Nie wpisuj nazwy użytkownika ani hasła w adresie: wpisz klucz w polu klucza API.",
+    "course_export_gone": "Tego eksportu już nie ma: wyeksportuj kurs jeszcze raz.",
+    "not_a_course_bundle": "Ten plik nie jest plikiem kursu SprachAnker (.sprachanker-course).",
+    "course_bundle_damaged": "Ten plik kursu jest uszkodzony albo zmieniono go po eksporcie.",
+    "course_bundle_too_large": "Ten plik kursu jest za duży (najwyżej 16 GB).",
+    "course_bundle_from_newer_app": "Ten plik kursu pochodzi z nowszej wersji SprachAnker: najpierw zaktualizuj tu aplikację.",
+    "course_bundle_clash": "Na tym komputerze pod nazwami plików multimedialnych tego kursu są inne pliki: pobierz kurs tutaj.",
+    "course_import_busy": "Trwa import innego pliku kursu. Spróbuj ponownie, gdy się skończy."
   },
   "exams": {
     "tabs": {

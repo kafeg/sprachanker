@@ -1308,7 +1308,14 @@
     "examples_without_word": "Modelin cümleleri kelimeyi kullanmadı.",
     "length_required": "Dosya boyutu belirtilmeden gönderildi. Yeniden dene ya da başka bir tarayıcıda dene.",
     "profile_import_busy": "Şu anda başka bir profil dosyası içe aktarılıyor. Bittiğinde yeniden dene.",
-    "llm_url_with_login": "Kullanıcı adını ve parolayı adrese yazma: anahtarı API anahtarı alanına gir."
+    "llm_url_with_login": "Kullanıcı adını ve parolayı adrese yazma: anahtarı API anahtarı alanına gir.",
+    "course_export_gone": "Bu dışa aktarma artık burada değil: kursu yeniden dışa aktar.",
+    "not_a_course_bundle": "Bu dosya bir SprachAnker kurs dosyası (.sprachanker-course) değil.",
+    "course_bundle_damaged": "Bu kurs dosyası bozuk ya da dışa aktarıldıktan sonra değiştirilmiş.",
+    "course_bundle_too_large": "Bu kurs dosyası çok büyük (en fazla 16 GB).",
+    "course_bundle_from_newer_app": "Bu kurs dosyası SprachAnker'in daha yeni bir sürümünden: önce buradaki uygulamayı güncelle.",
+    "course_bundle_clash": "Bu bilgisayarda bu kursun medya dosyalarının adlarını taşıyan başka dosyalar var: kursu bunun yerine burada indir.",
+    "course_import_busy": "Şu anda başka bir kurs dosyası içe aktarılıyor. Bittiğinde yeniden dene."
   },
   "exams": {
     "tabs": {

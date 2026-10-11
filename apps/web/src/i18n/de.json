@@ -1308,7 +1308,14 @@
     "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht.",
     "length_required": "Die Datei wurde ohne ihre Größe gesendet. Versuch es noch einmal oder in einem anderen Browser.",
     "profile_import_busy": "Gerade wird eine andere Profildatei importiert. Versuch es noch einmal, wenn sie fertig ist.",
-    "llm_url_with_login": "Lass Benutzername und Passwort aus der Adresse weg: gib den Schlüssel im Feld für den API-Schlüssel ein."
+    "llm_url_with_login": "Lass Benutzername und Passwort aus der Adresse weg: gib den Schlüssel im Feld für den API-Schlüssel ein.",
+    "course_export_gone": "Dieser Export ist nicht mehr da: Exportiere den Kurs noch einmal.",
+    "not_a_course_bundle": "Diese Datei ist keine SprachAnker-Kursdatei (.sprachanker-course).",
+    "course_bundle_damaged": "Diese Kursdatei ist beschädigt oder wurde nach dem Export verändert.",
+    "course_bundle_too_large": "Diese Kursdatei ist zu groß (höchstens 16 GB).",
+    "course_bundle_from_newer_app": "Diese Kursdatei stammt aus einer neueren Version von SprachAnker: Aktualisiere die App hier zuerst.",
+    "course_bundle_clash": "Auf diesem Computer liegen unter den Namen der Mediendateien dieses Kurses andere Dateien: Lade den Kurs hier herunter.",
+    "course_import_busy": "Gerade wird eine andere Kursdatei importiert. Versuch es noch einmal, wenn sie fertig ist."
   },
   "exams": {
     "tabs": {
