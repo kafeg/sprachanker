@@ -152,6 +152,13 @@ test("a language's queue: the card's own course, else the first of the learner's
   expect(await cards.shown(kaffee(), `course:${other.course}`)).toMatchObject({
     translation: "кофе (demo2)",
   });
+  // A lesson's Words step: that lesson's entry; a lesson without the word, the card as made.
+  expect(await cards.shown(kaffee(), `lesson:ru-de:${FIRST}`)).toMatchObject({
+    translation: "кофе",
+    lessonKey: FIRST,
+    audio: "media/audio/kaffee.mp3",
+  });
+  expect(await cards.shown(kaffee(), `lesson:ru-de:${SECOND}`)).toEqual(kaffee().display);
   // A card of a course shows its own course's entry wherever the others are.
   const gern = cardStore.all().find((n) => n.lexemeKey === "lex:de:gern:word");
   expect(gern?.deck).toBe(`course:${other.course}`);
