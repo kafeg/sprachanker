@@ -224,6 +224,59 @@ describe("Anthropic", () => {
     expect(last?.content.map((b) => b.type)).toEqual(["tool_result", "text"]);
   });
 
+  test("a thinking model's chat keeps one system prompt in every round, the round without tools and the one told to answer too", async () => {
+    const thinking = (index: number) => [
+      event({
+        type: "content_block_start",
+        index,
+        content_block: { type: "thinking", thinking: "", signature: "" },
+      }),
+      event({
+        type: "content_block_delta",
+        index,
+        delta: { type: "signature_delta", signature: "s" },
+      }),
+      event({ type: "content_block_stop", index }),
+    ];
+    const ask = async (answer: (body: Record<string, unknown>, n: number) => Response) => {
+      const { client: c, calls } = client((_, init) =>
+        answer(JSON.parse(init.body as string), calls.length),
+      );
+      const text = await collect(
+        c.chat({
+          model: "claude-opus-5-5",
+          messages: [
+            { role: "system", content: "Tutor" },
+            { role: "user", content: "?" },
+          ],
+          tools: TOOLS,
+          toolNotes: ["Call tools for the learner's data."],
+          runTool: async () => ({ done: 1 }),
+        }),
+      );
+      return { text, systems: bodies(calls).map((b) => b.system) };
+    };
+    const called = (n: number) =>
+      reply(thinking(0), toolBlock(1, `toolu_${n}`, "get_progress", "{}"), end("tool_use"));
+    // Tools in every round it may: the last one goes without them (tool_choice none).
+    const keeps = await ask((body, n) =>
+      body.tool_choice ? reply(thinking(0), textBlock(1, "Fertig."), end("end_turn")) : called(n),
+    );
+    // Tool results, then nothing: told to answer now, without tools.
+    const silent = await ask((body, n) =>
+      n === 1
+        ? called(n)
+        : body.tool_choice
+          ? reply(textBlock(0, "Fertig."), end("end_turn"))
+          : reply(thinking(0), end("end_turn")),
+    );
+    for (const { text, systems } of [keeps, silent]) {
+      expect(text).toBe("Fertig.");
+      expect(systems.length).toBeGreaterThan(2);
+      expect(new Set(systems)).toEqual(new Set(["Tutor\n\nCall tools for the learner's data."]));
+    }
+  });
+
   test("structured output: the schema in the system prompt, read whole, one repair", async () => {
     const replies = ['Sure: {"verdict": 3}', '{"verdict": "good"}'];
     const { client: c, calls } = client(() =>

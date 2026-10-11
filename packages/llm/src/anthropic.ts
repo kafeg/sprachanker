@@ -108,10 +108,11 @@ export function anthropicMessages(chat: ChatMessage[]): {
   return { system, messages };
 }
 
-/** The system prompt as sent: the tool notes when the tools go, the schema a JSON reply must match. */
-function systemOf(request: Omit<ChatRequest, "signal" | "runTool">, tools: boolean): string {
+/** The system prompt as sent: the tool notes when the chat offers tools, the schema a JSON reply
+ *  must match. */
+function systemOf(request: Omit<ChatRequest, "signal" | "runTool">, notes: boolean): string {
   const { system } = anthropicMessages(
-    tools ? withToolNotes(request.messages, request.toolNotes) : request.messages,
+    notes ? withToolNotes(request.messages, request.toolNotes) : request.messages,
   );
   if (!request.jsonSchema) return system;
   return `${system}\n\nReply with one JSON object matching this JSON Schema, and nothing else:\n${JSON.stringify(request.jsonSchema.schema)}`;
@@ -123,6 +124,9 @@ interface Sent {
   /** The tools offered; without them, a conversation that already used tools still names them
    *  (the API asks for it) with `tool_choice: none`. */
   tools: boolean;
+  /** The tool notes in the system prompt: as the chat's first round had them, in every round alike
+   *  (a thinking model's replayed thinking is bound to the system prompt it was made under). */
+  notes: boolean;
   stream: boolean;
 }
 
@@ -135,7 +139,7 @@ function body(
   const reasoner = !!quirks.reasoners?.test(request.model);
   const usedTools = messages.some((m) => m.content.some((b) => b.type === "tool_use"));
   const tools = request.tools?.length && (sent.tools || usedTools) ? request.tools : undefined;
-  const system = systemOf(request, sent.tools);
+  const system = systemOf(request, sent.notes);
   return {
     model: request.model,
     // Room to think for a model that may (newer Claude models think unless told otherwise).
@@ -163,6 +167,7 @@ export function anthropicBody(
   return body(request, anthropicMessages(request.messages).messages, quirks, {
     switchOff: sendsSwitch(request, quirks),
     tools: !!request.tools?.length,
+    notes: !!request.tools?.length,
     stream: !request.jsonSchema,
   });
 }
@@ -304,12 +309,14 @@ export function anthropic(
     },
     chat(request) {
       let switchOff = sendsSwitch(request, endpoint);
+      let notes: boolean | undefined;
       return toolRounds<AnthropicMessage>(
         request,
         {
           messages: anthropicMessages(request.messages).messages,
-          open: (messages, tools, limit) =>
-            relaxing(
+          open: (messages, tools, limit) => {
+            notes ??= tools;
+            return relaxing(
               { switchOff },
               ["switchOff"],
               (on) =>
@@ -317,6 +324,7 @@ export function anthropic(
                   body(request, messages, endpoint, {
                     switchOff: on.switchOff,
                     tools,
+                    notes: !!notes,
                     stream: true,
                   }),
                   limit,
@@ -327,7 +335,8 @@ export function anthropic(
                   return { res, tools };
                 }),
               NAMED,
-            ),
+            );
+          },
           events: anthropicEvents,
           answered: (messages, round, results, note) =>
             append(
@@ -373,6 +382,7 @@ export function anthropic(
               body(request, messages, endpoint, {
                 switchOff: on.switchOff,
                 tools: false,
+                notes: false,
                 stream: false,
               }),
               limit,

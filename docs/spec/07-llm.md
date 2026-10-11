@@ -44,7 +44,9 @@ with text, `input_json_delta` and thinking deltas, `message_delta`, `message_sto
 become the client's text and tool calls; a tool round sends the reply's blocks back as they came
 (thinking with its signature, text, `tool_use`) and the results as `tool_result` blocks of the
 learner's next turn (the note to answer now in the same turn); the round without tools still names
-them, with `tool_choice: none`. Structured outputs put the JSON Schema in the system prompt (no forced
+them, with `tool_choice: none`. The system prompt stays byte for byte the same in every round of a
+chat — the tool notes in it whenever its first round offered tools —, since a thinking model's
+replayed thinking is bound to it (the API refuses it otherwise). Structured outputs put the JSON Schema in the system prompt (no forced
 tool: newer models refuse it), the reply read whole, then the same zod check and one repair. The
 model list is `GET /models`, read page by page (`after_id`), with `display_name` and
 `max_input_tokens`; every Claude model calls tools. The prompt viewer shows the body with the system
