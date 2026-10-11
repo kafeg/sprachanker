@@ -102,6 +102,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
   expect(kaffee).toEqual(mediaPath("kaffee"));
   const audio = await get(`/decks/${summary.id}/${kaffee}`);
   expect(new Uint8Array(await audio.arrayBuffer())).toEqual(SOUND);
+  expect(audio.headers.get("content-security-policy")).toContain("sandbox");
   const part = await get(`/decks/${summary.id}/${kaffee}`, {
     headers: { range: "bytes=0-2" },
   });

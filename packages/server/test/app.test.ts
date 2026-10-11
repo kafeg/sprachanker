@@ -533,6 +533,30 @@ describe("settings and media", () => {
     ).toBe(404);
   });
 
+  test("media are served by their extension only, as documents that run nothing; a PDF still opens", async () => {
+    const { get, root } = await setup();
+    const media = join(root, "library", FIXTURE_SERIES, "media");
+    await Bun.write(join(media, "audio/evil.html"), "<script>alert(1)</script>");
+    await Bun.write(join(media, "image/evil.svg"), "<svg><script>alert(1)</script></svg>");
+    await Bun.write(join(media, "pdf/doc.pdf"), "%PDF-1.4");
+    for (const name of ["audio/evil.html", "image/evil.svg"]) {
+      const res = await get(`/library/${FIXTURE_SERIES}/media/${name}`);
+      expect(res.headers.get("content-type")).toBe("application/octet-stream");
+      expect(res.headers.get("x-content-type-options")).toBe("nosniff");
+      expect(res.headers.get("content-security-policy")).toBe(
+        "default-src 'none'; style-src 'unsafe-inline'; sandbox",
+      );
+    }
+    const audio = await get(`/library/${FIXTURE_SERIES}/media/audio/kaffee.mp3`);
+    expect(audio.headers.get("content-type")).toBe("audio/mpeg");
+    expect(audio.headers.get("content-security-policy")).toContain("sandbox");
+    // A PDF: the app's own policy (no sandbox: the browser's viewer would be refused).
+    const pdf = await get(`/library/${FIXTURE_SERIES}/media/pdf/doc.pdf`);
+    expect(pdf.headers.get("content-type")).toBe("application/pdf");
+    expect(pdf.headers.get("content-security-policy")).toContain("script-src 'self'");
+    expect(pdf.headers.get("content-security-policy")).not.toContain("sandbox");
+  });
+
   test("a series name cannot point outside the library; malformed escapes are 404", async () => {
     const { get, root } = await setup();
     // "../../" as the series makes <library>/../../media the series' media folder: the folder next

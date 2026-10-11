@@ -383,7 +383,15 @@ profiles with device tokens (above).
   refused (`mediaFile` in `packages/course-kit/src/library.ts`). The library reader takes series,
   course and edition names only when they are keys, so nothing from a request points outside it.
   Recordings are served only to their profile (`/api/recordings/:id` behind the session check, ids
-  are ULIDs, files named by the server).
+  are ULIDs, files named by the server). Every media file — the library's, a deck folder's (an
+  `.apkg` names its own), a recording — is served with a type fixed by its extension (`mediaType`,
+  `src/media.ts`: audio, video, images, subtitles, PDF; never HTML, SVG, XML or JavaScript — any
+  other is `application/octet-stream`) and `nosniff`, so no file a course or deck brings runs as a
+  page of our origin. Opened on its own it is a document that runs and loads nothing:
+  `Content-Security-Policy: default-src 'none'; style-src 'unsafe-inline'; sandbox` (the header does
+  nothing to an `<img>`, `<audio>`, `<video>` or `<track>` of the app). A PDF keeps the app's own
+  policy instead: browsers show it in a viewer that a sandbox blocks (Chrome refuses it in a
+  sandboxed document), and that viewer runs no script on our origin.
 - **Downloads** (speech models): HTTPS, sha256 pinned, verified before use.
 - **LLM**: course text and learner input are passed as delimited data; output is validated against
   schemas and never executed.

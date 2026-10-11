@@ -8,7 +8,7 @@ import { CourseSource } from "./canonical.ts";
 import { Sha256 } from "./common.ts";
 import { CourseKey } from "./keys.ts";
 import { EditionId } from "./lang.ts";
-import { KeyMapFile, MediaIndex } from "./library-state.ts";
+import { KeyMapFile, MediaIndex, portableName, storableMedia } from "./library-state.ts";
 
 export const COURSE_BUNDLE_FORMAT = "sprachanker-course";
 /** Bumped when a bundle of this version could not be read by an app that reads the previous one. */
@@ -18,26 +18,37 @@ export const COURSE_BUNDLE_EXTENSION = ".sprachanker-course";
 export const COURSE_BUNDLE_MAX_BYTES = 16 * 1024 ** 3;
 
 const SLUG = "[a-z0-9]+(?:-[a-z0-9]+)*";
-/** A name of a folder or file: no separator, control character, "." or "..". */
-const NAME = "(?!\\.\\.?(?:/|$))[^/\\\\\\p{Cc}]+";
+const EDITION = "[a-z]{2,3}-[a-z]{2,3}";
 const LESSON_FILE = "lessons/\\d{2,}-\\d{2,}\\.json";
 const EXAM_FILE = `exams/${SLUG}\\.json`;
+const PLACES = new RegExp(
+  `^(?:canonical/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE}|sources/${SLUG}\\.json)` +
+    `|locale/${EDITION}/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE})` +
+    "|media/[^/]+/[^/]+" +
+    `|raw/${EDITION}/${SLUG}(?:/[^/]+)+)$`,
+);
 
 /** A file a bundle may hold, as its path in the series folder: a course's canonical files, an
- *  edition's locale files, a media file, a source copy kept in `raw/`. Nothing else: no `..`, no
- *  folder of another kind. */
+ *  edition's locale files, a media file the media store could keep (its kind's extensions only), a
+ *  source copy kept in `raw/<edition>/<course>/` (02, "Library layout"). Nothing else: every name
+ *  portable (no `..`, nothing a disk refuses), no folder of another kind. */
 export const CourseBundlePath = z
   .string()
   .max(512)
-  .regex(
-    new RegExp(
-      `^(?:canonical/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE}|sources/${SLUG}\\.json)` +
-        `|locale/[a-z]{2,3}-[a-z]{2,3}/${SLUG}/(?:course\\.json|${LESSON_FILE}|${EXAM_FILE})` +
-        `|media/(?:audio|image|video|subtitles|pdf)/${NAME}` +
-        `|raw(?:/${NAME})+)$`,
-      "u",
-    ),
+  .refine(
+    (path) =>
+      PLACES.test(path) &&
+      path.split("/").every(portableName) &&
+      (!path.startsWith("media/") || storableMedia(path.slice("media/".length))),
   );
+
+/** The course a bundle path is of: its folder under `canonical/`, `locale/<edition>/`, `raw/<edition>/`
+ *  (undefined for a media file: the series'). */
+export const bundlePathCourse = (path: string) => {
+  const parts = path.split("/");
+  if (parts[0] === "canonical") return parts[1];
+  return parts[0] === "locale" || parts[0] === "raw" ? parts[2] : undefined;
+};
 
 export const CourseBundleManifest = z.strictObject({
   format: z.literal(COURSE_BUNDLE_FORMAT),

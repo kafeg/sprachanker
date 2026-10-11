@@ -58,7 +58,8 @@ export function hostGuard(options: {
     if (!own && !tailnet) return c.json({ error: "unknown_host" }, 421);
     c.set("proxied", proxied || tailnet);
     await next();
-    c.header("content-security-policy", CSP);
+    // A response with a policy of its own keeps it (media: a sandbox, media.ts).
+    if (!c.res.headers.has("content-security-policy")) c.header("content-security-policy", CSP);
     c.header("x-frame-options", "DENY");
     c.header("x-content-type-options", "nosniff");
     c.header("referrer-policy", "no-referrer");

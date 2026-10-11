@@ -31,12 +31,12 @@ export function createRecordings(files: RecordingFiles, now: () => number) {
       return { id };
     },
 
-    /** A recording to play; 404 when it is gone (deleted, or never kept). */
+    /** A recording to play, with its file name (its type); 404 when it is gone (deleted, or never kept). */
     file(id: string) {
       const name = nameOf(id);
       const blob = name && files.read(name);
-      if (!blob) throw new ServiceError("no_such_recording", 404);
-      return blob;
+      if (!name || !blob) throw new ServiceError("no_such_recording", 404);
+      return { blob, name };
     },
 
     /** How many recordings are kept, and their size. */

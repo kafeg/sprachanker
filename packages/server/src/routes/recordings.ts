@@ -16,8 +16,9 @@ export function recordingsRoutes() {
       const bytes = new Uint8Array(await c.req.arrayBuffer());
       return c.json(await c.var.s.recordings.save(bytes, c.req.header("content-type") ?? ""));
     })
-    .get("/:id", zod("param", z.object({ id: Ulid })), (c) =>
-      blobResponse(c.var.s.recordings.file(c.req.valid("param").id), c.req.header("range")),
-    )
+    .get("/:id", zod("param", z.object({ id: Ulid })), (c) => {
+      const { blob, name } = c.var.s.recordings.file(c.req.valid("param").id);
+      return blobResponse(blob, c.req.header("range"), name);
+    })
     .delete("/", (c) => c.json({ removed: c.var.s.recordings.remove() }));
 }
