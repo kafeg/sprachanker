@@ -277,6 +277,66 @@ describe("Anthropic", () => {
     }
   });
 
+  test("a tool that fails answers with is_error; the model's own blank text is sent back as it came, the app's dropped", async () => {
+    const { client: c, calls } = client(() =>
+      calls.length === 1
+        ? reply(
+            textBlock(0, "\n\n"),
+            toolBlock(1, "toolu_1", "get_progress", "{}"),
+            toolBlock(2, "toolu_2", "get_mistakes", "{}"),
+            toolBlock(3, "toolu_3", "find_word", "{}"),
+            end("tool_use"),
+          )
+        : reply(textBlock(0, "Gut."), end("end_turn")),
+    );
+    await collect(
+      c.chat({
+        model: "claude-haiku-4-5",
+        messages: [
+          { role: "user", content: "Wo bin ich?" },
+          { role: "assistant", content: " \n" },
+          { role: "user", content: "  " },
+        ],
+        tools: TOOLS,
+        runTool: async (name) => {
+          if (name === "get_progress") throw new Error("database closed");
+          return name === "get_mistakes" ? { error: "no lesson" } : { found: 1 };
+        },
+      }),
+    );
+    const messages = bodies(calls)[1]?.messages as Array<{ role: string; content: unknown[] }>;
+    expect(messages).toEqual([
+      { role: "user", content: [{ type: "text", text: "Wo bin ich?" }] },
+      {
+        role: "assistant",
+        content: [
+          { type: "text", text: "\n\n" },
+          { type: "tool_use", id: "toolu_1", name: "get_progress", input: {} },
+          { type: "tool_use", id: "toolu_2", name: "get_mistakes", input: {} },
+          { type: "tool_use", id: "toolu_3", name: "find_word", input: {} },
+        ],
+      },
+      {
+        role: "user",
+        content: [
+          {
+            type: "tool_result",
+            tool_use_id: "toolu_1",
+            content: '{"error":"database closed"}',
+            is_error: true,
+          },
+          {
+            type: "tool_result",
+            tool_use_id: "toolu_2",
+            content: '{"error":"no lesson"}',
+            is_error: true,
+          },
+          { type: "tool_result", tool_use_id: "toolu_3", content: '{"found":1}' },
+        ],
+      },
+    ]);
+  });
+
   test("a stream ending before message_stop broke off: unreachable, its tool call never run", async () => {
     const ran: string[] = [];
     const { client: c } = client(() =>

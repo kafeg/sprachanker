@@ -39,7 +39,7 @@ const GO_ON = "(go on)";
 export type AnthropicBlock =
   | { type: "text"; text: string }
   | { type: "tool_use"; id: string; name: string; input: unknown }
-  | { type: "tool_result"; tool_use_id: string; content: string }
+  | { type: "tool_result"; tool_use_id: string; content: string; is_error?: boolean }
   | { type: "thinking"; thinking: string; signature: string }
   | { type: "redacted_thinking"; data: string };
 
@@ -57,7 +57,9 @@ function append(messages: AnthropicMessage[], next: AnthropicMessage): Anthropic
   return [...messages.slice(0, -1), { ...last, content: [...last.content, ...next.content] }];
 }
 
-const text = (t: string): AnthropicBlock[] => (t ? [{ type: "text", text: t }] : []);
+/** Text the app adds as a block; none when blank (the API refuses a text block of whitespace). The
+ *  model's own blocks are sent back as they came. */
+const text = (t: string): AnthropicBlock[] => (t.trim() ? [{ type: "text", text: t }] : []);
 
 function toolInput(args: string): unknown {
   try {
@@ -366,6 +368,7 @@ export function anthropic(
                     type: "tool_result" as const,
                     tool_use_id: r.call.id,
                     content: r.content,
+                    ...(r.failed && { is_error: true }),
                   })),
                   ...text(note ?? ""),
                 ],

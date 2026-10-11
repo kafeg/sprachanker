@@ -23,6 +23,20 @@ export interface Round {
   turn?: unknown;
 }
 
+/** A tool's answer to a call, as JSON. */
+export interface ToolResult {
+  call: ToolCall;
+  content: string;
+  /** The tool failed: it threw, or answered `{ error }` alone. */
+  failed: boolean;
+}
+
+const failed = (result: unknown) =>
+  !!result &&
+  typeof result === "object" &&
+  Object.keys(result).length === 1 &&
+  typeof (result as { error?: unknown }).error === "string";
+
 /** How one API holds a conversation with tools, in its own messages `M`. */
 export interface RoundDialect<M> {
   messages: M[];
@@ -31,12 +45,7 @@ export interface RoundDialect<M> {
   open(messages: M[], tools: boolean, limit: TimeLimit): Promise<{ res: Response; tools: boolean }>;
   events(res: Response, stop: AbortSignal, onData: () => void): AsyncIterable<RoundEvent>;
   /** The conversation after a round whose calls were answered, `note` added for the model. */
-  answered(
-    messages: M[],
-    round: Round,
-    results: Array<{ call: ToolCall; content: string }>,
-    note?: string,
-  ): M[];
+  answered(messages: M[], round: Round, results: ToolResult[], note?: string): M[];
   /** The conversation with a learner's line added. */
   say(messages: M[], text: string): M[];
 }
@@ -90,7 +99,7 @@ export async function* toolRounds<M>(
       }
       return;
     }
-    const results: Array<{ call: ToolCall; content: string }> = [];
+    const results: ToolResult[] = [];
     for (const call of round.calls) {
       let args: unknown = {};
       try {
@@ -99,7 +108,7 @@ export async function* toolRounds<M>(
       const result = await request
         .runTool(call.function.name, args)
         .catch((e: unknown) => ({ error: e instanceof Error ? e.message : String(e) }));
-      results.push({ call, content: JSON.stringify(result) });
+      results.push({ call, content: JSON.stringify(result), failed: failed(result) });
     }
     // The next round is the last one, without tools: say so, or some models stay silent.
     messages = dialect.answered(
