@@ -38,12 +38,17 @@ const wordExamples = (prompt: string) => {
     words: lines.map((line, i) => {
       // The word as learnt, without what is in brackets: "(etwas) bestellen" → "bestellen".
       const asked = /^\d+\. (.+?)(?: — |$)/.exec(line)?.[1] ?? "";
-      const word = asked.replace(/\([^)]*\)/g, "").split(",")[0]?.trim() ?? "";
+      const word =
+        asked
+          .replace(/\([^)]*\)/g, "")
+          .split(",")[0]
+          ?.trim() ?? "";
       return {
         n: i + 1,
         examples: ["heute", "hier", "dort"].map((where, k) => ({
           sentence: k ? `${word} ist ${where}.` : `Hier ist ${word} heute.`,
           translation: `FAKE: Here it is ${k ? where : "today"}.`,
+          form: word,
           glossary: [{ word: "heute", translation: "today" }],
         })),
       };

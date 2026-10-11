@@ -96,6 +96,9 @@
                           ],
                           "additionalProperties": false
                         }
+                      },
+                      "form": {
+                        "type": "string"
                       }
                     },
                     "required": [

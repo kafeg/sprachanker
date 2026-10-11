@@ -56,7 +56,12 @@ test("the request: the level, the words known, the words numbered with what the 
 });
 
 test("the reply: each word by its number with its sentences; one out of shape is repaired once", async () => {
-  const example = { sentence: "Ich trinke Kaffee.", translation: "Я пью кофе.", glossary: [] };
+  const example = {
+    sentence: "Ich trinke Kaffee.",
+    translation: "Я пью кофе.",
+    glossary: [],
+    form: "Kaffee",
+  };
   const good = JSON.stringify({ words: [{ n: 1, examples: [example] }] });
   const { client, seen } = scripted([JSON.stringify({ words: [{ n: 1 }] }), good]);
   const result = await runStructured(client, "m", wordExamplesTask(input));

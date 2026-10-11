@@ -156,7 +156,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   deck's own — each with its translation, readable aloud; the sentence's words are matched against
   the words before the card's (a course's up to its lesson, an imported deck's up to the word: their
   forms, and a form differing only by an ending: `text/words.ts`); the others are marked new,
-  translated by the deck's later words, else by the model's glossary. A card whose word has none
+  translated by the model's glossary for that sentence, else by the deck's later words of one word
+  (a phrase's translation is not its words'); a new word without a translation is not marked. A card whose word has none
   (and none of its own) says so, while the assistant works there, with the way to Decks. The
   examples a card asked for one at a time in earlier versions are no longer shown (their events
   still read, 05).
@@ -223,7 +224,9 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   language (a course's cards may be in two editions: each gets its own), with what the learner can be
   assumed to know (a course's words up to the words' lesson, an imported deck's up to them) and the
   level the course's or deck's name says ("a1-ru", "Wörter A2"), else beginners'. A sentence that
-  does not use its word (engine `usesWord`) is dropped; a word left without any is asked for once more
+  does not use its word — found by its forms (engine `usesWord`), or by the form the model says it
+  used, every word of it in the sentence (`hasForm`: "ist" of "sein", "lädt … ein" of "einladen":
+  forms no ending rule finds) — is dropped; a word left without any is asked for once more
   on its own; still none, it counts as failed with the reason. Kept beside the deck
   (`extras.json`, 05) by lexeme and translation language — every profile's cards show them — with
   the model and when. A job per deck (as the audio's, `deck-extras.ts`): one at a time, the server's,

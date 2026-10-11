@@ -76,10 +76,19 @@ export const WordExample = z.object({
 export type WordExample = z.infer<typeof WordExample>;
 
 /** Examples for a few words of a deck at once (`word_examples`): each word by its number in the
- *  request (1, 2, …) with its sentences. */
+ *  request (1, 2, …) with its sentences, each with the word as it uses it ("kann" of "können", "lädt
+ *  ein" of "einladen": forms no rule finds). */
 export const WordExamples = z.object({
   words: z
-    .array(z.object({ n: z.number().int().min(1), examples: z.array(WordExample).min(1).max(8) }))
+    .array(
+      z.object({
+        n: z.number().int().min(1),
+        examples: z
+          .array(WordExample.extend({ form: z.string().min(1).max(80) }))
+          .min(1)
+          .max(8),
+      }),
+    )
     .max(20),
 });
 export type WordExamples = z.infer<typeof WordExamples>;

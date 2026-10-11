@@ -4,7 +4,7 @@
 // lexeme and the language they are translated into (deck-extras.ts), so every profile's cards show
 // them. A sentence that does not use its word is dropped; a word left without any is asked for once
 // more on its own call. Server-wide, one job per deck; the model is the profile's that starts it.
-import { usesWord } from "@sprachanker/engine";
+import { hasForm, usesWord } from "@sprachanker/engine";
 import type { DeckMadeExamples, WordExamples } from "@sprachanker/schema";
 import { type DeckExtrasStore, type DeckJobSpec, type DeckNote, failureOf } from "./deck-extras.ts";
 
@@ -75,7 +75,10 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
         for (const w of reply.result.words) {
           const note = asked[w.n - 1];
           if (!note || made.has(note)) continue;
-          const good = w.examples.filter((e) => usesWord(e.sentence, note.display));
+          // The word found by its forms, or as the model says the sentence uses it.
+          const good = w.examples.filter(
+            (e) => usesWord(e.sentence, note.display) || hasForm(e.sentence, e.form),
+          );
           if (good.length) made.set(note, good.slice(0, KEPT));
         }
         asked = asked.filter((n) => !made.has(n));
@@ -88,10 +91,11 @@ export function createDeckExamples(deps: { extras: DeckExtrasStore; now(): numbe
           examples: {
             ...entry?.examples,
             [note.translationLang]: {
-              items: examples.map(({ sentence, translation, glossary }) => ({
+              items: examples.map(({ sentence, translation, glossary, form }) => ({
                 sentence,
                 translation,
                 ...(glossary.length && { glossary }),
+                form,
               })),
               model,
               made: deps.now(),

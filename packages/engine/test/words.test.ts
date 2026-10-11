@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { markWords, sameWord, usesWord, wordForms } from "../src/text/words.ts";
+import { hasForm, markWords, sameWord, usesWord, wordForms } from "../src/text/words.ts";
 
 test("a word's forms: headword, plural and forms, without what is in brackets", () => {
   expect(wordForms({ target: "die Frau, die Frauen" })).toEqual(["die", "frau", "frauen"]);
@@ -25,6 +25,15 @@ test("a sentence uses the word by its main part, not by its article", () => {
   expect(usesWord("Die Frauen sind hier.", frau)).toBe(true);
   expect(usesWord("Die Lehrerin ist nett.", frau)).toBe(false);
   expect(usesWord("Ich bin hier.", { target: "ich" })).toBe(true);
+});
+
+test("a form no ending rule finds: each of its words in the sentence, case aside", () => {
+  expect(usesWord("Er ist zu Hause.", { target: "sein" })).toBe(false);
+  expect(hasForm("Er ist zu Hause.", "ist")).toBe(true);
+  expect(hasForm("Er lädt mich heute ein.", "lädt ein")).toBe(true);
+  expect(hasForm("Er lädt mich heute.", "lädt ein")).toBe(false);
+  expect(hasForm("Er kann schwimmen.", "kannst")).toBe(false);
+  expect(hasForm("Er kann schwimmen.", "")).toBe(false);
 });
 
 test("new words are marked, with the translation of the first glossary that has them", () => {

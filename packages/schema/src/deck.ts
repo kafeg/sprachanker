@@ -97,6 +97,8 @@ export const DeckMadeExamples = z.strictObject({
         translation: z.string().min(1),
         /** Words of the sentence beyond those the learner was assumed to know, translated. */
         glossary: z.array(z.strictObject({ word: z.string(), translation: z.string() })).optional(),
+        /** The word as the sentence uses it ("kann" of "können"). */
+        form: z.string().optional(),
       }),
     )
     .min(1)

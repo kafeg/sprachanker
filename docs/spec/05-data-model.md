@@ -18,7 +18,7 @@
 │                                # with that audio in media/ (`read-<hash of engine, voice, text>.wav`; an
 │                                # entry an earlier version keyed by the note's guid is left out when read);
 │                                # the AI's examples for a word by the language they are translated into
-│                                # (sentence, translation, glossary; the model, when)
+│                                # (sentence, translation, glossary, the word's form in it; the model, when)
 ├── decks/course~<series>~<course>/ # a course's deck (every edition's): extras.json and media/ as an
 │                                # imported deck's (04, "Decks"); gone when the course is (server start)
 ├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported or their sheet is

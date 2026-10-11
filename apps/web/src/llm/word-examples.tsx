@@ -58,8 +58,9 @@ export function CardExamples({ cardId }: { cardId: string }) {
             />
             <span className="grid gap-0.5">
               <span lang={lang}>
+                {/* A word not met yet is marked where it has a translation to show. */}
                 {e.words.map((w, i) =>
-                  w.new ? (
+                  w.new && w.translation ? (
                     <span
                       // biome-ignore lint/suspicious/noArrayIndexKey: the pieces of one fixed sentence
                       key={i}

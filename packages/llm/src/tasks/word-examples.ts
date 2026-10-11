@@ -51,6 +51,7 @@ export function wordExamplesRules(
     `- For each word in <words>: three example sentences — up to five for a word with several meanings or uses. Each uses the word in the form the sentence needs (conjugated, declined, plural, with its article).`,
     `- Simple and natural, 4–10 words, everyday situations. Use the words in <known>, the word itself and the most basic words of the level (articles, pronouns, sein, haben, numbers, und, aber, nicht, common prepositions).`,
     `- A word's sentences differ from each other: other situations, other forms of the word.`,
+    `- "form": the word as the sentence uses it, as written there ("kann" for "können", "lädt ein" for "einladen", "Äpfel" for "der Apfel").`,
     `- "translation": the sentence in ${l}, natural.`,
     `- "glossary": each word of the sentence that is neither in <known> nor the word itself, as written in the sentence, with its ${l} translation; an empty list when there is none.`,
     `- "words": one entry for every word of <words>, "n" its number there.`,

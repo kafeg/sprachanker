@@ -61,6 +61,19 @@ export function usesWord(sentence: string, word: VocabWord): boolean {
     .some((w) => main.some((f) => sameWord(w, f)));
 }
 
+/** Whether a sentence has every word of `form` as written, case aside, anywhere in it: the form a
+ *  model says it used ("ist" of "sein", "lädt … ein" of "einladen"), which no ending rule finds. */
+export function hasForm(sentence: string, form: string): boolean {
+  const split = (text: string) =>
+    text
+      .split(/[^\p{L}'’-]+/u)
+      .filter(Boolean)
+      .map(lower);
+  const words = new Set(split(sentence));
+  const parts = split(form);
+  return parts.length > 0 && parts.every((p) => words.has(p));
+}
+
 /**
  * A sentence in pieces, its words marked new unless `known` has them; a new word takes the
  * translation of the first entry of `glossary` that has it (the course's vocabulary, then others).

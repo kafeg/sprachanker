@@ -24,6 +24,16 @@ import type { Llm, PromptPreview } from "./llm.ts";
 export const levelIn = (name: string) =>
   /(?:^|[^a-z0-9])([abc][12])(?![0-9])/i.exec(name)?.[1]?.toUpperCase();
 
+/** A headword of one word, with its article or "sich" ("der Abend, die Abende", "sich freuen"), not a
+ *  phrase ("Ich muss nach Berlin"). */
+const oneWord = (v: VocabWord) =>
+  v.target
+    .replace(/\([^)]*\)/g, " ")
+    .split(",")[0]
+    ?.trim()
+    .split(/\s+/)
+    .filter((t) => !/^(der|die|das|sich|the|a|an|to)$/i.test(t)).length === 1;
+
 const NO_WORDS = { upTo: [] as VocabWord[], later: [] as VocabWord[] };
 
 export function createExamples(deps: {
@@ -132,7 +142,14 @@ export function createExamples(deps: {
           : undefined;
       if (!made) return { scope: n.deck, own, model: null, examples: [] };
       const { upTo, later } = await around(note);
-      const word: VocabWord = { target: note.display.target, plural: note.display.plural };
+      const word = (form?: string): VocabWord => ({
+        target: note.display.target,
+        plural: note.display.plural,
+        forms: form,
+      });
+      // A later word translates a word of a sentence only when it is one word itself: a phrase's
+      // translation is not that of each of its words.
+      const laterWords = later.filter(oneWord);
       return {
         scope: n.deck,
         own,
@@ -140,12 +157,13 @@ export function createExamples(deps: {
         examples: made.items.map((e) => ({
           sentence: e.sentence,
           translation: e.translation,
+          // The model's glossary first: it translates the word as this sentence uses it.
           words: markWords(
             e.sentence,
-            [...upTo, word],
+            [...upTo, word(e.form)],
             [
-              ...later,
               ...(e.glossary ?? []).map((g) => ({ target: g.word, translation: g.translation })),
+              ...laterWords,
             ],
           ),
         })),

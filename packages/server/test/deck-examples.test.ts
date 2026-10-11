@@ -21,7 +21,15 @@ const wordsAsked = (body: Body) => [
 
 /** A model writing `perWord` sentences with each word asked for (`skip`: words it leaves out of its
  *  sentences the first time), recording what it was sent; `hold` keeps a reply back until let go. */
-function model(options: { skip?: string[]; perWord?: number; broken?: boolean } = {}) {
+function model(
+  options: {
+    skip?: string[];
+    /** Words used in a form no ending rule finds ("sein" → "sind"), said as the form used. */
+    irregular?: Record<string, string>;
+    perWord?: number;
+    broken?: boolean;
+  } = {},
+) {
   const bodies: Body[] = [];
   const skipped = new Set<string>();
   const held: Array<() => void> = [];
@@ -41,8 +49,9 @@ function model(options: { skip?: string[]; perWord?: number; broken?: boolean } 
         examples: Array.from({ length: options.perWord ?? 3 }, (_, k) => ({
           sentence: skip
             ? `Die Leute sind heute da ${k}.`
-            : `Die Leute mögen ${target} heute ${k}.`,
+            : `Die Leute mögen ${options.irregular?.[target] ?? target} heute ${k}.`,
           translation: `Людям нравится ${k}.`,
+          form: options.irregular?.[target] ?? target,
           glossary: [{ word: "heute", translation: "сегодня" }],
         })),
       };
@@ -235,19 +244,21 @@ test("an imported deck: a word with its own sentences gets none; the others with
       { guid: "o1", fields: ["der Apfel", "Ich esse einen Apfel.", "яблоко", "Я ем яблоко."] },
       { guid: "o2", fields: ["die Birne", "", "груша", ""] },
       { guid: "o3", fields: ["der Tisch", "", "стол", ""] },
+      { guid: "o4", fields: ["sein", "", "быть", ""] },
     ],
   });
-  const m = model();
+  const m = model({ irregular: { sein: "sind" } });
   const { importDeck, sendJson, getJson } = await withModel(m);
   const { id } = await importDeck(bytes, "Obst");
   const scope = `deck:${id}`;
   await sendJson("POST", "/api/cards/decks/take", { deck: id });
-  expect(await getJson(examplesOf(scope))).toMatchObject({ words: 3, own: 1, missing: 2 });
+  expect(await getJson(examplesOf(scope))).toMatchObject({ words: 4, own: 1, missing: 3 });
   await sendJson("POST", "/api/decks/examples", { scope });
-  expect(await settled(getJson, scope)).toMatchObject({ made: 2, missing: 0 });
-  expect(m.bodies.map(wordsAsked)).toEqual([["die Birne", "der Tisch"]]);
+  expect(await settled(getJson, scope)).toMatchObject({ made: 3, missing: 0 });
+  // "sein" used as "sind": found by the form the model says it used.
+  expect(m.bodies.map(wordsAsked)).toEqual([["die Birne", "der Tisch", "sein"]]);
   expect(m.bodies[0]?.messages.at(-1)?.content).toContain(
-    "<known>der Apfel; die Birne; der Tisch</known>",
+    "<known>der Apfel; die Birne; der Tisch; sein</known>",
   );
   const words = (await getJson("/api/cards")).words as Array<{
     cardId: string;
@@ -270,4 +281,9 @@ test("an imported deck: a word with its own sentences gets none; the others with
     { text: "mögen", new: true },
     { text: "heute", new: true, translation: "сегодня" },
   ]);
+  // The form the model used is the word: not new.
+  const sein = words.find((w) => w.display.target === "sein")?.cardId;
+  const seinShown = await getJson(`/api/cards/${sein}/examples`);
+  expect(seinShown.examples[0].sentence).toBe("Die Leute mögen sind heute 0.");
+  expect(seinShown.examples[0].words).toContainEqual({ text: "sind" });
 });
