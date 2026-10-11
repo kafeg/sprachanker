@@ -243,22 +243,27 @@ notebookExam.update({
     return <ExamNotebook params={notebookExam.useParams()} />;
   }),
 });
-// A review day in full; its neighbours open in its place, the Notebook going back.
+// A review day in full — a language's deck's alone with `?lang=` —; its neighbours (the deck's) open
+// in its place, the Notebook going back.
 const notebookReview = createRoute({
   getParentRoute: () => shell,
   path: "/notebook/review/$run",
+  validateSearch: (s: Record<string, unknown>): { lang?: string } =>
+    typeof s.lang === "string" ? { lang: s.lang } : {},
 });
 notebookReview.update({
   component: opening(ReviewDay, function NotebookReviewDay() {
     const { run } = notebookReview.useParams();
+    const { lang } = notebookReview.useSearch();
     const navigate = notebookReview.useNavigate();
     return (
       <ReviewDay
-        key={run}
+        key={`${run}:${lang}`}
         id={run}
+        lang={lang}
         go={(next) =>
           void (next
-            ? navigate({ to: "/notebook/review/$run", params: { run: next } })
+            ? navigate({ to: "/notebook/review/$run", params: { run: next }, search: { lang } })
             : navigate({ to: "/notebook" }))
         }
       />

@@ -31,7 +31,7 @@ const DECK = {
   title: null,
   lastAt: TODAY,
   open: false,
-  runCount: 1,
+  runCount: 2,
   // The review days it was studied on, each with its answers in the deck.
   runs: [
     {
@@ -42,6 +42,18 @@ const DECK = {
       startedAt: TODAY,
       finishedAt: null,
       count: 25,
+      day: TODAY,
+    },
+    // Begun at 2 AM, two days ago's study day still; ended when today's first answer came.
+    {
+      id: "01JSSSSSSSSSSSSSSSSSSSSSSS",
+      edition: null,
+      status: "finished",
+      endReason: "completed",
+      startedAt: daysAgo(1) - 2 * 3_600_000,
+      finishedAt: TODAY + 3_600_000,
+      count: 4,
+      day: daysAgo(2),
     },
   ],
   figures: [
@@ -181,14 +193,17 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   expect(view.getAllByTitle(/: cards 8, AI 2$/)).toHaveLength(1);
   expect(view.getAllByTitle(/: nothing done$/).length).toBeGreaterThan(300);
 
-  // A review day of the deck opens its answers.
-  const reviewDay = view.getByRole("button", { name: /25 answers/ });
-  fireEvent.click(reviewDay);
+  // The deck's review days, each dated by its study day, not by when it ended.
+  expect(view.getByRole("button", { name: /4 answers/ }).textContent).toContain("Oct 6");
+  expect(view.getByRole("button", { name: /25 answers/ }).textContent).toContain("Oct 8");
+  // A review day of the deck opens its answers in it.
+  fireEvent.click(view.getByRole("button", { name: /25 answers/ }));
   await waitFor(() =>
     expect(view.router?.state.location.pathname).toBe(
       "/notebook/review/01JRRRRRRRRRRRRRRRRRRRRRRR",
     ),
   );
+  expect(view.router?.state.location.search).toEqual({ lang: "de" });
 
   const lesson = view.getByRole("button", { name: /0\.1 Hallo/ });
   expect(lesson.textContent).toContain("2 passes");

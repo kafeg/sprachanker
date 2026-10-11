@@ -2,7 +2,9 @@ import { Database } from "bun:sqlite";
 import { expect, test } from "bun:test";
 import { join } from "node:path";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
+import { studyDay } from "@sprachanker/engine";
 import { ulid } from "ulid";
+import { deck as deckFile, study, withDecks } from "./deck-setup.ts";
 import { setup } from "./setup.ts";
 
 const CAFE = "sprachanker.fixture/demo/00-01";
@@ -225,6 +227,27 @@ test("a card answer's time kept (at most a minute; an answer from before it was 
   const later = await getJson(`/api/notebook/review/${next.runs[0]?.id}`);
   expect([later.earlier, later.later]).toEqual([deck.runs[0]?.id, null]);
   expect((await getJson(`/api/notebook/review/${deck.runs[0]?.id}`)).later).toBe(next.runs[0]?.id);
+  // Each dated by the study day it is of, not by when it ended: the next day's first answer ended
+  // the first.
+  type Run = { id: string; startedAt: number; finishedAt: number; day: number };
+  const [today, past] = next.runs as unknown as [Run, Run];
+  expect(past.day).toBe(studyDay(past.startedAt).start);
+  expect(studyDay(past.finishedAt).start).toBe(today.day);
+  expect(past.day).toBeLessThan(today.day);
+  expect((await getJson(`/api/notebook/review/${past.id}`)).date).toBe(past.day);
+  expect(later.date).toBe(today.day);
+  // A review day begun at 2 AM is the day before's (the day starts at 4 AM).
+  const t = later.answers[0].ts as number;
+  const night = new Date(studyDay(t).next);
+  night.setDate(night.getDate() + 1);
+  night.setHours(2, 0, 0, 0);
+  api.advance(night.getTime() - t);
+  await rate(3, 1_000);
+  const third = (moduleOf(await getJson("/api/notebook"), "review").entries[0] as typeof deck)
+    .runs[0] as unknown as Run;
+  expect(new Date(third.startedAt).getHours()).toBe(2);
+  expect(third.day).toBe(studyDay(t).next);
+  expect((await getJson(`/api/notebook/review/${third.id}`)).date).toBe(third.day);
 
   // A lesson done: the figure with when, oldest first; no course done yet (the fixture has two lessons).
   const run = (
@@ -264,4 +287,64 @@ test("a card answer's time kept (at most a minute; an answer from before it was 
     at: [finished.finishedAt],
   });
   expect(lessons.find((f) => f.id === "coursesDone")).toMatchObject({ value: 0, at: [] });
+});
+
+test("a deck's review day: only its language's answers, what they held and the days its cards were answered on", async () => {
+  const api = await withDecks();
+  const { sendJson, getJson, preview } = api;
+  await sendJson("POST", "/api/cards/lesson", {
+    series: FIXTURE_SERIES,
+    lessonKey: CAFE,
+    edition: "ru-de",
+  });
+  // A deck of another language beside the course's German words.
+  const { upload } = await preview(deckFile());
+  const french = await sendJson("POST", "/api/decks/import", {
+    upload,
+    title: "Mon paquet",
+    lang: "fr",
+    translationLang: "en",
+    file: "fr.apkg",
+  });
+  await sendJson("POST", "/api/cards/decks/take", { deck: french.id });
+  const rate = async (lang: string) => {
+    const { current } = await getJson(study(`lang:${lang}`));
+    await sendJson("POST", `/api/cards/${current.cardId}/review`, {
+      id: ulid(),
+      reps: current.reps,
+      face: current.face,
+      rating: 3,
+      ms: 2_000,
+    });
+  };
+  await rate("de");
+  await rate("fr");
+  await rate("de");
+  api.advance(86_400_000);
+  await rate("de");
+
+  const decks = moduleOf(await getJson("/api/notebook"), "review").entries as unknown as Array<{
+    key: string;
+    runs: Array<{ id: string; count: number }>;
+  }>;
+  const de = decks.find((d) => d.key === "de");
+  const fr = decks.find((d) => d.key === "fr");
+  expect(de?.runs.map((r) => r.count)).toEqual([1, 2]);
+  expect(fr?.runs.map((r) => r.count)).toEqual([1]);
+  const first = fr?.runs[0]?.id as string;
+  expect(de?.runs[1]?.id).toBe(first);
+
+  // The first day as French's: its one answer, what it held, no day after (French was not studied).
+  const french1 = await getJson(`/api/notebook/review/${first}?lang=fr`);
+  expect(french1.answers.map((a: { card: { lang: string } }) => a.card.lang)).toEqual(["fr"]);
+  expect(french1.day).toMatchObject({ answers: 1, newCards: 1 });
+  expect([french1.earlier, french1.later]).toEqual([null, null]);
+  // As German's: its two answers, the next day after it.
+  const german1 = await getJson(`/api/notebook/review/${first}?lang=de`);
+  expect(german1.answers.map((a: { card: { lang: string } }) => a.card.lang)).toEqual(["de", "de"]);
+  expect(german1.day).toMatchObject({ answers: 2, newCards: 2 });
+  expect([german1.earlier, german1.later]).toEqual([null, de?.runs[0]?.id]);
+  // Every language's without one.
+  expect((await getJson(`/api/notebook/review/${first}`)).answers).toHaveLength(3);
+  expect((await api.get(`/api/notebook/review/${first}?lang=x`)).status).toBe(400);
 });

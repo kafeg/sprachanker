@@ -157,7 +157,12 @@ function useViews(): Partial<Record<ModuleId, EntryView>> {
       ),
       picture: (deck) => <WordsPicture figures={deck.figures} />,
       open: () => void navigate({ to: "/review/decks" }),
-      openRun: (_, run) => void navigate({ to: "/notebook/review/$run", params: { run: run.id } }),
+      openRun: (deck, run) =>
+        void navigate({
+          to: "/notebook/review/$run",
+          params: { run: run.id },
+          search: { lang: deck.key },
+        }),
     },
     // A lesson by its number in the course; it opens its passes.
     lesson: {

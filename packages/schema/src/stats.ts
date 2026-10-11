@@ -74,6 +74,9 @@ export const RunSummary = RunHeader.extend({
   part: z.string().optional(),
   /** What it holds where that is its measure (a review day's card answers). */
   count: Count.optional(),
+  /** The study day it is of, where it is one (a review day's start: not when it ended, which is
+   *  when the next day's first answer replaced it). */
+  day: z.number().int().optional(),
 });
 export type RunSummary = z.infer<typeof RunSummary>;
 

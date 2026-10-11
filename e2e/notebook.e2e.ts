@@ -48,7 +48,7 @@ test("the Notebook's pictures: cards answered, time spent, a deck's words by sta
     .getByRole("button", { name: /\d+ answers?$/ })
     .first()
     .click();
-  await expect(page).toHaveURL(/\/notebook\/review\/[0-9A-Z]{26}$/);
+  await expect(page).toHaveURL(/\/notebook\/review\/[0-9A-Z]{26}\?lang=de$/);
   await expect(page.getByRole("heading", { name: /^Review of / })).toBeVisible();
   const answers = page.getByRole("main").getByRole("listitem");
   await expect(answers.filter({ hasText: "Again" }).first()).toBeVisible();

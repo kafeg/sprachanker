@@ -43,7 +43,7 @@ apps/web/src/
   notebook/        # the Notebook: page (progress, the study days' calendar with totals, every module's
                    # standing — standing.tsx shows them alike, a module adding only titles, links and
                    # pictures: pictures.tsx, bars over the span), lesson (passes), pass (in full), compare,
-                   # exam (an exam's runs and questions as they stand), review-day (its answers), mark
+                   # exam (an exam's runs and questions as they stand), review-day (a deck's day: its answers), mark
   library/         # what feature folders share: card (a course's or an exam's, an offer, the publisher),
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check
