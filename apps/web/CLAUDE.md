@@ -83,7 +83,7 @@ apps/web/src/
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's sections; CourseSections in course-html shows them as cards), activity-calendar (a
                    # year of days as squares), bar-chart (bars over time, each a button showing its value; a bar across), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
-                   # run's), avatar, choice (segmented), check-row (a setting on or off), option-card (one
+                   # run's), avatar, choice (segmented), select-field (a labelled select), check-row (a setting on or off), option-card (one
                    # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
                    # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
@@ -129,7 +129,7 @@ to `@/ui`).
 - Shared pieces, not copies: dates and numbers through `ui/format.ts`; a row that opens something is
   `ListRow`, a list of earlier items `HistoryList` (newest first, one open at a time); panels are
   `Panel` (its look alone, for lists and folded sections: `panelClass`), side panels `SideSheet`, empty pages `EmptyState`; a waiting button is `<Button loading>`, a link that looks as a button `<Button asChild>`;
-  a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), one of a few
+  a setting on or off is `CheckRow` (a lone checkbox `Checkbox`, ui/components), one value of a list `SelectField`, one of a few
   options shown as cards `OptionCard`, a model or voice the server downloads `DownloadRow` (audio/); a behaviour with a good
   default is not a setting (say it in a line instead), tabs look as `SectionTabs`; text fields are the ui
   `Input` and `Textarea` (a gap inside a sentence aside);

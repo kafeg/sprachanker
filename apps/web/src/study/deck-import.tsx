@@ -16,15 +16,9 @@ import {
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/components/select.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
+import { SelectField } from "@/ui/select-field.tsx";
 import { SideSheet } from "@/ui/side-sheet.tsx";
 
 /** The languages offered: the interface's and those of the learner's decks, besides the common ones. */
@@ -127,22 +121,12 @@ export function DeckImportSheet({
     (d) => d.lang === lang && d.translationLang === translationLang,
   );
   const language = (label: string, value: string, set: (v: string) => void, options: string[]) => (
-    <div className="space-y-1">
-      <p className="text-sm text-muted-foreground">{label}</p>
-      {/* A value set while the list is closed comes back once as "" from the form's select: kept. */}
-      <Select value={value} onValueChange={(v) => v && set(v)}>
-        <SelectTrigger className="h-11 w-full bg-card" aria-label={label}>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((code) => (
-            <SelectItem key={code} value={code}>
-              {languageName(code, i18n.language, true)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <SelectField
+      label={label}
+      value={value}
+      options={options.map((code) => [code, languageName(code, i18n.language, true)])}
+      onChange={set}
+    />
   );
   return (
     <SideSheet
