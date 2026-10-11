@@ -139,16 +139,18 @@ export function CardCorner({
   cardId,
   scope,
   audio,
+  compact,
 }: {
   cardId: string;
   scope: string;
   audio: boolean;
+  compact?: boolean;
 }) {
   const off = useOff();
   const ready = !!useLlm().data?.model;
   const shown = useCardExamples(cardId, scope, !off && ready);
   const examples = !off && ready && !!shown.data && !shown.data.own && !shown.data.examples.length;
-  return <DeckLink scope={scope} audio={audio} examples={examples} />;
+  return <DeckLink scope={scope} audio={audio} examples={examples} compact={compact} />;
 }
 
 /** A deck in Review → Decks (`DeckSlot`): under a deck to take, its words in a language pair given
@@ -266,6 +268,8 @@ export const examplesAssistant = {
   examples: (card: { cardId: string; deck: string; onItems(items: CardExample[]): void }) => (
     <CardExampleItems {...card} />
   ),
-  corner: (card: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...card} />,
+  corner: (card: { cardId: string; scope: string; audio: boolean; compact?: boolean }) => (
+    <CardCorner {...card} />
+  ),
   deck: (deck: DeckSlot) => <DeckExamplesRow {...deck} />,
 };

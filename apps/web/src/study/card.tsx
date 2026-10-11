@@ -161,8 +161,8 @@ export function StudyCard({
       )}
       {marks && <div className="absolute top-3 start-3 flex items-center gap-1.5">{marks}</div>}
       {/* In the card's corner: the recording, so a word without one keeps the same layout; with the
-          answer, the way to its deck for what it has yet to make for the word (no recording: nothing
-          plays, R does nothing). */}
+          answer, "Example" and the way to its deck for what it has yet to make for the word (an icon on a
+          phone: the row fits at 375 px in every language; no recording: nothing plays, R does nothing). */}
       <div
         data-card-corner
         className="absolute top-3 end-3 flex max-w-[60%] flex-row-reverse items-center gap-2 text-end"
@@ -192,9 +192,9 @@ export function StudyCard({
         )}
         {side === "answer" &&
           (cardId && slots.corner ? (
-            slots.corner({ cardId, scope: deck, audio: !src })
+            slots.corner({ cardId, scope: deck, audio: !src, compact: true })
           ) : (
-            <DeckLink scope={deck} audio={!src} />
+            <DeckLink scope={deck} audio={!src} compact />
           ))}
       </div>
     </div>

@@ -106,9 +106,12 @@ test("a word without a recording is never read on the fly: no play button; with 
   question.unmount();
   const answer = await card("answer");
   expect(answer.queryByRole("button", { name: /auch|Read aloud/ })).toBeNull();
-  expect(answer.getByRole("link", { name: "Read the deck aloud" }).getAttribute("href")).toBe(
-    "/review/decks#deck-course-x-c",
-  );
+  const link = answer.getByRole("link", { name: "Read the deck aloud" });
+  expect(link.getAttribute("href")).toBe("/review/decks#deck-course-x-c");
+  // On a phone an icon in the corner's row, its words in its tooltip (the label hidden there).
+  expect(link.getAttribute("title")).toBe("Read the deck aloud");
+  expect(link.className).toContain("max-sm:size-11");
+  expect(link.querySelector("span")?.className).toContain("max-sm:hidden");
   answer.unmount();
   // Read for its deck: it plays that, and the corner has nothing more to say.
   const read = await renderApp(
