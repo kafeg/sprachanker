@@ -26,18 +26,25 @@ export function sharedPrompt(exercise: Exercise, locale: LocaleExercise | null |
   return { target: target[0] || undefined, learner: learner[0] || undefined };
 }
 
-/** A text that says how many answers are right ("Drei Antworten sind richtig", "Правильных ответов
- *  несколько"): a count or "several" in a sentence about right answers. Pure. */
+/** A count of answers in words, and the words for the right answers it counts. */
+const COUNT =
+  "(?<!\\p{L})(?:two|three|four|five|several|zwei|drei|vier|fünf|mehrere|два|две|три|четыре|пять|несколько)(?!\\p{L})";
+const ANSWERS =
+  "(?:richtig|antwort|lösung|aussage|option|correct|answer|choice|statement|правильн|ответ|вариант|утвержден)\\p{L}*";
+/** A count near what it counts (four words between at most: "Two of the statements are correct",
+ *  "Правильных ответов в каждом случае несколько"); a number right before it ("2 richtige") — after a
+ *  noun it names a picture or a text ("Antworten zu Bild 3"). */
+const NEAR = "(?:\\s+\\S+){0,4}\\s+";
+const STATED = new RegExp(
+  `${COUNT}${NEAR}${ANSWERS}|${ANSWERS}${NEAR}${COUNT}|(?<![\\p{L}\\p{N}])\\d+\\s+(?:\\S+\\s+)?${ANSWERS}`,
+  "iu",
+);
+
+/** A text that says how many answers are right ("Drei Antworten sind richtig", "Wähl 2 richtige",
+ *  "Правильных ответов несколько"): a count or "several" near the answers it counts, in one
+ *  sentence — not any number in such a sentence ("die richtigen Antworten zu Bild 3"). Pure. */
 export const countStated = (text: string) =>
-  text
-    .split(/[.!?\n]/)
-    .some(
-      (s) =>
-        /(richtig|правильн|correct|right)/i.test(s) &&
-        /(несколько|mehrere|several|\d|\b(zwei|drei|vier|fünf|два|две|три|четыре|пять|two|three|four|five)\b)/i.test(
-          s,
-        ),
-    );
+  text.split(/[.!?\n]/).some((sentence) => STATED.test(sentence));
 
 /**
  * A multiple choice's "several can be right" (09): said once above its items — "show" —, or not at

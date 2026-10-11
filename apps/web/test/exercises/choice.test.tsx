@@ -71,6 +71,16 @@ test("a multiple choice says several can be right once above, or not when it say
   expect(severalNote(...multi("<p>Drei Antworten sind richtig.</p>"))).toBe("stated");
   expect(severalNote(...multi("<p>Правильных ответов несколько.</p>"))).toBe("stated");
   expect(severalNote(...multi("<p>Lies den Text. Was ist richtig?</p>"))).toBe("show");
+  // A count of the answers, however phrased; a number naming a picture is none.
+  for (const said of [
+    "Wähl 2 richtige aus.",
+    "Wähl die zwei richtigen Antworten.",
+    "Выбери в каждом случае два правильных ответа.",
+    "Two of the statements are correct.",
+    "Mehrere Optionen sind richtig.",
+  ])
+    expect(severalNote(...multi(`<p>${said}</p>`))).toBe("stated");
+  expect(severalNote(...multi("<p>Wähle die richtigen Antworten zu Bild 3.</p>"))).toBe("show");
   expect(severalNote(choice, null)).toBeUndefined();
   // Said above, a card says only how many are chosen.
   const view = await renderApp(
