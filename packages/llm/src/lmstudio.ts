@@ -1,8 +1,9 @@
 // LM Studio's own REST API (v1, next to its OpenAI-compatible /v1): the models it has, loading one with
 // the context the tasks need, and downloads. LM Studio picks the engine and stores the files; the app
 // only asks (07, "LM Studio").
-import { endpointCaller } from "./client.ts";
+
 import { LlmError } from "./errors.ts";
+import { bearer, endpointCaller } from "./http.ts";
 
 export interface LmStudioModel {
   /** The id chat requests use: "google/gemma-4-12b". */
@@ -56,7 +57,7 @@ interface RawModel {
 /** `baseUrl` is the OpenAI-compatible one (…/v1), as configured for the provider. */
 export function lmStudioApi(endpoint: { baseUrl: string; apiKey?: string }, fetchFn = fetch) {
   const root = endpoint.baseUrl.replace(/\/+$/, "").replace(/\/v1$/, "");
-  const call = endpointCaller(root, endpoint.apiKey, fetchFn);
+  const call = endpointCaller(root, bearer(endpoint.apiKey), fetchFn);
   const post = (path: string, body: unknown, timeoutMs = QUICK_MS) =>
     call(path, { method: "POST", body: JSON.stringify(body) }, timeoutMs);
   const download = (raw: Record<string, unknown>): LmStudioDownload => ({
