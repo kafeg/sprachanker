@@ -275,6 +275,9 @@ function backupCommand(args: string[]): void {
   const { folder, bytes } = backupData(dataRoot, values.to);
   console.log(`backed up ${dataRoot} to ${folder} (${megabytes(bytes)})`);
   console.log(
+    "  it holds secret.key, which opens the stored API keys, and everyone's learning: keep it private",
+  );
+  console.log(
     "  to restore: server.sqlite, profiles/ and decks/ into a data root, secret.key into the app-data folder, no server running",
   );
 }

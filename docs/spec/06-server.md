@@ -287,7 +287,10 @@ Built (`apps/cli/src/main.ts`): `serve [--data] [--host] [--port] [--allow-host]
 `profiles` (above) · `backup [--data] --to <folder>` (05, "Backups": `server.sqlite` and each
 `profile.sqlite` copied with `VACUUM INTO`, consistent while a server runs; the recordings, the
 imported decks and `<app-data>/secret.key`; into a new `sprachanker-backup-<date>-<time>` folder,
-written as `….part` and renamed when whole, the disk's free space checked first). Planned:
+its owner's only (0700: it holds the key, the command says to keep it private), never inside the
+data root, written as `….part` and renamed when whole — half-made ones an earlier run left there go
+—, the disk's free space checked first. Each file is copied consistent, but one after another: a
+profile or recording changed meanwhile may be a moment apart from the rest). Planned:
 `normalise <series>`, `enrich check` (plan).
 
 The data root is `--data`, else `$SPRACHANKER_DATA`, else `<app-data>/data` (05). `import` is

@@ -10,16 +10,27 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  realpathSync,
   renameSync,
   rmSync,
   statfsSync,
   statSync,
 } from "node:fs";
-import { basename, dirname, join, relative } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { BUSY_MS, profileDbFile, vacuumInto } from "./bun.ts";
 
 const DAYS_KEPT = 7;
 const EVERY_MS = 6 * 3_600_000;
+/** A backup being written (`backUpTo`). */
+const BACKUP_PART = /^sprachanker-backup-\d{8}-\d{6}\.part$/;
+
+/** A path with its links followed as far as it exists (a folder not made yet: its parent's). */
+function realPath(path: string): string {
+  const full = resolve(path);
+  if (existsSync(full)) return realpathSync(full);
+  const parent = dirname(full);
+  return parent === full ? full : join(realPath(parent), basename(full));
+}
 
 /** The profiles' folders (a dot folder is no profile: `.transfers`, 05). */
 const profileIds = (dataRoot: string) => {
@@ -93,10 +104,18 @@ export function startDailyBackups(dataRoot: string) {
  * A backup of what cannot be fetched again (05, "Backups") in a new folder in `to`
  * (`sprachanker-backup-<date>-<time>`, written as `….part` and renamed when whole): server.sqlite and
  * each profile's database (`VACUUM INTO`: consistent while a server runs), the profiles' recordings,
- * the imported decks, and `secretKey` (the stored API keys are sealed with it). The disk of `to` is
- * checked for room first. Returns the folder and its size.
+ * the imported decks, and `secretKey` (the stored API keys are sealed with it). The folder is its
+ * owner's only (0700); never inside the data root; half-made ones an earlier run left there go; the
+ * disk of `to` is checked for room first. Each copy is consistent, but they are taken one after
+ * another: a profile or recording changed meanwhile may be a moment apart from the rest. Returns the
+ * folder and its size.
  */
 export function backUpTo(dataRoot: string, to: string, secretKey: string, now = new Date()) {
+  const within = relative(realPath(dataRoot), realPath(to));
+  if (!within.startsWith("..") && !isAbsolute(within))
+    throw new Error(
+      `${to} is inside the data folder ${dataRoot}: back it up to a folder outside it`,
+    );
   const stamp = now.toISOString().slice(0, 19).replace(/[-:]/g, "").replace("T", "-");
   const folder = join(to, `sprachanker-backup-${stamp}`);
   if (existsSync(folder)) throw new Error(`${folder} exists`);
@@ -111,6 +130,9 @@ export function backUpTo(dataRoot: string, to: string, secretKey: string, now = 
     ids.reduce((n, id) => n + bytesOf(recordings(id)), 0) +
     deckFolders.reduce((n, d) => n + bytesOf(join(decks, d)), 0);
   mkdirSync(to, { recursive: true });
+  // Backups an earlier run left half-made (stopped, the disk full): never whole, they only take room.
+  for (const name of readdirSync(to))
+    if (BACKUP_PART.test(name)) rmSync(join(to, name), { recursive: true, force: true });
   const disk = statfsSync(to);
   const free = disk.bavail * disk.bsize;
   if (free < bytes + 16 * 1024 * 1024)
@@ -119,6 +141,8 @@ export function backUpTo(dataRoot: string, to: string, secretKey: string, now = 
     );
   const part = `${folder}.part`;
   rmSync(part, { recursive: true, force: true });
+  // Its owner's only: it holds the key the API keys are sealed with, and everyone's learning.
+  mkdirSync(part, { mode: 0o700 });
   try {
     for (const file of databases(dataRoot)) {
       const target = join(part, relative(dataRoot, file));
