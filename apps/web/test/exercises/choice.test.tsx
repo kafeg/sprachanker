@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import type { Exercise, Outcome } from "@sprachanker/schema";
 import { ItemCard } from "../../src/exercises/item-card.tsx";
-import { keptTogether, TILE } from "../../src/exercises/shared.tsx";
+import { keptTogether, numberedLines, TILE } from "../../src/exercises/shared.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -58,6 +58,14 @@ test("text options each have their row, long or short, and keep it once checked"
   expect(marks.length).toBe(2);
   for (const m of marks) expect(m.getAttribute("class")).toContain("absolute");
   expect(layout(checked).every((c) => c.includes("w-full pr-11"))).toBe(true);
+});
+
+test("numbered tasks run on in one prompt are a line each; other numbers stay in the line", () => {
+  expect(numberedLines("1. Der Hund: Er bellt. 2. Die Katze: Sie schläft.")).toBe(
+    "1. Der Hund: Er bellt.\n2. Die Katze: Sie schläft.",
+  );
+  expect(numberedLines("Er kommt am 3. Mai. 2. Stock")).toBe("Er kommt am 3. Mai. 2. Stock");
+  expect(numberedLines("1. Teil, Seite 5. Danach")).toBe("1. Teil, Seite 5. Danach");
 });
 
 test("a tile is one width whatever its text: it never grows past its share of the row", () => {

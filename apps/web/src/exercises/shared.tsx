@@ -101,6 +101,18 @@ export const keptTogether = (text: string) =>
     .replace(/(?<=\S)[ \t]+(?=\.\.\.|…)/g, " ")
     .replace(/(?<=\d) (?=(?:[\p{L}]{1,3}|[%°€$])(?![\p{L}]))/gu, " ");
 
+/** A prompt of numbered tasks run on in one line ("1. … 2. …"): each task on its own line, as the
+ *  answers under it are. Only a text that begins with "1." and goes on with 2, 3… in turn. Pure. */
+export function numberedLines(text: string): string {
+  if (!/^\s*1\.\s/.test(text)) return text;
+  let next = 2;
+  return text.replace(/\s+(\d+)\.\s/g, (run, n: string) => {
+    if (Number(n) !== next) return run;
+    next++;
+    return `\n${n}. `;
+  });
+}
+
 export function OptionContent({
   option,
   url,

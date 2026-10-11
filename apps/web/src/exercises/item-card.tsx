@@ -12,7 +12,7 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GapRoom, gapRoom } from "./gaps.tsx";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
-import { keptTogether } from "./shared.tsx";
+import { keptTogether, numberedLines } from "./shared.tsx";
 
 /** The prompt every item of an exercise has alike (two items or more), to show once above them
  *  instead of in each card; else none. The data keeps it per item. */
@@ -130,8 +130,8 @@ export function ItemCard({
       )}
       <div className="mb-3 empty:hidden">
         {item.prompt && !promptAbove && (
-          <p lang={lang} className="text-lg font-semibold text-balance">
-            {keptTogether(item.prompt)}
+          <p lang={lang} className="whitespace-pre-line text-lg font-semibold text-balance">
+            {numberedLines(keptTogether(item.prompt))}
           </p>
         )}
         {loc?.prompt && !promptAbove && !cueFirst && (
