@@ -25,14 +25,15 @@ Specs: 09, 10.
 
 ### 4. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
-- The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
-  network (when the server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them
-  (Settings, or the foot of the side panel beside the profile) by mockup options; an address without a
-  secure context says that the microphone needs HTTPS there.
-- The app on the owner's and his wife's iPhones: HTTPS through Tailscale (`tailscale serve`, 06) set
-  up and described, installed as a PWA, signing in on a phone (device token); the server accepts the
-  tailnet's host name (today only localhost, `.local`, IPs and the machine's name: a `*.ts.net` Host
-  is refused with 421).
+- Done, described in 06 ("Network and HTTPS", "Host check"): the server answers to its tailnet name
+  and to `serve --allow-host`; HTTPS through `tailscale serve`; the addresses as data
+  (`GET /api/addresses`; `useAddresses` in apps/web, not shown yet).
+- The addresses shown in the app (owner, 2026-10-09): this machine, the local network (when the
+  server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them (Settings, or the foot
+  of the side panel beside the profile) by mockup options, the owner's choice; an address without a
+  secure context says that the microphone needs HTTPS there; a tailnet not served says how to serve it.
+- The app on the owner's and his wife's iPhones: `tailscale serve` set up on the server's machine,
+  installed as a PWA, signing in on a phone (device token).
 - Everything built so far checked on the iPhone: lessons, review, the Notebook, profiles, the AI;
   speech — the microphone and recording, recognition, reading aloud (the device's voices in Safari;
   Piper and Qwen3-TTS from the server) — in Safari and the PWA; layouts at phone width; what breaks is

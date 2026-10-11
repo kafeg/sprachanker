@@ -1,4 +1,5 @@
-// The app and the profile's settings: the server's version, the settings and their change.
+// The app and the profile's settings: the server's version and the addresses it is reached at, the
+// settings and their change.
 import { type LearnerSettingKey, type SettingRead, settingOf } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, json, STATIC } from "./client.ts";
@@ -11,6 +12,10 @@ export const useAppInfo = () =>
     staleTime: Number.POSITIVE_INFINITY,
     queryFn: () => json(api.health.$get()),
   });
+
+/** The addresses the app is reached at: this machine, the local network, the tailnet (06). */
+export const useAddresses = () =>
+  useQuery({ queryKey: ["addresses"], meta: STATIC, queryFn: () => json(api.addresses.$get()) });
 
 export type Settings = Record<string, unknown>;
 export const useSettings = () =>

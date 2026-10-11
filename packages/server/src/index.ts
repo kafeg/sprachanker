@@ -17,6 +17,7 @@ import { cliHost } from "./runtime/cli.ts";
 import { holdDataRoot, serverOn } from "./runtime/data-root.ts";
 import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
+import { networkHost } from "./runtime/network.ts";
 import { piperHost } from "./runtime/piper.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
@@ -32,6 +33,9 @@ export interface ServerConfig {
   /** Data root (05): library/, decks/ and profiles/. */
   dataRoot: string;
   appVersion: string;
+  /** More names the Host check accepts (`--allow-host`): a name this machine is reached by that it
+   *  cannot know itself, as a reverse proxy's. */
+  allowHosts?: string[];
 }
 
 /** Starts the HTTP server: JSON API under /api, library and deck media and the built web app. */
@@ -54,8 +58,11 @@ export function startServer(config: ServerConfig): Listening {
     speech: speechHost(config.dataRoot),
     piper: piperHost(config.dataRoot),
     readings: readingCache(config.dataRoot),
-    // The machine's own names: its host name, and the one the server was told to listen on.
-    hosts: [hostname(), `${hostname()}.local`, config.hostname],
+    // The machine's own names: its host name, the one the server was told to listen on, those it was
+    // given (`--allow-host`); its tailnet name is read from Tailscale (`network`).
+    hosts: [hostname(), `${hostname()}.local`, config.hostname, ...(config.allowHosts ?? [])],
+    listensOn: { hostname: config.hostname, port: config.port },
+    network: networkHost(),
   });
   // After the app: its databases exist and are migrated.
   startDailyBackups(config.dataRoot);

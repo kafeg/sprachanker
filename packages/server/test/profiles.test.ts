@@ -150,6 +150,7 @@ test("the single profile from before profiles existed becomes the first one, not
     apkg: apkgRuntime,
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
+    listensOn: { hostname: "127.0.0.1", port: 4580 },
   });
   const { profiles } = await read(app.request("/api/profiles"));
   expect(profiles).toEqual([{ id: "local", name: "", colour: "amber", onboarded: false }]);

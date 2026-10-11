@@ -12,6 +12,7 @@ import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
 import type { CourseInstaller } from "../src/services/downloads.ts";
 import type { CliHost, LmStudioHost } from "../src/services/llm.ts";
 import type { ReadingCache, SpeechHost } from "../src/services/local-engines.ts";
+import type { ListensOn, NetworkHost } from "../src/services/network.ts";
 import type { PiperHost } from "../src/services/read-aloud.ts";
 
 const files: Record<string, Blob> = {
@@ -28,6 +29,11 @@ export async function setup(
     speech?: SpeechHost;
     piper?: PiperHost;
     readings?: ReadingCache;
+    network?: NetworkHost;
+    /** Where the server listens (default 127.0.0.1:4580). */
+    listensOn?: ListensOn;
+    /** Names given by `--allow-host`. */
+    hosts?: string[];
     /** Changes the fixture library before the app opens it (an item the fixture course lacks). */
     editLibrary?: (libraryRoot: string) => void;
   } = {},
@@ -54,6 +60,9 @@ export async function setup(
     speech: options.speech,
     piper: options.piper,
     readings: options.readings,
+    network: options.network,
+    listensOn: options.listensOn ?? { hostname: "127.0.0.1", port: 4580 },
+    hosts: options.hosts,
     now: () => (clock += 1000),
   });
   const json = { "content-type": "application/json", ...CLIENT_HEADERS };

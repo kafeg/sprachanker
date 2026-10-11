@@ -35,6 +35,8 @@ src/
                      # SETTING_DEFAULTS; a profile's colours, its name's limit, nextProfileColour (a new
                      # profile's colour: shared by the server's default and the onboarding's choice)
   errors.ts          # ERROR_CODES: what the server refuses, shared with the web
+  network.ts         # the addresses the app is reached at (this machine, the local network, the
+                     # tailnet), each with whether it is a secure context
 json-schema/        # generated JSON Schemas, committed; `bun run --filter @sprachanker/schema gen`
 scripts/gen-json-schema.ts
 test/               # bun test (Bun types via tsconfig.dev.json; src has no runtime types)
