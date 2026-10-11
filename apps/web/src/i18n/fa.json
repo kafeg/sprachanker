@@ -105,6 +105,7 @@
     "summary": "جمع‌بندی",
     "score": "درست در اولین تلاش: {correct, number} از {scored, number}. در درصد، پاسخ‌های تا حدی درست هم حساب می‌شوند.",
     "skipped": "ردشده",
+    "skippedCount": "{count, plural, one {# رد شده} other {# رد شده}}",
     "notDone": "انجام‌نشده",
     "backToCourse": "بازگشت به دوره",
     "nextLesson": "درس بعدی",

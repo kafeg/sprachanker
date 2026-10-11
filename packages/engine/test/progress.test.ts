@@ -150,9 +150,11 @@ test("exercise states and coverage of a run", () => {
   // Skipped: neutral where nothing is scored, wrong where it is.
   expect(exerciseState(e, results.e)).toBe("skipped");
   expect(exerciseState(f, results.f)).toBe("wrong");
-  // Skipped counts as worked: the lesson can be completed without answering everything.
+  // Skipped counts as worked: the lesson can be completed without answering everything; told
+  // apart where what was done is said.
   expect(lessonCoverage(lesson, results)).toEqual({
     worked: 5,
+    skipped: 1,
     total: 6,
     complete: false,
     firstLeft: 3,

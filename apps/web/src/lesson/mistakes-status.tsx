@@ -43,9 +43,18 @@ export function MistakesStatus({
       <dl className="grid grid-cols-2 gap-4">
         <div>
           <dt className="text-sm text-muted-foreground">{t("mistakes.exercises")}</dt>
+          {/* Done: answered; those moved past without an answer said apart. */}
           <dd className="text-2xl font-bold tabular-nums">
-            {t("mistakes.ofTotal", { n: coverage.worked, total: coverage.total })}
+            {t("mistakes.ofTotal", {
+              n: coverage.worked - coverage.skipped,
+              total: coverage.total,
+            })}
           </dd>
+          {coverage.skipped > 0 && (
+            <dd className="text-sm text-muted-foreground">
+              {t("lesson.skippedCount", { count: coverage.skipped })}
+            </dd>
+          )}
         </div>
         <div>
           <dt className="text-sm text-muted-foreground">{t("mistakes.firstTry")}</dt>

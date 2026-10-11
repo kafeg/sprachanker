@@ -105,6 +105,7 @@
     "summary": "Rezumat",
     "score": "Corect din prima încercare: {correct, number} din {scored, number}. Procentul ține cont și de răspunsurile parțial corecte.",
     "skipped": "sărit",
+    "skippedCount": "{count, plural, one {# sărit} few {# sărite} other {# sărite}}",
     "notDone": "nefăcut",
     "backToCourse": "Înapoi la curs",
     "nextLesson": "Lecția următoare",

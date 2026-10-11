@@ -105,6 +105,7 @@
     "summary": "Summary",
     "score": "Correct on the first try: {correct, number} of {scored, number}. The percentage counts partly right answers too.",
     "skipped": "skipped",
+    "skippedCount": "{count, plural, one {# skipped} other {# skipped}}",
     "notDone": "not done",
     "backToCourse": "Back to the course",
     "nextLesson": "Next lesson",

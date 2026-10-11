@@ -105,6 +105,7 @@
     "summary": "Muhtasari",
     "score": "Sahihi kwa jaribio la kwanza: {correct, number} kati ya {scored, number}. Asilimia inahesabu pia majibu yaliyo sahihi kwa sehemu.",
     "skipped": "limerukwa",
+    "skippedCount": "{count, plural, one {# limerukwa} other {# yamerukwa}}",
     "notDone": "halijafanywa",
     "backToCourse": "Rudi kwenye kozi",
     "nextLesson": "Somo linalofuata",

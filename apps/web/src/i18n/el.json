@@ -105,6 +105,7 @@
     "summary": "Σύνοψη",
     "score": "Σωστά με την πρώτη προσπάθεια: {correct, number} από {scored, number}. Το ποσοστό μετράει και τις εν μέρει σωστές απαντήσεις.",
     "skipped": "παραλείφθηκε",
+    "skippedCount": "{count, plural, one {# παραλείφθηκε} other {# παραλείφθηκαν}}",
     "notDone": "δεν έγινε",
     "backToCourse": "Πίσω στο μάθημα",
     "nextLesson": "Επόμενη ενότητα",

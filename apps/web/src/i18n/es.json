@@ -105,6 +105,7 @@
     "summary": "Resumen",
     "score": "Correctas al primer intento: {correct, number} de {scored, number}. El porcentaje también cuenta las respuestas correctas en parte.",
     "skipped": "saltado",
+    "skippedCount": "{count, plural, one {# omitido} other {# omitidos}}",
     "notDone": "sin hacer",
     "backToCourse": "Volver al curso",
     "nextLesson": "Lección siguiente",

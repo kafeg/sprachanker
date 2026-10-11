@@ -105,6 +105,7 @@
     "summary": "Podsumowanie",
     "score": "Dobrze za pierwszym razem: {correct, number} z {scored, number}. Wynik procentowy uwzględnia też odpowiedzi częściowo dobre.",
     "skipped": "pominięte",
+    "skippedCount": "{count, plural, one {# pominięte} few {# pominięte} many {# pominiętych} other {# pominiętego}}",
     "notDone": "niezrobione",
     "backToCourse": "Wróć do kursu",
     "nextLesson": "Następna lekcja",

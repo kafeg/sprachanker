@@ -105,6 +105,7 @@
     "summary": "Összegzés",
     "score": "Elsőre helyes: {correct, number}/{scored, number}. A százalék a részben helyes válaszokat is beszámítja.",
     "skipped": "kihagyva",
+    "skippedCount": "{count, plural, one {# kihagyva} other {# kihagyva}}",
     "notDone": "nincs kész",
     "backToCourse": "Vissza a kurzushoz",
     "nextLesson": "Következő lecke",

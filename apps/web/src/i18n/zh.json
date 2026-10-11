@@ -105,6 +105,7 @@
     "summary": "总结",
     "score": "第一次就答对：{correct, number}/{scored, number}。百分比也计入部分正确的答案。",
     "skipped": "已跳过",
+    "skippedCount": "{count, plural, other {跳过 # 个}}",
     "notDone": "未完成",
     "backToCourse": "返回课程",
     "nextLesson": "下一课",

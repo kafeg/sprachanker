@@ -105,6 +105,7 @@
     "summary": "Bilan",
     "score": "Juste du premier coup : {correct, number} sur {scored, number}. Le pourcentage compte aussi les réponses en partie justes.",
     "skipped": "passé",
+    "skippedCount": "{count, plural, one {# passé} many {# passés} other {# passés}}",
     "notDone": "pas fait",
     "backToCourse": "Retour au cours",
     "nextLesson": "Leçon suivante",

@@ -111,7 +111,9 @@ export function createLessonJournal(deps: {
           return {
             ...toRun(row),
             endedAt: row.finishedAt ?? lastAt,
-            worked: coverage ? coverage.worked : Object.keys(results).length,
+            // Done: answered (one moved past without an answer is skipped, told apart).
+            worked: coverage ? coverage.worked - coverage.skipped : Object.keys(results).length,
+            skipped: coverage?.skipped ?? 0,
             total: coverage ? coverage.total : null,
             explanations: verdictCount(own, "explain"),
             writing: verdictCount(own, "writing"),

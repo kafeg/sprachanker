@@ -105,6 +105,7 @@
     "summary": "Ringkasan",
     "score": "Benar pada percobaan pertama: {correct, number} dari {scored, number}. Persentasenya juga menghitung jawaban yang sebagian benar.",
     "skipped": "dilewati",
+    "skippedCount": "{count, plural, other {# dilewati}}",
     "notDone": "belum dikerjakan",
     "backToCourse": "Kembali ke kursus",
     "nextLesson": "Pelajaran berikutnya",

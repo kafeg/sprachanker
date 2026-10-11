@@ -105,6 +105,7 @@
     "summary": "Zusammenfassung",
     "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}. Der Prozentwert zählt auch teilweise richtige Antworten.",
     "skipped": "übersprungen",
+    "skippedCount": "{count, plural, one {# übersprungen} other {# übersprungen}}",
     "notDone": "nicht erledigt",
     "backToCourse": "Zurück zum Kurs",
     "nextLesson": "Nächste Lektion",

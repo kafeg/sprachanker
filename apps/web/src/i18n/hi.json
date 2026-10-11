@@ -105,6 +105,7 @@
     "summary": "सारांश",
     "score": "पहली कोशिश में सही: {scored, number} में से {correct, number}. प्रतिशत में आंशिक रूप से सही उत्तर भी गिने जाते हैं.",
     "skipped": "छोड़ा गया",
+    "skippedCount": "{count, plural, one {# छोड़ा गया} other {# छोड़े गए}}",
     "notDone": "नहीं किया",
     "backToCourse": "कोर्स पर वापस जाओ",
     "nextLesson": "अगला पाठ",

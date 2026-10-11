@@ -105,6 +105,7 @@
     "summary": "Özet",
     "score": "İlk denemede doğru: {correct, number} / {scored, number}. Yüzde, kısmen doğru cevapları da sayar.",
     "skipped": "atlandı",
+    "skippedCount": "{count, plural, one {# atlandı} other {# atlandı}}",
     "notDone": "yapılmadı",
     "backToCourse": "Kursa dön",
     "nextLesson": "Sonraki ders",

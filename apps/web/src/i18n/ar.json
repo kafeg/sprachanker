@@ -105,6 +105,7 @@
     "summary": "الملخّص",
     "score": "صحيح من المحاولة الأولى: {correct, number} من {scored, number}. النسبة المئوية تحتسب الإجابات الصحيحة جزئيًا أيضًا.",
     "skipped": "متخطّى",
+    "skippedCount": "{count, plural, zero {لا شيء متخطى} one {واحد متخطى} two {اثنان متخطيان} few {# متخطاة} many {# متخطاة} other {# متخطاة}}",
     "notDone": "لم يُنجَز",
     "backToCourse": "العودة إلى الدورة",
     "nextLesson": "الدرس التالي",

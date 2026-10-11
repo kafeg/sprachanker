@@ -105,6 +105,7 @@
     "summary": "Sažetak",
     "score": "Tačno iz prvog pokušaja: {correct, number} od {scored, number}. Postotak računa i djelimično tačne odgovore.",
     "skipped": "preskočeno",
+    "skippedCount": "{count, plural, one {# preskočena} few {# preskočene} other {# preskočenih}}",
     "notDone": "nije urađeno",
     "backToCourse": "Nazad na kurs",
     "nextLesson": "Sljedeća lekcija",
