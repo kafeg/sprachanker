@@ -275,10 +275,14 @@ recordings/<ulid>.<ext>
   made; any failure removes the transfer, and nothing of it is left:
   1. the file streamed to disk (an upload: its length announced, 06; room for it twice — the file and
      what it unpacks to — checked first; 413 `profile_file_too_large` past 4 GB);
-  2. read by its zip directory: a manifest that reads, stored entries only, only `profile.sqlite`
-     and `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a
+  2. read by its zip directory, believed only as far as it is checked: the directory right before the
+     end record, at most 16 MB and no larger than its entries need, short names and fields, each
+     entry's local header the same as its directory entry, the entries in order and none overlapping
+     another; a manifest that reads, stored entries only, only `profile.sqlite` and
+     `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a
      migration this app does not know: 422 `profile_from_newer_app`; the files exactly those listed,
-     each unpacked streaming and its size and sha256 as listed — else 422 `profile_file_damaged`;
+     each unpacked streaming and hashed, the first whose size or sha256 is not as listed ending it —
+     422 `profile_file_damaged`;
   3. the database, apart from the server's work (a Worker; one not done in 30 minutes is refused): the
      file is untrusted, and views, triggers, CHECK constraints and indexed expressions are SQL of its
      own that runs when it is read or written. So, opened read-only with `trusted_schema` off, nothing

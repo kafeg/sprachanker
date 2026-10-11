@@ -61,8 +61,13 @@ export interface TransferFiles {
     id: string,
     file?: string,
   ): { manifest: string; entries: Array<{ path: string; size: number }> } | undefined;
-  /** Its files unpacked into the transfer, streamed, each with its size and hash as unpacked. */
-  unpack(id: string, file?: string): Promise<ProfileFileEntry[]>;
+  /** Its files unpacked into the transfer, streamed and hashed on the way; false at the first that is
+   *  not as `listed` (by path: its size and hash). */
+  unpack(
+    id: string,
+    listed: ReadonlyMap<string, Omit<ProfileFileEntry, "path">>,
+    file?: string,
+  ): Promise<boolean>;
   /** The unpacked database made ready, apart from the server's work: its schema exactly what this
    *  app's migrations make (before anything of it is read), sound (integrity, references), its
    *  migrations those, migrated forward (the usual copy before), its secrets emptied. "newer" when it
@@ -213,11 +218,7 @@ export function createProfileTransfer(deps: {
       listed.size === read.entries.length &&
       listed.has("profile.sqlite") &&
       read.entries.every((e) => listed.get(e.path)?.size === e.size);
-    if (!sameFiles) throw new ServiceError("profile_file_damaged", 422);
-    const unpacked = await files.unpack(id, file);
-    const asListed = (f: ProfileFileEntry) =>
-      listed.get(f.path)?.sha256 === f.sha256 && listed.get(f.path)?.size === f.size;
-    if (unpacked.length !== listed.size || !unpacked.every(asListed))
+    if (!sameFiles || !(await files.unpack(id, listed, file)))
       throw new ServiceError("profile_file_damaged", 422);
     const settled = await files.settle(id);
     if (settled === "newer") throw new ServiceError("profile_from_newer_app", 422);

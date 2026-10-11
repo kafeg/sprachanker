@@ -154,6 +154,64 @@ function repack(
   return zipSync({ "manifest.json": strToU8(JSON.stringify(manifest)), ...files }, { level: 0 });
 }
 
+/** A zip of stored entries made by hand: the records written one after another (`data` as given),
+ *  the directory naming entries by name, offset and size — an entry may point into another's data —,
+ *  `padding` bytes added to the directory's end. */
+function handZip(
+  records: Array<{ name: string; data: Uint8Array }>,
+  directory: (offsets: Map<string, number>) => Array<{ name: string; at: number; size: number }>,
+  padding = 0,
+) {
+  const parts: Uint8Array[] = [];
+  const offsets = new Map<string, number>();
+  let length = 0;
+  const push = (part: Uint8Array) => {
+    parts.push(part);
+    length += part.length;
+  };
+  for (const r of records) {
+    offsets.set(r.name, length);
+    push(localHeader(r.name, r.data.length));
+    push(r.data);
+  }
+  const dirAt = length;
+  const entries = directory(offsets);
+  for (const e of entries) {
+    const name = strToU8(e.name);
+    const head = Buffer.alloc(46);
+    head.writeUInt32LE(0x02014b50, 0);
+    head.writeUInt16LE(20, 4);
+    head.writeUInt16LE(20, 6);
+    head.writeUInt32LE(e.size, 20);
+    head.writeUInt32LE(e.size, 24);
+    head.writeUInt16LE(name.length, 28);
+    head.writeUInt32LE(e.at, 42);
+    push(head);
+    push(name);
+  }
+  push(new Uint8Array(padding));
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0);
+  end.writeUInt16LE(entries.length, 8);
+  end.writeUInt16LE(entries.length, 10);
+  end.writeUInt32LE(length - dirAt, 12);
+  end.writeUInt32LE(dirAt, 16);
+  push(end);
+  return new Uint8Array(Buffer.concat(parts));
+}
+
+/** A stored entry's local header, its name after it. */
+function localHeader(fileName: string, size: number) {
+  const name = strToU8(fileName);
+  const head = Buffer.alloc(30);
+  head.writeUInt32LE(0x04034b50, 0);
+  head.writeUInt16LE(20, 4);
+  head.writeUInt32LE(size, 18);
+  head.writeUInt32LE(size, 22);
+  head.writeUInt16LE(name.length, 26);
+  return Buffer.concat([head, name]);
+}
+
 /** Nothing of a failed import left: no profile but the first, no folder, no transfer. */
 async function nothingLeft(api: Awaited<ReturnType<typeof setup>>) {
   expect(
@@ -324,6 +382,65 @@ test("a file that is no profile file, or one changed after it was made, is refus
   );
 });
 
+test("a zip's directory is believed only as far as it is checked: entries overlapping, a directory larger than its entries", async () => {
+  const { bytes } = await exported(await studied());
+  const b = await setup();
+  const files = unzipSync(bytes);
+  const manifest = JSON.parse(strFromU8(files["manifest.json"] as Uint8Array));
+  const database = files["profile.sqlite"] as Uint8Array;
+  const [a, inner] = [`recordings/${ulid()}.webm`, `recordings/${ulid()}.webm`];
+  const innerData = new Uint8Array(2000).map((_, i) => (i * 13) % 256);
+  // The first recording's data holds the second whole, local header and all.
+  const outerData = new Uint8Array(
+    Buffer.concat([localHeader(inner, innerData.length), innerData]),
+  );
+  const fileOf = (file: string, data: Uint8Array) => ({
+    path: file,
+    size: data.length,
+    sha256: sha256(data),
+  });
+  const listed: Array<[string, Uint8Array]> = [
+    ["profile.sqlite", database],
+    [a, outerData],
+    [inner, innerData],
+  ];
+  const text = JSON.stringify({ ...manifest, files: listed.map(([n, d]) => fileOf(n, d)) });
+  /** The records written, each named in the directory where it is; the inner one also, `overlap`,
+   *  inside the first recording's data. */
+  const zipOf = (records: typeof listed, overlap: boolean, padding = 0) => {
+    const all = [["manifest.json", strToU8(text)] as [string, Uint8Array], ...records];
+    return handZip(
+      all.map(([name, data]) => ({ name, data })),
+      (offsets) => {
+        const at = (name: string) => offsets.get(name) as number;
+        const entries = all.map(([name, data]) => ({ name, at: at(name), size: data.length }));
+        const insideA = at(a) + localHeader(a, 0).length + outerData.length - innerData.length;
+        const innerAt = insideA - localHeader(inner, 0).length;
+        return overlap
+          ? [...entries, { name: inner, at: innerAt, size: innerData.length }]
+          : entries;
+      },
+      padding,
+    );
+  };
+  const refused = async (body: Uint8Array) => {
+    const res = await importInto(b, body);
+    expect([res.status, await read(res)]).toEqual([422, { error: "not_a_profile_file" }]);
+    await nothingLeft(b);
+  };
+  // The directory with room for more than its entries need.
+  await refused(zipOf(listed, false, 100_000));
+  // An entry inside another's data: each as listed, yet overlapping.
+  await refused(
+    zipOf(
+      listed.filter(([name]) => name !== inner),
+      true,
+    ),
+  );
+  // Made by hand as fflate makes it, nothing overlapping: imported.
+  expect((await importInto(b, zipOf(listed, false))).status).toBe(200);
+});
+
 test("a database with SQL of its own is refused before any of it runs: a view, triggers, an indexed expression, statistics", async () => {
   const { bytes } = await exported(await studied());
   // Each import's database as it was left once settled, before its transfer goes.
@@ -465,8 +582,8 @@ test("a full disk: the export and the import say so and leave nothing behind", a
       const real = profileTransferFiles(root);
       return {
         ...real,
-        async unpack(id, file) {
-          await real.unpack(id, file);
+        async unpack(id, listed, file) {
+          await real.unpack(id, listed, file);
           throw Object.assign(new Error("ENOSPC: no space left on device, write"), {
             code: "ENOSPC",
           });

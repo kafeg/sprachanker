@@ -85,9 +85,23 @@ async function writeChunks(file: string, chunks: AsyncIterable<Uint8Array>, max 
   return { sha256: hash.digest("hex"), size };
 }
 
-/** A zip's entries by its central directory: each stored entry's name, where its data starts and its
- *  size; undefined when it is no zip this reads (no directory, an entry compressed, encrypted or
- *  past the directory, ZIP64). */
+/** Each field of an entry — its name, extra field, comment — is short in a profile file. */
+const FIELD_MAX = 256;
+/** The central directory read at once: a profile file's is small (a line a file). */
+const DIRECTORY_MAX = 16 * 1024 * 1024;
+const LOCAL_HEADER = 30;
+const CENTRAL_HEADER = 46;
+const END_RECORD = 22;
+
+/**
+ * A zip's entries by its central directory: each stored entry's name, where its data starts and its
+ * size. Nothing it says is trusted further than it is checked: the end record runs to the end of the
+ * file, one disk, the directory right before it and no larger than its entries need; each entry
+ * stored (not compressed, not encrypted), short fields, its local header the same (name, flags, sizes
+ * — or none, with a data descriptor), and the entries in order, none overlapping another or the
+ * directory (so their sizes add up to less than the file). Undefined when it is no such zip (ZIP64
+ * neither).
+ */
 function zipEntries(file: string) {
   const fd = openSync(file, "r");
   try {
@@ -96,37 +110,72 @@ function zipEntries(file: string) {
       const buffer = Buffer.alloc(bytes);
       return readSync(fd, buffer, 0, bytes, position) === bytes ? buffer : undefined;
     };
-    const tailBytes = Math.min(size, 22 + 0xffff);
-    const tail = at(tailBytes, size - tailBytes);
+    const tailBytes = Math.min(size, END_RECORD + 0xffff);
+    const tailAt = size - tailBytes;
+    const tail = at(tailBytes, tailAt);
     if (!tail) return undefined;
     let end = -1;
-    for (let i = tailBytes - 22; i >= 0 && end < 0; i--)
-      if (tail.readUInt32LE(i) === 0x06054b50) end = i;
+    for (let i = tailBytes - END_RECORD; i >= 0 && end < 0; i--)
+      if (
+        tail.readUInt32LE(i) === 0x06054b50 &&
+        i + END_RECORD + tail.readUInt16LE(i + 20) === tailBytes
+      )
+        end = i;
     if (end < 0) return undefined;
     const count = tail.readUInt16LE(end + 10);
     const dirBytes = tail.readUInt32LE(end + 12);
     const dirAt = tail.readUInt32LE(end + 16);
-    const dir = dirAt + dirBytes <= size ? at(dirBytes, dirAt) : undefined;
+    const oneDisk =
+      tail.readUInt16LE(end + 4) === 0 &&
+      tail.readUInt16LE(end + 6) === 0 &&
+      tail.readUInt16LE(end + 8) === count;
+    if (
+      !oneDisk ||
+      dirAt + dirBytes !== tailAt + end ||
+      dirBytes > Math.min(DIRECTORY_MAX, count * (CENTRAL_HEADER + 3 * FIELD_MAX))
+    )
+      return undefined;
+    const dir = at(dirBytes, dirAt);
     if (!dir) return undefined;
     const entries: Array<{ name: string; start: number; size: number }> = [];
-    for (let n = 0, p = 0; n < count; n++) {
-      if (p + 46 > dirBytes || dir.readUInt32LE(p) !== 0x02014b50) return undefined;
+    // Where the next entry may start: after the one before it, data descriptor and all.
+    let free = 0;
+    let p = 0;
+    for (let n = 0; n < count; n++) {
+      if (p + CENTRAL_HEADER > dirBytes || dir.readUInt32LE(p) !== 0x02014b50) return undefined;
       const flags = dir.readUInt16LE(p + 8);
       const method = dir.readUInt16LE(p + 10);
       const stored = dir.readUInt32LE(p + 20);
       const length = dir.readUInt32LE(p + 24);
-      const nameBytes = dir.readUInt16LE(p + 28);
+      const fields = [p + 28, p + 30, p + 32].map((f) => dir.readUInt16LE(f));
       const local = dir.readUInt32LE(p + 42);
-      const name = dir.toString("utf8", p + 46, p + 46 + nameBytes);
-      p += 46 + nameBytes + dir.readUInt16LE(p + 30) + dir.readUInt16LE(p + 32);
-      if (flags & 1 || method !== 0 || stored !== length) return undefined;
-      const head = at(30, local);
-      if (head?.readUInt32LE(0) !== 0x04034b50) return undefined;
-      const start = local + 30 + (head.readUInt16LE(26) + head.readUInt16LE(28));
-      if (start + length > dirAt) return undefined;
-      entries.push({ name, start, size: length });
+      const [nameBytes = 0, extraBytes = 0, commentBytes = 0] = fields;
+      if (fields.some((f) => f > FIELD_MAX)) return undefined;
+      const name = dir.subarray(p + CENTRAL_HEADER, p + CENTRAL_HEADER + nameBytes);
+      p += CENTRAL_HEADER + nameBytes + extraBytes + commentBytes;
+      if (p > dirBytes || flags & 1 || method !== 0 || stored !== length || local < free)
+        return undefined;
+      const head = at(LOCAL_HEADER + nameBytes, local);
+      if (
+        head?.readUInt32LE(0) !== 0x04034b50 ||
+        head.readUInt16LE(6) !== flags ||
+        head.readUInt16LE(8) !== 0 ||
+        head.readUInt16LE(26) !== nameBytes ||
+        head.readUInt16LE(28) > FIELD_MAX ||
+        !head.subarray(LOCAL_HEADER).equals(name)
+      )
+        return undefined;
+      // Sizes in the local header, or none there and a data descriptor after the data.
+      const described = (flags & 8) !== 0;
+      const sizes = [head.readUInt32LE(18), head.readUInt32LE(22)];
+      if (!sizes.every((s) => s === length || (described && s === 0))) return undefined;
+      const start = local + LOCAL_HEADER + nameBytes + head.readUInt16LE(28);
+      free = start + length;
+      if (described) free += at(4, free)?.readUInt32LE(0) === 0x08074b50 ? 16 : 12;
+      if (free > dirAt) return undefined;
+      entries.push({ name: name.toString("utf8"), start, size: length });
     }
-    return entries;
+    return p === dirBytes ? entries : undefined;
   } finally {
     closeSync(fd);
   }
@@ -328,22 +377,23 @@ export function profileTransferFiles(
         closeSync(fd);
       }
     },
-    async unpack(id, file = received(id)) {
+    async unpack(id, listed, file = received(id)) {
       const entries = entriesOf(file);
-      if (!entries) return [];
+      if (!entries) return false;
       room(
         root,
         entries.others.reduce((n, e) => n + e.size, 0),
       );
-      const out: ProfileFileEntry[] = [];
       for (const e of entries.others) {
         const stream = Bun.file(file)
           .slice(e.start, e.start + e.size)
           .stream();
-        const written = await writeChunks(join(unpacked(id), e.name), stream);
-        if (written) out.push({ path: e.name, ...written });
+        const written = await writeChunks(join(unpacked(id), e.name), stream, e.size);
+        // The first file not as listed ends it.
+        const want = listed.get(e.name);
+        if (!written || written.size !== want?.size || written.sha256 !== want.sha256) return false;
       }
-      return out;
+      return true;
     },
     settle(id) {
       const file = join(unpacked(id), "profile.sqlite");
