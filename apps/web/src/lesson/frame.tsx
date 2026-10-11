@@ -1,5 +1,5 @@
 // The player's frame (09): the plan beside the step on desktop (a sheet on a phone; ui/side-layout),
-// the header with the steps worked, what optional features add there and the reference, and the
+// the header with the steps reached, what optional features add there and the reference, and the
 // reference panel.
 import type { Lesson, LocaleLesson } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
@@ -19,6 +19,7 @@ export function PlayerFrame({
   lesson,
   locale,
   worked,
+  reached,
   todo,
   plan,
   header,
@@ -31,6 +32,8 @@ export function PlayerFrame({
   lesson: Lesson;
   locale: LocaleLesson | null;
   worked: number;
+  /** The steps worked and the one shown while still to do: the header's count (moves by one a step). */
+  reached: number;
   todo: number;
   /** The plan; `chosen` closes the phone's sheet once a step is chosen in it. */
   plan(chosen?: () => void): React.ReactNode;
@@ -68,9 +71,9 @@ export function PlayerFrame({
           <>
             {todo > 0 ? (
               <>
-                <Progress value={(worked / todo) * 100} className="h-2 flex-1" />
+                <Progress value={(reached / todo) * 100} className="h-2 flex-1" />
                 <span className="w-14 text-right text-sm tabular-nums text-muted-foreground">
-                  {worked}/{todo}
+                  {reached}/{todo}
                 </span>
               </>
             ) : (
