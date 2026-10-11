@@ -140,6 +140,56 @@ describe("the Tutor section", () => {
     const { chats } = await getJson("/api/llm/tutor/chats");
     expect(chats.map((c: { edition: string }) => c.edition)).toEqual(["en-de", "ru-de"]);
     expect(chats[1].id).toBe(id);
+
+    // Each chat reads the course in its own edition where the course has it: the translations,
+    // titles and mistakes in the chat's language.
+    const system = async (chatId?: string) =>
+      (
+        await sendJson("POST", "/api/llm/tutor/section/prompt", {
+          chatId,
+          message: "?",
+          language: "en",
+        })
+      ).body.messages[0].content as string;
+    const old = await system(id as string);
+    expect(old).toContain("- Демо-курс: 0 of 2 lessons done");
+    expect(old).toContain("der Kaffee, die Kaffees (кофе)");
+    const fresh = await system();
+    expect(fresh).toContain("- Demo course: 0 of 2 lessons done");
+    expect(fresh).toContain("der Kaffee, die Kaffees (coffee)");
+  });
+
+  test("the courses of a chat's language gone: the chat goes on, its prompt saying nothing is known", async () => {
+    const { say, sendJson } = await app();
+    const { id } = await say("Привет");
+    await sendJson("POST", "/api/progress/reset", { series: FIXTURE_SERIES, course: "demo" });
+    const { body } = await sendJson("POST", "/api/llm/tutor/section/prompt", {
+      chatId: id,
+      message: "?",
+      language: "en",
+    });
+    const system = body.messages[0].content as string;
+    expect(system).toContain("No course of this language is begun now");
+    expect(system).not.toContain("Courses studied");
+    expect((await say("Ещё", id as string)).status).toBe(200);
+  });
+
+  test("a lesson's chat is no chat of the section: a message to it is refused", async () => {
+    const { send, getJson, say } = await app();
+    const lesson = await send("POST", "/api/llm/tutor", {
+      series: FIXTURE_SERIES,
+      lessonKey: LESSON,
+      edition: "ru-de",
+      message: "?",
+      language: "ru",
+    });
+    await lesson.text();
+    const [chat] = (await getJson(`/api/llm/tutor/chats?lessonKey=${LESSON}`)).chats;
+    const res = await say("Ещё", chat.id);
+    expect([res.status, JSON.parse(res.text).error]).toEqual([404, "no_such_chat"]);
+    expect(
+      (await getJson(`/api/llm/tutor/chats/${chat.id}?lessonKey=${LESSON}`)).turns,
+    ).toHaveLength(2);
   });
 
   test("deleted after asking: gone with its turns; another's id is no chat", async () => {

@@ -56,6 +56,42 @@ test("words beyond the budget are cut, the latest kept; no tools", () => {
   expect(request.tools).toBeUndefined();
 });
 
+test("several courses share the courses' budget: each listed, its latest lessons whole within its share", () => {
+  const worked = Array.from({ length: 40 }, (_, i) => `Lektion mit langem Titel ${i}`);
+  const courses = ["Nicos Weg A1", "Nicos Weg A2", "Einstieg Deutsch"].map((title) => ({
+    title,
+    done: 1,
+    lessons: 40,
+    worked,
+  }));
+  const [system] = sectionChatMessages(input({ courses: { ...input().courses, courses } }));
+  const all = (system?.content ?? "").split("\n");
+  const at = all.indexOf("Courses studied (latest first):");
+  const lines = all.slice(at + 1, at + 4);
+  expect(all[at + 4]).toStartWith("Words met");
+  expect(lines.map((l) => l.slice(2, l.indexOf(":")))).toEqual([
+    "Nicos Weg A1",
+    "Nicos Weg A2",
+    "Einstieg Deutsch",
+  ]);
+  for (const line of lines) {
+    expect(line.length).toBeLessThanOrEqual(SECTION_CHAT_BUDGETS.courses / 3);
+    // Cut after a whole title, never inside one.
+    expect(line).toMatch(/; Lektion mit langem Titel \d+ …$/);
+    expect(line).toContain("worked on (latest first): Lektion mit langem Titel 0; ");
+  }
+});
+
+test("nothing fits: a lone mark, never an empty list; no course of the language left: said so", () => {
+  const words = [{ target: "x".repeat(SECTION_CHAT_BUDGETS.metWords + 1) }];
+  const [system] = sectionChatMessages(
+    input({ courses: { courses: [], words, grammar: [], mistakes: [] } }),
+  );
+  expect(system?.content).toContain("Words met (latest lessons first): …\n");
+  expect(system?.content).not.toContain("Courses studied");
+  expect(system?.content).toContain("No course of this language is begun now");
+});
+
 test("history: the latest turns, starting with the learner's", () => {
   const messages = sectionChatMessages(
     input({

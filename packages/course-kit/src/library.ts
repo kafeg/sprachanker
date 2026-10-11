@@ -64,6 +64,17 @@ export function openLibrary(root: string): LibraryView {
           `${name}.json`,
         );
   };
+  /** A course's canonical file (`course.json`), or with an edition its locale file. */
+  const courseFile = (series: string, course: string, edition?: string) =>
+    edition === undefined
+      ? join(seriesDir(series), "canonical", named(Slug, course), "course.json")
+      : join(
+          seriesDir(series),
+          "locale",
+          named(EditionId, edition),
+          named(Slug, course),
+          "course.json",
+        );
   /** An exam's canonical file, or with an edition its locale file. */
   const examFile = (series: string, key: ExamKey, edition?: string) => {
     const { courseId, slug } = parseExamKey(key);
@@ -100,18 +111,12 @@ export function openLibrary(root: string): LibraryView {
             })),
         );
     },
-    courseIndex: (series, course) =>
-      read(CourseIndex, join(seriesDir(series), "canonical", named(Slug, course), "course.json")),
+    courseIndex: (series, course) => read(CourseIndex, courseFile(series, course)),
     async localeCourse(series, course, edition) {
-      const file = join(
-        seriesDir(series),
-        "locale",
-        named(EditionId, edition),
-        named(Slug, course),
-        "course.json",
-      );
+      const file = courseFile(series, course, edition);
       return existsSync(file) ? read(LocaleCourse, file) : undefined;
     },
+    courseStamp: (series, course, edition) => stamp(courseFile(series, course, edition)),
     lesson: (series, key) => read(Lesson, lessonFile(series, key)),
     async localeLesson(series, key, edition) {
       const file = lessonFile(series, key, edition);

@@ -4,6 +4,7 @@
 import { exerciseResults, mistakesOf } from "@sprachanker/engine";
 import {
   type ChatTurnInput,
+  type CoursesInfo,
   chatTurn,
   chatTurnRequest,
   estimateTokens,
@@ -202,28 +203,29 @@ export function createTutor(deps: {
     };
   };
 
-  /** The Tutor section's chat a message continues (none: a new one) and the pair it is held in — a
-   *  new chat's is the one the course studied last is in (none begun: refused). */
+  /** The Tutor section's chat a message continues (none: a new one) and what it knows — the pair it
+   *  is held in (a new chat's: the one the course studied last is in; none begun: refused) and the
+   *  learner's courses of its language —, read once for the request. */
   async function sectionChatOf(request: SectionRequest) {
     const chat = request.chatId ? store.get(request.chatId, "chat", null) : undefined;
     if (request.chatId && !chat?.edition) throw new ServiceError("no_such_chat", 404);
-    const edition = chat?.edition ?? (await deps.courses.latestEdition());
-    if (!edition) throw new ServiceError("no_course_studied", 409);
-    return { chat, edition };
+    const known = await deps.courses.get(chat?.edition ?? undefined);
+    if (!known) throw new ServiceError("no_course_studied", 409);
+    return { chat, ...known };
   }
 
   /** What section_chat_turn gets for a message: what the learner has met, the chat's turns. */
-  async function sectionInput(
+  function sectionInput(
     request: SectionRequest,
-    edition: string,
+    { edition, courses }: { edition: string; courses: CoursesInfo },
     history: LlmTurnPayload[],
-  ): Promise<SectionChatInput> {
+  ): SectionChatInput {
     const target = parseEditionId(edition).target;
     return {
       language: request.language,
       target,
       rules: deps.llm.rulesFor("tutorSection", request.language, target),
-      courses: await deps.courses.get(edition),
+      courses,
       history: history.map((t) => ({ role: t.role, text: t.text })),
       message: request.message,
     };
@@ -330,16 +332,15 @@ export function createTutor(deps: {
 
     /** How full the Tutor section's next request would be (as `usage`). */
     async sectionUsage(request: SectionRequest): Promise<ContextUsage> {
-      const { chat, edition } = await sectionChatOf(request);
+      const { chat, ...known } = await sectionChatOf(request);
       const history = chat ? turns(chat.id) : [];
-      const input = await sectionInput(request, edition, history);
-      return usageOf(sectionChatRequest(input), history.length);
+      return usageOf(sectionChatRequest(sectionInput(request, known, history)), history.length);
     },
 
     /** The request a message in the Tutor section would send now, without sending it. */
     async sectionPrompt(request: SectionRequest): Promise<PromptPreview> {
-      const { chat, edition } = await sectionChatOf(request);
-      const input = await sectionInput(request, edition, chat ? turns(chat.id) : []);
+      const { chat, ...known } = await sectionChatOf(request);
+      const input = sectionInput(request, known, chat ? turns(chat.id) : []);
       return deps.llm.preview(sectionChatRequest(input));
     },
 
@@ -353,9 +354,10 @@ export function createTutor(deps: {
       signal?: AbortSignal,
     ): Promise<{ id: string; reply: AsyncIterable<string> }> {
       allowed();
-      const { chat, edition } = await sectionChatOf(request);
+      const { chat, ...known } = await sectionChatOf(request);
       const { client, model } = await deps.llm.model();
-      const input = await sectionInput(request, edition, chat ? turns(chat.id) : []);
+      const input = sectionInput(request, known, chat ? turns(chat.id) : []);
+      const { edition } = known;
       const elapsed = stopwatch(now);
       const id = chat?.id ?? store.newId();
       const reply = sectionChat(client, model, input, signal);
