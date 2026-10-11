@@ -346,11 +346,12 @@ raw/<edition>/<course>/…            # only the copies an exam's sources name (
   transfer folder (`library/.transfers/<id>/`, swept as a profile's, 05). The file (its length
   announced; room for it, then for what of it is unpacked) read by its zip directory as a profile file is (05, step 2), its names
   only paths of the format above (`CourseBundlePath`: no `..`, no other folder, every name portable,
-  a media file only of its kind's extensions — "Media references") and each once, its
+  a media file only of its kind's extensions — "Media references") and each once — also to a disk
+  that does not tell case or Unicode forms apart (NFC, lower case: APFS, NTFS) —, its
   manifest read by its schema; its files exactly those listed. A media file or source copy the
   library holds already is not unpacked: the same name and content skipped, the same content under
   another name of `media.json` linked (that file hashed first: the index says what it held when
-  fetched; copied where the disk has no hard links); a media file or
+  fetched; copied only where the disk has no hard links, never over a file there); a media file or
   source copy there under the same name with other content stops it (the two machines fetched
   different files under one name; a bundle replaces nothing of the library but its course's folders). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
   library file read by its schema (strict), where its own keys put it (`libraryFile`), of the

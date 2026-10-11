@@ -4,16 +4,7 @@
 // installed into it. Zips and transfer folders are the server's; a bundle is untrusted input, so every
 // file is checked here before anything of it is moved into place.
 import { createHash } from "node:crypto";
-import {
-  copyFileSync,
-  existsSync,
-  linkSync,
-  mkdirSync,
-  readdirSync,
-  renameSync,
-  rmSync,
-  statSync,
-} from "node:fs";
+import { existsSync, mkdirSync, readdirSync, renameSync, rmSync, statSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import {
@@ -35,7 +26,7 @@ import {
   Slug,
 } from "@sprachanker/schema";
 import type { z } from "zod";
-import { hashFile, writeFileAtomic } from "./files.ts";
+import { hashFile, linkOrCopy, writeFileAtomic } from "./files.ts";
 import { NotInstalledError, openLibrary } from "./library.ts";
 import { type LibraryFile, libraryFile } from "./provider.ts";
 import { mediaPaths } from "./verify.ts";
@@ -261,6 +252,12 @@ export async function planBundle(
 const courseSeries = (manifest: CourseBundleManifest) =>
   manifest.course.slice(0, manifest.course.indexOf("/"));
 
+/** Whether two of the paths are one file on a disk that does not tell case or Unicode forms apart
+ *  (APFS, NTFS): the second would be written over the first. */
+export function aliased(paths: readonly string[]) {
+  return new Set(paths.map((p) => p.normalize("NFC").toLowerCase())).size !== paths.length;
+}
+
 /** A library file's schema and the path its value says it has (libraryFile), by its kind. */
 function kindOf(path: string): {
   schema: z.ZodType;
@@ -428,11 +425,7 @@ export async function installBundle(options: {
     if (!isLibraryJson(path)) moveInto(join(files, path), join(seriesDir, path));
   for (const [path, from] of plan.link) {
     mkdirSync(dirname(join(seriesDir, path)), { recursive: true });
-    try {
-      linkSync(join(seriesDir, from), join(seriesDir, path));
-    } catch {
-      copyFileSync(join(seriesDir, from), join(seriesDir, path));
-    }
+    linkOrCopy(join(seriesDir, from), join(seriesDir, path));
   }
   // The series' own state: lines it lacks (or whose file failed) from the bundle; the course's scopes.
   const media = { ...state.media };

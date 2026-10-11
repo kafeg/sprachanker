@@ -3,9 +3,10 @@
 // place. An export's files linked there (a course normalised again meanwhile keeps the bundle whole),
 // each hashed, streamed as a zip (course-kit); a received bundle read by its zip directory, what the
 // library lacks unpacked streaming and hashed, checked and installed by course-kit's bundle.
-import { copyFileSync, linkSync, mkdirSync, rmSync, statSync } from "node:fs";
+import { mkdirSync, rmSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
+  aliased,
   type BundlePlan,
   bytesEntry,
   checkBundle,
@@ -16,6 +17,7 @@ import {
   fileEntry,
   fileSums,
   installBundle,
+  linkOrCopy,
   openLibrary,
   planBundle,
   restoreAside,
@@ -58,15 +60,15 @@ export function courseTransferFiles(
     plans.delete(id);
     t.discard(id);
   };
-  /** The entries of a bundle, its manifest apart; each name a path a bundle may hold, and once. */
+  /** The entries of a bundle, its manifest apart; each name a path a bundle may hold, and once —
+   *  also to a disk that does not tell case or Unicode forms apart. */
   const entriesOf = (file: string) => {
     const entries = zipEntries(file, ZIP_LIMITS);
     if (!entries) return undefined;
-    const names = new Set(entries.map((e) => e.name));
     const manifest = entries.find((e) => e.name === MANIFEST);
     const others = entries.filter((e) => e !== manifest);
     if (
-      names.size !== entries.length ||
+      aliased(entries.map((e) => e.name)) ||
       !manifest ||
       manifest.size > MANIFEST_MAX ||
       others.some((e) => !CourseBundlePath.safeParse(e.name).success)
@@ -100,12 +102,7 @@ export function courseTransferFiles(
           mkdirSync(dirname(to), { recursive: true });
           // Linked: a file replaced in the library meanwhile stays as it was here. Copied where the
           // disk has no hard links, the room for it checked first.
-          try {
-            linkSync(f.file, to);
-          } catch {
-            t.room(root, statSync(f.file).size);
-            copyFileSync(f.file, to);
-          }
+          linkOrCopy(f.file, to, () => t.room(root, statSync(f.file).size));
           const { sha256, size, crc32 } = await fileSums(to);
           files.push({ path: f.path, size, sha256 });
           summed.set(f.path, { size, crc32 });

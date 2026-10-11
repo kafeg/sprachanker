@@ -280,6 +280,23 @@ test("a zip's directory is believed only as far as it is checked: entries overla
   nothingLeft(b, {});
 });
 
+test("two names one file on a disk that does not tell case or Unicode forms apart: refused before a byte is unpacked", async () => {
+  const a = await setup();
+  const { bytes } = await exported(a);
+  const b = await setup({ empty: true });
+  const media = Object.keys(unzipSync(bytes)).find((p) => p.startsWith("media/audio/")) as string;
+  const upper = media.replace(/[^/]+$/, (name) => name.toUpperCase().replace(/\.MP3$/, ".mp3"));
+  for (const alias of [upper, media.normalize("NFD") === media ? null : media.normalize("NFD")]) {
+    if (!alias) continue;
+    const res = await importInto(
+      b,
+      repack(bytes, { files: (f) => Object.assign(f, { [alias]: strToU8("other") }) }),
+    );
+    expect([res.status, await read(res)]).toEqual([422, { error: "not_a_course_bundle" }]);
+  }
+  nothingLeft(b, {});
+});
+
 test("a media file the library has under its name with other content stops the import", async () => {
   const a = await setup();
   const { bytes } = await exported(a);

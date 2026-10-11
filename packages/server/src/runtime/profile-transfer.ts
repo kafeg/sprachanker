@@ -4,16 +4,7 @@
 // (course-kit's zip); a received file read by its zip directory, unpacked streaming and hashed, its
 // database checked and moved into place.
 import { Database } from "bun:sqlite";
-import {
-  copyFileSync,
-  linkSync,
-  mkdirSync,
-  readdirSync,
-  renameSync,
-  rmSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import {
   bytesEntry,
@@ -21,6 +12,7 @@ import {
   entryStream,
   fileEntry,
   fileSums,
+  linkOrCopy,
   writeChunks,
   zipEntries,
   zipLength,
@@ -153,11 +145,7 @@ export function profileTransferFiles(
         for (const name of names.sort()) {
           const from = join(recordings, name);
           const to = join(unpacked(id), "recordings", name);
-          try {
-            linkSync(from, to);
-          } catch {
-            copyFileSync(from, to);
-          }
+          linkOrCopy(from, to);
         }
         const files: ProfileFileEntry[] = [];
         const summed = new Map<string, { size: number; crc32: number }>();
