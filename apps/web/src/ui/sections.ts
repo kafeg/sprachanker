@@ -12,7 +12,15 @@ export function htmlSections(html: string): HtmlSection[] {
   const sections: HtmlSection[] = [];
   const opening = parts[0]?.trim();
   if (opening) sections.push({ html: opening });
-  for (let i = 1; i < parts.length; i += 2)
-    sections.push({ titleHtml: parts[i] ?? "", html: (parts[i + 1] ?? "").trim() });
+  for (let i = 1; i < parts.length; i += 2) {
+    const titleHtml = parts[i] ?? "";
+    const html = (parts[i + 1] ?? "").trim();
+    // A title with nothing under it heads the next section: its title becomes a bold line there,
+    // not a card of a title alone.
+    const last = sections.at(-1);
+    if (last?.titleHtml !== undefined && !last.html)
+      last.html = `<p><strong>${titleHtml}</strong></p>${html}`;
+    else sections.push({ titleHtml, html });
+  }
   return sections;
 }

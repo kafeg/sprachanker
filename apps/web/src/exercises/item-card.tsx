@@ -6,12 +6,14 @@ import type { Exercise, ItemOf, LocaleExercise, Outcome } from "@sprachanker/sch
 import { useTranslation } from "react-i18next";
 import { TakeButton } from "@/audio/take-button.tsx";
 import { CourseHtml } from "@/ui/course-html.tsx";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { AudioPlayer, MediaBlock } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GapRoom, gapRoom } from "./gaps.tsx";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
+import { numberedLines, SeveralSaid } from "./shared.tsx";
 
 /** The prompt every item of an exercise has alike (two items or more), to show once above them
  *  instead of in each card; else none. The data keeps it per item. */
@@ -24,7 +26,36 @@ export function sharedPrompt(exercise: Exercise, locale: LocaleExercise | null |
   return { target: target[0] || undefined, learner: learner[0] || undefined };
 }
 
-/** The items' shared prompt (`sharedPrompt`), above them; nothing when they have none. */
+/** A text that says how many answers are right ("Drei Antworten sind richtig", "Правильных ответов
+ *  несколько"): a count or "several" in a sentence about right answers. Pure. */
+export const countStated = (text: string) =>
+  text
+    .split(/[.!?\n]/)
+    .some(
+      (s) =>
+        /(richtig|правильн|correct|right)/i.test(s) &&
+        /(несколько|mehrere|several|\d|\b(zwei|drei|vier|fünf|два|две|три|четыре|пять|two|three|four|five)\b)/i.test(
+          s,
+        ),
+    );
+
+/**
+ * A multiple choice's "several can be right" (09): said once above its items — "show" —, or not at
+ * all when its own texts say how many are — "stated" —; undefined for other types. Pure.
+ */
+export function severalNote(exercise: Exercise, locale: LocaleExercise | null | undefined) {
+  if (exercise.type !== "multi_choice") return undefined;
+  const texts = [
+    locale?.title,
+    locale?.instructionHtml?.replace(/<[^>]*>/g, " "),
+    ...exercise.items.map((item) => item.prompt),
+    ...Object.values(locale?.items ?? {}).map((item) => item.prompt),
+  ];
+  return texts.some((text) => text && countStated(text)) ? ("stated" as const) : ("show" as const);
+}
+
+/** Above the items: their shared prompt (`sharedPrompt`) and a multiple choice's "several can be
+ *  right" (`severalNote`); nothing when there is neither. */
 export function SharedPrompt({
   exercise,
   locale,
@@ -34,18 +65,37 @@ export function SharedPrompt({
   locale: LocaleExercise | null | undefined;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const lang = useRequiredTargetLang();
   const shared = sharedPrompt(exercise, locale);
-  if (!shared) return null;
+  const several = severalNote(exercise, locale) === "show";
+  if (!shared && !several) return null;
   return (
     <div className={className}>
+      {several && <p className="mb-1 text-sm text-muted-foreground">{t("ex.chooseSeveral")}</p>}
+      {shared && <SharedLines shared={shared} lang={lang} />}
+    </div>
+  );
+}
+
+function SharedLines({
+  shared,
+  lang,
+}: {
+  shared: NonNullable<ReturnType<typeof sharedPrompt>>;
+  lang: string;
+}) {
+  return (
+    <>
       {shared.target && (
-        <p lang={lang} className="text-lg font-semibold">
-          {shared.target}
+        <p lang={lang} className="text-lg font-semibold text-balance">
+          {keptTogether(shared.target)}
         </p>
       )}
-      {shared.learner && <p className="text-lg font-semibold">{shared.learner}</p>}
-    </div>
+      {shared.learner && (
+        <p className="text-lg font-semibold text-balance">{keptTogether(shared.learner)}</p>
+      )}
+    </>
   );
 }
 
@@ -61,6 +111,7 @@ export function ItemCard({
   heard = true,
   onHeard,
   promptAbove = false,
+  severalAbove = false,
   className,
 }: {
   exercise: Exercise;
@@ -78,6 +129,9 @@ export function ItemCard({
   onHeard?(): void;
   /** The prompt is shown above the items (`SharedPrompt`), not in the card. */
   promptAbove?: boolean;
+  /** A multiple choice's "several can be right" is said above the items or by the exercise itself
+   *  (`severalNote`), not in each card. */
+  severalAbove?: boolean;
   className?: string;
 }) {
   const lang = useRequiredTargetLang();
@@ -89,6 +143,13 @@ export function ItemCard({
   const right = correctAnswer(exercise, index, outcome);
   const shown = marked && outcome.result !== "correct" ? right : undefined;
   const ok = outcome?.result === "correct";
+  // A speaking item shows its texts in the renderer, in order — the question heard, the line to say,
+  // the hint —; only a task in the learner's language without a question stays above. The prompt
+  // shown above the items is in neither.
+  const speaking = exercise.type === "speech_selfrate";
+  const cueFirst = speaking && "text" in item && !!item.text;
+  const rendered = promptAbove && loc ? { ...loc, prompt: undefined } : loc;
+  const renderedItem = promptAbove ? { ...item, prompt: undefined } : item;
   return (
     // Once checked, the card's left edge takes the result's colour (owner's choice, 2026-10-10); the
     // answer's parts carry ✓/✕, and the result is read out.
@@ -122,13 +183,15 @@ export function ItemCard({
         />
       )}
       <div className="mb-3 empty:hidden">
-        {item.prompt && !promptAbove && (
-          <p lang={lang} className="text-lg font-semibold">
-            {item.prompt}
+        {item.prompt && !promptAbove && !speaking && (
+          <p lang={lang} className="whitespace-pre-line text-lg font-semibold text-balance">
+            {numberedLines(keptTogether(item.prompt))}
           </p>
         )}
-        {loc?.prompt && !promptAbove && <p className="text-lg font-semibold">{loc.prompt}</p>}
-        {loc?.hintHtml && (
+        {loc?.prompt && !promptAbove && !cueFirst && (
+          <p className="text-lg font-semibold text-balance">{keptTogether(loc.prompt)}</p>
+        )}
+        {loc?.hintHtml && !speaking && (
           <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
         )}
       </div>
@@ -151,19 +214,21 @@ export function ItemCard({
             : undefined
         }
       >
-        <ExerciseItem
-          type={exercise.type}
-          item={item as never}
-          locale={loc}
-          answer={answer as never}
-          onAnswer={(a: unknown) => onAnswer?.(a)}
-          outcome={outcome}
-          url={url}
-          active={active && !!onAnswer}
-          listen={toHear(exercise, index).length > 0}
-          heard={heard}
-          readOnly={!onAnswer}
-        />
+        <SeveralSaid.Provider value={severalAbove}>
+          <ExerciseItem
+            type={exercise.type}
+            item={renderedItem as never}
+            locale={rendered}
+            answer={answer as never}
+            onAnswer={(a: unknown) => onAnswer?.(a)}
+            outcome={outcome}
+            url={url}
+            active={active && !!onAnswer}
+            listen={toHear(exercise, index).length > 0}
+            heard={heard}
+            readOnly={!onAnswer}
+          />
+        </SeveralSaid.Provider>
       </GapRoom.Provider>
       {shown && (
         <p className="mt-3 text-sm">

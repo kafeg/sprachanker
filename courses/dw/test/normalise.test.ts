@@ -176,12 +176,22 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
     key,
     "raw/en-de/a1/e-9.json",
   );
+  // A German line is what to say: the item's own prompt (not a task in the learner's language).
   expect(Exercise.parse(exercise).items[0]).toEqual({
     key: `${key}#1`,
     media: { audio: "media/audio/q.mp3" },
     answerAudio: "media/audio/a.mp3",
+    prompt: "Ja, ich ... / Nein, ich ...",
   } as never);
-  expect(locale.items["#1"]?.prompt).toBe("Ja, ich ... / Nein, ich ...");
+  expect(locale.items["#1"]?.prompt).toBeUndefined();
+  // One in the learner's language is the task: the locale file's.
+  const task = {
+    ...speaking,
+    "Inquiry:11": { inquiryText: "Play audio", inquiryDescription: "Скажи, что ты устал." },
+  };
+  const asked = normaliseExercise(withAnswer, task as never, 9, key, "raw/ru-de/a1/e-9.json");
+  expect((asked.exercise.items[0] as { prompt?: string }).prompt).toBeUndefined();
+  expect(asked.locale.items["#1"]?.prompt).toBe("Скажи, что ты устал.");
 });
 
 test("an item whose only recording is not main content (DW's Lösungsaudio) keeps it as its spoken answer, not its question", () => {
@@ -550,6 +560,14 @@ test.each([
   ],
   [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon wieder da.</p>"],
   [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann beginnt er?</p>"],
+  // A noun chip on a compound's head: the tail stays on it; a short word or a verb after a noun
+  // chip is a word of its own.
+  [`<p>Ich esse ${wrapped(chip("Kalb"))}braten.</p>`, "<p>Ich esse Kalbbraten.</p>"],
+  [
+    `<p>Das ${chip("Brot")}isst er, das ${chip("Dorf")}kommt.</p>`,
+    "<p>Das Brot isst er, das Dorf kommt.</p>",
+  ],
+  [`<p>Am ${chip("Montag&nbsp;")}gehe ich.</p>`, "<p>Am Montag gehe ich.</p>"],
 ])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
   expect(html(ctx, source)).toBe(expected);
   // Plain text (prompts, options, cloze texts) reads them so too (tags there are spaces: straight
@@ -597,6 +615,13 @@ test("a clip on the items: one clip for all is the exercise's video; different c
     {
       "https://tvdownloaddw-a.akamaihd.net/downloads/clips/c1_sd.mp4": video("c1"),
       "https://tvdownloaddw-a.akamaihd.net/downloads/clips/c2_sd.mp4": video("c2"),
+      "https://static.dw.com/image/1_605.webp": {
+        kind: "image",
+        path: "media/image/1_605.webp" as never,
+        sha256: "b".repeat(64),
+        size: 1,
+        mime: "image/webp",
+      },
     },
     "ru-de",
   );
@@ -607,8 +632,15 @@ test("a clip on the items: one clip for all is the exercise's video; different c
       inputType: "NONE",
       inquiries: [{ __ref: "Inquiry:1" }, { __ref: "Inquiry:2" }],
     },
-    "Video:1": { hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c1_,sd,.mp4.csmil/master.m3u8" },
-    "Video:2": { hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c2_,sd,.mp4.csmil/master.m3u8" },
+    "Video:1": {
+      hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c1_,sd,.mp4.csmil/master.m3u8",
+      posterImageUrl: "https://static.dw.com/image/1_605.webp",
+    },
+    // A still not downloaded: none.
+    "Video:2": {
+      hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c2_,sd,.mp4.csmil/master.m3u8",
+      posterImageUrl: "https://static.dw.com/image/2_605.webp",
+    },
     ...Object.fromEntries(
       [1, 2].map((n) => [
         `Inquiry:${n}`,
@@ -626,7 +658,10 @@ test("a clip on the items: one clip for all is the exercise's video; different c
     "Alt:2": { alternativeText: "Lisa", isCorrect: false },
   });
   const shared = normaliseExercise(clips, page("Video:1") as never, 9, key, "e-9.json").exercise;
-  expect(Exercise.parse(shared).media).toEqual({ video: "media/video/c1_sd.mp4" } as never);
+  expect(Exercise.parse(shared).media).toEqual({
+    video: "media/video/c1_sd.mp4",
+    poster: "media/image/1_605.webp",
+  } as never);
   expect(shared.items.map((it) => (it as { media?: unknown }).media)).toEqual([
     undefined,
     undefined,
@@ -634,7 +669,7 @@ test("a clip on the items: one clip for all is the exercise's video; different c
   const own = normaliseExercise(clips, page("Video:2") as never, 9, key, "e-9.json").exercise;
   expect(Exercise.parse(own).media).toBeUndefined();
   expect(own.items.map((it) => (it as { media?: unknown }).media)).toEqual([
-    { video: "media/video/c1_sd.mp4" },
+    { video: "media/video/c1_sd.mp4", poster: "media/image/1_605.webp" },
     { video: "media/video/c2_sd.mp4" },
   ]);
 });

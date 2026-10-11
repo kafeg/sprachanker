@@ -29,6 +29,7 @@ const state = {
   "Video:7": {
     hlsVideoSrc: "https://hlsvod.dw.com/i/Events/mp4/course/E1_,sd,hd,.mp4.csmil/master.m3u8",
     subtitles: [{ subtitleUrl: "https://www.dw.com/media/subtitles/77" }],
+    posterImageUrl: "https://static.dw.com/image/71_605.webp",
   },
   "Video:8": {
     name: "Episode 1 (mit Untertiteln)",
@@ -93,6 +94,8 @@ test("media of a page", () => {
       stream: { master: state["Video:7"].hlsVideoSrc, resolution: "1280x720" },
     },
     { url: "https://www.dw.com/media/subtitles/77", kind: "subtitles" },
+    // The video's own still.
+    { url: "https://static.dw.com/image/71_605.webp", kind: "image" },
     { url: "https://static.dw.com/downloads/30/course-script.pdf", kind: "pdf" },
   ]);
 });
@@ -104,6 +107,7 @@ test("readable file names", () => {
     "E1_sd.mp4",
     "E1_hd.mp4",
     "77.vtt",
+    "71_605.webp",
     "course-script.pdf",
   ]);
 });

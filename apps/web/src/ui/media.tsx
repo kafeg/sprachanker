@@ -90,6 +90,17 @@ export function AudioPlayer({
     </button>
   );
   const speed = <SpeedButton />;
+  const back = (
+    <button
+      type="button"
+      onClick={() => seek(el().currentTime - 5)}
+      disabled={failed}
+      aria-label={t("player.back")}
+      className="grid min-h-11 min-w-11 shrink-0 place-items-center rounded-lg hover:bg-accent"
+    >
+      <RotateCcw className="size-4" />
+    </button>
+  );
   const timeline = failed ? (
     <p className="flex-1 text-sm text-muted-foreground">{t("player.unavailable")}</p>
   ) : (
@@ -160,23 +171,25 @@ export function AudioPlayer({
           {timeline}
           {speed}
         </>
-      ) : (
+      ) : title ? (
+        // A caption above: the controls beside it, the timeline under them.
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
             <p className="mr-auto truncate text-sm font-medium">{title}</p>
-            <button
-              type="button"
-              onClick={() => seek(el().currentTime - 5)}
-              disabled={failed}
-              aria-label={t("player.back")}
-              className="grid min-h-11 min-w-11 place-items-center rounded-lg hover:bg-accent"
-            >
-              <RotateCcw className="size-4" />
-            </button>
+            {back}
             {speed}
           </div>
           {timeline}
         </div>
+      ) : (
+        // No caption: one row, as an item's player.
+        <>
+          {timeline}
+          <div className="flex shrink-0 items-center">
+            {back}
+            {speed}
+          </div>
+        </>
       )}
     </div>
   );
@@ -253,12 +266,14 @@ export function MediaBlock({
           controls
           preload="metadata"
           src={url(media.video)}
+          // Its own still, else a frame a moment in (`peek`).
+          poster={media.poster && url(media.poster)}
           onPlay={(e) => {
             peek.play(e.currentTarget);
             claimPlayback(e.currentTarget);
             onHeard?.();
           }}
-          onLoadedMetadata={(e) => peek.loaded(e.currentTarget)}
+          onLoadedMetadata={(e) => !media.poster && peek.loaded(e.currentTarget)}
           onSeeked={(e) => peek.seeked(e.currentTarget)}
           onError={onHeard}
           className="w-full rounded-xl bg-black"

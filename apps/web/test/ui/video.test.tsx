@@ -29,6 +29,25 @@ test("an exercise video that is the lesson's episode plays as the episode: HD, t
   expect(second?.querySelector("track")).toBeNull();
 });
 
+test("a video with its own still shows it until it plays; the episode's too", async () => {
+  const view = await renderApp(
+    <TargetLang value="de">
+      <Episode.Provider value={{ ...episode, poster: "media/image/e.webp" }}>
+        <MediaBlock media={{ video: episode.sd }} url={url} audioLabel="" />
+        <MediaBlock
+          media={{ video: "media/video/clip.mp4", poster: "media/image/c.webp" }}
+          url={url}
+          audioLabel=""
+        />
+      </Episode.Provider>
+    </TargetLang>,
+  );
+  const posters = [...view.container.querySelectorAll("video")].map((v) =>
+    v.getAttribute("poster"),
+  );
+  expect(posters).toEqual(["/library/x/media/image/e.webp", "/library/x/media/image/c.webp"]);
+});
+
 /** A video as `peek` sees it: where it is, whether it plays, its length, its marks. */
 const clip = (duration = 10) =>
   ({ currentTime: 0, paused: true, duration, dataset: {} }) as unknown as HTMLVideoElement;

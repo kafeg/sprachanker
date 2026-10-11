@@ -81,18 +81,23 @@ export function stepState(
 
 /**
  * The steps worked in the run of those to do (every step but the overview and the summary); the run is
- * completed when all are done or skipped.
+ * completed when all are done or skipped. `reached` counts the step at `at` too while it is still to
+ * do, so the count moves alike on every kind of step (a page counts once opened, an exercise once
+ * checked, a speaking one once left — the one shown counts already).
  */
 export function planCoverage(
   steps: LessonStep[],
   lesson: Lesson,
   results: Record<string, ExerciseResult>,
   done: Map<StepId, "done" | "skipped">,
+  at?: number,
 ) {
   const todo = steps.flatMap((s, i) => (s.kind === "overview" || s.kind === "summary" ? [] : [i]));
   const left = todo.filter((i) => !stepState(steps[i] as LessonStep, lesson, results, done));
+  const worked = todo.length - left.length;
   return {
-    worked: todo.length - left.length,
+    worked,
+    reached: worked + (at !== undefined && left.includes(at) ? 1 : 0),
     total: todo.length,
     complete: !left.length,
     /** Index in `steps` of the first step still to do. */

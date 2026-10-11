@@ -101,7 +101,11 @@ export function Match({ item, answer, onAnswer, outcome, url }: RendererProps<"m
             {slots.map((s, i) => (
               <div key={s.id} className={cn(TILE, "space-y-1.5")}>
                 {s.media?.image && (
-                  <img src={url(s.media.image)} alt="" className="w-full rounded-xl object-cover" />
+                  <img
+                    src={url(s.media.image)}
+                    alt=""
+                    className="w-full rounded-xl border object-cover"
+                  />
                 )}
                 {/* A tile's slot is narrow on a phone: smaller type, so a short phrase ("die
                     Kreuzung") keeps to one line beside its mark. */}

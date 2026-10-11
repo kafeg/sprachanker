@@ -37,11 +37,33 @@ const options = {
 
 test("keeps allowed structure, strips attributes and scripts, unwraps the rest", () => {
   const html = `<p style="x">Hallo <span class="placeholder" data-id="1">Frau</span>!</p>
-<script>alert(1)</script><table border="1"><tbody><tr><td onclick="x">a</td></tr></tbody></table>
+<script>alert(1)</script><table border="1"><tbody><tr><td onclick="x">a</td><td>b</td></tr></tbody></table>
 <a href="https://x.test">link</a><p></p>`;
   expect(sanitizeCourseHtml(html, options)).toBe(
-    "<p>Hallo Frau!</p>\n<table><tbody><tr><td>a</td></tr></tbody></table>\nlink",
+    "<p>Hallo Frau!</p>\n<table><tbody><tr><td>a</td><td>b</td></tr></tbody></table>\nlink",
   );
+});
+
+test("a cell keeps its span; a table of one line of text is a bold label", () => {
+  const none = { image: () => undefined };
+  expect(
+    sanitizeCourseHtml(
+      '<table><tr><th colspan="2" style="x">Kasus</th></tr><tr><td rowspan="3x">a</td><td rowspan="1">b</td></tr><tr><td rowspan="2">c</td></tr></table>',
+      none,
+    ),
+  ).toBe(
+    '<table><tr><th colspan="2">Kasus</th></tr><tr><td>a</td><td>b</td></tr><tr><td rowspan="2">c</td></tr></table>',
+  );
+  // A case's name in a box of its own over its table: a label; an empty one goes.
+  expect(
+    sanitizeCourseHtml(
+      "<table>\n<tbody>\n<tr>\n<td><strong>Nominativ</strong></td>\n</tr>\n</tbody>\n</table><table><tr><td>&#160;</td></tr></table><table><tr><td>a</td><td>b</td></tr></table>",
+      none,
+    ),
+  ).toBe("<p><strong>Nominativ</strong></p><table><tr><td>a</td><td>b</td></tr></table>");
+  // A framed note of paragraphs stays a table.
+  const note = "<table><tr><td><p>eins</p><p>zwei</p></td></tr></table>";
+  expect(sanitizeCourseHtml(note, none)).toBe(note);
 });
 
 test("characters of no width an editor left go", () => {
@@ -98,6 +120,26 @@ test("empty emphasis, paragraphs and captions go; titles inside tables are bold 
       "<ul><li><p><strong>eins</strong></p></li></ul><p><strong>Zwei</strong></p>",
     ),
   ).toBe("<ul><li><p><strong>eins</strong></p></li></ul><h3>Zwei</h3>");
+});
+
+test("line breaks at a block's edges go, a run of them is one; lines of '- item' are a list", () => {
+  const none = { image: () => undefined };
+  expect(
+    sanitizeCourseHtml(
+      "<p><br>\nErstens.<br></p><p><em>a<br><br>\nb<br></em></p><td><p><br>\nc</p></td>",
+      none,
+    ),
+  ).toBe("<p>Erstens.</p><p><em>a<br />\nb</em></p><td><p>c</p></td>");
+  expect(sanitizeCourseHtml("<p>Liste<br>\n- eins<br>\n- zwei (A/B)<br>\nEnde</p>", none)).toBe(
+    "<p>Liste</p><ul><li>eins</li><li>zwei (A/B)</li></ul><p>Ende</p>",
+  );
+  // One dash line is a dash, not a list; emphasis across lines stays as it is.
+  for (const kept of ["<p>a<br />\n- b</p>", "<p><em>x</em><br />\n- a<br />\n- b</p>"])
+    expect(sanitizeCourseHtml(kept, none)).toBe(kept);
+  // Emphasis cut in two with nothing between is one ("(Wer?)" no longer two runs).
+  expect(sanitizeCourseHtml("<p>(<em>Wer</em><em>?</em>) <em>a</em> <em>b</em></p>", none)).toBe(
+    "<p>(<em>Wer?</em>) <em>a</em> <em>b</em></p>",
+  );
 });
 
 test("a no-break space between letters wraps; one by a number or a mark stays", () => {

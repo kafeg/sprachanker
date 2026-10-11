@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/components/select.tsx";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { useCoarsePointer } from "@/ui/pointer.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
@@ -26,6 +27,10 @@ export const partRight = (outcome: Outcome | undefined, part: string) =>
  * order stays.
  */
 export const ShuffleSeed = createContext("");
+
+/** A multiple choice's "several can be right" is said above the items (or by the exercise): not in
+ *  each card. */
+export const SeveralSaid = createContext(false);
 
 /** `items` in an order fixed by `seed` (display order is not the canonical order, 02). Pure. */
 export function shuffled<T>(items: T[], seed: string): T[] {
@@ -53,6 +58,32 @@ export function useShuffled<T>(items: T[], seed: string): T[] {
   return useMemo(() => (keep ? items : shuffled(items, `${pass}:${seed}`)), [pass, seed, keep]);
 }
 
+/** What tells an option apart in its order: its text, else its picture, else its id. */
+const optionName = (o: ShownOption) => o.text ?? o.learnerText ?? o.media?.image ?? o.id;
+
+/**
+ * A choice's options in the order shown in a pass: shuffled, one order for every item of the exercise
+ * with the same options (Richtig/Falsch keep their places from item to item), a sequence — every
+ * option a number ("1", "8 Uhr") — in its own order. Pure.
+ */
+export function optionOrder(options: ShownOption[], itemKey: string, pass: string): ShownOption[] {
+  if (options.every((o) => /^\s*\d/.test(optionName(o)))) return options;
+  const byName = [...options].sort((a, b) => optionName(a).localeCompare(optionName(b)));
+  const exercise = itemKey.split("#")[0];
+  return shuffled(byName, `${pass}:${exercise}:${byName.map(optionName).join("|")}`);
+}
+
+/** `optionOrder` in the pass shown (the source's order within an exam). */
+export function useOptionOrder(options: ShownOption[], itemKey: string): ShownOption[] {
+  const pass = useContext(ShuffleSeed);
+  const keep = useContext(SourceOrder);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reordered only for another item or pass
+  return useMemo(
+    () => (keep ? options : optionOrder(options, itemKey, pass)),
+    [pass, itemKey, keep],
+  );
+}
+
 /** An option checked: chosen and right, chosen and wrong, or right and not chosen (missed). */
 export type Mark = "correct" | "wrong" | "missed" | undefined;
 
@@ -67,6 +98,18 @@ export const shownOptions = (options: Option[], locale: LocaleItem | undefined):
     ...(locale?.options?.[o.id] !== undefined && { learnerText: locale.options[o.id] }),
     ...(locale?.alt?.[o.id] !== undefined && { alt: locale.alt[o.id] }),
   }));
+
+/** A prompt of numbered tasks run on in one line ("1. … 2. …"): each task on its own line, as the
+ *  answers under it are. Only a text that begins with "1." and goes on with 2, 3… in turn. Pure. */
+export function numberedLines(text: string): string {
+  if (!/^\s*1\.\s/.test(text)) return text;
+  let next = 2;
+  return text.replace(/\s+(\d+)\.\s/g, (run, n: string) => {
+    if (Number(n) !== next) return run;
+    next++;
+    return `\n${n}. `;
+  });
+}
 
 export function OptionContent({
   option,
@@ -97,15 +140,15 @@ export function OptionContent({
       <span className="flex flex-col items-center gap-1">
         {picture}
         <span lang={lang} className="text-base">
-          {option.text}
+          {keptTogether(option.text)}
         </span>
       </span>
     );
   }
   // The learner's language is the page's: no `lang` of the target's on it.
   if (option.text === undefined && option.learnerText !== undefined)
-    return <span>{option.learnerText}</span>;
-  return <span lang={lang}>{option.text}</span>;
+    return <span>{keptTogether(option.learnerText)}</span>;
+  return <span lang={lang}>{option.text && keptTogether(option.text)}</span>;
 }
 
 /** A written answer's box (dictation, respond) over the ui Textarea: large type, it grows with the
@@ -136,7 +179,7 @@ export function CheckedField({ text, ok }: { text: string | undefined; ok: boole
         ok ? "border-correct bg-correct-soft" : "border-wrong bg-wrong-soft",
       )}
     >
-      <span className="min-w-0">{text || "\u00a0"}</span>
+      <span className="min-w-0 text-balance">{text || "\u00a0"}</span>
       {ok ? (
         <Check className="size-4 shrink-0 text-correct" aria-hidden />
       ) : (
@@ -157,10 +200,12 @@ export const allPictures = (options: Option[]) => options.every((o) => o.media?.
  *  is centred (no tile alone at half width on the left). `TILES` on the row, `TILE` on each. */
 export const TILES = "flex flex-wrap justify-center gap-3";
 export const TILE =
-  "shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
+  "min-w-0 shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
 
 /** A tile's mark in its corner: no row of its own under the picture. */
 const MARK_CORNER = "absolute top-2 right-2 box-content rounded-full bg-card p-0.5";
+/** A text option's mark at its right edge, in the room it keeps for it. */
+const MARK_END = "absolute top-1/2 right-4 -translate-y-1/2";
 
 export function OptionButton({
   option,
@@ -189,10 +234,10 @@ export function OptionButton({
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        // On a phone options that wrap share their row, so a list of long ones is not ragged; a
-        // word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
-        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg transition [overflow-wrap:anywhere]",
-        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "max-sm:flex-auto",
+        // A word longer than the screen breaks ("Oberbürgermeisterin/Oberbürgermeister").
+        "relative flex min-h-12 max-w-full items-center gap-2 rounded-xl border-2 bg-card px-4 py-2 text-left text-lg text-pretty transition [overflow-wrap:anywhere]",
+        // A text option has its row and keeps room for its mark: checking moves nothing.
+        fill ? cn(TILE, "flex-col items-stretch justify-center px-2") : "w-full pr-11",
         !disabled && "hover:border-primary/60",
         selected && "border-primary bg-accent",
         mark === "correct" && "border-correct bg-correct-soft",
@@ -218,13 +263,13 @@ export function OptionButton({
       <OptionContent option={option} url={url} fill={fill} />
       {(mark === "correct" || mark === "missed") && (
         <Check
-          className={cn("size-5 shrink-0 text-correct", fill ? MARK_CORNER : "ml-auto")}
+          className={cn("size-5 shrink-0 text-correct", fill ? MARK_CORNER : MARK_END)}
           aria-hidden
         />
       )}
       {mark === "wrong" && (
         <X
-          className={cn("size-5 shrink-0 text-wrong", fill ? MARK_CORNER : "ml-auto")}
+          className={cn("size-5 shrink-0 text-wrong", fill ? MARK_CORNER : MARK_END)}
           aria-hidden
         />
       )}

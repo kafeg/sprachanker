@@ -115,7 +115,8 @@
       "wrong": "mit Fehlern",
       "done": "beantwortet",
       "skipped": "übersprungen",
-      "read": "erledigt"
+      "read": "erledigt",
+      "partial": "teilweise richtig"
     },
     "correctAnswer": "Lösung:",
     "answerAudio": "Lösung anhören",
@@ -147,7 +148,7 @@
       "culture": "Landeskunde",
       "practice": "Üben mit KI"
     },
-    "part": "Teil {n}",
+    "continued": "Fortsetzung",
     "why": "Warum ist das falsch?"
   },
   "ref": {
@@ -180,6 +181,7 @@
     "gap": "Lücke {n}",
     "partRight": "richtig",
     "partWrong": "falsch",
+    "nothing": "— (nichts)",
     "matchFor": "Platz für Paar {n}",
     "dropHere": "hierher ziehen oder tippen",
     "chips": "Wörter zum Zuordnen",
@@ -1035,6 +1037,7 @@
     "showText": "Text zeigen",
     "answerHeard": "Hör zu und sprich laut, wie die Aufgabe es verlangt.",
     "answerFree": "Sprich laut, wie die Aufgabe es verlangt.",
+    "answerLine": "Deine Antwort",
     "mine": "Meine",
     "mineFor": "Meine · {time}",
     "recordedNotKept": "Aufgenommen (nicht gespeichert)",

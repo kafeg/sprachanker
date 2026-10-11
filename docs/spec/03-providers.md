@@ -110,6 +110,7 @@ Source facts: `docs/research/dw-nicos-weg.md`; DW's own content errors in A1:
 - **Media** (`courses/dw/src/media.ts`): every MP3 the pages link (items, vocabulary, lessons); images
   in format 6 (940×529); episode videos as direct MP4s in SD and HD (from the download page, else
   remuxed from the HLS stream), not the variant with burned-in subtitles; the German subtitle track;
+  every video's own still (`posterImageUrl`: the episode's and each clip's poster);
   the lesson PDFs. Hosts refusing requests are reported.
 - **Normalise**: the mechanics table in `docs/research/dw-nicos-weg.md` maps every DW mechanic to a
   type (02); an unseen combination → `unknown` + report. Units are the course's lesson groups in
@@ -125,7 +126,7 @@ exercise's `media.video` when all items link the same one, else each item's `med
 task of only an ellipsis ("…": the line is in its audio) gives no prompt. DW's vocabulary chips in text
 (`<span class="editable placeholder">`) are shown spaced, so the source leaves out the spaces next to
 them: a chip meeting a word gets its space back, except inside a word (a compound's tail, its headword a
-noun: "Weihnachts<chip>bräuche</chip>"; a word's beginning: "<chip>wiede</chip>r"). Course HTML is
+noun: "Weihnachts<chip>bräuche</chip>"; a noun chip on a compound's head, a lowercase run of five letters or more after it that is no verb form in "-t": "<chip>Lamm</chip>fleisch"; a word's beginning: "<chip>wiede</chip>r"). Course HTML is
 spaced as written (`tidySpacing`: one space; none before a `. , ! ? ; : ) ]` that closes the word before
 it — not before a smiley, an ellipsis or a right-to-left text kept as seen —, French keeping its own
 before `! ? ; :`; none inside „ “ where they open and close as in German). The

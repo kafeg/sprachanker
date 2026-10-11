@@ -54,6 +54,16 @@ const headOf = (title: string) =>
     .replace(/^\s*(?:\([^)]*\)\s*)?(?:(?:der|die|das)\s+)?/, "")
     .trim();
 
+/** A noun chip on a compound's head ("<chip>Lamm</chip>fleisch"): the chip one word, a noun, closed
+ *  right before a lowercase run of five letters or more that is no verb form ("…t": "<chip>Region
+ *  </chip>kommt" lacks its space) — a short run is a word of its own ("und", "isst"). */
+const compoundHead = (chip: string, rest: string, next: string | undefined) =>
+  /^(?:<[^>]*>)*\p{Lu}\p{Ll}+(?:<[^>]*>)*$/u.test(chip) &&
+  /^(?:<\/span>)*\p{Ll}/u.test(rest) &&
+  !!next &&
+  /^\p{Ll}{5,}$/u.test(next) &&
+  !next.endsWith("t");
+
 /**
  * DW's vocabulary chips (`<span class="editable placeholder">`, often in an `invalid_placeholder`
  * span) are shown with room around them, so the source leaves out the spaces next to them ("Wir
@@ -85,7 +95,10 @@ export function spaceChips(html: string): string {
     const next = /^\p{L}+/u.exec(after)?.[0];
     const words = new Set(textOf(head).split(/[^\p{L}]+/u));
     const begun = next && words.has(`${textOf(word).split(" ").pop()}${next.toLocaleLowerCase()}`);
-    edges.push({ at: end, mark: begun ? INSIDE : EDGE });
+    edges.push({
+      at: end,
+      mark: begun || compoundHead(html.slice(start, end), html.slice(end), next) ? INSIDE : EDGE,
+    });
   }
   if (!edges.length) return html;
   let marked = "";

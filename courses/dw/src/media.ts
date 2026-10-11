@@ -76,6 +76,14 @@ export function videoFiles(video: Record<string, unknown>): { sd?: string; hd?: 
   return { ...(sd ? { sd } : {}), ...(hd ? { hd } : {}) };
 }
 
+/** A video's own still (`posterImageUrl`, a DW image in a fixed size); none when it is not one. */
+export const posterUrl = (video: Record<string, unknown>): string | undefined => {
+  const url = video.posterImageUrl;
+  return typeof url === "string" && /^https:\/\/static\.dw\.com\/image\/[\w.-]+$/.test(url)
+    ? url
+    : undefined;
+};
+
 /** Media referenced by one page state. */
 export function mediaRefs(state: ApolloState): PageMedia[] {
   const refs: PageMedia[] = [];
@@ -99,6 +107,8 @@ export function mediaRefs(state: ApolloState): PageMedia[] {
     for (const sub of (video.subtitles ?? []) as Array<{ subtitleUrl?: string }>) {
       if (sub.subtitleUrl) refs.push({ url: sub.subtitleUrl, kind: "subtitles" });
     }
+    const poster = posterUrl(video);
+    if (poster) refs.push({ url: poster, kind: "image" });
   }
   for (const link of entitiesOf(state, "ContentLink")) {
     const target = link.target as { __typename?: string; filename?: string } | undefined;

@@ -104,6 +104,7 @@ export function LessonPlayer({
             lesson={lesson}
             locale={locale}
             worked={flow.worked}
+            reached={flow.reached}
             todo={flow.todo}
             plan={(chosen) => (
               <Plan

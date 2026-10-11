@@ -145,6 +145,7 @@ export function Slot({
   onTap,
   children,
   className,
+  style,
 }: {
   id: string;
   /** What the slot is for, for screen readers. */
@@ -157,18 +158,24 @@ export function Slot({
   onTap(): void;
   children: React.ReactNode;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id, disabled, data: { label } satisfies Named });
   return (
     <button
       type="button"
       ref={setNodeRef}
+      style={style}
       aria-label={label}
       disabled={disabled}
       onClick={onTap}
       className={cn(
-        "flex min-h-11 items-center justify-center gap-2 rounded-xl border-2 px-3 text-lg",
-        filled ? "border-solid bg-card" : "border-dashed text-muted-foreground",
+        "flex min-h-11 items-center gap-2 rounded-xl border-2 px-3 text-lg",
+        // A chip in it reads from the left, its lines even (no word alone on the last), the mark at
+        // the end; an empty one says where to drop, centred.
+        filled
+          ? "justify-between border-solid bg-card text-left text-balance"
+          : "justify-center border-dashed text-muted-foreground",
         (isOver || active) && !mark && "border-primary bg-primary/10",
         mark === "correct" && "border-correct bg-correct-soft",
         mark === "wrong" && "border-wrong bg-wrong-soft",

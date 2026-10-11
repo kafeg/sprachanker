@@ -75,7 +75,7 @@ apps/web/src/
                    # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
   i18n/            # message catalogs en.json, ru.json, de.json (ICU)
-  ui/              # presentational only (no API, no features): design tokens in styles.css, shadcn/ui
+  ui/              # presentational only (no API, no features): design tokens in styles.css, line-breaks (where course text may break), shadcn/ui
                    # components (ui/components), rich-text (model Markdown), page (pages, empty states, back
                    # links), media, format (dates, numbers, durations), panel, history
                    # (rows that open, lists of earlier items), side-layout (a page with a side column: the

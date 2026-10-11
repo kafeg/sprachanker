@@ -59,11 +59,32 @@ test("coverage: complete when every step is done or skipped; the latest record o
   ];
   const done = stepsDone(events);
   cover = planCoverage(steps, lesson, exerciseResults(events), done);
-  expect(cover).toMatchObject({ complete: true, worked: cover.total });
+  expect(cover).toMatchObject({ complete: true, worked: cover.total, reached: cover.total });
   expect(stepState({ kind: "writing" }, lesson, {}, done)).toBe("skipped");
   // Done after a skip: done.
   const later = stepsDone([...events, ev(104, "step_done", null, { step: "writing" })]);
   expect(stepState({ kind: "writing" }, lesson, {}, later)).toBe("done");
+});
+
+test("reached: the step shown counts while still to do, so the count moves by one on every kind", () => {
+  const steps = lessonSteps(lesson, locale);
+  const at = (id: string) => steps.map(stepId).indexOf(id);
+  const done = new Map([
+    ["words", "done"],
+    ["grammar:0", "done"],
+  ] as const);
+  const reached = (events: TypedEvent[], id: string) =>
+    planCoverage(steps, lesson, exerciseResults(events), done, at(id)).reached;
+  // A page counts once opened: no more for being shown.
+  expect(reached([], "grammar:0")).toBe(2);
+  // An exercise not worked yet (one to check, or one said aloud that counts once left) counts at once,
+  // and the same once worked; the next one adds one.
+  expect(reached([], "exercise:0")).toBe(3);
+  const first = [ev(1, "item_skipped", "s.x/c/01-01/ex-01#1", {})];
+  expect(reached(first, "exercise:0")).toBe(3);
+  expect(reached(first, "exercise:1")).toBe(4);
+  // The overview and the summary are no steps to do.
+  expect(reached(first, "overview")).toBe(3);
 });
 
 test("resume: the exercise last shown while it is not worked, else the first step still to do", () => {

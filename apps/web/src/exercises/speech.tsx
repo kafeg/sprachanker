@@ -8,7 +8,9 @@ import { useSpeechHost } from "@/audio/context.ts";
 import { MicButton } from "@/audio/mic-button.tsx";
 import { type Take, useRecorder } from "@/audio/recorder.ts";
 import { TakeButton } from "@/audio/take-button.tsx";
+import { CourseHtml } from "@/ui/course-html.tsx";
 import { clock } from "@/ui/format.ts";
+import { keptTogether } from "@/ui/line-breaks.ts";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { RendererProps } from "./types.ts";
@@ -181,6 +183,7 @@ function TakeStatus({
  */
 export function SpeechSelfrate({
   item,
+  locale,
   answer,
   onAnswer,
   listen = false,
@@ -196,6 +199,8 @@ export function SpeechSelfrate({
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
+  // What to say: the item's own line, else, under a question, the locale file's.
+  const line = item.prompt ?? (item.text ? locale?.prompt : undefined);
   const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
   // The source's own answer, once the learner has tried (their answer first, then the model one).
   const sample =
@@ -205,18 +210,18 @@ export function SpeechSelfrate({
 
   return (
     <div className="space-y-3">
-      {item.text ? (
+      {item.text && (
         // "Show the text" over the blurred phrase itself.
         <div className="relative w-fit min-w-40 max-w-full">
           <p
             lang={lang}
             aria-hidden={!textShown}
             className={cn(
-              "whitespace-pre-line font-heading text-2xl font-semibold transition-[filter]",
+              "whitespace-pre-line font-heading text-2xl font-semibold text-balance transition-[filter]",
               !textShown && "select-none blur-md",
             )}
           >
-            {item.text}
+            {keptTogether(item.text)}
           </p>
           {!textShown && (
             <button
@@ -228,12 +233,30 @@ export function SpeechSelfrate({
             </button>
           )}
         </div>
-      ) : (
+      )}
+      {!item.text && (
         <p className="text-muted-foreground">
           {item.media?.audio || item.media?.video
             ? t("speech.answerHeard")
             : t("speech.answerFree")}
         </p>
+      )}
+      {/* The question first, then the line to say (an answer, its frame, a role-play's line) marked
+          as such, then the hint. */}
+      {line && (
+        <div>
+          <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
+          <p
+            lang={item.prompt ? lang : undefined}
+            dir="auto"
+            className="whitespace-pre-line text-lg font-medium text-pretty"
+          >
+            {keptTogether(line)}
+          </p>
+        </div>
+      )}
+      {locale?.hintHtml && (
+        <CourseHtml className="text-sm text-muted-foreground" html={locale.hintHtml} />
       )}
       {readOnly ? (
         <p className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
@@ -314,8 +337,11 @@ export function SpeechRepeat({
     take?.url ?? (answer?.speech.recording && host ? host.src(answer.speech.recording) : undefined);
   return (
     <div className="space-y-3">
-      <p lang={lang} className="whitespace-pre-line font-heading text-2xl font-semibold">
-        {item.text}
+      <p
+        lang={lang}
+        className="whitespace-pre-line font-heading text-2xl font-semibold text-balance"
+      >
+        {keptTogether(item.text)}
       </p>
       {!readOnly && !outcome && (
         <div className="flex flex-wrap items-start justify-center gap-4">

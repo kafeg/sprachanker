@@ -12,6 +12,7 @@ import { AudioPlayer } from "@/ui/media.tsx";
 import { panelClass } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
 import { EpisodeVideo, isEpisode } from "@/ui/video.tsx";
+import { wordCount } from "./plan.tsx";
 import { StepHeader } from "./steps.tsx";
 import type { useLessonFlow } from "./use-flow.ts";
 import type { RunMode } from "./use-run.ts";
@@ -96,7 +97,7 @@ export function LessonOverview({
       )}
       <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
         <span className="text-muted-foreground">
-          {t("lesson.counts", { exercises: lesson.pages.length, words: lesson.vocab.length })}
+          {t("lesson.counts", { exercises: lesson.pages.length, words: wordCount(lesson) })}
         </span>
         {actions}
       </div>

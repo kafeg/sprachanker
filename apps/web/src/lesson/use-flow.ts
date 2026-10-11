@@ -47,7 +47,9 @@ export function useLessonFlow({
 
   const steps = lesson ? lessonSteps(lesson, locale, practice ?? []) : [];
   const ids = steps.map(stepId);
-  const coverage = lesson ? planCoverage(steps, lesson, run.results, run.done) : undefined;
+  const coverage = lesson
+    ? planCoverage(steps, lesson, run.results, run.done, ids.indexOf(current))
+    : undefined;
   const active = run.mode === "active";
   const resumeId =
     active && lesson ? resumeStep(steps, lesson, run.results, run.done, run.resumePage) : undefined;
@@ -150,6 +152,8 @@ export function useLessonFlow({
     current,
     step: steps[at],
     worked: coverage?.worked ?? 0,
+    /** The steps worked and the one shown while still to do: the header's count. */
+    reached: coverage?.reached ?? 0,
     todo: coverage?.total ?? 0,
     resumeId,
     /** The score shown: of the run just finished, or of the latest finished run. */

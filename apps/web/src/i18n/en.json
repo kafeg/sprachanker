@@ -115,7 +115,8 @@
       "wrong": "with mistakes",
       "done": "answered",
       "skipped": "skipped",
-      "read": "done"
+      "read": "done",
+      "partial": "partly right"
     },
     "correctAnswer": "Correct answer:",
     "answerAudio": "Hear the answer",
@@ -147,7 +148,7 @@
       "culture": "Culture",
       "practice": "Practice with AI"
     },
-    "part": "part {n}",
+    "continued": "continued",
     "why": "Why is this wrong?"
   },
   "ref": {
@@ -180,6 +181,7 @@
     "gap": "Gap {n}",
     "partRight": "right",
     "partWrong": "wrong",
+    "nothing": "— (nothing)",
     "matchFor": "Match for item {n}",
     "dropHere": "drop or tap here",
     "chips": "Words to place",
@@ -1035,6 +1037,7 @@
     "showText": "Show the text",
     "answerHeard": "Listen, then say it out loud as the task asks.",
     "answerFree": "Say it out loud as the task asks.",
+    "answerLine": "Your answer",
     "mine": "Mine",
     "mineFor": "Mine · {time}",
     "recordedNotKept": "Recorded (not kept)",

@@ -15,6 +15,8 @@ type EpisodeFiles = {
   sd?: string;
   hd?: string;
   subtitles?: string;
+  /** The video's own still, shown until it plays (else a frame a moment in: `peek`). */
+  poster?: string;
   /** The text of the video (the lesson's script page), under it. */
   textHtml?: string;
 };
@@ -54,6 +56,7 @@ export function EpisodeVideo({
   sd,
   hd,
   subtitles,
+  poster,
   textHtml,
   url,
   onHeard,
@@ -104,12 +107,13 @@ export function EpisodeVideo({
         }}
         onLoadedMetadata={(e) => {
           e.currentTarget.playbackRate = rate;
-          peek.loaded(e.currentTarget);
+          if (!poster) peek.loaded(e.currentTarget);
         }}
         onSeeked={(e) => peek.seeked(e.currentTarget)}
         onError={onHeard}
         className="aspect-video w-full rounded-2xl bg-black"
         src={url(src)}
+        poster={poster && url(poster)}
       >
         {subtitles && (
           <track

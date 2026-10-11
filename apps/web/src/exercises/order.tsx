@@ -64,7 +64,9 @@ export function Order({ item, answer, onAnswer, outcome, url }: RendererProps<"o
           id={LINE}
           label={t("ex.orderLine")}
           className={cn(
-            "flex min-h-14 flex-wrap items-center gap-2 rounded-xl border-2 border-dashed p-2",
+            "flex min-h-14 flex-wrap items-center gap-2 rounded-xl border-2 p-2",
+            // Open, a place to fill; checked, the answer given — solid, as one right or wrong elsewhere.
+            outcome ? "border-solid" : "border-dashed",
             outcome?.result === "correct" && "border-correct bg-correct-soft",
             outcome && outcome.result !== "correct" && "border-wrong bg-wrong-soft",
           )}
