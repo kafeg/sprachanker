@@ -1310,7 +1310,7 @@
     "run_incomplete": "La leçon n’est pas encore terminée.",
     "run_not_active": "Ce passage de la leçon est terminé. Recharge la leçon.",
     "run_without_edition": "Ce passage n’a pas de version linguistique. Recommence la leçon.",
-    "scene_busy": "Le dialogue est encore en train de répondre. Patiente.",
+    "scene_busy": "Ton interlocuteur répond encore, ou le dialogue est en préparation.",
     "server_error": "Une erreur s’est produite sur le serveur.",
     "speaking_busy": "Cette réponse est en cours de vérification. Patiente.",
     "speech_engine_failed": "La reconnaissance vocale n’a pas répondu. Réessaie.",

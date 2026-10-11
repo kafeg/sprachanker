@@ -1310,7 +1310,7 @@
     "run_incomplete": "Pelajaran belum selesai.",
     "run_not_active": "Putaran pelajaran ini sudah berakhir. Muat ulang pelajaran.",
     "run_without_edition": "Putaran ini tidak punya versi bahasa. Mulai pelajaran lagi.",
-    "scene_busy": "Dialog masih menjawab. Tunggu sebentar.",
+    "scene_busy": "Lawan bicara Anda masih menjawab, atau dialog sedang disiapkan.",
     "server_error": "Terjadi kesalahan di server.",
     "speaking_busy": "Jawaban ini sedang diperiksa. Tunggu sebentar.",
     "speech_engine_failed": "Pengenal ucapan tidak merespons. Coba lagi.",

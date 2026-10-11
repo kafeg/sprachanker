@@ -553,7 +553,7 @@
     "sumUp": "Zusammenfassen",
     "end": "Dialog beenden",
     "noRecognition": "Die Spracherkennung ist aus oder nicht installiert (Einstellungen → Sprechen).",
-    "typeInstead": "Tippe deinen Satz stattdessen.",
+    "typeInstead": "Tippe deinen Satz stattdessen ein.",
     "again": "Noch einmal sagen",
     "waitPartner": "Warte auf die Antwort deines Gegenübers."
   },
@@ -1310,7 +1310,7 @@
     "run_incomplete": "Die Lektion ist noch nicht fertig.",
     "run_not_active": "Dieser Durchgang der Lektion ist beendet. Lade die Lektion neu.",
     "run_without_edition": "Diesem Durchgang fehlt die Sprachversion. Starte die Lektion neu.",
-    "scene_busy": "Der Dialog antwortet noch. Warte darauf.",
+    "scene_busy": "Dein Gesprächspartner antwortet noch, oder der Dialog wird vorbereitet.",
     "server_error": "Auf dem Server ist etwas schiefgelaufen.",
     "speaking_busy": "Diese Antwort wird gerade geprüft. Warte darauf.",
     "speech_engine_failed": "Die Spracherkennung hat nicht geantwortet. Versuch es noch einmal.",
