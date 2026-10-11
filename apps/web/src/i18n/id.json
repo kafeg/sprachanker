@@ -1490,5 +1490,23 @@
       "text": "Aku ingin membahas sebuah teks bersamamu. Minta aku menempelkannya, lalu bahas kalimat demi kalimat: terjemahkan, jelaskan yang baru, dan tunggu aku sebelum lanjut.",
       "conversation": "Ayo latihan percakapan. Usulkan situasi sehari-hari dari yang sudah kupelajari, mulai dengan satu kalimat dan tunggu jawabanku; koreksi kesalahanku sambil jalan."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Ekspor ke berkas",
+      "hint": "Kursus ini dalam satu berkas, untuk diimpor di komputermu yang lain di “Diunduh”.",
+      "started": "Mengunduh “{file}” ({size})."
+    },
+    "import": {
+      "button": "Impor dari berkas…",
+      "hint": "Kursus atau ujian yang diekspor di komputermu yang lain (.sprachanker-course).",
+      "sending": "Mengirim berkas… {share, number, percent}",
+      "checking": "Memeriksa dan memasang berkas…",
+      "added": "“{title}” sudah ada di sini.",
+      "same": "“{title}” sudah ada di sini, sama persis: tidak ada yang berubah.",
+      "replaced": "“{title}” sekarang versi dari berkas; kemajuanmu tetap tersimpan.",
+      "verified": "Diperiksa: semua berkas ada.",
+      "problems": "Diperiksa: {count, plural, other {# masalah ditemukan}} — “Periksa” di kartunya menampilkannya."
+    }
   }
 }

@@ -1,10 +1,10 @@
 // Profiles and signing in (06, "Profiles and access"): who is studying, the session of this device, a
 // new profile, signing in by choosing, signing out; the signed-in profile's name, colour, onboarding and
 // devices; a profile as a file — the signed-in one exported, one imported (05, "Profile file").
-import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
-import { ApiError, api, json } from "./client.ts";
+import { api, json } from "./client.ts";
+import { downloadReady, uploadFile } from "./files.ts";
 
 const fetchSession = () => json(api.session.$get());
 export type SessionProfile = NonNullable<Awaited<ReturnType<typeof fetchSession>>["profile"]>;
@@ -98,43 +98,9 @@ export const prepareExport = () => json(api.profile.export.$post());
 /** Where a prepared export is downloaded (once). */
 export const exportUrl = (id: string) => `/api/profile/export/${id}`;
 
-/** Whether a prepared export is still there to download (a HEAD: nothing taken); an ApiError when it
- *  is not — a download started then would save the server's answer as the file. */
-export async function exportReady(id: string) {
-  const res = await fetch(exportUrl(id), { method: "HEAD" });
-  if (!res.ok)
-    throw new ApiError(
-      res.status === 404 ? "profile_export_gone" : `HTTP ${res.status}`,
-      res.status,
-    );
-}
+/** Whether a prepared export is still there to download (nothing taken). */
+export const exportReady = (id: string) => downloadReady(exportUrl(id), "profile_export_gone");
 
-/**
- * A profile file sent to the server and imported as a new profile; `onProgress` hears how much of it
- * was sent (0–1: an XMLHttpRequest, as fetch tells nothing of an upload). The server's refusal is an
- * ApiError with its code.
- */
-export function uploadProfile(
-  file: File,
-  onProgress: (sent: number) => void,
-): Promise<ImportedProfile> {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/api/profiles/import");
-    for (const [name, value] of Object.entries(CLIENT_HEADERS)) xhr.setRequestHeader(name, value);
-    xhr.setRequestHeader("content-type", "application/octet-stream");
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable && e.total) onProgress(e.loaded / e.total);
-    };
-    xhr.onload = () => {
-      let body: { error?: string } = {};
-      try {
-        body = JSON.parse(xhr.responseText);
-      } catch {}
-      if (xhr.status >= 200 && xhr.status < 300) resolve(body as ImportedProfile);
-      else reject(new ApiError(body.error ?? `HTTP ${xhr.status}`, xhr.status));
-    };
-    xhr.onerror = () => reject(new Error("the server was not reached"));
-    xhr.send(file);
-  });
-}
+/** A profile file sent to the server and imported as a new profile, its progress heard. */
+export const uploadProfile = (file: File, onProgress: (sent: number) => void) =>
+  uploadFile<ImportedProfile>("/api/profiles/import", file, onProgress);

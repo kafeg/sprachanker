@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import type { useCourses } from "@/api/courses.ts";
 import { useEdition } from "@/api/edition.ts";
 import { useSetSetting } from "@/api/settings.ts";
+import { CourseExport } from "@/library/bundle.tsx";
 import { LibraryCard, PublisherLink } from "@/library/card.tsx";
 import { CourseUpkeep } from "@/library/upkeep.tsx";
 import { Button } from "@/ui/components/button.tsx";
@@ -27,7 +28,7 @@ export function CourseCard({
   edition: string;
   /** In "My courses": the course can be removed from there (its progress is reset). */
   removable?: boolean;
-  /** In "Downloaded": the course's check and sync. */
+  /** In "Downloaded": the course's check, sync and export to a file. */
   upkeep?: boolean;
 }) {
   const { t } = useTranslation();
@@ -69,7 +70,11 @@ export function CourseCard({
           </>
         )}
       </p>
-      {upkeep && <CourseUpkeep series={course.series} course={course.course} />}
+      {upkeep && (
+        <CourseUpkeep series={course.series} course={course.course}>
+          <CourseExport series={course.series} course={course.course} edition={edition} />
+        </CourseUpkeep>
+      )}
       {next && nextTitle && (
         <p className="mt-3 line-clamp-2 text-sm" title={nextTitle}>
           <span className="text-muted-foreground">{t("courses.next")}: </span>

@@ -108,8 +108,17 @@ export function SyncButton({
 }
 
 /** A Downloaded card's upkeep: "Check" (its result after, problems listed on a tap) and the sync,
- *  marked when the check found something to mend. A check made on the course page shows here too. */
-export function CourseUpkeep({ series, course }: { series: string; course: string }) {
+ *  marked when the check found something to mend; `children` after them in the row (the card's
+ *  export). A check made on the course page shows here too. */
+export function CourseUpkeep({
+  series,
+  course,
+  children,
+}: {
+  series: string;
+  course: string;
+  children?: React.ReactNode;
+}) {
   const { t } = useTranslation();
   const [asked, setAsked] = useState(false);
   const [open, setOpen] = useState(false);
@@ -145,6 +154,7 @@ export function CourseUpkeep({ series, course }: { series: string; course: strin
             short
           />
         )}
+        {children}
       </div>
       {open && r && problems > 0 && <ProblemList problems={r.problems} max={5} />}
     </div>

@@ -1490,5 +1490,23 @@
       "text": "Želim s tobom proći kroz jedan tekst. Zamoli me da ga zalijepim, pa idi rečenicu po rečenicu: prevedi, objasni šta je novo i sačekaj me prije sljedeće.",
       "conversation": "Hajde da vježbamo razgovor. Predloži svakodnevnu situaciju iz pređenog gradiva, počni jednom replikom i sačekaj moj odgovor; usput ispravljaj moje greške."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Izvezi u datoteku",
+      "hint": "Ovaj kurs kao jedna datoteka, za uvoz na tvom drugom računaru pod „Preuzeti“.",
+      "started": "Preuzima se „{file}“ ({size})."
+    },
+    "import": {
+      "button": "Uvezi iz datoteke…",
+      "hint": "Kurs ili ispit izvezen na tvom drugom računaru (.sprachanker-course).",
+      "sending": "Datoteka se šalje… {share, number, percent}",
+      "checking": "Datoteka se provjerava i instalira…",
+      "added": "„{title}“ je ovdje.",
+      "same": "„{title}“ je već ovdje, isti: ništa se nije promijenilo.",
+      "replaced": "„{title}“ je sada verzija iz datoteke; tvoj napredak ostaje.",
+      "verified": "Provjereno: sve datoteke su tu.",
+      "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje."
+    }
   }
 }

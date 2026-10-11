@@ -1490,5 +1490,23 @@
       "text": "Ich möchte mit dir einen Text durchgehen. Bitte mich, ihn einzufügen, und nimm ihn dann Satz für Satz: übersetze, erkläre, was neu ist, und warte auf mich, bevor du weitermachst.",
       "conversation": "Lass uns ein Gespräch üben. Schlag eine Alltagssituation aus dem vor, was ich gelernt habe, beginne dann mit einem Satz und warte auf meine Antwort; korrigiere meine Fehler unterwegs."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "In eine Datei exportieren",
+      "hint": "Dieser Kurs als eine Datei, um ihn auf deinem anderen Computer unter „Heruntergeladen“ zu importieren.",
+      "started": "„{file}“ wird heruntergeladen ({size})."
+    },
+    "import": {
+      "button": "Aus einer Datei importieren…",
+      "hint": "Ein Kurs oder eine Prüfung, auf deinem anderen Computer exportiert (.sprachanker-course).",
+      "sending": "Datei wird gesendet… {share, number, percent}",
+      "checking": "Datei wird geprüft und installiert…",
+      "added": "„{title}“ ist da.",
+      "same": "„{title}“ ist schon da, genauso: nichts hat sich geändert.",
+      "replaced": "„{title}“ ist jetzt die Fassung aus der Datei; dein Fortschritt bleibt.",
+      "verified": "Geprüft: Alle Dateien sind da.",
+      "problems": "Geprüft: {count, plural, one {# Problem gefunden} other {# Probleme gefunden}} – „Prüfen“ auf seiner Karte zeigt sie."
+    }
   }
 }

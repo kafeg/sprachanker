@@ -1490,5 +1490,23 @@
       "text": "Szeretnék veled átnézni egy szöveget. Kérd meg, hogy másoljam be, aztán haladj mondatról mondatra: fordítsd le, magyarázd el, mi új benne, és várj meg a következő előtt.",
       "conversation": "Gyakoroljunk egy beszélgetést. Javasolj egy hétköznapi helyzetet abból, amit tanultam, kezdj egy mondattal, és várd meg a válaszomat; menet közben javítsd a hibáimat."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportálás fájlba",
+      "hint": "Ez a kurzus egyetlen fájlban, hogy a másik számítógépeden a „Letöltve” alatt importáld.",
+      "started": "„{file}” letöltése ({size})."
+    },
+    "import": {
+      "button": "Importálás fájlból…",
+      "hint": "A másik számítógépeden exportált kurzus vagy vizsga (.sprachanker-course).",
+      "sending": "A fájl küldése… {share, number, percent}",
+      "checking": "A fájl ellenőrzése és telepítése…",
+      "added": "„{title}” itt van.",
+      "same": "„{title}” már itt van, ugyanígy: semmi sem változott.",
+      "replaced": "„{title}” most a fájlban lévő változat; a haladásod megmarad.",
+      "verified": "Ellenőrizve: minden fájl megvan.",
+      "problems": "Ellenőrizve: {count, plural, one {# probléma található} other {# probléma található}} – a kártyáján az „Ellenőrzés” felsorolja őket."
+    }
   }
 }

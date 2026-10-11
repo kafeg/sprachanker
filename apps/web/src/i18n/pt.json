@@ -1490,5 +1490,23 @@
       "text": "Quero estudar um texto com você. Peça para eu colá-lo e depois vá frase por frase: traduza, explique o que é novo e espere por mim antes da próxima.",
       "conversation": "Vamos praticar uma conversa. Sugira uma situação do dia a dia com base no que aprendi, comece com uma fala e espere a minha resposta; corrija meus erros ao longo da conversa."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportar para um arquivo",
+      "hint": "Este curso em um único arquivo, para importar no seu outro computador em “Baixados”.",
+      "started": "Baixando “{file}” ({size})."
+    },
+    "import": {
+      "button": "Importar de um arquivo…",
+      "hint": "Um curso ou exame exportado no seu outro computador (.sprachanker-course).",
+      "sending": "Enviando o arquivo… {share, number, percent}",
+      "checking": "Verificando e instalando o arquivo…",
+      "added": "“{title}” está aqui.",
+      "same": "“{title}” já estava aqui, igual: nada mudou.",
+      "replaced": "“{title}” agora é a versão do arquivo; seu progresso continua.",
+      "verified": "Verificado: todos os arquivos estão aqui.",
+      "problems": "Verificado: {count, plural, =0 {# problemas encontrados} one {# problema encontrado} other {# problemas encontrados}} — “Verificar” no cartão dele os lista."
+    }
   }
 }

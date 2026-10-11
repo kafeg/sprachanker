@@ -1490,5 +1490,23 @@
       "text": "Ningependa kupitia maandishi pamoja nawe. Niombe niyabandike, kisha chukua sentensi moja moja: itafsiri, eleza kilicho kipya na unisubiri kabla ya inayofuata.",
       "conversation": "Tujizoeze mazungumzo. Pendekeza hali ya kila siku kutoka yale niliyojifunza, anza kwa sentensi moja na usubiri jibu langu; sahihisha makosa yangu tunapoendelea."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Hamisha kwenye faili",
+      "hint": "Kozi hii kama faili moja, uiingize kwenye kompyuta yako nyingine chini ya “Zilizopakuliwa”.",
+      "started": "Inapakua “{file}” ({size})."
+    },
+    "import": {
+      "button": "Leta kutoka kwenye faili…",
+      "hint": "Kozi au mtihani uliohamishwa kwenye kompyuta yako nyingine (.sprachanker-course).",
+      "sending": "Inatuma faili… {share, number, percent}",
+      "checking": "Inakagua faili na kuisakinisha…",
+      "added": "“{title}” iko hapa.",
+      "same": "“{title}” ilikuwa hapa tayari, sawa kabisa: hakuna kilichobadilika.",
+      "replaced": "“{title}” sasa ni toleo la faili; maendeleo yako yamebaki.",
+      "verified": "Imekaguliwa: faili zote zipo.",
+      "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha."
+    }
   }
 }

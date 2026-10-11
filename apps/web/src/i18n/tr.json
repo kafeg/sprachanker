@@ -1490,5 +1490,23 @@
       "text": "Seninle bir metnin üzerinden geçmek istiyorum. Metni yapıştırmamı iste, sonra cümle cümle ilerle: çevir, yeni olanı açıkla ve sonrakine geçmeden beni bekle.",
       "conversation": "Bir konuşma çalışalım. Öğrendiklerimden günlük bir durum öner, bir cümleyle başla ve cevabımı bekle; ilerledikçe hatalarımı düzelt."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Dosyaya aktar",
+      "hint": "Bu kurs tek bir dosya olarak; diğer bilgisayarında “İndirilenler” altında içe aktarmak için.",
+      "started": "“{file}” indiriliyor ({size})."
+    },
+    "import": {
+      "button": "Dosyadan içe aktar…",
+      "hint": "Diğer bilgisayarında dışa aktarılmış bir kurs ya da sınav (.sprachanker-course).",
+      "sending": "Dosya gönderiliyor… {share, number, percent}",
+      "checking": "Dosya denetleniyor ve kuruluyor…",
+      "added": "“{title}” burada.",
+      "same": "“{title}” zaten burada, aynısı: hiçbir şey değişmedi.",
+      "replaced": "“{title}” artık dosyadaki sürüm; ilerlemen korunuyor.",
+      "verified": "Denetlendi: bütün dosyalar burada.",
+      "problems": "Denetlendi: {count, plural, one {# sorun bulundu} other {# sorun bulundu}} — kartındaki “Kontrol et” onları listeler."
+    }
   }
 }

@@ -1490,5 +1490,23 @@
       "text": "J’aimerais parcourir un texte avec toi. Demande-moi de le coller, puis avance phrase par phrase : traduis-la, explique ce qui est nouveau et attends-moi avant la suivante.",
       "conversation": "Entraînons-nous à une conversation. Propose une situation de tous les jours tirée de ce que j’ai appris, commence par une réplique et attends ma réponse ; corrige mes erreurs au fur et à mesure."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exporter dans un fichier",
+      "hint": "Ce cours en un seul fichier, à importer sur ton autre ordinateur dans « Téléchargés ».",
+      "started": "Téléchargement de « {file} » ({size})."
+    },
+    "import": {
+      "button": "Importer depuis un fichier…",
+      "hint": "Un cours ou un examen exporté sur ton autre ordinateur (.sprachanker-course).",
+      "sending": "Envoi du fichier… {share, number, percent}",
+      "checking": "Vérification et installation du fichier…",
+      "added": "« {title} » est là.",
+      "same": "« {title} » est déjà là, identique : rien n’a changé.",
+      "replaced": "« {title} » est maintenant la version du fichier ; ta progression est conservée.",
+      "verified": "Vérifié : tous les fichiers sont là.",
+      "problems": "Vérifié : {count, plural, one {# problème trouvé} many {# de problèmes trouvés} other {# problèmes trouvés}} — « Vérifier » sur sa carte les liste."
+    }
   }
 }

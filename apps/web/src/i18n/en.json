@@ -1490,5 +1490,23 @@
       "text": "I'd like to go through a text with you. Ask me to paste it, then take it one sentence at a time: translate it, explain what is new and wait for me before the next.",
       "conversation": "Let's practise a conversation. Suggest an everyday situation from what I have learnt, then start with one line and wait for my answer; correct my mistakes as we go."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Export to a file",
+      "hint": "This course as one file, to import on your other computer under Downloaded.",
+      "started": "Downloading “{file}” ({size})."
+    },
+    "import": {
+      "button": "Import from a file…",
+      "hint": "A course or exam exported on your other computer (.sprachanker-course).",
+      "sending": "Sending the file… {share, number, percent}",
+      "checking": "Checking the file and installing it…",
+      "added": "“{title}” is here.",
+      "same": "“{title}” is here already, the same: nothing changed.",
+      "replaced": "“{title}” is now the file's version; your progress is kept.",
+      "verified": "Checked: every file is there.",
+      "problems": "Checked: {count, plural, one {# problem found} other {# problems found}} — “Check” on its card lists them."
+    }
   }
 }

@@ -8,6 +8,7 @@ import { useSettings } from "@/api/settings.ts";
 import { offersOf, useShown } from "@/app/experimental.ts";
 import { CourseCard, MyCourseCard } from "@/courses/card.tsx";
 import { FILTERS, useCourseFilters } from "@/courses/filters.tsx";
+import { CourseImport } from "@/library/bundle.tsx";
 import { OfferCard } from "@/library/card.tsx";
 import { CardGrid, type LibraryTab, LibraryTabPage, NoneHere } from "@/library/tab-page.tsx";
 import { EmptyState, ErrorState, Loading } from "@/ui/page.tsx";
@@ -97,20 +98,24 @@ function Downloaded() {
       editions: [edition],
     })),
   );
-  if (!cards.length)
-    return (
-      <NoneHere
-        text={t("courses.noneDownloaded")}
-        link={{ to: "/catalog", label: t("courses.choose") }}
-      />
-    );
   return (
-    <FilteredCards
-      tab="downloaded"
-      settings={list.settings}
-      cards={cards}
-      card={(c) => <CourseCard key={c.key} course={c.course} edition={c.edition} upkeep />}
-    />
+    <>
+      {cards.length ? (
+        <FilteredCards
+          tab="downloaded"
+          settings={list.settings}
+          cards={cards}
+          card={(c) => <CourseCard key={c.key} course={c.course} edition={c.edition} upkeep />}
+        />
+      ) : (
+        <NoneHere
+          text={t("courses.noneDownloaded")}
+          link={{ to: "/catalog", label: t("courses.choose") }}
+        />
+      )}
+      {/* A course exported on another computer. */}
+      <CourseImport />
+    </>
   );
 }
 

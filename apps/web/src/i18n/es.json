@@ -1490,5 +1490,23 @@
       "text": "Quiero repasar un texto contigo. Pídeme que lo pegue y luego ve frase por frase: tradúcela, explica lo nuevo y espérame antes de la siguiente.",
       "conversation": "Practiquemos una conversación. Propón una situación cotidiana de lo que he aprendido, empieza con una frase y espera mi respuesta; corrige mis errores sobre la marcha."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Exportar a un archivo",
+      "hint": "Este curso en un solo archivo, para importarlo en tu otro ordenador en «Descargados».",
+      "started": "Descargando «{file}» ({size})."
+    },
+    "import": {
+      "button": "Importar desde un archivo…",
+      "hint": "Un curso o examen exportado en tu otro ordenador (.sprachanker-course).",
+      "sending": "Enviando el archivo… {share, number, percent}",
+      "checking": "Comprobando el archivo e instalándolo…",
+      "added": "«{title}» ya está aquí.",
+      "same": "«{title}» ya estaba aquí, igual: no cambió nada.",
+      "replaced": "«{title}» es ahora la versión del archivo; tu progreso se conserva.",
+      "verified": "Comprobado: están todos los archivos.",
+      "problems": "Comprobado: {count, plural, one {se encontró # problema} other {se encontraron # problemas}} — «Comprobar» en su tarjeta los muestra."
+    }
   }
 }

@@ -1490,5 +1490,23 @@
       "text": "Chcę omówić z tobą tekst. Poproś mnie o wklejenie go, a potem idź zdanie po zdaniu: przetłumacz, wyjaśnij, co nowe, i poczekaj na mnie przed następnym.",
       "conversation": "Przećwiczmy rozmowę. Zaproponuj codzienną sytuację z przerobionego materiału, zacznij jedną kwestią i poczekaj na moją odpowiedź; poprawiaj moje błędy na bieżąco."
     }
+  },
+  "bundle": {
+    "export": {
+      "button": "Eksportuj do pliku",
+      "hint": "Ten kurs jako jeden plik, do zaimportowania na twoim drugim komputerze w „Pobrane”.",
+      "started": "Pobieranie „{file}” ({size})."
+    },
+    "import": {
+      "button": "Importuj z pliku…",
+      "hint": "Kurs lub egzamin wyeksportowany na twoim drugim komputerze (.sprachanker-course).",
+      "sending": "Wysyłanie pliku… {share, number, percent}",
+      "checking": "Sprawdzanie i instalowanie pliku…",
+      "added": "„{title}” jest tutaj.",
+      "same": "„{title}” już tu jest, taki sam: nic się nie zmieniło.",
+      "replaced": "„{title}” to teraz wersja z pliku; twoje postępy zostają.",
+      "verified": "Sprawdzono: wszystkie pliki są na miejscu.",
+      "problems": "Sprawdzono: {count, plural, one {znaleziono # problem} few {znaleziono # problemy} many {znaleziono # problemów} other {znaleziono # problemu}} — „Sprawdź” na jego karcie je pokaże."
+    }
   }
 }
