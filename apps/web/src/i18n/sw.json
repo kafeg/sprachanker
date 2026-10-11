@@ -766,6 +766,7 @@
       "seen": "Zilizoonekana awali",
       "cardsTitle": "{when}: {count, plural, one {kadi #} other {kadi #}}, mpya {fresh, number}",
       "noneRecalled": "{when}: hakuna kadi za marudio zilizojibiwa",
+      "remembered": "Yaliyokumbukwa (ya kadi zilizo katika marudio)",
       "rememberedTitle": "{when}: {share} ya {count, plural, one {jibu #} other {majibu #}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

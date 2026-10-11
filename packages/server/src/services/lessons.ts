@@ -137,8 +137,9 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
   };
 
   /**
-   * The lessons' standing (schema `stats.ts`): how many lessons and installed courses are done (each
-   * with when it was first done: the figure over time), and each lesson worked on (a run
+   * The lessons' standing (schema `stats.ts`): how many lessons of the installed courses and how many
+   * of those courses are done (each with when it was first done: the figure over time), and each
+   * lesson worked on — a removed course's too, in the journal — (a run
    * with work in it; a lesson only opened is none) under its course — its passes, its best score, a
    * pass open, its last work. Courses by their last work; a course's lessons in its order (its index:
    * a key kept through a reorder says nothing of where the lesson is now), one no longer in it last.
@@ -189,14 +190,16 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
     });
     const when = (at: Array<number | undefined>) =>
       at.flatMap((t) => (t === undefined ? [] : [t])).sort((a, b) => a - b);
+    // One rule for both: what the installed courses hold (a course removed counts none of its
+    // lessons, as it can count no course done).
+    const held = installed.filter((c) => c.kind === "course");
     const lessonsAt = when(
-      Object.values(byLesson).map((p) => (lessonDone(p) ? p.doneAt : undefined)),
+      [...new Set(held.flatMap((c) => c.lessons))].map((key) => {
+        const p = byLesson[key];
+        return p && lessonDone(p) ? p.doneAt : undefined;
+      }),
     );
-    const coursesAt = when(
-      installed
-        .filter((c) => c.kind === "course")
-        .map((c) => courseProgress(c.lessons, byLesson).doneAt),
-    );
+    const coursesAt = when(held.map((c) => courseProgress(c.lessons, byLesson).doneAt));
     return {
       module: "lesson",
       figures: [

@@ -4,6 +4,8 @@
 // `EVENT_PAYLOADS`) and parsed when read; a stored row that no longer parses is left out and logged,
 // never breaking the list it is in. Services keep their own rules; how runs and events are stored
 // lives here.
+
+import type { Moment } from "@sprachanker/engine";
 import {
   type CourseKey,
   EVENT_PAYLOADS,
@@ -22,7 +24,7 @@ import {
   recordingOf,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, gte, inArray, isNull, max, or, type SQL, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gte, inArray, isNull, lt, max, or, type SQL, sql } from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { z } from "zod";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -467,13 +469,32 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       });
     },
 
-    /** Every event's run and time, each run's in the order stored, without payloads: the time spent
-     *  read from them (engine `activityByDay`). */
-    moments(): Array<{ runId: string; ts: number }> {
-      return db
-        .select({ runId: events.runId, ts: events.ts })
+    /** Every event of every run as one timeline, without payloads: its id, run, time and the pause
+     *  since the event before it, of any run (SQL's `lag`), in the order stored — from `from` on and
+     *  before `to` when given, the pauses still from the events before. The time spent is read from
+     *  them (engine `activityByDay`). */
+    moments(span: { from?: number; to?: number } = {}): Moment[] {
+      const timeline = db
+        .select({
+          id: events.id,
+          runId: events.runId,
+          ts: events.ts,
+          gap: sql<
+            number | null
+          >`${events.ts} - lag(${events.ts}) over (order by ${events.ts}, ${events.id})`.as("gap"),
+        })
         .from(events)
-        .orderBy(asc(events.runId), asc(events.ts), asc(events.id))
+        .as("timeline");
+      return db
+        .select()
+        .from(timeline)
+        .where(
+          and(
+            span.from === undefined ? undefined : gte(timeline.ts, span.from),
+            span.to === undefined ? undefined : lt(timeline.ts, span.to),
+          ),
+        )
+        .orderBy(asc(timeline.ts), asc(timeline.id))
         .all();
     },
 

@@ -748,7 +748,7 @@
       "exam": "Всё по этому экзамену"
     },
     "answers": "{count, plural, one {# ответ} few {# ответа} many {# ответов} other {# ответа}}",
-    "reviewDay": "Повторение {date}",
+    "reviewDay": "Повторение за {date}",
     "dayAnswers": "Ответы",
     "noAnswers": "За этот день ответов не осталось: отменённые ответы не сохраняются.",
     "cardGone": "карточки больше нет",
@@ -763,9 +763,10 @@
         "month": "по месяцам"
       },
       "weekOf": "неделя с {date}",
-      "seen": "Повторные",
+      "seen": "Уже виденные",
       "cardsTitle": "{when}: {count, plural, one {# карточка} few {# карточки} many {# карточек} other {# карточки}}, новых {fresh, number}",
       "noneRecalled": "{when}: ответов на карточки на повторении нет",
+      "remembered": "Вспомнено (из карточек на повторении)",
       "rememberedTitle": "{when}: {share} из {count, plural, one {# ответа} few {# ответов} many {# ответов} other {# ответа}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

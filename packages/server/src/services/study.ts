@@ -23,6 +23,7 @@ import {
   type CardFace,
   type CardRating,
   type EditionId,
+  type Lang,
   type LessonKey,
   type ModuleStanding,
   parseEditionId,
@@ -179,12 +180,12 @@ export function createStudy(deps: {
       }));
       const deck = deckStanding(words, deckAnswers, today);
       const count = (id: string, value: number) => ({ id, value });
-      // The review days with answers in this deck, the latest first, each with how many.
+      // The review days with answers in this deck, the latest first, each with how many and its date.
       const perDay = new Map<string, number>();
       for (const a of deckAnswers) perDay.set(a.runId, (perDay.get(a.runId) ?? 0) + 1);
       const studied = [...perDay].flatMap(([id, n]) => {
         const row = days.get(id);
-        return row ? [{ ...headerOf(row), count: n }] : [];
+        return row ? [{ ...headerOf(row), count: n, day: dayOf(row.startedAt).start }] : [];
       });
       return {
         key: language,
@@ -206,27 +207,39 @@ export function createStudy(deps: {
   }
 
   /**
-   * A review day in full (the Notebook's page of it, as a lesson's pass): its answers not taken back,
-   * oldest first — each card as it shows now (none when it is gone), the side, the rating, the
-   * interval it gave and how long it took (where measured) —, what the day held (engine
-   * `activityByDay`), and the review days with answers before and after it.
+   * A review day in full (the Notebook's page of it, as a lesson's pass): the study day it is of, its
+   * answers not taken back, oldest first — each card as it shows now (none when it is gone), the side,
+   * the rating, the interval it gave and how long it took (where measured) —, what the day held
+   * (engine `activityByDay`), and the review days with answers before and after it. With `lang`, a
+   * language's deck's day: only its cards' answers (a card gone is in no deck), what they held, and
+   * the days its cards were answered on.
    */
-  function reviewDay(runId: string) {
+  function reviewDay(runId: string, lang?: Lang) {
     const row = store.get(runId, "review");
     if (!row) throw new ServiceError("no_such_run", 404);
-    const events = store.events(runId, ["card_review", "card_undo"]) as CardEvent[];
-    const answers = cardDay(events).answers;
     const notes = new Map(cards.all().map((n) => [n.id, n]));
-    const studied = store.lastActivity(["card_review"]);
+    const inDeck = (cardId: string) => lang === undefined || notes.get(cardId)?.lang === lang;
+    const types: CardEvent["type"][] = ["card_review", "card_undo"];
+    const events = (store.events(runId, types) as CardEvent[]).filter((e) => inDeck(e.cardId));
+    const answers = cardDay(events).answers;
+    const studied = new Set(
+      cardDay(store.eventsWhere({ types }) as CardEvent[]).answers.flatMap((a) =>
+        inDeck(a.cardId) ? [a.runId] : [],
+      ),
+    );
     const days = store.all("review").filter((r) => studied.has(r.id));
     const at = days.findIndex((r) => r.id === runId);
+    const { start, next } = dayOf(row.startedAt);
     const day = activityByDay(
       events,
-      () => row.startedAt,
+      () => start,
       () => "review",
+      store.moments({ from: start, to: next }),
     )[0];
     return {
       run: headerOf(row),
+      /** The study day's start (a run started before 4 AM is the day before's). */
+      date: start,
       answers: answers.map((a) => {
         const note = notes.get(a.cardId);
         return {

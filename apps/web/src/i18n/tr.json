@@ -766,6 +766,7 @@
       "seen": "Daha önce görülen",
       "cardsTitle": "{when}: {count, plural, one {# kart} other {# kart}}, {fresh, number} yeni",
       "noneRecalled": "{when}: tekrardaki kartlara cevap yok",
+      "remembered": "Hatırlanan (tekrardaki kartlardan)",
       "rememberedTitle": "{when}: {count, plural, one {# cevaptan} other {# cevaptan}} {share}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

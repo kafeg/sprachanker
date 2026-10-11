@@ -183,8 +183,8 @@ function EntryBlock({
   );
 }
 
-/** A run in a list: when it ended, what kind it was and the part taken (when told), what it holds (a
- *  review day's answers), the points it scored, passed or not. */
+/** A run in a list: when it ended (a study day: its date), what kind it was and the part taken (when
+ *  told), what it holds (a review day's answers), the points it scored, passed or not. */
 export function RunRow({
   run,
   kind,
@@ -200,7 +200,7 @@ export function RunRow({
   return (
     <ListRow onClick={onOpen}>
       <span className="flex-1">
-        {when.format(run.finishedAt ?? run.startedAt)}
+        {when.format(run.day ?? run.finishedAt ?? run.startedAt)}
         {kind && (
           <span className="ms-2 text-sm text-muted-foreground">
             {kind}

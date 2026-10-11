@@ -155,6 +155,16 @@ export function studyDay(now: number) {
   return { start: start.getTime(), next: next.getTime() };
 }
 
+/** `studyDay(t).start`, remembering the day last found: moments read in time order cost one date
+ *  reckoning a day, not one each. */
+export function dayStarts() {
+  let day = { start: 0, next: 0 };
+  return (t: number) => {
+    if (t < day.start || t >= day.next) day = studyDay(t);
+    return day.start;
+  };
+}
+
 /** One face of a note (an Anki card) as the queue needs it. */
 export interface QueueFace {
   cardId: string;

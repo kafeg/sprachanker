@@ -766,6 +766,7 @@
       "seen": "Pernah dilihat",
       "cardsTitle": "{when}: {count, plural, other {# kartu}}, {fresh, number} baru",
       "noneRecalled": "{when}: tidak ada kartu yang diulang",
+      "remembered": "Diingat (dari kartu yang diulang)",
       "rememberedTitle": "{when}: {share} dari {count, plural, other {# jawaban}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

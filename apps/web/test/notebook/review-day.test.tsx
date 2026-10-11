@@ -27,21 +27,23 @@ const word = (target: string, translation: string, gender?: string) => ({
   lang: "de",
 });
 
-test("a review day: what it held, each answer in order — the word, the side, the rating, the interval, the time — and the days around it", async () => {
+test("a deck's review day: its study day's date and language, what it held, each answer in order — the word, the side, the rating, the interval, the time — and the days around it", async () => {
   const went: Array<string | null> = [];
-  const view = await renderApp(<ReviewDay id={ID} go={(run) => went.push(run)} />, {
+  const view = await renderApp(<ReviewDay id={ID} lang="de" go={(run) => went.push(run)} />, {
     data: [
       [
-        ["notebook", "review", ID],
+        ["notebook", "review", ID, "de"],
         {
           run: {
             id: ID,
             edition: null,
             status: "finished",
             endReason: "completed",
-            startedAt: DAY,
-            finishedAt: DAY + 3_600_000,
+            // Begun at 2 AM the next morning, ended a day later: the study day is its date.
+            startedAt: DAY + 22 * 3_600_000,
+            finishedAt: DAY + 46 * 3_600_000,
           },
+          date: DAY,
           answers: [
             answer("1", 10, 3, 600_000, 4_200, word("der Abend", "evening", "m")),
             answer("2", 11, 1, 60_000, 60_000, word("die Tasse", "cup", "f")),
@@ -55,7 +57,8 @@ test("a review day: what it held, each answer in order — the word, the side, t
       ],
     ],
   });
-  expect(await view.findByRole("heading", { name: /^Review of / })).toBeTruthy();
+  expect(await view.findByRole("heading", { name: "Review of Oct 8" })).toBeTruthy();
+  expect(view.getByText("German")).toBeTruthy();
   const tile = (label: string) =>
     view.getAllByText(label, { selector: "p" })[0]?.parentElement?.firstChild?.textContent;
   expect([

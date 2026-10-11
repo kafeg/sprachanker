@@ -98,23 +98,30 @@ Pure functions over events and cards (05), read by the server per request:
   to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
   checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) —, the time each
   module took, and the totals of a span of days. The day starts at 4 AM (Spaced repetition, below).
-  Time spent (owner, 2026-10-07): a card answer's own, measured from the card shown to its rating and
-  kept at most a minute (Anki's maximum answer time: a card left open in an idle tab is a minute,
-  not hours; answers from before it was measured count none); in every other run, from each event to
-  the run's next, at most five minutes (`IDLE_MS`: the learner away longer counts that much),
-  on the later event's day.
+  Time spent (owner, 2026-10-07): read from one timeline of every event of every run, so runs open
+  together (a lesson and its tutor chat or scene, its Words step's cards, two tabs) count each pause
+  once, on the later event's day and in its module. Up to a card answer: its own time, measured from
+  the card shown to its rating and kept at most a minute (Anki's maximum answer time: a card left
+  open in an idle tab is a minute, not hours; answers from before it was measured count none), never
+  more than the pause since the event before it. Up to any other event: the pause in full up to five
+  minutes (`IDLE_MS`), five minutes up to thirty (away a while: a long page, a long answer), none
+  past thirty (`BREAK_MS`: a new session). The store gives each event's pause (SQL `lag`), no
+  payloads.
 - **Over time** (`learner/series.ts`, the Notebook's pictures): a span — the last 7 or 30 days by day;
   all time from the first study day by week (by day while that is within 30 days, by month past 26
-  weeks; a week from the language's first day, 09) — cut into bars, each with its days' totals
-  (cards, new cards, the share remembered, time), and how many lessons and courses had been done by
-  each bar's end (a lesson's first completion; a course's when its last lesson is first done).
+  weeks; a week from the language's first day, 09) — cut into bars by the server, whose study days
+  they are (the pictures sum each bar's days, never reckon a bar's start themselves), each with its
+  days' totals (cards, new cards, the share remembered, time), and how many lessons had been done by
+  each bar's end (`countBars`: a lesson's first completion). Courses done keep when each was done (a
+  course's when its last lesson is first done) but are a figure only, not pictured (09).
 
 Every module reports what the Notebook shows of it the same way (schema `stats.ts`: its headline
 figures, its entries with their figures and latest runs; the server's modules each give their
 `standing`): the words known (every face of the note in review) and each deck (`srs/deck.ts`) with
 the review days it was studied on are review's, the lessons and courses done (each with when it was
-first done: a figure over time) and the lessons worked on the lessons', the mock exams handed in the
-exams'. Planned:
+first done: a figure over time; both of the courses installed — a course removed counts none of its
+lessons, as it can count no course done, its lessons staying in the journal) and the lessons worked
+on the lessons', the mock exams handed in the exams'. Planned:
 mistakes by rule and lexeme, rule mastery, weak spots,
 "Practise this", the can-do list (plan, "Enrichment and rules").
 

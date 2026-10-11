@@ -7,7 +7,7 @@
 // choice A, 2026-10-07) — the lessons done over the span, the courses with the lessons worked on, each
 // opening its passes — and the exams with their latest mock exams. What a module adds here is only
 // where its entries open, how they are named and its pictures (`useViews`, notebook/pictures).
-import { activityTotals, type Span } from "@sprachanker/engine";
+import { activityTotals, SPANS, type Span } from "@sprachanker/engine";
 import {
   type LessonKey,
   MODULES,
@@ -24,7 +24,7 @@ import { examParams } from "@/library/exam-address.ts";
 import { ActivityCalendar } from "@/ui/activity-calendar.tsx";
 import { Chip } from "@/ui/chip.tsx";
 import { LanguageFlag } from "@/ui/flags.tsx";
-import { useDateFormat, useDuration, useNumber, usePercent } from "@/ui/format.ts";
+import { firstDayOfWeek, useDateFormat, useDuration, useNumber, usePercent } from "@/ui/format.ts";
 import { ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { StatTile } from "@/ui/stat-tile.tsx";
@@ -40,7 +40,6 @@ import {
 import { type EntryView, FigureTile, StandingSection } from "./standing.tsx";
 
 type Day = NotebookOverview["days"][number];
-const RANGES: Record<Span, number | undefined> = { all: undefined, month: 30, week: 7 };
 
 /** What a day had: its date, then each module's work where there was any. */
 function useDescribeDay(days: Day[]) {
@@ -77,14 +76,8 @@ function Progress({
   const duration = useDuration();
   const describe = useDescribeDay(overview.days);
   const count = useNumber();
-  const span = RANGES[range];
-  const from = (() => {
-    if (!span) return undefined;
-    const d = new Date(overview.today);
-    d.setDate(d.getDate() - (span - 1));
-    return d.getTime();
-  })();
-  const totals = activityTotals(overview.days, from);
+  // The span's totals: from its first bar's start (all time's is before the first study day).
+  const totals = activityTotals(overview.days, bars.starts[0]);
   const headline = overview.modules.flatMap((m) =>
     m.figures.map((figure) => ({ module: m.module, figure })),
   );
@@ -109,7 +102,7 @@ function Progress({
           />
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          {(Object.keys(RANGES) as Span[]).map((r) => (
+          {SPANS.map((r) => (
             <Chip key={r} on={range === r} onClick={() => setRange(r)}>
               {t(`notebook.range.${r}`)}
             </Chip>
@@ -157,7 +150,12 @@ function useViews(): Partial<Record<ModuleId, EntryView>> {
       ),
       picture: (deck) => <WordsPicture figures={deck.figures} />,
       open: () => void navigate({ to: "/review/decks" }),
-      openRun: (_, run) => void navigate({ to: "/notebook/review/$run", params: { run: run.id } }),
+      openRun: (deck, run) =>
+        void navigate({
+          to: "/notebook/review/$run",
+          params: { run: run.id },
+          search: { lang: deck.key },
+        }),
     },
     // A lesson by its number in the course; it opens its passes.
     lesson: {
@@ -187,8 +185,8 @@ function useViews(): Partial<Record<ModuleId, EntryView>> {
 }
 
 export function NotebookPage() {
-  const { t } = useTranslation();
-  const notebook = useNotebook();
+  const { t, i18n } = useTranslation();
+  const notebook = useNotebook(firstDayOfWeek(i18n.language));
   if (notebook.isPending) return <Loading />;
   if (notebook.isError)
     return <ErrorState error={notebook.error} onRetry={() => notebook.refetch()} />;

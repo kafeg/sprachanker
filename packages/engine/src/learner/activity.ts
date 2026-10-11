@@ -41,24 +41,35 @@ const empty = (start: number): DayActivity => ({
   time: { lesson: 0, exam: 0, review: 0, ai: 0 },
 });
 
-/** The longest pause between two events of a run that still counts as time spent in it: away longer,
- *  the learner is counted this much. */
+/** The longest pause between two events counted in full: away longer, up to a session break, the
+ *  learner is counted this much (a long page read, a long answer written). */
 export const IDLE_MS = 5 * 60_000;
+/** A pause longer than this ends a session: the event after it starts a new one, the pause counts
+ *  none. */
+export const BREAK_MS = 30 * 60_000;
 
-/** An event as time is read from it: its run and when it was stored. */
+/** A pause's time spent: in full up to `IDLE_MS`, `IDLE_MS` up to a session break, none past it. */
+export const pauseMs = (gap: number) => (gap <= IDLE_MS ? gap : gap <= BREAK_MS ? IDLE_MS : 0);
+
+/** An event as time is read from it: which one, its run, when it was stored and how long after the
+ *  event before it — of any run, so runs open together (a lesson and its tutor chat, two tabs) are
+ *  one timeline (null: the first event). */
 export interface Moment {
+  id: string;
   runId: string;
   ts: number;
+  gap: number | null;
 }
 
 /** The study days with something done, oldest first. `moduleOf`: the module of the run an event is in
  *  (by its kind, `MODULE_OF_KIND`) — a lesson's work and an exam's answers are told apart by it; the
  *  model's checks and the learner's messages are AI practice in whichever run they are.
- *  Time spent: a card answer's own (`ms`, measured from shown to rated; none before it was measured);
- *  in every other run, from each of its events (`moments`: every event of every run, each run's in
- *  the order stored) to its next, at most `IDLE_MS`, counted on the later one's day in the run's
- *  module — a page read, an exercise answered, a chat's reply waited for and the next message
- *  written. */
+ *  Time spent, read from one timeline of every event (`moments`), each pause counted once, on the
+ *  later event's day: up to a card answer, the answer's own time (`ms`, measured from shown to rated,
+ *  at most a minute; none before it was measured), never more than the pause; up to any other event,
+ *  the pause (`pauseMs`) in its run's module — a page read, an exercise answered, a chat's reply
+ *  waited for and the next message written. A review run's other events (an answer taken back) count
+ *  none. */
 export function activityByDay(
   events: TypedEvent[],
   dayOf: (ts: number) => number,
@@ -73,6 +84,8 @@ export function activityByDay(
     days.set(start, day);
     return day;
   };
+  /** Card answers' own time, by event. */
+  const answered = new Map<string, number>();
   for (const e of events) {
     if (e.type === "llm_verdict" || (e.type === "llm_turn" && e.payload.role === "user"))
       at(e.ts).ai++;
@@ -80,7 +93,7 @@ export function activityByDay(
       const p = e.payload;
       const day = at(e.ts);
       day.review++;
-      if (p.ms) day.time.review += answerMs(p.ms);
+      if (p.ms) answered.set(e.id, answerMs(p.ms));
       if (!p.stateBefore) day.newCards++;
       else if (inReview(p.stateBefore)) {
         day.recalled++;
@@ -92,12 +105,16 @@ export function activityByDay(
       else if (module === "exam" && e.type === "answered") at(e.ts).exam++;
     }
   }
-  let previous: Moment | undefined;
   for (const m of moments) {
-    const module = previous?.runId === m.runId ? moduleOf(m.runId) : undefined;
-    const gap = previous ? Math.min(m.ts - previous.ts, IDLE_MS) : 0;
-    if (module && module !== "review" && gap > 0) at(m.ts).time[module] += gap;
-    previous = m;
+    const answer = answered.get(m.id);
+    if (answer !== undefined) {
+      const ms = Math.min(answer, m.gap ?? answer);
+      if (ms > 0) at(m.ts).time.review += ms;
+      continue;
+    }
+    const module = moduleOf(m.runId);
+    const ms = m.gap === null ? 0 : pauseMs(m.gap);
+    if (module && module !== "review" && ms > 0) at(m.ts).time[module] += ms;
   }
   return [...days.values()].sort((a, b) => a.start - b.start);
 }

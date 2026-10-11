@@ -41,6 +41,36 @@ test("a span's bars: 7 or 30 days by day; all time by day, week or month by how 
   expect(months.starts).toHaveLength(12);
 });
 
+test("bars across a change of clocks: each from its first day's 4 AM, a week or a day an hour longer or shorter", () => {
+  const zone = process.env.TZ;
+  /** How long each bar is: two lengths, the usual and the one the clocks changed in. */
+  const lengths = (starts: number[]) =>
+    new Set(starts.slice(1).map((s, i) => s - (starts[i] as number)));
+  // Each changes its clocks once between late August and mid-November 2026; the 30 days to the
+  // second date hold the change.
+  const zones: Array<[string, [number, number, number]]> = [
+    ["Europe/Berlin", [2026, 11, 1]],
+    ["America/New_York", [2026, 11, 15]],
+    ["Australia/Sydney", [2026, 10, 20]],
+  ];
+  try {
+    for (const [tz, [y, m, d]] of zones) {
+      process.env.TZ = tz;
+      const weeks = spanBars("all", day(2026, 11, 15), day(2026, 8, 20));
+      expect(weeks.size).toBe("week");
+      const at = (s: number) => [new Date(s).getDay(), new Date(s).getHours()];
+      expect(weeks.starts.every((s) => at(s).join() === "1,4")).toBe(true);
+      expect(lengths(weeks.starts).size).toBe(2);
+      const days = spanBars("month", day(y, m, d), undefined);
+      expect(days.starts.every((s) => new Date(s).getHours() === 4)).toBe(true);
+      expect(lengths(days.starts).size).toBe(2);
+    }
+  } finally {
+    if (zone === undefined) delete process.env.TZ;
+    else process.env.TZ = zone;
+  }
+});
+
 test("each bar's totals of its days, and things counted within a bar and by its end", () => {
   const none = { lesson: 0, exam: 0, review: 0, ai: 0 };
   const of = (start: number, review: number, recalled: number, remembered: number) =>

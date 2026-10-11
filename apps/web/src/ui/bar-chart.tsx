@@ -1,15 +1,22 @@
 // The Notebook's pictures (09): bars over time — days, weeks or months, oldest first along the reading
 // direction (right to left mirrors them, as the calendar) — each of one or more parts stacked in their
-// tones, its value in its title; the highest value marked at the top, the first and last bar's dates
-// under them. And one bar across, of parts in their tones (a deck's words by state), with its legend.
+// tones; the highest value marked at the top, the first and last bar's dates under them. Each bar is a
+// button named by what it holds: pointed at, tapped or focused (one tab stop, the arrow keys along the
+// reading direction), what it holds is shown under the bars in place of the dates — on a phone too. A
+// value of nothing that is one (0 % remembered) is a mark on the baseline, unlike a bar with nothing to
+// tell. And one bar across, of parts in their tones (a deck's words by state), with its legend.
+import { useRef, useState } from "react";
+import { arrowStep } from "./direction.tsx";
 import { cn } from "./utils.ts";
 
 export interface ChartBar {
   key: string | number;
   /** The parts stacked from the bottom, in the order of the chart's tones. */
   parts: number[];
-  /** What the bar holds, in words (its title). */
+  /** What the bar holds, in words: its name, and the line shown when it is chosen. */
   title: string;
+  /** Nothing that is a value (a share of 0 %): a mark on the baseline. */
+  zero?: boolean;
 }
 
 /** A legend's entries: a swatch in a part's tone and its name. */
@@ -37,7 +44,7 @@ export function BarChart({
   bars: ChartBar[];
   /** Each part's fill. */
   tones: string[];
-  /** What the picture shows, for a screen reader. */
+  /** What the picture shows: its name. */
   label: string;
   /** The value of a full bar (a share's 1); else the highest bar's. */
   max?: number;
@@ -47,40 +54,80 @@ export function BarChart({
   ends: [string, string];
 }) {
   const highest = max ?? Math.max(0, ...bars.map((b) => b.parts.reduce((n, p) => n + p, 0)));
+  // The bar whose value is shown (by its key: the span may change under it); the latest is the one
+  // tab stop while none is.
+  const [chosenKey, setChosenKey] = useState<ChartBar["key"] | null>(null);
+  const chosen = bars.findIndex((b) => b.key === chosenKey);
+  const choose = (i: number | null) => setChosenKey(i === null ? null : (bars[i]?.key ?? null));
+  const buttons = useRef<Array<HTMLButtonElement | null>>([]);
+  const stop = chosen < 0 ? bars.length - 1 : chosen;
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const step = arrowStep(e.key);
+    const to = e.key === "Home" ? 0 : e.key === "End" ? bars.length - 1 : stop + step;
+    if ((!step && e.key !== "Home" && e.key !== "End") || to < 0 || to >= bars.length) return;
+    e.preventDefault();
+    choose(to);
+    buttons.current[to]?.focus();
+  };
   return (
-    <figure className="space-y-1">
+    <figure aria-label={label} className="space-y-1">
       <div className="relative">
-        <span className="absolute -top-0.5 start-0 text-[10px] leading-none text-muted-foreground tabular-nums">
+        <span
+          aria-hidden
+          className="absolute -top-0.5 start-0 text-[10px] leading-none text-muted-foreground tabular-nums"
+        >
           {top}
         </span>
         <div
-          role="img"
-          aria-label={label}
           className="flex h-24 items-end gap-px border-b border-t border-dashed border-t-border/60 pt-3"
+          onPointerLeave={(e) => e.pointerType === "mouse" && choose(null)}
         >
-          {bars.map((bar) => (
-            <div
+          {bars.map((bar, i) => (
+            <button
               key={bar.key}
-              title={bar.title}
-              className="flex h-full min-w-0 flex-1 flex-col-reverse rounded-t-sm hover:bg-muted"
+              ref={(el) => {
+                buttons.current[i] = el;
+              }}
+              type="button"
+              aria-label={bar.title}
+              tabIndex={i === stop ? 0 : -1}
+              onClick={() => choose(i)}
+              onFocus={() => choose(i)}
+              onPointerEnter={(e) => e.pointerType === "mouse" && choose(i)}
+              onKeyDown={onKeyDown}
+              className={cn(
+                "flex h-full min-w-0 flex-1 flex-col-reverse rounded-t-sm outline-none hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring",
+                chosen === i && "bg-muted",
+              )}
             >
-              {bar.parts.map((part, i) =>
+              {bar.zero && <span className="block h-0.5 w-full bg-wrong" />}
+              {bar.parts.map((part, p) =>
                 part > 0 && highest > 0 ? (
                   <span
                     // biome-ignore lint/suspicious/noArrayIndexKey: a part is its place in the stack.
-                    key={i}
-                    className={cn("block w-full last:rounded-t-sm", tones[i])}
+                    key={p}
+                    className={cn("block w-full last:rounded-t-sm", tones[p])}
                     style={{ height: `${(part / highest) * 100}%` }}
                   />
                 ) : null,
               )}
-            </div>
+            </button>
           ))}
         </div>
       </div>
-      <figcaption className="flex justify-between text-[10px] text-muted-foreground">
-        <span>{ends[0]}</span>
-        <span>{ends[1]}</span>
+      {/* The chosen bar's value, or the first and last bar's dates. */}
+      <figcaption
+        aria-hidden
+        className="flex min-h-4 justify-between gap-2 text-xs text-muted-foreground"
+      >
+        {chosen >= 0 ? (
+          <span className="text-foreground">{bars[chosen]?.title}</span>
+        ) : (
+          <>
+            <span>{ends[0]}</span>
+            <span>{ends[1]}</span>
+          </>
+        )}
       </figcaption>
     </figure>
   );

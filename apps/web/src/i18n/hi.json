@@ -766,6 +766,7 @@
       "seen": "पहले देखे गए",
       "cardsTitle": "{when}: {count, plural, one {# कार्ड} other {# कार्ड}}, {fresh, number} नए",
       "noneRecalled": "{when}: दोहराव वाले किसी कार्ड का उत्तर नहीं",
+      "remembered": "याद रहे (दोहराव वाले कार्डों में से)",
       "rememberedTitle": "{when}: {count, plural, one {# उत्तर} other {# उत्तरों}} में से {share}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

@@ -1,12 +1,14 @@
-// A review day in the Notebook (09), as a lesson's pass: what it held (answers, new cards, the share
-// remembered, time spent) and every card answered that day in order — the word and its translation,
-// the side asked, the rating, the interval it gave, how long it took — then the review days before and
-// after it.
+// A review day in the Notebook (09), as a lesson's pass — a language's deck's alone when opened from
+// its deck: its date (the study day's), what it held (answers, new cards, the share remembered, time
+// spent) and every card answered that day in order — the word and its translation, the side asked,
+// the rating, the interval it gave, how long it took — then the review days before and after it.
 import type { CardFace } from "@sprachanker/schema";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { type NotebookReviewDay, useNotebookReviewDay } from "@/api/notebook.ts";
+import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { LanguageFlag } from "@/ui/flags.tsx";
 import { useDateFormat, useDuration, useNumber, usePercent, useSeconds } from "@/ui/format.ts";
 import { BackLink, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
@@ -17,9 +19,18 @@ import { useIntervalText } from "@/word/time.ts";
 import { ratingOf } from "@/word/tones.ts";
 import { GenderWord } from "@/word/word.tsx";
 
-export function ReviewDay({ id, go }: { id: string; go(run: string | null): void }) {
-  const { t } = useTranslation();
-  const day = useNotebookReviewDay(id);
+export function ReviewDay({
+  id,
+  lang,
+  go,
+}: {
+  id: string;
+  /** The deck's language: its answers alone, its days around. */
+  lang?: string;
+  go(run: string | null): void;
+}) {
+  const { t, i18n } = useTranslation();
+  const day = useNotebookReviewDay(id, lang);
   const date = useDateFormat("day");
   const back = <BackLink onClick={() => go(null)}>{t("notebook.title")}</BackLink>;
   if (day.isPending) return <Loading />;
@@ -29,9 +40,20 @@ export function ReviewDay({ id, go }: { id: string; go(run: string | null): void
         <ErrorState error={day.error} onRetry={() => day.refetch()} />
       </Page>
     );
-  const { run, earlier, later } = day.data;
+  const { earlier, later } = day.data;
   return (
-    <Page title={t("notebook.reviewDay", { date: date.format(run.startedAt) })} back={back}>
+    <Page
+      title={t("notebook.reviewDay", { date: date.format(day.data.date) })}
+      back={back}
+      actions={
+        lang && (
+          <span className="flex items-center gap-2 text-muted-foreground">
+            <LanguageFlag lang={lang} />
+            {languageName(lang, i18n.language, true)}
+          </span>
+        )
+      }
+    >
       <div className="max-w-3xl space-y-4">
         <Held day={day.data} />
         <Answers answers={day.data.answers} />

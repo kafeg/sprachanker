@@ -1,6 +1,13 @@
 import { expect, test } from "bun:test";
 import type { TypedEvent } from "@sprachanker/schema";
-import { activityByDay, activityTotals, IDLE_MS } from "../src/learner/activity.ts";
+import {
+  activityByDay,
+  activityTotals,
+  BREAK_MS,
+  IDLE_MS,
+  type Moment,
+  pauseMs,
+} from "../src/learner/activity.ts";
 
 const DAY = 86_400_000;
 const e = (id: string, day: number, type: string, payload: unknown = {}) =>
@@ -72,13 +79,28 @@ test("each study day by module: lesson work, exam answers, reviews without the o
   expect(activityTotals([]).remembered).toBeUndefined();
 });
 
-test("time spent: a card answer's own, capped at a minute, none before it was measured; elsewhere the gaps between a run's events, each at most IDLE_MS, on the later one's day", () => {
-  const card = (id: string, day: number, ms?: number) =>
-    e(id, day, "card_review", { rating: 3, stateBefore: null, ...(ms !== undefined && { ms }) });
-  const at = (runId: string, day: number, seconds: number) => ({
-    runId,
-    ts: day * DAY + seconds * 1000,
+const card = (id: string, day: number, ms?: number) =>
+  e(id, day, "card_review", { rating: 3, stateBefore: null, ...(ms !== undefined && { ms }) });
+const MODULE_OF = { L: "lesson", M: "lesson", X: "exam", C: "ai", R: "review" } as const;
+const byDay = (ts: number) => Math.floor(ts / DAY) * DAY;
+/** Every event of every run as one timeline, as the store reads it: in time order, each with the
+ *  pause since the one before (`[id, run, day, second of the day]`). */
+const timeline = (list: Array<[string, keyof typeof MODULE_OF, number, number]>): Moment[] =>
+  list.map(([id, runId, day, s], i) => {
+    const ts = day * DAY + s * 1000;
+    const before = list[i - 1];
+    return { id, runId, ts, gap: before ? ts - (before[2] * DAY + before[3] * 1000) : null };
   });
+
+test("a pause's time: in full up to IDLE_MS, IDLE_MS up to a session break, none past it", () => {
+  expect(pauseMs(40_000)).toBe(40_000);
+  expect(pauseMs(IDLE_MS)).toBe(IDLE_MS);
+  expect(pauseMs(IDLE_MS + 1)).toBe(IDLE_MS);
+  expect(pauseMs(BREAK_MS)).toBe(IDLE_MS);
+  expect(pauseMs(BREAK_MS + 1)).toBe(0);
+});
+
+test("time spent: a card answer's own, capped at a minute, none before it was measured; elsewhere each pause in the later event's module, on its day", () => {
   const days = activityByDay(
     [
       card("c1", 1, 12_000),
@@ -89,37 +111,61 @@ test("time spent: a card answer's own, capped at a minute, none before it was me
       card("c4", 1, 8_000),
       e("u", 1, "card_undo", { review: "c4" }),
     ],
-    (ts) => Math.floor(ts / DAY) * DAY,
-    (runId) => ({ L: "lesson", X: "exam", C: "ai", R: "review" })[runId] as never,
-    [
-      // A lesson: 30 s, then an hour away (counts IDLE_MS), then 20 s.
-      at("L", 1, 0),
-      at("L", 1, 30),
-      at("L", 1, 3630),
-      at("L", 1, 3650),
-      // A chat across midnight: the gap counts on the later day.
-      at("C", 1, 86_390),
-      at("C", 2, 10),
-      // An exam's answers.
-      at("X", 2, 100),
-      at("X", 2, 160),
-      // The day's review run: its time is its answers' own, never its gaps.
-      at("R", 1, 0),
-      at("R", 1, 50),
-    ],
+    byDay,
+    (runId) => MODULE_OF[runId as keyof typeof MODULE_OF],
+    timeline([
+      // A lesson: 30 s, then an hour away (a new session: none), 20 s, ten minutes (IDLE_MS).
+      ["l1", "L", 1, 0],
+      ["l2", "L", 1, 30],
+      ["l3", "L", 1, 3630],
+      ["l4", "L", 1, 3650],
+      ["l5", "L", 1, 4250],
+      // The day's review run: its answers' own time, an answer taken back none.
+      ["c1", "R", 1, 4262],
+      ["c2", "R", 1, 4400],
+      ["c3", "R", 1, 4410],
+      ["c4", "R", 1, 4418],
+      ["u", "R", 1, 4420],
+      // A chat across midnight: the pause counts on the later day.
+      ["t1", "C", 1, 86_390],
+      ["t2", "C", 2, 10],
+      // An exam after it: from the chat's last message on, then between its answers.
+      ["x1", "X", 2, 100],
+      ["x2", "X", 2, 160],
+    ]),
   );
+  const lesson = 30_000 + 20_000 + IDLE_MS;
   expect(days.map((d) => [d.start / DAY, d.time])).toEqual([
-    [1, { lesson: 50_000 + IDLE_MS, exam: 0, review: 72_000, ai: 0 }],
-    [2, { lesson: 0, exam: 60_000, review: 0, ai: 20_000 }],
+    [1, { lesson, exam: 0, review: 72_000, ai: 0 }],
+    [2, { lesson: 0, exam: 150_000, review: 0, ai: 20_000 }],
   ]);
   const totals = activityTotals(days);
-  expect(totals.time).toEqual({
-    lesson: 50_000 + IDLE_MS,
-    exam: 60_000,
-    review: 72_000,
-    ai: 20_000,
-  });
-  expect(totals.timeAll).toBe(50_000 + IDLE_MS + 60_000 + 72_000 + 20_000);
+  expect(totals.time).toEqual({ lesson, exam: 150_000, review: 72_000, ai: 20_000 });
+  expect(totals.timeAll).toBe(lesson + 150_000 + 72_000 + 20_000);
   // Before `to`: only the first day.
-  expect(activityTotals(days, undefined, 2 * DAY).timeAll).toBe(50_000 + IDLE_MS + 72_000);
+  expect(activityTotals(days, undefined, 2 * DAY).timeAll).toBe(lesson + 72_000);
+});
+
+test("time spent with runs open together — a lesson, its tutor chat, its words as cards, a second tab — counts each pause once", () => {
+  const moments = timeline([
+    ["l1", "L", 1, 0],
+    ["t1", "C", 1, 10],
+    ["l2", "L", 1, 20],
+    ["t2", "C", 1, 25],
+    // A card shown 30 s, but the chat's message was 15 s before: the 15 s since count, once.
+    ["k1", "R", 1, 40],
+    ["l3", "L", 1, 50],
+    // The same lesson in another tab, its own run.
+    ["m1", "M", 1, 55],
+    ["l4", "L", 1, 60],
+  ]);
+  const [day] = activityByDay(
+    [card("k1", 1, 30_000)],
+    byDay,
+    (runId) => MODULE_OF[runId as keyof typeof MODULE_OF],
+    moments,
+  );
+  expect(day?.time).toEqual({ lesson: 30_000, exam: 0, review: 15_000, ai: 15_000 });
+  // Never more than the time from the first event to the last.
+  expect(activityTotals(day ? [day] : []).timeAll).toBe(60_000);
 });

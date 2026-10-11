@@ -1,7 +1,10 @@
 import { expect, test } from "bun:test";
-import { fireEvent, waitFor } from "@testing-library/react";
+import { SPANS, spanBars } from "@sprachanker/engine";
+import { fireEvent, waitFor, within } from "@testing-library/react";
+import { switchLanguage } from "../../src/i18n/index.ts";
 import { NotebookPage } from "../../src/notebook/page.tsx";
 import { calendarWeeks, shadeOf } from "../../src/ui/activity-calendar.tsx";
+import { firstDayOfWeek } from "../../src/ui/format.ts";
 import { renderApp } from "../render.tsx";
 
 /** A day's start `n` days before today (4:00, as the study day starts). */
@@ -31,7 +34,7 @@ const DECK = {
   title: null,
   lastAt: TODAY,
   open: false,
-  runCount: 1,
+  runCount: 2,
   // The review days it was studied on, each with its answers in the deck.
   runs: [
     {
@@ -42,6 +45,18 @@ const DECK = {
       startedAt: TODAY,
       finishedAt: null,
       count: 25,
+      day: TODAY,
+    },
+    // Begun at 2 AM, two days ago's study day still; ended when today's first answer came.
+    {
+      id: "01JSSSSSSSSSSSSSSSSSSSSSSS",
+      edition: null,
+      status: "finished",
+      endReason: "completed",
+      startedAt: daysAgo(1) - 2 * 3_600_000,
+      finishedAt: TODAY + 3_600_000,
+      count: 4,
+      day: daysAgo(2),
     },
   ],
   figures: [
@@ -56,15 +71,20 @@ const DECK = {
     count("dueWeek", 12),
   ],
 };
-/** Every module's standing as the server gives it. */
+/** The Notebook as the server gives it: the days, each span's bars (a week from English's first
+ *  day), every module's standing. */
+const FIRST_DAY = firstDayOfWeek("en");
 const overview = (
-  days: unknown[],
+  days: Array<{ start: number }>,
   lessons: unknown[] = [],
   exams: unknown[] = [],
   decks = [DECK],
 ) => ({
   days,
   today: TODAY,
+  spans: Object.fromEntries(
+    SPANS.map((span) => [span, spanBars(span, TODAY, days[0]?.start, FIRST_DAY)]),
+  ),
   modules: [
     { module: "review", figures: [count("wordsKnown", 42)], entries: decks },
     {
@@ -95,7 +115,7 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
     path: "/notebook",
     data: [
       [
-        ["notebook"],
+        ["notebook", FIRST_DAY],
         overview(
           [
             day(40, { lesson: 10, review: 20, newCards: 5, recalled: 4, remembered: 4 }),
@@ -158,15 +178,21 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   ]).toEqual(["3", "28", "83%", "6 minutes"]);
   // All time began 40 days ago: the pictures go by week, the cards answered with the new ones apart.
   expect(view.getAllByText(/by week/)).toHaveLength(4);
-  const cards = view.getByRole("img", { name: "Cards answered" });
-  expect(cards.children).toHaveLength(7);
-  expect(view.getAllByTitle(/^week of .*: 20 cards, 5 new$/)).toHaveLength(1);
-  expect(view.getAllByTitle(/: 75% of 8 answers$/)).toHaveLength(1);
+  const cards = view.getByRole("figure", { name: "Cards answered" });
+  const weeks = within(cards).getAllByRole("button");
+  expect(weeks).toHaveLength(7);
+  // Each bar named by what it holds, shown under the bars when tapped (a phone cannot hover).
+  const busiest = within(cards).getByRole("button", { name: /^week of .*: 20 cards, 5 new$/ });
+  fireEvent.click(busiest);
+  expect(cards.querySelector("figcaption")?.textContent).toMatch(/: 20 cards, 5 new$/);
+  expect(view.getAllByRole("button", { name: /: 75% of 8 answers$/ })).toHaveLength(1);
   expect(
-    view.getAllByTitle(/: 6 minutes \(lessons 1 minute, cards 4 minutes, AI 1 minute\)$/),
+    view.getAllByRole("button", {
+      name: /: 6 minutes \(lessons 1 minute, cards 4 minutes, AI 1 minute\)$/,
+    }),
   ).toHaveLength(1);
   // Lessons done by the end of each week: one, then three.
-  expect(view.getAllByTitle(/: 2 lessons done, 3 in all$/)).toHaveLength(1);
+  expect(view.getAllByRole("button", { name: /: 2 lessons done, 3 in all$/ })).toHaveLength(1);
   fireEvent.click(view.getByRole("button", { name: "7 days" }));
   expect([
     tile("Study days"),
@@ -176,19 +202,26 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   ]).toEqual(["2", "8", "0", "2"]);
   // Seven days, a bar each.
   expect(view.getAllByText(/by day/)).toHaveLength(4);
-  expect(view.getByRole("img", { name: "Cards answered" }).children).toHaveLength(7);
+  expect(
+    within(view.getByRole("figure", { name: "Cards answered" })).getAllByRole("button"),
+  ).toHaveLength(7);
   // Each day of the calendar says what it held.
   expect(view.getAllByTitle(/: cards 8, AI 2$/)).toHaveLength(1);
   expect(view.getAllByTitle(/: nothing done$/).length).toBeGreaterThan(300);
 
-  // A review day of the deck opens its answers.
-  const reviewDay = view.getByRole("button", { name: /25 answers/ });
-  fireEvent.click(reviewDay);
+  // The deck's review days, each dated by its study day, not by when it ended.
+  const days = view
+    .getAllByRole("button", { name: /answers$/ })
+    .filter((b) => !b.closest("figure"));
+  expect(days.map((b) => b.textContent)).toEqual(["Oct 825 answers", "Oct 64 answers"]);
+  // A review day of the deck opens its answers in it.
+  fireEvent.click(days[0] as HTMLElement);
   await waitFor(() =>
     expect(view.router?.state.location.pathname).toBe(
       "/notebook/review/01JRRRRRRRRRRRRRRRRRRRRRRR",
     ),
   );
+  expect(view.router?.state.location.search).toEqual({ lang: "de" });
 
   const lesson = view.getByRole("button", { name: /0\.1 Hallo/ });
   expect(lesson.textContent).toContain("2 passes");
@@ -199,10 +232,47 @@ test("the Notebook: progress, the study days with totals by span, then the lesso
   );
 });
 
+test("bars by week across a new year name the year; in Persian their days are Gregorian, as the months", async () => {
+  const today = new Date(2027, 0, 14, 4).getTime();
+  const first = new Date(2026, 11, 1, 4).getTime();
+  const days = [
+    { ...day(0, { review: 3 }), start: first },
+    { ...day(0, { review: 2 }), start: today },
+  ];
+  const data = (firstDay: number) => ({
+    ...overview(days),
+    today,
+    spans: Object.fromEntries(SPANS.map((s) => [s, spanBars(s, today, first, firstDay)])),
+  });
+  const barNames = async (view: Awaited<ReturnType<typeof renderApp>>) =>
+    within((await view.findAllByRole("figure"))[0] as HTMLElement)
+      .getAllByRole("button")
+      .map((b) => b.getAttribute("aria-label"));
+  const english = await renderApp(<NotebookPage />, {
+    path: "/notebook",
+    data: [[["notebook", FIRST_DAY], data(FIRST_DAY)]],
+  });
+  const weeks = await barNames(english);
+  expect(weeks[0]).toMatch(/^week of Nov 29, 2026: /);
+  expect(weeks.at(-1)).toMatch(/^week of Jan 10, 2027: /);
+  english.unmount();
+  await switchLanguage("fa");
+  const fa = firstDayOfWeek("fa");
+  const persian = await renderApp(<NotebookPage />, {
+    path: "/notebook",
+    data: [[["notebook", fa], data(fa)]],
+  });
+  const names = (await barNames(persian)).join(" ");
+  expect(names).toContain("دسامبر");
+  expect(names).not.toContain("آذر");
+  persian.unmount();
+  await switchLanguage("en");
+});
+
 test("an empty Notebook says under each section what will appear; nothing remembered yet is a dash", async () => {
   const view = await renderApp(<NotebookPage />, {
     path: "/notebook",
-    data: [[["notebook"], overview([], [], [], [])]],
+    data: [[["notebook", FIRST_DAY], overview([], [], [], [])]],
   });
   for (const heading of ["Review", "Lessons", "Exams"])
     expect(await view.findByRole("heading", { name: heading })).toBeTruthy();
@@ -229,7 +299,7 @@ test("the mock exams handed in, by exam: each its date, points and whether it pa
     path: "/notebook",
     data: [
       [
-        ["notebook"],
+        ["notebook", FIRST_DAY],
         overview(
           [],
           [],

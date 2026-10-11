@@ -27,28 +27,32 @@ test("the Notebook's pictures: cards answered, time spent, a deck's words by sta
   await page.goto("/notebook");
   await expect(page.getByRole("heading", { name: "Notebook" })).toBeVisible();
   // Time spent: the cards' answers were timed.
-  await expect(page.getByRole("img", { name: "Time spent" })).toBeVisible();
+  await expect(page.getByRole("figure", { name: "Time spent" })).toBeVisible();
   const time = page.locator("p", { hasText: /^Time spent$/ }).locator("xpath=..");
   await expect(time).not.toContainText("—");
   // Review's section: the cards answered and the share remembered over the span, the deck's words.
-  await expect(page.getByRole("img", { name: "Cards answered" })).toBeVisible();
-  await expect(page.getByRole("img", { name: /^Remembered/ })).toBeVisible();
+  const cards = page.getByRole("figure", { name: "Cards answered" });
+  await expect(cards).toBeVisible();
+  await expect(page.getByRole("figure", { name: /^Remembered/ })).toBeVisible();
   await expect(
     page.getByRole("img", { name: /^Words by state: New \d+, Learning [1-9]/ }),
   ).toBeVisible();
   // The last 7 days: a bar a day.
   await page.getByRole("button", { name: "7 days" }).click();
   await expect(page.getByText(/by day/).first()).toBeVisible();
-  await expect(
-    page.getByRole("img", { name: "Cards answered" }).locator(":scope > div"),
-  ).toHaveCount(7);
+  const bars = cards.getByRole("button");
+  await expect(bars).toHaveCount(7);
+  // Today's bar tapped or clicked: what it holds, under the bars (a phone cannot hover).
+  await bars.last().click();
+  await expect(cards.locator("figcaption")).toHaveText(/: \d+ cards?, \d+ new$/);
 
   // Today's review day, with its answers, opens its page: each answer with its rating and its time.
   await page
+    .getByRole("listitem")
     .getByRole("button", { name: /\d+ answers?$/ })
     .first()
     .click();
-  await expect(page).toHaveURL(/\/notebook\/review\/[0-9A-Z]{26}$/);
+  await expect(page).toHaveURL(/\/notebook\/review\/[0-9A-Z]{26}\?lang=de$/);
   await expect(page.getByRole("heading", { name: /^Review of / })).toBeVisible();
   const answers = page.getByRole("main").getByRole("listitem");
   await expect(answers.filter({ hasText: "Again" }).first()).toBeVisible();

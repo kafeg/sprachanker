@@ -748,7 +748,7 @@
       "exam": "Усе про цей іспит"
     },
     "answers": "{count, plural, one {# відповідь} few {# відповіді} many {# відповідей} other {# відповіді}}",
-    "reviewDay": "Повторення {date}",
+    "reviewDay": "Повторення за {date}",
     "dayAnswers": "Відповіді",
     "noAnswers": "За цей день відповідей не лишилося: скасовані відповіді не зберігаються.",
     "cardGone": "картки вже немає",
@@ -763,9 +763,10 @@
         "month": "по місяцях"
       },
       "weekOf": "тиждень від {date}",
-      "seen": "Повторні",
+      "seen": "Уже бачені",
       "cardsTitle": "{when}: {count, plural, one {# картка} few {# картки} many {# карток} other {# картки}}, нових {fresh, number}",
       "noneRecalled": "{when}: відповідей на картки на повторенні немає",
+      "remembered": "Пригадано (із карток на повторенні)",
       "rememberedTitle": "{when}: {share} з {count, plural, one {# відповіді} few {# відповідей} many {# відповідей} other {# відповіді}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

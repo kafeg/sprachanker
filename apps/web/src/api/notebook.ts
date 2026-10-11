@@ -1,12 +1,16 @@
 // The Notebook (09): its overview, an exam's and a lesson's standing, a pass, an item's history, a
 // review day.
-import type { ExamKey, ItemKey, LessonKey } from "@sprachanker/schema";
+import type { ExamKey, ItemKey, Lang, LessonKey } from "@sprachanker/schema";
 import { useQuery } from "@tanstack/react-query";
 import { api, json } from "./client.ts";
 
-/** The Notebook (09): the study days and every module's standing. */
-export const useNotebook = () =>
-  useQuery({ queryKey: ["notebook"], queryFn: () => json(api.notebook.$get()) });
+/** The Notebook (09): the study days, each span's bars (a week from `firstDay`, 0 Sunday … 6
+ *  Saturday) and every module's standing. */
+export const useNotebook = (firstDay: number) =>
+  useQuery({
+    queryKey: ["notebook", firstDay],
+    queryFn: () => json(api.notebook.$get({ query: { firstDay: String(firstDay) } })),
+  });
 export type NotebookOverview = NonNullable<ReturnType<typeof useNotebook>["data"]>;
 
 /** An exam in the Notebook: every run handed in, its questions as they stand. */
@@ -35,11 +39,18 @@ export const useNotebookPass = (id: string | undefined) =>
   });
 export type NotebookPass = NonNullable<ReturnType<typeof useNotebookPass>["data"]>;
 
-/** A review day in full: its card answers, what it held, the review days before and after it. */
-export const useNotebookReviewDay = (id: string) =>
+/** A review day in full: its date, its card answers, what it held, the review days before and after
+ *  it — a language's deck's alone with `lang`. */
+export const useNotebookReviewDay = (id: string, lang?: string) =>
   useQuery({
-    queryKey: ["notebook", "review", id],
-    queryFn: () => json(api.notebook.review[":id"].$get({ param: { id } })),
+    queryKey: ["notebook", "review", id, lang],
+    queryFn: () =>
+      json(
+        api.notebook.review[":id"].$get({
+          param: { id },
+          query: lang ? { lang: lang as Lang } : {},
+        }),
+      ),
   });
 export type NotebookReviewDay = NonNullable<ReturnType<typeof useNotebookReviewDay>["data"]>;
 
