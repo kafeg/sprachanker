@@ -1,6 +1,7 @@
 // The learner's next line in a Dialogue (08, "A Dialogue held by voice"; 09): the microphone — a tap
-// records, another stops —, then what was heard, sent as heard or said again (never edited). Where
-// nothing can hear it (no microphone, no recognition) the line is typed, with a line why.
+// records, another stops —, then what was heard, sent as heard or said again (never edited), kept
+// until it is stored (a send that failed is sent again). Where nothing can hear it (no microphone, no
+// recognition) the line is typed, with a line why.
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,7 +36,8 @@ export function DialogueLine({
   lang: string;
   /** A line is on its way: nothing more is sent meanwhile. */
   busy: boolean;
-  onSend(line: DialogueLineInput): void;
+  /** Sends the line; `sent` once it is stored (the line is kept here until then, to send again). */
+  onSend(line: DialogueLineInput, sent: () => void): void;
 }) {
   const { t } = useTranslation();
   const host = useSpeechHost();
@@ -83,8 +85,7 @@ export function DialogueLine({
           onChange={setTyped}
           onSend={() => {
             if (!typed.trim() || busy) return;
-            onSend({ text: typed.trim() });
-            setTyped("");
+            onSend({ text: typed.trim() }, () => setTyped(""));
           }}
           placeholder={t("scene.placeholder")}
         />
@@ -98,7 +99,7 @@ export function DialogueLine({
   const recording = recorder.state === "recording";
   return (
     <div className="flex flex-col items-center gap-2 border-t p-4" aria-live="polite">
-      {heard && !recording ? (
+      {heard && !recording && !busy ? (
         <>
           <p className="text-sm text-muted-foreground">{t("speech.heard")}</p>
           <p {...inLang(lang)} className="text-center text-lg">
@@ -106,15 +107,15 @@ export function DialogueLine({
           </p>
           <div className="flex flex-wrap items-center justify-center gap-2">
             <TakeButton src={heard.url} label={t("speech.mine")} />
-            <Button variant="outline" disabled={busy} onClick={again}>
+            <Button variant="outline" onClick={again}>
               {t("scene.again")}
             </Button>
             <Button
-              loading={busy}
-              onClick={() => {
-                onSend({ text: heard.text, spoken: true, recording: heard.recording });
-                setHeard(undefined);
-              }}
+              onClick={() =>
+                onSend({ text: heard.text, spoken: true, recording: heard.recording }, () =>
+                  setHeard((h) => (h === heard ? undefined : h)),
+                )
+              }
             >
               <Send className="size-4 rtl:-scale-x-100" /> {t("tutor.send")}
             </Button>

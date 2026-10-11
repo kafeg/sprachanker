@@ -16,6 +16,12 @@ export function claimPlayback(media: Playing) {
   playing = media;
 }
 
+/** Pauses whatever plays: the learner records themselves (08), and the microphone would hear it. */
+export function stopPlayback() {
+  playing?.pause();
+  playing = undefined;
+}
+
 /** Speeds the speed button steps through: slower helps beginners. */
 const PLAYBACK_RATES = [1, 0.75, 0.5] as const;
 

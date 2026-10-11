@@ -181,7 +181,7 @@ function Summary({
           {summary.corrections.map((c) => (
             <div key={`${c.wrong}→${c.right}`} className="space-y-1">
               <Corrections corrections={[c]} />
-              <p className="flex items-center gap-1 text-sm">
+              <p className="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm">
                 <span className="text-muted-foreground">{t("scene.model")}</span>
                 <span {...inLang(lang)} className="font-medium">
                   {c.model}
@@ -224,7 +224,7 @@ function CurrentDialogue({
   /** What the model is doing for the Dialogue now (asked from here or before leaving the page). */
   busy: Busy;
   onNew(): void;
-  onLine(line: DialogueLineInput): void;
+  onLine(line: DialogueLineInput, sent: () => void): void;
 }) {
   const lang = useTargetLang();
   const { t, i18n } = useTranslation();
@@ -248,7 +248,7 @@ function CurrentDialogue({
         <ChatHeader>
           {!scene.done && <PromptButton request={() => ({ scene: { ...request, text: "…" } })} />}
         </ChatHeader>
-        {lang && <ReadByLabel lang={lang} className="border-b px-4 py-1.5" />}
+        {lang && <ReadByLabel lang={lang} className="w-full border-b px-4 py-1.5" />}
         <div className="space-y-3 p-4" aria-live="polite">
           <Lines turns={scene.turns} />
           {sending !== undefined && (
@@ -257,7 +257,7 @@ function CurrentDialogue({
         </div>
         {!scene.done && lang && (
           <>
-            <DialogueLine lang={lang} busy={!!busy} onSend={onLine} />
+            <DialogueLine key={scene.id} lang={lang} busy={!!busy} onSend={onLine} />
             <div className="flex justify-end px-3 pb-3">
               <Button
                 variant="ghost"
@@ -347,8 +347,17 @@ export function DialogueStep({ onDone, ...ids }: LessonSlotContext & { onDone?()
   const start = () => {
     if (!busy) action.mutate({ start: request }, { onSuccess: readNewest });
   };
-  const line = (input: DialogueLineInput) => {
-    if (!busy) action.mutate({ turn: { ...request, ...input } }, { onSuccess: readNewest });
+  const line = (input: DialogueLineInput, sent: () => void) => {
+    if (busy) return;
+    action.mutate(
+      { turn: { ...request, ...input } },
+      {
+        onSuccess: (scene) => {
+          sent();
+          readNewest(scene);
+        },
+      },
+    );
   };
   return (
     <div className="space-y-4">

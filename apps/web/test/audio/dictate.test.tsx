@@ -1,8 +1,10 @@
 import { afterEach, expect, test } from "bun:test";
 import type { ItemOf } from "@sprachanker/schema";
+import { act, fireEvent } from "@testing-library/react";
 import { type SpeechHost, SpeechProvider } from "../../src/audio/context.ts";
 import { Respond } from "../../src/exercises/respond.tsx";
 import { ChatComposer } from "../../src/llm/parts.tsx";
+import { claimPlayback } from "../../src/ui/playback.tsx";
 import { TargetLang } from "../../src/ui/target-lang.ts";
 import { renderApp } from "../render.tsx";
 
@@ -67,4 +69,15 @@ test("no microphone while recognition is off", async () => {
   microphoneHere();
   const view = await renderApp(composer(false));
   expect(view.queryByRole("button", { name: /^Say it in/ })).toBeNull();
+});
+
+test("saying a line stops what is read aloud (an exam conversation's examiner): the microphone never hears it", async () => {
+  microphoneHere();
+  let paused = 0;
+  const view = await renderApp(composer(true));
+  claimPlayback({ pause: () => paused++ });
+  await act(async () => {
+    fireEvent.click(view.getByRole("button", { name: "Say it in German" }));
+  });
+  expect(paused).toBe(1);
 });
