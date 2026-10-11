@@ -30,9 +30,10 @@ src/
   structured.ts    # JSON outputs: schema in the request (Anthropic: its system prompt), zod validation and
                    # the task's check, one repair
   thinking.ts      # strips inline <think>…</think> from streamed text (client.ts also drops control tokens)
-  text.ts          # course HTML → plain text for prompts
+  text.ts          # course HTML → plain text for prompts (a table: a row a line, cells joined by " · ")
   tasks/
-    rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix
+    rules.ts           # systemPrompt: the learner's rules or the standing ones, then the fixed suffix and
+                       # the reply's languages (languagesLine)
     registry.ts        # TASK_PROMPTS: the tasks whose prompt the learner sees and rewrites, in order —
                        # their rules and budgets (the server's prompt settings read it)
     lesson.ts          # LessonInfo (what tasks know of a lesson, with the knowledge snapshot: level,
@@ -46,7 +47,8 @@ src/
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict
-    corrections.ts     # cleanCheck: a check's corrections cleaned (writing, speaking)
+    corrections.ts     # cleanCheck: a check's corrections cleaned, a good text kept as written (writing,
+                       # speaking)
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
     scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
@@ -63,8 +65,8 @@ test/              # fake endpoints (no network); fixture course from @sprachank
 - JSON task outputs are validated with zod; invalid → one repair attempt → `invalid_output`, which the
   UI shows as "the model could not answer usefully, try again or a larger model" (nothing is stored).
 - Prompts live next to their task; course text and learner input are delimited data in the prompt.
-  The delimiting line (and "JSON only") is a fixed suffix after the rules, so the learner's own
-  rules never remove it.
+  The delimiting line (and "JSON only"), then the reply's two languages, are a fixed suffix after the
+  rules, so the learner's own rules never remove them.
 - Each task exposes what is sent — `<task>Request(input)` for a streamed reply, `<task>Task(input)` (a
   StructuredTask, its request inside) for a JSON one —, `<task>Rules()` (its standing system prompt,
   through `systemPrompt`) and its context budgets, and is listed in `TASK_PROMPTS` when the learner
