@@ -109,17 +109,19 @@ export const DeckMadeExamples = z.strictObject({
 });
 export type DeckMadeExamples = z.infer<typeof DeckMadeExamples>;
 
+/** What the server made for one word of a deck: the audio read aloud, the examples by the language
+ *  they are translated into (a course's cards are in its editions' languages). Read entry by entry: one
+ *  that does not read (a newer version's) is kept as it is. */
+export const DeckExtrasWord = z.strictObject({
+  audio: DeckReadAudio.optional(),
+  examples: z.record(Lang, DeckMadeExamples).optional(),
+});
+export type DeckExtrasWord = z.infer<typeof DeckExtrasWord>;
+
 /** `decks/<folder>/extras.json`: what the server made for a deck's words, by lexeme key (a deck's
- *  cards are one per lexeme): the audio read aloud, the examples by the language they are translated
- *  into (a course's cards are in its editions' languages). */
+ *  cards are one per lexeme). */
 export const DeckExtras = z.strictObject({
   format: format(DECK_EXTRAS_FORMAT),
-  words: z.record(
-    z.string().min(1).max(200),
-    z.strictObject({
-      audio: DeckReadAudio.optional(),
-      examples: z.record(Lang, DeckMadeExamples).optional(),
-    }),
-  ),
+  words: z.record(z.string().min(1).max(200), DeckExtrasWord),
 });
 export type DeckExtras = z.infer<typeof DeckExtras>;
