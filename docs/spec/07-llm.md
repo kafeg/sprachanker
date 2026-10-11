@@ -68,12 +68,13 @@ server (`lesson-context`, the same pass that reads the lesson for every task) gi
 the course's level and what the learner can be assumed to know at the lesson — so no task assumes
 "A1" or "a beginner" in its rules:
 - **level**: the CEFR level the course's id names (`a1-ru` → A1, `a1-a2-ru` → A1–A2, `b1-de` → B1;
-  a deck's name likewise: `levelOf`); none named (Deutsch im Blick, VOA, Lingust), the prompt says
+  a deck's name likewise: `levelOf`; a range low to high, whatever the order named); none named (Deutsch im Blick, VOA, Lingust), the prompt says
   "beginner (A1–A2)". No field in the course data: the providers' ids say it where it is known.
 - **place**: the lesson's number in course order of how many, and its unit's title;
 - **goals**: this lesson's can-do goals (the course's, in the learner's language);
 - **words**: this lesson's with translations, then those of every earlier lesson with translations in
-  course order (the latest 800 kept; each task's budget takes the most recent);
+  course order, each once where it was met last — a word taught again is as recent as that lesson
+  (the latest 800 kept; each task's budget takes the most recent);
 - **grammar**: the grammar topics met so far — the titles of the grammar pages of the earlier lessons
   and this one, in course order.
 
@@ -244,7 +245,8 @@ Both tutors (the lesson's and the section's) take real-life language as in scope
   (409 `no_course_studied`) and the section says to begin one. **Context** (`courses-context` on the
   server, the courses of the chat's language, each read in the chat's edition where the course has it
   — translations and titles in the chat's language —, else in the one it is studied in; each part
-  within `SECTION_CHAT_BUDGETS`): the courses, latest first — title, lessons done of all, its latest
+  within `SECTION_CHAT_BUDGETS`): the level the courses' ids name (`levelOf` of them all: their
+  range; none named, a beginner's — the rules assume none); the courses, latest first — title, lessons done of all, its latest
   eight lessons worked on (latest first), each course an equal share of the budget, titles whole; the
   words of the latest twelve lessons worked on across them with translations and their grammar topics
   (the pages' titles), the latest lesson's first; the latest mistakes in those lessons (only their

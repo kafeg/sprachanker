@@ -35,6 +35,13 @@ test("system message: its own rules, then what the learner has met as data", () 
     expect(system?.content).toContain(part);
   expect(system?.content).not.toContain("Learner's mistakes");
   expect(user).toEqual({ role: "user", content: "Как сказать «чашка»?" });
+  // No level assumed in the rules: the courses' own with the data, a beginner's when none says it.
+  expect(system?.content).not.toContain("beginner unless");
+  expect(system?.content).toContain("<courses>\nLearner's level: beginner (A1–A2)");
+  const [levelled] = sectionChatMessages(
+    input({ courses: { ...input().courses, level: "A2–B1" } }),
+  );
+  expect(levelled?.content).toContain("<courses>\nLearner's level: A2–B1");
 });
 
 test("the learner's own rules replace the standing ones; the delimiting line stays", () => {

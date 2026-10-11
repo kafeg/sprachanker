@@ -59,11 +59,12 @@ describe("the knowledge snapshot", () => {
       vocab: [{ target: "die Rechnung", translation: "ru:die Rechnung" }],
       level: "A2",
       place: { n: 3, of: 3, unit: "Im Café" },
-      // Each word once, where it was met first; in course order.
+      // Each word once, where it was met last (taught again: as recent as that lesson, the last to
+      // be cut); in course order.
       knownWords: [
-        { target: "hallo", translation: "ru:hallo" },
         { target: "tschüss", translation: "ru:tschüss" },
         { target: "der Kaffee", translation: "ru:der Kaffee" },
+        { target: "hallo", translation: "ru:hallo" },
       ],
       topics: ["Begrüßung", "Verb an Position 2", "Modalverben"],
     });
@@ -80,6 +81,10 @@ describe("the knowledge snapshot", () => {
   test("the level a course's id or a deck's name says", () => {
     expect(levelOf("a1-ru")).toBe("A1");
     expect(levelOf("a1-a2-ru")).toBe("A1–A2");
+    expect(levelOf("A1A2")).toBe("A1–A2");
+    // A range reads low to high, whatever the order named; several names joined: their range.
+    expect(levelOf("B1 + A2")).toBe("A2–B1");
+    expect(levelOf("b1-ru a1-ru a2-ru")).toBe("A1–B1");
     expect(levelOf("b1-de")).toBe("B1");
     expect(levelOf("Deutsch A2")).toBe("A2");
     expect(levelOf("слова_b1")).toBe("B1");
