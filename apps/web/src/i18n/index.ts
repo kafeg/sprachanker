@@ -10,13 +10,22 @@ const loaders = new Map(
   Object.entries(catalogs).map(([path, load]) => [path.replace(/^.*\/|\.json$/g, ""), load]),
 );
 
+/** Languages that write language names lower case in a sentence, where Intl may give them capitalised
+ *  (Greek's always; Russian, Ukrainian, Spanish, Portuguese in WebKit's). */
+const LOWER_IN_SENTENCE = new Set(
+  "el ru uk be bg pl cs sk sl hr bs sr ro hu fr es pt it ca".split(" "),
+);
+
 /**
  * A language's name from Intl rather than a catalog: in `locale` (its own by default: "Deutsch",
- * "Русский"), capitalised when it stands alone (Russian names are lower case in a sentence).
+ * "Русский"), capitalised when it stands alone, else as a sentence has it ("немецкий", "γερμανικά").
  */
 export function languageName(code: string, locale = code, capital = false): string {
   const name = new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code;
-  return capital ? name.charAt(0).toLocaleUpperCase(locale) + name.slice(1) : name;
+  if (capital) return name.charAt(0).toLocaleUpperCase(locale) + name.slice(1);
+  return LOWER_IN_SENTENCE.has(locale.split("-")[0] ?? "")
+    ? name.charAt(0).toLocaleLowerCase(locale) + name.slice(1) // "αγγλικά Βρετανίας"
+    : name;
 }
 
 /** The interface languages: English and every catalog present, in the order of their own names (09). */

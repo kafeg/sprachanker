@@ -33,7 +33,7 @@ import { ErrorState, Loading } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { StepDot, withPartial } from "@/ui/step-dot.tsx";
-import { TargetLang } from "@/ui/target-lang.ts";
+import { TargetLang, useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { usePassMark } from "./mark.ts";
 
@@ -168,6 +168,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
 function More({ pass }: { pass: NotebookPass }) {
   const { t } = useTranslation();
   const { writing, scenes, chats, words } = pass;
+  const target = useTargetLang();
   if (!writing.length && !scenes.length && !chats.length && !words.length) return null;
   return (
     <Panel title={t("notebook.alsoDone")} className="space-y-3">
@@ -176,7 +177,7 @@ function More({ pass }: { pass: NotebookPass }) {
           <span className="text-muted-foreground">
             {t(`writing.verdict.${w.result.verdict}`)}:{" "}
           </span>
-          <span {...inLang(parseEditionId(pass.run.edition ?? "ru-de").target)}>{w.input}</span>
+          <span {...inLang(target)}>{w.input}</span>
         </p>
       ))}
       {scenes.map((s) => (

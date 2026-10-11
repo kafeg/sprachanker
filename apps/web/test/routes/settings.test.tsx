@@ -98,6 +98,16 @@ test("the interface language: one control; in Settings the profile keeps it, on 
   await switchLanguage("en");
 });
 
+test("a language's name: capitalised alone, as a sentence has it otherwise (Greek, and Russian in every engine, lower case)", () => {
+  expect(languageName("de", "el", true)).toBe("Γερμανικά");
+  expect(languageName("de", "el")).toBe("γερμανικά");
+  expect(languageName("en-GB", "el")).toBe("αγγλικά Βρετανίας");
+  expect(languageName("de", "ru")).toBe("немецкий");
+  expect(languageName("de", "ru", true)).toBe("Немецкий");
+  expect(languageName("de", "en")).toBe("German");
+  expect(languageName("de", "tr")).toBe("Almanca");
+});
+
 test("a language's direction: right to left for Arabic and Persian, else left to right", () => {
   expect(["ar", "fa", "de", "zh", "ru"].map(languageDir)).toEqual([
     "rtl",

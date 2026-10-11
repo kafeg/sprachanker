@@ -14,6 +14,10 @@ export function DirectionRoot({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** The interface's direction, as `DirectionRoot` tells it (a side that must follow the reading
+ *  direction where Radix takes a physical one: a tooltip's `side`). */
+export const useDir = (): "ltr" | "rtl" => Direction.useDirection();
+
 /** Where an arrow key moves along the reading direction: 1 forward (→, or ← right to left), -1 back,
  *  0 for any other key. */
 export function arrowStep(key: string): -1 | 0 | 1 {

@@ -134,7 +134,7 @@ to `@/ui`).
   default is not a setting (say it in a line instead), tabs look as `SectionTabs`; text fields are the ui
   `Input` and `Textarea` (a gap inside a sentence aside);
   cached lists take a new item through the pure updaters in `api/cache.ts` (tested).
-- Right to left (09): logical utilities only (`ms`, `pe`, `start`, `text-end`; `test/ui/logical.test.ts`), icons
+- Right to left (09): logical utilities and styles only (`ms`, `pe`, `start`, `text-end`; `test/ui/logical.test.ts`), icons
   along the reading direction `rtl:-scale-x-100`, `arrowStep`, a course's language `{...inLang(lang)}`.
 - Respect `prefers-reduced-motion`; touch targets ≥ 44 px on touch screens: the Button component
   does it (`pointer-coarse:min-h-11`), other tappable elements add `pointer-coarse:min-h-11`.
