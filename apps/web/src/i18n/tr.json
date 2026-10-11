@@ -674,6 +674,7 @@
     "dueNow": "şimdi",
     "dueIn": "{interval} sonra",
     "nothing": "Eşleşen kelime yok.",
+    "play": "Dinle: {word}",
     "sheet": "Kelime",
     "toLesson": "Ders {unit, number}.{lesson, number}",
     "cards": "Kartlar",

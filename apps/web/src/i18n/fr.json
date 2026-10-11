@@ -674,6 +674,7 @@
     "dueNow": "maintenant",
     "dueIn": "dans {interval}",
     "nothing": "Aucun mot ne correspond.",
+    "play": "Écouter : {word}",
     "sheet": "Mot",
     "toLesson": "Leçon {unit, number}.{lesson, number}",
     "cards": "Cartes",

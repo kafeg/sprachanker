@@ -674,6 +674,7 @@
     "dueNow": "τώρα",
     "dueIn": "σε {interval}",
     "nothing": "Καμία λέξη δεν ταιριάζει.",
+    "play": "Αναπαραγωγή: {word}",
     "sheet": "Λέξη",
     "toLesson": "Ενότητα {unit, number}.{lesson, number}",
     "cards": "Κάρτες",

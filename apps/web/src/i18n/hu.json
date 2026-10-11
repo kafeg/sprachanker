@@ -674,6 +674,7 @@
     "dueNow": "most",
     "dueIn": "{interval} múlva",
     "nothing": "Nincs ilyen szó.",
+    "play": "Lejátszás: {word}",
     "sheet": "Szó",
     "toLesson": "Lecke {unit, number}.{lesson, number}",
     "cards": "Kártyák",

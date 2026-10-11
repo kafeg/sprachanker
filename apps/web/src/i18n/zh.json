@@ -674,6 +674,7 @@
     "dueNow": "现在",
     "dueIn": "{interval}后",
     "nothing": "没有匹配的单词。",
+    "play": "播放：{word}",
     "sheet": "单词",
     "toLesson": "第{unit, number}.{lesson, number}课",
     "cards": "卡片",

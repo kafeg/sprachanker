@@ -674,6 +674,7 @@
     "dueNow": "acum",
     "dueIn": "peste {interval}",
     "nothing": "Niciun cuvânt nu se potrivește.",
+    "play": "Ascultă: {word}",
     "sheet": "Cuvânt",
     "toLesson": "Lecția {unit, number}.{lesson, number}",
     "cards": "Carduri",

@@ -674,6 +674,7 @@
     "dueNow": "اکنون",
     "dueIn": "{interval} دیگر",
     "nothing": "هیچ واژه‌ای پیدا نشد.",
+    "play": "پخش: {word}",
     "sheet": "واژه",
     "toLesson": "درس {unit, number}.{lesson, number}",
     "cards": "کارت‌ها",

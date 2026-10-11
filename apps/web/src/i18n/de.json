@@ -674,6 +674,7 @@
     "dueNow": "jetzt",
     "dueIn": "in {interval}",
     "nothing": "Keine passenden Wörter.",
+    "play": "Abspielen: {word}",
     "sheet": "Wort",
     "toLesson": "Lektion {unit, number}.{lesson, number}",
     "cards": "Karten",

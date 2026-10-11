@@ -674,6 +674,7 @@
     "dueNow": "now",
     "dueIn": "in {interval}",
     "nothing": "No words match.",
+    "play": "Play: {word}",
     "sheet": "Word",
     "toLesson": "Lesson {unit, number}.{lesson, number}",
     "cards": "Cards",

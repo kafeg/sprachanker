@@ -674,6 +674,7 @@
     "dueNow": "sada",
     "dueIn": "za {interval}",
     "nothing": "Nijedna riječ ne odgovara.",
+    "play": "Pusti: {word}",
     "sheet": "Riječ",
     "toLesson": "Lekcija {unit, number}.{lesson, number}",
     "cards": "Kartice",

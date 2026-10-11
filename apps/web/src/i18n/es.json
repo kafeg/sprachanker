@@ -674,6 +674,7 @@
     "dueNow": "ahora",
     "dueIn": "en {interval}",
     "nothing": "Ninguna palabra coincide.",
+    "play": "Reproducir: {word}",
     "sheet": "Palabra",
     "toLesson": "Lección {unit, number}.{lesson, number}",
     "cards": "Tarjetas",

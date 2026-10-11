@@ -674,6 +674,7 @@
     "dueNow": "अभी",
     "dueIn": "{interval} में",
     "nothing": "कोई शब्द मेल नहीं खाता.",
+    "play": "सुनो: {word}",
     "sheet": "शब्द",
     "toLesson": "पाठ {unit, number}.{lesson, number}",
     "cards": "कार्ड",

@@ -674,6 +674,7 @@
     "dueNow": "sekarang",
     "dueIn": "dalam {interval}",
     "nothing": "Tidak ada kata yang cocok.",
+    "play": "Putar: {word}",
     "sheet": "Kata",
     "toLesson": "Pelajaran {unit, number}.{lesson, number}",
     "cards": "Kartu",

@@ -674,6 +674,7 @@
     "dueNow": "sasa",
     "dueIn": "baada ya {interval}",
     "nothing": "Hakuna neno linalolingana.",
+    "play": "Sikiliza: {word}",
     "sheet": "Neno",
     "toLesson": "Somo {unit, number}.{lesson, number}",
     "cards": "Kadi",

@@ -674,6 +674,7 @@
     "dueNow": "зараз",
     "dueIn": "через {interval}",
     "nothing": "Немає відповідних слів.",
+    "play": "Прослухати: {word}",
     "sheet": "Слово",
     "toLesson": "Урок {unit, number}.{lesson, number}",
     "cards": "Картки",

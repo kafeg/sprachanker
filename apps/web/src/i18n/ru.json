@@ -674,6 +674,7 @@
     "dueNow": "сейчас",
     "dueIn": "через {interval}",
     "nothing": "Таких слов нет.",
+    "play": "Прослушать: {word}",
     "sheet": "Слово",
     "toLesson": "Урок {unit, number}.{lesson, number}",
     "cards": "Карточки",

@@ -674,6 +674,7 @@
     "dueNow": "agora",
     "dueIn": "em {interval}",
     "nothing": "Nenhuma palavra corresponde.",
+    "play": "Ouvir: {word}",
     "sheet": "Palavra",
     "toLesson": "Lição {unit, number}.{lesson, number}",
     "cards": "Cartões",

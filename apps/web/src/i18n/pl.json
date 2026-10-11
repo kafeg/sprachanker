@@ -674,6 +674,7 @@
     "dueNow": "teraz",
     "dueIn": "za {interval}",
     "nothing": "Brak pasujących słów.",
+    "play": "Odtwórz: {word}",
     "sheet": "Słowo",
     "toLesson": "Lekcja {unit, number}.{lesson, number}",
     "cards": "Fiszki",

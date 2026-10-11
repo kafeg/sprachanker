@@ -674,6 +674,7 @@
     "dueNow": "الآن",
     "dueIn": "بعد {interval}",
     "nothing": "لا كلمات مطابقة.",
+    "play": "استمع: {word}",
     "sheet": "الكلمة",
     "toLesson": "الدرس {unit, number}.{lesson, number}",
     "cards": "البطاقات",
