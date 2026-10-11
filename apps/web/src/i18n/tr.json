@@ -401,7 +401,8 @@
       "conversation": "Sınav: konuşma bölümü",
       "sceneSetup": "Sahne: durum",
       "scene": "Sahne",
-      "examples": "Bir destenin kelimeleri için örnekler"
+      "examples": "Bir destenin kelimeleri için örnekler",
+      "sceneSummary": "Diyalog: özet"
     },
     "contextIntro": "Dersten eklenenler:",
     "contextIntroCourses": "Kurslarından eklenenler (sohbetin çalıştığı dildeki kurslar):",
@@ -436,7 +437,9 @@
       "courseMistakes": "bu kurslardaki son hataların (düzeltilenler işaretli)",
       "chatHistory": "sohbetin son mesajları",
       "place": "dersin kurstaki yeri: numarası ve ünitesi",
-      "topics": "kursta şimdiye kadar görülen dil bilgisi konuları"
+      "topics": "kursta şimdiye kadar görülen dil bilgisi konuları",
+      "dialogueGoals": "durum ve ulaştığınız hedefler",
+      "dialogue": "diyalogdaki cümleler ve onlara yapılan düzeltmeler"
     },
     "upTo": "en fazla {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "“İstem” düğmelerini göster",
@@ -487,7 +490,8 @@
       "conversation": "Sınavın bir konuşma bölümünü yürütür: bölümün öngördüğü şekilde sınav görevlisini ve diğer adayı oynar, seninle replik replik ilerler; asla yardım etmez ya da düzeltmez. Sonrasında bölümün ölçütlerine göre puanlanır.",
       "sceneSetup": "Bir sahne başlatır: dersin konusundan durumu kurgular — kim olduğun, kiminle konuştuğun, nerede olduğun ve ulaşılacak hedefler. Her sahne için bir kez istenir.",
       "scene": "Sahneyi oynar: her replikine partnerin olarak cevap verir, hatalarını düzeltir, çeviri verir ve ulaştığın hedefleri işaretler.",
-      "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir."
+      "examples": "Kendi örnekleri olmayan bir destenin her kelimesi için, her seferinde beş kelime olmak üzere üç ila beş örnek cümle yazar (Tekrar → Desteler, “Örnek oluştur”); mümkün olduğunca bildiğin kelimeleri kullanır, yenilerini çevirir.",
+      "sceneSummary": "Diyalog bitince özetler: en önemli bir ya da iki düzeltme, her biri cümlenin doğru söylenişiyle, ve kısa bir değerlendirme."
     }
   },
   "writing": {

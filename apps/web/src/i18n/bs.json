@@ -401,7 +401,8 @@
       "conversation": "Ispit: usmeni dio",
       "sceneSetup": "Scena: situacija",
       "scene": "Scena",
-      "examples": "Primjeri za riječi špila"
+      "examples": "Primjeri za riječi špila",
+      "sceneSummary": "Dijalog: sažetak"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -436,7 +437,9 @@
       "courseMistakes": "tvoje najnovije greške u tim kursevima (ispravljene označene)",
       "chatHistory": "posljednje poruke razgovora",
       "place": "gdje je lekcija u kursu: njen broj i cjelina",
-      "topics": "gramatičke teme do sada pređene u kursu"
+      "topics": "gramatičke teme do sada pređene u kursu",
+      "dialogueGoals": "situacija i ciljevi koje si postigao",
+      "dialogue": "rečenice dijaloga s ispravkama koje su dobile"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -487,7 +490,8 @@
       "conversation": "Vodi usmeni dio ispita: igra ispitivača i drugog kandidata, kako dio propisuje, repliku po repliku s tobom; nikad ne pomaže i ne ispravlja. Nakon toga se ocjenjuje po kriterijima dijela.",
       "sceneSetup": "Pokreće scenu: osmišljava situaciju iz teme lekcije — ko si, s kim razgovaraš, gdje i koje ciljeve treba postići. Poziva se jednom po sceni.",
       "scene": "Igra scenu: odgovara na svaku tvoju repliku kao tvoj partner, ispravlja greške, daje prijevod i označava postignute ciljeve.",
-      "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi."
+      "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
+      "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar."
     }
   },
   "writing": {

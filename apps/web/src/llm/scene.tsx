@@ -29,7 +29,7 @@ import { useLlm } from "./setup-api.ts";
 
 type Turn = SceneState["turns"][number];
 type Action = ReturnType<typeof useSceneAction>;
-type Busy = { preparing: true } | { line: string } | null;
+type Busy = { preparing: true } | { line: string } | { summing: true } | null;
 
 function PartnerLine({ turn }: { turn: Turn }) {
   const lang = useTargetLang();

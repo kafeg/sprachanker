@@ -401,7 +401,8 @@
       "conversation": "Exam: a speaking part",
       "sceneSetup": "Scene: the situation",
       "scene": "Scene",
-      "examples": "Examples for a deck's words"
+      "examples": "Examples for a deck's words",
+      "sceneSummary": "Dialogue: the summary"
     },
     "contextIntro": "Added from the lesson:",
     "contextIntroCourses": "Added from your courses (those in the language the chat practises):",
@@ -436,7 +437,9 @@
       "courseMistakes": "your latest mistakes in those courses (fixed ones marked)",
       "chatHistory": "the latest messages of the conversation",
       "place": "where the lesson is in the course: its number and unit",
-      "topics": "the grammar topics met so far in the course"
+      "topics": "the grammar topics met so far in the course",
+      "dialogueGoals": "the situation and the goals you reached",
+      "dialogue": "the dialogue's lines with the corrections given on them"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -487,7 +490,8 @@
       "conversation": "Holds a speaking part of an exam: plays the examiner and the other candidate, as the part prescribes, line by line with you; it never helps or corrects. Rated afterwards by the part's criteria.",
       "sceneSetup": "Starts a scene: invents the situation from the lesson's topic — who you are, who you talk to, where, and the goals to reach. Asked once per scene.",
       "scene": "Plays the scene: answers each of your lines as your partner, corrects your mistakes, gives a translation and ticks off the goals you reached.",
-      "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated."
+      "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated.",
+      "sceneSummary": "Sums up a dialogue once it is over: the one or two corrections that matter most, each with your line said well, and a word of feedback."
     }
   },
   "writing": {

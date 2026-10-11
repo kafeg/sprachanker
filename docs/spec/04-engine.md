@@ -96,7 +96,8 @@ Pure functions over events and cards (05), read by the server per request:
   lessons, exams, review, AI practice; a run's module is its kind's) — lesson work (answers, skips,
   steps), exam answers, card answers (one taken back by undo does not count), new cards learnt, answers
   to cards in review and those not "Again" (the share remembered), AI practice (the learner's messages,
-  checks asked for, in whichever run: a lesson's, an exam's, a chat or a scene) —, the time each
+  checks asked for, in whichever run: a lesson's, an exam's, a chat or a Dialogue — whose summary,
+  coming with its end, does not count) —, the time each
   module took, and the totals of a span of days. The day starts at 4 AM (Spaced repetition, below).
   Time spent (owner, 2026-10-07): read from one timeline of every event of every run, so runs open
   together (a lesson and its tutor chat or scene, its Words step's cards, two tabs) count each pause

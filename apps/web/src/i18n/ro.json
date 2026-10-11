@@ -401,7 +401,8 @@
       "conversation": "Examen: o probă orală",
       "sceneSetup": "Scenă: situația",
       "scene": "Scenă",
-      "examples": "Exemple pentru cuvintele unui pachet"
+      "examples": "Exemple pentru cuvintele unui pachet",
+      "sceneSummary": "Dialog: rezumatul"
     },
     "contextIntro": "Adăugat din lecție:",
     "contextIntroCourses": "Adăugat din cursurile tale (cele ale limbii pe care o exersează conversația):",
@@ -436,7 +437,9 @@
       "courseMistakes": "cele mai recente greșeli ale tale din acele cursuri (cele corectate marcate)",
       "chatHistory": "cele mai recente mesaje ale conversației",
       "place": "locul lecției în curs: numărul și unitatea ei",
-      "topics": "temele de gramatică întâlnite până acum în curs"
+      "topics": "temele de gramatică întâlnite până acum în curs",
+      "dialogueGoals": "situația și obiectivele atinse",
+      "dialogue": "replicile dialogului cu corecturile primite"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",
@@ -487,7 +490,8 @@
       "conversation": "Poartă o probă orală de examen: joacă examinatorul și celălalt candidat, așa cum cere proba, replică cu replică împreună cu tine; nu ajută și nu corectează niciodată. Evaluată apoi după criteriile probei.",
       "sceneSetup": "Pornește o scenă: inventează situația pornind de la tema lecției — cine ești, cu cine vorbești, unde și obiectivele de atins. Cerut o dată pe scenă.",
       "scene": "Joacă scena: răspunde la fiecare replică a ta ca partener, îți corectează greșelile, dă o traducere și bifează obiectivele atinse.",
-      "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse."
+      "examples": "Scrie trei-cinci propoziții exemplu pentru fiecare cuvânt al unui pachet care nu are exemple proprii, câte cinci cuvinte odată (Recapitulare → Pachete, „Creează exemple”), cu cuvinte pe care le știi unde se poate și cu cele noi traduse.",
+      "sceneSummary": "Rezumă un dialog după ce s-a încheiat: una sau două corecturi care contează cel mai mult, fiecare cu replica ta spusă bine, și un scurt comentariu."
     }
   },
   "writing": {

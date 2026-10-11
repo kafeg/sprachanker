@@ -1,19 +1,36 @@
-// Scenes (07): a role-play on the lesson's topic, one `scene` run each — the setup in the run's plan,
-// the lines as `llm_turn` events. A scene ends when its goals are reached or a new one is started; the
-// lesson's scenes stay readable, newest first.
+// The Dialogue (04, "AI practice in courses"; 07): a conversation on the lesson's goals held by voice,
+// one `scene` run each — the setup (with what the partner knows, hidden until it is over) in the run's
+// plan, the lines as `llm_turn` events, its summary an `llm_verdict` (`task: dialogue`). It ends when
+// its goals are reached, the learner ends it or a new one is started; the lesson's Dialogues stay
+// readable, newest first.
 import {
+  cleanSceneSummary,
   cleanSceneTurn,
   type SceneTurnInput,
   sceneSetupTask,
+  sceneSummaryTask,
   sceneTurnTask,
   structuredRequest,
 } from "@sprachanker/llm";
-import { type LessonKey, type LlmTurnPayload, SceneSetup } from "@sprachanker/schema";
+import {
+  type DialogueSummary,
+  type LessonKey,
+  type LlmTurnPayload,
+  SceneSetup,
+} from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
 import type { Llm, PromptPreview } from "./llm.ts";
-import { HISTORY_LIMIT, payloadOf, type RunRow, type RunStore, readStored } from "./run-store.ts";
+import {
+  HISTORY_LIMIT,
+  payloadOf,
+  type ReadEvent,
+  type RunRow,
+  type RunStore,
+  readStored,
+} from "./run-store.ts";
+import { keepVerdict } from "./verdicts.ts";
 
 interface SceneRequest {
   series: string;
@@ -22,63 +39,91 @@ interface SceneRequest {
   language: string;
 }
 
+/** The learner's line: as the recogniser heard it (with its take) or typed. */
+interface SceneLine extends SceneRequest {
+  text: string;
+  spoken?: boolean;
+  recording?: string;
+}
+
 export interface SceneState {
   id: string;
   startedAt: number;
+  /** Its setup; what the partner knows only once it is over. */
   setup: SceneSetup;
   turns: Array<LlmTurnPayload & { ts: number }>;
   goalsMet: number[];
   done: boolean;
+  /** Once over: its summary (null until made, or when making it failed). */
+  summary: (DialogueSummary & { model: string }) | null;
 }
+
+type Pending = { preparing: true } | { line: string } | { summing: true };
 
 export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: LessonContexts }) {
   const { store } = deps;
-  /** A scene being prepared, or the line being answered, per lesson. */
-  const pending = createInFlight<{ preparing: true } | { line: string }>("scene_busy");
+  /** A Dialogue being prepared, the line being answered or the summary being made, per lesson. */
+  const pending = createInFlight<Pending>("scene_busy");
   const latestRun = (lessonKey: LessonKey) => store.latest("scene", lessonKey);
 
-  /** A scene as stored, from its run and its turns; undefined when its setup no longer reads (it is
-   *  left out, not an error). */
+  /** A Dialogue as stored, from its run, its turns and its summary; undefined when its setup no
+   *  longer reads (it is left out, not an error). */
   function stateOf(
     run: RunRow,
-    events = store.events(run.id, ["llm_turn"]),
+    events = store.events(run.id, ["llm_turn", "llm_verdict"]),
   ): SceneState | undefined {
-    const setup = readStored(run.planJson, SceneSetup, `scene ${run.id}`);
-    if (!setup) return undefined;
-    const turns = events.map((e) => payloadOf<LlmTurnPayload>(e));
+    const stored = readStored(run.planJson, SceneSetup, `scene ${run.id}`);
+    if (!stored) return undefined;
+    const done = run.status !== "active";
+    const { partnerInfo, ...shown } = stored;
+    const turns = events.flatMap((e) =>
+      e.type === "llm_turn" ? [payloadOf<LlmTurnPayload>(e)] : [],
+    );
+    const summary = events.findLast(
+      (e): e is Extract<ReadEvent, { type: "llm_verdict" }> =>
+        e.type === "llm_verdict" && e.payload.task === "dialogue",
+    )?.payload;
     return {
       id: run.id,
       startedAt: run.startedAt,
-      setup,
+      setup: done && partnerInfo ? { ...shown, partnerInfo } : shown,
       turns,
-      goalsMet: turns.at(-1)?.goalsMet ?? [],
-      done: run.status !== "active",
+      goalsMet: turns.findLast((t) => t.goalsMet)?.goalsMet ?? [],
+      done,
+      summary: summary?.task === "dialogue" ? { ...summary.result, model: summary.model } : null,
     };
   }
 
-  async function turnInput(request: SceneRequest, message: string) {
-    const run = latestRun(request.lessonKey);
-    const state = run?.status === "active" ? stateOf(run) : undefined;
-    if (!run || !state) throw new ServiceError("no_active_scene", 409);
-    // A scene goes on in the edition it was set up in.
-    const ctx = await deps.lessonContext.get(
-      request.series,
-      request.lessonKey,
-      run.edition ?? request.edition,
-    );
+  /** The lesson as the tasks see it, in the edition the Dialogue was set up in. */
+  const lessonOf = (request: SceneRequest, run: RunRow) =>
+    deps.lessonContext.get(request.series, request.lessonKey, run.edition ?? request.edition);
+
+  /** The open Dialogue with its full setup; 409 when there is none. */
+  function open(lessonKey: LessonKey) {
+    const run = latestRun(lessonKey);
+    const setup = run?.status === "active" && readStored(run.planJson, SceneSetup, "scene");
+    const state = run && setup && stateOf(run);
+    if (!run || !setup || !state) throw new ServiceError("no_active_scene", 409);
+    return { run, setup, state };
+  }
+
+  async function turnInput(request: SceneLine) {
+    const { run, setup, state } = open(request.lessonKey);
+    const ctx = await lessonOf(request, run);
     const input: SceneTurnInput = {
       language: request.language,
       target: ctx.target,
       rules: deps.llm.rulesFor("scene", request.language, ctx.target),
       lesson: ctx.info,
-      setup: state.setup,
+      setup,
       history: state.turns.map((t) => ({ role: t.role, text: t.text })),
-      message,
+      message: request.text,
+      ...(request.spoken && { spoken: true }),
     };
     return { run, state, input };
   }
 
-  /** Drafts a scene and stores it in place of the open one. */
+  /** Drafts a Dialogue and stores it in place of the open one. */
   async function startScene(request: SceneRequest): Promise<SceneState> {
     const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     const {
@@ -111,17 +156,58 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
     return stateOf(run) as SceneState;
   }
 
-  /** Answers the learner's line and stores both, while the scene is still the open one. */
-  async function answerLine(request: SceneRequest & { text: string }): Promise<SceneState> {
-    const { run, state, input } = await turnInput(request, request.text);
+  /** Sums up an ended Dialogue and keeps the summary in its run; a failed call keeps none (the page
+   *  asks again), unless `strict`, when its error is the answer. */
+  async function summarize(request: SceneRequest, run: RunRow, strict: boolean) {
+    const state = stateOf(store.get(run.id) ?? run);
+    const setup = readStored(run.planJson, SceneSetup, "scene");
+    if (!state || !setup) return;
+    try {
+      const ctx = await lessonOf(request, run);
+      const { result, model, latencyMs } = await deps.llm.structured(
+        sceneSummaryTask({
+          language: request.language,
+          target: ctx.target,
+          rules: deps.llm.rulesFor("sceneSummary", request.language, ctx.target),
+          lesson: ctx.info,
+          setup,
+          goalsMet: state.goalsMet,
+          turns: state.turns,
+        }),
+      );
+      const learner = state.turns.flatMap((t) => (t.role === "user" ? [t.text] : []));
+      keepVerdict(store, run.id, {
+        task: "dialogue",
+        input: "",
+        result: cleanSceneSummary(result, learner),
+        model,
+        latencyMs,
+      });
+    } catch (error) {
+      if (strict) throw error;
+    }
+  }
+
+  /** Answers the learner's line and stores both, while the Dialogue is still the open one; one that
+   *  reaches its goals ends and is summed up. */
+  async function answerLine(request: SceneLine): Promise<SceneState> {
+    const { run, state, input } = await turnInput(request);
     const { result, model, latencyMs } = await deps.llm.structured(sceneTurnTask(input));
     const turn = cleanSceneTurn(result, request.text, state.setup.goals.length, state.goalsMet);
-    // Stored only while this scene is still active (not ended or replaced during the call).
+    // Stored only while this Dialogue is still active (not ended or replaced during the call).
     store.atomic(() => {
       store.append(run.id, [
         {
           type: "llm_turn",
-          payload: { role: "user", text: request.text, corrections: turn.corrections },
+          payload: {
+            role: "user",
+            text: request.text,
+            corrections: turn.corrections,
+            understood: turn.understood,
+            fits: turn.fits,
+            ...(request.spoken && { spoken: true as const }),
+            ...(request.recording && { recording: request.recording }),
+          },
         },
         {
           type: "llm_turn",
@@ -137,36 +223,60 @@ export function createScenes(deps: { store: RunStore; llm: Llm; lessonContext: L
       ]);
       if (turn.done) store.end(run.id, "finished", "completed");
     });
+    if (turn.done) await summarize(request, run, false);
     return stateOf(store.get(run.id) ?? run) as SceneState;
   }
 
   return {
-    /** What the model is doing for the lesson's scenes now: preparing one, or answering a line. */
+    /** What the model is doing for the lesson's Dialogues now: preparing one, answering a line or
+     *  summing one up. */
     pending: (lessonKey: LessonKey) => pending.get(lessonKey) ?? null,
 
-    /** The lesson's scenes, newest first (the latest, active or finished, then earlier ones). */
+    /** The lesson's Dialogues, newest first (the latest, active or finished, then earlier ones). */
     list(lessonKey: LessonKey, limit = HISTORY_LIMIT): SceneState[] {
       const runs = store.list("scene", lessonKey);
-      const turns = store.eventsOf(
+      const events = store.eventsOf(
         runs.map((r) => r.id),
-        ["llm_turn"],
+        ["llm_turn", "llm_verdict"],
       );
-      return runs.flatMap((run) => stateOf(run, turns.get(run.id)) ?? []).slice(0, limit);
+      return runs.flatMap((run) => stateOf(run, events.get(run.id)) ?? []).slice(0, limit);
     },
 
-    /** Drafts a new scene from the lesson; an unfinished one is left (abandoned). Runs to its end
+    /** Drafts a new Dialogue from the lesson; an unfinished one is left (abandoned). Runs to its end
      *  even when the page that asked is gone. */
     start(request: SceneRequest): Promise<SceneState> {
       return pending.run(request.lessonKey, { preparing: true }, () => startScene(request));
     },
 
-    /** The learner's line: the partner answers, corrects and tracks the goals. */
-    turn(request: SceneRequest & { text: string }) {
+    /** The learner's line: the partner answers, judges and corrects it, and tracks the goals. */
+    turn(request: SceneLine) {
       return pending.run(request.lessonKey, { line: request.text }, () => answerLine(request));
     },
 
-    async prompt(request: SceneRequest & { text: string }): Promise<PromptPreview> {
-      const { input } = await turnInput(request, request.text);
+    /** Ends the open Dialogue (the learner's choice) and sums it up. */
+    end(request: SceneRequest): Promise<SceneState> {
+      return pending.run(request.lessonKey, { summing: true }, async () => {
+        const { run } = open(request.lessonKey);
+        store.end(run.id, "finished", "user");
+        await summarize(request, run, false);
+        return stateOf(store.get(run.id) ?? run) as SceneState;
+      });
+    },
+
+    /** Sums up the latest Dialogue again when it is over without a summary (the call failed); its
+     *  error is the answer this time. */
+    summary(request: SceneRequest): Promise<SceneState> {
+      return pending.run(request.lessonKey, { summing: true }, async () => {
+        const run = latestRun(request.lessonKey);
+        const state = run && stateOf(run);
+        if (!run || !state || !state.done) throw new ServiceError("no_active_scene", 409);
+        if (!state.summary) await summarize(request, run, true);
+        return stateOf(store.get(run.id) ?? run) as SceneState;
+      });
+    },
+
+    async prompt(request: SceneLine): Promise<PromptPreview> {
+      const { input } = await turnInput(request);
       return deps.llm.preview(structuredRequest(sceneTurnTask(input)));
     },
   };

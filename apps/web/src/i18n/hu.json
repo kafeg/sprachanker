@@ -401,7 +401,8 @@
       "conversation": "Vizsga: szóbeli rész",
       "sceneSetup": "Jelenet: a helyzet",
       "scene": "Jelenet",
-      "examples": "Példák egy pakli szavaihoz"
+      "examples": "Példák egy pakli szavaihoz",
+      "sceneSummary": "Párbeszéd: az összegzés"
     },
     "contextIntro": "A leckéből hozzáadva:",
     "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
@@ -436,7 +437,9 @@
       "courseMistakes": "legutóbbi hibáid ezekben a kurzusokban (a javítottak megjelölve)",
       "chatHistory": "a beszélgetés legutóbbi üzenetei",
       "place": "hol tart a lecke a kurzusban: a száma és a fejezete",
-      "topics": "a kurzusban eddig vett nyelvtani témák"
+      "topics": "a kurzusban eddig vett nyelvtani témák",
+      "dialogueGoals": "a helyzet és az elért célok",
+      "dialogue": "a párbeszéd mondatai a hozzájuk adott javításokkal"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -487,7 +490,8 @@
       "conversation": "Levezeti a vizsga egy szóbeli részét: a vizsgáztatót és a másik vizsgázót játssza, ahogy a rész előírja, soronként veled; soha nem segít és nem javít. Utána a rész szempontjai szerint kerül értékelésre.",
       "sceneSetup": "Elindít egy jelenetet: kitalálja a helyzetet a lecke témájából — ki vagy, kivel beszélsz, hol, és milyen célokat kell elérni. Jelenetenként egyszer fut.",
       "scene": "Játssza a jelenetet: partnerként válaszol minden mondatodra, javítja a hibáidat, fordítást ad, és kipipálja az elért célokat.",
-      "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva."
+      "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva.",
+      "sceneSummary": "Összegzi a párbeszédet, amikor véget ért: az egy-két legfontosabb javítás, mindegyik mellett a mondatod helyesen, és egy rövid visszajelzés."
     }
   },
   "writing": {

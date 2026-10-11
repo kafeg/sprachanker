@@ -93,7 +93,8 @@ export const WordExamples = z.object({
 });
 export type WordExamples = z.infer<typeof WordExamples>;
 
-/** A scene as drafted (`scene_setup`), kept as its run's plan. */
+/** A Dialogue (a scene) as drafted (`scene_setup`), kept as its run's plan (04, "AI practice in
+ *  courses"). */
 export const SceneSetup = z.object({
   /** Short title in the learner's language. */
   title: z.string(),
@@ -105,8 +106,21 @@ export const SceneSetup = z.object({
   goals: z.array(z.string()).min(1).max(3),
   /** The partner's first line, in the target language. */
   opening: z.string(),
+  /** What the partner knows and the learner must ask for (the information gap), in the target
+   *  language; hidden from the learner until the Dialogue is over. Scenes before it have none. */
+  partnerInfo: z.array(z.string()).max(5).optional(),
 });
 export type SceneSetup = z.infer<typeof SceneSetup>;
+
+/** A Dialogue summed up once it ended (`scene_summary`), kept as an `llm_verdict` (`task:
+ *  dialogue`) in its run: one or two key corrections, each with a model line — the learner's line
+ *  said well —, and a line of feedback. The goals met are the run's own count. */
+export const DialogueSummary = z.object({
+  corrections: z.array(Correction.extend({ model: z.string() })).max(4),
+  /** One or two encouraging, concrete sentences in the learner's language. */
+  feedback: z.string(),
+});
+export type DialogueSummary = z.infer<typeof DialogueSummary>;
 
 /** The next lines of an exam's speaking part (`exam_conversation`): the examiner's and the partner's
  *  up to the learner's turn, each kept as an `llm_turn` with its `speaker` on the question. */

@@ -401,7 +401,8 @@
       "conversation": "Examen: una parte oral",
       "sceneSetup": "Escena: la situación",
       "scene": "Escena",
-      "examples": "Ejemplos para las palabras de un mazo"
+      "examples": "Ejemplos para las palabras de un mazo",
+      "sceneSummary": "Diálogo: el resumen"
     },
     "contextIntro": "Se añade de la lección:",
     "contextIntroCourses": "Se añade de tus cursos (los del idioma que practica la conversación):",
@@ -436,7 +437,9 @@
       "courseMistakes": "tus últimos errores en esos cursos (marcados los ya corregidos)",
       "chatHistory": "los últimos mensajes de la conversación",
       "place": "dónde está la lección en el curso: su número y su unidad",
-      "topics": "los temas de gramática vistos hasta ahora en el curso"
+      "topics": "los temas de gramática vistos hasta ahora en el curso",
+      "dialogueGoals": "la situación y los objetivos que alcanzaste",
+      "dialogue": "las frases del diálogo con las correcciones que recibieron"
     },
     "upTo": "hasta {chars, plural, one {# carácter} other {# caracteres}}",
     "debug": "Mostrar los botones «Prompt»",
@@ -487,7 +490,8 @@
       "conversation": "Lleva una parte oral de un examen: hace de examinador y del otro candidato, como indica la parte, frase a frase contigo; nunca ayuda ni corrige. Se valora después según los criterios de la parte.",
       "sceneSetup": "Inicia una escena: inventa la situación a partir del tema de la lección: quién eres, con quién hablas, dónde y qué objetivos debes cumplir. Se pide una vez por escena.",
       "scene": "Representa la escena: responde a cada una de tus frases como tu interlocutor, corrige tus errores, da una traducción y marca los objetivos que cumpliste.",
-      "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas."
+      "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas.",
+      "sceneSummary": "Resume un diálogo cuando termina: las una o dos correcciones más importantes, cada una con tu frase bien dicha, y un comentario breve."
     }
   },
   "writing": {

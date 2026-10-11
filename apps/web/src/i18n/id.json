@@ -401,7 +401,8 @@
       "conversation": "Ujian: bagian berbicara",
       "sceneSetup": "Adegan: situasinya",
       "scene": "Adegan",
-      "examples": "Contoh untuk kata-kata dek"
+      "examples": "Contoh untuk kata-kata dek",
+      "sceneSummary": "Dialog: ringkasan"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
     "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
@@ -436,7 +437,9 @@
       "courseMistakes": "kesalahan terbarumu di kursus-kursus itu (yang sudah diperbaiki ditandai)",
       "chatHistory": "pesan-pesan terbaru dalam percakapan",
       "place": "letak pelajaran dalam kursus: nomor dan unitnya",
-      "topics": "topik tata bahasa yang sudah dipelajari dalam kursus"
+      "topics": "topik tata bahasa yang sudah dipelajari dalam kursus",
+      "dialogueGoals": "situasinya dan tujuan yang sudah Anda capai",
+      "dialogue": "kalimat-kalimat dialog dengan koreksi yang diberikan"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -487,7 +490,8 @@
       "conversation": "Menjalankan bagian berbicara dalam ujian: memerankan penguji dan peserta lain sesuai ketentuan bagian itu, baris demi baris bersama kamu; tidak pernah membantu atau mengoreksi. Dinilai setelahnya menurut kriteria bagian itu.",
       "sceneSetup": "Memulai adegan: mengarang situasi dari topik pelajaran — siapa kamu, dengan siapa kamu berbicara, di mana, dan tujuan yang harus dicapai. Diminta sekali per adegan.",
       "scene": "Memainkan adegan: menjawab setiap kalimat kamu sebagai pasangan bicara, mengoreksi kesalahan kamu, memberi terjemahan, dan mencentang tujuan yang sudah kamu capai.",
-      "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan."
+      "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan.",
+      "sceneSummary": "Merangkum dialog setelah selesai: satu atau dua koreksi yang paling penting, masing-masing dengan kalimat Anda yang diucapkan dengan benar, dan sedikit umpan balik."
     }
   },
   "writing": {

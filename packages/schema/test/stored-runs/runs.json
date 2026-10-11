@@ -19,6 +19,17 @@
         "goals": ["Order a coffee"],
         "opening": "Was darf es sein?"
       }
+    },
+    {
+      "since": "2026-10-11",
+      "value": {
+        "title": "At the station",
+        "situation": "You buy a ticket.",
+        "partner": "A clerk",
+        "goals": ["Ask when the train leaves", "Ask the price"],
+        "opening": "Guten Tag! Wohin möchten Sie?",
+        "partnerInfo": ["Der Zug fährt um 14:30 von Gleis 3.", "Das Ticket kostet 29 Euro."]
+      }
     }
   ],
   "exam.plan": [

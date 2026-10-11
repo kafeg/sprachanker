@@ -401,7 +401,8 @@
       "conversation": "Exame: uma parte oral",
       "sceneSetup": "Cena: a situação",
       "scene": "Cena",
-      "examples": "Exemplos para as palavras de um baralho"
+      "examples": "Exemplos para as palavras de um baralho",
+      "sceneSummary": "Diálogo: o resumo"
     },
     "contextIntro": "Adicionado da lição:",
     "contextIntroCourses": "Adicionado dos seus cursos (os do idioma que a conversa pratica):",
@@ -436,7 +437,9 @@
       "courseMistakes": "seus erros mais recentes nesses cursos (os corrigidos marcados)",
       "chatHistory": "as mensagens mais recentes da conversa",
       "place": "onde a lição está no curso: o número e a unidade",
-      "topics": "os temas de gramática vistos até agora no curso"
+      "topics": "os temas de gramática vistos até agora no curso",
+      "dialogueGoals": "a situação e os objetivos que atingiu",
+      "dialogue": "as falas do diálogo com as correções dadas"
     },
     "upTo": "até {chars, plural, =0 {# caracteres} one {# caractere} other {# caracteres}}",
     "debug": "Mostrar os botões “Prompt”",
@@ -487,7 +490,8 @@
       "conversation": "Conduz uma parte oral de um exame: faz o papel do examinador e do outro candidato, como a parte prevê, fala por fala com você; nunca ajuda nem corrige. Avaliada depois pelos critérios da parte.",
       "sceneSetup": "Inicia uma cena: inventa a situação a partir do tema da lição: quem você é, com quem fala, onde e os objetivos a alcançar. Pedido uma vez por cena.",
       "scene": "Encena a situação: responde a cada fala sua como o seu interlocutor, corrige os seus erros, dá uma tradução e marca os objetivos que você alcançou.",
-      "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas."
+      "examples": "Escreve de três a cinco frases de exemplo para cada palavra de um baralho que não tenha exemplos próprios, cinco palavras por vez (Revisão → Baralhos, “Criar exemplos”), com palavras que você já conhece sempre que possível e as novas traduzidas.",
+      "sceneSummary": "Resume um diálogo quando termina: as uma ou duas correções mais importantes, cada uma com a sua frase bem dita, e um comentário breve."
     }
   },
   "writing": {

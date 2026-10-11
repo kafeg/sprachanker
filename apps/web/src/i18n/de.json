@@ -401,7 +401,8 @@
       "conversation": "Prüfung: ein Sprechteil",
       "sceneSetup": "Szene: die Situation",
       "scene": "Szene",
-      "examples": "Beispiele für die Wörter eines Stapels"
+      "examples": "Beispiele für die Wörter eines Stapels",
+      "sceneSummary": "Dialog: die Zusammenfassung"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
@@ -436,7 +437,9 @@
       "courseMistakes": "deine letzten Fehler in diesen Kursen (korrigierte markiert)",
       "chatHistory": "die letzten Nachrichten des Gesprächs",
       "place": "wo die Lektion im Kurs steht: ihre Nummer und Einheit",
-      "topics": "die bisher im Kurs behandelten Grammatikthemen"
+      "topics": "die bisher im Kurs behandelten Grammatikthemen",
+      "dialogueGoals": "die Situation und die Ziele, die du erreicht hast",
+      "dialogue": "die Sätze des Dialogs mit den Korrekturen dazu"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -487,7 +490,8 @@
       "conversation": "Führt einen Sprechteil einer Prüfung: spielt die Prüfenden und die andere Person, wie der Teil es vorgibt, Zeile für Zeile mit dir; hilft und korrigiert nie. Danach wird nach den Kriterien des Teils bewertet.",
       "sceneSetup": "Beginnt eine Szene: erfindet die Situation zum Thema der Lektion — wer du bist, mit wem du sprichst, wo und welche Ziele du erreichen sollst. Einmal pro Szene.",
       "scene": "Spielt die Szene: antwortet auf jeden deiner Sätze als dein Gegenüber, korrigiert Fehler, gibt eine Übersetzung und hakt erreichte Ziele ab.",
-      "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt."
+      "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt.",
+      "sceneSummary": "Fasst einen Dialog zusammen, wenn er vorbei ist: die ein oder zwei wichtigsten Korrekturen, jede mit deinem Satz, wie man ihn gut sagt, und eine kurze Rückmeldung."
     }
   },
   "writing": {

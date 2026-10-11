@@ -401,7 +401,8 @@
       "conversation": "Examen : une épreuve orale",
       "sceneSetup": "Scène : la situation",
       "scene": "Scène",
-      "examples": "Exemples pour les mots d’un paquet"
+      "examples": "Exemples pour les mots d’un paquet",
+      "sceneSummary": "Dialogue : le bilan"
     },
     "contextIntro": "Ajouté depuis la leçon :",
     "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
@@ -436,7 +437,9 @@
       "courseMistakes": "tes dernières erreurs dans ces cours (celles corrigées sont marquées)",
       "chatHistory": "les derniers messages de la conversation",
       "place": "la place de la leçon dans le cours : son numéro et son unité",
-      "topics": "les points de grammaire vus jusqu’ici dans le cours"
+      "topics": "les points de grammaire vus jusqu’ici dans le cours",
+      "dialogueGoals": "la situation et les objectifs atteints",
+      "dialogue": "les répliques du dialogue avec les corrections données"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -487,7 +490,8 @@
       "conversation": "Mène une épreuve orale d’examen : joue l’examinateur et l’autre candidat, comme l’épreuve le prévoit, réplique après réplique avec toi ; n’aide ni ne corrige jamais. Notée ensuite selon les critères de l’épreuve.",
       "sceneSetup": "Lance une scène : invente la situation à partir du thème de la leçon — qui tu es, à qui tu parles, où, et les objectifs à atteindre. Demandé une fois par scène.",
       "scene": "Joue la scène : répond à chacune de tes répliques en tant que partenaire, corrige tes erreurs, donne une traduction et coche les objectifs atteints.",
-      "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits."
+      "examples": "Écrit trois à cinq phrases d’exemple pour chaque mot d’un paquet qui n’en a pas, cinq mots à la fois (Révision → Paquets, « Créer des exemples »), avec des mots que tu connais si possible et les nouveaux traduits.",
+      "sceneSummary": "Fait le bilan d’un dialogue une fois terminé : la ou les deux corrections qui comptent le plus, chacune avec ta phrase bien dite, et un mot de retour."
     }
   },
   "writing": {

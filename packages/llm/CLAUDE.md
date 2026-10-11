@@ -40,7 +40,8 @@ src/
     corrections.ts     # cleanCheck: a check's corrections cleaned (writing, speaking)
     rate-exam-answer.ts # rate_exam_answer: an exam's open answer → a level of each of its criteria with
                        # the reason (checked against the levels), feedback
-    scene.ts           # scene_setup + scene_turn: role-play on the lesson's goals; cleanSceneTurn
+    scene.ts           # the Dialogue: scene_setup (goal card, the partner's hidden facts), scene_turn (a
+                       # line judged; cleanSceneTurn), scene_summary (key corrections, model lines)
     tutor-tools.ts     # the tutor's tool definitions (progress, mistakes, word, lesson) and prompt lines
     word-examples.ts   # word_examples: three to five sentences for each of a few words of a deck, in the
                        # words known up to them, at the level when known

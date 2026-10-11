@@ -22,13 +22,27 @@ const SCENE_SETUP = {
   partner: "FAKE: the waiter",
   goals: ["Order a coffee", "Pay"],
   opening: "FAKE: Guten Tag! Was möchten Sie?",
+  partnerInfo: ["FAKE: Ein Kaffee kostet 2,50 Euro."],
 };
 const SCENE_TURN = {
   reply: "FAKE: Gern. Sonst noch etwas?",
   translation: "FAKE: Sure. Anything else?",
+  understood: true,
+  fits: true,
   corrections: [{ wrong: "Kaffe", right: "Kaffee", explanation: "FAKE: double e." }],
   goalsMet: [0],
   done: false,
+};
+const SCENE_SUMMARY = {
+  corrections: [
+    {
+      wrong: "Kaffe",
+      right: "Kaffee",
+      explanation: "FAKE: double e.",
+      model: "FAKE: Einen Kaffee, bitte.",
+    },
+  ],
+  feedback: "FAKE: well asked.",
 };
 /** Three examples for each word numbered in <words> ("1. der Kaffee, die Kaffees — coffee (noun)" →
  *  "Hier ist der Kaffee heute."). */
@@ -93,6 +107,7 @@ const conversation = (prompt: string) =>
 const STRUCTURED: Record<string, unknown> = {
   scene_setup: SCENE_SETUP,
   scene_turn: SCENE_TURN,
+  scene_summary: SCENE_SUMMARY,
   speaking_check: SPOKEN_CHECK,
   exam_rating: EXAM_RATING,
 };

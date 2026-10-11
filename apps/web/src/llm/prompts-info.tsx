@@ -40,6 +40,7 @@ const PARTS = {
   conversation: ["exam", "partner", "conversation"],
   sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics"],
   scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "history"],
+  sceneSummary: ["level", "dialogueGoals", "dialogue"],
   examples: ["level", "knownVocab", "words"],
 } as const;
 

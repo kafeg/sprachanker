@@ -53,7 +53,12 @@ const ConversationBody = ExamRatingBody.extend({
   text: z.string().trim().max(MESSAGE_MAX).optional(),
 });
 
-const SceneLine = LessonRequest.extend({ text: z.string().trim().min(1).max(MESSAGE_MAX) });
+/** A Dialogue's line: as the recogniser heard it, with its take, or typed. */
+const SceneLine = LessonRequest.extend({
+  text: z.string().trim().min(1).max(MESSAGE_MAX),
+  spoken: z.boolean().optional(),
+  recording: Ulid.optional(),
+});
 
 // The model checks this much of a text: a longer one would be marked wrong past the cut.
 const WritingBody = LessonRequest.extend({ text: z.string().trim().min(1).max(WRITING_MAX) });
@@ -243,7 +248,7 @@ export function llmRoutes() {
         zod("json", z.object({ model: z.enum(LMSTUDIO_RECOMMENDED.map((m) => m.key)) })),
         async (c) => c.json(await c.var.s.llm.lmStudioDownload(c.req.valid("json").model)),
       )
-      // Scenes: a role-play on the lesson's topic.
+      // The Dialogue (a scene run): a conversation on the lesson's goals, held by voice.
       .get("/scene", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
         c.json({
           scenes: c.var.s.scenes.list(c.req.valid("query").lessonKey),
@@ -255,6 +260,12 @@ export function llmRoutes() {
       )
       .post("/scene/turn", zod("json", SceneLine), async (c) =>
         c.json(await c.var.s.scenes.turn(c.req.valid("json"))),
+      )
+      .post("/scene/end", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.scenes.end(c.req.valid("json"))),
+      )
+      .post("/scene/summary", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.scenes.summary(c.req.valid("json"))),
       )
       .post(
         "/scene/prompt",

@@ -401,7 +401,8 @@
       "conversation": "Mtihani: sehemu ya kuzungumza",
       "sceneSetup": "Igizo: hali yenyewe",
       "scene": "Igizo",
-      "examples": "Mifano ya maneno ya seti"
+      "examples": "Mifano ya maneno ya seti",
+      "sceneSummary": "Mazungumzo: muhtasari"
     },
     "contextIntro": "Imeongezwa kutoka kwenye somo:",
     "contextIntroCourses": "Imeongezwa kutoka kwenye kozi zako (za lugha inayozoezwa katika mazungumzo):",
@@ -436,7 +437,9 @@
       "courseMistakes": "makosa yako ya karibuni katika kozi hizo (yaliyosahihishwa yamewekwa alama)",
       "chatHistory": "jumbe za karibuni za mazungumzo",
       "place": "mahali somo lilipo katika kozi: namba yake na kitengo chake",
-      "topics": "mada za sarufi zilizokwisha kujitokeza katika kozi"
+      "topics": "mada za sarufi zilizokwisha kujitokeza katika kozi",
+      "dialogueGoals": "hali na malengo uliyoyafikia",
+      "dialogue": "sentensi za mazungumzo pamoja na marekebisho yaliyotolewa"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",
@@ -487,7 +490,8 @@
       "conversation": "Huendesha sehemu ya kuzungumza ya mtihani: huigiza mtahini na mtahiniwa mwingine, kama sehemu inavyoelekeza, mstari kwa mstari pamoja nawe; kamwe hasaidii wala hasahihishi. Hutathminiwa baadaye kwa vigezo vya sehemu hiyo.",
       "sceneSetup": "Huanzisha igizo: hubuni hali kutokana na mada ya somo — wewe ni nani, unazungumza na nani, wapi, na malengo ya kufikia. Huombwa mara moja kwa kila igizo.",
       "scene": "Huendesha igizo: hujibu kila mstari wako kama mwenzako, husahihisha makosa yako, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
-      "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa."
+      "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa.",
+      "sceneSummary": "Hufupisha mazungumzo yakiisha: marekebisho moja au mawili muhimu zaidi, kila moja na sentensi yako ikisemwa vizuri, na maoni mafupi."
     }
   },
   "writing": {

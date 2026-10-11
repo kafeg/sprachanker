@@ -401,7 +401,8 @@
       "conversation": "Egzamin: część ustna",
       "sceneSetup": "Scenka: sytuacja",
       "scene": "Scenka",
-      "examples": "Przykłady do słów talii"
+      "examples": "Przykłady do słów talii",
+      "sceneSummary": "Dialog: podsumowanie"
     },
     "contextIntro": "Dodane z lekcji:",
     "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
@@ -436,7 +437,9 @@
       "courseMistakes": "twoje ostatnie błędy w tych kursach (poprawione oznaczone)",
       "chatHistory": "ostatnie wiadomości rozmowy",
       "place": "miejsce lekcji w kursie: jej numer i rozdział",
-      "topics": "tematy gramatyczne poznane dotąd w kursie"
+      "topics": "tematy gramatyczne poznane dotąd w kursie",
+      "dialogueGoals": "sytuacja i osiągnięte cele",
+      "dialogue": "kwestie dialogu z poprawkami do nich"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -487,7 +490,8 @@
       "conversation": "Prowadzi część ustną egzaminu: odgrywa egzaminatora i drugiego kandydata, jak przewiduje ta część, kwestia po kwestii z tobą; nigdy nie pomaga ani nie poprawia. Potem oceniana jest według kryteriów tej części.",
       "sceneSetup": "Rozpoczyna scenkę: wymyśla sytuację na temat lekcji — kim jesteś, z kim rozmawiasz, gdzie i jakie cele masz osiągnąć. Wywoływany raz na scenkę.",
       "scene": "Odgrywa scenkę: odpowiada na każdą twoją kwestię jako twój rozmówca, poprawia błędy, podaje tłumaczenie i odhacza osiągnięte cele.",
-      "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy."
+      "examples": "Pisze od trzech do pięciu przykładowych zdań do każdego słowa talii, która nie ma własnych, po pięć słów naraz (Powtórki → Talie, „Utwórz przykłady”), w miarę możliwości ze znanymi ci słowami, a nowe tłumaczy.",
+      "sceneSummary": "Podsumowuje dialog po jego zakończeniu: jedną lub dwie najważniejsze poprawki, każdą z twoim zdaniem powiedzianym dobrze, i krótką uwagę."
     }
   },
   "writing": {
