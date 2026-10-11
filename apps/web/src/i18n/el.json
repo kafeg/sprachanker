@@ -258,7 +258,8 @@
     "explanation": "Εξήγηση",
     "thinking": "Σκέφτεται…",
     "error": {
-      "lmstudioDown": "Το LM Studio δεν απαντά. Τρέχει ο τοπικός του διακομιστής;"
+      "lmstudioDown": "Το LM Studio δεν απαντά. Τρέχει ο τοπικός του διακομιστής;",
+      "retryIn": "Δοκίμασε ξανά σε {wait}."
     },
     "cliMissing": {
       "claude-code": "Το Claude Code δεν είναι εγκατεστημένο εδώ. Εγκατάστησέ το από το claude.com/claude-code και συνδέσου μία φορά εκτελώντας `claude`.",

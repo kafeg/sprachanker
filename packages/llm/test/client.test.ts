@@ -150,6 +150,46 @@ describe("failures while a reply is read", () => {
     expect([(error as LlmError).code, ran]).toEqual(["unreachable", []]);
   });
 
+  test("a refusal naming no option is not asked again: tools stay; one naming tools is asked without them", async () => {
+    const ask = async (message: string) => {
+      const { fn, calls } = fakeFetch((_, init) =>
+        JSON.parse(init.body as string).tools
+          ? Response.json({ error: { message } }, { status: 400 })
+          : sse([delta("ok"), "data: [DONE]\n\n"]),
+      );
+      const reply = await collect(
+        openAiCompatible({ baseUrl: "http://x/v1", noReasoning: { think: false } }, fn).chat({
+          model: "m",
+          messages: [],
+          reasoning: false,
+          tools: [{ name: "find", description: "", parameters: {} }],
+          runTool: async () => ({}),
+        }),
+      ).catch((e: LlmError) => e.code);
+      return [reply, calls.length];
+    };
+    expect(await ask("Your credit balance is too low to access the API.")).toEqual([
+      "bad_response",
+      1,
+    ]);
+    expect(await ask("This model does not support tools")).toEqual(["ok", 2]);
+  });
+
+  test("a 503 (overloaded, unavailable) is overloaded, with its wait", async () => {
+    const error = await openAiCompatible(
+      { baseUrl: "http://x/v1" },
+      fakeFetch(() =>
+        Response.json(
+          { error: { message: "The model is overloaded. Please try again later." } },
+          { status: 503, headers: { "retry-after": "20" } },
+        ),
+      ).fn,
+    )
+      .models()
+      .catch((e: LlmError) => e);
+    expect([(error as LlmError).code, (error as LlmError).retryAfter]).toEqual(["overloaded", 20]);
+  });
+
   test("a busy server (429, 5xx) is not asked again without tools or the switch", async () => {
     const { fn, calls } = fakeFetch(() => new Response("busy", { status: 429 }));
     const client = openAiCompatible({ baseUrl: "http://x/v1", noReasoning: { think: false } }, fn);

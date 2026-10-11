@@ -258,7 +258,8 @@
     "explanation": "Magyarázat",
     "thinking": "Gondolkodik…",
     "error": {
-      "lmstudioDown": "Az LM Studio nem válaszol. Fut a helyi szervere?"
+      "lmstudioDown": "Az LM Studio nem válaszol. Fut a helyi szervere?",
+      "retryIn": "Próbáld újra {wait} múlva."
     },
     "cliMissing": {
       "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a `claude` futtatásával.",

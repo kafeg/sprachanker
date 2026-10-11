@@ -258,7 +258,8 @@
     "explanation": "Explicação",
     "thinking": "Pensando…",
     "error": {
-      "lmstudioDown": "O LM Studio não responde. O servidor local dele está rodando?"
+      "lmstudioDown": "O LM Studio não responde. O servidor local dele está rodando?",
+      "retryIn": "Tente de novo daqui a {wait}."
     },
     "cliMissing": {
       "claude-code": "O Claude Code não está instalado aqui. Instale-o em claude.com/claude-code e faça login uma vez executando `claude`.",

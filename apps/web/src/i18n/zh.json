@@ -258,7 +258,8 @@
     "explanation": "讲解",
     "thinking": "思考中…",
     "error": {
-      "lmstudioDown": "LM Studio没有响应。它的本地服务器是否已启动？"
+      "lmstudioDown": "LM Studio没有响应。它的本地服务器是否已启动？",
+      "retryIn": "请在 {wait} 后再试。"
     },
     "cliMissing": {
       "claude-code": "本机未安装Claude Code。请从claude.com/claude-code安装，并运行`claude`登录一次。",

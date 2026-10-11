@@ -258,7 +258,8 @@
     "explanation": "व्याख्या",
     "thinking": "सोच रहा है…",
     "error": {
-      "lmstudioDown": "LM Studio जवाब नहीं दे रहा. क्या उसका लोकल सर्वर चल रहा है?"
+      "lmstudioDown": "LM Studio जवाब नहीं दे रहा. क्या उसका लोकल सर्वर चल रहा है?",
+      "retryIn": "{wait} बाद फिर कोशिश करो."
     },
     "cliMissing": {
       "claude-code": "Claude Code यहां इंस्टॉल नहीं है. इसे claude.com/claude-code से इंस्टॉल करो और एक बार `claude` चलाकर साइन इन करो.",

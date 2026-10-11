@@ -336,7 +336,6 @@ export function anthropic(
             notes ??= tools;
             return relaxing(
               { switchOff },
-              ["switchOff"],
               (on) =>
                 post(
                   body(request, messages, endpoint, {
@@ -394,7 +393,6 @@ export function anthropic(
       const { messages } = anthropicMessages(request.messages);
       return relaxing(
         { switchOff: sendsSwitch(request, endpoint) },
-        ["switchOff"],
         async (on) => {
           const limit = new TimeLimit(limits.firstMs);
           try {

@@ -203,11 +203,13 @@ export interface Endpoint extends ApiQuirks {
   apiKey?: string;
 }
 
-/** A refusal that names what it refused: that option goes first. */
+/** What a refusal names when it refuses an option (strict mode before the schema itself). */
 const NAMED = {
   switchOff: /reasoning/i,
   temperature: /temperature/i,
+  tools: /tool|function/i,
   strict: /schema|response_format/i,
+  schema: /schema|response_format|json/i,
 };
 
 export function openAiCompatible(
@@ -237,11 +239,10 @@ export function openAiCompatible(
           {
             messages: request.messages,
             // Models that always reason reject the switch, reasoning models a temperature, some
-            // servers tools: asked again without.
+            // servers tools: asked again without the one the refusal names.
             open: (messages, tools, limit) =>
               relaxing(
                 { ...on, tools },
-                ["switchOff", "tools"],
                 (now) =>
                   post(
                     chatBody(
@@ -278,8 +279,8 @@ export function openAiCompatible(
       );
     },
     async complete(request) {
-      // Fallbacks: without the reasoning switch or a temperature, then the schema not strict, then
-      // without it (the prompt still asks for JSON), for servers that reject any of them.
+      // Fallbacks: without the reasoning switch or a temperature, the schema not strict, then without
+      // it (the prompt still asks for JSON), for servers that reject any of them.
       return relaxing(
         {
           switchOff: sendsSwitch(request, endpoint),
@@ -287,7 +288,6 @@ export function openAiCompatible(
           strict: !!request.jsonSchema,
           schema: !!request.jsonSchema,
         },
-        ["switchOff", "strict", "schema"],
         async (on) => {
           const body = chatBody(
             { ...request, jsonSchema: on.schema ? request.jsonSchema : undefined },

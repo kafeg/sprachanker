@@ -258,7 +258,8 @@
     "explanation": "الشرح",
     "thinking": "يفكّر…",
     "error": {
-      "lmstudioDown": "LM Studio لا يستجيب. هل خادمه المحلي يعمل؟"
+      "lmstudioDown": "LM Studio لا يستجيب. هل خادمه المحلي يعمل؟",
+      "retryIn": "حاول مرة أخرى بعد {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code غير مثبّت هنا. ثبّته من claude.com/claude-code وسجّل الدخول مرة واحدة بتشغيل `claude`.",

@@ -5,12 +5,14 @@ import { MESSAGE_MAX } from "@sprachanker/schema";
 import { LoaderCircle, type LucideIcon, Send, Sparkles, Square } from "lucide-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { ApiError } from "@/api/client.ts";
 import { DictateButton } from "@/audio/dictate.tsx";
 import type { SpokenPart } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Textarea } from "@/ui/components/textarea.tsx";
 import { inLang } from "@/ui/direction.tsx";
+import { useSeconds } from "@/ui/format.ts";
 import { RichText } from "@/ui/rich-text.tsx";
 import { cn } from "@/ui/utils.ts";
 import { AssistantLabel } from "./assistant-label.tsx";
@@ -62,10 +64,13 @@ export function ErrorLine({
   onRetry?: () => void;
 }) {
   const { t } = useTranslation();
+  const seconds = useSeconds();
   if (!error) return null;
+  const wait = error instanceof ApiError ? error.retryAfter : undefined;
   return (
     <p className="text-sm text-wrong">
       {errorText(t, error, provider)}
+      {wait !== undefined && ` ${t("llm.error.retryIn", { wait: seconds(wait * 1000) })}`}
       {onRetry && (
         <>
           {" "}

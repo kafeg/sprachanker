@@ -258,7 +258,8 @@
     "explanation": "Açıklama",
     "thinking": "Düşünüyor…",
     "error": {
-      "lmstudioDown": "LM Studio cevap vermiyor. Yerel sunucusu çalışıyor mu?"
+      "lmstudioDown": "LM Studio cevap vermiyor. Yerel sunucusu çalışıyor mu?",
+      "retryIn": "{wait} sonra tekrar dene."
     },
     "cliMissing": {
       "claude-code": "Claude Code burada yüklü değil. claude.com/claude-code adresinden yükle ve `claude` komutunu çalıştırarak bir kez oturum aç.",

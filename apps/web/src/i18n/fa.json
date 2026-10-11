@@ -258,7 +258,8 @@
     "explanation": "توضیح",
     "thinking": "در حال فکر کردن…",
     "error": {
-      "lmstudioDown": "LM Studio پاسخ نمی‌دهد. آیا سرور محلی‌اش در حال اجراست؟"
+      "lmstudioDown": "LM Studio پاسخ نمی‌دهد. آیا سرور محلی‌اش در حال اجراست؟",
+      "retryIn": "{wait} دیگر دوباره امتحان کن."
     },
     "cliMissing": {
       "claude-code": "Claude Code اینجا نصب نیست. آن را از claude.com/claude-code نصب کن و یک بار با اجرای `claude` وارد حسابت شو.",

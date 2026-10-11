@@ -23,10 +23,12 @@ export const cardAudioUrl = (display: CardDisplay) =>
     : display.readAudio && `/decks/${display.readAudio}`;
 
 export class ApiError extends Error {
-  /** HTTP status of the response, when the error came from one. */
   constructor(
     message: string,
+    /** HTTP status of the response, when the error came from one. */
     readonly status?: number,
+    /** Seconds to wait before asking again, when the server says (a provider's limit, 07). */
+    readonly retryAfter?: number,
   ) {
     super(message);
   }
@@ -46,8 +48,17 @@ interface JsonResponse<T> {
 
 /** The error a failed response answered with (`{ error: <code> }`, 06), as an ApiError. */
 export async function apiError(res: { status: number; json(): Promise<unknown> }) {
-  const body = (await res.json().catch(() => ({}))) as { error?: string };
-  return new ApiError(body.error ?? `HTTP ${res.status}`, res.status);
+  return errorOf(await res.json().catch(() => ({})), `HTTP ${res.status}`, res.status);
+}
+
+/** An error body (`{ error: <code>, retryAfter? }`) as an ApiError; `fallback` without a code. */
+export function errorOf(body: unknown, fallback: string, status?: number) {
+  const { error, retryAfter } = (body ?? {}) as { error?: unknown; retryAfter?: unknown };
+  return new ApiError(
+    typeof error === "string" ? error : fallback,
+    status,
+    typeof retryAfter === "number" ? retryAfter : undefined,
+  );
 }
 
 /** JSON of a response, or an ApiError with the server's code. */

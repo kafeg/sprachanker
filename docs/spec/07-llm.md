@@ -180,14 +180,16 @@ most three corrections and a model text (third phase).
   phase, in each provider's dialect (LM Studio `reasoning_effort: "none"`, OpenRouter
   `reasoning: { enabled: false }`); a model that always reasons rejects that and is asked again without.
   Asking again without an option (the reasoning switch, a temperature, tools, the schema's strict
-  mode, then the schema) happens only when the server refused the request as sent (400, 422) — never
-  when it is busy or failing (429, 5xx); the option the refusal names goes first (a model refusing
-  `temperature` is asked again without it, and the next tool round goes without it too).
+  mode, then the schema) happens only when the server refused the request as sent (400, 422) and its
+  message names that option — never when it is busy or failing (429, 5xx), nor for a refusal naming
+  none (a credit balance too low is the error it is, tools are not dropped for it); a model refusing
+  `temperature` is asked again without it, and the next tool round goes without it too.
   A 429 is `rate_limited` (free tiers limit requests per minute and day: the learner is told to try
-  later or choose another model); Anthropic's 529 (or an `overloaded_error` in its stream) is
-  `overloaded` (try again in a moment); the provider's `retry-after`, when given, goes with either
-  (`retryAfter`, seconds, in the 502 body); a wrong key is `unauthorized` (401, 403, or Gemini's 400
-  saying so). A reply the model declined (Anthropic's `stop_reason: "refusal"`, OpenAI's `refusal`)
+  later or choose another model); Anthropic's 529 (or an `overloaded_error` in its stream) and any
+  503 (OpenAI, Gemini: overloaded, unavailable) are `overloaded` (try again in a moment); the
+  provider's `retry-after`, when given, goes with either (`retryAfter`, seconds, in the 502 body and
+  after a stream's `STREAM_ERROR`), and the interface says it ("try again in 20 s") under the error;
+  a wrong key is `unauthorized` (401, 403, or Gemini's 400 saying so). A reply the model declined (Anthropic's `stop_reason: "refusal"`, OpenAI's `refusal`)
   is `refused`; one cut at its token limit (`max_tokens`, `finish_reason: "length"`) keeps its text,
   noted in the server's log (a reply carries no mark of it), and never runs its tool calls. Inline
   `<think>…</think>` output is stripped.
@@ -344,7 +346,8 @@ The tutor may call tools while answering (OpenAI function calling, streamed; up 
 then it must answer): `get_progress`, `get_mistakes` (all lessons or one), `find_word` (where a word is
 taught, with its translation), `get_lesson` (goals, words, grammar). Lessons are named "unit.lesson" as
 the app shows them. The server runs them on the learner's data; the reply records which tools it used
-and the UI shows them. Servers rejecting tools are asked again without (and without their notes). A
+and the UI shows them. Servers rejecting tools (their refusal names tools or functions) are asked
+again without (and without their notes). A
 reminder at the end of the system message makes small models call tools instead of promising to look
 later.
 

@@ -258,7 +258,8 @@
     "explanation": "Объяснение",
     "thinking": "Думает…",
     "error": {
-      "lmstudioDown": "LM Studio не отвечает. Запущен ли его локальный сервер?"
+      "lmstudioDown": "LM Studio не отвечает. Запущен ли его локальный сервер?",
+      "retryIn": "Попробуйте ещё раз через {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code здесь не установлен. Установите его с claude.com/claude-code и один раз войдите, запустив `claude`.",

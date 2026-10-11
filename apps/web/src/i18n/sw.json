@@ -258,7 +258,8 @@
     "explanation": "Maelezo",
     "thinking": "Inafikiri…",
     "error": {
-      "lmstudioDown": "LM Studio haijibu. Je, seva yake ya ndani inaendeshwa?"
+      "lmstudioDown": "LM Studio haijibu. Je, seva yake ya ndani inaendeshwa?",
+      "retryIn": "Jaribu tena baada ya {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code haijasakinishwa hapa. Isakinishe kutoka claude.com/claude-code kisha ingia mara moja kwa kuendesha `claude`.",

@@ -123,6 +123,29 @@ describe("Anthropic", () => {
     ).toEqual([true, false]);
   });
 
+  test("a refusal naming no option (a credit balance too low) is not asked again", async () => {
+    const { client: c, calls } = client(() =>
+      Response.json(
+        {
+          type: "error",
+          error: {
+            type: "invalid_request_error",
+            message: "Your credit balance is too low to access the Anthropic API.",
+          },
+        },
+        { status: 400 },
+      ),
+    );
+    const error = await collect(
+      c.chat({
+        model: "claude-opus-4-5",
+        messages: [{ role: "user", content: "?" }],
+        reasoning: false,
+      }),
+    ).catch((e: LlmError) => e);
+    expect([(error as LlmError).code, calls.length]).toEqual(["bad_response", 1]);
+  });
+
   test("tool use: the call assembled from its JSON pieces, run, and answered with the turn's blocks and a tool_result", async () => {
     const { client: c, calls } = client(() =>
       calls.length === 1

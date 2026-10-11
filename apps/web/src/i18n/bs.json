@@ -258,7 +258,8 @@
     "explanation": "Objašnjenje",
     "thinking": "Razmišljam…",
     "error": {
-      "lmstudioDown": "LM Studio ne odgovara. Da li je njegov lokalni server pokrenut?"
+      "lmstudioDown": "LM Studio ne odgovara. Da li je njegov lokalni server pokrenut?",
+      "retryIn": "Pokušaj ponovo za {wait}."
     },
     "cliMissing": {
       "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem `claude`.",

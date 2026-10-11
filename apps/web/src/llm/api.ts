@@ -6,7 +6,7 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
 import { withAttempt, withCheck, withScene, withTurns } from "@/api/cache.ts";
-import { ApiError, api, apiError, json } from "@/api/client.ts";
+import { ApiError, api, apiError, errorOf, json } from "@/api/client.ts";
 
 export type ExplainRequest = Parameters<typeof api.llm.explain.$post>[0]["json"];
 
@@ -27,11 +27,11 @@ async function readStream(res: StreamedResponse, onText: (text: string) => void)
       onText(text);
     } else if (done) {
       onText(text.slice(0, broken));
-      let error = "llm_bad_response";
+      let body: unknown;
       try {
-        error = (JSON.parse(text.slice(broken + 1)) as { error?: string }).error ?? error;
+        body = JSON.parse(text.slice(broken + 1));
       } catch {}
-      throw new ApiError(error);
+      throw errorOf(body, "llm_bad_response");
     }
   }
 }
