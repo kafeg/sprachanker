@@ -34,6 +34,8 @@ import type { Settings } from "./settings.ts";
 
 /** A word as a card shows it, and the word it is of (its source key). */
 type Home = { sourceKey: string; display: CardDisplay };
+/** An installed course as the content lists it. */
+type Course = Awaited<ReturnType<Content["courses"]>>[number];
 /** A course's word where it is first met in an edition: its lesson and its translation there. */
 type Entry = {
   series: string;
@@ -115,13 +117,27 @@ export function createCards(deps: {
     deck: deck.id,
   });
 
+  /** The installed courses by deck (`course:<key>`): listed once — one listing for every card
+   *  asking at once — and anew when cards are relinked (a course installed or normalised again). */
+  let installed: Promise<Map<string, Course>> | undefined;
+  function installedCourses() {
+    if (!installed) {
+      const listing = content
+        .courses()
+        .then((list) => new Map(list.map((c) => [`course:${c.key}`, c])));
+      installed = listing;
+      // A listing that fails is asked again next time.
+      listing.catch(() => {
+        if (installed === listing) installed = undefined;
+      });
+    }
+    return installed;
+  }
+
   /** Each course's words in an edition by lexeme, where each is first met, in course order: read
-   *  once, and anew when cards are relinked (a course installed or normalised again). */
+   *  once, and anew when cards are relinked — a course that does not read too. */
   const entries = new Map<string, Promise<Map<string, Entry>>>();
-  function entriesOf(
-    course: { key: string; series: string; lessons: LessonKey[] },
-    edition: string,
-  ) {
+  function entriesOf(course: Course, edition: string) {
     const key = `${course.key} ${edition}`;
     let found = entries.get(key);
     if (!found) {
@@ -145,31 +161,41 @@ export function createCards(deps: {
         return out;
       })();
       entries.set(key, found);
-      // A course that does not read is read again next time.
-      found.catch(() => entries.delete(key));
+      // Its failure is its readers' (kept until relinking).
+      found.catch(() => {});
     }
     return found;
   }
 
   /** A course's entry of a word in an edition (the course by its deck, `course:<key>`); none when the
-   *  course is not here, not in that edition, or without the word. */
+   *  course is not here, not in that edition, does not read, or is without the word. */
   async function courseEntry(scope: string, edition: string, lexeme: string) {
-    // Read once: the courses listed only for one not read yet (My words asks for many words).
-    const known = entries.get(`${scope.slice("course:".length)} ${edition}`);
-    const course = known
-      ? undefined
-      : (await content.courses()).find((c) => `course:${c.key}` === scope);
-    if (!known && !course?.editions.includes(edition)) return undefined;
-    const read = known ?? entriesOf(course as NonNullable<typeof course>, edition);
-    const entry = (await read.catch(() => undefined))?.get(lexeme);
+    const course = (await installedCourses()).get(scope);
+    if (!course?.editions.includes(edition)) return undefined;
+    const entry = (await entriesOf(course, edition).catch(() => undefined))?.get(lexeme);
     return entry && displayOf(entry.series, entry.lesson, entry.translation, entry.word);
   }
 
+  /** The learner's course decks by language pair (`<translation>-<lang>`), in deck order: worked out
+   *  once per list of cards — the context a list (My words, a queue) hands to `shown` for each. */
+  const pairsOf = new WeakMap<Note[], Map<string, string[]>>();
+  function coursesIn(notes: Note[], pair: string) {
+    let pairs = pairsOf.get(notes);
+    if (!pairs) {
+      const sets = new Map<string, Set<string>>();
+      for (const n of notes) {
+        if (!n.deck.startsWith("course:")) continue;
+        const key = `${n.translationLang}-${n.lang}`;
+        sets.set(key, (sets.get(key) ?? new Set()).add(n.deck));
+      }
+      pairs = new Map([...sets].map(([key, decks]) => [key, [...decks].sort()]));
+      pairsOf.set(notes, pairs);
+    }
+    return pairs.get(pair) ?? [];
+  }
+
   /** Each word of a course in an edition, by lexeme: where it is first met, in course order. */
-  async function wordsOf(
-    course: { key: string; series: string; lessons: LessonKey[] },
-    edition: string,
-  ) {
+  async function wordsOf(course: Course, edition: string) {
     const out = new Map<string, Home>();
     for (const [lexeme, e] of await entriesOf(course, edition))
       out.set(lexeme, {
@@ -294,7 +320,9 @@ export function createCards(deps: {
       const inLang = notes.filter((n) => n.lang === request.lang);
       const leaving = inLang.filter((n) => n.deck === request.scope);
       const others = new Set(inLang.map((n) => n.deck).filter((d) => d !== request.scope));
-      const installed = (await content.courses()).filter((c) => others.has(`course:${c.key}`));
+      const courses = [...(await installedCourses())].flatMap(([scope, c]) =>
+        others.has(scope) ? [c] : [],
+      );
       const imported = [...others].flatMap((d) =>
         d.startsWith("deck:") ? (decks.deck(d.slice(5)) ?? []) : [],
       );
@@ -304,7 +332,7 @@ export function createCards(deps: {
         let found = homes.get(lang);
         if (!found) {
           found = [];
-          for (const c of installed)
+          for (const c of courses)
             for (const edition of c.editions)
               if (parseEditionId(edition as EditionId).source === lang)
                 found.push(await wordsOf(c, edition));
@@ -360,7 +388,7 @@ export function createCards(deps: {
           return [note(w.lexeme, deck.translationLang, deckDisplay(deck, w, false))];
         });
       }
-      const course = (await content.courses()).find((c) => `course:${c.key}` === scope);
+      const course = (await installedCourses()).get(scope);
       const chosen = edition ?? course?.editions[0];
       if (!course || !chosen || !course.editions.includes(chosen))
         throw new ServiceError("no_such_deck", 404);
@@ -376,7 +404,8 @@ export function createCards(deps: {
      * aloud for that deck), else what the card was made with; in a language's queue, every deck's,
      * My words and the word sheet, a course's entry over an imported deck's — the card's own course,
      * else the first of the learner's courses (by deck, in its language pair) that has the word —,
-     * else the card's own. `notes`: the learner's cards, when they are read already.
+     * else the card's own. `notes`: the learner's cards, when they are read already — a list's context:
+     * the learner's courses per language pair are worked out once for it.
      */
     async shown(note: Note, scope: string, notes?: Note[]): Promise<CardDisplay> {
       const lexeme = note.lexemeKey;
@@ -406,17 +435,7 @@ export function createCards(deps: {
           ? note.display
           : ((await courseEntry(scope, edition, lexeme)) ?? note.display);
       if (note.deck.startsWith("course:")) return note.display;
-      const courses = new Set(
-        (notes ?? cards.all())
-          .filter(
-            (n) =>
-              n.deck.startsWith("course:") &&
-              n.lang === note.lang &&
-              n.translationLang === note.translationLang,
-          )
-          .map((n) => n.deck),
-      );
-      for (const course of [...courses].sort()) {
+      for (const course of coursesIn(notes ?? cards.all(), edition)) {
         const entry = await courseEntry(course, edition, lexeme);
         if (entry) return entry;
       }
@@ -483,6 +502,7 @@ export function createCards(deps: {
     async relink(): Promise<number> {
       let changed = 0;
       // The courses as installed now.
+      installed = undefined;
       entries.clear();
       /** Each deck's words by their cards' source key (read once per relinking). */
       const decksRead = new Map<string, { deck: Deck; words: Map<string, DeckWord> } | undefined>();
