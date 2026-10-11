@@ -140,11 +140,17 @@ task or option of theirs that starts with such a run and does not end in punctua
   parts of a topic ("Spelling (2)", in the edition's own digits and brackets: "(۲)", "(२)", "（2）"; titles compared with full-width forms as plain ones and spaces ignored); the parts within a lesson are joined into one page, the number
   leaves the title and a topic begun in an earlier lesson keeps it as `part` (02). Exercise titles keep
   their numbers ("Im Unterricht (1)", "(2)"): they tell apart exercises of one topic in a lesson.
-- **Corrections** (`courses/dw/src/normalise/corrections.json`): DW's own errors in learner-language
-  texts (a title, instruction, stimulus text, an item's prompt or hint) fixed by exercise key — the
-  exact phrase replaced, or a field dropped (a box that gives the answers away). One applies only where
-  its phrase is still in the text, so a source fixed since is left alone; one not applied is stale and
-  reported (`NormaliseResult.corrections`). Ours, written by hand; never more of the source than the phrase.
+- **Corrections** (`courses/dw/src/normalise/corrections.json`): DW's own errors fixed by key, the
+  exact phrase replaced — in an exercise's learner-language texts (a title, instruction, stimulus text,
+  an item's prompt or hint; a field may be dropped instead: a box that gives the answers away), in its
+  German texts (`field: "canonical"`, the exercise or one item: the phrase replaced in every text there —
+  stimulus, prompts, options, gapped text, accepted and model answers — so the answers stay in step), or
+  in a lesson's grammar or culture pages (`lesson` and `tab`). German texts are each edition's own
+  pages, so a fix of one is listed per course where its phrase was found. One applies only where its
+  phrase is still in the text, so a source fixed since is left alone (a fix that holds its phrase is not
+  made twice); one not applied is stale and reported (`NormaliseResult.corrections`). A German fix
+  changes the exercise, so its fingerprint (02) is the corrected exercise's. Ours, written by hand;
+  never more of the source than the phrase.
 - **B1** lessons have no vocabulary: B1 has a German glossary (`GLOSSARY`, definitions instead of
   translations) not read yet (plan, "More sources").
 

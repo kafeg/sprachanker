@@ -11,6 +11,8 @@ is the lesson's N-th grammar tab.
 Fixed by the DW normaliser's corrections, `courses/dw/src/normalise/corrections.json` (spec 03,
 "Corrections"): each applies while DW's phrase is still there, and is reported stale once DW changes it.
 
+Russian texts of exercises:
+
 | Exercise | Page | What is wrong |
 |---|---|---|
 | `01-02/ex-03` | 2 | Hint #4: "в офисе банке" for "в офисе банка". |
@@ -36,22 +38,16 @@ Fixed by the DW normaliser's corrections, `courses/dw/src/normalise/corrections.
 | `18-04/ex-08` | 7 | "не только для образования … Perfekt, но и в страдательном залоге" — halves do not match. |
 | `19-01/ex-20` | 19 | "реши, правильно ли использованы слова …", but the learner fills gaps with them. |
 
-## Errors in the source (verified in raw), open
-
-Corrections reach only an exercise's Russian texts (title, instruction, stimulus text, an item's prompt
-or hint). These are in a lesson's grammar or culture tab, or in German texts the canonical file holds
-(options, prompts, dialogue), or are not text errors.
-
-Grammar and culture tabs:
+Grammar and culture tabs (a correction by lesson and tab):
 
 | Lesson, tab | What is wrong |
 |---|---|
 | `00-02` grammar 4 | "придаточного предожения". |
 | `04-02` culture | "накрывают столы для завтрака ресторанах отеля" — "в" missing. |
-| `06-02` grammar 1 | "etwas, nichts и alles … указывают на живые существа, предметы и явления" — they do not refer to living beings. |
-| `06-04` grammar 1 | The example "stehen: Der Pullover steht der Frau." twice in a row (the raw page has it twice). |
-| `07-04` grammar 1 | "Косвенная речь используются". |
-| `08-01` grammar 1, `16-01` grammar 1 | Relative clauses as part of a "сложносочиненного предложения" (сложноподчиненного). |
+| `06-02` grammar 1 | "etwas, nichts и alles … указывают на живые существа, предметы и явления" — they do not refer to living beings ("живые существа" dropped). |
+| `06-04` grammar 1 | The example "stehen: Der Pullover steht der Frau." twice in a row (the raw page has it twice; the second dropped). |
+| `07-04` grammar 1 | "Косвенная речь используются" — the page is about indirect questions ("такие вопросы" follows): "Косвенные вопросы используются". |
+| `08-01` grammar 1, `16-01` grammar 1 | Relative clauses as part of a "сложносочиненного предложения" (сложноподчиненного; twice in `08-01`). |
 | `08-03` grammar 1 | "придаточные определительные предложениях". |
 | `09-02` culture | "Популярность пользуются" (Популярностью). |
 | `11-01` culture | "работать на удалении" (удаленно). |
@@ -64,20 +60,28 @@ Grammar and culture tabs:
 | `15-03` grammar 1 | Row label "3rd person" (English) in a Russian table. |
 | `16-02` grammar 1 | Genitive table, plural row: "Tonassistenten" without "die" (the other rows give the article). |
 
-German texts and structure:
+German texts (a correction of the item's canonical texts). Each edition has its own pages: every
+installed A2 edition's raw was searched, and a fix is listed for the courses whose pages have the error —
+"all" is the 18 A2 editions (ar, bs, de, el, en, es, fa, fr, hi, hu, id, pl, pt, ro, ru, tr, uk, zh).
+
+| Exercise | Page | What is wrong | Editions |
+|---|---|---|---|
+| `04-04/ex-05` | 4 | The man is "Herr Meiers" everywhere but "Herr Meier" in item 6. | all |
+| `04-04/ex-07` | 6 | Option "Hin-und Rückfahrt" (space missing; "Hin- und Rückfahrt" elsewhere). | all |
+| `07-02/ex-05` | 4 | Item 2: "Schreib das passende Wort … In jede Lücke passt ein Wort." over a bank of whole phrases; item 1's own instruction ("Wähl die fehlenden Satzteile …") put in its place. | all |
+| `07-03/ex-02` | 1 | Option "Bin schon da." before the text's own full stop: "da.."; the option's stop dropped. | all |
+| `09-02/ex-03` | 2 | Option "Jaques" for "Jacques". | all |
+| `11-02/ex-01` | 0 | Two order parts "Jaques" for "Jacques". | all but ar (its parts read "Jacques") |
+| `09-03/ex-06` | 5 | Item 2: "Günter" for "Günther". | all |
+| `10-01/ex-06` | 5 | "für das gleicheGeld" (space missing in raw). | ar, ru |
+| `12-03/ex-03` | 2 | "Ich möchte mit Herr/Frau … sprechen" (Herrn, as the next line and the other editions have it). | ar, fa, pt, ru |
+| `16-04/ex-05` | 4 | Item 3: option "Falsc". | ru |
+
+## Errors in the source (verified in raw), open
 
 | Exercise | Page | What is wrong |
 |---|---|---|
-| `04-04/ex-05`, `ex-07` | 4, 6 | The man is "Herr Meiers" everywhere but "Herr Meier" in `ex-05` item 6. |
-| `04-04/ex-07` | 6 | Option "Hin-und Rückfahrt" (space missing). |
-| `07-02/ex-05` | 4 | Item 2: "Schreib das passende Wort … In jede Lücke passt ein Wort." over choices of whole phrases. |
-| `07-03/ex-02` | 1 | Option "Bin schon da." before the text's own full stop: "da..". |
-| `09-02/ex-03`, `11-02/ex-01` | 2, 0 | "Jaques" for "Jacques" (an option; two order parts). |
-| `09-03/ex-06` | 5 | Item 2: "Günter" for "Günther". |
-| `10-01/ex-06` | 5 | "für das gleicheGeld" (space missing in raw). |
-| `12-03/ex-03` | 2 | "Ich möchte mit Herr/Frau … sprechen" (Herrn). |
-| `16-04/ex-05` | 4 | Item 3: option "Falsc". |
-| `14-04/ex-06` | 5 | The sentence "Sag mal, erinnerst du dich … die blond… Frau …" ends item 1 and starts item 2 (two DW clozes): its two gaps are asked twice. |
+| `14-04/ex-06` | 5 | The sentence "Sag mal, erinnerst du dich … die blond… Frau …" ends item 1 and starts item 2 (two DW clozes): its two gaps are asked twice. Structural: not a phrase to replace. |
 
 Not verified (need the video or the picture): `01-02/ex-05` (page 4) — a girocard ("BANK-KARTE") keyed
 as "Kreditkarte", against `ex-04`; `07-02/ex-01` (page 0) — the key "Er möchte ihr nicht helfen …".

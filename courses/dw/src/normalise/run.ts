@@ -60,7 +60,7 @@ export async function normaliseCourse(
       exercises,
       exerciseNumber: (occurrence, position) => keys.number(entry.key, occurrence, position),
     });
-    corrections.lesson(out.locale);
+    corrections.lesson(out);
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
     await writer.write([libraryFile.lesson(out.lesson), libraryFile.localeLesson(out.locale)]);
