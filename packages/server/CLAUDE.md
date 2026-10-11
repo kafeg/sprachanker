@@ -33,7 +33,7 @@ src/
                      # under the series' lock, then verified; one stopped midway undone at the start);
                      # network.ts (the machine's IPv4 addresses, its `.local` name, `tailscale status`
                      # and `tailscale serve status` as JSON);
-                     # cli.ts (runs `claude` / `codex` for the command-line LLM providers);
+                     # cli.ts (runs `claude` / `codex` for the command-line LLM providers, in the run's environment);
                      # decks.ts (imported decks' folders, written whole; a deck folder's extras.json and
                      # media read aloud — an imported deck's or a course's; packages uploaded, streamed to
                      # decks/.uploads; swept at the start; SQLite from bytes and zstd for reading an .apkg)

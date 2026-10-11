@@ -1,12 +1,28 @@
-// A checked text as kept (07): corrections that change nothing dropped and an empty "corrected" filled
-// with the text itself — small models do both. Shared by the checks of writing and speaking.
+// A checked text as kept (07): corrections that change nothing dropped, an empty "corrected" filled
+// with the text itself — small models do both —, and a good text's "corrected" its own words (a
+// model may still rewrite it there). Shared by the checks of writing and speaking.
 import type { Correction } from "@sprachanker/schema";
 
-export const cleanCheck = <T extends { corrected: string; corrections: Correction[] }>(
+/** The words alone: case, punctuation and spacing aside (a recogniser chooses them). */
+const words = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim();
+
+export const cleanCheck = <
+  T extends { verdict: string; corrected: string; corrections: Correction[] },
+>(
   check: T,
   text: string,
-): T => ({
-  ...check,
-  corrected: check.corrected.trim() || text.trim(),
-  corrections: check.corrections.filter((c) => c.wrong.trim() !== c.right.trim()),
-});
+): T => {
+  const corrections = check.corrections.filter((c) => c.wrong.trim() !== c.right.trim());
+  const corrected = check.corrected.trim() || text.trim();
+  // Nothing to correct: the text as written, unless the model only set its case and punctuation.
+  const good = check.verdict === "good" && !corrections.length;
+  return {
+    ...check,
+    corrected: good && words(corrected) !== words(text) ? text.trim() : corrected,
+    corrections,
+  };
+};

@@ -8,13 +8,35 @@ const ENTITIES: Record<string, string> = {
   nbsp: " ",
 };
 
+/** A table's cell as one line: a break or paragraph a space, other tags gone (a word's letters may be
+ *  marked one by one), the source's line breaks and indentation too. */
+const cellText = (html: string) =>
+  html
+    .replace(/<(br|\/?(p|div|li))\b[^>]*>/gi, " ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;|&#160;|&#xa0;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** A table as lines: each row one line, its cells joined by " · ", empty cells and rows left out. */
+const tableText = (table: string) =>
+  [...table.matchAll(/<tr(?:\s[^>]*)?>([\s\S]*?)<\/tr>/gi)]
+    .map(([, row]) =>
+      [...(row ?? "").matchAll(/<t([dh])(?:\s[^>]*)?>([\s\S]*?)<\/t\1>/gi)]
+        .map(([, , cell]) => cellText(cell ?? ""))
+        .filter(Boolean)
+        .join(" · "),
+    )
+    .filter(Boolean)
+    .join("\n");
+
 export function htmlToText(html: string): string {
   return html
     .replace(/<(script|style)[\s\S]*?<\/\1>/gi, "")
+    .replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (_, table: string) => `\n${tableText(table)}\n`)
     .replace(/<br\s*\/?>/gi, "\n")
     .replace(/<li[^>]*>/gi, "\n- ")
-    .replace(/<\/(p|div|h\d|li|tr|table|ul|ol|figure)>/gi, "\n")
-    .replace(/<\/t[dh]>/gi, " | ")
+    .replace(/<\/(p|div|h\d|li|ul|ol|figure)>/gi, "\n")
     .replace(/<[^>]+>/g, "")
     .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, (m, e: string) => {
       const code = e.startsWith("#x")

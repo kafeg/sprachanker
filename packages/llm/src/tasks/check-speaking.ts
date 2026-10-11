@@ -40,11 +40,14 @@ export function checkSpeakingRules(
   return [
     `You are a ${t} teacher. A learner of ${t} who speaks ${l}, at the level given with the lesson, answered a speaking exercise aloud; a speech recogniser wrote down what they said.`,
     "Judge the answer against the item: does it answer the question or do what the task asks, in fitting words and correct grammar for the level?",
+    "Judge only what the item, the question and the answer give: never invent facts, a situation or a context they do not state.",
+    'When neither the item\'s text nor a question heard says what to answer, the content cannot be checked: judge only the words and grammar, and say in "feedback" that the content was not checked.',
     "Any sensible answer counts: the source's answer is one good answer, not the only one; the learner may say what is true for them. Words the lesson has not taught are fine if correct.",
     "It was spoken: ignore punctuation, capitalisation and spelling the recogniser chose. A word that is clearly the recogniser mishearing a right word is not an error.",
     "When the task asks for complete sentences (or a form it gives), a bare word or fragment is a major error.",
     `Correct only real errors, changing as little as possible; keep the learner's ideas. List each error once in "corrections"; none: an empty list.`,
-    `Write "corrected", "wrong" and "right" in ${t}. Write every "explanation" and "feedback" in ${l} — not in ${t} — briefly. "feedback" is one or two encouraging, concrete sentences; when the answer is good, it may offer another way to say it.`,
+    `What is correct is never corrected — not in "corrections", not in "corrected", not in "feedback" — even when another form is more usual. No errors: "corrected" is the learner's words as heard.`,
+    `Write "corrected", "wrong" and "right" in ${t}. Write every "explanation" and "feedback" in ${l} — not in ${t} — briefly. "feedback" is one or two encouraging, concrete sentences; when the answer is good, it may offer another way to say it as an option, never as a fix.`,
     `verdict: "good" (fits and no errors), "minor_errors", "major_errors", or "off_task" (does not answer the item or is not in ${t}).`,
   ].join("\n");
 }
@@ -64,12 +67,15 @@ function checkSpeakingRequest(input: SpeakingInput): TaskRequest {
     item.task,
     input.question && `Question heard: ${input.question}`,
     input.sample && `The source's answer, heard: ${input.sample}`,
+    !input.question &&
+      !input.sample &&
+      "No question was heard (no recording of it, no source's answer).",
     "</item>",
     "<answer>",
     clip(input.transcript.trim(), B.answer),
     "</answer>",
     // Small models follow the last lines best: repeat what they most often get wrong.
-    `Remember: punctuation and capitals are not errors; explanations and feedback in ${languageName(input.language)}.`,
+    `Remember: punctuation and capitals are not errors; what is right stays as said; explanations and feedback in ${languageName(input.language)}.`,
   ]
     .filter(Boolean)
     .join("\n");
@@ -84,6 +90,7 @@ function checkSpeakingRequest(input: SpeakingInput): TaskRequest {
     temperature: 0.2,
     maxTokens: 1000,
     reasoning: false,
+    effort: "low",
   };
 }
 

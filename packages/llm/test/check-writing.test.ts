@@ -27,7 +27,9 @@ test("check_writing: the task from the lesson's goals, the text as data, the lea
   expect(system).toContain("in Russian");
   expect(user).toContain("Learner's level: A1");
   expect(user).toContain("Goethe-Zertifikat's Schreiben");
-  expect(system).toEndWith("Reply with the JSON object only.");
+  expect(system).toEndWith(
+    "Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.",
+  );
   expect(user).toContain(
     "Task: Write 3–5 sentences in the target language on this lesson's topic (sich vorstellen).",
   );

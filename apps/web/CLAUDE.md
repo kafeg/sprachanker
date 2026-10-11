@@ -71,8 +71,8 @@ apps/web/src/
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
-                   # bubbles, header, pending exchange, composer, start prompt, the answer box, errors (with
-                   # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
+                   # bubbles, header, pending exchange ("Thinking…" with the seconds taken), composer, start
+                   # prompt, the answer box, errors (with Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
   i18n/            # catalogs <code>.json (ICU; en bundled, the others by catalogs.ts, loaded when chosen; one not loading: no change, a reload; 09)
   ui/              # presentational only (no API, no features): design tokens in styles.css, line-breaks (where course text may break), shadcn/ui

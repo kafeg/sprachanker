@@ -26,9 +26,11 @@ import { DialogueLine, type DialogueLineInput } from "./dialogue-line.tsx";
 import {
   ChatBubble,
   ChatHeader,
+  Elapsed,
   ErrorLine,
   PendingExchange,
   StartPrompt,
+  Thinking,
   useScrollToEnd,
 } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
@@ -193,7 +195,7 @@ function Summary({
           <p>{summary.feedback}</p>
         </>
       ) : summing ? (
-        <p className="text-sm text-muted-foreground">{t("scene.summing")}</p>
+        <Thinking label={t("scene.summing")} className="text-sm" />
       ) : (
         onRetry && (
           <p className="text-sm">
@@ -238,7 +240,13 @@ function CurrentDialogue({
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="me-auto text-xl font-bold">{scene.setup.title}</h2>
         <Button variant="outline" loading={starting} disabled={!!busy} onClick={onNew}>
-          {starting ? t("scene.preparing") : t("scene.new")}
+          {starting ? (
+            <>
+              {t("scene.preparing")} <Elapsed />
+            </>
+          ) : (
+            t("scene.new")
+          )}
         </Button>
       </div>
       <Panel as="div">

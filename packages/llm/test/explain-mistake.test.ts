@@ -77,7 +77,7 @@ describe("explainMistakeMessages", () => {
 
 test("htmlToText", () => {
   expect(htmlToText("<p>a&nbsp;&amp;&#252;</p><table><tr><td>x</td><td>y</td></tr></table>")).toBe(
-    "a &ü\nx | y |",
+    "a &ü\n\nx · y",
   );
 });
 
