@@ -302,7 +302,6 @@ export function createServices(config: ServicesConfig) {
   // Cards take the audio read aloud for their decks' words.
   const deckAudio = createDeckAudio({
     extras: deckExtras,
-    files: config.decks,
     onRead: async () => {
       await Promise.all([...open.values()].map(relink));
     },

@@ -8,7 +8,6 @@ import type { DeckExtrasWord, DeckReadAudio } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { sha256Hex } from "../security/encoding.ts";
 import type { DeckExtrasStore, DeckJobSpec, DeckNote } from "./deck-extras.ts";
-import type { DeckFiles } from "./decks.ts";
 
 /** A server engine reading a language with one voice (profile-speech.ts chooses them). */
 export interface DeckReader {
@@ -58,12 +57,11 @@ const toRead = (w: Word) => w.texts.filter((t) => !t.own).map((t) => t.text);
 
 export function createDeckAudio(deps: {
   extras: DeckExtrasStore;
-  files: Pick<DeckFiles, "writeMedia" | "removeMedia">;
   /** After a job: cards follow (their display takes the audio read). */
   onRead(): Promise<void>;
   now(): number;
 }) {
-  const { extras, files } = deps;
+  const { extras } = deps;
 
   /** A headword's reading while it is of that text and its file is there. */
   const readingOf = (folder: string, key: string, text: string) =>
@@ -88,7 +86,7 @@ export function createDeckAudio(deps: {
         const bytes = await reader.read(s.text);
         // A folder removed meanwhile is not made again.
         if (dropped()) return { done: 0, failed: 0 };
-        files.writeMedia(folder, path, bytes);
+        extras.writeMedia(folder, path, bytes);
       }
       if (dropped()) return { done: 0, failed: 0 };
       const before = readingsOf(book.words[s.key]);
@@ -112,7 +110,7 @@ export function createDeckAudio(deps: {
         Object.values(book.words).flatMap((x) => readingsOf(x).map((r) => r.path)),
       );
       for (const gone of new Set(before.map((r) => r.path)))
-        if (!used.has(gone)) files.removeMedia(folder, gone);
+        if (!used.has(gone)) extras.removeMedia(folder, gone);
       return { done: 1, failed: 0 };
     };
 

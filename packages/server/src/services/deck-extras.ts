@@ -19,7 +19,8 @@ import { ServiceError } from "../errors.ts";
 import type { DeckFiles, Decks } from "./decks.ts";
 import { parseJson } from "./stored.ts";
 
-export type DeckJobKind = "audio" | "examples";
+const KINDS = ["audio", "examples"] as const;
+export type DeckJobKind = (typeof KINDS)[number];
 
 /** A word of a deck as the deck's jobs take it, in the deck's order (cards.ts gives them): one per
  *  lexeme — a course's, one per headword its lessons give it as, the word's first one first. */
@@ -85,7 +86,10 @@ export function failureOf(error: unknown): string {
 }
 
 export function createDeckExtras(deps: {
-  files: Pick<DeckFiles, "extras" | "writeExtras" | "media" | "removeMedia" | "folders" | "remove">;
+  files: Pick<
+    DeckFiles,
+    "extras" | "writeExtras" | "media" | "writeMedia" | "removeMedia" | "folders" | "remove"
+  >;
   decks: Pick<Decks, "deck">;
   /** The installed courses as the library lists them (a course whose files do not read is here too). */
   library: Pick<LibraryView, "courses">;
@@ -97,6 +101,24 @@ export function createDeckExtras(deps: {
   const books = new Map<string, { book: DeckExtras; unread: Record<string, unknown> }>();
   const jobs = new Map<string, Job>();
   const jobKey = (kind: DeckJobKind, folder: string) => `${kind} ${folder}`;
+  /** While a folder's job works, which of its media are there: found once, then as the job writes
+   *  and removes them — its state, asked again and again while it works, finds every word's file
+   *  without the disk. Otherwise the disk is asked (a file removed by hand counts as gone). */
+  const present = new Map<string, Map<string, boolean>>();
+  const has = (folder: string, path: string) => {
+    const known = present.get(folder);
+    if (!known) return !!files.media(folder, path);
+    let found = known.get(path);
+    if (found === undefined) {
+      found = !!files.media(folder, path);
+      known.set(path, found);
+    }
+    return found;
+  };
+  const removeMedia = (folder: string, path: string) => {
+    files.removeMedia(folder, path);
+    present.get(folder)?.set(path, false);
+  };
   /** The folders of the courses installed, by their place in the library (none read). */
   const courseFolders = () =>
     new Set(deps.library.courses().map((c) => courseDeckFolder(`${c.series}/${c.course}`)));
@@ -148,7 +170,7 @@ export function createDeckExtras(deps: {
   /** A deck's folder replaced (imported again) or removed: its jobs stop, saving nothing more there,
    *  and its extras are read anew. */
   function forget(folder: string) {
-    for (const kind of ["audio", "examples"] as const) {
+    for (const kind of KINDS) {
       const job = jobs.get(jobKey(kind, folder));
       if (!job) continue;
       job.dropped = true;
@@ -157,6 +179,7 @@ export function createDeckExtras(deps: {
       jobs.delete(jobKey(kind, folder));
     }
     books.delete(folder);
+    present.delete(folder);
   }
 
   async function run<T>(folder: string, job: Job, spec: DeckJobSpec<T>) {
@@ -217,13 +240,23 @@ export function createDeckExtras(deps: {
     await spec.end?.().catch((error: unknown) => console.error(`after ${folder}'s job:`, error));
     if (job.status === "running") job.status = "done";
     else if (job.status === "stopping") job.status = "stopped";
+    if (!KINDS.some((kind) => going(jobs.get(jobKey(kind, folder))))) present.delete(folder);
   }
 
   return {
     book,
 
     /** A file of a deck folder's media is there. */
-    has: (folder: string, path: string) => !!files.media(folder, path),
+    has,
+
+    /** Writes a file into a deck folder's media (a job's). */
+    writeMedia(folder: string, path: string, bytes: Uint8Array) {
+      files.writeMedia(folder, path, bytes);
+      present.get(folder)?.set(path, true);
+    },
+
+    /** Removes a file of a deck folder's media (a job's). */
+    removeMedia,
 
     /** The folder of a deck as Review lists it (`course:<key>`, `deck:<id>`); 404 when it is not here. */
     async folderOf(scope: string) {
@@ -273,6 +306,7 @@ export function createDeckExtras(deps: {
         controller: new AbortController(),
       };
       jobs.set(jobKey(kind, folder), job);
+      if (!present.has(folder)) present.set(folder, new Map());
       void run(folder, job, spec);
     },
 
@@ -318,7 +352,7 @@ export function createDeckExtras(deps: {
       const own = new Set(
         deck?.words.flatMap((w) => [w.audio, ...(w.examples ?? []).map((e) => e.audio)]),
       );
-      for (const path of new Set(read)) if (!own.has(path)) files.removeMedia(folder, path);
+      for (const path of new Set(read)) if (!own.has(path)) removeMedia(folder, path);
       return cleared;
     },
 
