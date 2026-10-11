@@ -139,7 +139,8 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
     'Group 1 — what went wrong: the option chosen; new items: single_choice, with "prompt"',
   );
   expect(data).toContain('- learner "Im Park.", correct "Im Café." to "Wo ist Lena?"');
-  expect(data).toContain('- learner "2 Euro", correct "2,50 Euro" to "Was kostet der Kaffee?"');
+  // Understanding's question is listed only: no new items are asked for it.
+  expect(data).not.toContain("Was kostet der Kaffee?");
   expect(data).toContain("Group 2 — what went wrong: the word chosen; new items: gap_choice");
   // The gap of two that was wrong, the other filled right; never the item whole twice.
   expect(data).toContain(
@@ -163,9 +164,25 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
       g.mistakes.length,
     ]),
   ).toEqual([
-    ["single_choice", "choice", 2],
+    ["single_choice", "choice", 1],
     ["gap_choice", "word", 1],
+    [undefined, "misread", 1],
   ]);
+  expect(review.result.groups[2]).toEqual({
+    what: "misread",
+    mistakes: [
+      {
+        itemKey: `${text.id}#1`,
+        what: "misread",
+        given: "2 Euro",
+        right: "2,50 Euro",
+        context: "Was kostet der Kaffee?",
+        line: "Kaffee 2,50 Euro",
+      },
+    ],
+    explanation: "",
+    items: [],
+  });
   expect(review.result.groups[1].explanation).toBe("heißen — имя, bestellen — заказ.");
 
   // The new items, numbered across the groups: answered once each, checked by the engine.
@@ -205,4 +222,32 @@ test("the pass's mistakes and wrong Understanding answers gone over by type: wro
         e.type === "practice_answered" && e.payload.verdict === review.id,
     ),
   ).toHaveLength(3);
+});
+
+test("only mistakes listed (an Understanding question): the review kept without a call", async () => {
+  const m = model([TEXT, CHECK]);
+  const { send, sendJson } = await setup({ fetch: m.fetch });
+  await send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
+  await send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
+  await sendJson("POST", "/api/runs", START);
+  const text = await sendJson("POST", "/api/llm/understanding", REQUEST);
+  await sendJson("POST", "/api/llm/understanding/answer", {
+    ...REQUEST,
+    id: text.id,
+    question: 2,
+    answer: { optionId: "b" },
+  });
+  // Nothing to send the model.
+  const prompt = await send("POST", "/api/llm/mistakes/prompt", REQUEST);
+  expect([prompt.status, ((await prompt.json()) as { error: string }).error]).toEqual([
+    409,
+    "no_mistakes",
+  ]);
+  const review = await sendJson("POST", "/api/llm/mistakes", REQUEST);
+  expect(m.names).toEqual(["understanding_text", "understanding_check"]);
+  expect(review.model).toBe("");
+  expect(
+    review.result.groups.map((g: { what: string; items: unknown[] }) => [g.what, g.items.length]),
+  ).toEqual([["misread", 0]]);
+  expect(review.result.groups[0].mistakes[0].line).toBe("Tee 2 Euro");
 });

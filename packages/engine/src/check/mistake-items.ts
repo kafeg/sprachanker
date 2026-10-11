@@ -85,10 +85,14 @@ export const checkMistakeItem = (
   lang: string,
 ): Outcome => checkItem(mistakeItemExercise(type, m), 0, answer, lang);
 
-/** A review's items in order across its groups: each with its group and its number in the review. */
+/** A review's items in order across its groups: each with its group and its number in the review (a
+ *  type listed only has none). */
 export const reviewItems = (review: MistakesReview) =>
   review.groups
-    .flatMap((g, group) => g.items.map((item) => ({ group, type: g.type, item })))
+    .flatMap((g, group) => {
+      const { type } = g;
+      return type ? g.items.map((item) => ({ group, type, item })) : [];
+    })
     .map((x, n) => ({ ...x, n }));
 
 /**

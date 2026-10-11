@@ -17,8 +17,9 @@ src/
   text/           # normalisation and word diff used by checkers and speech; words (a sentence's words
                   # met or new against a vocabulary; whether it uses a word, or a form given of it —
                   # irregular-verbs: the commonest German ones' forms no stem finds)
-  learner/        # mistakes, going-over (a mistake's wrong parts only, grouped by type; Understanding's
-                  # wrong answers as mistakes), lesson progress, study days (activity: counted by
+  learner/        # mistakes, going-over (a run's mistakes to go over in the lesson and whether it has
+                  # any; a mistake's wrong parts only, grouped by type, those said aloud and
+                  # Understanding's listed only), lesson progress, study days (activity: counted by
                   # module, the run's kind, the time each took); series: a span cut into bars (days, weeks, months) for the
                   # Notebook's pictures; planned: rule mastery, can-do
   exam/           # exams: the settings as an exam reads them, the questions open to a learner (a

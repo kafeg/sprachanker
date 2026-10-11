@@ -1627,7 +1627,17 @@
       "order": "Ordem das palavras",
       "pair": "Pares",
       "spelling": "Ortografia",
-      "spoken": "Dito em voz alta"
+      "spoken": "Dito em voz alta",
+      "sentence_order": "Ordem das frases",
+      "misheard": "Mal ouvido",
+      "misread": "Mal lido"
+    },
+    "inText": "No texto:",
+    "more": "{n, plural, one {Mais # erro} other {Mais # erros}} desta passagem não revistos aqui.",
+    "listed": {
+      "spoken": "Não há novos exercícios para o que foi dito em voz alta: diga-o de novo no seu exercício.",
+      "misheard": "Ouça o texto de novo: a resposta está nele.",
+      "misread": "Leia o texto de novo: a resposta está nele."
     }
   }
 }

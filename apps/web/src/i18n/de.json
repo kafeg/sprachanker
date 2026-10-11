@@ -1627,7 +1627,17 @@
       "order": "Wortstellung",
       "pair": "Paare",
       "spelling": "Rechtschreibung",
-      "spoken": "Gesprochenes"
+      "spoken": "Gesprochenes",
+      "sentence_order": "Reihenfolge der Sätze",
+      "misheard": "Falsch gehört",
+      "misread": "Falsch gelesen"
+    },
+    "inText": "Im Text:",
+    "more": "{n, plural, one {# weiterer Fehler} other {# weitere Fehler}} dieses Durchgangs hier nicht besprochen.",
+    "listed": {
+      "spoken": "Keine neuen Aufgaben zu Gesprochenem: Sag es in seiner Übung noch einmal.",
+      "misheard": "Hör dir den Text noch einmal an: Die Antwort steht darin.",
+      "misread": "Lies den Text noch einmal: Die Antwort steht darin."
     }
   }
 }

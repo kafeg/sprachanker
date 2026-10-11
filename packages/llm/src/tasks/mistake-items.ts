@@ -98,9 +98,9 @@ export type MistakeItemsReply = z.infer<typeof MistakeItemsReply>;
 /** Each type's fields, as the model writes an item of it. */
 const SHAPES: Record<MistakeItemType, string> = {
   single_choice:
-    '"prompt" (the question, or a sentence with ___ where the answer goes), "options" (2–4) and "answer" (the right option\'s index, 0-based)',
+    '"prompt" (the question, or a sentence with ___ where the answer goes), "options" (2–4, all different) and "answer" (the right option\'s index, 0-based)',
   gap_text:
-    '"text" (a sentence with each gap written ___, one or two gaps) and "gaps" (for each gap in order: "accepted", every right way of writing it)',
+    '"text" (a sentence with each gap written ___, one or two gaps, each gap followed by its cue in brackets — the word\'s base form when its ending or form is practised, the word in the learner\'s language when the word is — so that only one word fits) and "gaps" (for each gap in order: "accepted", every right way of writing it)',
   gap_choice:
     '"text" (a sentence with each gap written ___, one or two gaps) and "gaps" (for each gap in order: "options", 2–4, and "answer", the right option\'s index)',
   order:
@@ -108,15 +108,23 @@ const SHAPES: Record<MistakeItemType, string> = {
   match: '"pairs": 3 to 5, each "left" with its "right" (every left and every right once)',
 };
 
-/** What went wrong, as the groups name it. */
+/** The fields of an order item of sentences (a text's sentences put in order). */
+const SENTENCES_SHAPE =
+  '"parts": the sentences of a short text in the right order (3 to 5, short; the app shuffles them)';
+
+/** What went wrong, as the groups name it (those listed only never reach the model). */
 const WHAT: Record<MistakeKind, string> = {
-  ending: "the ending of a word",
+  ending: "the ending or form of a word",
   word: "the word chosen",
   choice: "the option chosen",
   order: "the word order",
+  sentence_order:
+    "the order of the sentences in a text (each line: the sentence the learner put in a place, the one that belongs there)",
   pair: "the pairs matched",
   spelling: "the spelling",
   spoken: "an answer said aloud",
+  misheard: "a question on a text heard",
+  misread: "a question on a text read",
 };
 
 export function mistakeItemsRules(
@@ -129,7 +137,7 @@ export function mistakeItemsRules(
     `You go over a learner's mistakes in ${t}, at the learner's level given with the lesson. The learner speaks ${l}. The mistakes come in numbered groups of one type, each mistake only what was wrong: what the learner gave, what is right, the words around it ([_] marks a gap).`,
     `For each group "n" (its number), then:`,
     `- "explanation": in ${l}, at most 60 words, plain text: the one rule or pattern behind these mistakes with the right forms, at the learner's level. Say what is wrong, never guess why the learner chose it; a tendency ("usually") is no rule; a slip (a typo) is called one in a few words. ${t} forms in ${t}.`,
-    `- "items": two or three NEW items of the group's type (its fields given with the group) practising the same point, in ${t} — never a sentence of the mistakes again —, with the words the learner knows (given with the lesson) and the grammar met so far; each with exactly one right answer; options are all real ${t} words or forms.`,
+    `- "items": two or three NEW items of the group's type (its fields given with the group) practising the same point, in ${t} — never a sentence of the mistakes again —, with the words the learner knows (given with the lesson) and the grammar met so far; each with exactly one right answer; options are all real ${t} words or forms, all different. A gap typed always has its cue in brackets right after it (the base form, or the word in ${l}): without one, other right words would be marked wrong.`,
     `- No headings, no emoji. ${NEUTRAL}`,
   ].join("\n");
 }
@@ -144,7 +152,9 @@ const groupsOf = (groups: MistakeGroupInput[]) =>
   groups
     .map((g, i) =>
       [
-        `Group ${i + 1} — what went wrong: ${WHAT[g.what]}; new items: ${g.type}, with ${SHAPES[g.type]}`,
+        `Group ${i + 1} — what went wrong: ${WHAT[g.what]}; new items: ${g.type}, with ${
+          g.what === "sentence_order" ? SENTENCES_SHAPE : SHAPES[g.type]
+        }`,
         ...g.mistakes.map((p) => `- ${wrongPartLine(p)}`),
       ].join("\n"),
     )
@@ -159,7 +169,7 @@ export function itemsProblem(
     const answered = reply.groups.filter((r) => r.n === i + 1);
     if (answered.length !== 1) return `group ${i + 1} answered once, with its "n"`;
     for (const [k, item] of (answered[0]?.items ?? []).entries()) {
-      const problem = mistakeItemProblem(g.type, mistakeItemOf(item));
+      const problem = mistakeItemProblem(g.type, mistakeItemOf(item), g.mistakes);
       if (problem) return `group ${i + 1}, item ${k + 1}: ${problem}`;
     }
   }

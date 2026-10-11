@@ -55,6 +55,7 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
     'a tendency ("usually") is no rule',
     "never a sentence of the mistakes again",
     "each with exactly one right answer",
+    "A gap typed always has its cue in brackets right after it",
     "Write only in Russian and German",
     "The learner's gender is unknown",
   ])
@@ -64,7 +65,7 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
     "Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.",
   );
   expect(user).toContain(
-    'Group 1 — what went wrong: the ending of a word; new items: gap_text, with "text" (a sentence with each gap written ___',
+    'Group 1 — what went wrong: the ending or form of a word; new items: gap_text, with "text" (a sentence with each gap written ___',
   );
   expect(user).toContain('- learner "musst", correct "muss" in "In der WG [_] Nina heute kochen."');
   expect(user).toContain('- learner (no answer), correct "Im Café." to "Wo ist Lena?"');
@@ -75,7 +76,7 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
 
 test("every group answered once, each item valid for its group's type; else repaired", () => {
   const { check } = mistakeItemsTask(input);
-  const gap = { text: "Er ___ kochen.", gaps: [{ accepted: ["muss"] }] };
+  const gap = { text: "Er ___ (müssen) kochen.", gaps: [{ accepted: ["muss"] }] };
   const choice = { prompt: "Wo ist Tom?", options: ["Im Café.", "Im Park."], answer: 0 };
   // The model writes every field, null where the type has none (strict structured outputs).
   const full = (item: Record<string, unknown>) => ({
@@ -116,6 +117,64 @@ test("every group answered once, each item valid for its group's type; else repa
       { n: 2, explanation: "…", items: [choice, { prompt: "?", options: ["a", "b"] }] },
     ]),
   ).toContain("group 2, item 2");
+  const second = (item: Record<string, unknown>, n = 1) =>
+    reply(
+      n === 1
+        ? [
+            { n: 1, explanation: "…", items: [gap, item] },
+            { n: 2, explanation: "…", items: [choice, choice] },
+          ]
+        : [
+            { n: 1, explanation: "…", items: [gap, gap] },
+            { n: 2, explanation: "…", items: [choice, item] },
+          ],
+    );
+  // A typed gap needs its cue (else another right word is marked wrong); a prompt does too.
+  expect(second({ text: "Er ___ kochen.", gaps: [{ accepted: ["muss"] }] })).toContain(
+    "cue in brackets",
+  );
+  expect(
+    second({ prompt: "Mit «müssen»:", text: "Er ___ kochen.", gaps: [{ accepted: ["muss"] }] }),
+  ).toBeUndefined();
+  expect(
+    second({
+      text: "Du ___ (müssen) und er ___ kochen.",
+      gaps: [{ accepted: ["musst"] }, { accepted: ["muss"] }],
+    }),
+  ).toContain("cue in brackets");
+  // The same option twice; a mistake's sentence again.
+  expect(second({ prompt: "Wo?", options: ["Im Park.", "im park."], answer: 0 }, 2)).toContain(
+    "options all different",
+  );
+  expect(
+    second({ text: "In der WG ___ (müssen) Nina heute kochen.", gaps: [{ accepted: ["muss"] }] }),
+  ).toContain("never one of the mistakes again");
+  expect(
+    second({ prompt: "Wo ist Lena?", options: ["Im Café.", "Im Park."], answer: 0 }, 2),
+  ).toContain("never one of the mistakes again");
+});
+
+test("sentences put in order: new items of a short text's sentences", () => {
+  const { request } = mistakeItemsTask({
+    ...input,
+    groups: [
+      {
+        type: "order",
+        what: "sentence_order",
+        mistakes: [
+          {
+            itemKey: "k#3",
+            what: "sentence_order",
+            given: "Ich frühstücke.",
+            right: "Ich stehe auf.",
+          },
+        ],
+      },
+    ],
+  });
+  expect(String(request.messages[1]?.content)).toContain(
+    'new items: order, with "parts": the sentences of a short text in the right order',
+  );
 });
 
 test("a mistake for the tutor: its wrong parts only, never the item whole; else its task cut at a word", () => {

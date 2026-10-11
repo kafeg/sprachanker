@@ -126,15 +126,57 @@ test("opening a step records what it is: a page shown, a page read once", () => 
 
 test("going over mistakes is in the plan only while the run has some: an item or an Understanding question answered wrong, or the step recorded", () => {
   const offered = ["understanding", "writing", "mistakes"] as const;
-  const right = { outcome: { result: "correct", score: 1 }, attempt: 1, ms: 1, answer: {} };
-  const wrong = { ...right, outcome: { result: "wrong", score: 0 } };
-  expect(practiceInPlan(offered, [])).toEqual(["understanding", "writing"]);
-  expect(practiceInPlan(offered, [ev(1, "answered", "s.x/c/01-01/ex-01#1", right)])).not.toContain(
-    "mistakes",
-  );
-  expect(practiceInPlan(offered, [ev(1, "answered", "s.x/c/01-01/ex-01#1", wrong)])).toContain(
-    "mistakes",
-  );
+  // A choice, and a free answer the model rates (no item type to go over).
+  const choice = {
+    key: "s.x/c/01-01/ex-01#1",
+    options: [
+      { id: "a", text: "ja" },
+      { id: "b", text: "nein" },
+    ],
+    answer: { optionIds: ["a"] },
+  };
+  const graded = {
+    ...lesson,
+    pages: [
+      { exercise: { key: "s.x/c/01-01/ex-01", type: "single_choice", items: [choice] } },
+      { exercise: { key: "s.x/c/01-01/ex-02", type: "respond", items: [{}] } },
+    ],
+  } as unknown as Lesson;
+  const plan = (events: TypedEvent[]) => practiceInPlan(offered, events, graded, "de");
+  const given = (result: string, answer: unknown) => ({
+    outcome: { result, score: result === "correct" ? 1 : 0 },
+    attempt: 1,
+    ms: 1,
+    answer,
+  });
+  expect(plan([])).toEqual(["understanding", "writing"]);
+  expect(
+    plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("correct", { optionId: "a" }))]),
+  ).not.toContain("mistakes");
+  expect(
+    plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { optionId: "b" }))]),
+  ).toContain("mistakes");
+  // Nothing the step could go over: a free answer, an exercise no longer in the lesson, an answer
+  // that does not read as its type's.
+  expect(plan([ev(1, "answered", "s.x/c/01-01/ex-02#1", given("wrong", { text: "x" }))])).toEqual([
+    "understanding",
+    "writing",
+  ]);
+  expect(
+    plan([ev(1, "answered", "s.x/c/01-01/ex-09#1", given("wrong", { optionId: "b" }))]),
+  ).not.toContain("mistakes");
+  expect(
+    plan([ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { sequence: ["a"] }))]),
+  ).not.toContain("mistakes");
+  // Not offered: never in it.
+  expect(
+    practiceInPlan(
+      ["writing"],
+      [ev(1, "answered", "s.x/c/01-01/ex-01#1", given("wrong", { optionId: "b" }))],
+      graded,
+      "de",
+    ),
+  ).toEqual(["writing"]);
   // An Understanding question answered wrong: a mistake to go over too.
   const text = {
     task: "understanding",
@@ -157,14 +199,14 @@ test("going over mistakes is in the plan only while the run has some: an item or
     outcome: { result, score: 0 },
   });
   const read = [ev(1, "llm_verdict", null, text)];
-  expect(
-    practiceInPlan(offered, [...read, ev(2, "practice_answered", null, answered("correct"))]),
-  ).not.toContain("mistakes");
-  expect(
-    practiceInPlan(offered, [...read, ev(2, "practice_answered", null, answered("wrong"))]),
-  ).toContain("mistakes");
+  expect(plan([...read, ev(2, "practice_answered", null, answered("correct"))])).not.toContain(
+    "mistakes",
+  );
+  expect(plan([...read, ev(2, "practice_answered", null, answered("wrong"))])).toContain(
+    "mistakes",
+  );
   // Recorded (done or skipped): it stays.
-  expect(
-    practiceInPlan(offered, [ev(1, "step_done", null, { step: "mistakes", skipped: true })]),
-  ).toContain("mistakes");
+  expect(plan([ev(1, "step_done", null, { step: "mistakes", skipped: true })])).toContain(
+    "mistakes",
+  );
 });

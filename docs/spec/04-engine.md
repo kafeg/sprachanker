@@ -409,23 +409,39 @@ Going over mistakes takes the wrong ones in (owner, 2026-10-12).
 
 **Going over mistakes** (`mistake_items`; 07; owner, 2026-10-12, from the walkthrough: a chat dumped
 every mistake at once and missed the one inside a long gap item): structured, never a chat. The
-mistakes of the run the lesson shows — items wrong (or partly right) at the first attempt, an answer
-said aloud by its model check (`mistakesOf`), and Understanding's questions answered wrong
-(`understandingMistakes`) — are cut to their wrong parts only (`wrongParts`, `learner/going-over.ts`):
-a gap of many with the words around it (six on each side, whole words, "…" where cut; the gap
-marked [_], the other gaps filled right), a pair with its left, the option chosen with the question,
-the order, words written or said — what was given, what is right. The engine groups them by type
-(`mistakeGroups`): the closed type new items are set of (the exercise's own; a multiple choice → one
-answer; dictation and speech → a gap typed) and what went wrong (`slipOf`: the spelling — accents
-and ß aside the same —, an ending — the same start —, another word; a choice, an order, a pair,
-spoken), the commonest first, at most three types of at most six parts. One model call gives each
-type a short explanation (what is wrong, never why it was chosen) and two or three new items in one
-flat shape (`MistakeItem`, checked per type: `mistakeItemProblem`; repaired once), from the words
-known; the engine makes each an item of its type (`mistakeItemExercise`) and checks the answers. The
-review is an `llm_verdict` (`task: mistakes`) in the run, its groups with their wrong parts; each
-answer a `practice_answered` on it, the items numbered across its groups (05). The step shows one
-type at a time ("Type 1 of 3"), the next once its items are answered (`reviewAt`); "Go over again"
-makes a new review of the run's mistakes as they are then.
+mistakes of the run the lesson shows (`mistakesToGoOver`, `learner/going-over.ts`) — items wrong (or
+partly right) at the first attempt, of exercises still in the lesson, an answer said aloud by its model
+check (`mistakesOf`), and Understanding's questions answered wrong (`understandingMistakes`) — are cut
+to their wrong parts only (`wrongParts`): a gap of many with the words around it (six on each side,
+whole words, "…" where cut; the gap marked [_], the other gaps filled right), a pair with its left,
+the option chosen with the question (else the edition's prompt, else the exercise's instruction),
+the order, each word of a dictation or of an answer said aloud that is wrong (the check's word diff) —
+what was given, what is right. Options without words (pictures) are named by the edition's
+description, else left out. The engine groups them by type (`mistakeGroups`): the closed type new
+items are set of (the exercise's own; a multiple choice → one answer; a dictation and letters put in
+order → a gap typed) and what went wrong (`slipOf`, in the language learnt with its case rules:
+the spelling — only the case, a spelling of the same sound kept per language as data (German's ss for
+ß), or a letter or two off —, an ending — the same start —, another word; a difference only in
+accents or umlauts is another word, owner 2026-10-12: Mutter/Mütter, wurde/würde, schon/schön, si/sí
+differ in meaning or form, and "word" makes the explanation tell the two apart, never wave it off as a
+slip; a choice, an order, sentences put in order — only the places another sentence took —, a pair,
+spoken), the commonest first, at most three types of at most six parts; the parts left out are
+counted ("and 4 more"). Answers said aloud (often the recogniser mishearing) and Understanding's
+questions ("misheard", "misread", each with the line of its text the right answer is in) are listed
+only, after the others: no new items are set of them — a comprehension slip is no grammar point.
+Whether a run has anything to go over is one predicate (`hasMistakesToGoOver`: a mistake with a wrong
+part to show), read alike by the plan (`practiceInPlan`) and the server. One model call gives each
+type gone over a short explanation (what is wrong, never why it was chosen) and two or three new items
+in one flat shape (`MistakeItem`, checked per type: `mistakeItemProblem` — a typed gap followed by its
+cue in brackets, the base form or the learner-language word, so only one word fits; options all
+different; never a mistake's sentence again —; repaired once), from the words known; the engine makes
+each an item of its type (`mistakeItemExercise`) and checks the answers. Only types listed: no call.
+The review is an `llm_verdict` (`task: mistakes`) in the run, its groups with their wrong parts; each
+answer a `practice_answered` on it, the items numbered across its groups (05). The step shows the
+newest review of the run the lesson shows (another run's are past ones), one type at a time ("Type 1 of
+3"), the next once its items are answered (`reviewAt`); the step is done once that review is answered
+through — also when it is read again after a lost reply —, and skips itself when the run has nothing to
+go over; "Go over again" makes a new review of the run's mistakes as they are then.
 
 **Writing** (`writing_task`, `check_writing`; 07; owner, 2026-10-12, from the walkthrough): the
 model sets the task from the lesson's goals and the snapshot — a situation (who the learner writes to

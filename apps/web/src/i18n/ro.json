@@ -1627,7 +1627,17 @@
       "order": "Ordinea cuvintelor",
       "pair": "Perechi",
       "spelling": "Ortografie",
-      "spoken": "Spus cu voce tare"
+      "spoken": "Spus cu voce tare",
+      "sentence_order": "Ordinea propozițiilor",
+      "misheard": "Auzit greșit",
+      "misread": "Citit greșit"
+    },
+    "inText": "În text:",
+    "more": "Nediscutate aici: încă {n, plural, one {# greșeală} few {# greșeli} other {# de greșeli}} din această parcurgere.",
+    "listed": {
+      "spoken": "Nu există exerciții noi pentru ce s-a spus cu voce tare: spune-o din nou în exercițiul ei.",
+      "misheard": "Ascultă textul din nou: răspunsul este în el.",
+      "misread": "Citește textul din nou: răspunsul este în el."
     }
   }
 }
