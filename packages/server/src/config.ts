@@ -2,7 +2,9 @@
 import { homedir, platform } from "node:os";
 import { join } from "node:path";
 
+/** $SPRACHANKER_APP_DATA, else the OS's app-data folder (tests set it: Bun's homedir() ignores $HOME). */
 export function appDataDir(): string {
+  if (process.env.SPRACHANKER_APP_DATA) return process.env.SPRACHANKER_APP_DATA;
   const home = homedir();
   if (platform() === "darwin") return join(home, "Library", "Application Support", "SprachAnker");
   if (platform() === "win32")

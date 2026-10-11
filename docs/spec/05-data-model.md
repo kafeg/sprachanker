@@ -3,7 +3,7 @@
 ## Locations
 
 ```
-<app-data>/                      # OS-specific (config.ts): ~/Library/Application Support/SprachAnker, %APPDATA%\SprachAnker, ~/.local/share/sprachanker
+<app-data>/                      # $SPRACHANKER_APP_DATA, else OS-specific (config.ts): ~/Library/Application Support/SprachAnker, %APPDATA%\SprachAnker, ~/.local/share/sprachanker
 └── secret.key                   # seals the profiles' API keys (06, Security)
 
 <data-root>/                     # --data, else $SPRACHANKER_DATA, else <app-data>/data
