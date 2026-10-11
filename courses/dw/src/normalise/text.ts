@@ -5,12 +5,20 @@ import type { ApolloState } from "../apollo.ts";
 /** The player's labels known before a page tells its own (pages without their interface strings). */
 const KNOWN_LABELS = ["Прослушать аудио", "Play audio", "Audio abspielen"];
 
+/** A label as compared: case and its closing mark aside (the page's "Putar audio.", the field's
+ *  "Putar audio!"). */
+const labelKey = (label: string) =>
+  label
+    .trim()
+    .replace(/[\s.!…]+$/u, "")
+    .toLocaleLowerCase();
+
 /**
  * Labels of DW's player that appear in content fields, not content: the page's own interface strings
  * (`i18nByLang(…).all`, `exercise.playAudio`), so every edition language is covered.
  */
 export function uiLabels(state: ApolloState): Set<string> {
-  const labels = new Set(KNOWN_LABELS.map((l) => l.toLocaleLowerCase()));
+  const labels = new Set(KNOWN_LABELS.map(labelKey));
   const root = state.ROOT_QUERY as Record<string, unknown> | undefined;
   for (const [key, value] of Object.entries(root ?? {})) {
     if (!key.startsWith("i18nByLang")) continue;
@@ -20,7 +28,7 @@ export function uiLabels(state: ApolloState): Set<string> {
         exercise?: { playAudio?: unknown };
       };
       const label = strings.exercise?.playAudio;
-      if (typeof label === "string" && label.trim()) labels.add(label.trim().toLocaleLowerCase());
+      if (typeof label === "string" && labelKey(label)) labels.add(labelKey(label));
     } catch {
       // Interface strings that do not read: the known labels stay.
     }
@@ -28,8 +36,7 @@ export function uiLabels(state: ApolloState): Set<string> {
   return labels;
 }
 
-export const isUiLabel = (text: string, labels: Set<string>) =>
-  labels.has(text.trim().toLocaleLowerCase());
+export const isUiLabel = (text: string, labels: Set<string>) => labels.has(labelKey(text));
 
 /** The opening tag of a vocabulary chip: a word of the text linked to its vocabulary entry. */
 const CHIP = /<span\b[^>]*\bclass="[^"]*\beditable placeholder\b[^"]*"[^>]*>/g;
@@ -49,6 +56,41 @@ const IN_WORD =
 /** A hyphen right at a chip's edge, only tags between. */
 const HYPHEN_BEFORE = /[\u2010\u2011-](?:<[^>]*>)*$/u;
 const HYPHEN_AFTER = /^[\u2010\u2011-]/u;
+
+/** Where the span open at `start` closes: its closing tag's place and length; none when it does not. */
+function closingSpan(html: string, start: number) {
+  SPAN.lastIndex = start;
+  let depth = 1;
+  for (let m = SPAN.exec(html); m; m = SPAN.exec(html)) {
+    depth += m[1] ? -1 : 1;
+    if (!depth) return { at: m.index, length: m[0].length };
+  }
+  return undefined;
+}
+
+/** Spaces at a marked word's edges, kept outside its mark. */
+const EDGE_SPACES = /^((?:\s|&nbsp;|&#160;)*)([\s\S]*?)((?:\s|&nbsp;|&#160;)*)$/;
+
+/**
+ * DW's vocabulary chips as marked words (`<mark>`, 02): DW shows them so, and its tasks point at them
+ * ("обращая особое внимание на новые слова"). After `spaceChips`: a chip it took into a word has lost
+ * its opening tag and stays unmarked; the spaces it put back stay outside the mark.
+ */
+export function markChips(html: string): string {
+  let out = "";
+  let last = 0;
+  for (const open of html.matchAll(CHIP)) {
+    const at = open.index ?? 0;
+    const start = at + open[0].length;
+    const close = closingSpan(html, start);
+    // A chip inside one already marked, or never closed: as it is (the sanitiser unwraps it).
+    if (at < last || !close) continue;
+    const [, before, word, after] = EDGE_SPACES.exec(html.slice(start, close.at)) ?? [];
+    out += `${html.slice(last, at)}${before}${word ? `<mark>${word}</mark>` : ""}${after}`;
+    last = close.at + close.length;
+  }
+  return out + html.slice(last);
+}
 
 const textOf = (html: string) => plainText(html).toLocaleLowerCase();
 /** The headword a chip links to, without its article or a leading note: "der Brauch, die Bräuche" →
@@ -73,16 +115,7 @@ export function spaceChips(html: string): string {
   const edges: Array<{ at: number; mark: string }> = [];
   for (const open of html.matchAll(CHIP)) {
     const start = (open.index ?? 0) + open[0].length;
-    SPAN.lastIndex = start;
-    let depth = 1;
-    let end: number | undefined;
-    for (let m = SPAN.exec(html); m; m = SPAN.exec(html)) {
-      depth += m[1] ? -1 : 1;
-      if (!depth) {
-        end = m.index;
-        break;
-      }
-    }
+    const end = closingSpan(html, start)?.at;
     const head = headOf(/\bdata-title="([^"]*)"/.exec(open[0])?.[1] ?? "");
     const word = plainText(html.slice(start, end ?? start));
     const tail = /^\p{Ll}/u.test(word) && /^\p{Lu}/u.test(head);

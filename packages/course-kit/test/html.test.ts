@@ -11,6 +11,18 @@ test("spacing an editor left is tidied: one space, none before marks, inside „
   expect(tidySpacing("<p>Bonjour ! Oui .</p>", { french: true })).toBe("<p>Bonjour ! Oui.</p>");
   // A run with a no-break space before a French mark stays one.
   expect(tidySpacing("<p>Allemagne\u00a0 ?</p>", { french: true })).toBe("<p>Allemagne\u00a0?</p>");
+  // Inside quotes a marked word is a word.
+  expect(tidySpacing("<p>mit \u201e<mark>obwohl</mark> \u201c beginnt</p>")).toBe(
+    "<p>mit \u201e<mark>obwohl</mark>\u201c beginnt</p>",
+  );
+  // A quote after a marked word closes it (Arabic writes \u201e \u201c the other way round).
+  expect(
+    tidySpacing(
+      "<p>\u0645\u062b\u0644 \u201c<mark>sich entspannen</mark>\u201e \u062a\u0646\u062a\u0645\u064a</p>",
+    ),
+  ).toBe(
+    "<p>\u0645\u062b\u0644 \u201c<mark>sich entspannen</mark>\u201e \u062a\u0646\u062a\u0645\u064a</p>",
+  );
 });
 
 test("a mark that does not close the word before it keeps its space: smileys, ellipses, ,, quotes, right-to-left text", () => {
@@ -42,6 +54,10 @@ test("keeps allowed structure, strips attributes and scripts, unwraps the rest",
   expect(sanitizeCourseHtml(html, options)).toBe(
     "<p>Hallo Frau!</p>\n<table><tbody><tr><td>a</td><td>b</td></tr></tbody></table>\nlink",
   );
+  // A word the source marks stays marked; a mark around nothing goes.
+  expect(
+    sanitizeCourseHtml('<p>Die <mark class="x">Abfahrt</mark><mark></mark>.</p>', options),
+  ).toBe("<p>Die <mark>Abfahrt</mark>.</p>");
 });
 
 test("a cell keeps its span; a table of one line of text is a bold label", () => {
@@ -133,6 +149,10 @@ test("line breaks at a block's edges go, a run of them is one; lines of '- item'
   expect(sanitizeCourseHtml("<p>Liste<br>\n- eins<br>\n- zwei (A/B)<br>\nEnde</p>", none)).toBe(
     "<p>Liste</p><ul><li>eins</li><li>zwei (A/B)</li></ul><p>Ende</p>",
   );
+  // Marked words do not keep lines from being a list.
+  expect(sanitizeCourseHtml("<p>- <mark>eins</mark><br>\n- zwei</p>", none)).toBe(
+    "<ul><li><mark>eins</mark></li><li>zwei</li></ul>",
+  );
   // One dash line is a dash, not a list; emphasis across lines stays as it is.
   for (const kept of ["<p>a<br />\n- b</p>", "<p><em>x</em><br />\n- a<br />\n- b</p>"])
     expect(sanitizeCourseHtml(kept, none)).toBe(kept);
@@ -148,4 +168,8 @@ test("a no-break space between letters wraps; one by a number or a mark stays", 
       image: () => undefined,
     }),
   ).toBe("<p>gesunden und leckeren 25\u00a0°C Bonjour\u00a0!</p>");
+  // A marked word is still a word.
+  expect(
+    sanitizeCourseHtml("<p>Der <mark>Zug</mark>\u00a0nach</p>", { image: () => undefined }),
+  ).toBe("<p>Der <mark>Zug</mark> nach</p>");
 });

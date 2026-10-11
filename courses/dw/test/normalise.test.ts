@@ -137,6 +137,18 @@ test("a player label in any edition's language is dropped: the page's own interf
   };
   const { exercise } = normaliseExercise(ctx, turkish as never, 9, key, "raw/tr-de/a1/e-9.json");
   expect((exercise.items as Array<Record<string, unknown>>)[1]?.prompt).toBeUndefined();
+  // Its closing mark aside: the page says "Putar audio.", the field "Putar audio!".
+  const indonesian = {
+    ...turkish,
+    ROOT_QUERY: {
+      'i18nByLang({"lang":"INDONESIAN"})': {
+        all: JSON.stringify({ exercise: { playAudio: "Putar audio." } }),
+      },
+    },
+    "Inquiry:2": { ...state["Inquiry:2"], inquiryText: "Putar audio!" },
+  };
+  const read = normaliseExercise(ctx, indonesian as never, 9, key, "raw/id-de/a1/e-9.json");
+  expect((read.exercise.items as Array<Record<string, unknown>>)[1]?.prompt).toBeUndefined();
 });
 
 test("a speaking item keeps its spoken answer (the link besides the question) for after the try", () => {
@@ -629,10 +641,25 @@ test.each([
   ],
   [`<p>Am ${chip("Montag&nbsp;")}gehe ich.</p>`, "<p>Am Montag gehe ich.</p>"],
 ])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
-  expect(html(ctx, source)).toBe(expected);
+  // Course HTML marks the chips (below): their spacing is what is checked here.
+  expect(html(ctx, source)?.replace(/<\/?mark>/g, "")).toBe(expected);
   // Plain text (prompts, options, cloze texts) reads them so too (tags there are spaces: straight
   // quotes around a chip are not its concern).
   if (!source.includes("&quot;")) expect(plain(source)).toBe(expected.replace(/<\/?p>/g, ""));
+});
+
+test("course HTML marks a vocabulary chip's word, its spaces outside the mark; plain text has no marks", () => {
+  expect(html(ctx, `<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`)).toBe(
+    "<p>Wir <mark>lernen</mark> Deutsch.</p>",
+  );
+  expect(html(ctx, `<p>Wir ${wrapped(`${chip("hören")}&nbsp;`)}${chip("&nbsp;Bilder")}.</p>`)).toBe(
+    "<p>Wir <mark>hören</mark> <mark>Bilder</mark>.</p>",
+  );
+  // A chip on a compound's tail is part of the word: the word stays whole, unmarked.
+  expect(html(ctx, `<p>Viele Winter${titled("der Mantel, die Mäntel", "mäntel")}.</p>`)).toBe(
+    "<p>Viele Wintermäntel.</p>",
+  );
+  expect(plain(`Wir ${chip("lernen")}Deutsch.`)).toBe("Wir lernen Deutsch.");
 });
 
 test("course HTML is spaced as written: one space, none before marks or inside quotes, none at a block's edges", () => {

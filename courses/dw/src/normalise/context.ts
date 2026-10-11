@@ -16,7 +16,7 @@ import {
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import { imageUrl, posterUrl, videoFiles } from "../media.ts";
-import { spaceChips, writtenOrder } from "./text.ts";
+import { markChips, spaceChips, writtenOrder } from "./text.ts";
 
 export type Entity = Record<string, unknown>;
 
@@ -123,9 +123,9 @@ export function media(
 }
 
 /** Course HTML: allow-listed, DW images rewritten to media paths, credit lines dropped, vocabulary
- *  chips spaced from their words (`spaceChips`), spacing tidied. */
+ *  chips spaced from their words and marked (`spaceChips`, `markChips`), spacing tidied. */
 export function html(ctx: Context, value: unknown): string | undefined {
-  const clean = sanitizeCourseHtml(spaceChips(String(value ?? "")), {
+  const clean = sanitizeCourseHtml(markChips(spaceChips(String(value ?? ""))), {
     image: (a) => (a["data-url"] ? ctx.media(imageUrl(a["data-url"])) : undefined),
     drop: (tag, a) => tag === "small" && (a.class ?? "").includes("copyright"),
   });
