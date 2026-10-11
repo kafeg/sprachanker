@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Dinle ve anlamını hatırla",
+    "example": "Örnek",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "ders {unit, number}.{lesson, number}",
     "countsTitle": "Yeni {new, number}, öğrenmede {learning, number}, tekrar edilecek {review, number}",
     "finished": "Tebrikler! Bu desteyi şimdilik bitirdin.",

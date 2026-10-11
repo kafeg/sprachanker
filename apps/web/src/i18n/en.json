@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Listen and recall the meaning",
+    "example": "Example",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "lesson {unit, number}.{lesson, number}",
     "countsTitle": "New {new, number}, learning {learning, number}, to review {review, number}",
     "finished": "Congratulations! You have finished this deck for now.",

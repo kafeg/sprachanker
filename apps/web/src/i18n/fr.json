@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Écoute et retrouve le sens",
+    "example": "Exemple",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "leçon {unit, number}.{lesson, number}",
     "countsTitle": "Nouvelles {new, number}, en apprentissage {learning, number}, à réviser {review, number}",
     "finished": "Félicitations ! Tu as terminé ce paquet pour le moment.",

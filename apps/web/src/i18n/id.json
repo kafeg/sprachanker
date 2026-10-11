@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Dengarkan dan ingat artinya",
+    "example": "Contoh",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "pelajaran {unit, number}.{lesson, number}",
     "countsTitle": "Baru {new, number}, dipelajari {learning, number}, untuk diulang {review, number}",
     "finished": "Selamat! Kamu sudah menyelesaikan dek ini untuk sekarang.",

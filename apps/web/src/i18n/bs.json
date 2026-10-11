@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Slušaj i prisjeti se značenja",
+    "example": "Primjer",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "lekcija {unit, number}.{lesson, number}",
     "countsTitle": "Nove {new, number}, u učenju {learning, number}, za ponavljanje {review, number}",
     "finished": "Čestitamo! Ovaj špil je za sada završen.",

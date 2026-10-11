@@ -1,20 +1,21 @@
-// A deck's words given examples by the AI (04, "A deck's words given examples"; 07; 09): under a card's
-// answer and in the word's sheet the examples made for its deck — the words not met yet marked and
-// translated, each sentence read aloud on request —; in its corner, while there are none (and the
-// assistant works here), the way to Decks to make them, with its audio's; under a deck in Review →
-// Decks how many of its words have none, "Make examples", its progress with Stop. The reviewer's and
-// Decks' slots (study/slots.ts).
+// A deck's words given examples by the AI (04, "A deck's words given examples"; 07; 09): with a card's
+// answer the examples made for the deck whose entry it shows, handed to the card (shown one at a time
+// after its own), and in the word's sheet listed — the words not met yet marked and translated, each
+// sentence read aloud on request —; in its corner, while there are none (and the assistant works
+// here), the way to Decks to make them, with its audio's; under a deck in Review → Decks how many of
+// its words have them, "Make examples", its progress with Stop, those made removed or made again. The
+// reviewer's and Decks' slots (study/slots.ts).
 import { Link } from "@tanstack/react-router";
+import type { TFunction } from "i18next";
 import { RefreshCw, Sparkles, Trash2 } from "lucide-react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSetting } from "@/api/settings.ts";
-import { said } from "@/audio/speak.ts";
-import { SpeakButton } from "@/audio/speak-button.tsx";
 import { DeckLink } from "@/study/deck-link.tsx";
+import { type CardExample, ExampleLine } from "@/study/examples.tsx";
 import type { DeckSlot } from "@/study/slots.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmButton } from "@/ui/confirm.tsx";
-import { inLang } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDuration } from "@/ui/format.ts";
 import { JobRow } from "@/ui/job-row.tsx";
@@ -30,68 +31,106 @@ const LINK = "inline-flex items-center underline pointer-coarse:min-h-11";
 /** Whether the learner turned a word's examples off (Settings → AI assistant). */
 const useOff = () => useSetting("llm.offIn").includes("example");
 
-/** A card's examples made for its deck. */
-export function CardExamples({ cardId }: { cardId: string }) {
+type Made = NonNullable<ReturnType<typeof useCardExamples>["data"]>;
+
+/** The words of examples not met yet, with their translation: "heute — сегодня · …". */
+const newWordsOf = (examples: Made["examples"]) => {
+  const words = new Map<string, string>();
+  for (const e of examples)
+    for (const w of e.words) if (w.new && w.translation) words.set(w.text, w.translation);
+  return [...words].map(([word, translation]) => `${word} — ${translation}`).join(" · ");
+};
+
+/** What is said under examples: the words new here, who wrote them. */
+function Note({
+  examples,
+  model,
+  t,
+}: {
+  examples: Made["examples"];
+  model: string | null;
+  t: TFunction;
+}) {
+  const fresh = newWordsOf(examples);
+  return (
+    <>
+      {fresh && (
+        <span className="text-muted-foreground">
+          {t("examples.newWords")} {fresh}
+        </span>
+      )}
+      {model && (
+        <span className="text-xs text-muted-foreground">
+          {t("examples.by", { model: modelName(model) })}
+        </span>
+      )}
+    </>
+  );
+}
+
+/** The AI's examples as shown (`note`: each says its new words and who wrote it). */
+const itemsOf = (made: Made, t: TFunction, note: boolean): CardExample[] =>
+  made.examples.map((e) => ({
+    text: e.sentence,
+    // A word not met yet is marked where it has a translation to show.
+    sentence: e.words.map((w, i) =>
+      w.new && w.translation ? (
+        <span
+          // biome-ignore lint/suspicious/noArrayIndexKey: the pieces of one fixed sentence
+          key={i}
+          title={w.translation}
+          className="underline decoration-primary decoration-dotted decoration-2 underline-offset-4 not-italic"
+        >
+          {w.text}
+        </span>
+      ) : (
+        w.text
+      ),
+    ),
+    translation: e.translation,
+    ...(note && { note: <Note examples={[e]} model={made.model} t={t} /> }),
+  }));
+
+/** The examples made for a word's deck, listed (its sheet). */
+export function CardExamples({ cardId, deck }: { cardId: string; deck: string }) {
   const { t } = useTranslation();
   const lang = useTargetLang();
   const off = useOff();
-  const shown = useCardExamples(cardId, !off);
-  if (off || !shown.data) return null;
-  const { examples, model } = shown.data;
-  if (!examples.length) return null;
-  const newWords = new Map<string, string>();
-  for (const e of examples)
-    for (const w of e.words) if (w.new && w.translation) newWords.set(w.text, w.translation);
+  const shown = useCardExamples(cardId, deck, !off);
+  if (off || !shown.data?.examples.length) return null;
   return (
     <section className="grid w-full max-w-md gap-2 text-start text-sm">
       <ul className="grid gap-2">
-        {examples.map((e, i) => (
-          <li
-            // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list, where a sentence may come twice
-            key={`${i} ${e.sentence}`}
-            className="flex items-start gap-2"
-          >
-            <SpeakButton
-              parts={said(e.sentence, lang)}
-              label={e.sentence}
-              className="size-9 shrink-0 pointer-coarse:size-11"
-            />
-            <span className="grid gap-0.5">
-              <span {...inLang(lang)}>
-                {/* A word not met yet is marked where it has a translation to show. */}
-                {e.words.map((w, i) =>
-                  w.new && w.translation ? (
-                    <span
-                      // biome-ignore lint/suspicious/noArrayIndexKey: the pieces of one fixed sentence
-                      key={i}
-                      title={w.translation}
-                      className="underline decoration-primary decoration-dotted decoration-2 underline-offset-4"
-                    >
-                      {w.text}
-                    </span>
-                  ) : (
-                    w.text
-                  ),
-                )}
-              </span>
-              <span className="text-muted-foreground">{e.translation}</span>
-            </span>
+        {itemsOf(shown.data, t, false).map((e, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list, where a sentence may come twice
+          <li key={`${i} ${e.text}`}>
+            <ExampleLine example={e} lang={lang} />
           </li>
         ))}
       </ul>
-      {newWords.size > 0 && (
-        <p className="text-muted-foreground">
-          {t("examples.newWords")}{" "}
-          {[...newWords].map(([word, translation]) => `${word} — ${translation}`).join(" · ")}
-        </p>
-      )}
-      {model && (
-        <p className="text-xs text-muted-foreground">
-          {t("examples.by", { model: modelName(model) })}
-        </p>
-      )}
+      <p className="grid gap-0.5">
+        <Note examples={shown.data.examples} model={shown.data.model} t={t} />
+      </p>
     </section>
   );
+}
+
+/** A card's answer: the examples made for its deck handed to the card; nothing shown here. */
+export function CardExampleItems({
+  cardId,
+  deck,
+  onItems,
+}: {
+  cardId: string;
+  deck: string;
+  onItems(items: CardExample[]): void;
+}) {
+  const { t } = useTranslation();
+  const off = useOff();
+  const shown = useCardExamples(cardId, deck, !off);
+  const made = off ? undefined : shown.data;
+  useEffect(() => onItems(made ? itemsOf(made, t, true) : []), [made, onItems, t]);
+  return null;
 }
 
 /** A card's corner: the way to its deck for what it has yet to make for the word — its audio, its
@@ -107,7 +146,7 @@ export function CardCorner({
 }) {
   const off = useOff();
   const ready = !!useLlm().data?.model;
-  const shown = useCardExamples(cardId, !off && ready);
+  const shown = useCardExamples(cardId, scope, !off && ready);
   const examples = !off && ready && !!shown.data && !shown.data.own && !shown.data.examples.length;
   return <DeckLink scope={scope} audio={audio} examples={examples} />;
 }
@@ -223,7 +262,10 @@ function DeckExamplesJob({ scope, edition, title = "", status, className }: Deck
 
 /** The reviewer's, the word sheet's and Decks' slots (study/slots.ts). */
 export const examplesAssistant = {
-  word: ({ cardId }: { cardId: string }) => <CardExamples cardId={cardId} />,
+  word: (card: { cardId: string; deck: string }) => <CardExamples {...card} />,
+  examples: (card: { cardId: string; deck: string; onItems(items: CardExample[]): void }) => (
+    <CardExampleItems {...card} />
+  ),
   corner: (card: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...card} />,
   deck: (deck: DeckSlot) => <DeckExamplesRow {...deck} />,
 };

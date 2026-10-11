@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Hör zu und erinnere dich an die Bedeutung",
+    "example": "Beispiel",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "Lektion {unit, number}.{lesson, number}",
     "countsTitle": "Neu {new, number}, Lernen {learning, number}, Wiederholen {review, number}",
     "finished": "Herzlichen Glückwunsch! Du hast diesen Stapel für heute beendet.",

@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Послухай і пригадай значення",
+    "example": "Приклад",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "урок {unit, number}.{lesson, number}",
     "countsTitle": "Нові {new, number}, на вивченні {learning, number}, до повторення {review, number}",
     "finished": "Вітаємо! Цю колоду поки що завершено.",

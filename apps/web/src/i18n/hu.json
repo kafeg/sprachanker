@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Hallgasd meg, és idézd fel a jelentését",
+    "example": "Példa",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "lecke {unit, number}.{lesson, number}",
     "countsTitle": "Új {new, number}, tanulás alatt {learning, number}, ismétlendő {review, number}",
     "finished": "Gratulálunk! Ezzel a paklival egyelőre végeztél.",

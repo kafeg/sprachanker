@@ -2,10 +2,15 @@
 // the router provides the AI assistant's (llm/word-examples.tsx), so llm/ can be removed with its mount
 // points.
 import { createContext, type ReactNode, useContext } from "react";
+import type { CardExample } from "./examples.tsx";
 
 interface StudySlots {
-  /** Under a card's answer and in the word's sheet: more about the word (its deck's AI examples). */
-  word?(card: { cardId: string }): ReactNode;
+  /** In the word's sheet: more about the word (the AI's examples of `deck`, the deck whose entry of
+   *  the word is shown). */
+  word?(card: { cardId: string; deck: string }): ReactNode;
+  /** With a card's answer: the AI's examples of `deck` handed to the card (`onItems`), shown one at a
+   *  time after its own; renders nothing itself. */
+  examples?(card: { cardId: string; deck: string; onItems(items: CardExample[]): void }): ReactNode;
   /** In a card's corner (with the answer) and the word's sheet: the way to its deck in Decks for what
    *  the deck has yet to make for it — its audio (`audio`: the word has none), its examples. */
   corner?(card: { cardId: string; scope: string; audio: boolean }): ReactNode;

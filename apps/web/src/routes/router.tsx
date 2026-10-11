@@ -17,6 +17,7 @@ import { SpeechProvider } from "@/audio/context.ts";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
 import { useAiIn } from "@/llm/setup-api.ts";
 import type { LessonView } from "@/notebook/lesson.tsx";
+import type { CardExample } from "@/study/examples.tsx";
 import { type DeckSlot, StudySlotsProvider } from "@/study/slots.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
@@ -63,8 +64,15 @@ const DeckExamples = page(
   () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.deck),
   null,
 );
+const CardExampleItems = page(
+  () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.examples),
+  null,
+);
 const examplesAssistant = {
-  word: (props: { cardId: string }) => <CardExamples {...props} />,
+  word: (props: { cardId: string; deck: string }) => <CardExamples {...props} />,
+  examples: (props: { cardId: string; deck: string; onItems(items: CardExample[]): void }) => (
+    <CardExampleItems {...props} />
+  ),
   corner: (props: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...props} />,
   deck: (props: DeckSlot) => <DeckExamples {...props} />,
 };

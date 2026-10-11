@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Posłuchaj i przypomnij sobie znaczenie",
+    "example": "Przykład",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "lekcja {unit, number}.{lesson, number}",
     "countsTitle": "Nowe {new, number}, w nauce {learning, number}, do powtórki {review, number}",
     "finished": "Gratulacje! Na razie ta talia jest ukończona.",

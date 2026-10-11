@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "گوش کن و معنی را به یاد بیاور",
+    "example": "مثال",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "درس {unit, number}.{lesson, number}",
     "countsTitle": "تازه {new, number}، در حال یادگیری {learning, number}، برای مرور {review, number}",
     "finished": "آفرین! فعلاً این دسته را تمام کرده‌ای.",

@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Άκου και θυμήσου τη σημασία",
+    "example": "Παράδειγμα",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "ενότητα {unit, number}.{lesson, number}",
     "countsTitle": "Νέες {new, number}, σε εκμάθηση {learning, number}, για επανάληψη {review, number}",
     "finished": "Συγχαρητήρια! Τελείωσες αυτή την τράπουλα για την ώρα.",

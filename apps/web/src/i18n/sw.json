@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Sikiliza na ukumbuke maana",
+    "example": "Mfano",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "somo {unit, number}.{lesson, number}",
     "countsTitle": "Mpya {new, number}, zinajifunzwa {learning, number}, za kurudia {review, number}",
     "finished": "Hongera! Umemaliza seti hii kwa sasa.",

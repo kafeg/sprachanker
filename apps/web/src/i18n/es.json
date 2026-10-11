@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Escucha y recuerda el significado",
+    "example": "Ejemplo",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "lección {unit, number}.{lesson, number}",
     "countsTitle": "Nuevas {new, number}, en aprendizaje {learning, number}, para repasar {review, number}",
     "finished": "¡Enhorabuena! Has terminado este mazo por ahora.",

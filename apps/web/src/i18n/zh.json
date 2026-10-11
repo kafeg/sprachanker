@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "听音并回想词义",
+    "example": "例句",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "第{unit, number}.{lesson, number}课",
     "countsTitle": "新卡片{new, number}，学习中{learning, number}，待复习{review, number}",
     "finished": "恭喜！你已暂时学完这个卡组。",

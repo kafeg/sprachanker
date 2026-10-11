@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "सुनो और अर्थ याद करो",
+    "example": "उदाहरण",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "पाठ {unit, number}.{lesson, number}",
     "countsTitle": "नए {new, number}, सीखे जा रहे {learning, number}, दोहराने के लिए {review, number}",
     "finished": "बधाई हो! तुमने अभी के लिए यह डेक पूरा कर लिया है.",

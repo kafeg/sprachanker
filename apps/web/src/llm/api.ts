@@ -440,10 +440,11 @@ export function useDeckExamplesActions(scope: string, edition: string) {
   };
 }
 
-/** A card's examples made for its deck, as shown; read once its answer is (`enabled`). */
-export const useCardExamples = (cardId: string, enabled = true) =>
+/** A card's examples made for a deck (`deck`: the one whose entry of the word it shows), as shown;
+ *  read once its answer is (`enabled`). */
+export const useCardExamples = (cardId: string, deck: string, enabled = true) =>
   useQuery({
-    queryKey: ["card-examples", cardId],
+    queryKey: ["card-examples", cardId, deck],
     enabled,
-    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId }, query: {} })),
+    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId }, query: { deck } })),
   });

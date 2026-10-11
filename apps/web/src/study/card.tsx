@@ -2,20 +2,23 @@
 // follows under a line. The word's recording sits in the card's corner on the side whose field holds it
 // and plays by itself as in Anki: the question's on the question side, the answer's on the answer side
 // (not the question's again). A word without one is never read on the fly: the answer's corner has the
-// way to its deck in Decks, where its words are read aloud (and given examples) at once.
+// way to its deck in Decks, where its words are read aloud (and given examples) at once. Its examples
+// (its own, then the AI's) are not shown at first: "Example" beside the recording shows one, again the
+// next (owner, 2026-10-12).
 import type { CardDisplay, CardFace } from "@sprachanker/schema";
 import { parseLessonKey } from "@sprachanker/schema";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useRef } from "react";
+import { Quote } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { cardAudioUrl } from "@/api/client.ts";
 import { languageName } from "@/i18n/index.ts";
-import { inLang } from "@/ui/direction.tsx";
+import { Button } from "@/ui/components/button.tsx";
 import { AudioButton, type AudioControls } from "@/ui/media.tsx";
 import { useTargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { DeckLink, deckOf } from "./deck-link.tsx";
-import { DeckExamples } from "./examples.tsx";
+import { type CardExample, ExampleLine, ownExamples } from "./examples.tsx";
 import { useStudySlots } from "./slots.ts";
 
 export type Side = "question" | "answer";
@@ -77,6 +80,12 @@ export function StudyCard({
       ? { series: display.series, ...parseLessonKey(display.lessonKey) }
       : undefined;
   const slots = useStudySlots();
+  const deck = deckOf(display);
+  // Its examples, its own then the AI's (a slot), one shown at a time: 0 none yet, else which.
+  const [made, setMade] = useState<CardExample[]>([]);
+  const examples = [...ownExamples(display), ...made];
+  const [shown, setShown] = useState(0);
+  const example = shown ? examples[(shown - 1) % examples.length] : undefined;
 
   // Autoplay as in Anki: the side's own recording, once, when the side opens.
   useEffect(() => {
@@ -108,11 +117,6 @@ export function StudyCard({
       <span className="grid justify-items-center gap-1.5">
         {face === "listening" && <Word display={display} />}
         <span className="text-xl">{display.translation}</span>
-        {display.example && (
-          <span {...inLang(lang)} className="text-sm italic text-muted-foreground">
-            {display.example}
-          </span>
-        )}
       </span>
     );
 
@@ -134,8 +138,15 @@ export function StudyCard({
             {question}
             <hr id="answer" className="w-3/4 border-border" />
             {answer}
-            <DeckExamples display={display} lang={lang} className="w-full max-w-md" />
-            {cardId && slots.word?.({ cardId })}
+            {example && (
+              <ExampleLine
+                example={example}
+                display={display}
+                lang={lang}
+                className="w-full max-w-md"
+              />
+            )}
+            {cardId && slots.examples?.({ cardId, deck, onItems: setMade })}
             {lesson && (
               <Link
                 to="/lesson/$series/$course/$lesson"
@@ -159,11 +170,31 @@ export function StudyCard({
         {src && wordShown && (
           <AudioButton ref={sound} src={src} label={display.target} className="size-11" />
         )}
+        {side === "answer" && examples.length > 0 && (
+          // One example, again the next: which of how many once shown.
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-11 shrink-0"
+            aria-pressed={!!example}
+            onClick={() => setShown((shown % examples.length) + 1)}
+          >
+            <Quote className="size-3.5 rtl:-scale-x-100" /> {t("study.example")}
+            {example && examples.length > 1 && (
+              <span className="tabular-nums text-muted-foreground">
+                {t("study.exampleAt", {
+                  at: ((shown - 1) % examples.length) + 1,
+                  count: examples.length,
+                })}
+              </span>
+            )}
+          </Button>
+        )}
         {side === "answer" &&
           (cardId && slots.corner ? (
-            slots.corner({ cardId, scope: deckOf(display), audio: !src })
+            slots.corner({ cardId, scope: deck, audio: !src })
           ) : (
-            <DeckLink scope={deckOf(display)} audio={!src} />
+            <DeckLink scope={deck} audio={!src} />
           ))}
       </div>
     </div>

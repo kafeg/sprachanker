@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "استمع وتذكّر المعنى",
+    "example": "مثال",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "الدرس {unit, number}.{lesson, number}",
     "countsTitle": "جديدة {new, number}، قيد التعلّم {learning, number}، للمراجعة {review, number}",
     "finished": "تهانينا! أنهيت هذه الرزمة في الوقت الحالي.",

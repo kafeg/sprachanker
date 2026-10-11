@@ -824,6 +824,8 @@
   },
   "study": {
     "listen": "Послушайте и вспомните значение",
+    "example": "Пример",
+    "exampleAt": "{at, number}/{count, number}",
     "fromLesson": "урок {unit, number}.{lesson, number}",
     "countsTitle": "Новые {new, number}, изучаемые {learning, number}, к повторению {review, number}",
     "finished": "Поздравляем! На сегодня эта колода пройдена.",
