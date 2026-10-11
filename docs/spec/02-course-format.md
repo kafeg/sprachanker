@@ -100,9 +100,13 @@ moved, or restored by copying. Decks imported from `.apkg` files live beside it,
 
 ## Manifest
 
-None is written: `media.json` records the media and the library is read from the canonical and locale
-folders. Planned: a series manifest — each edition's `contentVersion`, a hash per file — with course
-bundles (plan, item 5, and "Open items in built areas", Library); its format is fixed when it is built.
+None is stored: `media.json` records the media and the library is read from the canonical and locale
+folders. A course's manifest is made from its files when it is needed — a course bundle carries it
+(below; schema `course-bundle.ts`): its key, editions, source and titles, a size and sha256 per file,
+and its **content versions** — a sha256 over the paths and hashes of its canonical files, and one of
+each edition's locale files (course-kit `contentVersions`): equal versions, equal content. Planned:
+`verify` checking hashes against a manifest, a profile file naming the content versions it used (plan,
+"Open items in built areas", Library).
 
 Exams of a course are listed in its course index (`exams`); a stand-alone exam is a course with exams
 only (no units), shown in the Exams section rather than among the courses. An exam is its questions
@@ -312,3 +316,52 @@ their schemas as they are written (`writeLibraryFiles`); failures are reported.
   edition matching the canonical exercises and words (missing ones are notes), unit titles, and every
   referenced media file on disk. Planned: checks of manifest hashes and rule ids, normalising from
   `raw/` offline (plan, "Open items in built areas", Library).
+
+## Course bundle
+
+A downloaded course — or exam: a course of exams (Exams list them apart, 09) — moved to another of
+one's own machines as one file (owner, 2026-10-11: defaults, owner may change, as the profile file's,
+05): `<series>-<course>-<editions>-<date>.sprachanker-course`, a zip of stored entries (course-kit
+`zip.ts`, ZIP64 where needed: a course is over 4 GB; at most 16 GB, `COURSE_BUNDLE_MAX_BYTES`). The
+library itself stays unpacked on disk (served per file with ranges, normalised and backed up per file;
+`docs/research/bundles-and-backups.md`).
+
+```
+manifest.json                       # first: format `sprachanker-course` and its version, the app's version,
+                                    # when; the course key, kind (course | exam), editions, provider, source,
+                                    # titles; content versions; its lines of media.json and keys.json; each
+                                    # other file with its size and sha256
+canonical/<course>/…                # the course's files: index, lessons, exams, exam sources
+locale/<edition>/<course>/…         # each edition carried (a Downloaded card's: its own; the CLI's: all, or
+                                    # those asked)
+media/<kind>/<name>                 # only the media those files name that are on disk, as stored
+raw/…                               # only the copies an exam's sources name (verify checks them)
+```
+
+- Not in it: the rest of `raw/` (a source's pages can be fetched again, and are the larger part:
+  3.5 GB of Nicos Weg's), media no file of it names, other courses' lines of `media.json` and
+  `keys.json`, learner data (05).
+- **Import** (`courses import`, Courses/Exams → Downloaded, 06): all or nothing, one at a time, in a
+  transfer folder (`library/.transfers/<id>/`, swept as a profile's, 05). The file (its length
+  announced; room for it twice) read by its zip directory as a profile file is (05, step 2), its names
+  only paths of the format above (`CourseBundlePath`: no `..`, no other folder) and each once, its
+  manifest read by its schema; its files exactly those listed. A media file or source copy the
+  library holds already is not unpacked: the same name and content skipped, the same content under
+  another name of `media.json` linked (copied where the disk has no hard links); a media file there
+  under the same name with other content stops it (the two machines fetched different files under one
+  name). The rest unpacked streaming, each hashed — the first not as listed stops it. Then every
+  library file read by its schema (strict), where its own keys put it (`libraryFile`), of the
+  bundle's course and editions, the index and each edition's course file there, each media file one
+  the files name, each source copy one an exam's sources name. Only then, under the series' import
+  lock (03): media and copies moved into place, the lines of `media.json` it lacks added, the course's
+  scopes of `keys.json` set, and the course's canonical folder and each edition's folder replaced
+  whole where their content version differs (the old one aside in the transfer until the new one is
+  in place; put back if the process stopped in between). The course installed: `verify` runs on it
+  and its result is said; a download marker it ends is removed when no media is missing.
+- **The same course installed**: a bundle with the same content versions changes nothing ("already
+  here"; media it lacked are added); one that differs replaces the folders that differ (owner may
+  change: it could ask instead). Progress is kept either way: runs, answers and cards are keyed by
+  stable keys (above), and a key no longer in the course reads as content removed does (05,
+  "Lifecycle"). Editions of the course the bundle does not carry stay as they are.
+- Nothing in a bundle is executed; every file is data checked by its schema.
+

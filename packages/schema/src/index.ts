@@ -1,6 +1,7 @@
 export * from "./assistant.ts";
 export * from "./canonical.ts";
 export * from "./common.ts";
+export * from "./course-bundle.ts";
 export * from "./deck.ts";
 export * from "./enrichment.ts";
 export * from "./errors.ts";

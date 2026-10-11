@@ -1,3 +1,4 @@
+export * from "./bundle.ts";
 export * from "./canonical-json.ts";
 export * from "./dom.ts";
 export * from "./exercise-draft.ts";
