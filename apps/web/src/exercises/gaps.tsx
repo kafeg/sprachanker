@@ -26,11 +26,11 @@ const gapNumber = (segments: Segments, gap: string) =>
 
 /**
  * What follows a gap and stays with it: closing punctuation touching it, a full stop or comma after
- * a space too (the space dropped: "[gap] ." reads "[gap]."), letters touching it ("[gap]'s",
- * "[gap]en"). An ellipsis or an opening quote after a space stays apart (" …und", ' "Max"').
+ * a space too (the space dropped: "[gap] ." reads "[gap]."), letters or a hyphen touching it
+ * ("[gap]'s", "[gap]en", "[gap]-Kurs"). An ellipsis or an opening quote after a space stays apart (" …und", ' "Max"').
  */
 const TAIL =
-  /^(?:[ \u00a0]*[.,]|[!?;:…)\]»“”"])[.,!?;:…)\]»“”"]*|^['’\p{L}\p{N}]+[.,!?;:…)\]»“”"]*/u;
+  /^(?:[ \u00a0]*[.,]|[!?;:…)\]»“”"])[.,!?;:…)\]»“”"]*|^['’\p{L}\p{N}‐‑-]+[.,!?;:…)\]»“”"]*/u;
 
 /** What stays with a gap before it: what touches it — a word's stem ("mein[em]"), a quote
  *  ("„[gap]") —, or an article and its space ("die [gap]": never "die" alone at a line's end). */

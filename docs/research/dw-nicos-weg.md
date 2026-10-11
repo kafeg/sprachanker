@@ -123,17 +123,26 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
   links the same one, in 21 the items have different clips. Over all 38 Nicos Weg courses (every
   edition, A1–B1): 1243 such exercises, 789 with one clip for all items and 454 with the items' own
   (399 of them in A1) (counted 2026-10-11).
-- Speaking tasks (`REPEAT` sub-inquiry `inquiryDescription`) of only "…" or "..." stand for the line
-  the audio speaks (47 items in A1 `ru`). A German one is what the learner says — the answer to a
-  question heard ("Es geht mir super."), its frame ("Ja, … / Nein, …"), the learner's line of a
-  role-play — and becomes the item's `prompt`; one in the learner's language is the task (locale
-  `prompt`). Questions heard only as audio ("Прослушать аудио", the sub-inquiry's `text` empty) have
-  no text at DW.
+- A `REPEAT` item has up to three texts (A1+A2 `ru`, 1325 items): its own `inquiryText` (92: words
+  to use "Zum Frühstück / essen / ich / …", a situation, a task "Sprich den Satz im Perfekt.", a
+  sound "Kurzes und langes E"), the sub-inquiry's `inquiryText` (the line heard: a question or a
+  sentence to change, or "Прослушать аудио" when it is heard only), and its `inquiryDescription`.
+  The description in German is the source's answer — a line ("Es geht mir super.", 296 items), its
+  frame ("Ja, … / Nein, …", "Ich brauche …, damit ich (Kaffee kochen können)", 463) — → `reference`;
+  in the learner's language the task (locale `prompt`, 180); only "…" or "..." an answer of one's own
+  (130); none: the line heard is the phrase to repeat (`text`, 237). The item's own text and a line
+  heard that is answered go to `prompt`, one per line. In editions whose language shares German's
+  script (en, es, fr, …) a description is not told from a task ("Say that you are fine."): it joins
+  the `prompt`, no line to say.
 - Vocabulary chips: words of a text linked to their vocabulary entry
   (`<span class="editable placeholder" data-id=…>`, often inside `<span class="invalid_placeholder">`)
   are shown as spaced chips, so editors left out the spaces next to them ("Wir <chip>lernen</chip>Deutsch.",
   "eine<chip>Pause</chip> .", "Mann:<chip>Guten Tag</chip>"); other fields carry double spaces and
-  spaces before punctuation as typed.
+  spaces before punctuation as typed. A chip on a compound's head ("<chip>Lamm</chip>fleisch",
+  "<chip>Frosch</chip>beinen": 3 compounds, one A2 text) reads in the markup exactly as a chip before a
+  word of its own whose space was left out ("<chip>Garage</chip>haben", "<chip>Birnen</chip>meiner",
+  "Am <chip>Montag</chip>spiele": some 80 texts); a hyphen next to a chip has no space
+  ("<chip>Massage</chip>-<chip>Gutschein</chip>", "<chip>Wellness</chip>-Hotel").
 - Cloze texts mark gaps with `#p#`, `#ps#`, `#pm#`, `#pl#` (width hints); layout `CONTINUOUS_TEXT`
   (gaps in the inquiry `text`) or `SINGLE_SENTENCE` (one gap per sub-inquiry `inquiryText`).
 - Options with identical content occur (repeated letters in `MERGE`, "isst" twice in a conjugation

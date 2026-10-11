@@ -120,6 +120,40 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   expect(free.queryByText(/You said it|Almost|Try again/)).toBeNull();
   // The source's own answer, after the learner's.
   expect(free.getByRole("button", { name: "Sample" })).toBeTruthy();
+  free.unmount();
+
+  // An answer to a question: heard against the source's line (the closer alternative), shown at
+  // once; its frame is no line to compare with.
+  const answered = await renderApp(
+    <SpeechProvider value={host()}>
+      <SpeechSelfrate
+        item={{
+          key: item.key,
+          prompt: "Warst du schon in Berlin?",
+          reference: ["Ja, ich war schon in Berlin. / Nein, ich war noch nie in Berlin."],
+        }}
+        answer={{ transcript: "Nein, ich war noch nie in Berlin" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(answered.getByText("You said it")).toBeTruthy();
+  answered.unmount();
+  const framed = await renderApp(
+    <SpeechProvider value={host()}>
+      <SpeechSelfrate
+        item={{ key: item.key, reference: ["Ja, ich … / Nein, ich …"] }}
+        answer={{ transcript: "Ja, ich war schon in Berlin" }}
+        onAnswer={() => {}}
+        url={(p) => p}
+        readOnly
+      />
+    </SpeechProvider>,
+  );
+  expect(framed.getByText("Ja, ich … / Nein, ich …")).toBeTruthy();
+  expect(framed.queryByText(/You said it|Almost|Try again/)).toBeNull();
 });
 
 test("the source's answer is not offered before the first try", async () => {

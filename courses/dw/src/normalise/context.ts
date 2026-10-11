@@ -2,6 +2,7 @@
 
 import {
   inLearnerLanguage,
+  languagesToldApart,
   mediaPath,
   sanitizeCourseHtml,
   tidySpacing,
@@ -15,7 +16,7 @@ import {
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import { imageUrl, posterUrl, videoFiles } from "../media.ts";
-import { spaceChips, writtenOrder } from "./text.ts";
+import { markChips, spaceChips, writtenOrder } from "./text.ts";
 
 export type Entity = Record<string, unknown>;
 
@@ -24,6 +25,9 @@ export interface Context {
   media(url: string | undefined): MediaPath | undefined;
   /** Whether a text of the page is in the edition's learner language (its locale file's), not German. */
   learnerText(text: string): boolean;
+  /** Whether `learnerText` tells the two apart (scripts that differ): else a text it calls German may
+   *  be the learner's ("Say that you are tired." in the English edition). */
+  toldApart: boolean;
   /** A text (a title, a note, a prompt, an option) as written: right-to-left editions keep some in
    *  the order they are seen (`writtenOrder`). */
   written(text: string): string;
@@ -41,6 +45,7 @@ export function createContext(index: MediaIndex, edition: EditionId): Context {
   return {
     media: (url) => mediaPath(index, url),
     learnerText: (text) => inLearnerLanguage(text, target, source),
+    toldApart: languagesToldApart(target, source),
     written: (text) => (RIGHT_TO_LEFT.has(source) ? writtenOrder(text) : text),
     spaced: (html) => tidySpacing(html, { french: source === "fr" }),
   };
@@ -118,9 +123,9 @@ export function media(
 }
 
 /** Course HTML: allow-listed, DW images rewritten to media paths, credit lines dropped, vocabulary
- *  chips spaced from their words (`spaceChips`), spacing tidied. */
+ *  chips spaced from their words and marked (`spaceChips`, `markChips`), spacing tidied. */
 export function html(ctx: Context, value: unknown): string | undefined {
-  const clean = sanitizeCourseHtml(spaceChips(String(value ?? "")), {
+  const clean = sanitizeCourseHtml(markChips(spaceChips(String(value ?? ""))), {
     image: (a) => (a["data-url"] ? ctx.media(imageUrl(a["data-url"])) : undefined),
     drop: (tag, a) => tag === "small" && (a.class ?? "").includes("copyright"),
   });

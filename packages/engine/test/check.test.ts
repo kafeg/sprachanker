@@ -338,7 +338,18 @@ test("a recorded phrase, heard: the words compared and a verdict, still in no sc
     key: "s/c/00-01/ex-01",
     type: "speech_selfrate",
     ruleIds: [],
-    items: [{ key: "s/c/00-01/ex-01#1", text: "Ich heiße Nico." }, { key: "s/c/00-01/ex-01#2" }],
+    items: [
+      { key: "s/c/00-01/ex-01#1", text: "Ich heiße Nico." },
+      { key: "s/c/00-01/ex-01#2" },
+      // A question's answer: compared with the source's line (the closer alternative), not the
+      // question; a frame is no line to compare with.
+      {
+        key: "s/c/00-01/ex-01#3",
+        prompt: "Wie heißt du?",
+        reference: ["Ich heiße Emma. / Mein Name ist Emma."],
+      },
+      { key: "s/c/00-01/ex-01#4", prompt: "Wie heißt du?", reference: ["Ich heiße …"] },
+    ],
   } as unknown as Exercise;
   const heard = checkItem(exercise, 0, { recording: "r", transcript: "Ich heiße Nico" }, "de");
   expect([heard.result, heard.score, heard.diff?.every((d) => d.op === "equal")]).toEqual([
@@ -346,6 +357,9 @@ test("a recorded phrase, heard: the words compared and a verdict, still in no sc
     0,
     true,
   ]);
+  const answered = checkItem(exercise, 2, { transcript: "Mein Name ist Emma" }, "de");
+  expect(answered.diff?.every((d) => d.op === "equal")).toBe(true);
+  expect(checkItem(exercise, 3, { transcript: "Ich heiße Emma" }, "de").diff).toBeUndefined();
   expect(checkItem(exercise, 0, { recording: "r" }, "de").diff).toBeUndefined();
   expect(checkItem(exercise, 1, { transcript: "Hallo" }, "de").diff).toBeUndefined();
   expect(

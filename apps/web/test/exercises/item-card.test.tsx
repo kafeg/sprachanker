@@ -175,53 +175,22 @@ test("a picture tile chosen among several keeps its ticked box filled", async ()
   expect(box("false")).toContain("bg-card");
 });
 
-test("a speaking item shows the question heard first, then the answer to say, marked", async () => {
+test("a speaking item shows what it asks as a prompt, then the source's answer to say, marked, then its hint", async () => {
   const speaking = {
     ...dictation,
     type: "speech_selfrate",
-    items: [{ key: "sprachanker.test/demo/00-01/ex-03#1", text: "Wie geht's?" }],
+    items: [
+      {
+        key: "sprachanker.test/demo/00-01/ex-03#1",
+        prompt: "Antworte mit „um … zu“.\nWozu brauchst du eine Kaffeemaschine?",
+        reference: ["Ich brauche eine Kaffeemaschine, um …"],
+      },
+    ],
   } as unknown as Exercise;
   const view = await renderApp(
     <TargetLang value="de">
       <ItemCard
         exercise={speaking}
-        locale={{ items: { "#1": { prompt: "Mir geht's gut." } } } as never}
-        index={0}
-        answer={undefined}
-        url={(p) => p}
-      />
-    </TargetLang>,
-  );
-  const cue = view.getByText("Wie geht's?");
-  const said = view.getByText("Mir geht's gut.");
-  expect(cue.compareDocumentPosition(said) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-  expect(said.previousSibling?.textContent).toBe("Your answer");
-  view.unmount();
-  // Without a cue the prompt is the task, above as any item's.
-  const task = await renderApp(
-    <TargetLang value="de">
-      <ItemCard
-        exercise={{ ...speaking, items: [{ key: "sprachanker.test/demo/00-01/ex-03#1" }] } as never}
-        locale={{ items: { "#1": { prompt: "Frag nach dem Weg." } } } as never}
-        index={0}
-        answer={undefined}
-        url={(p) => p}
-      />
-    </TargetLang>,
-  );
-  expect(task.queryByText("Your answer")).toBeNull();
-  expect(task.getByText("Frag nach dem Weg.").className).toContain("font-semibold");
-  task.unmount();
-  // The item's own line (a role-play's, an answer's frame), no question: the line, then its hint.
-  const line = await renderApp(
-    <TargetLang value="de">
-      <ItemCard
-        exercise={
-          {
-            ...speaking,
-            items: [{ key: "sprachanker.test/demo/00-01/ex-03#1", prompt: "Ja, … / Nein, …" }],
-          } as never
-        }
         locale={{ items: { "#1": { hintHtml: "<p>Tipp</p>" } } } as never}
         index={0}
         answer={undefined}
@@ -229,9 +198,42 @@ test("a speaking item shows the question heard first, then the answer to say, ma
       />
     </TargetLang>,
   );
-  const own = line.getByText("Ja, … / Nein, …");
-  expect(own.previousSibling?.textContent).toBe("Your answer");
+  // The task and the question: a prompt, no "answer" label.
+  const asked = view.getByText(/Wozu brauchst du/);
+  expect(asked.textContent).toMatch(/^Antworte mit/);
+  expect(asked.previousSibling?.textContent).not.toBe("Your answer");
+  const said = view.getByText("Ich brauche eine Kaffeemaschine, um …");
+  expect(said.previousSibling?.textContent).toBe("Your answer");
+  expect(asked.compareDocumentPosition(said) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   expect(
-    own.compareDocumentPosition(line.getByText("Tipp")) & Node.DOCUMENT_POSITION_FOLLOWING,
+    said.compareDocumentPosition(view.getByText("Tipp")) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
+  view.unmount();
+  // A library installed before: the question as its text, the line to say in the locale file — both
+  // shown, the line not called the answer.
+  const old = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={
+          {
+            ...speaking,
+            items: [
+              { key: "sprachanker.test/demo/00-01/ex-03#1", prompt: "Antworte mit „um … zu“." },
+            ],
+          } as never
+        }
+        locale={
+          {
+            items: { "#1": { prompt: "Ich brauche eine Kaffeemaschine, um (Kaffee kochen)" } },
+          } as never
+        }
+        index={0}
+        answer={undefined}
+        url={(p) => p}
+      />
+    </TargetLang>,
+  );
+  expect(old.getByText("Antworte mit „um … zu“.")).toBeTruthy();
+  expect(old.getByText("Ich brauche eine Kaffeemaschine, um (Kaffee kochen)")).toBeTruthy();
+  expect(old.queryByText("Your answer")).toBeNull();
 });

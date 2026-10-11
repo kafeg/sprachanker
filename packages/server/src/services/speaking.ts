@@ -1,14 +1,16 @@
-// An answer said aloud without a phrase to say (08, "Checking speech"; 07): what the recogniser heard,
+// An answer said aloud without a line to say (08, "Checking speech"; 07): what the recogniser heard,
 // checked by the configured model against the item, its question and the source's answer — both heard
 // from the course's recordings. A check is an `llm_verdict` (`task: speaking`) on the item in the lesson
 // run, for what was heard: asked once per answer, shown again without asking.
+
+import { linesToSay } from "@sprachanker/engine";
 import {
   checkSpeakingTask,
   cleanCheck,
   type SpeakingInput,
   structuredRequest,
 } from "@sprachanker/llm";
-import { findExercise, type LessonKey, type TypedEvent } from "@sprachanker/schema";
+import { findExercise, type ItemOf, type LessonKey, type TypedEvent } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import { createInFlight } from "./in-flight.ts";
 import type { LessonContexts } from "./lesson-context.ts";
@@ -53,8 +55,12 @@ export function createSpeaking(deps: {
     const ctx = await deps.lessonContext.get(request.series, request.lessonKey, request.edition);
     const exercise = findExercise(ctx.lesson, request.exerciseKey);
     const item = exercise?.items[request.index];
-    // Only an answer of one's own: a phrase to say is checked by the word diff (08).
-    if (exercise?.type !== "speech_selfrate" || !item || ("text" in item && item.text))
+    // Only an answer of one's own: a line to say is checked by the word diff (08).
+    if (
+      exercise?.type !== "speech_selfrate" ||
+      !item ||
+      linesToSay(item as ItemOf<"speech_selfrate">)
+    )
       throw new ServiceError("no_such_item", 404);
     return { ctx, exercise, item };
   }

@@ -192,6 +192,11 @@
   .prose-course strong {
     @apply font-semibold;
   }
+  /* A word the source marks (a lesson's new word): underlined, not highlighted, so a text full of
+     them stays calm. */
+  .prose-course mark {
+    @apply bg-transparent text-inherit underline decoration-primary/50 decoration-2 underline-offset-4;
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     ::before,

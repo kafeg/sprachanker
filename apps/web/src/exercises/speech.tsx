@@ -1,6 +1,6 @@
 // Speaking exercises (08, 09): SpeechSelfrate (saying it oneself after the original, one's take beside
 // it) and SpeechRepeat (a phrase said and checked by the words heard); their takes and what was heard.
-import { spokenCheck } from "@sprachanker/engine";
+import { linesToSay, spokenCheck } from "@sprachanker/engine";
 import { Check, CircleDot, RotateCcw } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,15 +15,15 @@ import { useTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import type { RendererProps } from "./types.ts";
 
-/** What the recogniser heard (08): against the phrase to say, its words matched and missed with a
- *  verdict; for a free answer, just the words heard. In no score. */
+/** What the recogniser heard (08): against the line to say (the closest of its alternatives), its
+ *  words matched and missed with a verdict; for a free answer, just the words heard. In no score. */
 function Heard({
   lang,
   reference,
   transcript,
 }: {
   lang?: string;
-  reference?: string;
+  reference?: string | string[];
   transcript: string;
 }) {
   const { t } = useTranslation();
@@ -199,8 +199,6 @@ export function SpeechSelfrate({
 
   const attempted = answer !== undefined || !!take;
   const textShown = readOnly || !listen || attempted || reveal;
-  // What to say: the item's own line, else, under a question, the locale file's.
-  const line = item.prompt ?? (item.text ? locale?.prompt : undefined);
   const own = take?.url ?? (answer?.recording && host ? host.src(answer.recording) : undefined);
   // The source's own answer, once the learner has tried (their answer first, then the model one).
   const sample =
@@ -234,24 +232,20 @@ export function SpeechSelfrate({
           )}
         </div>
       )}
-      {!item.text && (
+      {!item.text && !item.reference && (
         <p className="text-muted-foreground">
           {item.media?.audio || item.media?.video
             ? t("speech.answerHeard")
             : t("speech.answerFree")}
         </p>
       )}
-      {/* The question first, then the line to say (an answer, its frame, a role-play's line) marked
-          as such, then the hint. */}
-      {line && (
+      {/* What it asks is above (the card's prompts); the source's answer to say (a line or its frame)
+          marked as such, then the hint. */}
+      {item.reference && (
         <div>
           <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
-          <p
-            lang={item.prompt ? lang : undefined}
-            dir="auto"
-            className="whitespace-pre-line text-lg font-medium text-pretty"
-          >
-            {keptTogether(line)}
+          <p lang={lang} className="whitespace-pre-line text-lg font-medium text-pretty">
+            {keptTogether(item.reference.join("\n"))}
           </p>
         </div>
       )}
@@ -293,7 +287,7 @@ export function SpeechSelfrate({
         </div>
       )}
       {answer?.transcript !== undefined && !saving && (
-        <Heard lang={lang} reference={item.text} transcript={answer.transcript} />
+        <Heard lang={lang} reference={linesToSay(item)} transcript={answer.transcript} />
       )}
       {!readOnly && <TakeStatus takes={takes} attempted={attempted} heard={heard} />}
     </div>

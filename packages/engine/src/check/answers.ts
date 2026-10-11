@@ -55,11 +55,27 @@ export function answerComplete(exercise: Exercise, index: number, answer: unknow
   }
 }
 
-/** What was heard of an answer said aloud to a speaking item with no phrase to say (the AI checks
- *  it, 08); undefined for anything else, or nothing heard. */
+/** A frame to complete, not a line to say word for word: an ellipsis, a gap or words in brackets
+ *  ("Ich trinke …", "Nein, das ist ... (die Brille)", "(seit – zwei Monate)"). */
+const FRAME = /…|\.\.\.|_{2,}|[([]/;
+
+/**
+ * The lines a speaking item is said as (08): the source's answer (`reference`) when it has one, else
+ * its phrase to repeat (`text`), each split into its alternatives (" / "); none when that is a frame
+ * or the item has neither — the answer is then the learner's own.
+ */
+export function linesToSay(item: { text?: string; reference?: string[] }): string[] | undefined {
+  const said = item.reference ?? (item.text ? [item.text] : []);
+  if (!said.length || said.some((s) => FRAME.test(s))) return undefined;
+  const lines = said.flatMap((s) => s.split(/\s+\/\s+/)).map((s) => s.trim());
+  return lines.every(Boolean) ? lines : undefined;
+}
+
+/** What was heard of an answer said aloud to a speaking item with no line to say (`linesToSay`: the
+ *  AI checks it, 08); undefined for anything else, or nothing heard. */
 export function spokenFreely(exercise: Exercise, index: number, answer: unknown) {
   const item = exercise.items[index] as ItemOf<"speech_selfrate"> | undefined;
-  if (exercise.type !== "speech_selfrate" || !item || item.text) return undefined;
+  if (exercise.type !== "speech_selfrate" || !item || linesToSay(item)) return undefined;
   const transcript = (answer as { transcript?: unknown } | undefined)?.transcript;
   return typeof transcript === "string" && transcript.trim() ? transcript : undefined;
 }

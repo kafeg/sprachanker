@@ -24,10 +24,15 @@ export const SpeechRepeatAnswer = z.strictObject({ speech: SpokenAnswer });
 export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem);
 
 /** Speaking oneself (the courses' "say it" exercises): listen, then record oneself; recorded is done.
- *  With a phrase (`text`), what was heard gets a word diff; without one, the AI checks it (08).
- *  Its `answerAudio` is played after the learner's first try. */
+ *  Its `prompt` is what the item asks (a question, a situation, words to use), `text` a phrase to
+ *  repeat after its recording, `reference` the source's answer to say. What was heard gets a word
+ *  diff against the line to say (engine `linesToSay`); without one, the AI checks it (08). Its
+ *  `answerAudio` is played after the learner's first try. */
 const SpeechSelfrateItem = ItemBase.extend({
   text: z.string().min(1).optional(),
+  /** The source's answer, written (as respond's model answers): a line to say ("Ja, ich war schon in
+   *  Berlin. / Nein, …": alternatives split by " / ") or its frame ("Ich trinke …"). */
+  reference: z.array(z.string().min(1)).min(1).optional(),
 });
 /** Answered once the learner recorded themselves: the profile recording when they are kept (none when
  *  the learner keeps no recordings), and what the recogniser heard when it is on (08). `rating`: the

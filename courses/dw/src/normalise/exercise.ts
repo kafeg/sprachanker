@@ -196,17 +196,33 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       throw new Unmapped(`cloze type ${String(kind)}`);
     }
     case "REPEAT": {
-      // A task of only an ellipsis ("…", "...") is DW's stand-in for the line the audio speaks: none.
-      const words = (t: string | undefined) => (t && /[\p{L}\p{N}]/u.test(t) ? t : undefined);
-      const text = words(german(ctx, state, subs[0]?.inquiryText));
-      const task = words(ctx.written(plain(subs[0]?.inquiryDescription)));
-      // A German one is what to say (an answer, its frame, a line of a role-play); one in the
-      // learner's language the task ("Скажи им, что…").
-      const say = task && !ctx.learnerText(task) ? task : undefined;
+      // The item's own text (`prompt`: a task, a situation, words to use) stays; under it DW's
+      // sub-inquiry: a line heard (its text) and what to do with it (its description).
+      // A text of only an ellipsis ("…", "...") is DW's stand-in: for the line the audio speaks, for
+      // an answer of one's own.
+      const wordsOf = (t: string | undefined) => (t && /[\p{L}\p{N}]/u.test(t) ? t : undefined);
+      const heard = wordsOf(german(ctx, state, subs[0]?.inquiryText));
+      const said = ctx.written(plain(subs[0]?.inquiryDescription));
+      const words = wordsOf(said);
+      // In the learner's language it is the task ("Скажи им, что…"); in German the source's answer (a
+      // line or its frame) — when the edition's languages are told apart: else it may be either, and
+      // is shown as the item's text, no line to say.
+      const task = words && ctx.learnerText(words) ? words : undefined;
+      const answer = words && !task && ctx.toldApart ? words : undefined;
+      const unsure = words && !task && !answer ? words : undefined;
+      // A line heard with nothing to do with it is the phrase to repeat; else what is answered.
+      const phrase = !said ? heard : undefined;
+      const prompt = [base.prompt, phrase ? undefined : heard, unsure].filter(Boolean).join("\n");
+      const { prompt: _, ...rest } = base;
       return {
         type: "speech_selfrate",
-        item: { ...base, ...(text ? { text } : {}), ...(say ? { prompt: say } : {}) },
-        locale: { ...locale, ...(task && !say ? { prompt: task } : {}) },
+        item: {
+          ...rest,
+          ...(prompt ? { prompt } : {}),
+          ...(phrase ? { text: phrase } : {}),
+          ...(answer ? { reference: [answer] } : {}),
+        },
+        locale: { ...locale, ...(task ? { prompt: task } : {}) },
       };
     }
     case "DICTATION": {

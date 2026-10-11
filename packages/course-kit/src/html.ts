@@ -12,6 +12,8 @@ const ALLOWED_TAGS = [
   "i",
   "em",
   "small",
+  // A word the source marks for itself (DW's vocabulary chips: the lesson's new words).
+  "mark",
   "ul",
   "ol",
   "li",
@@ -76,7 +78,7 @@ export function sanitizeCourseHtml(html: string, options: SanitizeOptions): stri
 }
 
 const BLOCK = "p|li|td|th|h3|figcaption";
-const INLINE = "strong|b|em|i|small";
+const INLINE = "strong|b|em|i|small|mark";
 /** Line breaks an editor left: at a block's start or end (through emphasis) none — they show as blank
  *  lines —, two or more in a row one. */
 const lineBreaks = (html: string) =>
@@ -85,11 +87,11 @@ const lineBreaks = (html: string) =>
     .replace(new RegExp(`(?:\\s*<br />)+(\\s*(?:</(?:${INLINE})>\\s*)*</(?:${BLOCK})>)`, "g"), "$1")
     .replace(/<br \/>(?:\s*<br \/>)+/g, "<br />");
 
-/** A paragraph of plain lines, two or more of them "- item" (or "– ", "• "): those lines a list, the
+/** A paragraph of plain lines (marked words aside), two or more of them "- item" (or "– ", "• "): those lines a list, the
  *  others paragraphs around it ("Checkliste" over its items). */
 const dashLists = (html: string) =>
   html.replace(/<p>((?:(?!<\/?p>)[\s\S])*?)<\/p>/g, (paragraph, body: string) => {
-    if (/<(?!br \/>)/.test(body)) return paragraph;
+    if (/<(?!br \/>|\/?mark>)/.test(body)) return paragraph;
     const lines = body.split(/\s*<br \/>\s*/).map((l) => l.trim());
     const ITEM = /^[-–•]\s+/;
     if (lines.filter((l) => ITEM.test(l)).length < 2) return paragraph;
@@ -129,7 +131,8 @@ const oneCellLabels = (html: string) =>
 /** A no-break space between two letters is an editor's leftover ("und\u00a0leckeren", whole sentences
  *  so joined): a plain space, so the text wraps. One that keeps a number with its unit ("25\u00a0°C") or
  *  a mark off its word ("Bonjour\u00a0!") stays. */
-const breakable = (html: string) => html.replace(/(?<=\p{L})(?:\u00a0|&nbsp;)(?=\p{L})/gu, " ");
+const breakable = (html: string) =>
+  html.replace(/(?<=\p{L}(?:<\/?mark>)*)(?:\u00a0|&nbsp;)(?=(?:<\/?mark>)*\p{L})/gu, " ");
 
 /** Emphasis around nothing but spaces (an editor's leftover) gives just its spaces; a paragraph,
  *  caption or title left with nothing in it goes (a dropped credit leaves an empty caption). */
@@ -138,9 +141,9 @@ function withoutEmpty(html: string): string {
   for (let prev = ""; prev !== out; ) {
     prev = out;
     out = out
-      .replace(/<(strong|b|em|i|small)>(\s*)<\/\1>/g, "$2")
+      .replace(/<(strong|b|em|i|small|mark)>(\s*)<\/\1>/g, "$2")
       // Emphasis cut in two where nothing is between ("<em>Wer</em><em>?</em>"): one.
-      .replace(/<\/(strong|b|em|i|small)><\1>/g, "")
+      .replace(/<\/(strong|b|em|i|small|mark)><\1>/g, "")
       .replace(/<(p|figcaption|h3)>(?:\s|<br \/>)*<\/\1>/g, "");
   }
   return out;
@@ -186,16 +189,20 @@ const MARK_END = `(?=$|[\\s<)\\]"“”»’\\d]|&nbsp;|&quot;)`;
  *  ("(oben )."). */
 const spaceBefore = (marks: string) =>
   new RegExp(
-    `(?<![\\s,:;!?]|<(?!/)[^>]*>)${SPACE}+(?=(?:</(?:strong|b|em|i|small)>)*(?:[${marks}]${MARK_END}|[)\\]](?=[.,;:!?])))`,
+    `(?<![\\s,:;!?]|<(?!/)[^>]*>)${SPACE}+(?=(?:</(?:strong|b|em|i|small|mark)>)*(?:[${marks}]${MARK_END}|[)\\]](?=[.,;:!?])))`,
     "gu",
   );
 const BEFORE_MARKS = spaceBefore(".,!?;:)\\]");
 const BEFORE_FRENCH_MARKS = spaceBefore(".,)\\]");
-/** An opening quote or bracket opens only after a space, a line's start or another opening (Arabic
- *  writes „ “ the other way round: "كلمة “oder„ في"; "dann ...„ und" closes). */
-const OPENS = "(?<=^|[\\s>(\\[])";
+/** An opening quote or bracket opens only after a space, a line's start, a tag or another opening
+ *  (Arabic writes „ “ the other way round: "كلمة “oder„ في"; "dann ...„ und" and a marked word's
+ *  "<mark>Wort</mark>„ في" close). */
+const OPENS = "(?<=^|[\\s>(\\[])(?<!</mark>)";
 const AFTER_OPENING = new RegExp(`(${OPENS}[„(\\[])${SPACE}+`, "gu");
-const BEFORE_CLOSING_QUOTE = new RegExp(`${OPENS}„([^„“”<]*?)${SPACE}+“(?![\\p{L}\\p{N}])`, "gu");
+const BEFORE_CLOSING_QUOTE = new RegExp(
+  `${OPENS}„((?:[^„“”<]|</?mark>)*?)${SPACE}+“(?![\\p{L}\\p{N}])`,
+  "gu",
+);
 /** A run of spaces is one; a no-break one when it has one and keeps a mark or a unit with its word
  *  (French "Allemagne\u00a0?", "« oui »", "25\u00a0%"). */
 const oneSpace = (run: string, at: number, html: string) =>

@@ -137,6 +137,18 @@ test("a player label in any edition's language is dropped: the page's own interf
   };
   const { exercise } = normaliseExercise(ctx, turkish as never, 9, key, "raw/tr-de/a1/e-9.json");
   expect((exercise.items as Array<Record<string, unknown>>)[1]?.prompt).toBeUndefined();
+  // Its closing mark aside: the page says "Putar audio.", the field "Putar audio!".
+  const indonesian = {
+    ...turkish,
+    ROOT_QUERY: {
+      'i18nByLang({"lang":"INDONESIAN"})': {
+        all: JSON.stringify({ exercise: { playAudio: "Putar audio." } }),
+      },
+    },
+    "Inquiry:2": { ...state["Inquiry:2"], inquiryText: "Putar audio!" },
+  };
+  const read = normaliseExercise(ctx, indonesian as never, 9, key, "raw/id-de/a1/e-9.json");
+  expect((read.exercise.items as Array<Record<string, unknown>>)[1]?.prompt).toBeUndefined();
 });
 
 test("a speaking item keeps its spoken answer (the link besides the question) for after the try", () => {
@@ -176,12 +188,12 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
     key,
     "raw/en-de/a1/e-9.json",
   );
-  // A German line is what to say: the item's own prompt (not a task in the learner's language).
+  // A German line is what to say: the source's answer (not a task in the learner's language).
   expect(Exercise.parse(exercise).items[0]).toEqual({
     key: `${key}#1`,
     media: { audio: "media/audio/q.mp3" },
     answerAudio: "media/audio/a.mp3",
-    prompt: "Ja, ich ... / Nein, ich ...",
+    reference: ["Ja, ich ... / Nein, ich ..."],
   } as never);
   expect(locale.items["#1"]?.prompt).toBeUndefined();
   // One in the learner's language is the task: the locale file's.
@@ -192,6 +204,52 @@ test("a speaking item keeps its spoken answer (the link besides the question) fo
   const asked = normaliseExercise(withAnswer, task as never, 9, key, "raw/ru-de/a1/e-9.json");
   expect((asked.exercise.items[0] as { prompt?: string }).prompt).toBeUndefined();
   expect(asked.locale.items["#1"]?.prompt).toBe("Скажи, что ты устал.");
+});
+
+test("a speaking item keeps its own text and the line heard beside the source's answer; a line heard alone is repeated", () => {
+  const speaking = (inquiryText: string, heard: string, said: string | null) => ({
+    "Exercise:9": { id: 9, name: "Sprich", inputType: "NONE", inquiries: [{ __ref: "Inquiry:1" }] },
+    "Inquiry:1": { inquiryType: "REPEAT", inquiryText, subInquiries: [{ __ref: "Inquiry:11" }] },
+    "Inquiry:11": { inquiryText: heard, inquiryDescription: said },
+  });
+  const item = (state: object, context = ctx) =>
+    normaliseExercise(context, state as never, 9, key, "raw/ru-de/a2/e-9.json").exercise
+      .items[0] as Record<string, unknown>;
+  // Words to use and the answer's beginning: both.
+  expect(
+    item(
+      speaking("Zum Frühstück / essen / ich / Brötchen", "Play audio", "Zum Frühstück esse ich …"),
+    ),
+  ).toMatchObject({
+    prompt: "Zum Frühstück / essen / ich / Brötchen",
+    reference: ["Zum Frühstück esse ich …"],
+  });
+  // A task, the question heard and the answer's frame: the question is asked, not said.
+  const three = item(
+    speaking("Was machst du gern im Haushalt?", "Siehst du lieber fern?", "Ich ... lieber ..."),
+  );
+  expect(three).toMatchObject({
+    prompt: "Was machst du gern im Haushalt?\nSiehst du lieber fern?",
+    reference: ["Ich ... lieber ..."],
+  });
+  expect(three.text).toBeUndefined();
+  // A sentence to change, the answer one's own ("…"): asked, no line to say.
+  const open = item(speaking("Sprich den Satz im Perfekt.", "Yara suchte Jobs.", "…"));
+  expect(open).toMatchObject({ prompt: "Sprich den Satz im Perfekt.\nYara suchte Jobs." });
+  expect([open.text, open.reference]).toEqual([undefined, undefined]);
+  // A line heard with nothing to do with it: the phrase to repeat.
+  expect(item(speaking("Kurzes und langes E", "lecker – Lehrer", null))).toMatchObject({
+    prompt: "Kurzes und langes E",
+    text: "lecker – Lehrer",
+  });
+  // An edition whose languages share a script: a description may be a task as well as an answer —
+  // shown with the item's text, no line to say.
+  const english = item(
+    speaking("", "Hi, wie geht's?", "Say that you are fine."),
+    createContext({}, "en-de"),
+  );
+  expect(english).toMatchObject({ prompt: "Hi, wie geht's?\nSay that you are fine." });
+  expect(english.reference).toBeUndefined();
 });
 
 test("an item whose only recording is not main content (DW's Lösungsaudio) keeps it as its spoken answer, not its question", () => {
@@ -560,19 +618,48 @@ test.each([
   ],
   [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon wieder da.</p>"],
   [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann beginnt er?</p>"],
-  // A noun chip on a compound's head: the tail stays on it; a short word or a verb after a noun
-  // chip is a word of its own.
-  [`<p>Ich esse ${wrapped(chip("Kalb"))}braten.</p>`, "<p>Ich esse Kalbbraten.</p>"],
+  // A hyphen it touches keeps a chip in its word.
+  [`<p>Ein ${chip("Massage")}-${chip("Gutschein")}.</p>`, "<p>Ein Massage-Gutschein.</p>"],
+  [`<p>Ein ${wrapped(chip("Wellness"))}-Hotel.</p>`, "<p>Ein Wellness-Hotel.</p>"],
+  [`<p>${chip("Hin")}- und Rückfahrt</p>`, "<p>Hin- und Rückfahrt</p>"],
+  // A lowercase word right after a noun chip is a word of its own: an infinitive, a participle, a
+  // possessive, a verb after a sentence's first word. A chip on a compound's head looks the same
+  // in the markup, so it gets the space too (DW shows it apart).
+  [`<p>Ich will ${chip("Kaffee")}trinken.</p>`, "<p>Ich will Kaffee trinken.</p>"],
+  [`<p>Ich habe ${chip("Pizza")}gegessen.</p>`, "<p>Ich habe Pizza gegessen.</p>"],
+  [`<p>Die ${chip("Birnen")}meiner Schwester.</p>`, "<p>Die Birnen meiner Schwester.</p>"],
+  [`<p>${chip("Damals")}waren wir jung.</p>`, "<p>Damals waren wir jung.</p>"],
+  [`<p>Eine ${wrapped(chip("Garage"))}haben wir nicht.</p>`, "<p>Eine Garage haben wir nicht.</p>"],
+  [
+    `<p>Die ${wrapped(`${chip("Schüler")}\u200b\u200b`)}schreiben.</p>`,
+    "<p>Die Schüler schreiben.</p>",
+  ],
+  [`<p>Ich esse ${chip("Lamm")}fleisch.</p>`, "<p>Ich esse Lamm fleisch.</p>"],
   [
     `<p>Das ${chip("Brot")}isst er, das ${chip("Dorf")}kommt.</p>`,
     "<p>Das Brot isst er, das Dorf kommt.</p>",
   ],
   [`<p>Am ${chip("Montag&nbsp;")}gehe ich.</p>`, "<p>Am Montag gehe ich.</p>"],
 ])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
-  expect(html(ctx, source)).toBe(expected);
+  // Course HTML marks the chips (below): their spacing is what is checked here.
+  expect(html(ctx, source)?.replace(/<\/?mark>/g, "")).toBe(expected);
   // Plain text (prompts, options, cloze texts) reads them so too (tags there are spaces: straight
   // quotes around a chip are not its concern).
   if (!source.includes("&quot;")) expect(plain(source)).toBe(expected.replace(/<\/?p>/g, ""));
+});
+
+test("course HTML marks a vocabulary chip's word, its spaces outside the mark; plain text has no marks", () => {
+  expect(html(ctx, `<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`)).toBe(
+    "<p>Wir <mark>lernen</mark> Deutsch.</p>",
+  );
+  expect(html(ctx, `<p>Wir ${wrapped(`${chip("hören")}&nbsp;`)}${chip("&nbsp;Bilder")}.</p>`)).toBe(
+    "<p>Wir <mark>hören</mark> <mark>Bilder</mark>.</p>",
+  );
+  // A chip on a compound's tail is part of the word: the word stays whole, unmarked.
+  expect(html(ctx, `<p>Viele Winter${titled("der Mantel, die Mäntel", "mäntel")}.</p>`)).toBe(
+    "<p>Viele Wintermäntel.</p>",
+  );
+  expect(plain(`Wir ${chip("lernen")}Deutsch.`)).toBe("Wir lernen Deutsch.");
 });
 
 test("course HTML is spaced as written: one space, none before marks or inside quotes, none at a block's edges", () => {
