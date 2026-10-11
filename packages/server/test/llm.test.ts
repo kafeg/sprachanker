@@ -560,6 +560,8 @@ describe("LM Studio", () => {
   function lmStudio(options: { has?: string[]; loaded?: number } = {}) {
     const calls: string[] = [];
     let downloaded = 0;
+    // What a load leaves loaded, as LM Studio reports it after: a second task sees it whenever it asks.
+    let loaded = options.loaded;
     const fetch = (async (url: string, init?: RequestInit) => {
       const path = new URL(url).pathname;
       calls.push(`${init?.method ?? "GET"} ${path}${init?.body ? ` ${init.body}` : ""}`);
@@ -571,11 +573,11 @@ describe("LM Studio", () => {
             display_name: key,
             size_bytes: 1,
             format: "mlx",
-            loaded_instances: options.loaded
-              ? [{ id: key, config: { context_length: options.loaded } }]
-              : [],
+            loaded_instances: loaded ? [{ id: key, config: { context_length: loaded } }] : [],
           })),
         });
+      if (path === "/api/v1/models/load")
+        loaded = (JSON.parse(init?.body as string) as { context_length: number }).context_length;
       if (path === "/api/v1/models/download")
         return Response.json({ job_id: "job_1", status: "downloading", total_size_bytes: 100 });
       if (path === "/api/v1/models/download/status/job_1") {
