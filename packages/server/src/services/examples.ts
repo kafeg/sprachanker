@@ -7,13 +7,14 @@
 import { markWords, type VocabWord } from "@sprachanker/engine";
 import { structuredRequest, type WordExamplesInput, wordExamplesTask } from "@sprachanker/llm";
 import {
+  type CardDisplay,
   type LessonKey,
   type LexemeKey,
   parseLessonKey,
   parseLexemeKey,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
-import type { CardStore } from "./card-store.ts";
+import { type CardStore, deckOf as deckOfDisplay, type Note } from "./card-store.ts";
 import type { DeckExamples, ExampleWriter } from "./deck-examples.ts";
 import type { DeckExtrasStore, DeckNote } from "./deck-extras.ts";
 import type { Decks } from "./decks.ts";
@@ -34,6 +35,8 @@ const NO_WORDS = { upTo: [] as VocabWord[], later: [] as VocabWord[] };
 
 export function createExamples(deps: {
   cards: Pick<CardStore, "note">;
+  /** What a card shows in a deck (cards.ts: the deck's own entry of its word). */
+  shown(note: Note, scope: string): Promise<CardDisplay>;
   /** The learner's cards made in a deck (cards.ts). */
   deckNotes(scope: string): DeckNote[];
   decks: Pick<Decks, "deck">;
@@ -128,16 +131,19 @@ export function createExamples(deps: {
     /** A card's examples as shown — each sentence in pieces, the words not met yet marked and
      *  translated (the deck's later words, the model's glossary) —, whether its word brings its own,
      *  and its deck (where examples are made). */
-    async ofCard(cardId: string) {
+    async ofCard(cardId: string, deck?: string) {
       const n = deps.cards.note(cardId);
-      const note: DeckNote = { ...n, lexeme: n.lexemeKey ?? "" };
-      const own = !!note.display.examples?.length || !!note.display.example;
-      const folder = await deps.extras.folderOf(n.deck).catch(() => undefined);
+      // As the card shows it in that deck (its own entry of the word), else as it was made.
+      const display = deck ? await deps.shown(n, deck) : n.display;
+      const note: DeckNote = { ...n, display, lexeme: n.lexemeKey ?? "" };
+      const scope = deckOfDisplay(display);
+      const own = !!display.examples?.length || !!display.example;
+      const folder = await deps.extras.folderOf(scope).catch(() => undefined);
       const made =
         folder && note.lexeme
           ? deps.deckExamples.examplesOf(folder, note.lexeme, note.translationLang)
           : undefined;
-      if (!made) return { scope: n.deck, own, model: null, examples: [] };
+      if (!made) return { scope, own, model: null, examples: [] };
       const { upTo, later } = await around(note);
       const word = (form?: string): VocabWord => ({
         target: note.display.target,
@@ -148,7 +154,7 @@ export function createExamples(deps: {
       // translation is not that of each of its words.
       const laterWords = later.filter(oneWord);
       return {
-        scope: n.deck,
+        scope,
         own,
         model: made.model,
         examples: made.items.map((e) => ({

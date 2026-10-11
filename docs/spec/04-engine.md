@@ -165,7 +165,15 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   never share a deck; an imported deck (`deck:<id>`: the cards of its words' lexemes in its translation
   language, so a word a course gave a card is studied in both); a lesson's own words in an edition
   (`lesson:<edition>:<key>`) in its "Words" step. A card belongs to the deck it was made in (a course's,
-  by its display, or an imported deck's) for the deck list, My words and leaving.
+  by its display, or an imported deck's) for the deck list, My words and leaving. **What a card
+  shows** (owner, 2026-10-11: a word met in a course's lesson showed an imported deck's headword and
+  the audio read for it, the card having been made by that deck first): studied in a deck — an
+  imported deck, a course's, a lesson's "Words" step — the word as that deck gives it (its headword,
+  forms, translation, its own recording, else the audio read aloud for that deck), when it has the
+  word; else as the card was made. In a language's queue, My words and the word sheet a course's entry
+  comes before an imported deck's: the card's own course, else the first of the learner's courses in
+  its language pair (by deck) that has the word, else the card's own — a course's words are those its
+  lessons teach, with its recordings (`services/cards.ts` `shown`).
 - **Faces**: recognition (target → native), production (native → target), listening (audio → meaning).
   Enabled per card; the profile sets the default (recognition + production).
 - **Deck options** are the profile's (Settings → Review, owner 2026-10-08), Anki's defaults where unset:
@@ -174,7 +182,7 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   Anki's defaults and not settings (owner, 2026-10-11).
 - **AI examples** (owner, 2026-10-07/09): made for a whole deck at once, on request (below, "A
   deck's words given examples"), and shown on a card's answer and in the word sheet — after the
-  deck's own — each with its translation, readable aloud; the sentence's words are matched against
+  deck's own, those of the deck whose entry the card shows — each with its translation, readable aloud; the sentence's words are matched against
   the words before the card's (a course's up to its lesson, an imported deck's up to the word: their
   forms, and a form differing only by an ending: `text/words.ts`); the others are marked new,
   translated by the model's glossary for that sentence, else by the deck's later words of one word

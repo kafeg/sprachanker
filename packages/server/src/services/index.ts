@@ -144,8 +144,16 @@ function profileServices(
     studiedBy: decks.studiedBy,
     now,
   });
-  const study = createStudy({ cards: cardStore, store, content, decks, settings, now });
-  const words = createWords({ cards: cardStore, store });
+  const study = createStudy({
+    cards: cardStore,
+    store,
+    content,
+    decks,
+    settings,
+    shown: cards.shown,
+    now,
+  });
+  const words = createWords({ cards: cardStore, store, shown: cards.shown });
   const mistakes = createMistakes(store);
   const lessonContext = createLessonContext(content);
   const tutor = createTutor({
@@ -176,6 +184,7 @@ function profileServices(
   const examConversation = createExamConversation({ llm, store, exams });
   const examples = createExamples({
     cards: cardStore,
+    shown: cards.shown,
     deckNotes: cards.deckNotes,
     decks,
     extras: deckExtras,

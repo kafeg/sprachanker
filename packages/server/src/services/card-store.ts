@@ -22,6 +22,10 @@ export type StateRow = typeof cardState.$inferSelect;
  *  lesson its word was first met in, or an imported `deck:<id>`) and its language. */
 export type Note = CardRow & { display: CardDisplay; deck: string; lang: string };
 
+/** The deck a word as shown is of: an imported deck's (`deck:<id>`), else its lesson's course's. */
+export const deckOf = (display: CardDisplay) =>
+  "deck" in display ? `deck:${display.deck}` : `course:${parseLessonKey(display.lessonKey).course}`;
+
 export function createCardStore(db: ProfileDb) {
   /** A row with its display read; undefined when the display no longer reads. */
   const noteOf = (row: CardRow): Note | undefined => {
@@ -30,10 +34,7 @@ export function createCardStore(db: ProfileDb) {
     return {
       ...row,
       display,
-      deck:
-        "deck" in display
-          ? `deck:${display.deck}`
-          : `course:${parseLessonKey(display.lessonKey).course}`,
+      deck: deckOf(display),
       lang: row.lexemeKey ? parseLexemeKey(row.lexemeKey as LexemeKey).lang : "",
     };
   };

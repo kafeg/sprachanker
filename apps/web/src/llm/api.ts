@@ -431,5 +431,5 @@ export const useCardExamples = (cardId: string, enabled = true) =>
   useQuery({
     queryKey: ["card-examples", cardId],
     enabled,
-    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId } })),
+    queryFn: () => json(api.cards[":id"].examples.$get({ param: { id: cardId }, query: {} })),
   });

@@ -291,26 +291,48 @@ test("a deck taken as a course's: a word with a card keeps it, the deck studies 
   expect(await offer()).toMatchObject({ scope, edition: "ru-de", words: 4, mine: 1, withAudio: 1 });
   expect((await sendJson("POST", "/api/cards/decks/take", { deck: id })).created).toBe(3);
   expect((await offer()).mine).toBe(4);
-  // The deck studies its four words, Leute's card the course's; the deck's words show what it gives.
+  // The deck studies its four words, Leute's card the course's — shown in the deck as the deck gives
+  // it (04: a deck's own entry of its word).
   const first = await getJson(study(scope));
   expect(first.counts).toEqual({ new: 8, learning: 0, review: 0 });
-  expect(first.current.display).toMatchObject({
-    target: "die Leute (Plural)",
-    lessonKey: `${COURSE}/00-02`,
+  expect(first.current.display).toEqual({
+    target: "die Leute",
+    gender: "pl",
+    translation: "люди",
+    deck: id,
   });
   const words = (await getJson("/api/cards")).words;
   const kaffee = words.find((w: { lexemeKey: string }) => w.lexemeKey === "lex:de:kaffee:noun:m");
+  // My words: a course's entry over an imported deck's — the course (a deck of the learner's in this
+  // pair) has Kaffee, in its first lesson; the card is still the deck's.
   expect(kaffee).toMatchObject({
     deck: scope,
     display: {
-      target: "der Kaffee",
-      gender: "m",
-      plural: "die Kaffees",
-      translation: "кофе",
-      audio: mediaPath("kaffee"),
-      deck: id,
+      target: "der Kaffee, die Kaffees",
+      audio: "media/audio/kaffee.mp3",
+      lessonKey: `${COURSE}/00-01`,
     },
   });
+  // Studied in the deck: the deck's own entry, its recording.
+  expect(
+    (await getJson(`/api/cards/${kaffee.cardId}/examples?deck=${encodeURIComponent(scope)}`)).scope,
+  ).toBe(scope);
+  const inDeck = async () => {
+    for (let i = 0; i < 4; i++) {
+      const current = (await getJson(study(scope))).current;
+      if (current.cardId === kaffee.cardId) return current.display;
+      await sendJson("POST", `/api/cards/${current.cardId}/bury`, {});
+    }
+  };
+  expect(await inDeck()).toEqual({
+    target: "der Kaffee",
+    gender: "m",
+    plural: "die Kaffees",
+    translation: "кофе",
+    audio: mediaPath("kaffee"),
+    deck: id,
+  });
+  await sendJson("POST", "/api/cards/unbury", { scope });
   // Review lists it under German beside the course, by its title.
   const german = (await getJson("/api/cards/decks")).decks[0];
   expect(german.decks.map((d: { scope: string; title: string }) => [d.scope, d.title])).toEqual([

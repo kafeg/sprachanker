@@ -20,6 +20,7 @@ import {
   studyQueue,
 } from "@sprachanker/engine";
 import {
+  type CardDisplay,
   type CardFace,
   type CardRating,
   type EditionId,
@@ -52,6 +53,8 @@ export function createStudy(deps: {
   content: Content;
   decks: Pick<Decks, "deck">;
   settings: Settings;
+  /** What a card shows studied in a scope (cards.ts: the deck's own entry of its word). */
+  shown: (note: Note, scope: DeckScope, notes?: Note[]) => Promise<CardDisplay>;
   now: () => number;
 }) {
   const { cards, store, content, decks, settings, now } = deps;
@@ -347,7 +350,8 @@ export function createStudy(deps: {
                 cardId: entry.cardId,
                 face: entry.face,
                 kind: entry.kind,
-                display: note.display,
+                /** As the scope shows it: a deck's own entry of the word (04). */
+                display: await deps.shown(note, scope, q.notes),
                 /** The language the word is in (its lexeme's). */
                 lang: note.lang,
                 due: intervals(state, q.now, `${entry.cardId}:${entry.face}`, params()),
