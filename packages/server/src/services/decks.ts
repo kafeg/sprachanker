@@ -69,7 +69,9 @@ export function createDecks(deps: {
 }) {
   const { files } = deps;
   const read = new Map<string, Deck | undefined>();
-  const importing = createOnce<ReturnType<typeof summary>>();
+  const importing = createOnce<
+    ReturnType<typeof summary> & { left?: { withoutWord: number; unusable: number } }
+  >();
   files.sweep();
 
   /** A deck as stored; undefined when there is none or it no longer reads (logged). */
@@ -118,9 +120,9 @@ export function createDecks(deps: {
     }
   };
 
-  /** What a preview says of a package: its deck's name, words (with audio, with examples), the
-   *  languages its fields are named by, the first words with their translation in each, and the decks
-   *  here it would update — each in its languages. */
+  /** What a preview says of a package: its deck's name, words (with audio, with examples), the notes
+   *  left out (without a word), the languages its fields are named by, the first words with their
+   *  translation in each, and the decks here it would update — each in its languages. */
   function previewOf(upload: string, apkg: Apkg) {
     const words = noteWords(apkg.notes);
     const languages = [
@@ -144,6 +146,7 @@ export function createDecks(deps: {
       words: words.length,
       withAudio: words.filter((w) => w.sound).length,
       withExamples: words.filter((w) => w.examples?.length).length,
+      left: { withoutWord: apkg.notes.length - words.length },
       languages,
       first: words.slice(0, PREVIEW_WORDS).map((w) => ({
         target: w.target,
@@ -188,8 +191,8 @@ export function createDecks(deps: {
     },
 
     /** Imports an uploaded package as a deck of words in `lang` translated into `translationLang`: a
-     *  new one, or the deck in these languages most of whose notes it holds, updated. A
-     *  note that makes no word (no lemma, a key too long) is left out; only audio files are taken. */
+     *  new one, or the deck in these languages most of whose notes it holds, updated. Notes left out
+     *  are counted by why (no word; no entry: no lemma, a key too long); only audio files are taken. */
     async import(request: {
       upload: string;
       title: string;
@@ -203,6 +206,7 @@ export function createDecks(deps: {
       // retry after a dropped connection gets the deck, not deck_upload_gone).
       return importing(request.upload, async () => {
         const made = files.made(request.upload);
+        // Asked again after it ended: the deck it made (what it left out is no longer known).
         const done = made ? deckOf(made) : undefined;
         if (done) return summary(done);
         const apkg = open(request.upload);
@@ -216,18 +220,18 @@ export function createDecks(deps: {
               .map(async (s) => [s, await mediaPath(s)] as const),
           ),
         );
-        const used = new Set<string>();
-        const pathOf = (sound: string | undefined) => {
-          const path = sound && paths.get(sound);
-          if (path) used.add(sound);
-          return path || undefined;
-        };
+        const pathOf = (sound: string | undefined) => (sound ? paths.get(sound) : undefined);
         const words: DeckWord[] = [];
         const keys = new Set<string>();
+        // Notes left out: without a word (noteWords leaves them out), or one that makes no entry —
+        // no lemma, a key too long, a note repeated.
+        const left = { withoutWord: apkg.notes.length - notes.length, unusable: 0 };
         for (const note of notes) {
-          if (keys.has(note.key)) continue;
-          const lexeme = lexemeIn(note, request.lang);
-          if (!lexeme) continue;
+          const lexeme = keys.has(note.key) ? undefined : lexemeIn(note, request.lang);
+          if (!lexeme) {
+            left.unusable++;
+            continue;
+          }
           const audio = pathOf(note.sound);
           const examples = (note.examples ?? []).map((e) => {
             const at = pathOf(e.sound);
@@ -246,13 +250,25 @@ export function createDecks(deps: {
             ...(audio && { audio }),
             ...(examples.length && { examples }),
           });
-          if (!word.success) continue;
+          if (!word.success) {
+            left.unusable++;
+            continue;
+          }
           keys.add(note.key);
           words.push(word.data);
         }
         if (!words.length) throw new ServiceError("deck_without_words", 422);
         // Paths of sounds the package does not hold are dropped from the words.
-        const sounds = [...used];
+        const soundAt = new Map([...paths].map(([sound, path]) => [path, sound]));
+        const sounds = [
+          ...new Set(
+            words.flatMap((w) =>
+              [w.audio, ...(w.examples ?? []).map((e) => e.audio)].flatMap(
+                (path) => soundAt.get(path ?? "") ?? [],
+              ),
+            ),
+          ),
+        ];
         const held = new Set<string>();
         function* media() {
           for (let i = 0; i < sounds.length; i += MEDIA_BATCH) {
@@ -291,7 +307,7 @@ export function createDecks(deps: {
         files.unstage(request.upload, id);
         read.delete(id);
         deps.onImport?.();
-        return summary(deck as Deck);
+        return { ...summary(deck as Deck), left };
       });
     },
 

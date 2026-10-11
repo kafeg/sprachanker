@@ -6,7 +6,13 @@ import { Upload } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDecks } from "@/api/cards.ts";
-import { type DeckPreview, discardDeckUpload, previewDeck, useImportDeck } from "@/api/decks.ts";
+import {
+  type DeckPreview,
+  discardDeckUpload,
+  type ImportedDeck,
+  previewDeck,
+  useImportDeck,
+} from "@/api/decks.ts";
 import { languageName } from "@/i18n/index.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { Input } from "@/ui/components/input.tsx";
@@ -27,11 +33,13 @@ export function DeckImport() {
   const { t } = useTranslation();
   const input = useRef<HTMLInputElement>(null);
   const [chosen, setChosen] = useState<{ file: File; preview: DeckPreview }>();
+  const [imported, setImported] = useState<ImportedDeck>();
   const [reading, setReading] = useState(false);
   const [error, setError] = useState<unknown>();
   const choose = async (file: File | undefined) => {
     if (!file) return;
     setError(undefined);
+    setImported(undefined);
     setReading(true);
     try {
       setChosen({ file, preview: await previewDeck(file) });
@@ -56,11 +64,20 @@ export function DeckImport() {
         <Upload /> {t("decks.import.button")}
       </Button>
       {error !== undefined && <p className="text-sm text-wrong">{errorText(t, error)}</p>}
+      {imported && (
+        <p className="text-sm text-muted-foreground" role="status">
+          {t("decks.import.done", { deck: imported.title, words: imported.words })}{" "}
+          {imported.left && <LeftOut left={imported.left} />}
+        </p>
+      )}
       {chosen && (
         <DeckImportSheet
           file={chosen.file}
           preview={chosen.preview}
-          onClose={() => setChosen(undefined)}
+          onClose={(result) => {
+            setChosen(undefined);
+            setImported(result);
+          }}
         />
       )}
     </div>
@@ -75,7 +92,8 @@ export function DeckImportSheet({
 }: {
   file: File;
   preview: DeckPreview;
-  onClose(): void;
+  /** Closed: with what was imported, or without (the uploaded file let go). */
+  onClose(imported?: ImportedDeck): void;
 }) {
   const { t, i18n } = useTranslation();
   const known = (useDecks().data?.decks ?? []).map((d) => d.language);
@@ -149,7 +167,7 @@ export function DeckImportSheet({
               translationLang,
               file: file.name,
             },
-            { onSuccess: onClose },
+            { onSuccess: (result) => onClose(result) },
           );
         }}
       >
@@ -184,6 +202,9 @@ export function DeckImportSheet({
               examples: preview.withExamples,
             })}
           </h3>
+          <p className="mb-2 text-sm text-muted-foreground">
+            <LeftOut left={preview.left} />
+          </p>
           <ul className="divide-y rounded-xl border text-sm">
             {preview.first.map((w) => {
               const translation = w.translations[translationLang] ?? w.translations[""];
@@ -207,4 +228,15 @@ export function DeckImportSheet({
       </form>
     </SideSheet>
   );
+}
+
+/** The notes a deck file's import leaves out, and why; nothing when none. */
+function LeftOut({ left }: { left: { withoutWord: number; unusable?: number } }) {
+  const { t } = useTranslation();
+  return [
+    left.withoutWord > 0 && t("decks.import.left", { count: left.withoutWord }),
+    !!left.unusable && t("decks.import.unusable", { count: left.unusable }),
+  ]
+    .filter(Boolean)
+    .join(" ");
 }

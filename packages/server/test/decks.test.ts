@@ -80,6 +80,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
     words: 4,
     withAudio: 1,
     withExamples: 0,
+    left: { withoutWord: 0 },
     languages: [],
     first: [
       { target: "der Kaffee", translations: { "": "кофе" } },
@@ -192,8 +193,8 @@ test("a package previewed, imported as a deck with its audio; its media served f
   expect(await titles()).toEqual(["Andere", "Mein Deck (en, 2)", "Mein Deck (ru, 2)"]);
 });
 
-test("a preview's first words with their translations, read from the same notes", async () => {
-  const { preview } = await withDecks();
+test("a preview's first words with their translations, read from the same notes; notes left out and why", async () => {
+  const { preview, sendJson } = await withDecks();
   const seen = await preview(
     buildApkg({
       deck: "Lücken",
@@ -205,9 +206,19 @@ test("a preview's first words with their translations, read from the same notes"
           guid: `w${i}`,
           fields: [w, `перевод ${i}`],
         })),
+        { guid: "p", fields: ["…", "многоточие"] },
       ],
     }),
   );
+  expect(seen).toMatchObject({ words: 7, left: { withoutWord: 2 } });
+  const made = await sendJson("POST", "/api/decks/import", {
+    upload: seen.upload,
+    title: "Lücken",
+    lang: "de",
+    translationLang: "ru",
+    file: "l.apkg",
+  });
+  expect(made).toMatchObject({ words: 6, left: { withoutWord: 2, unusable: 1 } });
   expect(seen.first).toEqual(
     ["eins", "zwei", "drei", "vier", "fünf"].map((target, i) => ({
       target,
@@ -511,7 +522,10 @@ test("an import asked again — at once or after it ended — answers with the d
     sendJson("POST", "/api/decks/import", request),
   ]);
   expect(again).toEqual(first);
-  expect(await sendJson("POST", "/api/decks/import", request)).toEqual(first);
+  // After it ended: the deck it made, what it left out no longer known.
+  const { left, ...made } = first;
+  expect(left).toEqual({ withoutWord: 0, unusable: 0 });
+  expect(await sendJson("POST", "/api/decks/import", request)).toEqual(made);
   expect((await getJson("/api/decks")).decks).toHaveLength(1);
 });
 

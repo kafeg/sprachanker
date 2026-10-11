@@ -9,6 +9,7 @@ export const useImportedDecks = () =>
   useQuery({ queryKey: ["imported-decks"], queryFn: () => json(api.decks.$get()) });
 
 export type DeckPreview = InferResponseType<typeof api.decks.preview.$post, 200>;
+export type ImportedDeck = InferResponseType<typeof api.decks.import.$post, 200>;
 
 /** A deck file uploaded (kept by the server until imported): its deck's name, words (with audio,
  *  with examples), the languages its fields are named by, the first words, the deck it updates. */

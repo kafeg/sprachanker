@@ -174,7 +174,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   deck says it is a noun —, a phrase a phrase whatever the deck calls it); the deck's part of speech
   is taken where it names one: Nomen, Verb, Adjektiv…, and codes as `nf`/`nm`/`nn` (a noun's gender),
   `die (pl)` (plural only), `der, die` (either gender), only the first of several (`adj; adv`); a
-  note that makes no word is left out. So a word a course has links to its card. A card made from a
+  note without a word, or whose word makes no entry (no lemma, a key too long), is left out — the
+  preview and the import say how many and why. So a word a course has links to its card. A card made from a
   deck's word has the deck in its source (`deck:<id>/<guid>`): two decks sharing a note never take
   each other's cards. Decks are the
   server's, every profile's to take (05, `decks/`); a package is uploaded once (kept beside the decks

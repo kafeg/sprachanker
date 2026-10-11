@@ -891,7 +891,10 @@
       "translationLang": "Sprache der Übersetzungen",
       "words": "{words, plural, one {# Wort} other {# Wörter}} · {audio, plural, =0 {ohne Audio} one {# mit Audio} other {# mit Audio}} · {examples, plural, =0 {ohne Beispiele} one {# mit Beispielen} other {# mit Beispielen}}",
       "submit": "Importieren",
-      "updates": "Diese Datei aktualisiert den Stapel {deck}: seine Wörter werden die der Datei, die Karten daraus folgen ihnen. Mit anderen Sprachen wird sie ein eigener Stapel."
+      "updates": "Diese Datei aktualisiert den Stapel {deck}: seine Wörter werden die der Datei, die Karten daraus folgen ihnen. Mit anderen Sprachen wird sie ein eigener Stapel.",
+      "left": "{count, plural, one {# Notiz ohne Wort wird ausgelassen.} other {# Notizen ohne Wort werden ausgelassen.}}",
+      "unusable": "{count, plural, one {# Notiz, deren Wort sich nicht lesen lässt, wird ausgelassen.} other {# Notizen, deren Wort sich nicht lesen lässt, werden ausgelassen.}}",
+      "done": "{deck} importiert: {words, plural, one {# Wort} other {# Wörter}}."
     },
     "remove": "Stapel löschen",
     "removeTitle": "Stapel {deck} löschen?",

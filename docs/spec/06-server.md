@@ -75,17 +75,19 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   face's review count as shown (a face rated meanwhile on another device is refused: 409 `card_changed`).
 - Imported decks (04, "Decks"; server-wide, as the library): `GET /api/decks` (each with its languages,
   words, how many have audio and examples), `POST /api/decks/preview` (a deck file `.apkg` as the body,
-  at most 512 MB, streamed to `decks/.uploads/`: the upload's id, its deck's name, words, the languages
-  its fields are named by, the first words with their translation in each — read from the same notes
-  —, the decks here it would update, each with its languages), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or the
-  deck most of whose notes it holds, in the same languages, updated; 400 `deck_same_languages` (the
-  words' language and the translations' must differ); 404 `deck_upload_gone`; 422
-  `not_a_deck`, `deck_without_words`, `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE
-  /api/decks/uploads/:upload` (an upload let go unimported: its sheet closed), `DELETE /api/decks/:id`
-  (409 `deck_in_use` while any profile has cards made from it). An import asked again with its upload's id
-  — at once, or after it ended (within a day) — answers with the deck it made, so a retry after a
-  dropped connection gets it. Bun takes bodies up to a deck file's size; the preview and the import
-  wait as long as they take, every other request Bun's 10 s (`runtime/bun.ts`).
+  at most 512 MB, streamed to `decks/.uploads/`: the upload's id, its deck's name, words, the notes
+  left out (without a word), the languages its fields are named by, the first words with their
+  translation in each — read from the same notes —, the decks here it would update, each with its
+  languages), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or
+  the deck most of whose notes it holds, in the same languages, updated; it answers with the deck and
+  the notes left out — without a word, making no entry; 400 `deck_same_languages` (the words' language
+  and the translations' must differ); 404 `deck_upload_gone`; 422 `not_a_deck`, `deck_without_words`,
+  `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/uploads/:upload` (an upload
+  let go unimported: its sheet closed), `DELETE /api/decks/:id` (409 `deck_in_use` while any profile
+  has cards made from it). An import asked again with its upload's id — at once, or after it ended
+  (within a day) — answers with the deck it made, so a retry after a dropped connection gets it. Bun
+  takes bodies up to a deck file's size; the preview and the import wait as long as they take, every
+  other request Bun's 10 s (`runtime/bun.ts`).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.

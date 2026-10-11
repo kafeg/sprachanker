@@ -891,7 +891,10 @@
       "translationLang": "Translations in",
       "words": "{words, plural, one {# word} other {# words}} · {audio, plural, =0 {no audio} one {# with audio} other {# with audio}} · {examples, plural, =0 {no examples} one {# with examples} other {# with examples}}",
       "submit": "Import",
-      "updates": "This file updates the deck {deck} here: its words become this file's, and the cards made from it follow them. In other languages it is a deck of its own."
+      "updates": "This file updates the deck {deck} here: its words become this file's, and the cards made from it follow them. In other languages it is a deck of its own.",
+      "left": "{count, plural, one {# note without a word is left out.} other {# notes without a word are left out.}}",
+      "unusable": "{count, plural, one {# note whose word cannot be read is left out.} other {# notes whose words cannot be read are left out.}}",
+      "done": "Imported {deck}: {words, plural, one {# word} other {# words}}."
     },
     "remove": "Delete deck",
     "removeTitle": "Delete the deck {deck}?",
