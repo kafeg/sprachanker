@@ -25,9 +25,9 @@ export const SpeechRepeatExercise = exerciseOf("speech_repeat", SpeechRepeatItem
 
 /** Speaking oneself (the courses' "say it" exercises): listen, then record oneself; recorded is done.
  *  Its `prompt` is what the item asks (a question, a situation, words to use), `text` a phrase to
- *  repeat after its recording, `reference` the source's answer to say. What was heard gets a word
- *  diff against the line to say (engine `linesToSay`); without one, the AI checks it (08). Its
- *  `answerAudio` is played after the learner's first try. */
+ *  repeat after its recording (said as written), `reference` the source's answer to say. What was
+ *  heard gets a word diff against the line to say (engine `linesToSay`); without one, the AI checks
+ *  it (08). Its `answerAudio` is played after the learner's first try. */
 const SpeechSelfrateItem = ItemBase.extend({
   text: z.string().min(1).optional(),
   /** The source's answer, written (as respond's model answers): a line to say ("Ja, ich war schon in
