@@ -9,6 +9,7 @@ import { audioList, readLongdesc, readPage } from "../src/page.ts";
 import { readSolutions } from "../src/solutions.ts";
 import { readSpeaking } from "../src/speaking.ts";
 import { readWriting } from "../src/writing.ts";
+import { writingPrompt } from "../src/writing-exam.ts";
 import { HOEREN, LESEN, SCHREIBEN, SCHREIBEN_L1, SOLUTIONS, SPRECHEN, ZETTEL } from "./pages.ts";
 
 const LEVEL: Level = {
@@ -306,7 +307,8 @@ test("writing normalised: the form's gaps from its solution page, texts rated by
   expect(item("schreiben-2")).toMatchObject({
     type: "respond",
     input: "text",
-    prompt: "Eingabetextfeld",
+    // The box's label names the box: the task says what to write.
+    prompt: "Schreiben Sie an die Schule",
     criteria: [
       { id: "inhaltspunkt-1", levels: [3, 1.5, 0] },
       { id: "inhaltspunkt-2", levels: [3, 1.5, 0] },
@@ -322,6 +324,8 @@ test("writing normalised: the form's gaps from its solution page, texts rated by
     { id: "aufgabenerfuellung", levels: [5, 2.5, 0], voids: true },
     { id: "sprache", levels: [5, 2.5, 0] },
   ]);
+  expect(item("schreiben-3")?.prompt).toBe("Schreiben Sie eine SMS.");
+  expect(item("schreiben-4")?.prompt).toBe("Ihre Meinung");
   expect(item("schreiben-4")?.criteria).toEqual([
     { id: "erfuellung", levels: [4, 2, 0], voids: true },
     { id: "wortschatz", levels: [6, 3, 0] },
@@ -452,4 +456,37 @@ test("the regulations' pass marks when their modules are all there", () => {
     ).files.find((f) => f.path.includes("canonical/a1/exams"))?.value,
   );
   expect(without.thresholds).toEqual([{ id: "pass", minPoints: 15 }]);
+});
+
+test("a text to write named by its task, never by its box's label", () => {
+  const prompt = (box: string, ...instructions: string[]) => writingPrompt({ box, instructions });
+  expect(prompt("Ihre Meinung", "Schreiben Sie nun Ihre Meinung (circa 50 Wörter).")).toBe(
+    "Ihre Meinung",
+  );
+  expect(
+    prompt(
+      "Eingabetextfeld",
+      "Sie fahren nach Bonn. Schreiben Sie an das Hotel:",
+      "• Wann kommen Sie?",
+      "Schreiben Sie zu jedem Punkt einen Satz in das Eingabetextfeld (ca. 20 Wörter).",
+    ),
+  ).toBe("Schreiben Sie an das Hotel");
+  expect(
+    prompt(
+      "Textfeld für E-Mail",
+      "Prüfungszeit: 10 Minuten",
+      "Ihr Freund hat Geburtstag.",
+      "• Beschreiben Sie: Was schenken Sie?",
+      "Schreiben Sie eine E-Mail (circa 60 Wörter).",
+      "Schreiben Sie etwas zu allen Punkten.",
+    ),
+  ).toBe("Schreiben Sie eine E-Mail.");
+  expect(
+    prompt(
+      "Eingabetextfeld",
+      "Sie sind im Zug und schreiben eine SMS an Ihren Bruder.",
+      "Schreiben Sie 20 Wörter.",
+    ),
+  ).toBe("Sie sind im Zug und schreiben eine SMS an Ihren Bruder.");
+  expect(prompt("Eingabetextfeld", "Schreiben Sie auch einen Gruß.")).toBeUndefined();
 });

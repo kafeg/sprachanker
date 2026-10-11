@@ -254,7 +254,9 @@ criteria it is rated by. German only and shown as it is. Offered in the Exams se
   answers matched, numbers, recordings placed, media kept, writing criteria read. Schreiben
   (`writing-exam.ts`): a form's gaps as questions from its solution page (`gap_text` with the
   alternatives, a choice as `single_choice`; keys `q-schreiben-<teil>-<n>`), the form's lines the
-  section's text; a text to write as a `respond` item (`q-schreiben-<teil>`) with criteria (02):
+  section's text; a text to write as a `respond` item (`q-schreiben-<teil>`), its prompt the box's
+  label where it says the task ("Ihre Meinung"), else — the label naming the box, "Eingabetextfeld"
+  (QA 2026-10-12) — the task's first sentence saying what to write, with criteria (02):
   "pro Inhaltspunkt" one per point of the task (A1), else one per criterion (ids from titles); each
   level's points as the page gives them, else the model test's score sheet's bands for the criterion's
   maximum (catalog: A2 5 / 3.5 / 2 / 0.5 / 0, its page naming no maximum; B1 10 / 7.5 / 5 / 2.5 / 0,
