@@ -5,16 +5,33 @@ import { useTranslation } from "react-i18next";
 const DATE: Record<"day" | "dayTime" | "month" | "weekday" | "time", Intl.DateTimeFormatOptions> = {
   day: { day: "numeric", month: "short" },
   dayTime: { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" },
-  month: { month: "short" },
+  // Gregorian whatever the language's own calendar (Persian's): the months stand over Gregorian weeks.
+  month: { month: "short", calendar: "gregory" },
   weekday: { weekday: "short" },
   time: { hour: "numeric", minute: "2-digit" },
 };
 
-/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its month ("Oct"), its weekday
- *  ("Mon") or its time of day ("15:28"). */
+/** A date as a day ("7 Oct"), a day with its time ("7 Oct, 15:28"), its Gregorian month ("Oct"), its
+ *  weekday ("Mon") or its time of day ("15:28"). */
 export function useDateFormat(kind: keyof typeof DATE) {
   const { i18n } = useTranslation();
   return useMemo(() => new Intl.DateTimeFormat(i18n.language, DATE[kind]), [i18n.language, kind]);
+}
+
+/** The day a week starts on where the language is spoken (0 Sunday … 6 Saturday, as `Date.getDay`):
+ *  Intl's week info (Sunday in English, Saturday in Persian and Arabic), else Monday. */
+export function firstDayOfWeek(language: string): number {
+  try {
+    const locale = new Intl.Locale(language) as Intl.Locale & {
+      getWeekInfo?(): { firstDay?: number };
+      weekInfo?: { firstDay?: number };
+    };
+    const day = (locale.getWeekInfo?.() ?? locale.weekInfo)?.firstDay;
+    if (day) return day % 7;
+  } catch {
+    // Not a language tag: Monday.
+  }
+  return 1;
 }
 
 /** A count as the language writes it ("1,234"; "1 234"). */
