@@ -35,6 +35,7 @@ Encoded in `.dependency-cruiser.cjs`; `scripts/boundaries.test.ts` proves them o
 - `schema` → nothing. `engine` → `schema` only. `course-kit` → `schema` (its tests too: never a course).
 - `courses/*` → `schema`, `course-kit` only. Never `server`, `engine`.
 - `llm` → `schema`. It never imports `server`.
+- `anki-export` → `schema`, runtime-free (no Node/Bun built-ins: SQLite and zstd are passed in).
 - `server` → `schema`, `engine`, `course-kit`, `courses/*`, `llm`, `anki-export`.
 - `apps/web` → `schema`, `engine` (client-side checking), and a **type-only** import of the server's
   `AppType` for the Hono RPC client.

@@ -23,6 +23,7 @@ test("boundary rules fire on deliberate violations and allow the type-only AppTy
     "engine-folders-one-way: packages/engine/src/srs/reads-learner.ts -> packages/engine/src/learner/activity.ts",
     "engine-imports-schema-only: packages/engine/src/imports-server.ts -> packages/server/src/index.ts",
     "nothing-imports-apps: packages/server/src/imports-app.ts -> apps/web/src/server-type.ts",
+    "pure-modules-no-io: packages/anki-export/src/uses-fs.ts -> fs",
     "pure-modules-no-io: packages/engine/src/uses-fs.ts -> fs",
     "pure-modules-no-io: packages/llm/src/uses-fs.ts -> fs",
     "server-app-reaches-course-kit-view-only: packages/server/src/services/uses-library.ts -> packages/course-kit/src/library.ts",

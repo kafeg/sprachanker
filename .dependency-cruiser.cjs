@@ -91,9 +91,9 @@ module.exports = {
     {
       name: "pure-modules-no-io",
       comment:
-        "schema and engine run in the browser too, llm uses web-standard APIs only: no Node/Bun built-ins in their sources.",
+        "schema and engine run in the browser too, llm uses web-standard APIs only, anki-export takes SQLite and zstd from the caller: no Node/Bun built-ins in their sources.",
       severity: "error",
-      from: { path: "^packages/(schema|engine|llm)/src/", pathNot: "\\.test\\.tsx?$" },
+      from: { path: "^packages/(schema|engine|llm|anki-export)/src/", pathNot: "\\.test\\.tsx?$" },
       to: { dependencyTypes: ["core"] },
     },
     {
