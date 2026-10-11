@@ -57,7 +57,7 @@ sent when LM Studio requires one.
 
 All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
 turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
-this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), "Write it yourself", the Dialogue
+this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), Understanding, "Write it yourself", the Dialogue
 (its place keeps the key `scene` of the scenes it replaced), spoken
 answers, a word's examples (on its card and made for its deck), an exam's answers — a place off is not shown (its button, its step of the lesson plan, its section); a
 lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
@@ -89,6 +89,8 @@ rules.
 | `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the course's level, the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), writing criteria at the course's level as CEFR writing exams rate them — Goethe's Schreiben for German, said with the data — (task, communication, accuracy: 0–2 + comment), feedback |
 | `check_speaking` | the lesson (title, words, grammar), the course's level, a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
+| `understanding_text` | Understanding's text (04, "AI practice in courses"): the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met); the text's length at the level and how the target language's exams write true and false (German's "Richtig", "Falsch") with the data | JSON: kind (`dialogue` \| `announcement` \| `reading`), title and situation (the learner's language), lines (target language; a dialogue's each with its speaker, two at most), glossary (the few new words, translated), questions (target language; phase `listening` \| `reading`, options with the right one's index, or the accepted answers of one typed) — checked: every question askable, at least three, a text heard with questions by ear |
+| `understanding_check` | the text written and its questions without their keys | JSON: answers[] (n, the option's letter or the answer typed, ambiguous) — the questions answered otherwise than their key (an answer typed checked by the engine, as the learner's), ambiguous or not answered are left out (`settledQuestions`) |
 | `scene_setup` | a Dialogue's setup: the lesson (title, goals, its place, words) and the snapshot (level, earlier words, grammar topics met) | JSON: title, situation, partner, goals (1–3: the learner's goal card), partnerInfo (2–4 facts the partner holds and the learner must ask for, in the target language), opening line |
 | `scene_turn` | a Dialogue's line: its setup with the partner's information, the level and the words known, history, the learner's new line (said and recognised, or typed) | JSON: reply (target language), translation, understood, fits, corrections[] (of the new line only; at most two kept), goalsMet[], done |
 | `scene_summary` | a Dialogue ended: its setup, the goals met, its lines with the corrections given | JSON: corrections[] (one or two key ones, each with a model line: the learner's line said well), feedback |
@@ -131,11 +133,12 @@ tutor, never the lesson's score (08);
 tutor's chat, inline on the step, starts a new chat asking to go through the mistakes (a written
 session review was dropped, owner 2026-10-07: the numbers need no model, and talking a mistake over
 teaches more than a report); the Dialogue step → `scene_setup`, then `scene_turn` per line, then
-`scene_summary` once it ends (Conversations, below).
+`scene_summary` once it ends (Conversations, below); the Understanding step → `understanding_text`,
+then `understanding_check` on it (written again once when fewer than three questions are left; none
+left: `invalid_output`, nothing kept): the text an `llm_verdict` (`task: understanding`) in the
+lesson run the lesson shows, its answers `practice_answered` events checked by the engine (04, 05).
 
-Planned tasks of the AI practice in courses (04): `understanding_text` (next phase: a text or
-dialogue from the words known with its questions as closed items — true/false, a/b/c, numbers —
-checked by the engine, read aloud in the target language only), `mistake_items` (third phase: the
+Planned tasks of the AI practice in courses (04): `mistake_items` (third phase: the
 pass's mistakes by type, an explanation per type, two or three new items of each type), and
 `check_writing` on a task of three content points, its length and criteria by the course's level, at
 most three corrections and a model text (third phase).
@@ -155,11 +158,12 @@ most three corrections and a model text (third phase).
   text is sent; a reply that breaks off after its first chunk ends with `STREAM_ERROR` (schema) and the
   error, so the client shows the part it got with the error, never as a whole reply. Only a reply that
   finished, or that the learner stopped, is kept.
-- **Calls outlive the page** (Dialogues, writing checks): a structured call runs to its end on the server
-  and is stored even when the learner left the page meanwhile; the step's state says what is running
-  (`pending` for a Dialogue, `checking` for a text), so a page opened again shows it as waiting and polls
-  until it lands. One such call per lesson at a time; a second is refused (`scene_busy`,
-  `writing_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
+- **Calls outlive the page** (Dialogues, writing checks, Understanding's texts): a structured call runs
+  to its end on the server and is stored even when the learner left the page meanwhile; the step's
+  state says what is running (`pending` for a Dialogue, `checking` for a text checked, `preparing` for
+  a text being written), so a page opened again shows it as waiting and polls until it lands. One
+  such call per lesson at a time; a second is refused (`scene_busy`, `writing_busy`,
+  `understanding_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
   sent with the request; the reply is validated with zod; an invalid reply gets one repair attempt with
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result
@@ -179,7 +183,8 @@ most three corrections and a model text (third phase).
   left by a tap on it.
 - Settings → AI assistant → Advanced: each task's system prompt and the context parts it adds, with
   their character limits (each task's `*_BUDGETS`): explanations, the tutor, the Tutor section, writing and spoken
-  checks, a Dialogue's setup, its lines and its summary, a deck's words given examples.
+  checks, Understanding's text and its second reading, a Dialogue's setup, its lines and its summary,
+  a deck's words given examples.
 - The learner can replace a task's system prompt with their own (Settings → AI assistant → Advanced,
   "Restore" brings the standing one back). It is a template in the profile setting `llm.prompts`
   (task → text; an earlier version's own prompt for a card's one example, `example`, is no longer

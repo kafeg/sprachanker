@@ -145,7 +145,8 @@
       "writing": "Andika mwenyewe",
       "scene": "Mazungumzo",
       "mistakes": "Kupitia makosa",
-      "summary": "Muhtasari"
+      "summary": "Muhtasari",
+      "understanding": "Kuelewa"
     },
     "section": {
       "grammar": "Sarufi",
@@ -402,7 +403,9 @@
       "sceneSetup": "Mazungumzo: maandalizi",
       "scene": "Mazungumzo: sentensi",
       "examples": "Mifano ya maneno ya seti",
-      "sceneSummary": "Mazungumzo: muhtasari"
+      "sceneSummary": "Mazungumzo: muhtasari",
+      "understanding": "Kuelewa: maandishi",
+      "understandingCheck": "Kuelewa: kusoma mara ya pili"
     },
     "contextIntro": "Imeongezwa kutoka kwenye somo:",
     "contextIntroCourses": "Imeongezwa kutoka kwenye kozi zako (za lugha inayozoezwa katika mazungumzo):",
@@ -439,7 +442,10 @@
       "place": "mahali somo lilipo katika kozi: namba yake na kitengo chake",
       "topics": "mada za sarufi zilizokwisha kujitokeza katika kozi",
       "dialogueGoals": "hali na malengo uliyoyafikia",
-      "dialogue": "sentensi za mazungumzo pamoja na marekebisho yaliyotolewa"
+      "dialogue": "sentensi za mazungumzo pamoja na marekebisho yaliyotolewa",
+      "length": "urefu wa maandishi katika kiwango cha kozi",
+      "readText": "maandishi iliyoandika",
+      "textQuestions": "maswali yake na chaguo zake, bila majibu"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",
@@ -478,6 +484,10 @@
       "exam": {
         "name": "Majibu ya mtihani",
         "where": "“Pendekeza tathmini” juu ya vigezo vya jibu, na sehemu za kuzungumza zinazofanywa kama mazungumzo"
+      },
+      "understanding": {
+        "name": "Kuelewa",
+        "where": "hatua ya somo: maandishi ya kusikiliza au kusoma, pamoja na maswali"
       }
     },
     "about": {
@@ -491,7 +501,9 @@
       "sceneSetup": "Huanzisha mazungumzo: kutokana na malengo ya somo na unachokijua, hubuni hali, unazungumza na nani, kadi yako ya malengo na kile anachojua mwenzako pekee — ambacho lazima ukiulize. Mara moja kwa kila mazungumzo.",
       "scene": "Huigiza mwenzako: hujibu kila sentensi unayoitamka (kama kitambuzi kilivyoisikia) au kuiandika, husema kama ilieleweka na kama inafaa, hurekebisha makosa mawili zaidi, hutoa tafsiri na huweka alama kwenye malengo uliyoyafikia.",
       "examples": "Huandika sentensi tatu hadi tano za mfano kwa kila neno la seti isiyo na mifano yake yenyewe, maneno matano kwa wakati (Marudio → Seti, “Tengeneza mifano”), kwa maneno unayoyajua inapowezekana na yale mapya yakiwa yametafsiriwa.",
-      "sceneSummary": "Hufupisha mazungumzo yakiisha: marekebisho moja au mawili muhimu zaidi, kila moja na sentensi yako ikisemwa vizuri, na maoni mafupi."
+      "sceneSummary": "Hufupisha mazungumzo yakiisha: marekebisho moja au mawili muhimu zaidi, kila moja na sentensi yako ikisemwa vizuri, na maoni mafupi.",
+      "understanding": "Huandika maandishi mafupi kwa lugha unayojifunza kutoka kwa maneno unayoyajua — mazungumzo au tangazo la kusikiliza, au menyu au tangazo la kusoma — pamoja na maswali kama ya mitihani (kweli/si kweli, a/b/c, namba). Majibu yako hukaguliwa na programu, si na modeli.",
+      "understandingCheck": "Husoma maandishi tena na hujibu maswali yake mwenyewe kutokana na maandishi pekee: swali linalojibiwa tofauti, au lisiloeleweka, huondolewa."
     }
   },
   "writing": {
@@ -820,7 +832,8 @@
       "doneTitle": "{when}: {count, plural, one {somo # limekamilika} other {masomo # yamekamilika}}, jumla {total, number}",
       "part": "{label}: {n, number}",
       "words": "Maneno kwa hali: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {maandishi # ya kuelewa} other {maandishi # ya kuelewa}}"
   },
   "study": {
     "listen": "Sikiliza na ukumbuke maana",
@@ -1341,7 +1354,8 @@
     "course_bundle_too_large": "Faili hili la kozi ni kubwa mno (GB 16 kwa zaidi).",
     "course_bundle_from_newer_app": "Faili hili la kozi limetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
     "course_bundle_clash": "Kompyuta hii ina faili nyingine kwa majina ya faili za midia za kozi hii: badala yake pakua kozi hapa.",
-    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika."
+    "course_import_busy": "Faili nyingine ya kozi inaingizwa sasa. Jaribu tena itakapokamilika.",
+    "understanding_busy": "Maandishi ya somo hili yanaandikwa. Subiri."
   },
   "exams": {
     "tabs": {
@@ -1534,5 +1548,28 @@
       "verified": "Imekaguliwa: faili zote zipo.",
       "problems": "Imekaguliwa: {count, plural, one {tatizo # limepatikana} other {matatizo # yamepatikana}} — “Kagua” kwenye kadi yake inayaonyesha."
     }
+  },
+  "understanding": {
+    "intro": "Maandishi mafupi kutoka kwa maneno unayoyajua. Mazungumzo au tangazo husomwa kwa sauti: sikiliza na ujibu kwa kusikia, kisha soma maandishi na ujibu swali moja zaidi. Menyu au tangazo ni la kusoma.",
+    "start": "Andika maandishi",
+    "writing": "Maandishi yanaandikwa…",
+    "new": "Maandishi mapya",
+    "kind": {
+      "dialogue": "mazungumzo ya kusikiliza",
+      "announcement": "tangazo la kusikiliza",
+      "reading": "maandishi ya kusoma"
+    },
+    "listen": "Sikiliza",
+    "resume": "Endelea",
+    "replay": "Tangu mwanzo",
+    "line": "Sentensi {n, number} kati ya {total, number}",
+    "heard": "{count, plural, one {Imesikilizwa mara moja} other {Imesikilizwa mara #}}",
+    "noVoice": "Hakuna kinachosoma {language} kwa sauti hapa, kwa hivyo maandishi yanaonyeshwa ili kusomwa. Ili kusikiliza, chagua sauti katika Mipangilio → Sauti.",
+    "byEar": "Jibu kwa kusikia — maandishi yatafunguka baadaye.",
+    "text": "Maandishi",
+    "newWords": "Maneno mapya",
+    "readNow": "Soma maandishi na ujibu",
+    "result": "{right, number} kati ya {total, number} sahihi",
+    "past": "Maandishi ya awali ya somo hili"
   }
 }

@@ -24,6 +24,20 @@ export function withScene<T extends { id: string; done: boolean }>(
   return { scenes: [scene, ...(started ? rest.map((s) => ({ ...s, done: true })) : rest)] };
 }
 
+/** An Understanding text in its place when the lesson's list has it (an answer added to it), else on
+ *  top (one just written). */
+export function withText<T extends { id: string }, S extends { texts: T[] }>(
+  state: S | undefined,
+  text: T,
+): S | undefined {
+  if (!state) return state;
+  const here = state.texts.some((t) => t.id === text.id);
+  return {
+    ...state,
+    texts: here ? state.texts.map((t) => (t.id === text.id ? text : t)) : [text, ...state.texts],
+  };
+}
+
 /** A chat with turns added at its end (the pair the server just stored); the rest of it kept. */
 export function withTurns<D extends { turns: unknown[] }>(
   data: D | undefined,

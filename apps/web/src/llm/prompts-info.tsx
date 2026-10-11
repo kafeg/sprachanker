@@ -38,6 +38,8 @@ const PARTS = {
   speaking: ["lesson", "level", "lessonVocab", "grammar", "item", "heard", "answer"],
   exam: ["exam", "criteria", "samples", "writtenAnswer"],
   conversation: ["exam", "partner", "conversation"],
+  understanding: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics", "length"],
+  understandingCheck: ["readText", "textQuestions"],
   sceneSetup: ["lesson", "place", "level", "lessonVocab", "knownVocab", "topics"],
   scene: ["lesson", "level", "lessonVocab", "knownVocab", "topics", "history"],
   sceneSummary: ["level", "dialogueGoals", "dialogue"],

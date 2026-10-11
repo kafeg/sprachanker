@@ -145,7 +145,8 @@
       "writing": "Escribe tú",
       "scene": "Diálogo",
       "mistakes": "Repaso de errores",
-      "summary": "Resumen"
+      "summary": "Resumen",
+      "understanding": "Comprensión"
     },
     "section": {
       "grammar": "Gramática",
@@ -402,7 +403,9 @@
       "sceneSetup": "Diálogo: el planteamiento",
       "scene": "Diálogo: una frase",
       "examples": "Ejemplos para las palabras de un mazo",
-      "sceneSummary": "Diálogo: el resumen"
+      "sceneSummary": "Diálogo: el resumen",
+      "understanding": "Comprensión: el texto",
+      "understandingCheck": "Comprensión: la segunda lectura"
     },
     "contextIntro": "Se añade de la lección:",
     "contextIntroCourses": "Se añade de tus cursos (los del idioma que practica la conversación):",
@@ -439,7 +442,10 @@
       "place": "dónde está la lección en el curso: su número y su unidad",
       "topics": "los temas de gramática vistos hasta ahora en el curso",
       "dialogueGoals": "la situación y los objetivos que alcanzaste",
-      "dialogue": "las frases del diálogo con las correcciones que recibieron"
+      "dialogue": "las frases del diálogo con las correcciones que recibieron",
+      "length": "qué longitud tiene el texto en el nivel del curso",
+      "readText": "el texto que escribió",
+      "textQuestions": "sus preguntas con las opciones, sin las respuestas"
     },
     "upTo": "hasta {chars, plural, one {# carácter} other {# caracteres}}",
     "debug": "Mostrar los botones «Prompt»",
@@ -478,6 +484,10 @@
       "exam": {
         "name": "Respuestas de examen",
         "where": "«Proponer una valoración» sobre los criterios de una respuesta, y las partes orales hechas como conversación"
+      },
+      "understanding": {
+        "name": "Comprensión",
+        "where": "un paso de la lección: un texto para escuchar o leer, con preguntas"
       }
     },
     "about": {
@@ -491,7 +501,9 @@
       "sceneSetup": "Empieza un diálogo: a partir de los objetivos de la lección y de lo que sabes, inventa la situación, con quién hablas, tu tarjeta de objetivos y lo que solo sabe tu interlocutor, que tendrás que preguntar. Una vez por diálogo.",
       "scene": "Hace de tu interlocutor: responde a cada frase que dices (tal como la oyó el reconocimiento) o escribes, dice si se entendió y si encaja, corrige como mucho dos errores, da una traducción y marca tus objetivos cumplidos.",
       "examples": "Escribe de tres a cinco frases de ejemplo para cada palabra de un mazo que no tenga ejemplos propios, de cinco en cinco palabras (Repaso → Mazos, «Crear ejemplos»), con palabras que ya conoces siempre que puede y las nuevas traducidas.",
-      "sceneSummary": "Resume un diálogo cuando termina: las una o dos correcciones más importantes, cada una con tu frase bien dicha, y un comentario breve."
+      "sceneSummary": "Resume un diálogo cuando termina: las una o dos correcciones más importantes, cada una con tu frase bien dicha, y un comentario breve.",
+      "understanding": "Escribe un texto breve en el idioma que aprendes con las palabras que conoces —un diálogo o un anuncio para escuchar, o un menú o un aviso para leer— con preguntas como las de los exámenes (verdadero/falso, a/b/c, números). Tus respuestas las corrige la app, no el modelo.",
+      "understandingCheck": "Vuelve a leer el texto y responde a sus propias preguntas solo con el texto: una pregunta que responde de otra forma o que no ve clara se descarta."
     }
   },
   "writing": {
@@ -820,7 +832,8 @@
       "doneTitle": "{when}: {count, plural, one {# lección hecha} other {# lecciones hechas}}, {total, number} en total",
       "part": "{label}: {n, number}",
       "words": "Palabras por estado: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# texto de comprensión} other {# textos de comprensión}}"
   },
   "study": {
     "listen": "Escucha y recuerda el significado",
@@ -1341,7 +1354,8 @@
     "course_bundle_too_large": "Este archivo de curso es demasiado grande (16 GB como máximo).",
     "course_bundle_from_newer_app": "Este archivo de curso viene de una versión más reciente de SprachAnker: actualiza primero la aplicación aquí.",
     "course_bundle_clash": "Este ordenador tiene otros archivos con los nombres de los archivos multimedia de este curso: descarga el curso aquí.",
-    "course_import_busy": "Se está importando otro archivo de curso. Inténtalo de nuevo cuando termine."
+    "course_import_busy": "Se está importando otro archivo de curso. Inténtalo de nuevo cuando termine.",
+    "understanding_busy": "Se está escribiendo un texto para esta lección. Espera un momento."
   },
   "exams": {
     "tabs": {
@@ -1534,5 +1548,28 @@
       "verified": "Comprobado: están todos los archivos.",
       "problems": "Comprobado: {count, plural, one {se encontró # problema} other {se encontraron # problemas}} — «Comprobar» en su tarjeta los muestra."
     }
+  },
+  "understanding": {
+    "intro": "Un texto breve con las palabras que conoces. Un diálogo o un anuncio se lee en voz alta: escucha y responde de oído; luego lee el texto y responde una pregunta más. Un menú o un aviso es para leer.",
+    "start": "Escribir un texto",
+    "writing": "Escribiendo un texto…",
+    "new": "Texto nuevo",
+    "kind": {
+      "dialogue": "un diálogo para escuchar",
+      "announcement": "un anuncio para escuchar",
+      "reading": "un texto para leer"
+    },
+    "listen": "Escuchar",
+    "resume": "Seguir",
+    "replay": "Desde el principio",
+    "line": "Frase {n, number} de {total, number}",
+    "heard": "{count, plural, one {Escuchado una vez} other {Escuchado # veces}}",
+    "noVoice": "Aquí nada lee en {language} en voz alta, así que el texto se muestra para leer. Para escuchar, elige una voz en Ajustes → Voz.",
+    "byEar": "Responde de oído: el texto se abre después.",
+    "text": "El texto",
+    "newWords": "Palabras nuevas",
+    "readNow": "Lee el texto y responde",
+    "result": "{right, number} de {total, number} correctas",
+    "past": "Textos anteriores de esta lección"
   }
 }

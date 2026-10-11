@@ -145,7 +145,8 @@
       "writing": "Napiši svoj tekst",
       "scene": "Dijalog",
       "mistakes": "Pregled grešaka",
-      "summary": "Sažetak"
+      "summary": "Sažetak",
+      "understanding": "Razumijevanje"
     },
     "section": {
       "grammar": "Gramatika",
@@ -402,7 +403,9 @@
       "sceneSetup": "Dijalog: postavka",
       "scene": "Dijalog: replika",
       "examples": "Primjeri za riječi špila",
-      "sceneSummary": "Dijalog: sažetak"
+      "sceneSummary": "Dijalog: sažetak",
+      "understanding": "Razumijevanje: tekst",
+      "understandingCheck": "Razumijevanje: drugo čitanje"
     },
     "contextIntro": "Dodano iz lekcije:",
     "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
@@ -439,7 +442,10 @@
       "place": "gdje je lekcija u kursu: njen broj i cjelina",
       "topics": "gramatičke teme do sada pređene u kursu",
       "dialogueGoals": "situacija i ciljevi koje si postigao",
-      "dialogue": "rečenice dijaloga s ispravkama koje su dobile"
+      "dialogue": "rečenice dijaloga s ispravkama koje su dobile",
+      "length": "koliko je tekst dug na nivou kursa",
+      "readText": "napisani tekst",
+      "textQuestions": "njegova pitanja s ponuđenim odgovorima, bez rješenja"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -478,6 +484,10 @@
       "exam": {
         "name": "Odgovori na ispitu",
         "where": "„Predloži ocjenu“ iznad kriterija odgovora, i usmeni dijelovi vođeni kao razgovor"
+      },
+      "understanding": {
+        "name": "Razumijevanje",
+        "where": "korak lekcije: tekst za slušanje ili čitanje, s pitanjima"
       }
     },
     "about": {
@@ -491,7 +501,9 @@
       "sceneSetup": "Započinje dijalog: iz ciljeva lekcije i onoga što znaš smišlja situaciju, s kim razgovaraš, tvoju karticu ciljeva i ono što zna samo tvoj sagovornik — a ti to moraš pitati. Traži se jednom po dijalogu.",
       "scene": "Igra tvog sagovornika: odgovara na svaku tvoju izgovorenu (kako ju je prepoznavač čuo) ili napisanu repliku, kaže je li razumljiva i odgovara li, ispravlja najviše dvije greške u njoj, daje prijevod i označava postignute ciljeve.",
       "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi.",
-      "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar."
+      "sceneSummary": "Sažima dijalog kad se završi: jedna ili dvije najvažnije ispravke, uz svaku tvoja rečenica rečena kako treba, i kratak komentar.",
+      "understanding": "Piše kratak tekst na jeziku koji učiš, od riječi koje znaš — dijalog ili obavještenje za slušanje, ili jelovnik ili oglas za čitanje — s pitanjima kao na ispitima (tačno/netačno, a/b/c, brojevi). Tvoje odgovore provjerava aplikacija, ne model.",
+      "understandingCheck": "Ponovo čita tekst i odgovara na vlastita pitanja samo iz teksta: pitanje na koje odgovori drugačije ili koje mu je nejasno izostavlja se."
     }
   },
   "writing": {
@@ -820,7 +832,8 @@
       "doneTitle": "{when}: završeno {count, plural, one {# lekcija} few {# lekcije} other {# lekcija}}, ukupno {total, number}",
       "part": "{label}: {n, number}",
       "words": "Riječi po stanju: {parts}"
-    }
+    },
+    "understanding": "{count, plural, one {# tekst za razumijevanje} few {# teksta za razumijevanje} other {# tekstova za razumijevanje}}"
   },
   "study": {
     "listen": "Slušaj i prisjeti se značenja",
@@ -1341,7 +1354,8 @@
     "course_bundle_too_large": "Ova datoteka kursa je prevelika (najviše 16 GB).",
     "course_bundle_from_newer_app": "Ova datoteka kursa potiče iz novije verzije SprachAnkera: prvo ažuriraj aplikaciju ovdje.",
     "course_bundle_clash": "Na ovom računaru pod imenima medijskih datoteka ovog kursa postoje druge datoteke: umjesto toga preuzmi kurs ovdje.",
-    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi."
+    "course_import_busy": "Upravo se uvozi druga datoteka kursa. Pokušaj ponovo kad se završi.",
+    "understanding_busy": "Tekst za ovu lekciju se upravo piše. Sačekaj."
   },
   "exams": {
     "tabs": {
@@ -1534,5 +1548,28 @@
       "verified": "Provjereno: sve datoteke su tu.",
       "problems": "Provjereno: {count, plural, one {pronađen # problem} few {pronađena # problema} other {pronađeno # problema}} — „Provjeri“ na njegovoj kartici ih prikazuje."
     }
+  },
+  "understanding": {
+    "intro": "Kratak tekst od riječi koje znaš. Dijalog ili obavještenje čita se naglas: slušaj i odgovaraj po sluhu, zatim pročitaj tekst i odgovori na još jedno pitanje. Jelovnik ili oglas je za čitanje.",
+    "start": "Napiši tekst",
+    "writing": "Piše se tekst…",
+    "new": "Novi tekst",
+    "kind": {
+      "dialogue": "dijalog za slušanje",
+      "announcement": "obavještenje za slušanje",
+      "reading": "tekst za čitanje"
+    },
+    "listen": "Slušaj",
+    "resume": "Nastavi",
+    "replay": "Od početka",
+    "line": "Rečenica {n, number} od {total, number}",
+    "heard": "{count, plural, one {Preslušano # put} few {Preslušano # puta} other {Preslušano # puta}}",
+    "noVoice": "Ovdje ništa ne čita naglas jezik: {language}, pa je tekst prikazan za čitanje. Da slušaš, izaberi glas u Postavkama → Govor.",
+    "byEar": "Odgovaraj po sluhu — tekst se otvara poslije.",
+    "text": "Tekst",
+    "newWords": "Nove riječi",
+    "readNow": "Pročitaj tekst i odgovori",
+    "result": "{right, number} od {total, number} tačno",
+    "past": "Raniji tekstovi ove lekcije"
   }
 }

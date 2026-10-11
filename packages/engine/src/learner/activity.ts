@@ -1,9 +1,9 @@
 // A learner's study days (04, "Learner model"; 09, Notebook): what each day held, read from the event
 // log and counted by module (schema `stats.ts`) — lesson work (answers, skips, steps), exam answers,
 // card reviews (an answer taken back does not count), new cards learnt, how many reviewed cards were
-// remembered, and AI practice (the learner's messages and the model's checks, in whichever run) —, the
-// time each module took, and the totals of a span of days. Pure: the caller passes the events, the
-// day boundary and each run's module.
+// remembered, and AI practice (the learner's messages, the model's checks and the answers to its
+// questions, in whichever run) —, the time each module took, and the totals of a span of days. Pure:
+// the caller passes the events, the day boundary and each run's module.
 import {
   type DayActivity,
   type EventType,
@@ -27,6 +27,7 @@ export const ACTIVITY_EVENTS = [
   "card_undo",
   "llm_turn",
   "llm_verdict",
+  "practice_answered",
 ] as const satisfies EventType[];
 
 const empty = (start: number): DayActivity => ({
@@ -87,10 +88,12 @@ export function activityByDay(
   /** Card answers' own time, by event. */
   const answered = new Map<string, number>();
   for (const e of events) {
-    // A Dialogue's summary comes with its end, not asked for: its lines count.
+    // A Dialogue's summary comes with its end, not asked for: its lines count. An answer to a
+    // question the assistant set is AI practice too.
     if (
       (e.type === "llm_verdict" && e.payload.task !== "dialogue") ||
-      (e.type === "llm_turn" && e.payload.role === "user")
+      (e.type === "llm_turn" && e.payload.role === "user") ||
+      e.type === "practice_answered"
     )
       at(e.ts).ai++;
     else if (e.type === "card_review" && !undone.has(e.id)) {

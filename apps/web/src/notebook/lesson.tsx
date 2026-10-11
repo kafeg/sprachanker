@@ -25,6 +25,7 @@ function useDone() {
         ? t("notebook.worked", { worked: p.worked, total: p.total })
         : t("notebook.workedSome", { count: p.worked }),
       p.explanations > 0 && t("notebook.explanations", { count: p.explanations }),
+      p.understanding > 0 && t("notebook.understanding", { count: p.understanding }),
       p.writing > 0 && t("notebook.writing", { count: p.writing }),
       p.scenes > 0 && t("notebook.scenes", { count: p.scenes }),
       p.chats > 0 && t("notebook.chats", { count: p.chats }),

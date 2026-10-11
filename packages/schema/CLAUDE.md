@@ -26,9 +26,11 @@ src/
   enrichment.ts      # enrichment (planned: its format only, nothing writes or reads one)
   learner.ts         # runs (RunHeader: what every run is; lesson and exam runs extend it; status and end
                      # reason), event payloads per event type (EVENT_PAYLOADS; TypedEvent: an event typed
-                     # by its type; llm_verdict a union by task), step ids and AI practice kinds, cards
+                     # by its type; llm_verdict a union by task; practice_answered: an answer to a
+                     # question the AI set), step ids and AI practice kinds, cards
   assistant.ts       # the AI's answers as kept: corrections, writing and spoken checks, word examples,
-                     # scene setups, an exam answer's proposed rating, a speaking part's next lines
+                     # scene setups, an exam answer's proposed rating, a speaking part's next lines,
+                     # Understanding's texts with their questions
   stats.ts           # how every module reports its statistics: modules, a run's module, a study day, a
                      # module's standing (figures, entries, run summaries), an entry in full
   settings.ts        # every setting key with its schema and owner (LEARNER_SETTINGS, SERVICE_SETTINGS),

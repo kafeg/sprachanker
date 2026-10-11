@@ -85,11 +85,11 @@ src/
                      # - AI (07), each task in the module whose run keeps its answers: llm (providers,
                      #   keys, structured calls, previews; llm-lmstudio, llm-prompts), lesson-context
                      #   (the knowledge snapshot every lesson task takes: level — `levelOf` —, place,
-                     #   words and topics met), in-flight (calls outliving the page) shared; explain, writing, speaking, tutor
-                     #   (+ tutor-tools; courses-context: what the Tutor section's chats know, the
-                     #   languages a new one can practise), scene (the Dialogue: setup, lines, summary);
-                     #   exam-rating, exam-conversation; examples (a deck's job with the profile's model
-                     #   and context, a card's examples marked)
+                     #   words and topics met), in-flight (calls outliving the page) shared; explain,
+                     #   understanding (a text written, read again, its answers checked by the engine),
+                     #   writing, speaking, tutor (+ tutor-tools; courses-context: the Tutor section's
+                     #   chats' context, languages), scene (the Dialogue: setup, lines, summary);
+                     #   exam-rating, exam-conversation; examples (a deck's job, a card's examples marked)
                      # - speech (08): speech (whisper-server), read-aloud (Piper; piper-voices.json from
                      #   scripts/piper-voices.ts), qwen-tts, local-engines (SpeechHost, ReadingCache,
                      #   engineSidecar), model-downloads, sidecar (the supervisor), profile-speech,

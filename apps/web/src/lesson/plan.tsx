@@ -6,6 +6,7 @@ import type { Lesson, LocaleLesson, StepId } from "@sprachanker/schema";
 import {
   BookOpen,
   Globe,
+  Headphones,
   Layers,
   MessagesSquare,
   PenLine,
@@ -54,6 +55,7 @@ const ICON: Partial<Record<LessonStep["kind"], React.ComponentType<{ className?:
   words: Layers,
   grammar: BookOpen,
   culture: Globe,
+  understanding: Headphones,
   writing: PenLine,
   scene: MessagesSquare,
   mistakes: SearchCheck,
@@ -65,6 +67,7 @@ const SECTION: Partial<Record<LessonStep["kind"], string>> = {
   grammar: "lesson.section.grammar",
   exercise: "lesson.section.exercises",
   culture: "lesson.section.culture",
+  understanding: "lesson.section.practice",
   writing: "lesson.section.practice",
   scene: "lesson.section.practice",
   mistakes: "lesson.section.practice",

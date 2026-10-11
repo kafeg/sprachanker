@@ -222,7 +222,10 @@ export function LessonPlayer({
                 />
               </ShuffleSeed.Provider>
             )}
-            {(step.kind === "writing" || step.kind === "scene" || step.kind === "mistakes") && (
+            {(step.kind === "understanding" ||
+              step.kind === "writing" ||
+              step.kind === "scene" ||
+              step.kind === "mistakes") && (
               <PracticeStep
                 kind={step.kind}
                 lesson={lesson}

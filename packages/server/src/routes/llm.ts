@@ -1,4 +1,5 @@
-// /api/llm: provider setup, LM Studio, connection test, mistake explanations and the lesson tutor.
+// /api/llm: provider setup, LM Studio, connection test, mistake explanations, the lesson tutor and the
+// AI practice of a lesson (Understanding, writing, the Dialogue).
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
 import { LlmError, LMSTUDIO_RECOMMENDED, PROMPT_TASKS, ProviderId } from "@sprachanker/llm";
 import {
@@ -58,6 +59,13 @@ const SceneLine = LessonRequest.extend({
   text: z.string().trim().min(1).max(MESSAGE_MAX),
   spoken: z.boolean().optional(),
   recording: Ulid.optional(),
+});
+
+/** An answer to a question of an Understanding text (the verdict that set it), checked by the engine. */
+const UnderstandingAnswer = LessonRequest.extend({
+  id: Ulid,
+  question: z.number().int().nonnegative(),
+  answer: z.unknown(),
 });
 
 // The model checks this much of a text: a longer one would be marked wrong past the cut.
@@ -271,6 +279,20 @@ export function llmRoutes() {
         "/scene/prompt",
         zod("json", SceneLine.extend({ text: z.string().max(MESSAGE_MAX) })),
         async (c) => c.json(await c.var.s.scenes.prompt(c.req.valid("json"))),
+      )
+      // Understanding: the lesson's texts with their answers; a text written (kept in the lesson run),
+      // an answer checked and kept, the prompt it would send.
+      .get("/understanding", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
+        c.json(c.var.s.understanding.state(c.req.valid("query").lessonKey)),
+      )
+      .post("/understanding", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.understanding.start(c.req.valid("json"))),
+      )
+      .post("/understanding/answer", zod("json", UnderstandingAnswer), (c) =>
+        c.json(c.var.s.understanding.answer(c.req.valid("json"))),
+      )
+      .post("/understanding/prompt", zod("json", LessonRequest), async (c) =>
+        c.json(await c.var.s.understanding.prompt(c.req.valid("json"))),
       )
       // Writing task of a lesson: the task and attempts; a check stores its verdict.
       .get(
