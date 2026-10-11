@@ -205,7 +205,8 @@ most three corrections and a model text (third phase).
   open another site.
 - Prompts: the learner's level and known vocabulary are context (the knowledge snapshot, above);
   target-language replies stay within known material; explanations are in the interface language. Course text and learner input are
-  delimited data, never instructions.
+  delimited data, never instructions. Course HTML reaches prompts as plain text (`htmlToText`): a
+  table's row is one line, its cells joined by " · " (a conjugation table reads "ich war · ich wäre").
 
 ## Transparency and debugging
 
