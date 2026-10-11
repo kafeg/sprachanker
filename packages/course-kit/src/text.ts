@@ -81,7 +81,8 @@ export function plainText(html: unknown): string {
       // (a source whose inline tags sit inside words removes them before: Lingust's `flatText`).
       // Spaced ellipses ("Ja ... und") are the source's own.
       .replace(/ (?=[.,!?;:)\]])(?!\.\.)/g, "")
-      .replace(/([([]) /g, "$1")
+      .replace(/([„([]) /g, "$1")
+      .replace(/„([^„“]*?) “/g, "„$1“")
       .trim()
       .normalize("NFC")
   );

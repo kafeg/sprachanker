@@ -1,6 +1,11 @@
 // What the normaliser needs besides the page states: where downloaded media live.
 
-import { inLearnerLanguage, mediaPath, sanitizeCourseHtml } from "@sprachanker/course-kit";
+import {
+  inLearnerLanguage,
+  mediaPath,
+  sanitizeCourseHtml,
+  tidySpacing,
+} from "@sprachanker/course-kit";
 import {
   type EditionId,
   type Media,
@@ -10,7 +15,7 @@ import {
 } from "@sprachanker/schema";
 import type { ApolloState } from "../apollo.ts";
 import { imageUrl, videoFiles } from "../media.ts";
-import { writtenOrder } from "./text.ts";
+import { spaceChips, writtenOrder } from "./text.ts";
 
 export type Entity = Record<string, unknown>;
 
@@ -22,6 +27,9 @@ export interface Context {
   /** A text (a title, a note, a prompt, an option) as written: right-to-left editions keep some in
    *  the order they are seen (`writtenOrder`). */
   written(text: string): string;
+  /** Sanitised HTML spaced as the edition's language writes (`tidySpacing`; French keeps its space
+   *  before `! ? ; :`). */
+  spaced(html: string): string;
 }
 
 /** Learner languages DW's right-to-left editions are in. */
@@ -34,6 +42,7 @@ export function createContext(index: MediaIndex, edition: EditionId): Context {
     media: (url) => mediaPath(index, url),
     learnerText: (text) => inLearnerLanguage(text, target, source),
     written: (text) => (RIGHT_TO_LEFT.has(source) ? writtenOrder(text) : text),
+    spaced: (html) => tidySpacing(html, { french: source === "fr" }),
   };
 }
 
@@ -105,11 +114,13 @@ export function media(
   return entries.length ? (Object.fromEntries(entries) as Media) : undefined;
 }
 
-/** Course HTML: allow-listed, DW images rewritten to media paths, credit lines dropped. */
+/** Course HTML: allow-listed, DW images rewritten to media paths, credit lines dropped, vocabulary
+ *  chips spaced from their words (`spaceChips`), spacing tidied. */
 export function html(ctx: Context, value: unknown): string | undefined {
-  const text = sanitizeCourseHtml(String(value ?? ""), {
+  const clean = sanitizeCourseHtml(spaceChips(String(value ?? "")), {
     image: (a) => (a["data-url"] ? ctx.media(imageUrl(a["data-url"])) : undefined),
     drop: (tag, a) => tag === "small" && (a.class ?? "").includes("copyright"),
   });
+  const text = ctx.spaced(clean);
   return text ? text : undefined;
 }

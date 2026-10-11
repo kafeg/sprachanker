@@ -102,6 +102,40 @@ export function boldLinesAsHeadings(html: string): string {
   return nestedHeadingsAsBold(titled);
 }
 
+/** A space in HTML text: plain, no-break, or its entity. */
+const SPACE = "(?:[ \\u00a0]|&nbsp;)";
+const SPACE_RUN = new RegExp(`${SPACE}{2,}`, "g");
+/** Spaces before a mark (through closing emphasis: "Morgen </strong>."); a spaced ellipsis ("Ja ...
+ *  und") is the source's own. */
+const spaceBefore = (marks: string) =>
+  new RegExp(`${SPACE}+(?=(?:</(?:strong|b|em|i|small)>)*[${marks}](?!\\.\\.))`, "g");
+const BEFORE_MARKS = spaceBefore(".,!?;:)\\]");
+const BEFORE_FRENCH_MARKS = spaceBefore(".,)\\]");
+const AFTER_OPENING = new RegExp(`([„(\\[])${SPACE}+`, "g");
+const BEFORE_CLOSING_QUOTE = new RegExp(`„([^„“<]*?)${SPACE}+“`, "g");
+/** Spaces at the edges of a block or a line. */
+const BLOCK_EDGES = new RegExp(
+  `(<(?:p|li|td|th|h3|figcaption)>)${SPACE}+|${SPACE}+(?=</(?:p|li|td|th|h3|figcaption)>|<br />)`,
+  "g",
+);
+
+/**
+ * Spacing an editor left in course HTML (sanitised): a run of spaces and no-break spaces is one space,
+ * none before `. , ! ? ; : ) ]`, none inside German quotes („ … “) or after `( [`, none at the edges of a
+ * block or line (a block left empty goes). Line breaks stay. French text keeps its space before
+ * `! ? ; :` (`french`).
+ */
+export function tidySpacing(html: string, options: { french?: boolean } = {}): string {
+  return withoutEmpty(
+    html
+      .replace(SPACE_RUN, " ")
+      .replace(options.french ? BEFORE_FRENCH_MARKS : BEFORE_MARKS, "")
+      .replace(AFTER_OPENING, "$1")
+      .replace(BEFORE_CLOSING_QUOTE, "„$1“")
+      .replace(BLOCK_EDGES, "$1"),
+  );
+}
+
 /** Plain text as HTML text content: `&`, `<` and `>` escaped (quotes stay: not for attributes). */
 export const escapeHtml = (text: string) =>
   text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

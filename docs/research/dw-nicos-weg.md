@@ -118,6 +118,16 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
   "Ich mag (nicht)!", "Was passiert, wenn …?" (58 titles in Persian A1–A2, as many in Arabic, seen on
   2026-10-10), and some texts of their own the same way (".با نه پاسخ بده": 22 speaking tasks in
   Persian, 23 in Arabic; six Persian options); other editions write them as they are read.
+- Clips on items: 53 A1 `ru` exercises without a video stimulus (`inputType` `NONE`, `TEXT`, once
+  `IMAGE`) link a clip on each top-level inquiry (`videos`; "watch the clip again"): in 32 every item
+  links the same one, in 21 the items have different clips (counted 2026-10-11).
+- Speaking tasks (`REPEAT` sub-inquiry `inquiryDescription`) of only "…" or "..." stand for the line
+  the audio speaks (47 items in A1 `ru`).
+- Vocabulary chips: words of a text linked to their vocabulary entry
+  (`<span class="editable placeholder" data-id=…>`, often inside `<span class="invalid_placeholder">`)
+  are shown as spaced chips, so editors left out the spaces next to them ("Wir <chip>lernen</chip>Deutsch.",
+  "eine<chip>Pause</chip> .", "Mann:<chip>Guten Tag</chip>"); other fields carry double spaces and
+  spaces before punctuation as typed.
 - Cloze texts mark gaps with `#p#`, `#ps#`, `#pm#`, `#pl#` (width hints); layout `CONTINUOUS_TEXT`
   (gaps in the inquiry `text`) or `SINGLE_SENTENCE` (one gap per sub-inquiry `inquiryText`).
 - Options with identical content occur (repeated letters in `MERGE`, "isst" twice in a conjugation

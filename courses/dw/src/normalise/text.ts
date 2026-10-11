@@ -30,6 +30,49 @@ export function uiLabels(state: ApolloState): Set<string> {
 export const isUiLabel = (text: string, labels: Set<string>) =>
   labels.has(text.trim().toLocaleLowerCase());
 
+/** The opening tag of a vocabulary chip: a word of the text linked to its vocabulary entry. */
+const CHIP = /<span\b[^>]*\bclass="[^"]*\beditable placeholder\b[^"]*"[^>]*>/g;
+const SPAN = /<(\/?)span\b[^>]*>/g;
+/** Marks a chip's edges until the spaces are decided (a character of private use: never content). */
+const EDGE = "\ue000";
+/** A chip's edge with a letter, digit or dash on both sides (after `, ; : ! ?` too: "Mann:<chip>"),
+ *  tags and other edges between (two chips side by side give two spaces: `tidySpacing` makes them
+ *  one). */
+const WORD_EDGE =
+  /(?<=(?:[\p{L}\p{N}\u2013\u2014,:!?]|(?<!&#?\w+);|&[nm]dash;)(?:<[^>]*>|\ue000)*)\ue000(?=(?:<[^>]*>|\ue000)*(?:[\p{L}\p{N}\u2013\u2014]|&[nm]dash;))/gu;
+
+/**
+ * DW's vocabulary chips (`<span class="editable placeholder">`, often in an `invalid_placeholder`
+ * span) are shown with room around them, so the source leaves out the spaces next to them ("Wir
+ * <chip>lernen</chip>Deutsch.", "eine<chip>Pause</chip> ."): where a chip's word meets a letter or
+ * digit, a space goes back. Other spacing is `tidySpacing`'s.
+ */
+export function spaceChips(html: string): string {
+  const edges: number[] = [];
+  for (const open of html.matchAll(CHIP)) {
+    const start = (open.index ?? 0) + open[0].length;
+    edges.push(start);
+    SPAN.lastIndex = start;
+    let depth = 1;
+    for (let m = SPAN.exec(html); m; m = SPAN.exec(html)) {
+      depth += m[1] ? -1 : 1;
+      if (!depth) {
+        edges.push(m.index);
+        break;
+      }
+    }
+  }
+  if (!edges.length) return html;
+  let marked = "";
+  let last = 0;
+  for (const at of edges.sort((a, b) => a - b)) {
+    marked += html.slice(last, at) + EDGE;
+    last = at;
+  }
+  marked += html.slice(last);
+  return marked.replace(WORD_EDGE, " ").replaceAll(EDGE, "");
+}
+
 /** Brackets as seen from the other side. */
 const MIRROR: Record<string, string> = {
   "(": ")",

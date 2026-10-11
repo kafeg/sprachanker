@@ -6,6 +6,7 @@ import {
   itemKey,
   type LocaleExercise,
   type LocaleItem,
+  type Media,
   type Option,
   optionId,
 } from "@sprachanker/schema";
@@ -83,6 +84,8 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
   const itemMedia = media({
     audio,
     image: imagePath(ctx, state, q.mainContentImage ?? refs(state, q.images)[0]),
+    // The clip an item is about (an exercise of type NONE or TEXT: "watch the clip again").
+    video: videoPaths(ctx, refs(state, q.videos)[0]).sd,
   });
   if (itemMedia) base.media = itemMedia;
   const hintHtml = html(ctx, q.inquiryDescription);
@@ -193,8 +196,10 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       throw new Unmapped(`cloze type ${String(kind)}`);
     }
     case "REPEAT": {
-      const text = german(ctx, state, subs[0]?.inquiryText);
-      const task = ctx.written(plainText(subs[0]?.inquiryDescription));
+      // A task of only an ellipsis ("…", "...") is DW's stand-in for the line the audio speaks: none.
+      const words = (t: string | undefined) => (t && /[\p{L}\p{N}]/u.test(t) ? t : undefined);
+      const text = words(german(ctx, state, subs[0]?.inquiryText));
+      const task = words(ctx.written(plainText(subs[0]?.inquiryDescription)));
       return {
         type: "speech_selfrate",
         item: { ...base, ...(text ? { text } : {}) },
@@ -219,6 +224,20 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     default:
       throw new Unmapped(`inquiry type ${String(q.inquiryType)}`);
   }
+}
+
+/** One clip every item links (DW puts an exercise's clip on its items): the exercise's stimulus, shown
+ *  once, not on each item. Items' own different clips stay theirs. */
+function sharedVideo(items: Item[], stimulus: Media | undefined): { media?: Media } {
+  const videos = new Set(items.map((it) => (it.media as Media | undefined)?.video));
+  const [video] = videos;
+  if (videos.size !== 1 || !video || stimulus?.video) return {};
+  for (const it of items) {
+    const { video: _, ...rest } = it.media as Media;
+    if (Object.keys(rest).length) it.media = rest;
+    else delete it.media;
+  }
+  return { media: { ...stimulus, video } };
 }
 
 export interface NormalisedExercise {
@@ -266,7 +285,7 @@ export function normaliseExercise(
     const items = mapped.map((m, i) => ({ key: itemKey(key, i + 1), ...m.item }));
     const type = mapped[0]?.type;
     if (!type) throw new Unmapped("no items");
-    return { type, items };
+    return { type, items, ...sharedVideo(items, stimulus) };
   });
   return { exercise, locale, ...(unmapped !== undefined && { unmapped }) };
 }

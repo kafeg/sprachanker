@@ -8,6 +8,7 @@ test("plain text and lines", () => {
       `<p>Ins <span>Zentrum</span> , <b>bitte</b>.</p><p>( Ja )<span>Appetit</span><span>auf</span> ... und</p>`,
     ),
   ).toBe("Ins Zentrum, bitte. (Ja) Appetit auf ... und");
+  expect(plainText("„ <b>mich</b> “ ist hier")).toBe("„mich“ ist hier");
   expect(plainLines("<p>A: #p#.<br />B: Danke!</p><p>C: Gut.</p>")).toBe(
     "A: #p#.\nB: Danke!\nC: Gut.",
   );

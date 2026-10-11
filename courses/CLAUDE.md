@@ -31,7 +31,8 @@ packages/course-kit/src/
   vocab.ts             # Headword, shapeHeadword (the one part-of-speech rule), germanGender, a lesson's
                        # vocabulary entries (keys, duplicates, translations), skippedWords
   text.ts              # plain text of HTML, entities decoded, characters of no width; scripts told apart
-  html.ts              # the HTML sanitiser, bold lines as section titles, escaping
+  html.ts              # the HTML sanitiser, spacing as written (tidySpacing), bold lines as section
+                       # titles, escaping
   dom.ts               # a tolerant HTML tree for broken pages (findAll, innerHtml)
   language.ts          # which of a course's two languages a text is in
 courses/

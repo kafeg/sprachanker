@@ -118,7 +118,13 @@ Source facts: `docs/research/dw-nicos-weg.md`. Closed licence: personal use.
   (`exercise.playAudio`), so every edition language is covered; image options keep only the image. An
 item's recordings are told apart by DW's own flag: its main content (`mainContent`) → `media.audio`,
 heard before answering; one that is not ("…_Loesungsaudio.mp3": most items' only recording, the answer
-read out) → `answerAudio`, offered once checked (a dictation's only recording is what it dictates). The
+read out) → `answerAudio`, offered once checked (a dictation's only recording is what it dictates). A
+clip DW puts on the items of an exercise without a video stimulus ("watch the clip again") → the
+exercise's `media.video` when all items link the same one, else each item's `media.video`. A speaking
+task of only an ellipsis ("…": the line is in its audio) gives no prompt. DW's vocabulary chips in text
+(`<span class="editable placeholder">`) are shown spaced, so the source leaves out the spaces next to
+them: a chip meeting a word gets its space back, and course HTML is spaced as written (`tidySpacing`:
+one space, none before `. , ! ? ; : ) ]` — French keeps its own before `! ? ; :` —, none inside „ “). The
 Arabic and Persian editions keep some texts in the order they are seen, closing punctuation first —
 German ("?Was trinkst du", "!(Ich mag (nicht") and their own (".با نه پاسخ بده"): a title, note, prompt,
 task or option of theirs that starts with such a run and does not end in punctuation is read as written

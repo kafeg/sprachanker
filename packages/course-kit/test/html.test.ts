@@ -1,5 +1,15 @@
 import { expect, test } from "bun:test";
-import { boldLinesAsHeadings, escapeHtml, sanitizeCourseHtml } from "../src/html.ts";
+import { boldLinesAsHeadings, escapeHtml, sanitizeCourseHtml, tidySpacing } from "../src/html.ts";
+
+test("spacing an editor left is tidied: one space, none before marks, inside „ “, after ( or at a line's edges", () => {
+  expect(
+    tidySpacing(
+      "<p> Посмотри  видео .&nbsp; Was? „ ja “ ( nein ) <strong>Morgen </strong>. Ja ... und </p><p> </p>",
+    ),
+  ).toBe("<p>Посмотри видео. Was? „ja“ (nein) <strong>Morgen</strong>. Ja ... und</p>");
+  expect(tidySpacing("<p>Line one <br />\nLine two</p>")).toBe("<p>Line one<br />\nLine two</p>");
+  expect(tidySpacing("<p>Bonjour ! Oui .</p>", { french: true })).toBe("<p>Bonjour ! Oui.</p>");
+});
 
 const options = {
   image: (a: Record<string, string>) =>

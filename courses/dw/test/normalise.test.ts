@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { openKeyMap } from "@sprachanker/course-kit";
 import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
-import { createContext } from "../src/normalise/context.ts";
+import { createContext, html } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
 import { normaliseLesson, topicParts } from "../src/normalise/lesson.ts";
 import { writtenOrder } from "../src/normalise/text.ts";
@@ -524,4 +524,105 @@ test.each([
 test("only right-to-left editions are read that way: elsewhere a leading run is the text's own", () => {
   expect(createContext({}, "fa-de").written("?Was trinkst du")).toBe("Was trinkst du?");
   expect(createContext({}, "ru-de").written("… kommt")).toBe("… kommt");
+});
+
+const chip = (word: string) =>
+  `<span class="editable placeholder" data-id="1" data-type="VOCABULARY">${word}</span>`;
+const wrapped = (inner: string) => `<span class="invalid_placeholder">${inner}</span>`;
+
+test.each([
+  [`<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`, "<p>Wir lernen Deutsch.</p>"],
+  [`<p>Wir machen eine${chip("Pause")} .</p>`, "<p>Wir machen eine Pause.</p>"],
+  [
+    `<p>Wir ${wrapped(`${chip("hören")}&nbsp;`)}${chip("&nbsp;Bilder")}.</p>`,
+    "<p>Wir hören Bilder.</p>",
+  ],
+  [`<p>${chip("Haus")}${chip("Tür")}</p>`, "<p>Haus Tür</p>"],
+  [`<p>Betreff: ${wrapped(chip("Reise"))}&ndash; Nina</p>`, "<p>Betreff: Reise – Nina</p>"],
+  [`<p>Mann:${chip("Hallo")}, &quot;${chip("Tag")}&quot;</p>`, `<p>Mann: Hallo, "Tag"</p>`],
+  [`<p>(${chip("Tisch")}), „${chip("Stuhl")}“</p>`, "<p>(Tisch), „Stuhl“</p>"],
+])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
+  expect(html(ctx, source)).toBe(expected);
+});
+
+test("course HTML is spaced as written: one space, none before marks or inside quotes, none at a block's edges", () => {
+  expect(html(ctx, "<p> Посмотри  видео .&nbsp; Отвечай: „ ja “ (  nein ) ... </p>")).toBe(
+    "<p>Посмотри видео. Отвечай: „ja“ (nein) ...</p>",
+  );
+  // French keeps its space before two-part marks.
+  expect(html(createContext({}, "fr-de"), "<p>Écoute !  Bonjour .</p>")).toBe(
+    "<p>Écoute ! Bonjour.</p>",
+  );
+});
+
+test("a speaking task of only an ellipsis (the line is in its audio) gives no prompt", () => {
+  const speaking = {
+    "Exercise:9": { id: 9, name: "Sprich", inputType: "NONE", inquiries: [{ __ref: "Inquiry:1" }] },
+    "Inquiry:1": { inquiryType: "REPEAT", subInquiries: [{ __ref: "Inquiry:11" }] },
+    "Inquiry:11": { inquiryText: "...", inquiryDescription: "…" },
+  };
+  const { exercise, locale, unmapped } = normaliseExercise(
+    ctx,
+    speaking as never,
+    9,
+    key,
+    "raw/ru-de/a1/e-9.json",
+  );
+  expect(unmapped).toBeUndefined();
+  expect(exercise.items[0]).toEqual({ key: `${key}#1` } as never);
+  expect(locale.items).toEqual({});
+});
+
+test("a clip on the items: one clip for all is the exercise's video; different clips stay each item's", () => {
+  const video = (name: string) => ({
+    kind: "video" as const,
+    path: `media/video/${name}_sd.mp4` as never,
+    sha256: "a".repeat(64),
+    size: 1,
+    mime: "video/mp4",
+  });
+  const clips = createContext(
+    {
+      "https://tvdownloaddw-a.akamaihd.net/downloads/clips/c1_sd.mp4": video("c1"),
+      "https://tvdownloaddw-a.akamaihd.net/downloads/clips/c2_sd.mp4": video("c2"),
+    },
+    "ru-de",
+  );
+  const page = (second: string) => ({
+    "Exercise:9": {
+      id: 9,
+      name: "Schau",
+      inputType: "NONE",
+      inquiries: [{ __ref: "Inquiry:1" }, { __ref: "Inquiry:2" }],
+    },
+    "Video:1": { hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c1_,sd,.mp4.csmil/master.m3u8" },
+    "Video:2": { hlsVideoSrc: "https://hlsvod.dw.com/i/clips/c2_,sd,.mp4.csmil/master.m3u8" },
+    ...Object.fromEntries(
+      [1, 2].map((n) => [
+        `Inquiry:${n}`,
+        {
+          inquiryType: "ASSOCIATION",
+          selectionType: "SINGLE",
+          inquiryText: "Wer ist das?",
+          videos: [{ __ref: n === 1 ? "Video:1" : second }],
+          subInquiries: [{ __ref: "Inquiry:11" }],
+        },
+      ]),
+    ),
+    "Inquiry:11": { alternatives: [{ __ref: "Alt:1" }, { __ref: "Alt:2" }] },
+    "Alt:1": { alternativeText: "Nico", isCorrect: true },
+    "Alt:2": { alternativeText: "Lisa", isCorrect: false },
+  });
+  const shared = normaliseExercise(clips, page("Video:1") as never, 9, key, "e-9.json").exercise;
+  expect(Exercise.parse(shared).media).toEqual({ video: "media/video/c1_sd.mp4" } as never);
+  expect(shared.items.map((it) => (it as { media?: unknown }).media)).toEqual([
+    undefined,
+    undefined,
+  ]);
+  const own = normaliseExercise(clips, page("Video:2") as never, 9, key, "e-9.json").exercise;
+  expect(Exercise.parse(own).media).toBeUndefined();
+  expect(own.items.map((it) => (it as { media?: unknown }).media)).toEqual([
+    { video: "media/video/c1_sd.mp4" },
+    { video: "media/video/c2_sd.mp4" },
+  ]);
 });
