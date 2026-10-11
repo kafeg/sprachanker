@@ -119,7 +119,7 @@ test("what was heard: the verdict and the words missed against the phrase; a fre
   expect(free.getByText("Tschüss, gute Reise!")).toBeTruthy();
   expect(free.queryByText(/You said it|Almost|Try again/)).toBeNull();
   // The source's own answer, after the learner's.
-  expect(free.getByRole("button", { name: "Sample answer" })).toBeTruthy();
+  expect(free.getByRole("button", { name: "Sample" })).toBeTruthy();
 });
 
 test("the source's answer is not offered before the first try", async () => {
@@ -134,7 +134,7 @@ test("the source's answer is not offered before the first try", async () => {
       />
     </SpeechProvider>,
   );
-  expect(view.queryByRole("button", { name: "Sample answer" })).toBeNull();
+  expect(view.queryByRole("button", { name: "Sample" })).toBeNull();
 });
 
 test("saying a phrase: shown at once; without recognition the microphone says why; what was heard checked against it", async () => {
