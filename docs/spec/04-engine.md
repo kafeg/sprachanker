@@ -242,7 +242,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   the rest takes), extras.json written after every call; stopped, the call under way is finished and
   kept, started again only the rest; three calls in a row that give nothing (the model out of reach,
   answering out of shape) end it. The model is that of the profile that starts it (refused while it
-  has none).
+  has none). An entry of extras.json whose word is no longer in the deck (an update dropped it) stays
+  until the deck's folder goes: nothing shows it, and the word coming back finds it.
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)
