@@ -24,13 +24,44 @@ const gapNumber = (segments: Segments, gap: string) =>
   segments.filter((s) => typeof s !== "string").findIndex((s) => s.gap === gap) + 1;
 
 /**
- * What follows a gap and stays on its line: closing punctuation touching it, a full stop or comma after
- * a space too (the space dropped: "[gap] ." reads "[gap]."), and an apostrophe with its letters
- * ("[gap]'s"). An ellipsis or an opening quote after a space stays apart (" …und", ' "Max"').
+ * What follows a gap and stays with it: closing punctuation touching it, a full stop or comma after
+ * a space too (the space dropped: "[gap] ." reads "[gap]."), letters touching it ("[gap]'s",
+ * "[gap]en"). An ellipsis or an opening quote after a space stays apart (" …und", ' "Max"').
  */
-const TAIL = /^(?:[ \u00a0]*[.,]|[!?;:…)\]»“”"])[.,!?;:…)\]»“”"]*|^['’]\p{L}*[.,!?;:…]*/u;
+const TAIL =
+  /^(?:[ \u00a0]*[.,]|[!?;:…)\]»“”"])[.,!?;:…)\]»“”"]*|^['’\p{L}\p{N}]+[.,!?;:…)\]»“”"]*/u;
 
-/** A gap as shown: its field and, once checked and wrong, the right answer beside it. */
+/** What touches a gap before it and stays with it: a word's stem ("mein[em]"), a quote ("„[gap]"). */
+const HEAD = /\S+$/u;
+
+/** A run of a gap text: words between gaps, or a gap with what touches it on either side. */
+export type Run = { text: string } | { gap: string; head: string; tail: string };
+
+/** A gap text as runs: what touches a gap goes with it, so no line breaks between them. Pure. */
+export function runs(segments: Segments): Run[] {
+  const out: Run[] = [];
+  let head = "";
+  for (const [i, s] of segments.entries()) {
+    if (typeof s !== "string") {
+      out.push({ gap: s.gap, head, tail: "" });
+      head = "";
+      continue;
+    }
+    let text = s;
+    const last = out.at(-1);
+    if (last && "gap" in last) {
+      const tail = text.match(TAIL)?.[0] ?? "";
+      last.tail = tail.trim();
+      text = text.slice(tail.length);
+    }
+    head = typeof segments[i + 1] === "object" ? (text.match(HEAD)?.[0] ?? "") : "";
+    text = text.slice(0, text.length - head.length);
+    if (text) out.push({ text });
+  }
+  return out;
+}
+
+/** A gap as shown: its field and, once checked and wrong, the right answer under it. */
 type ShownGap = { field: React.ReactNode; right?: string };
 
 function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap }) {
@@ -39,31 +70,26 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
     // Lines keep the text's own spacing; a line with a gap grows around it (a long dialogue with a
     // few gaps is not spread out over the screen).
     <p lang={lang} className="whitespace-pre-wrap text-xl leading-relaxed">
-      {segments.map((s, i) => {
-        if (typeof s === "string") {
-          const text = typeof segments[i - 1] === "object" ? s.replace(TAIL, "") : s;
-          // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
-          return text && <span key={i}>{text}</span>;
-        }
-        const next = segments[i + 1];
-        const tail = typeof next === "string" ? (next.match(TAIL)?.[0].trim() ?? "") : "";
-        const { field, right } = gap(s.gap);
+      {runs(segments).map((run, i) => {
+        // biome-ignore lint/suspicious/noArrayIndexKey: segments are static
+        if ("text" in run) return <span key={i}>{run.text}</span>;
+        const { field, right } = gap(run.gap);
         return (
-          // The gap, its right answer and the punctuation after it move to the next line together;
-          // only an answer longer than the line wraps, under the gap.
+          // The gap with what touches it is one unit that never breaks — the stem or quote before
+          // it, the punctuation after it; the right answer sits under the gap, not between them.
           <span
-            key={s.gap}
-            className="mx-1 my-1 inline-flex max-w-full flex-wrap items-baseline align-baseline"
-          >
-            {field}
-            {right !== undefined ? (
-              <span>
-                <RightAnswer text={right} />
-                {tail}
-              </span>
-            ) : (
-              tail && <span>{tail}</span>
+            key={run.gap}
+            className={cn(
+              "my-1 inline-flex max-w-full items-baseline align-baseline",
+              run.head ? "mr-1" : "mx-1",
             )}
+          >
+            {run.head && <span>{run.head}</span>}
+            <span className={cn("inline-flex min-w-0 flex-col items-start", run.head && "ml-0.5")}>
+              {field}
+              {right !== undefined && <RightAnswer text={right} className="ml-0 text-sm" />}
+            </span>
+            {run.tail && <span>{run.tail}</span>}
           </span>
         );
       })}
