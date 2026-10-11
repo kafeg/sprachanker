@@ -34,7 +34,7 @@ test("export a profile, import it as a new one, study on", async ({ page, reques
   const there = await other.newPage();
   await there.goto("/");
   await expect(there.getByRole("heading", { name: "Who is studying?" })).toBeVisible();
-  await there.locator('input[type="file"][accept=".sprachanker-profile"]').setInputFiles(file);
+  await there.locator('input[type="file"][accept^=".sprachanker-profile"]').setInputFiles(file);
   await expect(there.getByText("“E2E (2)” is here.")).toBeVisible();
   // The tile is there too, beside the profile it came from.
   await expect(there.getByRole("listitem").filter({ hasText: "E2E (2)" })).toBeVisible();
