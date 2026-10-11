@@ -154,9 +154,14 @@ export function createCards(deps: {
   /** A course's entry of a word in an edition (the course by its deck, `course:<key>`); none when the
    *  course is not here, not in that edition, or without the word. */
   async function courseEntry(scope: string, edition: string, lexeme: string) {
-    const course = (await content.courses()).find((c) => `course:${c.key}` === scope);
-    if (!course?.editions.includes(edition)) return undefined;
-    const entry = (await entriesOf(course, edition).catch(() => undefined))?.get(lexeme);
+    // Read once: the courses listed only for one not read yet (My words asks for many words).
+    const known = entries.get(`${scope.slice("course:".length)} ${edition}`);
+    const course = known
+      ? undefined
+      : (await content.courses()).find((c) => `course:${c.key}` === scope);
+    if (!known && !course?.editions.includes(edition)) return undefined;
+    const read = known ?? entriesOf(course as NonNullable<typeof course>, edition);
+    const entry = (await read.catch(() => undefined))?.get(lexeme);
     return entry && displayOf(entry.series, entry.lesson, entry.translation, entry.word);
   }
 
