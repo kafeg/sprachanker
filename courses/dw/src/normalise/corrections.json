@@ -249,5 +249,1338 @@
     "from": "реши, правильно ли использованы слова",
     "to": "реши, где нужны слова",
     "why": "The learner fills gaps with these words; there is no use of them to judge."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/00-02",
+    "tab": "grammar",
+    "from": "придаточного предожения",
+    "to": "придаточного предложения",
+    "why": "Typo in the grammar page: \"предожения\"."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/04-02",
+    "tab": "culture",
+    "from": "для завтрака ресторанах",
+    "to": "для завтрака в ресторанах",
+    "why": "The preposition is missing."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/06-02",
+    "tab": "grammar",
+    "from": "но указывают на живые существа, предметы",
+    "to": "но указывают на предметы",
+    "why": "etwas, nichts and alles do not refer to living beings; the page sets them apart from those that refer to people."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/06-04",
+    "tab": "grammar",
+    "from": "\n\n<p><em><strong>stehen</strong></em>: Der Pullover steht <em><strong>der Frau</strong></em>.</p>",
+    "to": "",
+    "why": "The example \"stehen: Der Pullover steht der Frau.\" is given twice in a row."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/07-04",
+    "tab": "grammar",
+    "from": "Косвенная речь используются",
+    "to": "Косвенные вопросы используются",
+    "why": "The page is about indirect questions (\"такие вопросы\" follows); the verb is plural."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/08-01",
+    "tab": "grammar",
+    "from": "сложносочиненного предложения",
+    "to": "сложноподчиненного предложения",
+    "why": "A relative clause is part of a complex sentence with a subordinate clause, not a compound one."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/16-01",
+    "tab": "grammar",
+    "from": "сложносочиненного предложения",
+    "to": "сложноподчиненного предложения",
+    "why": "A relative clause is part of a complex sentence with a subordinate clause, not a compound one."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/08-03",
+    "tab": "grammar",
+    "from": "определительные предложениях",
+    "to": "определительные предложения",
+    "why": "Wrong case: the subject is nominative."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/09-02",
+    "tab": "culture",
+    "from": "Популярность пользуются",
+    "to": "Популярностью пользуются",
+    "why": "\"пользоваться\" takes the instrumental."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/11-01",
+    "tab": "culture",
+    "from": "работать на удалении",
+    "to": "работать удаленно",
+    "why": "\"на удалении\" means at a distance, not remote work."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/12-03",
+    "tab": "grammar",
+    "from": "es/sie/es hätte",
+    "to": "er/sie/es hätte",
+    "why": "The 3rd person singular is er/sie/es."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/13-01",
+    "tab": "culture",
+    "from": "жизнь Германия богата",
+    "to": "жизнь Германии богата",
+    "why": "Wrong case: genitive."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/13-03",
+    "tab": "grammar",
+    "from": "2-е лицо</td>\n\t\t\t<td>er/sie/es",
+    "to": "3-е лицо</td>\n\t\t\t<td>er/sie/es",
+    "why": "The er/sie/es rows of the tables are the 3rd person, labelled 2nd."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/13-03",
+    "tab": "grammar",
+    "from": "2-е лицо</td>\n\t\t\t<td>sie ",
+    "to": "3-е лицо</td>\n\t\t\t<td>sie ",
+    "why": "The plural sie rows of the tables are the 3rd person, labelled 2nd."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/14-01",
+    "tab": "culture",
+    "from": "немцы отмечает",
+    "to": "немцы отмечают",
+    "why": "The verb is plural."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/14-03",
+    "tab": "grammar",
+    "from": "Господин Бальдер",
+    "to": "Господин Бальднер",
+    "why": "The man is Herr Baldner in the lesson's exercises."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/15-01",
+    "tab": "grammar",
+    "from": "ich gebe <strong>ihr </strong>",
+    "to": "Ich gebe <strong>ihr </strong>",
+    "why": "The example sentence starts with a lower-case letter."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/15-03",
+    "tab": "grammar",
+    "from": "<td>3rd person</td>",
+    "to": "<td>3-е лицо</td>",
+    "why": "An English row label in the Russian table."
+  },
+  {
+    "lesson": "dw.nicos-weg/a2-ru/16-02",
+    "tab": "grammar",
+    "from": "<td>Tonassistenten</td>",
+    "to": "<td>die Tonassistenten</td>",
+    "why": "The plural row lacks its article; the other rows give theirs."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/04-04/ex-05",
+    "item": "#6",
+    "field": "canonical",
+    "from": "Herr Meier möchte",
+    "to": "Herr Meiers möchte",
+    "why": "The man is Herr Meiers in every other text of the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/04-04/ex-07",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Hin-und Rückfahrt",
+    "to": "Hin- und Rückfahrt",
+    "why": "The space after the hyphen is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Schreib das passende Wort in die Lücke.",
+    "to": "Wähl die fehlenden Satzteile in der richtigen Reihenfolge aus.",
+    "why": "The gaps take whole phrases from a bank, as in item 1, whose instruction this is; nothing is typed."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/07-02/ex-05",
+    "item": "#2",
+    "field": "canonical",
+    "from": " In jede Lücke passt ein Wort.",
+    "to": "",
+    "why": "The gaps take whole phrases from a bank, not one word each."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/07-03/ex-02",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Bin schon da.",
+    "to": "Bin schon da",
+    "why": "The text after the gap has its own full stop: the answer read \"da..\"."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/09-02/ex-03",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/11-02/ex-01",
+    "item": "#1",
+    "field": "canonical",
+    "from": "Jaques",
+    "to": "Jacques",
+    "why": "Jacques everywhere else in the course."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-bs/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-de/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-el/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-en/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-es/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fr/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hi/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-hu/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-id/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pl/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ro/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-tr/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-uk/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-zh/09-03/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "Günter",
+    "to": "Günther",
+    "why": "Günther everywhere else in the lesson."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/10-01/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "gleicheGeld",
+    "to": "gleiche Geld",
+    "why": "The space is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/10-01/ex-06",
+    "item": "#2",
+    "field": "canonical",
+    "from": "gleicheGeld",
+    "to": "gleiche Geld",
+    "why": "The space is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ar/12-03/ex-03",
+    "item": "#2",
+    "field": "canonical",
+    "from": "mit Herr/Frau",
+    "to": "mit Herrn/Frau",
+    "why": "\"mit\" takes the dative: Herrn (as the next line has it)."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-fa/12-03/ex-03",
+    "item": "#2",
+    "field": "canonical",
+    "from": "mit Herr/Frau",
+    "to": "mit Herrn/Frau",
+    "why": "\"mit\" takes the dative: Herrn (as the next line has it)."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-pt/12-03/ex-03",
+    "item": "#2",
+    "field": "canonical",
+    "from": "mit Herr/Frau",
+    "to": "mit Herrn/Frau",
+    "why": "\"mit\" takes the dative: Herrn (as the next line has it)."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/12-03/ex-03",
+    "item": "#2",
+    "field": "canonical",
+    "from": "mit Herr/Frau",
+    "to": "mit Herrn/Frau",
+    "why": "\"mit\" takes the dative: Herrn (as the next line has it)."
+  },
+  {
+    "exercise": "dw.nicos-weg/a2-ru/16-04/ex-05",
+    "item": "#3",
+    "field": "canonical",
+    "from": "Falsc",
+    "to": "Falsch",
+    "why": "Typo in the option."
   }
 ]
