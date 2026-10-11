@@ -124,6 +124,12 @@ test("practice: a question at a time, each checked at once; ended early, scored 
   await page.getByRole("button", { name: "Practise" }).click();
   await expect(page).toHaveURL(/\/run\//);
   const main = page.locator("main");
+  // The question is on screen (one of three drawn) before its text is read.
+  await main
+    .getByRole("button", { name: /fünf|blau/ })
+    .or(main.locator("button:has(img[src*='kuchen'])"))
+    .first()
+    .waitFor();
   const text = (await main.textContent()) ?? "";
   const wrong = text.includes("Wie viele Tage")
     ? "fünf"
