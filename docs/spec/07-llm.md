@@ -69,6 +69,7 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
 | `exam_conversation` | an exam's title, the speaking part and its task as the learner has it (instructions, cards, texts), what the partner has (their card, calendar, slides), the conversation so far | JSON: lines[] (speaker `examiner` \| `partner`, text) up to the learner's turn, done |
 | `word_example` | a card's word with its translation, the course's words up to its lesson, the sentences given before | JSON: sentence (with the word: checked, one repair), translation, glossary[] (words beyond the given ones, translated) |
+| `word_examples` | a few words of a deck (five), each as learnt with its translation, part of speech and gender; the words the learner can be assumed to know (a course's up to the words' lesson, an imported deck's up to them); the level when known (the course's or deck's name says it: "A1"), else A1–A2 | JSON: words[] (n — the word's number —, examples[]: sentence, translation, glossary[]) — three to five a word |
 
 "Propose a rating" above an exam's open answer (09, Exams; owner's choice K, 2026-10-10) →
 `rate_exam_answer`, asked on request — in practice once answered, in a mock exam only once handed in:

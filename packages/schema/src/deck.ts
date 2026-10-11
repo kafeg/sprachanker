@@ -1,7 +1,7 @@
 // An imported deck (04, "Decks"; 05, "Locations"): `<data-root>/decks/<id>/deck.json`, its words in
 // deck order with the audio it brought in `media/` beside it. Server-wide, as the library: every
 // profile takes it as a course's deck. Beside it, and in a course's deck folder, `extras.json`: what
-// the server made for the words (audio read aloud).
+// the server made for the words (audio read aloud, examples).
 import { z } from "zod";
 import { format } from "./common.ts";
 import { type CourseKey, Gender, LexemeKey, Slug } from "./keys.ts";
@@ -87,10 +87,37 @@ export const DeckReadAudio = z.strictObject({
 });
 export type DeckReadAudio = z.infer<typeof DeckReadAudio>;
 
+/** Example sentences the AI wrote for a word (04, "A deck's words given examples"), with their
+ *  translations in one language: the model that wrote them and when. */
+export const DeckMadeExamples = z.strictObject({
+  items: z
+    .array(
+      z.strictObject({
+        sentence: z.string().min(1),
+        translation: z.string().min(1),
+        /** Words of the sentence beyond those the learner was assumed to know, translated. */
+        glossary: z.array(z.strictObject({ word: z.string(), translation: z.string() })).optional(),
+      }),
+    )
+    .min(1)
+    .max(5),
+  model: z.string(),
+  /** When they were written (epoch ms). */
+  made: z.number().int(),
+});
+export type DeckMadeExamples = z.infer<typeof DeckMadeExamples>;
+
 /** `decks/<folder>/extras.json`: what the server made for a deck's words, by lexeme key (a deck's
- *  cards are one per lexeme). */
+ *  cards are one per lexeme): the audio read aloud, the examples by the language they are translated
+ *  into (a course's cards are in its editions' languages). */
 export const DeckExtras = z.strictObject({
   format: format(DECK_EXTRAS_FORMAT),
-  words: z.record(z.string().min(1).max(200), z.strictObject({ audio: DeckReadAudio.optional() })),
+  words: z.record(
+    z.string().min(1).max(200),
+    z.strictObject({
+      audio: DeckReadAudio.optional(),
+      examples: z.record(Lang, DeckMadeExamples).optional(),
+    }),
+  ),
 });
 export type DeckExtras = z.infer<typeof DeckExtras>;

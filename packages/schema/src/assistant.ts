@@ -65,7 +65,8 @@ export const ExamRatingProposal = z.object({
 });
 export type ExamRatingProposal = z.infer<typeof ExamRatingProposal>;
 
-/** An example sentence for a card's word (`word_example`). */
+/** An example sentence for a word: one of `word_examples` (a deck's words); kept alone by the
+ *  one-at-a-time `word_example` of earlier versions (its stored verdicts still read). */
 export const WordExample = z.object({
   sentence: z.string().min(1).max(300),
   translation: z.string().min(1).max(400),
@@ -73,6 +74,15 @@ export const WordExample = z.object({
   glossary: z.array(z.object({ word: z.string(), translation: z.string() })).max(10),
 });
 export type WordExample = z.infer<typeof WordExample>;
+
+/** Examples for a few words of a deck at once (`word_examples`): each word by its number in the
+ *  request (1, 2, …) with its sentences. */
+export const WordExamples = z.object({
+  words: z
+    .array(z.object({ n: z.number().int().min(1), examples: z.array(WordExample).min(1).max(8) }))
+    .max(20),
+});
+export type WordExamples = z.infer<typeof WordExamples>;
 
 /** A scene as drafted (`scene_setup`), kept as its run's plan. */
 export const SceneSetup = z.object({
