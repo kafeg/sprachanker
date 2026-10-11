@@ -21,10 +21,12 @@ const ProfileId = z.string().regex(/^[a-z0-9]{1,40}$/);
 /** A profile's name: never empty. */
 const Name = z.string().trim().min(1).max(PROFILE_NAME_MAX);
 
-const https = (c: Context) =>
-  new URL(c.req.url).protocol === "https:" || c.req.header("x-forwarded-proto") === "https";
+/** An HTTPS address: the request's own, or one a proxy of ours (the Host check's `proxied`) says. */
+const https = (c: Context<ProfileEnv>) =>
+  new URL(c.req.url).protocol === "https:" ||
+  (c.get("proxied") && c.req.header("x-forwarded-proto") === "https");
 
-function signedIn(c: Context, token: string) {
+function signedIn(c: Context<ProfileEnv>, token: string) {
   setCookie(c, DEVICE_COOKIE, token, {
     httpOnly: true,
     sameSite: "Strict",
@@ -37,7 +39,7 @@ function signedIn(c: Context, token: string) {
 /** Signing in and out: no session needed. */
 export function sessionRoutes(svc: Services) {
   const { profiles, devices } = svc;
-  const issue = async (c: Context, profileId: string) =>
+  const issue = async (c: Context<ProfileEnv>, profileId: string) =>
     signedIn(c, await devices.issue(profileId, c.req.header("user-agent") ?? ""));
   return (
     new Hono<ProfileEnv>()

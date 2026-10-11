@@ -60,7 +60,8 @@ export function startServer(config: ServerConfig): Listening {
     readings: readingCache(config.dataRoot),
     // The machine's own names: its host name, the one the server was told to listen on, those it was
     // given (`--allow-host`); its tailnet name is read from Tailscale (`network`).
-    hosts: [hostname(), `${hostname()}.local`, config.hostname, ...(config.allowHosts ?? [])],
+    hosts: [hostname(), `${hostname()}.local`, config.hostname],
+    allowHosts: config.allowHosts,
     listensOn: { hostname: config.hostname, port: config.port },
     network: networkHost(),
   });

@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { CLIENT_HEADERS } from "@sprachanker/schema";
 import { commandOutput } from "../src/runtime/network.ts";
 import {
   ADDRESSES_MS,
@@ -129,6 +130,29 @@ describe("the Host check and the tailnet", () => {
     expect(await net.knows("other-mac.tail9999.ts.net")).toBe(false);
     expect(asked.status).toBe(3);
   });
+});
+
+test("X-Forwarded-Proto believed only from a proxy of ours: tailscale serve, --allow-host", async () => {
+  const { app } = await setup({
+    network: fakeHost({ status: running() }).host,
+    allowHosts: ["proxy.example"],
+  });
+  const secureCookie = async (url: string, headers: Record<string, string> = {}) => {
+    const response = await app.request(url, {
+      method: "POST",
+      headers: { "content-type": "application/json", ...CLIENT_HEADERS, ...headers },
+      body: JSON.stringify({ profile: "local" }),
+    });
+    expect(response.status).toBe(200);
+    return /;\s*Secure/i.test(response.headers.get("set-cookie") ?? "");
+  };
+  const forwarded = { "x-forwarded-proto": "https" };
+  expect(await secureCookie(`http://${NAME}/api/session`, forwarded)).toBe(true);
+  expect(await secureCookie("http://proxy.example/api/session", forwarded)).toBe(true);
+  expect(await secureCookie("http://192.168.1.20:4580/api/session", forwarded)).toBe(false);
+  expect(await secureCookie("http://localhost:4580/api/session", forwarded)).toBe(false);
+  expect(await secureCookie(`http://${NAME}/api/session`)).toBe(false);
+  expect(await secureCookie("https://localhost/api/session")).toBe(true);
 });
 
 describe("Funnel", () => {

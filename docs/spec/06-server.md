@@ -315,8 +315,10 @@ profiles with device tokens (above).
   `tailscale serve status --json` is read too: while Funnel is on for the name it is refused (above,
   "Network and HTTPS"); a name accepted is read again in the background once a minute has passed, so
   Funnel turned on later is seen. No CORS (same-origin only).
-- **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses. Mutating requests require the
-  header `X-SprachAnker: 1`.
+- **Cookies**: `HttpOnly`, `SameSite=Strict`, `Secure` on HTTPS addresses — the request's own, or
+  `X-Forwarded-Proto: https` from a proxy of ours: believed only for the tailnet name (`tailscale
+  serve`) and the `--allow-host` names, never for a name the server is reached by directly.
+  Mutating requests require the header `X-SprachAnker: 1`.
 - **Tokens**: device tokens 256-bit random, stored hashed (SHA-256), revocable.
 - **Secrets**: AES-256-GCM with a key file (`0600`, `<app-data>/secret.key`); write-only through the API;
   never logged.
