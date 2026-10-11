@@ -7,7 +7,8 @@
     "settings": "Einstellungen",
     "review": "Wiederholen",
     "notebook": "Notizbuch",
-    "exams": "Prüfungen"
+    "exams": "Prüfungen",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Wird geladen…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "„Warum ist das falsch?“",
       "tutor": "Tutor",
+      "tutorSection": "Bereich „Tutor“",
       "writing": "„Schreib selbst“",
       "speaking": "Mündliche Antworten",
       "exam": "Prüfung: eine Antwort bewerten",
@@ -398,6 +400,7 @@
       "examples": "Beispiele für die Wörter eines Stapels"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
+    "contextIntroCourses": "Aus deinen Kursen kommt dazu (denen in der Sprache, die das Gespräch übt):",
     "systemIntro": "System-Prompt:",
     "part": {
       "item": "die Aufgabe: Anweisung, Optionen oder Lücken, die richtige und deine Antwort",
@@ -422,7 +425,12 @@
       "partner": "was dein Partner hat: Karte, Kalender oder Folien (du siehst sie nicht)",
       "conversation": "das Gespräch bis jetzt (die letzten Zeilen)",
       "level": "das Niveau des Kurses oder Stapels, wenn sein Name es nennt (A1, A2 …), sonst Anfänger",
-      "words": "fünf Wörter des Stapels mit Übersetzung, Wortart und Genus"
+      "words": "fünf Wörter des Stapels mit Übersetzung, Wortart und Genus",
+      "courses": "deine Kurse: abgeschlossene Lektionen, die Lektionen, an denen du gearbeitet hast (die neuesten zuerst)",
+      "metWords": "die Wörter dieser Lektionen mit Übersetzungen (die neuesten Lektionen zuerst)",
+      "metGrammar": "ihre Grammatikthemen (die neuesten Lektionen zuerst)",
+      "courseMistakes": "deine letzten Fehler in diesen Kursen (korrigierte markiert)",
+      "chatHistory": "die letzten Nachrichten des Gesprächs"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Tutor",
-        "where": "die Schaltfläche in der Lektion und der Schritt „Fehler durchgehen“"
+        "where": "die Schaltfläche in der Lektion, der Schritt „Fehler durchgehen“ und der Bereich „Tutor“"
       },
       "writing": {
         "name": "„Schreib selbst“",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Erklärt eine falsche Antwort unter der Übung („Warum ist das falsch?“): was der Fehler ist und welche Regel dahintersteht, in deiner Sprache.",
       "tutor": "Der Tutor der Lektion: beantwortet deine Fragen zur Lektion, ihren Wörtern und ihrer Grammatik und geht im Schritt „Fehler durchgehen“ deine Fehler einzeln durch.",
+      "tutorSection": "Der Tutor für sich, im Bereich „Tutor“: beantwortet außerhalb einer Lektion alles, was du fragst – eine Grammatikfrage, einen Text zum Durchgehen, ein Gespräch zum Üben – und weiß dabei, was du in deinen Kursen gelernt hast.",
       "writing": "Prüft einen kurzen Text aus „Schreib selbst“: Korrekturen, die A1-Kriterien (Aufgabe, Kommunikation, Richtigkeit) und eine Rückmeldung.",
       "speaking": "Prüft eine gesprochene Antwort (was die Erkennung gehört hat) an der Frage und der Antwort des Kurses, wenn du „Mit KI prüfen“ drückst.",
       "exam": "Bewertet eine schriftliche Antwort einer Prüfung nach deren eigenen Kriterien: eine Stufe je Kriterium mit Begründung und was mehr Punkte bringen würde. Nichts zählt, bis du sie übernimmst oder änderst.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Diese Antwort ist nicht mehr im Lektionsdurchgang. Lade die Lektion neu.",
     "no_such_card": "Diese Karte gibt es nicht mehr.",
     "no_such_chat": "Dieses Gespräch gibt es nicht mehr.",
+    "no_course_studied": "Beginne zuerst einen Kurs: Der Tutor spricht über den Stoff deiner Kurse.",
+    "ai_place_off": "Der Assistent ist hier ausgeschaltet: Schalte ihn unter Einstellungen → KI-Assistent ein.",
     "no_such_item": "Die Übung hat sich geändert. Lade die Lektion neu.",
     "no_such_model": "Dieses Modell wird nicht angeboten.",
     "no_such_profile": "Dieses Profil gibt es nicht mehr.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Neu hier:",
     "by": "Beispiele von der KI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Frag den Tutor außerhalb einer Lektion alles – eine Grammatikfrage, einen Text zum Durchgehen, ein Gespräch zum Üben. Er weiß, was du in deinen Kursen gelernt hast, und erklärt in deiner Sprache.",
+    "empty": "Noch keine Gespräche: Beginne eines mit „Neues Gespräch“.",
+    "needsCourse": "Der Tutor spricht über den Stoff deiner Kurse: Beginne zuerst einen Kurs.",
+    "off": "Der Tutor ist ausgeschaltet: Schalte ihn unter Einstellungen → KI-Assistent ein.",
+    "all": "Alle Gespräche",
+    "suggest": {
+      "grammar": "Ich habe eine Grammatikfrage",
+      "text": "Geh mit mir einen Text durch",
+      "conversation": "Lass uns ein Gespräch üben"
+    },
+    "ask": {
+      "grammar": "Ich habe eine Grammatikfrage. Frag mich, worum es geht, und erkläre es dann kurz mit Beispielen aus dem, was ich gelernt habe.",
+      "text": "Ich möchte mit dir einen Text durchgehen. Bitte mich, ihn einzufügen, und nimm ihn dann Satz für Satz: übersetze, erkläre, was neu ist, und warte auf mich, bevor du weitermachst.",
+      "conversation": "Lass uns ein Gespräch üben. Schlag eine Alltagssituation aus dem vor, was ich gelernt habe, beginne dann mit einem Satz und warte auf meine Antwort; korrigiere meine Fehler unterwegs."
+    }
   }
 }

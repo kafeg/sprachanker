@@ -7,7 +7,8 @@
     "settings": "Ajustes",
     "review": "Repaso",
     "notebook": "Cuaderno",
-    "exams": "Exámenes"
+    "exams": "Exámenes",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Cargando…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "«¿Por qué está mal?»",
       "tutor": "Tutor",
+      "tutorSection": "Sección «Tutor»",
       "writing": "«Escribe tú»",
       "speaking": "Respuestas habladas",
       "exam": "Examen: valorar una respuesta",
@@ -398,6 +400,7 @@
       "examples": "Ejemplos para las palabras de un mazo"
     },
     "contextIntro": "Se añade de la lección:",
+    "contextIntroCourses": "Se añade de tus cursos (los del idioma que practica la conversación):",
     "systemIntro": "Prompt del sistema:",
     "part": {
       "item": "el apartado del ejercicio: la tarea, las opciones o los huecos, la respuesta correcta y tu respuesta",
@@ -422,7 +425,12 @@
       "partner": "lo que tiene tu compañero: su tarjeta, su agenda o sus diapositivas (tú no lo ves)",
       "conversation": "la conversación hasta ahora (las líneas más recientes)",
       "level": "el nivel del curso o del mazo cuando su nombre lo indica (A1, A2…); si no, principiante",
-      "words": "cinco palabras del mazo con su traducción, categoría gramatical y género"
+      "words": "cinco palabras del mazo con su traducción, categoría gramatical y género",
+      "courses": "tus cursos: lecciones terminadas, las lecciones en las que trabajaste (las más recientes primero)",
+      "metWords": "las palabras de esas lecciones con traducciones (primero las lecciones más recientes)",
+      "metGrammar": "sus temas de gramática (primero las lecciones más recientes)",
+      "courseMistakes": "tus últimos errores en esos cursos (marcados los ya corregidos)",
+      "chatHistory": "los últimos mensajes de la conversación"
     },
     "upTo": "hasta {chars, plural, one {# carácter} other {# caracteres}}",
     "debug": "Mostrar los botones «Prompt»",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Tutor",
-        "where": "el botón en una lección y el paso «Repaso de errores»"
+        "where": "el botón en una lección, el paso «Repaso de errores» y la sección «Tutor»"
       },
       "writing": {
         "name": "«Escribe tú»",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Explica una respuesta incorrecta bajo el ejercicio («¿Por qué está mal?»): cuál es el error y la regla que hay detrás, en tu idioma.",
       "tutor": "El tutor de la lección: responde a tus preguntas sobre la lección, sus palabras y su gramática, y repasa tus errores uno a uno en el paso «Repaso de errores».",
+      "tutorSection": "El tutor por su cuenta, en la sección «Tutor»: responde a lo que preguntes fuera de una lección —una duda de gramática, un texto que repasar, una conversación que practicar— sabiendo lo que has visto en tus cursos.",
       "writing": "Corrige un texto corto que escribiste en «Escribe tú»: correcciones, los criterios del A1 (tarea, comunicación, corrección) y comentarios.",
       "speaking": "Comprueba una respuesta que dijiste en voz alta (lo que oyó el reconocedor) frente a la pregunta y la respuesta del curso, cuando pulsas «Comprobar con IA».",
       "exam": "Valora una respuesta escrita de un examen según los criterios del propio examen: un nivel para cada uno con su motivo, y qué daría más puntos. Nada cuenta hasta que lo aceptes o lo cambies.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Esta respuesta ya no está en la vuelta de la lección. Vuelve a cargar la lección.",
     "no_such_card": "Esta tarjeta ya no existe.",
     "no_such_chat": "Esta conversación ya no existe.",
+    "no_course_studied": "Empieza primero un curso: el tutor habla de lo que has visto en tus cursos.",
+    "ai_place_off": "El asistente está desactivado aquí: actívalo en Ajustes → Asistente de IA.",
     "no_such_item": "Este ejercicio ha cambiado. Vuelve a cargar la lección.",
     "no_such_model": "Este modelo no está disponible.",
     "no_such_profile": "Este perfil ya no existe.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Nuevas aquí:",
     "by": "Ejemplos de la IA · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pregúntale al tutor lo que quieras fuera de una lección: una duda de gramática, un texto que repasar, una conversación que practicar. Sabe lo que has visto en tus cursos y explica en tu idioma.",
+    "empty": "Aún no hay conversaciones: empieza una con «Nueva conversación».",
+    "needsCourse": "El tutor habla de lo que has visto en tus cursos: empieza primero un curso.",
+    "off": "El tutor está desactivado: actívalo en Ajustes → Asistente de IA.",
+    "all": "Todas las conversaciones",
+    "suggest": {
+      "grammar": "Tengo una duda de gramática",
+      "text": "Repasa un texto conmigo",
+      "conversation": "Practiquemos una conversación"
+    },
+    "ask": {
+      "grammar": "Tengo una duda de gramática. Pregúntame cuál es y luego explícamela brevemente con ejemplos de lo que he aprendido.",
+      "text": "Quiero repasar un texto contigo. Pídeme que lo pegue y luego ve frase por frase: tradúcela, explica lo nuevo y espérame antes de la siguiente.",
+      "conversation": "Practiquemos una conversación. Propón una situación cotidiana de lo que he aprendido, empieza con una frase y espera mi respuesta; corrige mis errores sobre la marcha."
+    }
   }
 }

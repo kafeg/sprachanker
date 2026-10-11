@@ -1,7 +1,15 @@
 // The app's frame (09, "Layouts"): sidebar on desktop, bottom tab bar on phones, the cards due on the
-// Review entry, background downloads in the window title.
-import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { BookOpen, GraduationCap, Layers, NotebookPen, Settings } from "lucide-react";
+// Review entry, background downloads in the window title; an optional feature's section (the Tutor)
+// after the learning modules while it is there.
+import { Link, type LinkProps, Outlet, useRouterState } from "@tanstack/react-router";
+import {
+  BookOpen,
+  GraduationCap,
+  Layers,
+  type LucideIcon,
+  NotebookPen,
+  Settings,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useDecks } from "@/api/cards.ts";
 import { useDownloads, useDownloadsWatch } from "@/api/downloads.ts";
@@ -19,11 +27,24 @@ export const NAV = [
   { to: "/settings", key: "nav.settings", icon: Settings },
 ] as const;
 
+/** A section an optional feature adds (the router's: the Tutor), shown while `useShown` says so. */
+export interface ExtraSection {
+  to: LinkProps["to"] & string;
+  key: string;
+  icon: LucideIcon;
+  useShown(): boolean | undefined;
+}
+
 /** The Courses entry is active on any of its tabs. */
 const COURSE_PATHS = ["/", "/downloaded", "/catalog"];
 
-export function AppShell() {
+const noExtra = () => false;
+
+export function AppShell({ extra }: { extra?: ExtraSection }) {
   const { t } = useTranslation();
+  // An optional section goes after the learning modules, before the Notebook.
+  const shown = (extra?.useShown ?? noExtra)();
+  const sections = shown && extra ? [...NAV.slice(0, 3), extra, ...NAV.slice(3)] : NAV;
   const path = useRouterState({ select: (s) => s.location.pathname });
   // Exams is active on its tabs and on an exam's pages (`/exam/…`).
   const active = (to: string) =>
@@ -51,7 +72,7 @@ export function AppShell() {
           <img src="/favicon.svg" alt="" className="size-9" />
           <span className="font-heading text-xl font-bold">{t("app.name")}</span>
         </Link>
-        {NAV.map(({ to, key, icon: Icon }) => (
+        {sections.map(({ to, key, icon: Icon }) => (
           <Link
             key={to}
             to={to}
@@ -76,13 +97,14 @@ export function AppShell() {
         <Outlet />
       </main>
       <nav className="fixed inset-x-0 bottom-0 z-20 flex border-t bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">
-        {NAV.map(({ to, key, icon: Icon }) => (
+        {sections.map(({ to, key, icon: Icon }) => (
           <Link
             key={to}
             to={to}
             aria-current={active(to) ? "page" : undefined}
+            // A label wider than its share wraps (hyphenated where the language allows), never spills.
             className={cn(
-              "flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-xs text-muted-foreground",
+              "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-center text-xs leading-tight text-muted-foreground hyphens-auto [overflow-wrap:anywhere]",
               active(to) && "font-semibold text-foreground",
             )}
           >

@@ -7,7 +7,8 @@
     "settings": "Postavke",
     "review": "Ponavljanje",
     "notebook": "Sveska",
-    "exams": "Ispiti"
+    "exams": "Ispiti",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Učitavanje…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "„Zašto je ovo pogrešno?“",
       "tutor": "Tutor",
+      "tutorSection": "Odjeljak „Tutor“",
       "writing": "„Napiši svoj tekst“",
       "speaking": "Izgovoreni odgovori",
       "exam": "Ispit: ocjena odgovora",
@@ -398,6 +400,7 @@
       "examples": "Primjeri za riječi špila"
     },
     "contextIntro": "Dodano iz lekcije:",
+    "contextIntroCourses": "Dodano iz tvojih kurseva (onih za jezik koji razgovor vježba):",
     "systemIntro": "Sistemski prompt:",
     "part": {
       "item": "zadatak vježbe: uputa, opcije ili praznine, tačan odgovor i tvoj odgovor",
@@ -422,7 +425,12 @@
       "partner": "šta ima partner: svoju karticu, kalendar ili slajdove (ti to ne vidiš)",
       "conversation": "dosadašnji razgovor (najnovije replike)",
       "level": "nivo kursa ili špila kad ga naziv navodi (A1, A2…), inače početni",
-      "words": "pet riječi špila s prijevodima, vrstom riječi i rodom"
+      "words": "pet riječi špila s prijevodima, vrstom riječi i rodom",
+      "courses": "tvoji kursevi: završene lekcije, lekcije na kojima se radilo (najnovije prvo)",
+      "metWords": "riječi tih lekcija s prevodima (najnovije lekcije prvo)",
+      "metGrammar": "njihove gramatičke teme (najnovije lekcije prvo)",
+      "courseMistakes": "tvoje najnovije greške u tim kursevima (ispravljene označene)",
+      "chatHistory": "posljednje poruke razgovora"
     },
     "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
     "debug": "Prikaži dugmad „Prompt“",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Tutor",
-        "where": "dugme u lekciji i korak „Pregled grešaka“"
+        "where": "dugme u lekciji, korak „Pregled grešaka“ i odjeljak „Tutor“"
       },
       "writing": {
         "name": "„Napiši svoj tekst“",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Objašnjava pogrešan odgovor ispod vježbe („Zašto je ovo pogrešno?“): u čemu je greška i koje pravilo stoji iza nje, na tvom jeziku.",
       "tutor": "Tutor lekcije: odgovara na tvoja pitanja o lekciji, njenim riječima i gramatici, i u koraku „Pregled grešaka“ prolazi s tobom kroz greške jednu po jednu.",
+      "tutorSection": "Tutor sam za sebe, u odjeljku „Tutor“: odgovara na sve što pitaš izvan lekcije — pitanje o gramatici, tekst koji želiš proći, razgovor za vježbu — i zna gradivo tvojih kurseva.",
       "writing": "Provjerava tvoj kratki tekst iz koraka „Napiši svoj tekst“: ispravke, kriteriji za A1 (zadatak, komunikacija, tačnost) i povratna informacija.",
       "speaking": "Provjerava tvoj izgovoreni odgovor (ono što je prepoznavač čuo) u odnosu na pitanje i odgovor kursa, kad pritisneš „Provjeri s AI“.",
       "exam": "Ocjenjuje pisani odgovor na ispitu po kriterijima samog ispita: nivo za svaki kriterij s obrazloženjem i šta bi donijelo više bodova. Ništa se ne računa dok to ne prihvatiš ili izmijeniš.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Ovog odgovora više nema u prolazu lekcije. Ponovo učitaj lekciju.",
     "no_such_card": "Ova kartica više ne postoji.",
     "no_such_chat": "Ovog razgovora više nema.",
+    "no_course_studied": "Prvo započni kurs: tutor govori o gradivu tvojih kurseva.",
+    "ai_place_off": "Asistent je ovdje isključen: uključi ga u Postavkama → AI asistent.",
     "no_such_item": "Ova vježba se promijenila. Ponovo učitaj lekciju.",
     "no_such_model": "Ovaj model nije ponuđen.",
     "no_such_profile": "Ovaj profil više ne postoji.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Novo ovdje:",
     "by": "Primjeri od AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pitaj tutora bilo šta izvan lekcije — pitanje o gramatici, tekst koji želiš proći, razgovor za vježbu. Zna gradivo tvojih kurseva i objašnjava na tvom jeziku.",
+    "empty": "Još nema razgovora: započni jedan dugmetom „Novi razgovor“.",
+    "needsCourse": "Tutor govori o gradivu tvojih kurseva: prvo započni kurs.",
+    "off": "Tutor je isključen: uključi ga u Postavkama → AI asistent.",
+    "all": "Svi razgovori",
+    "suggest": {
+      "grammar": "Imam pitanje o gramatici",
+      "text": "Prođi sa mnom kroz jedan tekst",
+      "conversation": "Hajde da vježbamo razgovor"
+    },
+    "ask": {
+      "grammar": "Imam pitanje o gramatici. Pitaj me o čemu se radi, pa ga ukratko objasni primjerima iz pređenog gradiva.",
+      "text": "Želim s tobom proći kroz jedan tekst. Zamoli me da ga zalijepim, pa idi rečenicu po rečenicu: prevedi, objasni šta je novo i sačekaj me prije sljedeće.",
+      "conversation": "Hajde da vježbamo razgovor. Predloži svakodnevnu situaciju iz pređenog gradiva, počni jednom replikom i sačekaj moj odgovor; usput ispravljaj moje greške."
+    }
   }
 }

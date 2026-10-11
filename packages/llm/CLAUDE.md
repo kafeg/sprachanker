@@ -32,6 +32,7 @@ src/
     exam-conversation.ts # exam_conversation: a speaking part — the examiner's and the partner's lines
     explain-mistake.ts # explain_mistake: prompt + call
     chat-turn.ts       # chat_turn: the lesson tutor (lesson context, known words, exercise, mistakes, history)
+    section-chat.ts    # section_chat_turn: the tutor on its own (what the learner met in their courses, history)
     check-writing.ts   # check_writing: the learner's text on the lesson's topic → structured verdict
     check-speaking.ts  # check_speaking: an answer said aloud (what was heard) against the item, its
                        # question and the source's answer as heard → structured verdict

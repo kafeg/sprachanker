@@ -53,6 +53,9 @@ export const issuesText = (error: z.ZodError, max = 3) =>
  */
 export const STREAM_ERROR = "\u0000";
 
+/** The header a Tutor section's streamed reply names its chat in (a new chat's id, 06). */
+export const CHAT_ID_HEADER = "X-Chat-Id";
+
 /** What every mutating API request carries (06, "Security": CSRF protection): a header a page on
  *  another site cannot set without the server's consent. */
 export const CLIENT_HEADERS = { "x-sprachanker": "1" } as const;

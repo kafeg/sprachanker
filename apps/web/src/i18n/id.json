@@ -7,7 +7,8 @@
     "settings": "Pengaturan",
     "review": "Pengulangan",
     "notebook": "Buku catatan",
-    "exams": "Ujian"
+    "exams": "Ujian",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Memuat…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "“Kenapa ini salah?”",
       "tutor": "Tutor",
+      "tutorSection": "Bagian “Tutor”",
       "writing": "“Tulis sendiri”",
       "speaking": "Jawaban lisan",
       "exam": "Ujian: menilai jawaban",
@@ -398,6 +400,7 @@
       "examples": "Contoh untuk kata-kata dek"
     },
     "contextIntro": "Ditambahkan dari pelajaran:",
+    "contextIntroCourses": "Ditambahkan dari kursus-kursusmu (yang mengajarkan bahasa percakapan ini):",
     "systemIntro": "Prompt sistem:",
     "part": {
       "item": "soal latihan: tugas, pilihan atau rumpang, jawaban benar, dan jawaban kamu",
@@ -422,7 +425,12 @@
       "partner": "apa yang dimiliki pasangan bicara: kartu, kalender, atau slide mereka (kamu tidak melihatnya)",
       "conversation": "percakapan sejauh ini (baris-baris terakhir)",
       "level": "tingkat kursus atau dek jika namanya menyebutkannya (A1, A2…), jika tidak, tingkat pemula",
-      "words": "lima kata dari dek beserta terjemahan, jenis kata, dan genusnya"
+      "words": "lima kata dari dek beserta terjemahan, jenis kata, dan genusnya",
+      "courses": "kursus-kursusmu: pelajaran yang selesai, pelajaran yang sudah kamu kerjakan (yang terbaru dulu)",
+      "metWords": "kata-kata dari pelajaran itu beserta terjemahannya (pelajaran terbaru dulu)",
+      "metGrammar": "topik tata bahasanya (pelajaran terbaru dulu)",
+      "courseMistakes": "kesalahan terbarumu di kursus-kursus itu (yang sudah diperbaiki ditandai)",
+      "chatHistory": "pesan-pesan terbaru dalam percakapan"
     },
     "upTo": "hingga {chars, plural, other {# karakter}}",
     "debug": "Tampilkan tombol “Prompt”",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Tutor",
-        "where": "tombol di pelajaran dan di langkah “Membahas kesalahan”"
+        "where": "tombol di pelajaran, langkah “Membahas kesalahan”, dan bagian “Tutor”"
       },
       "writing": {
         "name": "“Tulis sendiri”",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Menjelaskan jawaban yang salah di bawah latihan (“Kenapa ini salah?”): apa kesalahannya dan aturan di baliknya, dalam bahasa kamu.",
       "tutor": "Tutor pelajaran: menjawab pertanyaan kamu tentang pelajaran, kosakata, dan tata bahasanya, serta membahas kesalahan kamu satu per satu di langkah “Membahas kesalahan”.",
+      "tutorSection": "Tutor tersendiri, di bagian “Tutor”: menjawab apa pun yang kamu tanyakan di luar pelajaran — pertanyaan tata bahasa, teks untuk dibahas, percakapan untuk dilatih — dengan mengetahui apa yang sudah kamu pelajari di kursus-kursusmu.",
       "writing": "Memeriksa teks pendek yang kamu tulis di “Tulis sendiri”: koreksi, kriteria A1 (tugas, komunikasi, ketepatan), dan umpan balik.",
       "speaking": "Memeriksa jawaban yang kamu ucapkan (apa yang didengar pengenal ucapan) terhadap pertanyaan dan jawaban kursus, saat kamu menekan “Periksa dengan AI”.",
       "exam": "Menilai jawaban tertulis dalam ujian menurut kriteria ujian itu sendiri: tingkat untuk setiap kriteria beserta alasannya, dan apa yang akan mendapat nilai lebih. Belum ada yang dihitung sampai kamu menerima atau mengubahnya.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Jawaban ini sudah tidak ada di putaran pelajaran. Muat ulang pelajaran.",
     "no_such_card": "Kartu ini sudah tidak ada.",
     "no_such_chat": "Percakapan ini sudah tidak ada.",
+    "no_course_studied": "Mulai kursus dulu: tutor membahas materi kursus-kursusmu.",
+    "ai_place_off": "Asisten dimatikan di sini: nyalakan di Pengaturan → Asisten AI.",
     "no_such_item": "Latihan ini sudah berubah. Muat ulang pelajaran.",
     "no_such_model": "Model ini tidak tersedia.",
     "no_such_profile": "Profil ini sudah tidak ada.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Baru di sini:",
     "by": "Contoh dari AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Tanyakan apa saja kepada tutor di luar pelajaran — pertanyaan tata bahasa, teks untuk dibahas, percakapan untuk dilatih. Tutor tahu apa yang sudah kamu pelajari di kursus-kursusmu dan menjelaskan dalam bahasamu.",
+    "empty": "Belum ada obrolan: mulai satu dengan “Obrolan baru”.",
+    "needsCourse": "Tutor membahas materi kursus-kursusmu: mulai kursus dulu.",
+    "off": "Tutor dimatikan: nyalakan di Pengaturan → Asisten AI.",
+    "all": "Semua obrolan",
+    "suggest": {
+      "grammar": "Aku punya pertanyaan tata bahasa",
+      "text": "Bahas sebuah teks bersamaku",
+      "conversation": "Ayo latihan percakapan"
+    },
+    "ask": {
+      "grammar": "Aku punya pertanyaan tata bahasa. Tanyakan dulu apa pertanyaannya, lalu jelaskan singkat dengan contoh dari yang sudah kupelajari.",
+      "text": "Aku ingin membahas sebuah teks bersamamu. Minta aku menempelkannya, lalu bahas kalimat demi kalimat: terjemahkan, jelaskan yang baru, dan tunggu aku sebelum lanjut.",
+      "conversation": "Ayo latihan percakapan. Usulkan situasi sehari-hari dari yang sudah kupelajari, mulai dengan satu kalimat dan tunggu jawabanku; koreksi kesalahanku sambil jalan."
+    }
   }
 }

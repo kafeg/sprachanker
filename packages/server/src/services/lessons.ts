@@ -24,6 +24,7 @@ import {
   type Outcome,
   parseEditionId,
   parseItemKey,
+  parseLessonKey,
   type Run,
   type RunStatus,
   seriesOf,
@@ -62,6 +63,19 @@ export interface LessonState {
     /** Score of a finished run that scored any item. */
     score?: number;
   };
+}
+
+/** A course the learner has begun, as `studied` lists it. */
+export interface StudiedCourse {
+  key: string;
+  series: string;
+  /** The course's id in its series (what the library names it by). */
+  course: string;
+  /** The edition of its latest work. */
+  edition: string;
+  lastAt: number;
+  /** Its lessons in progress or done, the latest worked on first. */
+  lessons: Array<{ key: LessonKey; lastAt: number; done: boolean }>;
 }
 
 export function createLessons({ store, content }: { store: RunStore; content: Content }) {
@@ -208,9 +222,46 @@ export function createLessons({ store, content }: { store: RunStore; content: Co
     return out;
   };
 
+  /**
+   * The courses begun — a lesson in progress or done —, the one worked in last first: each with the
+   * edition of its latest work and its lessons worked on (the latest first), done or not. What the
+   * Tutor section talks about (07).
+   */
+  async function studied(): Promise<StudiedCourse[]> {
+    const byLesson = await progress();
+    const worked = store.lastActivity([...LESSON_WORK]);
+    const latest = new Map<LessonKey, { row: RunRow; at: number }>();
+    for (const row of store.all("lesson")) {
+      const key = row.contextKey as LessonKey;
+      const at = worked.get(row.id);
+      if (at === undefined || (byLesson[key]?.status ?? "new") === "new") continue;
+      const seen = latest.get(key);
+      if (!seen || at >= seen.at) latest.set(key, { row, at });
+    }
+    const courses = new Map<string, StudiedCourse>();
+    for (const [key, { row, at }] of latest) {
+      if (!row.courseKey || !row.edition) continue;
+      const course = courses.get(row.courseKey) ?? {
+        key: row.courseKey,
+        series: seriesOf(key),
+        course: parseLessonKey(key).courseId,
+        edition: row.edition,
+        lastAt: at,
+        lessons: [],
+      };
+      if (at > course.lastAt) Object.assign(course, { lastAt: at, edition: row.edition });
+      course.lessons.push({ key, lastAt: at, done: lessonDone(byLesson[key]) });
+      courses.set(row.courseKey, course);
+    }
+    const list = [...courses.values()].sort((a, b) => b.lastAt - a.lastAt);
+    for (const c of list) c.lessons.sort((a, b) => b.lastAt - a.lastAt);
+    return list;
+  }
+
   return {
     progress,
     standing,
+    studied,
 
     /** The installed courses (not the exams: the Exams section's) with the learner's progress and
      *  the lesson to go on with, as its card shows it (its title in each edition, exercises worked). */

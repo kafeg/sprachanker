@@ -163,6 +163,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
     "settings.theme.system",
     "settings.prompts",
     "tutor.title",
+    "nav.tutor",
     "prompt.places.tutor.name",
     "prompt.button",
     "prompt.title",
@@ -181,6 +182,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   bs: [
     "llm.model",
     "tutor.title",
+    "nav.tutor",
     "prompt.button",
     "prompt.title",
     "prompt.titleOf",
@@ -196,6 +198,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
     "settings.prompts",
     "settings.experimental",
     "tutor.title",
+    "nav.tutor",
     "prompt.button",
     "prompt.title",
     "prompt.titleOf",
@@ -237,6 +240,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   ],
   hu: [
     "tutor.title",
+    "nav.tutor",
     "prompt.button",
     "prompt.title",
     "prompt.titleOf",
@@ -248,6 +252,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   id: [
     "llm.model",
     "tutor.title",
+    "nav.tutor",
     "prompt.button",
     "prompt.title",
     "prompt.titleOf",
@@ -261,6 +266,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
   pl: [
     "llm.model",
     "tutor.title",
+    "nav.tutor",
     "prompt.button",
     "prompt.title",
     "prompt.titleOf",
@@ -274,6 +280,7 @@ const SAME_AS_ENGLISH: Record<string, string[]> = {
     "settings.prompts",
     "settings.experimental",
     "tutor.title",
+    "nav.tutor",
     "prompt.button",
     "prompt.title",
     "prompt.titleOf",

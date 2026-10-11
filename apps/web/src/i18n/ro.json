@@ -7,7 +7,8 @@
     "settings": "Setări",
     "review": "Recapitulare",
     "notebook": "Caiet",
-    "exams": "Examene"
+    "exams": "Examene",
+    "tutor": "Tutore"
   },
   "common": {
     "loading": "Se încarcă…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "„De ce e greșit?”",
       "tutor": "Tutore",
+      "tutorSection": "Secțiunea „Tutore”",
       "writing": "„Scrie tu”",
       "speaking": "Răspunsuri orale",
       "exam": "Examen: evaluarea unui răspuns",
@@ -398,6 +400,7 @@
       "examples": "Exemple pentru cuvintele unui pachet"
     },
     "contextIntro": "Adăugat din lecție:",
+    "contextIntroCourses": "Adăugat din cursurile tale (cele ale limbii pe care o exersează conversația):",
     "systemIntro": "Promptul de sistem:",
     "part": {
       "item": "itemul exercițiului: cerința, variantele sau spațiile, răspunsul corect și răspunsul tău",
@@ -422,7 +425,12 @@
       "partner": "ce are partenerul: cartonașul, calendarul sau slide-urile lui (tu nu le vezi)",
       "conversation": "conversația de până acum (cele mai recente replici)",
       "level": "nivelul cursului sau al pachetului, când reiese din nume (A1, A2…), altfel începător",
-      "words": "cinci cuvinte din pachet cu traducerea, partea de vorbire și genul lor"
+      "words": "cinci cuvinte din pachet cu traducerea, partea de vorbire și genul lor",
+      "courses": "cursurile tale: lecțiile terminate, lecțiile la care ai lucrat (cele mai recente întâi)",
+      "metWords": "cuvintele acelor lecții cu traduceri (cele mai recente lecții întâi)",
+      "metGrammar": "temele lor de gramatică (cele mai recente lecții întâi)",
+      "courseMistakes": "cele mai recente greșeli ale tale din acele cursuri (cele corectate marcate)",
+      "chatHistory": "cele mai recente mesaje ale conversației"
     },
     "upTo": "până la {chars, plural, one {# caracter} few {# caractere} other {# de caractere}}",
     "debug": "Arată butoanele „Prompt”",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Tutore",
-        "where": "butonul dintr-o lecție și pasul „Analiza greșelilor”"
+        "where": "butonul dintr-o lecție, pasul „Analiza greșelilor” și secțiunea „Tutore”"
       },
       "writing": {
         "name": "„Scrie tu”",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Explică un răspuns greșit sub exercițiu („De ce e greșit?”): care e greșeala și regula din spatele ei, în limba ta.",
       "tutor": "Tutorele lecției: răspunde la întrebările tale despre lecție, cuvintele și gramatica ei și îți analizează greșelile una câte una la pasul „Analiza greșelilor”.",
+      "tutorSection": "Tutorele de sine stătător, în secțiunea „Tutore”: răspunde la orice întrebi în afara unei lecții — o întrebare de gramatică, un text de parcurs, o conversație de exersat — știind ce ai învățat în cursurile tale.",
       "writing": "Verifică un text scurt scris la „Scrie tu”: corecturi, criteriile A1 (sarcină, comunicare, corectitudine) și feedback.",
       "speaking": "Verifică un răspuns spus cu voce tare (ce a auzit recunoașterea vorbirii) față de întrebare și răspunsul cursului, când apeși „Verifică cu AI”.",
       "exam": "Notează un răspuns scris la examen după criteriile examenului: un nivel pentru fiecare, cu motivul, și ce ar aduce mai multe puncte. Nimic nu contează până nu îl accepți sau îl modifici.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Acest răspuns nu mai este în parcurgerea lecției. Reîncarcă lecția.",
     "no_such_card": "Acest card nu mai există.",
     "no_such_chat": "Această conversație nu mai există.",
+    "no_course_studied": "Începe mai întâi un curs: tutorele vorbește despre materia cursurilor tale.",
+    "ai_place_off": "Asistentul este oprit aici: pornește-l din Setări → Asistent AI.",
     "no_such_item": "Acest exercițiu s-a schimbat. Reîncarcă lecția.",
     "no_such_model": "Acest model nu este oferit.",
     "no_such_profile": "Acest profil nu mai există.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Nou aici:",
     "by": "Exemple de la AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Întreabă-l pe tutore orice în afara unei lecții — o întrebare de gramatică, un text de parcurs, o conversație de exersat. Știe ce ai învățat în cursurile tale și explică în limba ta.",
+    "empty": "Încă nu există conversații: începe una cu „Conversație nouă”.",
+    "needsCourse": "Tutorele vorbește despre materia cursurilor tale: începe mai întâi un curs.",
+    "off": "Tutorele este oprit: pornește-l din Setări → Asistent AI.",
+    "all": "Toate conversațiile",
+    "suggest": {
+      "grammar": "Am o întrebare de gramatică",
+      "text": "Parcurge un text cu mine",
+      "conversation": "Hai să exersăm o conversație"
+    },
+    "ask": {
+      "grammar": "Am o întrebare de gramatică. Întreabă-mă care este, apoi explic-o pe scurt cu exemple din ce am învățat.",
+      "text": "Aș vrea să parcurg un text cu tine. Cere-mi să-l lipesc, apoi ia-l propoziție cu propoziție: tradu, explică ce e nou și așteaptă-mă înainte de următoarea.",
+      "conversation": "Hai să exersăm o conversație. Propune o situație de zi cu zi din ce am învățat, începe cu o replică și așteaptă răspunsul meu; corectează-mi greșelile pe parcurs."
+    }
   }
 }

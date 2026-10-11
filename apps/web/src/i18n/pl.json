@@ -7,7 +7,8 @@
     "settings": "Ustawienia",
     "review": "Powtórki",
     "notebook": "Zeszyt",
-    "exams": "Egzaminy"
+    "exams": "Egzaminy",
+    "tutor": "Tutor"
   },
   "common": {
     "loading": "Ładowanie…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "„Dlaczego to błąd?”",
       "tutor": "Tutor",
+      "tutorSection": "Sekcja „Tutor”",
       "writing": "„Napisz własny tekst”",
       "speaking": "Odpowiedzi ustne",
       "exam": "Egzamin: ocena odpowiedzi",
@@ -398,6 +400,7 @@
       "examples": "Przykłady do słów talii"
     },
     "contextIntro": "Dodane z lekcji:",
+    "contextIntroCourses": "Dodane z twoich kursów (tych w języku, który ćwiczy rozmowa):",
     "systemIntro": "Prompt systemowy:",
     "part": {
       "item": "zadanie z ćwiczenia: polecenie, opcje lub luki, prawidłowa odpowiedź i twoja odpowiedź",
@@ -422,7 +425,12 @@
       "partner": "to, co ma partner: jego kartę, kalendarz lub slajdy (ty ich nie widzisz)",
       "conversation": "dotychczasowa rozmowa (najnowsze kwestie)",
       "level": "poziom kursu lub talii, jeśli wynika z nazwy (A1, A2…), w przeciwnym razie początkujący",
-      "words": "pięć słów talii z tłumaczeniami, częścią mowy i rodzajem"
+      "words": "pięć słów talii z tłumaczeniami, częścią mowy i rodzajem",
+      "courses": "twoje kursy: ukończone lekcje, lekcje, nad którymi pracowano (najnowsze najpierw)",
+      "metWords": "słowa z tych lekcji z tłumaczeniami (najnowsze lekcje najpierw)",
+      "metGrammar": "ich tematy gramatyczne (najnowsze lekcje najpierw)",
+      "courseMistakes": "twoje ostatnie błędy w tych kursach (poprawione oznaczone)",
+      "chatHistory": "ostatnie wiadomości rozmowy"
     },
     "upTo": "do {chars, plural, one {# znaku} few {# znaków} many {# znaków} other {# znaku}}",
     "debug": "Pokazuj przyciski „Prompt”",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Tutor",
-        "where": "przycisk w lekcji i krok „Omówienie błędów”"
+        "where": "przycisk w lekcji, krok „Omówienie błędów” i sekcja „Tutor”"
       },
       "writing": {
         "name": "„Napisz własny tekst”",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Wyjaśnia błędną odpowiedź pod ćwiczeniem („Dlaczego to błąd?”): na czym polega błąd i jaka reguła za nim stoi, w twoim języku.",
       "tutor": "Tutor lekcji: odpowiada na twoje pytania o lekcję, jej słowa i gramatykę, a w kroku „Omówienie błędów” omawia twoje błędy jeden po drugim.",
+      "tutorSection": "Tutor osobno, w sekcji „Tutor”: odpowiada poza lekcją na wszystko, o co zapytasz — pytanie o gramatykę, tekst do omówienia, rozmowę do przećwiczenia — i zna materiał twoich kursów.",
       "writing": "Sprawdza krótki tekst napisany w kroku „Napisz własny tekst”: poprawki, kryteria A1 (zadanie, komunikacja, poprawność) i komentarz.",
       "speaking": "Sprawdza odpowiedź powiedzianą na głos (to, co usłyszało rozpoznawanie mowy) względem pytania i odpowiedzi z kursu, gdy naciśniesz „Sprawdź z AI”.",
       "exam": "Ocenia pisemną odpowiedź egzaminacyjną według kryteriów samego egzaminu: poziom w każdym kryterium z uzasadnieniem i co dałoby więcej punktów. Nic się nie liczy, dopóki tego nie przyjmiesz lub nie zmienisz.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Tej odpowiedzi nie ma już w podejściu do lekcji. Wczytaj lekcję ponownie.",
     "no_such_card": "Ta fiszka już nie istnieje.",
     "no_such_chat": "Tej rozmowy już nie ma.",
+    "no_course_studied": "Najpierw zacznij kurs: tutor rozmawia o materiale twoich kursów.",
+    "ai_place_off": "Asystent jest tu wyłączony: włącz go w Ustawieniach → Asystent AI.",
     "no_such_item": "To ćwiczenie się zmieniło. Wczytaj lekcję ponownie.",
     "no_such_model": "Ten model nie jest oferowany.",
     "no_such_profile": "Ten profil już nie istnieje.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Nowe tutaj:",
     "by": "Przykłady od AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Pytaj tutora o wszystko poza lekcją — pytanie o gramatykę, tekst do omówienia, rozmowę do przećwiczenia. Zna materiał twoich kursów i tłumaczy w twoim języku.",
+    "empty": "Nie ma jeszcze rozmów: zacznij pierwszą przyciskiem „Nowa rozmowa”.",
+    "needsCourse": "Tutor rozmawia o materiale twoich kursów: najpierw zacznij kurs.",
+    "off": "Tutor jest wyłączony: włącz go w Ustawieniach → Asystent AI.",
+    "all": "Wszystkie rozmowy",
+    "suggest": {
+      "grammar": "Mam pytanie o gramatykę",
+      "text": "Omów ze mną tekst",
+      "conversation": "Przećwiczmy rozmowę"
+    },
+    "ask": {
+      "grammar": "Mam pytanie o gramatykę. Zapytaj, o co chodzi, a potem wyjaśnij krótko na przykładach z przerobionego materiału.",
+      "text": "Chcę omówić z tobą tekst. Poproś mnie o wklejenie go, a potem idź zdanie po zdaniu: przetłumacz, wyjaśnij, co nowe, i poczekaj na mnie przed następnym.",
+      "conversation": "Przećwiczmy rozmowę. Zaproponuj codzienną sytuację z przerobionego materiału, zacznij jedną kwestią i poczekaj na moją odpowiedź; poprawiaj moje błędy na bieżąco."
+    }
   }
 }

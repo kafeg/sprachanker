@@ -62,6 +62,8 @@ export const ERROR_CODES = [
   // The AI assistant: its work in lessons, its setup, its providers (`llm_<LlmError code>`).
   "no_lesson_run",
   "no_such_chat",
+  "no_course_studied",
+  "ai_place_off",
   "no_active_scene",
   "writing_busy",
   "scene_busy",

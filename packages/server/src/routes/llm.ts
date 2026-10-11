@@ -2,6 +2,7 @@
 // Mounted by app.ts; removing this module and that mount removes the LLM features from the API.
 import { LlmError, LMSTUDIO_RECOMMENDED, PROMPT_TASKS, ProviderId } from "@sprachanker/llm";
 import {
+  CHAT_ID_HEADER,
   EditionId,
   ExamItemKey,
   Lang,
@@ -64,7 +65,16 @@ const TutorBody = LessonRequest.extend({
   newChat: z.boolean().optional(),
 });
 
+/** A message in the Tutor section: to one of its chats, or (no `chatId`) opening a new one. */
+const SectionBody = z.object({
+  chatId: Ulid.optional(),
+  message: z.string().trim().min(1).max(MESSAGE_MAX),
+  language: Lang,
+});
+
 const ChatParam = z.object({ id: Ulid });
+/** Whose chats: a lesson's, or (none) the Tutor section's. */
+const ChatsOf = z.object({ lessonKey: LessonKey.optional() });
 
 const Url = z
   .string()
@@ -274,28 +284,43 @@ export function llmRoutes() {
         c.var.s.tutor.reset(c.req.valid("json").lessonKey);
         return c.json({ ok: true as const });
       })
-      .get("/tutor/chats", zod("query", z.object({ lessonKey: LessonKey })), (c) =>
-        c.json({ chats: c.var.s.tutor.chats(c.req.valid("query").lessonKey) }),
+      // Chats with the tutor: a lesson's (`lessonKey`), or the Tutor section's (none).
+      .get("/tutor/chats", zod("query", ChatsOf), (c) =>
+        c.json({ chats: c.var.s.tutor.chats(c.req.valid("query").lessonKey ?? null) }),
       )
-      .get(
-        "/tutor/chats/:id",
-        zod("param", ChatParam),
-        zod("query", z.object({ lessonKey: LessonKey })),
-        (c) => {
-          const turns = c.var.s.tutor.chat(c.req.valid("query").lessonKey, c.req.valid("param").id);
-          if (!turns) throw new ServiceError("no_such_chat", 404);
-          return c.json({ turns });
-        },
+      .get("/tutor/chats/:id", zod("param", ChatParam), zod("query", ChatsOf), (c) => {
+        const about = c.req.valid("query").lessonKey ?? null;
+        const turns = c.var.s.tutor.chat(about, c.req.valid("param").id);
+        if (!turns) throw new ServiceError("no_such_chat", 404);
+        return c.json({ turns });
+      })
+      .delete("/tutor/chats/:id", zod("param", ChatParam), zod("query", ChatsOf), (c) => {
+        const about = c.req.valid("query").lessonKey ?? null;
+        if (!c.var.s.tutor.remove(about, c.req.valid("param").id))
+          throw new ServiceError("no_such_chat", 404);
+        return c.json({ ok: true as const });
+      })
+      // The Tutor section: a message (a new chat named in the reply's header), how full the next
+      // request is, the request it would send.
+      .post("/tutor/section", zod("json", SectionBody), (c) =>
+        streamReply(c, async () => {
+          const { id, reply } = await c.var.s.tutor.sendSection(
+            c.req.valid("json"),
+            c.req.raw.signal,
+          );
+          c.header(CHAT_ID_HEADER, id);
+          return reply;
+        }),
       )
-      .delete(
-        "/tutor/chats/:id",
-        zod("param", ChatParam),
-        zod("query", z.object({ lessonKey: LessonKey })),
-        (c) => {
-          if (!c.var.s.tutor.remove(c.req.valid("query").lessonKey, c.req.valid("param").id))
-            throw new ServiceError("no_such_chat", 404);
-          return c.json({ ok: true as const });
-        },
+      .post(
+        "/tutor/section/context",
+        zod("json", SectionBody.extend({ message: z.string().max(MESSAGE_MAX) })),
+        async (c) => c.json(await c.var.s.tutor.sectionUsage(c.req.valid("json"))),
+      )
+      .post(
+        "/tutor/section/prompt",
+        zod("json", SectionBody.extend({ message: z.string().max(MESSAGE_MAX) })),
+        async (c) => c.json(await c.var.s.tutor.sectionPrompt(c.req.valid("json"))),
       )
       // Setup and provider failures as their responses (the routes return their results only).
       .onError((error, c) => {

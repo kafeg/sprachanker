@@ -1,7 +1,7 @@
 // The assistant's tasks in the API (07): explanations, the tutor, writing, spoken answers, scenes, a
 // deck's words given examples (and a card's), exam ratings and conversations, and the request each would send (the prompt viewer). Its
 // setup — providers, models, LM Studio, the prompts — is setup-api.ts.
-import { type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
+import { CHAT_ID_HEADER, type LessonKey, STREAM_ERROR } from "@sprachanker/schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
 import { useEffect, useRef } from "react";
@@ -130,45 +130,69 @@ export function useTutorCache(lessonKey: string) {
   };
 }
 
-/** The lesson's chats with the tutor, newest first (the current one marked). */
-export const useTutorChats = (lessonKey: string) =>
+/** Whose chats: a lesson's (its key), or the Tutor section's (`SECTION`). */
+export const SECTION = null;
+type ChatsOf = string | typeof SECTION;
+const chatsQuery = (about: ChatsOf) => (about === SECTION ? {} : { lessonKey: about as LessonKey });
+
+/** The chats with the tutor about a lesson, newest first (the current one marked), or the Tutor
+ *  section's, by their last message. */
+export const useTutorChats = (about: ChatsOf) =>
   useQuery({
-    queryKey: ["tutor-chats", lessonKey],
-    queryFn: () => json(api.llm.tutor.chats.$get({ query: { lessonKey: lessonKey as LessonKey } })),
+    queryKey: ["tutor-chats", about],
+    queryFn: () => json(api.llm.tutor.chats.$get({ query: chatsQuery(about) })),
   });
 export type TutorChat = NonNullable<ReturnType<typeof useTutorChats>["data"]>["chats"][number];
 
-/** One of the lesson's chats, turn by turn. */
-export const useTutorChat = (lessonKey: string, id: string) =>
+/** One of the chats about a lesson (or the section's), turn by turn; read once there is an `id`. */
+export const useTutorChat = (about: ChatsOf, id: string | undefined) =>
   useQuery({
     queryKey: ["tutor-chat", id],
+    enabled: !!id,
     queryFn: () =>
       json(
-        api.llm.tutor.chats[":id"].$get({
-          param: { id },
-          query: { lessonKey: lessonKey as LessonKey },
-        }),
+        api.llm.tutor.chats[":id"].$get({ param: { id: id as string }, query: chatsQuery(about) }),
       ),
   });
 
-/** Deletes one of the lesson's chats with its turns (on the learner's confirmation). */
-export function useDeleteChat(lessonKey: string) {
+/** Deletes one of the chats about a lesson (or the section's) with its turns (on the learner's
+ *  confirmation). */
+export function useDeleteChat(about: ChatsOf) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
-      json(
-        api.llm.tutor.chats[":id"].$delete({
-          param: { id },
-          query: { lessonKey: lessonKey as LessonKey },
-        }),
-      ),
+      json(api.llm.tutor.chats[":id"].$delete({ param: { id }, query: chatsQuery(about) })),
     onSuccess: () =>
       Promise.all(
-        ["tutor", "tutor-chats"].map((key) =>
-          client.invalidateQueries({ queryKey: [key, lessonKey] }),
-        ),
+        ["tutor", "tutor-chats"].map((key) => client.invalidateQueries({ queryKey: [key, about] })),
       ),
   });
+}
+
+export type SectionRequest = Parameters<typeof api.llm.tutor.section.$post>[0]["json"];
+export type SectionPromptRequest = Omit<SectionRequest, "message"> & { message: string };
+
+/** A message in the Tutor section, its reply streamed: the reply and the chat it is in (a new one's
+ *  named by the server). */
+export async function streamSection(
+  request: SectionRequest,
+  onText: (text: string) => void,
+  signal: AbortSignal,
+): Promise<{ reply: string; chatId: string | undefined }> {
+  const res = await api.llm.tutor.section.$post({ json: request }, { init: { signal } });
+  const chatId = res.headers.get(CHAT_ID_HEADER) ?? request.chatId;
+  return { reply: await readStream(res, onText), chatId };
+}
+
+/** A section's chat as cached: a stored pair added at once, the list told of it. */
+export function useSectionCache() {
+  const client = useQueryClient();
+  return (id: string, turns: TutorTurn[]) => {
+    client.setQueryData(["tutor-chat", id], (old: { turns: TutorTurn[] } | undefined) =>
+      withTurns(old, turns),
+    );
+    void client.invalidateQueries({ queryKey: ["tutor-chats", SECTION] });
+  };
 }
 
 export function useResetTutor(lessonKey: string) {
@@ -192,6 +216,7 @@ export type TutorPromptRequest = Omit<TutorRequest, "message"> & { message: stri
 export type PromptRequest =
   | { explain: ExplainRequest }
   | { tutor: TutorPromptRequest }
+  | { section: SectionPromptRequest }
   | { writing: WritingRequest }
   | { speaking: SpeakingRequest }
   | { scene: SceneLineRequest }
@@ -203,6 +228,7 @@ export type PromptRequest =
 export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   if ("explain" in kind) return fetchExplainPrompt(kind.explain);
   if ("tutor" in kind) return json(api.llm.tutor.prompt.$post({ json: kind.tutor }));
+  if ("section" in kind) return json(api.llm.tutor.section.prompt.$post({ json: kind.section }));
   if ("writing" in kind) return json(api.llm.writing.prompt.$post({ json: kind.writing }));
   if ("speaking" in kind) return json(api.llm.speaking.prompt.$post({ json: kind.speaking }));
   if ("deckExamples" in kind)
@@ -213,11 +239,23 @@ export function fetchPrompt(kind: PromptRequest): Promise<PromptPreview> {
   return json(api.llm.scene.prompt.$post({ json: kind.scene }));
 }
 
+/** What the tutor's context gauge measures: a lesson's chat or a section's. */
+export type ContextRequest = TutorPromptRequest | SectionPromptRequest;
+
 /** How full the tutor's next request is (refreshed after each turn). */
-export const useTutorContext = (request: TutorPromptRequest, turns: number) =>
+export const useTutorContext = (request: ContextRequest, turns: number) =>
   useQuery({
-    queryKey: ["tutor-context", request.lessonKey, request.exerciseKey, request.language, turns],
-    queryFn: () => json(api.llm.tutor.context.$post({ json: request })),
+    queryKey: [
+      "tutor-context",
+      "lessonKey" in request ? request.lessonKey : (request.chatId ?? SECTION),
+      "exerciseKey" in request ? request.exerciseKey : undefined,
+      request.language,
+      turns,
+    ],
+    queryFn: () =>
+      "lessonKey" in request
+        ? json(api.llm.tutor.context.$post({ json: request }))
+        : json(api.llm.tutor.section.context.$post({ json: request })),
   });
 
 type WritingRequest = Parameters<typeof api.llm.writing.$post>[0]["json"];

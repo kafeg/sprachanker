@@ -10,6 +10,7 @@ import { secretBox } from "../security/secrets.ts";
 import { createCardStore } from "./card-store.ts";
 import { createCards } from "./cards.ts";
 import { type Content, createContent } from "./content.ts";
+import { createCoursesContext } from "./courses-context.ts";
 import { createDeckAudio, type DeckAudio } from "./deck-audio.ts";
 import { createDeckExamples, type DeckExamples } from "./deck-examples.ts";
 import { createDeckExtras, type DeckExtrasStore } from "./deck-extras.ts";
@@ -139,6 +140,8 @@ function profileServices(
     mistakes,
     lessonContext,
     tools: createTutorTools({ content, lessonContext, mistakes, progress: lessons.progress }),
+    courses: createCoursesContext({ content, lessonContext, studied: lessons.studied, mistakes }),
+    placeOn: () => !settings.value("llm.offIn").includes("tutor"),
     now,
   });
   const writing = createWriting({ store, session: lessons.shown, llm, lessonContext });

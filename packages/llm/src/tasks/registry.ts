@@ -8,6 +8,7 @@ import { EXPLAIN_MISTAKE_BUDGETS, explainMistakeRules } from "./explain-mistake.
 import { RATE_EXAM_ANSWER_BUDGETS, rateExamAnswerRules } from "./rate-exam-answer.ts";
 import type { TaskRules } from "./rules.ts";
 import { SCENE_BUDGETS, sceneSetupRules, sceneTurnRules } from "./scene.ts";
+import { SECTION_CHAT_BUDGETS, sectionChatRules } from "./section-chat.ts";
 import { WORD_EXAMPLES_BUDGETS, wordExamplesRules } from "./word-examples.ts";
 
 interface TaskPromptEntry {
@@ -18,6 +19,7 @@ interface TaskPromptEntry {
 export const TASK_PROMPTS = {
   explain: { rules: explainMistakeRules, budgets: EXPLAIN_MISTAKE_BUDGETS },
   tutor: { rules: chatTurnRules, budgets: CHAT_TURN_BUDGETS },
+  tutorSection: { rules: sectionChatRules, budgets: SECTION_CHAT_BUDGETS },
   writing: { rules: checkWritingRules, budgets: CHECK_WRITING_BUDGETS },
   speaking: { rules: checkSpeakingRules, budgets: CHECK_SPEAKING_BUDGETS },
   exam: { rules: rateExamAnswerRules, budgets: RATE_EXAM_ANSWER_BUDGETS },

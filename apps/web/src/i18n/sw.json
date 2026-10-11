@@ -7,7 +7,8 @@
     "settings": "Mipangilio",
     "review": "Marudio",
     "notebook": "Daftari",
-    "exams": "Mitihani"
+    "exams": "Mitihani",
+    "tutor": "Mkufunzi"
   },
   "common": {
     "loading": "Inapakia…",
@@ -389,6 +390,7 @@
     "task": {
       "explain": "“Kwa nini si sahihi?”",
       "tutor": "Mkufunzi",
+      "tutorSection": "Sehemu ya “Mkufunzi”",
       "writing": "“Andika mwenyewe”",
       "speaking": "Majibu ya kutamka",
       "exam": "Mtihani: kutathmini jibu",
@@ -398,6 +400,7 @@
       "examples": "Mifano ya maneno ya seti"
     },
     "contextIntro": "Imeongezwa kutoka kwenye somo:",
+    "contextIntroCourses": "Imeongezwa kutoka kwenye kozi zako (za lugha inayozoezwa katika mazungumzo):",
     "systemIntro": "Maagizo ya mfumo:",
     "part": {
       "item": "kipengele cha zoezi: kazi, chaguo au mapengo, jibu sahihi na jibu lako",
@@ -422,7 +425,12 @@
       "partner": "alicho nacho mwenzako: kadi, kalenda au slaidi zake (wewe huzioni)",
       "conversation": "mazungumzo hadi sasa (mistari ya karibuni)",
       "level": "kiwango cha kozi au seti jina lake linapokitaja (A1, A2…), vinginevyo cha wanaoanza",
-      "words": "maneno matano ya seti pamoja na tafsiri, aina ya neno na jinsia"
+      "words": "maneno matano ya seti pamoja na tafsiri, aina ya neno na jinsia",
+      "courses": "kozi zako: masomo yaliyokamilika, masomo uliyoyafanyia kazi (ya karibuni kwanza)",
+      "metWords": "maneno ya masomo hayo pamoja na tafsiri (masomo ya karibuni kwanza)",
+      "metGrammar": "mada zake za sarufi (masomo ya karibuni kwanza)",
+      "courseMistakes": "makosa yako ya karibuni katika kozi hizo (yaliyosahihishwa yamewekwa alama)",
+      "chatHistory": "jumbe za karibuni za mazungumzo"
     },
     "upTo": "hadi {chars, plural, one {herufi #} other {herufi #}}",
     "debug": "Onyesha vitufe vya “Maagizo”",
@@ -440,7 +448,7 @@
       },
       "tutor": {
         "name": "Mkufunzi",
-        "where": "kitufe katika somo na hatua ya “Kupitia makosa”"
+        "where": "kitufe katika somo, hatua ya “Kupitia makosa” na sehemu ya “Mkufunzi”"
       },
       "writing": {
         "name": "“Andika mwenyewe”",
@@ -466,6 +474,7 @@
     "about": {
       "explain": "Hueleza jibu lisilo sahihi chini ya zoezi (“Kwa nini si sahihi?”): kosa ni nini na kanuni iliyo nyuma yake, kwa lugha yako.",
       "tutor": "Mkufunzi wa somo: hujibu maswali yako kuhusu somo, maneno na sarufi yake, na hupitia makosa yako moja baada ya jingine katika hatua ya “Kupitia makosa”.",
+      "tutorSection": "Mkufunzi peke yake, katika sehemu ya “Mkufunzi”: hujibu chochote unachouliza nje ya somo — swali la sarufi, maandishi ya kupitia, mazungumzo ya kujizoeza — akijua yale uliyojifunza katika kozi zako.",
       "writing": "Hukagua maandishi mafupi uliyoandika katika “Andika mwenyewe”: masahihisho, vigezo vya A1 (kazi, mawasiliano, usahihi) na maoni.",
       "speaking": "Hukagua jibu ulilotamka (kile kitambuzi kilichosikia) dhidi ya swali na jibu la kozi, unapobonyeza “Kagua kwa AI”.",
       "exam": "Hutathmini jibu la maandishi la mtihani kwa vigezo vya mtihani wenyewe: kiwango cha kila kigezo pamoja na sababu yake, na kipi kingeleta alama zaidi. Hakuna kinachohesabiwa hadi ukikubali au ukibadilishe.",
@@ -1177,6 +1186,8 @@
     "no_such_attempt": "Jibu hili halipo tena katika mzunguko wa somo. Pakia somo upya.",
     "no_such_card": "Kadi hii haipo tena.",
     "no_such_chat": "Mazungumzo haya hayapo tena.",
+    "no_course_studied": "Anza kozi kwanza: mkufunzi huzungumzia yale uliyojifunza katika kozi zako.",
+    "ai_place_off": "Msaidizi umezimwa hapa: uwashe katika Mipangilio → Msaidizi wa AI.",
     "no_such_item": "Zoezi hili limebadilika. Pakia somo upya.",
     "no_such_model": "Modeli hii haitolewi.",
     "no_such_profile": "Wasifu huu haupo tena.",
@@ -1367,5 +1378,22 @@
   "examples": {
     "newWords": "Mapya hapa:",
     "by": "Mifano ya AI · {model}"
+  },
+  "tutorSection": {
+    "intro": "Muulize mkufunzi chochote nje ya somo — swali la sarufi, maandishi ya kupitia, mazungumzo ya kujizoeza. Anajua yale uliyojifunza katika kozi zako na hueleza kwa lugha yako.",
+    "empty": "Bado hakuna mazungumzo: anza moja kwa “Mazungumzo mapya”.",
+    "needsCourse": "Mkufunzi huzungumzia yale uliyojifunza katika kozi zako: anza kozi kwanza.",
+    "off": "Mkufunzi amezimwa: mwashe katika Mipangilio → Msaidizi wa AI.",
+    "all": "Mazungumzo yote",
+    "suggest": {
+      "grammar": "Nina swali la sarufi",
+      "text": "Pitia maandishi pamoja nami",
+      "conversation": "Tujizoeze mazungumzo"
+    },
+    "ask": {
+      "grammar": "Nina swali la sarufi. Niulize ni lipi, kisha lieleze kwa ufupi kwa mifano kutoka yale niliyojifunza.",
+      "text": "Ningependa kupitia maandishi pamoja nawe. Niombe niyabandike, kisha chukua sentensi moja moja: itafsiri, eleza kilicho kipya na unisubiri kabla ya inayofuata.",
+      "conversation": "Tujizoeze mazungumzo. Pendekeza hali ya kila siku kutoka yale niliyojifunza, anza kwa sentensi moja na usubiri jibu langu; sahihisha makosa yangu tunapoendelea."
+    }
   }
 }
