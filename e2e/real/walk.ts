@@ -5,7 +5,7 @@
 // microphone, and the summary reached (an exercise it could not answer is reported: `unanswered`).
 // After each step: nothing past the screen's width, no error page.
 import { readFileSync } from "node:fs";
-import { expect, type Locator, type Page } from "@playwright/test";
+import { type CDPSession, expect, type Locator, type Page } from "@playwright/test";
 import type { Exercise } from "@sprachanker/schema";
 
 /** The interface language of the run (`REAL_UI`, English by default) and its labels, which the
@@ -80,11 +80,14 @@ async function answerItem(page: Page, card: Locator, type: Exercise["type"]): Pr
         for (const select of selects) {
           // A touch screen's is the system's picker (a native select), a mouse's the app's list.
           if ((await select.evaluate((e) => e.tagName)) === "SELECT") {
-            await select.tap();
             await select.selectOption({ index: 1 });
           } else {
+            // The list closed before the next one is opened (it fades out: a click meanwhile is
+            // the closing list's).
+            const list = page.getByRole("listbox");
             await select.click();
-            await page.getByRole("option").first().click();
+            await list.getByRole("option").first().click();
+            await expect(list).toHaveCount(0);
           }
         }
         return true;
@@ -155,6 +158,23 @@ async function goOn(page: Page) {
   }
 }
 
+const touchSessions = new WeakMap<Page, CDPSession>();
+
+/** A full-page screenshot. Chromium drops a phone's touch emulation taking one of a tall page (the
+ *  pointer turns fine, no touch points): it is turned on again, so the walk goes on as on a phone. */
+async function shoot(page: Page, path: string) {
+  const touch = (await page.evaluate("navigator.maxTouchPoints")) as number;
+  await page.screenshot({ path, fullPage: true });
+  if (!touch || (await page.evaluate("navigator.maxTouchPoints"))) return;
+  // The session stays open: closing it would drop the emulation again.
+  let cdp = touchSessions.get(page);
+  if (!cdp) {
+    cdp = await page.context().newCDPSession(page);
+    touchSessions.set(page, cdp);
+  }
+  await cdp.send("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: touch });
+}
+
 /** Walks the lesson from its overview to its summary; returns how many cards were rated. The words
  *  are gone through until none is left for now (each rated Good once), as the step asks. Each
  *  exercise is checked before moving on, its marks looked at whole too; with `shots` (a path's
@@ -182,7 +202,7 @@ export async function walkLesson(
           .getByRole("button", { name: en.study.show })
           .waitFor({ timeout: 3000 })
           .catch(() => undefined);
-      await page.screenshot({ path: `${shots}-${step.replace(/\W+/g, "-")}.png`, fullPage: true });
+      await shoot(page, `${shots}-${step.replace(/\W+/g, "-")}.png`);
     }
     if (step === "summary") break;
     if (step === "words")
@@ -222,7 +242,7 @@ export async function walkLesson(
           const waits = await page
             .getByText(new RegExp(`^(${notes.join("|")})`))
             .first()
-            .textContent()
+            .textContent({ timeout: 1000 })
             .catch(() => null);
           unanswered.push(`${url} ${step} (${exercise?.type}): ${waits ?? "Check stays disabled"}`);
         }
@@ -232,7 +252,7 @@ export async function walkLesson(
         // No hover left on what the last tap was over; transitions (colours, the blur) ended.
         await page.mouse.move(0, 0);
         await page.waitForTimeout(400);
-        await page.screenshot({ path: `${shots}-${step.replace(":", "-")}.png`, fullPage: true });
+        await shoot(page, `${shots}-${step.replace(":", "-")}.png`);
       }
     }
     await goOn(page);
