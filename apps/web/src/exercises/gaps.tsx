@@ -54,7 +54,8 @@ export function runs(segments: Segments): Run[] {
     if (last && "gap" in last) {
       const tail = text.match(TAIL)?.[0] ?? "";
       last.tail = tail.trim();
-      text = text.slice(tail.length);
+      // The space after a gap is its unit's margin: a line broken there starts with the word.
+      text = text.slice(tail.length).replace(/^ /, "");
     }
     head = typeof segments[i + 1] === "object" ? (text.match(HEAD)?.[0] ?? "") : "";
     text = text.slice(0, text.length - head.length);

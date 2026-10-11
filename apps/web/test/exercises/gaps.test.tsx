@@ -88,8 +88,8 @@ test("an ellipsis after a space stays apart; a 's after a gap goes with it", asy
     parts: { g1: false, g2: false },
   } as Outcome);
   expect(view.getByText("→ Nico", RAW).parentElement?.nextSibling?.textContent).toBe("’s");
-  expect(view.getByText(/Auto/).textContent).toBe(" Auto, ");
-  expect(view.getByText(/und weiter/).textContent).toBe(" …und weiter.");
+  expect(view.getByText(/Auto/).textContent).toBe("Auto, ");
+  expect(view.getByText(/und weiter/).textContent).toBe("…und weiter.");
 });
 
 const typed = exercise("gap_text", {
@@ -108,7 +108,7 @@ test("a checked typed gap shows the answer given as text, the right one and the 
   // The full stop stays with the gap (no line starts with "."), after it: the right answer is under it.
   const right = view.getByText("→\u00a0die Touristeninformation", RAW);
   expect(right.parentElement?.nextSibling?.textContent).toBe(".");
-  expect(view.getByText(/Er wohnt hier/).textContent).toBe(" Er wohnt hier.");
+  expect(view.getByText(/Er wohnt hier/).textContent).toBe("Er wohnt hier.");
 });
 
 test("a space before a comma after a gap is dropped; an opening quote after a space stays apart", async () => {
@@ -122,8 +122,8 @@ test("a space before a comma after a gap is dropped; an opening quote after a sp
     parts: { g1: false, g2: true },
   } as Outcome);
   expect(view.getByText("→ Brücke", RAW).parentElement?.nextSibling?.textContent).toBe(",");
-  expect(view.getByText(/sagt er/).textContent).toBe(" sagt er. Er heißt ");
-  expect(view.getByText(/Max/).textContent).toBe(' "Max".');
+  expect(view.getByText(/sagt er/).textContent).toBe("sagt er. Er heißt ");
+  expect(view.getByText(/Max/).textContent).toBe('"Max".');
 });
 
 test("an open typed gap is a field as wide as its answer needs", async () => {
@@ -165,16 +165,16 @@ test("what touches a gap goes with it: a stem, an opening quote, the punctuation
   ).toEqual([
     { text: "Ich mag " },
     { gap: "g1", head: "die ", tail: "" },
-    { text: " und " },
+    { text: "und " },
     { gap: "g2", head: "Ein ", tail: "," },
-    { text: " nicht " },
+    { text: "nicht " },
     { gap: "g3", head: "", tail: "" },
   ]);
   // An ending after its stem: "mein[em] Vater", never "mein / [em]".
   expect(runs(["Dativ: mit mein", { gap: "g1" }, " Vater"])).toEqual([
     { text: "Dativ: mit " },
     { gap: "g1", head: "mein", tail: "" },
-    { text: " Vater" },
+    { text: "Vater" },
   ]);
   // „ with its gap, “. after it.
   expect(runs(["kommt von „", { gap: "g1" }, "“.\nDas Nomen"])).toEqual([
@@ -188,7 +188,7 @@ test("what touches a gap goes with it: a stem, an opening quote, the punctuation
   ).toEqual([
     { text: "Angaben\n" },
     { gap: "g1", head: "", tail: ":" },
-    { text: " Moser\n" },
+    { text: "Moser\n" },
     { gap: "g2", head: "", tail: "en" },
     { gap: "g3", head: "", tail: "" },
   ]);
