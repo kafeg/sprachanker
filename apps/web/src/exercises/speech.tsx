@@ -181,6 +181,7 @@ function TakeStatus({
  */
 export function SpeechSelfrate({
   item,
+  locale,
   answer,
   onAnswer,
   listen = false,
@@ -205,7 +206,7 @@ export function SpeechSelfrate({
 
   return (
     <div className="space-y-3">
-      {item.text ? (
+      {item.text && (
         // "Show the text" over the blurred phrase itself.
         <div className="relative w-fit min-w-40 max-w-full">
           <p
@@ -228,7 +229,17 @@ export function SpeechSelfrate({
             </button>
           )}
         </div>
-      ) : (
+      )}
+      {/* The cue first, then the answer to say (the source's prompt), marked as such. */}
+      {item.text && locale?.prompt && (
+        <div>
+          <p className="text-sm text-muted-foreground">{t("speech.answerLine")}</p>
+          <p dir="auto" className="whitespace-pre-line text-lg font-medium">
+            {locale.prompt}
+          </p>
+        </div>
+      )}
+      {!item.text && (
         <p className="text-muted-foreground">
           {item.media?.audio || item.media?.video
             ? t("speech.answerHeard")

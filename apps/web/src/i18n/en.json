@@ -1035,6 +1035,7 @@
     "showText": "Show the text",
     "answerHeard": "Listen, then say it out loud as the task asks.",
     "answerFree": "Say it out loud as the task asks.",
+    "answerLine": "Your answer",
     "mine": "Mine",
     "mineFor": "Mine · {time}",
     "recordedNotKept": "Recorded (not kept)",

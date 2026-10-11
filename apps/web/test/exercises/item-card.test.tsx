@@ -174,3 +174,41 @@ test("a picture tile chosen among several keeps its ticked box filled", async ()
   expect(box("true")).not.toContain("bg-card");
   expect(box("false")).toContain("bg-card");
 });
+
+test("a speaking item shows the question heard first, then the answer to say, marked", async () => {
+  const speaking = {
+    ...dictation,
+    type: "speech_selfrate",
+    items: [{ key: "sprachanker.test/demo/00-01/ex-03#1", text: "Wie geht's?" }],
+  } as unknown as Exercise;
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={speaking}
+        locale={{ items: { "#1": { prompt: "Mir geht's gut." } } } as never}
+        index={0}
+        answer={undefined}
+        url={(p) => p}
+      />
+    </TargetLang>,
+  );
+  const cue = view.getByText("Wie geht's?");
+  const said = view.getByText("Mir geht's gut.");
+  expect(cue.compareDocumentPosition(said) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  expect(said.previousSibling?.textContent).toBe("Your answer");
+  view.unmount();
+  // Without a cue the prompt is the task, above as any item's.
+  const task = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={{ ...speaking, items: [{ key: "sprachanker.test/demo/00-01/ex-03#1" }] } as never}
+        locale={{ items: { "#1": { prompt: "Frag nach dem Weg." } } } as never}
+        index={0}
+        answer={undefined}
+        url={(p) => p}
+      />
+    </TargetLang>,
+  );
+  expect(task.queryByText("Your answer")).toBeNull();
+  expect(task.getByText("Frag nach dem Weg.").className).toContain("font-semibold");
+});

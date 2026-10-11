@@ -1035,6 +1035,7 @@
     "showText": "Text zeigen",
     "answerHeard": "Hör zu und sprich laut, wie die Aufgabe es verlangt.",
     "answerFree": "Sprich laut, wie die Aufgabe es verlangt.",
+    "answerLine": "Deine Antwort",
     "mine": "Meine",
     "mineFor": "Meine · {time}",
     "recordedNotKept": "Aufgenommen (nicht gespeichert)",

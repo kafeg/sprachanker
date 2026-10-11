@@ -89,6 +89,10 @@ export function ItemCard({
   const right = correctAnswer(exercise, index, outcome);
   const shown = marked && outcome.result !== "correct" ? right : undefined;
   const ok = outcome?.result === "correct";
+  // A speaking item with a cue (the question heard) shows its prompt — the answer to say — under the
+  // cue, in the renderer; the prompt shown above the items is in neither.
+  const cueFirst = exercise.type === "speech_selfrate" && "text" in item && !!item.text;
+  const rendered = promptAbove && loc ? { ...loc, prompt: undefined } : loc;
   return (
     // Once checked, the card's left edge takes the result's colour (owner's choice, 2026-10-10); the
     // answer's parts carry ✓/✕, and the result is read out.
@@ -127,7 +131,9 @@ export function ItemCard({
             {item.prompt}
           </p>
         )}
-        {loc?.prompt && !promptAbove && <p className="text-lg font-semibold">{loc.prompt}</p>}
+        {loc?.prompt && !promptAbove && !cueFirst && (
+          <p className="text-lg font-semibold">{loc.prompt}</p>
+        )}
         {loc?.hintHtml && (
           <CourseHtml className="text-sm text-muted-foreground" html={loc.hintHtml} />
         )}
@@ -154,7 +160,7 @@ export function ItemCard({
         <ExerciseItem
           type={exercise.type}
           item={item as never}
-          locale={loc}
+          locale={rendered}
           answer={answer as never}
           onAnswer={(a: unknown) => onAnswer?.(a)}
           outcome={outcome}
