@@ -192,6 +192,12 @@ test("what touches a gap goes with it: a stem, an opening quote, the punctuation
     { gap: "g2", head: "", tail: "en" },
     { gap: "g3", head: "", tail: "" },
   ]);
+  // A compound's hyphen and what follows it stay with the gap.
+  expect(runs(["Mein ", { gap: "g1" }, "-Kurs dauert."])).toEqual([
+    { text: "Mein " },
+    { gap: "g1", head: "", tail: "-Kurs" },
+    { text: "dauert." },
+  ]);
 });
 
 test("a checked ending gap stays on its stem, the right answer under it", async () => {
