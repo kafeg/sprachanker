@@ -14,7 +14,7 @@ const preview = {
     { target: "der Abend", translations: { "": "evening" } as Record<string, string> },
     { target: "antworten", translations: {} as Record<string, string> },
   ],
-  updates: null,
+  updates: [] as Array<{ id: never; title: string; lang: string; translationLang: string }>,
 };
 const file = new File([new Uint8Array([1])], "words.apkg");
 const counts = { new: 0, learning: 0, review: 0 };
@@ -64,13 +64,23 @@ test("fields named by language: the words' is the first, the translations' one o
   expect(view.getByText("2 words · 1 with audio · 2 with examples")).toBeTruthy();
 });
 
-test("a file of a deck here: its name and languages kept, the sheet says it updates that deck", async () => {
-  const updates = { id: "a1-abc123" as never, title: "A1", lang: "de", translationLang: "ru" };
+test("a file of decks here: the first's name and languages kept, the sheet says which deck the languages chosen update", async () => {
+  const updates = [
+    { id: "a1-abc123" as never, title: "A1", lang: "de", translationLang: "ru" },
+    { id: "a1-def456" as never, title: "A1 (en)", lang: "de", translationLang: "en" },
+  ];
   const view = await renderApp(
-    <DeckImportSheet file={file} preview={{ ...preview, updates }} onClose={() => {}} />,
+    <DeckImportSheet
+      file={file}
+      preview={{ ...preview, languages: ["de", "en", "ru"], updates }}
+      onClose={() => {}}
+    />,
     { data: [[["decks"], { decks: [] }]] },
   );
   expect((view.getByLabelText("Name") as HTMLInputElement).value).toBe("A1");
   expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("Russian");
   expect(view.getByText(/^This file updates the deck A1 here/)).toBeTruthy();
+  fireEvent.click(view.getByRole("combobox", { name: "Translations in" }));
+  fireEvent.click(await view.findByRole("option", { name: "English" }));
+  expect(view.getByText(/^This file updates the deck A1 \(en\) here/)).toBeTruthy();
 });

@@ -76,8 +76,8 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
 - Imported decks (04, "Decks"; server-wide, as the library): `GET /api/decks` (each with its languages,
   words, how many have audio and examples), `POST /api/decks/preview` (a deck file `.apkg` as the body,
   at most 512 MB, streamed to `decks/.uploads/`: the upload's id, its deck's name, words, the languages
-  its fields are named by, the first words with their translation in each, the deck here it would
-  update), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or the
+  its fields are named by, the first words with their translation in each — read from the same notes
+  —, the decks here it would update, each with its languages), `POST /api/decks/import` (`{upload, title, lang, translationLang, file}`: a new deck, or the
   deck most of whose notes it holds, in the same languages, updated; 404 `deck_upload_gone`; 422
   `not_a_deck`, `deck_without_words`, `deck_unpacked_too_large`; 413 `deck_too_large`), `DELETE /api/decks/:id` (409
   `deck_in_use` while any profile has cards made from it). Bun takes bodies up to that size and waits

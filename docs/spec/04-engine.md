@@ -180,7 +180,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   its media: a decompression bomb is refused) and previewed — its deck's name, words with audio and examples, the
   languages its fields are named by, the first words — then imported. A file imported again — most
   of its notes those of a deck here (by guid), and that deck mostly them, in the same languages: the
-  preview says so — updates that deck (another deck sharing a note, or the same in other languages,
+  preview names each such deck with its languages, the same file imported in two language pairs being
+  two — updates that deck (another deck sharing a note, or the same in other languages,
   is one of its own), and cards follow their words (relinking); a card of a word the update drops
   keeps what it showed, its audio too (the deck's earlier audio stays); a deck is deleted only while no
   profile has cards made from it (they leave it first: nobody's progress goes unasked). Planned

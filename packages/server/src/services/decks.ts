@@ -87,14 +87,14 @@ export function createDecks(deps: {
     return refused(() => readApkg(bytes, deps.apkg));
   }
 
-  /** The deck here most of whose notes a package holds, and that holds mostly them: the one it
-   *  updates. */
-  const updated = (notes: Array<{ guid: string }>) => {
+  /** The decks here most of whose notes a package holds, and that hold mostly them: the one of the
+   *  same languages it updates (the same file imported in other language pairs is several). */
+  const updatable = (notes: Array<{ guid: string }>) => {
     const keys = new Set(notes.map((n) => n.guid));
     return files
       .ids()
       .flatMap((id) => deckOf(id) ?? [])
-      .find((d) => {
+      .filter((d) => {
         const shared = d.words.filter((w) => keys.has(w.key)).length;
         return shared * 2 > keys.size && shared * 2 > d.words.length;
       });
@@ -110,8 +110,8 @@ export function createDecks(deps: {
   };
 
   /** What a preview says of a package: its deck's name, words (with audio, with examples), the
-   *  languages its fields are named by, the first words with their translation in each, and the deck
-   *  here it would update. */
+   *  languages its fields are named by, the first words with their translation in each, and the decks
+   *  here it would update — each in its languages. */
   function previewOf(upload: string, apkg: Apkg) {
     const words = noteWords(apkg.notes);
     const languages = [
@@ -121,13 +121,14 @@ export function createDecks(deps: {
         ),
       ),
     ];
-    const first = apkg.notes.slice(0, PREVIEW_WORDS);
+    // The notes of the first words shown, each language's translations read from them.
+    const shown = new Set(words.slice(0, PREVIEW_WORDS).map((w) => w.key));
+    const first = apkg.notes.filter((n) => shown.has(n.guid));
     // The words' language is the first named: each other's translations, by language.
     const translations = (languages.length > 1 ? languages.slice(1) : [""]).map((lang) => ({
       lang,
       words: lang ? noteWords(first, { lang: languages[0], translationLang: lang }) : words,
     }));
-    const updates = updated(apkg.notes);
     return {
       upload,
       title: apkg.deckName ?? "",
@@ -144,14 +145,12 @@ export function createDecks(deps: {
           }),
         ) as Record<string, string>,
       })),
-      updates: updates
-        ? {
-            id: updates.id,
-            title: updates.title,
-            lang: updates.lang,
-            translationLang: updates.translationLang,
-          }
-        : null,
+      updates: updatable(apkg.notes).map((d) => ({
+        id: d.id,
+        title: d.title,
+        lang: d.lang,
+        translationLang: d.translationLang,
+      })),
     };
   }
 
@@ -180,7 +179,7 @@ export function createDecks(deps: {
     },
 
     /** Imports an uploaded package as a deck of words in `lang` translated into `translationLang`: a
-     *  new one, or the deck most of whose notes it holds, updated when its languages are the same. A
+     *  new one, or the deck in these languages most of whose notes it holds, updated. A
      *  note that makes no word (no lemma, a key too long) is left out; only audio files are taken. */
     async import(request: {
       upload: string;
@@ -250,11 +249,10 @@ export function createDecks(deps: {
           yield out;
         }
       }
-      const same = updated(apkg.notes);
-      const id =
-        same?.lang === request.lang && same.translationLang === request.translationLang
-          ? same.id
-          : await newId(request.title, [...keys], files.ids());
+      const same = updatable(apkg.notes).find(
+        (d) => d.lang === request.lang && d.translationLang === request.translationLang,
+      );
+      const id = same?.id ?? (await newId(request.title, [...keys], files.ids()));
       const deckOfWords = () =>
         Deck.parse({
           format: DECK_FORMAT,

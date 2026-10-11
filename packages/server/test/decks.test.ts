@@ -84,7 +84,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
       { target: "der Apfel", translations: { "": "яблоко" } },
       { target: "antworten", translations: { "": "отвечать" } },
     ],
-    updates: null,
+    updates: [],
   });
   // An upload is imported once; another id is no upload.
   const request = { title: "x", lang: "de", translationLang: "ru", file: "x.apkg" };
@@ -121,12 +121,9 @@ test("a package previewed, imported as a deck with its audio; its media served f
     expect((await get(`/decks/${summary.id}/${path}`)).status).toBe(404);
   // The same deck again (most of its notes here, the same languages) updates it in place, as its
   // preview says.
-  expect((await preview(deck())).updates).toEqual({
-    id: summary.id,
-    title: "Mein Deck",
-    lang: "de",
-    translationLang: "ru",
-  });
+  expect((await preview(deck())).updates).toEqual([
+    { id: summary.id, title: "Mein Deck", lang: "de", translationLang: "ru" },
+  ]);
   expect((await importDeck(deck(), "Mein Deck (neu)")).id).toBe(summary.id);
   const titles = async () =>
     (await getJson("/api/decks")).decks.map((d: { title: string }) => d.title);
@@ -143,11 +140,52 @@ test("a package previewed, imported as a deck with its audio; its media served f
     ],
     media: { "page.html": SOUND },
   });
-  expect((await preview(other)).updates).toBeNull();
+  expect((await preview(other)).updates).toEqual([]);
   const andere = await importDeck(other, "Andere");
   expect(andere).toMatchObject({ words: 3, withAudio: 0 });
-  expect((await importDeck(deck(), "Mein Deck (en)", "en")).id).not.toBe(summary.id);
+  const english = (await importDeck(deck(), "Mein Deck (en)", "en")).id;
+  expect(english).not.toBe(summary.id);
   expect(await titles()).toEqual(["Andere", "Mein Deck (en)", "Mein Deck (neu)"]);
+  // The file is two decks here now: the preview names both, each import updates the one of its
+  // languages.
+  expect(
+    (await preview(deck())).updates.map((d: { id: string; translationLang: string }) => [
+      d.id,
+      d.translationLang,
+    ]),
+  ).toEqual(
+    expect.arrayContaining([
+      [summary.id, "ru"],
+      [english, "en"],
+    ]),
+  );
+  expect((await importDeck(deck(), "Mein Deck (en, 2)", "en")).id).toBe(english);
+  expect((await importDeck(deck(), "Mein Deck (ru, 2)", "ru")).id).toBe(summary.id);
+  expect(await titles()).toEqual(["Andere", "Mein Deck (en, 2)", "Mein Deck (ru, 2)"]);
+});
+
+test("a preview's first words with their translations, read from the same notes", async () => {
+  const { preview } = await withDecks();
+  const seen = await preview(
+    buildApkg({
+      deck: "Lücken",
+      fields: ["german", "russian"],
+      notes: [
+        { guid: "e1", fields: ["", "пусто"] },
+        { guid: "e2", fields: ["", "пусто"] },
+        ...["eins", "zwei", "drei", "vier", "fünf", "sechs"].map((w, i) => ({
+          guid: `w${i}`,
+          fields: [w, `перевод ${i}`],
+        })),
+      ],
+    }),
+  );
+  expect(seen.first).toEqual(
+    ["eins", "zwei", "drei", "vier", "fünf"].map((target, i) => ({
+      target,
+      translations: { ru: `перевод ${i}` },
+    })),
+  );
 });
 
 test("fields named by language: the translation in the language chosen, the deck's examples with their audio on the card", async () => {

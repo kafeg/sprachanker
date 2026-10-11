@@ -81,21 +81,25 @@ export function DeckImportSheet({
   const known = (useDecks().data?.decks ?? []).map((d) => d.language);
   const importDeck = useImportDeck();
   const nameId = useId();
-  // A deck here the file updates keeps its name and languages unless changed; the languages its
-  // fields are named by come first: the first the words', the others their translations'.
-  const { updates, languages: own } = preview;
+  // A deck here the file updates keeps its name and languages unless changed (the first, when the
+  // file is several decks here in other languages); the languages its fields are named by come
+  // first: the first the words', the others their translations'.
+  const { languages: own } = preview;
+  const [kept] = preview.updates;
   const [title, setTitle] = useState(
-    updates?.title || preview.title || file.name.replace(/\.apkg$/i, ""),
+    kept?.title || preview.title || file.name.replace(/\.apkg$/i, ""),
   );
-  const [lang, setLang] = useState(updates?.lang ?? own[0] ?? known[0] ?? "de");
+  const [lang, setLang] = useState(kept?.lang ?? own[0] ?? known[0] ?? "de");
   const translations = own.length > 1 ? own.filter((l) => l !== lang) : [];
   const [translationLang, setTranslationLang] = useState(
-    updates?.translationLang ??
+    kept?.translationLang ??
       (translations.length && !translations.includes(i18n.language)
         ? (translations[0] as string)
         : i18n.language),
   );
-  const updating = updates && updates.lang === lang && updates.translationLang === translationLang;
+  const updating = preview.updates.find(
+    (d) => d.lang === lang && d.translationLang === translationLang,
+  );
   const all = [...new Set([...COMMON, i18n.language, ...known, ...own])].sort();
   const language = (label: string, value: string, set: (v: string) => void, options: string[]) => (
     <div className="space-y-1">
@@ -138,7 +142,7 @@ export function DeckImportSheet({
         }}
       >
         <p className="text-sm text-muted-foreground">
-          {updating ? t("decks.import.updates", { deck: updates.title }) : t("decks.import.hint")}
+          {updating ? t("decks.import.updates", { deck: updating.title }) : t("decks.import.hint")}
         </p>
         <div className="space-y-1">
           <label htmlFor={nameId} className="text-sm text-muted-foreground">
