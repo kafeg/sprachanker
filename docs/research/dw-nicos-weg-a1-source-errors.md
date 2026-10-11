@@ -1,11 +1,14 @@
 # Research — DW Nicos Weg A1 (ru-de): the source's own errors
 
 Content errors found in a QA pass of A1 `ru-de` (October 2026), each checked against the stored raw
-page (`raw/ru-de/a1/e-<id>.json`) so that it is DW's text, not a normaliser's. Candidates for
-enrichment overrides (by exercise key and fingerprint; spec 02). Keys are `dw.nicos-weg/a1-ru/<lesson>/ex-NN`;
+page (`raw/ru-de/a1/e-<id>.json`) so that it is DW's text, not a normaliser's. Keys are `dw.nicos-weg/a1-ru/<lesson>/ex-NN`;
 "page" is the exercise's 0-based position among the lesson's pages, as the app counts them.
 
 ## Errors in the source (verified in raw)
+
+Every error in this table is fixed by the DW normaliser's corrections,
+`courses/dw/src/normalise/corrections.json` (spec 03, "Corrections"): each applies while DW's phrase is
+still there, and is reported stale once DW changes it.
 
 | Exercise | Page | What is wrong |
 |---|---|---|
@@ -19,7 +22,7 @@ enrichment overrides (by exercise key and fingerprint; spec 02). Keys are `dw.ni
 | `03-04/ex-01` | 0 | Hint: the euro is the currency of "19 государств" of the EU — outdated (20 since 2023, 21 since 2026). |
 | `04-03/ex-07` | 6 | Rule text "Эта та же форма" for "Это та же форма". |
 | `06-04/ex-15` | 14 | Task "Скажи, что ванной комнате много света" — "в" missing ("что в ванной комнате"). |
-| `13-01/ex-07` | 6 | Instruction refers to "Мужчина из видео", but the page has no clip (the episode is on `ex-02`). |
+| `13-01/ex-07` | 6 | Instruction refers to "Мужчина из видео", but the page has no clip (the episode is on `ex-01`; corrected to the lesson's video). |
 
 ## Source as designed (verified in raw; not errors)
 

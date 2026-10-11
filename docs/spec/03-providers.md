@@ -74,8 +74,8 @@ runs (left out of progress), its pages say it is not installed.
   deterministically. A course is installed (can be opened) once it is normalised; until then its card
   shows the download. Media that failed leave it `incomplete` — it opens, its card counting the
   files missing — until a later download fetches them.
-- **Reports** unknown exercises and left-out words (`unmapped`), files that failed validation, media
-  that failed — a host that refused (403/429, also on robots.txt) records every file of it not fetched,
+- **Reports** unknown exercises and left-out words (`unmapped`), files that failed validation, our
+  corrections of the source not applied (stale; DW), media that failed — a host that refused (403/429, also on robots.txt) records every file of it not fetched,
   so the download stays marked incomplete. A robots.txt that could not be read is asked again later.
 - One download at a time (the job queue) and one import per series across processes (a lock folder
   with the owner's pid, made elsewhere and renamed into place so it is never seen without its owner;
@@ -93,8 +93,8 @@ and `a1-en` are normalised separately from their own pages (`raw/<edition>/<DW c
 
 ### Nicos Weg (`dw-nicos-weg` → `dw.nicos-weg`)
 
-Source facts: `docs/research/dw-nicos-weg.md`; DW's own content errors in A1 (candidates for
-enrichment overrides): `docs/research/dw-nicos-weg-a1-source-errors.md`. Closed licence: personal use.
+Source facts: `docs/research/dw-nicos-weg.md`; DW's own content errors in A1:
+`docs/research/dw-nicos-weg-a1-source-errors.md`. Closed licence: personal use.
 
 - Courses and source ids: `courses/dw/src/catalog.ts` — A1 and A2 in every language DW publishes them
   (19: ar, bs, de, el, en, es, fa, fr, hi, hu, id, pl, pt, ro, ru, sw — A1 only —, tr, uk, zh; owner,
@@ -138,6 +138,11 @@ task or option of theirs that starts with such a run and does not end in punctua
   parts of a topic ("Spelling (2)", in the edition's own digits and brackets: "(۲)", "(२)", "（2）"; titles compared with full-width forms as plain ones and spaces ignored); the parts within a lesson are joined into one page, the number
   leaves the title and a topic begun in an earlier lesson keeps it as `part` (02). Exercise titles keep
   their numbers ("Im Unterricht (1)", "(2)"): they tell apart exercises of one topic in a lesson.
+- **Corrections** (`courses/dw/src/normalise/corrections.json`): DW's own errors in learner-language
+  texts (a title, instruction, stimulus text, an item's prompt or hint) fixed by exercise key — the
+  exact phrase replaced, or a field dropped (a box that gives the answers away). One applies only where
+  its phrase is still in the text, so a source fixed since is left alone; one not applied is stale and
+  reported (`NormaliseResult.corrections`). Ours, written by hand; never more of the source than the phrase.
 - **B1** lessons have no vocabulary: B1 has a German glossary (`GLOSSARY`, definitions instead of
   translations) not read yet (plan, "More sources").
 

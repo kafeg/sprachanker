@@ -98,7 +98,10 @@ async function importCommand(args: string[]): Promise<void> {
   for (const [course, r] of normalised) {
     log(
       `${course}: ${r.lessons} lessons, ${r.unknown} unknown exercises, ` +
-        `${r.leftOut ? `${r.leftOut} questions left out, ` : ""}${r.problems} invalid files`,
+        `${r.leftOut ? `${r.leftOut} questions left out, ` : ""}${r.problems} invalid files` +
+        (r.corrections
+          ? `, ${r.corrections.applied} corrections applied, ${r.corrections.stale.length} stale`
+          : ""),
     );
     if (r.problems) process.exitCode = 1;
   }

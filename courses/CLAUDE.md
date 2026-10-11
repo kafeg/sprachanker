@@ -43,7 +43,8 @@ courses/
   dw/                  # DW Learn German (series dw.nicos-weg, dw.deutschtrainer; CLI ids dw-<series>), a course
                        # per DW course and language (a1-ru, a1-en, …; raw pages by DW course): src/: catalog,
                        # apollo (a page's state), pages, media (DW's media URLs and names), stream (HLS
-                       # fallback), normalise/ (run, course, lesson, exercise, context, text, vocab), import
+                       # fallback), normalise/ (run, course, lesson, exercise, context, text, vocab,
+                       # corrections: DW's own errors fixed by key, `corrections.json`), import
   coerll-dib/          # COERLL Deutsch im Blick (coerll.dib): vocabulary sections → lessons without pages;
                        # src/: catalog, parse (HTML), normalise (pure), import
   lingust-english/     # Lingust «Правильный английский» (lingust.ru, ru → en): grammar pages, recordings

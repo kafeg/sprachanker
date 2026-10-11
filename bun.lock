@@ -96,6 +96,7 @@
       "dependencies": {
         "@sprachanker/course-kit": "workspace:*",
         "@sprachanker/schema": "workspace:*",
+        "zod": "4.6.5",
       },
     },
     "courses/goethe": {

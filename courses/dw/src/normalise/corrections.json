@@ -1,0 +1,83 @@
+[
+  {
+    "exercise": "dw.nicos-weg/a1-ru/00-03/ex-11",
+    "item": "#1",
+    "field": "hintHtml",
+    "from": "В начале предложения все слова пишутся с большой буквы",
+    "to": "Первое слово предложения пишется с большой буквы",
+    "why": "Only the first word of a sentence is capitalised, not every word."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/01-02/ex-04",
+    "item": "#1",
+    "field": "hintHtml",
+    "from": "В начале предложения все слова пишутся с большой буквы",
+    "to": "Первое слово предложения пишется с большой буквы",
+    "why": "Only the first word of a sentence is capitalised, not every word."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/03-03/ex-13",
+    "field": "instructionHtml",
+    "from": "Расположи слова в правильной последовательности",
+    "to": "Впиши слова в пропуски в правильной последовательности",
+    "why": "The items are typed gaps, not words to drag into order."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/03-04/ex-01",
+    "item": "#1",
+    "field": "hintHtml",
+    "from": "19 государств, входящих",
+    "to": "21 государства, входящего",
+    "why": "The euro is the currency of 21 EU states since Bulgaria joined on 1 January 2026."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/04-03/ex-07",
+    "field": "textHtml",
+    "from": "Эта та же форма",
+    "to": "Это та же форма",
+    "why": "Typo in the rule text."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/06-04/ex-15",
+    "item": "#2",
+    "field": "prompt",
+    "from": "что ванной комнате",
+    "to": "что в ванной комнате",
+    "why": "The preposition is missing."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/08-02/ex-01",
+    "field": "instructionHtml",
+    "from": "Какое из трех утверждений правильное? Выбери ответ.",
+    "to": "Какие три утверждения правильные? Выбери ответы.",
+    "why": "A choice of six statements with three right, not one of three."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/08-04/ex-02",
+    "field": "textHtml",
+    "from": "im Stau war",
+    "to": null,
+    "why": "The box above the questions sums up the scene and gives both answers away."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/08-04/ex-12",
+    "field": "instructionHtml",
+    "from": "Впиши в пропуски услышанное.",
+    "to": "Запиши предложения, которые ты слышишь.",
+    "why": "A dictation of whole sentences: there are no gaps."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/12-04/ex-10",
+    "field": "title",
+    "from": "и мясом",
+    "to": "и рыбой",
+    "why": "The ingredients and the recipe are fish, not meat."
+  },
+  {
+    "exercise": "dw.nicos-weg/a1-ru/13-01/ex-07",
+    "field": "instructionHtml",
+    "from": "Мужчина из видео",
+    "to": "Мужчина из видео урока",
+    "why": "The page has no clip: the man is in the lesson's episode (its first exercise)."
+  }
+]

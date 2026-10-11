@@ -15,6 +15,7 @@ import { type DwCourse, seriesId } from "../catalog.ts";
 import { rawDir as rawDirOf } from "../pages.ts";
 
 import { createContext, html } from "./context.ts";
+import { courseCorrections } from "./corrections.ts";
 import { courseFiles, courseLessons } from "./course.ts";
 import { normaliseLesson } from "./lesson.ts";
 
@@ -39,6 +40,7 @@ export async function normaliseCourse(
   let unknownTotal = 0;
   let leftOut = 0;
   let lessonsDone = 0;
+  const corrections = courseCorrections(course);
   for (const entry of all) {
     const lesson = await read(`l-${entry.sourceId}.json`);
     const exercises = new Map<number, ApolloState>();
@@ -58,6 +60,7 @@ export async function normaliseCourse(
       exercises,
       exerciseNumber: (occurrence, position) => keys.number(entry.key, occurrence, position),
     });
+    corrections.lesson(out.locale);
     titles.set(entry.key, out.locale.title);
     goals.set(entry.key, out.goals);
     await writer.write([libraryFile.lesson(out.lesson), libraryFile.localeLesson(out.locale)]);
@@ -84,8 +87,16 @@ export async function normaliseCourse(
   await writer.finish();
   await keys.save();
   const { problems } = writer;
+  const fixed = corrections.report();
+  for (const name of fixed?.stale ?? [])
+    log(`correction not applied (its source text not found): ${name}`);
   log(
     `${dw.id} (${dw.edition}): ${lessonsDone} lessons normalised${unknownTotal ? `, ${unknownTotal} unknown exercises` : ""}${leftOut ? `, ${leftOut} parts left out (unmapped)` : ""}${problems ? `, ${problems} files failed validation` : ""}`,
   );
-  return { lessons: lessonsDone, unknown: unknownTotal, problems };
+  return {
+    lessons: lessonsDone,
+    unknown: unknownTotal,
+    problems,
+    ...(fixed && { corrections: fixed }),
+  };
 }

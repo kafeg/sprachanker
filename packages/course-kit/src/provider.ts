@@ -88,6 +88,9 @@ export interface NormaliseResult {
   leftOut?: number;
   /** Files that failed validation. */
   problems: number;
+  /** Our corrections of the source's own errors (03): how many applied, and those whose text the
+   *  source no longer has (fixed or changed there: the entry is stale), by `<exercise> <field>`. */
+  corrections?: { applied: number; stale: string[] };
 }
 
 export interface ImportReport {
