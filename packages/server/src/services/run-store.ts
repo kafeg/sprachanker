@@ -24,7 +24,21 @@ import {
   recordingOf,
   type TypedEvent,
 } from "@sprachanker/schema";
-import { and, asc, desc, eq, gte, inArray, isNull, lt, max, or, type SQL, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  desc,
+  eq,
+  gte,
+  inArray,
+  isNull,
+  like,
+  lt,
+  max,
+  or,
+  type SQL,
+  sql,
+} from "drizzle-orm";
 import { monotonicFactory } from "ulid";
 import type { z } from "zod";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -462,6 +476,8 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
         .where(
           and(
             inArray(events.type, ["answered", "llm_turn"]),
+            // Only rows naming a recording are read (most answers and turns have none).
+            like(events.payloadJson, '%"recording"%'),
             runIds ? inArray(events.runId, runIds) : undefined,
           ),
         )
