@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Kursus",
+    "settings": "Pengaturan",
+    "review": "Pengulangan",
+    "notebook": "Buku catatan",
+    "exams": "Ujian"
+  },
+  "common": {
+    "loading": "Memuat…",
+    "retry": "Coba lagi",
+    "close": "Tutup",
+    "cancel": "Batal"
+  },
+  "courses": {
+    "lessons": "{count, plural, other {# pelajaran}}",
+    "progress": "{done, number} dari {total, number} selesai",
+    "start": "Mulai",
+    "allLessons": "Semua pelajaran",
+    "languages": "{from} → {to}",
+    "any": "Semua",
+    "noneStarted": "Belum ada kursus yang dimulai.",
+    "noneMatch": "Tidak ada kursus untuk bahasa ini.",
+    "course": "Kursus",
+    "pair": "Bahasa",
+    "next": "Berikutnya",
+    "nextWorked": "{worked, number} dari {total, number} selesai",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Kursus saya",
+      "downloaded": "Diunduh",
+      "available": "Tersedia"
+    },
+    "noneDownloaded": "Belum ada kursus yang diunduh.",
+    "allDownloaded": "Semua kursus yang ditawarkan sudah diunduh.",
+    "choose": "Pilih kursus",
+    "anyLanguage": "semua"
+  },
+  "course": {
+    "unit": "Bab {number}",
+    "status": {
+      "new": "Belum dimulai",
+      "in_progress": "Sedang berjalan · {worked, number} dari {total, number}",
+      "done": "Selesai · {score, number, percent}",
+      "next": "Berikutnya",
+      "finished": "Selesai"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "domain publik",
+      "free-access": "akses gratis (tanpa lisensi terbuka)"
+    },
+    "stats": {
+      "lessons": "{count, plural, other {pelajaran}}",
+      "exercises": "{count, plural, other {latihan}}",
+      "words": "{count, plural, other {kata}}",
+      "audio": "{count, plural, other {rekaman}}",
+      "video": "{count, plural, other {video}}",
+      "image": "{count, plural, other {gambar}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, other {berkas subtitel}}",
+      "size": "di disk"
+    },
+    "checking": "Memeriksa berkas kursus…",
+    "missing": "{count, number} hilang",
+    "problems": "{count, plural, other {# masalah}} ditemukan",
+    "intact": "Semua berkas lengkap dan konsisten.",
+    "checkAgain": "Periksa lagi",
+    "complete": "Semua sudah diunduh",
+    "next": "berikutnya: {where} — {title}",
+    "notInstalled": "Kursus ini tidak (lagi) terpasang.",
+    "checkFiles": "Periksa",
+    "problem": {
+      "missingMedia": "Berkas hilang: {at}",
+      "unreadable": "Berkas tidak bisa dibaca: {at}",
+      "noLocale": "Tidak ada teks pelajaran dalam bahasa ini: {at}",
+      "noEdition": "Tidak ada edisi bahasa yang terpasang",
+      "inconsistent": "Data kursus tidak cocok: {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Bab {unit} · Pelajaran {lesson}",
+    "goals": "Di pelajaran ini kamu akan belajar:",
+    "counts": "{exercises, plural, =0 {} other {# latihan · }}{words, plural, other {# kata baru}}",
+    "start": "Mulai pelajaran",
+    "resume": "Lanjutkan pelajaran",
+    "exerciseOf": "Latihan {n} dari {total}",
+    "check": "Periksa",
+    "next": "Lanjut",
+    "toSummary": "Ke ringkasan",
+    "skip": "Lewati",
+    "retry": "Coba lagi",
+    "previous": "Kembali",
+    "correct": "Benar",
+    "partial": "Sebagian benar",
+    "wrong": "Belum tepat",
+    "summary": "Ringkasan",
+    "score": "Benar pada percobaan pertama: {correct, number} dari {scored, number}. Persentasenya juga menghitung jawaban yang sebagian benar.",
+    "skipped": "dilewati",
+    "notDone": "belum dikerjakan",
+    "backToCourse": "Kembali ke kursus",
+    "nextLesson": "Pelajaran berikutnya",
+    "reference": "Referensi",
+    "plan": "Rencana pelajaran",
+    "audio": "Dengarkan pelajaran",
+    "itemAudio": "Audio untuk soal {n}",
+    "redo": "Mulai ulang",
+    "done": "Selesai",
+    "doneScore": "Selesai · {score, number, percent} benar",
+    "state": {
+      "correct": "benar",
+      "wrong": "ada kesalahan",
+      "done": "dijawab",
+      "skipped": "dilewati",
+      "read": "selesai",
+      "partial": "sebagian benar"
+    },
+    "correctAnswer": "Jawaban benar:",
+    "answerAudio": "Dengarkan jawabannya",
+    "itemsList": "Soal",
+    "answerAll": "Jawab semua soal · {done, number} dari {total, number}",
+    "listenFirst": "Putar rekamannya dulu",
+    "listenItem": "Putar rekaman soal {n}",
+    "answerAgain": "Jawab lagi",
+    "exerciseN": "Latihan {n}",
+    "stepsDone": "{done} dari {total} langkah selesai",
+    "stepsLeft": "Masih ada {count, plural, other {# langkah}} lagi.",
+    "toStep": "Ke: {title}",
+    "videoText": "Teks video",
+    "audioText": "Teks rekaman",
+    "step": {
+      "overview": "Ikhtisar",
+      "words": "Kosakata pelajaran",
+      "wordsCount": "Kosakata pelajaran · {count}",
+      "grammar": "Tata bahasa",
+      "culture": "Budaya",
+      "writing": "Tulis sendiri",
+      "scene": "Adegan",
+      "mistakes": "Membahas kesalahan",
+      "summary": "Ringkasan"
+    },
+    "section": {
+      "grammar": "Tata bahasa",
+      "exercises": "Latihan",
+      "culture": "Budaya",
+      "practice": "Berlatih dengan AI"
+    },
+    "continued": "lanjutan",
+    "why": "Kenapa ini salah?"
+  },
+  "ref": {
+    "vocabulary": "Kosakata",
+    "grammar": "Tata bahasa",
+    "culture": "Budaya",
+    "script": "Naskah",
+    "downloads": "PDF",
+    "none": "Tidak ada di pelajaran ini.",
+    "homework": "Pekerjaan rumah"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Subtitel"
+  },
+  "ex": {
+    "chooseSeveral": "Jawaban benar bisa lebih dari satu.",
+    "orderHint": "Ketuk atau seret bagian-bagiannya ke baris secara berurutan; seret bagian di dalam baris untuk memindahkannya, ketuk untuk mengambilnya kembali.",
+    "reset": "Atur ulang",
+    "dictationPlaceholder": "Tulis apa yang kamu dengar",
+    "rate": {
+      "good": "Bagus",
+      "fair": "Lumayan",
+      "poor": "Lagi"
+    },
+    "unknown": "Jenis latihan ini belum didukung.",
+    "respondPlaceholder": "Jawaban kamu…",
+    "reference": "{count, plural, other {Contoh jawaban}}",
+    "gap": "Rumpang {n}",
+    "partRight": "benar",
+    "partWrong": "salah",
+    "nothing": "— (kosong)",
+    "matchFor": "Pasangan untuk soal {n}",
+    "dropHere": "letakkan atau ketuk di sini",
+    "chips": "Kata untuk ditempatkan",
+    "orderLine": "Urutan kamu",
+    "dnd": {
+      "item": "kartu",
+      "instructions": "Untuk mengambil kartu, tekan Space atau Enter. Pindahkan dengan tombol panah, lalu tekan Space atau Enter untuk meletakkannya, atau Escape untuk mengembalikannya.",
+      "start": "Diambil: {item}.",
+      "over": "{item} — di atas “{place}”.",
+      "away": "{item} — tidak di atas tempat mana pun.",
+      "end": "{item} — diletakkan di “{place}”.",
+      "cancel": "{item} — dikembalikan."
+    },
+    "chosen": "{count, plural, other {# dipilih}}",
+    "specialLetters": "Huruf untuk diketik",
+    "inPlace": "di tempatnya",
+    "notInPlace": "tidak di tempatnya"
+  },
+  "word": {
+    "plural": "jamak {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Bahasa antarmuka",
+    "themeLabel": "Tema",
+    "theme": {
+      "system": "Sistem",
+      "light": "Terang",
+      "dark": "Gelap"
+    },
+    "tabs": {
+      "general": "Umum",
+      "profile": "Profil",
+      "review": "Pengulangan",
+      "speech": "Ucapan",
+      "ai": "Asisten AI",
+      "aiShort": "AI"
+    },
+    "prompts": "Prompt",
+    "experimental": "Eksperimental",
+    "advanced": "Lanjutan"
+  },
+  "llm": {
+    "title": "Asisten AI",
+    "intro": "Menjelaskan kesalahan, menjadi tutor dalam pelajaran, memeriksa teks, dan memainkan adegan. Pilih model di komputer ini, di server dalam jaringan kamu, di cloud (OpenRouter), atau agen baris perintah dengan langganan kamu. Isi pelajaran dan jawaban kamu hanya dikirim ke penyedia yang kamu pilih.",
+    "off": "Mati",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Server di jaringan",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Alamat server",
+    "endpointInvalid": "Masukkan alamat seperti http://localhost:1234/v1",
+    "apiKey": "Kunci API",
+    "keyHint": "Hanya jika server memerlukannya. Kunci disimpan terenkripsi dan tidak akan ditampilkan lagi.",
+    "keySaved": "Tersimpan — masukkan yang baru untuk menggantinya",
+    "save": "Simpan",
+    "removeKey": "Hapus",
+    "check": "Periksa koneksi",
+    "checking": "Menghubungkan…",
+    "connected": "Terhubung · {count, plural, =0 {tidak ada model} other {# model}} · {ms} ms",
+    "model": "Model",
+    "setUpHint": "Mau penjelasan? Siapkan asisten AI",
+    "explanation": "Penjelasan",
+    "thinking": "Berpikir…",
+    "error": {
+      "lmstudioDown": "LM Studio tidak merespons. Apakah server lokalnya sudah berjalan?"
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code belum terpasang di sini. Pasang dari claude.com/claude-code, lalu masuk sekali dengan menjalankan `claude`.",
+      "codex": "Codex CLI belum terpasang di sini. Pasang (npm i -g @openai/codex), lalu masuk sekali dengan `codex login`."
+    },
+    "modelTypeHint": "Ketik nama model.",
+    "otherModel": "Model lain…",
+    "modelName": "Nama model",
+    "explainAgain": "Jelaskan lagi",
+    "changeInSettings": "Model dipilih di Pengaturan → Asisten AI",
+    "about": {
+      "lmstudio": "LM Studio di komputer ini: SprachAnker menjalankan servernya, memuat model yang dipilih, dan bisa mengunduh model yang disarankan ke dalamnya. Gratis, dan tidak ada data yang keluar dari komputer. Jika LM Studio berjalan di komputer lain, pilih “Server di jaringan”.",
+      "openrouter": "OpenRouter di cloud: ratusan model dari banyak pembuat lewat satu kunci, sebagian gratis (dengan batas harian). Isi pelajaran dan jawaban kamu dikirim ke OpenRouter dan penyedia modelnya.",
+      "gemini": "Model Gemini dari Google di cloud dengan kunci dari Google AI Studio. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari; beberapa model memerlukan penagihan. Pada paket gratis, Google dapat memakai data yang dikirim untuk meningkatkan produknya: isi pelajaran dan jawaban kamu dikirim ke Google.",
+      "groq": "Model terbuka (Llama, Qwen, GPT-OSS, dan lainnya) di perangkat keras Groq yang cepat di cloud. Paket gratisnya tidak memerlukan kartu dan punya batas per menit dan per hari untuk setiap model. Isi pelajaran dan jawaban kamu dikirim ke Groq.",
+      "custom": "Server apa pun dengan API yang kompatibel dengan OpenAI di komputer lain: LM Studio, Ollama, llama.cpp, vLLM, dan lainnya. Masukkan alamatnya (berakhiran /v1) dan kunci jika diminta.",
+      "claude-code": "Menjalankan Claude Code yang terpasang di komputer ini (`claude -p`) dengan langganan Claude kamu. Alat bawaannya dimatikan: data pelajaran dikirim di dalam prompt. Setiap jawaban menjalankan perintahnya, jadi balasan butuh beberapa detik lebih lama.",
+      "codex": "Menjalankan Codex CLI yang terpasang di komputer ini (`codex exec`) dengan langganan ChatGPT kamu, hanya-baca dan tanpa alat bawaannya. Setiap jawaban menjalankan perintahnya, jadi balasan butuh beberapa detik lebih lama."
+    },
+    "cardState": {
+      "off": "tanpa asisten",
+      "llm_cli_missing": "belum terpasang",
+      "llm_no_endpoint": "alamat belum diisi",
+      "llm_no_key": "perlu kunci",
+      "installed": "terpasang",
+      "keySaved": "kunci tersimpan",
+      "here": "di komputer ini",
+      "at": "di {host}"
+    },
+    "list": {
+      "search": "Cari: gemma, claude, deepseek…",
+      "free": "Gratis ({count, number})",
+      "json": "Menjawab JSON ({count, number})",
+      "context": "Konteks ≥ {size}",
+      "more": "Lainnya…",
+      "fewer": "Lebih sedikit",
+      "jsonHint": "“Menjawab JSON”: model yang bisa mengembalikan pemeriksaan tulisan dan adegan dalam bentuk yang dibaca aplikasi.",
+      "none": "Tidak ada model yang cocok dengan pencarian dan filter.",
+      "freeTag": "gratis",
+      "price": "{input} / {output} per 1 jt token",
+      "shown": "{shown, number} dari {total, number} model",
+      "backToList": "Kembali ke daftar"
+    },
+    "key": {
+      "freeTier": "Paket gratis",
+      "credits": "Kredit",
+      "used": "terpakai {used}",
+      "usedOf": "terpakai {used} dari {limit}",
+      "rate": "{requests, number} permintaan per {interval}",
+      "freeModels": "Model gratis punya batas permintaan harian yang ditetapkan OpenRouter (lebih tinggi jika kamu pernah membeli kredit)."
+    },
+    "keyHintFor": {
+      "openrouter": "Buat kunci di openrouter.ai/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "gemini": "Buat kunci di aistudio.google.com/apikey. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi.",
+      "groq": "Buat kunci di console.groq.com/keys. Kunci disimpan terenkripsi di komputer ini dan tidak akan ditampilkan lagi."
+    }
+  },
+  "tutor": {
+    "title": "Tutor",
+    "intro": "Tanyakan tentang pelajaran ini: tata bahasa, kata-kata, latihan di layar — atau latih dialog singkat. Jawabannya tetap dalam batas yang sudah kamu pelajari.",
+    "needsSetup": "Tutor memerlukan model AI.",
+    "openSettings": "Siapkan asisten AI",
+    "placeholder": "Ajukan pertanyaan…",
+    "send": "Kirim",
+    "stop": "Berhenti",
+    "newChat": "Obrolan baru",
+    "suggest": {
+      "grammar": "Jelaskan tata bahasa pelajaran ini",
+      "examples": "Beri aku contoh lain dengan kata-kata baru",
+      "dialogue": "Ayo latihan dialog singkat",
+      "exercise": "Beri aku petunjuk untuk latihan ini",
+      "wordsQuiz": "Uji aku dengan kata-kata baru pelajaran ini",
+      "wordsMemory": "Bantu aku mengingat kata-kata baru",
+      "grammarDrill": "Beri aku latihan singkat tentang tata bahasa pelajaran ini",
+      "script": "Bahas teks pelajaran frasa demi frasa"
+    },
+    "context": "Konteks ≈ {used} dari {window} token",
+    "contextSize": "Permintaan ≈ {used} token",
+    "remembers": "mengingat {kept, number} dari {total, plural, other {# pesan}}",
+    "contextFull": "Konteks hampir penuh: pesan-pesan paling awal tidak lagi sampai ke model. Mulai obrolan baru untuk topik baru.",
+    "contextHint": "Ukuran permintaan berikutnya: konteks pelajaran, percakapan, dan pesan kamu, ditambah ruang untuk balasan.",
+    "toolsUsed": "Dicari: {tools}",
+    "tool": {
+      "find_word": "kata “{word}”",
+      "get_progress": "progres kamu",
+      "get_mistakes": "kesalahan kamu",
+      "get_lesson": "pelajaran {lesson}"
+    },
+    "tabChat": "Percakapan",
+    "tabHistory": "Riwayat",
+    "noHistory": "Belum ada obrolan sebelumnya di pelajaran ini.",
+    "current": "saat ini",
+    "delete": "Hapus obrolan",
+    "deleteTitle": "Hapus obrolan ini?",
+    "deleteBody": "Pesan-pesannya akan dihapus permanen.",
+    "ask": {
+      "grammar": "Jelaskan tata bahasa pelajaran ini secara singkat dengan 2–3 contoh dari pelajaran. Lalu tanyakan apakah sudah jelas.",
+      "examples": "Berikan 3 contoh singkat dengan kata-kata baru pelajaran ini, beserta terjemahannya. Lalu minta aku membuat kalimat sendiri dengan salah satunya.",
+      "dialogue": "Ayo latihan dialog singkat tentang topik pelajaran ini. Kamu mulai dengan satu kalimat dan tunggu jawabanku; koreksi kesalahanku sambil jalan.",
+      "exercise": "Beri aku petunjuk untuk latihan ini, bukan jawabannya.",
+      "wordsQuiz": "Uji aku dengan kata-kata baru pelajaran ini, satu per satu. Tanyakan satu kata, tunggu jawabanku, katakan apakah jawabanku benar, baru lanjut ke kata berikutnya.",
+      "wordsMemory": "Bantu aku mengingat kata-kata baru pelajaran ini satu per satu: ambil satu kata, beri aku jembatan keledai (kata yang bunyinya mirip, gambaran, akar kata) dan contoh singkat, lalu minta aku mengulang atau memakainya. Kata berikutnya baru setelah aku menjawab.",
+      "grammarDrill": "Beri aku latihan singkat tentang tata bahasa pelajaran ini: satu tugas setiap kali, tunggu jawabanku, periksa, dan jelaskan setiap kesalahan.",
+      "script": "Ayo bahas teks pelajaran ini frasa demi frasa: tunjukkan frasa pertama, terjemahkan, dan jelaskan apa yang baru di dalamnya. Frasa berikutnya baru setelah aku bilang “lanjut”."
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio sedang berjalan.",
+    "notRunning": "Server LM Studio tidak berjalan.",
+    "notInstalled": "LM Studio belum terpasang di komputer ini. Unduh di lmstudio.ai, lalu kembali ke sini.",
+    "needsToken": "LM Studio meminta token API: masukkan di atas (LM Studio → Developer → Server settings).",
+    "start": "Jalankan LM Studio",
+    "models": "Model di LM Studio",
+    "noModels": "LM Studio belum punya model. Unduh salah satu di bawah.",
+    "loaded": "di memori",
+    "use": "Pakai",
+    "inUse": "Dipakai",
+    "suggested": "Model yang disarankan",
+    "suggestedHint": "LM Studio mengunduh versi terbaik untuk komputer ini ({memory} GB memori) dan menyimpannya.",
+    "recommended": "Direkomendasikan",
+    "size": "sekitar {size} GB · perlu sekitar {ram} GB memori",
+    "progress": "{done} dari {total} GB",
+    "download": "Unduh di LM Studio",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "Prompt",
+    "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
+    "endpoint": "Endpoint",
+    "size": "Ukuran",
+    "sizeValue": "{chars, plural, other {# karakter}} ≈ {tokens, plural, other {# token}}",
+    "copy": "Salin permintaan sebagai JSON",
+    "infoIntro": "Setiap permintaan mengirim aturan tetap (prompt sistem) dan data kursus dari pelajaran saat ini. Bagian yang panjang dipotong sesuai batas di bawah agar model lokal yang kecil tetap sanggup.",
+    "task": {
+      "explain": "“Kenapa ini salah?”",
+      "tutor": "Tutor",
+      "writing": "“Tulis sendiri”",
+      "speaking": "Jawaban lisan",
+      "exam": "Ujian: menilai jawaban",
+      "conversation": "Ujian: bagian berbicara",
+      "sceneSetup": "Adegan: situasinya",
+      "scene": "Adegan",
+      "examples": "Contoh untuk kata-kata dek"
+    },
+    "contextIntro": "Ditambahkan dari pelajaran:",
+    "systemIntro": "Prompt sistem:",
+    "part": {
+      "item": "soal latihan: tugas, pilihan atau rumpang, jawaban benar, dan jawaban kamu",
+      "notes": "catatan tata bahasa pelajaran",
+      "lesson": "judul dan tujuan pelajaran",
+      "lessonVocab": "kosakata pelajaran beserta terjemahannya",
+      "knownVocab": "kata-kata dari pelajaran sebelumnya (yang terbaru lebih dulu)",
+      "earlierLessons": "judul pelajaran sebelumnya",
+      "grammar": "catatan tata bahasa pelajaran",
+      "exercise": "latihan di layar beserta jawabannya dan jawaban kamu yang sudah diperiksa (tutor memberi petunjuk dulu)",
+      "history": "pesan-pesan terakhir dalam percakapan, setiap pesan kamu ditandai dengan latihan tempat kamu menulisnya",
+      "mistakes": "kesalahan kamu: di pelajaran ini dari putaran saat ini, lalu yang terbaru dari pelajaran sebelumnya (yang sudah diperbaiki ditandai)",
+      "tools": "bila diminta (alat): progres kamu, kesalahan di pelajaran mana pun, di mana sebuah kata diajarkan, apa isi sebuah pelajaran",
+      "text": "teks kamu",
+      "script": "naskah pelajaran, jika soalnya tentang audio atau videonya",
+      "heard": "pertanyaan dan jawaban dari kursus, seperti yang didengar pengenal ucapan dalam rekaman kursus",
+      "answer": "apa yang kamu ucapkan, seperti yang didengar pengenal ucapan",
+      "exam": "judul ujian dan tugas sebagaimana diberikan: instruksi dan teks bagian itu, pertanyaannya",
+      "criteria": "kriteria beserta poinnya dan arti setiap tingkat",
+      "samples": "contoh jawaban dari ujian, jika ada",
+      "writtenAnswer": "jawaban kamu",
+      "partner": "apa yang dimiliki pasangan bicara: kartu, kalender, atau slide mereka (kamu tidak melihatnya)",
+      "conversation": "percakapan sejauh ini (baris-baris terakhir)",
+      "level": "tingkat kursus atau dek jika namanya menyebutkannya (A1, A2…), jika tidak, tingkat pemula",
+      "words": "lima kata dari dek beserta terjemahan, jenis kata, dan genusnya"
+    },
+    "upTo": "hingga {chars, plural, other {# karakter}}",
+    "debug": "Tampilkan tombol “Prompt”",
+    "debugHint": "Di samping penjelasan dan di tutor: permintaan persisnya dengan semua pesan, untuk debugging.",
+    "custom": "diubah",
+    "placeholders": "'{language}' diganti dengan bahasa jawaban, '{target}' dengan bahasa yang kamu pelajari.",
+    "save": "Simpan",
+    "restore": "Kembalikan prompt standar",
+    "places": {
+      "title": "Tempat asisten bekerja",
+      "hint": "Tempat yang dimatikan tidak ditampilkan di pelajaran, kartu, dan ujian. Pelajaran yang sudah selesai tetap selesai.",
+      "explain": {
+        "name": "“Kenapa ini salah?”",
+        "where": "tombol di bawah kesalahan"
+      },
+      "tutor": {
+        "name": "Tutor",
+        "where": "tombol di pelajaran dan di langkah “Membahas kesalahan”"
+      },
+      "writing": {
+        "name": "“Tulis sendiri”",
+        "where": "salah satu langkah pelajaran"
+      },
+      "scene": {
+        "name": "Adegan",
+        "where": "salah satu langkah pelajaran"
+      },
+      "speaking": {
+        "name": "Jawaban lisan",
+        "where": "“Periksa dengan AI” di bawah jawaban yang diucapkan"
+      },
+      "example": {
+        "name": "Contoh kalimat sebuah kata",
+        "where": "di kartunya dan di lembar katanya; dibuat untuk dek di Pengulangan → Dek"
+      },
+      "exam": {
+        "name": "Jawaban ujian",
+        "where": "“Usulkan penilaian” di atas kriteria jawaban, dan bagian berbicara yang dijalankan sebagai percakapan"
+      }
+    },
+    "about": {
+      "explain": "Menjelaskan jawaban yang salah di bawah latihan (“Kenapa ini salah?”): apa kesalahannya dan aturan di baliknya, dalam bahasa kamu.",
+      "tutor": "Tutor pelajaran: menjawab pertanyaan kamu tentang pelajaran, kosakata, dan tata bahasanya, serta membahas kesalahan kamu satu per satu di langkah “Membahas kesalahan”.",
+      "writing": "Memeriksa teks pendek yang kamu tulis di “Tulis sendiri”: koreksi, kriteria A1 (tugas, komunikasi, ketepatan), dan umpan balik.",
+      "speaking": "Memeriksa jawaban yang kamu ucapkan (apa yang didengar pengenal ucapan) terhadap pertanyaan dan jawaban kursus, saat kamu menekan “Periksa dengan AI”.",
+      "exam": "Menilai jawaban tertulis dalam ujian menurut kriteria ujian itu sendiri: tingkat untuk setiap kriteria beserta alasannya, dan apa yang akan mendapat nilai lebih. Belum ada yang dihitung sampai kamu menerima atau mengubahnya.",
+      "conversation": "Menjalankan bagian berbicara dalam ujian: memerankan penguji dan peserta lain sesuai ketentuan bagian itu, baris demi baris bersama kamu; tidak pernah membantu atau mengoreksi. Dinilai setelahnya menurut kriteria bagian itu.",
+      "sceneSetup": "Memulai adegan: mengarang situasi dari topik pelajaran — siapa kamu, dengan siapa kamu berbicara, di mana, dan tujuan yang harus dicapai. Diminta sekali per adegan.",
+      "scene": "Memainkan adegan: menjawab setiap kalimat kamu sebagai pasangan bicara, mengoreksi kesalahan kamu, memberi terjemahan, dan mencentang tujuan yang sudah kamu capai.",
+      "examples": "Menulis tiga sampai lima contoh kalimat untuk setiap kata dari dek yang tidak punya contoh sendiri, lima kata sekaligus (Pengulangan → Dek, “Buat contoh”), sebisa mungkin dengan kata-kata yang kamu kenal, dan kata baru diterjemahkan."
+    }
+  },
+  "writing": {
+    "task": "Tulis 3–5 kalimat dalam bahasa {language} tentang topik pelajaran: {topic}. Gunakan kata-kata baru.",
+    "placeholder": "Teks kamu…",
+    "check": "Periksa",
+    "checking": "Memeriksa…",
+    "rewrite": "Perbaiki dan periksa lagi",
+    "score": "{name}: {score, number} dari {max, number}",
+    "points": "{score, number} dari {max, number}",
+    "past": "Teks sebelumnya di pelajaran ini",
+    "verdict": {
+      "good": "Benar",
+      "minor_errors": "Kesalahan kecil",
+      "major_errors": "Banyak kesalahan",
+      "off_task": "Tidak sesuai topik"
+    },
+    "criteria": {
+      "task": "Tugas",
+      "communication": "Komunikasi",
+      "accuracy": "Ketepatan"
+    }
+  },
+  "mistakes": {
+    "exercises": "Latihan yang dikerjakan",
+    "firstTry": "Benar pada percobaan pertama",
+    "ofTotal": "{n, number} dari {total, number}",
+    "list": "Kesalahan per latihan",
+    "items": "{count, plural, other {soal}} {items}",
+    "fixed": "{count, plural, other {# diperbaiki kemudian}}",
+    "none": "Tidak ada kesalahan di putaran ini.",
+    "notYet": "Belum ada yang dijawab: kerjakan latihannya dulu.",
+    "tutorIntro": "Tutor membahas kesalahan kamu satu per satu: apa yang salah, aturan di baliknya, dan contoh baru yang singkat untuk mengujinya.",
+    "start": "Bahas kesalahanku bersama tutor",
+    "message": "Tolong bahas kesalahanku di pelajaran ini."
+  },
+  "scene": {
+    "intro": "Latih pelajaran ini dalam permainan peran singkat: pasangan bicara memakai bahasa kursus, mengoreksi kamu, dan mencentang tujuan kamu.",
+    "start": "Mulai adegan",
+    "preparing": "Menyiapkan…",
+    "partner": "Pasangan bicara kamu: {partner}",
+    "translate": "Terjemahan",
+    "placeholder": "Kalimat kamu…",
+    "done": "Semua tujuan tercapai — hebat!",
+    "new": "Adegan baru",
+    "past": "Adegan sebelumnya di pelajaran ini",
+    "goals": "Tujuan: {met, number} dari {total, number}",
+    "ended": "Adegan selesai."
+  },
+  "player": {
+    "play": "Putar: {what}",
+    "pause": "Jeda",
+    "back": "Mundur 5 detik",
+    "speed": "Kecepatan putar {rate}×",
+    "position": "Posisi",
+    "unavailable": "Audio tidak bisa dimuat."
+  },
+  "about": {
+    "title": "Tentang SprachAnker",
+    "intro": "Tutor bahasa yang di-host sendiri dan mengutamakan penyimpanan lokal: kursus asli dalam satu pemutar, progres dan ucapan di komputer kamu sendiri, model AI apa pun yang kamu hubungkan. Gratis dan bersumber terbuka.",
+    "version": "Versi",
+    "licence": "Lisensi: MIT",
+    "source": "Kode sumber di GitHub"
+  },
+  "progress": {
+    "resetCourse": "Atur ulang progres kursus",
+    "removeCourse": "Hapus dari kursus saya",
+    "resetLesson": "Atur ulang progres pelajaran",
+    "courseTitle": "Atur ulang progres kamu di “{title}”?",
+    "courseBody": "Semua jawaban dan putaran pelajaran di kursus ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegan terkait, serta kartu kata yang dibuat dari pelajarannya beserta pengulangannya. Kursus keluar dari “Kursus saya”, tetapi tetap terpasang. Tindakan ini tidak bisa dibatalkan.",
+    "lessonTitle": "Atur ulang progres kamu di “{title}”?",
+    "lessonBody": "Semua jawaban dan putaran pelajaran ini akan dihapus, beserta obrolan tutor, pemeriksaan tulisan, dan adegannya, serta kartu kata yang dibuatnya beserta pengulangannya (kata dari pelajaran lain tetap ada). Tindakan ini tidak bisa dibatalkan.",
+    "confirm": "Atur ulang",
+    "removeExam": "Hapus dari ujian saya",
+    "examTitle": "Hapus “{title}” dari ujian kamu?",
+    "examBody": "Simulasi ujian dan latihannya akan dihapus beserta semua jawaban dan penilaiannya. Ujiannya tetap terunduh."
+  },
+  "download": {
+    "queued": "Dalam antrean — kursus lain sedang diunduh",
+    "pages": "{count, plural, other {# halaman dibaca}}",
+    "preparing": "Menyiapkan pelajaran…",
+    "media": "Media: {done, number} dari {total, number} berkas · {size}",
+    "downloadSize": "Unduh · ≈ {size}",
+    "continue": "Lanjutkan unduhan",
+    "sync": "Sinkronkan dengan sumber",
+    "notDownloaded": "Belum diunduh",
+    "incomplete": "{count, plural, =0 {Unduhan belum selesai} other {# berkas hilang}}",
+    "openSoon": "Kursus bisa dimulai setelah selesai diunduh seluruhnya.",
+    "failed": "Unduhan gagal: {error}",
+    "done": "Sudah diunduh. {failed, plural, =0 {Semua media lengkap.} other {# berkas tidak bisa diunduh.}}",
+    "hint": "Mengunduh akan mengambil yang belum ada dari sumber (halaman dan media yang tersimpan tetap dipakai) lalu menyiapkan kursus lagi; progres kamu tetap ada.",
+    "log": "Log unduhan",
+    "syncShort": "Sinkronkan"
+  },
+  "storage": {
+    "title": "Penyimpanan",
+    "intro": "Kursus, media, dan progres kamu disimpan di folder ini, di komputer yang menjalankan SprachAnker. Folder dipilih saat server dimulai (--data, atau SPRACHANKER_DATA); aplikasi desktop nanti akan memungkinkan kamu mengubahnya.",
+    "total": "Total",
+    "used": "Kursus memakai {size}",
+    "usedFree": "Kursus memakai {size} · {free} kosong di disk",
+    "seriesSize": "{name}: {size}",
+    "recordings": "Rekaman kamu",
+    "recordingsKept": "{count, plural, =0 {tidak ada yang disimpan} other {{n} rekaman · {size}}}",
+    "deleteRecordings": "Hapus semua",
+    "deleteRecordingsTitle": "Hapus semua rekaman?",
+    "deleteRecordingsBody": "Rekaman kamu akan dihapus dari komputer ini. Jawaban dan progres kamu tetap ada. Tindakan ini tidak bisa dibatalkan."
+  },
+  "windowTitle": {
+    "course": "Kursus",
+    "lesson": "Pelajaran {unit}.{lesson}",
+    "exercise": "Lat. {n}/{total}",
+    "summary": "Ringkasan",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Kosakata",
+    "grammar": "Tata bahasa",
+    "culture": "Budaya",
+    "writing": "Menulis",
+    "scene": "Adegan",
+    "mistakes": "Kesalahan"
+  },
+  "words": {
+    "intro": "Kosakata pelajaran sebagai kartu: ingat, tampilkan jawabannya, beri nilai. Jika untuk saat ini sudah habis, kartunya berlanjut di Pengulangan.",
+    "learnt": "Kosakata pelajaran sudah dipelajari untuk saat ini.",
+    "goOn": "{count, plural, =0 {Kartunya kembali di Pengulangan saat jatuh tempo.} other {# kartu yang sedang dipelajari akan segera kembali di Pengulangan.}}"
+  },
+  "myWords": {
+    "search": "Cari kata atau terjemahan",
+    "allDecks": "Semua dek",
+    "all": "Semua",
+    "state": {
+      "new": "Baru",
+      "learning": "Dipelajari",
+      "review": "Diulang",
+      "suspended": "Ditangguhkan",
+      "marked": "Ditandai"
+    },
+    "column": {
+      "word": "Kata",
+      "translation": "Terjemahan",
+      "state": "Status",
+      "due": "Berikutnya"
+    },
+    "dueNow": "sekarang",
+    "dueIn": "dalam {interval}",
+    "nothing": "Tidak ada kata yang cocok.",
+    "sheet": "Kata",
+    "toLesson": "Pelajaran {unit}.{lesson}",
+    "cards": "Kartu",
+    "answers": "Jawaban",
+    "noAnswers": "Belum dijawab.",
+    "face": {
+      "recognition": "Kata → arti",
+      "production": "Arti → kata",
+      "listening": "Menyimak"
+    },
+    "lapses": "{count, plural, other {lupa # kali}}",
+    "suspend": "Tangguhkan",
+    "unsuspend": "Batalkan penangguhan",
+    "fromDeck": "Dari dek {deck}"
+  },
+  "notebook": {
+    "title": "Buku catatan",
+    "days": "Aktivitas",
+    "dayTitle": "{date}: {what}",
+    "open": "sedang berjalan",
+    "unfinished": "belum selesai",
+    "passes": "Putaran",
+    "noPasses": "Belum ada putaran untuk pelajaran ini.",
+    "choose": "Pilih putaran {date} untuk dibandingkan",
+    "compare": "Bandingkan",
+    "compareHint": "Centang dua putaran untuk melihatnya berdampingan.",
+    "minutes": "{count, plural, other {# mnt}}",
+    "worked": "{worked, number} dari {total, number} latihan",
+    "workedSome": "{count, plural, other {# latihan}}",
+    "explanations": "{count, plural, other {# penjelasan}}",
+    "writing": "{count, plural, other {# teks}}",
+    "scenes": "{count, plural, other {# adegan}}",
+    "chats": "{count, plural, other {# obrolan}}",
+    "words": "{count, plural, other {# kata}}",
+    "exercises": "Latihan",
+    "exercise": "Latihan",
+    "total": "Total",
+    "attempts": "{count, plural, other {# percobaan}}",
+    "rightAt": "benar pada percobaan ke-{n, number}",
+    "itemHistory": "Riwayat soal",
+    "passOf": "Putaran {date}",
+    "attemptN": "Percobaan {n, number}",
+    "more": "Lainnya",
+    "alsoDone": "Juga dikerjakan",
+    "wordsAdded": "Kata yang ditambahkan ke Pengulangan",
+    "messages": "{count, plural, other {# pesan}}",
+    "nothing": "tidak ada aktivitas",
+    "kind": {
+      "lesson": "pelajaran {count, number}",
+      "exam": "ujian {count, number}",
+      "review": "kartu {count, number}",
+      "ai": "AI {count, number}"
+    },
+    "less": "Lebih sedikit",
+    "calendar": "Hari belajar selama setahun terakhir",
+    "progress": "Progres",
+    "range": {
+      "all": "Sepanjang waktu",
+      "month": "30 hari",
+      "week": "7 hari"
+    },
+    "tile": {
+      "activeDays": "Hari belajar",
+      "lesson": "Jawaban dan langkah",
+      "exam": "Jawaban ujian",
+      "review": "Kartu dijawab",
+      "newCards": "Kartu baru",
+      "remembered": "Diingat",
+      "rememberedHint": "dari kartu yang diulang",
+      "ai": "Latihan dengan AI"
+    },
+    "examRuns": "Simulasi ujian dan latihan",
+    "noExamRuns": "Belum ada yang diserahkan.",
+    "examWrong": "{count, plural, other {# pertanyaan}} dijawab salah terakhir kali",
+    "section": {
+      "review": "Pengulangan",
+      "lesson": "Pelajaran",
+      "exam": "Ujian"
+    },
+    "none": {
+      "review": "Belum ada kartu: ambil dek kursus di Pengulangan, atau pelajari kosakata sebuah pelajaran.",
+      "lesson": "Belum ada pelajaran yang dikerjakan: setiap pelajaran yang kamu kerjakan muncul di sini, beserta setiap putarannya.",
+      "exam": "Belum ada yang diserahkan: simulasi ujian dan latihan kamu muncul di sini."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Kata yang dikenal",
+        "wordsKnownHint": "semua kartu kata itu sedang diulang",
+        "new": "Baru",
+        "learning": "Dipelajari",
+        "review": "Diulang",
+        "mature": "Sudah hafal",
+        "matureHint": "setiap sisi jatuh tempo dalam tiga minggu atau lebih",
+        "suspended": "Ditangguhkan",
+        "remembered": "Diingat, 30 hari",
+        "rememberedHint": "{count, plural, other {# jawaban}}",
+        "dueToday": "Jatuh tempo hari ini",
+        "dueTomorrow": "Jatuh tempo sampai besok",
+        "dueWeek": "Jatuh tempo dalam seminggu"
+      },
+      "lesson": {
+        "lessonsDone": "Pelajaran selesai",
+        "best": "Skor terbaik"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, other {# putaran}}"
+    },
+    "openEntry": {
+      "review": "Buka dek",
+      "exam": "Semua tentang ujian ini"
+    }
+  },
+  "study": {
+    "listen": "Dengarkan dan ingat artinya",
+    "fromLesson": "pelajaran {unit}.{lesson}",
+    "countsTitle": "Baru {new}, dipelajari {learning}, untuk diulang {review}",
+    "finished": "Selamat! Kamu sudah menyelesaikan dek ini untuk sekarang.",
+    "nextLearning": "{minutes, plural, other {Kartu berikutnya yang sedang dipelajari siap dalam # menit.}}",
+    "reviewLimit": "Batas pengulangan hari ini sudah tercapai, tetapi masih ada kartu yang menunggu untuk diulang.",
+    "newLimit": "Masih ada kartu baru, tetapi batas harian sudah tercapai.",
+    "buried": "Satu kartu atau lebih dikubur dan akan ditampilkan besok.",
+    "unbury": "Gali kembali",
+    "unit": {
+      "s": "dtk",
+      "m": "mnt",
+      "h": "j",
+      "d": "hr",
+      "mo": "bln",
+      "y": "thn"
+    },
+    "flag": {
+      "red": "Merah",
+      "orange": "Oranye",
+      "green": "Hijau",
+      "blue": "Biru",
+      "pink": "Merah muda",
+      "turquoise": "Toska",
+      "purple": "Ungu"
+    },
+    "marked": "Ditandai",
+    "leech": "lintah",
+    "undo": "Urungkan",
+    "undoKeys": "Urungkan (U, Ctrl+Z)",
+    "showKeys": "Space atau Enter",
+    "show": "Tampilkan jawaban",
+    "rating": {
+      "again": "Lagi",
+      "hard": "Sulit",
+      "good": "Bagus",
+      "easy": "Mudah"
+    },
+    "more": "Lainnya",
+    "replay": "Putar ulang audio",
+    "buryCard": "Kubur kartu",
+    "buryNote": "Kubur catatan",
+    "suspendCard": "Tangguhkan kartu",
+    "suspendNote": "Tangguhkan catatan",
+    "mark": "Tandai catatan",
+    "unmark": "Hapus tanda catatan",
+    "keys": "Space atau Enter: tampilkan jawaban, lalu Bagus · 1–4: beri nilai · R: putar ulang · U: urungkan",
+    "noCards": "Belum ada kartu: kartu berasal dari langkah “Kosakata pelajaran” di setiap pelajaran.",
+    "deck": "Dek",
+    "count": {
+      "new": "Baru",
+      "learning": "Belajar",
+      "review": "Ulang"
+    },
+    "due": "{count, plural, other {# kartu}} untuk dipelajari",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, other {jawaban lagi}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Sisa jawaban jika semuanya Bagus: kartu baru melewati dua langkah belajar, kartu yang sedang dipelajari melewati sisa langkahnya, pengulangan butuh satu jawaban. Lagi menambah langkah kembali.",
+    "asks": {
+      "recognition": "Apa artinya?",
+      "production": "Dalam {in}?",
+      "in": {
+        "de": "bahasa Jerman",
+        "en": "bahasa Inggris",
+        "ru": "bahasa Rusia"
+      }
+    },
+    "deckLink": {
+      "audio": "Bacakan dek",
+      "examples": "Buat contoh untuk dek",
+      "both": "Bacakan dek, buat contoh"
+    }
+  },
+  "profiles": {
+    "who": "Siapa yang belajar?",
+    "welcome": "Selamat datang di SprachAnker",
+    "firstHint": "Buat profil kamu untuk mulai: hanya beberapa langkah singkat.",
+    "unnamed": "Belum ada nama",
+    "new": "Profil baru",
+    "previous": "Profil sebelumnya",
+    "next": "Profil lainnya",
+    "page": "{n, number} dari {total, number}"
+  },
+  "onboarding": {
+    "progress": "Langkah {n} dari {total}",
+    "back": "Kembali",
+    "next": "Lanjut",
+    "finish": "Pilih kursus",
+    "profile": {
+      "title": "Selamat datang",
+      "text": "SprachAnker menyatukan kursus bahasa sungguhan dalam satu pemutar, memeriksa jawaban kamu, menyimpan kata-kata kamu dalam pengulangan berjarak, dan bisa menghadirkan tutor AI. Semuanya tetap di komputer ini.",
+      "sources": "Kursus diunduh langsung dari situs web penerbitnya (Deutsche Welle dan lainnya) untuk penggunaan pribadi kamu. Patuhi ketentuan mereka; SprachAnker tidak berafiliasi dengan mereka.",
+      "experimental": "Kursus dan ujian yang masih diuji coba tetap tersembunyi sampai kamu mengaktifkannya di Pengaturan → Umum → Eksperimental.",
+      "name": "Kamu mau dipanggil apa?"
+    },
+    "assistant": {
+      "title": "Asisten AI",
+      "text": "Asisten menjelaskan kesalahan, menjadi tutor dalam pelajaran, memeriksa teks kamu, dan memainkan adegan. Pilih sekarang atau nanti di Pengaturan — aplikasi tetap berfungsi tanpa asisten."
+    },
+    "tour": {
+      "title": "Letak semuanya"
+    },
+    "speech": {
+      "title": "Berbicara",
+      "text": "Ucapkan sendiri frasa-frasa dari kursus dan dengarkan teks apa pun dibacakan: uji mikrofon kamu, unduh pengenal ucapan (cukup sekali) agar aplikasi mendengar apa yang kamu ucapkan, dan pilih suara untuk setiap bahasa. Semuanya tetap di komputer ini; semuanya bisa diubah nanti di Pengaturan → Ucapan."
+    },
+    "cancel": "Batal"
+  },
+  "tour": {
+    "courses": "Kursus kamu (di tempat terakhir kamu berhenti), yang sudah diunduh, dan semua kursus yang bisa diunduh; setiap daftar bisa disaring per pasangan bahasa.",
+    "review": "Kata-kata kamu dalam pengulangan berjarak: beberapa menit sehari.",
+    "notebook": "Setiap putaran dari setiap pelajaran, jawaban dan kesalahan kamu.",
+    "settings": "Profil kamu, pengulangan, ucapan, asisten AI, dan aplikasi.",
+    "exams": "Ujian untuk dipersiapkan, seperti Leben in Deutschland: simulasi ujian seperti aslinya, latihan, dan seluruh katalog beserta jawabannya."
+  },
+  "profile": {
+    "who": "Nama dan warna",
+    "devices": "Perangkat yang masuk",
+    "thisDevice": "perangkat ini",
+    "lastSeen": "terakhir dipakai {date}",
+    "signOutDevice": "Keluar",
+    "switch": "Ganti profil",
+    "open": "Profil",
+    "delete": "Hapus profil…",
+    "deleteTitle": "Hapus profil “{name}”?",
+    "deleteBody": "Progres, kata dan kartu, rekaman, obrolan AI, serta perangkat yang masuk ke profil ini akan dihapus permanen. Profil lain dan kursus tetap ada.",
+    "deleteConfirm": "Hapus permanen",
+    "name": "Nama atau nama panggilan",
+    "colour": "Warna",
+    "colours": {
+      "amber": "Ambar",
+      "teal": "Hijau kebiruan",
+      "rose": "Mawar",
+      "violet": "Lembayung",
+      "sky": "Biru langit",
+      "lime": "Hijau limau"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Belajar",
+      "decks": "Dek",
+      "words": "Kata saya"
+    },
+    "studying": "Sedang dipelajari: {deck}",
+    "more": "{count, plural, other {# kartu baru lagi hari ini}}",
+    "leave": "Tinggalkan dek…",
+    "offers": "Dek yang bisa diambil",
+    "offersHint": "Kosakata dari setiap kursus kamu, dan dari setiap dek yang diimpor ke sini, adalah sebuah dek: jika diambil utuh, kata-katanya ditambahkan sebagai kartu baru sesuai urutannya — dalam batas harian, atau lebih dengan “kartu baru lagi hari ini”. Kata yang sudah punya kartu tetap memakai kartunya.",
+    "words": "{words, plural, other {# kata}} · {mine, number} sudah kamu punya",
+    "take": "Ambil dek",
+    "takeRest": "Tambahkan {count, number} lainnya",
+    "study": "Belajar",
+    "leaveTitle": "Tinggalkan dek {deck}?",
+    "leaveBody": "Kartunya akan hilang beserta progresnya. Kata yang juga ada di dek kamu yang lain pindah ke sana, lengkap dengan progresnya.",
+    "moreShort": "{count, plural, other {+# baru}}",
+    "import": {
+      "button": "Impor berkas dek (.apkg)",
+      "title": "Impor dek",
+      "hint": "Kata-katanya menjadi dek yang bisa diambil setiap profil di komputer ini, seperti dek kursus; audionya ikut serta.",
+      "name": "Nama",
+      "lang": "Bahasa kata",
+      "translationLang": "Bahasa terjemahan",
+      "words": "{words, plural, other {# kata}} · {audio, plural, =0 {tanpa audio} other {# dengan audio}} · {examples, plural, =0 {tanpa contoh} other {# dengan contoh}}",
+      "submit": "Impor",
+      "updates": "Berkas ini memperbarui dek {deck} di sini: kata-katanya diganti dengan kata dari berkas ini, dan kartu yang dibuat darinya ikut menyesuaikan. Dalam bahasa lain, berkas ini menjadi dek tersendiri.",
+      "left": "{count, plural, other {# catatan tanpa kata tidak disertakan.}}",
+      "unusable": "{count, plural, other {# catatan yang katanya tidak bisa dibaca tidak disertakan.}}",
+      "done": "{deck} diimpor: {words, plural, other {# kata}}."
+    },
+    "remove": "Hapus dek",
+    "removeTitle": "Hapus dek {deck}?",
+    "removeBody": "Dek ini beserta kata-kata dan audionya akan dihapus dari komputer ini untuk semua profil. Tindakan ini tidak bisa dibatalkan.",
+    "audio": {
+      "missing": "{count, plural, other {# kata tanpa audio}}",
+      "generate": "Buat audio",
+      "reading": "Membacakan {done, number} dari {total, number}…",
+      "stop": "Berhenti",
+      "all": "Semua kata sudah punya audio",
+      "install": "Untuk membuatnya, pasang suara untuk bahasa {language} di Pengaturan → Ucapan",
+      "failed": "{count, plural, other {# kata tidak bisa dibacakan}}",
+      "voice": "Dibacakan oleh {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Pilih suara"
+    },
+    "left": "sekitar {time} lagi",
+    "why": "Alasan: {reason}",
+    "examples": {
+      "missing": "{count, plural, other {# kata tanpa contoh}}",
+      "make": "Buat contoh",
+      "writing": "Menulis contoh {done, number} dari {total, number}…",
+      "all": "Semua kata sudah punya contoh",
+      "failed": "{count, plural, other {# kata tidak mendapat contoh}}",
+      "setUp": "Untuk membuat contoh, siapkan asisten AI di Pengaturan"
+    },
+    "removeStudied": "{count, plural, other {Profil {profiles} sedang mempelajari dek ini.}} Dek bisa dihapus setelah semua profil meninggalkannya: Pengulangan → Dek → Tinggalkan dek…."
+  },
+  "guide": {
+    "open": "Cara kerjanya",
+    "title": "Cara kerja pengulangan",
+    "curveAlt": "Tiga kurva lupa, masing-masing lebih landai dari sebelumnya",
+    "days": "hari",
+    "curveCaption": "Ingatan memudar jika tidak dipakai: setiap pengulangan di ambang lupa membuat kurvanya lebih landai, sehingga pengulangan berikutnya bisa menunggu lebih lama.",
+    "method": {
+      "title": "Pengulangan berjarak",
+      "text": "Setiap kartu kembali tepat sebelum kamu melupakannya. Jarak waktunya bertambah dengan setiap jawaban yang baik: menit, lalu hari, minggu, bulan. Gagasan ini berasal dari kurva lupa Ebbinghaus (1885)."
+    },
+    "recall": {
+      "title": "Ingat dulu, baru lihat",
+      "text": "Coba ingat jawabannya sebelum kamu menampilkannya. Usaha mengingat itulah yang memperkuat ingatan — membaca jawabannya lagi jauh kurang efektif. Lalu nilai diri kamu dengan jujur."
+    },
+    "buttons": {
+      "title": "Empat tombol",
+      "again": {
+        "name": "Lagi",
+        "text": "tidak ingat, atau salah: kartu kembali dalam satu menit"
+      },
+      "hard": {
+        "name": "Sulit",
+        "text": "ingat dengan susah payah: jarak lebih pendek"
+      },
+      "good": {
+        "name": "Bagus",
+        "text": "ingat: pilihan biasa (Space atau Enter)"
+      },
+      "easy": {
+        "name": "Mudah",
+        "text": "terlalu mudah: kartu kembali jauh lebih lama"
+      }
+    },
+    "counts": {
+      "title": "Tiga angka",
+      "text": "Kartu baru yang masih harus dipelajari hari ini, kartu yang sedang dipelajari (kembali dalam beberapa menit), dan kartu yang jatuh tempo untuk diulang. Angka yang bergaris bawah menunjukkan asal kartu di layar. “Jawaban lagi” memperkirakan berapa jawaban yang dibutuhkan untuk menyelesaikan sesi jika semuanya Bagus."
+    },
+    "faces": {
+      "title": "Kartu sebuah kata",
+      "recognition": {
+        "name": "Kartu 1",
+        "text": "kata → artinya (memahami)"
+      },
+      "production": {
+        "name": "Kartu 2",
+        "text": "arti → katanya (berbicara); muncul setelah kartu 1"
+      },
+      "listening": {
+        "name": "Kartu 3",
+        "text": "kata yang didengar → artinya (menyimak)"
+      }
+    },
+    "more": {
+      "title": "Di bawah “…”",
+      "replay": {
+        "name": "Putar ulang (R)",
+        "text": "dengarkan kata itu lagi"
+      },
+      "bury": {
+        "name": "Kubur (- atau =)",
+        "text": "jangan hari ini: kartu atau seluruh kata kembali besok"
+      },
+      "suspend": {
+        "name": "Tangguhkan (@ atau !)",
+        "text": "keluar dari pengulangan sampai kamu mengembalikannya — untuk kata yang sudah kamu tahu atau tidak kamu perlukan"
+      },
+      "flag": {
+        "name": "Bendera (Ctrl+1–7)",
+        "text": "tanda warna untuk menemukan kartu nanti di Kata saya"
+      },
+      "mark": {
+        "name": "Tandai (*)",
+        "text": "bintang pada kata, untuk kembali ke sana nanti"
+      }
+    },
+    "keys": {
+      "title": "Tombol keyboard",
+      "text": "Space atau Enter menampilkan jawaban, lalu menilai Bagus; 1–4 memberi nilai; U atau Ctrl+Z membatalkan jawaban terakhir; R memutar ulang."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Jadwalnya memakai FSRS, model pengulangan berjarak yang terbuka: model ini memperkirakan seberapa stabil setiap ingatan dan kapan kamu akan melupakannya, dengan sasaran retensi yang kamu inginkan (bawaannya 90%). Batas, retensi, dan jenis kartu ada di Pengaturan."
+    },
+    "schedule": {
+      "title": "Langkah dan hari",
+      "steps": "Kartu baru yang dijawab Bagus kembali setelah 10 menit (setelah Lagi, dalam satu menit), lalu setelah beberapa hari; kartu yang terlupa kembali setelah 10 menit, lalu jaraknya bertambah lagi.",
+      "day": "Hari baru dimulai pukul {time}: pengulangan antara tengah malam dan saat itu dihitung untuk hari sebelumnya.",
+      "limit": "Kartu baru ikut dihitung dalam batas maksimum pengulangan: setelah batas tercapai, tidak ada kartu baru yang ditampilkan hari itu."
+    }
+  },
+  "reviewSettings": {
+    "intro": "Pengulangan berjarak untuk kartu kamu: sebuah kata kembali saat kamu hampir melupakannya. Pengaturan bawaan cocok untuk sebagian besar pelajar.",
+    "limits": "Batas harian",
+    "newPerDay": "Kartu baru per hari",
+    "reviewsPerDay": "Maksimum pengulangan per hari",
+    "limitsHint": "Kata dengan dua jenis kartu dihitung sebagai dua kartu baru. Setiap kartu baru membawa sekitar 5–10 pengulangan di bulan pertamanya.",
+    "retention": "Retensi yang diinginkan",
+    "retentionHint": "Seberapa besar kemungkinan kamu masih ingat sebuah kartu saat kartu itu kembali. Lebih tinggi berarti lebih banyak pengulangan; bawaannya 90%.",
+    "faces": "Jenis kartu untuk kata baru",
+    "facesHint": "Kartu apa saja yang didapat kata baru. Kata yang sudah punya kartu tetap memakai kartunya."
+  },
+  "speech": {
+    "record": "Rekam suara kamu",
+    "stop": "Hentikan rekaman",
+    "showText": "Tampilkan teks",
+    "answerHeard": "Dengarkan, lalu ucapkan dengan lantang sesuai tugasnya.",
+    "answerFree": "Ucapkan dengan lantang sesuai tugasnya.",
+    "answerLine": "Jawaban kamu",
+    "mine": "Suaraku",
+    "mineFor": "Suaraku · {time}",
+    "recordedNotKept": "Direkam (tidak disimpan)",
+    "listenFirst": "Dengarkan rekamannya dulu.",
+    "recording": "Merekam… ketuk lagi untuk berhenti.",
+    "saving": "Menyimpan…",
+    "notSaved": "Rekaman tidak bisa disimpan; tetap dihitung.",
+    "again": "Dengarkan keduanya. Rekam lagi untuk menggantinya.",
+    "howTo": "Ketuk mikrofon, ucapkan, ketuk lagi.",
+    "mic": {
+      "insecure": "Mikrofon hanya berfungsi di alamat aman (https), seperti alamat yang diberikan Tailscale untuk komputer ini.",
+      "unsupported": "Browser ini tidak bisa merekam audio.",
+      "denied": "Akses ke mikrofon ditolak. Izinkan di pengaturan situs browser.",
+      "failed": "Mikrofon tidak bisa dijalankan."
+    },
+    "settings": {
+      "mic": "Mikrofon",
+      "device": "Mikrofon yang dipakai",
+      "defaultDevice": "Bawaan sistem",
+      "unnamedDevice": "Mikrofon",
+      "testing": "Ucapkan sesuatu…",
+      "testHint": "Uji: tiga detik, lalu dengarkan suara kamu sendiri. Dipilih di perangkat ini.",
+      "listen": "Dengarkan",
+      "sampleFor": "Teks untuk didengarkan dalam bahasa {language}",
+      "otherSample": "Frasa lain",
+      "recognition": "Pengenalan ucapan",
+      "recognitionHint": "Ucapan kamu dikenali di komputer ini (Whisper): apa yang kamu ucapkan dibandingkan dengan frasanya. Pengenal ini mendengar kata, bukan bunyi, dan cukup toleran. Tidak ada data yang keluar dari komputer.",
+      "noEngine": "Build ini tidak punya mesin pengenalan ucapan.",
+      "recognitionOn": "Kenali ucapanku",
+      "inUse": "Dipakai",
+      "downloadFailed": "unduhan gagal",
+      "use": "Pakai",
+      "removeModel": "Hapus model",
+      "download": "Unduh",
+      "read": "Membacakan teks",
+      "readHint": "Satu suara membacakan teks dalam satu bahasa: kalimat adegan, contoh kalimat sebuah kata, dan kata tanpa rekaman. Setiap bahasa punya suaranya sendiri.",
+      "engine": {
+        "device": "Suara perangkat ini",
+        "deviceLine": "{count, plural, other {# suara}}, tidak perlu memasang apa pun",
+        "deviceNone": "Browser ini tidak punya suara untuk membacakan teks.",
+        "piper": "Piper di komputer ini",
+        "piperMissing": "Tidak ada di build ini: aplikasi dibuat tanpa mesin ucapannya",
+        "piperLine": "{count, plural, =0 {belum ada suara: unduh di bawah} other {# suara diunduh}}",
+        "qwen": "Qwen3-TTS di komputer ini",
+        "qwenMissing": "Tidak ada di build ini: aplikasi dibuat tanpa mesin ucapannya",
+        "qwenReady": "Siap: model sudah diunduh",
+        "qwenNoModel": "Belum ada model: unduh di bawah"
+      },
+      "voiceFor": "Suara untuk bahasa {language}",
+      "voiceAuto": "Otomatis — {name}",
+      "noVoice": "Perangkat ini tidak punya suara untuk bahasa {language}.",
+      "betterVoices": "Di Mac, suara yang lebih baik (Premium, Disempurnakan) diunduh di Pengaturan Sistem → Aksesibilitas → Konten Lisan → Suara Sistem → Kelola Suara.",
+      "readRate": "Kecepatan: {rate}×",
+      "readRateLabel": "Kecepatan membaca",
+      "piperNone": "Belum ada suara untuk bahasa {language}: unduh di bawah.",
+      "piperNoLanguage": "Piper tidak punya suara untuk bahasa {language}: suara perangkat yang membacakannya.",
+      "piperHint": "Setiap suara Piper berukuran sekitar 60–120 MB dan disimpan di komputer ini; bahasa yang tidak punya suara Piper dibacakan oleh suara perangkat.",
+      "removeVoice": "Hapus suara {voice}",
+      "allVoices": "Semua suara ({count, number})",
+      "quality": {
+        "x_low": "kualitas terendah",
+        "low": "kualitas rendah",
+        "medium": "kualitas sedang",
+        "high": "kualitas tinggi"
+      },
+      "qwenModel": {
+        "small": "Model kecil (0.6B): lebih cepat",
+        "large": "Model besar (1.7B): lebih alami, lebih lambat"
+      },
+      "qwenHint": "Suara neural yang membacakan 10 bahasa (Jerman, Inggris, Rusia, Prancis, Spanyol, Italia, Portugis, Tionghoa, Jepang, Korea) dengan sembilan penutur. Selama berjalan, ia memakai sekitar 3 GB memori (lebih banyak untuk model besar) dan berhenti setelah 10 menit tidak membaca; pembacaan pertama setelah itu menunggu sekitar 20 detik selagi model dimuat. Bahasa yang tidak didukungnya dibacakan oleh suara perangkat.",
+      "qwenNoLanguage": "Qwen3-TTS tidak mendukung bahasa {language}: suara perangkat yang membacakannya.",
+      "howMic": "Di tempat jawaban diucapkan (bagian berbicara dalam ujian), ada mikrofon: ketuk untuk mulai merekam, ketuk lagi untuk berhenti. Jika tugasnya menulis, tidak ada mikrofon.",
+      "howPhrase": "Frasa yang harus diulang disembunyikan sampai percobaan pertama kamu; kamu bisa menampilkannya lebih awal.",
+      "howRecordings": "Rekaman kamu disimpan di komputer ini agar bisa didengarkan lagi di Buku catatan; hapus di Umum → Penyimpanan.",
+      "how": "Cara kerjanya"
+    },
+    "listening": "Mendengarkan…",
+    "notHeard": "Ucapan tidak bisa dikenali; rekamannya tetap dihitung.",
+    "heard": "Terdengar:",
+    "heardNothing": "tidak ada",
+    "verdict": {
+      "correct": "Kamu berhasil mengucapkannya",
+      "partial": "Hampir: ada beberapa kata yang kurang",
+      "wrong": "Coba lagi: dengarkan dan ucapkan sekali lagi"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — akurat (disarankan)",
+      "small-q5_1": "Whisper small — lebih cepat, kurang akurat"
+    },
+    "sayIn": "Ucapkan dalam bahasa {language}",
+    "notHeardShort": "Ucapan tidak bisa dikenali. Coba lagi.",
+    "answerSample": "Contoh",
+    "aiChecking": "AI sedang memeriksa jawaban kamu…",
+    "needsRecognition": "Mengucapkan frasa memerlukan pengenalan ucapan: aktifkan di Pengaturan → Ucapan.",
+    "languageUnknown": "Bahasa kursus ini tidak diketahui, jadi ucapan kamu tidak bisa dikenali.",
+    "read": {
+      "listen": "Bacakan: {what}",
+      "stop": "Berhenti membacakan"
+    },
+    "aiCheck": "Periksa dengan AI"
+  },
+  "error": {
+    "answer_does_not_fit": "Jawaban ini tidak cocok dengan latihan ini. Muat ulang pelajaran.",
+    "card_changed": "Kartu ini diubah di perangkat lain. Kartu ditampilkan lagi.",
+    "downloads_unavailable": "Kursus tidak bisa diunduh di sini.",
+    "empty_recording": "Rekamannya kosong. Coba lagi.",
+    "event_id_taken": "Jawaban ini sudah tercatat secara berbeda. Muat ulang halaman.",
+    "event_of_another_run": "Catatan ini milik putaran lain. Muat ulang pelajaran.",
+    "exam_rating_busy": "Jawaban ini sedang dinilai. Tunggu sebentar.",
+    "exam_conversation_busy": "Pasangan bicara sedang menjawab. Tunggu sebentar.",
+    "exam_part_done": "Bagian ini sudah selesai.",
+    "invalid_event": "Aplikasi mengirim catatan yang tidak diterima server. Muat ulang pelajaran.",
+    "invalid_request": "Aplikasi mengirim sesuatu yang tidak diterima server. Muat ulang halaman.",
+    "request_too_large": "Permintaan ini terlalu besar.",
+    "invalid_setting": "Nilai ini tidak cocok untuk pengaturan tersebut.",
+    "lesson_not_in_series": "Pelajaran ini bukan bagian dari kursus. Muat ulang halaman.",
+    "llm_bad_response": "Server mengembalikan kesalahan.",
+    "llm_cli_missing": "Asisten baris perintah belum terpasang di komputer ini.",
+    "llm_invalid_output": "Model tidak bisa memberi jawaban yang dapat dipakai. Coba lagi, atau pilih model yang lebih besar di Pengaturan → Asisten AI.",
+    "llm_lmstudio_failed": "Server LM Studio tidak berjalan. Buka LM Studio dan jalankan servernya di sana.",
+    "llm_lmstudio_missing": "LM Studio belum terpasang di komputer ini.",
+    "llm_lmstudio_remote": "LM Studio berjalan di komputer lain: jalankan servernya di sana.",
+    "llm_model_not_found": "Model tidak ditemukan di server.",
+    "llm_no_endpoint": "Masukkan alamat server.",
+    "llm_no_key": "Masukkan kunci API.",
+    "llm_not_configured": "Pilih model di Pengaturan → Asisten AI.",
+    "llm_rate_limited": "Batas penyedia sudah tercapai untuk saat ini (paket gratis membatasi permintaan per menit dan per hari). Coba lagi nanti, atau pilih model lain di Pengaturan → Asisten AI.",
+    "llm_timeout": "Model terlalu lama menjawab.",
+    "llm_unauthorized": "Kunci API tidak diterima.",
+    "llm_unreachable": "Server tidak merespons. Periksa alamatnya.",
+    "missing_client_header": "Permintaan ini tidak berasal dari aplikasi. Muat ulang halaman.",
+    "name_required": "Masukkan nama.",
+    "no_active_scene": "Adegan ini sudah berakhir. Mulai adegan baru.",
+    "no_device": "Perangkat ini tidak lagi masuk.",
+    "no_lesson_run": "Mulai pelajaran dulu: pemeriksaan disimpan bersama putarannya.",
+    "no_session": "Perangkat ini sudah keluar. Pilih profil kamu lagi.",
+    "no_such_attempt": "Jawaban ini sudah tidak ada di putaran pelajaran. Muat ulang pelajaran.",
+    "no_such_card": "Kartu ini sudah tidak ada.",
+    "no_such_chat": "Percakapan ini sudah tidak ada.",
+    "no_such_item": "Latihan ini sudah berubah. Muat ulang pelajaran.",
+    "no_such_model": "Model ini tidak tersedia.",
+    "no_such_profile": "Profil ini sudah tidak ada.",
+    "no_such_recording": "Rekaman ini sudah tidak ada.",
+    "no_such_run": "Putaran pelajaran ini sudah tidak ada (progresnya diatur ulang). Muat ulang pelajaran.",
+    "not_found": "Tidak ditemukan. Muat ulang halaman.",
+    "not_installed": "Kursus ini tidak (lagi) terpasang.",
+    "not_offered": "Kursus ini tidak (lagi) ditawarkan.",
+    "nothing_to_undo": "Tidak ada yang bisa diurungkan.",
+    "recording_too_large": "Rekamannya terlalu panjang.",
+    "registration_closed": "Profil baru tidak bisa dibuat di server ini.",
+    "run_incomplete": "Pelajaran belum selesai.",
+    "run_not_active": "Putaran pelajaran ini sudah berakhir. Muat ulang pelajaran.",
+    "run_without_edition": "Putaran ini tidak punya versi bahasa. Mulai pelajaran lagi.",
+    "scene_busy": "Adegan masih menjawab. Tunggu sebentar.",
+    "server_error": "Terjadi kesalahan di server.",
+    "speaking_busy": "Jawaban ini sedang diperiksa. Tunggu sebentar.",
+    "speech_engine_failed": "Pengenal ucapan tidak merespons. Coba lagi.",
+    "speech_unavailable": "Pengenalan ucapan belum disiapkan. Lihat Pengaturan → Ucapan.",
+    "unknown_host": "Server tidak mengenal alamat ini. Buka lewat alamat yang ditampilkan server.",
+    "unknown_setting": "Pengaturan ini tidak (lagi) ada.",
+    "unsupported_audio": "Browser ini merekam dalam format yang tidak bisa disimpan aplikasi.",
+    "writing_busy": "Sebuah teks dari pelajaran ini sedang diperiksa. Tunggu sebentar.",
+    "other": "Terjadi kesalahan: {message}",
+    "exam_needs_setting": "Pilih negara bagian kamu dulu: ujian ini menanyakan hal tentang negara bagian itu.",
+    "exam_time_over": "Waktu simulasi ujian ini sudah habis: ujian diserahkan apa adanya.",
+    "exam_test_running": "Simulasi ujian sedang berjalan: serahkan dulu.",
+    "no_such_deck": "Dek ini tidak (lagi) ada di sini.",
+    "not_a_deck": "Berkas ini bukan berkas dek (.apkg) yang bisa dibaca.",
+    "deck_without_words": "Dek ini tidak punya kata untuk dipelajari.",
+    "deck_too_large": "Berkas dek ini terlalu besar (maksimal 512 MB).",
+    "deck_in_use": "Ada profil yang sedang mempelajari dek ini: dek bisa dihapus setelah tidak ada lagi yang mempelajarinya.",
+    "deck_upload_gone": "Berkas dek yang diunggah sudah tidak ada: pilih lagi.",
+    "deck_unpacked_too_large": "Isi berkas dek ini terlalu besar untuk dibaca sekaligus.",
+    "deck_same_languages": "Kata dan terjemahannya harus dalam dua bahasa yang berbeda.",
+    "examples_without_word": "Kalimat dari model tidak memakai kata tersebut."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Ujian saya",
+      "downloaded": "Diunduh",
+      "available": "Tersedia"
+    },
+    "noneStarted": "Kamu belum memulai ujian apa pun.",
+    "noneDownloaded": "Belum ada ujian yang diunduh.",
+    "allDownloaded": "Semua ujian yang ditawarkan sudah diunduh.",
+    "noneMatch": "Tidak ada pertanyaan yang cocok.",
+    "questions": "{count, plural, other {# pertanyaan}}",
+    "lastPoints": "terakhir: {points, number} dari {max, number}",
+    "ready": "Kamu menguasai {percent} pertanyaan",
+    "lastPassed": "Simulasi ujian terakhir ({date}): lulus",
+    "lastFailed": "Simulasi ujian terakhir ({date}): tidak lulus",
+    "continueTest": "Lanjutkan ujian",
+    "mode": {
+      "test": "Simulasi ujian",
+      "testText": "{count, plural, other {# pertanyaan}} dalam {minutes, plural, other {# menit}}, seperti tes aslinya; jawaban diperiksa saat kamu menyerahkannya.",
+      "practice": "Latihan",
+      "practiceText": "Pertanyaan demi pertanyaan, setiap jawaban langsung diperiksa: yang dulu kamu jawab salah lebih dulu, lalu yang belum pernah kamu lihat.",
+      "catalog": "Katalog",
+      "catalogText": "Semua {count, plural, other {# pertanyaan}} beserta jawabannya."
+    },
+    "begin": "Mulai",
+    "practise": "Berlatih",
+    "openCatalog": "Buka",
+    "known": "Kamu menguasai {known, number} dari {total, plural, other {# pertanyaan}}",
+    "needsState": "Pilih negara bagian kamu: tes ini menanyakan tiga pertanyaan tentang negara bagian itu.",
+    "needsStateCatalog": "Pilih negara bagian kamu di halaman ujian untuk melihat pertanyaannya juga.",
+    "mapTitle": "Pertanyaan",
+    "mapKnown": "dikuasai",
+    "mapWrong": "salah terakhir kali",
+    "mapUnseen": "belum dilihat",
+    "mapSummary": "Dari {total, number} pertanyaan: {known, number} dikuasai, {wrong, number} salah terakhir kali",
+    "points": "{points, number} dari {max, number}",
+    "passed": "Lulus",
+    "failed": "Tidak lulus",
+    "state": "Negara bagian",
+    "chooseState": "Pilih negara bagian",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bayern",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hessen",
+      "mv": "Mecklenburg-Vorpommern",
+      "ni": "Niedersachsen",
+      "nw": "Nordrhein-Westfalen",
+      "rp": "Rheinland-Pfalz",
+      "sl": "Saarland",
+      "sn": "Sachsen",
+      "st": "Sachsen-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Thüringen"
+    },
+    "handIn": "Serahkan",
+    "endPractice": "Akhiri latihan",
+    "handInTitle": "Serahkan ujian?",
+    "handInUnanswered": "{count, plural, other {# pertanyaan}} belum dijawab: pertanyaan yang tidak dijawab dihitung salah.",
+    "goOn": "Lanjutkan",
+    "leave": "Kembali ke ujian",
+    "answered": "Dijawab: {done, number} dari {total, number}",
+    "question": "Pertanyaan {n, number} dari {total, number}",
+    "practiceScore": "{points, number} dari {count, plural, other {# jawaban}} benar",
+    "timeUp": "Waktunya sudah habis: jawaban yang diberikan sampai saat itu yang dihitung.",
+    "needed": "{points, number} dari {max, number} diperlukan",
+    "practiseMistakes": "Latih kesalahan",
+    "tryAgain": "Simulasi ujian baru",
+    "toExam": "Ke ujian",
+    "mistakes": "{count, plural, =0 {Tidak ada kesalahan} other {# kesalahan}}",
+    "allAnswers": "Semua jawaban",
+    "onlyMistakes": "Hanya kesalahan",
+    "showAll": "Tampilkan semua jawaban",
+    "notAnswered": "tidak dijawab",
+    "noMistakes": "Semuanya benar.",
+    "search": "Cari di pertanyaan",
+    "playsLeft": "Sisa {left, number} dari {plays, number} kali putar",
+    "plays": "{count, plural, =1 {Kamu mendengar rekaman ini sekali.} other {Kamu mendengar rekaman ini # kali.}}",
+    "example": "Contoh",
+    "wholeExam": "Seluruh ujian",
+    "next": "Berikutnya",
+    "previous": "Kembali",
+    "questionsGrid": "Pertanyaan",
+    "goTo": "Pertanyaan {n, number}",
+    "practiceTally": "{right, number} benar · {wrong, number} salah · {total, plural, other {# pertanyaan}}",
+    "lastResult": "Simulasi ujian terakhir, {date}: {points, number} dari {max, number}",
+    "noResultYet": "Belum pernah mengikuti simulasi ujian",
+    "inNotebook": "Semuanya di Buku catatan",
+    "sources": {
+      "title": "Sumber dan pemeriksaan",
+      "allPassed": "semua pemeriksaan lolos",
+      "someFailed": "ada pemeriksaan yang tidak lolos",
+      "statement": "Setiap pertanyaan, gambar, rekaman, dan jawaban di sini dibaca dari dokumen di bawah oleh pengimpor di komputer ini — tidak ada yang ditulis tangan atau oleh model — dan diperiksa seperti tercantum. Simulasi ujian memberikan tugas yang sama dan menilainya dengan aturan yang sama seperti tes contoh resmi; simulasi ini menunjukkan seberapa siap kamu, bukan apa yang akan keluar di ujian sebenarnya.",
+      "documents": "Dibaca dari",
+      "copy": "salinan disimpan, SHA-256 {hash}…, dibaca {date}",
+      "read": "dibaca {date}",
+      "checks": "Pemeriksaan",
+      "from": "Dari"
+    },
+    "check": {
+      "questions-complete": "Pertanyaan yang dibaca, dari yang ada di sumber",
+      "options-agree": "Pilihan jawaban sama persis di kedua sumber",
+      "answers-marked-twice": "Jawaban ditandai sama dua kali di sumbernya",
+      "answers-matched": "Jawaban dari halaman kunci jawaban dicocokkan dengan pilihan",
+      "numbers-agree": "Nomor pertanyaan sesuai dengan halamannya",
+      "recordings-placed": "Rekaman ditempatkan bersama pertanyaannya",
+      "media-kept": "Gambar dan rekaman disimpan",
+      "criteria-read": "Kriteria menulis dan berbicara dibaca beserta poin setiap tingkat"
+    },
+    "rating": {
+      "title": "Nilai jawaban kamu",
+      "pending": "{count, plural, other {# jawaban}} belum dinilai: dihitung 0 sampai kamu menilainya.",
+      "hint": "Dinilai seperti cara penilai ujian; ubah penilaian kapan saja.",
+      "voided": "tugas tidak dikerjakan: 0 untuk seluruh jawaban",
+      "unrated": "0 sampai “{criterion}” dinilai: kriteria ini menentukan apakah jawaban dihitung",
+      "save": "Simpan penilaian",
+      "change": "Ubah penilaian",
+      "propose": "Usulkan penilaian (AI)",
+      "proposing": "Asisten sedang menilai…",
+      "proposed": "Diusulkan oleh asisten AI ({model}): terima apa adanya atau ubah."
+    },
+    "conversation": {
+      "you": "Aku",
+      "partner": "Pasangan",
+      "examiner": "Penguji",
+      "intro": "Asisten memerankan penguji dan pasangan bicara kamu. Jawab secara lisan dengan mikrofon (atau ketik); percakapan ini adalah jawaban kamu.",
+      "start": "Mulai bagian ini",
+      "over": "Bagian ini sudah selesai.",
+      "placeholder": "Jawaban kamu…",
+      "end": "Akhiri bagian ini"
+    },
+    "choose": "Pilih ujian"
+  },
+  "experimental": {
+    "disclaimerTitle": "Eksperimen, bukan sarana persiapan",
+    "disclaimer": "Yang kamu aktifkan di sini masih diuji coba: isinya mungkin tidak lengkap atau salah terbaca, penilaiannya mungkin berbeda dari aslinya. Jangan mengandalkannya untuk mempersiapkan kursus atau ujian.",
+    "section": {
+      "courses": "Kursus",
+      "exams": "Ujian"
+    },
+    "sectionHint": {
+      "courses": "Kursus tambahan untuk diunduh, ditampilkan di Kursus",
+      "exams": "Ujian tambahan untuk diunduh, ditampilkan di Ujian"
+    },
+    "none": "Tidak ada yang eksperimental di sini.",
+    "more": "{count, plural, other {# lainnya}}"
+  },
+  "examples": {
+    "newWords": "Baru di sini:",
+    "by": "Contoh dari AI · {model}"
+  }
+}
