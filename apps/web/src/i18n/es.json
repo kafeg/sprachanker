@@ -883,7 +883,16 @@
     "new": "Nuevo perfil",
     "previous": "Perfiles anteriores",
     "next": "Más perfiles",
-    "page": "{n, number} de {total, number}"
+    "page": "{n, number} de {total, number}",
+    "import": {
+      "button": "Importar un perfil…",
+      "sending": "Enviando el archivo… {share, number, percent}",
+      "checking": "Comprobando el archivo y creando el perfil…",
+      "done": "«{name}» ya está aquí.",
+      "noKeys": "Las claves de API no están en el archivo: vuelve a introducirlas en Ajustes → Asistente de IA.",
+      "missing": "Aún no está en este ordenador — sus lecciones aparecen al descargarlo; las palabras ya están en Repaso:",
+      "open": "Abrir «{name}»"
+    }
   },
   "onboarding": {
     "progress": "Paso {n, number} de {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violeta",
       "sky": "Celeste",
       "lime": "Lima"
+    },
+    "export": {
+      "title": "Pasar a otro ordenador",
+      "body": "Un archivo con el progreso, las palabras, los ajustes y las grabaciones de este perfil, para importarlo en tu otro ordenador desde «¿Quién estudia?». Las claves de API no van en él.",
+      "button": "Exportar perfil",
+      "started": "Descargando «{file}» ({size})."
     }
   },
   "decks": {

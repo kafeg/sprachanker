@@ -883,7 +883,16 @@
     "new": "Új profil",
     "previous": "Előző profilok",
     "next": "További profilok",
-    "page": "{n, number}/{total, number}"
+    "page": "{n, number}/{total, number}",
+    "import": {
+      "button": "Profil importálása…",
+      "sending": "A fájl küldése… {share, number, percent}",
+      "checking": "A fájl ellenőrzése és a profil létrehozása…",
+      "done": "„{name}” itt van.",
+      "noKeys": "Az API-kulcsok nincsenek a fájlban: add meg őket újra itt: Beállítások → MI-asszisztens.",
+      "missing": "Még nincs ezen a számítógépen — a leckéik a letöltés után jelennek meg; a szavak már az Ismétlésben vannak:",
+      "open": "„{name}” megnyitása"
+    }
   },
   "onboarding": {
     "progress": "Lépés: {n, number}/{total, number}",
@@ -938,6 +947,12 @@
       "violet": "Ibolya",
       "sky": "Égkék",
       "lime": "Limezöld"
+    },
+    "export": {
+      "title": "Átköltözés másik számítógépre",
+      "body": "Egy fájl a profil haladásával, szavaival, beállításaival és felvételeivel, amelyet a másik számítógépeden a „Ki tanul?” képernyőn importálhatsz. Az API-kulcsok nincsenek benne.",
+      "button": "Profil exportálása",
+      "started": "„{file}” letöltése ({size})."
     }
   },
   "decks": {

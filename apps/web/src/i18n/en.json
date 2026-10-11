@@ -883,7 +883,16 @@
     "new": "New profile",
     "previous": "Previous profiles",
     "next": "More profiles",
-    "page": "{n, number} of {total, number}"
+    "page": "{n, number} of {total, number}",
+    "import": {
+      "button": "Import a profile…",
+      "sending": "Sending the file… {share, number, percent}",
+      "checking": "Checking the file and making the profile…",
+      "done": "“{name}” is here.",
+      "noKeys": "API keys are not in the file: enter them again in Settings → AI assistant.",
+      "missing": "Not on this computer yet — their lessons show once downloaded; the words are in Review already:",
+      "open": "Open “{name}”"
+    }
   },
   "onboarding": {
     "progress": "Step {n, number} of {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violet",
       "sky": "Sky",
       "lime": "Lime"
+    },
+    "export": {
+      "title": "Move to another computer",
+      "body": "A file with this profile's progress, words, settings and recordings, to import on your other computer under “Who is studying?”. API keys are not in it.",
+      "button": "Export profile",
+      "started": "Downloading “{file}” ({size})."
     }
   },
   "decks": {

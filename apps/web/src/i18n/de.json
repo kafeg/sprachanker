@@ -883,7 +883,16 @@
     "new": "Neues Profil",
     "previous": "Vorige Profile",
     "next": "Weitere Profile",
-    "page": "{n, number} von {total, number}"
+    "page": "{n, number} von {total, number}",
+    "import": {
+      "button": "Profil importieren…",
+      "sending": "Datei wird gesendet… {share, number, percent}",
+      "checking": "Datei wird geprüft und das Profil angelegt…",
+      "done": "„{name}“ ist da.",
+      "noKeys": "API-Schlüssel sind nicht in der Datei: gib sie unter Einstellungen → KI-Assistent noch einmal ein.",
+      "missing": "Noch nicht auf diesem Computer — ihre Lektionen erscheinen nach dem Herunterladen; die Wörter sind schon in Wiederholen:",
+      "open": "„{name}“ öffnen"
+    }
   },
   "onboarding": {
     "progress": "Schritt {n, number} von {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violett",
       "sky": "Himmelblau",
       "lime": "Limette"
+    },
+    "export": {
+      "title": "Auf einen anderen Computer umziehen",
+      "body": "Eine Datei mit dem Fortschritt, den Wörtern, Einstellungen und Aufnahmen dieses Profils, zum Importieren auf deinem anderen Computer unter „Wer lernt?“. API-Schlüssel sind nicht darin.",
+      "button": "Profil exportieren",
+      "started": "„{file}“ wird heruntergeladen ({size})."
     }
   },
   "decks": {

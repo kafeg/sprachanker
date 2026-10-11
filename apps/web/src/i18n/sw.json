@@ -883,7 +883,16 @@
     "new": "Wasifu mpya",
     "previous": "Wasifu zilizotangulia",
     "next": "Wasifu zaidi",
-    "page": "{n, number} kati ya {total, number}"
+    "page": "{n, number} kati ya {total, number}",
+    "import": {
+      "button": "Leta wasifu…",
+      "sending": "Inatuma faili… {share, number, percent}",
+      "checking": "Inakagua faili na kuunda wasifu…",
+      "done": "“{name}” iko hapa.",
+      "noKeys": "Funguo za API hazimo kwenye faili: ziweke tena katika Mipangilio → Msaidizi wa AI.",
+      "missing": "Bado havipo kwenye kompyuta hii — masomo yake yataonekana yakishapakuliwa; maneno tayari yako kwenye Marudio:",
+      "open": "Fungua “{name}”"
+    }
   },
   "onboarding": {
     "progress": "Hatua {n, number} kati ya {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Urujuani",
       "sky": "Samawati",
       "lime": "Kijani-limau"
+    },
+    "export": {
+      "title": "Hamia kompyuta nyingine",
+      "body": "Faili lenye maendeleo, maneno, mipangilio na rekodi za wasifu huu, la kuleta kwenye kompyuta yako nyingine kupitia “Nani anasoma?”. Funguo za API hazimo.",
+      "button": "Hamisha wasifu",
+      "started": "Inapakua “{file}” ({size})."
     }
   },
   "decks": {

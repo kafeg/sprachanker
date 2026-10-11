@@ -883,7 +883,16 @@
     "new": "Yeni profil",
     "previous": "Önceki profiller",
     "next": "Diğer profiller",
-    "page": "{n, number} / {total, number}"
+    "page": "{n, number} / {total, number}",
+    "import": {
+      "button": "Profil içe aktar…",
+      "sending": "Dosya gönderiliyor… {share, number, percent}",
+      "checking": "Dosya denetleniyor ve profil oluşturuluyor…",
+      "done": "“{name}” burada.",
+      "noKeys": "API anahtarları dosyada yok: onları Ayarlar → Yapay zekâ asistanı bölümünde yeniden gir.",
+      "missing": "Henüz bu bilgisayarda yok — dersleri indirilince görünür; kelimeler zaten Tekrar'da:",
+      "open": "“{name}” profilini aç"
+    }
   },
   "onboarding": {
     "progress": "Adım {n, number} / {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Menekşe",
       "sky": "Gök mavisi",
       "lime": "Limon yeşili"
+    },
+    "export": {
+      "title": "Başka bir bilgisayara taşı",
+      "body": "Bu profilin ilerlemesini, kelimelerini, ayarlarını ve kayıtlarını içeren, diğer bilgisayarında “Kim çalışıyor?” ekranından içe aktaracağın bir dosya. API anahtarları içinde yok.",
+      "button": "Profili dışa aktar",
+      "started": "“{file}” indiriliyor ({size})."
     }
   },
   "decks": {

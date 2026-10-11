@@ -883,7 +883,16 @@
     "new": "新建个人资料",
     "previous": "上一页",
     "next": "下一页",
-    "page": "{n, number}/{total, number}"
+    "page": "{n, number}/{total, number}",
+    "import": {
+      "button": "导入个人资料…",
+      "sending": "正在发送文件… {share, number, percent}",
+      "checking": "正在检查文件并创建个人资料…",
+      "done": "“{name}”已导入。",
+      "noKeys": "文件中没有 API 密钥：请在“设置 → AI助手”中重新输入。",
+      "missing": "这台电脑上还没有以下内容——下载后即可看到其课程；单词已在复习中：",
+      "open": "打开“{name}”"
+    }
   },
   "onboarding": {
     "progress": "第{n, number}步，共{total, number}步",
@@ -938,6 +947,12 @@
       "violet": "紫罗兰色",
       "sky": "天蓝色",
       "lime": "青柠色"
+    },
+    "export": {
+      "title": "迁移到另一台电脑",
+      "body": "一个包含此个人资料的进度、单词、设置和录音的文件，可在你的另一台电脑上通过“谁在学习？”导入。其中不含 API 密钥。",
+      "button": "导出个人资料",
+      "started": "正在下载“{file}”（{size}）。"
     }
   },
   "decks": {

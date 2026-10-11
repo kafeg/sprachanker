@@ -883,7 +883,16 @@
     "new": "Profil baru",
     "previous": "Profil sebelumnya",
     "next": "Profil lainnya",
-    "page": "{n, number} dari {total, number}"
+    "page": "{n, number} dari {total, number}",
+    "import": {
+      "button": "Impor profil…",
+      "sending": "Mengirim berkas… {share, number, percent}",
+      "checking": "Memeriksa berkas dan membuat profil…",
+      "done": "“{name}” sudah ada di sini.",
+      "noKeys": "Kunci API tidak ada di berkas: masukkan lagi di Pengaturan → Asisten AI.",
+      "missing": "Belum ada di komputer ini — pelajarannya muncul setelah diunduh; kata-katanya sudah ada di Pengulangan:",
+      "open": "Buka “{name}”"
+    }
   },
   "onboarding": {
     "progress": "Langkah {n, number} dari {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Lembayung",
       "sky": "Biru langit",
       "lime": "Hijau limau"
+    },
+    "export": {
+      "title": "Pindah ke komputer lain",
+      "body": "Berkas berisi kemajuan, kata, pengaturan, dan rekaman profil ini, untuk diimpor di komputermu yang lain lewat “Siapa yang belajar?”. Kunci API tidak ikut.",
+      "button": "Ekspor profil",
+      "started": "Mengunduh “{file}” ({size})."
     }
   },
   "decks": {

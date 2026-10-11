@@ -883,7 +883,16 @@
     "new": "Novi profil",
     "previous": "Prethodni profili",
     "next": "Još profila",
-    "page": "{n, number} od {total, number}"
+    "page": "{n, number} od {total, number}",
+    "import": {
+      "button": "Uvezi profil…",
+      "sending": "Datoteka se šalje… {share, number, percent}",
+      "checking": "Datoteka se provjerava i profil se pravi…",
+      "done": "„{name}“ je ovdje.",
+      "noKeys": "API ključevi nisu u datoteci: unesi ih ponovo u Postavkama → AI asistent.",
+      "missing": "Još nije na ovom računaru — njihove lekcije se pojave nakon preuzimanja; riječi su već u Ponavljanju:",
+      "open": "Otvori „{name}“"
+    }
   },
   "onboarding": {
     "progress": "Korak {n, number} od {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Ljubičica",
       "sky": "Nebo",
       "lime": "Limeta"
+    },
+    "export": {
+      "title": "Prenesi na drugi računar",
+      "body": "Datoteka s napretkom, riječima, postavkama i snimcima ovog profila, za uvoz na tvom drugom računaru pod „Ko uči?“. API ključevi nisu u njoj.",
+      "button": "Izvezi profil",
+      "started": "Preuzima se „{file}“ ({size})."
     }
   },
   "decks": {

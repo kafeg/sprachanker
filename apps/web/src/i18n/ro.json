@@ -883,7 +883,16 @@
     "new": "Profil nou",
     "previous": "Profilurile anterioare",
     "next": "Alte profiluri",
-    "page": "{n, number} din {total, number}"
+    "page": "{n, number} din {total, number}",
+    "import": {
+      "button": "Importă un profil…",
+      "sending": "Se trimite fișierul… {share, number, percent}",
+      "checking": "Se verifică fișierul și se creează profilul…",
+      "done": "„{name}” este aici.",
+      "noKeys": "Cheile API nu sunt în fișier: introdu-le din nou în Setări → Asistent AI.",
+      "missing": "Încă nu sunt pe acest calculator — lecțiile apar după descărcare; cuvintele sunt deja la Recapitulare:",
+      "open": "Deschide „{name}”"
+    }
   },
   "onboarding": {
     "progress": "Pasul {n, number} din {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violet",
       "sky": "Bleu",
       "lime": "Verde crud"
+    },
+    "export": {
+      "title": "Mută pe alt calculator",
+      "body": "Un fișier cu progresul, cuvintele, setările și înregistrările acestui profil, de importat pe celălalt calculator al tău din „Cine învață?”. Cheile API nu sunt în el.",
+      "button": "Exportă profilul",
+      "started": "Se descarcă „{file}” ({size})."
     }
   },
   "decks": {

@@ -1,5 +1,5 @@
 // Settings → Profile (06, "Profiles and access"; 09): the name and colour, the devices signed in to
-// it, switching profile, deleting it (asked to confirm).
+// it, its export as a file, switching profile, deleting it (asked to confirm).
 import { LogOut, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -17,6 +17,7 @@ import { useDateFormat } from "@/ui/format.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { deviceName } from "./device-name.ts";
 import { NameAndColour } from "./name-colour.tsx";
+import { ProfileExport } from "./profile-export.tsx";
 
 export function ProfileSettings() {
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ export function ProfileSettings() {
         </div>
       </Panel>
       <DevicesPanel />
+      <ProfileExport />
       <Button
         variant="outline"
         size="lg"

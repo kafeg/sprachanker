@@ -883,7 +883,16 @@
     "new": "Nouveau profil",
     "previous": "Profils précédents",
     "next": "Autres profils",
-    "page": "{n, number} sur {total, number}"
+    "page": "{n, number} sur {total, number}",
+    "import": {
+      "button": "Importer un profil…",
+      "sending": "Envoi du fichier… {share, number, percent}",
+      "checking": "Vérification du fichier et création du profil…",
+      "done": "« {name} » est là.",
+      "noKeys": "Les clés d’API ne sont pas dans le fichier : saisis-les à nouveau dans Réglages → Assistant IA.",
+      "missing": "Pas encore sur cet ordinateur — leurs leçons apparaissent une fois téléchargées ; les mots sont déjà dans Révision :",
+      "open": "Ouvrir « {name} »"
+    }
   },
   "onboarding": {
     "progress": "Étape {n, number} sur {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violet",
       "sky": "Ciel",
       "lime": "Citron vert"
+    },
+    "export": {
+      "title": "Passer à un autre ordinateur",
+      "body": "Un fichier avec la progression, les mots, les réglages et les enregistrements de ce profil, à importer sur ton autre ordinateur depuis « Qui étudie ? ». Les clés d’API n’y sont pas.",
+      "button": "Exporter le profil",
+      "started": "Téléchargement de « {file} » ({size})."
     }
   },
   "decks": {

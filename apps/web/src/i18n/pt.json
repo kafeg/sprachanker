@@ -883,7 +883,16 @@
     "new": "Novo perfil",
     "previous": "Perfis anteriores",
     "next": "Mais perfis",
-    "page": "{n, number} de {total, number}"
+    "page": "{n, number} de {total, number}",
+    "import": {
+      "button": "Importar um perfil…",
+      "sending": "Enviando o arquivo… {share, number, percent}",
+      "checking": "Verificando o arquivo e criando o perfil…",
+      "done": "“{name}” está aqui.",
+      "noKeys": "As chaves de API não estão no arquivo: insira-as de novo em Configurações → Assistente de IA.",
+      "missing": "Ainda não está neste computador — as lições aparecem depois de baixar; as palavras já estão na Revisão:",
+      "open": "Abrir “{name}”"
+    }
   },
   "onboarding": {
     "progress": "Passo {n, number} de {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violeta",
       "sky": "Azul-celeste",
       "lime": "Verde-limão"
+    },
+    "export": {
+      "title": "Levar para outro computador",
+      "body": "Um arquivo com o progresso, as palavras, as configurações e as gravações deste perfil, para importar no seu outro computador em “Quem vai estudar?”. As chaves de API não vão nele.",
+      "button": "Exportar perfil",
+      "started": "Baixando “{file}” ({size})."
     }
   },
   "decks": {

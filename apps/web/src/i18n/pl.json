@@ -883,7 +883,16 @@
     "new": "Nowy profil",
     "previous": "Poprzednie profile",
     "next": "Więcej profili",
-    "page": "{n, number} z {total, number}"
+    "page": "{n, number} z {total, number}",
+    "import": {
+      "button": "Importuj profil…",
+      "sending": "Wysyłanie pliku… {share, number, percent}",
+      "checking": "Sprawdzanie pliku i tworzenie profilu…",
+      "done": "„{name}” jest tutaj.",
+      "noKeys": "Kluczy API nie ma w pliku: wpisz je ponownie w Ustawieniach → Asystent AI.",
+      "missing": "Jeszcze nie ma tego na tym komputerze — lekcje pojawią się po pobraniu; słowa są już w Powtórkach:",
+      "open": "Otwórz „{name}”"
+    }
   },
   "onboarding": {
     "progress": "Krok {n, number} z {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Fioletowy",
       "sky": "Błękitny",
       "lime": "Limonkowy"
+    },
+    "export": {
+      "title": "Przenieś na inny komputer",
+      "body": "Plik z postępami, słowami, ustawieniami i nagraniami tego profilu do zaimportowania na twoim drugim komputerze w oknie „Kto się uczy?”. Kluczy API w nim nie ma.",
+      "button": "Eksportuj profil",
+      "started": "Pobieranie „{file}” ({size})."
     }
   },
   "decks": {
