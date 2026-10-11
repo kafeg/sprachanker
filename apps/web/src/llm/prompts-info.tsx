@@ -36,7 +36,7 @@ const PARTS = {
   conversation: ["exam", "partner", "conversation"],
   sceneSetup: ["lesson", "lessonVocab", "knownVocab"],
   scene: ["lesson", "lessonVocab", "knownVocab", "history"],
-  example: ["word", "courseVocab", "earlier"],
+  examples: ["level", "knownVocab", "words"],
 } as const;
 
 type Prompt = {

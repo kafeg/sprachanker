@@ -102,7 +102,7 @@ moved, or restored by copying. Decks imported from `.apkg` files live beside it,
 
 None is written: `media.json` records the media and the library is read from the canonical and locale
 folders. Planned: a series manifest — each edition's `contentVersion`, a hash per file — with course
-bundles (plan, item 6, and "Open items in built areas", Library); its format is fixed when it is built.
+bundles (plan, item 5, and "Open items in built areas", Library); its format is fixed when it is built.
 
 Exams of a course are listed in its course index (`exams`); a stand-alone exam is a course with exams
 only (no units), shown in the Exams section rather than among the courses. An exam is its questions

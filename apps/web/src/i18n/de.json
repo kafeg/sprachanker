@@ -391,7 +391,7 @@
       "conversation": "Prüfung: ein Sprechteil",
       "sceneSetup": "Szene: die Situation",
       "scene": "Szene",
-      "example": "Beispiel zu einem Wort"
+      "examples": "Beispiele für die Wörter eines Stapels"
     },
     "contextIntro": "Aus der Lektion kommt dazu:",
     "systemIntro": "System-Prompt:",
@@ -409,9 +409,6 @@
       "tools": "auf Anfrage (Werkzeuge): dein Fortschritt, Fehler in jeder Lektion, wo ein Wort vorkommt, was eine Lektion behandelt",
       "text": "dein Text",
       "script": "das Transkript der Lektion, wenn die Aufgabe ihr Audio oder Video betrifft",
-      "word": "das Wort mit Übersetzung",
-      "courseVocab": "die Wörter des Kurses bis zur Lektion des Worts (die neuesten zuerst)",
-      "earlier": "die früheren Beispiele zum Wort, damit ein neues anders ist",
       "heard": "die Frage und die Antwort des Kurses, wie die Spracherkennung sie in seinen Aufnahmen gehört hat",
       "answer": "was du gesagt hast, wie die Spracherkennung es gehört hat",
       "exam": "der Titel der Prüfung und die Aufgabe, wie sie gestellt ist: Anweisung und Text des Teils, die Frage",
@@ -419,7 +416,9 @@
       "samples": "die Musterantworten der Prüfung, wenn sie welche gibt",
       "writtenAnswer": "deine Antwort",
       "partner": "was dein Partner hat: Karte, Kalender oder Folien (du siehst sie nicht)",
-      "conversation": "das Gespräch bis jetzt (die letzten Zeilen)"
+      "conversation": "das Gespräch bis jetzt (die letzten Zeilen)",
+      "level": "das Niveau des Kurses oder Stapels, wenn sein Name es nennt (A1, A2 …), sonst Anfänger",
+      "words": "fünf Wörter des Stapels mit Übersetzung, Wortart und Genus"
     },
     "upTo": "bis {chars, number} Zeichen",
     "debug": "Schaltflächen „Prompt“ anzeigen",
@@ -452,8 +451,8 @@
         "where": "„Mit KI prüfen“ unter einer gesprochenen Antwort"
       },
       "example": {
-        "name": "Beispiel zum Wort",
-        "where": "auf seiner Karte und in seinem Blatt"
+        "name": "Beispiele zu Wörtern",
+        "where": "auf seiner Karte und in seinem Blatt; für einen Stapel erstellt unter Wiederholen → Stapel"
       },
       "exam": {
         "name": "Prüfungsantworten",
@@ -469,7 +468,7 @@
       "conversation": "Führt einen Sprechteil einer Prüfung: spielt die Prüfenden und die andere Person, wie der Teil es vorgibt, Zeile für Zeile mit dir; hilft und korrigiert nie. Danach wird nach den Kriterien des Teils bewertet.",
       "sceneSetup": "Beginnt eine Szene: erfindet die Situation zum Thema der Lektion — wer du bist, mit wem du sprichst, wo und welche Ziele du erreichen sollst. Einmal pro Szene.",
       "scene": "Spielt die Szene: antwortet auf jeden deiner Sätze als dein Gegenüber, korrigiert Fehler, gibt eine Übersetzung und hakt erreichte Ziele ab.",
-      "example": "Schreibt einen Beispielsatz mit dem Wort der Karte, möglichst aus Wörtern, die du kennst, und übersetzt die neuen."
+      "examples": "Schreibt drei bis fünf Beispielsätze zu jedem Wort eines Stapels, das keine eigenen hat, fünf Wörter auf einmal (Wiederholen → Stapel, „Beispiele erstellen“), möglichst mit Wörtern, die du kennst, neue übersetzt."
     }
   },
   "writing": {
@@ -911,7 +910,15 @@
       "chooseVoice": "Stimme wählen"
     },
     "left": "noch etwa {time}",
-    "why": "Grund: {reason}"
+    "why": "Grund: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# Wort ohne Beispiele} other {# Wörter ohne Beispiele}}",
+      "make": "Beispiele erstellen",
+      "writing": "Beispiele werden geschrieben: {done, number} von {total, number} …",
+      "all": "Alle Wörter haben Beispiele",
+      "failed": "{count, plural, one {# Wort hat keine Beispiele bekommen} other {# Wörter haben keine Beispiele bekommen}}",
+      "setUp": "Richte für Beispiele den KI-Assistenten in den Einstellungen ein"
+    }
   },
   "guide": {
     "open": "So funktioniert's",
@@ -1013,13 +1020,6 @@
     "retentionHint": "Wie wahrscheinlich du eine Karte noch weißt, wenn sie wiederkommt. Höher heißt mehr Wiederholungen; standardmäßig 90 %.",
     "faces": "Kartentypen eines neuen Worts",
     "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre."
-  },
-  "example": {
-    "show": "Beispiel",
-    "title": "Beispiel",
-    "another": "Anderes Beispiel",
-    "newWords": "Neu hier:",
-    "setUp": "Ein Beispiel? Richte den KI-Assistenten in den Einstellungen ein."
   },
   "speech": {
     "record": "Dich aufnehmen",
@@ -1137,7 +1137,6 @@
     "empty_recording": "Die Aufnahme ist leer. Versuch es noch einmal.",
     "event_id_taken": "Diese Antwort ist schon anders gespeichert. Lade die Seite neu.",
     "event_of_another_run": "Dieser Eintrag gehört zu einem anderen Durchgang. Lade die Lektion neu.",
-    "example_busy": "Ein Beispiel für dieses Wort wird gerade geschrieben. Warte darauf.",
     "exam_rating_busy": "Diese Antwort wird gerade bewertet. Warte darauf.",
     "exam_conversation_busy": "Dein Partner antwortet gerade. Warte darauf.",
     "exam_part_done": "Dieser Teil ist schon zu Ende.",
@@ -1203,7 +1202,8 @@
     "deck_in_use": "Ein Profil lernt diesen Stapel: Löschen geht, wenn ihn niemand mehr lernt.",
     "deck_upload_gone": "Die hochgeladene Stapeldatei ist nicht mehr da: wähle sie noch einmal.",
     "deck_unpacked_too_large": "Diese Stapeldatei entpackt sich zu mehr, als auf einmal gelesen werden kann.",
-    "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen."
+    "deck_same_languages": "Wörter und Übersetzungen brauchen zwei verschiedene Sprachen.",
+    "examples_without_word": "Die Sätze des Modells enthielten das Wort nicht."
   },
   "exams": {
     "tabs": {
@@ -1354,5 +1354,11 @@
     },
     "none": "Hier ist nichts experimentell.",
     "more": "{count, plural, one {# weiterer} other {# weitere}}"
+  },
+  "examples": {
+    "none": "Zu diesem Wort gibt es noch keine Beispiele.",
+    "toDecks": "Für seinen Stapel unter „Stapel“ erstellen",
+    "newWords": "Neu hier:",
+    "by": "Beispiele von der KI · {model}"
   }
 }

@@ -151,12 +151,15 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   new cards and reviews per day (20, 200), desired retention (0.9), the card types of a new word
   (recognition, production). The steps, the day's start and new cards within the review limit are
   Anki's defaults and not settings (owner, 2026-10-11).
-- **AI examples** (owner, 2026-10-07): on request only — "Example" under a card's answer and in the
-  word sheet — the model writes a sentence with the word (07, `word_example`). Each is kept with the
-  card and never shown by itself: asking again shows the newest kept, "Another example" asks anew.
-  The sentence's words are matched against the course's words up to the card's lesson (their forms,
-  and a form differing only by an ending: `text/words.ts`); the others are marked new, translated by
-  the course's later lessons, else by the model's glossary.
+- **AI examples** (owner, 2026-10-07/09): made for a whole deck at once, on request (below, "A
+  deck's words given examples"), and shown on a card's answer and in the word sheet — after the
+  deck's own — each with its translation, readable aloud; the sentence's words are matched against
+  the words before the card's (a course's up to its lesson, an imported deck's up to the word: their
+  forms, and a form differing only by an ending: `text/words.ts`); the others are marked new,
+  translated by the deck's later words, else by the model's glossary. A card whose word has none
+  (and none of its own) says so, while the assistant works there, with the way to Decks. The
+  examples a card asked for one at a time in earlier versions are no longer shown (their events
+  still read, 05).
 - **Imported decks** (plan, "Anki decks and word images"): an `.apkg` file (`packages/anki-export`:
   the collection in any of Anki's formats — `collection.anki21b`, else `.anki21`, else `.anki2`, never
   merged — its notes and media) becomes a deck of words in a language with translations in another,
@@ -187,9 +190,7 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   two — updates that deck (another deck sharing a note, or the same in other languages,
   is one of its own), and cards follow their words (relinking); a card of a word the update drops
   keeps what it showed, its audio too (the deck's earlier audio stays); a deck is deleted only while no
-  profile has cards made from it (they leave it first: nobody's progress goes unasked). Planned:
-  examples by the AI for a whole deck's words without the deck's own (plan, item 1), kept beside the
-  deck as its audio is (below).
+  profile has cards made from it (they leave it first: nobody's progress goes unasked).
 - **A deck's words read aloud** (owner, 2026-10-11; `services/deck-audio.ts`): any deck the learner
   has — a course's or an imported one — on request reads the words of the learner's cards in it (a
   card belongs to the deck it was made in, so a word two decks share is read for the deck its card is
@@ -215,6 +216,22 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   display has its word's own audio, else the reading of its deck's folder for its lexeme and text
   (`readAudio`, served from the folder), else the device's voice as before. A course's folder goes when
   the course is no longer here (at the server's start).
+- **A deck's words given examples** (owner, 2026-10-09; `services/deck-examples.ts`): any deck the
+  learner has, on request from Review → Decks: the words of the learner's cards in it that bring no
+  example of their own (an imported deck's sentences, a course's) get three to five sentences each
+  from the profile's model (07, `word_examples`), five words a call, each call of one translation
+  language (a course's cards may be in two editions: each gets its own), with what the learner can be
+  assumed to know (a course's words up to the words' lesson, an imported deck's up to them) and the
+  level the course's or deck's name says ("a1-ru", "Wörter A2"), else beginners'. A sentence that
+  does not use its word (engine `usesWord`) is dropped; a word left without any is asked for once more
+  on its own; still none, it counts as failed with the reason. Kept beside the deck
+  (`extras.json`, 05) by lexeme and translation language — every profile's cards show them — with
+  the model and when. A job per deck (as the audio's, `deck-extras.ts`): one at a time, the server's,
+  its progress (words given examples of all, the words under way, failures and why, about how long
+  the rest takes), extras.json written after every call; stopped, the call under way is finished and
+  kept, started again only the rest; three calls in a row that give nothing (the model out of reach,
+  answering out of shape) end it. The model is that of the profile that starts it (refused while it
+  has none).
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)

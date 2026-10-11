@@ -1,5 +1,5 @@
-// Model calls still running (07): what each one is doing, by key — a lesson (writing, a scene), a card
-// (its examples), an answer in a run (a spoken check, an exam answer rated, a speaking part's next
+// Model calls still running (07): what each one is doing, by key — a lesson (writing, a scene), an
+// answer in a run (a spoken check, an exam answer rated, a speaking part's next
 // lines) — so a page opened meanwhile (after leaving it, a reload, another device) shows it instead of
 // offering to start again, and a second one of the same kind is refused until the first is done. The
 // calls run to their end even when the page that asked for them is gone: their result is kept and

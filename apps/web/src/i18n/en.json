@@ -391,7 +391,7 @@
       "conversation": "Exam: a speaking part",
       "sceneSetup": "Scene: the situation",
       "scene": "Scene",
-      "example": "Example for a word"
+      "examples": "Examples for a deck's words"
     },
     "contextIntro": "Added from the lesson:",
     "systemIntro": "System prompt:",
@@ -409,9 +409,6 @@
       "tools": "on request (tools): your progress, mistakes in any lesson, where a word is taught, what a lesson covers",
       "text": "your text",
       "script": "the lesson's transcript, when the item is about its audio or video",
-      "word": "the word with its translation",
-      "courseVocab": "the course's words up to the word's lesson (the most recent first)",
-      "earlier": "the examples given for the word before, so a new one differs",
       "heard": "the question and the course's own answer, as the recogniser heard them in the course's recordings",
       "answer": "what you said, as the recogniser heard it",
       "exam": "the exam's title and the task as set: the part's instructions and text, the question",
@@ -419,7 +416,9 @@
       "samples": "the exam's model answers, if it gives any",
       "writtenAnswer": "your answer",
       "partner": "what the partner has: their card, calendar or slides (you don't see it)",
-      "conversation": "the conversation so far (the most recent lines)"
+      "conversation": "the conversation so far (the most recent lines)",
+      "level": "the level of the course or deck when its name says it (A1, A2…), else beginners'",
+      "words": "five words of the deck with their translations, part of speech and gender"
     },
     "upTo": "up to {chars, plural, one {# character} other {# characters}}",
     "debug": "Show “Prompt” buttons",
@@ -452,8 +451,8 @@
         "where": "“Check with AI” under an answer said aloud"
       },
       "example": {
-        "name": "A word's example",
-        "where": "on its card and in its sheet"
+        "name": "A word's examples",
+        "where": "on its card and in its sheet; made for a deck in Review → Decks"
       },
       "exam": {
         "name": "Exam answers",
@@ -469,7 +468,7 @@
       "conversation": "Holds a speaking part of an exam: plays the examiner and the other candidate, as the part prescribes, line by line with you; it never helps or corrects. Rated afterwards by the part's criteria.",
       "sceneSetup": "Starts a scene: invents the situation from the lesson's topic — who you are, who you talk to, where, and the goals to reach. Asked once per scene.",
       "scene": "Plays the scene: answers each of your lines as your partner, corrects your mistakes, gives a translation and ticks off the goals you reached.",
-      "example": "Writes an example sentence with a card's word, using words you know where it can, with the new ones translated."
+      "examples": "Writes three to five example sentences for each word of a deck that has none of its own, five words at a time (Review → Decks, “Make examples”), with words you know where it can and the new ones translated."
     }
   },
   "writing": {
@@ -911,7 +910,15 @@
       "chooseVoice": "Choose a voice"
     },
     "left": "about {time} left",
-    "why": "Reason: {reason}"
+    "why": "Reason: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# word without examples} other {# words without examples}}",
+      "make": "Make examples",
+      "writing": "Writing examples {done, number} of {total, number}…",
+      "all": "All words have examples",
+      "failed": "{count, plural, one {# word got no examples} other {# words got no examples}}",
+      "setUp": "To make examples, set up the AI assistant in Settings"
+    }
   },
   "guide": {
     "open": "How it works",
@@ -1013,13 +1020,6 @@
     "retentionHint": "How likely you still remember a card when it comes back. Higher means more reviews; 90% by default.",
     "faces": "Card types of a new word",
     "facesHint": "Which cards a new word gets. Words that have cards keep theirs."
-  },
-  "example": {
-    "show": "Example",
-    "title": "Example",
-    "another": "Another example",
-    "newWords": "New here:",
-    "setUp": "Want an example? Set up the AI assistant in Settings."
   },
   "speech": {
     "record": "Record yourself",
@@ -1137,7 +1137,6 @@
     "empty_recording": "The recording is empty. Try again.",
     "event_id_taken": "This answer was already recorded differently. Reload the page.",
     "event_of_another_run": "This record belongs to another pass. Reload the lesson.",
-    "example_busy": "An example for this word is being written. Wait for it.",
     "exam_rating_busy": "This answer is being rated. Wait for it.",
     "exam_conversation_busy": "The partner is answering. Wait for it.",
     "exam_part_done": "This part is over.",
@@ -1203,7 +1202,8 @@
     "deck_in_use": "A profile studies this deck: it can be deleted once nobody does.",
     "deck_upload_gone": "The uploaded deck file is no longer here: choose it again.",
     "deck_unpacked_too_large": "This deck file unpacks to more than can be read at once.",
-    "deck_same_languages": "The words and their translations need two different languages."
+    "deck_same_languages": "The words and their translations need two different languages.",
+    "examples_without_word": "The model's sentences did not use the word."
   },
   "exams": {
     "tabs": {
@@ -1354,5 +1354,11 @@
     },
     "none": "Nothing experimental here.",
     "more": "{count, plural, one {# more} other {# more}}"
+  },
+  "examples": {
+    "none": "No examples for this word yet.",
+    "toDecks": "Make them for its deck in Decks",
+    "newWords": "New here:",
+    "by": "Examples by the AI · {model}"
   }
 }

@@ -55,7 +55,7 @@ sent when LM Studio requires one.
 All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
 turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
 this wrong?", the tutor (and with it "Going over mistakes"), "Write it yourself", scenes, spoken
-answers, a word's example, an exam's answers — a place off is not shown (its button, its step of the lesson plan); a
+answers, a word's examples (on its card and made for its deck), an exam's answers — a place off is not shown (its button, its step of the lesson plan); a
 lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
 
 | Task | Input | Output |
@@ -68,7 +68,6 @@ lesson done stays done, and a lesson in progress gains or loses the step, which 
 | `scene_turn` | scene setup, allowed words, history, the learner's new line | JSON: reply (target language), translation, corrections[] (of the new line only), goalsMet[], done |
 | `rate_exam_answer` | an exam's title, the task as set (the Teil's instructions and text, the question), its criteria (titles, each level's points and meaning, which voids the task), the exam's model answers if any, the learner's answer | JSON: criteria[] (id, points — one of its levels, checked with one repair —, reason), feedback |
 | `exam_conversation` | an exam's title, the speaking part and its task as the learner has it (instructions, cards, texts), what the partner has (their card, calendar, slides), the conversation so far | JSON: lines[] (speaker `examiner` \| `partner`, text) up to the learner's turn, done |
-| `word_example` | a card's word with its translation, the course's words up to its lesson, the sentences given before | JSON: sentence (with the word: checked, one repair), translation, glossary[] (words beyond the given ones, translated) |
 | `word_examples` | a few words of a deck (five), each as learnt with its translation, part of speech and gender; the words the learner can be assumed to know (a course's up to the words' lesson, an imported deck's up to them); the level when known (the course's or deck's name says it: "A1"), else A1–A2 | JSON: words[] (n — the word's number —, examples[]: sentence, translation, glossary[]) — three to five a word |
 
 "Propose a rating" above an exam's open answer (09, Exams; owner's choice K, 2026-10-10) →
@@ -84,8 +83,10 @@ exam too, while it runs); the conversation as text is the part's answer (a mock 
 goes, practice once the part is over or the learner ends it), rated by the part's criteria like any
 open answer. Without an assistant (or its place off) the part is answered aloud or typed as any open
 answer.
-"Example" on a card or in the word sheet → `word_example`, kept as an `llm_verdict` (`task: example`)
-on the card (04, "AI examples"); "Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
+"Make examples" under a deck in Review → Decks → `word_examples`, a call per five of its words without
+examples, kept beside the deck (04, "A deck's words given examples"; earlier versions' one-at-a-time
+`word_example`, an `llm_verdict` with `task: example` on the card, still reads and is shown nowhere);
+"Why is this wrong?" under a wrong closed-exercise item → `explain_mistake`; a finished explanation is
 kept as an `llm_verdict` (`task: explain`) on the item in the lesson run, with the attempt it explains
 (the answer explained is read from that attempt in the run, not taken from the request), and shown
 again from there ("Explain again" asks anew; the newest is shown); "ask about this exercise"
@@ -144,7 +145,7 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   left by a tap on it.
 - Settings → AI assistant → Advanced: each task's system prompt and the context parts it adds, with
   their character limits (each task's `*_BUDGETS`): explanations, the tutor, writing and spoken
-  checks, a scene's situation and its lines, word examples.
+  checks, a scene's situation and its lines, a deck's words given examples.
 - The learner can replace a task's system prompt with their own (Settings → AI assistant → Advanced,
   "Restore" brings the standing one back). It is a template in the profile setting `llm.prompts` (task → text);
   `{language}` and `{target}` are filled in with the names of the answer language and the language

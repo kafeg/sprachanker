@@ -1,8 +1,8 @@
 // Review (09): tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
 // profile's decks as Anki lists them, each language and its courses and imported decks with New,
-// Learning and To review; more new cards today, leaving a deck or its words read aloud; the decks to
-// take — each of My courses' words and each imported deck —, a deck file imported, an imported deck
-// deleted) and My words (words.tsx). "How it works" opens the guide beside.
+// Learning and To review; more new cards today, leaving a deck, its words read aloud or given examples
+// (a slot); the decks to take — each of My courses' words and each imported deck —, a deck file
+// imported, an imported deck deleted) and My words (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
 import { Play, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -15,6 +15,7 @@ import { DeckImport } from "@/study/deck-import.tsx";
 import { useDeckName } from "@/study/decks.ts";
 import { GuideButton } from "@/study/guide.tsx";
 import { StudySession } from "@/study/session.tsx";
+import { useStudySlots } from "@/study/slots.ts";
 import { COUNT_TONE } from "@/study/tones.ts";
 import { Button } from "@/ui/components/button.tsx";
 import { ConfirmDialog } from "@/ui/confirm.tsx";
@@ -59,6 +60,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
   const name = useDeckName();
   const pairName = usePairName();
   const actions = useDeckActions();
+  const slots = useStudySlots();
   const [leaving, setLeaving] = useState<{ scope: string; lang: string; title: string }>();
   if (decks.isPending) return <Loading />;
   if (decks.isError) return <ErrorState error={decks.error} onRetry={() => decks.refetch()} />;
@@ -134,6 +136,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
                 )}
               </div>
               {deck.child && <DeckAudio scope={deck.scope} className="mt-1.5 px-4 pl-9" />}
+              {deck.child && slots.deck?.({ scope: deck.scope, className: "mt-1.5 px-4 pl-9" })}
             </div>
           ))}
         </div>

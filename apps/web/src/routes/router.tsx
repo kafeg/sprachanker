@@ -37,13 +37,20 @@ const AssistantSetup = page(() =>
   import("@/llm/settings-section.tsx").then((m) => m.AssistantSetup),
 );
 const Onboarding = page(() => import("@/app/onboarding.tsx").then((m) => m.Onboarding));
-// The reviewer's slot (an AI example under a card), loaded with the first answer shown; nothing in its
-// place meanwhile, so the card does not move.
-const WordExample = page(
-  () => import("@/llm/word-example.tsx").then((m) => m.wordAssistant.word),
+// The reviewer's and Decks' slots (a deck's AI examples, on a card and under the deck), loaded when
+// first shown; nothing in their place meanwhile, so the card does not move.
+const CardExamples = page(
+  () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.word),
   null,
 );
-const wordAssistant = { word: (props: { cardId: string }) => <WordExample {...props} /> };
+const DeckExamples = page(
+  () => import("@/llm/word-examples.tsx").then((m) => m.examplesAssistant.deck),
+  null,
+);
+const examplesAssistant = {
+  word: (props: { cardId: string }) => <CardExamples {...props} />,
+  deck: (props: { scope: string; className?: string }) => <DeckExamples {...props} />,
+};
 
 /** The app of a signed-in, onboarded profile: its preferences applied. */
 function SignedIn() {
@@ -51,7 +58,7 @@ function SignedIn() {
   return (
     <PlaybackRate value={usePlaybackRate()}>
       <SpeechProvider value={useSpeechHostValue()}>
-        <StudySlotsProvider value={wordAssistant}>
+        <StudySlotsProvider value={examplesAssistant}>
           <Outlet />
         </StudySlotsProvider>
       </SpeechProvider>

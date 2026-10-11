@@ -7,24 +7,13 @@ fits together, by `docs/architecture.md`.
 
 - Past the first version's scope (owner, 2026-10-08): the items below are what the owner wants next,
   in this order; anything else waits for "After the week of use".
-- Exams taken up now, ahead of items 1–2: Goethe A1–B1 next (owner, 2026-10-10).
+- Exams taken up now, ahead of item 1: Goethe A1–B1 next (owner, 2026-10-10).
 - German first (owner, 2026-10-07): every provider is offered (03, "Offered in the app").
 - The desktop browser now; phones when convenient (item "Phones": Tailscale is known to work).
 
 ## Next, in order
 
-### 1. Word examples by deck (owner, 2026-10-09)
-Specs: 04, 07, 09.
-- Examples of use made for a whole deck at once, on the learner's request from Review → Decks: the
-  model goes through every word of a course's deck or an imported one and writes 3–5 examples per
-  word (with the course's words where it can), kept with the words; a card shows them. The example
-  on a card made one at a time goes; a card whose deck has none yet (examples on in Settings) offers
-  to go to Decks and make them.
-- Examples made only for words the deck brings none of its own for, kept beside the deck
-  (`extras.json`, 05) as its words' audio read aloud is (built: 04, "A deck's words read aloud").
-- **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them.
-
-### 2. Interface in every language a course explains in (owner, 2026-10-09)
+### 1. Interface in every language a course explains in (owner, 2026-10-09)
 Specs: 09, 10.
 - The UI catalogs beyond en/ru/de: every source language of the installed providers (DW: Arabic,
   Bosnian, Greek, Spanish, Persian, French, Hindi, Hungarian, Indonesian, Polish, Portuguese,
@@ -33,7 +22,7 @@ Specs: 09, 10.
   script; the language switch and Settings offer them.
 - **Accept**: catalog tests over every language; RTL screens in e2e.
 
-### 3. The tutor on its own (owner, 2026-10-10)
+### 2. The tutor on its own (owner, 2026-10-10)
 Specs: 07, 09.
 - A section of its own for talking with the AI outside any lesson: on any topic the learner asks
   about (a grammar question, a text to go through, a conversation to practise), in the interface
@@ -41,14 +30,14 @@ Specs: 07, 09.
   listed as the lesson tutor's are.
 - **Accept**: a chat started from the section, kept, continued later; read aloud as the tutor's.
 
-### 4. Notebook: more pictures (owner's request, 2026-10-07)
+### 3. Notebook: more pictures (owner's request, 2026-10-07)
 Specs: 04, 05, 09.
 - Reviews and new cards per day, the share remembered over time, words by state (new, learning,
   known), lessons and courses done; a review day opens to its answers as a lesson pass does.
 - Time spent: card answers carry no time yet (`CardReviewPayload`); measuring it is part of this item.
 - **Accept**: engine tests of the derivations; e2e on desktop and phone.
 
-### 5. Phones (owner, 2026-10-08: functionality first, phones after)
+### 4. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - The addresses the app is reached at shown in the app (owner, 2026-10-09): this machine, the local
   network (when the server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them
@@ -64,7 +53,7 @@ Specs: 06, 09.
   fixed here.
 - **Accept**: a lesson with speaking and a review session done on each iPhone through Tailscale.
 
-### 6. Moving and keeping one's data (owner, 2026-10-10)
+### 5. Moving and keeping one's data (owner, 2026-10-10)
 Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
 - **Profile export/import** (first: the only data that cannot be fetched again): a file with the
   profile's database (made with `VACUUM INTO`, without secrets), its recordings and a manifest
@@ -84,7 +73,7 @@ Specs: 02, 05, 06, 09. Research: `docs/research/bundles-and-backups.md`.
 - **Accept**: a profile moved to a second data root and studied on; a course and an exam moved as
   bundles and verified.
 
-### 7. A week of real use
+### 6. A week of real use
 - The owner's demo of cards, review and the Notebook on the Mac (open since 2026-10-07).
 - The owner and his wife study with it for at least a week — on the Mac, and on phones once item
   "Phones" is done; their findings decide the order of "After the week of use".

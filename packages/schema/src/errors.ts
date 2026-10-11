@@ -66,7 +66,7 @@ export const ERROR_CODES = [
   "writing_busy",
   "scene_busy",
   "speaking_busy",
-  "example_busy",
+  "examples_without_word",
   "exam_rating_busy",
   "exam_conversation_busy",
   "exam_part_done",

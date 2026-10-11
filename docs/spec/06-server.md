@@ -94,12 +94,22 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   words, with audio of their own, read aloud, without; the engine and voice the profile's settings read
   them with — null when nothing here reads that language —; the deck's job, running or the latest:
   status `running` | `stopping` (the words under way still read) | `done` | `stopped` | `failed`, words read of all it set out to read, failures, the
-  word being read, the latest failure's code, `leftMs`: about how long the rest takes); the words are
-  those of the profile's cards in the deck, counted by lexeme, `POST /api/decks/audio` (`{scope}`: the job started —
+  word being read, the latest failure's code, `leftMs`: about how long the rest takes; the words are
+  those of the profile's cards in the deck, counted by lexeme), `POST /api/decks/audio` (`{scope}`: the job started —
   once; a job running goes on — and the state; 409 `speech_unavailable` when nothing reads the
   language), `DELETE /api/decks/audio?scope=` (the job stopped, what it read kept); 404
   `no_such_deck` for a deck or course not here. A job is the server's (any profile sees it), in
   memory: a server stopped stops it, and it is started again by asking.
+- A deck's words given examples by the AI (04, "A deck's words given examples"; `scope` as above):
+  `GET /api/decks/examples?scope=` (how many words — the profile's cards in it, by lexeme and
+  translation language —, with examples of their own, given examples, without; the deck's job as the
+  audio's: status, words done of all, failures, the words under way, the latest failure's code,
+  `leftMs`), `POST /api/decks/examples` (`{scope}`: started with this profile's model — 409
+  `llm_not_configured` without one — and the state), `DELETE /api/decks/examples?scope=` (stopped,
+  what was written kept), `POST /api/decks/examples/prompt` (`{scope}`: the request its next call would
+  send, 07). A card's: `GET /api/cards/:id/examples` (its deck's scope, whether its word brings its
+  own, the model, each example's sentence in pieces — the words not met yet marked, with their
+  translation where known — and translation).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts
   are changed only through `/api/llm`.
@@ -135,7 +145,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   stored row that no longer parses included, is a 500 (`server_error`).
 - `/api/llm` (`routes/llm.ts`): `GET /` (state), `PUT route`, `PUT providers/:id`, `GET models`,
   `GET key` (OpenRouter's key state); `GET lmstudio`, `POST lmstudio/start|download`; tasks —
-  `explain` and `tutor` (streamed text), `speaking`, `examples`, `writing`, `scene/start|turn`,
+  `explain` and `tutor` (streamed text), `speaking`, `writing`, `scene/start|turn`,
   `exam-rating` (`{runId, itemKey, language}`: an exam's open answer, a mock exam's once handed in —
   409 `exam_test_running` before; kept in the exam run, its events show it), `exam-conversation`
   (`{runId, itemKey, language, text?}`: a speaking part of a run being taken — opened without `text`,
@@ -143,7 +153,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   (JSON),
   each with a `…/prompt` route (`scene/prompt`, `tutor/prompt`) that returns the exact request without
   sending it (07); what is kept — `GET explanations?lessonKey=&runId=`, `GET speaking?lessonKey=&runId=`,
-  `GET examples?cardId=`, `GET writing`, `GET scene`, `GET tutor`; `POST tutor/context` (how full the
+  `GET writing`, `GET scene`, `GET tutor`; `POST tutor/context` (how full the
   next request is), `POST tutor/reset`, `GET tutor/chats`, `GET` / `DELETE tutor/chats/:id`; a tutor
   message with `newChat` opens a new chat (the current one ends once the reply has come; a failed call
   changes nothing); `GET prompts` lists the system prompts and `PUT prompts/:task` sets or clears the

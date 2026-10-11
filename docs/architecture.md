@@ -83,7 +83,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
   `decks` (imported `.apkg` decks, the server's: preview, import, list, delete; their folders through
   `runtime/decks.ts`), `deck-extras` (what is made for a deck's words, kept in its folder:
   extras.json read once, a job per deck and kind), `deck-audio` (a deck's words without audio read
-  aloud by the server's engine), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
+  aloud by the server's engine), `deck-examples` (a deck's words given examples by the AI), `study` (Anki's decks, queue, ratings, undo, bury, suspend, flags, marks), `words` (My words); and
   across them `notebook` (the study days and the modules' standings, gathered), `progress` (reset over
   every module's runs, recordings in use), `settings`.
 - **AI** (a feature across the learning modules, below): `llm` (providers, LM Studio, prompt
@@ -128,7 +128,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   is a function `services/index.ts` hands in, never an import: `cards` takes the run a lesson shows
   (`lessons.shown`: the run its words' cards are made in) and the learner's courses
   (`lessons.courses`: the decks to take); the lessons' AI services take `lessons.shown` and
-  `lessons.lessonRun`, the tutor's tools `lessons.progress`, word examples `study.reviewRun`.
+  `lessons.lessonRun`, the tutor's tools `lessons.progress`, a deck's words given examples
+  `cards.deckNotes`.
   dependency-cruiser keeps the server's modules apart (`server-*-apart`, `server-notebook-gathers`)
   and the web's feature folders (`web-features-apart`: what they share is in `library/`, `api/`,
   `ui/`, `exercises/`, `audio/`, `word/`).

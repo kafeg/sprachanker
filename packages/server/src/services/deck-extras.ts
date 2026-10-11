@@ -4,6 +4,8 @@
 // and kind (audio read aloud, examples) at a time, the server's — one profile starts it, any sees
 // it —, its progress in memory; stopped, the work under way is finished and kept, and started again
 // it does only the rest.
+
+import { LlmError } from "@sprachanker/llm";
 import {
   type CardDisplay,
   courseDeckFolder,
@@ -72,8 +74,10 @@ type Job = {
 /** A job still working (or finishing the steps under way). */
 const going = (job: Job | undefined) => job?.status === "running" || job?.status === "stopping";
 
-/** Why something failed: its code when it has one (a service's, a model's), else its message. */
+/** Why something failed: its code when it has one (a service's; a model's as the server answers it,
+ *  `llm_<code>`), else its message. */
 export function failureOf(error: unknown): string {
+  if (error instanceof LlmError) return `llm_${error.code}`;
   const code = (error as { code?: unknown } | null)?.code;
   return typeof code === "string" ? code : String(error).slice(0, 200);
 }
