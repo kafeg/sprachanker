@@ -42,8 +42,12 @@ export function CardExamples({ cardId }: { cardId: string }) {
   return (
     <section className="grid w-full max-w-md gap-2 text-left text-sm">
       <ul className="grid gap-2">
-        {examples.map((e) => (
-          <li key={e.sentence} className="flex items-start gap-2">
+        {examples.map((e, i) => (
+          <li
+            // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list, where a sentence may come twice
+            key={`${i} ${e.sentence}`}
+            className="flex items-start gap-2"
+          >
             <SpeakButton
               parts={said(e.sentence, lang)}
               label={e.sentence}

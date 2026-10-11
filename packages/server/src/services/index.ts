@@ -261,8 +261,12 @@ export function createServices(config: ServicesConfig) {
   });
   // What the server makes for a deck's words (audio read aloud, examples), kept beside the deck; the
   // folders of courses no longer here go.
-  const deckExtras = createDeckExtras({ files: config.decks, decks, content, now });
-  deckExtras.sweep().catch((error: unknown) => console.error("sweeping deck folders:", error));
+  const deckExtras = createDeckExtras({ files: config.decks, decks, library: config.library, now });
+  try {
+    deckExtras.sweep();
+  } catch (error) {
+    console.error("sweeping deck folders:", error);
+  }
   // Cards take the audio read aloud for their decks' words.
   const deckAudio = createDeckAudio({
     extras: deckExtras,

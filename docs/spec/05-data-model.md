@@ -18,9 +18,12 @@
 │                                # with that audio in media/ (`read-<hash of engine, voice, text>.wav`; an
 │                                # entry an earlier version keyed by the note's guid is left out when read);
 │                                # the AI's examples for a word by the language they are translated into
-│                                # (sentence, translation, glossary, the word's form in it; the model, when)
+│                                # (sentence, translation, glossary, the word's form in it; the model, when);
+│                                # read entry by entry (`DeckExtrasWord`): one that does not read — a newer
+│                                # version's — is logged, left out and written back as it was
 ├── decks/course~<series>~<course>/ # a course's deck (every edition's): extras.json and media/ as an
-│                                # imported deck's (04, "Decks"); gone when the course is (server start)
+│                                # imported deck's (04, "Decks"); gone when the course is no longer installed
+│                                # (server start; a course whose files do not read keeps it)
 ├── decks/.uploads/              # .apkg files uploaded and previewed, kept until imported or their sheet is
 │                                # closed (a day at most); an imported one's note of the deck it made
 │                                # (<upload>.deck, a day). At the server's start uploads a day old and the

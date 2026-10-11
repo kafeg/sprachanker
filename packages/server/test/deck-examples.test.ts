@@ -1,9 +1,10 @@
 import { expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { buildApkg } from "@sprachanker/anki-export/testing";
 import { FIXTURE_SERIES } from "@sprachanker/course-fixture";
-import { COURSE, withDecks } from "./deck-setup.ts";
+import { COURSE, deck, withDecks } from "./deck-setup.ts";
+import { piper } from "./speech-fakes.ts";
 
 const FOLDER = "course~sprachanker.fixture~demo";
 const examplesOf = (scope: string) => `/api/decks/examples?scope=${encodeURIComponent(scope)}`;
@@ -20,7 +21,8 @@ const wordsAsked = (body: Body) => [
 ];
 
 /** A model writing `perWord` sentences with each word asked for (`skip`: words it leaves out of its
- *  sentences the first time), recording what it was sent; `hold` keeps a reply back until let go. */
+ *  sentences the first time), recording what it was sent; `hold` keeps replies back until let go
+ *  (those after the first `after` calls). */
 function model(
   options: {
     skip?: string[];
@@ -28,17 +30,21 @@ function model(
     irregular?: Record<string, string>;
     perWord?: number;
     broken?: boolean;
+    /** Calls after so many fail (the provider answering an error). */
+    failAfter?: number;
   } = {},
 ) {
   const bodies: Body[] = [];
   const skipped = new Set<string>();
   const held: Array<() => void> = [];
-  let holding = false;
+  let holdAfter = Number.POSITIVE_INFINITY;
   const fetch = (async (url: string, init: RequestInit) => {
     if (url.endsWith("/models")) return Response.json({ data: [{ id: "m" }] });
     const body = JSON.parse(init.body as string) as Body;
     bodies.push(body);
-    if (holding) await new Promise<void>((go) => held.push(go));
+    if (bodies.length > holdAfter) await new Promise<void>((go) => held.push(go));
+    if (bodies.length > (options.failAfter ?? Number.POSITIVE_INFINITY))
+      return Response.json({ error: { message: "overloaded" } }, { status: 500 });
     if (options.broken)
       return Response.json({ choices: [{ message: { content: "not json at all" } }] });
     const words = wordsAsked(body).map((target, i) => {
@@ -61,11 +67,11 @@ function model(
   return {
     fetch,
     bodies,
-    hold: () => {
-      holding = true;
+    hold: (after = 0) => {
+      holdAfter = after;
     },
     release: () => {
-      holding = false;
+      holdAfter = Number.POSITIVE_INFINITY;
       for (const go of held.splice(0)) go();
     },
     held: () => held.length,
@@ -81,8 +87,11 @@ async function settled(getJson: (path: string) => Promise<unknown>, scope: strin
   throw new Error("the job did not end");
 }
 
-async function withModel(m: ReturnType<typeof model>) {
-  const api = await withDecks({ fetch: m.fetch });
+async function withModel(
+  m: ReturnType<typeof model>,
+  options: Parameters<typeof withDecks>[0] = {},
+) {
+  const api = await withDecks({ ...options, fetch: m.fetch });
   await api.send("PUT", "/api/llm/providers/custom", { baseUrl: "http://127.0.0.1:9/v1" });
   await api.send("PUT", "/api/llm/route", { provider: "custom", model: "m" });
   return api;
@@ -210,6 +219,29 @@ test("a job stopped keeps the words written; started again it writes only the re
   expect(m.bodies[2]?.messages.at(-1)?.content).toContain("— coffee");
 });
 
+test("each call's examples are written at once: the next call under way, the earlier ones' are on disk", async () => {
+  const m = model();
+  const { sendJson, getJson, root } = await withModel(m);
+  const scope = `course:${COURSE}`;
+  await sendJson("POST", "/api/cards/decks/take", {
+    series: FIXTURE_SERIES,
+    course: "demo",
+    edition: "ru-de",
+  });
+  await sendJson("POST", "/api/cards/lesson", lesson("en-de"));
+  // The Russian five, then the sixth alone; the English four held.
+  m.hold(2);
+  await sendJson("POST", "/api/decks/examples", { scope });
+  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  const extras = JSON.parse(readFileSync(join(root, "decks", FOLDER, "extras.json"), "utf8"));
+  const inRussian = Object.values(extras.words).filter(
+    (w) => (w as { examples?: { ru?: unknown } }).examples?.ru,
+  );
+  expect(inRussian).toHaveLength(6);
+  m.release();
+  expect(await settled(getJson, scope)).toMatchObject({ made: 10, missing: 0 });
+});
+
 test("a model that cannot answer usefully: three calls in a row, and the job ends with why", async () => {
   const notes = "Baum Berg Bild Blume Brief Brot Buch Dach Ei Feld Fisch Hund Kind Kopf Land Licht"
     .split(" ")
@@ -286,4 +318,84 @@ test("an imported deck: a word with its own sentences gets none; the others with
   const seinShown = await getJson(`/api/cards/${sein}/examples`);
   expect(seinShown.examples[0].sentence).toBe("Die Leute mögen sind heute 0.");
   expect(seinShown.examples[0].words).toContainEqual({ text: "sind" });
+});
+
+test("the words left asked again in a second call that fails: the first call's words kept, the rest failed with why", async () => {
+  const m = model({ skip: ["gern"], failAfter: 1 });
+  const { sendJson, getJson } = await withModel(m);
+  const scope = `course:${COURSE}`;
+  await sendJson("POST", "/api/cards/lesson", lesson("ru-de"));
+  await sendJson("POST", "/api/decks/examples", { scope });
+  const state = await settled(getJson, scope);
+  expect(state).toMatchObject({
+    made: 3,
+    missing: 1,
+    job: { status: "done", done: 3, failed: 1 },
+  });
+  expect(state.job?.error).toStartWith("llm_");
+  expect(m.bodies.map(wordsAsked).at(-1)).toEqual(["gern"]);
+});
+
+test("a deck imported again or deleted while its examples are written: the job is dropped, nothing written into its folder", async () => {
+  const m = model();
+  const { importDeck, sendJson, send, getJson, get, root } = await withModel(m);
+  const { id } = await importDeck();
+  const scope = `deck:${id}`;
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  m.hold();
+  await sendJson("POST", "/api/decks/examples", { scope });
+  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  await importDeck(deck("яблоко", "der grüne Apfel"));
+  m.release();
+  for (let i = 0; i < 20; i++) await Bun.sleep(1);
+  // No job of the deck as it is now, nothing made for it.
+  expect(await getJson(examplesOf(scope))).toMatchObject({ made: 0, missing: 4, job: null });
+  expect(existsSync(join(root, "decks", id, "extras.json"))).toBe(false);
+
+  m.hold();
+  await sendJson("POST", "/api/decks/examples", { scope });
+  for (let i = 0; i < 100 && !m.held(); i++) await Bun.sleep(2);
+  await sendJson("POST", "/api/cards/decks/leave", { scope, lang: "de" });
+  expect((await send("DELETE", `/api/decks/${id}`, {})).status).toBe(200);
+  m.release();
+  for (let i = 0; i < 20; i++) await Bun.sleep(1);
+  expect(existsSync(join(root, "decks", id))).toBe(false);
+  expect((await get(examplesOf(scope))).status).toBe(404);
+});
+
+test("a deck's audio and examples made at once: each job's save keeps the other's work", async () => {
+  const waiting: Array<() => void> = [];
+  const p = piper(
+    ["de_DE-thorsten-medium"],
+    true,
+    (text) =>
+      new Promise((resolve) =>
+        waiting.push(() => resolve(new TextEncoder().encode(`RIFF ${text}`))),
+      ),
+  );
+  const m = model();
+  const { importDeck, sendJson, getJson, root } = await withModel(m, { piper: p.host });
+  const { id } = await importDeck();
+  const scope = `deck:${id}`;
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  const extras = () => JSON.parse(readFileSync(join(root, "decks", id, "extras.json"), "utf8"));
+  type Entry = { audio?: unknown; examples?: { ru?: unknown } };
+  const count = (has: (w: Entry) => unknown) =>
+    (Object.values(extras().words) as Entry[]).filter(has).length;
+
+  // The readings held: the examples are written first.
+  await sendJson("POST", "/api/decks/audio", { scope });
+  await sendJson("POST", "/api/decks/examples", { scope });
+  expect(await settled(getJson, scope)).toMatchObject({ made: 4, job: { status: "done" } });
+  expect([count((w) => w.examples?.ru), count((w) => w.audio)]).toEqual([4, 0]);
+  // Then the audio, the readings let go: its saves keep the examples.
+  for (let i = 0; i < 400; i++) {
+    const state = (await getJson(`/api/decks/audio?scope=${encodeURIComponent(scope)}`)) as {
+      job: { status: string } | null;
+    };
+    if (state.job?.status === "done") break;
+    for (const go of waiting.splice(0)) go();
+    await Bun.sleep(5);
+  }
+  expect([count((w) => w.examples?.ru), count((w) => w.audio)]).toEqual([4, 3]);
 });

@@ -5,18 +5,19 @@
 // it —, its progress in memory; stopped, the work under way is finished and kept, and started again
 // it does only the rest.
 
+import type { LibraryView } from "@sprachanker/course-kit/view";
 import { LlmError } from "@sprachanker/llm";
 import {
   type CardDisplay,
   courseDeckFolder,
   DECK_EXTRAS_FORMAT,
-  DeckExtras,
+  type DeckExtras,
+  DeckExtrasWord,
   LexemeKey,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
-import type { Content } from "./content.ts";
 import type { DeckFiles, Decks } from "./decks.ts";
-import { readStored } from "./run-store.ts";
+import { parseJson } from "./stored.ts";
 
 export type DeckJobKind = "audio" | "examples";
 
@@ -85,29 +86,55 @@ export function failureOf(error: unknown): string {
 export function createDeckExtras(deps: {
   files: Pick<DeckFiles, "extras" | "writeExtras" | "media" | "folders" | "remove">;
   decks: Pick<Decks, "deck">;
-  content: Pick<Content, "courses">;
+  /** The installed courses as the library lists them (a course whose files do not read is here too). */
+  library: Pick<LibraryView, "courses">;
   now(): number;
 }) {
   const { files } = deps;
-  const books = new Map<string, DeckExtras>();
+  /** Each folder's extras read, and the entries that did not read (a newer version's, kept as they
+   *  are and written back). */
+  const books = new Map<string, { book: DeckExtras; unread: Record<string, unknown> }>();
   const jobs = new Map<string, Job>();
   const jobKey = (kind: DeckJobKind, folder: string) => `${kind} ${folder}`;
+  /** The folders of the courses installed, by their place in the library (none read). */
+  const courseFolders = () =>
+    new Set(deps.library.courses().map((c) => courseDeckFolder(`${c.series}/${c.course}`)));
 
-  /** A folder's extras as kept (entries an earlier version keyed by note are left out: made again,
-   *  the files they name are found there). */
-  const book = (folder: string) => {
-    let read = books.get(folder);
-    if (!read) {
-      read = readStored(files.extras(folder) ?? null, DeckExtras, `extras of ${folder}`) ?? {
-        format: DECK_EXTRAS_FORMAT,
-        words: {},
-      };
-      for (const key of Object.keys(read.words))
-        if (!LexemeKey.safeParse(key).success) delete read.words[key];
-      books.set(folder, read);
+  /** A folder's extras.json read entry by entry: one that does not read is left out (logged) and kept
+   *  as it is; entries an earlier version keyed by note go (made again, the files they name are found
+   *  there); a file that is no JSON reads as none. */
+  function read(folder: string) {
+    const book: DeckExtras = { format: DECK_EXTRAS_FORMAT, words: {} };
+    const unread: Record<string, unknown> = {};
+    const text = files.extras(folder);
+    if (text === undefined) return { book, unread };
+    const words = (parseJson(text) as { words?: unknown } | null | undefined)?.words;
+    if (!words || typeof words !== "object") {
+      console.error(`extras of ${folder} do not read as stored; left out`);
+      return { book, unread };
     }
-    return read;
+    for (const [key, entry] of Object.entries(words)) {
+      if (!LexemeKey.safeParse(key).success) continue;
+      const word = DeckExtrasWord.safeParse(entry);
+      if (word.success) book.words[key] = word.data;
+      else {
+        unread[key] = entry;
+        console.error(`extras of ${folder}: ${key} does not read as stored; kept as it is`);
+      }
+    }
+    return { book, unread };
+  }
+
+  const stored = (folder: string) => {
+    let kept = books.get(folder);
+    if (!kept) {
+      kept = read(folder);
+      books.set(folder, kept);
+    }
+    return kept;
   };
+  /** A folder's extras as kept. */
+  const book = (folder: string) => stored(folder).book;
 
   /** A deck's folder replaced (imported again) or removed: its jobs stop, saving nothing more there,
    *  and its extras are read anew. */
@@ -125,7 +152,7 @@ export function createDeckExtras(deps: {
 
   async function run<T>(folder: string, job: Job, spec: DeckJobSpec<T>) {
     const { signal } = job.controller;
-    const words = book(folder);
+    const { book: words, unread } = stored(folder);
     const dropped = () => !!job.dropped;
     let next = 0;
     let inARow = 0;
@@ -134,7 +161,8 @@ export function createDeckExtras(deps: {
     const save = () => {
       if (!unsaved || job.dropped) return true;
       try {
-        files.writeExtras(folder, `${JSON.stringify(words, null, 2)}\n`);
+        const all = { ...words, words: { ...unread, ...words.words } };
+        files.writeExtras(folder, `${JSON.stringify(all, null, 2)}\n`);
         unsaved = 0;
         return true;
       } catch (error) {
@@ -196,10 +224,9 @@ export function createDeckExtras(deps: {
         if (!deck) throw new ServiceError("no_such_deck", 404);
         return deck.id as string;
       }
-      const key = scope.slice("course:".length);
-      if (!(await deps.content.courses()).some((c) => c.key === key))
-        throw new ServiceError("no_such_deck", 404);
-      return courseDeckFolder(key);
+      const folder = courseDeckFolder(scope.slice("course:".length));
+      if (!courseFolders().has(folder)) throw new ServiceError("no_such_deck", 404);
+      return folder;
     },
 
     /** A deck's job of a kind, running or the latest; `leftMs`: about how long the rest takes. */
@@ -251,9 +278,10 @@ export function createDeckExtras(deps: {
 
     forget,
 
-    /** Course folders whose course is no longer here go (at the start). */
-    async sweep() {
-      const here = new Set((await deps.content.courses()).map((c) => courseDeckFolder(c.key)));
+    /** Course folders whose course is no longer installed go (at the start); a course whose files
+     *  do not read keeps its folder. */
+    sweep() {
+      const here = courseFolders();
       for (const folder of files.folders())
         if (folder.startsWith("course~") && !here.has(folder)) {
           forget(folder);

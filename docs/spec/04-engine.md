@@ -219,7 +219,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   what it read then is not kept. When it ends, every open profile's cards follow (relinking): a card's
   display has its word's own audio, else the reading of its deck's folder for its lexeme and text
   (`readAudio`, served from the folder), else nothing: a card's word is never read on the fly (08). A course's folder goes when
-  the course is no longer here (at the server's start).
+  the course is no longer installed (at the server's start, by the library's folders: a course whose
+  files do not read keeps it).
 - **A deck's words given examples** (owner, 2026-10-09; `services/deck-examples.ts`): any deck the
   learner has, on request from Review → Decks: the words of the learner's cards in it that bring no
   example of their own (an imported deck's sentences, a course's) get three to five sentences each
@@ -228,16 +229,21 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   assumed to know (a course's words up to the words' lesson, an imported deck's up to them) and the
   level the course's or deck's name says ("a1-ru", "Wörter A2"), else beginners'. A sentence that
   does not use its word — found by its forms (engine `usesWord`), or by the form the model says it
-  used, every word of it in the sentence (`hasForm`: "ist" of "sein", "lädt … ein" of "einladen":
-  forms no ending rule finds) — is dropped; a word left without any is asked for once more
-  on its own; still none, it counts as failed with the reason. Kept beside the deck
+  used (`hasForm`, forms no ending rule finds), every word of it in the sentence and of the word:
+  three first letters in common with it (umlauts and a participle's "ge-" aside: "Äpfel" of "der
+  Apfel"), an irregular verb's form (a table of the commonest of A1–A2: "ist" of "sein", "kann" of
+  "können"), or a separable verb's prefix with a form of the verb ("lädt … ein" of "einladen"); never
+  a word that is surely a form of another word of the call or of those known ("trinke" is not "die
+  Tasse", "fahre" not "das Fahrrad") — is dropped; the words left without any are asked for once
+  more, together in one call; still none, they count as failed with the reason. Kept beside the deck
   (`extras.json`, 05) by lexeme and translation language — every profile's cards show them — with
   the model and when. A job per deck (as the audio's, `deck-extras.ts`): one at a time, the server's,
   its progress (words given examples of all, the words under way, failures and why, about how long
   the rest takes), extras.json written after every call; stopped, the call under way is finished and
   kept, started again only the rest; three calls in a row that give nothing (the model out of reach,
   answering out of shape) end it. The model is that of the profile that starts it (refused while it
-  has none).
+  has none). An entry of extras.json whose word is no longer in the deck (an update dropped it) stays
+  until the deck's folder goes: nothing shows it, and the word coming back finds it.
 - **Decks to take** (owner, 2026-10-08/09): each course of My courses (begun) and language pair offers
   its words as one deck; so does each imported deck. Taking it makes every lesson's words cards at once, new and in course order
   (Anki: a deck imported); words with a card already keep it. **Leaving** a course's deck (after asking)

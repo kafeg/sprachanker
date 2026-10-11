@@ -18,8 +18,12 @@ export function DeckExamples({
   if (!display.examples?.length) return null;
   return (
     <ul className={cn("grid gap-2 text-sm", className)}>
-      {display.examples.map((e) => (
-        <li key={e.sentence} className="flex items-start gap-2">
+      {display.examples.map((e, i) => (
+        <li
+          // biome-ignore lint/suspicious/noArrayIndexKey: a fixed list, where a sentence may come twice
+          key={`${i} ${e.sentence}`}
+          className="flex items-start gap-2"
+        >
           {e.audio && (
             <AudioButton
               src={cardMediaUrl(display, e.audio)}
