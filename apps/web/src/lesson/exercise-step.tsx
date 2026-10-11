@@ -7,7 +7,7 @@ import type { Exercise, LocaleExercise } from "@sprachanker/schema";
 import { History, RotateCcw, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ItemCard, SharedPrompt, sharedPrompt } from "@/exercises/item-card.tsx";
+import { ItemCard, SharedPrompt, severalNote, sharedPrompt } from "@/exercises/item-card.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { Button } from "@/ui/components/button.tsx";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/ui/components/tooltip.tsx";
@@ -109,6 +109,7 @@ export function ExerciseStep({
   /** The item whose earlier attempts are open (the Notebook's item history). */
   const [history, setHistory] = useState<string>();
   const promptAbove = !!sharedPrompt(exercise, locale);
+  const several = severalNote(exercise, locale);
 
   return (
     // At least a screen tall, so the action bar sits at the bottom even under a short exercise.
@@ -144,7 +145,7 @@ export function ExerciseStep({
         </div>
       )}
       {/* A prompt every item has alike, once above them (not repeated in each card). */}
-      {promptAbove && (
+      {(promptAbove || several === "show") && (
         <div className={ITEM_GRID}>
           <SharedPrompt exercise={exercise} locale={locale} className="col-start-1" />
         </div>
@@ -176,6 +177,7 @@ export function ExerciseStep({
                 heard={readOnly || ex.itemHeard(i)}
                 onHeard={() => ex.hear(`item-${i}`)}
                 promptAbove={promptAbove}
+                severalAbove={!!several}
               />
               <div className="col-start-1 flex gap-1.5 pt-2 empty:hidden sm:col-start-2 sm:flex-col">
                 {marked && !right && explain && (

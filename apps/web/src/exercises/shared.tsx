@@ -28,6 +28,10 @@ export const partRight = (outcome: Outcome | undefined, part: string) =>
  */
 export const ShuffleSeed = createContext("");
 
+/** A multiple choice's "several can be right" is said above the items (or by the exercise): not in
+ *  each card. */
+export const SeveralSaid = createContext(false);
+
 /** `items` in an order fixed by `seed` (display order is not the canonical order, 02). Pure. */
 export function shuffled<T>(items: T[], seed: string): T[] {
   let h = 0;

@@ -1,10 +1,12 @@
 // single_choice and multi_choice: options as buttons (pictures as a grid of tiles), chosen by tap or,
 // in the active item, by the number keys; several choices show square boxes and how many are chosen.
+import { useContext } from "react";
 import { useTranslation } from "react-i18next";
 import {
   allPictures,
   type Mark,
   OptionButton,
+  SeveralSaid,
   type ShownOption,
   shownOptions,
   TILES,
@@ -98,6 +100,7 @@ export function MultiChoice({
   const { t } = useTranslation();
   const options = useOptionOrder(shownOptions(item.options, locale), item.key);
   const chosen = new Set(answer?.optionIds ?? []);
+  const said = useContext(SeveralSaid);
   const right = new Set(item.answer.optionIds);
   const toggle = (id: string) => {
     const next = new Set(chosen);
@@ -106,9 +109,11 @@ export function MultiChoice({
   };
   return (
     <div>
-      <p className="mb-2 text-sm text-muted-foreground">
-        {t("ex.chooseSeveral")}
-        {chosen.size > 0 && !outcome && ` · ${t("ex.chosen", { count: chosen.size })}`}
+      {/* Said above the items, only how many are chosen (the line keeps its place: nothing moves). */}
+      <p className="mb-2 min-h-5 text-sm text-muted-foreground">
+        {said
+          ? !outcome && chosen.size > 0 && t("ex.chosen", { count: chosen.size })
+          : `${t("ex.chooseSeveral")}${chosen.size > 0 && !outcome ? ` · ${t("ex.chosen", { count: chosen.size })}` : ""}`}
       </p>
       <Options
         options={options}

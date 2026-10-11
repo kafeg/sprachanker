@@ -13,7 +13,7 @@ import { useRequiredTargetLang } from "@/ui/target-lang.ts";
 import { cn } from "@/ui/utils.ts";
 import { GapRoom, gapRoom } from "./gaps.tsx";
 import { correctAnswer, ExerciseItem, toHear } from "./index.tsx";
-import { numberedLines } from "./shared.tsx";
+import { numberedLines, SeveralSaid } from "./shared.tsx";
 
 /** The prompt every item of an exercise has alike (two items or more), to show once above them
  *  instead of in each card; else none. The data keeps it per item. */
@@ -26,7 +26,36 @@ export function sharedPrompt(exercise: Exercise, locale: LocaleExercise | null |
   return { target: target[0] || undefined, learner: learner[0] || undefined };
 }
 
-/** The items' shared prompt (`sharedPrompt`), above them; nothing when they have none. */
+/** A text that says how many answers are right ("Drei Antworten sind richtig", "Правильных ответов
+ *  несколько"): a count or "several" in a sentence about right answers. Pure. */
+export const countStated = (text: string) =>
+  text
+    .split(/[.!?\n]/)
+    .some(
+      (s) =>
+        /(richtig|правильн|correct|right)/i.test(s) &&
+        /(несколько|mehrere|several|\d|\b(zwei|drei|vier|fünf|два|две|три|четыре|пять|two|three|four|five)\b)/i.test(
+          s,
+        ),
+    );
+
+/**
+ * A multiple choice's "several can be right" (09): said once above its items — "show" —, or not at
+ * all when its own texts say how many are — "stated" —; undefined for other types. Pure.
+ */
+export function severalNote(exercise: Exercise, locale: LocaleExercise | null | undefined) {
+  if (exercise.type !== "multi_choice") return undefined;
+  const texts = [
+    locale?.title,
+    locale?.instructionHtml?.replace(/<[^>]*>/g, " "),
+    ...exercise.items.map((item) => item.prompt),
+    ...Object.values(locale?.items ?? {}).map((item) => item.prompt),
+  ];
+  return texts.some((text) => text && countStated(text)) ? ("stated" as const) : ("show" as const);
+}
+
+/** Above the items: their shared prompt (`sharedPrompt`) and a multiple choice's "several can be
+ *  right" (`severalNote`); nothing when there is neither. */
 export function SharedPrompt({
   exercise,
   locale,
@@ -36,11 +65,28 @@ export function SharedPrompt({
   locale: LocaleExercise | null | undefined;
   className?: string;
 }) {
+  const { t } = useTranslation();
   const lang = useRequiredTargetLang();
   const shared = sharedPrompt(exercise, locale);
-  if (!shared) return null;
+  const several = severalNote(exercise, locale) === "show";
+  if (!shared && !several) return null;
   return (
     <div className={className}>
+      {several && <p className="mb-1 text-sm text-muted-foreground">{t("ex.chooseSeveral")}</p>}
+      {shared && <SharedLines shared={shared} lang={lang} />}
+    </div>
+  );
+}
+
+function SharedLines({
+  shared,
+  lang,
+}: {
+  shared: NonNullable<ReturnType<typeof sharedPrompt>>;
+  lang: string;
+}) {
+  return (
+    <>
       {shared.target && (
         <p lang={lang} className="text-lg font-semibold text-balance">
           {keptTogether(shared.target)}
@@ -49,7 +95,7 @@ export function SharedPrompt({
       {shared.learner && (
         <p className="text-lg font-semibold text-balance">{keptTogether(shared.learner)}</p>
       )}
-    </div>
+    </>
   );
 }
 
@@ -65,6 +111,7 @@ export function ItemCard({
   heard = true,
   onHeard,
   promptAbove = false,
+  severalAbove = false,
   className,
 }: {
   exercise: Exercise;
@@ -82,6 +129,9 @@ export function ItemCard({
   onHeard?(): void;
   /** The prompt is shown above the items (`SharedPrompt`), not in the card. */
   promptAbove?: boolean;
+  /** A multiple choice's "several can be right" is said above the items or by the exercise itself
+   *  (`severalNote`), not in each card. */
+  severalAbove?: boolean;
   className?: string;
 }) {
   const lang = useRequiredTargetLang();
@@ -164,19 +214,21 @@ export function ItemCard({
             : undefined
         }
       >
-        <ExerciseItem
-          type={exercise.type}
-          item={renderedItem as never}
-          locale={rendered}
-          answer={answer as never}
-          onAnswer={(a: unknown) => onAnswer?.(a)}
-          outcome={outcome}
-          url={url}
-          active={active && !!onAnswer}
-          listen={toHear(exercise, index).length > 0}
-          heard={heard}
-          readOnly={!onAnswer}
-        />
+        <SeveralSaid.Provider value={severalAbove}>
+          <ExerciseItem
+            type={exercise.type}
+            item={renderedItem as never}
+            locale={rendered}
+            answer={answer as never}
+            onAnswer={(a: unknown) => onAnswer?.(a)}
+            outcome={outcome}
+            url={url}
+            active={active && !!onAnswer}
+            listen={toHear(exercise, index).length > 0}
+            heard={heard}
+            readOnly={!onAnswer}
+          />
+        </SeveralSaid.Provider>
       </GapRoom.Provider>
       {shown && (
         <p className="mt-3 text-sm">

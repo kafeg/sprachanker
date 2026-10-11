@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import type { Exercise, Outcome } from "@sprachanker/schema";
-import { ItemCard } from "../../src/exercises/item-card.tsx";
+import { ItemCard, severalNote } from "../../src/exercises/item-card.tsx";
 import { numberedLines, TILE } from "../../src/exercises/shared.tsx";
 import { keptTogether } from "../../src/ui/line-breaks.ts";
 import { TargetLang } from "../../src/ui/target-lang.ts";
@@ -59,6 +59,35 @@ test("text options each have their row, long or short, and keep it once checked"
   expect(marks.length).toBe(2);
   for (const m of marks) expect(m.getAttribute("class")).toContain("absolute");
   expect(layout(checked).every((c) => c.includes("w-full pr-11"))).toBe(true);
+});
+
+test("a multiple choice says several can be right once above, or not when it says how many are", async () => {
+  const multi = (instructionHtml?: string) =>
+    [
+      { ...choice, type: "multi_choice", items: [...choice.items, ...choice.items] } as Exercise,
+      instructionHtml ? ({ instructionHtml, items: {} } as never) : null,
+    ] as const;
+  expect(severalNote(...multi())).toBe("show");
+  expect(severalNote(...multi("<p>Drei Antworten sind richtig.</p>"))).toBe("stated");
+  expect(severalNote(...multi("<p>Правильных ответов несколько.</p>"))).toBe("stated");
+  expect(severalNote(...multi("<p>Lies den Text. Was ist richtig?</p>"))).toBe("show");
+  expect(severalNote(choice, null)).toBeUndefined();
+  // Said above, a card says only how many are chosen.
+  const view = await renderApp(
+    <TargetLang value="de">
+      <ItemCard
+        exercise={multi()[0]}
+        locale={null}
+        index={0}
+        answer={{ optionIds: ["a"] }}
+        url={(p) => p}
+        onAnswer={() => undefined}
+        severalAbove
+      />
+    </TargetLang>,
+  );
+  expect(view.queryByText(/Several answers/)).toBeNull();
+  expect(view.getByText("1 chosen")).toBeTruthy();
 });
 
 test("numbered tasks run on in one prompt are a line each; other numbers stay in the line", () => {

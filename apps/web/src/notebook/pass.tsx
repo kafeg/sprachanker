@@ -21,7 +21,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { mediaUrl } from "@/api/client.ts";
 import { type NotebookPass, useNotebookPass } from "@/api/notebook.ts";
-import { ItemCard, SharedPrompt, sharedPrompt } from "@/exercises/item-card.tsx";
+import { ItemCard, SharedPrompt, severalNote, sharedPrompt } from "@/exercises/item-card.tsx";
 import { ShuffleSeed } from "@/exercises/shared.tsx";
 import { ItemHistory } from "@/library/item-history.tsx";
 import { SpokenCheckNote, spokenCheckOf } from "@/library/spoken-check.tsx";
@@ -109,6 +109,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
                               outcome={last?.outcome}
                               url={url}
                               promptAbove={!!sharedPrompt(exercise, locale)}
+                              severalAbove={!!severalNote(exercise, locale)}
                             />
                             <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                               <span>
