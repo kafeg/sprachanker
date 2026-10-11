@@ -550,6 +550,14 @@ test.each([
   ],
   [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon wieder da.</p>"],
   [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann beginnt er?</p>"],
+  // A noun chip on a compound's head: the tail stays on it; a short word or a verb after a noun
+  // chip is a word of its own.
+  [`<p>Ich esse ${wrapped(chip("Kalb"))}braten.</p>`, "<p>Ich esse Kalbbraten.</p>"],
+  [
+    `<p>Das ${chip("Brot")}isst er, das ${chip("Dorf")}kommt.</p>`,
+    "<p>Das Brot isst er, das Dorf kommt.</p>",
+  ],
+  [`<p>Am ${chip("Montag&nbsp;")}gehe ich.</p>`, "<p>Am Montag gehe ich.</p>"],
 ])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
   expect(html(ctx, source)).toBe(expected);
   // Plain text (prompts, options, cloze texts) reads them so too (tags there are spaces: straight
