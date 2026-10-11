@@ -33,10 +33,12 @@
 ├── cache/tts/                   # texts read aloud by Piper (by voice, speed, text) and Qwen3-TTS (08)
 ├── server.sqlite                # profiles, devices, server settings
 ├── server.pid                   # the running server's pid: one server per data root (06)
-└── profiles/<profile-id>/       # `local` is the first
-    ├── profile.sqlite           # all learner data of this profile
-    └── recordings/              # learner audio as captured (<ulid>.<ext>), referenced from answers (08);
-                                 # a take no answer holds goes when the profile opens, a day old
+├── profiles/<profile-id>/       # `local` is the first
+│   ├── profile.sqlite           # all learner data of this profile
+│   └── recordings/              # learner audio as captured (<ulid>.<ext>), referenced from answers (08);
+│                                # a take no answer holds goes when the profile opens, a day old
+└── profiles/.transfers/<id>/    # a profile file being exported or imported ("Profile file"); gone when
+                                 # it ends, an hour old at most
 ```
 
 - One profile = one folder: backup, move, export and deletion of a person's data are folder operations.
@@ -225,9 +227,67 @@ by its snapshot, found by exercise key.
   is written as `<copy>.part` and renamed when whole, so a cut-short copy never counts as the day's.
   A profile's copies are in its folder: deleting the profile deletes them too (a deletion is final,
   and nothing of a person is left behind).
-- Planned: export and import of a profile (plan, "Open items in built areas", Server); an export
-  leaves out secrets and the daily copies (`*.day-*`).
+- **What to keep** (a backup of one's own; `sprachanker backup`, 06, copies it): what cannot be
+  fetched again — `server.sqlite` (profiles, the server's settings), `profiles/` (each profile's
+  database and recordings; its daily copies are copies of the same) and `decks/` (an imported deck is
+  made again only from its `.apkg`; the audio and examples made for its words cost an engine's or a
+  model's time) — and `<app-data>/secret.key`, outside the data root: without it the API keys stored
+  in a restored profile cannot be read (they are entered again). The library can be fetched again
+  (the sources may have changed since); `models/` and `cache/` are disposable. Restoring is copying
+  `server.sqlite`, `profiles/` and `decks/` into a data root and the key into app-data, with no
+  server running on it (owner, 2026-10-11: a documented list and the command; default, owner may
+  change).
+- **Profile file** (built): one profile moved between one's own machines as a file (owner,
+  2026-10-11: one's own machines only, nothing about sharing with others; default, owner may change).
+  Below.
 - The library is re-downloadable and copied per series (02).
+
+## Profile file
+
+`<name>-<date>.sprachanker-profile` (default, owner may change): a zip of stored entries (fflate, 10;
+no ZIP64, so at most 4 GB, `PROFILE_FILE_MAX_BYTES`), schema `profile-file.ts`:
+
+```
+manifest.json         # first: format `sprachanker-profile` and its version, the app's version, when;
+                      # the profile's name and colour; the migrations its database has; the content it
+                      # used — courses (its lessons', chats', scenes' runs, its cards' words) and exams by
+                      # key with their editions and titles, imported decks by id with their titles;
+                      # what it leaves out (the providers whose API keys were stored); each other file
+                      # with its size and sha256
+profile.sqlite        # the profile's database, `VACUUM INTO` (consistent while the server writes), its
+                      # `secrets` emptied and vacuumed away: the sealed API keys are not in the file
+recordings/<ulid>.<ext>
+```
+
+- Not in it: API keys (they are entered again on the new machine; the result says whose), the
+  devices signed in (`server.sqlite`'s), the daily and pre-migration copies, the library and imported
+  decks (they are named, not carried; a content version per course comes with the series manifest,
+  02).
+- **Export** (Settings → Profile, `profiles export`): the database copied and the recordings linked
+  (copied where the disk has no hard links) into `profiles/.transfers/<id>/`, each file hashed, then
+  streamed as the zip; the transfer goes when the file is written or the download ends or stops (one
+  never downloaded, after an hour). The disk is checked for room for the copy first (507
+  `not_enough_space`; a disk that fills up meanwhile gives the same).
+- **Import** (who is studying, `profiles import`) always makes a **new** profile (owner, 2026-10-11:
+  never replacing one; default, owner may change): its name kept, or "Name (2)", "Name (3)"… while
+  another profile has it; its colour; onboarded. All or nothing — everything happens in
+  `profiles/.transfers/<id>/`, moved into `profiles/<new id>` only once checked, then the profile is
+  made; any failure removes the transfer, and nothing of it is left:
+  1. the file streamed to disk (an upload; room for it twice — the file and what it unpacks to —
+     checked first when its length is known; 413 `profile_file_too_large` past 4 GB);
+  2. read by its zip directory: a manifest that reads, stored entries only, only `profile.sqlite`
+     and `recordings/<ulid>.<ext>`, each once — else 422 `not_a_profile_file`; a newer format or a
+     migration this app does not know: 422 `profile_from_newer_app`; the files exactly those listed,
+     each unpacked streaming and its size and sha256 as listed — else 422 `profile_file_damaged`;
+  3. the database: sound (`integrity_check`, its references), no migration this app does not know
+     (also when the manifest does not say so), migrated forward by the usual migrations (with the
+     usual copy before, Migrations), its `secrets` emptied, and its schema this app's own — tables,
+     indexes and nothing more, no trigger — else `profile_file_damaged`.
+  The result: the new profile, what the file left out, and the content it used that is not here
+  (courses or editions not installed, exams, imported decks): imported all the same — its runs read
+  by their snapshots and its cards by their display, as after a course is removed (Lifecycle); the
+  lessons show once the course is downloaded.
+- A transfer folder is no profile: the daily copies and backups pass over `profiles/.*`.
 
 ## Lifecycle
 

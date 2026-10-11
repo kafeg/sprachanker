@@ -10,6 +10,7 @@ import { createApp } from "../src/app.ts";
 import { profileAdmin } from "../src/index.ts";
 import { mediaBlob, openProfileDb, openServerDb, profileFiles } from "../src/runtime/bun.ts";
 import { apkgRuntime, deckFiles } from "../src/runtime/decks.ts";
+import { profileTransferFiles } from "../src/runtime/profile-transfer.ts";
 import { setup } from "./setup.ts";
 
 const LESSON = "sprachanker.fixture/demo/00-01";
@@ -148,6 +149,7 @@ test("the single profile from before profiles existed becomes the first one, not
     mediaBlob,
     decks: deckFiles(root),
     apkg: apkgRuntime,
+    transfers: profileTransferFiles(root),
     appVersion: "test",
     secretKey: new Uint8Array(32).fill(7),
     listensOn: { hostname: "127.0.0.1", port: 4580 },

@@ -15,6 +15,13 @@ export const ERROR_CODES = [
   "name_required",
   "registration_closed",
   "no_device",
+  // A profile file: exported, imported (05, "Profile file").
+  "profile_export_gone",
+  "not_a_profile_file",
+  "profile_file_damaged",
+  "profile_file_too_large",
+  "profile_from_newer_app",
+  "not_enough_space",
   // Courses and downloads.
   "not_installed",
   "not_offered",

@@ -883,7 +883,16 @@
     "new": "Nouveau profil",
     "previous": "Profils précédents",
     "next": "Autres profils",
-    "page": "{n, number} sur {total, number}"
+    "page": "{n, number} sur {total, number}",
+    "import": {
+      "button": "Importer un profil…",
+      "sending": "Envoi du fichier… {share, number, percent}",
+      "checking": "Vérification du fichier et création du profil…",
+      "done": "« {name} » est là.",
+      "noKeys": "Les clés d’API ne sont pas dans le fichier : saisis-les à nouveau dans Réglages → Assistant IA.",
+      "missing": "Pas encore sur cet ordinateur — leurs leçons apparaissent une fois téléchargées ; les mots sont déjà dans Révision :",
+      "open": "Ouvrir « {name} »"
+    }
   },
   "onboarding": {
     "progress": "Étape {n, number} sur {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violet",
       "sky": "Ciel",
       "lime": "Citron vert"
+    },
+    "export": {
+      "title": "Passer à un autre ordinateur",
+      "body": "Un fichier avec la progression, les mots, les réglages et les enregistrements de ce profil, à importer sur ton autre ordinateur depuis « Qui étudie ? ». Les clés d’API n’y sont pas.",
+      "button": "Exporter le profil",
+      "started": "Téléchargement de « {file} » ({size})."
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "Saisis un nom.",
     "no_active_scene": "Cette scène est terminée. Lances-en une nouvelle.",
     "no_device": "Cet appareil n’est plus connecté.",
+    "profile_export_gone": "Cet export n’est plus là : exporte à nouveau le profil.",
+    "not_a_profile_file": "Ce fichier n’est pas un fichier de profil SprachAnker (.sprachanker-profile).",
+    "profile_file_damaged": "Ce fichier de profil est endommagé ou a été modifié après l’export.",
+    "profile_file_too_large": "Ce fichier de profil est trop volumineux (4 Go au maximum).",
+    "profile_from_newer_app": "Ce profil vient d’une version plus récente de SprachAnker : mets d’abord l’application à jour ici.",
+    "not_enough_space": "Il n’y a pas assez d’espace libre sur le disque.",
     "no_lesson_run": "Commence d’abord la leçon : une correction est conservée avec son passage.",
     "no_session": "Cet appareil est déconnecté. Choisis à nouveau ton profil.",
     "no_such_attempt": "Cette réponse n’est plus dans le passage de la leçon. Recharge la leçon.",

@@ -883,7 +883,16 @@
     "new": "Novo perfil",
     "previous": "Perfis anteriores",
     "next": "Mais perfis",
-    "page": "{n, number} de {total, number}"
+    "page": "{n, number} de {total, number}",
+    "import": {
+      "button": "Importar um perfil…",
+      "sending": "Enviando o arquivo… {share, number, percent}",
+      "checking": "Verificando o arquivo e criando o perfil…",
+      "done": "“{name}” está aqui.",
+      "noKeys": "As chaves de API não estão no arquivo: insira-as de novo em Configurações → Assistente de IA.",
+      "missing": "Ainda não está neste computador — as lições aparecem depois de baixar; as palavras já estão na Revisão:",
+      "open": "Abrir “{name}”"
+    }
   },
   "onboarding": {
     "progress": "Passo {n, number} de {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violeta",
       "sky": "Azul-celeste",
       "lime": "Verde-limão"
+    },
+    "export": {
+      "title": "Levar para outro computador",
+      "body": "Um arquivo com o progresso, as palavras, as configurações e as gravações deste perfil, para importar no seu outro computador em “Quem vai estudar?”. As chaves de API não vão nele.",
+      "button": "Exportar perfil",
+      "started": "Baixando “{file}” ({size})."
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "Digite um nome.",
     "no_active_scene": "Esta cena terminou. Comece uma nova.",
     "no_device": "Este dispositivo não está mais conectado.",
+    "profile_export_gone": "Esta exportação não está mais aqui: exporte o perfil de novo.",
+    "not_a_profile_file": "Este arquivo não é um arquivo de perfil do SprachAnker (.sprachanker-profile).",
+    "profile_file_damaged": "Este arquivo de perfil está danificado ou foi alterado depois de exportado.",
+    "profile_file_too_large": "Este arquivo de perfil é grande demais (4 GB no máximo).",
+    "profile_from_newer_app": "Este perfil vem de uma versão mais nova do SprachAnker: atualize o app aqui primeiro.",
+    "not_enough_space": "Não há espaço livre suficiente no disco.",
     "no_lesson_run": "Comece a lição primeiro: cada verificação fica guardada com a rodada dela.",
     "no_session": "Este dispositivo foi desconectado. Escolha o seu perfil de novo.",
     "no_such_attempt": "Esta resposta não está mais na rodada da lição. Recarregue a lição.",

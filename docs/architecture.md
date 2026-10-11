@@ -23,11 +23,15 @@ browser ──localhost, a LAN name, the tailnet (tailscale serve)────�
                             ├─ models/                    speech models, voices/ Piper's voices, engines.pid (08)
                             ├─ cache/tts/                 texts read aloud by Piper and Qwen3-TTS
                             ├─ server.sqlite, server.pid  profiles, devices signed in; one server per root
-                            └─ profiles/<id>/             each learner's profile.sqlite (runs, events,
-                                                          cards, settings) and recordings/
+                            ├─ profiles/<id>/             each learner's profile.sqlite (runs, events,
+                            │                             cards, settings) and recordings/
+                            └─ profiles/.transfers/       a profile file being exported or imported
 ```
 
-Each database is copied beside itself once a day (a week kept) and before a migration.
+Each database is copied beside itself once a day (a week kept) and before a migration. A profile
+moves between one's machines as one file (`.sprachanker-profile`: its database without its API keys,
+its recordings, a manifest with a hash per file), imported as a new profile; `sprachanker backup`
+copies what cannot be fetched again (05, "Backups").
 
 Model calls go from the server to the provider the learner configured (LM Studio, OpenRouter, any
 OpenAI-compatible server, or a command-line agent); nothing else leaves the machine. The desktop app
@@ -60,7 +64,7 @@ only the router and the settings page import the optional `llm/` folder.
 | `packages/anki-export` | `.apkg` packages read (SQLite and zstd from the runtime), notes as a deck's words with lexemes by the courses' rules |
 | `packages/server` | HTTP API, SQLite with migrations and backups, services, downloads, the speech engines and their supervisor, security |
 | `apps/web` | screens for desktop and phone; checks answers locally with the engine for instant feedback |
-| `apps/cli` | `serve`, `import`, `verify`, `profiles` |
+| `apps/cli` | `serve`, `import`, `verify`, `profiles` (with a profile's export and import), `backup` |
 
 ## Server inside
 

@@ -121,6 +121,24 @@ export function createProfiles(deps: { db: ServerDb; files: ProfileFiles; now: (
       return self.get(id);
     },
 
+    /**
+     * A profile imported from a file (its folder already in place), onboarded: its name kept, or
+     * "Name (2)", "Name (3)"… while another profile has it.
+     */
+    adopt(input: { id: string; name: string; colour: ProfileColour }) {
+      const base = nameOf(input.name);
+      const taken = new Set(self.list().map((p) => p.name.toLocaleLowerCase()));
+      let name = base;
+      for (let n = 2; taken.has(name.toLocaleLowerCase()); n++) {
+        const suffix = ` (${n})`;
+        name = `${base.slice(0, PROFILE_NAME_MAX - suffix.length).trimEnd()}${suffix}`;
+      }
+      db.insert(profiles)
+        .values({ id: input.id, name, colour: input.colour, onboarded: 1, createdAt: now() })
+        .run();
+      return self.get(input.id);
+    },
+
     update(id: string, input: { name?: string; colour?: ProfileColour; onboarded?: boolean }) {
       self.get(id);
       const values: Partial<ProfileRow> = {};

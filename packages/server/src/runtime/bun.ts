@@ -3,6 +3,7 @@ import { Database } from "bun:sqlite";
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, resolve, sep } from "node:path";
 import { writeFileAtomic } from "@sprachanker/course-kit";
+import { PROFILE_FILE_MAX_BYTES } from "@sprachanker/schema";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { type Migration, migrate } from "../db/migrate.ts";
 import type { ProfileDb } from "../db/profile/db.ts";
@@ -16,8 +17,9 @@ import { DECK_MAX_BYTES } from "../services/decks.ts";
 import type { ProfileFiles, RecordingFiles } from "../services/profiles.ts";
 import type { WebAssets } from "../web.ts";
 
-/** The deck routes that answer only once a package is read (routes/decks.ts). */
-const UNTIMED = /^\/api\/decks\/(preview|import)$/;
+/** The routes that answer only once a file is read or written: a deck package's (routes/decks.ts), a
+ *  profile file's (routes/profiles.ts). */
+const UNTIMED = /^\/api\/(decks\/(preview|import)|profiles\/import|profile\/export\/[^/]+)$/;
 
 export interface Listening {
   url: string;
@@ -30,8 +32,9 @@ export function listen(
 ): Listening {
   const server = Bun.serve({
     fetch(request, bun) {
-      // A deck file's preview and import read or write for minutes before they answer: they wait as
-      // long as they take; every other request up to `idleTimeout` (a model's first words, 07).
+      // A deck file's preview and import, a profile file's import and download read or write for
+      // minutes: they wait as long as they take; every other request up to `idleTimeout` (a model's
+      // first words, 07).
       if (UNTIMED.test(new URL(request.url).pathname)) bun.timeout(request, 0);
       return fetch(request);
     },
@@ -40,9 +43,9 @@ export function listen(
     // Bun's most: a local model may take minutes to its first token (07: 180 s), a speech engine to
     // load; Bun's default 10 s would cut them.
     idleTimeout: 255,
-    // A deck file is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
+    // A profile file is the largest body taken (Bun's own limit is 128 MB); each route keeps its own
     // limit below it (app.ts).
-    maxRequestBodySize: DECK_MAX_BYTES + 1024 * 1024,
+    maxRequestBodySize: Math.max(DECK_MAX_BYTES, PROFILE_FILE_MAX_BYTES) + 1024 * 1024,
   });
   return { url: server.url.href, stop: () => server.stop() };
 }
@@ -71,10 +74,18 @@ export function fileAssets(files: Record<string, string>): WebAssets {
 export const profileDbFile = (dataRoot: string, id: string) =>
   join(dataRoot, "profiles", id, "profile.sqlite");
 
+/** The migrations a profile database may have: this app's, in order. */
+export const profileMigrationTags = migrations.map((m) => m.tag);
+
+/** A profile database opened (created if needed) in WAL mode with pending migrations applied: the
+ *  SQLite handle itself (a profile file's import checks it). */
+export const openProfileSqlite = (file: string, now = Date.now()) =>
+  openSqlite(file, migrations, now);
+
 /** Opens (creating if needed) a profile database in WAL mode and applies pending migrations; `close`
  *  lets it go. */
 function openProfile(file: string, now: number) {
-  const sqlite = openSqlite(file, migrations, now);
+  const sqlite = openProfileSqlite(file, now);
   return { db: drizzle(sqlite, { schema }) as ProfileDb, close: () => sqlite.close() };
 }
 export const openProfileDb = (file: string, now = Date.now()): ProfileDb =>

@@ -883,7 +883,16 @@
     "new": "Neues Profil",
     "previous": "Vorige Profile",
     "next": "Weitere Profile",
-    "page": "{n, number} von {total, number}"
+    "page": "{n, number} von {total, number}",
+    "import": {
+      "button": "Profil importieren…",
+      "sending": "Datei wird gesendet… {share, number, percent}",
+      "checking": "Datei wird geprüft und das Profil angelegt…",
+      "done": "„{name}“ ist da.",
+      "noKeys": "API-Schlüssel sind nicht in der Datei: gib sie unter Einstellungen → KI-Assistent noch einmal ein.",
+      "missing": "Noch nicht auf diesem Computer — ihre Lektionen erscheinen nach dem Herunterladen; die Wörter sind schon in Wiederholen:",
+      "open": "„{name}“ öffnen"
+    }
   },
   "onboarding": {
     "progress": "Schritt {n, number} von {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violett",
       "sky": "Himmelblau",
       "lime": "Limette"
+    },
+    "export": {
+      "title": "Auf einen anderen Computer umziehen",
+      "body": "Eine Datei mit dem Fortschritt, den Wörtern, Einstellungen und Aufnahmen dieses Profils, zum Importieren auf deinem anderen Computer unter „Wer lernt?“. API-Schlüssel sind nicht darin.",
+      "button": "Profil exportieren",
+      "started": "„{file}“ wird heruntergeladen ({size})."
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "Gib einen Namen ein.",
     "no_active_scene": "Diese Szene ist schon zu Ende. Starte eine neue.",
     "no_device": "Dieses Gerät ist nicht mehr angemeldet.",
+    "profile_export_gone": "Dieser Export ist nicht mehr da: exportiere das Profil noch einmal.",
+    "not_a_profile_file": "Diese Datei ist keine SprachAnker-Profildatei (.sprachanker-profile).",
+    "profile_file_damaged": "Diese Profildatei ist beschädigt oder wurde nach dem Export verändert.",
+    "profile_file_too_large": "Diese Profildatei ist zu groß (höchstens 4 GB).",
+    "profile_from_newer_app": "Dieses Profil stammt aus einer neueren SprachAnker-Version: aktualisiere die App hier zuerst.",
+    "not_enough_space": "Auf dem Datenträger ist nicht genug Platz frei.",
     "no_lesson_run": "Starte zuerst die Lektion: Eine Prüfung wird in ihrem Durchgang gespeichert.",
     "no_session": "Dieses Gerät ist abgemeldet. Wähle dein Profil erneut.",
     "no_such_attempt": "Diese Antwort ist nicht mehr im Lektionsdurchgang. Lade die Lektion neu.",

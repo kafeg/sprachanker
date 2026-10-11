@@ -883,7 +883,16 @@
     "new": "Új profil",
     "previous": "Előző profilok",
     "next": "További profilok",
-    "page": "{n, number}/{total, number}"
+    "page": "{n, number}/{total, number}",
+    "import": {
+      "button": "Profil importálása…",
+      "sending": "A fájl küldése… {share, number, percent}",
+      "checking": "A fájl ellenőrzése és a profil létrehozása…",
+      "done": "„{name}” itt van.",
+      "noKeys": "Az API-kulcsok nincsenek a fájlban: add meg őket újra itt: Beállítások → MI-asszisztens.",
+      "missing": "Még nincs ezen a számítógépen — a leckéik a letöltés után jelennek meg; a szavak már az Ismétlésben vannak:",
+      "open": "„{name}” megnyitása"
+    }
   },
   "onboarding": {
     "progress": "Lépés: {n, number}/{total, number}",
@@ -938,6 +947,12 @@
       "violet": "Ibolya",
       "sky": "Égkék",
       "lime": "Limezöld"
+    },
+    "export": {
+      "title": "Átköltözés másik számítógépre",
+      "body": "Egy fájl a profil haladásával, szavaival, beállításaival és felvételeivel, amelyet a másik számítógépeden a „Ki tanul?” képernyőn importálhatsz. Az API-kulcsok nincsenek benne.",
+      "button": "Profil exportálása",
+      "started": "„{file}” letöltése ({size})."
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "Adj meg egy nevet.",
     "no_active_scene": "Ez a jelenet véget ért. Kezdj újat.",
     "no_device": "Ez az eszköz már nincs bejelentkezve.",
+    "profile_export_gone": "Ez az exportálás már nincs itt: exportáld újra a profilt.",
+    "not_a_profile_file": "Ez a fájl nem SprachAnker-profilfájl (.sprachanker-profile).",
+    "profile_file_damaged": "Ez a profilfájl sérült, vagy az exportálás után módosították.",
+    "profile_file_too_large": "Ez a profilfájl túl nagy (legfeljebb 4 GB).",
+    "profile_from_newer_app": "Ez a profil a SprachAnker egy újabb verziójából származik: előbb frissítsd itt az alkalmazást.",
+    "not_enough_space": "Nincs elég szabad hely a lemezen.",
     "no_lesson_run": "Előbb indítsd el a leckét: az ellenőrzés a körével együtt tárolódik.",
     "no_session": "Ez az eszköz ki van jelentkeztetve. Válaszd ki újra a profilodat.",
     "no_such_attempt": "Ez a válasz már nincs a lecke körében. Töltsd be újra a leckét.",

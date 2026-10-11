@@ -1,10 +1,11 @@
 import { hostname } from "node:os";
 import { join } from "node:path";
 import { openLibrary, verifyLibrary } from "@sprachanker/course-kit";
+import { Deck } from "@sprachanker/schema";
 import { createApp, type WebAssets } from "./app.ts";
 import { appDataDir } from "./config.ts";
 import { courseInstaller } from "./providers.ts";
-import { startDailyBackups } from "./runtime/backup.ts";
+import { backUpTo, startDailyBackups } from "./runtime/backup.ts";
 import {
   type Listening,
   listen,
@@ -19,9 +20,15 @@ import { apkgRuntime, deckFiles } from "./runtime/decks.ts";
 import { lmStudioHost } from "./runtime/lmstudio.ts";
 import { networkHost } from "./runtime/network.ts";
 import { piperHost } from "./runtime/piper.ts";
+import { profileTransferFiles } from "./runtime/profile-transfer.ts";
 import { readingCache } from "./runtime/readings.ts";
 import { speechHost } from "./runtime/speech.ts";
+import { createCardStore } from "./services/card-store.ts";
+import { createContent } from "./services/content.ts";
+import { contentUsed, createProfileTransfer } from "./services/profile-transfer.ts";
 import { createProfiles } from "./services/profiles.ts";
+import { createRunStore } from "./services/run-store.ts";
+import { parseJson } from "./services/stored.ts";
 
 export type { AppType, WebAssets } from "./app.ts";
 export { directoryAssets, fileAssets, type Listening } from "./runtime/bun.ts";
@@ -49,6 +56,7 @@ export function startServer(config: ServerConfig): Listening {
     mediaBlob,
     decks: deckFiles(config.dataRoot),
     apkg: apkgRuntime,
+    transfers: profileTransferFiles(config.dataRoot),
     appVersion: config.appVersion,
     // Outside the data root, so a copied data folder does not carry usable API keys.
     secretKey: secretKey(join(appDataDir(), "secret.key")),
@@ -79,22 +87,61 @@ export const verifyData = (dataRoot: string) =>
 
 /**
  * The server's profile matters for the `sprachanker profiles` command (06, "Profiles and access"):
- * list them, open or close registration, delete one. Not in the app.
+ * list them, open or close registration, delete one, export one to a file or import one from a file
+ * (05, "Profile file"). Not in the app.
  */
-export function profileAdmin(dataRoot: string) {
+export function profileAdmin(dataRoot: string, appVersion = "") {
+  const files = profileFiles(dataRoot);
   const profiles = createProfiles({
     db: openServerDb(join(dataRoot, "server.sqlite")),
-    files: profileFiles(dataRoot),
+    files,
     now: Date.now,
   });
   profiles.adoptFirst();
+  const decks = deckFiles(dataRoot);
+  const transfer = createProfileTransfer({
+    files: profileTransferFiles(dataRoot),
+    profiles,
+    used: (id) => {
+      const db = files.open(id);
+      return contentUsed(createRunStore({ db, now: Date.now, appVersion }), createCardStore(db));
+    },
+    content: createContent(openLibrary(join(dataRoot, "library"))),
+    // The imported decks' titles, read as stored (none that does not read).
+    decks: () =>
+      decks.ids().flatMap((id) => {
+        const deck = Deck.safeParse(parseJson(decks.read(id) ?? ""));
+        return deck.success ? [{ id, title: deck.data.title }] : [];
+      }),
+    appVersion,
+    now: Date.now,
+  });
+  /** A profile by its id, else by its name (any case); one only. */
+  const find = (nameOrId: string) => {
+    const all = profiles.list();
+    const named = all.filter((p) => p.name.toLocaleLowerCase() === nameOrId.toLocaleLowerCase());
+    const found = all.find((p) => p.id === nameOrId) ?? (named.length === 1 ? named[0] : undefined);
+    if (found) return found;
+    throw new Error(
+      named.length
+        ? `${named.length} profiles are named ${nameOrId}: give the id (sprachanker profiles lists them)`
+        : `no profile ${nameOrId} (sprachanker profiles lists them)`,
+    );
+  };
   return {
     ...profiles,
+    find,
     /** Deletes a profile with its data — not while a server holds its database open. */
     remove(id: string) {
       const pid = serverOn(dataRoot);
       if (pid) throw new Error(`a server (pid ${pid}) is running on ${dataRoot}: stop it first`);
       profiles.remove(id);
     },
+    exportTo: transfer.exportTo,
+    importFile: transfer.importFile,
   };
 }
+
+/** A backup of the data root's irreplaceable data in a new folder in `to` (05, "Backups"). */
+export const backupData = (dataRoot: string, to: string) =>
+  backUpTo(dataRoot, to, join(appDataDir(), "secret.key"));

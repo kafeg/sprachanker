@@ -1,8 +1,9 @@
 // "Who is studying?" (06, "Profiles and access"; 09): the interface language first, then the profiles
 // on this server as tiles, centred, five to a page (← / → and the arrow keys page them), and "New
 // profile" after them while registration is open — it starts the onboarding, whose first step names
-// the profile. A profile opens on a tap (profiles keep learning apart; they are not locked). Shown
-// while this device is signed in to none.
+// the profile —, with "Import a profile" under them (a profile file from another computer). A profile
+// opens on a tap (profiles keep learning apart; they are not locked). Shown while this device is
+// signed in to none.
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -14,6 +15,7 @@ import { errorText } from "@/ui/error-text.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { cn } from "@/ui/utils.ts";
 import { LanguageSwitch } from "./language-switch.tsx";
+import { ProfileImport } from "./profile-import.tsx";
 
 /** Profile tiles on a page ("New profile" besides). */
 const PROFILES_PER_PAGE = 5;
@@ -113,6 +115,7 @@ export function WhoIsStudying({ onNew }: { onNew(): void }) {
       {signIn.isError && (
         <p className="text-center text-sm text-wrong">{errorText(t, signIn.error)}</p>
       )}
+      {(profiles.data.registration || !list.length) && <ProfileImport />}
     </main>
   );
 }

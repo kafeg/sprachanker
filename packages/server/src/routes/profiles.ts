@@ -1,14 +1,16 @@
 // /api: profiles and signing in (06, "Profiles and access"). Without a session: who is studying, a new
-// profile (while registration is open), signing in by choosing a profile, signing out. With one (after
-// the session check): the profile's name, colour and onboarding, and its devices.
+// profile or one imported from a file (while registration is open), signing in by choosing a profile,
+// signing out. With one (after the session check): the profile's name, colour and onboarding, its
+// devices, and its export as a file.
 // Every profile is equal; server matters are the `sprachanker` command's.
 
-import { PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
+import { PROFILE_FILE_MAX_BYTES, PROFILE_NAME_MAX, ProfileColour } from "@sprachanker/schema";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { z } from "zod";
 import { ServiceError } from "../errors.ts";
+import { limitedBody } from "../media.ts";
 import { DEVICE_LIFETIME_MS } from "../services/devices.ts";
 import type { Services } from "../services/index.ts";
 import { zod } from "../validate.ts";
@@ -54,6 +56,23 @@ export function sessionRoutes(svc: Services) {
           const profile = profiles.create(c.req.valid("json"));
           await issue(c, profile.id);
           return c.json({ profile });
+        },
+      )
+      // A profile file imported as a new profile (while registration is open, as a new one is made);
+      // the device signs in to it by choosing it.
+      .post(
+        "/profiles/import",
+        limitedBody(PROFILE_FILE_MAX_BYTES, "profile_file_too_large"),
+        async (c) => {
+          const body = c.req.raw.body;
+          if (!body) throw new ServiceError("not_a_profile_file", 422);
+          const length = Number(c.req.header("content-length"));
+          return c.json(
+            await svc.profileTransfer.importUpload(
+              body,
+              Number.isFinite(length) ? length : undefined,
+            ),
+          );
         },
       )
       .get("/session", async (c) => {
@@ -113,6 +132,20 @@ export function profileRoutes(svc: Services) {
         svc.removeProfile(c.var.profileId);
         deleteCookie(c, DEVICE_COOKIE, { path: "/" });
         return c.json({ ok: true as const });
+      })
+      // The profile as a file to move to another machine: made ready (its name, size, what it leaves
+      // out), then downloaded once, streamed.
+      .post("/profile/export", async (c) =>
+        c.json(await svc.profileTransfer.prepare(c.var.profileId)),
+      )
+      .get("/profile/export/:id", zod("param", z.object({ id: z.uuid() })), (c) => {
+        const file = svc.profileTransfer.download(c.var.profileId, c.req.valid("param").id);
+        return c.body(file.stream, 200, {
+          "content-type": "application/zip",
+          "content-length": String(file.bytes),
+          "content-disposition": `attachment; filename="${file.fileName.replace(/[^\x20-\x7e]|["\\]/g, "_")}"; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+          "cache-control": "no-store",
+        });
       })
       .get("/profile/devices", (c) =>
         c.json({

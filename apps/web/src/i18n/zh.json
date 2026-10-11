@@ -883,7 +883,16 @@
     "new": "新建个人资料",
     "previous": "上一页",
     "next": "下一页",
-    "page": "{n, number}/{total, number}"
+    "page": "{n, number}/{total, number}",
+    "import": {
+      "button": "导入个人资料…",
+      "sending": "正在发送文件… {share, number, percent}",
+      "checking": "正在检查文件并创建个人资料…",
+      "done": "“{name}”已导入。",
+      "noKeys": "文件中没有 API 密钥：请在“设置 → AI助手”中重新输入。",
+      "missing": "这台电脑上还没有以下内容——下载后即可看到其课程；单词已在复习中：",
+      "open": "打开“{name}”"
+    }
   },
   "onboarding": {
     "progress": "第{n, number}步，共{total, number}步",
@@ -938,6 +947,12 @@
       "violet": "紫罗兰色",
       "sky": "天蓝色",
       "lime": "青柠色"
+    },
+    "export": {
+      "title": "迁移到另一台电脑",
+      "body": "一个包含此个人资料的进度、单词、设置和录音的文件，可在你的另一台电脑上通过“谁在学习？”导入。其中不含 API 密钥。",
+      "button": "导出个人资料",
+      "started": "正在下载“{file}”（{size}）。"
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "请输入名字。",
     "no_active_scene": "此情景对话已结束。请开始新的情景对话。",
     "no_device": "此设备已不再处于登录状态。",
+    "profile_export_gone": "此导出已不在：请重新导出个人资料。",
+    "not_a_profile_file": "此文件不是 SprachAnker 个人资料文件（.sprachanker-profile）。",
+    "profile_file_damaged": "此个人资料文件已损坏，或在导出后被修改过。",
+    "profile_file_too_large": "此个人资料文件太大（最大4GB）。",
+    "profile_from_newer_app": "此个人资料来自更新版本的 SprachAnker：请先在这里更新应用。",
+    "not_enough_space": "磁盘上没有足够的可用空间。",
     "no_lesson_run": "请先开始本课：检查结果会保存在学习轮次中。",
     "no_session": "此设备已退出登录。请重新选择你的个人资料。",
     "no_such_attempt": "此答案已不在本轮学习中。请重新加载本课。",

@@ -1,8 +1,10 @@
 #!/usr/bin/env bun
 // The `sprachanker` binary (spec 06, "CLI").
-import { resolve } from "node:path";
+import { existsSync, statSync } from "node:fs";
+import { join, resolve } from "node:path";
 import { parseArgs } from "node:util";
 import {
+  backupData,
   directoryAssets,
   fileAssets,
   importCourse,
@@ -31,6 +33,13 @@ Commands:
          list the profiles; every profile is equal in the app, these are the server's matters:
   profiles registration on|off     let new profiles be made from the app, or not (on by default)
   profiles delete <id>             delete a profile with its data
+  profiles export <name|id> --to <file|folder>
+                                   the profile as a file (.sprachanker-profile) to import on another
+                                   machine: its progress, words, settings and recordings, no API keys
+  profiles import <file>           a profile file imported as a new profile
+  backup [--data <dir>] --to <folder>
+         copy what cannot be downloaded again into a new folder there: the databases, recordings,
+         imported decks and the key the API keys are sealed with
 
 The data root holds library/ and profiles/: --data, else $SPRACHANKER_DATA, else the app-data folder.`;
 
@@ -157,13 +166,30 @@ async function verifyCommand(args: string[]): Promise<void> {
   if (reports.some((r) => r.problems.length)) process.exitCode = 1;
 }
 
+/** What the server refuses a profile file for, in words (the app's catalogs are the web's). */
+const PROFILE_FILE_ERRORS: Record<string, string> = {
+  not_a_profile_file: "this is not a SprachAnker profile file (.sprachanker-profile)",
+  profile_file_damaged: "this profile file is damaged or was changed after it was exported",
+  profile_file_too_large: "the profile file would be over 4 GB",
+  profile_from_newer_app:
+    "this profile comes from a newer version of SprachAnker: update it here first",
+  not_enough_space: "there is not enough free space on the disk",
+  name_required: "the profile has no name yet: finish its onboarding in the app first",
+};
+const inWords = (error: unknown) =>
+  error instanceof Error && PROFILE_FILE_ERRORS[error.message]
+    ? new Error(PROFILE_FILE_ERRORS[error.message])
+    : error;
+
+const megabytes = (bytes: number) => `${(bytes / 1e6).toFixed(1)} MB`;
+
 async function profilesCommand(args: string[]): Promise<void> {
   const { values, positionals } = parseArgs({
     args,
     allowPositionals: true,
-    options: { data: { type: "string" } },
+    options: { data: { type: "string" }, to: { type: "string" } },
   });
-  const profiles = profileAdmin(resolveDataRoot(values.data));
+  const profiles = profileAdmin(resolveDataRoot(values.data), pkg.version);
   const [action, arg] = positionals;
   switch (action) {
     case undefined:
@@ -180,9 +206,63 @@ async function profilesCommand(args: string[]): Promise<void> {
       profiles.remove(arg);
       console.log(`${arg}: deleted`);
       return;
+    case "export": {
+      if (!arg) throw new Error("which profile? (sprachanker profiles lists them)");
+      const to = values.to;
+      if (!to) throw new Error("where to? --to <file or folder>");
+      const profile = profiles.find(arg);
+      const into = statSync(to, { throwIfNoEntry: false })?.isDirectory();
+      const done = await profiles
+        .exportTo(profile.id, (fileName) => {
+          const file = into ? join(to, fileName) : to;
+          if (existsSync(file)) throw new Error(`${file} exists: give another --to`);
+          return file;
+        })
+        .catch((error: unknown) => {
+          throw inWords(error);
+        });
+      console.log(`${profile.name}: exported to ${done.file} (${megabytes(done.bytes)})`);
+      if (done.leftOut.apiKeys.length)
+        console.log(`  not included: the API keys of ${done.leftOut.apiKeys.join(", ")}`);
+      return;
+    }
+    case "import": {
+      if (!arg) throw new Error("which file? sprachanker profiles import <file>");
+      if (!statSync(arg, { throwIfNoEntry: false })?.isFile()) throw new Error(`no file ${arg}`);
+      const { profile, leftOut, missing } = await profiles
+        .importFile(arg)
+        .catch((error: unknown) => {
+          throw inWords(error);
+        });
+      console.log(`${profile.name}: imported as profile ${profile.id}`);
+      if (leftOut.apiKeys.length)
+        console.log(
+          `  not included: the API keys of ${leftOut.apiKeys.join(", ")} (enter them again in Settings → AI assistant)`,
+        );
+      const named = (c: { key: string; title: string | null; editions: string[] }) =>
+        `${c.title ?? c.key}${c.editions.length ? ` (${c.editions.join(", ")})` : ""}`;
+      for (const c of missing.courses) console.log(`  not here: the course ${named(c)}`);
+      for (const e of missing.exams) console.log(`  not here: the exam ${named(e)}`);
+      for (const d of missing.decks) console.log(`  not here: the deck ${d.title ?? d.id}`);
+      return;
+    }
     default:
       throw new Error(`unknown: profiles ${action}`);
   }
+}
+
+function backupCommand(args: string[]): void {
+  const { values } = parseArgs({
+    args,
+    options: { data: { type: "string" }, to: { type: "string" } },
+  });
+  if (!values.to) throw new Error("where to? --to <folder>");
+  const dataRoot = resolveDataRoot(values.data);
+  const { folder, bytes } = backupData(dataRoot, values.to);
+  console.log(`backed up ${dataRoot} to ${folder} (${megabytes(bytes)})`);
+  console.log(
+    "  to restore: server.sqlite, profiles/ and decks/ into a data root, secret.key into the app-data folder, no server running",
+  );
 }
 
 /** Runs a command; a failure is one line and exit code 1, never a stack trace. */
@@ -215,6 +295,9 @@ async function run(argv: string[], embedded?: Embedded): Promise<void> {
       break;
     case "profiles":
       await profilesCommand(rest);
+      break;
+    case "backup":
+      backupCommand(rest);
       break;
     default:
       console.log(USAGE);

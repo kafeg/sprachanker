@@ -883,7 +883,16 @@
     "new": "Wasifu mpya",
     "previous": "Wasifu zilizotangulia",
     "next": "Wasifu zaidi",
-    "page": "{n, number} kati ya {total, number}"
+    "page": "{n, number} kati ya {total, number}",
+    "import": {
+      "button": "Leta wasifu…",
+      "sending": "Inatuma faili… {share, number, percent}",
+      "checking": "Inakagua faili na kuunda wasifu…",
+      "done": "“{name}” iko hapa.",
+      "noKeys": "Funguo za API hazimo kwenye faili: ziweke tena katika Mipangilio → Msaidizi wa AI.",
+      "missing": "Bado havipo kwenye kompyuta hii — masomo yake yataonekana yakishapakuliwa; maneno tayari yako kwenye Marudio:",
+      "open": "Fungua “{name}”"
+    }
   },
   "onboarding": {
     "progress": "Hatua {n, number} kati ya {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Urujuani",
       "sky": "Samawati",
       "lime": "Kijani-limau"
+    },
+    "export": {
+      "title": "Hamia kompyuta nyingine",
+      "body": "Faili lenye maendeleo, maneno, mipangilio na rekodi za wasifu huu, la kuleta kwenye kompyuta yako nyingine kupitia “Nani anasoma?”. Funguo za API hazimo.",
+      "button": "Hamisha wasifu",
+      "started": "Inapakua “{file}” ({size})."
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "Weka jina.",
     "no_active_scene": "Igizo hili limekwisha. Anza jipya.",
     "no_device": "Kifaa hiki hakijaingia tena.",
+    "profile_export_gone": "Uhamishaji huu haupo tena hapa: hamisha wasifu tena.",
+    "not_a_profile_file": "Faili hili si faili la wasifu la SprachAnker (.sprachanker-profile).",
+    "profile_file_damaged": "Faili hili la wasifu limeharibika au lilibadilishwa baada ya kuhamishwa.",
+    "profile_file_too_large": "Faili hili la wasifu ni kubwa mno (si zaidi ya GB 4).",
+    "profile_from_newer_app": "Wasifu huu umetoka kwenye toleo jipya zaidi la SprachAnker: sasisha programu hapa kwanza.",
+    "not_enough_space": "Hakuna nafasi ya kutosha kwenye diski.",
     "no_lesson_run": "Anza somo kwanza: ukaguzi huhifadhiwa pamoja na mzunguko wake.",
     "no_session": "Kifaa hiki kimetoka. Chagua wasifu wako tena.",
     "no_such_attempt": "Jibu hili halipo tena katika mzunguko wa somo. Pakia somo upya.",

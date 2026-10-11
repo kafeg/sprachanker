@@ -883,7 +883,16 @@
     "new": "Nuevo perfil",
     "previous": "Perfiles anteriores",
     "next": "Más perfiles",
-    "page": "{n, number} de {total, number}"
+    "page": "{n, number} de {total, number}",
+    "import": {
+      "button": "Importar un perfil…",
+      "sending": "Enviando el archivo… {share, number, percent}",
+      "checking": "Comprobando el archivo y creando el perfil…",
+      "done": "«{name}» ya está aquí.",
+      "noKeys": "Las claves de API no están en el archivo: vuelve a introducirlas en Ajustes → Asistente de IA.",
+      "missing": "Aún no está en este ordenador — sus lecciones aparecen al descargarlo; las palabras ya están en Repaso:",
+      "open": "Abrir «{name}»"
+    }
   },
   "onboarding": {
     "progress": "Paso {n, number} de {total, number}",
@@ -938,6 +947,12 @@
       "violet": "Violeta",
       "sky": "Celeste",
       "lime": "Lima"
+    },
+    "export": {
+      "title": "Pasar a otro ordenador",
+      "body": "Un archivo con el progreso, las palabras, los ajustes y las grabaciones de este perfil, para importarlo en tu otro ordenador desde «¿Quién estudia?». Las claves de API no van en él.",
+      "button": "Exportar perfil",
+      "started": "Descargando «{file}» ({size})."
     }
   },
   "decks": {
@@ -1240,6 +1255,12 @@
     "name_required": "Escribe un nombre.",
     "no_active_scene": "Esta escena ha terminado. Empieza una nueva.",
     "no_device": "Este dispositivo ya no tiene la sesión iniciada.",
+    "profile_export_gone": "Esta exportación ya no está aquí: vuelve a exportar el perfil.",
+    "not_a_profile_file": "Este archivo no es un archivo de perfil de SprachAnker (.sprachanker-profile).",
+    "profile_file_damaged": "Este archivo de perfil está dañado o se modificó después de exportarlo.",
+    "profile_file_too_large": "Este archivo de perfil es demasiado grande (4 GB como máximo).",
+    "profile_from_newer_app": "Este perfil viene de una versión más nueva de SprachAnker: actualiza primero la aplicación aquí.",
+    "not_enough_space": "No hay suficiente espacio libre en el disco.",
     "no_lesson_run": "Empieza primero la lección: cada corrección se guarda con su vuelta.",
     "no_session": "La sesión de este dispositivo está cerrada. Vuelve a elegir tu perfil.",
     "no_such_attempt": "Esta respuesta ya no está en la vuelta de la lección. Vuelve a cargar la lección.",

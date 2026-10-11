@@ -31,6 +31,7 @@ import { createMistakes } from "./mistakes.ts";
 import { createNetwork, type ListensOn, type NetworkHost } from "./network.ts";
 import { createNotebook } from "./notebook.ts";
 import { createProfileSpeech } from "./profile-speech.ts";
+import { contentUsed, createProfileTransfer, type TransferFiles } from "./profile-transfer.ts";
 import { createProfiles, type ProfileFiles, type RecordingFiles } from "./profiles.ts";
 import { createProgress } from "./progress.ts";
 import { createQwenTts, type QwenTts } from "./qwen-tts.ts";
@@ -62,6 +63,8 @@ export interface ServicesConfig {
   piper?: PiperHost;
   /** Readings kept (Piper's and Qwen3-TTS's); without it each is made again. */
   readings?: ReadingCache;
+  /** Profile files exported and imported (runtime adapter). */
+  transfers: TransferFiles;
   /** The imported decks' folders, and what reading a package needs of the runtime. */
   decks: DeckFiles;
   apkg: ApkgRuntime;
@@ -295,10 +298,27 @@ export function createServices(config: ServicesConfig) {
     fetch: config.fetch,
   });
 
+  const profileTransfer = createProfileTransfer({
+    files: config.transfers,
+    profiles,
+    used: (id) => {
+      const db = config.profiles.open(id);
+      return contentUsed(
+        createRunStore({ db, now, appVersion: config.appVersion }),
+        createCardStore(db),
+      );
+    },
+    content,
+    decks: () => decks.list().map((d) => ({ id: d.id, title: d.title })),
+    appVersion: config.appVersion,
+    now,
+  });
+
   return {
     content,
     decks,
     downloads,
+    profileTransfer,
     speech,
     network: createNetwork({ host: config.network, listensOn: config.listensOn, now }),
     profiles,

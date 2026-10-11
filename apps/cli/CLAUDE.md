@@ -7,7 +7,8 @@ The `sprachanker` binary. Spec: `docs/spec/06-server.md` (CLI, binary build). De
 
 ```
 src/main.ts         # serve, import, verify, profiles (the server's profile matters: list, registration
-                    # on|off, delete); main(argv, embedded?) — also runs from sources
+                    # on|off, delete; a profile exported to a file, a file imported — the server's
+                    # refusals in words), backup; main(argv, embedded?) — also runs from sources
 scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds the web build, compiles dist/sprachanker, copies the
                     # speech engines built in native/ beside it (whisper-server, Piper's
                     # sherpa-onnx-offline-tts, Qwen3-TTS's tts-server)
@@ -15,7 +16,7 @@ scripts/build.ts    # bun run build:bin (build:cli after build:speech): embeds t
 
 ## Planned
 
-- `normalise <series>`, profile export and import, `enrich check` (plan; 06, "CLI").
+- `normalise <series>`, `enrich check` (plan; 06, "CLI").
 
 ## Rules
 

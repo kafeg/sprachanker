@@ -1,7 +1,8 @@
 import { afterEach, expect, spyOn, test } from "bun:test";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { profileAdmin } from "@sprachanker/server";
 import { main, serveOptions } from "../src/main.ts";
 
 /** Runs the CLI; returns what it printed and its exit code. */
@@ -58,6 +59,53 @@ test("serve answers to the names given by --allow-host, each a host name", async
     "sprachanker: invalid --allow-host: https://study.example:443 (a host name only)",
     1,
   ]);
+});
+
+test("profiles export and import: a profile moved to another data root as a file", async () => {
+  const from = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  const to = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  const files = mkdtempSync(join(tmpdir(), "sprachanker-cli-files-"));
+  profileAdmin(from).create({ name: "Mila" });
+  profileAdmin(to).create({ name: "Mila" });
+  // By name, into a folder: the file takes its own name there.
+  const exported = await cli("profiles", "export", "mila", "--data", from, "--to", files);
+  expect(exported.code).toBe(0);
+  const [file] = readdirSync(files);
+  expect(file).toMatch(/^Mila-\d{4}-\d{2}-\d{2}\.sprachanker-profile$/);
+  expect(exported.out).toStartWith(`Mila: exported to ${join(files, file as string)} (`);
+  // Never over a file there.
+  const again = await cli("profiles", "export", "Mila", "--data", from, "--to", files);
+  expect([again.out, again.code]).toEqual([
+    `sprachanker: ${join(files, file as string)} exists: give another --to`,
+    1,
+  ]);
+  expect(readdirSync(join(from, "profiles/.transfers"))).toEqual([]);
+
+  const imported = await cli("profiles", "import", join(files, file as string), "--data", to);
+  expect(imported.code).toBe(0);
+  expect(imported.out).toMatch(/^Mila \(2\): imported as profile [0-9a-z]{26}$/);
+  expect((await cli("profiles", "--data", to)).out).toContain("Mila (2)");
+
+  // Not a profile file: said in words.
+  const junk = join(files, "junk.sprachanker-profile");
+  writeFileSync(junk, "not a zip");
+  expect(await cli("profiles", "import", junk, "--data", to)).toEqual({
+    out: "sprachanker: this is not a SprachAnker profile file (.sprachanker-profile)",
+    code: 1,
+  });
+  expect((await cli("profiles", "export", "nobody", "--data", from, "--to", files)).out).toBe(
+    "sprachanker: no profile nobody (sprachanker profiles lists them)",
+  );
+});
+
+test("backup needs a folder to write to", async () => {
+  // A backup itself copies this machine's secret.key: tested in the server (runtime/backup.ts) with
+  // a key of its own.
+  const data = mkdtempSync(join(tmpdir(), "sprachanker-cli-"));
+  expect(await cli("backup", "--data", data)).toEqual({
+    out: "sprachanker: where to? --to <folder>",
+    code: 1,
+  });
 });
 
 test("an unknown command prints the usage and fails; help succeeds", async () => {
