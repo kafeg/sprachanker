@@ -34,11 +34,16 @@ const CHATS = [
 ];
 
 /** The section's chats as the cache holds them: pages of a list, the first saying whether a new chat
- *  can begin. */
+ *  can begin and in which languages (German alone unless given). */
 const pages = (
-  ...list: Array<{ chats: unknown[]; more?: boolean; cannotStart?: string | null }>
+  ...list: Array<{
+    chats: unknown[];
+    more?: boolean;
+    targets?: string[];
+    cannotStart?: string | null;
+  }>
 ) => ({
-  pages: list.map((p) => ({ more: false, cannotStart: null, ...p })),
+  pages: list.map((p) => ({ more: false, targets: ["de"], cannotStart: null, ...p })),
   pageParams: list.map((_, i) => i * 20),
 });
 const SECTION_CHATS = (page: Parameters<typeof pages>[0]) =>
@@ -178,7 +183,7 @@ test("a new chat offers a few ways to start; without a course begun, that is sai
     data: [
       [["llm"], MODEL],
       SECTION_CHATS({ chats: [] }),
-      [["tutor-context", null, undefined, "en", 0], usage(0)],
+      [["tutor-context", null, "de", "en", 0], usage(0)],
     ],
   });
   for (const start of [
@@ -188,6 +193,9 @@ test("a new chat offers a few ways to start; without a course begun, that is sai
   ])
     expect(view.getByRole("button", { name: start })).toBeTruthy();
   expect(view.getByPlaceholderText("Ask a question…")).toBeTruthy();
+  // One language the courses begun teach: shown, nothing to choose.
+  expect(within(view.getByTitle("Language to practise: German")).getByText("German")).toBeTruthy();
+  expect(view.queryByRole("combobox")).toBeNull();
   // Typed only: no microphone in the message box.
   expect(view.queryByRole("button", { name: /microphone|dictat/i })).toBeNull();
   expect(view.getByRole("button", { name: "All chats" })).toBeTruthy();
@@ -206,19 +214,20 @@ test("a new chat offers a few ways to start; without a course begun, that is sai
   expect(none.queryByPlaceholderText("Ask a question…")).toBeNull();
 });
 
-/** A new chat's page with the server on paper; `answer` the section's message. */
-async function newChat(answer: (signal: AbortSignal | undefined) => Response) {
-  const kept: { turns?: unknown[] } = {};
+/** A new chat's page with the server on paper; `answer` the section's message (`targets`: the
+ *  languages the courses begun teach). */
+async function newChat(answer: (signal: AbortSignal | undefined) => Response, targets = ["de"]) {
+  const kept: { turns?: unknown[]; edition?: string } = {};
   let signal: AbortSignal | undefined;
   const asked = server((method, path) => {
     if (method === "POST" && path === "/api/llm/tutor/section") return answer(signal);
     if (path === "/api/llm/tutor/chats/N1")
       return kept.turns
-        ? Response.json({ turns: kept.turns })
+        ? Response.json(kept)
         : Response.json({ error: "no_such_chat" }, { status: 404 });
     if (path === "/api/llm/tutor/section/context") return Response.json(usage(2));
     if (path === "/api/llm/tutor/section/chats")
-      return Response.json({ chats: [], more: false, cannotStart: null });
+      return Response.json({ chats: [], more: false, targets, cannotStart: null });
     throw new Error(`not on paper: ${method} ${path}`);
   });
   // The request's signal, as the client passes it.
@@ -231,8 +240,8 @@ async function newChat(answer: (signal: AbortSignal | undefined) => Response) {
     path: "/tutor/new",
     data: [
       [["llm"], MODEL],
-      SECTION_CHATS({ chats: [] }),
-      [["tutor-context", null, undefined, "en", 0], usage(0)],
+      SECTION_CHATS({ chats: [], targets }),
+      [["tutor-context", null, targets[0], "en", 0], usage(0)],
     ],
   });
   return { view, asked, kept };
@@ -250,6 +259,7 @@ test("a way in is sent for the learner, marked so; the reply in, the chat keeps 
   expect(JSON.parse(asked[0]?.slice("POST /api/llm/tutor/section ".length) ?? "")).toMatchObject({
     start: true,
     language: "en",
+    target: "de",
   });
   expect(asked[0]).not.toContain("chatId");
   kept.turns = [
@@ -302,7 +312,53 @@ test("a new chat's first reply broken off: nothing kept, the page stays a new ch
   expect(view.getByRole("button", { name: "I have a grammar question" })).toBeTruthy();
 });
 
-test("a chat continued: its turns, the reply as Markdown", async () => {
+test("a new chat: the language to practise chosen among those the courses begun teach, sent with its first message", async () => {
+  let stream: ReturnType<typeof reply> | undefined;
+  const { view, asked, kept } = await newChat(
+    (signal) => {
+      stream = reply(signal, "N1");
+      return stream.response;
+    },
+    ["de", "en"],
+  );
+  const choice = () => view.queryByRole("combobox", { name: "Language to practise" });
+  // The latest course's language first; nothing else says it while it is asked.
+  expect(choice()?.textContent).toBe("German");
+  expect(view.queryByTitle(/^Language to practise:/)).toBeNull();
+  fireEvent.click(choice() as HTMLElement);
+  fireEvent.click(await view.findByRole("option", { name: "English" }));
+  await waitFor(() => expect(choice()?.textContent).toBe("English"));
+  // The gauge measures the chat in the language chosen.
+  await waitFor(() =>
+    expect(asked).toContain(
+      'POST /api/llm/tutor/section/context {"message":"","language":"en","target":"en"}',
+    ),
+  );
+
+  fireEvent.change(view.getByPlaceholderText("Ask a question…"), { target: { value: "Hello?" } });
+  fireEvent.click(view.getByRole("button", { name: "Send" }));
+  await waitFor(() => expect(view.getByText("Gern!")).toBeTruthy());
+  const sent = asked.find((a) => a.startsWith("POST /api/llm/tutor/section {")) ?? "";
+  expect(JSON.parse(sent.slice("POST /api/llm/tutor/section ".length))).toMatchObject({
+    message: "Hello?",
+    target: "en",
+  });
+  // Sent, it is no longer asked: the chat shows the language it practises, and keeps it.
+  expect(choice()).toBeNull();
+  expect(view.getByTitle("Language to practise: English")).toBeTruthy();
+  Object.assign(kept, {
+    edition: "ru-en",
+    turns: [
+      { role: "user", text: "Hello?", ts: at },
+      { role: "assistant", text: "Gern! Fangen wir an.", ts: at },
+    ],
+  });
+  stream?.finish();
+  await waitFor(() => expect(view.router?.state.location.pathname).toBe("/tutor/N1"));
+  expect(view.getByTitle("Language to practise: English")).toBeTruthy();
+});
+
+test("a chat continued: its turns, the reply as Markdown, the language it keeps shown", async () => {
   const view = await renderApp(<SectionChatPage chat="C1" />, {
     path: "/tutor/C1",
     data: [
@@ -310,6 +366,7 @@ test("a chat continued: its turns, the reply as Markdown", async () => {
       [
         ["tutor-chat", "C1"],
         {
+          edition: "en-fr",
           turns: [
             { role: "user", text: "Explain the past tense", ts: at },
             { role: "assistant", text: "The **passé composé** …", ts: at },
@@ -322,6 +379,8 @@ test("a chat continued: its turns, the reply as Markdown", async () => {
   expect(view.getByText("Explain the past tense")).toBeTruthy();
   expect(view.getByText("passé composé").tagName).toBe("STRONG");
   expect(view.queryByRole("button", { name: "I have a grammar question" })).toBeNull();
+  expect(within(view.getByTitle("Language to practise: French")).getByText("French")).toBeTruthy();
+  expect(view.queryByRole("combobox")).toBeNull();
 });
 
 test("the tutor's place off or no model: the section says how to turn it on, with no new chat", async () => {

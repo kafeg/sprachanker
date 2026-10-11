@@ -1471,6 +1471,8 @@
     "off": "Mkufunzi amezimwa: mwashe katika Mipangilio → Msaidizi wa AI.",
     "all": "Mazungumzo yote",
     "more": "Onyesha zaidi",
+    "language": "Lugha ya kufanyia mazoezi",
+    "practising": "Lugha ya kufanyia mazoezi: {language}",
     "suggest": {
       "grammar": "Nina swali la sarufi",
       "text": "Pitia maandishi pamoja nami",

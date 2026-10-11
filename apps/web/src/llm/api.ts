@@ -148,7 +148,8 @@ const fetchSectionChats = (offset: number) =>
 export type SectionChats = Awaited<ReturnType<typeof fetchSectionChats>>;
 
 /** The Tutor section's chats by their last message, a page at a time ("Show more": the next), and
- *  whether a new one can begin (the first page says); read while `enabled`. */
+ *  whether a new one can begin and the languages it can practise (the first page says); read while
+ *  `enabled`. */
 export const useSectionChats = (enabled = true) =>
   useInfiniteQuery({
     queryKey: ["tutor-chats", SECTION],
@@ -290,7 +291,8 @@ export const useTutorContext = (request: ContextRequest, turns: number) =>
     queryKey: [
       "tutor-context",
       "lessonKey" in request ? request.lessonKey : (request.chatId ?? SECTION),
-      "exerciseKey" in request ? request.exerciseKey : undefined,
+      // What else it is about: a lesson's exercise on screen, a new section chat's language.
+      "lessonKey" in request ? request.exerciseKey : request.target,
       request.language,
       turns,
     ],

@@ -1471,6 +1471,8 @@
     "off": "The tutor is turned off: turn it on in Settings → AI assistant.",
     "all": "All chats",
     "more": "Show more",
+    "language": "Language to practise",
+    "practising": "Language to practise: {language}",
     "suggest": {
       "grammar": "I have a grammar question",
       "text": "Go through a text with me",

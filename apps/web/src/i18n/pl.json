@@ -1471,6 +1471,8 @@
     "off": "Tutor jest wyłączony: włącz go w Ustawieniach → Asystent AI.",
     "all": "Wszystkie rozmowy",
     "more": "Pokaż więcej",
+    "language": "Język do ćwiczenia",
+    "practising": "Język do ćwiczenia: {language}",
     "suggest": {
       "grammar": "Mam pytanie o gramatykę",
       "text": "Omów ze mną tekst",

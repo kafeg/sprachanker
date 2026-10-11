@@ -24,8 +24,9 @@ test("a scene: a started one ends the open one; a line updates it in place", () 
   ]);
 });
 
-test("a chat's stored pair is added at its end", () => {
-  expect(withTurns({ turns: ["q1", "a1"] }, ["q2", "a2"])).toEqual({
+test("a chat's stored pair is added at its end, the rest of the chat kept", () => {
+  expect(withTurns({ edition: "ru-de", turns: ["q1", "a1"] }, ["q2", "a2"])).toEqual({
+    edition: "ru-de",
     turns: ["q1", "a1", "q2", "a2"],
   });
   expect(withTurns(undefined, ["q"])).toEqual({ turns: ["q"] });

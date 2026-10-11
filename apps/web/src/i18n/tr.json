@@ -1471,6 +1471,8 @@
     "off": "Öğretmen kapalı: Ayarlar → Yapay zekâ asistanı bölümünden aç.",
     "all": "Tüm sohbetler",
     "more": "Daha fazla göster",
+    "language": "Pratik yapılacak dil",
+    "practising": "Pratik yapılacak dil: {language}",
     "suggest": {
       "grammar": "Bir dil bilgisi sorum var",
       "text": "Benimle bir metnin üzerinden geç",

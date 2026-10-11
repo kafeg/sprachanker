@@ -1471,6 +1471,8 @@
     "off": "Tutor je isključen: uključi ga u Postavkama → AI asistent.",
     "all": "Svi razgovori",
     "more": "Prikaži više",
+    "language": "Jezik za vježbu",
+    "practising": "Jezik za vježbu: {language}",
     "suggest": {
       "grammar": "Imam pitanje o gramatici",
       "text": "Prođi sa mnom kroz jedan tekst",

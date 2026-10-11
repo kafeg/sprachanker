@@ -1,6 +1,7 @@
 // The Tutor section (09, 07): the tutor on its own — the chats about no lesson, the one written in last
-// first, each continued with a tap and deleted after asking; a new chat with a few ways to start. A
-// chat is shown by the lesson tutor's view. Without a model or with the tutor's place off it says how
+// first, each continued with a tap and deleted after asking; a new chat with a few ways to start and,
+// when the courses begun teach several, the language to practise. A chat is shown by the lesson
+// tutor's view with the language it practises. Without a model or with the tutor's place off it says how
 // to turn it on; before a course is begun (as the server says), that one is needed.
 import { parseEditionId } from "@sprachanker/schema";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -16,6 +17,7 @@ import { useDateFormat } from "@/ui/format.ts";
 import { ListRow } from "@/ui/history.tsx";
 import { BackLink, EmptyState, ErrorState, Loading, Page } from "@/ui/page.tsx";
 import { panelClass } from "@/ui/panel.tsx";
+import { SelectField } from "@/ui/select-field.tsx";
 import { cn } from "@/ui/utils.ts";
 import {
   SECTION,
@@ -67,6 +69,19 @@ function NeedsCourse() {
         {t("courses.choose")}
       </Link>
     </EmptyState>
+  );
+}
+
+/** The language a chat practises in its header: its flag and name. */
+function Practised({ lang }: { lang: string }) {
+  const { t, i18n } = useTranslation();
+  const label = t("tutorSection.practising", { language: languageName(lang, i18n.language) });
+  return (
+    <span className="flex items-center gap-1.5 text-sm text-muted-foreground" title={label}>
+      <LanguageFlag lang={lang} />
+      <span className="sr-only">{label}</span>
+      <span aria-hidden="true">{languageName(lang, i18n.language, true)}</span>
+    </span>
   );
 }
 
@@ -193,16 +208,20 @@ function useOnScreen() {
   return on;
 }
 
-/** A chat of the section (`chatId`), or a new one: once the server keeps its first message — the
- *  reply in full, or as far as it came when stopped — `onStarted` with the chat it made. */
+/** A chat of the section (`chatId`), or a new one in one of `targets` (the latest course's first,
+ *  chosen while there are several): once the server keeps its first message — the reply in full, or
+ *  as far as it came when stopped — `onStarted` with the chat it made. */
 function SectionChat({
   chatId,
+  targets,
   onStarted,
 }: {
   chatId: string | undefined;
+  targets: string[];
   onStarted(id: string): void;
 }) {
   const { t, i18n } = useTranslation();
+  const [chosen, setChosen] = useState(targets[0]);
   const onScreen = useOnScreen();
   /** The chat a new chat's first message made, as soon as the server names it (`made` for the
    *  callbacks of a message on its way, `started` for what is shown). */
@@ -244,11 +263,14 @@ function SectionChat({
       const start = starting.current;
       starting.current = false;
       replied.current = false;
+      const id = chatId ?? made.current;
       return streamSection(
         {
-          chatId: chatId ?? made.current,
+          chatId: id,
           message,
           language: i18n.language,
+          // A chat begun keeps its language.
+          ...(!id && chosen && { target: chosen }),
           ...(start && { start }),
         },
         (text) => {
@@ -266,24 +288,51 @@ function SectionChat({
   const chat = useChat(source);
   if (history.isError)
     return <ErrorState error={history.error} onRetry={() => history.refetch()} />;
+  // A chat's own language once the server keeps it; a new chat's the one chosen, asked while there
+  // are several and nothing is sent yet.
+  const kept = history.data?.edition;
+  const practised = kept ? parseEditionId(kept).target : chatId ? undefined : chosen;
+  const isNew = !chatId && !started;
+  const choosing = isNew && targets.length > 1 && !chat.turns.length && !chat.shown;
+  const target = isNew ? chosen : undefined;
   return (
     <ChatFrame
       chat={chat}
-      prompt={() => ({ section: { chatId, message: chat.input.trim(), language: i18n.language } })}
-      meter={{ chatId, message: "", language: i18n.language }}
+      prompt={() => ({
+        section: { chatId, message: chat.input.trim(), language: i18n.language, target },
+      })}
+      meter={{ chatId, message: "", language: i18n.language, target }}
+      actions={practised && !choosing && <Practised lang={practised} />}
       empty={
-        <Suggestions
-          intro={t("tutorSection.intro")}
-          items={STARTS.map((s) => ({
-            key: s,
-            label: t(`tutorSection.suggest.${s}`),
-            text: t(`tutorSection.ask.${s}`),
-          }))}
-          onAsk={(text) => {
-            starting.current = true;
-            chat.send(text);
-          }}
-        />
+        <div className="space-y-3">
+          {choosing && (
+            <SelectField
+              className="pt-2 sm:w-64"
+              label={t("tutorSection.language")}
+              value={chosen ?? ""}
+              options={targets.map((lang) => [
+                lang,
+                <span key={lang} className="flex items-center gap-2">
+                  <LanguageFlag lang={lang} />
+                  {languageName(lang, i18n.language, true)}
+                </span>,
+              ])}
+              onChange={setChosen}
+            />
+          )}
+          <Suggestions
+            intro={t("tutorSection.intro")}
+            items={STARTS.map((s) => ({
+              key: s,
+              label: t(`tutorSection.suggest.${s}`),
+              text: t(`tutorSection.ask.${s}`),
+            }))}
+            onAsk={(text) => {
+              starting.current = true;
+              chat.send(text);
+            }}
+          />
+        </div>
       }
     />
   );
@@ -314,6 +363,7 @@ export function SectionChatPage({ chat }: { chat: string }) {
       <div className={chatBoxClass}>
         <SectionChat
           chatId={chatId}
+          targets={chats.data?.pages[0]?.targets ?? []}
           onStarted={(id) =>
             void navigate({ to: "/tutor/$chat", params: { chat: id }, replace: true })
           }

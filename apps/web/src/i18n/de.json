@@ -1471,6 +1471,8 @@
     "off": "Der Tutor ist ausgeschaltet: Schalte ihn unter Einstellungen → KI-Assistent ein.",
     "all": "Alle Gespräche",
     "more": "Mehr anzeigen",
+    "language": "Sprache zum Üben",
+    "practising": "Sprache zum Üben: {language}",
     "suggest": {
       "grammar": "Ich habe eine Grammatikfrage",
       "text": "Geh mit mir einen Text durch",

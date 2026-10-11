@@ -1471,6 +1471,8 @@
     "off": "El tutor está desactivado: actívalo en Ajustes → Asistente de IA.",
     "all": "Todas las conversaciones",
     "more": "Mostrar más",
+    "language": "Idioma para practicar",
+    "practising": "Idioma para practicar: {language}",
     "suggest": {
       "grammar": "Tengo una duda de gramática",
       "text": "Repasa un texto conmigo",

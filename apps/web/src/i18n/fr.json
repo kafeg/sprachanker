@@ -1471,6 +1471,8 @@
     "off": "Le tuteur est désactivé : active-le dans Réglages → Assistant IA.",
     "all": "Toutes les discussions",
     "more": "Afficher plus",
+    "language": "Langue à pratiquer",
+    "practising": "Langue à pratiquer : {language}",
     "suggest": {
       "grammar": "J’ai une question de grammaire",
       "text": "Parcours un texte avec moi",

@@ -1471,6 +1471,8 @@
     "off": "Tutor dimatikan: nyalakan di Pengaturan → Asisten AI.",
     "all": "Semua obrolan",
     "more": "Tampilkan lainnya",
+    "language": "Bahasa yang dilatih",
+    "practising": "Bahasa yang dilatih: {language}",
     "suggest": {
       "grammar": "Aku punya pertanyaan tata bahasa",
       "text": "Bahas sebuah teks bersamaku",

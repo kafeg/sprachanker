@@ -1471,6 +1471,8 @@
     "off": "A tutor ki van kapcsolva: kapcsold be itt: Beállítások → MI-asszisztens.",
     "all": "Összes beszélgetés",
     "more": "Több megjelenítése",
+    "language": "Gyakorolt nyelv",
+    "practising": "Gyakorolt nyelv: {language}",
     "suggest": {
       "grammar": "Nyelvtani kérdésem van",
       "text": "Nézz át velem egy szöveget",

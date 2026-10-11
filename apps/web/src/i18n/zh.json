@@ -1471,6 +1471,8 @@
     "off": "辅导老师已关闭：请在“设置 → AI助手”中开启。",
     "all": "所有对话",
     "more": "显示更多",
+    "language": "练习的语言",
+    "practising": "练习的语言：{language}",
     "suggest": {
       "grammar": "我有一个语法问题",
       "text": "和我一起读一段文本",

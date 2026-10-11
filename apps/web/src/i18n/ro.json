@@ -1471,6 +1471,8 @@
     "off": "Tutorele este oprit: pornește-l din Setări → Asistent AI.",
     "all": "Toate conversațiile",
     "more": "Afișează mai multe",
+    "language": "Limba de exersat",
+    "practising": "Limba de exersat: {language}",
     "suggest": {
       "grammar": "Am o întrebare de gramatică",
       "text": "Parcurge un text cu mine",

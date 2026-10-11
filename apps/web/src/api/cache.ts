@@ -24,9 +24,12 @@ export function withScene<T extends { id: string; done: boolean }>(
   return { scenes: [scene, ...(started ? rest.map((s) => ({ ...s, done: true })) : rest)] };
 }
 
-/** A chat with turns added at its end (the pair the server just stored). */
-export function withTurns<T>(data: { turns: T[] } | undefined, turns: T[]): { turns: T[] } {
-  return { turns: [...(data?.turns ?? []), ...turns] };
+/** A chat with turns added at its end (the pair the server just stored); the rest of it kept. */
+export function withTurns<D extends { turns: unknown[] }>(
+  data: D | undefined,
+  turns: D["turns"],
+): D | { turns: D["turns"] } {
+  return { ...data, turns: [...(data?.turns ?? []), ...turns] };
 }
 
 /** A spoken answer's check after the run's earlier ones (oldest first, as the run keeps them). */
