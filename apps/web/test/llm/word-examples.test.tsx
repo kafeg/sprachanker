@@ -128,36 +128,100 @@ test("the card's answer side shows what the slot adds, the question side does no
 });
 
 const deck = { words: 773, own: 0, made: 40, missing: 733, job: null };
+const edition = "ru-de";
+const key = ["deck-examples", scope, edition];
 
-test("a deck's words without examples: how many, and Make examples asks the server; its progress with Stop", async () => {
+test("a deck to take: its words with examples of all, and Make examples asks the server; its progress with Stop", async () => {
   const asked = server({
     ...deck,
     job: { status: "running", total: 733, done: 40, failed: 0, leftMs: 2 * 3600_000 },
   });
-  const view = await renderApp(<DeckExamplesRow scope={scope} />, {
+  const view = await renderApp(<DeckExamplesRow scope={scope} edition={edition} />, {
     data: [
       [["llm"], llm],
-      [["deck-examples", scope], deck],
+      [key, deck],
     ],
   });
-  expect(view.getByText("733 words without examples")).toBeTruthy();
+  expect(view.getByText("Examples: 40 of 773")).toBeTruthy();
   fireEvent.click(view.getByRole("button", { name: "Make examples" }));
   await waitFor(() =>
     expect(view.getByRole("status").textContent).toBe(
       "Writing examples 40 of 733… · about 2 hours left",
     ),
   );
-  expect(asked).toEqual([`POST /api/decks/examples {"scope":"${scope}"}`]);
+  expect(asked).toEqual([`POST /api/decks/examples {"scope":"${scope}","edition":"ru-de"}`]);
   fireEvent.click(view.getByRole("button", { name: "Stop" }));
   await waitFor(() => expect(asked).toHaveLength(2));
-  expect(asked[1]).toBe(`DELETE /api/decks/examples?scope=${encodeURIComponent(scope)}`);
+  expect(asked[1]).toBe(
+    `DELETE /api/decks/examples?scope=${encodeURIComponent(scope)}&edition=ru-de`,
+  );
 });
 
-test("a deck's examples: without a model where to set one up; all made a quiet line; words that failed said with why", async () => {
-  const noModel = await renderApp(<DeckExamplesRow scope={scope} />, {
+test("the examples made removed or made again, each asked first", async () => {
+  const asked = server({ ...deck, made: 0, missing: 773 });
+  const view = await renderApp(
+    <DeckExamplesRow scope={scope} edition={edition} title="Nicos Weg A1" />,
+    {
+      data: [
+        [["llm"], llm],
+        [key, deck],
+      ],
+    },
+  );
+  fireEvent.click(view.getByRole("button", { name: "Remove examples" }));
+  expect(view.getByText("Remove the examples made for Nicos Weg A1?")).toBeTruthy();
+  expect(asked).toEqual([]);
+  fireEvent.click(view.getAllByRole("button", { name: "Remove examples" }).at(-1) as HTMLElement);
+  await waitFor(() =>
+    expect(asked).toEqual([
+      `POST /api/decks/examples/remove {"scope":"${scope}","edition":"ru-de"}`,
+    ]),
+  );
+  // Nothing made now: neither button.
+  await waitFor(() => expect(view.queryByRole("button", { name: "Regenerate" })).toBeNull());
+  view.unmount();
+  const again = server(deck);
+  const view2 = await renderApp(<DeckExamplesRow scope={scope} edition={edition} title="A1" />, {
+    data: [
+      [["llm"], llm],
+      [key, deck],
+    ],
+  });
+  fireEvent.click(view2.getByRole("button", { name: "Regenerate" }));
+  expect(view2.getByText("Make the examples of A1 again?")).toBeTruthy();
+  fireEvent.click(view2.getAllByRole("button", { name: "Regenerate" }).at(-1) as HTMLElement);
+  await waitFor(() =>
+    expect(again).toEqual([
+      `POST /api/decks/examples {"scope":"${scope}","edition":"ru-de","again":true}`,
+    ]),
+  );
+});
+
+test("a deck taken: how its examples stand, in a line", async () => {
+  const line = async (state: unknown) => {
+    const view = await renderApp(<DeckExamplesRow scope={scope} edition={edition} status />, {
+      data: [
+        [["llm"], llm],
+        [key, state],
+      ],
+    });
+    const text = view.container.textContent;
+    view.unmount();
+    return text;
+  };
+  expect(await line(deck)).toBe("733 words without examples");
+  expect(await line({ ...deck, made: 773, missing: 0 })).toBe("All words have examples");
+  expect(await line({ ...deck, own: 773, made: 0, missing: 0 })).toBe("");
+  expect(await line({ ...deck, job: { status: "running", total: 733, done: 40, failed: 0 } })).toBe(
+    "Writing examples 40 of 733…",
+  );
+});
+
+test("a deck's examples: without a model where to set one up; all made, nothing to make; words that failed said with why", async () => {
+  const noModel = await renderApp(<DeckExamplesRow scope={scope} edition={edition} />, {
     data: [
       [["llm"], { ...llm, model: null }],
-      [["deck-examples", scope], deck],
+      [key, deck],
     ],
     path: "/review/decks",
   });
@@ -167,20 +231,23 @@ test("a deck's examples: without a model where to set one up; all made a quiet l
       .getByRole("link", { name: "To make examples, set up the AI assistant in Settings" })
       .getAttribute("href"),
   ).toBe("/settings#ai");
+  // What was made can still be removed.
+  expect(noModel.getByRole("button", { name: "Remove examples" })).toBeTruthy();
   noModel.unmount();
-  const all = await renderApp(<DeckExamplesRow scope={scope} />, {
+  const all = await renderApp(<DeckExamplesRow scope={scope} edition={edition} />, {
     data: [
       [["llm"], llm],
-      [["deck-examples", scope], { ...deck, made: 773, missing: 0 }],
+      [key, { ...deck, made: 773, missing: 0 }],
     ],
   });
-  expect(all.getByText("All words have examples")).toBeTruthy();
+  expect(all.getByText("Examples: 773 of 773")).toBeTruthy();
+  expect(all.queryByRole("button", { name: "Make examples" })).toBeNull();
   all.unmount();
-  const failed = await renderApp(<DeckExamplesRow scope={scope} />, {
+  const failed = await renderApp(<DeckExamplesRow scope={scope} edition={edition} />, {
     data: [
       [["llm"], llm],
       [
-        ["deck-examples", scope],
+        key,
         {
           ...deck,
           job: { status: "failed", total: 733, done: 0, failed: 15, error: "llm_unreachable" },

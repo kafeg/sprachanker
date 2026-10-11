@@ -17,7 +17,7 @@ import { SpeechProvider } from "@/audio/context.ts";
 import { useSpeechHostValue } from "@/audio/use-speech-host.ts";
 import { useAiIn } from "@/llm/setup-api.ts";
 import type { LessonView } from "@/notebook/lesson.tsx";
-import { StudySlotsProvider } from "@/study/slots.ts";
+import { type DeckSlot, StudySlotsProvider } from "@/study/slots.ts";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { PlaybackRate } from "@/ui/playback.tsx";
 import { CoursesPage } from "./courses.tsx";
@@ -66,7 +66,7 @@ const DeckExamples = page(
 const examplesAssistant = {
   word: (props: { cardId: string }) => <CardExamples {...props} />,
   corner: (props: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...props} />,
-  deck: (props: { scope: string; className?: string }) => <DeckExamples {...props} />,
+  deck: (props: DeckSlot) => <DeckExamples {...props} />,
 };
 
 /** The app of a signed-in, onboarded profile: its preferences applied. */

@@ -26,7 +26,7 @@ apps/web/src/
                    # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
                    # at a time; a rating with the time its card was shown), reviewer-keys (Anki's keys: a
                    # pure mapping, tested), more-menu; decks (deck names), deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
-                   # without audio, read aloud by the server: who reads them, generate, progress, stop), examples (a deck's own), deck-link (a card's way to its deck: audio, examples to make), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # read aloud by the server: who reads them, generate, remove, regenerate, progress, stop; a deck taken: its line), examples (a deck's own), deck-link (a card's way to its deck: audio, examples to make), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
@@ -85,7 +85,7 @@ apps/web/src/
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
                    # run's), avatar, choice (segmented), select-field (a labelled select), check-row (a setting on or off), option-card (one
                    # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
-                   # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
+                   # cannot be undone; ConfirmButton: a button asked first), flags, error-text (an API error in words), target-lang (`lang` of
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
                    # picker on touch), job-row (a server's job: progress, Stop, why it failed), direction, utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder, the microphone of this device, its

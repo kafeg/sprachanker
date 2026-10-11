@@ -5,13 +5,15 @@
 // Decks how many of its words have none, "Make examples", its progress with Stop. The reviewer's and
 // Decks' slots (study/slots.ts).
 import { Link } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
+import { RefreshCw, Sparkles, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSetting } from "@/api/settings.ts";
 import { said } from "@/audio/speak.ts";
 import { SpeakButton } from "@/audio/speak-button.tsx";
 import { DeckLink } from "@/study/deck-link.tsx";
+import type { DeckSlot } from "@/study/slots.ts";
 import { Button } from "@/ui/components/button.tsx";
+import { ConfirmButton } from "@/ui/confirm.tsx";
 import { inLang } from "@/ui/direction.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { useDuration } from "@/ui/format.ts";
@@ -110,27 +112,37 @@ export function CardCorner({
   return <DeckLink scope={scope} audio={audio} examples={examples} />;
 }
 
-/** Under a deck in Review → Decks: its words without examples, made by the AI on request. */
-export function DeckExamplesRow({ scope, className }: { scope: string; className?: string }) {
+/** A deck in Review → Decks (`DeckSlot`): under a deck to take, its words in a language pair given
+ *  examples by the AI on request, removed or made again (asked first); under a deck taken, how it
+ *  stands in a line (`status`). */
+export function DeckExamplesRow(deck: DeckSlot) {
   const off = useOff();
-  return off ? null : <DeckExamplesJob scope={scope} className={className} />;
+  return off ? null : <DeckExamplesJob {...deck} />;
 }
 
-function DeckExamplesJob({ scope, className }: { scope: string; className?: string }) {
+function DeckExamplesJob({ scope, edition, title = "", status, className }: DeckSlot) {
   const { t } = useTranslation();
   const llm = useLlm();
-  const state = useDeckExamples(scope);
-  const actions = useDeckExamplesActions(scope);
+  const state = useDeckExamples(scope, edition);
+  const actions = useDeckExamplesActions(scope, edition);
   const duration = useDuration();
   const s = state.data;
   if (!s?.words || !llm.data) return null;
   const job = s.job;
   const running = writing(s) ? job : null;
-  if (!running && !s.missing)
-    return s.made ? (
-      <p className={cn("text-sm text-muted-foreground", className)}>{t("decks.examples.all")}</p>
-    ) : null;
-  const error = actions.start.error ?? actions.stop.error;
+  if (status) {
+    const line = running
+      ? t("decks.examples.writing", { done: running.done, total: running.total })
+      : s.missing
+        ? t("decks.examples.missing", { count: s.missing })
+        : s.made
+          ? t("decks.examples.all")
+          : null;
+    return line ? <p className={cn("text-sm text-muted-foreground", className)}>{line}</p> : null;
+  }
+  const model = !!llm.data.model;
+  const error = actions.start.error ?? actions.stop.error ?? actions.remove.error;
+  const cancel = t("common.cancel");
   return (
     <JobRow
       className={className}
@@ -150,21 +162,46 @@ function DeckExamplesJob({ scope, className }: { scope: string; className?: stri
       idle={
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
           <span className="text-muted-foreground">
-            {t("decks.examples.missing", { count: s.missing })}
+            {t("decks.examples.count", { done: s.own + s.made, total: s.words })}
           </span>
-          {llm.data.model ? (
+          {model && s.missing > 0 && (
             <>
               <Button
                 variant="outline"
                 size="sm"
                 loading={actions.start.isPending}
-                onClick={() => actions.start.mutate()}
+                onClick={() => actions.start.mutate(false)}
               >
                 <Sparkles className="size-3.5" /> {t("decks.examples.make")}
               </Button>
-              <PromptButton request={{ deckExamples: { scope } }} />
+              <PromptButton request={{ deckExamples: { scope, edition } }} />
             </>
-          ) : (
+          )}
+          {model && s.made > 0 && (
+            <ConfirmButton
+              title={t("decks.examples.regenerateTitle", { deck: title })}
+              description={t("decks.examples.regenerateBody")}
+              confirm={t("decks.examples.regenerate")}
+              cancel={cancel}
+              busy={actions.start.isPending}
+              onConfirm={(close) => actions.start.mutate(true, { onSettled: close })}
+            >
+              <RefreshCw className="size-3.5" /> {t("decks.examples.regenerate")}
+            </ConfirmButton>
+          )}
+          {s.made > 0 && (
+            <ConfirmButton
+              title={t("decks.examples.removeTitle", { deck: title })}
+              description={t("decks.examples.removeBody")}
+              confirm={t("decks.examples.remove")}
+              cancel={cancel}
+              busy={actions.remove.isPending}
+              onConfirm={(close) => actions.remove.mutate(undefined, { onSettled: close })}
+            >
+              <Trash2 className="size-3.5" /> {t("decks.examples.remove")}
+            </ConfirmButton>
+          )}
+          {!model && s.missing > 0 && (
             <Link to="/settings" hash="ai" className={LINK}>
               {t("decks.examples.setUp")}
             </Link>
@@ -188,7 +225,5 @@ function DeckExamplesJob({ scope, className }: { scope: string; className?: stri
 export const examplesAssistant = {
   word: ({ cardId }: { cardId: string }) => <CardExamples cardId={cardId} />,
   corner: (card: { cardId: string; scope: string; audio: boolean }) => <CardCorner {...card} />,
-  deck: ({ scope, className }: { scope: string; className?: string }) => (
-    <DeckExamplesRow scope={scope} className={className} />
-  ),
+  deck: (deck: DeckSlot) => <DeckExamplesRow {...deck} />,
 };
