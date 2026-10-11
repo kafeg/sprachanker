@@ -98,7 +98,7 @@
     "partial": "Partly correct",
     "wrong": "Not quite",
     "summary": "Summary",
-    "score": "Correct on the first try: {correct, number} of {scored, number}",
+    "score": "Correct on the first try: {correct, number} of {scored, number}. The percentage counts partly right answers too.",
     "skipped": "skipped",
     "notDone": "not done",
     "backToCourse": "Back to the course",

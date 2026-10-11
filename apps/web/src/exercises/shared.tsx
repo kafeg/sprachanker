@@ -217,10 +217,16 @@ export function OptionButton({
       )}
       <OptionContent option={option} url={url} fill={fill} />
       {(mark === "correct" || mark === "missed") && (
-        <Check className={cn("size-5 shrink-0 text-correct", fill && MARK_CORNER)} aria-hidden />
+        <Check
+          className={cn("size-5 shrink-0 text-correct", fill ? MARK_CORNER : "ml-auto")}
+          aria-hidden
+        />
       )}
       {mark === "wrong" && (
-        <X className={cn("size-5 shrink-0 text-wrong", fill && MARK_CORNER)} aria-hidden />
+        <X
+          className={cn("size-5 shrink-0 text-wrong", fill ? MARK_CORNER : "ml-auto")}
+          aria-hidden
+        />
       )}
     </button>
   );

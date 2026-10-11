@@ -98,7 +98,7 @@
     "partial": "Teilweise richtig",
     "wrong": "Nicht ganz",
     "summary": "Zusammenfassung",
-    "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}",
+    "score": "Beim ersten Versuch richtig: {correct, number} von {scored, number}. Der Prozentwert zählt auch teilweise richtige Antworten.",
     "skipped": "übersprungen",
     "notDone": "nicht erledigt",
     "backToCourse": "Zurück zum Kurs",
