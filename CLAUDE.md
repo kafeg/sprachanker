@@ -20,7 +20,7 @@ The spec is the source of truth for *what* and *why*. CLAUDE.md files only say *
 | `packages/server` | HTTP API, SQLite, media, profiles, course downloads, sidecar supervision, speech recognition and reading aloud. | 05, 06, 08 | `packages/server/CLAUDE.md` |
 | `packages/llm` | LLM gateway, providers, tasks, prompts, structured outputs. | 07 | `packages/llm/CLAUDE.md` |
 | `packages/anki-export` | `.apkg` packages: reading one (notes, fields, media) and its notes as a deck's words; export planned. | 04 | `packages/anki-export/CLAUDE.md` |
-| `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n en/ru/de. | 09 | `apps/web/CLAUDE.md` |
+| `apps/web` | React UI for desktop and phone screens (installable PWA), components and exercise renderers. i18n: a catalog per language (`src/i18n/<code>.json`), right to left for Arabic and Persian. | 09 | `apps/web/CLAUDE.md` |
 | `apps/desktop` | Tauri 2 shell (planned): window, tray, starts the server binary, updates. | 06 | `apps/desktop/CLAUDE.md` |
 | `apps/cli` | The `sprachanker` binary: `serve` (starts the server), `import`, `verify`, `profiles`. Compiled with the web build embedded. | 03, 06 | `apps/cli/CLAUDE.md` |
 | `native` | Builds of whisper.cpp (`whisper-server`), sherpa-onnx (`sherpa-onnx-offline-tts`, Piper voices) and qwentts.cpp (`tts-server`, Qwen3-TTS). | 08 | `native/CLAUDE.md` |
@@ -77,7 +77,7 @@ alternatives without updating that table.
 4. Never commit third-party course content (texts, media, raw snapshots), not even in fixtures.
    Test fixtures are synthetic. Repo contains importers, manifests of URLs, and our own enrichment only.
 5. User data never leaves the machine except calls to providers the user configured.
-6. UI strings go through i18n (en, ru, de). No hard-coded user-facing text.
+6. UI strings go through i18n (a catalog per language, English the fallback). No hard-coded user-facing text.
 7. Small commits straight to `main`. Each: tests, `bun run check` green, docs updated if structure changed.
 
 ## CLAUDE.md hygiene

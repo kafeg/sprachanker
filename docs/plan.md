@@ -18,9 +18,10 @@ Specs: 09, 10.
 - The UI catalogs beyond en/ru/de: every source language of the installed providers (DW: Arabic,
   Bosnian, Greek, Spanish, Persian, French, Hindi, Hungarian, Indonesian, Polish, Portuguese,
   Romanian, Swahili, Turkish, Ukrainian, Chinese, …): translated (model-assisted, then checked by the
-  catalog tests: keys, ICU, plurals), right-to-left layout for Arabic and Persian, fonts for every
-  script; the language switch and Settings offer them.
-- **Accept**: catalog tests over every language; RTL screens in e2e.
+  catalog tests), a file `apps/web/src/i18n/<code>.json` each — the language list, right to left, the
+  fonts and the tests take a new file as it is (09, 10).
+- **Accept**: catalog tests over every language; RTL screens in e2e (`e2e/rtl.e2e.ts`, run once
+  `ar.json` is there).
 
 ### 2. The tutor on its own (owner, 2026-10-10)
 Specs: 07, 09.
