@@ -122,7 +122,11 @@ export function chatBody(
     ...(request.jsonSchema && {
       response_format: {
         type: "json_schema",
-        json_schema: { name: request.jsonSchema.name, strict, schema: request.jsonSchema.schema },
+        json_schema: {
+          name: request.jsonSchema.name,
+          strict,
+          schema: strict ? strictSchema(request.jsonSchema.schema) : request.jsonSchema.schema,
+        },
       },
     }),
     ...(request.tools?.length && {
@@ -133,6 +137,45 @@ export function chatBody(
     }),
     ...(switchOff ? reasoningSwitch(quirks, request.model) : undefined),
   };
+}
+
+/** Keywords strict mode refuses (OpenAI); the reply is still checked against them by zod. */
+const NOT_STRICT = new Set([
+  "minLength",
+  "maxLength",
+  "patternProperties",
+  "unevaluatedProperties",
+  "propertyNames",
+  "minProperties",
+  "maxProperties",
+  "unevaluatedItems",
+  "contains",
+  "minContains",
+  "maxContains",
+  "uniqueItems",
+]);
+/** Where a schema's keys are names (of properties, of definitions), not keywords. */
+const NAMED_SCHEMAS = new Set(["properties", "$defs", "definitions"]);
+/** Where a schema holds values, not schemas. */
+const VALUES = new Set(["enum", "const", "default", "examples"]);
+
+/** A JSON Schema without the keywords strict mode refuses, at every depth. */
+export const strictSchema = (schema: Record<string, unknown>) =>
+  withoutUnstrict(schema) as Record<string, unknown>;
+
+function withoutUnstrict(node: unknown): unknown {
+  if (Array.isArray(node)) return node.map(withoutUnstrict);
+  if (!node || typeof node !== "object") return node;
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(node)) {
+    if (NOT_STRICT.has(key)) continue;
+    out[key] = VALUES.has(key)
+      ? value
+      : NAMED_SCHEMAS.has(key) && value && typeof value === "object"
+        ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, withoutUnstrict(v)]))
+        : withoutUnstrict(value);
+  }
+  return out;
 }
 
 /** The messages with the tool notes at the end of the first system message. */

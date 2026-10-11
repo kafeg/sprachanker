@@ -48,8 +48,9 @@ become the client's text and tool calls; a tool round sends the reply's blocks b
 learner's next turn (the note to answer now in the same turn); the round without tools still names
 them, with `tool_choice: none`. The system prompt stays byte for byte the same in every round of a
 chat — the tool notes in it whenever its first round offered tools —, since a thinking model's
-replayed thinking is bound to it (the API refuses it otherwise). Structured outputs put the JSON Schema in the system prompt (no forced
-tool: newer models refuse it), the reply read whole, then the same zod check and one repair. The
+replayed thinking is bound to it (the API refuses it otherwise). Structured outputs put the JSON
+Schema in the system prompt (no forced tool: newer models refuse it), the reply read whole, then the
+same zod check and one repair. The
 model list is `GET /models`, read page by page (`after_id`), with `display_name` and
 `max_input_tokens`; every Claude model calls tools. The prompt viewer shows the body with the system
 prompt as its first message.
@@ -200,7 +201,9 @@ most three corrections and a model text (third phase).
   until it lands. One such call per lesson at a time; a second is refused (`scene_busy`,
   `writing_busy`, 409). A streamed reply (the tutor, explanations) still ends with its connection.
 - **Structured outputs** (`packages/llm/src/structured.ts`): the JSON Schema of the task's zod schema is
-  sent with the request; the reply is validated with zod; an invalid reply gets one repair attempt with
+  sent with the request (sent strict, without the keywords strict mode refuses — string lengths and
+  the like —, which zod still checks; a test holds every task's schema to what strict mode takes); the
+  reply is validated with zod; an invalid reply gets one repair attempt with
   the problems listed, then the task fails with `invalid_output` and nothing is stored. A stored result
   is read back with its task's schema; one in a shape that no longer reads is left out.
 - Corrections are `{ wrong, right, explanation }` (schema `Correction`); they carry no rule id (rule
