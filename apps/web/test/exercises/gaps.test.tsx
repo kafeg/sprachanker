@@ -59,6 +59,21 @@ test("a checked typed gap shows the answer given as text, the right one and the 
   expect(view.getByText(/Er wohnt hier/).textContent).toBe(" Er wohnt hier.");
 });
 
+test("a space before a comma after a gap is dropped; an opening quote after a space stays apart", async () => {
+  const ex = exercise("gap_text", {
+    segments: ["Eine ", { gap: "g1" }, " , sagt er. Er heißt ", { gap: "g2" }, ' "Max".'],
+    answer: { g1: { accepted: ["Brücke"] }, g2: { accepted: ["nicht"] } },
+  });
+  const view = await card(ex, { g1: "Straße", g2: "nicht" }, {
+    result: "partial",
+    score: 0.5,
+    parts: { g1: false, g2: true },
+  } as Outcome);
+  expect(view.getByText("→ Brücke", RAW).parentElement?.textContent).toBe("→ Brücke,");
+  expect(view.getByText(/sagt er/).textContent).toBe(" sagt er. Er heißt ");
+  expect(view.getByText(/Max/).textContent).toBe(' "Max".');
+});
+
 test("an open typed gap is a field as wide as its answer needs", async () => {
   const view = await card(typed, {});
   const field = view.getByRole("textbox", { name: "Gap 1" }) as HTMLInputElement;

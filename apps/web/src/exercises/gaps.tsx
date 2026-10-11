@@ -22,8 +22,9 @@ type Segments = ItemOf<"gap_text">["segments"];
 const gapNumber = (segments: Segments, gap: string) =>
   segments.filter((s) => typeof s !== "string").findIndex((s) => s.gap === gap) + 1;
 
-/** Closing punctuation right after a gap: it stays on the gap's line. */
-const TAIL = /^[.,!?;:…)\]»“”"'’]+/u;
+/** Closing punctuation right after a gap: it stays on the gap's line, a space before a full stop or a
+ *  comma dropped ("[gap] ." reads "[gap]."; an opening quote after a space is not taken). */
+const TAIL = /^[ \u00a0]*[.,!?;:…][.,!?;:…)\]»“”"'’]*|^[)\]»“”"'’]+[.,!?;:…]*/u;
 
 /** A gap as shown: its field and, once checked and wrong, the right answer beside it. */
 type ShownGap = { field: React.ReactNode; right?: string };
@@ -41,7 +42,7 @@ function Text({ segments, gap }: { segments: Segments; gap(id: string): ShownGap
           return text && <span key={i}>{text}</span>;
         }
         const next = segments[i + 1];
-        const tail = typeof next === "string" ? (next.match(TAIL)?.[0] ?? "") : "";
+        const tail = typeof next === "string" ? (next.match(TAIL)?.[0].trim() ?? "") : "";
         const { field, right } = gap(s.gap);
         return (
           // The gap, its right answer and the punctuation after it move to the next line together;

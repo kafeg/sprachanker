@@ -155,7 +155,7 @@ export const TILE =
   "shrink-0 grow-0 basis-[calc((100%_-_0.75rem)/2)] sm:basis-[calc((100%_-_1.5rem)/3)]";
 
 /** A tile's mark in its corner: no row of its own under the picture. */
-const MARK_CORNER = "absolute right-2 bottom-2 box-content rounded-full bg-card p-0.5";
+const MARK_CORNER = "absolute top-2 right-2 box-content rounded-full bg-card p-0.5";
 
 export function OptionButton({
   option,
