@@ -26,7 +26,6 @@
     "noneMatch": "No course for these languages.",
     "course": "Course",
     "pair": "Languages",
-    "toCatalog": "Choose a course",
     "next": "Next",
     "nextWorked": "{worked, number} of {total, number} done",
     "doneShort": "{done, number} / {total, number} · {share}",
@@ -36,7 +35,9 @@
       "available": "Available"
     },
     "noneDownloaded": "No course is downloaded yet.",
-    "allDownloaded": "Every course on offer is downloaded."
+    "allDownloaded": "Every course on offer is downloaded.",
+    "choose": "Choose a course",
+    "anyLanguage": "any"
   },
   "course": {
     "unit": "Unit {number}",
@@ -571,7 +572,7 @@
     "usedFree": "Courses take {size} · {free} free on the disk",
     "seriesSize": "{name}: {size}",
     "recordings": "Your recordings",
-    "recordingsKept": "{count, plural, =0 {none} one {{n} recording · {size}} other {{n} recordings · {size}}}",
+    "recordingsKept": "{count, plural, =0 {none kept} one {{n} recording · {size}} other {{n} recordings · {size}}}",
     "deleteRecordings": "Delete all",
     "deleteRecordingsTitle": "Delete all recordings?",
     "deleteRecordingsBody": "Your recordings will be deleted from this computer. Your answers and progress stay. This cannot be undone."
@@ -829,7 +830,8 @@
     "speech": {
       "title": "Speaking",
       "text": "Say the courses' phrases yourself and hear any text read aloud: test your microphone, download the speech recogniser (once) so the app hears what you said, and choose a voice for each language. Everything stays on this computer; all of it can be changed later in Settings → Speech."
-    }
+    },
+    "cancel": "Cancel"
   },
   "tour": {
     "courses": "Your courses (where you left off), the ones downloaded, and every course you can download; any list can be narrowed to a language pair.",
@@ -971,8 +973,8 @@
     "faces": "Card types of a new word",
     "facesHint": "Which cards a new word gets. Words that have cards keep theirs.",
     "how": "How it works",
-    "howSteps": "A new card comes back after 1 and 10 minutes, then after days; a forgotten one after 10 minutes, and its interval grows again.",
-    "howDay": "A new day starts at {time}: reviews after midnight before then count for the evening before.",
+    "howSteps": "A new card answered Good comes back after 10 minutes (after Again, in a minute), then after days; a forgotten one after 10 minutes, and its interval grows again.",
+    "howDay": "A new day starts at {time}: reviews between midnight and then count for the day before.",
     "howLimit": "New cards count against the maximum reviews: once it is reached, no new cards are shown that day."
   },
   "example": {
@@ -1015,7 +1017,7 @@
       "otherSample": "Another phrase",
       "recognition": "Recognition",
       "recognitionHint": "Your speech is recognised on this computer (Whisper): what you said is compared with the phrase. It hears words, not sounds, and is lenient. Nothing leaves the computer.",
-      "noEngine": "The recognition engine isn't installed on this computer.",
+      "noEngine": "This build has no recognition engine: the app was built without its speech engines (bun run build:cli builds them).",
       "recognitionOn": "Recognise my speech",
       "inUse": "In use",
       "downloadFailed": "download failed",
@@ -1029,10 +1031,10 @@
         "deviceLine": "{count, plural, one {# voice} other {# voices}}, nothing to install",
         "deviceNone": "This browser has no voices to read with.",
         "piper": "Piper on this computer",
-        "piperMissing": "Not built here: bun run build:speech",
+        "piperMissing": "Not in this build: the app was built without its speech engines",
         "piperLine": "{count, plural, =0 {no voices yet: download one below} one {# voice downloaded} other {# voices downloaded}}",
         "qwen": "Qwen3-TTS on this computer",
-        "qwenMissing": "Not built here: bun run build:speech",
+        "qwenMissing": "Not in this build: the app was built without its speech engines",
         "qwenReady": "Ready: a model downloaded",
         "qwenNoModel": "No model yet: download one below"
       },
@@ -1063,7 +1065,8 @@
       "qwenVoiceHint": "One voice reads every language; a text mixing languages is read whole, without switching voice mid-sentence.",
       "howMic": "The microphone beside a text box: tap to start recording, tap again to stop.",
       "howPhrase": "The phrase to repeat is hidden until your first try; you can show it sooner.",
-      "howRecordings": "Your recordings are kept on this computer to listen to again in the Notebook; delete them in General → Storage."
+      "howRecordings": "Your recordings are kept on this computer to listen to again in the Notebook; delete them in General → Storage.",
+      "how": "How it works"
     },
     "listening": "Listening to it…",
     "notHeard": "It couldn't be recognised; the recording counts anyway.",
@@ -1163,8 +1166,6 @@
       "available": "Available"
     },
     "noneStarted": "You haven't begun an exam yet.",
-    "toDownloaded": "To the downloaded exams",
-    "toCatalog": "Exams to download",
     "noneDownloaded": "No exam is downloaded yet.",
     "allDownloaded": "Every exam on offer is downloaded.",
     "noneMatch": "No question fits.",
@@ -1291,7 +1292,8 @@
       "over": "The part is over.",
       "placeholder": "Your answer…",
       "end": "End the part"
-    }
+    },
+    "choose": "Choose an exam"
   },
   "experimental": {
     "disclaimerTitle": "An experiment, not a way to prepare",
@@ -1301,8 +1303,8 @@
       "exams": "Exams"
     },
     "sectionHint": {
-      "courses": "More courses, in Courses",
-      "exams": "More exams, in Exams"
+      "courses": "More courses to download, shown in Courses",
+      "exams": "More exams to download, shown in Exams"
     },
     "none": "Nothing experimental here.",
     "more": "{count, plural, one {# more} other {# more}}"

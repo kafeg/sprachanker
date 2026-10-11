@@ -161,8 +161,8 @@ test("Settings → Review: daily limits kept, retention and card types, the rest
   await perDay.press("Enter");
   await page.reload();
   await expect(page.getByRole("textbox", { name: "New cards per day" })).toHaveValue("15");
-  await expect(page.getByRole("slider", { name: "Desired retention" })).toBeVisible();
-  await expect(page.getByText(/after 1 and 10 minutes/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Desired retention" })).toBeVisible();
+  await expect(page.getByText(/comes back after 10 minutes/)).toBeVisible();
   await expect(page.getByText("Advanced")).toHaveCount(0);
   await perDay.fill("20");
   await perDay.press("Enter");

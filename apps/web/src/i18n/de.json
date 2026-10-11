@@ -26,7 +26,6 @@
     "noneMatch": "Keine Kurse für diese Sprachen.",
     "course": "Kurs",
     "pair": "Sprachen",
-    "toCatalog": "Kurs auswählen",
     "next": "Weiter",
     "nextWorked": "{worked, number} von {total, number} erledigt",
     "doneShort": "{done, number} / {total, number} · {share}",
@@ -36,7 +35,9 @@
       "available": "Verfügbar"
     },
     "noneDownloaded": "Noch kein Kurs heruntergeladen.",
-    "allDownloaded": "Alle angebotenen Kurse sind heruntergeladen."
+    "allDownloaded": "Alle angebotenen Kurse sind heruntergeladen.",
+    "choose": "Kurs wählen",
+    "anyLanguage": "beliebig"
   },
   "course": {
     "unit": "Einheit {number}",
@@ -571,7 +572,7 @@
     "usedFree": "Kurse belegen {size} · {free} frei auf dem Datenträger",
     "seriesSize": "{name}: {size}",
     "recordings": "Deine Aufnahmen",
-    "recordingsKept": "{count, plural, =0 {keine} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
+    "recordingsKept": "{count, plural, =0 {keine gespeichert} one {{n} Aufnahme · {size}} other {{n} Aufnahmen · {size}}}",
     "deleteRecordings": "Alle löschen",
     "deleteRecordingsTitle": "Alle Aufnahmen löschen?",
     "deleteRecordingsBody": "Deine Aufnahmen werden von diesem Computer gelöscht. Antworten und Fortschritt bleiben. Das lässt sich nicht rückgängig machen."
@@ -829,7 +830,8 @@
     "speech": {
       "title": "Sprechen",
       "text": "Sprich die Sätze der Kurse selbst und lass dir jeden Text vorlesen: teste dein Mikrofon, lade die Spracherkennung herunter (einmal), damit die App hört, was du gesagt hast, und wähle für jede Sprache eine Stimme. Alles bleibt auf diesem Computer; alles lässt sich später unter Einstellungen → Sprechen ändern."
-    }
+    },
+    "cancel": "Abbrechen"
   },
   "tour": {
     "courses": "Deine Kurse (dort, wo du aufgehört hast), die heruntergeladenen und alle Kurse zum Herunterladen; jede Liste lässt sich auf ein Sprachpaar eingrenzen.",
@@ -971,8 +973,8 @@
     "faces": "Kartentypen eines neuen Worts",
     "facesHint": "Welche Karten ein neues Wort bekommt. Wörter mit Karten behalten ihre.",
     "how": "So funktioniert es",
-    "howSteps": "Eine neue Karte kommt nach 1 und 10 Minuten wieder, dann nach Tagen; eine vergessene nach 10 Minuten, dann wächst ihr Abstand wieder.",
-    "howDay": "Ein neuer Tag beginnt um {time}: Wiederholungen nach Mitternacht davor zählen zum Vorabend.",
+    "howSteps": "Eine neue Karte kommt nach „Gut“ nach 10 Minuten wieder (nach „Nochmal“ nach einer Minute), dann nach Tagen; eine vergessene nach 10 Minuten, dann wächst ihr Abstand wieder.",
+    "howDay": "Ein neuer Tag beginnt um {time}: Wiederholungen von Mitternacht bis dahin zählen zum Vortag.",
     "howLimit": "Neue Karten zählen zum Wiederholungslimit: Ist es erreicht, kommen an dem Tag keine neuen mehr."
   },
   "example": {
@@ -1015,7 +1017,7 @@
       "otherSample": "Anderer Satz",
       "recognition": "Erkennung",
       "recognitionHint": "Deine Sprache wird auf diesem Computer erkannt (Whisper): das Gesagte wird mit dem Satz verglichen. Sie hört Wörter, keine Laute, und ist nachsichtig. Nichts verlässt den Computer.",
-      "noEngine": "Die Erkennung ist auf diesem Computer nicht installiert.",
+      "noEngine": "Dieser Build hat keine Spracherkennung: die App wurde ohne ihre Sprach-Engines gebaut (bun run build:cli baut sie).",
       "recognitionOn": "Meine Sprache erkennen",
       "inUse": "In Gebrauch",
       "downloadFailed": "Download fehlgeschlagen",
@@ -1029,10 +1031,10 @@
         "deviceLine": "{count, plural, one {# Stimme} other {# Stimmen}}, nichts zu installieren",
         "deviceNone": "Dieser Browser hat keine Stimmen zum Vorlesen.",
         "piper": "Piper auf diesem Computer",
-        "piperMissing": "Hier nicht gebaut: bun run build:speech",
+        "piperMissing": "Nicht in diesem Build: die App wurde ohne ihre Sprach-Engines gebaut",
         "piperLine": "{count, plural, =0 {noch keine Stimmen: unten eine laden} one {# Stimme geladen} other {# Stimmen geladen}}",
         "qwen": "Qwen3-TTS auf diesem Computer",
-        "qwenMissing": "Hier nicht gebaut: bun run build:speech",
+        "qwenMissing": "Nicht in diesem Build: die App wurde ohne ihre Sprach-Engines gebaut",
         "qwenReady": "Bereit: ein Modell geladen",
         "qwenNoModel": "Noch kein Modell: unten eins laden"
       },
@@ -1063,7 +1065,8 @@
       "qwenVoiceHint": "Eine Stimme liest jede Sprache; ein Text aus mehreren Sprachen wird am Stück gelesen, ohne Stimmwechsel mitten im Satz.",
       "howMic": "Das Mikrofon neben einem Textfeld: tippen, um die Aufnahme zu starten, nochmal tippen, um sie zu beenden.",
       "howPhrase": "Der Satz zum Nachsprechen bleibt bis zum ersten Versuch verborgen; du kannst ihn auch vorher zeigen.",
-      "howRecordings": "Deine Aufnahmen bleiben auf diesem Computer, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher."
+      "howRecordings": "Deine Aufnahmen bleiben auf diesem Computer, zum Nachhören im Notizbuch; löschen kannst du sie unter Allgemein → Speicher.",
+      "how": "So funktioniert es"
     },
     "listening": "Wird erkannt …",
     "notHeard": "Das ließ sich nicht erkennen; die Aufnahme zählt trotzdem.",
@@ -1163,8 +1166,6 @@
       "available": "Verfügbar"
     },
     "noneStarted": "Du hast noch keine Prüfung begonnen.",
-    "toDownloaded": "Zu den heruntergeladenen Prüfungen",
-    "toCatalog": "Prüfungen zum Herunterladen",
     "noneDownloaded": "Noch keine Prüfung heruntergeladen.",
     "allDownloaded": "Alle angebotenen Prüfungen sind heruntergeladen.",
     "noneMatch": "Keine Frage passt.",
@@ -1291,7 +1292,8 @@
       "over": "Der Teil ist zu Ende.",
       "placeholder": "Deine Antwort…",
       "end": "Teil beenden"
-    }
+    },
+    "choose": "Prüfung wählen"
   },
   "experimental": {
     "disclaimerTitle": "Ein Experiment, keine Vorbereitung",
@@ -1301,8 +1303,8 @@
       "exams": "Prüfungen"
     },
     "sectionHint": {
-      "courses": "Weitere Kurse, unter Kurse",
-      "exams": "Weitere Prüfungen, unter Prüfungen"
+      "courses": "Weitere Kurse zum Herunterladen, unter „Kurse“",
+      "exams": "Weitere Prüfungen zum Herunterladen, unter „Prüfungen“"
     },
     "none": "Hier ist nichts experimentell.",
     "more": "{count, plural, one {# weiterer} other {# weitere}}"

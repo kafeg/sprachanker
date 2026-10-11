@@ -16,7 +16,7 @@ const others = [
 const progress = (view: Awaited<ReturnType<typeof renderApp>>) =>
   view.getByRole("list").getAttribute("aria-label");
 
-test("a new profile: welcome, the sources, name and the first colour no profile uses; Back to who is studying", async () => {
+test("a new profile: welcome, the sources, name and the first colour no profile uses; Cancel to who is studying", async () => {
   let back = 0;
   const view = await renderApp(
     <Onboarding profile={null} assistant={<p>slot</p>} onBack={() => back++} onDone={() => {}} />,
@@ -37,7 +37,7 @@ test("a new profile: welcome, the sources, name and the first colour no profile 
     target: { value: "Mila" },
   });
   expect(next.hasAttribute("disabled")).toBe(false);
-  fireEvent.click(view.getByRole("button", { name: "Back" }));
+  fireEvent.click(view.getByRole("button", { name: "Cancel" }));
   expect(back).toBe(1);
 });
 
@@ -59,4 +59,5 @@ test("a named profile goes on at the assistant; one adopted without a name start
   expect(progress(first)).toBe("Step 1 of 3");
   expect(first.getByRole("button", { name: "Amber" }).getAttribute("aria-pressed")).toBe("true");
   expect(first.queryByRole("button", { name: "Back" })).toBeNull();
+  expect(first.queryByRole("button", { name: "Cancel" })).toBeNull();
 });

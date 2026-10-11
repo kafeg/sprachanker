@@ -29,8 +29,8 @@ UI in English, Russian and German.
 
 ```
 bun install
-bun run build:speech     # optional: speech recognition (whisper.cpp), Piper and Qwen3-TTS voices (needs cmake)
-bun run build:cli        # the `sprachanker` binary with the web app inside
+bun run build:cli        # the `sprachanker` binary with the web app inside and the speech engines beside it
+                         # (whisper.cpp, Piper, Qwen3-TTS: built from source, needs cmake)
 apps/cli/dist/sprachanker serve --data ~/SprachAnker
 ```
 

@@ -37,3 +37,15 @@ test("a stored value the list lacks counts as no filter: never an empty page wit
     ["c"],
   ]);
 });
+
+test("unset, the pair is the interface language's: every course explained in it, while there is one", () => {
+  const ru = filterCourses(items, ALL, undefined, "ru");
+  expect([ru.pair, ru.active, ru.shown.map((i) => i.name)]).toEqual(["from:ru", true, ["a", "c"]]);
+  // A language with more than one pair is offered as a whole; one with a single pair is that pair.
+  expect(
+    filterCourses([...items, { name: "d", titles: ["X"], editions: ["ru-en"] }], ALL, ALL).pairs,
+  ).toEqual(["from:ru", "en-de", "ru-de", "ru-en"]);
+  // No course in the interface language: no filter. "All" chosen stays all.
+  expect(filterCourses(items, ALL, undefined, "fr").pair).toBe(ALL);
+  expect(filterCourses(items, ALL, ALL, "ru").shown).toHaveLength(3);
+});

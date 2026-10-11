@@ -91,14 +91,16 @@ alternatives without updating that table.
 
 - `bun install` · `bun run check` (typecheck + lint + boundaries + tests) · `bun run format`
 - `bun run dev` — server on 127.0.0.1:4580 + Vite (proxies `/api`); open the URL Vite prints
-- `bun run build:cli` — web build + binary (`dist/sprachanker` in `apps/cli`) · `bun run e2e` (builds it
-  first; Chromium desktop + WebKit phone, ≈1.5 min) · `bun run e2e:all` (all four, as CI)
+- `bun run build:cli` — the app: the speech engines (`build:speech`), the web build and the binary
+  (`dist/sprachanker` in `apps/cli`, the engines beside it) · `bun run build:bin` — web build + binary only
+  (the engines already built copied beside it) · `bun run e2e` (`build:bin` first; Chromium desktop +
+  WebKit phone, ≈1.5 min) · `bun run e2e:all` (all four, as CI)
 - `bun run e2e:real` — run-throughs on real courses at phone width (a clone of `~/SprachAnker/library`;
   `REAL=<key prefix>`, `REAL_PER_COURSE=<n|all>`, `REAL_DESKTOP=1`, `REAL_UI=ru`, `REAL_SHOTS=<dir>`); the Mac only, not in CI
 - `bun run speech:check` — speech round-trip: the corpus read by Qwen3-TTS, heard by Whisper (the Mac,
   models in `~/SprachAnker/models`)
-- `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS) for this machine (native/, needs cmake); build:cli then
-  puts it beside the binary
+- `bun run build:speech` — builds whisper-server, sherpa-onnx-offline-tts (Piper) and tts-server (Qwen3-TTS)
+  for this machine (native/, needs cmake; seconds once built); part of build:cli
 - `bun run cli -- <command>` — the CLI from sources (`serve` uses the last `bun run build:web` output)
 - `bun run cli -- import dw-nicos-weg --data ~/SprachAnker` · `bun run cli -- serve --data ~/SprachAnker`
 - `bun run cli -- verify --data ~/SprachAnker` — checks every installed course (run after an import)

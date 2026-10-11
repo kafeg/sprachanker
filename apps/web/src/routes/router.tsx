@@ -83,7 +83,7 @@ const root = createRootRoute({
           profile={profile ?? null}
           assistant={<AssistantSetup />}
           onBack={profile ? undefined : () => setAdding(false)}
-          onDone={() => void navigate({ to: "/catalog" })}
+          onDone={(to) => void navigate({ to })}
         />
       );
     return <SignedIn />;

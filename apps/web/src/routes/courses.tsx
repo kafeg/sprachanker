@@ -60,11 +60,12 @@ function MyCourses() {
   const list = useCourseList();
   if (!list.all) return list.state;
   const mine = list.all.filter((c) => c.started);
+  // Choosing a course: among those downloaded while there are any, else among those to download.
   if (!mine.length)
     return (
       <NoneHere
         text={t("courses.noneStarted")}
-        link={{ to: "/catalog", label: t("courses.toCatalog") }}
+        link={{ to: list.all.length ? "/downloaded" : "/catalog", label: t("courses.choose") }}
       />
     );
   return (
@@ -100,7 +101,7 @@ function Downloaded() {
     return (
       <NoneHere
         text={t("courses.noneDownloaded")}
-        link={{ to: "/catalog", label: t("courses.toCatalog") }}
+        link={{ to: "/catalog", label: t("courses.choose") }}
       />
     );
   return (

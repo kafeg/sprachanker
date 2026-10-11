@@ -9,7 +9,7 @@ const ALL = !!process.env.CI || !!process.env.E2E_ALL;
 const LOCAL = ["chromium-desktop", "webkit-phone"];
 // Phone width required by apps/web/CLAUDE.md.
 const phone = { width: 375, height: 812 };
-// The compiled binary (`bun run build:cli`), started from an unrelated folder: everything it serves
+// The compiled binary (`bun run build:bin`), started from an unrelated folder: everything it serves
 // must come from inside the binary.
 const binary = resolve(import.meta.dirname, "../apps/cli/dist/sprachanker");
 // Written by fixture-data.ts before the run (same path).

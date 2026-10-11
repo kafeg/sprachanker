@@ -56,7 +56,12 @@ export function StorageSection() {
   const storage = useStorage().data;
   const catalog = useCatalog().data ?? [];
   const bytes = useBytes();
-  if (!storage) return null;
+  if (!storage)
+    return (
+      <Panel title={t("storage.title")} className="space-y-2">
+        <Recordings />
+      </Panel>
+    );
   const total = storage.series.reduce((sum, s) => sum + s.bytes, 0);
   // A source's name: the publisher and titles of its courses in the catalogue.
   const nameOf = (series: string) => {

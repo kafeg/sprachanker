@@ -184,7 +184,7 @@ test("read aloud: a scene's line on request, the voices in Settings", async ({ p
   const step = page.locator("article");
   await step.getByRole("button", { name: "Start a scene" }).click();
   await expect(step.getByText("FAKE: Guten Tag! Was möchten Sie?")).toBeVisible();
-  // Read on request: the line's button reads it, the line being read stops from its corner.
+  // Read on request: nothing at once, the line's button reads it.
   expect(await said()).toEqual([]);
   await step
     .getByRole("button", { name: /Read aloud/ })

@@ -1,5 +1,5 @@
 // A device signed in to no profile: who is studying in the language chosen there, a new profile (named
-// in the onboarding's first step), its onboarding to Courses → Available, and deleting it again.
+// in the onboarding's first step), its onboarding to Courses → Downloaded, cancelled or deleted again.
 import { expect, test } from "@playwright/test";
 
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -16,10 +16,10 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await expect(page.getByRole("heading", { name: "Кто занимается?" })).toBeVisible();
   await page.getByRole("button", { name: "English" }).click();
   await expect(page.getByRole("button", { name: /E2E/ })).toBeVisible();
-  // New profile opens the onboarding; Back returns while the profile is not made yet.
+  // New profile opens the onboarding; Cancel returns while the profile is not made yet.
   await page.getByRole("button", { name: /New profile/ }).click();
   await expect(page.getByRole("heading", { name: "Welcome" })).toBeVisible();
-  await page.getByRole("button", { name: "Back" }).click();
+  await page.getByRole("button", { name: "Cancel" }).click();
   await expect(page.getByRole("heading", { name: "Who is studying?" })).toBeVisible();
   await page.getByRole("button", { name: /New profile/ }).click();
   // Welcome: where the courses come from, experimental sources off; the name and colour.
@@ -41,11 +41,12 @@ test("a new profile: who is studying, then the onboarding step by step to Course
     profile: { name: string; colour: string; onboarded: boolean };
   };
   expect(session.profile).toMatchObject({ name: "Mila", colour: "teal", onboarded: false });
-  // Back to the name: the profile's own, changed in place (no going back past it now).
+  // Back to the name: the profile's own, changed in place; Cancel there would delete it.
   await page.getByRole("button", { name: "Back" }).click();
   await expect(name).toHaveValue("Mila");
   await expect(page.getByRole("button", { name: "Teal" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: "Back" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Cancel" })).toBeVisible();
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "AI assistant" })).toBeVisible();
   await page.getByRole("button", { name: "Next" }).click();
@@ -57,9 +58,9 @@ test("a new profile: who is studying, then the onboarding step by step to Course
   await page.getByRole("button", { name: "Next" }).click();
   await expect(page.getByRole("heading", { name: "Where things are" })).toBeVisible();
   await page.getByRole("button", { name: "Choose a course" }).click();
-  // Courses → Available, every course: no filter set.
-  await expect(page).toHaveURL(/\/catalog$/);
-  await expect(page.getByRole("link", { name: /Available/ })).toHaveAttribute(
+  // Courses → Downloaded (there are courses here), no filter stored: the interface language's.
+  await expect(page).toHaveURL(/\/downloaded$/);
+  await expect(page.getByRole("link", { name: /Downloaded/ })).toHaveAttribute(
     "aria-current",
     "page",
   );
@@ -85,4 +86,18 @@ test.describe("with a German browser", () => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Wer lernt?");
   });
+});
+
+test("a profile made in the onboarding is cancelled from its first step: deleted, back to who is studying", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: /New profile/ }).click();
+  await page.getByRole("textbox", { name: "Name or nickname" }).fill("Gone");
+  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByRole("heading", { name: "AI assistant" })).toBeVisible();
+  await page.getByRole("button", { name: "Back" }).click();
+  await page.getByRole("button", { name: "Cancel" }).click();
+  await expect(page.getByRole("heading", { name: "Who is studying?" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Gone/ })).toHaveCount(0);
 });

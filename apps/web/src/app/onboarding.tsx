@@ -1,16 +1,19 @@
 // A profile's onboarding (06, "Profiles and access"; 09): the profile — welcome, where the courses come
 // from, experimental sources off until turned on, name (never empty) and colour — → the AI assistant
 // (a slot: the llm folder's own settings) → speech (as Settings → Speech: the microphone, recognition,
-// reading aloud) → a tour → the courses. A new profile is made by the first step's Next and signed in;
-// the router then opens the onboarding again for it, at the step after the named profile's. Every
-// step but the tour can be changed later in Settings.
+// reading aloud) → a tour → choosing a course (among those downloaded, if any). A new profile is made by
+// the first step's Next and signed in; the router then opens the onboarding again for it, at the step
+// after the named profile's. On the first step Cancel takes it back: to who is studying before the
+// profile is made, the profile deleted after. Every step but the tour can be changed later in Settings.
 
 import { nextProfileColour, type ProfileColour } from "@sprachanker/schema";
-import { useEffect, useState } from "react";
+import { type RefObject, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useCourses } from "@/api/courses.ts";
 import {
   type SessionProfile,
   useCreateProfile,
+  useDeleteProfile,
   useProfiles,
   useUpdateProfile,
 } from "@/api/session.ts";
@@ -20,11 +23,23 @@ import { Button } from "@/ui/components/button.tsx";
 import { errorText } from "@/ui/error-text.ts";
 import { Panel } from "@/ui/panel.tsx";
 import { cn } from "@/ui/utils.ts";
+import { useShown } from "./experimental.ts";
 import { NameAndColour } from "./name-colour.tsx";
 import { Tour } from "./tour.tsx";
 
 const STEPS = ["profile", "assistant", "speech", "tour"] as const;
 type Step = (typeof STEPS)[number];
+
+/** The tour, and where finishing goes: the courses downloaded (those shown), else those to download. */
+function TourStep({ target }: { target: RefObject<"/downloaded" | "/catalog"> }) {
+  const { shown, ready } = useShown();
+  const courses = useCourses();
+  const downloaded = ready && (courses.data ?? []).some((c) => shown("courses", c.series));
+  useEffect(() => {
+    target.current = downloaded ? "/downloaded" : "/catalog";
+  }, [downloaded, target]);
+  return <Tour />;
+}
 
 export function Onboarding({
   profile,
@@ -36,10 +51,10 @@ export function Onboarding({
   profile: SessionProfile | null;
   /** The AI assistant's settings, when the app has an assistant. */
   assistant?: React.ReactNode;
-  /** Back from the first step (before the profile exists: to "Who is studying?"). */
+  /** Cancel on the first step before the profile exists: to "Who is studying?". */
   onBack?(): void;
-  /** Finished: where to go (All courses). */
-  onDone(): void;
+  /** Finished: where to go — the courses downloaded, or those to download when there are none. */
+  onDone(to: "/downloaded" | "/catalog"): void;
 }) {
   const { t, i18n } = useTranslation();
   const setSetting = useSetSetting();
@@ -55,6 +70,12 @@ export function Onboarding({
   const last = at === steps.length - 1;
   const create = useCreateProfile();
   const update = useUpdateProfile();
+  const remove = useDeleteProfile();
+  // Where finishing goes, known on the last step (the profile exists by then: its courses can be read).
+  const target = useRef<"/downloaded" | "/catalog">("/catalog");
+  // Cancelled on the first step: a profile already made here (named) is deleted; the one from before
+  // profiles (no name) has nothing to cancel.
+  const cancel = profile ? (profile.name ? () => remove.mutate() : undefined) : onBack;
   const profiles = useProfiles();
   const [name, setName] = useState(profile?.name ?? "");
   const [picked, setPicked] = useState<ProfileColour>();
@@ -83,10 +104,10 @@ export function Onboarding({
     // shows under the buttons.
     update
       .mutateAsync({ onboarded: true })
-      .then(onDone)
+      .then(() => onDone(target.current))
       .catch(() => {});
   };
-  const failed = create.error ?? update.error;
+  const failed = create.error ?? update.error ?? remove.error;
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-2xl flex-col gap-6 px-4 pt-8">
@@ -133,19 +154,19 @@ export function Onboarding({
             <SpeechSetup />
           </>
         )}
-        {step === "tour" && <Tour />}
+        {step === "tour" && <TourStep target={target} />}
       </div>
       {/* Back and Next stay at the bottom of the screen, a long step scrolling under them. */}
       <div className="sticky bottom-0 -mx-4 border-t bg-background/95 px-4 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] backdrop-blur">
         {failed && <p className="pb-2 text-sm text-wrong">{errorText(t, failed)}</p>}
         <div className="flex items-center justify-between gap-3">
-          {at > 0 || onBack ? (
-            <Button
-              variant="ghost"
-              size="lg"
-              onClick={() => (at > 0 ? setStep(steps[at - 1] ?? "profile") : onBack?.())}
-            >
+          {at > 0 ? (
+            <Button variant="ghost" size="lg" onClick={() => setStep(steps[at - 1] ?? "profile")}>
               {t("onboarding.back")}
+            </Button>
+          ) : cancel ? (
+            <Button variant="ghost" size="lg" loading={remove.isPending} onClick={cancel}>
+              {t("onboarding.cancel")}
             </Button>
           ) : (
             <span />

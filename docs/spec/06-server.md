@@ -198,7 +198,8 @@ validation, or no course matched `--courses` / `--editions`; `verify` fails when
 problems or none is installed. A failure (an unknown provider, a port in use, a held lock, a failed
 migration, a bad option) is one line, `sprachanker: <message>`, never a stack trace.
 
-**Binary build.** `bun run build:cli` builds the web app, generates an entry that imports every web
+**Binary build.** `bun run build:cli` builds the speech engines (08; they are part of the app, owner
+2026-10-11) and the web app, generates an entry that imports every web
 file `with { type: "file" }` and compiles it with `Bun.build({ compile })` into one binary. Embedded
 files live under `/$bunfs/root/` and are found through the import values (URL path → embedded path),
 so the binary works from any folder; e2e runs it from a temp folder. Migrations are bundled as text

@@ -124,11 +124,6 @@ function Recognition() {
     <Panel title={t("speech.settings.recognition")}>
       <div className="mt-2 space-y-4">
         <p className="text-sm text-muted-foreground">{t("speech.settings.recognitionHint")}</p>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-          {(["howMic", "howPhrase", "howRecordings"] as const).map((k) => (
-            <li key={k}>{t(`speech.settings.${k}`)}</li>
-          ))}
-        </ul>
         {data && !data.engine ? (
           <p className="text-sm">{t("speech.settings.noEngine")}</p>
         ) : (
@@ -173,6 +168,21 @@ function Recognition() {
   );
 }
 
+/** How speaking works where it is not a setting: the microphone tapped, the phrase hidden until the
+ *  first try, recordings kept. */
+function HowSpeaking() {
+  const { t } = useTranslation();
+  return (
+    <Panel title={t("speech.settings.how")}>
+      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+        {(["howMic", "howPhrase", "howRecordings"] as const).map((k) => (
+          <li key={k}>{t(`speech.settings.${k}`)}</li>
+        ))}
+      </ul>
+    </Panel>
+  );
+}
+
 /** Hearing and speaking: the microphone, recognition and reading aloud — the onboarding's speech step
  *  and Settings → Speech. */
 export function SpeechSetup() {
@@ -181,6 +191,7 @@ export function SpeechSetup() {
       <Microphone />
       <Recognition />
       <ReadAloud />
+      <HowSpeaking />
     </div>
   );
 }

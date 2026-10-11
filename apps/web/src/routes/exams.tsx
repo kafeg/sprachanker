@@ -57,11 +57,10 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
           all.filter((e) => e.started),
           <NoneHere
             text={t("exams.noneStarted")}
-            link={
-              all.length
-                ? { to: "/exams/downloaded", label: t("exams.toDownloaded") }
-                : { to: "/exams/catalog", label: t("exams.toCatalog") }
-            }
+            link={{
+              to: all.length ? "/exams/downloaded" : "/exams/catalog",
+              label: t("exams.choose"),
+            }}
           />,
         )}
       {tab === "downloaded" &&
@@ -69,7 +68,7 @@ export function ExamsPage({ tab }: { tab: ExamsTab }) {
           all,
           <NoneHere
             text={t("exams.noneDownloaded")}
-            link={{ to: "/exams/catalog", label: t("exams.toCatalog") }}
+            link={{ to: "/exams/catalog", label: t("exams.choose") }}
           />,
         )}
       {tab === "available" &&

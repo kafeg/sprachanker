@@ -27,11 +27,12 @@
     "cli": "bun apps/cli/src/main.ts",
     "dev": "bun run --filter @sprachanker/cli --filter @sprachanker/web dev",
     "build:web": "bun run --filter @sprachanker/web build",
-    "build:cli": "bun run build:web && bun apps/cli/scripts/build.ts",
+    "build:cli": "bun run build:speech && bun run build:bin",
+    "build:bin": "bun run build:web && bun apps/cli/scripts/build.ts",
     "build:speech": "bun native/scripts/build.ts",
-    "e2e": "bun run build:cli && bun run --filter @sprachanker/e2e e2e",
+    "e2e": "bun run build:bin && bun run --filter @sprachanker/e2e e2e",
     "e2e:all": "E2E_ALL=1 bun run e2e",
-    "e2e:real": "bun run build:cli && bun run --filter @sprachanker/e2e e2e:real",
+    "e2e:real": "bun run build:bin && bun run --filter @sprachanker/e2e e2e:real",
     "speech:check": "bun run build:cli && bun run --filter @sprachanker/e2e speech:check"
   },
   "devDependencies": {

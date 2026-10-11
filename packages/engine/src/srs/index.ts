@@ -136,7 +136,8 @@ export const dueIn = (due: number | null | undefined, now: number) =>
   due === null || due === undefined ? null : Math.max(0, due - now);
 
 /** The start of the learner's day for a moment, and of the next one (local time, 4 AM). */
-export function studyDay(now: number, hour: number = SRS_DEFAULTS.dayStartHour) {
+export function studyDay(now: number) {
+  const hour = SRS_DEFAULTS.dayStartHour;
   const start = new Date(now);
   if (start.getHours() < hour) start.setDate(start.getDate() - 1);
   start.setHours(hour, 0, 0, 0);
