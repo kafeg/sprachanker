@@ -898,7 +898,16 @@
     },
     "remove": "Stapel löschen",
     "removeTitle": "Stapel {deck} löschen?",
-    "removeBody": "Seine Wörter und sein Audio werden von diesem Computer gelöscht, für alle Profile. Ein Stapel, den jemand lernt, bleibt, bis er entfernt wird."
+    "removeBody": "Seine Wörter und sein Audio werden von diesem Computer gelöscht, für alle Profile. Ein Stapel, den jemand lernt, bleibt, bis er entfernt wird.",
+    "audio": {
+      "missing": "{count, plural, one {# Wort ohne Audio} other {# Wörter ohne Audio}}",
+      "generate": "Audio erzeugen",
+      "reading": "{done, number} von {total, number} vorgelesen …",
+      "stop": "Anhalten",
+      "all": "Alle Wörter haben Audio",
+      "install": "Dafür installiere eine Stimme für {language} unter Einstellungen → Sprechen",
+      "failed": "{count, plural, one {# Wort konnte nicht vorgelesen werden} other {# Wörter konnten nicht vorgelesen werden}}"
+    }
   },
   "guide": {
     "open": "So funktioniert's",

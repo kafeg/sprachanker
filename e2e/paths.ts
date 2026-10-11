@@ -7,3 +7,9 @@ export const SIGNED_IN = join(tmpdir(), "sprachanker-e2e-signed-in.json");
 
 /** A synthetic deck file (written by fixture-data.ts), imported in Review → Decks. */
 export const E2E_DECK = join(tmpdir(), "sprachanker-e2e-deck.apkg");
+
+/** Piper on paper (written by fixture-data.ts, named to the server by SPRACHANKER_PIPER): a short
+ *  silent WAV for any text. */
+export const E2E_PIPER = join(tmpdir(), "sprachanker-e2e-piper.sh");
+/** The voice it reads German with, "installed" in the e2e data root. */
+export const E2E_VOICE = "de_DE-thorsten-medium";

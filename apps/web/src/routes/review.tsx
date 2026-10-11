@@ -1,8 +1,8 @@
 // Review (09): tabs — Study (the cards of the deck chosen last, study/session.tsx), Decks (the
 // profile's decks as Anki lists them, each language and its courses and imported decks with New,
-// Learning and To review; more new cards today or leaving a deck; the decks to take — each of My
-// courses' words and each imported deck —, a deck file imported, an imported deck deleted) and My words
-// (words.tsx). "How it works" opens the guide beside.
+// Learning and To review; more new cards today, leaving a deck or its words read aloud; the decks to
+// take — each of My courses' words and each imported deck —, a deck file imported, an imported deck
+// deleted) and My words (words.tsx). "How it works" opens the guide beside.
 import { settingOf } from "@sprachanker/schema";
 import { Play, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 import { useDeckActions, useDeckOffers, useDecks } from "@/api/cards.ts";
 import { useDeleteDeck } from "@/api/decks.ts";
 import { useSetSetting, useSettings } from "@/api/settings.ts";
+import { DeckAudio } from "@/study/deck-audio.tsx";
 import { DeckImport } from "@/study/deck-import.tsx";
 import { useDeckName } from "@/study/decks.ts";
 import { GuideButton } from "@/study/guide.tsx";
@@ -51,7 +52,7 @@ function CountCells({ counts }: { counts: Counts }) {
 
 /** The profile's decks as Anki lists them, a course's or an imported one's with its language pair;
  *  under each deck what it does, at hand: study it, more new cards today, and for a course's or an
- *  imported one, leave it (after asking). */
+ *  imported one, leave it (after asking) and its words without audio read aloud. */
 function MyDecks({ open }: { open(scope: string): void }) {
   const { t } = useTranslation();
   const decks = useDecks();
@@ -132,6 +133,7 @@ function MyDecks({ open }: { open(scope: string): void }) {
                   </Button>
                 )}
               </div>
+              {deck.child && <DeckAudio scope={deck.scope} className="mt-1.5 px-4 pl-9" />}
             </div>
           ))}
         </div>

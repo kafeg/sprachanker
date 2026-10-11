@@ -178,11 +178,23 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   const take = offer.getByRole("button", { name: /^(Take the deck|Add the other \d+)$/ });
   await take.click();
   await expect(take).toHaveCount(0);
+  // Its words have no audio: read aloud by the server's engine (Piper on paper here) and kept.
+  const missing = page.getByText("3 words without audio");
+  await expect(missing).toBeVisible();
+  await missing.locator("..").getByRole("button", { name: "Generate audio" }).click();
+  await expect(page.getByText("All words have audio")).toBeVisible();
+  // Its cards play what was read, from the deck's folder.
+  const played = page.waitForResponse((r) =>
+    /^\/decks\/[^/]+\/media\/read-[0-9a-f]{12}\.wav$/.test(new URL(r.url()).pathname),
+  );
   await page.getByRole("button", { name: "E2E Wörter", exact: true }).click();
   await expect(page).toHaveURL(/\/review$/);
   await expect(page.getByText("Studying: E2E Wörter")).toBeVisible();
   const show = page.getByRole("button", { name: "Show answer" });
   await expect(show).toBeVisible();
+  // The recording in the card's corner (played by itself where the browser lets it).
+  await page.locator("div.relative:has(> [data-study-card])").getByRole("button").last().click();
+  expect((await played).status()).toBeLessThan(300);
   await show.click();
   // The answer with the deck's own example sentence and its translation.
   const answer = page.locator("[data-study-card]").first();

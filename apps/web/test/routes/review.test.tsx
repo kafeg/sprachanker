@@ -43,12 +43,25 @@ const OFFERS = {
   ],
 };
 
+/** Each deck's words and their audio: the course's all its own, the imported deck's three without. */
+const audio = (own: number, missing: number) => ({
+  lang: "de",
+  words: own + missing,
+  own,
+  read: 0,
+  missing,
+  reader: { engine: "piper", voice: "de_DE-thorsten-medium" },
+  job: null,
+});
+
 const page = () =>
   renderApp(<ReviewPage tab="decks" go={() => {}} />, {
     path: "/review/decks",
     data: [
       [["decks"], DECKS],
       [["deck-offers"], OFFERS],
+      [["deck-audio", `course:${COURSE}`], audio(5, 0)],
+      [["deck-audio", "deck:mein-deck-abc123"], audio(0, 3)],
     ],
   });
 
@@ -56,6 +69,9 @@ test("Decks: an imported deck taken is under its language beside the course, lef
   const view = await page();
   await waitFor(() => expect(view.getByRole("button", { name: "Mein Deck" })).toBeTruthy());
   expect(view.getByRole("button", { name: "Demo course" })).toBeTruthy();
+  // Under the imported deck its words without audio, to be read aloud; the course's have their own.
+  expect(view.getByText("3 words without audio")).toBeTruthy();
+  expect(view.getAllByRole("button", { name: "Generate audio" })).toHaveLength(1);
   // A course's and an imported deck's leave alike (the language's does not).
   expect(view.getAllByRole("button", { name: "Leave deck…" })).toHaveLength(2);
   fireEvent.click(view.getAllByRole("button", { name: "Leave deck…" })[1] as HTMLElement);

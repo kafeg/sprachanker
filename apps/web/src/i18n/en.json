@@ -898,7 +898,16 @@
     },
     "remove": "Delete deck",
     "removeTitle": "Delete the deck {deck}?",
-    "removeBody": "Its words and audio are removed from this computer, for every profile. A deck someone studies stays until they leave it."
+    "removeBody": "Its words and audio are removed from this computer, for every profile. A deck someone studies stays until they leave it.",
+    "audio": {
+      "missing": "{count, plural, one {# word without audio} other {# words without audio}}",
+      "generate": "Generate audio",
+      "reading": "Reading {done, number} of {total, number}…",
+      "stop": "Stop",
+      "all": "All words have audio",
+      "install": "To make it, install a voice for {language} in Settings → Speech",
+      "failed": "{count, plural, one {# word could not be read aloud} other {# words could not be read aloud}}"
+    }
   },
   "guide": {
     "open": "How it works",

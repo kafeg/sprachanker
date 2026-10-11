@@ -26,7 +26,8 @@ apps/web/src/
                    # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
                    # at a time), reviewer-keys (Anki's keys: a pure mapping, tested), more-menu;
                    # tones (ratings and counts in our hues), time (intervals, next due), decks (deck names),
-                   # deck-import (a deck file previewed, named, its languages, imported), examples (a deck's own), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
+                   # without audio, read aloud by the server: generate, progress, stop), examples (a deck's own), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: AI examples)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
@@ -48,7 +49,8 @@ apps/web/src/
                    # hero (their page's head), tab-page (Courses' and Exams' tabs), download, upkeep,
                    # reset-progress, exam-address, item-history (an item across passes), spoken-check
   api/             # client (Hono RPC, hono/client; no codegen) + TanStack Query hooks by area: settings
-                   # (the app, the profile's settings), courses, downloads, cards, decks (imported), notebook,
+                   # (the app, the profile's settings), courses, downloads, cards, decks (imported; a deck's
+                   # words read aloud, polled while read), notebook,
                    # recordings, speech, exams, session (profiles, signing in and out, devices); outbox (events in
                    # order, retried, a refused batch dropped; tested), run-events (a lesson's or exam's
                    # run's events over it: per profile, the server's outcomes, on page close); edition:

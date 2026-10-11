@@ -1,7 +1,9 @@
 // Imported decks (04, "Decks"): the server's list, a deck file uploaded and previewed, its import by
-// the upload's id, a deck deleted. Taking and leaving one is the profile's (cards.ts).
+// the upload's id, a deck deleted; any deck's words read aloud by the server (polled while it reads).
+// Taking and leaving one is the profile's (cards.ts).
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { InferResponseType } from "hono/client";
+import { useEffect, useRef } from "react";
 import { readCardsAgain } from "./cards.ts";
 import { api, json, sendBinary } from "./client.ts";
 
@@ -30,9 +32,51 @@ export function useImportDeck() {
     onSuccess: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: ["imported-decks"] }),
+        client.invalidateQueries({ queryKey: ["deck-audio"] }),
         readCardsAgain(client),
       ]),
   });
+}
+
+export type DeckAudioState = InferResponseType<typeof api.decks.audio.$get, 200>;
+
+/** Whether a deck's job is reading (or finishing the words under way once stopped). */
+export const reading = (state: DeckAudioState | undefined) =>
+  state?.job?.status === "running" || state?.job?.status === "stopping";
+
+/** A deck's words read aloud (`scope`: `course:<key>` or `deck:<id>`): how many have audio, the engine
+ *  that would read the rest, the job — polled while it runs; when it ends, the cards are read anew
+ *  (they play what it read). */
+export function useDeckAudio(scope: string) {
+  const client = useQueryClient();
+  const query = useQuery({
+    queryKey: ["deck-audio", scope],
+    queryFn: () => json(api.decks.audio.$get({ query: { scope } })),
+    refetchInterval: (q) => (reading(q.state.data) ? 1500 : false),
+  });
+  const going = reading(query.data);
+  const before = useRef(going);
+  useEffect(() => {
+    if (before.current && !going) void readCardsAgain(client);
+    before.current = going;
+  }, [going, client]);
+  return query;
+}
+
+/** Reading a deck's words aloud started or stopped; the state the server answers with is shown. */
+export function useDeckAudioActions(scope: string) {
+  const client = useQueryClient();
+  const onSuccess = (state: DeckAudioState) => client.setQueryData(["deck-audio", scope], state);
+  return {
+    start: useMutation({
+      mutationFn: () => json(api.decks.audio.$post({ json: { scope } })),
+      onSuccess,
+    }),
+    stop: useMutation({
+      mutationFn: () => json(api.decks.audio.$delete({ query: { scope } })),
+      onSuccess,
+    }),
+  };
 }
 
 export function useDeleteDeck() {

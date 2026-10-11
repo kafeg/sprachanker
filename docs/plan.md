@@ -20,11 +20,9 @@ Specs: 04, 07, 09.
   word (with the course's words where it can), kept with the words; a card shows them. The example
   on a card made one at a time goes; a card whose deck has none yet (examples on in Settings) offers
   to go to Decks and make them.
-- An imported deck's words without audio read aloud by the server's engine (Piper or Qwen3-TTS) for
-  the whole deck at once; examples made only for words the deck brings none of its own for; both
-  kept beside the deck (`extras.json`, 05).
-- **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them;
-  an imported deck without audio has it for every word.
+- Examples made only for words the deck brings none of its own for, kept beside the deck
+  (`extras.json`, 05) as its words' audio read aloud is (built: 04, "A deck's words read aloud").
+- **Accept**: a deck's examples made in one run with its progress shown, resumable; cards show them.
 
 ### 2. Interface in every language a course explains in (owner, 2026-10-09)
 Specs: 09, 10.
