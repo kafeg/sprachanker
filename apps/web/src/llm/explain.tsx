@@ -10,7 +10,7 @@ import { Button } from "@/ui/components/button.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
 import { type ExplainRequest, streamExplain, useExplanations, useExplanationsKept } from "./api.ts";
 import { useAssistantLabel } from "./assistant-label.tsx";
-import { AnswerBox, ErrorLine, useAbortable } from "./parts.tsx";
+import { AnswerBox, ErrorLine, Thinking, useAbortable } from "./parts.tsx";
 import { PromptButton } from "./prompt-view.tsx";
 import { useLlm } from "./setup-api.ts";
 
@@ -106,11 +106,7 @@ export function ExplainMistake({
             </>
           }
         >
-          {shown ? (
-            <RichText text={shown} />
-          ) : (
-            busy && <p className="text-muted-foreground">{t("llm.thinking")}</p>
-          )}
+          {shown ? <RichText text={shown} /> : busy && <Thinking />}
           <ErrorLine error={error} provider={llm.data.provider ?? undefined} onRetry={ask} />
         </AnswerBox>
       )}

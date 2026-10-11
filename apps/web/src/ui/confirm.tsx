@@ -1,6 +1,8 @@
 // A confirmation for an action that cannot be undone (resetting progress): what will happen, Cancel,
 // and the action (none while it cannot be done: `hideConfirm`, the reason said instead). Built on Radix AlertDialog, so focus starts on Cancel and Escape cancels.
+// ConfirmButton: a button whose action is asked first.
 import { AlertDialog } from "radix-ui";
+import { type ReactNode, useState } from "react";
 import { Button } from "@/ui/components/button.tsx";
 
 export function ConfirmDialog({
@@ -57,5 +59,36 @@ export function ConfirmDialog({
         </AlertDialog.Content>
       </AlertDialog.Portal>
     </AlertDialog.Root>
+  );
+}
+
+/** A small button whose action is asked first; the dialog closes once the action is done (`onConfirm`
+ *  is handed the way to close it). */
+export function ConfirmButton({
+  children,
+  onConfirm,
+  ...dialog
+}: {
+  children: ReactNode;
+  title: string;
+  description: string;
+  confirm: string;
+  cancel: string;
+  busy?: boolean;
+  onConfirm(close: () => void): void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)}>
+        {children}
+      </Button>
+      <ConfirmDialog
+        {...dialog}
+        open={open}
+        onOpenChange={setOpen}
+        onConfirm={() => onConfirm(() => setOpen(false))}
+      />
+    </>
   );
 }

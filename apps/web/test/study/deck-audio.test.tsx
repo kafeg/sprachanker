@@ -45,13 +45,13 @@ function server(answer: unknown) {
   return asked;
 }
 
-test("a deck's words without audio: how many, and Generate audio asks the server to read them", async () => {
+test("a deck to take: its words with audio of all, and Generate audio asks the server to read them", async () => {
   const asked = server(running);
   const view = await renderApp(<DeckAudio scope={scope} />, {
     data: [[["deck-audio", scope], state]],
     path: "/review/decks",
   });
-  expect(view.getByText("744 words without audio")).toBeTruthy();
+  expect(view.getByText("Audio: 30 of 774")).toBeTruthy();
   // Who reads them, and where another voice is chosen.
   expect(view.getByText(/^Read by Piper · thorsten \(German\)/)).toBeTruthy();
   expect(view.getByRole("link", { name: "Choose a voice" }).getAttribute("href")).toBe(
@@ -63,6 +63,7 @@ test("a deck's words without audio: how many, and Generate audio asks the server
     expect(view.getByRole("status").textContent).toBe("Reading 120 of 744… · about 9 minutes left"),
   );
   expect(asked).toEqual([`POST /api/decks/audio {"scope":"${scope}"}`]);
+  expect(view.queryByRole("button", { name: "Remove generated audio" })).toBeNull();
   expect(view.queryByRole("button", { name: "Generate audio" })).toBeNull();
   fireEvent.click(view.getByRole("button", { name: "Stop" }));
   await waitFor(() => expect(asked).toHaveLength(2));
@@ -81,18 +82,49 @@ test("nothing here reads the words' language: where to install a voice instead o
   expect(link.getAttribute("href")).toBe("/settings#speech");
 });
 
-test("every word with audio: a quiet line once some were read, nothing when all are the deck's own; words that failed said", async () => {
-  const all = await renderApp(<DeckAudio scope={scope} />, {
-    data: [[["deck-audio", scope], { ...state, read: 774, missing: 0 }]],
+test("a deck taken: how its audio stands, in a line — a quiet one once all were read, none when all are the deck's own", async () => {
+  const line = async (shown: unknown) => {
+    const view = await renderApp(<DeckAudio scope={scope} status />, {
+      data: [[["deck-audio", scope], shown]],
+    });
+    const text = view.container.textContent;
+    view.unmount();
+    return text;
+  };
+  expect(await line(state)).toBe("744 words without audio");
+  expect(await line({ ...state, read: 774, missing: 0 })).toBe("All words have audio");
+  expect(await line({ ...state, own: 774, read: 0, missing: 0 })).toBe("");
+  expect(await line(running)).toBe("Reading 120 of 744…");
+});
+
+test("the audio generated removed or generated again, each asked first; words that failed said", async () => {
+  const asked = server({ ...state, read: 0, missing: 774 });
+  const view = await renderApp(<DeckAudio scope={scope} title="Deutsch A1" />, {
+    data: [[["deck-audio", scope], state]],
     path: "/review/decks",
   });
-  expect(all.getByText("All words have audio")).toBeTruthy();
-  all.unmount();
-  const own = await renderApp(<DeckAudio scope={scope} />, {
-    data: [[["deck-audio", scope], { ...state, own: 774, read: 0, missing: 0 }]],
+  fireEvent.click(view.getByRole("button", { name: "Remove generated audio" }));
+  expect(view.getByText("Remove the audio generated for Deutsch A1?")).toBeTruthy();
+  expect(asked).toEqual([]);
+  fireEvent.click(
+    view.getAllByRole("button", { name: "Remove generated audio" }).at(-1) as HTMLElement,
+  );
+  await waitFor(() => expect(asked).toEqual([`POST /api/decks/audio/remove {"scope":"${scope}"}`]));
+  await waitFor(() => expect(view.getByText("Audio: 0 of 774")).toBeTruthy());
+  expect(view.queryByRole("button", { name: "Regenerate" })).toBeNull();
+  view.unmount();
+  const again = server(running);
+  const view2 = await renderApp(<DeckAudio scope={scope} title="Deutsch A1" />, {
+    data: [[["deck-audio", scope], state]],
+    path: "/review/decks",
   });
-  expect(own.container.textContent).toBe("");
-  own.unmount();
+  fireEvent.click(view2.getByRole("button", { name: "Regenerate" }));
+  expect(view2.getByText("Generate the audio of Deutsch A1 again?")).toBeTruthy();
+  fireEvent.click(view2.getAllByRole("button", { name: "Regenerate" }).at(-1) as HTMLElement);
+  await waitFor(() =>
+    expect(again).toEqual([`POST /api/decks/audio {"scope":"${scope}","again":true}`]),
+  );
+  view2.unmount();
   const failed = await renderApp(<DeckAudio scope={scope} />, {
     data: [
       [

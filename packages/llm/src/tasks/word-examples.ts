@@ -87,6 +87,7 @@ function wordExamplesRequest(input: WordExamplesInput): TaskRequest {
     temperature: 0.7,
     maxTokens: 200 + TOKENS_PER_WORD * input.words.length,
     reasoning: false,
+    effort: "low",
   };
 }
 

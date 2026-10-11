@@ -1,19 +1,20 @@
-// AI examples of a profile's words (04, "A deck's words given examples"; 07, `word_examples`): a
-// deck's job (deck-examples.ts, the server's) started with this profile's model — the words of its
-// cards in the deck, what they can be assumed to know (a course's words up to their lesson, an imported
+// AI examples of a deck's words (04, "A deck's words given examples"; 07, `word_examples`): a
+// deck's job (deck-examples.ts, the server's) started with this profile's model — the deck's words in
+// an edition, taken or not, what they can be assumed to know (a course's words up to their lesson, an imported
 // deck's up to them), the level when the course or deck names one, the learner's own prompt —; the
 // request it would send; and a card's examples as shown, the words not met yet marked and translated
 // (the engine's `markWords`, against the course as installed now, or the deck).
 import { markWords, type VocabWord } from "@sprachanker/engine";
 import { structuredRequest, type WordExamplesInput, wordExamplesTask } from "@sprachanker/llm";
 import {
+  type CardDisplay,
   type LessonKey,
   type LexemeKey,
   parseLessonKey,
   parseLexemeKey,
 } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
-import type { CardStore } from "./card-store.ts";
+import { type CardStore, deckOf as deckOfDisplay, type Note } from "./card-store.ts";
 import type { DeckExamples, ExampleWriter } from "./deck-examples.ts";
 import type { DeckExtrasStore, DeckNote } from "./deck-extras.ts";
 import type { Decks } from "./decks.ts";
@@ -34,8 +35,10 @@ const NO_WORDS = { upTo: [] as VocabWord[], later: [] as VocabWord[] };
 
 export function createExamples(deps: {
   cards: Pick<CardStore, "note">;
-  /** The learner's cards made in a deck (cards.ts). */
-  deckNotes(scope: string): DeckNote[];
+  /** What a card shows in a deck (cards.ts: the deck's own entry of its word). */
+  shown(note: Note, scope: string): Promise<CardDisplay>;
+  /** A deck's words in an edition, taken or not (cards.ts). */
+  sourceNotes(scope: string, edition?: string): Promise<DeckNote[]>;
   decks: Pick<Decks, "deck">;
   extras: Pick<DeckExtrasStore, "folderOf">;
   deckExamples: DeckExamples;
@@ -103,24 +106,36 @@ export function createExamples(deps: {
   };
 
   return {
-    /** A deck's words given examples: their counts and the deck's job. */
-    state: (scope: string) => deps.deckExamples.state(scope, deps.deckNotes(scope)),
+    /** A deck's words in an edition (an imported deck's own; a course's first when none is named)
+     *  given examples: their counts and the deck's job. */
+    state: async (scope: string, edition?: string) =>
+      deps.deckExamples.state(scope, await deps.sourceNotes(scope, edition)),
 
-    /** Starts the deck's job with this profile's model; refused while it has none. */
-    async start(scope: string) {
+    /** Starts the deck's job with this profile's model; refused while it has none. `again`: the
+     *  examples made before go first. */
+    async start(scope: string, edition?: string, again = false) {
       if (!llm.state().model) throw new ServiceError("llm_not_configured", 409);
-      await deps.deckExamples.start(scope, deps.deckNotes(scope), write);
-      return deps.deckExamples.state(scope, deps.deckNotes(scope));
+      const notes = await deps.sourceNotes(scope, edition);
+      await deps.deckExamples.start(scope, notes, write, again);
+      return deps.deckExamples.state(scope, notes);
     },
 
-    async stop(scope: string) {
+    async stop(scope: string, edition?: string) {
       await deps.deckExamples.stop(scope);
-      return deps.deckExamples.state(scope, deps.deckNotes(scope));
+      return deps.deckExamples.state(scope, await deps.sourceNotes(scope, edition));
+    },
+
+    /** Removes the examples made for a deck's words in an edition's language; refused while its job
+     *  writes. */
+    async remove(scope: string, edition?: string) {
+      const notes = await deps.sourceNotes(scope, edition);
+      await deps.deckExamples.remove(scope, notes);
+      return deps.deckExamples.state(scope, notes);
     },
 
     /** The request the job's next call would send. */
-    async prompt(scope: string): Promise<PromptPreview> {
-      const next = await deps.deckExamples.next(scope, deps.deckNotes(scope));
+    async prompt(scope: string, edition?: string): Promise<PromptPreview> {
+      const next = await deps.deckExamples.next(scope, await deps.sourceNotes(scope, edition));
       if (!next.length) throw new ServiceError("no_such_deck", 404);
       return llm.preview(structuredRequest(wordExamplesTask(await inputOf(next))));
     },
@@ -128,16 +143,19 @@ export function createExamples(deps: {
     /** A card's examples as shown — each sentence in pieces, the words not met yet marked and
      *  translated (the deck's later words, the model's glossary) —, whether its word brings its own,
      *  and its deck (where examples are made). */
-    async ofCard(cardId: string) {
+    async ofCard(cardId: string, deck?: string) {
       const n = deps.cards.note(cardId);
-      const note: DeckNote = { ...n, lexeme: n.lexemeKey ?? "" };
-      const own = !!note.display.examples?.length || !!note.display.example;
-      const folder = await deps.extras.folderOf(n.deck).catch(() => undefined);
+      // As the card shows it in that deck (its own entry of the word), else as it was made.
+      const display = deck ? await deps.shown(n, deck) : n.display;
+      const note: DeckNote = { ...n, display, lexeme: n.lexemeKey ?? "" };
+      const scope = deckOfDisplay(display);
+      const own = !!display.examples?.length || !!display.example;
+      const folder = await deps.extras.folderOf(scope).catch(() => undefined);
       const made =
         folder && note.lexeme
           ? deps.deckExamples.examplesOf(folder, note.lexeme, note.translationLang)
           : undefined;
-      if (!made) return { scope: n.deck, own, model: null, examples: [] };
+      if (!made) return { scope, own, model: null, examples: [] };
       const { upTo, later } = await around(note);
       const word = (form?: string): VocabWord => ({
         target: note.display.target,
@@ -148,7 +166,7 @@ export function createExamples(deps: {
       // translation is not that of each of its words.
       const laterWords = later.filter(oneWord);
       return {
-        scope: n.deck,
+        scope,
         own,
         model: made.model,
         examples: made.items.map((e) => ({

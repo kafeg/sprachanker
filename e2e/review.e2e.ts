@@ -103,7 +103,8 @@ test("My words: the table under Decks, search, a word's sheet, suspend and back"
   );
 
   await page.getByPlaceholder("Find a word or translation").fill("kaffee");
-  const row = page.getByRole("button", { name: /der Kaffee/ });
+  // The row (its play button is named "Play: der Kaffee, …").
+  const row = page.getByRole("button", { name: /^der Kaffee/ });
   await expect(row).toHaveCount(1);
   await row.click();
   const sheet = page.getByRole("dialog");
@@ -179,11 +180,13 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   const take = offer.getByRole("button", { name: /^(Take the deck|Add the other \d+)$/ });
   await take.click();
   await expect(take).toHaveCount(0);
-  // Its words have no audio: read aloud by the server's engine (Piper on paper here) and kept.
-  const missing = page.getByText("3 words without audio");
-  await expect(missing).toBeVisible();
-  await missing.locator("..").getByRole("button", { name: "Generate audio" }).click();
+  // Its words have no audio — the deck taken says so —: read aloud by the server's engine (Piper on
+  // paper here) and kept, generated under its entry in the decks to take.
+  await expect(page.getByText("3 words without audio")).toBeVisible();
+  await expect(offer.getByText("Audio: 0 of 3")).toBeVisible();
+  await offer.getByRole("button", { name: "Generate audio" }).click();
   await expect(page.getByText("All words have audio")).toBeVisible();
+  await expect(offer.getByText("Audio: 3 of 3")).toBeVisible();
   // Its cards play what was read, from the deck's folder.
   const played = page.waitForResponse((r) =>
     /^\/decks\/[^/]+\/media\/read-[0-9a-f]{12}\.wav$/.test(new URL(r.url()).pathname),
@@ -197,9 +200,14 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
   await page.locator("div.relative:has(> [data-study-card])").getByRole("button").last().click();
   expect((await played).status()).toBeLessThan(300);
   await show.click();
-  // The answer with the deck's own example sentence and its translation.
+  // The answer; "Example" shows the deck's own example sentence with its translation.
   const answer = page.locator("[data-study-card]").first();
   await expect(answer).toContainText(/apple|pear|table/);
+  await expect(answer).not.toContainText(/I eat an apple\.|The pear is sweet\.|The table is new\./);
+  await page
+    .locator("div.relative:has(> [data-study-card])")
+    .getByRole("button", { name: /^Example/ })
+    .click();
   await expect(answer).toContainText(/I eat an apple\.|The pear is sweet\.|The table is new\./);
   await page.getByRole("button", { name: "Good", exact: true }).click();
   await expect(show).toBeVisible();

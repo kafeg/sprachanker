@@ -13,7 +13,12 @@ import {
   reviewItems,
   understandingMistakes,
 } from "@sprachanker/engine";
-import { type MistakeItemsInput, mistakeItemsTask, structuredRequest } from "@sprachanker/llm";
+import {
+  type MistakeItemsInput,
+  mistakeItemOf,
+  mistakeItemsTask,
+  structuredRequest,
+} from "@sprachanker/llm";
 import {
   findExercise,
   type LessonKey,
@@ -117,7 +122,9 @@ export function createGoingOver(deps: {
     const result: MistakesReview = {
       groups: input.groups.flatMap((g, i) => {
         const reply = made.result.groups.find((r) => r.n === i + 1);
-        return reply ? [{ ...g, explanation: reply.explanation, items: reply.items }] : [];
+        return reply
+          ? [{ ...g, explanation: reply.explanation, items: reply.items.map(mistakeItemOf) }]
+          : [];
       }),
     };
     const { verdict } = keepVerdict(store, run.id, {

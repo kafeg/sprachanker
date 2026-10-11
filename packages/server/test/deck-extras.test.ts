@@ -5,14 +5,19 @@ import { until } from "./until.ts";
 /** Deck folders in memory: each folder's extras.json as text. */
 function folders(extras: Record<string, string | undefined>) {
   const removed: string[] = [];
+  const removedMedia: string[] = [];
   return {
     removed,
+    removedMedia,
     files: {
       extras: (folder: string) => extras[folder],
       writeExtras: (folder: string, text: string) => {
         extras[folder] = text;
       },
       media: () => undefined,
+      removeMedia: (folder: string, path: string) => {
+        removedMedia.push(`${folder}/${path}`);
+      },
       folders: () => Object.keys(extras),
       remove: (folder: string) => {
         removed.push(folder);
@@ -93,6 +98,65 @@ test("extras.json read entry by entry: one that does not read (a newer version's
     "lex:de:apfel:noun:m": { audio: audio("Apfel") },
     "lex:de:birne:noun:f": { audio: audio("Birne") },
   });
+});
+
+test("what was made removed: the audio read with its files, never the deck's own; the examples of one language; not while the job works", async () => {
+  const folder = "mein-deck-3f9c2a";
+  const made = (sentence: string) => ({
+    items: [{ sentence, translation: "…" }],
+    model: "m",
+    made: 1,
+  });
+  const newer = { audio: audio("Tisch"), images: ["media/tisch.png"] };
+  const { files, removedMedia } = folders({
+    [folder]: JSON.stringify({
+      format: 1,
+      words: {
+        "lex:de:apfel:noun:m": { audio: audio("Apfel"), examples: { ru: made("Der Apfel.") } },
+        "lex:de:birne:noun:f": { examples: { ru: made("Die Birne."), en: made("Die Birne!") } },
+        // A file the deck brought, named as a reading could be: never removed.
+        "lex:de:kaffee:noun:m": { audio: { ...audio("Kaffee"), path: "media/kaffee-1.mp3" } },
+        "lex:de:tisch:noun:m": newer,
+      },
+    }),
+  });
+  const extras = createDeckExtras({
+    files,
+    decks: {
+      deck: () =>
+        ({ words: [{ lexeme: "lex:de:kaffee:noun:m", audio: "media/kaffee-1.mp3" }] }) as never,
+    },
+    library: { courses: () => [] },
+    now: () => 0,
+  });
+  expect(extras.clear("audio", folder)).toBe(2);
+  expect(removedMedia).toEqual([`${folder}/media/read-Apfel.wav`]);
+  expect(extras.clear("examples", folder, "ru")).toBe(2);
+  // What is left: the English examples, and the entry that did not read, as it was.
+  expect(JSON.parse(files.extras(folder) as string).words).toEqual({
+    "lex:de:tisch:noun:m": newer,
+    "lex:de:birne:noun:f": { examples: { en: made("Die Birne!") } },
+  });
+  expect(extras.clear("examples", folder, "ru")).toBe(0);
+  // Its job working: refused.
+  let go = () => {};
+  extras.start("examples", folder, {
+    steps: [["x"]],
+    atOnce: 1,
+    saveEvery: 1,
+    label: () => "x",
+    work: () =>
+      new Promise((resolve) => {
+        go = () => resolve({ done: 0, failed: 0 });
+      }),
+  });
+  expect(() => extras.clear("examples", folder, "en")).toThrow("deck_job_running");
+  // The other kind is not held back.
+  expect(extras.clear("audio", folder)).toBe(0);
+  go();
+  for (let i = 0; i < 100 && extras.going("examples", folder); i++) await Bun.sleep(1);
+  expect(extras.clear("examples", folder, "en")).toBe(1);
+  expect(extras.job("examples", folder)).toBeNull();
 });
 
 test("an extras.json that is no JSON reads as none", () => {

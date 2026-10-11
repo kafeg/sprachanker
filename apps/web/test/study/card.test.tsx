@@ -1,4 +1,5 @@
 import { expect, test } from "bun:test";
+import { fireEvent } from "@testing-library/react";
 import { cardAudioUrl } from "../../src/api/client.ts";
 import { StudyCard } from "../../src/study/card.tsx";
 import { StudySlotsProvider } from "../../src/study/slots.ts";
@@ -50,7 +51,7 @@ test("an imported deck's word: no lesson to go to; its recording in the deck's f
   );
   expect(view.getByText("evening")).toBeTruthy();
   expect(view.queryByRole("link")).toBeNull();
-  // The deck's own examples under the answer, each with its translation and its recording.
+  // The deck's own examples: none at first, one on "Example", with its translation and its recording.
   const withExamples = await renderApp(
     <TargetLang value="de">
       <StudyCard
@@ -66,6 +67,8 @@ test("an imported deck's word: no lesson to go to; its recording in the deck's f
     </TargetLang>,
     { path: "/review" },
   );
+  expect(withExamples.queryByText("Guten Abend!")).toBeNull();
+  fireEvent.click(withExamples.getByRole("button", { name: "Example" }));
   expect(withExamples.getByText("Guten Abend!").getAttribute("lang")).toBe("de");
   expect(withExamples.getByText("Good evening!")).toBeTruthy();
   expect(withExamples.getByRole("button", { name: /Guten Abend!/ })).toBeTruthy();

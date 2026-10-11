@@ -23,10 +23,10 @@ apps/web/src/
                    # exercise-step (its rules in use-exercise, Enter in enter-key), practice-step,
                    # mistakes-status, summary, reference; slots.ts: what optional features add
   study/           # Anki's reviewer, shared by Review and the lesson's "Words" step: card (the card widget,
-                   # its recording and autoplay), session (counts, Show answer, ratings, undo; one action
+                   # its recording and autoplay, "Example"), session (counts, Show answer, ratings, undo; one action
                    # at a time; a rating with the time its card was shown), reviewer-keys (Anki's keys: a
                    # pure mapping, tested), more-menu; decks (deck names), deck-import (a deck file previewed, named, its languages, imported), deck-audio (a deck's words
-                   # without audio, read aloud by the server: who reads them, generate, progress, stop), examples (a deck's own), deck-link (a card's way to its deck: audio, examples to make), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
+                   # read aloud by the server: who reads them, generate, remove, regenerate, progress, stop; a deck taken: its line), examples (a word's own and the AI's: one line each, played; the card shows one at a time), deck-link (a card's way to its deck: audio, examples to make), word-sheet (a word with cards in full: forms, faces, answers), guide (how review
                    # works: the method, buttons, card types, actions, keys), review-settings (Settings →
                    # Review: daily limits, retention, card types, how it works); slots (what optional features add: a deck's AI examples on cards and under decks)
   exercises/       # one renderer per exercise type (index.tsx; speech: the speaking ones); dnd (chips
@@ -71,8 +71,8 @@ apps/web/src/
                    # settings-section (Settings → AI assistant), lmstudio-section, prompts-info (where it
                    # works; the prompts under Advanced), prompt-view (a request as sent), context-meter
                    # (the tutor's context gauge), assistant-label (which AI answers); parts.tsx: chat
-                   # bubbles, header, pending exchange, composer, start prompt, the answer box, errors (with
-                   # Retry; errors.ts: an LLM error in words, a provider's own where it has them, and what
+                   # bubbles, header, pending exchange ("Thinking…" with the seconds taken), composer, start
+                   # prompt, the answer box, errors (with Retry and the wait a provider asked for; errors.ts: an LLM error in words, a provider's own where it has them, and what
                    # a provider's setup lacks); api.ts (the tasks), setup-api.ts (route, providers, models)
   i18n/            # catalogs <code>.json (ICU; en bundled, the others by catalogs.ts, loaded when chosen; one not loading: no change, a reload; 09)
   ui/              # presentational only (no API, no features): design tokens in styles.css, line-breaks (where course text may break), shadcn/ui
@@ -86,7 +86,7 @@ apps/web/src/
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
                    # run's), avatar, choice (segmented), select-field (a labelled select), check-row (a setting on or off), option-card (one
                    # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that
-                   # cannot be undone), flags, error-text (an API error in words), target-lang (`lang` of
+                   # cannot be undone; ConfirmButton: a button asked first), flags, error-text (an API error in words), target-lang (`lang` of
                    # the course's language), window-title, pointer (a finger or a mouse: the system's
                    # picker on touch), job-row (a server's job: progress, Stop, why it failed), direction, utils (cn)
   audio/           # recording oneself (08): recorder (MediaRecorder — what plays stopped as a take starts —, the microphone of this device, its

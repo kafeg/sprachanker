@@ -43,6 +43,19 @@ export interface ProviderPreset extends ApiQuirks {
   keyState?: boolean;
 }
 
+/** OpenAI's least reasoning by family: gpt-5 and its mini and nano "minimal", gpt-5.1 on "none", the
+ *  o-series "low". */
+function openAiLeastReasoning(model: string) {
+  const effort = /^gpt-5\.\d/.test(model)
+    ? "none"
+    : /^gpt-5/.test(model)
+      ? "minimal"
+      : /^o\d/.test(model)
+        ? "low"
+        : undefined;
+  return effort && { reasoning_effort: effort };
+}
+
 export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
   lmstudio: {
     id: "lmstudio",
@@ -62,20 +75,20 @@ export const PROVIDERS: Record<ProviderId, ProviderPreset> = {
     noReasoning: { reasoning: { enabled: false } },
     keyState: true,
   },
-  // OpenAI's own API. Its reasoning models (o-series, gpt-5…) take no temperature and the least
-  // reasoning they allow ("minimal"; one that refuses it keeps its default: none from gpt-5.1).
-  // Its list also holds models only its Responses API, realtime or audio endpoints serve.
+  // OpenAI's own API. Its reasoning models (o-series, gpt-5…; not the `-chat-latest` ones) take no
+  // temperature and the least reasoning their family allows. Its list also holds models only its
+  // Responses API, realtime or audio endpoints serve, and o1's first ones (no system role).
   openai: {
     id: "openai",
     kind: "openai-compatible",
     baseUrl: "https://api.openai.com/v1",
     key: "required",
     editableUrl: false,
-    noReasoning: { reasoning_effort: "minimal" },
-    reasoners: /^(o\d|gpt-5)/,
+    noReasoning: openAiLeastReasoning,
+    reasoners: /^(?!.*chat-latest)(o\d|gpt-5)/,
     completionTokens: true,
     notChat:
-      /instruct|davinci|babbage|dall-e|moderation|realtime|transcribe|search|sora|codex|computer-use|deep-research|-pro\b/,
+      /instruct|davinci|babbage|dall-e|moderation|realtime|transcribe|search|sora|codex|computer-use|deep-research|-pro\b|^o1-(mini|preview)/,
   },
   // Anthropic's own API (anthropic.ts). Thinking is not asked for; newer models (Opus 4.5 on, 4.6 and
   // 5 families) take an effort, and think unless told otherwise: "low" for fast replies, with room.

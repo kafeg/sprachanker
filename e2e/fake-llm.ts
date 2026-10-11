@@ -123,13 +123,28 @@ const NEW_ITEMS: Record<string, unknown[]> = {
   })),
 };
 
+/** A new item as the model writes it: every field, null where its type has none (strict structured
+ *  outputs). */
+const full = (item: unknown) => {
+  const it = item as Record<string, unknown>;
+  return {
+    ...Object.fromEntries(
+      ["prompt", "options", "answer", "text", "gaps", "parts", "pairs"].map((k) => [k, null]),
+    ),
+    ...it,
+    ...(Array.isArray(it.gaps) && {
+      gaps: it.gaps.map((g) => ({ accepted: null, options: null, answer: null, ...g })),
+    }),
+  };
+};
+
 /** Going over mistakes: each group of the prompt ("Group 1 — …; new items: <type>, …") explained,
  *  with two new items of its type. */
 const mistakeItems = (prompt: string) => ({
   groups: [...prompt.matchAll(/^Group (\d+) — .*?; new items: (\w+),/gm)].map(([, n, type]) => ({
     n: Number(n),
     explanation: "FAKE: read the question again.",
-    items: NEW_ITEMS[type as string] ?? [],
+    items: (NEW_ITEMS[type as string] ?? []).map(full),
   })),
 });
 

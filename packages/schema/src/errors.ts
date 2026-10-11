@@ -67,6 +67,7 @@ export const ERROR_CODES = [
   "deck_upload_gone",
   "deck_unpacked_too_large",
   "deck_same_languages",
+  "deck_job_running",
   // Settings.
   "unknown_setting",
   "invalid_setting",
@@ -110,6 +111,7 @@ export const ERROR_CODES = [
   "llm_bad_response",
   "llm_rate_limited",
   "llm_overloaded",
+  "llm_refused",
   "llm_invalid_output",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];

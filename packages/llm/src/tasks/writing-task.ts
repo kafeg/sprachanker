@@ -19,7 +19,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, ONLY_TWO, type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export const WRITING_TASK_BUDGETS = {
   lessonVocab: 1200,
@@ -81,7 +81,7 @@ export function writingTaskRules(
     `- A goal of learning about something ("learn about the school system") is no task: turn it into a situation where the learner tells, asks for or arranges something in writing (tells a friend about their own school, asks about a course).`,
     `- "points": exactly three things the text must do, in ${l}, each a short instruction ("say why you are late", "ask when it starts", "suggest a time"); together they need the lesson's words and grammar; each can be done with what the learner knows at the level; none asks for a fact the learner cannot know.`,
     "- The reader is a new person, never a character of the course.",
-    `- ${ONLY_TWO(l, t)} ${NEUTRAL}`,
+    `- ${NEUTRAL}`,
   ].join("\n");
 }
 

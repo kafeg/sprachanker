@@ -14,7 +14,7 @@ import {
   lessonWordsLine,
   levelLine,
 } from "./lesson.ts";
-import { NEUTRAL, ONLY_TWO, type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 import { WRITING_EXAM, writingCriteriaLine, writingTaskLines } from "./writing-task.ts";
 
 export interface WritingInput extends RulesInput {
@@ -58,7 +58,7 @@ export function checkWritingRules(
     "Comment only on what the task and the level ask: never invent a requirement (a word, a form or a structure the task does not ask for).",
     `"corrections": at most three, the most important first (errors that block understanding, then the lesson's grammar); only real errors, changing as little as possible — never what is correct, never style; ignore missing final punctuation. "corrected": the whole text with every error fixed, the learner's ideas kept. No errors: an empty list.`,
     `"modelText": the task done well at the learner's level, about as long as asked, with words the learner knows — not the learner's text corrected.`,
-    `Write "corrected", "wrong", "right" and "modelText" in ${t}; every "comment", "explanation" and "feedback" in ${l}, briefly. "feedback": one or two encouraging, concrete sentences. ${ONLY_TWO(l, t)} ${NEUTRAL}`,
+    `Write "corrected", "wrong", "right" and "modelText" in ${t}; every "comment", "explanation" and "feedback" in ${l}, briefly. "feedback": one or two encouraging, concrete sentences. ${NEUTRAL}`,
     `verdict: "good" (no errors), "minor_errors", "major_errors", or "off_task" (not on the task or not in ${t}).`,
   ].join("\n");
 }

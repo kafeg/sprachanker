@@ -63,18 +63,31 @@ export function useDeckAudio(scope: string) {
   return query;
 }
 
-/** Reading a deck's words aloud started or stopped; the state the server answers with is shown. */
+/** Reading a deck's words aloud started (`again`: what was read removed first) or stopped, what was
+ *  read removed (the cards read anew: they no longer play it); the state the server answers with is
+ *  shown. */
 export function useDeckAudioActions(scope: string) {
   const client = useQueryClient();
   const onSuccess = (state: DeckAudioState) => client.setQueryData(["deck-audio", scope], state);
   return {
     start: useMutation({
-      mutationFn: () => json(api.decks.audio.$post({ json: { scope } })),
-      onSuccess,
+      mutationFn: (again?: boolean) =>
+        json(api.decks.audio.$post({ json: { scope, ...(again && { again }) } })),
+      onSuccess: (state: DeckAudioState, again) => {
+        onSuccess(state);
+        if (again) void readCardsAgain(client);
+      },
     }),
     stop: useMutation({
       mutationFn: () => json(api.decks.audio.$delete({ query: { scope } })),
       onSuccess,
+    }),
+    remove: useMutation({
+      mutationFn: () => json(api.decks.audio.remove.$post({ json: { scope } })),
+      onSuccess: (state: DeckAudioState) => {
+        onSuccess(state);
+        void readCardsAgain(client);
+      },
     }),
   };
 }

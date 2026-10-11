@@ -45,6 +45,9 @@ const input: WritingInput = {
 test("writing_task: a situation and three points from the lesson's goals, its length by the level, the exam's way said with the data", () => {
   const { name, request, schema } = writingTaskTask({ language: "ru", target: "de", lesson });
   expect(name).toBe("writing_task");
+  // A task that teaches keeps a command-line agent's default effort, as the check does.
+  expect(request.effort).toBeUndefined();
+  expect(checkWritingTask(input).request.effort).toBeUndefined();
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
     '"points": exactly three things the text must do, in Russian',
@@ -98,7 +101,9 @@ test("check_writing: the task's points as data, each rated; at most three correc
   ])
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
-  expect(system).toEndWith("Reply with the JSON object only.");
+  expect(system).toEndWith(
+    "Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.",
+  );
   expect(user).toContain(
     "<task>\nSituation: Вы договорились встретиться с Леной в кафе. Напишите ей сообщение.\nContent points:\n1. Скажите, что опоздаете.\n2. Объясните почему.\n3. Напишите, когда придёте.\nLength: about 30 words.\n</task>",
   );

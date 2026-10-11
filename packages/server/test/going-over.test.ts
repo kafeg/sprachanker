@@ -37,15 +37,27 @@ const CHECK = {
   ],
 };
 
-const choice = (prompt: string, answer: number) => ({
-  prompt,
-  options: ["Im Café.", "Im Park."],
-  answer,
+/** A new item as the model writes it: every field, null where its type has none. */
+const full = (item: Record<string, unknown>) => ({
+  ...Object.fromEntries(
+    ["prompt", "options", "answer", "text", "gaps", "parts", "pairs"].map((k) => [k, null]),
+  ),
+  ...item,
+  ...(Array.isArray(item.gaps) && {
+    gaps: item.gaps.map((g) => ({ accepted: null, options: null, answer: null, ...g })),
+  }),
 });
-const gap = (text: string, answer: number) => ({
-  text,
-  gaps: [{ options: ["heißt", "bestellst"], answer }],
-});
+const choice = (prompt: string, answer: number) =>
+  full({
+    prompt,
+    options: ["Im Café.", "Im Park."],
+    answer,
+  });
+const gap = (text: string, answer: number) =>
+  full({
+    text,
+    gaps: [{ options: ["heißt", "bestellst"], answer }],
+  });
 /** The model's explanations and new items: group 2's second item without its gaps first. */
 const BAD = {
   groups: [
@@ -57,7 +69,7 @@ const BAD = {
     {
       n: 2,
       explanation: "heißen — имя, bestellen — заказ.",
-      items: [gap("Du ___ Tom.", 0), { text: "Du ___ Tee." }],
+      items: [gap("Du ___ Tom.", 0), full({ text: "Du ___ Tee." })],
     },
   ],
 };

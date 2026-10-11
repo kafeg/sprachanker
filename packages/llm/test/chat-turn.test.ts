@@ -182,7 +182,6 @@ test("the rules (walkthrough): explanations, the phrase asked for given, hints o
     "About the exercise on screen: give hints first",
     "Any other question gets its answer at once.",
     '"How do I say …?": give the German phrase at once',
-    "Write only in Russian and German: no word of another language.",
     "no headings, no tables, no emoji",
     "no question or offer at the end",
     "The learner's gender is unknown",
@@ -192,8 +191,11 @@ test("the rules (walkthrough): explanations, the phrase asked for given, hints o
   // Practice lives in the lesson's steps: no dialogue run in the chat, no walk-through of mistakes.
   expect(rules).not.toContain("run a short dialogue");
   expect(rules).not.toContain("one at a time");
-  // A language learnt in itself: only that one.
-  expect(chatTurnRules("de", "de")).toContain("Write only in German.");
+  // The two languages are the system prompt's fixed last line (rules.ts), whatever the rules.
+  const [system] = chatTurnMessages(input({ rules: "Sei streng." }));
+  expect(system?.content).toContain(
+    "Write only in Russian and German: not a word in any other language.",
+  );
 });
 
 test("the learner's own rules replace the standing ones; the data stays delimited", () => {

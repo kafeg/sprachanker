@@ -49,19 +49,31 @@ export async function* sseData(
   }
 }
 
-/** Text deltas and, at the end, the tool calls of an OpenAI-style server-sent event stream. */
+/**
+ * Text deltas and, at the end, the tool calls of an OpenAI-style server-sent event stream. A stream
+ * that ends before `[DONE]` or a `finish_reason` broke off: `unreachable`, its tool calls never run;
+ * one cut at its token limit (`length`) keeps its text, not its calls.
+ */
 export async function* streamEvents(
   res: Response,
   stop: AbortSignal,
   onData: () => void,
+  onCut: () => void = () => {},
 ): AsyncIterable<{ text?: string; toolCalls?: ToolCall[] }> {
   // Tool calls arrive in pieces, by index: id and name first, then the arguments. A server that sends
   // no index sends one call at a time: a delta with an id starts the next call.
   const calls: ToolCall[] = [];
+  let ended = false;
+  let cut = false;
   for await (const data of sseData(res, stop, onData)) {
-    if (data === "[DONE]") break;
+    if (data === "[DONE]") {
+      ended = true;
+      break;
+    }
     const chunk = parseChunk(data);
     if (chunk.error) throw new LlmError("bad_response", chunk.error);
+    if (chunk.finish) ended = true;
+    if (chunk.finish === "length") cut = true;
     const text = chunk.text?.replace(SPECIAL_TOKEN, "");
     if (text) yield { text };
     for (const part of chunk.toolCalls ?? []) {
@@ -77,6 +89,8 @@ export async function* streamEvents(
       if (part.function?.arguments) call.function.arguments += part.function.arguments;
     }
   }
+  if (!ended) throw new LlmError("unreachable", "the reply broke off before its end");
+  if (cut) return onCut();
   const complete = calls.filter((c) => c?.function.name);
   if (complete.length) yield { toolCalls: complete };
 }
@@ -87,17 +101,28 @@ interface ToolCallDelta {
   function?: { name?: string; arguments?: string };
 }
 
-function parseChunk(data: string): { text?: string; toolCalls?: ToolCallDelta[]; error?: string } {
+function parseChunk(data: string): {
+  text?: string;
+  toolCalls?: ToolCallDelta[];
+  error?: string;
+  /** The choice's `finish_reason`, when it came: the reply is whole. */
+  finish?: string;
+} {
   try {
     const json = JSON.parse(data) as {
-      choices?: Array<{ delta?: { content?: unknown; tool_calls?: ToolCallDelta[] } }>;
+      choices?: Array<{
+        delta?: { content?: unknown; tool_calls?: ToolCallDelta[] };
+        finish_reason?: string | null;
+      }>;
       error?: { message?: string };
     };
     if (json.error) return { error: json.error.message ?? "error" };
-    const delta = json.choices?.[0]?.delta;
+    const choice = json.choices?.[0];
+    const delta = choice?.delta;
     return {
       text: typeof delta?.content === "string" ? delta.content : undefined,
       toolCalls: delta?.tool_calls,
+      finish: choice?.finish_reason ?? undefined,
     };
   } catch {
     return {};

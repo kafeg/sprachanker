@@ -187,8 +187,13 @@ test("a deck's words given examples in Decks; a card and the word's sheet show t
     edition: "en-de",
   });
   await page.goto("/review/decks");
-  // The course's deck, made by the fake model (an earlier project may have made them already).
-  const make = page.getByRole("button", { name: "Make examples" });
+  // The course's deck, made by the fake model under its entry in the decks to take, in the pair taken
+  // (an earlier project may have made them already); the deck taken says how they stand.
+  const entry = page
+    .getByRole("listitem")
+    .filter({ hasText: "Demo course" })
+    .filter({ hasText: "English → German" });
+  const make = entry.getByRole("button", { name: "Make examples" });
   const all = page.getByText("All words have examples");
   await expect(make.or(all).first()).toBeVisible();
   if (await make.isVisible()) {
@@ -200,7 +205,8 @@ test("a deck's words given examples in Decks; a card and the word's sheet show t
   // The word's sheet: its examples, "heute" not met in the course — marked, translated under them.
   await page.goto("/review/words");
   await page.getByPlaceholder("Find a word or translation").fill("kaffee");
-  await page.getByRole("button", { name: /der Kaffee/ }).click();
+  // The row (its play button is named "Play: …").
+  await page.getByRole("button", { name: /^der Kaffee/ }).click();
   const sheet = page.getByRole("dialog");
   await expect(sheet.getByText("Hier ist der Kaffee heute.")).toBeVisible();
   await expect(sheet.getByText("FAKE: Here it is today.")).toBeVisible();
@@ -209,12 +215,21 @@ test("a deck's words given examples in Decks; a card and the word's sheet show t
   await expect(sheet.getByText("Examples by the AI · fake-model")).toBeVisible();
   await page.keyboard.press("Escape");
 
-  // A card of the deck shows them under its answer.
+  // A card of the deck shows them under its answer, one at a time: "Example", again the next (its own
+  // first, then the AI's).
   await page.goto("/review/decks");
   await page.getByRole("button", { name: "Demo course", exact: true }).first().click();
   await page.getByRole("button", { name: "Show answer" }).click();
   const answer = page.locator("[data-study-card]").first();
-  await expect(answer.getByText("FAKE: Here it is today.")).toBeVisible();
+  const example = page
+    .locator("div.relative:has(> [data-study-card])")
+    .getByRole("button", { name: /^Example/ });
+  const made = answer.getByText("FAKE: Here it is today.");
+  await expect(made).toHaveCount(0);
+  await expect(async () => {
+    if (!(await made.isVisible())) await example.click();
+    await expect(made).toBeVisible({ timeout: 500 });
+  }).toPass();
   await expect(answer.getByText("Examples by the AI · fake-model")).toBeVisible();
 });
 

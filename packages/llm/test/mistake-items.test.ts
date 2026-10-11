@@ -47,6 +47,8 @@ const input: MistakeItemsInput = {
 test("the groups as data: what went wrong, the new items' type and fields, the wrong parts only", () => {
   const { name, request } = mistakeItemsTask(input);
   expect(name).toBe("mistake_items");
+  // Explanations and new items that teach keep a command-line agent's default effort.
+  expect(request.effort).toBeUndefined();
   const [system, user] = request.messages.map((m) => String(m.content));
   for (const part of [
     "never guess why the learner chose it",
@@ -58,7 +60,9 @@ test("the groups as data: what went wrong, the new items' type and fields, the w
   ])
     expect(system).toContain(part);
   expect(system).not.toContain("A1");
-  expect(system).toEndWith("Reply with the JSON object only.");
+  expect(system).toEndWith(
+    "Reply with the JSON object only.\nWrite only in Russian and German: not a word in any other language.",
+  );
   expect(user).toContain(
     'Group 1 — what went wrong: the ending of a word; new items: gap_text, with "text" (a sentence with each gap written ___',
   );
@@ -73,7 +77,21 @@ test("every group answered once, each item valid for its group's type; else repa
   const { check } = mistakeItemsTask(input);
   const gap = { text: "Er ___ kochen.", gaps: [{ accepted: ["muss"] }] };
   const choice = { prompt: "Wo ist Tom?", options: ["Im Café.", "Im Park."], answer: 0 };
-  const reply = (groups: MistakeItemsReply["groups"]) => check?.({ groups });
+  // The model writes every field, null where the type has none (strict structured outputs).
+  const full = (item: Record<string, unknown>) => ({
+    ...Object.fromEntries(
+      ["prompt", "options", "answer", "text", "gaps", "parts", "pairs"].map((k) => [k, null]),
+    ),
+    ...item,
+    ...(Array.isArray(item.gaps) && {
+      gaps: item.gaps.map((g) => ({ accepted: null, options: null, answer: null, ...g })),
+    }),
+  });
+  type Group = { n: number; explanation: string; items: Array<Record<string, unknown>> };
+  const reply = (groups: Group[]) =>
+    check?.({
+      groups: groups.map((g) => ({ ...g, items: g.items.map(full) })),
+    } as unknown as MistakeItemsReply);
   expect(
     reply([
       { n: 1, explanation: "…", items: [gap, gap] },

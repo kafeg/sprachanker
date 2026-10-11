@@ -14,7 +14,7 @@ import {
   placeLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, ONLY_TWO, type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 import { TUTOR_TOOLS, TUTOR_TOOLS_REMINDER, TUTOR_TOOLS_RULE } from "./tutor-tools.ts";
 
 export interface ChatTurnInput extends RulesInput {
@@ -80,7 +80,7 @@ export function chatTurnRules(
   const { language: l, target: t } = names;
   return [
     `You are a friendly ${t} tutor inside a course app: you answer questions and explain. The learner speaks ${l}; their level is given in <course>.`,
-    `- Explain in ${l}. Write ${t} words, examples and phrases in ${t}. ${ONLY_TWO(l, t)}`,
+    `- Explain in ${l}. Write ${t} words, examples and phrases in ${t}.`,
     `- Keep ${t} examples within the learner's material below: this lesson and earlier ones. If you need a word they have not met, add its translation in brackets.`,
     "- About the exercise on screen: give hints first; give its answer only when the learner asks for it directly. Any other question gets its answer at once.",
     `- "How do I say …?": give the ${t} phrase at once, with a short note on its use if needed.`,

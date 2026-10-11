@@ -22,7 +22,7 @@ import {
   levelLine,
   topicsLine,
 } from "./lesson.ts";
-import { NEUTRAL, ONLY_TWO, type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export const MISTAKE_ITEMS_BUDGETS = {
   lessonVocab: 1000,
@@ -46,6 +46,40 @@ export interface MistakeItemsInput extends RulesInput {
   groups: MistakeGroupInput[];
 }
 
+/** A new item as the model writes it: every field there, null where its type has none — strict
+ *  structured outputs take no optional field. Kept as a `MistakeItem` (`mistakeItemOf`). */
+const ItemReply = z.object({
+  prompt: MistakeItem.shape.prompt.unwrap().nullable(),
+  options: MistakeItem.shape.options.unwrap().nullable(),
+  answer: MistakeItem.shape.answer.unwrap().nullable(),
+  text: MistakeItem.shape.text.unwrap().nullable(),
+  gaps: z
+    .array(
+      z.object({
+        accepted: z.array(z.string().min(1).max(100)).min(1).max(6).nullable(),
+        options: z.array(z.string().min(1).max(100)).min(2).max(4).nullable(),
+        answer: z.number().int().nonnegative().nullable(),
+      }),
+    )
+    .min(1)
+    .max(4)
+    .nullable(),
+  parts: MistakeItem.shape.parts.unwrap().nullable(),
+  pairs: MistakeItem.shape.pairs.unwrap().nullable(),
+});
+type ItemReply = z.infer<typeof ItemReply>;
+
+/** An object without its null fields. */
+const withoutNulls = <T extends object>(o: T) =>
+  Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null));
+
+/** A new item as kept: the model's without its null fields. */
+export const mistakeItemOf = (item: ItemReply): MistakeItem =>
+  MistakeItem.parse({
+    ...withoutNulls(item),
+    ...(item.gaps && { gaps: item.gaps.map(withoutNulls) }),
+  });
+
 /** What the model answers: each group by its number, its explanation and new items. */
 export const MistakeItemsReply = z.object({
   groups: z
@@ -53,7 +87,7 @@ export const MistakeItemsReply = z.object({
       z.object({
         n: z.number().int().min(1),
         explanation: z.string().min(1).max(1500),
-        items: z.array(MistakeItem).min(2).max(3),
+        items: z.array(ItemReply).min(2).max(3),
       }),
     )
     .min(1)
@@ -96,7 +130,7 @@ export function mistakeItemsRules(
     `For each group "n" (its number), then:`,
     `- "explanation": in ${l}, at most 60 words, plain text: the one rule or pattern behind these mistakes with the right forms, at the learner's level. Say what is wrong, never guess why the learner chose it; a tendency ("usually") is no rule; a slip (a typo) is called one in a few words. ${t} forms in ${t}.`,
     `- "items": two or three NEW items of the group's type (its fields given with the group) practising the same point, in ${t} — never a sentence of the mistakes again —, with the words the learner knows (given with the lesson) and the grammar met so far; each with exactly one right answer; options are all real ${t} words or forms.`,
-    `- No headings, no emoji. ${ONLY_TWO(l, t)} ${NEUTRAL}`,
+    `- No headings, no emoji. ${NEUTRAL}`,
   ].join("\n");
 }
 
@@ -125,7 +159,7 @@ export function itemsProblem(
     const answered = reply.groups.filter((r) => r.n === i + 1);
     if (answered.length !== 1) return `group ${i + 1} answered once, with its "n"`;
     for (const [k, item] of (answered[0]?.items ?? []).entries()) {
-      const problem = mistakeItemProblem(g.type, item);
+      const problem = mistakeItemProblem(g.type, mistakeItemOf(item));
       if (problem) return `group ${i + 1}, item ${k + 1}: ${problem}`;
     }
   }

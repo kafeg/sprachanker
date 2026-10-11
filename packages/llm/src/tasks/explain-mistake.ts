@@ -4,7 +4,7 @@ import type { ChatMessage, LlmClient, TaskRequest } from "../client.ts";
 import { clip, htmlToText, languageNames } from "../text.ts";
 import { describeItem } from "./describe.ts";
 import { grammarNotes, type LessonInfo, levelLine, topicPlacesLine } from "./lesson.ts";
-import { NEUTRAL, ONLY_TWO, type RulesInput, systemPrompt } from "./rules.ts";
+import { NEUTRAL, type RulesInput, systemPrompt } from "./rules.ts";
 
 export interface ExplainMistakeInput extends RulesInput {
   exercise: Exercise;
@@ -45,7 +45,7 @@ export function explainMistakeRules(
     `3. if a grammar or vocabulary rule is behind it, that rule with one short ${t} example — a tendency ("usually", "often") is no rule: say it as one;`,
     "   if the item checks understanding of a text, audio or video, what in it gives the answer instead (quote the transcript when it is given; never guess what was said);",
     '4. if that rule is one of the grammar topics met so far, one short sentence saying where it was taught ("This is X from lesson 1.2 «title»").',
-    `Write ${t} words and examples in ${t}. ${ONLY_TWO(l, t)} Do not invent rules; when the lesson notes cover the topic, use their terms.`,
+    `Write ${t} words and examples in ${t}. Do not invent rules; when the lesson notes cover the topic, use their terms.`,
     "If several answers are accepted, they are separated by |. Gaps are shown in [brackets].",
     `Plain text in short paragraphs; **bold** is allowed; no headings, no tables, no emoji. ${NEUTRAL}`,
   ].join("\n");
