@@ -8,7 +8,7 @@ import { Exercise, exerciseKey, lessonKey, unitKey } from "@sprachanker/schema";
 import { createContext, html } from "../src/normalise/context.ts";
 import { normaliseExercise } from "../src/normalise/exercise.ts";
 import { normaliseLesson, topicParts } from "../src/normalise/lesson.ts";
-import { writtenOrder } from "../src/normalise/text.ts";
+import { plain, writtenOrder } from "../src/normalise/text.ts";
 import { parseHeadword } from "../src/normalise/vocab.ts";
 
 test.each([
@@ -529,6 +529,8 @@ test("only right-to-left editions are read that way: elsewhere a leading run is 
 const chip = (word: string) =>
   `<span class="editable placeholder" data-id="1" data-type="VOCABULARY">${word}</span>`;
 const wrapped = (inner: string) => `<span class="invalid_placeholder">${inner}</span>`;
+const titled = (title: string, word: string) =>
+  `<span class="editable placeholder" data-title="${title}" data-type="VOCABULARY">${word}</span>`;
 
 test.each([
   [`<p>Wir ${wrapped(chip("lernen"))}Deutsch.</p>`, "<p>Wir lernen Deutsch.</p>"],
@@ -541,8 +543,18 @@ test.each([
   [`<p>Betreff: ${wrapped(chip("Reise"))}&ndash; Nina</p>`, "<p>Betreff: Reise – Nina</p>"],
   [`<p>Mann:${chip("Hallo")}, &quot;${chip("Tag")}&quot;</p>`, `<p>Mann: Hallo, "Tag"</p>`],
   [`<p>(${chip("Tisch")}), „${chip("Stuhl")}“</p>`, "<p>(Tisch), „Stuhl“</p>"],
+  // Not inside a word: a compound's tail (its headword a noun), a word's beginning.
+  [
+    `<p>Viele Winter${titled("der Mantel, die Mäntel", "mäntel")}.</p>`,
+    "<p>Viele Wintermäntel.</p>",
+  ],
+  [`<p>Schon ${titled("wieder", "wiede")}r da.</p>`, "<p>Schon wieder da.</p>"],
+  [`<p>Wann${titled("beginnen", "beginnt")} er?</p>`, "<p>Wann beginnt er?</p>"],
 ])("a vocabulary chip is kept apart from the words it meets: %p", (source, expected) => {
   expect(html(ctx, source)).toBe(expected);
+  // Plain text (prompts, options, cloze texts) reads them so too (tags there are spaces: straight
+  // quotes around a chip are not its concern).
+  if (!source.includes("&quot;")) expect(plain(source)).toBe(expected.replace(/<\/?p>/g, ""));
 });
 
 test("course HTML is spaced as written: one space, none before marks or inside quotes, none at a block's edges", () => {

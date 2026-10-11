@@ -1,5 +1,5 @@
 // One DW exercise page → an exercise of our types + its learner-language texts (research, "Exercises").
-import { draftOrUnknown, plainLines, plainText, Unmapped } from "@sprachanker/course-kit";
+import { draftOrUnknown, Unmapped } from "@sprachanker/course-kit";
 import {
   type Exercise,
   type ExerciseKey,
@@ -22,7 +22,7 @@ import {
   refs,
   videoPaths,
 } from "./context.ts";
-import { isUiLabel, uiLabels } from "./text.ts";
+import { isUiLabel, plain, plainLinesOf, uiLabels } from "./text.ts";
 
 const GAP = /#p[a-z]*#/g;
 
@@ -36,7 +36,7 @@ interface Mapped {
 /** Target-language text of a field, as written, or undefined for empty fields and the page's player
  *  labels. */
 function german(ctx: Context, state: ApolloState, value: unknown): string | undefined {
-  const text = plainText(value);
+  const text = plain(value);
   return text && !isUiLabel(text, labelsOf(state)) ? ctx.written(text) : undefined;
 }
 
@@ -51,7 +51,7 @@ function labelsOf(state: ApolloState) {
 }
 
 function option(ctx: Context, state: ApolloState, alt: Entity, i: number, image: boolean): Option {
-  if (!image) return { id: optionId(i), text: ctx.written(plainText(alt.alternativeText)) };
+  if (!image) return { id: optionId(i), text: ctx.written(plain(alt.alternativeText)) };
   const path = imagePath(ctx, state, refs(state, alt.images)[0]);
   if (!path) throw new Unmapped("option image not downloaded");
   return { id: optionId(i), media: { image: path } };
@@ -99,7 +99,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     case "ASSOCIATION": {
       if (q.selectionType === "DIRECT") {
         const left = subs.map((s, i) => {
-          const text = plainText(s.inquiryText);
+          const text = plain(s.inquiryText);
           const path = imagePath(ctx, state, refs(state, s.images)[0]);
           if (!text && !path) throw new Unmapped("match entry without text or image");
           return { id: optionId(i), ...(text ? { text } : { media: { image: path } }) } as Option;
@@ -143,8 +143,8 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
     case "CLOZE": {
       const text =
         q.clozeLayoutType === "CONTINUOUS_TEXT"
-          ? plainLines(q.text)
-          : subs.map((s) => plainText(s.inquiryText)).join("\n");
+          ? plainLinesOf(q.text)
+          : subs.map((s) => plain(s.inquiryText)).join("\n");
       const segs = segments(text, subs.length);
       const gap = (i: number) => `g${i + 1}`;
       const kind = subs[0]?.clozeType;
@@ -152,7 +152,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       if (kind === "WRITING") {
         const answer = Object.fromEntries(
           alts.map((a, i) => {
-            const accepted = a.filter((x) => x.isCorrect).map((x) => plainText(x.alternativeText));
+            const accepted = a.filter((x) => x.isCorrect).map((x) => plain(x.alternativeText));
             if (!accepted.length) throw new Unmapped(`gap ${gap(i)} without an accepted answer`);
             return [gap(i), { accepted }];
           }),
@@ -161,7 +161,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       }
       if (kind === "CHOOSE") {
         const bank = alts.map((a, i) => {
-          const text = plainText(a.find((x) => x.isCorrect)?.alternativeText);
+          const text = plain(a.find((x) => x.isCorrect)?.alternativeText);
           if (!text) throw new Unmapped(`gap ${gap(i)} without its word`);
           return { id: optionId(i), text };
         });
@@ -199,7 +199,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
       // A task of only an ellipsis ("…", "...") is DW's stand-in for the line the audio speaks: none.
       const words = (t: string | undefined) => (t && /[\p{L}\p{N}]/u.test(t) ? t : undefined);
       const text = words(german(ctx, state, subs[0]?.inquiryText));
-      const task = words(ctx.written(plainText(subs[0]?.inquiryDescription)));
+      const task = words(ctx.written(plain(subs[0]?.inquiryDescription)));
       return {
         type: "speech_selfrate",
         item: { ...base, ...(text ? { text } : {}) },
@@ -216,7 +216,7 @@ function mapItem(ctx: Context, state: ApolloState, q: Entity): Mapped {
         item: {
           ...(audio ? base : rest),
           media: { ...(base.media as object), audio: heard },
-          answer: { accepted: [plainText(q.text)] },
+          answer: { accepted: [plain(q.text)] },
         },
         locale,
       };
@@ -269,7 +269,7 @@ export function normaliseExercise(
   const locale: LocaleExercise = {
     sourceId: String(sourceId),
     // An exercise without a name gives no title (the player numbers it; "" would not validate).
-    ...(plainText(ex.name) ? { title: ctx.written(plainText(ex.name)) } : {}),
+    ...(plain(ex.name) ? { title: ctx.written(plain(ex.name)) } : {}),
     ...(instructionHtml ? { instructionHtml } : {}),
     ...(textHtml ? { textHtml } : {}),
     items: {},

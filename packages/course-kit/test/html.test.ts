@@ -9,6 +9,24 @@ test("spacing an editor left is tidied: one space, none before marks, inside „
   ).toBe("<p>Посмотри видео. Was? „ja“ (nein) <strong>Morgen</strong>. Ja ... und</p>");
   expect(tidySpacing("<p>Line one <br />\nLine two</p>")).toBe("<p>Line one<br />\nLine two</p>");
   expect(tidySpacing("<p>Bonjour ! Oui .</p>", { french: true })).toBe("<p>Bonjour ! Oui.</p>");
+  // A run with a no-break space before a French mark stays one.
+  expect(tidySpacing("<p>Allemagne\u00a0 ?</p>", { french: true })).toBe("<p>Allemagne\u00a0?</p>");
+});
+
+test("a mark that does not close the word before it keeps its space: smileys, ellipses, ,, quotes, right-to-left text", () => {
+  for (const kept of [
+    "<p>Ich bin eingeladen. :-)</p>",
+    "<p>Zapamiętaj! :-)</p>",
+    '<p>neno ,,habari" ni</p>',
+    "<p>است: .Jubiläen</p>",
+    "<p>با ... ,Ja</p>",
+    "<p>:<em> .</em></p>",
+    "<p>كلمة “oder„ في</p>",
+    "<p>„Tak” i “nie”</p>",
+    "<p>می‌گویند: .99 Cent</p>",
+    "<p>„wenn ..., dann ...„ und</p>",
+  ])
+    expect(tidySpacing(kept)).toBe(kept);
 });
 
 const options = {

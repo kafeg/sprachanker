@@ -124,8 +124,11 @@ clip DW puts on the items of an exercise without a video stimulus ("watch the cl
 exercise's `media.video` when all items link the same one, else each item's `media.video`. A speaking
 task of only an ellipsis ("…": the line is in its audio) gives no prompt. DW's vocabulary chips in text
 (`<span class="editable placeholder">`) are shown spaced, so the source leaves out the spaces next to
-them: a chip meeting a word gets its space back, and course HTML is spaced as written (`tidySpacing`:
-one space, none before `. , ! ? ; : ) ]` — French keeps its own before `! ? ; :` —, none inside „ “). The
+them: a chip meeting a word gets its space back, except inside a word (a compound's tail, its headword a
+noun: "Weihnachts<chip>bräuche</chip>"; a word's beginning: "<chip>wiede</chip>r"). Course HTML is
+spaced as written (`tidySpacing`: one space; none before a `. , ! ? ; : ) ]` that closes the word before
+it — not before a smiley, an ellipsis or a right-to-left text kept as seen —, French keeping its own
+before `! ? ; :`; none inside „ “ where they open and close as in German). The
 Arabic and Persian editions keep some texts in the order they are seen, closing punctuation first —
 German ("?Was trinkst du", "!(Ich mag (nicht") and their own (".با نه پاسخ بده"): a title, note, prompt,
 task or option of theirs that starts with such a run and does not end in punctuation is read as written

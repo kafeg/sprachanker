@@ -9,6 +9,17 @@ test("plain text and lines", () => {
     ),
   ).toBe("Ins Zentrum, bitte. (Ja) Appetit auf ... und");
   expect(plainText("„ <b>mich</b> “ ist hier")).toBe("„mich“ ist hier");
+  // Not the word's mark, quotes the other way round (Arabic), quotes of two styles: kept.
+  for (const kept of [
+    "gut. :-)",
+    "است: .Jubiläen",
+    "می‌گویند: .99 Cent",
+    "“über„ أم “auf„؟",
+    "„Tak” i “nie”",
+    "„wenn ..., dann ...„ und",
+  ])
+    expect(plainText(kept)).toBe(kept);
+  expect(plainText("im Angebot .1 Kilo")).toBe("im Angebot.1 Kilo");
   expect(plainLines("<p>A: #p#.<br />B: Danke!</p><p>C: Gut.</p>")).toBe(
     "A: #p#.\nB: Danke!\nC: Gut.",
   );

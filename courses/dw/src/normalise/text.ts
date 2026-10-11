@@ -1,4 +1,5 @@
-// DW-specific text checks (plain text itself comes from course-kit).
+// DW-specific text: player labels, vocabulary chips, right-to-left texts kept as seen.
+import { decodeEntities, plainLines, plainText } from "@sprachanker/course-kit";
 import type { ApolloState } from "../apollo.ts";
 
 /** The player's labels known before a page tells its own (pages without their interface strings). */
@@ -40,38 +41,73 @@ const EDGE = "\ue000";
  *  one). */
 const WORD_EDGE =
   /(?<=(?:[\p{L}\p{N}\u2013\u2014,:!?]|(?<!&#?\w+);|&[nm]dash;)(?:<[^>]*>|\ue000)*)\ue000(?=(?:<[^>]*>|\ue000)*(?:[\p{L}\p{N}\u2013\u2014]|&[nm]dash;))/gu;
+/** Marks a chip's edge inside a word; its span tags there go, so that no reading of the text (plain
+ *  text makes tags spaces) splits the word. */
+const INSIDE = "\ue001";
+const IN_WORD = /(?<=\p{L})(?:<\/?span\b[^>]*>)*\ue001(?:<\/?span\b[^>]*>)*(?=\p{L})/gu;
+
+const textOf = (html: string) => plainText(html).toLocaleLowerCase();
+/** The headword a chip links to, without its article or a leading note: "der Brauch, die Bräuche" →
+ *  "Brauch, die Bräuche". */
+const headOf = (title: string) =>
+  decodeEntities(title)
+    .replace(/^\s*(?:\([^)]*\)\s*)?(?:(?:der|die|das)\s+)?/, "")
+    .trim();
 
 /**
  * DW's vocabulary chips (`<span class="editable placeholder">`, often in an `invalid_placeholder`
  * span) are shown with room around them, so the source leaves out the spaces next to them ("Wir
  * <chip>lernen</chip>Deutsch.", "eine<chip>Pause</chip> ."): where a chip's word meets a letter or
- * digit, a space goes back. Other spacing is `tidySpacing`'s.
+ * digit, a space goes back. Not inside a word: a chip on a compound's tail ("Weihnachts<chip>bräuche
+ * </chip>", its headword a noun: "der Brauch") or on a word's beginning ("<chip>wiede</chip>r", its
+ * headword "wieder"). Other spacing is `tidySpacing`'s.
  */
 export function spaceChips(html: string): string {
-  const edges: number[] = [];
+  const edges: Array<{ at: number; mark: string }> = [];
   for (const open of html.matchAll(CHIP)) {
     const start = (open.index ?? 0) + open[0].length;
-    edges.push(start);
     SPAN.lastIndex = start;
     let depth = 1;
+    let end: number | undefined;
     for (let m = SPAN.exec(html); m; m = SPAN.exec(html)) {
       depth += m[1] ? -1 : 1;
       if (!depth) {
-        edges.push(m.index);
+        end = m.index;
         break;
       }
     }
+    const head = headOf(/\bdata-title="([^"]*)"/.exec(open[0])?.[1] ?? "");
+    const word = plainText(html.slice(start, end ?? start));
+    const tail = /^\p{Ll}/u.test(word) && /^\p{Lu}/u.test(head);
+    edges.push({ at: start, mark: tail ? INSIDE : EDGE });
+    if (end === undefined) continue;
+    const after = html.slice(end, end + 200).replace(/^(?:<[^>]*>)+/, "");
+    const next = /^\p{L}+/u.exec(after)?.[0];
+    const words = new Set(textOf(head).split(/[^\p{L}]+/u));
+    const begun = next && words.has(`${textOf(word).split(" ").pop()}${next.toLocaleLowerCase()}`);
+    edges.push({ at: end, mark: begun ? INSIDE : EDGE });
   }
   if (!edges.length) return html;
   let marked = "";
   let last = 0;
-  for (const at of edges.sort((a, b) => a - b)) {
-    marked += html.slice(last, at) + EDGE;
+  for (const { at, mark } of edges.sort((a, b) => a.at - b.at)) {
+    marked += html.slice(last, at) + mark;
     last = at;
   }
   marked += html.slice(last);
-  return marked.replace(WORD_EDGE, " ").replaceAll(EDGE, "");
+  return marked
+    .replace(IN_WORD, "")
+    .replaceAll(INSIDE, "")
+    .replace(WORD_EDGE, " ")
+    .replaceAll(EDGE, "");
 }
+
+const chipsSpaced = (value: unknown) =>
+  typeof value === "string" ? spaceChips(value) : (value ?? "");
+/** Plain text of a DW field, its chips spaced (`spaceChips`). */
+export const plain = (value: unknown) => plainText(chipsSpaced(value));
+/** Plain lines of a DW field (a cloze text), its chips spaced. */
+export const plainLinesOf = (value: unknown) => plainLines(chipsSpaced(value));
 
 /** Brackets as seen from the other side. */
 const MIRROR: Record<string, string> = {

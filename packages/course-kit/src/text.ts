@@ -79,10 +79,14 @@ export function plainText(html: unknown): string {
       // Tags around words ("<span>bitte</span>.") leave a space before punctuation; adjacent tags
       // ("<span>Appetit</span><span>auf</span>") must still separate words, so tags become spaces first
       // (a source whose inline tags sit inside words removes them before: Lingust's `flatText`).
-      // Spaced ellipses ("Ja ... und") are the source's own.
-      .replace(/ (?=[.,!?;:)\]])(?!\.\.)/g, "")
-      .replace(/([„([]) /g, "$1")
-      .replace(/„([^„“]*?) “/g, "„$1“")
+      // A mark before a letter or another mark is not the word's before it: spaced ellipses
+      // ("Ja ... und"), smileys ("gut. :-)"), right-to-left text kept as seen (": .Wort").
+      // Nor is one after another mark (": .99").
+      .replace(/(?<![\s,:;!?]) (?:(?=[.,!?;:)\]](?:$|[\s)\]"“”»’\d]))|(?=[)\]][.,;:!?]))/gu, "")
+      // An opening quote or bracket opens only after a space or the start (Arabic writes „ “ the
+      // other way round; "dann ...„ und" closes).
+      .replace(/(?<=^|[\s([])([„([]) /gu, "$1")
+      .replace(/(?<=^|[\s([])„([^„“”]*?) “(?![\p{L}\p{N}])/gu, "„$1“")
       .trim()
       .normalize("NFC")
   );

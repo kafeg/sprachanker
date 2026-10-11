@@ -105,14 +105,33 @@ export function boldLinesAsHeadings(html: string): string {
 /** A space in HTML text: plain, no-break, or its entity. */
 const SPACE = "(?:[ \\u00a0]|&nbsp;)";
 const SPACE_RUN = new RegExp(`${SPACE}{2,}`, "g");
-/** Spaces before a mark (through closing emphasis: "Morgen </strong>."); a spaced ellipsis ("Ja ...
- *  und") is the source's own. */
+/** What may follow a mark that closes the word before it: the end, a space, a tag, a closing bracket
+ *  or quote, a digit ("Angebot .1 Kilo"). A mark before a letter or another mark is not that word's:
+ *  "Ja ... und", a smiley ("gut. :-)"), an opening ",,", a right-to-left edition's text kept as seen
+ *  (": .Wort"). */
+const MARK_END = `(?=$|[\\s<)\\]"“”»’\\d]|&nbsp;|&quot;)`;
+/** Spaces after a word — not after an opening tag ("<em> .</em>") or another mark (": .99") — before
+ *  its mark (through closing emphasis: "Morgen </strong>."); a closing bracket takes its mark after it
+ *  ("(oben )."). */
 const spaceBefore = (marks: string) =>
-  new RegExp(`${SPACE}+(?=(?:</(?:strong|b|em|i|small)>)*[${marks}](?!\\.\\.))`, "g");
+  new RegExp(
+    `(?<![\\s,:;!?]|<(?!/)[^>]*>)${SPACE}+(?=(?:</(?:strong|b|em|i|small)>)*(?:[${marks}]${MARK_END}|[)\\]](?=[.,;:!?])))`,
+    "gu",
+  );
 const BEFORE_MARKS = spaceBefore(".,!?;:)\\]");
 const BEFORE_FRENCH_MARKS = spaceBefore(".,)\\]");
-const AFTER_OPENING = new RegExp(`([„(\\[])${SPACE}+`, "g");
-const BEFORE_CLOSING_QUOTE = new RegExp(`„([^„“<]*?)${SPACE}+“`, "g");
+/** An opening quote or bracket opens only after a space, a line's start or another opening (Arabic
+ *  writes „ “ the other way round: "كلمة “oder„ في"; "dann ...„ und" closes). */
+const OPENS = "(?<=^|[\\s>(\\[])";
+const AFTER_OPENING = new RegExp(`(${OPENS}[„(\\[])${SPACE}+`, "gu");
+const BEFORE_CLOSING_QUOTE = new RegExp(`${OPENS}„([^„“”<]*?)${SPACE}+“(?![\\p{L}\\p{N}])`, "gu");
+/** A run of spaces is one; a no-break one when it has one and keeps a mark or a unit with its word
+ *  (French "Allemagne\u00a0?", "« oui »", "25\u00a0%"). */
+const oneSpace = (run: string, at: number, html: string) =>
+  /\u00a0|&nbsp;/.test(run) &&
+  (/[?!:;»%°€]/.test(html.charAt(at + run.length)) || /[\d«]/.test(html.charAt(at - 1)))
+    ? "\u00a0"
+    : " ";
 /** Spaces at the edges of a block or a line. */
 const BLOCK_EDGES = new RegExp(
   `(<(?:p|li|td|th|h3|figcaption)>)${SPACE}+|${SPACE}+(?=</(?:p|li|td|th|h3|figcaption)>|<br />)`,
@@ -121,14 +140,14 @@ const BLOCK_EDGES = new RegExp(
 
 /**
  * Spacing an editor left in course HTML (sanitised): a run of spaces and no-break spaces is one space,
- * none before `. , ! ? ; : ) ]`, none inside German quotes („ … “) or after `( [`, none at the edges of a
- * block or line (a block left empty goes). Line breaks stay. French text keeps its space before
- * `! ? ; :` (`french`).
+ * none before a `. , ! ? ; : ) ]` that closes the word before it (`MARK_END`), none inside German
+ * quotes („ … “) or after `( [`, none at the edges of a block or line (a block left empty goes). Line
+ * breaks stay. French text keeps its space before `! ? ; :` (`french`).
  */
 export function tidySpacing(html: string, options: { french?: boolean } = {}): string {
   return withoutEmpty(
     html
-      .replace(SPACE_RUN, " ")
+      .replace(SPACE_RUN, oneSpace)
       .replace(options.french ? BEFORE_FRENCH_MARKS : BEFORE_MARKS, "")
       .replace(AFTER_OPENING, "$1")
       .replace(BEFORE_CLOSING_QUOTE, "„$1“")

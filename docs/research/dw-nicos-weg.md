@@ -120,7 +120,9 @@ All A1 exercises fall into these mechanics (count of exercises; one exercise mix
   Persian, 23 in Arabic; six Persian options); other editions write them as they are read.
 - Clips on items: 53 A1 `ru` exercises without a video stimulus (`inputType` `NONE`, `TEXT`, once
   `IMAGE`) link a clip on each top-level inquiry (`videos`; "watch the clip again"): in 32 every item
-  links the same one, in 21 the items have different clips (counted 2026-10-11).
+  links the same one, in 21 the items have different clips. Over all 38 Nicos Weg courses (every
+  edition, A1–B1): 1243 such exercises, 789 with one clip for all items and 454 with the items' own
+  (399 of them in A1) (counted 2026-10-11).
 - Speaking tasks (`REPEAT` sub-inquiry `inquiryDescription`) of only "…" or "..." stand for the line
   the audio speaks (47 items in A1 `ru`).
 - Vocabulary chips: words of a text linked to their vocabulary entry
