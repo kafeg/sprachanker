@@ -81,7 +81,7 @@ apps/web/src/
                    # lesson player's, an exam run's; the column's head), plan-list (a plan's headings and rows), progress-ring, side-sheet, chip, section-tabs (a section's tabs as links, and a page's own — Settings' — in their look), video (the episode: HD by
                    # default, SD switch, speed, subtitles toggle, its text; exercises showing it too),
                    # playback (one medium at a time, the speed button, useClip for short clips), sections (a course page's sections; CourseSections in course-html shows them as cards), activity-calendar (a
-                   # year of days as squares), bar-chart (bars over time, a bar across), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
+                   # year of days as squares), bar-chart (bars over time, each a button showing its value; a bar across), stat-tile, search-field (a page's search), checked-text (a model's check: verdict, the text
                    # corrected, corrections), step-dot (an exercise's mark), step-buttons (a step bar's Back and Next: the lesson's and an exam
                    # run's), avatar, choice (segmented), check-row (a setting on or off), option-card (one
                    # of a few options as a card), disclosure (folded: "Advanced"), confirm (an action that

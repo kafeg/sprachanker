@@ -766,6 +766,7 @@
       "seen": "Znane wcześniej",
       "cardsTitle": "{when}: {count, plural, one {# fiszka} few {# fiszki} many {# fiszek} other {# fiszki}}, nowe: {fresh, number}",
       "noneRecalled": "{when}: brak odpowiedzi na fiszki w powtórkach",
+      "remembered": "Zapamiętane (z fiszek w powtórkach)",
       "rememberedTitle": "{when}: {share} z {count, plural, one {# odpowiedzi} few {# odpowiedzi} many {# odpowiedzi} other {# odpowiedzi}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

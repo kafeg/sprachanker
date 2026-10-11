@@ -766,6 +766,7 @@
       "seen": "已见过",
       "cardsTitle": "{when}：{count, plural, other {#张卡片}}，其中新卡片{fresh, number}张",
       "noneRecalled": "{when}：没有复习中的卡片作答",
+      "remembered": "记住率（复习中的卡片）",
       "rememberedTitle": "{when}：{count, plural, other {#次作答}}中记住{share}",
       "timeTitle": "{when}：{time}（{what}）",
       "timeOf": {

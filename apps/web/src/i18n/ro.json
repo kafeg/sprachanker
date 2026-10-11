@@ -766,6 +766,7 @@
       "seen": "Văzute deja",
       "cardsTitle": "{when}: {count, plural, one {# card} few {# carduri} other {# de carduri}}, {fresh, number} noi",
       "noneRecalled": "{when}: niciun card în recapitulare",
+      "remembered": "Reținute (din cardurile în recapitulare)",
       "rememberedTitle": "{when}: {share} din {count, plural, one {# răspuns} few {# răspunsuri} other {# de răspunsuri}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

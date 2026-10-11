@@ -766,6 +766,7 @@
       "seen": "Seen before",
       "cardsTitle": "{when}: {count, plural, one {# card} other {# cards}}, {fresh, number} new",
       "noneRecalled": "{when}: no cards in review answered",
+      "remembered": "Remembered (of the cards in review)",
       "rememberedTitle": "{when}: {share} of {count, plural, one {# answer} other {# answers}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

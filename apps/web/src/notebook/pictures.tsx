@@ -80,7 +80,7 @@ export function CardsPicture({ span }: { span: SpanBars }) {
 export function RememberedPicture({ span }: { span: SpanBars }) {
   const { t } = useTranslation();
   const percent = usePercent();
-  const label = `${t("notebook.tile.remembered")} (${t("notebook.tile.rememberedHint")})`;
+  const label = t("notebook.chart.remembered");
   return (
     <div className="space-y-1.5">
       <Heading title={label} size={span.size} />
@@ -93,6 +93,8 @@ export function RememberedPicture({ span }: { span: SpanBars }) {
         bars={span.bars.map((b) => ({
           key: b.start,
           parts: [b.remembered ?? 0],
+          // None remembered is a mark; no card in review answered, nothing.
+          zero: b.remembered === 0,
           title:
             b.remembered === undefined
               ? t("notebook.chart.noneRecalled", { when: span.when(b.start) })

@@ -763,9 +763,10 @@
         "month": "по месяцам"
       },
       "weekOf": "неделя с {date}",
-      "seen": "Повторные",
+      "seen": "Уже виденные",
       "cardsTitle": "{when}: {count, plural, one {# карточка} few {# карточки} many {# карточек} other {# карточки}}, новых {fresh, number}",
       "noneRecalled": "{when}: ответов на карточки на повторении нет",
+      "remembered": "Вспомнено (из карточек на повторении)",
       "rememberedTitle": "{when}: {share} из {count, plural, one {# ответа} few {# ответов} many {# ответов} other {# ответа}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

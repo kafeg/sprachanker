@@ -766,6 +766,7 @@
       "seen": "سبقت رؤيتها",
       "cardsTitle": "{when}: {count, plural, zero {# بطاقة} one {بطاقة واحدة} two {بطاقتان} few {# بطاقات} many {# بطاقةً} other {# بطاقة}}، منها {fresh, number} جديدة",
       "noneRecalled": "{when}: لا إجابات عن بطاقات قيد المراجعة",
+      "remembered": "المُتذكَّرة (من البطاقات قيد المراجعة)",
       "rememberedTitle": "{when}: {share} من {count, plural, zero {# إجابة} one {إجابة واحدة} two {إجابتين} few {# إجابات} many {# إجابةً} other {# إجابة}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

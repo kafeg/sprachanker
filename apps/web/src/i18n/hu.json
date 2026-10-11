@@ -766,6 +766,7 @@
       "seen": "Már látott",
       "cardsTitle": "{when}: {count, plural, one {# kártya} other {# kártya}}, ebből {fresh, number} új",
       "noneRecalled": "{when}: nem volt válasz ismétlésben lévő kártyára",
+      "remembered": "Felidézve (az ismétlésben lévő kártyákból)",
       "rememberedTitle": "{when}: {share}, {count, plural, one {# válaszból} other {# válaszból}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

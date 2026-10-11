@@ -766,6 +766,7 @@
       "seen": "Viđene ranije",
       "cardsTitle": "{when}: {count, plural, one {# kartica} few {# kartice} other {# kartica}}, novih {fresh, number}",
       "noneRecalled": "{when}: nema odgovora na kartice u ponavljanju",
+      "remembered": "Zapamćeno (od kartica u ponavljanju)",
       "rememberedTitle": "{when}: {share} od {count, plural, one {# odgovora} few {# odgovora} other {# odgovora}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

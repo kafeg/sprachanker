@@ -766,6 +766,7 @@
       "seen": "Déjà vues",
       "cardsTitle": "{when} : {count, plural, one {# carte} many {# de cartes} other {# cartes}}, dont {fresh, number} nouvelles",
       "noneRecalled": "{when} : aucune carte en révision",
+      "remembered": "Retenues (des cartes en révision)",
       "rememberedTitle": "{when} : {share} sur {count, plural, one {# réponse} many {# de réponses} other {# réponses}}",
       "timeTitle": "{when} : {time} ({what})",
       "timeOf": {

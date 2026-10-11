@@ -766,6 +766,7 @@
       "seen": "Ήδη γνωστές",
       "cardsTitle": "{when}: {count, plural, one {# κάρτα} other {# κάρτες}}, νέες {fresh, number}",
       "noneRecalled": "{when}: καμία απάντηση σε κάρτες σε επανάληψη",
+      "remembered": "Θυμήθηκες (από τις κάρτες σε επανάληψη)",
       "rememberedTitle": "{when}: {share} από {count, plural, one {# απάντηση} other {# απαντήσεις}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

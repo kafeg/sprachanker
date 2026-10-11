@@ -766,6 +766,7 @@
       "seen": "دیده‌شده",
       "cardsTitle": "{when}: {count, plural, one {# کارت} other {# کارت}}، {fresh, number} تازه",
       "noneRecalled": "{when}: پاسخی به کارت‌های در حال مرور نیست",
+      "remembered": "به یاد مانده (از کارت‌های در حال مرور)",
       "rememberedTitle": "{when}: {share} از {count, plural, one {# پاسخ} other {# پاسخ}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {

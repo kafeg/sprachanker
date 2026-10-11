@@ -766,6 +766,7 @@
       "seen": "Schon gesehen",
       "cardsTitle": "{when}: {count, plural, one {# Karte} other {# Karten}}, davon neu {fresh, number}",
       "noneRecalled": "{when}: keine Karten in der Wiederholung beantwortet",
+      "remembered": "Gewusst (der Karten in der Wiederholung)",
       "rememberedTitle": "{when}: {share} von {count, plural, one {# Antwort} other {# Antworten}}",
       "timeTitle": "{when}: {time} ({what})",
       "timeOf": {
