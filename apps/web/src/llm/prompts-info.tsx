@@ -30,6 +30,7 @@ const PARTS = {
     "history",
     "tools",
   ],
+  tutorSection: ["courses", "metWords", "metGrammar", "courseMistakes", "chatHistory"],
   writing: ["lesson", "lessonVocab", "grammar", "text"],
   speaking: ["lesson", "lessonVocab", "grammar", "item", "heard", "answer"],
   exam: ["exam", "criteria", "samples", "writtenAnswer"],
@@ -65,7 +66,9 @@ function TaskPrompt({ task, prompt }: { task: PromptTaskId; prompt: Prompt }) {
       <div className="space-y-3 border-t px-4 py-4">
         <p className="text-sm">{t(`prompt.about.${task}`)}</p>
         <div>
-          <p className="text-sm">{t("prompt.contextIntro")}</p>
+          <p className="text-sm">
+            {t(task === "tutorSection" ? "prompt.contextIntroCourses" : "prompt.contextIntro")}
+          </p>
           <ul className="mt-1 list-disc space-y-0.5 ps-5 text-sm text-muted-foreground">
             {PARTS[task].map((part: string) => (
               <li key={part}>

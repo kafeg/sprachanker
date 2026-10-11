@@ -78,6 +78,7 @@ runs(
   id TEXT PRIMARY KEY,
   kind TEXT NOT NULL,             -- lesson | exam | review | scene | chat
   context_key TEXT,               -- lesson key for lesson, chat and scene runs; exam key; null for review
+                                  -- and for a chat of the Tutor section (about no lesson)
   course_key TEXT, edition TEXT, -- null when not tied to one course
   app_version TEXT NOT NULL,      -- the app's version when the run started
   plan_json TEXT,                 -- a scene's setup; an exam run's ExamPlan (mode, questions with their
@@ -120,7 +121,9 @@ card_state(card_id, face,
 
 What a run is (owner, 2026-10-07: one rule for every history): a pass through a lesson (`lesson`), a
 day of card reviews (`review`), and each conversation — a tutor chat (`chat`), a scene (`scene`) — is
-its own run about its lesson. A one-off verdict of the model on the learner's work (an explanation, a
+its own run about its lesson — or, a chat of the Tutor section (07), about none: its context null, its
+edition the pair it practises (the edition of the course studied most recently when it began), no
+course, so resetting a course's progress leaves it. A one-off verdict of the model on the learner's work (an explanation, a
 writing check, a spoken answer's check) is an `llm_verdict` event of the lesson run it was given in, also a finished one; the
 lesson's earlier ones are read across its runs. Resetting a lesson's progress deletes all of them.
 
@@ -184,7 +187,8 @@ parsed, and a stored row that no longer parses is left out (and logged), never b
   made it) with their faces and every answer to them; a card made by another lesson stays (owner,
   2026-10-07). For one exam (it then leaves "My exams"): its mock exams and practice runs with their
   events and recordings. The course stays installed. Deleting one tutor
-  chat from the lesson's chat history, also confirmed, deletes that `chat` run with its events.
+  chat from the lesson's chat history or the Tutor section, also confirmed, deletes that `chat` run
+  with its events.
   Leaving a deck (04, "Decks to take"), also confirmed, deletes the answers to the cards it removes.
 - Snapshots make old runs readable after content changes or course removal.
 - Indexes: `events(run_id, ts)` (a run's events), `events(type, ts)` (the day's card answers,
@@ -229,7 +233,8 @@ by its snapshot, found by exercise key.
 
 - One server process owns all DB files (WAL mode); devices are clients. A connection waits up to 5 s
   for another's write (the command line beside a server, a daily copy) before it fails.
-- One active run per (profile, context) and one active review run per profile. Any device of the
+- One active run per (profile, context) and one active review run per profile — but the Tutor
+  section's chats (context none): each stays active until deleted, any of them continued (07). Any device of the
   profile may continue it; events from all devices are stored (idempotent by id).
 - **Opening a lesson starts nothing**: the step shown is in the page's address (`?step=`), so a reload
   stays on it (owner, 2026-10-07); opened without one, it shows its active run (in whichever edition it was started) (resumed on its last page,

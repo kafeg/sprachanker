@@ -127,16 +127,19 @@ export function createRunStore(deps: { db: ProfileDb; now: () => number; appVers
       return db.transaction(() => fn());
     },
 
-    /** Starts a run. */
+    /** A new run's id, for a run started later under it (`start`'s `id`). */
+    newId: () => id(now()),
+
+    /** Starts a run (under `id` when one was taken before with `newId`). */
     start(
       kind: RunKind,
       about: Context,
-      options: { edition?: string | null; plan?: unknown } = {},
+      options: { edition?: string | null; plan?: unknown; id?: string } = {},
     ) {
       return db
         .insert(runs)
         .values({
-          id: id(now()),
+          id: options.id ?? id(now()),
           kind,
           contextKey: about,
           // A lesson's or an exam's course: both keys are `<course>/<name>`.

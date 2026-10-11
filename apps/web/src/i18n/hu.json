@@ -389,6 +389,7 @@
     "task": {
       "explain": "„Miért hibás?”",
       "tutor": "Tutor",
+      "tutorSection": "„Tutor” szakasz",
       "writing": "„Írj saját szöveget”",
       "speaking": "Szóbeli válaszok",
       "exam": "Vizsga: egy válasz értékelése",
@@ -398,6 +399,7 @@
       "examples": "Példák egy pakli szavaihoz"
     },
     "contextIntro": "A leckéből hozzáadva:",
+    "contextIntroCourses": "A kurzusaidból hozzáadva (azokból, amelyek a beszélgetés nyelvét tanítják):",
     "systemIntro": "Rendszerprompt:",
     "part": {
       "item": "a részfeladat: utasítás, válaszlehetőségek vagy üres helyek, a helyes válasz és a te válaszod",
@@ -422,7 +424,12 @@
       "partner": "ami a partnernél van: a kártyája, a naptára vagy a diái (te nem látod)",
       "conversation": "az eddigi beszélgetés (a legutóbbi sorok)",
       "level": "a kurzus vagy pakli szintje, ha a neve megadja (A1, A2…), egyébként kezdő",
-      "words": "a pakli öt szava fordítással, szófajjal és nemmel"
+      "words": "a pakli öt szava fordítással, szófajjal és nemmel",
+      "courses": "a kurzusaid: elvégzett leckék, a leckék, amelyeken dolgoztál (a legutóbbiak elöl)",
+      "metWords": "e leckék szavai fordítással (a legutóbbi leckék elöl)",
+      "metGrammar": "nyelvtani témáik (a legutóbbi leckék elöl)",
+      "courseMistakes": "legutóbbi hibáid ezekben a kurzusokban (a javítottak megjelölve)",
+      "chatHistory": "a beszélgetés legutóbbi üzenetei"
     },
     "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
     "debug": "„Prompt” gombok megjelenítése",
@@ -440,7 +447,7 @@
       },
       "tutor": {
         "name": "Tutor",
-        "where": "a gomb a leckében és a „Hibák átnézése” lépés"
+        "where": "a gomb a leckében, a „Hibák átnézése” lépés és a „Tutor” szakasz"
       },
       "writing": {
         "name": "„Írj saját szöveget”",
@@ -466,6 +473,7 @@
     "about": {
       "explain": "Elmagyarázza a feladat alatt a hibás választ („Miért hibás?”): mi a hiba, és milyen szabály áll mögötte, a te nyelveden.",
       "tutor": "A lecke tutora: válaszol a kérdéseidre a leckéről, a szavairól és a nyelvtanáról, és a „Hibák átnézése” lépésben egyenként végigmegy veled a hibáidon.",
+      "tutorSection": "A tutor önállóan, a „Tutor” szakaszban: leckén kívül bármire válaszol – nyelvtani kérdésre, átnézendő szövegre, gyakorolni való beszélgetésre –, és tudja, mit tanultál a kurzusaidban.",
       "writing": "Ellenőrzi a rövid szöveget, amelyet az „Írj saját szöveget” lépésben írtál: javítások, az A1-es szempontok (feladat, kommunikáció, pontosság) és visszajelzés.",
       "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",
       "exam": "Értékeli egy vizsga írásbeli válaszát a vizsga saját szempontjai szerint: mindegyikhez egy szintet indoklással, és azt, mi érne több pontot. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
@@ -1177,6 +1185,8 @@
     "no_such_attempt": "Ez a válasz már nincs a lecke körében. Töltsd be újra a leckét.",
     "no_such_card": "Ez a kártya már nem létezik.",
     "no_such_chat": "Ez a beszélgetés már nincs meg.",
+    "no_course_studied": "Előbb kezdj el egy kurzust: a tutor a kurzusaid anyagáról beszél.",
+    "ai_place_off": "Az asszisztens itt ki van kapcsolva: kapcsold be itt: Beállítások → MI-asszisztens.",
     "no_such_item": "Ez a feladat megváltozott. Töltsd be újra a leckét.",
     "no_such_model": "Ez a modell nem érhető el.",
     "no_such_profile": "Ez a profil már nem létezik.",

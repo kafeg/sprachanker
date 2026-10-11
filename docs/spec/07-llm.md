@@ -54,14 +54,16 @@ sent when LM Studio requires one.
 
 All tasks use the profile's route. Code: `packages/llm/src/tasks/`. Where the assistant works can be
 turned off place by place (owner, 2026-10-09; setting `llm.offIn`, `AI_PLACES` in schema): "Why is
-this wrong?", the tutor (and with it "Going over mistakes"), "Write it yourself", scenes, spoken
-answers, a word's examples (on its card and made for its deck), an exam's answers — a place off is not shown (its button, its step of the lesson plan); a
+this wrong?", the tutor (and with it "Going over mistakes" and the Tutor section), "Write it yourself", scenes, spoken
+answers, a word's examples (on its card and made for its deck), an exam's answers — a place off is not shown (its button, its step of the lesson plan, its section); a
 lesson done stays done, and a lesson in progress gains or loses the step, which can be skipped as any.
+The tutor's messages, the lesson's and the section's, are refused while its place is off (409 `ai_place_off`).
 
 | Task | Input | Output |
 |---|---|---|
 | `explain_mistake` | exercise item, reference answer, learner answer, lesson grammar pages; the lesson's transcript when the item is about its audio or video | short explanation in the interface language (streamed text) |
 | `chat_turn` | the lesson tutor: lesson context, known words, the exercise on screen, mistakes, history (the learner's turns marked with the exercise on screen); tools (below) | message (streamed text) |
+| `section_chat_turn` | the tutor on its own (the Tutor section): what the learner has met in the courses of the chat's language — the courses (lessons done of all, the lessons worked on), those lessons' words with translations and grammar topics, the latest mistakes in them —, history | message (streamed text) |
 | `check_writing` | the lesson (title, goals, words, grammar), the writing task from its goals, the learner's text | JSON: verdict, corrected text, corrections[] (wrong, right, explanation), Goethe A1 writing criteria (task, communication, accuracy: 0–2 + comment), feedback |
 | `check_speaking` | the lesson (title, words, grammar), a speaking item without a line to say (instruction, prompt, hint, the source's written answer or its frame), the question and the source's answer as the recogniser heard them in the course's recordings, what was heard of the learner's answer | JSON: verdict, corrected answer, corrections[] (wrong, right, explanation), feedback |
 | `scene_setup` | the lesson (title, goals, words) | JSON: title, situation, partner, goals (1–3), opening line |
@@ -144,7 +146,7 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   provider · model, with a hint that it is chosen in the settings — not a link, so a lesson is not
   left by a tap on it.
 - Settings → AI assistant → Advanced: each task's system prompt and the context parts it adds, with
-  their character limits (each task's `*_BUDGETS`): explanations, the tutor, writing and spoken
+  their character limits (each task's `*_BUDGETS`): explanations, the tutor, the Tutor section, writing and spoken
   checks, a scene's situation and its lines, a deck's words given examples.
 - The learner can replace a task's system prompt with their own (Settings → AI assistant → Advanced,
   "Restore" brings the standing one back). It is a template in the profile setting `llm.prompts`
@@ -182,6 +184,25 @@ teaches more than a report); the scene step → `scene_setup`, then `scene_turn`
   exercise on screen; in the history sent to the model a turn starts with `[On screen: Exercise N ·
   Title]` where that changed, so earlier turns about other exercises are not read as about the current
   one. The "Going over mistakes" step opens a new chat with the request to go through the mistakes.
+- **The tutor on its own** (`section_chat_turn`, the Tutor section of 09; owner, 2026-10-10): chats
+  about no lesson, on whatever the learner asks (a grammar question, a text to go through, a
+  conversation to practise). They are the lesson tutor's chats with another context — one model: a
+  `chat` run whose context is a lesson or none (05), so they are kept, listed, read and deleted by the
+  same code, and a question and its reply are stored together once the reply has text. The section
+  has no current chat: nothing on its screen picks one (a lesson's tutor opens on the lesson's), so
+  every chat stays open and any of them is continued; "New chat" starts one. **Language**: a new chat
+  practises the language the course studied most recently teaches (the course with the latest
+  lesson work), and keeps it — its run's edition is that course's edition then —, so a chat continued
+  later stays in its language; explanations are in the interface language of each message, as the
+  lesson tutor's. Without a course begun there is nothing to talk about yet: a new chat is refused
+  (409 `no_course_studied`) and the section says to begin one. **Context** (`courses-context` on the
+  server, the courses of the chat's language; each part within `SECTION_CHAT_BUDGETS`): the courses,
+  latest first — title, lessons done of all, the lessons worked on (latest first); the words of those
+  lessons with translations and their grammar topics (the pages' titles), the latest lesson's first;
+  the latest mistakes in those courses, each named by lesson, exercise and item, fixed ones marked;
+  then the most recent turns within the history budget. No exercise on screen and no tools: the
+  summary is what it knows. Its system prompt is its own (Settings → AI assistant → Advanced, "Tutor
+  section"), so the lesson tutor's rules stay about the lesson.
 - **Scenes** are `scene` runs with `llm_turn` events. A scene's setup is its run's plan; it is drafted
   from the lesson's goals and words (no authored scenes yet). The app keeps the model honest:
   corrections must quote the learner's new line, met goals only accumulate, all met ends the scene.

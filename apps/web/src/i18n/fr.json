@@ -389,6 +389,7 @@
     "task": {
       "explain": "« Pourquoi est-ce faux ? »",
       "tutor": "Tuteur",
+      "tutorSection": "Section « Tuteur »",
       "writing": "« À toi d’écrire »",
       "speaking": "Réponses orales",
       "exam": "Examen : noter une réponse",
@@ -398,6 +399,7 @@
       "examples": "Exemples pour les mots d’un paquet"
     },
     "contextIntro": "Ajouté depuis la leçon :",
+    "contextIntroCourses": "Ajouté depuis tes cours (ceux de la langue que pratique la discussion) :",
     "systemIntro": "Prompt système :",
     "part": {
       "item": "l’élément de l’exercice : consigne, options ou trous, la bonne réponse et ta réponse",
@@ -422,7 +424,12 @@
       "partner": "ce qu’a le partenaire : sa carte, son agenda ou ses diapositives (tu ne les vois pas)",
       "conversation": "la conversation jusqu’ici (les répliques les plus récentes)",
       "level": "le niveau du cours ou du paquet quand son nom l’indique (A1, A2…), sinon débutant",
-      "words": "cinq mots du paquet avec leur traduction, leur nature et leur genre"
+      "words": "cinq mots du paquet avec leur traduction, leur nature et leur genre",
+      "courses": "tes cours : leçons terminées, les leçons sur lesquelles tu as travaillé (les plus récentes d’abord)",
+      "metWords": "les mots de ces leçons avec leurs traductions (les leçons les plus récentes d’abord)",
+      "metGrammar": "leurs points de grammaire (les leçons les plus récentes d’abord)",
+      "courseMistakes": "tes dernières erreurs dans ces cours (celles corrigées sont marquées)",
+      "chatHistory": "les derniers messages de la conversation"
     },
     "upTo": "jusqu’à {chars, plural, one {# caractère} many {# de caractères} other {# caractères}}",
     "debug": "Afficher les boutons « Prompt »",
@@ -440,7 +447,7 @@
       },
       "tutor": {
         "name": "Tuteur",
-        "where": "le bouton dans une leçon et l’étape « Revoir ses erreurs »"
+        "where": "le bouton dans une leçon, l’étape « Revoir ses erreurs » et la section « Tuteur »"
       },
       "writing": {
         "name": "« À toi d’écrire »",
@@ -466,6 +473,7 @@
     "about": {
       "explain": "Explique une réponse fausse sous l’exercice (« Pourquoi est-ce faux ? ») : en quoi consiste l’erreur et la règle qui est derrière, dans ta langue.",
       "tutor": "Le tuteur de la leçon : répond à tes questions sur la leçon, ses mots et sa grammaire, et revoit tes erreurs une par une à l’étape « Revoir ses erreurs ».",
+      "tutorSection": "Le tuteur à part, dans la section « Tuteur » : répond à tout ce que tu demandes hors d’une leçon — une question de grammaire, un texte à parcourir, une conversation à pratiquer — en sachant ce que tu as vu dans tes cours.",
       "writing": "Corrige un court texte écrit dans « À toi d’écrire » : corrections, critères A1 (tâche, communication, correction) et commentaire.",
       "speaking": "Vérifie une réponse dite à voix haute (ce que la reconnaissance vocale a entendu) par rapport à la question et à la réponse du cours, quand tu appuies sur « Vérifier avec l’IA ».",
       "exam": "Note une réponse écrite d’examen selon les critères de l’examen lui-même : un niveau pour chacun avec sa raison, et ce qui rapporterait plus. Rien ne compte tant que tu ne l’as pas accepté ou modifié.",
@@ -1177,6 +1185,8 @@
     "no_such_attempt": "Cette réponse n’est plus dans le passage de la leçon. Recharge la leçon.",
     "no_such_card": "Cette carte n’existe plus.",
     "no_such_chat": "Cette discussion n’existe plus.",
+    "no_course_studied": "Commence d’abord un cours : le tuteur parle de ce que tu as vu dans tes cours.",
+    "ai_place_off": "L’assistant est désactivé ici : active-le dans Réglages → Assistant IA.",
     "no_such_item": "Cet exercice a changé. Recharge la leçon.",
     "no_such_model": "Ce modèle n’est pas proposé.",
     "no_such_profile": "Ce profil n’existe plus.",

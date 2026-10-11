@@ -91,7 +91,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   know of a lesson) and `in-flight` (what a model is doing, by lesson, card or answer, so structured
   calls run to their end and a page opened meanwhile shows them as waiting) are shared; each task's
   service belongs to the module whose runs it works in — lessons: `explain`, `writing`, `speaking`
-  (an answer said aloud), `tutor` (+ `tutor-tools`), `scene`; exams: `exam-rating`,
+  (an answer said aloud), `tutor` (+ `tutor-tools`; `courses-context`: what the Tutor section's
+  chats know of the learner's courses), `scene`; exams: `exam-rating`,
   `exam-conversation`; review: `examples` (a card's word).
 - **Speech**: `speech` (whisper-server and its models) and `qwen-tts` (Qwen3-TTS's tts-server, its
   models) on `sidecar`, the supervisor of local engines (06, "Sidecars"); `read-aloud` (Piper's voices,
@@ -136,7 +137,7 @@ gets the types through Hono RPC (`AppType`), no codegen.
 - **AI practice**: no module of its own — a feature plugged into the three: on the server each task's
   service sits in the module whose runs it keeps its answers in (its group in dependency-cruiser), in
   the web the optional `llm/` folder fills the modules' slots (below). Its own runs (tutor chats,
-  scenes) are about a lesson; its work — the learner's messages and the model's checks, in whichever
+  scenes) are about a lesson, but the Tutor section's chats, about none; its work — the learner's messages and the model's checks, in whichever
   run — counts in the study days as `ai` (schema `stats.ts`), and it gives no standing.
 - **Lesson flow**: the engine turns a lesson into steps (overview, words, grammar, exercises, culture, AI
   practice, summary; `compose/steps.ts`); the web's `use-flow` moves through them and records
@@ -152,7 +153,8 @@ gets the types through Hono RPC (`AppType`), no codegen.
   repair attempt; streamed replies (tutor, explanations) end with their connection, structured ones
   outlive the page (07).
 - **Optional AI in the web**: `apps/web/src/llm/` plugs into the player through slots
-  (`lesson/slots.ts`) and into the onboarding as its AI step; removing the folder and its mount points
+  (`lesson/slots.ts`), into the onboarding as its AI step and into the shell as the Tutor section
+  (its pages and navigation entry, from the router); removing the folder and its mount points
   (the router, routes/runs.tsx, the settings page) leaves a working app. The router loads each page
   but Courses and Exams when it is first opened (its own chunk; preloaded when a link to it is
   hovered; a chunk gone after an update reloads the app once, a page that fails shows ErrorState with

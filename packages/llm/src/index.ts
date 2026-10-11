@@ -18,6 +18,7 @@ export * from "./tasks/rate-exam-answer.ts";
 export * from "./tasks/registry.ts";
 export type { RulesInput, TaskRules } from "./tasks/rules.ts";
 export * from "./tasks/scene.ts";
+export * from "./tasks/section-chat.ts";
 export * from "./tasks/tutor-tools.ts";
 export * from "./tasks/word-examples.ts";
 export { estimateTokens, languageName, PLACEHOLDER_NAMES } from "./text.ts";
