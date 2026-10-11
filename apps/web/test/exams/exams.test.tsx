@@ -238,6 +238,45 @@ test("an exam in the Notebook: its runs, the map of its questions, those answere
   expect(view.getByText("Frage be-01?")).toBeTruthy();
 });
 
+test("a language exam in the Notebook: questions by their Teil and number, never by their keys", async () => {
+  const view = await renderApp(<ExamNotebook params={gParams} />, {
+    path: "/notebook/exam/goethe.zertifikat/a1/modellsatz",
+    data: [
+      [
+        ["notebook", "exam", GKEY],
+        {
+          entry: {
+            key: GKEY,
+            title: "Goethe-Zertifikat A1",
+            lastAt: 2,
+            open: false,
+            runCount: 0,
+            figures: [],
+            runs: [],
+          },
+          items: [
+            { key: `${GKEY}/q-hoeren-2`, state: "wrong", line: "Wann?", group: "Hören · Teil 1" },
+            { key: `${GKEY}/q-hoeren-3`, state: "wrong", line: "Wo?", group: "Hören · Teil 1" },
+            {
+              key: `${GKEY}/q-schreiben-1-3`,
+              state: "wrong",
+              line: "Ort: …",
+              group: "Schreiben · Teil 1",
+            },
+          ],
+          lang: "de",
+        },
+      ],
+    ],
+  });
+  expect(await view.findByText("Hören · Teil 1")).toBeTruthy();
+  expect(view.getAllByText("Hören · Teil 1")).toHaveLength(1);
+  expect(view.getByText("Schreiben · Teil 1")).toBeTruthy();
+  expect(view.getByText("Ort: …").previousElementSibling?.textContent).toBe("1-3");
+  expect(view.container.textContent).not.toContain("hoeren-2");
+  expect(view.container.querySelector('[title="Hören · Teil 1 · 2"]')).toBeTruthy();
+});
+
 test("an exam asked of the learner's state cannot begin before it is chosen", async () => {
   const view = await renderApp(<ExamPage params={params} />, {
     path: "/exam/bamf.lid/lid/test",
