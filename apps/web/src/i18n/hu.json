@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Kurzusok",
+    "settings": "Beállítások",
+    "review": "Ismétlés",
+    "notebook": "Füzet",
+    "exams": "Vizsgák"
+  },
+  "common": {
+    "loading": "Betöltés…",
+    "retry": "Újra",
+    "close": "Bezárás",
+    "cancel": "Mégse"
+  },
+  "courses": {
+    "lessons": "{count, plural, one {# lecke} other {# lecke}}",
+    "progress": "{done, number}/{total, number} kész",
+    "start": "Kezdés",
+    "allLessons": "Összes lecke",
+    "languages": "{from} → {to}",
+    "any": "Mind",
+    "noneStarted": "Még nem kezdtél el kurzust.",
+    "noneMatch": "Ezekhez a nyelvekhez nincs kurzus.",
+    "course": "Kurzus",
+    "pair": "Nyelvek",
+    "next": "Következő",
+    "nextWorked": "{worked, number}/{total, number} kész",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Kurzusaim",
+      "downloaded": "Letöltve",
+      "available": "Elérhető"
+    },
+    "noneDownloaded": "Még nincs letöltött kurzus.",
+    "allDownloaded": "Minden kínált kurzus le van töltve.",
+    "choose": "Válassz kurzust",
+    "anyLanguage": "bármelyik"
+  },
+  "course": {
+    "unit": "{number}. egység",
+    "status": {
+      "new": "Nincs elkezdve",
+      "in_progress": "Folyamatban · {worked, number}/{total, number}",
+      "done": "Kész · {score, number, percent}",
+      "next": "Következik",
+      "finished": "Kész"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "közkincs",
+      "free-access": "szabad hozzáférés (nyílt licenc nélkül)"
+    },
+    "stats": {
+      "lessons": "{count, plural, one {lecke} other {lecke}}",
+      "exercises": "{count, plural, one {feladat} other {feladat}}",
+      "words": "{count, plural, one {szó} other {szó}}",
+      "audio": "{count, plural, one {felvétel} other {felvétel}}",
+      "video": "{count, plural, one {videó} other {videó}}",
+      "image": "{count, plural, one {kép} other {kép}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, one {feliratfájl} other {feliratfájl}}",
+      "size": "a lemezen"
+    },
+    "checking": "A kurzus fájljainak ellenőrzése…",
+    "missing": "{count, number} hiányzik",
+    "problems": "{count, plural, one {# probléma} other {# probléma}} található",
+    "intact": "Minden fájl a helyén van, és egyezik.",
+    "checkAgain": "Újraellenőrzés",
+    "complete": "Minden letöltve",
+    "next": "következik: {where} — {title}",
+    "notInstalled": "Ez a kurzus nincs (már) telepítve.",
+    "checkFiles": "Ellenőrzés",
+    "problem": {
+      "missingMedia": "Hiányzó fájl: {at}",
+      "unreadable": "Olvashatatlan fájl: {at}",
+      "noLocale": "A lecke szövegei nincsenek meg ezen a nyelven: {at}",
+      "noEdition": "Nincs telepített nyelvi változat",
+      "inconsistent": "A kurzus adatai nem egyeznek: {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "{unit}. egység · {lesson}. lecke",
+    "goals": "Ebben a leckében megtanulod:",
+    "counts": "{exercises, plural, =0 {} one {# feladat · } other {# feladat · }}{words, plural, one {# új szó} other {# új szó}}",
+    "start": "Lecke indítása",
+    "resume": "Lecke folytatása",
+    "exerciseOf": "Feladat: {n}/{total}",
+    "check": "Ellenőrzés",
+    "next": "Tovább",
+    "toSummary": "Az összegzéshez",
+    "skip": "Kihagyás",
+    "retry": "Újra",
+    "previous": "Vissza",
+    "correct": "Helyes",
+    "partial": "Részben helyes",
+    "wrong": "Nem egészen",
+    "summary": "Összegzés",
+    "score": "Elsőre helyes: {correct, number}/{scored, number}. A százalék a részben helyes válaszokat is beszámítja.",
+    "skipped": "kihagyva",
+    "notDone": "nincs kész",
+    "backToCourse": "Vissza a kurzushoz",
+    "nextLesson": "Következő lecke",
+    "reference": "Anyagok",
+    "plan": "A lecke terve",
+    "audio": "A lecke meghallgatása",
+    "itemAudio": "{n}. részfeladat hangja",
+    "redo": "Újrakezdés",
+    "done": "Kész",
+    "doneScore": "Kész · {score, number, percent} helyes",
+    "state": {
+      "correct": "helyes",
+      "wrong": "hibás",
+      "done": "megválaszolva",
+      "skipped": "kihagyva",
+      "read": "kész",
+      "partial": "részben helyes"
+    },
+    "correctAnswer": "Helyes válasz:",
+    "answerAudio": "A válasz meghallgatása",
+    "itemsList": "Részfeladatok",
+    "answerAll": "Válaszolj minden részfeladatra · {done, number}/{total, number}",
+    "listenFirst": "Előbb játszd le a felvételt",
+    "listenItem": "{n}. részfeladat: a felvétel lejátszása",
+    "answerAgain": "Új válasz",
+    "exerciseN": "{n}. feladat",
+    "stepsDone": "{done}/{total} lépés kész",
+    "stepsLeft": "{count, plural, one {Még # lépés van hátra.} other {Még # lépés van hátra.}}",
+    "toStep": "Ugrás ide: {title}",
+    "videoText": "A videó szövege",
+    "audioText": "A felvétel szövege",
+    "step": {
+      "overview": "Áttekintés",
+      "words": "A lecke szavai",
+      "wordsCount": "A lecke szavai · {count}",
+      "grammar": "Nyelvtan",
+      "culture": "Kultúra",
+      "writing": "Írj saját szöveget",
+      "scene": "Jelenet",
+      "mistakes": "Hibák átnézése",
+      "summary": "Összegzés"
+    },
+    "section": {
+      "grammar": "Nyelvtan",
+      "exercises": "Feladatok",
+      "culture": "Kultúra",
+      "practice": "Gyakorlás MI-vel"
+    },
+    "continued": "folytatás",
+    "why": "Miért hibás?"
+  },
+  "ref": {
+    "vocabulary": "Szószedet",
+    "grammar": "Nyelvtan",
+    "culture": "Kultúra",
+    "script": "Szövegkönyv",
+    "downloads": "PDF",
+    "none": "Ebben a leckében nincs ilyen.",
+    "homework": "Házi feladat"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Felirat"
+  },
+  "ex": {
+    "chooseSeveral": "Több válasz is helyes lehet.",
+    "orderHint": "Koppints a részekre, vagy húzd őket sorrendben a sorba; a sorban lévőt húzással mozgathatod, koppintással visszaveheted.",
+    "reset": "Visszaállítás",
+    "dictationPlaceholder": "Írd le, amit hallasz",
+    "rate": {
+      "good": "Jó",
+      "fair": "Közepes",
+      "poor": "Újra"
+    },
+    "unknown": "Ez a feladattípus még nem támogatott.",
+    "respondPlaceholder": "A válaszod…",
+    "reference": "{count, plural, one {Mintaválasz} other {Mintaválaszok}}",
+    "gap": "{n}. üres hely",
+    "partRight": "helyes",
+    "partWrong": "hibás",
+    "nothing": "— (semmi)",
+    "matchFor": "Pár ehhez: {n}. részfeladat",
+    "dropHere": "húzd ide, vagy koppints",
+    "chips": "Elhelyezendő szavak",
+    "orderLine": "A te sorrended",
+    "dnd": {
+      "item": "a kártya",
+      "instructions": "A kártya felvételéhez nyomd meg a Space vagy az Enter billentyűt. Mozgasd a nyílbillentyűkkel, majd a Space vagy az Enter lenyomásával tedd le, vagy az Escape-pel tedd vissza.",
+      "start": "Felvéve: {item}.",
+      "over": "{item} — „{place}” fölött.",
+      "away": "{item} — nincs hely fölött.",
+      "end": "{item} — letéve ide: „{place}”.",
+      "cancel": "{item} — visszatéve."
+    },
+    "chosen": "{count, plural, one {# kiválasztva} other {# kiválasztva}}",
+    "specialLetters": "Beírandó betűk",
+    "inPlace": "a helyén",
+    "notInPlace": "nincs a helyén"
+  },
+  "word": {
+    "plural": "tsz. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "A felület nyelve",
+    "themeLabel": "Téma",
+    "theme": {
+      "system": "Rendszer",
+      "light": "Világos",
+      "dark": "Sötét"
+    },
+    "tabs": {
+      "general": "Általános",
+      "profile": "Profil",
+      "review": "Ismétlés",
+      "speech": "Beszéd",
+      "ai": "MI-asszisztens",
+      "aiShort": "MI"
+    },
+    "prompts": "Promptok",
+    "experimental": "Kísérleti",
+    "advanced": "Haladó"
+  },
+  "llm": {
+    "title": "MI-asszisztens",
+    "intro": "Elmagyarázza a hibákat, tutorként segít a leckékben, ellenőrzi a szövegeket és jeleneteket játszik. Válassz modellt ezen a számítógépen, egy szerveren a hálózatodban, a felhőben (OpenRouter), vagy egy parancssori ügynököt az előfizetéseddel. A lecke tartalma és a válaszaid csak a választott szolgáltatóhoz kerülnek.",
+    "off": "Kikapcsolva",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Szerver a hálózaton",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Szervercím",
+    "endpointInvalid": "Adj meg egy ilyen címet: http://localhost:1234/v1",
+    "apiKey": "API-kulcs",
+    "keyHint": "Csak ha a szerver kéri. Titkosítva tároljuk, és többé nem jelenik meg.",
+    "keySaved": "Mentve — újat megadva lecserélheted",
+    "save": "Mentés",
+    "removeKey": "Eltávolítás",
+    "check": "Kapcsolat ellenőrzése",
+    "checking": "Kapcsolódás…",
+    "connected": "Csatlakozva · {count, plural, =0 {nincs modell} one {# modell} other {# modell}} · {ms} ms",
+    "model": "Modell",
+    "setUpHint": "Magyarázatot szeretnél? Állítsd be az MI-asszisztenst",
+    "explanation": "Magyarázat",
+    "thinking": "Gondolkodik…",
+    "error": {
+      "lmstudioDown": "Az LM Studio nem válaszol. Fut a helyi szervere?"
+    },
+    "cliMissing": {
+      "claude-code": "A Claude Code nincs telepítve itt. Telepítsd a claude.com/claude-code oldalról, és egyszer jelentkezz be a `claude` futtatásával.",
+      "codex": "A Codex CLI nincs telepítve itt. Telepítsd (npm i -g @openai/codex), és egyszer jelentkezz be a `codex login` paranccsal."
+    },
+    "modelTypeHint": "Írd be a modell nevét.",
+    "otherModel": "Másik modell…",
+    "modelName": "Modellnév",
+    "explainAgain": "Magyarázd el újra",
+    "changeInSettings": "A modellt itt választhatod: Beállítások → MI-asszisztens",
+    "about": {
+      "lmstudio": "LM Studio ezen a számítógépen: a SprachAnker elindítja a szerverét, betölti a kiválasztott modellt, és letöltheti bele a javasolt modelleket. Ingyenes, és semmi sem hagyja el a számítógépet. Ha az LM Studio egy másik számítógépen fut, válaszd a „Szerver a hálózaton” lehetőséget.",
+      "openrouter": "OpenRouter a felhőben: több száz modell sok gyártótól egyetlen kulccsal, némelyik ingyenes (napi korlátokkal). A lecke tartalma és a válaszaid az OpenRouterhez és a modell szolgáltatójához kerülnek.",
+      "gemini": "A Google Gemini modelljei a felhőben, a Google AI Studióban létrehozott kulccsal. Az ingyenes csomaghoz nem kell bankkártya, és percenkénti és napi korlátai vannak; egyes modellekhez fizetős fiók kell. Az ingyenes csomagban a Google a beküldött adatokat termékei fejlesztésére használhatja: a lecke tartalma és a válaszaid a Google-hoz kerülnek.",
+      "groq": "Nyílt modellek (Llama, Qwen, GPT-OSS és mások) a Groq gyors hardverén, a felhőben. Az ingyenes csomaghoz nem kell bankkártya, és minden modellre percenkénti és napi korlátok vonatkoznak. A lecke tartalma és a válaszaid a Groqhoz kerülnek.",
+      "custom": "Bármely OpenAI-kompatibilis API-val rendelkező szerver egy másik számítógépen: LM Studio, Ollama, llama.cpp, vLLM és mások. Add meg a címét (/v1-re végződik), és a kulcsot, ha kér.",
+      "claude-code": "Az ezen a számítógépen telepített Claude Code-ot futtatja (`claude -p`) a Claude-előfizetéseddel. A saját eszközei ki vannak kapcsolva: a lecke adatai a promptba kerülnek. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak.",
+      "codex": "Az ezen a számítógépen telepített Codex CLI-t futtatja (`codex exec`) a ChatGPT-előfizetéseddel, csak olvasási módban és eszközök nélkül. Minden válasz elindítja a parancsot, ezért a válaszok néhány másodperccel tovább tartanak."
+    },
+    "cardState": {
+      "off": "nincs asszisztens",
+      "llm_cli_missing": "nincs telepítve",
+      "llm_no_endpoint": "nincs megadva cím",
+      "llm_no_key": "kulcs szükséges",
+      "installed": "telepítve",
+      "keySaved": "kulcs mentve",
+      "here": "ezen a számítógépen",
+      "at": "itt: {host}"
+    },
+    "list": {
+      "search": "Keresés: gemma, claude, deepseek…",
+      "free": "Ingyenes ({count, number})",
+      "json": "JSON-t ad ({count, number})",
+      "context": "Kontextus ≥ {size}",
+      "more": "Több…",
+      "fewer": "Kevesebb",
+      "jsonHint": "„JSON-t ad”: olyan modellek, amelyek a szövegellenőrzést és a jeleneteket az alkalmazás által olvasható formában tudják visszaadni.",
+      "none": "Egy modell sem felel meg a keresésnek és a szűrőknek.",
+      "freeTag": "ingyenes",
+      "price": "{input} / {output} 1M tokenenként",
+      "shown": "{shown, number}/{total, number} modell",
+      "backToList": "Vissza a listához"
+    },
+    "key": {
+      "freeTier": "Ingyenes csomag",
+      "credits": "Kreditek",
+      "used": "felhasználva: {used}",
+      "usedOf": "felhasználva: {used} / {limit}",
+      "rate": "{requests, number} kérés / {interval}",
+      "freeModels": "Az ingyenes modellekre az OpenRouter napi kéréskorlátot szab (kreditvásárlás után magasabbat)."
+    },
+    "keyHintFor": {
+      "openrouter": "Kulcsot az openrouter.ai/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "gemini": "Kulcsot az aistudio.google.com/apikey oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg.",
+      "groq": "Kulcsot a console.groq.com/keys oldalon hozhatsz létre. Titkosítva tároljuk ezen a számítógépen, és többé nem jelenik meg."
+    }
+  },
+  "tutor": {
+    "title": "Tutor",
+    "intro": "Kérdezz erről a leckéről: nyelvtan, szavak, a képernyőn lévő feladat — vagy gyakorolj egy rövid párbeszédet. A válaszok nem lépik túl azt, amit eddig tanultál.",
+    "needsSetup": "A tutorhoz MI-modell kell.",
+    "openSettings": "MI-asszisztens beállítása",
+    "placeholder": "Tegyél fel egy kérdést…",
+    "send": "Küldés",
+    "stop": "Leállítás",
+    "newChat": "Új beszélgetés",
+    "suggest": {
+      "grammar": "Magyarázd el a lecke nyelvtanát",
+      "examples": "Adj még példákat az új szavakkal",
+      "dialogue": "Gyakoroljunk egy rövid párbeszédet",
+      "exercise": "Adj egy tippet ehhez a feladathoz",
+      "wordsQuiz": "Kérdezz ki a lecke új szavaiból",
+      "wordsMemory": "Segíts megjegyezni az új szavakat",
+      "grammarDrill": "Adj egy rövid gyakorlatot a lecke nyelvtanából",
+      "script": "Menjünk végig a lecke szövegén részletről részletre"
+    },
+    "context": "Kontextus ≈ {used} / {window} token",
+    "contextSize": "Kérés ≈ {used} token",
+    "remembers": "megjegyzett: {kept, number} / {total, plural, one {# üzenet} other {# üzenet}}",
+    "contextFull": "A kontextus majdnem megtelt: a legkorábbi üzenetek már nem jutnak el a modellhez. Új témához kezdj új beszélgetést.",
+    "contextHint": "A következő kérés mérete: a lecke kontextusa, a beszélgetés és az üzeneted, plusz hely a válasznak.",
+    "toolsUsed": "Megnézte: {tools}",
+    "tool": {
+      "find_word": "„{word}” szó",
+      "get_progress": "a haladásod",
+      "get_mistakes": "a hibáid",
+      "get_lesson": "lecke: {lesson}"
+    },
+    "tabChat": "Beszélgetés",
+    "tabHistory": "Előzmények",
+    "noHistory": "Ebben a leckében még nincsenek korábbi beszélgetések.",
+    "current": "aktuális",
+    "delete": "Beszélgetés törlése",
+    "deleteTitle": "Törlöd ezt a beszélgetést?",
+    "deleteBody": "Az üzenetei véglegesen törlődnek.",
+    "ask": {
+      "grammar": "Magyarázd el röviden a lecke nyelvtanát 2–3 példával a leckéből. Aztán kérdezd meg, hogy érthető-e.",
+      "examples": "Adj 3 rövid példát a lecke új szavaival, fordítással. Aztán kérd meg, hogy írjak egy saját mondatot valamelyikkel.",
+      "dialogue": "Gyakoroljunk egy rövid párbeszédet a lecke témájában. Te kezdesz egy mondattal, és megvárod a válaszomat; menet közben javítsd a hibáimat.",
+      "exercise": "Adj egy tippet ehhez a feladathoz, de ne a választ.",
+      "wordsQuiz": "Kérdezz ki a lecke új szavaiból, egyszerre egy szót. Kérdezz rá egy szóra, várd meg a válaszomat, mondd meg, hogy helyes-e, és csak utána lépj a következőre.",
+      "wordsMemory": "Segíts megjegyezni a lecke új szavait egyenként: vegyél egy szót, adj hozzá emlékeztetőt (hasonló hangzású szót, képet, szótövet) és egy rövid példát, aztán kérd, hogy ismételjem el vagy használjam. A következő szó csak a válaszom után jöjjön.",
+      "grammarDrill": "Adj egy rövid gyakorlatot a lecke nyelvtanából: egyszerre egy feladatot, várd meg a válaszomat, ellenőrizd, és magyarázd el a hibákat.",
+      "script": "Menjünk végig a lecke szövegén részletről részletre: mutasd az első részletet, fordítsd le, és magyarázd el, mi új benne. A következő részlet csak akkor jöjjön, ha azt mondom: „tovább”."
+    }
+  },
+  "lmstudio": {
+    "running": "Az LM Studio fut.",
+    "notRunning": "Az LM Studio szervere nem fut.",
+    "notInstalled": "Az LM Studio nincs telepítve ezen a számítógépen. Töltsd le az lmstudio.ai oldalról, aztán gyere vissza ide.",
+    "needsToken": "Az LM Studio API-tokent kér: add meg fent (LM Studio → Developer → Server settings).",
+    "start": "LM Studio indítása",
+    "models": "Modellek az LM Studióban",
+    "noModels": "Az LM Studióban még nincs modell. Tölts le egyet lent.",
+    "loaded": "a memóriában",
+    "use": "Használat",
+    "inUse": "Használatban",
+    "suggested": "Javasolt modellek",
+    "suggestedHint": "Az LM Studio letölti az ehhez a számítógéphez ({memory} GB memória) legjobb változatot, és megtartja.",
+    "recommended": "Ajánlott",
+    "size": "kb. {size} GB · kb. {ram} GB memória kell",
+    "progress": "{done} / {total} GB",
+    "download": "Letöltés az LM Studióban",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "Prompt",
+    "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
+    "endpoint": "Végpont",
+    "size": "Méret",
+    "sizeValue": "{chars, plural, one {# karakter} other {# karakter}} ≈ {tokens, plural, one {# token} other {# token}}",
+    "copy": "Kérés másolása JSON-ként",
+    "infoIntro": "Minden kérés elküldi az állandó szabályokat (rendszerprompt) és az aktuális lecke kurzusadatait. A hosszú részeket az alábbi korlátokra vágjuk, hogy a kis helyi modellek is bírják.",
+    "task": {
+      "explain": "„Miért hibás?”",
+      "tutor": "Tutor",
+      "writing": "„Írj saját szöveget”",
+      "speaking": "Szóbeli válaszok",
+      "exam": "Vizsga: egy válasz értékelése",
+      "conversation": "Vizsga: szóbeli rész",
+      "sceneSetup": "Jelenet: a helyzet",
+      "scene": "Jelenet",
+      "examples": "Példák egy pakli szavaihoz"
+    },
+    "contextIntro": "A leckéből hozzáadva:",
+    "systemIntro": "Rendszerprompt:",
+    "part": {
+      "item": "a részfeladat: utasítás, válaszlehetőségek vagy üres helyek, a helyes válasz és a te válaszod",
+      "notes": "a lecke nyelvtani jegyzetei",
+      "lesson": "a lecke címe és céljai",
+      "lessonVocab": "a lecke szavai fordítással",
+      "knownVocab": "a korábbi leckék szavai (a legújabbak elöl)",
+      "earlierLessons": "a korábbi leckék címei",
+      "grammar": "a lecke nyelvtani jegyzetei",
+      "exercise": "a képernyőn lévő feladat a válaszaival és a te ellenőrzött válaszaiddal (a tutor először tippeket ad)",
+      "history": "a beszélgetés legutóbbi üzenetei, a te üzeneteid megjelölve azzal a feladattal, amelynél írtad őket",
+      "mistakes": "a hibáid: ebben a leckében az aktuális kör hibái, aztán a korábbi leckék legutóbbi hibái (a kijavítottak megjelölve)",
+      "tools": "kérésre (eszközök): a haladásod, hibák bármelyik leckében, hol tanítják az adott szót, miről szól egy lecke",
+      "text": "a szöveged",
+      "script": "a lecke szövegkönyve, ha a részfeladat a hangjáról vagy videójáról szól",
+      "heard": "a kérdés és a kurzus saját válasza, ahogy a beszédfelismerő a kurzus felvételeiben hallotta",
+      "answer": "amit mondtál, ahogy a beszédfelismerő hallotta",
+      "exam": "a vizsga címe és a feladat, ahogy kiírták: a rész utasítása és szövege, a kérdés",
+      "criteria": "a szempontok a pontjaikkal és az egyes szintek jelentésével",
+      "samples": "a vizsga mintaválaszai, ha vannak",
+      "writtenAnswer": "a válaszod",
+      "partner": "ami a partnernél van: a kártyája, a naptára vagy a diái (te nem látod)",
+      "conversation": "az eddigi beszélgetés (a legutóbbi sorok)",
+      "level": "a kurzus vagy pakli szintje, ha a neve megadja (A1, A2…), egyébként kezdő",
+      "words": "a pakli öt szava fordítással, szófajjal és nemmel"
+    },
+    "upTo": "legfeljebb {chars, plural, one {# karakter} other {# karakter}}",
+    "debug": "„Prompt” gombok megjelenítése",
+    "debugHint": "A magyarázatok mellett és a tutorban: a pontos kérés minden üzenettel, hibakereséshez.",
+    "custom": "módosítva",
+    "placeholders": "A '{language}' helyére a válaszok nyelve, a '{target}' helyére a tanult nyelv kerül.",
+    "save": "Mentés",
+    "restore": "Alapértelmezett prompt visszaállítása",
+    "places": {
+      "title": "Hol dolgozik az asszisztens",
+      "hint": "A kikapcsolt hely nem jelenik meg a leckékben, a kártyákon és a vizsgákon. A kész leckék készek maradnak.",
+      "explain": {
+        "name": "„Miért hibás?”",
+        "where": "a gomb egy hiba alatt"
+      },
+      "tutor": {
+        "name": "Tutor",
+        "where": "a gomb a leckében és a „Hibák átnézése” lépés"
+      },
+      "writing": {
+        "name": "„Írj saját szöveget”",
+        "where": "a lecke egy lépése"
+      },
+      "scene": {
+        "name": "Jelenetek",
+        "where": "a lecke egy lépése"
+      },
+      "speaking": {
+        "name": "Szóbeli válaszok",
+        "where": "„Ellenőrzés MI-vel” egy hangosan mondott válasz alatt"
+      },
+      "example": {
+        "name": "Egy szó példái",
+        "where": "a kártyáján és az adatlapján; paklihoz itt készülnek: Ismétlés → Paklik"
+      },
+      "exam": {
+        "name": "Vizsgaválaszok",
+        "where": "„Értékelés javaslata” egy válasz szempontjai fölött, és a beszélgetésként folytatott szóbeli részek"
+      }
+    },
+    "about": {
+      "explain": "Elmagyarázza a feladat alatt a hibás választ („Miért hibás?”): mi a hiba, és milyen szabály áll mögötte, a te nyelveden.",
+      "tutor": "A lecke tutora: válaszol a kérdéseidre a leckéről, a szavairól és a nyelvtanáról, és a „Hibák átnézése” lépésben egyenként végigmegy veled a hibáidon.",
+      "writing": "Ellenőrzi a rövid szöveget, amelyet az „Írj saját szöveget” lépésben írtál: javítások, az A1-es szempontok (feladat, kommunikáció, pontosság) és visszajelzés.",
+      "speaking": "Ellenőrzi a hangosan mondott válaszodat (amit a beszédfelismerő hallott) a kérdés és a kurzus válasza alapján, ha megnyomod az „Ellenőrzés MI-vel” gombot.",
+      "exam": "Értékeli egy vizsga írásbeli válaszát a vizsga saját szempontjai szerint: mindegyikhez egy szintet indoklással, és azt, mi érne több pontot. Semmi sem számít, amíg el nem fogadod vagy meg nem változtatod.",
+      "conversation": "Levezeti a vizsga egy szóbeli részét: a vizsgáztatót és a másik vizsgázót játssza, ahogy a rész előírja, soronként veled; soha nem segít és nem javít. Utána a rész szempontjai szerint kerül értékelésre.",
+      "sceneSetup": "Elindít egy jelenetet: kitalálja a helyzetet a lecke témájából — ki vagy, kivel beszélsz, hol, és milyen célokat kell elérni. Jelenetenként egyszer fut.",
+      "scene": "Játssza a jelenetet: partnerként válaszol minden mondatodra, javítja a hibáidat, fordítást ad, és kipipálja az elért célokat.",
+      "examples": "Három-öt példamondatot ír egy pakli minden olyan szavához, amelynek nincs saját példája, egyszerre öt szóhoz (Ismétlés → Paklik, „Példák készítése”); ahol lehet, ismert szavakkal, az újakat lefordítva."
+    }
+  },
+  "writing": {
+    "task": "Írj 3–5 mondatot a lecke témájáról: {topic}. Nyelv: {language}. Használd az új szavakat.",
+    "placeholder": "A szöveged…",
+    "check": "Ellenőrzés",
+    "checking": "Ellenőrzés…",
+    "rewrite": "Javítsd és ellenőrizd újra",
+    "score": "{name}: {score, number}/{max, number}",
+    "points": "{score, number}/{max, number}",
+    "past": "A lecke korábbi szövegei",
+    "verdict": {
+      "good": "Helyes",
+      "minor_errors": "Apró hibák",
+      "major_errors": "Sok hiba",
+      "off_task": "Nem a témáról szól"
+    },
+    "criteria": {
+      "task": "Feladat",
+      "communication": "Kommunikáció",
+      "accuracy": "Pontosság"
+    }
+  },
+  "mistakes": {
+    "exercises": "Elvégzett feladatok",
+    "firstTry": "Elsőre helyes",
+    "ofTotal": "{n, number}/{total, number}",
+    "list": "Hibák feladatonként",
+    "items": "{count, plural, one {részfeladat:} other {részfeladatok:}} {items}",
+    "fixed": "{count, plural, one {# később javítva} other {# később javítva}}",
+    "none": "Ebben a körben nincs hiba.",
+    "notYet": "Még nincs válasz: előbb oldd meg a feladatokat.",
+    "tutorIntro": "A tutor egyenként végigmegy a hibáidon: mi ment félre, milyen szabály áll mögötte, és egy rövid új példa az ellenőrzéshez.",
+    "start": "Hibáim átnézése a tutorral",
+    "message": "Kérlek, nézzük át a hibáimat ebben a leckében."
+  },
+  "scene": {
+    "intro": "Gyakorold a leckét egy rövid szerepjátékban: a partner a kurzus nyelvén beszél, javít, és kipipálja a céljaidat.",
+    "start": "Jelenet indítása",
+    "preparing": "Előkészítés…",
+    "partner": "A partnered: {partner}",
+    "translate": "Fordítás",
+    "placeholder": "A mondatod…",
+    "done": "Minden cél teljesítve — szép munka!",
+    "new": "Új jelenet",
+    "past": "A lecke korábbi jelenetei",
+    "goals": "Célok: {met, number}/{total, number}",
+    "ended": "A jelenet véget ért."
+  },
+  "player": {
+    "play": "Lejátszás: {what}",
+    "pause": "Szünet",
+    "back": "5 másodperccel vissza",
+    "speed": "Lejátszási sebesség {rate}×",
+    "position": "Pozíció",
+    "unavailable": "A hangot nem sikerült betölteni."
+  },
+  "about": {
+    "title": "A SprachAnkerről",
+    "intro": "Saját gépen futó, helyben dolgozó nyelvi tutor: valódi kurzusok egy lejátszóban, a haladás és a beszéd a saját számítógépeden, bármilyen MI-modellel, amelyet csatlakoztatsz. Ingyenes és nyílt forráskódú.",
+    "version": "Verzió",
+    "licence": "Licenc: MIT",
+    "source": "Forráskód a GitHubon"
+  },
+  "progress": {
+    "resetCourse": "A kurzus haladásának törlése",
+    "removeCourse": "Eltávolítás a kurzusaim közül",
+    "resetLesson": "A lecke haladásának törlése",
+    "courseTitle": "Törlöd a haladásodat itt: „{title}”?",
+    "courseBody": "A kurzus összes válasza és leckeköre törlődik, a hozzá tartozó tutorbeszélgetésekkel, szövegellenőrzésekkel és jelenetekkel együtt, valamint a leckéi által létrehozott szókártyák az ismétléseikkel. A kurzus kikerül a „Kurzusaim” közül, de telepítve marad. Ez nem vonható vissza.",
+    "lessonTitle": "Törlöd a haladásodat itt: „{title}”?",
+    "lessonBody": "A lecke összes válasza és köre törlődik, a tutorbeszélgetésével, szövegellenőrzéseivel és jeleneteivel együtt, valamint az általa létrehozott szókártyák az ismétléseikkel (más leckék szavai megmaradnak). Ez nem vonható vissza.",
+    "confirm": "Törlés",
+    "removeExam": "Eltávolítás a vizsgáim közül",
+    "examTitle": "Eltávolítod a vizsgáid közül: „{title}”?",
+    "examBody": "A próbavizsgái és gyakorlásai minden válasszal és értékeléssel együtt törlődnek. A vizsga letöltve marad."
+  },
+  "download": {
+    "queued": "Várakozik — egy másik kurzus töltődik le",
+    "pages": "{count, plural, one {# oldal beolvasva} other {# oldal beolvasva}}",
+    "preparing": "A leckék előkészítése…",
+    "media": "Média: {done, number}/{total, number} fájl · {size}",
+    "downloadSize": "Letöltés · ≈ {size}",
+    "continue": "Letöltés folytatása",
+    "sync": "Szinkronizálás a forrással",
+    "notDownloaded": "Nincs letöltve",
+    "incomplete": "{count, plural, =0 {A letöltés nem fejeződött be} one {# fájl hiányzik} other {# fájl hiányzik}}",
+    "openSoon": "A kurzus a teljes letöltés után indítható.",
+    "failed": "A letöltés sikertelen: {error}",
+    "done": "Letöltve. {failed, plural, =0 {Minden médiafájl a helyén van.} one {# fájlt nem sikerült letölteni.} other {# fájlt nem sikerült letölteni.}}",
+    "hint": "A letöltés pótolja a forrásból, ami hiányzik (a tárolt oldalak és médiafájlok megmaradnak), és újra előkészíti a kurzust; a haladásod megmarad.",
+    "log": "Letöltési napló",
+    "syncShort": "Szinkronizálás"
+  },
+  "storage": {
+    "title": "Tárhely",
+    "intro": "A kurzusok, a médiafájlok és a haladásod ebben a mappában vannak, azon a számítógépen, amelyen a SprachAnker fut. A szerver indításakor dől el (--data vagy SPRACHANKER_DATA); az asztali alkalmazásban majd módosíthatod.",
+    "total": "Összesen",
+    "used": "A kurzusok mérete: {size}",
+    "usedFree": "A kurzusok mérete: {size} · {free} szabad a lemezen",
+    "seriesSize": "{name}: {size}",
+    "recordings": "A felvételeid",
+    "recordingsKept": "{count, plural, =0 {nincs megőrzött felvétel} one {{n} felvétel · {size}} other {{n} felvétel · {size}}}",
+    "deleteRecordings": "Összes törlése",
+    "deleteRecordingsTitle": "Törlöd az összes felvételt?",
+    "deleteRecordingsBody": "A felvételeid törlődnek erről a számítógépről. A válaszaid és a haladásod megmaradnak. Ez nem vonható vissza."
+  },
+  "windowTitle": {
+    "course": "Kurzus",
+    "lesson": "Lecke {unit}.{lesson}",
+    "exercise": "Fel. {n}/{total}",
+    "summary": "Összegzés",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Szavak",
+    "grammar": "Nyelvtan",
+    "culture": "Kultúra",
+    "writing": "Írás",
+    "scene": "Jelenet",
+    "mistakes": "Hibák"
+  },
+  "words": {
+    "intro": "A lecke szavai kártyákon: idézd fel, nézd meg a választ, értékeld. Ha egyelőre nem marad semmi, az Ismétlésben folytatódnak.",
+    "learnt": "A lecke szavait egyelőre megtanultad.",
+    "goOn": "{count, plural, =0 {Az Ismétlésben térnek vissza, amikor esedékesek.} one {# tanulás alatti kártya hamarosan visszatér az Ismétlésben.} other {# tanulás alatti kártya hamarosan visszatér az Ismétlésben.}}"
+  },
+  "myWords": {
+    "search": "Szó vagy fordítás keresése",
+    "allDecks": "Összes pakli",
+    "all": "Mind",
+    "state": {
+      "new": "Új",
+      "learning": "Tanulás",
+      "review": "Ismétlés",
+      "suspended": "Felfüggesztve",
+      "marked": "Megjelölve"
+    },
+    "column": {
+      "word": "Szó",
+      "translation": "Fordítás",
+      "state": "Állapot",
+      "due": "Következő"
+    },
+    "dueNow": "most",
+    "dueIn": "{interval} múlva",
+    "nothing": "Nincs ilyen szó.",
+    "sheet": "Szó",
+    "toLesson": "Lecke {unit}.{lesson}",
+    "cards": "Kártyák",
+    "answers": "Válaszok",
+    "noAnswers": "Még nincs válasz.",
+    "face": {
+      "recognition": "Szó → jelentés",
+      "production": "Jelentés → szó",
+      "listening": "Hallás utáni értés"
+    },
+    "lapses": "{count, plural, one {# alkalommal elfelejtve} other {# alkalommal elfelejtve}}",
+    "suspend": "Felfüggesztés",
+    "unsuspend": "Felfüggesztés feloldása",
+    "fromDeck": "Pakli: {deck}"
+  },
+  "notebook": {
+    "title": "Füzet",
+    "days": "Aktivitás",
+    "dayTitle": "{date}: {what}",
+    "open": "folyamatban",
+    "unfinished": "befejezetlen",
+    "passes": "Körök",
+    "noPasses": "Ennek a leckének még nincs köre.",
+    "choose": "Kör kiválasztása összehasonlításhoz: {date}",
+    "compare": "Összehasonlítás",
+    "compareHint": "Jelölj ki két kört, hogy egymás mellett lásd őket.",
+    "minutes": "{count, plural, one {# perc} other {# perc}}",
+    "worked": "{worked, number}/{total, number} feladat",
+    "workedSome": "{count, plural, one {# feladat} other {# feladat}}",
+    "explanations": "{count, plural, one {# magyarázat} other {# magyarázat}}",
+    "writing": "{count, plural, one {# szöveg} other {# szöveg}}",
+    "scenes": "{count, plural, one {# jelenet} other {# jelenet}}",
+    "chats": "{count, plural, one {# beszélgetés} other {# beszélgetés}}",
+    "words": "{count, plural, one {# szó} other {# szó}}",
+    "exercises": "Feladatok",
+    "exercise": "Feladat",
+    "total": "Összesen",
+    "attempts": "{count, plural, one {# próbálkozás} other {# próbálkozás}}",
+    "rightAt": "{n, number}. próbálkozásra helyes",
+    "itemHistory": "A részfeladat előzményei",
+    "passOf": "Kör: {date}",
+    "attemptN": "{n, number}. próbálkozás",
+    "more": "Több",
+    "alsoDone": "Még elvégezve",
+    "wordsAdded": "Az Ismétléshez adott szavak",
+    "messages": "{count, plural, one {# üzenet} other {# üzenet}}",
+    "nothing": "nincs tevékenység",
+    "kind": {
+      "lesson": "leckék {count, number}",
+      "exam": "vizsgák {count, number}",
+      "review": "kártyák {count, number}",
+      "ai": "MI {count, number}"
+    },
+    "less": "Kevesebb",
+    "calendar": "Tanulási napok az elmúlt évben",
+    "progress": "Haladás",
+    "range": {
+      "all": "Teljes idő",
+      "month": "30 nap",
+      "week": "7 nap"
+    },
+    "tile": {
+      "activeDays": "Tanulási napok",
+      "lesson": "Válaszok és lépések",
+      "exam": "Vizsgaválaszok",
+      "review": "Megválaszolt kártyák",
+      "newCards": "Új kártyák",
+      "remembered": "Felidézve",
+      "rememberedHint": "az ismétlésben lévő kártyákból",
+      "ai": "Gyakorlás MI-vel"
+    },
+    "examRuns": "Próbavizsgák és gyakorlás",
+    "noExamRuns": "Még semmit sem adtál be.",
+    "examWrong": "Legutóbb hibás: {count, plural, one {# kérdés} other {# kérdés}}",
+    "section": {
+      "review": "Ismétlés",
+      "lesson": "Leckék",
+      "exam": "Vizsgák"
+    },
+    "none": {
+      "review": "Még nincsenek kártyák: vegyél fel egy kurzuspaklit az Ismétlésben, vagy tanuld meg egy lecke szavait.",
+      "lesson": "Még nem dolgoztál egy leckén sem: mindegyik, amelyen dolgozol, itt jelenik meg minden körével.",
+      "exam": "Még semmit sem adtál be: a próbavizsgáid és gyakorlásaid itt jelennek meg."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Ismert szavak",
+        "wordsKnownHint": "a szó minden kártyája ismétlésben van",
+        "new": "Új",
+        "learning": "Tanulás",
+        "review": "Ismétlés",
+        "mature": "Megtanult",
+        "matureHint": "minden oldala legalább három hét múlva esedékes",
+        "suspended": "Felfüggesztve",
+        "remembered": "Felidézve, 30 nap",
+        "rememberedHint": "{count, plural, one {# válasz} other {# válasz}}",
+        "dueToday": "Ma esedékes",
+        "dueTomorrow": "Holnapig esedékes",
+        "dueWeek": "Egy héten belül esedékes"
+      },
+      "lesson": {
+        "lessonsDone": "Kész leckék",
+        "best": "Legjobb eredmény"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {# kör} other {# kör}}"
+    },
+    "openEntry": {
+      "review": "Paklik megnyitása",
+      "exam": "Minden erről a vizsgáról"
+    }
+  },
+  "study": {
+    "listen": "Hallgasd meg, és idézd fel a jelentését",
+    "fromLesson": "lecke {unit}.{lesson}",
+    "countsTitle": "Új {new}, tanulás alatt {learning}, ismétlendő {review}",
+    "finished": "Gratulálunk! Ezzel a paklival egyelőre végeztél.",
+    "nextLearning": "{minutes, plural, one {A következő tanulási kártya # perc múlva lesz kész.} other {A következő tanulási kártya # perc múlva lesz kész.}}",
+    "reviewLimit": "Elérted a mai ismétlési korlátot, de még vannak ismétlésre váró kártyák.",
+    "newLimit": "Van még új kártya, de elérted a napi korlátot.",
+    "buried": "Egy vagy több kártya félre lett téve; ezek holnap jelennek meg.",
+    "unbury": "Visszahozás",
+    "unit": {
+      "s": "mp",
+      "m": "p",
+      "h": "ó",
+      "d": "n",
+      "mo": "hó",
+      "y": "év"
+    },
+    "flag": {
+      "red": "Piros",
+      "orange": "Narancs",
+      "green": "Zöld",
+      "blue": "Kék",
+      "pink": "Rózsaszín",
+      "turquoise": "Türkiz",
+      "purple": "Lila"
+    },
+    "marked": "Megjelölve",
+    "leech": "makacs kártya",
+    "undo": "Visszavonás",
+    "undoKeys": "Visszavonás (U, Ctrl+Z)",
+    "showKeys": "Space vagy Enter",
+    "show": "Válasz megjelenítése",
+    "rating": {
+      "again": "Újra",
+      "hard": "Nehéz",
+      "good": "Jó",
+      "easy": "Könnyű"
+    },
+    "more": "Több",
+    "replay": "Hang újrajátszása",
+    "buryCard": "Kártya félretétele",
+    "buryNote": "Szó félretétele",
+    "suspendCard": "Kártya felfüggesztése",
+    "suspendNote": "Szó felfüggesztése",
+    "mark": "Szó megjelölése",
+    "unmark": "Jelölés törlése",
+    "keys": "Space vagy Enter: válasz, aztán Jó · 1–4: értékelés · R: újrajátszás · U: visszavonás",
+    "noCards": "Még nincsenek kártyák: a leckék „A lecke szavai” lépéséből érkeznek.",
+    "deck": "Pakli",
+    "count": {
+      "new": "Új",
+      "learning": "Tanul",
+      "review": "Esedékes"
+    },
+    "due": "{count, plural, one {# kártya} other {# kártya}} vár tanulásra",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, one {válasz van hátra} other {válasz van hátra}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Hátralévő válaszok, ha mindegyik Jó: egy új kártya két tanulási lépésen megy át, egy tanulás alatti a hátralévő lépésein, egy ismétlés egy válasz. Az Újra lépéseket ad hozzá.",
+    "asks": {
+      "recognition": "Mit jelent?",
+      "production": "Hogy mondod {in}?",
+      "in": {
+        "de": "németül",
+        "en": "angolul",
+        "ru": "oroszul"
+      }
+    },
+    "deckLink": {
+      "audio": "Pakli felolvasása",
+      "examples": "Példák készítése a paklihoz",
+      "both": "Pakli felolvasása, példák készítése"
+    }
+  },
+  "profiles": {
+    "who": "Ki tanul?",
+    "welcome": "Üdv a SprachAnkerben",
+    "firstHint": "Kezdésként hozd létre a profilodat: néhány rövid lépés.",
+    "unnamed": "Még nincs neve",
+    "new": "Új profil",
+    "previous": "Előző profilok",
+    "next": "További profilok",
+    "page": "{n, number}/{total, number}"
+  },
+  "onboarding": {
+    "progress": "Lépés: {n}/{total}",
+    "back": "Vissza",
+    "next": "Tovább",
+    "finish": "Válassz kurzust",
+    "profile": {
+      "title": "Üdvözlünk",
+      "text": "A SprachAnker valódi nyelvtanfolyamokat gyűjt egy lejátszóba, ellenőrzi a válaszaidat, időzített ismétléssel gyakoroltatja a szavaidat, és MI-tutort is bevonhat. Minden ezen a számítógépen marad.",
+      "sources": "A kurzusok közvetlenül a kiadóik weboldaláról (Deutsche Welle és mások) töltődnek le, személyes használatra. Tartsd tiszteletben a feltételeiket; a SprachAnker nem áll kapcsolatban velük.",
+      "experimental": "A még kipróbálás alatt álló kurzusok és vizsgák rejtve maradnak, amíg be nem kapcsolod őket itt: Beállítások → Általános → Kísérleti.",
+      "name": "Hogyan szólítsunk?"
+    },
+    "assistant": {
+      "title": "MI-asszisztens",
+      "text": "Az asszisztens elmagyarázza a hibákat, tutorként segít a leckékben, ellenőrzi a szövegeidet és jeleneteket játszik. Válassz most, vagy később a Beállításokban — az alkalmazás nélküle is működik."
+    },
+    "tour": {
+      "title": "Mi hol található"
+    },
+    "speech": {
+      "title": "Beszéd",
+      "text": "Mondd ki magad a kurzusok mondatait, és hallgass meg bármilyen szöveget felolvasva: próbáld ki a mikrofont, töltsd le a beszédfelismerőt (egyszer), hogy az alkalmazás hallja, mit mondtál, és válassz hangot minden nyelvhez. Minden ezen a számítógépen marad; később bármit módosíthatsz itt: Beállítások → Beszéd."
+    },
+    "cancel": "Mégse"
+  },
+  "tour": {
+    "courses": "A kurzusaid (ott, ahol abbahagytad), a letöltöttek és minden letölthető kurzus; bármelyik lista szűkíthető egy nyelvpárra.",
+    "review": "A szavaid időzített ismétléssel: napi néhány perc.",
+    "notebook": "Minden lecke minden köre, a válaszaid és a hibáid.",
+    "settings": "A profilod, az ismétlés, a beszéd, az MI-asszisztens és az alkalmazás.",
+    "exams": "Vizsgák, amelyekre felkészülhetsz, például a Leben in Deutschland: a valódihoz hasonló próbavizsgák, gyakorlás és a teljes katalógus a válaszokkal."
+  },
+  "profile": {
+    "who": "Név és szín",
+    "devices": "Bejelentkezett eszközök",
+    "thisDevice": "ez az eszköz",
+    "lastSeen": "utoljára használva: {date}",
+    "signOutDevice": "Kijelentkeztetés",
+    "switch": "Profilváltás",
+    "open": "Profil",
+    "delete": "Profil törlése…",
+    "deleteTitle": "Törlöd ezt a profilt: „{name}”?",
+    "deleteBody": "A haladása, szavai és kártyái, felvételei, MI-beszélgetései és a bejelentkezett eszközei véglegesen törlődnek. A többi profil és a kurzusok megmaradnak.",
+    "deleteConfirm": "Végleges törlés",
+    "name": "Név vagy becenév",
+    "colour": "Szín",
+    "colours": {
+      "amber": "Borostyán",
+      "teal": "Kékeszöld",
+      "rose": "Rózsa",
+      "violet": "Ibolya",
+      "sky": "Égkék",
+      "lime": "Limezöld"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Tanulás",
+      "decks": "Paklik",
+      "words": "Szavaim"
+    },
+    "studying": "Tanulás: {deck}",
+    "more": "{count, plural, one {Még # új kártya ma} other {Még # új kártya ma}}",
+    "leave": "Pakli elhagyása…",
+    "offers": "Felvehető paklik",
+    "offersHint": "Minden kurzusod szavai és minden ide importált pakli szavai egy-egy paklit alkotnak: ha egészben felveszed, új kártyaként adja hozzá őket a saját sorrendjében — a napi korláton belül, vagy többet a „több új ma” gombbal. Ha egy szóhoz már van kártyád, az megmarad.",
+    "words": "{words, plural, one {# szó} other {# szó}} · ebből {mine, number} már a tiéd",
+    "take": "Pakli felvétele",
+    "takeRest": "A többi {count, number} hozzáadása",
+    "study": "Tanulás",
+    "leaveTitle": "Elhagyod ezt a paklit: {deck}?",
+    "leaveBody": "A kártyái a haladásukkal együtt eltűnnek. Azok a szavak, amelyek egy másik paklidban is megvannak, a haladásukkal együtt átkerülnek oda.",
+    "moreShort": "{count, plural, one {+# új} other {+# új}}",
+    "import": {
+      "button": "Paklifájl importálása (.apkg)",
+      "title": "Pakli importálása",
+      "hint": "A szavaiból pakli lesz, amelyet ezen a számítógépen minden profil felvehet, mint egy kurzusét; a hangja is jön velük.",
+      "name": "Név",
+      "lang": "A szavak nyelve",
+      "translationLang": "A fordítások nyelve",
+      "words": "{words, plural, one {# szó} other {# szó}} · {audio, plural, =0 {nincs hang} one {# hanggal} other {# hanggal}} · {examples, plural, =0 {nincs példa} one {# példákkal} other {# példákkal}}",
+      "submit": "Importálás",
+      "updates": "Ez a fájl frissíti az itt lévő paklit ({deck}): a szavai e fájl szavai lesznek, és a belőlük készült kártyák követik őket. Más nyelveken ez önálló pakli.",
+      "left": "{count, plural, one {# szó nélküli jegyzet kimarad.} other {# szó nélküli jegyzet kimarad.}}",
+      "unusable": "{count, plural, one {# jegyzet kimarad, mert a szava nem olvasható.} other {# jegyzet kimarad, mert a szava nem olvasható.}}",
+      "done": "Importálva: {deck}, {words, plural, one {# szó} other {# szó}}."
+    },
+    "remove": "Pakli törlése",
+    "removeTitle": "Törlöd ezt a paklit: {deck}?",
+    "removeBody": "A pakli, a szavai és a hangja minden profil számára törlődik erről a számítógépről. Ez nem vonható vissza.",
+    "audio": {
+      "missing": "{count, plural, one {# szó hang nélkül} other {# szó hang nélkül}}",
+      "generate": "Hang készítése",
+      "reading": "Felolvasás: {done, number}/{total, number}…",
+      "stop": "Leállítás",
+      "all": "Minden szónak van hangja",
+      "install": "Ehhez telepíts hangot a Beállítások → Beszéd alatt ehhez a nyelvhez: {language}",
+      "failed": "{count, plural, one {# szót nem sikerült felolvasni} other {# szót nem sikerült felolvasni}}",
+      "voice": "Felolvassa: {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Hang kiválasztása"
+    },
+    "left": "kb. {time} van hátra",
+    "why": "Ok: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# szó példák nélkül} other {# szó példák nélkül}}",
+      "make": "Példák készítése",
+      "writing": "Példák írása: {done, number}/{total, number}…",
+      "all": "Minden szónak vannak példái",
+      "failed": "{count, plural, one {# szó nem kapott példát} other {# szó nem kapott példát}}",
+      "setUp": "Példák készítéséhez állítsd be az MI-asszisztenst a Beállításokban"
+    },
+    "removeStudied": "{count, plural, one {Ezt a paklit tanulja ez a profil: {profiles}.} other {Ezt a paklit tanulják ezek a profilok: {profiles}.}} Akkor törölhető, ha már minden profil elhagyta: Ismétlés → Paklik → Pakli elhagyása…."
+  },
+  "guide": {
+    "open": "Hogyan működik",
+    "title": "Hogyan működik az ismétlés",
+    "curveAlt": "Három felejtési görbe, mindegyik laposabb az előzőnél",
+    "days": "nap",
+    "curveCaption": "Az emlék elhalványul, ha nem használjuk: minden ismétlés a felejtés határán laposabbá teszi a görbét, így a következő tovább várhat.",
+    "method": {
+      "title": "Időzített ismétlés",
+      "text": "Minden kártya épp azelőtt tér vissza, hogy elfelejtenéd. Az időközök minden jó válasszal nőnek: percek, aztán napok, hetek, hónapok. Az ötlet Ebbinghaus felejtési görbéjére (1885) vezethető vissza."
+    },
+    "recall": {
+      "title": "Előbb idézd fel, aztán nézd meg",
+      "text": "Próbáld felidézni a választ, mielőtt megnézed. A felidézés erőfeszítése erősíti az emlékezetet — a válasz újraolvasása sokkal kevesebbet ér. Aztán értékeld magad őszintén."
+    },
+    "buttons": {
+      "title": "A négy gomb",
+      "again": {
+        "name": "Újra",
+        "text": "nem emlékeztél, vagy hibás: a kártya egy perc múlva visszajön"
+      },
+      "hard": {
+        "name": "Nehéz",
+        "text": "erőfeszítéssel emlékeztél: rövidebb időköz"
+      },
+      "good": {
+        "name": "Jó",
+        "text": "emlékeztél: a szokásos választás (Space vagy Enter)"
+      },
+      "easy": {
+        "name": "Könnyű",
+        "text": "túl könnyű: sokkal később jön vissza"
+      }
+    },
+    "counts": {
+      "title": "A három szám",
+      "text": "A ma még megtanulandó új kártyák, a tanulás alatti kártyák (perceken belül visszajönnek) és az ismétlésre esedékes kártyák. Az aláhúzott szám mutatja, honnan jön a képernyőn lévő kártya. A „válasz van hátra” megbecsüli, hány válasz zárja le a munkamenetet, ha mindegyik Jó."
+    },
+    "faces": {
+      "title": "Egy szó kártyái",
+      "recognition": {
+        "name": "1. kártya",
+        "text": "a szó → mit jelent (megértés)"
+      },
+      "production": {
+        "name": "2. kártya",
+        "text": "a jelentés → a szó (beszéd); az 1. kártya után jön"
+      },
+      "listening": {
+        "name": "3. kártya",
+        "text": "a hallott szó → mit jelent (hallás utáni értés)"
+      }
+    },
+    "more": {
+      "title": "A „…” alatt",
+      "replay": {
+        "name": "Újrajátszás (R)",
+        "text": "a szó újbóli meghallgatása"
+      },
+      "bury": {
+        "name": "Félretétel (- vagy =)",
+        "text": "ma nem: a kártya vagy az egész szó holnap jön vissza"
+      },
+      "suspend": {
+        "name": "Felfüggesztés (@ vagy !)",
+        "text": "kikerül az ismétlésből, amíg vissza nem hozod — egy szó, amelyet tudsz, vagy nincs rá szükséged"
+      },
+      "flag": {
+        "name": "Zászlók (Ctrl+1–7)",
+        "text": "színes jelölések, hogy később megtaláld a kártyákat a Szavaim között"
+      },
+      "mark": {
+        "name": "Megjelölés (*)",
+        "text": "csillag a szón, hogy visszatérj hozzá"
+      }
+    },
+    "keys": {
+      "title": "Billentyűk",
+      "text": "A Space vagy az Enter megmutatja a választ, aztán Jó értékelést ad; 1–4: értékelés; U vagy Ctrl+Z visszavonja az utolsó választ; R újrajátssza a hangot."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Az ütemezést az FSRS végzi, egy nyílt időzített ismétlési modell: megbecsüli, mennyire stabil minden emlék, és mikor felejtenéd el, a kívánt megtartási arányt célozva (alapértelmezés szerint 90%). A korlátok, a megtartási arány és a kártyatípusok a Beállításokban vannak."
+    },
+    "schedule": {
+      "title": "Lépések és a nap",
+      "steps": "A Jó értékelésű új kártya 10 perc múlva jön vissza (Újra után egy perc múlva), aztán napok múlva; az elfelejtett 10 perc múlva, és az időköze újra nő.",
+      "day": "Az új nap {time}-kor kezdődik: az éjfél és ezen időpont közötti ismétlések az előző naphoz számítanak.",
+      "limit": "Az új kártyák beleszámítanak a napi maximális ismétlésszámba: ha ezt elérted, aznap már nem jelennek meg új kártyák."
+    }
+  },
+  "reviewSettings": {
+    "intro": "A kártyáid időzített ismétlése: egy szó akkor tér vissza, amikor épp elfelejtenéd. Az alapbeállítások a legtöbb tanulónak megfelelnek.",
+    "limits": "Napi korlátok",
+    "newPerDay": "Új kártyák naponta",
+    "reviewsPerDay": "Legfeljebb ennyi ismétlés naponta",
+    "limitsHint": "Egy két kártyatípusú szó két új kártyát jelent. Minden új kártya az első hónapban kb. 5–10 ismétlést hoz.",
+    "retention": "Kívánt megtartási arány",
+    "retentionHint": "Mennyire valószínű, hogy még emlékszel egy kártyára, amikor visszajön. Magasabb érték több ismétlést jelent; alapértelmezés: 90%.",
+    "faces": "Új szó kártyatípusai",
+    "facesHint": "Milyen kártyákat kap egy új szó. A már kártyával rendelkező szavak megtartják a sajátjukat."
+  },
+  "speech": {
+    "record": "Felvétel",
+    "stop": "Felvétel leállítása",
+    "showText": "Szöveg megjelenítése",
+    "answerHeard": "Hallgasd meg, aztán mondd ki hangosan, ahogy a feladat kéri.",
+    "answerFree": "Mondd ki hangosan, ahogy a feladat kéri.",
+    "answerLine": "A válaszod",
+    "mine": "Az enyém",
+    "mineFor": "Az enyém · {time}",
+    "recordedNotKept": "Felvéve (nincs megőrizve)",
+    "listenFirst": "Előbb hallgasd meg a felvételt.",
+    "recording": "Felvétel… koppints újra a leállításhoz.",
+    "saving": "Mentés…",
+    "notSaved": "A felvételt nem sikerült menteni; így is beszámít.",
+    "again": "Hallgasd meg mindkettőt. Új felvétellel lecserélheted.",
+    "howTo": "Koppints a mikrofonra, mondd ki, koppints újra.",
+    "mic": {
+      "insecure": "A mikrofon csak biztonságos (https) címen működik, például azon, amelyet a Tailscale ad ennek a számítógépnek.",
+      "unsupported": "Ez a böngésző nem tud hangot rögzíteni.",
+      "denied": "A mikrofonhoz való hozzáférés megtagadva. Engedélyezd a böngésző webhely-beállításaiban.",
+      "failed": "A mikrofont nem sikerült elindítani."
+    },
+    "settings": {
+      "mic": "Mikrofon",
+      "device": "Használt mikrofon",
+      "defaultDevice": "A rendszer alapértelmezése",
+      "unnamedDevice": "Mikrofon",
+      "testing": "Mondj valamit…",
+      "testHint": "Teszt: három másodperc, aztán hallgasd vissza magad. Ezen az eszközön állítható.",
+      "listen": "Meghallgatás",
+      "sampleFor": "Meghallgatandó szöveg: {language}",
+      "otherSample": "Másik mondat",
+      "recognition": "Felismerés",
+      "recognitionHint": "A beszédedet ezen a számítógépen ismeri fel a Whisper: amit mondtál, összeveti a mondattal. Szavakat hall, nem hangokat, és elnéző. Semmi sem hagyja el a számítógépet.",
+      "noEngine": "Ebben a változatban nincs felismerőmotor.",
+      "recognitionOn": "Beszédem felismerése",
+      "inUse": "Használatban",
+      "downloadFailed": "a letöltés sikertelen",
+      "use": "Használat",
+      "removeModel": "Modell eltávolítása",
+      "download": "Letöltés",
+      "read": "Felolvasás",
+      "readHint": "Egy hang egy nyelven olvas fel szövegeket: a jelenetek mondatait, egy szó példáját és a felvétel nélküli szavakat. Minden nyelvnek saját hangja van.",
+      "engine": {
+        "device": "Az eszköz hangjai",
+        "deviceLine": "{count, plural, one {# hang} other {# hang}}, nem kell telepíteni semmit",
+        "deviceNone": "Ennek a böngészőnek nincsenek felolvasó hangjai.",
+        "piper": "Piper ezen a számítógépen",
+        "piperMissing": "Nincs ebben a változatban: az alkalmazás a beszédmotorjai nélkül készült",
+        "piperLine": "{count, plural, =0 {még nincs hang: tölts le egyet lent} one {# hang letöltve} other {# hang letöltve}}",
+        "qwen": "Qwen3-TTS ezen a számítógépen",
+        "qwenMissing": "Nincs ebben a változatban: az alkalmazás a beszédmotorjai nélkül készült",
+        "qwenReady": "Kész: egy modell letöltve",
+        "qwenNoModel": "Még nincs modell: tölts le egyet lent"
+      },
+      "voiceFor": "Hang ehhez a nyelvhez: {language}",
+      "voiceAuto": "Automatikus — {name}",
+      "noVoice": "Ezen az eszközön nincs hang ehhez a nyelvhez: {language}.",
+      "betterVoices": "Macen a jobb hangokat (Premium, Enhanced) itt töltheted le: System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "readRate": "Sebesség: {rate}×",
+      "readRateLabel": "Felolvasási sebesség",
+      "piperNone": "Ehhez a nyelvhez még nincs hang: {language}. Tölts le egyet lent.",
+      "piperNoLanguage": "A Pipernek nincs hangja ehhez a nyelvhez: {language}. Az eszköz hangjai olvassák fel.",
+      "piperHint": "A Piper hangjai egyenként kb. 60–120 MB-osak, és ezen a számítógépen maradnak; a hang nélküli nyelveket az eszköz hangjai olvassák fel.",
+      "removeVoice": "Hang eltávolítása: {voice}",
+      "allVoices": "Összes hang ({count, number})",
+      "quality": {
+        "x_low": "legalacsonyabb minőség",
+        "low": "alacsony minőség",
+        "medium": "közepes minőség",
+        "high": "magas minőség"
+      },
+      "qwenModel": {
+        "small": "Kis modell (0.6B): gyorsabb",
+        "large": "Nagy modell (1.7B): természetesebb, lassabb"
+      },
+      "qwenHint": "Neurális hang, amely 10 nyelven olvas (német, angol, orosz, francia, spanyol, olasz, portugál, kínai, japán, koreai) kilenc beszélővel. Futás közben kb. 3 GB memóriát foglal (a nagy modell többet), és 10 perc felolvasás nélküli idő után leáll; az ezt követő első felolvasás kb. 20 mp-et vár a betöltésre. Az általa nem beszélt nyelveket az eszköz hangjai olvassák fel.",
+      "qwenNoLanguage": "A Qwen3-TTS nem beszéli ezt a nyelvet: {language}. Az eszköz hangjai olvassák fel.",
+      "howMic": "Ahol a választ ki kell mondani (egy vizsga szóbeli része), ott mikrofon van: koppints a felvétel indításához, és újra a leállításhoz. Ahol írni kell, ott nincs.",
+      "howPhrase": "Az ismétlendő mondat az első próbálkozásodig rejtve marad; előbb is megjelenítheted.",
+      "howRecordings": "A felvételeid ezen a számítógépen maradnak, hogy a Füzetben újra meghallgathasd őket; törölni itt tudod: Általános → Tárhely.",
+      "how": "Hogyan működik"
+    },
+    "listening": "Felismerés…",
+    "notHeard": "Nem sikerült felismerni; a felvétel így is beszámít.",
+    "heard": "Hallott:",
+    "heardNothing": "semmi",
+    "verdict": {
+      "correct": "Sikerült",
+      "partial": "Majdnem: néhány szó hiányzik",
+      "wrong": "Próbáld újra: hallgasd meg, és mondd el még egyszer"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — pontos (ajánlott)",
+      "small-q5_1": "Whisper small — gyorsabb, kevésbé pontos"
+    },
+    "sayIn": "Mondd ki ezen a nyelven: {language}",
+    "notHeardShort": "Nem sikerült felismerni. Próbáld újra.",
+    "answerSample": "Minta",
+    "aiChecking": "Az MI ellenőrzi a válaszodat…",
+    "needsRecognition": "Egy mondat kimondásához beszédfelismerés kell: kapcsold be itt: Beállítások → Beszéd.",
+    "languageUnknown": "A kurzus nyelve nem ismert, ezért nem hallható, mit mondasz.",
+    "read": {
+      "listen": "Felolvasás: {what}",
+      "stop": "Felolvasás leállítása"
+    },
+    "aiCheck": "Ellenőrzés MI-vel"
+  },
+  "error": {
+    "answer_does_not_fit": "A válasz nem illik ehhez a feladathoz. Töltsd be újra a leckét.",
+    "card_changed": "Ez a kártya egy másik eszközön megváltozott. Újra megjelenik.",
+    "downloads_unavailable": "Itt nem lehet kurzusokat letölteni.",
+    "empty_recording": "A felvétel üres. Próbáld újra.",
+    "event_id_taken": "Ezt a választ már másként rögzítettük. Töltsd be újra az oldalt.",
+    "event_of_another_run": "Ez a bejegyzés egy másik körhöz tartozik. Töltsd be újra a leckét.",
+    "exam_rating_busy": "Ennek a válasznak az értékelése folyamatban van. Várj egy kicsit.",
+    "exam_conversation_busy": "A partner válaszol. Várj egy kicsit.",
+    "exam_part_done": "Ez a rész véget ért.",
+    "invalid_event": "Az alkalmazás olyan bejegyzést küldött, amelyet a szerver nem fogadott el. Töltsd be újra a leckét.",
+    "invalid_request": "Az alkalmazás olyat küldött, amit a szerver nem fogadott el. Töltsd be újra az oldalt.",
+    "request_too_large": "Ez a kérés túl nagy.",
+    "invalid_setting": "Ez az érték nem illik a beállításhoz.",
+    "lesson_not_in_series": "Ez a lecke nem része a kurzusnak. Töltsd be újra az oldalt.",
+    "llm_bad_response": "A szerver hibát adott vissza.",
+    "llm_cli_missing": "A parancssori asszisztens nincs telepítve ezen a számítógépen.",
+    "llm_invalid_output": "A modell nem tudott használható választ adni. Próbáld újra, vagy válassz nagyobb modellt itt: Beállítások → MI-asszisztens.",
+    "llm_lmstudio_failed": "Az LM Studio szervere nem indult el. Nyisd meg az LM Studiót, és indítsd el ott.",
+    "llm_lmstudio_missing": "Az LM Studio nincs telepítve ezen a számítógépen.",
+    "llm_lmstudio_remote": "Az LM Studio egy másik számítógépen fut: ott indítsd el a szerverét.",
+    "llm_model_not_found": "A modell nem található a szerveren.",
+    "llm_no_endpoint": "Add meg a szerver címét.",
+    "llm_no_key": "Add meg az API-kulcsot.",
+    "llm_not_configured": "Válassz modellt itt: Beállítások → MI-asszisztens.",
+    "llm_rate_limited": "A szolgáltató korlátját egyelőre elérted (az ingyenes csomagok percenként és naponta korlátozzák a kéréseket). Próbáld később, vagy válassz másik modellt itt: Beállítások → MI-asszisztens.",
+    "llm_timeout": "A modell túl sokáig válaszolt.",
+    "llm_unauthorized": "Az API-kulcsot nem fogadták el.",
+    "llm_unreachable": "A szerver nem válaszol. Ellenőrizd a címet.",
+    "missing_client_header": "A kérés nem az alkalmazásból jött. Töltsd be újra az oldalt.",
+    "name_required": "Adj meg egy nevet.",
+    "no_active_scene": "Ez a jelenet véget ért. Kezdj újat.",
+    "no_device": "Ez az eszköz már nincs bejelentkezve.",
+    "no_lesson_run": "Előbb indítsd el a leckét: az ellenőrzés a körével együtt tárolódik.",
+    "no_session": "Ez az eszköz ki van jelentkeztetve. Válaszd ki újra a profilodat.",
+    "no_such_attempt": "Ez a válasz már nincs a lecke körében. Töltsd be újra a leckét.",
+    "no_such_card": "Ez a kártya már nem létezik.",
+    "no_such_chat": "Ez a beszélgetés már nincs meg.",
+    "no_such_item": "Ez a feladat megváltozott. Töltsd be újra a leckét.",
+    "no_such_model": "Ez a modell nem érhető el.",
+    "no_such_profile": "Ez a profil már nem létezik.",
+    "no_such_recording": "Ez a felvétel már nincs meg.",
+    "no_such_run": "Ez a leckekör már nincs meg (a haladását törölték). Töltsd be újra a leckét.",
+    "not_found": "Nem található. Töltsd be újra az oldalt.",
+    "not_installed": "Ez a kurzus nincs (már) telepítve.",
+    "not_offered": "Ez a kurzus (már) nem érhető el.",
+    "nothing_to_undo": "Nincs mit visszavonni.",
+    "recording_too_large": "A felvétel túl hosszú.",
+    "registration_closed": "Ezen a szerveren nem lehet új profilt létrehozni.",
+    "run_incomplete": "A lecke még nincs kész.",
+    "run_not_active": "A lecke e köre véget ért. Töltsd be újra a leckét.",
+    "run_without_edition": "Ennek a körnek nincs nyelvi változata. Kezdd újra a leckét.",
+    "scene_busy": "A jelenet még válaszol. Várj egy kicsit.",
+    "server_error": "Hiba történt a szerveren.",
+    "speaking_busy": "Ennek a válasznak az ellenőrzése folyamatban van. Várj egy kicsit.",
+    "speech_engine_failed": "A beszédfelismerő nem válaszolt. Próbáld újra.",
+    "speech_unavailable": "A beszédfelismerés nincs beállítva. Lásd: Beállítások → Beszéd.",
+    "unknown_host": "A szerver nem ismeri ezt a címet. Azon a címen nyisd meg, amelyet kiír.",
+    "unknown_setting": "Ez a beállítás (már) nem létezik.",
+    "unsupported_audio": "Ez a böngésző olyan formátumban rögzít, amelyet az alkalmazás nem tud tárolni.",
+    "writing_busy": "A lecke egyik szövegének ellenőrzése folyamatban van. Várj egy kicsit.",
+    "other": "Hiba történt: {message}",
+    "exam_needs_setting": "Előbb válaszd ki a szövetségi tartományodat: a vizsga kérdez róla.",
+    "exam_time_over": "A próbavizsga ideje lejárt: a vizsga az addigi állapotában lett beadva.",
+    "exam_test_running": "Egy próbavizsga folyamatban van: előbb add be.",
+    "no_such_deck": "Ez a pakli (már) nincs itt.",
+    "not_a_deck": "Ez a fájl nem olvasható paklifájl (.apkg).",
+    "deck_without_words": "Ebben a pakliban nincsenek tanulható szavak.",
+    "deck_too_large": "Ez a paklifájl túl nagy (legfeljebb 512 MB).",
+    "deck_in_use": "Egy profil tanulja ezt a paklit: akkor törölhető, ha már senki sem tanulja.",
+    "deck_upload_gone": "A feltöltött paklifájl már nincs itt: válaszd ki újra.",
+    "deck_unpacked_too_large": "Ez a paklifájl kicsomagolva több, mint amennyi egyszerre beolvasható.",
+    "deck_same_languages": "A szavakhoz és a fordításaikhoz két különböző nyelv kell.",
+    "examples_without_word": "A modell mondataiban nem szerepelt a szó."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Vizsgáim",
+      "downloaded": "Letöltve",
+      "available": "Elérhető"
+    },
+    "noneStarted": "Még nem kezdtél el vizsgát.",
+    "noneDownloaded": "Még nincs letöltött vizsga.",
+    "allDownloaded": "Minden kínált vizsga le van töltve.",
+    "noneMatch": "Egy kérdés sem felel meg.",
+    "questions": "{count, plural, one {# kérdés} other {# kérdés}}",
+    "lastPoints": "legutóbb: {points, number}/{max, number}",
+    "ready": "A kérdések {percent} részét tudod",
+    "lastPassed": "Legutóbbi próbavizsga ({date}): sikeres",
+    "lastFailed": "Legutóbbi próbavizsga ({date}): sikertelen",
+    "continueTest": "Vizsga folytatása",
+    "mode": {
+      "test": "Próbavizsga",
+      "testText": "{count, plural, one {# kérdés} other {# kérdés}}, {minutes, plural, one {# perc} other {# perc}} alatt, mint a valódi teszten; a válaszokat beadáskor ellenőrizzük.",
+      "practice": "Gyakorlás",
+      "practiceText": "Kérdésről kérdésre, minden válasz azonnal ellenőrizve: előbb azok, amelyeket elrontottál, aztán amelyeket még nem láttál.",
+      "catalog": "Katalógus",
+      "catalogText": "{count, plural, one {Az összes kérdés (#)} other {Az összes kérdés (#)}} a válaszokkal."
+    },
+    "begin": "Kezdés",
+    "practise": "Gyakorlás",
+    "openCatalog": "Megnyitás",
+    "known": "Tudod: {known, number} / {total, plural, one {# kérdés} other {# kérdés}}",
+    "needsState": "Válaszd ki a szövetségi tartományodat: a teszt három kérdést tesz fel róla.",
+    "needsStateCatalog": "Válaszd ki a szövetségi tartományodat a vizsga oldalán, hogy annak kérdéseit is lásd.",
+    "mapTitle": "Kérdések",
+    "mapKnown": "tudott",
+    "mapWrong": "legutóbb hibás",
+    "mapUnseen": "nem látott",
+    "mapSummary": "{total, number} kérdésből: {known, number} tudott, {wrong, number} legutóbb hibás",
+    "points": "{points, number}/{max, number}",
+    "passed": "Sikeres",
+    "failed": "Sikertelen",
+    "state": "Szövetségi tartomány",
+    "chooseState": "Válassz szövetségi tartományt",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bajorország",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bréma",
+      "hh": "Hamburg",
+      "he": "Hessen",
+      "mv": "Mecklenburg-Elő-Pomeránia",
+      "ni": "Alsó-Szászország",
+      "nw": "Észak-Rajna-Vesztfália",
+      "rp": "Rajna-vidék-Pfalz",
+      "sl": "Saar-vidék",
+      "sn": "Szászország",
+      "st": "Szász-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Türingia"
+    },
+    "handIn": "Beadás",
+    "endPractice": "Gyakorlás befejezése",
+    "handInTitle": "Beadod a vizsgát?",
+    "handInUnanswered": "{count, plural, one {# kérdés még megválaszolatlan} other {# kérdés még megválaszolatlan}}: a megválaszolatlan kérdések hibásnak számítanak.",
+    "goOn": "Folytatás",
+    "leave": "Vissza a vizsgához",
+    "answered": "Megválaszolva: {done, number}/{total, number}",
+    "question": "Kérdés: {n, number}/{total, number}",
+    "practiceScore": "Helyes: {points, number} / {count, plural, one {# válasz} other {# válasz}}",
+    "timeUp": "Lejárt az idő: az addig adott válaszok számítanak.",
+    "needed": "Szükséges: {points, number}/{max, number}",
+    "practiseMistakes": "Hibák gyakorlása",
+    "tryAgain": "Új próbavizsga",
+    "toExam": "A vizsgához",
+    "mistakes": "{count, plural, =0 {Nincs hiba} one {# hiba} other {# hiba}}",
+    "allAnswers": "Összes válasz",
+    "onlyMistakes": "Csak a hibák",
+    "showAll": "Összes válasz megjelenítése",
+    "notAnswered": "nincs megválaszolva",
+    "noMistakes": "Minden helyes.",
+    "search": "Keresés a kérdések között",
+    "playsLeft": "Még {left, number}/{plays, number} lejátszás",
+    "plays": "{count, plural, one {A felvételt egyszer hallod.} other {A felvételt # alkalommal hallod.}}",
+    "example": "Példa",
+    "wholeExam": "Teljes vizsga",
+    "next": "Tovább",
+    "previous": "Vissza",
+    "questionsGrid": "Kérdések",
+    "goTo": "{n, number}. kérdés",
+    "practiceTally": "{right, number} helyes · {wrong, number} hibás · {total, plural, one {# kérdés} other {# kérdés}}",
+    "lastResult": "Legutóbbi próbavizsga, {date}: {points, number}/{max, number}",
+    "noResultYet": "Még nem volt próbavizsga",
+    "inNotebook": "Minden a Füzetben",
+    "sources": {
+      "title": "Források és ellenőrzések",
+      "allPassed": "minden ellenőrzés sikeres",
+      "someFailed": "egy ellenőrzés nem sikerült",
+      "statement": "Minden itteni kérdést, képet, felvételt és választ az importáló ezen a számítógépen olvasott be az alábbi dokumentumokból — egyiket sem kézzel vagy modellel írták —, és a felsorolt módon ellenőrizte. A próbavizsga ugyanazokat a feladatokat adja, és ugyanazon szabályok szerint pontoz, mint a hivatalos mintateszt; azt mutatja, mennyire vagy felkészült, nem azt, mit hoz majd a valódi vizsga.",
+      "documents": "Beolvasva ebből",
+      "copy": "másolat megőrizve, SHA-256 {hash}…, beolvasva: {date}",
+      "read": "beolvasva: {date}",
+      "checks": "Ellenőrzések",
+      "from": "Forrás"
+    },
+    "check": {
+      "questions-complete": "Beolvasott kérdések a forrásban lévők közül",
+      "options-agree": "Szóról szóra egyező válaszlehetőségek a két forrásban",
+      "answers-marked-twice": "Forrásukban kétszer azonosan jelölt válaszok",
+      "answers-matched": "A megoldásoldalak válaszai egy-egy lehetőséghez rendelve",
+      "numbers-agree": "Kérdésszámok az oldalak szerint",
+      "recordings-placed": "Felvételek a kérdéseikhez rendelve",
+      "media-kept": "Megőrzött képek és felvételek",
+      "criteria-read": "Az írás és a beszéd szempontjai minden szint pontjaival beolvasva"
+    },
+    "rating": {
+      "title": "Értékeld a válaszaidat",
+      "pending": "{count, plural, one {# válasz még nincs értékelve} other {# válasz még nincs értékelve}}: 0 pontnak számít, amíg nem értékeled.",
+      "hint": "Úgy értékelj, ahogy a vizsga értékelői; az értékelést bármikor módosíthatod.",
+      "voided": "a feladat nincs teljesítve: 0 pont az egész válaszra",
+      "unrated": "0, amíg ez nincs értékelve: „{criterion}”; ez dönti el, hogy a válasz beszámít-e",
+      "save": "Értékelés mentése",
+      "change": "Értékelés módosítása",
+      "propose": "Értékelés javaslata (MI)",
+      "proposing": "Az asszisztens értékel…",
+      "proposed": "Az MI-asszisztens javaslata ({model}): fogadd el, vagy módosítsd."
+    },
+    "conversation": {
+      "you": "Én",
+      "partner": "Partner",
+      "examiner": "Vizsgáztató",
+      "intro": "Az asszisztens játssza a vizsgáztatót és a partneredet. Válaszolj hangosan a mikrofonnal (vagy gépelj); a beszélgetés a válaszod.",
+      "start": "A rész indítása",
+      "over": "A rész véget ért.",
+      "placeholder": "A válaszod…",
+      "end": "A rész befejezése"
+    },
+    "choose": "Válassz vizsgát"
+  },
+  "experimental": {
+    "disclaimerTitle": "Kísérlet, nem felkészülési eszköz",
+    "disclaimer": "Amit itt bekapcsolsz, az még kipróbálás alatt áll: a tartalma hiányos vagy hibásan beolvasott lehet, a pontozása eltérhet a valóditól. Ne erre építs, ha kurzusra vagy vizsgára készülsz.",
+    "section": {
+      "courses": "Kurzusok",
+      "exams": "Vizsgák"
+    },
+    "sectionHint": {
+      "courses": "További letölthető kurzusok, a Kurzusok között jelennek meg",
+      "exams": "További letölthető vizsgák, a Vizsgák között jelennek meg"
+    },
+    "none": "Itt nincs semmi kísérleti.",
+    "more": "{count, plural, one {még #} other {még #}}"
+  },
+  "examples": {
+    "newWords": "Új itt:",
+    "by": "Példák az MI-től · {model}"
+  }
+}

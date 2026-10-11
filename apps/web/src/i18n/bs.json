@@ -1,0 +1,1371 @@
+{
+  "app": {
+    "name": "SprachAnker"
+  },
+  "nav": {
+    "courses": "Kursevi",
+    "settings": "Postavke",
+    "review": "Ponavljanje",
+    "notebook": "Sveska",
+    "exams": "Ispiti"
+  },
+  "common": {
+    "loading": "Učitavanje…",
+    "retry": "Pokušaj ponovo",
+    "close": "Zatvori",
+    "cancel": "Otkaži"
+  },
+  "courses": {
+    "lessons": "{count, plural, one {# lekcija} few {# lekcije} other {# lekcija}}",
+    "progress": "Urađeno {done, number} od {total, number}",
+    "start": "Počni",
+    "allLessons": "Sve lekcije",
+    "languages": "{from} → {to}",
+    "any": "Svi",
+    "noneStarted": "Nijedan kurs još nije započet.",
+    "noneMatch": "Nema kursa za ove jezike.",
+    "course": "Kurs",
+    "pair": "Jezici",
+    "next": "Sljedeće",
+    "nextWorked": "Urađeno {worked, number} od {total, number}",
+    "doneShort": "{done, number} / {total, number} · {share}",
+    "tabs": {
+      "mine": "Moji kursevi",
+      "downloaded": "Preuzeti",
+      "available": "Dostupni"
+    },
+    "noneDownloaded": "Nijedan kurs još nije preuzet.",
+    "allDownloaded": "Svi ponuđeni kursevi su preuzeti.",
+    "choose": "Izaberi kurs",
+    "anyLanguage": "bilo koji"
+  },
+  "course": {
+    "unit": "Cjelina {number}",
+    "status": {
+      "new": "Nije započeto",
+      "in_progress": "U toku · {worked, number} od {total, number}",
+      "done": "Završeno · {score, number, percent}",
+      "next": "Sljedeće na redu",
+      "finished": "Završeno"
+    },
+    "licence": {
+      "cc-by-4.0": "CC BY 4.0",
+      "public-domain": "javno dobro",
+      "free-access": "slobodan pristup (bez otvorene licence)"
+    },
+    "stats": {
+      "lessons": "{count, plural, one {lekcija} few {lekcije} other {lekcija}}",
+      "exercises": "{count, plural, one {vježba} few {vježbe} other {vježbi}}",
+      "words": "{count, plural, one {riječ} few {riječi} other {riječi}}",
+      "audio": "{count, plural, one {snimak} few {snimka} other {snimaka}}",
+      "video": "{count, plural, one {video} few {videa} other {videa}}",
+      "image": "{count, plural, one {slika} few {slike} other {slika}}",
+      "pdf": "PDF",
+      "subtitles": "{count, plural, one {datoteka titlova} few {datoteke titlova} other {datoteka titlova}}",
+      "size": "na disku"
+    },
+    "checking": "Provjeravam datoteke kursa…",
+    "missing": "Nedostaje: {count, number}",
+    "problems": "{count, plural, one {Pronađen # problem} few {Pronađena # problema} other {Pronađeno # problema}}",
+    "intact": "Sve datoteke su na mjestu i usklađene.",
+    "checkAgain": "Provjeri ponovo",
+    "complete": "Sve preuzeto",
+    "next": "sljedeće: {where} — {title}",
+    "notInstalled": "Ovaj kurs nije (više) instaliran.",
+    "checkFiles": "Provjeri",
+    "problem": {
+      "missingMedia": "Nedostaje datoteka: {at}",
+      "unreadable": "Datoteka se ne može pročitati: {at}",
+      "noLocale": "Nema tekstova lekcije na ovom jeziku: {at}",
+      "noEdition": "Nije instalirano nijedno jezičko izdanje",
+      "inconsistent": "Podaci kursa se ne slažu: {at}"
+    }
+  },
+  "lesson": {
+    "unitLesson": "Cjelina {unit} · Lekcija {lesson}",
+    "goals": "U ovoj lekciji naučit ćeš:",
+    "counts": "{exercises, plural, =0 {} one {# vježba · } few {# vježbe · } other {# vježbi · }}{words, plural, one {# nova riječ} few {# nove riječi} other {# novih riječi}}",
+    "start": "Počni lekciju",
+    "resume": "Nastavi lekciju",
+    "exerciseOf": "Vježba {n} od {total}",
+    "check": "Provjeri",
+    "next": "Dalje",
+    "toSummary": "Na sažetak",
+    "skip": "Preskoči",
+    "retry": "Pokušaj ponovo",
+    "previous": "Nazad",
+    "correct": "Tačno",
+    "partial": "Djelimično tačno",
+    "wrong": "Nije baš tako",
+    "summary": "Sažetak",
+    "score": "Tačno iz prvog pokušaja: {correct, number} od {scored, number}. Postotak računa i djelimično tačne odgovore.",
+    "skipped": "preskočeno",
+    "notDone": "nije urađeno",
+    "backToCourse": "Nazad na kurs",
+    "nextLesson": "Sljedeća lekcija",
+    "reference": "Materijali",
+    "plan": "Plan lekcije",
+    "audio": "Slušaj lekciju",
+    "itemAudio": "Audio za zadatak {n}",
+    "redo": "Počni ispočetka",
+    "done": "Gotovo",
+    "doneScore": "Gotovo · {score, number, percent} tačno",
+    "state": {
+      "correct": "tačno",
+      "wrong": "s greškama",
+      "done": "odgovoreno",
+      "skipped": "preskočeno",
+      "read": "urađeno",
+      "partial": "djelimično tačno"
+    },
+    "correctAnswer": "Tačan odgovor:",
+    "answerAudio": "Poslušaj odgovor",
+    "itemsList": "Zadaci",
+    "answerAll": "Odgovori na sve zadatke · {done, number} od {total, number}",
+    "listenFirst": "Prvo pusti snimak",
+    "listenItem": "Pusti snimak zadatka {n}",
+    "answerAgain": "Odgovori ponovo",
+    "exerciseN": "Vježba {n}",
+    "stepsDone": "Urađeno {done} od {total} koraka",
+    "stepsLeft": "{count, plural, one {Još # korak treba uraditi.} few {Još # koraka treba uraditi.} other {Još # koraka treba uraditi.}}",
+    "toStep": "Idi na: {title}",
+    "videoText": "Tekst videa",
+    "audioText": "Tekst snimka",
+    "step": {
+      "overview": "Pregled",
+      "words": "Riječi lekcije",
+      "wordsCount": "Riječi lekcije · {count}",
+      "grammar": "Gramatika",
+      "culture": "Kultura",
+      "writing": "Napiši svoj tekst",
+      "scene": "Scena",
+      "mistakes": "Pregled grešaka",
+      "summary": "Sažetak"
+    },
+    "section": {
+      "grammar": "Gramatika",
+      "exercises": "Vježbe",
+      "culture": "Kultura",
+      "practice": "Vježbanje s AI"
+    },
+    "continued": "nastavak",
+    "why": "Zašto je ovo pogrešno?"
+  },
+  "ref": {
+    "vocabulary": "Riječi",
+    "grammar": "Gramatika",
+    "culture": "Kultura",
+    "script": "Transkript",
+    "downloads": "PDF",
+    "none": "U ovoj lekciji nema ničega.",
+    "homework": "Domaća zadaća"
+  },
+  "video": {
+    "hd": "HD",
+    "sd": "SD",
+    "subtitles": "Titlovi"
+  },
+  "ex": {
+    "chooseSeveral": "Više odgovora može biti tačno.",
+    "orderHint": "Dodirni ili prevuci dijelove u red po redoslijedu; prevuci dio unutar reda da ga pomjeriš, dodirni ga da ga vratiš.",
+    "reset": "Poništi",
+    "dictationPlaceholder": "Napiši šta čuješ",
+    "rate": {
+      "good": "Dobro",
+      "fair": "Onako",
+      "poor": "Ponovo"
+    },
+    "unknown": "Ova vrsta vježbe još nije podržana.",
+    "respondPlaceholder": "Tvoj odgovor…",
+    "reference": "{count, plural, one {Uzorni odgovor} few {Uzorni odgovori} other {Uzorni odgovori}}",
+    "gap": "Praznina {n}",
+    "partRight": "tačno",
+    "partWrong": "pogrešno",
+    "nothing": "— (ništa)",
+    "matchFor": "Par za zadatak {n}",
+    "dropHere": "spusti ili dodirni ovdje",
+    "chips": "Riječi za umetanje",
+    "orderLine": "Tvoj redoslijed",
+    "dnd": {
+      "item": "kartica",
+      "instructions": "Da podigneš karticu, pritisni Space ili Enter. Pomjeraj je strelicama, pa pritisni Space ili Enter da je spustiš ili Escape da je vratiš.",
+      "start": "Podignuto: {item}.",
+      "over": "{item} — iznad „{place}“.",
+      "away": "{item} — nije iznad nijednog mjesta.",
+      "end": "{item} — spušteno na „{place}“.",
+      "cancel": "{item} — vraćeno."
+    },
+    "chosen": "{count, plural, one {# izabran} few {# izabrana} other {# izabrano}}",
+    "specialLetters": "Slova za unos",
+    "inPlace": "na svom mjestu",
+    "notInPlace": "nije na svom mjestu"
+  },
+  "word": {
+    "plural": "mn. {plural}"
+  },
+  "settings": {
+    "uiLanguage": "Jezik interfejsa",
+    "themeLabel": "Tema",
+    "theme": {
+      "system": "Sistemska",
+      "light": "Svijetla",
+      "dark": "Tamna"
+    },
+    "tabs": {
+      "general": "Opće",
+      "profile": "Profil",
+      "review": "Ponavljanje",
+      "speech": "Govor",
+      "ai": "AI asistent",
+      "aiShort": "AI"
+    },
+    "prompts": "Promptovi",
+    "experimental": "Eksperimentalno",
+    "advanced": "Napredno"
+  },
+  "llm": {
+    "title": "AI asistent",
+    "intro": "Objašnjava greške, pomaže kao tutor u lekcijama, provjerava tekstove i igra scene. Izaberi model na ovom računaru, na serveru u tvojoj mreži, u oblaku (OpenRouter) ili agenta u komandnoj liniji s tvojom pretplatom. Sadržaj lekcija i tvoji odgovori idu samo dobavljaču kojeg izabereš.",
+    "off": "Isključeno",
+    "provider": {
+      "lmstudio": "LM Studio",
+      "openrouter": "OpenRouter",
+      "gemini": "Google Gemini",
+      "groq": "Groq",
+      "custom": "Server u mreži",
+      "claude-code": "Claude Code",
+      "codex": "Codex"
+    },
+    "endpoint": "Adresa servera",
+    "endpointInvalid": "Unesi adresu poput http://localhost:1234/v1",
+    "apiKey": "API ključ",
+    "keyHint": "Samo ako ga server traži. Čuva se šifrovan i više se ne prikazuje.",
+    "keySaved": "Sačuvano — unesi novi da ga zamijeniš",
+    "save": "Sačuvaj",
+    "removeKey": "Ukloni",
+    "check": "Provjeri vezu",
+    "checking": "Povezivanje…",
+    "connected": "Povezano · {count, plural, =0 {nema modela} one {# model} few {# modela} other {# modela}} · {ms} ms",
+    "model": "Model",
+    "setUpHint": "Želiš objašnjenje? Podesi AI asistenta",
+    "explanation": "Objašnjenje",
+    "thinking": "Razmišljam…",
+    "error": {
+      "lmstudioDown": "LM Studio ne odgovara. Da li je njegov lokalni server pokrenut?"
+    },
+    "cliMissing": {
+      "claude-code": "Claude Code nije instaliran ovdje. Instaliraj ga s claude.com/claude-code i jednom se prijavi pokretanjem `claude`.",
+      "codex": "Codex CLI nije instaliran ovdje. Instaliraj ga (npm i -g @openai/codex) i jednom se prijavi s `codex login`."
+    },
+    "modelTypeHint": "Upiši naziv modela.",
+    "otherModel": "Drugi model…",
+    "modelName": "Naziv modela",
+    "explainAgain": "Objasni ponovo",
+    "changeInSettings": "Model se bira u Postavke → AI asistent",
+    "about": {
+      "lmstudio": "LM Studio na ovom računaru: SprachAnker pokreće njegov server, učitava izabrani model i može u njega preuzeti predložene modele. Besplatno, i ništa ne napušta računar. Ako LM Studio radi na drugom računaru, izaberi „Server u mreži“.",
+      "openrouter": "OpenRouter u oblaku: stotine modela mnogih proizvođača preko jednog ključa, neki od njih besplatni (s dnevnim ograničenjima). Sadržaj lekcija i tvoji odgovori idu OpenRouteru i dobavljaču modela.",
+      "gemini": "Googleovi Gemini modeli u oblaku, s ključem iz Google AI Studija. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu; neki modeli traže plaćanje. Na besplatnom nivou Google može koristiti poslane podatke za poboljšanje svojih proizvoda: sadržaj lekcija i tvoji odgovori idu Googleu.",
+      "groq": "Otvoreni modeli (Llama, Qwen, GPT-OSS i drugi) na Groqovom brzom hardveru u oblaku. Besplatni nivo ne traži karticu i ima ograničenja po minuti i po danu za svaki model. Sadržaj lekcija i tvoji odgovori idu Groqu.",
+      "custom": "Bilo koji server s API-jem kompatibilnim s OpenAI na drugom računaru: LM Studio, Ollama, llama.cpp, vLLM i drugi. Unesi njegovu adresu (završava na /v1) i ključ ako ga traži.",
+      "claude-code": "Pokreće Claude Code instaliran na ovom računaru (`claude -p`) s tvojom Claude pretplatom. Njegovi alati su isključeni: podaci lekcije idu u prompt. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije.",
+      "codex": "Pokreće Codex CLI instaliran na ovom računaru (`codex exec`) s tvojom ChatGPT pretplatom, samo za čitanje i bez njegovih alata. Svaki odgovor pokreće komandu, pa odgovori stižu nekoliko sekundi kasnije."
+    },
+    "cardState": {
+      "off": "bez asistenta",
+      "llm_cli_missing": "nije instaliran",
+      "llm_no_endpoint": "adresa nije unesena",
+      "llm_no_key": "treba ključ",
+      "installed": "instaliran",
+      "keySaved": "ključ sačuvan",
+      "here": "na ovom računaru",
+      "at": "na {host}"
+    },
+    "list": {
+      "search": "Traži: gemma, claude, deepseek…",
+      "free": "Besplatni ({count, number})",
+      "json": "Vraća JSON ({count, number})",
+      "context": "Kontekst ≥ {size}",
+      "more": "Više…",
+      "fewer": "Manje",
+      "jsonHint": "„Vraća JSON“: modeli koji provjere teksta i scene mogu vratiti u obliku koji aplikacija čita.",
+      "none": "Nijedan model ne odgovara pretrazi i filterima.",
+      "freeTag": "besplatno",
+      "price": "{input} / {output} za 1M tokena",
+      "shown": "{shown, number} od {total, number} modela",
+      "backToList": "Nazad na listu"
+    },
+    "key": {
+      "freeTier": "Besplatni nivo",
+      "credits": "Krediti",
+      "used": "potrošeno {used}",
+      "usedOf": "potrošeno {used} od {limit}",
+      "rate": "{requests, number} zahtjeva po {interval}",
+      "freeModels": "Besplatni modeli imaju dnevno ograničenje zahtjeva koje postavlja OpenRouter (veće nakon kupovine kredita)."
+    },
+    "keyHintFor": {
+      "openrouter": "Napravi ključ na openrouter.ai/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
+      "gemini": "Napravi ključ na aistudio.google.com/apikey. Čuva se šifrovan na ovom računaru i više se ne prikazuje.",
+      "groq": "Napravi ključ na console.groq.com/keys. Čuva se šifrovan na ovom računaru i više se ne prikazuje."
+    }
+  },
+  "tutor": {
+    "title": "Tutor",
+    "intro": "Pitaj o ovoj lekciji: gramatika, riječi, vježba na ekranu — ili vježbaj kratki dijalog. Odgovori ostaju u okviru onoga što je dosad obrađeno.",
+    "needsSetup": "Tutoru treba AI model.",
+    "openSettings": "Podesi AI asistenta",
+    "placeholder": "Postavi pitanje…",
+    "send": "Pošalji",
+    "stop": "Zaustavi",
+    "newChat": "Novi razgovor",
+    "suggest": {
+      "grammar": "Objasni gramatiku ove lekcije",
+      "examples": "Daj mi još primjera s novim riječima",
+      "dialogue": "Hajde da vježbamo kratki dijalog",
+      "exercise": "Daj mi nagovještaj za ovu vježbu",
+      "wordsQuiz": "Ispitaj me nove riječi ove lekcije",
+      "wordsMemory": "Pomozi mi zapamtiti nove riječi",
+      "grammarDrill": "Daj mi kratku vježbu iz gramatike ove lekcije",
+      "script": "Prođi sa mnom tekst lekcije frazu po frazu"
+    },
+    "context": "Kontekst ≈ {used} od {window} tokena",
+    "contextSize": "Zahtjev ≈ {used} tokena",
+    "remembers": "pamti {kept, number} od {total, plural, one {# poruke} few {# poruke} other {# poruka}}",
+    "contextFull": "Kontekst je skoro pun: najranije poruke više ne stižu do modela. Za novu temu počni novi razgovor.",
+    "contextHint": "Veličina sljedećeg zahtjeva: kontekst lekcije, razgovor i tvoja poruka, plus mjesto za odgovor.",
+    "toolsUsed": "Pogledano: {tools}",
+    "tool": {
+      "find_word": "riječ „{word}“",
+      "get_progress": "tvoj napredak",
+      "get_mistakes": "tvoje greške",
+      "get_lesson": "lekcija {lesson}"
+    },
+    "tabChat": "Razgovor",
+    "tabHistory": "Historija",
+    "noHistory": "U ovoj lekciji još nema ranijih razgovora.",
+    "current": "trenutni",
+    "delete": "Obriši razgovor",
+    "deleteTitle": "Obrisati ovaj razgovor?",
+    "deleteBody": "Njegove poruke se brišu zauvijek.",
+    "ask": {
+      "grammar": "Ukratko objasni gramatiku ove lekcije s 2–3 primjera iz lekcije. Zatim pitaj da li je jasno.",
+      "examples": "Daj 3 kratka primjera s novim riječima lekcije, s prijevodima. Zatim me zamoli da napravim svoju rečenicu s jednom od njih.",
+      "dialogue": "Hajde da vježbamo kratki dijalog na temu lekcije. Ti počni jednom replikom i sačekaj moj odgovor; usput ispravljaj moje greške.",
+      "exercise": "Daj mi nagovještaj za ovu vježbu, ne odgovor.",
+      "wordsQuiz": "Ispituj me nove riječi lekcije, jednu po jednu. Pitaj riječ, sačekaj moj odgovor, reci mi da li je tačan i tek onda pređi na sljedeću.",
+      "wordsMemory": "Pomozi mi zapamtiti nove riječi lekcije jednu po jednu: uzmi jednu riječ, daj mi asocijaciju za pamćenje (riječ sličnog zvuka, sliku, korijen) i kratak primjer, pa me zamoli da je ponovim ili upotrijebim. Sljedeća riječ tek nakon mog odgovora.",
+      "grammarDrill": "Daj mi kratku vježbu iz gramatike lekcije: jedan zadatak odjednom, sačekaj moj odgovor, provjeri ga i objasni svaku grešku.",
+      "script": "Hajde da prođemo tekst lekcije frazu po frazu: pokaži prvu frazu, prevedi je i objasni šta je u njoj novo. Sljedeću frazu tek kad kažem „dalje“."
+    }
+  },
+  "lmstudio": {
+    "running": "LM Studio radi.",
+    "notRunning": "Server LM Studija nije pokrenut.",
+    "notInstalled": "LM Studio nije instaliran na ovom računaru. Preuzmi ga na lmstudio.ai, pa se vrati ovdje.",
+    "needsToken": "LM Studio traži API token: unesi ga gore (LM Studio → Developer → Server settings).",
+    "start": "Pokreni LM Studio",
+    "models": "Modeli u LM Studiju",
+    "noModels": "LM Studio još nema modela. Preuzmi neki ispod.",
+    "loaded": "u memoriji",
+    "use": "Koristi",
+    "inUse": "U upotrebi",
+    "suggested": "Predloženi modeli",
+    "suggestedHint": "LM Studio preuzima najbolju verziju za ovaj računar ({memory} GB memorije) i čuva je.",
+    "recommended": "Preporučeno",
+    "size": "oko {size} GB · treba oko {ram} GB memorije",
+    "progress": "{done} od {total} GB",
+    "download": "Preuzmi u LM Studio",
+    "gb": "GB"
+  },
+  "prompt": {
+    "button": "Prompt",
+    "title": "Prompt",
+    "titleOf": "Prompt · {provider} · {model}",
+    "endpoint": "Endpoint",
+    "size": "Veličina",
+    "sizeValue": "{chars, plural, one {# znak} few {# znaka} other {# znakova}} ≈ {tokens, plural, one {# token} few {# tokena} other {# tokena}}",
+    "copy": "Kopiraj zahtjev kao JSON",
+    "infoIntro": "Svaki zahtjev šalje stalna pravila (sistemski prompt) i podatke kursa za trenutnu lekciju. Dugi dijelovi se skraćuju na ograničenja ispod, da bi mali lokalni modeli mogli pratiti.",
+    "task": {
+      "explain": "„Zašto je ovo pogrešno?“",
+      "tutor": "Tutor",
+      "writing": "„Napiši svoj tekst“",
+      "speaking": "Izgovoreni odgovori",
+      "exam": "Ispit: ocjena odgovora",
+      "conversation": "Ispit: usmeni dio",
+      "sceneSetup": "Scena: situacija",
+      "scene": "Scena",
+      "examples": "Primjeri za riječi špila"
+    },
+    "contextIntro": "Dodano iz lekcije:",
+    "systemIntro": "Sistemski prompt:",
+    "part": {
+      "item": "zadatak vježbe: uputa, opcije ili praznine, tačan odgovor i tvoj odgovor",
+      "notes": "gramatičke napomene lekcije",
+      "lesson": "naslov i ciljevi lekcije",
+      "lessonVocab": "riječi lekcije s prijevodima",
+      "knownVocab": "riječi ranijih lekcija (najnovije prve)",
+      "earlierLessons": "naslovi ranijih lekcija",
+      "grammar": "gramatičke napomene lekcije",
+      "exercise": "vježba na ekranu s odgovorima i tvojim provjerenim odgovorima (tutor prvo daje nagovještaje)",
+      "history": "posljednje poruke razgovora, svaka tvoja označena vježbom uz koju je napisana",
+      "mistakes": "tvoje greške: u ovoj lekciji one iz trenutnog prolaza, zatim najnovije iz ranijih lekcija (ispravljene su označene)",
+      "tools": "na zahtjev (alati): tvoj napredak, greške u bilo kojoj lekciji, gdje se riječ uči, šta lekcija obrađuje",
+      "text": "tvoj tekst",
+      "script": "transkript lekcije, kad se zadatak odnosi na njen audio ili video",
+      "heard": "pitanje i odgovor kursa, kako ih je prepoznavač govora čuo u snimcima kursa",
+      "answer": "tvoj izgovoreni odgovor, kako ga je prepoznavač čuo",
+      "exam": "naslov ispita i zadatak kako je postavljen: uputa i tekst dijela, pitanje",
+      "criteria": "kriteriji s bodovima i šta znači svaki nivo",
+      "samples": "uzorni odgovori ispita, ako ih ima",
+      "writtenAnswer": "tvoj odgovor",
+      "partner": "šta ima partner: svoju karticu, kalendar ili slajdove (ti to ne vidiš)",
+      "conversation": "dosadašnji razgovor (najnovije replike)",
+      "level": "nivo kursa ili špila kad ga naziv navodi (A1, A2…), inače početni",
+      "words": "pet riječi špila s prijevodima, vrstom riječi i rodom"
+    },
+    "upTo": "do {chars, plural, one {# znaka} few {# znaka} other {# znakova}}",
+    "debug": "Prikaži dugmad „Prompt“",
+    "debugHint": "Uz objašnjenja i u tutoru: tačan zahtjev sa svim porukama, za otklanjanje grešaka.",
+    "custom": "izmijenjeno",
+    "placeholders": "'{language}' se zamjenjuje jezikom odgovora, '{target}' jezikom koji učiš.",
+    "save": "Sačuvaj",
+    "restore": "Vrati standardni prompt",
+    "places": {
+      "title": "Gdje asistent radi",
+      "hint": "Isključeno mjesto se ne prikazuje u lekcijama, karticama i ispitima. Završene lekcije ostaju završene.",
+      "explain": {
+        "name": "„Zašto je ovo pogrešno?“",
+        "where": "dugme ispod greške"
+      },
+      "tutor": {
+        "name": "Tutor",
+        "where": "dugme u lekciji i korak „Pregled grešaka“"
+      },
+      "writing": {
+        "name": "„Napiši svoj tekst“",
+        "where": "korak lekcije"
+      },
+      "scene": {
+        "name": "Scene",
+        "where": "korak lekcije"
+      },
+      "speaking": {
+        "name": "Izgovoreni odgovori",
+        "where": "„Provjeri s AI“ ispod izgovorenog odgovora"
+      },
+      "example": {
+        "name": "Primjeri za riječ",
+        "where": "na njenoj kartici i u njenom listu; za špil se prave u Ponavljanje → Špilovi"
+      },
+      "exam": {
+        "name": "Odgovori na ispitu",
+        "where": "„Predloži ocjenu“ iznad kriterija odgovora, i usmeni dijelovi vođeni kao razgovor"
+      }
+    },
+    "about": {
+      "explain": "Objašnjava pogrešan odgovor ispod vježbe („Zašto je ovo pogrešno?“): u čemu je greška i koje pravilo stoji iza nje, na tvom jeziku.",
+      "tutor": "Tutor lekcije: odgovara na tvoja pitanja o lekciji, njenim riječima i gramatici, i u koraku „Pregled grešaka“ prolazi s tobom kroz greške jednu po jednu.",
+      "writing": "Provjerava tvoj kratki tekst iz koraka „Napiši svoj tekst“: ispravke, kriteriji za A1 (zadatak, komunikacija, tačnost) i povratna informacija.",
+      "speaking": "Provjerava tvoj izgovoreni odgovor (ono što je prepoznavač čuo) u odnosu na pitanje i odgovor kursa, kad pritisneš „Provjeri s AI“.",
+      "exam": "Ocjenjuje pisani odgovor na ispitu po kriterijima samog ispita: nivo za svaki kriterij s obrazloženjem i šta bi donijelo više bodova. Ništa se ne računa dok to ne prihvatiš ili izmijeniš.",
+      "conversation": "Vodi usmeni dio ispita: igra ispitivača i drugog kandidata, kako dio propisuje, repliku po repliku s tobom; nikad ne pomaže i ne ispravlja. Nakon toga se ocjenjuje po kriterijima dijela.",
+      "sceneSetup": "Pokreće scenu: osmišljava situaciju iz teme lekcije — ko si, s kim razgovaraš, gdje i koje ciljeve treba postići. Poziva se jednom po sceni.",
+      "scene": "Igra scenu: odgovara na svaku tvoju repliku kao tvoj partner, ispravlja greške, daje prijevod i označava postignute ciljeve.",
+      "examples": "Piše tri do pet rečenica-primjera za svaku riječ špila koji nema svoje, po pet riječi odjednom (Ponavljanje → Špilovi, „Napravi primjere“), gdje može s riječima koje znaš, a nove prevodi."
+    }
+  },
+  "writing": {
+    "task": "Napiši 3–5 rečenica o temi lekcije: {topic}. Jezik: {language}. Koristi nove riječi.",
+    "placeholder": "Tvoj tekst…",
+    "check": "Provjeri",
+    "checking": "Provjeravam…",
+    "rewrite": "Ispravi i provjeri ponovo",
+    "score": "{name}: {score, number} od {max, number}",
+    "points": "{score, number} od {max, number}",
+    "past": "Raniji tekstovi ove lekcije",
+    "verdict": {
+      "good": "Tačno",
+      "minor_errors": "Sitne greške",
+      "major_errors": "Mnogo grešaka",
+      "off_task": "Nije na temu"
+    },
+    "criteria": {
+      "task": "Zadatak",
+      "communication": "Komunikacija",
+      "accuracy": "Tačnost"
+    }
+  },
+  "mistakes": {
+    "exercises": "Urađene vježbe",
+    "firstTry": "Tačno iz prvog pokušaja",
+    "ofTotal": "{n, number} od {total, number}",
+    "list": "Greške po vježbama",
+    "items": "{count, plural, one {zadatak} few {zadaci} other {zadaci}} {items}",
+    "fixed": "{count, plural, one {# kasnije ispravljen} few {# kasnije ispravljena} other {# kasnije ispravljeno}}",
+    "none": "U ovom prolazu nema grešaka.",
+    "notYet": "Još ništa nije odgovoreno: prvo uradi vježbe.",
+    "tutorIntro": "Tutor prolazi kroz tvoje greške jednu po jednu: šta nije bilo dobro, koje pravilo stoji iza toga i kratak novi primjer za provjeru.",
+    "start": "Prođi kroz moje greške s tutorom",
+    "message": "Molim te, prođi sa mnom kroz moje greške u ovoj lekciji."
+  },
+  "scene": {
+    "intro": "Vježbaj lekciju u kratkoj igri uloga: partner govori jezik kursa, ispravlja te i označava tvoje ciljeve.",
+    "start": "Počni scenu",
+    "preparing": "Pripremam…",
+    "partner": "Tvoj partner: {partner}",
+    "translate": "Prijevod",
+    "placeholder": "Tvoja replika…",
+    "done": "Svi ciljevi postignuti — bravo!",
+    "new": "Nova scena",
+    "past": "Ranije scene ove lekcije",
+    "goals": "Ciljevi: {met, number} od {total, number}",
+    "ended": "Scena je završena."
+  },
+  "player": {
+    "play": "Pusti: {what}",
+    "pause": "Pauza",
+    "back": "5 sekundi nazad",
+    "speed": "Brzina reprodukcije {rate}×",
+    "position": "Položaj",
+    "unavailable": "Audio se nije mogao učitati."
+  },
+  "about": {
+    "title": "O aplikaciji SprachAnker",
+    "intro": "Tutor za jezike koji radi kod tebe, lokalno: pravi kursevi u jednom plejeru, napredak i govor na tvom računaru, bilo koji AI model koji povežeš. Besplatan i otvorenog koda.",
+    "version": "Verzija",
+    "licence": "Licenca: MIT",
+    "source": "Izvorni kod na GitHubu"
+  },
+  "progress": {
+    "resetCourse": "Poništi napredak kursa",
+    "removeCourse": "Ukloni iz mojih kurseva",
+    "resetLesson": "Poništi napredak lekcije",
+    "courseTitle": "Poništiti tvoj napredak u „{title}“?",
+    "courseBody": "Brišu se svi odgovori i prolazi lekcija ovog kursa, s razgovorima s tutorom, provjerama tekstova i scenama o njemu, te kartice riječi koje su napravile njegove lekcije, s njihovim ponavljanjima. Kurs izlazi iz „Moji kursevi“, ali ostaje instaliran. Ovo se ne može poništiti.",
+    "lessonTitle": "Poništiti tvoj napredak u „{title}“?",
+    "lessonBody": "Brišu se svi odgovori i prolazi ove lekcije, s njenim razgovorom s tutorom, provjerama tekstova i scenama, te kartice riječi koje je napravila, s njihovim ponavljanjima (riječi iz drugih lekcija ostaju). Ovo se ne može poništiti.",
+    "confirm": "Poništi",
+    "removeExam": "Ukloni iz mojih ispita",
+    "examTitle": "Ukloniti „{title}“ iz tvojih ispita?",
+    "examBody": "Njegovi probni ispiti i vježbanja brišu se sa svim odgovorima i ocjenama. Ispit ostaje preuzet."
+  },
+  "download": {
+    "queued": "Na čekanju — preuzima se drugi kurs",
+    "pages": "{count, plural, one {Pročitana # stranica} few {Pročitane # stranice} other {Pročitano # stranica}}",
+    "preparing": "Pripremam lekcije…",
+    "media": "Mediji: {done, number} od {total, number} datoteka · {size}",
+    "downloadSize": "Preuzmi · ≈ {size}",
+    "continue": "Nastavi preuzimanje",
+    "sync": "Sinhronizuj s izvorom",
+    "notDownloaded": "Nije preuzeto",
+    "incomplete": "{count, plural, =0 {Preuzimanje nije završeno} one {Nedostaje # datoteka} few {Nedostaju # datoteke} other {Nedostaje # datoteka}}",
+    "openSoon": "Kurs se može započeti kad se potpuno preuzme.",
+    "failed": "Preuzimanje nije uspjelo: {error}",
+    "done": "Preuzeto. {failed, plural, =0 {Svi mediji su na mjestu.} one {# datoteka se nije mogla preuzeti.} few {# datoteke se nisu mogle preuzeti.} other {# datoteka se nije moglo preuzeti.}}",
+    "hint": "Preuzimanje dohvata iz izvora ono što nedostaje (sačuvane stranice i mediji ostaju) i ponovo priprema kurs; tvoj napredak ostaje.",
+    "log": "Dnevnik preuzimanja",
+    "syncShort": "Sinhronizuj"
+  },
+  "storage": {
+    "title": "Pohrana",
+    "intro": "Kursevi, mediji i tvoj napredak nalaze se u ovoj fascikli na računaru na kojem radi SprachAnker. Bira se pri pokretanju servera (--data ili SPRACHANKER_DATA); desktop aplikacija će omogućiti da je promijeniš.",
+    "total": "Ukupno",
+    "used": "Kursevi zauzimaju {size}",
+    "usedFree": "Kursevi zauzimaju {size} · {free} slobodno na disku",
+    "seriesSize": "{name}: {size}",
+    "recordings": "Tvoji snimci",
+    "recordingsKept": "{count, plural, =0 {nijedan nije sačuvan} one {{n} snimak · {size}} few {{n} snimka · {size}} other {{n} snimaka · {size}}}",
+    "deleteRecordings": "Obriši sve",
+    "deleteRecordingsTitle": "Obrisati sve snimke?",
+    "deleteRecordingsBody": "Tvoji snimci će biti obrisani s ovog računara. Tvoji odgovori i napredak ostaju. Ovo se ne može poništiti."
+  },
+  "windowTitle": {
+    "course": "Kurs",
+    "lesson": "Lekcija {unit}.{lesson}",
+    "exercise": "Vj. {n}/{total}",
+    "summary": "Sažetak",
+    "download": "↓ {percent, number, percent}",
+    "downloading": "↓ …",
+    "words": "Riječi",
+    "grammar": "Gramatika",
+    "culture": "Kultura",
+    "writing": "Pisanje",
+    "scene": "Scena",
+    "mistakes": "Greške"
+  },
+  "words": {
+    "intro": "Riječi lekcije kao kartice: prisjeti se, prikaži odgovor, ocijeni. Kad za sada ništa ne ostane, nastavljaju u Ponavljanju.",
+    "learnt": "Riječi lekcije su za sada naučene.",
+    "goOn": "{count, plural, =0 {Vraćaju se u Ponavljanje kad dođu na red.} one {# kartica u učenju uskoro se vraća u Ponavljanje.} few {# kartice u učenju uskoro se vraćaju u Ponavljanje.} other {# kartica u učenju uskoro se vraća u Ponavljanje.}}"
+  },
+  "myWords": {
+    "search": "Nađi riječ ili prijevod",
+    "allDecks": "Svi špilovi",
+    "all": "Sve",
+    "state": {
+      "new": "Nova",
+      "learning": "Učenje",
+      "review": "Ponavljanje",
+      "suspended": "Pauzirana",
+      "marked": "Označena"
+    },
+    "column": {
+      "word": "Riječ",
+      "translation": "Prijevod",
+      "state": "Stanje",
+      "due": "Sljedeće"
+    },
+    "dueNow": "sada",
+    "dueIn": "za {interval}",
+    "nothing": "Nijedna riječ ne odgovara.",
+    "sheet": "Riječ",
+    "toLesson": "Lekcija {unit}.{lesson}",
+    "cards": "Kartice",
+    "answers": "Odgovori",
+    "noAnswers": "Još nema odgovora.",
+    "face": {
+      "recognition": "Riječ → značenje",
+      "production": "Značenje → riječ",
+      "listening": "Slušanje"
+    },
+    "lapses": "{count, plural, one {zaboravljena # put} few {zaboravljena # puta} other {zaboravljena # puta}}",
+    "suspend": "Pauziraj",
+    "unsuspend": "Vrati u ponavljanje",
+    "fromDeck": "Iz špila {deck}"
+  },
+  "notebook": {
+    "title": "Sveska",
+    "days": "Aktivnost",
+    "dayTitle": "{date}: {what}",
+    "open": "u toku",
+    "unfinished": "nije završeno",
+    "passes": "Prolazi",
+    "noPasses": "Ova lekcija još nema prolaza.",
+    "choose": "Izaberi prolaz od {date} za poređenje",
+    "compare": "Uporedi",
+    "compareHint": "Označi dva prolaza da ih vidiš jedan pored drugog.",
+    "minutes": "{count, plural, one {# min} few {# min} other {# min}}",
+    "worked": "{worked, number} od {total, number} vježbi",
+    "workedSome": "{count, plural, one {# vježba} few {# vježbe} other {# vježbi}}",
+    "explanations": "{count, plural, one {# objašnjenje} few {# objašnjenja} other {# objašnjenja}}",
+    "writing": "{count, plural, one {# tekst} few {# teksta} other {# tekstova}}",
+    "scenes": "{count, plural, one {# scena} few {# scene} other {# scena}}",
+    "chats": "{count, plural, one {# razgovor} few {# razgovora} other {# razgovora}}",
+    "words": "{count, plural, one {# riječ} few {# riječi} other {# riječi}}",
+    "exercises": "Vježbe",
+    "exercise": "Vježba",
+    "total": "Ukupno",
+    "attempts": "{count, plural, one {# pokušaj} few {# pokušaja} other {# pokušaja}}",
+    "rightAt": "tačno u {n, number}. pokušaju",
+    "itemHistory": "Historija zadatka",
+    "passOf": "Prolaz od {date}",
+    "attemptN": "Pokušaj {n, number}",
+    "more": "Više",
+    "alsoDone": "Također urađeno",
+    "wordsAdded": "Riječi dodane u Ponavljanje",
+    "messages": "{count, plural, one {# poruka} few {# poruke} other {# poruka}}",
+    "nothing": "ništa urađeno",
+    "kind": {
+      "lesson": "lekcije {count, number}",
+      "exam": "ispiti {count, number}",
+      "review": "kartice {count, number}",
+      "ai": "AI {count, number}"
+    },
+    "less": "Manje",
+    "calendar": "Dani učenja u posljednjih godinu dana",
+    "progress": "Napredak",
+    "range": {
+      "all": "Sve vrijeme",
+      "month": "30 dana",
+      "week": "7 dana"
+    },
+    "tile": {
+      "activeDays": "Dani učenja",
+      "lesson": "Odgovori i koraci",
+      "exam": "Odgovori na ispitima",
+      "review": "Odgovorene kartice",
+      "newCards": "Nove kartice",
+      "remembered": "Zapamćeno",
+      "rememberedHint": "od kartica u ponavljanju",
+      "ai": "Vježbanje s AI"
+    },
+    "examRuns": "Probni ispiti i vježbanje",
+    "noExamRuns": "Još ništa nije predano.",
+    "examWrong": "{count, plural, one {# pitanje je prošli put odgovoreno pogrešno} few {# pitanja su prošli put odgovorena pogrešno} other {# pitanja je prošli put odgovoreno pogrešno}}",
+    "section": {
+      "review": "Ponavljanje",
+      "lesson": "Lekcije",
+      "exam": "Ispiti"
+    },
+    "none": {
+      "review": "Još nema kartica: uzmi špil nekog kursa u Ponavljanju ili uči riječi lekcije.",
+      "lesson": "Još nijedna lekcija nije rađena: svaka na kojoj radiš pojavljuje se ovdje, sa svim prolazima.",
+      "exam": "Još ništa nije predano: tvoji probni ispiti i vježbanja pojavljuju se ovdje."
+    },
+    "figure": {
+      "review": {
+        "wordsKnown": "Poznate riječi",
+        "wordsKnownHint": "sve kartice riječi su u ponavljanju",
+        "new": "Nove",
+        "learning": "Učenje",
+        "review": "Ponavljanje",
+        "mature": "Naučene",
+        "matureHint": "svaka strana dolazi na red za tri sedmice ili kasnije",
+        "suspended": "Pauzirane",
+        "remembered": "Zapamćeno, 30 dana",
+        "rememberedHint": "{count, plural, one {# odgovor} few {# odgovora} other {# odgovora}}",
+        "dueToday": "Na redu danas",
+        "dueTomorrow": "Na redu do sutra",
+        "dueWeek": "Na redu u roku od sedmice"
+      },
+      "lesson": {
+        "lessonsDone": "Završene lekcije",
+        "best": "Najbolji rezultat"
+      }
+    },
+    "runs": {
+      "lesson": "{count, plural, one {# prolaz} few {# prolaza} other {# prolaza}}"
+    },
+    "openEntry": {
+      "review": "Otvori špilove",
+      "exam": "Sve o ovom ispitu"
+    }
+  },
+  "study": {
+    "listen": "Slušaj i prisjeti se značenja",
+    "fromLesson": "lekcija {unit}.{lesson}",
+    "countsTitle": "Nove {new}, u učenju {learning}, za ponavljanje {review}",
+    "finished": "Čestitamo! Ovaj špil je za sada završen.",
+    "nextLearning": "{minutes, plural, one {Sljedeća kartica u učenju bit će spremna za # minutu.} few {Sljedeća kartica u učenju bit će spremna za # minute.} other {Sljedeća kartica u učenju bit će spremna za # minuta.}}",
+    "reviewLimit": "Današnje ograničenje ponavljanja je dostignuto, ali još ima kartica koje čekaju ponavljanje.",
+    "newLimit": "Ima još novih kartica, ali je dnevno ograničenje dostignuto.",
+    "buried": "Jedna ili više kartica su odložene i bit će prikazane sutra.",
+    "unbury": "Vrati odložene",
+    "unit": {
+      "s": "s",
+      "m": "min",
+      "h": "h",
+      "d": "d",
+      "mo": "mj.",
+      "y": "g."
+    },
+    "flag": {
+      "red": "Crvena",
+      "orange": "Narandžasta",
+      "green": "Zelena",
+      "blue": "Plava",
+      "pink": "Roza",
+      "turquoise": "Tirkizna",
+      "purple": "Ljubičasta"
+    },
+    "marked": "Označeno",
+    "leech": "teška kartica",
+    "undo": "Poništi",
+    "undoKeys": "Poništi (U, Ctrl+Z)",
+    "showKeys": "Space ili Enter",
+    "show": "Prikaži odgovor",
+    "rating": {
+      "again": "Ponovo",
+      "hard": "Teško",
+      "good": "Dobro",
+      "easy": "Lako"
+    },
+    "more": "Više",
+    "replay": "Ponovo pusti audio",
+    "buryCard": "Odloži karticu",
+    "buryNote": "Odloži riječ",
+    "suspendCard": "Pauziraj karticu",
+    "suspendNote": "Pauziraj riječ",
+    "mark": "Označi riječ",
+    "unmark": "Ukloni oznaku s riječi",
+    "keys": "Space ili Enter: prikaži odgovor, zatim Dobro · 1–4: ocjena · R: ponovo pusti · U: poništi",
+    "noCards": "Još nema kartica: dolaze iz koraka „Riječi lekcije“ u lekcijama.",
+    "deck": "Špil",
+    "count": {
+      "new": "Nove",
+      "learning": "Učenje",
+      "review": "Na redu"
+    },
+    "due": "{count, plural, one {# kartica} few {# kartice} other {# kartica}} za učenje",
+    "flagKey": "Ctrl+{n}",
+    "left": "{n, plural, one {odgovor do kraja} few {odgovora do kraja} other {odgovora do kraja}}",
+    "leftValue": "≈{n, number}",
+    "leftTitle": "Preostali odgovori ako je svaki Dobro: nova kartica prolazi kroz dva koraka učenja, kartica u učenju kroz preostale korake, ponavljanje traži jedan odgovor. Ponovo vraća korake.",
+    "asks": {
+      "recognition": "Šta znači?",
+      "production": "Kako se kaže {in}?",
+      "in": {
+        "de": "na njemačkom",
+        "en": "na engleskom",
+        "ru": "na ruskom"
+      }
+    },
+    "deckLink": {
+      "audio": "Pročitaj špil naglas",
+      "examples": "Napravi primjere za špil",
+      "both": "Pročitaj špil naglas, napravi primjere"
+    }
+  },
+  "profiles": {
+    "who": "Ko uči?",
+    "welcome": "Dobro došli u SprachAnker",
+    "firstHint": "Za početak napravi svoj profil: nekoliko kratkih koraka.",
+    "unnamed": "Još bez imena",
+    "new": "Novi profil",
+    "previous": "Prethodni profili",
+    "next": "Još profila",
+    "page": "{n, number} od {total, number}"
+  },
+  "onboarding": {
+    "progress": "Korak {n} od {total}",
+    "back": "Nazad",
+    "next": "Dalje",
+    "finish": "Izaberi kurs",
+    "profile": {
+      "title": "Dobro došli",
+      "text": "SprachAnker stavlja prave jezičke kurseve u jedan plejer, provjerava tvoje odgovore, čuva tvoje riječi u ponavljanju s razmacima i može uključiti AI tutora. Sve ostaje na ovom računaru.",
+      "sources": "Kursevi se preuzimaju direktno s web-stranica njihovih izdavača (Deutsche Welle i drugi) za tvoju ličnu upotrebu. Poštuj njihove uslove; SprachAnker nije povezan s njima.",
+      "experimental": "Kursevi i ispiti koji se još isprobavaju ostaju skriveni dok ih ne uključiš u Postavke → Opće → Eksperimentalno.",
+      "name": "Kako da te zovemo?"
+    },
+    "assistant": {
+      "title": "AI asistent",
+      "text": "Asistent objašnjava greške, pomaže kao tutor u lekcijama, provjerava tvoje tekstove i igra scene. Izaberi ga sada ili kasnije u Postavkama — aplikacija radi i bez njega."
+    },
+    "tour": {
+      "title": "Gdje je šta"
+    },
+    "speech": {
+      "title": "Govor",
+      "text": "Izgovaraj fraze iz kurseva i slušaj bilo koji tekst naglas: testiraj mikrofon, preuzmi prepoznavač govora (jednom) da aplikacija čuje tvoj izgovor, i izaberi glas za svaki jezik. Sve ostaje na ovom računaru; sve se kasnije može promijeniti u Postavke → Govor."
+    },
+    "cancel": "Otkaži"
+  },
+  "tour": {
+    "courses": "Tvoji kursevi (s mjestom gdje nastavljaš), preuzeti kursevi i svi kursevi koje možeš preuzeti; svaku listu možeš suziti na jedan jezički par.",
+    "review": "Tvoje riječi u ponavljanju s razmacima: nekoliko minuta dnevno.",
+    "notebook": "Svaki prolaz svake lekcije, tvoji odgovori i greške.",
+    "settings": "Tvoj profil, ponavljanje, govor, AI asistent i aplikacija.",
+    "exams": "Ispiti za koje se pripremaš, kao što je Leben in Deutschland: probni ispiti kao pravi, vježbanje i cijeli katalog s odgovorima."
+  },
+  "profile": {
+    "who": "Ime i boja",
+    "devices": "Prijavljeni uređaji",
+    "thisDevice": "ovaj uređaj",
+    "lastSeen": "zadnje korištenje: {date}",
+    "signOutDevice": "Odjavi",
+    "switch": "Promijeni profil",
+    "open": "Profil",
+    "delete": "Obriši profil…",
+    "deleteTitle": "Obrisati profil „{name}“?",
+    "deleteBody": "Njegov napredak, riječi i kartice, snimci, AI razgovori i uređaji prijavljeni na njega brišu se zauvijek. Drugi profili i kursevi ostaju.",
+    "deleteConfirm": "Obriši zauvijek",
+    "name": "Ime ili nadimak",
+    "colour": "Boja",
+    "colours": {
+      "amber": "Ćilibar",
+      "teal": "Petrolej",
+      "rose": "Ruža",
+      "violet": "Ljubičica",
+      "sky": "Nebo",
+      "lime": "Limeta"
+    }
+  },
+  "decks": {
+    "tabs": {
+      "study": "Učenje",
+      "decks": "Špilovi",
+      "words": "Moje riječi"
+    },
+    "studying": "Učiš: {deck}",
+    "more": "{count, plural, one {Još # nova kartica danas} few {Još # nove kartice danas} other {Još # novih kartica danas}}",
+    "leave": "Napusti špil…",
+    "offers": "Dostupni špilovi",
+    "offersHint": "Riječi svakog tvog kursa i svakog ovdje uvezenog špila čine špil: kad ga uzmeš cijelog, dodaje ih kao nove kartice svojim redom — u okviru dnevnog ograničenja ili više uz „više novih danas“. Riječ za koju već imaš karticu zadržava je.",
+    "words": "{words, plural, one {# riječ} few {# riječi} other {# riječi}} · {mine, number} već tvojih",
+    "take": "Uzmi špil",
+    "takeRest": "Dodaj ostalih {count, number}",
+    "study": "Uči",
+    "leaveTitle": "Napustiti špil {deck}?",
+    "leaveBody": "Njegove kartice odlaze, s napretkom. Riječi koje ima neki drugi tvoj špil prelaze tamo, sa cijelim napretkom.",
+    "moreShort": "{count, plural, one {+# nova} few {+# nove} other {+# novih}}",
+    "import": {
+      "button": "Uvezi datoteku špila (.apkg)",
+      "title": "Uvezi špil",
+      "hint": "Njegove riječi postaju špil koji svaki profil na ovom računaru može uzeti, kao špil kursa; njegov audio dolazi s njima.",
+      "name": "Naziv",
+      "lang": "Riječi na jeziku",
+      "translationLang": "Prijevodi na jeziku",
+      "words": "{words, plural, one {# riječ} few {# riječi} other {# riječi}} · {audio, plural, =0 {bez audija} one {# s audiom} few {# s audiom} other {# s audiom}} · {examples, plural, =0 {bez primjera} one {# s primjerima} few {# s primjerima} other {# s primjerima}}",
+      "submit": "Uvezi",
+      "updates": "Ova datoteka ažurira špil {deck} koji je već ovdje: njegove riječi postaju riječi iz ove datoteke, a kartice napravljene od njih ih prate. Na drugim jezicima to je zaseban špil.",
+      "left": "{count, plural, one {# bilješka bez riječi je izostavljena.} few {# bilješke bez riječi su izostavljene.} other {# bilješki bez riječi je izostavljeno.}}",
+      "unusable": "{count, plural, one {# bilješka čija se riječ ne može pročitati je izostavljena.} few {# bilješke čije se riječi ne mogu pročitati su izostavljene.} other {# bilješki čije se riječi ne mogu pročitati je izostavljeno.}}",
+      "done": "Uvezen špil {deck}: {words, plural, one {# riječ} few {# riječi} other {# riječi}}."
+    },
+    "remove": "Obriši špil",
+    "removeTitle": "Obrisati špil {deck}?",
+    "removeBody": "Špil, njegove riječi i audio bit će obrisani s ovog računara za sve profile. Ovo se ne može poništiti.",
+    "audio": {
+      "missing": "{count, plural, one {# riječ bez audija} few {# riječi bez audija} other {# riječi bez audija}}",
+      "generate": "Napravi audio",
+      "reading": "Čitam {done, number} od {total, number}…",
+      "stop": "Zaustavi",
+      "all": "Sve riječi imaju audio",
+      "install": "Za to instaliraj glas za jezik „{language}“ u Postavke → Govor",
+      "failed": "{count, plural, one {# riječ se nije mogla pročitati naglas} few {# riječi se nisu mogle pročitati naglas} other {# riječi se nije moglo pročitati naglas}}",
+      "voice": "Čita {engine, select, qwen {Qwen3-TTS} other {Piper}} · {voice} ({language})",
+      "chooseVoice": "Izaberi glas"
+    },
+    "left": "još oko {time}",
+    "why": "Razlog: {reason}",
+    "examples": {
+      "missing": "{count, plural, one {# riječ bez primjera} few {# riječi bez primjera} other {# riječi bez primjera}}",
+      "make": "Napravi primjere",
+      "writing": "Pišem primjere {done, number} od {total, number}…",
+      "all": "Sve riječi imaju primjere",
+      "failed": "{count, plural, one {# riječ nije dobila primjere} few {# riječi nisu dobile primjere} other {# riječi nije dobilo primjere}}",
+      "setUp": "Za primjere podesi AI asistenta u Postavkama"
+    },
+    "removeStudied": "{count, plural, one {Profil {profiles} uči ovaj špil.} few {Profili {profiles} uče ovaj špil.} other {Profili {profiles} uče ovaj špil.}} Može se obrisati kad ga svi profili napuste: Ponavljanje → Špilovi → Napusti špil…."
+  },
+  "guide": {
+    "open": "Kako radi",
+    "title": "Kako radi ponavljanje",
+    "curveAlt": "Tri krivulje zaboravljanja, svaka ravnija od prethodne",
+    "days": "dani",
+    "curveCaption": "Pamćenje blijedi ako se ne koristi: svako ponavljanje na rubu zaboravljanja čini krivulju ravnijom, pa sljedeće može duže čekati.",
+    "method": {
+      "title": "Ponavljanje s razmacima",
+      "text": "Svaka kartica se vraća tik prije nego što bi ti ispala iz pamćenja. Razmaci rastu sa svakim dobrim odgovorom: minute, pa dani, sedmice, mjeseci. Ideja potiče od Ebbinghausove krivulje zaboravljanja (1885)."
+    },
+    "recall": {
+      "title": "Prvo se prisjeti, pa pogledaj",
+      "text": "Pokušaj se prisjetiti odgovora prije nego što ga prikažeš. Upravo napor prisjećanja jača pamćenje — ponovno čitanje odgovora pomaže mnogo manje. Zatim se iskreno ocijeni."
+    },
+    "buttons": {
+      "title": "Četiri dugmeta",
+      "again": {
+        "name": "Ponovo",
+        "text": "nije zapamćeno ili je pogrešno: kartica se vraća za minutu"
+      },
+      "hard": {
+        "name": "Teško",
+        "text": "zapamćeno s naporom: kraći razmak"
+      },
+      "good": {
+        "name": "Dobro",
+        "text": "zapamćeno: uobičajen izbor (Space ili Enter)"
+      },
+      "easy": {
+        "name": "Lako",
+        "text": "prelako: vraća se mnogo kasnije"
+      }
+    },
+    "counts": {
+      "title": "Tri broja",
+      "text": "Nove kartice koje danas još treba naučiti, kartice u učenju (vraćaju se za nekoliko minuta) i kartice koje su na redu za ponavljanje. Podvučeni broj pokazuje odakle dolazi kartica na ekranu. „Odgovora do kraja“ procjenjuje koliko odgovora završava sesiju ako je svaki Dobro."
+    },
+    "faces": {
+      "title": "Kartice jedne riječi",
+      "recognition": {
+        "name": "Kartica 1",
+        "text": "riječ → šta znači (razumijevanje)"
+      },
+      "production": {
+        "name": "Kartica 2",
+        "text": "značenje → riječ (govor); dolazi nakon kartice 1"
+      },
+      "listening": {
+        "name": "Kartica 3",
+        "text": "čuta riječ → šta znači (slušanje)"
+      }
+    },
+    "more": {
+      "title": "Pod „…“",
+      "replay": {
+        "name": "Ponovo pusti (R)",
+        "text": "ponovo čuj riječ"
+      },
+      "bury": {
+        "name": "Odloži (- ili =)",
+        "text": "ne danas: kartica ili cijela riječ vraća se sutra"
+      },
+      "suspend": {
+        "name": "Pauziraj (@ ili !)",
+        "text": "izvan ponavljanja dok je ne vratiš — riječ koju znaš ili ti ne treba"
+      },
+      "flag": {
+        "name": "Zastavice (Ctrl+1–7)",
+        "text": "oznake u boji da kasnije nađeš kartice u Moje riječi"
+      },
+      "mark": {
+        "name": "Označi (*)",
+        "text": "zvjezdica na riječi, da joj se vratiš"
+      }
+    },
+    "keys": {
+      "title": "Tipke",
+      "text": "Space ili Enter prikazuje odgovor, zatim ocjenjuje Dobro; 1–4 ocjenjuju; U ili Ctrl+Z vraća zadnji odgovor; R ponovo pušta."
+    },
+    "fsrs": {
+      "title": "FSRS",
+      "text": "Raspored pravi FSRS, otvoreni model ponavljanja s razmacima: procjenjuje koliko je stabilno svako sjećanje i kad bi se izgubilo, s ciljem da postigne željeno zadržavanje (podrazumijevano 90%). Ograničenja, zadržavanje i vrste kartica su u Postavkama."
+    },
+    "schedule": {
+      "title": "Koraci i dan",
+      "steps": "Nova kartica ocijenjena s Dobro vraća se nakon 10 minuta (nakon Ponovo za minutu), zatim nakon nekoliko dana; zaboravljena nakon 10 minuta, a njen razmak ponovo raste.",
+      "day": "Novi dan počinje u {time}: ponavljanja između ponoći i tog vremena računaju se za prethodni dan.",
+      "limit": "Nove kartice se računaju u najveći broj ponavljanja: kad se on dostigne, tog dana se ne prikazuju nove kartice."
+    }
+  },
+  "reviewSettings": {
+    "intro": "Ponavljanje tvojih kartica s razmacima: riječ se vraća kad je skoro zaboraviš. Podrazumijevane vrijednosti odgovaraju većini učenika.",
+    "limits": "Dnevna ograničenja",
+    "newPerDay": "Nove kartice dnevno",
+    "reviewsPerDay": "Najviše ponavljanja dnevno",
+    "limitsHint": "Riječ s dvije vrste kartica znači dvije nove kartice. Svaka nova kartica donosi oko 5–10 ponavljanja u prvom mjesecu.",
+    "retention": "Željeno zadržavanje",
+    "retentionHint": "Koliko je vjerovatno da se još sjećaš kartice kad se vrati. Više znači više ponavljanja; podrazumijevano 90%.",
+    "faces": "Vrste kartica nove riječi",
+    "facesHint": "Koje kartice dobija nova riječ. Riječi koje već imaju kartice zadržavaju svoje."
+  },
+  "speech": {
+    "record": "Snimi se",
+    "stop": "Zaustavi snimanje",
+    "showText": "Prikaži tekst",
+    "answerHeard": "Poslušaj, pa izgovori naglas kako zadatak traži.",
+    "answerFree": "Izgovori naglas kako zadatak traži.",
+    "answerLine": "Tvoj odgovor",
+    "mine": "Moj",
+    "mineFor": "Moj · {time}",
+    "recordedNotKept": "Snimljeno (nije sačuvano)",
+    "listenFirst": "Prvo poslušaj snimak.",
+    "recording": "Snimam… dodirni ponovo za kraj.",
+    "saving": "Čuvam…",
+    "notSaved": "Snimak se nije mogao sačuvati; svejedno se računa.",
+    "again": "Poslušaj oba. Snimi ponovo da ga zamijeniš.",
+    "howTo": "Dodirni mikrofon, izgovori, dodirni ponovo.",
+    "mic": {
+      "insecure": "Mikrofon radi samo na sigurnoj adresi (https), kao što je ona koju Tailscale daje ovom računaru.",
+      "unsupported": "Ovaj preglednik ne može snimati zvuk.",
+      "denied": "Pristup mikrofonu je odbijen. Dozvoli ga u postavkama stranice u pregledniku.",
+      "failed": "Mikrofon se nije mogao pokrenuti."
+    },
+    "settings": {
+      "mic": "Mikrofon",
+      "device": "Mikrofon koji se koristi",
+      "defaultDevice": "Sistemski zadani",
+      "unnamedDevice": "Mikrofon",
+      "testing": "Reci nešto…",
+      "testHint": "Test: tri sekunde, zatim se poslušaj. Bira se na ovom uređaju.",
+      "listen": "Poslušaj",
+      "sampleFor": "Tekst za slušanje: {language}",
+      "otherSample": "Druga fraza",
+      "recognition": "Prepoznavanje",
+      "recognitionHint": "Tvoj govor se prepoznaje na ovom računaru (Whisper): izgovoreno se poredi s frazom. Čuje riječi, ne glasove, i blag je. Ništa ne napušta računar.",
+      "noEngine": "Ova verzija nema mehanizam za prepoznavanje.",
+      "recognitionOn": "Prepoznaj moj govor",
+      "inUse": "U upotrebi",
+      "downloadFailed": "preuzimanje nije uspjelo",
+      "use": "Koristi",
+      "removeModel": "Ukloni model",
+      "download": "Preuzmi",
+      "read": "Čitanje naglas",
+      "readHint": "Glas čita tekstove na jednom jeziku: replike iz scena, primjer za riječ i riječi bez snimka. Svaki jezik ima svoj glas.",
+      "engine": {
+        "device": "Glasovi ovog uređaja",
+        "deviceLine": "{count, plural, one {# glas} few {# glasa} other {# glasova}}, ništa za instaliranje",
+        "deviceNone": "Ovaj preglednik nema glasova za čitanje.",
+        "piper": "Piper na ovom računaru",
+        "piperMissing": "Nije u ovoj verziji: aplikacija je napravljena bez mehanizama za govor",
+        "piperLine": "{count, plural, =0 {još nema glasova: preuzmi jedan ispod} one {# glas preuzet} few {# glasa preuzeta} other {# glasova preuzeto}}",
+        "qwen": "Qwen3-TTS na ovom računaru",
+        "qwenMissing": "Nije u ovoj verziji: aplikacija je napravljena bez mehanizama za govor",
+        "qwenReady": "Spremno: model je preuzet",
+        "qwenNoModel": "Još nema modela: preuzmi jedan ispod"
+      },
+      "voiceFor": "Glas za jezik: {language}",
+      "voiceAuto": "Automatski — {name}",
+      "noVoice": "Ovaj uređaj nema glas za jezik: {language}.",
+      "betterVoices": "Na Macu se bolji glasovi (Premium, Enhanced) preuzimaju u System Settings → Accessibility → Spoken Content → System voice → Manage voices.",
+      "readRate": "Brzina: {rate}×",
+      "readRateLabel": "Brzina čitanja",
+      "piperNone": "Još nema glasa za jezik „{language}“: preuzmi jedan ispod.",
+      "piperNoLanguage": "Piper nema glas za jezik „{language}“: čitaju ga glasovi uređaja.",
+      "piperHint": "Piperovi glasovi imaju oko 60–120 MB svaki i ostaju na ovom računaru; jezik bez takvog glasa čitaju glasovi uređaja.",
+      "removeVoice": "Ukloni glas {voice}",
+      "allVoices": "Svi glasovi ({count, number})",
+      "quality": {
+        "x_low": "najniži kvalitet",
+        "low": "nizak kvalitet",
+        "medium": "srednji kvalitet",
+        "high": "visok kvalitet"
+      },
+      "qwenModel": {
+        "small": "Mali model (0.6B): brži",
+        "large": "Veliki model (1.7B): prirodniji, sporiji"
+      },
+      "qwenHint": "Neuralni glas koji čita 10 jezika (njemački, engleski, ruski, francuski, španski, italijanski, portugalski, kineski, japanski, korejski) s devet govornika. Dok radi, zauzima oko 3 GB memorije (više za veliki model) i zaustavlja se nakon 10 minuta bez čitanja; prvo čitanje nakon toga čeka oko 20 s dok se učitava. Jezike koje ne govori čitaju glasovi uređaja.",
+      "qwenNoLanguage": "Qwen3-TTS ne govori jezik „{language}“: čitaju ga glasovi uređaja.",
+      "howMic": "Gdje se odgovor izgovara (usmeni dio ispita), tu je mikrofon: dodirni za početak snimanja, dodirni ponovo za kraj. Gdje je zadatak pisanje, mikrofona nema.",
+      "howPhrase": "Fraza za ponavljanje je skrivena do tvog prvog pokušaja; možeš je prikazati i ranije.",
+      "howRecordings": "Tvoji snimci se čuvaju na ovom računaru da ih ponovo preslušaš u Svesci; obriši ih u Opće → Pohrana.",
+      "how": "Kako radi"
+    },
+    "listening": "Slušam…",
+    "notHeard": "Nije se moglo prepoznati; snimak se svejedno računa.",
+    "heard": "Čuto:",
+    "heardNothing": "ništa",
+    "verdict": {
+      "correct": "Tačno izgovoreno",
+      "partial": "Skoro: nedostaje nekoliko riječi",
+      "wrong": "Pokušaj ponovo: poslušaj i izgovori još jednom"
+    },
+    "model": {
+      "large-v3-turbo-q5_0": "Whisper large-v3 turbo — precizan (preporučeno)",
+      "small-q5_1": "Whisper small — brži, manje precizan"
+    },
+    "sayIn": "Izgovori na jeziku: {language}",
+    "notHeardShort": "Nije se moglo prepoznati. Pokušaj ponovo.",
+    "answerSample": "Uzorak",
+    "aiChecking": "AI provjerava tvoj odgovor…",
+    "needsRecognition": "Za izgovaranje fraze potrebno je prepoznavanje govora: uključi ga u Postavke → Govor.",
+    "languageUnknown": "Jezik ovog kursa nije poznat, pa se ne može čuti šta govoriš.",
+    "read": {
+      "listen": "Čitaj naglas: {what}",
+      "stop": "Zaustavi čitanje"
+    },
+    "aiCheck": "Provjeri s AI"
+  },
+  "error": {
+    "answer_does_not_fit": "Odgovor ne odgovara ovoj vježbi. Ponovo učitaj lekciju.",
+    "card_changed": "Ova kartica je promijenjena na drugom uređaju. Prikazuje se ponovo.",
+    "downloads_unavailable": "Kursevi se ovdje ne mogu preuzimati.",
+    "empty_recording": "Snimak je prazan. Pokušaj ponovo.",
+    "event_id_taken": "Ovaj odgovor je već drugačije zabilježen. Ponovo učitaj stranicu.",
+    "event_of_another_run": "Ovaj zapis pripada drugom prolazu. Ponovo učitaj lekciju.",
+    "exam_rating_busy": "Ovaj odgovor se upravo ocjenjuje. Sačekaj.",
+    "exam_conversation_busy": "Partner odgovara. Sačekaj.",
+    "exam_part_done": "Ovaj dio je završen.",
+    "invalid_event": "Aplikacija je poslala zapis koji server nije prihvatio. Ponovo učitaj lekciju.",
+    "invalid_request": "Aplikacija je poslala nešto što server nije prihvatio. Ponovo učitaj stranicu.",
+    "request_too_large": "Ovaj zahtjev je prevelik.",
+    "invalid_setting": "Ova vrijednost ne odgovara postavci.",
+    "lesson_not_in_series": "Ova lekcija nije dio kursa. Ponovo učitaj stranicu.",
+    "llm_bad_response": "Server je vratio grešku.",
+    "llm_cli_missing": "Asistent za komandnu liniju nije instaliran na ovom računaru.",
+    "llm_invalid_output": "Model nije mogao dati upotrebljiv odgovor. Pokušaj ponovo ili izaberi veći model u Postavke → AI asistent.",
+    "llm_lmstudio_failed": "Server LM Studija se nije pokrenuo. Otvori LM Studio i pokreni ga tamo.",
+    "llm_lmstudio_missing": "LM Studio nije instaliran na ovom računaru.",
+    "llm_lmstudio_remote": "LM Studio radi na drugom računaru: tamo pokreni njegov server.",
+    "llm_model_not_found": "Model nije pronađen na serveru.",
+    "llm_no_endpoint": "Unesi adresu servera.",
+    "llm_no_key": "Unesi API ključ.",
+    "llm_not_configured": "Izaberi model u Postavke → AI asistent.",
+    "llm_rate_limited": "Ograničenje dobavljača je za sada dostignuto (besplatni nivoi ograničavaju zahtjeve po minuti i po danu). Pokušaj kasnije ili izaberi drugi model u Postavke → AI asistent.",
+    "llm_timeout": "Model je predugo odgovarao.",
+    "llm_unauthorized": "API ključ nije prihvaćen.",
+    "llm_unreachable": "Server ne odgovara. Provjeri adresu.",
+    "missing_client_header": "Zahtjev nije došao iz aplikacije. Ponovo učitaj stranicu.",
+    "name_required": "Unesi ime.",
+    "no_active_scene": "Ova scena je završena. Počni novu.",
+    "no_device": "Ovaj uređaj više nije prijavljen.",
+    "no_lesson_run": "Prvo počni lekciju: provjera se čuva uz njen prolaz.",
+    "no_session": "Ovaj uređaj je odjavljen. Ponovo izaberi svoj profil.",
+    "no_such_attempt": "Ovog odgovora više nema u prolazu lekcije. Ponovo učitaj lekciju.",
+    "no_such_card": "Ova kartica više ne postoji.",
+    "no_such_chat": "Ovog razgovora više nema.",
+    "no_such_item": "Ova vježba se promijenila. Ponovo učitaj lekciju.",
+    "no_such_model": "Ovaj model nije ponuđen.",
+    "no_such_profile": "Ovaj profil više ne postoji.",
+    "no_such_recording": "Ovog snimka više nema.",
+    "no_such_run": "Ovog prolaza lekcije više nema (njen napredak je poništen). Ponovo učitaj lekciju.",
+    "not_found": "Nije pronađeno. Ponovo učitaj stranicu.",
+    "not_installed": "Ovaj kurs nije (više) instaliran.",
+    "not_offered": "Ovaj kurs (više) nije ponuđen.",
+    "nothing_to_undo": "Nema šta poništiti.",
+    "recording_too_large": "Snimak je predug.",
+    "registration_closed": "Na ovom serveru se ne mogu praviti novi profili.",
+    "run_incomplete": "Lekcija još nije završena.",
+    "run_not_active": "Ovaj prolaz lekcije je završen. Ponovo učitaj lekciju.",
+    "run_without_edition": "Ovaj prolaz nema jezičku verziju. Ponovo počni lekciju.",
+    "scene_busy": "Scena još odgovara. Sačekaj.",
+    "server_error": "Nešto nije u redu na serveru.",
+    "speaking_busy": "Ovaj odgovor se upravo provjerava. Sačekaj.",
+    "speech_engine_failed": "Prepoznavač govora nije odgovorio. Pokušaj ponovo.",
+    "speech_unavailable": "Prepoznavanje govora nije podešeno. Pogledaj Postavke → Govor.",
+    "unknown_host": "Server ne poznaje ovu adresu. Otvori ga na adresi koju ispisuje.",
+    "unknown_setting": "Ova postavka (više) ne postoji.",
+    "unsupported_audio": "Ovaj preglednik snima u formatu koji aplikacija ne može sačuvati.",
+    "writing_busy": "Tekst ove lekcije se upravo provjerava. Sačekaj.",
+    "other": "Nešto nije u redu: {message}",
+    "exam_needs_setting": "Prvo izaberi svoju saveznu pokrajinu: ispit postavlja pitanja o njoj.",
+    "exam_time_over": "Vrijeme ovog probnog ispita je isteklo: predan je onakav kakav je bio.",
+    "exam_test_running": "Probni ispit je u toku: prvo ga predaj.",
+    "no_such_deck": "Ovog špila ovdje (više) nema.",
+    "not_a_deck": "Ova datoteka nije datoteka špila (.apkg) koja se može pročitati.",
+    "deck_without_words": "Ovaj špil nema riječi za učenje.",
+    "deck_too_large": "Ova datoteka špila je prevelika (najviše 512 MB).",
+    "deck_in_use": "Neki profil uči ovaj špil: može se obrisati kad ga niko ne uči.",
+    "deck_upload_gone": "Otpremljena datoteka špila više nije ovdje: izaberi je ponovo.",
+    "deck_unpacked_too_large": "Ova datoteka špila se raspakuje u više nego što se odjednom može pročitati.",
+    "deck_same_languages": "Za riječi i njihove prijevode trebaju dva različita jezika.",
+    "examples_without_word": "Rečenice modela nisu koristile tu riječ."
+  },
+  "exams": {
+    "tabs": {
+      "mine": "Moji ispiti",
+      "downloaded": "Preuzeti",
+      "available": "Dostupni"
+    },
+    "noneStarted": "Još nijedan ispit nije započet.",
+    "noneDownloaded": "Nijedan ispit još nije preuzet.",
+    "allDownloaded": "Svi ponuđeni ispiti su preuzeti.",
+    "noneMatch": "Nijedno pitanje ne odgovara.",
+    "questions": "{count, plural, one {# pitanje} few {# pitanja} other {# pitanja}}",
+    "lastPoints": "zadnji: {points, number} od {max, number}",
+    "ready": "Znaš {percent} pitanja",
+    "lastPassed": "Zadnji probni ispit ({date}): položen",
+    "lastFailed": "Zadnji probni ispit ({date}): nije položen",
+    "continueTest": "Nastavi ispit",
+    "mode": {
+      "test": "Probni ispit",
+      "testText": "{count, plural, one {# pitanje} few {# pitanja} other {# pitanja}} za {minutes, plural, one {# minutu} few {# minute} other {# minuta}}, kao na pravom testu; odgovori se provjeravaju kad ga predaš.",
+      "practice": "Vježbanje",
+      "practiceText": "Pitanje po pitanje, svaki odgovor se odmah provjerava: prvo pitanja s greškama, zatim ona koja još nisu prikazana.",
+      "catalog": "Katalog",
+      "catalogText": "{count, plural, one {Sve # pitanje} few {Sva # pitanja} other {Svih # pitanja}} s odgovorima."
+    },
+    "begin": "Počni",
+    "practise": "Vježbaj",
+    "openCatalog": "Otvori",
+    "known": "Znaš {known, number} od {total, plural, one {# pitanja} few {# pitanja} other {# pitanja}}",
+    "needsState": "Izaberi svoju saveznu pokrajinu: test postavlja tri pitanja o njoj.",
+    "needsStateCatalog": "Izaberi svoju saveznu pokrajinu na stranici ispita da vidiš i njena pitanja.",
+    "mapTitle": "Pitanja",
+    "mapKnown": "poznato",
+    "mapWrong": "pogrešno prošli put",
+    "mapUnseen": "neviđeno",
+    "mapSummary": "Od {total, number} pitanja: {known, number} poznato, {wrong, number} pogrešno prošli put",
+    "points": "{points, number} od {max, number}",
+    "passed": "Položen",
+    "failed": "Nije položen",
+    "state": "Savezna pokrajina",
+    "chooseState": "Izaberi saveznu pokrajinu",
+    "states": {
+      "bw": "Baden-Württemberg",
+      "by": "Bavarska",
+      "be": "Berlin",
+      "bb": "Brandenburg",
+      "hb": "Bremen",
+      "hh": "Hamburg",
+      "he": "Hessen",
+      "mv": "Mecklenburg-Zapadno Pomorje",
+      "ni": "Donja Saksonija",
+      "nw": "Sjeverna Rajna-Vestfalija",
+      "rp": "Porajnje-Falačka",
+      "sl": "Saarland",
+      "sn": "Saksonija",
+      "st": "Saksonija-Anhalt",
+      "sh": "Schleswig-Holstein",
+      "th": "Tiringija"
+    },
+    "handIn": "Predaj",
+    "endPractice": "Završi vježbanje",
+    "handInTitle": "Predati ispit?",
+    "handInUnanswered": "{count, plural, one {# pitanje još nije odgovoreno} few {# pitanja još nisu odgovorena} other {# pitanja još nije odgovoreno}}: neodgovorena pitanja se računaju kao pogrešna.",
+    "goOn": "Nastavi",
+    "leave": "Nazad na ispit",
+    "answered": "Odgovoreno: {done, number} od {total, number}",
+    "question": "Pitanje {n, number} od {total, number}",
+    "practiceScore": "Tačno: {points, number} od {count, plural, one {# odgovora} few {# odgovora} other {# odgovora}}",
+    "timeUp": "Vrijeme je isteklo: računaju se odgovori dati do tada.",
+    "needed": "Potrebno: {points, number} od {max, number}",
+    "practiseMistakes": "Vježbaj greške",
+    "tryAgain": "Novi probni ispit",
+    "toExam": "Na ispit",
+    "mistakes": "{count, plural, =0 {Bez grešaka} one {# greška} few {# greške} other {# grešaka}}",
+    "allAnswers": "Svi odgovori",
+    "onlyMistakes": "Samo greške",
+    "showAll": "Prikaži sve odgovore",
+    "notAnswered": "nije odgovoreno",
+    "noMistakes": "Sve tačno.",
+    "search": "Traži u pitanjima",
+    "playsLeft": "Preostalo slušanja: {left, number} od {plays, number}",
+    "plays": "{count, plural, one {Snimak čuješ jednom.} few {Snimak čuješ # puta.} other {Snimak čuješ # puta.}}",
+    "example": "Primjer",
+    "wholeExam": "Cijeli ispit",
+    "next": "Dalje",
+    "previous": "Nazad",
+    "questionsGrid": "Pitanja",
+    "goTo": "Pitanje {n, number}",
+    "practiceTally": "{right, number} tačno · {wrong, number} pogrešno · {total, plural, one {# pitanje} few {# pitanja} other {# pitanja}}",
+    "lastResult": "Zadnji probni ispit, {date}: {points, number} od {max, number}",
+    "noResultYet": "Još nema probnog ispita",
+    "inNotebook": "Sve u Svesci",
+    "sources": {
+      "title": "Izvori i provjere",
+      "allPassed": "sve provjere su prošle",
+      "someFailed": "jedna provjera nije prošla",
+      "statement": "Svako pitanje, sliku, snimak i odgovor ovdje je uvoznik na ovom računaru pročitao iz dokumenata ispod — ništa nije napisano ručno ni modelom — i provjerio kako je navedeno. Probni ispit postavlja iste zadatke i boduje ih po istim pravilima kao službeni ogledni test; pokazuje tvoju spremnost, a ne šta će dati pravi ispit.",
+      "documents": "Pročitano iz",
+      "copy": "kopija sačuvana, SHA-256 {hash}…, pročitano {date}",
+      "read": "pročitano {date}",
+      "checks": "Provjere",
+      "from": "Iz"
+    },
+    "check": {
+      "questions-complete": "Pročitana pitanja, od onih koje izvor ima",
+      "options-agree": "Opcije identične od riječi do riječi u oba izvora",
+      "answers-marked-twice": "Odgovori dvaput označeni na isti način u svom izvoru",
+      "answers-matched": "Odgovori sa stranica s rješenjima povezani s opcijom",
+      "numbers-agree": "Brojevi pitanja kako ih navode stranice",
+      "recordings-placed": "Snimci postavljeni uz svoja pitanja",
+      "media-kept": "Slike i snimci sačuvani",
+      "criteria-read": "Kriteriji za pisanje i govor pročitani s bodovima svakog nivoa"
+    },
+    "rating": {
+      "title": "Ocijeni svoje odgovore",
+      "pending": "{count, plural, one {# odgovor još nije ocijenjen} few {# odgovora još nisu ocijenjena} other {# odgovora još nije ocijenjeno}}: računa se kao 0 dok {count, plural, one {ga ne ocijeniš} few {ih ne ocijeniš} other {ih ne ocijeniš}}.",
+      "hint": "Ocjenjuje se kao što ocjenjuju ispitivači; ocjenu možeš promijeniti kad god želiš.",
+      "voided": "zadatak nije urađen: 0 za cijeli odgovor",
+      "unrated": "0 dok se ne ocijeni „{criterion}“: on odlučuje da li se odgovor računa",
+      "save": "Sačuvaj ocjenu",
+      "change": "Promijeni ocjenu",
+      "propose": "Predloži ocjenu (AI)",
+      "proposing": "Asistent ocjenjuje…",
+      "proposed": "Predložio AI asistent ({model}): prihvati kako jeste ili promijeni."
+    },
+    "conversation": {
+      "you": "Ja",
+      "partner": "Partner",
+      "examiner": "Ispitivač",
+      "intro": "Asistent igra ispitivača i tvog partnera. Odgovaraj naglas mikrofonom (ili kucaj); razgovor je tvoj odgovor.",
+      "start": "Počni dio",
+      "over": "Dio je završen.",
+      "placeholder": "Tvoj odgovor…",
+      "end": "Završi dio"
+    },
+    "choose": "Izaberi ispit"
+  },
+  "experimental": {
+    "disclaimerTitle": "Eksperiment, ne način pripreme",
+    "disclaimer": "Ono što ovdje uključiš još se isprobava: sadržaj može biti nepotpun ili pogrešno pročitan, bodovanje se može razlikovati od stvarnog. Ne oslanjaj se na to u pripremi za kurs ili ispit.",
+    "section": {
+      "courses": "Kursevi",
+      "exams": "Ispiti"
+    },
+    "sectionHint": {
+      "courses": "Još kurseva za preuzimanje, prikazanih u Kursevima",
+      "exams": "Još ispita za preuzimanje, prikazanih u Ispitima"
+    },
+    "none": "Ovdje nema ničega eksperimentalnog.",
+    "more": "{count, plural, one {još #} few {još #} other {još #}}"
+  },
+  "examples": {
+    "newWords": "Novo ovdje:",
+    "by": "Primjeri od AI · {model}"
+  }
+}
