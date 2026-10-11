@@ -1,7 +1,7 @@
 // Imported decks (04, "Decks"; 05, "Locations"): an `.apkg` read into `<data-root>/decks/<id>/` —
 // deck.json with the words and the audio they use in media/ — server-wide as the library; each profile
-// takes one as a course's deck (cards.ts). Importing a deck again (any of its notes here already)
-// updates it in place. A deck goes only while no profile has cards made from it.
+// takes one as a course's deck (cards.ts). Importing a deck again (most of its notes here, the same
+// languages) updates it in place. A deck goes only while no profile has cards made from it.
 import {
   ApkgError,
   type ApkgRuntime,
@@ -9,7 +9,7 @@ import {
   noteWords,
   readApkg,
 } from "@sprachanker/anki-export";
-import { DECK_FORMAT, Deck, DeckId, type DeckWord, type Lang } from "@sprachanker/schema";
+import { DECK_FORMAT, Deck, DeckId, DeckWord, type Lang } from "@sprachanker/schema";
 import { ServiceError } from "../errors.ts";
 import type { MediaBlob } from "../media.ts";
 import { readStored } from "./run-store.ts";
@@ -28,6 +28,8 @@ export interface DeckFiles {
 
 /** The largest package taken. */
 export const DECK_MAX_BYTES = 100 * 1024 * 1024;
+/** Media files taken: audio only (a page or a picture is never served from a deck). */
+const AUDIO = /\.(mp3|ogg|oga|opus|wav|m4a|aac|flac)$/i;
 /** Words a preview shows. */
 const PREVIEW_WORDS = 5;
 
@@ -71,6 +73,28 @@ export function createDecks(deps: {
     }
   }
 
+  /** The deck here most of whose notes a package holds, and that holds mostly them: the one it
+   *  updates. */
+  const updated = (notes: Array<{ key: string }>) => {
+    const keys = new Set(notes.map((n) => n.key));
+    return files
+      .ids()
+      .flatMap((id) => deckOf(id) ?? [])
+      .find((d) => {
+        const shared = d.words.filter((w) => keys.has(w.key)).length;
+        return shared * 2 > keys.size && shared * 2 > d.words.length;
+      });
+  };
+
+  /** A note's lexeme in a language; none when it has none a key can hold. */
+  const lexemeIn = (note: Parameters<typeof lexemeOf>[0], lang: Lang) => {
+    try {
+      return lexemeOf(note, lang);
+    } catch {
+      return undefined;
+    }
+  };
+
   return {
     deck: deckOf,
 
@@ -83,9 +107,10 @@ export function createDecks(deps: {
         .sort((a, b) => a.title.localeCompare(b.title)),
 
     /** What a package holds before it is imported: its deck's name, how many words (with audio), the
-     *  first of them. */
+     *  first of them, and the deck here it would update. */
     preview(bytes: Uint8Array) {
       const { apkg, words } = open(bytes);
+      const updates = updated(words);
       return {
         title: apkg.deckName ?? "",
         words: words.length,
@@ -93,11 +118,20 @@ export function createDecks(deps: {
         first: words
           .slice(0, PREVIEW_WORDS)
           .map((w) => ({ target: w.target, translation: w.translation ?? null })),
+        updates: updates
+          ? {
+              id: updates.id,
+              title: updates.title,
+              lang: updates.lang,
+              translationLang: updates.translationLang,
+            }
+          : null,
       };
     },
 
-    /** Imports a package as a deck of words in `lang` translated into `translationLang`: a new one,
-     *  or the deck that has any of its notes already, updated. */
+    /** Imports a package as a deck of words in `lang` translated into `translationLang`: a new one, or
+     *  the deck most of whose notes it holds, updated when its languages are the same. A note that
+     *  makes no word (no lemma, a key too long) is left out; only audio files are taken. */
     async import(
       bytes: Uint8Array,
       request: { title: string; lang: Lang; translationLang: Lang; file: string },
@@ -108,17 +142,17 @@ export function createDecks(deps: {
       const audioOf = new Map<string, string | undefined>();
       const keys = new Set<string>();
       for (const note of notes) {
-        const lexeme = lexemeOf(note, request.lang);
-        if (!lexeme || keys.has(note.key)) continue;
-        keys.add(note.key);
-        if (note.sound && !audioOf.has(note.sound)) {
+        if (keys.has(note.key)) continue;
+        const lexeme = lexemeIn(note, request.lang);
+        if (!lexeme) continue;
+        if (note.sound && AUDIO.test(note.sound) && !audioOf.has(note.sound)) {
           const found = apkg.media(note.sound);
           const path = found && mediaPath(note.sound, media);
           if (path && found) media.set(path, found);
           audioOf.set(note.sound, path);
         }
         const audio = note.sound && audioOf.get(note.sound);
-        words.push({
+        const word = DeckWord.safeParse({
           key: note.key,
           target: note.target,
           ...lexeme,
@@ -126,11 +160,16 @@ export function createDecks(deps: {
           tags: note.tags,
           ...(audio && { audio }),
         });
+        if (!word.success) continue;
+        keys.add(note.key);
+        words.push(word.data);
       }
       if (!words.length) throw new ServiceError("deck_without_words", 422);
+      const same = updated(notes);
       const id =
-        files.ids().find((d) => deckOf(d)?.words.some((w) => keys.has(w.key))) ??
-        (await newId(request.title, [...keys], files.ids()));
+        same?.lang === request.lang && same.translationLang === request.translationLang
+          ? same.id
+          : await newId(request.title, [...keys], files.ids());
       const deck = Deck.parse({
         format: DECK_FORMAT,
         id,

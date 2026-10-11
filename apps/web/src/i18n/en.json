@@ -890,7 +890,8 @@
       "lang": "Words in",
       "translationLang": "Translations in",
       "words": "{words, plural, one {# word} other {# words}} · {audio, plural, =0 {no audio} one {# with audio} other {# with audio}}",
-      "submit": "Import"
+      "submit": "Import",
+      "updates": "This file updates the deck {deck} here: its words become this file's, and the cards made from it follow them. In other languages it is a deck of its own."
     },
     "remove": "Delete deck",
     "removeTitle": "Delete the deck {deck}?",

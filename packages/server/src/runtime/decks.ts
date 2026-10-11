@@ -40,8 +40,15 @@ export function deckFiles(dataRoot: string): DeckFiles {
         }
         await writeFile(join(fresh, "deck.json"), deck);
         const old = `${fresh}.old`;
-        if (statSync(target, { throwIfNoEntry: false })) renameSync(target, old);
-        renameSync(fresh, target);
+        const had = !!statSync(target, { throwIfNoEntry: false });
+        if (had) renameSync(target, old);
+        try {
+          renameSync(fresh, target);
+        } catch (error) {
+          // The deck as it was stays.
+          if (had) renameSync(old, target);
+          throw error;
+        }
         rmSync(old, { recursive: true, force: true });
       } finally {
         rmSync(fresh, { recursive: true, force: true });
@@ -59,7 +66,10 @@ export function deckFiles(dataRoot: string): DeckFiles {
 export const apkgRuntime: ApkgRuntime = {
   openSqlite(bytes) {
     const db = Database.deserialize(bytes, { readonly: true });
-    return { all: (sql) => db.query(sql).all() as Array<Record<string, unknown>> };
+    return {
+      all: (sql) => db.query(sql).all() as Array<Record<string, unknown>>,
+      close: () => db.close(),
+    };
   },
   zstd: (bytes) => new Uint8Array(Bun.zstdDecompressSync(bytes)),
 };

@@ -75,9 +75,9 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   face's review count as shown (a face rated meanwhile on another device is refused: 409 `card_changed`).
 - Imported decks (04, "Decks"; server-wide, as the library): `GET /api/decks` (each with its languages,
   words and how many have audio), `POST /api/decks/preview` (a deck file `.apkg` as the body, at most
-  100 MB: its deck's name, words, the first of them), `POST
+  100 MB: its deck's name, words, the first of them, the deck here it would update), `POST
   /api/decks/import?title=&lang=&translationLang=&file=` (the file as the body: a new deck, or the deck
-  that has any of its notes, updated; 422 `not_a_deck`, `deck_without_words`; 413 `deck_too_large`),
+  most of whose notes it holds, in the same languages, updated; 422 `not_a_deck`, `deck_without_words`; 413 `deck_too_large`),
   `DELETE /api/decks/:id` (409 `deck_in_use` while any profile has cards made from it).
 - Settings: `GET` / `PUT /api/settings` (one key at a time): only the learner's preferences, each
   checked against its schema (`packages/schema/src/settings.ts`); the assistant's endpoints and prompts

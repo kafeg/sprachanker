@@ -80,9 +80,14 @@ export function DeckImportSheet({
   const known = (useDecks().data?.decks ?? []).map((d) => d.language);
   const importDeck = useImportDeck();
   const nameId = useId();
-  const [title, setTitle] = useState(preview.title || file.name.replace(/\.apkg$/i, ""));
-  const [lang, setLang] = useState(known[0] ?? "de");
-  const [translationLang, setTranslationLang] = useState(i18n.language);
+  // A deck here the file updates keeps its name and languages unless changed.
+  const { updates } = preview;
+  const [title, setTitle] = useState(
+    updates?.title || preview.title || file.name.replace(/\.apkg$/i, ""),
+  );
+  const [lang, setLang] = useState(updates?.lang ?? known[0] ?? "de");
+  const [translationLang, setTranslationLang] = useState(updates?.translationLang ?? i18n.language);
+  const updating = updates && updates.lang === lang && updates.translationLang === translationLang;
   const languages = [...new Set([...COMMON, i18n.language, ...known])].sort();
   const language = (label: string, value: string, set: (v: string) => void) => (
     <div className="space-y-1">
@@ -118,7 +123,9 @@ export function DeckImportSheet({
           );
         }}
       >
-        <p className="text-sm text-muted-foreground">{t("decks.import.hint")}</p>
+        <p className="text-sm text-muted-foreground">
+          {updating ? t("decks.import.updates", { deck: updates.title }) : t("decks.import.hint")}
+        </p>
         <div className="space-y-1">
           <label htmlFor={nameId} className="text-sm text-muted-foreground">
             {t("decks.import.name")}

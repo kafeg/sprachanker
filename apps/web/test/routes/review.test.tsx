@@ -30,7 +30,7 @@ const OFFERS = {
       withAudio: 0,
       mine: 1,
     },
-    // Taken whole: not offered.
+    // Taken whole.
     {
       scope: "deck:mein-deck-abc123",
       deck: "mein-deck-abc123",
@@ -67,8 +67,13 @@ test("Decks to take: an imported deck not taken whole, taken or deleted; a deck 
   await waitFor(() => expect(view.getByText("A1 words")).toBeTruthy());
   expect(view.getByText(/5 words · 1 yours already/)).toBeTruthy();
   expect(view.getByRole("button", { name: "Add the other 4" })).toBeTruthy();
-  expect(view.getAllByText("Mein Deck")).toHaveLength(1);
+  // Taken whole: no more to take, still there to delete.
+  expect(view.getAllByText("Mein Deck")).toHaveLength(2);
+  expect(view.getAllByRole("button", { name: /^(Take the deck|Add the other \d+)$/ })).toHaveLength(
+    1,
+  );
+  expect(view.getAllByRole("button", { name: "Delete deck" })).toHaveLength(2);
   expect(view.getByRole("button", { name: "Import a deck file (.apkg)" })).toBeTruthy();
-  fireEvent.click(view.getByRole("button", { name: "Delete deck" }));
+  fireEvent.click(view.getAllByRole("button", { name: "Delete deck" })[0] as HTMLElement);
   expect(view.getByText("Delete the deck A1 words?")).toBeTruthy();
 });

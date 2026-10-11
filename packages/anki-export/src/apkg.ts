@@ -5,9 +5,10 @@
 // runtime's, passed in: this package stays runtime-free.
 import { strFromU8, unzipSync } from "fflate";
 
-/** A database the runtime opened from bytes: rows of a query. */
+/** A database the runtime opened from bytes: rows of a query; closed once read. */
 export interface SqliteReader {
   all(sql: string): Array<Record<string, unknown>>;
+  close(): void;
 }
 
 export interface ApkgRuntime {
@@ -62,8 +63,15 @@ export function readApkg(bytes: Uint8Array, runtime: ApkgRuntime): Apkg {
     throw new ApkgError(`the collection does not open: ${String(error)}`);
   }
   const byName = mediaNames(files.media, runtime);
+  // Read whole at once: the database is let go before the package is used.
+  let read: ReturnType<typeof collection>;
+  try {
+    read = collection(db);
+  } finally {
+    db.close();
+  }
   return {
-    ...collection(db),
+    ...read,
     media(file) {
       const entry = byName.get(file);
       if (entry === undefined) return undefined;

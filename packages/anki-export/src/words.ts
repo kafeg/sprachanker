@@ -152,7 +152,7 @@ const POS: Array<[PartOfSpeech, string[]]> = [
 const posOf = (named: string | undefined) =>
   named ? POS.find(([, names]) => names.includes(named.trim().toLowerCase()))?.[0] : undefined;
 
-const ARTICLE = /^(der|die|das)\s+(.+)$/i;
+const ARTICLE = /^(der|die|das)\s+(.+)$/;
 /** A plural field that says the noun has only a plural, or none. */
 const PLURAL_ONLY = /^\(?(nur (im )?pl(ural|\.)?|plural only|only plural|pl\.?)\)?$/i;
 const NO_PLURAL = /^(-|–|—|\(?kein(e)? plural\)?|\(?nur (im )?singular\)?|no plural)$/i;
@@ -167,14 +167,18 @@ export function lexemeOf(
   // Parenthesised parts are no part of the lemma, as the courses read them: "(sich) freuen".
   const head = word.target.replace(/\s*\([^)]*\)\s*/g, " ").trim() || word.target;
   const article = lang === "de" ? ARTICLE.exec(head) : null;
+  // "der Kaffee, die Kaffees": the plural given after the noun.
+  const [noun = "", ...after] = (article?.[2] ?? "").split(",");
+  // Without a stated part of speech only one word after the article is a noun, as the courses read
+  // it: "die Zähne putzen" is a phrase.
+  const isNoun =
+    !!article && (stated === "noun" || (!word.pos && /^[^\s.!?]+$/u.test(noun.trim())));
   const pluralOnly = !!word.plural && PLURAL_ONLY.test(word.plural);
   let plural = word.plural && !pluralOnly && !NO_PLURAL.test(word.plural) ? word.plural : undefined;
   let lemma: string;
   let pos: PartOfSpeech;
   let gender: Gender | undefined;
-  if (article && (stated === "noun" || !word.pos)) {
-    // "der Kaffee, die Kaffees": the plural given after the noun.
-    const [noun = "", ...after] = (article[2] as string).split(",");
+  if (article && isNoun) {
     lemma = noun.trim();
     plural ??= after.join(",").trim() || undefined;
     pos = "noun";

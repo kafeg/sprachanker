@@ -890,7 +890,8 @@
       "lang": "Sprache der Wörter",
       "translationLang": "Sprache der Übersetzungen",
       "words": "{words, plural, one {# Wort} other {# Wörter}} · {audio, plural, =0 {ohne Audio} one {# mit Audio} other {# mit Audio}}",
-      "submit": "Importieren"
+      "submit": "Importieren",
+      "updates": "Diese Datei aktualisiert den Stapel {deck}: seine Wörter werden die der Datei, die Karten daraus folgen ihnen. Mit anderen Sprachen wird sie ein eigener Stapel."
     },
     "remove": "Stapel löschen",
     "removeTitle": "Stapel {deck} löschen?",

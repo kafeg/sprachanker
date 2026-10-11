@@ -18,7 +18,10 @@ export interface ApkgSpec {
 export const bunApkgRuntime: ApkgRuntime = {
   openSqlite(bytes) {
     const db = Database.deserialize(bytes, { readonly: true });
-    return { all: (sql) => db.query(sql).all() as Array<Record<string, unknown>> };
+    return {
+      all: (sql) => db.query(sql).all() as Array<Record<string, unknown>>,
+      close: () => db.close(),
+    };
   },
   zstd: (bytes) => new Uint8Array(Bun.zstdDecompressSync(bytes)),
 };

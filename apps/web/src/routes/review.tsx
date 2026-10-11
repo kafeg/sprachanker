@@ -172,7 +172,8 @@ function DeckOffers() {
       deck: undefined,
     })),
     ...(offers.data?.imported ?? []).map((o) => ({ ...o, take: { deck: o.deck } })),
-  ].filter((o) => o.mine < o.words);
+    // An imported deck stays listed while it is here, so it can be deleted.
+  ].filter((o) => o.mine < o.words || o.deck);
   const taking = actions.take.isPending ? actions.take.variables : undefined;
   const takingThis = (o: (typeof open)[number]) =>
     !!taking &&
@@ -194,13 +195,15 @@ function DeckOffers() {
                 {pairName(o.edition)} · {t("decks.words", { words: o.words, mine: o.mine })}
               </span>
             </span>
-            <Button
-              variant="outline"
-              loading={takingThis(o)}
-              onClick={() => actions.take.mutate(o.take)}
-            >
-              {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
-            </Button>
+            {o.mine < o.words && (
+              <Button
+                variant="outline"
+                loading={takingThis(o)}
+                onClick={() => actions.take.mutate(o.take)}
+              >
+                {o.mine ? t("decks.takeRest", { count: o.words - o.mine }) : t("decks.take")}
+              </Button>
+            )}
             {o.deck && (
               <Button
                 variant="outline"

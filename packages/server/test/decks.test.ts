@@ -37,10 +37,10 @@ async function withDecks() {
       },
       body,
     });
-  const importDeck = async (bytes = deck(), title = "Mein Deck") =>
+  const importDeck = async (bytes = deck(), title = "Mein Deck", translationLang = "ru") =>
     (
       await upload(
-        `/api/decks/import?${new URLSearchParams({ title, lang: "de", translationLang: "ru", file: "mein.apkg" })}`,
+        `/api/decks/import?${new URLSearchParams({ title, lang: "de", translationLang, file: "mein.apkg" })}`,
         bytes,
       )
     ).json() as Promise<{ id: string; words: number; withAudio: number; title: string }>;
@@ -60,6 +60,7 @@ test("a package previewed, imported as a deck with its audio; its media served f
       { target: "der Apfel", translation: "яблоко" },
       { target: "antworten", translation: "отвечать" },
     ],
+    updates: null,
   });
   const bad = await upload("/api/decks/preview", new Uint8Array([1, 2, 3]));
   expect([bad.status, ((await bad.json()) as { error: string }).error]).toEqual([
@@ -86,11 +87,39 @@ test("a package previewed, imported as a deck with its audio; its media served f
   expect(part.status).toBe(206);
   for (const path of ["deck.json", "media/..%2Fdeck.json", "media/none.mp3"])
     expect((await get(`/decks/${summary.id}/${path}`)).status).toBe(404);
-  // The same deck again (its notes here already) updates it in place.
+  // The same deck again (most of its notes here, the same languages) updates it in place, as its
+  // preview says.
+  expect(
+    ((await (await upload("/api/decks/preview", deck())).json()) as { updates: unknown }).updates,
+  ).toEqual({
+    id: summary.id,
+    title: "Mein Deck",
+    lang: "de",
+    translationLang: "ru",
+  });
   expect((await importDeck(deck(), "Mein Deck (neu)")).id).toBe(summary.id);
-  expect((await getJson("/api/decks")).decks.map((d: { title: string }) => d.title)).toEqual([
-    "Mein Deck (neu)",
-  ]);
+  const titles = async () =>
+    (await getJson("/api/decks")).decks.map((d: { title: string }) => d.title);
+  expect(await titles()).toEqual(["Mein Deck (neu)"]);
+  // Another deck sharing a note, or the same in other languages, is a deck of its own; a file that is
+  // no audio is not taken.
+  const other = buildApkg({
+    deck: "Andere",
+    fields: ["Wort", "Übersetzung"],
+    notes: [
+      { guid: "n1", fields: ["der Kaffee [sound:page.html]", "кофе"] },
+      { guid: "o2", fields: ["die Birne", "груша"] },
+      { guid: "o3", fields: ["der Tisch", "стол"] },
+    ],
+    media: { "page.html": SOUND },
+  });
+  expect(
+    ((await (await upload("/api/decks/preview", other)).json()) as { updates: unknown }).updates,
+  ).toBeNull();
+  const andere = await importDeck(other, "Andere");
+  expect(andere).toMatchObject({ words: 3, withAudio: 0 });
+  expect((await importDeck(deck(), "Mein Deck (en)", "en")).id).not.toBe(summary.id);
+  expect(await titles()).toEqual(["Andere", "Mein Deck (en)", "Mein Deck (neu)"]);
 });
 
 test("a deck taken as a course's: a word with a card keeps it, the deck studies it; left, its cards go or move", async () => {

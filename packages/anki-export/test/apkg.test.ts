@@ -139,6 +139,14 @@ test("lexemes as the courses make them: German nouns by their article, the deck'
   expect(lexeme({ target: "die Zähne putzen", pos: "Verb" }, "de")).toBe(
     "lex:de:die-zähne-putzen:phrase",
   );
+  // No part of speech stated: an article before more than one word, or a sentence, is no noun.
+  expect(lexeme({ target: "die Zähne putzen" }, "de")).toBe("lex:de:die-zähne-putzen:phrase");
+  expect(lexeme({ target: "Das ist mein Bruder." }, "de")).toBe(
+    "lex:de:das-ist-mein-bruder:phrase",
+  );
+  expect(lexeme({ target: "der Rock 'n' Roll", pos: "Nomen" }, "de")).toBe(
+    "lex:de:rock-n-roll:noun:m",
+  );
   expect(lexeme({ target: "to go" }, "en")).toBe("lex:en:go:verb");
   expect(lexemeOf({ target: "…" }, "de")).toBeUndefined();
 });

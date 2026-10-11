@@ -175,8 +175,9 @@ test("a deck file imported in Decks, taken, studied as a course's deck; left and
 
   // Offered beside the courses; taken, it is under German in the decks.
   const offer = page.getByRole("listitem").filter({ hasText: "E2E Wörter" });
-  await offer.getByRole("button", { name: /^(Take the deck|Add the other \d+)$/ }).click();
-  await expect(offer).toHaveCount(0);
+  const take = offer.getByRole("button", { name: /^(Take the deck|Add the other \d+)$/ });
+  await take.click();
+  await expect(take).toHaveCount(0);
   await page.getByRole("button", { name: "E2E Wörter", exact: true }).click();
   await expect(page).toHaveURL(/\/review$/);
   await expect(page.getByText("Studying: E2E Wörter")).toBeVisible();

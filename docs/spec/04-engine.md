@@ -162,11 +162,13 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   with translations in another, both chosen when importing. Each note is a word, its fields by name —
   word (Wort, Word, Front…), translation (Übersetzung, Translation, Back…), plural, part of speech
   (Wortart…) — else the first field the word and the second its translation; HTML as text, the first
-  `[sound:…]` its audio, kept with the deck. Its lexeme is made by the courses' rules (schema
-  `shapeHeadword`, `germanGender`: "der Abend" a masculine noun, a phrase a phrase whatever the deck
-  calls it, the deck's Verb or Adjektiv taken), so a word a course has links to its card. Decks are
-  the server's, every profile's to take (05, `decks/`); a file imported again — any of its notes here
-  already, by guid — updates that deck, and cards follow their words (relinking); a deck is deleted
+  `[sound:…]` its audio, kept with the deck (audio files only). Its lexeme is made by the courses' rules (schema
+  `shapeHeadword`, `germanGender`: "der Abend" a masculine noun — der/die/das before one word, or
+  before more when the deck says Nomen —, a phrase a phrase whatever the deck calls it, the deck's Verb
+  or Adjektiv taken; a note that makes no word is left out), so a word a course has links to its card. Decks are
+  the server's, every profile's to take (05, `decks/`); a file imported again — most of its notes those of a
+  deck here (by guid), and that deck mostly them, in the same languages: the preview says so — updates
+  that deck (another deck sharing a note, or the same in other languages, is one of its own), and cards follow their words (relinking); a deck is deleted
   only while no profile has cards made from it (they leave it first: nobody's progress goes
   unasked). Planned (phases after the import): audio read aloud by the server's engine for a deck's
   words without it, and examples by the AI for a whole deck (plan, item 1), kept beside the deck

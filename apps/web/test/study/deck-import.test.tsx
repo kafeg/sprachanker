@@ -11,6 +11,7 @@ const preview = {
     { target: "der Abend", translation: "evening" },
     { target: "antworten", translation: null },
   ],
+  updates: null,
 };
 const file = new File([new Uint8Array([1])], "words.apkg");
 const counts = { new: 0, learning: 0, review: 0 };
@@ -41,4 +42,15 @@ test("a deck without a name of its own is named after its file; German words by 
   );
   expect((view.getByLabelText("Name") as HTMLInputElement).value).toBe("words");
   expect(view.getByRole("combobox", { name: "Words in" }).textContent).toBe("German");
+});
+
+test("a file of a deck here: its name and languages kept, the sheet says it updates that deck", async () => {
+  const updates = { id: "a1-abc123" as never, title: "A1", lang: "de", translationLang: "ru" };
+  const view = await renderApp(
+    <DeckImportSheet file={file} preview={{ ...preview, updates }} onClose={() => {}} />,
+    { data: [[["decks"], { decks: [] }]] },
+  );
+  expect((view.getByLabelText("Name") as HTMLInputElement).value).toBe("A1");
+  expect(view.getByRole("combobox", { name: "Translations in" }).textContent).toBe("Russian");
+  expect(view.getByText(/^This file updates the deck A1 here/)).toBeTruthy();
 });
