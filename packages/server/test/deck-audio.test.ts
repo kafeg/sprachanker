@@ -12,7 +12,7 @@ const audio = (scope: string) => `/api/decks/audio?scope=${encodeURIComponent(sc
 async function settled(getJson: (path: string) => Promise<any>, scope: string) {
   for (let i = 0; i < 200; i++) {
     const state = await getJson(audio(scope));
-    if (state.job?.status !== "running") return state;
+    if (!["running", "stopping"].includes(state.job?.status)) return state;
     await Bun.sleep(5);
   }
   throw new Error("the job did not end");
@@ -125,8 +125,10 @@ test("a job stopped keeps what it read; started again it reads only the rest; on
   expect(running.job).toMatchObject({ status: "running", total: 3, done: 0 });
   expect(running.job.current).toBeString();
   // Stopped: the readings under way are kept, nothing more is read.
-  const stopped = await sendJson("DELETE", audio(scope), {});
-  expect(stopped.job.status).toBe("stopped");
+  const stopping = await sendJson("DELETE", audio(scope), {});
+  expect(stopping.job.status).toBe("stopping");
+  // Asked to start meanwhile: it is still stopping.
+  expect((await sendJson("POST", "/api/decks/audio", { scope })).job.status).toBe("stopping");
   g.release();
   await Bun.sleep(20);
   const after = await getJson(audio(scope));

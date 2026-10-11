@@ -32,7 +32,8 @@ const SAVE_EVERY = 20;
 const FAILURES_IN_A_ROW = 3;
 
 type Job = {
-  status: "running" | "done" | "stopped" | "failed";
+  /** Stopping: asked to stop, the words under way still being read (kept when they are). */
+  status: "running" | "stopping" | "done" | "stopped" | "failed";
   engine: DeckReader["engine"];
   voice: string;
   total: number;
@@ -48,6 +49,9 @@ type Job = {
 };
 
 type Word = { key: string; text: string; own: boolean };
+
+/** A job still reading (or finishing the words under way). */
+const going = (job: Job | undefined) => job?.status === "running" || job?.status === "stopping";
 
 export function createDeckAudio(deps: {
   files: Pick<DeckFiles, "extras" | "writeExtras" | "writeMedia">;
@@ -169,6 +173,7 @@ export function createDeckAudio(deps: {
       // Done once the cards show what was read.
       await deps.onRead().catch((error: unknown) => console.error("after reading aloud:", error));
       if (job.status === "running") job.status = "done";
+      else if (job.status === "stopping") job.status = "stopped";
     }
   }
 
@@ -201,7 +206,7 @@ export function createDeckAudio(deps: {
               total: job.total,
               done: job.done,
               failed: job.failed,
-              ...(job.current && job.status === "running" && { current: job.current }),
+              ...(job.current && { current: job.current }),
               ...(job.error && { error: job.error }),
             }
           : null,
@@ -211,7 +216,7 @@ export function createDeckAudio(deps: {
     /** Starts reading a deck's words without audio (once: a job running goes on). */
     async start(scope: string, readerOf: (lang: string) => DeckReader | undefined) {
       const { folder, lang, words } = await deckOf(scope);
-      if (jobs.get(folder)?.status === "running") return;
+      if (going(jobs.get(folder))) return;
       const reader = readerOf(lang);
       if (!reader) throw new ServiceError("speech_unavailable", 409);
       const todo = words.filter((w) => !w.own && !readingOf(folder, w.key, w.text));
@@ -232,7 +237,7 @@ export function createDeckAudio(deps: {
     async stop(scope: string) {
       const job = jobs.get((await deckOf(scope)).folder);
       if (job?.status !== "running") return;
-      job.status = "stopped";
+      job.status = "stopping";
       job.controller.abort();
     },
 
@@ -242,7 +247,7 @@ export function createDeckAudio(deps: {
       const job = jobs.get(folder);
       if (job) {
         job.dropped = true;
-        if (job.status === "running") job.status = "stopped";
+        if (going(job)) job.status = "stopped";
         job.controller.abort();
         jobs.delete(folder);
       }

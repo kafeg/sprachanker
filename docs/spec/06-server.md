@@ -93,7 +93,7 @@ JSON under `/api`, validated with zod and typed for the web client through Hono 
   it: `course:<key>` | `deck:<id>`): `GET /api/decks/audio?scope=` (the words' language, how many
   words, with audio of their own, read aloud, without; the engine and voice the profile's settings read
   them with — null when nothing here reads that language —; the deck's job, running or the latest:
-  status `running` | `done` | `stopped` | `failed`, words read of all it set out to read, failures, the
+  status `running` | `stopping` (the words under way still read) | `done` | `stopped` | `failed`, words read of all it set out to read, failures, the
   word being read, the latest failure's code), `POST /api/decks/audio` (`{scope}`: the job started —
   once; a job running goes on — and the state; 409 `speech_unavailable` when nothing reads the
   language), `DELETE /api/decks/audio?scope=` (the job stopped, what it read kept); 404

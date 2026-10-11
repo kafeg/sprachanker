@@ -202,7 +202,8 @@ imported `.apkg` decks fit in. Scheduling and the queue are pure functions in
   made them — with the engine, voice and text: a word whose text changed since (an import, a
   normalisation) is read again, one read is not. A job per deck at a time, the server's (one profile
   starts it, any sees it), its progress in memory (words read of all, the word being read, failures);
-  Piper reads two words at once (a process each), Qwen3-TTS one; stopped, what it read is kept, and
+  Piper reads two words at once (a process each), Qwen3-TTS one; stopped, the words under way are
+  finished and what it read is kept, and
   started again it reads only the rest; three words in a row the engine cannot read end it; an
   imported deck imported again or deleted stops it. When it ends, every open profile's cards follow
   (relinking): a card's display has its word's own audio, else the reading (`readAudio`, served from
