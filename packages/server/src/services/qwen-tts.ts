@@ -226,15 +226,22 @@ export function createQwenTts(deps: {
 
     /** A WAV of a text in a language, said with the profile's model by its speaker (else the default
      *  one). `mixed`: the text mixes languages, read whole with the model telling them apart
-     *  ("auto"), never cut into each language's pieces. */
-    async say(text: string, lang: string, choice: unknown, modelChoice?: unknown, mixed = false) {
+     *  ("auto"), never cut into each language's pieces. Kept in the readings' cache unless `keep` is
+     *  false (a deck's words: kept in the deck's folder instead). */
+    async say(
+      text: string,
+      lang: string,
+      choice: unknown,
+      modelChoice?: unknown,
+      { mixed = false, keep = true } = {},
+    ) {
       const model = inUse(modelChoice);
       if (!binary() || !model || !QWEN_LANGUAGES[lang])
         throw new ServiceError("speech_unavailable", 409);
       const language = mixed ? "auto" : (QWEN_LANGUAGES[lang] as string);
       const speaker = speakerOf(choice);
       const key = await sha256(`qwen\n${model.id}\n${speaker}\n${language}\n${text}`);
-      return kept(key, () =>
+      const read = () =>
         engine.use(model.id, async (url) => {
           const res = await deps
             .fetch(`${url}/v1/audio/speech`, {
@@ -252,8 +259,8 @@ export function createQwenTts(deps: {
             .catch(() => undefined);
           if (!res?.ok) throw new ServiceError("speech_engine_failed", 502);
           return new Uint8Array(await res.arrayBuffer());
-        }),
-      );
+        });
+      return keep ? kept(key, read) : read();
     },
   };
 }

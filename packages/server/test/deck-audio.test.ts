@@ -62,6 +62,8 @@ test("an imported deck's words without audio read by Piper into its folder; card
     ["der Apfel", 1],
     ["die Leute", 1],
   ]);
+  // Kept in the deck's folder alone: the readings' cache (the learner's other readings) is not used.
+  expect(p.said.map((s) => s.key)).toEqual(["", "", ""]);
   // Kept beside the deck: extras.json by note, each file in its media.
   const extras = JSON.parse(readFileSync(join(root, "decks", id, "extras.json"), "utf8"));
   expect(extras.format).toBe(1);
