@@ -10,6 +10,10 @@ import { StepDot } from "@/ui/step-dot.tsx";
 import { pageTitle } from "./reference.tsx";
 
 /** A step's title in the plan. */
+/** A lesson's words as its Words step makes cards of them: one per word (two entries of one word,
+ *  "sich trauen" and "sich (etwas) trauen", are one). Pure. */
+export const wordCount = (lesson: Lesson) => new Set(lesson.vocab.map((v) => v.lexeme)).size;
+
 export function stepTitle(
   step: LessonStep,
   lesson: Lesson,
@@ -30,7 +34,7 @@ export function stepTitle(
       return (page && pageTitle(page, t)) || t(`lesson.step.${step.kind}`);
     }
     case "words":
-      return t("lesson.step.wordsCount", { count: lesson.vocab.length });
+      return t("lesson.step.wordsCount", { count: wordCount(lesson) });
     default:
       return t(`lesson.step.${step.kind}`);
   }
