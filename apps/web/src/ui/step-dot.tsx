@@ -4,14 +4,19 @@ import { Check, SkipForward, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "./utils.ts";
 
-/** An exercise's mark in the plan and the summary: right (green ✓), with mistakes (red ✕), answered
- *  without a score (grey ✓), skipped (dashed ⏭), the current one (yellow ring), else its number. */
+/** An exercise with mistakes shown as partly right when some of its items were right at once. Pure. */
+export const withPartial = <S extends string | undefined>(state: S, correct = 0) =>
+  state === "wrong" && correct > 0 ? ("partial" as const) : state;
+
+/** An exercise's mark in the plan and the summary: right (green ✓), partly right (✓ in the
+ *  mistakes' colour, unfilled), with mistakes (red ✕), answered without a score (grey ✓), skipped
+ *  (dashed ⏭), the current one (yellow ring), else its number. */
 export function StepDot({
   state,
   label,
 }: {
   /** An exercise's state, a step besides exercises done ("read"), or the current exercise. */
-  state?: ExerciseState | "read" | "current";
+  state?: ExerciseState | "partial" | "read" | "current";
   label: React.ReactNode;
 }) {
   const { t } = useTranslation();
@@ -23,13 +28,14 @@ export function StepDot({
         "grid size-6 shrink-0 place-items-center rounded-full border-2 text-xs font-semibold",
         state === "correct" && "border-correct bg-correct text-white",
         state === "wrong" && "border-wrong bg-wrong text-white",
+        state === "partial" && "border-wrong bg-wrong-soft text-wrong",
         state === "done" && "border-muted-foreground/60 bg-muted text-muted-foreground",
         state === "skipped" && "border-dashed border-muted-foreground/60 text-muted-foreground",
         state === "read" && "border-correct text-correct",
         state === "current" && "border-primary",
       )}
     >
-      {state === "correct" || state === "done" || state === "read" ? (
+      {state === "correct" || state === "partial" || state === "done" || state === "read" ? (
         <Check className="size-3.5" />
       ) : state === "wrong" ? (
         <X className="size-3.5" />

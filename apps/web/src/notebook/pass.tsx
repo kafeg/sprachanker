@@ -31,7 +31,7 @@ import { ListRow, useSingleOpen } from "@/ui/history.tsx";
 import { ErrorState, Loading } from "@/ui/page.tsx";
 import { Panel } from "@/ui/panel.tsx";
 import { RichText } from "@/ui/rich-text.tsx";
-import { StepDot } from "@/ui/step-dot.tsx";
+import { StepDot, withPartial } from "@/ui/step-dot.tsx";
 import { TargetLang } from "@/ui/target-lang.ts";
 import { GenderWord } from "@/word/word.tsx";
 import { usePassMark } from "./mark.ts";
@@ -77,7 +77,7 @@ function Pass({ pass }: { pass: NotebookPass }) {
             return (
               <li key={key}>
                 <ListRow expanded={open.isOpen(key)} onClick={() => open.toggle(key)}>
-                  <StepDot state={state} label={pageIndex + 1} />
+                  <StepDot state={withPartial(state, first.correct)} label={pageIndex + 1} />
                   {/* Two lines before it is cut: on a phone the status takes its share. */}
                   <span className="line-clamp-2 min-w-0 flex-1">
                     {locale?.title || t("lesson.exerciseN", { n: pageIndex + 1 })}

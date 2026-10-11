@@ -115,7 +115,8 @@
       "wrong": "with mistakes",
       "done": "answered",
       "skipped": "skipped",
-      "read": "done"
+      "read": "done",
+      "partial": "partly right"
     },
     "correctAnswer": "Correct answer:",
     "answerAudio": "Hear the answer",

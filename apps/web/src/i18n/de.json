@@ -115,7 +115,8 @@
       "wrong": "mit Fehlern",
       "done": "beantwortet",
       "skipped": "übersprungen",
-      "read": "erledigt"
+      "read": "erledigt",
+      "partial": "teilweise richtig"
     },
     "correctAnswer": "Lösung:",
     "answerAudio": "Lösung anhören",
