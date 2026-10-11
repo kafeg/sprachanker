@@ -550,6 +550,26 @@
     "licence": "Leseni: MIT",
     "source": "Msimbo chanzo kwenye GitHub"
   },
+  "addresses": {
+    "title": "Vifaa vingine",
+    "onPhone": "Kwenye simu",
+    "intro": "Fungua SprachAnker kwenye simu, kompyuta kibao au kompyuta nyingine kwa mojawapo ya anwani hizi, kisha uchague hapo nani anasoma.",
+    "machine": "Kompyuta hii",
+    "network": "Mtandao wa ndani",
+    "tailnet": "Tailscale",
+    "onlyHere": "SprachAnker inapatikana kwenye kompyuta hii tu. Ili kuifungulia mtandao wako wa ndani, iwashe hivi:",
+    "notServed": "Tailscale inafanya kazi hapa, lakini bado haitoi SprachAnker kwenye anwani salama (https). Kwenye kompyuta hii, endesha:",
+    "noTailnet": "Tailscale haifanyi kazi kwenye kompyuta hii. Ukiwa nayo, simu zako hufungua SprachAnker kwenye anwani salama (https) kutoka popote, na maikrofoni inafanya kazi huko.",
+    "funnel": "Tailscale Funnel imewashwa kwa kompyuta hii: inaifungulia SprachAnker intaneti yote, na wasifu hauna nenosiri. Anwani hii inakataliwa hadi Funnel izimwe.",
+    "insecure": "Hakuna maikrofoni kwenye anwani hii: inafanya kazi kwenye anwani salama (https) tu.",
+    "insecureServed": "Hakuna maikrofoni kwenye anwani hii: inafanya kazi kwenye anwani salama (https) tu, kama anwani ya Tailscale.",
+    "copy": "Nakili anwani",
+    "copyCommand": "Nakili amri",
+    "copied": "Imenakiliwa",
+    "showQr": "Msimbo wa QR",
+    "qrOf": "Msimbo wa QR wa {url}",
+    "scan": "Uchanganue kwa kamera ya simu."
+  },
   "progress": {
     "resetCourse": "Futa maendeleo ya kozi",
     "removeCourse": "Ondoa kwenye kozi zangu",

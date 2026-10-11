@@ -26,12 +26,11 @@ Specs: 09, 10.
 ### 4. Phones (owner, 2026-10-08: functionality first, phones after)
 Specs: 06, 09.
 - Done, described in 06 ("Network and HTTPS", "Host check"): the server answers to its tailnet name
-  and to `serve --allow-host`; HTTPS through `tailscale serve`; the addresses as data
-  (`GET /api/addresses`; `useAddresses` in apps/web, not shown yet).
-- The addresses shown in the app (owner, 2026-10-09): this machine, the local network (when the
-  server listens beyond 127.0.0.1, `--host`), Tailscale — where to show them (Settings, or the foot
-  of the side panel beside the profile) by mockup options, the owner's choice; an address without a
-  secure context says that the microphone needs HTTPS there; a tailnet not served says how to serve it.
+  and to `serve --allow-host`; HTTPS through `tailscale serve`; the addresses (`GET /api/addresses`),
+  shown in Settings → General → Other devices and the sidebar's "On a phone" (09; owner's choice C):
+  each with Copy and a QR code, what one lacks said (no microphone without HTTPS, how to open the
+  server to the network, how to serve the tailnet, Funnel refused).
+- Remaining: trying it on the iPhones (below) — the QR codes scanned, the addresses opened.
 - The app on the owner's and his wife's iPhones: `tailscale serve` set up on the server's machine,
   installed as a PWA, signing in on a phone (device token).
 - Everything built so far checked on the iPhone: lessons, review, the Notebook, profiles, the AI;

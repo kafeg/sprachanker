@@ -1,6 +1,7 @@
 // The app's frame (09, "Layouts"): sidebar on desktop, bottom tab bar on phones, the cards due on the
-// Review entry, background downloads in the window title; an optional feature's section (the Tutor)
-// after the learning modules while it is there.
+// Review entry, background downloads in the window title, "On a phone" beside the profile (the
+// sidebar's: a phone has it in Settings); an optional feature's section (the Tutor) after the
+// learning modules while it is there.
 import { Link, type LinkProps, Outlet, useRouterState } from "@tanstack/react-router";
 import {
   BookOpen,
@@ -16,6 +17,7 @@ import { useDownloads, useDownloadsWatch } from "@/api/downloads.ts";
 import { cn } from "@/ui/utils.ts";
 import { useWindowBusy } from "@/ui/window-title.ts";
 import { AboutLine } from "./about.tsx";
+import { OnPhoneButton } from "./other-devices.tsx";
 import { ProfileChip } from "./profile-chip.tsx";
 
 /** The app's sections, in the sidebar and the tab bar (and the onboarding's tour); `short`: the
@@ -88,7 +90,10 @@ export function AppShell({ extra }: { extra?: ExtraSection }) {
           </Link>
         ))}
         <div className="mt-auto space-y-3 px-1">
-          <ProfileChip />
+          <div>
+            <ProfileChip />
+            <OnPhoneButton />
+          </div>
           <div className="px-2">
             <AboutLine />
           </div>

@@ -550,6 +550,26 @@
     "licence": "Licence: MIT",
     "source": "Source code on GitHub"
   },
+  "addresses": {
+    "title": "Other devices",
+    "onPhone": "On a phone",
+    "intro": "Open SprachAnker on a phone, a tablet or another computer at one of these addresses, then choose who is studying there.",
+    "machine": "This computer",
+    "network": "Local network",
+    "tailnet": "Tailscale",
+    "onlyHere": "SprachAnker listens only on this computer. To open it to your local network, start it like this:",
+    "notServed": "Tailscale runs here but does not serve SprachAnker at a secure address (https) yet. On this computer, run:",
+    "noTailnet": "Tailscale is not running on this computer. With it, your phones open SprachAnker at a secure address (https) from anywhere, and the microphone works there.",
+    "funnel": "Tailscale Funnel is on for this computer: it opens SprachAnker to the whole internet, and profiles have no passwords. This address is refused until Funnel is turned off.",
+    "insecure": "No microphone at this address: it works only at a secure one (https).",
+    "insecureServed": "No microphone at this address: it works only at a secure one (https), such as the Tailscale address.",
+    "copy": "Copy the address",
+    "copyCommand": "Copy the command",
+    "copied": "Copied",
+    "showQr": "QR code",
+    "qrOf": "QR code for {url}",
+    "scan": "Scan it with the phone's camera."
+  },
   "progress": {
     "resetCourse": "Reset course progress",
     "removeCourse": "Remove from my courses",
