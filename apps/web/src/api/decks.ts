@@ -82,7 +82,9 @@ export function useDeckAudioActions(scope: string) {
 export function useDeleteDeck() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => json(api.decks[":id"].$delete({ param: { id } })),
+    /** `leave`: the learner's own cards of the deck go first (it is left), then the deck. */
+    mutationFn: ({ id, leave }: { id: string; leave?: boolean }) =>
+      json(api.decks[":id"].$delete({ param: { id }, query: leave ? { leave: "1" } : {} })),
     onSuccess: () =>
       Promise.all([
         client.invalidateQueries({ queryKey: ["imported-decks"] }),

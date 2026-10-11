@@ -70,7 +70,7 @@ export function createDecks(deps: {
   /** The runtime's SQLite and zstd, which reading a package needs. */
   apkg: ApkgRuntime;
   /** Whether any profile has cards made from the deck. */
-  inUse(id: DeckId): boolean;
+  inUse(id: DeckId, except?: string): boolean;
   /** After an import: cards follow their words (relinking). */
   onImport?(): void;
   /** A deck's folder about to be written anew or removed: what writes into it stops. */
@@ -324,6 +324,9 @@ export function createDecks(deps: {
 
     /** Lets an uploaded package go unimported (the sheet closed). */
     discard: (upload: string) => files.unstage(upload),
+
+    /** Whether a profile — but `except` — has cards made from a deck. */
+    inUse: (id: DeckId, except?: string) => deps.inUse(id, except),
 
     /** Deletes a deck with its files; refused while a profile has its cards (they leave it first). */
     remove(id: DeckId) {

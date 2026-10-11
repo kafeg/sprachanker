@@ -898,7 +898,7 @@
     },
     "remove": "Stapel löschen",
     "removeTitle": "Stapel {deck} löschen?",
-    "removeBody": "Seine Wörter und sein Audio werden von diesem Computer gelöscht, für alle Profile. Ein Stapel, den jemand lernt, bleibt, bis er entfernt wird.",
+    "removeBody": "Der Stapel, seine Wörter und sein Audio werden für alle Profile von diesem Computer gelöscht. Das lässt sich nicht rückgängig machen.",
     "audio": {
       "missing": "{count, plural, one {# Wort ohne Audio} other {# Wörter ohne Audio}}",
       "generate": "Audio erzeugen",
@@ -907,7 +907,10 @@
       "all": "Alle Wörter haben Audio",
       "install": "Dafür installiere eine Stimme für {language} unter Einstellungen → Sprechen",
       "failed": "{count, plural, one {# Wort konnte nicht vorgelesen werden} other {# Wörter konnten nicht vorgelesen werden}}"
-    }
+    },
+    "removeElsewhere": "Ein anderes Profil lernt diesen Stapel. Löschen lässt er sich, wenn es ihn entfernt hat (Wiederholung → Stapel → Stapel entfernen…).",
+    "removeMine": "Du lernst diesen Stapel: Er wird zuerst bei dir entfernt — die Karten seiner Wörter und ihr Fortschritt gehen (Wörter, die ein anderer deiner Stapel hat, wandern dorthin). Dann werden der Stapel, seine Wörter und sein Audio von diesem Computer gelöscht. Das lässt sich nicht rückgängig machen.",
+    "leaveAndRemove": "Entfernen und löschen"
   },
   "guide": {
     "open": "So funktioniert's",

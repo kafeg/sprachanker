@@ -166,7 +166,14 @@ function DeckOffers() {
   const actions = useDeckActions();
   const remove = useDeleteDeck();
   const pairName = usePairName();
-  const [removing, setRemoving] = useState<{ id: string; title: string }>();
+  const [removing, setRemoving] = useState<{
+    id: string;
+    title: string;
+    /** The learner has cards of it: they are left first. */
+    mine: boolean;
+    /** Another profile studies it: it cannot be deleted now. */
+    elsewhere: boolean;
+  }>();
   const open = [
     ...(offers.data?.courses ?? []).map((o) => ({
       ...o,
@@ -210,7 +217,14 @@ function DeckOffers() {
               <Button
                 variant="outline"
                 aria-label={t("decks.remove")}
-                onClick={() => setRemoving({ id: o.deck, title: o.title })}
+                onClick={() =>
+                  setRemoving({
+                    id: o.deck,
+                    title: o.title,
+                    mine: o.mine > 0,
+                    elsewhere: "usedElsewhere" in o && !!o.usedElsewhere,
+                  })
+                }
               >
                 <Trash2 />
               </Button>
@@ -231,12 +245,25 @@ function DeckOffers() {
           }
         }}
         title={t("decks.removeTitle", { deck: removing?.title ?? "" })}
-        description={remove.isError ? errorText(t, remove.error) : t("decks.removeBody")}
-        confirm={t("decks.remove")}
-        cancel={t("common.cancel")}
+        description={
+          remove.isError
+            ? errorText(t, remove.error)
+            : removing?.elsewhere
+              ? t("decks.removeElsewhere")
+              : removing?.mine
+                ? t("decks.removeMine")
+                : t("decks.removeBody")
+        }
+        confirm={removing?.mine ? t("decks.leaveAndRemove") : t("decks.remove")}
+        cancel={removing?.elsewhere ? t("common.close") : t("common.cancel")}
         busy={remove.isPending}
+        hideConfirm={removing?.elsewhere}
         onConfirm={() =>
-          removing && remove.mutate(removing.id, { onSuccess: () => setRemoving(undefined) })
+          removing &&
+          remove.mutate(
+            { id: removing.id, leave: removing.mine },
+            { onSuccess: () => setRemoving(undefined) },
+          )
         }
       />
     </Panel>

@@ -898,7 +898,7 @@
     },
     "remove": "Delete deck",
     "removeTitle": "Delete the deck {deck}?",
-    "removeBody": "Its words and audio are removed from this computer, for every profile. A deck someone studies stays until they leave it.",
+    "removeBody": "The deck, its words and audio will be deleted from this computer for every profile. This cannot be undone.",
     "audio": {
       "missing": "{count, plural, one {# word without audio} other {# words without audio}}",
       "generate": "Generate audio",
@@ -907,7 +907,10 @@
       "all": "All words have audio",
       "install": "To make it, install a voice for {language} in Settings → Speech",
       "failed": "{count, plural, one {# word could not be read aloud} other {# words could not be read aloud}}"
-    }
+    },
+    "removeElsewhere": "Another profile studies this deck. It can be deleted once they leave it (Review → Decks → Leave deck…).",
+    "removeMine": "You study this deck: it is left first — its words' cards and their progress go (words another of your decks has move there). Then the deck, its words and audio are deleted from this computer. This cannot be undone.",
+    "leaveAndRemove": "Leave and delete"
   },
   "guide": {
     "open": "How it works",

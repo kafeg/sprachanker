@@ -1,5 +1,5 @@
 // A confirmation for an action that cannot be undone (resetting progress): what will happen, Cancel,
-// and the action. Built on Radix AlertDialog, so focus starts on Cancel and Escape cancels.
+// and the action (none while it cannot be done: `hideConfirm`, the reason said instead). Built on Radix AlertDialog, so focus starts on Cancel and Escape cancels.
 import { AlertDialog } from "radix-ui";
 import { Button } from "@/ui/components/button.tsx";
 
@@ -11,6 +11,7 @@ export function ConfirmDialog({
   confirm,
   cancel,
   busy,
+  hideConfirm,
   onConfirm,
 }: {
   open: boolean;
@@ -21,6 +22,7 @@ export function ConfirmDialog({
   confirm: string;
   cancel: string;
   busy?: boolean;
+  hideConfirm?: boolean;
   onConfirm(): void;
 }) {
   return (
@@ -38,17 +40,19 @@ export function ConfirmDialog({
                 {cancel}
               </Button>
             </AlertDialog.Cancel>
-            <Button
-              variant="destructive"
-              size="lg"
-              loading={busy}
-              onClick={(e) => {
-                e.preventDefault();
-                onConfirm();
-              }}
-            >
-              {confirm}
-            </Button>
+            {!hideConfirm && (
+              <Button
+                variant="destructive"
+                size="lg"
+                loading={busy}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onConfirm();
+                }}
+              >
+                {confirm}
+              </Button>
+            )}
           </div>
         </AlertDialog.Content>
       </AlertDialog.Portal>

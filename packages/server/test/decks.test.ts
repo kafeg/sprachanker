@@ -340,6 +340,20 @@ test("a deck taken as a course's: a word with a card keeps it, the deck studies 
   );
 });
 
+test("a deck only this profile studies: offered as its own, left and deleted in one go (leave=1)", async () => {
+  const { importDeck, getJson, send, sendJson } = await withDecks();
+  const { id } = await importDeck();
+  await sendJson("POST", "/api/cards/decks/take", { deck: id });
+  const offer = (await getJson("/api/cards/decks/offers")).imported.find(
+    (o: { deck: string }) => o.deck === id,
+  );
+  expect([offer.mine > 0, offer.usedElsewhere]).toEqual([true, false]);
+  expect((await send("DELETE", `/api/decks/${id}`, {})).status).toBe(409);
+  expect((await send("DELETE", `/api/decks/${id}?leave=1`, {})).status).toBe(200);
+  expect((await getJson("/api/decks")).decks).toEqual([]);
+  expect((await getJson("/api/cards/decks")).decks).toEqual([]);
+});
+
 test("media named apart whatever their case, kept inside the deck's folder whatever their name", async () => {
   const { importDeck, get, wordsOf, root } = await withDecks();
   const sound = (n: number) => new Uint8Array([0x49, 0x44, 0x33, n]);
